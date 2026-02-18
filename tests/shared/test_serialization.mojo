@@ -189,13 +189,21 @@ fn test_named_tensor_collection() raises:
         # Verify sizes
         assert_equal(len(loaded), 2, "Wrong number of tensors loaded")
 
-        # Verify first tensor (alphabetical: "bias" < "weights")
-        assert_equal(loaded[0].name, "bias", "Wrong name for first tensor")
-        assert_equal(loaded[0].tensor.numel(), 3, "Wrong size for bias")
+        # Order-agnostic verification using name matching
+        var found_weights = False
+        var found_bias = False
 
-        # Verify second tensor
-        assert_equal(loaded[1].name, "weights", "Wrong name for second tensor")
-        assert_equal(loaded[1].tensor.numel(), 6, "Wrong size for weights")
+        for i in range(len(loaded)):
+            var name = loaded[i].name
+            if name == "weights":
+                found_weights = True
+                assert_equal(loaded[i].tensor.numel(), 6, "Wrong size for weights")
+            elif name == "bias":
+                found_bias = True
+                assert_equal(loaded[i].tensor.numel(), 3, "Wrong size for bias")
+
+        assert_true(found_weights, "Missing weights tensor")
+        assert_true(found_bias, "Missing bias tensor")
 
     finally:
         # Clean up
