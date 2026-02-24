@@ -8,7 +8,7 @@ pytest-timeout==2.4.0
 pytest-xdist==3.8.0
 
 # Code quality
-ruff==0.15.0
+ruff==0.15.2
 
 # Type checking
 mypy==1.19.1
