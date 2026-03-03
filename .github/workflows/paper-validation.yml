@@ -145,7 +145,7 @@ jobs:
 
       - name: Upload validation results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: structure-validation
           path: validation-results/
@@ -329,7 +329,7 @@ jobs:
           echo "Reproducibility validation completed" > validation-results/reproducibility.txt
 
       - name: Upload reproducibility results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: reproducibility-validation
           path: validation-results/
@@ -391,7 +391,7 @@ jobs:
           cat paper-report.md
 
       - name: Upload validation report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: paper-validation-report
           path: paper-report.md

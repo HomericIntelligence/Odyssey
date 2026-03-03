@@ -67,7 +67,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
 
       - name: Download dependency scan results
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: dependency-scan-results
           path: security-results/
@@ -137,7 +137,7 @@ jobs:
           cat security-report.md
 
       - name: Upload security report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: security-report
           path: security-report.md

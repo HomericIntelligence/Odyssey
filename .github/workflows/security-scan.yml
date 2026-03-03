@@ -73,7 +73,7 @@ jobs:
 
       - name: Upload scan results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: dependency-scan-results
           path: |
@@ -147,7 +147,7 @@ jobs:
         continue-on-error: true
 
       - name: Download dependency scan results
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: dependency-scan-results
           path: security-results/
@@ -219,7 +219,7 @@ jobs:
           cat security-report.md
 
       - name: Upload security report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: security-report
           path: security-report.md
