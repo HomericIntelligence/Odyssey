@@ -130,7 +130,7 @@ jobs:
 
       - name: Upload compilation results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: mojo-compilation-results
           path: compilation-results/
@@ -358,7 +358,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: test-results-${{ matrix.test-group.name }}
           path: test-results/
@@ -391,7 +391,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: test-results-Configs
           path: test-results/
@@ -428,7 +428,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: test-results-Benchmarks
           path: test-results/
@@ -461,7 +461,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: test-results-Core-Layers
           path: test-results/
@@ -538,7 +538,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: test-results-Python-Tests
           path: test-results/
@@ -619,7 +619,7 @@ jobs:
           cat quality-reports/complexity.md
 
       - name: Upload quality reports
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: code-quality-reports
           path: quality-reports/
@@ -673,7 +673,7 @@ jobs:
           cat simd-reports/analysis.md
 
       - name: Upload SIMD analysis
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: simd-analysis
           path: simd-reports/
@@ -693,7 +693,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
 
       - name: Download all test results
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: all-results/
           pattern: "test-results-*"  # Only download test result artifacts, not build artifacts
@@ -793,7 +793,7 @@ jobs:
           cat test-report.md
 
       - name: Upload combined report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: comprehensive-test-report
           path: test-report.md

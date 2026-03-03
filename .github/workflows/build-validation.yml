@@ -89,7 +89,7 @@ jobs:
           echo "Commit: ${{ github.sha }}" >> build/ci/build-manifest.txt
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: mojo-build-artifacts
           path: build/ci/
@@ -153,7 +153,7 @@ jobs:
           fi
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: python-build-artifacts
           path: dist/
@@ -213,7 +213,7 @@ jobs:
           fi
 
       - name: Upload docs artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: docs-build-artifacts
           path: site/
@@ -232,7 +232,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: all-artifacts/
 
@@ -316,7 +316,7 @@ jobs:
           cat build-report.md
 
       - name: Upload build report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: build-validation-report
           path: build-report.md

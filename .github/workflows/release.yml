@@ -207,7 +207,7 @@ jobs:
           cat dist/BUILD_MANIFEST.txt
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: release-artifacts
           path: dist/
@@ -242,7 +242,7 @@ jobs:
           pip install pytest pytest-cov pytest-timeout
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: release-artifacts
           path: dist/
@@ -319,7 +319,7 @@ jobs:
           fetch-depth: 0  # Full history for changelog
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: release-artifacts
           path: dist/
