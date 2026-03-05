@@ -141,7 +141,6 @@ tests/
 │       ├── layer_testers.mojo            # Reusable test patterns
 │       └── gradient_checker.mojo         # Numerical gradient utils
 └── helpers/
-    ├── gradient_checking.mojo            # Gradient utilities
     └── fixtures.mojo                     # Test fixtures
 ```
 
@@ -323,7 +322,6 @@ just test-mojo
 
 - `tests/models/test_*_layers.mojo`: Tier 1 layerwise tests
 - `tests/models/test_*_e2e.mojo`: Tier 2 E2E tests
-- `tests/helpers/gradient_checking.mojo`: Numerical gradient utilities
 - `.github/workflows/comprehensive-tests.yml`: PR CI workflow
 - `.github/workflows/model-e2e-tests-weekly.yml`: Weekly E2E workflow
 
