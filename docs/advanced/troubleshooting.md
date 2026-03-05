@@ -1008,11 +1008,7 @@ For issues requiring immediate attention:
 ## Quick Reference Links
 
 - Installation: `/docs/getting-started/installation.md`
-- Mojo Patterns: `/docs/core/mojo-patterns.md`
 - Build Instructions: `/docs/dev/build.md`
-- Testing Strategy: `/docs/core/testing-strategy.md`
-- CI/CD Details: `/docs/dev/ci-cd.md`
-- API Reference: `/docs/dev/api-reference.md`
 
 ---
 

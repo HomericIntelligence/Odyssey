@@ -1,3 +1,0 @@
-# Configuration.Md
-
-Content here.
