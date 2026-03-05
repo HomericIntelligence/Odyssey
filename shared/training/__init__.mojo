@@ -402,12 +402,12 @@ struct TrainingLoop[
 
         Note:
             data_loader remains PythonObject until Track 4 implements
-            Mojo data loading infrastructure.
+            Mojo data loading infrastructure. Tracked in #3076 (parent: #3059).
         """
         var total_loss = Float64(0.0)
         var num_batches = Int(0)
 
-        # NOTE(#3092): Batch iteration blocked by Track 4 (Python↔Mojo interop).
+        # NOTE: Batch iteration blocked by Track 4 (Python↔Mojo interop) - see #3076 (parent: #3059).
         # The data_loader is currently a PythonObject, but step() requires ExTensor.
         # Once Track 4 data loading infrastructure is ready, integrate batching here.
         # Track resolution via #3076. Implement when Python↔Mojo interop is available.
