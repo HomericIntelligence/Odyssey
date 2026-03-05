@@ -324,20 +324,14 @@ from shared.core.conv import (
     conv2d_no_bias,
     conv2d_backward,
     conv2d_no_bias_backward,
-    Conv2dBackwardResult,
-    Conv2dNoBiasBackwardResult,
     depthwise_conv2d,
     depthwise_conv2d_no_bias,
     depthwise_conv2d_backward,
     depthwise_conv2d_no_bias_backward,
-    DepthwiseConv2dBackwardResult,
-    DepthwiseConv2dNoBiasBackwardResult,
     depthwise_separable_conv2d,
     depthwise_separable_conv2d_no_bias,
     depthwise_separable_conv2d_backward,
     depthwise_separable_conv2d_no_bias_backward,
-    DepthwiseSeparableConv2dBackwardResult,
-    DepthwiseSeparableConv2dNoBiasBackwardResult,
 )
 
 from shared.core.pooling import (

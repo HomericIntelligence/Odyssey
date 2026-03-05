@@ -11,7 +11,7 @@ Key components:
 
 from shared.core.extensor import ExTensor, zeros, randn, zeros_like
 from shared.core.initializers import kaiming_uniform
-from shared.core.conv import conv2d, conv2d_backward, Conv2dBackwardResult
+from shared.core.conv import conv2d, conv2d_backward
 
 
 struct Conv2dLayer(Copyable, Movable):
@@ -171,7 +171,7 @@ struct Conv2dLayer(Copyable, Movable):
             grad_output, input, self.weight, self.stride, self.padding
         )
         # Return the result struct fields directly
-        # The Conv2dBackwardResult struct is only movable, so we return its fields
+        # GradientTriple is only movable, so we return its fields
         return (result.grad_input, result.grad_weights, result.grad_bias)
 
     fn parameters(self) raises -> List[ExTensor]:

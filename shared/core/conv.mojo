@@ -22,27 +22,6 @@ from shared.core.parallel_utils import should_parallelize
 # max is now a builtin in Mojo - no import needed
 
 
-# Backward compatibility aliases using generic gradient containers
-# DEPRECATED: Use GradientTriple directly instead of Conv2dBackwardResult
-# These aliases are maintained for backward compatibility during type consolidation.
-# See ADR-002 for the gradient struct return types design decision.
-comptime Conv2dBackwardResult = GradientTriple
-
-# DEPRECATED: Use GradientPair directly instead of Conv2dNoBiasBackwardResult
-comptime Conv2dNoBiasBackwardResult = GradientPair
-
-# DEPRECATED: Use GradientTriple directly instead of DepthwiseConv2dBackwardResult
-comptime DepthwiseConv2dBackwardResult = GradientTriple
-
-# DEPRECATED: Use GradientPair directly instead of DepthwiseConv2dNoBiasBackwardResult
-comptime DepthwiseConv2dNoBiasBackwardResult = GradientPair
-
-# DEPRECATED: Use GradientQuad directly instead of DepthwiseSeparableConv2dBackwardResult
-comptime DepthwiseSeparableConv2dBackwardResult = GradientQuad
-
-# DEPRECATED: Use GradientTriple directly instead of DepthwiseSeparableConv2dNoBiasBackwardResult
-comptime DepthwiseSeparableConv2dNoBiasBackwardResult = GradientTriple
-
 
 fn _conv2d_kernel[
     dtype: DType
@@ -549,7 +528,7 @@ fn _conv2d_backward_kernel[
     out_width: Int,
     kH: Int,
     kW: Int,
-) raises -> Conv2dBackwardResult:
+) raises -> GradientTriple:
     """Dtype-generic conv2d backward kernel - handles gradient accumulation in correct precision.
     """
     # Get shapes for gradient tensors
@@ -721,7 +700,7 @@ fn _conv2d_backward_kernel[
 
         grad_bias._data.bitcast[Scalar[dtype]]()[oc] = bias_grad_sum
 
-    return Conv2dBackwardResult(grad_input^, grad_kernel^, grad_bias^)
+    return GradientTriple(grad_input^, grad_kernel^, grad_bias^)
 
 
 fn conv2d_backward(
@@ -730,7 +709,7 @@ fn conv2d_backward(
     kernel: ExTensor,
     stride: Int = 1,
     padding: Int = 0,
-) raises -> Conv2dBackwardResult:
+) raises -> GradientTriple:
     """Backward pass for 2D convolution.
 
         Computes gradients with respect to input, kernel, and bias.
@@ -750,7 +729,7 @@ fn conv2d_backward(
             padding: Padding used in forward pass.
 
     Returns:
-            Conv2dBackwardResult containing:
+            GradientTriple containing:
                 - grad_input: Gradient w.r.t. input, shape (batch, in_channels, in_H, in_W).
                 - grad_kernel: Gradient w.r.t. kernel, shape (out_channels, in_channels, kH, kW).
                 - grad_bias: Gradient w.r.t. bias, shape (out_channels,).
@@ -856,7 +835,7 @@ fn conv2d_no_bias_backward(
     kernel: ExTensor,
     stride: Int = 1,
     padding: Int = 0,
-) raises -> Conv2dNoBiasBackwardResult:
+) raises -> GradientPair:
     """Backward pass for 2D convolution without bias.
 
     Args:
@@ -867,7 +846,7 @@ fn conv2d_no_bias_backward(
             padding: Padding used in forward pass.
 
     Returns:
-            Conv2dNoBiasBackwardResult containing grad_input and grad_kernel.
+            GradientPair containing grad_input and grad_kernel.
 
     Raises:
             Error: If tensor shapes are incompatible.
@@ -876,7 +855,7 @@ fn conv2d_no_bias_backward(
     # Copy needed fields before result is destroyed (ExTensor is ImplicitlyCopyable)
     var grad_input_copy = result.grad_input
     var grad_kernel_copy = result.grad_weights
-    return Conv2dNoBiasBackwardResult(grad_input_copy^, grad_kernel_copy^)
+    return GradientPair(grad_input_copy^, grad_kernel_copy^)
 
 
 fn depthwise_conv2d(
@@ -1060,7 +1039,7 @@ fn depthwise_conv2d_backward(
     kernel: ExTensor,
     stride: Int = 1,
     padding: Int = 0,
-) raises -> DepthwiseConv2dBackwardResult:
+) raises -> GradientTriple:
     """Backward pass for depthwise 2D convolution.
 
         Computes gradients with respect to input, kernel, and bias.
@@ -1073,7 +1052,7 @@ fn depthwise_conv2d_backward(
             padding: Padding used in forward pass.
 
     Returns:
-            DepthwiseConv2dBackwardResult containing:
+            GradientTriple containing:
                 - grad_input: Gradient w.r.t. input, shape (batch, channels, in_H, in_W).
                 - grad_kernel: Gradient w.r.t. kernel, shape (channels, 1, kH, kW).
                 - grad_bias: Gradient w.r.t. bias, shape (channels,).
@@ -1230,7 +1209,7 @@ fn depthwise_conv2d_backward(
 
         grad_bias._data.bitcast[Float32]()[c] = bias_grad_sum
 
-    return DepthwiseConv2dBackwardResult(grad_input^, grad_kernel^, grad_bias^)
+    return GradientTriple(grad_input^, grad_kernel^, grad_bias^)
 
 
 fn depthwise_conv2d_no_bias_backward(
@@ -1239,7 +1218,7 @@ fn depthwise_conv2d_no_bias_backward(
     kernel: ExTensor,
     stride: Int = 1,
     padding: Int = 0,
-) raises -> DepthwiseConv2dNoBiasBackwardResult:
+) raises -> GradientPair:
     """Backward pass for depthwise 2D convolution without bias.
 
     Args:
@@ -1250,7 +1229,7 @@ fn depthwise_conv2d_no_bias_backward(
             padding: Padding used in forward pass.
 
     Returns:
-            DepthwiseConv2dNoBiasBackwardResult containing grad_input and grad_kernel.
+            GradientPair containing grad_input and grad_kernel.
 
     Raises:
             Error: If tensor shapes are incompatible.
@@ -1261,7 +1240,7 @@ fn depthwise_conv2d_no_bias_backward(
     # Copy needed fields before result is destroyed (ExTensor is ImplicitlyCopyable)
     var grad_input_copy = result.grad_input
     var grad_kernel_copy = result.grad_weights
-    return DepthwiseConv2dNoBiasBackwardResult(
+    return GradientPair(
         grad_input_copy^, grad_kernel_copy^
     )
 
@@ -1381,7 +1360,7 @@ fn depthwise_separable_conv2d_backward(
     pointwise_kernel: ExTensor,
     stride: Int = 1,
     padding: Int = 0,
-) raises -> DepthwiseSeparableConv2dBackwardResult:
+) raises -> GradientQuad:
     """Backward pass for depthwise separable 2D convolution.
 
         Computes gradients with respect to input and both kernels.
@@ -1395,7 +1374,7 @@ fn depthwise_separable_conv2d_backward(
             padding: Padding used in forward pass.
 
     Returns:
-            DepthwiseSeparableConv2dBackwardResult containing:
+            GradientQuad containing:
                 - grad_input: Gradient w.r.t. input.
                 - grad_depthwise_kernel: Gradient w.r.t. depthwise kernel.
                 - grad_pointwise_kernel: Gradient w.r.t. pointwise kernel.
@@ -1427,7 +1406,7 @@ fn depthwise_separable_conv2d_backward(
     var grad_input = depthwise_result.grad_a
     var grad_depthwise_kernel = depthwise_result.grad_b
 
-    return DepthwiseSeparableConv2dBackwardResult(
+    return GradientQuad(
         grad_input^, grad_depthwise_kernel^, grad_pointwise_kernel^, grad_bias^
     )
 
@@ -1439,7 +1418,7 @@ fn depthwise_separable_conv2d_no_bias_backward(
     pointwise_kernel: ExTensor,
     stride: Int = 1,
     padding: Int = 0,
-) raises -> DepthwiseSeparableConv2dNoBiasBackwardResult:
+) raises -> GradientTriple:
     """Backward pass for depthwise separable 2D convolution without bias.
 
     Args:
@@ -1451,7 +1430,7 @@ fn depthwise_separable_conv2d_no_bias_backward(
             padding: Padding used in forward pass.
 
     Returns:
-            DepthwiseSeparableConv2dNoBiasBackwardResult containing gradients.
+            GradientTriple containing gradients.
 
     Raises:
         Error: If operation fails.
@@ -1477,7 +1456,7 @@ fn depthwise_separable_conv2d_no_bias_backward(
     var grad_input = depthwise_result.grad_a
     var grad_depthwise_kernel = depthwise_result.grad_b
 
-    return DepthwiseSeparableConv2dNoBiasBackwardResult(
+    return GradientTriple(
         grad_input^,
         grad_depthwise_kernel^,
         grad_pointwise_kernel^,
