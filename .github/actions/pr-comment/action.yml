@@ -1,0 +1,60 @@
+name: Post or Update PR Comment
+description: Post a report file as a PR comment, updating an existing comment if one exists with the same marker.
+
+inputs:
+  report-file:
+    description: Path to the markdown report file to post as a comment
+    required: true
+  comment-marker:
+    description: Unique string in the comment body used to find an existing bot comment for update
+    required: true
+  github-token:
+    description: GitHub token (defaults to github.token)
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - name: Post or update PR comment
+      uses: actions/github-script@v8
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const fs = require('fs');
+
+          try {
+            const report = fs.readFileSync('${{ inputs.report-file }}', 'utf8');
+            const marker = '${{ inputs.comment-marker }}';
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes(marker)
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: report
+              });
+              console.log('Updated existing PR comment');
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: report
+              });
+              console.log('Created new PR comment');
+            }
+          } catch (error) {
+            console.error('Failed to comment on PR:', error);
+          }
