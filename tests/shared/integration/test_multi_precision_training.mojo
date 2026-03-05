@@ -112,11 +112,9 @@ fn test_bf16_training_loss_decreases() raises:
     assert_true(config.use_gradient_scaler, "BF16 should use gradient scaler")
     assert_true(config.needs_master_weights(), "BF16 needs master weights")
 
-    # BF16 currently aliases to FP16 in Mojo
-    # When native BF16 is available, this test should use bfloat16_dtype
     assert_true(
         config.compute_dtype == bfloat16_dtype,
-        "Compute dtype should be bfloat16 (or alias)",
+        "Compute dtype should be bfloat16",
     )
 
 
