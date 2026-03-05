@@ -105,7 +105,3 @@ class Colors:
         Colors.ENDC = ""
         Colors.BOLD = ""
         Colors.UNDERLINE = ""
-
-
-# NOTE: get_plan_dir() removed - planning now done through GitHub issues
-# See .claude/shared/github-issue-workflow.md for the new workflow

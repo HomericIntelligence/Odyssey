@@ -93,7 +93,7 @@ fn python_dict_to_config(
             # Recursively process nested dict
             var nested_config = python_dict_to_config(val_obj, full_key)
             # Merge nested config into current config by copying all keys
-            # Note: Config doesn't have a keys() method, so we use merge_configs
+            # NOTE: Config doesn't have a keys() method, so we use merge_configs
             config = merge_configs(config, nested_config)
 
         elif val_type == "int":
@@ -112,7 +112,7 @@ fn python_dict_to_config(
             var bool_val = Bool(val_obj)
             config.set(full_key, bool_val)
 
-        # Note: List handling could be added here if needed
+        # NOTE: List handling could be added here if needed
 
     return config
 

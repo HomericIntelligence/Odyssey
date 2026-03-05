@@ -314,9 +314,9 @@ struct DataBatch(Copyable, Movable):
 struct DataLoader(Copyable, Movable):
     """Simple data loader for batching.
 
-    Provides iteration over dataset in batches
-    NOTE: This is a minimal implementation for testing
-    Production code should use proper data loading infrastructure
+    Provides iteration over dataset in batches.
+    This is a minimal implementation for testing.
+    Production code should use proper data loading infrastructure.
     """
 
     var data: ExTensor
