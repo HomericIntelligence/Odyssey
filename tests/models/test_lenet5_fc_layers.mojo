@@ -9,6 +9,15 @@ Tests:
 - FC1 (400→120): forward float32, forward float16, backward float32
 - FC2 (120→84): forward float32, forward float16, backward float32
 - FC3 (84→10): forward float32, forward float16, backward float32
+
+Float16 Precision Limitations
+==============================
+FC3 (84→10) accumulates 84 multiplications per output element. Float16's
+~3.3 decimal digit precision (~11-bit mantissa) can cause rounding errors at
+this accumulation depth, particularly with inputs near the boundary of
+representable values. The test runs but results may have reduced accuracy
+compared to Float32. This is an expected limitation of Float16 arithmetic
+(not a bug). See issue #3009 for detailed analysis.
 """
 
 from shared.core.extensor import ExTensor

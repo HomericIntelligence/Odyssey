@@ -7,6 +7,21 @@ Usage:
     mojo test tests/shared/core/test_gradient_checking.mojo
 
 Expected: All tests should pass (gradients match within tolerance)
+
+Float16 Precision Limitations
+==============================
+Conv2D gradient checking in native Float16 is numerically unstable due to
+accumulation precision limitations. Float16's ~3.3 decimal digit precision
+is insufficient for the finite-difference approximation used in gradient
+checking (epsilon=1e-5 perturbations require at least 5 digits of precision
+to distinguish signal from rounding noise).
+
+The test_conv2d_gradient_fp16 test uses Float32 compute (FP32 storage with
+FP32 math) to verify gradient correctness, reflecting how mixed-precision
+training actually works: conv operations compute in FP32 for numerical
+stability while activations/weights may be stored in Float16 for memory
+efficiency. This is an expected limitation of Float16 arithmetic (not a bug).
+See issue #3009 for detailed analysis.
 """
 
 from tests.shared.conftest import assert_true, assert_equal_int
