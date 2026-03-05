@@ -53,19 +53,19 @@ repos:
       - id: ruff-format-python
         name: Ruff Format Python
         description: Format Python files in scripts/, examples/, tests/, tools/ and all subdirectories using pixi run ruff format
-        entry: pixi run ruff format scripts/ examples/ tests/ tools/
+        entry: pixi run ruff format
         language: system
         files: ^(scripts|examples|tests|tools)/.*\.py$
         types: [python]
-        pass_filenames: false
+        pass_filenames: true
       - id: ruff-check-python
         name: Ruff Check Python
         description: Lint Python files in scripts/, examples/, tests/, tools/ and all subdirectories using pixi run ruff check
-        entry: pixi run ruff check --fix scripts/ examples/ tests/ tools/
+        entry: pixi run ruff check --fix
         language: system
         files: ^(scripts|examples|tests|tools)/.*\.py$
         types: [python]
-        pass_filenames: false
+        pass_filenames: true
 
   # Test coverage validation
   - repo: local
