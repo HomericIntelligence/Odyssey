@@ -32,6 +32,15 @@ repos:
         files: \.py$
         types: [python]
 
+  # Python type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        files: ^scripts/.*\.py$
+        args: [--ignore-missing-imports, --no-strict-optional, --explicit-package-bases, --python-version, "3.10"]
+        additional_dependencies: [types-PyYAML]
+
   # Python formatting and linting
   - repo: local
     hooks:
