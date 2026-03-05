@@ -51,7 +51,8 @@ fn simple_loss(pred: ExTensor, labels: ExTensor) raises -> ExTensor:
 
 
 fn create_val_loader(n_batches: Int = 3) raises -> DataLoader:
-    """Create a DataLoader with n_batches * 4 samples, batch_size=4, feature_dim=10."""
+    """Create a DataLoader with n_batches * 4 samples, batch_size=4, feature_dim=10.
+    """
     var n_samples = n_batches * 4
     var data = ones([n_samples, 10], DType.float32)
     var labels = zeros([n_samples, 1], DType.float32)
@@ -99,7 +100,8 @@ fn test_validation_step_returns_float() raises:
 
 
 fn test_validation_step_no_grad() raises:
-    """Test validation_step completes without error (forward-only, no backward)."""
+    """Test validation_step completes without error (forward-only, no backward).
+    """
     var data = randn([4, 10], DType.float32, seed=42)
     var labels = zeros([4, 1], DType.float32)
     var loss = validation_step(simple_forward, simple_loss, data, labels)
@@ -160,7 +162,8 @@ fn test_validation_loop_run_updates_metrics() raises:
 
 
 fn test_validation_loop_run_subset_limited() raises:
-    """Test run_subset(max_batches=2) with 5-batch loader processes only 2 batches."""
+    """Test run_subset(max_batches=2) with 5-batch loader processes only 2 batches.
+    """
     var vloop = ValidationLoop()
     var loader = create_val_loader(n_batches=5)
     var metrics = TrainingMetrics()
