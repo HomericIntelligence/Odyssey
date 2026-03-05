@@ -1,10 +1,9 @@
 """Tests for backward compatibility type aliases.
 
 Tests that consolidated type aliases work correctly and maintain backward compatibility
-for code using the old names (LinearBackwardResult, Conv2dBackwardResult, etc).
+for code using the old names (Conv2dBackwardResult, etc).
 
 These aliases map the old type names to the new generic gradient container types:
-- LinearBackwardResult -> GradientTriple
 - Conv2dBackwardResult -> GradientTriple
 - BenchmarkStatistics -> BenchmarkResult
 
@@ -21,8 +20,6 @@ from shared.core import (
     GradientPair,
     GradientTriple,
     GradientQuad,
-    LinearBackwardResult,
-    LinearNoBiasBackwardResult,
     Conv2dBackwardResult,
     Conv2dNoBiasBackwardResult,
     DepthwiseConv2dBackwardResult,
@@ -36,36 +33,6 @@ from tests.shared.conftest import BenchmarkStatistics, BenchmarkResult
 # ============================================================================
 # Gradient Triple Alias Tests
 # ============================================================================
-
-
-fn test_linear_backward_result_alias() raises:
-    """Test LinearBackwardResult is an comptime for GradientTriple."""
-    print("Testing LinearBackwardResult alias...")
-
-    # Create test tensors
-    var shape = List[Int]()
-    shape.append(2)
-    shape.append(3)
-
-    var grad_input = zeros(shape, DType.float32)
-    var grad_weights = zeros(shape, DType.float32)
-    var grad_bias = zeros(shape, DType.float32)
-
-    # Create using comptime name
-    var result: LinearBackwardResult = LinearBackwardResult(
-        grad_input^, grad_weights^, grad_bias^
-    )
-
-    # Verify it's the same as GradientTriple
-    assert_shape(
-        result.grad_input, shape, "grad_input should have correct shape"
-    )
-    assert_shape(
-        result.grad_weights, shape, "grad_weights should have correct shape"
-    )
-    assert_shape(result.grad_bias, shape, "grad_bias should have correct shape")
-
-    print("  ✓ LinearBackwardResult comptime works correctly")
 
 
 fn test_conv2d_backward_result_alias() raises:
@@ -183,34 +150,6 @@ fn test_depthwise_separable_conv2d_backward_result_alias() raises:
 
 
 # ============================================================================
-# Linear No Bias Tests
-# ============================================================================
-
-
-fn test_linear_no_bias_backward_result_alias() raises:
-    """Test LinearNoBiasBackwardResult is an comptime for GradientPair."""
-    print("Testing LinearNoBiasBackwardResult alias...")
-
-    var shape = List[Int]()
-    shape.append(2)
-    shape.append(3)
-
-    var grad_input = zeros(shape, DType.float32)
-    var grad_weights = zeros(shape, DType.float32)
-
-    # Create using comptime name
-    var result: LinearNoBiasBackwardResult = LinearNoBiasBackwardResult(
-        grad_input^, grad_weights^
-    )
-
-    # Verify it's a GradientPair (two fields)
-    assert_shape(result.grad_a, shape, "grad_a should have correct shape")
-    assert_shape(result.grad_b, shape, "grad_b should have correct shape")
-
-    print("  ✓ LinearNoBiasBackwardResult comptime works correctly")
-
-
-# ============================================================================
 # Benchmark Statistics Alias Tests
 # ============================================================================
 
@@ -253,14 +192,12 @@ fn test_alias_interoperability() raises:
     var grad_weights = zeros(shape, DType.float32)
     var grad_bias = zeros(shape, DType.float32)
 
-    # Create using generic GradientTriple (which IS LinearBackwardResult via alias)
+    # Create using GradientTriple directly
     var triple: GradientTriple = GradientTriple(
         grad_input^, grad_weights^, grad_bias^
     )
 
-    # Since LinearBackwardResult is an comptime for GradientTriple, the type IS the same
-    # No assignment needed - just verify the triple works
-    # Access fields through GradientTriple (same as LinearBackwardResult)
+    # Verify the triple fields are accessible
     assert_shape(triple.grad_input, shape, "grad_input should be accessible")
     assert_shape(
         triple.grad_weights, shape, "grad_weights should be accessible"
@@ -279,13 +216,11 @@ fn main() raises:
     """Run all backward compatibility comptime tests."""
     print("\n=== Backward Compatibility Alias Tests ===\n")
 
-    test_linear_backward_result_alias()
     test_conv2d_backward_result_alias()
     test_conv2d_no_bias_backward_result_alias()
     test_depthwise_conv2d_backward_result_alias()
     test_depthwise_separable_conv2d_backward_result_alias()
-    test_linear_no_bias_backward_result_alias()
     test_benchmark_statistics_alias()
     test_alias_interoperability()
 
-    print("\n✓ All 8 backward compatibility comptime tests passed\n")
+    print("\n✓ All 6 backward compatibility comptime tests passed\n")

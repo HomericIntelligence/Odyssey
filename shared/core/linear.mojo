@@ -11,17 +11,6 @@ from shared.core.reduction import sum
 from shared.core.gradient_types import GradientPair, GradientTriple
 
 
-# Backward compatibility aliases using generic gradient containers
-# DEPRECATED: Use GradientTriple directly instead of LinearBackwardResult
-# These aliases are maintained for backward compatibility during type consolidation.
-# See ADR-002 for the gradient struct return types design decision.
-comptime LinearBackwardResult = GradientTriple
-
-# DEPRECATED: Use GradientPair directly instead of LinearNoBiasBackwardResult
-# These aliases are maintained for backward compatibility during type consolidation.
-comptime LinearNoBiasBackwardResult = GradientPair
-
-
 fn linear(x: ExTensor, weights: ExTensor, bias: ExTensor) raises -> ExTensor:
     """Functional linear transformation: y = xW^T + b.
 
@@ -77,7 +66,7 @@ fn linear_no_bias(x: ExTensor, weights: ExTensor) raises -> ExTensor:
 
 fn linear_backward(
     grad_output: ExTensor, x: ExTensor, weights: ExTensor
-) raises -> LinearBackwardResult:
+) raises -> GradientTriple:
     """Backward pass for linear transformation.
 
         Computes gradients with respect to input, weights, and bias.
@@ -94,7 +83,7 @@ fn linear_backward(
             weights: Weight matrix from forward pass, shape (out_features, in_features).
 
     Returns:
-            LinearBackwardResult containing:
+            GradientTriple containing:
                 - grad_input: Gradient w.r.t. input, shape (batch_size, in_features).
                 - grad_kernel: Gradient w.r.t. weights, shape (out_features, in_features).
                 - grad_bias: Gradient w.r.t. bias, shape (out_features,).
@@ -131,12 +120,12 @@ fn linear_backward(
     # Sum over batch dimension to get (out_features,)
     var grad_bias = sum(grad_output, axis=0)
 
-    return LinearBackwardResult(grad_input^, grad_kernel^, grad_bias^)
+    return GradientTriple(grad_input^, grad_kernel^, grad_bias^)
 
 
 fn linear_no_bias_backward(
     grad_output: ExTensor, x: ExTensor, weights: ExTensor
-) raises -> LinearNoBiasBackwardResult:
+) raises -> GradientPair:
     """Backward pass for linear transformation without bias.
 
         Computes gradients with respect to input and weights only.
@@ -147,7 +136,7 @@ fn linear_no_bias_backward(
             weights: Weight matrix from forward pass, shape (out_features, in_features).
 
     Returns:
-            LinearNoBiasBackwardResult containing:
+            GradientPair containing:
                 - grad_input: Gradient w.r.t. input, shape (batch_size, in_features).
                 - grad_kernel: Gradient w.r.t. weights, shape (out_features, in_features).
 
@@ -160,4 +149,4 @@ fn linear_no_bias_backward(
     # grad_kernel = grad_output^T @ x
     var grad_kernel = matmul(transpose(grad_output), x)
 
-    return LinearNoBiasBackwardResult(grad_input^, grad_kernel^)
+    return GradientPair(grad_input^, grad_kernel^)
