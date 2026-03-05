@@ -203,17 +203,6 @@ fn test_file_handler() raises:
     # Clean up would happen after test (in real test framework)
 
 
-fn test_rotating_file_handler():
-    """Test rotating handler creates new file when size limit reached."""
-    # NOTE: RotatingFileHandler not yet implemented
-    # Placeholder for future implementation
-    # Would need to:
-    # - Create handler with 1KB max size
-    # - Write 2KB of log messages
-    # - Verify multiple log files created
-    pass
-
-
 fn test_multiple_handlers() raises:
     """Test logger can have multiple handlers (console + file)."""
     var logger = Logger("multi_handler_test", LogLevel.INFO)
@@ -431,7 +420,6 @@ fn main() raises:
     test_colored_output()
     test_console_handler()
     test_file_handler()
-    test_rotating_file_handler()
     test_multiple_handlers()
     test_log_training_start()
     test_log_epoch_metrics()
