@@ -809,3 +809,18 @@ fn assert_type[T: AnyType](value: T, expected_type: String) raises:
     # Type checking in Mojo is compile-time
     # This function exists for test API clarity
     pass
+
+
+fn assert_contiguous(tensor: ExTensor, message: String = "") raises:
+    """Assert tensor has contiguous memory layout.
+
+    Args:
+            tensor: ExTensor to check.
+            message: Optional error message.
+
+    Raises:
+            Error: If tensor is not contiguous.
+    """
+    if not tensor.is_contiguous():
+        var error_msg = message if message else "Tensor should be contiguous"
+        raise Error(error_msg)
