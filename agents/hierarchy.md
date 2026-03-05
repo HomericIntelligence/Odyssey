@@ -36,21 +36,21 @@
                                │
                                ▼
             ┌─────────────────────────────────────┐
-            │   Level 3: Specialists (24 agents)   │
+            │   Level 3: Specialists (22 agents)   │
             ├──────────────────────────────────────┤
             │  • Implementation Specialist         │
             │  • Test Specialist                   │
             │  • Documentation Specialist          │
             │  • Performance Specialist            │
-            │  • Blog Writer Specialist            │
             │  • 13 Code Review Specialists        │
             │  • 4 Additional Specialists          │
             └──────────────────┬──────────────────┘
                                │
                                ▼
             ┌─────────────────────────────────────┐
-            │   Level 4: Engineers (5 agents)      │
+            │   Level 4: Engineers (6 agents)      │
             ├──────────────────────────────────────┤
+            │  • Senior Implementation Engineer    │
             │  • Implementation Engineer           │
             │  • Test Engineer                     │
             │  • Documentation Engineer            │
@@ -62,6 +62,7 @@
             ┌─────────────────────────────────────┐
             │      Level 5: Junior Engineers       │
             ├──────────────────────────────────────┤
+            │  • Junior Implementation Engineer    │
             │  • Junior Test Engineer              │
             │  • Junior Documentation Engineer     │
             └──────────────────────────────────────┘
@@ -98,7 +99,7 @@
 
 ### Level 3: Specialists & Review Specialists
 
-- **Agents**: 24 total (11 implementation/execution specialists + 13 code review specialists)
+- **Agents**: 22 total (9 implementation/execution specialists + 13 code review specialists)
 - **Scope**: Components within modules and PR review dimensions
 - **Decisions**: Component implementation approach and code review assessment
 - **Phase**: Plan, Test, Implementation, Package, Cleanup
@@ -110,7 +111,7 @@
 
 ### Level 4: Implementation Engineers
 
-- **Agents**: 5 (Implementation, Test, Documentation, Performance, Log Analyzer)
+- **Agents**: 6 (Senior Implementation, Implementation, Test, Documentation, Performance, Log Analyzer)
 - **Scope**: Functions and classes
 - **Decisions**: Implementation details
 - **Phase**: Test, Implementation, Package
@@ -119,7 +120,7 @@
 
 ### Level 5: Junior Engineers
 
-- **Agents**: 2 types (Test, Documentation)
+- **Agents**: 3 types (Implementation, Test, Documentation)
 - **Scope**: Simple functions, boilerplate
 - **Decisions**: None (follows instructions)
 - **Phase**: Test, Implementation, Package
@@ -208,22 +209,17 @@ Strategic Alignment (Level 0)
 | 0     | Meta-Orchestrator | 1 |
 | 1     | Section Orchestrators | 6 |
 | 2     | Module Design & Review Orchestrators | 4 |
-| 3     | Specialists (Implementation + Code Review) | 24 |
-| 4     | Implementation Engineers | 5 |
-| 5     | Junior Engineers | 2 |
+| 3     | Specialists (Implementation + Code Review) | 22 |
+| 4     | Implementation Engineers | 6 |
+| 5     | Junior Engineers | 3 |
 | **Total** | **All Agents** | **42** |
 
 **Level 3 Breakdown:**
 
-- Implementation/Execution Specialists: 11 (implementation, test, documentation, performance,
-  security, blog writer, numerical stability, test flakiness, PR cleanup, mojo syntax validator,
-  CI failure analyzer)
-- Code Review Specialists: 13 (implementation, documentation, test, security, safety, mojo language,
-  performance, algorithm, architecture, data engineering, paper, research, dependency)
+- Implementation/Execution Specialists: 9 (implementation, test, documentation, performance, security, numerical stability, test flakiness, mojo syntax validator, CI failure analyzer)
+- Code Review Specialists: 13 (implementation, documentation, test, security, safety, mojo language, performance, algorithm, architecture, data engineering, paper, research, dependency)
 
-*Historical Note: Initial planning estimated 23 agent types. Actual implementation has expanded to 44
-specialized agents to handle emerging needs (blog writing, CI analysis, numerical stability, test
-flakiness, PR cleanup, mojo validation).*
+*Historical Note: Initial planning estimated 23 agent types. Actual implementation has expanded and been refined to 42 specialized agents. Blog writer and PR cleanup were converted to skills as they perform fixed, repeatable tasks.*
 
 ## Quick Reference
 

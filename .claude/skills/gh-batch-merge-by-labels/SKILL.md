@@ -2,7 +2,6 @@
 name: gh-batch-merge-by-labels
 description: "Batch merge multiple PRs by label (e.g., all 'ready-to-merge' PRs). Use when you have multiple approved PRs to merge."
 category: github
-agent: pr-cleanup-specialist
 ---
 
 # Batch Merge PRs by Label
