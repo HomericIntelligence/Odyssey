@@ -896,78 +896,7 @@ install-workflow/
     └── package_workflow.yml
 ```text
 
-### 8. Plan Management Skills
-
-#### plan-regenerate-issues
-
-**Priority**: High
-**Description**: Regenerate GitHub issues from plan.md files.
-**Purpose**: Keep issues synchronized with plans.
-
-### Use Cases
-
-- Update issue descriptions
-- Regenerate after plan changes
-- Batch update issues
-
-**Tool Requirements**: `Read`, `Write`, `Bash`
-
-### File Structure
-
-```text
-plan-regenerate-issues/
-├── SKILL.md (issue regeneration)
-└── scripts/
-    └── regenerate_issues.py
-```text
-
-#### plan-validate-structure
-
-**Priority**: Medium
-**Description**: Validate 4-level plan hierarchy structure.
-**Purpose**: Ensure plan consistency.
-
-### Use Cases
-
-- Check plan format
-- Validate parent/child links
-- Verify required sections
-
-**Tool Requirements**: `Read`, `Grep`
-
-### File Structure
-
-```text
-plan-validate-structure/
-├── SKILL.md (structure validation)
-└── scripts/
-    └── validate_plans.py
-```text
-
-#### plan-create-component
-
-**Priority**: Medium
-**Description**: Create new component in plan hierarchy.
-**Purpose**: Add new planned work.
-
-### Use Cases
-
-- Create new subsection
-- Add component plan
-- Update parent links
-
-**Tool Requirements**: `Write`, `Read`
-
-### File Structure
-
-```text
-plan-create-component/
-├── SKILL.md (component creation)
-└── templates/
-    └── plan_template.md
-```text
-
-### 9. Code Quality Skills
+### 8. Code Quality Skills
 
 #### quality-run-linters
 
@@ -1176,10 +1105,6 @@ These skills provide additional capabilities:
    - validate-workflow
    - fix-ci-failures
    - install-workflow
-
-1. **Plan Management**
-   - plan-regenerate-issues
-   - plan-validate-structure
 
 ### Phase 5: Polish (Week 5)
 

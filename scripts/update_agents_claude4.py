@@ -288,12 +288,10 @@ def generate_delegation_patterns(category: str, agent_name: str) -> str:
     elif category == "orchestrator":
         section.append("- `phase-plan-generate` - Generating detailed subsection plans")
         section.append("- `agent-run-orchestrator` - Delegating to subsection specialists")
-        section.append("- `plan-validate-structure` - Validating section structure")
         section.append("- `gh-create-pr-linked` - Creating section-level pull requests")
     elif category == "design":
         section.append("- `doc-generate-adr` - Documenting design decisions")
         section.append("- `validate-mojo-patterns` - Validating Mojo design patterns")
-        section.append("- `plan-create-component` - Creating component specifications")
     elif category == "specialist":
         section.append("- `phase-test-tdd` - Coordinating TDD with test engineers")
         section.append("- `quality-run-linters` - Running quality checks")

@@ -34,7 +34,6 @@ Design CLI interfaces, build automation scripts, and developer productivity tool
 |-------|----------------|
 | `worktree-create` | Developing multiple tools in parallel |
 | `gh-implement-issue` | Implementing individual tool components |
-| `plan-regenerate-issues` | Syncing tool component plans |
 | `agent-run-orchestrator` | Coordinating specialist work |
 
 ## Constraints

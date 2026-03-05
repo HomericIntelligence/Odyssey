@@ -213,5 +213,4 @@ Report progress with:
 ## References
 
 - See CLAUDE.md for issue and project organization
-- See plan-validate-structure for plan health
 - See agent-coverage-check for agent completion

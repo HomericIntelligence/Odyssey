@@ -169,7 +169,6 @@ Foreground tasks: `gh-create-pr-linked` (invoke explicitly)
   doc-update-blog
 - **CI/CD**: run-precommit, validate-workflow, fix-ci-failures, install-workflow,
   analyze-ci-failure-logs, build-run-local
-- **Plan**: plan-regenerate-issues, plan-validate-structure, plan-create-component
 - **Quality**: quality-run-linters, quality-fix-formatting, quality-security-scan,
   quality-coverage-report, quality-complexity-check
 - **Testing & Analysis**: test-diff-analyzer, extract-test-failures, generate-fix-suggestions,

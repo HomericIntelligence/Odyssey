@@ -34,7 +34,6 @@ extract algorithms, oversee model implementation, manage training, and validate 
 |-------|----------------|
 | `worktree-create` | Developing paper data/model/training in parallel |
 | `gh-implement-issue` | Implementing paper components |
-| `plan-regenerate-issues` | Syncing paper component plans |
 | `agent-run-orchestrator` | Coordinating specialist work |
 
 ## Constraints
