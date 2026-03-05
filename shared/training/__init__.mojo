@@ -6,9 +6,34 @@ schedulers, metrics, callbacks, and training loops for ML Odyssey paper implemen
 
 All components are implemented in Mojo for maximum performance.
 
-Placeholder import tests in tests/shared/test_imports.mojo require implementation.
+Import tests in tests/shared/test_imports.mojo are implemented and passing.
 See Issue #3033 for tracking: 6 tests for training module imports.
 Tests require corresponding modules to be implemented first.
+
+Note:
+    **Callback Import Limitation**: Due to Mojo's module system, callback types cannot
+    be imported directly from the `shared.training` parent module. They must be imported
+    directly from the `shared.training.callbacks` submodule.
+
+    This is a known limitation of Mojo's current re-export mechanism — symbols defined
+    in a submodule and re-exported via `__init__.mojo` are not always resolvable at the
+    parent package level when used as types in user code.
+
+    Incorrect (will fail with a Mojo import error):
+
+    ```mojo
+    from shared.training import EarlyStopping
+    from shared.training import ModelCheckpoint
+    from shared.training import LoggingCallback
+    ```
+
+    Correct (import directly from the submodule):
+
+    ```mojo
+    from shared.training.callbacks import EarlyStopping
+    from shared.training.callbacks import ModelCheckpoint
+    from shared.training.callbacks import LoggingCallback
+    ```
 """
 
 from python import PythonObject
@@ -78,9 +103,10 @@ from shared.training.schedulers import (
 )
 
 # Export callback implementations
-# Mojo limitation: callbacks must be imported directly from submodules:
+# NOTE (Mojo v0.26.1): Callbacks must be imported directly from submodules due to
+# Mojo re-export limitations. Use:
 #   from shared.training.callbacks import EarlyStopping
-# NOT: from shared.training import EarlyStopping
+# NOT from shared.training import EarlyStopping
 from shared.training.callbacks import (
     EarlyStopping,
     ModelCheckpoint,
@@ -403,12 +429,15 @@ struct TrainingLoop[
 
         Note:
             data_loader remains PythonObject until Track 4 implements
-            Mojo data loading infrastructure.
+            Mojo data loading infrastructure. Tracked in #3076 (parent: #3059).
         """
         var total_loss = Float64(0.0)
         var num_batches = Int(0)
 
-        # Batch iteration blocked by Track 4 (Python↔Mojo interop), see docstring Note.
+        # NOTE: Batch iteration blocked by Track 4 (Python↔Mojo interop) - see #3076 (parent: #3059).
+        # The data_loader is currently a PythonObject, but step() requires ExTensor.
+        # Once Track 4 data loading infrastructure is ready, integrate batching here.
+        # Track resolution via #3076. Implement when Python↔Mojo interop is available.
         _ = data_loader  # Suppress unused variable warning
 
         # Return average loss

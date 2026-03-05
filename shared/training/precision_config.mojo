@@ -222,7 +222,7 @@ struct PrecisionConfig(Copyable, Movable):
             - Precision: ~2 decimal digits (less than FP16).
             - Better for large models due to wider exponent range.
         """
-        # NOTE(#3088): bfloat16_dtype aliases to float16_dtype until Mojo supports BF16
+        # NOTE (Mojo v0.26.1): bfloat16_dtype aliases to float16_dtype until Mojo adds native BF16 support
         return PrecisionConfig(
             mode=PrecisionMode.BF16,
             compute_dtype=bfloat16_dtype,
