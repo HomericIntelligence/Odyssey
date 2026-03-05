@@ -315,7 +315,7 @@ fn load_named_tensors(dirpath: String) raises -> List[NamedTensor]:
         var _ = Python.import_module("os")
         var pathlib = Python.import_module("pathlib")
         var p = pathlib.Path(dirpath)
-        var weight_files = p.glob("*.weights")
+        var weight_files = sorted(p.glob("*.weights"))
 
         # Load each weights file
         for file in weight_files:
