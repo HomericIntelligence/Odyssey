@@ -127,7 +127,7 @@ struct SGD(Movable, Optimizer):
         Raises:
             Error: If operation fails.
         """
-        # Note: Actual gradient updates happen in TrainingLoop.step() via
+        # NOTE: Actual gradient updates happen in TrainingLoop.step() via
         # the autograd system which maintains Variable data and gradients.
         # This stub is kept for trait interface compatibility.
         pass

@@ -25,9 +25,6 @@ from datetime import datetime
 import json
 import argparse
 
-# NOTE: get_plan_dir() removed - planning now done through GitHub issues
-# See .claude/shared/github-issue-workflow.md for the new workflow
-
 
 def read_plan_file(plan_path):
     """Read and parse a plan.md file to extract all sections."""

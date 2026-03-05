@@ -332,7 +332,7 @@ struct ReduceLROnPlateau(LRScheduler):
         else:
             self.epochs_without_improvement += 1
             # Reduce LR if no improvement for patience epochs
-            # Note: Check is inside else block to avoid reducing on improving steps
+            # NOTE: Check is inside else block to avoid reducing on improving steps
             if self.epochs_without_improvement >= self.patience:
                 self.current_lr = self.current_lr * self.factor
                 self.epochs_without_improvement = 0

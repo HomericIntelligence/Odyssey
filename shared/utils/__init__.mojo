@@ -97,7 +97,7 @@ from .progress_bar import (
     create_progress_bar_with_eta,  # Factory with ETA
 )
 
-# Note: Random utilities removed - use Mojo stdlib 'random' module directly
+# NOTE: Random utilities removed - use Mojo stdlib 'random' module directly
 # Example: from random import random_float64, random_si64, seed
 
 # Profiling utilities

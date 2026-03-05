@@ -356,7 +356,7 @@ struct CheckpointManager:
             var line = lines[i]
             if line.startswith("best_metric="):
                 var _ = line[len("best_metric=") :]
-                # Note: We keep the best_metric in the file for reference
+                # NOTE: We keep the best_metric in the file for reference
                 # but don't parse it back to Float32 due to lack of atof
                 # The CheckpointManager tracks best_metric_value separately
                 pass

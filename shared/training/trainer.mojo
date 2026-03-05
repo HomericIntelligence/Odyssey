@@ -85,7 +85,7 @@ struct BaseTrainer(Trainer):
     fn train(mut self, num_epochs: Int) raises:
         """Execute training loop for specified number of epochs.
 
-        NOTE: This is a simplified interface. Use fit() for full training
+        This is a simplified interface. Use fit() for full training
         with validation.
 
         Args:
@@ -101,7 +101,7 @@ struct BaseTrainer(Trainer):
     fn validate(mut self) raises -> Float64:
         """Execute validation loop.
 
-        NOTE: This is a simplified interface. Use fit() for integrated
+        This is a simplified interface. Use fit() for integrated
         training with validation.
 
         Returns:
@@ -296,7 +296,7 @@ struct BaseTrainer(Trainer):
     fn fit(mut self, num_epochs: Int, validate_every: Int = 1) raises:
         """Convenience method matching Trainer trait.
 
-        NOTE: Use the full fit() method with model/optimizer functions.
+        Use the full fit() method with model/optimizer functions.
 
         Args:
             num_epochs: Number of epochs to train.

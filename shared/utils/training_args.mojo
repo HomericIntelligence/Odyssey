@@ -216,5 +216,5 @@ fn parse_training_args_with_defaults(
 # Validation Entry Point
 # ============================================================================
 
-# Note: main() function removed for mojo package compatibility
+# NOTE: main() function removed for mojo package compatibility
 # (mojo package forbids main() in library files)

@@ -355,7 +355,7 @@ fn _elu_simd_float32(tensor: ExTensor, mut result: ExTensor, alpha: Float32):
         var pos_result = vec
         var neg_clipped = max(vec, SIMD[DType.float32, width](-20.0))
 
-        # Note: SIMD exp may have limited vectorization
+        # NOTE: SIMD exp may have limited vectorization
         # but still benefits from SIMD for the rest of computation
         var exp_result = math_exp(neg_clipped)
         var neg_result = alpha_vec * (exp_result - one_vec)

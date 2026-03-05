@@ -111,7 +111,7 @@ fn adamw_step(
     if t <= 0:
         raise Error("Timestep t must be positive (starts at 1)")
 
-    # Note: Unlike Adam, AdamW does NOT apply weight decay to gradients
+    # NOTE: Unlike Adam, AdamW does NOT apply weight decay to gradients
     # Weight decay is applied directly to parameters after the update
 
     # Update biased first moment estimate (SIMD optimized)

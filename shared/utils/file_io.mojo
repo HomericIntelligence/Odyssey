@@ -462,7 +462,7 @@ fn _hex_to_bytes(hex_str: String, output: UnsafePointer[UInt8]) raises:
         _ = _hex_char_to_int(high_char)
         _ = _hex_char_to_int(low_char)
 
-    # Note: Cannot write to output due to UnsafePointer origin constraints
+    # NOTE: Cannot write to output due to UnsafePointer origin constraints
     _ = output
 
 

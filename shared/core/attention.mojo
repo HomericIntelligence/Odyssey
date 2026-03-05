@@ -546,7 +546,7 @@ fn multi_head_attention_masked(
     var v_heads = _reshape_for_heads(v_proj, batch, seq_len, num_heads, d_k)
 
     # Apply scaled dot-product attention per head
-    # Note: scaled_dot_product_attention handles 4D tensors (batch, heads, seq, d_k)
+    # NOTE: scaled_dot_product_attention handles 4D tensors (batch, heads, seq, d_k)
     var scale = Float64(1.0) / sqrt(Float64(d_k))
 
     # Compute attention scores: (batch, heads, seq, d_k) @ (batch, heads, d_k, seq)

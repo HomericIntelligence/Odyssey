@@ -452,7 +452,7 @@ struct ModelCheckpoint(Callback, Copyable, Movable):
                 state.epoch,
             )
 
-            # Note: Actual model serialization would happen here when model interface is available.
+            # NOTE: Actual model serialization would happen here when model interface is available.
             # For now, we track the save action. Error handling would be implemented
             # to catch I/O failures (disk full, permission denied, etc.) and continue training.
 
@@ -587,7 +587,7 @@ struct LoggingCallback(Callback, Copyable, Movable):
             # Format: [Epoch N] metric1: value1 | metric2: value2 | lr: learning_rate
             var log_msg = "[Epoch " + String(state.epoch + 1) + "]"
 
-            # Note: Actual metric logging will be implemented when Dict iteration
+            # NOTE: Actual metric logging will be implemented when Dict iteration
             # is fully available in Mojo. For now, we track the logging action.
             # The log_count increments correctly to verify logging is happening.
 
