@@ -369,10 +369,6 @@ struct DataLoader(Copyable, Movable):
 
         Raises:
             Error: If no more batches available.
-
-        Note:
-            Python data loader integration is blocked by Track 4 (Python↔Mojo interop).
-            Currently returns placeholder tensors until Track 4 infrastructure is ready.
         """
         if not self.has_next():
             raise Error("No more batches available")
@@ -392,6 +388,9 @@ struct DataLoader(Copyable, Movable):
         var batch_labels = ExTensor(batch_labels_shape, self.labels.dtype())
 
         # Tensor slicing is implemented in ExTensor.slice() and __getitem__()
+        # NOTE(#3076): Python data loader integration blocked by Track 4 (Python↔Mojo interop).
+        # Tracked in #3076 (parent: #3059). Placeholder tensors used until Track 4 is ready.
+
         self.current_batch += 1
 
         return DataBatch(batch_data, batch_labels)
