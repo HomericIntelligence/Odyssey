@@ -611,17 +611,23 @@ struct ExTensor(Copyable, ImplicitlyCopyable, Movable, Sized):
         Creates a view sharing data with the original tensor.
         Uses reference counting to ensure data remains valid.
 
-
         Args:
             start: Starting index (inclusive).
             end: Ending index (exclusive).
             axis: Axis to slice along (default: 0, the batch dimension).
 
         Returns:
-            A new tensor containing the slice (shares memory with original).
+            A new tensor view that shares memory with the original tensor.
+            Modifying the view will affect the original tensor.
 
         Raises:
             Error: If indices are out of bounds or axis is invalid.
+
+        Notes:
+            This method returns a **true view** (shared memory). The data pointer
+            is offset into the original buffer and the reference count is
+            incremented to keep the buffer alive. This is the recommended method
+            for batch extraction in training loops where memory efficiency matters.
 
         Example:
         ```mojo
@@ -715,17 +721,25 @@ struct ExTensor(Copyable, ImplicitlyCopyable, Movable, Sized):
             slice: Slice object specifying start, end, and optional step.
 
         Returns:
-            New tensor view with sliced data.
+            New tensor containing a **copy** of the sliced data. The result
+            does not share memory with the original tensor.
 
         Raises:
             Error: If tensor is not 1D or indices are invalid.
 
+        Notes:
+            This method always returns a copy (`_is_view = False`), regardless
+            of the step value. This is by design: materializing a strided copy
+            keeps the implementation simple and avoids lifetime management
+            complexity. For memory-efficient batch extraction over the first
+            axis, use `slice()` instead, which returns a true view.
+
         Example:
             ```mojo
             var t = arange(0.0, 10.0, 1.0, DType.float32)
-            var sliced = t[2:7]  # [2, 3, 4, 5, 6]
-            var strided = t[0:10:2]  # [0, 2, 4, 6, 8]
-            var reversed = t[::-1]  # [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+            var sliced = t[2:7]  # Copy of [2, 3, 4, 5, 6]
+            var strided = t[0:10:2]  # Copy of [0, 2, 4, 6, 8]
+            var reversed = t[::-1]  # Copy of [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
         ```
         """
         if len(self._shape) != 1:
@@ -813,15 +827,23 @@ struct ExTensor(Copyable, ImplicitlyCopyable, Movable, Sized):
             slices: Variable number of Slice objects, one per dimension.
 
         Returns:
-            New tensor view with sliced data.
+            A new tensor view that shares memory with the original tensor.
+            Modifying the view will affect the original tensor.
 
         Raises:
             Error: If number of slices doesn't match tensor dimensions.
 
+        Notes:
+            This method returns a **true view** (shared memory). The data
+            pointer is offset into the original buffer and the reference count
+            is incremented. Each slice narrows one dimension without copying
+            data. This is analogous to NumPy's multi-dimensional slicing
+            behaviour.
+
         Example:
             ```mojo
             var t = zeros([10, 8, 6], DType.float32)
-            var sliced = t[2:7, :, 1:4]  # [5, 8, 3] tensor
+            var sliced = t[2:7, :, 1:4]  # [5, 8, 3] view into t
         ```
         """
         var num_slices = len(slices)
