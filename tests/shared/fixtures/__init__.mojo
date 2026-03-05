@@ -22,8 +22,7 @@ Note on consolidation:
     The SimpleMLP and other test model definitions have been consolidated
     into shared.testing.test_models for better organization. Test files
     should import test models from shared.testing instead of from this module.
-    For backward compatibility, mock_models.mojo re-exports from the
-    consolidated location, but direct imports from shared.testing are preferred.
+    Direct imports from shared.testing are preferred.
 
 See individual modules for detailed documentation and examples.
 """

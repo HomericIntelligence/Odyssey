@@ -116,7 +116,7 @@ struct SimpleMLP(Copyable, Movable, Model):
 
 **Files Affected**: PR #2045
 
-- `tests/shared/fixtures/mock_models.mojo` (SimpleMLP)
+- `shared/testing/test_models.mojo` (SimpleMLP)
 - `shared/training/__init__.mojo` (TrainingLoop generics)
 - `tests/shared/training/test_training_loop.mojo`
 - `tests/shared/training/test_validation_loop.mojo`
@@ -167,7 +167,7 @@ fn process_params(ref params: List[Float32]):
 **Files Affected**: PR #2045, PR #2039
 
 - `tests/shared/benchmarks/bench_optimizers.mojo`
-- `tests/shared/fixtures/mock_models.mojo`
+- `shared/testing/test_models.mojo`
 
 ---
 
