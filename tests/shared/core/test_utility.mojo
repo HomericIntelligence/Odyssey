@@ -409,20 +409,49 @@ fn test_hash_immutable() raises:
 
     var hash_a = hash(a)
     var hash_b = hash(b)
-    # Equal tensors should have same hash
-    assert_equal(hash_a, hash_b, "Equal tensors should have same hash")
-
-
-fn test_hash_different_values() raises:
-    """Test __hash__ produces different values for different tensors."""
-    var a = arange(1.0, 4.0, 1.0, DType.float32)  # [1, 2, 3]
-    var b = arange(4.0, 7.0, 1.0, DType.float32)  # [4, 5, 6]
-
-    # Different values should produce different hashes
-    assert_true(
-        hash(a) != hash(b),
-        "Tensors with different values should have different hashes",
+    assert_equal_int(
+        Int(hash_a), Int(hash_b), "Equal tensors should have same hash"
     )
+
+
+fn test_hash_different_values_differ() raises:
+    """Test that tensors with different values produce different hashes."""
+    var shape = List[Int]()
+    shape.append(1)
+    var a = full(shape, 1.0, DType.float64)
+    var b = full(shape, 2.0, DType.float64)
+
+    var hash_a = hash(a)
+    var hash_b = hash(b)
+    if hash_a == hash_b:
+        raise Error("Tensors with different values should have different hashes")
+
+
+fn test_hash_large_values() raises:
+    """Test that large float values hash consistently without Int overflow."""
+    var shape = List[Int]()
+    shape.append(1)
+    var a = full(shape, 1e15, DType.float64)
+    var b = full(shape, 1e15, DType.float64)
+
+    var hash_a = hash(a)
+    var hash_b = hash(b)
+    assert_equal_int(
+        Int(hash_a), Int(hash_b), "Large values must hash consistently"
+    )
+
+
+fn test_hash_small_values_distinguish() raises:
+    """Test that small but distinct float values produce different hashes."""
+    var shape = List[Int]()
+    shape.append(1)
+    var a = full(shape, 1e-7, DType.float64)
+    var b = full(shape, 2e-7, DType.float64)
+
+    var hash_a = hash(a)
+    var hash_b = hash(b)
+    if hash_a == hash_b:
+        raise Error("Distinct small values should have different hashes with bitcast")
 
 
 # ============================================================================
@@ -516,7 +545,9 @@ fn main() raises:
     # __hash__
     print("  Testing __hash__...")
     test_hash_immutable()
-    test_hash_different_values()
+    test_hash_different_values_differ()
+    test_hash_large_values()
+    test_hash_small_values_distinguish()
 
     # diff()
     print("  Testing diff()...")
