@@ -5,7 +5,7 @@ level: 3
 phase: Plan,Implementation,Cleanup
 tools: Read,Write,Edit,Grep,Glob,Task
 model: sonnet
-delegates_to: [senior-implementation-engineer, implementation-engineer, junior-implementation-engineer]
+delegates_to: [implementation-engineer]
 receives_from: [architecture-design, integration-design]
 ---
 
@@ -76,9 +76,9 @@ See [mojo-guidelines.md](../shared/mojo-guidelines.md) for Mojo memory managemen
 **Breakdown**:
 
 - Struct MatMul (configuration, SIMD parameters)
-- Fn basic_matmul (naive implementation, Junior Engineer)
+- Fn basic_matmul (naive implementation, Implementation Engineer)
 - Fn tiled_matmul (cache-friendly tiling, Implementation Engineer)
-- Fn simd_matmul (SIMD optimization, Senior Engineer)
+- Fn simd_matmul (SIMD optimization, Implementation Engineer)
 
 **Plan**: Define benchmarks, coordinate test writing, review each implementation for correctness and performance.
 

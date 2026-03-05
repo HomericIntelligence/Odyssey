@@ -49,9 +49,8 @@
                                │
                                ▼
             ┌─────────────────────────────────────┐
-            │   Level 4: Engineers (6 agents)      │
+            │   Level 4: Engineers (5 agents)      │
             ├──────────────────────────────────────┤
-            │  • Senior Implementation Engineer    │
             │  • Implementation Engineer           │
             │  • Test Engineer                     │
             │  • Documentation Engineer            │
@@ -63,7 +62,6 @@
             ┌─────────────────────────────────────┐
             │      Level 5: Junior Engineers       │
             ├──────────────────────────────────────┤
-            │  • Junior Implementation Engineer    │
             │  • Junior Test Engineer              │
             │  • Junior Documentation Engineer     │
             └──────────────────────────────────────┘
@@ -112,7 +110,7 @@
 
 ### Level 4: Implementation Engineers
 
-- **Agents**: 6 (Senior Implementation, Implementation, Test, Documentation, Performance, Log Analyzer)
+- **Agents**: 5 (Implementation, Test, Documentation, Performance, Log Analyzer)
 - **Scope**: Functions and classes
 - **Decisions**: Implementation details
 - **Phase**: Test, Implementation, Package
@@ -121,7 +119,7 @@
 
 ### Level 5: Junior Engineers
 
-- **Agents**: 3 types (Implementation, Test, Documentation)
+- **Agents**: 2 types (Test, Documentation)
 - **Scope**: Simple functions, boilerplate
 - **Decisions**: None (follows instructions)
 - **Phase**: Test, Implementation, Package
@@ -211,9 +209,9 @@ Strategic Alignment (Level 0)
 | 1     | Section Orchestrators | 6 |
 | 2     | Module Design & Review Orchestrators | 4 |
 | 3     | Specialists (Implementation + Code Review) | 24 |
-| 4     | Implementation Engineers | 6 |
-| 5     | Junior Engineers | 3 |
-| **Total** | **All Agents** | **44** |
+| 4     | Implementation Engineers | 5 |
+| 5     | Junior Engineers | 2 |
+| **Total** | **All Agents** | **42** |
 
 **Level 3 Breakdown:**
 
