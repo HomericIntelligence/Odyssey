@@ -10,6 +10,7 @@ from shared.core import ExTensor, zeros, ones, full, arange, clone, item, diff
 # Import test helpers
 from tests.shared.conftest import (
     assert_dtype,
+    assert_equal,
     assert_numel,
     assert_dim,
     assert_value_at,
@@ -349,13 +350,9 @@ fn test_float_conversion() raises:
 
 fn test_str_readable() raises:
     """Test __str__ produces readable output."""
-    var shape = List[Int]()
-    shape.append(3)
     var t = arange(0.0, 3.0, 1.0, DType.float32)
-
-    # var s = String(t)  # TODO(#2722): Implement __str__
-    # Should produce something like "ExTensor([0, 1, 2], dtype=float32)"
-    pass  # Placeholder
+    var s = String(t)
+    assert_equal(s, "ExTensor([0.0, 1.0, 2.0], dtype=float32)", "__str__ format")
 
 
 fn test_repr_complete() raises:
@@ -364,10 +361,12 @@ fn test_repr_complete() raises:
     shape.append(2)
     shape.append(2)
     var t = ones(shape, DType.float32)
-
-    # var r = repr(t)  # TODO(#2722): Implement __repr__
-    # Should produce detailed representation
-    pass  # Placeholder
+    var r = repr(t)
+    assert_equal(
+        r,
+        "ExTensor(shape=[2, 2], dtype=float32, numel=4, data=[1.0, 1.0, 1.0, 1.0])",
+        "__repr__ format",
+    )
 
 
 # ============================================================================

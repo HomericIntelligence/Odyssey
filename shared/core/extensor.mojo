@@ -51,7 +51,7 @@ comptime MAX_TENSOR_BYTES: Int = 2_000_000_000  # 2 GB max per tensor
 comptime WARN_TENSOR_BYTES: Int = 500_000_000  # 500 MB warning threshold
 
 
-struct ExTensor(Copyable, ImplicitlyCopyable, Movable, Sized):
+struct ExTensor(Copyable, ImplicitlyCopyable, Movable, Sized, Stringable, Representable):
     """Dynamic tensor with runtime-determined shape and data type.
 
         ExTensor provides a flexible tensor implementation for machine learning workloads,
@@ -2674,6 +2674,43 @@ struct ExTensor(Copyable, ImplicitlyCopyable, Movable, Sized):
         if len(self._shape) == 0:
             return 0
         return self._shape[0]
+
+    fn __str__(self) -> String:
+        """Human-readable string representation.
+
+        Returns:
+            String in the format: ExTensor([v0, v1, ...], dtype=<dtype>)
+        """
+        var result = String("ExTensor([")
+        for i in range(self._numel):
+            if i > 0:
+                result += ", "
+            result += String(self._get_float64(i))
+        result += "], dtype=" + String(self._dtype) + ")"
+        return result
+
+    fn __repr__(self) -> String:
+        """Detailed representation for debugging.
+
+        Returns:
+            String in the format: ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[...])
+        """
+        var shape_str = String("[")
+        for i in range(len(self._shape)):
+            if i > 0:
+                shape_str += ", "
+            shape_str += String(self._shape[i])
+        shape_str += "]"
+        var result = String("ExTensor(shape=") + shape_str
+        result += ", dtype=" + String(self._dtype)
+        result += ", numel=" + String(self._numel)
+        result += ", data=["
+        for i in range(self._numel):
+            if i > 0:
+                result += ", "
+            result += String(self._get_float64(i))
+        result += "])"
+        return result
 
     # ============================================================================
     # Utility Methods
