@@ -170,8 +170,6 @@ struct Conv2dLayer(Copyable, Movable):
         var result = conv2d_backward(
             grad_output, input, self.weight, self.stride, self.padding
         )
-        # Return the result struct fields directly
-        # GradientTriple is only movable, so we return its fields
         return (result.grad_input, result.grad_weights, result.grad_bias)
 
     fn parameters(self) raises -> List[ExTensor]:
