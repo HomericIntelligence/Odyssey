@@ -921,6 +921,46 @@ struct ExTensor(
 
         return result^
 
+    fn __setitem__(mut self, index: Int, value: Float64) raises:
+        """Set element at flat index.
+
+        Args:
+            index: The flat index to set.
+            value: The value to set as Float64.
+
+        Raises:
+            Error: If index is out of bounds.
+
+        Example:
+            ```mojo
+            var t = zeros([5], DType.float32)
+            t[2] = 3.14
+            ```
+        """
+        if index < 0 or index >= self._numel:
+            raise Error("Index out of bounds")
+        self._set_float64(index, value)
+
+    fn __setitem__(mut self, index: Int, value: Int64) raises:
+        """Set element at flat index for integer dtypes.
+
+        Args:
+            index: The flat index to set.
+            value: The value to set as Int64.
+
+        Raises:
+            Error: If index is out of bounds.
+
+        Example:
+            ```mojo
+            var t = zeros([5], DType.int32)
+            t[2] = Int64(7)
+            ```
+        """
+        if index < 0 or index >= self._numel:
+            raise Error("Index out of bounds")
+        self._set_int64(index, value)
+
     fn _get_float64(self, index: Int) -> Float64:
         """Internal: Get value at index as Float64 (assumes float-compatible dtype).
 
@@ -2683,6 +2723,40 @@ struct ExTensor(
         if len(self._shape) == 0:
             return 0
         return self._shape[0]
+
+    fn __int__(self) raises -> Int:
+        """Convert single-element tensor to Int.
+
+        Returns:
+            The scalar value as Int.
+
+        Raises:
+            Error: If tensor has more than one element.
+
+        Example:
+            ```mojo
+            var x = full([], 7.0, DType.float32)
+            var i = Int(x)  # Returns 7
+            ```
+        """
+        return Int(self.item())
+
+    fn __float__(self) raises -> Float64:
+        """Convert single-element tensor to Float64.
+
+        Returns:
+            The scalar value as Float64.
+
+        Raises:
+            Error: If tensor has more than one element.
+
+        Example:
+            ```mojo
+            var x = full([], 3.14, DType.float32)
+            var f = Float64(x)  # Returns 3.14
+            ```
+        """
+        return self.item()
 
     fn __str__(self) -> String:
         """Human-readable string representation.
