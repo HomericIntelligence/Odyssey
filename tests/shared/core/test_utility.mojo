@@ -294,6 +294,49 @@ fn test_len_1d() raises:
 
 
 # ============================================================================
+# Test __setitem__
+# ============================================================================
+
+
+fn test_setitem_valid_index() raises:
+    """Test setting value at valid flat index, verified with __getitem__."""
+    var shape = List[Int]()
+    shape.append(3)
+    var t = zeros(shape, DType.float32)
+    t[1] = 9.5
+    assert_value_at(t, 1, 9.5, 1e-6, "__setitem__ should set value at index 1")
+    # Other elements unchanged
+    assert_value_at(t, 0, 0.0, 1e-6, "Element 0 should remain 0.0")
+    assert_value_at(t, 2, 0.0, 1e-6, "Element 2 should remain 0.0")
+
+
+fn test_setitem_integer_dtype() raises:
+    """Test setting integer value via Int64 overload on int32 tensor."""
+    var shape = List[Int]()
+    shape.append(3)
+    var t = zeros(shape, DType.int32)
+    t[2] = Int64(7)
+    assert_value_at(t, 2, 7.0, 1e-6, "__setitem__ Int64 should set integer value")
+    assert_value_at(t, 0, 0.0, 1e-6, "Element 0 should remain 0")
+
+
+fn test_setitem_out_of_bounds() raises:
+    """Test that __setitem__ raises error for out-of-bounds index."""
+    var shape = List[Int]()
+    shape.append(3)
+    var t = zeros(shape, DType.float32)
+
+    var raised = False
+    try:
+        t[5] = 1.0
+    except:
+        raised = True
+
+    if not raised:
+        raise Error("__setitem__ should raise error for out-of-bounds index")
+
+
+# ============================================================================
 # Test __bool__
 # ============================================================================
 
@@ -497,6 +540,12 @@ fn main() raises:
     print("  Testing __len__...")
     test_len_first_dim()
     test_len_1d()
+
+    # __setitem__
+    print("  Testing __setitem__...")
+    test_setitem_valid_index()
+    test_setitem_integer_dtype()
+    test_setitem_out_of_bounds()
 
     # __bool__
     print("  Testing __bool__...")
