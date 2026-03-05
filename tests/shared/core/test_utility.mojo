@@ -25,6 +25,7 @@ from tests.shared.conftest import (
     assert_dim,
     assert_value_at,
     assert_equal_int,
+    assert_equal,
     assert_almost_equal,
     assert_true,
     assert_false,
@@ -403,16 +404,25 @@ fn test_repr_complete() raises:
 
 fn test_hash_immutable() raises:
     """Test __hash__ for immutable tensors."""
-    var shape = List[Int]()
-    shape.append(3)
     var a = arange(0.0, 3.0, 1.0, DType.float32)
     var b = arange(0.0, 3.0, 1.0, DType.float32)
 
-    # var hash_a = hash(a)  # TODO(#2722): Implement __hash__
-    # var hash_b = hash(b)
+    var hash_a = hash(a)
+    var hash_b = hash(b)
     # Equal tensors should have same hash
-    # assert_equal_int(hash_a, hash_b, "Equal tensors should have same hash")
-    pass  # Placeholder
+    assert_equal(hash_a, hash_b, "Equal tensors should have same hash")
+
+
+fn test_hash_different_values() raises:
+    """Test __hash__ produces different values for different tensors."""
+    var a = arange(1.0, 4.0, 1.0, DType.float32)  # [1, 2, 3]
+    var b = arange(4.0, 7.0, 1.0, DType.float32)  # [4, 5, 6]
+
+    # Different values should produce different hashes
+    assert_true(
+        hash(a) != hash(b),
+        "Tensors with different values should have different hashes",
+    )
 
 
 # ============================================================================
@@ -506,6 +516,7 @@ fn main() raises:
     # __hash__
     print("  Testing __hash__...")
     test_hash_immutable()
+    test_hash_different_values()
 
     # diff()
     print("  Testing diff()...")
