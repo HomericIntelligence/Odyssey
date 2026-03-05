@@ -23,9 +23,8 @@ Example:
     config = load_config("experiment.yaml")
     ```
 
-Placeholder import tests in tests/shared/test_imports.mojo require implementation.
-See Issue #3033 for tracking: 4 tests for utils module imports.
-Tests require corresponding modules to be implemented first.
+Import tests in tests/shared/test_imports.mojo are implemented and passing.
+See Issue #3033: 4 tests for utils module imports — all tests pass.
 """
 
 # Package version
