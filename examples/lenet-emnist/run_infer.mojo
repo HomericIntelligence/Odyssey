@@ -338,8 +338,12 @@ fn main() raises:
 
         # Load image (currently supports IDX format only)
         # NOTE: PNG/JPEG image loading requires external image processing libraries.
-        # Mojo does not yet have native image decoding support in its stdlib.
-        # For now, convert images to IDX format using Python preprocessing scripts.
+        # Status: Deferred (not implemented in Mojo)
+        # Why deferred: Mojo lacks native PNG/JPEG decoding; no stdlib image IO as of v0.26.1
+        # Workaround: Use Python interop (PIL/OpenCV) to load and convert images to raw tensors
+        #   before passing to this inference pipeline. See examples/lenet-emnist/README.md.
+        # Acceptance criteria: When Mojo stdlib ships image IO, or a Python interop wrapper is added
+        # Tracked in: GitHub issue #3087 (part of #3059)
         var image = load_image(config.image_path)
 
         if image.shape()[0] == 0:

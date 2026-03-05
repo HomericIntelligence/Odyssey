@@ -250,6 +250,32 @@ This example follows **Keep It Simple, Stupid** principles:
 - **Original MNIST**: <http://yann.lecun.com/exdb/mnist/>
 - **LeNet-5 Architecture**: <http://yann.lecun.com/exdb/lenet/>
 
+## Image Loading Limitations
+
+PNG/JPEG image loading is not natively supported in Mojo v0.26.1 (no stdlib image IO).
+
+The inference pipeline currently supports **IDX format only** (the same binary format used by MNIST/EMNIST).
+
+### Workaround: Python Interop
+
+Use Python PIL to preprocess images before inference:
+
+```python
+from PIL import Image
+import numpy as np
+
+img = Image.open("input.png").convert("L").resize((28, 28))
+raw = np.array(img, dtype=np.float32) / 255.0
+raw.tofile("input.raw")
+```
+
+Then pass `input.raw` as the input to `run_infer.mojo`.
+
+### Future Support
+
+Tracked in [#3087](https://github.com/homericintelligence/projectodyssey/issues/3087) (part of #3059).
+Will be resolved when Mojo stdlib adds image IO or a Python interop wrapper is added.
+
 ## Contributing
 
 This example is part of ML Odyssey. Contributions welcome!
