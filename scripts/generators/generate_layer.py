@@ -13,6 +13,11 @@ Usage:
         --inputs "x:ExTensor" \\
         --params "reduction:Int=16" \\
         --output shared/nn/se_block.mojo
+
+Template Placeholders:
+    The generated Mojo layer files contain TEMPLATE: markers indicating sections
+    that must be implemented for the specific layer. These are intentional
+    scaffolding in the generated output, not implementation gaps in this script.
 """
 
 import argparse
@@ -132,7 +137,7 @@ def generate_layer_code(
             List of parameter tensors
         """
         var params = List[ExTensor]()
-        # TODO: Collect trainable parameters
+        # TEMPLATE: Collect trainable parameters
         # params.append(self.weight)
         # params.append(self.bias)
         return params'''
@@ -164,7 +169,7 @@ struct {name}(Module):
     """
 
 {member_vars_str}
-    # TODO: Add trainable parameters as needed
+    # TEMPLATE: Add trainable parameters as needed
     # var weight: ExTensor
     # var bias: ExTensor
 
@@ -174,7 +179,7 @@ struct {name}(Module):
         Args:{init_docs_str}
         """
 {member_inits_str}
-        # TODO: Initialize trainable parameters
+        # TEMPLATE: Initialize trainable parameters
         # self.weight = ExTensor.randn([out_features, in_features])
         # self.bias = ExTensor.zeros([out_features])
 
@@ -187,7 +192,7 @@ struct {name}(Module):
         Returns:
             Output tensor
         """
-        # TODO: Implement forward computation
+        # TEMPLATE: Implement forward computation
         {"var x = " + inputs[0][0] if inputs else "var x = input"}
 
         # Example computation:

@@ -13,6 +13,13 @@ Usage:
         --type generative \\
         --layers "encoder:Conv2d,decoder:ConvTranspose2d" \\
         --output models/vae.mojo
+
+Template Placeholders:
+    The generated Mojo model files contain TEMPLATE: markers indicating sections
+    that must be implemented for the specific model architecture. These are
+    intentional scaffolding in the generated output, not implementation gaps
+    in this script. The Python fallback code (used when no layers are provided)
+    also emits TEMPLATE: markers to signal that layers must be added.
 """
 
 import argparse
@@ -97,7 +104,7 @@ struct {{name}}(Module):
             Latent representation
         \"\"\"
         var x = input
-        # TODO: Implement encoder
+        # TEMPLATE: Implement encoder
         return x
 
     fn decode(self, z: ExTensor) -> ExTensor:
@@ -110,7 +117,7 @@ struct {{name}}(Module):
             Reconstructed output
         \"\"\"
         var x = z
-        # TODO: Implement decoder
+        # TEMPLATE: Implement decoder
         return x
 
     fn forward(self, input: ExTensor) -> ExTensor:
@@ -166,7 +173,7 @@ struct {{name}}(Module):
 
 {{forward_pass}}
 
-        # TODO: Return class scores and bbox predictions
+        # TEMPLATE: Return class scores and bbox predictions
         return (x, x)
 
     fn parameters(self) -> List[ExTensor]:
@@ -263,7 +270,7 @@ def parse_layers(layers_str: str) -> list[tuple[str, str, dict]]:
 def generate_layer_declarations(layers: list[tuple[str, str, dict]]) -> str:
     """Generate layer variable declarations."""
     if not layers:
-        return "    # TODO: Add layer declarations\n    var placeholder: Linear"
+        return "    # TEMPLATE: Add layer declarations\n    var placeholder: Linear"
 
     lines = []
     for name, layer_type, _ in layers:
@@ -290,7 +297,7 @@ def generate_layer_initializations(layers: list[tuple[str, str, dict]], indent: 
 def generate_forward_pass(layers: list[tuple[str, str, dict]], indent: int = 8) -> str:
     """Generate forward pass code."""
     if not layers:
-        return " " * indent + "# TODO: Implement forward pass\n" + " " * indent + "x = self.placeholder(x)"
+        return " " * indent + "# TEMPLATE: Implement forward pass\n" + " " * indent + "x = self.placeholder(x)"
 
     lines = []
     prefix = " " * indent
