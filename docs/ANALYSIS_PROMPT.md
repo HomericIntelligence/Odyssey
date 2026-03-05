@@ -3,6 +3,9 @@
 Use this prompt to perform a comprehensive per-component quality analysis of this repository.
 Paste it into a new Claude Code session at the root of ProjectOdyssey.
 
+**Output**: Present the analysis as conversation text only. Do not create files or commit
+the analysis to the repository.
+
 ---
 
 You are a senior software architect performing a comprehensive code and project quality review
