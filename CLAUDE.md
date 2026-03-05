@@ -109,48 +109,10 @@ See [agents/hierarchy.md](agents/hierarchy.md) for the complete agent hierarchy 
 
 ### Skill Delegation Patterns
 
-Agents delegate to skills for automation using five standard patterns:
-
-**Pattern 1: Direct Delegation** - Agent needs specific automation
-
-```markdown
-Use the `skill-name` skill to [action]:
-- **Invoke when**: [trigger condition]
-- **The skill handles**: [specific automation]
-```
-
-**Pattern 2: Conditional Delegation** - Agent decides based on conditions
-
-```markdown
-If [condition]:
-  - Use the `skill-name` skill to [action]
-Otherwise:
-  - [alternative approach]
-```
-
-**Pattern 3: Multi-Skill Workflow** - Agent orchestrates multiple skills
-
-```markdown
-To accomplish [goal]:
-1. Use the `skill-1` skill to [step 1]
-2. Use the `skill-2` skill to [step 2]
-3. Review results and [decision]
-```
-
-**Pattern 4: Skill Selection** - Orchestrator chooses skill based on analysis
-
-```markdown
-Analyze [context]:
-- If [scenario A]: Use `skill-A`
-- If [scenario B]: Use `skill-B`
-```
-
-**Pattern 5: Background vs Foreground** - Distinguishing automatic vs explicit invocation
-
-```markdown
-Background automation: `run-precommit` (runs automatically)
-Foreground tasks: `gh-create-pr-linked` (invoke explicitly)
-```
+Agents delegate to skills using five patterns: **Direct** (invoke for specific action),
+**Conditional** (decide based on condition), **Multi-Skill Workflow** (chain skills for a goal),
+**Skill Selection** (pick skill based on analysis), **Background vs Foreground** (automatic
+`run-precommit` vs explicit `gh-create-pr-linked`).
 
 **Available Skills** (82 total across 11 categories):
 
@@ -280,30 +242,6 @@ reasoning tasks. Use extended thinking when:
 - Repetitive tasks (formatting, linting, etc.)
 - Tasks with clear step-by-step instructions already provided
 
-**Example - Extended Thinking for Architecture Analysis**:
-
-```markdown
-Task: Analyze the tradeoffs between implementing tensor operations as struct methods vs standalone
-functions in Mojo.
-
-Extended thinking helps here because:
-- Multiple design patterns to evaluate (OOP vs functional)
-- Mojo-specific ownership and lifetime considerations
-- Performance implications (inlining, SIMD optimization)
-- API ergonomics and consistency with stdlib
-```
-
-**Example - Skip Extended Thinking for Boilerplate**:
-
-```markdown
-Task: Add a new test file following the existing test pattern in tests/shared/core/test_tensor.mojo
-
-Skip extended thinking because:
-- Clear pattern already established
-- Straightforward copy-paste-modify workflow
-- No architectural decisions needed
-```
-
 ### Thinking Budget Guidelines
 
 Extended thinking consumes tokens. Use appropriate budgets based on task complexity:
@@ -354,91 +292,12 @@ Is the task well-defined with predictable steps?
 - **Best for**: Architecture decisions, debugging, code review, complex refactoring
 - **Examples**: Documentation Engineer, Implementation Specialist, Review Engineer
 
-**Example - When to Use a Skill**:
-
-```markdown
-Task: Create PR linked to issue #2549, run pixi run pre-commit hooks, enable auto-merge
-
-✅ Use Agent Skills:
-1. Use `gh-create-pr-linked` skill (predictable GitHub API workflow)
-2. Use `run-precommit` skill (fixed command sequence)
-3. Use `gh-check-ci-status` skill (polling with clear success/failure states)
-
-Why skills work: Every step is well-defined, no exploration needed
-```
-
-**Example - When to Use a Sub-Agent**:
-
-```markdown
-Task: Review PR #2549 and suggest improvements to new Claude 4 documentation
-
-✅ Use Sub-Agent (Review Engineer):
-- Needs to read and understand the new documentation
-- Compare against Claude's official documentation
-- Evaluate clarity, completeness, and accuracy
-- Provide actionable feedback with examples
-
-Why sub-agent needed: Requires comprehension, judgment, adaptive reasoning
-```
-
-**Hybrid Approach** - Sub-agents can delegate to skills:
-
-```markdown
-Sub-Agent: Documentation Engineer implementing issue #2549
-
-Workflow:
-1. [Sub-agent] Read Claude 4 docs, analyze requirements, draft section
-2. [Sub-agent] Use `doc-validate-markdown` skill to check formatting
-3. [Sub-agent] Use `gh-create-pr-linked` skill to create PR
-4. [Sub-agent] Use `ci-check-status` skill to verify CI passes
-```
+**Hybrid Approach**: Sub-agents can delegate to skills mid-workflow (e.g., call `gh-create-pr-linked`
+after completing analysis and drafting).
 
 ### Hooks Best Practices
 
 Hooks enable proactive automation and safety checks. Use hooks for guardrails and background tasks.
-
-**Safety Hooks** - Prevent errors before they happen:
-
-```yaml
-# Example: Prevent direct pushes to main branch
-- trigger: "on_git_push"
-  condition: "branch == 'main' && !is_pr"
-  action: "block"
-  message: "Direct pushes to main are not allowed. Create a PR instead."
-
-# Example: Enforce zero-warnings policy
-- trigger: "on_mojo_compile"
-  condition: "warnings_count > 0"
-  action: "fail"
-  message: "Mojo code must compile without warnings. Fix warnings before committing."
-
-# Example: Require issue link in PR description
-- trigger: "on_pr_create"
-  condition: "!body.includes('Closes #')"
-  action: "block"
-  message: "PR must reference an issue: add 'Closes #<number>' to description."
-```
-
-**Automation Hooks** - Background tasks that run automatically:
-
-```yaml
-# Example: Auto-format Mojo code on save
-- trigger: "on_file_save"
-  condition: "file.endsWith('.mojo')"
-  action: "run_skill"
-  skill: "mojo-format"
-
-# Example: Run pixi run pre-commit hooks before commit
-- trigger: "on_git_commit"
-  action: "run_skill"
-  skill: "run-precommit"
-
-# Example: Auto-assign reviewers based on changed files
-- trigger: "on_pr_create"
-  condition: "changed_files.includes('shared/core/')"
-  action: "add_reviewers"
-  reviewers: ["core-team"]
-```
 
 **Hook Design Principles**:
 
@@ -462,372 +321,30 @@ See `.claude/shared/error-handling.md` for retry strategies and timeout handling
 
 ### Output Style Guidelines
 
-Consistent output styles improve clarity and actionability. Follow these guidelines for different contexts:
+Use repo-relative file paths with line numbers for code references. Structure PR/issue comments with
+`## Summary`, `## Changes Made`, `## Files Modified`, `## Verification` sections. Prioritize code
+review feedback by severity (Critical / Important / Nice to Have).
 
-#### Code References
-
-**DO**: Use repo-relative file paths with line numbers when referencing code:
-
-```markdown
-✅ GOOD: Updated CLAUDE.md:173-185
-
-✅ GOOD: Modified ExTensor initialization in shared/core/extensor.mojo:45
-
-❌ BAD: Updated CLAUDE.md (missing line numbers)
-
-❌ BAD: Fixed the tensor file (too vague)
-```
-
-**DO**: Include relevant code snippets with context:
-
-```markdown
-✅ GOOD:
-File: /home/user/ProjectOdyssey/shared/core/extensor.mojo:45-52
-
-fn __init__(out self, shape: List[Int], dtype: DType):
-    """Initialize tensor with given shape and dtype."""
-    self._shape = shape^
-    self._dtype = dtype
-    var numel = 1
-    for dim in shape:
-        numel *= dim
-    self._data = DTypePointer[dtype].alloc(numel)
-
-❌ BAD: Changed the constructor
-```
-
-#### Issue and PR Formatting
-
-**DO**: Use structured markdown with clear sections:
-
-```markdown
-✅ GOOD:
-
-## Summary
-Added comprehensive Claude 4 optimization guidance to CLAUDE.md
-
-## Changes Made
-- Added "Extended Thinking" section with when/when-not guidelines
-- Added "Thinking Budget Guidelines" table with 5 task types
-- Added "Agent Skills vs Sub-Agents" decision tree
-- Added "Hooks Best Practices" with safety and automation examples
-- Added "Output Style Guidelines" for code references and reviews
-
-## Files Modified
-- `/home/user/ProjectOdyssey/CLAUDE.md` (lines 173-500, added 327 lines)
-
-## Verification
-- [x] Markdown linting passes
-- [x] All code examples use correct syntax
-- [x] Cross-references point to existing sections
-- [x] Integrated seamlessly with existing content
-
-❌ BAD: Added some docs
-```
-
-**DO**: Link to related issues and PRs explicitly:
-
-```markdown
-✅ GOOD:
-Related Issues:
-- Closes #2549
-- Related to #2548 (Markdown standards)
-- Depends on #2544 (Agent hierarchy)
-
-❌ BAD: Fixes the issue about Claude docs
-```
-
-#### Code Review Output
-
-**DO**: Provide specific, actionable feedback with examples:
-
-```markdown
-✅ GOOD:
-
-**Issue**: Inconsistent parameter naming in ExTensor methods
-
-**Location**: `/home/user/ProjectOdyssey/shared/core/extensor.mojo:120-145`
-
-**Problem**: Methods use both `mut self` and `self` inconsistently
-
-**Recommendation**: Use implicit `read` (just `self`) for read-only methods:
-
-# Current (line 120)
-fn shape(mut self) -> List[Int]:  # ❌ mut not needed
-    return self._shape
-
-# Should be
-fn shape(self) -> List[Int]:  # ✅ Implicit read
-    return self._shape
-
-**Impact**: Misleading API - suggests mutation when none occurs
-
-❌ BAD: The shape method is wrong
-```
-
-**DO**: Prioritize feedback by severity:
-
-```markdown
-✅ GOOD:
-
-### Critical (Must Fix Before Merge)
-1. Memory leak in ExTensor.__del__() - data not freed
-2. Missing bounds check in __getitem__() - potential segfault
-
-### Important (Should Fix)
-1. Inconsistent parameter naming (mut vs read)
-2. Missing docstrings on public methods
-
-### Nice to Have (Consider for Future)
-1. Add SIMD optimization to fill() method
-2. Consider caching numel() computation
-
-❌ BAD: Here's 20 random issues in no particular order
-```
-
-#### Terminal Output
-
-**DO**: Use structured formatting for command output:
-
-```bash
-$ mojo test tests/shared/core/test_tensor.mojo
-Testing: /home/user/ProjectOdyssey/tests/shared/core/test_tensor.mojo
-  test_tensor_creation ... PASSED
-  test_tensor_indexing ... PASSED
-  test_tensor_reshape ... PASSED
-All tests passed (3/3)
-```
-
-**DO**: Include error context when reporting failures:
-
-```bash
-$ mojo build shared/core/extensor.mojo
-error: ExTensor.mojo:145:16: cannot transfer ownership of
-  non-copyable type
-    return self._data
-           ^
-```
+See [Output Style Guidelines](.claude/shared/output-style-guidelines.md) for complete examples.
 
 ### Tool Use Optimization
 
-Efficient tool use reduces latency and token consumption. Follow these patterns:
+Make independent tool calls in parallel (Read, Grep, Glob). Use absolute paths in Bash commands
+(cwd resets between calls). Use dedicated tools (Read/Grep/Glob/Edit) rather than Bash for
+file operations. Prefer `&&`-chained commands for atomicity.
 
-#### Parallel Tool Calls
-
-**DO**: Make independent tool calls in parallel:
-
-```python
-# ✅ GOOD - Parallel reads
-read_file_1 = Read("/path/to/file1.mojo")
-read_file_2 = Read("/path/to/file2.mojo")
-read_file_3 = Read("/path/to/file3.mojo")
-# All three reads happen concurrently
-
-# ❌ BAD - Sequential reads
-read_file_1 = Read("/path/to/file1.mojo")
-# Wait for result...
-read_file_2 = Read("/path/to/file2.mojo")
-# Wait for result...
-read_file_3 = Read("/path/to/file3.mojo")
-```
-
-**DO**: Group related grep searches:
-
-```python
-# ✅ GOOD - Parallel greps
-grep_functions = Grep(pattern="fn .*", glob="*.mojo")
-grep_structs = Grep(pattern="struct .*", glob="*.mojo")
-grep_tests = Grep(pattern="test_.*", glob="test_*.mojo")
-# All searches run in parallel
-
-# ❌ BAD - Sequential greps with waiting
-grep_functions = Grep(pattern="fn .*", glob="*.mojo")
-# Process results, then...
-grep_structs = Grep(pattern="struct .*", glob="*.mojo")
-```
-
-#### Bash Command Patterns
-
-**DO**: Use absolute paths in bash commands (cwd resets between calls):
-
-```bash
-# ✅ GOOD - Absolute paths
-cd /home/user/ProjectOdyssey && pixi run mojo test tests/shared/core/test_tensor.mojo
-
-# ❌ BAD - Relative paths (cwd not guaranteed)
-cd ProjectOdyssey && pixi run mojo test tests/shared/core/test_tensor.mojo
-```
-
-**DO**: Combine related commands with && for atomicity:
-
-```bash
-# ✅ GOOD - Atomic operation
-cd /home/user/ProjectOdyssey && \
-  git checkout -b 2549-claude-md && \
-  git add CLAUDE.md && \
-  git commit -m "docs: add Claude 4 optimization guidance"
-
-# ❌ BAD - Multiple separate bash calls (cwd resets)
-cd /home/user/ProjectOdyssey
-git checkout -b 2549-claude-md  # Might run in different directory!
-git add CLAUDE.md
-```
-
-**DO**: Capture output explicitly when needed:
-
-```bash
-# ✅ GOOD - Capture and parse output
-cd /home/user/ProjectOdyssey && \
-  pixi run mojo test tests/ 2>&1 | tee test_output.log && \
-  grep -c PASSED test_output.log
-
-# ❌ BAD - Output lost between calls
-cd /home/user/ProjectOdyssey && pixi run mojo test tests/
-# Output is gone, can't analyze it
-```
-
-#### Tool Selection
-
-Use the right tool for the job:
-
-| Task | Tool | Rationale |
-|------|------|-----------|
-| Read file | Read | Fast, includes lines |
-| Search pattern | Grep | Optimized regex |
-| Find files | Glob | Fast discovery |
-| Run commands | Bash | Execute shell |
-| Edit lines | Edit | Precise replace |
-| Write file | Write | Create/overwrite |
-
-**DO**: Use the most specific tool:
-
-```python
-# ✅ GOOD - Use Glob to find files, then Read them
-files = Glob(pattern="**/test_*.mojo")
-for file in files:
-    content = Read(file)
-
-# ❌ BAD - Use Bash for file discovery
-result = Bash("find . -name 'test_*.mojo'")
-# Now have to parse shell output
-```
+See [Tool Use Optimization](.claude/shared/tool-use-optimization.md) for complete examples.
 
 ### Agentic Loop Patterns
 
-Claude Code supports iterative exploration through agentic loops. Use this pattern for complex tasks:
+For complex tasks, follow Exploration → Planning → Execution: gather context first (Read/Grep/Glob),
+design solution with subtasks, then implement iteratively with early verification. Iterate on
+failures rather than perfecting upfront.
 
-#### Exploration → Planning → Execution
+Use agentic loops for: complex refactoring, unclear root-cause debugging, design tradeoff decisions.
+Skip for: simple well-defined tasks, boilerplate generation, mechanical changes.
 
-**Phase 1: Exploration** - Gather context and understand the problem:
-
-```markdown
-Exploration Tasks:
-1. Read relevant documentation (CLAUDE.md, agent files, related issues)
-2. Search for existing patterns (grep for similar implementations)
-3. Identify constraints and requirements (compiler version, API patterns)
-4. Review recent changes (git log, PR history)
-
-Tools: Read, Grep, Glob, Bash (git log)
-Output: Problem understanding, constraints, existing patterns
-```
-
-**Phase 2: Planning** - Design the solution:
-
-```markdown
-Planning Tasks:
-1. Break down the problem into subtasks
-2. Identify files to modify and create
-3. Design interfaces and data structures
-4. Plan verification steps (tests, linting, CI)
-
-Tools: Extended thinking, structured reasoning
-Output: Implementation plan, task breakdown, success criteria
-```
-
-**Phase 3: Execution** - Implement the solution:
-
-```markdown
-Execution Tasks:
-1. Make code changes (Edit, Write)
-2. Run verification (Bash: mojo test, pre-commit)
-3. Fix errors iteratively (Read error output → Edit → Rerun)
-4. Create PR and link to issue (gh-create-pr-linked skill)
-
-Tools: Edit, Write, Bash, agent skills
-Output: Working implementation, passing tests, merged PR
-```
-
-**Example - Agentic Loop for Issue #2549**:
-
-```markdown
-Iteration 1: Exploration
-- Read CLAUDE.md to understand structure (Read tool)
-- Search for existing Claude guidance (Grep "Claude|agent|skill")
-- Review Issue #2549 requirements (gh issue view 2549)
-- Read Claude 4 docs links (external URLs)
-Output: Understand where to insert new section, what to include
-
-Iteration 2: Planning
-- Design section structure (6 subsections based on requirements)
-- Identify insertion point (after "Working with Agents", before "Delegation")
-- Plan examples (extended thinking, skills vs sub-agents, hooks)
-- Define success criteria (markdown linting, cross-references, integration)
-Output: Section outline, examples drafted, verification plan
-
-Iteration 3: Execution
-- Insert new section using Edit tool
-- Add cross-references to existing sections
-- Run markdown linting (just pre-commit-all)
-- Fix any linting errors
-- Create PR with "Closes #2549"
-Output: Updated CLAUDE.md, passing linting, PR created
-
-Iteration 4: Verification & Refinement
-- Review generated content for accuracy
-- Verify all examples use correct syntax
-- Check cross-references point to real sections
-- Confirm integration with existing content
-- Enable auto-merge if CI passes
-Output: PR ready for merge, issue resolved
-```
-
-**Key Principles**:
-
-1. **Iterate, don't perfect upfront** - Start with exploration, refine through execution
-2. **Fail fast** - Run verification early and often
-3. **Learn from errors** - Each failure provides information for the next iteration
-4. **Checkpoint progress** - Commit working states, even if incomplete
-5. **Adapt the plan** - If exploration reveals new constraints, update the plan
-
-**When to Use Agentic Loops**:
-
-- ✅ Complex refactoring across multiple files
-- ✅ Debugging issues with unclear root causes
-- ✅ Implementing features with design tradeoffs
-- ✅ Exploring unfamiliar codebases
-
-**When NOT to Use Agentic Loops**:
-
-- ❌ Simple, well-defined tasks (use direct execution)
-- ❌ Boilerplate code generation (use templates/examples)
-- ❌ Mechanical changes (formatting, renaming)
-
-### Cross-References
-
-- **Agent Skills**: See available skills in [Skill Delegation Patterns](#skill-delegation-patterns)
-- **Sub-Agents**: See agent hierarchy in `/agents/hierarchy.md`
-- **Hooks**: See error handling patterns in `.claude/shared/error-handling.md`
-- **Extended Thinking**: Referenced in [Key Agent Principles](#key-agent-principles)
-- **GitHub Workflow**: See `.claude/shared/github-issue-workflow.md` for issue/PR patterns
-- **Tool Use**: See tool documentation in Claude Code docs
-
-### Further Reading
-
-- [Claude 4 Best Practices](<https://platform.claude.com/docs/en/build-with-claude/overview>)
-- [Agent Skills Best Practices](<https://platform.claude.com/docs/en/agents-and-tools/claude-for-sheets>)
-- [Sub-Agents Guide](<https://code.claude.com/docs/en/sub-agents>)
-- [Output Styles](<https://code.claude.com/docs/en/output-styles>)
-- [Hooks Guide](<https://code.claude.com/docs/en/hooks-guide>)
+See [Tool Use Optimization](.claude/shared/tool-use-optimization.md#agentic-loop-patterns) for details.
 
 ## Delegation to Agent Hub
 
@@ -1233,116 +750,12 @@ Every component follows a hierarchical workflow with clear dependencies:
 
 ## Testing Strategy
 
-ML Odyssey uses a comprehensive two-tier testing strategy designed for fast PR validation
-and thorough weekly integration testing.
+Two-tier architecture: **Tier 1** layerwise unit tests (every PR, ~12 min, FP-representable special
+values 0.0/0.5/1.0/1.5/-1.0/-0.5, all 7 models) and **Tier 2** E2E integration tests (weekly,
+real EMNIST/CIFAR-10 datasets). Parametric layers validated with gradient checking (seed=42,
+epsilon=1e-5). Run with: `pixi run mojo test tests/models/test_<model>_layers.mojo`
 
-### Two-Tier Testing Architecture
-
-**Tier 1: Layerwise Unit Tests** (Run on every PR)
-
-- Fast, deterministic tests using FP-representable special values (0.0, 0.5, 1.0, 1.5, -1.0, -0.5)
-- Tests each layer independently (forward AND backward passes)
-- Validates analytical gradients against numerical gradients
-- Small tensor sizes to prevent timeouts
-- Runtime: ~12 minutes across all 7 models
-- Location: `tests/models/test_<model>_layers.mojo`
-
-**Tier 2: End-to-End Integration Tests** (Run weekly only)
-
-- Full model validation with real datasets (EMNIST, CIFAR-10)
-- Tests complete forward-backward pipeline
-- Validates training convergence (5 epochs, ≥20% loss decrease)
-- Runtime: ~20 minutes per model
-- Schedule: Weekly on Sundays at 3 AM UTC
-- Location: `tests/models/test_<model>_e2e.mojo`
-
-### Test Coverage by Model
-
-All 7 models have comprehensive test coverage:
-
-| Model | Layers | Layerwise Tests | E2E Tests | Runtime (Layerwise) |
-|-------|--------|-----------------|-----------|---------------------|
-| LeNet-5 | 12 ops | 25 tests | 7 tests | ~45-55s |
-| AlexNet | 15 ops | 42 tests | 9 tests | <60s |
-| VGG-16 | 25 ops (13 conv) | 16 tests* | 10 tests | ~90s |
-| ResNet-18 | Residual blocks | 12 tests | 9 tests | ~90s |
-| MobileNetV1 | Depthwise sep. | 26 tests | 15 tests | ~90s |
-| GoogLeNet | Inception modules | 18 tests | 15 tests | ~90s |
-
-\* Heavy deduplication (13 conv → 5 unique tests)
-\*\* Extreme deduplication (58 conv → 14 unique tests, 88% reduction)
-
-### Special FP-Representable Values
-
-Layerwise tests use special values that are exactly representable across all dtypes:
-
-- `0.0`, `0.5`, `1.0`, `1.5` - Positive values for forward pass testing
-- `-1.0`, `-0.5` - Negative values for ReLU gradient testing
-- Seeded random tensors - For gradient checking reproducibility
-
-These values work identically in FP4, FP8, BF8, FP16, FP32, BFloat16, Int8, ensuring
-consistent behavior across precision levels.
-
-### Gradient Checking
-
-All parametric layers (Conv, Linear, BatchNorm) validate backward passes:
-
-- Compares analytical gradients to numerical gradients (finite differences)
-- Uses seeded random tensors for reproducibility (seed=42)
-- Epsilon=1e-5, tolerance=1e-2 for float32
-- Small tensor sizes (8×8 for conv) to prevent timeout
-
-### Test Organization
-
-```text
-tests/
-├── models/
-│   ├── test_lenet5_layers.mojo      # Layerwise unit tests
-│   ├── test_lenet5_e2e.mojo         # E2E integration tests
-│   ├── test_alexnet_layers.mojo
-│   ├── test_alexnet_e2e.mojo
-│   └── ... (7 models total)
-├── shared/
-│   └── testing/
-│       ├── special_values.mojo      # FP-representable test values
-│       ├── layer_testers.mojo       # Reusable layer testing patterns
-│       ├── dtype_utils.mojo         # DType iteration utilities
-│       └── gradient_checker.mojo    # Numerical gradient validation
-```
-
-### CI/CD Workflows
-
-**PR CI** (`.github/workflows/comprehensive-tests.yml`):
-
-- Runs layerwise tests for all 7 models
-- Target runtime: < 12 minutes
-- 21 parallel test groups
-- No dataset downloads required
-
-**Weekly E2E** (`.github/workflows/model-e2e-tests-weekly.yml`):
-
-- Runs E2E tests for all 7 models
-- Downloads EMNIST and CIFAR-10 datasets
-- Generates weekly report with 365-day retention
-- Schedule: Sundays at 3 AM UTC
-
-### Running Tests Locally
-
-```bash
-# Run layerwise tests for a specific model
-pixi run mojo test tests/models/test_lenet5_layers.mojo
-
-# Run E2E tests (requires datasets)
-pixi run mojo test tests/models/test_lenet5_e2e.mojo
-
-# Run all tests for a model
-pixi run mojo test tests/models/test_lenet5_*.mojo
-
-# Run all layerwise tests
-pixi run mojo test tests/models/test_*_layers.mojo
-```
-
-See [Testing Strategy Guide](docs/dev/testing-strategy.md) for comprehensive documentation.
+See [Testing Strategy Guide](docs/dev/testing-strategy.md) for full documentation.
 
 ## GitHub Issue Structure
 
