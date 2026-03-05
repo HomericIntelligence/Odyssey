@@ -21,8 +21,10 @@ github\.com/HomericIntelligence/ProjectOdyssey
 # Ignore pytorch docs redirects (pytorch.org -> docs.pytorch.org)
 pytorch\.org/docs
 
-# Add additional patterns below as needed
-# Examples:
-# localhost
-# 127\.0\.0\.1
-# Private or authenticated URLs that should be skipped
+# Ignore root-relative links (lychee cannot resolve these without --root-url)
+# These are valid repo-relative paths in CLAUDE.md, docs/adr/, notebooks/README.md
+^/CLAUDE\.md$
+^/\.claude/
+^/agents/
+^/docs/
+^/examples/
