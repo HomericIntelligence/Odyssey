@@ -472,8 +472,7 @@ The operational agent configurations are in `.claude/agents/` (44 agents total):
 ### In agents/ (This Directory)
 
 - **README.md** (this file) - Overview and quick start
-- **hierarchy.md** - Visual hierarchy diagram and quick reference
-- **agent-hierarchy.md** - Complete detailed hierarchy specification
+- **hierarchy.md** - Visual hierarchy diagram, quick reference, and complete agent specifications
 - **delegation-rules.md** - Coordination and delegation patterns
 - **templates/** - Agent configuration templates
 - **docs/** - Integration documentation
@@ -500,7 +499,7 @@ See issues #62 through #67 (agents) and #510 through #514 (skills).
 - [Claude Code Sub-Agents Documentation](https://code.claude.com/docs/en/sub-agents)
 - [Claude Code Skills Documentation](https://code.claude.com/docs/en/skills)
 - [Project 5-Phase Workflow](../notes/review/README.md)
-- [Complete Agent Hierarchy](agent-hierarchy.md)
+- [Complete Agent Hierarchy](hierarchy.md)
 - [Skills Design](../notes/review/skills-design.md)
 - [Orchestration Patterns](../notes/review/orchestration-patterns.md)
 

@@ -268,5 +268,5 @@ python scripts/agents/validate_agents.py --agents-dir /path/to/agents
 ## See Also
 
 - [Agent Documentation](../../agents/README.md) - Team documentation
-- [Agent Hierarchy](../../agents/agent-hierarchy.md) - Complete agent specifications
+- [Agent Hierarchy](../../agents/hierarchy.md) - Complete agent specifications
 - [Delegation Rules](../../agents/delegation-rules.md) - Coordination patterns

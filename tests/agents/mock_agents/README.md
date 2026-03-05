@@ -123,4 +123,4 @@ These mock agents should:
 
 - [Test Plan](../../../notes/issues/63/test-plan.md) - Comprehensive test plan
 - [Test Results](../../../notes/issues/63/test-results.md) - Test execution results
-- [Agent Hierarchy](../../../agents/agent-hierarchy.md) - Complete specifications
+- [Agent Hierarchy](../../../agents/hierarchy.md) - Complete specifications

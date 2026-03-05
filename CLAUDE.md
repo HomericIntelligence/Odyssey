@@ -1106,8 +1106,7 @@ all PRs and pushes to `main`.
 ProjectOdyssey/
 ├── agents/                      # Team documentation
 │   ├── README.md                # Quick start guide
-│   ├── hierarchy.md             # Visual hierarchy diagram
-│   ├── agent-hierarchy.md       # Agent specifications
+│   ├── hierarchy.md             # Visual hierarchy diagram and complete agent specifications
 │   ├── delegation-rules.md      # Coordination patterns
 │   └── templates/               # Agent configuration templates
 ├── notes/
