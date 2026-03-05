@@ -314,8 +314,6 @@ from shared.core.linear import (
     linear_no_bias,
     linear_backward,
     linear_no_bias_backward,
-    LinearBackwardResult,
-    LinearNoBiasBackwardResult,
 )
 
 from shared.core.conv import (
