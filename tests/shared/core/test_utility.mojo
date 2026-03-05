@@ -5,7 +5,7 @@ and helper methods like numel, dim, size, stride, is_contiguous.
 """
 
 # Import ExTensor and operations
-from shared.core import ExTensor, zeros, ones, full, arange, clone, item, diff
+from shared.core import ExTensor, zeros, ones, full, arange, clone, item, diff, as_contiguous
 
 # Import test helpers
 from tests.shared.conftest import (
@@ -16,6 +16,8 @@ from tests.shared.conftest import (
     assert_value_at,
     assert_equal_int,
     assert_almost_equal,
+    assert_true,
+    assert_false,
 )
 
 
@@ -137,25 +139,19 @@ fn test_is_contiguous_true() raises:
     shape.append(4)
     var t = ones(shape, DType.float32)
 
-    # TODO(#2722): assert_contiguous(t)
-    # For now, just test the method exists
-    var _ = t.is_contiguous()
-    # Should be True for newly created tensor
-    pass  # Placeholder
+    assert_true(t.is_contiguous(), "Newly created tensor should be contiguous")
 
 
 fn test_is_contiguous_after_transpose() raises:
-    """Test that transposed tensor is not contiguous."""
+    """Test that a tensor with column-major strides is not contiguous."""
     var shape = List[Int]()
     shape.append(3)
     shape.append(4)
     var a = ones(shape, DType.float32)
-    # var b = transpose(a)  # TODO(#2722): Implement transpose()
-
-    # Transposed tensor is typically not contiguous
-    # var contig = b.is_contiguous()
-    # assert_false(contig, "Transposed tensor should not be contiguous")
-    pass  # Placeholder
+    # Simulate non-contiguous layout by setting column-major strides [1, rows]
+    a._strides[0] = 1
+    a._strides[1] = 3
+    assert_false(a.is_contiguous(), "Column-major tensor should not be contiguous")
 
 
 # ============================================================================
@@ -168,14 +164,24 @@ fn test_contiguous_on_noncontiguous() raises:
     var shape = List[Int]()
     shape.append(3)
     shape.append(4)
-    var a = ones(shape, DType.float32)
-    # var b = transpose(a)  # Not contiguous
-    # var c = contiguous(b)  # TODO(#2722): Implement contiguous()
+    var a = arange(0.0, 12.0, 1.0, DType.float32)
+    var b = a.reshape(shape)
+    # Simulate non-contiguous layout by setting column-major strides [1, rows]
+    b._strides[0] = 1
+    b._strides[1] = 3
+    assert_false(b.is_contiguous(), "Stride-manipulated tensor should not be contiguous")
 
-    # c should now be contiguous
-    # var contig = c.is_contiguous()
-    # assert_true(contig, "contiguous() should make tensor contiguous")
-    pass  # Placeholder
+    # as_contiguous() should produce a contiguous copy
+    var c = as_contiguous(b)
+    assert_true(c.is_contiguous(), "as_contiguous() result should be contiguous")
+
+    # Result should have row-major strides [4, 1] for shape (3, 4)
+    assert_equal_int(c._strides[0], 4, "Stride for dim 0 should be 4 (cols)")
+    assert_equal_int(c._strides[1], 1, "Stride for dim 1 should be 1")
+
+    # Values should be preserved in flat order (0..11)
+    for i in range(12):
+        assert_value_at(c, i, Float64(i), 1e-6, "Values should be preserved")
 
 
 # ============================================================================
