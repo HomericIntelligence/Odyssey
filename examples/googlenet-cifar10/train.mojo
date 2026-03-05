@@ -433,9 +433,14 @@ fn main() raises:
     # Training loop
     print("Starting training...")
     print()
-    print("STATUS: Backward pass shown above is a documented placeholder (~3500 lines for full impl).")
+    print(
+        "STATUS: Backward pass shown above is a documented placeholder (~3500"
+        " lines for full impl)."
+    )
     print("        Full implementation tracked in GitHub issue #3184.")
-    print("        For actual training, consider using automatic differentiation.")
+    print(
+        "        For actual training, consider using automatic differentiation."
+    )
     print()
 
     for epoch in range(epochs):
