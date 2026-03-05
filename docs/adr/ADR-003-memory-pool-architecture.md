@@ -1,6 +1,6 @@
 # ADR-003: Memory Pool Architecture for Small Tensor Allocations
 
-**Status**: Accepted
+**Status**: Accepted (Deferred)
 
 **Date**: 2025-12-28
 
@@ -298,7 +298,7 @@ struct PoolConfig:
 ## Document Metadata
 
 - **Location**: `/docs/adr/ADR-003-memory-pool-architecture.md`
-- **Status**: Accepted
+- **Status**: Accepted (Deferred)
 - **Review Frequency**: As-needed
 - **Next Review**: When Mojo v0.26+ releases
 - **Supersedes**: None
