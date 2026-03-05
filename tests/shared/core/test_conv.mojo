@@ -597,11 +597,174 @@ fn test_conv2d_batched() raises:
 
 
 # ============================================================================
-# Conv2D Backward Pass Tests (DISABLED)
+# Conv2D Backward Pass Tests
 # ============================================================================
-# NOTE (Mojo v0.26.1): Backward tests are currently disabled because Conv2dBackwardResult
-# is not Copyable in Mojo v0.26.1. Once Mojo's type system supports this, these tests
-# can be re-enabled. Current tests provide comprehensive forward pass coverage instead.
+
+
+fn test_conv2d_backward_shapes() raises:
+    """Test that conv2d_backward returns correct gradient shapes."""
+    var batch = 1
+    var in_channels = 1
+    var in_height = 4
+    var in_width = 4
+    var out_channels = 1
+    var kH = 3
+    var kW = 3
+    var stride = 1
+    var padding = 0
+
+    var input_shape = List[Int]()
+    input_shape.append(batch)
+    input_shape.append(in_channels)
+    input_shape.append(in_height)
+    input_shape.append(in_width)
+    var x = ones(input_shape, DType.float32)
+
+    var kernel_shape = List[Int]()
+    kernel_shape.append(out_channels)
+    kernel_shape.append(in_channels)
+    kernel_shape.append(kH)
+    kernel_shape.append(kW)
+    var kernel = ones(kernel_shape, DType.float32)
+
+    var bias_shape = List[Int]()
+    bias_shape.append(out_channels)
+    var bias = zeros(bias_shape, DType.float32)
+
+    # Forward pass
+    var output = conv2d(x, kernel, bias, stride, padding)
+
+    # Gradient w.r.t. output (ones_like)
+    var grad_output = ones(output.shape(), DType.float32)
+
+    # Backward pass
+    var result = conv2d_backward(grad_output, x, kernel, stride, padding)
+    var grad_input = result.grad_input
+    var grad_kernel = result.grad_weights
+    var grad_bias = result.grad_bias
+
+    # grad_input should match input shape
+    assert_equal(grad_input.shape()[0], batch)
+    assert_equal(grad_input.shape()[1], in_channels)
+    assert_equal(grad_input.shape()[2], in_height)
+    assert_equal(grad_input.shape()[3], in_width)
+
+    # grad_kernel should match kernel shape
+    assert_equal(grad_kernel.shape()[0], out_channels)
+    assert_equal(grad_kernel.shape()[1], in_channels)
+    assert_equal(grad_kernel.shape()[2], kH)
+    assert_equal(grad_kernel.shape()[3], kW)
+
+    # grad_bias should match bias shape
+    assert_equal(grad_bias.shape()[0], out_channels)
+
+
+fn test_conv2d_backward_bias_gradient() raises:
+    """Test that conv2d_backward computes correct gradient w.r.t. bias.
+
+    grad_bias[oc] = sum of grad_output over all (batch, height, width) positions
+    for that output channel.
+    """
+    var batch = 2
+    var in_channels = 1
+    var in_height = 4
+    var in_width = 4
+    var out_channels = 2
+    var kH = 3
+    var kW = 3
+    var stride = 1
+    var padding = 0
+
+    var input_shape = List[Int]()
+    input_shape.append(batch)
+    input_shape.append(in_channels)
+    input_shape.append(in_height)
+    input_shape.append(in_width)
+    var x = ones(input_shape, DType.float32)
+
+    var kernel_shape = List[Int]()
+    kernel_shape.append(out_channels)
+    kernel_shape.append(in_channels)
+    kernel_shape.append(kH)
+    kernel_shape.append(kW)
+    var kernel = ones(kernel_shape, DType.float32)
+
+    var bias_shape = List[Int]()
+    bias_shape.append(out_channels)
+    var bias = zeros(bias_shape, DType.float32)
+
+    # Forward pass
+    var output = conv2d(x, kernel, bias, stride, padding)
+
+    # Output shape: (2, 2, 2, 2) - batch=2, out_channels=2, out_h=2, out_w=2
+    # grad_output = ones
+    var grad_output = ones(output.shape(), DType.float32)
+
+    # Backward pass
+    var result = conv2d_backward(grad_output, x, kernel, stride, padding)
+    var grad_bias = result.grad_bias
+
+    # grad_bias[oc] = sum of grad_output for that output channel
+    # With ones gradient and output shape (2, 2, 2, 2):
+    # Each channel has 2*2*2 = 8 output elements
+    # grad_bias should be 8.0 for each channel
+    var out_h = output.shape()[2]
+    var out_w = output.shape()[3]
+    var expected_grad_bias = Float32(batch * out_h * out_w)
+
+    for oc in range(out_channels):
+        assert_almost_equal(
+            grad_bias._data.bitcast[Float32]()[oc],
+            expected_grad_bias,
+            tolerance=1e-4,
+        )
+
+
+fn test_conv2d_no_bias_backward_shapes() raises:
+    """Test that conv2d_no_bias_backward returns correct gradient shapes."""
+    var batch = 1
+    var in_channels = 2
+    var in_height = 5
+    var in_width = 5
+    var out_channels = 3
+    var kH = 3
+    var kW = 3
+    var stride = 1
+    var padding = 0
+
+    var input_shape = List[Int]()
+    input_shape.append(batch)
+    input_shape.append(in_channels)
+    input_shape.append(in_height)
+    input_shape.append(in_width)
+    var x = ones(input_shape, DType.float32)
+
+    var kernel_shape = List[Int]()
+    kernel_shape.append(out_channels)
+    kernel_shape.append(in_channels)
+    kernel_shape.append(kH)
+    kernel_shape.append(kW)
+    var kernel = ones(kernel_shape, DType.float32)
+
+    var output = conv2d_no_bias(x, kernel, stride, padding)
+    var grad_output = ones(output.shape(), DType.float32)
+
+    var result = conv2d_no_bias_backward(grad_output, x, kernel, stride, padding)
+    var grad_input = result.grad_a
+    var grad_kernel = result.grad_b
+
+    # grad_input should match input shape
+    assert_equal(grad_input.shape()[0], batch)
+    assert_equal(grad_input.shape()[1], in_channels)
+    assert_equal(grad_input.shape()[2], in_height)
+    assert_equal(grad_input.shape()[3], in_width)
+
+    # grad_kernel should match kernel shape
+    assert_equal(grad_kernel.shape()[0], out_channels)
+    assert_equal(grad_kernel.shape()[1], in_channels)
+    assert_equal(grad_kernel.shape()[2], kH)
+    assert_equal(grad_kernel.shape()[3], kW)
+
 
 # ============================================================================
 # Integration Tests
@@ -794,8 +957,17 @@ fn main() raises:
     test_conv2d_batched()
     print("✓ test_conv2d_batched")
 
-    # Integration tests (backward tests disabled due to ownership issues in Conv2dBackwardResult)
-    # TODO(#2724): Fix Conv2dBackwardResult ownership to enable backward pass testing
+    # Backward pass tests (Conv2dBackwardResult is GradientTriple which is Copyable)
+    test_conv2d_backward_shapes()
+    print("✓ test_conv2d_backward_shapes")
+
+    test_conv2d_backward_bias_gradient()
+    print("✓ test_conv2d_backward_bias_gradient")
+
+    test_conv2d_no_bias_backward_shapes()
+    print("✓ test_conv2d_no_bias_backward_shapes")
+
+    # Integration tests
     test_conv2d_forward_backward_consistency()
     print("✓ test_conv2d_forward_backward_consistency")
 

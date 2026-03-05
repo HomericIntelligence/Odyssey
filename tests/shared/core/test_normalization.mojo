@@ -804,12 +804,8 @@ fn main() raises:
     print("✓ test_batch_norm2d_zero_variance")
 
     # Batch normalization backward pass tests (gradient checking)
-    # TODO(#2724): batch_norm2d_backward still has gradient issues - needs more investigation
-    # See issue comment for details on attempted fixes with PyTorch formula
-    print(
-        "⚠ test_batch_norm2d_backward_gradient_input - SKIPPED (still"
-        " investigating)"
-    )
+    test_batch_norm2d_backward_gradient_input()
+    print("✓ test_batch_norm2d_backward_gradient_input")
 
     test_batch_norm2d_backward_training_vs_inference()
     print("✓ test_batch_norm2d_backward_training_vs_inference")
