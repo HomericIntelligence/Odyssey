@@ -241,6 +241,12 @@ examples/mobilenetv1-cifar10/
 - [ ] Training script structure
 - [ ] Comprehensive documentation
 
+### ⚠️ Pending (Intentional Placeholder)
+
+- [ ] **Full backward pass**: ~2000 lines — tracked in [GitHub issue #3187](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3187)
+  - The training script demonstrates the structure but uses a placeholder backward pass
+  - For actual training, consider using automatic differentiation
+
 ### 🔮 Future Enhancements
 
 - [ ] Width multiplier (0.25, 0.5, 0.75, 1.0)

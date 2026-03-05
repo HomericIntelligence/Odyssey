@@ -310,7 +310,7 @@ fn main() raises:
 
     # Note: In a complete implementation, initialize 84 velocity tensors
     # matching the shape of each parameter. For this demonstration:
-    print("  NOTE: Full backward pass implementation required")
+    print("  STATUS: Backward pass is a documented placeholder (full implementation tracked in GitHub issue #3181)")
     print("  This script demonstrates the structure and patterns")
     print()
 

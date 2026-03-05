@@ -212,11 +212,9 @@ fn main() raises:
 
     print("Starting training...")
     print()
-    print("NOTE: Full backward pass implementation would require ~2000 lines.")
-    print("      This is a placeholder showing the structure.")
-    print(
-        "      For actual training, consider using automatic differentiation."
-    )
+    print("STATUS: Backward pass shown above is a documented placeholder (~2000 lines for full impl).")
+    print("        Full implementation tracked in GitHub issue #3187.")
+    print("        For actual training, consider using automatic differentiation.")
     print()
 
     for epoch in range(epochs):
