@@ -749,7 +749,9 @@ fn test_conv2d_no_bias_backward_shapes() raises:
     var output = conv2d_no_bias(x, kernel, stride, padding)
     var grad_output = ones(output.shape(), DType.float32)
 
-    var result = conv2d_no_bias_backward(grad_output, x, kernel, stride, padding)
+    var result = conv2d_no_bias_backward(
+        grad_output, x, kernel, stride, padding
+    )
     var grad_input = result.grad_a
     var grad_kernel = result.grad_b
 
