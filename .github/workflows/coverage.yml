@@ -49,40 +49,18 @@ jobs:
             metrics.md
           retention-days: 90
 
+      - name: Build PR comment report
+        if: github.event_name == 'pull_request'
+        run: |
+          {
+            printf '## \xf0\x9f\x93\x8a Test Metrics Report\n\n'
+            cat metrics.md
+            printf '\n\n---\n*Note: Full code coverage requires Mojo coverage tooling (blocked - see ADR-008)*\n'
+          } > metrics-pr-comment.md
+
       - name: Comment on PR with metrics
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: ./.github/actions/pr-comment
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const fs = require('fs');
-            const metricsContent = fs.readFileSync('metrics.md', 'utf8');
-
-            // Find existing bot comment
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            });
-
-            const botComment = comments.find(c =>
-              c.user.type === 'Bot' && c.body.includes('📊 Test Metrics Report')
-            );
-
-            const body = `## 📊 Test Metrics Report\n\n${metricsContent}\n\n---\n*Note: Full code coverage requires Mojo coverage tooling (blocked - see ADR-008)*`;
-
-            if (botComment) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: botComment.id,
-                body: body
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: body
-              });
-            }
+          report-file: metrics-pr-comment.md
+          comment-marker: "\U0001F4CA Test Metrics Report"

@@ -399,48 +399,10 @@ jobs:
 
       - name: Comment on PR
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: ./.github/actions/pr-comment
         with:
-          script: |
-            const fs = require('fs');
-
-            try {
-              const report = fs.readFileSync('paper-report.md', 'utf8');
-
-              // Check if a comment already exists
-              const { data: comments } = await github.rest.issues.listComments({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-              });
-
-              const botComment = comments.find(comment =>
-                comment.user.type === 'Bot' &&
-                comment.body.includes('📄 Paper Validation Results')
-              );
-
-              if (botComment) {
-                // Update existing comment
-                await github.rest.issues.updateComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  comment_id: botComment.id,
-                  body: report
-                });
-                console.log('Updated existing PR comment');
-              } else {
-                // Create new comment
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: context.issue.number,
-                  body: report
-                });
-                console.log('Created new PR comment');
-              }
-            } catch (error) {
-              console.error('Failed to comment on PR:', error);
-            }
+          report-file: paper-report.md
+          comment-marker: "\U0001F4C4 Paper Validation Results"
 
       - name: Check validation status
         run: |

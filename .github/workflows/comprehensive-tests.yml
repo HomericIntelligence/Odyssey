@@ -76,24 +76,26 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
 
       - name: Set up Pixi
-        uses: prefix-dev/setup-pixi@v0.9.4
-        with:
-          pixi-version: latest
-          cache: true
-
-      - name: Cache Pixi environments
-        uses: actions/cache@v5
-        with:
-          path: ~/.pixi
-          key: pixi-${{ runner.os }}-${{ hashFiles('pixi.toml') }}
-          restore-keys: |
-            pixi-${{ runner.os }}-
+        uses: ./.github/actions/setup-pixi
 
       - name: Check Mojo version
         run: pixi run mojo --version
 
       - name: Install Just
         uses: extractions/setup-just@v3
+
+      - name: Build Mojo packages
+        run: |
+          echo "=================================================="
+          echo "Building Mojo packages..."
+          echo "=================================================="
+
+          if [ -d "shared" ]; then
+            just build ci
+            echo "✅ Shared package built successfully"
+          else
+            echo "⚠️  No shared package found yet"
+          fi
 
       - name: Compile shared package
         run: |
@@ -261,18 +263,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
 
       - name: Set up Pixi
-        uses: prefix-dev/setup-pixi@v0.9.4
-        with:
-          pixi-version: latest
-          cache: true
-
-      - name: Cache Pixi environments
-        uses: actions/cache@v5
-        with:
-          path: ~/.pixi
-          key: pixi-${{ runner.os }}-${{ hashFiles('pixi.toml') }}
-          restore-keys: |
-            pixi-${{ runner.os }}-
+        uses: ./.github/actions/setup-pixi
 
       - name: Install Just
         uses: extractions/setup-just@v3
@@ -767,50 +758,10 @@ jobs:
 
       - name: Comment on PR
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: ./.github/actions/pr-comment
         with:
-          script: |
-            const fs = require('fs');
-
-            try {
-              const report = fs.readFileSync('test-report.md', 'utf8');
-
-              // Check if a comment already exists
-              const { data: comments } = await github.rest.issues.listComments({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-              });
-
-              const botComment = comments.find(comment =>
-                comment.user.type === 'Bot' &&
-                comment.body.includes('🧪 Comprehensive Test Results')
-              );
-
-              const commentBody = report;
-
-              if (botComment) {
-                // Update existing comment
-                await github.rest.issues.updateComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  comment_id: botComment.id,
-                  body: commentBody
-                });
-                console.log('Updated existing PR comment');
-              } else {
-                // Create new comment
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: context.issue.number,
-                  body: commentBody
-                });
-                console.log('Created new PR comment');
-              }
-            } catch (error) {
-              console.error('Failed to comment on PR:', error);
-            }
+          report-file: test-report.md
+          comment-marker: "\U0001F9EA Comprehensive Test Results"
 
       - name: Fail if any tests failed
         run: |
