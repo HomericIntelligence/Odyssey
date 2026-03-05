@@ -212,15 +212,17 @@ struct PrecisionConfig(Copyable, Movable):
             PrecisionConfig with BF16 settings.
 
         Note:
-            Uses native DType.bfloat16 via bfloat16_dtype in dtype_utils.mojo.
-            Not supported on Apple Silicon hardware (use FP16 instead).
+            Currently uses FP16 as BF16 is not natively supported in Mojo v0.26.1.
+            When Mojo adds native BF16 support, this will automatically use it
+            via the bfloat16_dtype comptime in dtype_utils.mojo.
 
-        BF16 Characteristics:
+        BF16 Characteristics (when natively supported):
             - 1 sign + 8 exponent + 7 mantissa = 16 bits.
             - Range: ~1e-38 to 3.4e38 (same as FP32).
             - Precision: ~2 decimal digits (less than FP16).
             - Better for large models due to wider exponent range.
         """
+        # NOTE(#3088): bfloat16_dtype aliases to float16_dtype until Mojo supports BF16
         return PrecisionConfig(
             mode=PrecisionMode.BF16,
             compute_dtype=bfloat16_dtype,
