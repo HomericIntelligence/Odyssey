@@ -13,6 +13,12 @@ Usage:
         --format "text,label" \\
         --source csv \\
         --output datasets/text_dataset.mojo
+
+Template Placeholders:
+    The generated Mojo dataset files contain TEMPLATE: markers indicating
+    sections that must be implemented for the specific data source and format.
+    These are intentional scaffolding in the generated output, not
+    implementation gaps in this script.
 """
 
 import argparse
@@ -63,7 +69,7 @@ struct {{name}}(Dataset):
         Args:
             split: Data split to load ("train" or "test")
         \"\"\"
-        # TODO: Implement loading logic
+        # TEMPLATE: Implement loading logic
         # Example structure:
         # data_dir/
         #   train/
@@ -118,7 +124,7 @@ struct {{name}}(Dataset):
             batch_labels.append(sample[1])
 
         # Stack into batch tensors
-        # TODO: Implement proper stacking
+        # TEMPLATE: Implement proper stacking
         return (batch_images[0], ExTensor.from_list(batch_labels))
 """,
     "text": """
@@ -166,13 +172,13 @@ struct {{name}}(Dataset):
         Args:
             data_path: Path to data file
         \"\"\"
-        # TODO: Implement loading logic
+        # TEMPLATE: Implement loading logic
         # Supports: CSV, JSON, plain text
         raise Error("Not implemented: _load_data")
 
     fn _build_vocab(mut self):
         \"\"\"Build vocabulary from loaded texts.\"\"\"
-        # TODO: Implement vocabulary building
+        # TEMPLATE: Implement vocabulary building
         # Add special tokens: <PAD>, <UNK>, <BOS>, <EOS>
         self.vocab["<PAD>"] = 0
         self.vocab["<UNK>"] = 1
@@ -187,7 +193,7 @@ struct {{name}}(Dataset):
         Returns:
             List of token indices
         \"\"\"
-        # TODO: Implement tokenization
+        # TEMPLATE: Implement tokenization
         raise Error("Not implemented: _tokenize")
 
     fn __len__(self) -> Int:
@@ -243,7 +249,7 @@ struct {{name}}(Dataset):
             data_path: Path to CSV file
             target_column: Name of target column
         \"\"\"
-        # TODO: Implement CSV loading
+        # TEMPLATE: Implement CSV loading
         # 1. Read header for feature names
         # 2. Parse numeric values
         # 3. Separate features and labels
@@ -271,7 +277,7 @@ struct {{name}}(Dataset):
             mean: Optional precomputed mean
             std: Optional precomputed std
         \"\"\"
-        # TODO: Implement normalization
+        # TEMPLATE: Implement normalization
         raise Error("Not implemented: normalize")
 """,
     "custom": """
@@ -300,7 +306,7 @@ struct {{name}}(Dataset):
         Args:
             data_path: Path to data
         \"\"\"
-        # TODO: Implement custom loading logic
+        # TEMPLATE: Implement custom loading logic
         raise Error("Not implemented: _load_data")
 
     fn __len__(self) -> Int:

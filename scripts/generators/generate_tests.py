@@ -11,6 +11,12 @@ Usage:
         --module shared.nn.linear \\
         --test-type layer \\
         --output tests/shared/nn/test_linear.mojo
+
+Template Placeholders:
+    The generated Mojo test files contain TEMPLATE: markers indicating sections
+    that must be customized for the specific module under test. These are not
+    implementation gaps in this script — they are intentional scaffolding for
+    developers to fill in after code generation.
 """
 
 import argparse
@@ -45,13 +51,13 @@ fn create_test_data() -> ExTensor:
 # =============================================================================
 fn test_initialization():
     """Test basic initialization."""
-    # TODO: Test object creation
+    # TEMPLATE: Test object creation
     pass
 
 
 fn test_basic_operation():
     """Test basic operations."""
-    # TODO: Test core functionality
+    # TEMPLATE: Test core functionality
     pass
 
 
@@ -60,19 +66,19 @@ fn test_basic_operation():
 # =============================================================================
 fn test_empty_input():
     """Test behavior with empty inputs."""
-    # TODO: Test empty case handling
+    # TEMPLATE: Test empty case handling
     pass
 
 
 fn test_single_element():
     """Test behavior with single element."""
-    # TODO: Test single element case
+    # TEMPLATE: Test single element case
     pass
 
 
 fn test_large_input():
     """Test behavior with large inputs."""
-    # TODO: Test scalability
+    # TEMPLATE: Test scalability
     pass
 
 
@@ -81,7 +87,7 @@ fn test_large_input():
 # =============================================================================
 fn test_invalid_input():
     """Test error handling for invalid inputs."""
-    # TODO: Test error cases
+    # TEMPLATE: Test error cases
     pass
 
 
@@ -90,7 +96,7 @@ fn test_invalid_input():
 # =============================================================================
 fn test_integration():
     """Test integration with other components."""
-    # TODO: Test component interactions
+    # TEMPLATE: Test component interactions
     pass
 
 
@@ -147,7 +153,7 @@ from shared.testing import gradient_check, LayerTester
 # =============================================================================
 fn create_layer() -> {layer_type}:
     """Create layer instance for testing."""
-    # TODO: Configure layer parameters
+    # TEMPLATE: Configure layer parameters
     return {layer_type}()
 
 
@@ -167,7 +173,7 @@ fn test_forward_shape():
 
     var output = layer.forward(input)
 
-    # TODO: Verify expected output shape
+    # TEMPLATE: Verify expected output shape
     # assert_equal(output.shape()[0], expected_batch)
     # assert_equal(output.shape()[1], expected_features)
 
@@ -179,7 +185,7 @@ fn test_forward_values():
 
     var output = layer.forward(input)
 
-    # TODO: Verify expected output values
+    # TEMPLATE: Verify expected output values
     # With known inputs and weights, verify outputs
     pass
 
@@ -241,7 +247,7 @@ fn test_parameters():
     var layer = create_layer()
     var params = layer.parameters()
 
-    # TODO: Verify parameter count and shapes
+    # TEMPLATE: Verify parameter count and shapes
     # assert_true(len(params) > 0, "Layer should have parameters")
     pass
 
@@ -295,7 +301,7 @@ fn test_dtypes():
     var output_f32 = layer_f32.forward(input_f32)
     assert_equal(output_f32.dtype(), DType.float32)
 
-    # TODO: Test with other dtypes as supported
+    # TEMPLATE: Test with other dtypes as supported
     # var layer_f16 = create_layer()
     # var input_f16 = input_f32.to(DType.float16)
     # var output_f16 = layer_f16.forward(input_f16)
@@ -372,7 +378,7 @@ fn create_model() -> {model_type}:
 
 fn create_input() -> ExTensor:
     """Create test input tensor."""
-    # TODO: Adjust shape for model input requirements
+    # TEMPLATE: Adjust shape for model input requirements
     return ExTensor.randn([BATCH_SIZE, 3, 32, 32], seed=42)
 
 
@@ -533,7 +539,7 @@ fn test_parameter_count():
     for p in params:
         total_params += p[].numel()
 
-    # TODO: Update with expected parameter count
+    # TEMPLATE: Update with expected parameter count
     assert_true(total_params > 0, "Model should have parameters")
     print("  Total parameters:", total_params)
 
