@@ -284,37 +284,32 @@ fn test_split_equal() raises:
     """Test splitting into equal parts."""
     from shared.core import split
 
-    var shape = List[Int]()
-    shape.append(12)
     var a = arange(0.0, 12.0, 1.0, DType.float32)
-    # TODO(#3013): Implement split()
-    # var parts = split(a, 3)
-    #
-    # # Should give 3 tensors of size 4 each
-    # if len(parts) != 3:
-    #     raise Error("Should split into 3 parts")
-    # for i in range(3):
-    #     assert_numel(parts[i], 4, "Each part should have 4 elements")
-    _ = a  # Suppress unused variable warning
+    var parts = split(a, 3)
+
+    # Should give 3 tensors of size 4 each
+    if len(parts) != 3:
+        raise Error("Should split into 3 parts")
+    for i in range(3):
+        assert_numel(parts[i], 4, "Each part should have 4 elements")
 
 
 fn test_split_unequal() raises:
     """Test splitting into unequal parts."""
     from shared.core import split_with_indices
 
-    var shape = List[Int]()
-    shape.append(10)
     var a = arange(0.0, 10.0, 1.0, DType.float32)
-    # TODO(#3013): Implement split with indices
-    # var parts = split(a, [3, 5, 10])
-    #
-    # # Should give 3 tensors of sizes 3, 4, 3
-    # if len(parts) != 3:
-    #     raise Error("Should split into 3 parts")
-    # assert_numel(parts[0], 3, "First part should have 3 elements")
-    # assert_numel(parts[1], 4, "Second part should have 4 elements")
-    # assert_numel(parts[2], 3, "Third part should have 3 elements")
-    _ = a  # Suppress unused variable warning
+    var indices = List[Int]()
+    indices.append(3)
+    indices.append(7)
+    var parts = split_with_indices(a, indices)
+
+    # Should give 3 tensors of sizes 3, 4, 3
+    if len(parts) != 3:
+        raise Error("Should split into 3 parts")
+    assert_numel(parts[0], 3, "First part should have 3 elements")
+    assert_numel(parts[1], 4, "Second part should have 4 elements")
+    assert_numel(parts[2], 3, "Third part should have 3 elements")
 
 
 # ============================================================================
@@ -324,27 +319,32 @@ fn test_split_unequal() raises:
 
 fn test_tile_1d() raises:
     """Test tiling 1D tensor."""
-    var shape = List[Int]()
-    shape.append(3)
+    from shared.core import tile
+
     var a = arange(0.0, 3.0, 1.0, DType.float32)  # [0, 1, 2]
-    # varb = tile(a, 3)  # TODO(#3013): Implement tile()
+    var reps = List[Int]()
+    reps.append(3)
+    var b = tile(a, reps)
 
     # Result: [0, 1, 2, 0, 1, 2, 0, 1, 2] (9 elements)
-    # assert_numel(b, 9, "Tiled tensor should have 9 elements")
-    pass  # Placeholder
+    assert_numel(b, 9, "Tiled tensor should have 9 elements")
 
 
 fn test_tile_multidim() raises:
     """Test tiling with multi-dimensional repetitions."""
+    from shared.core import tile
+
     var shape = List[Int]()
     shape.append(2)
     shape.append(3)
     var a = ones(shape, DType.float32)  # 2x3
-    # varb = tile(a, (2, 3))  # TODO(#3013): Implement tile() with tuple
+    var reps = List[Int]()
+    reps.append(2)
+    reps.append(3)
+    var b = tile(a, reps)
 
     # Result should be 4x9 (2*2 rows, 3*3 cols)
-    # assert_numel(b, 36, "Should have 36 elements (4*9)")
-    pass  # Placeholder
+    assert_numel(b, 36, "Should have 36 elements (4*9)")
 
 
 # ============================================================================
@@ -354,27 +354,27 @@ fn test_tile_multidim() raises:
 
 fn test_repeat_elements() raises:
     """Test repeating each element."""
-    var shape = List[Int]()
-    shape.append(3)
+    from shared.core import repeat
+
     var a = arange(0.0, 3.0, 1.0, DType.float32)  # [0, 1, 2]
-    # varb = repeat(a, 2)  # TODO(#3013): Implement repeat()
+    var b = repeat(a, 2)
 
     # Result: [0, 0, 1, 1, 2, 2] (6 elements)
-    # assert_numel(b, 6, "Repeated tensor should have 6 elements")
-    pass  # Placeholder
+    assert_numel(b, 6, "Repeated tensor should have 6 elements")
 
 
 fn test_repeat_axis() raises:
     """Test repeating along specific axis."""
+    from shared.core import repeat
+
     var shape = List[Int]()
     shape.append(2)
     shape.append(3)
     var a = ones(shape, DType.float32)  # 2x3
-    # varb = repeat(a, 2, axis=0)  # TODO(#3013): Implement repeat() with axis
+    var b = repeat(a, 2, axis=0)
 
     # Result should be 4x3 (each row repeated twice)
-    # assert_numel(b, 12, "Should have 12 elements (4*3)")
-    pass  # Placeholder
+    assert_numel(b, 12, "Should have 12 elements (4*3)")
 
 
 # ============================================================================
@@ -384,18 +384,15 @@ fn test_repeat_axis() raises:
 
 fn test_broadcast_to_compatible() raises:
     """Test broadcasting to compatible shape."""
-    var shape_orig = List[Int]()
-    shape_orig.append(3)
     var a = arange(0.0, 3.0, 1.0, DType.float32)  # Shape (3,)
-    # var target_shape = List[Int]()
-    # target_shape[0] = 4
-    # target_shape[1] = 3
-    # varb = broadcast_to(a, target_shape)  # TODO(#3013): Implement broadcast_to()
+    var target_shape = List[Int]()
+    target_shape.append(4)
+    target_shape.append(3)
+    var b = broadcast_to(a, target_shape)
 
     # Result should be 4x3 (broadcasting (3,) to (4,3))
-    # assert_dim(b, 2, "Broadcasted tensor should be 2D")
-    # assert_numel(b, 12, "Should have 12 elements")
-    pass  # Placeholder
+    assert_dim(b, 2, "Broadcasted tensor should be 2D")
+    assert_numel(b, 12, "Should have 12 elements")
 
 
 fn test_broadcast_to_incompatible() raises:
@@ -431,17 +428,22 @@ fn test_broadcast_to_incompatible() raises:
 
 fn test_permute_axes() raises:
     """Test permuting axes (similar to transpose with axes)."""
+    from shared.core import permute
+
     var shape = List[Int]()
     shape.append(2)
     shape.append(3)
     shape.append(4)
     var a = ones(shape, DType.float32)  # Shape (2, 3, 4)
-    # varb = permute(a, (2, 0, 1))  # TODO(#3013): Implement permute()
+    var dims = List[Int]()
+    dims.append(2)
+    dims.append(0)
+    dims.append(1)
+    var b = permute(a, dims)
 
     # Result should be (4, 2, 3)
-    # assert_dim(b, 3, "Should still be 3D")
-    # assert_numel(b, 24, "Should have same elements")
-    pass  # Placeholder
+    assert_dim(b, 3, "Should still be 3D")
+    assert_numel(b, 24, "Should have same elements")
 
 
 # ============================================================================
@@ -451,16 +453,13 @@ fn test_permute_axes() raises:
 
 fn test_reshape_preserves_dtype() raises:
     """Test that reshape preserves dtype."""
-    var shape = List[Int]()
-    shape.append(12)
     var a = arange(0.0, 12.0, 1.0, DType.float64)
-    # var new_shape = List[Int]()
-    # new_shape[0] = 3
-    # new_shape[1] = 4
-    # varb = reshape(a, new_shape)
+    var new_shape = List[Int]()
+    new_shape.append(3)
+    new_shape.append(4)
+    var b = reshape(a, new_shape)
 
-    # assert_dtype(b, DType.float64, "Reshape should preserve dtype")
-    pass  # Placeholder
+    assert_dtype(b, DType.float64, "Reshape should preserve dtype")
 
 
 # ============================================================================
