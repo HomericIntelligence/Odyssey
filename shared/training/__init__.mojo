@@ -408,9 +408,10 @@ struct TrainingLoop[
         var total_loss = Float64(0.0)
         var num_batches = Int(0)
 
-        # NOTE: Batch iteration blocked by Track 4 (Python↔Mojo interop).
+        # NOTE(#3092): Batch iteration blocked by Track 4 (Python↔Mojo interop).
         # The data_loader is currently a PythonObject, but step() requires ExTensor.
         # Once Track 4 data loading infrastructure is ready, integrate batching here.
+        # Track resolution via #3076. Implement when Python↔Mojo interop is available.
         _ = data_loader  # Suppress unused variable warning
 
         # Return average loss
