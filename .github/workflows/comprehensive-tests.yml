@@ -192,10 +192,9 @@ jobs:
           - name: "Core Activations"
             path: "tests/shared/core"
             pattern: "test_activations.mojo test_activation_funcs.mojo test_activation_ops.mojo test_advanced_activations.mojo"
-          # DISABLED: Flaky tests - see issue tracking Core Loss test crashes
-          # - name: "Core Loss"
-          #   path: "tests/shared/core"
-          #   pattern: "test_losses.mojo test_loss_funcs.mojo test_loss_utils.mojo"
+          - name: "Core Loss"
+            path: "tests/shared/core"
+            pattern: "test_losses.mojo test_loss_funcs.mojo test_loss_utils.mojo"
           - name: "Core DTypes"
             path: "tests/shared/core"
             pattern: "test_unsigned.mojo test_dtype_dispatch.mojo test_dtype_ordinal.mojo"
