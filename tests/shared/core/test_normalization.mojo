@@ -283,13 +283,9 @@ fn test_batch_norm2d_backward_gradient_input() raises:
     CRITICAL TEST: Validates mathematical correctness of batch norm backpropagation.
     Uses central finite differences for gold-standard gradient validation.
 
-    NOTE: This test uses beta=0 and grad_output=ones. With beta=0, the batch norm
-    output sums to approximately zero (zero-centered), so the gradient of
-    sum(output) w.r.t. input is ~0. Both the analytical and numerical gradients
-    will be near-zero — this is correct behavior, NOT a test failure or a trivial
-    pass. The test validates shape correctness and that the backward pass does not
-    crash. For non-trivial gradient magnitude validation, see the test with
-    non-zero loss in the e2e tests.
+    Uses non-uniform grad_output to avoid the pathological case where
+    grad_output=ones gives analytically-zero gradients (sum(x_norm)=0 cancellation),
+    which would make the test sensitive to floating-point noise in the forward pass.
     """
     # Small tensor for gradient checking (computational cost is O(n²))
     var shape = List[Int]()
@@ -320,8 +316,14 @@ fn test_batch_norm2d_backward_gradient_input() raises:
     )
     var output = result6[0]
 
-    # Upstream gradient (typically from loss)
-    var grad_output = ones_like(output)
+    # Use non-uniform grad_output to avoid the pathological cancellation case
+    # where grad_output=ones gives dL/dx ~ sum(x_norm)=0 (analytically zero gradient).
+    # Non-uniform weights break the symmetry, producing non-zero testable gradients.
+    var grad_output = zeros_like(output)
+    for i in range(16):
+        # Alternating pattern to avoid symmetry: [0.5, -0.3, 0.8, -0.2, ...]
+        var val = Float32(i % 4) * Float32(0.25) - Float32(0.3)
+        grad_output._data.bitcast[Float32]()[i] = val
 
     # Backward pass
     var result7 = batch_norm2d_backward(
@@ -335,7 +337,9 @@ fn test_batch_norm2d_backward_gradient_input() raises:
     )
     var grad_input = result7[0]
 
-    # Numerical gradient via finite differences
+    # Numerical gradient via finite differences.
+    # forward_for_grad computes weighted sum: sum(output * grad_output)
+    # so the numerical gradient matches what the backward should compute.
     fn forward_for_grad(inp: ExTensor) raises -> ExTensor:
         var result_nested = batch_norm2d(
             inp,
@@ -347,9 +351,10 @@ fn test_batch_norm2d_backward_gradient_input() raises:
             epsilon=1e-5,
         )
         var out = result_nested[0]
-        # Sum output to get scalar (gradient checking requires scalar loss)
-        # Reduce all dimensions by repeatedly summing along each axis
-        var result = out
+        # Compute weighted sum: sum(output * grad_output)
+        # This matches the backward with our non-uniform grad_output
+        var weighted = multiply(out, grad_output)
+        var result = weighted
         while result.dim() > 0:
             result = reduce_sum(result, axis=0, keepdims=False)
         return result
