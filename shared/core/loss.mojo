@@ -383,7 +383,7 @@ fn cross_entropy_backward(
     var grad = subtract(probs, targets)
 
     # Scale by upstream gradient and average over batch
-    # NOTE: Forward pass already averages via mean(ce, axis=0), so we divide by batch_size here
+    # Forward pass averages via mean(ce, axis=0), so we divide by batch_size here
     var batch_size = Float32(logits.shape()[0])
     var scale_val = 1.0 / batch_size
 
