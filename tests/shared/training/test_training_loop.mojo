@@ -36,14 +36,16 @@ from shared.core.extensor import ExTensor
 from shared.core import ones, zeros, randn
 from shared.testing import SimpleMLP
 
-# NOTE: TrainingLoop is now generic with trait bounds (Issue #34 Track 2)
-# Generic instantiation pattern:
+# TrainingLoop is generic with trait bounds for compile-time type safety.
+#
+# Instantiation pattern:
 #   var training_loop = TrainingLoop[SimpleMLP, MSELoss, SGD](model, optimizer, loss_fn)
 #
 # Type parameters:
-#   [M: Model, L: Loss, O: Optimizer]
+#   [M: Model & Movable, L: Loss & Movable, O: Optimizer & Movable]
 #
-# This provides compile-time type safety - wrong types are rejected at compile time.
+# Wrong types are rejected at compile time. See shared/training/__init__.mojo for
+# full implementation and trait definitions.
 
 
 # ============================================================================
