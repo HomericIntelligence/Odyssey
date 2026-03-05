@@ -181,7 +181,7 @@ fn test_ravel_view() raises:
     var a = ones(shape, DType.float32)
     var b = ravel(a)
 
-    # Should be 1D view of same data (currently copies, TODO(#2722): implement views)
+    # Currently returns a 1D copy (view semantics deferred to future work)
     assert_dim(b, 1, "Ravel should be 1D")
 
 

@@ -38,6 +38,7 @@ from shared.testing.assertions import (
     assert_all_values,
     assert_all_close,
     assert_type,
+    assert_contiguous,
 )
 
 
