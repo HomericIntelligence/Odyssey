@@ -270,10 +270,10 @@ fn recommend_precision_dtype(
         return DType.float32
     elif model_size_mb < 1000.0:
         # Medium model - FP16 recommended
-        return DType.float16  # Will use bfloat16_dtype when available
+        return DType.float16
     else:
         # Large model - FP16 strongly recommended
-        return DType.float16  # Will use bfloat16_dtype when available.
+        return DType.float16
 
 
 fn print_dtype_info(dtype: DType):
