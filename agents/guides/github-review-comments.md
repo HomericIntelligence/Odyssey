@@ -66,7 +66,7 @@ gh api repos/OWNER/REPO/pulls/PR_NUMBER/comments/COMMENT_ID/replies \
 ### Example:
 
 ```bash
-gh api repos/mvillmow/ProjectOdyssey/pulls/1559/comments/2524809837/replies \
+gh api repos/HomericIntelligence/ProjectOdyssey/pulls/1559/comments/2524809837/replies \
   --method POST \
   -f body="✅ Fixed - Updated conftest.py to use real repository root"
 ```text
@@ -279,23 +279,23 @@ gh pr checks PR
 
 ```bash
 # Reply to each comment individually
-gh api repos/mvillmow/ProjectOdyssey/pulls/1559/comments/2524809837/replies \
+gh api repos/HomericIntelligence/ProjectOdyssey/pulls/1559/comments/2524809837/replies \
   --method POST \
   -f body="✅ Fixed - Updated conftest.py to use real repository root instead of mock tmp_path"
 
-gh api repos/mvillmow/ProjectOdyssey/pulls/1559/comments/2524810446/replies \
+gh api repos/HomericIntelligence/ProjectOdyssey/pulls/1559/comments/2524810446/replies \
   --method POST \
   -f body="✅ Fixed - Updated conftest.py to use real directories by navigating from tests/foundation/docs/ to repository root"
 
-gh api repos/mvillmow/ProjectOdyssey/pulls/1559/comments/2525151897/replies \
+gh api repos/HomericIntelligence/ProjectOdyssey/pulls/1559/comments/2525151897/replies \
   --method POST \
   -f body="✅ Fixed - Deleted test_link_validation.py (421 lines) since link validation is handled by pre-commit"
 
-gh api repos/mvillmow/ProjectOdyssey/pulls/1559/comments/2525152000/replies \
+gh api repos/HomericIntelligence/ProjectOdyssey/pulls/1559/comments/2525152000/replies \
   --method POST \
   -f body="✅ Fixed - Deleted test_markdown_linting.py (778 lines) since markdown linting is handled by pre-commit"
 
-gh api repos/mvillmow/ProjectOdyssey/pulls/1559/comments/2525154295/replies \
+gh api repos/HomericIntelligence/ProjectOdyssey/pulls/1559/comments/2525154295/replies \
   --method POST \
   -f body="✅ Fixed - Removed markdown linting section from README.md since it's handled by pre-commit hooks"
 ```text
@@ -303,7 +303,7 @@ gh api repos/mvillmow/ProjectOdyssey/pulls/1559/comments/2525154295/replies \
 ### Verify:
 
 ```bash
-gh api repos/mvillmow/ProjectOdyssey/pulls/1559/comments \
+gh api repos/HomericIntelligence/ProjectOdyssey/pulls/1559/comments \
   --jq '.[] | select(.in_reply_to_id) | {replying_to: .in_reply_to_id, body: .body}'
 ```text
 

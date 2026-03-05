@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from prettytable import PrettyTable
 
 # --- CONFIG ---
-REPO_NAME = "mvillmow/ProjectOdyssey"
+REPO_NAME = "HomericIntelligence/ProjectOdyssey"
 AUTHOR = "mvillmow"
 
 # --- Parse command-line arguments ---

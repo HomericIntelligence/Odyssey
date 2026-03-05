@@ -370,11 +370,11 @@ echo -e "\n2. CI checks:"
 gh pr checks $PR
 
 echo -e "\n3. Review comment replies:"
-reply_count=$(gh api repos/mvillmow/ProjectOdyssey/pulls/$PR/comments --jq '.[] | select(.in_reply_to_id)' | jq -s 'length')
+reply_count=$(gh api repos/HomericIntelligence/ProjectOdyssey/pulls/$PR/comments --jq '.[] | select(.in_reply_to_id)' | jq -s 'length')
 echo "Found $reply_count review comment replies"
 
 echo -e "\n4. Original review comments:"
-comment_count=$(gh api repos/mvillmow/ProjectOdyssey/pulls/$PR/comments --jq '.[] | select(.in_reply_to_id == null and .user.login == "mvillmow")' | jq -s 'length')
+comment_count=$(gh api repos/HomericIntelligence/ProjectOdyssey/pulls/$PR/comments --jq '.[] | select(.in_reply_to_id == null and .user.login == "mvillmow")' | jq -s 'length')
 echo "Found $comment_count original review comments"
 
 if [ "$reply_count" -eq "$comment_count" ]; then
