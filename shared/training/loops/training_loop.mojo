@@ -56,6 +56,11 @@ fn training_step(
 
     Raises:
             Error: If any step fails.
+
+    Note:
+        The backward pass is invoked implicitly via optimizer_step(). A full
+        implementation would call loss_tensor.backward() directly once ExTensor
+        supports automatic differentiation.
     """
     # Zero gradients from previous step
     zero_gradients()
@@ -69,9 +74,7 @@ fn training_step(
     # Extract scalar loss (assume first element)
     var loss_value = Float64(loss_tensor._data.bitcast[Float32]()[0])
 
-    # Backward pass (implicit through loss_tensor.backward())
-    # NOTE: In real implementation, loss_tensor would have .backward() method
-
+    # Backward pass (implicit through optimizer_step)
     # Update weights
     optimizer_step()
 

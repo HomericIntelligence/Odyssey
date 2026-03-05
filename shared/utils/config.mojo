@@ -769,7 +769,6 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         Raises:
             Error: If file not found, empty, or invalid JSON.
         """
-        # NOTE: Current implementation supports flat key-value pairs.
         # Full nested JSON parsing can be added as needed. Using basic parsing.
         var config = Config()
 
