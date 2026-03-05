@@ -63,7 +63,7 @@ def validate_template(template: str, required_vars: list[str]) -> list[str]:
     Returns:
         List of missing variable names (empty if all present)
     """
-    missing = []
+    missing: list[str] = []
     for var in required_vars:
         pattern = r"\{\{\s*" + re.escape(var) + r"\s*\}\}"
         if not re.search(pattern, template):

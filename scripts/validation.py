@@ -88,7 +88,7 @@ def check_required_sections(
     Returns:
         Tuple of (all_found, missing_sections).
     """
-    missing = []
+    missing: list[str] = []
 
     for section in required_sections:
         # Match heading at various levels (##, ###, etc.)
