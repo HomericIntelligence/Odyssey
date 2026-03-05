@@ -81,10 +81,10 @@ User: "Use the architecture design agent to plan the auth module"
 
 ### Level 3: Component Specialists & Review Specialists
 
-**Implementation/Execution Specialists** (11 agents):
+**Implementation/Execution Specialists** (9 agents):
 
 - Implementation, Test, Documentation, Performance, Security Specialists
-- Blog Writer, Numerical Stability, Test Flakiness, PR Cleanup Specialists
+- Numerical Stability, Test Flakiness Specialists
 - Mojo Syntax Validator, CI Failure Analyzer
 - Handle specific component aspects and execution planning
 
@@ -306,7 +306,7 @@ model: sonnet
 
 ## Operational Agents
 
-The operational agent configurations are in `.claude/agents/` (44 agents total):
+The operational agent configurations are in `.claude/agents/` (42 agents total):
 
 ### Level 0: Meta-Orchestrator (1 agent)
 
@@ -333,7 +333,7 @@ The operational agent configurations are in `.claude/agents/` (44 agents total):
 
 - `code-review-orchestrator.md` - Routes PR changes to 13 specialist reviewers, consolidates feedback
 
-### Level 3: Component Specialists & Review Specialists (24 agents)
+### Level 3: Component Specialists & Review Specialists (22 agents)
 
 **Implementation/Execution Specialists:**
 
@@ -342,10 +342,8 @@ The operational agent configurations are in `.claude/agents/` (44 agents total):
 - `documentation-specialist.md` - Component READMEs, API docs, usage examples
 - `performance-specialist.md` - Performance requirements, benchmarking, optimization
 - `security-specialist.md` - Security implementation, testing, vulnerability remediation
-- `blog-writer-specialist.md` - Development blog posts in narrative cycle format
 - `numerical-stability-specialist.md` - Numerical precision and stability analysis for ML code
 - `test-flakiness-specialist.md` - Analyzes and fixes flaky tests
-- `pr-cleanup-specialist.md` - Handles PR cleanup and final polish before merge
 - `mojo-syntax-validator.md` - Validates Mojo syntax and patterns
 - `ci-failure-analyzer.md` - Analyzes CI failure logs and identifies root causes
 
