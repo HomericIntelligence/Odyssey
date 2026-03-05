@@ -281,26 +281,27 @@ fn test_slice_out_of_bounds_clamped() raises:
 # ============================================================================
 
 
-fn test_slice_is_view() raises:
-    """Test that slice creates a copy (current implementation).
+fn test_slice_creates_copy() raises:
+    """Test that __getitem__(Slice) creates a copy, not a view.
 
-    NOTE: Current implementation creates copies, not views.
-    This is sufficient for training loop batch extraction (the critical path).
-    View semantics can be added later as an optimization.
+    This is the designed behavior: `t[start:end:step]` always allocates a new
+    buffer and copies the (possibly strided) data. Use `tensor.slice()` when
+    a memory-sharing view over the first axis is required.
     """
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
     var sliced = t[2:7]
 
-    # Current implementation creates copies
+    # By design: __getitem__(Slice) creates a copy
     assert_true(not sliced._is_view)
 
 
 fn test_slice_modification_doesnt_affect_original() raises:
-    """Test that modifying a slice doesn't affect original (copy semantics).
+    """Test that modifying a slice doesn't affect the original tensor.
 
-    NOTE: Current implementation creates copies, not views.
-    This is the expected behavior for training loop batch extraction.
+    Because `__getitem__(Slice)` returns a copy, mutations to the result
+    must not propagate back to the source tensor. This is the expected,
+    designed behavior — not a limitation.
     """
     var t = zeros([10], DType.float32)
 
@@ -355,7 +356,7 @@ fn main() raises:
 
     # Copy semantics (current implementation)
     print("Testing copy semantics...")
-    test_slice_is_view()
+    test_slice_creates_copy()
     test_slice_modification_doesnt_affect_original()
     print("Copy semantics: PASSED")
 
