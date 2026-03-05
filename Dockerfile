@@ -18,7 +18,6 @@ RUN apt-get update && apt-get install -y \
     wget \
     uuid \
     sudo \
-    cargo \
     && rm -rf /var/lib/apt/lists/*
 
 # Install GitHub CLI (gh) as root
@@ -35,6 +34,9 @@ RUN mkdir -p -m 755 /etc/apt/keyrings \
 # Install Claude Code CLI
 RUN curl -fsSL https://claude.ai/install.sh | bash
 
+# Install just tool (pre-built binary, much faster than cargo install)
+RUN curl -fsSL https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+
 # ---------------------------
 # Stage 1.5: Create dev user
 # ---------------------------
@@ -47,7 +49,7 @@ RUN groupadd -g ${GROUP_ID} ${USER_NAME} && \
 
 # Set environment for dev user
 ENV HOME=/home/${USER_NAME}
-ENV PATH="$HOME/.local/bin:$HOME/.pixi/bin:$PATH:$HOME/.cargo/bin"
+ENV PATH="$HOME/.local/bin:$HOME/.pixi/bin:$PATH"
 
 # ---------------------------
 # Stage 2: Development environment
@@ -75,9 +77,6 @@ COPY --chown=${USER_NAME}:${USER_NAME} . .
 
 # Set Python path
 ENV PYTHONPATH=/workspace:${PYTHONPATH:-}
-
-# Install just tool
-RUN cargo install just --version 1.14.0
 
 # Install project dependencies
 RUN pixi install
