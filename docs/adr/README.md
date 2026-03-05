@@ -24,6 +24,7 @@ An Architecture Decision Record captures a single architecture decision, includi
 | [ADR-006](ADR-006-benchmarking-infrastructure.md) | Benchmarking Infrastructure | Accepted | 2025-12-28 |
 | [ADR-007](ADR-007-training-infrastructure.md) | Training Infrastructure | Accepted | 2025-12-28 |
 | [ADR-008](ADR-008-coverage-tool-blocker.md) | Defer Code Coverage Until Mojo Tooling Available | Accepted | 2025-12-10 |
+| [ADR-009](ADR-009-heap-corruption-workaround.md) | Heap Corruption Workaround for Mojo Runtime Bug | Accepted | 2025-12-30 |
 
 ## ADR Status Lifecycle
 
