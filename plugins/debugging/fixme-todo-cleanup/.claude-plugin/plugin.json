@@ -4,7 +4,7 @@
   "description": "Systematic FIXME/TODO cleanup workflow with proper branching, PRs, and CI handling",
   "category": "debugging",
   "created": "2026-01-01",
-  "repository": "mvillmow/ProjectOdyssey",
+  "repository": "HomericIntelligence/ProjectOdyssey",
   "tags": ["technical-debt", "cleanup", "workflow", "github", "ci-cd", "mojo"],
   "triggers": [
     "cleanup FIXME items",

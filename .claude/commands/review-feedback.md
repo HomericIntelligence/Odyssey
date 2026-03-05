@@ -3,7 +3,7 @@ Address review feedback on PR #$ARGUMENTS.
 1. Get review comments:
 
    ```bash
-   gh api repos/mvillmow/ProjectOdyssey/pulls/$ARGUMENTS/comments
+   gh api repos/HomericIntelligence/ProjectOdyssey/pulls/$ARGUMENTS/comments
    ```
 
 2. For each unaddressed comment:
@@ -13,7 +13,7 @@ Address review feedback on PR #$ARGUMENTS.
    - Reply to the comment:
 
      ```bash
-     gh api repos/mvillmow/ProjectOdyssey/pulls/$ARGUMENTS/comments/<id>/replies \
+     gh api repos/HomericIntelligence/ProjectOdyssey/pulls/$ARGUMENTS/comments/<id>/replies \
        --method POST -f body="Fixed - <brief description>"
      ```
 
