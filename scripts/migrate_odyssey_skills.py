@@ -183,7 +183,7 @@ def parse_frontmatter(content: str) -> tuple[dict, str]:
         return {}, content
 
     frontmatter_lines = lines[1:end_idx]
-    remaining = "\n".join(lines[end_idx + 1:])
+    remaining = "\n".join(lines[end_idx + 1 :])
 
     frontmatter: dict = {}
     for line in frontmatter_lines:
@@ -276,7 +276,7 @@ user-invocable: {user_invocable}
     for i, line in enumerate(body_lines):
         if line.startswith("# "):
             title_line = line
-            rest_lines = body_lines[i + 1:]
+            rest_lines = body_lines[i + 1 :]
             break
     else:
         rest_lines = body_lines
@@ -312,11 +312,17 @@ user-invocable: {user_invocable}
         if not has_when_to_use:
             sections.append("\n## When to Use\n\n- Use when this skill's functionality is needed.\n")
         if not has_verified_workflow:
-            sections.append("\n## Verified Workflow\n\n1. Identify the task requiring this skill.\n2. Follow the Quick Reference commands above.\n3. Verify results.\n")
+            sections.append(
+                "\n## Verified Workflow\n\n1. Identify the task requiring this skill.\n2. Follow the Quick Reference commands above.\n3. Verify results.\n"
+            )
         if not has_failed_attempts:
-            sections.append("\n## Failed Attempts\n\n| Attempt | Why Failed | Lesson Learned |\n|---------|-----------|----------------|\n| N/A | No recorded failures | N/A |\n")
+            sections.append(
+                "\n## Failed Attempts\n\n| Attempt | Why Failed | Lesson Learned |\n|---------|-----------|----------------|\n| N/A | No recorded failures | N/A |\n"
+            )
         if not has_results:
-            sections.append("\n## Results & Parameters\n\nSee Quick Reference section above for commands and parameters.\n")
+            sections.append(
+                "\n## Results & Parameters\n\nSee Quick Reference section above for commands and parameters.\n"
+            )
     else:
         # Parse out existing sections and re-order/add missing
         existing_sections: list[tuple[str, str]] = []
@@ -333,20 +339,10 @@ user-invocable: {user_invocable}
 
         # Build ordered output
         # Order: When to Use, (other sections), Verified Workflow, Failed Attempts, Results
-        ordered_headers = [
-            "## When to Use",
-            "## Verified Workflow",
-            "## Failed Attempts",
-            "## Results",
-        ]
-
-        # Sections to place before Verified Workflow
-        pre_workflow = []
-        post_workflow_order = []
-        workflow_section = None
-        failed_section = None
-        results_section = None
-        when_to_use_section = None
+        workflow_section: Optional[str] = None
+        failed_section: Optional[str] = None
+        results_section: Optional[str] = None
+        when_to_use_section: Optional[str] = None
 
         other_sections = []
         for header, text in existing_sections:
@@ -377,7 +373,9 @@ user-invocable: {user_invocable}
             sections.append(workflow_section)
             sections.append("")
         elif not has_verified_workflow:
-            sections.append("## Verified Workflow\n\n1. Identify the task.\n2. Execute the relevant commands.\n3. Verify results.\n")
+            sections.append(
+                "## Verified Workflow\n\n1. Identify the task.\n2. Execute the relevant commands.\n3. Verify results.\n"
+            )
 
         if failed_section:
             # Ensure it has a pipe table
@@ -386,12 +384,16 @@ user-invocable: {user_invocable}
             sections.append(failed_section)
             sections.append("")
         else:
-            sections.append("## Failed Attempts\n\n| Attempt | Why Failed | Lesson Learned |\n|---------|-----------|----------------|\n| N/A | No recorded failures | N/A |\n")
+            sections.append(
+                "## Failed Attempts\n\n| Attempt | Why Failed | Lesson Learned |\n|---------|-----------|----------------|\n| N/A | No recorded failures | N/A |\n"
+            )
 
         if results_section:
             sections.append(results_section)
         else:
-            sections.append("## Results & Parameters\n\nSee the workflow sections above for commands and expected outputs.\n")
+            sections.append(
+                "## Results & Parameters\n\nSee the workflow sections above for commands and expected outputs.\n"
+            )
 
     final_body = "\n".join(sections)
     return f"{new_frontmatter}\n\n{final_body}\n"
@@ -513,7 +515,7 @@ def migrate_skill(
 
 def find_all_skills() -> list[tuple[str, Path, Optional[str]]]:
     """Find all skills in Odyssey2, returning (name, skill_md_path, tier) tuples."""
-    skills = []
+    skills: list[tuple[str, Path, Optional[str]]] = []
 
     # Top-level skills
     for skill_dir in sorted(ODYSSEY_SKILLS_DIR.iterdir()):
@@ -564,9 +566,7 @@ def skill_already_exists(skill_name: str) -> bool:
 
 def main() -> int:
     """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description="Migrate Odyssey2 skills to ProjectMnemosyne format"
-    )
+    parser = argparse.ArgumentParser(description="Migrate Odyssey2 skills to ProjectMnemosyne format")
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -640,7 +640,7 @@ def main() -> int:
             failed += 1
 
     print("\n" + "=" * 60)
-    print(f"Migration Summary:")
+    print("Migration Summary:")
     print(f"  Succeeded: {succeeded}")
     print(f"  Skipped:   {skipped}")
     print(f"  Failed:    {failed}")
