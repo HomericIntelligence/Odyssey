@@ -668,7 +668,7 @@ fn remove_safely(filepath: String) -> Bool:
     Returns:
             True if removed, False if error.
     """
-    # NOTE(#3071): Mojo v0.26.1 doesn't have os.remove() or file system operations
+    # NOTE (Mojo v0.26.1): Mojo v0.26.1 doesn't have os.remove() or file system operations
     # In production, this would move file to trash/trash directory
     # For now, this is a placeholder that simulates successful removal
     if not file_exists(filepath):

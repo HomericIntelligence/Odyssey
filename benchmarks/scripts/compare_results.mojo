@@ -592,7 +592,7 @@ fn main() raises:
     var current_file = "benchmarks/results/benchmark_results.json"
 
     # Parse command line arguments
-    # NOTE: Hardcoded paths are intentional. While Mojo's sys.argv provides
+    # NOTE (Mojo v0.26.1): Hardcoded paths are intentional. While Mojo's sys.argv provides
     # basic argv access, comprehensive argument parsing (flags, options,
     # help text) would require a custom parser. For internal benchmarking
     # tooling, hardcoded defaults are sufficient and simpler to maintain.
