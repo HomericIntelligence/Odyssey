@@ -405,7 +405,7 @@ fn test_cross_module_computation() raises:
     var bias2 = zeros([10], DType.float32)
 
     # Forward pass - this is where integration failures would occur
-    var hidden = data.__matmul__(weights1)  # (32,64) × (64,128) = (32,128)
+    var hidden = matmul(data, weights1)  # (32,64) × (64,128) = (32,128)
     var hidden_activated = relu(hidden)
     var logits = matmul(
         hidden_activated, weights2
@@ -539,7 +539,7 @@ fn test_integration_stress() raises:
     var b3 = zeros([output_dim], DType.float32)
 
     # Forward pass through 3-layer network
-    var x1 = train_data.__matmul__(w1)  # (128,784) × (784,256) = (128,256)
+    var x1 = matmul(train_data, w1)  # (128,784) × (784,256) = (128,256)
     var x1_activated = relu(x1)
 
     var x2 = matmul(x1_activated, w2)  # (128,256) × (256,256) = (128,256)
