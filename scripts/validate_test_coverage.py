@@ -72,15 +72,6 @@ def find_test_files(root_dir: Path) -> List[Path]:
     ]
     exclude_files.extend(exclude_e2e_patterns)
 
-    # Exclude flaky Core Loss tests (see issue #3120)
-    # These tests crash consistently and are disabled until root cause is found
-    exclude_flaky_tests = [
-        "tests/shared/core/test_losses.mojo",
-        "tests/shared/core/test_loss_funcs.mojo",
-        "tests/shared/core/test_loss_utils.mojo",
-    ]
-    exclude_files.extend(exclude_flaky_tests)
-
     # Exclude training tests (run weekly, require dataset downloads)
     exclude_training_patterns = [
         "tests/shared/training/test_accuracy_bugs.mojo",
