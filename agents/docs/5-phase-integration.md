@@ -941,6 +941,6 @@ mojo build src/
 
 - [Git Worktree Guide](./git-worktree-guide.md) - Detailed worktree usage
 - [Common Workflows](./workflows.md) - Workflow examples
-- [Agent Hierarchy](../agent-hierarchy.md) - Complete agent specification
+- [Agent Hierarchy](../hierarchy.md) - Complete agent specification
 - [Delegation Rules](../delegation-rules.md) - How agents coordinate
 - [Orchestration Patterns](../../notes/review/orchestration-patterns.md) - Detailed coordination patterns

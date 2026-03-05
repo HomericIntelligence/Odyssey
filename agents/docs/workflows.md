@@ -1477,5 +1477,5 @@ Documentation Engineer:
 
 - [5-Phase Integration](./5-phase-integration.md) - Detailed workflow explanation
 - [Git Worktree Guide](./git-worktree-guide.md) - How to use worktrees
-- [Agent Hierarchy](../agent-hierarchy.md) - Complete agent reference
+- [Agent Hierarchy](../hierarchy.md) - Complete agent reference
 - [Delegation Rules](../delegation-rules.md) - Coordination patterns

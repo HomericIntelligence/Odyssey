@@ -262,7 +262,7 @@ cat .claude/agents/chief-architect.md
 ### Dive Deeper
 
 - **Delegation Patterns**: [../delegation-rules.md](../delegation-rules.md)
-- **Complete Specifications**: [../agent-hierarchy.md](../agent-hierarchy.md)
+- **Complete Specifications**: [../hierarchy.md](../hierarchy.md)
 - **Orchestration Details**: [/notes/review/orchestration-patterns.md](../../notes/review/orchestration-patterns.md)
 - **Skills System**: [/notes/review/skills-design.md](../../notes/review/skills-design.md)
 
