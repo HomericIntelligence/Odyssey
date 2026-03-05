@@ -599,9 +599,9 @@ fn test_conv2d_batched() raises:
 # ============================================================================
 # Conv2D Backward Pass Tests (DISABLED)
 # ============================================================================
-# NOTE(#3085): Backward tests are currently disabled due to ownership issues in Conv2dBackwardResult.
-# The Conv2dBackwardResult struct needs to be made Copyable to enable these tests.
-# Current tests provide comprehensive forward pass coverage instead.
+# NOTE (Mojo v0.26.1): Backward tests are currently disabled because Conv2dBackwardResult
+# is not Copyable in Mojo v0.26.1. Once Mojo's type system supports this, these tests
+# can be re-enabled. Current tests provide comprehensive forward pass coverage instead.
 
 # ============================================================================
 # Integration Tests

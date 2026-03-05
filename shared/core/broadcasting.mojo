@@ -161,18 +161,6 @@ struct BroadcastIterator:
 
     This allows element-wise operations to work efficiently with broadcasting
     without materializing the full broadcast tensor.
-
-    Note:
-        __iter__() is intentionally not implemented because List[Int] fields
-        are not Copyable, and __iter__ would need to return Self which requires
-        copying. Use __next__ directly with a while loop instead:
-
-        ```mojo
-        var iterator = BroadcastIterator(shape, strides1, strides2)
-        while iterator.has_next():
-            var (idx1, idx2) = iterator.__next__()
-            # Use idx1 and idx2 to access elements
-        ```
     """
 
     var shape: List[Int]
@@ -203,6 +191,16 @@ struct BroadcastIterator:
         self.size = 1
         for i in range(len(self.shape)):
             self.size *= self.shape[i]
+
+    # NOTE (Mojo v0.26.1): We intentionally do not implement __iter__() because
+    # List[Int] fields are not Copyable in Mojo v0.26.1, and __iter__ would need
+    # to return Self which requires copying.
+    # Callers should use __next__ directly with a while loop:
+    #
+    #   var iterator = BroadcastIterator(shape, strides1, strides2)
+    #   while iterator.has_next():
+    #       var (idx1, idx2) = iterator.__next__()
+    #       # Use idx1 and idx2 to access elements
 
     fn __next__(mut self) raises -> Tuple[Int, Int]:
         """Get next pair of indices for the two tensors.
