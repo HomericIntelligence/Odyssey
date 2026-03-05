@@ -1124,7 +1124,7 @@ Examples:
     p.add_argument(
         "--batch-dir",
         type=pathlib.Path,
-        default=pathlib.Path("/tmp"),
+        default=pathlib.Path("/tmp"),  # nosec B108 - CLI tool default, user-overridable
         help="Directory with batch files",
     )
     p.add_argument(

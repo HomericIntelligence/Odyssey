@@ -198,7 +198,7 @@ class TestWorktreeManagement(unittest.TestCase):
         """Verify cleanup deletes remote branch when specified."""
         mock_run.return_value = Mock(returncode=0, stderr="", stdout="")
 
-        fix_build_errors.cleanup_worktree(pathlib.Path("/tmp/test"), branch="test-branch")
+        fix_build_errors.cleanup_worktree(pathlib.Path("/tmp/test"), branch="test-branch")  # nosec B108 - test code
 
         # Verify push --delete was called
         delete_calls = [call for call in mock_run.call_args_list if "--delete" in str(call)]

@@ -21,16 +21,19 @@ repos:
         files: ^(benchmarks|examples|papers|scripts|shared|tests)/.*\.(mojo|🔥)$
         types: [text]
 
-  # Security checks
+  # Security checks - bandit for accurate Python security scanning
+  # Replaces naive pygrep shell=True check with AST-based analysis
+  # Skips: B310 (urlopen with controlled URLs), B202 (tarfile in download scripts)
   - repo: local
     hooks:
-      - id: check-shell-injection
-        name: Check for shell=True (Security)
-        description: Prevent command injection vulnerabilities via shell=True
-        entry: 'shell=True'
-        language: pygrep
-        files: \.py$
+      - id: bandit
+        name: Bandit Security Scan
+        description: Scan Python files for security vulnerabilities using bandit
+        entry: pixi run bandit -ll --skip B310,B202
+        language: system
+        files: ^(scripts|tests)/.*\.py$
         types: [python]
+        pass_filenames: true
 
   # Python formatting and linting
   - repo: local
