@@ -126,7 +126,5 @@ computation.
 
 ## See Also
 
-- [Mojo Patterns](core/mojo-patterns.md) - Mojo language patterns and conventions
-- [API Reference](dev/api-reference.md) - Detailed API documentation
 - [PyTorch Glossary](https://pytorch.org/docs/stable/glossary.html) - Similar concepts
   in PyTorch

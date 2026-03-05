@@ -21,27 +21,11 @@ docs/
 │   ├── quickstart.md       # 5-minute getting started guide
 │   ├── installation.md     # Complete setup instructions
 │   └── first_model.md      # Tutorial for first model
-├── core/                   # Core concepts and fundamentals
-│   ├── project-structure.md    # Repository organization
-│   ├── shared-library.md       # Reusable components guide
-│   ├── paper-implementation.md # Paper workflow
-│   ├── testing-strategy.md     # Testing philosophy
-│   ├── mojo-patterns.md        # Mojo-specific patterns
-│   ├── agent-system.md         # Agent hierarchy
-│   ├── workflow.md             # 5-phase workflow
-│   └── configuration.md        # Environment setup
 ├── advanced/               # Advanced topics for experienced users
-│   ├── performance.md      # Optimization techniques
-│   ├── custom-layers.md    # Creating custom layers
-│   ├── distributed-training.md # Multi-device training
-│   ├── visualization.md    # Result visualization
-│   ├── debugging.md        # Debugging techniques
-│   └── integration.md      # Tool integration
+│   ├── benchmarking.md     # Benchmarking and profiling guide
+│   └── troubleshooting.md  # Debugging and troubleshooting
 └── dev/                    # Developer documentation
-    ├── architecture.md     # System architecture
-    ├── api-reference.md    # Complete API docs
-    ├── release-process.md  # Release workflow
-    └── ci-cd.md            # CI/CD pipeline
+    └── release-process.md  # Release workflow
 
 ```text
 
@@ -127,5 +111,3 @@ The documentation is configured for MkDocs in the root `mkdocs.yml` file. This e
 
 1. Review existing documentation in subdirectories
 1. Start with the [Quickstart Guide](getting-started/quickstart.md)
-1. Explore [Core Concepts](core/project-structure.md)
-1. Check [API Reference](dev/api-reference.md) for detailed component documentation

@@ -16,39 +16,18 @@ New to ML Odyssey? Start here:
 - **[Installation](getting-started/installation.md)** - Complete setup and installation guide
 - **[First Model](getting-started/first_model.md)** - Build and train your first model
 
-## Core Documentation
-
-Understand the fundamentals:
-
-- **[Project Structure](core/project-structure.md)** - Repository organization and layout
-- **[Shared Library](core/shared-library.md)** - Reusable components across papers
-- **[Paper Implementation](core/paper-implementation.md)** - Workflow for implementing papers
-- **[Testing Strategy](core/testing-strategy.md)** - Testing philosophy and practices
-- **[Mojo Patterns](core/mojo-patterns.md)** - Mojo-specific patterns for ML
-- **[Agent System](core/agent-system.md)** - Hierarchical agent development system
-- **[Workflow](core/workflow.md)** - 5-phase development workflow
-- **[Configuration](core/configuration.md)** - Environment and project configuration
-
 ## Advanced Topics
 
 Deep dives for experienced users:
 
 - **[Performance Benchmarking](advanced/benchmarking.md)** - Benchmarking and profiling guide
-- **[Performance Optimization](advanced/performance.md)** - SIMD optimization and profiling
-- **[Custom Layers](advanced/custom-layers.md)** - Creating custom neural network layers
-- **[Distributed Training](advanced/distributed-training.md)** - Multi-device training (coming soon)
-- **[Visualization](advanced/visualization.md)** - Visualizing results and metrics
-- **[Debugging](advanced/debugging.md)** - Debugging Mojo code effectively
-- **[Integration](advanced/integration.md)** - Integrating with Python and other tools
+- **[Troubleshooting](advanced/troubleshooting.md)** - Debugging and troubleshooting guide
 
 ## Development Guides
 
 For contributors:
 
-- **[Architecture](dev/architecture.md)** - System architecture and design decisions
-- **[API Reference](dev/api-reference.md)** - Complete API documentation
 - **[Release Process](dev/release-process.md)** - Release workflow and versioning
-- **[CI/CD](dev/ci-cd.md)** - Continuous integration and deployment pipeline
 
 ## Quick Links
 

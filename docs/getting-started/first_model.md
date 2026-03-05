@@ -478,10 +478,7 @@ Congratulations! You've built, trained, and evaluated your first neural network 
 
 ### Learn More
 
-- **[Shared Library Guide](../core/shared-library.md)** - Explore available components
-- **[Mojo Patterns](../core/mojo-patterns.md)** - Learn Mojo-specific ML patterns
-- **[Performance Guide](../advanced/performance.md)** - Optimize your models
-- **[Custom Layers](../advanced/custom-layers.md)** - Build custom components
+- **[Performance Benchmarking](../advanced/benchmarking.md)** - Profile and optimize your models
 
 ### Try More Examples
 
@@ -501,5 +498,3 @@ Found this tutorial helpful? Consider contributing:
 
 - [Quickstart Guide](quickstart.md) - 5-minute introduction
 - [Installation Guide](installation.md) - Detailed setup
-- [Project Structure](../core/project-structure.md) - Repository organization
-- [Testing Strategy](../core/testing-strategy.md) - Writing tests for your models

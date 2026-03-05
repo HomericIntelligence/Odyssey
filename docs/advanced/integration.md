@@ -1,3 +1,0 @@
-# Integration.Md
-
-Content here.
