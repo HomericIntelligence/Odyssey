@@ -4,6 +4,9 @@ name: Security Scanning
 # Target duration: < 5 minutes
 
 on:
+  # Run on all pull requests
+  pull_request:
+
   # Run on pushes to main
   push:
     branches:
@@ -97,7 +100,6 @@ jobs:
         with:
           config: auto
           generateSarif: true
-        continue-on-error: true
 
       - name: Upload SARIF results
         if: always()

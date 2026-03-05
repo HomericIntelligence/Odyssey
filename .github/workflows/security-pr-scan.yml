@@ -41,12 +41,13 @@ jobs:
           chmod +x gitleaks
 
           # Run gitleaks detect with .gitleaks.toml config if it exists
+          # Use git log mode (default) to scan full git history, not just working directory
           if [ -f .gitleaks.toml ]; then
             echo "Using .gitleaks.toml configuration"
-            ./gitleaks detect --source=. --config=.gitleaks.toml --verbose --no-git --exit-code=1
+            ./gitleaks detect --source=. --config=.gitleaks.toml --verbose --exit-code=1
           else
             echo "No .gitleaks.toml found, using default configuration"
-            ./gitleaks detect --source=. --verbose --no-git --exit-code=1
+            ./gitleaks detect --source=. --verbose --exit-code=1
           fi
 
       - name: Display scan summary
