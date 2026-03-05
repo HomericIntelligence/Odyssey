@@ -94,9 +94,9 @@ fn run_epoch_with_batches(
 
     Note:
         Currently returns 0.0 as placeholder until Python/Mojo
-        data loader integration is complete (Track 4 initiative).
+        data loader integration is complete (Track 4 initiative). Tracked in #3076 (parent: #3059).
     """
-    # Blocked: Track 4 (Python↔Mojo interop)
+    # Blocked: Track 4 (Python↔Mojo interop) - see #3076 (parent: #3059)
     # Full implementation requires Python data loader integration
     _ = py_loader
     _ = callbacks
