@@ -17,6 +17,8 @@ Backward Pass Testing:
 - Uses seeded random tensors for reproducible gradient checking
 - Validates analytical gradients against numerical gradients
 - Tolerances adjusted per dtype (1e-2 for float32)
+- Epsilon for float32 gradient checking: GRADIENT_CHECK_EPSILON_FLOAT32 (3e-4),
+  chosen to avoid precision loss in matmul operations (see issue #2704)
 
 Usage:
     from shared.testing.layer_testers import LayerTester
@@ -81,6 +83,20 @@ from shared.testing.gradient_checker import (
     assert_gradients_close,
     assert_sampled_gradients_close,
 )
+
+
+# ============================================================================
+# Gradient Checking Constants
+# ============================================================================
+
+# Epsilon for float32 gradient checking in matmul-heavy layers (conv2d, linear).
+# Using 1e-5 causes ~56% precision loss; 1e-4 gives 3.3% error (above tolerance).
+# 3e-4 gives 1.2% error, within the 1.5% tolerance threshold.
+# See issue #2704 (Floating-point precision loss in matmul) for full analysis.
+alias GRADIENT_CHECK_EPSILON_FLOAT32: Float64 = 3e-4
+
+# Epsilon for non-float32 dtypes (BF16, FP16) in gradient checking.
+alias GRADIENT_CHECK_EPSILON_OTHER: Float64 = 1e-3
 
 
 # ============================================================================
@@ -588,16 +604,14 @@ struct LayerTester:
         # Verify output dtype
         assert_dtype(output, dtype, "Conv2D backward: output dtype mismatch")
 
-        # Test gradient checking with small epsilon and tolerance appropriate for dtype
-        # Note: Conv2d backward uses higher tolerance (10%) due to numerical precision
+        # Test gradient checking with small epsilon and tolerance appropriate for dtype.
+        # Conv2d backward uses higher tolerance (10%) due to numerical precision
         # differences from compiler optimizations in the refactored dtype-generic implementation.
         # The large number of operations in conv2d (especially with large kernels) accumulates
         # floating-point rounding errors, making gradient checking inherently less precise.
         # CI testing showed 6.89% error on AlexNet Conv1, so 5% tolerance is insufficient.
-        # NOTE: epsilon=3e-4 for float32 to avoid precision loss in matmul (see #2704)
-        # Using 1e-5 causes ~56% loss of precision, 1e-4 gives 3.3% error (above 1.5% tolerance)
-        # 3e-4 gives 1.2% error (within 1.5% tolerance)
-        var epsilon = 3e-4 if dtype == DType.float32 else 1e-3
+        # Epsilon selection for float32: see GRADIENT_CHECK_EPSILON_FLOAT32 and issue #2704.
+        var epsilon = GRADIENT_CHECK_EPSILON_FLOAT32 if dtype == DType.float32 else GRADIENT_CHECK_EPSILON_OTHER
         var tolerance = 1e-1  # 10% tolerance for all dtypes
 
         # Define forward function for gradient checking
@@ -754,9 +768,9 @@ struct LayerTester:
         # Verify output dtype
         assert_dtype(output, dtype, "Linear backward: output dtype mismatch")
 
-        # Test gradient checking with epsilon appropriate for dtype
-        # NOTE: epsilon=3e-4 for float32 prevents precision loss in matmul (see #2704)
-        var epsilon = 3e-4 if dtype == DType.float32 else 1e-3
+        # Epsilon for gradient checking: float32 uses GRADIENT_CHECK_EPSILON_FLOAT32 (3e-4)
+        # to avoid precision loss in matmul operations. See issue #2704 for full analysis.
+        var epsilon = GRADIENT_CHECK_EPSILON_FLOAT32 if dtype == DType.float32 else GRADIENT_CHECK_EPSILON_OTHER
 
         # Define forward function for gradient checking
         fn forward(x: ExTensor) raises escaping -> ExTensor:
@@ -916,9 +930,9 @@ struct LayerTester:
             output, dtype, activation + " backward: output dtype mismatch"
         )
 
-        # Test gradient checking with appropriate epsilon and tolerance for dtype
-        # NOTE: epsilon=3e-4 for float32 prevents precision loss (see #2704)
-        var epsilon = 3e-4 if dtype == DType.float32 else 1e-3
+        # Epsilon for gradient checking: float32 uses GRADIENT_CHECK_EPSILON_FLOAT32 (3e-4)
+        # to prevent precision loss. See issue #2704 for full analysis.
+        var epsilon = GRADIENT_CHECK_EPSILON_FLOAT32 if dtype == DType.float32 else GRADIENT_CHECK_EPSILON_OTHER
         var tolerance = 1e-2 if dtype == DType.float32 else 1e-1
 
         # Define forward function for gradient checking
