@@ -198,7 +198,7 @@ python tools/setup/verify_tools.py
 What do you need?
 ├── Create new paper structure → paper-scaffold/scaffold.py
 ├── Generate test data → tests/shared/fixtures/data_generators.mojo
-├── Create test fixtures → tests/shared/fixtures/mock_models.mojo
+├── Create test fixtures → shared/testing/test_models.mojo
 ├── Measure performance → shared/benchmarking/
 │   ├── Benchmark functions → benchmark_function()
 │   └── Print reports → print_benchmark_report()
