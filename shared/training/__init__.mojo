@@ -6,9 +6,8 @@ schedulers, metrics, callbacks, and training loops for ML Odyssey paper implemen
 
 All components are implemented in Mojo for maximum performance.
 
-Placeholder import tests in tests/shared/test_imports.mojo require implementation.
-See Issue #3033 for tracking: 6 tests for training module imports.
-Tests require corresponding modules to be implemented first.
+Import tests in tests/shared/test_imports.mojo are implemented and passing.
+See Issue #3033: 6 tests for training module imports — all tests pass.
 """
 
 from python import PythonObject

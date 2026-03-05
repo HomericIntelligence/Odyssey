@@ -38,9 +38,8 @@ Example:
         print("Epoch", epoch, "Loss:", loss)
     ```
 
-Placeholder tests in tests/shared/integration/test_packaging.mojo require implementation.
-See Issue #3033 for tracking: 12 placeholder tests for packaging integration.
-Tests require corresponding modules to be implemented first.
+Import tests in tests/shared/integration/test_packaging.mojo are implemented and passing.
+See Issue #3033: 12 tests for packaging integration — all tests pass.
 """
 
 # Package version and metadata
