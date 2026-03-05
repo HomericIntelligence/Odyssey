@@ -34,7 +34,6 @@ Complete directory structure, configuration files, and build system before other
 |-------|----------------|
 | `worktree-create` | Starting parallel foundation work |
 | `gh-implement-issue` | Implementing foundation components |
-| `plan-regenerate-issues` | Syncing modified plans with GitHub |
 | `agent-run-orchestrator` | Coordinating design agents |
 
 ## Constraints
@@ -105,7 +104,6 @@ See [common-constraints.md](../shared/common-constraints.md),
 
 - `phase-plan-generate` - Generating detailed subsection plans
 - `agent-run-orchestrator` - Delegating to subsection specialists
-- `plan-validate-structure` - Validating section structure
 - `gh-create-pr-linked` - Creating section-level pull requests
 
 **Use sub-agents for:**

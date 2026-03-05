@@ -34,7 +34,6 @@ Design reusable components, establish API consistency across sections, and manag
 |-------|----------------|
 | `worktree-create` | Developing multiple library components in parallel |
 | `gh-implement-issue` | Implementing individual library components |
-| `plan-regenerate-issues` | Syncing library component plans |
 | `agent-run-orchestrator` | Coordinating specialist work |
 
 ## Constraints
