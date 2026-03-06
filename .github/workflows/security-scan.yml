@@ -131,7 +131,6 @@ jobs:
           fail-on-severity: critical
           deny-licenses: GPL-3.0, AGPL-3.0
           comment-summary-in-pr: always
-        continue-on-error: true
 
   # ============================================================================
   # Security Report
