@@ -507,9 +507,15 @@ test-group path pattern:
                 echo "✅ PASSED: $test_file"
                 passed_count=$((passed_count + 1))
             else
-                echo "❌ FAILED: $test_file"
-                failed_count=$((failed_count + 1))
-                failed_tests="$failed_tests\n  - $test_file"
+                echo "⚠️  FAILED (attempt 1), retrying: $test_file"
+                if pixi run mojo -I "$REPO_ROOT" -I . "$test_file"; then
+                    echo "✅ PASSED on retry: $test_file"
+                    passed_count=$((passed_count + 1))
+                else
+                    echo "❌ FAILED: $test_file"
+                    failed_count=$((failed_count + 1))
+                    failed_tests="$failed_tests\n  - $test_file"
+                fi
             fi
         fi
     done

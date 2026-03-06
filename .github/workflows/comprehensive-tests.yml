@@ -159,7 +159,6 @@ jobs:
 
       - name: Validate test coverage
         id: validation
-        continue-on-error: true
         run: |
           python scripts/validate_test_coverage.py
           echo "exit_code=$?" >> $GITHUB_OUTPUT
@@ -312,9 +311,7 @@ jobs:
         uses: extractions/setup-just@v3
 
       - name: Run test group
-        # Integration tests may have segfaults on CI runners due to memory constraints
-        # Allow them to fail without blocking the workflow (tracked in issue)
-        continue-on-error: ${{ matrix.test-group.name == 'Integration Tests' }}
+        # Integration tests run with retry logic in test-group recipe (see justfile)
         run: |
           echo "=================================================="
           echo "Test Group: ${{ matrix.test-group.name }}"
@@ -366,12 +363,11 @@ jobs:
           retention-days: 7
 
   # ============================================================================
-  # Configs Tests - Non-blocking (known segfault issues)
+  # Configs Tests
   # ============================================================================
   test-configs:
     needs: [mojo-compilation, validate-test-coverage]
     runs-on: ubuntu-latest
-    continue-on-error: true  # Non-blocking - investigating segfaults on PR branches
     timeout-minutes: 15
     name: "Configs"
 
@@ -404,12 +400,11 @@ jobs:
   # ============================================================================
 
   # ============================================================================
-  # Benchmarks Tests - Non-blocking (known test discovery issues)
+  # Benchmarks Tests
   # ============================================================================
   test-benchmarks:
     needs: [mojo-compilation, validate-test-coverage]
     runs-on: ubuntu-latest
-    continue-on-error: true  # Non-blocking - investigating test discovery issues
     timeout-minutes: 15
     name: "Benchmarks"
 
@@ -438,12 +433,11 @@ jobs:
           retention-days: 7
 
   # ============================================================================
-  # Core Layers Tests - Non-blocking (known Mojo runtime segfault issues)
+  # Core Layers Tests
   # ============================================================================
   test-core-layers:
     needs: [mojo-compilation, validate-test-coverage]
     runs-on: ubuntu-latest
-    continue-on-error: true  # Non-blocking - investigating Mojo runtime segfaults
     timeout-minutes: 15
     name: "Core Layers"
 
