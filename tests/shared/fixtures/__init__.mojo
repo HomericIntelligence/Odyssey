@@ -18,12 +18,6 @@ Usage:
     from tests.shared.fixtures.mock_data import MockDataset
     from shared.testing import SimpleMLP  # Models now consolidated in shared.testing
 
-Note on consolidation:
-    The SimpleMLP and other test model definitions have been consolidated
-    into shared.testing.test_models for better organization. Test files
-    should import test models from shared.testing instead of from this module.
-    Direct imports from shared.testing are preferred.
-
 See individual modules for detailed documentation and examples.
 """
 
