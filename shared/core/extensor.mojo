@@ -27,6 +27,14 @@ Array API Categories:
 - Statistical: var, std, median, percentile ✓ (shared/core/reduction.mojo)
 - Indexing: slicing, advanced indexing ✓ (__getitem__ methods)
 
+Slicing Design:
+- `slice(start, end)` — view-based extraction (shares memory, zero-copy). Use for
+  batch processing where the original data must not be modified.
+- `tensor[i]` / `tensor[i, j]` — copy-based element access via __getitem__(Int)
+  or __getitem__(*slices). Returns a new tensor with independent memory.
+- The split between view (slice) and copy (getitem) is intentional: views support
+  efficient batch iteration; copies ensure safety when downstream code may mutate.
+
 Reference: https://data-apis.org/array-api/latest/API_specification/index.html
 """
 
