@@ -663,7 +663,6 @@ Performance optimization ongoing work:
 ## References
 
 - [Benchmarking Infrastructure][bench-infra] - Framework
-- [SIMD Integration Guide](integration.md) - SIMD optimization patterns
 - [Mojo Manual](https://docs.modular.com/mojo/manual/) - Official documentation
 - [Welford's Algorithm](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance)
   - Online variance computation
