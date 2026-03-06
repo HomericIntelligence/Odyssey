@@ -52,7 +52,7 @@ comptime WARN_TENSOR_BYTES: Int = 500_000_000  # 500 MB warning threshold
 
 
 struct ExTensor(
-    Copyable, ImplicitlyCopyable, Movable, Representable, Sized, Stringable
+    Copyable, Hashable, ImplicitlyCopyable, Movable, Representable, Sized, Stringable
 ):
     """Dynamic tensor with runtime-determined shape and data type.
 
