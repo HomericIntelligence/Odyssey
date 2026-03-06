@@ -763,6 +763,24 @@ struct ExTensor(
         else:
             self._set_int64(index, Int64(value))
 
+    fn __setitem__(mut self, index: Int, value: Float32) raises:
+        """Set element at flat index using a Float32 value.
+
+        Args:
+            index: The flat index to set.
+            value: The Float32 value to store.
+
+        Raises:
+            Error: If index is out of bounds.
+
+        Example:
+            ```mojo
+            var t = zeros([3], DType.float32)
+            t[1] = Float32(9.5)
+        ```
+        """
+        self.__setitem__(index, Float64(value))
+
     fn __setitem__(mut self, index: Int, value: Int64) raises:
         """Set element at flat index using an integer value.
 
