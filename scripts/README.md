@@ -26,38 +26,55 @@ The following scripts are deprecated and kept for historical reference:
 
 ```text
 scripts/
-├── README.md                           # This file
-├── common.py                           # Shared utilities and constants
-├── validation.py                       # Shared validation framework
-├── create_issues.py                    # Main GitHub issue creation
-├── regenerate_github_issues.py         # Dynamic issue file generation
-├── fix_markdown.py                     # Unified markdown linting fixer
-├── validate_links.py                   # Markdown link validation
-├── validate_structure.py               # Repository structure validation
-├── check_readmes.py                    # README completeness validation
-├── lint_configs.py                     # YAML configuration linting
-├── get_system_info.py                  # System information collector
-├── merge_prs.py                        # PR merge automation
-├── package_papers.py                   # Papers directory packaging
-└── agents/                             # Agent system utilities
-    ├── README.md                       # Agent scripts documentation
-    ├── agent_health_check.sh           # System health checks
-    ├── agent_stats.py                  # Statistics and metrics
-    ├── check_frontmatter.py            # YAML validation
-    ├── list_agents.py                  # Agent discovery
-    ├── setup_agents.sh                 # Setup automation
-    ├── test_agent_loading.py           # Loading tests
-    ├── validate_agents.py              # Configuration validation
-    ├── tests/                          # Agent test suite
-    └── playground/                     # Deprecated/experimental scripts
-        ├── README.md                   # Playground documentation
-        ├── create_single_component_issues.py  # (Deprecated - use create_issues.py --file)
-        ├── fix_duplicate_delegation.py        # Agent refactoring (historical)
-        ├── cleanup_agent_redundancy.py        # Agent refactoring (historical)
-        ├── fix_agent_markdown.py              # Agent refactoring (historical)
-        ├── condense_pr_sections.py            # Agent refactoring (historical)
-        └── condense_mojo_guidelines.py        # Agent refactoring (historical)
-```text
+├── README.md                       # This file
+├── CHANGELOG.md                    # Script change history
+├── common.py                       # Shared utilities and constants
+├── validation.py                   # Shared validation framework
+├── create_issues.py                # GitHub issue creation
+├── regenerate_github_issues.py     # Dynamic issue file generation
+├── implement_issues.py             # Batch issue implementation
+├── plan_issues.py                  # Issue planning utilities
+├── analyze_issues.py               # Issue analysis utilities
+├── fix_markdown.py                 # Markdown linting fixer
+├── fix_markdown_lint.py            # Markdown lint fixes
+├── fix_markdown_errors.py          # Markdown error fixes
+├── validate_links.py               # Markdown link validation
+├── validate_structure.py           # Repository structure validation
+├── validate_test_coverage.py       # Test coverage validation
+├── validate_test_file_sizes.py     # Test file size validation
+├── check_readmes.py                # README completeness validation
+├── check_coverage.py               # Coverage checking utilities
+├── lint_configs.py                 # YAML configuration linting
+├── get_system_info.py              # System information collector
+├── get_stats.py                    # Repository statistics
+├── merge_prs.py                    # PR merge automation
+├── package_papers.py               # Papers directory packaging
+├── migrate_notes_to_github.py      # Issue migration utility
+├── update_agents_claude4.py        # Agent Claude 4 update script
+├── generate_changelog.py           # Changelog generation
+├── generate_test_metrics.py        # Test metrics generation
+├── plot_training.py                # Training curve plotting
+├── download_*.py                   # Dataset download scripts (emnist, cifar10, etc.)
+├── build_*.sh                      # Package build scripts
+├── verify_*.sh                     # Package verification scripts
+├── check_zero_warnings.sh          # Zero-warnings CI check
+├── mojo-format-compat.sh           # Mojo format compatibility wrapper
+├── agents/                         # Agent system utilities
+│   ├── README.md                   # Agent scripts documentation
+│   ├── agent_health_check.sh       # System health checks
+│   ├── agent_stats.py              # Statistics and metrics
+│   ├── check_frontmatter.py        # YAML validation
+│   ├── list_agents.py              # Agent discovery
+│   ├── setup_agents.sh             # Setup automation
+│   ├── test_agent_loading.py       # Loading tests
+│   ├── validate_agents.py          # Configuration validation
+│   └── tests/                      # Agent test suite
+├── dashboard/                      # Monitoring dashboard scripts
+├── generators/                     # Code/issue generation utilities
+├── lib/                            # Shared library modules
+├── mojo-gen/                       # Mojo code generation tools
+└── utils/                          # General utility scripts
+```
 
 ## Scripts
 
