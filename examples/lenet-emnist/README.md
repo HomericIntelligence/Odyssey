@@ -121,6 +121,7 @@ examples/lenet-emnist/
 ├── model.mojo          # LeNet-5 model with save/load
 ├── train.mojo          # Training with manual backward passes
 ├── inference.mojo      # Inference with weight loading
+├── run_infer.mojo      # Inference entry point for running predictions on test data
 ├── weights.mojo        # Hex-based weight serialization
 └── run_example.sh      # Complete workflow script
 ```text
