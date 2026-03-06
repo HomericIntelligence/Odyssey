@@ -12,22 +12,32 @@ The documentation is organized into subdirectories by type and audience:
 ### Directory Organization
 
 ```text
-```text
-
 docs/
 ├── README.md               # This file
 ├── index.md                # Main documentation landing page
-├── getting-started/        # Quick start guides for new users
-│   ├── quickstart.md       # 5-minute getting started guide
-│   ├── installation.md     # Complete setup instructions
-│   └── first_model.md      # Tutorial for first model
+├── glossary.md             # Project-wide glossary
+├── adr/                    # Architecture Decision Records
+│   ├── README.md           # ADR index
+│   ├── template.md         # ADR template
+│   └── ADR-001 through ADR-009
 ├── advanced/               # Advanced topics for experienced users
 │   ├── benchmarking.md     # Benchmarking and profiling guide
 │   └── troubleshooting.md  # Debugging and troubleshooting
-└── dev/                    # Developer documentation
-    └── release-process.md  # Release workflow
-
-```text
+├── api/                    # API reference documentation
+├── dev/                    # Developer documentation
+│   ├── release-process.md  # Release workflow
+│   ├── testing-strategy.md # Testing approach and patterns
+│   ├── mojo-test-failure-patterns.md
+│   └── (additional dev guides)
+├── getting-started/        # Quick start guides for new users
+│   ├── quickstart.md       # 5-minute getting started guide
+│   ├── installation.md     # Complete setup instructions
+│   ├── first_model.md      # Tutorial for first model
+│   └── repository-structure.md
+├── integration/            # Integration guides
+├── migration/              # Migration guides
+└── optimization/           # Optimization guides
+```
 
 ## Guidelines
 
