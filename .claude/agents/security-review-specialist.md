@@ -90,7 +90,7 @@ let api_key = os.environ.get("API_KEY")
 ## Coordinates With
 
 - [Code Review Orchestrator](./code-review-orchestrator.md) - Receives review assignments
-- [Dependency Review Specialist](./dependency-review-specialist.md) - Checks for known vulnerabilities
+- [General Review Specialist](./general-review-specialist.md) - Checks for known vulnerabilities
 
 ## Escalates To
 

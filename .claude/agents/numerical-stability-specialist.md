@@ -114,8 +114,7 @@ fn clip_gradients(mut grad: Tensor, max_norm: Float32):
 ## Coordinates With
 
 - [Code Review Orchestrator](./code-review-orchestrator.md) - Receives review assignments
-- [Algorithm Review Specialist](./algorithm-review-specialist.md) - Coordinates on gradient verification
-- [Performance Review Specialist](./performance-review-specialist.md) - Coordinates on precision vs performance
+- [General Review Specialist](./general-review-specialist.md) - Coordinates on gradient verification and precision vs performance
 
 ## Escalates To
 

@@ -128,8 +128,7 @@ for complete v0.26.1 patterns.
 ## Coordinates With
 
 - [Code Review Orchestrator](./code-review-orchestrator.md) - Receives Mojo code assignments
-- [Performance Review Specialist](./performance-review-specialist.md) - Escalates algorithmic performance
-- [Safety Review Specialist](./safety-review-specialist.md) - Escalates memory safety issues
+- [General Review Specialist](./general-review-specialist.md) - Escalates algorithmic performance and memory safety issues
 
 ## Escalates To
 
