@@ -424,7 +424,9 @@ fn test_hash_different_values_differ() raises:
     var hash_a = hash(a)
     var hash_b = hash(b)
     if hash_a == hash_b:
-        raise Error("Tensors with different values should have different hashes")
+        raise Error(
+            "Tensors with different values should have different hashes"
+        )
 
 
 fn test_hash_large_values() raises:
@@ -451,7 +453,9 @@ fn test_hash_small_values_distinguish() raises:
     var hash_a = hash(a)
     var hash_b = hash(b)
     if hash_a == hash_b:
-        raise Error("Distinct small values should have different hashes with bitcast")
+        raise Error(
+            "Distinct small values should have different hashes with bitcast"
+        )
 
 
 # ============================================================================
