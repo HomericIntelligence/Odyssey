@@ -77,12 +77,14 @@ gh pr merge --auto --rebase
 - [Common Constraints](/.claude/shared/common-constraints.md)
 - [Documentation Rules](/.claude/shared/documentation-rules.md)
 - [Error Handling](/.claude/shared/error-handling.md)
+- [Output Style Guidelines](/.claude/shared/output-style-guidelines.md)
+- [Tool Use Optimization](/.claude/shared/tool-use-optimization.md)
 
 ### Agent System & Skills
 
 - [Agent Hierarchy](/agents/hierarchy.md) - 6-level hierarchy
-- [Agent Configurations](/.claude/agents/) - 44 agents
-- [Skills Directory](/.claude/skills/) - 82+ capabilities
+- [Agent Configurations](/.claude/agents/) - 37 agents
+- [Skills Directory](/.claude/skills/) - 84+ capabilities
 
 ## Working with Agents
 
@@ -95,7 +97,7 @@ See [agents/hierarchy.md](agents/hierarchy.md) for the complete agent hierarchy 
 
 - 6-level hierarchy (L0 Chief Architect → L5 Junior Engineers)
 - Model assignments (Opus, Sonnet, Haiku)
-- All 44 agents with roles and responsibilities
+- All 37 agents with roles and responsibilities
 
 ### Key Agent Principles
 
@@ -156,7 +158,7 @@ Foreground tasks: `gh-create-pr-linked` (invoke explicitly)
 
 - **GitHub**: gh-review-pr, gh-fix-pr-feedback, gh-create-pr-linked, gh-check-ci-status,
   gh-implement-issue, gh-reply-review-comment, gh-get-review-comments, gh-batch-merge-by-labels,
-  verify-pr-ready
+  verify-pr-ready, pr-cleanup
 - **Worktree**: worktree-create, worktree-cleanup, worktree-switch, worktree-sync
 - **Phase Workflow**: phase-plan-generate, phase-test-tdd, phase-implement, phase-package,
   phase-cleanup
@@ -166,7 +168,7 @@ Foreground tasks: `gh-create-pr-linked` (invoke explicitly)
 - **Agent System**: agent-validate-config, agent-test-delegation, agent-run-orchestrator,
   agent-coverage-check, agent-hierarchy-diagram
 - **Documentation**: doc-generate-adr, doc-issue-readme, doc-validate-markdown,
-  doc-update-blog
+  doc-update-blog, blog-writer
 - **CI/CD**: run-precommit, validate-workflow, fix-ci-failures, install-workflow,
   analyze-ci-failure-logs, build-run-local
 - **Quality**: quality-run-linters, quality-fix-formatting, quality-security-scan,
