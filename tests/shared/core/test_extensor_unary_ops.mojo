@@ -13,7 +13,9 @@ fn test_neg_basic() raises:
     var a = full([2, 3], 3.0, DType.float32)
     var result = -a
     for i in range(result.numel()):
-        assert_almost_equal(Float64(result._get_float32(i)), -3.0, tolerance=1e-6)
+        assert_almost_equal(
+            Float64(result._get_float32(i)), -3.0, tolerance=1e-6
+        )
 
 
 fn test_neg_negative_values() raises:
@@ -21,7 +23,9 @@ fn test_neg_negative_values() raises:
     var a = full([2, 3], -5.0, DType.float32)
     var result = -a
     for i in range(result.numel()):
-        assert_almost_equal(Float64(result._get_float32(i)), 5.0, tolerance=1e-6)
+        assert_almost_equal(
+            Float64(result._get_float32(i)), 5.0, tolerance=1e-6
+        )
 
 
 fn test_neg_zeros() raises:
@@ -29,7 +33,9 @@ fn test_neg_zeros() raises:
     var a = zeros([2, 3], DType.float32)
     var result = -a
     for i in range(result.numel()):
-        assert_almost_equal(Float64(result._get_float32(i)), 0.0, tolerance=1e-6)
+        assert_almost_equal(
+            Float64(result._get_float32(i)), 0.0, tolerance=1e-6
+        )
 
 
 fn test_pos_basic() raises:
@@ -37,7 +43,9 @@ fn test_pos_basic() raises:
     var a = full([2, 3], 3.0, DType.float32)
     var result = +a
     for i in range(result.numel()):
-        assert_almost_equal(Float64(result._get_float32(i)), 3.0, tolerance=1e-6)
+        assert_almost_equal(
+            Float64(result._get_float32(i)), 3.0, tolerance=1e-6
+        )
     assert_equal(result.numel(), a.numel())
 
 
@@ -46,7 +54,9 @@ fn test_pos_preserves_values() raises:
     var a = full([3, 2], -2.5, DType.float32)
     var result = +a
     for i in range(result.numel()):
-        assert_almost_equal(Float64(result._get_float32(i)), -2.5, tolerance=1e-6)
+        assert_almost_equal(
+            Float64(result._get_float32(i)), -2.5, tolerance=1e-6
+        )
 
 
 fn test_abs_positive_values() raises:
@@ -54,7 +64,9 @@ fn test_abs_positive_values() raises:
     var a = full([2, 3], 3.5, DType.float32)
     var result = a.__abs__()
     for i in range(result.numel()):
-        assert_almost_equal(Float64(result._get_float32(i)), 3.5, tolerance=1e-6)
+        assert_almost_equal(
+            Float64(result._get_float32(i)), 3.5, tolerance=1e-6
+        )
 
 
 fn test_abs_negative_values() raises:
@@ -62,7 +74,9 @@ fn test_abs_negative_values() raises:
     var a = full([2, 3], -3.5, DType.float32)
     var result = a.__abs__()
     for i in range(result.numel()):
-        assert_almost_equal(Float64(result._get_float32(i)), 3.5, tolerance=1e-6)
+        assert_almost_equal(
+            Float64(result._get_float32(i)), 3.5, tolerance=1e-6
+        )
 
 
 fn test_abs_mixed_values() raises:
@@ -84,7 +98,9 @@ fn test_abs_zeros() raises:
     var a = zeros([2, 3], DType.float32)
     var result = a.__abs__()
     for i in range(result.numel()):
-        assert_almost_equal(Float64(result._get_float32(i)), 0.0, tolerance=1e-6)
+        assert_almost_equal(
+            Float64(result._get_float32(i)), 0.0, tolerance=1e-6
+        )
 
 
 fn test_combined_unary_binary_ops() raises:
@@ -95,7 +111,9 @@ fn test_combined_unary_binary_ops() raises:
     var abs_b = b.__abs__()
     var result = abs_a + abs_b
     for i in range(result.numel()):
-        assert_almost_equal(Float64(result._get_float32(i)), 5.0, tolerance=1e-6)
+        assert_almost_equal(
+            Float64(result._get_float32(i)), 5.0, tolerance=1e-6
+        )
 
 
 fn test_double_negation() raises:
@@ -103,7 +121,9 @@ fn test_double_negation() raises:
     var a = full([2, 2], 3.0, DType.float32)
     var result = -(-a)
     for i in range(result.numel()):
-        assert_almost_equal(Float64(result._get_float32(i)), 3.0, tolerance=1e-6)
+        assert_almost_equal(
+            Float64(result._get_float32(i)), 3.0, tolerance=1e-6
+        )
 
 
 fn test_operators_preserve_shape() raises:

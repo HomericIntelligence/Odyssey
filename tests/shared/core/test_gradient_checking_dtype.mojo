@@ -7,7 +7,12 @@ corruption bug that occurs after ~15 cumulative tests. See ADR-009.
 from tests.shared.conftest import assert_true
 from shared.testing import check_gradients
 from shared.core import ExTensor, zeros, ones, full
-from shared.core.activation import relu, relu_backward, sigmoid, sigmoid_backward
+from shared.core.activation import (
+    relu,
+    relu_backward,
+    sigmoid,
+    sigmoid_backward,
+)
 from shared.core.arithmetic import multiply, multiply_backward
 from shared.core.linear import linear, linear_backward
 from shared.core.conv import conv2d, conv2d_backward
@@ -60,7 +65,9 @@ fn test_linear_gradient_fp32() raises:
         var grads = linear_backward(grad_out, x, weights)
         return grads.grad_input
 
-    var passed = check_gradients(forward, backward, input, epsilon=1e-5, tolerance=3e-3)
+    var passed = check_gradients(
+        forward, backward, input, epsilon=1e-5, tolerance=3e-3
+    )
     assert_true(passed, "Linear FP32 gradient check failed")
 
 
@@ -89,7 +96,9 @@ fn test_linear_gradient_fp16() raises:
         var grads = linear_backward(grad_out, x, weights)
         return grads.grad_input
 
-    var passed = check_gradients(forward, backward, input, epsilon=1e-2, tolerance=2e-1)
+    var passed = check_gradients(
+        forward, backward, input, epsilon=1e-2, tolerance=2e-1
+    )
     assert_true(passed, "Linear FP16 gradient check failed")
 
 
@@ -120,7 +129,9 @@ fn test_conv2d_gradient_fp32() raises:
         var grads = conv2d_backward(grad_out, x, kernel, stride=1, padding=0)
         return grads.grad_input
 
-    var passed = check_gradients(forward, backward, input, epsilon=1e-5, tolerance=1e-2)
+    var passed = check_gradients(
+        forward, backward, input, epsilon=1e-5, tolerance=1e-2
+    )
     assert_true(passed, "Conv2D FP32 gradient check failed")
 
 
@@ -147,7 +158,9 @@ fn test_cross_entropy_gradient_fp32() raises:
     fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
         return cross_entropy_backward(grad_out, x, labels)
 
-    var passed = check_gradients(forward, backward, logits, epsilon=1e-5, tolerance=1e-2)
+    var passed = check_gradients(
+        forward, backward, logits, epsilon=1e-5, tolerance=1e-2
+    )
     assert_true(passed, "CrossEntropy FP32 gradient check failed")
 
 

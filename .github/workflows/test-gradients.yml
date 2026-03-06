@@ -7,7 +7,8 @@ on:
       - 'shared/core/**/activation.mojo'
       - 'shared/core/**/arithmetic.mojo'
       - 'shared/training/**/*.mojo'
-      - 'tests/shared/core/test_gradient_checking.mojo'
+      - 'tests/shared/core/test_gradient_checking_basic.mojo'
+      - 'tests/shared/core/test_gradient_checking_dtype.mojo'
       - '.github/workflows/test-gradients.yml'
   push:
     branches:
@@ -17,7 +18,8 @@ on:
       - 'shared/core/**/activation.mojo'
       - 'shared/core/**/arithmetic.mojo'
       - 'shared/training/**/*.mojo'
-      - 'tests/shared/core/test_gradient_checking.mojo'
+      - 'tests/shared/core/test_gradient_checking_basic.mojo'
+      - 'tests/shared/core/test_gradient_checking_dtype.mojo'
 
 jobs:
   gradient-tests:
@@ -36,7 +38,9 @@ jobs:
 
       - name: Run gradient checking tests
         run: |
-          pixi run mojo -I . tests/shared/core/test_gradient_checking.mojo
+          # Split per ADR-009: test_gradient_checking.mojo split to avoid Mojo 0.26.1 heap corruption
+          pixi run mojo -I . tests/shared/core/test_gradient_checking_basic.mojo
+          pixi run mojo -I . tests/shared/core/test_gradient_checking_dtype.mojo
 
       - name: Check test results
         if: failure()
@@ -69,7 +73,7 @@ jobs:
           BACKWARD_FUNCS=$(grep -r "fn.*_backward" shared/core --include="*.mojo" | wc -l)
 
           # Find all gradient tests
-          GRADIENT_TESTS=$(grep -r "test.*gradient" tests/shared/core/test_gradient_checking.mojo | wc -l)
+          GRADIENT_TESTS=$(grep -r "test.*gradient" tests/shared/core/test_gradient_checking_basic.mojo tests/shared/core/test_gradient_checking_dtype.mojo | wc -l)
 
           echo "Backward functions found: $BACKWARD_FUNCS"
           echo "Gradient tests found: $GRADIENT_TESTS"

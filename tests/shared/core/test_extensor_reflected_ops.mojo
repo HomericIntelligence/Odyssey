@@ -17,8 +17,12 @@ fn test_radd_tensors() raises:
     assert_equal(len(result1.shape()), len(result2.shape()))
     assert_equal(result1.numel(), result2.numel())
     for i in range(result1.numel()):
-        assert_almost_equal(Float64(result1._get_float32(i)), 5.0, tolerance=1e-6)
-        assert_almost_equal(Float64(result2._get_float32(i)), 5.0, tolerance=1e-6)
+        assert_almost_equal(
+            Float64(result1._get_float32(i)), 5.0, tolerance=1e-6
+        )
+        assert_almost_equal(
+            Float64(result2._get_float32(i)), 5.0, tolerance=1e-6
+        )
 
 
 fn test_rsub_tensors() raises:
@@ -28,8 +32,12 @@ fn test_rsub_tensors() raises:
     var result1 = a - b
     var result2 = b - a
     for i in range(result1.numel()):
-        assert_almost_equal(Float64(result1._get_float32(i)), -3.0, tolerance=1e-6)
-        assert_almost_equal(Float64(result2._get_float32(i)), 3.0, tolerance=1e-6)
+        assert_almost_equal(
+            Float64(result1._get_float32(i)), -3.0, tolerance=1e-6
+        )
+        assert_almost_equal(
+            Float64(result2._get_float32(i)), 3.0, tolerance=1e-6
+        )
 
 
 fn test_rmul_tensors() raises:
@@ -39,8 +47,12 @@ fn test_rmul_tensors() raises:
     var result1 = a * b
     var result2 = b * a
     for i in range(result1.numel()):
-        assert_almost_equal(Float64(result1._get_float32(i)), 6.0, tolerance=1e-6)
-        assert_almost_equal(Float64(result2._get_float32(i)), 6.0, tolerance=1e-6)
+        assert_almost_equal(
+            Float64(result1._get_float32(i)), 6.0, tolerance=1e-6
+        )
+        assert_almost_equal(
+            Float64(result2._get_float32(i)), 6.0, tolerance=1e-6
+        )
 
 
 fn test_rtruediv_tensors() raises:
@@ -50,8 +62,12 @@ fn test_rtruediv_tensors() raises:
     var result1 = a / b
     var result2 = b / a
     for i in range(result1.numel()):
-        assert_almost_equal(Float64(result1._get_float32(i)), 0.25, tolerance=1e-6)
-        assert_almost_equal(Float64(result2._get_float32(i)), 4.0, tolerance=1e-6)
+        assert_almost_equal(
+            Float64(result1._get_float32(i)), 0.25, tolerance=1e-6
+        )
+        assert_almost_equal(
+            Float64(result2._get_float32(i)), 4.0, tolerance=1e-6
+        )
 
 
 fn main() raises:
