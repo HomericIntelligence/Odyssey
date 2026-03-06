@@ -1007,8 +1007,8 @@ For issues requiring immediate attention:
 
 ## Quick Reference Links
 
-- Installation: `/docs/getting-started/installation.md`
-- Build Instructions: `/docs/dev/build.md`
+- Installation: [docs/getting-started/installation.md](../getting-started/installation.md)
+- Build Instructions: [docs/dev/build.md](../dev/build.md)
 
 ---
 
