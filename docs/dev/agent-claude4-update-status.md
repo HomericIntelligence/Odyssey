@@ -93,6 +93,8 @@ These serve as templates for their respective categories.
 - `.claude/agents/mojo-syntax-validator.md`
 - `.claude/agents/test-flakiness-specialist.md`
 - `.claude/agents/code-review-orchestrator.md`
+  - ~~`.claude/agents/pr-cleanup-specialist.md`~~ — converted to skill
+  - ~~`.claude/agents/blog-writer-specialist.md`~~ — converted to skill
 
 **Pattern**: Use implementation-engineer.md or test-engineer.md as templates
 
