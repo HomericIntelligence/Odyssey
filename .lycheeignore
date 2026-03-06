@@ -21,6 +21,16 @@ github\.com/HomericIntelligence/ProjectOdyssey
 # Ignore pytorch docs redirects (pytorch.org -> docs.pytorch.org)
 pytorch\.org/docs
 
+# Ignore fabricated Claude documentation URLs (not real public sites)
+platform\.claude\.com
+code\.claude\.com
+
+# Ignore external sites that may be intermittently unavailable
+softjourn\.com
+coderower\.com
+pullchecklist\.com
+geeksforgeeks\.org
+
 # Ignore root-relative links (lychee cannot resolve these without --root-url)
 # These are valid repo-relative paths in CLAUDE.md, docs/adr/, notebooks/README.md
 ^/CLAUDE\.md$
