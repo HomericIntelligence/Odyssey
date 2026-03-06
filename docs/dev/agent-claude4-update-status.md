@@ -3,7 +3,7 @@
 
 ## Overview
 
-This document tracks the progress of updating all 44 agent files with Claude 4-specific sections
+This document tracks the progress of updating all 42 agent files with Claude 4-specific sections
 following official best practices from:
 
 - [https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-4-best-practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-4-best-practices)
@@ -21,7 +21,7 @@ Each agent file must include:
 
 ## Completion Status
 
-### Completed Files (5/44) ✅
+### Completed Files (5/42) ✅
 
 **Reference Implementations:**
 
@@ -32,7 +32,7 @@ Each agent file must include:
 
 These serve as templates for their respective categories.
 
-### Remaining Files by Category (39/44)
+### Remaining Files by Category (37/42)
 
 #### Level 1: Orchestrators (5 remaining)
 
@@ -83,7 +83,7 @@ These serve as templates for their respective categories.
 
 **Pattern**: Review specialists rarely need sub-agents (they ARE the specialists)
 
-#### Level 4: Engineers (11 remaining)
+#### Level 4: Engineers (9 remaining)
 
 - `.claude/agents/senior-implementation-engineer.md`
 - `.claude/agents/performance-engineer.md`
@@ -92,8 +92,6 @@ These serve as templates for their respective categories.
 - `.claude/agents/log-analyzer.md`
 - `.claude/agents/mojo-syntax-validator.md`
 - `.claude/agents/test-flakiness-specialist.md`
-- `.claude/agents/pr-cleanup-specialist.md`
-- `.claude/agents/blog-writer-specialist.md`
 - `.claude/agents/code-review-orchestrator.md`
 
 **Pattern**: Use implementation-engineer.md or test-engineer.md as templates
@@ -236,9 +234,9 @@ The script handles:
 
 Before finalizing:
 
-- [ ] All 44 agent files have Thinking Guidance section
-- [ ] All 44 agent files have Output Preferences section
-- [ ] All 44 agent files have Delegation Patterns section
+- [ ] All 42 agent files have Thinking Guidance section
+- [ ] All 42 agent files have Output Preferences section
+- [ ] All 42 agent files have Delegation Patterns section
 - [ ] Appropriate agents have Sub-Agent Usage section
 - [ ] Level 5 junior agents do NOT recommend sub-agents
 - [ ] Examples are specific to agent's domain
