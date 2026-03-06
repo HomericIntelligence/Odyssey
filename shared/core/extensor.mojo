@@ -735,6 +735,52 @@ struct ExTensor(
         # Return value based on dtype
         return self._get_float32(index)
 
+    fn __setitem__(mut self, index: Int, value: Float64) raises:
+        """Set element at flat index.
+
+        Args:
+            index: The flat index to set.
+            value: The value to store.
+
+        Raises:
+            Error: If index is out of bounds.
+
+        Example:
+            ```mojo
+            var t = zeros([3], DType.float32)
+            t[1] = 9.5
+        ```
+        """
+        if index < 0 or index >= self._numel:
+            raise Error("Index out of bounds")
+
+        if (
+            self._dtype == DType.float16
+            or self._dtype == DType.float32
+            or self._dtype == DType.float64
+        ):
+            self._set_float64(index, value)
+        else:
+            self._set_int64(index, Int64(value))
+
+    fn __setitem__(mut self, index: Int, value: Int64) raises:
+        """Set element at flat index using an integer value.
+
+        Args:
+            index: The flat index to set.
+            value: The integer value to store.
+
+        Raises:
+            Error: If index is out of bounds.
+
+        Example:
+            ```mojo
+            var t = zeros([3], DType.int32)
+            t[2] = Int64(7)
+        ```
+        """
+        self.__setitem__(index, Float64(value))
+
     fn __getitem__(self, slice: Slice) raises -> Self:
         """Get slice of 1D tensor [start:end] or [start:end:step].
 
