@@ -611,7 +611,10 @@ struct LayerTester:
         # floating-point rounding errors, making gradient checking inherently less precise.
         # CI testing showed 6.89% error on AlexNet Conv1, so 5% tolerance is insufficient.
         # Epsilon selection for float32: see GRADIENT_CHECK_EPSILON_FLOAT32 and issue #2704.
-        var epsilon = GRADIENT_CHECK_EPSILON_FLOAT32 if dtype == DType.float32 else GRADIENT_CHECK_EPSILON_OTHER
+        var epsilon = (
+            GRADIENT_CHECK_EPSILON_FLOAT32 if dtype
+            == DType.float32 else GRADIENT_CHECK_EPSILON_OTHER
+        )
         var tolerance = 1e-1  # 10% tolerance for all dtypes
 
         # Define forward function for gradient checking
@@ -770,7 +773,10 @@ struct LayerTester:
 
         # Epsilon for gradient checking: float32 uses GRADIENT_CHECK_EPSILON_FLOAT32 (3e-4)
         # to avoid precision loss in matmul operations. See issue #2704 for full analysis.
-        var epsilon = GRADIENT_CHECK_EPSILON_FLOAT32 if dtype == DType.float32 else GRADIENT_CHECK_EPSILON_OTHER
+        var epsilon = (
+            GRADIENT_CHECK_EPSILON_FLOAT32 if dtype
+            == DType.float32 else GRADIENT_CHECK_EPSILON_OTHER
+        )
 
         # Define forward function for gradient checking
         fn forward(x: ExTensor) raises escaping -> ExTensor:
@@ -932,7 +938,10 @@ struct LayerTester:
 
         # Epsilon for gradient checking: float32 uses GRADIENT_CHECK_EPSILON_FLOAT32 (3e-4)
         # to prevent precision loss. See issue #2704 for full analysis.
-        var epsilon = GRADIENT_CHECK_EPSILON_FLOAT32 if dtype == DType.float32 else GRADIENT_CHECK_EPSILON_OTHER
+        var epsilon = (
+            GRADIENT_CHECK_EPSILON_FLOAT32 if dtype
+            == DType.float32 else GRADIENT_CHECK_EPSILON_OTHER
+        )
         var tolerance = 1e-2 if dtype == DType.float32 else 1e-1
 
         # Define forward function for gradient checking
