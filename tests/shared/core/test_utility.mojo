@@ -352,7 +352,9 @@ fn test_str_readable() raises:
     """Test __str__ produces readable output."""
     var t = arange(0.0, 3.0, 1.0, DType.float32)
     var s = String(t)
-    assert_equal(s, "ExTensor([0.0, 1.0, 2.0], dtype=float32)", "__str__ format")
+    assert_equal(
+        s, "ExTensor([0.0, 1.0, 2.0], dtype=float32)", "__str__ format"
+    )
 
 
 fn test_repr_complete() raises:
@@ -364,7 +366,10 @@ fn test_repr_complete() raises:
     var r = repr(t)
     assert_equal(
         r,
-        "ExTensor(shape=[2, 2], dtype=float32, numel=4, data=[1.0, 1.0, 1.0, 1.0])",
+        (
+            "ExTensor(shape=[2, 2], dtype=float32, numel=4, data=[1.0, 1.0,"
+            " 1.0, 1.0])"
+        ),
         "__repr__ format",
     )
 
