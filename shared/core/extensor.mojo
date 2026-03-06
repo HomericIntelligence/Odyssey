@@ -107,6 +107,10 @@ struct ExTensor(Copyable, ImplicitlyCopyable, Movable, Sized):
         Note:
             This is a low-level constructor. Users should prefer creation
             functions like zeros(), ones(), full(), etc.
+
+            Allocating tensors larger than WARN_TENSOR_BYTES (500 MB) will
+            print a console warning. This is informational only and does not
+            raise an error.
         """
         # Copy shape to avoid mutation issues
         self._shape = List[Int]()
