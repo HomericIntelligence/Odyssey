@@ -240,19 +240,32 @@ fn test_dtypes_float16() raises:
 fn test_dtypes_bfloat16() raises:
     """Test special values work with bfloat16.
 
-    DType.bfloat16 is available in Mojo, but ExTensor's _set_float64/_get_float64
-    path does not correctly round-trip values through bfloat16 storage, so this
-    test is skipped until the ExTensor float64 read/write path supports bfloat16.
+    NOTE: BF16 is a custom type in shared.core.types.bf16 but is not
+    yet integrated with Mojo's runtime DType system. This test is skipped
+    until DType.bfloat16 is added to Mojo or we implement custom dtype handling.
 
-    Note:
-        DType.bfloat16 is also not supported on Apple Silicon hardware.
+    Current Status:
+    - BF16 struct exists in shared.core.types.bf16
+    - Mojo's DType enum does not include DType.bfloat16
+    - Cannot create tensors with BF16 dtype through standard ExTensor API
 
-    TODO: Enable when ExTensor._set_float64/_get_float64 correctly handle bfloat16.
-        var tensor = create_special_value_tensor([2, 2], DType.bfloat16, 1.0)
-        assert_dtype(tensor, DType.bfloat16, "Should be bfloat16")
-        verify_special_value_invariants(tensor, 1.0)
+    Implementation Requirements:
+    - Wait for Mojo to add DType.bfloat16 to the DType enum
+    - OR implement custom dtype registration in ExTensor
+    - OR wrap special_values functions to support struct-based dtypes
+
+    Once Available:
+    1. Uncomment the test code below
+    2. Verify special values (0.5, 1.0, 1.5, -0.5, -1.0) are representable
+    3. Add BF16 SIMD operations similar to FP32 paths
+    4. Test mixed precision training with BF16 parameters
+
+    Reference: shared.core.types.bf16 module for current BF16 implementation
     """
-    pass
+    # var tensor = create_special_value_tensor([2, 2], DType.bfloat16, 1.0)
+    # assert_dtype(tensor, DType.bfloat16, "Should be bfloat16")
+    # verify_special_value_invariants(tensor, 1.0)
+    pass  # Placeholder - BFloat16 DType not yet supported in Mojo's runtime
 
 
 fn test_create_seeded_random_tensor_reproducibility() raises:
@@ -468,10 +481,7 @@ fn main() raises:
 
     # BF16 dtype not yet supported in Mojo
     test_dtypes_bfloat16()
-    print(
-        "✓ test_dtypes_bfloat16 (skipped - bfloat16 float64 read/write not yet"
-        " supported)"
-    )
+    print("✓ test_dtypes_bfloat16 (skipped - DType.bfloat16 not supported)")
 
     # Test seeded random tensor (for gradient checking reproducibility)
     test_create_seeded_random_tensor_reproducibility()
