@@ -468,7 +468,10 @@ fn main() raises:
 
     # BF16 dtype not yet supported in Mojo
     test_dtypes_bfloat16()
-    print("✓ test_dtypes_bfloat16 (skipped - bfloat16 float64 read/write not yet supported)")
+    print(
+        "✓ test_dtypes_bfloat16 (skipped - bfloat16 float64 read/write not yet"
+        " supported)"
+    )
 
     # Test seeded random tensor (for gradient checking reproducibility)
     test_create_seeded_random_tensor_reproducibility()
