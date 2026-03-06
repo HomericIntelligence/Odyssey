@@ -19,11 +19,3 @@ runs:
       with:
         pixi-version: ${{ inputs.pixi-version }}
         cache: ${{ inputs.cache }}
-
-    - name: Cache Pixi environments
-      uses: actions/cache@v5
-      with:
-        path: ~/.pixi
-        key: pixi-${{ runner.os }}-${{ hashFiles('pixi.toml') }}
-        restore-keys: |
-          pixi-${{ runner.os }}-
