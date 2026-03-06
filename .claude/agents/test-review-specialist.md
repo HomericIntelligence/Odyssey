@@ -92,8 +92,7 @@ fn test_process_invalid_type():
 ## Coordinates With
 
 - [Code Review Orchestrator](./code-review-orchestrator.md) - Receives review assignments
-- [Algorithm Specialist](./algorithm-review-specialist.md) - Suggests numerical/gradient tests
-- [Implementation Specialist](./implementation-review-specialist.md) - Notes untested code paths
+- [General Review Specialist](./general-review-specialist.md) - Coordinates on tests and untested code paths
 
 ## Escalates To
 
