@@ -32,6 +32,10 @@ rather than a bug in our code.
 3. **Cannot create minimal reproduction** - Tried 17 different isolated test cases
 4. **Requires exact sequence of 15 specific tests** - Any subset <15 works fine
 5. **Heap corruption in Mojo allocator** - Crash in `libKGENCompilerRTShared.so`
+6. **`^` operator in `__moveinit__` is NOT a fix** - Switching `_shape` and `_strides`
+   from `.copy()` to `^` corrupts list element values when the source List has been
+   mutated in-place (e.g. by `slice()`). The `.copy()` workaround in `__moveinit__`
+   is correct and necessary for Mojo 0.26.1.
 
 ### Constraints
 
@@ -184,9 +188,12 @@ bug that occurs after ~15 cumulative tests. See Issue #2942.
 
 ## Revision History
 
-| Version | Date       | Author      | Changes                              |
-| ------- | ---------- | ----------- | ------------------------------------ |
-| 1.0     | 2025-12-30 | Claude Code | Initial ADR documenting workaround   |
+| Version | Date       | Author      | Changes                                                              |
+| ------- | ---------- | ----------- | -------------------------------------------------------------------- |
+| 1.0     | 2025-12-30 | Claude Code | Initial ADR documenting workaround                                   |
+| 1.1     | 2026-03-06 | Claude Code | Investigation: `^` in `__moveinit__` corrupts slice shapes in Mojo  |
+|         |            |             | 0.26.1 — workaround (file splitting + `.copy()`) remains correct.   |
+|         |            |             | Also fixes `mojo format` line-length in `layer_testers.mojo`.       |
 
 ---
 
