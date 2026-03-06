@@ -12,7 +12,7 @@ and run inference with the ResNet-18 architecture using ML Odyssey's shared libr
 
 **Dataset**: CIFAR-10 (10 classes of RGB images: airplane, automobile, bird, cat, deer, dog, frog, horse, ship, truck)
 
-**Status**: ⚠️ **Forward pass complete**
+**Status**: ⚠️ **Forward pass complete — backward pass tracked in #3181**
 Training requires `batch_norm2d_backward` (see [GAP_ANALYSIS.md](GAP_ANALYSIS.md))
 
 ## Quick Start
