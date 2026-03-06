@@ -48,7 +48,8 @@ fn test_cross_entropy_backward_shapes() raises:
 
 
 fn test_binary_cross_entropy_backward_shapes() raises:
-    """Test that binary_cross_entropy_backward returns correct gradient shape."""
+    """Test that binary_cross_entropy_backward returns correct gradient shape.
+    """
     var batch = 32
     var features = 1
 
@@ -66,7 +67,9 @@ fn test_binary_cross_entropy_backward_shapes() raises:
 
     var loss = binary_cross_entropy(predictions, targets)
     var grad_output = ones_like(loss)
-    var grad_pred = binary_cross_entropy_backward(grad_output, predictions, targets)
+    var grad_pred = binary_cross_entropy_backward(
+        grad_output, predictions, targets
+    )
 
     var gp_shape = grad_pred.shape()
     assert_equal(gp_shape[0], batch)
@@ -91,7 +94,9 @@ fn test_binary_cross_entropy_backward_edge_cases() raises:
 
     var loss = binary_cross_entropy(predictions, targets)
     var grad_output = ones_like(loss)
-    var grad_pred = binary_cross_entropy_backward(grad_output, predictions, targets)
+    var grad_pred = binary_cross_entropy_backward(
+        grad_output, predictions, targets
+    )
 
     for i in range(4):
         var grad = grad_pred._data.bitcast[Float32]()[i]
@@ -115,7 +120,9 @@ fn test_mean_squared_error_backward_shapes() raises:
 
     var loss = mean_squared_error(predictions, targets)
     var grad_output = ones_like(loss)
-    var grad_pred = mean_squared_error_backward(grad_output, predictions, targets)
+    var grad_pred = mean_squared_error_backward(
+        grad_output, predictions, targets
+    )
 
     var gp_shape = grad_pred.shape()
     assert_equal(gp_shape[0], batch)
@@ -136,7 +143,9 @@ fn test_mean_squared_error_backward_zero_diff() raises:
 
     var loss = mean_squared_error(predictions, targets)
     var grad_output = ones_like(loss)
-    var grad_pred = mean_squared_error_backward(grad_output, predictions, targets)
+    var grad_pred = mean_squared_error_backward(
+        grad_output, predictions, targets
+    )
 
     for i in range(5):
         assert_almost_equal(

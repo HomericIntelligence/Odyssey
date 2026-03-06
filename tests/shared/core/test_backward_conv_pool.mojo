@@ -109,7 +109,9 @@ fn test_maxpool2d_backward_shapes() raises:
 
     var output = maxpool2d(x, kernel_size=2, stride=2, padding=0)
     var grad_output = ones_like(output)
-    var grad_input = maxpool2d_backward(grad_output, x, kernel_size=2, stride=2, padding=0)
+    var grad_input = maxpool2d_backward(
+        grad_output, x, kernel_size=2, stride=2, padding=0
+    )
 
     var gi_shape = grad_input.shape()
     assert_equal(gi_shape[0], 2)
@@ -133,12 +135,22 @@ fn test_maxpool2d_backward_gradient_routing() raises:
 
     var output = maxpool2d(x, kernel_size=2, stride=2, padding=0)
     var grad_output = ones_like(output)
-    var grad_input = maxpool2d_backward(grad_output, x, kernel_size=2, stride=2, padding=0)
+    var grad_input = maxpool2d_backward(
+        grad_output, x, kernel_size=2, stride=2, padding=0
+    )
 
-    assert_almost_equal(grad_input._data.bitcast[Float32]()[0], Float32(0.0), tolerance=1e-5)
-    assert_almost_equal(grad_input._data.bitcast[Float32]()[1], Float32(0.0), tolerance=1e-5)
-    assert_almost_equal(grad_input._data.bitcast[Float32]()[2], Float32(0.0), tolerance=1e-5)
-    assert_almost_equal(grad_input._data.bitcast[Float32]()[3], Float32(1.0), tolerance=1e-5)
+    assert_almost_equal(
+        grad_input._data.bitcast[Float32]()[0], Float32(0.0), tolerance=1e-5
+    )
+    assert_almost_equal(
+        grad_input._data.bitcast[Float32]()[1], Float32(0.0), tolerance=1e-5
+    )
+    assert_almost_equal(
+        grad_input._data.bitcast[Float32]()[2], Float32(0.0), tolerance=1e-5
+    )
+    assert_almost_equal(
+        grad_input._data.bitcast[Float32]()[3], Float32(1.0), tolerance=1e-5
+    )
 
 
 fn test_avgpool2d_backward_gradient_distribution() raises:
@@ -152,12 +164,22 @@ fn test_avgpool2d_backward_gradient_distribution() raises:
 
     var output = avgpool2d(x, kernel_size=2, stride=2, padding=0)
     var grad_output = ones_like(output)
-    var grad_input = avgpool2d_backward(grad_output, x, kernel_size=2, stride=2, padding=0)
+    var grad_input = avgpool2d_backward(
+        grad_output, x, kernel_size=2, stride=2, padding=0
+    )
 
-    assert_almost_equal(grad_input._data.bitcast[Float32]()[0], Float32(0.25), tolerance=1e-5)
-    assert_almost_equal(grad_input._data.bitcast[Float32]()[1], Float32(0.25), tolerance=1e-5)
-    assert_almost_equal(grad_input._data.bitcast[Float32]()[2], Float32(0.25), tolerance=1e-5)
-    assert_almost_equal(grad_input._data.bitcast[Float32]()[3], Float32(0.25), tolerance=1e-5)
+    assert_almost_equal(
+        grad_input._data.bitcast[Float32]()[0], Float32(0.25), tolerance=1e-5
+    )
+    assert_almost_equal(
+        grad_input._data.bitcast[Float32]()[1], Float32(0.25), tolerance=1e-5
+    )
+    assert_almost_equal(
+        grad_input._data.bitcast[Float32]()[2], Float32(0.25), tolerance=1e-5
+    )
+    assert_almost_equal(
+        grad_input._data.bitcast[Float32]()[3], Float32(0.25), tolerance=1e-5
+    )
 
 
 fn main() raises:
