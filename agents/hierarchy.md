@@ -36,14 +36,14 @@
                                │
                                ▼
             ┌─────────────────────────────────────┐
-            │   Level 3: Specialists (22 agents)   │
+            │   Level 3: Specialists (17 agents)   │
             ├──────────────────────────────────────┤
             │  • Implementation Specialist         │
             │  • Test Specialist                   │
             │  • Documentation Specialist          │
             │  • Performance Specialist            │
-            │  • 13 Code Review Specialists        │
-            │  • 4 Additional Specialists          │
+            │  • 5 Code Review Specialists         │
+            │  • 8 Additional Specialists          │
             └──────────────────┬──────────────────┘
                                │
                                ▼
@@ -90,7 +90,7 @@
 
 - **Agents**: 4 total (3 design agents + 1 review orchestrator)
   - Design Agents: Architecture, Integration, Security
-  - Code Review Orchestrator: Routes PR changes to 13 specialist reviewers
+  - Code Review Orchestrator: Routes PR changes to 5 specialist reviewers
 - **Scope**: Modules within sections and overall PR review coordination
 - **Decisions**: Module structure, interfaces, security, and code review routing
 - **Phase**: Plan (design) and Cleanup (code review)
@@ -99,15 +99,14 @@
 
 ### Level 3: Specialists & Review Specialists
 
-- **Agents**: 22 total (9 implementation/execution specialists + 13 code review specialists)
+- **Agents**: 17 total (12 implementation/execution specialists + 5 code review specialists)
 - **Scope**: Components within modules and PR review dimensions
 - **Decisions**: Component implementation approach and code review assessment
 - **Phase**: Plan, Test, Implementation, Package, Cleanup
 - **Language Context**: Chooses Mojo patterns (fn vs def, struct vs class, SIMD usage);
   reviews for language correctness, safety, and idioms
 - **Package Phase**: Design packaging strategy, specify .mojopkg requirements, plan CI/CD workflows
-- **Review Specialties**: Implementation, documentation, test, security, safety, Mojo language,
-  performance, algorithm, architecture, data engineering, paper, research, dependency review
+- **Review Specialties**: Implementation, documentation, test, security, performance
 
 ### Level 4: Implementation Engineers
 
@@ -209,22 +208,21 @@ Strategic Alignment (Level 0)
 | 0     | Meta-Orchestrator | 1 |
 | 1     | Section Orchestrators | 6 |
 | 2     | Module Design & Review Orchestrators | 4 |
-| 3     | Specialists (Implementation + Code Review) | 22 |
+| 3     | Specialists (Implementation + Code Review) | 17 |
 | 4     | Implementation Engineers | 6 |
 | 5     | Junior Engineers | 3 |
-| **Total** | **All Agents** | **42** |
+| **Total** | **All Agents** | **37** |
 
 **Level 3 Breakdown:**
 
-- Implementation/Execution Specialists: 9 (implementation, test, documentation, performance,
-  security, numerical stability, test flakiness, mojo syntax validator, CI failure analyzer)
-- Code Review Specialists: 13 (implementation, documentation, test, security, safety,
-  mojo language, performance, algorithm, architecture, data engineering, paper, research,
-  dependency)
+- Implementation/Execution Specialists: 12 (implementation, test, documentation, performance, security,
+  numerical stability, test flakiness, mojo syntax validator, CI failure analyzer, agentic workflows,
+  architecture review orchestrator, general review specialist)
+- Code Review Specialists: 5 (implementation, documentation, test, security, performance)
 
-*Historical Note: Initial planning estimated 23 agent types. Actual implementation has expanded
-and been refined to 42 specialized agents. Blog writer and PR cleanup were converted to skills
-as they perform fixed, repeatable tasks.*
+*Historical Note: Initial planning estimated 23 agent types. Implementation expanded to 44 agents,
+then consolidated to 37 by converting blog-writer/pr-cleanup to skills and merging 13 review
+specialists into 5.*
 
 ## Quick Reference
 
