@@ -21,6 +21,8 @@ Usage:
 See examples/mixed_precision_training.mojo for complete usage
 """
 
+from sys.info import is_apple_m1
+
 from shared.core.extensor import ExTensor, full, zeros
 from shared.core.dtype_cast import cast_tensor
 from shared.core.numerical_safety import has_nan, has_inf
@@ -39,22 +41,6 @@ from shared.training.dtype_utils import (
     is_reduced_precision,
     dtype_to_string,
 )
-
-
-fn _check_bf16_platform_support(is_apple: Bool) raises:
-    """Raise an error if the platform does not support BF16.
-
-    Args:
-        is_apple: True if running on Apple Silicon hardware.
-
-    Raises:
-        Error: If is_apple is True, since bfloat16 is unsupported on Apple Silicon.
-    """
-    if is_apple:
-        raise Error(
-            "BF16 (bfloat16) is not supported on Apple Silicon."
-            " Use PrecisionConfig.fp16() instead."
-        )
 
 
 @fieldwise_init
@@ -213,7 +199,7 @@ struct PrecisionConfig(Copyable, Movable):
         )
 
     @staticmethod
-    fn bf16(initial_scale: Float32 = 65536.0) raises -> PrecisionConfig:
+    fn bf16(initial_scale: Float32 = 65536.0) -> PrecisionConfig:
         """Create BF16 (brain float) configuration.
 
         BF16 has wider exponent range than FP16, reducing overflow risk.
@@ -227,20 +213,23 @@ struct PrecisionConfig(Copyable, Movable):
         Returns:
             PrecisionConfig with BF16 settings.
 
-        Raises:
-            Error: If called on Apple Silicon where bfloat16 is unsupported.
-                   Use PrecisionConfig.fp16() instead on Apple Silicon.
+        Warning:
+            BF16 (DType.bfloat16) is NOT supported on Apple Silicon (M1/M2/M3).
+            On Apple Silicon, calling this method will print a runtime warning.
+            Use PrecisionConfig.fp16() instead on Apple hardware.
 
         BF16 Characteristics:
             - 1 sign + 8 exponent + 7 mantissa = 16 bits.
             - Range: ~1e-38 to 3.4e38 (same as FP32).
             - Precision: ~2 decimal digits (less than FP16).
             - Better for large models due to wider exponent range.
-            - NOT supported on Apple Silicon hardware.
         """
-        # is_apple_silicon() was removed from sys.info in Mojo 0.26.1+.
-        # BF16 is unsupported on Apple Silicon; on Linux this is always False.
-        _check_bf16_platform_support(False)
+        @parameter
+        if is_apple_m1():
+            print(
+                "Warning: BF16 (DType.bfloat16) is not supported on Apple"
+                " Silicon hardware. Use PrecisionConfig.fp16() instead."
+            )
         return PrecisionConfig(
             mode=PrecisionMode.BF16,
             compute_dtype=bfloat16_dtype,
