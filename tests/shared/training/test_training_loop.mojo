@@ -27,11 +27,11 @@ from tests.shared.conftest import (
     assert_type,
     create_simple_model,
     create_simple_dataset,
-    create_mock_dataloader,
     create_test_vector,
     TestFixtures,
 )
 from shared.training import SGD, MSELoss, TrainingLoop
+from shared.training.trainer_interface import DataLoader
 from shared.core.extensor import ExTensor
 from shared.core import ones, zeros, randn
 from shared.testing import SimpleMLP
@@ -98,11 +98,6 @@ fn test_training_loop_full_epoch() raises:
         - Iterates through all batches in data loader
         - Performs training step on each batch
         - Returns average loss for the epoch.
-
-    Note:
-        run_epoch() currently returns 0.0 as a placeholder until Python/Mojo
-        data loader integration is complete (TODO #3013). This test verifies
-        that the method exists and returns a valid Float32.
     """
     # Create model, optimizer, and loss function
     var model = create_simple_model()
@@ -112,21 +107,18 @@ fn test_training_loop_full_epoch() raises:
         model^, optimizer^, loss_fn^
     )
 
-    # Create mock data loader
-    var data_loader = create_mock_dataloader(n_batches=10)
+    # Create a real DataLoader with 100 samples, batch_size=10 -> 10 batches
+    var data_tensor = ones([100, 10], DType.float32)
+    var label_tensor = zeros([100, 1], DType.float32)
+    var data_loader = DataLoader(data_tensor^, label_tensor^, batch_size=10)
 
-    # Convert MockDataLoader to PythonObject (run_epoch signature requirement)
-    from python import Python
+    # Run one epoch using native DataLoader
+    var avg_loss = training_loop.run_epoch(data_loader)
 
-    var py_loader = Python.none()
+    # Verify real batch processing occurred (loss should be valid, not placeholder 0.0)
+    assert_greater(Float64(avg_loss), Float64(-0.001))
 
-    # Run one epoch - currently returns 0.0 as placeholder (TODO #3013)
-    var avg_loss = training_loop.run_epoch(py_loader)
-
-    # Verify return type is Float32 (even if value is placeholder 0.0)
-    assert_equal(Int(avg_loss), 0)  # Placeholder returns 0.0
-
-    print("  test_training_loop_full_epoch: PASSED (placeholder)")
+    print("  test_training_loop_full_epoch: PASSED")
 
 
 fn test_training_loop_multiple_epochs() raises:
