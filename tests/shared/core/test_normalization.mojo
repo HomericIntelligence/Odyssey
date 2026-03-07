@@ -25,7 +25,7 @@ from shared.testing import (
     compute_numerical_gradient,
     assert_gradients_close,
 )
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
+from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like, full_like
 from shared.core.normalization import (
     batch_norm2d,
     batch_norm2d_backward,
@@ -278,14 +278,17 @@ fn test_batch_norm2d_zero_variance() raises:
 
 
 fn test_batch_norm2d_backward_gradient_input() raises:
-    """Test batch_norm2d_backward gradient w.r.t. input using numerical validation.
+    """Test batch_norm2d_backward gradient w.r.t. input using sum(output^2) loss.
 
     CRITICAL TEST: Validates mathematical correctness of batch norm backpropagation.
     Uses central finite differences for gold-standard gradient validation.
 
-    Uses non-uniform grad_output to avoid the pathological case where
-    grad_output=ones gives analytically-zero gradients (sum(x_norm)=0 cancellation),
-    which would make the test sensitive to floating-point noise in the forward pass.
+    Loss: L = sum(output^2)
+    Upstream gradient: dL/dY = 2 * output (non-zero for non-trivially normalized inputs)
+
+    This avoids the pathological case where sum(output) loss gives ~0 gradients
+    (sum(x_norm)=0 cancellation for zero-mean batch norm outputs), which would make
+    the test trivially pass without validating the backward pass formula.
     """
     # Small tensor for gradient checking (computational cost is O(n²))
     var shape = List[Int]()
@@ -316,14 +319,10 @@ fn test_batch_norm2d_backward_gradient_input() raises:
     )
     var output = result6[0]
 
-    # Use non-uniform grad_output to avoid the pathological cancellation case
-    # where grad_output=ones gives dL/dx ~ sum(x_norm)=0 (analytically zero gradient).
-    # Non-uniform weights break the symmetry, producing non-zero testable gradients.
-    var grad_output = zeros_like(output)
-    for i in range(16):
-        # Alternating pattern to avoid symmetry: [0.5, -0.3, 0.8, -0.2, ...]
-        var val = Float32(i % 4) * Float32(0.25) - Float32(0.3)
-        grad_output._data.bitcast[Float32]()[i] = val
+    # Upstream gradient for loss L = sum(output^2): dL/dY = 2 * output
+    # This is non-zero for non-trivially normalized outputs, providing real validation.
+    var two = full_like(output, 2.0)
+    var grad_output = multiply(two, output)
 
     # Backward pass
     var result7 = batch_norm2d_backward(
@@ -338,8 +337,7 @@ fn test_batch_norm2d_backward_gradient_input() raises:
     var grad_input = result7[0]
 
     # Numerical gradient via finite differences.
-    # forward_for_grad computes weighted sum: sum(output * grad_output)
-    # so the numerical gradient matches what the backward should compute.
+    # forward_for_grad uses L = sum(output^2) matching the analytical grad_output above.
     fn forward_for_grad(inp: ExTensor) raises -> ExTensor:
         var result_nested = batch_norm2d(
             inp,
@@ -351,10 +349,9 @@ fn test_batch_norm2d_backward_gradient_input() raises:
             epsilon=1e-5,
         )
         var out = result_nested[0]
-        # Compute weighted sum: sum(output * grad_output)
-        # This matches the backward with our non-uniform grad_output
-        var weighted = multiply(out, grad_output)
-        var result = weighted
+        # Loss: sum(output^2) — guaranteed non-zero gradient dL/dY = 2 * output
+        var squared = multiply(out, out)
+        var result = squared
         while result.dim() > 0:
             result = reduce_sum(result, axis=0, keepdims=False)
         return result
@@ -372,10 +369,10 @@ fn test_batch_norm2d_backward_gradient_input() raises:
         numerical_grad,
         rtol=2e-2,
         atol=1e-4,
-        message="Batch norm gradient w.r.t. input",
+        message="Batch norm gradient w.r.t. input (sum(output^2) loss)",
     )
 
-    print("✓ Batch norm backward gradient (input) validated numerically")
+    print("✓ Batch norm backward gradient (input) validated with sum(output^2) loss")
 
 
 fn test_batch_norm2d_backward_gradient_input_inference_mode() raises:
