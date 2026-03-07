@@ -15,129 +15,53 @@ The CI/CD strategy uses GitHub Actions with the following principles:
 6. **PR Comments**: Test summaries automatically comment on PRs for quick feedback
 7. **Scheduled Runs**: Weekly security and benchmark runs ensure ongoing system health
 
+To get the current workflow count:
+
+```bash
+ls .github/workflows/*.yml | wc -l
+```
+
 ## Workflow Summary
 
 | Workflow | Trigger | Purpose | Duration |
 |----------|---------|---------|----------|
 | **Test Workflows** | | | |
-| [unit-tests.yml](#unit-tests) | PR, push main, manual | Fast unit tests for Mojo/Python | < 5 min |
-| [integration-tests.yml](#integration-tests) | PR, push main, manual | Component interaction tests | < 8 min |
-| [comprehensive-tests.yml](#comprehensive-tests) | PR, push main, manual | All 112 Mojo tests in 17 groups | < 10 min |
+| [comprehensive-tests.yml](#comprehensive-tests) | PR, push main, manual | All Mojo tests in 17 groups | < 10 min |
 | [test-gradients.yml](#test-gradients) | PR on gradient changes, push main | Backward pass validation | < 5 min |
 | [test-data-utilities.yml](#test-data-utilities) | PR/push on data changes | Data loading and processing | < 5 min |
+| [coverage.yml](#coverage) | PR, push main, manual | Code coverage tracking | < 5 min |
 | **Validation Workflows** | | | |
-| [script-validation.yml](#script-validation) | PR on scripts, push main, manual | 42 Python scripts validation | < 5 min |
+| [script-validation.yml](#script-validation) | PR on scripts, push main, manual | Python scripts validation | < 5 min |
 | [validate-configs.yml](#validate-configs) | PR/push on config changes | YAML and schema validation | < 5 min |
 | [test-agents.yml](#test-agents) | PR on agent configs, push main | Agent configuration testing | < 3 min |
 | [pre-commit.yml](#pre-commit) | PR, push main, manual | Code formatting and linting | < 5 min |
+| [type-check.yml](#type-check) | PR on scripts, push main, manual | Python type checking | < 3 min |
+| [notebook-validation.yml](#notebook-validation) | PR/push on notebooks | Jupyter notebook validation | < 5 min |
+| [paper-validation.yml](#paper-validation) | PR/push on papers/, manual | Paper implementation validation | < 15 min |
+| [readme-validation.yml](#readme-validation) | Nightly, PR/push on README | README command validation | < 5 min |
 | **Security Workflows** | | | |
-| [security-scan.yml](#security-scan) | PR, push main, weekly Monday 9 AM UTC | Dependency, secret, and SAST scanning | < 15 min |
+| [security.yml](#security) | PR, push main, weekly Monday 8 AM UTC | Secret scan, SAST, dep audit | < 10 min |
 | [link-check.yml](#link-check) | PR on .md, push main, weekly Monday 9 AM UTC | Broken markdown links detection | < 3 min |
+| **Build & Release Workflows** | | | |
+| [build-validation.yml](#build-validation) | PR, push main | Build shared Mojo package | < 10 min |
+| [release.yml](#release) | Tag push (v*), manual | Build and publish releases | < 30 min |
+| [docker.yml](#docker) | Push main/tags, PR, manual | Docker image build and publish | < 20 min |
+| [docs.yml](#docs) | Push main on docs/, PR on docs/ | Deploy documentation site | < 5 min |
 | **Performance Workflows** | | | |
+| [benchmark.yml](#benchmark) | Manual, scheduled | Performance benchmarks | < 30 min |
 | [simd-benchmarks-weekly.yml](#simd-benchmarks-weekly) | Weekly Sunday 2 AM UTC, manual | SIMD performance tracking | < 5 min |
+| **Maintenance Workflows** | | | |
+| [mojo-version-check.yml](#mojo-version-check) | Weekly Sunday 3 AM UTC, manual | Check for new Mojo releases | < 3 min |
+| **AI/Automation Workflows** | | | |
+| [claude.yml](#claude) | Issue/PR comments mentioning @claude | Claude Code agent integration | N/A |
+| [claude-code-review.yml](#claude-code-review) | PR opened/synchronized | Automated Claude code review | < 5 min |
+
+> **Note**: `build-validation.yml` does not currently exist on disk. The table above reflects only files that
+> actually exist in `.github/workflows/`. Run `ls .github/workflows/*.yml` to verify the current inventory.
 
 ## Detailed Workflow Documentation
 
 ### Testing Workflows
-
-#### unit-tests
-
-**File**: `unit-tests.yml`
-
-**Triggers**: Pull requests, pushes to main, manual dispatch
-
-**Purpose**: Fast unit tests for both Mojo and Python code, targeting < 5 minutes total duration.
-
-**Key Features**:
-
-- **Mojo Tests** (`test-mojo` job):
-  - Runs individual test files from `tests/unit/` directory
-  - Uses pixi-based Mojo execution
-  - Handles missing tests gracefully during initial development
-  - Reports individual test pass/fail status
-
-- **Python Tests** (`test-python` job):
-  - Runs pytest on `tests/unit/` with coverage reporting
-  - Generates HTML coverage reports
-  - Enforces 80% code coverage threshold (allows 0% during initial development)
-  - Uploads coverage artifacts for 7 days
-
-- **Coverage Report** (`coverage-report` job):
-  - Combines results from Mojo and Python tests
-  - Comments on PRs with test summary
-  - Preserves combined report as artifact
-
-**Matrix Strategy**: None (parallel jobs instead)
-
-**Cache Strategy**:
-
-- Pixi environments: Key based on `pixi.toml`
-- Python pip cache: Standard pip caching
-
-**PR Comments**: Yes - Posts combined test results with pass/fail status
-
-**Artifacts**:
-
-- `mojo-test-results/` (7 days)
-- `python-coverage/` (7 days) - includes HTML coverage reports
-- `coverage-report` (30 days)
-
-**Failure Handling**:
-
-- Continues running if Mojo tests fail (to see Python results)
-- Combined report fails if any test fails
-- Graceful handling of missing tests during setup phase
-
----
-
-#### integration-tests
-
-**File**: `integration-tests.yml`
-
-**Triggers**: Pull requests (non-draft), pushes to main, manual dispatch
-
-**Purpose**: Test component interactions and integration between modules.
-
-**Key Features**:
-
-- **Matrix Strategy**: 3 parallel test suites
-  - `mojo-integration`: Tests in `tests/integration/` directory
-  - `python-integration`: Agent and foundation structure tests
-  - `shared-integration`: Tests in `tests/shared/integration/` directory
-
-- **Smart Discovery**:
-  - Case-based pattern matching routes to correct test suite
-  - Each suite handles missing tests gracefully
-  - Detailed logging of test discovery process
-
-- **Draft PR Skipping**: Uses `github.event.pull_request.draft == false` to skip draft PRs
-
-- **Integration Report** (`integration-report` job):
-  - Aggregates results from all 3 suites
-  - Counts passed/failed suites
-  - Comments on PRs with detailed results
-  - Uploads report for 30 days
-
-**Cache Strategy**:
-
-- Pixi environments (key: pixi.toml)
-- Test fixtures (key: fixtures directory hash)
-
-**PR Comments**: Yes - Integration test summary
-
-**Artifacts**:
-
-- `integration-results-*` (7 days, one per suite)
-- `integration-failures-*` (14 days if failed)
-- `integration-report` (30 days)
-
-**Failure Handling**:
-
-- `fail-fast: false` - all suites run even if one fails
-- Individual suite failures captured in report
-- Overall workflow fails if any suite fails
-
----
 
 #### comprehensive-tests
 
@@ -145,7 +69,7 @@ The CI/CD strategy uses GitHub Actions with the following principles:
 
 **Triggers**: Pull requests, pushes to main, manual dispatch
 
-**Purpose**: Run all 112+ Mojo tests organized into 17 logical groups for comprehensive coverage.
+**Purpose**: Run all Mojo tests organized into 17 logical groups for comprehensive coverage.
 
 **Key Features**:
 
@@ -233,6 +157,24 @@ The CI/CD strategy uses GitHub Actions with the following principles:
 
 ---
 
+#### coverage
+
+**File**: `coverage.yml`
+
+**Triggers**: PR targeting main, pushes to main, manual dispatch
+
+**Purpose**: Track test metrics as a proxy for code coverage until Mojo provides native coverage tooling.
+
+**Key Features**:
+
+- Reports test counts and pass rates as coverage proxies
+- Comments on PRs with coverage summary
+- `pull-requests: write` permission required
+
+**Artifacts**: None (posts directly to PR comments)
+
+---
+
 ### Validation Workflows
 
 #### script-validation
@@ -241,7 +183,7 @@ The CI/CD strategy uses GitHub Actions with the following principles:
 
 **Triggers**: PR when Python scripts change, pushes to main, manual dispatch
 
-**Purpose**: Comprehensive validation of 42 Python scripts including syntax, linting, and formatting.
+**Purpose**: Comprehensive validation of Python scripts including syntax, linting, and formatting.
 
 **Validation Steps**:
 
@@ -323,23 +265,87 @@ The CI/CD strategy uses GitHub Actions with the following principles:
 
 ---
 
+#### type-check
+
+**File**: `type-check.yml`
+
+**Triggers**: PR on Python scripts or `mypy.ini`, pushes to main on those paths, manual dispatch
+
+**Purpose**: Run mypy static type checking on Python scripts.
+
+**Key Features**:
+
+- Path-triggered to avoid unnecessary runs
+- Checks `scripts/**/*.py` against mypy configuration in `mypy.ini`
+
+---
+
+#### notebook-validation
+
+**File**: `notebook-validation.yml`
+
+**Triggers**: PR/push when files in `notebooks/` change
+
+**Purpose**: Validate that Jupyter notebooks are well-formed and can be parsed.
+
+**Key Features**:
+
+- Path-triggered: only runs when notebooks change
+- Uses `actions/setup-python` (no Pixi dependency)
+
+---
+
+#### paper-validation
+
+**File**: `paper-validation.yml`
+
+**Triggers**: PR/push when files in `papers/` change, manual dispatch
+
+**Purpose**: Validate paper implementations against specifications (structure, implementation, reproducibility).
+
+**Key Features**:
+
+- Path-triggered: only runs when papers/ changes
+- Uses inline `prefix-dev/setup-pixi` for Mojo/Pixi environment
+
+---
+
+#### readme-validation
+
+**File**: `readme-validation.yml`
+
+**Triggers**: Nightly at 3 AM UTC, PR/push when `README.md` or validation script changes
+
+**Purpose**: Validate that commands documented in `README.md` are syntactically correct and available.
+
+**Schedule**:
+
+- Nightly (quick): Syntax checking and command availability
+- Weekly (comprehensive): Full command execution
+
+---
+
 ### Security Workflows
 
-#### security-scan
+#### security
 
-**File**: `security-scan.yml`
+**File**: `security.yml`
 
-**Triggers**: PR, pushes to main, weekly Monday 9 AM UTC, manual dispatch
+**Triggers**: PR, pushes to main on dependency files, weekly Monday 8 AM UTC, manual dispatch
 
-**Purpose**: Comprehensive security scanning including dependencies, secrets, and code analysis.
+**Purpose**: Unified security scanning covering secret detection, SAST, supply chain review, and dependency audit.
 
-**Scanning Jobs**:
+**Scanning Jobs (PR/push)**:
 
-1. **dependency-scan** - Safety and OSV Scanner for vulnerabilities
-2. **secret-scan** - Gitleaks for exposed secrets
-3. **sast-scan** - Semgrep for source code analysis
-4. **supply-chain-scan** - Dependency review for critical issues
-5. **security-report** - Aggregates all results and comments on PRs
+1. **secret-scan** - Gitleaks for exposed secrets
+2. **sast-scan** - Semgrep for source code analysis
+3. **supply-chain-review** - Dependency review for critical issues
+
+**Scanning Jobs (scheduled weekly)**:
+
+1. **python-audit** - Safety and pip-audit for vulnerability scanning
+2. **pixi-audit** - Pixi/Conda package listing and version tracking
+3. **license-audit** - License compliance checking (blocks GPL-3.0, AGPL-3.0)
 
 **Critical Failure Conditions**:
 
@@ -348,55 +354,12 @@ The CI/CD strategy uses GitHub Actions with the following principles:
 
 **Artifacts**:
 
-- `dependency-scan-results/` (30 days)
+- `python-audit-results/` (30 days)
+- `license-audit-results/` (30 days)
 - `security-report` (90 days)
 
-**PR Comments**: Yes - Security scan status and recommendations
-
----
-
-#### dependency-audit
-
-**File**: `dependency-audit.yml`
-
-**Triggers**: Weekly Monday 8 AM UTC, push to main when dependency files change, manual dispatch
-
-**Purpose**: Comprehensive dependency audit including Python, Pixi, and license compliance.
-
-**Audit Jobs**:
-
-1. **python-audit** - Safety and pip-audit for vulnerability scanning
-2. **pixi-audit** - Pixi/Conda package listing and version tracking
-3. **license-audit** - License compliance checking (blocks GPL-3.0, AGPL-3.0)
-4. **audit-report** - Aggregates results and creates issues for vulnerabilities
-
-**Artifacts**:
-
-- `python-audit-results/` (30 days)
-- `pixi-audit-results/` (30 days)
-- `license-audit-results/` (30 days)
-- `dependency-audit-report` (90 days)
-
-**Issue Creation**: Automatically creates issue if vulnerabilities found
-
----
-
-#### mojo-version-check
-
-**File**: `mojo-version-check.yml`
-
-**Triggers**: Weekly Sunday 3 AM UTC, manual dispatch
-
-**Purpose**: Check for new Mojo releases and create update issues.
-
-**Key Features**:
-
-- Compares pinned version in `pixi.toml` against latest available
-- Creates GitHub issue with upgrade checklist when update available
-- Updates existing issue comment if one already exists
-- Uses `.mojo-version` file as additional version tracking
-
-**Artifacts**: None (creates issues instead)
+> **Note**: This workflow replaces the former `security-scan.yml` and `dependency-audit.yml` files, which were removed in
+> the #3149 consolidation pass.
 
 ---
 
@@ -420,7 +383,78 @@ The CI/CD strategy uses GitHub Actions with the following principles:
 
 ---
 
+### Build & Release Workflows
+
+#### build-validation
+
+**File**: `build-validation.yml`
+
+> **Note**: This file does not currently exist on disk. It was referenced in the #3149 consolidation plan but has not yet
+> been created. When added, it should build and validate the shared Mojo package on PRs and pushes to main.
+
+---
+
+#### release
+
+**File**: `release.yml`
+
+**Triggers**: Push of tags matching `v*`, manual dispatch with version input
+
+**Purpose**: Automated release workflow for building, testing, and publishing releases.
+
+**Key Features**:
+
+- Tag-triggered: runs on `v*` tags
+- Manual dispatch allows specifying version and pre-release flag
+- Uses inline `prefix-dev/setup-pixi` for Mojo environment
+
+---
+
+#### docker
+
+**File**: `docker.yml`
+
+**Triggers**: Push to main or tags (`v*`), PR targeting main, manual dispatch
+
+**Purpose**: Build and publish Docker images to GitHub Container Registry (GHCR).
+
+**Key Features**:
+
+- PRs: build only (no push)
+- Main/tags: build and push to GHCR
+- Manual dispatch includes optional push flag
+
+---
+
+#### docs
+
+**File**: `docs.yml`
+
+**Triggers**: Push to main when `docs/`, `mkdocs.yml`, or workflow file changes; PR on those paths
+
+**Purpose**: Build and deploy the documentation site.
+
+**Permissions**: `contents: write`, `pages: write`, `id-token: write`
+
+---
+
 ### Performance Workflows
+
+#### benchmark
+
+**File**: `benchmark.yml`
+
+**Triggers**: Manual dispatch (primary), scheduled
+
+**Purpose**: Execute performance benchmarks across tensor-ops, model-training, and data-loading suites.
+
+**Key Features**:
+
+- Suite selection via `workflow_dispatch` input (all, tensor-ops, model-training, data-loading)
+- Uses inline `prefix-dev/setup-pixi` for Mojo environment
+- Target duration: < 30 minutes with parallel execution
+
+---
 
 #### simd-benchmarks-weekly
 
@@ -454,7 +488,108 @@ The CI/CD strategy uses GitHub Actions with the following principles:
 
 ---
 
+### Maintenance Workflows
+
+#### mojo-version-check
+
+**File**: `mojo-version-check.yml`
+
+**Triggers**: Weekly Sunday 3 AM UTC, manual dispatch
+
+**Purpose**: Check for new Mojo releases and create update issues.
+
+**Key Features**:
+
+- Compares pinned version in `pixi.toml` against latest available
+- Creates GitHub issue with upgrade checklist when update available
+- Updates existing issue comment if one already exists
+- Uses `.mojo-version` file as additional version tracking
+
+**Artifacts**: None (creates issues instead)
+
+---
+
+### AI/Automation Workflows
+
+#### claude
+
+**File**: `claude.yml`
+
+**Triggers**: Issue/PR comments or reviews mentioning `@claude`, issues opened/assigned with `@claude`
+
+**Purpose**: Claude Code agent integration — responds to `@claude` mentions in issues and PRs.
+
+**Key Features**:
+
+- Conditional execution: only runs when `@claude` appears in the triggering content
+- No Pixi or Mojo dependency
+
+---
+
+#### claude-code-review
+
+**File**: `claude-code-review.yml`
+
+**Triggers**: PR opened or synchronized
+
+**Purpose**: Automated Claude code review on every PR.
+
+**Key Features**:
+
+- Runs on all PRs (can be filtered by author association)
+- No Pixi or Mojo dependency
+
+---
+
+## Remaining Duplication
+
+### setup-pixi Inline Usage (Not Yet Migrated to Composite Action)
+
+The following workflows each contain an inline `prefix-dev/setup-pixi` step rather than
+using a shared composite action. This is intentional deferred work — no composite action
+exists yet in `.github/actions/`.
+
+To get the current count:
+
+```bash
+grep -rl "prefix-dev/setup-pixi" .github/workflows/*.yml | wc -l
+```
+
+**Workflows with inline setup-pixi** (deferred migration):
+
+| Workflow | Category | Notes |
+|----------|----------|-------|
+| `benchmark.yml` | Performance | Manual + scheduled |
+| `comprehensive-tests.yml` | Testing | Primary test suite |
+| `mojo-version-check.yml` | Maintenance | Weekly scheduled |
+| `paper-validation.yml` | Validation | Path-triggered |
+| `pre-commit.yml` | Validation | PR + push |
+| `readme-validation.yml` | Validation | Nightly scheduled |
+| `release.yml` | Release | Tag-triggered |
+| `script-validation.yml` | Validation | PR-triggered |
+| `simd-benchmarks-weekly.yml` | Performance | Weekly scheduled |
+| `test-data-utilities.yml` | Testing | Path-triggered |
+| `test-gradients.yml` | Testing | Path-triggered |
+| `type-check.yml` | Validation | PR + push |
+| `security.yml` | Security | PR + scheduled |
+
+**Why not migrated in this pass**: The #3149 consolidation pass focused on removing
+redundant workflows and standardizing triggers. Composite action extraction was explicitly
+deferred to avoid scope creep.
+
+**Follow-up work**: Create `.github/actions/setup-pixi/action.yml` as a composite action,
+then replace the inline step in each of the workflows above. Track in a new issue
+referencing this one.
+
+---
+
 ## Common Patterns
+
+### Composite Actions
+
+No composite actions exist yet in `.github/actions/`. The setup-pixi pattern is currently
+duplicated inline across 13 workflows. See [Remaining Duplication](#remaining-duplication)
+for the migration plan.
 
 ### Justfile Integration
 
@@ -501,6 +636,14 @@ All workflows use the shared composite action for Pixi setup:
 ```yaml
 - name: Set up Pixi
   uses: ./.github/actions/setup-pixi
+All Mojo workflows use the modern Pixi setup:
+
+```yaml
+- name: Set up Pixi
+  uses: prefix-dev/setup-pixi@v0.9.3
+  with:
+    pixi-version: latest
+    cache: true
 ```
 
 This composite action installs Pixi and caches both `.pixi` and `~/.cache/rattler/cache` using
@@ -521,7 +664,8 @@ strategy:
         pattern: "test_*.mojo"
       - name: "Group 2"
         path: "path/to/tests"
-```text
+        pattern: "test_*.mojo"
+```
 
 ### PR Comments with Results
 
@@ -534,7 +678,7 @@ Test workflows automatically comment on PRs:
   with:
     script: |
       # Update or create bot comment with test results
-```text
+```
 
 Each workflow checks for existing bot comments and updates them to avoid duplicate comments.
 
@@ -556,7 +700,7 @@ Jobs use `needs` and `if` conditions to manage dependencies:
 test-report:
   needs: test-mojo-comprehensive
   if: always()  # Run even if upstream fails
-```text
+```
 
 The `always()` condition allows report generation even when tests fail.
 
@@ -625,7 +769,7 @@ The comprehensive test workflow uses 17 parallel jobs to reduce total duration f
 
 **Before** (sequential):
 
-- 17 test groups × 10 minutes each = 170 minutes
+- 17 test groups x 10 minutes each = 170 minutes
 
 **After** (parallel):
 
@@ -651,7 +795,7 @@ on:
     paths:
       - 'scripts/**/*.py'  # Only run script validation when scripts change
       - '.github/workflows/script-validation.yml'
-```text
+```
 
 ---
 
@@ -659,8 +803,10 @@ on:
 
 ### Weekly Tasks
 
-- **Monday 9 AM UTC**: Security scan and link check run automatically
+- **Monday 8 AM UTC**: Security scan runs automatically (PR/push: always)
+- **Monday 9 AM UTC**: Link check runs automatically
 - **Sunday 2 AM UTC**: SIMD benchmarks run for performance tracking
+- **Sunday 3 AM UTC**: Mojo version check runs
 
 ### Monthly Tasks
 
@@ -670,7 +816,7 @@ on:
 
 ### Pixi Configuration
 
-All workflows depend on `pixi.toml` at repository root. Key points:
+All Mojo workflows depend on `pixi.toml` at repository root. Key points:
 
 - Specify `mojo` version (pinned)
 - Include Python dependencies for scripts
@@ -696,6 +842,7 @@ When adding new workflows:
 5. **Permissions**: Request minimum required (contents: read, pull-requests: write if commenting)
 6. **Documentation**: Add entry to this README with workflow details
 7. **Testing**: Test in feature branch before merging
+8. **Duplication check**: If using `prefix-dev/setup-pixi`, add to the Remaining Duplication table
 
 ---
 
@@ -715,7 +862,7 @@ gh run view <run-id>
 
 # Download artifacts
 gh run download <run-id> -n artifact-name
-```text
+```
 
 ### Trigger Workflow Manually
 
@@ -725,7 +872,7 @@ gh workflow run script-validation.yml
 
 # With branch specification
 gh workflow run script-validation.yml --ref main
-```text
+```
 
 ### Check Workflow Status
 
@@ -735,7 +882,20 @@ gh workflow list
 
 # View specific workflow status
 gh workflow view script-validation.yml
-```text
+```
+
+### Audit Inline Duplication
+
+```bash
+# Count workflows using setup-pixi inline
+grep -rl "prefix-dev/setup-pixi" .github/workflows/*.yml | wc -l
+
+# List them
+grep -rl "prefix-dev/setup-pixi" .github/workflows/*.yml
+
+# Count total workflows
+ls .github/workflows/*.yml | wc -l
+```
 
 ---
 
@@ -749,5 +909,5 @@ gh workflow view script-validation.yml
 
 ---
 
-**Last Updated**: 2025-11-22
+**Last Updated**: 2026-03-07
 **Maintained By**: ML Odyssey Team
