@@ -216,10 +216,15 @@ Strategic Alignment (Level 0)
 
 **Level 3 Breakdown:**
 
-- Implementation/Execution Specialists: 9 (implementation, test, documentation, performance, security, numerical stability, test flakiness, mojo syntax validator, CI failure analyzer)
-- Code Review Specialists: 13 (implementation, documentation, test, security, safety, mojo language, performance, algorithm, architecture, data engineering, paper, research, dependency)
+- Implementation/Execution Specialists: 9 (implementation, test, documentation, performance,
+  security, numerical stability, test flakiness, mojo syntax validator, CI failure analyzer)
+- Code Review Specialists: 13 (implementation, documentation, test, security, safety,
+  mojo language, performance, algorithm, architecture, data engineering, paper, research,
+  dependency)
 
-*Historical Note: Initial planning estimated 23 agent types. Actual implementation has expanded and been refined to 42 specialized agents. Blog writer and PR cleanup were converted to skills as they perform fixed, repeatable tasks.*
+*Historical Note: Initial planning estimated 23 agent types. Actual implementation has expanded
+and been refined to 42 specialized agents. Blog writer and PR cleanup were converted to skills
+as they perform fixed, repeatable tasks.*
 
 ## Quick Reference
 
