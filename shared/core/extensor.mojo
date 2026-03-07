@@ -44,6 +44,7 @@ from sys.info import simd_width_of
 from math import ceildiv, sqrt, log, cos, sin
 from utils.numerics import inf as numeric_inf, neg_inf as numeric_neg_inf
 from random import random_float64, seed as random_seed
+from hashlib.hasher import Hasher
 from .memory_pool import pooled_alloc, pooled_free
 
 # Memory safety constants
