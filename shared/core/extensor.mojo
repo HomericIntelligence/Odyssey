@@ -30,10 +30,13 @@ Array API Categories:
 Slicing Design:
 - `slice(start, end)` — view-based extraction (shares memory, zero-copy). Use for
   batch processing where the original data must not be modified.
-- `tensor[i]` / `tensor[i, j]` — copy-based element access via __getitem__(Int)
-  or __getitem__(*slices). Returns a new tensor with independent memory.
-- The split between view (slice) and copy (getitem) is intentional: views support
-  efficient batch iteration; copies ensure safety when downstream code may mutate.
+- `tensor[start:end:step]` (__getitem__(Slice)) — always returns a **copy** with
+  independent memory (`_is_view = False`). Materializing strided data as a copy
+  avoids lifetime complexity. By design, not a limitation.
+- `tensor[a:b, c:d, ...]` (__getitem__(*slices)) — returns a **view** sharing
+  memory with the original tensor. The data pointer is offset; no allocation occurs.
+- `tensor[i]` (__getitem__(Int)) — returns a scalar copy.
+- Summary: single-axis Slice → copy; multi-axis *Slice → view; Int → scalar copy.
 
 Reference: https://data-apis.org/array-api/latest/API_specification/index.html
 """
