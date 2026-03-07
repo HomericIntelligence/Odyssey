@@ -235,7 +235,9 @@ fn dtype_to_string(dtype: DType) -> String:
 
 
 fn recommend_precision_dtype(
-    model_size_mb: Float64, hardware_has_fp16: Bool = True
+    model_size_mb: Float64,
+    hardware_has_fp16: Bool = True,
+    hardware_has_bf16: Bool = True,
 ) -> DType:
     """Recommend optimal precision dtype based on model size and hardware.
 
@@ -245,6 +247,9 @@ fn recommend_precision_dtype(
     Args:
             model_size_mb: Model size in megabytes.
             hardware_has_fp16: Whether hardware supports FP16 acceleration.
+            hardware_has_bf16: Whether hardware supports BF16 acceleration.
+                NOT supported on Apple Silicon — pass hardware_has_bf16=False
+                on Apple hardware.
 
     Returns:
             Recommended DType (float16, bfloat16, or float32).
@@ -252,7 +257,7 @@ fn recommend_precision_dtype(
         Recommendations:
             - Small models (<100MB): FP32 (speed gain minimal).
             - Medium models (100MB-1GB): FP16 if hardware supports it.
-            - Large models (>1GB): FP16/BF16 strongly recommended.
+            - Large models (>1GB): BF16 strongly recommended (FP16 if no BF16 hardware).
             - No FP16 hardware: FP32 (reduced precision not worth it).
 
         Example:
@@ -272,8 +277,11 @@ fn recommend_precision_dtype(
         # Medium model - FP16 recommended
         return DType.float16
     else:
-        # Large model - FP16 strongly recommended
-        return DType.float16
+        # Large model - BF16 strongly recommended for wider exponent range
+        if hardware_has_bf16:
+            return DType.bfloat16
+        else:
+            return DType.float16
 
 
 fn print_dtype_info(dtype: DType):
