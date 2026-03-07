@@ -377,17 +377,11 @@ struct DataLoader(Copyable, Movable):
         var end_idx = min(start_idx + self.batch_size, self.num_samples)
         var actual_batch_size = end_idx - start_idx
 
-        # Extract batch slice
-        var batch_data_shape = List[Int]()
-        batch_data_shape.append(actual_batch_size)
-        batch_data_shape.append(self.data.shape()[1])
-        var batch_data = ExTensor(batch_data_shape, self.data.dtype())
+        # Extract batch slice — supports N-D tensors (2D, 3D, 4D, etc.)
+        var batch_data = self.data.slice(start_idx, end_idx)
 
-        var batch_labels_shape = List[Int]()
-        batch_labels_shape.append(actual_batch_size)
-        var batch_labels = ExTensor(batch_labels_shape, self.labels.dtype())
+        var batch_labels = self.labels.slice(start_idx, end_idx)
 
-        # Tensor slicing is implemented in ExTensor.slice() and __getitem__()
         # NOTE(#3076): Python data loader integration blocked by Track 4 (Python↔Mojo interop).
         # Tracked in #3076 (parent: #3059). Placeholder tensors used until Track 4 is ready.
 
