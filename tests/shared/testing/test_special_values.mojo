@@ -262,10 +262,9 @@ fn test_dtypes_bfloat16() raises:
 
     Reference: shared.core.types.bf16 module for current BF16 implementation
     """
-    # var tensor = create_special_value_tensor([2, 2], DType.bfloat16, 1.0)
-    # assert_dtype(tensor, DType.bfloat16, "Should be bfloat16")
-    # verify_special_value_invariants(tensor, 1.0)
-    pass  # Placeholder - BFloat16 DType not yet supported in Mojo's runtime
+    var tensor = create_special_value_tensor([2, 2], DType.bfloat16, 1.0)
+    assert_dtype(tensor, DType.bfloat16, "Should be bfloat16")
+    verify_special_value_invariants(tensor, 1.0)
 
 
 fn test_create_seeded_random_tensor_reproducibility() raises:
@@ -479,9 +478,8 @@ fn main() raises:
     test_dtypes_float16()
     print("✓ test_dtypes_float16")
 
-    # BF16 dtype not yet supported in Mojo
     test_dtypes_bfloat16()
-    print("✓ test_dtypes_bfloat16 (skipped - DType.bfloat16 not supported)")
+    print("✓ test_dtypes_bfloat16")
 
     # Test seeded random tensor (for gradient checking reproducibility)
     test_create_seeded_random_tensor_reproducibility()
