@@ -44,7 +44,7 @@ from memory import UnsafePointer
 from collections import List, Dict
 from collections.optional import Optional
 from shared.utils.file_io import create_directory
-from python import Python
+import os
 
 
 # ============================================================================
@@ -311,16 +311,28 @@ fn load_named_tensors(dirpath: String) raises -> List[NamedTensor]:
     var result: List[NamedTensor] = []
 
     try:
-        # Use Python to list directory contents
-        var _ = Python.import_module("os")
-        var pathlib = Python.import_module("pathlib")
-        var builtins = Python.import_module("builtins")
-        var p = pathlib.Path(dirpath)
-        var weight_files = builtins.sorted(p.glob("*.weights"))
+        # List directory contents using Mojo native os.listdir
+        var entries = os.listdir(dirpath)
+
+        # Collect .weights files and sort for deterministic ordering
+        var weight_files: List[String] = []
+        for i in range(len(entries)):
+            var entry = entries[i]
+            if entry.endswith(".weights"):
+                weight_files.append(entry)
+
+        # Sort filenames for deterministic ordering (insertion sort)
+        for i in range(1, len(weight_files)):
+            var key = weight_files[i]
+            var j = i - 1
+            while j >= 0 and weight_files[j] > key:
+                weight_files[j + 1] = weight_files[j]
+                j -= 1
+            weight_files[j + 1] = key
 
         # Load each weights file
-        for file in weight_files:
-            var filepath = String(file)
+        for i in range(len(weight_files)):
+            var filepath = dirpath + "/" + weight_files[i]
             var (name, tensor) = load_tensor_with_name(filepath)
             result.append(NamedTensor(name, tensor))
 
