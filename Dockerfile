@@ -35,7 +35,7 @@ RUN mkdir -p -m 755 /etc/apt/keyrings \
 RUN curl -fsSL https://claude.ai/install.sh | bash
 
 # Install just tool (pre-built binary, much faster than cargo install)
-RUN curl -fsSL https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+RUN curl -fsSL https://just.systems/install.sh | bash -s -- --to /usr/local/bin --tag 1.14.0
 
 # ---------------------------
 # Stage 1.5: Create dev user
