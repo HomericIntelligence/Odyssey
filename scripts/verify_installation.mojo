@@ -39,7 +39,7 @@ fn main():
     # ========================================================================
     print("\nTest 2: Checking core package...")
     try:
-        # NOTE: These imports are commented until implementation completes
+        # These imports are commented until implementation completes
         # from shared.core import Linear, ReLU, Tensor
 
         print(

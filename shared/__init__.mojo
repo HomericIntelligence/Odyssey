@@ -48,7 +48,7 @@ from shared.version import VERSION, AUTHOR, LICENSE
 # ============================================================================
 # Core Exports - Most commonly used components
 # ============================================================================
-# NOTE: These imports are commented out pending full layer implementation.
+# These imports are commented out pending full layer implementation.
 
 # Core layers (most commonly used)
 # from .core.layers import Linear, Conv2D, ReLU, MaxPool2D, Dropout, Flatten
@@ -125,7 +125,7 @@ alias Accuracy = AccuracyMetric
 # This allows users to do: from shared import core, training, data, utils
 # Then access via: shared.core.layers.Linear, shared.training.optimizers.SGD
 #
-# NOTE: Mojo v0.26.1+ does not support __all__ module-level assignments.
+# Mojo v0.26.1+ does not support __all__ module-level assignments.
 # In Mojo, all public symbols (those not prefixed with _) are automatically
 # exported when the module is imported. The public API documentation below
 # describes what should be exposed at this package level:

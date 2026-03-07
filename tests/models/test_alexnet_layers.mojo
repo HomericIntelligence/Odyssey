@@ -1116,7 +1116,7 @@ fn main() raises:
     test_conv1_forward_float32()
     print(" OK")
 
-    # NOTE: Float16 precision insufficient for 11x11 kernel accumulation
+    # Float16 precision insufficient for 11x11 kernel accumulation
     # (363 multiplications per output element). Known limitation - see #3009.
     print("  test_conv1_forward_float16... SKIPPED (float16 precision)")
 
@@ -1129,7 +1129,7 @@ fn main() raises:
     test_conv2_forward_float32()
     print(" OK")
 
-    # NOTE: Float16 precision insufficient for 5x5 kernel with 64 input channels
+    # Float16 precision insufficient for 5x5 kernel with 64 input channels
     # (1600 multiplications per output element). Known limitation - see #3009.
     print("  test_conv2_forward_float16... SKIPPED (float16 precision)")
 
@@ -1143,7 +1143,7 @@ fn main() raises:
     test_conv3_forward_float32()
     print(" OK")
 
-    # NOTE: Float16 precision insufficient for 3x3 kernel with 192 input channels
+    # Float16 precision insufficient for 3x3 kernel with 192 input channels
     # (1728 multiplications per output element). Known limitation - see #3009.
     print("  test_conv3_forward_float16... SKIPPED (float16 precision)")
 

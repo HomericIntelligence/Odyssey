@@ -337,7 +337,7 @@ fn main() raises:
         print("Loading image from", config.image_path, "...")
 
         # Load image (currently supports IDX format only)
-        # NOTE (Mojo v0.26.1): PNG/JPEG image loading requires external image processing libraries.
+        # PNG/JPEG image loading requires external image processing libraries (Mojo v0.26.1).
         # Mojo does not yet have native image decoding support in its stdlib.
         # For now, convert images to IDX format using Python preprocessing scripts.
         var image = load_image(config.image_path)
