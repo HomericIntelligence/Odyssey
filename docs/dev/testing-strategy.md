@@ -212,6 +212,109 @@ fn test_linear_backward() raises:
     var passed = check_gradients(forward, backward, input, epsilon=1e-5, tolerance=1e-2)
     assert_true(passed, "Linear backward pass gradient mismatch")
 ```text
+
+## Known Test Gotchas
+
+This section documents edge cases that have caused false failures in the past.
+Always check here before assuming a gradient mismatch is a real bug.
+
+### BatchNorm2d: `ones_like(grad_output)` with `beta=0` Produces Zero Gradients
+
+**Symptom**: Analytical gradient ≈ 0, numerical gradient ≈ 0.009 — apparent ~1000x mismatch.
+
+**Root cause**: This is **not a bug**. The zero analytical gradient is mathematically correct,
+and the numerical gradient is also essentially zero — the apparent mismatch is finite-difference
+noise against an exactly-zero baseline.
+
+#### Mathematical Proof
+
+Batch normalization normalizes each channel over the batch and spatial dimensions:
+
+```text
+x_norm[b,c,h,w] = (x[b,c,h,w] - mean_c) / std_c
+output[b,c,h,w] = gamma_c * x_norm[b,c,h,w] + beta_c
+```
+
+The key identity is the **zero-mean property**: normalized values per channel always sum to zero:
+
+```text
+sum over (b,h,w) of x_norm[b,c,h,w] = 0  (by definition of mean-subtraction)
+```
+
+Therefore:
+
+```text
+sum over (b,h,w) of output[b,c,h,w]
+    = gamma_c * sum(x_norm) + N * beta_c
+    = gamma_c * 0 + N * beta_c
+    = N * beta_c
+```
+
+With `beta = 0`: **`sum(output) = 0` for any input x**.
+
+#### Why the Gradient is Zero
+
+Using the Kratzert three-term batch norm backward formula:
+
+```text
+grad_input[i] = (grad_output[i] - k/N - x_norm[i] * dotp/N) * gamma/std
+```
+
+where `k = sum(grad_output)` and `dotp = sum(grad_output * x_norm)`.
+
+When `grad_output = ones_like(output)`:
+
+- `k = N` (sum of N ones)
+- `dotp = sum(1 * x_norm) = sum(x_norm) = 0`  (zero-mean property)
+- Result: `grad_input[i] = (1 - N/N - x_norm[i] * 0/N) * gamma/std = 0`
+
+This is **analytically exactly zero**, not approximately zero.
+
+#### Why Numerical Gradient Also Appears Near Zero
+
+The test loss `L = sum(output)` is itself degenerate when `beta=0`:
+`L = N * beta = 0` identically, so numerical finite differences also return ~0
+(up to floating-point noise). The ~0.009 discrepancy is pure numerical noise,
+not a real gradient value.
+
+#### Safe Alternatives
+
+**Option 1**: Set `beta != 0` so `sum(output) != 0`
+
+```mojo
+var beta = create_constant_tensor([C], DType.float32, 0.1)  # Non-zero beta
+```
+
+**Option 2**: Use non-uniform `grad_output` instead of `ones_like`
+
+```mojo
+# Alternating pattern avoids sum(grad_output * x_norm) = 0 cancellation
+var grad_output = zeros_like(output)
+for i in range(output.numel()):
+    var val = Float32(i % 4) * Float32(0.25) - Float32(0.3)
+    grad_output._data.bitcast[Float32]()[i] = val
+```
+
+**Option 3**: Use a weighted scalar loss matched to the `grad_output`
+
+```mojo
+# Loss = sum(output * grad_output) — non-degenerate for any non-uniform grad_output
+fn forward_for_grad(inp: ExTensor) raises -> ExTensor:
+    var out = batch_norm2d(inp, gamma, beta, ...)[0]
+    var weighted = multiply(out, grad_output)
+    while weighted.dim() > 0:
+        weighted = reduce_sum(weighted, axis=0, keepdims=False)
+    return weighted
+```
+
+**Rule**: For normalization layers, never use `grad_output=ones_like(output)` in backward
+gradient checks. See `docs/dev/testing-patterns.md` for the canonical correct pattern.
+
+**Discovery context**: Found during PR #2724 / issue #3282. The `sum(x_norm) = 0` cancellation
+also affects `layer_norm_backward` and any normalization layer using mean-centering.
+
+---
+
 ## Layer Deduplication
 
 ### Rationale
