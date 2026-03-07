@@ -16,6 +16,8 @@ from shared.core.gradient_types import (
     GradientPair,
     GradientTriple,
     GradientQuad,
+    Conv2dNoBiasGradient,
+    DepthwiseConv2dNoBiasGradient,
 )
 from shared.core.parallel_utils import should_parallelize
 
@@ -834,7 +836,7 @@ fn conv2d_no_bias_backward(
     kernel: ExTensor,
     stride: Int = 1,
     padding: Int = 0,
-) raises -> GradientPair:
+) raises -> Conv2dNoBiasGradient:
     """Backward pass for 2D convolution without bias.
 
     Args:
@@ -845,7 +847,7 @@ fn conv2d_no_bias_backward(
             padding: Padding used in forward pass.
 
     Returns:
-            GradientPair containing grad_input and grad_kernel.
+            Conv2dNoBiasGradient containing grad_input and grad_weights.
 
     Raises:
             Error: If tensor shapes are incompatible.
@@ -854,7 +856,7 @@ fn conv2d_no_bias_backward(
     # Copy needed fields before result is destroyed (ExTensor is ImplicitlyCopyable)
     var grad_input_copy = result.grad_input
     var grad_kernel_copy = result.grad_weights
-    return GradientPair(grad_input_copy^, grad_kernel_copy^)
+    return Conv2dNoBiasGradient(grad_input_copy^, grad_kernel_copy^)
 
 
 fn depthwise_conv2d(
@@ -1217,7 +1219,7 @@ fn depthwise_conv2d_no_bias_backward(
     kernel: ExTensor,
     stride: Int = 1,
     padding: Int = 0,
-) raises -> GradientPair:
+) raises -> DepthwiseConv2dNoBiasGradient:
     """Backward pass for depthwise 2D convolution without bias.
 
     Args:
@@ -1228,7 +1230,7 @@ fn depthwise_conv2d_no_bias_backward(
             padding: Padding used in forward pass.
 
     Returns:
-            GradientPair containing grad_input and grad_kernel.
+            DepthwiseConv2dNoBiasGradient containing grad_input and grad_weights.
 
     Raises:
             Error: If tensor shapes are incompatible.
@@ -1239,7 +1241,7 @@ fn depthwise_conv2d_no_bias_backward(
     # Copy needed fields before result is destroyed (ExTensor is ImplicitlyCopyable)
     var grad_input_copy = result.grad_input
     var grad_kernel_copy = result.grad_weights
-    return GradientPair(grad_input_copy^, grad_kernel_copy^)
+    return DepthwiseConv2dNoBiasGradient(grad_input_copy^, grad_kernel_copy^)
 
 
 # ============================================================================
@@ -1400,8 +1402,8 @@ fn depthwise_separable_conv2d_backward(
     var depthwise_result = depthwise_conv2d_no_bias_backward(
         grad_depthwise_output, x, depthwise_kernel, stride, padding
     )
-    var grad_input = depthwise_result.grad_a
-    var grad_depthwise_kernel = depthwise_result.grad_b
+    var grad_input = depthwise_result.grad_input
+    var grad_depthwise_kernel = depthwise_result.grad_weights
 
     return GradientQuad(
         grad_input^, grad_depthwise_kernel^, grad_pointwise_kernel^, grad_bias^
@@ -1441,8 +1443,8 @@ fn depthwise_separable_conv2d_no_bias_backward(
     var pointwise_result = conv2d_no_bias_backward(
         grad_output, depthwise_output, pointwise_kernel, stride=1, padding=0
     )
-    var grad_depthwise_output = pointwise_result.grad_a
-    var grad_pointwise_kernel = pointwise_result.grad_b
+    var grad_depthwise_output = pointwise_result.grad_input
+    var grad_pointwise_kernel = pointwise_result.grad_weights
 
     # Backward through depthwise convolution
     var depthwise_result = depthwise_conv2d_no_bias_backward(
@@ -1450,8 +1452,8 @@ fn depthwise_separable_conv2d_no_bias_backward(
     )
 
     # Extract fields before constructing result
-    var grad_input = depthwise_result.grad_a
-    var grad_depthwise_kernel = depthwise_result.grad_b
+    var grad_input = depthwise_result.grad_input
+    var grad_depthwise_kernel = depthwise_result.grad_weights
 
     return GradientTriple(
         grad_input^,

@@ -207,6 +207,8 @@ from shared.core.gradient_types import (
     GradientPair,
     GradientTriple,
     GradientQuad,
+    Conv2dNoBiasGradient,
+    DepthwiseConv2dNoBiasGradient,
 )
 
 # ============================================================================
