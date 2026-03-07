@@ -1,13 +1,37 @@
 #!/usr/bin/env python3
-"""Tests for migrate_odyssey_skills.py - auxiliary subdirectory copying."""
+"""Tests for migrate_odyssey_skills.py.
 
+Covers:
+- parse_frontmatter(): YAML parsing with and without frontmatter
+- transform_skill_md(): section injection, ## Workflow rename, path generalization
+- determine_category(): all category mappings including tier-1/tier-2 overrides
+- generalize_content(): all PATH_REPLACEMENTS patterns
+- find_all_skills(): top-level, tier-1, tier-2 discovery
+- migrate_skill(): auxiliary subdirectory copying
+"""
+
+import sys
 from pathlib import Path
 from typing import Optional
 from unittest.mock import patch
 
 import pytest
 
-# Import the module under test
+# Add scripts directory to sys.path for direct imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
+
+from migrate_odyssey_skills import (
+    PATH_REPLACEMENTS,
+    TIER1_CATEGORY,
+    TIER2_CATEGORY_MAP,
+    determine_category,
+    find_all_skills,
+    generalize_content,
+    parse_frontmatter,
+    transform_skill_md,
+)
+
+# Also keep dynamic loader for migrate_skill tests that need module-level patching
 import importlib.util
 
 SCRIPT_PATH = Path(__file__).parent.parent.parent / "scripts" / "migrate_odyssey_skills.py"
@@ -414,3 +438,391 @@ class TestMigrateSkillAuxiliaryDirs:
         # Both files should exist (merge, not overwrite)
         assert (pre_existing / "run.sh").exists()
         assert (pre_existing / "existing_file.sh").exists()
+
+
+# ---------------------------------------------------------------------------
+# parse_frontmatter
+# ---------------------------------------------------------------------------
+
+
+class TestParseFrontmatter:
+    def test_parses_key_value_pairs(self) -> None:
+        content = "---\nname: my-skill\ndescription: A skill\n---\nBody"
+        fm, rest = parse_frontmatter(content)
+        assert fm["name"] == "my-skill"
+        assert fm["description"] == "A skill"
+
+    def test_remaining_content_after_frontmatter(self) -> None:
+        content = "---\nname: foo\n---\nBody content here"
+        _, rest = parse_frontmatter(content)
+        assert "Body content here" in rest
+
+    def test_no_frontmatter_returns_empty_dict(self) -> None:
+        content = "# Title\n\nSome content without frontmatter"
+        fm, rest = parse_frontmatter(content)
+        assert fm == {}
+        assert rest == content
+
+    def test_unclosed_frontmatter_returns_empty_dict(self) -> None:
+        content = "---\nname: foo\n"
+        fm, rest = parse_frontmatter(content)
+        assert fm == {}
+        assert rest == content
+
+    def test_strips_double_quotes_from_values(self) -> None:
+        content = '---\nname: "my skill"\n---\nBody'
+        fm, _ = parse_frontmatter(content)
+        assert fm["name"] == "my skill"
+
+    def test_strips_single_quotes_from_values(self) -> None:
+        content = "---\nname: 'my skill'\n---\nBody"
+        fm, _ = parse_frontmatter(content)
+        assert fm["name"] == "my skill"
+
+    def test_colon_in_value_kept_intact(self) -> None:
+        content = "---\ndescription: foo: bar\n---\nBody"
+        fm, _ = parse_frontmatter(content)
+        assert fm["description"] == "foo: bar"
+
+    def test_empty_frontmatter_block(self) -> None:
+        content = "---\n---\nContent"
+        fm, rest = parse_frontmatter(content)
+        assert fm == {}
+        assert "Content" in rest
+
+    def test_keys_without_values_not_included(self) -> None:
+        content = "---\nname:\ndescription: valid\n---\nBody"
+        fm, _ = parse_frontmatter(content)
+        assert "name" not in fm
+        assert fm["description"] == "valid"
+
+    def test_multiple_fields_all_parsed(self) -> None:
+        content = "---\nname: skill-x\ndescription: desc\ncategory: tooling\nuser-invocable: false\n---\nBody"
+        fm, _ = parse_frontmatter(content)
+        assert len(fm) == 4
+        assert fm["category"] == "tooling"
+        assert fm["user-invocable"] == "false"
+
+
+# ---------------------------------------------------------------------------
+# determine_category
+# ---------------------------------------------------------------------------
+
+
+class TestDetermineCategory:
+    def test_skill_category_override_takes_precedence(self) -> None:
+        # gh-create-pr-linked is in SKILL_CATEGORY_OVERRIDE -> tooling
+        assert determine_category("gh-create-pr-linked", {}, None) == "tooling"
+
+    def test_override_ignores_frontmatter_category(self) -> None:
+        # Even with a different frontmatter category, override wins
+        assert determine_category("run-precommit", {"category": "github"}, None) == "ci-cd"
+
+    def test_override_ignores_tier(self) -> None:
+        assert determine_category("mojo-format", {}, "1") == "architecture"
+
+    def test_tier1_returns_tooling(self) -> None:
+        result = determine_category("some-unknown-skill", {}, "1")
+        assert result == TIER1_CATEGORY
+
+    def test_tier2_mapped_skill_returns_correct_category(self) -> None:
+        for skill_name, expected_category in TIER2_CATEGORY_MAP.items():
+            result = determine_category(skill_name, {}, "2")
+            assert result == expected_category, f"tier-2 skill {skill_name!r} expected {expected_category!r}"
+
+    def test_tier2_unknown_skill_defaults_to_tooling(self) -> None:
+        result = determine_category("not-in-tier2-map", {}, "2")
+        assert result == "tooling"
+
+    def test_frontmatter_category_maps_correctly(self) -> None:
+        result = determine_category("some-skill", {"category": "github"}, None)
+        assert result == "tooling"
+
+    def test_frontmatter_ci_maps_to_ci_cd(self) -> None:
+        result = determine_category("some-skill", {"category": "ci"}, None)
+        assert result == "ci-cd"
+
+    def test_frontmatter_mojo_maps_to_architecture(self) -> None:
+        result = determine_category("some-skill", {"category": "mojo"}, None)
+        assert result == "architecture"
+
+    def test_frontmatter_doc_maps_to_documentation(self) -> None:
+        result = determine_category("some-skill", {"category": "doc"}, None)
+        assert result == "documentation"
+
+    def test_frontmatter_quality_maps_to_evaluation(self) -> None:
+        result = determine_category("some-skill", {"category": "quality"}, None)
+        assert result == "evaluation"
+
+    def test_unknown_frontmatter_category_defaults_to_tooling(self) -> None:
+        result = determine_category("some-skill", {"category": "unknown-cat"}, None)
+        assert result == "tooling"
+
+    def test_no_frontmatter_no_tier_defaults_to_tooling(self) -> None:
+        result = determine_category("some-new-skill", {}, None)
+        assert result == "tooling"
+
+
+# ---------------------------------------------------------------------------
+# generalize_content
+# ---------------------------------------------------------------------------
+
+
+class TestGeneralizeContent:
+    def test_odyssey2_path_replaced(self) -> None:
+        content = "Run from /home/mvillmow/Odyssey2/ directory"
+        result = generalize_content(content)
+        assert "/home/mvillmow/Odyssey2/" not in result
+        assert "<project-root>/" in result
+
+    def test_projectodyssey_path_replaced(self) -> None:
+        content = "See /home/mvillmow/ProjectOdyssey/ for details"
+        result = generalize_content(content)
+        assert "/home/mvillmow/ProjectOdyssey/" not in result
+        assert "<project-root>/" in result
+
+    def test_projectodyssey_name_replaced(self) -> None:
+        result = generalize_content("This is ProjectOdyssey code")
+        assert "ProjectOdyssey" not in result
+        assert "<project-name>" in result
+
+    def test_projectodyssey2_name_replaced(self) -> None:
+        result = generalize_content("This is ProjectOdyssey2 code")
+        assert "ProjectOdyssey2" not in result
+        assert "<project-name>" in result
+
+    def test_pixi_run_mojo_replaced(self) -> None:
+        result = generalize_content("Use pixi run mojo test")
+        assert "pixi run mojo" not in result
+        assert "<package-manager> run mojo" in result
+
+    def test_pixi_run_replaced(self) -> None:
+        result = generalize_content("Use pixi run format")
+        assert "pixi run" not in result
+        assert "<package-manager> run" in result
+
+    def test_test_model_path_replaced(self) -> None:
+        result = generalize_content("tests/models/test_lenet5.mojo")
+        assert "tests/models/test_" not in result
+        assert "tests/<model>/test_" in result
+
+    def test_create_worktree_script_replaced(self) -> None:
+        result = generalize_content("Run ./scripts/create_worktree.sh now")
+        assert "./scripts/create_worktree.sh" not in result
+        assert "<project-root>/scripts/create_worktree.sh" in result
+
+    def test_worktree_name_pattern_replaced(self) -> None:
+        result = generalize_content("Branch WorktreeName-123-feature")
+        assert "WorktreeName-123-" not in result
+        assert "<project-name>-<issue-number>-" in result
+
+    def test_content_without_patterns_unchanged(self) -> None:
+        content = "This content has no Odyssey-specific paths."
+        result = generalize_content(content)
+        assert result == content
+
+    def test_all_replacement_patterns_covered(self) -> None:
+        """Verify PATH_REPLACEMENTS is not empty and all patterns compile."""
+        import re
+
+        assert len(PATH_REPLACEMENTS) > 0
+        for pattern, _ in PATH_REPLACEMENTS:
+            # Should not raise
+            re.compile(pattern)
+
+
+# ---------------------------------------------------------------------------
+# transform_skill_md
+# ---------------------------------------------------------------------------
+
+
+class TestTransformSkillMd:
+    def _minimal_content(self, name: str = "test-skill", description: str = "A test skill") -> str:
+        return f"---\nname: {name}\ndescription: {description}\ncategory: tooling\nuser-invocable: false\n---\n\n# {name}\n\n## Workflow\n\n1. Do something.\n"
+
+    def test_workflow_renamed_to_verified_workflow(self) -> None:
+        content = self._minimal_content()
+        result = transform_skill_md(content, "test-skill", "tooling")
+        assert "## Verified Workflow" in result
+        assert "## Workflow\n" not in result
+
+    def test_already_verified_workflow_not_doubled(self) -> None:
+        content = "---\nname: s\ndescription: d\ncategory: tooling\nuser-invocable: false\n---\n\n# s\n\n## Verified Workflow\n\n1. Step.\n"
+        result = transform_skill_md(content, "s", "tooling")
+        assert result.count("## Verified Workflow") == 1
+
+    def test_overview_injected_when_missing(self) -> None:
+        content = self._minimal_content()
+        result = transform_skill_md(content, "test-skill", "tooling")
+        assert "## Overview" in result
+
+    def test_overview_not_duplicated_when_present(self) -> None:
+        content = "---\nname: s\ndescription: d\ncategory: tooling\nuser-invocable: false\n---\n\n# s\n\n## Overview\n\nAlready here.\n\n## Workflow\n\n1. Step.\n"
+        result = transform_skill_md(content, "s", "tooling")
+        assert result.count("## Overview") == 1
+
+    def test_when_to_use_injected_when_missing(self) -> None:
+        content = self._minimal_content()
+        result = transform_skill_md(content, "test-skill", "tooling")
+        assert "## When to Use" in result
+
+    def test_failed_attempts_injected_when_missing(self) -> None:
+        content = self._minimal_content()
+        result = transform_skill_md(content, "test-skill", "tooling")
+        assert "## Failed Attempts" in result
+
+    def test_results_section_injected_when_missing(self) -> None:
+        content = self._minimal_content()
+        result = transform_skill_md(content, "test-skill", "tooling")
+        assert "## Results" in result
+
+    def test_frontmatter_rebuilt_with_category(self) -> None:
+        content = self._minimal_content()
+        result = transform_skill_md(content, "test-skill", "architecture")
+        assert "category: architecture" in result
+
+    def test_frontmatter_rebuilt_with_date(self) -> None:
+        content = self._minimal_content()
+        result = transform_skill_md(content, "test-skill", "tooling")
+        assert "date: 2025-01-01" in result
+
+    def test_odyssey_paths_generalized_in_body(self) -> None:
+        content = "---\nname: s\ndescription: d\ncategory: tooling\nuser-invocable: false\n---\n\n# s\n\n## Workflow\n\nUse /home/mvillmow/Odyssey2/ as root.\n"
+        result = transform_skill_md(content, "s", "tooling")
+        assert "/home/mvillmow/Odyssey2/" not in result
+        assert "<project-root>/" in result
+
+    def test_content_without_frontmatter_still_transforms(self) -> None:
+        content = "# bare-skill\n\n## Workflow\n\n1. Do it.\n"
+        result = transform_skill_md(content, "bare-skill", "tooling")
+        assert "## Verified Workflow" in result
+        assert "category: tooling" in result
+
+    def test_existing_sections_preserved(self) -> None:
+        content = (
+            "---\nname: s\ndescription: d\ncategory: tooling\nuser-invocable: false\n---\n\n"
+            "# s\n\n"
+            "## When to Use\n\n- Custom use case.\n\n"
+            "## Quick Reference\n\nCustom reference.\n\n"
+            "## Workflow\n\n1. Custom step.\n"
+        )
+        result = transform_skill_md(content, "s", "tooling")
+        assert "Custom use case." in result
+        assert "Custom reference." in result
+        assert "Custom step." in result
+
+
+# ---------------------------------------------------------------------------
+# find_all_skills
+# ---------------------------------------------------------------------------
+
+
+class TestFindAllSkills:
+    def _make_skill(self, root: Path, name: str) -> Path:
+        skill_dir = root / name
+        skill_dir.mkdir(parents=True, exist_ok=True)
+        md = skill_dir / "SKILL.md"
+        md.write_text(f"---\nname: {name}\n---\n")
+        return md
+
+    def _make_tiered_skill(self, root: Path, tier: str, name: str) -> Path:
+        skill_dir = root / f"tier-{tier}" / name
+        skill_dir.mkdir(parents=True, exist_ok=True)
+        md = skill_dir / "SKILL.md"
+        md.write_text(f"---\nname: {name}\n---\n")
+        return md
+
+    def test_top_level_skill_discovered(self, tmp_path: Path) -> None:
+        self._make_skill(tmp_path, "my-skill")
+        skills = find_all_skills(tmp_path)
+        names = [n for n, _, _ in skills]
+        assert "my-skill" in names
+
+    def test_top_level_skill_has_none_tier(self, tmp_path: Path) -> None:
+        self._make_skill(tmp_path, "my-skill")
+        skills = find_all_skills(tmp_path)
+        entry = next(e for e in skills if e[0] == "my-skill")
+        assert entry[2] is None
+
+    def test_tier1_skill_discovered(self, tmp_path: Path) -> None:
+        self._make_tiered_skill(tmp_path, "1", "tier1-skill")
+        skills = find_all_skills(tmp_path)
+        names = [n for n, _, _ in skills]
+        assert "tier1-skill" in names
+
+    def test_tier1_skill_has_tier_one(self, tmp_path: Path) -> None:
+        self._make_tiered_skill(tmp_path, "1", "tier1-skill")
+        skills = find_all_skills(tmp_path)
+        entry = next(e for e in skills if e[0] == "tier1-skill")
+        assert entry[2] == "1"
+
+    def test_tier2_skill_discovered(self, tmp_path: Path) -> None:
+        self._make_tiered_skill(tmp_path, "2", "tier2-skill")
+        skills = find_all_skills(tmp_path)
+        names = [n for n, _, _ in skills]
+        assert "tier2-skill" in names
+
+    def test_tier2_skill_has_tier_two(self, tmp_path: Path) -> None:
+        self._make_tiered_skill(tmp_path, "2", "tier2-skill")
+        skills = find_all_skills(tmp_path)
+        entry = next(e for e in skills if e[0] == "tier2-skill")
+        assert entry[2] == "2"
+
+    def test_directory_without_skill_md_excluded(self, tmp_path: Path) -> None:
+        (tmp_path / "not-a-skill").mkdir()
+        skills = find_all_skills(tmp_path)
+        names = [n for n, _, _ in skills]
+        assert "not-a-skill" not in names
+
+    def test_hidden_directories_excluded(self, tmp_path: Path) -> None:
+        (tmp_path / ".hidden-skill").mkdir()
+        (tmp_path / ".hidden-skill" / "SKILL.md").write_text("---\n---\n")
+        skills = find_all_skills(tmp_path)
+        names = [n for n, _, _ in skills]
+        assert ".hidden-skill" not in names
+
+    def test_tier1_and_tier2_dirs_not_treated_as_skills(self, tmp_path: Path) -> None:
+        # The tier-1 directory itself should not appear as a skill name
+        self._make_tiered_skill(tmp_path, "1", "inner-skill")
+        skills = find_all_skills(tmp_path)
+        names = [n for n, _, _ in skills]
+        assert "tier-1" not in names
+        assert "tier-2" not in names
+
+    def test_empty_root_returns_empty_list(self, tmp_path: Path) -> None:
+        skills = find_all_skills(tmp_path)
+        assert skills == []
+
+    def test_returns_path_to_skill_md(self, tmp_path: Path) -> None:
+        md = self._make_skill(tmp_path, "path-skill")
+        skills = find_all_skills(tmp_path)
+        entry = next(e for e in skills if e[0] == "path-skill")
+        assert entry[1] == md
+
+    def test_all_three_tiers_together(self, tmp_path: Path) -> None:
+        self._make_skill(tmp_path, "top-skill")
+        self._make_tiered_skill(tmp_path, "1", "t1-skill")
+        self._make_tiered_skill(tmp_path, "2", "t2-skill")
+        skills = find_all_skills(tmp_path)
+        names = [n for n, _, _ in skills]
+        assert "top-skill" in names
+        assert "t1-skill" in names
+        assert "t2-skill" in names
+        assert len(skills) == 3
+
+    def test_missing_tier1_dir_skipped_gracefully(self, tmp_path: Path) -> None:
+        self._make_skill(tmp_path, "top-skill")
+        # No tier-1 or tier-2 dirs
+        skills = find_all_skills(tmp_path)
+        assert len(skills) == 1
+
+    def test_uses_odyssey_skills_dir_when_no_arg(self) -> None:
+        # When source_dir is None, falls back to ODYSSEY_SKILLS_DIR constant.
+        # We just verify the function signature accepts None without raising TypeError.
+        # (We can't assert the result without the real dir existing on CI.)
+        try:
+            find_all_skills(None)
+        except FileNotFoundError:
+            pass  # Expected if ODYSSEY_SKILLS_DIR doesn't exist in test environment
+        except Exception as exc:
+            raise AssertionError(f"Unexpected exception type: {type(exc).__name__}: {exc}") from exc
