@@ -11,6 +11,7 @@ Includes:
 """
 
 from collections import List
+from memory import memcpy
 from shared.core.extensor import ExTensor
 from shared.core.gradient_types import GradientPair
 
@@ -820,6 +821,96 @@ fn transpose(
         perm.value(),
         result.numel(),
     )
+    return result^
+
+
+fn transpose_view(
+    tensor: ExTensor, axes: Optional[List[Int]] = None
+) raises -> ExTensor:
+    """Return a non-contiguous view of tensor with permuted strides.
+
+    Unlike transpose(), this does NOT reorder data in memory. Instead it copies
+    the raw bytes and sets permuted strides, producing a tensor that is provably
+    non-contiguous (for non-trivial permutations). This is useful for testing
+    is_contiguous() and as_contiguous().
+
+    Args:
+        tensor: Input tensor.
+        axes: Optional permutation of axes. Defaults to reversing all axes.
+
+    Returns:
+        A new ExTensor with the same flat data but permuted shape and strides.
+        For any non-trivial permutation the result has is_contiguous() == False.
+
+    Raises:
+        Error: If axes is invalid (duplicates, wrong range, or wrong length).
+    """
+    var ndim = tensor.dim()
+    var input_shape = tensor.shape()
+
+    # Build default permutation (reverse all axes)
+    var perm = axes
+    if perm is None:
+        perm = List[Int](capacity=ndim)
+        for i in range(ndim - 1, -1, -1):
+            perm.value().append(i)
+
+    # Validate axes
+    if len(perm.value()) != ndim:
+        raise Error(
+            "axes length ("
+            + String(len(perm.value()))
+            + ") does not match tensor dimensions ("
+            + String(ndim)
+            + ")"
+        )
+
+    var seen = List[Bool](length=ndim, fill=False)
+    for axis in perm.value():
+        if axis < 0 or axis >= ndim:
+            raise Error(
+                "axis "
+                + String(axis)
+                + " is out of bounds for tensor with "
+                + String(ndim)
+                + " dimensions"
+            )
+        if seen[axis]:
+            raise Error("duplicate axis " + String(axis) + " in permutation")
+        seen[axis] = True
+
+    # Build permuted shape
+    var result_shape = List[Int](capacity=ndim)
+    for axis in perm.value():
+        result_shape.append(input_shape[axis])
+
+    # Compute C-order strides for the *input* layout
+    var input_strides = List[Int](capacity=ndim)
+    var stride = 1
+    for i in range(ndim - 1, -1, -1):
+        input_strides.append(stride)
+        stride *= input_shape[i]
+    var ordered_strides = List[Int](capacity=ndim)
+    for i in range(len(input_strides) - 1, -1, -1):
+        ordered_strides.append(input_strides[i])
+
+    # Permuted strides: result_strides[i] = input_strides[perm[i]]
+    var result_strides = List[Int](capacity=ndim)
+    for axis in perm.value():
+        result_strides.append(ordered_strides[axis])
+
+    # Allocate result with the permuted shape (gets default C-order strides)
+    var result = ExTensor(result_shape, tensor.dtype())
+
+    # Copy raw bytes (preserves original flat data order)
+    var numel = tensor.numel()
+    var dtype_size = tensor._get_dtype_size()
+    var total_bytes = numel * dtype_size
+    memcpy(dest=result._data, src=tensor._data, count=total_bytes)
+
+    # Overwrite strides with permuted (non-C-order) strides
+    result._strides = result_strides^
+
     return result^
 
 

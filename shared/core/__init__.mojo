@@ -237,6 +237,7 @@ from shared.core.arithmetic import (
 from shared.core.matrix import (
     matmul,
     transpose,
+    transpose_view,
     dot,
     outer,
     matmul_backward,
