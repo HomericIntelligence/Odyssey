@@ -39,11 +39,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
         with:
-          fetch-depth: 0  # Full history for comprehensive scanning
+          fetch-depth: 0  # Required: full history needed for gitleaks git-log mode (do not remove, see #3316)
 
       - name: Run Gitleaks
         run: |
+          # Pinned to v8.18.0 — update hash when upgrading version (see #3316)
           wget -q https://github.com/gitleaks/gitleaks/releases/download/v8.18.0/gitleaks_8.18.0_linux_x64.tar.gz
+          # Verify integrity before execution — SHA256 from https://github.com/gitleaks/gitleaks/releases/download/v8.18.0/gitleaks_8.18.0_checksums.txt
+          echo "6e19050a3ee0688265ed3be4c46a0362487d20456ecd547e8c7328eaed3980cb  gitleaks_8.18.0_linux_x64.tar.gz" | sha256sum --check
           tar -xzf gitleaks_8.18.0_linux_x64.tar.gz
           chmod +x gitleaks
 
