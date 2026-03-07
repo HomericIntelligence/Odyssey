@@ -5,7 +5,7 @@ level: 3
 phase: Package,Cleanup
 tools: Read,Write,Edit,Grep,Glob,Task
 model: sonnet
-delegates_to: [documentation-engineer, junior-documentation-engineer]
+delegates_to: [documentation-engineer]
 receives_from: [architecture-design, implementation-specialist]
 ---
 
