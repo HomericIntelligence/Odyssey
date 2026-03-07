@@ -68,8 +68,11 @@ from shared.version import VERSION, AUTHOR, LICENSE
 # Training schedulers (most commonly used)
 # from .training.schedulers import StepLR, CosineAnnealingLR
 
-# Training metrics (most commonly used)
-# from .training.metrics import Accuracy, LossTracker
+# Training metrics (most commonly used) — Issue #3221
+from shared.training.metrics import LossTracker, AccuracyMetric
+
+# Expose plan-canonical alias: Accuracy = AccuracyMetric
+alias Accuracy = AccuracyMetric
 
 # Training callbacks (most commonly used)
 # from .training.callbacks import EarlyStopping, ModelCheckpoint
