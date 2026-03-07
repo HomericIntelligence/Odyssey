@@ -160,7 +160,9 @@ fn test_is_contiguous_after_transpose() raises:
     # Simulate non-contiguous layout by setting column-major strides [1, rows]
     a._strides[0] = 1
     a._strides[1] = 3
-    assert_false(a.is_contiguous(), "Column-major tensor should not be contiguous")
+    assert_false(
+        a.is_contiguous(), "Column-major tensor should not be contiguous"
+    )
 
 
 # ============================================================================
@@ -184,7 +186,9 @@ fn test_contiguous_on_noncontiguous() raises:
 
     # as_contiguous() should produce a contiguous copy
     var c = as_contiguous(b)
-    assert_true(c.is_contiguous(), "as_contiguous() result should be contiguous")
+    assert_true(
+        c.is_contiguous(), "as_contiguous() result should be contiguous"
+    )
 
     # Result should have row-major strides [4, 1] for shape (3, 4)
     assert_equal_int(c._strides[0], 4, "Stride for dim 0 should be 4 (cols)")
