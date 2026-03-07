@@ -72,6 +72,7 @@ gh pr merge --auto --rebase
 
 - [Mojo Syntax & Patterns](/.claude/shared/mojo-guidelines.md)
 - [Mojo Anti-Patterns](/.claude/shared/mojo-anti-patterns.md) - 64+ failure patterns
+- [Mojo JIT Crash Workaround](docs/dev/mojo-jit-crash-workaround.md) - `libKGENCompilerRTShared.so` flake
 - [PR Workflow](/.claude/shared/pr-workflow.md)
 - [GitHub Issue Workflow](/.claude/shared/github-issue-workflow.md)
 - [Common Constraints](/.claude/shared/common-constraints.md)

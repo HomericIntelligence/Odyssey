@@ -4,6 +4,10 @@
 **Date**: 2025-11-26
 **Context**: Issue #2025 - Systematic analysis of all Mojo test failures
 
+> **Note**: For `execution crashed` errors that appear _before_ any test output, see
+> [Mojo JIT Crash Workaround](mojo-jit-crash-workaround.md) — this is a compiler flake,
+> not a test bug. Retry the test run to confirm.
+
 ## Executive Summary
 
 Analysis of 10 PRs revealed 7 major categories of errors affecting 50+ test files. The root
