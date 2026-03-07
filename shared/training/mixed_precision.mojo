@@ -257,11 +257,9 @@ fn convert_to_fp32_master(params: ExTensor) raises -> ExTensor:
         Error: If params is empty.
 
     Note:
-        FP16 SIMD vectorization is blocked by a Mojo compiler limitation.
-        Mojo v0.26.1+ does not support SIMD load/store for FP16 types, so
+        FP16 SIMD vectorization is blocked by a Mojo v0.26.1 compiler limitation;
         FP16→FP32 conversion uses a scalar loop (~10-15x slower than FP32→FP32).
-        When Mojo adds FP16 SIMD load support, use DTypePointer[Float16].load[width]()
-        for ~4x speedup matching the FP32→FP32 path.
+        See docs/adr/ADR-010-fp16-simd-mojo-limitation.md for full rationale.
 
     Example:
         ```mojo
@@ -285,7 +283,7 @@ fn convert_to_fp32_master(params: ExTensor) raises -> ExTensor:
         _convert_fp32_to_fp32_simd(params, result)
         return result
 
-    # If FP16, use scalar conversion (FP16 SIMD blocked, see docstring Note)
+    # If FP16, use scalar conversion (FP16 SIMD blocked, see ADR-010)
     if params.dtype() == DType.float16:
         var src_ptr = params._data.bitcast[Float16]()
         var dst_ptr = result._data.bitcast[Float32]()
@@ -348,7 +346,7 @@ fn update_model_from_master(
         _update_fp32_from_fp32_simd(master_params, model_params)
         return
 
-    # If FP16, use scalar conversion (FP16 SIMD blocked, see convert_to_fp32_master docstring)
+    # If FP16, use scalar conversion (FP16 SIMD blocked, see ADR-010)
     if model_params.dtype() == DType.float16:
         _convert_fp32_to_fp16_simd(master_params, model_params)
         return
