@@ -188,6 +188,34 @@ fn test_validation_loop_run_subset_loss_valid() raises:
     print("  test_validation_loop_run_subset_loss_valid: PASSED")
 
 
+fn test_validation_loop_run_subset_resets_loader() raises:
+    """Test run_subset() resets a partially-consumed DataLoader before iterating.
+
+    Strategy: Create a loader with exactly 2 batches, then exhaust it by
+    setting current_batch = num_batches. Without reset(), has_next() returns
+    False immediately -> 0 batches processed -> division by zero. With reset(),
+    the loader restarts and processes exactly 2 batches -> valid loss.
+
+    This proves run_subset() calls val_loader.reset() internally (line 255 of
+    validation_loop.mojo).
+    """
+    var vloop = ValidationLoop()
+    # 2 batches total (8 samples, batch_size=4)
+    var loader = create_val_loader(n_batches=2)
+    # Pre-exhaust: advance to end so has_next() returns False
+    loader.current_batch = loader.num_batches
+    assert_true(not loader.has_next())
+    var metrics = TrainingMetrics()
+    # run_subset calls reset() internally, so it should process 2 batches
+    var val_loss = vloop.run_subset(
+        simple_forward, simple_loss, loader, 2, metrics
+    )
+    # Valid loss proves 2 batches were processed after reset (not 0)
+    assert_greater(val_loss, Float64(-1e-10))
+    assert_less(val_loss, Float64(1e10))
+    print("  test_validation_loop_run_subset_resets_loader: PASSED")
+
+
 # ============================================================================
 # No-Weight-Update Property Tests
 # ============================================================================
@@ -240,6 +268,7 @@ fn main() raises:
     print("Running ValidationLoop.run_subset() tests...")
     test_validation_loop_run_subset_limited()
     test_validation_loop_run_subset_loss_valid()
+    test_validation_loop_run_subset_resets_loader()
 
     print("Running no-weight-update property tests...")
     test_validation_loop_no_weight_updates()
