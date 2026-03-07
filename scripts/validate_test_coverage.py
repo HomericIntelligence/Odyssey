@@ -4,9 +4,11 @@ Validate Test Coverage - Ensure all test_*.mojo files are covered by CI
 
 This script finds all test_*.mojo files in the repository and verifies they are
 included in the CI test matrix in .github/workflows/comprehensive-tests.yml.
+It also checks the inverse: that each CI matrix pattern matches at least one
+existing file, flagging stale patterns as warnings.
 
 Exit codes:
-  0 - All tests covered
+  0 - All tests covered (stale-pattern warnings do not affect exit code)
   1 - Uncovered tests found or validation errors
 
 Usage:
@@ -226,6 +228,25 @@ def check_coverage(
     return uncovered, coverage_by_group
 
 
+def check_stale_patterns(ci_groups: Dict[str, Dict[str, str]], root_dir: Path) -> List[str]:
+    """
+    Check for CI matrix patterns that match 0 existing test files.
+
+    Args:
+        ci_groups: Mapping of group name to path/pattern info from parse_ci_matrix().
+        root_dir: Repository root directory used for glob expansion.
+
+    Returns:
+        Sorted list of group names whose patterns match no existing files.
+    """
+    stale = []
+    for group_name, group_info in ci_groups.items():
+        matched = expand_pattern(group_info["path"], group_info["pattern"], root_dir)
+        if not matched:
+            stale.append(group_name)
+    return sorted(stale)
+
+
 def generate_report(
     uncovered: Set[Path],
     test_files: List[Path],
@@ -354,6 +375,32 @@ def main():
 
     # Check coverage
     uncovered, coverage_by_group = check_coverage(test_files, ci_groups, repo_root)
+
+    # Check for stale CI patterns (inverse check)
+    stale_patterns = check_stale_patterns(ci_groups, repo_root)
+    if stale_patterns:
+        print("=" * 70, file=sys.stderr)
+        print("Warning: Stale CI Patterns", file=sys.stderr)
+        print("=" * 70, file=sys.stderr)
+        print(file=sys.stderr)
+        print(
+            f"⚠️  Found {len(stale_patterns)} CI pattern(s) matching 0 files:",
+            file=sys.stderr,
+        )
+        print(file=sys.stderr)
+        for group_name in stale_patterns:
+            group_info = ci_groups[group_name]
+            print(
+                f"   • {group_name!r}  (path={group_info['path']!r}, pattern={group_info['pattern']!r})",
+                file=sys.stderr,
+            )
+        print(file=sys.stderr)
+        print(
+            "Remove or update these entries in .github/workflows/comprehensive-tests.yml",
+            file=sys.stderr,
+        )
+        print("=" * 70, file=sys.stderr)
+        print(file=sys.stderr)
 
     # Only print detailed report if tests are missing
     if uncovered:
