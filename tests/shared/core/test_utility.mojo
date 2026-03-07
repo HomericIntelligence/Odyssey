@@ -311,13 +311,13 @@ fn test_setitem_valid_index() raises:
 
 
 fn test_setitem_integer_dtype() raises:
-    """Test setting integer value via Int64 overload on int32 tensor."""
+    """Test setting value on integer dtype tensor."""
     var shape = List[Int]()
     shape.append(3)
     var t = zeros(shape, DType.int32)
-    t[2] = Int64(7)
+    t[2] = 7.0
     assert_value_at(
-        t, 2, 7.0, 1e-6, "__setitem__ Int64 should set integer value"
+        t, 2, 7.0, 1e-6, "__setitem__ should set value on int32 tensor"
     )
     assert_value_at(t, 0, 0.0, 1e-6, "Element 0 should remain 0")
 
