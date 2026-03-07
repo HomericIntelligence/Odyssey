@@ -22,6 +22,7 @@ import argparse
 import json
 import re
 import sys
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
@@ -513,12 +514,17 @@ def migrate_skill(
     return True
 
 
-def find_all_skills() -> list[tuple[str, Path, Optional[str]]]:
-    """Find all skills in Odyssey2, returning (name, skill_md_path, tier) tuples."""
+def find_all_skills(source_dir: Optional[Path] = None) -> list[tuple[str, Path, Optional[str]]]:
+    """Find all skills in Odyssey2, returning (name, skill_md_path, tier) tuples.
+
+    Args:
+        source_dir: Root skills directory. Defaults to ODYSSEY_SKILLS_DIR.
+    """
+    skills_root = source_dir if source_dir is not None else ODYSSEY_SKILLS_DIR
     skills: list[tuple[str, Path, Optional[str]]] = []
 
     # Top-level skills
-    for skill_dir in sorted(ODYSSEY_SKILLS_DIR.iterdir()):
+    for skill_dir in sorted(skills_root.iterdir()):
         if not skill_dir.is_dir():
             continue
         if skill_dir.name.startswith("."):
@@ -531,7 +537,7 @@ def find_all_skills() -> list[tuple[str, Path, Optional[str]]]:
             skills.append((skill_dir.name, skill_md, None))
 
     # Tier-1 skills
-    tier1_dir = ODYSSEY_SKILLS_DIR / "tier-1"
+    tier1_dir = skills_root / "tier-1"
     if tier1_dir.exists():
         for skill_dir in sorted(tier1_dir.iterdir()):
             if not skill_dir.is_dir():
@@ -541,7 +547,7 @@ def find_all_skills() -> list[tuple[str, Path, Optional[str]]]:
                 skills.append((skill_dir.name, skill_md, "1"))
 
     # Tier-2 skills
-    tier2_dir = ODYSSEY_SKILLS_DIR / "tier-2"
+    tier2_dir = skills_root / "tier-2"
     if tier2_dir.exists():
         for skill_dir in sorted(tier2_dir.iterdir()):
             if not skill_dir.is_dir():
@@ -562,6 +568,162 @@ def skill_already_exists(skill_name: str) -> bool:
         if skill_path.exists():
             return True
     return False
+
+
+@dataclass
+class SkillAuditEntry:
+    """Represents a single skill in the audit report."""
+
+    name: str
+    source_path: Path
+    tier: Optional[str]
+    mnemosyne_category: Optional[str]  # None if not found
+    status: str  # "present", "missing", "skipped"
+
+
+@dataclass
+class AuditResult:
+    """Aggregated audit results."""
+
+    skills: list[SkillAuditEntry] = field(default_factory=list)
+
+    @property
+    def total(self) -> int:
+        return len(self.skills)
+
+    @property
+    def present(self) -> int:
+        return sum(1 for s in self.skills if s.status == "present")
+
+    @property
+    def missing(self) -> int:
+        return sum(1 for s in self.skills if s.status == "missing")
+
+    @property
+    def skipped(self) -> int:
+        return sum(1 for s in self.skills if s.status == "skipped")
+
+    @property
+    def coverage_pct(self) -> float:
+        """Coverage percentage excluding skipped skills."""
+        auditable = self.total - self.skipped
+        if auditable == 0:
+            return 100.0
+        return self.present / auditable * 100
+
+
+def find_skill_in_mnemosyne(skill_name: str, mnemosyne_skills_dir: Path) -> Optional[str]:
+    """Return the Mnemosyne category containing this skill, or None if not found."""
+    if not mnemosyne_skills_dir.exists():
+        return None
+    for category_dir in mnemosyne_skills_dir.iterdir():
+        if not category_dir.is_dir():
+            continue
+        skill_path = category_dir / skill_name
+        if skill_path.exists() and skill_path.is_dir():
+            return category_dir.name
+    return None
+
+
+def load_skip_list(skip_file: Path) -> set[str]:
+    """Load allowlist of skill names to skip from a file (one name per line)."""
+    if not skip_file.exists():
+        return set()
+    names: set[str] = set()
+    for line in skip_file.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#"):
+            names.add(line)
+    return names
+
+
+def run_audit(
+    source_skills: list[tuple[str, Path, Optional[str]]],
+    mnemosyne_skills_dir: Path,
+    skip_list: set[str],
+) -> AuditResult:
+    """Cross-reference source skills against Mnemosyne and build audit result.
+
+    Deduplicates by skill name, keeping the first occurrence.
+    """
+    result = AuditResult()
+    seen_names: set[str] = set()
+    for skill_name, skill_md_path, tier in source_skills:
+        if skill_name in seen_names:
+            continue
+        seen_names.add(skill_name)
+        if skill_name in skip_list:
+            entry = SkillAuditEntry(
+                name=skill_name,
+                source_path=skill_md_path,
+                tier=tier,
+                mnemosyne_category=None,
+                status="skipped",
+            )
+        else:
+            category = find_skill_in_mnemosyne(skill_name, mnemosyne_skills_dir)
+            entry = SkillAuditEntry(
+                name=skill_name,
+                source_path=skill_md_path,
+                tier=tier,
+                mnemosyne_category=category,
+                status="present" if category is not None else "missing",
+            )
+        result.skills.append(entry)
+    return result
+
+
+def print_audit_table(result: AuditResult, no_color: bool = False) -> None:
+    """Print a three-column coverage table to stdout."""
+    GREEN = "" if no_color else "\033[32m"
+    RED = "" if no_color else "\033[31m"
+    YELLOW = "" if no_color else "\033[33m"
+    RESET = "" if no_color else "\033[0m"
+
+    col_skill = 40
+    col_category = 20
+    col_status = 10
+
+    header = f"{'Skill':<{col_skill}} {'Category':<{col_category}} {'Status':<{col_status}}"
+    separator = "-" * (col_skill + col_category + col_status + 2)
+
+    print(header)
+    print(separator)
+
+    for entry in sorted(result.skills, key=lambda e: e.name):
+        category_str = entry.mnemosyne_category or "-"
+        if entry.status == "present":
+            color = GREEN
+        elif entry.status == "missing":
+            color = RED
+        else:
+            color = YELLOW
+        status_str = f"{color}{entry.status.upper()}{RESET}"
+        print(f"{entry.name:<{col_skill}} {category_str:<{col_category}} {status_str}")
+
+
+def print_audit_summary(result: AuditResult, no_color: bool = False) -> None:
+    """Print coverage summary."""
+    GREEN = "" if no_color else "\033[32m"
+    RED = "" if no_color else "\033[31m"
+    RESET = "" if no_color else "\033[0m"
+
+    print()
+    print("=" * 72)
+    print("Audit Summary:")
+    print(f"  Total skills:   {result.total}")
+    print(f"  Present:        {result.present}")
+    print(f"  Missing:        {result.missing}")
+    print(f"  Skipped:        {result.skipped}")
+    pct = result.coverage_pct
+    color = GREEN if pct == 100.0 else RED
+    print(f"  Coverage:       {color}{pct:.1f}%{RESET}")
+    print("=" * 72)
+
+    if result.missing > 0:
+        print(f"\n{RED}FAIL: {result.missing} skill(s) are missing from Mnemosyne.{RESET}")
+    else:
+        print(f"\n{GREEN}PASS: All auditable skills are present in Mnemosyne.{RESET}")
 
 
 def main() -> int:
@@ -588,17 +750,56 @@ def main() -> int:
         action="store_true",
         help="Overwrite existing skills",
     )
+    parser.add_argument(
+        "--audit",
+        action="store_true",
+        help=("Scan all source skills, report coverage against Mnemosyne, and exit non-zero if any skills are missing"),
+    )
+    parser.add_argument(
+        "--audit-skip",
+        metavar="FILE",
+        default=".audit-skip",
+        help="File listing skill names to exclude from audit (one per line, default: .audit-skip)",
+    )
+    parser.add_argument(
+        "--no-color",
+        action="store_true",
+        help="Disable ANSI color output",
+    )
+    parser.add_argument(
+        "--source-dir",
+        metavar="DIR",
+        default=str(ODYSSEY_SKILLS_DIR),
+        help=f"Odyssey2 skills directory (default: {ODYSSEY_SKILLS_DIR})",
+    )
+    parser.add_argument(
+        "--target-dir",
+        metavar="DIR",
+        default=str(MNEMOSYNE_DIR),
+        help=f"ProjectMnemosyne root directory (default: {MNEMOSYNE_DIR})",
+    )
     args = parser.parse_args()
 
-    if not ODYSSEY_SKILLS_DIR.exists():
-        print(f"ERROR: Odyssey skills directory not found: {ODYSSEY_SKILLS_DIR}")
+    source_dir = Path(args.source_dir)
+    target_dir = Path(args.target_dir)
+    target_skills_dir = target_dir / "skills"
+
+    if not source_dir.exists():
+        print(f"ERROR: Odyssey skills directory not found: {source_dir}")
         return 1
 
-    if not MNEMOSYNE_DIR.exists():
-        print(f"ERROR: ProjectMnemosyne directory not found: {MNEMOSYNE_DIR}")
+    if not target_dir.exists():
+        print(f"ERROR: ProjectMnemosyne directory not found: {target_dir}")
         return 1
 
-    all_skills = find_all_skills()
+    all_skills = find_all_skills(source_dir=source_dir)
+
+    if args.audit:
+        skip_list = load_skip_list(Path(args.audit_skip))
+        result = run_audit(all_skills, target_skills_dir, skip_list)
+        print_audit_table(result, no_color=args.no_color)
+        print_audit_summary(result, no_color=args.no_color)
+        return 1 if result.missing > 0 else 0
     print(f"Found {len(all_skills)} skills in Odyssey2")
 
     # Filter to specific skill if requested
