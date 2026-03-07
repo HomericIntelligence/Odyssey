@@ -1074,6 +1074,27 @@ grad[2] = 0.3 * (1.0 - 1.0) = 0.0
 1. Benchmark max/min reduction three-pass algorithm for performance
 1. Optimize softmax_backward O(n²) algorithm to O(n) if possible
 
+### Known Test Pathologies
+
+#### BatchNorm2d: `ones_like(grad_output)` Produces Analytically-Zero Gradients
+
+When testing `batch_norm2d_backward`, using `grad_output = ones_like(output)` causes
+`grad_input = 0` for all elements. This is **not a bug** — it is a mathematical identity
+arising from the zero-mean property of batch normalization:
+
+```text
+sum(x_norm) = 0  =>  dotp = sum(grad_output * x_norm) = sum(x_norm) = 0
+                 =>  grad_input[i] = (1 - N/N - x_norm[i] * 0/N) * gamma/std = 0
+```
+
+This edge case was discovered in PR #2724 / issue #3282 and caused a false ~1000x mismatch
+that was mistaken for a bug.
+
+**See**: `docs/dev/testing-strategy.md` — "Known Test Gotchas" section for the full mathematical
+proof, the degenerate-loss explanation, and safe test alternatives.
+
+**Applies also to**: `layer_norm_backward` and any normalization backward that uses mean-centering.
+
 ### Training Readiness Conclusion
 
 ### STATUS: READY FOR TRAINING
