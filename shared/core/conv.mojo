@@ -1239,9 +1239,8 @@ fn depthwise_conv2d_no_bias_backward(
     # Copy needed fields before result is destroyed (ExTensor is ImplicitlyCopyable)
     var grad_input_copy = result.grad_input
     var grad_kernel_copy = result.grad_weights
-    return GradientPair(
-        grad_input_copy^, grad_kernel_copy^
-    )
+    return GradientPair(grad_input_copy^, grad_kernel_copy^)
+
 
 # ============================================================================
 # Depthwise Separable Convolution
