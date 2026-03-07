@@ -195,7 +195,7 @@ jobs:
           # ---- Activations + dtype dispatch (unrelated to gradient math) ----
           - name: "Core Activations & Types"
             path: "tests/shared/core"
-            pattern: "test_activations.mojo test_activation_funcs.mojo test_activation_ops.mojo test_advanced_activations.mojo test_unsigned.mojo test_dtype_dispatch.mojo test_dtype_ordinal.mojo test_elementwise.mojo test_elementwise_dispatch.mojo test_elementwise_forward.mojo test_elementwise_edge_cases.mojo test_comparison_ops.mojo test_edge_cases.mojo"
+            pattern: "test_activations.mojo test_activation_funcs.mojo test_activation_ops.mojo test_advanced_activations.mojo test_unsigned.mojo test_uint_bitwise_not.mojo test_dtype_dispatch.mojo test_dtype_ordinal.mojo test_elementwise.mojo test_elementwise_dispatch.mojo test_elementwise_forward.mojo test_elementwise_edge_cases.mojo test_comparison_ops.mojo test_edge_cases.mojo"
           # ---- Loss functions (continue-on-error due to intermittent heap crashes) ----
           - name: "Core Loss"
             path: "tests/shared/core"
