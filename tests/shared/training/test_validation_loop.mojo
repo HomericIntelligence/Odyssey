@@ -16,6 +16,7 @@ Blockers resolved: ValidationLoop (Issue #34), DataLoader, TrainingMetrics all i
 from tests.shared.conftest import (
     assert_true,
     assert_equal,
+    assert_equal_int,
     assert_almost_equal,
     assert_less,
     assert_greater,
@@ -31,6 +32,7 @@ from shared.training.trainer_interface import (
     DataBatch,
     TrainingMetrics,
 )
+from shared.training.metrics import ConfusionMatrix
 from shared.core.extensor import ExTensor
 from shared.core import ones, zeros, randn
 
@@ -243,6 +245,170 @@ fn test_validation_loop_no_weight_updates() raises:
 
 
 # ============================================================================
+# Confusion Matrix Integration Tests
+# ============================================================================
+
+
+fn test_validation_loop_confusion_matrix_basic() raises:
+    """Test ValidationLoop(compute_confusion=True, num_classes=2) runs without error.
+
+    Constructs a 2-class ValidationLoop with confusion matrix enabled, runs
+    validation with 2-column logit predictions, and asserts the returned loss
+    is non-negative (smoke test: no crash, metrics updated).
+    """
+    var vloop = ValidationLoop(compute_confusion=True, num_classes=2)
+
+    # 4 samples, 2 logit columns: argmax -> [0, 1, 1, 0]
+    # labels: [0, 1, 0, 1] -> TP=1, TN=1, FP=1, FN=1
+    var n_samples = 4
+    var data_shape = List[Int]()
+    data_shape.append(n_samples)
+    data_shape.append(2)
+    var data = ExTensor(data_shape, DType.float32)
+    # Row 0: [1.0, 0.0] -> argmax=0
+    data._data.bitcast[Float32]()[0] = Float32(1.0)
+    data._data.bitcast[Float32]()[1] = Float32(0.0)
+    # Row 1: [0.0, 1.0] -> argmax=1
+    data._data.bitcast[Float32]()[2] = Float32(0.0)
+    data._data.bitcast[Float32]()[3] = Float32(1.0)
+    # Row 2: [0.0, 1.0] -> argmax=1
+    data._data.bitcast[Float32]()[4] = Float32(0.0)
+    data._data.bitcast[Float32]()[5] = Float32(1.0)
+    # Row 3: [1.0, 0.0] -> argmax=0
+    data._data.bitcast[Float32]()[6] = Float32(1.0)
+    data._data.bitcast[Float32]()[7] = Float32(0.0)
+
+    var labels_shape = List[Int]()
+    labels_shape.append(n_samples)
+    var labels = ExTensor(labels_shape, DType.int32)
+    labels._data.bitcast[Int32]()[0] = Int32(0)
+    labels._data.bitcast[Int32]()[1] = Int32(1)
+    labels._data.bitcast[Int32]()[2] = Int32(0)
+    labels._data.bitcast[Int32]()[3] = Int32(1)
+
+    var loader = DataLoader(data^, labels^, batch_size=4)
+    var metrics = TrainingMetrics()
+    var val_loss = vloop.run(simple_forward, simple_loss, loader, metrics)
+    assert_greater(val_loss, Float64(-1e-10))
+    print("  test_validation_loop_confusion_matrix_basic: PASSED")
+
+
+fn test_confusion_matrix_binary_counts() raises:
+    """Test ConfusionMatrix cell counts with known binary predictions.
+
+    Fixture: y_true=[0,1,0,1], y_pred=[0,1,1,0]
+    Expected confusion matrix (row=true, col=pred):
+        pred=0  pred=1
+    true=0   1       1    (TN=1, FP=1)
+    true=1   1       1    (FN=1, TP=1)
+    """
+    var cm = ConfusionMatrix(num_classes=2)
+
+    var preds_shape = List[Int]()
+    preds_shape.append(4)
+    var preds = ExTensor(preds_shape, DType.int32)
+    preds._data.bitcast[Int32]()[0] = Int32(0)
+    preds._data.bitcast[Int32]()[1] = Int32(1)
+    preds._data.bitcast[Int32]()[2] = Int32(1)
+    preds._data.bitcast[Int32]()[3] = Int32(0)
+
+    var labels_shape = List[Int]()
+    labels_shape.append(4)
+    var labels = ExTensor(labels_shape, DType.int32)
+    labels._data.bitcast[Int32]()[0] = Int32(0)
+    labels._data.bitcast[Int32]()[1] = Int32(1)
+    labels._data.bitcast[Int32]()[2] = Int32(0)
+    labels._data.bitcast[Int32]()[3] = Int32(1)
+
+    cm.update(preds, labels)
+
+    var raw = cm.normalize(mode="none")
+    # Matrix layout: raw[row*2 + col] where row=true, col=pred
+    # [0,0]=TN=1, [0,1]=FP=1, [1,0]=FN=1, [1,1]=TP=1
+    assert_equal_int(
+        Int(raw._data.bitcast[Float64]()[0]), 1  # TN
+    )
+    assert_equal_int(
+        Int(raw._data.bitcast[Float64]()[1]), 1  # FP
+    )
+    assert_equal_int(
+        Int(raw._data.bitcast[Float64]()[2]), 1  # FN
+    )
+    assert_equal_int(
+        Int(raw._data.bitcast[Float64]()[3]), 1  # TP
+    )
+    print("  test_confusion_matrix_binary_counts: PASSED")
+
+
+fn test_confusion_matrix_all_correct() raises:
+    """Test ConfusionMatrix with all-correct predictions yields pure diagonal.
+
+    Fixture: y_true=[0,0,1,1], y_pred=[0,0,1,1]
+    Expected: TN=2, FP=0, FN=0, TP=2
+    """
+    var cm = ConfusionMatrix(num_classes=2)
+
+    var preds_shape = List[Int]()
+    preds_shape.append(4)
+    var preds = ExTensor(preds_shape, DType.int32)
+    preds._data.bitcast[Int32]()[0] = Int32(0)
+    preds._data.bitcast[Int32]()[1] = Int32(0)
+    preds._data.bitcast[Int32]()[2] = Int32(1)
+    preds._data.bitcast[Int32]()[3] = Int32(1)
+
+    var labels_shape = List[Int]()
+    labels_shape.append(4)
+    var labels = ExTensor(labels_shape, DType.int32)
+    labels._data.bitcast[Int32]()[0] = Int32(0)
+    labels._data.bitcast[Int32]()[1] = Int32(0)
+    labels._data.bitcast[Int32]()[2] = Int32(1)
+    labels._data.bitcast[Int32]()[3] = Int32(1)
+
+    cm.update(preds, labels)
+
+    var raw = cm.normalize(mode="none")
+    assert_equal_int(Int(raw._data.bitcast[Float64]()[0]), 2)  # TN=2
+    assert_equal_int(Int(raw._data.bitcast[Float64]()[1]), 0)  # FP=0
+    assert_equal_int(Int(raw._data.bitcast[Float64]()[2]), 0)  # FN=0
+    assert_equal_int(Int(raw._data.bitcast[Float64]()[3]), 2)  # TP=2
+    print("  test_confusion_matrix_all_correct: PASSED")
+
+
+fn test_confusion_matrix_all_wrong() raises:
+    """Test ConfusionMatrix with all-wrong predictions yields zero diagonal.
+
+    Fixture: y_true=[0,0,1,1], y_pred=[1,1,0,0]
+    Expected: TN=0, FP=2, FN=2, TP=0
+    """
+    var cm = ConfusionMatrix(num_classes=2)
+
+    var preds_shape = List[Int]()
+    preds_shape.append(4)
+    var preds = ExTensor(preds_shape, DType.int32)
+    preds._data.bitcast[Int32]()[0] = Int32(1)
+    preds._data.bitcast[Int32]()[1] = Int32(1)
+    preds._data.bitcast[Int32]()[2] = Int32(0)
+    preds._data.bitcast[Int32]()[3] = Int32(0)
+
+    var labels_shape = List[Int]()
+    labels_shape.append(4)
+    var labels = ExTensor(labels_shape, DType.int32)
+    labels._data.bitcast[Int32]()[0] = Int32(0)
+    labels._data.bitcast[Int32]()[1] = Int32(0)
+    labels._data.bitcast[Int32]()[2] = Int32(1)
+    labels._data.bitcast[Int32]()[3] = Int32(1)
+
+    cm.update(preds, labels)
+
+    var raw = cm.normalize(mode="none")
+    assert_equal_int(Int(raw._data.bitcast[Float64]()[0]), 0)  # TN=0
+    assert_equal_int(Int(raw._data.bitcast[Float64]()[1]), 2)  # FP=2
+    assert_equal_int(Int(raw._data.bitcast[Float64]()[2]), 2)  # FN=2
+    assert_equal_int(Int(raw._data.bitcast[Float64]()[3]), 0)  # TP=0
+    print("  test_confusion_matrix_all_wrong: PASSED")
+
+
+# ============================================================================
 # Test Main
 # ============================================================================
 
@@ -272,5 +438,11 @@ fn main() raises:
 
     print("Running no-weight-update property tests...")
     test_validation_loop_no_weight_updates()
+
+    print("Running confusion matrix integration tests...")
+    test_validation_loop_confusion_matrix_basic()
+    test_confusion_matrix_binary_counts()
+    test_confusion_matrix_all_correct()
+    test_confusion_matrix_all_wrong()
 
     print("\nAll validation loop tests passed!")
