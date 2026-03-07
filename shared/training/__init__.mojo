@@ -36,9 +36,9 @@ Note:
     ```
 """
 
-from python import PythonObject
 from shared.core.extensor import ExTensor
 from shared.core.traits import Model, Loss, Optimizer
+from shared.training.trainer_interface import DataLoader, DataBatch
 from shared.autograd.tape import GradientTape
 
 # Package version
@@ -270,7 +270,7 @@ struct TrainingLoop[
     """Orchestrates training with forward/backward/optimize cycle.
 
     Generic training loop with compile-time type safety via trait bounds.
-    Converts from PythonObject to pure Mojo types for zero-cost abstraction.
+    Uses compile-time type safety for zero-cost abstraction.
 
     Type Parameters:
         M: Model type (must implement Model trait).
@@ -412,33 +412,30 @@ struct TrainingLoop[
         # Call loss_fn.compute() via Loss trait
         return self.loss_fn.compute(outputs, targets)
 
-    fn run_epoch(mut self, data_loader: PythonObject) raises -> Float32:
+    fn run_epoch(mut self, mut data_loader: DataLoader) raises -> Float32:
         """Run single epoch over dataset.
 
         Iterates through all batches in data loader and performs training
         step on each batch, returning the average loss for the epoch.
 
         Args:
-            data_loader: Data loader providing batches (PythonObject for now).
+            data_loader: Native DataLoader providing batches.
 
         Returns:
             Average loss for the epoch.
 
         Raises:
             Error: If operation fails.
-
-        Note:
-            data_loader remains PythonObject until Track 4 implements
-            Mojo data loading infrastructure. Tracked in #3076 (parent: #3059).
         """
         var total_loss = Float64(0.0)
         var num_batches = Int(0)
 
-        # NOTE: Batch iteration blocked by Track 4 (Python↔Mojo interop) - see #3076 (parent: #3059).
-        # The data_loader is currently a PythonObject, but step() requires ExTensor.
-        # Once Track 4 data loading infrastructure is ready, integrate batching here.
-        # Track resolution via #3076. Implement when Python↔Mojo interop is available.
-        _ = data_loader  # Suppress unused variable warning
+        data_loader.reset()
+        while data_loader.has_next():
+            var batch = data_loader.next()
+            var loss = self.step(batch.data, batch.labels)
+            total_loss += Float64(loss._get_float32(0))
+            num_batches += 1
 
         # Return average loss
         if num_batches > 0:
