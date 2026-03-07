@@ -141,7 +141,11 @@ tests/
 │       ├── layer_testers.mojo            # Reusable test patterns
 │       └── gradient_checker.mojo         # Numerical gradient utils
 └── helpers/
-    └── fixtures.mojo                     # Test fixtures
+    ├── __init__.mojo                     # Package re-exports
+    ├── fixtures.mojo                     # Test fixture utilities
+    ├── utils.mojo                        # Tensor debugging utilities
+    ├── test_fixtures.mojo                # Self-tests for fixtures.mojo
+    └── test_utils.mojo                   # Self-tests for utils.mojo
 ```
 
 ## Rationale
