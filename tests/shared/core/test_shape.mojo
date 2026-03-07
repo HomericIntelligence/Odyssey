@@ -421,6 +421,122 @@ fn test_broadcast_to_incompatible() raises:
         raise Error("broadcast_to with incompatible shape should raise error")
 
 
+fn test_broadcast_to_0d_scalar() raises:
+    """Test broadcasting a 0-d scalar tensor to any shape."""
+    var shape_0d = List[Int]()
+    var a = full(shape_0d, 5.0, DType.float32)  # 0-d scalar, value=5.0
+    var target_shape = List[Int]()
+    target_shape.append(3)
+    target_shape.append(4)
+    var b = broadcast_to(a, target_shape)
+
+    assert_dim(b, 2, "Broadcasted 0-d tensor should be 2D")
+    assert_numel(b, 12, "Broadcasted 0-d tensor should have 12 elements")
+    assert_all_values(b, 5.0, 1e-6, "All values should be 5.0")
+
+
+fn test_broadcast_to_identity() raises:
+    """Test broadcasting a tensor to its own shape (identity broadcast)."""
+    var shape = List[Int]()
+    shape.append(3)
+    shape.append(4)
+    var a = arange(0.0, 12.0, 1.0, DType.float32)  # Shape (12,)
+    var reshaped = reshape(a, shape)  # Shape (3, 4)
+    var b = broadcast_to(reshaped, shape)
+
+    assert_dim(b, 2, "Identity broadcast should preserve ndim")
+    assert_numel(b, 12, "Identity broadcast should preserve numel")
+    for i in range(12):
+        assert_value_at(b, i, Float64(i), 1e-6, "Identity broadcast should preserve values")
+
+
+fn test_broadcast_to_multi_axis() raises:
+    """Test multi-axis broadcasting: (3,) -> (2, 4, 3)."""
+    var a = arange(0.0, 3.0, 1.0, DType.float32)  # Shape (3,), values [0,1,2]
+    var target_shape = List[Int]()
+    target_shape.append(2)
+    target_shape.append(4)
+    target_shape.append(3)
+    var b = broadcast_to(a, target_shape)
+
+    assert_dim(b, 3, "Broadcasted tensor should be 3D")
+    assert_numel(b, 24, "Should have 24 elements (2*4*3)")
+
+    # Values repeat the pattern [0, 1, 2] across all rows
+    for i in range(24):
+        var expected = Float64(i % 3)
+        assert_value_at(b, i, expected, 1e-6, "Values should repeat row pattern")
+
+
+fn test_broadcast_to_leading_dims() raises:
+    """Test broadcasting with added leading dimensions: (1, 3) -> (5, 3)."""
+    var shape = List[Int]()
+    shape.append(1)
+    shape.append(3)
+    var a = arange(0.0, 3.0, 1.0, DType.float32)  # Shape (3,)
+    var a_2d = reshape(a, shape)  # Shape (1, 3)
+    var target_shape = List[Int]()
+    target_shape.append(5)
+    target_shape.append(3)
+    var b = broadcast_to(a_2d, target_shape)
+
+    assert_dim(b, 2, "Should be 2D")
+    assert_numel(b, 15, "Should have 15 elements (5*3)")
+
+    # Each row should be [0, 1, 2]
+    for row in range(5):
+        for col in range(3):
+            assert_value_at(b, row * 3 + col, Float64(col), 1e-6, "Values should repeat per row")
+
+
+fn test_broadcast_to_middle_dim_expand() raises:
+    """Test broadcasting middle dimension: (1, 3, 1) -> (5, 3, 7)."""
+    var shape = List[Int]()
+    shape.append(1)
+    shape.append(3)
+    shape.append(1)
+    var a = arange(0.0, 3.0, 1.0, DType.float32)  # Shape (3,)
+    var a_3d = reshape(a, shape)  # Shape (1, 3, 1)
+    var target_shape = List[Int]()
+    target_shape.append(5)
+    target_shape.append(3)
+    target_shape.append(7)
+    var b = broadcast_to(a_3d, target_shape)
+
+    assert_dim(b, 3, "Should be 3D")
+    assert_numel(b, 105, "Should have 105 elements (5*3*7)")
+
+    # Element at [i, j, k] should be j (0, 1, or 2)
+    for i in range(5):
+        for j in range(3):
+            for k in range(7):
+                var flat_idx = i * 21 + j * 7 + k
+                assert_value_at(b, flat_idx, Float64(j), 1e-6, "Value should equal middle dim index")
+
+
+fn test_broadcast_to_reduce_ndim_raises() raises:
+    """Test that broadcasting to fewer dimensions raises an error."""
+    var shape = List[Int]()
+    shape.append(3)
+    shape.append(4)
+    var a = ones(shape, DType.float32)  # Shape (3, 4)
+    var target_shape = List[Int]()
+    target_shape.append(4)  # Only 1D — cannot reduce from 2D
+
+    var error_raised = False
+    try:
+        var b = broadcast_to(a, target_shape)
+        _ = b
+    except e:
+        error_raised = True
+        var error_msg = String(e)
+        if "broadcast" not in error_msg.lower():
+            raise Error("Error message should mention broadcast")
+
+    if not error_raised:
+        raise Error("broadcast_to with fewer dimensions should raise error")
+
+
 # ============================================================================
 # Test permute()
 # ============================================================================
@@ -580,6 +696,12 @@ fn main() raises:
     print("  Testing broadcast_to()...")
     test_broadcast_to_compatible()
     test_broadcast_to_incompatible()
+    test_broadcast_to_0d_scalar()
+    test_broadcast_to_identity()
+    test_broadcast_to_multi_axis()
+    test_broadcast_to_leading_dims()
+    test_broadcast_to_middle_dim_expand()
+    test_broadcast_to_reduce_ndim_raises()
 
     # permute() tests
     print("  Testing permute()...")
