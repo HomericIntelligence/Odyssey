@@ -424,7 +424,7 @@ fn main() raises:
 
     # Simple training loop - process one batch per epoch for demonstration
     print("Starting training...")
-    print("Note: Processing single batch per epoch for demonstration")
+    print("Processing single batch per epoch (demonstration mode)")
     print()
 
     var _ = config.batch_size  # batch_size not used in simplified version
@@ -454,4 +454,4 @@ fn main() raises:
     print()
 
     print("Training complete!")
-    print("\nNote: This is a simplified version for demonstration.")
+    print("\nThis is a simplified demonstration version.")

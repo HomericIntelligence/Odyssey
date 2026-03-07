@@ -305,8 +305,7 @@ fn main() raises:
         print("  python examples/resnet18-cifar10/download_cifar10.py")
         print("  mojo run examples/resnet18-cifar10/train.mojo --epochs 200")
         print()
-        print("Note: Training requires batch_norm2d_backward implementation.")
-        print("See GAP_ANALYSIS.md for details.")
+        print("Training requires batch_norm2d_backward (see GAP_ANALYSIS.md).")
         return
 
     # Run inference

@@ -263,7 +263,7 @@ fn main() raises:
     print()
 
     print("Inference complete!")
-    print("\nNote: This implementation demonstrates the inference structure.")
+    print("\nThis implementation demonstrates the inference structure.")
     print(
         "Batch processing will be more efficient when tensor slicing is"
         " optimized."
