@@ -6,6 +6,7 @@ inputs:
     description: Pixi version to install
     required: false
     default: latest
+description: Install Pixi with explicit ~/.pixi cache (avoids broken cache:true HTTP 400).
 
 runs:
   using: composite
@@ -17,6 +18,11 @@ runs:
 
     - name: Cache Pixi environments
       uses: actions/cache@v5
+        pixi-version: latest
+      # DO NOT use cache: true — broken, fails with HTTP 400 from GitHub cache service
+
+    - name: Cache pixi environments
+      uses: actions/cache@v4
       with:
         path: |
           .pixi
