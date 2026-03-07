@@ -66,8 +66,9 @@ ENV PIXI_CACHE_DIR=/home/${USER_NAME}/.cache/pixi
 RUN mkdir -p $PIXI_HOME $PIXI_CACHE_DIR $HOME/.cache/rattler && \
     chmod -R 700 $PIXI_HOME $PIXI_CACHE_DIR $HOME/.cache/rattler
 
-# Install Pixi as dev user
-RUN curl -fsSL https://pixi.sh/install.sh | bash
+# Install Pixi as dev user (pinned version for reproducible builds)
+ENV PIXI_VERSION=0.65.0
+RUN curl -fsSL https://pixi.sh/install.sh | PIXI_VERSION=${PIXI_VERSION} bash
 
 # Copy dependency manifests first for layer caching
 COPY --chown=${USER_NAME}:${USER_NAME} pixi.toml pixi.lock pyproject.toml requirements.txt requirements-dev.txt .pre-commit-config.yaml ./
