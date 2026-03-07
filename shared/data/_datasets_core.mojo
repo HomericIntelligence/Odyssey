@@ -190,7 +190,7 @@ struct FileDataset(Copyable, Dataset, Movable):
                 + String(self._len)
             )
 
-        # NOTE: Caching disabled as trait requires immutable self
+        # NOTE (Mojo v0.26.1): Caching disabled as trait requires immutable self
         # Check cache first (read-only)
         if self.cache_enabled:
             if idx in self._cache:
@@ -205,7 +205,7 @@ struct FileDataset(Copyable, Dataset, Movable):
 
         var result = (data, label)
 
-        # NOTE: Cache write disabled - would require mut self
+        # NOTE (Mojo v0.26.1): Cache write disabled - would require mut self
         # if self.cache_enabled:
         #     self._cache[idx] = result
 
@@ -278,7 +278,7 @@ struct FileDataset(Copyable, Dataset, Movable):
         Raises:
             Error: If file cannot be read or parsed.
         """
-        # NOTE: Full CSV parsing would require file I/O and string parsing
+        # NOTE (Mojo v0.26.1): Full CSV parsing would require file I/O and string parsing
         # For now, return a placeholder that represents the expected format
         # Real implementation would read the file line by line
         var data = List[Float32]()
@@ -302,7 +302,7 @@ struct FileDataset(Copyable, Dataset, Movable):
         Raises:
             Error: If file cannot be read.
         """
-        # NOTE: Full binary reading requires file I/O support
+        # NOTE (Mojo v0.26.1): Full binary reading requires file I/O support
         # For now, return a placeholder
         # Real implementation would use file reading API
         var data = List[Float32]()
@@ -326,7 +326,7 @@ struct FileDataset(Copyable, Dataset, Movable):
         Raises:
             Error: If file cannot be read or contains non-numeric data.
         """
-        # NOTE: Full text parsing would require file I/O and number parsing
+        # NOTE (Mojo v0.26.1): Full text parsing would require file I/O and number parsing
         # For now, return a placeholder
         # Real implementation would read file line by line
         var data = List[Float32]()
