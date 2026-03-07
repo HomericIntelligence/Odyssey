@@ -42,6 +42,16 @@ jobs:
         run: |
           pixi run pre-commit run --all-files --show-diff-on-failure
 
+      - name: Enforce no .__matmul__() call sites
+        run: |
+          violations=$(grep -rn "\.__matmul__(" . --include="*.mojo" --exclude-dir=".pixi" --exclude-dir=".git" | grep -v "fn __matmul__(" | grep -v "# __matmul__" | grep -v "__matmul__.*deprecated")
+          if [ -n "$violations" ]; then
+            echo "::error::Found .__matmul__() call site(s). Use matmul(A, B) instead."
+            echo "$violations"
+            exit 1
+          fi
+          echo "No .__matmul__() call sites found."
+
       - name: Display helpful message on failure
         if: failure()
         run: |
