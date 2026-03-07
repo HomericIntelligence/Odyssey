@@ -116,6 +116,12 @@ from shared.data.random_transform_base import (
     random_float,  # Random float generation utility
 )
 
+# Core transforms (most commonly used)
+from shared.data.transforms import (
+    Normalize,  # Normalize tensor values: (x - mean) / std
+    Compose,  # Chain multiple transforms into a single transform
+)
+
 # ============================================================================
 # Data Loaders and Samplers
 # ============================================================================

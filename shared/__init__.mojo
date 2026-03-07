@@ -14,7 +14,7 @@ Usage:
     # Import from specific modules for less common items
     from shared.core.layers import MaxPool2D, Dropout
     from shared.training.schedulers import CosineAnnealingLR
-    from shared.data.transforms import Normalize
+    from shared.data import Normalize, Compose
 
 Example:
     ```mojo
@@ -84,6 +84,9 @@ alias Accuracy = AccuracyMetric
 # from .data.datasets import TensorDataset, ImageDataset
 # from .data.loaders import DataLoader
 # from .data.transforms import Normalize, ToTensor, Compose
+
+# Data transforms (available now — re-exported from shared.data)
+from shared.data import Normalize, Compose
 
 # Utils (most commonly used)
 # from .utils.logging import Logger
