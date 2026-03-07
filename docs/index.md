@@ -16,6 +16,61 @@ New to ML Odyssey? Start here:
 - **[Installation](getting-started/installation.md)** - Complete setup and installation guide
 - **[First Model](getting-started/first_model.md)** - Build and train your first model
 
+<!-- DEFERRED: Core Documentation section
+  The following topics were linked in docs/index.md but their source files
+  were placeholder stubs deleted in #3142. Re-add each entry once the
+  corresponding doc is written.
+
+  - project-structure (core/project-structure.md)
+    Status: Deferred — doc not yet written
+    Why: Stub deleted in #3142 (YAGNI)
+    Acceptance criteria: Write core/project-structure.md; re-add link here
+
+  - shared-library (core/shared-library.md)
+    Status: Deferred — doc not yet written
+    Why: Stub deleted in #3142
+    Acceptance criteria: Write core/shared-library.md; re-add link here
+
+  - paper-implementation (core/paper-implementation.md)
+    Status: Deferred
+    Acceptance criteria: Write core/paper-implementation.md; re-add link here
+
+  - testing-strategy (core/testing-strategy.md)
+    Status: Deferred
+    Acceptance criteria: Write core/testing-strategy.md; re-add link here
+
+  - mojo-patterns (core/mojo-patterns.md)
+    Status: Deferred
+    Acceptance criteria: Write core/mojo-patterns.md; re-add link here
+
+  - agent-system (core/agent-system.md)
+    Status: Deferred
+    Acceptance criteria: Write core/agent-system.md; re-add link here
+
+  - workflow (core/workflow.md)
+    Status: Deferred
+    Acceptance criteria: Write core/workflow.md; re-add link here
+
+  - configuration (core/configuration.md)
+    Status: Deferred
+    Acceptance criteria: Write core/configuration.md; re-add link here
+
+  Advanced Topics (also removed):
+  - performance (advanced/performance.md)
+  - custom-layers (advanced/custom-layers.md)
+  - distributed-training (advanced/distributed-training.md)
+  - visualization (advanced/visualization.md)
+  - debugging (advanced/debugging.md)
+  - integration (advanced/integration.md)
+
+  Development Guides (also removed):
+  - architecture (dev/architecture.md)
+  - api-reference (dev/api-reference.md)
+  - ci-cd (dev/ci-cd.md)
+
+  Tracking issue: #3312
+-->
+
 ## Advanced Topics
 
 Deep dives for experienced users:
