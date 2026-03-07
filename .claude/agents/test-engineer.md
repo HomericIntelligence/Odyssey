@@ -5,7 +5,7 @@ level: 4
 phase: Test
 tools: Read,Write,Edit,Bash,Grep,Glob
 model: haiku
-delegates_to: [junior-test-engineer]
+delegates_to: []
 receives_from: [test-specialist]
 ---
 
