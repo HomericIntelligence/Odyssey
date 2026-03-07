@@ -217,9 +217,15 @@ jobs:
             pattern: "test_*.mojo datasets/test_*.mojo samplers/test_*.mojo transforms/test_*.mojo loaders/test_*.mojo formats/test_*.mojo"
             continue-on-error: true
           # ---- Autograd engine + shared benchmarking helpers ----
-          - name: "Autograd & Benchmarking"
-            path: "tests/shared"
-            pattern: "autograd/test_*.mojo benchmarking/test_*.mojo"
+          # Kept as separate entries (not merged under tests/shared parent path)
+          # to avoid silent pass-with-0-tests if a subdirectory is empty/renamed.
+          # See: https://github.com/homericintelligence/projectodyssey/issues/3356
+          - name: "Autograd"
+            path: "tests/shared/autograd"
+            pattern: "test_*.mojo"
+          - name: "Benchmarking"
+            path: "tests/shared/benchmarking"
+            pattern: "test_*.mojo"
           # ---- Integration tests (segfault-prone on CI, kept non-blocking) ----
           - name: "Integration Tests"
             path: "tests/shared/integration"
