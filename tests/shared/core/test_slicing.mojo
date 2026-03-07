@@ -190,6 +190,30 @@ fn test_multiple_slices_share_refcount() raises:
     print("PASS: test_multiple_slices_share_refcount")
 
 
+fn test_slice_mutation_visible_in_original() raises:
+    """Verify that mutating a slice element is visible in the original tensor.
+
+    Asserts true view semantics: slice shares memory with original, so
+    writes through the slice are reflected when reading the original.
+    """
+    var tensor = zeros([10], DType.float32)
+    for i in range(10):
+        tensor._set_float32(i, Float32(i))
+
+    # slice [2:6] -> indices 2,3,4,5 of original
+    var s = tensor.slice(2, 6, axis=0)
+
+    # Mutate element 0 of the slice (corresponds to index 2 of original)
+    s._set_float32(0, 99.0)
+
+    # The original tensor must reflect the change at index 2
+    assert_almost_equal(
+        Float64(tensor._get_float32(2)), 99.0, tolerance=1e-6
+    )
+
+    print("PASS: test_slice_mutation_visible_in_original")
+
+
 fn test_slice_empty_range() raises:
     """Test slicing with start == end (empty slice)."""
     var tensor = zeros([5], DType.float32)
@@ -341,6 +365,7 @@ fn main() raises:
     test_slice_is_marked_as_view()
     test_slice_refcount_increments()
     test_multiple_slices_share_refcount()
+    test_slice_mutation_visible_in_original()
 
     # Edge case tests
     test_slice_empty_range()
