@@ -475,7 +475,7 @@ struct ExTensor(
     fn _get_dtype_size_static(dtype: DType) -> Int:
         """Get size in bytes for a given dtype (static version for use in __init__).
         """
-        if dtype == DType.float16:
+        if dtype == DType.float16 or dtype == DType.bfloat16:
             return 2
         elif dtype == DType.bfloat16:
             return 2
@@ -1078,6 +1078,9 @@ struct ExTensor(
         elif self._dtype == DType.float64:
             var ptr = (self._data + offset).bitcast[Float64]()
             return ptr[]
+        elif self._dtype == DType.bfloat16:
+            var ptr = (self._data + offset).bitcast[SIMD[DType.bfloat16, 1]]()
+            return ptr[].cast[DType.float64]()
         else:
             # For integer types, cast to float64
             return Float64(self._get_int64(index))
@@ -1104,6 +1107,9 @@ struct ExTensor(
         elif self._dtype == DType.float64:
             var ptr = (self._data + offset).bitcast[Float64]()
             ptr[] = value
+        elif self._dtype == DType.bfloat16:
+            var ptr = (self._data + offset).bitcast[SIMD[DType.bfloat16, 1]]()
+            ptr[] = value.cast[DType.bfloat16]()
 
     fn _get_float32(self, index: Int) -> Float32:
         """Internal: Get value at index as Float32 (assumes float-compatible dtype).
