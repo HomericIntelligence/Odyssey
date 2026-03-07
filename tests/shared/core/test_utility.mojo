@@ -5,7 +5,17 @@ and helper methods like numel, dim, size, stride, is_contiguous.
 """
 
 # Import ExTensor and operations
-from shared.core import ExTensor, zeros, ones, full, arange, clone, item, diff, as_contiguous
+from shared.core import (
+    ExTensor,
+    zeros,
+    ones,
+    full,
+    arange,
+    clone,
+    item,
+    diff,
+    as_contiguous,
+)
 
 # Import test helpers
 from tests.shared.conftest import (
@@ -169,7 +179,9 @@ fn test_contiguous_on_noncontiguous() raises:
     # Simulate non-contiguous layout by setting column-major strides [1, rows]
     b._strides[0] = 1
     b._strides[1] = 3
-    assert_false(b.is_contiguous(), "Stride-manipulated tensor should not be contiguous")
+    assert_false(
+        b.is_contiguous(), "Stride-manipulated tensor should not be contiguous"
+    )
 
     # as_contiguous() should produce a contiguous copy
     var c = as_contiguous(b)
