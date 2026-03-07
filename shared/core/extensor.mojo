@@ -53,7 +53,13 @@ comptime WARN_TENSOR_BYTES: Int = 500_000_000  # 500 MB warning threshold
 
 
 struct ExTensor(
-    Copyable, Hashable, ImplicitlyCopyable, Movable, Representable, Sized, Stringable
+    Copyable,
+    Hashable,
+    ImplicitlyCopyable,
+    Movable,
+    Representable,
+    Sized,
+    Stringable,
 ):
     """Dynamic tensor with runtime-determined shape and data type.
 
@@ -2734,14 +2740,14 @@ struct ExTensor(
 
         # Hash shape
         for i in range(len(self._shape)):
-            hasher.write(self._shape[i])
+            hasher.update(self._shape[i])
         # Hash dtype ordinal
-        hasher.write(dtype_to_ordinal(self._dtype))
+        hasher.update(dtype_to_ordinal(self._dtype))
         # Hash data
         for i in range(self._numel):
             var val = self._get_float64(i)
             var int_bits = UnsafePointer[Float64](to=val).bitcast[UInt64]()[]
-            hasher.write(int_bits)
+            hasher.update(int_bits)
 
     fn contiguous(self) raises -> ExTensor:
         """Return a contiguous copy of the tensor.
