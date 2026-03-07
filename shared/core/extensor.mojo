@@ -830,11 +830,19 @@ struct ExTensor(
         if len(self._shape) != 1:
             raise Error("Single slice only supported for 1D tensors")
 
-        # Handle slice parameters
+        # Handle slice parameters — extract step first so defaults depend on sign
         var size = self._shape[0]
-        var start = slice.start.or_else(0)
-        var end = slice.end.or_else(size)
         var step = slice.step.or_else(1)
+
+        var start: Int
+        var end: Int
+        if step < 0:
+            # Negative step: default start=last element, default end=before index 0
+            start = slice.start.or_else(size - 1)
+            end = slice.end.or_else(-size - 1)
+        else:
+            start = slice.start.or_else(0)
+            end = slice.end.or_else(size)
 
         # Normalize negative indices
         if start < 0:
@@ -842,22 +850,15 @@ struct ExTensor(
         if end < 0:
             end = size + end
 
-        # Clamp to valid range
-        start = max(0, min(start, size))
-        end = max(0, min(end, size))
-
         # Handle negative step (reverse)
         var result_size: Int
         if step < 0:
-            # For reverse slicing
             var neg_step = -step
-            # Swap start and end, adjust for reverse indexing
-            var temp = start
-            start = end if end < size - 1 else size - 1
-            end = temp
-
-            # Calculate size
-            result_size = max(0, ceildiv(start - end + 1, neg_step))
+            # Clamp start to [0, size-1], end to [-1, size-1]
+            start = max(0, min(start, size - 1))
+            end = max(-1, min(end, size - 1))
+            # No swap: iterate src_idx = start - i * neg_step while src_idx > end
+            result_size = max(0, ceildiv(start - end, neg_step))
 
             # Create result tensor with shape
             var shape = List[Int]()
@@ -872,14 +873,16 @@ struct ExTensor(
 
             for i in range(result_size):
                 var src_idx = start - i * neg_step
-                if src_idx >= 0 and src_idx < size:
-                    var src_offset = src_idx * dtype_size
-                    var dst_offset = i * dtype_size
-                    for b in range(dtype_size):
-                        dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
+                var src_offset = src_idx * dtype_size
+                var dst_offset = i * dtype_size
+                for b in range(dtype_size):
+                    dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
 
             return result^
         else:
+            # Clamp forward slice to [0, size]
+            start = max(0, min(start, size))
+            end = max(0, min(end, size))
             # Normal forward slice
             result_size = max(0, ceildiv(end - start, step))
 
