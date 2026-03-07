@@ -6,6 +6,8 @@ return types which are not fully supported in the current Mojo version.
 This module defines:
 - GradientPair: For binary operations returning 2 gradients.
 - GradientTriple: For ternary operations returning 3 gradients.
+- Conv2dNoBiasGradient: For conv2d_no_bias_backward with semantic field names.
+- DepthwiseConv2dNoBiasGradient: For depthwise_conv2d_no_bias_backward.
 """
 
 from shared.core.extensor import ExTensor
@@ -140,3 +142,71 @@ struct GradientQuad(Copyable, Movable):
         self.grad_b = grad_b^
         self.grad_c = grad_c^
         self.grad_d = grad_d^
+
+
+struct Conv2dNoBiasGradient(Copyable, Movable):
+    """Container for gradients from conv2d_no_bias_backward.
+
+    Uses the same field naming convention as GradientTriple to align with
+    conv2d_backward, making no-bias and biased conv backward results consistent.
+
+    Attributes:
+        grad_input: Gradient with respect to input activation.
+        grad_weights: Gradient with respect to convolution kernel.
+
+    Examples:
+        ```mojo
+        var grads = conv2d_no_bias_backward(grad_output, x, kernel)
+        var grad_input = grads.grad_input
+        var grad_weights = grads.grad_weights
+        ```
+    """
+
+    var grad_input: ExTensor
+    """Gradient with respect to input activation."""
+    var grad_weights: ExTensor
+    """Gradient with respect to convolution kernel."""
+
+    fn __init__(out self, var grad_input: ExTensor, var grad_weights: ExTensor):
+        """Initialize conv2d no-bias gradient.
+
+        Args:
+            grad_input: Gradient tensor for input.
+            grad_weights: Gradient tensor for kernel weights.
+        """
+        self.grad_input = grad_input^
+        self.grad_weights = grad_weights^
+
+
+struct DepthwiseConv2dNoBiasGradient(Copyable, Movable):
+    """Container for gradients from depthwise_conv2d_no_bias_backward.
+
+    Uses the same field naming convention as GradientTriple to align with
+    depthwise_conv2d_backward.
+
+    Attributes:
+        grad_input: Gradient with respect to input activation.
+        grad_weights: Gradient with respect to depthwise convolution kernel.
+
+    Examples:
+        ```mojo
+        var grads = depthwise_conv2d_no_bias_backward(grad_output, x, kernel)
+        var grad_input = grads.grad_input
+        var grad_weights = grads.grad_weights
+        ```
+    """
+
+    var grad_input: ExTensor
+    """Gradient with respect to input activation."""
+    var grad_weights: ExTensor
+    """Gradient with respect to depthwise convolution kernel."""
+
+    fn __init__(out self, var grad_input: ExTensor, var grad_weights: ExTensor):
+        """Initialize depthwise conv2d no-bias gradient.
+
+        Args:
+            grad_input: Gradient tensor for input.
+            grad_weights: Gradient tensor for kernel weights.
+        """
+        self.grad_input = grad_input^
+        self.grad_weights = grad_weights^

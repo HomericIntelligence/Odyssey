@@ -752,8 +752,8 @@ fn test_conv2d_no_bias_backward_shapes() raises:
     var result = conv2d_no_bias_backward(
         grad_output, x, kernel, stride, padding
     )
-    var grad_input = result.grad_a
-    var grad_kernel = result.grad_b
+    var grad_input = result.grad_input
+    var grad_kernel = result.grad_weights
 
     # grad_input should match input shape
     assert_equal(grad_input.shape()[0], batch)
