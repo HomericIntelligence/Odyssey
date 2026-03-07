@@ -10,7 +10,6 @@ These scripts automate repository management tasks:
 - Repository structure validation
 - Agent system utilities and validation
 - Shared utilities and validation framework
-- Migration utilities
 
 **Note**: Planning is now done directly through GitHub issues.
 See `.claude/shared/github-issue-workflow.md` for the workflow.
@@ -21,6 +20,21 @@ The following scripts are deprecated and kept for historical reference:
 
 - `create_issues.py` - Was used with notes/plan/ directory (removed)
 - `regenerate_github_issues.py` - Was used with notes/plan/ directory (removed)
+
+### Removed Scripts
+
+The following one-time scripts were removed in #3337 (stale audit follow-up to #3148):
+
+- `execute_backward_tests_merge.py` - One-time branch merge workflow; backward-tests branch already merged
+- `merge_backward_tests.py` - Duplicate approach to merge backward-tests branch
+- `bisect_heap_test.py` - Git bisect artifact for heap corruption investigation (ADR-009); issue resolved
+- `run_bisect_heap.sh` - Shell wrapper for `bisect_heap_test.py`; same reasoning
+- `fix-build-errors.py` - One-time autonomous repair script; targeted build errors already fixed
+- `batch_planning_docs.py` - One-time batch doc generation; planning now via GitHub issues directly
+- `add_delegation_to_agents.py` - One-time bulk agent attribute addition; completed
+- `add_examples_to_agents.py` - One-time bulk example injection into agents; completed
+- `document_foundation_issues.py` - One-time script to document foundation issues; completed
+- `migrate_odyssey_skills.py` - One-time cross-project skill migration to ProjectMnemosyne; completed
 
 ## Directory Structure
 
