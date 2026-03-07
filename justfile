@@ -426,6 +426,17 @@ pre-commit:
 pre-commit-all:
     @pre-commit run --all-files
 
+# Time pre-commit hooks on all files (for local benchmarking)
+bench-precommit:
+    #!/usr/bin/env bash
+    set -e
+    START=$SECONDS
+    pixi run pre-commit run --all-files
+    ELAPSED=$((SECONDS - START))
+    echo ""
+    echo "Hook runtime: ${ELAPSED}s"
+    python3 scripts/bench_precommit.py --elapsed "$ELAPSED" --status passed
+
 # CI: Full validation (build + package + test)
 validate:
     @echo "Validating configuration..."

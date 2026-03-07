@@ -1,0 +1,76 @@
+name: Pre-commit Hook Benchmark
+
+# Measure pre-commit hook runtime to catch performance regressions.
+# Non-blocking: emits a warning annotation but never fails CI.
+
+on:
+  workflow_dispatch:
+
+  push:
+    paths:
+      - .pre-commit-config.yaml
+      - pyproject.toml
+
+  pull_request:
+    paths:
+      - .pre-commit-config.yaml
+      - pyproject.toml
+
+permissions:
+  contents: read
+
+jobs:
+  precommit-benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Install pre-commit
+        run: |
+          pixi run pip install pre-commit
+
+      - name: Cache pre-commit environments
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: |
+            pre-commit-
+
+      - name: Count tracked files
+        id: count-files
+        run: |
+          FILE_COUNT=$(git ls-files | wc -l | tr -d ' ')
+          echo "file_count=$FILE_COUNT" >> "$GITHUB_OUTPUT"
+
+      - name: Time pre-commit hooks
+        id: time-hooks
+        run: |
+          START=$SECONDS
+          pixi run pre-commit run --all-files --show-diff-on-failure
+          HOOK_EXIT=$?
+          ELAPSED=$((SECONDS - START))
+          echo "elapsed=$ELAPSED" >> "$GITHUB_OUTPUT"
+          if [ "$HOOK_EXIT" -eq 0 ]; then
+            echo "status=passed" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=failed" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Write benchmark summary
+        if: always()
+        env:
+          ELAPSED: ${{ steps.time-hooks.outputs.elapsed }}
+          FILE_COUNT: ${{ steps.count-files.outputs.file_count }}
+          HOOK_STATUS: ${{ steps.time-hooks.outputs.status }}
+        run: |
+          python3 scripts/bench_precommit.py \
+            --elapsed "${ELAPSED:-0}" \
+            --files "${FILE_COUNT:-0}" \
+            --status "${HOOK_STATUS:-unknown}"
