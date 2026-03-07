@@ -301,6 +301,32 @@ If a hook itself is broken (not your code):
 - Document reason in commit message
 - Create issue to fix the broken hook
 
+#### Known Hook Incompatibility: mojo-format on Debian Buster / glibc < 2.32
+
+The `mojo-format` hook requires **glibc 2.32+** (Debian 12 / Ubuntu 22.04 or newer).
+On Debian 10 (Buster) or other hosts with glibc < 2.32, the hook automatically detects
+the incompatibility and **skips with a warning** instead of failing your commit.
+
+You will see output like:
+
+```text
+WARNING: mojo-format skipped: host glibc is incompatible with Mojo binary.
+         Mojo requires GLIBC_2.32+. Your system has an older glibc.
+         Files were NOT reformatted. Run inside Docker for full formatting.
+         See docs/dev/mojo-glibc-compatibility.md for details.
+```
+
+CI always runs on Ubuntu 24.04 (glibc 2.39) and enforces formatting before merge, so your
+code will still be format-checked. To format locally on an incompatible host, use Docker:
+
+```bash
+just shell
+# Inside container:
+pixi run mojo format path/to/file.mojo
+```
+
+See [docs/dev/mojo-glibc-compatibility.md](docs/dev/mojo-glibc-compatibility.md) for full details.
+
 ## Pull Request Process
 
 ### Before You Start
