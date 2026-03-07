@@ -1112,7 +1112,7 @@ fn main() raises:
     test_conv2d_batched()
     print("✓ test_conv2d_batched")
 
-    # Backward pass tests (Conv2dBackwardResult is GradientTriple which is Copyable)
+    # Backward pass tests (return type is GradientTriple which is Copyable)
     test_conv2d_backward_shapes()
     print("✓ test_conv2d_backward_shapes")
 
