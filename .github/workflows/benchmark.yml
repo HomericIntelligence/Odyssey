@@ -93,7 +93,25 @@ jobs:
               pixi run python "$SUITE_PATH/run_benchmark.py" --output benchmark-results/${{ matrix.benchmark-suite }}.json
             elif [ -f "$SUITE_PATH/run_benchmark.mojo" ]; then
               echo "Running Mojo benchmark..."
-              pixi run mojo -I . "$SUITE_PATH/run_benchmark.mojo" --output benchmark-results/${{ matrix.benchmark-suite }}.json
+              attempt=0
+              delay=1
+              bench_ok=0
+              while [ $attempt -lt 3 ]; do
+                attempt=$((attempt + 1))
+                if pixi run mojo -I . "$SUITE_PATH/run_benchmark.mojo" --output benchmark-results/${{ matrix.benchmark-suite }}.json; then
+                  bench_ok=1
+                  break
+                fi
+                if [ $attempt -lt 3 ]; then
+                  echo "⚠️  Attempt $attempt failed, retrying in ${delay}s..."
+                  sleep $delay
+                  delay=$((delay * 2))
+                fi
+              done
+              if [ $bench_ok -eq 0 ]; then
+                echo "❌ Benchmark failed after 3 attempts"
+                exit 1
+              fi
             else
               echo "⚠️  No benchmark runner found in $SUITE_PATH"
               echo '{"suite": "${{ matrix.benchmark-suite }}", "status": "not_implemented"}' > benchmark-results/${{ matrix.benchmark-suite }}.json

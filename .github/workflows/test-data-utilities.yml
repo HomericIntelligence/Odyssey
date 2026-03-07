@@ -26,6 +26,9 @@ jobs:
       - name: Set up Pixi
         uses: ./.github/actions/setup-pixi
 
+      - name: Install Just
+        uses: extractions/setup-just@v3
+
       - name: Verify Mojo installation
         run: |
           pixi run mojo --version
@@ -42,47 +45,27 @@ jobs:
       - name: Run Dataset Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          echo "Running base dataset tests..."
-          if [ -f "tests/shared/data/datasets/test_base_dataset.mojo" ]; then
-            pixi run mojo -I . tests/shared/data/datasets/test_base_dataset.mojo
-          fi
-
-          echo "Running tensor dataset tests..."
-          if [ -f "tests/shared/data/datasets/test_tensor_dataset.mojo" ]; then
-            pixi run mojo -I . tests/shared/data/datasets/test_tensor_dataset.mojo
-          fi
+          just test-group "tests/shared/data/datasets" "test_base_dataset.mojo test_tensor_dataset.mojo"
 
       - name: Run Loader Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          echo "Running base loader tests..."
-          if [ -f "tests/shared/data/loaders/test_base_loader.mojo" ]; then
-            pixi run mojo -I . tests/shared/data/loaders/test_base_loader.mojo
-          fi
+          just test-group "tests/shared/data/loaders" "test_base_loader.mojo"
 
       - name: Run Transform Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          echo "Running transform pipeline tests..."
-          if [ -f "tests/shared/data/transforms/test_pipeline.mojo" ]; then
-            pixi run mojo -I . tests/shared/data/transforms/test_pipeline.mojo
-          fi
+          just test-group "tests/shared/data/transforms" "test_pipeline.mojo"
 
       - name: Run Sampler Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          echo "Running sequential sampler tests..."
-          if [ -f "tests/shared/data/samplers/test_sequential.mojo" ]; then
-            pixi run mojo -I . tests/shared/data/samplers/test_sequential.mojo
-          fi
+          just test-group "tests/shared/data/samplers" "test_sequential.mojo"
 
       - name: Run All Data Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          echo "Running complete data utilities test suite..."
-          if [ -f "tests/shared/data/run_all_tests.mojo" ]; then
-            pixi run mojo -I . tests/shared/data/run_all_tests.mojo
-          fi
+          just test-group "tests/shared/data" "run_all_tests.mojo"
 
       - name: Report Results
         if: always()

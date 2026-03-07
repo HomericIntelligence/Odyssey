@@ -111,11 +111,26 @@ jobs:
 
           # Build the shared package (compiles all modules properly with relative imports)
           export REPO_ROOT=$(pwd)
-          if pixi run mojo package -I "$REPO_ROOT" shared -o /tmp/shared.mojopkg 2>&1; then
+          attempt=0
+          delay=1
+          compiled=0
+          while [ $attempt -lt 3 ]; do
+            attempt=$((attempt + 1))
+            if pixi run mojo package -I "$REPO_ROOT" shared -o /tmp/shared.mojopkg 2>&1; then
+              compiled=1
+              break
+            fi
+            if [ $attempt -lt 3 ]; then
+              echo "⚠️  Attempt $attempt failed, retrying in ${delay}s..."
+              sleep $delay
+              delay=$((delay * 2))
+            fi
+          done
+          if [ $compiled -eq 1 ]; then
             echo "✅ PASSED: shared package compiled successfully"
             echo "compilation_status=success" >> $GITHUB_ENV
           else
-            echo "❌ FAILED: shared package compilation"
+            echo "❌ FAILED: shared package compilation after 3 attempts"
             echo ""
             echo "Fix compilation errors before merging to main."
             echo "compilation_status=failed" >> $GITHUB_ENV
