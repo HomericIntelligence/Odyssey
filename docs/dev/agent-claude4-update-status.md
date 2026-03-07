@@ -66,19 +66,11 @@ These serve as templates for their respective categories.
 - `.claude/agents/security-specialist.md`
 - `.claude/agents/numerical-stability-specialist.md`
 
-**Review Specialists (10):**
+**Review Specialists (4):**
 
-- `.claude/agents/algorithm-review-specialist.md`
-- `.claude/agents/implementation-review-specialist.md`
-- `.claude/agents/architecture-review-specialist.md`
-- `.claude/agents/data-engineering-review-specialist.md`
-- `.claude/agents/dependency-review-specialist.md`
-- `.claude/agents/documentation-review-specialist.md`
+- `.claude/agents/general-review-specialist.md`
 - `.claude/agents/mojo-language-review-specialist.md`
-- `.claude/agents/paper-review-specialist.md`
-- `.claude/agents/performance-review-specialist.md`
-- `.claude/agents/research-review-specialist.md`
-- `.claude/agents/safety-review-specialist.md`
+- `.claude/agents/security-review-specialist.md`
 - `.claude/agents/test-review-specialist.md`
 
 **Pattern**: Review specialists rarely need sub-agents (they ARE the specialists)
