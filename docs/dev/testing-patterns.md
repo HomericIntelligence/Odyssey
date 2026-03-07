@@ -302,6 +302,68 @@ Different operations need different tolerances due to floating-point precision:
 # - Linear: rtol=1e-3, atol=1e-4
 ```
 
+### Warning: Normalization Backward — Never Use `grad_output=ones`
+
+**Applies to**: `batch_norm2d_backward`, `layer_norm_backward`, and any normalization layer
+that computes normalized inputs `x_norm = (x - mean) / std`.
+
+**The problem**: Passing `grad_output=ones` into a normalization backward pass produces
+analytically-zero gradients for `dL/dx`. This is not a bug — it is a mathematical identity.
+The zero result will match numerical finite differences (which also converge to zero), so the
+gradient check passes trivially without actually validating anything.
+
+**Mathematical explanation**: Batch normalization normalizes each channel across the spatial
+and batch dimensions. By construction, the normalized values sum to zero:
+
+```text
+x_norm = (x - mean(x)) / std(x)
+=> sum(x_norm) = 0   (always, by definition of mean-centering)
+```
+
+The gradient of the loss with respect to the input contains a term proportional to
+`sum(grad_output * x_norm)`. When `grad_output = ones`, this term is `sum(x_norm) = 0`,
+which cancels other gradient terms and yields `dL/dx = 0` for every element — a false result
+that hides implementation errors entirely.
+
+**Failing pattern (do not use)**:
+
+```mojo
+# ❌ WRONG — grad_output=ones causes sum(x_norm)=0 cancellation
+var grad_output = ones_like(output)
+var result = batch_norm2d_backward(grad_output, x, gamma, ...)
+var grad_input = result[0]
+# grad_input is all zeros — gradient check passes trivially, verifies nothing
+```
+
+**Correct pattern** — use a non-uniform `grad_output` and a scalar-loss `forward_for_grad`
+closure that matches it (canonical implementation: `test_normalization.mojo:316-360`):
+
+```mojo
+# ✅ CORRECT — non-uniform grad_output breaks the symmetry
+var grad_output = zeros_like(output)
+for i in range(output.numel()):
+    # Alternating pattern avoids accidental symmetry
+    var val = Float32(i % 4) * Float32(0.25) - Float32(0.3)
+    grad_output._data.bitcast[Float32]()[i] = val
+
+# forward_for_grad computes the weighted scalar loss sum(output * grad_output),
+# so numerical finite differences match what backward should return.
+fn forward_for_grad(inp: ExTensor) raises -> ExTensor:
+    var result = batch_norm2d(inp, gamma, beta, running_mean, running_var,
+                              training=True, epsilon=1e-5)
+    var out = result[0]
+    var weighted = multiply(out, grad_output)
+    var scalar = weighted
+    while scalar.dim() > 0:
+        scalar = reduce_sum(scalar, axis=0, keepdims=False)
+    return scalar
+
+var numerical_grad = compute_numerical_gradient(forward_for_grad, x, epsilon=1e-3)
+# Now compare numerical_grad against the analytical grad_input — a real test
+```
+
+**Rule**: For normalization layers, never use `grad_output=ones` in backward gradient checks.
+
 ---
 
 ## Pattern 4: Model Testing Pattern
