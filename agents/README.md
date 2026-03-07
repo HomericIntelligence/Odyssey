@@ -306,7 +306,7 @@ model: sonnet
 
 ## Operational Agents
 
-The operational agent configurations are in `.claude/agents/` (42 agents total):
+The operational agent configurations are in `.claude/agents/` (31 agents total):
 
 ### Level 0: Meta-Orchestrator (1 agent)
 
@@ -333,7 +333,7 @@ The operational agent configurations are in `.claude/agents/` (42 agents total):
 
 - `code-review-orchestrator.md` - Routes PR changes to 13 specialist reviewers, consolidates feedback
 
-### Level 3: Component Specialists & Review Specialists (22 agents)
+### Level 3: Component Specialists & Review Specialists (13 agents)
 
 **Implementation/Execution Specialists:**
 
@@ -347,34 +347,23 @@ The operational agent configurations are in `.claude/agents/` (42 agents total):
 - `mojo-syntax-validator.md` - Validates Mojo syntax and patterns
 - `ci-failure-analyzer.md` - Analyzes CI failure logs and identifies root causes
 
-**Code Review Specialists (13 agents):**
+**Code Review Specialists:**
 
-- `implementation-review-specialist.md` - Code correctness, logic, maintainability
-- `documentation-review-specialist.md` - Markdown, comments, docstrings, API docs
+- `general-review-specialist.md` - Code correctness, logic, maintainability
 - `test-review-specialist.md` - Test coverage, quality, assertions
 - `security-review-specialist.md` - Vulnerabilities, OWASP top 10, input validation
-- `safety-review-specialist.md` - Memory safety, type safety, undefined behavior
 - `mojo-language-review-specialist.md` - Ownership, SIMD, fn vs def, traits
-- `performance-review-specialist.md` - Algorithmic complexity, cache efficiency
-- `algorithm-review-specialist.md` - ML algorithm correctness, numerical stability
-- `architecture-review-specialist.md` - System design, modularity, patterns
-- `data-engineering-review-specialist.md` - Data pipelines, preprocessing
-- `paper-review-specialist.md` - Academic writing, citations
-- `research-review-specialist.md` - Experimental design, reproducibility
-- `dependency-review-specialist.md` - Version management, licenses
 
-### Level 4: Implementation Engineers (6 agents)
+### Level 4: Implementation Engineers (5 agents)
 
-- `senior-implementation-engineer.md` - Complex functions, performance-critical code, SIMD optimization
 - `implementation-engineer.md` - Standard functions and classes, following specifications
 - `test-engineer.md` - Unit and integration tests, test fixtures, test maintenance
 - `documentation-engineer.md` - Docstrings, code examples, README updates
 - `performance-engineer.md` - Benchmark code, profiling, optimization implementation
 - `log-analyzer.md` - Parses build, test, and execution logs to extract diagnostic information
 
-### Level 5: Junior Engineers (3 agents)
+### Level 5: Junior Engineers (2 agents)
 
-- `junior-implementation-engineer.md` - Simple functions, boilerplate generation, code formatting
 - `junior-test-engineer.md` - Simple tests, test boilerplate, test execution
 - `junior-documentation-engineer.md` - Docstring templates, formatting, changelog entries
 
