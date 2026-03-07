@@ -309,6 +309,31 @@ fn test_no_private_exports() raises:
 
 
 # ============================================================================
+# Transform Re-export Tests (Issue #3220)
+# ============================================================================
+
+
+fn test_normalize_compose_from_shared_data() raises:
+    """Test that Normalize and Compose are accessible via shared.data."""
+    from shared.data import Normalize, Compose
+
+    # Verify Normalize can be instantiated
+    var normalizer = Normalize(Float64(0.5), Float64(0.5))
+
+    print("✓ Normalize and Compose importable from shared.data")
+
+
+fn test_normalize_compose_from_shared() raises:
+    """Test that Normalize and Compose are accessible at shared package level."""
+    from shared import Normalize, Compose
+
+    # Verify Normalize can be instantiated
+    var normalizer = Normalize(Float64(0.1307), Float64(0.3081))
+
+    print("✓ Normalize and Compose importable from shared")
+
+
+# ============================================================================
 # Backward Compatibility Tests
 # ============================================================================
 
@@ -617,6 +642,11 @@ fn main() raises:
     test_tensor_operations_safety()
     test_error_propagation()
     test_integration_stress()
+
+    # Transform re-exports (Issue #3220)
+    print("\nTesting Transform Re-exports...")
+    test_normalize_compose_from_shared_data()
+    test_normalize_compose_from_shared()
 
     # API stability
     print("\nTesting API Stability...")
