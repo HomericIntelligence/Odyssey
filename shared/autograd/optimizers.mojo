@@ -560,6 +560,301 @@ struct Adam(Copyable, Movable, Optimizer):
 
 
 @fieldwise_init
+struct AdamW(Copyable, Movable, Optimizer):
+    """AdamW (Adam with Decoupled Weight Decay) optimizer.
+
+        Implements Adam with decoupled weight decay regularization:
+            m_t = β₁ * m_{t-1} + (1 - β₁) * g_t           # First moment (momentum)
+            v_t = β₂ * v_{t-1} + (1 - β₂) * g_t²          # Second moment (variance)
+            m̂_t = m_t / (1 - β₁^t)                        # Bias correction
+            v̂_t = v_t / (1 - β₂^t)                        # Bias correction
+            θ_t = θ_{t-1} - α * (m̂_t / (√v̂_t + ε) + λ * θ_{t-1})  # Update with weight decay
+
+        Unlike Adam's L2 regularization (which adds weight decay to the gradient),
+        AdamW applies weight decay directly to the parameters (decoupled), leading
+        to better regularization behavior.
+
+        Attributes:
+            learning_rate: Step size for parameter updates (default: 0.001).
+            beta1: Decay rate for first moment moving average (default: 0.9).
+            beta2: Decay rate for second moment moving average (default: 0.999).
+            epsilon: Small constant for numerical stability (default: 1e-8).
+            weight_decay: Decoupled weight decay coefficient (default: 0.01).
+            t: Current step counter (incremented on each step).
+            m_buffers: First moment buffers per parameter ID.
+            v_buffers: Second moment buffers per parameter ID.
+            has_buffer: Flags indicating whether moment buffers exist per parameter ID.
+
+    Examples:
+            # Basic AdamW optimizer
+            var optimizer = AdamW(learning_rate=0.001)
+
+            # Custom parameters
+            var optimizer = AdamW(
+                learning_rate=0.001,
+                beta1=0.9,
+                beta2=0.999,
+                epsilon=1e-8,
+                weight_decay=0.01
+            )
+
+            # Training step
+            loss.backward(tape)
+            optimizer.step(parameters, tape)
+            optimizer.zero_grad(tape)
+    """
+
+    var learning_rate: Float64
+    """Step size for parameter updates."""
+    var beta1: Float64
+    """Decay rate for first moment moving average."""
+    var beta2: Float64
+    """Decay rate for second moment moving average."""
+    var epsilon: Float64
+    """Small constant for numerical stability."""
+    var weight_decay: Float64
+    """Decoupled weight decay coefficient."""
+    var t: Int
+    """Current step counter."""
+    var m_buffers: List[ExTensor]
+    """First moment buffers for each parameter ID."""
+    var v_buffers: List[ExTensor]
+    """Second moment buffers for each parameter ID."""
+    var has_buffer: List[Bool]
+    """Flags indicating whether moment buffers exist for each parameter ID."""
+
+    fn __init__(
+        out self,
+        learning_rate: Float64 = 0.001,
+        beta1: Float64 = 0.9,
+        beta2: Float64 = 0.999,
+        epsilon: Float64 = 1e-8,
+        weight_decay: Float64 = 0.01,
+    ):
+        """Initialize AdamW optimizer.
+
+        Args:
+            learning_rate: Step size for gradient descent (α in literature).
+                          Typical range: [1e-4, 1e-2].
+            beta1: Decay rate for first moment (momentum) coefficient.
+                  Typical value: 0.9.
+            beta2: Decay rate for second moment (variance) coefficient.
+                  Typical value: 0.999.
+            epsilon: Small constant for numerical stability when dividing by sqrt(v_t).
+                    Typical value: 1e-8.
+            weight_decay: Decoupled weight decay coefficient.
+                         Typical value: 0.01 (stronger regularization than Adam's L2).
+
+        Examples:
+            var opt = AdamW()  # Use defaults
+            var opt = AdamW(learning_rate=0.001)
+            var opt = AdamW(learning_rate=0.001, weight_decay=0.01)
+        """
+        self.learning_rate = learning_rate
+        self.beta1 = beta1
+        self.beta2 = beta2
+        self.epsilon = epsilon
+        self.weight_decay = weight_decay
+        self.t = 0
+        self.m_buffers = List[ExTensor]()
+        self.v_buffers = List[ExTensor]()
+        self.has_buffer = List[Bool]()
+
+    fn step(
+        mut self, mut parameters: List[Variable], mut tape: GradientTape
+    ) raises:
+        """Update parameters using AdamW algorithm.
+
+        Performs one step of AdamW optimization. Applies standard Adam update
+        followed by decoupled weight decay directly to parameters.
+
+        Algorithm:
+            1. Increment step counter: `t = t + 1`
+            2. For each parameter with gradient:
+                - Get gradient `g_t`
+                - Update first moment: `m_t = β₁ * m_{t-1} + (1 - β₁) * g_t`
+                - Update second moment: `v_t = β₂ * v_{t-1} + (1 - β₂) * g_t²`
+                - Compute bias corrections: `m̂_t = m_t / (1 - β₁^t), v̂_t = v_t / (1 - β₂^t)`
+                - Update with weight decay: `θ_t = θ_{t-1} - α * (m̂_t / (√v̂_t + ε) + λ * θ_{t-1})`
+
+        Args:
+            parameters: List of Variables to update (model parameters).
+            tape: The gradient tape containing computed gradients.
+
+        Note:
+            Weight decay is applied directly to parameters (decoupled), not
+            folded into the gradient. This is the key distinction from Adam+L2.
+
+        Raises:
+            Error: Any parameter has incompatible gradient shape.
+
+        Examples:
+        ```
+                # After backward pass
+                loss.backward(tape)
+
+                # Update all parameters
+                optimizer.step(model.parameters(), tape)
+        ```
+        """
+        # Increment step counter
+        self.t += 1
+        var t_float = Float64(self.t)
+
+        # Compute bias correction terms
+        var bias_correction1 = 1.0 - pow(self.beta1, t_float)
+        var bias_correction2 = 1.0 - pow(self.beta2, t_float)
+
+        for i in range(len(parameters)):
+            # Skip parameters that don't require gradients
+            if not parameters[i].requires_grad:
+                continue
+
+            # Skip if no gradient has been computed
+            var param_id = parameters[i].id
+            if not tape.registry.has_gradient(param_id):
+                continue
+
+            # Get the gradient for this parameter
+            var grad = tape.registry.get_grad(param_id)
+
+            # Ensure buffer lists are large enough for this parameter ID
+            while len(self.m_buffers) <= param_id:
+                var placeholder_shape = List[Int]()
+                placeholder_shape.append(1)
+                self.m_buffers.append(
+                    ExTensor(placeholder_shape, DType.float32)
+                )
+                self.v_buffers.append(
+                    ExTensor(placeholder_shape, DType.float32)
+                )
+                self.has_buffer.append(False)
+
+            # Initialize moment buffers if they don't exist
+            if not self.has_buffer[param_id]:
+                var m = ExTensor(grad.shape(), grad.dtype())
+                for j in range(m.numel()):
+                    m._set_float64(j, 0.0)
+                self.m_buffers[param_id] = m^
+
+                var v = ExTensor(grad.shape(), grad.dtype())
+                for j in range(v.numel()):
+                    v._set_float64(j, 0.0)
+                self.v_buffers[param_id] = v^
+
+                self.has_buffer[param_id] = True
+
+            # Get current moment buffers
+            var m = self.m_buffers[param_id]
+            var v = self.v_buffers[param_id]
+
+            # Update biased first moment estimate: m_t = β₁ * m_{t-1} + (1 - β₁) * g_t
+            var m_new = ExTensor(grad.shape(), grad.dtype())
+            for j in range(grad.numel()):
+                var m_prev = m._get_float64(j)
+                var grad_val = grad._get_float64(j)
+                var m_val = self.beta1 * m_prev + (1.0 - self.beta1) * grad_val
+                m_new._set_float64(j, m_val)
+            self.m_buffers[param_id] = m_new^
+
+            # Update biased second moment estimate: v_t = β₂ * v_{t-1} + (1 - β₂) * g_t²
+            var v_new = ExTensor(grad.shape(), grad.dtype())
+            for j in range(grad.numel()):
+                var v_prev = v._get_float64(j)
+                var grad_val = grad._get_float64(j)
+                var v_val = (
+                    self.beta2 * v_prev
+                    + (1.0 - self.beta2) * grad_val * grad_val
+                )
+                v_new._set_float64(j, v_val)
+            self.v_buffers[param_id] = v_new^
+
+            # Get updated moment buffers for bias correction
+            var m_updated = self.m_buffers[param_id]
+            var v_updated = self.v_buffers[param_id]
+
+            # Compute bias-corrected moment estimates
+            var m_hat = multiply_scalar(m_updated, 1.0 / bias_correction1)
+            var v_hat = multiply_scalar(v_updated, 1.0 / bias_correction2)
+
+            # Compute √v̂_t
+            var v_hat_sqrt = ExTensor(v_hat.shape(), v_hat.dtype())
+            for j in range(v_hat.numel()):
+                var v_val = v_hat._get_float64(j)
+                var sqrt_v = v_val**0.5
+                v_hat_sqrt._set_float64(j, sqrt_v)
+
+            # Compute √v̂_t + ε
+            var denominator = add_scalar(v_hat_sqrt, self.epsilon)
+
+            # Compute m̂_t / (√v̂_t + ε)
+            var adaptive_grad = divide(m_hat, denominator)
+
+            # Scale by learning rate: α * m̂_t / (√v̂_t + ε)
+            var adam_update = multiply_scalar(adaptive_grad, self.learning_rate)
+
+            # Apply decoupled weight decay: α * λ * θ_{t-1}
+            # θ_t = θ_{t-1} - α * m̂_t / (√v̂_t + ε) - α * λ * θ_{t-1}
+            var new_data = ExTensor(
+                parameters[i].data.shape(), parameters[i].data.dtype()
+            )
+            for j in range(parameters[i].data.numel()):
+                var param_val = parameters[i].data._get_float64(j)
+                var update_val = adam_update._get_float64(j)
+                var decay_val = self.learning_rate * self.weight_decay * param_val
+                new_data._set_float64(j, param_val - update_val - decay_val)
+            parameters[i].data = new_data^
+
+    fn zero_grad(self, mut tape: GradientTape):
+        """Reset all gradients in the tape.
+
+        Should be called after each optimizer step to clear gradients before
+        the next backward pass.
+
+        Note:
+            This clears gradients but preserves the internal momentum and variance
+            buffers, which are maintained across steps.
+
+        Args:
+            tape: The gradient tape to clear.
+
+        Examples:
+            # Clear gradients before next iteration
+            optimizer.zero_grad(tape)
+        """
+        zero_grad_impl(tape)
+
+    fn get_lr(self) -> Float64:
+        """Get the current learning rate.
+
+        Returns:
+            Current learning rate value.
+
+        Examples:
+            var current_lr = optimizer.get_lr()
+            print("Current learning rate:", current_lr)
+        """
+        return self.learning_rate
+
+    fn set_lr(mut self, lr: Float64) raises:
+        """Set the learning rate.
+
+        Args:
+            lr: New learning rate value (must be positive).
+
+        Raises:
+            Error: If lr is non-positive.
+
+        Examples:
+            # Learning rate decay
+            if epoch == 30:
+                optimizer.set_lr(optimizer.get_lr() * 0.1)
+        """
+        validate_learning_rate(lr)
+        self.learning_rate = lr
+
+
+@fieldwise_init
 struct AdaGrad(Copyable, Movable, Optimizer):
     """AdaGrad (Adaptive Gradient) optimizer.
 
