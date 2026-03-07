@@ -24,6 +24,17 @@ repos:
         files: ^(benchmarks|examples|papers|scripts|shared|tests)/.*\.(mojo|🔥)$
         types: [text]
 
+  # Security workflow property checks - prevents regression of gaps fixed in #3143
+  # Runs only when security workflow files are staged
+  - repo: local
+    hooks:
+      - id: check-security-workflow-no-git
+        name: Check Gitleaks has no --no-git flag
+        description: Prevent regression of #3143 - Gitleaks must not use --no-git
+        entry: 'gitleaks detect.*\-\-no\-git'
+        language: pygrep
+        files: ^\.github/workflows/security\.yml$
+
   # Security checks - bandit for accurate Python security scanning
   # Replaces naive pygrep shell=True check with AST-based analysis
   # Skips: B310 (urlopen with controlled URLs), B202 (tarfile in download scripts)

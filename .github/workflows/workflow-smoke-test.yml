@@ -1,0 +1,63 @@
+name: Workflow Smoke Tests
+
+# Fast-fail gate that validates security workflow properties without heavy setup.
+# Guards against regression of gaps fixed in #3143:
+#   - pull_request trigger present in security.yml
+#   - Semgrep step has no continue-on-error: true
+#   - Gitleaks has no --no-git flag
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/security.yml'
+      - 'tests/smoke/test_security_workflow_properties.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test-security-workflows:
+    name: Security Workflow Property Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+
+      # Fast-fail grep checks before any heavy setup
+      - name: Check pull_request trigger present
+        run: |
+          if ! grep -qP '^\s+pull_request\b' .github/workflows/security.yml; then
+            echo "ERROR: security.yml is missing pull_request trigger"
+            exit 1
+          fi
+          echo "OK: pull_request trigger present"
+
+      - name: Check Semgrep has no continue-on-error
+        run: |
+          # Extract lines around Semgrep action and check for continue-on-error
+          if grep -A20 'semgrep-action' .github/workflows/security.yml | grep -q 'continue-on-error: true'; then
+            echo "ERROR: Semgrep step has continue-on-error: true"
+            exit 1
+          fi
+          echo "OK: Semgrep step has no continue-on-error: true"
+
+      - name: Check Gitleaks has no --no-git flag
+        run: |
+          if grep -q -- '--no-git' .github/workflows/security.yml; then
+            echo "ERROR: Gitleaks uses --no-git in security.yml"
+            exit 1
+          fi
+          echo "OK: Gitleaks has no --no-git flag"
+
+      # Full pytest run for comprehensive assertions
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Run security workflow smoke tests
+        run: pixi run python -m pytest tests/smoke/test_security_workflow_properties.py -v
