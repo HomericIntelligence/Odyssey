@@ -2748,6 +2748,27 @@ struct ExTensor(
             return 0
         return self._shape[0]
 
+    fn __bool__(self) raises -> Bool:
+        """Return the boolean value of a single-element tensor.
+
+        Follows PyTorch/NumPy convention: a single-element tensor can be
+        used in boolean context. Returns True if the value is non-zero.
+
+        Returns:
+            True if the single element is non-zero, False otherwise.
+
+        Raises:
+            Error: If tensor has more than one element.
+
+        Example:
+            ```mojo
+            var x = full([], 5.0, DType.float32)
+            if x:  # True
+                print("non-zero")
+            ```
+        """
+        return self.item() != 0.0
+
     fn __int__(self) raises -> Int:
         """Convert single-element tensor to Int.
 
