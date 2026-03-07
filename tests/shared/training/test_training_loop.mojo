@@ -592,6 +592,111 @@ fn test_training_loop_property_loss_decreases_on_simple_problem() raises:
 
 
 # ============================================================================
+# DataLoader N-D Tensor Tests
+# ============================================================================
+
+from shared.training.trainer_interface import DataLoader
+
+
+fn test_dataloader_4d_batch_slicing() raises:
+    """Test DataLoader correctly slices 4D tensors (N, C, H, W).
+
+    Verifies that DataLoader.next() returns batches with all trailing
+    dimensions (C, H, W) preserved correctly for image data.
+    """
+    # Create (8, 2, 4, 4) float32 tensor simulating image data
+    var data = ones([8, 2, 4, 4], DType.float32)
+    var labels = zeros([8], DType.float32)
+    var loader = DataLoader(data^, labels^, 4)
+
+    # First batch
+    var batch1 = loader.next()
+    assert_equal(batch1.data.shape()[0], 4)
+    assert_equal(batch1.data.shape()[1], 2)
+    assert_equal(batch1.data.shape()[2], 4)
+    assert_equal(batch1.data.shape()[3], 4)
+    assert_equal(batch1.batch_size, 4)
+
+    # Second batch
+    var batch2 = loader.next()
+    assert_equal(batch2.data.shape()[0], 4)
+    assert_equal(batch2.data.shape()[1], 2)
+    assert_equal(batch2.data.shape()[2], 4)
+    assert_equal(batch2.data.shape()[3], 4)
+    assert_equal(batch2.batch_size, 4)
+
+    print("  test_dataloader_4d_batch_slicing: PASSED")
+
+
+fn test_dataloader_4d_partial_last_batch() raises:
+    """Test DataLoader handles partial last batch for 4D tensors.
+
+    With N=6 and batch_size=4, the second batch should have 2 samples
+    while preserving trailing dimensions (C, H, W).
+    """
+    var data = ones([6, 2, 4, 4], DType.float32)
+    var labels = zeros([6], DType.float32)
+    var loader = DataLoader(data^, labels^, 4)
+
+    # First full batch: shape (4, 2, 4, 4)
+    var batch1 = loader.next()
+    assert_equal(batch1.data.shape()[0], 4)
+    assert_equal(batch1.data.shape()[1], 2)
+    assert_equal(batch1.data.shape()[2], 4)
+    assert_equal(batch1.data.shape()[3], 4)
+    assert_equal(batch1.batch_size, 4)
+
+    # Partial last batch: shape (2, 2, 4, 4)
+    var batch2 = loader.next()
+    assert_equal(batch2.data.shape()[0], 2)
+    assert_equal(batch2.data.shape()[1], 2)
+    assert_equal(batch2.data.shape()[2], 4)
+    assert_equal(batch2.data.shape()[3], 4)
+    assert_equal(batch2.batch_size, 2)
+
+    print("  test_dataloader_4d_partial_last_batch: PASSED")
+
+
+fn test_dataloader_3d_batch_slicing() raises:
+    """Test DataLoader correctly slices 3D tensors (N, seq_len, features).
+
+    Verifies that DataLoader.next() works for sequence data where each
+    sample has shape (seq_len, features).
+    """
+    var data = ones([8, 10, 16], DType.float32)
+    var labels = zeros([8], DType.float32)
+    var loader = DataLoader(data^, labels^, 4)
+
+    var batch = loader.next()
+    assert_equal(batch.data.shape()[0], 4)
+    assert_equal(batch.data.shape()[1], 10)
+    assert_equal(batch.data.shape()[2], 16)
+    assert_equal(batch.batch_size, 4)
+
+    print("  test_dataloader_3d_batch_slicing: PASSED")
+
+
+fn test_dataloader_nd_shape_preserved() raises:
+    """Test that trailing dimensions are identical across all batches.
+
+    Iterates all batches of a (9, 3, 8, 8) tensor with batch_size=4
+    and asserts remaining dims (3, 8, 8) are preserved in every batch.
+    """
+    var data = ones([9, 3, 8, 8], DType.float32)
+    var labels = zeros([9], DType.float32)
+    var loader = DataLoader(data^, labels^, 4)
+
+    while loader.has_next():
+        var batch = loader.next()
+        # All batches must preserve trailing dims regardless of batch size
+        assert_equal(batch.data.shape()[1], 3)
+        assert_equal(batch.data.shape()[2], 8)
+        assert_equal(batch.data.shape()[3], 8)
+
+    print("  test_dataloader_nd_shape_preserved: PASSED")
+
+
+# ============================================================================
 # Test Main
 # ============================================================================
 
@@ -625,5 +730,11 @@ fn main() raises:
 
     print("Running property-based tests...")
     test_training_loop_property_loss_decreases_on_simple_problem()
+
+    print("Running DataLoader N-D Tensor Tests...")
+    test_dataloader_4d_batch_slicing()
+    test_dataloader_4d_partial_last_batch()
+    test_dataloader_3d_batch_slicing()
+    test_dataloader_nd_shape_preserved()
 
     print("\nAll training loop tests passed!")
