@@ -660,22 +660,23 @@ fn create_backup(filepath: String) -> Bool:
 
 
 fn remove_safely(filepath: String) -> Bool:
-    """Remove file safely (move to trash vs permanent delete).
+    """Remove file using Python os.remove() interop.
 
     Args:
             filepath: File to remove.
 
     Returns:
-            True if removed, False if error.
+            True if removed successfully, False if file doesn't exist or error.
     """
-    # NOTE (Mojo v0.26.1): Mojo v0.26.1 doesn't have os.remove() or file system operations
-    # In production, this would move file to trash/trash directory
-    # For now, this is a placeholder that simulates successful removal
     if not file_exists(filepath):
         return False
 
-    # Placeholder - would call os.remove(filepath) or move to trash
-    return True
+    try:
+        var python = Python.import_module("os")
+        python.remove(filepath)
+        return True
+    except:
+        return False
 
 
 # ============================================================================
