@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
-"""Tests for migrate_odyssey_skills.py - auxiliary subdirectory copying."""
+"""Tests for migrate_odyssey_skills.py - auxiliary subdirectory copying and path resolution."""
 
+import importlib.util
 from pathlib import Path
 from typing import Optional
 from unittest.mock import patch
 
 import pytest
-
-# Import the module under test
-import importlib.util
 
 SCRIPT_PATH = Path(__file__).parent.parent.parent / "scripts" / "migrate_odyssey_skills.py"
 
@@ -414,3 +412,89 @@ class TestMigrateSkillAuxiliaryDirs:
         # Both files should exist (merge, not overwrite)
         assert (pre_existing / "run.sh").exists()
         assert (pre_existing / "existing_file.sh").exists()
+
+
+class TestResolveMnemosyneDir:
+    """Tests for resolve_mnemosyne_dir() path resolution priority."""
+
+    def test_explicit_target_takes_priority(self, migrate_module, tmp_path: Path) -> None:
+        """--target-dir value is used even when MNEMOSYNE_DIR env var is set."""
+        env_path = str(tmp_path / "env_path")
+        explicit_path = str(tmp_path / "explicit_path")
+        with patch.dict("os.environ", {"MNEMOSYNE_DIR": env_path}):
+            result = migrate_module.resolve_mnemosyne_dir(explicit_path)
+        assert result == Path(explicit_path)
+
+    def test_env_var_used_when_no_target(self, migrate_module, tmp_path: Path) -> None:
+        """MNEMOSYNE_DIR env var is used when --target-dir is not provided."""
+        env_path = str(tmp_path / "from_env")
+        with patch.dict("os.environ", {"MNEMOSYNE_DIR": env_path}):
+            result = migrate_module.resolve_mnemosyne_dir(None)
+        assert result == Path(env_path)
+
+    def test_default_used_when_neither_set(self, migrate_module) -> None:
+        """Default /tmp/ProjectMnemosyne is used when neither arg nor env var is set."""
+        env = {k: v for k, v in __import__("os").environ.items() if k != "MNEMOSYNE_DIR"}
+        with patch.dict("os.environ", env, clear=True):
+            result = migrate_module.resolve_mnemosyne_dir(None)
+        assert result == Path("/tmp/ProjectMnemosyne")  # nosec B108
+
+    def test_empty_env_var_falls_back_to_default(self, migrate_module) -> None:
+        """An unset MNEMOSYNE_DIR env var falls back to the default."""
+        env = {k: v for k, v in __import__("os").environ.items() if k != "MNEMOSYNE_DIR"}
+        with patch.dict("os.environ", env, clear=True):
+            result = migrate_module.resolve_mnemosyne_dir(None)
+        assert result == migrate_module.DEFAULT_MNEMOSYNE_DIR
+
+
+class TestSkillAlreadyExistsWithPath:
+    """Tests for skill_already_exists() with explicit mnemosyne_skills_dir."""
+
+    def test_returns_false_when_skills_dir_missing(self, migrate_module, tmp_path: Path) -> None:
+        """Returns False (not an error) when the skills directory does not exist."""
+        nonexistent = tmp_path / "no_such_dir" / "skills"
+        assert migrate_module.skill_already_exists("my-skill", nonexistent) is False
+
+    def test_returns_true_when_skill_present(self, migrate_module, tmp_path: Path) -> None:
+        """Returns True when the skill exists under any category."""
+        skills_dir = tmp_path / "skills"
+        (skills_dir / "tooling" / "my-skill").mkdir(parents=True)
+        assert migrate_module.skill_already_exists("my-skill", skills_dir) is True
+
+    def test_returns_false_when_skill_absent(self, migrate_module, tmp_path: Path) -> None:
+        """Returns False when the skill does not exist in any category."""
+        skills_dir = tmp_path / "skills"
+        (skills_dir / "tooling").mkdir(parents=True)
+        assert migrate_module.skill_already_exists("absent-skill", skills_dir) is False
+
+
+class TestMainErrorMessage:
+    """Tests for improved error messages in main() when target dir is missing."""
+
+    def test_missing_target_dir_prints_hint(
+        self, migrate_module, tmp_path: Path, capsys: pytest.CaptureFixture
+    ) -> None:
+        """main() prints --target-dir hint when target directory does not exist."""
+        source_dir = tmp_path / "source_skills"
+        source_dir.mkdir()
+        missing_target = str(tmp_path / "nonexistent_mnemosyne")
+
+        # Call main via sys.argv patch
+        import sys
+
+        orig_argv = sys.argv
+        try:
+            sys.argv = [
+                "migrate_odyssey_skills.py",
+                "--source-dir",
+                str(source_dir),
+                "--target-dir",
+                missing_target,
+            ]
+            result = migrate_module.main()
+        finally:
+            sys.argv = orig_argv
+
+        assert result == 1
+        captured = capsys.readouterr()
+        assert "--target-dir" in captured.err or "MNEMOSYNE_DIR" in captured.err

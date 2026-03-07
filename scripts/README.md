@@ -820,6 +820,51 @@ ProjectOdyssey/
 - **Packaging**: Objectives, integration requirements, integration steps, success criteria
 - **Cleanup**: Objectives, cleanup tasks, success criteria, notes
 
+### migrate_odyssey_skills.py
+
+- **Purpose**: Migrate Odyssey2 `.claude/skills/` skill definitions to ProjectMnemosyne plugin format
+- **Complexity**: High (YAML frontmatter parsing, category mapping, directory transformation)
+- **Key Features**:
+  - Transforms SKILL.md frontmatter and body to Mnemosyne conventions
+  - Generates `.claude-plugin/plugin.json` with category, tags, and version metadata
+  - Copies auxiliary subdirectories (`scripts/`, `templates/`, `references/`, etc.)
+  - Supports `--audit` mode for cross-referencing coverage between repos
+  - Dry-run mode (`--dry-run`) to preview changes without writing files
+
+**Required Setup**
+
+Before running, you need a local clone of ProjectMnemosyne. Specify its location using one of:
+
+1. `--target-dir PATH` CLI argument (highest priority)
+2. `MNEMOSYNE_DIR` environment variable
+3. Default: `/tmp/ProjectMnemosyne`
+
+**Usage Examples**
+
+```bash
+# Clone Mnemosyne if not already present
+git clone https://github.com/<org>/ProjectMnemosyne /tmp/ProjectMnemosyne
+
+# Migrate all skills (dry run first)
+python3 scripts/migrate_odyssey_skills.py --dry-run
+
+# Migrate all skills for real
+python3 scripts/migrate_odyssey_skills.py
+
+# Use a custom Mnemosyne path
+python3 scripts/migrate_odyssey_skills.py --target-dir /path/to/ProjectMnemosyne
+
+# Or set an environment variable
+export MNEMOSYNE_DIR=/path/to/ProjectMnemosyne
+python3 scripts/migrate_odyssey_skills.py
+
+# Migrate a single skill
+python3 scripts/migrate_odyssey_skills.py --skill gh-create-pr-linked
+
+# Check coverage (audit mode)
+python3 scripts/migrate_odyssey_skills.py --audit
+```
+
 ---
 
 ## Related Documentation

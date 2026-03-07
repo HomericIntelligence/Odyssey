@@ -20,6 +20,7 @@ Target structure (ProjectMnemosyne):
 
 import argparse
 import json
+import os
 import re
 import shutil
 import sys
@@ -32,8 +33,34 @@ from typing import Optional
 # Source Odyssey2 skills directory
 ODYSSEY_SKILLS_DIR = Path("/home/mvillmow/Odyssey2/.claude/skills")
 
-# Target ProjectMnemosyne directory
-MNEMOSYNE_DIR = Path("/home/mvillmow/Odyssey2/build/ProjectMnemosyne")
+# Default target ProjectMnemosyne directory (used when --target-dir is not specified
+# and the MNEMOSYNE_DIR environment variable is not set)
+DEFAULT_MNEMOSYNE_DIR = Path("/tmp/ProjectMnemosyne")  # nosec B108
+
+
+def resolve_mnemosyne_dir(target: Optional[str]) -> Path:
+    """Resolve the ProjectMnemosyne directory path.
+
+    Priority: --target-dir CLI arg > MNEMOSYNE_DIR env var > /tmp/ProjectMnemosyne default.
+
+    Args:
+        target: Value of the --target-dir CLI argument, or None if not provided.
+
+    Returns:
+        Resolved Path to the ProjectMnemosyne root directory.
+    """
+    if target is not None:
+        return Path(target)
+    env = os.environ.get("MNEMOSYNE_DIR")
+    if env:
+        return Path(env)
+    return DEFAULT_MNEMOSYNE_DIR
+
+
+# Module-level constants kept for backwards compatibility with existing tests
+# that patch MNEMOSYNE_SKILLS_DIR directly.  main() uses resolve_mnemosyne_dir()
+# instead of these constants at runtime.
+MNEMOSYNE_DIR = DEFAULT_MNEMOSYNE_DIR
 MNEMOSYNE_SKILLS_DIR = MNEMOSYNE_DIR / "skills"
 
 # Category mapping from Odyssey categories to Mnemosyne valid categories
@@ -585,9 +612,18 @@ def find_all_skills(source_dir: Optional[Path] = None) -> list[tuple[str, Path, 
     return skills
 
 
-def skill_already_exists(skill_name: str) -> bool:
-    """Check if a skill already exists in ProjectMnemosyne."""
-    for category_dir in MNEMOSYNE_SKILLS_DIR.iterdir():
+def skill_already_exists(skill_name: str, mnemosyne_skills_dir: Optional[Path] = None) -> bool:
+    """Check if a skill already exists in ProjectMnemosyne.
+
+    Args:
+        skill_name: Name of the skill to check.
+        mnemosyne_skills_dir: Path to the Mnemosyne skills directory.
+            Defaults to the module-level MNEMOSYNE_SKILLS_DIR constant.
+    """
+    skills_dir = mnemosyne_skills_dir if mnemosyne_skills_dir is not None else MNEMOSYNE_SKILLS_DIR
+    if not skills_dir.exists():
+        return False
+    for category_dir in skills_dir.iterdir():
         if not category_dir.is_dir():
             continue
         skill_path = category_dir / skill_name
@@ -801,13 +837,13 @@ def main() -> int:
     parser.add_argument(
         "--target-dir",
         metavar="DIR",
-        default=str(MNEMOSYNE_DIR),
-        help=f"ProjectMnemosyne root directory (default: {MNEMOSYNE_DIR})",
+        default=None,
+        help=("Path to ProjectMnemosyne clone (default: $MNEMOSYNE_DIR env var or /tmp/ProjectMnemosyne)"),
     )
     args = parser.parse_args()
 
     source_dir = Path(args.source_dir)
-    target_dir = Path(args.target_dir)
+    target_dir = resolve_mnemosyne_dir(args.target_dir)
     target_skills_dir = target_dir / "skills"
 
     if not source_dir.exists():
@@ -815,7 +851,11 @@ def main() -> int:
         return 1
 
     if not target_dir.exists():
-        print(f"ERROR: ProjectMnemosyne directory not found: {target_dir}")
+        print(
+            f"ERROR: ProjectMnemosyne directory not found: {target_dir}\n"
+            f"Use --target-dir PATH or set MNEMOSYNE_DIR env var.",
+            file=sys.stderr,
+        )
         return 1
 
     all_skills = find_all_skills(source_dir=source_dir)
@@ -841,7 +881,7 @@ def main() -> int:
 
     for skill_name, skill_md_path, tier in all_skills:
         # Check if already exists
-        if not args.force and skill_already_exists(skill_name):
+        if not args.force and skill_already_exists(skill_name, target_skills_dir):
             print(f"SKIP: {skill_name} (already exists in Mnemosyne)")
             skipped += 1
             continue
