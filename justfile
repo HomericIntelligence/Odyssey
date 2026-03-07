@@ -492,8 +492,10 @@ test-group path pattern:
     done
 
     if [ -z "$test_files" ]; then
-        echo "⚠️  No test files found"
-        exit 0
+        echo "❌ ERROR: No test files found in {{path}} matching {{pattern}}"
+        echo "   This usually means the directory is empty or was renamed."
+        echo "   Fix: update the test group path/pattern in comprehensive-tests.yml"
+        exit 1
     fi
 
     # Run each test file
