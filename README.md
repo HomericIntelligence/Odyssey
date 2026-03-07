@@ -7,7 +7,7 @@ maximum performance and type safety.
 
 [![Mojo](https://img.shields.io/badge/Mojo-0.26+-orange.svg)](https://www.modular.com/mojo)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-247%2B-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-223%2B-brightgreen.svg)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey.svg)](#coverage-status)
 
 ## What This Is
@@ -18,7 +18,7 @@ ML Odyssey is a research platform with two goals:
 2. **Provide a reusable shared library** of ML components that paper implementations build on
 
 The project currently has ~198K lines of Mojo code, 7 fully-implemented neural network
-architectures, and 247+ tests across layerwise unit tests and end-to-end integration tests.
+architectures, and 223+ tests across layerwise unit tests and end-to-end integration tests.
 
 ## Implemented Architectures
 

@@ -77,6 +77,13 @@ repos:
         language: system
         files: (test_.*\.mojo|comprehensive-tests\.yml)$
         pass_filenames: false
+      - id: check-test-count-badge
+        name: Check Test Count Badge
+        description: Validate README.md test count badge matches actual test_*.mojo count
+        entry: python3 scripts/check_test_count_badge.py
+        language: system
+        files: ^README\.md$
+        pass_filenames: false
 
   # Markdown linting
   - repo: https://github.com/DavidAnson/markdownlint-cli2
