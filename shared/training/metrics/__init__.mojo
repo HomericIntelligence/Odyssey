@@ -12,6 +12,17 @@ Includes:
 - Recall (Recall metric)
 
 All metrics implement the Metric trait for consistent interface
+
+Note:
+    All symbols in this module are re-exported cleanly through the parent
+    `shared.training` package. You may import directly from either location:
+
+    ```mojo
+    from shared.training.metrics import AccuracyMetric
+    from shared.training import AccuracyMetric  # also works
+    ```
+
+    No Mojo re-export limitation applies here (unlike `shared.training.callbacks`).
 """
 
 # Export base metric interface and utilities

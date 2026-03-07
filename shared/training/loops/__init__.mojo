@@ -24,6 +24,17 @@ Example Usage:
         compute_batch_loss=my_batch_fn,
         epoch=1, total_epochs=100
     )
+
+Note:
+    All symbols in this module are re-exported cleanly through the parent
+    `shared.training` package. You may import directly from either location:
+
+    ```mojo
+    from shared.training.loops import TrainingLoop
+    from shared.training import TrainingLoop  # also works
+    ```
+
+    No Mojo re-export limitation applies here (unlike `shared.training.callbacks`).
 """
 
 # Export training loop implementations

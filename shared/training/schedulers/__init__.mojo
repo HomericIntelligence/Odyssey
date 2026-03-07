@@ -13,6 +13,17 @@ Includes:
 - WarmupStepLR: Combined warmup and step decay
 
 All schedulers are struct-based implementations of the LRScheduler trait
+
+Note:
+    All symbols in this module are re-exported cleanly through the parent
+    `shared.training` package. You may import directly from either location:
+
+    ```mojo
+    from shared.training.schedulers import StepLR
+    from shared.training import StepLR  # also works
+    ```
+
+    No Mojo re-export limitation applies here (unlike `shared.training.callbacks`).
 """
 
 # Export scheduler implementations

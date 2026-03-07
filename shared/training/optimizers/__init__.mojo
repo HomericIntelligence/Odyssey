@@ -11,6 +11,17 @@ Includes:
 - LARS (Layer-wise Adaptive Rate Scaling)
 
 All optimizers follow pure functional design - caller manages state
+
+Note:
+    All symbols in this module are re-exported cleanly through the parent
+    `shared.training` package. You may import directly from either location:
+
+    ```mojo
+    from shared.training.optimizers import sgd_step
+    from shared.training import sgd_step  # also works
+    ```
+
+    No Mojo re-export limitation applies here (unlike `shared.training.callbacks`).
 """
 
 # Export optimizer implementations
