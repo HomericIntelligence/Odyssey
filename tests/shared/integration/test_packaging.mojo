@@ -275,10 +275,10 @@ fn test_paper_implementation_pattern() raises:
 #
 #     # Verify __all__ exists and is non-empty
 #     # var expected_exports = [
-#     #     "Linear", "Conv2D", "ReLU",
+#     #     "linear", "Conv2dLayer", "ReLULayer",
 #     #     "SGD", "Adam",
-#     #     "Accuracy",
-#     #     "DataLoader",
+#     #     "AccuracyMetric",
+#     #     "BatchLoader",
 #     #     "Logger",
 #     # ]
 
