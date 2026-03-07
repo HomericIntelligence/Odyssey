@@ -193,11 +193,12 @@ jobs:
           # ---- Activations + dtype dispatch (unrelated to gradient math) ----
           - name: "Core Activations & Types"
             path: "tests/shared/core"
-            pattern: "test_activations.mojo test_activation_funcs.mojo test_activation_ops.mojo test_advanced_activations.mojo test_unsigned.mojo test_dtype_dispatch.mojo test_dtype_ordinal.mojo"
-          # DISABLED: Flaky tests - see issue tracking Core Loss test crashes
-          # - name: "Core Loss"
-          #   path: "tests/shared/core"
-          #   pattern: "test_losses.mojo test_loss_funcs.mojo test_loss_utils.mojo"
+            pattern: "test_activations.mojo test_activation_funcs.mojo test_activation_ops.mojo test_advanced_activations.mojo test_unsigned.mojo test_dtype_dispatch.mojo test_dtype_ordinal.mojo test_elementwise.mojo test_elementwise_dispatch.mojo test_elementwise_forward.mojo test_elementwise_edge_cases.mojo test_comparison_ops.mojo test_edge_cases.mojo"
+          # ---- Loss functions (continue-on-error due to intermittent heap crashes) ----
+          - name: "Core Loss"
+            path: "tests/shared/core"
+            pattern: "test_losses.mojo test_loss_funcs.mojo test_loss_utils.mojo"
+            continue-on-error: true
           # ---- Gradient math (kept separate - frequently fails independently) ----
           - name: "Core Gradient"
             path: "tests/shared/core"
@@ -205,7 +206,7 @@ jobs:
             pattern: "test_backward_linear.mojo test_backward_conv_pool.mojo test_backward_losses.mojo test_backward_compat_aliases.mojo test_gradient_checking_basic.mojo test_gradient_checking_dtype.mojo test_gradient_validation.mojo test_variable_backward.mojo"
           - name: "Core Utilities"
             path: "tests/shared/core"
-            pattern: "test_utilities.mojo test_utility.mojo test_utils.mojo test_validation.mojo test_validation_extended.mojo test_integration.mojo test_inplace_simd.mojo test_lazy_expression.mojo test_memory_pool.mojo test_constants.mojo"
+            pattern: "test_utilities.mojo test_utility.mojo test_utils.mojo test_validation.mojo test_validation_extended.mojo test_integration.mojo test_inplace_simd.mojo test_lazy_expression.mojo test_memory_pool.mojo test_constants.mojo test_extensor_getset_float32.mojo test_extensor_inplace_ops.mojo test_extensor_randn.mojo test_extensor_reflected_ops.mojo test_extensor_serialization.mojo test_extensor_slicing.mojo test_extensor_unary_ops.mojo test_memory_leaks.mojo test_initializers.mojo test_initializers_validation.mojo test_layers.mojo test_linear.mojo test_conv.mojo test_normalization.mojo test_dropout.mojo test_module.mojo test_composed_op.mojo"
           # ---- All data subsystems (formats/datasets/samplers/transforms/loaders) ----
           # NOTE: Some data tests (test_cache, test_prefetch, test_random_transform_base) crash
           # on CI with heap corruption — non-blocking pending investigation
