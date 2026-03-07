@@ -329,8 +329,7 @@ fn main() raises:
     print("Testing strided slicing...")
     test_slice_1d_strided()
     test_slice_1d_strided_step3()
-    # Skip reverse for now - needs debugging
-    # test_slice_1d_reverse()
+    test_slice_1d_reverse()
     print("Strided slicing: PASSED")
 
     # Multi-dimensional slicing - skip for now
