@@ -124,6 +124,44 @@ fn test_training_callbacks_imports() raises:
     print("✓ Training callbacks imports test passed")
 
 
+fn test_training_callbacks_direct_imports() raises:
+    """Test callbacks are importable directly from shared.training.callbacks sub-module.
+
+    This validates the canonical import path documented in Issue #3211:
+        from shared.training.callbacks import EarlyStopping
+
+    NOTE: A negative test for the wrong import path cannot be written because
+    Mojo import failures are compile-time errors, not runtime exceptions.
+    There is no equivalent of pytest.raises() for compile-time errors.
+    """
+    from shared.training.callbacks import EarlyStopping, ModelCheckpoint, LoggingCallback
+
+    # Instantiate each type to confirm the import is functional, not just parseable
+    var early_stop = EarlyStopping(
+        monitor="val_loss",
+        patience=3,
+        min_delta=0.001,
+        mode="min",
+        verbose=False,
+    )
+    assert_true(early_stop.patience == 3, "EarlyStopping should have patience=3")
+    assert_true(early_stop.stopped == False, "EarlyStopping should not be stopped initially")
+
+    var checkpoint = ModelCheckpoint(
+        filepath="test_checkpoint.pt",
+        save_best_only=False,
+        save_frequency=1,
+        mode="min",
+    )
+    assert_true(checkpoint.save_count == 0, "ModelCheckpoint should have save_count=0 initially")
+
+    var logger = LoggingCallback(log_interval=2)
+    assert_true(logger.log_interval == 2, "LoggingCallback should have log_interval=2")
+    assert_true(logger.log_count == 0, "LoggingCallback should have log_count=0 initially")
+
+    print("✓ Training callbacks direct imports test passed")
+
+
 fn test_training_loops_imports() raises:
     """Test training loops imports."""
     from shared.training import TrainingState, Callback
@@ -331,6 +369,7 @@ fn main() raises:
     test_training_schedulers_imports()
     test_training_metrics_imports()
     test_training_callbacks_imports()
+    test_training_callbacks_direct_imports()
     test_training_loops_imports()
 
     # Data package tests
