@@ -85,6 +85,10 @@ from shared.testing.gradient_checker import (
     GRADIENT_CHECK_EPSILON_FLOAT32,
     GRADIENT_CHECK_EPSILON_OTHER,
 )
+from shared.testing.tolerance_constants import (
+    GRADIENT_CHECK_EPSILON_FLOAT32,
+    GRADIENT_CHECK_EPSILON_OTHER,
+)
 
 
 # ============================================================================
