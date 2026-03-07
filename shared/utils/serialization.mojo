@@ -117,7 +117,7 @@ fn save_tensor(tensor: ExTensor, filepath: String, name: String = "") raises:
     var numel = local_tensor.numel()
 
     # Build metadata line: dtype and shape dimensions
-    var dtype_str = String(dtype)
+    var dtype_str = dtype_to_string(dtype)
     var metadata = dtype_str + " "
     for i in range(len(shape)):
         metadata += String(shape[i])
