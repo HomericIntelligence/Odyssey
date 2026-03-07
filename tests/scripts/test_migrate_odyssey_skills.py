@@ -94,6 +94,56 @@ See workflow above.
     return skill_dir
 
 
+class TestParseFrontmatter:
+    """Tests for parse_frontmatter() colon handling."""
+
+    def test_plain_value(self, migrate_module) -> None:
+        """Basic key: value with no colon in the value."""
+        content = "---\nname: my-skill\ncategory: tooling\n---\n# Body"
+        fm, remaining = migrate_module.parse_frontmatter(content)
+        assert fm["name"] == "my-skill"
+        assert fm["category"] == "tooling"
+        assert "Body" in remaining
+
+    def test_colon_in_quoted_value(self, migrate_module) -> None:
+        """Regression: description with a colon inside quoted value must not be truncated."""
+        content = '---\nname: gh-create-pr-linked\ndescription: "Create PR linked to issue: #123"\n---\n# Body'
+        fm, _ = migrate_module.parse_frontmatter(content)
+        assert fm["description"] == "Create PR linked to issue: #123"
+
+    def test_colon_in_unquoted_value(self, migrate_module) -> None:
+        """YAML bare string with colon (parsed as string by yaml.safe_load)."""
+        content = "---\nname: my-skill\ndescription: Use when condition A is true\n---\n"
+        fm, _ = migrate_module.parse_frontmatter(content)
+        assert fm["description"] == "Use when condition A is true"
+
+    def test_no_frontmatter(self, migrate_module) -> None:
+        """Content without --- delimiter returns empty dict and full content."""
+        content = "# Just a heading\nSome text"
+        fm, remaining = migrate_module.parse_frontmatter(content)
+        assert fm == {}
+        assert remaining == content
+
+    def test_unclosed_frontmatter(self, migrate_module) -> None:
+        """Single --- with no closing delimiter returns empty dict."""
+        content = "---\nname: my-skill\n"
+        fm, remaining = migrate_module.parse_frontmatter(content)
+        assert fm == {}
+
+    def test_invalid_yaml_returns_empty_dict(self, migrate_module) -> None:
+        """Malformed YAML in frontmatter returns {} without raising."""
+        content = "---\n: invalid: yaml: [\n---\n# Body"
+        fm, _ = migrate_module.parse_frontmatter(content)
+        assert fm == {}
+
+    def test_remaining_content_preserved(self, migrate_module) -> None:
+        """Text after closing --- is returned as remaining content."""
+        content = "---\nname: skill\n---\n\n# Title\n\nSome body text."
+        _, remaining = migrate_module.parse_frontmatter(content)
+        assert "Title" in remaining
+        assert "Some body text." in remaining
+
+
 class TestMigrateSkillAuxiliaryDirs:
     """Tests that auxiliary subdirectories are copied during migration."""
 
