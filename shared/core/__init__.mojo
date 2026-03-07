@@ -653,6 +653,7 @@ from shared.core.memory_pool import (
 # ============================================================================
 
 from shared.core.module import Module
+from shared.core.sequential import Sequential2, Sequential3
 
 # ============================================================================
 # Lazy Expression Evaluation
