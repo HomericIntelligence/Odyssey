@@ -21,6 +21,7 @@ Target structure (ProjectMnemosyne):
 import argparse
 import json
 import re
+import shutil
 import sys
 from pathlib import Path
 from typing import Optional
@@ -507,8 +508,34 @@ def migrate_skill(
 
         print(f"  OK: {plugin_json_path}")
         print(f"  OK: {skill_md_path}")
+
+        # Copy all auxiliary subdirectories from the source skill directory.
+        # references/ goes to the plugin root; everything else goes inside skills/<name>/.
+        source_dir = source_skill_md.parent
+        for subdir in sorted(source_dir.iterdir()):
+            if not subdir.is_dir() or subdir.name.startswith("."):
+                continue
+            if subdir.name == "references":
+                dest = plugin_dir / "references"
+                print(f"  Copying references/ -> {dest}")
+                shutil.copytree(subdir, dest, dirs_exist_ok=True)
+            else:
+                dest = skill_md_dir / subdir.name
+                print(f"  Copying {subdir.name}/ -> {dest}")
+                shutil.copytree(subdir, dest, dirs_exist_ok=True)
     else:
         print(f"  [DRY RUN] Would create: {plugin_dir}")
+        # Report auxiliary subdirs that would be copied
+        source_dir = source_skill_md.parent
+        for subdir in sorted(source_dir.iterdir()):
+            if not subdir.is_dir() or subdir.name.startswith("."):
+                continue
+            if subdir.name == "references":
+                print(f"  [DRY RUN] Would copy references/ -> skills/{category}/{skill_name}/references/")
+            else:
+                print(
+                    f"  [DRY RUN] Would copy {subdir.name}/ -> skills/{category}/{skill_name}/skills/{skill_name}/{subdir.name}/"
+                )
 
     return True
 
