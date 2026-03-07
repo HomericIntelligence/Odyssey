@@ -82,21 +82,9 @@ from shared.testing.gradient_checker import (
     compute_sampled_numerical_gradient,
     assert_gradients_close,
     assert_sampled_gradients_close,
+    GRADIENT_CHECK_EPSILON_FLOAT32,
+    GRADIENT_CHECK_EPSILON_OTHER,
 )
-
-
-# ============================================================================
-# Gradient Checking Constants
-# ============================================================================
-
-# Epsilon for float32 gradient checking in matmul-heavy layers (conv2d, linear).
-# Using 1e-5 causes ~56% precision loss; 1e-4 gives 3.3% error (above tolerance).
-# 3e-4 gives 1.2% error, within the 1.5% tolerance threshold.
-# See issue #2704 (Floating-point precision loss in matmul) for full analysis.
-alias GRADIENT_CHECK_EPSILON_FLOAT32: Float64 = 3e-4
-
-# Epsilon for non-float32 dtypes (BF16, FP16) in gradient checking.
-alias GRADIENT_CHECK_EPSILON_OTHER: Float64 = 1e-3
 
 
 # ============================================================================
