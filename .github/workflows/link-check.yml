@@ -53,6 +53,7 @@ jobs:
             --timeout 15
             --accept "200..=204,503,504"
             --exclude 'file:///'
+            --exclude '^/'
             '**/*.md'
 
           # Output results to a file
