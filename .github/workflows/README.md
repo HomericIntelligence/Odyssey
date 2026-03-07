@@ -494,6 +494,52 @@ All CI workflows use justfile recipes for consistent command execution between l
 
 **See**: `/justfile` for complete implementation and `CLAUDE.md` for developer documentation.
 
+### Composite Action Checkout Invariant
+
+**Rule**: `actions/checkout` must appear as a step **before** any `uses: ./.github/actions/` reference
+within a job.
+
+**Why**: Local composite actions (`uses: ./.github/actions/X`) are resolved from the repository on
+disk. If the repository has not been checked out yet, GitHub Actions cannot find the action directory
+and the workflow fails with `Cannot find action './.github/actions/X'`.
+
+**Correct pattern**:
+
+```yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code          # MUST come first
+        uses: actions/checkout@v4
+
+      - name: Set up Pixi            # composite action — safe because checkout already ran
+        uses: ./.github/actions/setup-pixi
+```
+
+**Incorrect pattern** (will fail):
+
+```yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Pixi            # ERROR: checkout has not run yet
+        uses: ./.github/actions/setup-pixi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+```
+
+**Run the check locally**:
+
+```bash
+python3 scripts/validate_workflow_checkout_order.py .github/workflows/
+```
+
+**CI enforcement**: The `validate-workflows.yml` workflow runs this check automatically on all pull
+requests that touch `.github/` files.
+
 ### Pixi-Based Environment Setup
 
 All workflows use the modern Pixi setup:

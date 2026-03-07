@@ -1,0 +1,37 @@
+name: Validate Workflow Checkout Order
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/**'
+      - 'scripts/validate_workflow_checkout_order.py'
+      - '.github/workflows/validate-workflows.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/**'
+      - 'scripts/validate_workflow_checkout_order.py'
+      - '.github/workflows/validate-workflows.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-checkout-order:
+    name: Enforce Composite Action Checkout-First Ordering
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Validate checkout-first ordering for composite actions
+        run: |
+          echo "Checking that all jobs using ./.github/actions/ have actions/checkout as a preceding step..."
+          python3 scripts/validate_workflow_checkout_order.py .github/workflows/
