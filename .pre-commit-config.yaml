@@ -76,6 +76,9 @@ repos:
         entry: python3 scripts/validate_test_coverage.py
         language: system
         files: (test_.*\.mojo|comprehensive-tests\.yml)$
+        # pass_filenames: false is intentional — this script performs a whole-repo
+        # coverage scan against the CI workflow YAML, not per-file validation.
+        # The files: pattern handles efficient triggering; the script ignores file args.
         pass_filenames: false
       - id: check-test-count-badge
         name: Check Test Count Badge
