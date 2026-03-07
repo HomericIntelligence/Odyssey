@@ -378,6 +378,163 @@ fn test_batch_norm2d_backward_gradient_input() raises:
     print("✓ Batch norm backward gradient (input) validated numerically")
 
 
+fn test_batch_norm2d_backward_gradient_gamma() raises:
+    """Test batch_norm2d_backward gradient w.r.t. gamma using numerical validation.
+
+    Perturbs gamma using finite differences and compares against analytical grad_gamma.
+    Uses non-uniform grad_output to test sensitivity across channels.
+    """
+    var shape = List[Int]()
+    shape.append(2)  # batch
+    shape.append(2)  # channels
+    shape.append(2)  # height
+    shape.append(2)  # width
+
+    var x = zeros(shape, DType.float32)
+    for i in range(16):
+        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+
+    var param_shape = List[Int]()
+    param_shape.append(2)
+
+    var gamma = ones(param_shape, DType.float32)
+    gamma._data.bitcast[Float32]()[0] = 1.5
+    gamma._data.bitcast[Float32]()[1] = 2.0
+
+    var beta = zeros(param_shape, DType.float32)
+    var running_mean = zeros(param_shape, DType.float32)
+    var running_var = ones(param_shape, DType.float32)
+
+    # Forward pass to get output shape for grad_output
+    var result_fwd = batch_norm2d(
+        x, gamma, beta, running_mean, running_var, training=True, epsilon=1e-5
+    )
+    var output = result_fwd[0]
+
+    # Non-uniform grad_output to exercise per-channel sensitivity
+    var grad_output = zeros_like(output)
+    for i in range(16):
+        grad_output._data.bitcast[Float32]()[i] = Float32(i + 1) * 0.1
+
+    # Analytical gradient
+    var result_bwd = batch_norm2d_backward(
+        grad_output,
+        x,
+        gamma,
+        running_mean,
+        running_var,
+        training=True,
+        epsilon=1e-5,
+    )
+    var grad_gamma_analytical = result_bwd[1]
+
+    # Numerical gradient: perturb gamma
+    # The forward closure computes: sum(batch_norm2d(x, g, ...) * grad_output)
+    # so the numerical gradient matches what batch_norm2d_backward should produce.
+    fn forward_for_gamma(g: ExTensor) raises -> ExTensor:
+        var res = batch_norm2d(
+            x, g, beta, running_mean, running_var, training=True, epsilon=1e-5
+        )
+        var out = res[0]
+        var weighted = multiply(out, grad_output)
+        var result = weighted
+        while result.dim() > 0:
+            result = reduce_sum(result, axis=0, keepdims=False)
+        return result
+
+    var numerical_grad_gamma = compute_numerical_gradient(
+        forward_for_gamma, gamma, epsilon=1e-3
+    )
+
+    assert_gradients_close(
+        grad_gamma_analytical,
+        numerical_grad_gamma,
+        rtol=1e-2,
+        atol=1e-4,
+        message="Batch norm gradient w.r.t. gamma",
+    )
+    print("✓ Batch norm backward gradient (gamma) validated numerically")
+
+
+fn test_batch_norm2d_backward_gradient_beta() raises:
+    """Test batch_norm2d_backward gradient w.r.t. beta using numerical validation.
+
+    Perturbs beta using finite differences and compares against analytical grad_beta.
+    beta contributes additively, so grad_beta = sum(grad_output) over batch and spatial dims.
+    """
+    var shape = List[Int]()
+    shape.append(2)  # batch
+    shape.append(2)  # channels
+    shape.append(2)  # height
+    shape.append(2)  # width
+
+    var x = zeros(shape, DType.float32)
+    for i in range(16):
+        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+
+    var param_shape = List[Int]()
+    param_shape.append(2)
+
+    var gamma = ones(param_shape, DType.float32)
+    gamma._data.bitcast[Float32]()[0] = 1.5
+    gamma._data.bitcast[Float32]()[1] = 2.0
+
+    var beta = zeros(param_shape, DType.float32)
+    beta._data.bitcast[Float32]()[0] = 0.5
+    beta._data.bitcast[Float32]()[1] = -0.5
+
+    var running_mean = zeros(param_shape, DType.float32)
+    var running_var = ones(param_shape, DType.float32)
+
+    # Forward pass to get output shape for grad_output
+    var result_fwd = batch_norm2d(
+        x, gamma, beta, running_mean, running_var, training=True, epsilon=1e-5
+    )
+    var output = result_fwd[0]
+
+    # Non-uniform grad_output
+    var grad_output = zeros_like(output)
+    for i in range(16):
+        grad_output._data.bitcast[Float32]()[i] = Float32(i + 1) * 0.1
+
+    # Analytical gradient
+    var result_bwd = batch_norm2d_backward(
+        grad_output,
+        x,
+        gamma,
+        running_mean,
+        running_var,
+        training=True,
+        epsilon=1e-5,
+    )
+    var grad_beta_analytical = result_bwd[2]
+
+    # Numerical gradient: perturb beta
+    fn forward_for_beta(b: ExTensor) raises -> ExTensor:
+        var res = batch_norm2d(
+            x, gamma, b, running_mean, running_var, training=True, epsilon=1e-5
+        )
+        var out = res[0]
+        var weighted = multiply(out, grad_output)
+        var result = weighted
+        while result.dim() > 0:
+            result = reduce_sum(result, axis=0, keepdims=False)
+        return result
+
+    var numerical_grad_beta = compute_numerical_gradient(
+        forward_for_beta, beta, epsilon=1e-3
+    )
+
+    assert_gradients_close(
+        grad_beta_analytical,
+        numerical_grad_beta,
+        rtol=1e-2,
+        atol=1e-4,
+        message="Batch norm gradient w.r.t. beta",
+    )
+    print("✓ Batch norm backward gradient (beta) validated numerically")
+
+
 fn test_batch_norm2d_backward_training_vs_inference() raises:
     """Test that batch_norm2d_backward behaves differently in training vs inference.
 
@@ -813,6 +970,12 @@ fn main() raises:
     # Batch normalization backward pass tests (gradient checking)
     test_batch_norm2d_backward_gradient_input()
     print("✓ test_batch_norm2d_backward_gradient_input")
+
+    test_batch_norm2d_backward_gradient_gamma()
+    print("✓ test_batch_norm2d_backward_gradient_gamma")
+
+    test_batch_norm2d_backward_gradient_beta()
+    print("✓ test_batch_norm2d_backward_gradient_beta")
 
     test_batch_norm2d_backward_training_vs_inference()
     print("✓ test_batch_norm2d_backward_training_vs_inference")
