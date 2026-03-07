@@ -139,6 +139,105 @@ fn test_conv2d_gradient_fp32() raises:
     assert_true(passed, "Conv2D FP32 gradient check failed")
 
 
+fn test_conv2d_grad_3x3_same_padding() raises:
+    """Test Conv2D gradient with 3x3 kernel, stride=1, padding=1 (same padding)."""
+    var input_shape = List[Int]()
+    input_shape.append(1)
+    input_shape.append(1)
+    input_shape.append(5)
+    input_shape.append(5)
+    var input = full(input_shape, 0.5, DType.float32)
+
+    var kernel_shape = List[Int]()
+    kernel_shape.append(1)
+    kernel_shape.append(1)
+    kernel_shape.append(3)
+    kernel_shape.append(3)
+    var kernel = full(kernel_shape, 0.1, DType.float32)
+
+    var bias_shape = List[Int]()
+    bias_shape.append(1)
+    var bias = zeros(bias_shape, DType.float32)
+
+    fn forward(x: ExTensor) raises escaping -> ExTensor:
+        return conv2d(x, kernel, bias, stride=1, padding=1)
+
+    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+        var grads = conv2d_backward(grad_out, x, kernel, stride=1, padding=1)
+        return grads.grad_input
+
+    var passed = check_gradients(
+        forward, backward, input, epsilon=1e-5, tolerance=1e-2
+    )
+    assert_true(passed, "Conv2D 3x3 same-padding gradient check failed")
+
+
+fn test_conv2d_grad_3x3_strided() raises:
+    """Test Conv2D gradient with 3x3 kernel, stride=2, padding=0 (strided)."""
+    var input_shape = List[Int]()
+    input_shape.append(1)
+    input_shape.append(1)
+    input_shape.append(7)
+    input_shape.append(7)
+    var input = full(input_shape, 0.5, DType.float32)
+
+    var kernel_shape = List[Int]()
+    kernel_shape.append(1)
+    kernel_shape.append(1)
+    kernel_shape.append(3)
+    kernel_shape.append(3)
+    var kernel = full(kernel_shape, 0.1, DType.float32)
+
+    var bias_shape = List[Int]()
+    bias_shape.append(1)
+    var bias = zeros(bias_shape, DType.float32)
+
+    fn forward(x: ExTensor) raises escaping -> ExTensor:
+        return conv2d(x, kernel, bias, stride=2, padding=0)
+
+    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+        var grads = conv2d_backward(grad_out, x, kernel, stride=2, padding=0)
+        return grads.grad_input
+
+    var passed = check_gradients(
+        forward, backward, input, epsilon=1e-5, tolerance=1e-2
+    )
+    assert_true(passed, "Conv2D 3x3 strided gradient check failed")
+
+
+fn test_conv2d_grad_multichannel() raises:
+    """Test Conv2D gradient with multi-channel: in_channels=2, out_channels=3."""
+    var input_shape = List[Int]()
+    input_shape.append(1)
+    input_shape.append(2)
+    input_shape.append(5)
+    input_shape.append(5)
+    var input = full(input_shape, 0.5, DType.float32)
+
+    var kernel_shape = List[Int]()
+    kernel_shape.append(3)
+    kernel_shape.append(2)
+    kernel_shape.append(3)
+    kernel_shape.append(3)
+    var kernel = full(kernel_shape, 0.1, DType.float32)
+
+    var bias_shape = List[Int]()
+    bias_shape.append(3)
+    var bias = zeros(bias_shape, DType.float32)
+
+    fn forward(x: ExTensor) raises escaping -> ExTensor:
+        return conv2d(x, kernel, bias, stride=1, padding=0)
+
+    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+        var grads = conv2d_backward(grad_out, x, kernel, stride=1, padding=0)
+        return grads.grad_input
+
+    var passed = check_gradients(
+        forward, backward, input, epsilon=1e-5, tolerance=1e-2
+    )
+    assert_true(passed, "Conv2D multi-channel gradient check failed")
+
+
 fn test_cross_entropy_gradient_fp32() raises:
     """Test cross-entropy loss gradient in FP32 precision."""
     var logits_shape = List[Int]()
@@ -267,6 +366,9 @@ fn main() raises:
     test_linear_gradient_fp16()
     test_conv2d_gradient_fp32()
     test_conv2d_gradient_fp16()
+    test_conv2d_grad_3x3_same_padding()
+    test_conv2d_grad_3x3_strided()
+    test_conv2d_grad_multichannel()
     test_cross_entropy_gradient_fp32()
     test_cross_entropy_gradient_fp16()
 
