@@ -349,26 +349,21 @@ fn test_bool_single_element() raises:
     var t_zero = full(shape, 0.0, DType.float32)
     var t_nonzero = full(shape, 5.0, DType.float32)
 
-    # if t_zero:  # Should be False
-    #     raise Error("Zero tensor should be falsy")
-    # if not t_nonzero:  # Should be True
-    #     raise Error("Non-zero tensor should be truthy")
-    pass  # Placeholder
+    if t_zero:
+        raise Error("Zero tensor should be falsy")
+    if not t_nonzero:
+        raise Error("Non-zero tensor should be truthy")
 
 
 fn test_bool_requires_single_element() raises:
-    """Test that item() requires single-element tensor.
-
-    Note: Since __bool__ is not yet implemented, we test item() which
-    has the same single-element requirement and is used for scalar extraction.
-    """
+    """Test that __bool__ raises for multi-element tensor."""
     var shape = List[Int]()
     shape.append(5)
     var t = ones(shape, DType.float32)
 
     var error_raised = False
     try:
-        var val = item(t)  # Should raise error for multi-element tensor
+        var val = Bool(t)  # Should raise error for multi-element tensor
         _ = val  # Suppress unused warning
     except e:
         error_raised = True
@@ -383,7 +378,7 @@ fn test_bool_requires_single_element() raises:
             )
 
     if not error_raised:
-        raise Error("item() on multi-element tensor should raise error")
+        raise Error("__bool__ on multi-element tensor should raise error")
 
 
 # ============================================================================
