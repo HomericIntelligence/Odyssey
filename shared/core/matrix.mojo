@@ -14,6 +14,7 @@ from collections import List
 from memory import memcpy
 from shared.core.extensor import ExTensor
 from shared.core.gradient_types import GradientPair
+from shared.core.shape import as_contiguous
 
 
 # ============================================================================
@@ -594,13 +595,28 @@ fn matmul(a: ExTensor, b: ExTensor) raises -> ExTensor:
             This function always allocates a new result tensor. Input tensors are only read,
             never modified, so aliasing between a and b is safe.
     """
+    # Ensure inputs are contiguous so that all dtype-specialized impls can
+    # use direct flat-buffer indexing. For already-contiguous tensors we take
+    # a shared-ownership copy (view) to avoid allocation; for non-contiguous
+    # tensors (e.g. transpose views) we materialize a fresh contiguous copy.
+    var a_cont: ExTensor
+    var b_cont: ExTensor
+    if a.is_contiguous():
+        a_cont = a
+    else:
+        a_cont = as_contiguous(a)
+    if b.is_contiguous():
+        b_cont = b
+    else:
+        b_cont = as_contiguous(b)
+
     # Check dtype compatibility
-    if a.dtype() != b.dtype():
+    if a_cont.dtype() != b_cont.dtype():
         raise Error("Cannot multiply matrices with different dtypes")
 
     # Check dimension compatibility
-    var a_shape = a.shape()
-    var b_shape = b.shape()
+    var a_shape = a_cont.shape()
+    var b_shape = b_cont.shape()
     var a_ndim = len(a_shape)
     var b_ndim = len(b_shape)
 
@@ -624,9 +640,9 @@ fn matmul(a: ExTensor, b: ExTensor) raises -> ExTensor:
         # Result is a vector of shape (m,)
         var result_shape = List[Int](capacity=1)
         result_shape.append(m)
-        var result = ExTensor(result_shape, a.dtype())
+        var result = ExTensor(result_shape, a_cont.dtype())
 
-        _dispatch_matmul_2d_1d(result, a, b, m, k)
+        _dispatch_matmul_2d_1d(result, a_cont, b_cont, m, k)
         return result^
 
     # Handle vector @ matrix (1D @ 2D)
@@ -649,9 +665,9 @@ fn matmul(a: ExTensor, b: ExTensor) raises -> ExTensor:
         # Result is a vector of shape (n,)
         var result_shape = List[Int](capacity=1)
         result_shape.append(n)
-        var result = ExTensor(result_shape, a.dtype())
+        var result = ExTensor(result_shape, a_cont.dtype())
 
-        _dispatch_matmul_1d_2d(result, a, b, m, n)
+        _dispatch_matmul_1d_2d(result, a_cont, b_cont, m, n)
         return result^
 
     # For 2D and higher, require at least 2D tensors
@@ -686,14 +702,14 @@ fn matmul(a: ExTensor, b: ExTensor) raises -> ExTensor:
     result_shape.append(b_cols)
 
     # Create result
-    var result = ExTensor(result_shape, a.dtype())
+    var result = ExTensor(result_shape, a_cont.dtype())
 
     # Implement matrix multiplication
     # For 2D case: result[i, j] = sum(a[i, k] * b[k, j] for k in range(a_cols))
     # For batched case: apply same logic to each batch
 
     if len(a_shape) == 2:
-        _dispatch_matmul_2d_2d(result, a, b, a_rows, a_cols, b_cols)
+        _dispatch_matmul_2d_2d(result, a_cont, b_cont, a_rows, a_cols, b_cols)
     else:
         # Batched matrix multiplication (3D+)
         var batch_size = 1
@@ -706,8 +722,8 @@ fn matmul(a: ExTensor, b: ExTensor) raises -> ExTensor:
 
         _dispatch_matmul_batched(
             result,
-            a,
-            b,
+            a_cont,
+            b_cont,
             batch_size,
             a_rows,
             a_cols,
@@ -793,35 +809,19 @@ fn transpose(
             raise Error("duplicate axis " + String(axis) + " in permutation")
         seen[axis] = True
 
-    # Build result shape using permutation
+    # Build result shape by permuting input dimensions
     var result_shape = List[Int](capacity=ndim)
     for axis in perm.value():
         result_shape.append(input_shape[axis])
 
-    var result = ExTensor(result_shape, tensor.dtype())
+    # Build result strides by permuting input strides (view semantics).
+    # The input tensor's strides are permuted according to axes so that
+    # element access through the view produces the transposed layout.
+    var result_strides = List[Int](capacity=ndim)
+    for axis in perm.value():
+        result_strides.append(tensor._strides[axis])
 
-    # Compute strides for input tensor (row-major order)
-    var input_strides = List[Int](capacity=ndim)
-    var stride = 1
-    for i in range(ndim - 1, -1, -1):
-        input_strides.append(stride)
-        stride *= input_shape[i]
-    # Reverse to get correct indexing order
-    var temp_strides = List[Int](capacity=ndim)
-    for i in range(len(input_strides) - 1, -1, -1):
-        temp_strides.append(input_strides[i])
-    input_strides = temp_strides^
-
-    _dispatch_transpose_copy(
-        result,
-        tensor,
-        ndim,
-        result_shape,
-        input_strides,
-        perm.value(),
-        result.numel(),
-    )
-    return result^
+    return tensor.view_with_strides(result_shape, result_strides)
 
 
 fn transpose_view(
