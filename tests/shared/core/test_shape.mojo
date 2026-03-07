@@ -25,6 +25,7 @@ from shared.core import (
 
 # Import test helpers
 from tests.shared.conftest import (
+    assert_true,
     assert_dtype,
     assert_numel,
     assert_dim,
@@ -174,15 +175,17 @@ fn test_flatten_c_order() raises:
 
 
 fn test_ravel_view() raises:
-    """Test ravel (should return view if possible)."""
+    """Test ravel returns a zero-copy view for contiguous tensors."""
     var shape = List[Int]()
     shape.append(3)
     shape.append(4)
     var a = ones(shape, DType.float32)
     var b = ravel(a)
 
-    # Currently returns a 1D copy (view semantics deferred to future work)
     assert_dim(b, 1, "Ravel should be 1D")
+    assert_numel(b, 12, "Ravel should have 12 elements")
+    # ravel() of a contiguous tensor is a view (_is_view == True)
+    assert_true(b._is_view, "ravel() of contiguous tensor should be a view")
 
 
 # ============================================================================

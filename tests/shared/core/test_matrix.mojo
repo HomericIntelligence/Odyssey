@@ -662,23 +662,24 @@ fn test_transpose_values() raises:
     var result = transpose(a)
 
     # A^T = [[1, 4], [2, 5], [3, 6]]
+    # Use stride-aware element access (_get_float32) to read logical values.
     assert_almost_equal(
-        result._data.bitcast[Float32]()[0], Float32(1.0), tolerance=1e-5
+        result._get_float32(0), Float32(1.0), tolerance=1e-5
     )
     assert_almost_equal(
-        result._data.bitcast[Float32]()[1], Float32(4.0), tolerance=1e-5
+        result._get_float32(1), Float32(4.0), tolerance=1e-5
     )
     assert_almost_equal(
-        result._data.bitcast[Float32]()[2], Float32(2.0), tolerance=1e-5
+        result._get_float32(2), Float32(2.0), tolerance=1e-5
     )
     assert_almost_equal(
-        result._data.bitcast[Float32]()[3], Float32(5.0), tolerance=1e-5
+        result._get_float32(3), Float32(5.0), tolerance=1e-5
     )
     assert_almost_equal(
-        result._data.bitcast[Float32]()[4], Float32(3.0), tolerance=1e-5
+        result._get_float32(4), Float32(3.0), tolerance=1e-5
     )
     assert_almost_equal(
-        result._data.bitcast[Float32]()[5], Float32(6.0), tolerance=1e-5
+        result._get_float32(5), Float32(6.0), tolerance=1e-5
     )
 
 
@@ -948,14 +949,15 @@ fn test_transpose_axes_2d_simple() raises:
 
     # Check actual values: result[i,j] = input[j,i]
     # result[0,0] = input[0,0] = 0, result[0,1] = input[1,0] = 4, result[0,2] = input[2,0] = 8
+    # Use stride-aware element access (_get_float32) to read logical values.
     assert_almost_equal(
-        result._data.bitcast[Float32]()[0], Float32(0.0), tolerance=1e-5
+        result._get_float32(0), Float32(0.0), tolerance=1e-5
     )
     assert_almost_equal(
-        result._data.bitcast[Float32]()[1], Float32(4.0), tolerance=1e-5
+        result._get_float32(1), Float32(4.0), tolerance=1e-5
     )
     assert_almost_equal(
-        result._data.bitcast[Float32]()[2], Float32(8.0), tolerance=1e-5
+        result._get_float32(2), Float32(8.0), tolerance=1e-5
     )
 
 
@@ -1252,6 +1254,101 @@ fn test_transpose_axes_double_permutation() raises:
             t_recovered._data.bitcast[Float32]()[i],
             t._data.bitcast[Float32]()[i],
             tolerance=1e-5,
+        )
+
+
+# ============================================================================
+# Transpose Tests - View Semantics (Issue #3236)
+# ============================================================================
+
+
+fn test_transpose_returns_view() raises:
+    """Test that transpose() returns a view (shares data, _is_view == True)."""
+    var shape = List[Int]()
+    shape.append(3)
+    shape.append(4)
+    var a = ones(shape, DType.float32)
+    var t = transpose(a)
+
+    assert_true(t._is_view, "transpose() result should be a view")
+
+
+fn test_transpose_view_strides() raises:
+    """Test that transpose view has correctly permuted strides."""
+    var shape = List[Int]()
+    shape.append(3)
+    shape.append(4)
+    var a = ones(shape, DType.float32)
+    # a is contiguous: strides [4, 1]
+    var t = transpose(a)
+    # t should have strides [1, 4] (permuted: a._strides reversed)
+    assert_equal(t._strides[0], 1, "Transposed stride[0] should be 1 (inner stride of input)")
+    assert_equal(t._strides[1], 4, "Transposed stride[1] should be 4 (outer stride of input)")
+
+
+fn test_transpose_view_values() raises:
+    """Test that stride-aware element access returns correct transposed values."""
+    var shape = List[Int]()
+    shape.append(2)
+    shape.append(3)
+    var a = zeros(shape, DType.float32)
+
+    # A = [[1, 2, 3], [4, 5, 6]]
+    a._data.bitcast[Float32]()[0] = 1.0
+    a._data.bitcast[Float32]()[1] = 2.0
+    a._data.bitcast[Float32]()[2] = 3.0
+    a._data.bitcast[Float32]()[3] = 4.0
+    a._data.bitcast[Float32]()[4] = 5.0
+    a._data.bitcast[Float32]()[5] = 6.0
+
+    var t = transpose(a)
+    # t shape [3, 2], strides [1, 3].
+    # t[0,0]=a[0,0]=1, t[0,1]=a[1,0]=4
+    # t[1,0]=a[0,1]=2, t[1,1]=a[1,1]=5
+    # t[2,0]=a[0,2]=3, t[2,1]=a[1,2]=6
+    # Linear order: 1, 4, 2, 5, 3, 6
+    assert_almost_equal(t._get_float32(0), Float32(1.0), tolerance=1e-5)
+    assert_almost_equal(t._get_float32(1), Float32(4.0), tolerance=1e-5)
+    assert_almost_equal(t._get_float32(2), Float32(2.0), tolerance=1e-5)
+    assert_almost_equal(t._get_float32(3), Float32(5.0), tolerance=1e-5)
+    assert_almost_equal(t._get_float32(4), Float32(3.0), tolerance=1e-5)
+    assert_almost_equal(t._get_float32(5), Float32(6.0), tolerance=1e-5)
+
+
+fn test_transpose_view_refcount() raises:
+    """Test that transposing increments the reference count."""
+    var shape = List[Int]()
+    shape.append(3)
+    shape.append(4)
+    var a = ones(shape, DType.float32)
+    var refcount_before = a._refcount[]
+    var t = transpose(a)
+    assert_equal(
+        t._refcount[],
+        refcount_before + 1,
+        "Refcount should increase by 1 after creating view",
+    )
+
+
+fn test_transpose_chained_views() raises:
+    """Test that chained transposes produce correct logical values."""
+    var shape = List[Int]()
+    shape.append(2)
+    shape.append(3)
+    shape.append(4)
+    var a = zeros(shape, DType.float32)
+    # Fill with sequential values 0..23
+    for i in range(24):
+        a._data.bitcast[Float32]()[i] = Float32(i)
+
+    # Double transpose should recover original shape and values
+    var t = transpose(transpose(a))
+    assert_equal(t.shape()[0], 2, "Double transpose dim 0 should be 2")
+    assert_equal(t.shape()[1], 3, "Double transpose dim 1 should be 3")
+    assert_equal(t.shape()[2], 4, "Double transpose dim 2 should be 4")
+    for i in range(24):
+        assert_almost_equal(
+            t._get_float32(i), Float32(i), tolerance=1e-5
         )
 
 
@@ -1719,6 +1816,19 @@ fn main() raises:
     print("✓ test_transpose_axes_backward_3d")
     test_transpose_axes_double_permutation()
     print("✓ test_transpose_axes_double_permutation")
+
+    # Transpose tests - view semantics (Issue #3236)
+    print("\n=== Transpose: View Semantics (Issue #3236) ===")
+    test_transpose_returns_view()
+    print("✓ test_transpose_returns_view")
+    test_transpose_view_strides()
+    print("✓ test_transpose_view_strides")
+    test_transpose_view_values()
+    print("✓ test_transpose_view_values")
+    test_transpose_view_refcount()
+    print("✓ test_transpose_view_refcount")
+    test_transpose_chained_views()
+    print("✓ test_transpose_chained_views")
 
     # Dot product tests
     print("\n=== Dot Product ===")

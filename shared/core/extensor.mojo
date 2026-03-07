@@ -1194,6 +1194,62 @@ struct ExTensor(
 
         return result^
 
+    fn _nd_index_to_flat_offset(self, linear_idx: Int) -> Int:
+        """Convert a linear element index to a byte offset using strides.
+
+        For contiguous tensors this is equivalent to linear_idx * dtype_size.
+        For non-contiguous tensors (e.g. transpose views), the correct memory
+        position is obtained by mapping the linear index through the ND shape
+        and then applying per-dimension strides.
+
+        Args:
+            linear_idx: Linear element index in [0, numel).
+
+        Returns:
+            Byte offset into _data for the element.
+        """
+        var dtype_size = self._get_dtype_size()
+        var ndim = len(self._shape)
+        var remaining = linear_idx
+        var element_offset = 0
+        for i in range(ndim - 1, -1, -1):
+            var coord = remaining % self._shape[i]
+            remaining //= self._shape[i]
+            element_offset += coord * self._strides[i]
+        return element_offset * dtype_size
+
+    fn view_with_strides(
+        self, new_shape: List[Int], new_strides: List[Int]
+    ) -> ExTensor:
+        """Create a zero-copy view with custom shape and strides.
+
+        Shares the underlying data pointer and reference count with this
+        tensor. The caller is responsible for ensuring that new_shape and
+        new_strides are consistent with the original allocation.
+
+        Args:
+            new_shape: Shape for the view.
+            new_strides: Per-dimension strides (in elements) for the view.
+
+        Returns:
+            A new ExTensor sharing _data/_refcount with permuted shape/strides.
+        """
+        # Shallow-copy to share _data and _refcount (increments refcount)
+        var result = self
+        result._is_view = True
+        result._shape = List[Int]()
+        for i in range(len(new_shape)):
+            result._shape.append(new_shape[i])
+        result._strides = List[Int]()
+        for i in range(len(new_strides)):
+            result._strides.append(new_strides[i])
+        # Recompute numel from new_shape
+        var n = 1
+        for i in range(len(new_shape)):
+            n *= new_shape[i]
+        result._numel = n
+        return result^
+
     fn _get_float64(self, index: Int) -> Float64:
         """Internal: Get value at index as Float64 (assumes float-compatible dtype).
 
@@ -1203,8 +1259,12 @@ struct ExTensor(
         Returns:
             The value at the index as Float64.
         """
-        var dtype_size = self._get_dtype_size()
-        var offset = index * dtype_size
+        var offset: Int
+        if self.is_contiguous():
+            var dtype_size = self._get_dtype_size()
+            offset = index * dtype_size
+        else:
+            offset = self._nd_index_to_flat_offset(index)
 
         if self._dtype == DType.float16:
             var ptr = (self._data + offset).bitcast[Float16]()
@@ -1232,8 +1292,12 @@ struct ExTensor(
             index: The element index to set.
             value: The value to set (as Float64).
         """
-        var dtype_size = self._get_dtype_size()
-        var offset = index * dtype_size
+        var offset: Int
+        if self.is_contiguous():
+            var dtype_size = self._get_dtype_size()
+            offset = index * dtype_size
+        else:
+            offset = self._nd_index_to_flat_offset(index)
 
         if self._dtype == DType.float16:
             var ptr = (self._data + offset).bitcast[Float16]()
@@ -1264,8 +1328,12 @@ struct ExTensor(
             For Float64 and integer types, value is cast to Float32.
             For Float16, value is upcast to Float32.
         """
-        var dtype_size = self._get_dtype_size()
-        var offset = index * dtype_size
+        var offset: Int
+        if self.is_contiguous():
+            var dtype_size = self._get_dtype_size()
+            offset = index * dtype_size
+        else:
+            offset = self._nd_index_to_flat_offset(index)
 
         if self._dtype == DType.float16:
             var ptr = (self._data + offset).bitcast[Float16]()
@@ -1292,8 +1360,12 @@ struct ExTensor(
             For Float64, value is upcast to Float64.
             For integer types, value is truncated to integer.
         """
-        var dtype_size = self._get_dtype_size()
-        var offset = index * dtype_size
+        var offset: Int
+        if self.is_contiguous():
+            var dtype_size = self._get_dtype_size()
+            offset = index * dtype_size
+        else:
+            offset = self._nd_index_to_flat_offset(index)
 
         if self._dtype == DType.float16:
             var ptr = (self._data + offset).bitcast[Float16]()
@@ -1314,8 +1386,12 @@ struct ExTensor(
         Returns:
             The value at the index as Int64.
         """
-        var dtype_size = self._get_dtype_size()
-        var offset = index * dtype_size
+        var offset: Int
+        if self.is_contiguous():
+            var dtype_size = self._get_dtype_size()
+            offset = index * dtype_size
+        else:
+            offset = self._nd_index_to_flat_offset(index)
 
         if self._dtype == DType.int8:
             var ptr = (self._data + offset).bitcast[Int8]()
@@ -1354,8 +1430,12 @@ struct ExTensor(
             index: The element index to set.
             value: The value to set (as Int64).
         """
-        var dtype_size = self._get_dtype_size()
-        var offset = index * dtype_size
+        var offset: Int
+        if self.is_contiguous():
+            var dtype_size = self._get_dtype_size()
+            offset = index * dtype_size
+        else:
+            offset = self._nd_index_to_flat_offset(index)
 
         if self._dtype == DType.int8:
             var ptr = (self._data + offset).bitcast[Int8]()
