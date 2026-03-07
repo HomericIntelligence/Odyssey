@@ -248,9 +248,23 @@ jobs:
                 pixi run pytest "$paper_dir/tests" --verbose || true
               fi
 
-              # Run Mojo tests if they exist
+              # Run Mojo tests if they exist (with retry for JIT crash resilience, issue #3329)
               if [ -n "$(find "$paper_dir/tests" -name 'test_*.mojo' 2>/dev/null)" ]; then
-                pixi run mojo test -I . "$paper_dir/tests" --verbose || true
+                attempt=0
+                delay=1
+                while [ $attempt -lt 3 ]; do
+                  attempt=$((attempt + 1))
+                  if pixi run mojo test -I . "$paper_dir/tests" --verbose; then
+                    break
+                  fi
+                  if [ $attempt -lt 3 ]; then
+                    echo "⚠️  Attempt $attempt failed, retrying in ${delay}s..."
+                    sleep $delay
+                    delay=$((delay * 2))
+                  else
+                    echo "⚠️  Mojo tests failed after 3 attempts (soft failure)"
+                  fi
+                done || true
               fi
             fi
           done
@@ -303,7 +317,21 @@ jobs:
             if [ -f "$paper_dir/train.py" ]; then
               pixi run python "$paper_dir/train.py" --quick-validation --epochs 1 || true
             elif [ -f "$paper_dir/train.mojo" ]; then
-              pixi run mojo -I . "$paper_dir/train.mojo" --quick-validation --epochs 1 || true
+              attempt=0
+              delay=1
+              while [ $attempt -lt 3 ]; do
+                attempt=$((attempt + 1))
+                if pixi run mojo -I . "$paper_dir/train.mojo" --quick-validation --epochs 1; then
+                  break
+                fi
+                if [ $attempt -lt 3 ]; then
+                  echo "⚠️  Attempt $attempt failed, retrying in ${delay}s..."
+                  sleep $delay
+                  delay=$((delay * 2))
+                else
+                  echo "⚠️  Training script failed after 3 attempts (soft failure)"
+                fi
+              done || true
             fi
           done
 

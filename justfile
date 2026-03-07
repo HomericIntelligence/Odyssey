@@ -503,19 +503,33 @@ test-group path pattern:
             echo "Running: $test_file"
             test_count=$((test_count + 1))
 
-            if pixi run mojo -I "$REPO_ROOT" -I . "$test_file"; then
-                echo "✅ PASSED: $test_file"
+            attempt=0
+            max_attempts=3
+            delay=1
+            test_passed=0
+            while [ $attempt -lt $max_attempts ]; do
+                attempt=$((attempt + 1))
+                if pixi run mojo -I "$REPO_ROOT" -I . "$test_file"; then
+                    test_passed=1
+                    break
+                fi
+                if [ $attempt -lt $max_attempts ]; then
+                    echo "⚠️  FAILED (attempt $attempt), retrying in ${delay}s: $test_file"
+                    sleep $delay
+                    delay=$((delay * 2))
+                fi
+            done
+            if [ $test_passed -eq 1 ]; then
+                if [ $attempt -eq 1 ]; then
+                    echo "✅ PASSED: $test_file"
+                else
+                    echo "✅ PASSED on attempt $attempt: $test_file"
+                fi
                 passed_count=$((passed_count + 1))
             else
-                echo "⚠️  FAILED (attempt 1), retrying: $test_file"
-                if pixi run mojo -I "$REPO_ROOT" -I . "$test_file"; then
-                    echo "✅ PASSED on retry: $test_file"
-                    passed_count=$((passed_count + 1))
-                else
-                    echo "❌ FAILED: $test_file"
-                    failed_count=$((failed_count + 1))
-                    failed_tests="$failed_tests\n  - $test_file"
-                fi
+                echo "❌ FAILED: $test_file"
+                failed_count=$((failed_count + 1))
+                failed_tests="$failed_tests\n  - $test_file"
             fi
         fi
     done

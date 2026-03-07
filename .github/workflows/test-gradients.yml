@@ -33,11 +33,14 @@ jobs:
       - name: Set up Pixi
         uses: ./.github/actions/setup-pixi
 
+      - name: Install Just
+        uses: extractions/setup-just@v3
+
       - name: Run gradient checking tests
         run: |
           # Split per ADR-009: test_gradient_checking.mojo split to avoid Mojo 0.26.1 heap corruption
-          pixi run mojo -I . tests/shared/core/test_gradient_checking_basic.mojo
-          pixi run mojo -I . tests/shared/core/test_gradient_checking_dtype.mojo
+          # Routed through just test-group for JIT crash retry protection (issue #3329)
+          just test-group "tests/shared/core" "test_gradient_checking_basic.mojo test_gradient_checking_dtype.mojo"
 
       - name: Check test results
         if: failure()
