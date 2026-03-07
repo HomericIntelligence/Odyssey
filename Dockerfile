@@ -69,24 +69,23 @@ RUN mkdir -p $PIXI_HOME $PIXI_CACHE_DIR $HOME/.cache/rattler && \
 # Install Pixi as dev user
 RUN curl -fsSL https://pixi.sh/install.sh | bash
 
-# Copy project dependency files
-COPY --chown=${USER_NAME}:${USER_NAME} pixi.toml pixi.lock pyproject.toml requirements.txt requirements-dev.txt ./
+# Copy dependency manifests first for layer caching
+COPY --chown=${USER_NAME}:${USER_NAME} pixi.toml pixi.lock pyproject.toml requirements.txt requirements-dev.txt .pre-commit-config.yaml ./
 
-# Copy the rest of the workspace
-COPY --chown=${USER_NAME}:${USER_NAME} . .
-
-# Set Python path
-ENV PYTHONPATH=/workspace:${PYTHONPATH:-}
-
-# Install project dependencies
+# Install project dependencies (cached unless manifests change)
 RUN pixi install
 
 # Install pre-commit inside Pixi environment
 RUN pixi run pip install --upgrade pip pre-commit
 
-# Copy and install pre-commit hooks
-COPY --chown=${USER_NAME}:${USER_NAME} .pre-commit-config.yaml ./
+# Install pre-commit hooks (cached unless .pre-commit-config.yaml changes)
 RUN pixi run pre-commit install --install-hooks || true
+
+# Copy the rest of the workspace (invalidates only layers after this)
+COPY --chown=${USER_NAME}:${USER_NAME} . .
+
+# Set Python path
+ENV PYTHONPATH=/workspace:${PYTHONPATH:-}
 
 # Default shell
 CMD ["pixi", "shell"]
@@ -104,11 +103,14 @@ CMD ["pixi", "run", "pytest", "tests/", "-v"]
 # ---------------------------
 FROM base AS production
 
-# Copy dev workspace
+# Copy only what's needed: pixi env and project source (no dev tools)
+COPY --from=development /home/${USER_NAME}/.pixi /home/${USER_NAME}/.pixi
 COPY --from=development /workspace /workspace
 
 ENV ENVIRONMENT=production
+ENV PIXI_HOME=/home/${USER_NAME}/.pixi
+ENV PATH="/home/${USER_NAME}/.pixi/bin:${PATH}"
 USER ${USER_NAME}
 WORKDIR /workspace
 
-CMD ["pixi", "shell"]
+CMD ["pixi", "run", "python", "-c", "print('ProjectOdyssey production image ready')"]

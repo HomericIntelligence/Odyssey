@@ -208,21 +208,20 @@ Strategic Alignment (Level 0)
 | 0     | Meta-Orchestrator | 1 |
 | 1     | Section Orchestrators | 6 |
 | 2     | Module Design & Review Orchestrators | 4 |
-| 3     | Specialists (Implementation + Code Review) | 17 |
-| 4     | Implementation Engineers | 6 |
-| 5     | Junior Engineers | 3 |
-| **Total** | **All Agents** | **37** |
+| 3     | Specialists (Implementation + Code Review) | 13 |
+| 4     | Implementation Engineers | 5 |
+| 5     | Junior Engineers | 2 |
+| **Total** | **All Agents** | **31** |
 
 **Level 3 Breakdown:**
 
-- Implementation/Execution Specialists: 12 (implementation, test, documentation, performance, security,
-  numerical stability, test flakiness, mojo syntax validator, CI failure analyzer, agentic workflows,
-  architecture review orchestrator, general review specialist)
-- Code Review Specialists: 5 (implementation, documentation, test, security, performance)
+- Implementation/Execution Specialists: 9 (implementation, test, documentation, performance, security,
+  numerical stability, test flakiness, mojo syntax validator, CI failure analyzer)
+- Code Review Specialists: 4 (general review, test review, security review, mojo language review)
 
 *Historical Note: Initial planning estimated 23 agent types. Implementation expanded to 44 agents,
-then consolidated to 37 by converting blog-writer/pr-cleanup to skills and merging 13 review
-specialists into 5.*
+then consolidated to 31 by converting blog-writer/pr-cleanup to skills and removing non-existent
+specialist stubs from documentation.*
 
 ## Quick Reference
 

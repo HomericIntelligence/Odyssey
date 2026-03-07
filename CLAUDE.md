@@ -81,8 +81,8 @@ gh pr merge --auto --rebase
 ### Agent System & Skills
 
 - [Agent Hierarchy](/agents/hierarchy.md) - 6-level hierarchy
-- [Agent Configurations](/.claude/agents/) - 42 agents
-- [Skills Directory](/.claude/skills/) - 82+ capabilities
+- [Agent Configurations](/.claude/agents/) - 31 agents
+- [Skills Directory](/.claude/skills/) - 58 skills
 
 ## Working with Agents
 
@@ -95,7 +95,7 @@ See [agents/hierarchy.md](agents/hierarchy.md) for the complete agent hierarchy 
 
 - 6-level hierarchy (L0 Chief Architect → L5 Junior Engineers)
 - Model assignments (Opus, Sonnet, Haiku)
-- All 42 agents with roles and responsibilities
+- All 31 agents with roles and responsibilities
 
 ### Key Agent Principles
 
@@ -114,7 +114,7 @@ Agents delegate to skills using five patterns: **Direct** (invoke for specific a
 **Skill Selection** (pick skill based on analysis), **Background vs Foreground** (automatic
 `run-precommit` vs explicit `gh-create-pr-linked`).
 
-**Available Skills** (82 total across 11 categories):
+**Available Skills** (58 total across 11 categories):
 
 - **GitHub**: gh-review-pr, gh-fix-pr-feedback, gh-create-pr-linked, gh-check-ci-status,
   gh-implement-issue, gh-reply-review-comment, gh-get-review-comments, gh-batch-merge-by-labels,

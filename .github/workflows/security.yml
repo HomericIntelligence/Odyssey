@@ -59,14 +59,12 @@ jobs:
         with:
           config: auto
           generateSarif: true
-        continue-on-error: true
 
       - name: Upload SARIF results
         if: always()
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: semgrep.sarif
-        continue-on-error: true
 
   # ============================================================================
   # Supply Chain Review
@@ -83,10 +81,9 @@ jobs:
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
         with:
-          fail-on-severity: critical
+          fail-on-severity: high
           deny-licenses: GPL-3.0, AGPL-3.0
           comment-summary-in-pr: always
-        continue-on-error: true
 
   # ============================================================================
   # Security Report
