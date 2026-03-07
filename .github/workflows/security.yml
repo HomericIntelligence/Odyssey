@@ -49,10 +49,10 @@ jobs:
 
           if [ -f .gitleaks.toml ]; then
             echo "Using .gitleaks.toml configuration"
-            ./gitleaks detect --source=. --config=.gitleaks.toml --verbose --no-git --exit-code=1
+            ./gitleaks detect --source=. --config=.gitleaks.toml --verbose --exit-code=1
           else
             echo "No .gitleaks.toml found, using default configuration"
-            ./gitleaks detect --source=. --verbose --no-git --exit-code=1
+            ./gitleaks detect --source=. --verbose --exit-code=1
           fi
 
   # ============================================================================
