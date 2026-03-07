@@ -1,19 +1,31 @@
 name: Security Scanning
 
-# Secret detection, SAST, and supply chain review on PRs and pushes to main
-# Target duration: < 5 minutes
+# Secret detection, SAST, supply chain review, and dependency audit
+# PR/push: secret scan, SAST, supply chain review
+# Scheduled (weekly): full dependency audit (Python, Pixi, licenses)
+# Target duration: < 10 minutes
 
 on:
   pull_request:
   push:
     branches:
       - main
+    paths:
+      - 'pixi.toml'
+      - 'requirements.txt'
+      - 'tools/requirements.txt'
+      - 'pyproject.toml'
+      - '.github/dependabot.yml'
+  schedule:
+    # Weekly on Monday at 8 AM UTC (before team standup)
+    - cron: '0 8 * * 1'
   workflow_dispatch:
 
 permissions:
   contents: read
   pull-requests: write
   security-events: write
+  issues: write
 
 jobs:
   # ============================================================================
@@ -157,3 +169,275 @@ jobs:
           fi
 
           echo "✅ No critical security issues found"
+
+  # ============================================================================
+  # Python Dependency Audit (scheduled / workflow_dispatch only)
+  # ============================================================================
+  python-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install audit tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install safety pip-audit
+
+      - name: Audit with Safety
+        id: safety
+        run: |
+          echo "## Safety Scan Results" > safety-report.md
+          echo "" >> safety-report.md
+
+          FILES_SCANNED=0
+          VULN_COUNT=0
+
+          for file in requirements.txt tools/requirements.txt; do
+            if [ -f "$file" ]; then
+              echo "### $file" >> safety-report.md
+              echo "" >> safety-report.md
+              FILES_SCANNED=$((FILES_SCANNED + 1))
+
+              if safety check --file "$file" --json > "safety-${file//\//-}.json" 2>/dev/null; then
+                echo "✅ No vulnerabilities found" >> safety-report.md
+              else
+                FOUND=$(jq '.vulnerabilities | length' "safety-${file//\//-}.json" 2>/dev/null || echo "0")
+                VULN_COUNT=$((VULN_COUNT + FOUND))
+                echo "⚠️ Found $FOUND vulnerabilities" >> safety-report.md
+                jq -r '.vulnerabilities[] | "- **\(.package_name)** \(.vulnerable_versions): \(.advisory)"' "safety-${file//\//-}.json" >> safety-report.md 2>/dev/null || true
+              fi
+              echo "" >> safety-report.md
+            fi
+          done
+
+          echo "files_scanned=$FILES_SCANNED" >> "$GITHUB_OUTPUT"
+          echo "vulnerabilities=$VULN_COUNT" >> "$GITHUB_OUTPUT"
+        continue-on-error: true
+
+      - name: Audit with pip-audit
+        id: pip_audit
+        run: |
+          echo "## pip-audit Scan Results" > pip-audit-report.md
+          echo "" >> pip-audit-report.md
+
+          pip install -r requirements.txt -r tools/requirements.txt 2>/dev/null || true
+
+          if pip-audit --format json --output pip-audit.json 2>/dev/null; then
+            echo "✅ No vulnerabilities found" >> pip-audit-report.md
+            echo "count=0" >> "$GITHUB_OUTPUT"
+          else
+            COUNT=$(jq '. | length' pip-audit.json 2>/dev/null || echo "0")
+            echo "⚠️ Found $COUNT vulnerabilities" >> pip-audit-report.md
+            echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+            jq -r '.[] | "- **\(.name)** \(.version): \(.vulns[0].id // \"Unknown\")"' pip-audit.json >> pip-audit-report.md 2>/dev/null || true
+          fi
+        continue-on-error: true
+
+      - name: Upload Python audit results
+        uses: actions/upload-artifact@v7
+        with:
+          name: python-audit-results
+          path: |
+            safety-*.json
+            pip-audit.json
+            safety-report.md
+            pip-audit-report.md
+          retention-days: 30
+
+      - name: Set Python audit outputs
+        id: python_summary
+        run: |
+          SAFETY_VULNS="${{ steps.safety.outputs.vulnerabilities }}"
+          PIP_VULNS="${{ steps.pip_audit.outputs.count }}"
+          TOTAL=$((${SAFETY_VULNS:-0} + ${PIP_VULNS:-0}))
+          echo "total_vulnerabilities=$TOTAL" >> "$GITHUB_OUTPUT"
+
+    outputs:
+      vulnerabilities: ${{ steps.python_summary.outputs.total_vulnerabilities }}
+
+  # ============================================================================
+  # Pixi/Conda Dependency Audit (scheduled / workflow_dispatch only)
+  # ============================================================================
+  pixi-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Audit Pixi dependencies
+        run: |
+          echo "## Pixi Dependency Audit" > pixi-audit-report.md
+          echo "" >> pixi-audit-report.md
+          echo "### Installed Packages" >> pixi-audit-report.md
+          echo "" >> pixi-audit-report.md
+          echo "\`\`\`" >> pixi-audit-report.md
+          pixi list >> pixi-audit-report.md 2>&1 || echo "Failed to list packages"
+          echo "\`\`\`" >> pixi-audit-report.md
+          echo "" >> pixi-audit-report.md
+
+          pixi list --json > pixi-packages.json 2>/dev/null || echo "[]" > pixi-packages.json
+
+          echo "### Version Check" >> pixi-audit-report.md
+          echo "" >> pixi-audit-report.md
+          echo "Mojo version: $(pixi run mojo --version 2>/dev/null | head -1)" >> pixi-audit-report.md
+
+      - name: Upload Pixi audit results
+        uses: actions/upload-artifact@v7
+        with:
+          name: pixi-audit-results
+          path: |
+            pixi-audit-report.md
+            pixi-packages.json
+          retention-days: 30
+
+  # ============================================================================
+  # License Compliance Audit (scheduled / workflow_dispatch only)
+  # ============================================================================
+  license-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install license checker
+        run: pip install pip-licenses
+
+      - name: Check licenses
+        run: |
+          pip install -r requirements.txt -r tools/requirements.txt 2>/dev/null || true
+
+          echo "## License Audit Report" > license-report.md
+          echo "" >> license-report.md
+          echo "### All Package Licenses" >> license-report.md
+          echo "" >> license-report.md
+          pip-licenses --format=markdown >> license-report.md 2>/dev/null || echo "Failed to generate license report"
+
+          echo "" >> license-report.md
+          echo "### License Compliance" >> license-report.md
+          echo "" >> license-report.md
+
+          PROBLEMATIC=$(pip-licenses --fail-on="GPL-3.0;AGPL-3.0" 2>&1 || true)
+          if echo "$PROBLEMATIC" | grep -q "fail"; then
+            echo "⚠️ Potentially problematic licenses detected" >> license-report.md
+          else
+            echo "✅ No problematic licenses (GPL-3.0, AGPL-3.0) found" >> license-report.md
+          fi
+
+      - name: Upload license audit
+        uses: actions/upload-artifact@v7
+        with:
+          name: license-audit-results
+          path: license-report.md
+          retention-days: 30
+
+  # ============================================================================
+  # Dependency Audit Report (scheduled / workflow_dispatch only)
+  # ============================================================================
+  audit-report:
+    needs: [python-audit, pixi-audit, license-audit]
+    runs-on: ubuntu-latest
+    if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: audit-results/
+
+      - name: Generate combined report
+        run: |
+          echo "# 🔍 Dependency Audit Report" > combined-report.md
+          echo "" >> combined-report.md
+          echo "**Generated**: $(date -u +%Y-%m-%d)" >> combined-report.md
+          echo "**Workflow Run**: [${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> combined-report.md
+          echo "" >> combined-report.md
+
+          echo "## Summary" >> combined-report.md
+          echo "" >> combined-report.md
+          echo "| Audit Type | Status |" >> combined-report.md
+          echo "|------------|--------|" >> combined-report.md
+          echo "| Python Dependencies | ${{ needs.python-audit.result }} |" >> combined-report.md
+          echo "| Pixi/Conda Dependencies | ${{ needs.pixi-audit.result }} |" >> combined-report.md
+          echo "| License Compliance | ${{ needs.license-audit.result }} |" >> combined-report.md
+          echo "" >> combined-report.md
+
+          VULNS="${{ needs.python-audit.outputs.vulnerabilities }}"
+          if [ "${VULNS:-0}" -gt 0 ]; then
+            echo "⚠️ **$VULNS Python vulnerabilities found** - Review required" >> combined-report.md
+          else
+            echo "✅ No Python vulnerabilities detected" >> combined-report.md
+          fi
+          echo "" >> combined-report.md
+
+          echo "---" >> combined-report.md
+          echo "" >> combined-report.md
+
+          for report in audit-results/**/*.md; do
+            if [ -f "$report" ]; then
+              echo "" >> combined-report.md
+              cat "$report" >> combined-report.md
+              echo "" >> combined-report.md
+            fi
+          done
+
+      - name: Upload combined report
+        uses: actions/upload-artifact@v7
+        with:
+          name: dependency-audit-report
+          path: combined-report.md
+          retention-days: 90
+
+      - name: Create issue for vulnerabilities
+        if: needs.python-audit.outputs.vulnerabilities > 0
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VULNS="${{ needs.python-audit.outputs.vulnerabilities }}"
+          WORKFLOW_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          EXISTING=$(gh issue list --search "Security vulnerabilities found in:dependencies" --state open --json number --jq '.[0].number // ""')
+
+          if [ -n "$EXISTING" ]; then
+            gh issue comment "$EXISTING" --body "Audit update ($(date -u +%Y-%m-%d)): Found $VULNS vulnerabilities. See workflow run at $WORKFLOW_URL for details."
+          else
+            gh issue create \
+              --title "Security vulnerabilities found in dependencies" \
+              --body "## Summary\n\nFound $VULNS vulnerabilities. Review the audit at $WORKFLOW_URL" \
+              --label "security" \
+              --label "dependencies" \
+              --label "automated"
+          fi
+
+      - name: Write summary
+        run: |
+          echo "## Dependency Audit Complete" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          cat combined-report.md >> "$GITHUB_STEP_SUMMARY"
