@@ -5,7 +5,7 @@ level: 3
 phase: Plan,Test,Implementation
 tools: Read,Write,Edit,Grep,Glob,Task
 model: sonnet
-delegates_to: [test-engineer, junior-test-engineer]
+delegates_to: [test-engineer]
 receives_from: [architecture-design, implementation-specialist]
 ---
 

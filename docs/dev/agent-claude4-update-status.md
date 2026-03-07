@@ -93,7 +93,6 @@ These serve as templates for their respective categories.
 #### Level 5: Junior Engineers (2 remaining)
 
 - `.claude/agents/junior-implementation-engineer.md`
-- `.claude/agents/junior-test-engineer.md`
 - `.claude/agents/junior-documentation-engineer.md`
 
 **Pattern**: No sub-agents, simpler thinking guidance

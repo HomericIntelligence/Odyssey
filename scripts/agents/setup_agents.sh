@@ -77,7 +77,6 @@ EXPECTED_AGENT_FILES=(
     "performance-engineer.md"
     # Level 5
     "junior-implementation-engineer.md"
-    "junior-test-engineer.md"
     "junior-documentation-engineer.md"
 )
 
