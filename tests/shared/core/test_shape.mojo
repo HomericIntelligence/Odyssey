@@ -293,6 +293,12 @@ fn test_split_equal() raises:
     for i in range(3):
         assert_numel(parts[i], 4, "Each part should have 4 elements")
 
+    # Verify actual values: parts[0]=[0,1,2,3], parts[1]=[4,5,6,7], parts[2]=[8,9,10,11]
+    for j in range(4):
+        assert_value_at(parts[0], j, Float64(j), message="parts[0] value mismatch")
+        assert_value_at(parts[1], j, Float64(j + 4), message="parts[1] value mismatch")
+        assert_value_at(parts[2], j, Float64(j + 8), message="parts[2] value mismatch")
+
 
 fn test_split_unequal() raises:
     """Test splitting into unequal parts."""
@@ -310,6 +316,13 @@ fn test_split_unequal() raises:
     assert_numel(parts[0], 3, "First part should have 3 elements")
     assert_numel(parts[1], 4, "Second part should have 4 elements")
     assert_numel(parts[2], 3, "Third part should have 3 elements")
+
+    # Verify actual values: parts[0]=[0,1,2], parts[1]=[3,4,5,6], parts[2]=[7,8,9]
+    for j in range(3):
+        assert_value_at(parts[0], j, Float64(j), message="parts[0] value mismatch")
+        assert_value_at(parts[2], j, Float64(j + 7), message="parts[2] value mismatch")
+    for j in range(4):
+        assert_value_at(parts[1], j, Float64(j + 3), message="parts[1] value mismatch")
 
 
 # ============================================================================
@@ -329,6 +342,13 @@ fn test_tile_1d() raises:
     # Result: [0, 1, 2, 0, 1, 2, 0, 1, 2] (9 elements)
     assert_numel(b, 9, "Tiled tensor should have 9 elements")
 
+    # Verify actual values: [0, 1, 2, 0, 1, 2, 0, 1, 2]
+    for rep in range(3):
+        for j in range(3):
+            assert_value_at(
+                b, rep * 3 + j, Float64(j), message="tile_1d value mismatch"
+            )
+
 
 fn test_tile_multidim() raises:
     """Test tiling with multi-dimensional repetitions."""
@@ -346,6 +366,9 @@ fn test_tile_multidim() raises:
     # Result should be 4x9 (2*2 rows, 3*3 cols)
     assert_numel(b, 36, "Should have 36 elements (4*9)")
 
+    # All values should be 1.0 since source tensor is all ones
+    assert_all_values(b, 1.0, message="tile_multidim: all values should be 1.0")
+
 
 # ============================================================================
 # Test repeat()
@@ -362,6 +385,11 @@ fn test_repeat_elements() raises:
     # Result: [0, 0, 1, 1, 2, 2] (6 elements)
     assert_numel(b, 6, "Repeated tensor should have 6 elements")
 
+    # Verify actual values: [0, 0, 1, 1, 2, 2]
+    for j in range(3):
+        assert_value_at(b, j * 2, Float64(j), message="repeat_elements even index mismatch")
+        assert_value_at(b, j * 2 + 1, Float64(j), message="repeat_elements odd index mismatch")
+
 
 fn test_repeat_axis() raises:
     """Test repeating along specific axis."""
@@ -375,6 +403,9 @@ fn test_repeat_axis() raises:
 
     # Result should be 4x3 (each row repeated twice)
     assert_numel(b, 12, "Should have 12 elements (4*3)")
+
+    # All values should be 1.0 since source tensor is all ones
+    assert_all_values(b, 1.0, message="repeat_axis: all values should be 1.0")
 
 
 # ============================================================================
@@ -393,6 +424,13 @@ fn test_broadcast_to_compatible() raises:
     # Result should be 4x3 (broadcasting (3,) to (4,3))
     assert_dim(b, 2, "Broadcasted tensor should be 2D")
     assert_numel(b, 12, "Should have 12 elements")
+
+    # Each row of b should be [0, 1, 2] (the original 1D tensor repeated 4 times)
+    for row in range(4):
+        for col in range(3):
+            assert_value_at(
+                b, row * 3 + col, Float64(col), message="broadcast_to value mismatch"
+            )
 
 
 fn test_broadcast_to_incompatible() raises:
@@ -444,6 +482,9 @@ fn test_permute_axes() raises:
     # Result should be (4, 2, 3)
     assert_dim(b, 3, "Should still be 3D")
     assert_numel(b, 24, "Should have same elements")
+
+    # All values should be 1.0 since source tensor is all ones
+    assert_all_values(b, 1.0, message="permute_axes: all values should be 1.0")
 
 
 # ============================================================================
