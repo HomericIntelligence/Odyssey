@@ -117,8 +117,8 @@ fn check_gradients(
 
     # Step 2: Compute numerical gradient using finite differences
     var numerical_grad = zeros_like(input)
-    var input_copy_plus = input.copy()
-    var input_copy_minus = input.copy()
+    var input_copy_plus = _deep_copy(input)
+    var input_copy_minus = _deep_copy(input)
 
     for i in range(input.numel()):
         # Save original value
@@ -226,8 +226,8 @@ fn check_gradients_verbose(
         var analytical_grad = backward_fn(grad_output, input)
 
         var numerical_grad = zeros_like(input)
-        var input_copy_plus = input.copy()
-        var input_copy_minus = input.copy()
+        var input_copy_plus = _deep_copy(input)
+        var input_copy_minus = _deep_copy(input)
 
         for i in range(input.numel()):
             var original_val = input._get_float64(i)

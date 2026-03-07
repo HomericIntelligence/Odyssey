@@ -540,6 +540,49 @@ fn test_gradient_checker_large_epsilon() raises:
 
 
 # ============================================================================
+# Memory Safety Tests
+# ============================================================================
+
+
+fn test_check_gradients_does_not_mutate_input() raises:
+    """Regression test: check_gradients must not mutate the original input tensor.
+
+    Verifies that the deep-copy fix for the shallow-copy memory hazard is in
+    place. Before the fix, `input.copy()` (a `__copyinit__` shallow copy) shared
+    the `_data` buffer with the original tensor, so `_set_float64` calls inside
+    check_gradients corrupted the caller's tensor. After the fix, `_deep_copy`
+    allocates an independent buffer and the original is never modified.
+    """
+    print("Memory safety: check_gradients does not mutate input...")
+
+    var x = full([2, 2], 1.0, DType.float32)
+
+    # Snapshot all values before the call
+    var before = List[Float64]()
+    for i in range(x.numel()):
+        before.append(x._get_float64(i))
+
+    fn forward(t: ExTensor) raises escaping -> ExTensor:
+        return square_forward(t)^
+
+    fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+        return square_backward_correct(grad, inp)^
+
+    _ = check_gradients(forward, backward, x, epsilon=1e-5, tolerance=1e-2)
+
+    # Assert every element is unchanged
+    for i in range(x.numel()):
+        var after_val = x._get_float64(i)
+        assert_equal(
+            after_val,
+            before[i],
+            "check_gradients mutated input at index " + String(i),
+        )
+
+    print("  OK: check_gradients does not mutate the original input tensor")
+
+
+# ============================================================================
 # Main Test Runner
 # ============================================================================
 
@@ -583,6 +626,10 @@ fn main() raises:
     print("-" * 70)
     test_gradient_checker_small_epsilon()
     test_gradient_checker_large_epsilon()
+
+    print("\n[6] Memory Safety Tests")
+    print("-" * 70)
+    test_check_gradients_does_not_mutate_input()
 
     print("\n" + "=" * 70)
     print("ALL GRADIENT CHECKER META-TESTS PASSED!")
