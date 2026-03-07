@@ -477,6 +477,8 @@ struct ExTensor(
         """
         if dtype == DType.float16:
             return 2
+        elif dtype == DType.bfloat16:
+            return 2
         elif dtype == DType.float32:
             return 4
         elif dtype == DType.float64:
@@ -1016,6 +1018,9 @@ struct ExTensor(
         if self._dtype == DType.float16:
             var ptr = (self._data + offset).bitcast[Float16]()
             return ptr[].cast[DType.float64]()
+        elif self._dtype == DType.bfloat16:
+            var ptr = (self._data + offset).bitcast[BFloat16]()
+            return Float64(Float32(ptr[]))
         elif self._dtype == DType.float32:
             var ptr = (self._data + offset).bitcast[Float32]()
             return ptr[].cast[DType.float64]()
@@ -1039,6 +1044,9 @@ struct ExTensor(
         if self._dtype == DType.float16:
             var ptr = (self._data + offset).bitcast[Float16]()
             ptr[] = value.cast[DType.float16]()
+        elif self._dtype == DType.bfloat16:
+            var ptr = (self._data + offset).bitcast[BFloat16]()
+            ptr[] = BFloat16(Float32(value))
         elif self._dtype == DType.float32:
             var ptr = (self._data + offset).bitcast[Float32]()
             ptr[] = value.cast[DType.float32]()
