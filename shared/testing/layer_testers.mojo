@@ -1147,10 +1147,14 @@ struct LayerTester:
         )
         assert_dtype(input, dtype, "BatchNorm backward: input dtype mismatch")
 
-        # Note: Actual BatchNorm backward gradient checking would be implemented
-        # when BatchNorm forward pass is available
-        # Epsilon and tolerance values will be dtype-specific when gradient checking is added
-        # For now, we validate that we can compute numerical gradients on the input
+        # Note: Actual BatchNorm backward gradient checking will be implemented
+        # when BatchNorm forward pass is available.
+        # NOTE: When adding gradient checking, use epsilon=3e-4 for float32 to avoid
+        # precision loss in normalization ops (consistent with conv2d/linear, see #2704).
+        # BatchNorm accumulates division errors across N*H*W elements, so use
+        # tolerance=1e-1 (10%) for all dtypes — same as conv2d backward (see #3090).
+        # NOTE: For other dtypes use epsilon=1e-3, tolerance=1e-1 (same pattern as #3090).
+        # For now, we validate that we can compute numerical gradients on the input.
 
         # Verify no NaN/Inf in input
         for i in range(input.numel()):
