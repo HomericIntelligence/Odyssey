@@ -344,6 +344,7 @@ fn _conv2d_kernel[
 
     return output^
 
+
 fn conv2d(
     x: ExTensor,
     kernel: ExTensor,
@@ -475,6 +476,7 @@ fn conv2d(
             " supported"
         )
 
+
 fn conv2d_no_bias(
     x: ExTensor, kernel: ExTensor, stride: Int = 1, padding: Int = 0
 ) raises -> ExTensor:
@@ -506,6 +508,7 @@ fn conv2d_no_bias(
     var bias = zeros(bias_shape, x.dtype())
 
     return conv2d(x, kernel, bias, stride, padding)
+
 
 fn _conv2d_backward_kernel[
     dtype: DType
@@ -698,6 +701,7 @@ fn _conv2d_backward_kernel[
 
     return GradientTriple(grad_input^, grad_kernel^, grad_bias^)
 
+
 fn conv2d_backward(
     grad_output: ExTensor,
     x: ExTensor,
@@ -823,6 +827,7 @@ fn conv2d_backward(
             " float64 supported"
         )
 
+
 fn conv2d_no_bias_backward(
     grad_output: ExTensor,
     x: ExTensor,
@@ -850,6 +855,7 @@ fn conv2d_no_bias_backward(
     var grad_input_copy = result.grad_input
     var grad_kernel_copy = result.grad_weights
     return GradientPair(grad_input_copy^, grad_kernel_copy^)
+
 
 fn depthwise_conv2d(
     x: ExTensor,
@@ -996,6 +1002,7 @@ fn depthwise_conv2d(
 
     return output^
 
+
 fn depthwise_conv2d_no_bias(
     x: ExTensor, kernel: ExTensor, stride: Int = 1, padding: Int = 0
 ) raises -> ExTensor:
@@ -1023,6 +1030,7 @@ fn depthwise_conv2d_no_bias(
     var bias = zeros(bias_shape, x.dtype())
 
     return depthwise_conv2d(x, kernel, bias, stride, padding)
+
 
 fn depthwise_conv2d_backward(
     grad_output: ExTensor,
@@ -1202,6 +1210,7 @@ fn depthwise_conv2d_backward(
 
     return GradientTriple(grad_input^, grad_kernel^, grad_bias^)
 
+
 fn depthwise_conv2d_no_bias_backward(
     grad_output: ExTensor,
     x: ExTensor,
@@ -1237,6 +1246,7 @@ fn depthwise_conv2d_no_bias_backward(
 # ============================================================================
 # Depthwise Separable Convolution
 # ============================================================================
+
 
 fn depthwise_separable_conv2d(
     x: ExTensor,
@@ -1305,6 +1315,7 @@ fn depthwise_separable_conv2d(
 
     return output
 
+
 fn depthwise_separable_conv2d_no_bias(
     x: ExTensor,
     depthwise_kernel: ExTensor,
@@ -1338,6 +1349,7 @@ fn depthwise_separable_conv2d_no_bias(
     )
 
     return output
+
 
 fn depthwise_separable_conv2d_backward(
     grad_output: ExTensor,
@@ -1395,6 +1407,7 @@ fn depthwise_separable_conv2d_backward(
     return GradientQuad(
         grad_input^, grad_depthwise_kernel^, grad_pointwise_kernel^, grad_bias^
     )
+
 
 fn depthwise_separable_conv2d_no_bias_backward(
     grad_output: ExTensor,
