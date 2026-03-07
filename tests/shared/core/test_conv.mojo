@@ -25,13 +25,18 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.extensor import ExTensor, zeros, ones, full, ones_like
 from shared.core.conv import (
     conv2d,
     conv2d_no_bias,
     conv2d_backward,
     conv2d_no_bias_backward,
 )
+from shared.testing import (
+    compute_numerical_gradient,
+    assert_gradients_close,
+)
+from shared.core.reduction import sum as reduce_sum
 
 
 # ============================================================================
@@ -919,6 +924,125 @@ fn test_conv2d_backward_multichannel_values() raises:
             Float32(1.0),
             tolerance=1e-4,
         )
+fn test_conv2d_backward_gradient_input() raises:
+    """Numerical gradient check for grad_input computed by conv2d_backward.
+
+    Compares analytical gradient w.r.t. input against finite differences.
+    Uses a small (1, 1, 4, 4) input with a (1, 1, 3, 3) kernel so the
+    test runs quickly while exercising the transposed convolution path.
+    """
+    var stride = 1
+    var padding = 0
+
+    # Input: (1, 1, 4, 4) with simple FP-representable values
+    var input_shape = List[Int]()
+    input_shape.append(1)
+    input_shape.append(1)
+    input_shape.append(4)
+    input_shape.append(4)
+    var x = zeros(input_shape, DType.float32)
+    var x_data = x._data.bitcast[Float32]()
+    for i in range(16):
+        x_data[i] = Float32(i) * Float32(0.1)
+
+    # Kernel: (1, 1, 3, 3) with simple FP-representable values
+    var kernel_shape = List[Int]()
+    kernel_shape.append(1)
+    kernel_shape.append(1)
+    kernel_shape.append(3)
+    kernel_shape.append(3)
+    var kernel = zeros(kernel_shape, DType.float32)
+    var k_data = kernel._data.bitcast[Float32]()
+    for i in range(9):
+        k_data[i] = Float32(i + 1) * Float32(0.5)
+
+    # Forward pass to get output shape for grad_output
+    var output = conv2d_no_bias(x, kernel, stride, padding)
+
+    # Analytical gradient: use ones_like as grad_output (matches the sum reduction below)
+    var grad_output = ones_like(output)
+    var result = conv2d_backward(grad_output, x, kernel, stride, padding)
+    var analytical_grad = result.grad_input
+
+    # Numerical gradient: forward_fn sums conv output (equivalent to ones grad_output)
+    fn forward_for_input(inp: ExTensor) raises -> ExTensor:
+        var out = conv2d_no_bias(inp, kernel, stride, padding)
+        var reduced = out
+        while reduced.dim() > 0:
+            reduced = reduce_sum(reduced, axis=0, keepdims=False)
+        return reduced
+
+    var numerical_grad = compute_numerical_gradient(
+        forward_for_input, x, epsilon=3e-4
+    )
+
+    assert_gradients_close(
+        analytical_grad,
+        numerical_grad,
+        rtol=1e-2,
+        atol=1e-4,
+        message="conv2d_backward gradient w.r.t. input",
+    )
+
+
+fn test_conv2d_backward_gradient_kernel() raises:
+    """Numerical gradient check for grad_weights computed by conv2d_backward.
+
+    Compares analytical gradient w.r.t. kernel against finite differences.
+    Uses the same small dimensions as test_conv2d_backward_gradient_input.
+    """
+    var stride = 1
+    var padding = 0
+
+    # Input: (1, 1, 4, 4)
+    var input_shape = List[Int]()
+    input_shape.append(1)
+    input_shape.append(1)
+    input_shape.append(4)
+    input_shape.append(4)
+    var x = zeros(input_shape, DType.float32)
+    var x_data = x._data.bitcast[Float32]()
+    for i in range(16):
+        x_data[i] = Float32(i) * Float32(0.1)
+
+    # Kernel: (1, 1, 3, 3)
+    var kernel_shape = List[Int]()
+    kernel_shape.append(1)
+    kernel_shape.append(1)
+    kernel_shape.append(3)
+    kernel_shape.append(3)
+    var kernel = zeros(kernel_shape, DType.float32)
+    var k_data = kernel._data.bitcast[Float32]()
+    for i in range(9):
+        k_data[i] = Float32(i + 1) * Float32(0.5)
+
+    # Forward pass to get output shape for grad_output
+    var output = conv2d_no_bias(x, kernel, stride, padding)
+
+    # Analytical gradient: use ones_like as grad_output (matches sum reduction below)
+    var grad_output = ones_like(output)
+    var result = conv2d_backward(grad_output, x, kernel, stride, padding)
+    var analytical_grad = result.grad_weights
+
+    # Numerical gradient: forward_fn sums conv output (equivalent to ones grad_output)
+    fn forward_for_kernel(k: ExTensor) raises -> ExTensor:
+        var out = conv2d_no_bias(x, k, stride, padding)
+        var reduced = out
+        while reduced.dim() > 0:
+            reduced = reduce_sum(reduced, axis=0, keepdims=False)
+        return reduced
+
+    var numerical_grad = compute_numerical_gradient(
+        forward_for_kernel, kernel, epsilon=3e-4
+    )
+
+    assert_gradients_close(
+        analytical_grad,
+        numerical_grad,
+        rtol=1e-2,
+        atol=1e-4,
+        message="conv2d_backward gradient w.r.t. kernel",
+    )
 
 
 # ============================================================================
@@ -1127,6 +1251,11 @@ fn main() raises:
 
     test_conv2d_backward_multichannel_values()
     print("✓ test_conv2d_backward_multichannel_values")
+    test_conv2d_backward_gradient_input()
+    print("✓ test_conv2d_backward_gradient_input")
+
+    test_conv2d_backward_gradient_kernel()
+    print("✓ test_conv2d_backward_gradient_kernel")
 
     # Integration tests
     test_conv2d_forward_backward_consistency()
