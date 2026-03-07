@@ -51,16 +51,11 @@ jobs:
 
       - name: Build PR comment report
         if: github.event_name == 'pull_request'
-        run: |
-          {
-            printf '## \xf0\x9f\x93\x8a Test Metrics Report\n\n'
-            cat metrics.md
-            printf '\n\n---\n*Note: Full code coverage requires Mojo coverage tooling (blocked - see ADR-008)*\n'
-          } > metrics-pr-comment.md
+        run: python scripts/build_pr_comment.py --metrics-file metrics.md --output-file metrics-pr-comment.md
 
       - name: Comment on PR with metrics
         if: github.event_name == 'pull_request'
         uses: ./.github/actions/pr-comment
         with:
           report-file: metrics-pr-comment.md
-          comment-marker: "\U0001F4CA Test Metrics Report"
+          comment-marker: "Test Metrics Report"
