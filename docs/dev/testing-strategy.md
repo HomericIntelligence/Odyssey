@@ -192,6 +192,46 @@ Numerical Gradient ≈ [f(x + ε) - f(x - ε)] / (2ε)
 - **Tolerance**: 1e-2 for float32, 1e-1 for lower precision
 - **Method**: Central differences (more accurate than forward differences)
 
+### Float16 Convolution Limitations
+
+Convolution gradient-checking tests **skip Float16** due to insufficient precision for
+large-kernel accumulation. This is a mathematical limitation, not a test framework gap.
+
+**Why Float16 fails for convolution gradient checking:**
+
+Float16 has a 10-bit mantissa, giving ~0.1% relative precision (machine epsilon ≈ 9.77e-4).
+Convolution computes a dot product over `K × K × C_in` values per output element:
+
+```text
+Accumulation error ≈ n × ε_machine
+  where n = kernel_area × input_channels
+```
+
+For common configurations, this exceeds the gradient-checking tolerance:
+
+| Layer | Kernel | C_in | n (accumulations) | Float16 error | Exceeds tolerance? |
+|-------|--------|------|-------------------|---------------|--------------------|
+| LeNet-5 Conv1 | 5×5 | 1 | 25 | ~2.4e-2 | Borderline |
+| LeNet-5 Conv2 | 5×5 | 6 | 150 | ~1.5e-1 | Yes |
+| AlexNet Conv1 | 11×11 | 3 | 363 | ~3.5e-1 | Yes |
+| AlexNet Conv2 | 5×5 | 64 | 1,600 | ~1.6 | Yes |
+| AlexNet Conv3 | 3×3 | 192 | 1,728 | ~1.7 | Yes |
+
+The 1e-1 tolerance for lower precision (see `### Parameters` above) is still exceeded for
+any convolution with more than ~100 accumulations.
+
+**Affected tests** (marked SKIPPED in output):
+
+- `tests/models/test_lenet5_conv_layers.mojo` — Conv2 forward Float16
+- `tests/models/test_alexnet_layers.mojo` — Conv1, Conv2, Conv3 forward Float16
+
+**What is tested instead**: Float16 forward pass is verified using special
+FP-representable values (0.0, 0.5, 1.0, 1.5) where exact accumulation holds regardless
+of mantissa width. Backward passes use Float32 only.
+
+See [#3089](https://github.com/homericintelligence/projectodyssey/issues/3089) for the
+full analysis that identified this limitation.
+
 ### Example
 
 ```mojo
