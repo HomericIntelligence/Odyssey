@@ -912,23 +912,24 @@ struct ExTensor(
             slices: Variable number of Slice objects, one per dimension.
 
         Returns:
-            A new tensor view that shares memory with the original tensor.
-            Modifying the view will affect the original tensor.
+            New tensor containing a **copy** of the sliced data. The result
+            does not share memory with the original tensor.
 
         Raises:
             Error: If number of slices doesn't match tensor dimensions.
 
         Notes:
-            This method returns a **true view** (shared memory). The data
-            pointer is offset into the original buffer and the reference count
-            is incremented. Each slice narrows one dimension without copying
-            data. This is analogous to NumPy's multi-dimensional slicing
-            behaviour.
+            This method returns a copy (`_is_view = False`), consistent with
+            the 1D `__getitem__(Slice)` overload. Multi-dimensional slicing
+            produces non-contiguous data in general (e.g., `t[1:4, 1:3]` on
+            a 5x4 tensor), so a simple pointer offset is insufficient. Each
+            output element is copied individually using per-dimension offsets
+            and original strides.
 
         Example:
             ```mojo
             var t = zeros([10, 8, 6], DType.float32)
-            var sliced = t[2:7, :, 1:4]  # [5, 8, 3] view into t
+            var sliced = t[2:7, :, 1:4]  # Copy with shape [5, 8, 3]
         ```
         """
         var num_slices = len(slices)
@@ -943,19 +944,13 @@ struct ExTensor(
                 + ")"
             )
 
-        # Start with current tensor
-        var result = self.copy()
-        result._is_view = True
-
-        # Apply each slice to corresponding dimension
-        var offset_bytes = 0
-        var dtype_size = self._get_dtype_size()
-
+        # Compute per-dimension starts and result shape
+        var starts = List[Int]()
+        var result_shape = List[Int]()
         for dim in range(num_dims):
             var s = slices[dim]
-            var size = result._shape[dim]
+            var size = self._shape[dim]
 
-            # Handle slice parameters
             var start = s.start.or_else(0)
             var end = s.end.or_else(size)
 
@@ -969,19 +964,37 @@ struct ExTensor(
             start = max(0, min(start, size))
             end = max(0, min(end, size))
 
-            # Update shape for this dimension
-            result._shape[dim] = end - start
+            starts.append(start)
+            result_shape.append(max(0, end - start))
 
-            # Calculate offset for this dimension
-            offset_bytes += start * result._strides[dim] * dtype_size
+        # Allocate result tensor (independent copy, not a view)
+        var result = Self(result_shape, self._dtype)
+        result._is_view = False
 
-        # Update data pointer
-        result._data = self._data.offset(offset_bytes)
+        var result_numel = result._numel
+        if result_numel == 0:
+            return result^
 
-        # Recalculate numel
-        result._numel = 1
-        for i in range(len(result._shape)):
-            result._numel *= result._shape[i]
+        # Copy each element: map output flat index -> source flat index
+        var dtype_size = self._get_dtype_size()
+        var src_ptr = self._data
+        var dst_ptr = result._data
+
+        for out_flat in range(result_numel):
+            # Decompose out_flat into per-dimension indices, then map to source
+            var src_flat = 0
+            var remaining = out_flat
+            for dim in range(num_dims):
+                var out_idx = remaining // result._strides[dim]
+                remaining = remaining % result._strides[dim]
+                var src_idx = starts[dim] + out_idx
+                src_flat += src_idx * self._strides[dim]
+
+            # Copy element byte-by-byte
+            var src_offset = src_flat * dtype_size
+            var dst_offset = out_flat * dtype_size
+            for b in range(dtype_size):
+                dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
 
         return result^
 

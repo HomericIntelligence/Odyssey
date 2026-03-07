@@ -329,23 +329,22 @@ fn main() raises:
     print("Testing strided slicing...")
     test_slice_1d_strided()
     test_slice_1d_strided_step3()
-    # Skip reverse for now - needs debugging
-    # test_slice_1d_reverse()
+    test_slice_1d_reverse()
     print("Strided slicing: PASSED")
 
-    # Multi-dimensional slicing - skip for now
-    # print("Testing multi-dimensional slicing...")
-    # test_slice_2d_single_dim()
-    # test_slice_2d_both_dims()
-    # test_slice_3d_partial()
-    # print("Multi-dimensional slicing: PASSED")
+    # Multi-dimensional slicing
+    print("Testing multi-dimensional slicing...")
+    test_slice_2d_single_dim()
+    test_slice_2d_both_dims()
+    test_slice_3d_partial()
+    print("Multi-dimensional slicing: PASSED")
 
-    # Batch extraction (critical path) - skip for now
-    # print("Testing batch extraction...")
-    # test_batch_extraction_basic()
-    # test_batch_extraction_offset()
-    # test_batch_extraction_last_partial()
-    # print("Batch extraction: PASSED")
+    # Batch extraction (critical path)
+    print("Testing batch extraction...")
+    test_batch_extraction_basic()
+    test_batch_extraction_offset()
+    test_batch_extraction_last_partial()
+    print("Batch extraction: PASSED")
 
     # Edge cases
     print("Testing edge cases...")
@@ -360,4 +359,4 @@ fn main() raises:
     test_slice_modification_doesnt_affect_original()
     print("Copy semantics: PASSED")
 
-    print("\nAll enabled tests PASSED!")
+    print("\nAll tests PASSED!")
