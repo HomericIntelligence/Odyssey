@@ -316,7 +316,9 @@ fn test_setitem_integer_dtype() raises:
     shape.append(3)
     var t = zeros(shape, DType.int32)
     t[2] = Int64(7)
-    assert_value_at(t, 2, 7.0, 1e-6, "__setitem__ Int64 should set integer value")
+    assert_value_at(
+        t, 2, 7.0, 1e-6, "__setitem__ Int64 should set integer value"
+    )
     assert_value_at(t, 0, 0.0, 1e-6, "Element 0 should remain 0")
 
 
