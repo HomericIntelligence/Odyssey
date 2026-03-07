@@ -23,6 +23,7 @@ import json
 import re
 import shutil
 import sys
+import yaml
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
@@ -187,14 +188,12 @@ def parse_frontmatter(content: str) -> tuple[dict, str]:
     frontmatter_lines = lines[1:end_idx]
     remaining = "\n".join(lines[end_idx + 1 :])
 
-    frontmatter: dict = {}
-    for line in frontmatter_lines:
-        if ":" in line:
-            key, _, value = line.partition(":")
-            key = key.strip()
-            value = value.strip().strip('"').strip("'")
-            if value:
-                frontmatter[key] = value
+    frontmatter_text = "\n".join(frontmatter_lines)
+    try:
+        parsed = yaml.safe_load(frontmatter_text)
+        frontmatter = parsed if isinstance(parsed, dict) else {}
+    except yaml.YAMLError:
+        frontmatter = {}
 
     return frontmatter, remaining
 
