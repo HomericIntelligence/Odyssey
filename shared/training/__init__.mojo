@@ -474,6 +474,17 @@ from shared.training.precision_config import PrecisionConfig, PrecisionMode
 # Export training configuration (Issue #2602)
 from shared.training.config import TrainingConfig
 
+# Export training metrics (Issue #3221)
+from shared.training.metrics import (
+    LossTracker,
+    Statistics,
+    ComponentTracker,
+    AccuracyMetric,
+    top1_accuracy,
+    topk_accuracy,
+    per_class_accuracy,
+)
+
 
 # Export CrossEntropyLoss wrapper (wraps core.loss.cross_entropy)
 struct CrossEntropyLoss(Loss, Movable):
