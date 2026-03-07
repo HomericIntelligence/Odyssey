@@ -2714,6 +2714,54 @@ struct ExTensor(
         result += "])"
         return result
 
+    fn __hash__[H: Hasher](self, mut hasher: H):
+        """Compute hash based on shape, dtype, and data.
+
+        Parameters:
+            H: The hasher type conforming to the Hasher trait.
+
+        Args:
+            hasher: The hasher to write values into.
+
+        Example:
+            ```mojo
+            var x = ones([3], DType.float32)
+            var h = hash(x)
+            ```
+        """
+        from shared.core.dtype_ordinal import dtype_to_ordinal
+
+        # Hash shape
+        for i in range(len(self._shape)):
+            hasher.write(self._shape[i])
+        # Hash dtype ordinal
+        hasher.write(dtype_to_ordinal(self._dtype))
+        # Hash data
+        for i in range(self._numel):
+            var val = self._get_float64(i)
+            var int_bits = UnsafePointer[Float64](to=val).bitcast[UInt64]()[]
+            hasher.write(int_bits)
+
+    fn contiguous(self) raises -> ExTensor:
+        """Return a contiguous copy of the tensor.
+
+        If the tensor is already contiguous, returns a clone.
+        Otherwise, creates a new contiguous tensor with the same data.
+
+        Returns:
+            A contiguous ExTensor with the same shape, dtype, and values.
+
+        Raises:
+            Error: If memory allocation fails.
+
+        Example:
+            ```mojo
+            var x = ones([3, 4], DType.float32)
+            var c = x.contiguous()  # Already contiguous, returns clone
+            ```
+        """
+        return self.clone()
+
     # ============================================================================
     # Utility Methods
     # ============================================================================
