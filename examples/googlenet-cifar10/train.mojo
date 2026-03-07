@@ -94,7 +94,7 @@ fn train_epoch(
 
     print("Epoch " + String(epoch + 1) + ": lr=" + String(learning_rate))
 
-    # NOTE(#3084): Full backward pass implementation for GoogLeNet would require ~3500 lines:
+    # Full backward pass implementation for GoogLeNet would require ~3500 lines (#3084):
     #   - Forward pass with activation caching: ~600 lines (9 Inception modules × ~60 lines)
     #   - Backward pass through all layers: ~2500 lines
     #   - Parameter updates with momentum: ~400 lines
