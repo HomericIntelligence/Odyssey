@@ -1,4 +1,4 @@
-name: Security Scanning
+name: Secret Scanning
 
 # Comprehensive security scanning for secrets
 # Target duration: < 5 minutes

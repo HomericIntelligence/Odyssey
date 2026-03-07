@@ -31,10 +31,3 @@ coderower\.com
 pullchecklist\.com
 geeksforgeeks\.org
 
-# Ignore root-relative links (lychee cannot resolve these without --root-url)
-# These are valid repo-relative paths in CLAUDE.md, docs/adr/, notebooks/README.md
-^/CLAUDE\.md$
-^/\.claude/
-^/agents/
-^/docs/
-^/examples/
