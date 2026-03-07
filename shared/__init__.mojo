@@ -9,21 +9,25 @@ This package provides reusable ML/AI components including:
 
 Usage:
     # Import commonly used components directly
-    from shared import linear, Conv2dLayer, ReLULayer, SGD, Adam, ExTensor
+    from shared import Linear, Conv2D, ReLU, SGD, Adam, Tensor
 
     # Import from specific modules for less common items
     from shared.core.layers import MaxPool2D, Dropout
     from shared.training.schedulers import CosineAnnealingLR
-    from shared.data import Normalize, Compose
+    from shared.data.transforms import Normalize
 
 Example:
     ```mojo
-    from shared.core.layers import Conv2dLayer, ReLULayer
-    from shared.training import SGD
+    from shared import Linear, ReLU, Sequential, SGD
 
-    # Build a simple model using layer components
-    var conv = Conv2dLayer(1, 32, 3, 3)
-    var relu = ReLULayer()
+    # Build a simple model
+    model = Sequential([
+        Linear(784, 256),
+        ReLU(),
+        Linear(256, 128),
+        ReLU(),
+        Linear(128, 10),
+    ])
 
     # Create optimizer
     optimizer = SGD(learning_rate=0.01, momentum=0.9)
@@ -47,7 +51,7 @@ from shared.version import VERSION, AUTHOR, LICENSE
 # These imports are commented out pending full layer implementation.
 
 # Core layers (most commonly used)
-# from .core.layers import Conv2dLayer, ReLULayer, MaxPool2D, Dropout, Flatten
+# from .core.layers import Linear, Conv2D, ReLU, MaxPool2D, Dropout, Flatten
 
 # Core activations (function form)
 # from .core.activations import relu, sigmoid, tanh, softmax
@@ -56,10 +60,10 @@ from shared.version import VERSION, AUTHOR, LICENSE
 # from .core.module import Module, Sequential
 
 # Core tensors
-# from .core.extensor import ExTensor, zeros, ones, randn
+# from .core.tensors import Tensor, zeros, ones, randn
 
 # Training optimizers (most commonly used)
-from shared.autograd.optimizers import SGD, Adam, AdamW
+# from .training.optimizers import SGD, Adam, AdamW
 
 # Training schedulers (most commonly used)
 # from .training.schedulers import StepLR, CosineAnnealingLR
@@ -68,9 +72,7 @@ from shared.autograd.optimizers import SGD, Adam, AdamW
 from shared.training.metrics import LossTracker, AccuracyMetric
 
 # Expose plan-canonical alias: Accuracy = AccuracyMetric
-comptime Accuracy = AccuracyMetric
-# Training metrics (most commonly used)
-# from .training.metrics import AccuracyMetric, LossTracker
+alias Accuracy = AccuracyMetric
 
 # Training callbacks (most commonly used)
 # from .training.callbacks import EarlyStopping, ModelCheckpoint
@@ -79,12 +81,9 @@ comptime Accuracy = AccuracyMetric
 # from .training.loops import train_epoch, validate_epoch
 
 # Data components (most commonly used)
-# from .data.datasets import ExTensorDataset, ImageDataset
-# from .data.loaders import BatchLoader
+# from .data.datasets import TensorDataset, ImageDataset
+# from .data.loaders import DataLoader
 # from .data.transforms import Normalize, ToTensor, Compose
-
-# Data transforms (available now — re-exported from shared.data)
-from shared.data import Normalize, Compose
 
 # Utils (most commonly used)
 # from .utils.logging import Logger
@@ -99,22 +98,22 @@ from shared.data import Normalize, Compose
 #
 # Users can import in multiple ways:
 #   from shared import core, training, data, utils  # Import modules
-#   from shared.core.layers import Conv2dLayer       # Import specific items
+#   from shared.core.layers import Linear           # Import specific items
 #   import shared                                     # Import whole package
 #
 # The following components will be available once implementation completes:
 #
 # Version info: VERSION, AUTHOR, LICENSE
-# Core - Layers: Conv2dLayer, ReLULayer, MaxPool2D, Dropout, Flatten
+# Core - Layers: Linear, Conv2D, ReLU, MaxPool2D, Dropout, Flatten
 # Core - Activations: relu, sigmoid, tanh, softmax
 # Core - Module system: Module, Sequential
-# Core - Tensors: ExTensor, zeros, ones, randn
+# Core - Tensors: Tensor, zeros, ones, randn
 # Training - Optimizers: SGD, Adam, AdamW
 # Training - Schedulers: StepLR, CosineAnnealingLR
-# Training - Metrics: AccuracyMetric, LossTracker
+# Training - Metrics: Accuracy, LossTracker
 # Training - Callbacks: EarlyStopping, ModelCheckpoint
 # Training - Loops: train_epoch, validate_epoch
-# Data - Datasets: ExTensorDataset, ImageDataset, BatchLoader
+# Data - Datasets: TensorDataset, ImageDataset, DataLoader
 # Data - Transforms: Normalize, ToTensor, Compose
 # Utils: Logger, plot_training_curves
 # Autograd: Automatic differentiation utilities (when available)
@@ -126,7 +125,7 @@ from shared.data import Normalize, Compose
 # This allows users to do: from shared import core, training, data, utils
 # Then access via: shared.core.layers.Linear, shared.training.optimizers.SGD
 #
-# Mojo v0.26.1+ does not support __all__ module-level assignments.
+# NOTE (Mojo v0.26.1): Mojo v0.26.1+ does not support __all__ module-level assignments.
 # In Mojo, all public symbols (those not prefixed with _) are automatically
 # exported when the module is imported. The public API documentation below
 # describes what should be exposed at this package level:
