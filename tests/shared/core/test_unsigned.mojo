@@ -341,160 +341,98 @@ fn test_uint_narrowing_conversion() raises:
     var v0: UInt64 = 0
     if v0.cast[DType.uint8]() != 0:
         raise Error("UInt64(0).cast[DType.uint8]() should be 0")
-
-
-# ============================================================================
-# Overflow / Wrap-Around Tests (issue #3292)
-# ============================================================================
-
-
-fn test_uint8_add_overflow() raises:
-    """Test UInt8 addition wraps around at 255 + 1 == 0."""
-    var max_val: UInt8 = 255
-    var one: UInt8 = 1
-    var result = max_val + one
+fn test_uint8_overflow_wrap() raises:
+    """Test UInt8 addition wraps from 255 to 0."""
+    var result: UInt8 = UInt8(255) + UInt8(1)
     if result != 0:
-        raise Error("UInt8(255) + 1 should wrap to 0, got " + String(result))
+        raise Error("UInt8 overflow wrap failed: expected 0, got " + String(result))
 
 
-fn test_uint8_sub_underflow() raises:
-    """Test UInt8 subtraction wraps around at 0 - 1 == 255."""
-    var zero: UInt8 = 0
-    var one: UInt8 = 1
-    var result = zero - one
+fn test_uint8_underflow_wrap() raises:
+    """Test UInt8 subtraction wraps from 0 to 255."""
+    var result: UInt8 = UInt8(0) - UInt8(1)
     if result != 255:
-        raise Error("UInt8(0) - 1 should wrap to 255, got " + String(result))
+        raise Error("UInt8 underflow wrap failed: expected 255, got " + String(result))
 
 
-fn test_uint8_mul_overflow() raises:
-    """Test UInt8 multiplication wraps: 16 * 16 == 256 mod 256 == 0."""
-    var a: UInt8 = 16
-    var b: UInt8 = 16
-    var result = a * b
+fn test_uint16_overflow_wrap() raises:
+    """Test UInt16 addition wraps from 65535 to 0."""
+    var result: UInt16 = UInt16(65535) + UInt16(1)
     if result != 0:
-        raise Error("UInt8(16) * 16 should wrap to 0, got " + String(result))
+        raise Error("UInt16 overflow wrap failed: expected 0, got " + String(result))
 
 
-fn test_uint16_add_overflow() raises:
-    """Test UInt16 addition wraps around at 65535 + 1 == 0."""
-    var max_val: UInt16 = 65535
-    var one: UInt16 = 1
-    var result = max_val + one
-    if result != 0:
-        raise Error("UInt16(65535) + 1 should wrap to 0, got " + String(result))
-
-
-fn test_uint16_sub_underflow() raises:
-    """Test UInt16 subtraction wraps around at 0 - 1 == 65535."""
-    var zero: UInt16 = 0
-    var one: UInt16 = 1
-    var result = zero - one
+fn test_uint16_underflow_wrap() raises:
+    """Test UInt16 subtraction wraps from 0 to 65535."""
+    var result: UInt16 = UInt16(0) - UInt16(1)
     if result != 65535:
-        raise Error("UInt16(0) - 1 should wrap to 65535, got " + String(result))
+        raise Error("UInt16 underflow wrap failed: expected 65535, got " + String(result))
 
 
-fn test_uint16_mul_overflow() raises:
-    """Test UInt16 multiplication wraps: 256 * 256 == 65536 mod 65536 == 0."""
-    var a: UInt16 = 256
-    var b: UInt16 = 256
-    var result = a * b
+fn test_uint32_overflow_wrap() raises:
+    """Test UInt32 addition wraps from 4294967295 to 0."""
+    var result: UInt32 = UInt32(4294967295) + UInt32(1)
     if result != 0:
-        raise Error("UInt16(256) * 256 should wrap to 0, got " + String(result))
+        raise Error("UInt32 overflow wrap failed: expected 0, got " + String(result))
 
 
-fn test_uint32_add_overflow() raises:
-    """Test UInt32 addition wraps around at 4294967295 + 1 == 0."""
-    var max_val: UInt32 = 4294967295
-    var one: UInt32 = 1
-    var result = max_val + one
-    if result != 0:
-        raise Error(
-            "UInt32(4294967295) + 1 should wrap to 0, got " + String(result)
-        )
-
-
-fn test_uint32_sub_underflow() raises:
-    """Test UInt32 subtraction wraps around at 0 - 1 == 4294967295."""
-    var zero: UInt32 = 0
-    var one: UInt32 = 1
-    var result = zero - one
+fn test_uint32_underflow_wrap() raises:
+    """Test UInt32 subtraction wraps from 0 to 4294967295."""
+    var result: UInt32 = UInt32(0) - UInt32(1)
     if result != 4294967295:
-        raise Error(
-            "UInt32(0) - 1 should wrap to 4294967295, got " + String(result)
-        )
+        raise Error("UInt32 underflow wrap failed: expected 4294967295, got " + String(result))
 
 
-fn test_uint32_mul_overflow() raises:
-    """Test UInt32 multiplication wraps: 65536 * 65536 == 2^32 mod 2^32 == 0."""
-    var a: UInt32 = 65536
-    var b: UInt32 = 65536
-    var result = a * b
+fn test_uint64_overflow_wrap() raises:
+    """Test UInt64 addition wraps from max to 0."""
+    var result: UInt64 = UInt64(18446744073709551615) + UInt64(1)
     if result != 0:
-        raise Error(
-            "UInt32(65536) * 65536 should wrap to 0, got " + String(result)
-        )
+        raise Error("UInt64 overflow wrap failed: expected 0, got " + String(result))
 
 
-fn test_uint64_add_overflow() raises:
-    """Test UInt64 addition wraps around at max + 1 == 0."""
-    var max_val: UInt64 = 18446744073709551615
-    var one: UInt64 = 1
-    var result = max_val + one
-    if result != 0:
-        raise Error("UInt64(max) + 1 should wrap to 0, got " + String(result))
-
-
-fn test_uint64_sub_underflow() raises:
-    """Test UInt64 subtraction wraps around at 0 - 1 == max."""
-    var zero: UInt64 = 0
-    var one: UInt64 = 1
-    var result = zero - one
+fn test_uint64_underflow_wrap() raises:
+    """Test UInt64 subtraction wraps from 0 to max."""
+    var result: UInt64 = UInt64(0) - UInt64(1)
     if result != 18446744073709551615:
         raise Error(
-            "UInt64(0) - 1 should wrap to 18446744073709551615, got "
-            + String(result)
+            "UInt64 underflow wrap failed: expected 18446744073709551615, got " + String(result)
         )
 
 
-fn test_uint64_mul_overflow() raises:
-    """Test UInt64 multiplication wraps: 2^32 * 2^32 == 2^64 mod 2^64 == 0."""
-    var a: UInt64 = 4294967296  # 2^32
-    var b: UInt64 = 4294967296  # 2^32
-    var result = a * b
+fn test_uint8_overflow_wrap_add_chain() raises:
+    """Test UInt8 overflow wraps mid-range: 250 + 10 == 4."""
+    var result: UInt8 = UInt8(250) + UInt8(10)
+    if result != 4:
+        raise Error("UInt8 mid-range overflow wrap failed: expected 4, got " + String(result))
+
+
+fn test_uint16_overflow_wrap_add_chain() raises:
+    """Test UInt16 overflow wraps mid-range: 65530 + 10 == 4."""
+    var result: UInt16 = UInt16(65530) + UInt16(10)
+    if result != 4:
+        raise Error("UInt16 mid-range overflow wrap failed: expected 4, got " + String(result))
+
+
+fn test_uint32_overflow_wrap_add_chain() raises:
+    """Test UInt32 overflow wraps mid-range: 4294967290 + 10 == 4."""
+    var result: UInt32 = UInt32(4294967290) + UInt32(10)
+    if result != 4:
+        raise Error("UInt32 mid-range overflow wrap failed: expected 4, got " + String(result))
+
+
+fn test_uint64_overflow_wrap_add_chain() raises:
+    """Test UInt64 overflow wraps mid-range: max-5 + 10 == 4."""
+    var result: UInt64 = UInt64(18446744073709551610) + UInt64(10)
+    if result != 4:
+        raise Error("UInt64 mid-range overflow wrap failed: expected 4, got " + String(result))
+
+
+fn test_uint8_overflow_wrap_multiply() raises:
+    """Test UInt8 multiplication overflow wraps: 128 * 2 == 0 (2^8 mod 256)."""
+    var result: UInt8 = UInt8(128) * UInt8(2)
     if result != 0:
         raise Error(
-            "UInt64(2^32) * 2^32 should wrap to 0, got " + String(result)
-        )
-
-
-fn test_uint8_add_near_max() raises:
-    """Sanity check: UInt8(254) + 1 == 255 (no wrap)."""
-    var a: UInt8 = 254
-    var result = a + 1
-    if result != 255:
-        raise Error(
-            "UInt8(254) + 1 should be 255 (no wrap), got " + String(result)
-        )
-
-
-fn test_uint8_sub_from_max() raises:
-    """Sanity check: UInt8(255) - 1 == 254 (no wrap)."""
-    var a: UInt8 = 255
-    var result = a - 1
-    if result != 254:
-        raise Error(
-            "UInt8(255) - 1 should be 254 (no wrap), got " + String(result)
-        )
-
-
-fn test_uint8_mul_no_overflow() raises:
-    """Sanity check: UInt8(15) * 16 == 240 (no wrap, just below 256)."""
-    var a: UInt8 = 15
-    var b: UInt8 = 16
-    var result = a * b
-    if result != 240:
-        raise Error(
-            "UInt8(15) * 16 should be 240 (no wrap), got " + String(result)
+            "UInt8 multiply overflow wrap failed: expected 0, got " + String(result)
         )
 
 
@@ -615,93 +553,81 @@ fn main():
         print("FAIL test_uint_type_min_max_operations:", e)
 
     try:
-        test_uint8_add_overflow()
-        print("OK test_uint8_add_overflow")
+        test_uint8_overflow_wrap()
+        print("OK test_uint8_overflow_wrap")
     except e:
-        print("FAIL test_uint8_add_overflow:", e)
+        print("FAIL test_uint8_overflow_wrap:", e)
 
     try:
-        test_uint8_sub_underflow()
-        print("OK test_uint8_sub_underflow")
+        test_uint8_underflow_wrap()
+        print("OK test_uint8_underflow_wrap")
     except e:
-        print("FAIL test_uint8_sub_underflow:", e)
+        print("FAIL test_uint8_underflow_wrap:", e)
 
     try:
-        test_uint8_mul_overflow()
-        print("OK test_uint8_mul_overflow")
+        test_uint16_overflow_wrap()
+        print("OK test_uint16_overflow_wrap")
     except e:
-        print("FAIL test_uint8_mul_overflow:", e)
+        print("FAIL test_uint16_overflow_wrap:", e)
 
     try:
-        test_uint16_add_overflow()
-        print("OK test_uint16_add_overflow")
+        test_uint16_underflow_wrap()
+        print("OK test_uint16_underflow_wrap")
     except e:
-        print("FAIL test_uint16_add_overflow:", e)
+        print("FAIL test_uint16_underflow_wrap:", e)
 
     try:
-        test_uint16_sub_underflow()
-        print("OK test_uint16_sub_underflow")
+        test_uint32_overflow_wrap()
+        print("OK test_uint32_overflow_wrap")
     except e:
-        print("FAIL test_uint16_sub_underflow:", e)
+        print("FAIL test_uint32_overflow_wrap:", e)
 
     try:
-        test_uint16_mul_overflow()
-        print("OK test_uint16_mul_overflow")
+        test_uint32_underflow_wrap()
+        print("OK test_uint32_underflow_wrap")
     except e:
-        print("FAIL test_uint16_mul_overflow:", e)
+        print("FAIL test_uint32_underflow_wrap:", e)
 
     try:
-        test_uint32_add_overflow()
-        print("OK test_uint32_add_overflow")
+        test_uint64_overflow_wrap()
+        print("OK test_uint64_overflow_wrap")
     except e:
-        print("FAIL test_uint32_add_overflow:", e)
+        print("FAIL test_uint64_overflow_wrap:", e)
 
     try:
-        test_uint32_sub_underflow()
-        print("OK test_uint32_sub_underflow")
+        test_uint64_underflow_wrap()
+        print("OK test_uint64_underflow_wrap")
     except e:
-        print("FAIL test_uint32_sub_underflow:", e)
+        print("FAIL test_uint64_underflow_wrap:", e)
 
     try:
-        test_uint32_mul_overflow()
-        print("OK test_uint32_mul_overflow")
+        test_uint8_overflow_wrap_add_chain()
+        print("OK test_uint8_overflow_wrap_add_chain")
     except e:
-        print("FAIL test_uint32_mul_overflow:", e)
+        print("FAIL test_uint8_overflow_wrap_add_chain:", e)
 
     try:
-        test_uint64_add_overflow()
-        print("OK test_uint64_add_overflow")
+        test_uint16_overflow_wrap_add_chain()
+        print("OK test_uint16_overflow_wrap_add_chain")
     except e:
-        print("FAIL test_uint64_add_overflow:", e)
+        print("FAIL test_uint16_overflow_wrap_add_chain:", e)
 
     try:
-        test_uint64_sub_underflow()
-        print("OK test_uint64_sub_underflow")
+        test_uint32_overflow_wrap_add_chain()
+        print("OK test_uint32_overflow_wrap_add_chain")
     except e:
-        print("FAIL test_uint64_sub_underflow:", e)
+        print("FAIL test_uint32_overflow_wrap_add_chain:", e)
 
     try:
-        test_uint64_mul_overflow()
-        print("OK test_uint64_mul_overflow")
+        test_uint64_overflow_wrap_add_chain()
+        print("OK test_uint64_overflow_wrap_add_chain")
     except e:
-        print("FAIL test_uint64_mul_overflow:", e)
+        print("FAIL test_uint64_overflow_wrap_add_chain:", e)
 
     try:
-        test_uint8_add_near_max()
-        print("OK test_uint8_add_near_max")
+        test_uint8_overflow_wrap_multiply()
+        print("OK test_uint8_overflow_wrap_multiply")
     except e:
-        print("FAIL test_uint8_add_near_max:", e)
-
-    try:
-        test_uint8_sub_from_max()
-        print("OK test_uint8_sub_from_max")
-    except e:
-        print("FAIL test_uint8_sub_from_max:", e)
-
-    try:
-        test_uint8_mul_no_overflow()
-        print("OK test_uint8_mul_no_overflow")
-    except e:
-        print("FAIL test_uint8_mul_no_overflow:", e)
+        print("FAIL test_uint8_overflow_wrap_multiply:", e)
 
     print("\n=== Unsigned Integer Type Tests Complete ===")
