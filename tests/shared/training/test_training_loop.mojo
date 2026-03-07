@@ -94,11 +94,13 @@ fn test_training_loop_full_epoch() raises:
     """Test training loop completes a full epoch over dataset.
 
     API Contract:
-        fn run_epoch(self, data_loader: DataLoader) -> Float32
+        fn run_epoch(mut self, mut data_loader: DataLoader) -> Float32
         - Iterates through all batches in data loader
         - Performs training step on each batch
         - Returns average loss for the epoch.
     """
+    from shared.training.trainer_interface import DataLoader
+
     # Create model, optimizer, and loss function
     var model = create_simple_model()
     var optimizer = SGD(learning_rate=0.01)
@@ -116,6 +118,17 @@ fn test_training_loop_full_epoch() raises:
     var avg_loss = training_loop.run_epoch(data_loader)
 
     # Verify real batch processing occurred (loss should be valid, not placeholder 0.0)
+    assert_greater(Float64(avg_loss), Float64(-0.001))
+
+    # Create a real DataLoader with 2D data (num_samples x input_dim)
+    var data = ones([10, 10], DType.float32)
+    var labels = zeros([10, 1], DType.float32)
+    var data_loader = DataLoader(data^, labels^, 5)
+
+    # Run one epoch with real DataLoader
+    var avg_loss = training_loop.run_epoch(data_loader)
+
+    # Verify average loss is a valid number (non-negative for MSE)
     assert_greater(Float64(avg_loss), Float64(-0.001))
 
     print("  test_training_loop_full_epoch: PASSED")

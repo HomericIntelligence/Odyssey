@@ -21,7 +21,8 @@ Example:
     ```
 """
 
-from python import PythonObject
+from shared.core.extensor import ExTensor
+from shared.training.trainer_interface import DataLoader
 
 
 struct TrainingCallbacks(Copyable, Movable):
@@ -80,26 +81,34 @@ struct TrainingCallbacks(Copyable, Movable):
 
 
 fn run_epoch_with_batches(
-    py_loader: PythonObject,
+    mut loader: DataLoader,
     callbacks: TrainingCallbacks,
+    step_fn: fn (ExTensor, ExTensor) raises -> ExTensor,
 ) raises -> Float32:
     """Run one training epoch with batch processing.
 
     Args:
-        py_loader: Python data loader providing batches.
+        loader: DataLoader providing batches.
         callbacks: Training callbacks for progress reporting.
+        step_fn: Function to execute a single training step, returning loss.
 
     Returns:
         Average loss for the epoch.
-
-    Note:
-        Currently returns 0.0 as placeholder until Python/Mojo
-        data loader integration is complete (Track 4 initiative). Tracked in #3076 (parent: #3059).
     """
-    # Blocked: Track 4 (Python↔Mojo interop) - see #3076 (parent: #3059)
-    # Full implementation requires Python data loader integration
-    _ = py_loader
-    _ = callbacks
+    loader.reset()
+    var total_loss = Float64(0.0)
+    var num_batches = Int(0)
+
+    while loader.has_next():
+        var batch = loader.next()
+        var loss = step_fn(batch.data, batch.labels)
+        var loss_val = loss._get_float32(0)
+        total_loss += Float64(loss_val)
+        num_batches += 1
+        callbacks.on_batch_end(0, num_batches, Float32(loss_val))
+
+    if num_batches > 0:
+        return Float32(total_loss / Float64(num_batches))
     return Float32(0.0)
 
 

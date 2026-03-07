@@ -37,6 +37,7 @@ Note:
 """
 
 from shared.core.extensor import ExTensor
+from shared.training.trainer_interface import DataLoader
 from shared.core.traits import Model, Loss, Optimizer
 from shared.training.trainer_interface import DataLoader, DataBatch
 from shared.autograd.tape import GradientTape
@@ -421,6 +422,7 @@ struct TrainingLoop[
 
         Args:
             data_loader: Native DataLoader providing batches.
+            data_loader: DataLoader providing batches.
 
         Returns:
             Average loss for the epoch.
