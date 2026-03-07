@@ -396,11 +396,10 @@ maintaining clarity. I'll coordinate with the Test Engineer to verify correctnes
 
 **Role**: Handle simple tasks and boilerplate
 
-**Agents**: 3 junior types
+**Agents**: 2 junior types
 
 1. **Junior Implementation Engineer**: Simple functions, boilerplate
 1. **Junior Test Engineer**: Simple tests, test boilerplate
-1. **Junior Documentation Engineer**: Docstring templates, formatting
 
 ### Responsibilities
 
@@ -1449,7 +1448,7 @@ For security-critical components:
 ### Immediate Actions
 
 1. **Try the tutorial**: Implement a simple function end-to-end
-1. **Browse agent catalog**: See all 44 agents in [agent-catalog.md](agent-catalog.md)
+1. **Browse agent catalog**: See all 43 agents in [agent-catalog.md](agent-catalog.md)
 1. **Study real examples**: Check `.claude/agents/` for actual configurations
 
 ### Deepening Understanding

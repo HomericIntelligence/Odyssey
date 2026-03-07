@@ -16,7 +16,7 @@
 
 ## Overview
 
-This catalog lists all 44 agents in the ML Odyssey hierarchical agent system. Each entry includes:
+This catalog lists all 43 agents in the ML Odyssey hierarchical agent system. Each entry includes:
 
 - **Name**: Agent identifier
 - **Description**: What the agent does
@@ -26,7 +26,7 @@ This catalog lists all 44 agents in the ML Odyssey hierarchical agent system. Ea
 
 ## Quick Reference Table
 
-Representative sample of 44 agents (see detailed sections below for complete list):
+Representative sample of 43 agents (see detailed sections below for complete list):
 
 | Level | Agent Name | Primary Focus | Scope |
 |-------|-----------|---------------|-------|
@@ -58,7 +58,6 @@ Representative sample of 44 agents (see detailed sections below for complete lis
 | **4** | Log Analyzer | Log parsing & analysis | Diagnostic info |
 | **5** | Junior Implementation Engineer | Simple code | Boilerplate, simple functions |
 | **5** | Junior Test Engineer | Simple tests | Test boilerplate |
-| **5** | Junior Documentation Engineer | Simple docs | Docstrings, formatting |
 
 ## Level 0: Meta-Orchestrator
 
@@ -929,7 +928,7 @@ implementation work
 "Create usage guide for training pipeline"
 ```text
 
-**Delegates To**: Junior Documentation Engineers (Level 5) for formatting
+**Delegates To**: None (handles formatting directly)
 
 **Coordinates With**: Implementation Engineer, Documentation Specialist
 
@@ -1077,52 +1076,6 @@ implementation work
 
 ---
 
-### Junior Documentation Engineer
-
-**Configuration**: `.claude/agents/junior-documentation-engineer.md`
-
-**Description**: Fills in docstring templates, formats documentation, and generates changelog entries
-
-### When to Use
-
-- Filling in docstring templates
-- Formatting documentation files
-- Generating changelog entries
-- Updating simple README sections
-- Applying documentation standards
-- Basic documentation maintenance
-
-### Capabilities
-
-- Docstring template filling
-- Documentation formatting (Markdown, etc.)
-- Changelog generation
-- Basic README updates
-- Documentation standards application
-- Documentation consistency maintenance
-
-### Example Use Cases
-
-```text
-"Fill in docstring templates for these functions"
-
-"Format all markdown files in the docs directory"
-
-"Generate changelog entry for this PR"
-
-"Update README with new installation instructions"
-
-"Apply consistent formatting to all docstrings"
-```text
-
-**No Delegation**: Lowest level of hierarchy
-
-**Coordinates With**: Documentation Writer (receives tasks from)
-
-**Workflow Phase**: Packaging
-
----
-
 ## How to Use This Catalog
 
 ### Finding the Right Agent
@@ -1164,8 +1117,8 @@ implementation work
 ### Documentation
 
 - Documentation strategy: Documentation Specialist
-- API docs and examples: Documentation Writer
-- Formatting and templates: Junior Documentation Engineer
+- API docs and examples: Documentation Engineer
+- Formatting and templates: Documentation Engineer
 
 ### Performance
 
@@ -1282,6 +1235,6 @@ cat .claude/agents/architecture-design.md
 
 ---
 
-**Total Agent Types**: 44 across 6 levels (1 L0 + 6 L1 + 4 L2 + 24 L3 + 6 L4 + 3 L5)
+**Total Agent Types**: 43 across 6 levels (1 L0 + 6 L1 + 4 L2 + 24 L3 + 6 L4 + 2 L5)
 
 **Remember**: Trust the hierarchy, communicate clearly, and let agents work at their appropriate level!

@@ -362,10 +362,9 @@ The operational agent configurations are in `.claude/agents/` (31 agents total):
 - `performance-engineer.md` - Benchmark code, profiling, optimization implementation
 - `log-analyzer.md` - Parses build, test, and execution logs to extract diagnostic information
 
-### Level 5: Junior Engineers (2 agents)
+### Level 5: Junior Engineers (1 agent)
 
 - `junior-test-engineer.md` - Simple tests, test boilerplate, test execution
-- `junior-documentation-engineer.md` - Docstring templates, formatting, changelog entries
 
 ## Best Practices
 

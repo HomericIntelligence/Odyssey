@@ -64,7 +64,6 @@
             ├──────────────────────────────────────┤
             │  • Junior Implementation Engineer    │
             │  • Junior Test Engineer              │
-            │  • Junior Documentation Engineer     │
             └──────────────────────────────────────┘
 ```
 
@@ -119,7 +118,7 @@
 
 ### Level 5: Junior Engineers
 
-- **Agents**: 3 types (Implementation, Test, Documentation)
+- **Agents**: 2 types (Implementation, Test)
 - **Scope**: Simple functions, boilerplate
 - **Decisions**: None (follows instructions)
 - **Phase**: Test, Implementation, Package
@@ -719,25 +718,6 @@ cross-section dependency graphs
 **Skills Used**: test_generation, test_execution
 
 **Configuration File**: `.claude/agents/junior-test-engineer.md`
-
-#### Junior Documentation Engineer
-
-**Scope**: Simple documentation
-
-**Responsibilities**:
-
-- Fill in docstring templates
-- Format documentation
-- Generate changelog entries
-- Update simple README sections
-
-**Artifacts**: Basic documentation
-
-**Workflow Phase**: Packaging
-
-**Skills Used**: documentation_generation, formatting
-
-**Configuration File**: `.claude/agents/junior-documentation-engineer.md`
 
 ---
 
