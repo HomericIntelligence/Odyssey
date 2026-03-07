@@ -91,6 +91,13 @@ fn test_training_optimizers_imports() raises:
     print("✓ Training optimizers imports test passed")
 
 
+fn test_shared_optimizer_imports() raises:
+    """Test that SGD, Adam, AdamW are importable directly from shared package."""
+    from shared import SGD, Adam, AdamW
+
+    print("✓ Shared optimizer imports test passed")
+
+
 fn test_training_schedulers_imports() raises:
     """Test training schedulers imports."""
     from shared.training import (
@@ -328,6 +335,7 @@ fn main() raises:
     print("\nTesting Training Package...")
     test_training_imports()
     test_training_optimizers_imports()
+    test_shared_optimizer_imports()
     test_training_schedulers_imports()
     test_training_metrics_imports()
     test_training_callbacks_imports()

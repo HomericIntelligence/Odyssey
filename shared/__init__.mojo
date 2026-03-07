@@ -59,7 +59,7 @@ from shared.version import VERSION, AUTHOR, LICENSE
 # from .core.extensor import ExTensor, zeros, ones, randn
 
 # Training optimizers (most commonly used)
-# from .training.optimizers import SGD, Adam, AdamW
+from shared.autograd.optimizers import SGD, Adam, AdamW
 
 # Training schedulers (most commonly used)
 # from .training.schedulers import StepLR, CosineAnnealingLR
