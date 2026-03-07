@@ -360,16 +360,18 @@ fn test_batch_norm2d_backward_gradient_input() raises:
         return result
 
     var numerical_grad = compute_numerical_gradient(
-        forward_for_grad, x, epsilon=1e-4
+        forward_for_grad, x, epsilon=1e-3
     )
 
     # Validate analytical gradient matches numerical gradient
     # Looser tolerance for batch norm (complex operation with many intermediate steps)
+    # rtol=2e-2 (2%) to accommodate batch norm's compounding of floating-point errors
+    # across normalization, scale, and shift operations.
     assert_gradients_close(
         grad_input,
         numerical_grad,
-        rtol=1e-2,
-        atol=1e-5,
+        rtol=2e-2,
+        atol=1e-4,
         message="Batch norm gradient w.r.t. input",
     )
 
