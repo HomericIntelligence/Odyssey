@@ -306,6 +306,43 @@ fn test_uint_type_min_max_operations() raises:
         raise Error("UInt32 max - 1 failed")
 
 
+fn test_uint_narrowing_conversion() raises:
+    """Test narrowing conversions that truncate via modulo 2^N semantics.
+
+    When casting a UInt64 value > 255 to UInt8, the result is the low 8 bits
+    of the original value, equivalent to value % 256.
+    """
+    # 256 % 256 = 0
+    var v256: UInt64 = 256
+    if v256.cast[DType.uint8]() != 0:
+        raise Error("UInt64(256).cast[DType.uint8]() should be 0")
+
+    # 257 % 256 = 1
+    var v257: UInt64 = 257
+    if v257.cast[DType.uint8]() != 1:
+        raise Error("UInt64(257).cast[DType.uint8]() should be 1")
+
+    # 511 % 256 = 255
+    var v511: UInt64 = 511
+    if v511.cast[DType.uint8]() != 255:
+        raise Error("UInt64(511).cast[DType.uint8]() should be 255")
+
+    # 512 % 256 = 0
+    var v512: UInt64 = 512
+    if v512.cast[DType.uint8]() != 0:
+        raise Error("UInt64(512).cast[DType.uint8]() should be 0")
+
+    # 255 fits exactly — no truncation
+    var v255: UInt64 = 255
+    if v255.cast[DType.uint8]() != 255:
+        raise Error("UInt64(255).cast[DType.uint8]() should be 255")
+
+    # 0 is a no-op
+    var v0: UInt64 = 0
+    if v0.cast[DType.uint8]() != 0:
+        raise Error("UInt64(0).cast[DType.uint8]() should be 0")
+
+
 fn main():
     """Main test runner for unsigned integer type tests."""
     try:
@@ -385,6 +422,12 @@ fn main():
         print("OK test_uint_widening_conversion")
     except e:
         print("FAIL test_uint_widening_conversion:", e)
+
+    try:
+        test_uint_narrowing_conversion()
+        print("OK test_uint_narrowing_conversion")
+    except e:
+        print("FAIL test_uint_narrowing_conversion:", e)
 
     try:
         test_uint_to_int_conversion()
