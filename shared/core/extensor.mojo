@@ -763,6 +763,99 @@ struct ExTensor(
         result._strides[dim1] = tmp_stride
 
         return result^
+    fn tile(self, reps: List[Int]) raises -> ExTensor:
+        """Tile tensor by repeating along each dimension.
+
+        Delegates to the functional `tile()` in `shared.core.shape`.
+
+        Args:
+            reps: Number of repetitions along each dimension.
+
+        Returns:
+            Tiled tensor with shape[i] = input_shape[i] * reps[i].
+
+        Raises:
+            Error: If reps is empty.
+
+        Example:
+        ```mojo
+        var a = arange(0.0, 3.0, 1.0, DType.float32)  # [0, 1, 2]
+        var b = a.tile([3])  # [0, 1, 2, 0, 1, 2, 0, 1, 2]
+        ```
+        """
+        from shared.core.shape import tile as _tile
+        return _tile(self, reps)
+
+    fn repeat(self, n: Int, axis: Int = -1) raises -> ExTensor:
+        """Repeat each element n times along axis.
+
+        Delegates to the functional `repeat()` in `shared.core.shape`.
+
+        Args:
+            n: Number of times to repeat each element.
+            axis: Axis along which to repeat (default -1 flattens first).
+
+        Returns:
+            Tensor with elements repeated.
+
+        Raises:
+            Error: If axis is out of range or n < 1.
+
+        Example:
+        ```mojo
+        var a = arange(0.0, 3.0, 1.0, DType.float32)  # [0, 1, 2]
+        var b = a.repeat(2)  # [0, 0, 1, 1, 2, 2]
+        ```
+        """
+        from shared.core.shape import repeat as _repeat
+        return _repeat(self, n, axis)
+
+    fn permute(self, dims: List[Int]) raises -> ExTensor:
+        """Permute tensor dimensions.
+
+        Delegates to the functional `permute()` in `shared.core.shape`.
+
+        Args:
+            dims: New ordering of dimensions.
+
+        Returns:
+            Tensor with permuted dimensions.
+
+        Raises:
+            Error: If dims is invalid.
+
+        Example:
+        ```mojo
+        var a = ones([2, 3, 4], DType.float32)
+        var b = a.permute([2, 0, 1])  # Shape (4, 2, 3)
+        ```
+        """
+        from shared.core.shape import permute as _permute
+        return _permute(self, dims)
+
+    fn split(self, num_splits: Int, axis: Int = 0) raises -> List[ExTensor]:
+        """Split tensor into equal parts along an axis.
+
+        Delegates to the functional `split()` in `shared.core.shape`.
+
+        Args:
+            num_splits: Number of equal parts to split into.
+            axis: Axis along which to split (default: 0).
+
+        Returns:
+            List of ExTensor objects, each with same shape except along split axis.
+
+        Raises:
+            Error: If axis is invalid, num_splits <= 0, or tensor size not divisible.
+
+        Example:
+        ```mojo
+        var a = arange(0.0, 12.0, 1.0, DType.float32)
+        var parts = a.split(3)  # 3 tensors of size 4 each
+        ```
+        """
+        from shared.core.shape import split as _split
+        return _split(self, num_splits, axis)^
 
     fn __getitem__(self, index: Int) raises -> Float32:
         """Get element at flat index.
