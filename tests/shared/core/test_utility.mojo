@@ -599,6 +599,25 @@ fn test_hash_different_shapes_differ() raises:
             " hashes"
         )
 
+fn test_hash_same_values_different_dtype() raises:
+    """Test that tensors with same values but different dtypes produce different hashes.
+
+    The dtype ordinal is included in the hash, so float32 and float64 tensors
+    with identical numeric values must produce different hashes.
+    """
+    var shape = List[Int]()
+    shape.append(1)
+    var a_f32 = full(shape, 1.0, DType.float32)
+    var a_f64 = full(shape, 1.0, DType.float64)
+
+    var hash_f32 = hash(a_f32)
+    var hash_f64 = hash(a_f64)
+    if hash_f32 == hash_f64:
+        raise Error(
+            "Tensors with same values but different dtypes should have different"
+            " hashes"
+        )
+
 
 fn test_hash_integer_dtype_consistent() raises:
     """Test __hash__ for integer-typed tensors produces consistent hashes.
@@ -723,6 +742,7 @@ fn main() raises:
     test_hash_different_dtypes_differ()
     test_hash_different_shapes_differ()
     test_hash_integer_dtype_consistent()
+    test_hash_same_values_different_dtype()
 
     # diff()
     print("  Testing diff()...")
