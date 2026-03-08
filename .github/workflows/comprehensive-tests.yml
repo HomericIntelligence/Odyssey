@@ -257,7 +257,7 @@ jobs:
           # to avoid Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so JIT fault)
           - name: "Shared Infra & Testing"
             path: "tests/shared"
-            pattern: "test_imports.mojo test_data_generators.mojo test_model_utils.mojo test_serialization.mojo utils/test_*.mojo fixtures/test_*.mojo training/test_*.mojo testing/test_*.mojo"
+            pattern: "test_imports.mojo test_data_generators_part1.mojo test_data_generators_part2.mojo test_data_generators_part3.mojo test_data_generators_part4.mojo test_model_utils.mojo test_serialization.mojo utils/test_*.mojo fixtures/test_*.mojo training/test_*.mojo testing/test_*.mojo"
           # ---- Model layer tests (the main PR-blocking test suite) ----
           # ADR-009: test_googlenet_layers.mojo split into 3 parts (≤8 tests each)
           # to avoid Mojo v0.26.1 heap corruption under high test load.
