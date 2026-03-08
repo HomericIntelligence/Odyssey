@@ -1,13 +1,12 @@
-"""Unit tests for ResNet-18 layerwise operations.
+# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
+# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
+# high test load. Split from test_resnet18_layers.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
+"""Unit tests for ResNet-18 layerwise operations (Part 1 of 2).
 
 Tests cover:
 - Residual blocks with different channel configurations
 - Skip connections (identity and projection shortcuts)
 - Batch normalization in both training and inference modes
-- ReLU activations
-- Conv2D operations within blocks
-- Forward and backward passes
-- Gradient computation accuracy
 
 ResNet-18 Architecture Components:
 - Layer 1: 64 channels with 2 blocks (no projection)
@@ -662,245 +661,14 @@ fn test_batchnorm2d_inference_mode() raises:
         )
 
 
-fn test_batchnorm2d_gamma_beta_effects() raises:
-    """Test that gamma (scale) and beta (shift) parameters work correctly.
-
-    gamma = 2.0 should double the normalized values.
-    beta = 1.0 should shift values up by 1.0.
-    """
-    var batch_size = 2
-    var channels = 4
-    var height = 8
-    var width = 8
-
-    # Create input with known values
-    var input_shape = List[Int]()
-    input_shape.append(batch_size)
-    input_shape.append(channels)
-    input_shape.append(height)
-    input_shape.append(width)
-    var x = ones(input_shape, DType.float32)
-
-    # Parameters: gamma=2, beta=1
-    var gamma = full([channels], 2.0, DType.float32)
-    var beta = ones([channels], DType.float32)
-    var running_mean = zeros([channels], DType.float32)
-    var running_var = ones([channels], DType.float32)
-
-    # Forward pass
-    var output: ExTensor
-    var _: ExTensor
-    var __: ExTensor
-    (output, _, __) = batch_norm2d(
-        x, gamma, beta, running_mean, running_var, training=False
-    )
-
-    # With gamma=2 and beta=1, running_mean=0, running_var=1:
-    # normalized = (x - running_mean) / sqrt(running_var + eps) = (1 - 0) / 1 = 1
-    # output = gamma * normalized + beta = 2 * 1 + 1 = 3
-    var out_data = output._data.bitcast[Float32]()
-    var total_elements = batch_size * channels * height * width
-    for i in range(min(10, total_elements)):
-        # Expected: 3.0 (gamma * normalized + beta = 2 * 1 + 1)
-        assert_almost_equal(out_data[i], 3.0, tolerance=1e-4)
-
-
-# ============================================================================
-# ReLU Activation Tests
-# ============================================================================
-
-
-fn test_relu_in_residual_block() raises:
-    """Test ReLU activation within residual block context.
-
-    ReLU should zero out negative values.
-    """
-    var batch_size = 2
-    var channels = 64
-    var height = 32
-    var width = 32
-
-    var input_shape = List[Int]()
-    input_shape.append(batch_size)
-    input_shape.append(channels)
-    input_shape.append(height)
-    input_shape.append(width)
-
-    # Create tensor with both positive and negative values
-    var x = randn(input_shape, DType.float32)
-
-    # Apply ReLU
-    var output = relu(x)
-
-    # Verify shape
-    var out_shape = output.shape()
-    assert_equal(out_shape[0], batch_size)
-    assert_equal(out_shape[1], channels)
-
-    # Verify all values are non-negative
-    var out_data = output._data.bitcast[Float32]()
-    var total_elements = batch_size * channels * height * width
-    for i in range(min(100, total_elements)):
-        assert_true(
-            out_data[i] >= 0.0, "ReLU should produce non-negative values"
-        )
-
-
-# ============================================================================
-# Integration Tests
-# ============================================================================
-
-
-fn test_block_forward_backward_consistency() raises:
-    """Test that block forward and backward shapes are consistent.
-
-    Backward pass should produce gradients with same shapes as forward inputs.
-    """
-    var batch_size = 2
-    var in_channels = 64
-    var out_channels = 64
-    var height = 32
-    var width = 32
-
-    # Create inputs
-    var input_shape = List[Int]()
-    input_shape.append(batch_size)
-    input_shape.append(in_channels)
-    input_shape.append(height)
-    input_shape.append(width)
-    var x = ones(input_shape, DType.float32)
-
-    # Conv weights
-    var conv_weight_shape = List[Int]()
-    conv_weight_shape.append(out_channels)
-    conv_weight_shape.append(in_channels)
-    conv_weight_shape.append(3)
-    conv_weight_shape.append(3)
-    var conv1_weight = ones(conv_weight_shape, DType.float32)
-    var conv1_bias = zeros([out_channels], DType.float32)
-
-    var conv2_weight = ones(conv_weight_shape, DType.float32)
-    var conv2_bias = zeros([out_channels], DType.float32)
-
-    # BN params
-    var gamma = ones([out_channels], DType.float32)
-    var beta = zeros([out_channels], DType.float32)
-    var running_mean = zeros([out_channels], DType.float32)
-    var running_var = ones([out_channels], DType.float32)
-
-    # Forward pass
-    var output = create_basic_block(
-        x,
-        conv1_weight,
-        conv1_bias,
-        gamma,
-        beta,
-        running_mean,
-        running_var,
-        conv2_weight,
-        conv2_bias,
-        gamma,
-        beta,
-        running_mean,
-        running_var,
-        training=True,
-    )
-
-    # Verify output shape
-    var out_shape = output.shape()
-    assert_equal(out_shape[0], batch_size)
-    assert_equal(out_shape[1], out_channels)
-    assert_equal(out_shape[2], height)
-    assert_equal(out_shape[3], width)
-
-
-fn test_multiple_blocks_sequential() raises:
-    """Test multiple residual blocks in sequence.
-
-    Tests that output of one block can serve as input to next block.
-    """
-    var batch_size = 1
-    var channels = 64
-    var height = 32
-    var width = 32
-
-    var input_shape = List[Int]()
-    input_shape.append(batch_size)
-    input_shape.append(channels)
-    input_shape.append(height)
-    input_shape.append(width)
-
-    # Block 1 input
-    var x1 = ones(input_shape, DType.float32)
-
-    # Block 1 parameters
-    var conv_weight_shape = List[Int]()
-    conv_weight_shape.append(channels)
-    conv_weight_shape.append(channels)
-    conv_weight_shape.append(3)
-    conv_weight_shape.append(3)
-    var conv1_weight = ones(conv_weight_shape, DType.float32)
-    var conv1_bias = zeros([channels], DType.float32)
-    var conv2_weight = ones(conv_weight_shape, DType.float32)
-    var conv2_bias = zeros([channels], DType.float32)
-
-    var gamma = ones([channels], DType.float32)
-    var beta = zeros([channels], DType.float32)
-    var running_mean = zeros([channels], DType.float32)
-    var running_var = ones([channels], DType.float32)
-
-    # Block 1
-    var block1_out = create_basic_block(
-        x1,
-        conv1_weight,
-        conv1_bias,
-        gamma,
-        beta,
-        running_mean,
-        running_var,
-        conv2_weight,
-        conv2_bias,
-        gamma,
-        beta,
-        running_mean,
-        running_var,
-        training=True,
-    )
-
-    # Block 2 input is Block 1 output
-    var block2_out = create_basic_block(
-        block1_out,
-        conv1_weight,
-        conv1_bias,
-        gamma,
-        beta,
-        running_mean,
-        running_var,
-        conv2_weight,
-        conv2_bias,
-        gamma,
-        beta,
-        running_mean,
-        running_var,
-        training=True,
-    )
-
-    # Verify shapes
-    var out_shape = block2_out.shape()
-    assert_equal(out_shape[0], batch_size)
-    assert_equal(out_shape[1], channels)
-    assert_equal(out_shape[2], height)
-    assert_equal(out_shape[3], width)
-
-
 # ============================================================================
 # Main Test Runner
 # ============================================================================
 
 
 fn main() raises:
-    """Run all ResNet-18 layerwise tests."""
-    print("Running ResNet-18 layerwise tests...")
+    """Run all ResNet-18 layerwise tests (Part 1 of 2)."""
+    print("Running ResNet-18 layerwise tests (Part 1)...")
 
     # Residual block (no projection) tests
     test_residual_block_64_channels_forward()
@@ -930,18 +698,4 @@ fn main() raises:
     test_batchnorm2d_inference_mode()
     print("✓ test_batchnorm2d_inference_mode")
 
-    test_batchnorm2d_gamma_beta_effects()
-    print("✓ test_batchnorm2d_gamma_beta_effects")
-
-    # ReLU tests
-    test_relu_in_residual_block()
-    print("✓ test_relu_in_residual_block")
-
-    # Integration tests
-    test_block_forward_backward_consistency()
-    print("✓ test_block_forward_backward_consistency")
-
-    test_multiple_blocks_sequential()
-    print("✓ test_multiple_blocks_sequential")
-
-    print("\nAll ResNet-18 layerwise tests passed!")
+    print("\nAll ResNet-18 layerwise tests (Part 1) passed!")
