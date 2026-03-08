@@ -852,6 +852,53 @@ struct ExTensor(
         """
         self.__setitem__(index, Float64(value))
 
+    fn __setitem__(mut self, *indices: Int, value: Float64) raises:
+        """Set element at multi-dimensional index using stride-aware flat index calculation.
+
+        Computes the flat index as: sum(indices[i] * strides[i]) for each dimension i.
+
+        Args:
+            indices: Variable number of dimension indices (one per dimension).
+            value: The Float64 value to store.
+
+        Raises:
+            Error: If number of indices doesn't match tensor dimensions.
+            Error: If any index is out of bounds for its dimension.
+
+        Example:
+            ```mojo
+            var t = zeros([3, 4], DType.float32)
+            t[1, 2] = 5.0  # Sets element at row 1, col 2 (flat index 6)
+        ```
+        """
+        var num_indices = len(indices)
+        var num_dims = len(self._shape)
+
+        if num_indices != num_dims:
+            raise Error(
+                "Number of indices ("
+                + String(num_indices)
+                + ") must match number of dimensions ("
+                + String(num_dims)
+                + ")"
+            )
+
+        var flat_index = 0
+        for i in range(num_dims):
+            var idx = indices[i]
+            if idx < 0 or idx >= self._shape[i]:
+                raise Error(
+                    "Index "
+                    + String(idx)
+                    + " out of bounds for dimension "
+                    + String(i)
+                    + " with size "
+                    + String(self._shape[i])
+                )
+            flat_index += idx * self._strides[i]
+
+        self.__setitem__(flat_index, value)
+
     fn __getitem__(self, slice: Slice) raises -> Self:
         """Get slice of 1D tensor [start:end] or [start:end:step].
 
