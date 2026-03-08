@@ -8,7 +8,6 @@ from testing import assert_true
 from shared.testing.assertions import (
     assert_almost_equal,
     assert_dtype_equal,
-    assert_equal_int,
     assert_equal_float,
     assert_close_float,
 )
@@ -69,21 +68,6 @@ fn test_assert_dtype_equal_fails() raises:
     )
 
 
-fn test_assert_equal_int_specialized_passes() raises:
-    """Test assert_equal_int with matching integers."""
-    assert_equal_int(42, 42)
-
-
-fn test_assert_equal_int_specialized_fails() raises:
-    """Test assert_equal_int with mismatched integers."""
-    var failed = False
-    try:
-        assert_equal_int(42, 43)
-    except:
-        failed = True
-    assert_true(failed, "assert_equal_int should raise error on mismatch")
-
-
 fn test_assert_equal_float_passes() raises:
     """Test assert_equal_float with exactly equal floats."""
     assert_equal_float(Float32(1.0), Float32(1.0))
@@ -109,8 +93,6 @@ fn main() raises:
     test_assert_almost_equal_float64_fails()
     test_assert_dtype_equal_passes()
     test_assert_dtype_equal_fails()
-    test_assert_equal_int_specialized_passes()
-    test_assert_equal_int_specialized_fails()
     test_assert_equal_float_passes()
     test_assert_equal_float_fails()
     print("All floating-point assertion tests passed!")
