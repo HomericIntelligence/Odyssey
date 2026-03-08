@@ -52,7 +52,12 @@ tests/shared/
 ├── core/                            # Core module tests
 │   ├── test_layers.mojo             # Layer implementations
 │   ├── test_tensors.mojo            # Tensor operations
-│   ├── test_activations.mojo        # Activation functions
+│   ├── test_activations_part1.mojo  # Activation functions (ReLU, Leaky ReLU start) - ADR-009 split
+│   ├── test_activations_part2.mojo  # Activation functions (Leaky ReLU end, PReLU, Sigmoid start)
+│   ├── test_activations_part3.mojo  # Activation functions (Sigmoid end, Tanh, Softmax start)
+│   ├── test_activations_part4.mojo  # Activation functions (Softmax end, GELU start)
+│   ├── test_activations_part5.mojo  # Activation functions (GELU end, Swish, Mish start)
+│   ├── test_activations_part6.mojo  # Activation functions (Mish end, ELU, Integration)
 │   ├── test_initializers.mojo       # Parameter initialization
 │   └── test_module.mojo             # Module base class
 ├── training/                        # Training module tests
