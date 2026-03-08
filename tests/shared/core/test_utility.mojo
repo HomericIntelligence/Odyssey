@@ -582,6 +582,27 @@ fn test_hash_different_dtypes_differ() raises:
             "float32 and float64 tensors with same values should have different"
             " hashes"
         )
+fn test_hash_empty_tensor() raises:
+    """Test __hash__ for 0-element tensor hashes without error and consistently.
+
+    A tensor with shape [0] has _numel=0, so the data loop is skipped.
+    The hash is determined only by shape and dtype, but must still be stable.
+    """
+    var shape = List[Int]()
+    shape.append(0)
+    var a = zeros(shape, DType.float32)
+    var b = zeros(shape, DType.float32)
+
+    # Should not raise - the empty data loop must be safe
+    var hash_a = hash(a)
+    var hash_b = hash(b)
+
+    # Two empty tensors with identical shape and dtype must hash the same
+    assert_equal_int(
+        Int(hash_a),
+        Int(hash_b),
+        "Empty tensors with same shape/dtype should have equal hashes",
+    )
 
 
 # ============================================================================
@@ -687,6 +708,7 @@ fn main() raises:
     test_hash_large_values()
     test_hash_small_values_distinguish()
     test_hash_different_dtypes_differ()
+    test_hash_empty_tensor()
 
     # diff()
     print("  Testing diff()...")
