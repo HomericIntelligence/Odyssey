@@ -1,3 +1,7 @@
+# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
+# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
+# high test load. Split from test_gradient_checking.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
+
 """Gradient checking tests for activation, arithmetic, and edge cases.
 
 Note: Split from test_gradient_checking.mojo due to Mojo 0.26.1 heap
@@ -55,6 +59,37 @@ fn test_relu_negative_inputs() raises:
 
     var passed = check_gradients(forward, backward, input)
     assert_true(passed, "ReLU gradient check failed for negative inputs")
+
+
+fn test_relu_mixed_inputs() raises:
+    """Test ReLU gradient with mixed positive/negative inputs."""
+    var shape = List[Int]()
+    shape.append(3)
+    shape.append(4)
+
+    var input = zeros(shape, DType.float32)
+    # Set some positive, some negative (avoid 0.0 at ReLU discontinuity)
+    input._set_float64(0, 1.0)
+    input._set_float64(1, -1.0)
+    input._set_float64(2, 2.0)
+    input._set_float64(3, -2.0)
+    input._set_float64(4, 1.5)
+    input._set_float64(5, -1.5)
+    input._set_float64(6, 0.5)
+    input._set_float64(7, -0.5)
+    input._set_float64(8, 3.0)
+    input._set_float64(9, -3.0)
+    input._set_float64(10, 0.1)
+    input._set_float64(11, -0.1)
+
+    fn forward(x: ExTensor) raises escaping -> ExTensor:
+        return relu(x)
+
+    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+        return relu_backward(grad_out, x)
+
+    var passed = check_gradients(forward, backward, input)
+    assert_true(passed, "ReLU gradient check failed for mixed inputs")
 
 
 fn test_sigmoid_gradient() raises:
@@ -170,6 +205,7 @@ fn main() raises:
     print("Running activation gradient tests...")
     test_relu_gradient()
     test_relu_negative_inputs()
+    test_relu_mixed_inputs()
     test_sigmoid_gradient()
     test_tanh_gradient()
 
