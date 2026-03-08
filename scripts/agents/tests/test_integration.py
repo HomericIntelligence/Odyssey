@@ -362,7 +362,7 @@ description: test
         """Test frontmatter validation with unknown keys."""
         frontmatter = {"name": "test", "description": "test", "unknown_key": "value"}
         required = ["name", "description"]
-        optional = []
+        optional: list[str] = []
 
         errors = validate_frontmatter_keys(frontmatter, required, optional)
 
