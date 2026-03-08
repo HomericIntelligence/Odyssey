@@ -70,7 +70,7 @@ def print_summary(categories):
     print()
 
     # Count warnings per file
-    file_counts = defaultdict(int)
+    file_counts: defaultdict[str, int] = defaultdict(int)
     for warnings in categories.values():
         for warning in warnings:
             # Extract file path

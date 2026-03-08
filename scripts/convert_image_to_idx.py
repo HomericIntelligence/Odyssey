@@ -36,9 +36,9 @@ def load_and_preprocess(image_path: Path, emnist_transform: bool) -> bytes:
         784 bytes of uint8 pixel values in row-major order.
     """
     img = Image.open(image_path).convert("L")
-    img = img.resize((28, 28), Image.LANCZOS)
+    img = img.resize((28, 28), Image.Resampling.LANCZOS)
     if emnist_transform:
-        img = img.transpose(Image.TRANSPOSE).transpose(Image.FLIP_LEFT_RIGHT)
+        img = img.transpose(Image.Transpose.TRANSPOSE).transpose(Image.Transpose.FLIP_LEFT_RIGHT)
     return bytes(img.getdata())
 
 
