@@ -2921,6 +2921,9 @@ struct ExTensor(
         ExTensor implements the `Hashable` trait, allowing tensors to be used as
         dictionary keys or in hash-based data structures. Two tensors with identical
         shape, dtype, and element values will produce the same hash.
+        NaN values are canonicalized to a single quiet NaN bit pattern before
+        hashing, ensuring that different NaN representations (signaling NaN,
+        negative NaN, different NaN payloads) all produce the same hash.
 
         Parameters:
             H: The hasher type conforming to the Hasher trait.
@@ -2950,15 +2953,26 @@ struct ExTensor(
         """
         from shared.core.dtype_ordinal import dtype_to_ordinal
 
+        # Canonical quiet NaN bit pattern for Float64 (IEEE 754: exponent all-ones,
+        # MSB of mantissa set, zero payload, positive sign).
+        alias CANONICAL_NAN_F64: UInt64 = 0x7FF8000000000000
+        # NaN detection mask for Float64: if (bits & 0x7FFFFFFFFFFFFFFF) > 0x7FF0000000000000,
+        # then exponent is all-ones and mantissa is non-zero => NaN.
+        alias F64_INF_BITS: UInt64 = 0x7FF0000000000000
+        alias F64_ABS_MASK: UInt64 = 0x7FFFFFFFFFFFFFFF
+
         # Hash shape
         for i in range(len(self._shape)):
             hasher.update(self._shape[i])
         # Hash dtype ordinal
         hasher.update(dtype_to_ordinal(self._dtype))
-        # Hash data
+        # Hash data: for float types, canonicalize NaN before contributing bits.
         for i in range(self._numel):
             var val = self._get_float64(i)
             var int_bits = UnsafePointer[Float64](to=val).bitcast[UInt64]()[]
+            # Canonicalize any NaN to a single stable bit pattern.
+            if (int_bits & F64_ABS_MASK) > F64_INF_BITS:
+                int_bits = CANONICAL_NAN_F64
             hasher.update(int_bits)
 
     fn contiguous(self) raises -> ExTensor:
