@@ -193,6 +193,63 @@ fn test_contiguous_on_noncontiguous() raises:
     assert_equal_int(c._strides[1], 1, "Stride for dim 1 should be 1")
 
 
+fn test_contiguous_stride_correct_values() raises:
+    """Test that as_contiguous() remaps values to correct row-major positions.
+
+    Constructs a 2x3 tensor with column-major strides (non-contiguous),
+    fills raw memory with values 0.0-5.0, then verifies as_contiguous()
+    produces a row-major copy with stride-correct element positions.
+
+    Column-major strides [1, 2] for shape [2, 3]:
+      result[0,0] = src[0*1 + 0*2] = mem[0] = 0.0
+      result[0,1] = src[0*1 + 1*2] = mem[2] = 2.0
+      result[0,2] = src[0*1 + 2*2] = mem[4] = 4.0
+      result[1,0] = src[1*1 + 0*2] = mem[1] = 1.0
+      result[1,1] = src[1*1 + 1*2] = mem[3] = 3.0
+      result[1,2] = src[1*1 + 2*2] = mem[5] = 5.0
+
+    Expected flat output (row-major): [0.0, 2.0, 4.0, 1.0, 3.0, 5.0]
+    """
+    # Create a 2x3 float32 tensor with default row-major layout
+    var shape = List[Int]()
+    shape.append(2)
+    shape.append(3)
+    var t = ExTensor(shape, DType.float32)
+
+    # Fill raw memory sequentially: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0]
+    for i in range(6):
+        t._set_float64(i, Float64(i))
+
+    # Overwrite strides to column-major: stride[0]=1 (rows), stride[1]=2 (cols)
+    # This makes the tensor non-contiguous (strides don't match C-order [3, 1])
+    t._strides[0] = 1
+    t._strides[1] = 2
+
+    # Verify the tensor is now non-contiguous
+    assert_false(
+        t.is_contiguous(),
+        "Tensor with column-major strides should not be contiguous",
+    )
+
+    # Call as_contiguous() — should remap elements via stride-based indexing
+    var result = as_contiguous(t)
+
+    # Verify result is contiguous
+    assert_true(
+        result.is_contiguous(),
+        "as_contiguous() result should be contiguous",
+    )
+
+    # Verify stride-correct element positions in row-major output
+    # Expected flat order: [0.0, 2.0, 4.0, 1.0, 3.0, 5.0]
+    assert_value_at(result, 0, 0.0, 1e-6, "result[0,0] should be 0.0 (mem[0])")
+    assert_value_at(result, 1, 2.0, 1e-6, "result[0,1] should be 2.0 (mem[2])")
+    assert_value_at(result, 2, 4.0, 1e-6, "result[0,2] should be 4.0 (mem[4])")
+    assert_value_at(result, 3, 1.0, 1e-6, "result[1,0] should be 1.0 (mem[1])")
+    assert_value_at(result, 4, 3.0, 1e-6, "result[1,1] should be 3.0 (mem[3])")
+    assert_value_at(result, 5, 5.0, 1e-6, "result[1,2] should be 5.0 (mem[5])")
+
+
 # ============================================================================
 # Test item() - scalar extraction
 # ============================================================================
@@ -584,6 +641,7 @@ fn main() raises:
     test_is_contiguous_true()
     test_is_contiguous_after_transpose()
     test_contiguous_on_noncontiguous()
+    test_contiguous_stride_correct_values()
 
     # item() extraction
     print("  Testing item()...")
