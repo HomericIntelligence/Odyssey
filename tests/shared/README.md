@@ -62,7 +62,8 @@ tests/shared/
 │   ├── test_callbacks.mojo          # Training callbacks
 │   └── test_loops.mojo              # Training loops
 ├── data/                            # Data module tests
-│   ├── test_datasets.mojo           # Dataset implementations
+│   ├── test_datasets_part1.mojo     # Dataset implementations (Part 1, ADR-009 split)
+│   ├── test_datasets_part2.mojo     # Dataset implementations (Part 2, ADR-009 split)
 │   ├── test_loaders.mojo            # Data loaders
 │   └── test_transforms.mojo         # Data transforms
 ├── utils/                           # Utils module tests
