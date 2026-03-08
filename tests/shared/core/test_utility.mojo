@@ -321,13 +321,14 @@ fn test_setitem_out_of_bounds() raises:
     shape.append(3)
     var t = zeros(shape, DType.float32)
 
-    var raised = False
+    var error_raised = False
     try:
         t[5] = 1.0
-    except:
-        raised = True
+    except e:
+        error_raised = True
+        assert_equal(String(e), "Index out of bounds")
 
-    if not raised:
+    if not error_raised:
         raise Error("__setitem__ should raise error for out-of-bounds index")
 
 
