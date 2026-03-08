@@ -1,13 +1,16 @@
-"""End-to-end tests for GoogLeNet (Inception-v1) model on CIFAR-10.
+"""End-to-end tests for GoogLeNet (Inception-v1) model on CIFAR-10 - Part 2.
+
+# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
+# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
+# high test load. Split from test_googlenet_e2e.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Tests cover:
-- Model initialization with correct parameter shapes
-- Forward pass through complete architecture
-- Training mode vs inference mode (affects batch norm, dropout)
-- Output shape verification (batch, 10 classes for CIFAR-10)
-- Numerical stability (no NaN, no Inf)
-- Multiple batch sizes
-- Different input configurations
+- Numerical stability (no Inf values, different input value ranges)
+- Reproducibility of inference outputs
+- Multiple forward passes through same model instance
+- Inception module contribution verification
+- Batch independence
+- Output tensor properties
 
 All tests use small batches and synthetic data for fast execution (< 90 seconds).
 """
@@ -396,176 +399,8 @@ struct GoogLeNetSmall:
 
 
 # ============================================================================
-# E2E Initialization Tests
+# E2E Numerical Stability Tests (continued)
 # ============================================================================
-
-
-fn test_googlenet_initialization() raises:
-    """Test that GoogLeNet model can be initialized with correct shapes."""
-    var model = GoogLeNetSmall(num_classes=10)
-
-    # Verify initial conv parameters
-    assert_shape(model.initial_conv_weights, [64, 3, 3, 3])
-    assert_shape(model.initial_conv_bias, [64])
-
-    # Verify FC parameters
-    assert_shape(model.fc_weights, [10, 96])
-    assert_shape(model.fc_bias, [10])
-
-
-# ============================================================================
-# E2E Forward Pass Tests
-# ============================================================================
-
-
-fn test_googlenet_forward_batch_size_1() raises:
-    """Test forward pass with batch size 1.
-
-    Input: (batch=1, channels=3, height=8, width=8)
-    Output: (batch=1, classes=10)
-    """
-    var batch_size = 1
-    var model = GoogLeNetSmall(num_classes=10)
-
-    # Create input
-    var input = ones([batch_size, 3, 8, 8], DType.float32)
-
-    # Forward pass
-    var output = model.forward(input, training=False)
-
-    # Verify output shape
-    assert_equal(output.shape()[0], batch_size)
-    assert_equal(output.shape()[1], 10)
-    assert_equal(len(output.shape()), 2)
-
-
-fn test_googlenet_forward_batch_size_2() raises:
-    """Test forward pass with batch size 2.
-
-    Input: (batch=2, channels=3, height=8, width=8)
-    Output: (batch=2, classes=10)
-    """
-    var batch_size = 2
-    var model = GoogLeNetSmall(num_classes=10)
-
-    # Create input
-    var input = ones([batch_size, 3, 8, 8], DType.float32)
-
-    # Forward pass
-    var output = model.forward(input, training=False)
-
-    # Verify output shape
-    assert_equal(output.shape()[0], batch_size)
-    assert_equal(output.shape()[1], 10)
-
-
-fn test_googlenet_forward_batch_size_4() raises:
-    """Test forward pass with batch size 4.
-
-    Input: (batch=4, channels=3, height=8, width=8)
-    Output: (batch=4, classes=10)
-    """
-    var batch_size = 4
-    var model = GoogLeNetSmall(num_classes=10)
-
-    # Create input
-    var input = ones([batch_size, 3, 8, 8], DType.float32)
-
-    # Forward pass
-    var output = model.forward(input, training=False)
-
-    # Verify output shape
-    assert_equal(output.shape()[0], batch_size)
-    assert_equal(output.shape()[1], 10)
-
-
-fn test_googlenet_training_mode() raises:
-    """Test forward pass in training mode (batch norm affects output).
-
-    Training mode should use mini-batch statistics.
-    """
-    var batch_size = 2
-    var model = GoogLeNetSmall(num_classes=10)
-
-    # Create input
-    var input = ones([batch_size, 3, 8, 8], DType.float32)
-
-    # Forward pass in training mode
-    var output_train = model.forward(input, training=True)
-
-    # Verify output shape
-    assert_equal(output_train.shape()[0], batch_size)
-    assert_equal(output_train.shape()[1], 10)
-
-
-fn test_googlenet_inference_mode() raises:
-    """Test forward pass in inference mode (batch norm uses running stats).
-
-    Inference mode should use running mean/variance.
-    """
-    var batch_size = 2
-    var model = GoogLeNetSmall(num_classes=10)
-
-    # Create input
-    var input = ones([batch_size, 3, 8, 8], DType.float32)
-
-    # Forward pass in inference mode
-    var output_infer = model.forward(input, training=False)
-
-    # Verify output shape
-    assert_equal(output_infer.shape()[0], batch_size)
-    assert_equal(output_infer.shape()[1], 10)
-
-
-fn test_googlenet_different_class_counts() raises:
-    """Test GoogLeNet with different output class counts.
-
-    CIFAR-10: 10 classes
-    CIFAR-100: 100 classes
-    ImageNet: 1000 classes
-    """
-    var batch_size = 2
-    var input = ones([batch_size, 3, 8, 8], DType.float32)
-
-    # Test with 10 classes (CIFAR-10)
-    var model_10 = GoogLeNetSmall(num_classes=10)
-    var output_10 = model_10.forward(input, training=False)
-    assert_equal(output_10.shape()[1], 10)
-
-    # Test with 100 classes (CIFAR-100)
-    var model_100 = GoogLeNetSmall(num_classes=100)
-    var output_100 = model_100.forward(input, training=False)
-    assert_equal(output_100.shape()[1], 100)
-
-
-# ============================================================================
-# E2E Numerical Stability Tests
-# ============================================================================
-
-
-fn test_googlenet_no_nan_output() raises:
-    """Test that forward pass produces no NaN values.
-
-    NaN can indicate numerical instability (e.g., log(negative)).
-    """
-    var batch_size = 2
-    var model = GoogLeNetSmall(num_classes=10)
-
-    # Create input
-    var input = ones([batch_size, 3, 8, 8], DType.float32)
-    var input_data = input._data.bitcast[Float32]()
-    for i in range(input.numel()):
-        input_data[i] = 0.1
-
-    # Forward pass
-    var output = model.forward(input, training=False)
-
-    # Verify no NaN values
-    var output_data = output._data.bitcast[Float32]()
-    for i in range(output.numel()):
-        var val = output_data[i]
-        # Simple NaN check: NaN != NaN
-        assert_true(val == val, "Output contains NaN")
 
 
 fn test_googlenet_no_inf_output() raises:
