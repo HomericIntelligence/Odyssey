@@ -225,6 +225,7 @@ jobs:
             path: "tests/shared/integration"
             pattern: "test_*.mojo"
           # ---- Shared infra: fixtures, testing helpers, utils, training stubs ----
+          # NOTE: utils/test_logging.mojo split into 3 files per ADR-009 (≤10 fn test_ per file)
           - name: "Shared Infra & Testing"
             path: "tests/shared"
             pattern: "test_imports.mojo test_data_generators.mojo test_model_utils.mojo test_serialization.mojo utils/test_*.mojo fixtures/test_*.mojo training/test_*.mojo testing/test_*.mojo"
