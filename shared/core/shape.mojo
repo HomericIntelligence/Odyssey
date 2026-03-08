@@ -88,14 +88,29 @@ fn as_contiguous(tensor: ExTensor) raises -> ExTensor:
 
         return result^
     else:
-        # Non-contiguous - copy element by element to create contiguous layout
+        # Non-contiguous - use stride-based indexing to read source elements
         var shape = tensor.shape()
+        var ndim = len(shape)
         var result = ExTensor(shape, tensor.dtype())
         var numel = tensor.numel()
+        var dtype_size = tensor._get_dtype_size()
+        var src_ptr = tensor._data
+        var dst_ptr = result._data
 
         for i in range(numel):
-            var val = tensor._get_float64(i)
-            result._set_float64(i, val)
+            # Convert flat output index i to multi-dimensional coords (C-order),
+            # then compute source byte offset using the tensor's actual strides.
+            var src_elem_offset = 0
+            var remaining = i
+            for d in range(ndim - 1, -1, -1):
+                var coord = remaining % shape[d]
+                remaining //= shape[d]
+                src_elem_offset += coord * tensor._strides[d]
+
+            var src_byte_offset = src_elem_offset * dtype_size
+            var dst_byte_offset = i * dtype_size
+            for b in range(dtype_size):
+                dst_ptr[dst_byte_offset + b] = src_ptr[src_byte_offset + b]
 
         return result^
 
