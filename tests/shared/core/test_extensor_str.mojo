@@ -1,0 +1,123 @@
+"""Tests for ExTensor __str__ truncation behavior.
+
+Verifies NumPy-style truncation: tensors with more than 1000 elements
+show first 3 and last 3 elements with '...' in between.
+
+Related: issue #3375
+"""
+
+from shared.core.extensor import ExTensor, zeros, ones, full, arange
+from tests.shared.conftest import assert_true, assert_equal
+
+
+fn test_str_empty_tensor() raises:
+    """Test __str__ for empty tensor (numel=0)."""
+    var t = zeros([0], DType.float32)
+    var s = String(t)
+    assert_equal(s, "ExTensor([], dtype=float32)")
+
+
+fn test_str_single_element() raises:
+    """Test __str__ for scalar / 1-element tensor."""
+    var t = full([1], 3.0, DType.float32)
+    var s = String(t)
+    assert_equal(s, "ExTensor([3.0], dtype=float32)")
+
+
+fn test_str_small_tensor_no_truncation() raises:
+    """Test __str__ for tensor with numel <= 1000 shows all elements."""
+    var t = arange(5, DType.float32)
+    var s = String(t)
+    # Should contain all values
+    assert_true(s.startswith("ExTensor(["))
+    assert_true("0.0" in s)
+    assert_true("1.0" in s)
+    assert_true("4.0" in s)
+    assert_true("..." not in s)
+
+
+fn test_str_exactly_threshold_no_truncation() raises:
+    """Test __str__ for tensor with exactly 1000 elements shows all (no truncation)."""
+    var t = arange(1000, DType.float32)
+    var s = String(t)
+    # At exactly 1000, no truncation — all values shown
+    assert_true("..." not in s)
+    assert_true("0.0" in s)
+    assert_true("999.0" in s)
+
+
+fn test_str_large_tensor_truncation() raises:
+    """Test __str__ for tensor with numel > 1000 shows truncated form."""
+    var t = arange(1001, DType.float32)
+    var s = String(t)
+    assert_true("..." in s)
+    assert_true("0.0" in s)
+    assert_true("1.0" in s)
+    assert_true("2.0" in s)
+    assert_true("1000.0" in s)
+    assert_true("999.0" in s)
+    assert_true("998.0" in s)
+
+
+fn test_str_large_tensor_format() raises:
+    """Test __str__ produces correct format for large tensor."""
+    var t = arange(2000, DType.float32)
+    var s = String(t)
+    # Must start and end correctly
+    assert_true(s.startswith("ExTensor([0.0, 1.0, 2.0, ..."))
+    assert_true(s.endswith(", dtype=float32)"))
+    assert_true("1999.0" in s)
+    assert_true("1998.0" in s)
+    assert_true("1997.0" in s)
+
+
+fn test_str_dtype_preserved() raises:
+    """Test __str__ correctly reports dtype for large tensor."""
+    var tf16 = arange(1001, DType.float16)
+    var sf16 = String(tf16)
+    assert_true("dtype=float16" in sf16)
+    assert_true("..." in sf16)
+
+    var tf64 = arange(1001, DType.float64)
+    var sf64 = String(tf64)
+    assert_true("dtype=float64" in sf64)
+    assert_true("..." in sf64)
+
+
+fn test_str_no_truncation_for_6_elements() raises:
+    """Test that a 6-element tensor is shown in full (edge case near SHOW_ELEMENTS*2)."""
+    var t = arange(6, DType.float32)
+    var s = String(t)
+    assert_true("..." not in s)
+    assert_true("5.0" in s)
+
+
+fn main() raises:
+    """Run __str__ truncation tests."""
+    print("Running ExTensor __str__ truncation tests...")
+
+    test_str_empty_tensor()
+    print("  [OK] test_str_empty_tensor")
+
+    test_str_single_element()
+    print("  [OK] test_str_single_element")
+
+    test_str_small_tensor_no_truncation()
+    print("  [OK] test_str_small_tensor_no_truncation")
+
+    test_str_exactly_threshold_no_truncation()
+    print("  [OK] test_str_exactly_threshold_no_truncation")
+
+    test_str_large_tensor_truncation()
+    print("  [OK] test_str_large_tensor_truncation")
+
+    test_str_large_tensor_format()
+    print("  [OK] test_str_large_tensor_format")
+
+    test_str_dtype_preserved()
+    print("  [OK] test_str_dtype_preserved")
+
+    test_str_no_truncation_for_6_elements()
+    print("  [OK] test_str_no_truncation_for_6_elements")
+
+    print("All ExTensor __str__ truncation tests passed!")
