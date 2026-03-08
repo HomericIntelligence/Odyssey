@@ -241,6 +241,11 @@ jobs:
           - name: "Benchmarking"
             path: "tests/shared/benchmarking"
             pattern: "test_*.mojo"
+          # ADR-009: test_optimizer_base.mojo split into part1/part2/part3 (≤8 tests each)
+          # to avoid Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so).
+          - name: "Autograd & Benchmarking"
+            path: "tests/shared"
+            pattern: "autograd/test_*.mojo benchmarking/test_*.mojo"
           # ---- Integration tests (segfault-prone on CI, kept non-blocking) ----
           - name: "Integration Tests"
             path: "tests/shared/integration"
