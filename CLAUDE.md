@@ -78,6 +78,9 @@ gh pr merge --auto --rebase
 - [Common Constraints](/.claude/shared/common-constraints.md)
 - [Documentation Rules](/.claude/shared/documentation-rules.md)
 - [Error Handling](/.claude/shared/error-handling.md)
+- [Git Commit Policy](/.claude/shared/git-commit-policy.md)
+- [Output Style Guidelines](/.claude/shared/output-style-guidelines.md)
+- [Tool Use Optimization](/.claude/shared/tool-use-optimization.md)
 
 ### Agent System & Skills
 
