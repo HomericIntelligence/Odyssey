@@ -229,9 +229,11 @@ jobs:
             path: "tests/shared"
             pattern: "test_imports.mojo test_data_generators.mojo test_model_utils.mojo test_serialization.mojo utils/test_*.mojo fixtures/test_*.mojo training/test_*.mojo testing/test_*.mojo"
           # ---- Model layer tests (the main PR-blocking test suite) ----
+          # ADR-009: test_googlenet_layers.mojo split into 3 parts (≤8 tests each)
+          # to avoid Mojo v0.26.1 heap corruption under high test load.
           - name: "Models"
             path: "tests/models"
-            pattern: "test_*_layers.mojo"
+            pattern: "test_*_layers.mojo test_googlenet_layers_part1.mojo test_googlenet_layers_part2.mojo test_googlenet_layers_part3.mojo"
           # ---- Top-level, debug, helpers, tooling, fuzz (low-frequency failures) ----
           - name: "Misc Tests"
             path: "tests"
