@@ -332,6 +332,22 @@ fn test_setitem_out_of_bounds() raises:
         raise Error("__setitem__ should raise error for out-of-bounds index")
 
 
+fn test_setitem_negative_index() raises:
+    """Test that __setitem__ raises error for negative index."""
+    var shape = List[Int]()
+    shape.append(3)
+    var t = zeros(shape, DType.float32)
+
+    var raised = False
+    try:
+        t[-1] = 1.0
+    except:
+        raised = True
+
+    if not raised:
+        raise Error("__setitem__ should raise error for negative index")
+
+
 # ============================================================================
 # Test __bool__
 # ============================================================================
@@ -570,6 +586,7 @@ fn main() raises:
     test_setitem_valid_index()
     test_setitem_integer_dtype()
     test_setitem_out_of_bounds()
+    test_setitem_negative_index()
 
     # __bool__
     print("  Testing __bool__...")
