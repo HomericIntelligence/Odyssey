@@ -5,7 +5,8 @@ Tests for cross-module workflows and component interactions:
 - test_data_pipeline.mojo      - Data loading workflows
 - test_end_to_end.mojo         - Complete model training scenarios
 - test_training_e2e.mojo       - Training end-to-end scenarios
-- test_multi_precision_training.mojo - Multi-precision training tests
+- test_multi_precision_training_part1.mojo - Multi-precision training tests (part 1: FP32/FP16/BF16/FP8, overflow, config, scaling)
+- test_multi_precision_training_part2.mojo - Multi-precision training tests (part 2: master weights, accuracy, memory, TOML config)
 - test_packaging.mojo          - Package and distribution tests
 """
 
