@@ -61,7 +61,7 @@ pixi run mojo tests/shared/core/test_tensors.mojo
 pixi run mojo tests/shared/training/test_optimizers.mojo
 
 # Run multiple test files (sequential)
-pixi run mojo tests/shared/core/test_arithmetic.mojo
+pixi run mojo tests/shared/core/test_arithmetic_part1.mojo
 pixi run mojo tests/shared/core/test_layers.mojo
 ```text
 
@@ -216,7 +216,7 @@ pixi run mojo tests/shared/integration/test_training_workflow.mojo
 # Run one test group locally
 cd tests/shared/core
 pixi run mojo test_tensors.mojo
-pixi run mojo test_arithmetic.mojo
+pixi run mojo test_arithmetic_part1.mojo
 pixi run mojo test_layers.mojo
 ```text
 
