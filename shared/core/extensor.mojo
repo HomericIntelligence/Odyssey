@@ -2878,6 +2878,32 @@ struct ExTensor(
         """
         return self.item()
 
+    fn _format_element(self, i: Int) -> String:
+        """Format a single element as a string based on dtype.
+
+        Args:
+            i: The element index.
+
+        Returns:
+            String representation: "True"/"False" for bool, integer string for
+            integral types, float string for floating-point types.
+        """
+        if self._dtype == DType.bool:
+            return "True" if self._get_int64(i) != 0 else "False"
+        elif (
+            self._dtype == DType.int8
+            or self._dtype == DType.int16
+            or self._dtype == DType.int32
+            or self._dtype == DType.int64
+            or self._dtype == DType.uint8
+            or self._dtype == DType.uint16
+            or self._dtype == DType.uint32
+            or self._dtype == DType.uint64
+        ):
+            return String(self._get_int64(i))
+        else:
+            return String(self._get_float64(i))
+
     fn __str__(self) -> String:
         """Human-readable string representation.
 
@@ -2888,7 +2914,7 @@ struct ExTensor(
         for i in range(self._numel):
             if i > 0:
                 result += ", "
-            result += String(self._get_float64(i))
+            result += self._format_element(i)
         result += "], dtype=" + String(self._dtype) + ")"
         return result
 
@@ -2911,7 +2937,7 @@ struct ExTensor(
         for i in range(self._numel):
             if i > 0:
                 result += ", "
-            result += String(self._get_float64(i))
+            result += self._format_element(i)
         result += "])"
         return result
 
