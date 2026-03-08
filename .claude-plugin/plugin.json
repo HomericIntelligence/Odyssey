@@ -51,6 +51,21 @@
         "conflicts_resolved": 1,
         "test_pass_rate": "100%"
       }
+    },
+    {
+      "name": "gh-deduplicate-issues",
+      "category": "tooling",
+      "description": "Close duplicate GitHub issues in bulk, keeping oldest as canonical survivor, using gh CLI comment+close pattern",
+      "tags": ["github", "issues", "deduplication", "backlog", "cleanup", "gh-cli"],
+      "skillPath": "skills/gh-deduplicate-issues/SKILL.md",
+      "referencesPath": "skills/gh-deduplicate-issues/references/notes.md",
+      "metrics": {
+        "issues_closed": 114,
+        "groups_processed": 9,
+        "open_count_before": 683,
+        "open_count_after": 570,
+        "success_rate": "100%"
+      }
     }
   ]
 }
