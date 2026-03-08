@@ -63,7 +63,8 @@ def find_test_files(root_dir: Path) -> List[Path]:
     exclude_e2e_patterns = [
         "tests/models/test_alexnet_e2e.mojo",
         "tests/models/test_googlenet_e2e.mojo",
-        "tests/models/test_lenet5_e2e.mojo",
+        "tests/models/test_lenet5_e2e_part1.mojo",
+        "tests/models/test_lenet5_e2e_part2.mojo",
         "tests/models/test_mobilenetv1_e2e.mojo",
         "tests/models/test_resnet18_e2e.mojo",
         "tests/models/test_vgg16_e2e.mojo",
