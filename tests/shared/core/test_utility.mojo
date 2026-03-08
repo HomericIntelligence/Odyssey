@@ -491,6 +491,26 @@ fn test_hash_small_values_distinguish() raises:
         )
 
 
+fn test_hash_different_dtypes_differ() raises:
+    """Test that same logical values with different dtypes produce different hashes.
+
+    The hash implementation includes dtype ordinal to distinguish tensors,
+    so a float32 and float64 tensor with identical values must hash differently.
+    """
+    var shape = List[Int]()
+    shape.append(1)
+    var a = full(shape, 1.0, DType.float32)
+    var b = full(shape, 1.0, DType.float64)
+
+    var hash_a = hash(a)
+    var hash_b = hash(b)
+    if hash_a == hash_b:
+        raise Error(
+            "float32 and float64 tensors with same values should have different"
+            " hashes"
+        )
+
+
 # ============================================================================
 # Test diff() - consecutive differences
 # ============================================================================
@@ -591,6 +611,7 @@ fn main() raises:
     test_hash_different_values_differ()
     test_hash_large_values()
     test_hash_small_values_distinguish()
+    test_hash_different_dtypes_differ()
 
     # diff()
     print("  Testing diff()...")
