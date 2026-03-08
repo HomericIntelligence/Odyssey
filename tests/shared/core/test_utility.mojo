@@ -598,6 +598,22 @@ fn test_hash_different_shapes_differ() raises:
             "Tensors with same data but different shapes should have different"
             " hashes"
         )
+fn test_hash_integer_dtype_consistent() raises:
+    """Test __hash__ for integer-typed tensors produces consistent hashes.
+
+    _get_float64 casts integer values to Float64 before hashing. Two separate
+    tensors with identical integer values must produce the same hash.
+    """
+    var a = arange(0.0, 4.0, 1.0, DType.int32)
+    var b = arange(0.0, 4.0, 1.0, DType.int32)
+
+    var hash_a = hash(a)
+    var hash_b = hash(b)
+    assert_equal_int(
+        Int(hash_a),
+        Int(hash_b),
+        "Integer-typed tensors with same values should have same hash",
+    )
 
 
 # ============================================================================
@@ -704,6 +720,7 @@ fn main() raises:
     test_hash_small_values_distinguish()
     test_hash_different_dtypes_differ()
     test_hash_different_shapes_differ()
+    test_hash_integer_dtype_consistent()
 
     # diff()
     print("  Testing diff()...")
