@@ -16,7 +16,7 @@ Reference: ADR-001
 
 import datetime
 import re
-from typing import Dict, Optional
+from typing import Callable, Dict, Optional
 
 
 class InteractivePrompter:
@@ -41,7 +41,7 @@ class InteractivePrompter:
         message: str,
         default: Optional[str] = None,
         required: bool = True,
-        validator: Optional[callable] = None,
+        validator: Optional[Callable[[str], tuple[bool, str]]] = None,
         example: Optional[str] = None,
     ) -> str:
         """
