@@ -503,6 +503,61 @@ fn test_repr_complete() raises:
     )
 
 
+fn test_str_int32_no_decimals() raises:
+    """Test __str__ renders int32 values without decimal points."""
+    var shape = List[Int]()
+    shape.append(3)
+    var t = zeros(shape, DType.int32)
+    t[1] = 1.0
+    t[2] = 2.0
+    var s = String(t)
+    assert_equal(s, "ExTensor([0, 1, 2], dtype=int32)", "__str__ int32 format")
+
+
+fn test_str_bool_true_false() raises:
+    """Test __str__ renders bool values as True/False."""
+    var shape = List[Int]()
+    shape.append(3)
+    var t = zeros(shape, DType.bool)
+    t[1] = 1.0
+    var s = String(t)
+    assert_equal(
+        s, "ExTensor([False, True, False], dtype=bool)", "__str__ bool format"
+    )
+
+
+fn test_repr_int32_no_decimals() raises:
+    """Test __repr__ renders int32 values without decimal points."""
+    var shape = List[Int]()
+    shape.append(3)
+    var t = zeros(shape, DType.int32)
+    t[1] = 1.0
+    t[2] = 2.0
+    var r = repr(t)
+    assert_equal(
+        r,
+        "ExTensor(shape=[3], dtype=int32, numel=3, data=[0, 1, 2])",
+        "__repr__ int32 format",
+    )
+
+
+fn test_repr_bool_true_false() raises:
+    """Test __repr__ renders bool values as True/False."""
+    var shape = List[Int]()
+    shape.append(3)
+    var t = zeros(shape, DType.bool)
+    t[1] = 1.0
+    var r = repr(t)
+    assert_equal(
+        r,
+        (
+            "ExTensor(shape=[3], dtype=bool, numel=3,"
+            " data=[False, True, False])"
+        ),
+        "__repr__ bool format",
+    )
+
+
 # ============================================================================
 # Test __hash__
 # ============================================================================
@@ -700,6 +755,10 @@ fn main() raises:
     print("  Testing __str__ and __repr__...")
     test_str_readable()
     test_repr_complete()
+    test_str_int32_no_decimals()
+    test_str_bool_true_false()
+    test_repr_int32_no_decimals()
+    test_repr_bool_true_false()
 
     # __hash__
     print("  Testing __hash__...")
