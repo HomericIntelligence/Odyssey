@@ -629,10 +629,11 @@ struct ExTensor(
         return result^
 
     fn slice(self, start: Int, end: Int, axis: Int = 0) raises -> ExTensor:
-        """Extract a slice along the specified axis.
+        """Extract a slice along the specified axis, returning a view into the original data.
 
-        Creates a view sharing data with the original tensor.
-        Uses reference counting to ensure data remains valid.
+        Creates a shallow copy of the tensor struct whose `_data` pointer is offset
+        into the original buffer. No data bytes are copied. The returned tensor has
+        `_is_view = True`, and modifying its elements will affect the original tensor.
 
         Args:
             start: Starting index (inclusive).
@@ -640,17 +641,19 @@ struct ExTensor(
             axis: Axis to slice along (default: 0, the batch dimension).
 
         Returns:
-            A new tensor view that shares memory with the original tensor.
-            Modifying the view will affect the original tensor.
+            A new ExTensor whose `_data` pointer references the same underlying memory
+            as the original, offset to `start` along `axis`. The `_is_view` flag is
+            set to True. This is a zero-copy view: no data bytes are allocated or copied.
+            Modifying elements of the returned tensor will affect the original.
 
         Raises:
             Error: If indices are out of bounds or axis is invalid.
 
         Notes:
-            This method returns a **true view** (shared memory). The data pointer
-            is offset into the original buffer and the reference count is
-            incremented to keep the buffer alive. This is the recommended method
-            for batch extraction in training loops where memory efficiency matters.
+            This is the recommended method for memory-efficient batch extraction in
+            training loops. Unlike `__getitem__(Slice)` and `__getitem__(*slices)`,
+            which both return independent copies (`_is_view = False`), this method
+            returns a genuine view that shares memory with the original tensor.
 
         Example:
         ```mojo
