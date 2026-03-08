@@ -206,7 +206,7 @@ jobs:
           # ---- Core tensor operations (large group, kept separate for signal) ----
           - name: "Core Tensors"
             path: "tests/shared/core"
-            pattern: "test_tensors.mojo test_arithmetic.mojo test_arithmetic_contiguous.mojo test_arithmetic_backward.mojo test_broadcasting.mojo test_shape.mojo test_shape_regression.mojo test_shape_edge_cases.mojo test_creation.mojo test_reduction.mojo test_reduction_forward.mojo test_reduction_edge_cases.mojo test_matrix.mojo test_matrix_edge_cases.mojo test_matmul.mojo test_strassen.mojo test_pooling.mojo test_properties.mojo test_high_dimensional.mojo test_slicing.mojo"
+            pattern: "test_tensors.mojo test_arithmetic_part1.mojo test_arithmetic_part2.mojo test_arithmetic_part3.mojo test_arithmetic_part4.mojo test_arithmetic_part5.mojo test_arithmetic_part6.mojo test_arithmetic_part7.mojo test_arithmetic_part8.mojo test_arithmetic_contiguous.mojo test_arithmetic_backward.mojo test_broadcasting.mojo test_shape.mojo test_shape_regression.mojo test_shape_edge_cases.mojo test_creation.mojo test_reduction.mojo test_reduction_forward.mojo test_reduction_edge_cases.mojo test_matrix.mojo test_matrix_edge_cases.mojo test_matmul.mojo test_strassen.mojo test_pooling.mojo test_properties.mojo test_high_dimensional.mojo test_slicing.mojo"
           # ---- Activations + dtype dispatch (unrelated to gradient math) ----
           - name: "Core Activations & Types"
             path: "tests/shared/core"
