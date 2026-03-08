@@ -76,7 +76,9 @@ def find_test_files(root_dir: Path) -> List[Path]:
     exclude_training_patterns = [
         "tests/shared/training/test_accuracy_bugs.mojo",
         "tests/shared/training/test_base.mojo",
-        "tests/shared/training/test_callbacks.mojo",
+        "tests/shared/training/test_callbacks_part1.mojo",
+        "tests/shared/training/test_callbacks_part2.mojo",
+        "tests/shared/training/test_callbacks_part3.mojo",
         "tests/shared/training/test_checkpointing.mojo",
         "tests/shared/training/test_confusion_matrix_bugs.mojo",
         "tests/shared/training/test_dtype_utils.mojo",
