@@ -30,13 +30,10 @@ Array API Categories:
 Slicing Design:
 - `slice(start, end)` — view-based extraction (shares memory, zero-copy). Use for
   batch processing where the original data must not be modified.
-- `tensor[start:end:step]` (__getitem__(Slice)) — always returns a **copy** with
-  independent memory (`_is_view = False`). Materializing strided data as a copy
-  avoids lifetime complexity. By design, not a limitation.
-- `tensor[a:b, c:d, ...]` (__getitem__(*slices)) — returns a **view** sharing
-  memory with the original tensor. The data pointer is offset; no allocation occurs.
-- `tensor[i]` (__getitem__(Int)) — returns a scalar copy.
-- Summary: single-axis Slice → copy; multi-axis *Slice → view; Int → scalar copy.
+- `tensor[i]` / `tensor[i, j]` — copy-based element access via __getitem__(Int)
+  or __getitem__(*slices). Returns a new tensor with independent memory.
+- The split between view (slice) and copy (getitem) is intentional: views support
+  efficient batch iteration; copies ensure safety when downstream code may mutate.
 
 Reference: https://data-apis.org/array-api/latest/API_specification/index.html
 """
@@ -478,7 +475,7 @@ struct ExTensor(
     fn _get_dtype_size_static(dtype: DType) -> Int:
         """Get size in bytes for a given dtype (static version for use in __init__).
         """
-        if dtype == DType.float16 or dtype == DType.bfloat16:
+        if dtype == DType.float16:
             return 2
         elif dtype == DType.bfloat16:
             return 2
@@ -708,7 +705,7 @@ struct ExTensor(
         result._shape[axis] = end - start
 
         # Update data pointer to point to sliced data
-        result._data = self._data + offset_bytes
+        result._data = self._data.offset(offset_bytes)
 
         # Strides remain the same (already copied by __copyinit__)
 
@@ -766,104 +763,6 @@ struct ExTensor(
         result._strides[dim1] = tmp_stride
 
         return result^
-
-    fn tile(self, reps: List[Int]) raises -> ExTensor:
-        """Tile tensor by repeating along each dimension.
-
-        Delegates to the functional `tile()` in `shared.core.shape`.
-
-        Args:
-            reps: Number of repetitions along each dimension.
-
-        Returns:
-            Tiled tensor with shape[i] = input_shape[i] * reps[i].
-
-        Raises:
-            Error: If reps is empty.
-
-        Example:
-        ```mojo
-        var a = arange(0.0, 3.0, 1.0, DType.float32)  # [0, 1, 2]
-        var b = a.tile([3])  # [0, 1, 2, 0, 1, 2, 0, 1, 2]
-        ```
-        """
-        from shared.core.shape import tile as _tile
-
-        return _tile(self, reps)
-
-    fn repeat(self, n: Int, axis: Int = -1) raises -> ExTensor:
-        """Repeat each element n times along axis.
-
-        Delegates to the functional `repeat()` in `shared.core.shape`.
-
-        Args:
-            n: Number of times to repeat each element.
-            axis: Axis along which to repeat (default -1 flattens first).
-
-        Returns:
-            Tensor with elements repeated.
-
-        Raises:
-            Error: If axis is out of range or n < 1.
-
-        Example:
-        ```mojo
-        var a = arange(0.0, 3.0, 1.0, DType.float32)  # [0, 1, 2]
-        var b = a.repeat(2)  # [0, 0, 1, 1, 2, 2]
-        ```
-        """
-        from shared.core.shape import repeat as _repeat
-
-        return _repeat(self, n, axis)
-
-    fn permute(self, dims: List[Int]) raises -> ExTensor:
-        """Permute tensor dimensions.
-
-        Delegates to the functional `permute()` in `shared.core.shape`.
-
-        Args:
-            dims: New ordering of dimensions.
-
-        Returns:
-            Tensor with permuted dimensions.
-
-        Raises:
-            Error: If dims is invalid.
-
-        Example:
-        ```mojo
-        var a = ones([2, 3, 4], DType.float32)
-        var b = a.permute([2, 0, 1])  # Shape (4, 2, 3)
-        ```
-        """
-        from shared.core.shape import permute as _permute
-
-        return _permute(self, dims)
-
-    fn split(self, num_splits: Int, axis: Int = 0) raises -> List[ExTensor]:
-        """Split tensor into equal parts along an axis.
-
-        Delegates to the functional `split()` in `shared.core.shape`.
-
-        Args:
-            num_splits: Number of equal parts to split into.
-            axis: Axis along which to split (default: 0).
-
-        Returns:
-            List of ExTensor objects, each with same shape except along split axis.
-
-        Raises:
-            Error: If axis is invalid, num_splits <= 0, or tensor size not divisible.
-
-        Example:
-        ```mojo
-        var a = arange(0.0, 12.0, 1.0, DType.float32)
-        var parts = a.split(3)  # 3 tensors of size 4 each
-        ```
-        """
-        from shared.core.shape import split as _split
-
-        return _split(self, num_splits, axis)
 
     fn __getitem__(self, index: Int) raises -> Float32:
         """Get element at flat index.
@@ -952,53 +851,6 @@ struct ExTensor(
         ```
         """
         self.__setitem__(index, Float64(value))
-
-    fn __setitem__(mut self, *indices: Int, value: Float64) raises:
-        """Set element at multi-dimensional index using stride-aware flat index calculation.
-
-        Computes the flat index as: sum(indices[i] * strides[i]) for each dimension i.
-
-        Args:
-            indices: Variable number of dimension indices (one per dimension).
-            value: The Float64 value to store.
-
-        Raises:
-            Error: If number of indices doesn't match tensor dimensions.
-            Error: If any index is out of bounds for its dimension.
-
-        Example:
-            ```mojo
-            var t = zeros([3, 4], DType.float32)
-            t[1, 2] = 5.0  # Sets element at row 1, col 2 (flat index 6)
-        ```
-        """
-        var num_indices = len(indices)
-        var num_dims = len(self._shape)
-
-        if num_indices != num_dims:
-            raise Error(
-                "Number of indices ("
-                + String(num_indices)
-                + ") must match number of dimensions ("
-                + String(num_dims)
-                + ")"
-            )
-
-        var flat_index = 0
-        for i in range(num_dims):
-            var idx = indices[i]
-            if idx < 0 or idx >= self._shape[i]:
-                raise Error(
-                    "Index "
-                    + String(idx)
-                    + " out of bounds for dimension "
-                    + String(i)
-                    + " with size "
-                    + String(self._shape[i])
-                )
-            flat_index += idx * self._strides[i]
-
-        self.__setitem__(flat_index, value)
 
     fn __getitem__(self, slice: Slice) raises -> Self:
         """Get slice of 1D tensor [start:end] or [start:end:step].
@@ -1202,62 +1054,6 @@ struct ExTensor(
 
         return result^
 
-    fn _nd_index_to_flat_offset(self, linear_idx: Int) -> Int:
-        """Convert a linear element index to a byte offset using strides.
-
-        For contiguous tensors this is equivalent to linear_idx * dtype_size.
-        For non-contiguous tensors (e.g. transpose views), the correct memory
-        position is obtained by mapping the linear index through the ND shape
-        and then applying per-dimension strides.
-
-        Args:
-            linear_idx: Linear element index in [0, numel).
-
-        Returns:
-            Byte offset into _data for the element.
-        """
-        var dtype_size = self._get_dtype_size()
-        var ndim = len(self._shape)
-        var remaining = linear_idx
-        var element_offset = 0
-        for i in range(ndim - 1, -1, -1):
-            var coord = remaining % self._shape[i]
-            remaining //= self._shape[i]
-            element_offset += coord * self._strides[i]
-        return element_offset * dtype_size
-
-    fn view_with_strides(
-        self, new_shape: List[Int], new_strides: List[Int]
-    ) -> ExTensor:
-        """Create a zero-copy view with custom shape and strides.
-
-        Shares the underlying data pointer and reference count with this
-        tensor. The caller is responsible for ensuring that new_shape and
-        new_strides are consistent with the original allocation.
-
-        Args:
-            new_shape: Shape for the view.
-            new_strides: Per-dimension strides (in elements) for the view.
-
-        Returns:
-            A new ExTensor sharing _data/_refcount with permuted shape/strides.
-        """
-        # Shallow-copy to share _data and _refcount (increments refcount)
-        var result = self
-        result._is_view = True
-        result._shape = List[Int]()
-        for i in range(len(new_shape)):
-            result._shape.append(new_shape[i])
-        result._strides = List[Int]()
-        for i in range(len(new_strides)):
-            result._strides.append(new_strides[i])
-        # Recompute numel from new_shape
-        var n = 1
-        for i in range(len(new_shape)):
-            n *= new_shape[i]
-        result._numel = n
-        return result^
-
     fn _get_float64(self, index: Int) -> Float64:
         """Internal: Get value at index as Float64 (assumes float-compatible dtype).
 
@@ -1267,12 +1063,8 @@ struct ExTensor(
         Returns:
             The value at the index as Float64.
         """
-        var offset: Int
-        if self.is_contiguous():
-            var dtype_size = self._get_dtype_size()
-            offset = index * dtype_size
-        else:
-            offset = self._nd_index_to_flat_offset(index)
+        var dtype_size = self._get_dtype_size()
+        var offset = index * dtype_size
 
         if self._dtype == DType.float16:
             var ptr = (self._data + offset).bitcast[Float16]()
@@ -1286,9 +1078,6 @@ struct ExTensor(
         elif self._dtype == DType.float64:
             var ptr = (self._data + offset).bitcast[Float64]()
             return ptr[]
-        elif self._dtype == DType.bfloat16:
-            var ptr = (self._data + offset).bitcast[SIMD[DType.bfloat16, 1]]()
-            return ptr[].cast[DType.float64]()
         else:
             # For integer types, cast to float64
             return Float64(self._get_int64(index))
@@ -1300,12 +1089,8 @@ struct ExTensor(
             index: The element index to set.
             value: The value to set (as Float64).
         """
-        var offset: Int
-        if self.is_contiguous():
-            var dtype_size = self._get_dtype_size()
-            offset = index * dtype_size
-        else:
-            offset = self._nd_index_to_flat_offset(index)
+        var dtype_size = self._get_dtype_size()
+        var offset = index * dtype_size
 
         if self._dtype == DType.float16:
             var ptr = (self._data + offset).bitcast[Float16]()
@@ -1319,9 +1104,6 @@ struct ExTensor(
         elif self._dtype == DType.float64:
             var ptr = (self._data + offset).bitcast[Float64]()
             ptr[] = value
-        elif self._dtype == DType.bfloat16:
-            var ptr = (self._data + offset).bitcast[SIMD[DType.bfloat16, 1]]()
-            ptr[] = value.cast[DType.bfloat16]()
 
     fn _get_float32(self, index: Int) -> Float32:
         """Internal: Get value at index as Float32 (assumes float-compatible dtype).
@@ -1336,12 +1118,8 @@ struct ExTensor(
             For Float64 and integer types, value is cast to Float32.
             For Float16, value is upcast to Float32.
         """
-        var offset: Int
-        if self.is_contiguous():
-            var dtype_size = self._get_dtype_size()
-            offset = index * dtype_size
-        else:
-            offset = self._nd_index_to_flat_offset(index)
+        var dtype_size = self._get_dtype_size()
+        var offset = index * dtype_size
 
         if self._dtype == DType.float16:
             var ptr = (self._data + offset).bitcast[Float16]()
@@ -1368,12 +1146,8 @@ struct ExTensor(
             For Float64, value is upcast to Float64.
             For integer types, value is truncated to integer.
         """
-        var offset: Int
-        if self.is_contiguous():
-            var dtype_size = self._get_dtype_size()
-            offset = index * dtype_size
-        else:
-            offset = self._nd_index_to_flat_offset(index)
+        var dtype_size = self._get_dtype_size()
+        var offset = index * dtype_size
 
         if self._dtype == DType.float16:
             var ptr = (self._data + offset).bitcast[Float16]()
@@ -1394,12 +1168,8 @@ struct ExTensor(
         Returns:
             The value at the index as Int64.
         """
-        var offset: Int
-        if self.is_contiguous():
-            var dtype_size = self._get_dtype_size()
-            offset = index * dtype_size
-        else:
-            offset = self._nd_index_to_flat_offset(index)
+        var dtype_size = self._get_dtype_size()
+        var offset = index * dtype_size
 
         if self._dtype == DType.int8:
             var ptr = (self._data + offset).bitcast[Int8]()
@@ -1438,12 +1208,8 @@ struct ExTensor(
             index: The element index to set.
             value: The value to set (as Int64).
         """
-        var offset: Int
-        if self.is_contiguous():
-            var dtype_size = self._get_dtype_size()
-            offset = index * dtype_size
-        else:
-            offset = self._nd_index_to_flat_offset(index)
+        var dtype_size = self._get_dtype_size()
+        var offset = index * dtype_size
 
         if self._dtype == DType.int8:
             var ptr = (self._data + offset).bitcast[Int8]()
@@ -3112,43 +2878,39 @@ struct ExTensor(
         """
         return self.item()
 
-    fn _format_element(self, i: Int) -> String:
-        """Format a single element as a string based on dtype.
-
-        Args:
-            i: The element index.
-
-        Returns:
-            String representation: "True"/"False" for bool, integer string for
-            integral types, float string for floating-point types.
-        """
-        if self._dtype == DType.bool:
-            return "True" if self._get_int64(i) != 0 else "False"
-        elif (
-            self._dtype == DType.int8
-            or self._dtype == DType.int16
-            or self._dtype == DType.int32
-            or self._dtype == DType.int64
-            or self._dtype == DType.uint8
-            or self._dtype == DType.uint16
-            or self._dtype == DType.uint32
-            or self._dtype == DType.uint64
-        ):
-            return String(self._get_int64(i))
-        else:
-            return String(self._get_float64(i))
-
     fn __str__(self) -> String:
-        """Human-readable string representation.
+        """Human-readable string representation with NumPy-style truncation.
+
+        For tensors with more than 1000 elements, shows only the first 3 and
+        last 3 elements with '...' in between to prevent performance issues.
 
         Returns:
-            String in the format: `ExTensor([v0, v1, ...], dtype=<dtype>)`.
+            String in the format: ExTensor([v0, v1, ...], dtype=<dtype>)
+            For large tensors: ExTensor([v0, v1, v2, ..., vN-2, vN-1, vN], dtype=<dtype>)
+
+        Example:
+            ```mojo
+            var x = arange(1000, DType.float32)
+            print(x)  # ExTensor([0.0, 1.0, 2.0, ..., 997.0, 998.0, 999.0], dtype=float32)
+            ```
         """
+        alias TRUNCATE_THRESHOLD = 1000
+        alias SHOW_ELEMENTS = 3
+
         var result = String("ExTensor([")
-        for i in range(self._numel):
-            if i > 0:
-                result += ", "
-            result += self._format_element(i)
+        if self._numel > TRUNCATE_THRESHOLD:
+            for i in range(SHOW_ELEMENTS):
+                if i > 0:
+                    result += ", "
+                result += String(self._get_float64(i))
+            result += ", ..."
+            for i in range(self._numel - SHOW_ELEMENTS, self._numel):
+                result += ", " + String(self._get_float64(i))
+        else:
+            for i in range(self._numel):
+                if i > 0:
+                    result += ", "
+                result += String(self._get_float64(i))
         result += "], dtype=" + String(self._dtype) + ")"
         return result
 
@@ -3156,7 +2918,7 @@ struct ExTensor(
         """Detailed representation for debugging.
 
         Returns:
-            String in the format: `ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[...])`.
+            String in the format: ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[...])
         """
         var shape_str = String("[")
         for i in range(len(self._shape)):
@@ -3171,7 +2933,7 @@ struct ExTensor(
         for i in range(self._numel):
             if i > 0:
                 result += ", "
-            result += self._format_element(i)
+            result += String(self._get_float64(i))
         result += "])"
         return result
 
@@ -3181,9 +2943,6 @@ struct ExTensor(
         ExTensor implements the `Hashable` trait, allowing tensors to be used as
         dictionary keys or in hash-based data structures. Two tensors with identical
         shape, dtype, and element values will produce the same hash.
-        NaN values are canonicalized to a single quiet NaN bit pattern before
-        hashing, ensuring that different NaN representations (signaling NaN,
-        negative NaN, different NaN payloads) all produce the same hash.
 
         Parameters:
             H: The hasher type conforming to the Hasher trait.
@@ -3213,26 +2972,15 @@ struct ExTensor(
         """
         from shared.core.dtype_ordinal import dtype_to_ordinal
 
-        # Canonical quiet NaN bit pattern for Float64 (IEEE 754: exponent all-ones,
-        # MSB of mantissa set, zero payload, positive sign).
-        comptime CANONICAL_NAN_F64: UInt64 = 0x7FF8000000000000
-        # NaN detection mask for Float64: if (bits & 0x7FFFFFFFFFFFFFFF) > 0x7FF0000000000000,
-        # then exponent is all-ones and mantissa is non-zero => NaN.
-        comptime F64_INF_BITS: UInt64 = 0x7FF0000000000000
-        comptime F64_ABS_MASK: UInt64 = 0x7FFFFFFFFFFFFFFF
-
         # Hash shape
         for i in range(len(self._shape)):
             hasher.update(self._shape[i])
         # Hash dtype ordinal
         hasher.update(dtype_to_ordinal(self._dtype))
-        # Hash data: for float types, canonicalize NaN before contributing bits.
+        # Hash data
         for i in range(self._numel):
             var val = self._get_float64(i)
             var int_bits = UnsafePointer[Float64](to=val).bitcast[UInt64]()[]
-            # Canonicalize any NaN to a single stable bit pattern.
-            if (int_bits & F64_ABS_MASK) > F64_INF_BITS:
-                int_bits = CANONICAL_NAN_F64
             hasher.update(int_bits)
 
     fn contiguous(self) raises -> ExTensor:
