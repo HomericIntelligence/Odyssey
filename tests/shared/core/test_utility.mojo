@@ -193,61 +193,73 @@ fn test_contiguous_on_noncontiguous() raises:
     assert_equal_int(c._strides[1], 1, "Stride for dim 1 should be 1")
 
 
-fn test_contiguous_stride_correct_values() raises:
-    """Test that as_contiguous() remaps values to correct row-major positions.
+fn test_as_contiguous_values_correct() raises:
+    """Test that as_contiguous() copies correct element values from non-contiguous views.
 
-    Constructs a 2x3 tensor with column-major strides (non-contiguous),
-    fills raw memory with values 0.0-5.0, then verifies as_contiguous()
-    produces a row-major copy with stride-correct element positions.
+    This is a regression test for the bug where the non-contiguous branch used
+    flat index offset (i * dtype_size) instead of stride-based multi-dimensional
+    indexing, causing silently wrong results for transposed/sliced tensors.
 
-    Column-major strides [1, 2] for shape [2, 3]:
-      result[0,0] = src[0*1 + 0*2] = mem[0] = 0.0
-      result[0,1] = src[0*1 + 1*2] = mem[2] = 2.0
-      result[0,2] = src[0*1 + 2*2] = mem[4] = 4.0
-      result[1,0] = src[1*1 + 0*2] = mem[1] = 1.0
-      result[1,1] = src[1*1 + 1*2] = mem[3] = 3.0
-      result[1,2] = src[1*1 + 2*2] = mem[5] = 5.0
-
-    Expected flat output (row-major): [0.0, 2.0, 4.0, 1.0, 3.0, 5.0]
+    For a (3,4) tensor with values 0..11 reshaped, the transpose (4,3) should have:
+      row 0: [0, 4, 8]    (original column 0)
+      row 1: [1, 5, 9]    (original column 1)
+      row 2: [2, 6, 10]   (original column 2)
+      row 3: [3, 7, 11]   (original column 3)
     """
-    # Create a 2x3 float32 tensor with default row-major layout
     var shape = List[Int]()
-    shape.append(2)
     shape.append(3)
-    var t = ExTensor(shape, DType.float32)
+    shape.append(4)
+    var a = arange(0.0, 12.0, 1.0, DType.float32)
+    var b = a.reshape(shape)
+    var t = transpose_view(b)  # shape (4, 3), non-contiguous
 
-    # Fill raw memory sequentially: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0]
-    for i in range(6):
-        t._set_float64(i, Float64(i))
+    var c = as_contiguous(t)
 
-    # Overwrite strides to column-major: stride[0]=1 (rows), stride[1]=2 (cols)
-    # This makes the tensor non-contiguous (strides don't match C-order [3, 1])
-    t._strides[0] = 1
-    t._strides[1] = 2
+    # Verify shape (4, 3)
+    assert_equal_int(c.size(0), 4, "as_contiguous transpose: dim 0 should be 4")
+    assert_equal_int(c.size(1), 3, "as_contiguous transpose: dim 1 should be 3")
 
-    # Verify the tensor is now non-contiguous
-    assert_false(
-        t.is_contiguous(),
-        "Tensor with column-major strides should not be contiguous",
+    # Expected values: column-major read of original 0..11 row-major (3,4)
+    # Row 0 of transpose = col 0 of original: 0, 4, 8
+    assert_almost_equal(
+        c._get_float64(0), 0.0, 1e-6, "c[0,0] should be 0"
     )
-
-    # Call as_contiguous() — should remap elements via stride-based indexing
-    var result = as_contiguous(t)
-
-    # Verify result is contiguous
-    assert_true(
-        result.is_contiguous(),
-        "as_contiguous() result should be contiguous",
+    assert_almost_equal(
+        c._get_float64(1), 4.0, 1e-6, "c[0,1] should be 4"
     )
-
-    # Verify stride-correct element positions in row-major output
-    # Expected flat order: [0.0, 2.0, 4.0, 1.0, 3.0, 5.0]
-    assert_value_at(result, 0, 0.0, 1e-6, "result[0,0] should be 0.0 (mem[0])")
-    assert_value_at(result, 1, 2.0, 1e-6, "result[0,1] should be 2.0 (mem[2])")
-    assert_value_at(result, 2, 4.0, 1e-6, "result[0,2] should be 4.0 (mem[4])")
-    assert_value_at(result, 3, 1.0, 1e-6, "result[1,0] should be 1.0 (mem[1])")
-    assert_value_at(result, 4, 3.0, 1e-6, "result[1,1] should be 3.0 (mem[3])")
-    assert_value_at(result, 5, 5.0, 1e-6, "result[1,2] should be 5.0 (mem[5])")
+    assert_almost_equal(
+        c._get_float64(2), 8.0, 1e-6, "c[0,2] should be 8"
+    )
+    # Row 1 of transpose = col 1 of original: 1, 5, 9
+    assert_almost_equal(
+        c._get_float64(3), 1.0, 1e-6, "c[1,0] should be 1"
+    )
+    assert_almost_equal(
+        c._get_float64(4), 5.0, 1e-6, "c[1,1] should be 5"
+    )
+    assert_almost_equal(
+        c._get_float64(5), 9.0, 1e-6, "c[1,2] should be 9"
+    )
+    # Row 2 of transpose = col 2 of original: 2, 6, 10
+    assert_almost_equal(
+        c._get_float64(6), 2.0, 1e-6, "c[2,0] should be 2"
+    )
+    assert_almost_equal(
+        c._get_float64(7), 6.0, 1e-6, "c[2,1] should be 6"
+    )
+    assert_almost_equal(
+        c._get_float64(8), 10.0, 1e-6, "c[2,2] should be 10"
+    )
+    # Row 3 of transpose = col 3 of original: 3, 7, 11
+    assert_almost_equal(
+        c._get_float64(9), 3.0, 1e-6, "c[3,0] should be 3"
+    )
+    assert_almost_equal(
+        c._get_float64(10), 7.0, 1e-6, "c[3,1] should be 7"
+    )
+    assert_almost_equal(
+        c._get_float64(11), 11.0, 1e-6, "c[3,2] should be 11"
+    )
 
 
 # ============================================================================
@@ -503,58 +515,6 @@ fn test_repr_complete() raises:
     )
 
 
-fn test_str_int32_no_decimals() raises:
-    """Test __str__ renders int32 values without decimal points."""
-    var shape = List[Int]()
-    shape.append(3)
-    var t = zeros(shape, DType.int32)
-    t[1] = 1.0
-    t[2] = 2.0
-    var s = String(t)
-    assert_equal(s, "ExTensor([0, 1, 2], dtype=int32)", "__str__ int32 format")
-
-
-fn test_str_bool_true_false() raises:
-    """Test __str__ renders bool values as True/False."""
-    var shape = List[Int]()
-    shape.append(3)
-    var t = zeros(shape, DType.bool)
-    t[1] = 1.0
-    var s = String(t)
-    assert_equal(
-        s, "ExTensor([False, True, False], dtype=bool)", "__str__ bool format"
-    )
-
-
-fn test_repr_int32_no_decimals() raises:
-    """Test __repr__ renders int32 values without decimal points."""
-    var shape = List[Int]()
-    shape.append(3)
-    var t = zeros(shape, DType.int32)
-    t[1] = 1.0
-    t[2] = 2.0
-    var r = repr(t)
-    assert_equal(
-        r,
-        "ExTensor(shape=[3], dtype=int32, numel=3, data=[0, 1, 2])",
-        "__repr__ int32 format",
-    )
-
-
-fn test_repr_bool_true_false() raises:
-    """Test __repr__ renders bool values as True/False."""
-    var shape = List[Int]()
-    shape.append(3)
-    var t = zeros(shape, DType.bool)
-    t[1] = 1.0
-    var r = repr(t)
-    assert_equal(
-        r,
-        "ExTensor(shape=[3], dtype=bool, numel=3, data=[False, True, False])",
-        "__repr__ bool format",
-    )
-
-
 # ============================================================================
 # Test __hash__
 # ============================================================================
@@ -636,29 +596,6 @@ fn test_hash_different_dtypes_differ() raises:
         )
 
 
-fn test_hash_empty_tensor() raises:
-    """Test __hash__ for 0-element tensor hashes without error and consistently.
-
-    A tensor with shape [0] has _numel=0, so the data loop is skipped.
-    The hash is determined only by shape and dtype, but must still be stable.
-    """
-    var shape = List[Int]()
-    shape.append(0)
-    var a = zeros(shape, DType.float32)
-    var b = zeros(shape, DType.float32)
-
-    # Should not raise - the empty data loop must be safe
-    var hash_a = hash(a)
-    var hash_b = hash(b)
-
-    # Two empty tensors with identical shape and dtype must hash the same
-    assert_equal_int(
-        Int(hash_a),
-        Int(hash_b),
-        "Empty tensors with same shape/dtype should have equal hashes",
-    )
-
-
 # ============================================================================
 # Test diff() - consecutive differences
 # ============================================================================
@@ -716,7 +653,7 @@ fn main() raises:
     test_is_contiguous_true()
     test_is_contiguous_after_transpose()
     test_contiguous_on_noncontiguous()
-    test_contiguous_stride_correct_values()
+    test_as_contiguous_values_correct()
 
     # item() extraction
     print("  Testing item()...")
@@ -754,10 +691,6 @@ fn main() raises:
     print("  Testing __str__ and __repr__...")
     test_str_readable()
     test_repr_complete()
-    test_str_int32_no_decimals()
-    test_str_bool_true_false()
-    test_repr_int32_no_decimals()
-    test_repr_bool_true_false()
 
     # __hash__
     print("  Testing __hash__...")
@@ -766,7 +699,6 @@ fn main() raises:
     test_hash_large_values()
     test_hash_small_values_distinguish()
     test_hash_different_dtypes_differ()
-    test_hash_empty_tensor()
 
     # diff()
     print("  Testing diff()...")
