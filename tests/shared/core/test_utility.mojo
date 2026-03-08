@@ -15,7 +15,6 @@ from shared.core import (
     item,
     diff,
     as_contiguous,
-    transpose_view,
 )
 
 # Import test helpers
@@ -160,7 +159,7 @@ fn test_is_contiguous_after_transpose() raises:
     shape.append(3)
     shape.append(4)
     var a = ones(shape, DType.float32)
-    var b = transpose_view(a)
+    var b = a.transpose(0, 1)
     assert_false(
         b.is_contiguous(), "Transposed tensor should not be contiguous"
     )
@@ -178,7 +177,7 @@ fn test_contiguous_on_noncontiguous() raises:
     shape.append(4)
     var a = arange(0.0, 12.0, 1.0, DType.float32)
     var b = a.reshape(shape)
-    var t = transpose_view(b)
+    var t = b.transpose(0, 1)
     assert_false(
         t.is_contiguous(), "Transposed tensor should not be contiguous"
     )
