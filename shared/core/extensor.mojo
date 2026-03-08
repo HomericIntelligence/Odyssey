@@ -716,6 +716,54 @@ struct ExTensor(
 
         return result^
 
+    fn transpose(self, dim0: Int, dim1: Int) raises -> ExTensor:
+        """Return a non-contiguous view with dim0 and dim1 swapped.
+
+        Creates a stride-based view sharing the same underlying data — no
+        copying occurs. For any non-trivial swap (dim0 != dim1) the result
+        satisfies is_contiguous() == False.
+
+        Args:
+            dim0: First dimension to swap.
+            dim1: Second dimension to swap.
+
+        Returns:
+            A new ExTensor view with permuted shape and strides.
+
+        Raises:
+            Error: If tensor has fewer than 2 dimensions or dims are out of
+                bounds.
+
+        Example:
+            ```mojo
+            var shape = List[Int]()
+            shape.append(3)
+            shape.append(4)
+            var a = ones(shape, DType.float32)
+            var b = a.transpose(0, 1)  # shape (4, 3), non-contiguous view
+            ```
+        """
+        var ndim = self.dim()
+        if ndim < 2:
+            raise Error("transpose requires at least 2 dimensions")
+        if dim0 < 0 or dim0 >= ndim:
+            raise Error("transpose: dim0 out of range")
+        if dim1 < 0 or dim1 >= ndim:
+            raise Error("transpose: dim1 out of range")
+
+        var result = self.copy()
+        result._is_view = True
+
+        var tmp_shape = result._shape[dim0]
+        result._shape[dim0] = result._shape[dim1]
+        result._shape[dim1] = tmp_shape
+
+        var tmp_stride = result._strides[dim0]
+        result._strides[dim0] = result._strides[dim1]
+        result._strides[dim1] = tmp_stride
+
+        return result^
+
     fn __getitem__(self, index: Int) raises -> Float32:
         """Get element at flat index.
 
