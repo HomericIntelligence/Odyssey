@@ -1,12 +1,7 @@
-"""Tests for ExTensor absolute value operator (__abs__) and combined unary operations.
-
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_extensor_operators.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-
-Note: Split from test_extensor_operators.mojo due to Mojo 0.26.1 heap
-corruption bug that occurs after ~15 cumulative tests. See ADR-009.
-"""
+# high test load. Split from test_extensor_unary_ops.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
+"""Tests for ExTensor __abs__ operator and combined unary/binary operations."""
 
 from shared.core.extensor import ExTensor, zeros, ones, full
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
@@ -69,20 +64,41 @@ fn test_combined_unary_binary_ops() raises:
         )
 
 
-fn test_abs_preserve_shape() raises:
-    """Test that __abs__ preserves tensor shape."""
+fn test_double_negation() raises:
+    """Test double negation: -(-a) == a."""
+    var a = full([2, 2], 3.0, DType.float32)
+    var result = -(-a)
+    for i in range(result.numel()):
+        assert_almost_equal(
+            Float64(result._get_float32(i)), 3.0, tolerance=1e-6
+        )
+
+
+fn test_operators_preserve_shape() raises:
+    """Test that all operators preserve tensor shape."""
     var shape: List[Int] = [3, 4, 2]
     var a = zeros(shape, DType.float32)
+    var b = ones(shape, DType.float32)
+    var add_result = a + b
+    assert_equal(len(add_result.shape()), 3)
+    var c = zeros(shape, DType.float32)
+    c += b
+    assert_equal(len(c.shape()), 3)
+    var neg_result = -a
+    assert_equal(len(neg_result.shape()), 3)
+    var pos_result = +a
+    assert_equal(len(pos_result.shape()), 3)
     var abs_result = a.__abs__()
     assert_equal(len(abs_result.shape()), 3)
 
 
 fn main() raises:
-    """Run abs and combined operator tests."""
+    """Run all __abs__ and combined operator tests."""
     test_abs_positive_values()
     test_abs_negative_values()
     test_abs_mixed_values()
     test_abs_zeros()
     test_combined_unary_binary_ops()
-    test_abs_preserve_shape()
-    print("All abs operator tests passed!")
+    test_double_negation()
+    test_operators_preserve_shape()
+    print("All abs and combined operator tests passed!")
