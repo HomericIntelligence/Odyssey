@@ -496,17 +496,16 @@ All CI workflows use justfile recipes for consistent command execution between l
 
 ### Pixi-Based Environment Setup
 
-All workflows use the modern Pixi setup:
+All workflows use the shared composite action for Pixi setup:
 
 ```yaml
 - name: Set up Pixi
-  uses: prefix-dev/setup-pixi@v0.9.3
-  with:
-    pixi-version: latest
-    cache: true
-```text
+  uses: ./.github/actions/setup-pixi
+```
 
-This replaces the older `modular` CLI approach with Pixi's conda-compatible package management.
+This composite action installs Pixi and caches both `.pixi` and `~/.cache/rattler/cache` using
+an explicit `actions/cache@v5` step keyed on `pixi.lock`. This replaces the older inline setup
+pattern with `cache: true` (which was unreliable) and the `modular` CLI approach.
 
 ### Matrix Strategies for Parallelization
 
