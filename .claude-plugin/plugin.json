@@ -39,6 +39,18 @@
         "items_resolved": 7,
         "items_blocked": 5
       }
+    },
+    {
+      "name": "resolve-mojo-rebase-conflict",
+      "category": "ci-cd",
+      "description": "Resolve git rebase conflicts in Mojo test files where incoming commits used invalid Python syntax; replace with valid Mojo Bool-flag order-agnostic assertion pattern",
+      "tags": ["mojo", "git", "rebase", "conflict-resolution", "testing", "ci-fix"],
+      "skillPath": "skills/resolve-mojo-rebase-conflict/SKILL.md",
+      "referencesPath": "skills/resolve-mojo-rebase-conflict/references/notes.md",
+      "metrics": {
+        "conflicts_resolved": 1,
+        "test_pass_rate": "100%"
+      }
     }
   ]
 }
