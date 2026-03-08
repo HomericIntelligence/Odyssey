@@ -569,6 +569,23 @@ fn test_hash_different_dtypes_differ() raises:
         raise Error(
             "float32 and float64 tensors with same values should have different"
             " hashes"
+fn test_hash_different_shapes_differ() raises:
+    """Test that tensors with same data but different shapes produce different hashes."""
+    # Create [3] tensor with values [1, 2, 3]
+    var t1 = arange(1.0, 4.0, 1.0, DType.float32)
+
+    # Create [1, 3] tensor with values [1, 2, 3]
+    var shape = List[Int]()
+    shape.append(1)
+    shape.append(3)
+    var t2 = arange(1.0, 4.0, 1.0, DType.float32)
+    t2 = t2.reshape(shape)
+
+    var hash_1 = hash(t1)
+    var hash_2 = hash(t2)
+    if hash_1 == hash_2:
+        raise Error(
+            "Tensors with same data but different shapes should have different hashes"
         )
 
 
@@ -675,6 +692,7 @@ fn main() raises:
     test_hash_large_values()
     test_hash_small_values_distinguish()
     test_hash_different_dtypes_differ()
+    test_hash_different_shapes_differ()
 
     # diff()
     print("  Testing diff()...")
