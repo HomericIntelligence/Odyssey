@@ -214,7 +214,7 @@ jobs:
           # ---- Loss functions split per ADR-009 (≤8 tests/file to avoid heap corruption) ----
           - name: "Core Loss"
             path: "tests/shared/core"
-            pattern: "test_losses_part1.mojo test_losses_part2.mojo test_losses_part3.mojo test_losses_part4.mojo test_loss_funcs.mojo test_loss_utils.mojo"
+            pattern: "test_losses_part1.mojo test_losses_part2.mojo test_losses_part3.mojo test_losses_part4.mojo test_loss_funcs.mojo test_loss_utils_part1.mojo test_loss_utils_part2.mojo test_loss_utils_part3.mojo test_loss_utils_part4.mojo"
           # ---- Gradient math (kept separate - frequently fails independently) ----
           - name: "Core Gradient"
             path: "tests/shared/core"
