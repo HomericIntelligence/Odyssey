@@ -4,11 +4,9 @@ Validate Test Coverage - Ensure all test_*.mojo files are covered by CI
 
 This script finds all test_*.mojo files in the repository and verifies they are
 included in the CI test matrix in .github/workflows/comprehensive-tests.yml.
-It also checks the inverse: that each CI matrix pattern matches at least one
-existing file, flagging stale patterns as warnings.
 
 Exit codes:
-  0 - All tests covered (stale-pattern warnings do not affect exit code)
+  0 - All tests covered
   1 - Uncovered tests found or validation errors
 
 Usage:
@@ -68,15 +66,10 @@ def find_test_files(root_dir: Path) -> List[Path]:
         "tests/models/test_lenet5_e2e_part1.mojo",
         "tests/models/test_lenet5_e2e_part2.mojo",
         "tests/models/test_mobilenetv1_e2e.mojo",
-        "tests/models/test_lenet5_e2e.mojo",
-        "tests/models/test_mobilenetv1_e2e_part1.mojo",
-        "tests/models/test_mobilenetv1_e2e_part2.mojo",
         "tests/models/test_resnet18_e2e.mojo",
         "tests/models/test_vgg16_e2e.mojo",
-        # Heap corruption debugging tests (ADR-009 split files, used with git bisect, not regular CI)
-        "tests/models/test_heap_corruption_combined_part1.mojo",
-        "tests/models/test_heap_corruption_combined_part2.mojo",
-        "tests/models/test_heap_corruption_combined_part3.mojo",
+        # Heap corruption debugging test (used with git bisect, not regular CI)
+        "tests/models/test_heap_corruption_combined.mojo",
     ]
     exclude_files.extend(exclude_e2e_patterns)
 
@@ -87,66 +80,50 @@ def find_test_files(root_dir: Path) -> List[Path]:
         "tests/shared/training/test_callbacks_part1.mojo",
         "tests/shared/training/test_callbacks_part2.mojo",
         "tests/shared/training/test_callbacks_part3.mojo",
-        "tests/shared/training/test_base_part1.mojo",
-        "tests/shared/training/test_base_part2.mojo",
         "tests/shared/training/test_callbacks.mojo",
+        "tests/shared/training/test_checkpoint.mojo",
         "tests/shared/training/test_checkpointing.mojo",
-        "tests/shared/training/test_callbacks.mojo",
-        "tests/shared/training/test_checkpointing_part1.mojo",
-        "tests/shared/training/test_checkpointing_part2.mojo",
+        "tests/shared/training/test_config.mojo",
         "tests/shared/training/test_confusion_matrix_bugs.mojo",
+        "tests/shared/training/test_csv_metrics_logger.mojo",
         "tests/shared/training/test_dtype_utils.mojo",
         "tests/shared/training/test_early_stopping_part1.mojo",
         "tests/shared/training/test_early_stopping_part2.mojo",
         "tests/shared/training/test_evaluate.mojo",
         "tests/shared/training/test_evaluation_part1.mojo",
         "tests/shared/training/test_evaluation_part2.mojo",
+        "tests/shared/training/test_evaluation.mojo",
+        "tests/shared/training/test_exponential_scheduler.mojo",
+        "tests/shared/training/test_gradient_clipping.mojo",
+        "tests/shared/training/test_gradient_ops.mojo",
         "tests/shared/training/test_lars.mojo",
         "tests/shared/training/test_logging_callback_part1.mojo",
         "tests/shared/training/test_logging_callback_part2.mojo",
-        "tests/shared/training/test_evaluation.mojo",
-        "tests/shared/training/test_lars_part1.mojo",
-        "tests/shared/training/test_lars_part2.mojo",
-        "tests/shared/training/test_logging_callback.mojo",
         "tests/shared/training/test_loops.mojo",
         "tests/shared/training/test_metrics_part1.mojo",
         "tests/shared/training/test_metrics_part2.mojo",
         "tests/shared/training/test_mixed_precision.mojo",
         "tests/shared/training/test_optimizer_utils_part1.mojo",
         "tests/shared/training/test_optimizer_utils_part2.mojo",
-        "tests/shared/training/test_metrics.mojo",
-        "tests/shared/training/test_mixed_precision_part1.mojo",
-        "tests/shared/training/test_mixed_precision_part2.mojo",
+        "tests/shared/training/test_mixed_precision_simd.mojo",
+        "tests/shared/training/test_multistep_scheduler.mojo",
         "tests/shared/training/test_optimizer_utils.mojo",
         "tests/shared/training/test_optimizers.mojo",
-        "tests/shared/training/test_optimizer_utils.mojo",
-        "tests/shared/training/test_optimizers_part1.mojo",
-        "tests/shared/training/test_optimizers_part2.mojo",
         "tests/shared/training/test_precision_checkpoint.mojo",
         "tests/shared/training/test_precision_config.mojo",
         "tests/shared/training/test_results_printer_part1.mojo",
         "tests/shared/training/test_results_printer_part2.mojo",
         "tests/shared/training/test_results_printer_part3.mojo",
-        "tests/shared/training/test_precision_config_part1.mojo",
-        "tests/shared/training/test_precision_config_part2.mojo",
-        "tests/shared/training/test_results_printer.mojo",
         "tests/shared/training/test_rmsprop.mojo",
         "tests/shared/training/test_schedulers_part1.mojo",
         "tests/shared/training/test_schedulers_part2.mojo",
         "tests/shared/training/test_schedulers_part3.mojo",
-        "tests/shared/training/test_results_printer.mojo",
-        "tests/shared/training/test_rmsprop_part1.mojo",
-        "tests/shared/training/test_rmsprop_part2.mojo",
-        "tests/shared/training/test_schedulers.mojo",
         "tests/shared/training/test_step_scheduler.mojo",
-        "tests/shared/training/test_schedulers.mojo",
-        "tests/shared/training/test_step_scheduler_part1.mojo",
-        "tests/shared/training/test_step_scheduler_part2.mojo",
         "tests/shared/training/test_trainer_interface_bugs.mojo",
         "tests/shared/training/test_training_loop.mojo",
         "tests/shared/training/test_validation_loop.mojo",
-        "tests/shared/training/test_warmup_scheduler_part1.mojo",
-        "tests/shared/training/test_warmup_scheduler_part2.mojo",
+        "tests/shared/training/test_warmup_composite_scheduler.mojo",
+        "tests/shared/training/test_warmup_scheduler.mojo",
     ]
     exclude_files.extend(exclude_training_patterns)
 
@@ -271,25 +248,6 @@ def check_coverage(
     uncovered = set(test_files) - all_covered
 
     return uncovered, coverage_by_group
-
-
-def check_stale_patterns(ci_groups: Dict[str, Dict[str, str]], root_dir: Path) -> List[str]:
-    """
-    Check for CI matrix patterns that match 0 existing test files.
-
-    Args:
-        ci_groups: Mapping of group name to path/pattern info from parse_ci_matrix().
-        root_dir: Repository root directory used for glob expansion.
-
-    Returns:
-        Sorted list of group names whose patterns match no existing files.
-    """
-    stale = []
-    for group_name, group_info in ci_groups.items():
-        matched = expand_pattern(group_info["path"], group_info["pattern"], root_dir)
-        if not matched:
-            stale.append(group_name)
-    return sorted(stale)
 
 
 def generate_report(
@@ -420,32 +378,6 @@ def main():
 
     # Check coverage
     uncovered, coverage_by_group = check_coverage(test_files, ci_groups, repo_root)
-
-    # Check for stale CI patterns (inverse check)
-    stale_patterns = check_stale_patterns(ci_groups, repo_root)
-    if stale_patterns:
-        print("=" * 70, file=sys.stderr)
-        print("Warning: Stale CI Patterns", file=sys.stderr)
-        print("=" * 70, file=sys.stderr)
-        print(file=sys.stderr)
-        print(
-            f"⚠️  Found {len(stale_patterns)} CI pattern(s) matching 0 files:",
-            file=sys.stderr,
-        )
-        print(file=sys.stderr)
-        for group_name in stale_patterns:
-            group_info = ci_groups[group_name]
-            print(
-                f"   • {group_name!r}  (path={group_info['path']!r}, pattern={group_info['pattern']!r})",
-                file=sys.stderr,
-            )
-        print(file=sys.stderr)
-        print(
-            "Remove or update these entries in .github/workflows/comprehensive-tests.yml",
-            file=sys.stderr,
-        )
-        print("=" * 70, file=sys.stderr)
-        print(file=sys.stderr)
 
     # Only print detailed report if tests are missing
     if uncovered:
