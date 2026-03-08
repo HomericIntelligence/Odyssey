@@ -1,8 +1,7 @@
-"""Tests for linear layer backward passes.
-
-Note: Split from test_backward.mojo due to Mojo 0.26.1 heap corruption
-bug that occurs after ~15 cumulative tests. See ADR-009.
-"""
+# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
+# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
+# high test load. Split from test_backward.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
+"""Tests for linear layer backward passes."""
 
 from tests.shared.conftest import (
     assert_almost_equal,

@@ -1,8 +1,7 @@
-"""Tests for conv2d and pooling backward passes.
-
-Note: Split from test_backward.mojo due to Mojo 0.26.1 heap corruption
-bug that occurs after ~15 cumulative tests. See ADR-009.
-"""
+# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
+# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
+# high test load. Split from test_backward.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
+"""Tests for conv2d and pooling backward passes."""
 
 from tests.shared.conftest import (
     assert_almost_equal,
@@ -153,6 +152,28 @@ fn test_maxpool2d_backward_gradient_routing() raises:
     )
 
 
+fn test_avgpool2d_backward_shapes() raises:
+    """Test that avgpool2d_backward returns correct gradient shape."""
+    var input_shape = List[Int]()
+    input_shape.append(2)
+    input_shape.append(3)
+    input_shape.append(8)
+    input_shape.append(8)
+    var x = ones(input_shape, DType.float32)
+
+    var output = avgpool2d(x, kernel_size=2, stride=2, padding=0)
+    var grad_output = ones_like(output)
+    var grad_input = avgpool2d_backward(
+        grad_output, x, kernel_size=2, stride=2, padding=0
+    )
+
+    var gi_shape = grad_input.shape()
+    assert_equal(gi_shape[0], 2)
+    assert_equal(gi_shape[1], 3)
+    assert_equal(gi_shape[2], 8)
+    assert_equal(gi_shape[3], 8)
+
+
 fn test_avgpool2d_backward_gradient_distribution() raises:
     """Test that avgpool2d_backward distributes gradients equally."""
     var input_shape = List[Int]()
@@ -182,6 +203,90 @@ fn test_avgpool2d_backward_gradient_distribution() raises:
     )
 
 
+fn test_conv2d_backward_gradient() raises:
+    """Test conv2d backward with numerical gradient checking."""
+    var input_shape = List[Int]()
+    input_shape.append(1)
+    input_shape.append(2)
+    input_shape.append(5)
+    input_shape.append(5)
+    var x = zeros(input_shape, DType.float32)
+    for i in range(1 * 2 * 5 * 5):
+        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1 - 2.5
+
+    var kernel_shape = List[Int]()
+    kernel_shape.append(2)
+    kernel_shape.append(2)
+    kernel_shape.append(3)
+    kernel_shape.append(3)
+    var kernel = zeros(kernel_shape, DType.float32)
+    for i in range(2 * 2 * 3 * 3):
+        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 - 0.5
+
+    var bias_shape = List[Int]()
+    bias_shape.append(2)
+    var bias = zeros(bias_shape, DType.float32)
+
+    fn forward(inp: ExTensor) raises -> ExTensor:
+        return conv2d(inp, kernel, bias, stride=1, padding=0)
+
+    fn backward(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:
+        var grads = conv2d_backward(grad_out, inp, kernel, stride=1, padding=0)
+        return grads.grad_input
+
+    var output = forward(x)
+    var grad_output = ones_like(output)
+    check_gradient(forward, backward, x, grad_output, rtol=1e-2, atol=1e-2)
+
+
+fn test_maxpool2d_backward_gradient() raises:
+    """Test maxpool2d backward with numerical gradient checking."""
+    var input_shape = List[Int]()
+    input_shape.append(1)
+    input_shape.append(2)
+    input_shape.append(4)
+    input_shape.append(4)
+    var x = zeros(input_shape, DType.float32)
+    for i in range(1 * 2 * 4 * 4):
+        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1 - 1.6
+
+    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+        return maxpool2d(inp, kernel_size=2, stride=2, padding=0)
+
+    fn backward(grad_out: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+        return maxpool2d_backward(
+            grad_out, inp, kernel_size=2, stride=2, padding=0
+        )
+
+    var output = forward(x)
+    var grad_output = ones_like(output)
+    check_gradient(forward, backward, x, grad_output, rtol=1e-3, atol=5e-4)
+
+
+fn test_avgpool2d_backward_gradient() raises:
+    """Test avgpool2d backward with numerical gradient checking."""
+    var input_shape = List[Int]()
+    input_shape.append(1)
+    input_shape.append(2)
+    input_shape.append(4)
+    input_shape.append(4)
+    var x = zeros(input_shape, DType.float32)
+    for i in range(1 * 2 * 4 * 4):
+        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1 - 1.6
+
+    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+        return avgpool2d(inp, kernel_size=2, stride=2, padding=0)
+
+    fn backward(grad_out: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+        return avgpool2d_backward(
+            grad_out, inp, kernel_size=2, stride=2, padding=0
+        )
+
+    var output = forward(x)
+    var grad_output = ones_like(output)
+    check_gradient(forward, backward, x, grad_output, rtol=1e-3, atol=5e-4)
+
+
 fn main() raises:
     """Run conv2d and pooling backward tests."""
     print("Running conv2d and pooling backward tests...")
@@ -189,5 +294,9 @@ fn main() raises:
     test_conv2d_backward_with_stride()
     test_maxpool2d_backward_shapes()
     test_maxpool2d_backward_gradient_routing()
+    test_avgpool2d_backward_shapes()
     test_avgpool2d_backward_gradient_distribution()
+    test_conv2d_backward_gradient()
+    test_maxpool2d_backward_gradient()
+    test_avgpool2d_backward_gradient()
     print("All conv2d and pooling backward tests passed!")
