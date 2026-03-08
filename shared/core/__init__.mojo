@@ -12,7 +12,7 @@ Architecture:
     - Functions return new values, never mutate inputs
 
 Modules:
-    extensor: Core tensor type and creation functions
+    extensor: Core tensor type (ExTensor, implements Hashable via __hash__) and creation functions
     types: Custom data types (type aliases for FP8/BF8/BF16/FP4, MXFP4/NVFP4 blocked formats)
     arithmetic: Element-wise arithmetic operations (add, subtract, multiply, divide)
     matrix: Matrix operations (matmul, transpose, dot, outer)
@@ -140,6 +140,8 @@ from shared.core.optimizer_constants import (
 # ============================================================================
 # Core Tensor Type and Creation Functions
 # ============================================================================
+# ExTensor implements the Hashable trait (__hash__), allowing tensors to be
+# used as dictionary keys or in hash-based data structures via hash(tensor).
 
 from shared.core.extensor import (
     ExTensor,

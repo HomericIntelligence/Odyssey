@@ -2867,16 +2867,34 @@ struct ExTensor(
     fn __hash__[H: Hasher](self, mut hasher: H):
         """Compute hash based on shape, dtype, and data.
 
+        ExTensor implements the `Hashable` trait, allowing tensors to be used as
+        dictionary keys or in hash-based data structures. Two tensors with identical
+        shape, dtype, and element values will produce the same hash.
+
         Parameters:
             H: The hasher type conforming to the Hasher trait.
 
         Args:
             hasher: The hasher to write values into.
 
+        Note:
+            The hash is computed from the tensor's shape dimensions, dtype ordinal,
+            and raw bit patterns of all element values. NaN values with different
+            bit representations will hash differently.
+
         Example:
             ```mojo
+            from hashlib import hash
             var x = ones([3], DType.float32)
             var h = hash(x)
+
+            # Tensors with identical shape, dtype, and values hash equally
+            var y = ones([3], DType.float32)
+            assert hash(x) == hash(y)
+
+            # Tensors with different shapes hash differently
+            var z = ones([4], DType.float32)
+            # hash(x) != hash(z)  (with overwhelming probability)
             ```
         """
         from shared.core.dtype_ordinal import dtype_to_ordinal
