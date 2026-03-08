@@ -140,7 +140,8 @@ def find_test_files(root_dir: Path) -> List[Path]:
         "tests/shared/training/test_trainer_interface_bugs.mojo",
         "tests/shared/training/test_training_loop.mojo",
         "tests/shared/training/test_validation_loop.mojo",
-        "tests/shared/training/test_warmup_scheduler.mojo",
+        "tests/shared/training/test_warmup_scheduler_part1.mojo",
+        "tests/shared/training/test_warmup_scheduler_part2.mojo",
     ]
     exclude_files.extend(exclude_training_patterns)
 
