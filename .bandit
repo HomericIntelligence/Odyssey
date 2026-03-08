@@ -1,0 +1,8 @@
+[bandit]
+targets = scripts
+recursive = true
+skips = B310,B202
+# B310: urllib.request.urlopen — all URLs are internal, non-user-supplied constants
+#       (e.g., GHCR registry URLs in release scripts). No untrusted input reaches urlopen.
+# B202: tarfile.extractall — archives are CI-produced artifacts from trusted pipelines,
+#       not user-uploaded content. Path traversal risk does not apply here.
