@@ -185,20 +185,6 @@ mojo build -I . examples/train.mojo
 
 ## Deprecated Keyword Usage
 
-### Using `alias` instead of `comptime`
-
-```mojo
-# WRONG - alias is deprecated in Mojo 0.26.1
-alias MY_CONSTANT: Int = 42
-alias MyType = SomeOtherType
-
-# CORRECT - use comptime
-comptime MY_CONSTANT: Int = 42
-comptime MyType = SomeOtherType
-```
-
-**Fix**: Replace all `alias` with `comptime` for compile-time constants and type aliases.
-
 ### Using `Bool(x)` on types with raising `__bool__`
 
 ```mojo
@@ -220,7 +206,6 @@ Search codebase for these patterns:
 - `ImplicitlyCopyable` → Check if fields are copyable
 - `return self.*` without `^` → Add transfer operator
 - `var[a-z]` → Add space after `var`
-- `alias` → Change to `comptime`
 - `Bool(` on non-Boolable types → Use `.__bool__()` directly
 
 See [notes/review/mojo-test-failure-learnings.md](../../notes/review/mojo-test-failure-learnings.md) for complete analysis.

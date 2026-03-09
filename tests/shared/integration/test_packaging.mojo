@@ -324,7 +324,8 @@ fn test_normalize_compose_from_shared_data() raises:
 
 
 fn test_normalize_compose_from_shared() raises:
-    """Test that Normalize and Compose are accessible at shared package level."""
+    """Test that Normalize and Compose are accessible at shared package level.
+    """
     from shared import Normalize, Compose
 
     # Verify Normalize can be instantiated
