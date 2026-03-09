@@ -384,8 +384,6 @@ Official docs: <https://docs.modular.com/mojo/manual/>
 - **Mutating methods**: Use `mut self`
 - **Ownership transfer**: Use `^` operator for List/Dict/String
 - **List initialization**: Use literals `[1, 2, 3]` not `List[Int](1, 2, 3)`
-- **Compile-time constants**: Use `comptime` (not deprecated `alias`)
-
 **Common Mistakes**: See [mojo-anti-patterns.md](/.claude/shared/mojo-anti-patterns.md) for 64+ failure patterns
 
 **Compiler as Truth**: When uncertain, test with `mojo build` - the compiler is authoritative
