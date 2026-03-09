@@ -360,17 +360,18 @@ struct TrainingLoop[
         var lr = self.optimizer.get_learning_rate()
         var autograd_sgd = AutogradSGD(lr)
 
-        # Convert parameters to Variables for optimizer
+        # Convert parameters to Variables for optimizer (copy to avoid move)
         var var_params: List[Variable] = []
         for i in range(len(params)):
-            var p = Variable(params[i], True, self.tape)
+            var param_copy = ExTensor(params[i])
+            var p = Variable(param_copy, True, self.tape)
             var_params.append(p^)
 
         # Update parameters using autograd optimizer
         autograd_sgd.step(var_params, self.tape)
 
         # Copy updated data back to original params
-        for i in range(len(params)):
+        for i in range(len(var_params)):
             params[i] = var_params[i].data
 
         # Zero gradients and disable tape for next iteration

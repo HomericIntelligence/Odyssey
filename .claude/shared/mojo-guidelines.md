@@ -2,6 +2,9 @@
 
 Shared Mojo language guidelines for all agents. Reference this file instead of duplicating.
 
+**Mojo Version**: 0.26.1 (pinned in pixi.toml).
+Official docs: <https://docs.modular.com/mojo/manual/>
+
 ## When to Use Mojo vs Python
 
 | Use Case | Language | Reason |
@@ -34,6 +37,7 @@ Shared Mojo language guidelines for all agents. Reference this file instead of d
 | `@value` | `@fieldwise_init` + traits | Add `(Copyable, Movable)` |
 | `DynamicVector[T]` | `List[T]` | Use `.append()` not `.push_back()` |
 | `-> (T1, T2)` | `-> Tuple[T1, T2]` | Explicit tuple type |
+| `alias X = ...` | `comptime X = ...` | Deprecated keyword |
 
 ### Function Definitions
 
@@ -143,6 +147,7 @@ mojo build shared/core/activation.mojo       # ❌ Fails with relative import er
 - [ ] All List/Dict returns use `^` transfer operator
 - [ ] Space after `var` keyword: `var a` not `vara`
 - [ ] List initialization uses literals: `[1, 2, 3]` not `List[Int](1, 2, 3)`
+- [ ] No `alias` keyword (use `comptime`)
 
 See [mojo-anti-patterns.md](mojo-anti-patterns.md) for common mistakes.
 See [CLAUDE.md](../../CLAUDE.md#mojo-syntax-standards-v0257) for complete reference.
