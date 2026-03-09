@@ -363,7 +363,7 @@ struct TrainingLoop[
         # Convert parameters to Variables for optimizer (copy to avoid move)
         var var_params: List[Variable] = []
         for i in range(len(params)):
-            var param_copy = ExTensor(params[i])
+            var param_copy: ExTensor = params[i]
             var p = Variable(param_copy, True, self.tape)
             var_params.append(p^)
 
