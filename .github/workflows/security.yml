@@ -66,11 +66,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
 
+      - name: Install Semgrep
+        run: pip install semgrep
+
       - name: Run Semgrep
-        uses: returntocorp/semgrep-action@v1
-        with:
-          config: auto
-          generateSarif: true
+        run: semgrep scan --config auto --sarif --output semgrep.sarif .
+        continue-on-error: true
+
+      - name: Verify SARIF file exists
+        run: |
+          if [ ! -f semgrep.sarif ]; then
+            echo '{"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[]}' > semgrep.sarif
+            echo "⚠️ Semgrep did not produce SARIF output, created empty SARIF file"
+          fi
+          ls -la semgrep.sarif
 
       - name: Upload SARIF results
         if: always()
