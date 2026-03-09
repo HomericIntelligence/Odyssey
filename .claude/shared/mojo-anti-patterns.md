@@ -183,6 +183,34 @@ mojo build examples/train.mojo
 mojo build -I . examples/train.mojo
 ```
 
+## Deprecated Keyword Usage
+
+### Using `alias` instead of `comptime`
+
+```mojo
+# WRONG - alias is deprecated in Mojo 0.26.1
+alias MY_CONSTANT: Int = 42
+alias MyType = SomeOtherType
+
+# CORRECT - use comptime
+comptime MY_CONSTANT: Int = 42
+comptime MyType = SomeOtherType
+```
+
+**Fix**: Replace all `alias` with `comptime` for compile-time constants and type aliases.
+
+### Using `Bool(x)` on types with raising `__bool__`
+
+```mojo
+# WRONG - Bool() constructor requires Boolable (non-raising __bool__)
+var val = Bool(tensor)  # Compile error if __bool__ raises
+
+# CORRECT - call __bool__() directly for raising implementations
+var val = tensor.__bool__()  # Works with raising __bool__
+```
+
+**Fix**: If a type's `__bool__` method raises, call `.__bool__()` directly instead of `Bool()`.
+
 ## Quick Detection Checklist
 
 Search codebase for these patterns:
@@ -192,5 +220,7 @@ Search codebase for these patterns:
 - `ImplicitlyCopyable` → Check if fields are copyable
 - `return self.*` without `^` → Add transfer operator
 - `var[a-z]` → Add space after `var`
+- `alias` → Change to `comptime`
+- `Bool(` on non-Boolable types → Use `.__bool__()` directly
 
 See [notes/review/mojo-test-failure-learnings.md](../../notes/review/mojo-test-failure-learnings.md) for complete analysis.

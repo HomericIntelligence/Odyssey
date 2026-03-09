@@ -12,10 +12,10 @@ for ONNX model serialization.
 from memory import bitcast
 
 
-alias WIRE_VARINT: UInt8 = 0  # int32, int64, uint32, uint64, sint32, sint64, bool, enum
-alias WIRE_64BIT: UInt8 = 1  # fixed64, sfixed64, double
-alias WIRE_LENGTH_DELIMITED: UInt8 = 2  # string, bytes, embedded messages, packed repeated
-alias WIRE_32BIT: UInt8 = 5  # fixed32, sfixed32, float
+comptime WIRE_VARINT: UInt8 = 0  # int32, int64, uint32, uint64, sint32, sint64, bool, enum
+comptime WIRE_64BIT: UInt8 = 1  # fixed64, sfixed64, double
+comptime WIRE_LENGTH_DELIMITED: UInt8 = 2  # string, bytes, embedded messages, packed repeated
+comptime WIRE_32BIT: UInt8 = 5  # fixed32, sfixed32, float
 
 
 @fieldwise_init

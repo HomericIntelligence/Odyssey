@@ -356,7 +356,7 @@ fn test_bool_requires_single_element() raises:
 
     var error_raised = False
     try:
-        var val = Bool(t)  # Should raise error for multi-element tensor
+        var val = t.__bool__()  # Should raise error for multi-element tensor
         _ = val  # Suppress unused warning
     except e:
         error_raised = True
