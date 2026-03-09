@@ -27,6 +27,8 @@ examples/*/train
 examples/*/inference
 test_*
 !tests/**
+.worktrees/
+.issue_implementer/
 
 # Training artifacts
 *.log
