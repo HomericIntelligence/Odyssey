@@ -7,7 +7,7 @@ maximum performance and type safety.
 
 [![Mojo](https://img.shields.io/badge/Mojo-0.26+-orange.svg)](https://www.modular.com/mojo)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-223%2B-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-326%2B-brightgreen.svg)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey.svg)](#coverage-status)
 [![CI](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/comprehensive-tests.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/comprehensive-tests.yml)
 
