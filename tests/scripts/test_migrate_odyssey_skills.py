@@ -495,7 +495,7 @@ class TestMigrateSkillAuxiliaryDirs:
 # ---------------------------------------------------------------------------
 
 
-class TestParseFrontmatter:
+class TestParseFrontmatterDupe:
     def test_parses_key_value_pairs(self) -> None:
         content = "---\nname: my-skill\ndescription: A skill\n---\nBody"
         fm, rest = parse_frontmatter(content)
