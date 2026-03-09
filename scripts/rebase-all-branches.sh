@@ -14,6 +14,10 @@ SUCCEEDED=0
 FAILED=0
 SKIPPED=0
 
+# Arrays to track issues
+declare -a CONFLICTS_BRANCHES
+declare -a DIRTY_BRANCHES
+
 # Get the main repository root
 MAIN_REPO_ROOT=$(git rev-parse --show-toplevel)
 
@@ -123,6 +127,7 @@ for BRANCH in $ALL_BRANCHES; do
         # Rebase failed - check for conflicts
         if git diff --name-only --diff-filter=U | grep -q .; then
             echo -e "${RED}✗ Rebase conflict detected${NC}"
+            CONFLICTS_BRANCHES+=("$BRANCH")
         else
             echo -e "${RED}✗ Rebase failed${NC}"
         fi
@@ -135,6 +140,11 @@ for BRANCH in $ALL_BRANCHES; do
         fi
         ((FAILED++))
     fi
+
+    # Check for uncommitted changes in the branch
+    if ! git diff-index --quiet HEAD -- 2>/dev/null || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+        DIRTY_BRANCHES+=("$BRANCH")
+    fi
 done
 
 # Return to original branch/directory
@@ -145,6 +155,41 @@ echo -e "${BLUE}=== Summary ===${NC}"
 echo -e "${GREEN}Succeeded: ${SUCCEEDED}${NC}"
 echo -e "${YELLOW}Skipped: ${SKIPPED}${NC}"
 echo -e "${RED}Failed: ${FAILED}${NC}"
+echo ""
+
+# Print conflicts table
+if [ ${#CONFLICTS_BRANCHES[@]} -gt 0 ]; then
+    echo -e "${RED}=== Branches with Merge Conflicts ===${NC}"
+    printf "%-40s %s\n" "Branch" "Type"
+    printf "%-40s %s\n" "$(printf '=%.0s' {1..40})" "$(printf '=%.0s' {1..10})"
+    for BRANCH in "${CONFLICTS_BRANCHES[@]}"; do
+        WORKTREE_PATH=$(git worktree list --porcelain 2>/dev/null | grep "branch.*/$BRANCH$" | awk '{print $2}')
+        if [ -n "$WORKTREE_PATH" ] && [ -d "$WORKTREE_PATH" ]; then
+            TYPE="Worktree"
+        else
+            TYPE="Branch"
+        fi
+        printf "%-40s %s\n" "$BRANCH" "$TYPE"
+    done
+    echo ""
+fi
+
+# Print dirty branches table
+if [ ${#DIRTY_BRANCHES[@]} -gt 0 ]; then
+    echo -e "${YELLOW}=== Branches with Uncommitted Changes ===${NC}"
+    printf "%-40s %s\n" "Branch" "Type"
+    printf "%-40s %s\n" "$(printf '=%.0s' {1..40})" "$(printf '=%.0s' {1..10})"
+    for BRANCH in "${DIRTY_BRANCHES[@]}"; do
+        WORKTREE_PATH=$(git worktree list --porcelain 2>/dev/null | grep "branch.*/$BRANCH$" | awk '{print $2}')
+        if [ -n "$WORKTREE_PATH" ] && [ -d "$WORKTREE_PATH" ]; then
+            TYPE="Worktree"
+        else
+            TYPE="Branch"
+        fi
+        printf "%-40s %s\n" "$BRANCH" "$TYPE"
+    done
+    echo ""
+fi
 
 if [ $FAILED -gt 0 ]; then
     exit 1
