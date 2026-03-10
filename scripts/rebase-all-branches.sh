@@ -49,7 +49,8 @@ for BRANCH in $ALL_BRANCHES; do
     echo -e "${BLUE}Processing branch: ${BRANCH}${NC}"
 
     # Check if this branch has a worktree
-    WORKTREE_PATH=$(git worktree list --porcelain 2>/dev/null | grep "branch.*/$BRANCH$" | awk '{print $2}')
+    WORKTREE_PATH=$(git worktree list --porcelain 2>/dev/null | \
+      awk -v branch="$BRANCH" '/^worktree /{path=$2} /^branch / && $2 ~ "/" branch "$" {print path}')
 
     # Determine where to work from
     if [ -n "$WORKTREE_PATH" ] && [ -d "$WORKTREE_PATH" ]; then
@@ -82,8 +83,8 @@ for BRANCH in $ALL_BRANCHES; do
     fi
 
     # Check if branch is already up to date with main
-    if git merge-base --is-ancestor main "$BRANCH"; then
-        MERGE_BASE=$(git merge-base main "$BRANCH")
+    if git -C "$WORK_DIR" merge-base --is-ancestor main "$BRANCH"; then
+        MERGE_BASE=$(git -C "$WORK_DIR" merge-base main "$BRANCH")
         CURRENT_HEAD=$(git rev-parse HEAD)
 
         if [ "$MERGE_BASE" = "$CURRENT_HEAD" ]; then
@@ -163,7 +164,8 @@ if [ ${#CONFLICTS_BRANCHES[@]} -gt 0 ]; then
     printf "%-40s %s\n" "Branch" "Type"
     printf "%-40s %s\n" "$(printf '=%.0s' {1..40})" "$(printf '=%.0s' {1..10})"
     for BRANCH in "${CONFLICTS_BRANCHES[@]}"; do
-        WORKTREE_PATH=$(git worktree list --porcelain 2>/dev/null | grep "branch.*/$BRANCH$" | awk '{print $2}')
+        WORKTREE_PATH=$(git worktree list --porcelain 2>/dev/null | \
+          awk -v branch="$BRANCH" '/^worktree /{path=$2} /^branch / && $2 ~ "/" branch "$" {print path}')
         if [ -n "$WORKTREE_PATH" ] && [ -d "$WORKTREE_PATH" ]; then
             TYPE="Worktree"
         else
@@ -180,7 +182,8 @@ if [ ${#DIRTY_BRANCHES[@]} -gt 0 ]; then
     printf "%-40s %s\n" "Branch" "Type"
     printf "%-40s %s\n" "$(printf '=%.0s' {1..40})" "$(printf '=%.0s' {1..10})"
     for BRANCH in "${DIRTY_BRANCHES[@]}"; do
-        WORKTREE_PATH=$(git worktree list --porcelain 2>/dev/null | grep "branch.*/$BRANCH$" | awk '{print $2}')
+        WORKTREE_PATH=$(git worktree list --porcelain 2>/dev/null | \
+          awk -v branch="$BRANCH" '/^worktree /{path=$2} /^branch / && $2 ~ "/" branch "$" {print path}')
         if [ -n "$WORKTREE_PATH" ] && [ -d "$WORKTREE_PATH" ]; then
             TYPE="Worktree"
         else
@@ -189,6 +192,59 @@ if [ ${#DIRTY_BRANCHES[@]} -gt 0 ]; then
         printf "%-40s %s\n" "$BRANCH" "$TYPE"
     done
     echo ""
+fi
+
+# Stale worktree cleanup
+echo -e "${BLUE}=== Checking for stale worktrees ===${NC}"
+STALE_REMOVED=0
+declare -a STALE_BRANCHES
+
+# Iterate over all worktrees (skip the main repo itself)
+while IFS= read -r WT_PATH; do
+    [ -z "$WT_PATH" ] && continue
+    # Skip the main repo root
+    [ "$WT_PATH" = "$MAIN_REPO_ROOT" ] && continue
+
+    # Get the branch for this worktree
+    WT_BRANCH=$(git worktree list --porcelain 2>/dev/null | \
+      awk -v wt="$WT_PATH" '/^worktree /{path=$2} /^branch / && path == wt {sub("refs/heads/", "", $2); print $2}')
+    [ -z "$WT_BRANCH" ] && continue
+
+    # Check for uncommitted changes
+    if [ -n "$(git -C "$WT_PATH" status --porcelain 2>/dev/null)" ]; then
+        continue
+    fi
+
+    # Check for open PRs
+    OPEN_PRS=$(gh pr list --head "$WT_BRANCH" --state open --json number 2>/dev/null)
+    if [ -n "$OPEN_PRS" ] && [ "$OPEN_PRS" != "[]" ]; then
+        continue
+    fi
+
+    # No uncommitted changes and no open PR — remove stale worktree
+    echo -e "${YELLOW}Removing stale worktree: ${WT_BRANCH} (${WT_PATH})${NC}"
+    if git worktree remove "$WT_PATH" 2>/dev/null; then
+        git branch -d "$WT_BRANCH" 2>/dev/null
+        STALE_BRANCHES+=("$WT_BRANCH")
+        ((STALE_REMOVED++))
+    else
+        echo -e "${RED}✗ Failed to remove worktree: ${WT_PATH}${NC}"
+    fi
+done < <(git worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2}')
+
+# Prune any dangling worktree references
+git worktree prune 2>/dev/null
+
+# Report stale cleanup results
+if [ $STALE_REMOVED -gt 0 ]; then
+    echo ""
+    echo -e "${GREEN}=== Stale Worktrees Removed: ${STALE_REMOVED} ===${NC}"
+    for BRANCH in "${STALE_BRANCHES[@]}"; do
+        echo -e "  ${GREEN}✓ ${BRANCH}${NC}"
+    done
+    echo ""
+else
+    echo -e "${GREEN}No stale worktrees found.${NC}\n"
 fi
 
 if [ $FAILED -gt 0 ]; then
