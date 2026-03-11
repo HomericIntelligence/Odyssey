@@ -708,7 +708,7 @@ struct ExTensor(
         result._shape[axis] = end - start
 
         # Update data pointer to point to sliced data
-        result._data = self._data.offset(offset_bytes)
+        result._data = self._data + offset_bytes
 
         # Strides remain the same (already copied by __copyinit__)
 
@@ -863,7 +863,7 @@ struct ExTensor(
         """
         from shared.core.shape import split as _split
 
-        return _split(self, num_splits, axis)^
+        return _split(self, num_splits, axis)
 
     fn __getitem__(self, index: Int) raises -> Float32:
         """Get element at flat index.

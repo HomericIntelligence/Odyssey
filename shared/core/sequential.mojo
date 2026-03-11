@@ -62,7 +62,7 @@ struct Sequential2[T0: Module & Movable, T1: Module & Movable](Movable):
     var layer0: Self.T0
     var layer1: Self.T1
 
-    fn __init__(out self, owned layer0: Self.T0, owned layer1: Self.T1):
+    fn __init__(out self, var layer0: Self.T0, var layer1: Self.T1):
         """Initialize with two layers.
 
         Args:
@@ -159,9 +159,9 @@ struct Sequential3[
 
     fn __init__(
         out self,
-        owned layer0: Self.T0,
-        owned layer1: Self.T1,
-        owned layer2: Self.T2,
+        var layer0: Self.T0,
+        var layer1: Self.T1,
+        var layer2: Self.T2,
     ):
         """Initialize with three layers.
 

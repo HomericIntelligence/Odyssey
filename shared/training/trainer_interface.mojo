@@ -375,7 +375,7 @@ struct DataLoader(Copyable, Movable):
 
         var start_idx = self.current_batch * self.batch_size
         var end_idx = min(start_idx + self.batch_size, self.num_samples)
-        var actual_batch_size = end_idx - start_idx
+        _ = end_idx - start_idx
 
         # Extract batch slice — supports N-D tensors (2D, 3D, 4D, etc.)
         var batch_data = self.data.slice(start_idx, end_idx)
