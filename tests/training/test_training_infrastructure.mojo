@@ -530,7 +530,10 @@ fn main() raises:
     print("  ✓ TrainingMetrics: Initialization, updates, reset, best tracking")
     print("  ✓ DataLoader: Batch iteration, reset, size calculation")
     print("  ✓ TrainingLoop: Initialization and configuration")
-    print("  ✓ ValidationLoop: Initialization, configuration, and accuracy tracking")
+    print(
+        "  ✓ ValidationLoop: Initialization, configuration, and accuracy"
+        " tracking"
+    )
     print("  ✓ BaseTrainer: Full lifecycle (init, metrics, checkpoints, reset)")
     print("  ✓ Factory functions: create_trainer, create_default_trainer")
     print("  ✓ Integration: Config→Trainer, Metrics flow")

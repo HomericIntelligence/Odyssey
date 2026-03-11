@@ -201,9 +201,7 @@ fn test_slice_mutation_visible_in_original() raises:
     s._set_float32(0, 99.0)
 
     # The original tensor must reflect the change at index 2
-    assert_almost_equal(
-        Float64(tensor._get_float32(2)), 99.0, tolerance=1e-6
-    )
+    assert_almost_equal(Float64(tensor._get_float32(2)), 99.0, tolerance=1e-6)
 
     print("PASS: test_slice_mutation_visible_in_original")
 
