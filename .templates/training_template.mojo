@@ -14,10 +14,10 @@ from shared.core import ExTensor
 
 
 # Hyperparameters
-comptime NUM_EPOCHS = {{epochs}}
-comptime BATCH_SIZE = {{batch_size}}
-comptime LEARNING_RATE = {{learning_rate}}
-comptime NUM_CLASSES = {{num_classes}}
+alias NUM_EPOCHS = {{epochs}}
+alias BATCH_SIZE = {{batch_size}}
+alias LEARNING_RATE = {{learning_rate}}
+alias NUM_CLASSES = {{num_classes}}
 
 
 fn train_epoch(

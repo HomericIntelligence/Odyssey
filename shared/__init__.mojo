@@ -68,7 +68,7 @@ from shared.autograd.optimizers import SGD, Adam, AdamW
 from shared.training.metrics import LossTracker, AccuracyMetric
 
 # Expose plan-canonical alias: Accuracy = AccuracyMetric
-comptime Accuracy = AccuracyMetric
+alias Accuracy = AccuracyMetric
 # Training metrics (most commonly used)
 # from .training.metrics import AccuracyMetric, LossTracker
 
