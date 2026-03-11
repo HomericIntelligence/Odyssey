@@ -61,10 +61,8 @@ repos:
     rev: v1.19.1
     hooks:
       - id: mypy
-        files: ^scripts/.*\.py$
-        args: [--ignore-missing-imports, --no-strict-optional, --explicit-package-bases, --check-untyped-defs, --python-version, "3.10"]
         files: ^(scripts|tests|tools)/.*\.py$
-        args: [--ignore-missing-imports, --no-strict-optional, --explicit-package-bases, --python-version, "3.10"]
+        args: [--ignore-missing-imports, --no-strict-optional, --explicit-package-bases, --check-untyped-defs, --python-version, "3.10"]
         additional_dependencies: [types-PyYAML]
 
   # Python formatting and linting
