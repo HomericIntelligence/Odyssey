@@ -364,7 +364,10 @@ fn test_logical_not_values() raises:
 
 fn main() raises:
     """Run clip, rounding, and logical elementwise operation tests."""
-    print("Running elementwise operation tests (part 5: clip, rounding, logical)...")
+    print(
+        "Running elementwise operation tests (part 5: clip, rounding,"
+        " logical)..."
+    )
 
     # Clip tests
     test_clip_shapes()

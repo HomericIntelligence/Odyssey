@@ -37,7 +37,8 @@ fn test_str_small_tensor_no_truncation() raises:
 
 
 fn test_str_exactly_threshold_no_truncation() raises:
-    """Test __str__ for tensor with exactly 1000 elements shows all (no truncation)."""
+    """Test __str__ for tensor with exactly 1000 elements shows all (no truncation).
+    """
     var t = arange(1000, DType.float32)
     var s = String(t)
     # At exactly 1000, no truncation — all values shown
@@ -85,7 +86,8 @@ fn test_str_dtype_preserved() raises:
 
 
 fn test_str_no_truncation_for_6_elements() raises:
-    """Test that a 6-element tensor is shown in full (edge case near SHOW_ELEMENTS*2)."""
+    """Test that a 6-element tensor is shown in full (edge case near SHOW_ELEMENTS*2).
+    """
     var t = arange(6, DType.float32)
     var s = String(t)
     assert_true("..." not in s)

@@ -221,45 +221,21 @@ fn test_as_contiguous_values_correct() raises:
 
     # Expected values: column-major read of original 0..11 row-major (3,4)
     # Row 0 of transpose = col 0 of original: 0, 4, 8
-    assert_almost_equal(
-        c._get_float64(0), 0.0, 1e-6, "c[0,0] should be 0"
-    )
-    assert_almost_equal(
-        c._get_float64(1), 4.0, 1e-6, "c[0,1] should be 4"
-    )
-    assert_almost_equal(
-        c._get_float64(2), 8.0, 1e-6, "c[0,2] should be 8"
-    )
+    assert_almost_equal(c._get_float64(0), 0.0, 1e-6, "c[0,0] should be 0")
+    assert_almost_equal(c._get_float64(1), 4.0, 1e-6, "c[0,1] should be 4")
+    assert_almost_equal(c._get_float64(2), 8.0, 1e-6, "c[0,2] should be 8")
     # Row 1 of transpose = col 1 of original: 1, 5, 9
-    assert_almost_equal(
-        c._get_float64(3), 1.0, 1e-6, "c[1,0] should be 1"
-    )
-    assert_almost_equal(
-        c._get_float64(4), 5.0, 1e-6, "c[1,1] should be 5"
-    )
-    assert_almost_equal(
-        c._get_float64(5), 9.0, 1e-6, "c[1,2] should be 9"
-    )
+    assert_almost_equal(c._get_float64(3), 1.0, 1e-6, "c[1,0] should be 1")
+    assert_almost_equal(c._get_float64(4), 5.0, 1e-6, "c[1,1] should be 5")
+    assert_almost_equal(c._get_float64(5), 9.0, 1e-6, "c[1,2] should be 9")
     # Row 2 of transpose = col 2 of original: 2, 6, 10
-    assert_almost_equal(
-        c._get_float64(6), 2.0, 1e-6, "c[2,0] should be 2"
-    )
-    assert_almost_equal(
-        c._get_float64(7), 6.0, 1e-6, "c[2,1] should be 6"
-    )
-    assert_almost_equal(
-        c._get_float64(8), 10.0, 1e-6, "c[2,2] should be 10"
-    )
+    assert_almost_equal(c._get_float64(6), 2.0, 1e-6, "c[2,0] should be 2")
+    assert_almost_equal(c._get_float64(7), 6.0, 1e-6, "c[2,1] should be 6")
+    assert_almost_equal(c._get_float64(8), 10.0, 1e-6, "c[2,2] should be 10")
     # Row 3 of transpose = col 3 of original: 3, 7, 11
-    assert_almost_equal(
-        c._get_float64(9), 3.0, 1e-6, "c[3,0] should be 3"
-    )
-    assert_almost_equal(
-        c._get_float64(10), 7.0, 1e-6, "c[3,1] should be 7"
-    )
-    assert_almost_equal(
-        c._get_float64(11), 11.0, 1e-6, "c[3,2] should be 11"
-    )
+    assert_almost_equal(c._get_float64(9), 3.0, 1e-6, "c[3,0] should be 3")
+    assert_almost_equal(c._get_float64(10), 7.0, 1e-6, "c[3,1] should be 7")
+    assert_almost_equal(c._get_float64(11), 11.0, 1e-6, "c[3,2] should be 11")
 
 
 # ============================================================================

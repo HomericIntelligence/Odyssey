@@ -191,7 +191,8 @@ fn test_hash_small_values_distinguish() raises:
 
 
 fn main() raises:
-    """Run utility operation tests - Part 3: __len__, __setitem__, __bool__, and partial __hash__."""
+    """Run utility operation tests - Part 3: __len__, __setitem__, __bool__, and partial __hash__.
+    """
     print("Running ExTensor utility operation tests (Part 3)...")
 
     # __len__

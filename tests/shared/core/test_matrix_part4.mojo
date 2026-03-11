@@ -192,7 +192,8 @@ fn test_transpose_3d_default() raises:
 
 
 fn test_transpose_3d_correctness() raises:
-    """Test that 3D transpose actually transposes correctly (not just copies)."""
+    """Test that 3D transpose actually transposes correctly (not just copies).
+    """
     var shape = List[Int]()
     shape.append(2)
     shape.append(3)

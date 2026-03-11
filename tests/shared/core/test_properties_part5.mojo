@@ -103,7 +103,10 @@ fn test_dtype_size_int32() raises:
 
 fn main() raises:
     """Run arange/eye patterns, is_view, and dtype size tests (Part 5)."""
-    print("Running ExTensor arange/eye patterns, is_view, and dtype size tests (Part 5)...")
+    print(
+        "Running ExTensor arange/eye patterns, is_view, and dtype size tests"
+        " (Part 5)..."
+    )
 
     # Pattern tests
     print("  Testing creation patterns...")

@@ -161,7 +161,8 @@ fn test_batch_normalization_pattern() raises:
 
 
 fn main() raises:
-    """Run integration tests part 2: dtype, multi-dimensional, and ML patterns."""
+    """Run integration tests part 2: dtype, multi-dimensional, and ML patterns.
+    """
     print("Running ExTensor integration tests (part 2)...")
 
     # Multiple dtypes

@@ -149,7 +149,8 @@ fn test_stride_row_major() raises:
 
 
 fn main() raises:
-    """Run utility operation tests - Part 1: copy/clone and property accessors."""
+    """Run utility operation tests - Part 1: copy/clone and property accessors.
+    """
     print("Running ExTensor utility operation tests (Part 1)...")
 
     # copy() and clone() tests

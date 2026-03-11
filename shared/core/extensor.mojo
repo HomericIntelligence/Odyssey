@@ -2894,8 +2894,8 @@ struct ExTensor(
             print(x)  # ExTensor([0.0, 1.0, 2.0, ..., 997.0, 998.0, 999.0], dtype=float32)
             ```
         """
-        alias TRUNCATE_THRESHOLD = 1000
-        alias SHOW_ELEMENTS = 3
+        comptime TRUNCATE_THRESHOLD = 1000
+        comptime SHOW_ELEMENTS = 3
 
         var result = String("ExTensor([")
         if self._numel > TRUNCATE_THRESHOLD:
@@ -2918,7 +2918,7 @@ struct ExTensor(
         """Detailed representation for debugging.
 
         Returns:
-            String in the format: ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[...])
+            String in the format: `ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[...])`.
         """
         var shape_str = String("[")
         for i in range(len(self._shape)):

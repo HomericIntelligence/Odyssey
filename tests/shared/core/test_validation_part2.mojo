@@ -131,7 +131,9 @@ fn test_validate_matching_tensors_different_ndim() raises:
 
 fn main() raises:
     """Run validate_tensor_dtype and validate_matching_tensors tests."""
-    print("Running validate_tensor_dtype and validate_matching_tensors tests...")
+    print(
+        "Running validate_tensor_dtype and validate_matching_tensors tests..."
+    )
 
     # validate_tensor_dtype tests
     test_validate_tensor_dtype_float32_correct()
@@ -145,4 +147,6 @@ fn main() raises:
     test_validate_matching_tensors_different_shape()
     test_validate_matching_tensors_different_ndim()
 
-    print("All validate_tensor_dtype and validate_matching_tensors tests passed!")
+    print(
+        "All validate_tensor_dtype and validate_matching_tensors tests passed!"
+    )

@@ -393,7 +393,8 @@ fn test_layer_norm_zero_variance() raises:
 
 
 fn main() raises:
-    """Run batch normalization backward (continued) and layer norm forward tests."""
+    """Run batch normalization backward (continued) and layer norm forward tests.
+    """
     print("Running normalization part2 tests...")
 
     # Batch normalization backward pass tests (continued)

@@ -341,53 +341,71 @@ fn test_uint_narrowing_conversion() raises:
     var v0: UInt64 = 0
     if v0.cast[DType.uint8]() != 0:
         raise Error("UInt64(0).cast[DType.uint8]() should be 0")
+
+
 fn test_uint8_overflow_wrap() raises:
     """Test UInt8 addition wraps from 255 to 0."""
     var result: UInt8 = UInt8(255) + UInt8(1)
     if result != 0:
-        raise Error("UInt8 overflow wrap failed: expected 0, got " + String(result))
+        raise Error(
+            "UInt8 overflow wrap failed: expected 0, got " + String(result)
+        )
 
 
 fn test_uint8_underflow_wrap() raises:
     """Test UInt8 subtraction wraps from 0 to 255."""
     var result: UInt8 = UInt8(0) - UInt8(1)
     if result != 255:
-        raise Error("UInt8 underflow wrap failed: expected 255, got " + String(result))
+        raise Error(
+            "UInt8 underflow wrap failed: expected 255, got " + String(result)
+        )
 
 
 fn test_uint16_overflow_wrap() raises:
     """Test UInt16 addition wraps from 65535 to 0."""
     var result: UInt16 = UInt16(65535) + UInt16(1)
     if result != 0:
-        raise Error("UInt16 overflow wrap failed: expected 0, got " + String(result))
+        raise Error(
+            "UInt16 overflow wrap failed: expected 0, got " + String(result)
+        )
 
 
 fn test_uint16_underflow_wrap() raises:
     """Test UInt16 subtraction wraps from 0 to 65535."""
     var result: UInt16 = UInt16(0) - UInt16(1)
     if result != 65535:
-        raise Error("UInt16 underflow wrap failed: expected 65535, got " + String(result))
+        raise Error(
+            "UInt16 underflow wrap failed: expected 65535, got "
+            + String(result)
+        )
 
 
 fn test_uint32_overflow_wrap() raises:
     """Test UInt32 addition wraps from 4294967295 to 0."""
     var result: UInt32 = UInt32(4294967295) + UInt32(1)
     if result != 0:
-        raise Error("UInt32 overflow wrap failed: expected 0, got " + String(result))
+        raise Error(
+            "UInt32 overflow wrap failed: expected 0, got " + String(result)
+        )
 
 
 fn test_uint32_underflow_wrap() raises:
     """Test UInt32 subtraction wraps from 0 to 4294967295."""
     var result: UInt32 = UInt32(0) - UInt32(1)
     if result != 4294967295:
-        raise Error("UInt32 underflow wrap failed: expected 4294967295, got " + String(result))
+        raise Error(
+            "UInt32 underflow wrap failed: expected 4294967295, got "
+            + String(result)
+        )
 
 
 fn test_uint64_overflow_wrap() raises:
     """Test UInt64 addition wraps from max to 0."""
     var result: UInt64 = UInt64(18446744073709551615) + UInt64(1)
     if result != 0:
-        raise Error("UInt64 overflow wrap failed: expected 0, got " + String(result))
+        raise Error(
+            "UInt64 overflow wrap failed: expected 0, got " + String(result)
+        )
 
 
 fn test_uint64_underflow_wrap() raises:
@@ -395,7 +413,8 @@ fn test_uint64_underflow_wrap() raises:
     var result: UInt64 = UInt64(0) - UInt64(1)
     if result != 18446744073709551615:
         raise Error(
-            "UInt64 underflow wrap failed: expected 18446744073709551615, got " + String(result)
+            "UInt64 underflow wrap failed: expected 18446744073709551615, got "
+            + String(result)
         )
 
 
@@ -403,28 +422,40 @@ fn test_uint8_overflow_wrap_add_chain() raises:
     """Test UInt8 overflow wraps mid-range: 250 + 10 == 4."""
     var result: UInt8 = UInt8(250) + UInt8(10)
     if result != 4:
-        raise Error("UInt8 mid-range overflow wrap failed: expected 4, got " + String(result))
+        raise Error(
+            "UInt8 mid-range overflow wrap failed: expected 4, got "
+            + String(result)
+        )
 
 
 fn test_uint16_overflow_wrap_add_chain() raises:
     """Test UInt16 overflow wraps mid-range: 65530 + 10 == 4."""
     var result: UInt16 = UInt16(65530) + UInt16(10)
     if result != 4:
-        raise Error("UInt16 mid-range overflow wrap failed: expected 4, got " + String(result))
+        raise Error(
+            "UInt16 mid-range overflow wrap failed: expected 4, got "
+            + String(result)
+        )
 
 
 fn test_uint32_overflow_wrap_add_chain() raises:
     """Test UInt32 overflow wraps mid-range: 4294967290 + 10 == 4."""
     var result: UInt32 = UInt32(4294967290) + UInt32(10)
     if result != 4:
-        raise Error("UInt32 mid-range overflow wrap failed: expected 4, got " + String(result))
+        raise Error(
+            "UInt32 mid-range overflow wrap failed: expected 4, got "
+            + String(result)
+        )
 
 
 fn test_uint64_overflow_wrap_add_chain() raises:
     """Test UInt64 overflow wraps mid-range: max-5 + 10 == 4."""
     var result: UInt64 = UInt64(18446744073709551610) + UInt64(10)
     if result != 4:
-        raise Error("UInt64 mid-range overflow wrap failed: expected 4, got " + String(result))
+        raise Error(
+            "UInt64 mid-range overflow wrap failed: expected 4, got "
+            + String(result)
+        )
 
 
 fn test_uint8_overflow_wrap_multiply() raises:
@@ -432,7 +463,8 @@ fn test_uint8_overflow_wrap_multiply() raises:
     var result: UInt8 = UInt8(128) * UInt8(2)
     if result != 0:
         raise Error(
-            "UInt8 multiply overflow wrap failed: expected 0, got " + String(result)
+            "UInt8 multiply overflow wrap failed: expected 0, got "
+            + String(result)
         )
 
 

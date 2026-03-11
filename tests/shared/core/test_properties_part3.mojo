@@ -114,7 +114,9 @@ fn test_dim_3d() raises:
 
 fn main() raises:
     """Run stride 3D, contiguity, and dimension property tests (Part 3)."""
-    print("Running ExTensor stride, contiguity, and dimension tests (Part 3)...")
+    print(
+        "Running ExTensor stride, contiguity, and dimension tests (Part 3)..."
+    )
 
     # Stride 3D test
     print("  Testing 3D stride calculation...")

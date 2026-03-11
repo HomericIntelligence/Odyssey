@@ -361,7 +361,9 @@ fn test_vgg16_output_layer_backward() raises:
 
 fn main() raises:
     """Run VGG-16 pooling, activation, and FC layer tests (Part 2 of 2)."""
-    print("Starting VGG-16 Layerwise Tests (Part 2: MaxPool, ReLU, FC Layers)...")
+    print(
+        "Starting VGG-16 Layerwise Tests (Part 2: MaxPool, ReLU, FC Layers)..."
+    )
 
     # MaxPool tests
     print("  test_vgg16_maxpool_forward...", end="")

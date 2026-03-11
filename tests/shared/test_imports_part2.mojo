@@ -109,7 +109,10 @@ fn test_utils_logging_imports() raises:
 fn main() raises:
     """Run part 2 import validation tests."""
     print("\n" + "=" * 70)
-    print("Running Import Validation Tests - Part 2 (Training Callbacks, Data & Utils)")
+    print(
+        "Running Import Validation Tests - Part 2 (Training Callbacks, Data &"
+        " Utils)"
+    )
     print("=" * 70 + "\n")
 
     # Training package tests (second half)

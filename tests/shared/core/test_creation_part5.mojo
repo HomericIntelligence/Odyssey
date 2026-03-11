@@ -136,7 +136,10 @@ fn test_creation_high_dimensional() raises:
 
 fn main() raises:
     """Run dtype support and edge case creation tests."""
-    print("Running ExTensor creation tests - Part 5: dtype support and edge cases...")
+    print(
+        "Running ExTensor creation tests - Part 5: dtype support and edge"
+        " cases..."
+    )
 
     # dtype tests
     test_creation_float16()

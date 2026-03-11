@@ -147,8 +147,11 @@ fn test_comparison_with_negatives() raises:
 
 
 fn main() raises:
-    """Run greater, greater_equal, and negative value comparison operation tests."""
-    print("Running ExTensor greater/greater_equal comparison operation tests...")
+    """Run greater, greater_equal, and negative value comparison operation tests.
+    """
+    print(
+        "Running ExTensor greater/greater_equal comparison operation tests..."
+    )
 
     # greater() tests
     print("  Testing greater()...")

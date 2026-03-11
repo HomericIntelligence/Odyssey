@@ -136,7 +136,10 @@ fn test_version_info() raises:
 fn main() raises:
     """Run part 3 import validation tests."""
     print("\n" + "=" * 70)
-    print("Running Import Validation Tests - Part 3 (Utils, Root, Nested & Version)")
+    print(
+        "Running Import Validation Tests - Part 3 (Utils, Root, Nested &"
+        " Version)"
+    )
     print("=" * 70 + "\n")
 
     # Utils package tests (second half)

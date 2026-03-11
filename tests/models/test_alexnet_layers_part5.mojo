@@ -438,7 +438,10 @@ fn test_all_layers_sequence_float32() raises:
 
 
 fn main() raises:
-    print("Starting AlexNet Layerwise Tests - Part 5 (FC3, Flatten, Full Sequence)...")
+    print(
+        "Starting AlexNet Layerwise Tests - Part 5 (FC3, Flatten, Full"
+        " Sequence)..."
+    )
 
     # FC3 tests
     print("  test_fc3_forward_float32...", end="")

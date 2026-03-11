@@ -51,7 +51,9 @@ fn test_reshape_valid() raises:
     assert_dim(b, 2, "Reshaped tensor should be 2D")
     assert_numel(b, 12, "Reshaped tensor should have same number of elements")
     for i in range(12):
-        assert_value_at(b, i, Float64(i), message="reshape value at index " + String(i))
+        assert_value_at(
+            b, i, Float64(i), message="reshape value at index " + String(i)
+        )
 
 
 fn test_reshape_invalid_size() raises:
@@ -94,7 +96,12 @@ fn test_reshape_infer_dimension() raises:
     assert_dim(b, 2, "Should be 2D")
     assert_numel(b, 12, "Should have 12 elements")
     for i in range(12):
-        assert_value_at(b, i, Float64(i), message="reshape infer value at index " + String(i))
+        assert_value_at(
+            b,
+            i,
+            Float64(i),
+            message="reshape infer value at index " + String(i),
+        )
 
 
 # ============================================================================
@@ -129,7 +136,9 @@ fn test_squeeze_specific_dim() raises:
 
     # Result should be (3, 4)
     assert_dim(b, 2, "Should remove dim 0")
-    assert_all_values(b, 1.0, message="squeeze_specific_dim should preserve values")
+    assert_all_values(
+        b, 1.0, message="squeeze_specific_dim should preserve values"
+    )
 
 
 # ============================================================================
@@ -180,7 +189,9 @@ fn test_flatten_c_order() raises:
     assert_dim(b, 1, "Flattened tensor should be 1D")
     assert_numel(b, 12, "Should have 12 elements")
     for i in range(12):
-        assert_value_at(b, i, Float64(i), message="flatten value at index " + String(i))
+        assert_value_at(
+            b, i, Float64(i), message="flatten value at index " + String(i)
+        )
 
 
 fn test_ravel_view() raises:
@@ -223,9 +234,13 @@ fn test_concatenate_axis_0() raises:
     assert_numel(c, 15, "Should have 15 elements (5*3)")
     # First 6 elements are from `a` (ones), last 9 are from `b` (twos)
     for i in range(6):
-        assert_value_at(c, i, 1.0, message="concat_axis_0 first half at index " + String(i))
+        assert_value_at(
+            c, i, 1.0, message="concat_axis_0 first half at index " + String(i)
+        )
     for i in range(6, 15):
-        assert_value_at(c, i, 2.0, message="concat_axis_0 second half at index " + String(i))
+        assert_value_at(
+            c, i, 2.0, message="concat_axis_0 second half at index " + String(i)
+        )
 
 
 fn test_concatenate_axis_1() raises:
@@ -278,9 +293,16 @@ fn test_stack_new_axis() raises:
     assert_numel(c, 12, "Should have 12 elements (2*2*3)")
     # First 6 elements from `a` (ones), last 6 from `b` (twos)
     for i in range(6):
-        assert_value_at(c, i, 1.0, message="stack_new_axis first half at index " + String(i))
+        assert_value_at(
+            c, i, 1.0, message="stack_new_axis first half at index " + String(i)
+        )
     for i in range(6, 12):
-        assert_value_at(c, i, 2.0, message="stack_new_axis second half at index " + String(i))
+        assert_value_at(
+            c,
+            i,
+            2.0,
+            message="stack_new_axis second half at index " + String(i),
+        )
 
 
 fn test_stack_axis_1() raises:
@@ -300,8 +322,12 @@ fn test_stack_axis_1() raises:
     # Result should be 2x2x3 (stacked along axis 1)
     assert_dim(c, 3, "Should be 3D")
     # Spot-check: first element from a (1.0), first element from b's slice (2.0)
-    assert_value_at(c, 0, 1.0, message="stack_axis_1 index 0 should be from a (1.0)")
-    assert_value_at(c, 3, 2.0, message="stack_axis_1 index 3 should be from b (2.0)")
+    assert_value_at(
+        c, 0, 1.0, message="stack_axis_1 index 0 should be from a (1.0)"
+    )
+    assert_value_at(
+        c, 3, 2.0, message="stack_axis_1 index 3 should be from b (2.0)"
+    )
 
 
 # ============================================================================
@@ -538,7 +564,9 @@ fn test_flatten_to_2d_single_batch() raises:
             "Flattened dimension should be 3136 (64*7*7), got "
             + String(out_shape[1])
         )
-    assert_all_values(b, 1.0, message="flatten_to_2d_single_batch should preserve values")
+    assert_all_values(
+        b, 1.0, message="flatten_to_2d_single_batch should preserve values"
+    )
 
 
 fn test_flatten_to_2d_preserves_dtype() raises:
