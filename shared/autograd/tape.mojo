@@ -419,8 +419,8 @@ fn disable_gradient_tracking(mut tape: GradientTape) -> Bool:
     ```
 
     See Also:
-        restore_gradient_tracking() - Restore the previous state
-        NoGradContext - For context manager style usage
+        restore_gradient_tracking() - Restore the previous state.
+        NoGradContext - For context manager style usage.
     """
     var previous_enabled = tape.enabled
     tape.disable()

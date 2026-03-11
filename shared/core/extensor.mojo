@@ -3142,7 +3142,7 @@ struct ExTensor(
         """Human-readable string representation.
 
         Returns:
-            String in the format: ExTensor([v0, v1, ...], dtype=<dtype>)
+            String in the format: `ExTensor([v0, v1, ...], dtype=<dtype>)`.
         """
         var result = String("ExTensor([")
         for i in range(self._numel):
@@ -3156,7 +3156,7 @@ struct ExTensor(
         """Detailed representation for debugging.
 
         Returns:
-            String in the format: ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[...])
+            String in the format: `ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[...])`.
         """
         var shape_str = String("[")
         for i in range(len(self._shape)):

@@ -55,7 +55,7 @@ jobs:
       - name: Run Transform Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          just test-group "tests/shared/data/transforms" "test_pipeline.mojo"
+          just test-group "tests/shared/data/transforms" "test_pipeline_part1.mojo test_pipeline_part2.mojo"
 
       - name: Run Sampler Tests
         if: steps.check-tests.outputs.tests_exist == 'true'

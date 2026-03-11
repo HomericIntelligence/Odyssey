@@ -393,7 +393,7 @@ fn generate_broadcast_shapes(
     Broadcasting Rules:
         - Shapes are compared from trailing dimensions
         - Dimensions are compatible if equal or one is 1
-        - Smaller shape is padded with 1s on the left
+        - Smaller shape is padded with 1s on the left.
     """
     # Generate base shape
     var base_shape = fuzzer.random_shape(

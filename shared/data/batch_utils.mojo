@@ -49,7 +49,7 @@ fn extract_batch(
         - Handles edge cases where remaining samples < batch_size
         - Works with any tensor dimensionality (2D, 3D, 4D, etc.)
         - Uses memory-efficient slicing with reference counting
-        - Original tensor must remain valid while batch is in use
+        - Original tensor must remain valid while batch is in use.
     """
     var data_shape = data.shape()
     var num_samples = data_shape[0]
@@ -117,7 +117,7 @@ fn extract_batch_pair(
         - Ensures data and labels have matching number of samples
         - Both tensors extracted with same start_idx and batch_size
         - Uses efficient memory views with reference counting
-        - Original tensors must remain valid while batches are in use
+        - Original tensors must remain valid while batches are in use.
     """
     # Verify matching sizes
     var data_samples = data.shape()[0]
