@@ -211,8 +211,19 @@ struct ValidationLoop:
             self.num_classes,
         )
 
-        # Update metrics
-        metrics.update_val_metrics(val_loss, 0.0)  # Accuracy placeholder.
+        # Compute accuracy over the full validation set if enabled
+        var val_accuracy = Float64(0.0)
+        if self.compute_accuracy:
+            var accuracy_metric = AccuracyMetric()
+            val_loader.reset()
+            while val_loader.has_next():
+                var batch = val_loader.next()
+                var predictions = model_forward(batch.data)
+                accuracy_metric.update(predictions, batch.labels)
+            val_accuracy = accuracy_metric.compute()
+
+        # Update metrics with computed accuracy
+        metrics.update_val_metrics(val_loss, val_accuracy)
 
         return val_loss
 

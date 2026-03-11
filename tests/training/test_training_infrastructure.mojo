@@ -274,6 +274,45 @@ fn test_validation_loop_initialization() raises:
     print("  ✓ ValidationLoop initialization correct")
 
 
+fn test_validation_loop_run_updates_val_accuracy() raises:
+    """Test that ValidationLoop.run() updates metrics.val_accuracy when compute_accuracy=True.
+
+    Uses deterministic data where all labels are class 0 and the mock model
+    returns input unchanged (zeros → argmax selects class 0), so accuracy = 1.0.
+    """
+    print("Testing ValidationLoop.run() updates val_accuracy...")
+
+    # Create data: 4 samples, 3 features (2D so argmax selects predicted class)
+    var data_shape = List[Int]()
+    data_shape.append(4)
+    data_shape.append(3)
+    var data = ExTensor(data_shape, DType.float32)
+
+    # Labels: shape [4], dtype int32, all zeros (class 0)
+    var labels_shape = List[Int]()
+    labels_shape.append(4)
+    var labels = ExTensor(labels_shape, DType.int32)
+
+    var val_loader = DataLoader(data, labels, batch_size=4)
+    var validation_loop = ValidationLoop(compute_accuracy=True)
+    var metrics = TrainingMetrics()
+
+    assert_equal(metrics.val_accuracy, 0.0, "val_accuracy starts at 0.0")
+
+    _ = validation_loop.run(
+        mock_model_forward, mock_compute_loss, val_loader, metrics
+    )
+
+    # mock_model_forward returns input (zeros, shape [4,3]) → argmax gives class 0
+    # labels are all 0 → accuracy = 1.0
+    assert_true(
+        metrics.val_accuracy > 0.0,
+        "val_accuracy updated to non-zero after run()",
+    )
+
+    print("  ✓ ValidationLoop.run() updates val_accuracy correctly")
+
+
 # ==================================================================
 # BaseTrainer Tests
 # ==================================================================
@@ -466,6 +505,7 @@ fn main() raises:
     print("\nValidationLoop Tests (#314)")
     print("-" * 70)
     test_validation_loop_initialization()
+    test_validation_loop_run_updates_val_accuracy()
 
     print("\nBaseTrainer Tests (#319)")
     print("-" * 70)
@@ -490,7 +530,7 @@ fn main() raises:
     print("  ✓ TrainingMetrics: Initialization, updates, reset, best tracking")
     print("  ✓ DataLoader: Batch iteration, reset, size calculation")
     print("  ✓ TrainingLoop: Initialization and configuration")
-    print("  ✓ ValidationLoop: Initialization and configuration")
+    print("  ✓ ValidationLoop: Initialization, configuration, and accuracy tracking")
     print("  ✓ BaseTrainer: Full lifecycle (init, metrics, checkpoints, reset)")
     print("  ✓ Factory functions: create_trainer, create_default_trainer")
     print("  ✓ Integration: Config→Trainer, Metrics flow")
