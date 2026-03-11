@@ -428,8 +428,8 @@ fn _bytes_to_hex(data: UnsafePointer[UInt8], num_bytes: Int) -> String:
         var byte = Int(data[i])
         var high = (byte >> 4) & 0xF
         var low = byte & 0xF
-        result += hex_chars[byte=high]
-        result += hex_chars[byte=low]
+        result += chr(Int(hex_chars.as_bytes()[high]))
+        result += chr(Int(hex_chars.as_bytes()[low]))
 
     return result
 
@@ -456,8 +456,8 @@ fn _hex_to_bytes(hex_str: String, output: UnsafePointer[UInt8]) raises:
     # Validate all characters are valid hex
     var num_bytes = length // 2
     for i in range(num_bytes):
-        var high_char = String(hex_str[byte = i * 2])
-        var low_char = String(hex_str[byte = i * 2 + 1])
+        var high_char = chr(Int(hex_str.as_bytes()[i * 2]))
+        var low_char = chr(Int(hex_str.as_bytes()[i * 2 + 1]))
         # Validate (will raise on invalid chars)
         _ = _hex_char_to_int(high_char)
         _ = _hex_char_to_int(low_char)
@@ -747,7 +747,7 @@ fn split_path(filepath: String) -> Tuple[String, String]:
     # Find last separator
     var last_sep = -1
     for i in range(len(filepath) - 1, -1, -1):
-        if filepath[byte=i] == "/":
+        if filepath.as_bytes()[i] == ord("/"):
             last_sep = i
             break
 
