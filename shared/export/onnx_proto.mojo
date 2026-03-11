@@ -13,23 +13,23 @@ from shared.export.protobuf import ProtoBuffer
 
 
 # ONNX data types.
-comptime ONNX_UNDEFINED: Int = 0
-comptime ONNX_FLOAT: Int = 1
-comptime ONNX_UINT8: Int = 2
-comptime ONNX_INT8: Int = 3
-comptime ONNX_UINT16: Int = 4
-comptime ONNX_INT16: Int = 5
-comptime ONNX_INT32: Int = 6
-comptime ONNX_INT64: Int = 7
-comptime ONNX_STRING: Int = 8
-comptime ONNX_BOOL: Int = 9
-comptime ONNX_FLOAT16: Int = 10
-comptime ONNX_DOUBLE: Int = 11
-comptime ONNX_UINT32: Int = 12
-comptime ONNX_UINT64: Int = 13
-comptime ONNX_COMPLEX64: Int = 14
-comptime ONNX_COMPLEX128: Int = 15
-comptime ONNX_BFLOAT16: Int = 16
+alias ONNX_UNDEFINED: Int = 0
+alias ONNX_FLOAT: Int = 1
+alias ONNX_UINT8: Int = 2
+alias ONNX_INT8: Int = 3
+alias ONNX_UINT16: Int = 4
+alias ONNX_INT16: Int = 5
+alias ONNX_INT32: Int = 6
+alias ONNX_INT64: Int = 7
+alias ONNX_STRING: Int = 8
+alias ONNX_BOOL: Int = 9
+alias ONNX_FLOAT16: Int = 10
+alias ONNX_DOUBLE: Int = 11
+alias ONNX_UINT32: Int = 12
+alias ONNX_UINT64: Int = 13
+alias ONNX_COMPLEX64: Int = 14
+alias ONNX_COMPLEX128: Int = 15
+alias ONNX_BFLOAT16: Int = 16
 
 
 fn dtype_to_onnx(dtype: String) -> Int:
@@ -64,15 +64,15 @@ fn dtype_to_onnx(dtype: String) -> Int:
 
 
 # AttributeProto.AttributeType.
-comptime ATTR_UNDEFINED: Int = 0
-comptime ATTR_FLOAT: Int = 1
-comptime ATTR_INT: Int = 2
-comptime ATTR_STRING: Int = 3
-comptime ATTR_TENSOR: Int = 4
-comptime ATTR_GRAPH: Int = 5
-comptime ATTR_FLOATS: Int = 6
-comptime ATTR_INTS: Int = 7
-comptime ATTR_STRINGS: Int = 8
+alias ATTR_UNDEFINED: Int = 0
+alias ATTR_FLOAT: Int = 1
+alias ATTR_INT: Int = 2
+alias ATTR_STRING: Int = 3
+alias ATTR_TENSOR: Int = 4
+alias ATTR_GRAPH: Int = 5
+alias ATTR_FLOATS: Int = 6
+alias ATTR_INTS: Int = 7
+alias ATTR_STRINGS: Int = 8
 
 
 struct AttributeProto(Copyable, Movable):
