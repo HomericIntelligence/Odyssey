@@ -49,6 +49,7 @@ close_duplicate() {
 ```
 
 **Key details:**
+
 - Always comment BEFORE closing (comment on closed issues still works, but comment first is cleaner)
 - Use `--reason "not planned"` for duplicate closures
 - Suppress stderr with `2>/dev/null` to avoid noise from already-closed issues
