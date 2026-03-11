@@ -234,7 +234,7 @@ struct FileDataset(Copyable, Dataset, Movable):
         # Determine file extension
         var ext_idx = -1
         for i in range(len(path) - 1, -1, -1):
-            if path.as_bytes()[i] == ord("."):
+            if path[byte=i] == ".":
                 ext_idx = i
                 break
 
@@ -244,12 +244,12 @@ struct FileDataset(Copyable, Dataset, Movable):
         # Extract extension (convert to lowercase for comparison)
         var ext = String()
         for i in range(ext_idx + 1, len(path)):
-            var b = path.as_bytes()[i]
+            var c = path[byte=i]
             # Convert uppercase to lowercase
-            if b >= ord("A") and b <= ord("Z"):
-                ext += chr(Int(b) + 32)
+            if c >= "A" and c <= "Z":
+                ext += String(chr(ord(c) + 32))
             else:
-                ext += chr(Int(b))
+                ext += String(c)
 
         # Load based on file type
         if ext == "csv":
