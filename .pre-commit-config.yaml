@@ -49,8 +49,6 @@ repos:
     hooks:
       - id: bandit
         name: Bandit Security Scan
-        description: Scan Python files for security vulnerabilities using bandit (suppressions in .bandit)
-        entry: pixi run bandit -ll --ini .bandit
         description: Scan Python files for security vulnerabilities using bandit
         entry: pixi run bandit -ll --skip B310,B202,B301
         language: system
