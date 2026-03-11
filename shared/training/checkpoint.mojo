@@ -75,13 +75,13 @@ struct CheckpointManager:
         """Initialize checkpoint manager.
 
         Args:
-            checkpoint_dir: Directory to store checkpoints (created if doesn't exist)
-            max_to_keep: Maximum number of recent checkpoints to keep (0 = keep all)
-            best_metric_name: Name of metric to track for best model
-            minimize_metric: True if lower metric is better (loss), False if higher is better (accuracy)
+            checkpoint_dir: Directory to store checkpoints (created if doesn't exist).
+            max_to_keep: Maximum number of recent checkpoints to keep (0 = keep all).
+            best_metric_name: Name of metric to track for best model.
+            minimize_metric: True if lower metric is better (loss), False if higher is better (accuracy).
 
         Raises:
-            Error: If directory creation fails
+            Error: If directory creation fails.
         """
         self.checkpoint_dir = checkpoint_dir
         self.max_to_keep = max_to_keep
@@ -116,15 +116,15 @@ struct CheckpointManager:
         """Save checkpoint with model weights and metadata.
 
         Args:
-            parameters: List of model parameter tensors
-            param_names: List of parameter names
-            epoch: Current epoch number
-            train_loss: Training loss for this epoch
-            val_loss: Validation loss for this epoch
-            val_acc: Validation accuracy for this epoch
+            parameters: List of model parameter tensors.
+            param_names: List of parameter names.
+            epoch: Current epoch number.
+            train_loss: Training loss for this epoch.
+            val_loss: Validation loss for this epoch.
+            val_acc: Validation accuracy for this epoch.
 
         Raises:
-            Error: If save fails
+            Error: If save fails.
         """
         # Create checkpoint subdirectory
         var epoch_dir = (
@@ -166,7 +166,7 @@ struct CheckpointManager:
         """Save checkpoint as best model if metric improved.
 
         Args:
-            parameters: List of model parameter tensors
+            parameters: List of model parameter tensors.
             param_names: List of parameter names.
             epoch: Current epoch number.
             metric_value: Current metric value (e.g., validation loss).

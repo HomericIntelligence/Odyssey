@@ -54,7 +54,7 @@ fn accumulate_gradient_inplace(
     Performance:
         - ~20-30% faster than accumulated += new_grad (which allocates)
         - Direct pointer operations
-        - No heap allocations
+        - No heap allocations.
     """
     # Validate shapes and dtypes match
     if accumulated.numel() != new_grad.numel():
@@ -148,7 +148,7 @@ fn scale_gradient_inplace(mut gradient: ExTensor, scale: Float32) raises:
 
     Performance:
         - Direct pointer operations
-        - No heap allocations
+        - No heap allocations.
     """
     var dtype = gradient.dtype()
     var size = gradient.numel()
@@ -219,7 +219,7 @@ fn zero_gradient_inplace(mut gradient: ExTensor) raises:
 
     Performance:
         - Direct pointer operations
-        - No heap allocations
+        - No heap allocations.
     """
     var dtype = gradient.dtype()
     var size = gradient.numel()

@@ -385,7 +385,7 @@ fn create_edge_case_tensor(
             - "epsilon": All epsilon (smallest positive)
             - "max": All maximum representable values
             - "min": All minimum representable values
-            - "mixed": Mix of edge case values
+            - "mixed": Mix of edge case values.
 
     Returns:
         ExTensor filled with edge case values.

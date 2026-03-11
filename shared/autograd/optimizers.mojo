@@ -225,7 +225,7 @@ struct SGD(Copyable, Movable, Optimizer):
 
         Examples:
             var current_lr = optimizer.get_lr()
-            print("Current learning rate:", current_lr)
+            print("Current learning rate:", current_lr).
         """
         return self.learning_rate
 
@@ -239,9 +239,9 @@ struct SGD(Copyable, Movable, Optimizer):
             Error: If lr is non-positive.
 
         Examples:
-            # Decay learning rate by 0.1
+            # Decay learning rate by 0.1.
             var current_lr = optimizer.get_lr()
-            optimizer.set_lr(current_lr * 0.1)
+            optimizer.set_lr(current_lr * 0.1).
         """
         validate_learning_rate(lr)
         self.learning_rate = lr
@@ -533,7 +533,7 @@ struct Adam(Copyable, Movable, Optimizer):
 
         Examples:
             var current_lr = optimizer.get_lr()
-            print("Current learning rate:", current_lr)
+            print("Current learning rate:", current_lr).
         """
         return self.learning_rate
 
@@ -547,13 +547,13 @@ struct Adam(Copyable, Movable, Optimizer):
             Error: If lr is non-positive.
 
         Examples:
-            # Learning rate warmup
+            # Learning rate warmup.
             for epoch in range(5):
                 optimizer.set_lr((epoch + 1) * 0.0002)
 
-            # Learning rate decay
+            # Learning rate decay.
             if epoch == 30:
-                optimizer.set_lr(optimizer.get_lr() * 0.1)
+                optimizer.set_lr(optimizer.get_lr() * 0.1).
         """
         validate_learning_rate(lr)
         self.learning_rate = lr
@@ -834,7 +834,7 @@ struct AdamW(Copyable, Movable, Optimizer):
 
         Examples:
             var current_lr = optimizer.get_lr()
-            print("Current learning rate:", current_lr)
+            print("Current learning rate:", current_lr).
         """
         return self.learning_rate
 
@@ -848,9 +848,9 @@ struct AdamW(Copyable, Movable, Optimizer):
             Error: If lr is non-positive.
 
         Examples:
-            # Learning rate decay
+            # Learning rate decay.
             if epoch == 30:
-                optimizer.set_lr(optimizer.get_lr() * 0.1)
+                optimizer.set_lr(optimizer.get_lr() * 0.1).
         """
         validate_learning_rate(lr)
         self.learning_rate = lr
@@ -1040,7 +1040,7 @@ struct AdaGrad(Copyable, Movable, Optimizer):
 
         Examples:
             var current_lr = optimizer.get_lr()
-            print("Current learning rate:", current_lr)
+            print("Current learning rate:", current_lr).
         """
         return self.learning_rate
 
@@ -1054,8 +1054,8 @@ struct AdaGrad(Copyable, Movable, Optimizer):
             Error: If lr is non-positive.
 
         Examples:
-            # Decay learning rate
-            optimizer.set_lr(optimizer.get_lr() * 0.95)
+            # Decay learning rate.
+            optimizer.set_lr(optimizer.get_lr() * 0.95).
         """
         validate_learning_rate(lr)
         self.learning_rate = lr
@@ -1298,7 +1298,7 @@ struct RMSprop(Copyable, Movable, Optimizer):
 
         Examples:
             var current_lr = optimizer.get_lr()
-            print("Current learning rate:", current_lr)
+            print("Current learning rate:", current_lr).
         """
         return self.learning_rate
 
@@ -1312,7 +1312,7 @@ struct RMSprop(Copyable, Movable, Optimizer):
             Error: If lr is non-positive.
 
         Examples:
-            # Cosine annealing learning rate schedule
+            # Cosine annealing learning rate schedule.
             import math
             var min_lr = 0.0001
             var max_lr = 0.01
@@ -1320,7 +1320,7 @@ struct RMSprop(Copyable, Movable, Optimizer):
             var new_lr = min_lr + 0.5 * (max_lr - min_lr) * (
                 1 + math.cos(math.pi * epoch / T_max)
             )
-            optimizer.set_lr(new_lr)
+            optimizer.set_lr(new_lr).
         """
         validate_learning_rate(lr)
         self.learning_rate = lr

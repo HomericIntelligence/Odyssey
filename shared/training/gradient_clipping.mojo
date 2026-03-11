@@ -40,13 +40,13 @@ fn compute_gradient_norm_list(gradients: List[ExTensor]) raises -> Float32:
     """Compute global L2 norm across all gradient tensors.
 
     Args:
-        gradients: List of gradient tensors
+        gradients: List of gradient tensors.
 
     Returns:
-        Global L2 norm of all gradients
+        Global L2 norm of all gradients.
 
     Raises:
-        Error: If computation fails
+        Error: If computation fails.
 
     Example:
         ```mojo
@@ -77,14 +77,14 @@ fn clip_gradients_by_global_norm(
     norm exceeds max_norm. This is the most common gradient clipping method.
 
     Args:
-        gradients: List of gradient tensors (modified in-place)
-        max_norm: Maximum allowed global gradient norm
+        gradients: List of gradient tensors (modified in-place).
+        max_norm: Maximum allowed global gradient norm.
 
     Returns:
-        Total gradient norm before clipping
+        Total gradient norm before clipping.
 
     Raises:
-        Error: If max_norm is non-positive
+        Error: If max_norm is non-positive.
 
     Example:
         ```mojo
@@ -97,7 +97,7 @@ fn clip_gradients_by_global_norm(
 
     Note:
         This function modifies gradients in-place for efficiency.
-        Common values: max_norm=1.0 (standard), max_norm=5.0 (aggressive)
+        Common values: max_norm=1.0 (standard), max_norm=5.0 (aggressive).
     """
     if max_norm <= 0.0:
         raise Error("max_norm must be positive, got: " + String(max_norm))
@@ -130,11 +130,11 @@ fn clip_gradients_per_param(
     Useful when different parameters have vastly different gradient scales.
 
     Args:
-        gradients: List of gradient tensors (modified in-place)
-        max_norm: Maximum allowed norm per parameter
+        gradients: List of gradient tensors (modified in-place).
+        max_norm: Maximum allowed norm per parameter.
 
     Raises:
-        Error: If max_norm is non-positive
+        Error: If max_norm is non-positive.
 
     Example:
         ```mojo
@@ -145,7 +145,7 @@ fn clip_gradients_per_param(
     Note:
         Less common than global norm clipping, but useful for:
         - Parameters with very different scales
-        - Preventing individual parameter explosion
+        - Preventing individual parameter explosion.
     """
     if max_norm <= 0.0:
         raise Error("max_norm must be positive, got: " + String(max_norm))
@@ -180,12 +180,12 @@ fn clip_gradients_by_value_list(
     Simpler than norm clipping but less theoretically motivated.
 
     Args:
-        gradients: List of gradient tensors (modified in-place)
-        min_value: Minimum allowed gradient value
-        max_value: Maximum allowed gradient value
+        gradients: List of gradient tensors (modified in-place).
+        min_value: Minimum allowed gradient value.
+        max_value: Maximum allowed gradient value.
 
     Raises:
-        Error: If min_value >= max_value
+        Error: If min_value >= max_value.
 
     Example:
         ```mojo
@@ -295,13 +295,13 @@ fn compute_gradient_statistics(
     Useful for detecting gradient explosions, vanishing gradients, and NaN/Inf issues.
 
     Args:
-        gradients: List of gradient tensors
+        gradients: List of gradient tensors.
 
     Returns:
-        GradientStatistics struct with computed metrics
+        GradientStatistics struct with computed metrics.
 
     Raises:
-        Error: If computation fails
+        Error: If computation fails.
 
     Example:
         ```mojo
