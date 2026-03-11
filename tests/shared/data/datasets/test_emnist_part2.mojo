@@ -157,7 +157,8 @@ fn test_emnist_get_test_data() raises:
 
 
 fn main() raises:
-    """Run EMNIST dataset tests - Part 2: Shape, Class Counts, and Integration."""
+    """Run EMNIST dataset tests - Part 2: Shape, Class Counts, and Integration.
+    """
     print("Running EMNIST dataset tests (Part 2)...")
 
     # Shape tests

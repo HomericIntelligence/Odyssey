@@ -92,7 +92,8 @@ fn test_training_optimizers_imports() raises:
 
 
 fn test_shared_optimizer_imports() raises:
-    """Test that SGD, Adam, AdamW are importable directly from shared package."""
+    """Test that SGD, Adam, AdamW are importable directly from shared package.
+    """
     from shared import SGD, Adam, AdamW
 
     print("✓ Shared optimizer imports test passed")
@@ -141,7 +142,11 @@ fn test_training_callbacks_direct_imports() raises:
     Mojo import failures are compile-time errors, not runtime exceptions.
     There is no equivalent of pytest.raises() for compile-time errors.
     """
-    from shared.training.callbacks import EarlyStopping, ModelCheckpoint, LoggingCallback
+    from shared.training.callbacks import (
+        EarlyStopping,
+        ModelCheckpoint,
+        LoggingCallback,
+    )
 
     # Instantiate each type to confirm the import is functional, not just parseable
     var early_stop = EarlyStopping(
@@ -151,8 +156,13 @@ fn test_training_callbacks_direct_imports() raises:
         mode="min",
         verbose=False,
     )
-    assert_true(early_stop.patience == 3, "EarlyStopping should have patience=3")
-    assert_true(early_stop.stopped == False, "EarlyStopping should not be stopped initially")
+    assert_true(
+        early_stop.patience == 3, "EarlyStopping should have patience=3"
+    )
+    assert_true(
+        early_stop.stopped == False,
+        "EarlyStopping should not be stopped initially",
+    )
 
     var checkpoint = ModelCheckpoint(
         filepath="test_checkpoint.pt",
@@ -160,11 +170,19 @@ fn test_training_callbacks_direct_imports() raises:
         save_frequency=1,
         mode="min",
     )
-    assert_true(checkpoint.save_count == 0, "ModelCheckpoint should have save_count=0 initially")
+    assert_true(
+        checkpoint.save_count == 0,
+        "ModelCheckpoint should have save_count=0 initially",
+    )
 
     var logger = LoggingCallback(log_interval=2)
-    assert_true(logger.log_interval == 2, "LoggingCallback should have log_interval=2")
-    assert_true(logger.log_count == 0, "LoggingCallback should have log_count=0 initially")
+    assert_true(
+        logger.log_interval == 2, "LoggingCallback should have log_interval=2"
+    )
+    assert_true(
+        logger.log_count == 0,
+        "LoggingCallback should have log_count=0 initially",
+    )
 
     print("✓ Training callbacks direct imports test passed")
 

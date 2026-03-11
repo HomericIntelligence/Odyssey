@@ -167,12 +167,12 @@ struct CheckpointManager:
 
         Args:
             parameters: List of model parameter tensors
-            param_names: List of parameter names
-            epoch: Current epoch number
-            metric_value: Current metric value (e.g., validation loss)
+            param_names: List of parameter names.
+            epoch: Current epoch number.
+            metric_value: Current metric value (e.g., validation loss).
 
         Raises:
-            Error: If save fails
+            Error: If save fails.
         """
         var is_best: Bool
 
@@ -215,14 +215,14 @@ struct CheckpointManager:
         """Load the most recent checkpoint.
 
         Args:
-            parameters: List to populate with loaded parameters
-            param_names: List of parameter names to load
+            parameters: List to populate with loaded parameters.
+            param_names: List of parameter names to load.
 
         Returns:
-            Epoch number of loaded checkpoint (0 if no checkpoint found)
+            Epoch number of loaded checkpoint (0 if no checkpoint found).
 
         Raises:
-            Error: If load fails
+            Error: If load fails.
         """
         var latest_epoch = self._find_latest_epoch()
 
@@ -251,11 +251,11 @@ struct CheckpointManager:
         """Load the best model checkpoint.
 
         Args:
-            parameters: List to populate with loaded parameters
-            param_names: List of parameter names to load
+            parameters: List to populate with loaded parameters.
+            param_names: List of parameter names to load.
 
         Raises:
-            Error: If best model doesn't exist or load fails
+            Error: If best model doesn't exist or load fails.
         """
         var best_dir = self.checkpoint_dir + "/best_model"
         var metadata_path = best_dir + "/metadata.txt"

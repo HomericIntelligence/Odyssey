@@ -25,7 +25,14 @@ from shared.testing import (
     compute_numerical_gradient,
     assert_gradients_close,
 )
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like, full_like
+from shared.core.extensor import (
+    ExTensor,
+    zeros,
+    ones,
+    zeros_like,
+    ones_like,
+    full_like,
+)
 from shared.core.normalization import (
     batch_norm2d,
     batch_norm2d_backward,
@@ -372,7 +379,10 @@ fn test_batch_norm2d_backward_gradient_input() raises:
         message="Batch norm gradient w.r.t. input (sum(output^2) loss)",
     )
 
-    print("✓ Batch norm backward gradient (input) validated with sum(output^2) loss")
+    print(
+        "✓ Batch norm backward gradient (input) validated with sum(output^2)"
+        " loss"
+    )
 
 
 fn test_batch_norm2d_backward_gradient_input_inference_mode() raises:

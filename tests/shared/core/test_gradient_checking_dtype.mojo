@@ -140,7 +140,8 @@ fn test_conv2d_gradient_fp32() raises:
 
 
 fn test_conv2d_grad_3x3_same_padding() raises:
-    """Test Conv2D gradient with 3x3 kernel, stride=1, padding=1 (same padding)."""
+    """Test Conv2D gradient with 3x3 kernel, stride=1, padding=1 (same padding).
+    """
     var input_shape = List[Int]()
     input_shape.append(1)
     input_shape.append(1)
@@ -206,7 +207,8 @@ fn test_conv2d_grad_3x3_strided() raises:
 
 
 fn test_conv2d_grad_multichannel() raises:
-    """Test Conv2D gradient with multi-channel: in_channels=2, out_channels=3."""
+    """Test Conv2D gradient with multi-channel: in_channels=2, out_channels=3.
+    """
     var input_shape = List[Int]()
     input_shape.append(1)
     input_shape.append(2)

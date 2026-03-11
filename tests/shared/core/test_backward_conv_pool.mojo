@@ -138,7 +138,9 @@ fn test_conv2d_backward_grad_input_numerical() raises:
 
     var output = forward_input(x)
     var grad_output = ones_like(output)
-    check_gradient(forward_input, backward_input, x, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(
+        forward_input, backward_input, x, grad_output, rtol=1e-2, atol=1e-2
+    )
 
 
 fn test_conv2d_backward_grad_weights_numerical() raises:
@@ -184,7 +186,12 @@ fn test_conv2d_backward_grad_weights_numerical() raises:
     var output = forward_weights(kernel)
     var grad_output = ones_like(output)
     check_gradient(
-        forward_weights, backward_weights, kernel, grad_output, rtol=1e-2, atol=1e-2
+        forward_weights,
+        backward_weights,
+        kernel,
+        grad_output,
+        rtol=1e-2,
+        atol=1e-2,
     )
 
 

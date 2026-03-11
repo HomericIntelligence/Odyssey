@@ -801,7 +801,9 @@ struct AdamW(Copyable, Movable, Optimizer):
             for j in range(parameters[i].data.numel()):
                 var param_val = parameters[i].data._get_float64(j)
                 var update_val = adam_update._get_float64(j)
-                var decay_val = self.learning_rate * self.weight_decay * param_val
+                var decay_val = (
+                    self.learning_rate * self.weight_decay * param_val
+                )
                 new_data._set_float64(j, param_val - update_val - decay_val)
             parameters[i].data = new_data^
 

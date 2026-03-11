@@ -251,13 +251,13 @@ struct GradientStatistics:
         """Initialize gradient statistics.
 
         Args:
-            global_norm: Global L2 norm
-            max_value: Maximum absolute value
-            min_value: Minimum absolute value
-            mean_value: Mean absolute value
-            num_params: Total number of parameters
-            num_nan: Number of NaN values
-            num_inf: Number of Inf values
+            global_norm: Global L2 norm.
+            max_value: Maximum absolute value.
+            min_value: Minimum absolute value.
+            mean_value: Mean absolute value.
+            num_params: Total number of parameters.
+            num_nan: Number of NaN values.
+            num_inf: Number of Inf values.
         """
         self.global_norm = global_norm
         self.max_value = max_value
@@ -271,7 +271,7 @@ struct GradientStatistics:
         """Check if gradients are healthy (no NaN/Inf).
 
         Returns:
-            True if no NaN or Inf values detected
+            True if no NaN or Inf values detected.
         """
         return self.num_nan == 0 and self.num_inf == 0
 

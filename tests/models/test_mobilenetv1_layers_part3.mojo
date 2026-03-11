@@ -282,7 +282,10 @@ fn test_mobilenetv1_block5_512_repeat() raises:
 
 
 fn main() raises:
-    print("Starting MobileNetV1 Layerwise Tests Part 3 (Global AvgPool + Channel Configs)...")
+    print(
+        "Starting MobileNetV1 Layerwise Tests Part 3 (Global AvgPool + Channel"
+        " Configs)..."
+    )
 
     print("  test_global_avgpool2d_forward...", end="")
     test_global_avgpool2d_forward()

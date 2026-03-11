@@ -550,10 +550,7 @@ fn test_repr_bool_true_false() raises:
     var r = repr(t)
     assert_equal(
         r,
-        (
-            "ExTensor(shape=[3], dtype=bool, numel=3,"
-            " data=[False, True, False])"
-        ),
+        "ExTensor(shape=[3], dtype=bool, numel=3, data=[False, True, False])",
         "__repr__ bool format",
     )
 
@@ -637,6 +634,8 @@ fn test_hash_different_dtypes_differ() raises:
             "float32 and float64 tensors with same values should have different"
             " hashes"
         )
+
+
 fn test_hash_empty_tensor() raises:
     """Test __hash__ for 0-element tensor hashes without error and consistently.
 

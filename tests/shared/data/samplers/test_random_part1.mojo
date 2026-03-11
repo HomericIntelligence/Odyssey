@@ -186,7 +186,8 @@ fn test_random_sampler_no_duplicates() raises:
 
 
 fn main() raises:
-    """Run random sampler tests (part 1): creation, randomization, correctness."""
+    """Run random sampler tests (part 1): creation, randomization, correctness.
+    """
     print("Running random sampler tests (part 1)...")
 
     # Creation tests

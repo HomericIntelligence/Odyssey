@@ -161,7 +161,9 @@ fn test_parallel_loader_memory_limit():
 
 fn main() raises:
     """Run parallel loader performance and resource management tests."""
-    print("Running parallel loader performance and resource management tests...")
+    print(
+        "Running parallel loader performance and resource management tests..."
+    )
 
     # Performance tests
     test_parallel_loader_faster_than_sequential()
@@ -173,4 +175,7 @@ fn main() raises:
     test_parallel_loader_early_stop()
     test_parallel_loader_memory_limit()
 
-    print("✓ All parallel loader performance and resource management tests passed!")
+    print(
+        "✓ All parallel loader performance and resource management tests"
+        " passed!"
+    )

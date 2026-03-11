@@ -7,7 +7,7 @@ the input of layer i+1.
 Design Note — The Mojo Trait-Object Constraint:
     Mojo v0.26.1 does not support dynamic dispatch via List[Module] because
     trait objects are not heap-dispatchable without unsafe pointer indirection.
-    The parametric approach (Sequential2[T0: Module, T1: Module]) is the
+    The parametric approach (Sequential2[T0: Module & Movable, T1: Module & Movable]) is the
     Mojo-idiomatic solution: composition is resolved at compile time, avoids
     ImplicitlyCopyable requirements, and aligns with the project's functional
     and type-safe design philosophy.
@@ -37,7 +37,7 @@ from shared.core.extensor import ExTensor
 from shared.core.module import Module
 
 
-struct Sequential2[T0: Module, T1: Module](Movable):
+struct Sequential2[T0: Module & Movable, T1: Module & Movable](Movable):
     """Two-layer sequential module container.
 
     Chains two Module-conforming layers: output of layer 0 becomes input
@@ -59,10 +59,10 @@ struct Sequential2[T0: Module, T1: Module](Movable):
         ```
     """
 
-    var layer0: T0
-    var layer1: T1
+    var layer0: Self.T0
+    var layer1: Self.T1
 
-    fn __init__(out self, owned layer0: T0, owned layer1: T1):
+    fn __init__(out self, owned layer0: Self.T0, owned layer1: Self.T1):
         """Initialize with two layers.
 
         Args:
@@ -72,7 +72,7 @@ struct Sequential2[T0: Module, T1: Module](Movable):
         self.layer0 = layer0^
         self.layer1 = layer1^
 
-    fn __moveinit__(out self, owned other: Self):
+    fn __moveinit__(out self, deinit other: Self):
         """Move constructor.
 
         Args:
@@ -125,7 +125,9 @@ struct Sequential2[T0: Module, T1: Module](Movable):
         self.layer1.eval()
 
 
-struct Sequential3[T0: Module, T1: Module, T2: Module](Movable):
+struct Sequential3[
+    T0: Module & Movable, T1: Module & Movable, T2: Module & Movable
+](Movable):
     """Three-layer sequential module container.
 
     Chains three Module-conforming layers in order: 0 -> 1 -> 2.
@@ -151,11 +153,16 @@ struct Sequential3[T0: Module, T1: Module, T2: Module](Movable):
         ```
     """
 
-    var layer0: T0
-    var layer1: T1
-    var layer2: T2
+    var layer0: Self.T0
+    var layer1: Self.T1
+    var layer2: Self.T2
 
-    fn __init__(out self, owned layer0: T0, owned layer1: T1, owned layer2: T2):
+    fn __init__(
+        out self,
+        owned layer0: Self.T0,
+        owned layer1: Self.T1,
+        owned layer2: Self.T2,
+    ):
         """Initialize with three layers.
 
         Args:
@@ -167,7 +174,7 @@ struct Sequential3[T0: Module, T1: Module, T2: Module](Movable):
         self.layer1 = layer1^
         self.layer2 = layer2^
 
-    fn __moveinit__(out self, owned other: Self):
+    fn __moveinit__(out self, deinit other: Self):
         """Move constructor.
 
         Args:

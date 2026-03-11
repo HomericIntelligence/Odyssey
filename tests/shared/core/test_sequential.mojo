@@ -15,7 +15,11 @@ Design Note:
 from shared.core.module import Module
 from shared.core.extensor import ExTensor, zeros, ones
 from shared.core.sequential import Sequential2, Sequential3
-from tests.shared.conftest import assert_true, assert_equal_int, assert_almost_equal
+from tests.shared.conftest import (
+    assert_true,
+    assert_equal_int,
+    assert_almost_equal,
+)
 
 
 # ============================================================================
@@ -405,7 +409,9 @@ fn test_sequential3_parameters_combined() raises:
         DummyModuleWithParams(3),
     )
     var params = seq.parameters()
-    assert_equal_int(len(params), 6, "Combined parameters should be 1 + 2 + 3 = 6")
+    assert_equal_int(
+        len(params), 6, "Combined parameters should be 1 + 2 + 3 = 6"
+    )
 
 
 fn test_sequential3_train_eval_mode() raises:

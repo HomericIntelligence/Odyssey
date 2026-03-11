@@ -420,7 +420,8 @@ fn test_adam_matches_pytorch() raises:
 
 
 fn main() raises:
-    """Run Adam advanced, AdamW, RMSprop, property, and numerical accuracy tests."""
+    """Run Adam advanced, AdamW, RMSprop, property, and numerical accuracy tests.
+    """
     print("Running Adam advanced tests...")
     test_adam_bias_correction()
 

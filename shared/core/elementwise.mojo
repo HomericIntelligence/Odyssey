@@ -361,7 +361,12 @@ fn _log10_forward_impl[
         var val = in_ptr[i]
         if val <= Scalar[dtype](0):
             raise Error("log10 requires positive values")
-        out_ptr[i] = math_log(val) / ln10
+
+        @parameter
+        if dtype == DType.float16 or dtype == DType.float32:
+            out_ptr[i] = Scalar[dtype](math_log(Float32(val))) / ln10
+        else:
+            out_ptr[i] = Scalar[dtype](math_log(Float64(val))) / ln10
 
 
 fn _dispatch_log10_forward(
@@ -391,7 +396,12 @@ fn _log2_forward_impl[
         var val = in_ptr[i]
         if val <= Scalar[dtype](0):
             raise Error("log2 requires positive values")
-        out_ptr[i] = math_log(val) / ln2
+
+        @parameter
+        if dtype == DType.float16 or dtype == DType.float32:
+            out_ptr[i] = Scalar[dtype](math_log(Float32(val))) / ln2
+        else:
+            out_ptr[i] = Scalar[dtype](math_log(Float64(val))) / ln2
 
 
 fn _dispatch_log2_forward(

@@ -78,11 +78,14 @@ fn test_hash_normal_values() raises:
     """Equal tensors yield equal hashes."""
     var a = arange(0.0, 4.0, 1.0, DType.float32)
     var b = arange(0.0, 4.0, 1.0, DType.float32)
-    assert_equal_int(Int(hash(a)), Int(hash(b)), "Equal tensors must hash equal")
+    assert_equal_int(
+        Int(hash(a)), Int(hash(b)), "Equal tensors must hash equal"
+    )
 
 
 fn test_hash_different_values() raises:
-    """Different-valued tensors should produce different hashes (probabilistic)."""
+    """Different-valued tensors should produce different hashes (probabilistic).
+    """
     var shape = List[Int]()
     shape.append(1)
     var a = full(shape, 1.0, DType.float64)
@@ -254,7 +257,8 @@ fn test_hash_mixed_nan_normal_deterministic() raises:
 
 
 fn test_hash_mixed_nan_different_nan_patterns() raises:
-    """Tensors with same logical content but different NaN bit patterns hash equal."""
+    """Tensors with same logical content but different NaN bit patterns hash equal.
+    """
     var shape = List[Int]()
     shape.append(2)
 

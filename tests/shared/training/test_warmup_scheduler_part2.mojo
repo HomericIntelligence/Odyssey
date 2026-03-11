@@ -153,7 +153,8 @@ fn test_warmup_scheduler_property_starts_from_zero() raises:
 
 
 fn main() raises:
-    """Run WarmupLR scheduler tests (Part 2: edge cases, property-based tests)."""
+    """Run WarmupLR scheduler tests (Part 2: edge cases, property-based tests).
+    """
     print("Running edge cases...")
     test_warmup_scheduler_zero_warmup_epochs()
     test_warmup_scheduler_negative_warmup_epochs()

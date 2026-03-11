@@ -325,18 +325,10 @@ fn test_confusion_matrix_binary_counts() raises:
     var raw = cm.normalize(mode="none")
     # Matrix layout: raw[row*2 + col] where row=true, col=pred
     # [0,0]=TN=1, [0,1]=FP=1, [1,0]=FN=1, [1,1]=TP=1
-    assert_equal_int(
-        Int(raw._data.bitcast[Float64]()[0]), 1  # TN
-    )
-    assert_equal_int(
-        Int(raw._data.bitcast[Float64]()[1]), 1  # FP
-    )
-    assert_equal_int(
-        Int(raw._data.bitcast[Float64]()[2]), 1  # FN
-    )
-    assert_equal_int(
-        Int(raw._data.bitcast[Float64]()[3]), 1  # TP
-    )
+    assert_equal_int(Int(raw._data.bitcast[Float64]()[0]), 1)  # TN
+    assert_equal_int(Int(raw._data.bitcast[Float64]()[1]), 1)  # FP
+    assert_equal_int(Int(raw._data.bitcast[Float64]()[2]), 1)  # FN
+    assert_equal_int(Int(raw._data.bitcast[Float64]()[3]), 1)  # TP
     print("  test_confusion_matrix_binary_counts: PASSED")
 
 

@@ -298,9 +298,15 @@ fn test_split_equal() raises:
 
     # Verify actual values: parts[0]=[0,1,2,3], parts[1]=[4,5,6,7], parts[2]=[8,9,10,11]
     for j in range(4):
-        assert_value_at(parts[0], j, Float64(j), message="parts[0] value mismatch")
-        assert_value_at(parts[1], j, Float64(j + 4), message="parts[1] value mismatch")
-        assert_value_at(parts[2], j, Float64(j + 8), message="parts[2] value mismatch")
+        assert_value_at(
+            parts[0], j, Float64(j), message="parts[0] value mismatch"
+        )
+        assert_value_at(
+            parts[1], j, Float64(j + 4), message="parts[1] value mismatch"
+        )
+        assert_value_at(
+            parts[2], j, Float64(j + 8), message="parts[2] value mismatch"
+        )
 
 
 fn test_split_unequal() raises:
@@ -322,10 +328,16 @@ fn test_split_unequal() raises:
 
     # Verify actual values: parts[0]=[0,1,2], parts[1]=[3,4,5,6], parts[2]=[7,8,9]
     for j in range(3):
-        assert_value_at(parts[0], j, Float64(j), message="parts[0] value mismatch")
-        assert_value_at(parts[2], j, Float64(j + 7), message="parts[2] value mismatch")
+        assert_value_at(
+            parts[0], j, Float64(j), message="parts[0] value mismatch"
+        )
+        assert_value_at(
+            parts[2], j, Float64(j + 7), message="parts[2] value mismatch"
+        )
     for j in range(4):
-        assert_value_at(parts[1], j, Float64(j + 3), message="parts[1] value mismatch")
+        assert_value_at(
+            parts[1], j, Float64(j + 3), message="parts[1] value mismatch"
+        )
 
 
 # ============================================================================
@@ -390,8 +402,15 @@ fn test_repeat_elements() raises:
 
     # Verify actual values: [0, 0, 1, 1, 2, 2]
     for j in range(3):
-        assert_value_at(b, j * 2, Float64(j), message="repeat_elements even index mismatch")
-        assert_value_at(b, j * 2 + 1, Float64(j), message="repeat_elements odd index mismatch")
+        assert_value_at(
+            b, j * 2, Float64(j), message="repeat_elements even index mismatch"
+        )
+        assert_value_at(
+            b,
+            j * 2 + 1,
+            Float64(j),
+            message="repeat_elements odd index mismatch",
+        )
 
 
 fn test_repeat_axis() raises:
@@ -432,7 +451,10 @@ fn test_broadcast_to_compatible() raises:
     for row in range(4):
         for col in range(3):
             assert_value_at(
-                b, row * 3 + col, Float64(col), message="broadcast_to value mismatch"
+                b,
+                row * 3 + col,
+                Float64(col),
+                message="broadcast_to value mismatch",
             )
 
 
@@ -488,7 +510,9 @@ fn test_broadcast_to_identity() raises:
     assert_dim(b, 2, "Identity broadcast should preserve ndim")
     assert_numel(b, 12, "Identity broadcast should preserve numel")
     for i in range(12):
-        assert_value_at(b, i, Float64(i), 1e-6, "Identity broadcast should preserve values")
+        assert_value_at(
+            b, i, Float64(i), 1e-6, "Identity broadcast should preserve values"
+        )
 
 
 fn test_broadcast_to_multi_axis() raises:
@@ -506,7 +530,9 @@ fn test_broadcast_to_multi_axis() raises:
     # Values repeat the pattern [0, 1, 2] across all rows
     for i in range(24):
         var expected = Float64(i % 3)
-        assert_value_at(b, i, expected, 1e-6, "Values should repeat row pattern")
+        assert_value_at(
+            b, i, expected, 1e-6, "Values should repeat row pattern"
+        )
 
 
 fn test_broadcast_to_leading_dims() raises:
@@ -527,7 +553,13 @@ fn test_broadcast_to_leading_dims() raises:
     # Each row should be [0, 1, 2]
     for row in range(5):
         for col in range(3):
-            assert_value_at(b, row * 3 + col, Float64(col), 1e-6, "Values should repeat per row")
+            assert_value_at(
+                b,
+                row * 3 + col,
+                Float64(col),
+                1e-6,
+                "Values should repeat per row",
+            )
 
 
 fn test_broadcast_to_middle_dim_expand() raises:
@@ -552,7 +584,13 @@ fn test_broadcast_to_middle_dim_expand() raises:
         for j in range(3):
             for k in range(7):
                 var flat_idx = i * 21 + j * 7 + k
-                assert_value_at(b, flat_idx, Float64(j), 1e-6, "Value should equal middle dim index")
+                assert_value_at(
+                    b,
+                    flat_idx,
+                    Float64(j),
+                    1e-6,
+                    "Value should equal middle dim index",
+                )
 
 
 fn test_broadcast_to_reduce_ndim_raises() raises:

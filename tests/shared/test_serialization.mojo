@@ -197,7 +197,9 @@ fn test_named_tensor_collection() raises:
             var name = loaded[i].name
             if name == "weights":
                 found_weights = True
-                assert_equal(loaded[i].tensor.numel(), 6, "Wrong size for weights")
+                assert_equal(
+                    loaded[i].tensor.numel(), 6, "Wrong size for weights"
+                )
             elif name == "bias":
                 found_bias = True
                 assert_equal(loaded[i].tensor.numel(), 3, "Wrong size for bias")
