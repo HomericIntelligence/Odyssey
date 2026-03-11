@@ -422,7 +422,6 @@ struct TrainingLoop[
 
         Args:
             data_loader: Native DataLoader providing batches.
-            data_loader: DataLoader providing batches.
 
         Returns:
             Average loss for the epoch.

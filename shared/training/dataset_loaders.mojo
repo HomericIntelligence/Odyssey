@@ -45,10 +45,10 @@ struct DatasetSplit(Copyable, Movable):
 
     fn __init__(
         out self,
-        owned train_images: ExTensor,
-        owned train_labels: ExTensor,
-        owned test_images: ExTensor,
-        owned test_labels: ExTensor,
+        var train_images: ExTensor,
+        var train_labels: ExTensor,
+        var test_images: ExTensor,
+        var test_labels: ExTensor,
         num_classes: Int,
     ):
         """Initialize dataset split.

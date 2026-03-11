@@ -524,6 +524,7 @@ fn assert_sampled_gradients_close(
         analytical_grad: Full analytical gradient tensor.
         sampled_numerical: List of IndexGradientPair samples from sampling.
         rtol: Relative tolerance (default: 1e-2 for float32).
+        atol: Absolute tolerance threshold.
         message: Error message prefix.
 
     Raises:

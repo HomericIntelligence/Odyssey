@@ -292,7 +292,7 @@ trait Composable(Differentiable):
 
         Args:
             other: The component to compose with this one.
-            The output shape of self must match the input shape of other.
+                The output shape of self must match the input shape of other.
 
         Raises:
             Error: This method is a stub. Use ComposedOp[F, S](first, second) directly.

@@ -805,7 +805,7 @@ fn clear_figure() -> Bool:
         True if successful.
     """
     # Create JSON structure for figure clearing
-    var result = String('{"type":"clear_figure"}')
+    _ = String('{"type":"clear_figure"}')
     return True
 
 
@@ -819,5 +819,5 @@ fn show_figure() -> Bool:
         True if successful.
     """
     # Create JSON structure for figure display
-    var result = String('{"type":"show_figure"}')
+    _ = String('{"type":"show_figure"}')
     return True
