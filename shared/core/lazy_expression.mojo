@@ -30,15 +30,15 @@ from shared.core.broadcasting import broadcast_shapes, compute_broadcast_strides
 # Operation Type Aliases
 # ============================================================================
 
-alias OpType = Int
-alias OP_LEAF: OpType = 0  # Terminal tensor node
-alias OP_ADD: OpType = 1  # a + b
-alias OP_SUB: OpType = 2  # a - b
-alias OP_MUL: OpType = 3  # a * b
-alias OP_DIV: OpType = 4  # a / b
-alias OP_NEG: OpType = 5  # -a (unary negation)
-alias OP_SCALAR_MUL: OpType = 6  # a * scalar
-alias OP_SCALAR_DIV: OpType = 7  # a / scalar
+comptime OpType = Int
+comptime OP_LEAF: OpType = 0  # Terminal tensor node
+comptime OP_ADD: OpType = 1  # a + b
+comptime OP_SUB: OpType = 2  # a - b
+comptime OP_MUL: OpType = 3  # a * b
+comptime OP_DIV: OpType = 4  # a / b
+comptime OP_NEG: OpType = 5  # -a (unary negation)
+comptime OP_SCALAR_MUL: OpType = 6  # a * scalar
+comptime OP_SCALAR_DIV: OpType = 7  # a / scalar
 
 
 # ============================================================================
