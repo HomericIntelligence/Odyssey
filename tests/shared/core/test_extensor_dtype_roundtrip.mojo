@@ -26,7 +26,9 @@ fn test_float16_set_get_float64_roundtrip() raises:
     t._set_float64(0, 1.5)
     var got = t._get_float64(0)
     # Zero-guard: detects silent-write failure (the original bug pattern)
-    assert_true(got != 0.0, "float16 _get_float64 returned 0 after _set_float64(1.5)")
+    assert_true(
+        got != 0.0, "float16 _get_float64 returned 0 after _set_float64(1.5)"
+    )
     assert_almost_equal(got, 1.5, tolerance=1e-3)
 
 
@@ -48,7 +50,9 @@ fn test_float32_set_get_float64_roundtrip() raises:
     var t = zeros([1], DType.float32)
     t._set_float64(0, 1.5)
     var got = t._get_float64(0)
-    assert_true(got != 0.0, "float32 _get_float64 returned 0 after _set_float64(1.5)")
+    assert_true(
+        got != 0.0, "float32 _get_float64 returned 0 after _set_float64(1.5)"
+    )
     assert_almost_equal(got, 1.5, tolerance=1e-6)
 
 
@@ -70,7 +74,9 @@ fn test_float64_set_get_float64_roundtrip() raises:
     var t = zeros([1], DType.float64)
     t._set_float64(0, 1.5)
     var got = t._get_float64(0)
-    assert_true(got != 0.0, "float64 _get_float64 returned 0 after _set_float64(1.5)")
+    assert_true(
+        got != 0.0, "float64 _get_float64 returned 0 after _set_float64(1.5)"
+    )
     assert_almost_equal(got, 1.5, tolerance=1e-9)
 
 
@@ -100,7 +106,13 @@ fn test_bfloat16_set_get_float64_roundtrip() raises:
     t._set_float64(0, 1.5)
     var got = t._get_float64(0)
     # Zero-guard: detects the original silent-write bug
-    assert_true(got != 0.0, "bfloat16 _get_float64 returned 0 after _set_float64(1.5) — bfloat16 branch missing in _set_float64")
+    assert_true(
+        got != 0.0,
+        (
+            "bfloat16 _get_float64 returned 0 after _set_float64(1.5) —"
+            " bfloat16 branch missing in _set_float64"
+        ),
+    )
     # bfloat16 has ~2 decimal digits precision (7-bit mantissa), 1.5 is exactly representable
     assert_almost_equal(got, 1.5, tolerance=1e-2)
 
@@ -110,7 +122,10 @@ fn test_bfloat16_nonzero_after_set() raises:
     var t = zeros([3], DType.bfloat16)
     t._set_float64(1, 2.0)
     var got = t._get_float64(1)
-    assert_true(got != 0.0, "bfloat16 _set_float64 silently wrote zero — bfloat16 branch missing")
+    assert_true(
+        got != 0.0,
+        "bfloat16 _set_float64 silently wrote zero — bfloat16 branch missing",
+    )
 
 
 fn test_bfloat16_dtype_size_is_2_bytes() raises:

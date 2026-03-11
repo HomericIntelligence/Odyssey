@@ -766,6 +766,7 @@ struct ExTensor(
         result._strides[dim1] = tmp_stride
 
         return result^
+
     fn tile(self, reps: List[Int]) raises -> ExTensor:
         """Tile tensor by repeating along each dimension.
 
@@ -787,6 +788,7 @@ struct ExTensor(
         ```
         """
         from shared.core.shape import tile as _tile
+
         return _tile(self, reps)
 
     fn repeat(self, n: Int, axis: Int = -1) raises -> ExTensor:
@@ -811,6 +813,7 @@ struct ExTensor(
         ```
         """
         from shared.core.shape import repeat as _repeat
+
         return _repeat(self, n, axis)
 
     fn permute(self, dims: List[Int]) raises -> ExTensor:
@@ -834,6 +837,7 @@ struct ExTensor(
         ```
         """
         from shared.core.shape import permute as _permute
+
         return _permute(self, dims)
 
     fn split(self, num_splits: Int, axis: Int = 0) raises -> List[ExTensor]:
@@ -858,6 +862,7 @@ struct ExTensor(
         ```
         """
         from shared.core.shape import split as _split
+
         return _split(self, num_splits, axis)^
 
     fn __getitem__(self, index: Int) raises -> Float32:

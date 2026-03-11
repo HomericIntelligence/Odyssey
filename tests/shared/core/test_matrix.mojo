@@ -663,24 +663,12 @@ fn test_transpose_values() raises:
 
     # A^T = [[1, 4], [2, 5], [3, 6]]
     # Use stride-aware element access (_get_float32) to read logical values.
-    assert_almost_equal(
-        result._get_float32(0), Float32(1.0), tolerance=1e-5
-    )
-    assert_almost_equal(
-        result._get_float32(1), Float32(4.0), tolerance=1e-5
-    )
-    assert_almost_equal(
-        result._get_float32(2), Float32(2.0), tolerance=1e-5
-    )
-    assert_almost_equal(
-        result._get_float32(3), Float32(5.0), tolerance=1e-5
-    )
-    assert_almost_equal(
-        result._get_float32(4), Float32(3.0), tolerance=1e-5
-    )
-    assert_almost_equal(
-        result._get_float32(5), Float32(6.0), tolerance=1e-5
-    )
+    assert_almost_equal(result._get_float32(0), Float32(1.0), tolerance=1e-5)
+    assert_almost_equal(result._get_float32(1), Float32(4.0), tolerance=1e-5)
+    assert_almost_equal(result._get_float32(2), Float32(2.0), tolerance=1e-5)
+    assert_almost_equal(result._get_float32(3), Float32(5.0), tolerance=1e-5)
+    assert_almost_equal(result._get_float32(4), Float32(3.0), tolerance=1e-5)
+    assert_almost_equal(result._get_float32(5), Float32(6.0), tolerance=1e-5)
 
 
 fn test_transpose_double() raises:
@@ -950,15 +938,9 @@ fn test_transpose_axes_2d_simple() raises:
     # Check actual values: result[i,j] = input[j,i]
     # result[0,0] = input[0,0] = 0, result[0,1] = input[1,0] = 4, result[0,2] = input[2,0] = 8
     # Use stride-aware element access (_get_float32) to read logical values.
-    assert_almost_equal(
-        result._get_float32(0), Float32(0.0), tolerance=1e-5
-    )
-    assert_almost_equal(
-        result._get_float32(1), Float32(4.0), tolerance=1e-5
-    )
-    assert_almost_equal(
-        result._get_float32(2), Float32(8.0), tolerance=1e-5
-    )
+    assert_almost_equal(result._get_float32(0), Float32(0.0), tolerance=1e-5)
+    assert_almost_equal(result._get_float32(1), Float32(4.0), tolerance=1e-5)
+    assert_almost_equal(result._get_float32(2), Float32(8.0), tolerance=1e-5)
 
 
 fn test_transpose_axes_3d_identity() raises:
@@ -1282,12 +1264,21 @@ fn test_transpose_view_strides() raises:
     # a is contiguous: strides [4, 1]
     var t = transpose(a)
     # t should have strides [1, 4] (permuted: a._strides reversed)
-    assert_equal(t._strides[0], 1, "Transposed stride[0] should be 1 (inner stride of input)")
-    assert_equal(t._strides[1], 4, "Transposed stride[1] should be 4 (outer stride of input)")
+    assert_equal(
+        t._strides[0],
+        1,
+        "Transposed stride[0] should be 1 (inner stride of input)",
+    )
+    assert_equal(
+        t._strides[1],
+        4,
+        "Transposed stride[1] should be 4 (outer stride of input)",
+    )
 
 
 fn test_transpose_view_values() raises:
-    """Test that stride-aware element access returns correct transposed values."""
+    """Test that stride-aware element access returns correct transposed values.
+    """
     var shape = List[Int]()
     shape.append(2)
     shape.append(3)
@@ -1347,9 +1338,7 @@ fn test_transpose_chained_views() raises:
     assert_equal(t.shape()[1], 3, "Double transpose dim 1 should be 3")
     assert_equal(t.shape()[2], 4, "Double transpose dim 2 should be 4")
     for i in range(24):
-        assert_almost_equal(
-            t._get_float32(i), Float32(i), tolerance=1e-5
-        )
+        assert_almost_equal(t._get_float32(i), Float32(i), tolerance=1e-5)
 
 
 # ============================================================================

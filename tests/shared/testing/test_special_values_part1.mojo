@@ -136,7 +136,10 @@ fn test_create_alternating_pattern_tensor() raises:
 
 
 fn main() raises:
-    print("Testing special_values module - Part 1: Constants and tensor creation...")
+    print(
+        "Testing special_values module - Part 1: Constants and tensor"
+        " creation..."
+    )
 
     test_special_value_constants()
     print("✓ test_special_value_constants")

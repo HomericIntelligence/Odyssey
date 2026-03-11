@@ -161,7 +161,10 @@ fn test_create_inf_tensor() raises:
 
 
 fn main() raises:
-    print("Testing special_values module - Part 3: Seeded random (seeds/range/shape) and NaN/Inf tensors...")
+    print(
+        "Testing special_values module - Part 3: Seeded random"
+        " (seeds/range/shape) and NaN/Inf tensors..."
+    )
 
     test_create_seeded_random_tensor_different_seeds()
     print("✓ test_create_seeded_random_tensor_different_seeds")

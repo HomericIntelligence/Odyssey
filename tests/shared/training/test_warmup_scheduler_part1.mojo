@@ -197,7 +197,8 @@ fn test_warmup_scheduler_quarter_points() raises:
 
 
 fn main() raises:
-    """Run WarmupLR scheduler tests (Part 1: core, warmup period, numerical accuracy)."""
+    """Run WarmupLR scheduler tests (Part 1: core, warmup period, numerical accuracy).
+    """
     print("Running WarmupLR core tests...")
     test_warmup_scheduler_initialization()
     test_warmup_scheduler_linear_increase()

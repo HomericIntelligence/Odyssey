@@ -379,7 +379,10 @@ fn test_relu_multiple_applications() raises:
 
 
 fn main() raises:
-    print("Starting MobileNetV1 Layerwise Tests Part 2 (Separable Blocks + BatchNorm + ReLU)...")
+    print(
+        "Starting MobileNetV1 Layerwise Tests Part 2 (Separable Blocks +"
+        " BatchNorm + ReLU)..."
+    )
 
     print("  test_depthwise_separable_block_basic...", end="")
     test_depthwise_separable_block_basic()

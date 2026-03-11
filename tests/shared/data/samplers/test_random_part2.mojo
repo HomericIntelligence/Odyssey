@@ -129,7 +129,8 @@ fn test_random_sampler_shuffle_speed() raises:
 
 
 fn main() raises:
-    """Run random sampler tests (part 2): valid range, replacement, integration, performance."""
+    """Run random sampler tests (part 2): valid range, replacement, integration, performance.
+    """
     print("Running random sampler tests (part 2)...")
 
     # Correctness tests (continued)

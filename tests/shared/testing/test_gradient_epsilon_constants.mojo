@@ -50,7 +50,10 @@ fn test_epsilon_float32_package_equals_submodule() raises:
     print("Testing GRADIENT_CHECK_EPSILON_FLOAT32 package == submodule...")
     assert_true(
         GRADIENT_CHECK_EPSILON_FLOAT32 == EPSILON_FLOAT32_DIRECT,
-        "Package and submodule values for GRADIENT_CHECK_EPSILON_FLOAT32 must match",
+        (
+            "Package and submodule values for GRADIENT_CHECK_EPSILON_FLOAT32"
+            " must match"
+        ),
     )
     print("  Package and submodule values match")
 
@@ -60,7 +63,10 @@ fn test_epsilon_other_package_equals_submodule() raises:
     print("Testing GRADIENT_CHECK_EPSILON_OTHER package == submodule...")
     assert_true(
         GRADIENT_CHECK_EPSILON_OTHER == EPSILON_OTHER_DIRECT,
-        "Package and submodule values for GRADIENT_CHECK_EPSILON_OTHER must match",
+        (
+            "Package and submodule values for GRADIENT_CHECK_EPSILON_OTHER must"
+            " match"
+        ),
     )
     print("  Package and submodule values match")
 
@@ -80,19 +86,32 @@ fn test_epsilon_float32_larger_than_generic() raises:
     print("Testing GRADIENT_CHECK_EPSILON_FLOAT32 > GRADIENT_CHECK_EPSILON...")
     assert_true(
         GRADIENT_CHECK_EPSILON_FLOAT32 > GRADIENT_CHECK_EPSILON,
-        "GRADIENT_CHECK_EPSILON_FLOAT32 must be larger than GRADIENT_CHECK_EPSILON",
+        (
+            "GRADIENT_CHECK_EPSILON_FLOAT32 must be larger than"
+            " GRADIENT_CHECK_EPSILON"
+        ),
     )
     print("  GRADIENT_CHECK_EPSILON_FLOAT32 > GRADIENT_CHECK_EPSILON correct")
 
 
 fn test_epsilon_other_larger_than_float32() raises:
-    """Test that GRADIENT_CHECK_EPSILON_OTHER > GRADIENT_CHECK_EPSILON_FLOAT32."""
-    print("Testing GRADIENT_CHECK_EPSILON_OTHER > GRADIENT_CHECK_EPSILON_FLOAT32...")
+    """Test that GRADIENT_CHECK_EPSILON_OTHER > GRADIENT_CHECK_EPSILON_FLOAT32.
+    """
+    print(
+        "Testing GRADIENT_CHECK_EPSILON_OTHER >"
+        " GRADIENT_CHECK_EPSILON_FLOAT32..."
+    )
     assert_true(
         GRADIENT_CHECK_EPSILON_OTHER > GRADIENT_CHECK_EPSILON_FLOAT32,
-        "GRADIENT_CHECK_EPSILON_OTHER must be larger than GRADIENT_CHECK_EPSILON_FLOAT32",
+        (
+            "GRADIENT_CHECK_EPSILON_OTHER must be larger than"
+            " GRADIENT_CHECK_EPSILON_FLOAT32"
+        ),
     )
-    print("  GRADIENT_CHECK_EPSILON_OTHER > GRADIENT_CHECK_EPSILON_FLOAT32 correct")
+    print(
+        "  GRADIENT_CHECK_EPSILON_OTHER > GRADIENT_CHECK_EPSILON_FLOAT32"
+        " correct"
+    )
 
 
 # ============================================================================

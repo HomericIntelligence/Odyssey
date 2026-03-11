@@ -174,7 +174,10 @@ fn test_create_seeded_random_tensor_reproducibility() raises:
 
 
 fn main() raises:
-    print("Testing special_values module - Part 2: Pattern repeats, verification, convenience, dtypes, seeded random...")
+    print(
+        "Testing special_values module - Part 2: Pattern repeats, verification,"
+        " convenience, dtypes, seeded random..."
+    )
 
     test_create_alternating_pattern_repeats()
     print("✓ test_create_alternating_pattern_repeats")

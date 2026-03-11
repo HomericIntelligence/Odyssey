@@ -20,7 +20,8 @@ from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 
 fn test_setitem_2d_basic() raises:
-    """Test __setitem__ 2D: assign to [0, 0] in a [3, 4] tensor (flat index 0)."""
+    """Test __setitem__ 2D: assign to [0, 0] in a [3, 4] tensor (flat index 0).
+    """
     var t = zeros([3, 4], DType.float32)
     t[0, 0] = 1.0
     assert_almost_equal(t._get_float64(0), 1.0, tolerance=1e-6)
@@ -29,7 +30,8 @@ fn test_setitem_2d_basic() raises:
 
 
 fn test_setitem_2d_row1() raises:
-    """Test __setitem__ 2D: assign to [1, 0] in a [3, 4] tensor (flat index 4)."""
+    """Test __setitem__ 2D: assign to [1, 0] in a [3, 4] tensor (flat index 4).
+    """
     var t = zeros([3, 4], DType.float32)
     t[1, 0] = 1.5
     assert_almost_equal(t._get_float64(4), 1.5, tolerance=1e-6)
@@ -39,7 +41,8 @@ fn test_setitem_2d_row1() raises:
 
 
 fn test_setitem_2d_col3() raises:
-    """Test __setitem__ 2D: assign to [0, 3] in a [3, 4] tensor (flat index 3)."""
+    """Test __setitem__ 2D: assign to [0, 3] in a [3, 4] tensor (flat index 3).
+    """
     var t = zeros([3, 4], DType.float32)
     t[0, 3] = 0.5
     assert_almost_equal(t._get_float64(3), 0.5, tolerance=1e-6)
@@ -48,7 +51,8 @@ fn test_setitem_2d_col3() raises:
 
 
 fn test_setitem_2d_interior() raises:
-    """Test __setitem__ 2D: assign to [2, 2] in a [3, 4] tensor (flat index 10)."""
+    """Test __setitem__ 2D: assign to [2, 2] in a [3, 4] tensor (flat index 10).
+    """
     var t = zeros([3, 4], DType.float32)
     t[2, 2] = -1.0
     assert_almost_equal(t._get_float64(10), -1.0, tolerance=1e-6)
@@ -62,11 +66,12 @@ fn test_setitem_2d_interior() raises:
 
 
 fn test_setitem_2d_stride_correctness() raises:
-    """Test __setitem__ 2D: verify stride-based flat indices for a [5, 3] tensor."""
+    """Test __setitem__ 2D: verify stride-based flat indices for a [5, 3] tensor.
+    """
     # strides = [3, 1]
     var t = zeros([5, 3], DType.float32)
-    t[0, 0] = 1.0   # flat index 0
-    t[1, 0] = 0.5   # flat index 3
+    t[0, 0] = 1.0  # flat index 0
+    t[1, 0] = 0.5  # flat index 3
     t[2, 1] = -1.0  # flat index 7
     assert_almost_equal(t._get_float64(0), 1.0, tolerance=1e-6)
     assert_almost_equal(t._get_float64(3), 0.5, tolerance=1e-6)
@@ -77,7 +82,8 @@ fn test_setitem_2d_stride_correctness() raises:
 
 
 fn test_setitem_2d_does_not_overwrite_neighbors() raises:
-    """Test __setitem__ 2D: assigning [1, 1] in [3, 3] (flat 4) leaves neighbors at 0."""
+    """Test __setitem__ 2D: assigning [1, 1] in [3, 3] (flat 4) leaves neighbors at 0.
+    """
     # strides = [3, 1]
     var t = zeros([3, 3], DType.float32)
     t[1, 1] = 1.5
@@ -156,7 +162,8 @@ fn test_setitem_3d_interior() raises:
 
 
 fn test_setitem_2d_multiple_writes() raises:
-    """Test __setitem__ 2D: fill all elements of [3, 3] and verify with __getitem__(Int)."""
+    """Test __setitem__ 2D: fill all elements of [3, 3] and verify with __getitem__(Int).
+    """
     var t = zeros([3, 3], DType.float32)
     for i in range(3):
         for j in range(3):
@@ -177,7 +184,9 @@ fn test_setitem_3d_multiple_writes() raises:
                 var flat = i * 4 + j * 2 + k
                 t[i, j, k] = Float64(flat) * 0.5
     for flat in range(8):
-        assert_almost_equal(t._get_float64(flat), Float64(flat) * 0.5, tolerance=1e-6)
+        assert_almost_equal(
+            t._get_float64(flat), Float64(flat) * 0.5, tolerance=1e-6
+        )
 
 
 # ============================================================================
@@ -186,9 +195,10 @@ fn test_setitem_3d_multiple_writes() raises:
 
 
 fn test_setitem_2d_first_and_last() raises:
-    """Test __setitem__ 2D: assign to both corners [0,0] and [2,3] of [3, 4] tensor."""
+    """Test __setitem__ 2D: assign to both corners [0,0] and [2,3] of [3, 4] tensor.
+    """
     var t = zeros([3, 4], DType.float32)
-    t[0, 0] = 1.0   # flat index 0
+    t[0, 0] = 1.0  # flat index 0
     t[2, 3] = -1.0  # flat index 11
     assert_almost_equal(t._get_float64(0), 1.0, tolerance=1e-6)
     assert_almost_equal(t._get_float64(11), -1.0, tolerance=1e-6)
@@ -197,7 +207,8 @@ fn test_setitem_2d_first_and_last() raises:
 
 
 fn test_setitem_2d_zero_value() raises:
-    """Test __setitem__ 2D: assigning 0.0 to a pre-filled tensor zeros out element."""
+    """Test __setitem__ 2D: assigning 0.0 to a pre-filled tensor zeros out element.
+    """
     var t = full([3, 4], 1.5, DType.float32)
     t[1, 2] = 0.0  # flat index 6
     assert_almost_equal(t._get_float64(6), 0.0, tolerance=1e-6)
@@ -230,7 +241,9 @@ fn test_setitem_2d_out_of_bounds_raises() raises:
         t[3, 0] = 1.0  # row index 3 is out of bounds for size 3
     except:
         raised = True
-    assert_true(raised, "Expected Error for out-of-bounds index t[3, 0] on [3,4] tensor")
+    assert_true(
+        raised, "Expected Error for out-of-bounds index t[3, 0] on [3,4] tensor"
+    )
 
 
 fn test_setitem_2d_wrong_num_indices_raises() raises:

@@ -7,7 +7,10 @@ These tests verify that:
 - The error message matches the expected string.
 """
 
-from shared.training.precision_config import PrecisionConfig, _check_bf16_platform_support
+from shared.training.precision_config import (
+    PrecisionConfig,
+    _check_bf16_platform_support,
+)
 
 
 fn test_check_bf16_platform_support_raises_on_apple() raises:
@@ -30,15 +33,14 @@ fn test_check_bf16_platform_support_raises_on_apple() raises:
             )
 
     if not caught:
-        raise Error(
-            "_check_bf16_platform_support(True) should raise an error"
-        )
+        raise Error("_check_bf16_platform_support(True) should raise an error")
 
     print("✓ _check_bf16_platform_support raises on simulated Apple Silicon")
 
 
 fn test_check_bf16_platform_support_no_raise_on_non_apple() raises:
-    """Test that _check_bf16_platform_support does not raise when is_apple=False."""
+    """Test that _check_bf16_platform_support does not raise when is_apple=False.
+    """
     print("Testing _check_bf16_platform_support passes on non-Apple Silicon...")
 
     _check_bf16_platform_support(False)
@@ -47,7 +49,8 @@ fn test_check_bf16_platform_support_no_raise_on_non_apple() raises:
 
 
 fn test_bf16_succeeds_on_non_apple_silicon() raises:
-    """Test that PrecisionConfig.bf16() succeeds on Linux CI (non-Apple Silicon)."""
+    """Test that PrecisionConfig.bf16() succeeds on Linux CI (non-Apple Silicon).
+    """
     print("Testing PrecisionConfig.bf16() succeeds on non-Apple Silicon...")
 
     # On Linux CI, is_apple_silicon() returns False, so bf16() should not raise.

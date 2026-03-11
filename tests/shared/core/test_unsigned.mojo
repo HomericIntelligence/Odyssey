@@ -390,9 +390,7 @@ fn test_uint16_sub_underflow() raises:
     var one: UInt16 = 1
     var result = zero - one
     if result != 65535:
-        raise Error(
-            "UInt16(0) - 1 should wrap to 65535, got " + String(result)
-        )
+        raise Error("UInt16(0) - 1 should wrap to 65535, got " + String(result))
 
 
 fn test_uint16_mul_overflow() raises:
@@ -401,9 +399,7 @@ fn test_uint16_mul_overflow() raises:
     var b: UInt16 = 256
     var result = a * b
     if result != 0:
-        raise Error(
-            "UInt16(256) * 256 should wrap to 0, got " + String(result)
-        )
+        raise Error("UInt16(256) * 256 should wrap to 0, got " + String(result))
 
 
 fn test_uint32_add_overflow() raises:
@@ -445,9 +441,7 @@ fn test_uint64_add_overflow() raises:
     var one: UInt64 = 1
     var result = max_val + one
     if result != 0:
-        raise Error(
-            "UInt64(max) + 1 should wrap to 0, got " + String(result)
-        )
+        raise Error("UInt64(max) + 1 should wrap to 0, got " + String(result))
 
 
 fn test_uint64_sub_underflow() raises:

@@ -136,7 +136,8 @@ fn test_emnist_performance_random_access() raises:
 
 
 fn main() raises:
-    """Run EMNIST dataset tests - Part 3: Train/Test Splits, Edge Cases, Performance."""
+    """Run EMNIST dataset tests - Part 3: Train/Test Splits, Edge Cases, Performance.
+    """
     print("Running EMNIST dataset tests (Part 3)...")
 
     # Train/test size test

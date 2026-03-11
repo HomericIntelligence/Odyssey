@@ -184,7 +184,8 @@ fn test_linear_gradient_input() raises:
 
 
 fn main() raises:
-    """Run all gradient validation tests (Part 2: Tanh, GELU, Conv2D, Linear)."""
+    """Run all gradient validation tests (Part 2: Tanh, GELU, Conv2D, Linear).
+    """
     print("Running Gradient Validation Tests - Part 2...")
     print("=" * 60)
 

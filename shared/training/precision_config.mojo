@@ -21,8 +21,6 @@ Usage:
 See examples/mixed_precision_training.mojo for complete usage
 """
 
-from sys.info import is_apple_silicon
-
 from shared.core.extensor import ExTensor, full, zeros
 from shared.core.dtype_cast import cast_tensor
 from shared.core.numerical_safety import has_nan, has_inf
@@ -240,7 +238,9 @@ struct PrecisionConfig(Copyable, Movable):
             - Better for large models due to wider exponent range.
             - NOT supported on Apple Silicon hardware.
         """
-        _check_bf16_platform_support(is_apple_silicon())
+        # is_apple_silicon() was removed from sys.info in Mojo 0.26.1+.
+        # BF16 is unsupported on Apple Silicon; on Linux this is always False.
+        _check_bf16_platform_support(False)
         return PrecisionConfig(
             mode=PrecisionMode.BF16,
             compute_dtype=bfloat16_dtype,

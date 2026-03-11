@@ -405,7 +405,10 @@ fn test_pointwise_conv2d_backward() raises:
 
 
 fn main() raises:
-    print("Starting MobileNetV1 Layerwise Tests Part 1 (Depthwise + Pointwise Conv)...")
+    print(
+        "Starting MobileNetV1 Layerwise Tests Part 1 (Depthwise + Pointwise"
+        " Conv)..."
+    )
 
     print("  test_depthwise_conv2d_initialization...", end="")
     test_depthwise_conv2d_initialization()

@@ -97,11 +97,11 @@ fn python_dict_to_config(
             config = merge_configs(config, nested_config)
 
         elif val_type == "int":
-            var int_val = Int(val_obj)
+            var int_val = Int(py=val_obj)
             config.set(full_key, int_val)
 
         elif val_type == "float":
-            var float_val = Float64(val_obj)
+            var float_val = Float64(py=val_obj)
             config.set(full_key, float_val)
 
         elif val_type == "str":
