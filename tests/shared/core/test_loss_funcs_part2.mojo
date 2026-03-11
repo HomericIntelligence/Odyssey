@@ -1,0 +1,264 @@
+# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
+# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
+# high test load. Split from test_loss_funcs.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
+"""Unit tests for loss functions - Part 2.
+
+Tests cover:
+- mean_squared_error: Gradient shape validation
+- binary_cross_entropy: Forward and backward passes for binary classification
+- Integration: Cross-function property tests
+
+All tests use pure functional API - no internal state.
+"""
+
+from tests.shared.conftest import (
+    assert_almost_equal,
+    assert_equal,
+    assert_greater_or_equal,
+    assert_less_or_equal,
+    assert_true,
+    assert_close_float,
+)
+from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.loss import (
+    cross_entropy,
+    cross_entropy_backward,
+    mean_squared_error,
+    mean_squared_error_backward,
+    binary_cross_entropy,
+    binary_cross_entropy_backward,
+)
+from shared.core.reduction import mean
+
+
+# ============================================================================
+# Mean Squared Error Tests (continued)
+# ============================================================================
+
+
+fn test_mean_squared_error_backward_shape() raises:
+    """Test MSE backward produces gradients with same shape as input."""
+    var pred_shape = List[Int]()
+    pred_shape.append(4)
+    pred_shape.append(3)
+    var predictions = ones(pred_shape, DType.float32)
+
+    var targets_shape = List[Int]()
+    targets_shape.append(4)
+    targets_shape.append(3)
+    var targets = zeros(targets_shape, DType.float32)
+
+    var grad_output_shape = List[Int]()
+    grad_output_shape.append(4)
+    grad_output_shape.append(3)
+    var grad_output = ones(grad_output_shape, DType.float32)
+
+    var grad_pred = mean_squared_error_backward(
+        grad_output, predictions, targets
+    )
+
+    var grad_shape = grad_pred.shape()
+    assert_equal(grad_shape[0], 4, "Batch dimension preserved")
+    assert_equal(grad_shape[1], 3, "Feature dimension preserved")
+
+
+# ============================================================================
+# Binary Cross Entropy Tests
+# ============================================================================
+
+
+fn test_binary_cross_entropy_output_shape() raises:
+    """Test BCE output shape matches input shape."""
+    var pred_shape = List[Int]()
+    pred_shape.append(4)
+    var predictions = ones(pred_shape, DType.float32)
+
+    var targets_shape = List[Int]()
+    targets_shape.append(4)
+    var targets = zeros(targets_shape, DType.float32)
+
+    var loss = binary_cross_entropy(predictions, targets)
+
+    var loss_shape = loss.shape()
+    assert_equal(loss_shape[0], 4, "Output shape matches input")
+
+
+fn test_binary_cross_entropy_basic() raises:
+    """Test BCE on simple binary classification."""
+    var pred_shape = List[Int]()
+    pred_shape.append(2)
+    var predictions = zeros(pred_shape, DType.float32)
+
+    var pred_data = predictions._data.bitcast[Float32]()
+    pred_data[0] = 0.9  # High confidence in class 1
+    pred_data[1] = 0.1  # Low confidence in class 1
+
+    var targets_shape = List[Int]()
+    targets_shape.append(2)
+    var targets = zeros(targets_shape, DType.float32)
+
+    var targets_data = targets._data.bitcast[Float32]()
+    targets_data[0] = 1.0  # True label 1
+    targets_data[1] = 0.0  # True label 0
+
+    var loss = binary_cross_entropy(predictions, targets)
+
+    var loss_data = loss._data.bitcast[Float32]()
+    for i in range(2):
+        assert_greater_or_equal(loss_data[i], 0.0, "BCE loss non-negative")
+
+
+fn test_binary_cross_entropy_perfect_prediction() raises:
+    """Test BCE when prediction is perfect (loss approaches 0)."""
+    var pred_shape = List[Int]()
+    pred_shape.append(1)
+    var predictions = zeros(pred_shape, DType.float32)
+
+    var pred_data = predictions._data.bitcast[Float32]()
+    pred_data[0] = 0.99  # Near 1.0
+
+    var targets_shape = List[Int]()
+    targets_shape.append(1)
+    var targets = ones(targets_shape, DType.float32)
+
+    var loss = binary_cross_entropy(predictions, targets)
+
+    var loss_data = loss._data.bitcast[Float32]()
+    assert_less_or_equal(loss_data[0], 0.1, "Small loss for good prediction")
+
+
+fn test_binary_cross_entropy_backward() raises:
+    """Test BCE backward pass computes correct gradients."""
+    var pred_shape = List[Int]()
+    pred_shape.append(2)
+    var predictions = zeros(pred_shape, DType.float32)
+
+    var pred_data = predictions._data.bitcast[Float32]()
+    pred_data[0] = 0.7
+    pred_data[1] = 0.3
+
+    var targets_shape = List[Int]()
+    targets_shape.append(2)
+    var targets = zeros(targets_shape, DType.float32)
+
+    var targets_data = targets._data.bitcast[Float32]()
+    targets_data[0] = 1.0
+    targets_data[1] = 0.0
+
+    var grad_output_shape = List[Int]()
+    grad_output_shape.append(2)
+    var grad_output = ones(grad_output_shape, DType.float32)
+
+    var grad_pred = binary_cross_entropy_backward(
+        grad_output, predictions, targets
+    )
+
+    var grad_shape = grad_pred.shape()
+    assert_equal(grad_shape[0], 2, "Gradient shape matches input")
+
+
+# ============================================================================
+# Integration Tests
+# ============================================================================
+
+
+fn test_loss_non_negative() raises:
+    """Test that all loss functions produce non-negative values."""
+    var pred_shape = List[Int]()
+    pred_shape.append(4)
+    var predictions = ones(pred_shape, DType.float32)
+
+    var targets_shape = List[Int]()
+    targets_shape.append(4)
+    var targets = zeros(targets_shape, DType.float32)
+
+    var mse_loss = mean_squared_error(predictions, targets)
+    var bce_loss = binary_cross_entropy(predictions, targets)
+
+    var mse_data = mse_loss._data.bitcast[Float32]()
+    var bce_data = bce_loss._data.bitcast[Float32]()
+
+    for i in range(4):
+        assert_greater_or_equal(mse_data[i], 0.0, "MSE non-negative")
+        assert_greater_or_equal(bce_data[i], 0.0, "BCE non-negative")
+
+
+fn test_loss_gradient_shape_consistency() raises:
+    """Test that backward passes produce gradients matching input shape."""
+    var pred_shape = List[Int]()
+    pred_shape.append(3)
+    pred_shape.append(4)
+    var predictions = ones(pred_shape, DType.float32)
+
+    var targets_shape = List[Int]()
+    targets_shape.append(3)
+    targets_shape.append(4)
+    var targets = zeros(targets_shape, DType.float32)
+
+    var grad_output_shape = List[Int]()
+    grad_output_shape.append(3)
+    grad_output_shape.append(4)
+    var grad_output = ones(grad_output_shape, DType.float32)
+
+    var grad_mse = mean_squared_error_backward(
+        grad_output, predictions, targets
+    )
+
+    var grad_shape = grad_mse.shape()
+    assert_equal(grad_shape[0], 3, "Gradient batch dimension matches")
+    assert_equal(grad_shape[1], 4, "Gradient feature dimension matches")
+
+
+fn test_mse_symmetric() raises:
+    """Test that MSE is symmetric in predictions and targets order."""
+    var shape = List[Int]()
+    shape.append(3)
+    var a = zeros(shape, DType.float32)
+    var b = zeros(shape, DType.float32)
+
+    var a_data = a._data.bitcast[Float32]()
+    var b_data = b._data.bitcast[Float32]()
+
+    for i in range(3):
+        a_data[i] = Float32(i)
+        b_data[i] = Float32(i + 1)
+
+    var loss_ab = mean_squared_error(a, b)
+    var loss_ba = mean_squared_error(b, a)
+
+    var loss_ab_data = loss_ab._data.bitcast[Float32]()
+    var loss_ba_data = loss_ba._data.bitcast[Float32]()
+
+    for i in range(3):
+        assert_almost_equal(loss_ab_data[i], loss_ba_data[i], tolerance=1e-5)
+
+
+fn main() raises:
+    """Run loss function tests - Part 2."""
+    print("Running loss function tests (Part 2)...")
+
+    test_mean_squared_error_backward_shape()
+    print("✓ test_mean_squared_error_backward_shape")
+
+    test_binary_cross_entropy_output_shape()
+    print("✓ test_binary_cross_entropy_output_shape")
+
+    test_binary_cross_entropy_basic()
+    print("✓ test_binary_cross_entropy_basic")
+
+    test_binary_cross_entropy_perfect_prediction()
+    print("✓ test_binary_cross_entropy_perfect_prediction")
+
+    test_binary_cross_entropy_backward()
+    print("✓ test_binary_cross_entropy_backward")
+
+    test_loss_non_negative()
+    print("✓ test_loss_non_negative")
+
+    test_loss_gradient_shape_consistency()
+    print("✓ test_loss_gradient_shape_consistency")
+
+    test_mse_symmetric()
+    print("✓ test_mse_symmetric")
+
+    print("\nAll loss function tests (Part 2) passed!")
