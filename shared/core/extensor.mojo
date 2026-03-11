@@ -3215,11 +3215,11 @@ struct ExTensor(
 
         # Canonical quiet NaN bit pattern for Float64 (IEEE 754: exponent all-ones,
         # MSB of mantissa set, zero payload, positive sign).
-        comptime CANONICAL_NAN_F64: UInt64 = 0x7FF8000000000000
+        alias CANONICAL_NAN_F64: UInt64 = 0x7FF8000000000000
         # NaN detection mask for Float64: if (bits & 0x7FFFFFFFFFFFFFFF) > 0x7FF0000000000000,
         # then exponent is all-ones and mantissa is non-zero => NaN.
-        comptime F64_INF_BITS: UInt64 = 0x7FF0000000000000
-        comptime F64_ABS_MASK: UInt64 = 0x7FFFFFFFFFFFFFFF
+        alias F64_INF_BITS: UInt64 = 0x7FF0000000000000
+        alias F64_ABS_MASK: UInt64 = 0x7FFFFFFFFFFFFFFF
 
         # Hash shape
         for i in range(len(self._shape)):
