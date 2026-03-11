@@ -66,6 +66,20 @@
         "open_count_after": 570,
         "success_rate": "100%"
       }
+    },
+    {
+      "name": "fix-mojo-nightly-compat",
+      "category": "debugging",
+      "description": "Fix CI failures from Mojo stable vs nightly version mismatch: String[byte=] removal, alias->comptime, owned->var, mojo format crashes",
+      "tags": ["mojo", "ci-fix", "nightly", "deprecation", "formatter", "compatibility"],
+      "skillPath": "skills/fix-mojo-nightly-compat/SKILL.md",
+      "referencesPath": "skills/fix-mojo-nightly-compat/references/notes.md",
+      "metrics": {
+        "files_fixed": 16,
+        "warnings_resolved": 55,
+        "compilation_errors_fixed": 14,
+        "upstream_issues_filed": 1
+      }
     }
   ]
 }
