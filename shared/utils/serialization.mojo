@@ -531,8 +531,8 @@ fn bytes_to_hex(data: UnsafePointer[UInt8], num_bytes: Int) -> String:
         var byte = Int(data[i])
         var high = (byte >> 4) & 0xF
         var low = byte & 0xF
-        result += hex_chars[byte=high]
-        result += hex_chars[byte=low]
+        result += chr(Int(hex_chars.as_bytes()[high]))
+        result += chr(Int(hex_chars.as_bytes()[low]))
 
     return result
 
@@ -563,8 +563,8 @@ fn hex_to_bytes(hex_str: String, tensor: ExTensor) raises:
 
     var output = tensor._data
     for i in range(0, length, 2):
-        var high = _hex_char_to_int(String(hex_str[byte=i]))
-        var low = _hex_char_to_int(String(hex_str[byte = i + 1]))
+        var high = _hex_char_to_int(chr(Int(hex_str.as_bytes()[i])))
+        var low = _hex_char_to_int(chr(Int(hex_str.as_bytes()[i + 1])))
         var offset = i // 2
         output[offset] = UInt8((high << 4) | low)
 

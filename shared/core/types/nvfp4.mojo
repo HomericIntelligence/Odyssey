@@ -626,7 +626,7 @@ fn hex(val: Int) -> String:
     var result = String("")
     var v = val if val >= 0 else -val
     while v > 0:
-        result = digits[byte = v % 16] + result
+        result = chr(Int(digits.as_bytes()[v % 16])) + result
         v //= 16
     return result
 
