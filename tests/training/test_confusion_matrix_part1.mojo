@@ -437,7 +437,8 @@ fn test_confusion_matrix_f1_score() raises:
 
 
 fn main() raises:
-    """Run confusion matrix tests (Part 1): basic, normalization, and derived metrics."""
+    """Run confusion matrix tests (Part 1): basic, normalization, and derived metrics.
+    """
     print("\n" + "=" * 70)
     print("CONFUSION MATRIX TEST SUITE - PART 1")
     print("=" * 70 + "\n")

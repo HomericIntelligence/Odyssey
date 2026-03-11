@@ -119,8 +119,12 @@ fn test_synthetic_classification_data_many_classes() raises:
 
 
 fn main() raises:
-    """Run random_normal distribution and synthetic classification shape tests (Part 3)."""
-    print("Running random_normal distribution and synthetic data tests (Part 3)...")
+    """Run random_normal distribution and synthetic classification shape tests (Part 3).
+    """
+    print(
+        "Running random_normal distribution and synthetic data tests (Part"
+        " 3)..."
+    )
 
     test_random_normal_distribution_sanity()
     print("✓ random_normal distribution sanity")
