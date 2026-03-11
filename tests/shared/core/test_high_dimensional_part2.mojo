@@ -176,7 +176,10 @@ fn test_large_1d_tensor() raises:
 
 fn main() raises:
     """Run Part 2 high-dimensional tensor tests (6D/7D, broadcasting, large)."""
-    print("Running high-dimensional tensor tests (Part 2: 6D/7D, broadcasting, large)...")
+    print(
+        "Running high-dimensional tensor tests (Part 2: 6D/7D, broadcasting,"
+        " large)..."
+    )
 
     print("  Testing 6D tensor operations...")
     test_6d_tensor_creation()

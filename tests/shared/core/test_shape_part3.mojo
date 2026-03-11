@@ -182,7 +182,8 @@ fn test_flatten_to_2d_basic() raises:
 
 
 fn main() raises:
-    """Run shape manipulation tests part 3 (repeat, broadcast_to, permute, dtype, flatten_to_2d)."""
+    """Run shape manipulation tests part 3 (repeat, broadcast_to, permute, dtype, flatten_to_2d).
+    """
     print("Running ExTensor shape manipulation tests (part 3)...")
 
     # repeat() tests

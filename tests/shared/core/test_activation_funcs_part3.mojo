@@ -223,7 +223,9 @@ fn test_relu_gradient_mask() raises:
 
 fn main() raises:
     """Run activation tests - Part 3: Softmax (axis) and Integration."""
-    print("Running activation tests - Part 3: Softmax (axis) and Integration...")
+    print(
+        "Running activation tests - Part 3: Softmax (axis) and Integration..."
+    )
 
     test_softmax_axis_0()
     print("✓ test_softmax_axis_0")

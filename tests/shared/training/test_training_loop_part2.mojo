@@ -333,7 +333,8 @@ fn test_training_loop_property_loss_decreases_on_simple_problem() raises:
 
 
 fn main() raises:
-    """Run training loop part 2 tests (backward pass, weight updates, batch processing)."""
+    """Run training loop part 2 tests (backward pass, weight updates, batch processing).
+    """
     print("Running backward pass tests...")
     test_training_loop_backward_pass()
     test_training_loop_gradient_accumulation()

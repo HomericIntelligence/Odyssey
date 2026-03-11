@@ -189,7 +189,8 @@ fn test_ravel_view() raises:
 
 
 fn main() raises:
-    """Run shape manipulation tests part 1 (reshape, squeeze, unsqueeze, flatten)."""
+    """Run shape manipulation tests part 1 (reshape, squeeze, unsqueeze, flatten).
+    """
     print("Running ExTensor shape manipulation tests (part 1)...")
 
     # reshape() tests

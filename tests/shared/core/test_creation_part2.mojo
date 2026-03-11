@@ -144,7 +144,10 @@ fn test_from_array_1d() raises:
 
 fn main() raises:
     """Run full(), empty(), and from_array() placeholder creation tests."""
-    print("Running ExTensor creation tests - Part 2: full(), empty(), from_array()...")
+    print(
+        "Running ExTensor creation tests - Part 2: full(), empty(),"
+        " from_array()..."
+    )
 
     # full() tests
     test_full_positive_value()

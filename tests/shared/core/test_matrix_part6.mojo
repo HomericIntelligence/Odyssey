@@ -222,7 +222,8 @@ fn test_transpose_axes_backward_3d() raises:
 
 
 fn test_transpose_axes_double_permutation() raises:
-    """Test that transpose(transpose(x, axes), inverse_axes) recovers original."""
+    """Test that transpose(transpose(x, axes), inverse_axes) recovers original.
+    """
     var shape = List[Int]()
     shape.append(2)
     shape.append(3)
@@ -272,9 +273,7 @@ fn test_transpose_axes_double_permutation() raises:
 
 fn main() raises:
     """Run advanced transpose axes tests."""
-    print(
-        "Running matrix operation tests - Part 6: Transpose Axes Advanced..."
-    )
+    print("Running matrix operation tests - Part 6: Transpose Axes Advanced...")
 
     print("\n=== Transpose: Custom Axes Permutation (continued) ===")
     test_transpose_axes_default_none()

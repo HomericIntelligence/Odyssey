@@ -814,14 +814,49 @@ fn transpose(
     for axis in perm.value():
         result_shape.append(input_shape[axis])
 
-    # Build result strides by permuting input strides (view semantics).
-    # The input tensor's strides are permuted according to axes so that
-    # element access through the view produces the transposed layout.
-    var result_strides = List[Int](capacity=ndim)
-    for axis in perm.value():
-        result_strides.append(tensor._strides[axis])
+    # Compute input strides (C-order) for multi-index arithmetic
+    var input_strides = List[Int](capacity=ndim)
+    var stride = 1
+    for i in range(ndim - 1, -1, -1):
+        input_strides.append(stride)
+        stride *= input_shape[i]
+    # Reverse to get strides in dimension order
+    var ordered_strides = List[Int](capacity=ndim)
+    for i in range(len(input_strides) - 1, -1, -1):
+        ordered_strides.append(input_strides[i])
 
-    return tensor.view_with_strides(result_shape, result_strides)
+    # Allocate result tensor with permuted shape
+    var result = ExTensor(result_shape, tensor.dtype())
+    var numel = tensor.numel()
+
+    # Copy data element-by-element using multi-index decomposition
+    for flat_idx in range(numel):
+        # Decompose flat index into multi-index of input tensor
+        var remaining = flat_idx
+        var src_indices = List[Int](capacity=ndim)
+        for d in range(ndim):
+            src_indices.append(remaining // ordered_strides[d])
+            remaining = remaining % ordered_strides[d]
+
+        # Apply permutation: dst_indices[i] = src_indices[perm[i]]
+        # Compute destination flat index using result's C-order strides
+        var dst_flat = 0
+        var dst_stride = 1
+        for d in range(ndim - 1, -1, -1):
+            dst_flat += src_indices[perm.value()[d]] * dst_stride
+            dst_stride *= result_shape[d]
+
+        # Copy element
+        if tensor.dtype() == DType.float32:
+            result._set_float32(dst_flat, tensor._get_float32(flat_idx))
+        elif tensor.dtype() == DType.float64:
+            result._set_float64(dst_flat, tensor._get_float64(flat_idx))
+        elif tensor.dtype() == DType.int64:
+            result._set_int64(dst_flat, tensor._get_int64(flat_idx))
+        else:
+            result._set_float32(dst_flat, tensor._get_float32(flat_idx))
+
+    return result^
 
 
 fn transpose_view(

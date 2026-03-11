@@ -136,7 +136,10 @@ fn test_maxpool2_forward_float16() raises:
 
 
 fn main() raises:
-    print("Starting AlexNet Layerwise Tests - Part 3 (ReLU, MaxPool1, MaxPool2)...")
+    print(
+        "Starting AlexNet Layerwise Tests - Part 3 (ReLU, MaxPool1,"
+        " MaxPool2)..."
+    )
 
     # ReLU tests
     print("  test_relu_forward_float32...", end="")

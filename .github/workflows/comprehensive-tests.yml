@@ -203,26 +203,27 @@ jobs:
       fail-fast: false  # Continue running other groups even if one fails
       matrix:
         test-group:
-          # ---- Core tensor operations (large group, kept separate for signal) ----
+          # ---- Core tensor operations ----
+          # Uses wildcards to auto-include split files (*_part1, *_part2, etc.)
           - name: "Core Tensors"
             path: "tests/shared/core"
-            pattern: "test_tensors.mojo test_arithmetic_part1.mojo test_arithmetic_part2.mojo test_arithmetic_part3.mojo test_arithmetic_part4.mojo test_arithmetic_part5.mojo test_arithmetic_part6.mojo test_arithmetic_part7.mojo test_arithmetic_part8.mojo test_arithmetic_contiguous.mojo test_arithmetic_backward.mojo test_broadcasting.mojo test_shape.mojo test_shape_regression.mojo test_shape_edge_cases.mojo test_creation.mojo test_reduction.mojo test_reduction_forward.mojo test_reduction_edge_cases.mojo test_matrix.mojo test_matrix_edge_cases_part1.mojo test_matrix_edge_cases_part2.mojo test_matmul.mojo test_strassen.mojo test_pooling.mojo test_properties.mojo test_high_dimensional.mojo test_slicing.mojo"
-          # ---- Activations + dtype dispatch (unrelated to gradient math) ----
+            pattern: "test_tensors*.mojo test_arithmetic*.mojo test_broadcasting*.mojo test_shape*.mojo test_creation*.mojo test_reduction*.mojo test_matrix*.mojo test_matmul*.mojo test_strassen.mojo test_pooling*.mojo test_properties*.mojo test_high_dimensional*.mojo test_slicing*.mojo"
+          # ---- Activations + dtype dispatch ----
           - name: "Core Activations & Types"
             path: "tests/shared/core"
-            pattern: "test_activations.mojo test_activation_funcs.mojo test_activation_ops.mojo test_advanced_activations.mojo test_unsigned.mojo test_uint_bitwise_not.mojo test_dtype_dispatch.mojo test_dtype_ordinal.mojo test_elementwise.mojo test_elementwise_dispatch_part1.mojo test_elementwise_dispatch_part2.mojo test_elementwise_dispatch_part3.mojo test_elementwise_dispatch_part4.mojo test_elementwise_dispatch_part5.mojo test_elementwise_dispatch_part6.mojo test_elementwise_forward.mojo test_elementwise_edge_cases.mojo test_comparison_ops.mojo test_edge_cases.mojo"
-          # ---- Loss functions split per ADR-009 (≤8 tests/file to avoid heap corruption) ----
+            pattern: "test_activations*.mojo test_activation_funcs*.mojo test_activation_ops.mojo test_advanced_activations*.mojo test_unsigned.mojo test_uint_bitwise_not.mojo test_dtype_dispatch*.mojo test_dtype_ordinal.mojo test_elementwise*.mojo test_comparison_ops*.mojo test_edge_cases*.mojo"
+          # ---- Loss functions split per ADR-009 ----
           - name: "Core Loss"
             path: "tests/shared/core"
-            pattern: "test_losses_part1.mojo test_losses_part2.mojo test_losses_part3.mojo test_losses_part4.mojo test_loss_funcs.mojo test_loss_utils_part1.mojo test_loss_utils_part2.mojo test_loss_utils_part3.mojo test_loss_utils_part4.mojo"
-          # ---- Gradient math (kept separate - frequently fails independently) ----
+            pattern: "test_losses_part*.mojo test_loss_funcs*.mojo test_loss_utils_part*.mojo"
+          # ---- Gradient math ----
           - name: "Core Gradient"
             path: "tests/shared/core"
-            # test_backward and test_gradient_checking/validation split per ADR-009
             pattern: "test_backward_linear.mojo test_backward_conv_pool.mojo test_backward_losses.mojo test_gradient_checking_basic.mojo test_gradient_checking_dtype.mojo test_gradient_validation_activations.mojo test_gradient_validation_layers.mojo test_gradient_validation_part1.mojo test_gradient_validation_part2.mojo test_variable_backward.mojo"
+          # ---- Core Utilities ----
           - name: "Core Utilities"
             path: "tests/shared/core"
-            pattern: "test_utilities.mojo test_utility.mojo test_utils.mojo test_validation.mojo test_validation_extended.mojo test_integration.mojo test_inplace_simd.mojo test_lazy_expression.mojo test_memory_pool_part1.mojo test_memory_pool_part2.mojo test_constants.mojo test_extensor_getset_float32.mojo test_extensor_inplace_ops.mojo test_extensor_randn.mojo test_extensor_reflected_ops.mojo test_extensor_serialization.mojo test_extensor_slicing.mojo test_extensor_unary_ops.mojo test_extensor_dtype_roundtrip.mojo test_extensor_method_api.mojo test_extensor_setitem_multidim.mojo test_memory_leaks.mojo test_initializers_part1.mojo test_initializers_part2.mojo test_initializers_part3.mojo test_initializers_part4.mojo test_initializers_part5.mojo test_initializers_part6.mojo test_initializers_validation.mojo test_layers.mojo test_linear.mojo test_conv.mojo test_normalization.mojo test_dropout_part1.mojo test_dropout_part2.mojo test_module.mojo test_composed_op.mojo test_hash.mojo test_sequential.mojo"
+            pattern: "test_utilities.mojo test_utility*.mojo test_utils*.mojo test_validation*.mojo test_integration*.mojo test_inplace_simd.mojo test_lazy_expression.mojo test_memory_pool_part*.mojo test_constants.mojo test_extensor_*.mojo test_memory_leaks*.mojo test_initializers_*.mojo test_layers*.mojo test_linear*.mojo test_conv*.mojo test_normalization*.mojo test_dropout_part*.mojo test_module.mojo test_composed_op*.mojo test_hash.mojo test_sequential.mojo"
           # ---- All data subsystems (formats/datasets/samplers/transforms/loaders) ----
           # NOTE: Some data tests (test_prefetch, test_random_transform_base) crash
           # on CI with heap corruption — non-blocking pending investigation
@@ -257,13 +258,13 @@ jobs:
           # to avoid Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so JIT fault)
           - name: "Shared Infra & Testing"
             path: "tests/shared"
-            pattern: "test_imports.mojo test_data_generators_part1.mojo test_data_generators_part2.mojo test_data_generators_part3.mojo test_data_generators_part4.mojo test_model_utils.mojo test_serialization.mojo utils/test_*.mojo fixtures/test_*.mojo training/test_*.mojo testing/test_*.mojo"
+            pattern: "test_imports*.mojo test_data_generators_part*.mojo test_model_utils.mojo test_serialization.mojo utils/test_*.mojo fixtures/test_*.mojo training/test_*.mojo testing/test_*.mojo"
           # ---- Model layer tests (the main PR-blocking test suite) ----
           # ADR-009: test_googlenet_layers.mojo split into 3 parts (≤8 tests each)
           # to avoid Mojo v0.26.1 heap corruption under high test load.
           - name: "Models"
             path: "tests/models"
-            pattern: "test_*_layers.mojo test_googlenet_layers_part1.mojo test_googlenet_layers_part2.mojo test_googlenet_layers_part3.mojo test_mobilenetv1_layers_part1.mojo test_mobilenetv1_layers_part2.mojo test_mobilenetv1_layers_part3.mojo test_resnet18_layers_part1.mojo test_resnet18_layers_part2.mojo test_heap_corruption_combined_part1.mojo test_heap_corruption_combined_part2.mojo test_heap_corruption_combined_part3.mojo"
+            pattern: "test_*.mojo"
           # ---- Top-level, debug, helpers, tooling, fuzz (low-frequency failures) ----
           - name: "Misc Tests"
             path: "tests"

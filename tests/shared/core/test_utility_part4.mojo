@@ -158,7 +158,8 @@ fn test_diff_higher_order() raises:
 
 
 fn main() raises:
-    """Run utility operation tests - Part 4: conversions, str/repr, hash, and diff."""
+    """Run utility operation tests - Part 4: conversions, str/repr, hash, and diff.
+    """
     print("Running ExTensor utility operation tests (Part 4)...")
 
     # Type conversions

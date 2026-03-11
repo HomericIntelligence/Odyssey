@@ -152,8 +152,12 @@ fn test_6d_mixed_arithmetic() raises:
 
 
 fn main() raises:
-    """Run Part 3 high-dimensional tensor tests (large tensors, precision, numerical behavior)."""
-    print("Running high-dimensional tensor tests (Part 3: large tensors, precision, numerical behavior)...")
+    """Run Part 3 high-dimensional tensor tests (large tensors, precision, numerical behavior).
+    """
+    print(
+        "Running high-dimensional tensor tests (Part 3: large tensors,"
+        " precision, numerical behavior)..."
+    )
 
     print("  Testing large tensor operations...")
     test_large_multidimensional()

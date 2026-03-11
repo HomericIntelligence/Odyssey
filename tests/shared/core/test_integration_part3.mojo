@@ -121,7 +121,8 @@ fn test_large_tensor_operations() raises:
 
 
 fn main() raises:
-    """Run integration tests part 3: identity elements, scalar, and large tensor ops."""
+    """Run integration tests part 3: identity elements, scalar, and large tensor ops.
+    """
     print("Running ExTensor integration tests (part 3)...")
 
     # Identity elements

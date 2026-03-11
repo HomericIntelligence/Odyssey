@@ -151,7 +151,10 @@ fn test_linspace_large_num() raises:
 
 fn main() raises:
     """Run eye() (rectangular/offset) and linspace() creation tests."""
-    print("Running ExTensor creation tests - Part 4: eye() rectangular/offset and linspace()...")
+    print(
+        "Running ExTensor creation tests - Part 4: eye() rectangular/offset and"
+        " linspace()..."
+    )
 
     # eye() tests
     test_eye_rectangular()

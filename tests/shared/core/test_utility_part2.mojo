@@ -164,7 +164,8 @@ fn test_tolist_nested() raises:
 
 
 fn main() raises:
-    """Run utility operation tests - Part 2: contiguity, item(), and tolist()."""
+    """Run utility operation tests - Part 2: contiguity, item(), and tolist().
+    """
     print("Running ExTensor utility operation tests (Part 2)...")
 
     # Contiguity

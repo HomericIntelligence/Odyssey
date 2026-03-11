@@ -153,8 +153,12 @@ fn test_eye_square() raises:
 
 
 fn main() raises:
-    """Run from_array() placeholder, arange(), and eye() (square) creation tests."""
-    print("Running ExTensor creation tests - Part 3: from_array placeholders, arange(), eye()...")
+    """Run from_array() placeholder, arange(), and eye() (square) creation tests.
+    """
+    print(
+        "Running ExTensor creation tests - Part 3: from_array placeholders,"
+        " arange(), eye()..."
+    )
 
     # from_array() placeholder tests
     test_from_array_2d()

@@ -120,7 +120,10 @@ fn test_full_pattern() raises:
 
 fn main() raises:
     """Run scalar dim, value access, and creation pattern tests (Part 4)."""
-    print("Running ExTensor scalar dim, value access, and creation pattern tests (Part 4)...")
+    print(
+        "Running ExTensor scalar dim, value access, and creation pattern tests"
+        " (Part 4)..."
+    )
 
     # Scalar dim test
     print("  Testing scalar dimension query...")
