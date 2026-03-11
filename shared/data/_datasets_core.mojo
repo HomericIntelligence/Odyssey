@@ -234,7 +234,7 @@ struct FileDataset(Copyable, Dataset, Movable):
         # Determine file extension
         var ext_idx = -1
         for i in range(len(path) - 1, -1, -1):
-            if path[byte=i] == ".":
+            if chr(Int(path.as_bytes()[i])) == ".":
                 ext_idx = i
                 break
 
@@ -244,7 +244,7 @@ struct FileDataset(Copyable, Dataset, Movable):
         # Extract extension (convert to lowercase for comparison)
         var ext = String()
         for i in range(ext_idx + 1, len(path)):
-            var c = path[byte=i]
+            var c = chr(Int(path.as_bytes()[i]))
             # Convert uppercase to lowercase
             if c >= "A" and c <= "Z":
                 ext += String(chr(ord(c) + 32))
