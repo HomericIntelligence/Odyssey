@@ -21,8 +21,6 @@ Usage:
 See examples/mixed_precision_training.mojo for complete usage
 """
 
-from sys.info import is_apple_m1
-
 from shared.core.extensor import ExTensor, full, zeros
 from shared.core.dtype_cast import cast_tensor
 from shared.core.numerical_safety import has_nan, has_inf
@@ -224,12 +222,6 @@ struct PrecisionConfig(Copyable, Movable):
             - Precision: ~2 decimal digits (less than FP16).
             - Better for large models due to wider exponent range.
         """
-        @parameter
-        if is_apple_m1():
-            print(
-                "Warning: BF16 (DType.bfloat16) is not supported on Apple"
-                " Silicon hardware. Use PrecisionConfig.fp16() instead."
-            )
         return PrecisionConfig(
             mode=PrecisionMode.BF16,
             compute_dtype=bfloat16_dtype,
