@@ -121,15 +121,15 @@ fn test_training_loop_full_epoch() raises:
     assert_greater(Float64(avg_loss), Float64(-0.001))
 
     # Create a real DataLoader with 2D data (num_samples x input_dim)
-    var data = ones([10, 10], DType.float32)
-    var labels = zeros([10, 1], DType.float32)
-    var data_loader = DataLoader(data^, labels^, 5)
+    var data2 = ones([10, 10], DType.float32)
+    var labels2 = zeros([10, 1], DType.float32)
+    var data_loader2 = DataLoader(data2^, labels2^, 5)
 
     # Run one epoch with real DataLoader
-    var avg_loss = training_loop.run_epoch(data_loader)
+    var avg_loss2 = training_loop.run_epoch(data_loader2)
 
     # Verify average loss is a valid number (non-negative for MSE)
-    assert_greater(Float64(avg_loss), Float64(-0.001))
+    assert_greater(Float64(avg_loss2), Float64(-0.001))
 
     print("  test_training_loop_full_epoch: PASSED")
 
