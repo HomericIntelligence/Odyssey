@@ -27,7 +27,7 @@ from tests.shared.conftest import (
 # ============================================================================
 
 
-struct IdentityModule:
+struct IdentityModule(Module, Movable):
     """Module that passes input through unchanged.
 
     Used to verify that Sequential chains without mutating data.
@@ -68,7 +68,7 @@ struct IdentityModule:
         self.is_training = False
 
 
-struct ScaleModule:
+struct ScaleModule(Module, Movable):
     """Module that scales all elements by a constant factor.
 
     Used to verify that Sequential chains produce correct numerical outputs.
@@ -165,7 +165,7 @@ struct CountingModule:
         self.is_training = False
 
 
-struct DummyModuleWithParams:
+struct DummyModuleWithParams(Module, Movable):
     """Module with a fixed number of dummy parameters.
 
     Used to test parameter collection in Sequential containers.
