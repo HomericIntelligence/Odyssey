@@ -68,6 +68,20 @@
       }
     },
     {
+      "name": "fix-conflicting-prs-and-ci",
+      "category": "ci-cd",
+      "description": "Batch rebase conflicting PR branches, resolve merge conflicts, and fix CI failures (compilation, formatting, test coverage) on main",
+      "tags": ["git", "rebase", "ci-fix", "mojo", "formatting", "conflict-resolution", "workflow"],
+      "skillPath": "skills/fix-conflicting-prs-and-ci/SKILL.md",
+      "referencesPath": "skills/fix-conflicting-prs-and-ci/references/notes.md",
+      "metrics": {
+        "branches_rebased": 7,
+        "ci_failures_fixed": 5,
+        "formatting_files_patched": 34,
+        "test_files_covered": 140
+      }
+    },
+    {
       "name": "fix-mojo-nightly-compat",
       "category": "debugging",
       "description": "Fix CI failures from Mojo stable vs nightly version mismatch: String[byte=] removal, alias->comptime, owned->var, mojo format crashes",
