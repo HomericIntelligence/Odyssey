@@ -2952,8 +2952,8 @@ struct ExTensor(
 
         Note:
             The hash is computed from the tensor's shape dimensions, dtype ordinal,
-            and raw bit patterns of all element values. NaN values with different
-            bit representations will hash differently.
+            and element values. All NaN values are canonicalized before hashing,
+            so tensors differing only in NaN bit patterns hash equally.
 
         Example:
             ```mojo
@@ -2977,11 +2977,19 @@ struct ExTensor(
             hasher.update(self._shape[i])
         # Hash dtype ordinal
         hasher.update(dtype_to_ordinal(self._dtype))
-        # Hash data
+        # Hash data — canonicalize NaN so all NaN bit patterns hash equally
+        from math import isnan
+
         for i in range(self._numel):
             var val = self._get_float64(i)
-            var int_bits = UnsafePointer[Float64](to=val).bitcast[UInt64]()[]
-            hasher.update(int_bits)
+            if isnan(val):
+                # Canonical NaN: positive quiet NaN (0x7FF8000000000000)
+                hasher.update(UInt64(0x7FF8000000000000))
+            else:
+                var int_bits = UnsafePointer[Float64](to=val).bitcast[
+                    UInt64
+                ]()[]
+                hasher.update(int_bits)
 
     fn contiguous(self) raises -> ExTensor:
         """Return a contiguous copy of the tensor.
