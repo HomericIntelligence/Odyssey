@@ -155,6 +155,7 @@ fn test_dataloader_basic() raises:
     data_shape.append(5)
     var data = ExTensor(data_shape, DType.float32)
     var labels_shape = List[Int]()
+    labels_shape.append(10)
     var labels = ExTensor(labels_shape, DType.int32)
 
     var loader = DataLoader(data, labels, batch_size=3)
@@ -175,6 +176,7 @@ fn test_dataloader_iteration() raises:
     data_shape.append(5)
     var data = ExTensor(data_shape, DType.float32)
     var labels_shape = List[Int]()
+    labels_shape.append(10)
     var labels = ExTensor(labels_shape, DType.int32)
 
     var loader = DataLoader(data, labels, batch_size=3)
@@ -184,7 +186,7 @@ fn test_dataloader_iteration() raises:
 
     var batch_count = 0
     while loader.has_next():
-        var batch = loader.next()
+        _ = loader.next()
         batch_count += 1
 
     assert_equal(batch_count, 4, "Iterated over all batches")

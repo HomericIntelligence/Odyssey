@@ -571,6 +571,9 @@ fn test_hash_different_dtypes_differ() raises:
         raise Error(
             "float32 and float64 tensors with same values should have different"
             " hashes"
+        )
+
+
 fn test_hash_different_shapes_differ() raises:
     """Test that tensors with same data but different shapes produce different hashes."""
     # Create [3] tensor with values [1, 2, 3]

@@ -26,7 +26,7 @@ fn test_str_single_element() raises:
 
 fn test_str_small_tensor_no_truncation() raises:
     """Test __str__ for tensor with numel <= 1000 shows all elements."""
-    var t = arange(5, DType.float32)
+    var t = arange(0.0, 5.0, 1.0, DType.float32)
     var s = String(t)
     # Should contain all values
     assert_true(s.startswith("ExTensor(["))
@@ -39,7 +39,7 @@ fn test_str_small_tensor_no_truncation() raises:
 fn test_str_exactly_threshold_no_truncation() raises:
     """Test __str__ for tensor with exactly 1000 elements shows all (no truncation).
     """
-    var t = arange(1000, DType.float32)
+    var t = arange(0.0, 1000.0, 1.0, DType.float32)
     var s = String(t)
     # At exactly 1000, no truncation — all values shown
     assert_true("..." not in s)
@@ -49,7 +49,7 @@ fn test_str_exactly_threshold_no_truncation() raises:
 
 fn test_str_large_tensor_truncation() raises:
     """Test __str__ for tensor with numel > 1000 shows truncated form."""
-    var t = arange(1001, DType.float32)
+    var t = arange(0.0, 1001.0, 1.0, DType.float32)
     var s = String(t)
     assert_true("..." in s)
     assert_true("0.0" in s)
@@ -62,7 +62,7 @@ fn test_str_large_tensor_truncation() raises:
 
 fn test_str_large_tensor_format() raises:
     """Test __str__ produces correct format for large tensor."""
-    var t = arange(2000, DType.float32)
+    var t = arange(0.0, 2000.0, 1.0, DType.float32)
     var s = String(t)
     # Must start and end correctly
     assert_true(s.startswith("ExTensor([0.0, 1.0, 2.0, ..."))
@@ -74,12 +74,12 @@ fn test_str_large_tensor_format() raises:
 
 fn test_str_dtype_preserved() raises:
     """Test __str__ correctly reports dtype for large tensor."""
-    var tf16 = arange(1001, DType.float16)
+    var tf16 = arange(0.0, 1001.0, 1.0, DType.float16)
     var sf16 = String(tf16)
     assert_true("dtype=float16" in sf16)
     assert_true("..." in sf16)
 
-    var tf64 = arange(1001, DType.float64)
+    var tf64 = arange(0.0, 1001.0, 1.0, DType.float64)
     var sf64 = String(tf64)
     assert_true("dtype=float64" in sf64)
     assert_true("..." in sf64)
@@ -88,7 +88,7 @@ fn test_str_dtype_preserved() raises:
 fn test_str_no_truncation_for_6_elements() raises:
     """Test that a 6-element tensor is shown in full (edge case near SHOW_ELEMENTS*2).
     """
-    var t = arange(6, DType.float32)
+    var t = arange(0.0, 6.0, 1.0, DType.float32)
     var s = String(t)
     assert_true("..." not in s)
     assert_true("5.0" in s)
