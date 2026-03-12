@@ -25,7 +25,7 @@
 
 ### 1. Compilation Error - `py=` keyword removed
 
-```
+```text
 shared/utils/toml_loader.mojo:104:36: error: no matching function in initialization
     var float_val = Float64(py=val_obj)
 ```
@@ -36,14 +36,15 @@ shared/utils/toml_loader.mojo:104:36: error: no matching function in initializat
 
 ### 2. Compilation Error - missing `view_with_strides`
 
-```
+```text
 shared/core/matrix.mojo:824:18: error: 'ExTensor' value has no attribute 'view_with_strides'
     return tensor.view_with_strides(result_shape, result_strides)
 ```
 
 **Root cause**: `transpose()` called a method that was never implemented on ExTensor.
 
-**Fix**: Replaced with element-by-element data copy using multi-index decomposition and permuted indices.
+**Fix**: Replaced with element-by-element data copy using multi-index decomposition
+and permuted indices.
 
 ### 3. Pre-commit Formatting - 34+ files
 
@@ -54,7 +55,9 @@ Local `mojo format` (stable) crashes on these files with `comptime_assert_stmt` 
 
 ### 4. Test Coverage Validation
 
-**Root cause**: Test files split per ADR-009 (e.g., `test_tensors.mojo` -> `test_tensors_part1.mojo` + `test_tensors_part2.mojo` + `test_tensors_part3.mojo`) but `comprehensive-tests.yml` still listed old names.
+**Root cause**: Test files split per ADR-009 (e.g., `test_tensors.mojo` ->
+`test_tensors_part1.mojo` + `test_tensors_part2.mojo` + `test_tensors_part3.mojo`)
+but `comprehensive-tests.yml` still listed old names.
 
 **Fix**: Changed explicit file lists to wildcard patterns (`test_tensors*.mojo`).
 
