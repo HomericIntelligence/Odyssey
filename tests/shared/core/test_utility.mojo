@@ -218,8 +218,12 @@ fn test_as_contiguous_values_correct() raises:
 
     # Verify shape (4, 3)
     var c_shape = c.shape()
-    assert_equal_int(c_shape[0], 4, "as_contiguous transpose: dim 0 should be 4")
-    assert_equal_int(c_shape[1], 3, "as_contiguous transpose: dim 1 should be 3")
+    assert_equal_int(
+        c_shape[0], 4, "as_contiguous transpose: dim 0 should be 4"
+    )
+    assert_equal_int(
+        c_shape[1], 3, "as_contiguous transpose: dim 1 should be 3"
+    )
 
     # Expected values: column-major read of original 0..11 row-major (3,4)
     # Row 0 of transpose = col 0 of original: 0, 4, 8
@@ -575,7 +579,8 @@ fn test_hash_different_dtypes_differ() raises:
 
 
 fn test_hash_different_shapes_differ() raises:
-    """Test that tensors with same data but different shapes produce different hashes."""
+    """Test that tensors with same data but different shapes produce different hashes.
+    """
     # Create [3] tensor with values [1, 2, 3]
     var t1 = arange(1.0, 4.0, 1.0, DType.float32)
 
@@ -590,7 +595,8 @@ fn test_hash_different_shapes_differ() raises:
     var hash_2 = hash(t2)
     if hash_1 == hash_2:
         raise Error(
-            "Tensors with same data but different shapes should have different hashes"
+            "Tensors with same data but different shapes should have different"
+            " hashes"
         )
 
 

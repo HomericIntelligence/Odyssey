@@ -388,6 +388,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     name: "Benchmarks"
+    # ADR-009: Mojo 0.26.1 JIT heap corruption causes random crashes in benchmarks.
+    # Non-blocking until Mojo runtime is stable.
+    continue-on-error: true
 
     steps:
       - name: Checkout code
