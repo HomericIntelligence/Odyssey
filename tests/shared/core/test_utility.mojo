@@ -15,6 +15,7 @@ from shared.core import (
     item,
     diff,
     as_contiguous,
+    transpose_view,
 )
 
 # Import test helpers
@@ -216,8 +217,9 @@ fn test_as_contiguous_values_correct() raises:
     var c = as_contiguous(t)
 
     # Verify shape (4, 3)
-    assert_equal_int(c.size(0), 4, "as_contiguous transpose: dim 0 should be 4")
-    assert_equal_int(c.size(1), 3, "as_contiguous transpose: dim 1 should be 3")
+    var c_shape = c.shape()
+    assert_equal_int(c_shape[0], 4, "as_contiguous transpose: dim 0 should be 4")
+    assert_equal_int(c_shape[1], 3, "as_contiguous transpose: dim 1 should be 3")
 
     # Expected values: column-major read of original 0..11 row-major (3,4)
     # Row 0 of transpose = col 0 of original: 0, 4, 8

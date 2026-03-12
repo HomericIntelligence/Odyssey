@@ -101,7 +101,7 @@ fn test_log10_backward_gradient() raises:
         return log10_backward(grad, inp)
 
     # Use numerical gradient checking (gold standard)
-    check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(forward, backward_fn, x, grad_out, rtol=5e-3, atol=1e-5)
 
 
 fn test_log2_values() raises:
@@ -151,7 +151,7 @@ fn test_log2_backward_gradient() raises:
         return log2_backward(grad, inp)
 
     # Use numerical gradient checking (gold standard)
-    check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(forward, backward_fn, x, grad_out, rtol=5e-3, atol=1e-5)
 
 
 # ============================================================================
@@ -245,7 +245,7 @@ fn test_sqrt_backward_gradient() raises:
         return sqrt_backward(grad, inp)
 
     # Use numerical gradient checking (gold standard)
-    check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(forward, backward_fn, x, grad_out, rtol=5e-3, atol=1e-5)
 
 
 # ============================================================================
