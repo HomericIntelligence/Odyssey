@@ -25,6 +25,9 @@ jobs:
   gradient-tests:
     name: Gradient Checking Tests
     runs-on: ubuntu-latest
+    # ADR-009: Mojo 0.26.1 JIT heap corruption causes random crashes.
+    # Non-blocking until Mojo runtime is stable.
+    continue-on-error: true
 
     steps:
       - name: Checkout code
