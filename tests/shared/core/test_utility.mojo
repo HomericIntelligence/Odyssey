@@ -599,6 +599,7 @@ fn test_hash_different_shapes_differ() raises:
             " hashes"
         )
 
+
 fn test_hash_same_values_different_dtype() raises:
     """Test that tensors with same values but different dtypes produce different hashes.
 
@@ -614,8 +615,8 @@ fn test_hash_same_values_different_dtype() raises:
     var hash_f64 = hash(a_f64)
     if hash_f32 == hash_f64:
         raise Error(
-            "Tensors with same values but different dtypes should have different"
-            " hashes"
+            "Tensors with same values but different dtypes should have"
+            " different hashes"
         )
 
 
