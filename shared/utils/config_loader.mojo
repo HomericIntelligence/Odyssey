@@ -66,7 +66,7 @@ fn load_paper_config(
     var defaults = Config()
     try:
         defaults = load_default_config(config_type)
-    except:
+    except e:
         # If no defaults exist, start with empty config
         pass
 
@@ -127,7 +127,7 @@ fn load_experiment_config(
         try:
             var default_config = load_default_config(config_type)
             config = merge_configs(config, default_config)
-        except:
+        except e:
             # Skip if default doesn't exist
             pass
 
@@ -140,7 +140,7 @@ fn load_experiment_config(
             )
             var paper_config = load_config(paper_filepath)
             config = merge_configs(config, paper_config)
-        except:
+        except e:
             # Skip if paper config doesn't exist
             pass
 

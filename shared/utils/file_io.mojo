@@ -312,7 +312,7 @@ fn save_tensor_to_checkpoint(
             f.write(hex_data + "\n")
 
         return True
-    except:
+    except e:
         return False
 
 
@@ -595,14 +595,14 @@ fn safe_write_file(filepath: String, content: String) -> Bool:
         try:
             var python = Python.import_module("os")
             python.rename(temp_filepath, filepath)
-        except:
+        except e:
             # If Python interop fails, fall back to non-atomic write
             # This is not ideal but better than failing completely
             with open(filepath, "w") as f:
                 f.write(content)
 
         return True
-    except:
+    except e:
         return False
 
 
@@ -621,7 +621,7 @@ fn safe_read_file(filepath: String) raises -> String:
     try:
         with open(filepath, "r") as f:
             return f.read()
-    except:
+    except e:
         raise Error("File not found: " + filepath)
 
 
@@ -655,7 +655,7 @@ fn create_backup(filepath: String) -> Bool:
 
         # Write backup
         return safe_write_file(backup_path, content)
-    except:
+    except e:
         return False
 
 
@@ -675,7 +675,7 @@ fn remove_safely(filepath: String) -> Bool:
         var python = Python.import_module("os")
         python.remove(filepath)
         return True
-    except:
+    except e:
         return False
 
 
@@ -796,7 +796,7 @@ fn expand_path(filepath: String) -> String:
         var python = Python.import_module("os.path")
         var expanded = python.expanduser(filepath)
         return String(expanded)
-    except:
+    except e:
         # Fall back to returning original path if Python interop fails
         return filepath
 
@@ -820,7 +820,7 @@ fn file_exists(filepath: String) -> Bool:
         with open(filepath, "r") as f:
             _ = f.read()  # Attempt to read (confirms it's a file)
         return True
-    except:
+    except e:
         return False
 
 
@@ -838,7 +838,7 @@ fn directory_exists(dirpath: String) -> Bool:
         var python = Python.import_module("os.path")
         var result = python.isdir(dirpath)
         return Bool(result)
-    except:
+    except e:
         # Fall back to False if Python interop fails
         return False
 
@@ -859,7 +859,7 @@ fn create_directory(dirpath: String) -> Bool:
         var python = Python.import_module("os")
         python.makedirs(dirpath, exist_ok=PythonObject(True))
         return True
-    except:
+    except e:
         # Return False if directory creation fails
         return False
 
@@ -880,7 +880,7 @@ fn get_file_size(filepath: String) -> Int:
         # Read file and count bytes
         var content = safe_read_file(filepath)
         return len(content)
-    except:
+    except e:
         return -1
 
 

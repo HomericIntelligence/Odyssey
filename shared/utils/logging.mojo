@@ -297,7 +297,7 @@ struct FileHandler(Copyable, Handler, ImplicitlyCopyable, Movable):
             # Open file in append mode
             with open(self.filepath, "a") as file:
                 _ = file.write(message + "\n")
-        except:
+        except e:
             # Fallback to print if file write fails
             print("[LOG ERROR] Failed to write to " + self.filepath)
             print(message)
