@@ -490,6 +490,28 @@ python3 scripts/package_papers.py --output dist/
 
 ---
 
+#### `convert_image_to_idx.py`
+
+**Purpose**: Convert PNG/JPEG images to IDX format for LeNet-5 inference.
+
+**Features**
+
+- Converts images to 28x28 grayscale
+- Optional EMNIST transpose+flip transform
+- Requires Pillow (`pip install Pillow`)
+
+**Usage**
+
+```bash
+# Convert image to IDX format
+python3 scripts/convert_image_to_idx.py input.png output.idx
+
+# Without EMNIST transform
+python3 scripts/convert_image_to_idx.py input.jpg output.idx --no-emnist-transform
+```
+
+---
+
 ---
 
 ### Deprecated Scripts
