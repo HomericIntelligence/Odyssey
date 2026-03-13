@@ -78,6 +78,8 @@ Status:
     ✅ SGD optimizer
     ✅ Adam optimizer
     ✅ AdaGrad optimizer
+    ✅ AdamW optimizer (decoupled weight decay)
+    ✅ RMSprop optimizer
     ✅ Gradient clipping utilities (value, norm, global norm)
 
 References:
@@ -133,7 +135,7 @@ from shared.autograd.tape import (
     OP_SQRT,
 )
 
-from shared.autograd.optimizers import SGD, Adam, AdaGrad, RMSprop
+from shared.autograd.optimizers import SGD, Adam, AdaGrad, RMSprop, AdamW
 
 from shared.autograd.schedulers import (
     StepLR,
