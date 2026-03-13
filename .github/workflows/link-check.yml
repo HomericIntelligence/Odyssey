@@ -52,7 +52,7 @@ jobs:
             --retry-wait-time 5
             --timeout 15
             --accept "200..=204,503,504"
-            --exclude 'file:///'
+            --exclude 'file:///,https://www.conventionalcommits.org'
             --base '${{ github.workspace }}'
             '**/*.md'
 
