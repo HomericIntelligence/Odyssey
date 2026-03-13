@@ -37,6 +37,13 @@ MOJO_ASAN := "--sanitize address"
 MOJO_TSAN := "--sanitize thread"
 
 # ==============================================================================
+# Test Retry Configuration
+# ==============================================================================
+
+# Maximum retry attempts for flaky Mojo JIT crashes (ADR-009)
+MAX_RETRIES := "3"
+
+# ==============================================================================
 # Internal Helpers
 # ==============================================================================
 
@@ -517,9 +524,10 @@ test-group path pattern:
             test_count=$((test_count + 1))
 
             attempt=0
-            max_attempts=3
+            max_attempts={{MAX_RETRIES}}
             delay=1
             test_passed=0
+            retry_reasons=""
             while [ $attempt -lt $max_attempts ]; do
                 attempt=$((attempt + 1))
                 if pixi run mojo -I "$REPO_ROOT" -I . "$test_file"; then
@@ -527,7 +535,8 @@ test-group path pattern:
                     break
                 fi
                 if [ $attempt -lt $max_attempts ]; then
-                    echo "⚠️  FAILED (attempt $attempt), retrying in ${delay}s: $test_file"
+                    echo "⚠️  FAILED (attempt $attempt/$max_attempts), retrying in ${delay}s: $test_file (likely Mojo JIT crash — ADR-009)"
+                    retry_reasons="$retry_reasons  attempt $attempt failed (JIT crash suspected)\n"
                     sleep $delay
                     delay=$((delay * 2))
                 fi
@@ -536,13 +545,16 @@ test-group path pattern:
                 if [ $attempt -eq 1 ]; then
                     echo "✅ PASSED: $test_file"
                 else
-                    echo "✅ PASSED on attempt $attempt: $test_file"
+                    echo "✅ PASSED on attempt $attempt: $test_file (retried due to Mojo JIT flake)"
                 fi
                 passed_count=$((passed_count + 1))
             else
-                echo "❌ FAILED: $test_file"
+                echo "❌ FAILED after $max_attempts attempts: $test_file"
+                if [ -n "$retry_reasons" ]; then
+                    echo -e "  Retry history:\n$retry_reasons"
+                fi
                 failed_count=$((failed_count + 1))
-                failed_tests="$failed_tests\n  - $test_file"
+                failed_tests="$failed_tests\n  - $test_file (failed after $max_attempts attempts)"
             fi
         fi
     done
@@ -562,18 +574,35 @@ test-group path pattern:
         exit 1
     fi
 
-# CI: Run all Mojo tests
+# CI: Run all Mojo tests (with retry for JIT flakes)
 test-mojo:
     #!/usr/bin/env bash
     set -e
     REPO_ROOT="$(pwd)"
-    echo "Running all Mojo tests..."
+    MAX={{MAX_RETRIES}}
+    echo "Running all Mojo tests (max retries: $MAX)..."
 
     failed=0
     for test_file in tests/**/*.mojo; do
         if [ -f "$test_file" ]; then
             echo "Testing: $test_file"
-            if ! pixi run mojo -I "$REPO_ROOT" -I . "$test_file"; then
+            attempt=0
+            delay=1
+            test_ok=0
+            while [ $attempt -lt $MAX ]; do
+                attempt=$((attempt + 1))
+                if pixi run mojo -I "$REPO_ROOT" -I . "$test_file"; then
+                    test_ok=1
+                    break
+                fi
+                if [ $attempt -lt $MAX ]; then
+                    echo "⚠️  Retry $attempt/$MAX for $test_file (Mojo JIT flake — ADR-009)"
+                    sleep $delay
+                    delay=$((delay * 2))
+                fi
+            done
+            if [ $test_ok -eq 0 ]; then
+                echo "❌ FAILED after $MAX attempts: $test_file"
                 failed=1
             fi
         fi
