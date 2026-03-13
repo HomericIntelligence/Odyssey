@@ -38,9 +38,14 @@ jobs:
           restore-keys: |
             pre-commit-
 
-      - name: Run pre-commit hooks
+      - name: Run pre-commit hooks (excluding mojo-format)
         run: |
-          pixi run pre-commit run --all-files --show-diff-on-failure
+          SKIP=mojo-format pixi run pre-commit run --all-files --show-diff-on-failure
+
+      - name: Run mojo format (advisory - non-blocking)
+        continue-on-error: true
+        run: |
+          pixi run pre-commit run mojo-format --all-files --show-diff-on-failure || echo "::warning::mojo format check failed (non-blocking due to Mojo 0.26.1 formatter bugs)"
 
       - name: Enforce no .__matmul__() call sites
         run: |
