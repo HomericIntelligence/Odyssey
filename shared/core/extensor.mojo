@@ -882,7 +882,7 @@ struct ExTensor(
             if indices[i] < 0 or indices[i] >= self._shape[i]:
                 raise Error("Index out of bounds at dimension " + String(i))
             flat_idx += indices[i] * self._strides[i]
-        self[flat_idx] = value
+        self.__setitem__(flat_idx, value)
 
     fn __getitem__(self, slice: Slice) raises -> Self:
         """Get slice of 1D tensor [start:end] or [start:end:step].

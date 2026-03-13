@@ -27,7 +27,9 @@ fn test_setitem_flat_float32() raises:
     """Test flat __setitem__ (Float32) on a 2D tensor."""
     var t = zeros([3, 4], DType.float32)
     t[5] = Float32(3.14)
-    assert_almost_equal(t._get_float64(5), Float64(Float32(3.14)), tolerance=1e-6)
+    assert_almost_equal(
+        t._get_float64(5), Float64(Float32(3.14)), tolerance=1e-6
+    )
 
 
 fn test_setitem_flat_int64() raises:
