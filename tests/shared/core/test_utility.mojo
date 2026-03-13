@@ -598,6 +598,8 @@ fn test_hash_different_shapes_differ() raises:
             "Tensors with same data but different shapes should have different"
             " hashes"
         )
+
+
 fn test_hash_integer_dtype_consistent() raises:
     """Test __hash__ for integer-typed tensors produces consistent hashes.
 
