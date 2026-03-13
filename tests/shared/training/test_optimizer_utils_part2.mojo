@@ -13,6 +13,9 @@ Tests cover:
 # high test load. Split from test_optimizer_utils.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 These tests verify the common utilities available to all optimizer implementations.
+
+Note: Split from monolithic test file due to Mojo 0.26.1 heap corruption
+bug that occurs after ~15 cumulative tests. See Issue #2942.
 """
 
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal

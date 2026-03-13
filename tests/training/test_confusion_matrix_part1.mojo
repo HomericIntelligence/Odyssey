@@ -13,6 +13,9 @@ Testing strategy:
 ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 high test load. Split from test_confusion_matrix.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
+
+Note: Split from monolithic test file due to Mojo 0.26.1 heap corruption
+bug that occurs after ~15 cumulative tests. See Issue #2942.
 """
 
 from testing import assert_true, assert_false, assert_equal, assert_almost_equal

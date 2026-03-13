@@ -1,4 +1,8 @@
-"""Tests for PrecisionConfig module."""
+"""Tests for PrecisionConfig module (Part 1).
+
+Note: Split from monolithic test file due to Mojo 0.26.1 heap corruption
+bug that occurs after ~15 cumulative tests. See Issue #2942.
+"""
 
 from shared.training.precision_config import PrecisionConfig, PrecisionMode
 from shared.core.extensor import ExTensor, zeros, ones
