@@ -85,6 +85,23 @@ fn test_assert_equal_float_fails() raises:
     )
 
 
+fn test_assert_close_float_passes() raises:
+    """Test assert_close_float with values within tolerance. Closes #4096."""
+    assert_close_float(Float32(1.0), Float32(1.0001), rtol=1e-2, atol=1e-3)
+
+
+fn test_assert_close_float_fails() raises:
+    """Test assert_close_float raises for distant values. Closes #4096."""
+    var failed = False
+    try:
+        assert_close_float(Float32(1.0), Float32(2.0), rtol=1e-5, atol=1e-5)
+    except:
+        failed = True
+    assert_true(
+        failed, "assert_close_float should raise error for distant values"
+    )
+
+
 fn main() raises:
     """Run floating-point assertion tests."""
     test_assert_almost_equal_float32_passes()
@@ -95,4 +112,6 @@ fn main() raises:
     test_assert_dtype_equal_fails()
     test_assert_equal_float_passes()
     test_assert_equal_float_fails()
+    test_assert_close_float_passes()
+    test_assert_close_float_fails()
     print("All floating-point assertion tests passed!")

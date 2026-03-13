@@ -147,6 +147,85 @@ fn test_confusion_matrix_empty() raises:
     print("  ✓ Empty matrix test passed")
 
 
+fn test_confusion_matrix_single_class() raises:
+    """Test confusion matrix with all predictions in one class. Closes #3686."""
+    print("Testing ConfusionMatrix single class predictions...")
+
+    var cm = ConfusionMatrix(num_classes=3)
+
+    # All predictions are class 0, all labels are class 0
+    var preds_shape = List[Int]()
+    preds_shape.append(3)
+    var preds = ExTensor(preds_shape, DType.int32)
+    var labels = ExTensor(preds_shape, DType.int32)
+    preds._data.bitcast[Int32]()[0] = 0
+    preds._data.bitcast[Int32]()[1] = 0
+    preds._data.bitcast[Int32]()[2] = 0
+    labels._data.bitcast[Int32]()[0] = 0
+    labels._data.bitcast[Int32]()[1] = 0
+    labels._data.bitcast[Int32]()[2] = 0
+
+    cm.update(preds, labels)
+
+    var raw = cm.normalize(mode="none")
+    assert_equal(
+        Int(raw._data.bitcast[Float64]()[0]),
+        3,
+        "Matrix[0,0] should be 3",
+    )
+
+    print("  ✓ Single class test passed")
+
+
+fn test_confusion_matrix_misclassification() raises:
+    """Test confusion matrix captures misclassifications correctly."""
+    print("Testing ConfusionMatrix misclassification...")
+
+    var cm = ConfusionMatrix(num_classes=2)
+
+    var shape = List[Int]()
+    shape.append(4)
+    var preds = ExTensor(shape, DType.int32)
+    var labels = ExTensor(shape, DType.int32)
+
+    # 2 correct, 2 wrong
+    preds._data.bitcast[Int32]()[0] = 0
+    labels._data.bitcast[Int32]()[0] = 0  # correct
+    preds._data.bitcast[Int32]()[1] = 1
+    labels._data.bitcast[Int32]()[1] = 1  # correct
+    preds._data.bitcast[Int32]()[2] = 0
+    labels._data.bitcast[Int32]()[2] = 1  # wrong
+    preds._data.bitcast[Int32]()[3] = 1
+    labels._data.bitcast[Int32]()[3] = 0  # wrong
+
+    cm.update(preds, labels)
+
+    var raw = cm.normalize(mode="none")
+    # [1, 1; 1, 1]
+    assert_equal(
+        Int(raw._data.bitcast[Float64]()[0]),
+        1,
+        "Matrix[0,0] should be 1",
+    )
+    assert_equal(
+        Int(raw._data.bitcast[Float64]()[1]),
+        1,
+        "Matrix[0,1] should be 1",
+    )
+    assert_equal(
+        Int(raw._data.bitcast[Float64]()[2]),
+        1,
+        "Matrix[1,0] should be 1",
+    )
+    assert_equal(
+        Int(raw._data.bitcast[Float64]()[3]),
+        1,
+        "Matrix[1,1] should be 1",
+    )
+
+    print("  ✓ Misclassification test passed")
+
+
 fn main() raises:
     """Run confusion matrix tests (Part 2): logits and edge cases."""
     print("\n" + "=" * 70)
@@ -161,6 +240,11 @@ fn main() raises:
     print("-" * 70)
     test_confusion_matrix_reset()
     test_confusion_matrix_empty()
+
+    print("\nAdditional Tests (#3686)")
+    print("-" * 70)
+    test_confusion_matrix_single_class()
+    test_confusion_matrix_misclassification()
 
     print("\n" + "=" * 70)
     print("ALL CONFUSION MATRIX PART 2 TESTS PASSED ✓")

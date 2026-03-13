@@ -195,9 +195,61 @@ fn test_sign_values() raises:
 # ============================================================================
 
 
+# ============================================================================
+# Logical XOR Tests (#4145)
+# ============================================================================
+
+
+fn test_logical_xor_basic() raises:
+    """Test logical_xor basic functionality. Closes #4145."""
+    var shape = List[Int]()
+    shape.append(4)
+    var a = zeros(shape, DType.float32)
+    var b = zeros(shape, DType.float32)
+
+    # a: [0, 1, 0, 1], b: [0, 0, 1, 1]
+    a._data.bitcast[Float32]()[1] = 1.0
+    a._data.bitcast[Float32]()[3] = 1.0
+    b._data.bitcast[Float32]()[2] = 1.0
+    b._data.bitcast[Float32]()[3] = 1.0
+
+    var result = logical_xor(a, b)
+
+    # XOR: [0^0=0, 1^0=1, 0^1=1, 1^1=0]
+    assert_almost_equal(
+        result._data.bitcast[Float32]()[0], Float32(0.0), tolerance=1e-5
+    )
+    assert_almost_equal(
+        result._data.bitcast[Float32]()[1], Float32(1.0), tolerance=1e-5
+    )
+    assert_almost_equal(
+        result._data.bitcast[Float32]()[2], Float32(1.0), tolerance=1e-5
+    )
+    assert_almost_equal(
+        result._data.bitcast[Float32]()[3], Float32(0.0), tolerance=1e-5
+    )
+
+
+fn test_logical_xor_same_inputs() raises:
+    """Test logical_xor with identical inputs returns all zeros. Closes #4145."""
+    var shape = List[Int]()
+    shape.append(3)
+    var a = ones(shape, DType.float32)
+
+    var result = logical_xor(a, a)
+
+    # XOR of identical inputs should be all 0
+    for i in range(3):
+        assert_almost_equal(
+            result._data.bitcast[Float32]()[i],
+            Float32(0.0),
+            tolerance=1e-5,
+        )
+
+
 fn main() raises:
-    """Run abs and sign elementwise operation tests."""
-    print("Running elementwise operation tests (part 1: abs, sign)...")
+    """Run abs, sign, and logical_xor elementwise operation tests."""
+    print("Running elementwise operation tests (part 1: abs, sign, xor)...")
 
     # Absolute value tests
     test_abs_shapes()
@@ -215,5 +267,12 @@ fn main() raises:
     # Sign tests
     test_sign_values()
     print("✓ test_sign_values")
+
+    # Logical XOR tests
+    test_logical_xor_basic()
+    print("✓ test_logical_xor_basic")
+
+    test_logical_xor_same_inputs()
+    print("✓ test_logical_xor_same_inputs")
 
     print("\nAll elementwise operation tests (part 1) passed!")

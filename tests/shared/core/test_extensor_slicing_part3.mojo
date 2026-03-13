@@ -69,6 +69,67 @@ fn test_slice_modification_doesnt_affect_original() raises:
     assert_almost_equal(Float64(t[2]), 0.0, tolerance=1e-6)
 
 
+fn test_slice_2d_value_correctness() raises:
+    """Test 2D slice returns correct element values. Closes #3693."""
+    # Create a 5x4 tensor with arange values: [[0,1,2,3],[4,5,6,7],...]
+    var t = arange(0.0, 20.0, 1.0, DType.float32)
+    var shape = List[Int]()
+    shape.append(5)
+    shape.append(4)
+    var t2d = t.reshape(shape)
+
+    # Slice rows [1:4] (rows 1,2,3)
+    var sliced = t2d[1:4]
+
+    # Row 1 of original = [4,5,6,7], should be row 0 of slice
+    assert_almost_equal(
+        Float64(sliced._get_float32(0)), 4.0, tolerance=1e-6
+    )
+    assert_almost_equal(
+        Float64(sliced._get_float32(1)), 5.0, tolerance=1e-6
+    )
+    assert_almost_equal(
+        Float64(sliced._get_float32(2)), 6.0, tolerance=1e-6
+    )
+    assert_almost_equal(
+        Float64(sliced._get_float32(3)), 7.0, tolerance=1e-6
+    )
+
+    # Row 2 of original = [8,9,10,11], should be row 1 of slice
+    assert_almost_equal(
+        Float64(sliced._get_float32(4)), 8.0, tolerance=1e-6
+    )
+
+    print("PASS: test_slice_2d_value_correctness")
+
+
+fn test_negative_step_empty_result() raises:
+    """Test negative step with invalid range produces empty result. Closes #3699."""
+    var t = arange(0.0, 10.0, 1.0, DType.float32)
+
+    # Slice [1:5:-1] - start < end with negative step should be empty
+    var sliced = t[1:5:-1]
+
+    assert_equal(sliced.numel(), 0)
+    print("PASS: test_negative_step_empty_result")
+
+
+fn test_slice_step_value_correctness() raises:
+    """Test slice with step returns correct values. Closes #3693."""
+    var t = arange(0.0, 10.0, 1.0, DType.float32)
+
+    # Slice [1:8:2] -> elements at indices 1,3,5,7 -> values 1,3,5,7
+    var sliced = t[1:8:2]
+
+    assert_equal(sliced.numel(), 4)
+    assert_almost_equal(Float64(sliced[0]), 1.0, tolerance=1e-6)
+    assert_almost_equal(Float64(sliced[1]), 3.0, tolerance=1e-6)
+    assert_almost_equal(Float64(sliced[2]), 5.0, tolerance=1e-6)
+    assert_almost_equal(Float64(sliced[3]), 7.0, tolerance=1e-6)
+
+    print("PASS: test_slice_step_value_correctness")
+
+
 fn main() raises:
     """Run all tests."""
     # Edge cases (continued)
@@ -81,5 +142,12 @@ fn main() raises:
     test_slice_creates_copy()
     test_slice_modification_doesnt_affect_original()
     print("Copy semantics: PASSED")
+
+    # Value correctness tests
+    print("Testing value correctness...")
+    test_slice_2d_value_correctness()
+    test_negative_step_empty_result()
+    test_slice_step_value_correctness()
+    print("Value correctness: PASSED")
 
     print("\nAll tests PASSED!")

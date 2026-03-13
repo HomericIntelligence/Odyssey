@@ -27,6 +27,7 @@ from shared.training.trainer_interface import (
     DataBatch,
 )
 from shared.training.trainer import BaseTrainer
+from shared.training.loops.validation_loop import ValidationLoop
 
 
 # ==================================================================
@@ -138,6 +139,40 @@ fn test_metrics_flow_through_trainer() raises:
     print("  ✓ Metrics flow correctly through trainer")
 
 
+fn test_validation_loop_init_defaults() raises:
+    """Test ValidationLoop default constructor values. Closes #3682."""
+    print("Testing ValidationLoop init defaults...")
+
+    var loop = ValidationLoop()
+
+    assert_true(loop.compute_accuracy, "Default compute_accuracy should be True")
+    assert_false(
+        loop.compute_confusion, "Default compute_confusion should be False"
+    )
+    assert_equal(loop.num_classes, 10, "Default num_classes should be 10")
+
+    print("  ✓ ValidationLoop defaults test passed")
+
+
+fn test_validation_loop_init_custom() raises:
+    """Test ValidationLoop with custom parameters. Closes #3682."""
+    print("Testing ValidationLoop init custom...")
+
+    var loop = ValidationLoop(
+        compute_accuracy=False, compute_confusion=True, num_classes=5
+    )
+
+    assert_false(
+        loop.compute_accuracy, "Custom compute_accuracy should be False"
+    )
+    assert_true(
+        loop.compute_confusion, "Custom compute_confusion should be True"
+    )
+    assert_equal(loop.num_classes, 5, "Custom num_classes should be 5")
+
+    print("  ✓ ValidationLoop custom init test passed")
+
+
 fn main() raises:
     """Run Part 3 training infrastructure tests."""
     print("\n" + "=" * 70)
@@ -155,6 +190,11 @@ fn main() raises:
     print("-" * 70)
     test_trainer_config_to_base_trainer_integration()
     test_metrics_flow_through_trainer()
+
+    print("\nValidation Loop Tests (#3681, #3682)")
+    print("-" * 70)
+    test_validation_loop_init_defaults()
+    test_validation_loop_init_custom()
 
     print("\n" + "=" * 70)
     print("ALL PART 3 TRAINING INFRASTRUCTURE TESTS PASSED ✓")
