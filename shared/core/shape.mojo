@@ -495,29 +495,71 @@ fn concatenate(tensors: List[ExTensor], axis: Int = 0) raises -> ExTensor:
     # Create result tensor
     var result = ExTensor(result_shape, dtype)
 
-    # Copy data from each tensor with memcpy optimization for contiguous tensors
+    # Copy data from each tensor into the result
     var dtype_size = result._get_dtype_size()
-    var offset_bytes = 0
 
-    for tensor_idx in range(num_tensors):
-        var t = tensors[tensor_idx]
-        var t_numel = t.numel()
-        var t_bytes = t_numel * dtype_size
+    if actual_axis == 0:
+        # Axis-0 concatenation: tensors are simply stacked in memory order
+        var offset_bytes = 0
+        for tensor_idx in range(num_tensors):
+            var t = tensors[tensor_idx]
+            var t_numel = t.numel()
+            var t_bytes = t_numel * dtype_size
 
-        # Use memcpy for efficient bulk copy if source is contiguous
-        if is_contiguous(t):
-            memcpy(
-                dest=(result._data + offset_bytes).bitcast[UInt8](),
-                src=t._data,
-                count=t_bytes,
-            )
-        else:
-            # Fall back to element-by-element copy for non-contiguous tensors
-            for i in range(t_numel):
-                var val = t._get_float64(i)
-                result._set_float64(offset_bytes // dtype_size + i, val)
+            if is_contiguous(t):
+                memcpy(
+                    dest=(result._data + offset_bytes).bitcast[UInt8](),
+                    src=t._data,
+                    count=t_bytes,
+                )
+            else:
+                for i in range(t_numel):
+                    var val = t._get_float64(i)
+                    result._set_float64(offset_bytes // dtype_size + i, val)
 
-        offset_bytes += t_bytes
+            offset_bytes += t_bytes
+    else:
+        # General case: copy slices along the concat axis
+        # For each "outer" index (dimensions before concat axis) and each
+        # "inner" block (dimensions after concat axis), copy contiguous chunks.
+
+        # Compute the number of outer iterations (product of dims before axis)
+        var outer_size = 1
+        for i in range(actual_axis):
+            outer_size *= result_shape[i]
+
+        # Compute the inner block size (product of dims after axis)
+        var inner_size = 1
+        for i in range(actual_axis + 1, ndim):
+            inner_size *= result_shape[i]
+
+        # Result row stride along concat axis = concat_size * inner_size
+        var result_row_width = concat_size * inner_size
+
+        for outer in range(outer_size):
+            # For this outer index, copy each tensor's slice
+            var col_offset = 0  # offset within the concat axis
+            for tensor_idx in range(num_tensors):
+                var t = tensors[tensor_idx]
+                var t_shape = t.shape()
+                var t_axis_size = t_shape[actual_axis]
+                var t_row_width = t_axis_size * inner_size
+
+                # Source offset: outer * t_row_width elements
+                var src_offset = outer * t_row_width * dtype_size
+                # Dest offset: outer * result_row_width + col_offset * inner_size
+                var dst_offset = (
+                    outer * result_row_width + col_offset * inner_size
+                ) * dtype_size
+
+                var chunk_bytes = t_row_width * dtype_size
+                memcpy(
+                    dest=(result._data + dst_offset).bitcast[UInt8](),
+                    src=(t._data + src_offset).bitcast[UInt8](),
+                    count=chunk_bytes,
+                )
+
+                col_offset += t_axis_size
 
     return result^
 
