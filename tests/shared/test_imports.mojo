@@ -94,7 +94,7 @@ fn test_training_optimizers_imports() raises:
 fn test_shared_optimizer_imports() raises:
     """Test that SGD, Adam, AdamW are importable directly from shared package.
     """
-    from shared import SGD, Adam, AdamW
+    from shared.autograd.optimizers import SGD, Adam, AdamW
 
     print("✓ Shared optimizer imports test passed")
 

@@ -24,9 +24,9 @@ from tests.shared.conftest import (
     assert_true,
 )
 from shared.core.extensor import ExTensor, zeros, ones, full
-from shared.core.activation_ops import relu
+from shared.core.activation import relu
 from shared.core.pooling import maxpool2d, global_avgpool2d
-from shared.core.batch_norm import batch_norm2d
+from shared.core.normalization import batch_norm2d
 from shared.core.conv import conv2d
 from shared.core.linear import linear
 from shared.core.initializers import kaiming_normal, xavier_normal, constant
