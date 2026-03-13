@@ -69,7 +69,7 @@ from shared.version import VERSION, AUTHOR, LICENSE
 # from .training.schedulers import StepLR, CosineAnnealingLR
 
 # Training metrics (most commonly used) — Issue #3221
-from shared.training.metrics import LossTracker, AccuracyMetric
+from shared.training.metrics import LossTracker, AccuracyMetric, ConfusionMatrix, CSVMetricsLogger
 
 # Expose plan-canonical alias: Accuracy = AccuracyMetric
 comptime Accuracy = AccuracyMetric
@@ -108,9 +108,9 @@ comptime Accuracy = AccuracyMetric
 # Core - Activations: relu, sigmoid, tanh, softmax
 # Core - Module system: Module, Sequential
 # Core - Tensors: Tensor, zeros, ones, randn
-# Training - Optimizers: SGD, Adam, AdamW
+# Training - Optimizers: SGD, Adam, AdamW (via autograd)
 # Training - Schedulers: StepLR, CosineAnnealingLR
-# Training - Metrics: Accuracy, LossTracker
+# Training - Metrics: Accuracy, LossTracker, ConfusionMatrix, CSVMetricsLogger
 # Training - Callbacks: EarlyStopping, ModelCheckpoint
 # Training - Loops: train_epoch, validate_epoch
 # Data - Datasets: TensorDataset, ImageDataset, DataLoader
