@@ -81,6 +81,7 @@ gh pr merge --auto --rebase
 - [Git Commit Policy](/.claude/shared/git-commit-policy.md)
 - [Output Style Guidelines](/.claude/shared/output-style-guidelines.md)
 - [Tool Use Optimization](/.claude/shared/tool-use-optimization.md)
+- [ADR-009 Heap Corruption Workaround](docs/adr/ADR-009-heap-corruption-workaround.md)
 
 ### Agent System & Skills
 
@@ -401,6 +402,9 @@ This project uses Pixi for environment management:
 # Mojo is the primary language target for future implementations
 ```
 
+**GLIBC Constraint**: CI runners use Ubuntu with GLIBC 2.35. Any native binaries built
+locally must be compatible with this version to avoid CI failures.
+
 ## Common Commands
 
 ### Justfile Build System
@@ -583,6 +587,10 @@ SKIP=trailing-whitespace git commit -m "message"
 
 # Note: SKIP=mojo-format is not needed — use scripts/mojo-format-compat.sh or just shell on incompatible hosts
 ```
+
+**Mojo Format Compatibility**: `mojo format` requires the exact Mojo version pinned in
+`pixi.toml`. If your local Mojo version differs, the pre-commit hook may fail or produce
+unexpected formatting changes.
 
 ### Pre-Commit Hook Policy - STRICT ENFORCEMENT
 
