@@ -123,6 +123,13 @@ repos:
         language: system
         files: ^README\.md$
         pass_filenames: false
+      - id: validate-adr009-headers
+        name: Validate ADR-009 Headers
+        description: Ensure all test_*_part*.mojo files have ADR-009 split docstring (Issue #2942)
+        entry: python3 scripts/validate_adr009_headers.py
+        language: system
+        files: test_.*_part\d+\.mojo$
+        pass_filenames: false
 
   # Markdown linting
   - repo: https://github.com/DavidAnson/markdownlint-cli2
