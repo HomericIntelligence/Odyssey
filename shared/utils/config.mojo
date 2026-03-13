@@ -442,7 +442,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             return default
         try:
             return self.get_int(key, default)
-        except:
+        except e:
             return default
 
     fn get_float_with_default(self, key: String, default: Float64) -> Float64:
@@ -459,7 +459,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             return default
         try:
             return self.get_float(key, default)
-        except:
+        except e:
             return default
 
     fn get_string_with_default(self, key: String, default: String) -> String:
@@ -476,7 +476,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             return default
         try:
             return self.get_string(key, default)
-        except:
+        except e:
             return default
 
     fn get_bool_with_default(self, key: String, default: Bool) -> Bool:
@@ -493,7 +493,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             return default
         try:
             return self.get_bool(key, default)
-        except:
+        except e:
             return default
 
     fn merge(self, other: Config) -> Config:
@@ -803,13 +803,13 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
                                 try:
                                     var float_val = Float64(atof(value_str))
                                     config.set(key, float_val)
-                                except:
+                                except e:
                                     config.set(key, value_str)
                             else:
                                 try:
                                     var int_val = atol(value_str)
                                     config.set(key, int_val)
-                                except:
+                                except e:
                                     config.set(key, value_str)
         except e:
             raise Error("Failed to load JSON file: " + String(e))
@@ -963,7 +963,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
                 var python = Python.import_module("os")
                 var py_value = python.getenv(var_name, default_value)
                 env_value = String(py_value)
-            except:
+            except e:
                 # If Python interop fails, use default value
                 pass
 

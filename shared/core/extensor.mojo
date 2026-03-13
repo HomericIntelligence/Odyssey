@@ -811,6 +811,7 @@ struct ExTensor(
             self._dtype == DType.float16
             or self._dtype == DType.float32
             or self._dtype == DType.float64
+            or self._dtype == DType.bfloat16
         ):
             self._set_float64(index, value)
         else:
@@ -1162,6 +1163,9 @@ struct ExTensor(
         elif self._dtype == DType.float64:
             var ptr = (self._data + offset).bitcast[Float64]()
             return ptr[].cast[DType.float32]()
+        elif self._dtype == DType.bfloat16:
+            var ptr = (self._data + offset).bitcast[BFloat16]()
+            return ptr[].cast[DType.float32]()
         else:
             # For integer types, cast to float32
             return Float32(self._get_int64(index))
@@ -1190,6 +1194,9 @@ struct ExTensor(
         elif self._dtype == DType.float64:
             var ptr = (self._data + offset).bitcast[Float64]()
             ptr[] = value.cast[DType.float64]()
+        elif self._dtype == DType.bfloat16:
+            var ptr = (self._data + offset).bitcast[BFloat16]()
+            ptr[] = value.cast[DType.bfloat16]()
 
     fn _get_int64(self, index: Int) -> Int64:
         """Internal: Get value at index as Int64 (assumes integer-compatible dtype).
@@ -1571,6 +1578,7 @@ struct ExTensor(
             self._dtype == DType.float16
             or self._dtype == DType.float32
             or self._dtype == DType.float64
+            or self._dtype == DType.bfloat16
         ):
             raise Error("to_fp8() requires a floating-point tensor")
 
@@ -2126,6 +2134,7 @@ struct ExTensor(
             self._dtype == DType.float16
             or self._dtype == DType.float32
             or self._dtype == DType.float64
+            or self._dtype == DType.bfloat16
         ):
             raise Error("to_bf8() requires a floating-point tensor")
 
@@ -2268,6 +2277,7 @@ struct ExTensor(
             self._dtype == DType.float16
             or self._dtype == DType.float32
             or self._dtype == DType.float64
+            or self._dtype == DType.bfloat16
         ):
             raise Error("to_mxfp4() requires a floating-point tensor")
 
@@ -2483,6 +2493,7 @@ struct ExTensor(
             self._dtype == DType.float16
             or self._dtype == DType.float32
             or self._dtype == DType.float64
+            or self._dtype == DType.bfloat16
         ):
             raise Error("to_nvfp4() requires a floating-point tensor")
 
@@ -3269,6 +3280,7 @@ fn ones(shape: List[Int], dtype: DType) raises -> ExTensor:
         dtype == DType.float16
         or dtype == DType.float32
         or dtype == DType.float64
+        or dtype == DType.bfloat16
     ):
         tensor._fill_value_float(1.0)
     else:
@@ -3303,6 +3315,7 @@ fn full(shape: List[Int], fill_value: Float64, dtype: DType) raises -> ExTensor:
         dtype == DType.float16
         or dtype == DType.float32
         or dtype == DType.float64
+        or dtype == DType.bfloat16
     ):
         tensor._fill_value_float(fill_value)
     else:
@@ -3379,6 +3392,7 @@ fn arange(
             dtype == DType.float16
             or dtype == DType.float32
             or dtype == DType.float64
+            or dtype == DType.bfloat16
         ):
             tensor._set_float64(i, value)
         else:
@@ -3428,6 +3442,7 @@ fn eye(n: Int, m: Int, k: Int, dtype: DType) raises -> ExTensor:
                 dtype == DType.float16
                 or dtype == DType.float32
                 or dtype == DType.float64
+                or dtype == DType.bfloat16
             ):
                 tensor._set_float64(index, 1.0)
             else:
@@ -3472,6 +3487,7 @@ fn linspace(
             dtype == DType.float16
             or dtype == DType.float32
             or dtype == DType.float64
+            or dtype == DType.bfloat16
         ):
             tensor._set_float64(0, start)
         else:
@@ -3487,6 +3503,7 @@ fn linspace(
                 dtype == DType.float16
                 or dtype == DType.float32
                 or dtype == DType.float64
+                or dtype == DType.bfloat16
             ):
                 tensor._set_float64(i, value)
             else:
@@ -3713,6 +3730,7 @@ fn randn(shape: List[Int], dtype: DType, seed: Int = 0) raises -> ExTensor:
         dtype == DType.float16
         or dtype == DType.float32
         or dtype == DType.float64
+        or dtype == DType.bfloat16
     ):
         print(
             "Warning: randn() is designed for floating-point types, got",
@@ -3750,6 +3768,7 @@ fn randn(shape: List[Int], dtype: DType, seed: Int = 0) raises -> ExTensor:
             dtype == DType.float16
             or dtype == DType.float32
             or dtype == DType.float64
+            or dtype == DType.bfloat16
         ):
             tensor._set_float64(i, z0)
         else:
@@ -3763,6 +3782,7 @@ fn randn(shape: List[Int], dtype: DType, seed: Int = 0) raises -> ExTensor:
                 dtype == DType.float16
                 or dtype == DType.float32
                 or dtype == DType.float64
+                or dtype == DType.bfloat16
             ):
                 tensor._set_float64(i, z1)
             else:

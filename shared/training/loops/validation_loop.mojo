@@ -276,7 +276,11 @@ struct ValidationLoop:
             total_loss += batch_loss
             num_batches += 1
 
-        var avg_loss = total_loss / Float64(num_batches)
+        var avg_loss = Float64(0.0)
+        if num_batches > 0:
+            avg_loss = total_loss / Float64(num_batches)
+        else:
+            print("Warning: No validation batches available")
 
         print("  Subset Validation Loss: " + String(avg_loss))
 

@@ -121,7 +121,7 @@ struct ParsedArgs(Copyable, Movable):
         var value = self.values[name]
         try:
             return Int(value)
-        except:
+        except e:
             raise Error(
                 "Cannot parse '"
                 + value
@@ -148,7 +148,7 @@ struct ParsedArgs(Copyable, Movable):
         var value = self.values[name]
         try:
             return Float64(value)
-        except:
+        except e:
             raise Error(
                 "Cannot parse '"
                 + value

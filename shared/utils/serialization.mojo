@@ -336,7 +336,7 @@ fn load_named_tensors(dirpath: String) raises -> List[NamedTensor]:
             var (name, tensor) = load_tensor_with_name(filepath)
             result.append(NamedTensor(name, tensor))
 
-    except:
+    except e:
         raise Error("Failed to load tensors from: " + dirpath)
 
     return result^
@@ -429,7 +429,7 @@ fn load_named_checkpoint(
         with open(meta_path, "r") as f:
             meta_content = f.read()
         metadata = _deserialize_metadata(meta_content)
-    except:
+    except e:
         # Metadata file not found, return empty metadata
         pass
 

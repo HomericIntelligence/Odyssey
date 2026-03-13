@@ -294,7 +294,7 @@ struct CheckpointManager:
                     return atol(epoch_str)
 
             return -1
-        except:
+        except e:
             return -1
 
     fn _cleanup_old_checkpoints(self) raises:
