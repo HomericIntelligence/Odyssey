@@ -7,6 +7,14 @@ name: Security Scanning
 
 on:
   pull_request:
+    paths:
+      - 'pixi.toml'
+      - 'requirements.txt'
+      - 'tools/requirements.txt'
+      - 'pyproject.toml'
+      - '.github/dependabot.yml'
+      - '.gitleaks.toml'
+      - '**/*.py'
   push:
     branches:
       - main
@@ -86,7 +94,7 @@ jobs:
 
       - name: Upload SARIF results
         if: always()
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@dd677812177e0c29f9c970a6c58d8607ae1bfefd  # v4
         with:
           sarif_file: semgrep.sarif
 
@@ -103,7 +111,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
 
       - name: Dependency Review
-        uses: actions/dependency-review-action@v4
+        uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48  # v4.9.0
         with:
           fail-on-severity: high
           deny-licenses: GPL-3.0, AGPL-3.0
@@ -160,7 +168,7 @@ jobs:
           cat security-report.md
 
       - name: Upload security report
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7
         with:
           name: security-report
           path: security-report.md
@@ -192,10 +200,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
         with:
           python-version: '3.11'
           cache: 'pip'
@@ -256,7 +264,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload Python audit results
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7
         with:
           name: python-audit-results
           path: |
@@ -287,7 +295,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
 
       - name: Set up Pixi
         uses: ./.github/actions/setup-pixi
@@ -310,7 +318,7 @@ jobs:
           echo "Mojo version: $(pixi run mojo --version 2>/dev/null | head -1)" >> pixi-audit-report.md
 
       - name: Upload Pixi audit results
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7
         with:
           name: pixi-audit-results
           path: |
@@ -328,10 +336,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
         with:
           python-version: '3.11'
           cache: 'pip'
@@ -361,7 +369,7 @@ jobs:
           fi
 
       - name: Upload license audit
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7
         with:
           name: license-audit-results
           path: license-report.md
@@ -377,10 +385,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8
         with:
           path: audit-results/
 
@@ -421,7 +429,7 @@ jobs:
           done
 
       - name: Upload combined report
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7
         with:
           name: dependency-audit-report
           path: combined-report.md
