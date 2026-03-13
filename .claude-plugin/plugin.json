@@ -94,6 +94,20 @@
         "compilation_errors_fixed": 14,
         "upstream_issues_filed": 1
       }
+    },
+    {
+      "name": "diagnose-ci-test-failures",
+      "category": "ci-cd",
+      "description": "Triage CI test failures: separate real bugs from JIT crashes, fix tensor operation bugs, skip unimplemented feature tests with tracking issues, handle flaky link checkers",
+      "tags": ["ci-cd", "testing", "mojo", "jit-crash", "triage", "debugging"],
+      "skillPath": "skills/diagnose-ci-test-failures/SKILL.md",
+      "referencesPath": "skills/diagnose-ci-test-failures/references/notes.md",
+      "metrics": {
+        "test_groups_fixed": 1,
+        "tests_skipped_tracked": 5,
+        "jit_groups_non_blocking": 4,
+        "pr_checks_passing": "24/25"
+      }
     }
   ]
 }
