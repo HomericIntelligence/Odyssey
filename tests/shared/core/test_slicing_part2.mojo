@@ -139,6 +139,49 @@ fn test_batch_extraction_pair() raises:
     print("PASS: test_batch_extraction_pair")
 
 
+fn test_slice_view_mutation_visible() raises:
+    """Test that mutating a view slice is visible in original. Closes #3900."""
+    var t = zeros([10], DType.float32)
+    for i in range(10):
+        t._set_float32(i, Float32(i))
+
+    # .slice() creates a view
+    var view = t.slice(2, 5, axis=0)
+
+    # Mutate through the view
+    view._set_float32(0, Float32(99.0))
+
+    # Original should reflect the change
+    assert_almost_equal(
+        Float64(t._get_float32(2)), 99.0, tolerance=1e-6
+    )
+
+    print("PASS: test_slice_view_mutation_visible")
+
+
+fn test_chained_slice_shares_memory() raises:
+    """Test slice-of-slice shares memory with root tensor. Closes #3901."""
+    var t = zeros([10], DType.float32)
+    for i in range(10):
+        t._set_float32(i, Float32(i))
+
+    # First slice: view of elements [2:8]
+    var view1 = t.slice(2, 8, axis=0)
+
+    # Second slice of view: elements [1:4] of view1 = [3:6] of original
+    var view2 = view1.slice(1, 4, axis=0)
+
+    # Mutate through second slice
+    view2._set_float32(0, Float32(77.0))
+
+    # Original should see the change at index 3
+    assert_almost_equal(
+        Float64(t._get_float32(3)), 77.0, tolerance=1e-6
+    )
+
+    print("PASS: test_chained_slice_shares_memory")
+
+
 fn main() raises:
     """Run slicing tests part 2."""
     print("Running tensor slicing tests part 2...")
@@ -152,5 +195,9 @@ fn main() raises:
     # Batch extraction tests
     test_batch_extraction_uses_view()
     test_batch_extraction_pair()
+
+    # View mutation tests
+    test_slice_view_mutation_visible()
+    test_chained_slice_shares_memory()
 
     print("\nAll tests passed!")
