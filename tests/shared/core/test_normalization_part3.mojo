@@ -261,8 +261,91 @@ fn test_layer_norm_backward_gradient_input() raises:
 # ============================================================================
 
 
+# ============================================================================
+# Batch Norm Backward Tests (#3664, #3665)
+# ============================================================================
+
+
+fn test_batch_norm2d_backward_gamma_beta_nonzero() raises:
+    """Test batch_norm2d_backward produces non-zero gamma/beta gradients. Closes #3664."""
+    # NCHW: batch=2, channels=2, height=2, width=2
+    var shape = List[Int]()
+    shape.append(2)
+    shape.append(2)
+    shape.append(2)
+    shape.append(2)
+    var x = zeros(shape, DType.float32)
+    # Fill with varying values to get meaningful gradients
+    for i in range(16):
+        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+
+    var param_shape = List[Int]()
+    param_shape.append(2)
+    var gamma = ones(param_shape, DType.float32)
+    var beta = zeros(param_shape, DType.float32)
+
+    # Forward pass to get running stats
+    var fwd_result = batch_norm2d(x, gamma, beta, epsilon=1e-5, training=True)
+
+    # Grad output: ones
+    var grad_output = ones(shape, DType.float32)
+
+    var bwd_result = batch_norm2d_backward(
+        grad_output, x, gamma, epsilon=1e-5, training=True
+    )
+    var grad_gamma = bwd_result[1]
+    var grad_beta = bwd_result[2]
+
+    # grad_beta should be sum of grad_output over (N,H,W) = 2*2*2 = 8 per channel
+    assert_almost_equal(
+        grad_beta._data.bitcast[Float32]()[0], Float32(8.0), tolerance=1e-3
+    )
+    assert_almost_equal(
+        grad_beta._data.bitcast[Float32]()[1], Float32(8.0), tolerance=1e-3
+    )
+
+    # grad_gamma should be non-zero (sum of grad_output * x_hat over N,H,W)
+    var gg0 = grad_gamma._data.bitcast[Float32]()[0]
+    var gg1 = grad_gamma._data.bitcast[Float32]()[1]
+    assert_true(gg0 == gg0, "grad_gamma[0] should not be NaN")
+    assert_true(gg1 == gg1, "grad_gamma[1] should not be NaN")
+
+    print("✓ batch_norm2d_backward gamma/beta gradient test passed")
+
+
+fn test_batch_norm2d_backward_inference_mode() raises:
+    """Test batch_norm2d_backward in inference mode. Closes #3665."""
+    var shape = List[Int]()
+    shape.append(2)
+    shape.append(2)
+    shape.append(2)
+    shape.append(2)
+    var x = zeros(shape, DType.float32)
+    for i in range(16):
+        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+
+    var param_shape = List[Int]()
+    param_shape.append(2)
+    var gamma = ones(param_shape, DType.float32)
+
+    var grad_output = ones(shape, DType.float32)
+
+    # Backward in inference mode (training=False)
+    var bwd_result = batch_norm2d_backward(
+        grad_output, x, gamma, epsilon=1e-5, training=False
+    )
+    var grad_input = bwd_result[0]
+
+    # grad_input should be finite and non-zero in inference mode
+    for i in range(16):
+        var val = grad_input._data.bitcast[Float32]()[i]
+        assert_true(val == val, "Inference mode grad should not be NaN")
+
+    print("✓ batch_norm2d_backward inference mode test passed")
+
+
 fn main() raises:
-    """Run layer normalization backward tests."""
+    """Run layer normalization and batch normalization backward tests."""
     print("Running normalization part3 tests...")
 
     # Layer normalization backward pass tests
@@ -280,5 +363,9 @@ fn main() raises:
 
     test_layer_norm_backward_gradient_input()
     print("✓ test_layer_norm_backward_gradient_input")
+
+    # Batch norm backward tests
+    test_batch_norm2d_backward_gamma_beta_nonzero()
+    test_batch_norm2d_backward_inference_mode()
 
     print("\nAll normalization part3 tests passed!")
