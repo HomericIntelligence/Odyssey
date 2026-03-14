@@ -426,6 +426,37 @@ docs:
 # CI/CD
 # ==============================================================================
 
+# Check GLIBC compatibility with Mojo (Issue #3824)
+check-glibc:
+    #!/usr/bin/env bash
+    echo "Checking GLIBC compatibility with Mojo..."
+    required_glibc="2.32"
+    current_glibc=$(ldd --version | head -1 | awk '{print $NF}')
+    echo "Current GLIBC: $current_glibc"
+    echo "Required GLIBC: $required_glibc+"
+
+    # Compare versions (requires awk/shell arithmetic)
+    if [ -z "$current_glibc" ]; then
+        echo "❌ Could not determine GLIBC version"
+        exit 1
+    fi
+
+    # Simple version comparison: convert X.Y to integer XY for comparison
+    current=$(echo "$current_glibc" | sed 's/\.//g')
+    required=$(echo "$required_glibc" | sed 's/\.//g')
+
+    if [ "$current" -ge "$required" ]; then
+        echo "✅ GLIBC version is compatible"
+        exit 0
+    else
+        echo "⚠️  WARNING: GLIBC $current_glibc is older than required $required_glibc"
+        echo "   Mojo tests will fail locally. Use Docker for testing:"
+        echo "   just docker-up"
+        echo "   just docker-shell"
+        echo "   just test-mojo"
+        exit 0
+    fi
+
 # Run pre-commit hooks
 pre-commit:
     @pre-commit run
