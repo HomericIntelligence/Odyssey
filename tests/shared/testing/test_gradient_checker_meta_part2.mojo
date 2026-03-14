@@ -283,6 +283,48 @@ fn test_check_gradients_does_not_mutate_input() raises:
     print("  OK: check_gradients does not mutate the original input tensor")
 
 
+fn test_check_gradients_verbose_does_not_mutate_input() raises:
+    """Regression test: check_gradients_verbose must not mutate the original
+    input tensor.
+
+    Parallel test to `test_check_gradients_does_not_mutate_input` but for the
+    verbose variant. Verifies that the deep-copy fix is applied to both the
+    standard and verbose variants of the gradient checker.
+
+    The verbose variant had the same shallow-copy bug and was also fixed.
+    This test ensures the fix is in place for both code paths.
+    """
+    print("Memory safety: check_gradients_verbose does not mutate input...")
+
+    var x = full([2, 2], 1.0, DType.float32)
+
+    # Snapshot all values before the call
+    var before = List[Float64]()
+    for i in range(x.numel()):
+        before.append(x._get_float64(i))
+
+    fn forward(t: ExTensor) raises escaping -> ExTensor:
+        return square_forward(t)
+
+    fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+        return square_backward_correct(grad, inp)
+
+    _ = check_gradients_verbose(
+        forward, backward, x, epsilon=1e-5, tolerance=1e-2
+    )
+
+    # Assert every element is unchanged
+    for i in range(x.numel()):
+        var after_val = x._get_float64(i)
+        assert_equal(
+            after_val,
+            before[i],
+            "check_gradients_verbose mutated input at index " + String(i),
+        )
+
+    print("  OK: check_gradients_verbose does not mutate the original input tensor")
+
+
 # ============================================================================
 # Main Test Runner
 # ============================================================================
@@ -313,6 +355,7 @@ fn main() raises:
     print("\n[6] Memory Safety Tests")
     print("-" * 70)
     test_check_gradients_does_not_mutate_input()
+    test_check_gradients_verbose_does_not_mutate_input()
 
     print("\n" + "=" * 70)
     print("ALL GRADIENT CHECKER META-TESTS PART 2 PASSED!")
