@@ -1245,18 +1245,23 @@ fn repeat(tensor: ExTensor, n: Int, axis: Int = -1) raises -> ExTensor:
 fn broadcast_to(tensor: ExTensor, target_shape: List[Int]) raises -> ExTensor:
     """Broadcast tensor to target shape.
 
+    Broadcasts input tensor to the target shape following the Array API standard
+    broadcasting rules. The target shape must have at least as many dimensions as
+    the input tensor — broadcasting cannot reduce dimensions.
+
     Args:
-            tensor: Input tensor.
-            target_shape: Target shape to broadcast to.
+        tensor: Input tensor to broadcast.
+        target_shape: Target shape to broadcast to.
 
     Returns:
-            Broadcasted tensor.
+        Broadcasted tensor with target shape.
 
     Raises:
-            Error: If shapes are not broadcast-compatible.
-            Error: If `target_shape` has fewer dimensions than the input tensor
-                (broadcasting cannot reduce the number of dimensions; it can only
-                expand dimensions of size 1 or prepend new dimensions of any size).
+        Error: If `len(target_shape) < len(input_shape)` — broadcasting cannot
+            reduce the number of dimensions. To broadcast to fewer dimensions,
+            reshape or reduce the input first.
+        Error: If shapes are not broadcast-compatible (dimensions cannot be aligned
+            via prepending 1s to the input shape, then matching on non-1 dimensions).
 
     Examples:
     ```
