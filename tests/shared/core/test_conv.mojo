@@ -1052,6 +1052,122 @@ fn test_conv2d_backward_gradient_kernel() raises:
 # ============================================================================
 
 
+fn test_conv2d_backward_gradient_input_with_stride() raises:
+    """Numerical gradient check for grad_input with stride > 1.
+
+    Strided convolutions have a different gradient accumulation pattern in
+    grad_input (only every stride-th position receives gradient). This test
+    verifies the mathematical correctness of the strided backward path.
+    """
+    var padding = 0
+
+    # Input: (1, 1, 8, 8) with stride=2
+    var input_shape = List[Int]()
+    input_shape.append(1)
+    input_shape.append(1)
+    input_shape.append(8)
+    input_shape.append(8)
+    var x = zeros(input_shape, DType.float32)
+    var x_data = x._data.bitcast[Float32]()
+    for i in range(64):
+        x_data[i] = Float32(i) * Float32(0.1)
+
+    # Kernel: (1, 1, 3, 3)
+    var kernel_shape = List[Int]()
+    kernel_shape.append(1)
+    kernel_shape.append(1)
+    kernel_shape.append(3)
+    kernel_shape.append(3)
+    var kernel = zeros(kernel_shape, DType.float32)
+    var k_data = kernel._data.bitcast[Float32]()
+    for i in range(9):
+        k_data[i] = Float32(i + 1) * Float32(0.5)
+
+    # Test stride=2
+    var stride = 2
+    var output = conv2d_no_bias(x, kernel, stride, padding)
+    var grad_output = ones_like(output)
+    var result = conv2d_backward(grad_output, x, kernel, stride, padding)
+    var analytical_grad = result.grad_input
+
+    fn forward_for_input_s2(inp: ExTensor) raises -> ExTensor:
+        var out = conv2d_no_bias(inp, kernel, stride, padding)
+        var reduced = out
+        while reduced.dim() > 0:
+            reduced = reduce_sum(reduced, axis=0, keepdims=False)
+        return reduced
+
+    var numerical_grad = compute_numerical_gradient(
+        forward_for_input_s2, x, epsilon=3e-4
+    )
+
+    assert_gradients_close(
+        analytical_grad,
+        numerical_grad,
+        rtol=1e-2,
+        atol=1e-4,
+        message="conv2d_backward gradient w.r.t. input (stride=2)",
+    )
+
+
+fn test_conv2d_backward_gradient_kernel_with_stride() raises:
+    """Numerical gradient check for grad_weights with stride > 1.
+
+    Ensures kernel gradient computation is correct when input stride is used.
+    Tests stride=2 to exercise the sparse gradient accumulation pattern for
+    strided convolutions.
+    """
+    var padding = 0
+
+    # Input: (1, 1, 8, 8)
+    var input_shape = List[Int]()
+    input_shape.append(1)
+    input_shape.append(1)
+    input_shape.append(8)
+    input_shape.append(8)
+    var x = zeros(input_shape, DType.float32)
+    var x_data = x._data.bitcast[Float32]()
+    for i in range(64):
+        x_data[i] = Float32(i) * Float32(0.1)
+
+    # Kernel: (1, 1, 3, 3)
+    var kernel_shape = List[Int]()
+    kernel_shape.append(1)
+    kernel_shape.append(1)
+    kernel_shape.append(3)
+    kernel_shape.append(3)
+    var kernel = zeros(kernel_shape, DType.float32)
+    var k_data = kernel._data.bitcast[Float32]()
+    for i in range(9):
+        k_data[i] = Float32(i + 1) * Float32(0.5)
+
+    # Test stride=2
+    var stride = 2
+    var output = conv2d_no_bias(x, kernel, stride, padding)
+    var grad_output = ones_like(output)
+    var result = conv2d_backward(grad_output, x, kernel, stride, padding)
+    var analytical_grad = result.grad_weights
+
+    fn forward_for_kernel_s2(k: ExTensor) raises -> ExTensor:
+        var out = conv2d_no_bias(x, k, stride, padding)
+        var reduced = out
+        while reduced.dim() > 0:
+            reduced = reduce_sum(reduced, axis=0, keepdims=False)
+        return reduced
+
+    var numerical_grad = compute_numerical_gradient(
+        forward_for_kernel_s2, kernel, epsilon=3e-4
+    )
+
+    assert_gradients_close(
+        analytical_grad,
+        numerical_grad,
+        rtol=1e-2,
+        atol=1e-4,
+        message="conv2d_backward gradient w.r.t. kernel (stride=2)",
+    )
+
+
 fn test_conv2d_forward_backward_consistency() raises:
     """Test that forward pass works correctly with various configurations.
 
@@ -1258,6 +1374,12 @@ fn main() raises:
 
     test_conv2d_backward_gradient_kernel()
     print("✓ test_conv2d_backward_gradient_kernel")
+
+    test_conv2d_backward_gradient_input_with_stride()
+    print("✓ test_conv2d_backward_gradient_input_with_stride")
+
+    test_conv2d_backward_gradient_kernel_with_stride()
+    print("✓ test_conv2d_backward_gradient_kernel_with_stride")
 
     # Integration tests
     test_conv2d_forward_backward_consistency()
