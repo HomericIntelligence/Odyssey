@@ -208,6 +208,62 @@ fn test_uint64_bitwise() raises:
         raise Error("UInt64 left shift by 8 failed")
 
 
+fn test_uint8_bitwise_not() raises:
+    """Test UInt8 bitwise NOT (complement) operation."""
+    if ~UInt8(0) != 255:
+        raise Error("~UInt8(0) should equal 255")
+    if ~UInt8(255) != 0:
+        raise Error("~UInt8(255) should equal 0")
+    if ~UInt8(0b10110100) != 0b01001011:
+        raise Error("~UInt8(180) should equal 75")
+    if ~UInt8(1) != 254:
+        raise Error("~UInt8(1) should equal 254")
+    if ~UInt8(127) != 128:
+        raise Error("~UInt8(127) should equal 128")
+
+
+fn test_uint16_bitwise_not() raises:
+    """Test UInt16 bitwise NOT (complement) operation."""
+    if ~UInt16(0) != 65535:
+        raise Error("~UInt16(0) should equal 65535")
+    if ~UInt16(65535) != 0:
+        raise Error("~UInt16(65535) should equal 0")
+    if ~UInt16(0xFF00) != 0x00FF:
+        raise Error("~UInt16(0xFF00) should equal 0x00FF")
+    if ~UInt16(1) != 65534:
+        raise Error("~UInt16(1) should equal 65534")
+    if ~UInt16(32768) != 32767:
+        raise Error("~UInt16(32768) should equal 32767")
+
+
+fn test_uint32_bitwise_not() raises:
+    """Test UInt32 bitwise NOT (complement) operation."""
+    if ~UInt32(0) != 4294967295:
+        raise Error("~UInt32(0) should equal 2^32-1")
+    if ~UInt32(4294967295) != 0:
+        raise Error("~UInt32(4294967295) should equal 0")
+    if ~UInt32(0xFF000000) != 0x00FFFFFF:
+        raise Error("~UInt32(0xFF000000) should equal 0x00FFFFFF")
+    if ~UInt32(1) != 4294967294:
+        raise Error("~UInt32(1) should equal 4294967294")
+    if ~UInt32(2147483648) != 2147483647:
+        raise Error("~UInt32(2147483648) should equal 2147483647")
+
+
+fn test_uint64_bitwise_not() raises:
+    """Test UInt64 bitwise NOT (complement) operation."""
+    if ~UInt64(0) != 18446744073709551615:
+        raise Error("~UInt64(0) should equal 2^64-1")
+    if ~UInt64(18446744073709551615) != 0:
+        raise Error("~UInt64(2^64-1) should equal 0")
+    if ~UInt64(0xFF00000000000000) != 0x00FFFFFFFFFFFFFF:
+        raise Error("~UInt64(0xFF00000000000000) should equal 0x00FFFFFFFFFFFFFF")
+    if ~UInt64(1) != 18446744073709551614:
+        raise Error("~UInt64(1) should equal 2^64-2")
+    if ~UInt64(9223372036854775808) != 9223372036854775807:
+        raise Error("~UInt64(2^63) should equal 2^63-1")
+
+
 fn test_uint8_comparisons() raises:
     """Test UInt8 comparison operators."""
     var a: UInt8 = 10
@@ -593,6 +649,30 @@ fn main():
         print("OK test_uint64_bitwise")
     except e:
         print("FAIL test_uint64_bitwise:", e)
+
+    try:
+        test_uint8_bitwise_not()
+        print("OK test_uint8_bitwise_not")
+    except e:
+        print("FAIL test_uint8_bitwise_not:", e)
+
+    try:
+        test_uint16_bitwise_not()
+        print("OK test_uint16_bitwise_not")
+    except e:
+        print("FAIL test_uint16_bitwise_not:", e)
+
+    try:
+        test_uint32_bitwise_not()
+        print("OK test_uint32_bitwise_not")
+    except e:
+        print("FAIL test_uint32_bitwise_not:", e)
+
+    try:
+        test_uint64_bitwise_not()
+        print("OK test_uint64_bitwise_not")
+    except e:
+        print("FAIL test_uint64_bitwise_not:", e)
 
     try:
         test_uint8_comparisons()
