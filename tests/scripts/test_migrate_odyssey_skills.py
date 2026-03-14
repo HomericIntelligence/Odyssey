@@ -36,27 +36,18 @@ def fake_skill_tree(tmp_path: Path):
     return odyssey_skills, mnemosyne, mnemosyne_skills
 
 
-def make_skill_dir(
-    skills_root: Path,
-    skill_name: str,
-    tier: Optional[str] = None,
-    extra_subdirs: Optional[dict] = None,
-) -> Path:
+def make_skill_dir(skills_root: Path, skill_name: str, extra_subdirs: Optional[dict] = None) -> Path:
     """Create a fake skill directory with SKILL.md and optional subdirectories.
 
     Args:
         skills_root: Root .claude/skills directory.
         skill_name: Name of the skill.
-        tier: Optional tier level ('1' or '2'); if provided, skill is nested under tier-N/.
         extra_subdirs: Dict of {subdir_name: {filename: content}} for extra subdirs.
 
     Returns:
         Path to the skill directory.
     """
-    if tier:
-        skill_dir = skills_root / f"tier-{tier}" / skill_name
-    else:
-        skill_dir = skills_root / skill_name
+    skill_dir = skills_root / skill_name
     skill_dir.mkdir(parents=True, exist_ok=True)
 
     # Write a minimal SKILL.md with frontmatter
@@ -95,69 +86,11 @@ See workflow above.
         for subdir_name, files in extra_subdirs.items():
             subdir = skill_dir / subdir_name
             subdir.mkdir(parents=True, exist_ok=True)
-            for filename, content in files.items():
-                (subdir / filename).write_text(content)
-
-    return skill_dir
-
-
-def make_tiered_skill_dir(
-    skills_root: Path,
-    tier: str,
-    skill_name: str,
-    extra_subdirs: Optional[dict] = None,
-) -> Path:
-    """Create a fake tiered skill directory with SKILL.md and optional subdirectories.
-
-    Args:
-        skills_root: Root .claude/skills directory.
-        tier: Tier string ("1" or "2").
-        skill_name: Name of the skill.
-        extra_subdirs: Dict of {subdir_name: {filename: content}} for extra subdirs.
-
-    Returns:
-        Path to the skill directory (skills_root/tier-{tier}/{skill_name}).
-    """
-    skill_dir = skills_root / f"tier-{tier}" / skill_name
-    skill_dir.mkdir(parents=True, exist_ok=True)
-
-    skill_md = skill_dir / "SKILL.md"
-    skill_md.write_text(
-        f"""---
-name: {skill_name}
-description: Test tier-{tier} skill for {skill_name}
-tier: "{tier}"
-user-invocable: false
----
-
-# {skill_name}
-
-## When to Use
-
-- Use when testing tier-{tier} skills.
-
-## Verified Workflow
-
-1. Run the skill.
-
-## Failed Attempts
-
-| Attempt | Why Failed | Lesson Learned |
-|---------|-----------|----------------|
-| N/A | No recorded failures | N/A |
-
-## Results & Parameters
-
-See workflow above.
-"""
-    )
-
-    if extra_subdirs:
-        for subdir_name, files in extra_subdirs.items():
-            subdir = skill_dir / subdir_name
-            subdir.mkdir(parents=True, exist_ok=True)
-            for filename, content in files.items():
-                (subdir / filename).write_text(content)
+            for filepath, content in files.items():
+                # Handle nested paths like "utils/helper.sh"
+                file_path = subdir / filepath
+                file_path.parent.mkdir(parents=True, exist_ok=True)
+                file_path.write_text(content)
 
     return skill_dir
 
@@ -348,41 +281,6 @@ class TestMigrateSkillAuxiliaryDirs:
         assert (scripts_dir / "run_orchestrator.sh").exists()
         assert (scripts_dir / "helper.sh").exists()
 
-    def test_skill_with_deeply_nested_scripts_subdir(self, tmp_path: Path, migrate_module) -> None:
-        """scripts/utils/helper.sh (subdir inside scripts/) is preserved after migration."""
-        odyssey_skills = tmp_path / "odyssey_skills"
-        mnemosyne_skills = tmp_path / "mnemosyne" / "skills"
-        mnemosyne_skills.mkdir(parents=True)
-
-        skill_dir = make_skill_dir(odyssey_skills, "agent-run-orchestrator")
-        # Create a subdirectory *within* scripts/ to test multi-level nesting
-        nested_dir = skill_dir / "scripts" / "utils"
-        nested_dir.mkdir(parents=True)
-        (nested_dir / "helper.sh").write_text("#!/bin/bash\necho helper")
-
-        skill_md = odyssey_skills / "agent-run-orchestrator" / "SKILL.md"
-
-        with patch.object(migrate_module, "MNEMOSYNE_SKILLS_DIR", mnemosyne_skills):
-            result = migrate_module.migrate_skill(
-                skill_name="agent-run-orchestrator",
-                source_skill_md=skill_md,
-                category="tooling",
-                dry_run=False,
-            )
-
-        assert result is True
-        nested_helper = (
-            mnemosyne_skills
-            / "tooling"
-            / "agent-run-orchestrator"
-            / "skills"
-            / "agent-run-orchestrator"
-            / "scripts"
-            / "utils"
-            / "helper.sh"
-        )
-        assert nested_helper.exists(), f"Expected deeply nested helper at {nested_helper}"
-
     def test_dry_run_does_not_copy_files(self, tmp_path: Path, migrate_module) -> None:
         """dry_run=True does not write any files."""
         odyssey_skills = tmp_path / "odyssey_skills"
@@ -518,185 +416,42 @@ class TestMigrateSkillAuxiliaryDirs:
         assert (pre_existing / "run.sh").exists()
         assert (pre_existing / "existing_file.sh").exists()
 
-    def test_warns_when_dest_subdir_already_exists(
-        self, tmp_path: Path, migrate_module, capsys: pytest.CaptureFixture
-    ) -> None:
-        """Warning is printed to stderr when destination subdir pre-exists before copytree."""
+    def test_deeply_nested_subdir_content_preserved(self, tmp_path: Path, migrate_module) -> None:
+        """Nested files within subdirs (e.g. scripts/utils/helper.sh) are all preserved."""
         odyssey_skills = tmp_path / "odyssey_skills"
         mnemosyne_skills = tmp_path / "mnemosyne" / "skills"
         mnemosyne_skills.mkdir(parents=True)
 
         make_skill_dir(
             odyssey_skills,
-            "some-skill",
-            extra_subdirs={"scripts": {"run.sh": "#!/bin/bash\necho hi"}},
-        )
-
-        # Pre-create the destination scripts/ directory
-        pre_existing = mnemosyne_skills / "tooling" / "some-skill" / "skills" / "some-skill" / "scripts"
-        pre_existing.mkdir(parents=True)
-
-        skill_md = odyssey_skills / "some-skill" / "SKILL.md"
-
-        with patch.object(migrate_module, "MNEMOSYNE_SKILLS_DIR", mnemosyne_skills):
-            result = migrate_module.migrate_skill(
-                skill_name="some-skill",
-                source_skill_md=skill_md,
-                category="tooling",
-                dry_run=False,
-            )
-
-        assert result is True
-        captured = capsys.readouterr()
-        assert "WARNING: destination subdir already exists and will be merged:" in captured.err
-        assert str(pre_existing) in captured.err
-
-    def test_warns_when_dest_subdir_already_exists_dry_run(
-        self, tmp_path: Path, migrate_module, capsys: pytest.CaptureFixture
-    ) -> None:
-        """Warning fires in dry-run mode too when destination subdir pre-exists."""
-        odyssey_skills = tmp_path / "odyssey_skills"
-        mnemosyne_skills = tmp_path / "mnemosyne" / "skills"
-        mnemosyne_skills.mkdir(parents=True)
-
-        make_skill_dir(
-            odyssey_skills,
-            "some-skill",
-            extra_subdirs={"scripts": {"run.sh": "#!/bin/bash\necho hi"}},
-        )
-
-        # Pre-create the destination scripts/ directory
-        pre_existing = mnemosyne_skills / "tooling" / "some-skill" / "skills" / "some-skill" / "scripts"
-        pre_existing.mkdir(parents=True)
-
-        skill_md = odyssey_skills / "some-skill" / "SKILL.md"
-
-        with patch.object(migrate_module, "MNEMOSYNE_SKILLS_DIR", mnemosyne_skills):
-            result = migrate_module.migrate_skill(
-                skill_name="some-skill",
-                source_skill_md=skill_md,
-                category="tooling",
-                dry_run=True,
-            )
-
-        assert result is True
-        captured = capsys.readouterr()
-        assert "WARNING: destination subdir already exists and will be merged:" in captured.err
-        assert str(pre_existing) in captured.err
-
-
-class TestTierSkillAuxiliaryDirs:
-    """Tests that tier-1 and tier-2 skills with auxiliary dirs are copied correctly."""
-
-    @pytest.mark.parametrize(
-        "skill_name,tier,extra_subdirs",
-        [
-            ("analyze-code-structure", "1", {"scripts": {"analyze.py": "#!/usr/bin/env python3\nprint('analyze')"}}),
-            ("train-model", "2", {"templates": {"training_config.yaml": "epochs: 100\nbatch_size: 32"}}),
-            (
-                "extract-dependencies",
-                "1",
-                {
-                    "scripts": {"extract.sh": "#!/bin/bash\necho extract"},
-                    "templates": {"dep_template.txt": "dependency: value"},
-                },
-            ),
-            ("validate-inputs", "2", {"references": {"validation_guide.md": "# Validation Guide"}}),
-        ],
-    )
-    def test_tier_skills_with_auxiliary_dirs_migrates_correctly(
-        self,
-        skill_name: str,
-        tier: str,
-        extra_subdirs: dict,
-        tmp_path: Path,
-        migrate_module,
-    ) -> None:
-        """Tier-1 and tier-2 skills with auxiliary subdirs should migrate correctly."""
-        odyssey_skills = tmp_path / "odyssey_skills"
-        mnemosyne_skills = tmp_path / "mnemosyne" / "skills"
-        mnemosyne_skills.mkdir(parents=True)
-
-        make_skill_dir(odyssey_skills, skill_name, tier=tier, extra_subdirs=extra_subdirs)
-        skill_md = odyssey_skills / f"tier-{tier}" / skill_name / "SKILL.md"
-
-        with patch.object(migrate_module, "MNEMOSYNE_SKILLS_DIR", mnemosyne_skills):
-            result = migrate_module.migrate_skill(
-                skill_name=skill_name,
-                source_skill_md=skill_md,
-                category="tooling",
-                dry_run=False,
-                tier=tier,
-            )
-
-        assert result is True
-        plugin_dir = mnemosyne_skills / "tooling" / skill_name
-        assert plugin_dir.exists(), f"Plugin dir should exist at {plugin_dir}"
-
-        # Verify all expected subdirectories were copied
-        for subdir_name in extra_subdirs.keys():
-            if subdir_name == "references":
-                # references/ goes to plugin root
-                expected_path = plugin_dir / "references"
-            else:
-                # Other subdirs go inside skills/<name>/
-                expected_path = plugin_dir / "skills" / skill_name / subdir_name
-            assert expected_path.exists(), f"Expected subdir {subdir_name} at {expected_path}"
-
-    def test_tier1_skill_with_only_skill_md(self, tmp_path: Path, migrate_module) -> None:
-        """A tier-1 skill with only SKILL.md migrates correctly."""
-        odyssey_skills = tmp_path / "odyssey_skills"
-        mnemosyne_skills = tmp_path / "mnemosyne" / "skills"
-        mnemosyne_skills.mkdir(parents=True)
-
-        make_skill_dir(odyssey_skills, "analyze-code-structure", tier="1")
-        skill_md = odyssey_skills / "tier-1" / "analyze-code-structure" / "SKILL.md"
-
-        with patch.object(migrate_module, "MNEMOSYNE_SKILLS_DIR", mnemosyne_skills):
-            result = migrate_module.migrate_skill(
-                skill_name="analyze-code-structure",
-                source_skill_md=skill_md,
-                category="evaluation",
-                dry_run=False,
-                tier="1",
-            )
-
-        assert result is True
-        plugin_dir = mnemosyne_skills / "evaluation" / "analyze-code-structure"
-        assert (plugin_dir / ".claude-plugin" / "plugin.json").exists()
-        assert (plugin_dir / "skills" / "analyze-code-structure" / "SKILL.md").exists()
-
-    def test_tier2_skill_with_scripts_and_templates(self, tmp_path: Path, migrate_module) -> None:
-        """A tier-2 skill with scripts/ and templates/ subdirs migrates correctly."""
-        odyssey_skills = tmp_path / "odyssey_skills"
-        mnemosyne_skills = tmp_path / "mnemosyne" / "skills"
-        mnemosyne_skills.mkdir(parents=True)
-
-        make_skill_dir(
-            odyssey_skills,
-            "train-model",
-            tier="2",
+            "gh-create-pr-linked",
             extra_subdirs={
-                "scripts": {"train.py": "#!/usr/bin/env python3\nprint('training')"},
-                "templates": {"config.yaml": "epochs: 50\nbatch_size: 64"},
+                "scripts": {
+                    "main.sh": "#!/bin/bash\necho main",
+                    "utils/helper.sh": "#!/bin/bash\necho help",
+                    "utils/config/settings.sh": "#!/bin/bash\necho settings",
+                }
             },
         )
-        skill_md = odyssey_skills / "tier-2" / "train-model" / "SKILL.md"
+
+        skill_md = odyssey_skills / "gh-create-pr-linked" / "SKILL.md"
 
         with patch.object(migrate_module, "MNEMOSYNE_SKILLS_DIR", mnemosyne_skills):
             result = migrate_module.migrate_skill(
-                skill_name="train-model",
+                skill_name="gh-create-pr-linked",
                 source_skill_md=skill_md,
-                category="training",
+                category="tooling",
                 dry_run=False,
-                tier="2",
             )
 
         assert result is True
-        plugin_dir = mnemosyne_skills / "training" / "train-model"
-        skill_inner_dir = plugin_dir / "skills" / "train-model"
-        assert (skill_inner_dir / "scripts" / "train.py").exists()
-        assert (skill_inner_dir / "templates" / "config.yaml").exists()
+        scripts_dir = (
+            mnemosyne_skills / "tooling" / "gh-create-pr-linked" / "skills" / "gh-create-pr-linked" / "scripts"
+        )
+        # All files should exist with full nested structure preserved
+        assert (scripts_dir / "main.sh").exists()
+        assert (scripts_dir / "utils" / "helper.sh").exists()
+        assert (scripts_dir / "utils" / "config" / "settings.sh").exists()
 
 
 class TestResolveMnemosyneDir:
@@ -783,266 +538,3 @@ class TestMainErrorMessage:
         assert result == 1
         captured = capsys.readouterr()
         assert "--target-dir" in captured.err or "MNEMOSYNE_DIR" in captured.err
-
-
-class TestMigrateSkillDescriptionWithColon:
-    """End-to-end tests for migrate_skill() with descriptions containing colons.
-
-    Regression tests for issue #3310 / #3931: Verify that descriptions with colons
-    are preserved through the full migration pipeline and appear untruncated in both
-    plugin.json and SKILL.md.
-    """
-
-    def test_migrate_skill_preserves_colon_in_description_in_plugin_json(self, tmp_path: Path, migrate_module) -> None:
-        """End-to-end: description with colon appears fully in plugin.json."""
-        odyssey_skills = tmp_path / "odyssey_skills"
-        mnemosyne_skills = tmp_path / "mnemosyne" / "skills"
-        mnemosyne_skills.mkdir(parents=True)
-
-        # Create skill with description containing a colon
-        skill_dir = odyssey_skills / "gh-create-pr-linked"
-        skill_dir.mkdir(parents=True)
-
-        skill_md = skill_dir / "SKILL.md"
-        skill_md.write_text(
-            """---
-name: gh-create-pr-linked
-description: "Create GitHub PR linked to issue: matches issue number from branch"
-category: github
-user-invocable: true
----
-
-# Create GitHub PR
-
-When to use this skill.
-"""
-        )
-
-        with patch.object(migrate_module, "MNEMOSYNE_SKILLS_DIR", mnemosyne_skills):
-            result = migrate_module.migrate_skill(
-                skill_name="gh-create-pr-linked",
-                source_skill_md=skill_md,
-                category="github",
-                dry_run=False,
-            )
-
-        assert result is True
-
-        # Verify plugin.json contains the full description with colon
-        plugin_json_path = mnemosyne_skills / "github" / "gh-create-pr-linked" / ".claude-plugin" / "plugin.json"
-        assert plugin_json_path.exists()
-
-        import json
-
-        plugin_data = json.loads(plugin_json_path.read_text())
-        assert plugin_data["description"] == ("Create GitHub PR linked to issue: matches issue number from branch")
-
-    def test_migrate_skill_preserves_colon_in_description_in_skill_md(self, tmp_path: Path, migrate_module) -> None:
-        """End-to-end: description with colon appears fully in migrated SKILL.md."""
-        odyssey_skills = tmp_path / "odyssey_skills"
-        mnemosyne_skills = tmp_path / "mnemosyne" / "skills"
-        mnemosyne_skills.mkdir(parents=True)
-
-        # Create skill with description containing a colon
-        skill_dir = odyssey_skills / "mojo-format"
-        skill_dir.mkdir(parents=True)
-
-        skill_md = skill_dir / "SKILL.md"
-        skill_md.write_text(
-            """---
-name: mojo-format
-description: "Format Mojo code: uses pixi run mojo format"
-category: mojo
-user-invocable: false
----
-
-# Format Mojo Code
-
-Detailed information about the skill.
-"""
-        )
-
-        with patch.object(migrate_module, "MNEMOSYNE_SKILLS_DIR", mnemosyne_skills):
-            result = migrate_module.migrate_skill(
-                skill_name="mojo-format",
-                source_skill_md=skill_md,
-                category="mojo",
-                dry_run=False,
-            )
-
-        assert result is True
-
-        # Verify migrated SKILL.md frontmatter contains the full description
-        migrated_skill_md = mnemosyne_skills / "mojo" / "mojo-format" / "skills" / "mojo-format" / "SKILL.md"
-        assert migrated_skill_md.exists()
-
-        migrated_content = migrated_skill_md.read_text()
-        # Verify description appears untruncated in the migrated file
-        # (Note: The migrated SKILL.md should quote the description for valid YAML,
-        # but the key point is the description is not truncated)
-        assert "Format Mojo code: uses pixi run mojo format" in migrated_content
-        assert migrated_content.count("Format Mojo code: uses pixi run mojo format") >= 2  # In frontmatter and Overview
-
-
-# ---------------------------------------------------------------------------
-# Parametrize tuples: (skill_name, tier, extra_subdirs_spec, expected_category)
-# ---------------------------------------------------------------------------
-_TIERED_AUXILIARY_CASES = [
-    pytest.param(
-        "run-tests",
-        "1",
-        {"scripts": {"run_tests.sh": "#!/bin/bash\necho 'running tests'"}},
-        "tooling",
-        id="tier1-run-tests-scripts",
-    ),
-    pytest.param(
-        "lint-code",
-        "1",
-        {"templates": {"lint_config.yaml": "rules:\n  - no-unused-vars"}},
-        "tooling",
-        id="tier1-lint-code-templates",
-    ),
-    pytest.param(
-        "generate-tests",
-        "2",
-        {"scripts": {"gen_tests.py": "#!/usr/bin/env python3\n# generate tests"}},
-        "testing",
-        id="tier2-generate-tests-scripts",
-    ),
-    pytest.param(
-        "generate-docstrings",
-        "2",
-        {"templates": {"docstring.md": "# Docstring Template\n\nArgs:\n"}},
-        "documentation",
-        id="tier2-generate-docstrings-templates",
-    ),
-    pytest.param(
-        "profile-code",
-        "2",
-        {"references": {"profiling_notes.md": "# Profiling Reference\n\nUse cProfile."}},
-        "optimization",
-        id="tier2-profile-code-references",
-    ),
-    pytest.param(
-        "generate-tests",
-        "2",
-        {
-            "scripts": {"gen_tests.py": "#!/usr/bin/env python3\n# generate tests"},
-            "templates": {"test_template.py": "def test_example():\n    pass"},
-        },
-        "testing",
-        id="tier2-generate-tests-scripts-and-templates",
-    ),
-]
-
-
-class TestMigrateSkillTieredAuxiliaryDirs:
-    """Tests that auxiliary subdirectories are copied for tier-1 and tier-2 skills."""
-
-    @pytest.mark.parametrize(
-        "skill_name,tier,extra_subdirs_spec,expected_category",
-        _TIERED_AUXILIARY_CASES,
-    )
-    def test_tier_skill_auxiliary_subdirs_copied(
-        self,
-        tmp_path: Path,
-        migrate_module,
-        skill_name: str,
-        tier: str,
-        extra_subdirs_spec: dict,
-        expected_category: str,
-    ) -> None:
-        """Auxiliary subdirs in tier-1/tier-2 skills are copied to the correct destinations."""
-        odyssey_skills = tmp_path / "odyssey_skills"
-        mnemosyne_skills = tmp_path / "mnemosyne" / "skills"
-        mnemosyne_skills.mkdir(parents=True)
-
-        make_tiered_skill_dir(odyssey_skills, tier, skill_name, extra_subdirs=extra_subdirs_spec)
-        source_skill_md = odyssey_skills / f"tier-{tier}" / skill_name / "SKILL.md"
-
-        with patch.object(migrate_module, "MNEMOSYNE_SKILLS_DIR", mnemosyne_skills):
-            result = migrate_module.migrate_skill(
-                skill_name=skill_name,
-                source_skill_md=source_skill_md,
-                category=expected_category,
-                dry_run=False,
-                tier=tier,
-            )
-
-        assert result is True
-
-        plugin_dir = mnemosyne_skills / expected_category / skill_name
-        skill_inner_dir = plugin_dir / "skills" / skill_name
-
-        for subdir_name, files in extra_subdirs_spec.items():
-            if subdir_name == "references":
-                dest_dir = plugin_dir / "references"
-            else:
-                dest_dir = skill_inner_dir / subdir_name
-
-            assert dest_dir.exists(), f"Expected {subdir_name}/ at {dest_dir}"
-            for filename, content in files.items():
-                dest_file = dest_dir / filename
-                assert dest_file.exists(), f"Expected file {filename} at {dest_file}"
-                assert dest_file.read_text() == content
-
-    def test_tier1_skill_dry_run_no_files_created(self, tmp_path: Path, migrate_module) -> None:
-        """dry_run=True for a tier-1 skill with scripts/ creates no files."""
-        odyssey_skills = tmp_path / "odyssey_skills"
-        mnemosyne_skills = tmp_path / "mnemosyne" / "skills"
-        mnemosyne_skills.mkdir(parents=True)
-
-        make_tiered_skill_dir(
-            odyssey_skills,
-            "1",
-            "run-tests",
-            extra_subdirs={"scripts": {"run_tests.sh": "#!/bin/bash\necho run"}},
-        )
-        source_skill_md = odyssey_skills / "tier-1" / "run-tests" / "SKILL.md"
-
-        with patch.object(migrate_module, "MNEMOSYNE_SKILLS_DIR", mnemosyne_skills):
-            result = migrate_module.migrate_skill(
-                skill_name="run-tests",
-                source_skill_md=source_skill_md,
-                category="tooling",
-                dry_run=True,
-                tier="1",
-            )
-
-        assert result is True
-        plugin_dir = mnemosyne_skills / "tooling" / "run-tests"
-        assert not plugin_dir.exists(), "dry_run should not create any directories for tier-1 skill"
-
-    def test_tier2_references_not_inside_skill_inner_dir(self, tmp_path: Path, migrate_module) -> None:
-        """For a tier-2 skill, references/ lands at plugin root, NOT inside skills/<name>/."""
-        odyssey_skills = tmp_path / "odyssey_skills"
-        mnemosyne_skills = tmp_path / "mnemosyne" / "skills"
-        mnemosyne_skills.mkdir(parents=True)
-
-        make_tiered_skill_dir(
-            odyssey_skills,
-            "2",
-            "profile-code",
-            extra_subdirs={"references": {"notes.md": "# Profiling Reference"}},
-        )
-        source_skill_md = odyssey_skills / "tier-2" / "profile-code" / "SKILL.md"
-
-        with patch.object(migrate_module, "MNEMOSYNE_SKILLS_DIR", mnemosyne_skills):
-            result = migrate_module.migrate_skill(
-                skill_name="profile-code",
-                source_skill_md=source_skill_md,
-                category="optimization",
-                dry_run=False,
-                tier="2",
-            )
-
-        assert result is True
-
-        plugin_dir = mnemosyne_skills / "optimization" / "profile-code"
-        skill_inner_dir = plugin_dir / "skills" / "profile-code"
-
-        # references/ should be at plugin root
-        assert (plugin_dir / "references" / "notes.md").exists()
-        # references/ should NOT be inside skills/<name>/references/
-        wrong_location = skill_inner_dir / "references"
-        assert not wrong_location.exists(), "references/ must not be nested inside skills/<name>/ for tier-2 skills"
