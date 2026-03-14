@@ -31,6 +31,17 @@ repos:
         pass_filenames: false
         always_run: true
 
+  # Dockerfile and Docker Compose verification
+  - repo: local
+    hooks:
+      - id: no-cargo-in-docker
+        name: Enforce cargo-free Docker builds
+        description: Prevent cargo/cargo install in Docker files for reproducible builds (Issue #3993)
+        entry: bash -c 'violations=$(grep -rn "cargo" "$@" | grep -v "^[^:]*:[^:]*:#"); if [ -n "$violations" ]; then echo "Found cargo references in Docker files (must use pre-built binaries):"; echo "$violations"; exit 1; fi'
+        language: system
+        files: ^(Dockerfile|Dockerfile\..*|docker-compose.*\.ya?ml)$
+        pass_filenames: true
+
   # Security workflow property checks - prevents regression of gaps fixed in #3143
   # Runs only when security workflow files are staged
   - repo: local
