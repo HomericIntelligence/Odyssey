@@ -21,18 +21,27 @@ from typing import List, Set, Tuple
 
 from common import get_repo_root
 
+# File suffixes to include in audit (extensible if new file types are added)
+ALLOWED_SUFFIXES = {".md"}
 
-def list_shared_files(shared_dir: Path) -> List[str]:
+
+def list_shared_files(shared_dir: Path, suffixes: Set[str] = None) -> List[str]:
     """
-    List all .md files in the shared directory.
+    List all shared documentation files in the shared directory.
+
+    By default, only .md files are included. Use suffixes parameter to extend
+    to other file types (e.g., {".md", ".yaml", ".sh"}).
 
     Args:
         shared_dir: Path to .claude/shared/ directory
+        suffixes: Set of allowed file suffixes (defaults to {".md"})
 
     Returns:
         List of relative paths like '.claude/shared/foo.md'
     """
-    return sorted(f".claude/shared/{p.name}" for p in shared_dir.iterdir() if p.is_file() and p.suffix == ".md")
+    if suffixes is None:
+        suffixes = ALLOWED_SUFFIXES
+    return sorted(f".claude/shared/{p.name}" for p in shared_dir.iterdir() if p.is_file() and p.suffix in suffixes)
 
 
 def extract_quick_links_section(claude_md_content: str) -> str:
