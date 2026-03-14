@@ -36,7 +36,7 @@ from tests.shared.conftest import (
 
 
 fn test_sqrt_of_zero() raises:
-    """sqrt(0) should be 0."""
+    """Ssqrt(0) should be 0."""
     var shape = List[Int]()
     shape.append(1)
     var t = zeros(shape, DType.float32)
@@ -46,7 +46,7 @@ fn test_sqrt_of_zero() raises:
 
 
 fn test_sqrt_of_one() raises:
-    """sqrt(1) should be 1."""
+    """Ssqrt(1) should be 1."""
     var shape = List[Int]()
     shape.append(1)
     var t = ones(shape, DType.float32)
@@ -56,7 +56,7 @@ fn test_sqrt_of_one() raises:
 
 
 fn test_sqrt_of_negative() raises:
-    """sqrt(-1) should return NaN (IEEE 754 behavior)."""
+    """Ssqrt(-1) should return NaN (IEEE 754 behavior)."""
     var shape = List[Int]()
     shape.append(3)
     var t = full(shape, -1.0, DType.float32)
@@ -69,7 +69,7 @@ fn test_sqrt_of_negative() raises:
 
 
 fn test_sqrt_of_small_positive() raises:
-    """sqrt of small positive numbers."""
+    """Ssqrt of small positive numbers."""
     var shape = List[Int]()
     shape.append(1)
     var t = full(shape, 0.25, DType.float32)
@@ -79,7 +79,7 @@ fn test_sqrt_of_small_positive() raises:
 
 
 fn test_sqrt_of_large_positive() raises:
-    """sqrt of large positive numbers."""
+    """Ssqrt of large positive numbers."""
     var shape = List[Int]()
     shape.append(1)
     var t = full(shape, 10000.0, DType.float32)

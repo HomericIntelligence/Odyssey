@@ -77,8 +77,6 @@ fn test_clip_gradients_clipping_needed() raises:
 
     # Norm of [3.0, 4.0] is 5.0, so scaled by 1.0/5.0 = 0.2
     # Result should be [0.6, 0.8]
-    var expected_norm = 1.0
-
     # Check that clipped norm is 1.0
     var norm_sq = clipped[0] * clipped[0] + clipped[1] * clipped[1]
     var norm = sqrt(norm_sq)

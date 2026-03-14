@@ -188,6 +188,7 @@ fn test_mobilenetv1_classifier_head() raises:
     var batch_size = 2
     var num_channels = 256
     var num_classes = 10
+    _ = num_classes
 
     # Create feature map from last block: (2, 256, 2, 2)
     var feature_shape = List[Int]()
@@ -531,7 +532,7 @@ fn test_mobilenetv1_training_step_simulation() raises:
     var bias = zeros([16], DType.float32)
 
     var features = conv2d(input, kernel, bias, stride=1, padding=1)
-    features = relu(features)
+    _ = relu(features)
 
     # Produce logits (simulated by creating correct shape)
     var logits = ones([batch_size, num_classes], DType.float32)

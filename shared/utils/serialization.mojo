@@ -429,7 +429,7 @@ fn load_named_checkpoint(
         with open(meta_path, "r") as f:
             meta_content = f.read()
         metadata = _deserialize_metadata(meta_content)
-    except e:
+    except:
         # Metadata file not found, return empty metadata
         pass
 

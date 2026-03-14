@@ -60,11 +60,11 @@ fn test_early_stopping_min_mode_no_improvement() raises:
     )
 
     var state = TrainingState(epoch=0, batch=0, learning_rate=0.01)
-    early_stop.on_train_begin(state)
+    _ = early_stop.on_train_begin(state)
 
     # Epoch 0: val_loss = 1.0
     state.metrics["val_loss"] = 1.0
-    early_stop.on_epoch_end(state)
+    _ = early_stop.on_epoch_end(state)
 
     # Epoch 1: val_loss = 0.9999 (didn't improve by min_delta)
     state.epoch = 1
@@ -88,7 +88,7 @@ fn test_early_stopping_max_mode_improves() raises:
     )
 
     var state = TrainingState(epoch=0, batch=0, learning_rate=0.01)
-    early_stop.on_train_begin(state)
+    _ = early_stop.on_train_begin(state)
 
     # Epoch 0: accuracy = 0.8
     state.metrics["val_accuracy"] = 0.8
@@ -111,11 +111,11 @@ fn test_early_stopping_max_mode_no_improvement() raises:
     )
 
     var state = TrainingState(epoch=0, batch=0, learning_rate=0.01)
-    early_stop.on_train_begin(state)
+    _ = early_stop.on_train_begin(state)
 
     # Epoch 0: accuracy = 0.8
     state.metrics["val_accuracy"] = 0.8
-    early_stop.on_epoch_end(state)
+    _ = early_stop.on_epoch_end(state)
 
     # Epoch 1: accuracy = 0.7999 (degraded)
     state.epoch = 1
@@ -132,7 +132,7 @@ fn test_early_stopping_missing_metric() raises:
     )
 
     var state = TrainingState(epoch=0, batch=0, learning_rate=0.01)
-    early_stop.on_train_begin(state)
+    _ = early_stop.on_train_begin(state)
 
     # Epoch has no val_loss metric
     state.metrics["train_loss"] = 0.5
@@ -150,16 +150,16 @@ fn test_early_stopping_should_stop_method() raises:
     )
 
     var state = TrainingState(epoch=0, batch=0, learning_rate=0.01)
-    early_stop.on_train_begin(state)
+    _ = early_stop.on_train_begin(state)
 
     state.metrics["val_loss"] = 1.0
-    early_stop.on_epoch_end(state)
+    _ = early_stop.on_epoch_end(state)
 
     state.epoch = 1
     state.metrics[
         "val_loss"
     ] = 1.1  # Worse than 1.0 in min mode - no improvement
-    early_stop.on_epoch_end(state)
+    _ = early_stop.on_epoch_end(state)
 
     assert_true(
         early_stop.should_stop(),

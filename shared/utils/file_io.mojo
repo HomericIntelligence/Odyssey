@@ -621,7 +621,7 @@ fn safe_read_file(filepath: String) raises -> String:
     try:
         with open(filepath, "r") as f:
             return f.read()
-    except e:
+    except:
         raise Error("File not found: " + filepath)
 
 
@@ -820,7 +820,7 @@ fn file_exists(filepath: String) -> Bool:
         with open(filepath, "r") as f:
             _ = f.read()  # Attempt to read (confirms it's a file)
         return True
-    except e:
+    except:
         return False
 
 

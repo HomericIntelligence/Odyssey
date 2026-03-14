@@ -40,7 +40,7 @@ fn test_dropout_backward_exported() raises:
 
     # Forward pass
     var result = dropout(x, p=0.5, training=True, seed=42)
-    var output = result[0]
+    _ = result[0]
     var mask = result[1]
 
     # Backward pass using autograd-exported function
@@ -201,7 +201,7 @@ fn test_dropout2d_backward_exported() raises:
 
     # Forward pass
     var result6 = dropout2d(x, p=0.2, training=True, seed=42)
-    var output = result6[0]
+    _ = result6[0]
     var mask = result6[1]
 
     # Backward pass using autograd-exported function

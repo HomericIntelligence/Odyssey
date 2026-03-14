@@ -37,7 +37,7 @@ from tests.shared.conftest import (
 
 
 fn test_exp_of_zero() raises:
-    """exp(0) should be 1."""
+    """Eexp(0) should be 1."""
     var shape = List[Int]()
     shape.append(1)
     var t = zeros(shape, DType.float32)
@@ -47,7 +47,7 @@ fn test_exp_of_zero() raises:
 
 
 fn test_exp_of_one() raises:
-    """exp(1) should be e."""
+    """Eexp(1) should be e."""
     var shape = List[Int]()
     shape.append(1)
     var t = ones(shape, DType.float32)
@@ -57,7 +57,7 @@ fn test_exp_of_one() raises:
 
 
 fn test_exp_of_negative() raises:
-    """exp(-1) should be 1/e."""
+    """Eexp(-1) should be 1/e."""
     var shape = List[Int]()
     shape.append(1)
     var t = full(shape, -1.0, DType.float32)
@@ -67,7 +67,7 @@ fn test_exp_of_negative() raises:
 
 
 fn test_exp_of_large_positive() raises:
-    """exp(large) should overflow to inf."""
+    """Eexp(large) should overflow to inf."""
     var shape = List[Int]()
     shape.append(1)
     var t = full(shape, 1000.0, DType.float32)
@@ -79,7 +79,7 @@ fn test_exp_of_large_positive() raises:
 
 
 fn test_exp_of_large_negative() raises:
-    """exp(-large) should underflow to 0."""
+    """Eexp(-large) should underflow to 0."""
     var shape = List[Int]()
     shape.append(1)
     var t = full(shape, -1000.0, DType.float32)
