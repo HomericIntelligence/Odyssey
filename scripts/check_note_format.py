@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Check NOTE format compliance in Mojo source files.
 
-Scans .mojo files for # NOTE patterns that do not follow the required
+Scans .mojo and .🔥 files for # NOTE patterns that do not follow the required
 # NOTE (Mojo vX.Y.Z): format, as enforced by issue #3285.
 
 The compliant format requires a parenthesized version annotation:
@@ -48,7 +48,7 @@ def is_excluded(path: Path) -> bool:
 
 
 def find_violations(search_path: Path) -> List[Tuple[Path, int, str]]:
-    """Find all NOTE format violations in .mojo files under search_path.
+    """Find all NOTE format violations in .mojo and .🔥 files under search_path.
 
     Args:
         search_path: Directory to scan recursively.
@@ -58,7 +58,20 @@ def find_violations(search_path: Path) -> List[Tuple[Path, int, str]]:
     """
     violations: List[Tuple[Path, int, str]] = []
 
+    # Scan for both .mojo and .🔥 files
     for mojo_file in sorted(search_path.rglob("*.mojo")):
+        if is_excluded(mojo_file):
+            continue
+        try:
+            lines = mojo_file.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+
+        for line_num, line in enumerate(lines, start=1):
+            if NOTE_VIOLATION_PATTERN.search(line):
+                violations.append((mojo_file, line_num, line.rstrip()))
+
+    for mojo_file in sorted(search_path.rglob("*.🔥")):
         if is_excluded(mojo_file):
             continue
         try:
