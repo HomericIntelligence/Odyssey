@@ -125,6 +125,8 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    repo_root = get_repo_root()
+
     if args.directory is not None:
         search_path = Path(args.directory).resolve()
         if not search_path.exists():
@@ -132,14 +134,18 @@ def main() -> int:
             return 1
         violations = find_violations(search_path)
     else:
-        repo_root = get_repo_root()
         violations = scan_source_dirs(repo_root)
 
     if not violations:
         return 0
 
     for file_path, line_num, line_content in violations:
-        print(f"{file_path}:{line_num}: {line_content}")
+        # Show relative path from repo root
+        try:
+            rel_path = file_path.relative_to(repo_root)
+        except ValueError:
+            rel_path = file_path
+        print(f"{rel_path}:{line_num}: {line_content}")
 
     print(
         f"\n{len(violations)} violation(s) found. Use '# NOTE (Mojo vX.Y.Z): ...' format.",
