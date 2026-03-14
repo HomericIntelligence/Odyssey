@@ -19,8 +19,8 @@ from tests.shared.conftest import assert_true, assert_equal_int
 
 fn test_no_memory_leak_in_creation_loop() raises:
     """Verify no memory leaks in repeated tensor creation."""
-    alias NUM_ITERATIONS = 10000
-    alias TENSOR_SIZE = 100
+    comptime NUM_ITERATIONS = 10000
+    comptime TENSOR_SIZE = 100
     for _ in range(NUM_ITERATIONS):
         var tensor = zeros([TENSOR_SIZE, TENSOR_SIZE], DType.float32)
 
@@ -29,7 +29,7 @@ fn test_no_memory_leak_in_creation_loop() raises:
 
 fn test_no_memory_leak_in_operation_loop() raises:
     """Verify no memory leaks in repeated tensor operations."""
-    alias NUM_ITERATIONS = 5000
+    comptime NUM_ITERATIONS = 5000
     for _ in range(NUM_ITERATIONS):
         var tensor1 = zeros([50, 50], DType.float32)
         var tensor2 = ones([50, 50], DType.float32)
@@ -40,7 +40,7 @@ fn test_no_memory_leak_in_operation_loop() raises:
 
 fn test_no_memory_leak_with_copies() raises:
     """Verify no memory leaks with shared copies."""
-    alias NUM_ITERATIONS = 1000
+    comptime NUM_ITERATIONS = 1000
     for _ in range(NUM_ITERATIONS):
         var tensor1 = ones([100, 100], DType.float32)
         var tensor2 = tensor1
@@ -53,8 +53,8 @@ fn test_no_memory_leak_with_copies() raises:
 
 fn test_large_tensor_lifecycle() raises:
     """Test large tensor allocation and deallocation."""
-    alias NUM_ITERATIONS = 50
-    alias LARGE_SIZE = 1000
+    comptime NUM_ITERATIONS = 50
+    comptime LARGE_SIZE = 1000
     for _ in range(NUM_ITERATIONS):
         var tensor = zeros([LARGE_SIZE, LARGE_SIZE], DType.float32)
         _ = tensor.numel()
@@ -83,12 +83,12 @@ fn test_view_does_not_free_data() raises:
     var original = zeros([12], DType.float32)
     original._data.bitcast[Float32]()[0] = 42.0
 
-    if True:
-        var shape = List[Int]()
-        shape.append(3)
-        shape.append(4)
-        var view = original.reshape(shape)
-        assert_true(view._is_view, "Should be marked as view")
+    var shape = List[Int]()
+    shape.append(3)
+    shape.append(4)
+    var view = original.reshape(shape)
+    assert_true(view._is_view, "Should be marked as view")
+    _ = view^  # Explicitly drop view to release scope
 
     var value = original._data.bitcast[Float32]()[0]
     assert_true(value == 42.0, "Original data should be intact")
