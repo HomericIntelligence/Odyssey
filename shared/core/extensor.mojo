@@ -91,6 +91,10 @@ struct ExTensor(
             print(a.shape())  # [3, 4]
             print(a.dtype())  # float32
             print(a.numel())  # 12.
+
+            # Use tensors as dictionary keys (Hashable trait)
+            from hashlib import hash
+            var h = hash(a)  # ExTensor implements hashing for dict/set usage
     """
 
     var _data: UnsafePointer[UInt8, origin=MutAnyOrigin]
