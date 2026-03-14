@@ -118,9 +118,13 @@ from shared.data.random_transform_base import (
 
 # Core transforms (most commonly used)
 from shared.data.transforms import (
+    ToExTensor,  # Convert data to tensor format
     Normalize,  # Normalize tensor values: (x - mean) / std
     Compose,  # Chain multiple transforms into a single transform
 )
+
+# Alias for consistency with comment references
+alias ToTensor = ToExTensor
 
 # ============================================================================
 # Data Loaders and Samplers
