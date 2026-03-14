@@ -28,13 +28,16 @@ gh run view <run-id> --log-failed | head -200
 # - "link check failed" = network flake or dead URL
 ```
 
-**Key insight**: JIT crashes are non-deterministic Mojo compiler bugs. You cannot fix them in user code. Mark affected CI matrix entries as `continue-on-error: true`.
+**Key insight**: JIT crashes are non-deterministic Mojo compiler bugs. You cannot fix them in user code.
+Mark affected CI matrix entries as `continue-on-error: true`.
 
 ### 2. Fix real test failures by reading the assertion output
 
-For this session, `test_concatenate_axis1` failed because `concatenate()` with `axis != 0` did a flat `memcpy` of each tensor's data, producing wrong element ordering.
+For this session, `test_concatenate_axis1` failed because `concatenate()` with `axis != 0` did a flat
+`memcpy` of each tensor's data, producing wrong element ordering.
 
-**Pattern**: When tensor operations produce wrong values for non-trivial axis arguments, check whether the implementation assumes axis=0 layout (flat copy) vs requires per-slice/per-row interleaving.
+**Pattern**: When tensor operations produce wrong values for non-trivial axis arguments, check whether
+the implementation assumes axis=0 layout (flat copy) vs requires per-slice/per-row interleaving.
 
 **Fix approach**:
 
@@ -45,7 +48,8 @@ axis != 0: compute outer_size × inner_size, copy row-by-row chunks
 
 ### 3. Skip tests for unimplemented features (with tracking issue)
 
-When tests assert behavior that requires deep API changes (e.g., view semantics requiring stride-aware element access across the entire tensor API):
+When tests assert behavior that requires deep API changes (e.g., view semantics requiring
+stride-aware element access across the entire tensor API):
 
 1. Skip the tests with `# SKIP: see #<issue>`
 2. File a tracking issue for the feature work
@@ -77,17 +81,22 @@ Then in the step: `continue-on-error: ${{ matrix.test-group.continue-on-error ==
 
 **What**: Tried to make `transpose()` return a view (shared data, permuted strides) to fix 5 matrix tests.
 
-**Why it failed**: `_get_float32()` uses flat `index × dtype_size` — it's not stride-aware. Making transpose a view without fixing element access everywhere would silently return wrong values. The blast radius covers the entire ExTensor API.
+**Why it failed**: `_get_float32()` uses flat `index × dtype_size` — it's not stride-aware. Making
+transpose a view without fixing element access everywhere would silently return wrong values.
+The blast radius covers the entire ExTensor API.
 
-**Lesson**: When a "simple fix" requires changing a fundamental assumption (flat vs strided indexing), scope it as a separate effort. Skip the tests and file an issue.
+**Lesson**: When a "simple fix" requires changing a fundamental assumption (flat vs strided indexing),
+scope it as a separate effort. Skip the tests and file an issue.
 
 ### Trying to fix JIT crashes in user code
 
 **What**: Investigated whether code changes could prevent `libKGENCompilerRTShared.so` segfaults.
 
-**Why it failed**: These are Mojo compiler bugs triggered non-deterministically during JIT compilation. No user-code workaround exists.
+**Why it failed**: These are Mojo compiler bugs triggered non-deterministically during JIT compilation.
+No user-code workaround exists.
 
-**Lesson**: Use `continue-on-error` in CI and file upstream issues. Don't waste time trying to work around compiler crashes.
+**Lesson**: Use `continue-on-error` in CI and file upstream issues. Don't waste time trying to
+work around compiler crashes.
 
 ## Results & Parameters
 
