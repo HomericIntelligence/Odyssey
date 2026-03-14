@@ -50,8 +50,8 @@ from shared.core.conv import (
 from shared.core.activation import relu
 from shared.core.layers.batchnorm import BatchNorm2dLayer
 from shared.core.pooling import global_avgpool2d
-from shared.core.loss import cross_entropy_loss
-from shared.core.linear import Linear
+from shared.core.loss import cross_entropy
+from shared.core.linear import linear
 
 
 # ============================================================================
@@ -540,3 +540,32 @@ fn test_mobilenetv1_training_step_simulation() raises:
     var logits_shape = logits.shape()
     assert_equal(logits_shape[0], batch_size)
     assert_equal(logits_shape[1], num_classes)
+
+
+fn main() raises:
+    print("Starting MobileNetV1 E2E Tests Part 1...")
+    print("  test_mobilenetv1_initial_conv...", end="")
+    test_mobilenetv1_initial_conv()
+    print(" OK")
+    print("  test_mobilenetv1_block_sequence...", end="")
+    test_mobilenetv1_block_sequence()
+    print(" OK")
+    print("  test_mobilenetv1_classifier_head...", end="")
+    test_mobilenetv1_classifier_head()
+    print(" OK")
+    print("  test_mobilenetv1_forward_small_image...", end="")
+    test_mobilenetv1_forward_small_image()
+    print(" OK")
+    print("  test_mobilenetv1_forward_with_batchnorm...", end="")
+    test_mobilenetv1_forward_with_batchnorm()
+    print(" OK")
+    print("  test_mobilenetv1_backward_conv_only...", end="")
+    test_mobilenetv1_backward_conv_only()
+    print(" OK")
+    print("  test_mobilenetv1_forward_for_classification...", end="")
+    test_mobilenetv1_forward_for_classification()
+    print(" OK")
+    print("  test_mobilenetv1_training_step_simulation...", end="")
+    test_mobilenetv1_training_step_simulation()
+    print(" OK")
+    print("All MobileNetV1 E2E Tests Part 1 passed!")

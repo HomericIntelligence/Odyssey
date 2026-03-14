@@ -10,9 +10,9 @@ VGG-16 Architecture:
   * Block 5: Conv512 -> Conv512 -> Conv512 -> MaxPool
 - Classification Head:
   * Global Average Pool: (batch, 512, 1, 1) -> (batch, 512)
-  * FC 512 -> 4096 + ReLU
-  * FC 4096 -> 4096 + ReLU
-  * FC 4096 -> 10 (CIFAR-10 classes)
+  * FC 512 -> 256 + ReLU
+  * FC 256 -> 256 + ReLU
+  * FC 256 -> 10 (CIFAR-10 classes)
 
 E2E Tests:
 - Forward pass with realistic input shapes
@@ -40,8 +40,8 @@ from shared.core.extensor import ExTensor, zeros, ones, full, randn
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.linear import linear, linear_backward
 from shared.core.activation import relu, relu_backward
-from shared.core.pooling import max_pool2d, max_pool2d_backward
-from shared.core.loss import cross_entropy_loss
+from shared.core.pooling import maxpool2d, maxpool2d_backward
+from shared.core.loss import cross_entropy
 from shared.core import mean
 
 
@@ -112,27 +112,27 @@ fn vgg16_forward(
     # Block 1: 2 conv layers, 64 channels
     x = conv_block(x, 64, 2)
     # MaxPool 2x2 stride 2: (batch, 64, 32, 32) -> (batch, 64, 16, 16)
-    x = max_pool2d(x, 2, 2)
+    x = maxpool2d(x, 2, 2)
 
     # Block 2: 2 conv layers, 128 channels
     x = conv_block(x, 128, 2)
     # MaxPool: (batch, 128, 16, 16) -> (batch, 128, 8, 8)
-    x = max_pool2d(x, 2, 2)
+    x = maxpool2d(x, 2, 2)
 
     # Block 3: 3 conv layers, 256 channels
     x = conv_block(x, 256, 3)
     # MaxPool: (batch, 256, 8, 8) -> (batch, 256, 4, 4)
-    x = max_pool2d(x, 2, 2)
+    x = maxpool2d(x, 2, 2)
 
     # Block 4: 3 conv layers, 512 channels
     x = conv_block(x, 512, 3)
     # MaxPool: (batch, 512, 4, 4) -> (batch, 512, 2, 2)
-    x = max_pool2d(x, 2, 2)
+    x = maxpool2d(x, 2, 2)
 
     # Block 5: 3 conv layers, 512 channels
     x = conv_block(x, 512, 3)
     # MaxPool: (batch, 512, 2, 2) -> (batch, 512, 1, 1)
-    x = max_pool2d(x, 2, 2)
+    x = maxpool2d(x, 2, 2)
 
     # Flatten for FC layers
     # Shape: (batch, 512, 1, 1) -> (batch, 512)
@@ -140,34 +140,34 @@ fn vgg16_forward(
     var flat_shape = List[Int]()
     flat_shape.append(batch_size)
     flat_shape.append(512)
-    var x_flat = x  # Simplified - reshape not used in functional API
+    var x_flat = x.reshape(flat_shape)
 
-    # FC1: 512 -> 4096 + ReLU
+    # FC1: 512 -> 256 + ReLU
     var fc1_w_shape = List[Int]()
-    fc1_w_shape.append(4096)
+    fc1_w_shape.append(256)
     fc1_w_shape.append(512)
     var fc1_w = ones(fc1_w_shape, DType.float32)
     var fc1_b_shape = List[Int]()
-    fc1_b_shape.append(4096)
+    fc1_b_shape.append(256)
     var fc1_b = zeros(fc1_b_shape, DType.float32)
     x = linear(x_flat, fc1_w, fc1_b)
     x = relu(x)
 
-    # FC2: 4096 -> 4096 + ReLU
+    # FC2: 256 -> 256 + ReLU
     var fc2_w_shape = List[Int]()
-    fc2_w_shape.append(4096)
-    fc2_w_shape.append(4096)
+    fc2_w_shape.append(256)
+    fc2_w_shape.append(256)
     var fc2_w = ones(fc2_w_shape, DType.float32)
     var fc2_b_shape = List[Int]()
-    fc2_b_shape.append(4096)
+    fc2_b_shape.append(256)
     var fc2_b = zeros(fc2_b_shape, DType.float32)
     x = linear(x, fc2_w, fc2_b)
     x = relu(x)
 
-    # FC3: 4096 -> 10 (output layer, no activation)
+    # FC3: 256 -> 10 (output layer, no activation)
     var fc3_w_shape = List[Int]()
     fc3_w_shape.append(10)
-    fc3_w_shape.append(4096)
+    fc3_w_shape.append(256)
     var fc3_w = ones(fc3_w_shape, DType.float32)
     var fc3_b_shape = List[Int]()
     fc3_b_shape.append(10)
@@ -512,3 +512,38 @@ fn test_vgg16_e2e_no_infs() raises:
         # Check finite
         assert_less(val, Float32(1e10))
         assert_greater(val, Float32(-1e10))
+
+
+fn main() raises:
+    print("Starting VGG16 E2E Tests...")
+    print("  test_vgg16_e2e_forward_inference...", end="")
+    test_vgg16_e2e_forward_inference()
+    print(" OK")
+    print("  test_vgg16_e2e_forward_small_batch...", end="")
+    test_vgg16_e2e_forward_small_batch()
+    print(" OK")
+    print("  test_vgg16_e2e_forward_varying_values...", end="")
+    test_vgg16_e2e_forward_varying_values()
+    print(" OK")
+    print("  test_vgg16_e2e_forward_backward...", end="")
+    test_vgg16_e2e_forward_backward()
+    print(" OK")
+    print("  test_vgg16_e2e_inference_mode...", end="")
+    test_vgg16_e2e_inference_mode()
+    print(" OK")
+    print("  test_vgg16_e2e_gradient_flow...", end="")
+    test_vgg16_e2e_gradient_flow()
+    print(" OK")
+    print("  test_vgg16_e2e_output_range...", end="")
+    test_vgg16_e2e_output_range()
+    print(" OK")
+    print("  test_vgg16_e2e_shape_progression...", end="")
+    test_vgg16_e2e_shape_progression()
+    print(" OK")
+    print("  test_vgg16_e2e_no_nans...", end="")
+    test_vgg16_e2e_no_nans()
+    print(" OK")
+    print("  test_vgg16_e2e_no_infs...", end="")
+    test_vgg16_e2e_no_infs()
+    print(" OK")
+    print("All VGG16 E2E Tests passed!")

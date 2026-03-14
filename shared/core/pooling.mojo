@@ -77,6 +77,15 @@ fn maxpool2d(
     var out_height = out_h
     var out_width = out_w
 
+    # Handle empty output case (kernel larger than input with no padding)
+    if out_height <= 0 or out_width <= 0:
+        var empty_shape = List[Int](capacity=4)
+        empty_shape.append(batch)
+        empty_shape.append(channels)
+        empty_shape.append(0)
+        empty_shape.append(0)
+        return zeros(empty_shape, x.dtype())
+
     # Create output tensor
     var out_shape = List[Int](capacity=4)
     out_shape.append(batch)

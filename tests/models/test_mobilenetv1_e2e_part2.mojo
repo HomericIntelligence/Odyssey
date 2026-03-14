@@ -49,8 +49,8 @@ from shared.core.conv import (
 from shared.core.activation import relu
 from shared.core.layers.batchnorm import BatchNorm2dLayer
 from shared.core.pooling import global_avgpool2d
-from shared.core.loss import cross_entropy_loss
-from shared.core.linear import Linear
+from shared.core.loss import cross_entropy
+from shared.core.linear import linear
 
 
 # ============================================================================
@@ -188,3 +188,17 @@ fn test_mobilenetv1_gradient_flow_through_convs() raises:
     var grad_dw_in_shape = grad_dw_in.shape()
     assert_equal(grad_dw_in_shape[0], batch_size)
     assert_equal(grad_dw_in_shape[1], channels)
+
+
+fn main() raises:
+    print("Starting MobileNetV1 E2E Tests Part 2...")
+    print("  test_mobilenetv1_inference_mode...", end="")
+    test_mobilenetv1_inference_mode()
+    print(" OK")
+    print("  test_mobilenetv1_different_batch_sizes...", end="")
+    test_mobilenetv1_different_batch_sizes()
+    print(" OK")
+    print("  test_mobilenetv1_gradient_flow_through_convs...", end="")
+    test_mobilenetv1_gradient_flow_through_convs()
+    print(" OK")
+    print("All MobileNetV1 E2E Tests Part 2 passed!")

@@ -224,7 +224,7 @@ fn test_zero_grad() raises:
 
     # Verify parameters still exist
     var params = model.parameters()
-    assert_true(params.size() == 10, "Parameters lost after zero_grad")
+    assert_true(len(params) == 10, "Parameters lost after zero_grad")
 
 
 fn test_update_parameters() raises:
@@ -263,8 +263,8 @@ fn test_update_parameters() raises:
 
     # Verify parameter changed (updated in direction opposite to gradient)
     var new_conv1 = model.conv1_kernel._get_float64(0)
-    var expected = orig_conv1 - 0.01 * 1.0 // param - lr * grad
-    assert_close_float(new_conv1, expected, 1e-6, "Parameter update mismatch")
+    var expected = orig_conv1 - 0.01 * 1.0  # lr=0.01, gradient=1.0
+    assert_close_float(new_conv1, expected, 1e-6, 1e-6, "Parameter update mismatch")
 
 
 # ============================================================================
@@ -370,11 +370,11 @@ fn test_model_initialization() raises:
     # Verify biases are initialized to zero
     for i in range(model.conv1_bias.numel()):
         var val = model.conv1_bias._get_float64(i)
-        assert_close_float(val, 0.0, 1e-10, "Conv1 bias not zero")
+        assert_close_float(val, 0.0, 1e-10, 1e-10, "Conv1 bias not zero")
 
     for i in range(model.conv2_bias.numel()):
         var val = model.conv2_bias._get_float64(i)
-        assert_close_float(val, 0.0, 1e-10, "Conv2 bias not zero")
+        assert_close_float(val, 0.0, 1e-10, 1e-10, "Conv2 bias not zero")
 
 
 # ============================================================================
