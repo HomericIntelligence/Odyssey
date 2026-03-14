@@ -157,6 +157,23 @@ fn test_uint8_bitwise() raises:
         raise Error("UInt8 right shift failed")
 
 
+fn test_uint16_bitwise() raises:
+    """Test UInt16 bitwise operations."""
+    var a: UInt16 = 0xAA00  # 43776
+    var b: UInt16 = 0x00FF  # 255
+
+    if a & b != 0:
+        raise Error("UInt16 AND with complement failed")
+    if a | b != 0xAAFF:
+        raise Error("UInt16 OR with complement failed")
+    if a ^ b != 0xAAFF:
+        raise Error("UInt16 XOR with complement failed")
+    if a >> 8 != 0x00AA:
+        raise Error("UInt16 right shift by 8 failed")
+    if b << 8 != 0xFF00:
+        raise Error("UInt16 left shift by 8 failed")
+
+
 fn test_uint32_bitwise() raises:
     """Test UInt32 bitwise operations."""
     var a: UInt32 = 0xFF00FF00
@@ -172,6 +189,23 @@ fn test_uint32_bitwise() raises:
         raise Error("UInt32 right shift by 8 failed")
     if b << 8 != 0xFF00FF00:
         raise Error("UInt32 left shift by 8 failed")
+
+
+fn test_uint64_bitwise() raises:
+    """Test UInt64 bitwise operations."""
+    var a: UInt64 = 0xFF00FF00FF00FF00
+    var b: UInt64 = 0x00FF00FF00FF00FF
+
+    if a & b != 0:
+        raise Error("UInt64 AND with complement failed")
+    if a | b != 0xFFFFFFFFFFFFFFFF:
+        raise Error("UInt64 OR with complement failed")
+    if a ^ b != 0xFFFFFFFFFFFFFFFF:
+        raise Error("UInt64 XOR with complement failed")
+    if a >> 8 != 0x00FF00FF00FF00FF:
+        raise Error("UInt64 right shift by 8 failed")
+    if b << 8 != 0xFF00FF00FF00FF00:
+        raise Error("UInt64 left shift by 8 failed")
 
 
 fn test_uint8_comparisons() raises:
@@ -535,10 +569,22 @@ fn main():
         print("FAIL test_uint8_bitwise:", e)
 
     try:
+        test_uint16_bitwise()
+        print("OK test_uint16_bitwise")
+    except e:
+        print("FAIL test_uint16_bitwise:", e)
+
+    try:
         test_uint32_bitwise()
         print("OK test_uint32_bitwise")
     except e:
         print("FAIL test_uint32_bitwise:", e)
+
+    try:
+        test_uint64_bitwise()
+        print("OK test_uint64_bitwise")
+    except e:
+        print("FAIL test_uint64_bitwise:", e)
 
     try:
         test_uint8_comparisons()
