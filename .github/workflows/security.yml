@@ -7,14 +7,6 @@ name: Security Scanning
 
 on:
   pull_request:
-    paths:
-      - 'pixi.toml'
-      - 'requirements.txt'
-      - 'tools/requirements.txt'
-      - 'pyproject.toml'
-      - '.github/dependabot.yml'
-      - '.gitleaks.toml'
-      - '**/*.py'
   push:
     branches:
       - main
