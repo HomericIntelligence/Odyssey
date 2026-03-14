@@ -61,16 +61,8 @@ scripts/
     ├── setup_agents.sh                 # Setup automation
     ├── test_agent_loading.py           # Loading tests
     ├── validate_agents.py              # Configuration validation
-    ├── tests/                          # Agent test suite
-    └── playground/                     # Deprecated/experimental scripts
-        ├── README.md                   # Playground documentation
-        ├── create_single_component_issues.py  # (Deprecated - use create_issues.py --file)
-        ├── fix_duplicate_delegation.py        # Agent refactoring (historical)
-        ├── cleanup_agent_redundancy.py        # Agent refactoring (historical)
-        ├── fix_agent_markdown.py              # Agent refactoring (historical)
-        ├── condense_pr_sections.py            # Agent refactoring (historical)
-        └── condense_mojo_guidelines.py        # Agent refactoring (historical)
-```text
+    └── tests/                          # Agent test suite
+```
 
 ## Scripts
 
@@ -162,7 +154,7 @@ The workflow posts a PR comment only when tests are missing:
 
 When tests are missing, the script outputs:
 
-```text
+```
 ======================================================================
 Test Coverage Validation
 ======================================================================
@@ -223,7 +215,7 @@ python3 scripts/regenerate_github_issues.py
 # Resume from previous run
 
 python3 scripts/regenerate_github_issues.py --resume
-```text
+```
 
 ### Command-line Options
 
@@ -280,7 +272,7 @@ python3 scripts/create_issues.py --no-color
 
 # Specify repository explicitly
 python3 scripts/create_issues.py --repo username/repo
-```text
+```
 
 ### Command-line Options
 
@@ -323,7 +315,7 @@ python3 scripts/validate_links.py
 
 # Validate links in specific directory
 python3 scripts/validate_links.py notes/
-```text
+```
 
 ### Exit Codes
 
@@ -351,7 +343,7 @@ python3 scripts/validate_structure.py
 
 # Validate specific section
 python3 scripts/validate_structure.py --section 01-foundation
-```text
+```
 
 ### Exit Codes
 
@@ -379,7 +371,7 @@ python3 scripts/check_readmes.py
 
 # Check specific directory
 python3 scripts/check_readmes.py notes/
-```text
+```
 
 ### Exit Codes
 
@@ -411,7 +403,7 @@ python3 scripts/lint_configs.py --verbose
 
 # Remove unused sections
 python3 scripts/lint_configs.py --remove-unused
-```text
+```
 
 ### Exit Codes
 
@@ -440,8 +432,7 @@ python3 scripts/get_system_info.py
 
 # Output in JSON format
 python3 scripts/get_system_info.py --json
-```text
-
+```
 ---
 
 #### `merge_prs.py`
@@ -466,7 +457,7 @@ python3 scripts/merge_prs.py <pr-number> --squash
 
 # Delete branch after merge
 python3 scripts/merge_prs.py <pr-number> --delete-branch
-```text
+```
 
 ### Requirements
 
@@ -494,8 +485,7 @@ python3 scripts/package_papers.py
 
 # Specify output directory
 python3 scripts/package_papers.py --output dist/
-```text
-
+```
 ---
 
 ---
@@ -547,8 +537,7 @@ python3 scripts/create_issues.py --section 06-agentic-workflows
 # OR: Create all at once
 
 python3 scripts/create_issues.py
-```text
-
+```
 ---
 
 ## File Locations
@@ -628,7 +617,7 @@ See [notes/review/README.md](../notes/review/README.md) for detailed workflow do
 # Authenticate
 
 gh auth login
-```text
+```
 
 ### State File Issues
 
@@ -640,7 +629,7 @@ If you need to start fresh:
 # Remove specific state file or let script create new one
 
 rm logs/.issue_creation_state_*.json
-```text
+```
 
 ### Permission Errors
 
@@ -669,8 +658,7 @@ If github_issue.md files are missing:
 # Regenerate all files
 
 python3 scripts/regenerate_github_issues.py
-```text
-
+```
 ---
 
 ## Testing
@@ -686,8 +674,7 @@ python3 tests/test_validation.py
 
 # Run all tests (requires pytest)
 pytest tests/
-```text
-
+```
 ---
 
 ## Script Dependencies
@@ -708,7 +695,7 @@ pytest tests/
 
 Scripts expect this structure:
 
-```text
+```
 ProjectOdyssey/
 ├── notes/
 │   ├── plan/                # LOCAL ONLY (not in git) - task-relative planning
@@ -721,15 +708,12 @@ ProjectOdyssey/
 ├── agents/                  # Tracked docs - agent system documentation
 ├── scripts/
 │   ├── create_issues.py
-│   ├── create_single_component_issues.py
 │   ├── regenerate_github_issues.py
-│   ├── agents/              # Agent utilities
-│   └── archive/             # Historical scripts
+│   └── agents/              # Agent utilities
 └── logs/                    # Not tracked
     ├── .issue_creation_state_*.json
     └── create_issues_*.log
-```text
-
+```
 ---
 
 ## Best Practices
@@ -787,7 +771,7 @@ ProjectOdyssey/
 'packaging': 'c2e0c6'      # Light green
 'integration': 'c2e0c6'    # Light green
 'cleanup': 'd93f0b'        # Red
-```text
+```
 
 ### create_single_component_issues.py
 

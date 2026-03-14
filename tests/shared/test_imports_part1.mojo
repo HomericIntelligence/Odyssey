@@ -1,12 +1,12 @@
+# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
+# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
+# high test load. Split from test_imports.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
+
 """
 Import Validation Tests - Part 1: Core and Training Package Imports
 
 Tests that all public imports work correctly for the shared library.
 These tests verify both import functionality and basic component behavior.
-
-ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
-Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-high test load. Split from test_imports.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Run with: mojo test tests/shared/test_imports_part1.mojo
 """

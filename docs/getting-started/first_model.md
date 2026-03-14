@@ -24,22 +24,16 @@ Before starting, ensure you have:
 Create a new directory for your first model:
 
 ```bash
-```bash
-
 cd ProjectOdyssey
 mkdir -p examples/first_model
 cd examples/first_model
-
-```text
+```
 
 ## Step 2: Prepare the Data
 
 Create `prepare_data.mojo` to load and preprocess the MNIST dataset:
 
 ```mojo
-
-```mojo
-
 from shared.data import TensorDataset, BatchLoader
 from shared.utils import download_mnist, normalize_images
 
@@ -67,8 +61,7 @@ fn prepare_mnist() raises -> (TensorDataset, TensorDataset):
     print("Data loaded: ", test_data.size(), " test examples")
 
     return train_data, test_data
-
-```text
+```
 
 ## Step 3: Define the Model
 
@@ -79,8 +72,6 @@ See `examples/getting-started/first_model_model.mojo`
 Key architecture:
 
 ```mojo
-```mojo
-
 # 3-layer network: 784 -> 128 -> 64 -> 10
 
 self.model = Sequential([
@@ -91,8 +82,7 @@ self.model = Sequential([
     Layer("linear", input_size=64, output_size=10),
     Softmax(),
 ])
-
-```text
+```
 
 Full example: `examples/getting-started/first_model_model.mojo`
 
