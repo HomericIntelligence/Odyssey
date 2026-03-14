@@ -154,7 +154,7 @@ The workflow posts a PR comment only when tests are missing:
 
 When tests are missing, the script outputs:
 
-```
+```text
 ======================================================================
 Test Coverage Validation
 ======================================================================
@@ -433,6 +433,7 @@ python3 scripts/get_system_info.py
 # Output in JSON format
 python3 scripts/get_system_info.py --json
 ```
+
 ---
 
 #### `merge_prs.py`
@@ -486,6 +487,7 @@ python3 scripts/package_papers.py
 # Specify output directory
 python3 scripts/package_papers.py --output dist/
 ```
+
 ---
 
 ---
@@ -495,7 +497,7 @@ python3 scripts/package_papers.py --output dist/
 Historical and experimental scripts have been archived (the `scripts/agents/playground/`
 directory has been removed).
 
-### Recommended alternatives:
+### Recommended Alternatives
 
 - Instead of `create_single_component_issues.py`, use `create_issues.py --file <path>`
 - Agent modification scripts are historical; see playground README for context
@@ -538,6 +540,7 @@ python3 scripts/create_issues.py --section 06-agentic-workflows
 
 python3 scripts/create_issues.py
 ```
+
 ---
 
 ## File Locations
@@ -659,6 +662,7 @@ If github_issue.md files are missing:
 
 python3 scripts/regenerate_github_issues.py
 ```
+
 ---
 
 ## Testing
@@ -675,6 +679,7 @@ python3 tests/test_validation.py
 # Run all tests (requires pytest)
 pytest tests/
 ```
+
 ---
 
 ## Script Dependencies
@@ -695,7 +700,7 @@ pytest tests/
 
 Scripts expect this structure:
 
-```
+```text
 ProjectOdyssey/
 ├── notes/
 │   ├── plan/                # LOCAL ONLY (not in git) - task-relative planning
@@ -714,6 +719,7 @@ ProjectOdyssey/
     ├── .issue_creation_state_*.json
     └── create_issues_*.log
 ```
+
 ---
 
 ## Best Practices

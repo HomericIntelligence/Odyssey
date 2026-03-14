@@ -52,7 +52,8 @@ For forward pass that broadcast X[original_shape] → Y[broadcast_shape]:
 ### 2. add_backward
 
 **Location**: Lines 548-586
-**Signature**: `fn add_backward(grad_output: ExTensor, a_shape: DynamicVector[Int], b_shape: DynamicVector[Int]) raises -> (ExTensor, ExTensor)`
+**Signature**: `fn add_backward(grad_output: ExTensor, a_shape: DynamicVector[Int],
+b_shape: DynamicVector[Int]) raises -> (ExTensor, ExTensor)`
 **Return Type**: `Tuple[ExTensor, ExTensor]`
 
 **Purpose**: Compute gradients for element-wise addition with broadcasting support.
@@ -91,7 +92,8 @@ If A was prepended: A[5] + B[3,4,5] → grad_a summed over first 2 dims
 ### 3. subtract_backward
 
 **Location**: Lines 589-618
-**Signature**: `fn subtract_backward(grad_output: ExTensor, a_shape: DynamicVector[Int], b_shape: DynamicVector[Int]) raises -> (ExTensor, ExTensor)`
+**Signature**: `fn subtract_backward(grad_output: ExTensor,
+a_shape: DynamicVector[Int], b_shape: DynamicVector[Int]) raises -> (ExTensor, ExTensor)`
 **Return Type**: `Tuple[ExTensor, ExTensor]`
 
 **Purpose**: Compute gradients for element-wise subtraction with broadcasting.
@@ -804,7 +806,7 @@ Backward:
 ### Edge Cases
 
 - **X > 0**: grad_input = grad_output
-- **X ≤ 0**: grad_input = grad_output * alpha, grad_alpha += grad_output * x
+- **X ≤ 0**: grad_input = grad_output \* alpha, grad_alpha += grad_output \* x
 - **Scalar alpha**: All X elements use same alpha, gradients accumulated
 - **Vector alpha**: Element-wise alpha, gradients accumulated per element
 
@@ -984,7 +986,8 @@ where:
 
 **Dtype Support**: float16, float32, float64
 
-**Key Insight**: Softmax gradient is not just element-wise multiplication with upstream gradient. Each element's gradient depends on ALL outputs due to normalization constraint.
+**Key Insight**: Softmax gradient is not just element-wise multiplication with upstream
+gradient. Each element's gradient depends on ALL outputs due to normalization constraint.
 
 ### Example
 
