@@ -126,6 +126,9 @@ def find_test_files(root_dir: Path) -> List[Path]:
         "tests/shared/training/test_metrics_part1.mojo",
         "tests/shared/training/test_metrics_part2.mojo",
         "tests/shared/training/test_mixed_precision.mojo",
+        # Removed: test_mixed_precision_part1.mojo and test_mixed_precision_part2.mojo
+        # These files now comply with ADR-009 (≤8 tests each) and run in per-PR CI
+        # See issue #4409
         "tests/shared/training/test_optimizer_utils_part1.mojo",
         "tests/shared/training/test_optimizer_utils_part2.mojo",
         "tests/shared/training/test_mixed_precision_simd.mojo",
