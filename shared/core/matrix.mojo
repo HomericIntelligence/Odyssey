@@ -877,6 +877,10 @@ fn transpose_view(
     memcpy to create an independent copy with the new stride layout. For any
     non-trivial permutation the result has is_contiguous() == False.
 
+    Note: `transpose_view()` is a lower-level testing utility. For production use,
+    prefer `ExTensor.transpose()` (2-axis swap) or implement general permutation
+    logic wrapping this function. See #4082 for discussion of the API relationship.
+
     Args:
         tensor: Input tensor.
         axes: Optional permutation of axes. Defaults to reversing all axes.
