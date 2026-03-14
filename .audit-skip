@@ -1,0 +1,8 @@
+# Skills intentionally not ported to Mnemosyne
+# Listed here to avoid audit failures when running --audit in CI
+
+# Content generation skill - requires integration with blog/documentation pipeline
+blog-writer
+
+# Post-merge cleanup - typically run manually or via GitHub Actions
+pr-cleanup
