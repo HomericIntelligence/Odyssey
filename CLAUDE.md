@@ -393,6 +393,14 @@ Official docs: <https://docs.modular.com/mojo/manual/>
 
 **Compiler as Truth**: When uncertain, test with `mojo build` - the compiler is authoritative
 
+**Compile-Time Import Constraints**:
+
+- Import failures in Mojo are compile-time errors with no runtime exception handling
+- Cannot write "negative import tests" (tests that expect imports to fail)
+- Invalid imports cause compilation to fail before any code executes
+- This differs from Python where import errors can be caught at runtime
+- Plan test coverage accordingly: only test valid imports that compile successfully
+
 ## Environment Setup
 
 This project uses Pixi for environment management:
