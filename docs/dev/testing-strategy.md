@@ -353,6 +353,67 @@ gradient checks. See `docs/dev/testing-patterns.md` for the canonical correct pa
 **Discovery context**: Found during PR #2724 / issue #3282. The `sum(x_norm) = 0` cancellation
 also affects `layer_norm_backward` and any normalization layer using mean-centering.
 
+### GroupNorm: Same `ones_like(grad_output)` Gotcha
+
+GroupNorm normalizes over groups of channels (not the entire batch). Despite using different
+reduction dimensions, the **same zero-gradient identity applies**:
+
+**Root cause**: GroupNorm computes per-group mean and variance:
+
+```text
+x_norm[b,g,c,h,w] = (x[b,g,c,h,w] - mean_g) / std_g
+```
+
+where the mean is computed over `(c, h, w)` within each group. By mean-subtraction definition:
+
+```text
+sum over (c,h,w) of x_norm[b,g,c,h,w] = 0  (zero-mean property per group)
+```
+
+The backward pass has the same structure as BatchNorm's Kratzert formula, with `k = sum(grad_output)`
+and `dotp = sum(grad_output * x_norm)` computed per group. When `grad_output = ones_like(output)`,
+the zero-mean property still yields `grad_input ≈ 0`.
+
+**Fix**: Use the same alternatives as BatchNorm2d:
+
+- Set a non-zero scale/shift parameter
+- Use non-uniform `grad_output` with alternating values
+- Use a weighted scalar loss instead of `ones_like`
+
+### InstanceNorm: Same `ones_like(grad_output)` Gotcha
+
+InstanceNorm normalizes over spatial dimensions `(h, w)` for each `(batch, channel)` pair.
+The same cancellation mechanism applies:
+
+**Root cause**: InstanceNorm computes per-instance (batch, channel) mean and variance:
+
+```text
+x_norm[b,c,h,w] = (x[b,c,h,w] - mean_c) / std_c
+```
+
+where mean is over `(h, w)`. The backward pass also relies on:
+
+```text
+sum over (h,w) of x_norm[b,c,h,w] = 0  (zero-mean property)
+```
+
+This yields the same `grad_input ≈ 0` result with `grad_output = ones_like(output)`.
+
+**Fix**: Use the same alternatives as BatchNorm2d and GroupNorm.
+
+### General Rule for Normalization Layers
+
+**Any normalization layer using mean-centering will exhibit this gotcha**. This includes:
+
+- BatchNorm (all variants: 1D, 2D, 3D)
+- LayerNorm
+- GroupNorm
+- InstanceNorm
+- **Any custom normalization that subtracts a mean**
+
+**Never** use `grad_output = ones_like(output)` in backward gradient checks for these layers.
+Always verify your `grad_output` and loss function design using the alternatives above.
+
 ---
 
 ## Layer Deduplication
