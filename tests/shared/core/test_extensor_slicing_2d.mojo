@@ -149,6 +149,81 @@ fn test_batch_extraction_last_partial() raises:
     assert_equal(shape[0], 2)  # Only 2 samples in last batch
 
 
+# ============================================================================
+# Negative Index Tests
+# ============================================================================
+
+
+fn test_slice_2d_negative_start() raises:
+    """Test slicing with negative start index in 2D tensor."""
+    # Create 5x4 tensor with sequential values
+    var t = arange(0.0, 20.0, 1.0, DType.float32)
+    var t2d = t.reshape([5, 4])
+
+    # Slice [-2:, :] should give last 2 rows (rows 3-4)
+    var sliced = t2d[-2:, :]
+
+    var shape = sliced.shape()
+    assert_equal(len(shape), 2)
+    assert_equal(shape[0], 2)
+    assert_equal(shape[1], 4)
+
+    # Verify values: sliced should be rows [3:5,:] of original
+    # Original 5x4 tensor: [0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15, 16,17,18,19]
+    # sliced[0,:] = original[3,:] = [12,13,14,15]
+    var data_ptr = sliced._data.bitcast[Float32]()
+    assert_almost_equal(Float64(data_ptr[0]), Float64(12.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[1]), Float64(13.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[2]), Float64(14.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[3]), Float64(15.0), Float64(1e-5))
+
+
+fn test_slice_2d_negative_end() raises:
+    """Test slicing with negative end index in 2D tensor."""
+    # Create 5x4 tensor with sequential values
+    var t = arange(0.0, 20.0, 1.0, DType.float32)
+    var t2d = t.reshape([5, 4])
+
+    # Slice [:, -2:] should give last 2 columns
+    var sliced = t2d[:, -2:]
+
+    var shape = sliced.shape()
+    assert_equal(len(shape), 2)
+    assert_equal(shape[0], 5)
+    assert_equal(shape[1], 2)
+
+    # Verify values: sliced should be columns [2:4,:] of original
+    # sliced[0,:] = original[0,2:4] = [2,3]
+    var data_ptr = sliced._data.bitcast[Float32]()
+    assert_almost_equal(Float64(data_ptr[0]), Float64(2.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[1]), Float64(3.0), Float64(1e-5))
+
+
+fn test_slice_2d_negative_both_dims() raises:
+    """Test slicing with negative indices in both dimensions."""
+    # Create 5x4 tensor with sequential values
+    var t = arange(0.0, 20.0, 1.0, DType.float32)
+    var t2d = t.reshape([5, 4])
+
+    # Slice [-2:, -2:] should give last 2 rows and last 2 columns
+    var sliced = t2d[-2:, -2:]
+
+    var shape = sliced.shape()
+    assert_equal(len(shape), 2)
+    assert_equal(shape[0], 2)
+    assert_equal(shape[1], 2)
+
+    # Verify values: sliced should be rows [3:5,2:4] of original
+    # Original 5x4 tensor: [0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15, 16,17,18,19]
+    # sliced[0,:] = original[3,2:4] = [14,15]
+    # sliced[1,:] = original[4,2:4] = [18,19]
+    var data_ptr = sliced._data.bitcast[Float32]()
+    assert_almost_equal(Float64(data_ptr[0]), Float64(14.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[1]), Float64(15.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[2]), Float64(18.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[3]), Float64(19.0), Float64(1e-5))
+
+
 fn main() raises:
     """Run all multi-dimensional slicing and batch extraction tests."""
     test_slice_2d_single_dim()
@@ -157,4 +232,7 @@ fn main() raises:
     test_batch_extraction_basic()
     test_batch_extraction_offset()
     test_batch_extraction_last_partial()
+    test_slice_2d_negative_start()
+    test_slice_2d_negative_end()
+    test_slice_2d_negative_both_dims()
     print("All multi-dimensional slicing and batch extraction tests passed!")
