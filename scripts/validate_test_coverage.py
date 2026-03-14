@@ -11,14 +11,16 @@ count was 20. This script verifies live file counts, not stale issue metadata.
 See Issue #4325 for details on this discrepancy.
 
 Exit codes:
-  0 - All tests covered
-  1 - Uncovered tests found or validation errors
+  0 - All tests covered (or only warnings with --warn-stale)
+  1 - Uncovered tests found, validation errors, or stale patterns with --error-stale
 
 Usage:
-    python scripts/validate_test_coverage.py [--post-pr]
+    python scripts/validate_test_coverage.py [options]
 
-Arguments:
-    --post-pr   Post validation report to GitHub PR if tests are missing
+Options:
+    --post-pr       Post validation report to GitHub PR if tests are missing
+    --warn-stale    Treat stale patterns as warnings (default, exit 0)
+    --error-stale   Treat stale patterns as errors (exit 1 if found)
 """
 
 import os
@@ -26,7 +28,7 @@ import re
 import sys
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 import yaml
 
 # Enable importing from scripts/common.py
@@ -248,37 +250,45 @@ def expand_pattern(base_path: str, pattern: str, root_dir: Path) -> Set[Path]:
 
 def check_coverage(
     test_files: List[Path], ci_groups: Dict[str, Dict[str, str]], root_dir: Path
-) -> Tuple[Set[Path], Dict[str, Set[Path]]]:
+) -> Tuple[Set[Path], Dict[str, Set[Path]], List[Tuple[str, str, str]]]:
     """
-    Check which test files are covered by CI matrix.
+    Check which test files are covered by CI matrix and detect stale patterns.
 
     Returns:
-        (uncovered_files, group_coverage_map)
+        (uncovered_files, group_coverage_map, stale_patterns)
+        where stale_patterns is a list of (group_name, path, pattern) tuples
+        that don't match any actual files
     """
     all_covered = set()
     coverage_by_group = {}
+    stale_patterns = []
 
     for group_name, group_info in ci_groups.items():
         covered = expand_pattern(group_info["path"], group_info["pattern"], root_dir)
         coverage_by_group[group_name] = covered
         all_covered.update(covered)
 
+        # Check if the pattern matched any files
+        if not covered:
+            stale_patterns.append((group_name, group_info["path"], group_info["pattern"]))
+
     uncovered = set(test_files) - all_covered
 
-    return uncovered, coverage_by_group
+    return uncovered, coverage_by_group, stale_patterns
 
 
 def generate_report(
     uncovered: Set[Path],
     test_files: List[Path],
     coverage_by_group: Dict[str, Set[Path]],
+    stale_patterns: Optional[List[Tuple[str, str, str]]] = None,
 ) -> str:
     """Generate a detailed validation report."""
     report_lines = []
     report_lines.append("## Test Coverage Validation Report")
     report_lines.append("")
 
-    if not uncovered:
+    if not uncovered and not stale_patterns:
         report_lines.append("✅ All test files are covered by CI!")
         report_lines.append("")
         report_lines.append(f"- Total test files: {len(test_files)}")
@@ -321,6 +331,20 @@ def generate_report(
             report_lines.append(f'  path: "{files[0].parent}"')
             report_lines.append('  pattern: "test_*.mojo"')
         report_lines.append("```")
+
+        if stale_patterns:
+            report_lines.append("")
+            report_lines.append("### Stale CI Patterns")
+            report_lines.append("")
+            report_lines.append("The following test groups have patterns that don't match any test files:")
+            report_lines.append("")
+            for group_name, path, pattern in sorted(stale_patterns):
+                report_lines.append(f"- **{group_name}**: `{path}` with pattern `{pattern}`")
+            report_lines.append("")
+            report_lines.append(
+                "These patterns may be outdated or incorrect. "
+                "Consider updating or removing them from the CI configuration."
+            )
 
     return "\n".join(report_lines)
 
@@ -395,10 +419,15 @@ def main():
     ci_groups = parse_ci_matrix(workflow_file)
 
     # Check coverage
-    uncovered, coverage_by_group = check_coverage(test_files, ci_groups, repo_root)
+    uncovered, coverage_by_group, stale_patterns = check_coverage(test_files, ci_groups, repo_root)
 
-    # Only print detailed report if tests are missing
-    if uncovered:
+    # Parse command line flags
+    post_pr = "--post-pr" in sys.argv
+    warn_stale = "--warn-stale" in sys.argv or "--error-stale" not in sys.argv
+    error_stale = "--error-stale" in sys.argv
+
+    # Only print detailed report if tests are missing or stale patterns exist
+    if uncovered or (stale_patterns and warn_stale):
         print("=" * 70)
         print("Test Coverage Validation")
         print("=" * 70)
@@ -439,14 +468,25 @@ def main():
         print()
 
         # Generate report for PR
-        report = generate_report(uncovered, test_files, coverage_by_group)
+        report = generate_report(uncovered, test_files, coverage_by_group, stale_patterns)
 
-        # Post to PR if requested
-        if post_pr:
+        # Post to PR if requested (post if uncovered files or stale patterns exist)
+        if post_pr and (uncovered or stale_patterns):
             post_to_pr(report)
 
         # Exit with error code
-        return 1
+        # - Always exit 1 if uncovered files exist
+        # - Exit 1 if stale patterns exist AND --error-stale flag is set
+        if uncovered:
+            return 1
+        if error_stale and stale_patterns:
+            return 1
+
+    # Handle case where only stale patterns exist without uncovered files
+    if stale_patterns:
+        if error_stale:
+            return 1
+        # For --warn-stale (default), exit with success
 
     # All tests are covered - exit quietly with success
     return 0
