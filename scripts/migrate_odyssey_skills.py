@@ -12,20 +12,22 @@ Usage:
 
 Source structure (Odyssey2):
     .claude/skills/<skill-name>/SKILL.md
+    .claude/skills/<skill-name>/scripts/ (optional)
+    .claude/skills/<skill-name>/templates/ (optional)
+    .claude/skills/<skill-name>/references/ (optional)
 
 Target structure (ProjectMnemosyne):
     skills/<category>/<skill-name>/.claude-plugin/plugin.json
     skills/<category>/<skill-name>/skills/<skill-name>/SKILL.md
-    skills/<category>/<skill-name>/skills/<skill-name>/scripts/   (if present in source)
-    skills/<category>/<skill-name>/skills/<skill-name>/templates/ (if present in source)
-    skills/<category>/<skill-name>/references/                    (if present in source)
+    skills/<category>/<skill-name>/skills/<skill-name>/scripts/ (from source scripts/)
+    skills/<category>/<skill-name>/skills/<skill-name>/templates/ (from source templates/)
+    skills/<category>/<skill-name>/references/ (from source references/ — plugin root)
 
-    Auxiliary subdirectory routing:
-        - references/  → copied to the plugin root (alongside .claude-plugin/)
-        - scripts/     → copied inside skills/<skill-name>/scripts/
-        - templates/   → copied inside skills/<skill-name>/templates/
-        - <other>/     → copied inside skills/<skill-name>/<other>/
-        - Hidden dirs (starting with .) are never copied.
+Auxiliary Subdirectory Routing:
+    scripts/, templates/, and other custom subdirs are copied into skills/<name>/.
+    The references/ subdir is special: it goes to the plugin root, not alongside SKILL.md.
+    This allows reference materials to be at the top level while implementation details
+    (scripts, templates) stay with the skill definition.
 
 Category Routing:
     Each skill is placed under a category subdirectory determined by CATEGORY_MAP.
@@ -57,30 +59,11 @@ from typing import Optional
 
 
 # Source Odyssey2 skills directory
-DEFAULT_ODYSSEY_SKILLS_DIR = Path("/home/mvillmow/Odyssey2/.claude/skills")
+ODYSSEY_SKILLS_DIR = Path("/home/mvillmow/Odyssey2/.claude/skills")
 
 # Default target ProjectMnemosyne directory (used when --target-dir is not specified
 # and the MNEMOSYNE_DIR environment variable is not set)
 DEFAULT_MNEMOSYNE_DIR = Path("/tmp/ProjectMnemosyne")  # nosec B108
-
-
-def resolve_odyssey_skills_dir(source: Optional[str]) -> Path:
-    """Resolve the Odyssey2 skills directory path.
-
-    Priority: --source-dir CLI arg > ODYSSEY_SKILLS_DIR env var > /home/mvillmow/Odyssey2/.claude/skills default.
-
-    Args:
-        source: Value of the --source-dir CLI argument, or None if not provided.
-
-    Returns:
-        Resolved Path to the Odyssey2 skills directory.
-    """
-    if source is not None:
-        return Path(source)
-    env = os.environ.get("ODYSSEY_SKILLS_DIR")
-    if env:
-        return Path(env)
-    return DEFAULT_ODYSSEY_SKILLS_DIR
 
 
 def resolve_mnemosyne_dir(target: Optional[str]) -> Path:
@@ -103,9 +86,8 @@ def resolve_mnemosyne_dir(target: Optional[str]) -> Path:
 
 
 # Module-level constants kept for backwards compatibility with existing tests
-# that patch ODYSSEY_SKILLS_DIR, MNEMOSYNE_SKILLS_DIR directly.
-# main() uses resolve_odyssey_skills_dir() and resolve_mnemosyne_dir() instead.
-ODYSSEY_SKILLS_DIR = DEFAULT_ODYSSEY_SKILLS_DIR
+# that patch MNEMOSYNE_SKILLS_DIR directly.  main() uses resolve_mnemosyne_dir()
+# instead of these constants at runtime.
 MNEMOSYNE_DIR = DEFAULT_MNEMOSYNE_DIR
 MNEMOSYNE_SKILLS_DIR = MNEMOSYNE_DIR / "skills"
 
@@ -590,20 +572,10 @@ def migrate_skill(
                 continue
             if subdir.name == "references":
                 dest = plugin_dir / "references"
-                if dest.exists():
-                    print(
-                        f"  WARNING: destination subdir already exists and will be merged: {dest}",
-                        file=sys.stderr,
-                    )
                 print(f"  Copying references/ -> {dest}")
                 shutil.copytree(subdir, dest, dirs_exist_ok=True)
             else:
                 dest = skill_md_dir / subdir.name
-                if dest.exists():
-                    print(
-                        f"  WARNING: destination subdir already exists and will be merged: {dest}",
-                        file=sys.stderr,
-                    )
                 print(f"  Copying {subdir.name}/ -> {dest}")
                 shutil.copytree(subdir, dest, dirs_exist_ok=True)
     else:
@@ -614,20 +586,8 @@ def migrate_skill(
             if not subdir.is_dir() or subdir.name.startswith("."):
                 continue
             if subdir.name == "references":
-                dest = plugin_dir / "references"
-                if dest.exists():
-                    print(
-                        f"  WARNING: destination subdir already exists and will be merged: {dest}",
-                        file=sys.stderr,
-                    )
                 print(f"  [DRY RUN] Would copy references/ -> skills/{category}/{skill_name}/references/")
             else:
-                dest = skill_md_dir / subdir.name
-                if dest.exists():
-                    print(
-                        f"  WARNING: destination subdir already exists and will be merged: {dest}",
-                        file=sys.stderr,
-                    )
                 print(
                     f"  [DRY RUN] Would copy {subdir.name}/ -> skills/{category}/{skill_name}/skills/{skill_name}/{subdir.name}/"
                 )
@@ -889,10 +849,7 @@ def main() -> int:
         "--audit-skip",
         metavar="FILE",
         default=".audit-skip",
-        help=(
-            "File listing skill names to exclude from audit (one per line, default: .audit-skip)."
-            " Path is resolved relative to the current working directory (CWD)."
-        ),
+        help="File listing skill names to exclude from audit (one per line, default: .audit-skip)",
     )
     parser.add_argument(
         "--no-color",
@@ -902,10 +859,8 @@ def main() -> int:
     parser.add_argument(
         "--source-dir",
         metavar="DIR",
-        default=None,
-        help=(
-            "Path to Odyssey2 skills directory (default: $ODYSSEY_SKILLS_DIR env var or /home/mvillmow/Odyssey2/.claude/skills)"
-        ),
+        default=str(ODYSSEY_SKILLS_DIR),
+        help=f"Odyssey2 skills directory (default: {ODYSSEY_SKILLS_DIR})",
     )
     parser.add_argument(
         "--target-dir",
@@ -915,7 +870,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    source_dir = resolve_odyssey_skills_dir(args.source_dir)
+    source_dir = Path(args.source_dir)
     target_dir = resolve_mnemosyne_dir(args.target_dir)
     target_skills_dir = target_dir / "skills"
 
