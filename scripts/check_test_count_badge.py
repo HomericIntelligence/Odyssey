@@ -18,6 +18,7 @@ Arguments:
     --tolerance     Allowed fractional drift before failing (default: 0.10)
 """
 
+import argparse
 import re
 import subprocess
 import sys
@@ -150,17 +151,23 @@ def main() -> int:
     Returns:
         0 if badge is current, 1 if stale or error.
     """
-    args = sys.argv[1:]
-    fix_mode = "--fix" in args
+    parser = argparse.ArgumentParser(description="Validate README.md test count badge against actual test files.")
+    parser.add_argument(
+        "--fix",
+        action="store_true",
+        help="Auto-update the badge in README.md to the actual count",
+    )
+    parser.add_argument(
+        "--tolerance",
+        type=float,
+        default=0.10,
+        help="Allowed fractional drift before failing (default: 0.10)",
+    )
 
-    tolerance = 0.10
-    if "--tolerance" in args:
-        idx = args.index("--tolerance")
-        try:
-            tolerance = float(args[idx + 1])
-        except (IndexError, ValueError):
-            print("❌ --tolerance requires a float argument", file=sys.stderr)
-            return 1
+    try:
+        args = parser.parse_args()
+    except SystemExit:
+        return 1
 
     repo_root = get_repo_root()
     readme_path = repo_root / "README.md"
@@ -171,16 +178,16 @@ def main() -> int:
     if badge is None:
         return 1
 
-    if check_badge_drift(actual, badge, tolerance):
+    if check_badge_drift(actual, badge, args.tolerance):
         print(f"✅ Test count badge is current: {badge}+ (actual: {actual})")
         return 0
 
     print(
         f"❌ Test count badge is stale: badge={badge}+, actual={actual} "
-        f"(drift={abs(actual - badge) / actual:.1%}, tolerance={tolerance:.0%})"
+        f"(drift={abs(actual - badge) / actual:.1%}, tolerance={args.tolerance:.0%})"
     )
 
-    if fix_mode:
+    if args.fix:
         update_badge(readme_path, actual)
         print(f"✅ Updated badge to {actual}+ in README.md")
         return 0
