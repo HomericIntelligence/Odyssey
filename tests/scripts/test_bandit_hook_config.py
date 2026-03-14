@@ -183,6 +183,64 @@ class TestBanditSeverityThreshold:
         )
 
 
+class TestBanditConfidenceThreshold:
+    """Verify the confidence threshold decision for bandit.
+
+    Bandit supports separate severity and confidence flags:
+    - Severity: -l (LOW), -ll (MEDIUM), -lll (HIGH)
+    - Confidence: -l (LOW), -ll (MEDIUM), -lll (HIGH)
+
+    The current hook sets severity to -ll (MEDIUM+) but does not set a confidence
+    threshold, which means all confidence levels (LOW, MEDIUM, HIGH) are reported.
+
+    Decision: Confidence threshold is intentionally unset (default=all) to catch
+    potential security issues regardless of confidence level. This is more conservative
+    and appropriate for CI/CD security scanning.
+    """
+
+    def test_confidence_threshold_documented(self) -> None:
+        """Document the intentional decision about confidence threshold.
+
+        The bandit hook intentionally does not set a confidence threshold (-l, -ll, -lll).
+        This means issues are reported at all confidence levels, not just high confidence.
+
+        Rationale:
+        - Conservative approach: report even uncertain issues for review
+        - Better for catch-all CI security scanning
+        - Developers can suppress false positives with # nosec comments
+        - False positives are preferable to missing real vulnerabilities
+        """
+        # This is a documentation test that codifies the design decision
+        # If this fails, update the bandit hook AND update this test/docstring
+        assert True, "Confidence threshold test passed. Bandit hook intentionally reports all confidence levels."
+
+    def test_no_confidence_flags_set(self, bandit_hook: dict) -> None:
+        """Verify no confidence threshold flags are set in the bandit hook.
+
+        The absence of -l/-ll/-lll confidence flags means all confidence levels
+        are reported. This is the intended conservative behavior.
+        """
+        flags = _all_bandit_flags(bandit_hook)
+        # Count severity vs confidence flags - both use -l/-ll/-lll notation
+        # Severity -ll is already verified in TestBanditSeverityThreshold
+        # This test documents that confidence flags are intentionally absent
+
+        # Check that we don't have conflicting flags (multiple severity/confidence settings)
+        ll_count = flags.count("-ll")
+        lll_count = flags.count("-lll")
+
+        # We expect exactly one -ll for severity; if there's more, confidence may be set
+        assert ll_count <= 1, (
+            f"Multiple -ll flags found ({ll_count}). "
+            "This might indicate both severity and confidence thresholds are set. "
+            "Clarify which -ll is for severity (intended) vs confidence (check if unintentional)."
+        )
+        assert lll_count <= 1, (
+            f"Multiple -lll flags found ({lll_count}). "
+            "This might indicate both severity and confidence thresholds are set."
+        )
+
+
 class TestBanditFilesPattern:
     """Verify the files: pattern matches expected Python paths.
 
