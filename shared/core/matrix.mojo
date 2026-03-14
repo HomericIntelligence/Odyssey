@@ -862,23 +862,36 @@ fn transpose(
 fn transpose_view(
     tensor: ExTensor, axes: Optional[List[Int]] = None
 ) raises -> ExTensor:
-    """Return a non-contiguous view of tensor with permuted strides.
+    """Return a transposed tensor with permuted strides (test utility only).
 
-    Unlike transpose(), this does NOT reorder data in memory. Instead it copies
-    the raw bytes and sets permuted strides, producing a tensor that is provably
-    non-contiguous (for non-trivial permutations). This is useful for testing
-    is_contiguous() and as_contiguous().
+    **IMPORTANT**: Despite the name "view", this function does NOT implement
+    true zero-copy view semantics. It allocates a NEW tensor and copies the
+    raw bytes via memcpy, then sets permuted strides. Modifying the original
+    tensor after calling transpose_view() will NOT affect the result and vice versa.
+
+    This is a test utility for validating is_contiguous() and as_contiguous()
+    behavior on non-C-order tensors. For production use, prefer transpose()
+    which returns a true zero-copy view using stride permutation only.
+
+    Unlike transpose(), this does reorder the shape (permutes it) and forces a
+    memcpy to create an independent copy with the new stride layout. For any
+    non-trivial permutation the result has is_contiguous() == False.
 
     Args:
         tensor: Input tensor.
         axes: Optional permutation of axes. Defaults to reversing all axes.
 
     Returns:
-        A new ExTensor with the same flat data but permuted shape and strides.
+        A new independent ExTensor (not a view) with permuted shape and strides.
         For any non-trivial permutation the result has is_contiguous() == False.
 
     Raises:
         Error: If axes is invalid (duplicates, wrong range, or wrong length).
+
+    See Also:
+        - transpose(): Zero-copy view with stride permutation (production API)
+        - ExTensor.reshape(): Another zero-copy view operation
+        - docs/dev/extensor-view-contract.md: View semantics reference
     """
     var ndim = tensor.dim()
     var input_shape = tensor.shape()
