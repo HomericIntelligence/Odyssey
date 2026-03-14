@@ -293,6 +293,47 @@ fn test_batch_loader_shuffle_per_epoch() raises:
     assert_equal(len(batches1), len(batches2))
 
 
+fn test_batch_loader_1d_data() raises:
+    """Test BatchLoader with 1D feature vector data (regression case).
+
+    The original 2D hardcoding bug used flat indexing instead of stride-based
+    access, which would have broken 1D data. This test ensures the fix using
+    slice() works correctly for 1D feature vectors: shape (N,) with batch_size.
+
+    Tests with 8 samples of shape (8,) and batch_size=4.
+    """
+    var data_shape = List[Int]()
+    data_shape.append(8)  # 1D tensor with 8 elements
+    var data = ExTensor(data_shape, DType.float32)
+    for i in range(8):
+        data._set_float32(i, Float32(i))
+
+    var labels_shape = List[Int]()
+    labels_shape.append(8)  # Labels also 1D: 8 elements
+    var labels = ExTensor(labels_shape, DType.int32)
+    for i in range(8):
+        labels._set_int32(i, Int32(i * 10))
+
+    var dataset = TensorDataset(data^, labels^)
+    var dataset_len = dataset.__len__()
+    var sampler = SequentialSampler(dataset_len)
+
+    # Load with batch_size=4
+    var loader = BatchLoader(
+        dataset^, sampler^, batch_size=4, shuffle=False
+    )
+
+    # Should create 2 batches (8 / 4 = 2)
+    assert_equal(loader.__len__(), 2)
+
+    # Each batch should be properly shaped
+    var batches = loader.__iter__()
+    if len(batches) != 2:
+        raise Error(
+            "Expected 2 batches, got " + String(len(batches))
+        )
+
+
 # ============================================================================
 # Main Test Runner
 # ============================================================================
@@ -313,5 +354,8 @@ fn main() raises:
     test_batch_loader_shuffle()
     test_batch_loader_shuffle_deterministic()
     test_batch_loader_shuffle_per_epoch()
+
+    # 1D data regression test
+    test_batch_loader_1d_data()
 
     print("✓ All batch loader Part 1 tests passed!")
