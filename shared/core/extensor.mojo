@@ -26,7 +26,6 @@ Array API Categories:
 - Element-wise math: exp, log, sqrt, sin, cos, tanh ✓ (shared/core/elementwise.mojo)
 - Statistical: var, std, median, percentile ✓ (shared/core/reduction.mojo)
 - Indexing: slicing, advanced indexing ✓ (__getitem__ methods)
-- Hashing: __hash__ via Hashable trait ✓
 
 Slicing Design:
 - `slice(start, end)` — view-based extraction (shares memory, zero-copy). Use for
@@ -419,6 +418,16 @@ struct ExTensor(
         Increments the reference count to track shared ownership.
         This prevents double-free and enables safe view semantics.
 
+        IMPORTANT: This is a SHALLOW copy. Both the original and copy share
+        the same underlying data buffer. Modifications to one affect the other.
+
+        For a DEEP copy (independent data), use .clone() instead.
+        See Issue #3225 for context on shallow vs deep copy semantics.
+
+        Example:
+            var x = ExTensor(...)
+            var y = x              # Shallow copy (same data)
+            var z = x.clone()      # Deep copy (independent data)
         """
         # Shallow copy all fields
         self._data = existing._data
@@ -578,26 +587,22 @@ struct ExTensor(
     fn reshape(self, new_shape: List[Int]) raises -> ExTensor:
         """Reshape tensor to new shape (must have same total elements).
 
-        Creates a shallow copy of the tensor struct whose shape and strides are
-        recomputed for the new shape. No data bytes are copied. The returned tensor has
-        `_is_view = True`, and modifying its elements will affect the original tensor.
+        Returns a zero-copy view (shallow pointer copy) sharing data with the
+        original tensor. The result has `is_view() == True` and `is_contiguous() == True`
+        (because reshape only changes the shape/stride metadata, not the flat layout).
+        Uses reference counting to ensure data remains valid while any view is alive.
+
+        Note: This mirrors the view semantics of `slice()` — no data is copied.
+        Compare with operations that return independent copies (e.g. `as_contiguous()`).
 
         Args:
             new_shape: The new shape for the tensor.
 
         Returns:
-            A new ExTensor whose `_data` pointer references the same underlying memory
-            as the original, with shape/strides adjusted for `new_shape`. The `_is_view`
-            flag is set to True. This is a zero-copy view: no data bytes are allocated
-            or copied. Modifying elements of the returned tensor will affect the original.
+            A zero-copy view with the requested shape, sharing the same flat data buffer.
 
         Raises:
             Error: If the total number of elements doesn't match.
-
-        Notes:
-            This method has the same view semantics as `slice()` — it returns a genuine
-            view that shares memory with the original tensor, not an independent copy.
-            Uses reference counting to ensure data remains valid while any view is alive.
 
         Example:
         ```mojo
@@ -883,38 +888,6 @@ struct ExTensor(
             ```mojo
             var t = zeros([3, 4], DType.float32)
             t[[1, 2]] = 5.0  # Set element at row 1, col 2
-            ```
-        """
-        if len(indices) != len(self._shape):
-            raise Error(
-                "Number of indices ("
-                + String(len(indices))
-                + ") must match tensor rank ("
-                + String(len(self._shape))
-                + ")"
-            )
-        var flat_idx = 0
-        for i in range(len(indices)):
-            if indices[i] < 0 or indices[i] >= self._shape[i]:
-                raise Error("Index out of bounds at dimension " + String(i))
-            flat_idx += indices[i] * self._strides[i]
-        self.__setitem__(flat_idx, value)
-
-    fn __setitem__(mut self, indices: List[Int], value: Int64) raises:
-        """Set element at multi-dimensional index using Int64 value.
-
-        Args:
-            indices: Per-dimension indices (one per axis).
-            value: The integer value to set (cast to tensor dtype).
-
-        Raises:
-            Error: If number of indices doesn't match tensor rank,
-                   or any index is out of bounds.
-
-        Example:
-            ```mojo
-            var t = zeros([3, 4], DType.int32)
-            t[[1, 2]] = Int64(42)  # Set element at row 1, col 2
             ```
         """
         if len(indices) != len(self._shape):
@@ -3272,35 +3245,6 @@ struct ExTensor(
         from shared.utils.serialization import load_tensor
 
         return load_tensor(path)
-
-    fn broadcast_to(self, target_shape: List[Int]) raises -> ExTensor:
-        """Broadcast tensor to target shape.
-
-        Method wrapper for the module-level `broadcast_to()` function,
-        providing convenient object syntax: `tensor.broadcast_to([4, 3])`
-        instead of `broadcast_to(tensor, [4, 3])`.
-
-        Args:
-            target_shape: Target shape to broadcast to.
-
-        Returns:
-            Broadcasted tensor.
-
-        Raises:
-            Error: If shapes are not broadcast-compatible.
-
-        Example:
-        ```mojo
-            var a = arange(0.0, 3.0, 1.0, DType.float32)  # Shape (3,)
-            var target = List[Int]()
-            target.append(4)
-            target.append(3)
-            var b = a.broadcast_to(target)  # Shape (4, 3)
-        ```
-        """
-        from shared.core.shape import broadcast_to as broadcast_to_fn
-
-        return broadcast_to_fn(self, target_shape)
 
 
 # ============================================================================
