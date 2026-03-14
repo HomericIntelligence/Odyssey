@@ -11,5 +11,8 @@ MOJO_SCRIPT_CONVERSION_ASSESSMENT.md
 agents/templates/
 .github/PULL_REQUEST_TEMPLATE/
 
+# Exclude Claude plugin command files (use XML prompt syntax, not markdown)
+.claude/plugins/
+
 # Mojo patterns has intentional duplicate headings for pattern descriptions
 docs/core/mojo-patterns.md MD024
