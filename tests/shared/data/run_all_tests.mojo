@@ -31,7 +31,7 @@ from tests.shared.data.loaders.test_base_loader import (
     test_loader_drop_last_option,
 )
 
-from tests.shared.data.transforms.test_pipeline import (
+from tests.shared.data.transforms.test_pipeline_part1 import (
     test_pipeline_creation,
     test_pipeline_empty,
     test_pipeline_single_transform,
@@ -40,7 +40,7 @@ from tests.shared.data.transforms.test_pipeline import (
     test_pipeline_preserves_intermediate_values,
 )
 
-from tests.shared.data.transforms.test_augmentations import (
+from tests.shared.data.transforms.test_augmentations_part1 import (
     test_random_augmentation_deterministic,
     test_random_augmentation_varies,
     test_random_rotation_range,
@@ -48,6 +48,9 @@ from tests.shared.data.transforms.test_augmentations import (
     test_random_rotation_fill_value,
     test_random_crop_varies_location,
     test_random_crop_with_padding,
+)
+
+from tests.shared.data.transforms.test_augmentations_part2 import (
     test_random_horizontal_flip_probability,
     test_random_flip_always,
     test_random_flip_never,
@@ -57,7 +60,7 @@ from tests.shared.data.transforms.test_augmentations import (
     test_augmentation_determinism_in_pipeline,
 )
 
-from tests.shared.data.samplers.test_sequential import (
+from tests.shared.data.samplers.test_sequential_part1 import (
     test_sequential_sampler_creation,
     test_sequential_sampler_empty,
     test_sequential_sampler_yields_all_indices,
