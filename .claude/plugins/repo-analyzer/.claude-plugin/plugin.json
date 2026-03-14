@@ -1,0 +1,9 @@
+{
+  "name": "repo-analyzer",
+  "version": "1.0.0",
+  "description": "Comprehensive repository audit tool that evaluates 15 dimensions including architecture, code quality, testing, security, CI/CD, documentation, and AI agent tooling. Produces graded report with GO/NO-GO verdict.",
+  "author": {
+    "name": "mvillmow"
+  },
+  "commands": "./commands"
+}
