@@ -349,13 +349,12 @@ fn dir_exists(path: String) -> Bool:
             temp_dir = create_temp_dir()
         ```
     """
-    # Use Python os.path.isdir() to check if directory exists
+    # Use Mojo's Path.is_dir() native method
     try:
-        var python = Python.import_module("os.path")
-        var result = python.isdir(path)
-        return Bool(result)
+        var dir_path = Path(path)
+        return dir_path.is_dir()
     except:
-        # Fall back to False if Python interop fails
+        # Return False if path is invalid or inaccessible
         return False
 
 
