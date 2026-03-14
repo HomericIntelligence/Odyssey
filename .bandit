@@ -1,5 +1,5 @@
 [bandit]
-targets = scripts
+targets = scripts,tests,tools,examples
 recursive = true
 skips = B310,B202
 # B310: urllib.request.urlopen — all URLs are internal, non-user-supplied constants
