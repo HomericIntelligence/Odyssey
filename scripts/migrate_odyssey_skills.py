@@ -572,10 +572,14 @@ def migrate_skill(
                 continue
             if subdir.name == "references":
                 dest = plugin_dir / "references"
+                if dest.exists():
+                    print(f"  WARNING: {dest} already exists; files may be overwritten during merge")
                 print(f"  Copying references/ -> {dest}")
                 shutil.copytree(subdir, dest, dirs_exist_ok=True)
             else:
                 dest = skill_md_dir / subdir.name
+                if dest.exists():
+                    print(f"  WARNING: {dest} already exists; files may be overwritten during merge")
                 print(f"  Copying {subdir.name}/ -> {dest}")
                 shutil.copytree(subdir, dest, dirs_exist_ok=True)
     else:
