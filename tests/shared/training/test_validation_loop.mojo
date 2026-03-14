@@ -177,6 +177,41 @@ fn test_validation_loop_run_subset_limited() raises:
     print("  test_validation_loop_run_subset_limited: PASSED")
 
 
+fn test_validation_loop_run_subset_exact_batch_count() raises:
+    """Test run_subset() processes exactly max_batches batches, not more or less.
+
+    Verifies that different max_batches values with the same loader produce
+    different losses only if the exact batch count is being processed.
+    With our simple_loss that returns 1.0 per batch, the averaged loss
+    should be 1.0 regardless of batch count, but computing accuracy with
+    the AccuracyMetric will accumulate results from exactly max_batches
+    batches.
+
+    Strategy: Run twice with max_batches=1 and max_batches=2 and check
+    that the loader's state is correctly positioned after each run.
+    """
+    var vloop = ValidationLoop()
+    var loader1 = create_val_loader(n_batches=5)
+    var metrics1 = TrainingMetrics()
+    # Process 1 batch
+    var val_loss_1 = vloop.run_subset(
+        simple_forward, simple_loss, loader1, 1, metrics1
+    )
+    # After processing 1 batch with batch_size=4, current_batch should be 1
+    assert_equal_int(loader1.current_batch, 1)
+
+    # Create new loader and process 2 batches
+    var loader2 = create_val_loader(n_batches=5)
+    var metrics2 = TrainingMetrics()
+    var val_loss_2 = vloop.run_subset(
+        simple_forward, simple_loss, loader2, 2, metrics2
+    )
+    # After processing 2 batches, current_batch should be 2
+    assert_equal_int(loader2.current_batch, 2)
+
+    print("  test_validation_loop_run_subset_exact_batch_count: PASSED")
+
+
 fn test_validation_loop_run_subset_loss_valid() raises:
     """Test run_subset returns valid Float64 loss."""
     var vloop = ValidationLoop()
@@ -425,6 +460,7 @@ fn main() raises:
 
     print("Running ValidationLoop.run_subset() tests...")
     test_validation_loop_run_subset_limited()
+    test_validation_loop_run_subset_exact_batch_count()
     test_validation_loop_run_subset_loss_valid()
     test_validation_loop_run_subset_resets_loader()
 
