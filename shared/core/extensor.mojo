@@ -3236,6 +3236,35 @@ struct ExTensor(
 
         return load_tensor(path)
 
+    fn broadcast_to(self, target_shape: List[Int]) raises -> ExTensor:
+        """Broadcast tensor to target shape.
+
+        Method wrapper for the module-level `broadcast_to()` function,
+        providing convenient object syntax: `tensor.broadcast_to([4, 3])`
+        instead of `broadcast_to(tensor, [4, 3])`.
+
+        Args:
+            target_shape: Target shape to broadcast to.
+
+        Returns:
+            Broadcasted tensor.
+
+        Raises:
+            Error: If shapes are not broadcast-compatible.
+
+        Example:
+        ```mojo
+            var a = arange(0.0, 3.0, 1.0, DType.float32)  # Shape (3,)
+            var target = List[Int]()
+            target.append(4)
+            target.append(3)
+            var b = a.broadcast_to(target)  # Shape (4, 3)
+        ```
+        """
+        from shared.core.shape import broadcast_to as broadcast_to_fn
+
+        return broadcast_to_fn(self, target_shape)
+
 
 # ============================================================================
 # Creation Operations
