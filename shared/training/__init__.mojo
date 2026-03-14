@@ -90,6 +90,12 @@ from shared.training.base import (
     clip_gradients,
 )
 
+# Export data loader interfaces (Issue #3851, #3856)
+from shared.training.trainer_interface import (
+    DataBatch,
+    DataLoader,
+)
+
 # Export scheduler implementations
 from shared.training.schedulers import (
     StepLR,
