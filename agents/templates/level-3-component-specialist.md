@@ -66,8 +66,7 @@ Level 3 Component Specialist responsible for [specialist area] at component leve
 ## Delegation
 
 ### Delegates To
-- [Senior Implementation Engineer](../.claude/agents/senior-implementation-engineer.md) - complex implementation
-- [Implementation Engineer](../.claude/agents/implementation-engineer.md) - standard implementation
+- [Implementation Engineer](../.claude/agents/implementation-engineer.md) - standard and complex implementation
 - [Test Engineer](../.claude/agents/test-engineer.md) - test implementation
 - [Documentation Engineer](../.claude/agents/documentation-engineer.md) - documentation
 - [Performance Engineer](../.claude/agents/performance-engineer.md) - optimization

@@ -99,12 +99,12 @@ User: "Use the architecture design agent to plan the auth module"
 
 ### Level 4: Implementation Engineers
 
-- Senior, Standard, Test, Documentation, Performance Engineers
-- Write code, tests, documentation
+- Implementation, Test, Documentation, Performance Engineers
+- Write code (standard and complex), tests, documentation
 
 ### Level 5: Junior Engineers
 
-- Handle simple tasks, boilerplate, formatting
+- Handle simple test tasks, test boilerplate
 
 **See [hierarchy.md](hierarchy.md) for complete details**
 
@@ -306,7 +306,7 @@ model: sonnet
 
 ## Operational Agents
 
-The operational agent configurations are in `.claude/agents/` (31 agents total):
+The operational agent configurations are in `.claude/agents/` (30 agents total):
 
 ### Level 0: Meta-Orchestrator (1 agent)
 
@@ -356,7 +356,7 @@ The operational agent configurations are in `.claude/agents/` (31 agents total):
 
 ### Level 4: Implementation Engineers (5 agents)
 
-- `implementation-engineer.md` - Standard functions and classes, following specifications
+- `implementation-engineer.md` - Standard and complex functions/classes, boilerplate, following specifications
 - `test-engineer.md` - Unit and integration tests, test fixtures, test maintenance
 - `documentation-engineer.md` - Docstrings, code examples, README updates
 - `performance-engineer.md` - Benchmark code, profiling, optimization implementation
@@ -364,7 +364,7 @@ The operational agent configurations are in `.claude/agents/` (31 agents total):
 
 ### Level 5: Junior Engineers (1 agent)
 
-- `junior-test-engineer.md` - Simple tests, test boilerplate, test execution
+- `junior-test-engineer.md` - Simple test cases, test boilerplate, test execution
 
 ## Best Practices
 
