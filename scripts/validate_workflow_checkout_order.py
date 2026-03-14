@@ -1,16 +1,12 @@
 #!/usr/bin/env python3
 """
-Validate that composite action references follow checkout-first ordering.
+Validate that composite action and reusable workflow references follow checkout-first ordering.
 
-Local composite actions (uses: ./.github/actions/X) require the repository to
-be checked out before they can be referenced. This script enforces that
-actions/checkout always appears as a step before any ./.github/actions/ reference
+Local composite actions (uses: ./.github/actions/X) and reusable workflows
+(uses: ./.github/workflows/X) require the repository to be checked out before
+they can be referenced. This script enforces that actions/checkout always
+appears as a step before any ./.github/actions/ or ./.github/workflows/ reference
 within every job of every scanned workflow file.
-
-Reusable workflow jobs (jobs.<job>.uses: ./.github/workflows/some-workflow.yml)
-are intentionally skipped: they delegate execution to a separate workflow that
-runs in its own VM with its own checkout step. There are no caller-side steps to
-validate, so the checkout-first invariant does not apply at the caller level.
 
 Usage:
     python scripts/validate_workflow_checkout_order.py [path ...]
@@ -42,7 +38,6 @@ class Violation(NamedTuple):
     step_index: int
     step_name: str
     composite_action: str
-    checkout_is_conditional: bool = False
 
 
 def _is_checkout_step(step: object) -> bool:
@@ -53,44 +48,20 @@ def _is_checkout_step(step: object) -> bool:
     return isinstance(uses, str) and uses.startswith("actions/checkout")
 
 
-def _has_conditional(step: object) -> bool:
-    """Return True if the step has an 'if:' condition (may not always run)."""
-    if not isinstance(step, dict):
-        return False
-    return "if" in step
-
-
-def _is_composite_action_step(step: object) -> bool:
-    """Return True if the step references a local composite action."""
+def _is_local_reference_step(step: object) -> bool:
+    """Return True if the step references a local composite action or reusable workflow."""
     if not isinstance(step, dict):
         return False
     uses = step.get("uses", "")
-    return isinstance(uses, str) and uses.startswith("./.github/actions/")
-
-
-def _is_reusable_workflow_job(job_data: object) -> bool:
-    """Return True if this job delegates to a reusable workflow (job-level uses).
-
-    Reusable workflow caller jobs have a top-level ``uses`` key pointing to
-    ``./.github/workflows/``.  They contain no ``steps`` list — execution is
-    delegated to the callee workflow, which runs in its own VM and handles its
-    own checkout.  The checkout-first invariant therefore does not apply at the
-    caller level and these jobs should be skipped by the validator.
-    """
-    if not isinstance(job_data, dict):
+    if not isinstance(uses, str):
         return False
-    uses = job_data.get("uses", "")
-    return isinstance(uses, str) and uses.startswith("./.github/workflows/")
+    # Check for local composite actions and reusable workflows
+    return uses.startswith("./.github/actions/") or uses.startswith("./.github/workflows/")
 
 
 def validate_workflow(workflow_file: Path) -> List[Violation]:
     """
     Validate checkout-first ordering for all jobs in a workflow file.
-
-    Jobs that delegate to a reusable workflow via a job-level ``uses:
-    ./.github/workflows/`` key are skipped: they have no steps of their own
-    and the callee is responsible for its own checkout.  Only steps-based jobs
-    are checked.
 
     Args:
         workflow_file: Path to the workflow YAML file.
@@ -122,22 +93,17 @@ def validate_workflow(workflow_file: Path) -> List[Violation]:
         if not isinstance(job_data, dict):
             continue
 
-        if _is_reusable_workflow_job(job_data):
-            continue  # Callee runs in its own VM and handles its own checkout
-
         steps = job_data.get("steps")
         if not isinstance(steps, list):
             continue
 
         checked_out = False
-        checkout_is_conditional = False
         for idx, step in enumerate(steps):
             if _is_checkout_step(step):
                 checked_out = True
-                checkout_is_conditional = _has_conditional(step)
                 continue
 
-            if _is_composite_action_step(step):
+            if _is_local_reference_step(step):
                 if not checked_out:
                     step_name = (
                         step.get("name", f"(unnamed step {idx + 1})") if isinstance(step, dict) else f"(step {idx + 1})"
@@ -150,7 +116,6 @@ def validate_workflow(workflow_file: Path) -> List[Violation]:
                             step_index=idx + 1,
                             step_name=str(step_name),
                             composite_action=str(composite_action),
-                            checkout_is_conditional=checkout_is_conditional,
                         )
                     )
 
@@ -228,21 +193,12 @@ def main(argv: List[str] | None = None) -> int:
 
     if all_violations:
         for v in all_violations:
-            if v.checkout_is_conditional:
-                error_msg = (
-                    f"\nWARNING: {v.workflow_file} :: job '{v.job_name}' :: step {v.step_index} "
-                    f"uses '{v.composite_action}'\n"
-                    f"         but actions/checkout is conditional and may not run.\n"
-                    f"         Composite actions and reusable workflows require the repository to be checked out first."
-                )
-            else:
-                error_msg = (
-                    f"\nERROR: {v.workflow_file} :: job '{v.job_name}' :: step {v.step_index} "
-                    f"uses '{v.composite_action}'\n"
-                    f"       but actions/checkout is not a preceding step.\n"
-                    f"       Composite actions and reusable workflows require the repository to be checked out first."
-                )
-            print(error_msg)
+            print(
+                f"\nERROR: {v.workflow_file} :: job '{v.job_name}' :: step {v.step_index} "
+                f"uses '{v.composite_action}'\n"
+                f"       but actions/checkout is not a preceding step.\n"
+                f"       Composite actions and reusable workflows require the repository to be checked out first."
+            )
         print(f"\nFound {len(all_violations)} violation(s) in {len(workflow_files)} file(s).")
         return 1
 
