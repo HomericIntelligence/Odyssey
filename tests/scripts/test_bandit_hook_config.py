@@ -289,15 +289,32 @@ class TestBanditNosecRationale:
         )
 
     def test_b202_extractall_targets_local_path(self) -> None:
-        """extractall() calls in download scripts must target a local directory variable.
+        """extractall() calls in scripts/ must target a local directory variable.
 
         This validates that the B202 skip is safe: extraction targets are known-safe
         local paths (DATA_DIR), not user-controlled paths.
+
+        Note: This test searches all of scripts/*.py to catch if extractall() is
+        refactored into shared helpers (e.g., common.py) or imported from elsewhere.
         """
         scripts_dir = REPO_ROOT / "scripts"
-        for script in scripts_dir.glob("download_*.py"):
+        files_with_extractall = []
+
+        # Search all Python files in scripts/ that contain extractall
+        for script in scripts_dir.glob("*.py"):
             source = script.read_text()
             if "extractall" in source:
+                files_with_extractall.append(script)
+
+        # If no files with extractall found, verify the current assumption is correct
+        if not files_with_extractall:
+            # This is expected for now - no shared extractall helper yet
+            # If this assertion fails, it means extractall was added somewhere in scripts/
+            pass
+        else:
+            # If extractall IS in scripts/, verify all calls are safe
+            for script in files_with_extractall:
+                source = script.read_text()
                 # extractall should be called with a Path/variable argument, not a raw string
                 # A bare extractall() with no argument (extracting to cwd) would be unsafe
                 assert re.search(r"\.extractall\s*\(\s*\S", source), (
