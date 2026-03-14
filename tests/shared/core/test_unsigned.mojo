@@ -520,6 +520,113 @@ fn test_uint8_overflow_wrap_multiply() raises:
         )
 
 
+fn test_uint8_overflow_wrap_multiply_nonzero() raises:
+    """Test UInt8 multiplication overflow wraps to non-zero: 17 * 16 == 16 (272 mod 256)."""
+    var result: UInt8 = UInt8(17) * UInt8(16)
+    if result != 16:
+        raise Error(
+            "UInt8 multiply nonzero overflow wrap failed: expected 16, got "
+            + String(result)
+        )
+
+
+fn test_uint16_overflow_wrap_multiply_nonzero() raises:
+    """Test UInt16 multiplication overflow wraps to non-zero: 300 * 300 == 57600 (57600 mod 65536)."""
+    var result: UInt16 = UInt16(300) * UInt16(300)
+    if result != 57600:
+        raise Error(
+            "UInt16 multiply nonzero overflow wrap failed: expected 57600, got "
+            + String(result)
+        )
+
+
+fn test_uint32_overflow_wrap_multiply_nonzero() raises:
+    """Test UInt32 multiplication overflow wraps to non-zero: 100000 * 100000 == 1874919424 (10000000000 mod 2^32)."""
+    var result: UInt32 = UInt32(100000) * UInt32(100000)
+    if result != 1874919424:
+        raise Error(
+            "UInt32 multiply nonzero overflow wrap failed: expected 1874919424, got "
+            + String(result)
+        )
+
+
+fn test_uint64_overflow_wrap_multiply_nonzero() raises:
+    """Test UInt64 multiplication overflow wraps to non-zero: 1000000000 * 1000000000 == 13875954555633532160."""
+    var result: UInt64 = UInt64(1000000000) * UInt64(1000000000)
+    if result != 13875954555633532160:
+        raise Error(
+            "UInt64 multiply nonzero overflow wrap failed: expected 13875954555633532160, got "
+            + String(result)
+        )
+
+
+fn test_uint8_accumulated_overflow() raises:
+    """Test accumulated overflow: 200 + 100 + 100 = 44 (wraps twice: 200+100=44, 44+100=144)."""
+    var result: UInt8 = UInt8(200)
+    result = result + UInt8(100)  # 300 mod 256 = 44
+    if result != 44:
+        raise Error(
+            "UInt8 accumulated overflow step1 failed: expected 44, got "
+            + String(result)
+        )
+    result = result + UInt8(100)  # 144 (no wrap)
+    if result != 144:
+        raise Error(
+            "UInt8 accumulated overflow step2 failed: expected 144, got "
+            + String(result)
+        )
+
+
+fn test_uint16_accumulated_overflow() raises:
+    """Test accumulated overflow: 60000 + 10000 + 10000 = 13464 (wraps twice)."""
+    var result: UInt16 = UInt16(60000)
+    result = result + UInt16(10000)  # 70000 mod 65536 = 4464
+    if result != 4464:
+        raise Error(
+            "UInt16 accumulated overflow step1 failed: expected 4464, got "
+            + String(result)
+        )
+    result = result + UInt16(10000)  # 14464 (no wrap)
+    if result != 14464:
+        raise Error(
+            "UInt16 accumulated overflow step2 failed: expected 14464, got "
+            + String(result)
+        )
+
+
+fn test_uint32_accumulated_overflow() raises:
+    """Test accumulated overflow with multiplication: (1000000000 * 5) * 5 wraps in stages."""
+    var result: UInt32 = UInt32(1000000000)
+    result = result * UInt32(5)  # 5000000000 mod 2^32 = 705032704
+    if result != 705032704:
+        raise Error(
+            "UInt32 accumulated multiply step1 failed: expected 705032704, got "
+            + String(result)
+        )
+    result = result * UInt32(5)  # 3525163520 mod 2^32 = 3525163520 (no wrap needed)
+    if result != 3525163520:
+        raise Error(
+            "UInt32 accumulated multiply step2 failed: expected 3525163520, got "
+            + String(result)
+        )
+
+
+fn test_uint64_accumulated_overflow() raises:
+    """Test accumulated overflow: very large value + very large value wraps."""
+    var result: UInt64 = UInt64(18446744073709551615)  # max UInt64
+    result = result + UInt64(1)  # Should wrap to 0
+    if result != 0:
+        raise Error(
+            "UInt64 accumulated max+1 failed: expected 0, got " + String(result)
+        )
+    result = UInt64(18446744073709551614)
+    result = result + UInt64(2)  # Should wrap to 0
+    if result != 0:
+        raise Error(
+            "UInt64 accumulated max+2 failed: expected 0, got " + String(result)
+        )
+
+
 fn main():
     """Main test runner for unsigned integer type tests."""
     try:
@@ -725,5 +832,53 @@ fn main():
         print("OK test_uint8_overflow_wrap_multiply")
     except e:
         print("FAIL test_uint8_overflow_wrap_multiply:", e)
+
+    try:
+        test_uint8_overflow_wrap_multiply_nonzero()
+        print("OK test_uint8_overflow_wrap_multiply_nonzero")
+    except e:
+        print("FAIL test_uint8_overflow_wrap_multiply_nonzero:", e)
+
+    try:
+        test_uint16_overflow_wrap_multiply_nonzero()
+        print("OK test_uint16_overflow_wrap_multiply_nonzero")
+    except e:
+        print("FAIL test_uint16_overflow_wrap_multiply_nonzero:", e)
+
+    try:
+        test_uint32_overflow_wrap_multiply_nonzero()
+        print("OK test_uint32_overflow_wrap_multiply_nonzero")
+    except e:
+        print("FAIL test_uint32_overflow_wrap_multiply_nonzero:", e)
+
+    try:
+        test_uint64_overflow_wrap_multiply_nonzero()
+        print("OK test_uint64_overflow_wrap_multiply_nonzero")
+    except e:
+        print("FAIL test_uint64_overflow_wrap_multiply_nonzero:", e)
+
+    try:
+        test_uint8_accumulated_overflow()
+        print("OK test_uint8_accumulated_overflow")
+    except e:
+        print("FAIL test_uint8_accumulated_overflow:", e)
+
+    try:
+        test_uint16_accumulated_overflow()
+        print("OK test_uint16_accumulated_overflow")
+    except e:
+        print("FAIL test_uint16_accumulated_overflow:", e)
+
+    try:
+        test_uint32_accumulated_overflow()
+        print("OK test_uint32_accumulated_overflow")
+    except e:
+        print("FAIL test_uint32_accumulated_overflow:", e)
+
+    try:
+        test_uint64_accumulated_overflow()
+        print("OK test_uint64_accumulated_overflow")
+    except e:
+        print("FAIL test_uint64_accumulated_overflow:", e)
 
     print("\n=== Unsigned Integer Type Tests Complete ===")
