@@ -5,6 +5,11 @@ Validate Test Coverage - Ensure all test_*.mojo files are covered by CI
 This script finds all test_*.mojo files in the repository and verifies they are
 included in the CI test matrix in .github/workflows/comprehensive-tests.yml.
 
+IMPORTANT: Always grep live test files rather than relying on cached metadata.
+Issue #3477 mistakenly stated test_conv.mojo had 15 test functions when the actual
+count was 20. This script verifies live file counts, not stale issue metadata.
+See Issue #4325 for details on this discrepancy.
+
 Exit codes:
   0 - All tests covered
   1 - Uncovered tests found or validation errors
