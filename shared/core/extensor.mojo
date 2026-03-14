@@ -26,6 +26,7 @@ Array API Categories:
 - Element-wise math: exp, log, sqrt, sin, cos, tanh ✓ (shared/core/elementwise.mojo)
 - Statistical: var, std, median, percentile ✓ (shared/core/reduction.mojo)
 - Indexing: slicing, advanced indexing ✓ (__getitem__ methods)
+- Hashing: __hash__ via Hashable trait ✓
 
 Slicing Design:
 - `slice(start, end)` — view-based extraction (shares memory, zero-copy). Use for
@@ -39,7 +40,7 @@ Reference: https://data-apis.org/array-api/latest/API_specification/index.html
 """
 
 from collections import List
-from memory import UnsafePointer, memset_zero, alloc, bitcast, memcpy
+from memory import UnsafePointer, memset_zero, alloc, bitcast
 from sys.info import simd_width_of
 from math import ceildiv, sqrt, log, cos, sin
 from utils.numerics import inf as numeric_inf, neg_inf as numeric_neg_inf
@@ -86,24 +87,6 @@ struct ExTensor(
             _refcount: Shared reference count for memory management.
             _original_numel_quantized: For quantized tensors, stores original size before padding (-1 if not quantized).
 
-    Memory Semantics:
-            ExTensor exposes two distinct access patterns with different memory contracts.
-            Callers must choose the appropriate method based on whether shared or independent
-            memory is required.
-
-            +----------------------------+----------+---------------------+------------------------------+
-            | Method                     | Returns  | _is_view            | Memory                       |
-            +----------------------------+----------+---------------------+------------------------------+
-            | slice(start, end, axis)    | ExTensor | True  (view)        | Shared — zero-copy           |
-            | __getitem__(Slice)         | ExTensor | False (copy)        | Independent — data copied    |
-            | __getitem__(*slices)       | ExTensor | False (copy)        | Independent — data copied    |
-            | __getitem__(Int)           | Float32  | N/A (scalar result) | Scalar value, not a tensor   |
-            +----------------------------+----------+---------------------+------------------------------+
-
-            Use `slice()` for memory-efficient batch iteration where the original data must
-            remain unmodified. Use `__getitem__` overloads when independent copies are needed
-            (e.g., when the result may be mutated or outlives the source tensor).
-
     Examples:
             # Create tensors
             var a = zeros([3, 4], DType.float32)
@@ -113,10 +96,6 @@ struct ExTensor(
             print(a.shape())  # [3, 4]
             print(a.dtype())  # float32
             print(a.numel())  # 12.
-
-            # Use tensors as dictionary keys (Hashable trait)
-            from hashlib import hash
-            var h = hash(a)  # ExTensor implements hashing for dict/set usage
     """
 
     var _data: UnsafePointer[UInt8, origin=MutAnyOrigin]
@@ -130,13 +109,7 @@ struct ExTensor(
     var _numel: Int
     """Total number of elements."""
     var _is_view: Bool
-    """Whether this tensor shares data with another (view semantics).
-
-    True when set by `slice()`, which returns a zero-copy view into the original
-    buffer. False for all tensors created via `__getitem__` overloads or any
-    constructor that allocates independent memory. When True, the `__del__` method
-    skips freeing `_data` to avoid a double-free with the original tensor.
-    """
+    """Whether this tensor shares data with another."""
     var _refcount: UnsafePointer[Int, origin=MutAnyOrigin]
     """Reference count for shared memory management."""
     var _original_numel_quantized: Int
@@ -451,16 +424,6 @@ struct ExTensor(
         Increments the reference count to track shared ownership.
         This prevents double-free and enables safe view semantics.
 
-        IMPORTANT: This is a SHALLOW copy. Both the original and copy share
-        the same underlying data buffer. Modifications to one affect the other.
-
-        For a DEEP copy (independent data), use .clone() instead.
-        See Issue #3225 for context on shallow vs deep copy semantics.
-
-        Example:
-            var x = ExTensor(...)
-            var y = x              # Shallow copy (same data)
-            var z = x.clone()      # Deep copy (independent data)
         """
         # Shallow copy all fields
         self._data = existing._data
@@ -601,93 +564,21 @@ struct ExTensor(
         return len(self._shape)
 
     fn is_contiguous(self) -> Bool:
-        """Check if the tensor has a contiguous memory layout (row-major C order).
-
-        A tensor is contiguous if elements are laid out sequentially in memory
-        with no gaps. This is true when strides match C-order (row-major) layout.
+        """Check if the tensor has a contiguous memory layout.
 
         Returns:
             True if the tensor is contiguous (row-major, no gaps), False otherwise.
 
         Note:
             Contiguous tensors enable SIMD optimizations and efficient operations.
-
-        Implementation Note (Issue #3844):
-            This is the canonical implementation - the standalone is_contiguous()
-            function in shape.mojo delegates to this method.
         """
-        var ndim = len(self._shape)
-
-        if ndim == 0:
-            return True  # Scalar is trivially contiguous
-
-        if ndim == 1:
-            # 1D tensor is contiguous if stride is 1
-            return self._strides[0] == 1
-
-        # For multi-dimensional tensors, check if strides match C-order
-        # In C-order (row-major), stride[i] = product(shape[i+1:])
+        # Check if strides match row-major layout
         var expected_stride = 1
-        for i in range(ndim - 1, -1, -1):
+        for i in range(len(self._shape) - 1, -1, -1):
             if self._strides[i] != expected_stride:
                 return False
             expected_stride *= self._shape[i]
-
         return True
-
-    fn _nd_index_to_flat_offset(self, linear_idx: Int) -> Int:
-        """Convert a C-order flat index to a byte offset using per-dimension strides.
-
-        For contiguous tensors this equals `linear_idx * dtype_size`. For
-        non-contiguous views (e.g., after transpose) it correctly traverses
-        arbitrary strides.
-
-        Args:
-            linear_idx: Flat 0-based index in C-order iteration.
-
-        Returns:
-            Byte offset into `_data`.
-        """
-        var dtype_size = self._get_dtype_size()
-        var ndim = len(self._shape)
-        var remaining = linear_idx
-        var element_offset = 0
-        for i in range(ndim - 1, -1, -1):
-            var coord = remaining % self._shape[i]
-            remaining //= self._shape[i]
-            element_offset += coord * self._strides[i]
-        return element_offset * dtype_size
-
-    fn view_with_strides(
-        self, new_shape: List[Int], new_strides: List[Int]
-    ) -> ExTensor:
-        """Create a zero-copy view with the given shape and strides.
-
-        Increments the reference count via __copyinit__. The returned tensor
-        shares underlying data with `self`. Both shape and strides are replaced;
-        the data pointer is NOT moved — callers that need a different base offset
-        (e.g., `slice()`) must adjust `_data` after calling this method.
-
-        Args:
-            new_shape: Shape for the view.
-            new_strides: Element-level strides for the view.
-
-        Returns:
-            A new ExTensor view sharing `_data` with `self`.
-        """
-        var result = self.copy()
-        result._is_view = True
-        result._shape = List[Int]()
-        for i in range(len(new_shape)):
-            result._shape.append(new_shape[i])
-        result._strides = List[Int]()
-        for i in range(len(new_strides)):
-            result._strides.append(new_strides[i])
-        var n = 1
-        for i in range(len(new_shape)):
-            n *= new_shape[i]
-        result._numel = n
-        return result^
 
     fn reshape(self, new_shape: List[Int]) raises -> ExTensor:
         """Reshape tensor to new shape (must have same total elements).
@@ -811,16 +702,27 @@ struct ExTensor(
                 + "]"
             )
 
-        # Build new shape (same as self except axis shrinks)
-        var new_shape = self._shape.copy()
-        new_shape[axis] = end - start
+        # Calculate offset to start of slice
+        var offset_elements = start * self._strides[axis]
+        var dtype_size = self._get_dtype_size()
+        var offset_bytes = offset_elements * dtype_size
 
-        # Strides are unchanged — create view with same strides, new shape
-        var result = self.view_with_strides(new_shape, self._strides)
+        # Create view by copying (increments refcount)
+        var result = self.copy()
+        result._is_view = True
 
-        # Adjust base pointer to start of slice
-        var offset_bytes = start * self._strides[axis] * self._get_dtype_size()
+        # Update the sliced dimension in place
+        result._shape[axis] = end - start
+
+        # Update data pointer to point to sliced data
         result._data = self._data + offset_bytes
+
+        # Strides remain the same (already copied by __copyinit__)
+
+        # Recalculate numel after shape change
+        result._numel = 1
+        for i in range(len(result._shape)):
+            result._numel *= result._shape[i]
 
         return result^
 
@@ -879,23 +781,16 @@ struct ExTensor(
         return result^
 
     fn __getitem__(self, index: Int) raises -> Float32:
-        """Get element at flat index, returning a scalar value.
+        """Get element at flat index.
 
         Args:
             index: The flat index to access.
 
         Returns:
-            The value at the given index as Float32. This is a scalar, not an
-            ExTensor — the view/copy distinction does not apply. No memory is
-            shared with or allocated from the original tensor.
+            The value at the given index as Float32.
 
         Raises:
             Error: If index is out of bounds.
-
-        Notes:
-            Unlike `slice()` (view, shared memory) and `__getitem__(Slice)` /
-            `__getitem__(*slices)` (copy, independent ExTensor), this overload
-            extracts a single numeric value and has no memory ownership semantics.
 
         Example:
             ```mojo
@@ -1040,49 +935,25 @@ struct ExTensor(
             flat_idx += indices[i] * self._strides[i]
         self.__setitem__(flat_idx, value)
 
-    fn __setitem__(mut self, indices: List[Int], value: Float32) raises:
-        """Set element at multi-dimensional index using Float32 value.
-
-        Args:
-            indices: Per-dimension indices (one per axis).
-            value: The Float32 value to set (converted to Float64 internally).
-
-        Raises:
-            Error: If number of indices doesn't match tensor rank,
-                   or any index is out of bounds.
-
-        Example:
-            ```mojo
-            var t = zeros([3, 4], DType.float32)
-            t[[1, 2]] = Float32(5.0)  # Set element at row 1, col 2
-            ```
-        """
-        self.__setitem__(indices, Float64(value))
-
     fn __getitem__(self, slice: Slice) raises -> Self:
-        """Get slice along axis 0 using [start:end] or [start:end:step].
-
-        For 1D tensors this is equivalent to element-level slicing. For N-D
-        tensors this slices along axis 0, returning all inner dimensions
-        intact — consistent with NumPy semantics (e.g. ``t[1:3]`` on a 2D
-        tensor returns rows 1 and 2 as a copy).
+        """Get slice of 1D tensor [start:end] or [start:end:step].
 
         Args:
-            slice: Slice object specifying start, end, and optional step
-                   along axis 0.
+            slice: Slice object specifying start, end, and optional step.
 
         Returns:
             New tensor containing a **copy** of the sliced data. The result
-            does not share memory with the original tensor. For memory-efficient
-            contiguous batch extraction along axis 0, use `slice()` instead,
-            which returns a true view (but does not support strided or reverse
-            slicing).
+            does not share memory with the original tensor.
+
+        Raises:
+            Error: If tensor is not 1D or indices are invalid.
 
         Notes:
-            This method always returns a copy (``_is_view = False``),
-            regardless of step value or tensor rank. The result shape is
-            ``[result_size, shape[1], shape[2], ...]`` where ``result_size``
-            is the number of axis-0 indices selected by the slice.
+            This method always returns a copy (`_is_view = False`), regardless
+            of the step value. This is by design: materializing a strided copy
+            keeps the implementation simple and avoids lifetime management
+            complexity. For memory-efficient batch extraction over the first
+            axis, use `slice()` instead, which returns a true view.
 
         Example:
             ```mojo
@@ -1090,11 +961,11 @@ struct ExTensor(
             var sliced = t[2:7]  # Copy of [2, 3, 4, 5, 6]
             var strided = t[0:10:2]  # Copy of [0, 2, 4, 6, 8]
             var reversed = t[::-1]  # Copy of [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
-
-            var mat = zeros([4, 5], DType.float32)
-            var rows = mat[1:3]  # Copy with shape [2, 5] (rows 1 and 2)
         ```
         """
+        if len(self._shape) != 1:
+            raise Error("Single slice only supported for 1D tensors")
+
         # Handle slice parameters — extract step first so defaults depend on sign
         var size = self._shape[0]
         var step = slice.step.or_else(1)
@@ -1115,81 +986,63 @@ struct ExTensor(
         if end < 0:
             end = size + end
 
-        # Compute result_size (number of axis-0 indices selected)
+        # Handle negative step (reverse)
         var result_size: Int
         if step < 0:
             var neg_step = -step
             # Clamp start to [0, size-1], end to [-1, size-1]
             start = max(0, min(start, size - 1))
             end = max(-1, min(end, size - 1))
+            # No swap: iterate src_idx = start - i * neg_step while src_idx > end
             result_size = max(0, ceildiv(start - end, neg_step))
-        else:
-            # Clamp forward slice to [0, size]
-            start = max(0, min(start, size))
-            end = max(0, min(end, size))
-            result_size = max(0, ceildiv(end - start, step))
 
-        var dtype_size = self._get_dtype_size()
-        var src_ptr = self._data
-
-        if len(self._shape) == 1:
-            # 1D path: copy individual elements
+            # Create result tensor with shape
             var shape = List[Int]()
             shape.append(result_size)
             var result = Self(shape, self._dtype)
             result._is_view = False
+
+            # Copy in reverse
+            var dtype_size = self._get_dtype_size()
+            var src_ptr = self._data
             var dst_ptr = result._data
 
-            if step < 0:
-                var neg_step = -step
-                for i in range(result_size):
-                    var src_idx = start - i * neg_step
-                    var src_offset = src_idx * dtype_size
-                    var dst_offset = i * dtype_size
-                    for b in range(dtype_size):
-                        dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
-            else:
-                for i in range(result_size):
-                    var src_idx = start + i * step
-                    var src_offset = src_idx * dtype_size
-                    var dst_offset = i * dtype_size
-                    for b in range(dtype_size):
-                        dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
+            for i in range(result_size):
+                var src_idx = start - i * neg_step
+                var src_offset = src_idx * dtype_size
+                var dst_offset = i * dtype_size
+                for b in range(dtype_size):
+                    dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
 
             return result^
         else:
-            # N-D path: slice along axis 0, copy entire inner slabs
-            # result shape: [result_size, shape[1], shape[2], ...]
-            var result_shape = List[Int]()
-            result_shape.append(result_size)
-            for d in range(1, len(self._shape)):
-                result_shape.append(self._shape[d])
+            # Clamp forward slice to [0, size]
+            start = max(0, min(start, size))
+            end = max(0, min(end, size))
+            # Normal forward slice
+            result_size = max(0, ceildiv(end - start, step))
 
-            var result = Self(result_shape, self._dtype)
-            result._is_view = False
-            var dst_ptr = result._data
+        # Create result tensor with shape
+        var shape = List[Int]()
+        shape.append(result_size)
+        var result = Self(shape, self._dtype)
+        result._is_view = False  # Strided slice creates copy, not view
 
-            # _strides[0] is the number of elements per axis-0 slab (row-major)
-            var inner_numel = self._strides[0]
-            var slab_bytes = inner_numel * dtype_size
+        # Copy strided data
+        var dtype_size = self._get_dtype_size()
+        var src_ptr = self._data
+        var dst_ptr = result._data
 
-            if step < 0:
-                var neg_step = -step
-                for i in range(result_size):
-                    var src_axis0 = start - i * neg_step
-                    var src_offset = src_axis0 * slab_bytes
-                    var dst_offset = i * slab_bytes
-                    for b in range(slab_bytes):
-                        dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
-            else:
-                for i in range(result_size):
-                    var src_axis0 = start + i * step
-                    var src_offset = src_axis0 * slab_bytes
-                    var dst_offset = i * slab_bytes
-                    for b in range(slab_bytes):
-                        dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
+        for i in range(result_size):
+            var src_idx = start + i * step
+            var src_offset = src_idx * dtype_size
+            var dst_offset = i * dtype_size
 
-            return result^
+            # Copy element (byte-wise)
+            for b in range(dtype_size):
+                dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
+
+        return result^
 
     fn __getitem__(self, *slices: Slice) raises -> Self:
         """Get multi-dimensional slice (e.g., tensor[a:b, c:d, :]).
@@ -1210,10 +1063,7 @@ struct ExTensor(
             produces non-contiguous data in general (e.g., `t[1:4, 1:3]` on
             a 5x4 tensor), so a simple pointer offset is insufficient. Each
             output element is copied individually using per-dimension offsets
-            and original strides. Unlike `slice()`, which returns a genuine view
-            (`_is_view = True`, shared memory, zero-copy), this method always
-            allocates independent memory for the result. Use `slice()` for
-            memory-efficient extraction along a single axis.
+            and original strides.
 
         Example:
             ```mojo
@@ -1239,19 +1089,6 @@ struct ExTensor(
         for dim in range(num_dims):
             var s = slices[dim]
             var size = self._shape[dim]
-            var step = s.step.or_else(1)
-
-            # Check for unsupported stride (step != 1)
-            if step != 1:
-                raise Error(
-                    "Strided slicing (step != 1) is not yet supported in "
-                    + "multi-dimensional __getitem__(*slices). "
-                    + "Dimension "
-                    + String(dim)
-                    + " has step="
-                    + String(step)
-                    + ". Use 1D __getitem__(Slice) for strided slicing."
-                )
 
             var start = s.start.or_else(0)
             var end = s.end.or_else(size)
@@ -1282,39 +1119,21 @@ struct ExTensor(
         var src_ptr = self._data
         var dst_ptr = result._data
 
-        # Fast-path: only dim-0 is non-trivially sliced → result is contiguous.
-        # Condition: for every dim >= 1, start == 0 and result covers the full
-        # dimension (i.e. result_shape[dim] == self._shape[dim]).
-        var is_first_axis_only = True
-        for dim in range(1, num_dims):
-            if starts[dim] != 0 or result_shape[dim] != self._shape[dim]:
-                is_first_axis_only = False
-                break
+        for out_flat in range(result_numel):
+            # Decompose out_flat into per-dimension indices, then map to source
+            var src_flat = 0
+            var remaining = out_flat
+            for dim in range(num_dims):
+                var out_idx = remaining // result._strides[dim]
+                remaining = remaining % result._strides[dim]
+                var src_idx = starts[dim] + out_idx
+                src_flat += src_idx * self._strides[dim]
 
-        if is_first_axis_only:
-            var src_byte_offset = starts[0] * self._strides[0] * dtype_size
-            var byte_count = result_numel * dtype_size
-            memcpy(
-                dest=dst_ptr,
-                src=src_ptr + src_byte_offset,
-                count=byte_count,
-            )
-        else:
-            for out_flat in range(result_numel):
-                # Decompose out_flat into per-dimension indices, then map to source
-                var src_flat = 0
-                var remaining = out_flat
-                for dim in range(num_dims):
-                    var out_idx = remaining // result._strides[dim]
-                    remaining = remaining % result._strides[dim]
-                    var src_idx = starts[dim] + out_idx
-                    src_flat += src_idx * self._strides[dim]
-
-                # Copy element byte-by-byte
-                var src_offset = src_flat * dtype_size
-                var dst_offset = out_flat * dtype_size
-                for b in range(dtype_size):
-                    dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
+            # Copy element byte-by-byte
+            var src_offset = src_flat * dtype_size
+            var dst_offset = out_flat * dtype_size
+            for b in range(dtype_size):
+                dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
 
         return result^
 
@@ -1327,11 +1146,8 @@ struct ExTensor(
         Returns:
             The value at the index as Float64.
         """
-        var offset: Int
-        if self.is_contiguous():
-            offset = index * self._get_dtype_size()
-        else:
-            offset = self._nd_index_to_flat_offset(index)
+        var dtype_size = self._get_dtype_size()
+        var offset = index * dtype_size
 
         if self._dtype == DType.float16:
             var ptr = (self._data + offset).bitcast[Float16]()
@@ -1350,20 +1166,14 @@ struct ExTensor(
             return Float64(self._get_int64(index))
 
     fn _set_float64(self, index: Int, value: Float64):
-        """Internal: Set value at index, truncating to the tensor's dtype.
+        """Internal: Set value at index (assumes float-compatible dtype).
 
         Args:
             index: The element index to set.
             value: The value to set (as Float64).
-
-        Note:
-            For int8, value is truncated (Float64 -> Int8 cast).
         """
-        var offset: Int
-        if self.is_contiguous():
-            offset = index * self._get_dtype_size()
-        else:
-            offset = self._nd_index_to_flat_offset(index)
+        var dtype_size = self._get_dtype_size()
+        var offset = index * dtype_size
 
         if self._dtype == DType.float16:
             var ptr = (self._data + offset).bitcast[Float16]()
@@ -1377,9 +1187,6 @@ struct ExTensor(
         elif self._dtype == DType.float64:
             var ptr = (self._data + offset).bitcast[Float64]()
             ptr[] = value
-        elif self._dtype == DType.int8:
-            var ptr = (self._data + offset).bitcast[Int8]()
-            ptr[] = value.cast[DType.int8]()
 
     fn _get_float32(self, index: Int) -> Float32:
         """Internal: Get value at index as Float32 (assumes float-compatible dtype).
@@ -1394,11 +1201,8 @@ struct ExTensor(
             For Float64 and integer types, value is cast to Float32.
             For Float16, value is upcast to Float32.
         """
-        var offset: Int
-        if self.is_contiguous():
-            offset = index * self._get_dtype_size()
-        else:
-            offset = self._nd_index_to_flat_offset(index)
+        var dtype_size = self._get_dtype_size()
+        var offset = index * dtype_size
 
         if self._dtype == DType.float16:
             var ptr = (self._data + offset).bitcast[Float16]()
@@ -1428,11 +1232,8 @@ struct ExTensor(
             For Float64, value is upcast to Float64.
             For integer types, value is truncated to integer.
         """
-        var offset: Int
-        if self.is_contiguous():
-            offset = index * self._get_dtype_size()
-        else:
-            offset = self._nd_index_to_flat_offset(index)
+        var dtype_size = self._get_dtype_size()
+        var offset = index * dtype_size
 
         if self._dtype == DType.float16:
             var ptr = (self._data + offset).bitcast[Float16]()
@@ -1446,9 +1247,6 @@ struct ExTensor(
         elif self._dtype == DType.bfloat16:
             var ptr = (self._data + offset).bitcast[BFloat16]()
             ptr[] = value.cast[DType.bfloat16]()
-        elif self._dtype == DType.int8:
-            var ptr = (self._data + offset).bitcast[Int8]()
-            ptr[] = value.cast[DType.int8]()
 
     fn _get_int64(self, index: Int) -> Int64:
         """Internal: Get value at index as Int64 (assumes integer-compatible dtype).
@@ -1459,11 +1257,8 @@ struct ExTensor(
         Returns:
             The value at the index as Int64.
         """
-        var offset: Int
-        if self.is_contiguous():
-            offset = index * self._get_dtype_size()
-        else:
-            offset = self._nd_index_to_flat_offset(index)
+        var dtype_size = self._get_dtype_size()
+        var offset = index * dtype_size
 
         if self._dtype == DType.int8:
             var ptr = (self._data + offset).bitcast[Int8]()
@@ -1502,11 +1297,8 @@ struct ExTensor(
             index: The element index to set.
             value: The value to set (as Int64).
         """
-        var offset: Int
-        if self.is_contiguous():
-            offset = index * self._get_dtype_size()
-        else:
-            offset = self._nd_index_to_flat_offset(index)
+        var dtype_size = self._get_dtype_size()
+        var offset = index * dtype_size
 
         if self._dtype == DType.int8:
             var ptr = (self._data + offset).bitcast[Int8]()
@@ -3187,9 +2979,8 @@ struct ExTensor(
     fn __str__(self) -> String:
         """Human-readable string representation with NumPy-style truncation.
 
-        Truncation is controlled by module-level constants:
-        - EXTENSOR_PRINT_THRESHOLD: Truncate if numel > threshold (default 1000)
-        - EXTENSOR_PRINT_SHOW_ELEMENTS: Show first/last N elements (default 3)
+        For tensors with more than 1000 elements, shows only the first 3 and
+        last 3 elements with '...' in between to prevent performance issues.
 
         Returns:
             String in the format: ExTensor([v0, v1, ...], dtype=<dtype>)
@@ -3201,14 +2992,17 @@ struct ExTensor(
             print(x)  # ExTensor([0.0, 1.0, 2.0, ..., 997.0, 998.0, 999.0], dtype=float32)
             ```
         """
+        comptime TRUNCATE_THRESHOLD = 1000
+        comptime SHOW_ELEMENTS = 3
+
         var result = String("ExTensor([")
-        if self._numel > EXTENSOR_PRINT_THRESHOLD:
-            for i in range(EXTENSOR_PRINT_SHOW_ELEMENTS):
+        if self._numel > TRUNCATE_THRESHOLD:
+            for i in range(SHOW_ELEMENTS):
                 if i > 0:
                     result += ", "
                 result += String(self._get_float64(i))
             result += ", ..."
-            for i in range(self._numel - EXTENSOR_PRINT_SHOW_ELEMENTS, self._numel):
+            for i in range(self._numel - SHOW_ELEMENTS, self._numel):
                 result += ", " + String(self._get_float64(i))
         else:
             for i in range(self._numel):
@@ -3221,14 +3015,13 @@ struct ExTensor(
     fn __repr__(self) -> String:
         """Detailed representation for debugging.
 
-        Truncation is controlled by module-level constants:
-        - EXTENSOR_PRINT_THRESHOLD: Truncate if numel > threshold (default 1000)
-        - EXTENSOR_PRINT_SHOW_ELEMENTS: Show first/last N elements (default 3)
-
         Returns:
             String in the format: ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[...]).
             For large tensors: ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[v0, v1, v2, ..., vN-2, vN-1, vN]).
         """
+        comptime TRUNCATE_THRESHOLD = 1000
+        comptime SHOW_ELEMENTS = 3
+
         var shape_str = String("[")
         for i in range(len(self._shape)):
             if i > 0:
@@ -3239,13 +3032,13 @@ struct ExTensor(
         result += ", dtype=" + String(self._dtype)
         result += ", numel=" + String(self._numel)
         result += ", data=["
-        if self._numel > EXTENSOR_PRINT_THRESHOLD:
-            for i in range(EXTENSOR_PRINT_SHOW_ELEMENTS):
+        if self._numel > TRUNCATE_THRESHOLD:
+            for i in range(SHOW_ELEMENTS):
                 if i > 0:
                     result += ", "
                 result += String(self._get_float64(i))
             result += ", ..."
-            for i in range(self._numel - EXTENSOR_PRINT_SHOW_ELEMENTS, self._numel):
+            for i in range(self._numel - SHOW_ELEMENTS, self._numel):
                 result += ", " + String(self._get_float64(i))
         else:
             for i in range(self._numel):
@@ -3944,7 +3737,6 @@ fn nan_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
         dtype != DType.float16
         and dtype != DType.float32
         and dtype != DType.float64
-        and dtype != DType.bfloat16
     ):
         raise Error("nan_tensor: only floating-point dtypes support NaN")
 
@@ -3984,7 +3776,6 @@ fn inf_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
         dtype != DType.float16
         and dtype != DType.float32
         and dtype != DType.float64
-        and dtype != DType.bfloat16
     ):
         raise Error("inf_tensor: only floating-point dtypes support Inf")
 
@@ -4023,7 +3814,6 @@ fn neg_inf_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
         dtype != DType.float16
         and dtype != DType.float32
         and dtype != DType.float64
-        and dtype != DType.bfloat16
     ):
         raise Error("neg_inf_tensor: only floating-point dtypes support Inf")
 
