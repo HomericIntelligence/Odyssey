@@ -69,6 +69,13 @@ from shared.version import VERSION, AUTHOR, LICENSE
 # from .training.schedulers import StepLR, CosineAnnealingLR
 
 # Training metrics (most commonly used) — Issue #3221
+# NOTE(#3754, Mojo v0.26.1): Metrics are imported directly from shared.training.metrics
+# rather than from shared.training due to Mojo re-export chain limitation.
+# See shared/training/__init__.mojo for detailed explanation of this limitation.
+# Users should import metrics either as:
+#   from shared.training.metrics import LossTracker, AccuracyMetric
+# or:
+#   from shared import LossTracker, AccuracyMetric  # if this module re-exports them
 from shared.training.metrics import LossTracker, AccuracyMetric, ConfusionMatrix, CSVMetricsLogger
 
 # Expose plan-canonical alias: Accuracy = AccuracyMetric
