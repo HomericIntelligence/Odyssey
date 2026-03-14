@@ -48,9 +48,8 @@
                                │
                                ▼
             ┌─────────────────────────────────────┐
-            │   Level 4: Engineers (6 agents)      │
+            │   Level 4: Engineers (5 agents)      │
             ├──────────────────────────────────────┤
-            │  • Senior Implementation Engineer    │
             │  • Implementation Engineer           │
             │  • Test Engineer                     │
             │  • Documentation Engineer            │
@@ -62,7 +61,6 @@
             ┌─────────────────────────────────────┐
             │      Level 5: Junior Engineers       │
             ├──────────────────────────────────────┤
-            │  • Junior Implementation Engineer    │
             │  • Junior Test Engineer              │
             └──────────────────────────────────────┘
 ```
@@ -109,7 +107,7 @@
 
 ### Level 4: Implementation Engineers
 
-- **Agents**: 6 (Senior Implementation, Implementation, Test, Documentation, Performance, Log Analyzer)
+- **Agents**: 5 (Implementation, Test, Documentation, Performance, Log Analyzer)
 - **Scope**: Functions and classes
 - **Decisions**: Implementation details
 - **Phase**: Test, Implementation, Package
@@ -118,11 +116,11 @@
 
 ### Level 5: Junior Engineers
 
-- **Agents**: 2 types (Implementation, Test)
-- **Scope**: Simple functions, boilerplate
+- **Agents**: 1 type (Test)
+- **Scope**: Simple test cases
 - **Decisions**: None (follows instructions)
-- **Phase**: Test, Implementation, Package
-- **Language Context**: Generates Mojo boilerplate, applies formatting
+- **Phase**: Test
+- **Language Context**: Generates test boilerplate, applies formatting
 - **Package Phase**: Run package builds, verify installations, execute packaging commands
 
 ## Mojo-Specific Considerations
@@ -209,8 +207,8 @@ Strategic Alignment (Level 0)
 | 2     | Module Design & Review Orchestrators | 4 |
 | 3     | Specialists (Implementation + Code Review) | 13 |
 | 4     | Implementation Engineers | 5 |
-| 5     | Junior Engineers | 2 |
-| **Total** | **All Agents** | **31** |
+| 5     | Junior Engineers | 1 |
+| **Total** | **All Agents** | **30** |
 
 **Level 3 Breakdown:**
 
@@ -564,50 +562,31 @@ cross-section dependency graphs
 
 ### Level 4: Implementation Engineers
 
-#### Senior Implementation Engineer
+#### Implementation Engineer
 
-**Scope**: Complex functions/classes
+**Scope**: Standard and complex functions/classes, boilerplate code
 
 **Responsibilities**:
 
-- Write implementation code
-- Follow coding standards
+- Write implementation code for standard to complex functions
+- Generate boilerplate code
+- Follow coding patterns and standards
 - Implement error handling
 - Write inline documentation
 - Optimize algorithms
+- Format code
 
 **Inputs**: Detailed specifications from specialists
 
-**Outputs**: Implementation code, unit tests
+**Outputs**: Implementation code, unit tests, formatted source files
 
-**Delegates To**: Junior Engineers for simple tasks
+**Delegates To**: None (absorbs junior scope)
 
-**Coordinates With**: Test Engineers for TDD
+**Coordinates With**: Test Engineers for TDD, Performance Engineers for optimization
 
-**Workflow Phase**: Implementation
+**Workflow Phase**: Implementation, Test, Package
 
-**Skills Used**: code_generation, refactoring, optimization
-
-**Configuration File**: `.claude/agents/senior-implementation-engineer.md`
-
-#### Implementation Engineer
-
-**Scope**: Standard functions/classes
-
-**Responsibilities**:
-
-- Write implementation code
-- Follow coding patterns
-- Write basic tests
-- Document code
-
-**Delegates To**: Junior Engineers for repetitive tasks
-
-**Artifacts**: Source code files, unit tests
-
-**Workflow Phase**: Implementation
-
-**Skills Used**: code_generation, testing, documentation
+**Skills Used**: code_generation, testing, documentation, refactoring, optimization
 
 **Configuration File**: `.claude/agents/implementation-engineer.md`
 
@@ -675,30 +654,6 @@ cross-section dependency graphs
 ---
 
 ### Level 5: Junior Engineers
-
-#### Junior Implementation Engineer
-
-**Scope**: Simple functions, boilerplate code
-
-**Responsibilities**:
-
-- Write simple functions
-- Generate boilerplate code
-- Apply code templates
-- Format code
-- Run linters
-
-**Inputs**: Clear, detailed instructions
-
-**Outputs**: Simple code implementations
-
-**No Delegation**: Lowest level of hierarchy
-
-**Workflow Phase**: Implementation
-
-**Skills Used**: boilerplate_generation, code_formatting, linting
-
-**Configuration File**: `.claude/agents/junior-implementation-engineer.md`
 
 #### Junior Test Engineer
 

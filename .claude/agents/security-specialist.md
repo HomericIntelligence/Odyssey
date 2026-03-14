@@ -5,7 +5,7 @@ level: 3
 phase: Implementation
 tools: Read,Write,Edit,Grep,Glob,Task
 model: sonnet
-delegates_to: [implementation-engineer, senior-implementation-engineer, test-engineer]
+delegates_to: [implementation-engineer, test-engineer]
 receives_from: [security-design]
 ---
 

@@ -16,7 +16,7 @@
 
 ## Overview
 
-This catalog lists all 29 agents in the ML Odyssey hierarchical agent system. Each entry includes:
+This catalog lists all 30 agents in the ML Odyssey hierarchical agent system. Each entry includes:
 
 - **Name**: Agent identifier
 - **Description**: What the agent does
@@ -26,7 +26,7 @@ This catalog lists all 29 agents in the ML Odyssey hierarchical agent system. Ea
 
 ## Quick Reference Table
 
-Representative sample of 29 agents (see detailed sections below for complete list):
+Representative sample of 30 agents (see detailed sections below for complete list):
 
 | Level | Agent Name | Primary Focus | Scope |
 |-------|-----------|---------------|-------|
@@ -49,13 +49,11 @@ Representative sample of 29 agents (see detailed sections below for complete lis
 | **3** | Implementation Review Specialist | Code correctness review | PR dimensions |
 | **3** | Safety Review Specialist | Memory safety review | PR dimensions |
 | **3** | Mojo Language Review Specialist | Language patterns review | PR dimensions |
-| **4** | Senior Implementation Engineer | Complex code | Complex functions |
-| **4** | Implementation Engineer | Standard code | Standard functions |
+| **4** | Implementation Engineer | Standard and complex code | Functions/classes/boilerplate |
 | **4** | Test Engineer | Test implementation | Unit/integration tests |
 | **4** | Documentation Engineer | Documentation writing | API docs, examples |
 | **4** | Performance Engineer | Performance tuning | Benchmarks, profiling |
 | **4** | Log Analyzer | Log parsing & analysis | Diagnostic info |
-| **5** | Junior Implementation Engineer | Simple code | Boilerplate, simple functions |
 | **5** | Junior Test Engineer | Simple tests | Test boilerplate |
 
 ## Level 0: Meta-Orchestrator
@@ -751,75 +749,34 @@ implementation work
 
 ## Level 4: Implementation Engineers
 
-### Senior Implementation Engineer
-
-**Configuration**: `.claude/agents/senior-implementation-engineer.md`
-
-**Description**: Implements complex functions, performance-critical code, and advanced Mojo features like SIMD
-
-### When to Use
-
-- Implementing complex algorithms
-- Writing performance-critical code
-- Using advanced Mojo features (SIMD, traits, lifetimes)
-- Optimizing hot paths
-- Implementing low-level operations
-- Mentoring junior engineers
-
-### Capabilities
-
-- Complex algorithm implementation
-- SIMD vectorization and optimization
-- Advanced Mojo features (traits, parametric types, lifetimes)
-- Performance-critical code writing
-- Low-level memory management
-- Code review and mentorship
-
-### Example Use Cases
-
-```text
-"Implement SIMD-optimized convolution operation"
-
-"Write the backward pass for custom layer with advanced Mojo"
-
-"Optimize matrix multiplication using SIMD intrinsics"
-
-"Implement complex attention mechanism"
-
-"Create zero-copy tensor operations using Mojo lifetimes"
-```text
-
-**Delegates To**: Junior Engineers (Level 5) for boilerplate
-
-**Coordinates With**: Test Engineer, Performance Engineer, Implementation Engineer
-
-**Workflow Phase**: Implementation
-
----
-
 ### Implementation Engineer
 
 **Configuration**: `.claude/agents/implementation-engineer.md`
 
-**Description**: Implements standard functions and classes following specifications
+**Description**: Implements standard and complex functions, classes, boilerplate code, and performance-critical operations
 
 ### When to Use
 
-- Implementing standard functions
-- Writing typical Mojo classes and structs
-- Following established patterns
-- Implementing straightforward algorithms
-- Writing well-specified code
+- Implementing standard functions and classes
+- Writing complex algorithms
+- Implementing performance-critical code
+- Using advanced Mojo features (SIMD, traits, lifetimes)
+- Writing boilerplate code
+- Optimizing hot paths
 - Coordinating with test engineers (TDD)
+- Following established patterns
 
 ### Capabilities
 
-- Standard function and class implementation
+- Standard and complex function/class implementation
 - Mojo code writing (fn, def, struct, class)
 - Pattern following and code consistency
-- Basic algorithm implementation
+- Algorithm implementation (standard to complex)
+- SIMD vectorization and optimization
+- Boilerplate code generation
 - Error handling and validation
 - TDD collaboration
+- Performance-critical code writing
 
 ### Example Use Cases
 
@@ -830,16 +787,22 @@ implementation work
 
 "Create struct for optimizer configuration"
 
-"Implement standard activation functions (sigmoid, tanh)"
+"Implement SIMD-optimized convolution operation"
 
-"Write data validation functions"
+"Write the backward pass with advanced Mojo features"
+
+"Generate boilerplate for new functions"
+
+"Optimize matrix multiplication using SIMD intrinsics"
+
+"Implement standard activation functions (sigmoid, tanh)"
 ```text
 
-**Delegates To**: Junior Engineers (Level 5) for simple tasks
+**Delegates To**: None (absorbs junior implementation scope)
 
-**Coordinates With**: Test Engineer, Documentation Writer
+**Coordinates With**: Test Engineer, Documentation Writer, Performance Engineer
 
-**Workflow Phase**: Implementation
+**Workflow Phase**: Implementation, Test, Package
 
 ---
 
@@ -982,52 +945,6 @@ implementation work
 ---
 
 ## Level 5: Junior Engineers
-
-### Junior Implementation Engineer
-
-**Configuration**: `.claude/agents/junior-implementation-engineer.md`
-
-**Description**: Writes simple functions, generates boilerplate code, formats code, and runs automated tools
-
-### When to Use
-
-- Writing simple, well-specified functions
-- Generating boilerplate code
-- Creating getter/setter methods
-- Formatting code
-- Running linters and formatters
-- Implementing template-based code
-
-### Capabilities
-
-- Simple function implementation
-- Boilerplate code generation
-- Code formatting and linting
-- Template-based code creation
-- Accessor method generation
-- Basic code maintenance
-
-### Example Use Cases
-
-```text
-"Create getter and setter methods for optimizer hyperparameters"
-
-"Generate boilerplate for new struct definition"
-
-"Format all code in this module using mojo format"
-
-"Run pre-commit hooks and fix linting errors"
-
-"Create simple helper functions following this pattern"
-```text
-
-**No Delegation**: Lowest level of hierarchy
-
-**Coordinates With**: Implementation Engineer (receives tasks from)
-
-**Workflow Phase**: Implementation
-
----
 
 ### Junior Test Engineer
 
@@ -1234,6 +1151,6 @@ cat .claude/agents/architecture-design.md
 
 ---
 
-**Total Agent Types**: 29 across 6 levels
+**Total Agent Types**: 30 across 6 levels
 
 **Remember**: Trust the hierarchy, communicate clearly, and let agents work at their appropriate level!
