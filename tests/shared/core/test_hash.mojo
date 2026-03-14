@@ -400,6 +400,69 @@ fn test_hash_empty_tensor_stability() raises:
 
 
 # ============================================================================
+# Test: hash collision with same dtype, different shapes
+# ============================================================================
+
+
+fn test_hash_same_dtype_different_shapes() raises:
+    """Tensors with same dtype/values but different shapes hash differently."""
+    var shape1 = List[Int]()
+    shape1.append(4)
+    var shape2 = List[Int]()
+    shape2.append(2)
+    shape2.append(2)
+    # Both have 4 elements with value 1.0, but different shapes
+    var a = ones(shape1, DType.float32)
+    var b = ones(shape2, DType.float32)
+    if hash(a) == hash(b):
+        raise Error(
+            "Tensors with same dtype/values but different shapes should not"
+            " collide on hash"
+        )
+
+
+# ============================================================================
+# Test: integer distinct values
+# ============================================================================
+
+
+fn test_hash_integer_dtype_distinct() raises:
+    """Integer tensors with different values hash differently."""
+    var shape = List[Int]()
+    shape.append(3)
+    var a = full(shape, Int32(100), DType.int32)
+    var b = full(shape, Int32(101), DType.int32)
+    if hash(a) == hash(b):
+        raise Error("int32 tensors with different values should hash differently")
+
+
+# ============================================================================
+# Test: NaN canonicalization with 0-D scalar tensors
+# ============================================================================
+
+
+fn test_hash_nan_canonicalization_scalar() raises:
+    """0-D scalar NaN tensors hash the same regardless of bit pattern.
+
+    0-D tensors (scalars) should still canonicalize NaN properly.
+    """
+    # Positive quiet NaN
+    var shape = List[Int]()
+    var pos_nan = ExTensor(shape, DType.float32)
+    pos_nan._data.bitcast[UInt32]()[] = UInt32(0x7FC00000)
+
+    # Negative quiet NaN
+    var neg_nan = ExTensor(shape, DType.float32)
+    neg_nan._data.bitcast[UInt32]()[] = UInt32(0xFFC00000)
+
+    assert_equal_int(
+        Int(hash(pos_nan)),
+        Int(hash(neg_nan)),
+        "0-D scalar NaN tensors must canonicalize regardless of sign",
+    )
+
+
+# ============================================================================
 # Entry point
 # ============================================================================
 
@@ -466,5 +529,14 @@ fn main() raises:
 
     print("  test_hash_empty_tensor_stability...")
     test_hash_empty_tensor_stability()
+
+    print("  test_hash_same_dtype_different_shapes...")
+    test_hash_same_dtype_different_shapes()
+
+    print("  test_hash_integer_dtype_distinct...")
+    test_hash_integer_dtype_distinct()
+
+    print("  test_hash_nan_canonicalization_scalar...")
+    test_hash_nan_canonicalization_scalar()
 
     print("All NaN hash stability tests passed!")
