@@ -364,7 +364,13 @@ fn test_cross_entropy_gradient_fp16() raises:
 
 
 fn main() raises:
-    """Run dtype-specific gradient checking tests."""
+    """Run dtype-specific gradient checking tests.
+
+    NOTE(#3776, ADR-009): This file contains 10/10 test functions.
+    Test budget: 10 tests max per file due to Mojo v0.26.1 heap
+    corruption workaround. Budget is FULL - no room for more tests.
+    See ADR-009 for details.
+    """
     print("Running composite gradient tests...")
     test_composite_relu_multiply()
 

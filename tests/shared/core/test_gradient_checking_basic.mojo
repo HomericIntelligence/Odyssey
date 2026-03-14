@@ -201,7 +201,12 @@ fn test_gradient_small_tensor() raises:
 
 
 fn main() raises:
-    """Run basic gradient checking tests."""
+    """Run basic gradient checking tests.
+
+    NOTE(#3776, ADR-009): This file contains 9/10 test functions.
+    Test budget: 10 tests max per file due to Mojo v0.26.1 heap
+    corruption workaround. See ADR-009 for details.
+    """
     print("Running activation gradient tests...")
     test_relu_gradient()
     test_relu_negative_inputs()
