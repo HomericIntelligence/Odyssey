@@ -37,6 +37,7 @@ class Violation(NamedTuple):
     step_index: int
     step_name: str
     composite_action: str
+    checkout_is_conditional: bool = False
 
 
 def _is_checkout_step(step: object) -> bool:
@@ -45,6 +46,13 @@ def _is_checkout_step(step: object) -> bool:
         return False
     uses = step.get("uses", "")
     return isinstance(uses, str) and uses.startswith("actions/checkout")
+
+
+def _has_conditional(step: object) -> bool:
+    """Return True if the step has an 'if:' condition (may not always run)."""
+    if not isinstance(step, dict):
+        return False
+    return "if" in step
 
 
 def _is_composite_action_step(step: object) -> bool:
@@ -94,9 +102,11 @@ def validate_workflow(workflow_file: Path) -> List[Violation]:
             continue
 
         checked_out = False
+        checkout_is_conditional = False
         for idx, step in enumerate(steps):
             if _is_checkout_step(step):
                 checked_out = True
+                checkout_is_conditional = _has_conditional(step)
                 continue
 
             if _is_composite_action_step(step):
@@ -112,6 +122,7 @@ def validate_workflow(workflow_file: Path) -> List[Violation]:
                             step_index=idx + 1,
                             step_name=str(step_name),
                             composite_action=str(composite_action),
+                            checkout_is_conditional=checkout_is_conditional,
                         )
                     )
 
@@ -189,12 +200,21 @@ def main(argv: List[str] | None = None) -> int:
 
     if all_violations:
         for v in all_violations:
-            print(
-                f"\nERROR: {v.workflow_file} :: job '{v.job_name}' :: step {v.step_index} "
-                f"uses '{v.composite_action}'\n"
-                f"       but actions/checkout is not a preceding step.\n"
-                f"       Composite actions require the repository to be checked out first."
-            )
+            if v.checkout_is_conditional:
+                error_msg = (
+                    f"\nWARNING: {v.workflow_file} :: job '{v.job_name}' :: step {v.step_index} "
+                    f"uses '{v.composite_action}'\n"
+                    f"         but actions/checkout is conditional and may not run.\n"
+                    f"         Composite actions and reusable workflows require the repository to be checked out first."
+                )
+            else:
+                error_msg = (
+                    f"\nERROR: {v.workflow_file} :: job '{v.job_name}' :: step {v.step_index} "
+                    f"uses '{v.composite_action}'\n"
+                    f"       but actions/checkout is not a preceding step.\n"
+                    f"       Composite actions and reusable workflows require the repository to be checked out first."
+                )
+            print(error_msg)
         print(f"\nFound {len(all_violations)} violation(s) in {len(workflow_files)} file(s).")
         return 1
 
