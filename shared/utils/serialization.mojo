@@ -108,7 +108,7 @@ fn save_named_tensors(tensors: List[NamedTensor], dirpath: String) raises:
     Args:
             tensors: List of NamedTensor objects.
             dirpath: Output directory path (created if doesn't exist).
-                Trailing slashes are accepted and normalized automatically.
+                     Trailing slash is optional (e.g., `"checkpoint/"` or `"checkpoint"`).
 
     Raises:
             Error: If directory creation or file write fails.
@@ -121,16 +121,19 @@ fn save_named_tensors(tensors: List[NamedTensor], dirpath: String) raises:
             save_named_tensors(tensors, "checkpoint/epoch_10/")
             ```
     """
-    var normalized = String(dirpath.rstrip("/"))
+    # Normalize dirpath: remove trailing slash if present
+    var normalized_dirpath = dirpath
+    if dirpath.endswith("/"):
+        normalized_dirpath = String(dirpath[:-1])
 
     # Create directory if needed
-    if not create_directory(normalized):
-        raise Error("Failed to create directory: " + normalized)
+    if not create_directory(normalized_dirpath):
+        raise Error("Failed to create directory: " + normalized_dirpath)
 
     # Save each tensor
     for i in range(len(tensors)):
         var filename = tensors[i].name + ".weights"
-        var filepath = normalized + "/" + filename
+        var filepath = normalized_dirpath + "/" + filename
 
         save_tensor(tensors[i].tensor, filepath, tensors[i].name)
 
@@ -142,8 +145,8 @@ fn load_named_tensors(dirpath: String) raises -> List[NamedTensor]:
         NamedTensor objects. Files are loaded in directory order.
 
     Args:
-            dirpath: Directory containing .weights files.
-                Trailing slashes are accepted and normalized automatically.
+            dirpath: Directory containing `.weights` files.
+                     Trailing slash is optional (e.g., `"checkpoint/"` or `"checkpoint"`).
 
     Returns:
             List of NamedTensor objects.
@@ -159,11 +162,15 @@ fn load_named_tensors(dirpath: String) raises -> List[NamedTensor]:
             ```
     """
     var result: List[NamedTensor] = []
-    var normalized = String(dirpath.rstrip("/"))
 
     try:
+        # Normalize dirpath: remove trailing slash if present
+        var normalized_dirpath = dirpath
+        if dirpath.endswith("/"):
+            normalized_dirpath = String(dirpath[:-1])
+
         # List directory contents using Mojo native os.listdir
-        var entries = os.listdir(normalized)
+        var entries = os.listdir(normalized_dirpath)
 
         # Collect .weights files and sort for deterministic ordering
         var weight_files: List[String] = []
@@ -183,7 +190,7 @@ fn load_named_tensors(dirpath: String) raises -> List[NamedTensor]:
 
         # Load each weights file
         for i in range(len(weight_files)):
-            var filepath = normalized + "/" + weight_files[i]
+            var filepath = normalized_dirpath + "/" + weight_files[i]
             var (name, tensor) = load_tensor_with_name(filepath)
             result.append(NamedTensor(name, tensor))
 
@@ -227,16 +234,21 @@ fn save_named_checkpoint(
             save_checkpoint(tensors, "checkpoints/model/", meta)
             ```
     """
+    # Normalize path: remove trailing slash if present
+    var normalized_path = path
+    if path.endswith("/"):
+        normalized_path = String(path[:-1])
+
     # Create checkpoint directory
-    if not create_directory(path):
-        raise Error("Failed to create checkpoint directory: " + path)
+    if not create_directory(normalized_path):
+        raise Error("Failed to create checkpoint directory: " + normalized_path)
 
     # Save all named tensors
-    save_named_tensors(tensors, path)
+    save_named_tensors(tensors, normalized_path)
 
     # Save metadata if provided
     if metadata:
-        var meta_path = path + "/metadata.txt"
+        var meta_path = normalized_path + "/metadata.txt"
         var meta_content = _serialize_metadata(metadata.value())
         with open(meta_path, "w") as f:
             _ = f.write(meta_content)
@@ -268,12 +280,17 @@ fn load_named_checkpoint(
                 print("Epoch: " + metadata["epoch"])
             ```
     """
+    # Normalize path: remove trailing slash if present
+    var normalized_path = path
+    if path.endswith("/"):
+        normalized_path = String(path[:-1])
+
     # Load all named tensors
-    var tensors = load_named_tensors(path)
+    var tensors = load_named_tensors(normalized_path)
 
     # Load metadata if it exists
     var metadata = Dict[String, String]()
-    var meta_path = path + "/metadata.txt"
+    var meta_path = normalized_path + "/metadata.txt"
 
     try:
         var meta_content: String
