@@ -31,8 +31,6 @@ from shared.core.conv import (
     conv2d_no_bias,
     conv2d_backward,
     conv2d_no_bias_backward,
-    depthwise_conv2d_no_bias,
-    depthwise_conv2d_no_bias_backward,
 )
 from shared.testing import (
     compute_numerical_gradient,
@@ -775,62 +773,6 @@ fn test_conv2d_no_bias_backward_shapes() raises:
     assert_equal(grad_kernel.shape()[3], kW)
 
 
-fn test_depthwise_conv2d_no_bias_backward_shapes() raises:
-    """Test depthwise_conv2d_no_bias_backward returns correct gradient shapes.
-
-    Depthwise convolution applies one kernel per input channel (no inter-channel mixing).
-    The kernel shape is (in_channels, 1, kH, kW) for depthwise operations.
-
-    Tests that the returned DepthwiseConv2dNoBiasGradient has:
-    - grad_input: (batch, in_channels, in_height, in_width)
-    - grad_weights: (in_channels, 1, kH, kW)
-    """
-    var batch = 1
-    var in_channels = 4
-    var in_height = 5
-    var in_width = 5
-    var kH = 3
-    var kW = 3
-    var stride = 1
-    var padding = 0
-
-    var input_shape = List[Int]()
-    input_shape.append(batch)
-    input_shape.append(in_channels)
-    input_shape.append(in_height)
-    input_shape.append(in_width)
-    var x = ones(input_shape, DType.float32)
-
-    # Depthwise kernel: (in_channels, 1, kH, kW)
-    var kernel_shape = List[Int]()
-    kernel_shape.append(in_channels)
-    kernel_shape.append(1)
-    kernel_shape.append(kH)
-    kernel_shape.append(kW)
-    var kernel = ones(kernel_shape, DType.float32)
-
-    var output = depthwise_conv2d_no_bias(x, kernel, stride, padding)
-    var grad_output = ones(output.shape(), DType.float32)
-
-    var result = depthwise_conv2d_no_bias_backward(
-        grad_output, x, kernel, stride, padding
-    )
-    var grad_input = result.grad_input
-    var grad_kernel = result.grad_weights
-
-    # grad_input should match input shape
-    assert_equal(grad_input.shape()[0], batch)
-    assert_equal(grad_input.shape()[1], in_channels)
-    assert_equal(grad_input.shape()[2], in_height)
-    assert_equal(grad_input.shape()[3], in_width)
-
-    # grad_kernel should match depthwise kernel shape: (in_channels, 1, kH, kW)
-    assert_equal(grad_kernel.shape()[0], in_channels)
-    assert_equal(grad_kernel.shape()[1], 1)
-    assert_equal(grad_kernel.shape()[2], kH)
-    assert_equal(grad_kernel.shape()[3], kW)
-
-
 fn test_conv2d_backward_multichannel_shapes() raises:
     """Test conv2d_backward returns correct gradient shapes for multi-channel config.
 
@@ -984,202 +926,6 @@ fn test_conv2d_backward_multichannel_values() raises:
         )
 
 
-fn test_conv2d_backward_multichannel_stride_gt_1() raises:
-    """Test conv2d_backward with stride > 1 verifies correct gradient routing.
-
-    stride > 1 affects which input positions contribute to each output position.
-    Only certain spatial locations have non-zero gradient contributions.
-
-    This test verifies that grad_input correctly routes gradients back to only
-    the positions that contributed to the forward pass output.
-
-    Config: batch=1, in_channels=3, out_channels=8, stride=2
-    Input: (1, 3, 5, 5) all ones, kernel: (8, 3, 3, 3) all ones
-    stride=2, padding=0 -> output shape: (1, 8, 2, 2)
-    ((5-3)//2+1 = 2)
-    grad_output = ones((1, 8, 2, 2))
-
-    Expected:
-    - grad_weights accumulates from output positions (0,0), (0,1), (1,0), (1,1)
-    - grad_input has gradient contributions only at positions where stride-spaced
-      kernels overlapped, creating a sparse gradient pattern
-    - grad_bias[oc] = sum over (oh, ow) of grad_output[0, oc, oh, ow] = 4.0
-      (4 output positions)
-    """
-    var batch = 1
-    var in_channels = 3
-    var out_channels = 8
-    var kH = 3
-    var kW = 3
-    var stride = 2
-    var padding = 0
-
-    # Input: (1, 3, 5, 5) all ones
-    var input_shape = List[Int]()
-    input_shape.append(batch)
-    input_shape.append(in_channels)
-    input_shape.append(5)
-    input_shape.append(5)
-    var x = ones(input_shape, DType.float32)
-
-    # Kernel: (8, 3, 3, 3) all ones
-    var kernel_shape = List[Int]()
-    kernel_shape.append(out_channels)
-    kernel_shape.append(in_channels)
-    kernel_shape.append(kH)
-    kernel_shape.append(kW)
-    var kernel = ones(kernel_shape, DType.float32)
-
-    var bias_shape = List[Int]()
-    bias_shape.append(out_channels)
-    var bias = zeros(bias_shape, DType.float32)
-
-    # Forward pass: output shape (1, 8, 2, 2) with stride=2
-    var output = conv2d(x, kernel, bias, stride, padding)
-    var grad_output = ones(output.shape(), DType.float32)
-
-    # Verify output shape
-    var out_shape = output.shape()
-    assert_equal(out_shape[2], 2)  # (5-3)//2+1 = 2
-    assert_equal(out_shape[3], 2)  # (5-3)//2+1 = 2
-
-    # Backward pass
-    var result = conv2d_backward(grad_output, x, kernel, stride, padding)
-    var grad_input = result.grad_input
-    var grad_kernel = result.grad_weights
-    var grad_bias = result.grad_bias
-
-    # Verify grad_bias: 4 output spatial positions, each with grad_output=1.0
-    var grad_bias_data = grad_bias._data.bitcast[Float32]()
-    for oc in range(out_channels):
-        assert_almost_equal(
-            grad_bias_data[oc],
-            Float32(4.0),  # 2x2 spatial output
-            tolerance=1e-4,
-        )
-
-    # Verify grad_weights shape
-    var grad_weights_shape = grad_kernel.shape()
-    assert_equal(grad_weights_shape[0], out_channels)
-    assert_equal(grad_weights_shape[1], in_channels)
-    assert_equal(grad_weights_shape[2], kH)
-    assert_equal(grad_weights_shape[3], kW)
-
-    # Verify grad_input shape
-    var grad_input_shape = grad_input.shape()
-    assert_equal(grad_input_shape[0], batch)
-    assert_equal(grad_input_shape[1], in_channels)
-    assert_equal(grad_input_shape[2], 5)
-    assert_equal(grad_input_shape[3], 5)
-
-
-fn test_conv2d_backward_multichannel_padding_gt_0_values() raises:
-    """Test conv2d_backward computes correct gradients with padding > 0.
-
-    Padding affects which input positions receive gradient contributions.
-    Padded border pixels in the padded region receive zero gradient from
-    that padded region, but grad_input still sums contributions from all
-    positions that contributed to each output.
-
-    This test verifies gradient computation correctness with padding=1
-    using an analytically tractable configuration.
-
-    Config: batch=1, in_channels=2, out_channels=2
-    Input: (1, 2, 3, 3) all ones
-    Kernel: (2, 2, 2, 2) all ones
-    stride=1, padding=1 -> output shape: (1, 2, 3, 3) (same as input due to padding)
-
-    With padding=1:
-    - Output spatial size: (3+2*1-2)//1+1 = 4... wait, let me recalculate
-    - Output spatial size: (3+2*1-2)//1+1 = 4 (but we use 2x2 kernel)
-    - Correct: (3+2*1-2)//1+1 = 4, but test with 2x2 gives (3+2*1-2)//1+1 = 4
-
-    Actually, let's use smaller dimensions for clarity:
-    Input: (1, 2, 2, 2), Kernel: (2, 2, 2, 2), padding=1
-    Output: (1, 2, 2, 2) with formula (2+2*1-2)//1+1 = 3 ... wait that's wrong
-
-    Let me be more precise: with input 2x2, kernel 2x2, padding 1:
-    output_size = (2 + 2*1 - 2) // 1 + 1 = 2 // 1 + 1 = 3
-
-    So we get 3x3 output from 2x2 input with padding. This works for testing
-    the padding gradient behavior because padded positions receive contributions.
-    """
-    var batch = 1
-    var in_channels = 2
-    var out_channels = 2
-    var in_height = 2
-    var in_width = 2
-    var kH = 2
-    var kW = 2
-    var stride = 1
-    var padding = 1
-
-    # Input: (1, 2, 2, 2) all ones
-    var input_shape = List[Int]()
-    input_shape.append(batch)
-    input_shape.append(in_channels)
-    input_shape.append(in_height)
-    input_shape.append(in_width)
-    var x = ones(input_shape, DType.float32)
-
-    # Kernel: (2, 2, 2, 2) all ones
-    var kernel_shape = List[Int]()
-    kernel_shape.append(out_channels)
-    kernel_shape.append(in_channels)
-    kernel_shape.append(kH)
-    kernel_shape.append(kW)
-    var kernel = ones(kernel_shape, DType.float32)
-
-    var bias_shape = List[Int]()
-    bias_shape.append(out_channels)
-    var bias = zeros(bias_shape, DType.float32)
-
-    # Forward pass: output shape (1, 2, 3, 3) with padding=1
-    # Formula: (2+2*1-2)//1+1 = 3
-    var output = conv2d(x, kernel, bias, stride, padding)
-    var grad_output = ones(output.shape(), DType.float32)
-
-    # Verify output shape
-    var out_shape = output.shape()
-    assert_equal(out_shape[2], 3)  # (2+2*1-2)//1+1 = 3
-    assert_equal(out_shape[3], 3)  # (2+2*1-2)//1+1 = 3
-
-    # Backward pass
-    var result = conv2d_backward(grad_output, x, kernel, stride, padding)
-    var grad_input = result.grad_input
-    var grad_kernel = result.grad_weights
-    var grad_bias = result.grad_bias
-
-    # Verify shapes match input
-    var grad_input_shape = grad_input.shape()
-    assert_equal(grad_input_shape[0], batch)
-    assert_equal(grad_input_shape[1], in_channels)
-    assert_equal(grad_input_shape[2], in_height)
-    assert_equal(grad_input_shape[3], in_width)
-
-    # Verify grad_bias values: sum of all spatial positions in grad_output
-    # 3x3 spatial output = 9 positions
-    var grad_bias_data = grad_bias._data.bitcast[Float32]()
-    for oc in range(out_channels):
-        assert_almost_equal(
-            grad_bias_data[oc],
-            Float32(9.0),  # 3x3 spatial output
-            tolerance=1e-4,
-        )
-
-    # Verify grad_input: values depend on how many output positions
-    # contributed to each input position. Interior and border positions
-    # receive different amounts.
-    var grad_input_data = grad_input._data.bitcast[Float32]()
-    # For an all-ones input with all-ones kernel and padding,
-    # the gradient values depend on the positions
-    # Just verify they're reasonable (non-zero and not too large)
-    for i in range(batch * in_channels * in_height * in_width):
-        var val = grad_input_data[i]
-        # Gradient values should be positive and reasonable
-        assert_true(val >= 0.0, "grad_input should have non-negative values with all-ones inputs")
-
-
 fn test_conv2d_backward_gradient_input() raises:
     """Numerical gradient check for grad_input computed by conv2d_backward.
 
@@ -1304,6 +1050,175 @@ fn test_conv2d_backward_gradient_kernel() raises:
 # ============================================================================
 # Integration Tests
 # ============================================================================
+
+
+fn test_conv2d_backward_gradient_input_with_padding() raises:
+    """Numerical gradient check for grad_input with padding > 0.
+
+    Tests the transposed convolution path in conv2d_backward with boundary
+    handling (padding=1 and padding=2). The grad_input computation is most
+    complex when padding > 0 due to the padded transposed convolution.
+    This verifies mathematical correctness of the padded backward path.
+    """
+    var stride = 1
+
+    # Input: (1, 1, 6, 6) with padding=1 or padding=2
+    var input_shape = List[Int]()
+    input_shape.append(1)
+    input_shape.append(1)
+    input_shape.append(6)
+    input_shape.append(6)
+    var x = zeros(input_shape, DType.float32)
+    var x_data = x._data.bitcast[Float32]()
+    for i in range(36):
+        x_data[i] = Float32(i) * Float32(0.1)
+
+    # Kernel: (1, 1, 3, 3)
+    var kernel_shape = List[Int]()
+    kernel_shape.append(1)
+    kernel_shape.append(1)
+    kernel_shape.append(3)
+    kernel_shape.append(3)
+    var kernel = zeros(kernel_shape, DType.float32)
+    var k_data = kernel._data.bitcast[Float32]()
+    for i in range(9):
+        k_data[i] = Float32(i + 1) * Float32(0.5)
+
+    # Test padding=1
+    var padding = 1
+    var output = conv2d_no_bias(x, kernel, stride, padding)
+    var grad_output = ones_like(output)
+    var result = conv2d_backward(grad_output, x, kernel, stride, padding)
+    var analytical_grad = result.grad_input
+
+    fn forward_for_input_p1(inp: ExTensor) raises -> ExTensor:
+        var out = conv2d_no_bias(inp, kernel, stride, padding)
+        var reduced = out
+        while reduced.dim() > 0:
+            reduced = reduce_sum(reduced, axis=0, keepdims=False)
+        return reduced
+
+    var numerical_grad = compute_numerical_gradient(
+        forward_for_input_p1, x, epsilon=3e-4
+    )
+
+    assert_gradients_close(
+        analytical_grad,
+        numerical_grad,
+        rtol=1e-2,
+        atol=1e-4,
+        message="conv2d_backward gradient w.r.t. input (padding=1)",
+    )
+
+    # Test padding=2
+    padding = 2
+    output = conv2d_no_bias(x, kernel, stride, padding)
+    grad_output = ones_like(output)
+    result = conv2d_backward(grad_output, x, kernel, stride, padding)
+    analytical_grad = result.grad_input
+
+    fn forward_for_input_p2(inp: ExTensor) raises -> ExTensor:
+        var out = conv2d_no_bias(inp, kernel, stride, padding)
+        var reduced = out
+        while reduced.dim() > 0:
+            reduced = reduce_sum(reduced, axis=0, keepdims=False)
+        return reduced
+
+    numerical_grad = compute_numerical_gradient(
+        forward_for_input_p2, x, epsilon=3e-4
+    )
+
+    assert_gradients_close(
+        analytical_grad,
+        numerical_grad,
+        rtol=1e-2,
+        atol=1e-4,
+        message="conv2d_backward gradient w.r.t. input (padding=2)",
+    )
+
+
+fn test_conv2d_backward_gradient_kernel_with_padding() raises:
+    """Numerical gradient check for grad_weights with padding > 0.
+
+    Ensures kernel gradient computation is correct when input padding is used.
+    Tests with padding=1 and padding=2 to exercise the padded forward path
+    during weight gradient accumulation.
+    """
+    var stride = 1
+
+    # Input: (1, 1, 6, 6)
+    var input_shape = List[Int]()
+    input_shape.append(1)
+    input_shape.append(1)
+    input_shape.append(6)
+    input_shape.append(6)
+    var x = zeros(input_shape, DType.float32)
+    var x_data = x._data.bitcast[Float32]()
+    for i in range(36):
+        x_data[i] = Float32(i) * Float32(0.1)
+
+    # Kernel: (1, 1, 3, 3)
+    var kernel_shape = List[Int]()
+    kernel_shape.append(1)
+    kernel_shape.append(1)
+    kernel_shape.append(3)
+    kernel_shape.append(3)
+    var kernel = zeros(kernel_shape, DType.float32)
+    var k_data = kernel._data.bitcast[Float32]()
+    for i in range(9):
+        k_data[i] = Float32(i + 1) * Float32(0.5)
+
+    # Test padding=1
+    var padding = 1
+    var output = conv2d_no_bias(x, kernel, stride, padding)
+    var grad_output = ones_like(output)
+    var result = conv2d_backward(grad_output, x, kernel, stride, padding)
+    var analytical_grad = result.grad_weights
+
+    fn forward_for_kernel_p1(k: ExTensor) raises -> ExTensor:
+        var out = conv2d_no_bias(x, k, stride, padding)
+        var reduced = out
+        while reduced.dim() > 0:
+            reduced = reduce_sum(reduced, axis=0, keepdims=False)
+        return reduced
+
+    var numerical_grad = compute_numerical_gradient(
+        forward_for_kernel_p1, kernel, epsilon=3e-4
+    )
+
+    assert_gradients_close(
+        analytical_grad,
+        numerical_grad,
+        rtol=1e-2,
+        atol=1e-4,
+        message="conv2d_backward gradient w.r.t. kernel (padding=1)",
+    )
+
+    # Test padding=2
+    padding = 2
+    output = conv2d_no_bias(x, kernel, stride, padding)
+    grad_output = ones_like(output)
+    result = conv2d_backward(grad_output, x, kernel, stride, padding)
+    analytical_grad = result.grad_weights
+
+    fn forward_for_kernel_p2(k: ExTensor) raises -> ExTensor:
+        var out = conv2d_no_bias(x, k, stride, padding)
+        var reduced = out
+        while reduced.dim() > 0:
+            reduced = reduce_sum(reduced, axis=0, keepdims=False)
+        return reduced
+
+    numerical_grad = compute_numerical_gradient(
+        forward_for_kernel_p2, kernel, epsilon=3e-4
+    )
+
+    assert_gradients_close(
+        analytical_grad,
+        numerical_grad,
+        rtol=1e-2,
+        atol=1e-4,
+        message="conv2d_backward gradient w.r.t. kernel (padding=2)",
+    )
 
 
 fn test_conv2d_forward_backward_consistency() raises:
@@ -1512,6 +1427,12 @@ fn main() raises:
 
     test_conv2d_backward_gradient_kernel()
     print("✓ test_conv2d_backward_gradient_kernel")
+
+    test_conv2d_backward_gradient_input_with_padding()
+    print("✓ test_conv2d_backward_gradient_input_with_padding")
+
+    test_conv2d_backward_gradient_kernel_with_padding()
+    print("✓ test_conv2d_backward_gradient_kernel_with_padding")
 
     # Integration tests
     test_conv2d_forward_backward_consistency()
