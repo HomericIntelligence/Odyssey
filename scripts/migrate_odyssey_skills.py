@@ -46,12 +46,32 @@ from pathlib import Path
 from typing import Optional
 
 
-# Source Odyssey2 skills directory
-ODYSSEY_SKILLS_DIR = Path("/home/mvillmow/Odyssey2/.claude/skills")
+# Default source Odyssey2 skills directory (used when --source-dir is not specified
+# and the ODYSSEY_SKILLS_DIR environment variable is not set)
+DEFAULT_ODYSSEY_SKILLS_DIR = Path("/home/mvillmow/Odyssey2/.claude/skills")
 
 # Default target ProjectMnemosyne directory (used when --target-dir is not specified
 # and the MNEMOSYNE_DIR environment variable is not set)
 DEFAULT_MNEMOSYNE_DIR = Path("/tmp/ProjectMnemosyne")  # nosec B108
+
+
+def resolve_odyssey_skills_dir(source: Optional[str]) -> Path:
+    """Resolve the Odyssey2 skills directory path.
+
+    Priority: --source-dir CLI arg > ODYSSEY_SKILLS_DIR env var > default.
+
+    Args:
+        source: Value of the --source-dir CLI argument, or None if not provided.
+
+    Returns:
+        Resolved Path to the Odyssey2 skills directory.
+    """
+    if source is not None:
+        return Path(source)
+    env = os.environ.get("ODYSSEY_SKILLS_DIR")
+    if env:
+        return Path(env)
+    return DEFAULT_ODYSSEY_SKILLS_DIR
 
 
 def resolve_mnemosyne_dir(target: Optional[str]) -> Path:
@@ -74,8 +94,9 @@ def resolve_mnemosyne_dir(target: Optional[str]) -> Path:
 
 
 # Module-level constants kept for backwards compatibility with existing tests
-# that patch MNEMOSYNE_SKILLS_DIR directly.  main() uses resolve_mnemosyne_dir()
-# instead of these constants at runtime.
+# that patch these constants directly.  main() uses resolve_odyssey_skills_dir()
+# and resolve_mnemosyne_dir() instead of these constants at runtime.
+ODYSSEY_SKILLS_DIR = DEFAULT_ODYSSEY_SKILLS_DIR
 MNEMOSYNE_DIR = DEFAULT_MNEMOSYNE_DIR
 MNEMOSYNE_SKILLS_DIR = MNEMOSYNE_DIR / "skills"
 
@@ -847,8 +868,8 @@ def main() -> int:
     parser.add_argument(
         "--source-dir",
         metavar="DIR",
-        default=str(ODYSSEY_SKILLS_DIR),
-        help=f"Odyssey2 skills directory (default: {ODYSSEY_SKILLS_DIR})",
+        default=None,
+        help=f"Odyssey2 skills directory (default: $ODYSSEY_SKILLS_DIR env var or {DEFAULT_ODYSSEY_SKILLS_DIR})",
     )
     parser.add_argument(
         "--target-dir",
@@ -858,7 +879,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    source_dir = Path(args.source_dir)
+    source_dir = resolve_odyssey_skills_dir(args.source_dir)
     target_dir = resolve_mnemosyne_dir(args.target_dir)
     target_skills_dir = target_dir / "skills"
 
