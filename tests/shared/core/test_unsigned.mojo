@@ -73,7 +73,10 @@ fn test_uint64_construction() raises:
 
 
 fn test_uint8_arithmetic() raises:
-    """Test UInt8 addition, subtraction, multiplication, and division."""
+    """Test UInt8 addition, subtraction, multiplication, and division.
+
+    Includes boundary overflow assertions to verify wrap-on-overflow behavior at max values.
+    """
     var a: UInt8 = 10
     var b: UInt8 = 3
 
@@ -88,9 +91,22 @@ fn test_uint8_arithmetic() raises:
     if a % b != 1:
         raise Error("UInt8 modulo failed")
 
+    # Boundary overflow assertions
+    if UInt8(255) + UInt8(1) != 0:
+        raise Error("UInt8 max + 1 should wrap to 0")
+    if UInt8(255) - UInt8(1) != 254:
+        raise Error("UInt8 max - 1 failed")
+    if UInt8(200) + UInt8(56) != 0:
+        raise Error("UInt8 200 + 56 should wrap to 0")
+    if UInt8(128) * UInt8(2) != 0:
+        raise Error("UInt8 128 * 2 should wrap to 0")
+
 
 fn test_uint16_arithmetic() raises:
-    """Test UInt16 arithmetic operations."""
+    """Test UInt16 arithmetic operations.
+
+    Includes boundary overflow assertions to verify wrap-on-overflow behavior at max values.
+    """
     var a: UInt16 = 1000
     var b: UInt16 = 7
 
@@ -105,9 +121,22 @@ fn test_uint16_arithmetic() raises:
     if a % b != 6:
         raise Error("UInt16 modulo failed")
 
+    # Boundary overflow assertions
+    if UInt16(65535) + UInt16(1) != 0:
+        raise Error("UInt16 max + 1 should wrap to 0")
+    if UInt16(65535) - UInt16(1) != 65534:
+        raise Error("UInt16 max - 1 failed")
+    if UInt16(60000) + UInt16(10000) != 4464:
+        raise Error("UInt16 60000 + 10000 should wrap")
+    if UInt16(32768) * UInt16(2) != 0:
+        raise Error("UInt16 32768 * 2 should wrap to 0")
+
 
 fn test_uint32_arithmetic() raises:
-    """Test UInt32 arithmetic operations."""
+    """Test UInt32 arithmetic operations.
+
+    Includes boundary overflow assertions to verify wrap-on-overflow behavior at max values.
+    """
     var a: UInt32 = 100000
     var b: UInt32 = 3
 
@@ -122,9 +151,22 @@ fn test_uint32_arithmetic() raises:
     if a % b != 1:
         raise Error("UInt32 modulo failed")
 
+    # Boundary overflow assertions
+    if UInt32(4294967295) + UInt32(1) != 0:
+        raise Error("UInt32 max + 1 should wrap to 0")
+    if UInt32(4294967295) - UInt32(1) != 4294967294:
+        raise Error("UInt32 max - 1 failed")
+    if UInt32(4000000000) + UInt32(500000000) != 705032704:
+        raise Error("UInt32 4000000000 + 500000000 should wrap")
+    if UInt32(2147483648) * UInt32(2) != 0:
+        raise Error("UInt32 2147483648 * 2 should wrap to 0")
+
 
 fn test_uint64_arithmetic() raises:
-    """Test UInt64 arithmetic operations with large values."""
+    """Test UInt64 arithmetic operations with large values.
+
+    Includes boundary overflow assertions to verify wrap-on-overflow behavior at max values.
+    """
     var a: UInt64 = 10000000000
     var b: UInt64 = 3
 
@@ -138,6 +180,16 @@ fn test_uint64_arithmetic() raises:
         raise Error("UInt64 integer division failed")
     if a % b != 1:
         raise Error("UInt64 modulo failed")
+
+    # Boundary overflow assertions
+    if UInt64(18446744073709551615) + UInt64(1) != 0:
+        raise Error("UInt64 max + 1 should wrap to 0")
+    if UInt64(18446744073709551615) - UInt64(1) != 18446744073709551614:
+        raise Error("UInt64 max - 1 failed")
+    if UInt64(18000000000000000000) + UInt64(1000000000000000000) != 553255926290448384:
+        raise Error("UInt64 large overflow should wrap")
+    if UInt64(9223372036854775808) * UInt64(2) != 0:
+        raise Error("UInt64 9223372036854775808 * 2 should wrap to 0")
 
 
 fn test_uint8_bitwise() raises:
