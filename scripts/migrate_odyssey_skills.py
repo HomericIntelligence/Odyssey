@@ -9,6 +9,8 @@ Usage:
     python3 scripts/migrate_odyssey_skills.py [--dry-run] [--skill SKILL_NAME]
     python3 scripts/migrate_odyssey_skills.py --dry-run
     python3 scripts/migrate_odyssey_skills.py --skill gh-create-pr-linked
+    python3 scripts/migrate_odyssey_skills.py --create-target
+    python3 scripts/migrate_odyssey_skills.py --target-dir /path/to/mnemosyne
 
 Source structure (Odyssey2):
     .claude/skills/<skill-name>/SKILL.md
@@ -39,6 +41,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 import yaml
 from dataclasses import dataclass, field
@@ -879,6 +882,11 @@ def main() -> int:
         default=None,
         help=("Path to ProjectMnemosyne clone (default: $MNEMOSYNE_DIR env var or /tmp/ProjectMnemosyne)"),
     )
+    parser.add_argument(
+        "--create-target",
+        action="store_true",
+        help="Auto-clone ProjectMnemosyne repo if target directory doesn't exist",
+    )
     args = parser.parse_args()
 
     source_dir = resolve_odyssey_skills_dir(args.source_dir)
@@ -890,12 +898,25 @@ def main() -> int:
         return 1
 
     if not target_dir.exists():
-        print(
-            f"ERROR: ProjectMnemosyne directory not found: {target_dir}\n"
-            f"Use --target-dir PATH or set MNEMOSYNE_DIR env var.",
-            file=sys.stderr,
-        )
-        return 1
+        if args.create_target:
+            print(f"Creating ProjectMnemosyne clone at {target_dir}...")
+            clone_result = subprocess.run(
+                ["gh", "repo", "clone", "HomericIntelligence/ProjectMnemosyne", str(target_dir)],
+                capture_output=True,
+            )
+            if clone_result.returncode != 0:
+                print(
+                    "ERROR: Failed to clone ProjectMnemosyne repository",
+                    file=sys.stderr,
+                )
+                return 1
+        else:
+            print(
+                f"ERROR: ProjectMnemosyne directory not found: {target_dir}\n"
+                f"Use --target-dir PATH, set MNEMOSYNE_DIR env var, or use --create-target to auto-clone.",
+                file=sys.stderr,
+            )
+            return 1
 
     all_skills = find_all_skills(source_dir=source_dir)
 
