@@ -96,7 +96,7 @@ from shared.data._datasets_core import (
 # Public API
 # ============================================================================
 
-# NOTE (Mojo v0.26.1): Mojo does not support __all__ for controlling exports.
+# NOTE(#3751, Mojo v0.26.1): Mojo does not support __all__ for controlling exports.
 # All imported symbols are automatically available to package consumers.
 #
 # High-level usage:

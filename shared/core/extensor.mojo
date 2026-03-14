@@ -577,15 +577,19 @@ struct ExTensor(
     fn reshape(self, new_shape: List[Int]) raises -> ExTensor:
         """Reshape tensor to new shape (must have same total elements).
 
-        Creates a view sharing data with the original tensor.
-        Uses reference counting to ensure data remains valid.
+        Returns a zero-copy view (shallow pointer copy) sharing data with the
+        original tensor. The result has `is_view() == True` and `is_contiguous() == True`
+        (because reshape only changes the shape/stride metadata, not the flat layout).
+        Uses reference counting to ensure data remains valid while any view is alive.
 
+        Note: This mirrors the view semantics of `slice()` — no data is copied.
+        Compare with operations that return independent copies (e.g. `as_contiguous()`).
 
         Args:
             new_shape: The new shape for the tensor.
 
         Returns:
-            A new tensor with the requested shape, sharing the same data.
+            A zero-copy view with the requested shape, sharing the same flat data buffer.
 
         Raises:
             Error: If the total number of elements doesn't match.
@@ -593,7 +597,7 @@ struct ExTensor(
         Example:
         ```mojo
             var t = zeros([2, 3], DType.float32)
-            var reshaped = t.reshape([6])  # (2, 3) -> (6,)
+            var reshaped = t.reshape([6])  # (2, 3) -> (6,), zero-copy view
         ```
         """
         # Verify total elements match
@@ -722,6 +726,12 @@ struct ExTensor(
         Creates a stride-based view sharing the same underlying data — no
         copying occurs. For any non-trivial swap (dim0 != dim1) the result
         satisfies is_contiguous() == False.
+
+        Note: `transpose()` is the primary API for dimension swapping and returns a
+        true stride-based view (shape and strides permuted, data pointer shared).
+        Compare with `transpose_view()` in `shared/core/matrix.mojo`, which copies
+        raw bytes and sets permuted strides — useful for testing `is_contiguous()` and
+        `as_contiguous()` but not recommended for production use. See also #4082.
 
         Args:
             dim0: First dimension to swap.
@@ -1449,6 +1459,11 @@ struct ExTensor(
 
     fn __eq__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise equality: a == b.
+
+        Note: NaN comparison follows IEEE 754 semantics — NaN is never equal to
+        anything, including itself. That is, `NaN == NaN` returns 0.0 (False) for
+        every element position where either operand is NaN. Use `isnan()` to detect
+        NaN values explicitly rather than relying on equality comparison.
 
         Args:
             other: The tensor to compare.

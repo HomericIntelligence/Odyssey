@@ -1254,6 +1254,9 @@ fn broadcast_to(tensor: ExTensor, target_shape: List[Int]) raises -> ExTensor:
 
     Raises:
             Error: If shapes are not broadcast-compatible.
+            Error: If `target_shape` has fewer dimensions than the input tensor
+                (broadcasting cannot reduce the number of dimensions; it can only
+                expand dimensions of size 1 or prepend new dimensions of any size).
 
     Examples:
     ```

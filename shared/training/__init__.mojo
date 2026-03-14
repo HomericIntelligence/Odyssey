@@ -103,7 +103,7 @@ from shared.training.schedulers import (
 )
 
 # Export callback implementations
-# NOTE (Mojo v0.26.1): Callbacks must be imported directly from submodules due to
+# NOTE(#3754, Mojo v0.26.1): Callbacks must be imported directly from submodules due to
 # Mojo re-export limitations. Use:
 #   from shared.training.callbacks import EarlyStopping
 # NOT from shared.training import EarlyStopping

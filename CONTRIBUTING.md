@@ -263,11 +263,35 @@ All documentation files follow markdown standards and must pass `markdownlint-cl
 
 See [CLAUDE.md](CLAUDE.md#markdown-standards) for complete markdown standards.
 
+### Security Scanning
+
+Python files in `scripts/`, `tests/`, and `tools/` are scanned for security issues using
+[Bandit](https://bandit.readthedocs.io/), an AST-based static analysis tool.
+
+**Configuration**: `.bandit` in the project root controls suppressions. Currently suppressed checks:
+
+- `B310` - URL schemes (safe for internal tooling)
+- `B202` - `tarfile.extractall` (extraction paths are controlled)
+- `B301` - Skipped for test/dev scripts that do not process untrusted data
+
+**Running Bandit manually**:
+
+```bash
+# Scan all Python scripts (same flags as pre-commit)
+pixi run bandit -ll --skip B310,B202,B301 scripts/ tests/ tools/
+
+# Check a single file
+pixi run bandit -ll scripts/my_script.py
+```
+
+Bandit runs automatically on every commit via the `bandit` pre-commit hook.
+
 ### Pre-commit Hooks
 
 Pre-commit hooks automatically check code quality before commits. They run:
 
 - `mojo format` - Auto-format Mojo code
+- `bandit` - Security scan for Python files (see [Security Scanning](#security-scanning) above)
 - `markdownlint-cli2` - Lint markdown files
 - `trailing-whitespace` - Remove trailing whitespace
 - `end-of-file-fixer` - Ensure files end with newline

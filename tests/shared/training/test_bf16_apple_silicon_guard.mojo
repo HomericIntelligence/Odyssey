@@ -1,10 +1,23 @@
 """Tests for the Apple Silicon guard in PrecisionConfig.bf16().
 
 These tests verify that:
+
 - The guard helper raises an error when Apple Silicon is simulated.
 - The guard helper does not raise on non-Apple Silicon (e.g., Linux CI).
 - PrecisionConfig.bf16() succeeds on non-Apple Silicon.
 - The error message matches the expected string.
+
+BF16 Support Status (as of Mojo v0.26.1):
+    BF16 (bfloat16) is NOT supported on Apple Silicon (M1/M2/M3) due to missing
+    hardware support in the Mojo runtime for that architecture. Attempting to use
+    `PrecisionConfig.bf16()` on Apple Silicon raises a descriptive error at runtime.
+
+    BF16 IS supported on Linux/x86 (the CI environment), allowing CI tests to
+    validate the full training pipeline with BF16 precision. The guard function
+    `_check_bf16_platform_support()` performs the platform detection.
+
+    If Apple Silicon BF16 support is added in a future Mojo release, these tests
+    should be updated and the guard removed. Track hardware support status upstream.
 """
 
 from shared.training.precision_config import (

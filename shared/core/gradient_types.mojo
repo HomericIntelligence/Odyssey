@@ -4,10 +4,34 @@ Provides type-safe containers for multiple gradient returns, replacing tuple
 return types which are not fully supported in the current Mojo version.
 
 This module defines:
+
 - GradientPair: For binary operations returning 2 gradients.
 - GradientTriple: For ternary operations returning 3 gradients.
+- GradientQuad: For quaternary operations returning 4 gradients.
 - Conv2dNoBiasGradient: For conv2d_no_bias_backward with semantic field names.
 - DepthwiseConv2dNoBiasGradient: For depthwise_conv2d_no_bias_backward.
+
+When to Use Each Type:
+    Choose the container that matches the number of inputs your backward function
+    differentiates with respect to:
+
+    - **GradientPair** — binary ops: two-input functions such as add, subtract,
+      multiply, divide, matmul. Fields: `grad_a`, `grad_b`.
+
+    - **GradientTriple** — ternary ops: three-input functions such as linear
+      (input, weights, bias) and conv2d (input, kernel, bias). Fields:
+      `grad_input`, `grad_weights`, `grad_bias`.
+
+    - **GradientQuad** — quaternary ops: four-input functions such as batch
+      normalization (input, gamma, beta, running_mean). Fields: `grad_input`,
+      `grad_weights`, `grad_bias`, `grad_extra`.
+
+    - **Conv2dNoBiasGradient / DepthwiseConv2dNoBiasGradient** — specialized
+      containers for bias-free convolution backward passes. Use these instead of
+      GradientPair to retain semantic field names (`grad_input`, `grad_kernel`).
+
+    If a new op requires more than 4 gradients, define a dedicated named struct
+    rather than extending GradientQuad, so field names remain meaningful.
 """
 
 from shared.core.extensor import ExTensor

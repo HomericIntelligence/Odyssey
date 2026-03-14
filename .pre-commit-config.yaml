@@ -50,7 +50,7 @@ repos:
       - id: bandit
         name: Bandit Security Scan
         description: Scan Python files for security vulnerabilities using bandit
-        entry: pixi run bandit -ll --skip B310,B202,B301
+        entry: pixi run bandit -ll --skip B310,B202,B301  # B301 skipped: bandit check for unsafe deserialization; excluded as test/dev scripts don't use untrusted data (B310/B202 rationale in .bandit config)
         language: system
         files: ^(scripts|tests|tools|examples)/.*\.py$
         types: [python]

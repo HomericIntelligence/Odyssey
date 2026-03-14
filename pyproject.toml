@@ -63,6 +63,10 @@ skip_covered = false
 line-length = 120
 target-version = "py311"
 
+# mypy configuration note: pyproject.toml [tool.mypy] and mypy.ini are both present.
+# mypy.ini takes precedence over pyproject.toml when both exist (mypy resolution order:
+# mypy.ini > .mypy.ini > setup.cfg > pyproject.toml). Settings here are intentionally
+# kept as a fallback reference; mypy.ini is the authoritative config. See #4034.
 [tool.mypy]
 python_version = "3.11"
 warn_return_any = true
