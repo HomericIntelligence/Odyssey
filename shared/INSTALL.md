@@ -523,7 +523,7 @@ rm -rf .mojo_cache/
 ### Linux
 
 - Works out of the box on most distributions
-- Ensure glibc 2.31+ for optimal performance
+- Ensure glibc 2.32+ for optimal performance
 
 **macOS**:
 

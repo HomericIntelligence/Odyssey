@@ -10,6 +10,8 @@ maximum performance and type safety.
 [![Tests](https://img.shields.io/badge/tests-498%2B-brightgreen.svg)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey.svg)](#coverage-status)
 [![CI](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/comprehensive-tests.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/comprehensive-tests.yml)
+[![Pre-commit](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/pre-commit.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/pre-commit.yml)
+[![Security](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/security.yml)
 
 ## What This Is
 
