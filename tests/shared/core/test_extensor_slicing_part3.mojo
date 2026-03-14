@@ -130,6 +130,56 @@ fn test_slice_step_value_correctness() raises:
     print("PASS: test_slice_step_value_correctness")
 
 
+fn test_slice_method_returns_zero_copy_view() raises:
+    """Test that slice() method returns a zero-copy view that shares memory.
+
+    Mutating the slice should affect the original tensor.
+    This verifies the documented semantics of the slice() method.
+    """
+    var t = arange(0.0, 10.0, 1.0, DType.float32)
+
+    # Call slice() method explicitly (not [start:end] syntax which uses __getitem__)
+    var sliced = t.slice(2, 7)
+
+    # By design: slice() returns a view
+    assert_true(sliced._is_view)
+
+    # Verify initial values match
+    assert_almost_equal(Float64(sliced[0]), 2.0, tolerance=1e-6)
+    assert_almost_equal(Float64(sliced[4]), 6.0, tolerance=1e-6)
+
+    # Mutate the slice
+    sliced._set_float32(0, Float32(99.0))
+
+    # Check that original IS affected (view semantics - zero-copy)
+    assert_almost_equal(Float64(t[2]), 99.0, tolerance=1e-6)
+
+    print("PASS: test_slice_method_returns_zero_copy_view")
+
+
+fn test_getitem_slice_is_copy_not_view() raises:
+    """Test that __getitem__(Slice) creates a copy, not a zero-copy view.
+
+    Mutating a slice obtained via [start:end] syntax should NOT affect original.
+    This contrasts with slice() method which returns a view.
+    """
+    var t = zeros([10], DType.float32)
+
+    # Use __getitem__(Slice) syntax - returns a copy
+    var sliced = t[2:7]
+
+    # By design: __getitem__(Slice) creates a copy, not a view
+    assert_true(not sliced._is_view)
+
+    # Mutate the slice
+    sliced._set_float32(0, Float32(99.0))
+
+    # Check original is NOT affected (copy semantics)
+    assert_almost_equal(Float64(t[2]), 0.0, tolerance=1e-6)
+
+    print("PASS: test_getitem_slice_is_copy_not_view")
+
+
 fn main() raises:
     """Run all tests."""
     # Edge cases (continued)
@@ -149,5 +199,11 @@ fn main() raises:
     test_negative_step_empty_result()
     test_slice_step_value_correctness()
     print("Value correctness: PASSED")
+
+    # Zero-copy view semantics (slice() method)
+    print("Testing zero-copy view semantics...")
+    test_slice_method_returns_zero_copy_view()
+    test_getitem_slice_is_copy_not_view()
+    print("Zero-copy view semantics: PASSED")
 
     print("\nAll tests PASSED!")
