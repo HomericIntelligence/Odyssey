@@ -43,14 +43,20 @@ Sequential Usage Example:
     from shared.core.layers import Linear, ReLU
     from shared.core.extensor import ExTensor, zeros
 
-    # Compose layers into a sequential stack manually (until Sequential is implemented)
-    var fc1 = Linear(784, 256)
-    var act1 = ReLU()
-    var fc2 = Linear(256, 10)
+    # Compose layers using Sequential2
+    from shared.core.sequential import Sequential2
+    from shared.core.layers import ReLULayer
+    var model = Sequential2[Linear, ReLULayer](
+        Linear(784, 256),
+        ReLULayer(),
+    )
 
     var input = zeros([32, 784], DType.float32)
-    var hidden = act1.forward(fc1.forward(input))
-    var output = fc2.forward(hidden)  # shape: [32, 10]
+    var output = model.forward(input)  # shape: [32, 256] after ReLU
+
+    # Get parameters and switch modes
+    var params = model.parameters()
+    model.train()
     ```
 
 See Also:
