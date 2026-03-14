@@ -27,7 +27,7 @@
 ```text
 For forward pass that broadcast X[original_shape] → Y[broadcast_shape]:
 ∂L/∂X = reduce_sum(∂L/∂Y, axes_that_were_broadcast)
-```text
+```
 
 ### Broadcasting Handling
 
@@ -64,7 +64,7 @@ Forward: C = A + B
 Backward:
   ∂L/∂A = ∂L/∂C  (reduced to a_shape)
   ∂L/∂B = ∂L/∂C  (reduced to b_shape)
-```text
+```
 
 ### Broadcasting Handling
 
@@ -77,7 +77,7 @@ Backward:
 ```text
 If A was broadcast: A[3,1,5] + B[3,4,5] → grad_a summed over dimension 1
 If A was prepended: A[5] + B[3,4,5] → grad_a summed over first 2 dims
-```text
+```
 
 ### Edge Cases
 
@@ -103,7 +103,7 @@ Forward: C = A - B
 Backward:
   ∂L/∂A = ∂L/∂C  (reduced to a_shape)
   ∂L/∂B = -∂L/∂C (negated and reduced to b_shape)
-```text
+```
 
 ### Broadcasting Handling
 
@@ -139,7 +139,7 @@ Forward: C = A * B
 Backward (Product Rule):
   ∂L/∂A = ∂L/∂C * B  (reduced to a.shape())
   ∂L/∂B = ∂L/∂C * A  (reduced to b.shape())
-```text
+```
 
 ### Broadcasting Handling
 
@@ -152,7 +152,7 @@ Backward (Product Rule):
 ```text
 grad_a = multiply(grad_output, b)  // Broadcasts to grad_output.shape()
 grad_a_reduced = reduce(grad_a, a.shape())
-```text
+```
 
 ### Edge Cases
 
@@ -178,7 +178,7 @@ Forward: C = A / B
 Backward (Quotient Rule):
   ∂L/∂A = ∂L/∂C / B
   ∂L/∂B = -∂L/∂C * A / B²  (reduced to b.shape())
-```text
+```
 
 ### Broadcasting Handling
 
@@ -193,7 +193,7 @@ grad_a_reduced = reduce(grad_a, a.shape())
 
 grad_b = -divide(multiply(grad_output, a), b²)
 grad_b_reduced = reduce(grad_b, b.shape())
-```text
+```
 
 ### Edge Cases
 
@@ -233,7 +233,7 @@ Backward:
 For element-wise: C[i,j] = Σ_k A[i,k] * B[k,j]
   ∂L/∂A[i,k] = Σ_j (∂L/∂C[i,j] * B[k,j]) = (∂L/∂C @ B^T)[i,k]
   ∂L/∂B[k,j] = Σ_i (∂L/∂A[i,k] * A[i,k]) = (A^T @ ∂L/∂C)[k,j]
-```text
+```
 
 ### Supported Cases
 
@@ -290,7 +290,7 @@ Backward:
   ∂L/∂X = transpose(∂L/∂Y)
 
 Transpose is self-inverse: transpose(transpose(X)) = X
-```text
+```
 
 **Broadcasting Handling**: NO (not applicable)
 
@@ -326,7 +326,7 @@ Backward:
   ∂L/∂X = broadcast(∂L/∂Y, input_shape)
 
 Each input element contributed equally to sum, so gradient is 1.
-```text
+```
 
 ### Broadcasting Handling
 
@@ -339,7 +339,7 @@ Each input element contributed equally to sum, so gradient is 1.
 ```text
 If axis = -1: scalar ∂L/∂Y → broadcast to shape (3, 4, 5)
 If axis = 1: (3, 5) ∂L/∂Y → broadcast to (3, 4, 5) by replicating along dim 1
-```text
+```
 
 ### Edge Cases
 
@@ -366,7 +366,7 @@ Backward:
   ∂L/∂X = broadcast(∂L/∂Y, input_shape) / N
 
 where N = number of elements averaged
-```text
+```
 
 ### Broadcasting Handling
 
@@ -382,7 +382,7 @@ if axis = -1:
 else:
   N = input_shape[axis]
   grad_x = broadcast(grad_y, input_shape) / N
-```text
+```
 
 ### Edge Cases
 
@@ -411,7 +411,7 @@ Backward:
 
 If multiple elements are maximum:
   ∂L/∂X = ∂L/∂Y / count  (split equally)
-```text
+```
 
 **Broadcasting Handling**: NO
 
@@ -453,7 +453,7 @@ Backward:
 
 If multiple elements are minimum:
   ∂L/∂X = ∂L/∂Y / count  (split equally)
-```text
+```
 
 **Broadcasting Handling**: NO
 
@@ -491,7 +491,7 @@ Backward:
   ∂L/∂X = ∂L/∂Y * exp(X) = ∂L/∂Y * Y
 
 Uses output from forward pass to avoid recomputing exp(X).
-```text
+```
 
 **Broadcasting Handling**: NO (element-wise only)
 
@@ -520,7 +520,7 @@ Uses output from forward pass to avoid recomputing exp(X).
 Forward: Y = log(X)
 Backward:
   ∂L/∂X = ∂L/∂Y / X
-```text
+```
 
 **Broadcasting Handling**: NO (element-wise)
 
@@ -555,7 +555,7 @@ Backward:
   ∂L/∂X = ∂L/∂Y / (2 * sqrt(X)) = ∂L/∂Y / (2 * Y)
 
 Uses output to avoid recomputing sqrt(X).
-```text
+```
 
 **Broadcasting Handling**: NO
 
@@ -590,7 +590,7 @@ Backward:
   ∂L/∂X = ∂L/∂Y * sign(X)
 
 where sign(X) = 1 if X > 0, -1 if X < 0, 0 if X = 0
-```text
+```
 
 **Broadcasting Handling**: NO
 
@@ -623,7 +623,7 @@ Backward:
   ∂L/∂X = 0      if X < min or X > max
 
 Gradient only flows through "active" region.
-```text
+```
 
 **Broadcasting Handling**: NO
 
@@ -654,7 +654,7 @@ Backward:
   ∂L/∂X = ∂L/∂Y / (X * ln(10))
 
 where ln(10) ≈ 2.302585092994046
-```text
+```
 
 **Broadcasting Handling**: NO
 
@@ -688,7 +688,7 @@ Backward:
   ∂L/∂X = ∂L/∂Y / (X * ln(2))
 
 where ln(2) ≈ 0.6931471805599453
-```text
+```
 
 **Broadcasting Handling**: NO
 
@@ -727,7 +727,7 @@ Backward:
   ∂L/∂X = ∂L/∂Y * (X > 0)
 
 where (X > 0) is a binary mask: 1 if X > 0, else 0
-```text
+```
 
 **Broadcasting Handling**: NO (element-wise activation)
 
@@ -761,7 +761,7 @@ Backward:
   ∂L/∂X = ∂L/∂Y * (1 if X > 0 else alpha)
 
 Default alpha = 0.01
-```text
+```
 
 **Broadcasting Handling**: NO
 
@@ -795,7 +795,7 @@ Forward: Y = PReLU(X) = max(0, X) + alpha * min(0, X)
 Backward:
   ∂L/∂X = ∂L/∂Y * (1 if X > 0 else alpha)
   ∂L/∂alpha = sum(∂L/∂Y * X) for X < 0
-```text
+```
 
 **Broadcasting Handling**: NO
 
@@ -832,7 +832,7 @@ Backward:
   ∂L/∂X = ∂L/∂Y * Y * (1 - Y)
 
 Uses output from forward pass to avoid recomputing sigmoid.
-```text
+```
 
 **Broadcasting Handling**: NO
 
@@ -866,7 +866,7 @@ Backward:
   ∂L/∂X = ∂L/∂Y * (1 - Y²)
 
 Uses output from forward pass.
-```text
+```
 
 **Broadcasting Handling**: NO
 
@@ -901,7 +901,7 @@ Backward:
   ∂L/∂X = ∂L/∂Y * [Φ(x) + x * φ(x)]
 
 where φ(x) = (1/√(2π)) * exp(-x²/2) is the PDF
-```text
+```
 
 **Approximate GELU** (Tanh approximation):
 
@@ -912,7 +912,7 @@ Backward: Uses derivative of tanh approximation
 with constants:
 - √(2/π) ≈ 0.7978845608028654
 - 0.044715 is the GELU coefficient
-```text
+```
 
 **Broadcasting Handling**: NO
 
@@ -934,7 +934,7 @@ SQRT_2_OVER_PI = 0.7978845608028654
 GELU_COEFF = 0.044715
 INV_SQRT_2PI = 0.3989422804014327
 LN10 = 2.302585092994046
-```text
+```
 
 ### Numerical Stability
 
@@ -964,7 +964,7 @@ where:
 - Y_i is the softmax output
 - ∂L/∂Y_j is the upstream gradient
 - The sum term accounts for the normalization constraint
-```text
+```
 
 **Broadcasting Handling**: NO (axis-specific reduction)
 
@@ -996,7 +996,7 @@ dot_sum = 1.0*0.1 + 1.0*0.6 + 1.0*0.3 = 1.0
 grad[0] = 0.1 * (1.0 - 1.0) = 0.0
 grad[1] = 0.6 * (1.0 - 1.0) = 0.0
 grad[2] = 0.3 * (1.0 - 1.0) = 0.0
-```text
+```
 
 ### Numerical Stability
 

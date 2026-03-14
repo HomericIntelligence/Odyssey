@@ -677,11 +677,6 @@ requests that touch `.github/` files.
 
 ### Pixi-Based Environment Setup
 
-All workflows use the shared composite action for Pixi setup:
-
-```yaml
-- name: Set up Pixi
-  uses: ./.github/actions/setup-pixi
 All Mojo workflows use the modern Pixi setup:
 
 ```yaml
