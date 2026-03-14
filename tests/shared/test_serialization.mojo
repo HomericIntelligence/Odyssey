@@ -212,6 +212,76 @@ fn test_named_tensor_collection() raises:
         _cleanup_temp_dir(tmpdir)
 
 
+fn test_load_named_tensors_sorted_ordering() raises:
+    """Test that load_named_tensors returns results in sorted order.
+
+    Verifies alphabetical sorting is preserved across multiple files
+    regardless of filesystem ordering. Creates 3+ files with names that
+    would have different ordering if not explicitly sorted.
+
+    Related to issue #3792: Ensures deterministic sorted output.
+    """
+    # Create directory for test
+    var tmpdir = _create_temp_dir("test_sorted_ordering_dir")
+
+    try:
+        # Create named tensors with names that would sort differently
+        # if not explicitly sorted (z, b, m order but should load as b, m, z)
+        var tensors: List[NamedTensor] = []
+
+        var shape_z: List[Int] = [2]
+        var tensor_z = full(shape_z, 1.0, DType.float32)
+        tensors.append(NamedTensor("z_param", tensor_z))
+
+        var shape_b: List[Int] = [3]
+        var tensor_b = full(shape_b, 2.0, DType.float32)
+        tensors.append(NamedTensor("bias", tensor_b))
+
+        var shape_m: List[Int] = [4]
+        var tensor_m = full(shape_m, 3.0, DType.float32)
+        tensors.append(NamedTensor("matrix", tensor_m))
+
+        # Save collection
+        save_named_tensors(tensors, tmpdir)
+
+        # Load collection and verify sorted order
+        var loaded = load_named_tensors(tmpdir)
+
+        # Verify count
+        assert_equal(len(loaded), 3, "Wrong number of tensors loaded")
+
+        # Verify alphabetical ordering: bias < matrix < z_param
+        var names: List[String] = []
+        for i in range(len(loaded)):
+            names.append(loaded[i].name)
+
+        # Check order is alphabetical
+        assert_equal(
+            names[0],
+            "bias",
+            "First tensor should be 'bias' (alphabetically first)",
+        )
+        assert_equal(
+            names[1],
+            "matrix",
+            "Second tensor should be 'matrix' (alphabetically second)",
+        )
+        assert_equal(
+            names[2],
+            "z_param",
+            "Third tensor should be 'z_param' (alphabetically third)",
+        )
+
+        # Verify data integrity with sorted order
+        assert_equal(loaded[0].tensor.numel(), 3, "bias tensor has wrong size")
+        assert_equal(loaded[1].tensor.numel(), 4, "matrix tensor has wrong size")
+        assert_equal(loaded[2].tensor.numel(), 2, "z_param tensor has wrong size")
+
+    finally:
+        # Clean up
+        _cleanup_temp_dir(tmpdir)
+
+
 fn test_different_dtypes() raises:
     """Test serialization with different data types."""
     # Create temp directory with proper permissions
@@ -320,6 +390,9 @@ fn main() raises:
 
     print("Testing named tensor collection...")
     test_named_tensor_collection()
+
+    print("Testing load_named_tensors sorted ordering...")
+    test_load_named_tensors_sorted_ordering()
 
     print("Testing different dtypes...")
     test_different_dtypes()
