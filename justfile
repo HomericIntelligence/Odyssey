@@ -437,12 +437,13 @@ pre-commit-all:
 bench-precommit:
     #!/usr/bin/env bash
     set -e
+    FILE_COUNT=$(git ls-files | wc -l | tr -d ' ')
     START=$SECONDS
     pixi run pre-commit run --all-files
     ELAPSED=$((SECONDS - START))
     echo ""
     echo "Hook runtime: ${ELAPSED}s"
-    python3 scripts/bench_precommit.py --elapsed "$ELAPSED" --status passed
+    python3 scripts/bench_precommit.py --elapsed "$ELAPSED" --files "$FILE_COUNT" --status passed
 
 # CI: Full validation (build + package + test)
 validate:
