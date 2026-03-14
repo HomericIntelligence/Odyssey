@@ -41,6 +41,12 @@ fn test_repeat_elements() raises:
 
     # Result: [0, 0, 1, 1, 2, 2] (6 elements)
     assert_numel(b, 6, "Repeated tensor should have 6 elements")
+    assert_value_at(b, 0, 0.0, "Index 0 should be 0.0")
+    assert_value_at(b, 1, 0.0, "Index 1 should be 0.0 (repeat)")
+    assert_value_at(b, 2, 1.0, "Index 2 should be 1.0")
+    assert_value_at(b, 3, 1.0, "Index 3 should be 1.0 (repeat)")
+    assert_value_at(b, 4, 2.0, "Index 4 should be 2.0")
+    assert_value_at(b, 5, 2.0, "Index 5 should be 2.0 (repeat)")
 
 
 fn test_repeat_axis() raises:
