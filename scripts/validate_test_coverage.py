@@ -30,7 +30,22 @@ from common import get_repo_root
 
 
 def find_test_files(root_dir: Path) -> List[Path]:
-    """Find all test_*.mojo files, excluding build artifacts and examples."""
+    """Find all test_*.mojo files, excluding build artifacts and examples.
+
+    MAINTENANCE NOTE: This function uses hardcoded lists of excluded test files
+    (E2E tests, training tests, dataset-dependent tests, etc.). These lists must
+    be manually updated whenever test files are:
+    - Renamed (update in exclude_files list)
+    - Split per ADR-009 (add new part files to list)
+    - Added/removed (add/remove from appropriate list)
+
+    This is a known maintenance burden. Alternatives to consider:
+    - Switch to glob-based discovery with .gitignore-style pattern matching
+    - Use a separate config file (JSON/YAML) for excludes instead of hardcoded list
+    - Add a test naming convention to auto-identify excluded tests
+
+    See Issue #4369 for discussion and ADR-009 for test splitting guidelines.
+    """
     test_files = []
 
     # Exclude patterns for directories we don't want to scan
