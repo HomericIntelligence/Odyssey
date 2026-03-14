@@ -1286,6 +1286,71 @@ fn test_layer_norm_backward_gradient_input() raises:
     print("✓ Layer norm backward gradient (input) validated numerically")
 
 
+fn test_layer_norm_backward_gradient_input_4d() raises:
+    """Test layer_norm_backward gradient w.r.t. input on 4D inputs.
+
+    Validates layer normalization backward pass on 4D tensors (batch, channel, H, W),
+    which is common in convolutional network contexts. Tests that indexing and
+    reduction logic is correct for multi-dimensional inputs.
+    """
+    # 4D tensor: (batch=2, channels=2, height=2, width=4)
+    var shape = List[Int]()
+    shape.append(2)
+    shape.append(2)
+    shape.append(2)
+    shape.append(4)
+
+    # Input with varying values
+    var x = zeros(shape, DType.float32)
+    for i in range(32):
+        x._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+
+    # Parameters: layer norm over last dimension (4)
+    var param_shape = List[Int]()
+    param_shape.append(4)
+    var gamma = ones(param_shape, DType.float32)
+    gamma._data.bitcast[Float32]()[0] = 1.5
+    gamma._data.bitcast[Float32]()[1] = 0.8
+    gamma._data.bitcast[Float32]()[2] = 1.2
+    gamma._data.bitcast[Float32]()[3] = 2.0
+    var beta = zeros(param_shape, DType.float32)
+
+    # Non-uniform grad_output to exercise full backward formula
+    var grad_output = zeros(shape, DType.float32)
+    for i in range(32):
+        grad_output._data.bitcast[Float32]()[i] = (
+            Float32((i % 4 + 1)) * 0.1 - Float32((i // 4) % 2) * 0.05
+        )
+
+    # Analytical backward pass
+    var result = layer_norm_backward(grad_output, x, gamma, epsilon=1e-5)
+    var grad_input = result[0]
+
+    # Numerical gradient via finite differences
+    fn forward_for_grad_4d(inp: ExTensor) raises -> ExTensor:
+        var out = layer_norm(inp, gamma, beta, epsilon=1e-5)
+        var weighted = multiply(out, grad_output)
+        var result_inner = weighted
+        while result_inner.dim() > 0:
+            result_inner = reduce_sum(result_inner, axis=0, keepdims=False)
+        return result_inner
+
+    var numerical_grad = compute_numerical_gradient(
+        forward_for_grad_4d, x, epsilon=1e-4
+    )
+
+    # Validate analytical gradient matches numerical gradient
+    assert_gradients_close(
+        grad_input,
+        numerical_grad,
+        rtol=1e-2,
+        atol=1e-5,
+        message="Layer norm gradient w.r.t. input (4D)",
+    )
+
+    print("✓ Layer norm backward gradient (input, 4D) validated numerically")
+
+
 # ============================================================================
 # Main Test Runner
 # ============================================================================
@@ -1367,5 +1432,8 @@ fn main() raises:
 
     test_layer_norm_backward_gradient_input()
     print("✓ test_layer_norm_backward_gradient_input")
+
+    test_layer_norm_backward_gradient_input_4d()
+    print("✓ test_layer_norm_backward_gradient_input_4d")
 
     print("\nAll normalization tests passed!")
