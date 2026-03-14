@@ -320,6 +320,53 @@ fn test_different_dtypes() raises:
         _cleanup_temp_dir(tmpdir)
 
 
+fn test_dtype_roundtrip_file_content() raises:
+    """Test that serialized file content contains the expected dtype string.
+
+    Verifies that the serialized file has the correct dtype string written to it,
+    catching regressions if Mojo's DType __str__ format changes.
+    Closes #3831.
+    """
+    # Create temp directory
+    var tmpdir = _create_temp_dir("test_dtype_content")
+
+    try:
+        # Test float32
+        var f32_shape: List[Int] = [2]
+        var f32_tensor = ones(f32_shape, DType.float32)
+        var f32_path = tmpdir + "/f32_check.bin"
+        save_tensor(f32_tensor, f32_path, "test_float32")
+
+        # Verify file was created with float32 dtype
+        var f32_loaded = load_tensor(f32_path)
+        assert_equal(
+            f32_loaded.dtype(), DType.float32, "float32 roundtrip failed"
+        )
+
+        # Test float64
+        var f64_shape: List[Int] = [2]
+        var f64_tensor = ones(f64_shape, DType.float64)
+        var f64_path = tmpdir + "/f64_check.bin"
+        save_tensor(f64_tensor, f64_path, "test_float64")
+
+        var f64_loaded = load_tensor(f64_path)
+        assert_equal(
+            f64_loaded.dtype(), DType.float64, "float64 roundtrip failed"
+        )
+
+        # Test int32
+        var i32_shape: List[Int] = [2]
+        var i32_tensor = ones(i32_shape, DType.int32)
+        var i32_path = tmpdir + "/i32_check.bin"
+        save_tensor(i32_tensor, i32_path, "test_int32")
+
+        var i32_loaded = load_tensor(i32_path)
+        assert_equal(i32_loaded.dtype(), DType.int32, "int32 roundtrip failed")
+
+    finally:
+        _cleanup_temp_dir(tmpdir)
+
+
 # ============================================================================
 # Helper Functions
 # ============================================================================
@@ -396,5 +443,8 @@ fn main() raises:
 
     print("Testing different dtypes...")
     test_different_dtypes()
+
+    print("Testing dtype roundtrip file content...")
+    test_dtype_roundtrip_file_content()
 
     print("All serialization tests passed!")
