@@ -73,6 +73,11 @@ fn test_broadcast_to_compatible() raises:
     assert_dim(b, 2, "Broadcasted tensor should be 2D")
     assert_numel(b, 12, "Should have 12 elements")
 
+    # Verify output shape dimensions are exactly (4, 3)
+    var b_shape = b.shape()
+    assert_equal(b_shape[0], 4, "First dimension should be 4")
+    assert_equal(b_shape[1], 3, "Second dimension should be 3")
+
 
 fn test_broadcast_to_incompatible() raises:
     """Test that broadcasting to incompatible shape raises error."""
@@ -123,6 +128,13 @@ fn test_permute_axes() raises:
     # Result should be (4, 2, 3)
     assert_dim(b, 3, "Should still be 3D")
     assert_numel(b, 24, "Should have same elements")
+
+    # Verify output shape dimensions are exactly (4, 2, 3)
+    # Permutation [2, 0, 1] on (2, 3, 4) -> (4, 2, 3)
+    var b_shape = b.shape()
+    assert_equal(b_shape[0], 4, "First dimension should be 4 (was dimension 2)")
+    assert_equal(b_shape[1], 2, "Second dimension should be 2 (was dimension 0)")
+    assert_equal(b_shape[2], 3, "Third dimension should be 3 (was dimension 1)")
 
 
 # ============================================================================
