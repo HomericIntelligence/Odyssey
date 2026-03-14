@@ -144,6 +144,27 @@ fn test_slice_single_element() raises:
     assert_almost_equal(Float64(sliced[0]), 3.0, tolerance=1e-6)
 
 
+fn test_slice_empty_negative_step() raises:
+    """Test empty-result slices with negative step.
+
+    Edge cases where negative-step slicing yields 0 elements:
+    - [1:3:-1]: start < end with negative step -> empty
+    - [2:5:-1]: start < end with negative step -> empty
+
+    These verify the max(0, ...) logic correctly handles invalid ranges
+    with negative steps.
+    """
+    var t = arange(0.0, 10.0, 1.0, DType.float32)
+
+    # Test case 1: [1:3:-1] should give empty result
+    var sliced1 = t[1:3:-1]
+    assert_equal(sliced1.numel(), 0)
+
+    # Test case 2: [2:5:-1] should give empty result
+    var sliced2 = t[2:5:-1]
+    assert_equal(sliced2.numel(), 0)
+
+
 fn main() raises:
     """Run all tests."""
     # Multi-dimensional slicing
@@ -164,6 +185,7 @@ fn main() raises:
     print("Testing edge cases...")
     test_slice_empty()
     test_slice_single_element()
+    test_slice_empty_negative_step()
     print("Edge cases: PASSED")
 
     print("\nAll tests PASSED!")
