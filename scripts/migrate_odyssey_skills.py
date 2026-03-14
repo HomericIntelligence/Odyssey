@@ -752,23 +752,25 @@ def run_audit(
 
 
 def print_audit_table(result: AuditResult, no_color: bool = False) -> None:
-    """Print a three-column coverage table to stdout."""
+    """Print a four-column coverage table to stdout."""
     GREEN = "" if no_color else "\033[32m"
     RED = "" if no_color else "\033[31m"
     YELLOW = "" if no_color else "\033[33m"
     RESET = "" if no_color else "\033[0m"
 
-    col_skill = 40
-    col_category = 20
+    col_skill = 35
+    col_tier = 6
+    col_category = 18
     col_status = 10
 
-    header = f"{'Skill':<{col_skill}} {'Category':<{col_category}} {'Status':<{col_status}}"
-    separator = "-" * (col_skill + col_category + col_status + 2)
+    header = f"{'Skill':<{col_skill}} {'Tier':<{col_tier}} {'Category':<{col_category}} {'Status':<{col_status}}"
+    separator = "-" * (col_skill + col_tier + col_category + col_status + 4)
 
     print(header)
     print(separator)
 
     for entry in sorted(result.skills, key=lambda e: e.name):
+        tier_str = entry.tier or "-"
         category_str = entry.mnemosyne_category or "-"
         if entry.status == "present":
             color = GREEN
@@ -777,7 +779,7 @@ def print_audit_table(result: AuditResult, no_color: bool = False) -> None:
         else:
             color = YELLOW
         status_str = f"{color}{entry.status.upper()}{RESET}"
-        print(f"{entry.name:<{col_skill}} {category_str:<{col_category}} {status_str}")
+        print(f"{entry.name:<{col_skill}} {tier_str:<{col_tier}} {category_str:<{col_category}} {status_str}")
 
 
 def print_audit_summary(result: AuditResult, no_color: bool = False) -> None:
