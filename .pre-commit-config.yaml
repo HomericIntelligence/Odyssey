@@ -42,6 +42,18 @@ repos:
         language: pygrep
         files: ^\.github/workflows/security\.yml$
 
+  # Dockerfile validation - guards against accidental regression
+  # Prevents re-introduction of cargo apt dependency or cargo install commands
+  - repo: local
+    hooks:
+      - id: no-cargo-in-dockerfile
+        name: No cargo in Dockerfile
+        description: Prevent re-introduction of cargo apt dependency or cargo install
+        entry: bash -c 'grep -E "(cargo\s+install|apt-get install.*\bcargo\b)" "$@" && exit 1 || exit 0' --
+        language: system
+        files: ^Dockerfile(\.ci)?$
+        pass_filenames: true
+
   # Security checks - bandit for accurate Python security scanning
   # Replaces naive pygrep shell=True check with AST-based analysis
   # Suppressions (B310, B202) are documented in .bandit [bandit] section
