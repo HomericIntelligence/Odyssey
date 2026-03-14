@@ -245,6 +245,100 @@ fn test_as_contiguous_values_correct() raises:
 
 
 # ============================================================================
+# Test transpose() - edge cases
+# ============================================================================
+
+
+fn test_transpose_1d_tensor_raises() raises:
+    """Test that transpose on 1D tensor raises an error.
+
+    The error message should indicate that transpose requires at least 2 dimensions.
+    """
+    var shape = List[Int]()
+    shape.append(5)
+    var t = ones(shape, DType.float32)
+
+    var error_raised = False
+    try:
+        var result = t.transpose(0, 1)
+    except:
+        error_raised = True
+
+    assert_true(
+        error_raised, "transpose on 1D tensor should raise an error"
+    )
+
+
+fn test_transpose_out_of_range_dim0() raises:
+    """Test that transpose with out-of-range dim0 raises an error."""
+    var shape = List[Int]()
+    shape.append(3)
+    shape.append(4)
+    var t = ones(shape, DType.float32)
+
+    var error_raised = False
+    try:
+        var result = t.transpose(5, 1)  # dim0=5 is out of range
+    except:
+        error_raised = True
+
+    assert_true(
+        error_raised, "transpose with out-of-range dim0 should raise an error"
+    )
+
+
+fn test_transpose_out_of_range_dim1() raises:
+    """Test that transpose with out-of-range dim1 raises an error."""
+    var shape = List[Int]()
+    shape.append(3)
+    shape.append(4)
+    var t = ones(shape, DType.float32)
+
+    var error_raised = False
+    try:
+        var result = t.transpose(0, 10)  # dim1=10 is out of range
+    except:
+        error_raised = True
+
+    assert_true(
+        error_raised, "transpose with out-of-range dim1 should raise an error"
+    )
+
+
+fn test_transpose_same_dim_identity() raises:
+    """Test that transpose with dim0 == dim1 is a no-op (identity swap).
+
+    When dim0 == dim1, the operation should be a no-op: shape and strides
+    should remain unchanged, but it should still return a view.
+    """
+    var shape = List[Int]()
+    shape.append(3)
+    shape.append(4)
+    var a = arange(0.0, 12.0, 1.0, DType.float32)
+    var b = a.reshape(shape)
+
+    # Transpose with same dimension (should be identity)
+    var result = b.transpose(0, 0)
+
+    # Shape should be unchanged
+    var result_shape = result.shape()
+    assert_equal_int(result_shape[0], 3, "Shape dim 0 should be 3")
+    assert_equal_int(result_shape[1], 4, "Shape dim 1 should be 4")
+
+    # Strides should be unchanged
+    assert_equal_int(result._strides[0], b._strides[0], "Stride[0] should be unchanged")
+    assert_equal_int(result._strides[1], b._strides[1], "Stride[1] should be unchanged")
+
+    # Values should be identical
+    assert_almost_equal(
+        result._get_float64(0), 0.0, 1e-6, "Value at [0,0] should match"
+    )
+    assert_almost_equal(
+        result._get_float64(5), 5.0, 1e-6, "Value at [1,1] should match"
+    )
+
+
+# ============================================================================
 # Test item() - scalar extraction
 # ============================================================================
 
@@ -696,6 +790,13 @@ fn main() raises:
     test_is_contiguous_after_transpose()
     test_contiguous_on_noncontiguous()
     test_as_contiguous_values_correct()
+
+    # transpose() edge cases
+    print("  Testing transpose() edge cases...")
+    test_transpose_1d_tensor_raises()
+    test_transpose_out_of_range_dim0()
+    test_transpose_out_of_range_dim1()
+    test_transpose_same_dim_identity()
 
     # item() extraction
     print("  Testing item()...")
