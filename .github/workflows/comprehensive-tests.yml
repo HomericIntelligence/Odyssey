@@ -203,6 +203,9 @@ jobs:
       fail-fast: false  # Continue running other groups even if one fails
       matrix:
         test-group:
+          # IMPORTANT: The 'pattern' field accepts space-separated LITERAL filenames only,
+          # NOT glob patterns. Use "test_elem_part1.mojo test_elem_part2.mojo" not "*_part*.mojo"
+          # See Issue #4110 and ADR-009 for CI pattern constraints and split file guidelines.
           # ---- Core tensor operations ----
           # Uses wildcards to auto-include split files (*_part1, *_part2, etc.)
           - name: "Core Tensors"
