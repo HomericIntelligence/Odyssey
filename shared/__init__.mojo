@@ -121,7 +121,7 @@ comptime Accuracy = AccuracyMetric
 # Training - Callbacks: EarlyStopping, ModelCheckpoint
 # Training - Loops: train_epoch, validate_epoch
 # Data - Datasets: TensorDataset, ImageDataset, DataLoader
-# Data - Transforms: Normalize, ToTensor, Compose
+# Data - Transforms: ToTensor, Normalize, Compose
 # Utils: Logger, plot_training_curves
 # Autograd: Automatic differentiation utilities (when available)
 # Testing: Test utilities and fixtures, constants (GRADIENT_CHECK_EPSILON_FLOAT32)
