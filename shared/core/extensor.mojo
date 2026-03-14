@@ -577,22 +577,26 @@ struct ExTensor(
     fn reshape(self, new_shape: List[Int]) raises -> ExTensor:
         """Reshape tensor to new shape (must have same total elements).
 
-        Returns a zero-copy view (shallow pointer copy) sharing data with the
-        original tensor. The result has `is_view() == True` and `is_contiguous() == True`
-        (because reshape only changes the shape/stride metadata, not the flat layout).
-        Uses reference counting to ensure data remains valid while any view is alive.
-
-        Note: This mirrors the view semantics of `slice()` — no data is copied.
-        Compare with operations that return independent copies (e.g. `as_contiguous()`).
+        Creates a shallow copy of the tensor struct whose shape and strides are
+        recomputed for the new shape. No data bytes are copied. The returned tensor has
+        `_is_view = True`, and modifying its elements will affect the original tensor.
 
         Args:
             new_shape: The new shape for the tensor.
 
         Returns:
-            A zero-copy view with the requested shape, sharing the same flat data buffer.
+            A new ExTensor whose `_data` pointer references the same underlying memory
+            as the original, with shape/strides adjusted for `new_shape`. The `_is_view`
+            flag is set to True. This is a zero-copy view: no data bytes are allocated
+            or copied. Modifying elements of the returned tensor will affect the original.
 
         Raises:
             Error: If the total number of elements doesn't match.
+
+        Notes:
+            This method has the same view semantics as `slice()` — it returns a genuine
+            view that shares memory with the original tensor, not an independent copy.
+            Uses reference counting to ensure data remains valid while any view is alive.
 
         Example:
         ```mojo
