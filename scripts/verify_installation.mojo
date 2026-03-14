@@ -24,91 +24,62 @@ fn main():
     # Test 1: Version Info
     # ========================================================================
     print("Test 1: Checking version info...")
-    try:
-        from shared import VERSION, AUTHOR, LICENSE
+    from shared import VERSION, AUTHOR, LICENSE
 
-        print("  ✓ Version:", VERSION)
-        print("  ✓ Author:", AUTHOR)
-        print("  ✓ License:", LICENSE)
-    except:
-        print("  ✗ Failed to import version info")
-        errors += 1
+    print("  ✓ Version:", VERSION)
+    print("  ✓ Author:", AUTHOR)
+    print("  ✓ License:", LICENSE)
 
     # ========================================================================
     # Test 2: Core Package
     # ========================================================================
     print("\nTest 2: Checking core package...")
-    try:
-        # These imports are commented until implementation completes
-        # from shared.core import Linear, ReLU, Tensor
-
-        print(
-            "  ✓ Core package accessible (placeholder - awaiting"
-            " implementation)"
-        )
-    except:
-        print("  ✗ Failed to import core package")
-        errors += 1
+    # These imports are commented until implementation completes
+    # from shared.core import Linear, ReLU, Tensor
+    print(
+        "  ✓ Core package accessible (placeholder - awaiting"
+        " implementation)"
+    )
 
     # ========================================================================
     # Test 3: Training Package
     # ========================================================================
     print("\nTest 3: Checking training package...")
-    try:
-        # from shared.training import SGD, Adam
-
-        print(
-            "  ✓ Training package accessible (placeholder - awaiting"
-            " implementation)"
-        )
-    except:
-        print("  ✗ Failed to import training package")
-        errors += 1
+    # from shared.training import SGD, Adam
+    print(
+        "  ✓ Training package accessible (placeholder - awaiting"
+        " implementation)"
+    )
 
     # ========================================================================
     # Test 4: Data Package
     # ========================================================================
     print("\nTest 4: Checking data package...")
-    try:
-        # from shared.data import DataLoader
-
-        print(
-            "  ✓ Data package accessible (placeholder - awaiting"
-            " implementation)"
-        )
-    except:
-        print("  ✗ Failed to import data package")
-        errors += 1
+    # from shared.data import DataLoader
+    print(
+        "  ✓ Data package accessible (placeholder - awaiting"
+        " implementation)"
+    )
 
     # ========================================================================
     # Test 5: Utils Package
     # ========================================================================
     print("\nTest 5: Checking utils package...")
-    try:
-        # from shared.utils import Logger
-
-        print(
-            "  ✓ Utils package accessible (placeholder - awaiting"
-            " implementation)"
-        )
-    except:
-        print("  ✗ Failed to import utils package")
-        errors += 1
+    # from shared.utils import Logger
+    print(
+        "  ✓ Utils package accessible (placeholder - awaiting"
+        " implementation)"
+    )
 
     # ========================================================================
     # Test 6: Root Convenience Imports
     # ========================================================================
     print("\nTest 6: Checking root convenience imports...")
-    try:
-        # from shared import Linear, SGD
-
-        print(
-            "  ✓ Root imports accessible (placeholder - awaiting"
-            " implementation)"
-        )
-    except:
-        print("  ✗ Failed to import from root")
-        errors += 1
+    # from shared import Linear, SGD
+    print(
+        "  ✓ Root imports accessible (placeholder - awaiting"
+        " implementation)"
+    )
 
     # ========================================================================
     # Summary

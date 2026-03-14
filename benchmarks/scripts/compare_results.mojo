@@ -120,49 +120,49 @@ fn atof(s: String) -> Float64:
     var sign: Float64 = 1.0
     var i = 0
 
+    var bytes = s.as_bytes()
+
     # Handle negative numbers
-    if len(s) > 0 and s[0] == "-":
+    if len(bytes) > 0 and bytes[0] == ord("-"):
         sign = -1.0
         i = 1
 
     # Parse integer part
     while (
-        i < len(s)
-        and String(s[i : i + 1]) != "."
-        and String(s[i : i + 1]) != "e"
-        and String(s[i : i + 1]) != "E"
+        i < len(bytes)
+        and bytes[i] != ord(".")
+        and bytes[i] != ord("e")
+        and bytes[i] != ord("E")
     ):
-        result = result * 10.0 + Float64(ord(s[i]) - ord("0"))
+        result = result * 10.0 + Float64(Int(bytes[i]) - ord("0"))
         i += 1
 
     # Parse decimal part
-    if i < len(s) and String(s[i : i + 1]) == ".":
+    if i < len(bytes) and bytes[i] == ord("."):
         i += 1
         var decimal_place: Float64 = 0.1
         while (
-            i < len(s)
-            and String(s[i : i + 1]) != "e"
-            and String(s[i : i + 1]) != "E"
+            i < len(bytes)
+            and bytes[i] != ord("e")
+            and bytes[i] != ord("E")
         ):
-            result = result + Float64(ord(s[i]) - ord("0")) * decimal_place
+            result = result + Float64(Int(bytes[i]) - ord("0")) * decimal_place
             decimal_place = decimal_place * 0.1
             i += 1
 
     # Parse exponent (scientific notation)
-    if i < len(s) and (
-        String(s[i : i + 1]) == "e" or String(s[i : i + 1]) == "E"
-    ):
+    if i < len(bytes) and (bytes[i] == ord("e") or bytes[i] == ord("E")):
         i += 1
         var exp_sign = 1
-        if i < len(s) and String(s[i : i + 1]) == "-":
+        if i < len(bytes) and bytes[i] == ord("-"):
             exp_sign = -1
             i += 1
-        elif i < len(s) and String(s[i : i + 1]) == "+":
+        elif i < len(bytes) and bytes[i] == ord("+"):
             i += 1
 
         var exponent = 0
-        while i < len(s):
-            exponent = exponent * 10 + (ord(s[i]) - ord("0"))
+        while i < len(bytes):
+            exponent = exponent * 10 + (Int(bytes[i]) - ord("0"))
             i += 1
 
         # Apply exponent: result * 10^exponent
@@ -234,8 +234,9 @@ fn parse_int_value(line: String, field_name: String) raises -> Int:
 
     # Convert string to int
     var result = 0
-    for i in range(len(value_str)):
-        result = result * 10 + (ord(value_str[i]) - ord("0"))
+    var value_bytes = value_str.as_bytes()
+    for i in range(len(value_bytes)):
+        result = result * 10 + (Int(value_bytes[i]) - ord("0"))
 
     return result
 
@@ -328,16 +329,17 @@ fn atoi(s: String) -> Int:
     var result: Int = 0
     var sign: Int = 1
     var i = 0
+    var s_bytes = s.as_bytes()
 
     # Handle negative numbers
-    if len(s) > 0 and s[0] == "-":
+    if len(s_bytes) > 0 and s_bytes[0] == ord("-"):
         sign = -1
         i = 1
 
     # Parse digits
-    while i < len(s):
-        if s[i] >= "0" and s[i] <= "9":
-            result = result * 10 + (ord(s[i]) - ord("0"))
+    while i < len(s_bytes):
+        if s_bytes[i] >= ord("0") and s_bytes[i] <= ord("9"):
+            result = result * 10 + (Int(s_bytes[i]) - ord("0"))
         i += 1
 
     return result * sign
@@ -451,7 +453,11 @@ fn compare_benchmarks(
             continue
 
         # Get current result via index from dictionary
-        var current_idx = Int(current_dict[baseline_name_py])
+        var current_idx_py = current_dict[baseline_name_py]
+        var builtins = Python.import_module("builtins")
+        var current_idx = atol(
+            String(builtins.str(builtins.int(current_idx_py)))
+        )
         var current = current_results[current_idx].copy()
         var current_duration = current.duration_ms
 
