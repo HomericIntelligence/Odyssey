@@ -44,15 +44,15 @@ fn get_class_label(class_idx: Int) -> String:
     elif class_idx < 36:
         # Uppercase letters A-Z (indices 10-35)
         var letter_idx = class_idx - 10
-        var letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        return String(letters[letter_idx])
+        return chr(ord("A") + letter_idx)
     else:
         # Lowercase letters (indices 36-46)
         # Only includes: a, b, d, e, f, g, h, n, q, r, t
-        var lowercase_map = "abdefghnqrt"
         var lower_idx = class_idx - 36
-        if lower_idx < len(lowercase_map):
-            return String(lowercase_map[lower_idx])
+        # EMNIST balanced lowercase: a, b, d, e, f, g, h, n, q, r, t
+        var lowercase_chars = "abdefghnqrt"
+        if lower_idx < len(lowercase_chars):
+            return chr(Int(lowercase_chars.as_bytes()[lower_idx]))
         else:
             return "?"
 

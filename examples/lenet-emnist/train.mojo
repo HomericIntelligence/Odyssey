@@ -342,12 +342,12 @@ fn train_epoch(
                             + h * train_images.shape()[3]
                             + w
                         )
-                        batch_images._data.offset(dst_idx).store(
-                            train_images._data.offset(src_idx).load()
+                        (batch_images._data + dst_idx).store(
+                            (train_images._data + src_idx).load()
                         )
             # Copy label
-            batch_labels_int._data.offset(i).store(
-                train_labels._data.offset(sample_idx).load()
+            (batch_labels_int._data + i).store(
+                (train_labels._data + sample_idx).load()
             )
 
         # Convert batch labels to one-hot encoding
