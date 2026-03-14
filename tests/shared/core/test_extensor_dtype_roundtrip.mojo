@@ -21,7 +21,7 @@ from tests.shared.conftest import assert_true, assert_almost_equal
 
 
 fn test_float16_set_get_float64_roundtrip() raises:
-    """float16: _set_float64(1.5) -> _get_float64 should return ~1.5."""
+    """Float16: _set_float64(1.5) -> _get_float64 should return ~1.5."""
     var t = zeros([1], DType.float16)
     t._set_float64(0, 1.5)
     var got = t._get_float64(0)
@@ -33,7 +33,7 @@ fn test_float16_set_get_float64_roundtrip() raises:
 
 
 fn test_float16_nonzero_after_set() raises:
-    """float16: writing a non-zero value must not silently produce zero."""
+    """Float16: writing a non-zero value must not silently produce zero."""
     var t = zeros([3], DType.float16)
     t._set_float64(1, 2.0)
     var got = t._get_float64(1)
@@ -46,7 +46,7 @@ fn test_float16_nonzero_after_set() raises:
 
 
 fn test_float32_set_get_float64_roundtrip() raises:
-    """float32: _set_float64(1.5) -> _get_float64 should return ~1.5."""
+    """Float32: _set_float64(1.5) -> _get_float64 should return ~1.5."""
     var t = zeros([1], DType.float32)
     t._set_float64(0, 1.5)
     var got = t._get_float64(0)
@@ -57,7 +57,7 @@ fn test_float32_set_get_float64_roundtrip() raises:
 
 
 fn test_float32_nonzero_after_set() raises:
-    """float32: writing a non-zero value must not silently produce zero."""
+    """Float32: writing a non-zero value must not silently produce zero."""
     var t = zeros([3], DType.float32)
     t._set_float64(1, 2.0)
     var got = t._get_float64(1)
@@ -70,7 +70,7 @@ fn test_float32_nonzero_after_set() raises:
 
 
 fn test_float64_set_get_float64_roundtrip() raises:
-    """float64: _set_float64(1.5) -> _get_float64 should return 1.5 exactly."""
+    """Float64: _set_float64(1.5) -> _get_float64 should return 1.5 exactly."""
     var t = zeros([1], DType.float64)
     t._set_float64(0, 1.5)
     var got = t._get_float64(0)
@@ -81,7 +81,7 @@ fn test_float64_set_get_float64_roundtrip() raises:
 
 
 fn test_float64_nonzero_after_set() raises:
-    """float64: writing a non-zero value must not silently produce zero."""
+    """Float64: writing a non-zero value must not silently produce zero."""
     var t = zeros([3], DType.float64)
     t._set_float64(1, 2.0)
     var got = t._get_float64(1)
@@ -96,7 +96,7 @@ fn test_float64_nonzero_after_set() raises:
 
 
 fn test_bfloat16_set_get_float64_roundtrip() raises:
-    """bfloat16: _set_float64(1.5) -> _get_float64 should return ~1.5.
+    """Bfloat16: _set_float64(1.5) -> _get_float64 should return ~1.5.
 
     Before fix (#3301): _set_float64 had no bfloat16 branch, so writes were
     silently ignored and _get_float64 misread bits via _get_int64. After fix,
@@ -118,7 +118,7 @@ fn test_bfloat16_set_get_float64_roundtrip() raises:
 
 
 fn test_bfloat16_nonzero_after_set() raises:
-    """bfloat16: writing a non-zero value must not silently produce zero."""
+    """Bfloat16: writing a non-zero value must not silently produce zero."""
     var t = zeros([3], DType.bfloat16)
     t._set_float64(1, 2.0)
     var got = t._get_float64(1)
@@ -129,7 +129,7 @@ fn test_bfloat16_nonzero_after_set() raises:
 
 
 fn test_bfloat16_dtype_size_is_2_bytes() raises:
-    """bfloat16 tensor should allocate 2 bytes per element (not 4).
+    """Bfloat16 tensor should allocate 2 bytes per element (not 4).
 
     Before fix (#3301): _get_dtype_size_static had no bfloat16 branch, falling
     through to the default `return 4`. This caused incorrect offset calculations
@@ -158,7 +158,7 @@ fn test_bfloat16_dtype_size_is_2_bytes() raises:
 
 
 fn test_int8_get_float64_via_int64_path() raises:
-    """int8: _get_float64 correctly reads integer values via the _get_int64 fallback.
+    """Int8: _get_float64 correctly reads integer values via the _get_int64 fallback.
 
     The int8 path in _get_float64 falls through to _get_int64(), which correctly
     reads int8 bits and casts to Float64. Integer-safe values like 1.0 round-trip
@@ -176,7 +176,7 @@ fn test_int8_get_float64_via_int64_path() raises:
 
 
 fn test_int8_set_float64_is_noop() raises:
-    """int8: _set_float64 silently does nothing (no int8 branch in implementation).
+    """Int8: _set_float64 silently does nothing (no int8 branch in implementation).
 
     This documents the known limitation: _set_float64 has no int8 branch, so
     calling it on an int8 tensor is a silent no-op. The value remains unchanged.
