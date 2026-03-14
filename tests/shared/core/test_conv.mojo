@@ -926,6 +926,95 @@ fn test_conv2d_backward_multichannel_values() raises:
         )
 
 
+fn test_conv2d_backward_multichannel_batch_gt_1() raises:
+    """Test conv2d_backward with batch > 1 verifies grad accumulation across batch dimension.
+
+    When batch > 1, grad_bias and grad_weights must accumulate over all batch items.
+    grad_bias[oc] = sum over (batch, oh, ow) of grad_output[b, oc, oh, ow]
+    grad_weights[oc, ic, kh, kw] = sum over (batch, oh, ow) of grad_output[b, oc, oh, ow] * x[b, ic, oh+kh, ow+kw]
+
+    Config: batch=2, in_channels=3, out_channels=8
+    Input: (2, 3, 3, 3) all ones, kernel: (8, 3, 3, 3) all ones
+    stride=1, padding=0 -> output shape: (2, 8, 1, 1)
+    grad_output = ones((2, 8, 1, 1))
+
+    Expected values:
+    - grad_weights[oc, ic, kh, kw] = batch * 1.0 * 1.0 = 2.0 for every weight position
+      (2 batch items, each contributing 1.0)
+    - grad_input[b, ic, ih, iw] = 8.0 (same as batch=1, doesn't depend on batch size)
+    - grad_bias[oc] = batch * 1.0 = 2.0 (2 batch items, each contributing 1.0)
+    """
+    var batch = 2
+    var in_channels = 3
+    var out_channels = 8
+    var kH = 3
+    var kW = 3
+    var stride = 1
+    var padding = 0
+
+    # Input: (2, 3, 3, 3) all ones
+    var input_shape = List[Int]()
+    input_shape.append(batch)
+    input_shape.append(in_channels)
+    input_shape.append(3)
+    input_shape.append(3)
+    var x = ones(input_shape, DType.float32)
+
+    # Kernel: (8, 3, 3, 3) all ones
+    var kernel_shape = List[Int]()
+    kernel_shape.append(out_channels)
+    kernel_shape.append(in_channels)
+    kernel_shape.append(kH)
+    kernel_shape.append(kW)
+    var kernel = ones(kernel_shape, DType.float32)
+
+    var bias_shape = List[Int]()
+    bias_shape.append(out_channels)
+    var bias = zeros(bias_shape, DType.float32)
+
+    # Forward pass: output shape (2, 8, 1, 1)
+    var output = conv2d(x, kernel, bias, stride, padding)
+    var grad_output = ones(output.shape(), DType.float32)
+
+    # Backward pass
+    var result = conv2d_backward(grad_output, x, kernel, stride, padding)
+    var grad_input = result.grad_input
+    var grad_kernel = result.grad_weights
+    var grad_bias = result.grad_bias
+
+    # Verify grad_weights values: each weight gradient = 2.0
+    # (2 batch items each contributing 1.0)
+    var n_weights = out_channels * in_channels * kH * kW
+    var grad_weights_data = grad_kernel._data.bitcast[Float32]()
+    for i in range(n_weights):
+        assert_almost_equal(
+            grad_weights_data[i],
+            Float32(2.0),
+            tolerance=1e-4,
+        )
+
+    # Verify grad_input values: each input gradient = 8.0
+    # (8 output channels, independent of batch size)
+    var n_inputs = batch * in_channels * 3 * 3
+    var grad_input_data = grad_input._data.bitcast[Float32]()
+    for i in range(n_inputs):
+        assert_almost_equal(
+            grad_input_data[i],
+            Float32(out_channels),
+            tolerance=1e-4,
+        )
+
+    # Verify grad_bias values: each bias gradient = 2.0
+    # (2 batch items, each with 1 spatial position)
+    var grad_bias_data = grad_bias._data.bitcast[Float32]()
+    for oc in range(out_channels):
+        assert_almost_equal(
+            grad_bias_data[oc],
+            Float32(2.0),
+            tolerance=1e-4,
+        )
+
+
 fn test_conv2d_backward_gradient_input() raises:
     """Numerical gradient check for grad_input computed by conv2d_backward.
 
