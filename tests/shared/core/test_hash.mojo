@@ -338,6 +338,16 @@ fn test_hash_integer_types_consistent() raises:
     )
 
 
+fn test_hash_integer_dtype_distinct() raises:
+    """Integer tensors with different values produce different hashes. Closes #4062."""
+    var shape = List[Int]()
+    shape.append(4)
+    var a = arange(0.0, 4.0, 1.0, DType.int32)
+    var b = arange(1.0, 5.0, 1.0, DType.int32)
+    if hash(a) == hash(b):
+        raise Error("Different-valued int32 tensors should not collide on hash")
+
+
 # ============================================================================
 # Entry point
 # ============================================================================
@@ -393,5 +403,8 @@ fn main() raises:
 
     print("  test_hash_integer_types_consistent...")
     test_hash_integer_types_consistent()
+
+    print("  test_hash_integer_dtype_distinct...")
+    test_hash_integer_dtype_distinct()
 
     print("All NaN hash stability tests passed!")
