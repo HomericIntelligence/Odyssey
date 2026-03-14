@@ -127,6 +127,39 @@ fn test_slice_1d_reverse() raises:
     assert_almost_equal(Float64(sliced[4]), 0.0, tolerance=1e-6)
 
 
+fn test_slice_1d_reverse_parametric() raises:
+    """Test reverse slicing with explicit bounds and steps.
+
+    Parametric test covering multiple reverse slicing patterns:
+    - [3:1:-1] -> [3, 2]: explicit start/end with step=-1
+    - [4::-1] -> [4, 3, 2, 1, 0]: end explicit, start default with step=-1
+    - [::-2] -> [4, 2, 0]: full reverse with step=-2
+    """
+    var t = arange(0.0, 5.0, 1.0, DType.float32)
+
+    # Test case 1: [3:1:-1] should give [3, 2]
+    var sliced1 = t[3:1:-1]
+    assert_equal(sliced1.numel(), 2)
+    assert_almost_equal(Float64(sliced1[0]), 3.0, tolerance=1e-6)
+    assert_almost_equal(Float64(sliced1[1]), 2.0, tolerance=1e-6)
+
+    # Test case 2: [4::-1] should give [4, 3, 2, 1, 0]
+    var sliced2 = t[4::-1]
+    assert_equal(sliced2.numel(), 5)
+    assert_almost_equal(Float64(sliced2[0]), 4.0, tolerance=1e-6)
+    assert_almost_equal(Float64(sliced2[1]), 3.0, tolerance=1e-6)
+    assert_almost_equal(Float64(sliced2[2]), 2.0, tolerance=1e-6)
+    assert_almost_equal(Float64(sliced2[3]), 1.0, tolerance=1e-6)
+    assert_almost_equal(Float64(sliced2[4]), 0.0, tolerance=1e-6)
+
+    # Test case 3: [::-2] should give [4, 2, 0]
+    var sliced3 = t[::-2]
+    assert_equal(sliced3.numel(), 3)
+    assert_almost_equal(Float64(sliced3[0]), 4.0, tolerance=1e-6)
+    assert_almost_equal(Float64(sliced3[1]), 2.0, tolerance=1e-6)
+    assert_almost_equal(Float64(sliced3[2]), 0.0, tolerance=1e-6)
+
+
 fn main() raises:
     """Run all 1D slicing tests."""
     test_slice_1d_basic()
@@ -137,4 +170,5 @@ fn main() raises:
     test_slice_1d_strided()
     test_slice_1d_strided_step3()
     test_slice_1d_reverse()
+    test_slice_1d_reverse_parametric()
     print("All 1D slicing tests passed!")
