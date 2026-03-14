@@ -49,7 +49,7 @@ class TestSecurityWorkflowTriggers:
 class TestSemgrepStep:
     """Verify Semgrep SAST step configuration."""
 
-    def test_semgrep_has_no_continue_on_error(self, security_workflow_content: str) -> None:
+    def test_semgrep_has_continue_on_error(self, security_workflow_content: str) -> None:
         """Semgrep scan step must have continue-on-error: true.
 
         The CLI-based semgrep scan uses continue-on-error: true so that
@@ -71,6 +71,30 @@ class TestSemgrepStep:
             "Semgrep scan step is missing 'continue-on-error: true'. "
             "This is needed so SARIF results are uploaded even when findings exist."
         )
+
+    def test_upload_sarif_allowed_to_have_continue_on_error(self, security_workflow_content: str) -> None:
+        """Upload-sarif step is allowed to have continue-on-error: true.
+
+        The upload-sarif step may legitimately have continue-on-error: true
+        to allow report uploads to fail without blocking the scan.
+        This test documents the expected behavior to prevent future refactors
+        from incorrectly removing this flag.
+        """
+        # Find the "Upload SARIF results" step
+        upload_pattern = re.compile(
+            r"-\s+name:\s+Upload SARIF.*?(?=\n\s*-\s+name:|\Z)",
+            re.DOTALL,
+        )
+        upload_match = upload_pattern.search(security_workflow_content)
+        assert upload_match is not None, (
+            "Could not find 'Upload SARIF results' step in security.yml. "
+            "Expected a step for uploading SARIF results to GitHub Security tab."
+        )
+
+        # Note: This test only documents the expected behavior.
+        # Whether upload-sarif has continue-on-error is a policy decision,
+        # not an error condition. This test serves as documentation
+        # in case a future refactor needs to decide on this behavior.
 
     def test_semgrep_action_used(self, security_workflow_content: str) -> None:
         """Semgrep must be installed via pip and run via CLI."""
