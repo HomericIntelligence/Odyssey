@@ -138,7 +138,7 @@ repos:
       - id: markdownlint-cli2
         name: Markdown Lint
         description: Lint markdown files for consistency
-        exclude: ^notes/(plan|issues|review|blog)/
+        exclude: ^(notes/(plan|issues|review|blog)|\.claude/plugins)/
         args: ['--config', '.markdownlint.json']
 
   # Jupyter notebook output stripping
