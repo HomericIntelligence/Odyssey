@@ -26,6 +26,18 @@ fn test_slice_2d_single_dim() raises:
     assert_equal(shape[0], 3)
     assert_equal(shape[1], 4)
 
+    # Verify values: sliced should start at row 1, elements 4-7
+    # Original 5x4 tensor (row-major): [0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15, 16,17,18,19]
+    # sliced[0,:] = original[1,:] = [4,5,6,7]
+    var data_ptr = sliced._data.bitcast[Float32]()
+    assert_almost_equal(Float64(data_ptr[0]), Float64(4.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[1]), Float64(5.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[2]), Float64(6.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[3]), Float64(7.0), Float64(1e-5))
+    # sliced[1,:] = original[2,:] = [8,9,10,11]
+    assert_almost_equal(Float64(data_ptr[4]), Float64(8.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[5]), Float64(9.0), Float64(1e-5))
+
 
 fn test_slice_2d_both_dims() raises:
     """Test slicing along both dimensions in 2D tensor."""
@@ -40,6 +52,19 @@ fn test_slice_2d_both_dims() raises:
     assert_equal(len(shape), 2)
     assert_equal(shape[0], 3)
     assert_equal(shape[1], 2)
+
+    # Verify values: sliced[i,j] = original[i+1, j+1]
+    # Original 5x4 tensor: [0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15, 16,17,18,19]
+    # sliced[0,:] = original[1,1:3] = [5,6]
+    # sliced[1,:] = original[2,1:3] = [9,10]
+    # sliced[2,:] = original[3,1:3] = [13,14]
+    var data_ptr = sliced._data.bitcast[Float32]()
+    assert_almost_equal(Float64(data_ptr[0]), Float64(5.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[1]), Float64(6.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[2]), Float64(9.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[3]), Float64(10.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[4]), Float64(13.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[5]), Float64(14.0), Float64(1e-5))
 
 
 fn test_slice_3d_partial() raises:
@@ -56,6 +81,18 @@ fn test_slice_3d_partial() raises:
     assert_equal(shape[0], 2)
     assert_equal(shape[1], 3)
     assert_equal(shape[2], 2)
+
+    # Verify values: sliced[i,:,:] = original[i+1,:,:]
+    # Original 4x3x2 tensor (row-major): [0,1, 2,3, 4,5, 6,7, 8,9, 10,11, 12,13, 14,15, 16,17, 18,19, 20,21, 22,23]
+    # sliced[0,:,:] = original[1,:,:] starts at index 6: [6,7, 8,9, 10,11]
+    # sliced[1,:,:] = original[2,:,:] starts at index 12: [12,13, 14,15, 16,17]
+    var data_ptr = sliced._data.bitcast[Float32]()
+    assert_almost_equal(Float64(data_ptr[0]), Float64(6.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[1]), Float64(7.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[2]), Float64(8.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[3]), Float64(9.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[6]), Float64(12.0), Float64(1e-5))
+    assert_almost_equal(Float64(data_ptr[7]), Float64(13.0), Float64(1e-5))
 
 
 # ============================================================================
