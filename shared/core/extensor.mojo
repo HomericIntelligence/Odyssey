@@ -705,7 +705,7 @@ struct ExTensor(
         result._shape[axis] = end - start
 
         # Update data pointer to point to sliced data
-        result._data = self._data.offset(offset_bytes)
+        result._data = self._data + offset_bytes
 
         # Strides remain the same (already copied by __copyinit__)
 
@@ -2961,7 +2961,7 @@ struct ExTensor(
         """Detailed representation for debugging.
 
         Returns:
-            String in the format: ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[...])
+            String in the format: ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[...]).
         """
         var shape_str = String("[")
         for i in range(len(self._shape)):
@@ -3697,6 +3697,43 @@ fn neg_inf_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
     return tensor^
 
 
+fn _dtype_to_string(dtype: DType) -> String:
+    """Convert a DType to a readable string representation.
+
+    Args:
+        dtype: The data type.
+
+    Returns:
+        A string like "float32", "int64", etc.
+    """
+    if dtype == DType.float32:
+        return "float32"
+    elif dtype == DType.float64:
+        return "float64"
+    elif dtype == DType.float16:
+        return "float16"
+    elif dtype == DType.int32:
+        return "int32"
+    elif dtype == DType.int64:
+        return "int64"
+    elif dtype == DType.int16:
+        return "int16"
+    elif dtype == DType.int8:
+        return "int8"
+    elif dtype == DType.uint32:
+        return "uint32"
+    elif dtype == DType.uint64:
+        return "uint64"
+    elif dtype == DType.uint16:
+        return "uint16"
+    elif dtype == DType.uint8:
+        return "uint8"
+    elif dtype == DType.bool:
+        return "bool"
+    else:
+        return "unknown"
+
+
 fn randn(shape: List[Int], dtype: DType, seed: Int = 0) raises -> ExTensor:
     """Create tensor filled with random values from standard normal distribution.
 
@@ -3734,7 +3771,7 @@ fn randn(shape: List[Int], dtype: DType, seed: Int = 0) raises -> ExTensor:
     ):
         print(
             "Warning: randn() is designed for floating-point types, got",
-            dtype_to_string(dtype),
+            _dtype_to_string(dtype),
         )
 
     # Set random seed if provided (0 uses system randomness)

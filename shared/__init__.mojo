@@ -72,7 +72,7 @@ from shared.version import VERSION, AUTHOR, LICENSE
 from shared.training.metrics import LossTracker, AccuracyMetric
 
 # Expose plan-canonical alias: Accuracy = AccuracyMetric
-alias Accuracy = AccuracyMetric
+comptime Accuracy = AccuracyMetric
 
 # Training callbacks (most commonly used)
 # from .training.callbacks import EarlyStopping, ModelCheckpoint

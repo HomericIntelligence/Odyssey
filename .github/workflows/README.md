@@ -34,7 +34,7 @@ ls .github/workflows/*.yml | wc -l
 | [script-validation.yml](#script-validation) | PR on scripts, push main, manual | Python scripts validation | < 5 min |
 | [validate-configs.yml](#validate-configs) | PR/push on config changes | YAML and schema validation | < 5 min |
 | [test-agents.yml](#test-agents) | PR on agent configs, push main | Agent configuration testing | < 3 min |
-| [validate-workflows.yml](#validate-workflows) | Push main on .github/, PR | Validate workflow checkout order | < 3 min |
+| validate-workflows.yml | Push main on .github/, PR | Validate workflow checkout order | < 3 min |
 | [pre-commit.yml](#pre-commit) | PR, push main, manual | Code formatting and linting | < 5 min |
 | [type-check.yml](#type-check) | PR on scripts, push main, manual | Python type checking | < 3 min |
 | [notebook-validation.yml](#notebook-validation) | PR/push on notebooks | Jupyter notebook validation | < 5 min |
@@ -51,10 +51,10 @@ ls .github/workflows/*.yml | wc -l
 | **Performance Workflows** | | | |
 | [benchmark.yml](#benchmark) | Manual, scheduled | Performance benchmarks | < 30 min |
 | [simd-benchmarks-weekly.yml](#simd-benchmarks-weekly) | Weekly Sunday 2 AM UTC, manual | SIMD performance tracking | < 5 min |
-| [precommit-benchmark.yml](#precommit-benchmark) | Push main, manual | Pre-commit hook performance tracking | < 5 min |
+| precommit-benchmark.yml | Push main, manual | Pre-commit hook performance tracking | < 5 min |
 | **Maintenance Workflows** | | | |
 | [mojo-version-check.yml](#mojo-version-check) | Weekly Sunday 3 AM UTC, manual | Check for new Mojo releases | < 3 min |
-| [workflow-smoke-test.yml](#workflow-smoke-test) | PR | Workflow validation smoke tests | < 2 min |
+| workflow-smoke-test.yml | PR | Workflow validation smoke tests | < 2 min |
 | **AI/Automation Workflows** | | | |
 | [claude.yml](#claude) | Issue/PR comments mentioning @claude | Claude Code agent integration | N/A |
 | [claude-code-review.yml](#claude-code-review) | PR opened/synchronized | Automated Claude code review | < 5 min |
