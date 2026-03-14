@@ -492,6 +492,106 @@ fn test_batch_norm2d_backward_gradient_input_inference_mode() raises:
     )
 
 
+fn test_batch_norm2d_backward_gradient_input_inference_mode_float64() raises:
+    """Numerical gradient validation for batch_norm2d_backward in inference mode (float64).
+
+    Validates the float64 code path in batch_norm2d_backward independently.
+    The float64 branch uses the same formula as float32 but at higher precision.
+    """
+    # Small tensor: batch=2, channels=2, height=2, width=2 (16 elements)
+    var shape = List[Int]()
+    shape.append(2)  # batch
+    shape.append(2)  # channels
+    shape.append(2)  # height
+    shape.append(2)  # width
+
+    # Input with varying values in float64
+    var x = zeros(shape, DType.float64)
+    for i in range(16):
+        x._data.bitcast[Float64]()[i] = Float64(i) * 0.1
+
+    # Parameters: non-unit gamma, non-zero running stats per channel (float64)
+    var param_shape = List[Int]()
+    param_shape.append(2)
+    var gamma = ones(param_shape, DType.float64)
+    gamma._data.bitcast[Float64]()[0] = 1.5
+    gamma._data.bitcast[Float64]()[1] = 2.0
+
+    var beta = zeros(param_shape, DType.float64)
+
+    var running_mean = zeros(param_shape, DType.float64)
+    running_mean._data.bitcast[Float64]()[0] = 0.3
+    running_mean._data.bitcast[Float64]()[1] = 0.7
+
+    var running_var = ones(param_shape, DType.float64)
+    running_var._data.bitcast[Float64]()[0] = 0.5
+    running_var._data.bitcast[Float64]()[1] = 1.5
+
+    # Forward pass in inference mode (running stats frozen)
+    var result_fwd = batch_norm2d(
+        x,
+        gamma,
+        beta,
+        running_mean,
+        running_var,
+        training=False,
+        epsilon=1e-5,
+    )
+    var output = result_fwd[0]
+
+    # Use ones grad_output: in inference mode, grad_input = grad_output * gamma / std
+    var grad_output = ones_like(output)
+
+    # Analytical backward pass in inference mode
+    var result_bwd = batch_norm2d_backward(
+        grad_output,
+        x,
+        gamma,
+        running_mean,
+        running_var,
+        training=False,
+        epsilon=1e-5,
+    )
+    var grad_input = result_bwd[0]
+
+    # Numerical gradient: closure uses training=False with fixed running stats
+    fn forward_for_grad_infer_f64(inp: ExTensor) raises -> ExTensor:
+        var res = batch_norm2d(
+            inp,
+            gamma,
+            beta,
+            running_mean,
+            running_var,
+            training=False,
+            epsilon=1e-5,
+        )
+        var out = res[0]
+        # Weighted sum matching our grad_output=ones backward
+        var weighted = multiply(out, grad_output)
+        var result = weighted
+        while result.dim() > 0:
+            result = reduce_sum(result, axis=0, keepdims=False)
+        return result
+
+    var numerical_grad = compute_numerical_gradient(
+        forward_for_grad_infer_f64, x, epsilon=3e-4
+    )
+
+    # Float64 allows tighter tolerances
+    assert_gradients_close(
+        grad_input,
+        numerical_grad,
+        rtol=1e-3,
+        atol=1e-6,
+        message="Batch norm inference mode gradient w.r.t. input (float64)",
+    )
+
+    print(
+        "✓ Batch norm backward gradient (input) inference mode (float64) validated"
+        " numerically"
+    )
+
+
 fn test_batch_norm2d_backward_gradient_gamma() raises:
     """Test batch_norm2d_backward gradient w.r.t. gamma using numerical validation.
 
@@ -1161,6 +1261,9 @@ fn main() raises:
 
     test_batch_norm2d_backward_gradient_input_inference_mode()
     print("✓ test_batch_norm2d_backward_gradient_input_inference_mode")
+
+    test_batch_norm2d_backward_gradient_input_inference_mode_float64()
+    print("✓ test_batch_norm2d_backward_gradient_input_inference_mode_float64")
 
     test_batch_norm2d_backward_gradient_gamma()
     print("✓ test_batch_norm2d_backward_gradient_gamma")
