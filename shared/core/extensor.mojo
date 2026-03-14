@@ -568,20 +568,38 @@ struct ExTensor(
         return len(self._shape)
 
     fn is_contiguous(self) -> Bool:
-        """Check if the tensor has a contiguous memory layout.
+        """Check if the tensor has a contiguous memory layout (row-major C order).
+
+        A tensor is contiguous if elements are laid out sequentially in memory
+        with no gaps. This is true when strides match C-order (row-major) layout.
 
         Returns:
             True if the tensor is contiguous (row-major, no gaps), False otherwise.
 
         Note:
             Contiguous tensors enable SIMD optimizations and efficient operations.
+
+        Implementation Note (Issue #3844):
+            This is the canonical implementation - the standalone is_contiguous()
+            function in shape.mojo delegates to this method.
         """
-        # Check if strides match row-major layout
+        var ndim = len(self._shape)
+
+        if ndim == 0:
+            return True  # Scalar is trivially contiguous
+
+        if ndim == 1:
+            # 1D tensor is contiguous if stride is 1
+            return self._strides[0] == 1
+
+        # For multi-dimensional tensors, check if strides match C-order
+        # In C-order (row-major), stride[i] = product(shape[i+1:])
         var expected_stride = 1
-        for i in range(len(self._shape) - 1, -1, -1):
+        for i in range(ndim - 1, -1, -1):
             if self._strides[i] != expected_stride:
                 return False
             expected_stride *= self._shape[i]
+
         return True
 
     fn reshape(self, new_shape: List[Int]) raises -> ExTensor:
