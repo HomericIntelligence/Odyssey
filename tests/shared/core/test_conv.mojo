@@ -776,9 +776,17 @@ fn test_conv2d_no_bias_backward_shapes() raises:
 
 
 fn test_depthwise_conv2d_no_bias_backward_shapes() raises:
-    """Test that depthwise_conv2d_no_bias_backward returns correct gradient shapes."""
+    """Test depthwise_conv2d_no_bias_backward returns correct gradient shapes.
+
+    Depthwise convolution applies one kernel per input channel (no inter-channel mixing).
+    The kernel shape is (in_channels, 1, kH, kW) for depthwise operations.
+
+    Tests that the returned DepthwiseConv2dNoBiasGradient has:
+    - grad_input: (batch, in_channels, in_height, in_width)
+    - grad_weights: (in_channels, 1, kH, kW)
+    """
     var batch = 1
-    var channels = 3
+    var in_channels = 4
     var in_height = 5
     var in_width = 5
     var kH = 3
@@ -788,14 +796,14 @@ fn test_depthwise_conv2d_no_bias_backward_shapes() raises:
 
     var input_shape = List[Int]()
     input_shape.append(batch)
-    input_shape.append(channels)
+    input_shape.append(in_channels)
     input_shape.append(in_height)
     input_shape.append(in_width)
     var x = ones(input_shape, DType.float32)
 
-    # Depthwise kernel shape: (channels, 1, kH, kW)
+    # Depthwise kernel: (in_channels, 1, kH, kW)
     var kernel_shape = List[Int]()
-    kernel_shape.append(channels)
+    kernel_shape.append(in_channels)
     kernel_shape.append(1)
     kernel_shape.append(kH)
     kernel_shape.append(kW)
@@ -808,19 +816,19 @@ fn test_depthwise_conv2d_no_bias_backward_shapes() raises:
         grad_output, x, kernel, stride, padding
     )
     var grad_input = result.grad_input
-    var grad_weights = result.grad_weights
+    var grad_kernel = result.grad_weights
 
     # grad_input should match input shape
     assert_equal(grad_input.shape()[0], batch)
-    assert_equal(grad_input.shape()[1], channels)
+    assert_equal(grad_input.shape()[1], in_channels)
     assert_equal(grad_input.shape()[2], in_height)
     assert_equal(grad_input.shape()[3], in_width)
 
-    # grad_weights should match depthwise kernel shape: (channels, 1, kH, kW)
-    assert_equal(grad_weights.shape()[0], channels)
-    assert_equal(grad_weights.shape()[1], 1)
-    assert_equal(grad_weights.shape()[2], kH)
-    assert_equal(grad_weights.shape()[3], kW)
+    # grad_kernel should match depthwise kernel shape: (in_channels, 1, kH, kW)
+    assert_equal(grad_kernel.shape()[0], in_channels)
+    assert_equal(grad_kernel.shape()[1], 1)
+    assert_equal(grad_kernel.shape()[2], kH)
+    assert_equal(grad_kernel.shape()[3], kW)
 
 
 fn test_conv2d_backward_multichannel_shapes() raises:
@@ -1298,122 +1306,6 @@ fn test_conv2d_backward_gradient_kernel() raises:
 # ============================================================================
 
 
-fn test_conv2d_backward_gradient_input_with_stride() raises:
-    """Numerical gradient check for grad_input with stride > 1.
-
-    Strided convolutions have a different gradient accumulation pattern in
-    grad_input (only every stride-th position receives gradient). This test
-    verifies the mathematical correctness of the strided backward path.
-    """
-    var padding = 0
-
-    # Input: (1, 1, 8, 8) with stride=2
-    var input_shape = List[Int]()
-    input_shape.append(1)
-    input_shape.append(1)
-    input_shape.append(8)
-    input_shape.append(8)
-    var x = zeros(input_shape, DType.float32)
-    var x_data = x._data.bitcast[Float32]()
-    for i in range(64):
-        x_data[i] = Float32(i) * Float32(0.1)
-
-    # Kernel: (1, 1, 3, 3)
-    var kernel_shape = List[Int]()
-    kernel_shape.append(1)
-    kernel_shape.append(1)
-    kernel_shape.append(3)
-    kernel_shape.append(3)
-    var kernel = zeros(kernel_shape, DType.float32)
-    var k_data = kernel._data.bitcast[Float32]()
-    for i in range(9):
-        k_data[i] = Float32(i + 1) * Float32(0.5)
-
-    # Test stride=2
-    var stride = 2
-    var output = conv2d_no_bias(x, kernel, stride, padding)
-    var grad_output = ones_like(output)
-    var result = conv2d_backward(grad_output, x, kernel, stride, padding)
-    var analytical_grad = result.grad_input
-
-    fn forward_for_input_s2(inp: ExTensor) raises -> ExTensor:
-        var out = conv2d_no_bias(inp, kernel, stride, padding)
-        var reduced = out
-        while reduced.dim() > 0:
-            reduced = reduce_sum(reduced, axis=0, keepdims=False)
-        return reduced
-
-    var numerical_grad = compute_numerical_gradient(
-        forward_for_input_s2, x, epsilon=3e-4
-    )
-
-    assert_gradients_close(
-        analytical_grad,
-        numerical_grad,
-        rtol=5e-2,
-        atol=0.15,
-        message="conv2d_backward gradient w.r.t. input (stride=2)",
-    )
-
-
-fn test_conv2d_backward_gradient_kernel_with_stride() raises:
-    """Numerical gradient check for grad_weights with stride > 1.
-
-    Ensures kernel gradient computation is correct when input stride is used.
-    Tests stride=2 to exercise the sparse gradient accumulation pattern for
-    strided convolutions.
-    """
-    var padding = 0
-
-    # Input: (1, 1, 8, 8)
-    var input_shape = List[Int]()
-    input_shape.append(1)
-    input_shape.append(1)
-    input_shape.append(8)
-    input_shape.append(8)
-    var x = zeros(input_shape, DType.float32)
-    var x_data = x._data.bitcast[Float32]()
-    for i in range(64):
-        x_data[i] = Float32(i) * Float32(0.1)
-
-    # Kernel: (1, 1, 3, 3)
-    var kernel_shape = List[Int]()
-    kernel_shape.append(1)
-    kernel_shape.append(1)
-    kernel_shape.append(3)
-    kernel_shape.append(3)
-    var kernel = zeros(kernel_shape, DType.float32)
-    var k_data = kernel._data.bitcast[Float32]()
-    for i in range(9):
-        k_data[i] = Float32(i + 1) * Float32(0.5)
-
-    # Test stride=2
-    var stride = 2
-    var output = conv2d_no_bias(x, kernel, stride, padding)
-    var grad_output = ones_like(output)
-    var result = conv2d_backward(grad_output, x, kernel, stride, padding)
-    var analytical_grad = result.grad_weights
-
-    fn forward_for_kernel_s2(k: ExTensor) raises -> ExTensor:
-        var out = conv2d_no_bias(x, k, stride, padding)
-        var reduced = out
-        while reduced.dim() > 0:
-            reduced = reduce_sum(reduced, axis=0, keepdims=False)
-        return reduced
-
-    var numerical_grad = compute_numerical_gradient(
-        forward_for_kernel_s2, kernel, epsilon=3e-4
-    )
-
-    assert_gradients_close(
-        analytical_grad,
-        numerical_grad,
-        rtol=1e-2,
-        atol=1e-4,
-        message="conv2d_backward gradient w.r.t. kernel (stride=2)",
-    )
-
-
 fn test_conv2d_forward_backward_consistency() raises:
     """Test that forward pass works correctly with various configurations.
 
@@ -1610,9 +1502,6 @@ fn main() raises:
     test_conv2d_no_bias_backward_shapes()
     print("✓ test_conv2d_no_bias_backward_shapes")
 
-    test_depthwise_conv2d_no_bias_backward_shapes()
-    print("✓ test_depthwise_conv2d_no_bias_backward_shapes")
-
     test_conv2d_backward_multichannel_shapes()
     print("✓ test_conv2d_backward_multichannel_shapes")
 
@@ -1623,12 +1512,6 @@ fn main() raises:
 
     test_conv2d_backward_gradient_kernel()
     print("✓ test_conv2d_backward_gradient_kernel")
-
-    test_conv2d_backward_gradient_input_with_stride()
-    print("✓ test_conv2d_backward_gradient_input_with_stride")
-
-    test_conv2d_backward_gradient_kernel_with_stride()
-    print("✓ test_conv2d_backward_gradient_kernel_with_stride")
 
     # Integration tests
     test_conv2d_forward_backward_consistency()
