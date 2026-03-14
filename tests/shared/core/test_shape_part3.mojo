@@ -79,6 +79,16 @@ fn test_broadcast_to_compatible() raises:
     # Result should be 4x3 (broadcasting (3,) to (4,3))
     assert_dim(b, 2, "Broadcasted tensor should be 2D")
     assert_numel(b, 12, "Should have 12 elements")
+    # Verify each row is [0, 1, 2]
+    assert_value_at(b, 0, 0.0, "Row 0, col 0 should be 0.0")
+    assert_value_at(b, 1, 1.0, "Row 0, col 1 should be 1.0")
+    assert_value_at(b, 2, 2.0, "Row 0, col 2 should be 2.0")
+    assert_value_at(b, 3, 0.0, "Row 1, col 0 should be 0.0 (broadcast)")
+    assert_value_at(b, 4, 1.0, "Row 1, col 1 should be 1.0 (broadcast)")
+    assert_value_at(b, 5, 2.0, "Row 1, col 2 should be 2.0 (broadcast)")
+    assert_value_at(b, 9, 0.0, "Row 3, col 0 should be 0.0 (broadcast)")
+    assert_value_at(b, 10, 1.0, "Row 3, col 1 should be 1.0 (broadcast)")
+    assert_value_at(b, 11, 2.0, "Row 3, col 2 should be 2.0 (broadcast)")
 
     # Verify value correctness: [0,1,2] should be repeated 4 times
     # Row 0: [0, 1, 2]
@@ -184,6 +194,10 @@ fn test_permute_axes() raises:
     # Result should be (4, 2, 3)
     assert_dim(b, 3, "Should still be 3D")
     assert_numel(b, 24, "Should have same elements")
+    # All values should still be 1.0 (from ones())
+    assert_value_at(b, 0, 1.0, "Index 0 should be 1.0")
+    assert_value_at(b, 5, 1.0, "Index 5 should be 1.0")
+    assert_value_at(b, 23, 1.0, "Index 23 (last) should be 1.0")
 
 
 # ============================================================================
