@@ -117,7 +117,7 @@ comptime Accuracy = AccuracyMetric
 # Data - Transforms: Normalize, ToTensor, Compose
 # Utils: Logger, plot_training_curves
 # Autograd: Automatic differentiation utilities (when available)
-# Testing: Test utilities and fixtures
+# Testing: Test utilities and fixtures, constants (GRADIENT_CHECK_EPSILON_FLOAT32)
 
 # ============================================================================
 # Convenience: Make subpackages accessible
@@ -148,6 +148,7 @@ comptime Accuracy = AccuracyMetric
 # │ VERSION, AUTHOR, LICENSE        │ shared.version                         │
 # │ LossTracker, AccuracyMetric     │ shared.training.metrics                │
 # │ Accuracy                        │ comptime alias for AccuracyMetric      │
+# │ GRADIENT_CHECK_EPSILON_FLOAT32  │ shared.testing.tolerance_constants     │
 # │ core                            │ shared.core (subpackage)               │
 # │ training                        │ shared.training (subpackage)           │
 # │ data                            │ shared.data (subpackage)               │
@@ -171,3 +172,8 @@ from shared import data
 from shared import utils
 from shared import autograd
 from shared import testing
+
+# ============================================================================
+# Testing Constants - Available at package level
+# ============================================================================
+from shared.testing import GRADIENT_CHECK_EPSILON_FLOAT32
