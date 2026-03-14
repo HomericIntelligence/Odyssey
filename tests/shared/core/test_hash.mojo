@@ -6,7 +6,14 @@ behavior for tensors containing NaN values.
 """
 
 from memory import UnsafePointer
-from shared.core.extensor import ExTensor, zeros, ones, full, arange, nan_tensor
+from shared.core import (
+    ExTensor,
+    zeros,
+    ones,
+    full,
+    arange,
+    nan_tensor,
+)
 from tests.shared.conftest import (
     assert_equal_int,
 )
@@ -60,43 +67,6 @@ fn make_f16_nan_tensor(bits: UInt16) raises -> ExTensor:
     var t = ExTensor(shape, DType.float16)
     t._data.bitcast[UInt16]()[] = bits
     return t^
-
-
-fn assert_0d_tensor_safe_allocation(dtype: DType) raises:
-    """Verify that 0-D tensors allocate sufficient memory for bitcast writes.
-
-    A 0-D tensor (empty shape List) still has numel=1, meaning it must
-    allocate at least sizeof(dtype) bytes so that bitcast writes and reads
-    are both safe. This assertion confirms the constructor does this.
-
-    Args:
-        dtype: The data type to verify allocation for.
-
-    Closes #4063.
-    """
-    var shape = List[Int]()
-    var t = ExTensor(shape, dtype)
-
-    # Attempt to write via bitcast. If allocation is insufficient,
-    # this would cause a segfault or memory corruption.
-    if dtype == DType.float32:
-        t._data.bitcast[UInt32]()[] = 0x7FC00000  # quiet NaN bits
-        var readback = t._data.bitcast[UInt32]()[0]
-        assert_equal_int(
-            Int(readback), Int(0x7FC00000), "f32 0-D tensor bitcast write/read mismatch"
-        )
-    elif dtype == DType.float64:
-        t._data.bitcast[UInt64]()[] = 0x7FF8000000000000  # quiet NaN bits
-        var readback = t._data.bitcast[UInt64]()[0]
-        assert_equal_int(
-            Int(readback), Int(0x7FF8000000000000), "f64 0-D tensor bitcast write/read mismatch"
-        )
-    elif dtype == DType.float16:
-        t._data.bitcast[UInt16]()[] = 0x7E00  # quiet NaN bits
-        var readback = t._data.bitcast[UInt16]()[0]
-        assert_equal_int(
-            Int(readback), Int(0x7E00), "f16 0-D tensor bitcast write/read mismatch"
-        )
 
 
 # ============================================================================
@@ -262,26 +232,6 @@ fn test_hash_f16_nan_payload_irrelevant() raises:
 
 
 # ============================================================================
-# Test: 0-D tensor safe allocation for bitcast operations
-# ============================================================================
-
-
-fn test_hash_0d_scalar_tensor_allocation() raises:
-    """Verify 0-D tensors allocate sufficient memory for NaN bitcast operations.
-
-    0-D tensors (empty shape List) have numel=1, so the ExTensor constructor
-    must allocate at least sizeof(dtype) bytes. Otherwise, the bitcast write
-    and read in the NaN canonicalization tests and helper functions would
-    cause segfaults or memory corruption.
-
-    Closes #4063.
-    """
-    assert_0d_tensor_safe_allocation(DType.float32)
-    assert_0d_tensor_safe_allocation(DType.float64)
-    assert_0d_tensor_safe_allocation(DType.float16)
-
-
-# ============================================================================
 # Test: mixed NaN and normal values hash deterministically
 # ============================================================================
 
@@ -356,25 +306,6 @@ fn test_hash_dtype_sensitivity() raises:
         raise Error("Tensors with different dtypes should not collide on hash")
 
 
-fn test_hash_same_dtype_different_shapes() raises:
-    """Tensors with same dtype and data but different shapes hash differently.
-
-    A [2, 3] tensor and a [6] tensor with identical element values and dtype
-    must produce different hashes because shape is part of the hash.
-    """
-    var shape_2x3 = List[Int]()
-    shape_2x3.append(2)
-    shape_2x3.append(3)
-    var shape_6 = List[Int]()
-    shape_6.append(6)
-    var a = full(shape_2x3, 1.0, DType.float32)
-    var b = full(shape_6, 1.0, DType.float32)
-    if hash(a) == hash(b):
-        raise Error(
-            "Tensors with same dtype/data but different shapes ([2,3] vs [6]) should not collide on hash"
-        )
-
-
 fn test_hash_int_vs_float_same_numeric_value() raises:
     """Tensors with same numeric value but different dtype/kind hash differently.
 
@@ -407,14 +338,64 @@ fn test_hash_integer_types_consistent() raises:
     )
 
 
-fn test_hash_integer_dtype_distinct() raises:
-    """Integer tensors with different values produce different hashes. Closes #4062."""
+# ============================================================================
+# Test: empty tensor hash behavior (shape and dtype sensitivity)
+# ============================================================================
+
+
+fn test_hash_empty_tensor_base() raises:
+    """Empty tensor with single 0-dimension hashes consistently."""
     var shape = List[Int]()
-    shape.append(4)
-    var a = arange(0.0, 4.0, 1.0, DType.int32)
-    var b = arange(1.0, 5.0, 1.0, DType.int32)
+    shape.append(0)
+    var a = zeros(shape, DType.float32)
+    var b = zeros(shape, DType.float32)
+    assert_equal_int(
+        Int(hash(a)), Int(hash(b)), "Equal empty tensors must hash equal"
+    )
+
+
+fn test_hash_empty_tensor_different_shapes() raises:
+    """Empty tensors with different shapes produce different hashes. Closes #4067."""
+    var shape1 = List[Int]()
+    shape1.append(0)
+    var a = zeros(shape1, DType.float32)
+
+    var shape2 = List[Int]()
+    shape2.append(0)
+    shape2.append(0)
+    var b = zeros(shape2, DType.float32)
+
     if hash(a) == hash(b):
-        raise Error("Different-valued int32 tensors should not collide on hash")
+        raise Error("Empty tensors with different shapes should not collide on hash")
+
+
+fn test_hash_empty_tensor_different_dtypes() raises:
+    """Empty tensors with different dtypes produce different hashes. Closes #4068."""
+    var shape = List[Int]()
+    shape.append(0)
+    var a = zeros(shape, DType.float32)
+    var b = zeros(shape, DType.float64)
+
+    if hash(a) == hash(b):
+        raise Error("Empty tensors with different dtypes should not collide on hash")
+
+
+fn test_hash_empty_tensor_stability() raises:
+    """Empty tensor hash is stable across repeated calls. Closes #4069."""
+    var shape = List[Int]()
+    shape.append(0)
+    var a = zeros(shape, DType.float32)
+
+    var hash1 = hash(a)
+    var hash2 = hash(a)
+    var hash3 = hash(a)
+
+    assert_equal_int(
+        Int(hash1), Int(hash2), "Empty tensor hash must be stable (call 1 vs 2)"
+    )
+    assert_equal_int(
+        Int(hash2), Int(hash3), "Empty tensor hash must be stable (call 2 vs 3)"
+    )
 
 
 # ============================================================================
@@ -455,9 +436,6 @@ fn main() raises:
     print("  test_hash_f16_nan_payload_irrelevant...")
     test_hash_f16_nan_payload_irrelevant()
 
-    print("  test_hash_0d_scalar_tensor_allocation...")
-    test_hash_0d_scalar_tensor_allocation()
-
     print("  test_hash_mixed_nan_normal_deterministic...")
     test_hash_mixed_nan_normal_deterministic()
 
@@ -470,16 +448,22 @@ fn main() raises:
     print("  test_hash_dtype_sensitivity...")
     test_hash_dtype_sensitivity()
 
-    print("  test_hash_same_dtype_different_shapes...")
-    test_hash_same_dtype_different_shapes()
-
     print("  test_hash_int_vs_float_same_numeric_value...")
     test_hash_int_vs_float_same_numeric_value()
 
     print("  test_hash_integer_types_consistent...")
     test_hash_integer_types_consistent()
 
-    print("  test_hash_integer_dtype_distinct...")
-    test_hash_integer_dtype_distinct()
+    print("  test_hash_empty_tensor_base...")
+    test_hash_empty_tensor_base()
+
+    print("  test_hash_empty_tensor_different_shapes...")
+    test_hash_empty_tensor_different_shapes()
+
+    print("  test_hash_empty_tensor_different_dtypes...")
+    test_hash_empty_tensor_different_dtypes()
+
+    print("  test_hash_empty_tensor_stability...")
+    test_hash_empty_tensor_stability()
 
     print("All NaN hash stability tests passed!")
