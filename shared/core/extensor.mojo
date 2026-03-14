@@ -26,6 +26,7 @@ Array API Categories:
 - Element-wise math: exp, log, sqrt, sin, cos, tanh ✓ (shared/core/elementwise.mojo)
 - Statistical: var, std, median, percentile ✓ (shared/core/reduction.mojo)
 - Indexing: slicing, advanced indexing ✓ (__getitem__ methods)
+- Hashing: __hash__ via Hashable trait ✓
 
 Slicing Design:
 - `slice(start, end)` — view-based extraction (shares memory, zero-copy). Use for
