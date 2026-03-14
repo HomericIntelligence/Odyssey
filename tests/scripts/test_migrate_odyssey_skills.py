@@ -498,3 +498,102 @@ class TestMainErrorMessage:
         assert result == 1
         captured = capsys.readouterr()
         assert "--target-dir" in captured.err or "MNEMOSYNE_DIR" in captured.err
+
+
+class TestMigrateSkillDescriptionWithColon:
+    """End-to-end tests for migrate_skill() with descriptions containing colons.
+
+    Regression tests for issue #3310 / #3931: Verify that descriptions with colons
+    are preserved through the full migration pipeline and appear untruncated in both
+    plugin.json and SKILL.md.
+    """
+
+    def test_migrate_skill_preserves_colon_in_description_in_plugin_json(self, tmp_path: Path, migrate_module) -> None:
+        """End-to-end: description with colon appears fully in plugin.json."""
+        odyssey_skills = tmp_path / "odyssey_skills"
+        mnemosyne_skills = tmp_path / "mnemosyne" / "skills"
+        mnemosyne_skills.mkdir(parents=True)
+
+        # Create skill with description containing a colon
+        skill_dir = odyssey_skills / "gh-create-pr-linked"
+        skill_dir.mkdir(parents=True)
+
+        skill_md = skill_dir / "SKILL.md"
+        skill_md.write_text(
+            """---
+name: gh-create-pr-linked
+description: "Create GitHub PR linked to issue: matches issue number from branch"
+category: github
+user-invocable: true
+---
+
+# Create GitHub PR
+
+When to use this skill.
+"""
+        )
+
+        with patch.object(migrate_module, "MNEMOSYNE_SKILLS_DIR", mnemosyne_skills):
+            result = migrate_module.migrate_skill(
+                skill_name="gh-create-pr-linked",
+                source_skill_md=skill_md,
+                category="github",
+                dry_run=False,
+            )
+
+        assert result is True
+
+        # Verify plugin.json contains the full description with colon
+        plugin_json_path = mnemosyne_skills / "github" / "gh-create-pr-linked" / ".claude-plugin" / "plugin.json"
+        assert plugin_json_path.exists()
+
+        import json
+
+        plugin_data = json.loads(plugin_json_path.read_text())
+        assert plugin_data["description"] == ("Create GitHub PR linked to issue: matches issue number from branch")
+
+    def test_migrate_skill_preserves_colon_in_description_in_skill_md(self, tmp_path: Path, migrate_module) -> None:
+        """End-to-end: description with colon appears fully in migrated SKILL.md."""
+        odyssey_skills = tmp_path / "odyssey_skills"
+        mnemosyne_skills = tmp_path / "mnemosyne" / "skills"
+        mnemosyne_skills.mkdir(parents=True)
+
+        # Create skill with description containing a colon
+        skill_dir = odyssey_skills / "mojo-format"
+        skill_dir.mkdir(parents=True)
+
+        skill_md = skill_dir / "SKILL.md"
+        skill_md.write_text(
+            """---
+name: mojo-format
+description: "Format Mojo code: uses pixi run mojo format"
+category: mojo
+user-invocable: false
+---
+
+# Format Mojo Code
+
+Detailed information about the skill.
+"""
+        )
+
+        with patch.object(migrate_module, "MNEMOSYNE_SKILLS_DIR", mnemosyne_skills):
+            result = migrate_module.migrate_skill(
+                skill_name="mojo-format",
+                source_skill_md=skill_md,
+                category="mojo",
+                dry_run=False,
+            )
+
+        assert result is True
+
+        # Verify migrated SKILL.md frontmatter contains the full description
+        migrated_skill_md = mnemosyne_skills / "mojo" / "mojo-format" / "skills" / "mojo-format" / "SKILL.md"
+        assert migrated_skill_md.exists()
+
+        migrated_content = migrated_skill_md.read_text()
+        # Verify description appears untruncated in the migrated file
+        # (Note: The migrated SKILL.md should quote the description for valid YAML,
+        # but the key point is the description is not truncated)
+        assert "Format Mojo code: uses pixi run mojo format" in migrated_content
+        assert migrated_content.count("Format Mojo code: uses pixi run mojo format") >= 2  # In frontmatter and Overview
