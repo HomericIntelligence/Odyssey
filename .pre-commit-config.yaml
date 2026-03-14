@@ -71,6 +71,17 @@ repos:
         files: ^Dockerfile(\.ci)?$
         pass_filenames: true
 
+  # Runtime debugging output checks
+  - repo: local
+    hooks:
+      - id: check-runtime-notes
+        name: Check for runtime NOTE/TODO/FIXME prints
+        description: Flag print() statements containing NOTE, TODO, or FIXME in examples/
+        entry: bash -c 'violations=$(grep -rn "print.*\(NOTE\|TODO\|FIXME\)" examples/ --include="*.mojo" --include="*.🔥" 2>/dev/null); if [ -n "$violations" ]; then echo "Found runtime NOTE/TODO/FIXME prints (should be removed before commit):"; echo "$violations"; exit 1; fi'
+        language: system
+        files: ^examples/.*\.(mojo|🔥)$
+        pass_filenames: false
+
   # Security checks - bandit for accurate Python security scanning
   # Replaces naive pygrep shell=True check with AST-based analysis
   # Skips: B310 (urlopen with controlled URLs), B202 (tarfile in download scripts), B301 (pickle in trusted dataset loaders)
