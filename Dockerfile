@@ -34,7 +34,7 @@ RUN mkdir -p -m 755 /etc/apt/keyrings \
 # Install Claude Code CLI
 RUN curl -fsSL https://claude.ai/install.sh | bash
 
-# Install just tool (pre-built binary, much faster than cargo install)
+# Install just tool (pre-built binary for faster installation)
 RUN curl -fsSL https://just.systems/install.sh | bash -s -- --to /usr/local/bin --tag 1.14.0
 
 # ---------------------------
