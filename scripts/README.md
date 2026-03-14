@@ -71,11 +71,15 @@ scripts/
 ├── migrate_odyssey_skills.py           # Skill migration tool (Odyssey2 → ProjectMnemosyne)
 ├── mojo-format-compat.sh               # GLIBC-compatible mojo format wrapper
 ├── package_papers.py                   # Papers directory packaging
+├── package_utils.sh                    # Package utilities shell script
 ├── plan_issues.py                      # Issue planning helper
 ├── plot_training.py                    # Training curve visualization
+├── rebase-all-branches.sh              # Rebase all branches against main
+├── rebase-all-prs.sh                   # Rebase all pull requests against main
 ├── regenerate_github_issues.py         # Dynamic issue file generation (deprecated)
 ├── update_version.py                   # Version bump helper
 ├── validate_adr009_headers.py          # Validate ADR-009 split-file docstring headers
+├── validate_configs.sh                 # Validate configuration files
 ├── validate_links.py                   # Markdown link validation
 ├── validate_mojo_syntax_in_docs.py     # Validate Mojo code blocks in documentation
 ├── validate_readme_commands.py         # Validate commands referenced in README.md
@@ -90,7 +94,8 @@ scripts/
 ├── bump_version.sh                     # Version bump shell helper
 ├── install_verify_data.sh              # Install and verify data package
 ├── install_verify_training.sh          # Install and verify training package
-└── install_verify_utils.sh             # Install and verify utils package
+├── install_verify_utils.sh             # Install and verify utils package
+└── verify_configs_install.sh           # Verify configs package installation
 ```
 
 ## Scripts
