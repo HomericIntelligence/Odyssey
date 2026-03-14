@@ -39,7 +39,7 @@ from shared.core.normalization import batch_norm2d, batch_norm2d_backward
 from shared.core.arithmetic import add, add_backward
 from shared.data import extract_batch_pair, compute_num_batches, DatasetInfo
 
-# NOTE(#3013): CIFAR-10 dataset loading not yet implemented.
+# CIFAR-10 dataset loading not yet implemented (#3013).
 # from shared.data.datasets import load_cifar10_train, load_cifar10_test
 from shared.training.optimizers import sgd_momentum_update_inplace
 from shared.training.metrics import evaluate_with_predict, top1_accuracy
@@ -269,7 +269,7 @@ fn main() raises:
     print()
 
     # Load CIFAR-10 dataset
-    # NOTE(#3013): CIFAR-10 loading awaits dataset infrastructure implementation.
+    # CIFAR-10 loading awaits dataset infrastructure implementation (#3013).
     # print("Loading CIFAR-10 dataset...")
     # var train_data = load_cifar10_train("datasets/cifar10")
     # var train_images = train_data[0]
