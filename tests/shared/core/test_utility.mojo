@@ -244,6 +244,63 @@ fn test_as_contiguous_values_correct() raises:
     assert_almost_equal(c._get_float64(11), 11.0, 1e-6, "c[3,2] should be 11")
 
 
+fn test_as_contiguous_3d_values_correct() raises:
+    """Test as_contiguous() on a 3D non-contiguous tensor with permuted strides.
+
+    This tests that stride-based indexing works correctly for arbitrary dimensions,
+    not just 2D cases. Creates a 3D tensor and verifies that the contiguous copy
+    correctly maps elements even with complex stride patterns.
+
+    For a (2,3,4) tensor reshaped from 0..23 row-major, we transpose dimensions
+    and verify the result is contiguous and has correct element values.
+    """
+    var shape_3d = List[Int]()
+    shape_3d.append(2)
+    shape_3d.append(3)
+    shape_3d.append(4)
+
+    # Create a 3D tensor with values 0..23 in row-major order
+    var a_flat = arange(0.0, 24.0, 1.0, DType.float32)
+    var a = a_flat.reshape(shape_3d)
+
+    # Transpose to create non-contiguous view: (2,3,4) -> (4,3,2)
+    # This swaps dimensions 0 and 2
+    var t = a.transpose(2, 0)
+    assert_false(t.is_contiguous(), "Transposed 3D tensor should not be contiguous")
+
+    # Make contiguous
+    var c = as_contiguous(t)
+    assert_true(c.is_contiguous(), "as_contiguous() result should be contiguous")
+
+    # Verify shape (4,3,2) after transpose
+    var c_shape = c.shape()
+    assert_equal_int(c_shape[0], 4, "Shape[0] should be 4 after transpose")
+    assert_equal_int(c_shape[1], 3, "Shape[1] should be 3 after transpose")
+    assert_equal_int(c_shape[2], 2, "Shape[2] should be 2 after transpose")
+
+    # Verify totalcontent (all 24 elements)
+    assert_equal_int(c.numel(), 24, "Contiguous 3D tensor should have 24 elements")
+
+    # Verify that the transpose correctly maps elements from original (2,3,4) to result (4,3,2)
+    # Original element at [i,j,k] goes to transposed position [k,j,i]
+    # So we check a few cross-section values to ensure stride-based indexing is correct
+
+    # Original [0,0,0]=0 -> transposed [0,0,0]
+    assert_almost_equal(c._get_float64(0), 0.0, 1e-6, "First element should be 0")
+
+    # Original [0,0,3]=3 -> transposed [3,0,0]
+    # Transposed flat index [3,0,0]: 3*6 + 0*2 + 0 = 18
+    assert_almost_equal(c._get_float64(18), 3.0, 1e-6, "Element from [0,0,3]")
+
+    # Original [1,2,3]=23 -> transposed [3,2,1]
+    # Transposed flat index [3,2,1]: 3*6 + 2*2 + 1 = 23
+    assert_almost_equal(c._get_float64(23), 23.0, 1e-6, "Element from [1,2,3]")
+
+    # Original [1,0,0]=12 -> transposed [0,0,1]
+    # Transposed flat index [0,0,1]: 0*6 + 0*2 + 1 = 1
+    assert_almost_equal(c._get_float64(1), 12.0, 1e-6, "Element from [1,0,0]")
+
+
 # ============================================================================
 # Test transpose() - edge cases
 # ============================================================================
@@ -806,6 +863,7 @@ fn main() raises:
     test_is_contiguous_after_transpose()
     test_contiguous_on_noncontiguous()
     test_as_contiguous_values_correct()
+    test_as_contiguous_3d_values_correct()
 
     # transpose() edge cases
     print("  Testing transpose() edge cases...")
