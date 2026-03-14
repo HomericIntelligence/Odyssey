@@ -2,7 +2,7 @@
 
 These tests verify the behavior of Mojo's native unsigned integer builtins,
 including arithmetic, bitwise operations, comparisons, boundary values,
-and conversions.
+overflow and underflow wrapping behavior, and conversions.
 
 Wrapping Semantics:
     Unsigned integers use modular (wrap-around) arithmetic on overflow and underflow:
