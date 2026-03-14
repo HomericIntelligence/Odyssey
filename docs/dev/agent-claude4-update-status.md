@@ -3,7 +3,7 @@
 
 ## Overview
 
-This document tracks the progress of updating all 42 agent files with Claude 4-specific sections
+This document tracks the progress of updating all 30 agent files with Claude 4-specific sections
 following official best practices from:
 
 - [https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-4-best-practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-4-best-practices)

@@ -269,7 +269,7 @@ fn test_item_requires_single_element() raises:
     try:
         var val = item(t)
         _ = val
-    except:
+    except e:
         raised = True
 
     if not raised:
@@ -391,7 +391,7 @@ fn test_setitem_negative_index() raises:
     var raised = False
     try:
         t[-1] = 1.0
-    except:
+    except e:
         raised = True
 
     if not raised:

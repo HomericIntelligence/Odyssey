@@ -502,8 +502,8 @@ python3 scripts/package_papers.py --output dist/
 
 ### Deprecated Scripts
 
-Historical and experimental scripts have been moved to `scripts/agents/playground/`.
-See [scripts/agents/playground/README.md](agents/playground/README.md) for details.
+Historical and experimental scripts have been archived (the `scripts/agents/playground/`
+directory has been removed).
 
 ### Recommended alternatives:
 

@@ -85,7 +85,7 @@ gh pr merge --auto --rebase
 ### Agent System & Skills
 
 - [Agent Hierarchy](/agents/hierarchy.md) - 6-level hierarchy
-- [Agent Configurations](/.claude/agents/) - 31 agents
+- [Agent Configurations](/.claude/agents/) - 29 agents
 - [Skills Directory](/.claude/skills/) - 58 skills
 
 ## Working with Agents
@@ -99,7 +99,7 @@ See [agents/hierarchy.md](agents/hierarchy.md) for the complete agent hierarchy 
 
 - 6-level hierarchy (L0 Chief Architect → L5 Junior Engineers)
 - Model assignments (Opus, Sonnet, Haiku)
-- All 31 agents with roles and responsibilities
+- All 29 agents with roles and responsibilities
 
 ### Key Agent Principles
 
