@@ -306,6 +306,22 @@ fn test_hash_dtype_sensitivity() raises:
         raise Error("Tensors with different dtypes should not collide on hash")
 
 
+fn test_hash_int_vs_float_same_numeric_value() raises:
+    """Tensors with same numeric value but different dtype/kind hash differently.
+
+    Tests cross-kind collision: int32(1) vs float32(1.0) must hash differently,
+    even though they represent the same numeric value.
+    """
+    var shape = List[Int]()
+    shape.append(1)
+    var int_tensor = full(shape, 1.0, DType.int32)  # 1 as int32
+    var float_tensor = full(shape, 1.0, DType.float32)  # 1.0 as float32
+    if hash(int_tensor) == hash(float_tensor):
+        raise Error(
+            "int32(1) and float32(1.0) should hash differently (dtype/kind collision)"
+        )
+
+
 # ============================================================================
 # Test: integer types unaffected (no NaN concern)
 # ============================================================================
@@ -371,6 +387,9 @@ fn main() raises:
 
     print("  test_hash_dtype_sensitivity...")
     test_hash_dtype_sensitivity()
+
+    print("  test_hash_int_vs_float_same_numeric_value...")
+    test_hash_int_vs_float_same_numeric_value()
 
     print("  test_hash_integer_types_consistent...")
     test_hash_integer_types_consistent()
