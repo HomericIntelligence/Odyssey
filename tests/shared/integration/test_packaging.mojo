@@ -334,6 +334,40 @@ fn test_normalize_compose_from_shared() raises:
     print("✓ Normalize and Compose importable from shared")
 
 
+fn test_compose_transform_chaining() raises:
+    """Test that Compose instantiation and transform chaining work correctly.
+
+    Verifies that:
+    - Compose can be instantiated
+    - Normalize can be chained inside a Compose
+    - The composed transforms can be called on an ExTensor
+
+    Follow-up from #3220 - stronger coverage of the re-exported API.
+    """
+    from shared import Compose, Normalize
+    from shared.core import zeros
+
+    # Create sample data
+    var data = zeros([10, 5], DType.float32)
+
+    # Create a Normalize transform
+    var normalize = Normalize(Float64(0.5), Float64(0.5))
+
+    # Chain transforms inside Compose
+    var composed = Compose([normalize])
+
+    # Apply the composed transforms to the data
+    var result = composed(data)
+
+    # Verify result has correct shape and properties
+    var result_shape = result.shape()
+    assert_true(result.dim() == 2, "Result should be 2D tensor")
+    assert_true(result_shape[0] == 10, "First dimension should be 10")
+    assert_true(result_shape[1] == 5, "Second dimension should be 5")
+
+    print("✓ Compose instantiation and transform chaining test passed")
+
+
 # ============================================================================
 # Backward Compatibility Tests
 # ============================================================================
@@ -648,6 +682,7 @@ fn main() raises:
     print("\nTesting Transform Re-exports...")
     test_normalize_compose_from_shared_data()
     test_normalize_compose_from_shared()
+    test_compose_transform_chaining()
 
     # API stability
     print("\nTesting API Stability...")
