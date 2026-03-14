@@ -94,6 +94,47 @@ fn test_str_no_truncation_for_6_elements() raises:
     assert_true("5.0" in s)
 
 
+fn test_str_empty_tensor_int32() raises:
+    """Test __str__ for empty tensor with int32 dtype (non-float).
+
+    This is an edge case: _format_element should never be called on an empty
+    tensor, so the function should return without errors even for dtypes that
+    might have format issues.
+    """
+    var t = zeros([0], DType.int32)
+    var s = String(t)
+    assert_equal(s, "ExTensor([], dtype=int32)")
+
+
+fn test_str_empty_tensor_int64() raises:
+    """Test __str__ for empty tensor with int64 dtype."""
+    var t = zeros([0], DType.int64)
+    var s = String(t)
+    assert_equal(s, "ExTensor([], dtype=int64)")
+
+
+fn test_str_empty_tensor_uint32() raises:
+    """Test __str__ for empty tensor with uint32 dtype."""
+    var t = zeros([0], DType.uint32)
+    var s = String(t)
+    assert_equal(s, "ExTensor([], dtype=uint32)")
+
+
+fn test_str_empty_tensor_float16() raises:
+    """Test __str__ for empty tensor with float16 dtype (floating-point variant)."""
+    var t = zeros([0], DType.float16)
+    var s = String(t)
+    assert_equal(s, "ExTensor([], dtype=float16)")
+
+
+fn test_str_empty_multidim_tensor_int32() raises:
+    """Test __str__ for empty multidimensional tensor (e.g., shape=[2, 0])."""
+    var t = zeros([2, 0], DType.int32)
+    var s = String(t)
+    # Empty tensor should still show as empty list
+    assert_equal(s, "ExTensor([], dtype=int32)")
+
+
 fn main() raises:
     """Run __str__ truncation tests."""
     print("Running ExTensor __str__ truncation tests...")
@@ -121,5 +162,20 @@ fn main() raises:
 
     test_str_no_truncation_for_6_elements()
     print("  [OK] test_str_no_truncation_for_6_elements")
+
+    test_str_empty_tensor_int32()
+    print("  [OK] test_str_empty_tensor_int32")
+
+    test_str_empty_tensor_int64()
+    print("  [OK] test_str_empty_tensor_int64")
+
+    test_str_empty_tensor_uint32()
+    print("  [OK] test_str_empty_tensor_uint32")
+
+    test_str_empty_tensor_float16()
+    print("  [OK] test_str_empty_tensor_float16")
+
+    test_str_empty_multidim_tensor_int32()
+    print("  [OK] test_str_empty_multidim_tensor_int32")
 
     print("All ExTensor __str__ truncation tests passed!")
