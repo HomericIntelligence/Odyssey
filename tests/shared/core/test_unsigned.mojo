@@ -355,6 +355,10 @@ fn test_uint_narrowing_conversion() raises:
 
     When casting a UInt64 value > 255 to UInt8, the result is the low 8 bits
     of the original value, equivalent to value % 256.
+
+    Note: This modular arithmetic behavior is identical to unsigned integer overflow
+    wrapping (see test_uint8_overflow_wrap and test_uint8_underflow_wrap).
+    Both stem from the same underlying two's complement semantics.
     """
     # 256 % 256 = 0
     var v256: UInt64 = 256
@@ -388,7 +392,11 @@ fn test_uint_narrowing_conversion() raises:
 
 
 fn test_uint8_overflow_wrap() raises:
-    """Test UInt8 addition wraps from 255 to 0."""
+    """Test UInt8 addition wraps from 255 to 0.
+
+    This wrapping behavior is the same modular arithmetic as narrowing casts
+    (see test_uint_narrowing_conversion: UInt64(256) % 256 == 0).
+    """
     var result: UInt8 = UInt8(255) + UInt8(1)
     if result != 0:
         raise Error(
