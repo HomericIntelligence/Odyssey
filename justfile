@@ -433,6 +433,10 @@ pre-commit:
 pre-commit-all:
     @pre-commit run --all-files
 
+# Check NOTE format in all Mojo files
+check-note-format:
+    @python3 scripts/check_note_format.py
+
 # Time pre-commit hooks on all files (for local benchmarking)
 bench-precommit:
     #!/usr/bin/env bash
