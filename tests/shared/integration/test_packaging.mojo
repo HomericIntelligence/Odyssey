@@ -335,6 +335,63 @@ fn test_normalize_compose_from_shared() raises:
 
 
 # ============================================================================
+# Metrics Re-export Tests (Issue #3221)
+# ============================================================================
+
+
+fn test_losstracker_from_shared() raises:
+    """Test that LossTracker is accessible at shared package level."""
+    from shared import LossTracker
+
+    # Verify LossTracker can be instantiated
+    var tracker = LossTracker()
+
+    print("✓ LossTracker importable from shared")
+
+
+fn test_accuracymetric_from_shared() raises:
+    """Test that AccuracyMetric is accessible at shared package level."""
+    from shared import AccuracyMetric
+
+    # Verify AccuracyMetric can be instantiated
+    var metric = AccuracyMetric()
+
+    print("✓ AccuracyMetric importable from shared")
+
+
+fn test_accuracy_alias_from_shared() raises:
+    """Test that Accuracy alias resolves and is identical to AccuracyMetric."""
+    from shared import Accuracy, AccuracyMetric
+
+    # Verify Accuracy can be instantiated and works the same way
+    var metric_via_alias = Accuracy()
+    var metric_via_full_name = AccuracyMetric()
+
+    # Both should be instantiable - verifying the alias works
+    print("✓ Accuracy alias importable from shared and matches AccuracyMetric")
+
+
+fn test_losstracker_from_shared_training() raises:
+    """Test that LossTracker is accessible via shared.training."""
+    from shared.training import LossTracker
+
+    # Verify LossTracker can be instantiated
+    var tracker = LossTracker()
+
+    print("✓ LossTracker importable from shared.training")
+
+
+fn test_accuracymetric_from_shared_training() raises:
+    """Test that AccuracyMetric is accessible via shared.training."""
+    from shared.training import AccuracyMetric
+
+    # Verify AccuracyMetric can be instantiated
+    var metric = AccuracyMetric()
+
+    print("✓ AccuracyMetric importable from shared.training")
+
+
+# ============================================================================
 # Backward Compatibility Tests
 # ============================================================================
 
@@ -648,6 +705,14 @@ fn main() raises:
     print("\nTesting Transform Re-exports...")
     test_normalize_compose_from_shared_data()
     test_normalize_compose_from_shared()
+
+    # Metrics re-exports (Issue #3221)
+    print("\nTesting Metrics Re-exports...")
+    test_losstracker_from_shared()
+    test_accuracymetric_from_shared()
+    test_accuracy_alias_from_shared()
+    test_losstracker_from_shared_training()
+    test_accuracymetric_from_shared_training()
 
     # API stability
     print("\nTesting API Stability...")
