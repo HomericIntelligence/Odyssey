@@ -38,6 +38,9 @@ _BADGE_COUNT_RE = re.compile(r"tests-(\d[\d,]*?)(?:%2B|-brightgreen|\+|\.svg|-[a
 # Pattern that identifies the tests badge line in README.md
 _BADGE_LINE_RE = re.compile(r"(https://img\.shields\.io/badge/tests-)(\d[\d,]*)(%2B-brightgreen\.svg)")
 
+# Pattern that identifies prose mentions of test count (e.g., "223+ tests")
+_PROSE_COUNT_RE = re.compile(r"(\d[\d,]*?)\+\s+tests")
+
 
 def count_test_files(repo_root: Path) -> int:
     """Count test_*.mojo files, excluding build artifacts and known non-test directories.
@@ -118,16 +121,25 @@ def check_badge_drift(actual: int, badge: int, tolerance: float = 0.10) -> bool:
 
 
 def update_badge(readme_path: Path, new_count: int) -> None:
-    """Rewrite the tests badge URL in README.md with new_count.
+    """Rewrite the tests badge URL and prose mentions in README.md with new_count.
+
+    Updates both the shields.io badge URL and any prose mentions of test count
+    (e.g., "223+ tests") to keep them in sync.
 
     Args:
         readme_path: Path to README.md.
-        new_count: The count to embed in the badge URL.
+        new_count: The count to embed in the badge URL and prose.
     """
     content = readme_path.read_text(encoding="utf-8")
+    # Update badge URL
     updated = _BADGE_LINE_RE.sub(
         rf"\g<1>{new_count}\g<3>",
         content,
+    )
+    # Update prose mentions of test count
+    updated = _PROSE_COUNT_RE.sub(
+        rf"{new_count}+ tests",
+        updated,
     )
     readme_path.write_text(updated, encoding="utf-8")
 
