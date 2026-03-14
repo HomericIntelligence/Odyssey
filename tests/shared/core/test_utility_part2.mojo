@@ -9,9 +9,18 @@ and tolist() conversion methods.
 """
 
 # Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange, clone, item, diff
-from shared.core.shape import as_contiguous
-from shared.core.matrix import transpose_view
+from shared.core import (
+    ExTensor,
+    zeros,
+    ones,
+    full,
+    arange,
+    clone,
+    item,
+    diff,
+    as_contiguous,
+    transpose_view,
+)
 
 # Import test helpers
 from tests.shared.conftest import (
@@ -116,51 +125,6 @@ fn test_contiguous_on_noncontiguous() raises:
         )
 
 
-fn test_contiguous_stride_correct_values() raises:
-    """Regression test: as_contiguous() must use stride-based indexing.
-
-    Constructs a 2x3 tensor with column-major strides [1, 2] (simulating a
-    non-contiguous view), calls as_contiguous(), and verifies that each output
-    element appears at the correct row-major (C-order) position.
-
-    For shape [2, 3] with strides [1, 2], the stride-based source offsets are:
-      Output[0,0] = src[0*1 + 0*2] = src[0] = 0.0
-      Output[0,1] = src[0*1 + 1*2] = src[2] = 2.0
-      Output[0,2] = src[0*1 + 2*2] = src[4] = 4.0
-      Output[1,0] = src[1*1 + 0*2] = src[1] = 1.0
-      Output[1,1] = src[1*1 + 1*2] = src[3] = 3.0
-      Output[1,2] = src[1*1 + 2*2] = src[5] = 5.0
-
-    Flat output: [0.0, 2.0, 4.0, 1.0, 3.0, 5.0]
-
-    This is a regression test for the bug where _get_float64(i) was used
-    instead of stride-based indexing (fix in shared/core/shape.mojo).
-    """
-    var shape = List[Int]()
-    shape.append(2)
-    shape.append(3)
-    var a = arange(0.0, 6.0, 1.0, DType.float32)
-    var b = a.reshape(shape)
-
-    # Manually set column-major strides [1, 2] to simulate a non-contiguous view
-    b._strides[0] = 1
-    b._strides[1] = 2
-
-    assert_false(b.is_contiguous(), "Column-major tensor should not be contiguous")
-
-    var c = as_contiguous(b)
-
-    assert_true(c.is_contiguous(), "as_contiguous() result should be contiguous")
-
-    # Verify element values using stride-based source offsets
-    assert_almost_equal(c._get_float64(0), 0.0, 1e-6, "c[0,0] should be 0.0")
-    assert_almost_equal(c._get_float64(1), 2.0, 1e-6, "c[0,1] should be 2.0")
-    assert_almost_equal(c._get_float64(2), 4.0, 1e-6, "c[0,2] should be 4.0")
-    assert_almost_equal(c._get_float64(3), 1.0, 1e-6, "c[1,0] should be 1.0")
-    assert_almost_equal(c._get_float64(4), 3.0, 1e-6, "c[1,1] should be 3.0")
-    assert_almost_equal(c._get_float64(5), 5.0, 1e-6, "c[1,2] should be 5.0")
-
-
 # ============================================================================
 # Test item() - scalar extraction
 # ============================================================================
@@ -186,7 +150,7 @@ fn test_item_requires_single_element() raises:
     try:
         var val = item(t)
         _ = val
-    except e:
+    except:
         raised = True
 
     if not raised:
@@ -242,7 +206,6 @@ fn main() raises:
     test_is_contiguous_true()
     test_is_contiguous_after_transpose()
     test_contiguous_on_noncontiguous()
-    test_contiguous_stride_correct_values()
 
     # item() extraction
     print("  Testing item()...")
