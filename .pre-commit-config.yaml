@@ -108,6 +108,17 @@ repos:
         files: ^(CLAUDE\.md|\.claude/shared/.*)$
         pass_filenames: false
 
+  # Check for bare pixi run mojo calls in CI workflows
+  - repo: local
+    hooks:
+      - id: check-bare-pixi-mojo
+        name: Check for bare pixi run mojo calls
+        description: Prevent bare pixi run mojo calls without retry loop or just test-group routing (Issue #3956)
+        entry: python scripts/check_bare_pixi_mojo.py
+        language: system
+        files: ^\.github/workflows/.*\.yml$
+        pass_filenames: false
+
   # Test coverage validation
   - repo: local
     hooks:
