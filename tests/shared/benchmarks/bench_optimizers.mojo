@@ -61,12 +61,12 @@ fn bench_sgd_update_speed() raises -> List[BenchmarkResult]:
 
         # Warmup (10 iterations)
         for _ in range(10):
-            sgd_step(params, grads, velocity, lr, momentum)
+            _ = sgd_step(params, grads, velocity, lr, momentum)
 
         # Benchmark (100 iterations)
         var start_ns = perf_counter_ns()
         for _ in range(n_iters):
-            sgd_step(params, grads, velocity, lr, momentum)
+            _ = sgd_step(params, grads, velocity, lr, momentum)
         var end_ns = perf_counter_ns()
 
         var total_ns = end_ns - start_ns
@@ -109,23 +109,23 @@ fn bench_sgd_momentum_overhead() raises -> BenchmarkResult:
 
     # Warmup
     for _ in range(10):
-        sgd_step_simple(params, grads, lr)
+        _ = sgd_step_simple(params, grads, lr)
 
     # Benchmark without momentum (sgd_step_simple)
     var start_ns = perf_counter_ns()
     for _ in range(n_iters):
-        sgd_step_simple(params, grads, lr)
+        _ = sgd_step_simple(params, grads, lr)
     var end_ns = perf_counter_ns()
     var time_no_momentum = Float64(end_ns - start_ns)
 
     # Warmup with momentum
     for _ in range(10):
-        sgd_step(params, grads, velocity, lr, Float64(0.9))
+        _ = sgd_step(params, grads, velocity, lr, Float64(0.9))
 
     # Benchmark with momentum
     start_ns = perf_counter_ns()
     for _ in range(n_iters):
-        sgd_step(params, grads, velocity, lr, Float64(0.9))
+        _ = sgd_step(params, grads, velocity, lr, Float64(0.9))
     end_ns = perf_counter_ns()
     var time_momentum = Float64(end_ns - start_ns)
 
@@ -182,12 +182,12 @@ fn bench_adam_update_speed() raises -> List[BenchmarkResult]:
 
         # Warmup (10 iterations)
         for i in range(10):
-            adam_step(params, grads, m, v, t + i, lr, beta1, beta2, epsilon)
+            _ = adam_step(params, grads, m, v, t + i, lr, beta1, beta2, epsilon)
 
         # Benchmark (100 iterations)
         var start_ns = perf_counter_ns()
         for i in range(n_iters):
-            adam_step(
+            _ = adam_step(
                 params, grads, m, v, t + 10 + i, lr, beta1, beta2, epsilon
             )
         var end_ns = perf_counter_ns()
@@ -266,10 +266,10 @@ fn bench_optimizer_comparison() raises -> List[BenchmarkResult]:
     var params = randn(param_shape, DType.float32)
     var grads = randn(param_shape, DType.float32)
     for _ in range(10):
-        sgd_step_simple(params, grads, lr)
+        _ = sgd_step_simple(params, grads, lr)
     var start_ns = perf_counter_ns()
     for _ in range(n_iters):
-        sgd_step_simple(params, grads, lr)
+        _ = sgd_step_simple(params, grads, lr)
     var end_ns = perf_counter_ns()
     var total_ns = end_ns - start_ns
     var throughput = Float64(n_params * n_iters) / (Float64(total_ns) / 1e9)
@@ -285,10 +285,10 @@ fn bench_optimizer_comparison() raises -> List[BenchmarkResult]:
     # Benchmark SGD with momentum
     var velocity = zeros_like(params)
     for _ in range(10):
-        sgd_step(params, grads, velocity, lr, Float64(0.9))
+        _ = sgd_step(params, grads, velocity, lr, Float64(0.9))
     start_ns = perf_counter_ns()
     for _ in range(n_iters):
-        sgd_step(params, grads, velocity, lr, Float64(0.9))
+        _ = sgd_step(params, grads, velocity, lr, Float64(0.9))
     end_ns = perf_counter_ns()
     total_ns = end_ns - start_ns
     throughput = Float64(n_params * n_iters) / (Float64(total_ns) / 1e9)
@@ -305,7 +305,7 @@ fn bench_optimizer_comparison() raises -> List[BenchmarkResult]:
     var m = zeros_like(params)
     var v = zeros_like(params)
     for i in range(10):
-        adam_step(
+        _ = adam_step(
             params,
             grads,
             m,
@@ -318,7 +318,7 @@ fn bench_optimizer_comparison() raises -> List[BenchmarkResult]:
         )
     start_ns = perf_counter_ns()
     for i in range(n_iters):
-        adam_step(
+        _ = adam_step(
             params,
             grads,
             m,
@@ -372,11 +372,11 @@ fn bench_simd_vectorization() raises -> BenchmarkResult:
     # The sgd_step functions are already SIMD-optimized
     # We benchmark them to show SIMD performance
     for _ in range(10):
-        sgd_step_simple(params, grads, lr)
+        _ = sgd_step_simple(params, grads, lr)
 
     var start_ns = perf_counter_ns()
     for _ in range(n_iters):
-        sgd_step_simple(params, grads, lr)
+        _ = sgd_step_simple(params, grads, lr)
     var end_ns = perf_counter_ns()
 
     var total_ns = end_ns - start_ns
