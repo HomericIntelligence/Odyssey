@@ -80,7 +80,7 @@ struct TestFixtures:
         var shape = List[Int]()
         shape.append(3)
         shape.append(3)
-        return full(shape, Float32(0.1), DType.float32)
+        return full(shape, Float64(0.1), DType.float32)
 
     @staticmethod
     fn medium_tensor() raises -> ExTensor:
@@ -108,7 +108,7 @@ struct TestFixtures:
         var shape = List[Int]()
         shape.append(5)
         shape.append(3)
-        return full(shape, Float32(0.01), DType.float32)
+        return full(shape, Float64(0.01), DType.float32)
 
     @staticmethod
     fn simple_bias() raises -> ExTensor:

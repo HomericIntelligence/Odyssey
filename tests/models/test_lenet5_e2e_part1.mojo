@@ -272,7 +272,7 @@ fn test_forward_deterministic() raises:
     for i in range(output1.numel()):
         var val1 = output1._get_float64(i)
         var val2 = output2._get_float64(i)
-        assert_close_float(val1, val2, 0.0, "Forward pass non-deterministic")
+        assert_close_float(val1, val2, 0.0, 0.0, "Forward pass non-deterministic")
 
 
 # ============================================================================
@@ -326,10 +326,10 @@ fn test_parameters_exist() raises:
     # LeNet5 has 10 parameters: conv1_kernel, conv1_bias, conv2_kernel, conv2_bias,
     #                           fc1_weights, fc1_bias, fc2_weights, fc2_bias,
     #                           fc3_weights, fc3_bias
-    assert_true(params.size() == 10, "LeNet5 parameter count mismatch")
+    assert_true(len(params) == 10, "LeNet5 parameter count mismatch")
 
     # Verify each parameter is valid
-    for i in range(params.size()):
+    for i in range(len(params)):
         var param = params[i]
         var numel = param.numel()
         assert_true(numel > 0, "Parameter " + String(i) + " has zero elements")

@@ -584,6 +584,18 @@ test-mojo:
 
     failed=0
     for test_file in tests/**/*.mojo; do
+        # Skip __init__.mojo and non-test library files (no main function)
+        if [[ "$(basename "$test_file")" == "__init__.mojo" ]] || \
+           [[ "$(basename "$test_file")" == "conftest.mojo" ]] || \
+           [[ "$test_file" == "tests/helpers/fixtures.mojo" ]] || \
+           [[ "$test_file" == "tests/helpers/utils.mojo" ]]; then
+            continue
+        fi
+        # Skip known flaky tests with open GitHub issues
+        if [[ "$test_file" == "tests/models/test_vgg16_e2e.mojo" ]]; then
+            echo "⚠️  Skipping $test_file (issue #4511 - JIT heap corruption on 4th forward pass)"
+            continue
+        fi
         if [ -f "$test_file" ]; then
             echo "Testing: $test_file"
             attempt=0

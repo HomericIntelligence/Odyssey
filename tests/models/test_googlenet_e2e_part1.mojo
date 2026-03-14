@@ -389,8 +389,15 @@ struct GoogLeNetSmall:
         # Inception 3
         out = self.inception_3.forward(out, training)
 
-        # Global average pool
+        # Global average pool: (batch, 96, H, W) -> (batch, 96, 1, 1)
         out = global_avgpool2d(out)
+
+        # Flatten: (batch, 96, 1, 1) -> (batch, 96)
+        var batch_size = out.shape()[0]
+        var flat_shape = List[Int]()
+        flat_shape.append(batch_size)
+        flat_shape.append(96)
+        out = out.reshape(flat_shape)
 
         # FC
         out = linear(out, self.fc_weights, self.fc_bias)
@@ -569,3 +576,32 @@ fn test_googlenet_no_nan_output() raises:
         var val = output_data[i]
         # Simple NaN check: NaN != NaN
         assert_true(val == val, "Output contains NaN")
+
+
+fn main() raises:
+    print("Starting GoogLeNet E2E Tests Part 1...")
+    print("  test_googlenet_initialization...", end="")
+    test_googlenet_initialization()
+    print(" OK")
+    print("  test_googlenet_forward_batch_size_1...", end="")
+    test_googlenet_forward_batch_size_1()
+    print(" OK")
+    print("  test_googlenet_forward_batch_size_2...", end="")
+    test_googlenet_forward_batch_size_2()
+    print(" OK")
+    print("  test_googlenet_forward_batch_size_4...", end="")
+    test_googlenet_forward_batch_size_4()
+    print(" OK")
+    print("  test_googlenet_training_mode...", end="")
+    test_googlenet_training_mode()
+    print(" OK")
+    print("  test_googlenet_inference_mode...", end="")
+    test_googlenet_inference_mode()
+    print(" OK")
+    print("  test_googlenet_different_class_counts...", end="")
+    test_googlenet_different_class_counts()
+    print(" OK")
+    print("  test_googlenet_no_nan_output...", end="")
+    test_googlenet_no_nan_output()
+    print(" OK")
+    print("All GoogLeNet E2E Tests Part 1 passed!")

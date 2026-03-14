@@ -389,8 +389,15 @@ struct GoogLeNetSmall:
         # Inception 3
         out = self.inception_3.forward(out, training)
 
-        # Global average pool
+        # Global average pool: (batch, 96, H, W) -> (batch, 96, 1, 1)
         out = global_avgpool2d(out)
+
+        # Flatten: (batch, 96, 1, 1) -> (batch, 96)
+        var batch_size = out.shape()[0]
+        var flat_shape = List[Int]()
+        flat_shape.append(batch_size)
+        flat_shape.append(96)
+        out = out.reshape(flat_shape)
 
         # FC
         out = linear(out, self.fc_weights, self.fc_bias)
@@ -597,3 +604,29 @@ fn test_googlenet_output_is_tensor() raises:
 
     var dtype = output.dtype()
     assert_true(dtype == DType.float32, "dtype should be float32")
+
+
+fn main() raises:
+    print("Starting GoogLeNet E2E Tests Part 2...")
+    print("  test_googlenet_no_inf_output...", end="")
+    test_googlenet_no_inf_output()
+    print(" OK")
+    print("  test_googlenet_different_input_values...", end="")
+    test_googlenet_different_input_values()
+    print(" OK")
+    print("  test_googlenet_reproducible_output...", end="")
+    test_googlenet_reproducible_output()
+    print(" OK")
+    print("  test_googlenet_multiple_forward_passes...", end="")
+    test_googlenet_multiple_forward_passes()
+    print(" OK")
+    print("  test_googlenet_inception_module_contribution...", end="")
+    test_googlenet_inception_module_contribution()
+    print(" OK")
+    print("  test_googlenet_batch_independence...", end="")
+    test_googlenet_batch_independence()
+    print(" OK")
+    print("  test_googlenet_output_is_tensor...", end="")
+    test_googlenet_output_is_tensor()
+    print(" OK")
+    print("All GoogLeNet E2E Tests Part 2 passed!")
