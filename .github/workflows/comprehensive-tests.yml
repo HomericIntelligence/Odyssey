@@ -192,6 +192,27 @@ jobs:
           exit 1
 
   # ============================================================================
+  # Audit Shared Links - Verify .claude/shared/ files are documented in CLAUDE.md
+  # ============================================================================
+  audit-shared-links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    name: "Audit Shared Links"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: '3.11'
+
+      - name: Audit shared links in CLAUDE.md
+        run: |
+          python scripts/audit_shared_links.py
+
+  # ============================================================================
   # Comprehensive Mojo Test Suite - Parallelized by Test Group
   # ============================================================================
   test-mojo-comprehensive:
@@ -678,7 +699,7 @@ jobs:
   # Combined Test Report with Metrics
   # ============================================================================
   test-report:
-    needs: [mojo-compilation, validate-test-coverage, test-mojo-comprehensive, test-configs, test-benchmarks, test-core-layers, test-python, code-quality]
+    needs: [mojo-compilation, validate-test-coverage, audit-shared-links, test-mojo-comprehensive, test-configs, test-benchmarks, test-core-layers, test-python, code-quality]
     runs-on: ubuntu-latest
     if: always()
     name: "Test Report"
