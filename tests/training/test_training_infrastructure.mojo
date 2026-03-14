@@ -274,6 +274,19 @@ fn test_validation_loop_initialization() raises:
     print("  ✓ ValidationLoop initialization correct")
 
 
+fn test_validation_loop_init_defaults() raises:
+    """Test ValidationLoop default initialization."""
+    print("Testing ValidationLoop default initialization...")
+
+    var loop = ValidationLoop()
+
+    assert_true(loop.compute_accuracy, "compute_accuracy default is True")
+    assert_false(loop.compute_confusion, "compute_confusion default is False")
+    assert_equal(loop.num_classes, 10, "num_classes default is 10")
+
+    print("  ✓ ValidationLoop default initialization correct")
+
+
 fn test_validation_loop_run_updates_val_accuracy() raises:
     """Test that ValidationLoop.run() updates metrics.val_accuracy when compute_accuracy=True.
 
@@ -505,6 +518,7 @@ fn main() raises:
     print("\nValidationLoop Tests (#314)")
     print("-" * 70)
     test_validation_loop_initialization()
+    test_validation_loop_init_defaults()
     test_validation_loop_run_updates_val_accuracy()
 
     print("\nBaseTrainer Tests (#319)")
