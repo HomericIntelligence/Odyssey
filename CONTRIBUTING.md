@@ -327,7 +327,7 @@ If a hook itself is broken (not your code):
 
 #### Known Hook Incompatibility: mojo-format on Debian Buster / glibc < 2.32
 
-The `mojo-format` hook requires **glibc 2.32+** (Debian 12 / Ubuntu 22.04 or newer).
+The `mojo-format` hook requires **glibc 2.32+** (Debian 12+ or Ubuntu 22.04+).
 On Debian 10 (Buster) or other hosts with glibc < 2.32, the hook automatically detects
 the incompatibility and **skips with a warning** instead of failing your commit.
 
