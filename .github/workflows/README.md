@@ -783,7 +783,7 @@ Test workflows automatically comment on PRs:
 ```yaml
 - name: Comment on PR
   if: github.event_name == 'pull_request'
-  uses: actions/github-script@v8
+  uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd  # v8
   with:
     script: |
       # Update or create bot comment with test results
