@@ -158,6 +158,23 @@ fn test_validation_loop_run_updates_metrics() raises:
     print("  test_validation_loop_run_updates_metrics: PASSED")
 
 
+fn test_validation_loop_run_compute_accuracy_false() raises:
+    """Test ValidationLoop with compute_accuracy=False leaves metrics.val_accuracy at 0.0.
+
+    When ValidationLoop is created with compute_accuracy=False, the run() method
+    should not compute accuracy. Verify that metrics.val_accuracy remains 0.0
+    after run() completes. This is the complementary negative case to verify
+    the conditional branch is covered.
+    """
+    var vloop = ValidationLoop(compute_accuracy=False)
+    var loader = create_val_loader(n_batches=3)
+    var metrics = TrainingMetrics()
+    var val_loss = vloop.run(simple_forward, simple_loss, loader, metrics)
+    # When compute_accuracy=False, val_accuracy should remain at default 0.0
+    assert_almost_equal(metrics.val_accuracy, Float64(0.0), Float64(1e-10))
+    print("  test_validation_loop_run_compute_accuracy_false: PASSED")
+
+
 # ============================================================================
 # ValidationLoop.run_subset() Tests
 # ============================================================================
@@ -422,6 +439,7 @@ fn main() raises:
     print("Running ValidationLoop.run() tests...")
     test_validation_loop_run_basic()
     test_validation_loop_run_updates_metrics()
+    test_validation_loop_run_compute_accuracy_false()
 
     print("Running ValidationLoop.run_subset() tests...")
     test_validation_loop_run_subset_limited()
