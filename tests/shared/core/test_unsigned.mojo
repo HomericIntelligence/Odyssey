@@ -588,6 +588,80 @@ fn test_uint64_accumulated_overflow() raises:
         )
 
 
+fn test_uint_narrowing_to_uint16() raises:
+    """Test narrowing conversions to UInt16 via modulo 2^16 semantics.
+
+    When casting a UInt64 value > 65535 to UInt16, the result is the low 16 bits
+    of the original value, equivalent to value % 65536.
+    """
+    # 65536 % 65536 = 0
+    var v65536: UInt64 = 65536
+    if v65536.cast[DType.uint16]() != 0:
+        raise Error("UInt64(65536).cast[DType.uint16]() should be 0")
+
+    # 65537 % 65536 = 1
+    var v65537: UInt64 = 65537
+    if v65537.cast[DType.uint16]() != 1:
+        raise Error("UInt64(65537).cast[DType.uint16]() should be 1")
+
+    # 131071 % 65536 = 65535
+    var v131071: UInt64 = 131071
+    if v131071.cast[DType.uint16]() != 65535:
+        raise Error("UInt64(131071).cast[DType.uint16]() should be 65535")
+
+    # 131072 % 65536 = 0
+    var v131072: UInt64 = 131072
+    if v131072.cast[DType.uint16]() != 0:
+        raise Error("UInt64(131072).cast[DType.uint16]() should be 0")
+
+    # 65535 fits exactly — no truncation
+    var v65535: UInt64 = 65535
+    if v65535.cast[DType.uint16]() != 65535:
+        raise Error("UInt64(65535).cast[DType.uint16]() should be 65535")
+
+    # 0 is a no-op
+    var v0: UInt64 = 0
+    if v0.cast[DType.uint16]() != 0:
+        raise Error("UInt64(0).cast[DType.uint16]() should be 0")
+
+
+fn test_uint_narrowing_to_uint32() raises:
+    """Test narrowing conversions to UInt32 via modulo 2^32 semantics.
+
+    When casting a UInt64 value > 2^32 to UInt32, the result is the low 32 bits
+    of the original value, equivalent to value % 2^32.
+    """
+    # 4294967296 % 2^32 = 0
+    var v_2_32: UInt64 = 4294967296
+    if v_2_32.cast[DType.uint32]() != 0:
+        raise Error("UInt64(2^32).cast[DType.uint32]() should be 0")
+
+    # 4294967297 % 2^32 = 1
+    var v_2_32_plus_1: UInt64 = 4294967297
+    if v_2_32_plus_1.cast[DType.uint32]() != 1:
+        raise Error("UInt64(2^32+1).cast[DType.uint32]() should be 1")
+
+    # 8589934591 % 2^32 = 4294967295 (2^33 - 1 % 2^32 = 2^32 - 1)
+    var v_2_33_minus_1: UInt64 = 8589934591
+    if v_2_33_minus_1.cast[DType.uint32]() != 4294967295:
+        raise Error("UInt64(2^33-1).cast[DType.uint32]() should be 2^32-1")
+
+    # 8589934592 % 2^32 = 0 (2^33 % 2^32 = 0)
+    var v_2_33: UInt64 = 8589934592
+    if v_2_33.cast[DType.uint32]() != 0:
+        raise Error("UInt64(2^33).cast[DType.uint32]() should be 0")
+
+    # 4294967295 fits exactly — no truncation
+    var v_max_32: UInt64 = 4294967295
+    if v_max_32.cast[DType.uint32]() != 4294967295:
+        raise Error("UInt64(2^32-1).cast[DType.uint32]() should be 2^32-1")
+
+    # 0 is a no-op
+    var v0: UInt64 = 0
+    if v0.cast[DType.uint32]() != 0:
+        raise Error("UInt64(0).cast[DType.uint32]() should be 0")
+
+
 fn main():
     """Main test runner for unsigned integer type tests."""
     try:
@@ -817,5 +891,17 @@ fn main():
         print("OK test_uint64_accumulated_overflow")
     except e:
         print("FAIL test_uint64_accumulated_overflow:", e)
+
+    try:
+        test_uint_narrowing_to_uint16()
+        print("OK test_uint_narrowing_to_uint16")
+    except e:
+        print("FAIL test_uint_narrowing_to_uint16:", e)
+
+    try:
+        test_uint_narrowing_to_uint32()
+        print("OK test_uint_narrowing_to_uint32")
+    except e:
+        print("FAIL test_uint_narrowing_to_uint32:", e)
 
     print("\n=== Unsigned Integer Type Tests Complete ===")
