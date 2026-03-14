@@ -50,6 +50,11 @@ import os
 # ============================================================================
 # LeNet-5 Model Definition (for testing)
 # ============================================================================
+# NOTE: This struct is duplicated in test_lenet5_e2e_part2.mojo to allow
+# both test files to import independently (Mojo v0.26.1 does not support
+# cross-file test imports). A shared test helper module would eliminate
+# this duplication once Mojo supports test helper imports.
+# See issue #4355.
 
 
 struct LeNet5:
