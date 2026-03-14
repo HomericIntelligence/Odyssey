@@ -134,6 +134,13 @@ fn test_split_equal() raises:
         raise Error("Should split into 3 parts")
     for i in range(3):
         assert_numel(parts[i], 4, "Each part should have 4 elements")
+    # Verify actual values: [0,1,2,3], [4,5,6,7], [8,9,10,11]
+    assert_value_at(parts[0], 0, 0.0, "Part 0, index 0 should be 0.0")
+    assert_value_at(parts[0], 3, 3.0, "Part 0, index 3 should be 3.0")
+    assert_value_at(parts[1], 0, 4.0, "Part 1, index 0 should be 4.0")
+    assert_value_at(parts[1], 3, 7.0, "Part 1, index 3 should be 7.0")
+    assert_value_at(parts[2], 0, 8.0, "Part 2, index 0 should be 8.0")
+    assert_value_at(parts[2], 3, 11.0, "Part 2, index 3 should be 11.0")
 
 
 fn test_split_unequal() raises:
@@ -152,6 +159,13 @@ fn test_split_unequal() raises:
     assert_numel(parts[0], 3, "First part should have 3 elements")
     assert_numel(parts[1], 4, "Second part should have 4 elements")
     assert_numel(parts[2], 3, "Third part should have 3 elements")
+    # Verify actual values: [0,1,2], [3,4,5,6], [7,8,9]
+    assert_value_at(parts[0], 0, 0.0, "Part 0, index 0 should be 0.0")
+    assert_value_at(parts[0], 2, 2.0, "Part 0, index 2 should be 2.0")
+    assert_value_at(parts[1], 0, 3.0, "Part 1, index 0 should be 3.0")
+    assert_value_at(parts[1], 3, 6.0, "Part 1, index 3 should be 6.0")
+    assert_value_at(parts[2], 0, 7.0, "Part 2, index 0 should be 7.0")
+    assert_value_at(parts[2], 2, 9.0, "Part 2, index 2 should be 9.0")
 
 
 # ============================================================================
