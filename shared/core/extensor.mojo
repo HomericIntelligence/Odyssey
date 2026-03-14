@@ -3734,7 +3734,7 @@ fn randn(shape: List[Int], dtype: DType, seed: Int = 0) raises -> ExTensor:
     ):
         print(
             "Warning: randn() is designed for floating-point types, got",
-            String(dtype),
+            dtype_to_string(dtype),
         )
 
     # Set random seed if provided (0 uses system randomness)

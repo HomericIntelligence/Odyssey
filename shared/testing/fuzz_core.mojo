@@ -781,7 +781,7 @@ fn format_failure_message(
         + ", Shape: "
         + shape_str
         + ", DType: "
-        + String(dtype)
+        + dtype_to_string(dtype)
         + ", Error: "
         + error_msg
     )

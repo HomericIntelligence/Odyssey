@@ -60,7 +60,7 @@ formatter, ensuring all merged code is properly formatted.
 
 ## Developer Workflow on Incompatible Hosts
 
-Contributors on Debian 10 or other incompatible hosts no longer need `SKIP=mojo-format`.
+Contributors on Debian 10/11 or other incompatible hosts no longer need `SKIP=mojo-format`.
 The hook will run and automatically skip with a warning:
 
 ```text

@@ -580,6 +580,8 @@ just precommit
 # If a hook fails, fix the code instead
 # If a specific hook is broken, use SKIP=hook-id:
 SKIP=trailing-whitespace git commit -m "message"
+
+# Note: SKIP=mojo-format is not needed — use scripts/mojo-format-compat.sh or just shell on incompatible hosts
 ```
 
 ### Pre-Commit Hook Policy - STRICT ENFORCEMENT

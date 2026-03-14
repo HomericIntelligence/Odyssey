@@ -293,7 +293,7 @@ fn save_tensor_to_checkpoint(
         var numel = tensor.numel()
 
         # Build metadata line
-        var dtype_str = String(dtype)
+        var dtype_str = dtype_to_string(dtype)
         var metadata = dtype_str + " "
         for i in range(len(shape)):
             metadata += String(shape[i])
