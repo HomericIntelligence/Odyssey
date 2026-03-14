@@ -34,7 +34,7 @@ ls .github/workflows/*.yml | wc -l
 | [script-validation.yml](#script-validation) | PR on scripts, push main, manual | Python scripts validation | < 5 min |
 | [validate-configs.yml](#validate-configs) | PR/push on config changes | YAML and schema validation | < 5 min |
 | [test-agents.yml](#test-agents) | PR on agent configs, push main | Agent configuration testing | < 3 min |
-| validate-workflows.yml | Push main on .github/, PR | Validate workflow checkout order | < 3 min |
+| [validate-workflows.yml](#validate-workflows) | PR, push main on .github/ | Validate workflow checkout order | < 3 min |
 | [pre-commit.yml](#pre-commit) | PR, push main, manual | Code formatting and linting | < 5 min |
 | [type-check.yml](#type-check) | PR on scripts, push main, manual | Python type checking | < 3 min |
 | [notebook-validation.yml](#notebook-validation) | PR/push on notebooks | Jupyter notebook validation | < 5 min |
@@ -243,6 +243,23 @@ ls .github/workflows/*.yml | wc -l
 3. Delegation pattern validation
 4. Workflow integration testing
 5. Mojo-specific pattern validation
+
+---
+
+#### validate-workflows
+
+**File**: `validate-workflows.yml`
+
+**Triggers**: PR, pushes to main on `.github/` directory
+
+**Purpose**: Validate workflow file structure and enforce checkout action ordering requirements.
+
+**Validation Steps**:
+
+1. Checks all `.github/workflows/*.yml` files for syntax
+2. Enforces that `actions/checkout` appears before any local action references
+3. Validates composite action input/output specifications
+4. Ensures required environment variables are documented
 
 ---
 
