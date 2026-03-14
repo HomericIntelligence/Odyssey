@@ -73,6 +73,21 @@ fn test_concatenate_axis_1() raises:
 
     # Result should be 3x6 (3 rows, 2+4 cols)
     assert_numel(c, 18, "Should have 18 elements (3*6)")
+    # Verify row 0: [1, 1, 2, 2, 2, 2]
+    assert_value_at(c, 0, 1.0, "Row 0, col 0 should be 1.0")
+    assert_value_at(c, 1, 1.0, "Row 0, col 1 should be 1.0")
+    assert_value_at(c, 2, 2.0, "Row 0, col 2 should be 2.0")
+    assert_value_at(c, 5, 2.0, "Row 0, col 5 should be 2.0")
+    # Verify row 1: [1, 1, 2, 2, 2, 2]
+    assert_value_at(c, 6, 1.0, "Row 1, col 0 should be 1.0")
+    assert_value_at(c, 7, 1.0, "Row 1, col 1 should be 1.0")
+    assert_value_at(c, 8, 2.0, "Row 1, col 2 should be 2.0")
+    assert_value_at(c, 11, 2.0, "Row 1, col 5 should be 2.0")
+    # Verify row 2: [1, 1, 2, 2, 2, 2]
+    assert_value_at(c, 12, 1.0, "Row 2, col 0 should be 1.0")
+    assert_value_at(c, 13, 1.0, "Row 2, col 1 should be 1.0")
+    assert_value_at(c, 14, 2.0, "Row 2, col 2 should be 2.0")
+    assert_value_at(c, 17, 2.0, "Row 2, col 5 should be 2.0")
 
 
 # ============================================================================
