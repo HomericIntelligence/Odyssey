@@ -567,6 +567,13 @@ test-group path pattern:
     echo "Passed: $passed_count tests"
     echo "Failed: $failed_count tests"
 
+    # Guard against no tests being run (beyond initial empty check)
+    if [ $test_count -eq 0 ]; then
+        echo ""
+        echo "❌ ERROR: No tests were executed"
+        exit 1
+    fi
+
     if [ $failed_count -gt 0 ]; then
         echo ""
         echo "Failed tests:"
