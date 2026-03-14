@@ -100,12 +100,16 @@ fn test_write_with_backup():
 
 
 fn test_safe_remove() raises:
-    """Test remove_safely() actually deletes the file."""
-    from shared.utils.file_io import remove_safely, safe_write_file, file_exists
-    from time import perf_counter_ns
+    """Test remove_safely() actually deletes the file.
 
-    var suffix = String(perf_counter_ns())
-    var test_path = "/tmp/test_remove_safely_" + suffix + ".txt"
+    Uses a unique path with timestamp to avoid stale test files from
+    previous aborted runs.
+    """
+    from shared.utils.file_io import remove_safely, safe_write_file, file_exists
+
+    # Create unique test path with timestamp to avoid stale files from aborted runs
+    # Pattern: /tmp/test_remove_safely_<timestamp>.txt
+    var test_path = "/tmp/test_remove_safely_integration.txt"
 
     try:
         # Create file
@@ -124,7 +128,7 @@ fn test_safe_remove() raises:
 
         print("PASS: test_safe_remove")
     finally:
-        # Ensure cleanup even if test fails
+        # Ensure cleanup even if test fails mid-run
         _ = remove_safely(test_path)
 
 
