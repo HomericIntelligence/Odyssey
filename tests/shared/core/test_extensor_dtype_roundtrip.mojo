@@ -12,7 +12,7 @@ Note: Split into a dedicated file following ADR-009 pattern — heap corruption 
 """
 
 from shared.core.extensor import ExTensor, zeros
-from tests.shared.conftest import assert_true, assert_almost_equal
+from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 
 # ============================================================================
@@ -194,8 +194,80 @@ fn test_int8_set_float64_is_noop() raises:
     assert_almost_equal(got, 0.0, tolerance=1e-9)
 
 
+fn test_dtype_sizes() raises:
+    """Audit _get_dtype_size_static returns correct byte sizes for each dtype.
+
+    This test catches dtype size bugs (like bfloat16 returning 4 instead of 2)
+    at compile time as a regression test.
+    """
+    assert_equal(
+        ExTensor._get_dtype_size_static(DType.float16),
+        2,
+        "float16 should be 2 bytes",
+    )
+    assert_equal(
+        ExTensor._get_dtype_size_static(DType.bfloat16),
+        2,
+        "bfloat16 should be 2 bytes",
+    )
+    assert_equal(
+        ExTensor._get_dtype_size_static(DType.float32),
+        4,
+        "float32 should be 4 bytes",
+    )
+    assert_equal(
+        ExTensor._get_dtype_size_static(DType.float64),
+        8,
+        "float64 should be 8 bytes",
+    )
+    assert_equal(
+        ExTensor._get_dtype_size_static(DType.int8),
+        1,
+        "int8 should be 1 byte",
+    )
+    assert_equal(
+        ExTensor._get_dtype_size_static(DType.uint8),
+        1,
+        "uint8 should be 1 byte",
+    )
+    assert_equal(
+        ExTensor._get_dtype_size_static(DType.int16),
+        2,
+        "int16 should be 2 bytes",
+    )
+    assert_equal(
+        ExTensor._get_dtype_size_static(DType.uint16),
+        2,
+        "uint16 should be 2 bytes",
+    )
+    assert_equal(
+        ExTensor._get_dtype_size_static(DType.int32),
+        4,
+        "int32 should be 4 bytes",
+    )
+    assert_equal(
+        ExTensor._get_dtype_size_static(DType.uint32),
+        4,
+        "uint32 should be 4 bytes",
+    )
+    assert_equal(
+        ExTensor._get_dtype_size_static(DType.int64),
+        8,
+        "int64 should be 8 bytes",
+    )
+    assert_equal(
+        ExTensor._get_dtype_size_static(DType.uint64),
+        8,
+        "uint64 should be 8 bytes",
+    )
+
+
 fn main() raises:
     """Run all dtype round-trip tests for _set_float64/_get_float64."""
+    print("Running dtype size tests...")
+    test_dtype_sizes()
+    print("✓ test_dtype_sizes")
+
     print("Running float16 round-trip tests...")
     test_float16_set_get_float64_roundtrip()
     test_float16_nonzero_after_set()
