@@ -238,6 +238,18 @@ def validate_delegation_patterns(content: str, frontmatter: Dict[str, Any], resu
     """
     agent_name = frontmatter.get("name", "")
 
+    # Validate delegates_to references in YAML frontmatter (Issue #3965)
+    delegates_to = frontmatter.get("delegates_to", [])
+    if delegates_to and isinstance(delegates_to, list):
+        agents_dir = result.file_path.parent
+        for delegated_agent in delegates_to:
+            if delegated_agent:  # Skip empty strings
+                delegated_file = agents_dir / f"{delegated_agent}.md"
+                if not delegated_file.exists():
+                    result.add_error(
+                        f"delegates_to references non-existent agent: {delegated_agent}.md"
+                    )
+
     # Junior engineers should have "No Delegation"
     if "junior" in agent_name.lower():
         if "No Delegation" not in content and "no delegation" not in content.lower():
