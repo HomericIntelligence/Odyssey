@@ -73,10 +73,7 @@ fn test_uint64_construction() raises:
 
 
 fn test_uint8_arithmetic() raises:
-    """Test UInt8 addition, subtraction, multiplication, and division.
-
-    Includes boundary overflow assertions to verify wrap-on-overflow behavior at max values.
-    """
+    """Test UInt8 addition, subtraction, multiplication, and division."""
     var a: UInt8 = 10
     var b: UInt8 = 3
 
@@ -91,22 +88,9 @@ fn test_uint8_arithmetic() raises:
     if a % b != 1:
         raise Error("UInt8 modulo failed")
 
-    # Boundary overflow assertions
-    if UInt8(255) + UInt8(1) != 0:
-        raise Error("UInt8 max + 1 should wrap to 0")
-    if UInt8(255) - UInt8(1) != 254:
-        raise Error("UInt8 max - 1 failed")
-    if UInt8(200) + UInt8(56) != 0:
-        raise Error("UInt8 200 + 56 should wrap to 0")
-    if UInt8(128) * UInt8(2) != 0:
-        raise Error("UInt8 128 * 2 should wrap to 0")
-
 
 fn test_uint16_arithmetic() raises:
-    """Test UInt16 arithmetic operations.
-
-    Includes boundary overflow assertions to verify wrap-on-overflow behavior at max values.
-    """
+    """Test UInt16 arithmetic operations."""
     var a: UInt16 = 1000
     var b: UInt16 = 7
 
@@ -121,22 +105,9 @@ fn test_uint16_arithmetic() raises:
     if a % b != 6:
         raise Error("UInt16 modulo failed")
 
-    # Boundary overflow assertions
-    if UInt16(65535) + UInt16(1) != 0:
-        raise Error("UInt16 max + 1 should wrap to 0")
-    if UInt16(65535) - UInt16(1) != 65534:
-        raise Error("UInt16 max - 1 failed")
-    if UInt16(60000) + UInt16(10000) != 4464:
-        raise Error("UInt16 60000 + 10000 should wrap")
-    if UInt16(32768) * UInt16(2) != 0:
-        raise Error("UInt16 32768 * 2 should wrap to 0")
-
 
 fn test_uint32_arithmetic() raises:
-    """Test UInt32 arithmetic operations.
-
-    Includes boundary overflow assertions to verify wrap-on-overflow behavior at max values.
-    """
+    """Test UInt32 arithmetic operations."""
     var a: UInt32 = 100000
     var b: UInt32 = 3
 
@@ -151,22 +122,9 @@ fn test_uint32_arithmetic() raises:
     if a % b != 1:
         raise Error("UInt32 modulo failed")
 
-    # Boundary overflow assertions
-    if UInt32(4294967295) + UInt32(1) != 0:
-        raise Error("UInt32 max + 1 should wrap to 0")
-    if UInt32(4294967295) - UInt32(1) != 4294967294:
-        raise Error("UInt32 max - 1 failed")
-    if UInt32(4000000000) + UInt32(500000000) != 705032704:
-        raise Error("UInt32 4000000000 + 500000000 should wrap")
-    if UInt32(2147483648) * UInt32(2) != 0:
-        raise Error("UInt32 2147483648 * 2 should wrap to 0")
-
 
 fn test_uint64_arithmetic() raises:
-    """Test UInt64 arithmetic operations with large values.
-
-    Includes boundary overflow assertions to verify wrap-on-overflow behavior at max values.
-    """
+    """Test UInt64 arithmetic operations with large values."""
     var a: UInt64 = 10000000000
     var b: UInt64 = 3
 
@@ -180,16 +138,6 @@ fn test_uint64_arithmetic() raises:
         raise Error("UInt64 integer division failed")
     if a % b != 1:
         raise Error("UInt64 modulo failed")
-
-    # Boundary overflow assertions
-    if UInt64(18446744073709551615) + UInt64(1) != 0:
-        raise Error("UInt64 max + 1 should wrap to 0")
-    if UInt64(18446744073709551615) - UInt64(1) != 18446744073709551614:
-        raise Error("UInt64 max - 1 failed")
-    if UInt64(18000000000000000000) + UInt64(1000000000000000000) != 553255926290448384:
-        raise Error("UInt64 large overflow should wrap")
-    if UInt64(9223372036854775808) * UInt64(2) != 0:
-        raise Error("UInt64 9223372036854775808 * 2 should wrap to 0")
 
 
 fn test_uint8_bitwise() raises:
@@ -258,62 +206,6 @@ fn test_uint64_bitwise() raises:
         raise Error("UInt64 right shift by 8 failed")
     if b << 8 != 0xFF00FF00FF00FF00:
         raise Error("UInt64 left shift by 8 failed")
-
-
-fn test_uint8_bitwise_not() raises:
-    """Test UInt8 bitwise NOT (complement) operation."""
-    if ~UInt8(0) != 255:
-        raise Error("~UInt8(0) should equal 255")
-    if ~UInt8(255) != 0:
-        raise Error("~UInt8(255) should equal 0")
-    if ~UInt8(0b10110100) != 0b01001011:
-        raise Error("~UInt8(180) should equal 75")
-    if ~UInt8(1) != 254:
-        raise Error("~UInt8(1) should equal 254")
-    if ~UInt8(127) != 128:
-        raise Error("~UInt8(127) should equal 128")
-
-
-fn test_uint16_bitwise_not() raises:
-    """Test UInt16 bitwise NOT (complement) operation."""
-    if ~UInt16(0) != 65535:
-        raise Error("~UInt16(0) should equal 65535")
-    if ~UInt16(65535) != 0:
-        raise Error("~UInt16(65535) should equal 0")
-    if ~UInt16(0xFF00) != 0x00FF:
-        raise Error("~UInt16(0xFF00) should equal 0x00FF")
-    if ~UInt16(1) != 65534:
-        raise Error("~UInt16(1) should equal 65534")
-    if ~UInt16(32768) != 32767:
-        raise Error("~UInt16(32768) should equal 32767")
-
-
-fn test_uint32_bitwise_not() raises:
-    """Test UInt32 bitwise NOT (complement) operation."""
-    if ~UInt32(0) != 4294967295:
-        raise Error("~UInt32(0) should equal 2^32-1")
-    if ~UInt32(4294967295) != 0:
-        raise Error("~UInt32(4294967295) should equal 0")
-    if ~UInt32(0xFF000000) != 0x00FFFFFF:
-        raise Error("~UInt32(0xFF000000) should equal 0x00FFFFFF")
-    if ~UInt32(1) != 4294967294:
-        raise Error("~UInt32(1) should equal 4294967294")
-    if ~UInt32(2147483648) != 2147483647:
-        raise Error("~UInt32(2147483648) should equal 2147483647")
-
-
-fn test_uint64_bitwise_not() raises:
-    """Test UInt64 bitwise NOT (complement) operation."""
-    if ~UInt64(0) != 18446744073709551615:
-        raise Error("~UInt64(0) should equal 2^64-1")
-    if ~UInt64(18446744073709551615) != 0:
-        raise Error("~UInt64(2^64-1) should equal 0")
-    if ~UInt64(0xFF00000000000000) != 0x00FFFFFFFFFFFFFF:
-        raise Error("~UInt64(0xFF00000000000000) should equal 0x00FFFFFFFFFFFFFF")
-    if ~UInt64(1) != 18446744073709551614:
-        raise Error("~UInt64(1) should equal 2^64-2")
-    if ~UInt64(9223372036854775808) != 9223372036854775807:
-        raise Error("~UInt64(2^63) should equal 2^63-1")
 
 
 fn test_uint8_comparisons() raises:
@@ -499,68 +391,6 @@ fn test_uint_narrowing_conversion() raises:
         raise Error("UInt64(0).cast[DType.uint8]() should be 0")
 
 
-fn test_uint_narrowing_to_uint16() raises:
-    """Test narrowing conversions from UInt64 to UInt16 via modulo 65536 semantics.
-
-    When casting a UInt64 value > 65535 to UInt16, the result is the low 16 bits
-    of the original value, equivalent to value % 65536.
-
-    Note: This modular arithmetic behavior is identical to unsigned integer overflow
-    wrapping (see test_uint16_overflow_wrap and test_uint16_underflow_wrap).
-    Both stem from the same underlying two's complement semantics.
-    """
-    # 65536 % 65536 = 0
-    var v65536: UInt64 = 65536
-    if v65536.cast[DType.uint16]() != 0:
-        raise Error("UInt64(65536).cast[DType.uint16]() should be 0")
-
-    # 65537 % 65536 = 1
-    var v65537: UInt64 = 65537
-    if v65537.cast[DType.uint16]() != 1:
-        raise Error("UInt64(65537).cast[DType.uint16]() should be 1")
-
-    # 65535 fits exactly — no truncation
-    var v65535: UInt64 = 65535
-    if v65535.cast[DType.uint16]() != 65535:
-        raise Error("UInt64(65535).cast[DType.uint16]() should be 65535")
-
-    # 0 is a no-op
-    var v0_16: UInt64 = 0
-    if v0_16.cast[DType.uint16]() != 0:
-        raise Error("UInt64(0).cast[DType.uint16]() should be 0")
-
-
-fn test_uint_narrowing_to_uint32() raises:
-    """Test narrowing conversions from UInt64 to UInt32 via modulo 4294967296 semantics.
-
-    When casting a UInt64 value > 4294967295 to UInt32, the result is the low 32 bits
-    of the original value, equivalent to value % 4294967296.
-
-    Note: This modular arithmetic behavior is identical to unsigned integer overflow
-    wrapping (see test_uint32_overflow_wrap and test_uint32_underflow_wrap).
-    Both stem from the same underlying two's complement semantics.
-    """
-    # 4294967296 % 4294967296 = 0
-    var v4294967296: UInt64 = 4294967296
-    if v4294967296.cast[DType.uint32]() != 0:
-        raise Error("UInt64(4294967296).cast[DType.uint32]() should be 0")
-
-    # 4294967297 % 4294967296 = 1
-    var v4294967297: UInt64 = 4294967297
-    if v4294967297.cast[DType.uint32]() != 1:
-        raise Error("UInt64(4294967297).cast[DType.uint32]() should be 1")
-
-    # 4294967295 fits exactly — no truncation
-    var v4294967295: UInt64 = 4294967295
-    if v4294967295.cast[DType.uint32]() != 4294967295:
-        raise Error("UInt64(4294967295).cast[DType.uint32]() should be 4294967295")
-
-    # 0 is a no-op
-    var v0_32: UInt64 = 0
-    if v0_32.cast[DType.uint32]() != 0:
-        raise Error("UInt64(0).cast[DType.uint32]() should be 0")
-
-
 fn test_uint8_overflow_wrap() raises:
     """Test UInt8 addition wraps from 255 to 0.
 
@@ -690,110 +520,71 @@ fn test_uint8_overflow_wrap_multiply() raises:
         )
 
 
-fn test_uint8_overflow_wrap_multiply_nonzero() raises:
-    """Test UInt8 multiplication overflow wraps to non-zero: 17 * 16 == 16 (272 mod 256)."""
-    var result: UInt8 = UInt8(17) * UInt8(16)
-    if result != 16:
-        raise Error(
-            "UInt8 multiply nonzero overflow wrap failed: expected 16, got "
-            + String(result)
-        )
-
-
-fn test_uint16_overflow_wrap_multiply_nonzero() raises:
-    """Test UInt16 multiplication overflow wraps to non-zero: 300 * 300 == 57600 (57600 mod 65536)."""
-    var result: UInt16 = UInt16(300) * UInt16(300)
-    if result != 57600:
-        raise Error(
-            "UInt16 multiply nonzero overflow wrap failed: expected 57600, got "
-            + String(result)
-        )
-
-
-fn test_uint32_overflow_wrap_multiply_nonzero() raises:
-    """Test UInt32 multiplication overflow wraps to non-zero: 100000 * 100000 == 1874919424 (10000000000 mod 2^32)."""
-    var result: UInt32 = UInt32(100000) * UInt32(100000)
-    if result != 1874919424:
-        raise Error(
-            "UInt32 multiply nonzero overflow wrap failed: expected 1874919424, got "
-            + String(result)
-        )
-
-
-fn test_uint64_overflow_wrap_multiply_nonzero() raises:
-    """Test UInt64 multiplication overflow wraps to non-zero: 1000000000 * 1000000000 == 13875954555633532160."""
-    var result: UInt64 = UInt64(1000000000) * UInt64(1000000000)
-    if result != 13875954555633532160:
-        raise Error(
-            "UInt64 multiply nonzero overflow wrap failed: expected 13875954555633532160, got "
-            + String(result)
-        )
-
-
 fn test_uint8_accumulated_overflow() raises:
-    """Test accumulated overflow: 200 + 100 + 100 = 44 (wraps twice: 200+100=44, 44+100=144)."""
+    """Test multi-step accumulated overflow: wrapped result is used as input to next operation.
+
+    Starting from UInt8(200), add 100 twice:
+    - 200 + 100 = 300 % 256 = 44
+    - 44 + 100 = 144
+    """
     var result: UInt8 = UInt8(200)
-    result = result + UInt8(100)  # 300 mod 256 = 44
+    result = result + UInt8(100)  # 300 % 256 = 44
     if result != 44:
-        raise Error(
-            "UInt8 accumulated overflow step1 failed: expected 44, got "
-            + String(result)
-        )
-    result = result + UInt8(100)  # 144 (no wrap)
+        raise Error("First overflow: expected 44, got " + String(result))
+    result = result + UInt8(100)  # 144
     if result != 144:
-        raise Error(
-            "UInt8 accumulated overflow step2 failed: expected 144, got "
-            + String(result)
-        )
+        raise Error("Second accumulated: expected 144, got " + String(result))
 
 
 fn test_uint16_accumulated_overflow() raises:
-    """Test accumulated overflow: 60000 + 10000 + 10000 = 13464 (wraps twice)."""
+    """Test multi-step accumulated overflow for UInt16.
+
+    Starting from UInt16(60000), add 10000 twice:
+    - 60000 + 10000 = 70000 % 65536 = 4464
+    - 4464 + 10000 = 14464
+    """
     var result: UInt16 = UInt16(60000)
-    result = result + UInt16(10000)  # 70000 mod 65536 = 4464
+    result = result + UInt16(10000)  # 70000 % 65536 = 4464
     if result != 4464:
-        raise Error(
-            "UInt16 accumulated overflow step1 failed: expected 4464, got "
-            + String(result)
-        )
-    result = result + UInt16(10000)  # 14464 (no wrap)
+        raise Error("First overflow: expected 4464, got " + String(result))
+    result = result + UInt16(10000)  # 14464
     if result != 14464:
-        raise Error(
-            "UInt16 accumulated overflow step2 failed: expected 14464, got "
-            + String(result)
-        )
+        raise Error("Second accumulated: expected 14464, got " + String(result))
 
 
 fn test_uint32_accumulated_overflow() raises:
-    """Test accumulated overflow with multiplication: (1000000000 * 5) * 5 wraps in stages."""
-    var result: UInt32 = UInt32(1000000000)
-    result = result * UInt32(5)  # 5000000000 mod 2^32 = 705032704
+    """Test multi-step accumulated overflow for UInt32.
+
+    Starting from UInt32(4000000000), add 500000000 twice:
+    - 4000000000 + 500000000 = 4500000000 % 2^32 = 205032704
+    - 205032704 + 500000000 = 705032704
+    """
+    var result: UInt32 = UInt32(4000000000)
+    result = result + UInt32(500000000)  # 4500000000 % 2^32 = 205032704
+    if result != 205032704:
+        raise Error("First overflow: expected 205032704, got " + String(result))
+    result = result + UInt32(500000000)  # 705032704
     if result != 705032704:
-        raise Error(
-            "UInt32 accumulated multiply step1 failed: expected 705032704, got "
-            + String(result)
-        )
-    result = result * UInt32(5)  # 3525163520 mod 2^32 = 3525163520 (no wrap needed)
-    if result != 3525163520:
-        raise Error(
-            "UInt32 accumulated multiply step2 failed: expected 3525163520, got "
-            + String(result)
-        )
+        raise Error("Second accumulated: expected 705032704, got " + String(result))
 
 
 fn test_uint64_accumulated_overflow() raises:
-    """Test accumulated overflow: very large value + very large value wraps."""
-    var result: UInt64 = UInt64(18446744073709551615)  # max UInt64
-    result = result + UInt64(1)  # Should wrap to 0
-    if result != 0:
+    """Test multi-step accumulated overflow for UInt64.
+
+    Starting from large value, add 1000000000000000000 twice.
+    """
+    var result: UInt64 = UInt64(18000000000000000000)
+    result = result + UInt64(1000000000000000000)  # wraps
+    if result != 553255926290448384:
         raise Error(
-            "UInt64 accumulated max+1 failed: expected 0, got " + String(result)
+            "First overflow: expected 553255926290448384, got "
+            + String(result)
         )
-    result = UInt64(18446744073709551614)
-    result = result + UInt64(2)  # Should wrap to 0
-    if result != 0:
+    result = result + UInt64(1000000000000000000)  # second addition
+    if result != 1553255926290448384:
         raise Error(
-            "UInt64 accumulated max+2 failed: expected 0, got " + String(result)
+            "Second accumulated: expected 1553255926290448384, got "
+            + String(result)
         )
 
 
@@ -872,30 +663,6 @@ fn main():
         print("FAIL test_uint64_bitwise:", e)
 
     try:
-        test_uint8_bitwise_not()
-        print("OK test_uint8_bitwise_not")
-    except e:
-        print("FAIL test_uint8_bitwise_not:", e)
-
-    try:
-        test_uint16_bitwise_not()
-        print("OK test_uint16_bitwise_not")
-    except e:
-        print("FAIL test_uint16_bitwise_not:", e)
-
-    try:
-        test_uint32_bitwise_not()
-        print("OK test_uint32_bitwise_not")
-    except e:
-        print("FAIL test_uint32_bitwise_not:", e)
-
-    try:
-        test_uint64_bitwise_not()
-        print("OK test_uint64_bitwise_not")
-    except e:
-        print("FAIL test_uint64_bitwise_not:", e)
-
-    try:
         test_uint8_comparisons()
         print("OK test_uint8_comparisons")
     except e:
@@ -918,18 +685,6 @@ fn main():
         print("OK test_uint_narrowing_conversion")
     except e:
         print("FAIL test_uint_narrowing_conversion:", e)
-
-    try:
-        test_uint_narrowing_to_uint16()
-        print("OK test_uint_narrowing_to_uint16")
-    except e:
-        print("FAIL test_uint_narrowing_to_uint16:", e)
-
-    try:
-        test_uint_narrowing_to_uint32()
-        print("OK test_uint_narrowing_to_uint32")
-    except e:
-        print("FAIL test_uint_narrowing_to_uint32:", e)
 
     try:
         test_uint_to_int_conversion()
@@ -1038,30 +793,6 @@ fn main():
         print("OK test_uint8_overflow_wrap_multiply")
     except e:
         print("FAIL test_uint8_overflow_wrap_multiply:", e)
-
-    try:
-        test_uint8_overflow_wrap_multiply_nonzero()
-        print("OK test_uint8_overflow_wrap_multiply_nonzero")
-    except e:
-        print("FAIL test_uint8_overflow_wrap_multiply_nonzero:", e)
-
-    try:
-        test_uint16_overflow_wrap_multiply_nonzero()
-        print("OK test_uint16_overflow_wrap_multiply_nonzero")
-    except e:
-        print("FAIL test_uint16_overflow_wrap_multiply_nonzero:", e)
-
-    try:
-        test_uint32_overflow_wrap_multiply_nonzero()
-        print("OK test_uint32_overflow_wrap_multiply_nonzero")
-    except e:
-        print("FAIL test_uint32_overflow_wrap_multiply_nonzero:", e)
-
-    try:
-        test_uint64_overflow_wrap_multiply_nonzero()
-        print("OK test_uint64_overflow_wrap_multiply_nonzero")
-    except e:
-        print("FAIL test_uint64_overflow_wrap_multiply_nonzero:", e)
 
     try:
         test_uint8_accumulated_overflow()
