@@ -148,6 +148,19 @@ bug that occurs after ~15 cumulative tests. See Issue #2942.
 
 **Why Rejected**: More complex than simple file splitting.
 
+## CI Integration Notes
+
+### Pattern Field Constraint
+
+The `pattern` field in `.github/workflows/comprehensive-tests.yml` accepts **space-separated LITERAL
+filenames only**, NOT glob patterns. When adding split files per ADR-009:
+
+- **INCORRECT**: `pattern: "test_elementwise_dispatch_part*.mojo"`
+- **CORRECT**: `pattern: "test_elementwise_dispatch_part1.mojo test_elementwise_dispatch_part2.mojo"`
+
+This is a GitHub Actions workflow limitation. Enumerate all filenames explicitly when split files
+are created. See Issue #4110 for details.
+
 ## Implementation Plan
 
 ### Phase 1: Split Test Files (COMPLETE)
