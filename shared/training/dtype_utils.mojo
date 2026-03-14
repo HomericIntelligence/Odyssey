@@ -18,14 +18,14 @@ Note:
     DType.bfloat16 is NOT supported on Apple Silicon.
 
 Usage:
-    from shared.training.dtype_utils import bfloat16_dtype, is_reduced_precision
+    from shared.training.dtype_utils import bfloat16_dtype, recommend_precision_dtype
 
-    # Use bfloat16_dtype for BFloat16 training
+    # On Apple Silicon, BF16 is not available - use FP16 instead
+    var dtype = recommend_precision_dtype(model_size_mb=500.0, hardware_has_bf16=False)
+    var params = ExTensor.zeros((100, 100), dtype)
+
+    # Or use BFloat16 on supported hardware (not Apple Silicon)
     var params = ExTensor.zeros((100, 100), bfloat16_dtype)
-
-    # Check if dtype is reduced precision
-    if is_reduced_precision(params.dtype()):
-        print("Using reduced precision training")
 """
 
 
