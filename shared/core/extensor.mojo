@@ -900,6 +900,38 @@ struct ExTensor(
             flat_idx += indices[i] * self._strides[i]
         self.__setitem__(flat_idx, value)
 
+    fn __setitem__(mut self, indices: List[Int], value: Int64) raises:
+        """Set element at multi-dimensional index using Int64 value.
+
+        Args:
+            indices: Per-dimension indices (one per axis).
+            value: The integer value to set (cast to tensor dtype).
+
+        Raises:
+            Error: If number of indices doesn't match tensor rank,
+                   or any index is out of bounds.
+
+        Example:
+            ```mojo
+            var t = zeros([3, 4], DType.int32)
+            t[[1, 2]] = Int64(42)  # Set element at row 1, col 2
+            ```
+        """
+        if len(indices) != len(self._shape):
+            raise Error(
+                "Number of indices ("
+                + String(len(indices))
+                + ") must match tensor rank ("
+                + String(len(self._shape))
+                + ")"
+            )
+        var flat_idx = 0
+        for i in range(len(indices)):
+            if indices[i] < 0 or indices[i] >= self._shape[i]:
+                raise Error("Index out of bounds at dimension " + String(i))
+            flat_idx += indices[i] * self._strides[i]
+        self.__setitem__(flat_idx, value)
+
     fn __getitem__(self, slice: Slice) raises -> Self:
         """Get slice of 1D tensor [start:end] or [start:end:step].
 
