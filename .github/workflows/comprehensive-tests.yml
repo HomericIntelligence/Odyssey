@@ -197,7 +197,10 @@ jobs:
   test-mojo-comprehensive:
     needs: [mojo-compilation, validate-test-coverage]  # Only run tests if compilation and validation succeed
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 15  # Job timeout for all matrix groups. Monitor wall-clock times after
+                          # consolidating test files. If any group consistently takes >10 min,
+                          # split it into two separate entries. See Issue #3357 for monitoring
+                          # guidance and ADR-009 for heap corruption splitting constraints.
     continue-on-error: ${{ matrix.test-group.continue-on-error == true }}
     strategy:
       fail-fast: false  # Continue running other groups even if one fails
