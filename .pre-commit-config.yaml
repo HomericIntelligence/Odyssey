@@ -56,13 +56,13 @@ repos:
 
   # Security checks - bandit for accurate Python security scanning
   # Replaces naive pygrep shell=True check with AST-based analysis
-  # Suppressions (B310, B202) are documented in .bandit [bandit] section
+  # Skips: B310 (urlopen with controlled URLs), B202 (tarfile in download scripts), B301 (pickle in trusted dataset loaders)
   - repo: local
     hooks:
       - id: bandit
         name: Bandit Security Scan
         description: Scan Python files for security vulnerabilities using bandit
-        entry: pixi run bandit -ll --skip B310,B202,B301  # B301 skipped: bandit check for unsafe deserialization; excluded as test/dev scripts don't use untrusted data (B310/B202 rationale in .bandit config)
+        entry: pixi run bandit -ll --skip B310,B202,B301
         language: system
         files: ^(scripts|tests|tools|examples)/.*\.py$
         types: [python]
