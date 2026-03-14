@@ -17,8 +17,9 @@ Backward Pass Testing:
 - Uses seeded random tensors for reproducible gradient checking
 - Validates analytical gradients against numerical gradients
 - Tolerances adjusted per dtype (1e-2 for float32)
-- Epsilon for float32 gradient checking: GRADIENT_CHECK_EPSILON_FLOAT32 (3e-4),
-  chosen to avoid precision loss in matmul operations (see issue #2704)
+- Epsilon for float32 gradient checking: GRADIENT_CHECK_EPSILON_FLOAT32 (imported from
+  shared.testing.tolerance_constants), chosen to avoid precision loss in matmul
+  operations (see issue #2704)
 
 Usage:
     from shared.testing.layer_testers import LayerTester
