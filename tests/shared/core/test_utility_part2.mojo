@@ -61,12 +61,22 @@ fn test_is_contiguous_after_transpose() raises:
 
 
 fn test_contiguous_on_noncontiguous() raises:
-    """Test making non-contiguous tensor contiguous."""
+    """Test making non-contiguous tensor contiguous with value correctness.
+
+    Verifies both structure (is_contiguous, strides) and values after as_contiguous
+    on a transposed tensor. The values should reflect the transpose reordering,
+    not just flat-copying the data.
+    """
     var shape = List[Int]()
     shape.append(3)
     shape.append(4)
     var a = arange(0.0, 12.0, 1.0, DType.float32)
     var b = a.reshape(shape)
+    # Original (3,4) tensor:
+    # [0,  1,  2,  3]
+    # [4,  5,  6,  7]
+    # [8,  9, 10, 11]
+
     var t = transpose_view(b)
     assert_false(
         t.is_contiguous(), "Transposed tensor should not be contiguous"
@@ -81,6 +91,29 @@ fn test_contiguous_on_noncontiguous() raises:
     # Result should have row-major strides [4, 1] for shape (4, 3) after transpose
     assert_equal_int(c._strides[0], 3, "Stride for dim 0 should be 3 (rows)")
     assert_equal_int(c._strides[1], 1, "Stride for dim 1 should be 1")
+
+    # Verify values are correctly transposed
+    # After transpose: shape is (4,3), and values should be:
+    # [0, 4, 8]
+    # [1, 5, 9]
+    # [2, 6, 10]
+    # [3, 7, 11]
+    var expected = List[Float32](
+        0.0, 4.0, 8.0,
+        1.0, 5.0, 9.0,
+        2.0, 6.0, 10.0,
+        3.0, 7.0, 11.0,
+    )
+
+    var data_ptr = c._data.bitcast[Float32]()
+    for i in range(12):
+        assert_almost_equal(
+            Float64(data_ptr[i]),
+            Float64(expected[i]),
+            Float64(1e-5),
+            "Transposed value at index " + String(i)
+            + " should be " + String(expected[i]),
+        )
 
 
 fn test_contiguous_stride_correct_values() raises:
