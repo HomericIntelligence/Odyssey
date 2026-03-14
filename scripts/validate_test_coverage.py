@@ -5,22 +5,15 @@ Validate Test Coverage - Ensure all test_*.mojo files are covered by CI
 This script finds all test_*.mojo files in the repository and verifies they are
 included in the CI test matrix in .github/workflows/comprehensive-tests.yml.
 
-IMPORTANT: Always grep live test files rather than relying on cached metadata.
-Issue #3477 mistakenly stated test_conv.mojo had 15 test functions when the actual
-count was 20. This script verifies live file counts, not stale issue metadata.
-See Issue #4325 for details on this discrepancy.
-
 Exit codes:
-  0 - All tests covered (or only warnings with --warn-stale)
-  1 - Uncovered tests found, validation errors, or stale patterns with --error-stale
+  0 - All tests covered
+  1 - Uncovered tests found or validation errors
 
 Usage:
-    python scripts/validate_test_coverage.py [options]
+    python scripts/validate_test_coverage.py [--post-pr]
 
-Options:
-    --post-pr       Post validation report to GitHub PR if tests are missing
-    --warn-stale    Treat stale patterns as warnings (default, exit 0)
-    --error-stale   Treat stale patterns as errors (exit 1 if found)
+Arguments:
+    --post-pr   Post validation report to GitHub PR if tests are missing
 """
 
 import os
@@ -33,30 +26,22 @@ import yaml
 
 # Enable importing from scripts/common.py
 sys.path.insert(0, str(Path(__file__).parent))
-from common import get_repo_root, EXCLUDE_DIRS
+from common import get_repo_root
 
 
 def find_test_files(root_dir: Path) -> List[Path]:
-    """Find all test_*.mojo files, excluding build artifacts and examples.
-
-    MAINTENANCE NOTE: This function uses hardcoded lists of excluded test files
-    (E2E tests, training tests, dataset-dependent tests, etc.). These lists must
-    be manually updated whenever test files are:
-    - Renamed (update in exclude_files list)
-    - Split per ADR-009 (add new part files to list)
-    - Added/removed (add/remove from appropriate list)
-
-    This is a known maintenance burden. Alternatives to consider:
-    - Switch to glob-based discovery with .gitignore-style pattern matching
-    - Use a separate config file (JSON/YAML) for excludes instead of hardcoded list
-    - Add a test naming convention to auto-identify excluded tests
-
-    See Issue #4369 for discussion and ADR-009 for test splitting guidelines.
-    """
+    """Find all test_*.mojo files, excluding build artifacts and examples."""
     test_files = []
 
     # Exclude patterns for directories we don't want to scan
-    exclude_patterns = list(EXCLUDE_DIRS) + ["__pycache__/"]
+    exclude_patterns = [
+        ".pixi/",
+        "build/",
+        "dist/",
+        "__pycache__/",
+        ".git/",
+        "worktrees/",
+    ]
 
     # Exclude specific test files that require external datasets
     # These tests need datasets/ directory which must be downloaded separately
@@ -121,9 +106,6 @@ def find_test_files(root_dir: Path) -> List[Path]:
         "tests/shared/training/test_metrics_part1.mojo",
         "tests/shared/training/test_metrics_part2.mojo",
         "tests/shared/training/test_mixed_precision.mojo",
-        # Removed: test_mixed_precision_part1.mojo and test_mixed_precision_part2.mojo
-        # These files now comply with ADR-009 (≤8 tests each) and run in per-PR CI
-        # See issue #4409
         "tests/shared/training/test_optimizer_utils_part1.mojo",
         "tests/shared/training/test_optimizer_utils_part2.mojo",
         "tests/shared/training/test_mixed_precision_simd.mojo",
@@ -251,30 +233,6 @@ def expand_pattern(base_path: str, pattern: str, root_dir: Path) -> Set[Path]:
     return matched_files
 
 
-def check_stale_patterns(ci_groups: Dict[str, Dict[str, str]], root_dir: Path) -> List[str]:
-    """Check for CI matrix entries that match zero existing test files.
-
-    A stale pattern is one whose base path does not exist or whose glob
-    matches no files in the repository.  These are typically caused by
-    test files being renamed, deleted, or converted from explicit filename
-    lists to a glob *after* the CI matrix entry was written.
-
-    Args:
-        ci_groups: Mapping of group name -> {"path": ..., "pattern": ...}
-                   as returned by parse_ci_matrix().
-        root_dir:  Repository root path.
-
-    Returns:
-        Sorted list of group names whose patterns match zero files.
-    """
-    stale: List[str] = []
-    for group_name, group_info in ci_groups.items():
-        matched = expand_pattern(group_info["path"], group_info["pattern"], root_dir)
-        if not matched:
-            stale.append(group_name)
-    return sorted(stale)
-
-
 def check_coverage(
     test_files: List[Path], ci_groups: Dict[str, Dict[str, str]], root_dir: Path
 ) -> Tuple[Set[Path], Dict[str, Set[Path]], List[Tuple[str, str, str]]]:
@@ -327,40 +285,42 @@ def generate_report(
             count = len(coverage_by_group[group_name])
             report_lines.append(f"- {group_name}: {count} test(s)")
     else:
-        report_lines.append(f"❌ Found {len(uncovered)} uncovered test file(s)")
-        report_lines.append("")
-        report_lines.append("### Uncovered Tests")
-        report_lines.append("")
-        for test_file in sorted(uncovered):
-            report_lines.append(f"- {test_file}")
-        report_lines.append("")
-        report_lines.append("### Recommendations")
-        report_lines.append("")
-        report_lines.append("Add missing test files to `.github/workflows/comprehensive-tests.yml`")
-        report_lines.append("by updating the appropriate test group or creating a new one.")
-        report_lines.append("")
-        report_lines.append("#### Example Test Groups to Consider")
-        report_lines.append("")
+        if uncovered:
+            report_lines.append(f"❌ Found {len(uncovered)} uncovered test file(s)")
+            report_lines.append("")
+            report_lines.append("### Uncovered Tests")
+            report_lines.append("")
+            for test_file in sorted(uncovered):
+                report_lines.append(f"- {test_file}")
+            report_lines.append("")
+            report_lines.append("### Recommendations")
+            report_lines.append("")
+            report_lines.append("Add missing test files to `.github/workflows/comprehensive-tests.yml`")
+            report_lines.append("by updating the appropriate test group or creating a new one.")
+            report_lines.append("")
+            report_lines.append("#### Example Test Groups to Consider")
+            report_lines.append("")
 
-        # Suggest groups based on uncovered paths
-        suggestions: Dict[str, Any] = {}
-        for test_file in sorted(uncovered):
-            parts = test_file.parts
-            if len(parts) >= 2:
-                suggested_group = parts[1]
-                if suggested_group not in suggestions:
-                    suggestions[suggested_group] = []
-                suggestions[suggested_group].append(test_file)
+            # Suggest groups based on uncovered paths
+            suggestions: Dict[str, Any] = {}
+            for test_file in sorted(uncovered):
+                parts = test_file.parts
+                if len(parts) >= 2:
+                    suggested_group = parts[1]
+                    if suggested_group not in suggestions:
+                        suggestions[suggested_group] = []
+                    suggestions[suggested_group].append(test_file)
 
-        report_lines.append("```yaml")
-        for group, files in sorted(suggestions.items()):
-            report_lines.append(f'- name: "{group.title()}"')
-            report_lines.append(f'  path: "{files[0].parent}"')
-            report_lines.append('  pattern: "test_*.mojo"')
-        report_lines.append("```")
+            report_lines.append("```yaml")
+            for group, files in sorted(suggestions.items()):
+                report_lines.append(f'- name: "{group.title()}"')
+                report_lines.append(f'  path: "{files[0].parent}"')
+                report_lines.append('  pattern: "test_*.mojo"')
+            report_lines.append("```")
 
         if stale_patterns:
-            report_lines.append("")
+            if uncovered:
+                report_lines.append("")
             report_lines.append("### Stale CI Patterns")
             report_lines.append("")
             report_lines.append("The following test groups have patterns that don't match any test files:")
@@ -448,51 +408,58 @@ def main():
     # Check coverage
     uncovered, coverage_by_group, stale_patterns = check_coverage(test_files, ci_groups, repo_root)
 
-    # Parse command line flags
-    post_pr = "--post-pr" in sys.argv
-    warn_stale = "--warn-stale" in sys.argv or "--error-stale" not in sys.argv
-    error_stale = "--error-stale" in sys.argv
-
     # Only print detailed report if tests are missing or stale patterns exist
-    if uncovered or (stale_patterns and warn_stale):
+    if uncovered or stale_patterns:
         print("=" * 70)
         print("Test Coverage Validation")
         print("=" * 70)
         print()
-        print(f"❌ Found {len(uncovered)} uncovered test file(s):")
-        print()
 
-        for test_file in sorted(uncovered):
-            print(f"   • {test_file}")
-
-        print()
-        print("=" * 70)
-        print("Recommendations")
-        print("=" * 70)
-        print()
-        print("Add missing test files to .github/workflows/comprehensive-tests.yml")
-        print("by updating the appropriate test group or creating a new one.")
-        print()
-        print("Example test groups to consider:")
-        print()
-
-        # Suggest groups based on uncovered paths
-        suggestions: Dict[str, Any] = {}
-        for test_file in sorted(uncovered):
-            parts = test_file.parts
-            if len(parts) >= 2:
-                suggested_group = parts[1]  # e.g., "shared", "configs", etc.
-                if suggested_group not in suggestions:
-                    suggestions[suggested_group] = []
-                suggestions[suggested_group].append(test_file)
-
-        for group, files in sorted(suggestions.items()):
-            print(f'  - name: "{group.title()}"')
-            print(f'    path: "{files[0].parent}"')
-            print('    pattern: "test_*.mojo"')
+        if uncovered:
+            print(f"❌ Found {len(uncovered)} uncovered test file(s):")
             print()
 
-        print()
+            for test_file in sorted(uncovered):
+                print(f"   • {test_file}")
+
+            print()
+            print("=" * 70)
+            print("Recommendations")
+            print("=" * 70)
+            print()
+            print("Add missing test files to .github/workflows/comprehensive-tests.yml")
+            print("by updating the appropriate test group or creating a new one.")
+            print()
+            print("Example test groups to consider:")
+            print()
+
+            # Suggest groups based on uncovered paths
+            suggestions: Dict[str, Any] = {}
+            for test_file in sorted(uncovered):
+                parts = test_file.parts
+                if len(parts) >= 2:
+                    suggested_group = parts[1]  # e.g., "shared", "configs", etc.
+                    if suggested_group not in suggestions:
+                        suggestions[suggested_group] = []
+                    suggestions[suggested_group].append(test_file)
+
+            for group, files in sorted(suggestions.items()):
+                print(f'  - name: "{group.title()}"')
+                print(f'    path: "{files[0].parent}"')
+                print('    pattern: "test_*.mojo"')
+                print()
+
+            print()
+
+        if stale_patterns:
+            print("⚠️  Found stale CI patterns (patterns that don't match any test files):")
+            print()
+            for group_name, path, pattern in sorted(stale_patterns):
+                print(f"   • {group_name}: {path} / {pattern}")
+            print()
+            print("These patterns may be outdated or incorrect.")
+            print()
+            print()
 
         # Generate report for PR
         report = generate_report(uncovered, test_files, coverage_by_group, stale_patterns)
@@ -502,18 +469,7 @@ def main():
             post_to_pr(report)
 
         # Exit with error code
-        # - Always exit 1 if uncovered files exist
-        # - Exit 1 if stale patterns exist AND --error-stale flag is set
-        if uncovered:
-            return 1
-        if error_stale and stale_patterns:
-            return 1
-
-    # Handle case where only stale patterns exist without uncovered files
-    if stale_patterns:
-        if error_stale:
-            return 1
-        # For --warn-stale (default), exit with success
+        return 1
 
     # All tests are covered - exit quietly with success
     return 0
