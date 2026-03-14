@@ -64,19 +64,19 @@ fn test_model_checkpoint_save_best_only_min_mode() raises:
     # Epoch 0: val_loss = 1.0 (first value, should save)
     state.epoch = 0
     state.metrics["val_loss"] = 1.0
-    checkpoint.on_epoch_end(state)
+    _ = checkpoint.on_epoch_end(state)
     assert_equal(checkpoint.get_save_count(), 1, "Should save on first epoch")
 
     # Epoch 1: val_loss = 0.9 (improved, should save)
     state.epoch = 1
     state.metrics["val_loss"] = 0.9
-    checkpoint.on_epoch_end(state)
+    _ = checkpoint.on_epoch_end(state)
     assert_equal(checkpoint.get_save_count(), 2, "Should save on improvement")
 
     # Epoch 2: val_loss = 0.95 (degraded, should not save)
     state.epoch = 2
     state.metrics["val_loss"] = 0.95
-    checkpoint.on_epoch_end(state)
+    _ = checkpoint.on_epoch_end(state)
     assert_equal(
         checkpoint.get_save_count(), 2, "Should not save on degradation"
     )
@@ -96,19 +96,19 @@ fn test_model_checkpoint_save_best_only_max_mode() raises:
     # Epoch 0: accuracy = 0.8 (first value, should save)
     state.epoch = 0
     state.metrics["val_accuracy"] = 0.8
-    checkpoint.on_epoch_end(state)
+    _ = checkpoint.on_epoch_end(state)
     assert_equal(checkpoint.get_save_count(), 1, "Should save on first epoch")
 
     # Epoch 1: accuracy = 0.85 (improved, should save)
     state.epoch = 1
     state.metrics["val_accuracy"] = 0.85
-    checkpoint.on_epoch_end(state)
+    _ = checkpoint.on_epoch_end(state)
     assert_equal(checkpoint.get_save_count(), 2, "Should save on improvement")
 
     # Epoch 2: accuracy = 0.83 (degraded, should not save)
     state.epoch = 2
     state.metrics["val_accuracy"] = 0.83
-    checkpoint.on_epoch_end(state)
+    _ = checkpoint.on_epoch_end(state)
     assert_equal(
         checkpoint.get_save_count(), 2, "Should not save on degradation"
     )
@@ -123,7 +123,7 @@ fn test_model_checkpoint_epoch_placeholder() raises:
     var state = TrainingState(epoch=5, batch=0, learning_rate=0.01)
 
     # Should replace {epoch} with 5
-    checkpoint.on_epoch_end(state)
+    _ = checkpoint.on_epoch_end(state)
     assert_equal(checkpoint.get_save_count(), 1, "Should have saved checkpoint")
 
 
@@ -139,7 +139,7 @@ fn test_model_checkpoint_error_count() raises:
     )
 
     # Save a checkpoint (no error)
-    checkpoint.on_epoch_end(state)
+    _ = checkpoint.on_epoch_end(state)
     assert_equal(
         checkpoint.get_error_count(), 0, "No errors from successful save"
     )

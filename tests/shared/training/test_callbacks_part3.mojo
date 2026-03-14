@@ -35,12 +35,12 @@ fn test_logging_callback_logs_at_interval() raises:
     state.metrics["val_loss"] = 0.6
 
     # Epoch 0: Should log (0 % 1 == 0)
-    logger.on_epoch_end(state)
+    _ = logger.on_epoch_end(state)
     assert_equal(logger.get_log_count(), 1, "Should have logged at epoch 0")
 
     # Epoch 1: Should log
     state.epoch = 1
-    logger.on_epoch_end(state)
+    _ = logger.on_epoch_end(state)
     assert_equal(logger.get_log_count(), 2, "Should have logged at epoch 1")
 
 
@@ -52,17 +52,17 @@ fn test_logging_callback_skips_non_intervals() raises:
     state.metrics["train_loss"] = 0.5
 
     # Epoch 0: Should log (0 % 2 == 0)
-    logger.on_epoch_end(state)
+    _ = logger.on_epoch_end(state)
     assert_equal(logger.get_log_count(), 1, "Should have logged at epoch 0")
 
     # Epoch 1: Should not log
     state.epoch = 1
-    logger.on_epoch_end(state)
+    _ = logger.on_epoch_end(state)
     assert_equal(logger.get_log_count(), 1, "Should not log at epoch 1")
 
     # Epoch 2: Should log (2 % 2 == 0)
     state.epoch = 2
-    logger.on_epoch_end(state)
+    _ = logger.on_epoch_end(state)
     assert_equal(logger.get_log_count(), 2, "Should have logged at epoch 2")
 
 
@@ -75,7 +75,7 @@ fn test_logging_callback_with_metrics() raises:
     state.metrics["val_loss"] = 0.6
     state.metrics["accuracy"] = 0.95
 
-    logger.on_epoch_end(state)
+    _ = logger.on_epoch_end(state)
     assert_equal(logger.get_log_count(), 1, "Should have logged metrics")
 
 
@@ -86,7 +86,7 @@ fn test_logging_callback_with_learning_rate() raises:
     var state = TrainingState(epoch=0, batch=0, learning_rate=0.001)
     state.metrics["train_loss"] = 0.5
 
-    logger.on_epoch_end(state)
+    _ = logger.on_epoch_end(state)
     assert_equal(
         logger.get_log_count(), 1, "Should have logged with learning rate"
     )
@@ -99,7 +99,7 @@ fn test_logging_callback_empty_metrics() raises:
     var state = TrainingState(epoch=0, batch=0, learning_rate=0.01)
     # No metrics added
 
-    logger.on_epoch_end(state)
+    _ = logger.on_epoch_end(state)
     assert_equal(logger.get_log_count(), 1, "Should log even with no metrics")
 
 
@@ -127,10 +127,10 @@ fn test_multiple_callbacks_together() raises:
     state.metrics["val_loss"] = 1.0
 
     # All callbacks should work together
-    early_stop.on_train_begin(state)
-    early_stop.on_epoch_end(state)
-    checkpoint.on_epoch_end(state)
-    logger.on_epoch_end(state)
+    _ = early_stop.on_train_begin(state)
+    _ = early_stop.on_epoch_end(state)
+    _ = checkpoint.on_epoch_end(state)
+    _ = logger.on_epoch_end(state)
 
     assert_equal(early_stop.wait_count, 0, "Early stop initialized")
     assert_equal(checkpoint.get_save_count(), 1, "Checkpoint saved")
@@ -142,17 +142,17 @@ fn test_early_stopping_sets_should_stop_flag() raises:
     var early_stop = EarlyStopping(monitor="val_loss", patience=1, mode="min")
 
     var state = TrainingState(epoch=0, batch=0, learning_rate=0.01)
-    early_stop.on_train_begin(state)
+    _ = early_stop.on_train_begin(state)
 
     # First epoch
     state.metrics["val_loss"] = 1.0
-    early_stop.on_epoch_end(state)
+    _ = early_stop.on_epoch_end(state)
     assert_true(not state.should_stop, "should_stop should be False initially")
 
     # Second epoch - no improvement, patience exhausted
     state.epoch = 1
     state.metrics["val_loss"] = 1.1  # Worse than 1.0 in min mode
-    early_stop.on_epoch_end(state)
+    _ = early_stop.on_epoch_end(state)
     assert_true(
         state.should_stop, "should_stop should be set by early stopping"
     )

@@ -33,7 +33,7 @@ fn create_cifar10_test_file(num_images: Int) -> String:
     """Create synthetic CIFAR-10 binary format data.
 
     Args:
-        num_images: Number of images to create
+        num_images: Number of images to create.
 
     Returns:
         String containing binary format data (concatenated image records).
@@ -60,7 +60,7 @@ fn create_cifar100_test_file(num_images: Int) -> String:
     """Create synthetic CIFAR-100 binary format data.
 
     Args:
-        num_images: Number of images to create
+        num_images: Number of images to create.
 
     Returns:
         String containing binary format data (concatenated image records).

@@ -49,7 +49,7 @@ fn test_iterate_all_dtypes() raises:
     var count = 0
     for dtype in dtypes:
         # Just verify we can access each dtype
-        var name = dtype_to_string(dtype)
+        _ = dtype_to_string(dtype)
         count += 1
 
     assert_equal_int(count, 4, "Should iterate through 4 dtypes")
@@ -60,7 +60,7 @@ fn test_iterate_float_dtypes_only() raises:
     var dtypes = get_float_dtypes()
     var count = 0
     for dtype in dtypes:
-        var name = dtype_to_string(dtype)
+        _ = dtype_to_string(dtype)
         count += 1
 
     assert_equal_int(count, 3, "Should iterate through 3 float dtypes")

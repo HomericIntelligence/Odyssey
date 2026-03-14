@@ -76,13 +76,8 @@ fn test_create_metric_summary() raises:
     var summary = create_metric_summary(results)
 
     # Check that summary contains metric names and values
-    var contains_accuracy = False
-    var contains_loss = False
-    var contains_summary = False
-
     # Simple substring checks (Mojo doesn't have built-in contains)
     if len(summary) > 0:
-        contains_summary = True
         # We can't easily check substrings in Mojo yet, so just verify non-empty
         assert_true(len(summary) > 0, "Summary should not be empty")
 

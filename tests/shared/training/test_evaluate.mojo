@@ -46,7 +46,7 @@ struct MockPredictor:
         """Mock predict method that uses stored predictions.
 
         Args:
-            sample: Single sample (not used, returns from predictions list)
+            sample: Single sample (not used, returns from predictions list).
 
         Returns:
             Predicted class index.

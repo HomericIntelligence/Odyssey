@@ -41,13 +41,13 @@ from shared.core import ExTensor, zeros, ones, full, zeros_like
 
 
 fn square_forward(input: ExTensor) raises escaping -> ExTensor:
-    """Forward pass: f(x) = x^2
+    """Forward pass: f(x) = x^2.
 
     Args:
         input: Input tensor.
 
     Returns:
-        input^2: Element-wise squaring.
+        Input^2: Element-wise squaring.
     """
     var result = zeros_like(input)
     for i in range(input.numel()):
@@ -98,10 +98,10 @@ fn test_gradient_checker_zero_input() raises:
     var x = full([1], 0.0, DType.float32)
 
     fn forward(t: ExTensor) raises escaping -> ExTensor:
-        return square_forward(t)^
+        return square_forward(t)
 
     fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
-        return square_backward_correct(grad, inp)^
+        return square_backward_correct(grad, inp)
 
     var passed = check_gradients(
         forward,
@@ -129,10 +129,10 @@ fn test_gradient_checker_negative_input() raises:
     var x = full([1], -2.0, DType.float32)
 
     fn forward(t: ExTensor) raises escaping -> ExTensor:
-        return square_forward(t)^
+        return square_forward(t)
 
     fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
-        return square_backward_correct(grad, inp)^
+        return square_backward_correct(grad, inp)
 
     var passed = check_gradients(
         forward,
@@ -161,10 +161,10 @@ fn test_gradient_checker_large_input() raises:
     var x = full([1], 5.0, DType.float32)
 
     fn forward(t: ExTensor) raises escaping -> ExTensor:
-        return square_forward(t)^
+        return square_forward(t)
 
     fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
-        return square_backward_correct(grad, inp)^
+        return square_backward_correct(grad, inp)
 
     # Moderate inputs still need larger tolerance for float32 precision
     var passed = check_gradients(
@@ -195,10 +195,10 @@ fn test_gradient_checker_small_epsilon() raises:
     var x = full([1], 1.0, DType.float32)
 
     fn forward(t: ExTensor) raises escaping -> ExTensor:
-        return square_forward(t)^
+        return square_forward(t)
 
     fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
-        return square_backward_correct(grad, inp)^
+        return square_backward_correct(grad, inp)
 
     var passed = check_gradients(
         forward,
@@ -223,10 +223,10 @@ fn test_gradient_checker_large_epsilon() raises:
     var x = full([1], 1.0, DType.float32)
 
     fn forward(t: ExTensor) raises escaping -> ExTensor:
-        return square_forward(t)^
+        return square_forward(t)
 
     fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
-        return square_backward_correct(grad, inp)^
+        return square_backward_correct(grad, inp)
 
     var passed = check_gradients(
         forward,
@@ -264,10 +264,10 @@ fn test_check_gradients_does_not_mutate_input() raises:
         before.append(x._get_float64(i))
 
     fn forward(t: ExTensor) raises escaping -> ExTensor:
-        return square_forward(t)^
+        return square_forward(t)
 
     fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
-        return square_backward_correct(grad, inp)^
+        return square_backward_correct(grad, inp)
 
     _ = check_gradients(forward, backward, x, epsilon=1e-5, tolerance=1e-2)
 

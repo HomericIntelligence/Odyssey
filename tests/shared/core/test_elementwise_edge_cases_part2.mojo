@@ -35,7 +35,7 @@ from tests.shared.conftest import (
 
 
 fn test_log_of_zero() raises:
-    """log(0) should be -inf."""
+    """Llog(0) should be -inf."""
     var shape = List[Int]()
     shape.append(3)
     var t = zeros(shape, DType.float32)
@@ -49,7 +49,7 @@ fn test_log_of_zero() raises:
 
 
 fn test_log_of_one() raises:
-    """log(1) should be 0."""
+    """Llog(1) should be 0."""
     var shape = List[Int]()
     shape.append(1)
     var t = ones(shape, DType.float32)
@@ -59,7 +59,7 @@ fn test_log_of_one() raises:
 
 
 fn test_log_of_negative() raises:
-    """log(-1) should be NaN (IEEE 754)."""
+    """Llog(-1) should be NaN (IEEE 754)."""
     var shape = List[Int]()
     shape.append(3)
     var t = full(shape, -1.0, DType.float32)
@@ -72,7 +72,7 @@ fn test_log_of_negative() raises:
 
 
 fn test_log_of_small_positive() raises:
-    """log of very small positive numbers."""
+    """Llog of very small positive numbers."""
     var shape = List[Int]()
     shape.append(1)
     var t = full(shape, 1e-10, DType.float32)
@@ -85,7 +85,7 @@ fn test_log_of_small_positive() raises:
 
 
 fn test_log_of_e() raises:
-    """log(e) should be 1 (natural logarithm)."""
+    """Llog(e) should be 1 (natural logarithm)."""
     var shape = List[Int]()
     shape.append(1)
     var t = full(shape, 2.718281828, DType.float64)

@@ -38,13 +38,13 @@ fn test_factory_create_progress_bar_with_eta():
 
 fn test_format_duration():
     """Test format_duration produces output."""
-    var result = format_duration(45.0)
+    _ = format_duration(45.0)
     # Should produce non-empty string
 
 
 fn test_format_duration_long():
     """Test format_duration with longer duration."""
-    var result = format_duration(3665.0)
+    _ = format_duration(3665.0)
     # Should produce non-empty string
 
 

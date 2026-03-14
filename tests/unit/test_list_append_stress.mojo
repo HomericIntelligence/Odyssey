@@ -156,7 +156,7 @@ fn test_list_reverse_iteration_append() raises:
 
         # Reverse iteration append (like in ExTensor)
         print("    Reverse iteration append...")
-        for i in range(size - 1, -1, -1):
+        for _ in range(size - 1, -1, -1):
             lst.append(0)
 
         print("    len =", len(lst))
@@ -221,14 +221,14 @@ fn test_list_zero_append_stress() raises:
     # Pattern 2: Sequential backward (like ExTensor)
     print("\n  Pattern 2: Backward loop, forward append of zeros...")
     var lst2 = List[Int]()
-    for i in range(100 - 1, -1, -1):
+    for _ in range(100 - 1, -1, -1):
         lst2.append(0)
     print("    len =", len(lst2))
 
     # Pattern 3: Large size
     print("\n  Pattern 3: Large backward loop...")
     var lst3 = List[Int]()
-    for i in range(10000 - 1, -1, -1):
+    for _ in range(10000 - 1, -1, -1):
         lst3.append(0)
     print("    len =", len(lst3))
 

@@ -53,8 +53,7 @@ import os
 
 
 struct LeNet5:
-    """Minimal LeNet-5 for testing. Uses same architecture as examples/lenet-emnist/model.mojo
-    """
+    """Minimal LeNet-5 for testing. Uses same architecture as examples/lenet-emnist/model.mojo."""
 
     var num_classes: Int
     var conv1_kernel: ExTensor

@@ -33,7 +33,7 @@ from tests.shared.conftest import (
 
 
 fn test_sin_of_zero() raises:
-    """sin(0) should be 0."""
+    """Ssin(0) should be 0."""
     var shape = List[Int]()
     shape.append(1)
     var t = zeros(shape, DType.float32)
@@ -44,7 +44,7 @@ fn test_sin_of_zero() raises:
 
 
 fn test_cos_of_zero() raises:
-    """cos(0) should be 1."""
+    """Ccos(0) should be 1."""
     var shape = List[Int]()
     shape.append(1)
     var t = zeros(shape, DType.float32)
@@ -60,7 +60,7 @@ fn test_cos_of_zero() raises:
 
 
 fn test_tanh_of_zero() raises:
-    """tanh(0) should be 0."""
+    """Ttanh(0) should be 0."""
     var shape = List[Int]()
     shape.append(1)
     var t = zeros(shape, DType.float32)
@@ -70,7 +70,7 @@ fn test_tanh_of_zero() raises:
 
 
 fn test_tanh_of_positive() raises:
-    """tanh of positive values should be between 0 and 1."""
+    """Ttanh of positive values should be between 0 and 1."""
     var shape = List[Int]()
     shape.append(3)
     var t = full(shape, 1.0, DType.float32)
@@ -83,7 +83,7 @@ fn test_tanh_of_positive() raises:
 
 
 fn test_tanh_of_negative() raises:
-    """tanh of negative values should be between -1 and 0."""
+    """Ttanh of negative values should be between -1 and 0."""
     var shape = List[Int]()
     shape.append(3)
     var t = full(shape, -1.0, DType.float32)
@@ -96,7 +96,7 @@ fn test_tanh_of_negative() raises:
 
 
 fn test_tanh_saturation_large_positive() raises:
-    """tanh(large) should saturate to 1."""
+    """Ttanh(large) should saturate to 1."""
     var shape = List[Int]()
     shape.append(1)
     var t = full(shape, 100.0, DType.float32)
@@ -109,7 +109,7 @@ fn test_tanh_saturation_large_positive() raises:
 
 
 fn test_tanh_saturation_large_negative() raises:
-    """tanh(-large) should saturate to -1."""
+    """Ttanh(-large) should saturate to -1."""
     var shape = List[Int]()
     shape.append(1)
     var t = full(shape, -100.0, DType.float32)

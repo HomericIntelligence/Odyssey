@@ -58,11 +58,11 @@ fn resnet18_forward_simplified(
     For full implementation, this would be implemented as a proper module.
 
     Args:
-        x: Input tensor (batch, 3, H, W)
-        training: Whether in training mode for BatchNorm
+        x: Input tensor (batch, 3, H, W).
+        training: Whether in training mode for BatchNorm.
 
     Returns:
-        Output logits (batch, 10) for CIFAR-10 classification
+        Output logits (batch, 10) for CIFAR-10 classification.
     """
     # ========== Initial Conv Block ==========
     # Conv2d: 3 -> 64, kernel=7, stride=2, padding=3 (or simplified as 3, stride=1)

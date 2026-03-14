@@ -46,7 +46,7 @@ fn test_flatten_operation_float32() raises:
     assert_dtype(flattened, dtype, "Flatten dtype mismatch")
 
     # Verify all values preserved
-    var expected_value = 1.0
+    _ = 1.0
     for i in range(flattened.numel()):
         var val = flattened._get_float64(i)
         assert_false(isnan(val), "Flatten produced NaN")

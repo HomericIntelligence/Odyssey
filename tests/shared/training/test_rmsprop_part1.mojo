@@ -55,7 +55,7 @@ fn test_rmsprop_step_shapes() raises:
     )
     var new_params = result[0]
     var new_square_avg = result[1]
-    var new_buf = result[2]
+    _ = result[2]
 
     # Check shapes
     assert_equal(new_params.shape()[0], 4)
