@@ -87,14 +87,18 @@ fn test_assert_equal_float_fails() raises:
 
 fn test_assert_close_float_passes() raises:
     """Test assert_close_float with values within tolerance. Closes #4096."""
-    assert_close_float(Float32(1.0), Float32(1.0001), rtol=1e-2, atol=1e-3)
+    assert_close_float(
+        Float64(1.0), Float64(1.0001), rtol=1e-2, atol=1e-3
+    )
 
 
 fn test_assert_close_float_fails() raises:
     """Test assert_close_float raises for distant values. Closes #4096."""
     var failed = False
     try:
-        assert_close_float(Float32(1.0), Float32(2.0), rtol=1e-5, atol=1e-5)
+        assert_close_float(
+            Float64(1.0), Float64(2.0), rtol=1e-5, atol=1e-5
+        )
     except:
         failed = True
     assert_true(
