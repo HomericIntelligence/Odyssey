@@ -52,6 +52,11 @@ from .memory_pool import pooled_alloc, pooled_free
 comptime MAX_TENSOR_BYTES: Int = 2_000_000_000  # 2 GB max per tensor
 comptime WARN_TENSOR_BYTES: Int = 500_000_000  # 500 MB warning threshold
 
+# Print options for ExTensor.__str__ and __repr__ truncation
+# Can be modified globally to control output behavior (e.g., in test utilities)
+alias EXTENSOR_PRINT_THRESHOLD: Int = 1000  # Truncate if numel > threshold
+alias EXTENSOR_PRINT_SHOW_ELEMENTS: Int = 3  # Show first/last N elements
+
 
 struct ExTensor(
     Copyable,
@@ -2976,8 +2981,9 @@ struct ExTensor(
     fn __str__(self) -> String:
         """Human-readable string representation with NumPy-style truncation.
 
-        For tensors with more than 1000 elements, shows only the first 3 and
-        last 3 elements with '...' in between to prevent performance issues.
+        Truncation is controlled by module-level constants:
+        - EXTENSOR_PRINT_THRESHOLD: Truncate if numel > threshold (default 1000)
+        - EXTENSOR_PRINT_SHOW_ELEMENTS: Show first/last N elements (default 3)
 
         Returns:
             String in the format: ExTensor([v0, v1, ...], dtype=<dtype>)
@@ -2989,17 +2995,14 @@ struct ExTensor(
             print(x)  # ExTensor([0.0, 1.0, 2.0, ..., 997.0, 998.0, 999.0], dtype=float32)
             ```
         """
-        comptime TRUNCATE_THRESHOLD = 1000
-        comptime SHOW_ELEMENTS = 3
-
         var result = String("ExTensor([")
-        if self._numel > TRUNCATE_THRESHOLD:
-            for i in range(SHOW_ELEMENTS):
+        if self._numel > EXTENSOR_PRINT_THRESHOLD:
+            for i in range(EXTENSOR_PRINT_SHOW_ELEMENTS):
                 if i > 0:
                     result += ", "
                 result += String(self._get_float64(i))
             result += ", ..."
-            for i in range(self._numel - SHOW_ELEMENTS, self._numel):
+            for i in range(self._numel - EXTENSOR_PRINT_SHOW_ELEMENTS, self._numel):
                 result += ", " + String(self._get_float64(i))
         else:
             for i in range(self._numel):
@@ -3012,8 +3015,13 @@ struct ExTensor(
     fn __repr__(self) -> String:
         """Detailed representation for debugging.
 
+        Truncation is controlled by module-level constants:
+        - EXTENSOR_PRINT_THRESHOLD: Truncate if numel > threshold (default 1000)
+        - EXTENSOR_PRINT_SHOW_ELEMENTS: Show first/last N elements (default 3)
+
         Returns:
             String in the format: ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[...]).
+            For large tensors: ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[v0, v1, v2, ..., vN-2, vN-1, vN]).
         """
         var shape_str = String("[")
         for i in range(len(self._shape)):
@@ -3025,10 +3033,19 @@ struct ExTensor(
         result += ", dtype=" + String(self._dtype)
         result += ", numel=" + String(self._numel)
         result += ", data=["
-        for i in range(self._numel):
-            if i > 0:
-                result += ", "
-            result += String(self._get_float64(i))
+        if self._numel > EXTENSOR_PRINT_THRESHOLD:
+            for i in range(EXTENSOR_PRINT_SHOW_ELEMENTS):
+                if i > 0:
+                    result += ", "
+                result += String(self._get_float64(i))
+            result += ", ..."
+            for i in range(self._numel - EXTENSOR_PRINT_SHOW_ELEMENTS, self._numel):
+                result += ", " + String(self._get_float64(i))
+        else:
+            for i in range(self._numel):
+                if i > 0:
+                    result += ", "
+                result += String(self._get_float64(i))
         result += "])"
         return result
 
