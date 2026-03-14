@@ -129,7 +129,11 @@ from shared.utils.visualization import plot_training_curves
 #   from shared.core.layers import Linear           # Import specific items
 #   import shared                                     # Import whole package
 #
-# The following components will be available once implementation completes:
+# Available Now:
+# - Version info: VERSION, AUTHOR, LICENSE
+# - Training - Metrics: Accuracy (alias for AccuracyMetric), LossTracker, ConfusionMatrix,
+#   CSVMetricsLogger
+# - Modules: core, training, data, utils, autograd, testing (for sub-imports)
 #
 # Version info: VERSION, AUTHOR, LICENSE
 # Core - Layers: Linear, Conv2D, ReLU, MaxPool2D, Dropout, Flatten
