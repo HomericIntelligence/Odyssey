@@ -246,7 +246,7 @@ struct PrecisionConfig(Copyable, Movable):
         Returns:
             PrecisionConfig with FP8 settings.
 
-        Note:
+        Warning:
             FP8 compute is experimental and currently uses FP16 as a fallback.
             When Mojo adds native FP8 support, this will use true FP8 compute.
 
@@ -262,6 +262,10 @@ struct PrecisionConfig(Copyable, Movable):
             - Storage: FP16 (reduces quantization noise vs pure FP8).
             - Scaling: Recommended initial_scale >= 2^16 for stability.
         """
+        # FP8 is experimental - inform user it's using FP16 fallback
+        print("⚠️  FP8 is experimental: using FP16 for compute and storage")
+        print("     FP8 native support coming in future Mojo release")
+
         # FP8 for compute, FP16 for storage (reduces quantization noise)
         return PrecisionConfig(
             mode=PrecisionMode.FP8,
