@@ -13,7 +13,7 @@ See test_layer_testers_part2.mojo for remaining tests.
 """
 
 from math import isnan, isinf
-from shared.testing.layer_testers import LayerTester
+from shared.testing import LayerTester
 from shared.testing.special_values import (
     create_ones_tensor,
     create_special_value_tensor,
