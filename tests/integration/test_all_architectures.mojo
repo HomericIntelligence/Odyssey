@@ -29,9 +29,9 @@ fn test_model_forward(
     """Test a model's forward pass with dummy data.
 
     Args:
-        model_name: Name of the model being tested
-        forward_fn: Function that takes (input, training) and returns logits
-        batch_size: Batch size for test input
+        model_name: Name of the model being tested.
+        forward_fn: Function that takes (input, training) and returns logits.
+        batch_size: Batch size for test input.
 
     Returns:
         True if test passes, False otherwise.

@@ -57,8 +57,6 @@ fn test_training_data_integration() raises:
     var optimizer = SGD(learning_rate=0.01)
 
     # Verify integration by checking component properties
-    var data_shape = data.shape()
-    var labels_shape = labels.shape()
     assert_true(data.dim() == 2, "Data should be 2D tensor")
     assert_true(labels.dim() == 2, "Labels should be 2D tensor")
     assert_true(
@@ -93,16 +91,12 @@ fn test_complete_training_workflow() raises:
 
     # 3. Create optimizer and loss (training)
     var optimizer = SGD(learning_rate=0.01)
-    var loss_fn = MSELoss()
+    _ = MSELoss()
 
     # 4. Create logger (utils)
-    var logger = Logger("training.log")
+    _ = Logger("training.log")
 
     # 5. Verify workflow components work together
-    var weights_shape = weights.shape()
-    var bias_shape = bias.shape()
-    var data_shape = data.shape()
-    var labels_shape = labels.shape()
     assert_true(weights.dim() == 2, "Weights should be 2D tensor")
     assert_true(bias.dim() == 1, "Bias should be 1D tensor")
     assert_true(data.dim() == 2, "Data should be 2D tensor")
@@ -135,11 +129,11 @@ fn test_paper_implementation_pattern() raises:
 
     # Training setup
     var optimizer = SGD(learning_rate=0.001)
-    var scheduler = CosineAnnealingLR(0.001, 50)
+    _ = CosineAnnealingLR(0.001, 50)
 
     # Callbacks
-    var early_stop = EarlyStopping()
-    var checkpoint = ModelCheckpoint()
+    _ = EarlyStopping()
+    _ = ModelCheckpoint()
 
     # Create dataset
     var data = zeros([10, 1, 28, 28], DType.float32)

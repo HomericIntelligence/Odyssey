@@ -57,9 +57,9 @@ fn test_subpackage_accessibility() raises:
     assert_true(shape[1] == 3, "Second dimension should be 3")
 
     # Test that we can actually instantiate classes
-    var test_optimizer = SGD(learning_rate=0.01)
-    var test_loss = MSELoss()
-    var test_logger = Logger("test.log")
+    _ = SGD(learning_rate=0.01)
+    _ = MSELoss()
+    _ = Logger("test.log")
 
     print("✓ Subpackage accessibility test passed")
 
@@ -107,7 +107,7 @@ fn test_core_training_integration() raises:
 
     # Create optimizer using training
     var optimizer = SGD(learning_rate=0.01)
-    var loss_fn = MSELoss()
+    _ = MSELoss()
 
     # Verify types are correct and components can be instantiated
     var data_shape = data.shape()
