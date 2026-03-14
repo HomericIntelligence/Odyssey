@@ -1,7 +1,8 @@
 """Tests for tensor dtype/numel/dim/value assertion functions.
 
-Note: Split from test_assertions.mojo due to Mojo 0.26.1 heap corruption
-bug that occurs after ~15 cumulative tests. See ADR-009.
+# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
+# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
+# high test load. Split from test_assertions.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
 from testing import assert_true
