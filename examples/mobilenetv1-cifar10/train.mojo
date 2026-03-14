@@ -212,14 +212,21 @@ fn main() raises:
 
     print("Starting training...")
     print()
-    print(
-        "STATUS: Backward pass shown above is a documented placeholder (~2000"
-        " lines for full impl)."
-    )
-    print("        Full implementation tracked in GitHub issue #3187.")
-    print(
-        "        For actual training, consider using automatic differentiation."
-    )
+
+    # STATUS UPDATE
+    print("=" * 60)
+    print("IMPLEMENTATION STATUS")
+    print("=" * 60)
+    print()
+    print("✅ Backward pass structure documented above")
+    print()
+    print("To complete training, implement:")
+    print("  1. Cache all activations during forward pass")
+    print("  2. Implement full backward pass (~2000 lines)")
+    print("  3. Initialize velocity tensors for momentum")
+    print("  4. Update all parameters with SGD + momentum")
+    print()
+    print("Status tracked in GitHub issue #3187")
     print()
 
     for epoch in range(epochs):
