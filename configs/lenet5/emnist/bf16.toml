@@ -1,6 +1,6 @@
 # LeNet-5 EMNIST Training Configuration - BF16 (Brain Float)
 # Mixed precision training with wider exponent range than FP16
-# Note: Currently uses FP16 as BF16 is not natively supported in Mojo v0.26.1
+# Note: BF16 (DType.bfloat16) is supported in Mojo v0.26.1 but NOT on Apple Silicon
 
 [model]
 name = "lenet5"

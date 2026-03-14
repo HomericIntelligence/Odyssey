@@ -16,7 +16,7 @@
 
 ## Overview
 
-This catalog lists all 43 agents in the ML Odyssey hierarchical agent system. Each entry includes:
+This catalog lists all 29 agents in the ML Odyssey hierarchical agent system. Each entry includes:
 
 - **Name**: Agent identifier
 - **Description**: What the agent does
@@ -26,7 +26,7 @@ This catalog lists all 43 agents in the ML Odyssey hierarchical agent system. Ea
 
 ## Quick Reference Table
 
-Representative sample of 43 agents (see detailed sections below for complete list):
+Representative sample of 29 agents (see detailed sections below for complete list):
 
 | Level | Agent Name | Primary Focus | Scope |
 |-------|-----------|---------------|-------|
@@ -49,7 +49,6 @@ Representative sample of 43 agents (see detailed sections below for complete lis
 | **3** | Implementation Review Specialist | Code correctness review | PR dimensions |
 | **3** | Safety Review Specialist | Memory safety review | PR dimensions |
 | **3** | Mojo Language Review Specialist | Language patterns review | PR dimensions |
-| **3** | *+ 11 more Level 3 specialists* | *Various review dimensions* | *PR reviews* |
 | **4** | Senior Implementation Engineer | Complex code | Complex functions |
 | **4** | Implementation Engineer | Standard code | Standard functions |
 | **4** | Test Engineer | Test implementation | Unit/integration tests |
@@ -1235,6 +1234,6 @@ cat .claude/agents/architecture-design.md
 
 ---
 
-**Total Agent Types**: 43 across 6 levels (1 L0 + 6 L1 + 4 L2 + 24 L3 + 6 L4 + 2 L5)
+**Total Agent Types**: 29 across 6 levels
 
 **Remember**: Trust the hierarchy, communicate clearly, and let agents work at their appropriate level!

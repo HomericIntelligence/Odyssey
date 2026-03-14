@@ -105,21 +105,25 @@ fn test_safe_remove() raises:
 
     var test_path = "/tmp/test_remove_safely_3283.txt"
 
-    # Create file
-    var written = safe_write_file(test_path, "test content")
-    assert_true(written)
-    assert_true(file_exists(test_path))
+    try:
+        # Create file
+        var written = safe_write_file(test_path, "test content")
+        assert_true(written)
+        assert_true(file_exists(test_path))
 
-    # Remove it
-    var removed = remove_safely(test_path)
-    assert_true(removed)
-    assert_false(file_exists(test_path))
+        # Remove it
+        var removed = remove_safely(test_path)
+        assert_true(removed)
+        assert_false(file_exists(test_path))
 
-    # Removing nonexistent file returns False
-    var removed_again = remove_safely(test_path)
-    assert_false(removed_again)
+        # Removing nonexistent file returns False
+        var removed_again = remove_safely(test_path)
+        assert_false(removed_again)
 
-    print("PASS: test_safe_remove")
+        print("PASS: test_safe_remove")
+    finally:
+        # Ensure cleanup even if test fails
+        _ = remove_safely(test_path)
 
 
 fn main() raises:
