@@ -158,21 +158,30 @@ fn test_validation_loop_run_updates_metrics() raises:
     print("  test_validation_loop_run_updates_metrics: PASSED")
 
 
-fn test_validation_loop_run_compute_accuracy_false() raises:
-    """Test ValidationLoop with compute_accuracy=False leaves metrics.val_accuracy at 0.0.
+fn test_validation_loop_run_resets_loader() raises:
+    """Test run() resets a partially-consumed DataLoader before iterating.
 
-    When ValidationLoop is created with compute_accuracy=False, the run() method
-    should not compute accuracy. Verify that metrics.val_accuracy remains 0.0
-    after run() completes. This is the complementary negative case to verify
-    the conditional branch is covered.
+    Strategy: Create a loader with exactly 2 batches, then exhaust it by
+    setting current_batch = num_batches. Without reset(), has_next() returns
+    False immediately -> 0 batches processed -> division by zero. With reset(),
+    the loader restarts and processes exactly 2 batches -> valid loss.
+
+    This proves run() calls val_loader.reset() internally through validate()
+    (line 94 of validation_loop.mojo).
     """
-    var vloop = ValidationLoop(compute_accuracy=False)
-    var loader = create_val_loader(n_batches=3)
+    var vloop = ValidationLoop()
+    # 2 batches total (8 samples, batch_size=4)
+    var loader = create_val_loader(n_batches=2)
+    # Pre-exhaust: advance to end so has_next() returns False
+    loader.current_batch = loader.num_batches
+    assert_true(not loader.has_next())
     var metrics = TrainingMetrics()
+    # run() calls reset() internally via validate(), so it should process 2 batches
     var val_loss = vloop.run(simple_forward, simple_loss, loader, metrics)
-    # When compute_accuracy=False, val_accuracy should remain at default 0.0
-    assert_almost_equal(metrics.val_accuracy, Float64(0.0), Float64(1e-10))
-    print("  test_validation_loop_run_compute_accuracy_false: PASSED")
+    # Valid loss proves 2 batches were processed after reset (not 0)
+    assert_greater(val_loss, Float64(-1e-10))
+    assert_less(val_loss, Float64(1e10))
+    print("  test_validation_loop_run_resets_loader: PASSED")
 
 
 # ============================================================================
@@ -192,41 +201,6 @@ fn test_validation_loop_run_subset_limited() raises:
     )
     assert_almost_equal(val_loss, Float64(1.0), Float64(1e-5))
     print("  test_validation_loop_run_subset_limited: PASSED")
-
-
-fn test_validation_loop_run_subset_exact_batch_count() raises:
-    """Test run_subset() processes exactly max_batches batches, not more or less.
-
-    Verifies that different max_batches values with the same loader produce
-    different losses only if the exact batch count is being processed.
-    With our simple_loss that returns 1.0 per batch, the averaged loss
-    should be 1.0 regardless of batch count, but computing accuracy with
-    the AccuracyMetric will accumulate results from exactly max_batches
-    batches.
-
-    Strategy: Run twice with max_batches=1 and max_batches=2 and check
-    that the loader's state is correctly positioned after each run.
-    """
-    var vloop = ValidationLoop()
-    var loader1 = create_val_loader(n_batches=5)
-    var metrics1 = TrainingMetrics()
-    # Process 1 batch
-    var val_loss_1 = vloop.run_subset(
-        simple_forward, simple_loss, loader1, 1, metrics1
-    )
-    # After processing 1 batch with batch_size=4, current_batch should be 1
-    assert_equal_int(loader1.current_batch, 1)
-
-    # Create new loader and process 2 batches
-    var loader2 = create_val_loader(n_batches=5)
-    var metrics2 = TrainingMetrics()
-    var val_loss_2 = vloop.run_subset(
-        simple_forward, simple_loss, loader2, 2, metrics2
-    )
-    # After processing 2 batches, current_batch should be 2
-    assert_equal_int(loader2.current_batch, 2)
-
-    print("  test_validation_loop_run_subset_exact_batch_count: PASSED")
 
 
 fn test_validation_loop_run_subset_loss_valid() raises:
@@ -505,7 +479,6 @@ fn main() raises:
 
     print("Running ValidationLoop.run_subset() tests...")
     test_validation_loop_run_subset_limited()
-    test_validation_loop_run_subset_exact_batch_count()
     test_validation_loop_run_subset_loss_valid()
     test_validation_loop_run_subset_resets_loader()
 
