@@ -16,6 +16,7 @@ Modules:
     types: Custom data types (type aliases for FP8/BF8/BF16/FP4, MXFP4/NVFP4 blocked formats)
     arithmetic: Element-wise arithmetic operations (add, subtract, multiply, divide)
     matrix: Matrix operations (matmul, transpose, dot, outer)
+    extensor methods: ExTensor method operations (transpose method via ExTensor.transpose())
     activation: Activation functions (relu, sigmoid, tanh, softmax, gelu)
     activation_ops: Activation operation utilities (scalar exp functions)
     linear: Linear transformations
