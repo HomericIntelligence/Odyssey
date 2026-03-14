@@ -180,5 +180,5 @@ from shared.core.dropout import (
     dropout2d_backward,
 )
 
-# NOTE (Mojo v0.26.1): In Mojo, all imported symbols are automatically available
+# Note: (Mojo v0.26.1): In Mojo, all imported symbols are automatically available
 # to package consumers. No __all__ equivalent is needed.

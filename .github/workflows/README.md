@@ -632,6 +632,71 @@ All CI workflows use justfile recipes for consistent command execution between l
 
 **See**: `/justfile` for complete implementation and `CLAUDE.md` for developer documentation.
 
+### SHA-Pinned Action References
+
+**Policy**: All third-party GitHub Actions must be pinned to a full SHA commit hash, not a
+mutable tag (`@v4`, `@main`). This prevents supply-chain attacks where a tag is silently moved
+to a malicious commit.
+
+**Correct pattern** (SHA-pinned):
+
+```yaml
+- name: Checkout code
+  uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+- name: Set up Pixi
+  uses: prefix-dev/setup-pixi@ba3bb36eb2066252b2363392b7739741bb777659  # v0.9.3
+```
+
+**Incorrect pattern** (mutable tag — do not use):
+
+```yaml
+- name: Checkout code
+  uses: actions/checkout@v4  # ❌ tag can be moved
+
+- name: Set up Pixi
+  uses: prefix-dev/setup-pixi@v0.9.3  # ❌ tag can be moved
+```
+
+**Finding the correct SHA**: Use `gh release view` on the action's repository or check the
+workflow file after Dependabot pins it:
+
+```bash
+gh release view v4.2.2 --repo actions/checkout --json tagName,targetCommitish
+```
+
+### `path:` Field Does Not Support Glob Patterns
+
+**Constraint**: The `path:` field in `on.push` and `on.pull_request` trigger blocks does
+**not** support glob wildcards. Only the `paths:` array field supports patterns.
+
+**Incorrect** (silently ignored):
+
+```yaml
+on:
+  push:
+    path: "tests/**"   # ❌ 'path:' (singular) is not a valid key — treated as unknown field
+```
+
+**Correct**:
+
+```yaml
+on:
+  push:
+    paths:             # ✅ 'paths:' (plural) with array supports glob patterns
+      - "tests/**"
+      - "shared/**/*.mojo"
+```
+
+If you need to trigger on a single path without globs, still use the `paths:` array form:
+
+```yaml
+on:
+  push:
+    paths:
+      - "justfile"
+```
+
 ### Composite Action Checkout Invariant
 
 **Rule**: `actions/checkout` must appear as a step **before** any `uses: ./.github/actions/` reference

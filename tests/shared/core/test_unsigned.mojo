@@ -3,6 +3,16 @@
 These tests verify the behavior of Mojo's native unsigned integer builtins,
 including arithmetic, bitwise operations, comparisons, boundary values,
 and conversions.
+
+Wrapping Semantics:
+    Unsigned integers use modular (wrap-around) arithmetic on overflow and underflow:
+
+    - Overflow: max_value + 1 wraps to 0. For example UInt8(255) + 1 == UInt8(0).
+    - Underflow: 0 - 1 wraps to max_value. For example UInt8(0) - 1 == UInt8(255).
+
+    This matches C/C++ unsigned integer behavior and is defined (not undefined behavior).
+    Test functions `test_*_overflow` and `test_*_underflow` validate this contract for
+    each unsigned type. See also: `test_uint8_boundary_values` for edge-case coverage.
 """
 
 

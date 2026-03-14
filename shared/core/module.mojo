@@ -37,6 +37,22 @@ Example:
     layer.eval()
     ```
 
+Sequential Usage Example:
+    ```mojo
+    from shared.core.module import Module
+    from shared.core.layers import Linear, ReLU
+    from shared.core.extensor import ExTensor, zeros
+
+    # Compose layers into a sequential stack manually (until Sequential is implemented)
+    var fc1 = Linear(784, 256)
+    var act1 = ReLU()
+    var fc2 = Linear(256, 10)
+
+    var input = zeros([32, 784], DType.float32)
+    var hidden = act1.forward(fc1.forward(input))
+    var output = fc2.forward(hidden)  # shape: [32, 10]
+    ```
+
 See Also:
     - shared.core.layers.linear: Linear layer implementation example
 """

@@ -125,19 +125,38 @@ comptime Accuracy = AccuracyMetric
 # This allows users to do: from shared import core, training, data, utils
 # Then access via: shared.core.layers.Linear, shared.training.optimizers.SGD
 #
-# NOTE (Mojo v0.26.1): Mojo v0.26.1+ does not support __all__ module-level assignments.
+# NOTE(#3751, Mojo v0.26.1): Mojo v0.26.1+ does not support __all__ module-level assignments.
 # In Mojo, all public symbols (those not prefixed with _) are automatically
 # exported when the module is imported. The public API documentation below
 # describes what should be exposed at this package level:
 #
-# Public API (modules and symbols exposed at package level):
-# - VERSION, AUTHOR, LICENSE - Package metadata
-# - core - Core neural network components
-# - training - Training infrastructure and optimizers
-# - data - Data loading and transformation utilities
-# - utils - Helper utilities
-# - autograd - Automatic differentiation (when available)
-# - testing - Test utilities and fixtures
+# Re-export Chain Limitation (Mojo v0.26.1, #3754):
+# Mojo v0.26.1 does not support re-export chains where an intermediate __init__.mojo
+# re-exports a symbol and a consumer imports it from the top-level package.
+# Example: `from shared import Linear` fails even if shared/core/__init__.mojo
+# re-exports Linear from shared/core/layers.mojo.
+# Workaround: Import directly from the submodule that defines the symbol:
+#   from shared.core.layers import Linear   # ✓ works
+#   from shared import Linear               # ✗ fails in v0.26.1
+# This limitation is tracked upstream. Once resolved, top-level convenience
+# imports will be enabled by un-commenting the import lines above.
+#
+# Public API Table (top-level exports at package level):
+# ┌─────────────────────────────────┬────────────────────────────────────────┐
+# │ Symbol                          │ Source                                 │
+# ├─────────────────────────────────┼────────────────────────────────────────┤
+# │ VERSION, AUTHOR, LICENSE        │ shared.version                         │
+# │ LossTracker, AccuracyMetric     │ shared.training.metrics                │
+# │ Accuracy                        │ comptime alias for AccuracyMetric      │
+# │ core                            │ shared.core (subpackage)               │
+# │ training                        │ shared.training (subpackage)           │
+# │ data                            │ shared.data (subpackage)               │
+# │ utils                           │ shared.utils (subpackage)              │
+# │ autograd                        │ shared.autograd (subpackage)           │
+# │ testing                         │ shared.testing (subpackage)            │
+# └─────────────────────────────────┴────────────────────────────────────────┘
+# Note: Component-level imports (Linear, Conv2D, etc.) are pending full
+# layer implementation. See tests/shared/integration/test_packaging.mojo.
 #
 # Once implementations are available, users will be able to import:
 #   from shared import core, training, data, utils

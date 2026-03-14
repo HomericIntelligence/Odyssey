@@ -16,6 +16,22 @@ Source structure (Odyssey2):
 Target structure (ProjectMnemosyne):
     skills/<category>/<skill-name>/.claude-plugin/plugin.json
     skills/<category>/<skill-name>/skills/<skill-name>/SKILL.md
+
+Subdir Routing:
+    Each skill is placed under a category subdirectory determined by CATEGORY_MAP.
+    The skill's YAML frontmatter `category:` field (e.g. "github", "mojo") is looked
+    up in CATEGORY_MAP and mapped to a Mnemosyne-valid category name (e.g. "tooling",
+    "architecture"). If the category is absent or unmapped, the skill falls back to
+    the "general" category.
+
+    Example routing:
+        category: github   → skills/tooling/<skill-name>/
+        category: mojo     → skills/architecture/<skill-name>/
+        category: doc      → skills/documentation/<skill-name>/
+        (unknown)          → skills/general/<skill-name>/
+
+    CATEGORY_MAP is defined as a module-level constant and can be extended as
+    new Mnemosyne categories are introduced.
 """
 
 import argparse

@@ -632,7 +632,51 @@ struct Container[T: Transform]:  # Compile-time generic
 
 ---
 
-### 8. Test-Specific Errors (7 errors)
+### 8. Compile-Time Import Limitation (#3731)
+
+#### 8.0 Mojo Cannot Resolve Imports at Compile Time from Dynamic Paths
+
+**Pattern**: Mojo v0.26.1 does not support importing symbols whose paths are
+determined at runtime or through multi-hop re-exports across `__init__.mojo` files.
+
+**Symptom**:
+
+```text
+error: cannot find 'LinearLayer' in module 'shared'
+```
+
+Even when `shared/__init__.mojo` imports from `shared.core` which imports from
+`shared.core.layers`, a consumer doing `from shared import LinearLayer` may fail
+because Mojo's compiler resolves imports at compile time and does not follow
+re-export chains through multiple `__init__.mojo` levels.
+
+**Root cause**: Mojo's import resolution is single-hop at compile time. A module
+can import a symbol for internal use, but that symbol is not automatically re-exported
+to the parent package's namespace in a way that downstream modules can discover.
+
+**Fix**: Import directly from the defining module:
+
+```mojo
+# WRONG (may fail due to re-export chain):
+from shared import LinearLayer
+
+# CORRECT (import from the defining module):
+from shared.core.layers import LinearLayer
+```
+
+**Workaround in `__init__.mojo`**: Keep commented import stubs with a note explaining
+when they will be enabled (once the compiler limitation is resolved):
+
+```mojo
+# from .core.layers import Linear  # Blocked: re-export chain (#3754, #3731)
+```
+
+**Agent Guidance**: Always import from the most specific module path. Do not assume
+that importing a symbol into `__init__.mojo` makes it available at the package level.
+
+---
+
+### 9. Test-Specific Errors (7 errors)
 
 #### 8.1 Function Renames (6 errors)
 

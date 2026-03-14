@@ -43,25 +43,54 @@ scripts/
 ├── README.md                           # This file
 ├── common.py                           # Shared utilities and constants
 ├── validation.py                       # Shared validation framework
-├── create_issues.py                    # Main GitHub issue creation
-├── regenerate_github_issues.py         # Dynamic issue file generation
-├── validate_links.py                   # Markdown link validation
-├── validate_structure.py               # Repository structure validation
+├── analyze_issues.py                   # GitHub issue complexity analysis
+├── analyze_warnings.py                 # Compiler warning analysis
+├── audit_shared_links.py               # Audit .claude/shared/ link-backs in CLAUDE.md
+├── bench_precommit.py                  # Pre-commit hook performance benchmarking
+├── build_pr_comment.py                 # Build PR comment bodies from test results
+├── check_coverage.py                   # Test coverage reporting
+├── check_note_format.py                # Validate # NOTE comment format consistency
 ├── check_readmes.py                    # README completeness validation
-├── lint_configs.py                     # YAML configuration linting
+├── check_test_count_badge.py           # Validate README test count badge accuracy
+├── check_zero_warnings.sh              # Shell wrapper: fail on compiler warnings
+├── convert_image_to_idx.py             # Convert image files to IDX dataset format
+├── create_issues.py                    # GitHub issue creation (deprecated - see note above)
+├── download_cifar10.py                 # Download CIFAR-10 dataset
+├── download_cifar100.py                # Download CIFAR-100 dataset
+├── download_datasets.py                # Download all configured datasets
+├── download_emnist.py                  # Download EMNIST dataset
+├── download_fashion_mnist.py           # Download Fashion-MNIST dataset
+├── download_mnist.py                   # Download MNIST dataset
+├── generate_changelog.py               # Generate CHANGELOG.md from git log
+├── generate_test_metrics.py            # Generate test metrics report
+├── get_stats.py                        # Repository statistics collector
 ├── get_system_info.py                  # System information collector
+├── implement_issues.py                 # Automated issue implementation helper
+├── lint_configs.py                     # YAML configuration linting
 ├── merge_prs.py                        # PR merge automation
+├── migrate_odyssey_skills.py           # Skill migration tool (Odyssey2 → ProjectMnemosyne)
+├── mojo-format-compat.sh               # GLIBC-compatible mojo format wrapper
 ├── package_papers.py                   # Papers directory packaging
-└── agents/                             # Agent system utilities
-    ├── README.md                       # Agent scripts documentation
-    ├── agent_health_check.sh           # System health checks
-    ├── agent_stats.py                  # Statistics and metrics
-    ├── check_frontmatter.py            # YAML validation
-    ├── list_agents.py                  # Agent discovery
-    ├── setup_agents.sh                 # Setup automation
-    ├── test_agent_loading.py           # Loading tests
-    ├── validate_agents.py              # Configuration validation
-    └── tests/                          # Agent test suite
+├── plan_issues.py                      # Issue planning helper
+├── plot_training.py                    # Training curve visualization
+├── regenerate_github_issues.py         # Dynamic issue file generation (deprecated)
+├── update_version.py                   # Version bump helper
+├── validate_adr009_headers.py          # Validate ADR-009 split-file docstring headers
+├── validate_links.py                   # Markdown link validation
+├── validate_mojo_syntax_in_docs.py     # Validate Mojo code blocks in documentation
+├── validate_readme_commands.py         # Validate commands referenced in README.md
+├── validate_structure.py               # Repository structure validation
+├── validate_test_coverage.py           # CI test matrix coverage validation
+├── validate_test_file_sizes.py         # Enforce test file size limits
+├── validate_workflow_checkout_order.py # Validate actions/checkout precedes local actions
+├── build_configs_distribution.sh       # Build configs distribution archive
+├── build_data_package.sh               # Build data package
+├── build_training_package.sh           # Build training package
+├── build_utils_package.sh              # Build utils package
+├── bump_version.sh                     # Version bump shell helper
+├── install_verify_data.sh              # Install and verify data package
+├── install_verify_training.sh          # Install and verify training package
+└── install_verify_utils.sh             # Install and verify utils package
 ```
 
 ## Scripts

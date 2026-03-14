@@ -670,5 +670,5 @@ from shared.core.lazy_eval import (
     evaluate,
 )
 
-# NOTE (Mojo v0.26.1): Mojo does not support Python's __all__ mechanism.
+# NOTE(#3751, Mojo v0.26.1): Mojo does not support Python's __all__ mechanism.
 # All imported symbols are automatically available to package consumers.
