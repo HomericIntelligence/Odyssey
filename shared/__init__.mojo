@@ -100,6 +100,9 @@ from shared.training.metrics import LossTracker, AccuracyMetric, ConfusionMatrix
 # Expose plan-canonical alias: Accuracy = AccuracyMetric
 comptime Accuracy = AccuracyMetric
 
+# Autograd optimizers (most commonly used) — Issue #3745, #3219
+from shared.autograd.optimizers import SGD, Adam, AdaGrad, RMSprop, AdamW
+
 # Training callbacks — struct implementations confirmed in shared/training/callbacks.mojo
 from shared.training.callbacks import EarlyStopping, ModelCheckpoint
 
@@ -133,7 +136,7 @@ from shared.utils.visualization import plot_training_curves
 # Core - Activations: relu, sigmoid, tanh, softmax
 # Core - Module system: Module, Sequential
 # Core - Tensors: Tensor, zeros, ones, randn
-# Training - Optimizers: SGD, Adam, AdamW (via autograd)
+# Training - Optimizers: SGD, Adam, AdaGrad, RMSprop, AdamW (via autograd)
 # Training - Schedulers: StepLR, CosineAnnealingLR
 # Training - Metrics: Accuracy, LossTracker, ConfusionMatrix, CSVMetricsLogger
 # Training - Callbacks: EarlyStopping, ModelCheckpoint
@@ -184,6 +187,7 @@ from shared.utils.visualization import plot_training_curves
 # │ LossTracker, AccuracyMetric              │ shared.training.metrics                  │
 # │ ConfusionMatrix, CSVMetricsLogger        │ shared.training.metrics                  │
 # │ Accuracy                                 │ comptime alias for AccuracyMetric        │
+# │ SGD, Adam, AdaGrad, RMSprop, AdamW       │ shared.autograd.optimizers               │
 # │ EarlyStopping, ModelCheckpoint           │ shared.training.callbacks                │
 # │ Logger                                   │ shared.utils.logging                     │
 # │ plot_training_curves                     │ shared.utils.visualization               │
@@ -196,7 +200,7 @@ from shared.utils.visualization import plot_training_curves
 # │ testing                                  │ shared.testing (subpackage)              │
 # └──────────────────────────────────────────┴──────────────────────────────────────────┘
 # Not yet activated (implementation pending):
-#   Sequential (only Sequential2/3/4/5 variants exist), SGD/Adam/AdamW (only step-fns),
+#   Sequential (only Sequential2/3/4/5 variants exist),
 #   TensorDataset/ImageDataset/DataLoader, train_epoch/validate_epoch, MaxPool2D/Flatten
 #
 # Once implementations are available, users will be able to import:
