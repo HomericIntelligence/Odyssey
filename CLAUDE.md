@@ -607,6 +607,7 @@ unexpected formatting changes.
 
 - Fix the code (preferred)
 - Use `SKIP=hook-id` for specific broken hooks (must document reason)
+  - For `mojo-format` compatibility issues, see `docs/dev/mojo-glibc-compatibility.md`
 - Disable the hook in `.pre-commit-config.yaml` if permanently problematic
 
 **Invalid alternatives:**
