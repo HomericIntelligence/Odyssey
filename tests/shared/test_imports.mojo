@@ -70,6 +70,27 @@ fn test_core_types_imports() raises:
     print("✓ Core types imports test passed")
 
 
+fn test_core_activations_direct_imports() raises:
+    """Test activations are importable directly from shared.core.activations sub-module."""
+    from shared.core.activations import relu, sigmoid, tanh, gelu
+
+    print("✓ Core activations direct imports test passed")
+
+
+fn test_core_layers_direct_imports() raises:
+    """Test layers are importable directly from shared.core.layers sub-module."""
+    from shared.core.layers import linear, conv2d, flatten
+
+    print("✓ Core layers direct imports test passed")
+
+
+fn test_core_types_direct_imports() raises:
+    """Test types are importable directly from shared.core.types sub-module."""
+    from shared.core.types import ExTensor
+
+    print("✓ Core types direct imports test passed")
+
+
 # ============================================================================
 # Training Package Imports
 # ============================================================================
@@ -130,6 +151,50 @@ fn test_training_callbacks_imports() raises:
     )
 
     print("✓ Training callbacks imports test passed")
+
+
+fn test_training_optimizers_direct_imports() raises:
+    """Test optimizers are importable directly from shared.training.optimizers sub-module.
+
+    Validates the canonical import path for optimizers sub-module.
+    """
+    from shared.training.optimizers import SGD
+
+    print("✓ Training optimizers direct imports test passed")
+
+
+fn test_training_schedulers_direct_imports() raises:
+    """Test schedulers are importable directly from shared.training.schedulers sub-module.
+
+    Validates the canonical import path for schedulers sub-module.
+    """
+    from shared.training.schedulers import (
+        StepLR,
+        CosineAnnealingLR,
+        ExponentialLR,
+    )
+
+    print("✓ Training schedulers direct imports test passed")
+
+
+fn test_training_base_direct_imports() raises:
+    """Test base classes are importable directly from shared.training.base sub-module.
+
+    Validates the canonical import path for base sub-module.
+    """
+    from shared.training.base import Callback, TrainingState
+
+    print("✓ Training base direct imports test passed")
+
+
+fn test_training_loops_direct_imports() raises:
+    """Test loops components are importable directly from shared.training.loops sub-module.
+
+    Validates the canonical import path for loops sub-module.
+    """
+    from shared.training.loops import TrainingState
+
+    print("✓ Training loops direct imports test passed")
 
 
 fn test_training_callbacks_direct_imports() raises:
@@ -231,6 +296,20 @@ fn test_data_transforms_imports() raises:
     from shared.data import normalize_images, one_hot_encode
 
     print("✓ Data transforms imports test passed")
+
+
+fn test_data_datasets_direct_imports() raises:
+    """Test datasets are importable directly from shared.data.datasets sub-module."""
+    from shared.data.datasets import Dataset, ExTensorDataset
+
+    print("✓ Data datasets direct imports test passed")
+
+
+fn test_data_loaders_direct_imports() raises:
+    """Test loaders are importable directly from shared.data.loaders sub-module."""
+    from shared.data.loaders import Batch
+
+    print("✓ Data loaders direct imports test passed")
 
 
 # ============================================================================
@@ -387,6 +466,9 @@ fn main() raises:
     test_core_layers_imports()
     test_core_activations_imports()
     test_core_types_imports()
+    test_core_activations_direct_imports()
+    test_core_layers_direct_imports()
+    test_core_types_direct_imports()
 
     # Training package tests
     print("\nTesting Training Package...")
@@ -396,6 +478,10 @@ fn main() raises:
     test_training_schedulers_imports()
     test_training_metrics_imports()
     test_training_callbacks_imports()
+    test_training_optimizers_direct_imports()
+    test_training_schedulers_direct_imports()
+    test_training_base_direct_imports()
+    test_training_loops_direct_imports()
     test_training_callbacks_direct_imports()
     test_training_loops_imports()
 
@@ -405,6 +491,8 @@ fn main() raises:
     test_data_datasets_imports()
     test_data_loaders_imports()
     test_data_transforms_imports()
+    test_data_datasets_direct_imports()
+    test_data_loaders_direct_imports()
 
     # Utils package tests
     print("\nTesting Utils Package...")
