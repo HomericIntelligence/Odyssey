@@ -37,20 +37,17 @@ Run the tensor creation test suite — a fast, self-contained unit test that exe
 the core `ExTensor` type from the shared library:
 
 ```bash
-pixi run mojo test tests/shared/core/test_creation.mojo
+pixi run mojo tests/shared/core/test_creation_part1.mojo
 ```
 
-Expected output (test names followed by a summary line):
+Expected output:
 
 ```text
-test_zeros_1d_float32: PASS
-test_zeros_2d_float32: PASS
-test_ones_1d_float32: PASS
-...
-All tests passed.
+Running ExTensor creation tests - Part 1: zeros() and ones()...
+All Part 1 creation tests completed!
 ```
 
-If all tests pass, your environment is working correctly.
+If the test completes without errors, your environment is working correctly.
 
 ## 4. Minimal Usage Example
 
