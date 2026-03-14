@@ -148,9 +148,8 @@ fn main() raises:
         # ----------------------------------------------------------------
         # Scale Loss (FP16 only)
         # ----------------------------------------------------------------
-        var scaled_loss = loss
+        var scaled_loss = scaler.scale_loss(loss) if use_fp16 else loss
         if use_fp16:
-            scaled_loss = scaler.scale_loss(loss)
             var scaled_val = scaled_loss.item()
             print(
                 "  Scaled Loss: "

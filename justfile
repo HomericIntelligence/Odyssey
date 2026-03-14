@@ -25,7 +25,7 @@ show-user:
 # ==============================================================================
 
 # Strict analysis flags (applied to ALL builds)
-MOJO_STRICT := "--validate-doc-strings"
+MOJO_STRICT := "--Werror"
 
 # Mode-specific flags
 MOJO_DEBUG := "-g2 --no-optimization"
@@ -199,7 +199,7 @@ build mode="debug": (_ensure_build_dir mode)
 
     MODE="${1:-debug}"          # debug | release | test | ci
     REPO_ROOT="$(pwd)"
-    STRICT="--validate-doc-strings"
+    STRICT="--Werror"
 
     # CI mode should continue despite linker errors (Mojo limitation: cannot pass -lm flag)
     FAIL_ON_ERROR=0
@@ -303,7 +303,7 @@ package mode="debug": (_ensure_build_dir mode)
     #!/usr/bin/env bash
     set -e
     REPO_ROOT="$(pwd)"
-    STRICT="--validate-doc-strings"
+    STRICT="--Werror"
 
     case "{{mode}}" in
         debug)   FLAGS="$STRICT" ;;
@@ -530,7 +530,7 @@ test-group path pattern:
             retry_reasons=""
             while [ $attempt -lt $max_attempts ]; do
                 attempt=$((attempt + 1))
-                if pixi run mojo -I "$REPO_ROOT" -I . "$test_file"; then
+                if pixi run mojo --Werror -I "$REPO_ROOT" -I . "$test_file"; then
                     test_passed=1
                     break
                 fi
@@ -603,7 +603,7 @@ test-mojo:
             test_ok=0
             while [ $attempt -lt $MAX ]; do
                 attempt=$((attempt + 1))
-                if pixi run mojo -I "$REPO_ROOT" -I . "$test_file"; then
+                if pixi run mojo --Werror -I "$REPO_ROOT" -I . "$test_file"; then
                     test_ok=1
                     break
                 fi

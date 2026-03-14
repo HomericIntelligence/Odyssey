@@ -51,9 +51,8 @@ fn test_emnist_balanced_classes() raises:
         assert_equal(classes[i], expected, "Digit class index " + String(i))
 
     # Test uppercase letters (A-Z) - indices 10-35
-    var uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     for i in range(26):
-        var expected = uppercase[i]
+        var expected = chr(ord("A") + i)
         assert_equal(
             classes[10 + i],
             expected,
@@ -77,9 +76,8 @@ fn test_emnist_byclass_classes() raises:
         assert_equal(classes[i], expected, "Digit class index " + String(i))
 
     # Test uppercase letters (A-Z) - indices 10-35
-    var uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     for i in range(26):
-        var expected = uppercase[i]
+        var expected = chr(ord("A") + i)
         assert_equal(
             classes[10 + i],
             expected,
@@ -87,9 +85,8 @@ fn test_emnist_byclass_classes() raises:
         )
 
     # Test lowercase letters (a-z) - indices 36-61
-    var lowercase = "abcdefghijklmnopqrstuvwxyz"
     for i in range(26):
-        var expected = lowercase[i]
+        var expected = chr(ord("a") + i)
         assert_equal(
             classes[36 + i],
             expected,
@@ -108,9 +105,8 @@ fn test_emnist_bymerge_classes() raises:
         assert_equal(classes[i], expected, "Digit class index " + String(i))
 
     # Test merged letters (A-Z only) - indices 10-35
-    var uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     for i in range(26):
-        var expected = uppercase[i]
+        var expected = chr(ord("A") + i)
         assert_equal(
             classes[10 + i],
             expected,
@@ -135,17 +131,15 @@ fn test_emnist_letters_classes() raises:
     assert_equal(len(classes), 52, "EMNIST Letters should have 52 classes")
 
     # Test uppercase letters (A-Z) - indices 0-25
-    var uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     for i in range(26):
-        var expected = uppercase[i]
+        var expected = chr(ord("A") + i)
         assert_equal(
             classes[i], expected, "Uppercase letter at index " + String(i)
         )
 
     # Test lowercase letters (a-z) - indices 26-51
-    var lowercase = "abcdefghijklmnopqrstuvwxyz"
     for i in range(26):
-        var expected = lowercase[i]
+        var expected = chr(ord("a") + i)
         assert_equal(
             classes[26 + i],
             expected,

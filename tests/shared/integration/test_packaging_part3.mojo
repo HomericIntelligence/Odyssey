@@ -124,7 +124,7 @@ fn test_cross_module_computation() raises:
     assert_true(logits.dtype() == DType.float32, "DType should be preserved")
 
     # Test with training components
-    var optimizer = SGD(learning_rate=0.001)
+    _ = SGD(learning_rate=0.001)
     var loss_fn = MSELoss()
 
     # Compute loss
@@ -272,7 +272,7 @@ fn test_integration_stress() raises:
     assert_true(x3_shape[1] == output_dim, "Final output classes should match")
 
     # Test with training components
-    var optimizer = SGD(learning_rate=0.01)
+    _ = SGD(learning_rate=0.01)
     var loss_fn = MSELoss()
 
     # Compute loss
