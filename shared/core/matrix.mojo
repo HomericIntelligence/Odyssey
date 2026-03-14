@@ -869,6 +869,10 @@ fn transpose_view(
     non-contiguous (for non-trivial permutations). This is useful for testing
     is_contiguous() and as_contiguous().
 
+    Note: `transpose_view()` is a lower-level testing utility. For production use,
+    prefer `ExTensor.transpose()` (2-axis swap) or implement general permutation
+    logic wrapping this function. See #4082 for discussion of the API relationship.
+
     Args:
         tensor: Input tensor.
         axes: Optional permutation of axes. Defaults to reversing all axes.
