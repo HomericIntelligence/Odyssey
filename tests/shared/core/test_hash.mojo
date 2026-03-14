@@ -69,6 +69,43 @@ fn make_f16_nan_tensor(bits: UInt16) raises -> ExTensor:
     return t^
 
 
+fn assert_0d_tensor_safe_allocation(dtype: DType) raises:
+    """Verify that 0-D tensors allocate sufficient memory for bitcast writes.
+
+    A 0-D tensor (empty shape List) still has numel=1, meaning it must
+    allocate at least sizeof(dtype) bytes so that bitcast writes and reads
+    are both safe. This assertion confirms the constructor does this.
+
+    Args:
+        dtype: The data type to verify allocation for.
+
+    Closes #4063.
+    """
+    var shape = List[Int]()
+    var t = ExTensor(shape, dtype)
+
+    # Attempt to write via bitcast. If allocation is insufficient,
+    # this would cause a segfault or memory corruption.
+    if dtype == DType.float32:
+        t._data.bitcast[UInt32]()[] = 0x7FC00000  # quiet NaN bits
+        var readback = t._data.bitcast[UInt32]()[0]
+        assert_equal_int(
+            Int(readback), Int(0x7FC00000), "f32 0-D tensor bitcast write/read mismatch"
+        )
+    elif dtype == DType.float64:
+        t._data.bitcast[UInt64]()[] = 0x7FF8000000000000  # quiet NaN bits
+        var readback = t._data.bitcast[UInt64]()[0]
+        assert_equal_int(
+            Int(readback), Int(0x7FF8000000000000), "f64 0-D tensor bitcast write/read mismatch"
+        )
+    elif dtype == DType.float16:
+        t._data.bitcast[UInt16]()[] = 0x7E00  # quiet NaN bits
+        var readback = t._data.bitcast[UInt16]()[0]
+        assert_equal_int(
+            Int(readback), Int(0x7E00), "f16 0-D tensor bitcast write/read mismatch"
+        )
+
+
 # ============================================================================
 # Test: normal values hash consistently
 # ============================================================================
@@ -232,6 +269,26 @@ fn test_hash_f16_nan_payload_irrelevant() raises:
 
 
 # ============================================================================
+# Test: 0-D tensor safe allocation for bitcast operations
+# ============================================================================
+
+
+fn test_hash_0d_scalar_tensor_allocation() raises:
+    """Verify 0-D tensors allocate sufficient memory for NaN bitcast operations.
+
+    0-D tensors (empty shape List) have numel=1, so the ExTensor constructor
+    must allocate at least sizeof(dtype) bytes. Otherwise, the bitcast write
+    and read in the NaN canonicalization tests and helper functions would
+    cause segfaults or memory corruption.
+
+    Closes #4063.
+    """
+    assert_0d_tensor_safe_allocation(DType.float32)
+    assert_0d_tensor_safe_allocation(DType.float64)
+    assert_0d_tensor_safe_allocation(DType.float16)
+
+
+# ============================================================================
 # Test: mixed NaN and normal values hash deterministically
 # ============================================================================
 
@@ -385,6 +442,9 @@ fn main() raises:
 
     print("  test_hash_f16_nan_payload_irrelevant...")
     test_hash_f16_nan_payload_irrelevant()
+
+    print("  test_hash_0d_scalar_tensor_allocation...")
+    test_hash_0d_scalar_tensor_allocation()
 
     print("  test_hash_mixed_nan_normal_deterministic...")
     test_hash_mixed_nan_normal_deterministic()
