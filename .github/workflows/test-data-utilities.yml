@@ -67,6 +67,10 @@ jobs:
         run: |
           just test-group "tests/shared/data" "run_all_tests.mojo"
 
+      - name: Run File I/O Tests (includes remove_safely)
+        run: |
+          just test-group "tests/shared/utils" "test_io_part2.mojo"
+
       - name: Report Results
         if: always()
         run: |
