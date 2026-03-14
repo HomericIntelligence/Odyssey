@@ -77,6 +77,9 @@ comptime Accuracy = AccuracyMetric
 # Training callbacks (most commonly used)
 # from .training.callbacks import EarlyStopping, ModelCheckpoint
 
+# Data transforms (commonly used with datasets)
+from .data.transforms import Normalize, Compose
+
 # Training loops
 # from .training.loops import train_epoch, validate_epoch
 
@@ -148,6 +151,7 @@ from .data.transforms import Normalize, Compose
 # │ VERSION, AUTHOR, LICENSE        │ shared.version                         │
 # │ LossTracker, AccuracyMetric     │ shared.training.metrics                │
 # │ Accuracy                        │ comptime alias for AccuracyMetric      │
+# │ Normalize, Compose              │ shared.data.transforms                 │
 # │ core                            │ shared.core (subpackage)               │
 # │ training                        │ shared.training (subpackage)           │
 # │ data                            │ shared.data (subpackage)               │
