@@ -206,6 +206,7 @@ class TestBanditFilesPattern:
             "scripts/download_cifar10.py",
             "scripts/download_cifar100.py",
             "scripts/download_fashion_mnist.py",
+            "scripts/download_emnist.py",
             "scripts/common.py",
             "scripts/implement_issues.py",
             "tests/scripts/test_bandit_hook_config.py",
@@ -303,3 +304,29 @@ class TestBanditNosecRationale:
                     f"{script.name} calls extractall() with no target path. "
                     "Pass an explicit local directory to prevent extraction to cwd."
                 )
+
+    def test_emnist_script_urls_are_hardcoded_constants(self) -> None:
+        """Verify download_emnist.py uses hardcoded URL constants (not variable user inputs).
+
+        EMNIST uses EMNIST_PRIMARY_URL with EMNIST_FALLBACK_URLS - a list-based
+        constant structure. Verify that this complex structure still adheres to
+        the principle of hardcoded URLs (no user input or dynamic construction).
+        """
+        emnist_script = REPO_ROOT / "scripts" / "download_emnist.py"
+        assert emnist_script.exists(), "download_emnist.py not found"
+
+        source = emnist_script.read_text()
+
+        # Must define hardcoded URL constants at module level
+        # Support both simple URL constants and list-based structures
+        assert re.search(r'^EMNIST_PRIMARY_URL\s*=\s*["\']https', source, re.MULTILINE), (
+            "download_emnist.py must define EMNIST_PRIMARY_URL as a hardcoded HTTPS constant"
+        )
+        assert re.search(r"^EMNIST_FALLBACK_URLS\s*=\s*\[", source, re.MULTILINE), (
+            "download_emnist.py must define EMNIST_FALLBACK_URLS as a hardcoded list"
+        )
+
+        # Verify all URLs in fallback list are HTTPS
+        assert not re.search(r'["\']http://[^"\']*["\']', source), (
+            "All EMNIST URLs must use HTTPS (no http:// URLs allowed)"
+        )
