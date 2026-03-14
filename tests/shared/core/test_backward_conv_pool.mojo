@@ -18,6 +18,47 @@ from shared.core.pooling import (
 from shared.testing import check_gradient
 
 
+# ============================================================================
+# Helper Functions
+# ============================================================================
+
+
+fn _make_test_conv2d_tensors() -> Tuple[ExTensor, ExTensor, ExTensor]:
+    """Create and initialize test tensors for conv2d backward tests.
+
+    Returns:
+        (x, kernel, bias) - input, kernel, and bias tensors with non-uniform
+        initialization values for meaningful gradient checking.
+    """
+    var input_shape = List[Int]()
+    input_shape.append(1)
+    input_shape.append(1)
+    input_shape.append(4)
+    input_shape.append(4)
+    var x = zeros(input_shape, DType.float32)
+
+    # Initialize with non-uniform values for meaningful gradient check
+    for i in range(16):
+        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+
+    var kernel_shape = List[Int]()
+    kernel_shape.append(1)
+    kernel_shape.append(1)
+    kernel_shape.append(3)
+    kernel_shape.append(3)
+    var kernel = zeros(kernel_shape, DType.float32)
+
+    # Initialize kernel with non-uniform values
+    for i in range(9):
+        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+
+    var bias_shape = List[Int]()
+    bias_shape.append(1)
+    var bias = zeros(bias_shape, DType.float32)
+
+    return (x, kernel, bias)
+
+
 fn test_conv2d_backward_shapes() raises:
     """Test that conv2d_backward returns correct gradient shapes."""
     var batch = 2
@@ -97,48 +138,13 @@ fn test_conv2d_backward_with_stride() raises:
     assert_equal(gi_shape[3], 8)
 
 
-fn _make_test_conv2d_tensors() raises -> (ExTensor, ExTensor, ExTensor):
-    """Create standard (1,1,4,4) input, (1,1,3,3) kernel, and (1,) bias tensors.
-
-    Returns:
-        Tuple of (input, kernel, bias) tensors with non-uniform values for
-        meaningful gradient checking.
-    """
-    var input_shape = List[Int]()
-    input_shape.append(1)
-    input_shape.append(1)
-    input_shape.append(4)
-    input_shape.append(4)
-    var x = zeros(input_shape, DType.float32)
-    for i in range(16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
-
-    var kernel_shape = List[Int]()
-    kernel_shape.append(1)
-    kernel_shape.append(1)
-    kernel_shape.append(3)
-    kernel_shape.append(3)
-    var kernel = zeros(kernel_shape, DType.float32)
-    for i in range(9):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
-
-    var bias_shape = List[Int]()
-    bias_shape.append(1)
-    var bias = zeros(bias_shape, DType.float32)
-
-    return (x, kernel, bias)
-
-
 fn test_conv2d_backward_grad_input_numerical() raises:
     """Test conv2d_backward grad_input values via numerical gradient checking.
 
     Uses small input (1,1,4,4) with kernel (1,1,3,3) as specified in issue #3281.
     Verifies mathematical correctness of grad_input, not just shape.
     """
-    var tensors = _make_test_conv2d_tensors()
-    var x = tensors[0]
-    var kernel = tensors[1]
-    var bias = tensors[2]
+    var (x, kernel, bias) = _make_test_conv2d_tensors()
 
     fn forward_input(inp: ExTensor) raises -> ExTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=0)
@@ -160,10 +166,7 @@ fn test_conv2d_backward_grad_weights_numerical() raises:
     Uses small input (1,1,4,4) with kernel (1,1,3,3) as specified in issue #3281.
     Verifies mathematical correctness of grad_weights, not just shape.
     """
-    var tensors = _make_test_conv2d_tensors()
-    var x = tensors[0]
-    var kernel = tensors[1]
-    var bias = tensors[2]
+    var (x, kernel, bias) = _make_test_conv2d_tensors()
 
     # Treat kernel as the variable being perturbed; x is held fixed
     fn forward_weights(k: ExTensor) raises -> ExTensor:
