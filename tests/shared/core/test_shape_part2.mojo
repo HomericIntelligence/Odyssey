@@ -170,6 +170,15 @@ fn test_tile_1d() raises:
 
     # Result: [0, 1, 2, 0, 1, 2, 0, 1, 2] (9 elements)
     assert_numel(b, 9, "Tiled tensor should have 9 elements")
+    assert_value_at(b, 0, 0.0, "Index 0 should be 0.0")
+    assert_value_at(b, 1, 1.0, "Index 1 should be 1.0")
+    assert_value_at(b, 2, 2.0, "Index 2 should be 2.0")
+    assert_value_at(b, 3, 0.0, "Index 3 should be 0.0 (repeat)")
+    assert_value_at(b, 4, 1.0, "Index 4 should be 1.0 (repeat)")
+    assert_value_at(b, 5, 2.0, "Index 5 should be 2.0 (repeat)")
+    assert_value_at(b, 6, 0.0, "Index 6 should be 0.0 (repeat)")
+    assert_value_at(b, 7, 1.0, "Index 7 should be 1.0 (repeat)")
+    assert_value_at(b, 8, 2.0, "Index 8 should be 2.0 (repeat)")
 
 
 fn test_tile_multidim() raises:
