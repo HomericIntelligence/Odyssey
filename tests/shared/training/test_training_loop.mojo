@@ -701,6 +701,64 @@ fn test_dataloader_nd_shape_preserved() raises:
     print("  test_dataloader_nd_shape_preserved: PASSED")
 
 
+fn test_dataloader_reset_4d_iteration() raises:
+    """Test DataLoader.reset() allows re-iteration with correct shapes.
+
+    Verifies that calling reset() on a 4D DataLoader after completion
+    allows re-iteration through all batches with correct shapes preserved.
+
+    Test flow:
+        1. Create 4D loader (N=8, C=2, H=4, W=4) with batch_size=4
+        2. Iterate through first epoch, collect batch shapes
+        3. Call reset()
+        4. Re-iterate and verify shapes match first epoch exactly
+    """
+    # Create 4D tensor (8, 2, 4, 4) simulating image data
+    var data = ones([8, 2, 4, 4], DType.float32)
+    var labels = zeros([8], DType.float32)
+    var loader = DataLoader(data^, labels^, 4)
+
+    # First epoch: collect batch shapes
+    var shapes_epoch1 = List[List[Int]]()
+    var batch_count_epoch1 = 0
+
+    while loader.has_next():
+        var batch = loader.next()
+        var shape = List[Int]()
+        for i in range(4):
+            shape.append(batch.data.shape()[i])
+        shapes_epoch1.append(shape)
+        batch_count_epoch1 += 1
+
+    # Verify first epoch completed (2 batches of size 4)
+    assert_equal(batch_count_epoch1, 2)
+
+    # Reset loader
+    loader.reset()
+
+    # Second epoch: verify shapes match exactly
+    var batch_count_epoch2 = 0
+    while loader.has_next():
+        var batch = loader.next()
+        var shape = List[Int]()
+        for i in range(4):
+            shape.append(batch.data.shape()[i])
+
+        # Verify shape matches first epoch
+        var expected = shapes_epoch1[batch_count_epoch2]
+        assert_equal(shape[0], expected[0])  # batch size
+        assert_equal(shape[1], expected[1])  # C
+        assert_equal(shape[2], expected[2])  # H
+        assert_equal(shape[3], expected[3])  # W
+
+        batch_count_epoch2 += 1
+
+    # Verify second epoch also had 2 batches
+    assert_equal(batch_count_epoch2, 2)
+
+    print("  test_dataloader_reset_4d_iteration: PASSED")
+
+
 # ============================================================================
 # Test Main
 # ============================================================================
@@ -741,5 +799,6 @@ fn main() raises:
     test_dataloader_4d_partial_last_batch()
     test_dataloader_3d_batch_slicing()
     test_dataloader_nd_shape_preserved()
+    test_dataloader_reset_4d_iteration()
 
     print("\nAll training loop tests passed!")
