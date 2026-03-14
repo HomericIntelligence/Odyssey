@@ -410,8 +410,10 @@ This project uses Pixi for environment management:
 # Mojo is the primary language target for future implementations
 ```
 
-**GLIBC Constraint**: CI runners use Ubuntu with GLIBC 2.35. Any native binaries built
-locally must be compatible with this version to avoid CI failures.
+**GLIBC Constraint**: CI runners use Ubuntu with GLIBC 2.35 (Mojo requires 2.32+). Any
+native binaries built locally must be compatible with this version to avoid CI failures.
+If you're unable to run tests locally due to GLIBC version mismatch, see the
+Troubleshooting section "Mojo Test Execution and GLIBC Compatibility" for solutions.
 
 ## Common Commands
 
@@ -1212,6 +1214,39 @@ gh auth refresh -h github.com
 - Verify Python version: `python3 --version` (requires 3.7+)
 - Check file permissions
 - Review error logs in `logs/` directory
+
+### Mojo Test Execution and GLIBC Compatibility
+
+**Issue**: Tests fail to run locally with errors about GLIBC version or missing libraries.
+
+**Root Cause**: Mojo requires GLIBC 2.32+ for test execution, but many Linux distributions
+(especially Debian 10, Ubuntu 18.04) ship with older GLIBC versions (2.28, 2.29). Even if
+the local Mojo compiler works, the test runtime may fail due to binary incompatibility.
+
+**Solution**: Use Docker or CI for test validation instead of running tests locally:
+
+```bash
+# Option 1: Use Docker (recommended for local testing)
+just docker-up              # Start container with GLIBC 2.35
+just docker-shell           # Open shell in container
+# Inside container:
+just test-mojo              # Run tests in container
+
+# Option 2: Use CI for validation
+git push origin <branch>    # Push to GitHub
+# GitHub Actions will run tests on Ubuntu with GLIBC 2.35
+```
+
+**Verification**: Check your local GLIBC version:
+
+```bash
+ldd --version | head -1     # Shows GLIBC version
+# If output shows < 2.32, use Docker or CI for testing
+```
+
+**Note**: The CI environment uses Ubuntu with GLIBC 2.35. Any binaries built locally
+must be compatible with this version, or they will fail in CI. Use Docker images
+matching the CI environment to develop locally.
 
 ## Important Files
 
