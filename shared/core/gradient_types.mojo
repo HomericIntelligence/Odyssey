@@ -11,27 +11,49 @@ This module defines:
 - Conv2dNoBiasGradient: For conv2d_no_bias_backward with semantic field names.
 - DepthwiseConv2dNoBiasGradient: For depthwise_conv2d_no_bias_backward.
 
-When to Use Each Type:
+Type Selection Guide:
     Choose the container that matches the number of inputs your backward function
-    differentiates with respect to:
+    differentiates with respect to. This table maps operation categories to types:
 
-    - **GradientPair** — binary ops: two-input functions such as add, subtract,
-      multiply, divide, matmul. Fields: `grad_a`, `grad_b`.
+    ┌─────────────────────────┬──────────────────┬──────────────────────────┐
+    │ Operation Category      │ Container Type   │ Field Names              │
+    ├─────────────────────────┼──────────────────┼──────────────────────────┤
+    │ Binary Operations       │ GradientPair     │ grad_a, grad_b           │
+    │ (add, subtract, multiply│                  │                          │
+    │  divide, matmul, etc.)  │                  │                          │
+    ├─────────────────────────┼──────────────────┼──────────────────────────┤
+    │ Linear Layer            │ GradientTriple   │ grad_input, grad_weights,│
+    │ (linear_backward)       │                  │ grad_bias                │
+    ├─────────────────────────┼──────────────────┼──────────────────────────┤
+    │ Conv2D with Bias        │ GradientTriple   │ grad_input, grad_weights,│
+    │ (conv2d_backward)       │                  │ grad_bias                │
+    ├─────────────────────────┼──────────────────┼──────────────────────────┤
+    │ Conv2D without Bias     │ Conv2dNoBias     │ grad_input, grad_weights │
+    │ (conv2d_no_bias_bwd)    │ Gradient         │                          │
+    ├─────────────────────────┼──────────────────┼──────────────────────────┤
+    │ Depthwise Conv2D        │ Depthwise        │ grad_input, grad_weights │
+    │ no Bias                 │ Conv2dNoBias     │                          │
+    │ (depthwise_conv2d_      │ Gradient         │                          │
+    │  no_bias_backward)      │                  │                          │
+    ├─────────────────────────┼──────────────────┼──────────────────────────┤
+    │ Batch Normalization     │ GradientQuad     │ grad_input, grad_weights,│
+    │ and other 4-input ops   │                  │ grad_bias, grad_extra    │
+    ├─────────────────────────┼──────────────────┼──────────────────────────┤
+    │ >4 gradients            │ Custom struct    │ Meaningful semantic names│
+    │ (new operations)        │ (define new)     │                          │
+    └─────────────────────────┴──────────────────┴──────────────────────────┘
 
-    - **GradientTriple** — ternary ops: three-input functions such as linear
-      (input, weights, bias) and conv2d (input, kernel, bias). Fields:
-      `grad_input`, `grad_weights`, `grad_bias`.
+When to Create a New Type:
+    If your operation returns more than 4 gradients or requires custom field
+    semantics, define a dedicated named struct (don't extend GradientQuad) so
+    that field names meaningfully map to operation inputs.
 
-    - **GradientQuad** — quaternary ops: four-input functions such as batch
-      normalization (input, gamma, beta, running_mean). Fields: `grad_input`,
-      `grad_weights`, `grad_bias`, `grad_extra`.
-
-    - **Conv2dNoBiasGradient / DepthwiseConv2dNoBiasGradient** — specialized
-      containers for bias-free convolution backward passes. Use these instead of
-      GradientPair to retain semantic field names (`grad_input`, `grad_kernel`).
-
-    If a new op requires more than 4 gradients, define a dedicated named struct
-    rather than extending GradientQuad, so field names remain meaningful.
+Guidelines for Implementation:
+    1. Count the number of inputs your operation differentiates with respect to.
+    2. Use the table above to select the appropriate container type.
+    3. For specialized cases (bias-free convolutions), use the dedicated type.
+    4. Implement __init__ following the pattern in this module.
+    5. Add docstrings with concrete examples showing usage.
 """
 
 from shared.core.extensor import ExTensor
