@@ -60,7 +60,7 @@ jobs:
       - name: Run Sampler Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          just test-group "tests/shared/data/samplers" "test_sequential.mojo"
+          just test-group "tests/shared/data/samplers" "test_sequential_part1.mojo test_sequential_part2.mojo"
 
       - name: Run All Data Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
