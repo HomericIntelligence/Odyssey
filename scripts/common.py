@@ -32,6 +32,10 @@ LABEL_COLORS = {
     "cleanup": "d93f0b",  # Red
 }
 
+# Directories to exclude from test file discovery
+# Used by: check_test_count_badge.py, validate_test_coverage.py
+EXCLUDE_DIRS = [".pixi/", "build/", "dist/", ".git/", "worktrees/"]
+
 
 def get_repo_root() -> Path:
     """

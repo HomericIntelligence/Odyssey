@@ -26,7 +26,7 @@ import yaml
 
 # Enable importing from scripts/common.py
 sys.path.insert(0, str(Path(__file__).parent))
-from common import get_repo_root
+from common import get_repo_root, EXCLUDE_DIRS
 
 
 def find_test_files(root_dir: Path) -> List[Path]:
@@ -34,14 +34,7 @@ def find_test_files(root_dir: Path) -> List[Path]:
     test_files = []
 
     # Exclude patterns for directories we don't want to scan
-    exclude_patterns = [
-        ".pixi/",
-        "build/",
-        "dist/",
-        "__pycache__/",
-        ".git/",
-        "worktrees/",
-    ]
+    exclude_patterns = list(EXCLUDE_DIRS) + ["__pycache__/"]
 
     # Exclude specific test files that require external datasets
     # These tests need datasets/ directory which must be downloaded separately
