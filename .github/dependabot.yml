@@ -77,7 +77,8 @@ updates:
   # ============================================================================
   # Purpose: Keep CI/CD workflows secure and up-to-date
   # Frequency: Weekly (Tuesdays) same as Python
-  # Scope: All workflow files in .github/workflows/
+  # Scope: All GitHub Actions in .github/workflows/ and composite actions in
+  #        .github/actions/ (github-actions ecosystem covers all action.yml files)
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
