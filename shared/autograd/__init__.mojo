@@ -1,6 +1,11 @@
 """Autograd - Automatic Differentiation for ML Odyssey.
 
-This module provides gradient computation capabilities for training neural networks
+This module provides gradient computation capabilities for training neural networks.
+
+Note:
+    Mojo v0.26.1+ automatically exports all imported symbols to package consumers.
+    No __all__ equivalent is needed. Any symbol imported in this module is
+    automatically available to users of the shared.autograd package.
 
 Core Components:
 - Variable: Tensor wrapper with gradient tracking
