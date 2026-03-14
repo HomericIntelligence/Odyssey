@@ -402,6 +402,74 @@ fn test_tile_multidim() raises:
     assert_numel(b, 36, "Should have 36 elements (4*9)")
 
 
+fn test_tile_multidim_values() raises:
+    """Test tiling 2D source with non-uniform values verifies correct layout.
+
+    Tiles a (2, 3) source created from arange(0..6) by [2, 2] to produce a
+    (4, 6) output. Verifies that the tiling pattern correctly repeats values
+    in row-major order, ensuring the row-by-row repetition is correct.
+
+    Source (2, 3):
+      [[0, 1, 2],
+       [3, 4, 5]]
+
+    After tile([2, 2]), result (4, 6):
+      [[0, 1, 2, 0, 1, 2],
+       [3, 4, 5, 3, 4, 5],
+       [0, 1, 2, 0, 1, 2],
+       [3, 4, 5, 3, 4, 5]]
+    """
+    from shared.core import tile
+
+    var shape = List[Int]()
+    shape.append(2)
+    shape.append(3)
+    var a = arange(0.0, 6.0, 1.0, DType.float32)
+    a = reshape(a, shape)  # Shape (2, 3)
+
+    var reps = List[Int]()
+    reps.append(2)
+    reps.append(2)
+    var b = tile(a, reps)  # Result: (4, 6)
+
+    # Verify shape
+    assert_dim(b, 2, "Tiled tensor should be 2D")
+    assert_numel(b, 24, "Should have 24 elements (4*6)")
+
+    # Verify row-by-row repetition pattern
+    # Row 0: [0, 1, 2, 0, 1, 2]
+    assert_value_at(b, 0, 0.0, message="tile row0 col0")
+    assert_value_at(b, 1, 1.0, message="tile row0 col1")
+    assert_value_at(b, 2, 2.0, message="tile row0 col2")
+    assert_value_at(b, 3, 0.0, message="tile row0 col3 (repeat)")
+    assert_value_at(b, 4, 1.0, message="tile row0 col4 (repeat)")
+    assert_value_at(b, 5, 2.0, message="tile row0 col5 (repeat)")
+
+    # Row 1: [3, 4, 5, 3, 4, 5]
+    assert_value_at(b, 6, 3.0, message="tile row1 col0")
+    assert_value_at(b, 7, 4.0, message="tile row1 col1")
+    assert_value_at(b, 8, 5.0, message="tile row1 col2")
+    assert_value_at(b, 9, 3.0, message="tile row1 col3 (repeat)")
+    assert_value_at(b, 10, 4.0, message="tile row1 col4 (repeat)")
+    assert_value_at(b, 11, 5.0, message="tile row1 col5 (repeat)")
+
+    # Row 2 (repeat of row 0): [0, 1, 2, 0, 1, 2]
+    assert_value_at(b, 12, 0.0, message="tile row2 col0 (repeat)")
+    assert_value_at(b, 13, 1.0, message="tile row2 col1 (repeat)")
+    assert_value_at(b, 14, 2.0, message="tile row2 col2 (repeat)")
+    assert_value_at(b, 15, 0.0, message="tile row2 col3 (repeat)")
+    assert_value_at(b, 16, 1.0, message="tile row2 col4 (repeat)")
+    assert_value_at(b, 17, 2.0, message="tile row2 col5 (repeat)")
+
+    # Row 3 (repeat of row 1): [3, 4, 5, 3, 4, 5]
+    assert_value_at(b, 18, 3.0, message="tile row3 col0 (repeat)")
+    assert_value_at(b, 19, 4.0, message="tile row3 col1 (repeat)")
+    assert_value_at(b, 20, 5.0, message="tile row3 col2 (repeat)")
+    assert_value_at(b, 21, 3.0, message="tile row3 col3 (repeat)")
+    assert_value_at(b, 22, 4.0, message="tile row3 col4 (repeat)")
+    assert_value_at(b, 23, 5.0, message="tile row3 col5 (repeat)")
+
+
 # ============================================================================
 # Test repeat()
 # ============================================================================
@@ -629,6 +697,7 @@ fn main() raises:
     print("  Testing tile()...")
     test_tile_1d()
     test_tile_multidim()
+    test_tile_multidim_values()
 
     # repeat() tests
     print("  Testing repeat()...")
