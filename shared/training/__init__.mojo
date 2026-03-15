@@ -90,12 +90,6 @@ from shared.training.base import (
     clip_gradients,
 )
 
-# Export data loader interfaces (Issue #3851, #3856)
-from shared.training.trainer_interface import (
-    DataBatch,
-    DataLoader,
-)
-
 # Export scheduler implementations
 from shared.training.schedulers import (
     StepLR,
@@ -109,8 +103,8 @@ from shared.training.schedulers import (
 )
 
 # Export callback implementations
-# NOTE(#3754, Mojo v0.26.1): Callbacks must be imported directly from submodules due to
-# Mojo re-export limitations. Use:
+# Callbacks must be imported directly from submodules due to
+# Mojo re-export limitations (#3754, Mojo v0.26.1). Use:
 #   from shared.training.callbacks import EarlyStopping
 # NOT from shared.training import EarlyStopping
 from shared.training.callbacks import (
@@ -440,7 +434,7 @@ struct TrainingLoop[
         var total_loss = Float64(0.0)
         var num_batches = Int(0)
 
-        # NOTE (Mojo v0.26.1, #3076): Batch iteration blocked by Track 4 (Python↔Mojo interop) - see #3076 (parent: #3059).
+        # Batch iteration blocked by Track 4 (Python↔Mojo interop) (Mojo v0.26.1, #3076).
         # The data_loader is currently a PythonObject, but step() requires ExTensor.
         # Once Track 4 data loading infrastructure is ready, integrate batching here.
         # Track resolution via #3076. Implement when Python↔Mojo interop is available.

@@ -192,8 +192,8 @@ struct BroadcastIterator:
         for i in range(len(self.shape)):
             self.size *= self.shape[i]
 
-    # NOTE (Mojo v0.26.1): We intentionally do not implement __iter__() because
-    # List[Int] fields are not Copyable in Mojo v0.26.1, and __iter__ would need
+    # We intentionally do not implement __iter__() (Mojo v0.26.1) because
+    # List[Int] fields are not Copyable, and __iter__ would need
     # to return Self which requires copying.
     # Callers should use __next__ directly with a while loop:
     #

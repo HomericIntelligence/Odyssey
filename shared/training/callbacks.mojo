@@ -587,8 +587,8 @@ struct LoggingCallback(Callback, Copyable, Movable):
             # Format: [Epoch N] metric1: value1 | metric2: value2 | lr: learning_rate
             var log_msg = "[Epoch " + String(state.epoch + 1) + "]"
 
-            # NOTE (Mojo v0.26.1): Actual metric logging will be implemented when Dict iteration
-            # is fully available in Mojo. For now, we track the logging action.
+            # Actual metric logging will be implemented when Dict iteration
+            # is fully available in Mojo (Mojo v0.26.1). For now, we track the logging action.
             # The log_count increments correctly to verify logging is happening.
 
             print(log_msg)

@@ -69,14 +69,7 @@ from shared.version import VERSION, AUTHOR, LICENSE
 # from .training.schedulers import StepLR, CosineAnnealingLR
 
 # Training metrics (most commonly used) — Issue #3221
-# NOTE(#3754, Mojo v0.26.1): Metrics are imported directly from shared.training.metrics
-# rather than from shared.training due to Mojo re-export chain limitation.
-# See shared/training/__init__.mojo for detailed explanation of this limitation.
-# Users should import metrics either as:
-#   from shared.training.metrics import LossTracker, AccuracyMetric
-# or:
-#   from shared import LossTracker, AccuracyMetric  # if this module re-exports them
-from shared.training.metrics import LossTracker, AccuracyMetric, ConfusionMatrix, CSVMetricsLogger
+from shared.training.metrics import LossTracker, AccuracyMetric
 
 # Expose plan-canonical alias: Accuracy = AccuracyMetric
 comptime Accuracy = AccuracyMetric
@@ -90,7 +83,7 @@ comptime Accuracy = AccuracyMetric
 # Data components (most commonly used)
 # from .data.datasets import TensorDataset, ImageDataset
 # from .data.loaders import DataLoader
-# from .data.transforms import Normalize, ToTensor, Compose
+from .data.transforms import Normalize, Compose
 
 # Utils (most commonly used)
 # from .utils.logging import Logger
@@ -115,16 +108,16 @@ comptime Accuracy = AccuracyMetric
 # Core - Activations: relu, sigmoid, tanh, softmax
 # Core - Module system: Module, Sequential
 # Core - Tensors: Tensor, zeros, ones, randn
-# Training - Optimizers: SGD, Adam, AdamW (via autograd)
+# Training - Optimizers: SGD, Adam, AdamW
 # Training - Schedulers: StepLR, CosineAnnealingLR
-# Training - Metrics: Accuracy, LossTracker, ConfusionMatrix, CSVMetricsLogger
+# Training - Metrics: Accuracy, LossTracker
 # Training - Callbacks: EarlyStopping, ModelCheckpoint
 # Training - Loops: train_epoch, validate_epoch
 # Data - Datasets: TensorDataset, ImageDataset, DataLoader
-# Data - Transforms: ToTensor, Normalize, Compose
+# Data - Transforms: Normalize, ToTensor, Compose
 # Utils: Logger, plot_training_curves
 # Autograd: Automatic differentiation utilities (when available)
-# Testing: Test utilities and fixtures, constants (GRADIENT_CHECK_EPSILON_FLOAT32)
+# Testing: Test utilities and fixtures
 
 # ============================================================================
 # Convenience: Make subpackages accessible
@@ -132,7 +125,7 @@ comptime Accuracy = AccuracyMetric
 # This allows users to do: from shared import core, training, data, utils
 # Then access via: shared.core.layers.Linear, shared.training.optimizers.SGD
 #
-# NOTE(#3751, Mojo v0.26.1): Mojo v0.26.1+ does not support __all__ module-level assignments.
+# Mojo v0.26.1+ does not support __all__ module-level assignments (#3751, Mojo v0.26.1).
 # In Mojo, all public symbols (those not prefixed with _) are automatically
 # exported when the module is imported. The public API documentation below
 # describes what should be exposed at this package level:
@@ -155,7 +148,6 @@ comptime Accuracy = AccuracyMetric
 # │ VERSION, AUTHOR, LICENSE        │ shared.version                         │
 # │ LossTracker, AccuracyMetric     │ shared.training.metrics                │
 # │ Accuracy                        │ comptime alias for AccuracyMetric      │
-# │ GRADIENT_CHECK_EPSILON_FLOAT32  │ shared.testing.tolerance_constants     │
 # │ core                            │ shared.core (subpackage)               │
 # │ training                        │ shared.training (subpackage)           │
 # │ data                            │ shared.data (subpackage)               │
@@ -179,8 +171,3 @@ from shared import data
 from shared import utils
 from shared import autograd
 from shared import testing
-
-# ============================================================================
-# Testing Constants - Available at package level
-# ============================================================================
-from shared.testing import GRADIENT_CHECK_EPSILON_FLOAT32

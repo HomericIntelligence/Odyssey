@@ -17,9 +17,8 @@ Backward Pass Testing:
 - Uses seeded random tensors for reproducible gradient checking
 - Validates analytical gradients against numerical gradients
 - Tolerances adjusted per dtype (1e-2 for float32)
-- Epsilon for float32 gradient checking: GRADIENT_CHECK_EPSILON_FLOAT32 (imported from
-  shared.testing.tolerance_constants), chosen to avoid precision loss in matmul
-  operations (see issue #2704)
+- Epsilon for float32 gradient checking: GRADIENT_CHECK_EPSILON_FLOAT32 (3e-4),
+  chosen to avoid precision loss in matmul operations (see issue #2704)
 
 Usage:
     from shared.testing.layer_testers import LayerTester
@@ -1142,11 +1141,11 @@ struct LayerTester:
 
         # Note: Actual BatchNorm backward gradient checking will be implemented
         # when BatchNorm forward pass is available.
-        # NOTE (Mojo v0.26.1): When adding gradient checking, use epsilon=3e-4 for float32 to avoid
-        # precision loss in normalization ops (consistent with conv2d/linear, see #2704).
+        # When adding gradient checking, use epsilon=3e-4 for float32 to avoid
+        # precision loss in normalization ops (Mojo v0.26.1) (consistent with conv2d/linear, see #2704).
         # BatchNorm accumulates division errors across N*H*W elements, so use
         # tolerance=1e-1 (10%) for all dtypes — same as conv2d backward (see #3090).
-        # NOTE (Mojo v0.26.1): For other dtypes use epsilon=1e-3, tolerance=1e-1 (same pattern as #3090).
+        # For other dtypes use epsilon=1e-3, tolerance=1e-1 (Mojo v0.26.1) (same pattern as #3090).
         # For now, we validate that we can compute numerical gradients on the input.
 
         # Verify no NaN/Inf in input
