@@ -833,6 +833,23 @@ fn test_hash_integer_dtype_consistent() raises:
     )
 
 
+fn test_hash_stability_repeated_calls() raises:
+    """Test that hashing the same empty tensor instance repeatedly returns equal values."""
+    var shape = List[Int]()
+    var a = full(shape, 0.0, DType.float32)
+
+    assert_equal_int(
+        Int(hash(a)),
+        Int(hash(a)),
+        "hash of empty tensor must be stable across repeated calls",
+    )
+    assert_equal_int(
+        Int(hash(a)),
+        Int(hash(a)),
+        "hash of empty tensor must be stable on third call",
+    )
+
+
 # ============================================================================
 # Test diff() - consecutive differences
 # ============================================================================
@@ -952,6 +969,7 @@ fn main() raises:
     test_hash_different_shapes_differ()
     test_hash_integer_dtype_consistent()
     test_hash_same_values_different_dtype()
+    test_hash_stability_repeated_calls()
 
     # diff()
     print("  Testing diff()...")
