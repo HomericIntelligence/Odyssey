@@ -12,7 +12,12 @@ import pytest
 
 # Add scripts directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
-from validate_test_coverage import check_stale_patterns, expand_pattern, generate_report
+from validate_test_coverage import (
+    check_stale_patterns,
+    expand_pattern,
+    generate_report,
+    group_split_files,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -29,6 +34,108 @@ def tmp_repo(tmp_path: Path) -> Path:
     (tmp_path / "tests" / "integration").mkdir(parents=True)
     (tmp_path / "tests" / "integration" / "test_baz.mojo").touch()
     return tmp_path
+
+
+# ---------------------------------------------------------------------------
+# group_split_files
+# ---------------------------------------------------------------------------
+
+
+class TestGroupSplitFiles:
+    """Unit tests for group_split_files()."""
+
+    def test_empty_input_returns_empty_dict(self) -> None:
+        """No files → empty mapping."""
+        assert group_split_files([]) == {}
+
+    def test_no_part_files_returns_empty_dict(self) -> None:
+        """Files without _partN suffix are not grouped."""
+        files = [
+            Path("tests/core/test_foo.mojo"),
+            Path("tests/core/test_bar.mojo"),
+        ]
+        assert group_split_files(files) == {}
+
+    def test_single_part_file_forms_group(self) -> None:
+        """A single _part1 file creates a group with one member."""
+        files = [Path("tests/core/test_foo_part1.mojo")]
+        groups = group_split_files(files)
+        assert "tests/core/test_foo" in groups
+        assert groups["tests/core/test_foo"] == [Path("tests/core/test_foo_part1.mojo")]
+
+    def test_multiple_parts_grouped_together(self) -> None:
+        """Six part files are grouped under a single logical key."""
+        files = [
+            Path(f"tests/shared/core/test_elementwise_dispatch_part{i}.mojo")
+            for i in range(1, 7)
+        ]
+        groups = group_split_files(files)
+        key = "tests/shared/core/test_elementwise_dispatch"
+        assert key in groups
+        assert len(groups[key]) == 6
+
+    def test_parts_are_sorted(self) -> None:
+        """Part files within a group are returned in sorted order."""
+        files = [
+            Path("tests/core/test_foo_part3.mojo"),
+            Path("tests/core/test_foo_part1.mojo"),
+            Path("tests/core/test_foo_part2.mojo"),
+        ]
+        groups = group_split_files(files)
+        result = groups["tests/core/test_foo"]
+        assert result == sorted(result)
+
+    def test_non_part_files_excluded_from_groups(self) -> None:
+        """Regular test files mixed with part files are not included in groups."""
+        files = [
+            Path("tests/core/test_bar.mojo"),
+            Path("tests/core/test_foo_part1.mojo"),
+            Path("tests/core/test_foo_part2.mojo"),
+        ]
+        groups = group_split_files(files)
+        assert "tests/core/test_foo" in groups
+        assert len(groups) == 1  # test_bar.mojo not grouped
+
+    def test_multiple_distinct_groups(self) -> None:
+        """Two different base names produce two separate groups."""
+        files = [
+            Path("tests/core/test_alpha_part1.mojo"),
+            Path("tests/core/test_alpha_part2.mojo"),
+            Path("tests/core/test_beta_part1.mojo"),
+            Path("tests/core/test_beta_part2.mojo"),
+        ]
+        groups = group_split_files(files)
+        assert set(groups.keys()) == {
+            "tests/core/test_alpha",
+            "tests/core/test_beta",
+        }
+
+    def test_different_directories_create_separate_groups(self) -> None:
+        """Same base name in different directories yields distinct keys."""
+        files = [
+            Path("tests/unit/test_foo_part1.mojo"),
+            Path("tests/integration/test_foo_part1.mojo"),
+        ]
+        groups = group_split_files(files)
+        assert "tests/unit/test_foo" in groups
+        assert "tests/integration/test_foo" in groups
+        assert len(groups) == 2
+
+    def test_group_key_preserves_directory(self) -> None:
+        """The group key includes the parent directory, not just the base name."""
+        files = [Path("tests/shared/core/test_ops_part1.mojo")]
+        groups = group_split_files(files)
+        assert "tests/shared/core/test_ops" in groups
+
+    def test_multidigit_part_numbers_matched(self) -> None:
+        """Part numbers with more than one digit (e.g., part10) are matched."""
+        files = [
+            Path("tests/core/test_foo_part10.mojo"),
+            Path("tests/core/test_foo_part11.mojo"),
+        ]
+        groups = group_split_files(files)
+        assert "tests/core/test_foo" in groups
+        assert len(groups["tests/core/test_foo"]) == 2
 
 
 # ---------------------------------------------------------------------------
