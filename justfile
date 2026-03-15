@@ -246,6 +246,7 @@ build mode="debug": (_ensure_build_dir mode)
         -not -path "./shared/*" \
         -not -path "./examples/*" \
         -not -path "./benchmarks/*" \
+        -not -path "./.templates/*" \
         -not -name "test_*.mojo" \
         -not -name "model.mojo" \
         | while read -r file; do
