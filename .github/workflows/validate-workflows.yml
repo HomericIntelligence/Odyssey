@@ -6,12 +6,14 @@ on:
     paths:
       - '.github/**'
       - 'scripts/validate_workflow_checkout_order.py'
+      - 'scripts/validate_mojo_retry_pattern.py'
       - '.github/workflows/validate-workflows.yml'
   pull_request:
     branches: [main]
     paths:
       - '.github/**'
       - 'scripts/validate_workflow_checkout_order.py'
+      - 'scripts/validate_mojo_retry_pattern.py'
       - '.github/workflows/validate-workflows.yml'
   workflow_dispatch:
 
@@ -35,3 +37,8 @@ jobs:
         run: |
           echo "Checking that all jobs using ./.github/actions/ have actions/checkout as a preceding step..."
           python3 scripts/validate_workflow_checkout_order.py .github/workflows/
+
+      - name: Detect bare pixi run mojo calls without retry protection
+        run: |
+          echo "Checking for bare 'pixi run mojo' calls not protected by a retry loop (issue #3329)..."
+          python3 scripts/validate_mojo_retry_pattern.py .github/workflows/
