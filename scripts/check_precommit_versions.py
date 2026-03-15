@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-"""Check for version drift between .pre-commit-config.yaml rev: values and pixi.lock.
+"""
+Check pre-commit version consistency against pixi.toml
 
-Parses rev: tags for known external repos in .pre-commit-config.yaml and
-compares them against the authoritative versions resolved in pixi.lock.
-Fails with exit code 1 if any mismatch is detected.
-
-Exit codes:
-  0 - No version drift detected (or tool not tracked in pixi.lock)
-  1 - Version drift found or required files missing
+Validates that external pre-commit hook revs in .pre-commit-config.yaml
+match (or are compatible with) the corresponding pixi.toml package versions.
+This prevents the version-drift issue described in #3369 / #4030.
 
 Usage:
-    python scripts/check_precommit_versions.py [--repo-root PATH]
+    python scripts/check_precommit_versions.py [--config PATH] [--pixi PATH]
+
+Exit codes:
+    0: All versions are consistent
+    1: Version drift detected (or file not found)
 """
 
 import argparse
@@ -19,211 +20,311 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-# Maps pre-commit repo URL substring → pixi.lock conda package name
-REPO_TO_PACKAGE: Dict[str, str] = {
-    "mirrors-mypy": "mypy",
-    "kynan/nbstripout": "nbstripout",
+import yaml
+
+from common import get_repo_root
+
+# Mapping from external pre-commit repo URL to pixi.toml package name.
+#
+# Only repos that have a pixi/conda-forge counterpart with matching versioning
+# are listed here.  markdownlint-cli2 is intentionally excluded: it is a
+# Node.js tool whose conda-forge package uses a different version series than
+# the npm package referenced by the pre-commit rev, so version comparison
+# would produce false positives.  It is still covered by the pre-commit hook
+# itself and its npm version is pinned in .pre-commit-config.yaml.
+HOOK_TO_PIXI_MAP: Dict[str, str] = {
+    "https://github.com/pre-commit/mirrors-mypy": "mypy",
+    "https://github.com/kynan/nbstripout": "nbstripout",
+    "https://github.com/pre-commit/pre-commit-hooks": "pre-commit-hooks",
 }
 
 
-def get_repo_root() -> Path:
-    """Get repository root by searching upward for a .git directory.
-
-    Returns:
-        Path to repository root.
-
-    Raises:
-        RuntimeError: If no .git directory found.
+def normalize_version(rev: str) -> str:
     """
-    candidate = Path(__file__).resolve().parent
-    for _ in range(10):
-        if (candidate / ".git").exists():
-            return candidate
-        parent = candidate.parent
-        if parent == candidate:
-            break
-        candidate = parent
-    raise RuntimeError("Could not find repository root (.git directory not found)")
-
-
-def parse_precommit_revs(config_path: Path) -> Dict[str, str]:
-    """Return {repo_url: rev} for all external repos with a rev: tag.
-
-    Uses regex to avoid a yaml dependency.
+    Strip a leading 'v' from a git tag so it can be compared numerically.
 
     Args:
-        config_path: Path to .pre-commit-config.yaml.
+        rev: A git tag such as "v1.19.1" or "0.7.1"
 
     Returns:
-        Mapping of repo URL to rev string.
-    """
-    text = config_path.read_text()
-
-    # Match blocks like:
-    #   - repo: https://github.com/foo/bar
-    #     rev: v1.2.3
-    repo_rev_pattern = re.compile(
-        r"-\s+repo:\s+(\S+)\s+rev:\s+(\S+)",
-        re.MULTILINE,
-    )
-
-    result: Dict[str, str] = {}
-    for match in repo_rev_pattern.finditer(text):
-        repo_url = match.group(1)
-        rev = match.group(2)
-        # Skip local repos
-        if repo_url != "local":
-            result[repo_url] = rev
-
-    return result
-
-
-def parse_lock_versions(lock_path: Path) -> Dict[str, str]:
-    """Return {package_name: version} from pixi.lock conda entries.
-
-    Extracts versions from conda URL lines like:
-      - conda: https://.../mypy-1.19.1-py314h5bd0f2a_0.conda
-
-    Args:
-        lock_path: Path to pixi.lock.
-
-    Returns:
-        Mapping of package name to version string.
-    """
-    text = lock_path.read_text()
-
-    # Match conda URL lines, extracting package name and version
-    # Pattern: /packagename-VERSION-buildstring.conda (or .tar.bz2)
-    conda_pattern = re.compile(
-        r"-\s+conda:\s+https?://\S+/([a-zA-Z0-9_\-]+)-(\d+\.\d+[\.\d]*)-[^/\s]+\.(?:conda|tar\.bz2)"
-    )
-
-    result: Dict[str, str] = {}
-    for match in conda_pattern.finditer(text):
-        pkg_name = match.group(1)
-        version = match.group(2)
-        # Keep first occurrence (avoid duplicates from multiple platforms/builds)
-        if pkg_name not in result:
-            result[pkg_name] = version
-
-    return result
-
-
-def normalize_rev(rev: str) -> str:
-    """Strip leading 'v' from rev tags (v1.19.1 → 1.19.1).
-
-    Args:
-        rev: Version string, possibly with a leading 'v'.
-
-    Returns:
-        Version string without leading 'v'.
+        Version string without leading 'v', e.g. "1.19.1"
     """
     return rev.lstrip("v")
 
 
-def check_drift(
-    revs: Dict[str, str],
-    lock_versions: Dict[str, str],
-) -> List[Tuple[str, str, str]]:
-    """Return list of (repo_url, rev_version, lock_version) mismatches.
-
-    Only repos with entries in REPO_TO_PACKAGE are checked.
-    Repos not tracked in pixi.lock are silently skipped.
+def load_precommit_config(config_path: Path) -> List[Dict]:
+    """
+    Parse .pre-commit-config.yaml and return the list of repo entries.
 
     Args:
-        revs: Mapping of repo URL to rev string from .pre-commit-config.yaml.
-        lock_versions: Mapping of package name to version from pixi.lock.
+        config_path: Path to .pre-commit-config.yaml
 
     Returns:
-        List of (repo_url, precommit_version, lock_version) tuples for mismatches.
+        List of repo dicts from the ``repos`` key
+
+    Raises:
+        FileNotFoundError: if the file does not exist
+        ValueError: if the YAML is missing the ``repos`` key
     """
-    mismatches: List[Tuple[str, str, str]] = []
+    if not config_path.exists():
+        raise FileNotFoundError(f"Pre-commit config not found: {config_path}")
 
-    for repo_url, rev in revs.items():
-        # Find the package name for this repo URL
-        pkg_name = None
-        for url_substring, package in REPO_TO_PACKAGE.items():
-            if url_substring in repo_url:
-                pkg_name = package
-                break
+    with config_path.open() as fh:
+        data = yaml.safe_load(fh)
 
+    if not isinstance(data, dict) or "repos" not in data:
+        raise ValueError(f"No 'repos' key in {config_path}")
+
+    return data["repos"]  # type: ignore[return-value]
+
+
+def extract_external_hooks(repos: List[Dict]) -> Dict[str, str]:
+    """
+    Extract external (non-local) repo URLs and their ``rev`` values.
+
+    Args:
+        repos: List of repo dicts from .pre-commit-config.yaml
+
+    Returns:
+        Dict mapping repo URL → rev string, e.g.
+        {"https://github.com/pre-commit/mirrors-mypy": "v1.19.1"}
+    """
+    result: Dict[str, str] = {}
+    for repo in repos:
+        url = repo.get("repo", "")
+        rev = repo.get("rev", "")
+        if url and url != "local" and rev:
+            result[url] = rev
+    return result
+
+
+def parse_pixi_constraint(constraint: str) -> Optional[str]:
+    """
+    Extract the lower-bound version from a pixi/conda version constraint.
+
+    Handles patterns like:
+    - ``>=1.19.1,<2``  → ``"1.19.1"``
+    - ``==0.26.1``     → ``"0.26.1"``
+    - ``>=0.7.1``      → ``"0.7.1"``
+    - ``0.12.1``       → ``"0.12.1"`` (bare version)
+
+    Args:
+        constraint: A pixi version constraint string
+
+    Returns:
+        Lower-bound version string, or None if unparseable
+    """
+    # Try >=X.Y.Z or ==X.Y.Z
+    match = re.search(r"[><=]=?\s*(\d+\.\d+[\.\d]*)", constraint)
+    if match:
+        return match.group(1)
+    # Bare version string
+    bare = re.match(r"^(\d+\.\d+[\.\d]*)$", constraint.strip())
+    if bare:
+        return bare.group(1)
+    return None
+
+
+def load_pixi_versions(pixi_path: Path) -> Dict[str, str]:
+    """
+    Parse pixi.toml and return a dict mapping package name → lower-bound version.
+
+    Args:
+        pixi_path: Path to pixi.toml
+
+    Returns:
+        Dict mapping package name (lower-case) → lower-bound version string
+
+    Raises:
+        FileNotFoundError: if the file does not exist
+    """
+    if not pixi_path.exists():
+        raise FileNotFoundError(f"pixi.toml not found: {pixi_path}")
+
+    try:
+        import tomllib  # Python 3.11+
+    except ImportError:
+        try:
+            import tomli as tomllib  # type: ignore[no-redef]
+        except ImportError:
+            # Fallback: manual TOML parsing for [dependencies] section only
+            return _parse_pixi_dependencies_fallback(pixi_path)
+
+    with pixi_path.open("rb") as fh:
+        data = tomllib.load(fh)
+
+    deps: Dict[str, str] = {}
+    for pkg, constraint in data.get("dependencies", {}).items():
+        version = parse_pixi_constraint(str(constraint))
+        if version:
+            deps[pkg.lower()] = version
+    return deps
+
+
+def _parse_pixi_dependencies_fallback(pixi_path: Path) -> Dict[str, str]:
+    """
+    Minimal TOML parser for the [dependencies] section only (no tomllib/tomli).
+
+    Args:
+        pixi_path: Path to pixi.toml
+
+    Returns:
+        Dict mapping package name → lower-bound version string
+    """
+    deps: Dict[str, str] = {}
+    in_deps = False
+    for line in pixi_path.read_text().splitlines():
+        stripped = line.strip()
+        if stripped == "[dependencies]":
+            in_deps = True
+            continue
+        if stripped.startswith("[") and stripped != "[dependencies]":
+            in_deps = False
+            continue
+        if in_deps and "=" in stripped and not stripped.startswith("#"):
+            key, _, value = stripped.partition("=")
+            pkg = key.strip().lower()
+            constraint = value.strip().strip('"')
+            version = parse_pixi_constraint(constraint)
+            if version:
+                deps[pkg] = version
+    return deps
+
+
+def version_tuple(version: str) -> Tuple[int, ...]:
+    """
+    Convert a version string to a comparable tuple of integers.
+
+    Args:
+        version: Version string, e.g. "1.19.1"
+
+    Returns:
+        Tuple of ints, e.g. (1, 19, 1)
+    """
+    parts = []
+    for part in version.split("."):
+        try:
+            parts.append(int(part))
+        except ValueError:
+            parts.append(0)
+    return tuple(parts)
+
+
+def check_version_drift(
+    external_hooks: Dict[str, str],
+    pixi_versions: Dict[str, str],
+) -> List[str]:
+    """
+    Compare external hook revs against pixi.toml lower-bound versions.
+
+    A drift is reported when the hook rev (normalized) does not match the
+    pixi lower-bound exactly.  An exact match is required so that the two
+    files always point to the same release.
+
+    Args:
+        external_hooks: Dict mapping repo URL → rev (from .pre-commit-config.yaml)
+        pixi_versions: Dict mapping package name → lower-bound version (from pixi.toml)
+
+    Returns:
+        List of human-readable drift messages (empty if everything is consistent)
+    """
+    issues: List[str] = []
+    for repo_url, rev in external_hooks.items():
+        pkg_name = HOOK_TO_PIXI_MAP.get(repo_url)
         if pkg_name is None:
-            # Not tracked in pixi.lock — skip
+            # Not in map — not tracked, skip
             continue
-
-        lock_version = lock_versions.get(pkg_name)
-        if lock_version is None:
-            # Package not in pixi.lock — skip
+        pixi_version = pixi_versions.get(pkg_name.lower())
+        if pixi_version is None:
+            issues.append(
+                f"MISSING: '{pkg_name}' is used in .pre-commit-config.yaml "
+                f"(rev={rev!r}) but has no entry in pixi.toml. "
+                f"Add '{pkg_name} = \">={normalize_version(rev)}\"' to pixi.toml."
+            )
             continue
+        hook_version = normalize_version(rev)
+        if version_tuple(hook_version) != version_tuple(pixi_version):
+            issues.append(
+                f"DRIFT: '{pkg_name}' — .pre-commit-config.yaml rev is "
+                f"{hook_version!r} but pixi.toml lower bound is {pixi_version!r}. "
+                f"They must match."
+            )
+    return issues
 
-        normalized_rev = normalize_rev(rev)
-        if normalized_rev != lock_version:
-            mismatches.append((repo_url, normalized_rev, lock_version))
 
-    return mismatches
+def check_version_consistency(
+    precommit_path: Optional[Path] = None,
+    pixi_path: Optional[Path] = None,
+) -> List[str]:
+    """
+    Top-level check: load both config files and return a list of drift issues.
+
+    Args:
+        precommit_path: Path to .pre-commit-config.yaml (defaults to repo root)
+        pixi_path: Path to pixi.toml (defaults to repo root)
+
+    Returns:
+        List of drift/missing messages (empty means consistent)
+    """
+    root = get_repo_root()
+    if precommit_path is None:
+        precommit_path = root / ".pre-commit-config.yaml"
+    if pixi_path is None:
+        pixi_path = root / "pixi.toml"
+
+    repos = load_precommit_config(precommit_path)
+    external_hooks = extract_external_hooks(repos)
+    pixi_versions = load_pixi_versions(pixi_path)
+    return check_version_drift(external_hooks, pixi_versions)
 
 
 def main(argv: Optional[List[str]] = None) -> int:
-    """Run version drift check.
+    """
+    CLI entry point.
 
     Args:
-        argv: Command-line arguments. If None, uses sys.argv.
+        argv: Command-line arguments (defaults to sys.argv[1:])
 
     Returns:
-        0 if no drift detected, 1 if drift found or files missing.
+        Exit code: 0 for success, 1 for drift detected or error
     """
     parser = argparse.ArgumentParser(
-        description="Check for version drift between .pre-commit-config.yaml and pixi.lock"
+        description="Check .pre-commit-config.yaml revs match pixi.toml versions"
     )
     parser.add_argument(
-        "--repo-root",
+        "--config",
         type=Path,
         default=None,
-        help="Repository root path (default: auto-detected from script location)",
+        help="Path to .pre-commit-config.yaml (default: repo root)",
+    )
+    parser.add_argument(
+        "--pixi",
+        type=Path,
+        default=None,
+        help="Path to pixi.toml (default: repo root)",
     )
     args = parser.parse_args(argv)
 
-    root = args.repo_root if args.repo_root is not None else get_repo_root()
-
-    config_path = root / ".pre-commit-config.yaml"
-    lock_path = root / "pixi.lock"
-
-    if not config_path.exists():
-        print(f"ERROR: .pre-commit-config.yaml not found at {config_path}", file=sys.stderr)
+    try:
+        issues = check_version_consistency(
+            precommit_path=args.config,
+            pixi_path=args.pixi,
+        )
+    except FileNotFoundError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
         return 1
 
-    if not lock_path.exists():
-        print(f"ERROR: pixi.lock not found at {lock_path}", file=sys.stderr)
+    if issues:
+        print("Pre-commit version drift detected:")
+        for issue in issues:
+            print(f"  - {issue}")
+        print(
+            "\nFix: update the rev in .pre-commit-config.yaml or the version "
+            "constraint in pixi.toml so they match."
+        )
         return 1
 
-    revs = parse_precommit_revs(config_path)
-    lock_versions = parse_lock_versions(lock_path)
-
-    mismatches = check_drift(revs, lock_versions)
-
-    if mismatches:
-        print("ERROR: Version drift detected between .pre-commit-config.yaml and pixi.lock:")
-        for repo_url, precommit_ver, lock_ver in mismatches:
-            print(f"  {repo_url}")
-            print(f"    pre-commit rev: {precommit_ver}")
-            print(f"    pixi.lock:      {lock_ver}")
-        print()
-        print("Fix: Update the rev: tag in .pre-commit-config.yaml to match pixi.lock")
-        return 1
-
-    # Report which tools were checked
-    checked: List[str] = []
-    for repo_url, _rev in revs.items():
-        for url_substring in REPO_TO_PACKAGE:
-            if url_substring in repo_url:
-                checked.append(url_substring)
-                break
-
-    if checked:
-        print(f"OK: No version drift detected (checked: {', '.join(checked)})")
-    else:
-        print("OK: No tracked repos found in .pre-commit-config.yaml")
-
+    print("OK: all pre-commit hook versions are consistent with pixi.toml")
     return 0
 
 
