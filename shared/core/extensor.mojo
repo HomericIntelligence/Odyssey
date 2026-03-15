@@ -1086,6 +1086,19 @@ struct ExTensor(
         for dim in range(num_dims):
             var s = slices[dim]
             var size = self._shape[dim]
+            var step = s.step.or_else(1)
+
+            # Check for unsupported stride (step != 1)
+            if step != 1:
+                raise Error(
+                    "Strided slicing (step != 1) is not yet supported in "
+                    + "multi-dimensional __getitem__(*slices). "
+                    + "Dimension "
+                    + String(dim)
+                    + " has step="
+                    + String(step)
+                    + ". Use 1D __getitem__(Slice) for strided slicing."
+                )
 
             var start = s.start.or_else(0)
             var end = s.end.or_else(size)
