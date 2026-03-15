@@ -61,6 +61,35 @@ jobs:
             echo "✅ PASSED: No deprecated List constructor patterns found"
           fi
 
+      - name: Check for deprecated backward result alias names
+        run: |
+          echo "============================================================"
+          echo "Checking for deprecated backward result alias names..."
+          echo "============================================================"
+
+          # The 8 deprecated type aliases removed in #3059/#3267.
+          # They must not reappear in shared/ or tests/.
+          PATTERN='LinearBackwardResult\|LinearNoBiasBackwardResult\|Conv2dBackwardResult\|Conv2dNoBiasBackwardResult\|DepthwiseConv2dBackwardResult\|DepthwiseConv2dNoBiasBackwardResult\|DepthwiseSeparableConv2dBackwardResult\|DepthwiseSeparableConv2dNoBiasBackwardResult'
+
+          # Two-phase grep: broad scan, then exclude comment-only lines and docstrings.
+          if grep -rn "$PATTERN" shared/ tests/ --include='*.mojo' 2>/dev/null \
+               | grep -v '^\s*#' \
+               | grep -v '^\s*"""' \
+               | grep -q .; then
+            echo ""
+            echo "::error::Deprecated alias names detected in shared/ or tests/"
+            grep -rn "$PATTERN" shared/ tests/ --include='*.mojo' 2>/dev/null \
+              | grep -v '^\s*#' \
+              | grep -v '^\s*"""'
+            echo ""
+            echo "FAILED: The above deprecated type aliases were removed in #3059."
+            echo "Use the replacement struct names directly (e.g., LinearGradients)."
+            exit 1
+          else
+            echo ""
+            echo "PASSED: No deprecated backward result alias names found"
+          fi
+
   # ============================================================================
   # Mojo Package Compilation Check - Verify shared package compiles
   # This runs BEFORE tests to catch compilation errors early
