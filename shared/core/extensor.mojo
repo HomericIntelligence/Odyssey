@@ -3156,9 +3156,64 @@ struct ExTensor(
         var shape_copy = self._shape.copy()
         var result = ExTensor(shape_copy, self._dtype)
 
-        for i in range(self._numel):
-            var val = self._get_float64(i)
-            result._set_float64(i, val)
+        # Iterate through all elements using multi-dimensional indexing
+        # to correctly handle non-contiguous source tensors with stride-aware access
+        var nd_idx = List[Int]()
+        for i in range(len(self._shape)):
+            nd_idx.append(0)
+
+        var dtype_size = self._get_dtype_size()
+
+        for out_idx in range(self._numel):
+            # Compute flat offset in source tensor using strides
+            var src_offset = 0
+            for d in range(len(self._shape)):
+                src_offset += nd_idx[d] * self._strides[d]
+
+            # Read from source using stride-aware byte offset
+            var offset_bytes = src_offset * dtype_size
+            var val: Float64
+
+            if self._dtype == DType.float16:
+                var ptr = (self._data + offset_bytes).bitcast[Float16]()
+                val = ptr[].cast[DType.float64]()
+            elif self._dtype == DType.bfloat16:
+                var ptr = (self._data + offset_bytes).bitcast[BFloat16]()
+                val = Float64(Float32(ptr[]))
+            elif self._dtype == DType.float32:
+                var ptr = (self._data + offset_bytes).bitcast[Float32]()
+                val = ptr[].cast[DType.float64]()
+            elif self._dtype == DType.float64:
+                var ptr = (self._data + offset_bytes).bitcast[Float64]()
+                val = ptr[]
+            else:
+                # For integer types, use _get_int64 via byte offset
+                if self._dtype == DType.int8:
+                    var ptr = (self._data + offset_bytes).bitcast[Int8]()
+                    val = Float64(ptr[])
+                elif self._dtype == DType.int16:
+                    var ptr = (self._data + offset_bytes).bitcast[Int16]()
+                    val = Float64(ptr[])
+                elif self._dtype == DType.int32:
+                    var ptr = (self._data + offset_bytes).bitcast[Int32]()
+                    val = Float64(ptr[])
+                elif self._dtype == DType.int64:
+                    var ptr = (self._data + offset_bytes).bitcast[Int64]()
+                    val = Float64(ptr[])
+                else:
+                    val = 0.0
+
+            # Write to output tensor at flat index
+            result._set_float64(out_idx, val)
+
+            # Increment multi-dimensional index
+            var d = len(self._shape) - 1
+            while d >= 0:
+                nd_idx[d] += 1
+                if nd_idx[d] < self._shape[d]:
+                    break
+                nd_idx[d] = 0
+                d -= 1
 
         return result^
 
