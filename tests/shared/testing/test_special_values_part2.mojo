@@ -122,7 +122,16 @@ fn test_dtypes_float16() raises:
 
 
 fn test_dtypes_bfloat16() raises:
-    """Test special values work with bfloat16."""
+    """Test special values work with bfloat16.
+
+    Verifies DType.bfloat16 is fully supported in Mojo's DType enum
+    and integrates correctly with the ExTensor special values API.
+
+    Tests:
+    - Tensor creation with DType.bfloat16 dtype
+    - dtype assertion confirms bfloat16 is preserved
+    - Special value invariants hold for value 1.0 (FP-representable)
+    """
     var tensor = create_special_value_tensor([2, 2], DType.bfloat16, 1.0)
     assert_dtype(tensor, DType.bfloat16, "Should be bfloat16")
     verify_special_value_invariants(tensor, 1.0)
