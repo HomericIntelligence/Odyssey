@@ -47,7 +47,7 @@ fn make_noncontiguous_3x4() raises -> ExTensor:
     Element [r,c] == float(c*4 + r).
     """
     var flat = arange(0.0, 12.0, 1.0, DType.float32)
-    var t2d = reshape(flat, List[Int](3, 4))
+    var t2d = reshape(flat, [3, 4])
     return transpose(t2d)
 
 
@@ -63,9 +63,9 @@ fn test_reshape_noncontiguous_to_flat() raises:
     a contiguous flat result with correct element order.
     """
     var source = make_noncontiguous_3x4()  # (4,3), non-contiguous
-    var result = reshape(source, List[Int](12))
+    var result = reshape(source, [12])
 
-    assert_shape(result, List[Int](12), "reshape should produce (12,) tensor")
+    assert_shape(result, [12], "reshape should produce (12,) tensor")
 
     # Verify element values
     # Logical order in source (reading row-major from non-contiguous):
@@ -83,9 +83,9 @@ fn test_reshape_noncontiguous_to_2d() raises:
     Verifies correct reinterpretation of strided data in new shape.
     """
     var source = make_noncontiguous_3x4()  # (4,3), non-contiguous
-    var result = reshape(source, List[Int](3, 4))
+    var result = reshape(source, [3, 4])
 
-    assert_shape(result, List[Int](3, 4), "reshape should produce (3,4) tensor")
+    assert_shape(result, [3, 4], "reshape should produce (3,4) tensor")
 
     # After reshape, we should have values in row-major order
     # Row 0: [0, 4, 8, 1]
@@ -113,7 +113,7 @@ fn test_flatten_noncontiguous() raises:
     var source = make_noncontiguous_3x4()  # (4,3), non-contiguous
     var result = flatten(source)
 
-    assert_shape(result, List[Int](12), "flatten should produce (12,) tensor")
+    assert_shape(result, [12], "flatten should produce (12,) tensor")
 
     # Should match the logical row-major order of the source
     for i in range(12):
@@ -134,9 +134,9 @@ fn test_tile_noncontiguous() raises:
     Result should be (8,6) with correct values repeated.
     """
     var source = make_noncontiguous_3x4()  # (4,3), non-contiguous
-    var result = tile(source, List[Int](2, 2))
+    var result = tile(source, [2, 2])
 
-    assert_shape(result, List[Int](8, 6), "tile should produce (8,6) tensor")
+    assert_shape(result, [8, 6], "tile should produce (8,6) tensor")
 
     # Verify a few key elements
     # Top-left (0,0) should be 0.0
