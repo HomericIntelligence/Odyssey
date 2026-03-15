@@ -18,14 +18,23 @@ Note:
     DType.bfloat16 is NOT supported on Apple Silicon.
 
 Usage:
-    from shared.training.dtype_utils import bfloat16_dtype, recommend_precision_dtype
+    from shared.training.dtype_utils import (
+        bfloat16_dtype,
+        recommend_precision_dtype,
+        detect_hardware_bf16_support,
+    )
 
-    # On Apple Silicon, BF16 is not available - use FP16 instead
-    var dtype = recommend_precision_dtype(model_size_mb=500.0, hardware_has_bf16=False)
+    # Automatic detection of BF16 support based on hardware
+    var has_bf16 = detect_hardware_bf16_support()
+    var dtype = recommend_precision_dtype(model_size_mb=500.0, hardware_has_bf16=has_bf16)
+    var params = ExTensor.zeros((100, 100), dtype)
+
+    # Manual control for specific cases
+    var dtype = recommend_precision_dtype(model_size_mb=500.0, hardware_has_bf16=False)  # Force FP16
     var params = ExTensor.zeros((100, 100), dtype)
 
     # Or use BFloat16 on supported hardware (not Apple Silicon)
-    var params = ExTensor.zeros((100, 100), bfloat16_dtype)
+    var params = ExTensor.zeros((100, 100), bfloat16_dtype)  # Only on Intel/AMD
 """
 
 
@@ -101,6 +110,54 @@ fn is_reduced_precision(dtype: DType) -> Bool:
             ```
     """
     return dtype == DType.float16 or dtype == DType.bfloat16
+
+
+fn detect_hardware_bf16_support() -> Bool:
+    """Detect if current hardware supports BF16 natively.
+
+    Returns False for Apple Silicon (M1/M2/M3/M4) where BF16 is not supported,
+    and True for other platforms (Intel/AMD x86_64) that support it.
+
+    Note:
+        This function attempts runtime detection using platform information.
+        Returns False conservatively on detection failures.
+
+    Returns:
+            True if hardware supports BF16, False otherwise (including Apple Silicon).
+
+    Example:
+            ```mojo
+            # Automatically detect BF16 support based on hardware
+            var has_bf16 = detect_hardware_bf16_support()
+            var dtype = recommend_precision_dtype(1000.0, hardware_has_bf16=has_bf16)
+            ```
+    """
+    # Apple Silicon detection via platform module
+    # BF16 is not supported on Apple Silicon (M1/M2/M3/M4)
+    try:
+        var python = Python.import_module("platform")
+        var machine = python.machine()
+        var machine_str = String(machine)
+
+        # Apple Silicon identifies as "arm64"
+        if "arm64" in machine_str:
+            return False  # Apple Silicon - no BF16 support
+
+        # Other ARM platforms might support BF16, but be conservative
+        if "arm" in machine_str:
+            return False  # Conservative default for ARM
+
+        # Intel/AMD x86_64 and aarch64 (non-Apple) support BF16
+        if "x86_64" in machine_str or "amd64" in machine_str:
+            return True
+        if "aarch64" in machine_str:
+            return True  # Non-Apple ARM64
+
+        # Default to True for unknown platforms (optimistic)
+        return True
+    except:
+        # If platform detection fails, return False (conservative)
+        return False
 
 
 fn is_floating_point(dtype: DType) -> Bool:
