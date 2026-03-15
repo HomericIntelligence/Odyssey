@@ -845,6 +845,89 @@ fn test_hash_empty_tensor_dtype_differs() raises:
         )
 
 
+fn make_bf16_nan_tensor(raw_bits: UInt16) raises -> ExTensor:
+    """Create a scalar BF16 tensor with the given raw NaN bit pattern.
+
+    Bypasses _set_float64 by writing raw UInt16 bits directly via pointer cast,
+    since nan_tensor() uses _set_float64 which may not preserve unusual NaN bit
+    patterns for bfloat16.
+
+    BF16 bit layout (16 bits): 1 sign | 8 exponent | 7 mantissa.
+    NaN requires all-one exponent (0xFF) and non-zero mantissa.
+    Canonical quiet NaN: 0x7FC0 (positive, mantissa msb set).
+    Negative quiet NaN:  0xFFC0 (negative, mantissa msb set).
+    Note: 0xFF80 has zero mantissa — that is negative infinity, not NaN.
+
+    Args:
+        raw_bits: Raw UInt16 bit pattern for a BF16 NaN value.
+
+    Returns:
+        Scalar ExTensor with DType.bfloat16 containing the given bit pattern.
+    """
+    var shape = List[Int]()
+    shape.append(1)
+    var tensor = ExTensor(shape, DType.bfloat16)
+    var ptr = tensor._data.bitcast[UInt16]()
+    ptr[] = raw_bits
+    return tensor^
+
+
+fn test_hash_bf16_nan_canonical() raises:
+    """Test that canonical BF16 NaN (0x7FC0) hashes consistently.
+
+    Two tensors with the same canonical NaN bit pattern must produce identical
+    hashes — NaN canonicalization must not depend on object identity.
+    """
+    var a = make_bf16_nan_tensor(0x7FC0)
+    var b = make_bf16_nan_tensor(0x7FC0)
+    var hash_a = hash(a)
+    var hash_b = hash(b)
+    assert_equal_int(
+        Int(hash_a),
+        Int(hash_b),
+        "Canonical BF16 NaN should hash consistently",
+    )
+
+
+fn test_hash_bf16_nan_negative() raises:
+    """Test that negative BF16 NaN (0xFFC0) hashes consistently.
+
+    0xFFC0 is a negative quiet NaN: sign=1, exponent=all-ones, mantissa=0x40.
+    Two tensors with the same negative NaN bit pattern must produce identical
+    hashes.
+    """
+    var a = make_bf16_nan_tensor(0xFFC0)
+    var b = make_bf16_nan_tensor(0xFFC0)
+    var hash_a = hash(a)
+    var hash_b = hash(b)
+    assert_equal_int(
+        Int(hash_a),
+        Int(hash_b),
+        "Negative BF16 NaN should hash consistently",
+    )
+
+
+fn test_hash_bf16_nan_canonicalization() raises:
+    """Test that canonical and negative BF16 NaN hash to the same value.
+
+    IEEE 754 NaN canonicalization: all NaN variants should produce the same
+    hash so tensors containing NaN behave correctly in sets/dicts. The
+    __hash__ implementation calls _get_float64 (which reinterprets BF16 raw
+    bits as Float32 via bit shift then promotes to Float64) then checks
+    isnan() to canonicalize before hashing. Both 0x7FC0 (positive quiet NaN)
+    and 0xFFC0 (negative quiet NaN) should map to the same hash value.
+    """
+    var canonical_nan = make_bf16_nan_tensor(0x7FC0)
+    var negative_nan = make_bf16_nan_tensor(0xFFC0)
+    var hash_canonical = hash(canonical_nan)
+    var hash_negative = hash(negative_nan)
+    assert_equal_int(
+        Int(hash_canonical),
+        Int(hash_negative),
+        "All BF16 NaN variants should canonicalize to same hash",
+    )
+
+
 # ============================================================================
 # Test diff() - consecutive differences
 # ============================================================================
@@ -964,6 +1047,12 @@ fn main() raises:
     test_hash_integer_dtype_consistent()
     test_hash_same_values_different_dtype()
     test_hash_empty_tensor_dtype_differs()
+
+    # __hash__ BF16 NaN canonicalization
+    print("  Testing __hash__ BF16 NaN canonicalization...")
+    test_hash_bf16_nan_canonical()
+    test_hash_bf16_nan_negative()
+    test_hash_bf16_nan_canonicalization()
 
     # diff()
     print("  Testing diff()...")

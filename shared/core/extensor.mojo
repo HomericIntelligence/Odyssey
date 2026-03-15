@@ -1153,8 +1153,14 @@ struct ExTensor(
             var ptr = (self._data + offset).bitcast[Float16]()
             return ptr[].cast[DType.float64]()
         elif self._dtype == DType.bfloat16:
-            var ptr = (self._data + offset).bitcast[BFloat16]()
-            return Float64(Float32(ptr[]))
+            # BF16 occupies the upper 16 bits of Float32 (same sign + exponent layout).
+            # Read raw UInt16 bits and reconstruct Float32 via bitcast to preserve all
+            # NaN mantissa bits — numeric cast via Float32(BFloat16) may canonicalize NaN.
+            var raw_ptr = (self._data + offset).bitcast[UInt16]()
+            var raw: UInt16 = raw_ptr[]
+            var f32_bits: UInt32 = UInt32(raw) << 16
+            var f32_val = UnsafePointer[UInt32](to=f32_bits).bitcast[Float32]()[]
+            return Float64(f32_val)
         elif self._dtype == DType.float32:
             var ptr = (self._data + offset).bitcast[Float32]()
             return ptr[].cast[DType.float64]()
