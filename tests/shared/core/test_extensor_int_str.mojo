@@ -11,7 +11,7 @@ from tests.shared.conftest import assert_true, assert_equal
 
 fn test_str_int8() raises:
     """Test __str__ for int8 tensor."""
-    var t = full([3], Int8(5), DType.int8)
+    var t = full([3], Float64(5), DType.int8)
     var s = String(t)
     assert_true(s.startswith("ExTensor(["))
     assert_true("5" in s)
@@ -47,7 +47,7 @@ fn test_str_int64() raises:
 
 fn test_str_uint8() raises:
     """Test __str__ for uint8 tensor."""
-    var t = full([3], UInt8(255), DType.uint8)
+    var t = full([3], Float64(255), DType.uint8)
     var s = String(t)
     assert_true(s.startswith("ExTensor(["))
     assert_true("255" in s)
@@ -96,7 +96,7 @@ fn test_str_int64_large_tensor_truncation() raises:
 
 fn test_str_uint8_negative_not_in_output() raises:
     """Test __str__ for uint8 shows unsigned values (no negative signs)."""
-    var t = full([3], UInt8(200), DType.uint8)
+    var t = full([3], Float64(200), DType.uint8)
     var s = String(t)
     # uint8(200) should never appear as negative
     assert_true("200" in s)
