@@ -391,6 +391,68 @@ fn test_uint_narrowing_conversion() raises:
         raise Error("UInt64(0).cast[DType.uint8]() should be 0")
 
 
+fn test_uint_narrowing_to_uint16() raises:
+    """Test narrowing conversions from UInt64 to UInt16 via modulo 65536 semantics.
+
+    When casting a UInt64 value > 65535 to UInt16, the result is the low 16 bits
+    of the original value, equivalent to value % 65536.
+
+    Note: This modular arithmetic behavior is identical to unsigned integer overflow
+    wrapping (see test_uint16_overflow_wrap and test_uint16_underflow_wrap).
+    Both stem from the same underlying two's complement semantics.
+    """
+    # 65536 % 65536 = 0
+    var v65536: UInt64 = 65536
+    if v65536.cast[DType.uint16]() != 0:
+        raise Error("UInt64(65536).cast[DType.uint16]() should be 0")
+
+    # 65537 % 65536 = 1
+    var v65537: UInt64 = 65537
+    if v65537.cast[DType.uint16]() != 1:
+        raise Error("UInt64(65537).cast[DType.uint16]() should be 1")
+
+    # 65535 fits exactly — no truncation
+    var v65535: UInt64 = 65535
+    if v65535.cast[DType.uint16]() != 65535:
+        raise Error("UInt64(65535).cast[DType.uint16]() should be 65535")
+
+    # 0 is a no-op
+    var v0_16: UInt64 = 0
+    if v0_16.cast[DType.uint16]() != 0:
+        raise Error("UInt64(0).cast[DType.uint16]() should be 0")
+
+
+fn test_uint_narrowing_to_uint32() raises:
+    """Test narrowing conversions from UInt64 to UInt32 via modulo 4294967296 semantics.
+
+    When casting a UInt64 value > 4294967295 to UInt32, the result is the low 32 bits
+    of the original value, equivalent to value % 4294967296.
+
+    Note: This modular arithmetic behavior is identical to unsigned integer overflow
+    wrapping (see test_uint32_overflow_wrap and test_uint32_underflow_wrap).
+    Both stem from the same underlying two's complement semantics.
+    """
+    # 4294967296 % 4294967296 = 0
+    var v4294967296: UInt64 = 4294967296
+    if v4294967296.cast[DType.uint32]() != 0:
+        raise Error("UInt64(4294967296).cast[DType.uint32]() should be 0")
+
+    # 4294967297 % 4294967296 = 1
+    var v4294967297: UInt64 = 4294967297
+    if v4294967297.cast[DType.uint32]() != 1:
+        raise Error("UInt64(4294967297).cast[DType.uint32]() should be 1")
+
+    # 4294967295 fits exactly — no truncation
+    var v4294967295: UInt64 = 4294967295
+    if v4294967295.cast[DType.uint32]() != 4294967295:
+        raise Error("UInt64(4294967295).cast[DType.uint32]() should be 4294967295")
+
+    # 0 is a no-op
+    var v0_32: UInt64 = 0
+    if v0_32.cast[DType.uint32]() != 0:
+        raise Error("UInt64(0).cast[DType.uint32]() should be 0")
+
+
 fn test_uint8_overflow_wrap() raises:
     """Test UInt8 addition wraps from 255 to 0.
 
@@ -724,6 +786,18 @@ fn main():
         print("OK test_uint_narrowing_conversion")
     except e:
         print("FAIL test_uint_narrowing_conversion:", e)
+
+    try:
+        test_uint_narrowing_to_uint16()
+        print("OK test_uint_narrowing_to_uint16")
+    except e:
+        print("FAIL test_uint_narrowing_to_uint16:", e)
+
+    try:
+        test_uint_narrowing_to_uint32()
+        print("OK test_uint_narrowing_to_uint32")
+    except e:
+        print("FAIL test_uint_narrowing_to_uint32:", e)
 
     try:
         test_uint_to_int_conversion()
