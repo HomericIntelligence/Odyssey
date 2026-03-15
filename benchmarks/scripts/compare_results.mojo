@@ -141,11 +141,7 @@ fn atof(s: String) -> Float64:
     if i < len(bytes) and bytes[i] == ord("."):
         i += 1
         var decimal_place: Float64 = 0.1
-        while (
-            i < len(bytes)
-            and bytes[i] != ord("e")
-            and bytes[i] != ord("E")
-        ):
+        while i < len(bytes) and bytes[i] != ord("e") and bytes[i] != ord("E"):
             result = result + Float64(Int(bytes[i]) - ord("0")) * decimal_place
             decimal_place = decimal_place * 0.1
             i += 1

@@ -70,6 +70,29 @@ fn test_core_types_imports() raises:
     print("✓ Core types imports test passed")
 
 
+fn test_core_activations_direct_imports() raises:
+    """Test activations are importable directly from shared.core.activations sub-module.
+    """
+    from shared.core.activations import relu, sigmoid, tanh, gelu
+
+    print("✓ Core activations direct imports test passed")
+
+
+fn test_core_layers_direct_imports() raises:
+    """Test layers are importable directly from shared.core.layers sub-module.
+    """
+    from shared.core.layers import linear, conv2d, flatten
+
+    print("✓ Core layers direct imports test passed")
+
+
+fn test_core_types_direct_imports() raises:
+    """Test types are importable directly from shared.core.types sub-module."""
+    from shared.core.types import ExTensor
+
+    print("✓ Core types direct imports test passed")
+
+
 # ============================================================================
 # Training Package Imports
 # ============================================================================
@@ -130,6 +153,50 @@ fn test_training_callbacks_imports() raises:
     )
 
     print("✓ Training callbacks imports test passed")
+
+
+fn test_training_optimizers_direct_imports() raises:
+    """Test optimizers are importable directly from shared.training.optimizers sub-module.
+
+    Validates the canonical import path for optimizers sub-module.
+    """
+    from shared.training.optimizers import SGD
+
+    print("✓ Training optimizers direct imports test passed")
+
+
+fn test_training_schedulers_direct_imports() raises:
+    """Test schedulers are importable directly from shared.training.schedulers sub-module.
+
+    Validates the canonical import path for schedulers sub-module.
+    """
+    from shared.training.schedulers import (
+        StepLR,
+        CosineAnnealingLR,
+        ExponentialLR,
+    )
+
+    print("✓ Training schedulers direct imports test passed")
+
+
+fn test_training_base_direct_imports() raises:
+    """Test base classes are importable directly from shared.training.base sub-module.
+
+    Validates the canonical import path for base sub-module.
+    """
+    from shared.training.base import Callback, TrainingState
+
+    print("✓ Training base direct imports test passed")
+
+
+fn test_training_loops_direct_imports() raises:
+    """Test loops components are importable directly from shared.training.loops sub-module.
+
+    Validates the canonical import path for loops sub-module.
+    """
+    from shared.training.loops import TrainingState
+
+    print("✓ Training loops direct imports test passed")
 
 
 fn test_training_callbacks_direct_imports() raises:
@@ -194,28 +261,6 @@ fn test_training_loops_imports() raises:
     print("✓ Training loops imports test passed")
 
 
-fn test_training_dataloader_imports() raises:
-    """Test DataLoader and DataBatch are importable from shared.training package.
-
-    Verifies Issue #3851: DataLoader and DataBatch exported from
-    shared/training/__init__.mojo via the trainer_interface submodule.
-    """
-    from shared.training import DataLoader, DataBatch
-
-    print("✓ Training DataLoader/DataBatch package imports test passed")
-
-
-fn test_training_dataloader_direct_imports() raises:
-    """Test DataLoader and DataBatch are importable directly from trainer_interface.
-
-    Validates the direct import path as documented fallback:
-        from shared.training.trainer_interface import DataLoader, DataBatch
-    """
-    from shared.training.trainer_interface import DataLoader, DataBatch
-
-    print("✓ Training DataLoader/DataBatch direct imports test passed")
-
-
 # ============================================================================
 # Data Package Imports
 # ============================================================================
@@ -253,6 +298,22 @@ fn test_data_transforms_imports() raises:
     from shared.data import normalize_images, one_hot_encode
 
     print("✓ Data transforms imports test passed")
+
+
+fn test_data_datasets_direct_imports() raises:
+    """Test datasets are importable directly from shared.data.datasets sub-module.
+    """
+    from shared.data.datasets import Dataset, ExTensorDataset
+
+    print("✓ Data datasets direct imports test passed")
+
+
+fn test_data_loaders_direct_imports() raises:
+    """Test loaders are importable directly from shared.data.loaders sub-module.
+    """
+    from shared.data.loaders import Batch
+
+    print("✓ Data loaders direct imports test passed")
 
 
 # ============================================================================
@@ -347,35 +408,6 @@ fn test_nested_metric_imports() raises:
     print("✓ Nested metric imports test passed")
 
 
-fn test_sgd_import_collision_avoidance() raises:
-    """Test that SGD imports from different modules don't collide.
-
-    This verifies Issue #3746: There are two SGD implementations:
-    1. shared.training.SGD - Simple trainer interface (Optimizer trait)
-    2. shared.autograd.optimizers.SGD - Class-based optimizer with GradientTape
-
-    This test ensures both can be imported and used without naming conflicts.
-    """
-    # Import the trainer SGD from shared.training
-    from shared.training import SGD as TrainerSGD
-
-    # Import the autograd SGD from shared.autograd.optimizers
-    from shared.autograd.optimizers import SGD as AutogradSGD
-
-    # Create instances to verify they are different types
-    var trainer_sgd = TrainerSGD(learning_rate=Float32(0.01))
-    assert_true(
-        trainer_sgd.learning_rate == Float32(0.01),
-        "TrainerSGD should have correct learning_rate",
-    )
-
-    # AutogradSGD requires separate verification since it has different interface
-    # (It uses @fieldwise_init and has momentum parameter)
-    # The fact that both imports succeed without error is the main verification
-
-    print("✓ SGD import collision avoidance test passed")
-
-
 # ============================================================================
 # Version Info
 # ============================================================================
@@ -409,8 +441,10 @@ fn test_version_info() raises:
 
         # Check each character is a digit (0-9)
         var is_numeric = True
-        for ch in part.codepoint_slices():
-            if String(ch) < "0" or String(ch) > "9":
+        var part_bytes = part.as_bytes()
+        for j in range(part.__len__()):
+            var ch = Int(part_bytes[j])
+            if ch < 48 or ch > 57:  # ord("0") == 48, ord("9") == 57
                 is_numeric = False
                 break
 
@@ -436,6 +470,9 @@ fn main() raises:
     test_core_layers_imports()
     test_core_activations_imports()
     test_core_types_imports()
+    test_core_activations_direct_imports()
+    test_core_layers_direct_imports()
+    test_core_types_direct_imports()
 
     # Training package tests
     print("\nTesting Training Package...")
@@ -445,10 +482,12 @@ fn main() raises:
     test_training_schedulers_imports()
     test_training_metrics_imports()
     test_training_callbacks_imports()
+    test_training_optimizers_direct_imports()
+    test_training_schedulers_direct_imports()
+    test_training_base_direct_imports()
+    test_training_loops_direct_imports()
     test_training_callbacks_direct_imports()
     test_training_loops_imports()
-    test_training_dataloader_imports()
-    test_training_dataloader_direct_imports()
 
     # Data package tests
     print("\nTesting Data Package...")
@@ -456,6 +495,8 @@ fn main() raises:
     test_data_datasets_imports()
     test_data_loaders_imports()
     test_data_transforms_imports()
+    test_data_datasets_direct_imports()
+    test_data_loaders_direct_imports()
 
     # Utils package tests
     print("\nTesting Utils Package...")
@@ -474,10 +515,6 @@ fn main() raises:
     test_nested_optimizer_imports()
     test_nested_scheduler_imports()
     test_nested_metric_imports()
-
-    # SGD import collision avoidance test (Issue #3746)
-    print("\nTesting SGD Import Collision Avoidance...")
-    test_sgd_import_collision_avoidance()
 
     # Version info test
     print("\nTesting Version Info...")

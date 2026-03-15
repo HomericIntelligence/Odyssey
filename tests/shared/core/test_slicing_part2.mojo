@@ -152,9 +152,7 @@ fn test_slice_view_mutation_visible() raises:
     view._set_float32(0, Float32(99.0))
 
     # Original should reflect the change
-    assert_almost_equal(
-        Float64(t._get_float32(2)), 99.0, tolerance=1e-6
-    )
+    assert_almost_equal(Float64(t._get_float32(2)), 99.0, tolerance=1e-6)
 
     print("PASS: test_slice_view_mutation_visible")
 
@@ -175,9 +173,7 @@ fn test_chained_slice_shares_memory() raises:
     view2._set_float32(0, Float32(77.0))
 
     # Original should see the change at index 3
-    assert_almost_equal(
-        Float64(t._get_float32(3)), 77.0, tolerance=1e-6
-    )
+    assert_almost_equal(Float64(t._get_float32(3)), 77.0, tolerance=1e-6)
 
     print("PASS: test_chained_slice_shares_memory")
 

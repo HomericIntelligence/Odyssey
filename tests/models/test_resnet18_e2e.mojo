@@ -370,7 +370,9 @@ fn test_resnet18_forward_training() raises:
 
     # Verify output shape is valid (simplified network with constant weights
     # may produce all-zero outputs due to BatchNorm normalization)
-    assert_true(logits.numel() == batch_size * 10, "Logits should have correct numel")
+    assert_true(
+        logits.numel() == batch_size * 10, "Logits should have correct numel"
+    )
 
 
 fn test_resnet18_forward_inference() raises:
