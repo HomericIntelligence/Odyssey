@@ -694,6 +694,12 @@ fn test_repr_complete() raises:
 
 # ============================================================================
 # Test __hash__
+# Coverage (issue #4051):
+#   (1) identical tensors produce equal hashes      -> test_hash_immutable
+#   (2) different shape produces different hash     -> test_hash_different_shapes_differ
+#   (3) different dtype produces different hash     -> test_hash_different_dtypes_differ,
+#                                                      test_hash_same_values_different_dtype
+#   (4) different element value produces diff hash  -> test_hash_different_values_differ
 # ============================================================================
 
 
