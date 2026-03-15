@@ -504,3 +504,38 @@ class TestMainAuditExitCodes:
         source.mkdir()
         proc = self._run_audit(str(source), str(tmp_path / "no-such-target"))
         assert proc.returncode == 1
+
+    def test_audit_skip_resolved_relative_to_cwd(self, tmp_path: Path) -> None:
+        """--audit-skip path is resolved relative to cwd, not the script dir."""
+        # Source: one skill
+        source = tmp_path / "source"
+        (source / "skill-w").mkdir(parents=True)
+        (source / "skill-w" / "SKILL.md").write_text("---\nname: skill-w\n---\n")
+
+        # Target: skill-w NOT present → would be MISSING without skip
+        target = tmp_path / "target"
+        (target / "skills").mkdir(parents=True)
+
+        # Write skip file in a specific subdirectory (simulates cwd ≠ script dir)
+        cwd_dir = tmp_path / "run_dir"
+        cwd_dir.mkdir()
+        skip_file = cwd_dir / ".audit-skip"
+        skip_file.write_text("skill-w\n")
+
+        cmd = [
+            sys.executable,
+            SCRIPT,
+            "--audit",
+            "--no-color",
+            "--source-dir",
+            str(source),
+            "--target-dir",
+            str(target),
+            "--audit-skip",
+            ".audit-skip",  # relative path — resolved from cwd_dir
+        ]
+        proc = subprocess.run(cmd, capture_output=True, text=True, cwd=str(cwd_dir))
+        assert proc.returncode == 0, (
+            f"Expected exit 0 (skill skipped), got {proc.returncode}\n"
+            f"{proc.stdout}\n{proc.stderr}"
+        )
