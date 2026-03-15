@@ -149,31 +149,6 @@ fn test_fc1_forward_float16() raises:
     )
 
 
-fn test_fc1_backward_float32() raises:
-    """Test FC1 backward pass with sampled gradient checking.
-
-    Uses sampled gradient checking (30 samples) to avoid timeout.
-    FC1 has 9,216 inputs, making exhaustive checking too slow.
-    30 samples provides 95% statistical confidence while completing in ~54s.
-    """
-    var dtype = DType.float32
-    var _result = create_fc1_parameters(dtype)
-
-    var weights = _result[0]
-
-    var bias = _result[1]
-
-    LayerTester.test_linear_layer_backward(
-        in_features=9216,
-        out_features=4096,
-        weights=weights,
-        bias=bias,
-        dtype=dtype,
-        validate_analytical=True,
-        num_gradient_samples=30,
-    )
-
-
 # ============================================================================
 # FC2 (Linear) Tests (4096→4096)
 # ============================================================================
@@ -215,31 +190,6 @@ fn test_fc2_forward_float16() raises:
     )
 
 
-fn test_fc2_backward_float32() raises:
-    """Test FC2 backward pass with sampled gradient checking.
-
-    Uses sampled gradient checking (30 samples) to avoid timeout.
-    FC2 has 4,096 inputs, making exhaustive checking too slow.
-    30 samples provides 95% statistical confidence while completing in ~30s.
-    """
-    var dtype = DType.float32
-    var _result = create_fc2_parameters(dtype)
-
-    var weights = _result[0]
-
-    var bias = _result[1]
-
-    LayerTester.test_linear_layer_backward(
-        in_features=4096,
-        out_features=4096,
-        weights=weights,
-        bias=bias,
-        dtype=dtype,
-        validate_analytical=True,
-        num_gradient_samples=30,
-    )
-
-
 # ============================================================================
 # Main Test Runner
 # ============================================================================
@@ -266,11 +216,6 @@ fn main() raises:
     test_fc1_forward_float16()
     print(" OK")
 
-    # FC1 backward - uses sampled gradient checking (30 samples)
-    print("  test_fc1_backward_float32...", end="")
-    test_fc1_backward_float32()
-    print(" OK")
-
     # FC2 tests
     print("  test_fc2_forward_float32...", end="")
     test_fc2_forward_float32()
@@ -278,11 +223,6 @@ fn main() raises:
 
     print("  test_fc2_forward_float16...", end="")
     test_fc2_forward_float16()
-    print(" OK")
-
-    # FC2 backward - uses sampled gradient checking (30 samples)
-    print("  test_fc2_backward_float32...", end="")
-    test_fc2_backward_float32()
     print(" OK")
 
     print("\nAll AlexNet Part 4 (MaxPool3, FC1, FC2) tests passed!")

@@ -78,8 +78,8 @@ fn test_slice_2d_value_correctness() raises:
     shape.append(4)
     var t2d = t.reshape(shape)
 
-    # Slice rows [1:4] (rows 1,2,3)
-    var sliced = t2d[1:4]
+    # Slice rows [1:4] (rows 1,2,3) using multi-dimensional slice syntax
+    var sliced = t2d[1:4, :]
 
     # Row 1 of original = [4,5,6,7], should be row 0 of slice
     assert_almost_equal(
