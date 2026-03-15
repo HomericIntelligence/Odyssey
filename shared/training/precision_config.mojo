@@ -238,7 +238,7 @@ struct PrecisionConfig(Copyable, Movable):
         )
 
     @staticmethod
-    fn bf16(initial_scale: Float32 = 65536.0) -> PrecisionConfig:
+    fn bf16(initial_scale: Float32 = 65536.0) raises -> PrecisionConfig:
         """Create BF16 (brain float) configuration.
 
         BF16 has wider exponent range than FP16, reducing overflow risk.
