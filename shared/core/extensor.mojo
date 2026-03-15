@@ -868,6 +868,40 @@ struct ExTensor(
         """
         self.__setitem__(index, Float64(value))
 
+    fn __getitem__(self, indices: List[Int]) raises -> Float32:
+        """Get element at multi-dimensional index.
+
+        Args:
+            indices: Per-dimension indices (one per axis).
+
+        Returns:
+            The value at the given indices as Float32.
+
+        Raises:
+            Error: If number of indices doesn't match tensor rank,
+                   or any index is out of bounds.
+
+        Example:
+            ```mojo
+            var t = ones([3, 4], DType.float32)
+            var val = t[[1, 2]]  # Get element at row 1, col 2
+            ```
+        """
+        if len(indices) != len(self._shape):
+            raise Error(
+                "Number of indices ("
+                + String(len(indices))
+                + ") must match tensor rank ("
+                + String(len(self._shape))
+                + ")"
+            )
+        var flat_idx = 0
+        for i in range(len(indices)):
+            if indices[i] < 0 or indices[i] >= self._shape[i]:
+                raise Error("Index out of bounds at dimension " + String(i))
+            flat_idx += indices[i] * self._strides[i]
+        return self.__getitem__(flat_idx)
+
     fn __setitem__(mut self, indices: List[Int], value: Float64) raises:
         """Set element at multi-dimensional index.
 
