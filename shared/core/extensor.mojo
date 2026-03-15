@@ -1236,7 +1236,8 @@ struct ExTensor(
             does not share memory with the original tensor.
 
         Raises:
-            Error: If number of slices doesn't match tensor dimensions.
+            Error: If number of slices doesn't match tensor dimensions,
+                   or if any slice has step != 1 (not implemented).
 
         Notes:
             This method returns a copy (`_is_view = False`), consistent with
@@ -1266,6 +1267,20 @@ struct ExTensor(
                 + String(num_dims)
                 + ")"
             )
+
+        # Reject non-unit steps: multi-dim strided slicing is not implemented.
+        # Silently ignoring step would produce wrong results (issue #4463).
+        for dim in range(num_dims):
+            var step = slices[dim].step.or_else(1)
+            if step != 1:
+                raise Error(
+                    "Multi-dimensional slicing does not support step != 1 "
+                    + "(got step="
+                    + String(step)
+                    + " on dimension "
+                    + String(dim)
+                    + "). Use 1D slicing for strided access."
+                )
 
         # Compute per-dimension starts and result shape
         var starts = List[Int]()
