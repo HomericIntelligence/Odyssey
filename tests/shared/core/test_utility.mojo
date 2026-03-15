@@ -5,9 +5,18 @@ and helper methods like numel, dim, size, stride, is_contiguous.
 """
 
 # Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange, clone, item, diff
-from shared.core.shape import as_contiguous
-from shared.core.matrix import transpose_view
+from shared.core import (
+    ExTensor,
+    zeros,
+    ones,
+    full,
+    arange,
+    clone,
+    item,
+    diff,
+    as_contiguous,
+    transpose_view,
+)
 
 # Import test helpers
 from tests.shared.conftest import (
@@ -594,14 +603,14 @@ fn test_bool_single_element() raises:
 
 
 fn test_bool_requires_single_element() raises:
-    """Test that bool_strict() raises for multi-element tensor."""
+    """Test that __bool__ raises for multi-element tensor."""
     var shape = List[Int]()
     shape.append(5)
     var t = ones(shape, DType.float32)
 
     var error_raised = False
     try:
-        var val = t.bool_strict()  # Should raise error for multi-element tensor
+        var val = t.__bool__()  # Should raise error for multi-element tensor
         _ = val  # Suppress unused warning
     except e:
         error_raised = True
@@ -616,24 +625,7 @@ fn test_bool_requires_single_element() raises:
             )
 
     if not error_raised:
-        raise Error("bool_strict() on multi-element tensor should raise error")
-
-
-fn test_bool_multi_element_non_raising() raises:
-    """Test that __bool__ returns False (not raises) for multi-element tensor."""
-    var shape = List[Int]()
-    shape.append(5)
-    var t = ones(shape, DType.float32)
-
-    # __bool__ must not raise — Boolable conformance requires non-raising
-    var result = Bool(t)
-    if result:
-        raise Error("Bool(multi-element tensor) should return False")
-
-    # Also verify zero multi-element tensor
-    var t_zero = zeros(shape, DType.float32)
-    if Bool(t_zero):
-        raise Error("Bool(zero multi-element tensor) should return False")
+        raise Error("__bool__ on multi-element tensor should raise error")
 
 
 # ============================================================================
@@ -694,12 +686,6 @@ fn test_repr_complete() raises:
 
 # ============================================================================
 # Test __hash__
-# Coverage (issue #4051):
-#   (1) identical tensors produce equal hashes      -> test_hash_immutable
-#   (2) different shape produces different hash     -> test_hash_different_shapes_differ
-#   (3) different dtype produces different hash     -> test_hash_different_dtypes_differ,
-#                                                      test_hash_same_values_different_dtype
-#   (4) different element value produces diff hash  -> test_hash_different_values_differ
 # ============================================================================
 
 
@@ -839,21 +825,24 @@ fn test_hash_integer_dtype_consistent() raises:
     )
 
 
-fn test_hash_stability_repeated_calls() raises:
-    """Test that hashing the same empty tensor instance repeatedly returns equal values."""
-    var shape = List[Int]()
-    var a = full(shape, 0.0, DType.float32)
+fn test_hash_empty_tensor_dtype_differs() raises:
+    """Test that empty tensors with different dtypes produce different hashes.
 
-    assert_equal_int(
-        Int(hash(a)),
-        Int(hash(a)),
-        "hash of empty tensor must be stable across repeated calls",
-    )
-    assert_equal_int(
-        Int(hash(a)),
-        Int(hash(a)),
-        "hash of empty tensor must be stable on third call",
-    )
+    When numel=0, the data loop is skipped entirely, so dtype_to_ordinal is
+    the only contributor that can distinguish them. This catches regressions
+    where dtype contribution is accidentally dropped from __hash__.
+    """
+    var shape = List[Int]()
+    shape.append(0)
+    var a = zeros(shape, DType.float32)
+    var b = zeros(shape, DType.float64)
+
+    var hash_a = hash(a)
+    var hash_b = hash(b)
+    if hash_a == hash_b:
+        raise Error(
+            "Empty tensors with different dtypes should have different hashes"
+        )
 
 
 # ============================================================================
@@ -953,7 +942,6 @@ fn main() raises:
     print("  Testing __bool__...")
     test_bool_single_element()
     test_bool_requires_single_element()
-    test_bool_multi_element_non_raising()
 
     # Type conversions
     print("  Testing type conversions...")
@@ -975,7 +963,7 @@ fn main() raises:
     test_hash_different_shapes_differ()
     test_hash_integer_dtype_consistent()
     test_hash_same_values_different_dtype()
-    test_hash_stability_repeated_calls()
+    test_hash_empty_tensor_dtype_differs()
 
     # diff()
     print("  Testing diff()...")
