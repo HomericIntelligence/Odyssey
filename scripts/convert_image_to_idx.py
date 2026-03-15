@@ -146,9 +146,12 @@ def main() -> int:
 
         # Find all PNG and JPEG files
         image_paths = sorted(
-            list(args.input.glob("*.png")) + list(args.input.glob("*.PNG")) +
-            list(args.input.glob("*.jpg")) + list(args.input.glob("*.JPG")) +
-            list(args.input.glob("*.jpeg")) + list(args.input.glob("*.JPEG"))
+            list(args.input.glob("*.png"))
+            + list(args.input.glob("*.PNG"))
+            + list(args.input.glob("*.jpg"))
+            + list(args.input.glob("*.JPG"))
+            + list(args.input.glob("*.jpeg"))
+            + list(args.input.glob("*.JPEG"))
         )
 
         if not image_paths:
