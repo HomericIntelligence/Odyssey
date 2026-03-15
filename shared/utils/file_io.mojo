@@ -821,7 +821,7 @@ fn file_exists(filepath: String) -> Bool:
         with open(filepath, "r") as f:
             _ = f.read()  # Attempt to read (confirms it's a file)
         return True
-    except e:
+    except _:
         return False
 
 
