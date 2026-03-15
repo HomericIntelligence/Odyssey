@@ -274,8 +274,12 @@ fn test_load_named_tensors_sorted_ordering() raises:
 
         # Verify data integrity with sorted order
         assert_equal(loaded[0].tensor.numel(), 3, "bias tensor has wrong size")
-        assert_equal(loaded[1].tensor.numel(), 4, "matrix tensor has wrong size")
-        assert_equal(loaded[2].tensor.numel(), 2, "z_param tensor has wrong size")
+        assert_equal(
+            loaded[1].tensor.numel(), 4, "matrix tensor has wrong size"
+        )
+        assert_equal(
+            loaded[2].tensor.numel(), 2, "z_param tensor has wrong size"
+        )
 
     finally:
         # Clean up

@@ -318,7 +318,8 @@ fn test_hash_int_vs_float_same_numeric_value() raises:
     var float_tensor = full(shape, 1.0, DType.float32)  # 1.0 as float32
     if hash(int_tensor) == hash(float_tensor):
         raise Error(
-            "int32(1) and float32(1.0) should hash differently (dtype/kind collision)"
+            "int32(1) and float32(1.0) should hash differently (dtype/kind"
+            " collision)"
         )
 
 

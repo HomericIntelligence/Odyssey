@@ -86,9 +86,7 @@ fn test_narrowing_to_uint16() raises:
     # 65536 -> 0 (truncate to 16 bits)
     var val: UInt16 = UInt16(UInt32(65536))
     if val != 0:
-        raise Error(
-            "Narrowing 65536 to UInt16: expected 0, got " + String(val)
-        )
+        raise Error("Narrowing 65536 to UInt16: expected 0, got " + String(val))
 
     # 65537 -> 1
     var val2: UInt16 = UInt16(UInt32(65537))
@@ -103,9 +101,7 @@ fn test_narrowing_to_uint32() raises:
     # 2^32 -> 0
     var val: UInt32 = UInt32(UInt64(4294967296))
     if val != 0:
-        raise Error(
-            "Narrowing 2^32 to UInt32: expected 0, got " + String(val)
-        )
+        raise Error("Narrowing 2^32 to UInt32: expected 0, got " + String(val))
 
     # 2^32 + 1 -> 1
     var val2: UInt32 = UInt32(UInt64(4294967297))

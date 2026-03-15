@@ -322,7 +322,10 @@ fn test_check_gradients_verbose_does_not_mutate_input() raises:
             "check_gradients_verbose mutated input at index " + String(i),
         )
 
-    print("  OK: check_gradients_verbose does not mutate the original input tensor")
+    print(
+        "  OK: check_gradients_verbose does not mutate the original input"
+        " tensor"
+    )
 
 
 # ============================================================================

@@ -237,6 +237,7 @@ struct Sequential3[
         self.layer1.eval()
         self.layer2.eval()
 
+
 struct Sequential4[
     T0: Module & Movable,
     T1: Module & Movable,
