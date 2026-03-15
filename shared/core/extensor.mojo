@@ -3299,7 +3299,10 @@ struct ExTensor(
         return result
 
     fn __repr__(self) -> String:
-        """Detailed representation for debugging.
+        """Detailed representation for debugging with NumPy-style truncation.
+
+        For tensors with more than 1000 elements, shows only the first 3 and
+        last 3 elements with '...' in between to prevent performance issues.
 
         Truncation is controlled by module-level constants:
         - EXTENSOR_PRINT_THRESHOLD: Truncate if numel > threshold (default 1000)
@@ -3308,7 +3311,16 @@ struct ExTensor(
         Returns:
             String in the format: ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[...]).
             For large tensors: ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[v0, v1, v2, ..., vN-2, vN-1, vN]).
+
+        Example:
+            ```mojo
+            var x = arange(1000, DType.float32)
+            repr(x)  # ExTensor(shape=[1001], dtype=float32, numel=1001, data=[0.0, 1.0, 2.0, ..., 998.0, 999.0, 1000.0])
+            ```
         """
+        comptime TRUNCATE_THRESHOLD = 1000
+        comptime SHOW_ELEMENTS = 3
+
         var shape_str = String("[")
         for i in range(len(self._shape)):
             if i > 0:
@@ -3319,13 +3331,22 @@ struct ExTensor(
         result += ", dtype=" + String(self._dtype)
         result += ", numel=" + String(self._numel)
         result += ", data=["
+<<<<<<< HEAD
         if self._numel > EXTENSOR_PRINT_THRESHOLD:
             for i in range(EXTENSOR_PRINT_SHOW_ELEMENTS):
+=======
+        if self._numel > TRUNCATE_THRESHOLD:
+            for i in range(SHOW_ELEMENTS):
+>>>>>>> 3841b28f (fix(extensor): apply __repr__ truncation for consistency with __str__)
                 if i > 0:
                     result += ", "
                 result += String(self._get_float64(i))
             result += ", ..."
+<<<<<<< HEAD
             for i in range(self._numel - EXTENSOR_PRINT_SHOW_ELEMENTS, self._numel):
+=======
+            for i in range(self._numel - SHOW_ELEMENTS, self._numel):
+>>>>>>> 3841b28f (fix(extensor): apply __repr__ truncation for consistency with __str__)
                 result += ", " + String(self._get_float64(i))
         else:
             for i in range(self._numel):
