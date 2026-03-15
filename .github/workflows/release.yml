@@ -270,7 +270,7 @@ jobs:
             delay=1
             while [ $attempt -lt 3 ]; do
               attempt=$((attempt + 1))
-              if pixi run mojo test -I . tests/unit/ --verbose; then
+              if pixi run mojo test -I . tests/unit/ --verbose; then  # no-bare-mojo-lint: inside retry loop
                 break
               fi
               if [ $attempt -lt 3 ]; then
@@ -302,7 +302,7 @@ jobs:
               delay=1
               while [ $attempt -lt 3 ]; do
                 attempt=$((attempt + 1))
-                if pixi run mojo test -I . tests/integration/ --verbose; then
+                if pixi run mojo test -I . tests/integration/ --verbose; then  # no-bare-mojo-lint: inside retry loop
                   break
                 fi
                 if [ $attempt -lt 3 ]; then
