@@ -1007,8 +1007,7 @@ implementation work
 **Implementation Tasks** → Levels 3-5
 
 - "Write complex SIMD code" → Senior Implementation Engineer
-- "Implement standard function" → Implementation Engineer
-- "Generate boilerplate" → Junior Implementation Engineer
+- "Implement standard function or boilerplate" → Implementation Engineer
 
 **Coordination Tasks** → Levels 1-3
 
@@ -1021,8 +1020,7 @@ implementation work
 ### Mojo Expertise
 
 - Advanced Mojo: Senior Implementation Engineer
-- Standard Mojo: Implementation Engineer
-- Simple Mojo: Junior Implementation Engineer
+- Standard or simple Mojo: Implementation Engineer
 
 ### Testing
 
