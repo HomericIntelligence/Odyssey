@@ -247,3 +247,19 @@ def test_main_custom_tolerance(tmp_path: Path) -> None:
         patch("sys.argv", ["check_test_count_badge.py", "--tolerance", "0.10"]),
     ):
         assert main() == 0
+
+
+# ---------------------------------------------------------------------------
+# Split file name coverage (issue #4192)
+# ---------------------------------------------------------------------------
+
+
+def test_count_test_files_counts_split_files(tmp_path: Path) -> None:
+    """Should count all test_arithmetic_contiguous_part*.mojo as separate test files."""
+    core = tmp_path / "tests" / "shared" / "core"
+    core.mkdir(parents=True)
+    for part in range(1, 5):
+        (core / f"test_arithmetic_contiguous_part{part}.mojo").write_text("")
+
+    count = count_test_files(tmp_path)
+    assert count == 4
