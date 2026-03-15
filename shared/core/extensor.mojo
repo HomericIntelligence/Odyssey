@@ -986,24 +986,29 @@ struct ExTensor(
         self.__setitem__(indices, Float64(value))
 
     fn __getitem__(self, slice: Slice) raises -> Self:
-        """Get slice of 1D tensor [start:end] or [start:end:step].
+        """Get slice along axis 0 using [start:end] or [start:end:step].
+
+        For 1D tensors this is equivalent to element-level slicing. For N-D
+        tensors this slices along axis 0, returning all inner dimensions
+        intact — consistent with NumPy semantics (e.g. ``t[1:3]`` on a 2D
+        tensor returns rows 1 and 2 as a copy).
 
         Args:
-            slice: Slice object specifying start, end, and optional step.
+            slice: Slice object specifying start, end, and optional step
+                   along axis 0.
 
         Returns:
             New tensor containing a **copy** of the sliced data. The result
-            does not share memory with the original tensor.
-
-        Raises:
-            Error: If tensor is not 1D or indices are invalid.
+            does not share memory with the original tensor. For memory-efficient
+            contiguous batch extraction along axis 0, use `slice()` instead,
+            which returns a true view (but does not support strided or reverse
+            slicing).
 
         Notes:
-            This method always returns a copy (`_is_view = False`), regardless
-            of the step value. This is by design: materializing a strided copy
-            keeps the implementation simple and avoids lifetime management
-            complexity. For memory-efficient batch extraction over the first
-            axis, use `slice()` instead, which returns a true view.
+            This method always returns a copy (``_is_view = False``),
+            regardless of step value or tensor rank. The result shape is
+            ``[result_size, shape[1], shape[2], ...]`` where ``result_size``
+            is the number of axis-0 indices selected by the slice.
 
         Example:
             ```mojo
@@ -1011,11 +1016,11 @@ struct ExTensor(
             var sliced = t[2:7]  # Copy of [2, 3, 4, 5, 6]
             var strided = t[0:10:2]  # Copy of [0, 2, 4, 6, 8]
             var reversed = t[::-1]  # Copy of [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+
+            var mat = zeros([4, 5], DType.float32)
+            var rows = mat[1:3]  # Copy with shape [2, 5] (rows 1 and 2)
         ```
         """
-        if len(self._shape) != 1:
-            raise Error("Single slice only supported for 1D tensors")
-
         # Handle slice parameters — extract step first so defaults depend on sign
         var size = self._shape[0]
         var step = slice.step.or_else(1)
@@ -1036,63 +1041,81 @@ struct ExTensor(
         if end < 0:
             end = size + end
 
-        # Handle negative step (reverse)
+        # Compute result_size (number of axis-0 indices selected)
         var result_size: Int
         if step < 0:
             var neg_step = -step
             # Clamp start to [0, size-1], end to [-1, size-1]
             start = max(0, min(start, size - 1))
             end = max(-1, min(end, size - 1))
-            # No swap: iterate src_idx = start - i * neg_step while src_idx > end
             result_size = max(0, ceildiv(start - end, neg_step))
-
-            # Create result tensor with shape
-            var shape = List[Int]()
-            shape.append(result_size)
-            var result = Self(shape, self._dtype)
-            result._is_view = False
-
-            # Copy in reverse
-            var dtype_size = self._get_dtype_size()
-            var src_ptr = self._data
-            var dst_ptr = result._data
-
-            for i in range(result_size):
-                var src_idx = start - i * neg_step
-                var src_offset = src_idx * dtype_size
-                var dst_offset = i * dtype_size
-                for b in range(dtype_size):
-                    dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
-
-            return result^
         else:
             # Clamp forward slice to [0, size]
             start = max(0, min(start, size))
             end = max(0, min(end, size))
-            # Normal forward slice
             result_size = max(0, ceildiv(end - start, step))
 
-        # Create result tensor with shape
-        var shape = List[Int]()
-        shape.append(result_size)
-        var result = Self(shape, self._dtype)
-        result._is_view = False  # Strided slice creates copy, not view
-
-        # Copy strided data
         var dtype_size = self._get_dtype_size()
         var src_ptr = self._data
-        var dst_ptr = result._data
 
-        for i in range(result_size):
-            var src_idx = start + i * step
-            var src_offset = src_idx * dtype_size
-            var dst_offset = i * dtype_size
+        if len(self._shape) == 1:
+            # 1D path: copy individual elements
+            var shape = List[Int]()
+            shape.append(result_size)
+            var result = Self(shape, self._dtype)
+            result._is_view = False
+            var dst_ptr = result._data
 
-            # Copy element (byte-wise)
-            for b in range(dtype_size):
-                dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
+            if step < 0:
+                var neg_step = -step
+                for i in range(result_size):
+                    var src_idx = start - i * neg_step
+                    var src_offset = src_idx * dtype_size
+                    var dst_offset = i * dtype_size
+                    for b in range(dtype_size):
+                        dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
+            else:
+                for i in range(result_size):
+                    var src_idx = start + i * step
+                    var src_offset = src_idx * dtype_size
+                    var dst_offset = i * dtype_size
+                    for b in range(dtype_size):
+                        dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
 
-        return result^
+            return result^
+        else:
+            # N-D path: slice along axis 0, copy entire inner slabs
+            # result shape: [result_size, shape[1], shape[2], ...]
+            var result_shape = List[Int]()
+            result_shape.append(result_size)
+            for d in range(1, len(self._shape)):
+                result_shape.append(self._shape[d])
+
+            var result = Self(result_shape, self._dtype)
+            result._is_view = False
+            var dst_ptr = result._data
+
+            # _strides[0] is the number of elements per axis-0 slab (row-major)
+            var inner_numel = self._strides[0]
+            var slab_bytes = inner_numel * dtype_size
+
+            if step < 0:
+                var neg_step = -step
+                for i in range(result_size):
+                    var src_axis0 = start - i * neg_step
+                    var src_offset = src_axis0 * slab_bytes
+                    var dst_offset = i * slab_bytes
+                    for b in range(slab_bytes):
+                        dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
+            else:
+                for i in range(result_size):
+                    var src_axis0 = start + i * step
+                    var src_offset = src_axis0 * slab_bytes
+                    var dst_offset = i * slab_bytes
+                    for b in range(slab_bytes):
+                        dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
+
+            return result^
 
     fn __getitem__(self, *slices: Slice) raises -> Self:
         """Get multi-dimensional slice (e.g., tensor[a:b, c:d, :]).
