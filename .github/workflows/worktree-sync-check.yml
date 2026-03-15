@@ -1,0 +1,69 @@
+name: Worktree Sync Check
+
+# Check if PR branch is significantly behind origin/main
+# Helps detect when a worktree branch missed critical commits to files being modified
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  worktree-sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    name: Detect Stale Worktree Branches
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+        with:
+          fetch-depth: 0  # Full history for accurate comparison
+
+      - name: Check if branch is behind main
+        run: |
+          echo "=================================================="
+          echo "Worktree Sync Check - Detecting Stale Branches"
+          echo "=================================================="
+          echo ""
+
+          # Get the list of files changed in this PR
+          changed_files=$(git diff origin/main...HEAD --name-only)
+
+          if [ -z "$changed_files" ]; then
+            echo "No files changed relative to origin/main"
+            exit 0
+          fi
+
+          echo "Files changed in this PR:"
+          echo "$changed_files" | sed 's/^/  /'
+          echo ""
+
+          # Check if any of these files have commits on main since the branch diverged
+          stale_count=0
+          while IFS= read -r file; do
+            # Count commits to this file that are in main but not in current branch
+            main_commits=$(git log --oneline origin/main --not HEAD -- "$file" 2>/dev/null | wc -l)
+
+            if [ "$main_commits" -gt 0 ]; then
+              echo "  ⚠️  $file: $main_commits commit(s) on main"
+              stale_count=$((stale_count + 1))
+            fi
+          done <<< "$changed_files"
+
+          if [ "$stale_count" -eq 0 ]; then
+            echo ""
+            echo "✅ Branch is in sync with main for all changed files"
+            exit 0
+          fi
+
+          echo ""
+          echo "⚠️  WARNING: $stale_count file(s) are behind main"
+          echo ""
+          echo "This may indicate that critical fixes from main were missed."
+          echo "Consider rebasing on origin/main to pick up recent changes."
+          echo ""
+          echo "See Issue #3829 for context on worktree synchronization."
+          exit 0
