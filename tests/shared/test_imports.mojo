@@ -115,9 +115,11 @@ fn test_training_optimizers_imports() raises:
 
 
 fn test_shared_optimizer_imports() raises:
-    """Test that SGD, Adam, AdamW are importable directly from shared package.
+    """Test that SGD, Adam, AdamW, AdaGrad, RMSprop are importable from shared package.
+
+    Covers Issue #3745: AdaGrad and RMSprop exposed as top-level shared imports.
     """
-    from shared.autograd.optimizers import SGD, Adam, AdamW
+    from shared import SGD, Adam, AdamW, AdaGrad, RMSprop
 
     print("✓ Shared optimizer imports test passed")
 
