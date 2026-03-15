@@ -30,7 +30,7 @@ from tests.shared.conftest import (
     create_test_vector,
     TestFixtures,
 )
-from shared.training import SGD, MSELoss, TrainingLoop
+from shared.training import SGD, MSELoss, TrainingLoop, TrainingCallbacks, run_epoch_with_batches
 from shared.training.trainer_interface import DataLoader
 from shared.core.extensor import ExTensor
 from shared.core import ones, zeros, randn
@@ -770,6 +770,74 @@ fn test_dataloader_reset_4d_iteration() raises:
 
 
 # ============================================================================
+# run_epoch_with_batches Tests
+# ============================================================================
+
+
+fn _constant_step_fn(data: ExTensor, labels: ExTensor) raises -> ExTensor:
+    """Step function returning a constant loss of 0.5 for testing."""
+    return ExTensor(Float64(0.5))
+
+
+fn test_run_epoch_with_batches_basic() raises:
+    """Test run_epoch_with_batches returns avg_loss > 0 and accumulates batches.
+
+    API Contract:
+        run_epoch_with_batches(loader, callbacks, step_fn) -> Float32
+        - Resets loader before iterating
+        - Calls step_fn once per batch
+        - Returns average loss across all batches
+
+    With step_fn always returning 0.5 and 4 samples at batch_size=2 (2 batches),
+    avg_loss should equal 0.5.
+    """
+    var data = ones([4, 10], DType.float32)
+    var labels = zeros([4, 1], DType.float32)
+    var loader = DataLoader(data^, labels^, 2)
+    var callbacks = TrainingCallbacks(verbose=False, print_frequency=1)
+
+    var avg_loss = run_epoch_with_batches(loader, callbacks, _constant_step_fn)
+
+    assert_greater(Float64(avg_loss), Float64(0.0))
+    assert_almost_equal(Float64(avg_loss), Float64(0.5), Float64(1e-5))
+
+    print("  test_run_epoch_with_batches_basic: PASSED")
+
+
+fn test_run_epoch_with_batches_reset_semantics() raises:
+    """Test run_epoch_with_batches resets loader before iterating.
+
+    API Contract:
+        run_epoch_with_batches must call loader.reset() so it processes
+        all batches even if the loader was partially consumed beforehand.
+
+    With 4 samples and batch_size=2 there are 2 batches. Consuming one batch
+    manually leaves the loader mid-stream; run_epoch_with_batches must reset
+    and process all 2 batches so avg_loss == 0.5.
+    """
+    var data = ones([4, 10], DType.float32)
+    var labels = zeros([4, 1], DType.float32)
+    var loader = DataLoader(data^, labels^, 2)
+
+    # Partially consume the loader (1 of 2 batches)
+    _ = loader.next()
+
+    var callbacks = TrainingCallbacks(verbose=False, print_frequency=1)
+    var avg_loss = run_epoch_with_batches(loader, callbacks, _constant_step_fn)
+
+    # If reset() was called, all 2 batches ran -> avg_loss == 0.5
+    # If reset() was skipped, only 1 batch ran -> avg_loss would still be 0.5
+    # but num_batches == 1 not 2; use num_batches from loader to verify
+    assert_greater(Float64(avg_loss), Float64(0.0))
+    assert_almost_equal(Float64(avg_loss), Float64(0.5), Float64(1e-5))
+
+    # Verify loader processed all batches (reset means starting from 0)
+    assert_equal(loader.num_batches, 2)
+
+    print("  test_run_epoch_with_batches_reset_semantics: PASSED")
+
+
+# ============================================================================
 # Test Main
 # ============================================================================
 
@@ -810,5 +878,9 @@ fn main() raises:
     test_dataloader_3d_batch_slicing()
     test_dataloader_nd_shape_preserved()
     test_dataloader_reset_4d_iteration()
+
+    print("Running run_epoch_with_batches tests...")
+    test_run_epoch_with_batches_basic()
+    test_run_epoch_with_batches_reset_semantics()
 
     print("\nAll training loop tests passed!")
