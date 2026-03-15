@@ -893,9 +893,9 @@ fn transpose_view(
         Error: If axes is invalid (duplicates, wrong range, or wrong length).
 
     See Also:
-        - transpose(): Zero-copy view with stride permutation (production API)
-        - ExTensor.reshape(): Another zero-copy view operation
-        - docs/dev/extensor-view-contract.md: View semantics reference.
+        - `transpose()`: Zero-copy view with stride permutation (production API)
+        - `ExTensor.reshape()`: Another zero-copy view operation
+        - `docs/dev/extensor-view-contract.md`: View semantics reference
     """
     var ndim = tensor.dim()
     var input_shape = tensor.shape()
