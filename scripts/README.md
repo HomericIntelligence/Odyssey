@@ -80,6 +80,7 @@ scripts/
 ├── update_version.py                   # Version bump helper
 ├── validate_adr009_headers.py          # Validate ADR-009 split-file docstring headers
 ├── validate_configs.sh                 # Validate configuration files
+├── validate_installation_anchors.py    # Validate anchor links to installation.md
 ├── validate_links.py                   # Markdown link validation
 ├── validate_mojo_syntax_in_docs.py     # Validate Mojo code blocks in documentation
 ├── validate_readme_commands.py         # Validate commands referenced in README.md
@@ -326,6 +327,40 @@ python3 scripts/create_issues.py --repo username/repo
 
 - GitHub CLI (`gh`) must be installed and authenticated
 - Run `gh auth login` if not already authenticated
+
+---
+
+#### `validate_installation_anchors.py`
+
+**Purpose**: Validate anchor fragments in links from markdown files to `docs/getting-started/installation.md`.
+
+Ensures that every deep-link to `installation.md` (e.g., `installation.md#prerequisites`) resolves
+to an actual heading in that file. Catches regressions when headings are renamed or removed.
+
+### Features
+
+- Extracts headings from `installation.md` and derives their GitHub-style anchor slugs
+- Scans one or more source markdown files for links pointing to `installation.md`
+- Reports any anchor fragment that does not match a valid heading
+- Plain links without anchors (e.g., `[Guide](installation.md)`) are always accepted
+
+### Usage
+
+```bash
+# Validate links in README.md against installation.md
+python3 scripts/validate_installation_anchors.py README.md docs/getting-started/installation.md
+
+# Scan all markdown files in the repo (default when no args given)
+python3 scripts/validate_installation_anchors.py
+
+# Verbose output
+python3 scripts/validate_installation_anchors.py --verbose
+```
+
+### Exit Codes
+
+- 0 = All anchor links valid (or no anchor links found)
+- 1 = One or more broken anchor links found
 
 ---
 

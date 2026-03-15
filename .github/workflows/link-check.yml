@@ -67,3 +67,9 @@ jobs:
 
           # Use GitHub token to avoid rate limiting
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate installation.md anchor links
+        run: |
+          python3 scripts/validate_installation_anchors.py \
+            README.md \
+            docs/getting-started/installation.md
