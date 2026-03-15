@@ -44,7 +44,6 @@ ls .github/workflows/*.yml | wc -l
 | [security.yml](#security) | PR, push main, weekly Monday 8 AM UTC | Secret scan, SAST, dep audit | < 10 min |
 | [link-check.yml](#link-check) | PR on .md, push main, weekly Monday 9 AM UTC | Broken markdown links detection | < 3 min |
 | **Build & Release Workflows** | | | |
-| [build-validation.yml](#build-validation) | PR, push main | Build shared Mojo package | < 10 min |
 | [release.yml](#release) | Tag push (v*), manual | Build and publish releases | < 30 min |
 | [docker.yml](#docker) | Push main/tags, PR, manual | Docker image build and publish | < 20 min |
 | [docs.yml](#docs) | Push main on docs/, PR on docs/ | Deploy documentation site | < 5 min |
