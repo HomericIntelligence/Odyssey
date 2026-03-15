@@ -14,6 +14,7 @@ import pytest
 # Add scripts directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 from validate_workflow_checkout_order import (
+    _is_reusable_workflow_job,
     collect_workflow_files,
     main,
     validate_workflow,
@@ -389,3 +390,111 @@ class TestMain:
         )
         result = main([str(good), str(bad)])
         assert result == 1
+
+
+# ---------------------------------------------------------------------------
+# _is_reusable_workflow_job helper
+# ---------------------------------------------------------------------------
+
+
+class TestIsReusableWorkflowJobHelper:
+    """Unit tests for the _is_reusable_workflow_job() helper."""
+
+    def test_local_workflow_path_is_reusable(self) -> None:
+        """Job-level uses pointing to ./.github/workflows/ is reusable."""
+        assert _is_reusable_workflow_job({"uses": "./.github/workflows/foo.yml"}) is True
+
+    def test_composite_action_step_is_not_reusable(self) -> None:
+        """Step-level uses for a composite action is not a reusable workflow job."""
+        assert _is_reusable_workflow_job({"uses": "./.github/actions/setup-pixi"}) is False
+
+    def test_external_action_is_not_reusable(self) -> None:
+        """External action reference is not a reusable workflow job."""
+        assert _is_reusable_workflow_job({"uses": "actions/checkout@v4"}) is False
+
+    def test_no_uses_key_is_not_reusable(self) -> None:
+        """Job dict without a uses key is not a reusable workflow job."""
+        assert _is_reusable_workflow_job({"steps": []}) is False
+
+    def test_non_dict_returns_false(self) -> None:
+        """Non-dict input returns False without raising."""
+        assert _is_reusable_workflow_job(None) is False
+        assert _is_reusable_workflow_job("string") is False
+        assert _is_reusable_workflow_job(42) is False
+
+
+# ---------------------------------------------------------------------------
+# Reusable workflow jobs in validate_workflow
+# ---------------------------------------------------------------------------
+
+
+class TestReusableWorkflowJobs:
+    """Reusable workflow caller jobs should be skipped by validate_workflow()."""
+
+    def test_reusable_workflow_job_is_skipped(self, tmp_path: Path) -> None:
+        """A job with only a job-level uses produces no violations."""
+        wf = write_workflow(
+            tmp_path,
+            "reusable_caller.yml",
+            """
+            jobs:
+              call-reusable:
+                uses: ./.github/workflows/reusable-build.yml
+                with:
+                  environment: staging
+            """,
+        )
+        assert validate_workflow(wf) == []
+
+    def test_reusable_job_mixed_with_clean_steps_job(self, tmp_path: Path) -> None:
+        """Reusable caller job is skipped; clean steps-based job passes."""
+        wf = write_workflow(
+            tmp_path,
+            "mixed_clean.yml",
+            """
+            jobs:
+              call-reusable:
+                uses: ./.github/workflows/reusable-build.yml
+              steps-job:
+                steps:
+                  - uses: actions/checkout@v4
+                  - uses: ./.github/actions/setup-pixi
+            """,
+        )
+        assert validate_workflow(wf) == []
+
+    def test_reusable_job_mixed_with_violating_steps_job(self, tmp_path: Path) -> None:
+        """Reusable caller job is skipped; violation in steps-based job is detected."""
+        wf = write_workflow(
+            tmp_path,
+            "mixed_violation.yml",
+            """
+            jobs:
+              call-reusable:
+                uses: ./.github/workflows/reusable-build.yml
+              bad-job:
+                steps:
+                  - uses: ./.github/actions/setup-pixi
+                  - uses: actions/checkout@v4
+            """,
+        )
+        violations = validate_workflow(wf)
+        assert len(violations) == 1
+        assert violations[0].job_name == "bad-job"
+        assert violations[0].composite_action == "./.github/actions/setup-pixi"
+
+    def test_reusable_workflow_job_no_steps_key_no_crash(self, tmp_path: Path) -> None:
+        """Absence of steps key in a reusable job does not raise an exception."""
+        wf = write_workflow(
+            tmp_path,
+            "reusable_no_steps.yml",
+            """
+            jobs:
+              call-reusable:
+                uses: ./.github/workflows/foo.yml
+                secrets: inherit
+            """,
+        )
+        # Must not raise; must return empty violations list
+        result = validate_workflow(wf)
+        assert result == []

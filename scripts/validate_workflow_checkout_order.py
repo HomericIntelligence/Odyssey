@@ -7,6 +7,11 @@ be checked out before they can be referenced. This script enforces that
 actions/checkout always appears as a step before any ./.github/actions/ reference
 within every job of every scanned workflow file.
 
+Reusable workflow jobs (jobs.<job>.uses: ./.github/workflows/some-workflow.yml)
+are intentionally skipped: they delegate execution to a separate workflow that
+runs in its own VM with its own checkout step. There are no caller-side steps to
+validate, so the checkout-first invariant does not apply at the caller level.
+
 Usage:
     python scripts/validate_workflow_checkout_order.py [path ...]
 
@@ -63,9 +68,29 @@ def _is_composite_action_step(step: object) -> bool:
     return isinstance(uses, str) and uses.startswith("./.github/actions/")
 
 
+def _is_reusable_workflow_job(job_data: object) -> bool:
+    """Return True if this job delegates to a reusable workflow (job-level uses).
+
+    Reusable workflow caller jobs have a top-level ``uses`` key pointing to
+    ``./.github/workflows/``.  They contain no ``steps`` list — execution is
+    delegated to the callee workflow, which runs in its own VM and handles its
+    own checkout.  The checkout-first invariant therefore does not apply at the
+    caller level and these jobs should be skipped by the validator.
+    """
+    if not isinstance(job_data, dict):
+        return False
+    uses = job_data.get("uses", "")
+    return isinstance(uses, str) and uses.startswith("./.github/workflows/")
+
+
 def validate_workflow(workflow_file: Path) -> List[Violation]:
     """
     Validate checkout-first ordering for all jobs in a workflow file.
+
+    Jobs that delegate to a reusable workflow via a job-level ``uses:
+    ./.github/workflows/`` key are skipped: they have no steps of their own
+    and the callee is responsible for its own checkout.  Only steps-based jobs
+    are checked.
 
     Args:
         workflow_file: Path to the workflow YAML file.
@@ -96,6 +121,9 @@ def validate_workflow(workflow_file: Path) -> List[Violation]:
     for job_name, job_data in jobs.items():
         if not isinstance(job_data, dict):
             continue
+
+        if _is_reusable_workflow_job(job_data):
+            continue  # Callee runs in its own VM and handles its own checkout
 
         steps = job_data.get("steps")
         if not isinstance(steps, list):
