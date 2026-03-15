@@ -118,7 +118,7 @@ fn test_validation_step_no_grad() raises:
 fn test_validate_runs_full_loader() raises:
     """Test validate() iterates all batches and returns average loss."""
     var loader = create_val_loader(n_batches=3)
-    var avg_loss = validate(simple_forward, simple_loss, loader)
+    var (avg_loss, _) = validate(simple_forward, simple_loss, loader)
     # Each batch returns loss=1.0, average over 3 batches = 1.0
     assert_almost_equal(avg_loss, Float64(1.0), Float64(1e-5))
     print("  test_validate_runs_full_loader: PASSED")
@@ -127,7 +127,7 @@ fn test_validate_runs_full_loader() raises:
 fn test_validate_returns_positive_loss() raises:
     """Test validate() returns non-negative loss."""
     var loader = create_val_loader(n_batches=2)
-    var avg_loss = validate(simple_forward, simple_loss, loader)
+    var (avg_loss, _) = validate(simple_forward, simple_loss, loader)
     assert_greater(avg_loss, Float64(-1e-10))
     print("  test_validate_returns_positive_loss: PASSED")
 
