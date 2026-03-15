@@ -31,6 +31,12 @@ def _make_png(path: Path, size: tuple = (32, 32)) -> None:
     img.save(path, format="PNG")
 
 
+def _make_color_png(path: Path, size: tuple = (32, 32)) -> None:
+    """Create a minimal RGB PNG for testing grayscale conversion strategies."""
+    img = Image.new("RGB", size, color=(200, 100, 50))
+    img.save(path, format="PNG")
+
+
 def _make_jpeg(path: Path, size: tuple = (32, 32)) -> None:
     """Create a minimal grayscale JPEG for testing."""
     img = Image.new("L", size, color=64)
@@ -51,21 +57,26 @@ class TestLoadAndPreprocess(TestCase):
     def tearDown(self) -> None:
         self.tmpdir.cleanup()
 
-    def test_returns_784_bytes(self) -> None:
-        """Output is always exactly 784 bytes (28x28)."""
+    def test_returns_784_pixels(self) -> None:
+        """Output is always exactly 784 pixels (28x28)."""
         png = self.tmp / "img.png"
         _make_png(png)
         result = self.load_and_preprocess(png, emnist_transform=True)
-        pixel_data = bytes(result.getdata()) if hasattr(result, "getdata") else result
-        self.assertEqual(len(pixel_data), 784)
+        self.assertEqual(len(list(result.getdata())), 784)
+
+    def test_output_size_is_28x28(self) -> None:
+        """Output image is always 28x28."""
+        png = self.tmp / "img.png"
+        _make_png(png)
+        result = self.load_and_preprocess(png, emnist_transform=False)
+        self.assertEqual(result.size, (28, 28))
 
     def test_pixel_values_in_range(self) -> None:
         """All pixel values are uint8 [0, 255]."""
         png = self.tmp / "img.png"
         _make_png(png)
         result = self.load_and_preprocess(png, emnist_transform=False)
-        pixel_data = bytes(result.getdata()) if hasattr(result, "getdata") else result
-        for byte in pixel_data:
+        for byte in result.getdata():
             self.assertGreaterEqual(byte, 0)
             self.assertLessEqual(byte, 255)
 
@@ -74,8 +85,7 @@ class TestLoadAndPreprocess(TestCase):
         jpg = self.tmp / "img.jpg"
         _make_jpeg(jpg)
         result = self.load_and_preprocess(jpg, emnist_transform=False)
-        pixel_data = bytes(result.getdata()) if hasattr(result, "getdata") else result
-        self.assertEqual(len(pixel_data), 784)
+        self.assertEqual(result.size, (28, 28))
 
     def test_emnist_transform_changes_pixels(self) -> None:
         """EMNIST transform produces different pixel order than no transform."""
@@ -87,7 +97,92 @@ class TestLoadAndPreprocess(TestCase):
         img.save(png)
         with_transform = self.load_and_preprocess(png, emnist_transform=True)
         without_transform = self.load_and_preprocess(png, emnist_transform=False)
-        self.assertNotEqual(with_transform, without_transform)
+        self.assertNotEqual(list(with_transform.getdata()), list(without_transform.getdata()))
+
+
+@pytest.mark.skipif(not PIL_AVAILABLE, reason="Pillow not installed")
+class TestLoadAndPreprocessGrayscaleMethod(TestCase):
+    """Tests for load_and_preprocess() grayscale_method parameter."""
+
+    def setUp(self) -> None:
+        from convert_image_to_idx import load_and_preprocess
+
+        self.load_and_preprocess = load_and_preprocess
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.tmp = Path(self.tmpdir.name)
+
+    def tearDown(self) -> None:
+        self.tmpdir.cleanup()
+
+    def test_luma_is_default(self) -> None:
+        """Default grayscale_method is 'luma' (same as explicit luma)."""
+        png = self.tmp / "color.png"
+        _make_color_png(png)
+        default_result = self.load_and_preprocess(png, emnist_transform=False)
+        luma_result = self.load_and_preprocess(png, emnist_transform=False, grayscale_method="luma")
+        self.assertEqual(list(default_result.getdata()), list(luma_result.getdata()))
+
+    def test_luma_method_produces_28x28(self) -> None:
+        """luma method returns 28x28 image."""
+        png = self.tmp / "color.png"
+        _make_color_png(png)
+        result = self.load_and_preprocess(png, emnist_transform=False, grayscale_method="luma")
+        self.assertEqual(result.size, (28, 28))
+
+    def test_average_method_produces_28x28(self) -> None:
+        """average method returns 28x28 image."""
+        png = self.tmp / "color.png"
+        _make_color_png(png)
+        result = self.load_and_preprocess(png, emnist_transform=False, grayscale_method="average")
+        self.assertEqual(result.size, (28, 28))
+
+    def test_max_method_produces_28x28(self) -> None:
+        """max method returns 28x28 image."""
+        png = self.tmp / "color.png"
+        _make_color_png(png)
+        result = self.load_and_preprocess(png, emnist_transform=False, grayscale_method="max")
+        self.assertEqual(result.size, (28, 28))
+
+    def test_methods_differ_on_color_image(self) -> None:
+        """Different grayscale methods produce different results on a color image."""
+        png = self.tmp / "color.png"
+        _make_color_png(png)
+        luma = list(self.load_and_preprocess(png, emnist_transform=False, grayscale_method="luma").getdata())
+        average = list(self.load_and_preprocess(png, emnist_transform=False, grayscale_method="average").getdata())
+        max_ch = list(self.load_and_preprocess(png, emnist_transform=False, grayscale_method="max").getdata())
+        # All three should differ from each other for the test color (200, 100, 50)
+        self.assertNotEqual(luma, average)
+        self.assertNotEqual(luma, max_ch)
+
+    def test_max_method_equals_brightest_channel(self) -> None:
+        """max method result equals the brightest channel value for a solid-color image."""
+        # Solid color: R=200, G=100, B=50 → max = 200
+        png = self.tmp / "solid.png"
+        img = Image.new("RGB", (4, 4), color=(200, 100, 50))
+        img.save(png)
+        result = self.load_and_preprocess(png, emnist_transform=False, grayscale_method="max")
+        # All pixels should equal the R channel (200) after resizing (no colour change)
+        for px in result.getdata():
+            self.assertEqual(px, 200)
+
+    def test_average_method_pixel_value(self) -> None:
+        """average method result is approximately (R+G+B)/3 for a solid-color image."""
+        # Solid color: R=150, G=90, B=60 → average = 100
+        png = self.tmp / "solid.png"
+        img = Image.new("RGB", (4, 4), color=(150, 90, 60))
+        img.save(png)
+        result = self.load_and_preprocess(png, emnist_transform=False, grayscale_method="average")
+        for px in result.getdata():
+            self.assertAlmostEqual(px, 100, delta=2)
+
+    @pytest.mark.parametrize("method", ["luma", "average", "max"])
+    def test_all_methods_accept_grayscale_input(self) -> None:
+        """All methods handle already-grayscale images without error."""
+        png = self.tmp / "gray.png"
+        _make_png(png)
+        for method in ["luma", "average", "max"]:
+            result = self.load_and_preprocess(png, emnist_transform=False, grayscale_method=method)
+            self.assertEqual(result.size, (28, 28))
 
 
 @pytest.mark.skipif(not PIL_AVAILABLE, reason="Pillow not installed")
@@ -104,9 +199,13 @@ class TestWriteIdxImage(TestCase):
     def tearDown(self) -> None:
         self.tmpdir.cleanup()
 
+    def _make_28x28_image(self) -> "Image.Image":
+        """Create a 28x28 grayscale PIL Image for testing."""
+        return Image.new("L", (28, 28), color=128)
+
     def _write_dummy(self) -> Path:
         out = self.tmp / "out.idx"
-        img = Image.new("L", (28, 28), color=0)
+        img = self._make_28x28_image()
         self.write_idx_image(img, out)
         return out
 
@@ -151,12 +250,11 @@ class TestWriteIdxImage(TestCase):
     def test_pixel_data_appended(self) -> None:
         """Pixel bytes are written verbatim after the header."""
         out = self.tmp / "out.idx"
-        pixel_bytes = bytes(range(256)) * 3 + bytes(16)  # 784 bytes
-        img = Image.new("L", (28, 28))
-        img.putdata(list(pixel_bytes))
+        # Create image with known pixel values
+        img = Image.new("L", (28, 28), color=42)
         self.write_idx_image(img, out)
         data = out.read_bytes()
-        self.assertEqual(data[16:], pixel_bytes)
+        self.assertEqual(data[16:], bytes([42] * 784))
 
 
 @pytest.mark.skipif(not PIL_AVAILABLE, reason="Pillow not installed")
@@ -215,6 +313,43 @@ class TestMain(TestCase):
         exit_code = self._run_main([str(png), str(out), "--no-emnist-transform"])
         self.assertEqual(exit_code, 0)
         self.assertEqual(out.stat().st_size, 800)
+
+    def test_grayscale_method_luma_flag(self) -> None:
+        """--grayscale-method luma flag is accepted and produces valid output."""
+        png = self.tmp / "digit.png"
+        out = self.tmp / "digit.idx"
+        _make_color_png(png)
+        exit_code = self._run_main([str(png), str(out), "--grayscale-method", "luma"])
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(out.stat().st_size, 800)
+
+    def test_grayscale_method_average_flag(self) -> None:
+        """--grayscale-method average flag is accepted and produces valid output."""
+        png = self.tmp / "digit.png"
+        out = self.tmp / "digit.idx"
+        _make_color_png(png)
+        exit_code = self._run_main([str(png), str(out), "--grayscale-method", "average"])
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(out.stat().st_size, 800)
+
+    def test_grayscale_method_max_flag(self) -> None:
+        """--grayscale-method max flag is accepted and produces valid output."""
+        png = self.tmp / "digit.png"
+        out = self.tmp / "digit.idx"
+        _make_color_png(png)
+        exit_code = self._run_main([str(png), str(out), "--grayscale-method", "max"])
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(out.stat().st_size, 800)
+
+    def test_grayscale_method_default_matches_luma(self) -> None:
+        """Default (no --grayscale-method) produces the same output as --grayscale-method luma."""
+        png = self.tmp / "digit.png"
+        out_default = self.tmp / "default.idx"
+        out_luma = self.tmp / "luma.idx"
+        _make_color_png(png)
+        self._run_main([str(png), str(out_default)])
+        self._run_main([str(png), str(out_luma), "--grayscale-method", "luma"])
+        self.assertEqual(out_default.read_bytes(), out_luma.read_bytes())
 
 
 if __name__ == "__main__":
