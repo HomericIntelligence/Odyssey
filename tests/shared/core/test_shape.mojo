@@ -136,6 +136,7 @@ fn test_squeeze_specific_dim() raises:
 
     # Result should be (3, 4)
     assert_dim(b, 2, "Should remove dim 0")
+    assert_numel(b, 12, "Should have 12 elements")
     assert_all_values(
         b, 1.0, message="squeeze_specific_dim should preserve values"
     )
@@ -321,6 +322,7 @@ fn test_stack_axis_1() raises:
 
     # Result should be 2x2x3 (stacked along axis 1)
     assert_dim(c, 3, "Should be 3D")
+    assert_numel(c, 12, "Should have 12 elements (2*2*3)")
     # Spot-check: first element from a (1.0), first element from b's slice (2.0)
     assert_value_at(
         c, 0, 1.0, message="stack_axis_1 index 0 should be from a (1.0)"
