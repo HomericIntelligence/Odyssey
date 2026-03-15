@@ -58,7 +58,8 @@ import os
 
 
 struct LeNet5:
-    """Minimal LeNet-5 for testing. Uses same architecture as examples/lenet-emnist/model.mojo."""
+    """Minimal LeNet-5 for testing. Uses same architecture as examples/lenet-emnist/model.mojo.
+    """
 
     var num_classes: Int
     var conv1_kernel: ExTensor
@@ -268,7 +269,9 @@ fn test_update_parameters() raises:
     # Verify parameter changed (updated in direction opposite to gradient)
     var new_conv1 = model.conv1_kernel._get_float64(0)
     var expected = orig_conv1 - 0.01 * 1.0  # lr=0.01, gradient=1.0
-    assert_close_float(new_conv1, expected, 1e-6, 1e-6, "Parameter update mismatch")
+    assert_close_float(
+        new_conv1, expected, 1e-6, 1e-6, "Parameter update mismatch"
+    )
 
 
 # ============================================================================
