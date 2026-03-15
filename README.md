@@ -12,6 +12,7 @@ maximum performance and type safety.
 [![CI](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/comprehensive-tests.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/comprehensive-tests.yml)
 [![Pre-commit](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/pre-commit.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/pre-commit.yml)
 [![Security](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/security.yml)
+[![Build](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/build-validation.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/build-validation.yml)
 
 ## What This Is
 
