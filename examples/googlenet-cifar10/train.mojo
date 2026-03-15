@@ -60,7 +60,6 @@ from shared.data import (
 )
 from shared.data.datasets import CIFAR10Dataset
 from shared.training.schedulers import step_lr
-from shared.training.loops import TrainingLoop
 from shared.utils.training_args import parse_training_args_with_defaults
 from model import GoogLeNet, InceptionModule
 
@@ -89,8 +88,6 @@ fn train_epoch(
         Average training loss for the epoch.
     """
     var num_samples = train_images.shape()[0]
-    var num_batches = compute_num_batches(num_samples, batch_size)
-    var total_loss = Float32(0.0)
 
     print("Epoch " + String(epoch + 1) + ": lr=" + String(learning_rate))
 
@@ -283,19 +280,25 @@ fn train_epoch(
     #    - Easier to maintain and modify
     #    - Standard practice in modern deep learning
 
-    # Create training loop with progress logging every 100 batches
-    var loop = TrainingLoop(log_interval=100)
+    var num_batches = compute_num_batches(num_samples, batch_size)
+    var total_loss = Float32(0.0)
 
-    # Define compute_batch_loss closure that processes batches
-    fn compute_batch_loss(
-        batch_images: ExTensor, batch_labels: ExTensor
-    ) raises -> Float32:
+    print("Epoch " + String(epoch + 1) + "/" + String(200))
+
+    for batch_idx in range(num_batches):
+        var start_idx = batch_idx * batch_size
+        var batch_pair = extract_batch_pair(
+            train_images, train_labels, start_idx, batch_size
+        )
+        var batch_images = batch_pair[0]
+        var batch_labels = batch_pair[1]
+
         # Forward pass (would need to cache all activations)
         var logits = model.forward(batch_images, training=True)
 
         # Compute loss
         var loss = cross_entropy(logits, batch_labels)
-        var loss_value = loss._data.bitcast[Float32]()[0]
+        var batch_loss = loss._data.bitcast[Float32]()[0]
 
         # Backward pass (see structure above)
         # ... (would be ~2500 lines of gradient computation)
@@ -303,18 +306,22 @@ fn train_epoch(
         # Parameter updates (see structure above)
         # ... (would be ~400 lines of SGD updates)
 
-        return loss_value
+        total_loss += batch_loss
 
-    # Run one epoch using the consolidated training loop
-    # Convert 0-indexed epoch to 1-indexed for display
-    var avg_loss = loop.run_epoch_manual(
-        train_images,
-        train_labels,
-        batch_size=batch_size,
-        compute_batch_loss=compute_batch_loss,
-        epoch=epoch + 1,
-        total_epochs=200,  # Default from main()
-    )
+        # Log progress every 100 batches
+        if (batch_idx + 1) % 100 == 0:
+            var avg = total_loss / Float32(batch_idx + 1)
+            print(
+                "  Batch "
+                + String(batch_idx + 1)
+                + "/"
+                + String(num_batches)
+                + " - Loss: "
+                + String(avg)
+            )
+
+    var avg_loss = total_loss / Float32(num_batches)
+    print("  Average Loss: " + String(avg_loss))
 
     return avg_loss
 
