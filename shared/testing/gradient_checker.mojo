@@ -63,6 +63,35 @@ struct IndexGradientPair(Copyable, Movable):
     var gradient: Float64
 
 
+fn _is_uniform_tensor(tensor: ExTensor) -> Bool:
+    """Check if all elements in a tensor have the same value (uniform tensor).
+
+    Args:
+        tensor: Tensor to check.
+
+    Returns:
+        True if all elements are identical, False otherwise.
+
+    Note:
+        Uniform tensors (e.g., ones_like) cause degenerate gradient checking
+        for normalization layers (batch norm, layer norm) where variance-based
+        computations produce incorrect or undefined gradients. This is a gotcha
+        documented in #3282.
+    """
+    if tensor.numel() == 0:
+        return True
+    if tensor.numel() == 1:
+        return True
+
+    var first_val = tensor._get_float64(0)
+    for i in range(1, tensor.numel()):
+        var val = tensor._get_float64(i)
+        # Use approximate equality for floating-point comparison
+        if abs(val - first_val) > 1e-9:
+            return False
+    return True
+
+
 fn check_gradients(
     forward_fn: fn (ExTensor) raises escaping -> ExTensor,
     backward_fn: fn (ExTensor, ExTensor) raises escaping -> ExTensor,
@@ -126,6 +155,17 @@ fn check_gradients(
     # Set grad_output to ones (∂L/∂output = 1 for all elements)
     for i in range(output.numel()):
         grad_output._set_float64(i, 1.0)
+
+    # GOTCHA: Warn if grad_output is uniform (all ones)
+    # For normalization layers (batch norm, layer norm), uniform grad_output creates
+    # a degenerate case where variance becomes zero and gradients are undefined/clamped.
+    # See #3282 for discussion. This warning makes the gotcha self-enforcing rather than
+    # relying solely on documentation.
+    if _is_uniform_tensor(grad_output):
+        print("WARNING: check_gradients() got uniform grad_output (likely ones_like)")
+        print("This is pathological for normalization layers where variance=0 causes undefined gradients.")
+        print("For batch norm, layer norm, etc., use non-uniform grad_output (e.g., randn).")
+        print("See issue #3282 for more details.")
 
     var analytical_grad = backward_fn(grad_output, input)
 
