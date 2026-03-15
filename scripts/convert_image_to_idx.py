@@ -17,9 +17,12 @@ Usage:
     # Other options
     python scripts/convert_image_to_idx.py input.jpg output.idx --no-emnist-transform
     python scripts/convert_image_to_idx.py input.png output.idx --preview
+    python scripts/convert_image_to_idx.py images/ output.idx --batch
+    python scripts/convert_image_to_idx.py "images/*.png" output.idx --batch
 """
 
 import argparse
+import glob
 import struct
 import sys
 from pathlib import Path
@@ -143,10 +146,68 @@ def write_idx_image(img: "Image.Image", output_path: Path) -> None:
     output_path.write_bytes(header + pixel_bytes)
 
 
+def write_idx_images_batch(images: list, output_path: Path) -> None:
+    """Write multiple 28x28 grayscale images into a single IDX file.
+
+    IDX format (magic=2051, count=N, rows=28, cols=28):
+        [4B magic][4B count][4B rows][4B cols][N * 784B pixels]
+
+    This matches the EMNIST test-images IDX format, allowing batch
+    inference with run_infer.mojo.
+
+    Args:
+        images: List of PIL Image objects (each 28x28 grayscale).
+        output_path: Destination .idx file path.
+    """
+    count = len(images)
+    header = struct.pack(">IIII", 2051, count, 28, 28)
+    pixel_data = b"".join(bytes(img.getdata()) for img in images)
+    output_path.write_bytes(header + pixel_data)
+
+
+_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg"}
+
+
+def resolve_batch_inputs(input_arg: str) -> list:
+    """Resolve a directory path or glob pattern to a sorted list of image paths.
+
+    Accepts either:
+    - A directory path: returns all PNG/JPEG files sorted by name.
+    - A glob pattern (containing * or ?): expands and returns sorted matches.
+
+    Args:
+        input_arg: Directory path or glob pattern string.
+
+    Returns:
+        Sorted list of Path objects for matched image files.
+
+    Raises:
+        SystemExit: If no matching image files are found.
+    """
+    input_path = Path(input_arg)
+
+    if input_path.is_dir():
+        matches = sorted(
+            p for p in input_path.iterdir() if p.suffix.lower() in _IMAGE_EXTENSIONS
+        )
+    else:
+        raw = sorted(glob.glob(input_arg))
+        matches = [Path(p) for p in raw if Path(p).suffix.lower() in _IMAGE_EXTENSIONS]
+
+    if not matches:
+        print(f"Error: No image files found for input: {input_arg}")
+        sys.exit(1)
+
+    return matches
+
+
 def main() -> int:
     """Parse arguments and run conversion. Returns exit code."""
     parser = argparse.ArgumentParser(description="Convert PNG/JPEG to IDX format for run_infer.mojo")
-    parser.add_argument("input", type=Path, help="Input PNG or JPEG file")
+    parser.add_argument(
+        "input",
+        help="Input PNG/JPEG file (single mode) or directory/glob pattern (--batch mode)",
+    )
     parser.add_argument("output", type=Path, help="Output .idx file")
     parser.add_argument(
         "--no-emnist-transform",
@@ -164,19 +225,40 @@ def main() -> int:
         default="luma",
         help="Grayscale conversion method: luma (ITU-R 601, default), luminosity (ITU-R 709), average, or max",
     )
+    parser.add_argument(
+        "--batch",
+        action="store_true",
+        help="Batch mode: accept a directory or glob pattern and write a multi-image IDX file",
+    )
     args = parser.parse_args()
 
-    if not args.input.exists():
-        print(f"Error: Input file not found: {args.input}")
+    emnist_transform = not args.no_emnist_transform
+
+    if args.batch:
+        image_paths = resolve_batch_inputs(args.input)
+        images = []
+        for path in image_paths:
+            img = load_and_preprocess(path, emnist_transform, args.grayscale_method)
+            if args.preview:
+                print(f"\n--- Preview: {path.name} ---")
+                preview_ascii_art(img)
+            images.append(img)
+        write_idx_images_batch(images, args.output)
+        print(f"Converted {len(images)} image(s) -> {args.output} (28x28 grayscale IDX, count={len(images)})")
+        return 0
+
+    input_path = Path(args.input)
+    if not input_path.exists():
+        print(f"Error: Input file not found: {input_path}")
         return 1
 
-    img = load_and_preprocess(args.input, not args.no_emnist_transform, args.grayscale_method)
+    img = load_and_preprocess(input_path, emnist_transform, args.grayscale_method)
 
     if args.preview:
         preview_ascii_art(img)
 
     write_idx_image(img, args.output)
-    print(f"Converted {args.input} -> {args.output} (28x28 grayscale IDX, method={args.grayscale_method})")
+    print(f"Converted {input_path} -> {args.output} (28x28 grayscale IDX, method={args.grayscale_method})")
     return 0
 
 
