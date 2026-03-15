@@ -1,7 +1,7 @@
-"""Layerwise Unit Tests for AlexNet - Part 5: FC3, Flatten, and Full Sequence
+"""Layerwise Unit Tests for AlexNet - Part 5: FC1/FC2 Backward, FC3, Flatten, and Full Sequence
 
-Tests FC3 (4096→1000), Flatten operation, and full forward pass sequence
-through all AlexNet layers.
+Tests FC1 (9216→4096) and FC2 (4096→4096) backward passes, FC3 (4096→1000),
+Flatten operation, and full forward pass sequence through all AlexNet layers.
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
@@ -180,6 +180,66 @@ fn create_fc3_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
     var bias = zeros([out_features], dtype)
 
     return weights, bias
+
+
+# ============================================================================
+# FC1 Backward Tests (9216→4096) - moved from part4 to reduce compile unit size
+# ============================================================================
+
+
+fn test_fc1_backward_float32() raises:
+    """Test FC1 backward pass with sampled gradient checking.
+
+    Uses sampled gradient checking (30 samples) to avoid timeout.
+    FC1 has 9,216 inputs, making exhaustive checking too slow.
+    30 samples provides 95% statistical confidence while completing in ~54s.
+    """
+    var dtype = DType.float32
+    var _result = create_fc1_parameters(dtype)
+
+    var weights = _result[0]
+
+    var bias = _result[1]
+
+    LayerTester.test_linear_layer_backward(
+        in_features=9216,
+        out_features=4096,
+        weights=weights,
+        bias=bias,
+        dtype=dtype,
+        validate_analytical=True,
+        num_gradient_samples=30,
+    )
+
+
+# ============================================================================
+# FC2 Backward Tests (4096→4096) - moved from part4 to reduce compile unit size
+# ============================================================================
+
+
+fn test_fc2_backward_float32() raises:
+    """Test FC2 backward pass with sampled gradient checking.
+
+    Uses sampled gradient checking (30 samples) to avoid timeout.
+    FC2 has 4,096 inputs, making exhaustive checking too slow.
+    30 samples provides 95% statistical confidence while completing in ~30s.
+    """
+    var dtype = DType.float32
+    var _result = create_fc2_parameters(dtype)
+
+    var weights = _result[0]
+
+    var bias = _result[1]
+
+    LayerTester.test_linear_layer_backward(
+        in_features=4096,
+        out_features=4096,
+        weights=weights,
+        bias=bias,
+        dtype=dtype,
+        validate_analytical=True,
+        num_gradient_samples=30,
+    )
 
 
 # ============================================================================
@@ -439,9 +499,19 @@ fn test_all_layers_sequence_float32() raises:
 
 fn main() raises:
     print(
-        "Starting AlexNet Layerwise Tests - Part 5 (FC3, Flatten, Full"
-        " Sequence)..."
+        "Starting AlexNet Layerwise Tests - Part 5 (FC1/FC2 Backward, FC3,"
+        " Flatten, Full Sequence)..."
     )
+
+    # FC1 backward - uses sampled gradient checking (30 samples)
+    print("  test_fc1_backward_float32...", end="")
+    test_fc1_backward_float32()
+    print(" OK")
+
+    # FC2 backward - uses sampled gradient checking (30 samples)
+    print("  test_fc2_backward_float32...", end="")
+    test_fc2_backward_float32()
+    print(" OK")
 
     # FC3 tests
     print("  test_fc3_forward_float32...", end="")
@@ -471,4 +541,7 @@ fn main() raises:
     test_all_layers_sequence_float32()
     print(" OK")
 
-    print("\nAll AlexNet Part 5 (FC3, Flatten, Full Sequence) tests passed!")
+    print(
+        "\nAll AlexNet Part 5 (FC1/FC2 Backward, FC3, Flatten, Full Sequence)"
+        " tests passed!"
+    )
