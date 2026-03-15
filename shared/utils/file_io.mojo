@@ -26,6 +26,7 @@
 from python import Python, PythonObject
 from memory import UnsafePointer
 from shared.core.extensor import ExTensor
+from shared.utils.serialization import dtype_to_string
 
 
 # ============================================================================
