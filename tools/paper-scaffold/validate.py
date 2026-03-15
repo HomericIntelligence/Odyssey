@@ -14,7 +14,7 @@ Reference: ADR-001
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 
 class ValidationStatus(Enum):
@@ -31,7 +31,7 @@ class FileValidationError:
 
     file_path: Path
     error_message: str
-    line_number: int | None = None
+    line_number: Optional[int] = None
     suggestion: str = ""
 
 
