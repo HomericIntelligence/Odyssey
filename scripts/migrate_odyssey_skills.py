@@ -16,8 +16,18 @@ Source structure (Odyssey2):
 Target structure (ProjectMnemosyne):
     skills/<category>/<skill-name>/.claude-plugin/plugin.json
     skills/<category>/<skill-name>/skills/<skill-name>/SKILL.md
+    skills/<category>/<skill-name>/skills/<skill-name>/scripts/   (if present in source)
+    skills/<category>/<skill-name>/skills/<skill-name>/templates/ (if present in source)
+    skills/<category>/<skill-name>/references/                    (if present in source)
 
-Subdir Routing:
+    Auxiliary subdirectory routing:
+        - references/  → copied to the plugin root (alongside .claude-plugin/)
+        - scripts/     → copied inside skills/<skill-name>/scripts/
+        - templates/   → copied inside skills/<skill-name>/templates/
+        - <other>/     → copied inside skills/<skill-name>/<other>/
+        - Hidden dirs (starting with .) are never copied.
+
+Category Routing:
     Each skill is placed under a category subdirectory determined by CATEGORY_MAP.
     The skill's YAML frontmatter `category:` field (e.g. "github", "mojo") is looked
     up in CATEGORY_MAP and mapped to a Mnemosyne-valid category name (e.g. "tooling",
