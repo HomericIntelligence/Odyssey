@@ -1279,7 +1279,9 @@ fn broadcast_to(tensor: ExTensor, target_shape: List[Int]) raises -> ExTensor:
 
     var shape = tensor.shape()
 
-    # Cannot reduce number of dimensions (target must have >= dims than source)
+    # Cannot reduce number of dimensions (target must have >= dims than source).
+    # Note: are_shapes_broadcastable also enforces this guard, but we raise a
+    # descriptive Error here for better caller UX.
     if len(target_shape) < len(shape):
         raise Error("broadcast_to: cannot broadcast to fewer dimensions")
 

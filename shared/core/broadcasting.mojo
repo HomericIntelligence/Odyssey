@@ -78,14 +78,24 @@ fn are_shapes_broadcastable(shape1: List[Int], shape2: List[Int]) -> Bool:
     Returns:
         True if shapes are broadcast-compatible, False otherwise.
 
+    Broadcasting cannot reduce the number of dimensions: if shape2 has fewer
+    dimensions than shape1, this function returns False immediately.
+
     Examples:
     ```
-        are_shapes_broadcastable([3, 4, 5], [4, 5]) -> True
-        are_shapes_broadcastable([3, 4], [5, 4]) -> False
+        are_shapes_broadcastable([3, 4, 5], [4, 5]) -> False  # ndim reduction
+        are_shapes_broadcastable([4, 5], [3, 4, 5]) -> True   # expanding dims OK
+        are_shapes_broadcastable([3, 4], [5, 4]) -> False      # incompatible dims
+        are_shapes_broadcastable([1, 4], [3, 4]) -> True       # broadcast dim 1
     ```
     """
     var ndim1 = len(shape1)
     var ndim2 = len(shape2)
+
+    # Broadcasting cannot reduce the number of dimensions
+    if ndim2 < ndim1:
+        return False
+
     var max_ndim = max(ndim1, ndim2)
 
     for i in range(max_ndim):
