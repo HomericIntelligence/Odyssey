@@ -44,6 +44,7 @@ ls .github/workflows/*.yml | wc -l
 | [security.yml](#security) | PR, push main, weekly Monday 8 AM UTC | Secret scan, SAST, dep audit | < 10 min |
 | [link-check.yml](#link-check) | PR on .md, push main, weekly Monday 9 AM UTC | Broken markdown links detection | < 3 min |
 | **Build & Release Workflows** | | | |
+| build-validation.yml | PR, push main | Build package and validate compilation | < 5 min |
 | [release.yml](#release) | Tag push (v*), manual | Build and publish releases | < 30 min |
 | [docker.yml](#docker) | Push main/tags, PR, manual | Docker image build and publish | < 20 min |
 | [docs.yml](#docs) | Push main on docs/, PR on docs/ | Deploy documentation site | < 5 min |
@@ -54,12 +55,10 @@ ls .github/workflows/*.yml | wc -l
 | **Maintenance Workflows** | | | |
 | [mojo-version-check.yml](#mojo-version-check) | Weekly Sunday 3 AM UTC, manual | Check for new Mojo releases | < 3 min |
 | workflow-smoke-test.yml | PR | Workflow validation smoke tests | < 2 min |
+| worktree-sync-check.yml | PR | Check if PR branch is significantly behind origin/main | < 2 min |
 | **AI/Automation Workflows** | | | |
 | [claude.yml](#claude) | Issue/PR comments mentioning @claude | Claude Code agent integration | N/A |
 | [claude-code-review.yml](#claude-code-review) | PR opened/synchronized | Automated Claude code review | < 5 min |
-
-> **Note**: `build-validation.yml` does not currently exist on disk. The table above reflects only files that
-> actually exist in `.github/workflows/`. Run `ls .github/workflows/*.yml` to verify the current inventory.
 
 ## Detailed Workflow Documentation
 
