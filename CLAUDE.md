@@ -523,8 +523,8 @@ and Mojo-specific patterns. CI runs these via `.github/workflows/test-agents.yml
 
 ### Pre-commit Hooks
 
-Pre-commit hooks automatically check code quality before commits. The hooks include `pixi run mojo format`
-for Mojo code and markdown linting for documentation.
+Pre-commit hooks automatically check code quality before commits. The hooks include a GLIBC-aware
+`mojo-format` wrapper (`scripts/mojo-format-compat.sh`) for Mojo code and markdown linting for documentation.
 
 ```bash
 # Install pre-commit hooks (one-time setup)
@@ -544,9 +544,11 @@ SKIP=trailing-whitespace git commit -m "message"
 # Note: SKIP=mojo-format is not needed — use scripts/mojo-format-compat.sh or just shell on incompatible hosts
 ```
 
-**Mojo Format Compatibility**: `mojo format` requires the exact Mojo version pinned in
-`pixi.toml`. If your local Mojo version differs, the pre-commit hook may fail or produce
-unexpected formatting changes.
+**Mojo Format Compatibility**: The `mojo-format` hook uses `scripts/mojo-format-compat.sh`,
+which detects GLIBC incompatibility (Mojo requires GLIBC 2.32+) and exits `0` with a warning
+instead of failing the commit on older hosts (Debian Buster/Bullseye, Ubuntu 20.04, etc.).
+CI runs on Ubuntu 24.04 (glibc 2.39) and always enforces formatting.
+See `docs/dev/mojo-glibc-compatibility.md` for details.
 
 ### Pre-Commit Hook Policy - STRICT ENFORCEMENT
 
