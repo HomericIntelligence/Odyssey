@@ -259,6 +259,28 @@ fn test_training_loops_imports() raises:
     print("✓ Training loops imports test passed")
 
 
+fn test_training_dataloader_imports() raises:
+    """Test DataLoader and DataBatch are importable from shared.training package.
+
+    Verifies Issue #3851: DataLoader and DataBatch exported from
+    shared/training/__init__.mojo via the trainer_interface submodule.
+    """
+    from shared.training import DataLoader, DataBatch
+
+    print("✓ Training DataLoader/DataBatch package imports test passed")
+
+
+fn test_training_dataloader_direct_imports() raises:
+    """Test DataLoader and DataBatch are importable directly from trainer_interface.
+
+    Validates the direct import path as documented fallback:
+        from shared.training.trainer_interface import DataLoader, DataBatch
+    """
+    from shared.training.trainer_interface import DataLoader, DataBatch
+
+    print("✓ Training DataLoader/DataBatch direct imports test passed")
+
+
 # ============================================================================
 # Data Package Imports
 # ============================================================================
@@ -484,6 +506,8 @@ fn main() raises:
     test_training_loops_direct_imports()
     test_training_callbacks_direct_imports()
     test_training_loops_imports()
+    test_training_dataloader_imports()
+    test_training_dataloader_direct_imports()
 
     # Data package tests
     print("\nTesting Data Package...")
