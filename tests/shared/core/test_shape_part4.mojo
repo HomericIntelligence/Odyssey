@@ -67,7 +67,7 @@ fn test_concatenate_axis_1_per_row_values() raises:
     var b = arange(6.0, 12.0, 1.0, DType.float32)
     b = b.reshape(shape)  # [[6,7],[8,9],[10,11]]
 
-    var result = concatenate(a, b, axis=1)  # 3x4
+    var result = concatenate(List[ExTensor](a, b), 1)  # 3x4
 
     # Row 0: [0,1,6,7]
     assert_value_at(result, 0, 0.0)
