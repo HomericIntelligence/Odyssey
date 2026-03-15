@@ -326,7 +326,7 @@ ls .github/workflows/*.yml | wc -l
 **Key Features**:
 
 - Path-triggered: only runs when papers/ changes
-- Uses inline `prefix-dev/setup-pixi` for Mojo/Pixi environment
+- Uses `.github/actions/setup-pixi` composite action for Mojo/Pixi environment
 
 ---
 
@@ -426,7 +426,7 @@ ls .github/workflows/*.yml | wc -l
 
 - Tag-triggered: runs on `v*` tags
 - Manual dispatch allows specifying version and pre-release flag
-- Uses inline `prefix-dev/setup-pixi` for Mojo environment
+- Uses `.github/actions/setup-pixi` composite action for Mojo environment
 
 ---
 
@@ -471,7 +471,7 @@ ls .github/workflows/*.yml | wc -l
 **Key Features**:
 
 - Suite selection via `workflow_dispatch` input (all, tensor-ops, model-training, data-loading)
-- Uses inline `prefix-dev/setup-pixi` for Mojo environment
+- Uses `.github/actions/setup-pixi` composite action for Mojo environment
 - Target duration: < 30 minutes with parallel execution
 
 ---
@@ -561,21 +561,15 @@ ls .github/workflows/*.yml | wc -l
 
 ---
 
-## Remaining Duplication
+## Common Patterns
 
-### setup-pixi Inline Usage (Not Yet Migrated to Composite Action)
+### Composite Actions
 
-The following workflows each contain an inline `prefix-dev/setup-pixi` step rather than
-using a shared composite action. This is intentional deferred work — no composite action
-exists yet in `.github/actions/`.
+The `.github/actions/setup-pixi/` composite action wraps `prefix-dev/setup-pixi` and an
+explicit `actions/cache@v5` step. All 13 Mojo/Pixi workflows use this composite action
+via `uses: ./.github/actions/setup-pixi`.
 
-To get the current count:
-
-```bash
-grep -rl "prefix-dev/setup-pixi" .github/workflows/*.yml | wc -l
-```
-
-**Workflows with inline setup-pixi** (deferred migration):
+**Migrated workflows** (completed in #3979):
 
 | Workflow | Category | Notes |
 |----------|----------|-------|
@@ -593,23 +587,12 @@ grep -rl "prefix-dev/setup-pixi" .github/workflows/*.yml | wc -l
 | `type-check.yml` | Validation | PR + push |
 | `security.yml` | Security | PR + scheduled |
 
-**Why not migrated in this pass**: The #3149 consolidation pass focused on removing
-redundant workflows and standardizing triggers. Composite action extraction was explicitly
-deferred to avoid scope creep.
+To verify no inline duplication remains:
 
-**Follow-up work**: Create `.github/actions/setup-pixi/action.yml` as a composite action,
-then replace the inline step in each of the workflows above. Track in a new issue
-referencing this one.
-
----
-
-## Common Patterns
-
-### Composite Actions
-
-No composite actions exist yet in `.github/actions/`. The setup-pixi pattern is currently
-duplicated inline across 13 workflows. See [Remaining Duplication](#remaining-duplication)
-for the migration plan.
+```bash
+grep -rl "prefix-dev/setup-pixi" .github/workflows/*.yml | wc -l
+# Expected: 0
+```
 
 ### Justfile Integration
 
@@ -762,19 +745,17 @@ requests that touch `.github/` files.
 
 ### Pixi-Based Environment Setup
 
-All Mojo workflows use the modern Pixi setup:
+All Mojo workflows use the shared composite action:
 
 ```yaml
 - name: Set up Pixi
-  uses: prefix-dev/setup-pixi@v0.9.3
-  with:
-    pixi-version: latest
-    cache: true
+  uses: ./.github/actions/setup-pixi
 ```
 
-This composite action installs Pixi and caches both `.pixi` and `~/.cache/rattler/cache` using
-an explicit `actions/cache@v5` step keyed on `pixi.lock`. This replaces the older inline setup
-pattern with `cache: true` (which was unreliable) and the `modular` CLI approach.
+The composite action at `.github/actions/setup-pixi/action.yml` installs Pixi via
+`prefix-dev/setup-pixi@v0.9.4` and caches `.pixi`, `~/.pixi/bin`, and
+`~/.cache/rattler/cache` using an explicit `actions/cache@v5` step keyed on `pixi.lock`.
+The explicit cache step is intentional — `cache: true` was found unreliable on v0.9.4.
 
 ### Matrix Strategies for Parallelization
 
@@ -968,7 +949,7 @@ When adding new workflows:
 5. **Permissions**: Request minimum required (contents: read, pull-requests: write if commenting)
 6. **Documentation**: Add entry to this README with workflow details
 7. **Testing**: Test in feature branch before merging
-8. **Duplication check**: If using `prefix-dev/setup-pixi`, add to the Remaining Duplication table
+8. **Pixi setup**: Use `uses: ./.github/actions/setup-pixi` (not inline `prefix-dev/setup-pixi`)
 
 ---
 
@@ -1010,14 +991,14 @@ gh workflow list
 gh workflow view script-validation.yml
 ```
 
-### Audit Inline Duplication
+### Audit Composite Action Usage
 
 ```bash
-# Count workflows using setup-pixi inline
-grep -rl "prefix-dev/setup-pixi" .github/workflows/*.yml | wc -l
+# Count workflows using the composite action
+grep -rl "setup-pixi" .github/workflows/*.yml | wc -l
 
-# List them
-grep -rl "prefix-dev/setup-pixi" .github/workflows/*.yml
+# Verify no inline prefix-dev/setup-pixi remains (should be 0)
+grep -rl "prefix-dev/setup-pixi" .github/workflows/*.yml | wc -l
 
 # Count total workflows
 ls .github/workflows/*.yml | wc -l
