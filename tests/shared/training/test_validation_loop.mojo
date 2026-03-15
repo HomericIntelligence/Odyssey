@@ -175,6 +175,27 @@ fn test_validation_loop_run_compute_accuracy_false() raises:
     print("  test_validation_loop_run_compute_accuracy_false: PASSED")
 
 
+fn test_validation_loop_run_updates_val_accuracy() raises:
+    """Test ValidationLoop.run() with compute_accuracy=True updates metrics.val_accuracy.
+
+    Verifies that after ValidationLoop.run() completes with compute_accuracy=True,
+    metrics.val_accuracy is greater than 0.0 (i.e., it was actually computed and
+    stored, not left at the default 0.0).
+
+    Fixture: simple_forward returns ones([batch, 10], float32). argmax(axis=1)
+    yields 0 for all samples (all logits equal, first index selected). Labels
+    are zeros (float32 0.0, read as 0). All predictions match -> accuracy = 1.0.
+    """
+    var vloop = ValidationLoop(compute_accuracy=True)
+    var loader = create_val_loader(n_batches=3)
+    var metrics = TrainingMetrics()
+    _ = vloop.run(simple_forward, simple_loss, loader, metrics)
+    # accuracy must be stored (non-zero) and a valid fraction
+    assert_greater(metrics.val_accuracy, Float64(0.0))
+    assert_less(metrics.val_accuracy, Float64(1.0) + Float64(1e-10))
+    print("  test_validation_loop_run_updates_val_accuracy: PASSED")
+
+
 # ============================================================================
 # ValidationLoop.run_subset() Tests
 # ============================================================================
@@ -475,6 +496,7 @@ fn main() raises:
     test_validation_loop_run_basic()
     test_validation_loop_run_updates_metrics()
     test_validation_loop_run_compute_accuracy_false()
+    test_validation_loop_run_updates_val_accuracy()
 
     print("Running ValidationLoop.run_subset() tests...")
     test_validation_loop_run_subset_limited()
