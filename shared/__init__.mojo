@@ -90,7 +90,7 @@ comptime Accuracy = AccuracyMetric
 # Data components (most commonly used)
 # from .data.datasets import TensorDataset, ImageDataset
 # from .data.loaders import DataLoader
-# from .data.transforms import Normalize, ToTensor, Compose
+from .data.transforms import Normalize, Compose
 
 # Utils (most commonly used)
 # from .utils.logging import Logger
