@@ -3496,6 +3496,69 @@ struct ExTensor(
 
         return load_tensor(path)
 
+    fn split(self, num_splits: Int, axis: Int = 0) raises -> List[ExTensor]:
+        """Split tensor into equal-sized parts along an axis.
+
+        Method wrapper for the module-level `split()` function, providing
+        convenient object syntax: `tensor.split(3)` instead of
+        `split(tensor, 3)`.
+
+        Args:
+            num_splits: Number of equal parts to split into.
+            axis: Axis along which to split (default: 0).
+
+        Returns:
+            List of ExTensor objects, each with same shape except along
+            split axis.
+
+        Raises:
+            Error: If axis is invalid, num_splits <= 0, or tensor size not
+                divisible by num_splits.
+
+        Example:
+        ```mojo
+            var a = arange(0.0, 12.0, 1.0, DType.float32)
+            var parts = a.split(3)  # 3 parts of size 4 each
+        ```
+        """
+        from shared.core.shape import split as split_fn
+
+        return split_fn(self, num_splits, axis)
+
+    fn split_with_indices(
+        self, split_indices: List[Int], axis: Int = 0
+    ) raises -> List[ExTensor]:
+        """Split tensor at specified indices along an axis.
+
+        Method wrapper for the module-level `split_with_indices()` function,
+        providing convenient object syntax:
+        `tensor.split_with_indices([3, 7])` instead of
+        `split_with_indices(tensor, [3, 7])`.
+
+        Args:
+            split_indices: List of indices where to split (e.g., [3, 7]
+                creates 3 sections: [0-2], [3-6], [7-end]).
+            axis: Axis along which to split (default: 0).
+
+        Returns:
+            List of ExTensor objects resulting from splits.
+
+        Raises:
+            Error: If axis is invalid or indices are out of bounds/unordered.
+
+        Example:
+        ```mojo
+            var a = arange(0.0, 10.0, 1.0, DType.float32)
+            var parts = a.split_with_indices([3, 7])
+            # parts[0].shape() = (3,)  # indices 0-2
+            # parts[1].shape() = (4,)  # indices 3-6
+            # parts[2].shape() = (3,)  # indices 7-9
+        ```
+        """
+        from shared.core.shape import split_with_indices as split_with_indices_fn
+
+        return split_with_indices_fn(self, split_indices, axis)
+
 
 # ============================================================================
 # Creation Operations
