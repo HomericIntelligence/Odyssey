@@ -139,6 +139,29 @@ This crash is **distinct** from the deterministic heap corruption crash describe
 Both originate in `libKGENCompilerRTShared.so` but are separate bugs with different behaviors and
 different workarounds.
 
+## Controlled Experiment (2026-03-15)
+
+Two synthetic test files were created to isolate the import-style variable:
+
+- `tests/shared/core/test_jit_crash_heavy_import.mojo` — uses `from shared.core import` (package-level)
+- `tests/shared/core/test_jit_crash_light_import.mojo` — uses `from shared.core.extensor import` (targeted)
+
+### Local Results (GLIBC 2.39, Mojo 0.26.1, WSL2 Linux 6.6.87)
+
+| Test | Runs | Pass | Crash | Crash Rate |
+|------|------|------|-------|------------|
+| Heavy (package-level) | 30 | 30 | 0 | 0% |
+| Light (targeted) | 30 | 30 | 0 | 0% |
+
+**Conclusion**: The JIT crash was **not reproducible locally**. This suggests the crash is
+environment-specific (likely CI's GLIBC 2.35 or Docker memory constraints) or requires
+higher memory pressure than a single test file produces. The targeted import fix is still
+the correct defensive measure — it reduces compilation footprint by ~95% per test file,
+which lowers the probability of hitting the JIT buffer overflow regardless of environment.
+
+**Next step**: Run the same experiment in CI (GLIBC 2.35, Ubuntu runner) to confirm whether
+the crash is environment-dependent.
+
 ## Long-Term Resolution
 
 The targeted submodule import fix (applied in 126 test files) addresses the root cause. The
