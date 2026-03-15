@@ -117,7 +117,7 @@ fn test_item_requires_single_element() raises:
     try:
         var val = item(t)
         _ = val
-    except:
+    except e:
         raised = True
 
     if not raised:

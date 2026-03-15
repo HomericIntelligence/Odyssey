@@ -318,7 +318,7 @@ fn test_transpose_1d_tensor_raises() raises:
     var error_raised = False
     try:
         var result = t.transpose(0, 1)
-    except:
+    except e:
         error_raised = True
 
     assert_true(
@@ -336,7 +336,7 @@ fn test_transpose_out_of_range_dim0() raises:
     var error_raised = False
     try:
         var result = t.transpose(5, 1)  # dim0=5 is out of range
-    except:
+    except e:
         error_raised = True
 
     assert_true(
@@ -354,7 +354,7 @@ fn test_transpose_out_of_range_dim1() raises:
     var error_raised = False
     try:
         var result = t.transpose(0, 10)  # dim1=10 is out of range
-    except:
+    except e:
         error_raised = True
 
     assert_true(
