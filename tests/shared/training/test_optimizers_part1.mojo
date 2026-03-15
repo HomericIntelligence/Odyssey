@@ -59,8 +59,8 @@ fn test_sgd_initialization() raises:
         weight_decay=0.0001,
     )
 
-    # If we got here without error, the API contract is satisfied
-    assert_true(True)  # Placeholder to mark test as passing
+    # Verify the result has the correct shape
+    assert_shape(result, shape, "SGD step result shape matches input")
 
 
 fn test_sgd_basic_update() raises:
@@ -238,8 +238,8 @@ fn test_adam_initialization() raises:
         epsilon=1e-8,
     )
 
-    # If we got here without error, the API contract is satisfied
-    assert_true(True)  # Placeholder to mark test as passing
+    # Verify the result has the correct shape
+    assert_shape(result, shape, "Adam initialization result shape matches input")
 
 
 fn test_adam_parameter_update() raises:
