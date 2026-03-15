@@ -1,0 +1,73 @@
+name: Skills Migration Audit
+
+on:
+  # Run on pull requests when skills change
+  pull_request:
+    paths:
+      - '.claude/skills/**'
+      - 'scripts/migrate_odyssey_skills.py'
+      - '.github/workflows/skills-migration-audit.yml'
+
+  # Run on pushes to main
+  push:
+    branches:
+      - main
+    paths:
+      - '.claude/skills/**'
+      - 'scripts/migrate_odyssey_skills.py'
+      - '.github/workflows/skills-migration-audit.yml'
+
+  # Allow manual runs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit-skills:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Install migration script dependencies
+        run: |
+          pixi run pip install pyyaml
+
+      - name: Clone ProjectMnemosyne (target directory)
+        run: |
+          # Clone ProjectMnemosyne to /tmp/ProjectMnemosyne for audit
+          # If not available, create a minimal structure
+          if git clone https://github.com/HomericIntelligence/ProjectMnemosyne.git /tmp/ProjectMnemosyne 2>/dev/null; then
+            echo "✓ ProjectMnemosyne cloned successfully"
+          else
+            echo "ℹ ProjectMnemosyne not accessible, creating minimal structure"
+            mkdir -p /tmp/ProjectMnemosyne/skills
+          fi
+
+      - name: Run skills migration audit
+        run: |
+          python3 scripts/migrate_odyssey_skills.py \
+            --audit \
+            --no-color \
+            --target-dir /tmp/ProjectMnemosyne
+
+      - name: Display audit results on failure
+        if: failure()
+        run: |
+          echo ""
+          echo "❌ Skills migration audit failed!"
+          echo ""
+          echo "This means one or more skills in .claude/skills/ have not been"
+          echo "migrated to ProjectMnemosyne yet."
+          echo ""
+          echo "To check migration status locally:"
+          echo "  python3 scripts/migrate_odyssey_skills.py --audit"
+          echo ""
+          echo "To migrate a specific skill:"
+          echo "  python3 scripts/migrate_odyssey_skills.py --skill <skill-name>"
+          echo ""
