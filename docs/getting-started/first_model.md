@@ -1,37 +1,39 @@
 # Building Your First Model
 
-Complete tutorial for creating, training, and evaluating your first neural network with ML Odyssey.
+A conceptual orientation guide for working with ML Odyssey's shared library and implemented papers.
 
 ## Overview
 
-This tutorial walks you through building a simple handwritten digit classifier using the MNIST dataset. You'll learn
-how to use ML Odyssey's shared library to create a neural network, train it, and evaluate its performance.
+ML Odyssey is a Mojo-based platform for reproducing classic research papers. This guide explains
+what is available today and how to use it, so you can orient yourself before writing your own
+Mojo code.
 
-**What you'll build**: A 3-layer neural network that classifies handwritten digits (0-9) with ~95% accuracy.
+**What exists today**:
 
-**Time required**: 30-45 minutes
+- A shared library (`shared/`) providing `ExTensor` — a typed, N-dimensional tensor type
+- Tensor creation, shape, and element operations in `shared/core/`
+- Data loading utilities in `shared/data/`
+- Training infrastructure in `shared/training/`
+- The LeNet-5 paper implementation (`just train`, `just infer` recipes)
+
+**What is still planned**:
+
+- High-level APIs such as `Sequential`, `Trainer`, `BatchLoader`, and data augmentation transforms
+- Additional paper implementations beyond LeNet-5
 
 ## Prerequisites
 
 Before starting, ensure you have:
 
-- Completed the [Quickstart Guide](quickstart.md)
-- ML Odyssey installed and working (`pixi run mojo --version`)
-- Basic understanding of neural networks (helpful but not required)
+- Completed the [Quickstart Guide](quickstart.md) and confirmed `pixi run mojo --version` works
+- Basic familiarity with neural network concepts (forward pass, loss, backpropagation)
 
-## Step 1: Project Setup
+## The Shared Library
 
-Create a new directory for your first model:
+The `shared/` directory contains the core ML components used across all paper implementations.
+The entry point is `ExTensor` in `shared/core/`.
 
-```bash
-cd ProjectOdyssey
-mkdir -p examples/first_model
-cd examples/first_model
-```
-
-## Step 2: Prepare the Data
-
-Create `prepare_data.mojo` to load and preprocess the MNIST dataset:
+### Creating Tensors
 
 ```mojo
 from shared.data import TensorDataset, BatchLoader
@@ -122,54 +124,22 @@ You should see output like:
 
 ```text
 
-==================================================
-Training Digit Classifier
-==================================================
-Loading MNIST dataset...
-Data loaded: 60000 training examples
-Data loaded: 10000 test examples
-
-Model architecture:
-Sequential(
-  Linear(784 -> 128)
-  ReLU()
-  Linear(128 -> 64)
-  ReLU()
-  Linear(64 -> 10)
-  Softmax()
-)
-Total parameters: 109,386
-
-Starting training...
-Epoch 1/10: 100%|████████| 1875/1875 [00:12<00:00, 156.25it/s, loss=0.523]
-Validation: loss=0.321, accuracy=0.912
-Epoch 2/10: 100%|████████| 1875/1875 [00:11<00:00, 162.50it/s, loss=0.287]
-Validation: loss=0.245, accuracy=0.934
-...
-Epoch 8/10: 100%|████████| 1875/1875 [00:11<00:00, 165.00it/s, loss=0.142]
-Validation: loss=0.189, accuracy=0.951
-Model checkpoint saved: best_model.mojo
-
-Training complete!
-```
-
-## Step 6: Evaluate the Model
-
-Create `evaluate.mojo` to test your trained model:
-
-```mojo
-from shared.training import evaluate_model
-from shared.utils import load_model, plot_confusion_matrix
-from prepare_data import prepare_mnist
-from model import DigitClassifier
 
 fn main() raises:
-    """Evaluate the trained model."""
+    # 1D tensor of zeros: shape [5]
+    var shape = List[Int]()
+    shape.append(5)
+    var t = zeros(shape, DType.float32)
 
-    print("Evaluating model...")
+    # 2D tensor of ones: shape [3, 4]
+    var shape2 = List[Int]()
+    shape2.append(3)
+    shape2.append(4)
+    var m = ones(shape2, DType.float32)
 
-    # Load test data
-    var _, test_data = prepare_mnist()
+    print("ndim:", t.ndim(), "numel:", t.numel())
+    print("ndim:", m.ndim(), "numel:", m.numel())
+```
 
     # Load trained model
     var model = load_model[DigitClassifier]("best_model.mojo")
@@ -321,7 +291,7 @@ pixi run mojo build --release train.mojo
 ./train
 ```
 
-### Out of Memory
+### 1. Create a paper directory
 
 ### Solutions
 
@@ -343,17 +313,16 @@ self.model = Sequential([
 # Ensure you're in the right directory
 cd ProjectOdyssey/examples/first_model
 
-# Verify shared library is accessible
-ls ../../shared/
+### 4. Build and verify
 
 # Run from repository root
 cd ../..
 pixi run mojo run examples/first_model/train.mojo
 ```
 
-## Improving Your Model
+## Understanding the Training Loop
 
-### 1. Deeper Network
+All paper implementations share the same fundamental loop:
 
 ```mojo
 self.model = Sequential([
@@ -402,27 +371,8 @@ var train_loader = BatchLoader(
 
 ## Next Steps
 
-Congratulations! You've built, trained, and evaluated your first neural network with ML Odyssey.
-
-### Learn More
-
-- **[Performance Benchmarking](../advanced/benchmarking.md)** - Profile and optimize your models
-
-### Try More Examples
-
-- **LeNet-5**: Classic CNN for digit recognition (`papers/lenet5/`)
-- **Custom Dataset**: Use your own data with `TensorDataset`
-- **Different Architectures**: Experiment with convolutions, dropout, batch normalization
-
-### Contribute
-
-Found this tutorial helpful? Consider contributing:
-
-- Share your experiments in GitHub Discussions
-- Report bugs or suggest improvements via GitHub Issues
-- Submit your own tutorial or example
-
-## Related Documentation
-
-- [Quickstart Guide](quickstart.md) - 5-minute introduction
-- [Installation Guide](installation.md) - Detailed setup
+- **[Repository Structure](repository-structure.md)** — understand where code lives
+- **[Installation Guide](installation.md)** — detailed build and package setup
+- **[Quickstart Guide](quickstart.md)** — 5-minute introduction to the environment
+- **`shared/` source** — browse `shared/core/`, `shared/training/`, `shared/data/` directly
+- **`papers/_template/`** — starting point for a new paper implementation
