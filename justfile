@@ -463,6 +463,18 @@ pre-commit:
 pre-commit-all:
     @pre-commit run --all-files
 
+# Enforce no .__matmul__() call sites in Mojo files (use matmul(A, B) instead). Ref #3215
+check-matmul-calls:
+    #!/usr/bin/env bash
+    set -e
+    violations=$(grep -rn "\.__matmul__(" . --include="*.mojo" --include="*.🔥" --exclude-dir=".pixi" --exclude-dir=".git" | grep -v "fn __matmul__(" | grep -v "# __matmul__" | grep -v "__matmul__.*deprecated" || true)
+    if [ -n "$violations" ]; then
+        echo "Found .__matmul__() call sites (use matmul(A, B) instead):"
+        echo "$violations"
+        exit 1
+    fi
+    echo "No .__matmul__() call sites found."
+
 # Check NOTE format in all Mojo files
 check-note-format:
     @python3 scripts/check_note_format.py
