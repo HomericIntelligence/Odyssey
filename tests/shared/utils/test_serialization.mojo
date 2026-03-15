@@ -389,6 +389,91 @@ fn test_checkpoint_with_many_tensors() raises:
         _ = cleanup_test_dir(test_dir)
 
 
+# ============================================================================
+# Trailing Slash Normalization Tests
+# ============================================================================
+
+
+fn test_save_named_tensors_trailing_slash() raises:
+    """Test that save_named_tensors handles trailing slash in dirpath."""
+    var test_dir = create_test_dir("/tmp")
+
+    try:
+        var shape = List[Int]()
+        shape.append(2)
+        shape.append(3)
+        var tensor = ones(shape, DType.float32)
+
+        var tensors: List[NamedTensor] = []
+        tensors.append(NamedTensor("weights", tensor))
+
+        # Save with trailing slash
+        save_named_tensors(tensors, test_dir + "/")
+
+        # Load without trailing slash - should work correctly
+        var loaded = load_named_tensors(test_dir)
+
+        assert_equal(len(loaded), 1, "Should load 1 tensor")
+        assert_equal(loaded[0].name, "weights", "Tensor name should match")
+        assert_equal(loaded[0].tensor.shape()[0], 2, "Shape dim 0 should match")
+        assert_equal(loaded[0].tensor.shape()[1], 3, "Shape dim 1 should match")
+
+    finally:
+        _ = cleanup_test_dir(test_dir)
+
+
+fn test_load_named_tensors_trailing_slash() raises:
+    """Test that load_named_tensors handles trailing slash in dirpath."""
+    var test_dir = create_test_dir("/tmp")
+
+    try:
+        var shape = List[Int]()
+        shape.append(4)
+        var tensor = ones(shape, DType.float32)
+
+        var tensors: List[NamedTensor] = []
+        tensors.append(NamedTensor("bias", tensor))
+
+        # Save without trailing slash
+        save_named_tensors(tensors, test_dir)
+
+        # Load with trailing slash - should work correctly
+        var loaded = load_named_tensors(test_dir + "/")
+
+        assert_equal(len(loaded), 1, "Should load 1 tensor")
+        assert_equal(loaded[0].name, "bias", "Tensor name should match")
+        assert_equal(loaded[0].tensor.shape()[0], 4, "Shape dim 0 should match")
+
+    finally:
+        _ = cleanup_test_dir(test_dir)
+
+
+fn test_save_load_trailing_slash_round_trip() raises:
+    """Test save with trailing slash and load with trailing slash both work."""
+    var test_dir = create_test_dir("/tmp")
+
+    try:
+        var shape = List[Int]()
+        shape.append(3)
+        shape.append(3)
+        var tensor = ones(shape, DType.float32)
+
+        var tensors: List[NamedTensor] = []
+        tensors.append(NamedTensor("kernel", tensor))
+
+        # Save and load both with trailing slash
+        save_named_tensors(tensors, test_dir + "/")
+        var loaded = load_named_tensors(test_dir + "/")
+
+        assert_equal(len(loaded), 1, "Should load 1 tensor")
+        assert_equal(loaded[0].name, "kernel", "Tensor name should match")
+        assert_equal(loaded[0].tensor.shape()[0], 3, "Shape dim 0 should match")
+        assert_equal(loaded[0].tensor.shape()[1], 3, "Shape dim 1 should match")
+
+    finally:
+        _ = cleanup_test_dir(test_dir)
+
+
 fn main() raises:
     """Run all serialization tests."""
     print("Running serialization tests...")
@@ -431,6 +516,18 @@ fn main() raises:
 
     print("  test_checkpoint_with_many_tensors...")
     test_checkpoint_with_many_tensors()
+    print("  ✓ passed")
+
+    print("  test_save_named_tensors_trailing_slash...")
+    test_save_named_tensors_trailing_slash()
+    print("  ✓ passed")
+
+    print("  test_load_named_tensors_trailing_slash...")
+    test_load_named_tensors_trailing_slash()
+    print("  ✓ passed")
+
+    print("  test_save_load_trailing_slash_round_trip...")
+    test_save_load_trailing_slash_round_trip()
     print("  ✓ passed")
 
     print("\nAll serialization tests passed!")

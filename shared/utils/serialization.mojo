@@ -262,6 +262,7 @@ fn save_named_tensors(tensors: List[NamedTensor], dirpath: String) raises:
     Args:
             tensors: List of NamedTensor objects.
             dirpath: Output directory path (created if doesn't exist).
+                Trailing slashes are accepted and normalized automatically.
 
     Raises:
             Error: If directory creation or file write fails.
@@ -274,14 +275,16 @@ fn save_named_tensors(tensors: List[NamedTensor], dirpath: String) raises:
             save_named_tensors(tensors, "checkpoint/epoch_10/")
             ```
     """
+    var normalized = String(dirpath.rstrip("/"))
+
     # Create directory if needed
-    if not create_directory(dirpath):
-        raise Error("Failed to create directory: " + dirpath)
+    if not create_directory(normalized):
+        raise Error("Failed to create directory: " + normalized)
 
     # Save each tensor
     for i in range(len(tensors)):
         var filename = tensors[i].name + ".weights"
-        var filepath = dirpath + "/" + filename
+        var filepath = normalized + "/" + filename
 
         save_tensor(tensors[i].tensor, filepath, tensors[i].name)
 
@@ -294,6 +297,7 @@ fn load_named_tensors(dirpath: String) raises -> List[NamedTensor]:
 
     Args:
             dirpath: Directory containing .weights files.
+                Trailing slashes are accepted and normalized automatically.
 
     Returns:
             List of NamedTensor objects.
@@ -309,10 +313,11 @@ fn load_named_tensors(dirpath: String) raises -> List[NamedTensor]:
             ```
     """
     var result: List[NamedTensor] = []
+    var normalized = String(dirpath.rstrip("/"))
 
     try:
         # List directory contents using Mojo native os.listdir
-        var entries = os.listdir(dirpath)
+        var entries = os.listdir(normalized)
 
         # Collect .weights files and sort for deterministic ordering
         var weight_files: List[String] = []
@@ -332,7 +337,7 @@ fn load_named_tensors(dirpath: String) raises -> List[NamedTensor]:
 
         # Load each weights file
         for i in range(len(weight_files)):
-            var filepath = dirpath + "/" + weight_files[i]
+            var filepath = normalized + "/" + weight_files[i]
             var (name, tensor) = load_tensor_with_name(filepath)
             result.append(NamedTensor(name, tensor))
 
