@@ -35,18 +35,23 @@ from tests.shared.conftest import (
 fn test_from_array_2d() raises:
     """Test creating tensor from 2D nested array.
 
-    NOTE(#3013): from_array() is not yet implemented. See test_from_array_1d
-    for details.
+    Blocked on #3013 (from_array() not yet implemented).
+    Tracked by #4127 to prevent this placeholder from going stale.
+    Once #3013 merges, implement using a 2x3 Float32 array:
+      [[0.5, 1.0, 1.5], [-0.5, -1.0, 0.0]] -> shape [2, 3], dtype float32.
     """
+    # TODO(#3013): implement when from_array() ships
     pass
 
 
 fn test_from_array_3d() raises:
     """Test creating tensor from 3D nested array.
 
-    NOTE(#3013): from_array() is not yet implemented. See test_from_array_1d
-    for details.
+    Blocked on #3013 (from_array() not yet implemented).
+    Tracked by #4127 to prevent this placeholder from going stale.
+    Once #3013 merges, implement using a 2x2x3 Float32 array -> shape [2, 2, 3].
     """
+    # TODO(#3013): implement when from_array() ships
     pass
 
 

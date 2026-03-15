@@ -126,10 +126,12 @@ fn test_empty_2d() raises:
 fn test_from_array_1d() raises:
     """Test creating tensor from 1D array.
 
-    NOTE(#3013): from_array() is not yet implemented. This test is a
-    placeholder for array-to-tensor conversion. Current workaround
-    is to use arange(), zeros(), or manual element initialization.
+    Blocked on #3013 (from_array() not yet implemented).
+    Tracked by #4127 to prevent this placeholder from going stale.
+    Once #3013 merges, implement using a 3-element Float32 array:
+      [0.5, 1.0, 1.5] -> shape [3], dtype float32.
     """
+    # TODO(#3013): implement when from_array() ships
     pass
 
 
