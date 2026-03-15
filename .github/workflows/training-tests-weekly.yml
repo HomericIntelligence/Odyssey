@@ -1,0 +1,46 @@
+name: Weekly Training Tests
+
+# Weekly training tests that are excluded from per-PR CI
+# Runs every Sunday at 3 AM UTC (offset from simd-benchmarks-weekly at 2 AM)
+# These tests may require dataset downloads or have significant runtime
+
+on:
+  # Weekly schedule - Sundays at 3 AM UTC
+  schedule:
+    - cron: '0 3 * * 0'
+
+  # Allow manual execution
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  training-tests:
+    name: Training Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    # Only run on main branch for scheduled runs
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Install Just
+        uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
+
+      - name: Run training tests
+        run: just test-group tests/shared/training "test_*.mojo"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7
+        with:
+          name: test-results-Training-Weekly
+          path: test-results/
+          retention-days: 30
