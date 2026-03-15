@@ -20,6 +20,8 @@ numpy = ">=2.3.5,<3"
 lychee = ">=0.22.0,<0.23"
 pip = ">=25.3,<26"
 mypy = ">=1.19.1,<2"
+nbstripout = ">=0.7.1"            # tracked to keep in sync with .pre-commit-config.yaml (Issue #4030)
+pre-commit-hooks = ">=4.5.0,<4.6"  # pinned to match .pre-commit-config.yaml rev (Issue #4030)
 types-PyYAML = ">=6.0"
 jupyterlab = ">=4.3.0,<5"
 matplotlib = ">=3.9.0,<4"

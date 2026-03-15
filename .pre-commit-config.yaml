@@ -85,6 +85,17 @@ repos:
         types: [python]
         pass_filenames: true
 
+  # Version consistency check — ensures .pre-commit-config.yaml revs match pixi.toml (Issue #4030)
+  - repo: local
+    hooks:
+      - id: check-precommit-versions
+        name: Check Pre-commit Version Consistency
+        description: Ensure .pre-commit-config.yaml revs match pixi.toml versions (Issue #4030)
+        entry: python scripts/check_precommit_versions.py
+        language: system
+        files: ^(\.pre-commit-config\.yaml|pixi\.toml)$
+        pass_filenames: false
+
   # Python type checking
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.19.1
