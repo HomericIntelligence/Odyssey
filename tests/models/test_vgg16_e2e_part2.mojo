@@ -1,4 +1,7 @@
-"""End-to-end tests for VGG-16 model on CIFAR-10.
+# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
+# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
+# high test load. Split from test_vgg16_e2e.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
+"""End-to-end tests for VGG-16 model on CIFAR-10 (Part 2 of 2).
 
 VGG-16 Architecture:
 - Input: (batch, 3, 32, 32) CIFAR-10 images
@@ -14,14 +17,14 @@ VGG-16 Architecture:
   * FC 256 -> 256 + ReLU
   * FC 256 -> 10 (CIFAR-10 classes)
 
-E2E Tests:
-- Forward pass with realistic input shapes
-- Output shape verification (batch, 10)
-- Backward pass through full model
-- Loss computation (cross-entropy)
-- Training step (forward + backward)
-- Inference mode (no gradients needed)
-- Batch processing with multiple samples
+Part 2 Tests (gradient flow, output analysis, numerical stability):
+- Gradient flow through full model
+- Output range verification
+- Shape progression through blocks
+- NaN detection
+- Inf detection
+
+See test_vgg16_e2e_part1.mojo for forward pass and training tests.
 
 All tests use CIFAR-10 compatible shapes: (batch, 3, 32, 32)
 Batch sizes: 4 (inference) and 2 (training, small for speed)
@@ -175,166 +178,6 @@ fn vgg16_forward(
     x = linear(x, fc3_w, fc3_b)
 
     return x
-
-
-# ============================================================================
-# E2E Forward Pass Tests
-# ============================================================================
-
-
-fn test_vgg16_e2e_forward_inference() raises:
-    """Test VGG-16 forward pass with realistic CIFAR-10 input.
-
-    Tests:
-    - Input shape: (4, 3, 32, 32) - realistic CIFAR-10 batch
-    - Output shape: (4, 10) - 10 CIFAR-10 classes
-    - No errors through full model
-    """
-    var batch_size = 4
-    var num_classes = 10
-
-    # Create input: (4, 3, 32, 32)
-    var input_shape = List[Int]()
-    input_shape.append(batch_size)
-    input_shape.append(3)
-    input_shape.append(32)
-    input_shape.append(32)
-    var input = ones(input_shape, DType.float32)
-
-    # Forward pass through VGG-16
-    var output = vgg16_forward(input)
-
-    # Verify output shape
-    var output_shape = output.shape()
-    assert_equal(output_shape[0], batch_size)
-    assert_equal(output_shape[1], num_classes)
-
-
-fn test_vgg16_e2e_forward_small_batch() raises:
-    """Test VGG-16 with smaller batch size (training).
-
-    Uses batch size 2 for faster execution during development.
-    """
-    var batch_size = 2
-
-    # Create input: (2, 3, 32, 32)
-    var input_shape = List[Int]()
-    input_shape.append(batch_size)
-    input_shape.append(3)
-    input_shape.append(32)
-    input_shape.append(32)
-    var input = ones(input_shape, DType.float32)
-
-    # Forward pass
-    var output = vgg16_forward(input)
-
-    # Verify output shape
-    var output_shape = output.shape()
-    assert_equal(output_shape[0], batch_size)
-    assert_equal(output_shape[1], 10)
-
-
-fn test_vgg16_e2e_forward_varying_values() raises:
-    """Test VGG-16 with varying input values (not all ones).
-
-    This helps catch potential NaN/inf issues and validates
-    numerical stability with mixed value ranges.
-    """
-    var batch_size = 2
-
-    # Create input with varying values
-    var input_shape = List[Int]()
-    input_shape.append(batch_size)
-    input_shape.append(3)
-    input_shape.append(32)
-    input_shape.append(32)
-    var input = zeros(input_shape, DType.float32)
-
-    # Fill with mixed values (simulating normalized pixel values)
-    var input_data = input._data.bitcast[Float32]()
-    for i in range(batch_size * 3 * 32 * 32):
-        # Normalize to [0, 1] range roughly
-        input_data[i] = Float32((i % 256)) / 256.0
-
-    # Forward pass
-    var output = vgg16_forward(input)
-
-    # Verify output is valid (not NaN/inf)
-    var output_shape = output.shape()
-    assert_equal(output_shape[0], batch_size)
-    assert_equal(output_shape[1], 10)
-
-
-# ============================================================================
-# E2E Loss and Training Tests
-# ============================================================================
-
-
-fn test_vgg16_e2e_forward_backward() raises:
-    """Test VGG-16 backward pass through full model.
-
-    Integration test:
-    - Forward pass produces logits
-    - Loss computation
-    - Backward pass computes input gradients
-
-    Note: Full parameter gradient computation is complex. This test
-    validates that backward pass completes without error.
-    """
-    var batch_size = 2
-
-    # Create input
-    var input_shape = List[Int]()
-    input_shape.append(batch_size)
-    input_shape.append(3)
-    input_shape.append(32)
-    input_shape.append(32)
-    var input = ones(input_shape, DType.float32)
-
-    # Create target labels (0-9 for CIFAR-10)
-    var target_shape = List[Int]()
-    target_shape.append(batch_size)
-    var target = zeros(target_shape, DType.float32)
-    var target_data = target._data.bitcast[Float32]()
-    target_data[0] = 0.0
-    target_data[1] = 1.0
-
-    # Forward pass
-    var logits = vgg16_forward(input)
-
-    # Loss computation (simplified cross-entropy approximation)
-    # Using MSE as proxy since cross_entropy_loss may not be available
-    var loss = logits  # Placeholder for loss computation
-
-    # Verify loss has valid shape
-    assert_equal(logits.shape()[0], batch_size)
-    assert_equal(logits.shape()[1], 10)
-
-
-fn test_vgg16_e2e_inference_mode() raises:
-    """Test VGG-16 inference mode (multiple samples).
-
-    Inference characteristics:
-    - Batch processing efficiency
-    - Output shape consistency
-    - Realistic batch sizes (4, 8, 16)
-    """
-    for batch_size in [1, 2, 4, 8]:
-        # Create input
-        var input_shape = List[Int]()
-        input_shape.append(batch_size)
-        input_shape.append(3)
-        input_shape.append(32)
-        input_shape.append(32)
-        var input = ones(input_shape, DType.float32)
-
-        # Forward pass
-        var output = vgg16_forward(input)
-
-        # Verify output
-        var output_shape = output.shape()
-        assert_equal(output_shape[0], batch_size)
-        assert_equal(output_shape[1], 10)
 
 
 # ============================================================================
@@ -515,22 +358,7 @@ fn test_vgg16_e2e_no_infs() raises:
 
 
 fn main() raises:
-    print("Starting VGG16 E2E Tests...")
-    print("  test_vgg16_e2e_forward_inference...", end="")
-    test_vgg16_e2e_forward_inference()
-    print(" OK")
-    print("  test_vgg16_e2e_forward_small_batch...", end="")
-    test_vgg16_e2e_forward_small_batch()
-    print(" OK")
-    print("  test_vgg16_e2e_forward_varying_values...", end="")
-    test_vgg16_e2e_forward_varying_values()
-    print(" OK")
-    print("  test_vgg16_e2e_forward_backward...", end="")
-    test_vgg16_e2e_forward_backward()
-    print(" OK")
-    print("  test_vgg16_e2e_inference_mode...", end="")
-    test_vgg16_e2e_inference_mode()
-    print(" OK")
+    print("Starting VGG16 E2E Tests (Part 2)...")
     print("  test_vgg16_e2e_gradient_flow...", end="")
     test_vgg16_e2e_gradient_flow()
     print(" OK")
@@ -546,4 +374,4 @@ fn main() raises:
     print("  test_vgg16_e2e_no_infs...", end="")
     test_vgg16_e2e_no_infs()
     print(" OK")
-    print("All VGG16 E2E Tests passed!")
+    print("All VGG16 E2E Tests (Part 2) passed!")
