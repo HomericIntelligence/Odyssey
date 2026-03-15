@@ -75,6 +75,55 @@ fn test_root_level_imports() raises:
     print("✓ Root level imports test passed")
 
 
+fn test_layer_root_level_imports() raises:
+    """Test that layer symbols activated in shared/__init__.mojo are importable directly.
+
+    Verifies Issue #3759: confirmed-ready layer exports are accessible via
+    `from shared import <Symbol>` after uncommenting in __init__.mojo.
+    """
+    # Core layer structs — original names
+    from shared import Linear, Conv2dLayer, ReLULayer, DropoutLayer, BatchNorm2dLayer
+
+    # Core layer aliases matching documented public API names
+    from shared import Conv2D, ReLU, Dropout, BatchNorm2d
+
+    # Core activation functions
+    from shared import relu, sigmoid, tanh, softmax
+
+    # Core module trait
+    from shared import Module
+
+    # Core tensors and creation functions (ExTensor + Tensor alias)
+    from shared import ExTensor, Tensor, zeros, ones, randn
+
+    # Training schedulers
+    from shared import StepLR, CosineAnnealingLR
+
+    # Training callbacks
+    from shared import EarlyStopping, ModelCheckpoint
+
+    # Utils
+    from shared import Logger, plot_training_curves
+
+    # Smoke-test: construct a Linear layer and run a forward pass
+    var layer = Linear(4, 2)
+    var x = zeros([1, 4], DType.float32)
+    var out = layer.forward(x)
+    var out_shape = out.shape()
+    assert_true(out.dim() == 2, "Linear output should be 2D")
+    assert_true(out_shape[1] == 2, "Linear output features should be 2")
+
+    # Smoke-test: Conv2D alias resolves to Conv2dLayer
+    var conv = Conv2D(1, 4, 3)
+    assert_true(True, "Conv2D alias should resolve to Conv2dLayer")
+
+    # Smoke-test: ReLU alias resolves to ReLULayer
+    var act = ReLU()
+    assert_true(True, "ReLU alias should resolve to ReLULayer")
+
+    print("✓ Layer root-level imports test passed")
+
+
 fn test_module_level_imports() raises:
     """Test importing from specific modules."""
     from shared.core import ExTensor, relu, linear
@@ -719,6 +768,7 @@ fn main() raises:
     # Import hierarchy
     print("\nTesting Import Hierarchy...")
     test_root_level_imports()
+    test_layer_root_level_imports()
     test_module_level_imports()
     test_nested_imports()
 

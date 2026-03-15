@@ -48,49 +48,71 @@ from shared.version import VERSION, AUTHOR, LICENSE
 # ============================================================================
 # Core Exports - Most commonly used components
 # ============================================================================
-# These imports are commented out pending full layer implementation.
 
-# Core layers (most commonly used)
-# from .core.layers import Linear, Conv2D, ReLU, MaxPool2D, Dropout, Flatten
+# Core layers — activated where leaf-module implementations are confirmed ready.
+# NOTE(#3754, Mojo v0.26.1): Re-export chain limitation requires absolute leaf-module
+# paths here; chained re-exports through intermediate __init__.mojo do not work.
+from shared.core.layers.linear import Linear
+from shared.core.layers.conv2d import Conv2dLayer
+from shared.core.layers.relu import ReLULayer
+from shared.core.layers.dropout import DropoutLayer
+from shared.core.layers.batchnorm import BatchNorm2dLayer
 
-# Core activations (function form)
-# from .core.activations import relu, sigmoid, tanh, softmax
+# Aliases to match documented public API names (e.g. `from shared import Conv2D`)
+comptime Conv2D = Conv2dLayer
+comptime ReLU = ReLULayer
+comptime Dropout = DropoutLayer
+comptime BatchNorm2d = BatchNorm2dLayer
+
+# MaxPool2D, Flatten — NOT YET IMPLEMENTED in shared/core/layers/
+
+# Core activations (function form) — all four confirmed in shared/core/activation.mojo
+from shared.core.activation import relu, sigmoid, tanh, softmax
 
 # Core module system
-# from .core.module import Module, Sequential
+# Module is a trait (not a struct) — can be imported but not instantiated directly
+from shared.core.module import Module
+# Sequential — only parametric variants exist (Sequential2, Sequential3, …); no
+# single-type Sequential class yet. NOT YET IMPLEMENTED.
 
-# Core tensors
-# from .core.tensors import Tensor, zeros, ones, randn
+# Core tensors — ExTensor is the canonical tensor type; Tensor is an alias
+from shared.core.extensor import ExTensor, zeros, ones, randn
 
-# Training optimizers (most commonly used)
-# from .training.optimizers import SGD, Adam, AdamW
+# Alias: Tensor = ExTensor for convenience
+comptime Tensor = ExTensor
 
-# Training schedulers (most commonly used)
-# from .training.schedulers import StepLR, CosineAnnealingLR
+# Training optimizers — only functional step-functions exist (sgd_step, adam_step, etc.);
+# no SGD/Adam/AdamW struct classes yet. NOT YET IMPLEMENTED.
+
+# Training schedulers — struct implementations confirmed in lr_schedulers.mojo
+from shared.training.schedulers.lr_schedulers import StepLR, CosineAnnealingLR
 
 # Training metrics (most commonly used) — Issue #3221
-# DISABLED: from shared.training.metrics import LossTracker, AccuracyMetric
+# NOTE(#3754, Mojo v0.26.1): Metrics are imported directly from shared.training.metrics
+# rather than from shared.training due to Mojo re-export chain limitation.
+# See shared/training/__init__.mojo for detailed explanation of this limitation.
+# Users should import metrics either as:
+#   from shared.training.metrics import LossTracker, AccuracyMetric
+# or:
+#   from shared import LossTracker, AccuracyMetric  # if this module re-exports them
+from shared.training.metrics import LossTracker, AccuracyMetric, ConfusionMatrix, CSVMetricsLogger
 
 # Expose plan-canonical alias: Accuracy = AccuracyMetric
-# DISABLED: comptime Accuracy = AccuracyMetric
+comptime Accuracy = AccuracyMetric
 
-# Training callbacks (most commonly used)
-# from .training.callbacks import EarlyStopping, ModelCheckpoint
+# Training callbacks — struct implementations confirmed in shared/training/callbacks.mojo
+from shared.training.callbacks import EarlyStopping, ModelCheckpoint
 
-# Data transforms (commonly used with datasets)
-from .data.transforms import Normalize, Compose
+# Training loops — train_epoch / validate_epoch not implemented; existing functions are
+# train_one_epoch (training_loop.mojo) and validate (validation_loop.mojo).
+# NOT YET IMPLEMENTED with documented API names.
 
-# Training loops
-# from .training.loops import train_epoch, validate_epoch
+# Data components — TensorDataset/ImageDataset/DataLoader structs not yet implemented
+# (only ExTensorDataset exists). NOT YET IMPLEMENTED.
 
-# Data components (most commonly used)
-# from .data.datasets import TensorDataset, ImageDataset
-# from .data.loaders import DataLoader
-# DISABLED: from .data.transforms import Normalize, Compose
-
-# Utils (most commonly used)
-# from .utils.logging import Logger
-# from .utils.visualization import plot_training_curves
+# Utils
+from shared.utils.logging import Logger
+from shared.utils.visualization import plot_training_curves
 
 # ============================================================================
 # Public API
@@ -111,16 +133,16 @@ from .data.transforms import Normalize, Compose
 # Core - Activations: relu, sigmoid, tanh, softmax
 # Core - Module system: Module, Sequential
 # Core - Tensors: Tensor, zeros, ones, randn
-# Training - Optimizers: SGD, Adam, AdamW
+# Training - Optimizers: SGD, Adam, AdamW (via autograd)
 # Training - Schedulers: StepLR, CosineAnnealingLR
-# Training - Metrics: Accuracy, LossTracker
+# Training - Metrics: Accuracy, LossTracker, ConfusionMatrix, CSVMetricsLogger
 # Training - Callbacks: EarlyStopping, ModelCheckpoint
 # Training - Loops: train_epoch, validate_epoch
 # Data - Datasets: TensorDataset, ImageDataset, DataLoader
-# Data - Transforms: Normalize, ToTensor, Compose
+# Data - Transforms: ToTensor, Normalize, Compose
 # Utils: Logger, plot_training_curves
 # Autograd: Automatic differentiation utilities (when available)
-# Testing: Test utilities and fixtures
+# Testing: Test utilities and fixtures, constants (GRADIENT_CHECK_EPSILON_FLOAT32)
 
 # ============================================================================
 # Convenience: Make subpackages accessible
@@ -128,7 +150,7 @@ from .data.transforms import Normalize, Compose
 # This allows users to do: from shared import core, training, data, utils
 # Then access via: shared.core.layers.Linear, shared.training.optimizers.SGD
 #
-# Mojo v0.26.1+ does not support __all__ module-level assignments (#3751, Mojo v0.26.1).
+# NOTE(#3751, Mojo v0.26.1): Mojo v0.26.1+ does not support __all__ module-level assignments.
 # In Mojo, all public symbols (those not prefixed with _) are automatically
 # exported when the module is imported. The public API documentation below
 # describes what should be exposed at this package level:
@@ -145,22 +167,37 @@ from .data.transforms import Normalize, Compose
 # imports will be enabled by un-commenting the import lines above.
 #
 # Public API Table (top-level exports at package level):
-# ┌─────────────────────────────────┬────────────────────────────────────────┐
-# │ Symbol                          │ Source                                 │
-# ├─────────────────────────────────┼────────────────────────────────────────┤
-# │ VERSION, AUTHOR, LICENSE        │ shared.version                         │
-# │ LossTracker, AccuracyMetric     │ shared.training.metrics                │
-# │ Accuracy                        │ comptime alias for AccuracyMetric      │
-# │ Normalize, Compose              │ shared.data.transforms                 │
-# │ core                            │ shared.core (subpackage)               │
-# │ training                        │ shared.training (subpackage)           │
-# │ data                            │ shared.data (subpackage)               │
-# │ utils                           │ shared.utils (subpackage)              │
-# │ autograd                        │ shared.autograd (subpackage)           │
-# │ testing                         │ shared.testing (subpackage)            │
-# └─────────────────────────────────┴────────────────────────────────────────┘
-# Note: Component-level imports (Linear, Conv2D, etc.) are pending full
-# layer implementation. See tests/shared/integration/test_packaging.mojo.
+# ┌──────────────────────────────────────────┬──────────────────────────────────────────┐
+# │ Symbol                                   │ Source                                   │
+# ├──────────────────────────────────────────┼──────────────────────────────────────────┤
+# │ VERSION, AUTHOR, LICENSE                 │ shared.version                           │
+# │ Linear                                   │ shared.core.layers.linear                │
+# │ Conv2dLayer, Conv2D                      │ shared.core.layers.conv2d (Conv2D alias) │
+# │ ReLULayer, ReLU                          │ shared.core.layers.relu (ReLU alias)     │
+# │ DropoutLayer, Dropout                    │ shared.core.layers.dropout (alias)       │
+# │ BatchNorm2dLayer, BatchNorm2d            │ shared.core.layers.batchnorm (alias)     │
+# │ relu, sigmoid, tanh, softmax             │ shared.core.activation                   │
+# │ Module                                   │ shared.core.module (trait)               │
+# │ ExTensor, Tensor                         │ shared.core.extensor (Tensor alias)      │
+# │ zeros, ones, randn                       │ shared.core.extensor                     │
+# │ StepLR, CosineAnnealingLR                │ shared.training.schedulers.lr_schedulers │
+# │ LossTracker, AccuracyMetric              │ shared.training.metrics                  │
+# │ ConfusionMatrix, CSVMetricsLogger        │ shared.training.metrics                  │
+# │ Accuracy                                 │ comptime alias for AccuracyMetric        │
+# │ EarlyStopping, ModelCheckpoint           │ shared.training.callbacks                │
+# │ Logger                                   │ shared.utils.logging                     │
+# │ plot_training_curves                     │ shared.utils.visualization               │
+# │ GRADIENT_CHECK_EPSILON_FLOAT32           │ shared.testing.tolerance_constants       │
+# │ core                                     │ shared.core (subpackage)                 │
+# │ training                                 │ shared.training (subpackage)             │
+# │ data                                     │ shared.data (subpackage)                 │
+# │ utils                                    │ shared.utils (subpackage)                │
+# │ autograd                                 │ shared.autograd (subpackage)             │
+# │ testing                                  │ shared.testing (subpackage)              │
+# └──────────────────────────────────────────┴──────────────────────────────────────────┘
+# Not yet activated (implementation pending):
+#   Sequential (only Sequential2/3/4/5 variants exist), SGD/Adam/AdamW (only step-fns),
+#   TensorDataset/ImageDataset/DataLoader, train_epoch/validate_epoch, MaxPool2D/Flatten
 #
 # Once implementations are available, users will be able to import:
 #   from shared import core, training, data, utils
@@ -169,10 +206,14 @@ from .data.transforms import Normalize, Compose
 # For implementation of component-level imports when core modules
 # are fully implemented, see test_packaging.mojo
 #
-# Subpackage re-exports removed to fix ExTensor circular type resolution.
-# The Mojo v0.26.1 package compiler does not deduplicate module identity
-# across subpackage compilation contexts. Importing both 'core' and 'autograd'
-# here causes extensor.mojo to be compiled twice with distinct type identities.
-# Consumers can still access subpackages via direct imports:
-#   from shared.core import ExTensor
-#   from shared.autograd import Variable, GradientTape
+from shared import core
+from shared import training
+from shared import data
+from shared import utils
+from shared import autograd
+from shared import testing
+
+# ============================================================================
+# Testing Constants - Available at package level
+# ============================================================================
+from shared.testing import GRADIENT_CHECK_EPSILON_FLOAT32
