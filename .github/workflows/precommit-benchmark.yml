@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+        uses: actions/checkout@v6
 
       - name: Set up Pixi
         uses: ./.github/actions/setup-pixi
@@ -36,7 +36,7 @@ jobs:
           pixi run pip install pre-commit
 
       - name: Cache pre-commit environments
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306  # v5
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pre-commit
           key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
@@ -74,3 +74,28 @@ jobs:
             --elapsed "${ELAPSED:-0}" \
             --files "${FILE_COUNT:-0}" \
             --status "${HOOK_STATUS:-unknown}"
+
+      - name: Save benchmark data as JSON artifact
+        if: always()
+        run: |
+          mkdir -p benchmark-results
+          cat > benchmark-results/precommit-benchmark.json << 'JSONEOF'
+          {
+            "workflow": "precommit-benchmark",
+            "run_id": "${{ github.run_id }}",
+            "timestamp": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')",
+            "elapsed_s": ${{ steps.time-hooks.outputs.elapsed || 0 }},
+            "file_count": ${{ steps.count-files.outputs.file_count || 0 }},
+            "hook_status": "${{ steps.time-hooks.outputs.status || 'unknown' }}",
+            "commit_sha": "${{ github.sha }}"
+          }
+          JSONEOF
+
+      - name: Upload benchmark results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: benchmark-results
+          path: benchmark-results/
+          retention-days: 365
+          compression-level: 9
