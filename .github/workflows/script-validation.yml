@@ -1,10 +1,11 @@
 name: Script Validation
 
 on:
-  # Run on pull requests when scripts change
+  # Run on pull requests when scripts or examples change
   pull_request:
     paths:
       - 'scripts/**/*.py'
+      - 'examples/**/*.mojo'
       - '.github/workflows/script-validation.yml'
 
   # Run on pushes to main
@@ -13,6 +14,7 @@ on:
       - main
     paths:
       - 'scripts/**/*.py'
+      - 'examples/**/*.mojo'
       - '.github/workflows/script-validation.yml'
 
   # Allow manual runs
@@ -241,6 +243,18 @@ jobs:
 
           echo "✅ Common issues check complete"
 
+      - name: Check for misleading runtime output patterns
+        run: |
+          echo "Checking for misleading runtime output patterns in examples/..."
+          python scripts/check_runtime_output_patterns.py examples/ || {
+            echo "❌ Misleading runtime output patterns found"
+            echo ""
+            echo "Remove WARNING:, HACK:, XXX:, or 'Not implemented' prefixes from print() calls."
+            echo "See issue #3704 for context."
+            exit 1
+          }
+          echo "✅ No misleading runtime output patterns found"
+
       - name: Summary
         if: always()
         run: |
@@ -258,6 +272,7 @@ jobs:
           echo "  ✓ Executable script testing"
           echo "  ✓ Shebang validation"
           echo "  ✓ Common issues check"
+          echo "  ✓ Misleading runtime output patterns check"
           echo ""
           echo "See job logs above for details"
           echo "================================"

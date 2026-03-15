@@ -50,6 +50,7 @@ scripts/
 ├── build_pr_comment.py                 # Build PR comment bodies from test results
 ├── check_coverage.py                   # Test coverage reporting
 ├── check_note_format.py                # Validate # NOTE comment format consistency
+├── check_runtime_output_patterns.py    # Audit for misleading print() patterns (WARNING:, HACK:, XXX:, Not implemented)
 ├── check_readmes.py                    # README completeness validation
 ├── check_test_count_badge.py           # Validate README test count badge accuracy
 ├── check_zero_warnings.sh              # Shell wrapper: fail on compiler warnings

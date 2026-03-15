@@ -299,7 +299,7 @@ fn compute_gradients(
         precision_config.step(grads_valid=True)
     else:
         # Gradient overflow detected: skip update and reduce scale
-        print("WARNING: Gradient overflow detected, skipping parameter update")
+        print("Gradient overflow detected, skipping parameter update")
         precision_config.step(grads_valid=False)
 
     return Tuple[Float32, Bool](loss, grads_valid)
