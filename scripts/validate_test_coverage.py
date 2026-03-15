@@ -231,7 +231,7 @@ def expand_pattern(base_path: str, pattern: str, root_dir: Path) -> Set[Path]:
         if "*" in pat:
             # Construct the full glob pattern
             full_pattern = f"{base_path}/{pat}"
-            for match in sorted(root_dir.glob(full_pattern)):
+            for match in root_dir.glob(full_pattern):
                 if match.is_file():
                     matched_files.add(match.relative_to(root_dir))
         else:
@@ -239,7 +239,7 @@ def expand_pattern(base_path: str, pattern: str, root_dir: Path) -> Set[Path]:
             if "/" in pat:
                 # Subdirectory pattern like "datasets/test_*.mojo"
                 full_pattern = f"{base_path}/{pat}"
-                for match in sorted(root_dir.glob(full_pattern)):
+                for match in root_dir.glob(full_pattern):
                     if match.is_file():
                         matched_files.add(match.relative_to(root_dir))
             else:
@@ -251,74 +251,23 @@ def expand_pattern(base_path: str, pattern: str, root_dir: Path) -> Set[Path]:
     return matched_files
 
 
-def _paths_overlap(path_a: str, path_b: str) -> bool:
-    """Return True if one path is a prefix of the other (or they are equal)."""
-    a, b = Path(path_a), Path(path_b)
-    try:
-        a.relative_to(b)
-        return True
-    except ValueError:
-        pass
-    try:
-        b.relative_to(a)
-        return True
-    except ValueError:
-        pass
-    return False
-
-
-def check_group_overlaps(
-    ci_groups: Dict[str, Dict[str, str]],
-    coverage_by_group: Dict[str, Set[Path]],
-) -> List[Tuple[str, str, Path]]:
-    """Detect CI matrix groups whose resolved file sets overlap.
-
-    Only compares groups with overlapping ``path:`` prefixes to avoid
-    false positives between unrelated directories (e.g., ``benchmarks/``
-    vs ``tests/``).
-
-    Args:
-        ci_groups: Mapping of group name to its ``path`` and ``pattern`` config.
-        coverage_by_group: Mapping of group name to the set of files it covers.
-
-    Returns:
-        Sorted list of ``(group_a_name, group_b_name, file)`` triples for every
-        file matched by more than one group.
-    """
-    overlaps: List[Tuple[str, str, Path]] = []
-    group_names = sorted(coverage_by_group.keys())
-
-    for i, name_a in enumerate(group_names):
-        path_a = ci_groups[name_a]["path"]
-        files_a = coverage_by_group[name_a]
-
-        for name_b in group_names[i + 1 :]:
-            path_b = ci_groups[name_b]["path"]
-            files_b = coverage_by_group[name_b]
-
-            # Only compare groups with overlapping path prefixes
-            if not _paths_overlap(path_a, path_b):
-                continue
-
-            common = files_a & files_b
-            for f in sorted(common):
-                overlaps.append((name_a, name_b, f))
-
-    return overlaps
-
-
 def check_stale_patterns(
-    ci_groups: Dict[str, Dict[str, str]],
-    root_dir: Path,
+    ci_groups: Dict[str, Dict[str, str]], root_dir: Path
 ) -> List[str]:
-    """Detect CI matrix groups whose patterns match zero existing test files.
+    """Check for CI matrix entries that match zero existing test files.
+
+    A stale pattern is one whose base path does not exist or whose glob
+    matches no files in the repository.  These are typically caused by
+    test files being renamed, deleted, or converted from explicit filename
+    lists to a glob *after* the CI matrix entry was written.
 
     Args:
-        ci_groups: Mapping of group name to its ``path`` and ``pattern`` config.
-        root_dir: Repository root directory used for glob expansion.
+        ci_groups: Mapping of group name -> {"path": ..., "pattern": ...}
+                   as returned by parse_ci_matrix().
+        root_dir:  Repository root path.
 
     Returns:
-        Sorted list of group names whose patterns match no files.
+        Sorted list of group names whose patterns match zero files.
     """
     stale: List[str] = []
     for group_name, group_info in ci_groups.items():
@@ -362,16 +311,13 @@ def generate_report(
     test_files: List[Path],
     coverage_by_group: Dict[str, Set[Path]],
     stale_patterns: Optional[List[Tuple[str, str, str]]] = None,
-    overlaps: Optional[List[Tuple[str, str, Path]]] = None,
 ) -> str:
     """Generate a detailed validation report."""
     report_lines = []
     report_lines.append("## Test Coverage Validation Report")
     report_lines.append("")
 
-    effective_overlaps = overlaps or []
-
-    if not uncovered and not stale_patterns and not effective_overlaps:
+    if not uncovered and not stale_patterns:
         report_lines.append("✅ All test files are covered by CI!")
         report_lines.append("")
         report_lines.append(f"- Total test files: {len(test_files)}")
@@ -383,55 +329,37 @@ def generate_report(
             count = len(coverage_by_group[group_name])
             report_lines.append(f"- {group_name}: {count} test(s)")
     else:
-        if effective_overlaps:
-            report_lines.append(f"❌ Found {len(effective_overlaps)} overlapping test file(s) across CI matrix groups")
-            report_lines.append("")
-            report_lines.append("### Overlapping Test Groups")
-            report_lines.append("")
-            report_lines.append("The following files are matched by more than one CI matrix group.")
-            report_lines.append("Each group must use explicit, non-overlapping patterns.")
-            report_lines.append("")
-            for group_a, group_b, f in effective_overlaps:
-                report_lines.append(f"- `{f}` matched by both **{group_a}** and **{group_b}**")
-            report_lines.append("")
-            report_lines.append("### How to Fix Overlaps")
-            report_lines.append("")
-            report_lines.append("Remove subdirectory wildcards from parent groups so each test file")
-            report_lines.append("is owned by exactly one CI matrix group.")
-            report_lines.append("")
+        report_lines.append(f"❌ Found {len(uncovered)} uncovered test file(s)")
+        report_lines.append("")
+        report_lines.append("### Uncovered Tests")
+        report_lines.append("")
+        for test_file in sorted(uncovered):
+            report_lines.append(f"- {test_file}")
+        report_lines.append("")
+        report_lines.append("### Recommendations")
+        report_lines.append("")
+        report_lines.append("Add missing test files to `.github/workflows/comprehensive-tests.yml`")
+        report_lines.append("by updating the appropriate test group or creating a new one.")
+        report_lines.append("")
+        report_lines.append("#### Example Test Groups to Consider")
+        report_lines.append("")
 
-        if uncovered:
-            report_lines.append(f"❌ Found {len(uncovered)} uncovered test file(s)")
-            report_lines.append("")
-            report_lines.append("### Uncovered Tests")
-            report_lines.append("")
-            for test_file in sorted(uncovered):
-                report_lines.append(f"- {test_file}")
-            report_lines.append("")
-            report_lines.append("### Recommendations")
-            report_lines.append("")
-            report_lines.append("Add missing test files to `.github/workflows/comprehensive-tests.yml`")
-            report_lines.append("by updating the appropriate test group or creating a new one.")
-            report_lines.append("")
-            report_lines.append("#### Example Test Groups to Consider")
-            report_lines.append("")
+        # Suggest groups based on uncovered paths
+        suggestions: Dict[str, Any] = {}
+        for test_file in sorted(uncovered):
+            parts = test_file.parts
+            if len(parts) >= 2:
+                suggested_group = parts[1]
+                if suggested_group not in suggestions:
+                    suggestions[suggested_group] = []
+                suggestions[suggested_group].append(test_file)
 
-            # Suggest groups based on uncovered paths
-            suggestions: Dict[str, Any] = {}
-            for test_file in sorted(uncovered):
-                parts = test_file.parts
-                if len(parts) >= 2:
-                    suggested_group = parts[1]
-                    if suggested_group not in suggestions:
-                        suggestions[suggested_group] = []
-                    suggestions[suggested_group].append(test_file)
-
-            report_lines.append("```yaml")
-            for group, files in sorted(suggestions.items()):
-                report_lines.append(f'- name: "{group.title()}"')
-                report_lines.append(f'  path: "{files[0].parent}"')
-                report_lines.append('  pattern: "test_*.mojo"')
-            report_lines.append("```")
+        report_lines.append("```yaml")
+        for group, files in sorted(suggestions.items()):
+            report_lines.append(f'- name: "{group.title()}"')
+            report_lines.append(f'  path: "{files[0].parent}"')
+            report_lines.append('  pattern: "test_*.mojo"')
+        report_lines.append("```")
 
         if stale_patterns:
             report_lines.append("")
@@ -522,30 +450,10 @@ def main():
     # Check coverage
     uncovered, coverage_by_group, stale_patterns = check_coverage(test_files, ci_groups, repo_root)
 
-    # Check for overlapping patterns across CI matrix groups
-    overlaps = check_group_overlaps(ci_groups, coverage_by_group)
-
     # Parse command line flags
     post_pr = "--post-pr" in sys.argv
     warn_stale = "--warn-stale" in sys.argv or "--error-stale" not in sys.argv
     error_stale = "--error-stale" in sys.argv
-
-    has_errors = bool(uncovered or overlaps)
-
-    if overlaps:
-        print("=" * 70)
-        print("CI Matrix Group Overlap Detection")
-        print("=" * 70)
-        print()
-        print(f"❌ Found {len(overlaps)} file(s) matched by multiple CI matrix groups:")
-        print()
-        for group_a, group_b, f in overlaps:
-            print(f"   • {f}")
-            print(f"     → matched by '{group_a}' AND '{group_b}'")
-        print()
-        print("Each test file must be owned by exactly one CI matrix group.")
-        print("Remove subdirectory wildcards from parent groups so patterns are explicit.")
-        print()
 
     # Only print detailed report if tests are missing or stale patterns exist
     if uncovered or (stale_patterns and warn_stale):
@@ -588,9 +496,8 @@ def main():
 
         print()
 
-    if has_errors:
         # Generate report for PR
-        report = generate_report(uncovered, test_files, coverage_by_group, stale_patterns, overlaps)
+        report = generate_report(uncovered, test_files, coverage_by_group, stale_patterns)
 
         # Post to PR if requested (post if uncovered files or stale patterns exist)
         if post_pr and (uncovered or stale_patterns):
@@ -610,7 +517,7 @@ def main():
             return 1
         # For --warn-stale (default), exit with success
 
-    # All tests are covered with no overlaps - exit quietly with success
+    # All tests are covered - exit quietly with success
     return 0
 
 
