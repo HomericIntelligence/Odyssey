@@ -63,14 +63,16 @@ fn conv_block(
     """Apply a VGG conv block: sequential conv layers with ReLU.
 
     Args:
-        input_tensor: Input tensor.
-        out_channels: Output channels for conv layers.
-        num_convs: Number of consecutive conv layers to apply.
+        input_tensor: Input tensor
+        out_channels: Output channels for conv layers
+        num_convs: Number of consecutive conv layers to apply
 
     Returns:
-        Output tensor after all convolutions and ReLU activations.
+        Output tensor after all convolutions and ReLU activations
     """
     var in_channels = input_tensor.shape()[1]
+    var height = input_tensor.shape()[2]
+    var width = input_tensor.shape()[3]
     var result = input_tensor
 
     for _ in range(num_convs):
@@ -105,10 +107,10 @@ fn vgg16_forward(
     """Forward pass through VGG-16 model.
 
     Args:
-        input_tensor: Input batch (batch, 3, 32, 32).
+        input_tensor: Input batch (batch, 3, 32, 32)
 
     Returns:
-        Logits for 10 classes (batch, 10).
+        Logits for 10 classes (batch, 10)
     """
     var x = input_tensor
 
@@ -254,9 +256,10 @@ fn test_vgg16_e2e_forward_varying_values() raises:
     var input = zeros(input_shape, DType.float32)
 
     # Fill with mixed values (simulating normalized pixel values)
+    var input_data = input._data.bitcast[Float32]()
     for i in range(batch_size * 3 * 32 * 32):
         # Normalize to [0, 1] range roughly
-        input[i] = Float32((i % 256)) / 256.0
+        input_data[i] = Float32((i % 256)) / 256.0
 
     # Forward pass
     var output = vgg16_forward(input)
@@ -297,15 +300,18 @@ fn test_vgg16_e2e_forward_backward() raises:
     var target_shape = List[Int]()
     target_shape.append(batch_size)
     var target = zeros(target_shape, DType.float32)
-    target[0] = Float32(0.0)
-    target[1] = Float32(1.0)
+    var target_data = target._data.bitcast[Float32]()
+    target_data[0] = 0.0
+    target_data[1] = 1.0
 
     # Forward pass
     var logits = vgg16_forward(input)
 
     # Loss computation (simplified cross-entropy approximation)
     # Using MSE as proxy since cross_entropy_loss may not be available
-    # Verify logits have valid shape
+    var loss = logits  # Placeholder for loss computation
+
+    # Verify loss has valid shape
     assert_equal(logits.shape()[0], batch_size)
     assert_equal(logits.shape()[1], 10)
 

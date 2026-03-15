@@ -45,7 +45,7 @@ from shared.core.linear import linear, linear_backward
 from shared.core.activation import relu, relu_backward
 from shared.core.pooling import maxpool2d, maxpool2d_backward
 from shared.core.loss import cross_entropy
-from shared.core.reduction import mean
+from shared.core import mean
 
 
 # ============================================================================
@@ -61,14 +61,16 @@ fn conv_block(
     """Apply a VGG conv block: sequential conv layers with ReLU.
 
     Args:
-        input_tensor: Input tensor.
-        out_channels: Output channels for conv layers.
-        num_convs: Number of consecutive conv layers to apply.
+        input_tensor: Input tensor
+        out_channels: Output channels for conv layers
+        num_convs: Number of consecutive conv layers to apply
 
     Returns:
-        Output tensor after all convolutions and ReLU activations.
+        Output tensor after all convolutions and ReLU activations
     """
     var in_channels = input_tensor.shape()[1]
+    var height = input_tensor.shape()[2]
+    var width = input_tensor.shape()[3]
     var result = input_tensor
 
     for _ in range(num_convs):
@@ -103,10 +105,10 @@ fn vgg16_forward(
     """Forward pass through VGG-16 model.
 
     Args:
-        input_tensor: Input batch (batch, 3, 32, 32).
+        input_tensor: Input batch (batch, 3, 32, 32)
 
     Returns:
-        Logits for 10 classes (batch, 10).
+        Logits for 10 classes (batch, 10)
     """
     var x = input_tensor
 
@@ -212,8 +214,9 @@ fn test_vgg16_e2e_gradient_flow() raises:
 
     # Gradient values should be non-trivial
     var grad_output_sum = Float32(0.0)
+    var grad_output_data = grad_output._data.bitcast[Float32]()
     for i in range(batch_size * 10):
-        grad_output_sum += grad_output[i]
+        grad_output_sum += grad_output_data[i]
 
     # Verify gradients are meaningful (not zero)
     assert_greater(grad_output_sum, Float32(0.0))
@@ -227,9 +230,8 @@ fn test_vgg16_e2e_gradient_flow() raises:
 fn test_vgg16_e2e_output_range() raises:
     """Test VGG-16 produces outputs in reasonable range.
 
-    Note: With all-ones weights, values grow exponentially through 13 conv
-    layers. We check that outputs are not NaN. Large finite values are
-    expected with non-trained weights.
+    For logits, values should not be extreme (not NaN/inf).
+    Typical range: (-100, 100) for cross-entropy loss computation.
     """
     var batch_size = 2
 
@@ -244,10 +246,15 @@ fn test_vgg16_e2e_output_range() raises:
     # Forward pass
     var output = vgg16_forward(input)
 
-    # Check output shape and that values are not NaN
-    var output_shape = output.shape()
-    assert_equal(output_shape[0], batch_size)
-    assert_equal(output_shape[1], 10)
+    # Check all output values are finite and in reasonable range
+    var output_data = output._data.bitcast[Float32]()
+    for i in range(batch_size * 10):
+        var val = output_data[i]
+        # Check not NaN (NaN != NaN)
+        assert_true(val == val)
+        # Check not too extreme
+        assert_less(val, Float32(1e6))
+        assert_greater(val, Float32(-1e6))
 
 
 # ============================================================================
@@ -311,18 +318,17 @@ fn test_vgg16_e2e_no_nans() raises:
     var output = vgg16_forward(input)
 
     # Check no NaNs
+    var output_data = output._data.bitcast[Float32]()
     for i in range(batch_size * 10):
-        var val = output[i]
+        var val = output_data[i]
         # NaN != NaN check
         assert_true(val == val)
 
 
 fn test_vgg16_e2e_no_infs() raises:
-    """Test VGG-16 forward pass completes with varied input.
+    """Test VGG-16 forward pass doesn't produce Infs.
 
-    Note: With all-ones weights, values grow exponentially through 13 conv
-    layers regardless of input scaling. We verify the forward pass
-    completes and produces the correct output shape.
+    Prevents overflow from deep network.
     """
     var batch_size = 2
 
@@ -335,16 +341,20 @@ fn test_vgg16_e2e_no_infs() raises:
     var input = zeros(input_shape, DType.float32)
 
     # Fill with normalized values [0, 1]
+    var input_data = input._data.bitcast[Float32]()
     for i in range(batch_size * 3 * 32 * 32):
-        input[i] = Float32(0.5)
+        input_data[i] = Float32(0.5)
 
     # Forward pass
     var output = vgg16_forward(input)
 
-    # Verify output shape
-    var output_shape = output.shape()
-    assert_equal(output_shape[0], batch_size)
-    assert_equal(output_shape[1], 10)
+    # Check no infinities
+    var output_data = output._data.bitcast[Float32]()
+    for i in range(batch_size * 10):
+        var val = output_data[i]
+        # Check finite
+        assert_less(val, Float32(1e10))
+        assert_greater(val, Float32(-1e10))
 
 
 fn main() raises:

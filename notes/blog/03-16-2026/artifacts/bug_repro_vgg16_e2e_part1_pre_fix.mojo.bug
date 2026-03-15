@@ -1,7 +1,11 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_vgg16_e2e.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
+<<<<<<<< HEAD:notes/blog/03-16-2026/artifacts/bug_repro_vgg16_e2e_part1_pre_fix.mojo.bug
 """End-to-end tests for VGG-16 model on CIFAR-10 (Part 1 of 2).
+========
+"""End-to-end tests for VGG-16 model on CIFAR-10 (Part 2 of 2).
+>>>>>>>> 94996312 (fix(tests): split test_vgg16_e2e.mojo to avoid JIT heap corruption):tests/models/test_vgg16_e2e_part2.mojo
 
 VGG-16 Architecture:
 - Input: (batch, 3, 32, 32) CIFAR-10 images
@@ -17,6 +21,7 @@ VGG-16 Architecture:
   * FC 256 -> 256 + ReLU
   * FC 256 -> 10 (CIFAR-10 classes)
 
+<<<<<<<< HEAD:notes/blog/03-16-2026/artifacts/bug_repro_vgg16_e2e_part1_pre_fix.mojo.bug
 Part 1 Tests (forward pass and training):
 - Forward pass with realistic input shapes
 - Output shape verification (batch, 10)
@@ -27,6 +32,16 @@ Part 1 Tests (forward pass and training):
 
 See test_vgg16_e2e_part2.mojo for gradient flow, output range, shape
 progression, and numerical stability tests.
+========
+Part 2 Tests (gradient flow, output analysis, numerical stability):
+- Gradient flow through full model
+- Output range verification
+- Shape progression through blocks
+- NaN detection
+- Inf detection
+
+See test_vgg16_e2e_part1.mojo for forward pass and training tests.
+>>>>>>>> 94996312 (fix(tests): split test_vgg16_e2e.mojo to avoid JIT heap corruption):tests/models/test_vgg16_e2e_part2.mojo
 
 All tests use CIFAR-10 compatible shapes: (batch, 3, 32, 32)
 Batch sizes: 4 (inference) and 2 (training, small for speed)
@@ -181,6 +196,7 @@ fn vgg16_forward(
 
 
 # ============================================================================
+<<<<<<<< HEAD:notes/blog/03-16-2026/artifacts/bug_repro_vgg16_e2e_part1_pre_fix.mojo.bug
 # E2E Forward Pass Tests
 # ============================================================================
 
@@ -283,6 +299,22 @@ fn test_vgg16_e2e_forward_backward() raises:
 
     Note: Full parameter gradient computation is complex. This test
     validates that backward pass completes without error.
+========
+# Gradient Flow Tests
+# ============================================================================
+
+
+fn test_vgg16_e2e_gradient_flow() raises:
+    """Test that gradients can flow through VGG-16.
+
+    This is a simplified test checking:
+    - Forward pass completes
+    - Output is differentiable (not constant)
+    - Loss computation possible
+
+    Full gradient computation is complex and tested in
+    test_vgg16_layers.mojo in detail.
+>>>>>>>> 94996312 (fix(tests): split test_vgg16_e2e.mojo to avoid JIT heap corruption):tests/models/test_vgg16_e2e_part2.mojo
     """
     var batch_size = 2
 
@@ -294,6 +326,7 @@ fn test_vgg16_e2e_forward_backward() raises:
     input_shape.append(32)
     var input = ones(input_shape, DType.float32)
 
+<<<<<<<< HEAD:notes/blog/03-16-2026/artifacts/bug_repro_vgg16_e2e_part1_pre_fix.mojo.bug
     # Create target labels (0-9 for CIFAR-10)
     var target_shape = List[Int]()
     target_shape.append(batch_size)
@@ -356,3 +389,174 @@ fn main() raises:
     test_vgg16_e2e_inference_mode()
     print(" OK")
     print("All VGG16 E2E Tests (Part 1) passed!")
+========
+    # Forward pass
+    var output = vgg16_forward(input)
+
+    # Create gradient w.r.t. output (uniform gradients for simplicity)
+    var grad_output = ones(output.shape(), DType.float32)
+
+    # Gradient values should be non-trivial
+    var grad_output_sum = Float32(0.0)
+    var grad_output_data = grad_output._data.bitcast[Float32]()
+    for i in range(batch_size * 10):
+        grad_output_sum += grad_output_data[i]
+
+    # Verify gradients are meaningful (not zero)
+    assert_greater(grad_output_sum, Float32(0.0))
+
+
+# ============================================================================
+# Output Distribution Tests
+# ============================================================================
+
+
+fn test_vgg16_e2e_output_range() raises:
+    """Test VGG-16 produces outputs in reasonable range.
+
+    For logits, values should not be extreme (not NaN/inf).
+    Typical range: (-100, 100) for cross-entropy loss computation.
+    """
+    var batch_size = 2
+
+    # Create input
+    var input_shape = List[Int]()
+    input_shape.append(batch_size)
+    input_shape.append(3)
+    input_shape.append(32)
+    input_shape.append(32)
+    var input = ones(input_shape, DType.float32)
+
+    # Forward pass
+    var output = vgg16_forward(input)
+
+    # Check all output values are finite and in reasonable range
+    var output_data = output._data.bitcast[Float32]()
+    for i in range(batch_size * 10):
+        var val = output_data[i]
+        # Check not NaN (NaN != NaN)
+        assert_true(val == val)
+        # Check not too extreme
+        assert_less(val, Float32(1e6))
+        assert_greater(val, Float32(-1e6))
+
+
+# ============================================================================
+# E2E Shape Propagation Tests
+# ============================================================================
+
+
+fn test_vgg16_e2e_shape_progression() raises:
+    """Test shape changes through VGG-16 blocks.
+
+    Tracks shape transformations:
+    Input (b, 3, 32, 32)
+    -> Block1 (b, 64, 32, 32) -> Pool (b, 64, 16, 16)
+    -> Block2 (b, 128, 16, 16) -> Pool (b, 128, 8, 8)
+    -> Block3 (b, 256, 8, 8) -> Pool (b, 256, 4, 4)
+    -> Block4 (b, 512, 4, 4) -> Pool (b, 512, 2, 2)
+    -> Block5 (b, 512, 2, 2) -> Pool (b, 512, 1, 1)
+    -> FC layers
+    -> Output (b, 10)
+    """
+    var batch_size = 2
+
+    # Create input: (2, 3, 32, 32)
+    var input_shape = List[Int]()
+    input_shape.append(batch_size)
+    input_shape.append(3)
+    input_shape.append(32)
+    input_shape.append(32)
+    var input = ones(input_shape, DType.float32)
+
+    # Test full forward pass
+    var output = vgg16_forward(input)
+
+    # Verify final shape
+    var final_shape = output.shape()
+    assert_equal(final_shape[0], batch_size)
+    assert_equal(final_shape[1], 10)
+
+
+# ============================================================================
+# Numerical Stability Tests
+# ============================================================================
+
+
+fn test_vgg16_e2e_no_nans() raises:
+    """Test VGG-16 forward pass doesn't produce NaNs.
+
+    This is a critical smoke test for numerical stability.
+    """
+    var batch_size = 2
+
+    # Create input
+    var input_shape = List[Int]()
+    input_shape.append(batch_size)
+    input_shape.append(3)
+    input_shape.append(32)
+    input_shape.append(32)
+    var input = ones(input_shape, DType.float32)
+
+    # Forward pass
+    var output = vgg16_forward(input)
+
+    # Check no NaNs
+    var output_data = output._data.bitcast[Float32]()
+    for i in range(batch_size * 10):
+        var val = output_data[i]
+        # NaN != NaN check
+        assert_true(val == val)
+
+
+fn test_vgg16_e2e_no_infs() raises:
+    """Test VGG-16 forward pass doesn't produce Infs.
+
+    Prevents overflow from deep network.
+    """
+    var batch_size = 2
+
+    # Create input with normalized values
+    var input_shape = List[Int]()
+    input_shape.append(batch_size)
+    input_shape.append(3)
+    input_shape.append(32)
+    input_shape.append(32)
+    var input = zeros(input_shape, DType.float32)
+
+    # Fill with normalized values [0, 1]
+    var input_data = input._data.bitcast[Float32]()
+    for i in range(batch_size * 3 * 32 * 32):
+        input_data[i] = Float32(0.5)
+
+    # Forward pass
+    var output = vgg16_forward(input)
+
+    # Check no infinities
+    var output_data = output._data.bitcast[Float32]()
+    for i in range(batch_size * 10):
+        var val = output_data[i]
+        # Check finite
+        assert_less(val, Float32(1e10))
+        assert_greater(val, Float32(-1e10))
+
+
+fn main() raises:
+    print("Starting VGG16 E2E Tests (Part 2)...")
+    print("  test_vgg16_e2e_gradient_flow...", end="")
+    test_vgg16_e2e_gradient_flow()
+    print(" OK")
+    print("  test_vgg16_e2e_output_range...", end="")
+    test_vgg16_e2e_output_range()
+    print(" OK")
+    print("  test_vgg16_e2e_shape_progression...", end="")
+    test_vgg16_e2e_shape_progression()
+    print(" OK")
+    print("  test_vgg16_e2e_no_nans...", end="")
+    test_vgg16_e2e_no_nans()
+    print(" OK")
+    print("  test_vgg16_e2e_no_infs...", end="")
+    test_vgg16_e2e_no_infs()
+    print(" OK")
+    print("All VGG16 E2E Tests (Part 2) passed!")
+>>>>>>>> 94996312 (fix(tests): split test_vgg16_e2e.mojo to avoid JIT heap corruption):tests/models/test_vgg16_e2e_part2.mojo
