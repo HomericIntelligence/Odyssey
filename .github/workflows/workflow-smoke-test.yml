@@ -18,6 +18,12 @@ on:
       - '.github/workflows/comprehensive-tests.yml'
       - '.github/workflows/validate-configs.yml'
       - 'tests/smoke/test_security_workflow_properties.py'
+      - '.github/workflows/pre-commit.yml'
+      - 'tests/smoke/test_pre_commit_workflow_properties.py'
+      - '.github/workflows/comprehensive-tests.yml'
+      - 'tests/smoke/test_comprehensive_tests_workflow_properties.py'
+      - '.github/workflows/validate-configs.yml'
+      - 'tests/smoke/test_validate_configs_workflow_properties.py'
   workflow_dispatch:
 
 permissions:
@@ -89,3 +95,73 @@ jobs:
 
       - name: Run security workflow smoke tests
         run: pixi run python -m pytest tests/smoke/test_security_workflow_properties.py -v
+
+  smoke-test-other-workflows:
+    name: Other Workflow Property Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+
+      # Fast-fail grep checks before any heavy setup
+      - name: Check pre-commit pull_request trigger present
+        run: |
+          if ! grep -qP '^\s+pull_request\b' .github/workflows/pre-commit.yml; then
+            echo "ERROR: pre-commit.yml is missing pull_request trigger"
+            exit 1
+          fi
+          echo "OK: pull_request trigger present in pre-commit.yml"
+
+      - name: Check pre-commit mojo-format is advisory
+        run: |
+          if ! grep -A5 'Run mojo format' .github/workflows/pre-commit.yml | grep -q 'continue-on-error: true'; then
+            echo "ERROR: mojo-format step in pre-commit.yml is missing continue-on-error: true"
+            exit 1
+          fi
+          echo "OK: mojo-format step has continue-on-error: true"
+
+      - name: Check comprehensive-tests pull_request trigger present
+        run: |
+          if ! grep -qP '^\s+pull_request\b' .github/workflows/comprehensive-tests.yml; then
+            echo "ERROR: comprehensive-tests.yml is missing pull_request trigger"
+            exit 1
+          fi
+          echo "OK: pull_request trigger present in comprehensive-tests.yml"
+
+      - name: Check comprehensive-tests fail-fast is false
+        run: |
+          if ! grep -q 'fail-fast: false' .github/workflows/comprehensive-tests.yml; then
+            echo "ERROR: comprehensive-tests.yml is missing fail-fast: false"
+            exit 1
+          fi
+          echo "OK: fail-fast: false present in comprehensive-tests.yml"
+
+      - name: Check validate-configs pull_request trigger present
+        run: |
+          if ! grep -qP '^\s+pull_request\b' .github/workflows/validate-configs.yml; then
+            echo "ERROR: validate-configs.yml is missing pull_request trigger"
+            exit 1
+          fi
+          echo "OK: pull_request trigger present in validate-configs.yml"
+
+      - name: Check validate-configs uses yamllint
+        run: |
+          if ! grep -q 'yamllint' .github/workflows/validate-configs.yml; then
+            echo "ERROR: validate-configs.yml does not use yamllint"
+            exit 1
+          fi
+          echo "OK: yamllint present in validate-configs.yml"
+
+      # Full pytest run for comprehensive assertions
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Run other workflow smoke tests
+        run: |
+          pixi run python -m pytest \
+            tests/smoke/test_pre_commit_workflow_properties.py \
+            tests/smoke/test_comprehensive_tests_workflow_properties.py \
+            tests/smoke/test_validate_configs_workflow_properties.py \
+            -v
