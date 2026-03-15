@@ -13,9 +13,39 @@ Fixtures:
 - expected_template_structure: Expected template directory layout
 """
 
+import re
+
 import pytest
 from pathlib import Path
 from typing import Dict, List
+
+
+def assert_pkg_absent(dockerfile: Path, pkg: str) -> None:
+    """Assert that a package does not appear as an apt-get dependency or standalone install.
+
+    Checks two patterns:
+    - ``apt-get install ... <pkg>`` (package listed as an apt dependency)
+    - ``<pkg> install`` (package used as its own installer, e.g. ``cargo install``)
+
+    Args:
+        dockerfile: Path to the Dockerfile to inspect.
+        pkg: Package name to assert is absent (e.g. ``"cargo"``, ``"rustc"``).
+
+    Raises:
+        AssertionError: If either forbidden pattern is found, with a message
+            identifying the matched line and the Dockerfile name.
+    """
+    content = dockerfile.read_text()
+
+    apt_match = re.search(rf"apt-get install[^\n]*\b{re.escape(pkg)}\b", content)
+    assert apt_match is None, (
+        f"Found {pkg!r} in apt-get install in {dockerfile.name}: {apt_match.group()!r}"
+    )
+
+    install_match = re.search(rf"\b{re.escape(pkg)}\s+install\b", content)
+    assert install_match is None, (
+        f"Found '{pkg} install' in {dockerfile.name}: {install_match.group()!r}"
+    )
 
 
 @pytest.fixture
