@@ -58,6 +58,7 @@ comptime EXTENSOR_PRINT_SHOW_ELEMENTS: Int = 3  # Show first/last N elements
 
 
 struct ExTensor(
+    Boolable,
     Copyable,
     Hashable,
     ImplicitlyCopyable,
@@ -3178,11 +3179,40 @@ struct ExTensor(
             return 0
         return self._shape[0]
 
-    fn __bool__(self) raises -> Bool:
-        """Return the boolean value of a single-element tensor.
+    fn __bool__(self) -> Bool:
+        """Return the boolean value of a tensor (Boolable trait conformance).
 
-        Follows PyTorch/NumPy convention: a single-element tensor can be
-        used in boolean context. Returns True if the value is non-zero.
+        Follows NumPy behavior: returns False for multi-element tensors,
+        and the actual boolean value for single-element tensors. This
+        non-raising signature is required for Boolable trait conformance,
+        enabling `Bool(t)` syntax and use in boolean contexts.
+
+        For strict PyTorch-style behavior that raises on multi-element
+        tensors, use `bool_strict()` instead.
+
+        Returns:
+            True if the single element is non-zero, False for zero or
+            multi-element tensors.
+
+        Example:
+            ```mojo
+            var x = full([], 5.0, DType.float32)
+            if x:  # True
+                print("non-zero")
+            var multi = ones([3], DType.float32)
+            print(Bool(multi))  # False (NumPy behavior)
+            ```
+        """
+        if self._numel != 1:
+            return False
+        return self._get_float64(0) != 0.0
+
+    fn bool_strict(self) raises -> Bool:
+        """Return the boolean value of a single-element tensor (strict variant).
+
+        Follows PyTorch convention: raises for multi-element tensors.
+        Use this when you want an error for accidental multi-element
+        boolean conversion, rather than the NumPy-style silent False.
 
         Returns:
             True if the single element is non-zero, False otherwise.
@@ -3193,8 +3223,9 @@ struct ExTensor(
         Example:
             ```mojo
             var x = full([], 5.0, DType.float32)
-            if x:  # True
-                print("non-zero")
+            print(x.bool_strict())  # True
+            var multi = ones([3], DType.float32)
+            _ = multi.bool_strict()  # raises Error
             ```
         """
         return self.item() != 0.0

@@ -594,14 +594,14 @@ fn test_bool_single_element() raises:
 
 
 fn test_bool_requires_single_element() raises:
-    """Test that __bool__ raises for multi-element tensor."""
+    """Test that bool_strict() raises for multi-element tensor."""
     var shape = List[Int]()
     shape.append(5)
     var t = ones(shape, DType.float32)
 
     var error_raised = False
     try:
-        var val = t.__bool__()  # Should raise error for multi-element tensor
+        var val = t.bool_strict()  # Should raise error for multi-element tensor
         _ = val  # Suppress unused warning
     except e:
         error_raised = True
@@ -616,7 +616,24 @@ fn test_bool_requires_single_element() raises:
             )
 
     if not error_raised:
-        raise Error("__bool__ on multi-element tensor should raise error")
+        raise Error("bool_strict() on multi-element tensor should raise error")
+
+
+fn test_bool_multi_element_non_raising() raises:
+    """Test that __bool__ returns False (not raises) for multi-element tensor."""
+    var shape = List[Int]()
+    shape.append(5)
+    var t = ones(shape, DType.float32)
+
+    # __bool__ must not raise — Boolable conformance requires non-raising
+    var result = Bool(t)
+    if result:
+        raise Error("Bool(multi-element tensor) should return False")
+
+    # Also verify zero multi-element tensor
+    var t_zero = zeros(shape, DType.float32)
+    if Bool(t_zero):
+        raise Error("Bool(zero multi-element tensor) should return False")
 
 
 # ============================================================================
@@ -913,6 +930,7 @@ fn main() raises:
     print("  Testing __bool__...")
     test_bool_single_element()
     test_bool_requires_single_element()
+    test_bool_multi_element_non_raising()
 
     # Type conversions
     print("  Testing type conversions...")
