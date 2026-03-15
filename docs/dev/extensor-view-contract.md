@@ -26,33 +26,81 @@ A tensor is an **independent copy** when:
 - It has its own data buffer
 - Modifying elements does not affect the original
 
+## Refcount Mechanics
+
+`ExTensor` uses a heap-allocated `Int` as a shared reference counter
+(`_refcount: UnsafePointer[Int]`). Every constructor initialises the counter to 1.
+The two key lifecycle methods are:
+
+**`__copyinit__`** (copy constructor):
+
+- Copies the raw data pointer — no buffer allocation.
+- Copies the `_refcount` pointer — both tensors now point to the same counter.
+- Increments `_refcount[]` by 1.
+- This applies whether the source is a view (`_is_view = True`) or not.
+
+**`__del__`** (destructor):
+
+- Decrements `_refcount[]` by 1.
+- If `_refcount[]` reaches 0 — i.e. the last live reference is destroyed — frees
+  the data buffer and the refcount allocation itself.
+
+Key subtlety: `_is_view` is a **semantic tag only**. It does not affect when memory
+is freed. Both views and value-semantic copies participate equally in reference
+counting. The buffer is freed when no reference — view or otherwise — is alive.
+
+```mojo
+var t = zeros([3, 4], DType.float32)  # refcount = 1
+var v = t.reshape([12])               # refcount = 2, v._is_view = True
+# t goes out of scope → refcount = 1
+# v goes out of scope → refcount = 0 → buffer freed
+```
+
 ## Operations That Return Views
 
 These operations return a view — no data duplication occurs:
 
-| Operation | Location | View? | Notes |
-|-----------|----------|-------|-------|
-| `reshape(new_shape)` | `extensor.mojo` | Yes | Zero-copy; shape metadata changes only |
-| `transpose(dim0, dim1)` | `extensor.mojo` | Yes | Strides permuted; pointer shared |
-| `slice(...)` | `extensor.mojo` | Yes | Offset pointer into same buffer |
-| `squeeze(dim)` | `shape.mojo` | Yes | Removes size-1 dimensions |
-| `unsqueeze(dim)` | `shape.mojo` | Yes | Inserts size-1 dimensions |
-| `broadcast_to(shape)` | `shape.mojo` | Yes | Stride-based broadcast; no copy |
+| Operation               | Location         | View? | Notes                                  |
+|-------------------------|------------------|-------|----------------------------------------|
+| `reshape(new_shape)`    | `extensor.mojo`  | Yes   | Zero-copy; shape metadata changes only |
+| `transpose(dim0, dim1)` | `extensor.mojo`  | Yes   | Strides permuted; pointer shared       |
+| `slice(...)`            | `extensor.mojo`  | Yes   | Offset pointer into same buffer        |
+| `squeeze(dim)`          | `shape.mojo`     | Yes   | Removes size-1 dimensions              |
+| `unsqueeze(dim)`        | `shape.mojo`     | Yes   | Inserts size-1 dimensions              |
+| `broadcast_to(shape)`   | `shape.mojo`     | Yes   | Stride-based broadcast; no copy        |
 
 All view operations set `_is_view = True` on the result. The refcount on the
 underlying buffer is incremented by the `__copyinit__` in the view constructor.
+
+## `view_with_strides()` — Not Available
+
+`view_with_strides()` does **not exist** on `ExTensor`. It was proposed during the
+issue-3236 development cycle but never implemented; the prototype caused CI failures and
+was dropped before merge.
+
+If you need a view with custom strides, use the existing view-returning operations:
+
+| Goal                              | Use instead                  |
+|-----------------------------------|------------------------------|
+| Change shape (no stride reorder)  | `reshape(new_shape)`         |
+| Permute two axes                  | `transpose(dim0, dim1)`      |
+| Select a sub-region               | `slice(start, end, axis)`    |
+| Broadcast to a larger shape       | `broadcast_to(target_shape)` |
+
+All four operations return a view (`_is_view = True`) and share the source buffer.
+None allocate.
 
 ## Operations That Return Copies
 
 These operations allocate a new data buffer:
 
-| Operation | Location | Notes |
-|-----------|----------|-------|
-| `as_contiguous()` | `extensor.mojo` | Forces C-order layout into new buffer |
-| `copy()` | `extensor.mojo` | Explicit deep copy |
-| Element-wise ops (`__add__`, `__mul__`, etc.) | `extensor.mojo` | Output is always new tensor |
-| Reduction ops (`sum()`, `mean()`, etc.) | `reduction.mojo` | Output is always new tensor |
-| `concatenate(tensors, axis)` | `shape.mojo` | Allocates output; copies all inputs |
+| Operation                                       | Location         | Notes                                 |
+|-------------------------------------------------|------------------|---------------------------------------|
+| `as_contiguous()`                               | `extensor.mojo`  | Forces C-order layout into new buffer |
+| `copy()`                                        | `extensor.mojo`  | Explicit deep copy                    |
+| Element-wise ops (`__add__`, `__mul__`, etc.)   | `extensor.mojo`  | Output is always new tensor           |
+| Reduction ops (`sum()`, `mean()`, etc.)         | `reduction.mojo` | Output is always new tensor           |
+| `concatenate(tensors, axis)`                    | `shape.mojo`     | Allocates output; copies all inputs   |
 
 ## The `transpose_view()` Special Case
 
@@ -102,6 +150,46 @@ a contiguous copy before passing to performance-critical kernels (e.g. SIMD matm
 
 Check contiguity with `is_contiguous()`. A view is contiguous if and only if its strides
 match the standard C-order strides for its shape.
+
+### When to Call `as_contiguous()`
+
+Call `as_contiguous()` before any kernel that assumes C-order (row-major) strides:
+
+- SIMD matrix multiply / BLAS wrappers
+- Custom SIMD loop kernels that index via `data_ptr + row * cols + col`
+- Any operation that reads the flat buffer directly without stride arithmetic
+
+**The guard pattern** — used in `matrix.mojo:604-611`:
+
+```mojo
+var a_cont: ExTensor
+if a.is_contiguous():
+    a_cont = a               # zero-copy shared-ownership assignment
+else:
+    a_cont = as_contiguous(a)  # allocates and copies into C-order buffer
+```
+
+This avoids unnecessary allocations on tensors that are already contiguous
+(the common case for freshly constructed or reshaped tensors).
+
+**`as_contiguous()` copy semantics**:
+
+- Always returns `_is_view = False`.
+- Allocates a fresh buffer even if the input is already contiguous — use the
+  guard pattern above when allocation must be avoided.
+- The result is safe to mutate without affecting the original.
+
+**Anti-patterns to avoid**:
+
+```mojo
+# Bad: unconditional as_contiguous() wastes memory when t is already contiguous.
+var t2 = as_contiguous(t)
+
+# Bad: checking is_view() instead of is_contiguous() — a view can still be
+# contiguous (e.g. reshape returns a contiguous view).
+if t.is_view():
+    t = as_contiguous(t)  # Wrong guard — use is_contiguous() instead
+```
 
 ## See Also
 
