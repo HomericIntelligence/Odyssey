@@ -22,7 +22,7 @@ import json
 import tempfile
 import yaml
 from pathlib import Path
-from typing import Dict, List, Optional, Generator
+from typing import Callable, Dict, List, Optional, Generator
 import pytest
 
 
@@ -51,7 +51,7 @@ def temp_dir() -> Generator[Path, None, None]:
 
 
 @pytest.fixture
-def mock_config_file(temp_dir: Path) -> callable:
+def mock_config_file(temp_dir: Path) -> Callable:
     """Factory fixture for creating config files.
 
     Args:
@@ -95,7 +95,7 @@ def mock_config_file(temp_dir: Path) -> callable:
 
 
 @pytest.fixture
-def mock_text_file(temp_dir: Path) -> callable:
+def mock_text_file(temp_dir: Path) -> Callable:
     """Factory fixture for creating text files.
 
     Args:
