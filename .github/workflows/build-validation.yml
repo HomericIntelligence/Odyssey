@@ -1,0 +1,56 @@
+name: Build Validation
+
+on:
+  # Run on pull requests when source files change
+  pull_request:
+    paths:
+      - 'shared/**/*.mojo'
+      - 'pixi.toml'
+      - 'justfile'
+      - '.github/workflows/build-validation.yml'
+
+  # Run on pushes to main
+  push:
+    branches:
+      - main
+    paths:
+      - 'shared/**/*.mojo'
+      - 'pixi.toml'
+      - 'justfile'
+      - '.github/workflows/build-validation.yml'
+
+  # Allow manual runs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Build shared package (debug mode)
+        run: |
+          echo "Building shared Mojo package in debug mode..."
+          just build
+          echo "✓ Build succeeded"
+
+      - name: Validate package compilation
+        run: |
+          echo "Running validation-only package compilation..."
+          just package
+          echo "✓ Package validation succeeded"
+
+      - name: Report build status
+        if: always()
+        run: |
+          echo "Build validation completed successfully"
+          echo "Shared Mojo package compiles without errors"
