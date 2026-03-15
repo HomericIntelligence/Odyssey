@@ -11,9 +11,10 @@ Key components:
 
 from shared.core.extensor import ExTensor, zeros_like
 from shared.core.activation import relu, relu_backward
+from shared.core.module import Module
 
 
-struct ReLULayer(Copyable, Movable):
+struct ReLULayer(Copyable, Module, Movable):
     """ReLU activation layer: y = max(0, x).
 
     A simple activation layer that applies the Rectified Linear Unit (ReLU)
@@ -47,7 +48,7 @@ struct ReLULayer(Copyable, Movable):
         """
         pass
 
-    fn forward(self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: ExTensor) raises -> ExTensor:
         """Forward pass: y = max(0, x).
 
         Applies ReLU activation element-wise to the input tensor.
@@ -71,7 +72,7 @@ struct ReLULayer(Copyable, Movable):
         return relu(input)
 
     fn backward(
-        self, grad_output: ExTensor, input: ExTensor
+        mut self, grad_output: ExTensor, input: ExTensor
     ) raises -> ExTensor:
         """Backward pass: compute gradient w.r.t. input.
 
@@ -120,3 +121,11 @@ struct ReLULayer(Copyable, Movable):
         """
         var params: List[ExTensor] = []
         return params^
+
+    fn train(mut self):
+        """Switch to training mode (no-op for ReLULayer)."""
+        pass
+
+    fn eval(mut self):
+        """Switch to inference mode (no-op for ReLULayer)."""
+        pass

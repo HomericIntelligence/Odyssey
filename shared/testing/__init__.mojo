@@ -95,6 +95,7 @@ from shared.testing.models import (
     SimpleCNN,
     LinearModel,
     SimpleMLP,
+    SimpleMLP2,
     MockLayer,
     SimpleLinearModel,
     Parameter,
