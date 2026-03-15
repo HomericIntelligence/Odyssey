@@ -96,7 +96,7 @@ from shared.data._datasets_core import (
 # Public API
 # ============================================================================
 
-# NOTE(#3751, Mojo v0.26.1): Mojo does not support __all__ for controlling exports.
+# Mojo does not support __all__ for controlling exports (#3751, Mojo v0.26.1).
 # All imported symbols are automatically available to package consumers.
 #
 # High-level usage:
@@ -118,13 +118,9 @@ from shared.data.random_transform_base import (
 
 # Core transforms (most commonly used)
 from shared.data.transforms import (
-    ToExTensor,  # Convert data to tensor format
     Normalize,  # Normalize tensor values: (x - mean) / std
     Compose,  # Chain multiple transforms into a single transform
 )
-
-# Alias for consistency with comment references
-alias ToTensor = ToExTensor
 
 # ============================================================================
 # Data Loaders and Samplers

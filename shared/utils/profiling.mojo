@@ -382,7 +382,7 @@ fn memory_usage() -> MemoryStats:
         ```
     """
     var stats = MemoryStats()
-    # NOTE (Mojo v0.26.1): Mojo doesn't have direct memory introspection APIs yet
+    # Mojo doesn't have direct memory introspection APIs yet (Mojo v0.26.1)
     # This returns approximate values based on available system information
     # For now, we initialize with zeros as a baseline
     stats.allocated_bytes = 0

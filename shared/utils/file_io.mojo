@@ -463,7 +463,7 @@ fn _hex_to_bytes(hex_str: String, output: UnsafePointer[UInt8]) raises:
         _ = _hex_char_to_int(high_char)
         _ = _hex_char_to_int(low_char)
 
-    # NOTE (Mojo v0.26.1): Cannot write to output due to UnsafePointer origin constraints
+    # Cannot write to output due to UnsafePointer origin constraints (Mojo v0.26.1)
     _ = output
 
 
@@ -622,7 +622,7 @@ fn safe_read_file(filepath: String) raises -> String:
     try:
         with open(filepath, "r") as f:
             return f.read()
-    except:
+    except e:
         raise Error("File not found: " + filepath)
 
 
@@ -821,7 +821,7 @@ fn file_exists(filepath: String) -> Bool:
         with open(filepath, "r") as f:
             _ = f.read()  # Attempt to read (confirms it's a file)
         return True
-    except:
+    except e:
         return False
 
 
