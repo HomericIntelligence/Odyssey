@@ -141,6 +141,36 @@ jobs:
           echo "  - Environment variable substitution works"
           echo "  - Validation catches invalid configs"
 
+  validate-agents:
+    name: Validate Agent Configurations
+    runs-on: ubuntu-latest
+    needs: validate-yaml
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Validate agent frontmatter
+        run: |
+          echo "Validating agent configurations..."
+          found_agents=0
+          if [ -d ".claude/agents" ]; then
+            for file in .claude/agents/*.md; do
+              if [ -f "$file" ]; then
+                if grep -q "^---" "$file"; then
+                  echo "✓ $(basename "$file"): has frontmatter"
+                  found_agents=$((found_agents + 1))
+                else
+                  echo "ERROR: $(basename "$file"): missing YAML frontmatter"
+                  exit 1
+                fi
+              fi
+            done
+          fi
+          if [ $found_agents -eq 0 ]; then
+            echo "No agent files found to validate"
+          fi
+          echo "Agent frontmatter validation complete!"
+
   validate-experiments:
     name: Validate Experiment Configs
     runs-on: ubuntu-latest
@@ -189,7 +219,7 @@ jobs:
   summary:
     name: Validation Summary
     runs-on: ubuntu-latest
-    needs: [validate-yaml, validate-schemas, validate-experiments]
+    needs: [validate-yaml, validate-schemas, validate-agents, validate-experiments]
     if: always()
     steps:
       - name: Check validation results
