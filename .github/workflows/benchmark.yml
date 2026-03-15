@@ -20,7 +20,8 @@ on:
 
   # Scheduled nightly run at 2 AM UTC
   schedule:
-    - cron: '0 2 * * *'
+    - cron: '0 2 * * *'   # Nightly benchmark run
+    - cron: '0 2 * * 0'   # Weekly Sunday SIMD benchmarks
 
   # Pull requests with 'benchmark' label
   pull_request:
@@ -198,3 +199,83 @@ jobs:
       - name: Fail if critical regressions detected
         run: |
           echo "✅ No critical performance regressions (regression detection not yet implemented)"
+
+  # ============================================================================
+  # Weekly SIMD Benchmarks (absorbed from simd-benchmarks-weekly.yml)
+  # Runs every Sunday at 2 AM UTC
+  # ============================================================================
+  simd-benchmarks:
+    name: SIMD Performance Benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # Only run on main branch for scheduled runs; always on manual dispatch
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Run SIMD benchmarks
+        run: |
+          echo "Running SIMD benchmarks..."
+          echo "Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+          echo "Commit: ${{ github.sha }}"
+          echo ""
+
+          mkdir -p benchmark-results
+
+          # Retry for JIT crash resilience (issue #3329)
+          attempt=0
+          delay=1
+          while [ $attempt -lt 3 ]; do
+            attempt=$((attempt + 1))
+            if pixi run mojo run -I . benchmarks/bench_simd.mojo | tee benchmark-results/simd-output.txt; then
+              echo "✅ SIMD benchmarks completed successfully"
+              break
+            fi
+            if [ $attempt -lt 3 ]; then
+              echo "Attempt $attempt failed, retrying in ${delay}s..."
+              sleep $delay
+              delay=$((delay * 2))
+            else
+              echo "SIMD benchmarks failed after 3 attempts"
+              exit 1
+            fi
+          done
+
+      - name: Generate benchmark summary
+        if: success()
+        run: |
+          cat > benchmark-results/simd-summary.md << EOF
+          # SIMD Performance Benchmark Results
+
+          **Date**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          **Commit**: ${{ github.sha }}
+          **Workflow Run**: [\`${{ github.run_number }}\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+          ## Benchmark Configuration
+
+          - **Tensor Sizes**: 64x64, 128x128, 256x256, 512x512, 1024x1024
+          - **Operations**: add, multiply (scalar vs SIMD)
+          - **Data Types**: float32, float64
+          - **Iterations**: 10 per operation
+
+          ## Expected Performance
+
+          - Float32 operations: 3-5x speedup
+          - Float64 operations: 2-3x speedup
+          EOF
+
+          cat benchmark-results/simd-summary.md
+
+      - name: Upload SIMD benchmark results
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7
+        with:
+          name: simd-benchmark-results-${{ github.run_number }}
+          path: benchmark-results/
+          retention-days: 365  # Keep benchmark history for 1 year

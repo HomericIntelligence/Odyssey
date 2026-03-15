@@ -1,5 +1,8 @@
 name: Pre-commit Checks
 
+# Quality gates: pre-commit hooks, type checking (mypy), notebook validation
+# Absorbs: type-check.yml, notebook-validation.yml
+
 on:
   # Run on all pull requests
   pull_request:
@@ -75,3 +78,149 @@ jobs:
           echo ""
           echo "Most formatting issues can be auto-fixed by running:"
           echo "  pre-commit run --all-files"
+
+  # ============================================================================
+  # Type Checking (absorbed from type-check.yml)
+  # ============================================================================
+  mypy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Install mypy
+        run: pixi run pip install mypy types-PyYAML
+
+      - name: Run mypy
+        run: |
+          echo "Running mypy type checking..."
+          # Exclude generators/ due to module path ambiguity (scripts adds parent to path)
+          pixi run mypy --exclude 'generators/' scripts/ || {
+            echo "❌ Type checking failed"
+            echo ""
+            echo "To fix locally:"
+            echo "  pixi run pip install mypy"
+            echo "  pixi run mypy --exclude 'generators/' scripts/"
+            exit 1
+          }
+          echo "✅ All type checks passed"
+
+  # ============================================================================
+  # Notebook Validation (absorbed from notebook-validation.yml)
+  # ============================================================================
+  validate-notebooks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install nbformat nbconvert
+
+      - name: Validate notebook syntax
+        run: |
+          echo "Validating notebook syntax..."
+          for notebook in notebooks/*.ipynb; do
+            if [ -f "$notebook" ]; then
+              echo "Checking: $notebook"
+              python -m json.tool "$notebook" > /dev/null || exit 1
+            fi
+          done
+          echo "✅ All notebooks have valid JSON"
+
+      - name: Check for large notebooks
+        run: |
+          echo "Checking notebook sizes..."
+          max_size=$((500 * 1024))  # 500KB in bytes
+          for notebook in notebooks/*.ipynb; do
+            if [ -f "$notebook" ]; then
+              size=$(stat -f%z "$notebook" 2>/dev/null || stat -c%s "$notebook")
+              if [ "$size" -gt "$max_size" ]; then
+                echo "ERROR: $notebook exceeds 500KB (size: $((size / 1024))KB)"
+                echo "   Please clear notebook outputs with: just jupyter-clear"
+                exit 1
+              fi
+            fi
+          done
+          echo "✅ All notebooks under size limit"
+
+      - name: Check notebook count
+        run: |
+          echo "Checking notebook inventory..."
+          expected=6
+          found=$(find notebooks -name "*.ipynb" -type f | wc -l)
+          if [ "$found" -lt "$expected" ]; then
+            echo "Warning: Found $found notebooks, expected $expected"
+          else
+            echo "✅ Found $found notebooks"
+          fi
+
+      - name: Verify README
+        run: |
+          if [ ! -f "notebooks/README.md" ]; then
+            echo "ERROR: notebooks/README.md not found"
+            exit 1
+          fi
+          echo "✅ notebooks/README.md exists"
+
+      - name: Check utils package
+        run: |
+          echo "Checking notebooks/utils package..."
+          if [ ! -f "notebooks/utils/__init__.py" ]; then
+            echo "ERROR: notebooks/utils/__init__.py not found"
+            exit 1
+          fi
+          for module in mojo_bridge tensor_utils visualization progress; do
+            if [ ! -f "notebooks/utils/${module}.py" ]; then
+              echo "Warning: notebooks/utils/${module}.py not found"
+            fi
+          done
+          echo "✅ Utility modules present"
+
+  lint-notebooks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: '3.11'
+
+      - name: Lint notebook markdown
+        run: |
+          echo "Checking notebook markdown..."
+          for notebook in notebooks/*.ipynb; do
+            if [ -f "$notebook" ]; then
+              python3 check_notebooks.py "$notebook" || exit 1
+            fi
+          done
+          echo "✅ Notebook markdown looks good"
+
+  python-syntax:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: '3.11'
+
+      - name: Lint utility modules
+        run: |
+          pip install pylint ruff
+          echo "Linting utility modules..."
+          python -m py_compile notebooks/utils/*.py
+          echo "✅ Utility modules compile successfully"

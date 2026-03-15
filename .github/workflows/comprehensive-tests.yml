@@ -2,6 +2,7 @@ name: Comprehensive Tests
 
 # Unified test workflow combining comprehensive tests with quality metrics
 # Runs ALL tests (Mojo and Python) with metrics collection and quality analysis
+# Also covers: build-validation, test-gradients, test-data-utilities, coverage
 # Target duration: < 15 minutes (parallelized across test groups)
 
 on:
@@ -698,10 +699,234 @@ jobs:
           retention-days: 30
 
   # ============================================================================
+  # Build Validation (absorbed from build-validation.yml)
+  # ============================================================================
+  build-validation:
+    needs: [mojo-syntax-check]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    name: "Build Validation"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Install Just
+        uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
+
+      - name: Build project
+        run: just build
+
+      - name: Validate package
+        run: just package
+
+  # ============================================================================
+  # Gradient Checking Tests (absorbed from test-gradients.yml)
+  # ============================================================================
+  gradient-tests:
+    needs: [mojo-compilation]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    name: "Gradient Checking Tests"
+    # ADR-009: Mojo 0.26.1 JIT heap corruption causes random crashes.
+    # Non-blocking until Mojo runtime is stable.
+    continue-on-error: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Install Just
+        uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
+
+      - name: Run gradient checking tests
+        run: |
+          # Split per ADR-009: test_gradient_checking.mojo split to avoid Mojo 0.26.1 heap corruption
+          # Routed through just test-group for JIT crash retry protection (issue #3329)
+          just test-group "tests/shared/core" "test_gradient_checking_basic.mojo test_gradient_checking_dtype.mojo"
+
+      - name: Check test results
+        if: failure()
+        run: |
+          echo "❌ Gradient checking tests FAILED!"
+          echo "One or more backward passes produce incorrect gradients."
+          echo "Review the test output above for details."
+          exit 1
+
+      - name: Success message
+        if: success()
+        run: |
+          echo "✅ All gradient checks PASSED!"
+          echo "All backward passes produce correct gradients."
+
+  # ============================================================================
+  # Gradient Coverage Report (absorbed from test-gradients.yml)
+  # ============================================================================
+  gradient-coverage:
+    needs: [gradient-tests]
+    runs-on: ubuntu-latest
+    name: "Gradient Coverage Report"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+
+      - name: Check backward pass coverage
+        run: |
+          echo "Checking gradient test coverage..."
+
+          # Find all *_backward functions
+          BACKWARD_FUNCS=$(grep -r "fn.*_backward" shared/core --include="*.mojo" | wc -l)
+
+          # Find all gradient tests
+          GRADIENT_TESTS=$(grep -r "test.*gradient" tests/shared/core/test_gradient_checking_basic.mojo tests/shared/core/test_gradient_checking_dtype.mojo | wc -l)
+
+          echo "Backward functions found: $BACKWARD_FUNCS"
+          echo "Gradient tests found: $GRADIENT_TESTS"
+
+          # Calculate coverage percentage
+          if [ $BACKWARD_FUNCS -gt 0 ]; then
+            COVERAGE=$((GRADIENT_TESTS * 100 / BACKWARD_FUNCS))
+            echo "Gradient test coverage: $COVERAGE%"
+
+            if [ $COVERAGE -lt 80 ]; then
+              echo "⚠️  Warning: Gradient test coverage is below 80%"
+              echo "Consider adding more gradient checking tests."
+            else
+              echo "✅ Good gradient test coverage!"
+            fi
+          fi
+
+  # ============================================================================
+  # Data Utilities Tests (absorbed from test-data-utilities.yml)
+  # ============================================================================
+  test-data-utilities:
+    needs: [mojo-compilation]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    name: "Data Utilities Test Suite"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Install Just
+        uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
+
+      - name: Verify Mojo installation
+        run: pixi run mojo --version
+
+      - name: Check if test files exist
+        id: check-tests
+        run: |
+          if [ -d "tests/shared/data" ]; then
+            echo "tests_exist=true" >> $GITHUB_OUTPUT
+          else
+            echo "tests_exist=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Dataset Tests
+        if: steps.check-tests.outputs.tests_exist == 'true'
+        run: |
+          just test-group "tests/shared/data/datasets" "test_base_dataset.mojo test_tensor_dataset.mojo"
+
+      - name: Run Loader Tests
+        if: steps.check-tests.outputs.tests_exist == 'true'
+        run: |
+          just test-group "tests/shared/data/loaders" "test_base_loader.mojo"
+
+      - name: Run Transform Tests
+        if: steps.check-tests.outputs.tests_exist == 'true'
+        run: |
+          just test-group "tests/shared/data/transforms" "test_pipeline_part1.mojo test_pipeline_part2.mojo"
+
+      - name: Run Sampler Tests
+        if: steps.check-tests.outputs.tests_exist == 'true'
+        run: |
+          just test-group "tests/shared/data/samplers" "test_sequential_part1.mojo test_sequential_part2.mojo"
+
+      - name: Run All Data Tests
+        if: steps.check-tests.outputs.tests_exist == 'true'
+        run: |
+          just test-group "tests/shared/data" "run_all_tests.mojo"
+
+      - name: Run File I/O Tests (includes remove_safely)
+        run: |
+          just test-group "tests/shared/utils" "test_io_part2.mojo"
+
+      - name: Report Results
+        if: always()
+        run: |
+          if [ "${{ steps.check-tests.outputs.tests_exist }}" = "true" ]; then
+            echo "Data utilities test suite completed"
+            echo "Check individual test outputs above for details"
+          else
+            echo "⚠️  Data utilities tests not yet implemented"
+            echo "This workflow will run once tests/shared/data/ tests are created"
+          fi
+
+  # ============================================================================
+  # Test Metrics / Coverage (absorbed from coverage.yml)
+  # ============================================================================
+  test-metrics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    name: "Test Metrics"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: '3.11'
+
+      - name: Generate test metrics (JSON)
+        run: |
+          python scripts/generate_test_metrics.py --output metrics.json --format json
+
+      - name: Generate test metrics (Markdown)
+        run: |
+          python scripts/generate_test_metrics.py --output metrics.md --format markdown
+
+      - name: Display metrics
+        run: cat metrics.md
+
+      - name: Upload metrics artifact
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7
+        with:
+          name: test-metrics
+          path: |
+            metrics.json
+            metrics.md
+          retention-days: 90
+
+      - name: Build PR comment report
+        if: github.event_name == 'pull_request'
+        run: python scripts/build_pr_comment.py --metrics-file metrics.md --output-file metrics-pr-comment.md
+
+      - name: Comment on PR with metrics
+        if: github.event_name == 'pull_request'
+        uses: ./.github/actions/pr-comment
+        with:
+          report-file: metrics-pr-comment.md
+          comment-marker: "Test Metrics Report"
+
+  # ============================================================================
   # Combined Test Report with Metrics
   # ============================================================================
   test-report:
-    needs: [mojo-compilation, validate-test-coverage, audit-shared-links, test-mojo-comprehensive, test-configs, test-benchmarks, test-core-layers, test-python, code-quality]
+    needs: [mojo-compilation, validate-test-coverage, audit-shared-links, test-mojo-comprehensive, test-configs, test-benchmarks, test-core-layers, test-python, code-quality, build-validation, gradient-tests, test-data-utilities, test-metrics]
     runs-on: ubuntu-latest
     if: always()
     name: "Test Report"
