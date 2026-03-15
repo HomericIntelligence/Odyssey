@@ -40,7 +40,7 @@ Reference: https://data-apis.org/array-api/latest/API_specification/index.html
 """
 
 from collections import List
-from memory import UnsafePointer, memset_zero, alloc, bitcast
+from memory import UnsafePointer, memset_zero, alloc, bitcast, memcpy
 from sys.info import simd_width_of
 from math import ceildiv, sqrt, log, cos, sin
 from utils.numerics import inf as numeric_inf, neg_inf as numeric_neg_inf
@@ -1116,21 +1116,39 @@ struct ExTensor(
         var src_ptr = self._data
         var dst_ptr = result._data
 
-        for out_flat in range(result_numel):
-            # Decompose out_flat into per-dimension indices, then map to source
-            var src_flat = 0
-            var remaining = out_flat
-            for dim in range(num_dims):
-                var out_idx = remaining // result._strides[dim]
-                remaining = remaining % result._strides[dim]
-                var src_idx = starts[dim] + out_idx
-                src_flat += src_idx * self._strides[dim]
+        # Fast-path: only dim-0 is non-trivially sliced → result is contiguous.
+        # Condition: for every dim >= 1, start == 0 and result covers the full
+        # dimension (i.e. result_shape[dim] == self._shape[dim]).
+        var is_first_axis_only = True
+        for dim in range(1, num_dims):
+            if starts[dim] != 0 or result_shape[dim] != self._shape[dim]:
+                is_first_axis_only = False
+                break
 
-            # Copy element byte-by-byte
-            var src_offset = src_flat * dtype_size
-            var dst_offset = out_flat * dtype_size
-            for b in range(dtype_size):
-                dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
+        if is_first_axis_only:
+            var src_byte_offset = starts[0] * self._strides[0] * dtype_size
+            var byte_count = result_numel * dtype_size
+            memcpy(
+                dest=dst_ptr,
+                src=src_ptr + src_byte_offset,
+                count=byte_count,
+            )
+        else:
+            for out_flat in range(result_numel):
+                # Decompose out_flat into per-dimension indices, then map to source
+                var src_flat = 0
+                var remaining = out_flat
+                for dim in range(num_dims):
+                    var out_idx = remaining // result._strides[dim]
+                    remaining = remaining % result._strides[dim]
+                    var src_idx = starts[dim] + out_idx
+                    src_flat += src_idx * self._strides[dim]
+
+                # Copy element byte-by-byte
+                var src_offset = src_flat * dtype_size
+                var dst_offset = out_flat * dtype_size
+                for b in range(dtype_size):
+                    dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
 
         return result^
 
