@@ -63,7 +63,7 @@ fn validate(
     compute_accuracy: Bool = True,
     compute_confusion: Bool = False,
     num_classes: Int = 10,
-) raises -> Float64:
+) raises -> Tuple[Float64, Float64]:
     """Run validation loop.
 
     Args:
@@ -75,7 +75,8 @@ fn validate(
             num_classes: Number of classes (for confusion matrix).
 
     Returns:
-            Average validation loss.
+            Tuple of (average validation loss, accuracy). Accuracy is 0.0
+            when compute_accuracy is False.
 
     Raises:
             Error: If validation fails.
@@ -119,12 +120,13 @@ fn validate(
 
     # Compute aggregated metrics
     var avg_loss = total_loss / Float64(num_batches)
+    var accuracy = Float64(0.0)
 
     print("Validation Results:")
     print("  Loss: " + String(avg_loss))
 
     if compute_accuracy:
-        var accuracy = accuracy_metric.compute()
+        accuracy = accuracy_metric.compute()
         print("  Accuracy: " + String(accuracy))
 
     if compute_confusion:
@@ -147,7 +149,7 @@ fn validate(
                 + String(f)
             )
 
-    return avg_loss
+    return (avg_loss, accuracy)
 
 
 struct ValidationLoop:
@@ -202,7 +204,7 @@ struct ValidationLoop:
         Raises:
             Error: If validation fails.
         """
-        var val_loss = validate(
+        var result = validate(
             model_forward,
             compute_loss,
             val_loader,
@@ -210,19 +212,9 @@ struct ValidationLoop:
             self.compute_confusion,
             self.num_classes,
         )
+        var val_loss = result[0]
+        var val_accuracy = result[1]
 
-        # Compute accuracy over the full validation set if enabled
-        var val_accuracy = Float64(0.0)
-        if self.compute_accuracy:
-            var accuracy_metric = AccuracyMetric()
-            val_loader.reset()
-            while val_loader.has_next():
-                var batch = val_loader.next()
-                var predictions = model_forward(batch.data)
-                accuracy_metric.update(predictions, batch.labels)
-            val_accuracy = accuracy_metric.compute()
-
-        # Update metrics with computed accuracy
         metrics.update_val_metrics(val_loss, val_accuracy)
 
         return val_loss
