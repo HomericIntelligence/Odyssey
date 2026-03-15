@@ -381,7 +381,7 @@ fn bench_simd_vectorization() raises -> BenchmarkResult:
 
     var total_ns = end_ns - start_ns
     var avg_time_ms = Float64(total_ns) / Float64(n_iters) / 1_000_000.0
-    var throughput = Float64(n_params * n_iters) / (Float64(total_ns) / 1e9)
+    _ = Float64(n_params * n_iters) / (Float64(total_ns) / 1e9)
 
     # Estimated SIMD speedup (theoretical 4-8x for float32 with 128/256-bit SIMD)
     var estimated_speedup = Float64(4.0)  # Conservative estimate for SIMD width
