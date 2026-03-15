@@ -120,16 +120,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
 
-      - name: Install Modular CLI
-        run: |
-          curl -s https://get.modular.com | sh -
-          modular auth ${{ secrets.MODULAR_AUTH_TOKEN || 'dummy-token' }}
-        continue-on-error: true
-
-      - name: Install Mojo
-        run: |
-          modular install mojo
-        continue-on-error: true
+      - name: Set up Pixi (provides Mojo)
+        uses: ./.github/actions/setup-pixi
 
       - name: Test config loading (placeholder)
         run: |
