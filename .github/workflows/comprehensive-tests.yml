@@ -251,9 +251,8 @@ jobs:
                           # consolidating test files. If any group consistently takes >10 min,
                           # split it into two separate entries. See Issue #3357 for monitoring
                           # guidance and ADR-009 for heap corruption splitting constraints.
-    continue-on-error: ${{ matrix.test-group.continue-on-error == true }}
     strategy:
-      fail-fast: false  # Continue running other groups even if one fails
+      fail-fast: true  # Stop early on first failure to save compute
       matrix:
         test-group:
           # IMPORTANT: The 'pattern' field accepts space-separated LITERAL filenames only,
@@ -278,7 +277,6 @@ jobs:
           - name: "Core Gradient"
             path: "tests/shared/core"
             pattern: "test_backward_linear.mojo test_backward_conv_pool.mojo test_backward_losses.mojo test_gradient_checking_basic.mojo test_gradient_checking_dtype.mojo test_gradient_validation_activations.mojo test_gradient_validation_layers.mojo test_gradient_validation_part1.mojo test_gradient_validation_part2.mojo test_variable_backward.mojo test_depthwise_conv_grad_check_part1.mojo test_depthwise_conv_grad_check_part2.mojo"
-            continue-on-error: true
           # ---- Core Utilities ----
           # NOTE: This pattern has 28+ explicit file patterns and is difficult to maintain.
           # Consider refactoring by moving layer-specific tests to tests/shared/core/layers/
@@ -295,7 +293,6 @@ jobs:
           - name: "Data"
             path: "tests/shared/data"
             pattern: "test_*.mojo datasets/test_*.mojo samplers/test_*.mojo transforms/test_*.mojo loaders/test_*.mojo formats/test_*.mojo"
-            continue-on-error: true
           # ---- Autograd engine + shared benchmarking helpers ----
           # Kept as separate entries (not merged under tests/shared parent path)
           # to avoid silent pass-with-0-tests if a subdirectory is empty/renamed.
@@ -328,7 +325,6 @@ jobs:
           - name: "Shared Infra & Testing"
             path: "tests/shared"
             pattern: "test_imports*.mojo test_data_generators_part*.mojo test_model_utils.mojo test_serialization.mojo utils/test_*.mojo fixtures/test_*.mojo training/test_*.mojo testing/test_*.mojo"
-            continue-on-error: true
           # ---- Model layer tests (the main PR-blocking test suite) ----
           # ADR-009: test_googlenet_layers.mojo split into 3 parts (≤8 tests each)
           # to avoid Mojo v0.26.1 heap corruption under high test load.
@@ -336,7 +332,6 @@ jobs:
           - name: "Models"
             path: "tests/models"
             pattern: "test_*.mojo"
-            continue-on-error: true
           # ---- Top-level, debug, helpers, tooling, fuzz (low-frequency failures) ----
           # NOTE: debug/test_*.mojo pattern removed — tests/debug/ contains no test files
           # and including it would cause silent pass-with-0-tests (see Issue #3999 for context).
@@ -353,7 +348,6 @@ jobs:
           - name: "Core Types & Fuzz"
             path: "tests/core/types"
             pattern: "test_*.mojo"
-            continue-on-error: true
 
     name: "${{ matrix.test-group.name }}"
 
@@ -371,8 +365,6 @@ jobs:
         # Some test groups have flaky Mojo runtime segfaults (libKGENCompilerRTShared.so crashes)
         # on CI runners due to memory/runtime constraints. Retry flaky tests up to 3 times
         # with 30s wait between attempts to distinguish transient failures from real issues.
-        # Per ADR-009 and Issue #3330, flaky groups still respect continue-on-error after retries.
-        continue-on-error: ${{ matrix.test-group.continue-on-error == true }}
         run: |
           echo "=================================================="
           echo "Test Group: ${{ matrix.test-group.name }}"
@@ -447,7 +439,6 @@ jobs:
     needs: [mojo-compilation, validate-test-coverage]
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    continue-on-error: true  # Non-blocking - investigating segfaults on PR branches
     name: "Configs"
 
     steps:
@@ -483,9 +474,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     name: "Benchmarks"
-    # ADR-009: Mojo 0.26.1 JIT heap corruption causes random crashes in benchmarks.
-    # Non-blocking until Mojo runtime is stable.
-    continue-on-error: true
 
     steps:
       - name: Checkout code

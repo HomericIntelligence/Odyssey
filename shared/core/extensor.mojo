@@ -53,8 +53,8 @@ comptime WARN_TENSOR_BYTES: Int = 500_000_000  # 500 MB warning threshold
 
 # Print options for ExTensor.__str__ and __repr__ truncation
 # Can be modified globally to control output behavior (e.g., in test utilities)
-alias EXTENSOR_PRINT_THRESHOLD: Int = 1000  # Truncate if numel > threshold
-alias EXTENSOR_PRINT_SHOW_ELEMENTS: Int = 3  # Show first/last N elements
+comptime EXTENSOR_PRINT_THRESHOLD: Int = 1000  # Truncate if numel > threshold
+comptime EXTENSOR_PRINT_SHOW_ELEMENTS: Int = 3  # Show first/last N elements
 
 
 struct ExTensor(
