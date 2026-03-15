@@ -4,8 +4,23 @@ This module provides gradient computation capabilities for training neural netwo
 
 Note:
     Mojo v0.26.1+ automatically exports all imported symbols to package consumers.
-    No __all__ equivalent is needed. Any symbol imported in this module is
-    automatically available to users of the shared.autograd package.
+    No ``__all__`` equivalent is needed. Any symbol imported in this module is
+    automatically available to users of the ``shared.autograd`` package.
+
+    This module also re-exports selected backward functions from ``shared.core``
+    (pooling and dropout backward passes) so callers can import them from a single
+    location. These re-exports work cleanly — there is no chain limitation when
+    importing from ``shared.autograd`` directly.
+
+    Import from ``shared.autograd`` (works):
+
+    ```mojo
+    from shared.autograd import Variable, GradientTape
+    from shared.autograd import maxpool2d_backward, dropout_backward
+    ```
+
+    Importing from the ``shared`` top-level package is subject to the chain
+    limitation described in #3210 and should be avoided.
 
 Core Components:
 - Variable: Tensor wrapper with gradient tracking

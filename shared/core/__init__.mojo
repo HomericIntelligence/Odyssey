@@ -16,6 +16,7 @@ Modules:
     types: Custom data types (type aliases for FP8/BF8/BF16/FP4, MXFP4/NVFP4 blocked formats)
     arithmetic: Element-wise arithmetic operations (add, subtract, multiply, divide)
     matrix: Matrix operations (matmul, transpose, dot, outer)
+    extensor methods: ExTensor method operations (transpose method via ExTensor.transpose())
     activation: Activation functions (relu, sigmoid, tanh, softmax, gelu)
     activation_ops: Activation operation utilities (scalar exp functions)
     linear: Linear transformations
@@ -34,6 +35,22 @@ Modules:
     utils: Utility functions (argmax, top_k_indices, top_k, argsort)
     scalar_ops: Scalar mathematical operations (sqrt, pow for float32 and float64)
     normalize_ops: Normalization operations for data preprocessing (RGB normalization)
+
+Note:
+    Mojo v0.26.1+ automatically exports all imported symbols to package consumers.
+    No ``__all__`` equivalent is needed — any symbol imported in this file is
+    automatically available to users of ``shared.core``. See issue #3751.
+
+    Re-exports from ``shared.core`` work cleanly with no chain limitation.
+    Callers may import directly from the parent package:
+
+    ```mojo
+    from shared.core import ExTensor, linear, relu
+    ```
+
+    The chain limitation described in #3210 only applies to importing from the
+    ``shared`` top-level package (e.g. ``from shared import ExTensor``), not from
+    ``shared.core`` or its submodules directly.
 
 Example:
    ```mojo
@@ -702,5 +719,3 @@ from shared.core.tensor_io import (
     dtype_to_string,
 )
 
-# Mojo does not support Python's __all__ mechanism (#3751, Mojo v0.26.1).
-# All imported symbols are automatically available to package consumers.
