@@ -966,6 +966,25 @@ struct ExTensor(
             flat_idx += indices[i] * self._strides[i]
         self.__setitem__(flat_idx, value)
 
+    fn __setitem__(mut self, indices: List[Int], value: Float32) raises:
+        """Set element at multi-dimensional index using Float32 value.
+
+        Args:
+            indices: Per-dimension indices (one per axis).
+            value: The Float32 value to set (converted to Float64 internally).
+
+        Raises:
+            Error: If number of indices doesn't match tensor rank,
+                   or any index is out of bounds.
+
+        Example:
+            ```mojo
+            var t = zeros([3, 4], DType.float32)
+            t[[1, 2]] = Float32(5.0)  # Set element at row 1, col 2
+            ```
+        """
+        self.__setitem__(indices, Float64(value))
+
     fn __getitem__(self, slice: Slice) raises -> Self:
         """Get slice of 1D tensor [start:end] or [start:end:step].
 
