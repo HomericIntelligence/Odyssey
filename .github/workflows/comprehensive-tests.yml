@@ -238,7 +238,7 @@ jobs:
           # ---- Activations + dtype dispatch ----
           - name: "Core Activations & Types"
             path: "tests/shared/core"
-            pattern: "test_activations*.mojo test_activation_funcs*.mojo test_activation_ops.mojo test_advanced_activations*.mojo test_unsigned.mojo test_unsigned_part2.mojo test_unsigned_part3.mojo test_uint_bitwise_not.mojo test_dtype_dispatch*.mojo test_dtype_ordinal.mojo test_elementwise*.mojo test_comparison_ops*.mojo test_edge_cases*.mojo"
+            pattern: "test_*.mojo"
           # ---- Loss functions split per ADR-009 ----
           - name: "Core Loss"
             path: "tests/shared/core"
