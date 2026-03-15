@@ -413,6 +413,72 @@ class TestMigrateSkillAuxiliaryDirs:
         assert (pre_existing / "run.sh").exists()
         assert (pre_existing / "existing_file.sh").exists()
 
+    def test_warns_when_dest_subdir_already_exists(
+        self, tmp_path: Path, migrate_module, capsys: pytest.CaptureFixture
+    ) -> None:
+        """Warning is printed to stderr when destination subdir pre-exists before copytree."""
+        odyssey_skills = tmp_path / "odyssey_skills"
+        mnemosyne_skills = tmp_path / "mnemosyne" / "skills"
+        mnemosyne_skills.mkdir(parents=True)
+
+        make_skill_dir(
+            odyssey_skills,
+            "some-skill",
+            extra_subdirs={"scripts": {"run.sh": "#!/bin/bash\necho hi"}},
+        )
+
+        # Pre-create the destination scripts/ directory
+        pre_existing = mnemosyne_skills / "tooling" / "some-skill" / "skills" / "some-skill" / "scripts"
+        pre_existing.mkdir(parents=True)
+
+        skill_md = odyssey_skills / "some-skill" / "SKILL.md"
+
+        with patch.object(migrate_module, "MNEMOSYNE_SKILLS_DIR", mnemosyne_skills):
+            result = migrate_module.migrate_skill(
+                skill_name="some-skill",
+                source_skill_md=skill_md,
+                category="tooling",
+                dry_run=False,
+            )
+
+        assert result is True
+        captured = capsys.readouterr()
+        assert "WARNING: destination subdir already exists and will be merged:" in captured.err
+        assert str(pre_existing) in captured.err
+
+    def test_warns_when_dest_subdir_already_exists_dry_run(
+        self, tmp_path: Path, migrate_module, capsys: pytest.CaptureFixture
+    ) -> None:
+        """Warning fires in dry-run mode too when destination subdir pre-exists."""
+        odyssey_skills = tmp_path / "odyssey_skills"
+        mnemosyne_skills = tmp_path / "mnemosyne" / "skills"
+        mnemosyne_skills.mkdir(parents=True)
+
+        make_skill_dir(
+            odyssey_skills,
+            "some-skill",
+            extra_subdirs={"scripts": {"run.sh": "#!/bin/bash\necho hi"}},
+        )
+
+        # Pre-create the destination scripts/ directory
+        pre_existing = mnemosyne_skills / "tooling" / "some-skill" / "skills" / "some-skill" / "scripts"
+        pre_existing.mkdir(parents=True)
+
+        skill_md = odyssey_skills / "some-skill" / "SKILL.md"
+
+        with patch.object(migrate_module, "MNEMOSYNE_SKILLS_DIR", mnemosyne_skills):
+            result = migrate_module.migrate_skill(
+                skill_name="some-skill",
+                source_skill_md=skill_md,
+                category="tooling",
+                dry_run=True,
+            )
+
+        assert result is True
+        captured = capsys.readouterr()
+        assert "WARNING: destination subdir already exists and will be merged:" in captured.err
+        assert str(pre_existing) in captured.err
+
 
 class TestResolveMnemosyneDir:
     """Tests for resolve_mnemosyne_dir() path resolution priority."""
