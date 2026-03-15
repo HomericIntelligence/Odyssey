@@ -184,6 +184,26 @@ fn test_validation_loop_run_resets_loader() raises:
     print("  test_validation_loop_run_resets_loader: PASSED")
 
 
+fn test_validation_loop_run_accuracy_tracked() raises:
+    """Test ValidationLoop.run() stores computed accuracy in TrainingMetrics.val_accuracy.
+
+    When compute_accuracy=True (default), run() must pass the actual computed
+    accuracy to update_val_metrics(), not a hardcoded 0.0.
+
+    simple_forward returns ones([batch, 10]) -> argmax of each row is index 0
+    (all values equal, first index wins). Labels are zeros([n, 1]) -> all label=0.
+    argmax=0 == label=0 -> accuracy = 1.0.
+    """
+    var vloop = ValidationLoop()  # compute_accuracy=True by default
+    var loader = create_val_loader(n_batches=3)
+    var metrics = TrainingMetrics()
+    _ = vloop.run(simple_forward, simple_loss, loader, metrics)
+    # simple_forward: ones([batch,10]) -> argmax=0; labels=zeros -> label=0
+    # All predictions correct -> accuracy = 1.0
+    assert_almost_equal(metrics.val_accuracy, Float64(1.0), Float64(1e-5))
+    print("  test_validation_loop_run_accuracy_tracked: PASSED")
+
+
 # ============================================================================
 # ValidationLoop.run_subset() Tests
 # ============================================================================
@@ -497,6 +517,7 @@ fn main() raises:
     test_validation_loop_run_updates_metrics()
     test_validation_loop_run_compute_accuracy_false()
     test_validation_loop_run_resets_loader()
+    test_validation_loop_run_accuracy_tracked()
 
     print("Running ValidationLoop.run_subset() tests...")
     test_validation_loop_run_subset_limited()
