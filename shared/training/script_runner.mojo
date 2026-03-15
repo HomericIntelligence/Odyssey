@@ -7,17 +7,24 @@ Example:
     ```mojo
     from shared.training.script_runner import (
         TrainingCallbacks,
+        run_epoch_with_batches,
         print_training_header,
-        print_dataset_info,
     )
+    from shared.training.trainer_interface import (
+        create_simple_dataloader,
+    )
+    from shared.core.extensor import ExTensor
 
-    # Print training configuration
-    print_training_header("LeNet-5", 100, 32, 0.01)
+    fn step(x: ExTensor, y: ExTensor) raises -> ExTensor:
+        return x  # replace with real forward+loss
 
-    # Create callbacks for progress reporting
-    var callbacks = TrainingCallbacks(verbose=True, print_frequency=10)
-    callbacks.on_epoch_start(0)
-    callbacks.on_epoch_end(0, 0.5)
+    var loader = create_simple_dataloader(
+        data^, labels^, batch_size=32
+    )
+    var callbacks = TrainingCallbacks(verbose=True)
+    var loss = run_epoch_with_batches(
+        loader, callbacks, step
+    )
     ```
 """
 
