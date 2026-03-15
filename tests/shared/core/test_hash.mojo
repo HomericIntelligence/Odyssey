@@ -356,6 +356,25 @@ fn test_hash_dtype_sensitivity() raises:
         raise Error("Tensors with different dtypes should not collide on hash")
 
 
+fn test_hash_same_dtype_different_shapes() raises:
+    """Tensors with same dtype and data but different shapes hash differently.
+
+    A [2, 3] tensor and a [6] tensor with identical element values and dtype
+    must produce different hashes because shape is part of the hash.
+    """
+    var shape_2x3 = List[Int]()
+    shape_2x3.append(2)
+    shape_2x3.append(3)
+    var shape_6 = List[Int]()
+    shape_6.append(6)
+    var a = full(shape_2x3, 1.0, DType.float32)
+    var b = full(shape_6, 1.0, DType.float32)
+    if hash(a) == hash(b):
+        raise Error(
+            "Tensors with same dtype/data but different shapes ([2,3] vs [6]) should not collide on hash"
+        )
+
+
 fn test_hash_int_vs_float_same_numeric_value() raises:
     """Tensors with same numeric value but different dtype/kind hash differently.
 
@@ -450,6 +469,9 @@ fn main() raises:
 
     print("  test_hash_dtype_sensitivity...")
     test_hash_dtype_sensitivity()
+
+    print("  test_hash_same_dtype_different_shapes...")
+    test_hash_same_dtype_different_shapes()
 
     print("  test_hash_int_vs_float_same_numeric_value...")
     test_hash_int_vs_float_same_numeric_value()
