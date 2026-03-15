@@ -269,6 +269,84 @@ class TestGenerateReportStalePatterns:
 
 
 # ---------------------------------------------------------------------------
+# check_stale_patterns — multi-pattern groups (issue #4012)
+# ---------------------------------------------------------------------------
+
+
+class TestCheckStalePatternsMultiPattern:
+    """Tests for per-sub-pattern staleness in multi-pattern groups (issue #4012)."""
+
+    def test_one_stale_sub_pattern_reports_sub_pattern_not_group(
+        self, tmp_repo: Path
+    ) -> None:
+        """When one sub-pattern is stale and another is live, only the stale sub-pattern is reported."""
+        # tests/unit/test_foo.mojo exists; test_gone.mojo does not
+        ci_groups = {
+            "Mixed Group": {
+                "path": "tests/unit",
+                "pattern": "test_foo.mojo test_gone.mojo",
+            },
+        }
+        stale = check_stale_patterns(ci_groups, tmp_repo)
+        assert stale == ["Mixed Group (sub-pattern: test_gone.mojo)"]
+
+    def test_all_sub_patterns_stale_reports_group_name(self, tmp_repo: Path) -> None:
+        """When every sub-pattern in a multi-pattern group matches nothing, the group name is returned."""
+        ci_groups = {
+            "Dead Group": {
+                "path": "tests/unit",
+                "pattern": "test_missing1.mojo test_missing2.mojo",
+            },
+        }
+        stale = check_stale_patterns(ci_groups, tmp_repo)
+        assert stale == ["Dead Group"]
+
+    def test_both_sub_patterns_live_not_reported(self, tmp_repo: Path) -> None:
+        """A multi-pattern group where every sub-pattern matches files is not reported."""
+        ci_groups = {
+            "Healthy Group": {
+                "path": "tests/unit",
+                "pattern": "test_foo.mojo test_bar.mojo",
+            },
+        }
+        stale = check_stale_patterns(ci_groups, tmp_repo)
+        assert stale == []
+
+    def test_multiple_stale_sub_patterns_all_reported(self, tmp_repo: Path) -> None:
+        """Each stale sub-pattern in a partially-live group is reported individually."""
+        # test_bar.mojo exists; test_gone1.mojo and test_gone2.mojo do not
+        ci_groups = {
+            "Partial Group": {
+                "path": "tests/unit",
+                "pattern": "test_bar.mojo test_gone1.mojo test_gone2.mojo",
+            },
+        }
+        stale = check_stale_patterns(ci_groups, tmp_repo)
+        assert stale == [
+            "Partial Group (sub-pattern: test_gone1.mojo)",
+            "Partial Group (sub-pattern: test_gone2.mojo)",
+        ]
+
+    def test_mixed_and_fully_stale_groups_sorted_together(
+        self, tmp_repo: Path
+    ) -> None:
+        """Results from mixed groups and fully stale groups are returned in sorted order."""
+        ci_groups = {
+            "Zebra Group": {
+                "path": "tests/unit",
+                "pattern": "test_foo.mojo test_gone.mojo",
+            },
+            "Alpha Group": {"path": "tests/nowhere", "pattern": "test_*.mojo"},
+        }
+        stale = check_stale_patterns(ci_groups, tmp_repo)
+        assert stale == [
+            "Alpha Group",
+            "Zebra Group (sub-pattern: test_gone.mojo)",
+        ]
+
+
+
+# ---------------------------------------------------------------------------
 # expand_pattern (regression guard — unchanged behaviour)
 # ---------------------------------------------------------------------------
 
