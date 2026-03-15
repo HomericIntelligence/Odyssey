@@ -35,11 +35,7 @@ def _make_workflows_dir(base: Path) -> Path:
 
 def _write_readme(workflows: Path, table_rows: list[str]) -> Path:
     """Write a minimal README.md with the given table rows."""
-    header = (
-        "# Workflows\n\n"
-        "| Workflow | Trigger |\n"
-        "|----------|---------|\n"
-    )
+    header = "# Workflows\n\n| Workflow | Trigger |\n|----------|---------|\n"
     readme = workflows / "README.md"
     readme.write_text(header + "\n".join(table_rows) + "\n")
     return readme
@@ -148,10 +144,7 @@ class TestParseReadmeTable(unittest.TestCase):
         """Rows like '| **Build & Release** | | | |' should not be extracted."""
         workflows = _make_workflows_dir(self.tmp)
         readme = workflows / "README.md"
-        readme.write_text(
-            "| **Build & Release Workflows** | | | |\n"
-            "| release.yml | tag | Build | < 5 min |\n"
-        )
+        readme.write_text("| **Build & Release Workflows** | | | |\n| release.yml | tag | Build | < 5 min |\n")
         self.assertEqual(parse_readme_table(readme), {"release.yml"})
 
 
