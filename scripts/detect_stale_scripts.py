@@ -22,7 +22,7 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from typing import List, Set
+from typing import Set
 
 
 # Known utility/library scripts that don't need to be referenced
