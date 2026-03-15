@@ -88,6 +88,21 @@ repos:
         args: [--ignore-missing-imports, --no-strict-optional, --explicit-package-bases, --check-untyped-defs, --python-version, "3.10", --exclude, generators/]
         additional_dependencies: [types-PyYAML]
 
+  # Type checking for examples/ — uses a per-file wrapper because examples/
+  # subdirectories have hyphenated names (e.g. alexnet-cifar10) that are not
+  # valid Python package names, causing "Duplicate module" errors when mypy
+  # receives multiple files with the same basename in one invocation.
+  - repo: local
+    hooks:
+      - id: mypy-examples
+        name: mypy (examples)
+        description: Type-check Python files in examples/ one file at a time
+        entry: pixi run python scripts/mypy-each-file.py --ignore-missing-imports --no-strict-optional --explicit-package-bases --check-untyped-defs --python-version 3.10
+        language: system
+        files: ^examples/.*\.py$
+        types: [python]
+        pass_filenames: true
+
   # Python formatting and linting
   - repo: local
     hooks:
