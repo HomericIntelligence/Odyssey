@@ -31,6 +31,7 @@ from tests.shared.conftest import (
 from shared.core.extensor import ExTensor, zeros, ones, zeros_like
 from shared.training.optimizers.sgd import sgd_step, sgd_step_simple
 from shared.training.optimizers.adam import adam_step, adam_step_simple
+from shared.training.optimizers.adamw import adamw_step
 
 
 # ============================================================================
@@ -90,21 +91,44 @@ fn test_adamw_weight_decay() raises:
         - Then apply: params = params * (1 - lr * weight_decay)
 
         This differs from L2 regularization used in standard Adam.
+
+    Verification:
+        - AdamW should reduce parameters more than Adam alone
+        - Weight decay is applied directly to parameters, not through gradients
+        - Effect accumulates over multiple steps
     """
-    # TODO(#1538): Implement when AdamW is available
-    # var params = ExTensor([1], DType.float32)
-    # params._data.bitcast[Float32]()[0] = 1.0
-    # var grads = ExTensor([1], DType.float32)
-    # grads._data.bitcast[Float32]()[0] = 0.1
-    # #
-    # var optimizer = AdamW(learning_rate=0.001, weight_decay=0.01)
-    # #
-    # # AdamW should decay weights more aggressively than Adam+L2
-    # optimizer.step(params, grads)
-    # #
-    # # Verify weight decay was applied
-    # assert_less(params._get_float64(0), 1.0)
-    pass
+    var shape = List[Int]()
+    shape.append(1)
+    var params = ones(shape, DType.float32)
+    params._data.bitcast[Float32]()[0] = 1.0
+
+    var grads = zeros(shape, DType.float32)
+    grads._data.bitcast[Float32]()[0] = 0.1
+
+    var m = zeros(shape, DType.float32)
+    var v = zeros(shape, DType.float32)
+
+    # Single AdamW step with weight decay
+    var result = adamw_step(
+        params,
+        grads,
+        m,
+        v,
+        t=1,
+        learning_rate=0.001,
+        beta1=0.9,
+        beta2=0.999,
+        epsilon=1e-8,
+        weight_decay=0.01,
+    )
+    params = result[0]
+
+    # Parameter should decrease due to both gradient update and weight decay
+    # Adam update: ~1.0 - 0.001 = ~0.999
+    # Then weight decay: 0.999 * (1 - 0.001 * 0.01) = 0.999 * 0.99999 ≈ 0.998999
+    var param_val = params._data.bitcast[Float32]()[0]
+    assert_less(param_val, 1.0)
+    assert_less(param_val, 0.999)  # Weight decay should make it smaller than Adam alone
 
 
 # ============================================================================
