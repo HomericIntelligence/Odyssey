@@ -164,6 +164,13 @@ repos:
         language: system
         files: test_.*_part\d+\.mojo$
         pass_filenames: false
+      - id: check-precommit-versions
+        name: Check pre-commit vs pixi version drift
+        description: Fail if rev tags in .pre-commit-config.yaml drift from pixi.lock versions
+        entry: python scripts/check_precommit_versions.py
+        language: system
+        pass_filenames: false
+        files: ^(\.pre-commit-config\.yaml|pixi\.toml|pixi\.lock)$
 
   # Markdown linting
   - repo: https://github.com/DavidAnson/markdownlint-cli2
