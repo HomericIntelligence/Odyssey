@@ -82,6 +82,24 @@ struct ExTensor(
             _refcount: Shared reference count for memory management.
             _original_numel_quantized: For quantized tensors, stores original size before padding (-1 if not quantized).
 
+    Memory Semantics:
+            ExTensor exposes two distinct access patterns with different memory contracts.
+            Callers must choose the appropriate method based on whether shared or independent
+            memory is required.
+
+            +----------------------------+----------+---------------------+------------------------------+
+            | Method                     | Returns  | _is_view            | Memory                       |
+            +----------------------------+----------+---------------------+------------------------------+
+            | slice(start, end, axis)    | ExTensor | True  (view)        | Shared — zero-copy           |
+            | __getitem__(Slice)         | ExTensor | False (copy)        | Independent — data copied    |
+            | __getitem__(*slices)       | ExTensor | False (copy)        | Independent — data copied    |
+            | __getitem__(Int)           | Float32  | N/A (scalar result) | Scalar value, not a tensor   |
+            +----------------------------+----------+---------------------+------------------------------+
+
+            Use `slice()` for memory-efficient batch iteration where the original data must
+            remain unmodified. Use `__getitem__` overloads when independent copies are needed
+            (e.g., when the result may be mutated or outlives the source tensor).
+
     Examples:
             # Create tensors
             var a = zeros([3, 4], DType.float32)
@@ -104,7 +122,13 @@ struct ExTensor(
     var _numel: Int
     """Total number of elements."""
     var _is_view: Bool
-    """Whether this tensor shares data with another."""
+    """Whether this tensor shares data with another (view semantics).
+
+    True when set by `slice()`, which returns a zero-copy view into the original
+    buffer. False for all tensors created via `__getitem__` overloads or any
+    constructor that allocates independent memory. When True, the `__del__` method
+    skips freeing `_data` to avoid a double-free with the original tensor.
+    """
     var _refcount: UnsafePointer[Int, origin=MutAnyOrigin]
     """Reference count for shared memory management."""
     var _original_numel_quantized: Int
@@ -780,16 +804,23 @@ struct ExTensor(
         return result^
 
     fn __getitem__(self, index: Int) raises -> Float32:
-        """Get element at flat index.
+        """Get element at flat index, returning a scalar value.
 
         Args:
             index: The flat index to access.
 
         Returns:
-            The value at the given index as Float32.
+            The value at the given index as Float32. This is a scalar, not an
+            ExTensor — the view/copy distinction does not apply. No memory is
+            shared with or allocated from the original tensor.
 
         Raises:
             Error: If index is out of bounds.
+
+        Notes:
+            Unlike `slice()` (view, shared memory) and `__getitem__(Slice)` /
+            `__getitem__(*slices)` (copy, independent ExTensor), this overload
+            extracts a single numeric value and has no memory ownership semantics.
 
         Example:
             ```mojo
@@ -1060,7 +1091,10 @@ struct ExTensor(
             produces non-contiguous data in general (e.g., `t[1:4, 1:3]` on
             a 5x4 tensor), so a simple pointer offset is insufficient. Each
             output element is copied individually using per-dimension offsets
-            and original strides.
+            and original strides. Unlike `slice()`, which returns a genuine view
+            (`_is_view = True`, shared memory, zero-copy), this method always
+            allocates independent memory for the result. Use `slice()` for
+            memory-efficient extraction along a single axis.
 
         Example:
             ```mojo
