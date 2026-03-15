@@ -31,6 +31,8 @@ from shared.core.conv import (
     conv2d_no_bias,
     conv2d_backward,
     conv2d_no_bias_backward,
+    depthwise_conv2d_no_bias,
+    depthwise_conv2d_no_bias_backward,
 )
 from shared.testing import (
     compute_numerical_gradient,
@@ -773,6 +775,54 @@ fn test_conv2d_no_bias_backward_shapes() raises:
     assert_equal(grad_kernel.shape()[3], kW)
 
 
+fn test_depthwise_conv2d_no_bias_backward_shapes() raises:
+    """Test that depthwise_conv2d_no_bias_backward returns correct gradient shapes."""
+    var batch = 1
+    var channels = 3
+    var in_height = 5
+    var in_width = 5
+    var kH = 3
+    var kW = 3
+    var stride = 1
+    var padding = 0
+
+    var input_shape = List[Int]()
+    input_shape.append(batch)
+    input_shape.append(channels)
+    input_shape.append(in_height)
+    input_shape.append(in_width)
+    var x = ones(input_shape, DType.float32)
+
+    # Depthwise kernel shape: (channels, 1, kH, kW)
+    var kernel_shape = List[Int]()
+    kernel_shape.append(channels)
+    kernel_shape.append(1)
+    kernel_shape.append(kH)
+    kernel_shape.append(kW)
+    var kernel = ones(kernel_shape, DType.float32)
+
+    var output = depthwise_conv2d_no_bias(x, kernel, stride, padding)
+    var grad_output = ones(output.shape(), DType.float32)
+
+    var result = depthwise_conv2d_no_bias_backward(
+        grad_output, x, kernel, stride, padding
+    )
+    var grad_input = result.grad_input
+    var grad_weights = result.grad_weights
+
+    # grad_input should match input shape
+    assert_equal(grad_input.shape()[0], batch)
+    assert_equal(grad_input.shape()[1], channels)
+    assert_equal(grad_input.shape()[2], in_height)
+    assert_equal(grad_input.shape()[3], in_width)
+
+    # grad_weights should match depthwise kernel shape: (channels, 1, kH, kW)
+    assert_equal(grad_weights.shape()[0], channels)
+    assert_equal(grad_weights.shape()[1], 1)
+    assert_equal(grad_weights.shape()[2], kH)
+    assert_equal(grad_weights.shape()[3], kW)
+
+
 fn test_conv2d_backward_multichannel_shapes() raises:
     """Test conv2d_backward returns correct gradient shapes for multi-channel config.
 
@@ -1452,6 +1502,9 @@ fn main() raises:
 
     test_conv2d_no_bias_backward_shapes()
     print("✓ test_conv2d_no_bias_backward_shapes")
+
+    test_depthwise_conv2d_no_bias_backward_shapes()
+    print("✓ test_depthwise_conv2d_no_bias_backward_shapes")
 
     test_conv2d_backward_multichannel_shapes()
     print("✓ test_conv2d_backward_multichannel_shapes")
