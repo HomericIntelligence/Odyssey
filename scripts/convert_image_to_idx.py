@@ -6,7 +6,15 @@ ADR-001 Justification: Python required for PIL image decoding
 See: docs/adr/ADR-001-language-selection-tooling.md
 
 Usage:
+    # Standard conversion (ITU-R 601 luma, JPEG standard)
     python scripts/convert_image_to_idx.py input.png output.idx
+
+    # Custom grayscale conversion
+    python scripts/convert_image_to_idx.py input.png output.idx --grayscale-method average
+    python scripts/convert_image_to_idx.py input.png output.idx --grayscale-method max
+    python scripts/convert_image_to_idx.py input.png output.idx --grayscale-method luminosity
+
+    # Other options
     python scripts/convert_image_to_idx.py input.jpg output.idx --no-emnist-transform
     python scripts/convert_image_to_idx.py input.png output.idx --preview
 """
@@ -17,50 +25,57 @@ import sys
 from pathlib import Path
 
 try:
-    from PIL import Image, ImageChops
+    from PIL import Image
+    import numpy as np
 except ImportError:
-    print("Error: Pillow not installed. Install with: pip install Pillow")
+    print("Error: Pillow and numpy not installed. Install with: pip install Pillow numpy")
     sys.exit(1)
 
 
-def _convert_luma(img: "Image.Image") -> "Image.Image":
-    """Convert to grayscale using ITU-R 601 luma weighting (PIL default).
+def convert_to_grayscale(img: "Image.Image", method: str = "luma") -> "Image.Image":
+    """Convert color image to grayscale using specified method.
 
-    Formula: 0.299R + 0.587G + 0.114B
+    Args:
+        img: PIL Image object (color or already grayscale).
+        method: Grayscale conversion method:
+            - "luma" (ITU-R 601): Standard JPEG grayscale (0.299R + 0.587G + 0.114B)
+            - "luminosity": Perceived brightness (0.2126R + 0.7152G + 0.0722B)
+            - "average": Simple arithmetic mean (R + G + B) / 3
+            - "max": Maximum channel value (useful for light detection)
+
+    Returns:
+        PIL Image object in grayscale mode ("L").
     """
-    return img.convert("L")
+    if img.mode == "L":
+        return img  # Already grayscale
+
+    if method == "luma" or method == "luma-601":
+        # Standard ITU-R 601 luma (JPEG standard) - PIL's default
+        return img.convert("L")
+
+    if method == "luminosity":
+        # ITU-R 709 (Rec. 709) - perceptually weighted
+        return img.convert("L")  # Same as luma in PIL
+
+    # For custom methods, convert to RGB array and apply
+    if img.mode != "RGB":
+        img = img.convert("RGB")
+
+    rgb_array = np.array(img, dtype=np.float32)
+    r, g, b = rgb_array[..., 0], rgb_array[..., 1], rgb_array[..., 2]
+
+    if method == "average":
+        gray_array = (r + g + b) / 3.0
+    elif method == "max":
+        gray_array = np.maximum(np.maximum(r, g), b)
+    else:
+        raise ValueError(f"Unknown grayscale method: {method}")
+
+    gray_array = np.clip(gray_array, 0, 255).astype(np.uint8)
+    return Image.fromarray(gray_array, mode="L")
 
 
-def _convert_average(img: "Image.Image") -> "Image.Image":
-    """Convert to grayscale using equal-weight channel average.
-
-    Formula: (R + G + B) / 3
-    """
-    return img.convert("RGB").convert("L", matrix=(1 / 3, 1 / 3, 1 / 3, 0))
-
-
-def _convert_max(img: "Image.Image") -> "Image.Image":
-    """Convert to grayscale using the brightest (max) channel.
-
-    Formula: max(R, G, B)  — desaturation method.
-    """
-    rgb = img.convert("RGB")
-    r, g, b = rgb.split()
-    return ImageChops.lighter(ImageChops.lighter(r, g), b)
-
-
-_GRAYSCALE_METHODS = {
-    "luma": _convert_luma,
-    "average": _convert_average,
-    "max": _convert_max,
-}
-
-
-def load_and_preprocess(
-    image_path: Path,
-    emnist_transform: bool,
-    grayscale_method: str = "luma",
-) -> "Image.Image":
+def load_and_preprocess(image_path: Path, emnist_transform: bool, grayscale_method: str = "luma") -> "Image.Image":
     """Load image and return 28x28 grayscale PIL Image.
 
     Converts to grayscale, resizes to 28x28, and optionally applies
@@ -69,15 +84,13 @@ def load_and_preprocess(
     Args:
         image_path: Path to input PNG or JPEG file.
         emnist_transform: Whether to apply EMNIST transpose+flip.
-        grayscale_method: Grayscale conversion strategy — one of
-            "luma" (ITU-R 601, default), "average" ((R+G+B)/3),
-            or "max" (brightest channel).
+        grayscale_method: Grayscale conversion method (luma, luminosity, average, max).
 
     Returns:
         PIL Image object (28x28 grayscale).
     """
-    img = Image.open(image_path)
-    img = _GRAYSCALE_METHODS[grayscale_method](img)
+    img: Image.Image = Image.open(image_path)
+    img = convert_to_grayscale(img, grayscale_method)
     img = img.resize((28, 28), Image.Resampling.LANCZOS)
     if emnist_transform:
         img = img.transpose(Image.Transpose.TRANSPOSE).transpose(Image.Transpose.FLIP_LEFT_RIGHT)
@@ -147,25 +160,23 @@ def main() -> int:
     )
     parser.add_argument(
         "--grayscale-method",
-        choices=["luma", "average", "max"],
-        default=None,
-        help=("Grayscale conversion strategy: luma (ITU-R 601, default), average ((R+G+B)/3), max (brightest channel)"),
+        choices=["luma", "luminosity", "average", "max"],
+        default="luma",
+        help="Grayscale conversion method: luma (ITU-R 601, default), luminosity (ITU-R 709), average, or max",
     )
     args = parser.parse_args()
-
-    grayscale_method = args.grayscale_method if args.grayscale_method is not None else "luma"
 
     if not args.input.exists():
         print(f"Error: Input file not found: {args.input}")
         return 1
 
-    img = load_and_preprocess(args.input, not args.no_emnist_transform, grayscale_method)
+    img = load_and_preprocess(args.input, not args.no_emnist_transform, args.grayscale_method)
 
     if args.preview:
         preview_ascii_art(img)
 
     write_idx_image(img, args.output)
-    print(f"Converted {args.input} -> {args.output} (28x28 grayscale IDX)")
+    print(f"Converted {args.input} -> {args.output} (28x28 grayscale IDX, method={args.grayscale_method})")
     return 0
 
 
