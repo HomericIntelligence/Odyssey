@@ -101,7 +101,7 @@ fn test_setitem_out_of_bounds() raises:
     var raised = False
     try:
         t[5] = 1.0
-    except:
+    except e:
         raised = True
 
     if not raised:
