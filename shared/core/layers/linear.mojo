@@ -10,9 +10,10 @@ Key components:
 """
 
 from shared.core.extensor import ExTensor, zeros, randn, zeros_like
+from shared.core.module import Module
 
 
-struct Linear(Copyable, Movable):
+struct Linear(Copyable, Module, Movable):
     """Linear layer: y = xW + b.
 
     A fully connected neural network layer that transforms inputs
@@ -57,7 +58,7 @@ struct Linear(Copyable, Movable):
         # Initialize bias to zeros
         self.bias = zeros([out_features], DType.float32)
 
-    fn forward(self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: ExTensor) raises -> ExTensor:
         """Forward pass: y = xW + b.
 
         Computes the linear transformation: output = input @ weight + bias.
@@ -121,3 +122,11 @@ struct Linear(Copyable, Movable):
         params.append(weight_copy^)
         params.append(bias_copy^)
         return params^
+
+    fn train(mut self):
+        """Switch to training mode (no-op for Linear layer)."""
+        pass
+
+    fn eval(mut self):
+        """Switch to inference mode (no-op for Linear layer)."""
+        pass
