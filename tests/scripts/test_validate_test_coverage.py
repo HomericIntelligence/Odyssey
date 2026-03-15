@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""Tests for validate_test_coverage.py — stale pattern detection (issue #3358).
+"""Tests for validate_test_coverage.py — stale pattern detection (issue #3358)
+and group overlap detection (issue #4459).
 
-Verifies that check_stale_patterns() correctly identifies CI matrix entries
-that match zero existing test files.
+Verifies that:
+- check_stale_patterns() correctly identifies CI matrix entries that match
+  zero existing test files.
+- check_group_overlaps() correctly identifies CI matrix groups whose resolved
+  file sets overlap.
 """
 
 import sys
@@ -12,7 +16,12 @@ import pytest
 
 # Add scripts directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
-from validate_test_coverage import check_stale_patterns, expand_pattern
+from validate_test_coverage import (
+    _paths_overlap,
+    check_group_overlaps,
+    check_stale_patterns,
+    expand_pattern,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -144,3 +153,159 @@ class TestExpandPattern:
     def test_direct_file_missing(self, tmp_repo: Path) -> None:
         matched = expand_pattern("tests/unit", "test_gone.mojo", tmp_repo)
         assert matched == set()
+
+
+# ---------------------------------------------------------------------------
+# _paths_overlap
+# ---------------------------------------------------------------------------
+
+
+class TestPathsOverlap:
+    """Unit tests for _paths_overlap()."""
+
+    def test_identical_paths_overlap(self) -> None:
+        assert _paths_overlap("tests/shared/data", "tests/shared/data") is True
+
+    def test_parent_child_overlap(self) -> None:
+        assert _paths_overlap("tests/shared", "tests/shared/data") is True
+
+    def test_child_parent_overlap_reversed(self) -> None:
+        assert _paths_overlap("tests/shared/data", "tests/shared") is True
+
+    def test_sibling_paths_do_not_overlap(self) -> None:
+        assert _paths_overlap("tests/shared/data", "tests/shared/core") is False
+
+    def test_unrelated_paths_do_not_overlap(self) -> None:
+        assert _paths_overlap("benchmarks/ops", "tests/shared") is False
+
+    def test_partial_name_match_does_not_count(self) -> None:
+        # "tests/shared" should NOT overlap with "tests/shared2"
+        assert _paths_overlap("tests/shared", "tests/shared2") is False
+
+
+# ---------------------------------------------------------------------------
+# check_group_overlaps
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture()
+def tmp_repo_with_subdirs(tmp_path: Path) -> Path:
+    """Create a repo tree with nested test directories."""
+    (tmp_path / "tests" / "shared" / "data" / "datasets").mkdir(parents=True)
+    (tmp_path / "tests" / "shared" / "data").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "tests" / "shared" / "core").mkdir(parents=True)
+    (tmp_path / "tests" / "shared" / "data" / "test_loader.mojo").touch()
+    (tmp_path / "tests" / "shared" / "data" / "datasets" / "test_cifar.mojo").touch()
+    (tmp_path / "tests" / "shared" / "core" / "test_tensor.mojo").touch()
+    return tmp_path
+
+
+class TestCheckGroupOverlaps:
+    """Unit tests for check_group_overlaps()."""
+
+    def test_no_overlap_when_groups_are_disjoint(self, tmp_repo_with_subdirs: Path) -> None:
+        root = tmp_repo_with_subdirs
+        ci_groups = {
+            "Data": {"path": "tests/shared/data", "pattern": "test_*.mojo"},
+            "Core": {"path": "tests/shared/core", "pattern": "test_*.mojo"},
+        }
+        coverage = {
+            "Data": expand_pattern("tests/shared/data", "test_*.mojo", root),
+            "Core": expand_pattern("tests/shared/core", "test_*.mojo", root),
+        }
+        result = check_group_overlaps(ci_groups, coverage)
+        assert result == []
+
+    def test_detects_overlap_between_parent_and_child_groups(
+        self, tmp_repo_with_subdirs: Path
+    ) -> None:
+        root = tmp_repo_with_subdirs
+        # "Data" uses a subdirectory wildcard that picks up datasets/test_cifar.mojo
+        # "Datasets" explicitly targets that same file
+        ci_groups = {
+            "Data": {"path": "tests/shared/data", "pattern": "datasets/test_*.mojo"},
+            "Datasets": {
+                "path": "tests/shared/data/datasets",
+                "pattern": "test_*.mojo",
+            },
+        }
+        coverage = {
+            "Data": expand_pattern(
+                "tests/shared/data", "datasets/test_*.mojo", root
+            ),
+            "Datasets": expand_pattern(
+                "tests/shared/data/datasets", "test_*.mojo", root
+            ),
+        }
+        result = check_group_overlaps(ci_groups, coverage)
+        assert len(result) == 1
+        group_a, group_b, f = result[0]
+        assert set([group_a, group_b]) == {"Data", "Datasets"}
+        assert f == Path("tests/shared/data/datasets/test_cifar.mojo")
+
+    def test_no_false_positive_across_unrelated_dirs(self, tmp_repo_with_subdirs: Path) -> None:
+        root = tmp_repo_with_subdirs
+        ci_groups = {
+            "Benchmarks": {"path": "benchmarks/ops", "pattern": "test_*.mojo"},
+            "Core": {"path": "tests/shared/core", "pattern": "test_*.mojo"},
+        }
+        coverage = {
+            "Benchmarks": expand_pattern("benchmarks/ops", "test_*.mojo", root),
+            "Core": expand_pattern("tests/shared/core", "test_*.mojo", root),
+        }
+        result = check_group_overlaps(ci_groups, coverage)
+        assert result == []
+
+    def test_empty_groups_returns_empty(self) -> None:
+        result = check_group_overlaps({}, {})
+        assert result == []
+
+    def test_overlap_result_is_sorted(self, tmp_repo_with_subdirs: Path) -> None:
+        """Overlapping files are returned in deterministic sorted order."""
+        root = tmp_repo_with_subdirs
+        # Add a second overlapping file
+        (root / "tests" / "shared" / "data" / "datasets" / "test_mnist.mojo").touch()
+        ci_groups = {
+            "Data": {"path": "tests/shared/data", "pattern": "datasets/test_*.mojo"},
+            "Datasets": {
+                "path": "tests/shared/data/datasets",
+                "pattern": "test_*.mojo",
+            },
+        }
+        coverage = {
+            "Data": expand_pattern(
+                "tests/shared/data", "datasets/test_*.mojo", root
+            ),
+            "Datasets": expand_pattern(
+                "tests/shared/data/datasets", "test_*.mojo", root
+            ),
+        }
+        result = check_group_overlaps(ci_groups, coverage)
+        files = [f for _, _, f in result]
+        assert files == sorted(files)
+
+    def test_overlap_triples_contain_group_names_and_path(
+        self, tmp_repo_with_subdirs: Path
+    ) -> None:
+        root = tmp_repo_with_subdirs
+        ci_groups = {
+            "Data": {"path": "tests/shared/data", "pattern": "datasets/test_*.mojo"},
+            "Datasets": {
+                "path": "tests/shared/data/datasets",
+                "pattern": "test_*.mojo",
+            },
+        }
+        coverage = {
+            "Data": expand_pattern(
+                "tests/shared/data", "datasets/test_*.mojo", root
+            ),
+            "Datasets": expand_pattern(
+                "tests/shared/data/datasets", "test_*.mojo", root
+            ),
+        }
+        result = check_group_overlaps(ci_groups, coverage)
+        assert len(result) == 1
+        group_a, group_b, f = result[0]
+        assert isinstance(group_a, str)
+        assert isinstance(group_b, str)
+        assert isinstance(f, Path)
