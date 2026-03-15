@@ -278,6 +278,41 @@ class TestMigrateSkillAuxiliaryDirs:
         assert (scripts_dir / "run_orchestrator.sh").exists()
         assert (scripts_dir / "helper.sh").exists()
 
+    def test_skill_with_deeply_nested_scripts_subdir(self, tmp_path: Path, migrate_module) -> None:
+        """scripts/utils/helper.sh (subdir inside scripts/) is preserved after migration."""
+        odyssey_skills = tmp_path / "odyssey_skills"
+        mnemosyne_skills = tmp_path / "mnemosyne" / "skills"
+        mnemosyne_skills.mkdir(parents=True)
+
+        skill_dir = make_skill_dir(odyssey_skills, "agent-run-orchestrator")
+        # Create a subdirectory *within* scripts/ to test multi-level nesting
+        nested_dir = skill_dir / "scripts" / "utils"
+        nested_dir.mkdir(parents=True)
+        (nested_dir / "helper.sh").write_text("#!/bin/bash\necho helper")
+
+        skill_md = odyssey_skills / "agent-run-orchestrator" / "SKILL.md"
+
+        with patch.object(migrate_module, "MNEMOSYNE_SKILLS_DIR", mnemosyne_skills):
+            result = migrate_module.migrate_skill(
+                skill_name="agent-run-orchestrator",
+                source_skill_md=skill_md,
+                category="tooling",
+                dry_run=False,
+            )
+
+        assert result is True
+        nested_helper = (
+            mnemosyne_skills
+            / "tooling"
+            / "agent-run-orchestrator"
+            / "skills"
+            / "agent-run-orchestrator"
+            / "scripts"
+            / "utils"
+            / "helper.sh"
+        )
+        assert nested_helper.exists(), f"Expected deeply nested helper at {nested_helper}"
+
     def test_dry_run_does_not_copy_files(self, tmp_path: Path, migrate_module) -> None:
         """dry_run=True does not write any files."""
         odyssey_skills = tmp_path / "odyssey_skills"
