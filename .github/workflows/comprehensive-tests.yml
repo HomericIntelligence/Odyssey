@@ -248,7 +248,7 @@ jobs:
           # Non-blocking pending Mojo runtime fix.
           - name: "Core Gradient"
             path: "tests/shared/core"
-            pattern: "test_backward_linear.mojo test_backward_conv_pool.mojo test_backward_losses.mojo test_gradient_checking_basic.mojo test_gradient_checking_dtype.mojo test_gradient_validation_activations.mojo test_gradient_validation_layers.mojo test_gradient_validation_part1.mojo test_gradient_validation_part2.mojo test_variable_backward.mojo"
+            pattern: "test_backward_linear.mojo test_backward_conv_pool.mojo test_backward_losses.mojo test_gradient_checking_basic.mojo test_gradient_checking_dtype.mojo test_gradient_validation_activations.mojo test_gradient_validation_layers.mojo test_gradient_validation_part1.mojo test_gradient_validation_part2.mojo test_variable_backward.mojo test_depthwise_conv_grad_check_part1.mojo test_depthwise_conv_grad_check_part2.mojo"
             continue-on-error: true
           # ---- Core Utilities ----
           # NOTE: This pattern has 28+ explicit file patterns and is difficult to maintain.
