@@ -1,5 +1,8 @@
 name: Deploy Documentation
 
+# Documentation build, link checking, and README validation
+# Absorbs: link-check.yml, readme-validation.yml
+
 on:
   push:
     branches: [main]
@@ -7,15 +10,40 @@ on:
       - 'docs/**'
       - 'mkdocs.yml'
       - '.github/workflows/docs.yml'
+      - '**.md'
+      - 'README.md'
+      - 'scripts/validate_readme_commands.py'
   pull_request:
     paths:
       - 'docs/**'
       - 'mkdocs.yml'
+      - '**.md'
+      - 'README.md'
+      - 'scripts/validate_readme_commands.py'
+
+  # Weekly Monday 9 AM UTC: link rot check
+  # Nightly 3 AM UTC: README command validation
+  schedule:
+    - cron: '0 9 * * 1'  # Weekly Monday - lychee link check
+    - cron: '0 3 * * *'  # Nightly - README validation
+
+  # Allow manual runs with optional README validation level
+  workflow_dispatch:
+    inputs:
+      validation_level:
+        description: 'README validation level'
+        required: false
+        default: 'quick'
+        type: choice
+        options:
+          - quick
+          - comprehensive
 
 permissions:
   contents: write
   pages: write
   id-token: write
+  pull-requests: read
 
 jobs:
   deploy:
@@ -42,3 +70,132 @@ jobs:
       - name: Deploy to GitHub Pages
         if: github.ref == 'refs/heads/main'
         run: mkdocs gh-deploy --force
+
+  # ============================================================================
+  # Link Checking (absorbed from link-check.yml)
+  # Weekly + on markdown changes
+  # ============================================================================
+  link-check:
+    runs-on: ubuntu-latest
+    # Run on: weekly schedule, workflow_dispatch, or PRs/pushes touching .md files
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'schedule' && startsWith(github.event.schedule, '0 9')) ||
+      github.event_name == 'pull_request' ||
+      github.event_name == 'push'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Restore lychee cache
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306  # v5
+        with:
+          path: .lycheecache
+          key: cache-lychee-${{ github.sha }}
+          restore-keys: cache-lychee-
+
+      - name: Check links with lychee
+        uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411  # v2
+        with:
+          args: |
+            --verbose
+            --no-progress
+            --cache
+            --max-cache-age 1d
+            --max-retries 3
+            --retry-wait-time 5
+            --timeout 15
+            --accept "200..=204,503,504"
+            --exclude 'file:///,https://www.conventionalcommits.org'
+            --base '${{ github.workspace }}'
+            '**/*.md'
+          output: lychee-report.md
+          format: markdown
+          fail: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  # ============================================================================
+  # README Command Validation (absorbed from readme-validation.yml)
+  # Nightly + on README changes
+  # ============================================================================
+  validate-readme-commands:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Run on: nightly schedule, workflow_dispatch, or PRs/pushes touching README
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'schedule' && startsWith(github.event.schedule, '0 3')) ||
+      github.event_name == 'pull_request' ||
+      github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Determine validation level
+        id: validation-level
+        run: |
+          # Manual dispatch uses input
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            LEVEL="${{ github.event.inputs.validation_level }}"
+          # Weekly schedule (Sunday = day 0) = comprehensive
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            DAY_OF_WEEK=$(date +%w)
+            if [ "$DAY_OF_WEEK" = "0" ]; then
+              LEVEL="comprehensive"
+            else
+              LEVEL="quick"
+            fi
+          # PRs and pushes get quick validation
+          else
+            LEVEL="quick"
+          fi
+          echo "level=$LEVEL" >> $GITHUB_OUTPUT
+          echo "Validation level: $LEVEL"
+
+      - name: Run README command validation
+        run: |
+          python3 scripts/validate_readme_commands.py \
+            --level ${{ steps.validation-level.outputs.level }} \
+            --output validation-report.md \
+            README.md
+
+      - name: Upload validation report
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7
+        with:
+          name: readme-validation-report
+          path: validation-report.md
+          retention-days: 30
+
+      - name: Display validation results
+        if: always()
+        run: |
+          echo ""
+          echo "========================================"
+          echo "README Command Validation Results"
+          echo "========================================"
+          echo ""
+          cat validation-report.md
+
+      - name: Display helpful message on failure
+        if: failure()
+        run: |
+          echo ""
+          echo "========================================"
+          echo "README Command Validation FAILED"
+          echo "========================================"
+          echo ""
+          echo "Common issues:"
+          echo "  1. Command requires tool not installed in CI"
+          echo "  2. Command is example-only (add # SKIP-VALIDATION)"
+          echo "  3. Command syntax has changed"
+          echo ""
+          echo "To fix:"
+          echo "  - Update the command in README.md"
+          echo "  - Or add skip marker: # SKIP-VALIDATION"
+          echo "  - Or update pixi.toml dependencies"

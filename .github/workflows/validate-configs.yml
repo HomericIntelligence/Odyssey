@@ -1,5 +1,7 @@
 name: Validate Configurations
 
+# Also covers: test-agents, script-validation, paper-validation, validate-workflows
+
 on:
   push:
     branches: [main]
@@ -7,6 +9,13 @@ on:
       - 'configs/**/*.yaml'
       - 'configs/**/*.yml'
       - 'shared/utils/config*.mojo'
+      - '.claude/agents/**'
+      - 'tests/agents/**'
+      - 'agents/**'
+      - 'scripts/**/*.py'
+      - 'papers/**'
+      - '.github/**'
+      - 'scripts/validate_workflow_checkout_order.py'
       - '.github/workflows/validate-configs.yml'
   pull_request:
     branches: [main]
@@ -14,7 +23,16 @@ on:
       - 'configs/**/*.yaml'
       - 'configs/**/*.yml'
       - 'shared/utils/config*.mojo'
+      - '.claude/agents/**'
+      - 'tests/agents/**'
+      - 'agents/**'
+      - 'scripts/**/*.py'
+      - 'papers/**'
+      - '.github/**'
+      - 'scripts/validate_workflow_checkout_order.py'
       - '.github/workflows/validate-configs.yml'
+
+  workflow_dispatch:
 
 jobs:
   validate-yaml:
@@ -232,3 +250,364 @@ jobs:
           fi
 
           echo "All validation checks passed!"
+
+  # ============================================================================
+  # Agent Configuration Tests (absorbed from test-agents.yml)
+  # ============================================================================
+  test-agents:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Validate agent configurations
+        run: python3 tests/agents/validate_configs.py .claude/agents/
+
+      - name: Test agent loading
+        run: python3 tests/agents/test_loading.py .claude/agents/
+
+      - name: Test delegation patterns
+        run: python3 tests/agents/test_delegation.py .claude/agents/
+
+      - name: Test workflow integration
+        run: python3 tests/agents/test_integration.py .claude/agents/
+
+      - name: Test Mojo patterns
+        run: python3 tests/agents/test_mojo_patterns.py .claude/agents/
+
+  # ============================================================================
+  # Script Validation (absorbed from script-validation.yml)
+  # ============================================================================
+  validate-scripts:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Install validation tools
+        run: |
+          pixi run pip install ruff pyyaml
+
+      - name: Find Python scripts
+        id: find-scripts
+        run: |
+          echo "Discovering Python scripts in scripts/ directory..."
+          if [ -d "scripts" ]; then
+            find scripts -name "*.py" -type f | tee /tmp/scripts_list.txt
+            SCRIPT_COUNT=$(wc -l < /tmp/scripts_list.txt)
+          else
+            echo "scripts/ directory does not exist"
+            SCRIPT_COUNT=0
+            > /tmp/scripts_list.txt
+          fi
+          echo "Found $SCRIPT_COUNT Python scripts"
+          echo "script_count=$SCRIPT_COUNT" >> $GITHUB_OUTPUT
+
+      - name: Syntax validation
+        run: |
+          echo "Validating Python syntax for all scripts..."
+          SCRIPT_COUNT=${{ steps.find-scripts.outputs.script_count }}
+          if [ "$SCRIPT_COUNT" -eq 0 ]; then
+            echo "No scripts to validate"
+            exit 0
+          fi
+          EXIT_CODE=0
+          while IFS= read -r script; do
+            [ -z "$script" ] && continue
+            echo "Checking: $script"
+            if ! python3 -m py_compile "$script"; then
+              echo "Syntax error in: $script"
+              EXIT_CODE=1
+            fi
+          done < /tmp/scripts_list.txt
+
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "✅ All scripts have valid Python syntax"
+          else
+            echo "Syntax validation failed"
+          fi
+          exit $EXIT_CODE
+
+      - name: Lint with ruff
+        run: |
+          echo "Running ruff linter on all scripts..."
+          SCRIPT_COUNT=${{ steps.find-scripts.outputs.script_count }}
+          if [ "$SCRIPT_COUNT" -eq 0 ] || [ ! -d "scripts" ]; then
+            echo "No scripts to lint"
+            exit 0
+          fi
+          pixi run ruff check scripts/ --output-format=github || {
+            echo "Linting issues found"
+            exit 1
+          }
+          echo "✅ All scripts passed linting"
+
+      - name: Check script formatting
+        run: |
+          echo "Checking code formatting with ruff..."
+          SCRIPT_COUNT=${{ steps.find-scripts.outputs.script_count }}
+          if [ "$SCRIPT_COUNT" -eq 0 ] || [ ! -d "scripts" ]; then
+            echo "No scripts to check formatting"
+            exit 0
+          fi
+          pixi run ruff format --check scripts/ || {
+            echo "Formatting issues found. Run: pixi run ruff format scripts/"
+            exit 1
+          }
+          echo "✅ All scripts are properly formatted"
+
+      - name: Validate script shebangs
+        run: |
+          echo "Checking shebang lines..."
+          SCRIPT_COUNT=${{ steps.find-scripts.outputs.script_count }}
+          if [ "$SCRIPT_COUNT" -eq 0 ]; then
+            exit 0
+          fi
+          while IFS= read -r script; do
+            [ -z "$script" ] && continue
+            if head -n1 "$script" | grep -q "^#!/usr/bin/env python3"; then
+              echo "✓ $script has correct shebang"
+            elif head -n1 "$script" | grep -q "^#!"; then
+              echo "Warning: $script has unexpected shebang: $(head -n1 "$script")"
+            else
+              echo "Info: $script has no shebang (may be a library module)"
+            fi
+          done < /tmp/scripts_list.txt
+          echo "✅ Shebang validation complete"
+
+  # ============================================================================
+  # Paper Validation (absorbed from paper-validation.yml)
+  # ============================================================================
+  validate-paper-structure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    name: "Paper Structure Validation"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Validate paper directory structure
+        run: |
+          echo "Validating paper directory structure..."
+
+          if [ ! -d "papers" ]; then
+            echo "No papers/ directory found yet — skipping"
+            exit 0
+          fi
+
+          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null || true)
+
+          if [ -z "$PAPER_DIRS" ]; then
+            echo "No paper implementations found yet"
+            exit 0
+          fi
+
+          VALIDATION_FAILED=false
+
+          for paper_dir in $PAPER_DIRS; do
+            echo "Validating: $paper_dir"
+
+            for file in README.md metadata.yml; do
+              if [ -f "$paper_dir/$file" ]; then
+                echo "  ✅ $file"
+              else
+                echo "  Missing: $file"
+                VALIDATION_FAILED=true
+              fi
+            done
+
+            if [ -f "$paper_dir/metadata.yml" ]; then
+              for field in title authors year url; do
+                if ! grep -q "^$field:" "$paper_dir/metadata.yml"; then
+                  echo "  Missing metadata field: $field"
+                  VALIDATION_FAILED=true
+                fi
+              done
+              echo "  Metadata fields checked"
+            fi
+          done
+
+          if [ "$VALIDATION_FAILED" = "true" ]; then
+            echo "Paper structure validation failed"
+            exit 1
+          fi
+          echo "✅ All paper structures valid"
+
+  validate-paper-implementation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    name: "Paper Implementation Validation"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Check implementation completeness
+        run: |
+          echo "Checking implementation completeness..."
+
+          if [ ! -d "papers" ]; then
+            echo "No papers/ directory found yet — skipping"
+            exit 0
+          fi
+
+          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null || true)
+
+          if [ -z "$PAPER_DIRS" ]; then
+            echo "No paper implementations found yet"
+            exit 0
+          fi
+
+          for paper_dir in $PAPER_DIRS; do
+            echo "Checking: $paper_dir"
+            if [ -d "$paper_dir/implementation" ]; then
+              MOJO_FILES=$(find "$paper_dir/implementation" -name "*.mojo" | wc -l)
+              if [ "$MOJO_FILES" -gt 0 ]; then
+                echo "  ✅ $MOJO_FILES Mojo files"
+              else
+                echo "  No Mojo implementation files found"
+              fi
+            fi
+            if [ -d "$paper_dir/tests" ]; then
+              TEST_FILES=$(find "$paper_dir/tests" -name "test_*.py" -o -name "test_*.mojo" | wc -l)
+              if [ "$TEST_FILES" -gt 0 ]; then
+                echo "  ✅ $TEST_FILES test files"
+              else
+                echo "  No test files found"
+              fi
+            fi
+          done
+          echo "✅ Implementation check complete"
+
+  validate-paper-reproducibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    name: "Paper Reproducibility (optional)"
+    # Only run if specifically requested
+    if: |
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'validate-reproducibility'))
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Run training scripts (quick validation)
+        run: |
+          echo "Running training scripts for reproducibility validation..."
+
+          if [ ! -d "papers" ]; then
+            echo "No papers/ directory found yet"
+            exit 0
+          fi
+
+          PAPER_DIRS=$(find papers -name "train.py" -o -name "train.mojo" -exec dirname {} \; 2>/dev/null || true)
+
+          if [ -z "$PAPER_DIRS" ]; then
+            echo "No training scripts found yet"
+            exit 0
+          fi
+
+          for paper_dir in $PAPER_DIRS; do
+            echo "Running training for: $paper_dir"
+            if [ -f "$paper_dir/train.py" ]; then
+              pixi run python "$paper_dir/train.py" --quick-validation --epochs 1 || true
+            elif [ -f "$paper_dir/train.mojo" ]; then
+              pixi run mojo -I . "$paper_dir/train.mojo" --quick-validation --epochs 1 || true
+            fi
+          done
+
+  paper-report:
+    needs: [validate-paper-structure, validate-paper-implementation]
+    runs-on: ubuntu-latest
+    if: always()
+    name: "Paper Validation Report"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+
+      - name: Generate validation report
+        run: |
+          echo "# Paper Validation Results" > paper-report.md
+          echo "" >> paper-report.md
+
+          if [ "${{ needs.validate-paper-structure.result }}" = "success" ]; then
+            echo "- ✅ Structure Validation: Passed" >> paper-report.md
+          else
+            echo "- Structure Validation: ${{ needs.validate-paper-structure.result }}" >> paper-report.md
+          fi
+
+          if [ "${{ needs.validate-paper-implementation.result }}" = "success" ]; then
+            echo "- ✅ Implementation Validation: Passed" >> paper-report.md
+          else
+            echo "- Implementation Validation: ${{ needs.validate-paper-implementation.result }}" >> paper-report.md
+          fi
+
+          cat paper-report.md
+
+      - name: Upload validation report
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7
+        with:
+          name: paper-validation-report
+          path: paper-report.md
+          retention-days: 30
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: ./.github/actions/pr-comment
+        with:
+          report-file: paper-report.md
+          comment-marker: "Paper Validation Results"
+
+  # ============================================================================
+  # Workflow Checkout Order (absorbed from validate-workflows.yml)
+  # ============================================================================
+  validate-checkout-order:
+    name: Enforce Composite Action Checkout-First Ordering
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v4
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Validate checkout-first ordering for composite actions
+        run: |
+          echo "Checking that all jobs using ./.github/actions/ have actions/checkout as a preceding step..."
+          python3 scripts/validate_workflow_checkout_order.py .github/workflows/
