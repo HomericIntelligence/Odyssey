@@ -1,10 +1,11 @@
 name: Workflow Smoke Tests
 
-# Fast-fail gate that validates security workflow properties without heavy setup.
-# Guards against regression of gaps fixed in #3143:
-#   - pull_request trigger present in security.yml
-#   - Semgrep step has no continue-on-error: true
-#   - Gitleaks has no --no-git flag
+# Fast-fail gate that validates workflow properties without heavy setup.
+# Guards against regression of gaps fixed in #3143 and #3318:
+#   - security.yml: pull_request trigger, Semgrep setup, Gitleaks flags
+#   - pre-commit.yml: pull_request trigger present
+#   - comprehensive-tests.yml: matrix coverage maintained
+#   - validate-configs.yml: agent config validation on PRs
 
 on:
   pull_request:
@@ -13,6 +14,9 @@ on:
       - main
     paths:
       - '.github/workflows/security.yml'
+      - '.github/workflows/pre-commit.yml'
+      - '.github/workflows/comprehensive-tests.yml'
+      - '.github/workflows/validate-configs.yml'
       - 'tests/smoke/test_security_workflow_properties.py'
   workflow_dispatch:
 
@@ -54,6 +58,30 @@ jobs:
             exit 1
           fi
           echo "OK: Gitleaks has no --no-git flag"
+
+      - name: Check pre-commit has pull_request trigger
+        run: |
+          if ! grep -qP '^\s+pull_request\b' .github/workflows/pre-commit.yml; then
+            echo "ERROR: pre-commit.yml is missing pull_request trigger"
+            exit 1
+          fi
+          echo "OK: pre-commit.yml has pull_request trigger"
+
+      - name: Check comprehensive-tests has matrix
+        run: |
+          if ! grep -q 'matrix:' .github/workflows/comprehensive-tests.yml; then
+            echo "ERROR: comprehensive-tests.yml missing matrix configuration"
+            exit 1
+          fi
+          echo "OK: comprehensive-tests.yml has matrix coverage"
+
+      - name: Check validate-configs has agent validation
+        run: |
+          if ! grep -q 'check_frontmatter\|validate_agents' .github/workflows/validate-configs.yml; then
+            echo "ERROR: validate-configs.yml missing agent configuration validation"
+            exit 1
+          fi
+          echo "OK: validate-configs.yml includes agent validation"
 
       # Full pytest run for comprehensive assertions
       - name: Set up Pixi
