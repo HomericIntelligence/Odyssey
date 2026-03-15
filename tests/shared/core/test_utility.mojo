@@ -928,6 +928,37 @@ fn test_hash_bf16_nan_canonicalization() raises:
     )
 
 
+fn test_hash_empty_tensor_shapes_differ() raises:
+    """Test that empty tensors with different shapes produce different hashes.
+
+    When numel=0, the data loop is skipped and only shape dimensions and dtype
+    contribute to the hash. This verifies that shape is fully exercised for
+    multi-dimensional empty tensors.
+    """
+    var shape_1d = List[Int]()
+    shape_1d.append(0)
+    var t1 = zeros(shape_1d, DType.float32)  # shape [0]
+
+    var shape_2d_00 = List[Int]()
+    shape_2d_00.append(0)
+    shape_2d_00.append(0)
+    var t2 = zeros(shape_2d_00, DType.float32)  # shape [0, 0]
+
+    var shape_2d_01 = List[Int]()
+    shape_2d_01.append(0)
+    shape_2d_01.append(1)
+    var t3 = zeros(shape_2d_01, DType.float32)  # shape [0, 1]
+
+    if hash(t1) == hash(t2):
+        raise Error("Empty tensors [0] and [0,0] should have different hashes")
+    if hash(t1) == hash(t3):
+        raise Error("Empty tensors [0] and [0,1] should have different hashes")
+    if hash(t2) == hash(t3):
+        raise Error(
+            "Empty tensors [0,0] and [0,1] should have different hashes"
+        )
+
+
 # ============================================================================
 # Test diff() - consecutive differences
 # ============================================================================
@@ -1047,6 +1078,7 @@ fn main() raises:
     test_hash_integer_dtype_consistent()
     test_hash_same_values_different_dtype()
     test_hash_empty_tensor_dtype_differs()
+    test_hash_empty_tensor_shapes_differ()
 
     # __hash__ BF16 NaN canonicalization
     print("  Testing __hash__ BF16 NaN canonicalization...")
