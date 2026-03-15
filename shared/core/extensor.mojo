@@ -935,6 +935,69 @@ struct ExTensor(
             flat_idx += indices[i] * self._strides[i]
         self.__setitem__(flat_idx, value)
 
+    fn __setitem__(mut self, indices: List[Int], value: Float32) raises:
+        """Set element at multi-dimensional index using Float32 value.
+
+        Args:
+            indices: Per-dimension indices (one per axis).
+            value: The Float32 value to set (converted to Float64 internally).
+
+        Raises:
+            Error: If number of indices doesn't match tensor rank,
+                   or any index is out of bounds.
+
+        Example:
+            ```mojo
+            var t = zeros([3, 4], DType.float32)
+            t[[1, 2]] = Float32(5.0)  # Set element at row 1, col 2
+            ```
+        """
+        self.__setitem__(indices, Float64(value))
+
+    fn _normalize_slice_indices(
+        self, start: Int, end: Int, step: Int, size: Int
+    ) -> Tuple[Int, Int, Int, Int]:
+        """Normalize slice indices to valid ranges.
+
+        Handles negative indices, clamping, and returns normalized
+        (start, end, step, result_size) for valid iteration.
+
+        Args:
+            start: Start index (may be negative).
+            end: End index (may be negative).
+            step: Step value (can be negative for reverse).
+            size: Size of the dimension being sliced.
+
+        Returns:
+            Tuple of (normalized_start, normalized_end, normalized_step, result_size).
+            result_size is the number of elements in the slice result.
+        """
+        var norm_start = start
+        var norm_end = end
+        var norm_step = step
+        var result_size: Int
+
+        if step < 0:
+            # Negative step: reverse iteration
+            var neg_step = -step
+            # Clamp start to [0, size-1], end to [-1, size-1]
+            norm_start = max(0, min(norm_start, size - 1))
+            norm_end = max(-1, min(norm_end, size - 1))
+            result_size = max(0, ceildiv(norm_start - norm_end, neg_step))
+        else:
+            # Positive step: forward iteration
+            # Normalize negative indices first
+            if norm_start < 0:
+                norm_start = size + norm_start
+            if norm_end < 0:
+                norm_end = size + norm_end
+            # Clamp forward slice to [0, size]
+            norm_start = max(0, min(norm_start, size))
+            norm_end = max(0, min(norm_end, size))
+            result_size = max(0, ceildiv(norm_end - norm_start, step))
+
+        return (norm_start, norm_end, norm_step, result_size)
+
     fn __getitem__(self, slice: Slice) raises -> Self:
         """Get slice of 1D tensor [start:end] or [start:end:step].
 
