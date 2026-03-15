@@ -129,6 +129,7 @@ class AgentConfigValidator:
         """
         self.agents_dir = agents_dir
         self.results: List[ValidationResult] = []
+        self.existing_agents: set = {f.stem for f in agents_dir.glob("*.md")} if agents_dir.exists() else set()
 
     def validate_all(self) -> List[ValidationResult]:
         """Validate all agent configuration files.
@@ -272,6 +273,22 @@ class AgentConfigValidator:
             model = frontmatter["model"].lower()
             if model not in self.VALID_MODELS:
                 errors.append(f"Invalid model '{model}' (use: {', '.join(self.VALID_MODELS)})")
+
+        if "delegates_to" in frontmatter:
+            raw = frontmatter["delegates_to"].strip()
+            # Parse YAML inline list: [name-a, name-b] or empty []
+            if raw.startswith("[") and raw.endswith("]"):
+                inner = raw[1:-1].strip()
+                if inner:
+                    names = [n.strip() for n in inner.split(",") if n.strip()]
+                    for name in names:
+                        if name not in self.existing_agents:
+                            errors.append(
+                                f"delegates_to references non-existent agent: '{name}'"
+                                f" (no .claude/agents/{name}.md)"
+                            )
+            else:
+                errors.append(f"delegates_to must be a YAML inline list, got: '{raw}'")
 
         return errors, warnings, frontmatter
 
