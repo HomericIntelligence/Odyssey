@@ -236,7 +236,7 @@ jobs:
           # and the constraints of the pattern field (no true glob support).
           - name: "Core Utilities"
             path: "tests/shared/core"
-            pattern: "test_utilities.mojo test_utility*.mojo test_utils*.mojo test_validation*.mojo test_integration*.mojo test_inplace_simd.mojo test_lazy_expression.mojo test_memory_pool_part*.mojo test_constants.mojo test_extensor_*.mojo test_memory_leaks*.mojo test_initializers_*.mojo test_layers*.mojo test_linear*.mojo test_conv*.mojo test_normalization*.mojo test_dropout_part*.mojo test_module.mojo test_composed_op*.mojo test_hash.mojo test_sequential.mojo"
+            pattern: "test_utilities.mojo test_utility*.mojo test_utils*.mojo test_validation*.mojo test_integration*.mojo test_inplace_simd.mojo test_lazy_expression.mojo test_memory_pool_part*.mojo test_constants.mojo test_extensor_*.mojo test_setitem_view.mojo test_memory_leaks*.mojo test_initializers_*.mojo test_layers*.mojo test_linear*.mojo test_conv*.mojo test_normalization*.mojo test_dropout_part*.mojo test_module.mojo test_composed_op*.mojo test_hash.mojo test_sequential.mojo"
           # ---- All data subsystems (formats/datasets/samplers/transforms/loaders) ----
           # NOTE: Some data tests (test_prefetch, test_random_transform_base) crash
           # on CI with heap corruption — non-blocking pending investigation

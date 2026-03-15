@@ -39,7 +39,7 @@ fn test_setitem_view_1d_writes_correctly() raises:
     When we write to a sliced tensor, the write should affect the correct
     position in the original tensor (offset by slice start).
     """
-    var original = zeros(List[Int](10), DType.float32)
+    var original = zeros([10], DType.float32)
     var view = original[2:5]
 
     # Write to the view
@@ -60,7 +60,7 @@ fn test_setitem_view_multidim_writes_correctly() raises:
 
     Slice a 2D tensor and verify writes go to the correct parent positions.
     """
-    var original = zeros(List[Int](3, 4), DType.float32)
+    var original = zeros([3, 4], DType.float32)
     var view = original[1:3, 1:3]
 
     # Write to the view (it should be 2x2)
@@ -68,10 +68,10 @@ fn test_setitem_view_multidim_writes_correctly() raises:
         raise Error("View shape should be (2, 2)")
 
     # Set using List[Int] multi-index
-    var idx1 = List[Int](0, 0)
-    var idx2 = List[Int](0, 1)
-    var idx3 = List[Int](1, 0)
-    var idx4 = List[Int](1, 1)
+    var idx1 = [0, 0]
+    var idx2 = [0, 1]
+    var idx3 = [1, 0]
+    var idx4 = [1, 1]
 
     view.__setitem__(idx1, 11.0)
     view.__setitem__(idx2, 12.0)
@@ -81,10 +81,10 @@ fn test_setitem_view_multidim_writes_correctly() raises:
     # Verify positions in original tensor
     # view[0,0] = original[1,1], view[0,1] = original[1,2],
     # view[1,0] = original[2,1], view[1,1] = original[2,2]
-    var idx_11 = List[Int](1, 1)
-    var idx_12 = List[Int](1, 2)
-    var idx_21 = List[Int](2, 1)
-    var idx_22 = List[Int](2, 2)
+    var idx_11 = [1, 1]
+    var idx_12 = [1, 2]
+    var idx_21 = [2, 1]
+    var idx_22 = [2, 2]
 
     assert_value_at(original, 0, 0.0, "original[0,0] should be 0.0 (outside slice)")
     assert_value_at(original.__getitem__(idx_11), Float32(11.0), "original[1,1]")
@@ -99,7 +99,7 @@ fn test_setitem_view_does_not_corrupt_adjacent_elements() raises:
     Write to a sliced tensor and verify that elements outside the slice
     remain unchanged.
     """
-    var original = ones(List[Int](10), DType.float32)
+    var original = ones([10], DType.float32)
     var view = original[3:7]
 
     # Write to view
