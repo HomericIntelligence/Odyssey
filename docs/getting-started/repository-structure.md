@@ -14,45 +14,31 @@ This guide helps you quickly navigate the ML Odyssey repository and understand w
 
 1. **Read**: README.md (in repository root) - Project overview
 1. **Install**: [installation.md](installation.md) - Set up environment
-1. **Explore**: STRUCTURE.md (in repository root) - Repository organization
-1. **Try**: examples/ directory (in repository root) - Working examples
+1. **Try**: [quickstart.md](quickstart.md) - 5-minute introduction
 
 ### "I Want to Implement a Paper"
 
 ### Workflow
 
 ```bash
-```bash
+# 1. Copy the paper template
+cp -r papers/_template papers/{name}
 
-# 1. Generate structure
-
-python tools/paper-scaffold/scaffold.py \
-    --paper {name} \
-    --title "{Title}" \
-    --authors "{Authors}" \
-    --year {year}
-
-# 2. Configure experiment
-
-cp configs/templates/experiment.yaml configs/experiments/{name}/baseline.yaml
-
-# 3. Implement
-
+# 2. Implement model and training
 cd papers/{name}/
-
 # Edit model.mojo, train.mojo
 
-# 4. Test
+# 3. Write tests (TDD)
+# Add tests to tests/papers/{name}/
 
-mojo test tests/papers/{name}/
+# 4. Run tests
+just test-mojo
 
-# 5. Benchmark
+# 5. Build
+just build
+```
 
-mojo benchmarks/scripts/run_benchmarks.mojo --paper {name}
-
-```text
-
-**See**: `tools/paper-scaffold/README.md` for detailed instructions
+**See**: `papers/_template/` for the starting structure
 
 ### "I Want to Find Documentation"
 
@@ -79,21 +65,16 @@ mojo benchmarks/scripts/run_benchmarks.mojo --paper {name}
 **Test Locations**:
 
 ```bash
+# All Mojo tests
+just test-mojo
 
-```bash
+# Specific test group
+just test-group tests/shared/core "test_*.mojo"
+just test-group tests/papers/lenet5 "test_*.mojo"
 
-# All tests
-mojo test tests/
-
-# Specific subsystem
-mojo test tests/shared/          # Shared library tests
-mojo test tests/papers/lenet5/   # Paper-specific tests
-mojo test tests/foundation/      # Foundation tests
-
-# With coverage
-python tools/testing/coverage.py
-
-```text
+# Single test file
+pixi run mojo tests/shared/core/test_creation_part1.mojo
+```
 
 **See**: `tests/README.md` for testing guidelines
 
@@ -102,50 +83,31 @@ python tools/testing/coverage.py
 ### Benchmarking
 
 ```bash
-```bash
+# Run benchmarks
+pixi run mojo shared/benchmarking/run_benchmarks.mojo
 
-# Run all benchmarks
+# Run with release build for accurate numbers
+just build-release
+```
 
-mojo benchmarks/scripts/run_benchmarks.mojo
-
-# Run specific benchmark
-
-mojo benchmarks/scripts/lenet5_benchmark.mojo
-
-# Compare with baseline
-
-mojo benchmarks/scripts/compare_results.mojo \
-    --baseline benchmarks/baselines/baseline_results.json \
-    --current benchmarks/results/latest_results.json
-
-```text
-
-**See**: `benchmarks/README.md` for details
+**See**: `shared/benchmarking/` for benchmark scripts
 
 ## Repository Organization
 
 ### Top-Level Directories
 
 ```text
-
-```text
-
 ProjectOdyssey/
 ├── papers/          # ML paper implementations
 ├── shared/          # Reusable ML components
-├── benchmarks/      # Performance benchmarking
 ├── docs/            # User documentation
 ├── agents/          # AI agent system docs
-├── tools/           # Development utilities
-├── configs/         # Configuration management
 ├── tests/           # Test suite
-├── examples/        # Usage examples
 ├── scripts/         # Automation scripts
 ├── notes/           # Planning and architectural docs
 ├── .claude/         # Claude Code configurations
 └── .github/         # CI/CD workflows
-
-```text
+```
 
 ### Core Directories Explained
 
@@ -161,17 +123,12 @@ ProjectOdyssey/
 ### Example
 
 ```text
-```text
-
 papers/
 ├── _template/
-├── lenet5/
 │   ├── model.mojo
 │   ├── train.mojo
-│   ├── tests/
 │   └── README.md
-
-```text
+```
 
 **When to Use**: Implementing or studying paper implementations
 
@@ -181,40 +138,17 @@ papers/
 
 **Structure**:
 
-- `core/` - Layers, activations, loss functions
-- `training/` - Optimizers, schedulers
-- `data/` - Data loaders
+- `core/` - ExTensor type, creation ops, shape ops
+- `training/` - Optimizers, training infrastructure
+- `autograd/` - Automatic differentiation
+- `data/` - Data loading utilities
 - `utils/` - Utilities
 
 **When to Use**: Building models, training, loading data
 
-#### Supporting Directories (The Big 5)
+#### Supporting Directories
 
-##### 1. benchmarks/ - Performance Measurement
-
-**Purpose**: Track and compare performance
-
-**Key Files**:
-
-- `scripts/` - Benchmark execution
-- `baselines/` - Baseline results
-- `results/` - Timestamped results
-
-**Common Tasks**:
-
-```bash
-
-```bash
-
-# Run benchmarks
-mojo benchmarks/scripts/run_benchmarks.mojo
-
-# Compare results
-mojo benchmarks/scripts/compare_results.mojo
-
-```text
-
-##### 2. docs/ - User Documentation
+##### 1. docs/ - User Documentation
 
 **Purpose**: Comprehensive documentation for all users
 
@@ -224,14 +158,15 @@ mojo benchmarks/scripts/compare_results.mojo
 - `core/` - Core concepts
 - `advanced/` - Advanced topics
 - `dev/` - Developer docs
+- `adr/` - Architecture Decision Records
 
 ### Common Tasks
 
 - Read guides: Browse `docs/`
 - Add docs: Create in appropriate section
-- Validate: `python scripts/validate_links.py docs/`
+- Validate: `just pre-commit-all`
 
-##### 3. agents/ - AI Agent System
+#### 2. agents/ - AI Agent System
 
 **Purpose**: Agent hierarchy documentation
 
@@ -247,56 +182,31 @@ mojo benchmarks/scripts/compare_results.mojo
 - Create agent: Use `templates/`
 - Find agent configs: Check `.claude/agents/`
 
-##### 4. tools/ - Development Utilities
+#### 3. scripts/ - Automation Scripts
 
-**Purpose**: Developer productivity tools
-
-### Key Tools
-
-- `paper-scaffold/` - Generate paper structure
-- `test-utils/` - Testing utilities
-- `benchmarking/` - Benchmark framework
-- `codegen/` - Code generation
+**Purpose**: Python automation for CI and developer workflows
 
 ### Common Tasks
 
 ```bash
-```bash
+# Run pre-commit hooks on all files
+just pre-commit-all
 
-# Scaffold paper
+# Run pre-commit hooks on staged files only
+just pre-commit
+```
 
-python tools/paper-scaffold/scaffold.py --paper {name}
+#### 4. tests/ - Test Suite
 
-# Generate boilerplate
-
-python tools/codegen/mojo_boilerplate.py --layer Conv2D
-
-```text
-
-##### 5. configs/ - Configuration Management
-
-**Purpose**: Centralized experiment configuration
-
-**Key Sections**:
-
-- `defaults/` - Default settings
-- `papers/` - Paper-specific configs
-- `experiments/` - Experiment variations
-- `templates/` - Config templates
-
-**Common Tasks**:
+**Purpose**: Mojo and Python tests for all components
 
 ```bash
+# Run all Mojo tests
+just test-mojo
 
-```bash
-
-# Create experiment
-cp configs/templates/experiment.yaml configs/experiments/{paper}/{name}.yaml
-
-# Validate config
-python scripts/lint_configs.py configs/experiments/{paper}/{name}.yaml
-
-```text
+# Run a specific group
+just test-group tests/shared/core "test_*.mojo"
+```
 
 ## Common Workflows
 
@@ -307,40 +217,33 @@ python scripts/lint_configs.py configs/experiments/{paper}/{name}.yaml
 1. **Scaffold**:
 
    ```bash
-   python tools/paper-scaffold/scaffold.py \
-       --paper resnet \
-       --title "Deep Residual Learning" \
-       --authors "He et al." \
-       --year 2015
-   ```text
-
-1. **Configure**:
-
-   ```bash
-   # Copy and edit configs
-   cp configs/templates/paper.yaml configs/papers/resnet/model.yaml
-   cp configs/templates/experiment.yaml configs/experiments/resnet/baseline.yaml
-   ```text
+   cp -r papers/_template papers/resnet
+   ```
 
 1. **Implement**:
 
    ```bash
    cd papers/resnet/
    # Edit model.mojo, train.mojo
-   ```text
+   ```
 
 1. **Test**:
 
    ```bash
-   mojo test tests/papers/resnet/
-   ```text
+   just test-mojo
+   ```
+
+1. **Build**:
+
+   ```bash
+   just build
+   ```
 
 1. **Document**:
 
    ```bash
    # Update papers/resnet/README.md
-   # Add docs/api/papers/resnet.md
-   ```text
+   ```
 
 ### Workflow 2: I Want to Add a Reusable Component
 
@@ -349,63 +252,44 @@ python scripts/lint_configs.py configs/experiments/{paper}/{name}.yaml
 1. **Implement**:
 
    ```bash
-   # Add to appropriate location
-   vim shared/core/layers/attention.mojo
-   ```text
+   # Add to appropriate location in shared/
+   # e.g., shared/core/layers/attention.mojo
+   ```
 
 1. **Test**:
 
    ```bash
-   # Add tests
-   vim tests/shared/core/layers/test_attention.mojo
-   mojo test tests/shared/core/layers/
-   ```text
+   # Add tests in tests/shared/core/layers/
+   just test-mojo
+   ```
 
 1. **Document**:
 
    ```bash
-   # Update API docs
-   vim docs/api/shared/layers.md
-   ```text
-
-1. **Example**:
-
-   ```bash
-   # Add usage example
-   vim examples/custom_layer/attention_example.mojo
-   ```text
+   # Update API docs in docs/api/shared/
+   ```
 
 ### Workflow 3: I Want to Run an Experiment
 
 ### Steps
 
-1. **Create Config**:
+1. **Train**:
 
    ```bash
-   cp configs/experiments/lenet5/baseline.yaml \
-      configs/experiments/lenet5/augmented.yaml
-   # Edit augmented.yaml with changes
-   ```text
+   just train lenet-emnist fp32 10
+   ```
 
-1. **Run Training**:
+1. **Run inference**:
 
    ```bash
-   mojo papers/lenet5/train.mojo --config experiments/lenet5/augmented
-   ```text
-
-1. **Benchmark**:
-
-   ```bash
-   mojo benchmarks/scripts/run_benchmarks.mojo \
-       --experiment lenet5/augmented
-   ```text
+   just infer lenet-emnist lenet5_weights
+   ```
 
 1. **Document**:
 
    ```bash
-   # Record results
-   vim docs/research/experiments/lenet5_augmentation.md
-   ```text
+   # Record results in docs/ or GitHub issue comments
+   ```
 
 ### Workflow 4: I Want to Optimize Performance
 
@@ -414,43 +298,34 @@ python scripts/lint_configs.py configs/experiments/{paper}/{name}.yaml
 1. **Measure**:
 
    ```bash
-   mojo benchmarks/scripts/run_benchmarks.mojo --paper lenet5
-   ```text
-
-1. **Profile**:
-
-   ```bash
-   mojo tools/benchmarking/runner.mojo --target lenet5 --profile
-   ```text
+   just build-release
+   pixi run mojo shared/benchmarking/run_benchmarks.mojo
+   ```
 
 1. **Optimize**:
 
    ```bash
-   # Edit code based on profiling
-   vim papers/lenet5/model.mojo
-   ```text
+   # Edit model or kernel code
+   ```
 
 1. **Verify**:
 
    ```bash
-   mojo benchmarks/scripts/run_benchmarks.mojo --paper lenet5 --compare
-   ```text
+   just build-release
+   pixi run mojo shared/benchmarking/run_benchmarks.mojo
+   ```
 
 1. **Document**:
 
    ```bash
-   vim docs/advanced/optimization_techniques.md
-   ```text
+   # Update docs/advanced/ with findings
+   ```
 
 ## Decision Tree: Where Does This Go
 
 ### Content Type Decision Tree
 
-### Q: What type of content are you adding?
-
 ```text
-```text
-
 ML Paper Implementation?
 ├─ Yes → papers/{paper_name}/
 └─ No → Continue
@@ -463,24 +338,8 @@ User Documentation?
 ├─ Yes → docs/{getting-started|core|advanced|dev}/
 └─ No → Continue
 
-Performance Benchmark?
-├─ Yes → benchmarks/scripts/
-└─ No → Continue
-
-Development Tool?
-├─ Yes → tools/{category}/
-└─ No → Continue
-
-Configuration File?
-├─ Yes → configs/{defaults|papers|experiments}/
-└─ No → Continue
-
 Test File?
 ├─ Yes → tests/{foundation|shared|papers|tools}/
-└─ No → Continue
-
-Usage Example?
-├─ Yes → examples/
 └─ No → Continue
 
 Automation Script?
@@ -498,8 +357,7 @@ Issue-Specific Notes?
 Architectural Decision?
 ├─ Yes → docs/adr/ (for ADRs) or notes/review/ (for specs)
 └─ No → Ask in team channel!
-
-```text
+```
 
 ## Best Practices
 
@@ -509,7 +367,7 @@ Architectural Decision?
 2. **Follow Conventions** - Use established patterns
 3. **Add READMEs** - Every directory needs documentation
 4. **Update Indexes** - Link from appropriate index files
-5. **Run Validation** - Check structure and links
+5. **Run Validation** - Check structure and markdown before committing
 
 ### When Writing Code
 
@@ -546,116 +404,71 @@ Architectural Decision?
 **Quick Check**:
 
 - ML implementation? → `papers/` or `shared/`
-- Tool/utility? → `tools/`
-- Configuration? → `configs/`
+- Configuration? → `configs/` (if it exists for your paper)
 - Test? → `tests/`
-
-### "I Don't Know Which Config to Use"
-
-**Solution**: Use the 3-level hierarchy
-
-**Hierarchy**:
-
-1. `configs/defaults/` - Base settings
-2. `configs/papers/{paper}/` - Paper overrides
-3. `configs/experiments/{paper}/{exp}/` - Experiment overrides
-
-**Example**:
-
-```bash
-
-```bash
-
-# For baseline reproduction
-mojo papers/lenet5/train.mojo --config experiments/lenet5/baseline
-
-# For custom experiment
-mojo papers/lenet5/train.mojo --config experiments/lenet5/my_experiment
-
-```text
 
 ### "My Links Are Broken"
 
-**Solution**: Run link validation
+**Solution**: Check relative paths manually or run markdown linting
 
 ```bash
-```bash
-
-# Check all docs
-
-python scripts/validate_links.py docs/
-
-# Check specific file
-
-python scripts/validate_links.py docs/path/to/file.md
-
-```text
+# Lint all markdown files
+just pre-commit-all
+```
 
 **Common Issues**:
 
 - Wrong relative path
-- File moved/renamed
+- File moved or renamed
 - Missing file extension
 
-### "Structure Validation Fails"
+### "Pre-commit Hooks Fail"
 
-**Solution**: Run structure validator
-
-```bash
+**Solution**: Fix the reported issue, then re-run
 
 ```bash
+# Run hooks on staged files
+just pre-commit
 
-# Check entire repository
-python scripts/validate_structure.py
-
-# Check what's missing
-python scripts/validate_structure.py --verbose
-
-```text
+# Run hooks on all files
+just pre-commit-all
+```
 
 ## Quick Reference
 
 ### Essential Commands
 
 ```bash
-```bash
+# Verify environment
+pixi run mojo --version
 
-# Setup environment
+# Build project
+just build
 
-python scripts/setup.py
+# Run all Mojo tests
+just test-mojo
 
-# Validate structure
+# Run specific test group
+just test-group tests/shared/core "test_*.mojo"
 
-python scripts/validate_structure.py
+# Train LeNet-5
+just train
 
-# Validate documentation
+# Run inference
+just infer lenet-emnist lenet5_weights
 
-python scripts/check_readmes.py
-python scripts/validate_links.py
-
-# Run tests
-
-mojo test tests/
-
-# Run benchmarks
-
-mojo benchmarks/scripts/run_benchmarks.mojo
-
-# Format code
-
+# Format code and validate
 just pre-commit-all
-
-```text
+```
 
 ### Essential Files
 
 | File | Purpose |
 | ------ | --------- |
 | `README.md` | Project overview |
-| `STRUCTURE.md` | Repository organization |
-| `CONTRIBUTING.md` | Contribution guidelines |
 | `CLAUDE.md` | Claude Code conventions |
-| `docs/index.md` | Documentation index |
+| `justfile` | All available build/test/train recipes |
+| `pixi.toml` | Dependencies and environment (Mojo 0.26.1) |
 
 ### Essential Directories
 
@@ -663,53 +476,46 @@ just pre-commit-all
 | ----------- | ------------------- |
 | `papers/` | ML implementations |
 | `shared/` | Reusable components |
-| `benchmarks/` | Performance tracking |
 | `docs/` | User documentation |
-| `tools/` | Developer utilities |
-| `configs/` | Experiment configs |
 | `tests/` | Test suite |
+| `scripts/` | Automation scripts |
 
 ## Next Steps
 
 ### For New Contributors
 
-1. **Setup**: Follow installation guide
-2. **Explore**: Browse examples/ directory in repository root
-3. **Read**: Check `docs/core/` for concepts
-4. **Try**: Implement a simple example
-5. **Ask**: Use team channels for questions
+1. **Setup**: Follow [installation guide](installation.md)
+2. **Verify**: Run `pixi run mojo --version`
+3. **Explore**: Read `shared/README.md` for the shared library
+4. **Try**: Run `just test-mojo` to verify everything works
+5. **Ask**: Use GitHub issues for questions
 
 ### For Implementers
 
-1. **Scaffold**: Use `tools/paper-scaffold/`
-2. **Configure**: Set up `configs/`
-3. **Implement**: Write in `papers/`
-4. **Test**: Add to `tests/`
-5. **Benchmark**: Measure in `benchmarks/`
+1. **Template**: Copy `papers/_template/` to start
+2. **Implement**: Write model in `papers/` using `shared/core/`
+3. **Test**: Add tests in `tests/papers/` and run `just test-mojo`
+4. **Build**: Run `just build` and `just build-release`
 
 ### For Documentation Writers
 
 1. **Identify**: Find documentation gaps
 2. **Write**: Create in appropriate `docs/` section
-3. **Link**: Update `docs/index.md`
-4. **Validate**: Run `scripts/validate_links.py`
-5. **Review**: Submit PR for team review
+3. **Validate**: Run `just pre-commit-all`
+4. **Review**: Submit PR for team review
 
 ## Getting Help
 
 ### Documentation
 
 - **This Guide**: Repository navigation
-- **STRUCTURE.md**: Complete directory reference
 - **docs/**: Comprehensive documentation
 - **agents/**: Agent system documentation
 
 ### Team Resources
 
-- Team channels for questions
-- GitHub issues for bugs/features
+- GitHub issues for bugs and features
 - Pull request reviews for feedback
-- Weekly team meetings for discussions
 
 ## Summary
 
@@ -717,22 +523,19 @@ just pre-commit-all
 
 1. **Organization**: Repository is logically organized by purpose
 2. **Locations**: Use decision tree to find right location
-3. **Tools**: Use `tools/` to automate repetitive tasks
-4. **Configs**: Use 3-level hierarchy for experiments
-5. **Validation**: Run validation scripts before committing
+3. **Build system**: All commands go through `just` or `pixi run`
+4. **Validation**: Run `just pre-commit-all` before committing
 
 **Remember**:
 
 - `papers/` - Implementations
 - `shared/` - Reusable components
-- `benchmarks/` - Performance
 - `docs/` - Documentation
-- `tools/` - Utilities
-- `configs/` - Configuration
+- `tests/` - Test suite
 
-**When in Doubt**: Check STRUCTURE.md in repository root or ask the team!
+**When in Doubt**: Check `just --list` for available commands, or ask in GitHub issues!
 
 ---
 
-**Last Updated**: 2025-11-16
+**Last Updated**: 2026-03-15
 **Maintained By**: Documentation Specialist
