@@ -133,12 +133,12 @@ tools: "gh-create-pr-linked, gh-check-ci-status"
 
     def test_parse_with_quoted_strings(self):
         """Test parsing YAML with quoted strings containing special characters."""
-        content = '''---
+        content = """---
 name: test-agent
 description: "A 'quoted' string with: colons and special chars!"
 tools: "tool-1,tool-2,tool-3"
 ---
-# Content'''
+# Content"""
         result = extract_frontmatter_parsed(content)
         assert result is not None
         frontmatter_text, parsed = result
