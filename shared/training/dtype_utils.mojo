@@ -20,22 +20,24 @@ Note:
 Usage:
     from shared.training.dtype_utils import (
         bfloat16_dtype,
-        recommend_precision_dtype,
         detect_hardware_bf16_support,
+        recommend_precision_dtype,
     )
 
-    # Automatic detection of BF16 support based on hardware
-    var has_bf16 = detect_hardware_bf16_support()
-    var dtype = recommend_precision_dtype(model_size_mb=500.0, hardware_has_bf16=has_bf16)
+    # Auto-detect BF16 support at runtime (recommended)
+    var dtype = recommend_precision_dtype(model_size_mb=500.0)
+
+    # Or explicitly pass hardware capabilities (for testing/override)
+    var dtype = recommend_precision_dtype(model_size_mb=500.0, hardware_has_bf16=False)
     var params = ExTensor.zeros((100, 100), dtype)
 
-    # Manual control for specific cases
-    var dtype = recommend_precision_dtype(model_size_mb=500.0, hardware_has_bf16=False)  # Force FP16
-    var params = ExTensor.zeros((100, 100), dtype)
-
-    # Or use BFloat16 on supported hardware (not Apple Silicon)
-    var params = ExTensor.zeros((100, 100), bfloat16_dtype)  # Only on Intel/AMD
+    # Query BF16 support directly
+    if detect_hardware_bf16_support():
+        var params = ExTensor.zeros((100, 100), bfloat16_dtype)
 """
+
+
+from sys import is_defined
 
 
 # ============================================================================
@@ -110,55 +112,6 @@ fn is_reduced_precision(dtype: DType) -> Bool:
             ```
     """
     return dtype == DType.float16 or dtype == DType.bfloat16
-
-
-fn detect_hardware_bf16_support() -> Bool:
-    """Detect if current hardware supports BF16 natively.
-
-    Returns False for Apple Silicon (M1/M2/M3/M4) where BF16 is not supported,
-    and True for other platforms (Intel/AMD x86_64) that support it.
-
-    Note:
-        This function attempts runtime detection using platform information.
-        Returns False conservatively on detection failures.
-
-    Returns:
-            True if hardware supports BF16, False otherwise (including Apple Silicon).
-
-    Example:
-            ```mojo
-            # Automatically detect BF16 support based on hardware
-            var has_bf16 = detect_hardware_bf16_support()
-            var dtype = recommend_precision_dtype(1000.0, hardware_has_bf16=has_bf16)
-            ```
-    """
-    # Apple Silicon detection via platform module
-    # BF16 is not supported on Apple Silicon (M1/M2/M3/M4)
-    try:
-        from python import Python
-        var python = Python.import_module("platform")
-        var machine = python.machine()
-        var machine_str = String(machine)
-
-        # Apple Silicon identifies as "arm64"
-        if "arm64" in machine_str:
-            return False  # Apple Silicon - no BF16 support
-
-        # Other ARM platforms might support BF16, but be conservative
-        if "arm" in machine_str:
-            return False  # Conservative default for ARM
-
-        # Intel/AMD x86_64 and aarch64 (non-Apple) support BF16
-        if "x86_64" in machine_str or "amd64" in machine_str:
-            return True
-        if "aarch64" in machine_str:
-            return True  # Non-Apple ARM64
-
-        # Default to True for unknown platforms (optimistic)
-        return True
-    except:
-        # If platform detection fails, return False (conservative)
-        return False
 
 
 fn is_floating_point(dtype: DType) -> Bool:
@@ -292,10 +245,56 @@ fn dtype_to_string(dtype: DType) -> String:
         return "unknown"
 
 
+fn detect_hardware_bf16_support() -> Bool:
+    """Detect at compile time whether this hardware supports BF16 acceleration.
+
+    Returns False on Apple Silicon (M1/M2/M3) where BF16 is unsupported,
+    True on all other platforms (e.g. Linux/x86).
+
+    Returns:
+        True if BF16 is supported, False if not (e.g. Apple Silicon).
+
+    Example:
+        ```mojo
+        if detect_hardware_bf16_support():
+            var params = ExTensor.zeros((1000, 1000), DType.bfloat16)
+        else:
+            var params = ExTensor.zeros((1000, 1000), DType.float16)
+        ```
+    """
+    return not is_defined["APPLE"]()
+
+
+fn recommend_precision_dtype(model_size_mb: Float64) -> DType:
+    """Recommend optimal precision dtype based on model size, auto-detecting BF16 support.
+
+    Automatically detects BF16 hardware support at compile time.
+    On Apple Silicon, BF16 is automatically disabled. On other platforms (e.g.
+    Linux/x86 CI), BF16 is enabled when the model is large enough to benefit.
+
+    Args:
+        model_size_mb: Model size in megabytes.
+
+    Returns:
+        Recommended DType (float16, bfloat16, or float32).
+
+    Example:
+        ```mojo
+        # No need to pass hardware_has_bf16 — auto-detected at compile time
+        var dtype = recommend_precision_dtype(model_size_mb=2000.0)
+        ```
+    """
+    return recommend_precision_dtype(
+        model_size_mb,
+        hardware_has_fp16=True,
+        hardware_has_bf16=detect_hardware_bf16_support(),
+    )
+
+
 fn recommend_precision_dtype(
     model_size_mb: Float64,
-    hardware_has_fp16: Bool = True,
-    hardware_has_bf16: Bool = False,
+    hardware_has_fp16: Bool,
+    hardware_has_bf16: Bool,
 ) -> DType:
     """Recommend optimal precision dtype based on model size and hardware.
 
@@ -306,8 +305,8 @@ fn recommend_precision_dtype(
             model_size_mb: Model size in megabytes.
             hardware_has_fp16: Whether hardware supports FP16 acceleration.
             hardware_has_bf16: Whether hardware supports BF16 acceleration.
-                Defaults to False (BF16 NOT supported on Apple Silicon M1/M2/M3).
-                Pass hardware_has_bf16=True only on Intel/AMD x86_64 hardware.
+                NOT supported on Apple Silicon — pass hardware_has_bf16=False
+                on Apple hardware.
 
     Returns:
             Recommended DType (float16, bfloat16, or float32).
@@ -315,18 +314,13 @@ fn recommend_precision_dtype(
         Recommendations:
             - Small models (<100MB): FP32 (speed gain minimal).
             - Medium models (100MB-1GB): FP16 if hardware supports it.
-            - Large models (>1GB): BF16 if hardware supports it, else FP16.
+            - Large models (>1GB): BF16 strongly recommended (FP16 if no BF16 hardware).
             - No FP16 hardware: FP32 (reduced precision not worth it).
 
         Example:
             ```mojo
-            # On Apple Silicon (default - no BF16)
             var dtype = recommend_precision_dtype(model_size_mb=500.0)
-            # Returns FP16 for medium models, FP32 for small
-
-            # On Intel/AMD with BF16 support
-            var dtype = recommend_precision_dtype(model_size_mb=2000.0, hardware_has_bf16=True)
-            # Returns BF16 for large models
+            var params = ExTensor.zeros((1000, 1000), dtype)
             ```
     """
     if not hardware_has_fp16:
@@ -340,7 +334,7 @@ fn recommend_precision_dtype(
         # Medium model - FP16 recommended
         return DType.float16
     else:
-        # Large model - BF16 recommended if supported (not Apple Silicon)
+        # Large model - BF16 strongly recommended for wider exponent range
         if hardware_has_bf16:
             return DType.bfloat16
         else:

@@ -21,6 +21,8 @@ Usage:
 See examples/mixed_precision_training.mojo for complete usage
 """
 
+from sys import is_defined
+
 from shared.core.extensor import ExTensor, full, zeros
 from shared.core.dtype_cast import cast_tensor
 from shared.core.numerical_safety import has_nan, has_inf
@@ -39,6 +41,26 @@ from shared.training.dtype_utils import (
     is_reduced_precision,
     dtype_to_string,
 )
+
+
+fn _check_bf16_platform_support(is_apple: Bool) raises:
+    """Check whether BF16 is supported on the current platform.
+
+    Raises an error on Apple Silicon where BF16 is unsupported.
+    Accepts is_apple as a parameter for testability (so CI can simulate Apple
+    Silicon without requiring target hardware).
+
+    Args:
+        is_apple: Whether the current hardware is Apple Silicon.
+
+    Raises:
+        Error if is_apple is True (BF16 not supported on Apple Silicon).
+    """
+    if is_apple:
+        raise Error(
+            "BF16 (bfloat16) is not supported on Apple Silicon (M1/M2/M3). "
+            "Use PrecisionConfig.fp16() instead on Apple hardware."
+        )
 
 
 @fieldwise_init
@@ -211,10 +233,9 @@ struct PrecisionConfig(Copyable, Movable):
         Returns:
             PrecisionConfig with BF16 settings.
 
-        Warning:
-            BF16 (DType.bfloat16) is NOT supported on Apple Silicon (M1/M2/M3).
-            On Apple Silicon, calling this method will print a runtime warning.
-            Use PrecisionConfig.fp16() instead on Apple hardware.
+        Raises:
+            Error: If called on Apple Silicon where BF16 is not supported.
+                   Use PrecisionConfig.fp16() instead on Apple hardware.
 
         BF16 Characteristics:
             - 1 sign + 8 exponent + 7 mantissa = 16 bits.
@@ -222,6 +243,7 @@ struct PrecisionConfig(Copyable, Movable):
             - Precision: ~2 decimal digits (less than FP16).
             - Better for large models due to wider exponent range.
         """
+        _check_bf16_platform_support(is_defined["APPLE"]())
         return PrecisionConfig(
             mode=PrecisionMode.BF16,
             compute_dtype=bfloat16_dtype,

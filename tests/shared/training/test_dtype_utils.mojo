@@ -11,6 +11,7 @@ from shared.training.dtype_utils import (
     get_dtype_exponent_bits,
     dtype_to_string,
     recommend_precision_dtype,
+    detect_hardware_bf16_support,
 )
 from testing import assert_equal, assert_true, assert_false
 
@@ -169,11 +170,15 @@ fn test_recommend_precision_dtype() raises:
     print("Testing recommend_precision_dtype...")
 
     # Small model - should recommend FP32
-    var small_dtype = recommend_precision_dtype(50.0, hardware_has_fp16=True)
+    var small_dtype = recommend_precision_dtype(
+        50.0, hardware_has_fp16=True, hardware_has_bf16=True
+    )
     assert_equal(small_dtype, DType.float32, "Small models should use FP32")
 
     # Medium model with FP16 hardware - should recommend FP16
-    var medium_dtype = recommend_precision_dtype(500.0, hardware_has_fp16=True)
+    var medium_dtype = recommend_precision_dtype(
+        500.0, hardware_has_fp16=True, hardware_has_bf16=True
+    )
     assert_equal(medium_dtype, DType.float16, "Medium models should use FP16")
 
     # Large model with BF16 hardware - should recommend BF16
@@ -201,6 +206,46 @@ fn test_recommend_precision_dtype() raises:
     )
 
     print("✓ Precision recommendation test passed")
+
+
+fn test_detect_hardware_bf16_support() raises:
+    """Test that detect_hardware_bf16_support returns a Bool.
+
+    On Linux/x86 CI hardware, BF16 is supported so this returns True.
+    On Apple Silicon (M1/M2/M3), this returns False.
+    """
+    print("Testing detect_hardware_bf16_support...")
+
+    var supported = detect_hardware_bf16_support()
+
+    # On CI (Linux x86), BF16 is supported
+    assert_true(supported, "BF16 should be supported on Linux/x86 CI hardware")
+
+    print("✓ detect_hardware_bf16_support returns True on CI hardware")
+
+
+fn test_recommend_precision_dtype_auto_detect() raises:
+    """Test recommend_precision_dtype auto-detects BF16 support on CI."""
+    print("Testing recommend_precision_dtype with auto-detection...")
+
+    # On CI (Linux x86), auto-detection should find BF16 supported.
+    # Large model should recommend BF16 when auto-detected.
+    var large_dtype = recommend_precision_dtype(2000.0)
+    assert_equal(
+        large_dtype,
+        DType.bfloat16,
+        "Large model on CI should auto-detect BF16 and recommend bfloat16",
+    )
+
+    # Small model should still recommend FP32 regardless of BF16 detection
+    var small_dtype = recommend_precision_dtype(50.0)
+    assert_equal(small_dtype, DType.float32, "Small models should use FP32")
+
+    # Medium model should recommend FP16
+    var medium_dtype = recommend_precision_dtype(500.0)
+    assert_equal(medium_dtype, DType.float16, "Medium models should use FP16")
+
+    print("✓ Auto-detecting recommend_precision_dtype works correctly on CI")
 
 
 fn test_bfloat16_alias_behavior() raises:
@@ -233,6 +278,8 @@ fn main() raises:
     test_get_dtype_exponent_bits()
     test_dtype_to_string()
     test_recommend_precision_dtype()
+    test_detect_hardware_bf16_support()
+    test_recommend_precision_dtype_auto_detect()
     test_bfloat16_alias_behavior()
 
     print()
