@@ -36,6 +36,7 @@ Functions:
     assert_all_values: Assert all tensor values match expected constant
     assert_all_close: Assert two tensors are element-wise close
     assert_type: Assert value is of expected type (documentation)
+    assert_matrices_equal: Assert two matrices are element-wise equal with rtol/atol tolerance (parametric dtype)
 """
 
 from math import isnan, isinf
@@ -824,3 +825,92 @@ fn assert_contiguous(tensor: ExTensor, message: String = "") raises:
     if not tensor.is_contiguous():
         var error_msg = message if message else "Tensor should be contiguous"
         raise Error(error_msg)
+
+
+# ============================================================================
+# Matrix Comparison
+# ============================================================================
+
+
+fn assert_matrices_equal[
+    dtype: DType
+](a: ExTensor, b: ExTensor, rtol: Float64 = 1e-5, atol: Float64 = 1e-8) raises:
+    """Compare two matrices element-wise with relative and absolute tolerance.
+
+    This is the canonical shared implementation for correctness verification
+    across matmul tests and other matrix operation tests. Accounts for
+    floating-point accumulation order differences.
+
+    Note: Mojo v0.26.1 does not support shared helpers across test files via
+    import easily. This function lives here (a library module) rather than in a
+    conftest, and is re-exported via tests/shared/conftest.mojo.
+
+    Args:
+        a: First matrix to compare.
+        b: Second matrix to compare (reference).
+        rtol: Relative tolerance (default: 1e-5).
+        atol: Absolute tolerance (default: 1e-8).
+
+    Raises:
+        Error: If shapes don't match or any element exceeds tolerance.
+
+    Formula:
+        `|a[i] - b[i]| <= atol + rtol * |b[i]|`.
+    """
+    # Verify shapes match
+    if len(a.shape()) != len(b.shape()):
+        raise Error(
+            "Shape dimension mismatch: "
+            + String(len(a.shape()))
+            + " vs "
+            + String(len(b.shape()))
+        )
+
+    for i in range(len(a.shape())):
+        if a.shape()[i] != b.shape()[i]:
+            raise Error(
+                "Shape mismatch at dimension "
+                + String(i)
+                + ": "
+                + String(a.shape()[i])
+                + " vs "
+                + String(b.shape()[i])
+            )
+
+    # Compare element-wise
+    var numel = a.numel()
+    for i in range(numel):
+        var a_val: Float64
+        var b_val: Float64
+
+        @parameter
+        if dtype == DType.float32:
+            a_val = Float64(a._data.bitcast[Float32]()[i])
+            b_val = Float64(b._data.bitcast[Float32]()[i])
+        elif dtype == DType.float64:
+            a_val = a._data.bitcast[Float64]()[i]
+            b_val = b._data.bitcast[Float64]()[i]
+        elif dtype == DType.float16:
+            # Float16 -> Float32 -> Float64 for comparison
+            a_val = Float64(Float32(a._data.bitcast[Float16]()[i]))
+            b_val = Float64(Float32(b._data.bitcast[Float16]()[i]))
+        else:
+            raise Error("Unsupported dtype for comparison")
+
+        var diff = abs(a_val - b_val)
+        var tolerance = atol + rtol * abs(b_val)
+
+        if diff > tolerance:
+            raise Error(
+                "Mismatch at index "
+                + String(i)
+                + ": "
+                + String(a_val)
+                + " vs "
+                + String(b_val)
+                + " (diff="
+                + String(diff)
+                + ", tolerance="
+                + String(tolerance)
+                + ")"
+            )
