@@ -11,7 +11,7 @@ from tests.shared.conftest import assert_true, assert_equal
 
 fn test_str_int8() raises:
     """Test __str__ for int8 tensor."""
-    var t = full([3], Int8(5), DType.int8)
+    var t = full([3], Float64(5), DType.int8)
     var s = String(t)
     assert_true(s.startswith("ExTensor(["))
     assert_true("5" in s)
@@ -20,7 +20,7 @@ fn test_str_int8() raises:
 
 fn test_str_int16() raises:
     """Test __str__ for int16 tensor."""
-    var t = full([3], Int16(1000), DType.int16)
+    var t = full([3], Float64(1000), DType.int16)
     var s = String(t)
     assert_true(s.startswith("ExTensor(["))
     assert_true("1000" in s)
@@ -29,7 +29,7 @@ fn test_str_int16() raises:
 
 fn test_str_int32() raises:
     """Test __str__ for int32 tensor."""
-    var t = full([3], Int32(100000), DType.int32)
+    var t = full([3], Float64(100000), DType.int32)
     var s = String(t)
     assert_true(s.startswith("ExTensor(["))
     assert_true("100000" in s)
@@ -38,7 +38,7 @@ fn test_str_int32() raises:
 
 fn test_str_int64() raises:
     """Test __str__ for int64 tensor."""
-    var t = full([3], Int64(9999999999), DType.int64)
+    var t = full([3], Float64(9999999999), DType.int64)
     var s = String(t)
     assert_true(s.startswith("ExTensor(["))
     assert_true("9999999999" in s)
@@ -47,7 +47,7 @@ fn test_str_int64() raises:
 
 fn test_str_uint8() raises:
     """Test __str__ for uint8 tensor."""
-    var t = full([3], UInt8(255), DType.uint8)
+    var t = full([3], Float64(255), DType.uint8)
     var s = String(t)
     assert_true(s.startswith("ExTensor(["))
     assert_true("255" in s)
@@ -56,7 +56,7 @@ fn test_str_uint8() raises:
 
 fn test_str_uint16() raises:
     """Test __str__ for uint16 tensor."""
-    var t = full([3], UInt16(65535), DType.uint16)
+    var t = full([3], Float64(65535), DType.uint16)
     var s = String(t)
     assert_true(s.startswith("ExTensor(["))
     assert_true("65535" in s)
@@ -65,7 +65,7 @@ fn test_str_uint16() raises:
 
 fn test_str_uint32() raises:
     """Test __str__ for uint32 tensor."""
-    var t = full([3], UInt32(4294967295), DType.uint32)
+    var t = full([3], Float64(4294967295), DType.uint32)
     var s = String(t)
     assert_true(s.startswith("ExTensor(["))
     assert_true("4294967295" in s)
@@ -74,7 +74,7 @@ fn test_str_uint32() raises:
 
 fn test_str_uint64() raises:
     """Test __str__ for uint64 tensor."""
-    var t = full([3], UInt64(18446744073709551615), DType.uint64)
+    var t = full([3], Float64(18446744073709551615), DType.uint64)
     var s = String(t)
     assert_true(s.startswith("ExTensor(["))
     assert_true("18446744073709551615" in s)
@@ -96,7 +96,7 @@ fn test_str_int64_large_tensor_truncation() raises:
 
 fn test_str_uint8_negative_not_in_output() raises:
     """Test __str__ for uint8 shows unsigned values (no negative signs)."""
-    var t = full([3], UInt8(200), DType.uint8)
+    var t = full([3], Float64(200), DType.uint8)
     var s = String(t)
     # uint8(200) should never appear as negative
     assert_true("200" in s)
