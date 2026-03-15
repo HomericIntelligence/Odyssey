@@ -3,8 +3,8 @@
 ## Prerequisites
 
 - **Platform**: Linux (linux-64) — the only supported platform
-- **Git** >= 2.x
-- **Pixi** package manager (installation steps below)
+- **Git** >= 2.x (any modern Git 2.x release is sufficient)
+- **Pixi** >= 0.24 package manager (installation steps below)
 - **Docker** (optional) — for the Docker-based workflow
 
 ## Installing Pixi
@@ -102,6 +102,46 @@ just test-mojo
 
 ```bash
 docker run --rm ghcr.io/homericintelligence/projectodyssey:main just test-mojo
+```
+
+## IDE Setup
+
+### VS Code
+
+Install the **Mojo** extension from the VS Code marketplace:
+
+1. Open VS Code
+2. Press `Ctrl+Shift+X` to open Extensions
+3. Search for **Mojo** (publisher: Modular)
+4. Click **Install**
+
+The extension provides syntax highlighting, code completion, and inline diagnostics for `.mojo`
+and `.🔥` files.
+
+**Configure the formatter** to use Pixi's Mojo by adding the following to
+`.vscode/settings.json` in the repository root:
+
+```json
+{
+    "mojo.mojoPath": "${workspaceFolder}/.pixi/envs/default/bin/mojo"
+}
+```
+
+Verify the extension is using the correct Mojo version by checking
+**View → Output → Mojo Language Server**.
+
+### Other Editors
+
+For editors with LSP support, point the Mojo LSP server to:
+
+```text
+.pixi/envs/default/bin/mojo-lsp-server
+```
+
+Set the formatter to:
+
+```bash
+pixi run mojo format <file>
 ```
 
 ## Troubleshooting
