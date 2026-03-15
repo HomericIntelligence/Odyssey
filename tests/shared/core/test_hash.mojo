@@ -339,6 +339,21 @@ fn test_hash_integer_types_consistent() raises:
     )
 
 
+fn test_hash_integer_dtype_distinct() raises:
+    """Integer tensors with different values should produce different hashes.
+
+    Verifies that two int32 tensors with different numeric values produce
+    distinct hashes, similar to test_hash_different_values for float types.
+    Closes #4062.
+    """
+    var shape = List[Int]()
+    shape.append(4)
+    var a = arange(0.0, 4.0, 1.0, DType.int32)  # [0, 1, 2, 3]
+    var b = arange(1.0, 5.0, 1.0, DType.int32)  # [1, 2, 3, 4]
+    if hash(a) == hash(b):
+        raise Error("Integer tensors with different values should not collide on hash")
+
+
 # ============================================================================
 # Test: empty tensor hash behavior (shape and dtype sensitivity)
 # ============================================================================
@@ -419,21 +434,6 @@ fn test_hash_same_dtype_different_shapes() raises:
             "Tensors with same dtype/values but different shapes should not"
             " collide on hash"
         )
-
-
-# ============================================================================
-# Test: integer distinct values
-# ============================================================================
-
-
-fn test_hash_integer_dtype_distinct() raises:
-    """Integer tensors with different values hash differently."""
-    var shape = List[Int]()
-    shape.append(3)
-    var a = full(shape, Float64(100), DType.int32)
-    var b = full(shape, Float64(101), DType.int32)
-    if hash(a) == hash(b):
-        raise Error("int32 tensors with different values should hash differently")
 
 
 # ============================================================================
@@ -518,6 +518,9 @@ fn main() raises:
     print("  test_hash_integer_types_consistent...")
     test_hash_integer_types_consistent()
 
+    print("  test_hash_integer_dtype_distinct...")
+    test_hash_integer_dtype_distinct()
+
     print("  test_hash_empty_tensor_base...")
     test_hash_empty_tensor_base()
 
@@ -532,9 +535,6 @@ fn main() raises:
 
     print("  test_hash_same_dtype_different_shapes...")
     test_hash_same_dtype_different_shapes()
-
-    print("  test_hash_integer_dtype_distinct...")
-    test_hash_integer_dtype_distinct()
 
     print("  test_hash_nan_canonicalization_scalar...")
     test_hash_nan_canonicalization_scalar()
