@@ -16,6 +16,14 @@ repos:
         language: script
         files: ^(benchmarks|examples|papers|scripts|shared|tests)/.*\.(mojo|🔥)$
         pass_filenames: true
+      - id: check-print-debug-artifacts
+        name: Check for NOTE/TODO/FIXME in print statements
+        description: >-
+          Fail if examples/ contains print() calls with NOTE, TODO, or FIXME
+          left over from development/debugging.
+        entry: 'print.*(NOTE|TODO|FIXME)'
+        language: pygrep
+        files: ^examples/
       - id: check-list-constructor
         name: Check for deprecated List[Type](args) syntax
         description: Prevent use of invalid List variadic constructor (use list literals instead)
