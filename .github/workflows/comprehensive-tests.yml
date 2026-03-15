@@ -321,8 +321,8 @@ jobs:
             path: "tests/shared"
             pattern: "test_imports*.mojo test_data_generators_part*.mojo test_model_utils.mojo test_serialization.mojo utils/test_*.mojo fixtures/test_*.mojo training/test_*.mojo testing/test_*.mojo"
           # ---- Model layer tests (the main PR-blocking test suite) ----
-          # ADR-009: test_googlenet_layers.mojo split into 3 parts (≤8 tests each)
-          # to avoid Mojo v0.26.1 heap corruption under high test load.
+          # test_*.mojo glob auto-discovers all model tests including ADR-009 _partN split files
+          # (e.g., test_googlenet_layers_part1.mojo) without requiring manual CI updates.
           # Mojo JIT crashes on CI runners — non-blocking pending investigation.
           - name: "Models"
             path: "tests/models"
