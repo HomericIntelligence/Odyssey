@@ -61,8 +61,8 @@ fn test_lars_initialization() raises:
         epsilon=1e-8,
     )
 
-    # If we got here without error, the API contract is satisfied
-    assert_true(True)  # Placeholder to mark test as passing
+    # Verify the result has the correct shape
+    assert_shape(result, shape, "LARS initialization result shape matches input")
 
 
 # ============================================================================
