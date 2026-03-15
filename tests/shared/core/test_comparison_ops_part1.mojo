@@ -10,14 +10,8 @@ All operations return boolean tensors (DType.bool).
 """
 
 # Import ExTensor and comparison operations
-from shared.core import (
-    ExTensor,
-    full,
-    ones,
-    zeros,
-    equal,
-    not_equal,
-)
+from shared.core.extensor import ExTensor, full, ones, zeros
+from shared.core.comparison import equal, not_equal
 
 # Import test helpers
 from tests.shared.conftest import (

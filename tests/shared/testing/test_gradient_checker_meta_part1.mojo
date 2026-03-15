@@ -36,7 +36,7 @@ from shared.testing import (
     compute_numerical_gradient,
     relative_error,
 )
-from shared.core import ExTensor, zeros, ones, full, zeros_like
+from shared.core.extensor import ExTensor, zeros, ones, full, zeros_like
 
 
 # ============================================================================

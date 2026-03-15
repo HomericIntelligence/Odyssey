@@ -9,17 +9,8 @@ mean (keepdims/dtype) and max_reduce (all-elements) with axis=-1.
 """
 
 # Import ExTensor and reduction operations
-from shared.core import (
-    ExTensor,
-    full,
-    ones,
-    zeros,
-    arange,
-    sum,
-    mean,
-    max_reduce,
-    min_reduce,
-)
+from shared.core.extensor import ExTensor, full, ones, zeros, arange
+from shared.core.reduction import sum, mean, max_reduce, min_reduce
 
 # Import test helpers
 from tests.shared.conftest import (

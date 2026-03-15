@@ -9,7 +9,7 @@ Tests the save() and load() methods on ExTensor instances for:
 Runs as: pixi run mojo ./tests/shared/core/test_extensor_serialization.mojo
 """
 
-from shared.core import ExTensor, zeros, ones, arange
+from shared.core.extensor import ExTensor, zeros, ones, arange
 
 
 fn test_save_load_float32() raises:

@@ -13,7 +13,7 @@ Testing strategy:
 """
 
 from testing import assert_true, assert_false, assert_equal, assert_almost_equal
-from shared.core import ExTensor
+from shared.core.extensor import ExTensor
 from shared.training.metrics import (
     top1_accuracy,
     topk_accuracy,

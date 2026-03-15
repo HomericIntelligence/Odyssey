@@ -206,7 +206,7 @@ fn test_bfloat16_alias_behavior() raises:
     print("Testing bfloat16 native dtype behavior...")
 
     # Verify bfloat16_dtype uses native DType.bfloat16
-    from shared.core import zeros
+    from shared.core.extensor import zeros
 
     var tensor = zeros(List[Int](), bfloat16_dtype)
     assert_equal(

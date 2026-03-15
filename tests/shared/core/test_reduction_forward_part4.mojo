@@ -9,17 +9,8 @@ mean axis=1, max_reduce/min_reduce with axis parameter, and cross-reduction cons
 """
 
 # Import ExTensor and reduction operations
-from shared.core import (
-    ExTensor,
-    full,
-    ones,
-    zeros,
-    arange,
-    sum,
-    mean,
-    max_reduce,
-    min_reduce,
-)
+from shared.core.extensor import ExTensor, full, ones, zeros, arange
+from shared.core.reduction import sum, mean, max_reduce, min_reduce
 
 # Import test helpers
 from tests.shared.conftest import (

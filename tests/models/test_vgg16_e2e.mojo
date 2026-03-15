@@ -42,7 +42,7 @@ from shared.core.linear import linear, linear_backward
 from shared.core.activation import relu, relu_backward
 from shared.core.pooling import maxpool2d, maxpool2d_backward
 from shared.core.loss import cross_entropy
-from shared.core import mean
+from shared.core.reduction import mean
 
 
 # ============================================================================

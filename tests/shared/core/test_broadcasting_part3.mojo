@@ -8,7 +8,8 @@ Tests broadcast output shapes, dtype preservation, and integration with comparis
 """
 
 # Import ExTensor and operations
-from shared.core import ExTensor, zeros, ones, full, add, multiply
+from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.arithmetic import add, multiply
 from testing import assert_true
 
 # Import test helpers

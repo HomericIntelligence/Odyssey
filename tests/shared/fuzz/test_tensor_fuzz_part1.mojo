@@ -28,16 +28,8 @@ Note:
 from random import seed as random_seed
 from math import isnan, isinf
 
-from shared.core import (
-    ExTensor,
-    zeros,
-    ones,
-    full,
-    add,
-    subtract,
-    multiply,
-    divide,
-)
+from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.arithmetic import add, subtract, multiply, divide
 
 from shared.testing.fuzz_core import (
     FuzzConfig,

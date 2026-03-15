@@ -8,6 +8,11 @@ Split from test_edge_cases.mojo per ADR-009 (≤10 fn test_ functions per file).
 
 from math import isnan, isinf
 
+# NOTE(#3330): This file intentionally uses a package-level import to serve as a
+# reproducible test case for the JIT crash root cause. `from shared.core import`
+# forces the JIT to compile all 37,401 lines across 60+ modules via __init__.mojo,
+# which intermittently overflows a JIT-internal buffer and triggers __fortify_fail_abort.
+# Run 20+ times to observe: `for i in $(seq 1 20); do pixi run mojo run tests/shared/core/test_edge_cases_part1.mojo 2>&1 | grep -E "OK|crashed|PASS"; done`
 # Import ExTensor and operations
 from shared.core import (
     ExTensor,

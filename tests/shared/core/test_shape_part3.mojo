@@ -7,15 +7,8 @@ Split from test_shape.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
 # Import ExTensor and operations
-from shared.core import (
-    ExTensor,
-    zeros,
-    ones,
-    full,
-    arange,
-    broadcast_to,
-    reshape,
-)
+from shared.core.extensor import ExTensor, zeros, ones, full, arange
+from shared.core.shape import broadcast_to, reshape
 
 # Import test helpers
 from tests.shared.conftest import (
@@ -34,7 +27,7 @@ from tests.shared.conftest import (
 
 fn test_repeat_elements() raises:
     """Test repeating each element."""
-    from shared.core import repeat
+    from shared.core.shape import repeat
 
     var a = arange(0.0, 3.0, 1.0, DType.float32)  # [0, 1, 2]
     var b = repeat(a, 2)
@@ -51,7 +44,7 @@ fn test_repeat_elements() raises:
 
 fn test_repeat_axis() raises:
     """Test repeating along specific axis."""
-    from shared.core import repeat
+    from shared.core.shape import repeat
 
     var shape = List[Int]()
     shape.append(2)
@@ -183,7 +176,7 @@ fn test_broadcast_to_size1_nonleading() raises:
 
 fn test_permute_axes() raises:
     """Test permuting axes (similar to transpose with axes)."""
-    from shared.core import permute
+    from shared.core.shape import permute
 
     var shape = List[Int]()
     shape.append(2)
@@ -219,7 +212,7 @@ fn test_permute_axes() raises:
 
 fn test_reshape_preserves_dtype() raises:
     """Test that reshape preserves dtype."""
-    from shared.core import reshape
+    from shared.core.shape import reshape
 
     var a = arange(0.0, 12.0, 1.0, DType.float64)
     var new_shape = List[Int]()
@@ -237,7 +230,7 @@ fn test_reshape_preserves_dtype() raises:
 
 fn test_flatten_to_2d_basic() raises:
     """Test basic flatten_to_2d functionality."""
-    from shared.core import flatten_to_2d
+    from shared.core.shape import flatten_to_2d
 
     # Create 4D tensor: (batch=2, channels=3, height=4, width=4)
     var shape: List[Int] = [2, 3, 4, 4]

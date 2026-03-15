@@ -13,7 +13,7 @@ from shared.testing.fixtures import (
     assert_tensor_all_finite,
     assert_tensor_not_all_zeros,
 )
-from shared.core import ones, zeros
+from shared.core.extensor import ones, zeros
 
 
 fn test_assert_tensor_dtype_invalid() raises:

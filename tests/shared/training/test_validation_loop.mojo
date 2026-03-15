@@ -33,8 +33,7 @@ from shared.training.trainer_interface import (
     TrainingMetrics,
 )
 from shared.training.metrics import ConfusionMatrix
-from shared.core.extensor import ExTensor
-from shared.core import ones, zeros, randn
+from shared.core.extensor import ExTensor, ones, zeros, randn
 
 
 # ============================================================================

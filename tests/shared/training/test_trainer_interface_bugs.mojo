@@ -11,7 +11,7 @@ Bug tested:
 """
 
 # Import ExTensor and trainer interface
-from shared.core import ExTensor, ones
+from shared.core.extensor import ExTensor, ones
 from shared.training.trainer_interface import DataLoader
 
 

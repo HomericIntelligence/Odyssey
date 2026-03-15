@@ -16,7 +16,7 @@ from shared.testing import (
     assert_true,
     assert_equal,
 )
-from shared.core import (
+from shared.core.extensor import (
     ExTensor,
     zeros,
     ones,

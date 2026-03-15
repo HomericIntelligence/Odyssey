@@ -14,7 +14,9 @@ from shared.testing import (
     check_gradients_verbose,
     compute_numerical_gradient,
 )
-from shared.core import ExTensor, zeros, ones, full, randn, shape, matrix
+from shared.core.extensor import ExTensor, zeros, ones, full, randn
+from shared.core import shape
+from shared.core import matrix
 
 
 # ============================================================================

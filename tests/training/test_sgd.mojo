@@ -5,7 +5,8 @@ This module tests the SGD optimizer implementations:
 - sgd_step (SGD with momentum and weight decay)
 """
 
-from shared.core import ExTensor, DType, zeros, ones, full, subtract, multiply
+from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.arithmetic import subtract, multiply
 from shared.training.optimizers import sgd_step_simple, sgd_step
 
 

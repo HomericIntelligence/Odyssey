@@ -8,7 +8,8 @@ Tests the BroadcastIterator implementation for correctness across 1D, 2D, 3D cas
 """
 
 # Import ExTensor and operations
-from shared.core import ExTensor, zeros, ones, full, add, multiply
+from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.arithmetic import add, multiply
 from testing import assert_true
 
 # Import test helpers

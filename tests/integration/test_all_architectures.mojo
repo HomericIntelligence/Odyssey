@@ -17,7 +17,7 @@ Usage:
     mojo run tests/integration/test_all_architectures.mojo
 """
 
-from shared.core import ExTensor, zeros, ones
+from shared.core.extensor import ExTensor, zeros, ones
 import sys
 
 

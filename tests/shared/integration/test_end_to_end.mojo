@@ -20,14 +20,10 @@ from tests.shared.conftest import (
     TestFixtures,
 )
 from shared.testing import SimpleMLP
-from shared.core import (
-    ExTensor,
-    zeros,
-    ones,
-    mean_squared_error,
-    mean,
-    softmax,
-)
+from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.loss import mean_squared_error
+from shared.core.reduction import mean
+from shared.core.activation import softmax
 
 
 # ============================================================================

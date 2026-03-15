@@ -24,16 +24,8 @@ from tests.shared.conftest import (
     assert_true,
 )
 from math import sqrt
-from shared.core import (
-    ExTensor,
-    xavier_uniform,
-    xavier_normal,
-    kaiming_uniform,
-    kaiming_normal,
-    uniform,
-    normal,
-    constant,
-)
+from shared.core.extensor import ExTensor
+from shared.core.initializers import xavier_uniform, xavier_normal, kaiming_uniform, kaiming_normal, uniform, normal, constant
 
 
 fn compute_mean(tensor: ExTensor) -> Float64:

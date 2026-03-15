@@ -7,15 +7,8 @@ Split from test_shape.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
 # Import ExTensor and operations
-from shared.core import (
-    ExTensor,
-    zeros,
-    ones,
-    full,
-    arange,
-    concatenate,
-    stack,
-)
+from shared.core.extensor import ExTensor, zeros, ones, full, arange
+from shared.core.shape import concatenate, stack
 
 # Import test helpers
 from tests.shared.conftest import (
@@ -139,7 +132,7 @@ fn test_stack_axis_1() raises:
 
 fn test_split_equal() raises:
     """Test splitting into equal parts."""
-    from shared.core import split
+    from shared.core.shape import split
 
     var a = arange(0.0, 12.0, 1.0, DType.float32)
     var parts = split(a, 3)
@@ -160,7 +153,7 @@ fn test_split_equal() raises:
 
 fn test_split_unequal() raises:
     """Test splitting into unequal parts."""
-    from shared.core import split_with_indices
+    from shared.core.shape import split_with_indices
 
     var a = arange(0.0, 10.0, 1.0, DType.float32)
     var indices = List[Int]()
@@ -190,7 +183,7 @@ fn test_split_unequal() raises:
 
 fn test_tile_1d() raises:
     """Test tiling 1D tensor."""
-    from shared.core import tile
+    from shared.core.shape import tile
 
     var a = arange(0.0, 3.0, 1.0, DType.float32)  # [0, 1, 2]
     var reps = List[Int]()
@@ -212,7 +205,7 @@ fn test_tile_1d() raises:
 
 fn test_tile_multidim() raises:
     """Test tiling with multi-dimensional repetitions."""
-    from shared.core import tile
+    from shared.core.shape import tile
 
     var shape = List[Int]()
     shape.append(2)

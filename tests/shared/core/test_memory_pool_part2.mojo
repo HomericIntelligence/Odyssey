@@ -17,7 +17,7 @@ from shared.core.memory_pool import (
     pooled_alloc,
     pooled_free,
 )
-from shared.core import ExTensor, zeros, DType
+from shared.core.extensor import ExTensor, zeros
 
 
 fn test_trim_releases_memory() raises:

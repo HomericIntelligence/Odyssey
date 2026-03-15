@@ -9,9 +9,8 @@ memory locations.
 See Issue #4086 for context on the stride-aware indexing bug.
 """
 
-from shared.core import (
-    ExTensor,
-    arange,
+from shared.core.extensor import ExTensor, arange
+from shared.core.shape import (
     reshape,
     tile,
     repeat,
