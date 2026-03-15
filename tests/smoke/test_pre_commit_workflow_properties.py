@@ -115,9 +115,7 @@ class TestMatmulEnforcement:
             re.DOTALL,
         )
         matmul_match = matmul_step_pattern.search(pre_commit_workflow_content)
-        assert matmul_match is not None, (
-            "Could not find 'Enforce no .__matmul__() call sites' step in pre-commit.yml."
-        )
+        assert matmul_match is not None, "Could not find 'Enforce no .__matmul__() call sites' step in pre-commit.yml."
 
         matmul_block = matmul_match.group(0)
         assert "continue-on-error: true" not in matmul_block, (

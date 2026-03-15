@@ -20,9 +20,7 @@ VALIDATE_CONFIGS_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "validate-conf
 @pytest.fixture(scope="module")
 def validate_configs_workflow_content() -> str:
     """Read the validate-configs workflow file once for all tests in this module."""
-    assert VALIDATE_CONFIGS_WORKFLOW.exists(), (
-        f"validate-configs.yml not found at {VALIDATE_CONFIGS_WORKFLOW}"
-    )
+    assert VALIDATE_CONFIGS_WORKFLOW.exists(), f"validate-configs.yml not found at {VALIDATE_CONFIGS_WORKFLOW}"
     return VALIDATE_CONFIGS_WORKFLOW.read_text(encoding="utf-8")
 
 
@@ -60,13 +58,10 @@ class TestValidationSteps:
         silent config parsing errors in training runs or other consumers of these files.
         """
         assert re.search(r"yamllint", validate_configs_workflow_content), (
-            "validate-configs.yml is missing 'yamllint'. "
-            "yamllint must be used to validate YAML syntax in configs/."
+            "validate-configs.yml is missing 'yamllint'. yamllint must be used to validate YAML syntax in configs/."
         )
 
-    def test_required_defaults_check_present(
-        self, validate_configs_workflow_content: str
-    ) -> None:
+    def test_required_defaults_check_present(self, validate_configs_workflow_content: str) -> None:
         """The required default configs check must be present.
 
         This step verifies that configs/defaults/training.yaml,
@@ -74,9 +69,7 @@ class TestValidationSteps:
         Removing this check would allow these required defaults to be deleted
         without any CI signal, breaking training pipelines that depend on them.
         """
-        assert re.search(
-            r"configs/defaults/training\.yaml", validate_configs_workflow_content
-        ), (
+        assert re.search(r"configs/defaults/training\.yaml", validate_configs_workflow_content), (
             "validate-configs.yml is missing a check for 'configs/defaults/training.yaml'. "
             "The required defaults check must verify this file exists."
         )

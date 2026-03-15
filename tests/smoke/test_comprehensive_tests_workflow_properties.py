@@ -21,9 +21,7 @@ COMPREHENSIVE_TESTS_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "comprehens
 @pytest.fixture(scope="module")
 def comprehensive_tests_workflow_content() -> str:
     """Read the comprehensive-tests workflow file once for all tests in this module."""
-    assert COMPREHENSIVE_TESTS_WORKFLOW.exists(), (
-        f"comprehensive-tests.yml not found at {COMPREHENSIVE_TESTS_WORKFLOW}"
-    )
+    assert COMPREHENSIVE_TESTS_WORKFLOW.exists(), f"comprehensive-tests.yml not found at {COMPREHENSIVE_TESTS_WORKFLOW}"
     return COMPREHENSIVE_TESTS_WORKFLOW.read_text(encoding="utf-8")
 
 
@@ -36,9 +34,7 @@ class TestComprehensiveTestsTriggers:
         Without this trigger, the full test suite is skipped on PRs,
         allowing regressions to merge undetected.
         """
-        assert re.search(
-            r"^\s+pull_request\b", comprehensive_tests_workflow_content, re.MULTILINE
-        ), (
+        assert re.search(r"^\s+pull_request\b", comprehensive_tests_workflow_content, re.MULTILINE), (
             "comprehensive-tests.yml is missing a pull_request trigger. "
             "Add 'pull_request:' under the 'on:' block to run tests on all PRs."
         )
@@ -105,9 +101,7 @@ class TestMatrixStrategy:
 class TestJobDependencies:
     """Verify job dependency chain for test-mojo-comprehensive."""
 
-    def test_mojo_tests_needs_compilation(
-        self, comprehensive_tests_workflow_content: str
-    ) -> None:
+    def test_mojo_tests_needs_compilation(self, comprehensive_tests_workflow_content: str) -> None:
         """test-mojo-comprehensive must depend on mojo-compilation.
 
         Without this dependency, tests could run against a broken package,
@@ -120,9 +114,7 @@ class TestJobDependencies:
             re.DOTALL,
         )
         job_match = job_pattern.search(comprehensive_tests_workflow_content)
-        assert job_match is not None, (
-            "Could not find 'test-mojo-comprehensive' job in comprehensive-tests.yml."
-        )
+        assert job_match is not None, "Could not find 'test-mojo-comprehensive' job in comprehensive-tests.yml."
 
         job_block = job_match.group(0)
         assert "mojo-compilation" in job_block, (
@@ -130,9 +122,7 @@ class TestJobDependencies:
             "Without this dependency, tests may run against a broken package."
         )
 
-    def test_mojo_tests_needs_coverage_validation(
-        self, comprehensive_tests_workflow_content: str
-    ) -> None:
+    def test_mojo_tests_needs_coverage_validation(self, comprehensive_tests_workflow_content: str) -> None:
         """test-mojo-comprehensive must depend on validate-test-coverage.
 
         Without this dependency, tests run even when the test coverage
@@ -144,9 +134,7 @@ class TestJobDependencies:
             re.DOTALL,
         )
         job_match = job_pattern.search(comprehensive_tests_workflow_content)
-        assert job_match is not None, (
-            "Could not find 'test-mojo-comprehensive' job in comprehensive-tests.yml."
-        )
+        assert job_match is not None, "Could not find 'test-mojo-comprehensive' job in comprehensive-tests.yml."
 
         job_block = job_match.group(0)
         assert "validate-test-coverage" in job_block, (
