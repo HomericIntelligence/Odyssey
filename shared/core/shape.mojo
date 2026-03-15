@@ -220,10 +220,31 @@ fn reshape(tensor: ExTensor, new_shape: List[Int]) raises -> ExTensor:
     # Create new tensor with new shape (data copy)
     var result = ExTensor(final_shape, tensor.dtype())
 
-    # Copy data element by element (row-major order preserved)
-    for i in range(total_elements):
-        var val = tensor._get_float64(i)
-        result._set_float64(i, val)
+    # Copy data respecting tensor strides (handles non-contiguous inputs)
+    if is_contiguous(tensor):
+        # Fast path: flat index maps directly to memory
+        for i in range(total_elements):
+            var val = tensor._get_float64(i)
+            result._set_float64(i, val)
+    else:
+        # Slow path: compute stride-based byte offset for each element
+        # Convert flat output index i -> multi-dim coords -> strided source offset
+        var src_shape = tensor.shape()
+        var ndim = len(src_shape)
+        var dtype_size = tensor._get_dtype_size()
+        var src_ptr = tensor._data
+        var dst_ptr = result._data
+        for i in range(total_elements):
+            var remaining = i
+            var src_elem_offset = 0
+            for d in range(ndim - 1, -1, -1):
+                var coord = remaining % src_shape[d]
+                remaining //= src_shape[d]
+                src_elem_offset += coord * tensor._strides[d]
+            var src_byte_offset = src_elem_offset * dtype_size
+            var dst_byte_offset = i * dtype_size
+            for b in range(dtype_size):
+                dst_ptr[dst_byte_offset + b] = src_ptr[src_byte_offset + b]
 
     return result^
 
