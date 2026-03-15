@@ -1,11 +1,11 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_creation.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for ExTensor creation operations - Part 5: dtype support and edge cases.
+"""Tests for ExTensor creation operations - Part 5: dtype support.
 
-Tests dtype support across creation operations and edge cases.
+Tests dtype support across creation operations.
 Split from test_creation.mojo per ADR-009 (≤10 fn test_ per file).
-"""
+Edge cases moved to test_creation_edge_cases.mojo."""
 
 # Import ExTensor and creation operations
 from shared.core import (
@@ -93,40 +93,6 @@ fn test_creation_bool() raises:
     assert_dtype(t, DType.bool, "zeros should support bool")
 
 
-# ============================================================================
-# Test edge cases
-# ============================================================================
-
-
-fn test_creation_0d_scalar() raises:
-    """Test creating 0D scalar tensor."""
-    var shape = List[Int]()
-    var t = zeros(shape, DType.float32)
-
-    assert_dim(t, 0, "0D tensor should have 0 dimensions")
-    assert_numel(t, 1, "0D tensor should have 1 element")
-    assert_value_at(t, 0, 0.0, 1e-8, "0D tensor value")
-
-
-fn test_creation_very_large_1d() raises:
-    """Test creating very large 1D tensor."""
-    var shape = List[Int]()
-    shape.append(1000000)
-    var t = zeros(shape, DType.float32)
-
-    assert_numel(t, 1000000, "Large 1D tensor should have 1000000 elements")
-    # Spot-check a few values
-    assert_value_at(t, 0, 0.0, 1e-8, "Large tensor first element")
-    assert_value_at(t, 999999, 0.0, 1e-8, "Large tensor last element")
-
-
-fn test_creation_high_dimensional() raises:
-    """Test creating tensor with many dimensions (e.g., 8D)."""
-    var shape = List[Int](length=8, fill=2)
-    var t = zeros(shape, DType.float32)
-
-    assert_dim(t, 8, "8D tensor should have 8 dimensions")
-    assert_numel(t, 256, "8D tensor (2x2x2x2x2x2x2x2) should have 256 elements")
 
 
 # ============================================================================
@@ -135,13 +101,9 @@ fn test_creation_high_dimensional() raises:
 
 
 fn main() raises:
-    """Run dtype support and edge case creation tests."""
-    print(
-        "Running ExTensor creation tests - Part 5: dtype support and edge"
-        " cases..."
-    )
+    """Run dtype support creation tests."""
+    print("Running ExTensor creation tests - Part 5: dtype support...")
 
-    # dtype tests
     test_creation_float16()
     test_creation_float32()
     test_creation_float64()
@@ -149,10 +111,5 @@ fn main() raises:
     test_creation_int32()
     test_creation_uint8()
     test_creation_bool()
-
-    # Edge case tests
-    test_creation_0d_scalar()
-    test_creation_very_large_1d()
-    test_creation_high_dimensional()
 
     print("All Part 5 creation tests completed!")
