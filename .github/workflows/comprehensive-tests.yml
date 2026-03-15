@@ -332,8 +332,9 @@ jobs:
 
       - name: Run test group
         # Some test groups have flaky Mojo runtime segfaults (libKGENCompilerRTShared.so crashes)
-        # on CI runners due to memory/runtime constraints. Allow them to fail without blocking
-        # the workflow — these pass consistently on main and are unrelated to workflow changes.
+        # on CI runners due to memory/runtime constraints. Retry flaky tests up to 3 times
+        # with 30s wait between attempts to distinguish transient failures from real issues.
+        # Per ADR-009 and Issue #3330, flaky groups still respect continue-on-error after retries.
         continue-on-error: ${{ matrix.test-group.continue-on-error == true }}
         run: |
           echo "=================================================="
@@ -345,14 +346,31 @@ jobs:
           mkdir -p test-results
           start_time=$(date +%s)
 
-          # Use justfile to run test group
-          # The justfile handles all the complexity of test discovery and execution
-          if just test-group "${{ matrix.test-group.path }}" "${{ matrix.test-group.pattern }}"; then
-            test_result="passed"
-            exit_code=0
-          else
-            test_result="failed"
-            exit_code=1
+          # Retry logic: up to 3 attempts with 30s wait between failures
+          max_attempts=3
+          attempt=1
+          test_result="failed"
+          exit_code=1
+
+          while [ $attempt -le $max_attempts ]; do
+            if [ $attempt -gt 1 ]; then
+              echo "⚠️  Attempt $attempt/$max_attempts (waiting 30s before retry...)"
+              sleep 30
+            fi
+
+            # Use justfile to run test group
+            # The justfile handles all the complexity of test discovery and execution
+            if just test-group "${{ matrix.test-group.path }}" "${{ matrix.test-group.pattern }}"; then
+              test_result="passed"
+              exit_code=0
+              break
+            fi
+
+            attempt=$((attempt + 1))
+          done
+
+          if [ $exit_code -ne 0 ]; then
+            echo "❌ Test group failed after $max_attempts attempts"
           fi
 
 
