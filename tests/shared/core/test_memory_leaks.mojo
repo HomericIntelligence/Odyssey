@@ -69,22 +69,30 @@ fn test_multiple_copies_refcount() raises:
     )
 
 
+fn _copy_and_check_refcount(tensor1: ExTensor) -> Int:
+    """Helper: copy tensor in inner scope and return inner refcount."""
+    var tensor2 = tensor1
+    return tensor1._refcount[]
+
+
 fn test_scope_exit_decrements_refcount() raises:
     """Test refcount decrements when copy goes out of scope."""
     var tensor1 = zeros([10, 10], DType.float32)
     var initial_refcount = tensor1._refcount[]
     assert_equal_int(initial_refcount, 1, "Initial refcount should be 1")
 
-    var inner_refcount: Int
-    if True:
-        var tensor2 = tensor1
-        inner_refcount = tensor1._refcount[]
-        assert_equal_int(
-            inner_refcount, 2, "Refcount should be 2 in inner scope"
-        )
+    var inner_refcount = _copy_and_check_refcount(tensor1)
+    assert_equal_int(inner_refcount, 2, "Refcount should be 2 in inner scope")
 
     var outer_refcount = tensor1._refcount[]
     assert_equal_int(outer_refcount, 1, "Refcount should be 1 after scope exit")
+
+
+fn _modify_through_copy(tensor1: ExTensor) raises:
+    """Helper: copy tensor in inner scope and modify shared data."""
+    var tensor2 = tensor1
+    assert_true(tensor1._data == tensor2._data, "Should share data")
+    tensor2._data.bitcast[Float32]()[0] = 99.0
 
 
 fn test_original_survives_copy_destruction() raises:
@@ -93,12 +101,7 @@ fn test_original_survives_copy_destruction() raises:
     # Write a known value through data pointer
     tensor1._data.bitcast[Float32]()[0] = 42.0
 
-    if True:
-        var tensor2 = tensor1
-        # Verify both point to same data
-        assert_true(tensor1._data == tensor2._data, "Should share data")
-        # Modify through copy
-        tensor2._data.bitcast[Float32]()[0] = 99.0
+    _modify_through_copy(tensor1)
 
     # Verify modification persists through original
     var value = tensor1._data.bitcast[Float32]()[0]
@@ -110,12 +113,15 @@ fn test_original_survives_copy_destruction() raises:
 # ============================================================================
 
 
+fn _alloc_and_use_tensor() raises:
+    """Helper: allocate tensor in inner scope and use it."""
+    var tensor = zeros([100, 100], DType.float32)
+    _ = tensor.numel()
+
+
 fn test_tensor_deallocation_single() raises:
     """Test single tensor deallocates memory when destroyed."""
-    if True:
-        var tensor = zeros([100, 100], DType.float32)
-        _ = tensor.numel()
-
+    _alloc_and_use_tensor()
     assert_true(True, "Single tensor deallocation completed without crash")
 
 
@@ -128,25 +134,24 @@ fn test_tensor_deallocation_loop() raises:
     assert_true(True, "Loop deallocation completed without crash")
 
 
+fn _check_shared_deallocation() raises:
+    """Helper: verify refcount during nested sharing in inner scope."""
+    var tensor1 = zeros([10, 10], DType.float32)
+    var initial_refcount = tensor1._refcount[]
+    assert_equal_int(initial_refcount, 1, "Should start with refcount 1")
+
+    var inner_refcount = _copy_and_check_refcount(tensor1)
+    assert_equal_int(inner_refcount, 2, "Should have 2 refs in inner scope")
+
+    var outer_refcount = tensor1._refcount[]
+    assert_equal_int(
+        outer_refcount, 1, "Should have 1 ref after inner scope"
+    )
+
+
 fn test_shared_tensor_deallocation() raises:
     """Test shared tensor deallocates only when last reference destroyed."""
-    if True:
-        var tensor1 = zeros([10, 10], DType.float32)
-        var initial_refcount = tensor1._refcount[]
-        assert_equal_int(initial_refcount, 1, "Should start with refcount 1")
-
-        if True:
-            var tensor2 = tensor1
-            var inner_refcount = tensor1._refcount[]
-            assert_equal_int(
-                inner_refcount, 2, "Should have 2 refs in inner scope"
-            )
-
-        var outer_refcount = tensor1._refcount[]
-        assert_equal_int(
-            outer_refcount, 1, "Should have 1 ref after inner scope"
-        )
-
+    _check_shared_deallocation()
     assert_true(True, "Shared tensor deallocation completed")
 
 
@@ -216,17 +221,21 @@ fn test_view_flag_on_reshape() raises:
     assert_true(tensor._data == reshaped._data, "View should share data")
 
 
+fn _create_and_drop_view(original: ExTensor) raises:
+    """Helper: create view in inner scope (dropped on return)."""
+    var shape = List[Int]()
+    shape.append(3)
+    shape.append(4)
+    var view = original.reshape(shape)
+    assert_true(view._is_view, "Should be marked as view")
+
+
 fn test_view_does_not_free_data() raises:
     """Test view destruction doesn't free shared data."""
     var original = zeros([12], DType.float32)
     original._data.bitcast[Float32]()[0] = 42.0
 
-    if True:
-        var shape = List[Int]()
-        shape.append(3)
-        shape.append(4)
-        var view = original.reshape(shape)
-        assert_true(view._is_view, "Should be marked as view")
+    _create_and_drop_view(original)
 
     var value = original._data.bitcast[Float32]()[0]
     assert_true(value == 42.0, "Original data should be intact")
@@ -306,24 +315,29 @@ fn test_destructor_with_valid_refcount() raises:
     assert_true(True, "Destructor edge case test completed")
 
 
+fn _check_view_refcount(original: ExTensor, initial_refcount: Int) raises -> Int:
+    """Helper: create view in inner scope, check refcount, return inner value."""
+    var shape = List[Int]()
+    shape.append(3)
+    shape.append(4)
+    var view = original.reshape(shape)
+    assert_true(view._is_view, "Should be view")
+    # reshape calls copy() which increments refcount
+    var inner_refcount = original._refcount[]
+    assert_equal_int(
+        inner_refcount,
+        initial_refcount + 1,
+        "View creation should increment refcount",
+    )
+    return inner_refcount
+
+
 fn test_view_destructor_does_not_decrement_refcount() raises:
     """Test view destructor doesn't decrement refcount incorrectly."""
     var original = zeros([12], DType.float32)
     var initial_refcount = original._refcount[]
 
-    if True:
-        var shape = List[Int]()
-        shape.append(3)
-        shape.append(4)
-        var view = original.reshape(shape)
-        assert_true(view._is_view, "Should be view")
-        # reshape calls copy() which increments refcount
-        var inner_refcount = original._refcount[]
-        assert_equal_int(
-            inner_refcount,
-            initial_refcount + 1,
-            "View creation should increment refcount",
-        )
+    _ = _check_view_refcount(original, initial_refcount)
 
     # After view destruction, refcount should return to initial
     var final_refcount = original._refcount[]
