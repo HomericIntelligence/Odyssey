@@ -52,7 +52,13 @@ from math import isnan, isinf
 from shared.core.extensor import ExTensor, zeros_like, ones_like
 from shared.core.conv import conv2d, conv2d_output_shape, conv2d_backward
 from shared.core.linear import linear, linear_backward
-from shared.core.pooling import maxpool2d, avgpool2d, pool_output_shape
+from shared.core.pooling import (
+    maxpool2d,
+    avgpool2d,
+    pool_output_shape,
+    maxpool2d_backward,
+    avgpool2d_backward,
+)
 from shared.core.activation import (
     relu,
     sigmoid,
@@ -1153,3 +1159,270 @@ struct LayerTester:
             var val = input._get_float64(i)
             assert_false(isnan(val), "BatchNorm backward: NaN in input")
             assert_false(isinf(val), "BatchNorm backward: Inf in input")
+
+    @staticmethod
+    fn test_pool_layer_backward(
+        channels: Int,
+        input_h: Int,
+        input_w: Int,
+        pool_size: Int,
+        stride: Int,
+        dtype: DType,
+        pool_type: String = "max",
+        padding: Int = 0,
+    ) raises:
+        """Test pooling layer backward pass with gradient checking.
+
+        Uses seeded random tensors for gradient checking reproducibility.
+        Validates:
+        - Gradient shape correctness (input shape preserved)
+        - Pool-type-specific gradient properties:
+            MaxPool: gradient routed only to max-value positions (others = 0)
+            AvgPool: gradient distributed equally across window (each = 1/k^2)
+        - Numerical gradient matching via compute_numerical_gradient
+
+        Epsilon for float32: GRADIENT_CHECK_EPSILON_FLOAT32 (3e-4), consistent with
+        issue #2704 to avoid precision loss in pooling ops.
+        Tolerance: rtol=1e-3, atol=5e-4 for pool layers (simple element-wise routing).
+        Non-uniform grad_output (pattern: i%4 * 0.25 - 0.3) is used to prevent
+        AvgPool gradient cancellation from symmetric inputs.
+
+        Args:
+            channels: Number of channels.
+            input_h: Input height.
+            input_w: Input width.
+            pool_size: Pooling kernel size.
+            stride: Pooling stride.
+            dtype: Data type to test.
+            pool_type: "max" or "avg" (default: "max").
+            padding: Pooling padding (default: 0).
+
+        Verifies:
+            - Backward pass produces grad_input with same shape as input
+            - Pool-specific gradient properties (routing for max, distribution for avg)
+            - Analytical and numerical gradients match within tolerance
+
+        Raises:
+            Error: If assertions fail during testing.
+
+        Example:
+            ```mojo
+            # Test MaxPool backward
+            LayerTester.test_pool_layer_backward(
+                channels=2,
+                input_h=4,
+                input_w=4,
+                pool_size=2,
+                stride=2,
+                dtype=DType.float32,
+                pool_type="max"
+            )
+
+            # Test AvgPool backward
+            LayerTester.test_pool_layer_backward(
+                channels=2,
+                input_h=4,
+                input_w=4,
+                pool_size=2,
+                stride=2,
+                dtype=DType.float32,
+                pool_type="avg"
+            )
+            ```
+        """
+        # ── Tier 1: Shape check ──────────────────────────────────────────────
+        # Create seeded random input and verify grad_input has same shape.
+        var input = create_seeded_random_tensor(
+            [2, channels, input_h, input_w], dtype, seed=42
+        )
+
+        var output: ExTensor
+        if pool_type == "max":
+            output = maxpool2d(input, pool_size, stride, padding=padding)
+        else:
+            output = avgpool2d(input, pool_size, stride, padding=padding)
+
+        var grad_output = ones_like(output)
+
+        var grad_input: ExTensor
+        if pool_type == "max":
+            grad_input = maxpool2d_backward(
+                grad_output, input, pool_size, stride, padding
+            )
+        else:
+            grad_input = avgpool2d_backward(
+                grad_output, input, pool_size, stride, padding
+            )
+
+        assert_shape(
+            grad_input,
+            input.shape(),
+            pool_type + " pool backward: grad_input shape mismatch",
+        )
+        assert_dtype(
+            grad_input,
+            dtype,
+            pool_type + " pool backward: grad_input dtype mismatch",
+        )
+
+        # ── Tier 2: Analytical value check ───────────────────────────────────
+        # Use a minimal 1×1×2×2 input with known values to verify gradient
+        # routing (MaxPool) or distribution (AvgPool) exactly.
+        if pool_type == "max":
+            # MaxPool: gradient flows only to the max-value position.
+            # Input:  [[1, 4],   MaxPool(2×2, stride 2) → [[4]]
+            #          [2, 3]]   grad_output = [[1.0]]
+            # Expected grad_input: [[0, 1], [0, 0]] (gradient at max pos only)
+            var x_known = ExTensor([1, 1, 2, 2], dtype)
+            x_known._set_float64(0, 1.0)
+            x_known._set_float64(1, 4.0)
+            x_known._set_float64(2, 2.0)
+            x_known._set_float64(3, 3.0)
+
+            var go_known = ExTensor([1, 1, 1, 1], dtype)
+            go_known._set_float64(0, 1.0)
+
+            var gi_known = maxpool2d_backward(go_known, x_known, 2, 2, 0)
+
+            # Position 1 (value=4.0) is the max — should receive gradient=1.0
+            # All other positions should be 0.0
+            assert_true(
+                gi_known._get_float64(1) > 0.5,
+                "MaxPool backward: gradient not at max position",
+            )
+            assert_true(
+                gi_known._get_float64(0) < 1e-6,
+                "MaxPool backward: nonzero gradient at non-max position 0",
+            )
+            assert_true(
+                gi_known._get_float64(2) < 1e-6,
+                "MaxPool backward: nonzero gradient at non-max position 2",
+            )
+            assert_true(
+                gi_known._get_float64(3) < 1e-6,
+                "MaxPool backward: nonzero gradient at non-max position 3",
+            )
+        else:
+            # AvgPool: gradient is distributed equally across the window.
+            # Input:  [[1, 1],   AvgPool(2×2, stride 2) → [[1.0]]
+            #          [1, 1]]   grad_output = [[1.0]]
+            # Expected grad_input: [[0.25, 0.25], [0.25, 0.25]]
+            var x_avg = ExTensor([1, 1, 2, 2], dtype)
+            for k in range(4):
+                x_avg._set_float64(k, 1.0)
+
+            var go_avg = ExTensor([1, 1, 1, 1], dtype)
+            go_avg._set_float64(0, 1.0)
+
+            var gi_avg = avgpool2d_backward(go_avg, x_avg, 2, 2, 0)
+
+            var expected_grad = 1.0 / Float64(pool_size * pool_size)
+            for k in range(4):
+                var diff = gi_avg._get_float64(k) - expected_grad
+                if diff < 0.0:
+                    diff = -diff
+                assert_true(
+                    diff < 1e-5,
+                    "AvgPool backward: incorrect gradient distribution at position "
+                    + String(k),
+                )
+
+        # ── Tier 3: Numerical gradient check ─────────────────────────────────
+        # Use a small input (1×2×4×4) and non-uniform grad_output to avoid
+        # cancellation in AvgPool (symmetric inputs can cancel gradients).
+        var input_small = create_seeded_random_tensor(
+            [1, 2, 4, 4], dtype, seed=42
+        )
+
+        var fwd_output: ExTensor
+        if pool_type == "max":
+            fwd_output = maxpool2d(
+                input_small, pool_size, stride, padding=padding
+            )
+        else:
+            fwd_output = avgpool2d(
+                input_small, pool_size, stride, padding=padding
+            )
+
+        # Build non-uniform grad_output: pattern i%4 * 0.25 - 0.3
+        # Avoids zero-sum cancellation in AvgPool with symmetric inputs.
+        var grad_out_nu = ExTensor(fwd_output.shape(), dtype)
+        for i in range(fwd_output.numel()):
+            grad_out_nu._set_float64(i, Float64(i % 4) * 0.25 - 0.3)
+
+        # Define weighted-sum forward function for gradient checking.
+        # Returns scalar-equivalent: sum(pool(x) * grad_out_nu)
+        fn forward_max(x: ExTensor) raises escaping -> ExTensor:
+            var pool_out = maxpool2d(x, pool_size, stride, padding=padding)
+            var result = ExTensor([1], x.dtype())
+            var s: Float64 = 0.0
+            for i in range(pool_out.numel()):
+                s += pool_out._get_float64(i) * grad_out_nu._get_float64(i)
+            result._set_float64(0, s)
+            return result^
+
+        fn forward_avg(x: ExTensor) raises escaping -> ExTensor:
+            var pool_out = avgpool2d(x, pool_size, stride, padding=padding)
+            var result = ExTensor([1], x.dtype())
+            var s: Float64 = 0.0
+            for i in range(pool_out.numel()):
+                s += pool_out._get_float64(i) * grad_out_nu._get_float64(i)
+            result._set_float64(0, s)
+            return result^
+
+        # Epsilon: GRADIENT_CHECK_EPSILON_FLOAT32 (3e-4) for float32 (see #2704).
+        # Pool backward is element-wise routing/averaging — tight tolerances apply.
+        var epsilon = (
+            GRADIENT_CHECK_EPSILON_FLOAT32 if dtype
+            == DType.float32 else GRADIENT_CHECK_EPSILON_OTHER
+        )
+
+        var numerical_grad: ExTensor
+        if pool_type == "max":
+            numerical_grad = compute_numerical_gradient(
+                forward_max, input_small, epsilon
+            )
+        else:
+            numerical_grad = compute_numerical_gradient(
+                forward_avg, input_small, epsilon
+            )
+
+        # Verify numerical gradient shape and sanity
+        assert_shape(
+            numerical_grad,
+            input_small.shape(),
+            pool_type + " pool backward: numerical gradient shape mismatch",
+        )
+
+        for i in range(numerical_grad.numel()):
+            var val = numerical_grad._get_float64(i)
+            assert_false(
+                isnan(val),
+                pool_type + " pool backward: NaN in numerical gradient",
+            )
+            assert_false(
+                isinf(val),
+                pool_type + " pool backward: Inf in numerical gradient",
+            )
+
+        # Compare analytical vs numerical gradients.
+        # Pool backward is simple element routing/averaging so tight tolerances suffice:
+        # rtol=1e-3, atol=5e-4 (per plan; matching test_backward_conv_pool.mojo values).
+        var analytical_grad: ExTensor
+        if pool_type == "max":
+            analytical_grad = maxpool2d_backward(
+                grad_out_nu, input_small, pool_size, stride, padding
+            )
+        else:
+            analytical_grad = avgpool2d_backward(
+                grad_out_nu, input_small, pool_size, stride, padding
+            )
+
+        assert_gradients_close(
+            analytical_grad,
+            numerical_grad,
+            rtol=1e-3,
+            atol=5e-4,
+            message=pool_type
+            + " pool analytical gradient doesn't match numerical",
+        )
