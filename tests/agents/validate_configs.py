@@ -20,8 +20,10 @@ import logging
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 from dataclasses import dataclass
+
+import yaml
 
 
 # Security limits
@@ -204,7 +206,7 @@ class AgentConfigValidator:
         is_valid = len(errors) == 0
         return ValidationResult(file_path, is_valid, errors, warnings)
 
-    def _validate_frontmatter(self, content: str) -> Tuple[List[str], List[str], Dict[str, str]]:
+    def _validate_frontmatter(self, content: str) -> Tuple[List[str], List[str], Dict[str, Any]]:
         """Validate YAML frontmatter.
 
         Args:
@@ -215,7 +217,7 @@ class AgentConfigValidator:
         """
         errors = []
         warnings = []
-        frontmatter = {}
+        frontmatter: Dict[str, Any] = {}
 
         # Extract frontmatter
         frontmatter_match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
@@ -225,20 +227,18 @@ class AgentConfigValidator:
 
         frontmatter_text = frontmatter_match.group(1)
 
-        # Parse frontmatter (simple key: value parsing)
-        for line in frontmatter_text.split("\n"):
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
+        # Parse frontmatter using PyYAML to correctly handle colon-containing values
+        try:
+            parsed = yaml.safe_load(frontmatter_text)
+        except yaml.YAMLError as e:
+            errors.append(f"Invalid YAML frontmatter: {e}")
+            return errors, warnings, frontmatter
 
-            if ":" not in line:
-                errors.append(f"Invalid frontmatter line (no colon): {line}")
-                continue
+        if not isinstance(parsed, dict):
+            errors.append("Frontmatter must be a YAML mapping")
+            return errors, warnings, frontmatter
 
-            key, value = line.split(":", 1)
-            key = key.strip()
-            value = value.strip()
-            frontmatter[key] = value
+        frontmatter = parsed
 
         # Check required fields
         missing_fields = self.REQUIRED_FIELDS - set(frontmatter.keys())
@@ -275,7 +275,7 @@ class AgentConfigValidator:
 
         return errors, warnings, frontmatter
 
-    def _validate_naming(self, file_path: Path, frontmatter: Dict[str, str]) -> Tuple[List[str], List[str]]:
+    def _validate_naming(self, file_path: Path, frontmatter: Dict[str, Any]) -> Tuple[List[str], List[str]]:
         """Validate file naming conventions.
 
         Args:
@@ -307,7 +307,7 @@ class AgentConfigValidator:
 
         return errors, warnings
 
-    def _validate_mojo_patterns(self, content: str, frontmatter: Dict[str, str]) -> List[str]:
+    def _validate_mojo_patterns(self, content: str, frontmatter: Dict[str, Any]) -> List[str]:
         """Validate Mojo-specific guidelines presence.
 
         Args:

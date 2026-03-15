@@ -556,5 +556,102 @@ class TestValidateFrontmatterStructure:
         assert len(errors) == 0
 
 
+class TestFrontmatterColonValues:
+    """Regression tests for colon-containing values in frontmatter (follow-up from #3310).
+
+    These tests verify that agent_utils correctly handles YAML values that
+    contain colons (URLs, ratio notation, mid-sentence colons) without truncation.
+    """
+
+    def test_extract_frontmatter_parsed_url_in_description(self):
+        """Description with a URL should not be truncated at the colon."""
+        content = """---
+name: test-agent
+description: See https://docs.example.com/api for details
+tools: Read,Write
+model: sonnet
+---
+# Content"""
+
+        result = extract_frontmatter_parsed(content)
+        assert result is not None
+        _, parsed = result
+        assert parsed["description"] == "See https://docs.example.com/api for details"
+
+    def test_extract_frontmatter_parsed_colon_in_quoted_value(self):
+        """Description with a colon inside a quoted YAML string should be preserved whole."""
+        content = """---
+name: test-agent
+description: "Use when you need to: parse, validate, or check files"
+tools: Read,Write
+model: sonnet
+---
+# Content"""
+
+        result = extract_frontmatter_parsed(content)
+        assert result is not None
+        _, parsed = result
+        assert parsed["description"] == "Use when you need to: parse, validate, or check files"
+
+    def test_extract_frontmatter_parsed_numeric_ratio_colon(self):
+        """Description with numeric ratio notation (3:1) should be preserved."""
+        content = """---
+name: test-agent
+description: Handles ratio 3:1 splits for training and validation
+tools: Read,Write
+model: sonnet
+---
+# Content"""
+
+        result = extract_frontmatter_parsed(content)
+        assert result is not None
+        _, parsed = result
+        assert parsed["description"] == "Handles ratio 3:1 splits for training and validation"
+
+    def test_extract_frontmatter_parsed_multiple_colons(self):
+        """Value with multiple colons (e.g. URL with port) should be preserved."""
+        content = """---
+name: test-agent
+description: Connect to http://localhost:8080/api for testing
+tools: Read,Write
+model: sonnet
+---
+# Content"""
+
+        result = extract_frontmatter_parsed(content)
+        assert result is not None
+        _, parsed = result
+        assert parsed["description"] == "Connect to http://localhost:8080/api for testing"
+
+    def test_extract_frontmatter_full_url_in_description(self):
+        """extract_frontmatter_full also preserves colon-containing descriptions."""
+        content = """---
+name: test-agent
+description: See https://example.com for more info
+tools: Read
+model: haiku
+---
+# Content"""
+
+        result = extract_frontmatter_full(content)
+        assert result is not None
+        _, parsed, _, _ = result
+        assert parsed["description"] == "See https://example.com for more info"
+
+    def test_extract_frontmatter_raw_colon_value_unaffected(self):
+        """extract_frontmatter_raw returns raw text regardless of colon content."""
+        content = """---
+name: test-agent
+description: See https://example.com for details
+tools: Read
+model: sonnet
+---
+# Content"""
+
+        raw = extract_frontmatter_raw(content)
+        assert raw is not None
+        assert "https://example.com" in raw
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
