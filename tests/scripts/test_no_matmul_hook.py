@@ -13,7 +13,6 @@ Follow-up from #3215.
 from __future__ import annotations
 
 
-
 # Recreate the grep chain logic from the hook
 # Entry: grep -rn "\.__matmul__(" . | grep -v "fn __matmul__(" | grep -v "# __matmul__"
 
