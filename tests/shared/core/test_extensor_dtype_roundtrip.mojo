@@ -149,11 +149,9 @@ fn test_bfloat16_dtype_size_is_2_bytes() raises:
 
 
 # ============================================================================
-# int8 — integer type: _set_float64 has no int8 branch (silent no-op).
+# int8 — integer type: _set_float64 and _set_float32 truncate Float to Int8.
 # _get_float64 falls through to _get_int64 which works for integer-safe values.
 # Only integer-representable values (1.0, -1.0, 0.0) are meaningful; 1.5 truncates.
-# TODO(#3301): _set_float64 does not write to int8 tensors (no branch exists).
-#              Use _set_int64 for int8 tensors instead.
 # ============================================================================
 
 
@@ -175,23 +173,40 @@ fn test_int8_get_float64_via_int64_path() raises:
     assert_almost_equal(t._get_float64(2), 0.0, tolerance=1e-9)
 
 
-fn test_int8_set_float64_is_noop() raises:
-    """Int8: _set_float64 silently does nothing (no int8 branch in implementation).
+fn test_int8_set_float64_truncates_to_int8() raises:
+    """Int8: _set_float64 truncates Float64 to Int8 via cast.
 
-    This documents the known limitation: _set_float64 has no int8 branch, so
-    calling it on an int8 tensor is a silent no-op. The value remains unchanged.
-
-    TODO(#3301): Consider adding int8 support to _set_float64 with truncation
-    semantics (Float64 -> Int8 cast), or raise an error for unsupported dtypes
-    to make this failure mode explicit rather than silent.
+    Verifies that _set_float64 now correctly writes to int8 tensors by
+    truncating the Float64 value to Int8 (Float64 -> Int8 cast).
     """
-    var t = zeros([1], DType.int8)
-    t._set_float64(0, 1.0)
-    # int8 has no branch in _set_float64 — the write is silently ignored.
-    # Value stays 0 (the zero-initialized value).
-    var got = t._get_float64(0)
-    # Document the current behavior: silent no-op leaves value at 0
-    assert_almost_equal(got, 0.0, tolerance=1e-9)
+    var t = zeros([4], DType.int8)
+    t._set_float64(0, 42.0)
+    t._set_float64(1, -1.0)
+    t._set_float64(2, 0.0)
+    t._set_float64(3, 127.9)
+    assert_almost_equal(t._get_float64(0), 42.0, tolerance=1e-9)
+    assert_almost_equal(t._get_float64(1), -1.0, tolerance=1e-9)
+    assert_almost_equal(t._get_float64(2), 0.0, tolerance=1e-9)
+    # 127.9 truncates to 127 (max int8 is 127)
+    assert_almost_equal(t._get_float64(3), 127.0, tolerance=1e-9)
+
+
+fn test_int8_set_float32_truncates_to_int8() raises:
+    """Int8: _set_float32 truncates Float32 to Int8 via cast.
+
+    Verifies that _set_float32 correctly writes to int8 tensors by
+    truncating the Float32 value to Int8 (Float32 -> Int8 cast).
+    """
+    var t = zeros([4], DType.int8)
+    t._set_float32(0, 42.0)
+    t._set_float32(1, -1.0)
+    t._set_float32(2, 0.0)
+    t._set_float32(3, 127.9)
+    assert_almost_equal(t._get_float64(0), 42.0, tolerance=1e-9)
+    assert_almost_equal(t._get_float64(1), -1.0, tolerance=1e-9)
+    assert_almost_equal(t._get_float64(2), 0.0, tolerance=1e-9)
+    # 127.9 truncates to 127 (max int8 is 127)
+    assert_almost_equal(t._get_float64(3), 127.0, tolerance=1e-9)
 
 
 fn test_dtype_sizes() raises:
@@ -285,8 +300,9 @@ fn main() raises:
     test_bfloat16_nonzero_after_set()
     test_bfloat16_dtype_size_is_2_bytes()
 
-    print("Running int8 tests (documents known limitation of _set_float64)...")
+    print("Running int8 tests...")
     test_int8_get_float64_via_int64_path()
-    test_int8_set_float64_is_noop()
+    test_int8_set_float64_truncates_to_int8()
+    test_int8_set_float32_truncates_to_int8()
 
     print("All dtype round-trip tests passed!")

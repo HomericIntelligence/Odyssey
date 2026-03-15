@@ -1163,11 +1163,14 @@ struct ExTensor(
             return Float64(self._get_int64(index))
 
     fn _set_float64(self, index: Int, value: Float64):
-        """Internal: Set value at index (assumes float-compatible dtype).
+        """Internal: Set value at index, truncating to the tensor's dtype.
 
         Args:
             index: The element index to set.
             value: The value to set (as Float64).
+
+        Note:
+            For int8, value is truncated (Float64 -> Int8 cast).
         """
         var dtype_size = self._get_dtype_size()
         var offset = index * dtype_size
@@ -1184,6 +1187,9 @@ struct ExTensor(
         elif self._dtype == DType.float64:
             var ptr = (self._data + offset).bitcast[Float64]()
             ptr[] = value
+        elif self._dtype == DType.int8:
+            var ptr = (self._data + offset).bitcast[Int8]()
+            ptr[] = value.cast[DType.int8]()
 
     fn _get_float32(self, index: Int) -> Float32:
         """Internal: Get value at index as Float32 (assumes float-compatible dtype).
@@ -1244,6 +1250,9 @@ struct ExTensor(
         elif self._dtype == DType.bfloat16:
             var ptr = (self._data + offset).bitcast[BFloat16]()
             ptr[] = value.cast[DType.bfloat16]()
+        elif self._dtype == DType.int8:
+            var ptr = (self._data + offset).bitcast[Int8]()
+            ptr[] = value.cast[DType.int8]()
 
     fn _get_int64(self, index: Int) -> Int64:
         """Internal: Get value at index as Int64 (assumes integer-compatible dtype).
