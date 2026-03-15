@@ -10,6 +10,7 @@ This module defines:
 - GradientQuad: For quaternary operations returning 4 gradients.
 - Conv2dNoBiasGradient: For conv2d_no_bias_backward with semantic field names.
 - DepthwiseConv2dNoBiasGradient: For depthwise_conv2d_no_bias_backward.
+- DepthwiseSeparableConv2dGradient: For depthwise_separable_conv2d_backward with semantic field names.
 
 Type Selection Guide:
     Choose the container that matches the number of inputs your backward function
@@ -256,3 +257,58 @@ struct DepthwiseConv2dNoBiasGradient(Copyable, Movable):
         """
         self.grad_input = grad_input^
         self.grad_weights = grad_weights^
+
+
+struct DepthwiseSeparableConv2dGradient(Copyable, Movable):
+    """Container for gradients from depthwise_separable_conv2d_backward.
+
+    Represents gradients for depthwise separable convolution which applies
+    depthwise convolution followed by pointwise convolution, returning gradients
+    with respect to input, depthwise kernel, pointwise kernel, and bias.
+
+    Attributes:
+        grad_input: Gradient with respect to input activation.
+        grad_depthwise_kernel: Gradient with respect to depthwise convolution kernel.
+        grad_pointwise_kernel: Gradient with respect to pointwise convolution kernel.
+        grad_bias: Gradient with respect to bias.
+
+    Examples:
+        ```mojo
+        var grads = depthwise_separable_conv2d_backward(
+            grad_output, x, depthwise_kernel, pointwise_kernel
+        )
+        var grad_input = grads.grad_input
+        var grad_dw_kernel = grads.grad_depthwise_kernel
+        var grad_pw_kernel = grads.grad_pointwise_kernel
+        var grad_bias = grads.grad_bias
+        ```
+    """
+
+    var grad_input: ExTensor
+    """Gradient with respect to input activation."""
+    var grad_depthwise_kernel: ExTensor
+    """Gradient with respect to depthwise convolution kernel."""
+    var grad_pointwise_kernel: ExTensor
+    """Gradient with respect to pointwise convolution kernel."""
+    var grad_bias: ExTensor
+    """Gradient with respect to bias."""
+
+    fn __init__(
+        out self,
+        var grad_input: ExTensor,
+        var grad_depthwise_kernel: ExTensor,
+        var grad_pointwise_kernel: ExTensor,
+        var grad_bias: ExTensor,
+    ):
+        """Initialize depthwise separable conv2d gradient.
+
+        Args:
+            grad_input: Gradient tensor for input.
+            grad_depthwise_kernel: Gradient tensor for depthwise kernel.
+            grad_pointwise_kernel: Gradient tensor for pointwise kernel.
+            grad_bias: Gradient tensor for bias.
+        """
+        self.grad_input = grad_input^
+        self.grad_depthwise_kernel = grad_depthwise_kernel^
+        self.grad_pointwise_kernel = grad_pointwise_kernel^
+        self.grad_bias = grad_bias^
