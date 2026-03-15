@@ -396,15 +396,19 @@ fn test_batch_norm2d_backward_gamma_beta_nonzero() raises:
     param_shape.append(2)
     var gamma = ones(param_shape, DType.float32)
     var beta = zeros(param_shape, DType.float32)
+    var running_mean = zeros(param_shape, DType.float32)
+    var running_var = ones(param_shape, DType.float32)
 
     # Forward pass to get running stats
-    var fwd_result = batch_norm2d(x, gamma, beta, epsilon=1e-5, training=True)
+    var fwd_result = batch_norm2d(
+        x, gamma, beta, running_mean, running_var, training=True, epsilon=1e-5
+    )
 
     # Grad output: ones
     var grad_output = ones(shape, DType.float32)
 
     var bwd_result = batch_norm2d_backward(
-        grad_output, x, gamma, epsilon=1e-5, training=True
+        grad_output, x, gamma, running_mean, running_var, training=True, epsilon=1e-5
     )
     var grad_gamma = bwd_result[1]
     var grad_beta = bwd_result[2]
@@ -440,12 +444,14 @@ fn test_batch_norm2d_backward_inference_mode() raises:
     var param_shape = List[Int]()
     param_shape.append(2)
     var gamma = ones(param_shape, DType.float32)
+    var running_mean = zeros(param_shape, DType.float32)
+    var running_var = ones(param_shape, DType.float32)
 
     var grad_output = ones(shape, DType.float32)
 
     # Backward in inference mode (training=False)
     var bwd_result = batch_norm2d_backward(
-        grad_output, x, gamma, epsilon=1e-5, training=False
+        grad_output, x, gamma, running_mean, running_var, training=False, epsilon=1e-5
     )
     var grad_input = bwd_result[0]
 
