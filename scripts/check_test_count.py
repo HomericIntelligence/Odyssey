@@ -80,16 +80,12 @@ def check_files(file_paths: List[str]) -> int:
         checked += 1
         count = count_tests_in_file(path)
         if count > LIMIT:
-            violations.append(
-                f"❌  {path}: {count} tests found (limit: {LIMIT}) — split per ADR-009"
-            )
+            violations.append(f"❌  {path}: {count} tests found (limit: {LIMIT}) — split per ADR-009")
 
     if violations:
         for msg in violations:
             print(msg)
-        print(
-            f"\nSee docs/adr/ADR-009-heap-corruption-workaround.md for guidance on splitting test files."
-        )
+        print("\nSee docs/adr/ADR-009-heap-corruption-workaround.md for guidance on splitting test files.")
         return 1
 
     print(f"✅  All {checked} test file(s) within the {LIMIT}-test limit.")
