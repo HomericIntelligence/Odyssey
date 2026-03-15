@@ -518,9 +518,22 @@ fn concatenate(tensors: List[ExTensor], axis: Int = 0) raises -> ExTensor:
                     count=t_bytes,
                 )
             else:
+                var t_shape = t.shape()
+                var t_ndim = len(t_shape)
+                var result_elem_offset = offset_bytes // dtype_size
                 for i in range(t_numel):
-                    var val = t._get_float64(i)
-                    result._set_float64(offset_bytes // dtype_size + i, val)
+                    var remaining = i
+                    var src_elem_offset = 0
+                    for d in range(t_ndim - 1, -1, -1):
+                        var coord = remaining % t_shape[d]
+                        remaining //= t_shape[d]
+                        src_elem_offset += coord * t._strides[d]
+                    var src_byte_offset = src_elem_offset * dtype_size
+                    var dst_byte_offset = (result_elem_offset + i) * dtype_size
+                    var src_ptr = t._data.bitcast[UInt8]()
+                    var dst_ptr = result._data.bitcast[UInt8]()
+                    for b in range(dtype_size):
+                        dst_ptr[dst_byte_offset + b] = src_ptr[src_byte_offset + b]
 
             offset_bytes += t_bytes
     else:
