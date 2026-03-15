@@ -58,6 +58,16 @@ fn test_pos_preserves_values() raises:
         )
 
 
+fn test_unary_ops_preserve_shape() raises:
+    """Test that unary operators preserve tensor shape."""
+    var shape: List[Int] = [3, 4, 2]
+    var a = zeros(shape, DType.float32)
+    var neg_result = -a
+    assert_equal(len(neg_result.shape()), 3)
+    var pos_result = +a
+    assert_equal(len(pos_result.shape()), 3)
+
+
 fn main() raises:
     """Run all __neg__ and __pos__ operator tests."""
     test_neg_basic()
@@ -65,4 +75,5 @@ fn main() raises:
     test_neg_zeros()
     test_pos_basic()
     test_pos_preserves_values()
+    test_unary_ops_preserve_shape()
     print("All neg/pos operator tests passed!")
