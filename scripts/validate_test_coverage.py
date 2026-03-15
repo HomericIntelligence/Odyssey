@@ -267,27 +267,48 @@ def group_split_files(test_files: List[Path]) -> Dict[str, List[Path]]:
     return groups
 
 
-def check_stale_patterns(ci_groups: Dict[str, Dict[str, str]], root_dir: Path) -> List[str]:
-    """Return CI group names whose patterns match zero existing test files.
+def check_stale_patterns(
+    ci_groups: Dict[str, Dict[str, str]],
+    root_dir: Path,
+) -> List[str]:
+    """Return names of CI groups (and sub-patterns) that match zero existing files.
 
-    A "stale" group is one that was added to the CI matrix at some point but
-    no longer matches any file on disk — typically because the files were
-    renamed, deleted, or moved.
+    For single-pattern groups or groups where ALL sub-patterns are stale, returns
+    the group name.  For multi-pattern groups with only some stale sub-patterns,
+    returns ``"GroupName (sub-pattern: <pat>)"`` for each dead sub-pattern so
+    callers can identify exactly which sub-pattern is stale without the group
+    itself being silently hidden behind a surviving sibling pattern.
 
     Args:
-        ci_groups: Mapping of CI group name → {path, pattern} as returned by
-            :func:`parse_ci_matrix`.
-        root_dir: Repository root used to resolve glob patterns.
+        ci_groups: Mapping of group name to a dict with ``path`` and ``pattern``
+            keys, as returned by :func:`parse_ci_matrix`.
+        root_dir: Repository root used to resolve file paths.
 
     Returns:
-        Sorted list of stale CI group names (empty list when all groups match
-        at least one file).
+        Sorted list of stale group names and/or sub-pattern identifiers.
     """
-    stale = []
+    stale: List[str] = []
+
     for group_name, group_info in ci_groups.items():
-        matched = expand_pattern(group_info["path"], group_info["pattern"], root_dir)
-        if not matched:
+        sub_patterns = group_info["pattern"].split()
+        stale_subs: List[str] = []
+        live_subs: List[str] = []
+
+        for sub_pat in sub_patterns:
+            matched = expand_pattern(group_info["path"], sub_pat, root_dir)
+            if not matched:
+                stale_subs.append(sub_pat)
+            else:
+                live_subs.append(sub_pat)
+
+        if len(stale_subs) == len(sub_patterns):
+            # Entire group matches nothing — original group-level staleness
             stale.append(group_name)
+        else:
+            # Partial staleness: report each dead sub-pattern individually
+            for sub_pat in stale_subs:
+                stale.append(f"{group_name} (sub-pattern: {sub_pat})")
+
     return sorted(stale)
 
 
