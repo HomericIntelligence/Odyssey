@@ -895,7 +895,7 @@ fn transpose_view(
     See Also:
         - transpose(): Zero-copy view with stride permutation (production API)
         - ExTensor.reshape(): Another zero-copy view operation
-        - docs/dev/extensor-view-contract.md: View semantics reference
+        - docs/dev/extensor-view-contract.md: View semantics reference.
     """
     var ndim = tensor.dim()
     var input_shape = tensor.shape()
