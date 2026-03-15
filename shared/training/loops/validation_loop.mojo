@@ -15,7 +15,7 @@ Design principles:
 """
 
 from collections import List
-from shared.core import ExTensor
+from shared.core.extensor import ExTensor
 from shared.training.metrics import AccuracyMetric, LossTracker, ConfusionMatrix
 from shared.training.trainer_interface import (
     DataLoader,
@@ -63,7 +63,7 @@ fn validate(
     compute_accuracy: Bool = True,
     compute_confusion: Bool = False,
     num_classes: Int = 10,
-) raises -> Tuple[Float64, Float64]:
+) raises -> Float64:
     """Run validation loop.
 
     Args:
@@ -75,8 +75,7 @@ fn validate(
             num_classes: Number of classes (for confusion matrix).
 
     Returns:
-            Tuple of (average validation loss, accuracy). Accuracy is 0.0
-            when compute_accuracy is False.
+            Average validation loss.
 
     Raises:
             Error: If validation fails.
@@ -120,13 +119,12 @@ fn validate(
 
     # Compute aggregated metrics
     var avg_loss = total_loss / Float64(num_batches)
-    var accuracy = Float64(0.0)
 
     print("Validation Results:")
     print("  Loss: " + String(avg_loss))
 
     if compute_accuracy:
-        accuracy = accuracy_metric.compute()
+        var accuracy = accuracy_metric.compute()
         print("  Accuracy: " + String(accuracy))
 
     if compute_confusion:
@@ -149,7 +147,7 @@ fn validate(
                 + String(f)
             )
 
-    return (avg_loss, accuracy)
+    return avg_loss
 
 
 struct ValidationLoop:
@@ -204,7 +202,7 @@ struct ValidationLoop:
         Raises:
             Error: If validation fails.
         """
-        var result = validate(
+        var val_loss = validate(
             model_forward,
             compute_loss,
             val_loader,
@@ -212,9 +210,19 @@ struct ValidationLoop:
             self.compute_confusion,
             self.num_classes,
         )
-        var val_loss = result[0]
-        var val_accuracy = result[1]
 
+        # Compute accuracy over the full validation set if enabled
+        var val_accuracy = Float64(0.0)
+        if self.compute_accuracy:
+            var accuracy_metric = AccuracyMetric()
+            val_loader.reset()
+            while val_loader.has_next():
+                var batch = val_loader.next()
+                var predictions = model_forward(batch.data)
+                accuracy_metric.update(predictions, batch.labels)
+            val_accuracy = accuracy_metric.compute()
+
+        # Update metrics with computed accuracy
         metrics.update_val_metrics(val_loss, val_accuracy)
 
         return val_loss
@@ -254,6 +262,7 @@ struct ValidationLoop:
         var num_batches = 0
 
         var loss_tracker = LossTracker(window_size=max_batches)
+        var accuracy_metric = AccuracyMetric()
 
         val_loader.reset()
 
@@ -268,13 +277,24 @@ struct ValidationLoop:
             total_loss += batch_loss
             num_batches += 1
 
-        if num_batches == 0:
-            raise Error("run_subset processed 0 batches")
+            # Compute predictions for accuracy if enabled
+            if self.compute_accuracy:
+                var predictions = model_forward(batch.data)
+                accuracy_metric.update(predictions, batch.labels)
 
-        var avg_loss = total_loss / Float64(num_batches)
+        var avg_loss = Float64(0.0)
+        if num_batches > 0:
+            avg_loss = total_loss / Float64(num_batches)
+        else:
+            print("Warning: No validation batches available")
 
         print("  Subset Validation Loss: " + String(avg_loss))
 
-        metrics.update_val_metrics(avg_loss, 0.0)
+        # Compute accuracy over the subset if enabled
+        var subset_accuracy = Float64(0.0)
+        if self.compute_accuracy:
+            subset_accuracy = accuracy_metric.compute()
+
+        metrics.update_val_metrics(avg_loss, subset_accuracy)
 
         return avg_loss
