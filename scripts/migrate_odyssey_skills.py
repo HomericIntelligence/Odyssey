@@ -9,6 +9,8 @@ Usage:
     python3 scripts/migrate_odyssey_skills.py [--dry-run] [--skill SKILL_NAME]
     python3 scripts/migrate_odyssey_skills.py --dry-run
     python3 scripts/migrate_odyssey_skills.py --skill gh-create-pr-linked
+    python3 scripts/migrate_odyssey_skills.py --create-target
+    python3 scripts/migrate_odyssey_skills.py --target-dir /path/to/mnemosyne
 
 Source structure (Odyssey2):
     .claude/skills/<skill-name>/SKILL.md
@@ -51,6 +53,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 import yaml
 from dataclasses import dataclass, field
@@ -58,12 +61,36 @@ from pathlib import Path
 from typing import Optional
 
 
-# Source Odyssey2 skills directory
-ODYSSEY_SKILLS_DIR = Path("/home/mvillmow/Odyssey2/.claude/skills")
+# Default source Odyssey2 skills directory (used when --source-dir is not specified
+# and the ODYSSEY_SKILLS_DIR environment variable is not set)
+DEFAULT_ODYSSEY_SKILLS_DIR = Path("/home/mvillmow/Odyssey2/.claude/skills")
 
 # Default target ProjectMnemosyne directory (used when --target-dir is not specified
 # and the MNEMOSYNE_DIR environment variable is not set)
 DEFAULT_MNEMOSYNE_DIR = Path("/tmp/ProjectMnemosyne")  # nosec B108
+
+
+def resolve_odyssey_skills_dir(source: Optional[str]) -> Path:
+    """Resolve the Odyssey2 skills directory path.
+
+    Priority: --source-dir CLI arg > ODYSSEY_SKILLS_DIR env var > cwd/.claude/skills > default.
+
+    Args:
+        source: Value of the --source-dir CLI argument, or None if not provided.
+
+    Returns:
+        Resolved Path to the Odyssey2 skills directory.
+    """
+    if source is not None:
+        return Path(source)
+    env = os.environ.get("ODYSSEY_SKILLS_DIR")
+    if env:
+        return Path(env)
+    # Try current directory first (for CI/CD and development)
+    cwd_skills = Path.cwd() / ".claude" / "skills"
+    if cwd_skills.exists():
+        return cwd_skills
+    return DEFAULT_ODYSSEY_SKILLS_DIR
 
 
 def resolve_mnemosyne_dir(target: Optional[str]) -> Path:
@@ -86,8 +113,9 @@ def resolve_mnemosyne_dir(target: Optional[str]) -> Path:
 
 
 # Module-level constants kept for backwards compatibility with existing tests
-# that patch MNEMOSYNE_SKILLS_DIR directly.  main() uses resolve_mnemosyne_dir()
-# instead of these constants at runtime.
+# that patch these constants directly.  main() uses resolve_odyssey_skills_dir()
+# and resolve_mnemosyne_dir() instead of these constants at runtime.
+ODYSSEY_SKILLS_DIR = DEFAULT_ODYSSEY_SKILLS_DIR
 MNEMOSYNE_DIR = DEFAULT_MNEMOSYNE_DIR
 MNEMOSYNE_SKILLS_DIR = MNEMOSYNE_DIR / "skills"
 
@@ -764,23 +792,25 @@ def run_audit(
 
 
 def print_audit_table(result: AuditResult, no_color: bool = False) -> None:
-    """Print a three-column coverage table to stdout."""
+    """Print a four-column coverage table to stdout."""
     GREEN = "" if no_color else "\033[32m"
     RED = "" if no_color else "\033[31m"
     YELLOW = "" if no_color else "\033[33m"
     RESET = "" if no_color else "\033[0m"
 
-    col_skill = 40
-    col_category = 20
+    col_skill = 35
+    col_tier = 6
+    col_category = 18
     col_status = 10
 
-    header = f"{'Skill':<{col_skill}} {'Category':<{col_category}} {'Status':<{col_status}}"
-    separator = "-" * (col_skill + col_category + col_status + 2)
+    header = f"{'Skill':<{col_skill}} {'Tier':<{col_tier}} {'Category':<{col_category}} {'Status':<{col_status}}"
+    separator = "-" * (col_skill + col_tier + col_category + col_status + 4)
 
     print(header)
     print(separator)
 
     for entry in sorted(result.skills, key=lambda e: e.name):
+        tier_str = entry.tier or "-"
         category_str = entry.mnemosyne_category or "-"
         if entry.status == "present":
             color = GREEN
@@ -789,7 +819,7 @@ def print_audit_table(result: AuditResult, no_color: bool = False) -> None:
         else:
             color = YELLOW
         status_str = f"{color}{entry.status.upper()}{RESET}"
-        print(f"{entry.name:<{col_skill}} {category_str:<{col_category}} {status_str}")
+        print(f"{entry.name:<{col_skill}} {tier_str:<{col_tier}} {category_str:<{col_category}} {status_str}")
 
 
 def print_audit_summary(result: AuditResult, no_color: bool = False) -> None:
@@ -859,8 +889,8 @@ def main() -> int:
     parser.add_argument(
         "--source-dir",
         metavar="DIR",
-        default=str(ODYSSEY_SKILLS_DIR),
-        help=f"Odyssey2 skills directory (default: {ODYSSEY_SKILLS_DIR})",
+        default=None,
+        help=f"Odyssey2 skills directory (default: $ODYSSEY_SKILLS_DIR env var or {DEFAULT_ODYSSEY_SKILLS_DIR})",
     )
     parser.add_argument(
         "--target-dir",
@@ -868,9 +898,14 @@ def main() -> int:
         default=None,
         help=("Path to ProjectMnemosyne clone (default: $MNEMOSYNE_DIR env var or /tmp/ProjectMnemosyne)"),
     )
+    parser.add_argument(
+        "--create-target",
+        action="store_true",
+        help="Auto-clone ProjectMnemosyne repo if target directory doesn't exist",
+    )
     args = parser.parse_args()
 
-    source_dir = Path(args.source_dir)
+    source_dir = resolve_odyssey_skills_dir(args.source_dir)
     target_dir = resolve_mnemosyne_dir(args.target_dir)
     target_skills_dir = target_dir / "skills"
 
@@ -879,12 +914,25 @@ def main() -> int:
         return 1
 
     if not target_dir.exists():
-        print(
-            f"ERROR: ProjectMnemosyne directory not found: {target_dir}\n"
-            f"Use --target-dir PATH or set MNEMOSYNE_DIR env var.",
-            file=sys.stderr,
-        )
-        return 1
+        if args.create_target:
+            print(f"Creating ProjectMnemosyne clone at {target_dir}...")
+            clone_result = subprocess.run(
+                ["gh", "repo", "clone", "HomericIntelligence/ProjectMnemosyne", str(target_dir)],
+                capture_output=True,
+            )
+            if clone_result.returncode != 0:
+                print(
+                    "ERROR: Failed to clone ProjectMnemosyne repository",
+                    file=sys.stderr,
+                )
+                return 1
+        else:
+            print(
+                f"ERROR: ProjectMnemosyne directory not found: {target_dir}\n"
+                f"Use --target-dir PATH, set MNEMOSYNE_DIR env var, or use --create-target to auto-clone.",
+                file=sys.stderr,
+            )
+            return 1
 
     all_skills = find_all_skills(source_dir=source_dir)
 
