@@ -252,7 +252,7 @@ reasoning tasks. Use extended thinking when:
 Extended thinking consumes tokens. Use appropriate budgets based on task complexity:
 
 | Task Type | Budget | Examples | Rationale |
-|-----------|--------|----------|-----------|
+| --------- | ------ | -------- | --------- |
 | **Simple** | None | Fix typo | Mechanical changes |
 | **Standard** | 5K-10K | Add test, function | Well-defined |
 | **Complex** | 10K-20K | Restructure, migrate | Dependencies |
@@ -314,7 +314,7 @@ Hooks enable proactive automation and safety checks. Use hooks for guardrails an
 **Common Hooks for ML Odyssey**:
 
 | Hook Type | Trigger | Purpose | Implementation |
-|-----------|---------|---------|----------------|
+| --------- | ------- | ------- | -------------- |
 | **Safety** | compile | Zero-warnings | Fail on warnings |
 | **Safety** | pr_create | Issue link | Block if missing |
 | **Safety** | git_push | Block main | Fail if direct |
@@ -361,7 +361,7 @@ See [Tool Use Optimization](.claude/shared/tool-use-optimization.md#agentic-loop
 All agents and skills reference these shared files to avoid duplication:
 
 | File | Purpose |
-|------|---------|
+| ---- | ------- |
 | `.claude/shared/common-constraints.md` | Minimal changes principle, scope discipline |
 | `.claude/shared/documentation-rules.md` | Output locations, before-starting checklist |
 | `.claude/shared/pr-workflow.md` | PR creation, verification, review responses |
@@ -458,44 +458,13 @@ just shell          # Open shell in container
 
 ### Docker Registry (GHCR)
 
-The project publishes Docker images to GitHub Container Registry (GHCR).
-
-#### Available Images
-
-| Image | Purpose | Size |
-|-------|---------|------|
-| `ghcr.io/homericintelligence/projectodyssey:main` | Runtime with Mojo/tests | ~2GB |
-| `ghcr.io/homericintelligence/projectodyssey:main-ci` | CI with pre-commit | ~2.5GB |
-| `ghcr.io/homericintelligence/projectodyssey:main-prod` | Minimal production | ~1.5GB |
-
-#### Pull and Run
+Images published to GHCR: `ghcr.io/homericintelligence/projectodyssey:{main,main-ci,main-prod}`.
 
 ```bash
-# Pull latest runtime image
-docker pull ghcr.io/homericintelligence/projectodyssey:main
-
-# Run tests
-docker run --rm ghcr.io/homericintelligence/projectodyssey:main
-
-# Interactive shell
-docker run -it --rm ghcr.io/homericintelligence/projectodyssey:main bash
-
-# Mount local code for development
-docker run -it --rm -v $(pwd):/app ghcr.io/homericintelligence/projectodyssey:main bash
-```
-
-#### Build Locally
-
-```bash
-# Build CI image locally
-just docker-build-ci runtime
-
-# Build all targets
-just docker-build-ci-all
-
-# Push to GHCR (requires authentication)
-docker login ghcr.io
-just docker-push runtime
+docker pull ghcr.io/homericintelligence/projectodyssey:main  # ~2GB runtime
+just docker-up    # Start dev environment
+just docker-shell # Open shell in container
+just docker-build-ci runtime  # Build locally
 ```
 
 ### Why Use Justfile?
@@ -540,40 +509,17 @@ This ensures developers can run `just validate` locally to reproduce CI results 
 
 ### Agent Testing
 
-Agent configurations are automatically validated in CI on all PRs. Run tests locally before committing:
+Agent configurations are validated in CI on all PRs. Run locally before committing:
 
 ```bash
-# Validate agent YAML frontmatter and configuration
-python3 tests/agents/validate_configs.py .claude/agents/
-
-# Test agent discovery and loading
-python3 tests/agents/test_loading.py .claude/agents/
-
-# Test delegation patterns
-python3 tests/agents/test_delegation.py .claude/agents/
-
-# Test workflow integration
-python3 tests/agents/test_integration.py .claude/agents/
-
-# Test Mojo-specific patterns
-python3 tests/agents/test_mojo_patterns.py .claude/agents/
-
-# Run all tests
+# Run all agent tests
 for script in tests/agents/test_*.py tests/agents/validate_*.py; do
     python3 "$script" .claude/agents/
 done
 ```
 
-### Test Coverage
-
-- Configuration validation (YAML frontmatter, required fields, tool specifications)
-- Agent discovery and loading (hierarchy coverage, activation patterns)
-- Delegation patterns (chain validation, escalation paths)
-- Workflow integration (5-phase coverage, parallel execution)
-- Mojo patterns (fn vs def, struct vs class, SIMD, memory management)
-
-**CI Integration**: The `.github/workflows/test-agents.yml` workflow runs these tests
-automatically on all PRs affecting agent configurations.
+Tests cover: YAML config validation, agent discovery, delegation patterns, workflow integration,
+and Mojo-specific patterns. CI runs these via `.github/workflows/test-agents.yml`.
 
 ### Pre-commit Hooks
 
@@ -709,37 +655,8 @@ The repository uses three separate locations for documentation to avoid duplicat
 
 **Location**: Post directly to the GitHub issue as comments using `gh issue comment`.
 
-**Reading Issue Context**:
-
-```bash
-# Get issue details and body
-gh issue view <number>
-
-# Get all comments (implementation history)
-gh issue view <number> --comments
-
-# Get structured data
-gh issue view <number> --json title,body,comments,labels,state
-```
-
-**Writing to Issues**:
-
-```bash
-# Post implementation notes
-gh issue comment <number> --body "$(cat <<'EOF'
-## Implementation Notes
-
-### Summary
-[What was implemented]
-
-### Files Changed
-- path/to/file.mojo
-
-### Verification
-- [x] Tests pass
-EOF
-)"
-```
+See [github-issue-workflow.md](/.claude/shared/github-issue-workflow.md) for read/write patterns
+(`gh issue view <number> --comments`, `gh issue comment <number> --body "..."`).
 
 ### Important Rules
 
@@ -917,67 +834,7 @@ See `.claude/shared/github-issue-workflow.md` for complete workflow patterns.
 
 **⚠️ CRITICAL:** See [CRITICAL RULES section](#️-critical-rules---read-first) at the top of this document.
 
-**This rule has NO EXCEPTIONS - not even for emergencies.**
-
-❌ **ABSOLUTELY PROHIBITED:**
-
-```bash
-git checkout main
-git add <files>
-git commit -m "changes"
-git push origin main  # Will be rejected - main is protected
-```
-
-**Even These Are WRONG:**
-
-```bash
-# ❌ WRONG - Bypassing with force push
-git push --force origin main
-
-# ❌ WRONG - Directly committing on main
-git checkout main && git commit -am "quick fix"
-
-# ❌ WRONG - Emergency fix without PR
-git checkout main && git cherry-pick <commit> && git push
-```
-
-✅ **CORRECT - ALWAYS Use Pull Requests:**
-
-```bash
-# 1. Create feature branch from main
-git checkout main
-git pull origin main
-git checkout -b <issue-number>-description
-
-# 2. Make changes and commit
-git add <files>
-git commit -m "type(scope): description"
-
-# 3. Push feature branch
-git push -u origin <issue-number>-description
-
-# 4. Create and auto-merge PR
-gh pr create \
-  --title "Brief description" \
-  --body "Closes #<issue-number>" \
-  --label "appropriate-label"
-gh pr merge --auto --rebase
-```
-
-**Why This Rule Exists:**
-
-1. **Code Review** - All changes must be reviewed
-2. **CI Validation** - All changes must pass automated tests
-3. **Audit Trail** - Track what changed, why, and who approved it
-4. **Prevent Breakage** - Catch issues before they hit production
-5. **Branch Protection** - GitHub enforces this rule automatically
-
-**What If CI Is Already Broken?**
-
-- Still create a PR to fix it
-- PR description should explain the emergency
-- Enable auto-merge so it merges immediately when CI passes
-- Example: PR #2689 (cleanup) followed emergency fix commit 4446eba2
+**This rule has NO EXCEPTIONS - not even for emergencies.** Always use the PR workflow described there.
 
 ## Commit Message Format
 
@@ -1063,120 +920,18 @@ def function_name(param: str) -> bool:
 
 All markdown files must follow these standards to pass `markdownlint-cli2` linting:
 
-### Code Blocks (MD031, MD040)
+- **MD031/MD040**: Fenced code blocks must have blank lines before/after and a language tag
+  (` ```python `, ` ```bash `, ` ```mojo `, ` ```yaml `, ` ```text `, etc.)
+- **MD032**: Lists must be surrounded by blank lines
+- **MD022**: Headings must be surrounded by blank lines
+- **MD013**: Lines must not exceed 120 characters (code blocks and URLs exempt)
 
-**Rule**: Fenced code blocks must be:
-
-1. Surrounded by blank lines (before and after)
-1. Have a language specified on the opening backticks
-1. Don't put anything on the closing backticks
-
-### Language Examples
-
-- Python: ` ```python `
-- Bash: ` ```bash `
-- Text/plain: ` ```text `
-- Mojo: ` ```mojo `
-- YAML: ` ```yaml `
-- JSON: ` ```json `
-- Markdown: ` ```markdown `
-
-### Lists (MD032)
-
-**Rule**: Lists must be surrounded by blank lines (before and after)
-
-### Correct
-
-```markdown
-Some text before.
-
-- Item 1
-- Item 2
-- Item 3
-
-Some text after.
-```
-
-### Incorrect
-
-```markdown
-Some text before.
-- Item 1
-- Item 2
-Some text after.
-```
-
-### Headings (MD022)
-
-**Rule**: Headings must be surrounded by blank lines (one blank line before and after)
-
-### Correct
-
-```markdown
-Some content here.
-
-## Section Heading
-
-More content here.
-```
-
-### Incorrect
-
-```markdown
-Some content here.
-## Section Heading
-More content here.
-```
-
-### Line Length (MD013)
-
-**Rule**: Lines should not exceed 120 characters
-
-### Guidelines
-
-- Break long lines at 120 characters
-- Break at natural boundaries (clauses, lists, etc.)
-- Code in code blocks is exempt
-- URLs in links are exempt
-
-### Example
-
-```markdown
-This is a very long sentence that exceeds the 120 character limit
-and should be broken into multiple lines at a natural boundary point
-for better readability.
-```
-
-### Best Practices
-
-1. **Always add blank lines around code blocks and lists** - This is the #1 cause of linting failures
-1. **Always specify language for code blocks** - Use appropriate language tags
-1. **Check headings have surrounding blank lines** - Especially after subheadings
-1. **Use reference-style links for long URLs** - Helps avoid line length issues
-
-### Quick Checklist for New Content
-
-Before committing markdown files:
-
-- [ ] All code blocks have a language specified (` ```python ` not ` ``` `)
-- [ ] All code blocks have blank lines before and after
-- [ ] All lists have blank lines before and after
-- [ ] All headings have blank lines before and after
-- [ ] No lines exceed 120 characters
-- [ ] File ends with newline (enforced by pre-commit)
-- [ ] No trailing whitespace (enforced by pre-commit)
-
-### Running Markdown Linting Locally
+**Quick check before committing**: blank lines around all code blocks, lists, and headings;
+language on all code fences; no lines >120 chars; file ends with newline.
 
 ```bash
-# Check specific file
+# Lint markdown locally
 pixi run npx markdownlint-cli2 path/to/file.md
-
-# Check all markdown files
-zust pre-commit-all
-
-# View detailed errors
-pixi run npx markdownlint-cli2 path/to/file.md 2>&1
 ```
 
 ## Debugging
