@@ -2,10 +2,10 @@
 
 **Status**: Comprehensive training readiness verification
 **Date**: 2025-11-18
-**Total Backward Functions**: 27 across 5 modules
-**Broadcasting Support**: 9/27 functions (arithmetic, reductions)
-**Numerical Stability**: 10/27 functions
-**Activation Functions**: 7/27
+**Total Backward Functions**: 29 across 6 modules
+**Broadcasting Support**: 9/29 functions (arithmetic, reductions)
+**Numerical Stability**: 12/29 functions
+**Activation Functions**: 7/29
 
 ---
 
@@ -1008,6 +1008,205 @@ grad[2] = 0.3 * (1.0 - 1.0) = 0.0
 
 ---
 
+## MODULE 6: NORMALIZATION.MOJO
+
+**Module Overview**: Batch and layer normalization with mean-centering backward passes
+**Total Backward Functions**: 2
+
+### 1. batch_norm2d_backward
+
+**Location**: `shared/core/normalization.mojo` line 463
+**Signature**:
+
+```mojo
+fn batch_norm2d_backward(
+    grad_output: ExTensor,
+    x: ExTensor,
+    gamma: ExTensor,
+    running_mean: ExTensor,
+    running_var: ExTensor,
+    training: Bool,
+    epsilon: Float64 = 1e-5,
+) raises -> Tuple[ExTensor, ExTensor, ExTensor]
+```
+
+**Return Type**: `Tuple[ExTensor, ExTensor, ExTensor]` — `(grad_input, grad_gamma, grad_beta)`
+
+**Purpose**: Backward pass for 2D batch normalization. Computes gradients with respect
+to input and the learnable scale (gamma) and shift (beta) parameters.
+
+### Input Shapes
+
+- `grad_output`: `(N, C, H, W)` — upstream gradient, same shape as forward output
+- `x`: `(N, C, H, W)` — original input tensor saved from forward pass
+- `gamma`: `(C,)` — per-channel scale parameter
+- `running_mean`: `(C,)` — channel-wise running mean (used in inference mode)
+- `running_var`: `(C,)` — channel-wise running variance (used in inference mode)
+
+### Output Shapes
+
+- `grad_input`: `(N, C, H, W)` — gradient w.r.t. input
+- `grad_gamma`: `(C,)` — gradient w.r.t. gamma (summed over N, H, W)
+- `grad_beta`: `(C,)` — gradient w.r.t. beta (summed over N, H, W)
+
+### Mathematical Formula (Training Mode)
+
+```text
+Forward pass:
+    mean  = E[x]  over (N, H, W) per channel          shape: (C,)
+    var   = Var[x] over (N, H, W) per channel         shape: (C,)
+    std   = sqrt(var + eps)                             shape: (C,)
+    x_norm = (x - mean) / std                          shape: (N, C, H, W)
+    y     = gamma * x_norm + beta                      shape: (N, C, H, W)
+
+Backward pass (PyTorch consolidated formula):
+    N_spatial = batch * height * width
+    grad_x_norm = grad_output * gamma            shape: (N, C, H, W)
+    grad_var = sum(grad_x_norm * (x-mean) * -0.5 * (var+eps)^(-3/2))  shape: (C,)
+    grad_mean = sum(grad_x_norm * -1/std) + grad_var * mean(-2(x-mean))  shape: (C,)
+    grad_input = grad_x_norm / std + grad_var * 2(x-mean)/N_spatial + grad_mean/N_spatial
+
+    grad_gamma = sum(grad_output * x_norm, axes=[N, H, W])   shape: (C,)
+    grad_beta  = sum(grad_output,          axes=[N, H, W])   shape: (C,)
+```
+
+### Mathematical Formula (Inference Mode)
+
+```text
+Forward pass uses fixed running statistics:
+    x_norm = (x - running_mean) / sqrt(running_var + eps)
+    y = gamma * x_norm + beta
+
+Backward pass (simplified — no batch statistics):
+    grad_input = grad_output * gamma / sqrt(running_var + eps)
+    grad_gamma = sum(grad_output * x_norm)
+    grad_beta  = sum(grad_output)
+```
+
+### Kratzert Formula Note
+
+The Kratzert (2016) blog derives the same gradient via a computational graph
+three-term decomposition. The two formulations are mathematically equivalent but
+the Kratzert decomposition can cause false test failures when `grad_output =
+ones_like(output)` because the `sum(x_norm) = 0` identity collapses `grad_input`
+to zero. This is a **test design pathology, not a bug** — see the Known Test
+Pathologies section below for details.
+
+### Training vs Inference Mode
+
+- **Training mode** (`training=True`): Computes batch statistics from `x` (mean/var
+  over N, H, W). Full three-term gradient required.
+- **Inference mode** (`training=False`): Uses `running_mean` / `running_var`. Simpler
+  gradient — no batch statistics dependency.
+
+### Broadcasting Handling
+
+NO — gamma and std are broadcast channel-wise over spatial dimensions (manual loops),
+not using the `_reduce_broadcast_dims` helper.
+
+### Dtype Support
+
+- `float32`, `float64` only
+- `float16` NOT supported (normalization requires sufficient precision for stability)
+
+### Numerical Stability
+
+- `epsilon` (default `1e-5`) added inside `sqrt` to prevent division by zero
+- Float32 rounding in intermediate sums can cause `atol` mismatches at `1e-6`
+- Recommended gradient-check tolerances: `rtol=1e-2`, `atol=1e-5`
+
+### References
+
+- Ioffe & Szegedy (2015). Batch Normalization. ICML 2015. <https://arxiv.org/abs/1502.03167>
+- Kratzert (2016). Understanding the gradient flow through the batch normalization
+  layer. <https://kratzert.github.io/2016/02/12/understanding-the-gradient-flow-through-the-batch-normalization-layer.html>
+
+---
+
+### 2. layer_norm_backward
+
+**Location**: `shared/core/normalization.mojo` line 1225
+**Signature**:
+
+```mojo
+fn layer_norm_backward(
+    grad_output: ExTensor,
+    x: ExTensor,
+    gamma: ExTensor,
+    epsilon: Float64 = 1e-5,
+) raises -> Tuple[ExTensor, ExTensor, ExTensor]
+```
+
+**Return Type**: `Tuple[ExTensor, ExTensor, ExTensor]` — `(grad_input, grad_gamma, grad_beta)`
+
+**Purpose**: Backward pass for layer normalization. Unlike batch normalization,
+normalization is computed independently per sample over the feature dimensions — there
+are no running statistics and no training/inference mode distinction.
+
+### Input Shapes
+
+- `grad_output`: same shape as `x` — upstream gradient
+- `x`: `(N, F)` for 2D input or `(N, C, H, W)` for 4D input
+- `gamma`: `(F,)` for 2D or `(C, H, W)` for 4D — scale parameter matching feature dims
+
+### Output Shapes
+
+- `grad_input`: same shape as `x`
+- `grad_gamma`: same shape as `gamma` (summed over batch dimension N)
+- `grad_beta`: same shape as `gamma` (summed over batch dimension N)
+
+### Mathematical Formula
+
+```text
+Forward pass (per sample):
+    mean  = E[x]  over feature dimensions               shape: (N,) or (N,1,1,1)
+    var   = Var[x] over feature dimensions              shape: (N,) or (N,1,1,1)
+    std   = sqrt(var + eps)                             shape: (N,) or (N,1,1,1)
+    x_norm = (x - mean) / std                          same shape as x
+    y     = gamma * x_norm + beta                      same shape as x
+
+Backward pass (per sample, same three-term structure):
+    N_feat = number of normalized elements per sample
+    grad_x_norm = grad_output * gamma
+    grad_var = sum(grad_x_norm * (x-mean) * -0.5 * (var+eps)^(-3/2), over features)
+    grad_mean = sum(grad_x_norm * -1/std, over features) + grad_var * mean(-2*(x-mean))
+    grad_input = grad_x_norm / std + grad_var * 2*(x-mean)/N_feat + grad_mean/N_feat
+
+    grad_gamma = sum(grad_output * x_norm, over batch dim N)
+    grad_beta  = sum(grad_output,          over batch dim N)
+```
+
+### Key Differences from batch_norm2d_backward
+
+| Property | batch_norm2d | layer_norm |
+|----------|-------------|------------|
+| Normalizes over | N, H, W (across batch+spatial) | feature dims (per sample) |
+| Running statistics | YES (training/inference modes) | NO |
+| gamma shape | `(C,)` | matches feature dims |
+| Training mode flag | YES | NO |
+
+### Broadcasting Handling
+
+NO — gamma is broadcast over the batch dimension via per-sample loops.
+
+### Dtype Support
+
+- `float32`, `float64`
+- `float16` NOT supported
+
+### Numerical Stability
+
+- `epsilon` (default `1e-5`) in `sqrt` denominator prevents division by zero
+- Same `sum(x_norm) = 0` test pathology applies when `grad_output = ones_like(output)`
+  — see Known Test Pathologies section below
+- Recommended gradient-check tolerances: `rtol=1e-2`, `atol=1e-5`
+
+### References
+
+- Ba et al. (2016). Layer Normalization. <https://arxiv.org/abs/1607.06450>
+
+---
+
 ## SUMMARY TABLE: All Backward Pass Functions
 
 | Module | Function | Count | Broadcasting | Stability | Shape Reduction | Complexity |
@@ -1037,6 +1236,8 @@ grad[2] = 0.3 * (1.0 - 1.0) = 0.0
 | activations | tanh_backward | 5 | NO | - | NO | Low |
 | activations | gelu_backward | 6 | NO | - | NO | High |
 | activations | softmax_backward | 7 | NO | Float32 precision | NO | High |
+| normalization | batch_norm2d_backward | 1 | NO | epsilon/Float32 | NO | High |
+| normalization | layer_norm_backward | 2 | NO | epsilon/Float32 | NO | High |
 
 ---
 
@@ -1048,6 +1249,7 @@ grad[2] = 0.3 * (1.0 - 1.0) = 0.0
 - [x] **Matrix operations supported**: matmul (all cases), transpose
 - [x] **Reductions supported**: sum, mean, max, min
 - [x] **Activations covered**: ReLU family, Sigmoid, Tanh, GELU, Softmax
+- [x] **Normalization backward passes supported**: batch_norm2d, layer_norm (see MODULE 6)
 - [x] **Broadcasting handled correctly**: 9 functions support it
 - [x] **Shape reduction logic implemented**: Broadcast dimensions properly reduced
 - [x] **Numerical stability**: 10+ functions with epsilon handling
@@ -1096,6 +1298,9 @@ that was mistaken for a bug.
 **See**: `docs/dev/testing-strategy.md` — "Known Test Gotchas" section for the full mathematical
 proof, the degenerate-loss explanation, and safe test alternatives.
 
+**See also**: MODULE 6 — `batch_norm2d_backward` and `layer_norm_backward` entries above for
+formula documentation, dtype support, and recommended gradient-check tolerances.
+
 **Applies also to**: `layer_norm_backward` and any normalization backward that uses mean-centering.
 
 ### Training Readiness Conclusion
@@ -1116,5 +1321,5 @@ The system is sufficient for implementing and training neural networks including
 - Dense layers (matmul + bias addition)
 - Convolutional operations (via future im2col)
 - Attention mechanisms (softmax + matmul)
-- Normalization layers (sum/mean)
+- Normalization layers (batch_norm2d, layer_norm via MODULE 6)
 - Non-linearities (ReLU, GELU, Sigmoid, Tanh)
