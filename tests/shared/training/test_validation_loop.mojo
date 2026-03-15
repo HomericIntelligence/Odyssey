@@ -296,6 +296,27 @@ fn test_validation_loop_run_resets_loader() raises:
     print("  test_validation_loop_run_resets_loader: PASSED")
 
 
+fn test_validation_loop_run_subset_updates_val_accuracy() raises:
+    """Test run_subset() computes and updates val_accuracy (not hardcoded 0.0).
+
+    Creates a ValidationLoop with compute_accuracy=True, runs run_subset() on
+    a loader with ones predictions and zero labels, and asserts that
+    metrics.val_accuracy > 0.0 (not hardcoded 0.0).
+
+    This verifies the fix for issue #3680 where run_subset() was calling
+    metrics.update_val_metrics(avg_loss, 0.0) with a hardcoded accuracy.
+    """
+    var vloop = ValidationLoop(compute_accuracy=True)
+    var loader = create_val_loader(n_batches=3)
+    var metrics = TrainingMetrics()
+    var val_loss = vloop.run_subset(
+        simple_forward, simple_loss, loader, 3, metrics
+    )
+    # simple_forward returns ones, labels are zeros, so accuracy should be > 0.0
+    assert_greater(metrics.val_accuracy, Float64(0.0))
+    print("  test_validation_loop_run_subset_updates_val_accuracy: PASSED")
+
+
 # ============================================================================
 # No-Weight-Update Property Tests
 # ============================================================================
@@ -508,6 +529,7 @@ fn main() raises:
     test_validation_loop_run_subset_exact_batch_count()
     test_validation_loop_run_subset_loss_valid()
     test_validation_loop_run_subset_resets_loader()
+    test_validation_loop_run_subset_updates_val_accuracy()
 
     print("Running no-weight-update property tests...")
     test_validation_loop_no_weight_updates()
