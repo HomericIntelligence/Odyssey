@@ -269,6 +269,11 @@ jobs:
           # NOTE: utils/test_logging.mojo split into 3 files per ADR-009 (≤10 fn test_ per file)
           # NOTE: testing/test_fixtures.mojo split into 3 parts per ADR-009 (≤10 fn test_ per file)
           # to avoid Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so JIT fault)
+          # NOTE: Audited per Issue #3999 — all subdirectory globs match test files:
+          #   - utils/test_*.mojo: ✓ (5+ test files)
+          #   - fixtures/test_*.mojo: ✓ (2+ test files)
+          #   - training/test_*.mojo: ✓ (11+ test files)
+          #   - testing/test_*.mojo: ✓ (10+ test files)
           # Mojo JIT crashes on CI runners — non-blocking pending investigation.
           - name: "Shared Infra & Testing"
             path: "tests/shared"
@@ -283,9 +288,12 @@ jobs:
             pattern: "test_*.mojo"
             continue-on-error: true
           # ---- Top-level, debug, helpers, tooling, fuzz (low-frequency failures) ----
+          # NOTE: debug/test_*.mojo pattern removed — tests/debug/ contains no test files
+          # and including it would cause silent pass-with-0-tests (see Issue #3999 for context).
+          # If debug tests are added in the future, add "debug/test_*.mojo" back to pattern.
           - name: "Misc Tests"
             path: "tests"
-            pattern: "test_*.mojo training/test_*.mojo unit/test_*.mojo integration/test_*.mojo debug/test_*.mojo helpers/test_*.mojo tooling/benchmarks/test_*.mojo shared/fuzz/test_*.mojo"
+            pattern: "test_*.mojo training/test_*.mojo unit/test_*.mojo integration/test_*.mojo helpers/test_*.mojo tooling/benchmarks/test_*.mojo shared/fuzz/test_*.mojo"
           # ---- Examples: lenet5 (no dataset required) + test examples ----
           - name: "Examples"
             path: "tests/examples"
