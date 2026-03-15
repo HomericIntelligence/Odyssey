@@ -72,24 +72,29 @@ fn test_destructor_with_valid_refcount() raises:
     assert_true(True, "Destructor edge case test completed")
 
 
+fn _check_view_refcount(original: ExTensor, initial_refcount: Int) raises -> Int:
+    """Helper: create view in inner scope, check refcount, return inner value."""
+    var shape = List[Int]()
+    shape.append(3)
+    shape.append(4)
+    var view = original.reshape(shape)
+    assert_true(view._is_view, "Should be view")
+    # reshape calls copy() which increments refcount
+    var inner_refcount = original._refcount[]
+    assert_equal_int(
+        inner_refcount,
+        initial_refcount + 1,
+        "View creation should increment refcount",
+    )
+    return inner_refcount
+
+
 fn test_view_destructor_does_not_decrement_refcount() raises:
     """Test view destructor doesn't decrement refcount incorrectly."""
     var original = zeros([12], DType.float32)
     var initial_refcount = original._refcount[]
 
-    if True:
-        var shape = List[Int]()
-        shape.append(3)
-        shape.append(4)
-        var view = original.reshape(shape)
-        assert_true(view._is_view, "Should be view")
-        # reshape calls copy() which increments refcount
-        var inner_refcount = original._refcount[]
-        assert_equal_int(
-            inner_refcount,
-            initial_refcount + 1,
-            "View creation should increment refcount",
-        )
+    _ = _check_view_refcount(original, initial_refcount)
 
     # After view destruction, refcount should return to initial
     var final_refcount = original._refcount[]
