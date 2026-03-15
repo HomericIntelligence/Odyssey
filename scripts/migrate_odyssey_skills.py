@@ -11,6 +11,22 @@ Usage:
     python3 scripts/migrate_odyssey_skills.py --skill gh-create-pr-linked
     python3 scripts/migrate_odyssey_skills.py --create-target
     python3 scripts/migrate_odyssey_skills.py --target-dir /path/to/mnemosyne
+    python3 scripts/migrate_odyssey_skills.py --audit --target-dir /path/to/ProjectMnemosyne
+
+Audit Mode:
+    The --audit flag checks all source skills against Mnemosyne for coverage gaps.
+    It reports which skills are present and which are missing from ProjectMnemosyne.
+
+    Example:
+        python3 scripts/migrate_odyssey_skills.py \\
+          --audit \\
+          --target-dir /path/to/ProjectMnemosyne \\
+          --audit-skip .audit-skip \\
+          --no-color
+
+    The --audit-skip file contains a list of skill names to exclude from the audit
+    (one per line, comments starting with #). The file path is resolved relative to
+    the current working directory (CWD).
 
 Source structure (Odyssey2):
     .claude/skills/<skill-name>/SKILL.md
@@ -748,7 +764,30 @@ def find_skill_in_mnemosyne(skill_name: str, mnemosyne_skills_dir: Path) -> Opti
 
 
 def load_skip_list(skip_file: Path) -> set[str]:
-    """Load allowlist of skill names to skip from a file (one name per line)."""
+    """Load allowlist of skill names to skip from a file (one name per line).
+
+    The skip file path is resolved relative to the current working directory (CWD).
+    If the file does not exist, returns an empty set (no skills skipped).
+
+    File format:
+        - One skill name per line
+        - Lines starting with '#' are treated as comments
+        - Whitespace is trimmed
+
+    Example .audit-skip file:
+        # Skills not yet ported
+        tier-1-sample-skill
+        tier-2-legacy-skill
+        # Skills intentionally excluded
+        # (reason: archived project)
+        internal-testing-skill
+
+    Args:
+        skip_file: Path to the skip list file (relative to CWD)
+
+    Returns:
+        Set of skill names to skip (empty set if file doesn't exist)
+    """
     if not skip_file.exists():
         return set()
     names: set[str] = set()
