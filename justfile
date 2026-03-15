@@ -201,8 +201,7 @@ build mode="debug": (_ensure_build_dir mode)
     REPO_ROOT="$(pwd)"
     STRICT="--Werror"
 
-    # CI mode should continue despite linker errors (Mojo limitation: cannot pass -lm flag)
-    FAIL_ON_ERROR=0
+    FAIL_ON_ERROR=1
 
     case "$MODE" in
         debug)
@@ -216,8 +215,6 @@ build mode="debug": (_ensure_build_dir mode)
             ;;
         ci)
             FLAGS="-g1 $STRICT"
-            # Don't fail on linker errors - Mojo doesn't support -lm flag yet
-            FAIL_ON_ERROR=0
             ;;
         *)
             echo "❌ Unknown mode: $MODE"
@@ -247,6 +244,7 @@ build mode="debug": (_ensure_build_dir mode)
         -not -path "./.claude/*" \
         -not -path "./tests/*" \
         -not -path "./shared/*" \
+        -not -path "./examples/*" \
         -not -path "./benchmarks/*" \
         -not -name "test_*.mojo" \
         -not -name "model.mojo" \
