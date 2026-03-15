@@ -233,6 +233,66 @@ def expand_pattern(base_path: str, pattern: str, root_dir: Path) -> Set[Path]:
     return matched_files
 
 
+def group_split_files(test_files: List[Path]) -> Dict[str, List[Path]]:
+    """Group test_*_partN.mojo files by their logical base name.
+
+    Files matching the pattern ``test_<base>_part<N>.mojo`` are grouped under
+    the key ``<parent_dir>/<base>``.  Files that do not match the pattern are
+    ignored (they remain as individual entries in the main coverage logic).
+
+    Args:
+        test_files: All test file paths (relative to repo root).
+
+    Returns:
+        Mapping of logical group key → sorted list of constituent part files.
+        Returns an empty dict when no split-file groups are found.
+
+    Example:
+        >>> files = [Path("tests/core/test_foo_part1.mojo"),
+        ...          Path("tests/core/test_foo_part2.mojo"),
+        ...          Path("tests/core/test_bar.mojo")]
+        >>> group_split_files(files)
+        {'tests/core/test_foo': [Path('tests/core/test_foo_part1.mojo'),
+                                  Path('tests/core/test_foo_part2.mojo')]}
+    """
+    part_pattern = re.compile(r"^(.+)_part(\d+)\.mojo$")
+    groups: Dict[str, List[Path]] = {}
+    for f in test_files:
+        m = part_pattern.match(f.name)
+        if m:
+            base_key = str(f.parent / m.group(1))
+            groups.setdefault(base_key, []).append(f)
+    for key in groups:
+        groups[key].sort()
+    return groups
+
+
+def check_stale_patterns(
+    ci_groups: Dict[str, Dict[str, str]], root_dir: Path
+) -> List[str]:
+    """Return CI group names whose patterns match zero existing test files.
+
+    A "stale" group is one that was added to the CI matrix at some point but
+    no longer matches any file on disk — typically because the files were
+    renamed, deleted, or moved.
+
+    Args:
+        ci_groups: Mapping of CI group name → {path, pattern} as returned by
+            :func:`parse_ci_matrix`.
+        root_dir: Repository root used to resolve glob patterns.
+
+    Returns:
+        Sorted list of stale CI group names (empty list when all groups match
+        at least one file).
+    """
+    stale = []
+    for group_name, group_info in ci_groups.items():
+        matched = expand_pattern(group_info["path"], group_info["pattern"], root_dir)
+        if not matched:
+            stale.append(group_name)
+    return sorted(stale)
+
+
 def check_coverage(
     test_files: List[Path], ci_groups: Dict[str, Dict[str, str]], root_dir: Path
 ) -> Tuple[Set[Path], Dict[str, Set[Path]], List[Tuple[str, str, str]]]:
@@ -267,8 +327,22 @@ def generate_report(
     test_files: List[Path],
     coverage_by_group: Dict[str, Set[Path]],
     stale_patterns: Optional[List[Tuple[str, str, str]]] = None,
+    split_groups: Optional[Dict[str, List[Path]]] = None,
 ) -> str:
-    """Generate a detailed validation report."""
+    """Generate a detailed validation report.
+
+    Args:
+        uncovered: Test files not matched by any CI group.
+        test_files: All test files found in the repository.
+        coverage_by_group: Mapping of CI group name → set of covered files.
+        split_groups: Optional mapping from :func:`group_split_files` that
+            describes logical file groups composed of ``_partN.mojo`` parts.
+            When provided, a "Split File Groups" section is appended to the
+            report so reviewers can see which groups contain part files.
+    """
+    if split_groups is None:
+        split_groups = {}
+
     report_lines = []
     report_lines.append("## Test Coverage Validation Report")
     report_lines.append("")
@@ -331,6 +405,22 @@ def generate_report(
             report_lines.append(
                 "These patterns may be outdated or incorrect. "
                 "Consider updating or removing them from the CI configuration."
+            )
+
+    # Append split file groups section when part files are present
+    if split_groups:
+        report_lines.append("")
+        report_lines.append("### Split File Groups")
+        report_lines.append("")
+        report_lines.append(
+            "The following logical test groups are split across multiple `_partN.mojo` files:"
+        )
+        report_lines.append("")
+        for group_key in sorted(split_groups.keys()):
+            parts = split_groups[group_key]
+            part_names = ", ".join(p.name for p in parts)
+            report_lines.append(
+                f"- `{group_key}` ({len(parts)} parts: {part_names})"
             )
 
     return "\n".join(report_lines)
@@ -397,6 +487,9 @@ def main():
     # Find all test files (quietly)
     test_files = find_test_files(repo_root)
 
+    # Group split (part) files for coverage reporting
+    split_groups = group_split_files(test_files)
+
     # Parse CI workflow
     workflow_file = repo_root / ".github" / "workflows" / "comprehensive-tests.yml"
     if not workflow_file.exists():
@@ -462,7 +555,7 @@ def main():
             print()
 
         # Generate report for PR
-        report = generate_report(uncovered, test_files, coverage_by_group, stale_patterns)
+        report = generate_report(uncovered, test_files, coverage_by_group, stale_patterns, split_groups)
 
         # Post to PR if requested (post if uncovered files or stale patterns exist)
         if post_pr and (uncovered or stale_patterns):
