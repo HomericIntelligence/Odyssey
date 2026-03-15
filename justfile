@@ -586,6 +586,23 @@ test-mojo:
     MAX={{MAX_RETRIES}}
     echo "Running all Mojo tests (max retries: $MAX)..."
 
+    # Count test files (before skipping)
+    test_count=0
+    for test_file in tests/**/*.mojo; do
+        [[ "$(basename "$test_file")" == "__init__.mojo" ]] && continue
+        [[ "$(basename "$test_file")" == "conftest.mojo" ]] && continue
+        [[ "$test_file" == "tests/helpers/fixtures.mojo" ]] && continue
+        [[ "$test_file" == "tests/helpers/utils.mojo" ]] && continue
+        [[ "$test_file" == "tests/models/test_vgg16_e2e.mojo" ]] && continue
+        [ -f "$test_file" ] && ((test_count++))
+    done
+
+    if [ $test_count -eq 0 ]; then
+        echo "❌ ERROR: No Mojo test files found in tests/"
+        echo "   This usually means the directory is empty or test files were renamed."
+        exit 1
+    fi
+
     failed=0
     for test_file in tests/**/*.mojo; do
         # Skip __init__.mojo and non-test library files (no main function)
