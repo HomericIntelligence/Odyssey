@@ -112,7 +112,7 @@ fn python_dict_to_config(
             var bool_val = Bool(val_obj)
             config.set(full_key, bool_val)
 
-        # List handling could be added here if needed (Mojo v0.26.1)
+        # TODO: Add list handling if needed
 
     return config
 

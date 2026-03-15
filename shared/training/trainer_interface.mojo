@@ -382,7 +382,7 @@ struct DataLoader(Copyable, Movable):
 
         var batch_labels = self.labels.slice(start_idx, end_idx)
 
-        # Python data loader integration blocked by Track 4 (Python↔Mojo interop) (#3076).
+        # NOTE(#3076, Mojo v0.26.1): Python data loader integration blocked by Track 4 (Python↔Mojo interop).
         # Tracked in #3076 (parent: #3059). Placeholder tensors used until Track 4 is ready.
 
         self.current_batch += 1
