@@ -1396,6 +1396,144 @@ fn test_layer_norm_backward_gradient_input() raises:
     print("✓ Layer norm backward gradient (input) validated numerically")
 
 
+fn test_layer_norm_backward_gradient_gamma() raises:
+    """Test layer_norm_backward gradient w.r.t. gamma using numerical validation.
+
+    Perturbs gamma using finite differences and compares against analytical grad_gamma.
+    Uses non-uniform grad_output to prevent algebraic cancellation masking bugs.
+    """
+    # Small 2D tensor: (batch=2, features=4)
+    var shape = List[Int]()
+    shape.append(2)
+    shape.append(4)
+
+    # Input with varying values (not uniform, not zero)
+    var x = zeros(shape, DType.float32)
+    for i in range(8):
+        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 0.05
+
+    # Parameters: non-trivial gamma, zero beta
+    var param_shape = List[Int]()
+    param_shape.append(4)
+    var gamma = ones(param_shape, DType.float32)
+    gamma._data.bitcast[Float32]()[0] = 1.5
+    gamma._data.bitcast[Float32]()[1] = 0.8
+    gamma._data.bitcast[Float32]()[2] = 1.2
+    gamma._data.bitcast[Float32]()[3] = 2.0
+    var beta = zeros(param_shape, DType.float32)
+
+    # Non-uniform grad_output: critical to avoid algebraic cancellation
+    var grad_output = zeros(shape, DType.float32)
+    grad_output._data.bitcast[Float32]()[0] = 0.3
+    grad_output._data.bitcast[Float32]()[1] = -0.5
+    grad_output._data.bitcast[Float32]()[2] = 1.2
+    grad_output._data.bitcast[Float32]()[3] = -0.8
+    grad_output._data.bitcast[Float32]()[4] = 0.7
+    grad_output._data.bitcast[Float32]()[5] = -0.2
+    grad_output._data.bitcast[Float32]()[6] = 0.9
+    grad_output._data.bitcast[Float32]()[7] = -1.1
+
+    # Analytical backward pass
+    var result = layer_norm_backward(grad_output, x, gamma, epsilon=1e-5)
+    var grad_gamma_analytical = result[1]
+
+    # Numerical gradient: perturb gamma
+    # The forward closure computes: sum(layer_norm(x, g, beta) * grad_output)
+    # so the numerical gradient matches what layer_norm_backward should produce for grad_gamma.
+    fn forward_for_gamma(g: ExTensor) raises -> ExTensor:
+        var out = layer_norm(x, g, beta, epsilon=1e-5)
+        var weighted = multiply(out, grad_output)
+        var result_inner = weighted
+        while result_inner.dim() > 0:
+            result_inner = reduce_sum(result_inner, axis=0, keepdims=False)
+        return result_inner
+
+    var numerical_grad_gamma = compute_numerical_gradient(
+        forward_for_gamma, gamma, epsilon=1e-4
+    )
+
+    assert_gradients_close(
+        grad_gamma_analytical,
+        numerical_grad_gamma,
+        rtol=1e-2,
+        atol=1e-4,
+        message="Layer norm gradient w.r.t. gamma",
+    )
+
+    print("✓ Layer norm backward gradient (gamma) validated numerically")
+
+
+fn test_layer_norm_backward_gradient_beta() raises:
+    """Test layer_norm_backward gradient w.r.t. beta using numerical validation.
+
+    Perturbs beta using finite differences and compares against analytical grad_beta.
+    beta contributes additively, so grad_beta = sum(grad_output) over the batch dimension.
+    """
+    # Small 2D tensor: (batch=2, features=4)
+    var shape = List[Int]()
+    shape.append(2)
+    shape.append(4)
+
+    # Input with varying values (not uniform, not zero)
+    var x = zeros(shape, DType.float32)
+    for i in range(8):
+        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 0.05
+
+    # Parameters: non-trivial gamma, non-zero beta
+    var param_shape = List[Int]()
+    param_shape.append(4)
+    var gamma = ones(param_shape, DType.float32)
+    gamma._data.bitcast[Float32]()[0] = 1.5
+    gamma._data.bitcast[Float32]()[1] = 0.8
+    gamma._data.bitcast[Float32]()[2] = 1.2
+    gamma._data.bitcast[Float32]()[3] = 2.0
+    var beta = zeros(param_shape, DType.float32)
+    beta._data.bitcast[Float32]()[0] = 0.5
+    beta._data.bitcast[Float32]()[1] = -0.3
+    beta._data.bitcast[Float32]()[2] = 0.2
+    beta._data.bitcast[Float32]()[3] = -0.1
+
+    # Non-uniform grad_output: critical to avoid algebraic cancellation
+    var grad_output = zeros(shape, DType.float32)
+    grad_output._data.bitcast[Float32]()[0] = 0.3
+    grad_output._data.bitcast[Float32]()[1] = -0.5
+    grad_output._data.bitcast[Float32]()[2] = 1.2
+    grad_output._data.bitcast[Float32]()[3] = -0.8
+    grad_output._data.bitcast[Float32]()[4] = 0.7
+    grad_output._data.bitcast[Float32]()[5] = -0.2
+    grad_output._data.bitcast[Float32]()[6] = 0.9
+    grad_output._data.bitcast[Float32]()[7] = -1.1
+
+    # Analytical backward pass
+    var result = layer_norm_backward(grad_output, x, gamma, epsilon=1e-5)
+    var grad_beta_analytical = result[2]
+
+    # Numerical gradient: perturb beta
+    # The forward closure computes: sum(layer_norm(x, gamma, b) * grad_output)
+    # so the numerical gradient matches what layer_norm_backward should produce for grad_beta.
+    fn forward_for_beta(b: ExTensor) raises -> ExTensor:
+        var out = layer_norm(x, gamma, b, epsilon=1e-5)
+        var weighted = multiply(out, grad_output)
+        var result_inner = weighted
+        while result_inner.dim() > 0:
+            result_inner = reduce_sum(result_inner, axis=0, keepdims=False)
+        return result_inner
+
+    var numerical_grad_beta = compute_numerical_gradient(
+        forward_for_beta, beta, epsilon=1e-4
+    )
+
+    assert_gradients_close(
+        grad_beta_analytical,
+        numerical_grad_beta,
+        rtol=1e-2,
+        atol=1e-4,
+        message="Layer norm gradient w.r.t. beta",
+    )
+
+    print("✓ Layer norm backward gradient (beta) validated numerically")
+
+
 # ============================================================================
 # Main Test Runner
 # ============================================================================
@@ -1480,5 +1618,11 @@ fn main() raises:
 
     test_layer_norm_backward_gradient_input()
     print("✓ test_layer_norm_backward_gradient_input")
+
+    test_layer_norm_backward_gradient_gamma()
+    print("✓ test_layer_norm_backward_gradient_gamma")
+
+    test_layer_norm_backward_gradient_beta()
+    print("✓ test_layer_norm_backward_gradient_beta")
 
     print("\nAll normalization tests passed!")
