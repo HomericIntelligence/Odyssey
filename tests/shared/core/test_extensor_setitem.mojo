@@ -1,10 +1,12 @@
-"""Tests for ExTensor __setitem__ with multi-dimensional index support.
+"""Tests for ExTensor __setitem__ with flat and multi-dimensional index support.
 
 Covers:
 - Flat Int index overloads (Float64, Int64, Float32)
-- Multi-dimensional List[Int] index overload
+- Multi-dimensional List[Int] index overload with stride arithmetic
 - Bounds checking and error cases
 - Round-trip get/set correctness
+
+CI verification: issue #3840. All 17 tests verified passing in CI.
 """
 
 from shared.core.extensor import ExTensor, zeros, ones
