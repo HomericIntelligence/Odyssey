@@ -237,7 +237,7 @@ fn dtype_to_string(dtype: DType) -> String:
 fn recommend_precision_dtype(
     model_size_mb: Float64,
     hardware_has_fp16: Bool = True,
-    hardware_has_bf16: Bool = True,
+    hardware_has_bf16: Bool = False,
 ) -> DType:
     """Recommend optimal precision dtype based on model size and hardware.
 
@@ -248,8 +248,8 @@ fn recommend_precision_dtype(
             model_size_mb: Model size in megabytes.
             hardware_has_fp16: Whether hardware supports FP16 acceleration.
             hardware_has_bf16: Whether hardware supports BF16 acceleration.
-                NOT supported on Apple Silicon — pass hardware_has_bf16=False
-                on Apple hardware.
+                Defaults to False (BF16 NOT supported on Apple Silicon M1/M2/M3).
+                Pass hardware_has_bf16=True only on Intel/AMD x86_64 hardware.
 
     Returns:
             Recommended DType (float16, bfloat16, or float32).
@@ -257,13 +257,18 @@ fn recommend_precision_dtype(
         Recommendations:
             - Small models (<100MB): FP32 (speed gain minimal).
             - Medium models (100MB-1GB): FP16 if hardware supports it.
-            - Large models (>1GB): BF16 strongly recommended (FP16 if no BF16 hardware).
+            - Large models (>1GB): BF16 if hardware supports it, else FP16.
             - No FP16 hardware: FP32 (reduced precision not worth it).
 
         Example:
             ```mojo
+            # On Apple Silicon (default - no BF16)
             var dtype = recommend_precision_dtype(model_size_mb=500.0)
-            var params = ExTensor.zeros((1000, 1000), dtype)
+            # Returns FP16 for medium models, FP32 for small
+
+            # On Intel/AMD with BF16 support
+            var dtype = recommend_precision_dtype(model_size_mb=2000.0, hardware_has_bf16=True)
+            # Returns BF16 for large models
             ```
     """
     if not hardware_has_fp16:
@@ -277,7 +282,7 @@ fn recommend_precision_dtype(
         # Medium model - FP16 recommended
         return DType.float16
     else:
-        # Large model - BF16 strongly recommended for wider exponent range
+        # Large model - BF16 recommended if supported (not Apple Silicon)
         if hardware_has_bf16:
             return DType.bfloat16
         else:
