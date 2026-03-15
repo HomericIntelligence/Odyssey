@@ -46,7 +46,7 @@ jobs:
           delay=1
           while [ $attempt -lt 3 ]; do
             attempt=$((attempt + 1))
-            if pixi run mojo run -I . benchmarks/bench_simd.mojo | tee benchmark-results/simd-output.txt; then
+            if pixi run mojo run -I . benchmarks/bench_simd.mojo | tee benchmark-results/simd-output.txt; then  # no-bare-mojo-lint: inside retry loop
               echo "✅ SIMD benchmarks completed successfully"
               break
             fi
