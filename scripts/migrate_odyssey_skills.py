@@ -857,7 +857,10 @@ def main() -> int:
         "--audit-skip",
         metavar="FILE",
         default=".audit-skip",
-        help="File listing skill names to exclude from audit (one per line, default: .audit-skip)",
+        help=(
+            "File listing skill names to exclude from audit (one per line, default: .audit-skip)."
+            " Path is resolved relative to the current working directory (CWD)."
+        ),
     )
     parser.add_argument(
         "--no-color",
