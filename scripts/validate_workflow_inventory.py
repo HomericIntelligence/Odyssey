@@ -19,7 +19,7 @@ Exit codes:
 import re
 import sys
 from pathlib import Path
-from typing import Set, Tuple
+from typing import Set
 
 
 def extract_documented_workflows(readme_path: Path) -> Set[str]:
@@ -35,9 +35,9 @@ def extract_documented_workflows(readme_path: Path) -> Set[str]:
     # Look for workflow filenames in the table
     # Patterns: [filename.yml], `filename.yml`, or just filename.yml in table rows
     patterns = [
-        r'\[([a-z0-9_-]+\.yml)\]',  # [filename.yml] markdown links
-        r'`([a-z0-9_-]+\.yml)`',    # `filename.yml` code blocks
-        r'\| [a-z0-9_-]*([a-z0-9_-]+\.yml)',  # | filename.yml in table
+        r"\[([a-z0-9_-]+\.yml)\]",  # [filename.yml] markdown links
+        r"`([a-z0-9_-]+\.yml)`",  # `filename.yml` code blocks
+        r"\| [a-z0-9_-]*([a-z0-9_-]+\.yml)",  # | filename.yml in table
     ]
 
     for pattern in patterns:
