@@ -102,8 +102,10 @@ fn test_write_with_backup():
 fn test_safe_remove() raises:
     """Test remove_safely() actually deletes the file."""
     from shared.utils.file_io import remove_safely, safe_write_file, file_exists
+    from time import perf_counter_ns
 
-    var test_path = "/tmp/test_remove_safely_3283.txt"
+    var suffix = String(perf_counter_ns())
+    var test_path = "/tmp/test_remove_safely_" + suffix + ".txt"
 
     try:
         # Create file
