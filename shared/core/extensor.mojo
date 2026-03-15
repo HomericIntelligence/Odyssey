@@ -1237,26 +1237,64 @@ struct ExTensor(
         if result_numel == 0:
             return result^
 
-        # Copy each element: map output flat index -> source flat index
-        var dtype_size = self._get_dtype_size()
-        var src_ptr = self._data
-        var dst_ptr = result._data
+        # Fast-path: detect when only dim-0 is non-trivially sliced
+        # and all remaining dimensions use full slices
+        var can_use_memcpy = num_dims > 0 and self._strides[0] == self._shape[1] if num_dims > 1 else 1
+        if can_use_memcpy:
+            # Check that all dims >= 1 use full slices
+            for dim in range(1, num_dims):
+                var s = slices[dim]
+                var size = self._shape[dim]
+                var start = s.start.or_else(0)
+                var end = s.end.or_else(size)
+                if start < 0:
+                    start = size + start
+                if end < 0:
+                    end = size + end
+                start = max(0, min(start, size))
+                end = max(0, min(end, size))
+                if start != 0 or end != size:
+                    can_use_memcpy = False
+                    break
 
-        for out_flat in range(result_numel):
-            # Decompose out_flat into per-dimension indices, then map to source
-            var src_flat = 0
-            var remaining = out_flat
-            for dim in range(num_dims):
-                var out_idx = remaining // result._strides[dim]
-                remaining = remaining % result._strides[dim]
-                var src_idx = starts[dim] + out_idx * steps[dim]
-                src_flat += src_idx * self._strides[dim]
+        if can_use_memcpy and result_numel > 0:
+            # Fast-path: use memcpy for contiguous first-axis slice
+            var dtype_size = self._get_dtype_size()
+            var src_ptr = self._data
+            var dst_ptr = result._data
 
-            # Copy element byte-by-byte
-            var src_offset = src_flat * dtype_size
-            var dst_offset = out_flat * dtype_size
-            for b in range(dtype_size):
-                dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
+            # Calculate stride (elements per dim-0 slice)
+            var stride_numel = result_numel // result_shape[0]
+
+            # Copy each row contiguously
+            var src_offset = starts[0] * stride_numel * dtype_size
+            for i in range(result_shape[0]):
+                var src_addr = src_ptr + src_offset + i * stride_numel * dtype_size
+                var dst_addr = dst_ptr + i * stride_numel * dtype_size
+                # memcpy semantics: copy stride_numel elements
+                for b in range(stride_numel * dtype_size):
+                    dst_addr[b] = src_addr[b]
+        else:
+            # Slow-path: copy each element individually (stride-aware)
+            var dtype_size = self._get_dtype_size()
+            var src_ptr = self._data
+            var dst_ptr = result._data
+
+            for out_flat in range(result_numel):
+                # Decompose out_flat into per-dimension indices, then map to source
+                var src_flat = 0
+                var remaining = out_flat
+                for dim in range(num_dims):
+                    var out_idx = remaining // result._strides[dim]
+                    remaining = remaining % result._strides[dim]
+                    var src_idx = starts[dim] + out_idx * steps[dim]
+                    src_flat += src_idx * self._strides[dim]
+
+                # Copy element byte-by-byte
+                var src_offset = src_flat * dtype_size
+                var dst_offset = out_flat * dtype_size
+                for b in range(dtype_size):
+                    dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
 
         return result^
 
