@@ -3704,6 +3704,7 @@ fn nan_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
         dtype != DType.float16
         and dtype != DType.float32
         and dtype != DType.float64
+        and dtype != DType.bfloat16
     ):
         raise Error("nan_tensor: only floating-point dtypes support NaN")
 
@@ -3743,6 +3744,7 @@ fn inf_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
         dtype != DType.float16
         and dtype != DType.float32
         and dtype != DType.float64
+        and dtype != DType.bfloat16
     ):
         raise Error("inf_tensor: only floating-point dtypes support Inf")
 
@@ -3781,6 +3783,7 @@ fn neg_inf_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
         dtype != DType.float16
         and dtype != DType.float32
         and dtype != DType.float64
+        and dtype != DType.bfloat16
     ):
         raise Error("neg_inf_tensor: only floating-point dtypes support Inf")
 
