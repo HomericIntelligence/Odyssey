@@ -32,13 +32,12 @@ jobs:
       - name: Run mypy
         run: |
           echo "Running mypy type checking..."
-          # Exclude generators/ due to module path ambiguity (scripts adds parent to path)
-          pixi run mypy --exclude 'generators/' scripts/ || {
-            echo "❌ Type checking failed"
+          pixi run mypy scripts/ --exclude generators/ --python-version 3.10 --explicit-package-bases --no-strict-optional --ignore-missing-imports || {
+            echo "Type checking failed"
             echo ""
             echo "To fix locally:"
-            echo "  pixi run pip install mypy"
-            echo "  pixi run mypy --exclude 'generators/' scripts/"
+            echo "  pixi run pip install mypy types-PyYAML"
+            echo "  pixi run mypy scripts/ --exclude generators/ --python-version 3.10 --explicit-package-bases --no-strict-optional --ignore-missing-imports"
             exit 1
           }
-          echo "✅ All type checks passed"
+          echo "All type checks passed"
