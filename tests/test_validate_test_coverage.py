@@ -18,7 +18,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 from validate_test_coverage import (
     find_test_files,
     parse_ci_matrix,
-    expand_pattern,
     check_coverage,
 )
 
@@ -68,17 +67,13 @@ class TestSplitFileNaming(unittest.TestCase):
     def test_split_files_in_covered_directory(self):
         """Test that split files in a covered directory are recognized as covered."""
         # Create split test files in the tests directory
-        (self.tests_dir / "test_arg_parser_part1.mojo").write_text(
-            "fn test_arg_parser_basic() raises:\n    pass\n"
-        )
+        (self.tests_dir / "test_arg_parser_part1.mojo").write_text("fn test_arg_parser_basic() raises:\n    pass\n")
         (self.tests_dir / "test_arg_parser_part2.mojo").write_text(
             "fn test_arg_parser_edge_cases() raises:\n    pass\n"
         )
 
         # Create workflow that covers this directory with wildcard pattern
-        workflow_file = self._create_workflow_file(
-            "tests/shared/core", "test_*.mojo"
-        )
+        workflow_file = self._create_workflow_file("tests/shared/core", "test_*.mojo")
 
         # Check coverage
         groups = parse_ci_matrix(workflow_file)
@@ -100,17 +95,13 @@ class TestSplitFileNaming(unittest.TestCase):
     def test_split_files_in_uncovered_directory(self):
         """Test that split files in an uncovered directory are flagged as uncovered."""
         # Create split files in tests/shared/core
-        (self.tests_dir / "test_arg_parser_part1.mojo").write_text(
-            "fn test_arg_parser_basic() raises:\n    pass\n"
-        )
+        (self.tests_dir / "test_arg_parser_part1.mojo").write_text("fn test_arg_parser_basic() raises:\n    pass\n")
         (self.tests_dir / "test_arg_parser_part2.mojo").write_text(
             "fn test_arg_parser_edge_cases() raises:\n    pass\n"
         )
 
         # Create workflow that covers a DIFFERENT directory
-        workflow_file = self._create_workflow_file(
-            "tests/shared/utils", "test_*.mojo"
-        )
+        workflow_file = self._create_workflow_file("tests/shared/utils", "test_*.mojo")
 
         # Check coverage
         groups = parse_ci_matrix(workflow_file)
@@ -132,14 +123,10 @@ class TestSplitFileNaming(unittest.TestCase):
     def test_single_canonical_file_covered(self):
         """Test baseline: single canonical test file is recognized as covered."""
         # Create a single canonical test file
-        (self.tests_dir / "test_arg_parser.mojo").write_text(
-            "fn test_arg_parser_basic() raises:\n    pass\n"
-        )
+        (self.tests_dir / "test_arg_parser.mojo").write_text("fn test_arg_parser_basic() raises:\n    pass\n")
 
         # Create workflow covering this directory
-        workflow_file = self._create_workflow_file(
-            "tests/shared/core", "test_*.mojo"
-        )
+        workflow_file = self._create_workflow_file("tests/shared/core", "test_*.mojo")
 
         # Check coverage
         groups = parse_ci_matrix(workflow_file)
@@ -156,17 +143,11 @@ class TestSplitFileNaming(unittest.TestCase):
     def test_suffix_variant_naming(self):
         """Test that suffix naming variants (e.g., _cmd_run, _parser) are covered."""
         # Create test files with suffix variants
-        (self.tests_dir / "test_arg_parser_cmd_run.mojo").write_text(
-            "fn test_arg_parser_cmd_run() raises:\n    pass\n"
-        )
-        (self.tests_dir / "test_arg_parser_parser.mojo").write_text(
-            "fn test_arg_parser_parser() raises:\n    pass\n"
-        )
+        (self.tests_dir / "test_arg_parser_cmd_run.mojo").write_text("fn test_arg_parser_cmd_run() raises:\n    pass\n")
+        (self.tests_dir / "test_arg_parser_parser.mojo").write_text("fn test_arg_parser_parser() raises:\n    pass\n")
 
         # Create workflow covering this directory
-        workflow_file = self._create_workflow_file(
-            "tests/shared/core", "test_*.mojo"
-        )
+        workflow_file = self._create_workflow_file("tests/shared/core", "test_*.mojo")
 
         # Check coverage
         groups = parse_ci_matrix(workflow_file)
@@ -188,23 +169,13 @@ class TestSplitFileNaming(unittest.TestCase):
     def test_mixed_split_and_canonical_files(self):
         """Test that mixed split and canonical files are all recognized correctly."""
         # Create a mix of canonical, split, and suffix variant files
-        (self.tests_dir / "test_utils.mojo").write_text(
-            "fn test_utils_basic() raises:\n    pass\n"
-        )
-        (self.tests_dir / "test_parser_part1.mojo").write_text(
-            "fn test_parser_basic() raises:\n    pass\n"
-        )
-        (self.tests_dir / "test_parser_part2.mojo").write_text(
-            "fn test_parser_edge_cases() raises:\n    pass\n"
-        )
-        (self.tests_dir / "test_formatter_cmd_run.mojo").write_text(
-            "fn test_formatter_cmd_run() raises:\n    pass\n"
-        )
+        (self.tests_dir / "test_utils.mojo").write_text("fn test_utils_basic() raises:\n    pass\n")
+        (self.tests_dir / "test_parser_part1.mojo").write_text("fn test_parser_basic() raises:\n    pass\n")
+        (self.tests_dir / "test_parser_part2.mojo").write_text("fn test_parser_edge_cases() raises:\n    pass\n")
+        (self.tests_dir / "test_formatter_cmd_run.mojo").write_text("fn test_formatter_cmd_run() raises:\n    pass\n")
 
         # Create workflow covering this directory
-        workflow_file = self._create_workflow_file(
-            "tests/shared/core", "test_*.mojo"
-        )
+        workflow_file = self._create_workflow_file("tests/shared/core", "test_*.mojo")
 
         # Check coverage
         groups = parse_ci_matrix(workflow_file)
