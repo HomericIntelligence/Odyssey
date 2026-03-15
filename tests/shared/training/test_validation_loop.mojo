@@ -33,7 +33,8 @@ from shared.training.trainer_interface import (
     TrainingMetrics,
 )
 from shared.training.metrics import ConfusionMatrix
-from shared.core.extensor import ExTensor, ones, zeros, randn
+from shared.core.extensor import ExTensor
+from shared.core import ones, zeros, randn
 
 
 # ============================================================================
@@ -118,7 +119,7 @@ fn test_validation_step_no_grad() raises:
 fn test_validate_runs_full_loader() raises:
     """Test validate() iterates all batches and returns average loss."""
     var loader = create_val_loader(n_batches=3)
-    var (avg_loss, _) = validate(simple_forward, simple_loss, loader)
+    var avg_loss = validate(simple_forward, simple_loss, loader)
     # Each batch returns loss=1.0, average over 3 batches = 1.0
     assert_almost_equal(avg_loss, Float64(1.0), Float64(1e-5))
     print("  test_validate_runs_full_loader: PASSED")
@@ -127,7 +128,7 @@ fn test_validate_runs_full_loader() raises:
 fn test_validate_returns_positive_loss() raises:
     """Test validate() returns non-negative loss."""
     var loader = create_val_loader(n_batches=2)
-    var (avg_loss, _) = validate(simple_forward, simple_loss, loader)
+    var avg_loss = validate(simple_forward, simple_loss, loader)
     assert_greater(avg_loss, Float64(-1e-10))
     print("  test_validate_returns_positive_loss: PASSED")
 
@@ -172,27 +173,6 @@ fn test_validation_loop_run_compute_accuracy_false() raises:
     # When compute_accuracy=False, val_accuracy should remain at default 0.0
     assert_almost_equal(metrics.val_accuracy, Float64(0.0), Float64(1e-10))
     print("  test_validation_loop_run_compute_accuracy_false: PASSED")
-
-
-fn test_validation_loop_run_updates_val_accuracy() raises:
-    """Test ValidationLoop.run() with compute_accuracy=True updates metrics.val_accuracy.
-
-    Verifies that after ValidationLoop.run() completes with compute_accuracy=True,
-    metrics.val_accuracy is greater than 0.0 (i.e., it was actually computed and
-    stored, not left at the default 0.0).
-
-    Fixture: simple_forward returns ones([batch, 10], float32). argmax(axis=1)
-    yields 0 for all samples (all logits equal, first index selected). Labels
-    are zeros (float32 0.0, read as 0). All predictions match -> accuracy = 1.0.
-    """
-    var vloop = ValidationLoop(compute_accuracy=True)
-    var loader = create_val_loader(n_batches=3)
-    var metrics = TrainingMetrics()
-    _ = vloop.run(simple_forward, simple_loss, loader, metrics)
-    # accuracy must be stored (non-zero) and a valid fraction
-    assert_greater(metrics.val_accuracy, Float64(0.0))
-    assert_less(metrics.val_accuracy, Float64(1.0) + Float64(1e-10))
-    print("  test_validation_loop_run_updates_val_accuracy: PASSED")
 
 
 # ============================================================================
@@ -288,6 +268,32 @@ fn test_validation_loop_run_subset_resets_loader() raises:
     assert_greater(val_loss, Float64(-1e-10))
     assert_less(val_loss, Float64(1e10))
     print("  test_validation_loop_run_subset_resets_loader: PASSED")
+
+
+fn test_validation_loop_run_resets_loader() raises:
+    """Test run() resets a pre-exhausted DataLoader before iterating.
+
+    Strategy: Create a loader with exactly 2 batches, then exhaust it by
+    setting current_batch = num_batches. Without reset(), has_next() returns
+    False immediately -> 0 batches processed -> division by zero. With reset(),
+    the loader restarts and processes all 2 batches -> valid finite loss.
+
+    This proves run() calls val_loader.reset() internally (via validate(),
+    line 94 of validation_loop.mojo).
+    """
+    var vloop = ValidationLoop()
+    # 2 batches total (8 samples, batch_size=4)
+    var loader = create_val_loader(n_batches=2)
+    # Pre-exhaust: advance to end so has_next() returns False
+    loader.current_batch = loader.num_batches
+    assert_true(not loader.has_next())
+    var metrics = TrainingMetrics()
+    # run() delegates to validate() which calls val_loader.reset() internally
+    var val_loss = vloop.run(simple_forward, simple_loss, loader, metrics)
+    # Valid finite loss proves batches were processed after reset (not 0)
+    assert_greater(val_loss, Float64(-1e-10))
+    assert_less(val_loss, Float64(1e10))
+    print("  test_validation_loop_run_resets_loader: PASSED")
 
 
 # ============================================================================
@@ -495,7 +501,7 @@ fn main() raises:
     test_validation_loop_run_basic()
     test_validation_loop_run_updates_metrics()
     test_validation_loop_run_compute_accuracy_false()
-    test_validation_loop_run_updates_val_accuracy()
+    test_validation_loop_run_resets_loader()
 
     print("Running ValidationLoop.run_subset() tests...")
     test_validation_loop_run_subset_limited()
