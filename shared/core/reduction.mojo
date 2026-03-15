@@ -5,6 +5,7 @@ Implements operations that reduce tensors along specified axes
 
 from collections import List
 from shared.core.extensor import ExTensor
+from shared.core.shape import as_contiguous
 from shared.core.reduction_utils import (
     compute_strides,
     linear_to_coords,
@@ -54,17 +55,19 @@ fn _dispatch_reduce_all[
     Op: ReduceOp
 ](result: ExTensor, tensor: ExTensor, numel: Int) raises:
     """Generic runtime dispatch for reduction over all elements."""
-    var dt = tensor.dtype()
+    # Ensure input is contiguous before flat-buffer kernel access.
+    var t = tensor if tensor.is_contiguous() else as_contiguous(tensor)
+    var dt = t.dtype()
     if dt == DType.float16:
-        _reduce_all_impl[DType.float16, Op](result, tensor, numel)
+        _reduce_all_impl[DType.float16, Op](result, t, numel)
     elif dt == DType.float32:
-        _reduce_all_impl[DType.float32, Op](result, tensor, numel)
+        _reduce_all_impl[DType.float32, Op](result, t, numel)
     elif dt == DType.float64:
-        _reduce_all_impl[DType.float64, Op](result, tensor, numel)
+        _reduce_all_impl[DType.float64, Op](result, t, numel)
     elif dt == DType.int32:
-        _reduce_all_impl[DType.int32, Op](result, tensor, numel)
+        _reduce_all_impl[DType.int32, Op](result, t, numel)
     elif dt == DType.int64:
-        _reduce_all_impl[DType.int64, Op](result, tensor, numel)
+        _reduce_all_impl[DType.int64, Op](result, t, numel)
     else:
         raise Error("reduce_all: unsupported dtype")
 
@@ -109,26 +112,28 @@ fn _dispatch_reduce_axis[
     inner_size: Int,
 ) raises:
     """Generic runtime dispatch for reduction along axis."""
-    var dt = tensor.dtype()
+    # Ensure input is contiguous before flat-buffer kernel access.
+    var t = tensor if tensor.is_contiguous() else as_contiguous(tensor)
+    var dt = t.dtype()
     if dt == DType.float16:
         _reduce_axis_impl[DType.float16, Op](
-            result, tensor, outer_size, axis_size, inner_size
+            result, t, outer_size, axis_size, inner_size
         )
     elif dt == DType.float32:
         _reduce_axis_impl[DType.float32, Op](
-            result, tensor, outer_size, axis_size, inner_size
+            result, t, outer_size, axis_size, inner_size
         )
     elif dt == DType.float64:
         _reduce_axis_impl[DType.float64, Op](
-            result, tensor, outer_size, axis_size, inner_size
+            result, t, outer_size, axis_size, inner_size
         )
     elif dt == DType.int32:
         _reduce_axis_impl[DType.int32, Op](
-            result, tensor, outer_size, axis_size, inner_size
+            result, t, outer_size, axis_size, inner_size
         )
     elif dt == DType.int64:
         _reduce_axis_impl[DType.int64, Op](
-            result, tensor, outer_size, axis_size, inner_size
+            result, t, outer_size, axis_size, inner_size
         )
     else:
         raise Error("reduce_axis: unsupported dtype")

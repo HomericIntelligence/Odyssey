@@ -7,6 +7,7 @@ from collections import List
 from math import nan
 from shared.core.extensor import ExTensor, full
 from shared.core.broadcasting import broadcast_shapes, compute_broadcast_strides
+from shared.core.shape import as_contiguous
 from shared.core.gradient_types import GradientPair
 from shared.core.dtype_ordinal import (
     dtype_to_ordinal,
@@ -56,13 +57,19 @@ fn _broadcast_binary[
     Returns:
         Result tensor with operation applied element-wise with broadcasting.
     """
+    # Ensure inputs are contiguous before flat-buffer kernel access.
+    # Non-contiguous views (e.g. from transpose) have non-unit strides that
+    # are not reflected in flat index arithmetic, causing silent wrong results.
+    var a_cont = a if a.is_contiguous() else as_contiguous(a)
+    var b_cont = b if b.is_contiguous() else as_contiguous(b)
+
     # Compute broadcast shape
-    var result_shape = broadcast_shapes(a.shape(), b.shape())
+    var result_shape = broadcast_shapes(a_cont.shape(), b_cont.shape())
     var result = ExTensor(result_shape, dtype)
 
     # Compute broadcast strides
-    var strides_a = compute_broadcast_strides(a.shape(), result_shape)
-    var strides_b = compute_broadcast_strides(b.shape(), result_shape)
+    var strides_a = compute_broadcast_strides(a_cont.shape(), result_shape)
+    var strides_b = compute_broadcast_strides(b_cont.shape(), result_shape)
 
     # Calculate total elements in result
     var total_elems = 1
@@ -82,8 +89,8 @@ fn _broadcast_binary[
         result_strides_final.append(result_strides[i])
 
     # Get typed pointers for zero-overhead access
-    var a_ptr = a._data.bitcast[Scalar[dtype]]()
-    var b_ptr = b._data.bitcast[Scalar[dtype]]()
+    var a_ptr = a_cont._data.bitcast[Scalar[dtype]]()
+    var b_ptr = b_cont._data.bitcast[Scalar[dtype]]()
     var result_ptr = result._data.bitcast[Scalar[dtype]]()
 
     # Iterate over all result elements
@@ -338,77 +345,80 @@ fn multiply_scalar(tensor: ExTensor, scalar: Float32) raises -> ExTensor:
         var negated = multiply_scalar(b, -1.0)  # Shape (2, 3), all -3.0
         ```
     """
-    var result = ExTensor(tensor.shape(), tensor.dtype())
+    # Ensure input is contiguous before flat-buffer kernel access.
+    var t = tensor if tensor.is_contiguous() else as_contiguous(tensor)
+
+    var result = ExTensor(t.shape(), t.dtype())
     var numel = 1
-    for dim in tensor.shape():
+    for dim in t.shape():
         numel *= dim
 
     # Get ordinal for dispatch (compiler can optimize to efficient lookup)
-    var ordinal = dtype_to_ordinal(tensor.dtype())
+    var ordinal = dtype_to_ordinal(t.dtype())
 
     # Dispatch based on ordinal - compiler generates jump table for consecutive integers
     if ordinal == DTYPE_FLOAT16:
-        var input_ptr = tensor._data.bitcast[Scalar[DType.float16]]()
+        var input_ptr = t._data.bitcast[Scalar[DType.float16]]()
         var result_ptr = result._data.bitcast[Scalar[DType.float16]]()
         var scalar_cast = Scalar[DType.float16](scalar)
         for i in range(numel):
             result_ptr[i] = input_ptr[i] * scalar_cast
     elif ordinal == DTYPE_FLOAT32:
-        var input_ptr = tensor._data.bitcast[Scalar[DType.float32]]()
+        var input_ptr = t._data.bitcast[Scalar[DType.float32]]()
         var result_ptr = result._data.bitcast[Scalar[DType.float32]]()
         var scalar_cast = Scalar[DType.float32](scalar)
         for i in range(numel):
             result_ptr[i] = input_ptr[i] * scalar_cast
     elif ordinal == DTYPE_FLOAT64:
-        var input_ptr = tensor._data.bitcast[Scalar[DType.float64]]()
+        var input_ptr = t._data.bitcast[Scalar[DType.float64]]()
         var result_ptr = result._data.bitcast[Scalar[DType.float64]]()
         var scalar_cast = Scalar[DType.float64](scalar)
         for i in range(numel):
             result_ptr[i] = input_ptr[i] * scalar_cast
     elif ordinal == DTYPE_INT8:
-        var input_ptr = tensor._data.bitcast[Scalar[DType.int8]]()
+        var input_ptr = t._data.bitcast[Scalar[DType.int8]]()
         var result_ptr = result._data.bitcast[Scalar[DType.int8]]()
         var scalar_cast = Scalar[DType.int8](scalar)
         for i in range(numel):
             result_ptr[i] = input_ptr[i] * scalar_cast
     elif ordinal == DTYPE_INT16:
-        var input_ptr = tensor._data.bitcast[Scalar[DType.int16]]()
+        var input_ptr = t._data.bitcast[Scalar[DType.int16]]()
         var result_ptr = result._data.bitcast[Scalar[DType.int16]]()
         var scalar_cast = Scalar[DType.int16](scalar)
         for i in range(numel):
             result_ptr[i] = input_ptr[i] * scalar_cast
     elif ordinal == DTYPE_INT32:
-        var input_ptr = tensor._data.bitcast[Scalar[DType.int32]]()
+        var input_ptr = t._data.bitcast[Scalar[DType.int32]]()
         var result_ptr = result._data.bitcast[Scalar[DType.int32]]()
         var scalar_cast = Scalar[DType.int32](scalar)
         for i in range(numel):
             result_ptr[i] = input_ptr[i] * scalar_cast
     elif ordinal == DTYPE_INT64:
-        var input_ptr = tensor._data.bitcast[Scalar[DType.int64]]()
+        var input_ptr = t._data.bitcast[Scalar[DType.int64]]()
         var result_ptr = result._data.bitcast[Scalar[DType.int64]]()
         var scalar_cast = Scalar[DType.int64](scalar)
         for i in range(numel):
             result_ptr[i] = input_ptr[i] * scalar_cast
     elif ordinal == DTYPE_UINT8:
-        var input_ptr = tensor._data.bitcast[Scalar[DType.uint8]]()
+        var input_ptr = t._data.bitcast[Scalar[DType.uint8]]()
         var result_ptr = result._data.bitcast[Scalar[DType.uint8]]()
         var scalar_cast = Scalar[DType.uint8](scalar)
         for i in range(numel):
             result_ptr[i] = input_ptr[i] * scalar_cast
     elif ordinal == DTYPE_UINT16:
-        var input_ptr = tensor._data.bitcast[Scalar[DType.uint16]]()
+        var input_ptr = t._data.bitcast[Scalar[DType.uint16]]()
         var result_ptr = result._data.bitcast[Scalar[DType.uint16]]()
         var scalar_cast = Scalar[DType.uint16](scalar)
         for i in range(numel):
             result_ptr[i] = input_ptr[i] * scalar_cast
     elif ordinal == DTYPE_UINT32:
-        var input_ptr = tensor._data.bitcast[Scalar[DType.uint32]]()
+        var input_ptr = t._data.bitcast[Scalar[DType.uint32]]()
         var result_ptr = result._data.bitcast[Scalar[DType.uint32]]()
         var scalar_cast = Scalar[DType.uint32](scalar)
         for i in range(numel):
             result_ptr[i] = input_ptr[i] * scalar_cast
     elif ordinal == DTYPE_UINT64:
-        var input_ptr = tensor._data.bitcast[Scalar[DType.uint64]]()
+        var input_ptr = t._data.bitcast[Scalar[DType.uint64]]()
         var result_ptr = result._data.bitcast[Scalar[DType.uint64]]()
         var scalar_cast = Scalar[DType.uint64](scalar)
         for i in range(numel):
