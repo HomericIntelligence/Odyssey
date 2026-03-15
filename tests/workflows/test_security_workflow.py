@@ -14,9 +14,9 @@ from pathlib import Path
 import pytest
 
 WORKFLOW = Path(__file__).parents[2] / ".github" / "workflows" / "security.yml"
-GITLEAKS_VERSION = "v8.18.0"
-GITLEAKS_TARBALL = "gitleaks_8.18.0_linux_x64.tar.gz"
-EXPECTED_SHA256 = "6e19050a3ee0688265ed3be4c46a0362487d20456ecd547e8c7328eaed3980cb"
+GITLEAKS_VERSION = "v8.30.0"
+GITLEAKS_TARBALL = "gitleaks_8.30.0_linux_x64.tar.gz"
+EXPECTED_SHA256 = "79a3ab579b53f71efd634f3aaf7e04a0fa0cf206b7ed434638d1547a2470a66e"
 
 
 @pytest.fixture(scope="module")
@@ -51,7 +51,7 @@ def test_sha256_value_is_real_hex_digest(workflow_content: str) -> None:
 
 
 def test_sha256_value_matches_expected(workflow_content: str) -> None:
-    """The hardcoded SHA256 must match the official checksum for gitleaks_8.18.0_linux_x64.tar.gz."""
+    """The hardcoded SHA256 must match the official checksum for gitleaks_8.30.0_linux_x64.tar.gz."""
     match = re.search(r"([0-9a-f]{64})\s+" + re.escape(GITLEAKS_TARBALL), workflow_content)
     assert match is not None, f"SHA256 line for {GITLEAKS_TARBALL} not found"
     actual = match.group(1)

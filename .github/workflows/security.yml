@@ -43,11 +43,11 @@ jobs:
 
       - name: Run Gitleaks
         run: |
-          # Pinned to v8.18.0 — update hash when upgrading version (see #3316)
-          wget -q https://github.com/gitleaks/gitleaks/releases/download/v8.18.0/gitleaks_8.18.0_linux_x64.tar.gz
-          # Verify integrity before execution — SHA256 from https://github.com/gitleaks/gitleaks/releases/download/v8.18.0/gitleaks_8.18.0_checksums.txt
-          echo "6e19050a3ee0688265ed3be4c46a0362487d20456ecd547e8c7328eaed3980cb  gitleaks_8.18.0_linux_x64.tar.gz" | sha256sum --check
-          tar -xzf gitleaks_8.18.0_linux_x64.tar.gz
+          # Pinned to v8.30.0 — update hash when upgrading version (see #3316)
+          wget -q https://github.com/gitleaks/gitleaks/releases/download/v8.30.0/gitleaks_8.30.0_linux_x64.tar.gz
+          # Verify integrity before execution — SHA256 from https://github.com/gitleaks/gitleaks/releases/download/v8.30.0/gitleaks_8.30.0_checksums.txt
+          echo "79a3ab579b53f71efd634f3aaf7e04a0fa0cf206b7ed434638d1547a2470a66e  gitleaks_8.30.0_linux_x64.tar.gz" | sha256sum --check
+          tar -xzf gitleaks_8.30.0_linux_x64.tar.gz
           chmod +x gitleaks
 
           if [ -f .gitleaks.toml ]; then
