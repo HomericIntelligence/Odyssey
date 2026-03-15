@@ -94,42 +94,67 @@ def main():
     )
     parser.add_argument("--verbose", "-v", action="store_true", help="Print all files checked")
     parser.add_argument(
-        "test_dir",
+        "files",
         type=Path,
-        nargs="?",
-        default=Path("tests"),
-        help="Test directory to check (default: tests/)",
+        nargs="*",
+        help="Test files to check (if not provided, scans tests/ directory)",
     )
     args = parser.parse_args()
 
-    if not args.test_dir.exists():
-        print(f"Error: Test directory not found: {args.test_dir}", file=sys.stderr)
-        sys.exit(1)
+    # Determine which files to check
+    if args.files:
+        # Files passed as arguments (from pre-commit hook)
+        test_files = [f for f in args.files if f.exists() and f.suffix == ".mojo"]
+    else:
+        # Scan tests directory
+        test_dir = Path("tests")
+        if not test_dir.exists():
+            print(f"Error: Test directory not found: {test_dir}", file=sys.stderr)
+            sys.exit(1)
+        test_files = list(test_dir.rglob("test_*.mojo"))
 
-    passed, violations = validate_test_files(args.test_dir, args.threshold, args.verbose)
+    if not test_files:
+        print("No test files to validate", file=sys.stderr)
+        sys.exit(0)
 
-    if not passed:
-        print(
-            f"\nError: {len(violations)} file(s) exceed the {args.threshold}-test limit",
-            file=sys.stderr,
-        )
-        print("\nViolations:", file=sys.stderr)
-        for filepath, count in violations:
-            print(f"  {filepath}: {count} tests (max: {args.threshold})", file=sys.stderr)
-        print(
-            "\nNote: The Mojo 0.26.1 runtime has a heap corruption bug that crashes",
-            file=sys.stderr,
-        )
-        print(
-            "after running ~15 cumulative tests. Keep files under 10 tests each.",
-            file=sys.stderr,
-        )
-        print("\nSee: Issue #2942, ADR-009", file=sys.stderr)
-        sys.exit(1)
+    # Check each file
+    violations = []
+    for filepath in sorted(test_files):
+        # Skip deprecated files
+        if ".DEPRECATED" in filepath.name:
+            continue
 
-    if args.verbose:
-        print(f"\n✅ All test files pass (under {args.threshold} tests each)")
-    sys.exit(0)
+        count = count_tests_in_file(filepath)
+        if args.verbose:
+            status = "FAIL" if count > args.threshold else "OK"
+            print(f"  [{status}] {filepath}: {count} tests")
+
+        if count > args.threshold:
+            violations.append((filepath, count))
+
+    if not violations:
+        if args.verbose:
+            print(f"\n✅ All {len(test_files)} test file(s) pass (under {args.threshold} tests each)")
+        sys.exit(0)
+
+    # Report violations
+    print(
+        f"Error: {len(violations)} file(s) exceed the {args.threshold}-test limit",
+        file=sys.stderr,
+    )
+    print("\nViolations:", file=sys.stderr)
+    for filepath, count in violations:
+        print(f"  {filepath}: {count} tests (max: {args.threshold})", file=sys.stderr)
+    print(
+        "\nNote: The Mojo 0.26.1 runtime has a heap corruption bug that crashes",
+        file=sys.stderr,
+    )
+    print(
+        "after running ~15 cumulative tests. Keep files under 10 tests each.",
+        file=sys.stderr,
+    )
+    print("\nSee: Issue #2942, ADR-009", file=sys.stderr)
+    sys.exit(1)
 
 
 if __name__ == "__main__":
