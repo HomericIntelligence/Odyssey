@@ -1,0 +1,133 @@
+name: Weekly Model E2E Tests
+
+# Runs full end-to-end model tests against real datasets weekly.
+# All pixi run mojo calls are protected with the 3-attempt exponential-backoff
+# retry pattern (issue #3329, ADR-009) to guard against the Mojo v0.26.1 JIT
+# crash (libKGENCompilerRTShared.so).
+#
+# Closes #3955 -- audit follow-up from #3329.
+
+on:
+  # Saturdays at 3 AM UTC (avoids collision with SIMD benchmarks on Sundays 2 AM)
+  schedule:
+    - cron: '0 3 * * 6'
+
+  # Allow manual execution
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  model-e2e-tests:
+    name: Model E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    # Only run on main branch for scheduled runs
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v4
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Run model E2E tests
+        run: |
+          echo "Running weekly model E2E tests..."
+          echo "Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+          echo ""
+
+          mkdir -p test-results
+
+          # Collect model test directories
+          MODEL_DIRS=$(find tests/models -maxdepth 1 -mindepth 1 -type d 2>/dev/null | sort || true)
+
+          if [ -z "$MODEL_DIRS" ]; then
+            echo "No model test directories found under tests/models/ -- skipping"
+            exit 0
+          fi
+
+          overall_status=0
+
+          for model_dir in $MODEL_DIRS; do
+            model_name=$(basename "$model_dir")
+            echo ""
+            echo "========================================"
+            echo "Testing model: $model_name"
+            echo "========================================"
+
+            # Run Mojo tests if they exist -- protected with retry loop (issue #3329, ADR-009)
+            mojo_tests=$(find "$model_dir" -name 'test_*.mojo' 2>/dev/null | head -1)
+            if [ -n "$mojo_tests" ]; then
+              attempt=0
+              delay=1
+              while [ $attempt -lt 3 ]; do
+                attempt=$((attempt + 1))
+                if pixi run mojo test -I . "$model_dir" --verbose \
+                    2>&1 | tee "test-results/${model_name}-mojo.txt"; then
+                  echo "Mojo E2E tests passed for $model_name"
+                  break
+                fi
+                if [ $attempt -lt 3 ]; then
+                  echo "Attempt $attempt failed, retrying in ${delay}s (JIT crash -- ADR-009, issue #3329)"
+                  sleep $delay
+                  delay=$((delay * 2))
+                else
+                  echo "Mojo E2E tests failed for $model_name after 3 attempts"
+                  overall_status=1
+                fi
+              done
+            else
+              echo "No Mojo test files found in $model_dir -- skipping Mojo tests"
+            fi
+
+            # Run Python tests if they exist (no retry needed -- not affected by JIT crash)
+            py_tests=$(find "$model_dir" -name 'test_*.py' 2>/dev/null | head -1)
+            if [ -n "$py_tests" ]; then
+              if pixi run pytest "$model_dir" --verbose \
+                  2>&1 | tee "test-results/${model_name}-python.txt"; then
+                echo "Python E2E tests passed for $model_name"
+              else
+                echo "Python E2E tests failed for $model_name"
+                overall_status=1
+              fi
+            fi
+          done
+
+          if [ $overall_status -eq 0 ]; then
+            echo ""
+            echo "All model E2E tests completed successfully"
+          else
+            echo ""
+            echo "One or more model E2E tests failed"
+            exit 1
+          fi
+
+      - name: Generate test summary
+        if: always()
+        run: |
+          echo "Generating test summary..."
+          mkdir -p test-results
+          {
+            echo "# Weekly Model E2E Test Results"
+            echo ""
+            echo "Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+            echo ""
+            echo "## Retry Policy"
+            echo ""
+            echo "All pixi run mojo calls use 3-attempt exponential-backoff retry"
+            echo "(1s -> 2s -> 4s) to handle the Mojo v0.26.1 JIT crash"
+            echo "(libKGENCompilerRTShared.so). See ADR-009 and issue #3329."
+          } > test-results/summary.md
+          cat test-results/summary.md
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v4
+        with:
+          name: model-e2e-test-results-${{ github.run_number }}
+          path: test-results/
+          retention-days: 365
