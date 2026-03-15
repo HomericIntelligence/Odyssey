@@ -380,7 +380,8 @@ fn test_layer_norm_backward_gradient_input_4d() raises:
 
 
 fn test_batch_norm2d_backward_gamma_beta_nonzero() raises:
-    """Test batch_norm2d_backward produces non-zero gamma/beta gradients. Closes #3664."""
+    """Test batch_norm2d_backward produces non-zero gamma/beta gradients. Closes #3664.
+    """
     # NCHW: batch=2, channels=2, height=2, width=2
     var shape = List[Int]()
     shape.append(2)

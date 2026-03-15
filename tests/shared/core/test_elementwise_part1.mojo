@@ -231,7 +231,8 @@ fn test_logical_xor_basic() raises:
 
 
 fn test_logical_xor_same_inputs() raises:
-    """Test logical_xor with identical inputs returns all zeros. Closes #4145."""
+    """Test logical_xor with identical inputs returns all zeros. Closes #4145.
+    """
     var shape = List[Int]()
     shape.append(3)
     var a = ones(shape, DType.float32)

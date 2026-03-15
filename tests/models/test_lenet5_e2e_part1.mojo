@@ -58,7 +58,8 @@ import os
 
 
 struct LeNet5:
-    """Minimal LeNet-5 for testing. Uses same architecture as examples/lenet-emnist/model.mojo."""
+    """Minimal LeNet-5 for testing. Uses same architecture as examples/lenet-emnist/model.mojo.
+    """
 
     var num_classes: Int
     var conv1_kernel: ExTensor
@@ -276,7 +277,9 @@ fn test_forward_deterministic() raises:
     for i in range(output1.numel()):
         var val1 = output1._get_float64(i)
         var val2 = output2._get_float64(i)
-        assert_close_float(val1, val2, 0.0, 0.0, "Forward pass non-deterministic")
+        assert_close_float(
+            val1, val2, 0.0, 0.0, "Forward pass non-deterministic"
+        )
 
 
 # ============================================================================

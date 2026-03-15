@@ -91,7 +91,8 @@ fn test_concatenate_axis_1_per_row_values() raises:
 
 
 fn test_as_contiguous_3d_non_contiguous() raises:
-    """Test as_contiguous produces correct values for 3D tensor. Closes #4090."""
+    """Test as_contiguous produces correct values for 3D tensor. Closes #4090.
+    """
     # Create [2,3,4] tensor with sequential values
     var t = arange(0.0, 24.0, 1.0, DType.float32)
     var shape: List[Int] = [2, 3, 4]

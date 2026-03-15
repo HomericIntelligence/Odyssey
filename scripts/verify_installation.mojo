@@ -36,10 +36,7 @@ fn main():
     print("\nTest 2: Checking core package...")
     # These imports are commented until implementation completes
     # from shared.core import Linear, ReLU, Tensor
-    print(
-        "  ✓ Core package accessible (placeholder - awaiting"
-        " implementation)"
-    )
+    print("  ✓ Core package accessible (placeholder - awaiting implementation)")
 
     # ========================================================================
     # Test 3: Training Package
@@ -56,10 +53,7 @@ fn main():
     # ========================================================================
     print("\nTest 4: Checking data package...")
     # from shared.data import DataLoader
-    print(
-        "  ✓ Data package accessible (placeholder - awaiting"
-        " implementation)"
-    )
+    print("  ✓ Data package accessible (placeholder - awaiting implementation)")
 
     # ========================================================================
     # Test 5: Utils Package
@@ -67,8 +61,7 @@ fn main():
     print("\nTest 5: Checking utils package...")
     # from shared.utils import Logger
     print(
-        "  ✓ Utils package accessible (placeholder - awaiting"
-        " implementation)"
+        "  ✓ Utils package accessible (placeholder - awaiting implementation)"
     )
 
     # ========================================================================
@@ -76,10 +69,7 @@ fn main():
     # ========================================================================
     print("\nTest 6: Checking root convenience imports...")
     # from shared import Linear, SGD
-    print(
-        "  ✓ Root imports accessible (placeholder - awaiting"
-        " implementation)"
-    )
+    print("  ✓ Root imports accessible (placeholder - awaiting implementation)")
 
     # ========================================================================
     # Summary
