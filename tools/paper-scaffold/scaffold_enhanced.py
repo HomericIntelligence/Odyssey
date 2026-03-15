@@ -17,7 +17,7 @@ import argparse
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from validate import validate_paper_structure, ValidationReport, ValidationStatus
 
@@ -32,7 +32,7 @@ class CreationResult:
     skipped_dirs: List[Path] = field(default_factory=list)
     skipped_files: List[Path] = field(default_factory=list)
     errors: List[Tuple[Path, str]] = field(default_factory=list)
-    validation_report: ValidationReport | None = None
+    validation_report: Optional[ValidationReport] = None
 
     def summary(self) -> str:
         """Generate human-readable summary."""
@@ -186,7 +186,7 @@ class DirectoryGenerator:
         self,
         paper_name: str,
         paper_metadata: Dict[str, str],
-        templates_dir: Path | None = None,
+        templates_dir: Optional[Path] = None,
         validate: bool = True,
         dry_run: bool = False,
     ) -> CreationResult:
@@ -286,7 +286,7 @@ class DirectoryGenerator:
         paper_path: Path,
         paper_name: str,
         metadata: Dict[str, str],
-        templates_dir: Path | None,
+        templates_dir: Optional[Path],
         result: CreationResult,
         dry_run: bool,
     ) -> None:
