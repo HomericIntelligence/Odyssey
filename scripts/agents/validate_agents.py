@@ -246,9 +246,7 @@ def validate_delegation_patterns(content: str, frontmatter: Dict[str, Any], resu
             if delegated_agent:  # Skip empty strings
                 delegated_file = agents_dir / f"{delegated_agent}.md"
                 if not delegated_file.exists():
-                    result.add_error(
-                        f"delegates_to references non-existent agent: {delegated_agent}.md"
-                    )
+                    result.add_error(f"delegates_to references non-existent agent: {delegated_agent}.md")
 
     # Junior engineers should have "No Delegation"
     if "junior" in agent_name.lower():
