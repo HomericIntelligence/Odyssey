@@ -5,18 +5,9 @@ and helper methods like numel, dim, size, stride, is_contiguous.
 """
 
 # Import ExTensor and operations
-from shared.core import (
-    ExTensor,
-    zeros,
-    ones,
-    full,
-    arange,
-    clone,
-    item,
-    diff,
-    as_contiguous,
-    transpose_view,
-)
+from shared.core.extensor import ExTensor, zeros, ones, full, arange, clone, item, diff
+from shared.core.shape import as_contiguous
+from shared.core.matrix import transpose_view
 
 # Import test helpers
 from tests.shared.conftest import (

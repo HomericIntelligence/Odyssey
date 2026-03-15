@@ -10,15 +10,13 @@ This module tests the gradient clipping and loss validation functions:
 Split from test_base.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
-from shared.core import (
+from shared.core.extensor import (
     ExTensor,
-    DType,
     zeros,
     ones,
     full,
-    has_nan,
-    has_inf,
 )
+from shared.core.numerical_safety import has_nan, has_inf
 from shared.training.base import (
     has_nan_or_inf,
     compute_gradient_norm,

@@ -8,12 +8,7 @@ Split from test_creation.mojo per ADR-009 (≤10 fn test_ per file).
 Edge cases moved to test_creation_edge_cases.mojo."""
 
 # Import ExTensor and creation operations
-from shared.core import (
-    ExTensor,
-    zeros,
-    ones,
-    full,
-)
+from shared.core.extensor import ExTensor, zeros, ones, full
 
 # Import test helpers
 from tests.shared.conftest import (

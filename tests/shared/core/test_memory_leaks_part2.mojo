@@ -8,7 +8,7 @@ Tests verify:
 2. View lifetime management
 """
 
-from shared.core import ExTensor, zeros, ones, full
+from shared.core.extensor import ExTensor, zeros, ones, full
 from tests.shared.conftest import assert_true, assert_equal_int
 
 

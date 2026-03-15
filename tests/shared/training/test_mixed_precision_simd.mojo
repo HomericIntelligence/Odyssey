@@ -4,8 +4,7 @@ Tests SIMD-optimized FP16→FP32 and FP32→FP16 conversions with various tensor
 and edge cases.
 """
 
-from shared.core import ExTensor
-from shared.core.extensor import full
+from shared.core.extensor import ExTensor, full
 from shared.training.mixed_precision import (
     convert_to_fp32_master,
     update_model_from_master,

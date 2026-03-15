@@ -19,7 +19,7 @@ bug that occurs after ~15 cumulative tests. See Issue #2942.
 """
 
 from testing import assert_true, assert_false, assert_equal, assert_almost_equal
-from shared.core import ExTensor
+from shared.core.extensor import ExTensor
 from shared.training.metrics import ConfusionMatrix
 
 

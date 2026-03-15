@@ -32,8 +32,7 @@ from tests.shared.conftest import (
 )
 from shared.training import SGD, MSELoss, TrainingLoop, TrainingCallbacks, run_epoch_with_batches
 from shared.training.trainer_interface import DataLoader
-from shared.core.extensor import ExTensor
-from shared.core import ones, zeros, randn
+from shared.core.extensor import ExTensor, ones, zeros, randn
 from shared.testing import SimpleMLP
 
 # TrainingLoop is generic with trait bounds for compile-time type safety.

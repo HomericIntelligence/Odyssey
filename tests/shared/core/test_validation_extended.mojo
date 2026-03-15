@@ -18,7 +18,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from shared.core.extensor import ExTensor, zeros, ones
-from shared.core import (
+from shared.core.validation import (
     validate_1d_input,
     validate_3d_input,
     validate_axis,

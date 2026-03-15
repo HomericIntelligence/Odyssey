@@ -9,18 +9,8 @@ Split from test_integration.mojo per ADR-009 to avoid heap corruption.
 """
 
 # Import ExTensor and operations
-from shared.core import (
-    ExTensor,
-    zeros,
-    ones,
-    full,
-    arange,
-    eye,
-    linspace,
-    add,
-    subtract,
-    multiply,
-)
+from shared.core.extensor import ExTensor, zeros, ones, full, arange, eye, linspace
+from shared.core.arithmetic import add, subtract, multiply
 
 # Import test helpers
 from tests.shared.conftest import (

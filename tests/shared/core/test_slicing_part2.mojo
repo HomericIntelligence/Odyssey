@@ -10,7 +10,7 @@ Test Categories:
 Total: 6 tests.
 """
 
-from shared.core import ExTensor, zeros, ones
+from shared.core.extensor import ExTensor, zeros, ones
 from shared.data import extract_batch, extract_batch_pair
 from tests.shared.conftest import assert_equal, assert_almost_equal
 

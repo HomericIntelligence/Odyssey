@@ -16,9 +16,8 @@ Testing strategy:
 """
 
 from testing import assert_true, assert_false, assert_equal, assert_almost_equal
-from shared.core import (
-    ExTensor,
-    # Initializers
+from shared.core.extensor import ExTensor
+from shared.core.initializers import (
     xavier_uniform,
     xavier_normal,
     kaiming_uniform,
@@ -26,15 +25,9 @@ from shared.core import (
     uniform,
     normal,
     constant,
-    # Activations
-    relu,
-    sigmoid,
-    tanh,
-    softmax,
-    # Loss functions
-    mean_squared_error,
-    binary_cross_entropy,
 )
+from shared.core.activation import relu, sigmoid, tanh, softmax
+from shared.core.loss import mean_squared_error, binary_cross_entropy
 
 # Import matmul explicitly from matrix to avoid conflict with matmul module
 from shared.core.matrix import matmul

@@ -6,14 +6,8 @@
 """
 
 # Import ExTensor and operations
-from shared.core import (
-    ExTensor,
-    zeros,
-    ones,
-    full,
-    sqrt,
-    sin,
-)
+from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.elementwise import sqrt, sin
 
 # Import test helpers
 from tests.shared.conftest import (

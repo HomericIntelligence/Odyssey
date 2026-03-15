@@ -7,7 +7,7 @@ both the case where the fix is implemented and documents current behavior.
 See Issue #4076 for context.
 """
 
-from shared.core import ExTensor, zeros, ones, arange
+from shared.core.extensor import ExTensor, zeros, ones, arange
 from tests.shared.conftest import assert_value_at
 
 

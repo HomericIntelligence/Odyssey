@@ -7,19 +7,8 @@ Split from test_shape.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
 # Import ExTensor and operations
-from shared.core import (
-    ExTensor,
-    zeros,
-    ones,
-    full,
-    arange,
-    reshape,
-    squeeze,
-    unsqueeze,
-    expand_dims,
-    flatten,
-    ravel,
-)
+from shared.core.extensor import ExTensor, zeros, ones, full, arange
+from shared.core.shape import reshape, squeeze, unsqueeze, expand_dims, flatten, ravel
 
 # Import test helpers
 from tests.shared.conftest import (

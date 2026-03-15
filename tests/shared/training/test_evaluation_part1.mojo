@@ -17,7 +17,7 @@ from tests.shared.conftest import (
     assert_equal,
     assert_almost_equal,
 )
-from shared.core import ExTensor, zeros, ones, full
+from shared.core.extensor import ExTensor, zeros, ones, full
 from shared.training.evaluation import (
     EvaluationResult,
     evaluate_model,

@@ -15,8 +15,8 @@ Bugs tested:
 """
 
 # Import ExTensor and shape operations
-from shared.core import ExTensor, ones, zeros, arange
-from shared.core import reshape, squeeze, unsqueeze, flatten, concatenate
+from shared.core.extensor import ExTensor, ones, zeros, arange
+from shared.core.shape import reshape, squeeze, unsqueeze, flatten, concatenate
 
 # Import test helpers
 from tests.shared.conftest import (

@@ -18,7 +18,7 @@ from tests.shared.conftest import (
 )
 from shared.core.extensor import ExTensor, zeros, arange
 from shared.core.reduction import max_reduce, min_reduce
-from shared.core import transpose_view
+from shared.core.matrix import transpose_view
 
 
 fn _make_nc_2x3() raises -> ExTensor:

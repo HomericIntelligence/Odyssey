@@ -12,7 +12,7 @@ Bugs tested:
 """
 
 # Import ExTensor and metrics
-from shared.core import ExTensor, ones, zeros
+from shared.core.extensor import ExTensor, ones, zeros
 from shared.training.metrics.accuracy import top1_accuracy, per_class_accuracy
 
 

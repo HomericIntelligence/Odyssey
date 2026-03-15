@@ -6,13 +6,8 @@
 """
 
 # Import ExTensor and operations
-from shared.core import (
-    zeros,
-    ones,
-    full,
-    exp,
-    log,
-)
+from shared.core.extensor import zeros, ones, full
+from shared.core.elementwise import exp, log
 
 # Import test helpers
 from tests.shared.conftest import (

@@ -26,7 +26,7 @@ from tests.shared.conftest import (
 )
 from shared.core.extensor import ExTensor, zeros, ones, full, arange
 from shared.core.conv import conv2d, conv2d_no_bias
-from shared.core import as_contiguous
+from shared.core.shape import as_contiguous
 
 
 fn _make_nc_nchw_symmetric() raises -> ExTensor:

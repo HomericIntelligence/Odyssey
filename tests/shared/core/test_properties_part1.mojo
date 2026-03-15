@@ -6,7 +6,7 @@
 """
 
 # Import ExTensor and operations
-from shared.core import ExTensor, zeros, ones, full, arange, eye
+from shared.core.extensor import ExTensor, zeros, ones, full, arange, eye
 
 # Import test helpers
 from tests.shared.conftest import (

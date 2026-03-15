@@ -11,7 +11,7 @@ Bug tested:
 """
 
 # Import ExTensor and confusion matrix
-from shared.core import ExTensor, ones, zeros
+from shared.core.extensor import ExTensor, ones, zeros
 from shared.training.metrics.confusion_matrix import ConfusionMatrix
 
 

@@ -8,12 +8,7 @@ Split from test_creation.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
 # Import ExTensor and creation operations
-from shared.core import (
-    ExTensor,
-    nan_tensor,
-    inf_tensor,
-    neg_inf_tensor,
-)
+from shared.core.extensor import ExTensor, nan_tensor, inf_tensor, neg_inf_tensor
 
 # Import test helpers
 from tests.shared.conftest import (
