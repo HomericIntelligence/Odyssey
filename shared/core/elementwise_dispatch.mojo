@@ -37,7 +37,7 @@ See notes/issues/elementwise-dispatch-design.md for complete design.
 """
 
 from collections import List
-from shared.core.extensor import ExTensor
+from .extensor import ExTensor
 from math import sqrt as math_sqrt, exp as math_exp, log as math_log
 from math import sin as math_sin, cos as math_cos, tanh as math_tanh
 

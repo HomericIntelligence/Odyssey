@@ -4,14 +4,14 @@ Implements mathematical functions like exp, log, sqrt, trigonometric functions, 
 """
 
 from collections import List
-from shared.core.extensor import ExTensor
-from shared.core.dtype_dispatch import (
+from .extensor import ExTensor
+from .dtype_dispatch import (
     dispatch_unary,
     dispatch_binary,
     dispatch_float_unary,
     dispatch_float_binary,
 )
-from shared.core.broadcasting import broadcast_shapes, compute_broadcast_strides
+from .broadcasting import broadcast_shapes, compute_broadcast_strides
 from math import sqrt as math_sqrt
 from math import exp as math_exp
 from math import log as math_log

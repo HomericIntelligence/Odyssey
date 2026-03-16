@@ -4,11 +4,11 @@ This module provides a pure functional implementation of linear transformations,
 following the pattern y = xW^T + b. The caller manages all state (weights, bias).
 """
 
-from shared.core.extensor import ExTensor
-from shared.core.matrix import matmul, transpose
-from shared.core.arithmetic import add
-from shared.core.reduction import sum
-from shared.core.gradient_types import GradientPair, GradientTriple
+from .extensor import ExTensor
+from .matrix import matmul, transpose
+from .arithmetic import add
+from .reduction import sum
+from .gradient_types import GradientPair, GradientTriple
 
 
 fn linear(x: ExTensor, weights: ExTensor, bias: ExTensor) raises -> ExTensor:

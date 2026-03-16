@@ -7,14 +7,14 @@ Dropout randomly zeros some elements of the input tensor with probability p duri
 This helps prevent overfitting by randomly "dropping out" neurons.
 """
 
-from shared.core.extensor import (
+from .extensor import (
     ExTensor,
     zeros,
     zeros_like,
     ones_like,
     full_like,
 )
-from shared.core.arithmetic import multiply, divide
+from .arithmetic import multiply, divide
 import random
 
 

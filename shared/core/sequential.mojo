@@ -17,8 +17,8 @@ Design Note — The Mojo Trait-Object Constraint:
 
 Usage:
     ```mojo
-    from shared.core.sequential import Sequential2, Sequential3, Sequential4, Sequential5
-    from shared.core.layers import Linear, ReLULayer
+    from .sequential import Sequential2, Sequential3, Sequential4, Sequential5
+    from .layers import Linear, ReLULayer
 
     # Five-layer model (common for deeper MLPs like LeNet-5 classifier)
     var model = Sequential5[Linear, ReLULayer, Linear, ReLULayer, Linear](
@@ -37,8 +37,8 @@ See Also:
     - shared.core.layers: Available layer implementations
 """
 
-from shared.core.extensor import ExTensor
-from shared.core.module import Module
+from .extensor import ExTensor
+from .module import Module
 
 
 struct Sequential2[T0: Module & Movable, T1: Module & Movable](Movable):

@@ -26,7 +26,7 @@ Supported DTypes:
 - UInt64 - ordinal 10
 
 Usage:
-    from shared.core.dtype_ordinal import dtype_to_ordinal, DTYPE_FLOAT32
+    from .dtype_ordinal import dtype_to_ordinal, DTYPE_FLOAT32
 
     var ordinal = dtype_to_ordinal(tensor.dtype())
     if ordinal == DTYPE_FLOAT32:

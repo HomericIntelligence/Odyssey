@@ -15,7 +15,7 @@ Design:
 - SIMD-accelerated parallel reductions for gradient computation
 
 Usage:
-    from shared.core.normalization_simd import batch_norm2d_fused
+    from .normalization_simd import batch_norm2d_fused
 
     var x = randn([16, 64, 32, 32], DType.float32)
     var gamma = ones([64], DType.float32)
@@ -36,14 +36,14 @@ Related:
 
 from algorithm import vectorize
 from sys.info import simd_width_of
-from shared.core.extensor import (
+from .extensor import (
     ExTensor,
     zeros,
     zeros_like,
     ones_like,
     full_like,
 )
-from shared.core.scalar_ops import sqrt_scalar_f32, sqrt_scalar_f64
+from .scalar_ops import sqrt_scalar_f32, sqrt_scalar_f64
 
 
 # ============================================================================
@@ -111,7 +111,7 @@ fn batch_norm2d_fused_inference(
         )
     else:
         # Fall back to scalar for other dtypes
-        from shared.core.normalization import batch_norm2d
+        from .normalization import batch_norm2d
 
         var (scalar_result, _, _) = batch_norm2d(
             x, gamma, beta, running_mean, running_var, False, 0.0, epsilon
@@ -315,7 +315,7 @@ fn batch_norm2d_fused(
         )
     else:
         # Fall back to scalar implementation for unsupported dtypes
-        from shared.core.normalization import batch_norm2d
+        from .normalization import batch_norm2d
 
         return batch_norm2d(
             x,

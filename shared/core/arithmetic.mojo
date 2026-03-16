@@ -5,11 +5,11 @@ Implements element-wise arithmetic operations following NumPy-style broadcasting
 
 from collections import List
 from math import nan
-from shared.core.extensor import ExTensor, full
-from shared.core.broadcasting import broadcast_shapes, compute_broadcast_strides
-from shared.core.shape import as_contiguous
-from shared.core.gradient_types import GradientPair
-from shared.core.dtype_ordinal import (
+from .extensor import ExTensor, full
+from .broadcasting import broadcast_shapes, compute_broadcast_strides
+from .shape import as_contiguous
+from .gradient_types import GradientPair
+from .dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,
@@ -599,7 +599,7 @@ fn _reduce_broadcast_dims(
         var reduced2 = _reduce_broadcast_dims(grad2, original2)  # Shape (5,)
         ```
     """
-    from shared.core.reduction import sum
+    from .reduction import sum
 
     var result = grad
     var grad_shape = grad.shape()

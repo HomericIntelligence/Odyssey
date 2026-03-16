@@ -7,9 +7,9 @@ All operations are stateless - caller provides all inputs.
 from algorithm import parallelize
 from collections import List
 
-from shared.core.extensor import ExTensor, zeros
-from shared.core.shape import pool_output_shape
-from shared.core.parallel_utils import should_parallelize
+from .extensor import ExTensor, zeros
+from .shape import pool_output_shape
+from .parallel_utils import should_parallelize
 
 # max and min are now builtins in Mojo - no import needed
 

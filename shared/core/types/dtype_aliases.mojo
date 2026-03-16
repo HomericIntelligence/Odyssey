@@ -12,7 +12,7 @@ Aliases:
 
 Example:
     ```mojo
-    from shared.core.types.dtype_aliases import BF16, FP8
+    from .dtype_aliases import BF16, FP8
 
     # Use with Scalar
     var bf16_val = Scalar[BF16](3.14)

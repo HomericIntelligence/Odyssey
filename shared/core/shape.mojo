@@ -11,7 +11,7 @@ Optimizations:
 
 from collections import List
 from memory import memcpy, UnsafePointer
-from shared.core.extensor import ExTensor
+from .extensor import ExTensor
 
 
 # ============================================================================
@@ -1285,7 +1285,7 @@ fn broadcast_to(tensor: ExTensor, target_shape: List[Int]) raises -> ExTensor:
             var b = broadcast_to(a, target)  # Shape (4, 3)
     ```
     """
-    from shared.core.broadcasting import (
+    from .broadcasting import (
         are_shapes_broadcastable,
         compute_broadcast_strides,
     )

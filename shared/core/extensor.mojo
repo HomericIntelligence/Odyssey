@@ -53,12 +53,11 @@ comptime WARN_TENSOR_BYTES: Int = 500_000_000  # 500 MB warning threshold
 
 # Print options for ExTensor.__str__ and __repr__ truncation
 # Can be modified globally to control output behavior (e.g., in test utilities)
-comptime EXTENSOR_PRINT_THRESHOLD: Int = 1000  # Truncate if numel > threshold
-comptime EXTENSOR_PRINT_SHOW_ELEMENTS: Int = 3  # Show first/last N elements
+alias EXTENSOR_PRINT_THRESHOLD: Int = 1000  # Truncate if numel > threshold
+alias EXTENSOR_PRINT_SHOW_ELEMENTS: Int = 3  # Show first/last N elements
 
 
 struct ExTensor(
-    Boolable,
     Copyable,
     Hashable,
     ImplicitlyCopyable,
@@ -910,40 +909,6 @@ struct ExTensor(
         # Return value based on dtype
         return self._get_float32(index)
 
-    fn __getitem__(self, indices: List[Int]) raises -> Float32:
-        """Get element at multi-dimensional index.
-
-        Args:
-            indices: Per-dimension indices (one per axis).
-
-        Returns:
-            The value at the given multi-dimensional index as Float32.
-
-        Raises:
-            Error: If number of indices doesn't match tensor rank,
-                   or any index is out of bounds.
-
-        Example:
-            ```mojo
-            var t = zeros([3, 4], DType.float32)
-            var val = t[[1, 2]]  # Get element at row 1, col 2
-            ```
-        """
-        if len(indices) != len(self._shape):
-            raise Error(
-                "Number of indices ("
-                + String(len(indices))
-                + ") must match tensor rank ("
-                + String(len(self._shape))
-                + ")"
-            )
-        var flat_idx = 0
-        for i in range(len(indices)):
-            if indices[i] < 0 or indices[i] >= self._shape[i]:
-                raise Error("Index out of bounds at dimension " + String(i))
-            flat_idx += indices[i] * self._strides[i]
-        return self._get_float32(flat_idx)
-
     fn __setitem__(mut self, index: Int, value: Float64) raises:
         """Set element at flat index.
 
@@ -989,7 +954,7 @@ struct ExTensor(
             t[2] = Int64(7)
         ```
         """
-        self.__setitem__(index, value.cast[DType.float64]())
+        self.__setitem__(index, Float64(value))
 
     fn __setitem__(mut self, index: Int, value: Float32) raises:
         """Set element at flat index using a Float32 value.
@@ -1009,6 +974,39 @@ struct ExTensor(
         """
         self.__setitem__(index, Float64(value))
 
+    fn __getitem__(self, indices: List[Int]) raises -> Float32:
+        """Get element at multi-dimensional index.
+
+        Args:
+            indices: Per-dimension indices (one per axis).
+
+        Returns:
+            The value at the given indices as Float32.
+
+        Raises:
+            Error: If number of indices doesn't match tensor rank,
+                   or any index is out of bounds.
+
+        Example:
+            ```mojo
+            var t = ones([3, 4], DType.float32)
+            var val = t[[1, 2]]  # Get element at row 1, col 2
+            ```
+        """
+        if len(indices) != len(self._shape):
+            raise Error(
+                "Number of indices ("
+                + String(len(indices))
+                + ") must match tensor rank ("
+                + String(len(self._shape))
+                + ")"
+            )
+        var flat_idx = 0
+        for i in range(len(indices)):
+            if indices[i] < 0 or indices[i] >= self._shape[i]:
+                raise Error("Index out of bounds at dimension " + String(i))
+            flat_idx += indices[i] * self._strides[i]
+        return self.__getitem__(flat_idx)
 
     fn __setitem__(mut self, indices: List[Int], value: Float64) raises:
         """Set element at multi-dimensional index.
@@ -1204,8 +1202,7 @@ struct ExTensor(
             does not share memory with the original tensor.
 
         Raises:
-            Error: If number of slices doesn't match tensor dimensions,
-                   or if any slice has step != 1 (not implemented).
+            Error: If number of slices doesn't match tensor dimensions.
 
         Notes:
             This method returns a copy (`_is_view = False`), consistent with
@@ -1235,20 +1232,6 @@ struct ExTensor(
                 + String(num_dims)
                 + ")"
             )
-
-        # Reject non-unit steps: multi-dim strided slicing is not implemented.
-        # Silently ignoring step would produce wrong results (issue #4463).
-        for dim in range(num_dims):
-            var step = slices[dim].step.or_else(1)
-            if step != 1:
-                raise Error(
-                    "Multi-dimensional slicing does not support step != 1 "
-                    + "(got step="
-                    + String(step)
-                    + " on dimension "
-                    + String(dim)
-                    + "). Use 1D slicing for strided access."
-                )
 
         # Compute per-dimension starts and result shape
         var starts = List[Int]()
@@ -1592,18 +1575,6 @@ struct ExTensor(
     # ========================================================================
     # Dunder Methods (Operator Overloading)
     # ========================================================================
-    # NOTE: These methods implement operations inline to avoid circular imports
-    # with shared.core.arithmetic/comparison/elementwise during package compilation.
-    # For broadcasting support, use the standalone functions (add, subtract, etc.)
-    # from shared.core.arithmetic.
-
-    fn _check_shapes_match(self, other: ExTensor) raises:
-        """Verify two tensors have the same shape for element-wise ops."""
-        if self._numel != other._numel:
-            raise Error(
-                "Shape mismatch for element-wise operation: "
-                + String(self._numel) + " vs " + String(other._numel)
-            )
 
     fn __add__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise addition: a + b.
@@ -1617,11 +1588,9 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        self._check_shapes_match(other)
-        var result = ExTensor(self._shape, self._dtype)
-        for i in range(self._numel):
-            result._set_float64(i, self._get_float64(i) + other._get_float64(i))
-        return result^
+        from .arithmetic import add
+
+        return add(self, other)
 
     fn __sub__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise subtraction: a - b.
@@ -1635,11 +1604,9 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        self._check_shapes_match(other)
-        var result = ExTensor(self._shape, self._dtype)
-        for i in range(self._numel):
-            result._set_float64(i, self._get_float64(i) - other._get_float64(i))
-        return result^
+        from .arithmetic import subtract
+
+        return subtract(self, other)
 
     fn __mul__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise multiplication: a * b.
@@ -1653,11 +1620,9 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        self._check_shapes_match(other)
-        var result = ExTensor(self._shape, self._dtype)
-        for i in range(self._numel):
-            result._set_float64(i, self._get_float64(i) * other._get_float64(i))
-        return result^
+        from .arithmetic import multiply
+
+        return multiply(self, other)
 
     fn __truediv__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise division: a / b.
@@ -1669,13 +1634,12 @@ struct ExTensor(
             New tensor with element-wise quotient.
 
         Raises:
-            Error: If tensors have incompatible shapes.
+            Error: If tensors have incompatible shapes or division by zero.
+
         """
-        self._check_shapes_match(other)
-        var result = ExTensor(self._shape, self._dtype)
-        for i in range(self._numel):
-            result._set_float64(i, self._get_float64(i) / other._get_float64(i))
-        return result^
+        from .arithmetic import divide
+
+        return divide(self, other)
 
     fn __floordiv__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise floor division: a // b.
@@ -1687,14 +1651,11 @@ struct ExTensor(
             New tensor with element-wise floor quotient.
 
         Raises:
-            Error: If tensors have incompatible shapes.
+            Error: If tensors have incompatible shapes or division by zero.
         """
-        self._check_shapes_match(other)
-        var result = ExTensor(self._shape, self._dtype)
-        for i in range(self._numel):
-            var q = self._get_float64(i) / other._get_float64(i)
-            result._set_float64(i, Float64(Int64(q)) if q >= 0 else Float64(Int64(q) - 1))
-        return result^
+        from .arithmetic import floor_divide
+
+        return floor_divide(self, other)
 
     fn __mod__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise modulo: a % b.
@@ -1708,15 +1669,9 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        self._check_shapes_match(other)
-        var result = ExTensor(self._shape, self._dtype)
-        for i in range(self._numel):
-            var a = self._get_float64(i)
-            var b = other._get_float64(i)
-            var q = a / b
-            var floored = Float64(Int64(q)) if q >= 0 else Float64(Int64(q) - 1)
-            result._set_float64(i, a - floored * b)
-        return result^
+        from .arithmetic import modulo
+
+        return modulo(self, other)
 
     fn __pow__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise power: a ** b.
@@ -1730,11 +1685,9 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        self._check_shapes_match(other)
-        var result = ExTensor(self._shape, self._dtype)
-        for i in range(self._numel):
-            result._set_float64(i, self._get_float64(i) ** other._get_float64(i))
-        return result^
+        from .arithmetic import power
+
+        return power(self, other)
 
     fn __matmul__(self, other: ExTensor) raises -> ExTensor:
         """Matrix multiplication: a @ b.
@@ -1748,29 +1701,17 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible dimensions for multiplication.
         """
-        # Only support 2D matmul inline
-        if len(self._shape) != 2 or len(other._shape) != 2:
-            raise Error("__matmul__ requires 2D tensors")
-        var m = self._shape[0]
-        var k = self._shape[1]
-        if other._shape[0] != k:
-            raise Error("Incompatible dimensions for matmul: "
-                + String(k) + " vs " + String(other._shape[0]))
-        var n = other._shape[1]
-        var out_shape = List[Int]()
-        out_shape.append(m)
-        out_shape.append(n)
-        var result = ExTensor(out_shape, self._dtype)
-        for i in range(m):
-            for j in range(n):
-                var acc = Float64(0)
-                for p in range(k):
-                    acc += self._get_float64(i * k + p) * other._get_float64(p * n + j)
-                result._set_float64(i * n + j, acc)
-        return result^
+        from .matrix import matmul
+
+        return matmul(self, other)
 
     fn __eq__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise equality: a == b.
+
+        Note: NaN comparison follows IEEE 754 semantics — NaN is never equal to
+        anything, including itself. That is, `NaN == NaN` returns 0.0 (False) for
+        every element position where either operand is NaN. Use `isnan()` to detect
+        NaN values explicitly rather than relying on equality comparison.
 
         Args:
             other: The tensor to compare.
@@ -1781,11 +1722,9 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        self._check_shapes_match(other)
-        var result = ExTensor(self._shape, self._dtype)
-        for i in range(self._numel):
-            result._set_float64(i, 1.0 if self._get_float64(i) == other._get_float64(i) else 0.0)
-        return result^
+        from .comparison import equal
+
+        return equal(self, other)
 
     fn __ne__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise inequality: a != b.
@@ -1799,11 +1738,9 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        self._check_shapes_match(other)
-        var result = ExTensor(self._shape, self._dtype)
-        for i in range(self._numel):
-            result._set_float64(i, 1.0 if self._get_float64(i) != other._get_float64(i) else 0.0)
-        return result^
+        from .comparison import not_equal
+
+        return not_equal(self, other)
 
     fn __lt__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise less than: a < b.
@@ -1817,11 +1754,9 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        self._check_shapes_match(other)
-        var result = ExTensor(self._shape, self._dtype)
-        for i in range(self._numel):
-            result._set_float64(i, 1.0 if self._get_float64(i) < other._get_float64(i) else 0.0)
-        return result^
+        from .comparison import less
+
+        return less(self, other)
 
     fn __le__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise less or equal: a <= b.
@@ -1835,11 +1770,9 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        self._check_shapes_match(other)
-        var result = ExTensor(self._shape, self._dtype)
-        for i in range(self._numel):
-            result._set_float64(i, 1.0 if self._get_float64(i) <= other._get_float64(i) else 0.0)
-        return result^
+        from .comparison import less_equal
+
+        return less_equal(self, other)
 
     fn __gt__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise greater than: a > b.
@@ -1853,11 +1786,9 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        self._check_shapes_match(other)
-        var result = ExTensor(self._shape, self._dtype)
-        for i in range(self._numel):
-            result._set_float64(i, 1.0 if self._get_float64(i) > other._get_float64(i) else 0.0)
-        return result^
+        from .comparison import greater
+
+        return greater(self, other)
 
     fn __ge__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise greater or equal: a >= b.
@@ -1871,11 +1802,9 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        self._check_shapes_match(other)
-        var result = ExTensor(self._shape, self._dtype)
-        for i in range(self._numel):
-            result._set_float64(i, 1.0 if self._get_float64(i) >= other._get_float64(i) else 0.0)
-        return result^
+        from .comparison import greater_equal
+
+        return greater_equal(self, other)
 
     # ========================================================================
     # FP8 Conversion Methods
@@ -1904,7 +1833,7 @@ struct ExTensor(
             are clamped. This is useful for memory-efficient training/inference.
             FP16 inputs are converted to FP32 before quantization.
         """
-        from shared.core.types.dtype_aliases import FP8
+        from .types.dtype_aliases import FP8
         from memory import bitcast
 
         # Verify source is floating point
@@ -1965,7 +1894,7 @@ struct ExTensor(
             This assumes the uint8 tensor contains valid FP8 E4M3 encoded values.
             Use this to decode tensors created by to_fp8().
         """
-        from shared.core.types.dtype_aliases import FP8
+        from .types.dtype_aliases import FP8
         from memory import bitcast
 
         # Verify source is uint8
@@ -2460,7 +2389,7 @@ struct ExTensor(
             training/inference where range is more important than precision.
             FP16 inputs are converted to FP32 before quantization.
         """
-        from shared.core.types.dtype_aliases import BF8
+        from .types.dtype_aliases import BF8
         from memory import bitcast
 
         # Verify source is floating point
@@ -2517,7 +2446,7 @@ struct ExTensor(
             This assumes the uint8 tensor contains valid BF8 E5M2 encoded values.
             Use this to decode tensors created by to_bf8().
         """
-        from shared.core.types.dtype_aliases import BF8
+        from .types.dtype_aliases import BF8
         from memory import bitcast
 
         # Verify source is uint8
@@ -2604,7 +2533,7 @@ struct ExTensor(
             Memory efficiency: 17 bytes per 32 Float32 values (16:1 compression).
             FP16 inputs are converted to FP32 before quantization.
         """
-        from shared.core.types.mxfp4 import MXFP4Block
+        from .types.mxfp4 import MXFP4Block
 
         # Verify source is floating point
         if not (
@@ -2692,8 +2621,8 @@ struct ExTensor(
             Use this to decode tensors created by to_mxfp4().
             Original tensor size is restored from metadata if available.
         """
-        from shared.core.types.mxfp4 import MXFP4Block
-        from shared.core.types.dtype_aliases import E8M0
+        from .types.mxfp4 import MXFP4Block
+        from .types.dtype_aliases import E8M0
 
         # Verify source is uint8
         if self._dtype != DType.uint8:
@@ -2820,7 +2749,7 @@ struct ExTensor(
                 Memory efficiency: 9 bytes per 16 Float32 values (14:1 compression).
                 FP16 inputs are converted to FP32 before quantization.
         """
-        from shared.core.types.nvfp4 import NVFP4Block
+        from .types.nvfp4 import NVFP4Block
 
         # Verify source is floating point
         if not (
@@ -2910,8 +2839,8 @@ struct ExTensor(
                 Use this to decode tensors created by to_nvfp4().
                 Original tensor size is restored from metadata if available.
         """
-        from shared.core.types.nvfp4 import NVFP4Block
-        from shared.core.types.dtype_aliases import FP8
+        from .types.nvfp4 import NVFP4Block
+        from .types.dtype_aliases import FP8
 
         # Verify source is uint8
         if self._dtype != DType.uint8:
@@ -2986,7 +2915,9 @@ struct ExTensor(
             Error: If tensors have incompatible shapes.
 
         """
-        return other.__sub__(self)
+        from .arithmetic import subtract
+
+        return subtract(other, self)
 
     fn __rmul__(self, other: ExTensor) raises -> ExTensor:
         """Reflected multiplication: other * self (commutative, so same as __mul__).
@@ -3004,7 +2935,9 @@ struct ExTensor(
             Error: If tensors have incompatible shapes or division by zero.
 
         """
-        return other.__truediv__(self)
+        from .arithmetic import divide
+
+        return divide(other, self)
 
     # In-place operators - mutate self instead of creating new tensor
     fn __iadd__(mut self, other: ExTensor) raises:
@@ -3014,9 +2947,17 @@ struct ExTensor(
             Error: If tensors have incompatible shapes or dtypes.
 
         """
-        self._check_shapes_match(other)
-        for i in range(self._numel):
-            self._set_float64(i, self._get_float64(i) + other._get_float64(i))
+        from .arithmetic import add
+
+        var result = add(self, other)
+        # Copy result data into self (must match shape/dtype)
+        if result.numel() == self.numel() and result.dtype() == self.dtype():
+            for i in range(self._numel):
+                self._set_float64(i, result._get_float64(i))
+        else:
+            raise Error(
+                "In-place operation requires matching shapes and dtypes"
+            )
 
     fn __isub__(mut self, other: ExTensor) raises:
         """In-place subtraction: `self -= other`.
@@ -3025,9 +2966,17 @@ struct ExTensor(
             Error: If tensors have incompatible shapes or dtypes.
 
         """
-        self._check_shapes_match(other)
-        for i in range(self._numel):
-            self._set_float64(i, self._get_float64(i) - other._get_float64(i))
+        from .arithmetic import subtract
+
+        var result = subtract(self, other)
+        # Copy result data into self (must match shape/dtype)
+        if result.numel() == self.numel() and result.dtype() == self.dtype():
+            for i in range(self._numel):
+                self._set_float64(i, result._get_float64(i))
+        else:
+            raise Error(
+                "In-place operation requires matching shapes and dtypes"
+            )
 
     fn __imul__(mut self, other: ExTensor) raises:
         """In-place multiplication: `self *= other`.
@@ -3036,20 +2985,36 @@ struct ExTensor(
             Error: If tensors have incompatible shapes or dtypes.
 
         """
-        self._check_shapes_match(other)
-        for i in range(self._numel):
-            self._set_float64(i, self._get_float64(i) * other._get_float64(i))
+        from .arithmetic import multiply
+
+        var result = multiply(self, other)
+        # Copy result data into self (must match shape/dtype)
+        if result.numel() == self.numel() and result.dtype() == self.dtype():
+            for i in range(self._numel):
+                self._set_float64(i, result._get_float64(i))
+        else:
+            raise Error(
+                "In-place operation requires matching shapes and dtypes"
+            )
 
     fn __itruediv__(mut self, other: ExTensor) raises:
         """In-place division: `self /= other`.
 
         Raises:
-            Error: If tensors have incompatible shapes or dtypes.
+            Error: If tensors have incompatible shapes or dtypes, or division by zero.
 
         """
-        self._check_shapes_match(other)
-        for i in range(self._numel):
-            self._set_float64(i, self._get_float64(i) / other._get_float64(i))
+        from .arithmetic import divide
+
+        var result = divide(self, other)
+        # Copy result data into self (must match shape/dtype)
+        if result.numel() == self.numel() and result.dtype() == self.dtype():
+            for i in range(self._numel):
+                self._set_float64(i, result._get_float64(i))
+        else:
+            raise Error(
+                "In-place operation requires matching shapes and dtypes"
+            )
 
     # Unary operators - operate on single tensor
     fn __neg__(self) raises -> ExTensor:
@@ -3141,11 +3106,9 @@ struct ExTensor(
             Error: If operation fails.
 
         """
-        var result = ExTensor(self._shape, self._dtype)
-        for i in range(self._numel):
-            var v = self._get_float64(i)
-            result._set_float64(i, v if v >= 0 else -v)
-        return result^
+        from .elementwise import abs
+
+        return abs(self)
 
     fn __len__(self) -> Int:
         """Return the size of the first dimension.
@@ -3166,40 +3129,11 @@ struct ExTensor(
             return 0
         return self._shape[0]
 
-    fn __bool__(self) -> Bool:
-        """Return the boolean value of a tensor (Boolable trait conformance).
+    fn __bool__(self) raises -> Bool:
+        """Return the boolean value of a single-element tensor.
 
-        Follows NumPy behavior: returns False for multi-element tensors,
-        and the actual boolean value for single-element tensors. This
-        non-raising signature is required for Boolable trait conformance,
-        enabling `Bool(t)` syntax and use in boolean contexts.
-
-        For strict PyTorch-style behavior that raises on multi-element
-        tensors, use `bool_strict()` instead.
-
-        Returns:
-            True if the single element is non-zero, False for zero or
-            multi-element tensors.
-
-        Example:
-            ```mojo
-            var x = full([], 5.0, DType.float32)
-            if x:  # True
-                print("non-zero")
-            var multi = ones([3], DType.float32)
-            print(Bool(multi))  # False (NumPy behavior)
-            ```
-        """
-        if self._numel != 1:
-            return False
-        return self._get_float64(0) != 0.0
-
-    fn bool_strict(self) raises -> Bool:
-        """Return the boolean value of a single-element tensor (strict variant).
-
-        Follows PyTorch convention: raises for multi-element tensors.
-        Use this when you want an error for accidental multi-element
-        boolean conversion, rather than the NumPy-style silent False.
+        Follows PyTorch/NumPy convention: a single-element tensor can be
+        used in boolean context. Returns True if the value is non-zero.
 
         Returns:
             True if the single element is non-zero, False otherwise.
@@ -3210,9 +3144,8 @@ struct ExTensor(
         Example:
             ```mojo
             var x = full([], 5.0, DType.float32)
-            print(x.bool_strict())  # True
-            var multi = ones([3], DType.float32)
-            _ = multi.bool_strict()  # raises Error
+            if x:  # True
+                print("non-zero")
             ```
         """
         return self.item() != 0.0
@@ -3286,10 +3219,7 @@ struct ExTensor(
         return result
 
     fn __repr__(self) -> String:
-        """Detailed representation for debugging with NumPy-style truncation.
-
-        For tensors with more than 1000 elements, shows only the first 3 and
-        last 3 elements with '...' in between to prevent performance issues.
+        """Detailed representation for debugging.
 
         Truncation is controlled by module-level constants:
         - EXTENSOR_PRINT_THRESHOLD: Truncate if numel > threshold (default 1000)
@@ -3298,12 +3228,6 @@ struct ExTensor(
         Returns:
             String in the format: ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[...]).
             For large tensors: ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[v0, v1, v2, ..., vN-2, vN-1, vN]).
-
-        Example:
-            ```mojo
-            var x = arange(1000, DType.float32)
-            repr(x)  # ExTensor(shape=[1001], dtype=float32, numel=1001, data=[0.0, 1.0, 2.0, ..., 998.0, 999.0, 1000.0])
-            ```
         """
         var shape_str = String("[")
         for i in range(len(self._shape)):
@@ -3364,7 +3288,7 @@ struct ExTensor(
             # hash(x) != hash(z)  (with overwhelming probability)
             ```
         """
-        from shared.core.dtype_ordinal import dtype_to_ordinal
+        from .dtype_ordinal import dtype_to_ordinal
 
         # Hash shape
         for i in range(len(self._shape)):
@@ -3524,6 +3448,53 @@ struct ExTensor(
 
         return current^
 
+    fn save(self, path: String, name: String = "") raises:
+        """Save tensor to file in hex-encoded binary format.
+
+        Persists tensor with metadata (dtype, shape) and hex-encoded byte data.
+        File format is text-based for portability across platforms.
+
+        Args:
+            path: Output file path.
+            name: Optional tensor name (defaults to empty string).
+
+        Raises:
+            Error: If file write fails or path is invalid.
+
+        Example:
+            ```mojo
+            var weights = zeros([3, 4], DType.float32)
+            weights.save("checkpoint/weights.bin", "conv1_weights")
+            ```
+        """
+        from .tensor_io import save_tensor
+
+        save_tensor(self, path, name)
+
+    @staticmethod
+    fn load(path: String) raises -> ExTensor:
+        """Load tensor from file.
+
+        Reads hex-encoded tensor data and metadata, reconstructs
+        ExTensor with original dtype and shape.
+
+        Args:
+            path: Input file path.
+
+        Returns:
+            Loaded ExTensor.
+
+        Raises:
+            Error: If file format is invalid or file doesn't exist.
+
+        Example:
+            ```mojo
+            var tensor = ExTensor.load("checkpoint/weights.bin")
+            ```
+        """
+        from .tensor_io import load_tensor
+
+        return load_tensor(path)
 
 
 # ============================================================================

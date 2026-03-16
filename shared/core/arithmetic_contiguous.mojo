@@ -12,7 +12,7 @@ Design:
 - Integrates with broadcast dispatcher for general case
 
 Usage:
-    from shared.core.arithmetic_contiguous import can_use_fast_path
+    from .arithmetic_contiguous import can_use_fast_path
     if can_use_fast_path(a, b):
         # Fast path selected automatically by dispatcher
         result = add(a, b)  # Uses optimized implementation
@@ -23,7 +23,7 @@ Usage:
 
 from algorithm import vectorize
 from sys.info import simd_width_of
-from shared.core.extensor import ExTensor
+from .extensor import ExTensor
 
 
 # ============================================================================

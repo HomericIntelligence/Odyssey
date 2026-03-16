@@ -19,7 +19,7 @@ Key characteristics:
 
 Example:
     ```mojo
-    from shared.core.types.nvfp4 import NVFP4, NVFP4Block
+    from .nvfp4 import NVFP4, NVFP4Block
 
     # Individual value (stores both E2M1 and scale for convenience)
     var val = NVFP4.from_float32(3.14159)
@@ -46,7 +46,7 @@ Reference:
 
 from math import isnan, isinf
 from memory import bitcast
-from shared.core.types.dtype_aliases import FP4, FP8
+from .dtype_aliases import FP4, FP8
 
 
 # ============================================================================

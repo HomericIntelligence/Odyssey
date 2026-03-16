@@ -22,7 +22,7 @@ Functions:
     validate_matching_dtype: Validate two tensors have matching dtype
 """
 
-from shared.core.extensor import ExTensor
+from .extensor import ExTensor
 
 
 fn validate_tensor_shape(

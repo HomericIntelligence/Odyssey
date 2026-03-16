@@ -15,7 +15,7 @@ Key characteristics:
 - Use case: Memory-efficient ML training and inference
 
 Example:
-    from shared.core.types.mxfp4 import MXFP4, MXFP4Block
+    from .mxfp4 import MXFP4, MXFP4Block
 
     # Individual value (stores both E2M1 and scale for convenience)
     var val = MXFP4.from_float32(3.14159)
@@ -40,7 +40,7 @@ Reference:
 
 from math import isnan, isinf
 from memory import bitcast
-from shared.core.types.dtype_aliases import FP4, E8M0
+from .dtype_aliases import FP4, E8M0
 
 
 # ============================================================================

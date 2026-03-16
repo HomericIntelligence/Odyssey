@@ -670,5 +670,37 @@ from shared.core.lazy_eval import (
     evaluate,
 )
 
+# ============================================================================
+# Gradient Clipping Utilities
+# ============================================================================
+# Defined here (in shared.core) rather than shared.autograd to avoid a
+# circular type identity issue in Mojo v0.26.1: cross-package imports of
+# ExTensor from shared.autograd cause extensor.mojo to be compiled twice
+# with distinct type identities, breaking operator overloads.
+
+from shared.core.grad_utils import (
+    clip_grad_value_,
+    clip_grad_norm_,
+    clip_grad_global_norm_,
+)
+
+# ============================================================================
+# Tensor I/O (Save/Load) Utilities
+# ============================================================================
+# Defined in shared.core to avoid circular type resolution: extensor.mojo's
+# save/load methods use these functions, and they must be in the same package
+# to avoid cross-package ExTensor type identity conflicts.
+
+from shared.core.tensor_io import (
+    save_tensor,
+    load_tensor,
+    load_tensor_with_name,
+    bytes_to_hex,
+    hex_to_bytes,
+    get_dtype_size,
+    parse_dtype,
+    dtype_to_string,
+)
+
 # Mojo does not support Python's __all__ mechanism (#3751, Mojo v0.26.1).
 # All imported symbols are automatically available to package consumers.

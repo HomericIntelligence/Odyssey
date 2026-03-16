@@ -9,7 +9,7 @@ Functions:
     normalize_rgb: Normalize RGB images with per-channel mean and std deviation
 
 Example:
-    from shared.core.normalize_ops import normalize_rgb
+    from .normalize_ops import normalize_rgb
 
     # Normalize RGB images with ImageNet statistics
     var mean = (Float32(0.485), Float32(0.456), Float32(0.406))
@@ -18,7 +18,7 @@ Example:
     ```
 """
 
-from shared.core.extensor import ExTensor, zeros
+from .extensor import ExTensor, zeros
 
 
 # ============================================================================
@@ -51,7 +51,7 @@ fn normalize_rgb(
 
     Example:
         ```mojo
-        from shared.core.normalize_ops import normalize_rgb
+        from .normalize_ops import normalize_rgb
 
         # ImageNet normalization
         var mean = (Float32(0.485), Float32(0.456), Float32(0.406))

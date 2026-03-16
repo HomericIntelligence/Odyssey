@@ -18,14 +18,14 @@ All loss functions include:
 - Support for batched inputs
 """
 
-from shared.core.extensor import ExTensor, ones_like, zeros_like, full_like
-from shared.core.arithmetic import add, subtract, multiply, divide, power
-from shared.core.elementwise import log, clip, exp, abs
-from shared.core.reduction import mean, sum, max_reduce
-from shared.core.activation import softmax
-from shared.core.comparison import less, greater
-from shared.core.dtype_dispatch import dispatch_binary, dispatch_scalar
-from shared.core.dtype_cast import cast_tensor
+from .extensor import ExTensor, ones_like, zeros_like, full_like
+from .arithmetic import add, subtract, multiply, divide, power
+from .elementwise import log, clip, exp, abs
+from .reduction import mean, sum, max_reduce
+from .activation import softmax
+from .comparison import less, greater
+from .dtype_dispatch import dispatch_binary, dispatch_scalar
+from .dtype_cast import cast_tensor
 
 
 fn binary_cross_entropy(

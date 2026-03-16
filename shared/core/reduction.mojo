@@ -4,9 +4,9 @@ Implements operations that reduce tensors along specified axes
 """
 
 from collections import List
-from shared.core.extensor import ExTensor
-from shared.core.shape import as_contiguous
-from shared.core.reduction_utils import (
+from .extensor import ExTensor
+from .shape import as_contiguous
+from .reduction_utils import (
     compute_strides,
     linear_to_coords,
     coords_to_linear,
@@ -15,7 +15,7 @@ from shared.core.reduction_utils import (
     compute_axis_strides,
     build_reduced_shape,
 )
-from shared.core.reduction_ops import (
+from .reduction_ops import (
     ReduceOp,
     ReduceBackwardOp,
     SumOp,

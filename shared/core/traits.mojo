@@ -30,7 +30,7 @@ Example:
     ```
 """
 
-from shared.core.extensor import ExTensor
+from .extensor import ExTensor
 
 
 trait Differentiable:

@@ -19,9 +19,9 @@ Key Design Principles:
 
 Example:
     ```mojo
-    from shared.core.module import Module
-    from shared.core.layers import Linear
-    from shared.core.extensor import ExTensor, zeros
+    from .module import Module
+    from .layers import Linear
+    from .extensor import ExTensor, zeros
 
     # Linear layer implements Module trait
     var layer = Linear(10, 5)
@@ -39,13 +39,13 @@ Example:
 
 Sequential Usage Example:
     ```mojo
-    from shared.core.module import Module
-    from shared.core.layers import Linear, ReLU
-    from shared.core.extensor import ExTensor, zeros
+    from .module import Module
+    from .layers import Linear, ReLU
+    from .extensor import ExTensor, zeros
 
     # Compose layers using Sequential2
-    from shared.core.sequential import Sequential2
-    from shared.core.layers import ReLULayer
+    from .sequential import Sequential2
+    from .layers import ReLULayer
     var model = Sequential2[Linear, ReLULayer](
         Linear(784, 256),
         ReLULayer(),
@@ -63,7 +63,7 @@ See Also:
     - shared.core.layers.linear: Linear layer implementation example
 """
 
-from shared.core.extensor import ExTensor
+from .extensor import ExTensor
 
 
 trait Module:

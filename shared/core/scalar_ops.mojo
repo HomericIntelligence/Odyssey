@@ -11,7 +11,7 @@ Functions:
 
 Example:
    ```mojo
-   from shared.core.scalar_ops import sqrt_scalar_f32, pow_scalar_f32
+   from .scalar_ops import sqrt_scalar_f32, pow_scalar_f32
 
    var x = Float32(4.0)
    var sqrt_x = sqrt_scalar_f32(x)  # 2.0
@@ -40,7 +40,7 @@ fn sqrt_scalar_f32(x: Float32) -> Float32:
 
     Example:
        ```mojo
-       from shared.core.scalar_ops import sqrt_scalar_f32
+       from .scalar_ops import sqrt_scalar_f32
 
        var result = sqrt_scalar_f32(Float32(4.0))  # 2.0
        ```
@@ -60,7 +60,7 @@ fn sqrt_scalar_f64(x: Float64) -> Float64:
 
     Example:
        ```mojo
-       from shared.core.scalar_ops import sqrt_scalar_f64
+       from .scalar_ops import sqrt_scalar_f64
 
        var result = sqrt_scalar_f64(4.0)  # 2.0
        ```
@@ -81,7 +81,7 @@ fn pow_scalar_f32(x: Float32, y: Float32) -> Float32:
 
     Example:
        ```mojo
-       from shared.core.scalar_ops import pow_scalar_f32
+       from .scalar_ops import pow_scalar_f32
 
        var result = pow_scalar_f32(Float32(2.0), Float32(3.0))  # 8.0
        ```
@@ -102,7 +102,7 @@ fn pow_scalar_f64(x: Float64, y: Float64) -> Float64:
 
     Example:
        ```mojo
-       from shared.core.scalar_ops import pow_scalar_f64
+       from .scalar_ops import pow_scalar_f64
 
        var result = pow_scalar_f64(2.0, 3.0)  # 8.0
        ```

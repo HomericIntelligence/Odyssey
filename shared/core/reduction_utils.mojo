@@ -14,7 +14,7 @@ Functions:
 
 Example:
     ```mojo
-    from shared.core.reduction_utils import compute_strides, linear_to_coords, coords_to_linear
+    from .reduction_utils import compute_strides, linear_to_coords, coords_to_linear
 
     var shape : List[Int] = [3, 4, 5]
     var strides = compute_strides(shape)  # [20, 5, 1]

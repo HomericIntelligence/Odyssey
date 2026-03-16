@@ -22,7 +22,7 @@ Example:
     ```
 """
 
-from shared.core.extensor import ExTensor
+from .extensor import ExTensor
 from math import isnan, isinf, sqrt
 from collections import List
 
