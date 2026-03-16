@@ -241,6 +241,7 @@ build mode="debug": (_ensure_build_dir mode)
     find . -name "*.mojo" \
         -not -path "./.pixi/*" \
         -not -path "./worktrees/*" \
+        -not -path "./.worktrees/*" \
         -not -path "./.claude/*" \
         -not -path "./tests/*" \
         -not -path "./shared/*" \
@@ -249,6 +250,7 @@ build mode="debug": (_ensure_build_dir mode)
         -not -path "./.templates/*" \
         -not -name "test_*.mojo" \
         -not -name "model.mojo" \
+        -not -name "__init__.mojo" \
         | while read -r file; do
             out="$BUILD_DIR/$(basename "$file" .mojo)"
             echo "→ Building: $file"
