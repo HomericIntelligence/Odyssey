@@ -69,8 +69,6 @@ fn conv_block(
         Output tensor after all convolutions and ReLU activations.
     """
     var in_channels = input_tensor.shape()[1]
-    var height = input_tensor.shape()[2]
-    var width = input_tensor.shape()[3]
     var result = input_tensor
 
     for _ in range(num_convs):
