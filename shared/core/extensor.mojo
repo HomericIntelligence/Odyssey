@@ -1009,39 +1009,6 @@ struct ExTensor(
         """
         self.__setitem__(index, Float64(value))
 
-    fn __getitem__(self, indices: List[Int]) raises -> Float32:
-        """Get element at multi-dimensional index.
-
-        Args:
-            indices: Per-dimension indices (one per axis).
-
-        Returns:
-            The value at the given indices as Float32.
-
-        Raises:
-            Error: If number of indices doesn't match tensor rank,
-                   or any index is out of bounds.
-
-        Example:
-            ```mojo
-            var t = ones([3, 4], DType.float32)
-            var val = t[[1, 2]]  # Get element at row 1, col 2
-            ```
-        """
-        if len(indices) != len(self._shape):
-            raise Error(
-                "Number of indices ("
-                + String(len(indices))
-                + ") must match tensor rank ("
-                + String(len(self._shape))
-                + ")"
-            )
-        var flat_idx = 0
-        for i in range(len(indices)):
-            if indices[i] < 0 or indices[i] >= self._shape[i]:
-                raise Error("Index out of bounds at dimension " + String(i))
-            flat_idx += indices[i] * self._strides[i]
-        return self.__getitem__(flat_idx)
 
     fn __setitem__(mut self, indices: List[Int], value: Float64) raises:
         """Set element at multi-dimensional index.
@@ -3318,9 +3285,6 @@ struct ExTensor(
             repr(x)  # ExTensor(shape=[1001], dtype=float32, numel=1001, data=[0.0, 1.0, 2.0, ..., 998.0, 999.0, 1000.0])
             ```
         """
-        comptime TRUNCATE_THRESHOLD = 1000
-        comptime SHOW_ELEMENTS = 3
-
         var shape_str = String("[")
         for i in range(len(self._shape)):
             if i > 0:
@@ -3331,22 +3295,13 @@ struct ExTensor(
         result += ", dtype=" + String(self._dtype)
         result += ", numel=" + String(self._numel)
         result += ", data=["
-<<<<<<< HEAD
         if self._numel > EXTENSOR_PRINT_THRESHOLD:
             for i in range(EXTENSOR_PRINT_SHOW_ELEMENTS):
-=======
-        if self._numel > TRUNCATE_THRESHOLD:
-            for i in range(SHOW_ELEMENTS):
->>>>>>> 3841b28f (fix(extensor): apply __repr__ truncation for consistency with __str__)
                 if i > 0:
                     result += ", "
                 result += String(self._get_float64(i))
             result += ", ..."
-<<<<<<< HEAD
             for i in range(self._numel - EXTENSOR_PRINT_SHOW_ELEMENTS, self._numel):
-=======
-            for i in range(self._numel - SHOW_ELEMENTS, self._numel):
->>>>>>> 3841b28f (fix(extensor): apply __repr__ truncation for consistency with __str__)
                 result += ", " + String(self._get_float64(i))
         else:
             for i in range(self._numel):
@@ -3597,43 +3552,6 @@ struct ExTensor(
 
         return load_tensor(path)
 
-    fn split_with_indices(
-        self, split_indices: List[Int], axis: Int = 0
-    ) raises -> List[ExTensor]:
-        """Split tensor at specified indices along an axis.
-
-        Divides tensor at specified indices along the given axis.
-        Indices specify the starting position of each split section.
-
-        Method wrapper for the module-level `split_with_indices()` function,
-        providing convenient object syntax: `tensor.split_with_indices([3, 7])`
-        instead of `split_with_indices(tensor, [3, 7])`.
-
-        Args:
-            split_indices: List of indices where to split (e.g., [3, 7]
-                splits into 3 sections).
-            axis: Axis along which to split (default: 0).
-
-        Returns:
-            List of ExTensor objects resulting from splits.
-
-        Raises:
-            Error: If axis is invalid or indices are out of bounds/unordered.
-
-        Example:
-        ```mojo
-            # Split [0,1,2,3,4,5,6,7,8,9] at indices [3, 7]
-            # Results in: [0-2], [3-6], [7-9]
-            var a = arange(0.0, 10.0, 1.0, DType.float32)
-            var parts = a.split_with_indices([3, 7])
-            # parts[0].shape() = (3,)  # indices 0-2
-            # parts[1].shape() = (4,)  # indices 3-6
-            # parts[2].shape() = (3,)  # indices 7-9
-        ```
-        """
-        from shared.core.shape import split_with_indices as split_with_indices_fn
-
-        return split_with_indices_fn(self, split_indices, axis)
 
 
 # ============================================================================

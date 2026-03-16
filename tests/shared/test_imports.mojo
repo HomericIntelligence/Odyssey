@@ -409,9 +409,8 @@ fn test_version_info() raises:
 
         # Check each character is a digit (0-9)
         var is_numeric = True
-        for j in range(part.__len__()):
-            var ch = part[j]
-            if ch < "0" or ch > "9":
+        for ch in part.codepoint_slices():
+            if String(ch) < "0" or String(ch) > "9":
                 is_numeric = False
                 break
 

@@ -94,6 +94,7 @@ from shared.training.base import (
 # Export data loader interfaces (Issue #3851)
 from shared.training.trainer_interface import (
     DataLoader,
+    DataBatch,
 )
 
 # Export scheduler implementations
