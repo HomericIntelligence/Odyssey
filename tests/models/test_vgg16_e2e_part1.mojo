@@ -307,9 +307,7 @@ fn test_vgg16_e2e_forward_backward() raises:
 
     # Loss computation (simplified cross-entropy approximation)
     # Using MSE as proxy since cross_entropy_loss may not be available
-    var loss = logits  # Placeholder for loss computation
-
-    # Verify loss has valid shape
+    # Verify logits have valid shape
     assert_equal(logits.shape()[0], batch_size)
     assert_equal(logits.shape()[1], 10)
 
