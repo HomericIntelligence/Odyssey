@@ -10,7 +10,7 @@ All functions work with ExTensor and follow the pure functional design pattern
 """
 
 from collections import List
-from shared.core.extensor import ExTensor
+from .extensor import ExTensor
 
 
 fn argmax(tensor: ExTensor) raises -> Int:

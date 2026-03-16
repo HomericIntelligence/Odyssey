@@ -9,9 +9,9 @@ Key components:
   Implements: y = conv2d(x, weight, bias, stride, padding)
 """
 
-from shared.core.extensor import ExTensor, zeros, randn, zeros_like
-from shared.core.initializers import kaiming_uniform
-from shared.core.conv import conv2d, conv2d_backward
+from ..extensor import ExTensor, zeros, randn, zeros_like
+from ..initializers import kaiming_uniform
+from ..conv import conv2d, conv2d_backward
 
 
 struct Conv2dLayer(Copyable, Movable):

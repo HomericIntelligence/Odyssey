@@ -21,7 +21,7 @@ Design:
 - Numerical stability with clipping for exp operations
 
 Usage:
-    from shared.core.activation_simd import relu_simd, elu_simd, selu_simd, swish_simd
+    from .activation_simd import relu_simd, elu_simd, selu_simd, swish_simd
 
     var x = randn([1024, 1024], DType.float32)
     var y = relu_simd(x)      # 4x faster than scalar
@@ -37,8 +37,8 @@ Related:
 from algorithm import vectorize
 from sys.info import simd_width_of
 from math import exp as math_exp
-from shared.core.extensor import ExTensor
-from shared.core.activation_constants import SIGMOID_CLIP_THRESHOLD
+from .extensor import ExTensor
+from .activation_constants import SIGMOID_CLIP_THRESHOLD
 
 
 # ============================================================================
@@ -77,7 +77,7 @@ fn relu_simd(tensor: ExTensor) raises -> ExTensor:
         _relu_simd_float64(tensor, result)
     else:
         # Fall back to scalar for other dtypes
-        from shared.core.activation import relu
+        from .activation import relu
 
         return relu(tensor)
 
@@ -157,7 +157,7 @@ fn leaky_relu_simd(tensor: ExTensor, alpha: Float64 = 0.01) raises -> ExTensor:
         _leaky_relu_simd_float64(tensor, result, alpha)
     else:
         # Fall back to scalar for other dtypes
-        from shared.core.activation import leaky_relu
+        from .activation import leaky_relu
 
         return leaky_relu(tensor, alpha)
 
@@ -241,7 +241,7 @@ fn relu6_simd(tensor: ExTensor) raises -> ExTensor:
         _relu6_simd_float64(tensor, result)
     else:
         # Fall back to scalar
-        from shared.core.activation import relu6
+        from .activation import relu6
 
         return relu6(tensor)
 
@@ -324,7 +324,7 @@ fn elu_simd(tensor: ExTensor, alpha: Float64 = 1.0) raises -> ExTensor:
         _elu_simd_float64(tensor, result, alpha)
     else:
         # Fall back to scalar for other dtypes
-        from shared.core.activation import elu
+        from .activation import elu
 
         return elu(tensor, alpha)
 
@@ -334,7 +334,7 @@ fn elu_simd(tensor: ExTensor, alpha: Float64 = 1.0) raises -> ExTensor:
 @always_inline
 fn _elu_simd_float32(tensor: ExTensor, mut result: ExTensor, alpha: Float32):
     """SIMD ELU for float32 tensors."""
-    from shared.core.activation_ops import exp_scalar_f32
+    from .activation_ops import exp_scalar_f32
 
     comptime simd_width = simd_width_of[DType.float32]()
     var size = tensor._numel
@@ -371,7 +371,7 @@ fn _elu_simd_float32(tensor: ExTensor, mut result: ExTensor, alpha: Float32):
 @always_inline
 fn _elu_simd_float64(tensor: ExTensor, mut result: ExTensor, alpha: Float64):
     """SIMD ELU for float64 tensors."""
-    from shared.core.activation_ops import exp_scalar_f64
+    from .activation_ops import exp_scalar_f64
 
     comptime simd_width = simd_width_of[DType.float64]()
     var size = tensor._numel
@@ -439,7 +439,7 @@ fn selu_simd(
         _selu_simd_float64(tensor, result, alpha, lambda_)
     else:
         # Fall back to scalar for other dtypes
-        from shared.core.activation import selu
+        from .activation import selu
 
         return selu(tensor, alpha, lambda_)
 
@@ -543,7 +543,7 @@ fn swish_simd(tensor: ExTensor) raises -> ExTensor:
         _swish_simd_float64(tensor, result)
     else:
         # Fall back to scalar for other dtypes
-        from shared.core.activation import swish
+        from .activation import swish
 
         return swish(tensor)
 

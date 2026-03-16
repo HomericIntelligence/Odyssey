@@ -4,9 +4,9 @@ Implements Strassen's divide-and-conquer algorithm reducing O(n³) to O(n^2.807)
 by performing 7 multiplications instead of 8.
 """
 
-from shared.core.extensor import ExTensor, zeros
-from shared.core.arithmetic import add, subtract
-from shared.core.matmul import matmul_tiled
+from .extensor import ExTensor, zeros
+from .arithmetic import add, subtract
+from .matmul import matmul_tiled
 
 comptime STRASSEN_ENABLED: Bool = True
 comptime STRASSEN_THRESHOLD: Int = 512

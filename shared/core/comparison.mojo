@@ -4,8 +4,8 @@ Implements element-wise comparison operations following NumPy-style broadcasting
 """
 
 from collections import List
-from shared.core.extensor import ExTensor
-from shared.core.broadcasting import broadcast_shapes, compute_broadcast_strides
+from .extensor import ExTensor
+from .broadcasting import broadcast_shapes, compute_broadcast_strides
 
 
 # ============================================================================

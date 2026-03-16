@@ -11,7 +11,7 @@ Architecture:
 
 Example:
     ```mojo
-    from shared.core.lazy_expression import expr, evaluate
+    from .lazy_expression import expr, evaluate
 
     # Build expression lazily (no computation yet)
     var expression = (expr(tensor1) + expr(tensor2)) * expr(tensor3)
@@ -22,8 +22,8 @@ Example:
 """
 
 from collections import List
-from shared.core.extensor import ExTensor
-from shared.core.broadcasting import broadcast_shapes, compute_broadcast_strides
+from .extensor import ExTensor
+from .broadcasting import broadcast_shapes, compute_broadcast_strides
 
 
 # ============================================================================

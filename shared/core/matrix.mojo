@@ -12,9 +12,9 @@ Includes:
 
 from collections import List
 from memory import memcpy
-from shared.core.extensor import ExTensor
-from shared.core.gradient_types import GradientPair
-from shared.core.shape import as_contiguous
+from .extensor import ExTensor
+from .gradient_types import GradientPair
+from .shape import as_contiguous
 
 
 # ============================================================================

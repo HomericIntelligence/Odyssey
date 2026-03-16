@@ -13,7 +13,7 @@ reducing allocation overhead and system malloc pressure.
 
 Example:
     ```mojo
-    from shared.core.memory_pool import get_global_pool, pooled_alloc, pooled_free
+    from .memory_pool import get_global_pool, pooled_alloc, pooled_free
 
     # Allocate memory from pool
     var ptr = pooled_alloc(256)  # Will use 256B bucket

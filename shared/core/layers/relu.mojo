@@ -9,9 +9,9 @@ Key components:
   Implements: y = max(0, x) forward, ∂L/∂x = grad * (x > 0) backward
 """
 
-from shared.core.extensor import ExTensor, zeros_like
-from shared.core.activation import relu, relu_backward
-from shared.core.module import Module
+from ..extensor import ExTensor, zeros_like
+from ..activation import relu, relu_backward
+from ..module import Module
 
 
 struct ReLULayer(Copyable, Module, Movable):

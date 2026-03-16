@@ -12,8 +12,8 @@ Architecture:
 """
 
 from collections import List
-from shared.core.extensor import ExTensor, full
-from shared.core.lazy_expression import (
+from .extensor import ExTensor, full
+from .lazy_expression import (
     TensorExpr,
     ExprNode,
     OpType,
@@ -26,8 +26,8 @@ from shared.core.lazy_expression import (
     OP_SCALAR_MUL,
     OP_SCALAR_DIV,
 )
-from shared.core.broadcasting import compute_broadcast_strides
-from shared.core.dtype_ordinal import (
+from .broadcasting import compute_broadcast_strides
+from .dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,

@@ -57,7 +57,7 @@ Guidelines for Implementation:
     5. Add docstrings with concrete examples showing usage.
 """
 
-from shared.core.extensor import ExTensor
+from .extensor import ExTensor
 
 
 struct GradientPair(Copyable, Movable):

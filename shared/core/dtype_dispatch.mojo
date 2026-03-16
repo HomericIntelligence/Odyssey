@@ -40,9 +40,9 @@ Error Handling:
 See notes/issues/dtype-refactoring-plan.md for complete design documentation
 """
 
-from shared.core.extensor import ExTensor
+from .extensor import ExTensor
 from collections import List
-from shared.core.dtype_ordinal import (
+from .dtype_ordinal import (
     dtype_to_ordinal,
     format_dtype_name,
     DTYPE_FLOAT16,

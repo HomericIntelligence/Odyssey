@@ -24,7 +24,7 @@ Issues covered:
 from random import random_float64, random_si64, seed as random_seed
 from math import sqrt, log, cos, sin
 from collections import List
-from shared.core.extensor import ExTensor
+from .extensor import ExTensor
 
 
 # ============================================================================

@@ -11,8 +11,8 @@ Key components:
              y = gamma * (x - running_mean) / sqrt(running_var + eps) + beta (inference)
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
-from shared.core.normalization_simd import batch_norm2d_fused
+from ..extensor import ExTensor, zeros, ones, zeros_like, ones_like
+from ..normalization_simd import batch_norm2d_fused
 
 
 struct BatchNorm2dLayer(Copyable, Movable):

@@ -9,8 +9,8 @@ Key components:
   Implements: y = xW + b (with broadcasting support for batched inputs).
 """
 
-from shared.core.extensor import ExTensor, zeros, randn, zeros_like
-from shared.core.module import Module
+from ..extensor import ExTensor, zeros, randn, zeros_like
+from ..module import Module
 
 
 struct Linear(Copyable, Module, Movable):
@@ -82,7 +82,7 @@ struct Linear(Copyable, Module, Movable):
         """
         # Compute: output = input @ weight + bias
         # Matrix multiplication: input @ weight
-        from shared.core.matrix import matmul
+        from ..matrix import matmul
 
         var matmul_result = matmul(input, self.weight)
 
