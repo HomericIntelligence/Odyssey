@@ -664,7 +664,6 @@ _test-mojo-inner:
         [[ "$(basename "$test_file")" == "conftest.mojo" ]] && continue
         [[ "$test_file" == "tests/helpers/fixtures.mojo" ]] && continue
         [[ "$test_file" == "tests/helpers/utils.mojo" ]] && continue
-        [[ "$test_file" == "tests/models/test_vgg16_e2e.mojo" ]] && continue
         [ -f "$test_file" ] && test_count=$((test_count + 1))
     done
 
@@ -683,11 +682,7 @@ _test-mojo-inner:
            [[ "$test_file" == "tests/helpers/utils.mojo" ]]; then
             continue
         fi
-        # Skip known flaky tests with open GitHub issues
-        if [[ "$test_file" == "tests/models/test_vgg16_e2e.mojo" ]]; then
-            echo "⚠️  Skipping $test_file (issue #4511 - JIT heap corruption on 4th forward pass)"
-            continue
-        fi
+        # VGG16 tests run normally with JIT crash retry (ADR-009)
         if [ -f "$test_file" ]; then
             echo "Testing: $test_file"
             attempt=0
