@@ -1,11 +1,6 @@
 name: Weekly Model E2E Tests
 
 # Runs full end-to-end model tests against real datasets weekly.
-# All pixi run mojo calls are protected with the 3-attempt exponential-backoff
-# retry pattern (issue #3329, ADR-009) to guard against the Mojo v0.26.1 JIT
-# crash (libKGENCompilerRTShared.so).
-#
-# Closes #3955 -- audit follow-up from #3329.
 
 on:
   # Saturdays at 3 AM UTC (avoids collision with SIMD benchmarks on Sundays 2 AM)
@@ -59,32 +54,21 @@ jobs:
             echo "Testing model: $model_name"
             echo "========================================"
 
-            # Run Mojo tests if they exist -- protected with retry loop (issue #3329, ADR-009)
+            # Run Mojo tests if they exist
             mojo_tests=$(find "$model_dir" -name 'test_*.mojo' 2>/dev/null | head -1)
             if [ -n "$mojo_tests" ]; then
-              attempt=0
-              delay=1
-              while [ $attempt -lt 3 ]; do
-                attempt=$((attempt + 1))
-                if pixi run mojo test -I . "$model_dir" --verbose \
-                    2>&1 | tee "test-results/${model_name}-mojo.txt"; then
-                  echo "Mojo E2E tests passed for $model_name"
-                  break
-                fi
-                if [ $attempt -lt 3 ]; then
-                  echo "Attempt $attempt failed, retrying in ${delay}s (JIT crash -- ADR-009, issue #3329)"
-                  sleep $delay
-                  delay=$((delay * 2))
-                else
-                  echo "Mojo E2E tests failed for $model_name after 3 attempts"
-                  overall_status=1
-                fi
-              done
+              if pixi run mojo test -I . "$model_dir" --verbose \
+                  2>&1 | tee "test-results/${model_name}-mojo.txt"; then
+                echo "Mojo E2E tests passed for $model_name"
+              else
+                echo "Mojo E2E tests failed for $model_name"
+                overall_status=1
+              fi
             else
               echo "No Mojo test files found in $model_dir -- skipping Mojo tests"
             fi
 
-            # Run Python tests if they exist (no retry needed -- not affected by JIT crash)
+            # Run Python tests if they exist
             py_tests=$(find "$model_dir" -name 'test_*.py' 2>/dev/null | head -1)
             if [ -n "$py_tests" ]; then
               if pixi run pytest "$model_dir" --verbose \
@@ -115,12 +99,6 @@ jobs:
             echo "# Weekly Model E2E Test Results"
             echo ""
             echo "Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
-            echo ""
-            echo "## Retry Policy"
-            echo ""
-            echo "All pixi run mojo calls use 3-attempt exponential-backoff retry"
-            echo "(1s -> 2s -> 4s) to handle the Mojo v0.26.1 JIT crash"
-            echo "(libKGENCompilerRTShared.so). See ADR-009 and issue #3329."
           } > test-results/summary.md
           cat test-results/summary.md
 

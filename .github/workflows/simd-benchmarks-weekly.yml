@@ -41,24 +41,9 @@ jobs:
           # Create results directory
           mkdir -p benchmark-results
 
-          # Run the SIMD benchmark with retry for JIT crash resilience (issue #3329)
-          attempt=0
-          delay=1
-          while [ $attempt -lt 3 ]; do
-            attempt=$((attempt + 1))
-            if pixi run mojo run -I . benchmarks/bench_simd.mojo | tee benchmark-results/simd-output.txt; then  # no-bare-mojo-lint: inside retry loop
-              echo "✅ SIMD benchmarks completed successfully"
-              break
-            fi
-            if [ $attempt -lt 3 ]; then
-              echo "⚠️  Attempt $attempt failed, retrying in ${delay}s..."
-              sleep $delay
-              delay=$((delay * 2))
-            else
-              echo "❌ SIMD benchmarks failed after 3 attempts"
-              exit 1
-            fi
-          done
+          # Run the SIMD benchmark
+          pixi run mojo run -I . benchmarks/bench_simd.mojo | tee benchmark-results/simd-output.txt
+          echo "✅ SIMD benchmarks completed successfully"
 
       - name: Generate benchmark summary
         if: success()

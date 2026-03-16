@@ -150,7 +150,7 @@ jobs:
         run: |
           echo "Running smoke tests in container..."
           docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }} \
-            pixi run mojo test -I . tests/smoke/ || echo "⚠️ Smoke tests not found or failed"  # no-bare-mojo-lint: smoke test; failure is non-fatal (|| echo)
+            pixi run mojo test -I . tests/smoke/ || echo "⚠️ Smoke tests not found or failed"
 
   # ============================================================================
   # Security Scan
