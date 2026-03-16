@@ -1,6 +1,6 @@
 """Tests for ExTensor serialization and deserialization.
 
-Tests the save() and load() methods on ExTensor instances for:
+Tests the save_tensor() and load_tensor() standalone functions for:
 - Single tensor round-trip (save -> load -> compare values)
 - Multiple data types (float32, float64, int8, etc.)
 - Various tensor shapes (1D, 2D, 3D, 4D)
@@ -10,6 +10,7 @@ Runs as: pixi run mojo ./tests/shared/core/test_extensor_serialization.mojo
 """
 
 from shared.core.extensor import ExTensor, zeros, ones, arange
+from shared.utils.serialization import save_tensor, load_tensor
 
 
 fn test_save_load_float32() raises:
@@ -27,11 +28,11 @@ fn test_save_load_float32() raises:
 
     # Save
     var path = "/tmp/test_tensor_float32.bin"
-    original.save(path, "test_float32")
+    save_tensor(original, path, "test_float32")
     print("✓ Tensor saved to:", path)
 
     # Load
-    var loaded = ExTensor.load(path)
+    var loaded = load_tensor(path)
     print("✓ Tensor loaded from:", path)
 
     # Verify
@@ -76,8 +77,8 @@ fn test_save_load_float64() raises:
 
     # Save and load
     var path = "/tmp/test_tensor_float64.bin"
-    original.save(path, "test_float64")
-    var loaded = ExTensor.load(path)
+    save_tensor(original, path, "test_float64")
+    var loaded = load_tensor(path)
 
     # Verify
     var matches = True
@@ -110,8 +111,8 @@ fn test_save_load_int64() raises:
 
     # Save and load
     var path = "/tmp/test_tensor_int64.bin"
-    original.save(path, "test_int64")
-    var loaded = ExTensor.load(path)
+    save_tensor(original, path, "test_int64")
+    var loaded = load_tensor(path)
 
     # Verify
     if loaded.dtype() == DType.int64:
@@ -133,8 +134,8 @@ fn test_save_load_different_shapes() raises:
     var shape_1d = List[Int]()
     shape_1d.append(10)
     var tensor_1d = arange(0.0, 10.0, 1.0, DType.float32)
-    tensor_1d.save("/tmp/test_1d.bin")
-    var loaded_1d = ExTensor.load("/tmp/test_1d.bin")
+    save_tensor(tensor_1d, "/tmp/test_1d.bin")
+    var loaded_1d = load_tensor("/tmp/test_1d.bin")
     if loaded_1d.shape() == tensor_1d.shape():
         print("✓ 1D tensor shape preserved")
     else:
@@ -145,8 +146,8 @@ fn test_save_load_different_shapes() raises:
     shape_2d.append(3)
     shape_2d.append(4)
     var tensor_2d = ones(shape_2d, DType.float32)
-    tensor_2d.save("/tmp/test_2d.bin")
-    var loaded_2d = ExTensor.load("/tmp/test_2d.bin")
+    save_tensor(tensor_2d, "/tmp/test_2d.bin")
+    var loaded_2d = load_tensor("/tmp/test_2d.bin")
     if loaded_2d.shape() == tensor_2d.shape():
         print("✓ 2D tensor shape preserved")
     else:
@@ -158,8 +159,8 @@ fn test_save_load_different_shapes() raises:
     shape_3d.append(3)
     shape_3d.append(4)
     var tensor_3d = zeros(shape_3d, DType.float32)
-    tensor_3d.save("/tmp/test_3d.bin")
-    var loaded_3d = ExTensor.load("/tmp/test_3d.bin")
+    save_tensor(tensor_3d, "/tmp/test_3d.bin")
+    var loaded_3d = load_tensor("/tmp/test_3d.bin")
     if loaded_3d.shape() == tensor_3d.shape():
         print("✓ 3D tensor shape preserved")
     else:
@@ -180,10 +181,10 @@ fn test_named_tensor_save() raises:
 
     var path = "/tmp/test_named.bin"
     var name = "my_custom_tensor"
-    tensor.save(path, name)
+    save_tensor(tensor, path, name)
 
     # Load and verify
-    var loaded = ExTensor.load(path)
+    var loaded = load_tensor(path)
     print("✓ Tensor with name saved and loaded successfully")
 
     print()
@@ -204,10 +205,10 @@ fn test_large_tensor_serialization() raises:
         large_tensor._set_float64(i, 2.71828)
 
     var path = "/tmp/test_large.bin"
-    large_tensor.save(path)
+    save_tensor(large_tensor, path)
     print("✓ Large tensor (100x100) saved")
 
-    var loaded = ExTensor.load(path)
+    var loaded = load_tensor(path)
     print("✓ Large tensor loaded")
 
     if loaded.numel() == 10000:

@@ -3504,54 +3504,6 @@ struct ExTensor(
 
         return current^
 
-    fn save(self, path: String, name: String = "") raises:
-        """Save tensor to file in hex-encoded binary format.
-
-        Persists tensor with metadata (dtype, shape) and hex-encoded byte data.
-        File format is text-based for portability across platforms.
-
-        Args:
-            path: Output file path.
-            name: Optional tensor name (defaults to empty string).
-
-        Raises:
-            Error: If file write fails or path is invalid.
-
-        Example:
-            ```mojo
-            var weights = zeros([3, 4], DType.float32)
-            weights.save("checkpoint/weights.bin", "conv1_weights")
-            ```
-        """
-        from shared.utils.serialization import save_tensor
-
-        save_tensor(self, path, name)
-
-    @staticmethod
-    fn load(path: String) raises -> ExTensor:
-        """Load tensor from file.
-
-        Reads hex-encoded tensor data and metadata, reconstructs
-        ExTensor with original dtype and shape.
-
-        Args:
-            path: Input file path.
-
-        Returns:
-            Loaded ExTensor.
-
-        Raises:
-            Error: If file format is invalid or file doesn't exist.
-
-        Example:
-            ```mojo
-            var tensor = ExTensor.load("checkpoint/weights.bin")
-            ```
-        """
-        from shared.utils.serialization import load_tensor
-
-        return load_tensor(path)
-
 
 
 # ============================================================================
