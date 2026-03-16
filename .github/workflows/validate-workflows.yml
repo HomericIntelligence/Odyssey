@@ -6,16 +6,12 @@ on:
     paths:
       - '.github/**'
       - 'scripts/validate_workflow_checkout_order.py'
-      - 'scripts/validate_mojo_retry_pattern.py'
-      - 'scripts/check_bare_mojo_calls.py'
       - '.github/workflows/validate-workflows.yml'
   pull_request:
     branches: [main]
     paths:
       - '.github/**'
       - 'scripts/validate_workflow_checkout_order.py'
-      - 'scripts/validate_mojo_retry_pattern.py'
-      - 'scripts/check_bare_mojo_calls.py'
       - '.github/workflows/validate-workflows.yml'
   workflow_dispatch:
 
@@ -41,11 +37,3 @@ jobs:
           echo "(Reusable workflow jobs using ./.github/workflows/ are skipped — they run in their own VM with their own checkout.)"
           python3 scripts/validate_workflow_checkout_order.py .github/workflows/
 
-      - name: Detect bare pixi run mojo calls without retry protection
-        run: |
-          echo "Checking for bare 'pixi run mojo' calls not protected by a retry loop (issue #3329)..."
-          python3 scripts/validate_mojo_retry_pattern.py .github/workflows/
-      - name: Check for bare pixi run mojo calls
-        run: |
-          echo "Checking workflow files for bare pixi run mojo calls without retry (ref #3956)..."
-          python3 scripts/check_bare_mojo_calls.py .github/workflows/*.yml

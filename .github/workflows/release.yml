@@ -136,28 +136,10 @@ jobs:
           if [ -d "src" ] && [ -n "$(find src -name '*.mojo' -o -name '*.🔥' 2>/dev/null)" ]; then
             echo "Building Mojo packages..."
 
-            # Build all Mojo packages (with retry for JIT crash resilience, issue #3329)
+            # Build all Mojo packages
             find src -name "*.mojo" -o -name "*.🔥" | while read -r file; do
               echo "Building: $file"
-              attempt=0
-              delay=1
-              built=0
-              while [ $attempt -lt 3 ]; do
-                attempt=$((attempt + 1))
-                if pixi run mojo build -I . "$file" -o "dist/mojo/$(basename "$file" .mojo)"; then
-                  built=1
-                  break
-                fi
-                if [ $attempt -lt 3 ]; then
-                  echo "⚠️  Attempt $attempt failed, retrying in ${delay}s..."
-                  sleep $delay
-                  delay=$((delay * 2))
-                fi
-              done
-              if [ $built -eq 0 ]; then
-                echo "❌ Build failed for $file after 3 attempts"
-                exit 1
-              fi
+              pixi run mojo build -I . "$file" -o "dist/mojo/$(basename "$file" .mojo)"
             done
 
             echo "✅ Mojo packages built successfully"
@@ -266,22 +248,7 @@ jobs:
           # Run Mojo tests if they exist
           if [ -d "tests/unit" ] && [ -n "$(find tests/unit -name '*.mojo' -o -name '*.🔥' 2>/dev/null)" ]; then
             echo "Running Mojo unit tests..."
-            attempt=0
-            delay=1
-            while [ $attempt -lt 3 ]; do
-              attempt=$((attempt + 1))
-              if pixi run mojo test -I . tests/unit/ --verbose; then  # no-bare-mojo-lint: inside retry loop
-                break
-              fi
-              if [ $attempt -lt 3 ]; then
-                echo "⚠️  Attempt $attempt failed, retrying in ${delay}s..."
-                sleep $delay
-                delay=$((delay * 2))
-              else
-                echo "❌ Mojo unit tests failed after 3 attempts"
-                exit 1
-              fi
-            done
+            pixi run mojo test -I . tests/unit/ --verbose
           fi
 
           # Run Python tests if they exist
@@ -298,22 +265,7 @@ jobs:
           if [ -d "tests/integration" ]; then
             if [ -n "$(find tests/integration -name '*.mojo' -o -name '*.🔥' 2>/dev/null)" ]; then
               echo "Running Mojo integration tests..."
-              attempt=0
-              delay=1
-              while [ $attempt -lt 3 ]; do
-                attempt=$((attempt + 1))
-                if pixi run mojo test -I . tests/integration/ --verbose; then  # no-bare-mojo-lint: inside retry loop
-                  break
-                fi
-                if [ $attempt -lt 3 ]; then
-                  echo "⚠️  Attempt $attempt failed, retrying in ${delay}s..."
-                  sleep $delay
-                  delay=$((delay * 2))
-                else
-                  echo "❌ Mojo integration tests failed after 3 attempts"
-                  exit 1
-                fi
-              done
+              pixi run mojo test -I . tests/integration/ --verbose
             fi
 
             if [ -n "$(find tests/integration -name 'test_*.py' 2>/dev/null)" ]; then
