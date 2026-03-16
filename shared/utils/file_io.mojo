@@ -622,7 +622,7 @@ fn safe_read_file(filepath: String) raises -> String:
     try:
         with open(filepath, "r") as f:
             return f.read()
-    except e:
+    except _:
         raise Error("File not found: " + filepath)
 
 

@@ -589,25 +589,3 @@ struct PrecisionConfig(Copyable, Movable):
 # ============================================================================
 # Helper Functions
 # ============================================================================
-
-
-fn _check_bf16_platform_support(is_apple: Bool) raises:
-    """Check if BF16 is supported on the target platform.
-
-    BF16 (bfloat16) is NOT supported on Apple Silicon (M1/M2/M3) due to
-    missing hardware support in the Mojo runtime. This function raises an
-    error if BF16 is requested on Apple Silicon.
-
-    Args:
-        is_apple: True if running on Apple Silicon, False otherwise.
-
-    Raises:
-        Error: If BF16 is requested on Apple Silicon.
-    """
-    if is_apple:
-        raise Error(
-            "BF16 (bfloat16) is NOT supported on Apple Silicon (M1/M2/M3). "
-            "The Mojo runtime lacks native hardware support for this dtype on "
-            "Apple processors. Use PrecisionConfig.fp16() instead, which is "
-            "fully supported on all platforms."
-        )
