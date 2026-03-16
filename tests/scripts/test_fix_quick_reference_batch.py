@@ -102,6 +102,7 @@ some command
 class TestMergeQuickReference:
     def test_demotes_heading(self, mod) -> None:
         import re
+
         result = mod.merge_quick_reference_into_verified_workflow(SIMPLE_CONTENT)
         assert "### Quick Reference" in result
         # Top-level h2 should be gone (### still contains "## Quick Reference" as substring)
@@ -140,6 +141,7 @@ class TestMergeQuickReference:
 
     def test_multiline_qr_block(self, mod) -> None:
         import re
+
         content = (
             "# S\n\n"
             "## Quick Reference\n\n"
@@ -263,6 +265,7 @@ class TestFixSkillFile:
 
     def test_writes_corrected_content(self, mod, tmp_path: Path) -> None:
         import re
+
         skill_md = tmp_path / "SKILL.md"
         skill_md.write_text(AFFECTED_CONTENT, encoding="utf-8")
         mod.fix_skill_file(skill_md)

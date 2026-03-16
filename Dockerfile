@@ -44,8 +44,10 @@ ARG USER_ID=1000
 ARG GROUP_ID=1000
 ARG USER_NAME=dev
 
-RUN groupadd -g ${GROUP_ID} ${USER_NAME} && \
-    useradd -m -u ${USER_ID} -g ${GROUP_ID} -s /bin/bash ${USER_NAME}
+RUN groupadd -g ${GROUP_ID} ${USER_NAME} 2>/dev/null || \
+    groupmod -n ${USER_NAME} $(getent group ${GROUP_ID} | cut -d: -f1) && \
+    useradd -m -u ${USER_ID} -g ${GROUP_ID} -s /bin/bash ${USER_NAME} 2>/dev/null || \
+    usermod -l ${USER_NAME} -d /home/${USER_NAME} -m $(id -nu ${USER_ID} 2>/dev/null || echo nobody)
 
 # Set environment for dev user
 ENV HOME=/home/${USER_NAME}

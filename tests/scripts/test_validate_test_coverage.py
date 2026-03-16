@@ -216,9 +216,7 @@ class TestCheckGroupOverlaps:
         result = check_group_overlaps(ci_groups, coverage)
         assert result == []
 
-    def test_detects_overlap_between_parent_and_child_groups(
-        self, tmp_repo_with_subdirs: Path
-    ) -> None:
+    def test_detects_overlap_between_parent_and_child_groups(self, tmp_repo_with_subdirs: Path) -> None:
         root = tmp_repo_with_subdirs
         # "Data" uses a subdirectory wildcard that picks up datasets/test_cifar.mojo
         # "Datasets" explicitly targets that same file
@@ -230,12 +228,8 @@ class TestCheckGroupOverlaps:
             },
         }
         coverage = {
-            "Data": expand_pattern(
-                "tests/shared/data", "datasets/test_*.mojo", root
-            ),
-            "Datasets": expand_pattern(
-                "tests/shared/data/datasets", "test_*.mojo", root
-            ),
+            "Data": expand_pattern("tests/shared/data", "datasets/test_*.mojo", root),
+            "Datasets": expand_pattern("tests/shared/data/datasets", "test_*.mojo", root),
         }
         result = check_group_overlaps(ci_groups, coverage)
         assert len(result) == 1
@@ -273,20 +267,14 @@ class TestCheckGroupOverlaps:
             },
         }
         coverage = {
-            "Data": expand_pattern(
-                "tests/shared/data", "datasets/test_*.mojo", root
-            ),
-            "Datasets": expand_pattern(
-                "tests/shared/data/datasets", "test_*.mojo", root
-            ),
+            "Data": expand_pattern("tests/shared/data", "datasets/test_*.mojo", root),
+            "Datasets": expand_pattern("tests/shared/data/datasets", "test_*.mojo", root),
         }
         result = check_group_overlaps(ci_groups, coverage)
         files = [f for _, _, f in result]
         assert files == sorted(files)
 
-    def test_overlap_triples_contain_group_names_and_path(
-        self, tmp_repo_with_subdirs: Path
-    ) -> None:
+    def test_overlap_triples_contain_group_names_and_path(self, tmp_repo_with_subdirs: Path) -> None:
         root = tmp_repo_with_subdirs
         ci_groups = {
             "Data": {"path": "tests/shared/data", "pattern": "datasets/test_*.mojo"},
@@ -296,12 +284,8 @@ class TestCheckGroupOverlaps:
             },
         }
         coverage = {
-            "Data": expand_pattern(
-                "tests/shared/data", "datasets/test_*.mojo", root
-            ),
-            "Datasets": expand_pattern(
-                "tests/shared/data/datasets", "test_*.mojo", root
-            ),
+            "Data": expand_pattern("tests/shared/data", "datasets/test_*.mojo", root),
+            "Datasets": expand_pattern("tests/shared/data/datasets", "test_*.mojo", root),
         }
         result = check_group_overlaps(ci_groups, coverage)
         assert len(result) == 1

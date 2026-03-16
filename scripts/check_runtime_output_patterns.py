@@ -28,10 +28,10 @@ SOURCE_DIRS = ["benchmarks", "examples", "papers", "scripts", "shared", "tests"]
 # Matches lines that call print( and contain one of the banned prefixes.
 # Only matches actual print calls, not comment lines (those start with #).
 BANNED_PATTERNS = [
-    re.compile(r'print\([^)]*WARNING\s*:', re.IGNORECASE),
-    re.compile(r'print\([^)]*HACK\s*:', re.IGNORECASE),
-    re.compile(r'print\([^)]*XXX\s*:', re.IGNORECASE),
-    re.compile(r'print\([^)]*Not\s+implemented', re.IGNORECASE),
+    re.compile(r"print\([^)]*WARNING\s*:", re.IGNORECASE),
+    re.compile(r"print\([^)]*HACK\s*:", re.IGNORECASE),
+    re.compile(r"print\([^)]*XXX\s*:", re.IGNORECASE),
+    re.compile(r"print\([^)]*Not\s+implemented", re.IGNORECASE),
 ]
 
 

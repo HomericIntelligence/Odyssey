@@ -135,10 +135,7 @@ class TestExtractInstallationLinks:
         assert anchor == "prerequisites"
 
     def test_multiple_installation_links(self) -> None:
-        content = (
-            "[A](installation.md#prerequisites)\n"
-            "[B](installation.md#installing-pixi)\n"
-        )
+        content = "[A](installation.md#prerequisites)\n[B](installation.md#installing-pixi)\n"
         result = extract_installation_links(content, "GUIDE.md")
         assert len(result) == 2
         anchors = {anchor for _, _, anchor in result}
@@ -190,9 +187,7 @@ class TestValidate:
             installation = tmp / "installation.md"
             installation.write_text(_INSTALLATION_CONTENT, encoding="utf-8")
             readme = tmp / "README.md"
-            readme.write_text(
-                "[Guide](installation.md#prerequisites)\n", encoding="utf-8"
-            )
+            readme.write_text("[Guide](installation.md#prerequisites)\n", encoding="utf-8")
 
             errors = validate([readme], installation)
             assert errors == []
@@ -203,9 +198,7 @@ class TestValidate:
             installation = tmp / "installation.md"
             installation.write_text(_INSTALLATION_CONTENT, encoding="utf-8")
             readme = tmp / "README.md"
-            readme.write_text(
-                "[Guide](installation.md#nonexistent-section)\n", encoding="utf-8"
-            )
+            readme.write_text("[Guide](installation.md#nonexistent-section)\n", encoding="utf-8")
 
             errors = validate([readme], installation)
             assert len(errors) == 1
@@ -257,9 +250,7 @@ class TestValidate:
             readme = tmp / "README.md"
             readme.write_text("[Guide](installation.md#prerequisites)\n", encoding="utf-8")
             guide = tmp / "guide.md"
-            guide.write_text(
-                "[Install](installation.md#installing-pixi)\n", encoding="utf-8"
-            )
+            guide.write_text("[Install](installation.md#installing-pixi)\n", encoding="utf-8")
 
             errors = validate([readme, guide], installation)
             assert errors == []
@@ -273,9 +264,7 @@ class TestValidate:
             readme = tmp / "README.md"
             readme.write_text("[Guide](installation.md#prerequisites)\n", encoding="utf-8")
             broken = tmp / "broken.md"
-            broken.write_text(
-                "[Install](installation.md#does-not-exist)\n", encoding="utf-8"
-            )
+            broken.write_text("[Install](installation.md#does-not-exist)\n", encoding="utf-8")
 
             errors = validate([readme, broken], installation)
             assert len(errors) == 1
@@ -316,9 +305,7 @@ class TestMain:
             installation = tmp / "installation.md"
             installation.write_text(_INSTALLATION_CONTENT, encoding="utf-8")
             readme = tmp / "README.md"
-            readme.write_text(
-                "[Guide](installation.md#broken-anchor)\n", encoding="utf-8"
-            )
+            readme.write_text("[Guide](installation.md#broken-anchor)\n", encoding="utf-8")
 
             rc = main([str(readme), str(installation)])
             assert rc == 1
