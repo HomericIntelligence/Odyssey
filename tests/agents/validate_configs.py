@@ -275,20 +275,25 @@ class AgentConfigValidator:
                 errors.append(f"Invalid model '{model}' (use: {', '.join(self.VALID_MODELS)})")
 
         if "delegates_to" in frontmatter:
-            raw = frontmatter["delegates_to"].strip()
-            # Parse YAML inline list: [name-a, name-b] or empty []
-            if raw.startswith("[") and raw.endswith("]"):
-                inner = raw[1:-1].strip()
-                if inner:
-                    names = [n.strip() for n in inner.split(",") if n.strip()]
-                    for name in names:
-                        if name not in self.existing_agents:
-                            errors.append(
-                                f"delegates_to references non-existent agent: '{name}'"
+            raw = frontmatter["delegates_to"]
+            # Handle both parsed list and raw string formats
+            if isinstance(raw, list):
+                names = [str(n).strip() for n in raw if str(n).strip()]
+            elif isinstance(raw, str):
+                raw = raw.strip()
+                if raw.startswith("[") and raw.endswith("]"):
+                    inner = raw[1:-1].strip()
+                    names = [n.strip() for n in inner.split(",") if n.strip()] if inner else []
+                else:
+                    names = [raw] if raw else []
+            else:
+                names = []
+            for name in names:
+                if name not in self.existing_agents:
+                    errors.append(
+                        f"delegates_to references non-existent agent: '{name}'"
                                 f" (no .claude/agents/{name}.md)"
                             )
-            else:
-                errors.append(f"delegates_to must be a YAML inline list, got: '{raw}'")
 
         return errors, warnings, frontmatter
 

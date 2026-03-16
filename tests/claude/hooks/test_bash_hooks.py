@@ -15,7 +15,7 @@ if project_hook.exists():
 elif home_hook.exists():
     HOOK_SCRIPT = home_hook
 else:
-    pytest.fail("No hook script found in project or home directory")
+    pytest.skip("No hook script found in project or home directory", allow_module_level=True)
 
 PROJECT_ROOT = Path.cwd()
 

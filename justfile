@@ -189,7 +189,11 @@ ci-docker-validate:
 # ==============================================================================
 
 # Build/compile Mojo files with mode-specific flags
-build mode="debug": (_ensure_build_dir mode)
+build mode="debug":
+    @just _run "just _build-inner {{mode}}"
+
+[private]
+_build-inner mode="debug":
     #!/usr/bin/env bash
     set -euo pipefail
 
@@ -300,22 +304,29 @@ ci-build:
 # ==============================================================================
 
 # Package shared library with mode-specific flags
-package mode="debug": (_ensure_build_dir mode)
+package mode="debug":
+    @just _run "just _package-inner {{mode}}"
+
+[private]
+_package-inner mode="debug":
     #!/usr/bin/env bash
     set -e
     REPO_ROOT="$(pwd)"
     STRICT="--Werror"
 
-    case "{{mode}}" in
+    MODE="{{mode}}"
+    mkdir -p "build/$MODE"
+
+    case "$MODE" in
         debug)   FLAGS="$STRICT" ;;
         release) FLAGS="$STRICT" ;;
         test)    FLAGS="$STRICT" ;;
         *)       FLAGS="$STRICT" ;;
     esac
 
-    echo "Packaging shared library in {{mode}} mode..."
+    echo "Packaging shared library in $MODE mode..."
     echo "Flags: $FLAGS"
-    pixi run mojo package $FLAGS -I "$REPO_ROOT" shared -o build/{{mode}}/ProjectOdyssey-shared.mojopkg
+    pixi run mojo package $FLAGS -I "$REPO_ROOT" shared -o "build/$MODE/ProjectOdyssey-shared.mojopkg"
 
 # Package debug version
 package-debug: (package "debug")
@@ -520,6 +531,10 @@ test-python:
 
 # Test group of Mojo files with -Werror enforcement
 test-group path pattern:
+    @just _run "just _test-group-inner '{{path}}' '{{pattern}}'"
+
+[private]
+_test-group-inner path pattern:
     #!/usr/bin/env bash
     set -e
     REPO_ROOT="$(pwd)"
@@ -632,6 +647,10 @@ test-group path pattern:
 
 # CI: Run all Mojo tests (with retry for JIT flakes)
 test-mojo:
+    @just _run "just _test-mojo-inner"
+
+[private]
+_test-mojo-inner:
     #!/usr/bin/env bash
     set -e
     REPO_ROOT="$(pwd)"
@@ -646,7 +665,7 @@ test-mojo:
         [[ "$test_file" == "tests/helpers/fixtures.mojo" ]] && continue
         [[ "$test_file" == "tests/helpers/utils.mojo" ]] && continue
         [[ "$test_file" == "tests/models/test_vgg16_e2e.mojo" ]] && continue
-        [ -f "$test_file" ] && ((test_count++))
+        [ -f "$test_file" ] && test_count=$((test_count + 1))
     done
 
     if [ $test_count -eq 0 ]; then

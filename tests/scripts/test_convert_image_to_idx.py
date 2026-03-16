@@ -56,14 +56,16 @@ class TestLoadAndPreprocess(TestCase):
         png = self.tmp / "img.png"
         _make_png(png)
         result = self.load_and_preprocess(png, emnist_transform=True)
-        self.assertEqual(len(result), 784)
+        pixel_data = bytes(result.getdata()) if hasattr(result, "getdata") else result
+        self.assertEqual(len(pixel_data), 784)
 
     def test_pixel_values_in_range(self) -> None:
         """All pixel values are uint8 [0, 255]."""
         png = self.tmp / "img.png"
         _make_png(png)
         result = self.load_and_preprocess(png, emnist_transform=False)
-        for byte in result:
+        pixel_data = bytes(result.getdata()) if hasattr(result, "getdata") else result
+        for byte in pixel_data:
             self.assertGreaterEqual(byte, 0)
             self.assertLessEqual(byte, 255)
 
@@ -72,7 +74,8 @@ class TestLoadAndPreprocess(TestCase):
         jpg = self.tmp / "img.jpg"
         _make_jpeg(jpg)
         result = self.load_and_preprocess(jpg, emnist_transform=False)
-        self.assertEqual(len(result), 784)
+        pixel_data = bytes(result.getdata()) if hasattr(result, "getdata") else result
+        self.assertEqual(len(pixel_data), 784)
 
     def test_emnist_transform_changes_pixels(self) -> None:
         """EMNIST transform produces different pixel order than no transform."""
@@ -103,8 +106,8 @@ class TestWriteIdxImage(TestCase):
 
     def _write_dummy(self) -> Path:
         out = self.tmp / "out.idx"
-        pixel_bytes = bytes(784)
-        self.write_idx_image(pixel_bytes, out)
+        img = Image.new("L", (28, 28), color=0)
+        self.write_idx_image(img, out)
         return out
 
     def test_output_file_created(self) -> None:
@@ -149,7 +152,9 @@ class TestWriteIdxImage(TestCase):
         """Pixel bytes are written verbatim after the header."""
         out = self.tmp / "out.idx"
         pixel_bytes = bytes(range(256)) * 3 + bytes(16)  # 784 bytes
-        self.write_idx_image(pixel_bytes, out)
+        img = Image.new("L", (28, 28))
+        img.putdata(list(pixel_bytes))
+        self.write_idx_image(img, out)
         data = out.read_bytes()
         self.assertEqual(data[16:], pixel_bytes)
 
