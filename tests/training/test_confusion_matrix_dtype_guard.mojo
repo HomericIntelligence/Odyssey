@@ -16,7 +16,7 @@ from shared.training.metrics import ConfusionMatrix
 
 
 fn test_float32_labels_raises() raises:
-    """float32 labels must raise a descriptive error."""
+    """Float32 labels must raise a descriptive error."""
     print("Testing float32 labels raise...")
 
     var cm = ConfusionMatrix(num_classes=3)
@@ -38,7 +38,7 @@ fn test_float32_labels_raises() raises:
         cm.update(preds, labels)
     except e:
         raised = True
-        var msg = str(e)
+        var msg = String(e)
         assert_true(
             "int32 or int64" in msg,
             "Error message should mention 'int32 or int64', got: " + msg,
@@ -49,7 +49,7 @@ fn test_float32_labels_raises() raises:
 
 
 fn test_float64_labels_raises() raises:
-    """float64 labels must raise a descriptive error."""
+    """Float64 labels must raise a descriptive error."""
     print("Testing float64 labels raise...")
 
     var cm = ConfusionMatrix(num_classes=3)
@@ -71,7 +71,7 @@ fn test_float64_labels_raises() raises:
         cm.update(preds, labels)
     except e:
         raised = True
-        var msg = str(e)
+        var msg = String(e)
         assert_true(
             "int32 or int64" in msg,
             "Error message should mention 'int32 or int64', got: " + msg,
@@ -104,7 +104,7 @@ fn test_float32_predictions_1d_raises() raises:
         cm.update(preds, labels)
     except e:
         raised = True
-        var msg = str(e)
+        var msg = String(e)
         assert_true(
             "int32 or int64" in msg,
             "Error message should mention 'int32 or int64', got: " + msg,
@@ -115,7 +115,7 @@ fn test_float32_predictions_1d_raises() raises:
 
 
 fn test_int32_labels_accepted() raises:
-    """int32 labels must be accepted without error."""
+    """Int32 labels must be accepted without error."""
     print("Testing int32 labels accepted...")
 
     var cm = ConfusionMatrix(num_classes=3)
@@ -140,7 +140,7 @@ fn test_int32_labels_accepted() raises:
 
 
 fn test_int64_labels_accepted() raises:
-    """int64 labels must be accepted without error."""
+    """Int64 labels must be accepted without error."""
     print("Testing int64 labels accepted...")
 
     var cm = ConfusionMatrix(num_classes=3)
