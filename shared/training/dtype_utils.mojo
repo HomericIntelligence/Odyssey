@@ -135,6 +135,7 @@ fn detect_hardware_bf16_support() -> Bool:
     # Apple Silicon detection via platform module
     # BF16 is not supported on Apple Silicon (M1/M2/M3/M4)
     try:
+        from python import Python
         var python = Python.import_module("platform")
         var machine = python.machine()
         var machine_str = String(machine)

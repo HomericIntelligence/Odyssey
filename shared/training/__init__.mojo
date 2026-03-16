@@ -36,7 +36,6 @@ Note:
     ```
 """
 
-from python import PythonObject
 from shared.core.extensor import ExTensor
 from shared.core.traits import Model, Loss, Optimizer
 from shared.autograd.tape import GradientTape
