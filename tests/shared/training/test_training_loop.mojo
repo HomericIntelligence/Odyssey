@@ -30,7 +30,13 @@ from tests.shared.conftest import (
     create_test_vector,
     TestFixtures,
 )
-from shared.training import SGD, MSELoss, TrainingLoop, TrainingCallbacks, run_epoch_with_batches
+from shared.training import (
+    SGD,
+    MSELoss,
+    TrainingLoop,
+    TrainingCallbacks,
+    run_epoch_with_batches,
+)
 from shared.training.trainer_interface import DataLoader
 from shared.core.extensor import ExTensor, ones, zeros, randn
 from shared.testing import SimpleMLP

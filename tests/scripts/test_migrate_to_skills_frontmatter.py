@@ -16,7 +16,12 @@ _CANDIDATES = [
     # Local ProjectMnemosyne checkout
     Path.home() / "ProjectMnemosyne" / "scripts" / "migrate_to_skills.py",
     # PID-scoped build directory (used by /advise and /retrospective skills)
-    Path(__file__).parent.parent.parent / "build" / str(os.getpid()) / "ProjectMnemosyne" / "scripts" / "migrate_to_skills.py",
+    Path(__file__).parent.parent.parent
+    / "build"
+    / str(os.getpid())
+    / "ProjectMnemosyne"
+    / "scripts"
+    / "migrate_to_skills.py",
 ]
 
 _SCRIPT_PATH: Path | None = next((p for p in _CANDIDATES if p.exists()), None)

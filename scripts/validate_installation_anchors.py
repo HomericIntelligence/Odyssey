@@ -64,9 +64,7 @@ def extract_headings(content: str) -> List[str]:
     return headings
 
 
-def extract_installation_links(
-    content: str, source_path: str
-) -> List[Tuple[str, str, Optional[str]]]:
+def extract_installation_links(content: str, source_path: str) -> List[Tuple[str, str, Optional[str]]]:
     """Extract all links pointing to installation.md from markdown content.
 
     Args:
@@ -136,8 +134,7 @@ def validate(
 
             if anchor not in valid_anchors:
                 errors.append(
-                    f"{src}: broken anchor '#{anchor}' in link '{target}' "
-                    f"(valid anchors: {sorted(valid_anchors)})"
+                    f"{src}: broken anchor '#{anchor}' in link '{target}' (valid anchors: {sorted(valid_anchors)})"
                 )
             else:
                 logger.debug("%s: anchor #%s OK", src, anchor)

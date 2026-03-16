@@ -290,10 +290,7 @@ class AgentConfigValidator:
                 names = []
             for name in names:
                 if name not in self.existing_agents:
-                    errors.append(
-                        f"delegates_to references non-existent agent: '{name}'"
-                                f" (no .claude/agents/{name}.md)"
-                            )
+                    errors.append(f"delegates_to references non-existent agent: '{name}' (no .claude/agents/{name}.md)")
 
         return errors, warnings, frontmatter
 

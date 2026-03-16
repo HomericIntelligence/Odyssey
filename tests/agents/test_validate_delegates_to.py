@@ -19,7 +19,7 @@ import pytest
 # Add tests/agents to path so we can import validate_configs directly
 sys.path.insert(0, str(Path(__file__).parent))
 
-from validate_configs import AgentConfigValidator, ValidationResult
+from validate_configs import AgentConfigValidator
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -353,6 +353,4 @@ class TestDelegatesToRealAgents:
                 if "delegates_to references non-existent agent" in error:
                     stale_errors.append(f"{result.file_path.name}: {error}")
 
-        assert stale_errors == [], (
-            "Stale delegates_to references found:\n" + "\n".join(f"  {e}" for e in stale_errors)
-        )
+        assert stale_errors == [], "Stale delegates_to references found:\n" + "\n".join(f"  {e}" for e in stale_errors)

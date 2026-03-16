@@ -145,7 +145,9 @@ fn test_validation_loop_init_defaults() raises:
 
     var loop = ValidationLoop()
 
-    assert_true(loop.compute_accuracy, "Default compute_accuracy should be True")
+    assert_true(
+        loop.compute_accuracy, "Default compute_accuracy should be True"
+    )
     assert_false(
         loop.compute_confusion, "Default compute_confusion should be False"
     )

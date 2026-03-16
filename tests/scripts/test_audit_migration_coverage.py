@@ -536,6 +536,5 @@ class TestMainAuditExitCodes:
         ]
         proc = subprocess.run(cmd, capture_output=True, text=True, cwd=str(cwd_dir))
         assert proc.returncode == 0, (
-            f"Expected exit 0 (skill skipped), got {proc.returncode}\n"
-            f"{proc.stdout}\n{proc.stderr}"
+            f"Expected exit 0 (skill skipped), got {proc.returncode}\n{proc.stdout}\n{proc.stderr}"
         )

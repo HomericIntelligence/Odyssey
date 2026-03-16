@@ -103,17 +103,13 @@ def merge_quick_reference_into_verified_workflow(content: str) -> str:
     qr_block = qr_match.group(1)
 
     # Demote heading from ## to ###
-    qr_as_subsection = re.sub(
-        r"^## Quick Reference", "### Quick Reference", qr_block, count=1
-    )
+    qr_as_subsection = re.sub(r"^## Quick Reference", "### Quick Reference", qr_block, count=1)
 
     # Remove the original top-level block
     content_without_qr = content[: qr_match.start()] + content[qr_match.end() :]
 
     # Insert the demoted block immediately after the ## Verified Workflow heading line
-    vw_match = re.search(
-        r"^## Verified Workflow[^\n]*\n", content_without_qr, re.MULTILINE
-    )
+    vw_match = re.search(r"^## Verified Workflow[^\n]*\n", content_without_qr, re.MULTILINE)
     if not vw_match:
         # No Verified Workflow section — return unchanged
         return content
@@ -216,9 +212,7 @@ def main() -> int:
     Returns:
         Exit code: 0 on success, 1 if any files remain unfixed after the run.
     """
-    parser = argparse.ArgumentParser(
-        description="Bulk-fix orphaned ## Quick Reference sections in SKILL.md files"
-    )
+    parser = argparse.ArgumentParser(description="Bulk-fix orphaned ## Quick Reference sections in SKILL.md files")
     parser.add_argument(
         "skills_dir",
         nargs="?",

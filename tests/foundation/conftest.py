@@ -38,14 +38,10 @@ def assert_pkg_absent(dockerfile: Path, pkg: str) -> None:
     content = dockerfile.read_text()
 
     apt_match = re.search(rf"apt-get install[^\n]*\b{re.escape(pkg)}\b", content)
-    assert apt_match is None, (
-        f"Found {pkg!r} in apt-get install in {dockerfile.name}: {apt_match.group()!r}"
-    )
+    assert apt_match is None, f"Found {pkg!r} in apt-get install in {dockerfile.name}: {apt_match.group()!r}"
 
     install_match = re.search(rf"\b{re.escape(pkg)}\s+install\b", content)
-    assert install_match is None, (
-        f"Found '{pkg} install' in {dockerfile.name}: {install_match.group()!r}"
-    )
+    assert install_match is None, f"Found '{pkg} install' in {dockerfile.name}: {install_match.group()!r}"
 
 
 @pytest.fixture

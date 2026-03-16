@@ -141,7 +141,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
 
-      - name: Validate agent frontmatter
+      - name: Validate agent frontmatter (check_frontmatter)
         run: |
           echo "Validating agent configurations..."
           found_agents=0
