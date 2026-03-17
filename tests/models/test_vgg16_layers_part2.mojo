@@ -76,9 +76,8 @@ fn test_vgg16_maxpool_forward() raises:
     var input = ones(input_shape, DType.float32)
 
     # Set some varying values for max pool selection
-    var input_data = input._data.bitcast[Float32]()
     for i in range(batch_size * channels * height * width):
-        input_data[i] = Float32(i % 10)
+        input[i] = Float32(i % 10)
 
     # MaxPool2D with 2x2 kernel, stride 2
     var kernel_size = 2
@@ -109,9 +108,8 @@ fn test_vgg16_maxpool_backward() raises:
     var input = ones(input_shape, DType.float32)
 
     # Set varying values
-    var input_data = input._data.bitcast[Float32]()
     for i in range(batch_size * channels * height * width):
-        input_data[i] = Float32(i % 10)
+        input[i] = Float32(i % 10)
 
     # Forward pass
     var kernel_size = 2
@@ -147,12 +145,11 @@ fn test_vgg16_relu_forward() raises:
     var input = zeros(shape, DType.float32)
 
     # Create mixed positive and negative values
-    var input_data = input._data.bitcast[Float32]()
     for i in range(4 * 64 * 32 * 32):
         if i % 3 == 0:
-            input_data[i] = Float32(1.5)  # Positive
+            input[i] = Float32(1.5)  # Positive
         else:
-            input_data[i] = Float32(-0.5)  # Negative
+            input[i] = Float32(-0.5)  # Negative
 
     # Apply ReLU
     var output = relu(input)
@@ -161,14 +158,13 @@ fn test_vgg16_relu_forward() raises:
     assert_shape(output, input.shape())
 
     # Verify values: positive should stay, negative should be zero
-    var output_data = output._data.bitcast[Float32]()
     for i in range(4 * 64 * 32 * 32):
         if i % 3 == 0:
             assert_almost_equal(
-                output_data[i], Float32(1.5), tolerance=Float32(1e-5)
+                output[i], Float32(1.5), tolerance=Float32(1e-5)
             )
         else:
-            assert_almost_equal(output_data[i], 0.0, tolerance=1e-5)
+            assert_almost_equal(output[i], 0.0, tolerance=1e-5)
 
 
 fn test_vgg16_relu_backward() raises:
@@ -184,12 +180,11 @@ fn test_vgg16_relu_backward() raises:
     var input = zeros(shape, DType.float32)
 
     # Create mixed values
-    var input_data = input._data.bitcast[Float32]()
     for i in range(4 * 64 * 8 * 8):
         if i % 2 == 0:
-            input_data[i] = Float32(2.0)
+            input[i] = Float32(2.0)
         else:
-            input_data[i] = Float32(-1.0)
+            input[i] = Float32(-1.0)
 
     # Forward pass
     var output = relu(input)

@@ -254,10 +254,9 @@ fn test_vgg16_e2e_forward_varying_values() raises:
     var input = zeros(input_shape, DType.float32)
 
     # Fill with mixed values (simulating normalized pixel values)
-    var input_data = input._data.bitcast[Float32]()
     for i in range(batch_size * 3 * 32 * 32):
         # Normalize to [0, 1] range roughly
-        input_data[i] = Float32((i % 256)) / 256.0
+        input[i] = Float32((i % 256)) / 256.0
 
     # Forward pass
     var output = vgg16_forward(input)
@@ -298,9 +297,8 @@ fn test_vgg16_e2e_forward_backward() raises:
     var target_shape = List[Int]()
     target_shape.append(batch_size)
     var target = zeros(target_shape, DType.float32)
-    var target_data = target._data.bitcast[Float32]()
-    target_data[0] = 0.0
-    target_data[1] = 1.0
+    target[0] = Float32(0.0)
+    target[1] = Float32(1.0)
 
     # Forward pass
     var logits = vgg16_forward(input)
