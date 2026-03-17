@@ -17,11 +17,11 @@ Reference:
     for Massive Batch Training. arXiv preprint arXiv:1708.03888
 """
 
-from shared.core.extensor import ExTensor
-from shared.core.arithmetic import subtract, multiply, add
+from shared.core import ExTensor
+from shared.core import subtract, multiply, add
 from shared.core.arithmetic_simd import subtract_simd, multiply_simd, add_simd
-from shared.core.extensor import full_like
-from shared.core.numerical_safety import compute_tensor_l2_norm
+from shared.core import full_like
+from shared.core import compute_tensor_l2_norm
 
 
 fn lars_step(

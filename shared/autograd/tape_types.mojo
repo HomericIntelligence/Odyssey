@@ -11,7 +11,7 @@ Design Note:
     - tape.mojo: Imports types from tape_types, imports functions from backward_ops
 """
 
-from shared.core.extensor import ExTensor, zeros_like
+from shared.core import ExTensor, zeros_like
 
 
 struct SavedTensors(Copyable, Movable):

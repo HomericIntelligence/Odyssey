@@ -4,7 +4,7 @@ This module provides the main DataLoader class and related utilities
 for efficient batch loading during training.
 """
 
-from shared.core.extensor import ExTensor, zeros
+from shared.core import ExTensor, zeros
 from shared.data._datasets_core import Dataset
 from shared.data.samplers import Sampler, SequentialSampler, RandomSampler
 

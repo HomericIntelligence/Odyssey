@@ -30,8 +30,8 @@ Features:
 
 from random import random_float64, seed
 from math import sqrt
-from shared.core.extensor import ExTensor, zeros, ones
-from shared.core.shape import reshape
+from shared.core import ExTensor, zeros, ones
+from shared.core import reshape
 from shared.testing.data_generators import random_tensor
 
 

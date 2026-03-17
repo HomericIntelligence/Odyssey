@@ -36,11 +36,13 @@ Examples:
     print(tape.get_grad(y.id))  # dLoss/dy
 """
 
-from shared.core.extensor import ExTensor, ones_like, zeros_like
-from shared.core.arithmetic import add, subtract, multiply, divide
-from shared.core.reduction import sum as tensor_sum, mean as tensor_mean
+from shared.core import ExTensor, ones_like, zeros_like
+from shared.core import add, subtract, multiply, divide
+from shared.core import relu, sigmoid, tanh
+from shared.core import sum, mean
 from shared.core.matrix import matmul
-from shared.core.activation import relu, sigmoid, tanh
+comptime tensor_sum = sum
+comptime tensor_mean = mean
 
 from shared.autograd.tape import (
     GradientTape,

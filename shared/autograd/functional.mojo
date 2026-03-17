@@ -31,14 +31,24 @@ Common Patterns Supported:
 - Parameter update helpers
 """
 
-from shared.core.extensor import ExTensor
-from shared.core.arithmetic import add, multiply, subtract, divide
-from shared.core.reduction import sum as tensor_sum, mean
-from shared.core.reduction import sum_backward, mean_backward
-from shared.core.loss import mean_squared_error, mean_squared_error_backward
-from shared.core.loss import binary_cross_entropy, binary_cross_entropy_backward
-from shared.core.loss import cross_entropy, cross_entropy_backward
-from shared.core.extensor import ones
+from shared.core import (
+    ExTensor,
+    add,
+    multiply,
+    subtract,
+    divide,
+    sum,
+    mean,
+    sum_backward,
+    mean_backward,
+    mean_squared_error,
+    mean_squared_error_backward,
+    binary_cross_entropy,
+    binary_cross_entropy_backward,
+    cross_entropy,
+    cross_entropy_backward,
+    ones,
+)
 
 
 # ============================================================================

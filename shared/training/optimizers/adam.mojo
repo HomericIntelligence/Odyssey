@@ -21,16 +21,16 @@ Reference:
     arXiv preprint arXiv:1412.6980
 """
 
-from shared.core.extensor import ExTensor
-from shared.core.arithmetic import subtract, multiply, add, divide, power
+from shared.core import ExTensor
+from shared.core import subtract, multiply, add, divide, power
 from shared.core.arithmetic_simd import (
     subtract_simd,
     multiply_simd,
     add_simd,
     divide_simd,
 )
-from shared.core.elementwise import sqrt
-from shared.core.extensor import full_like, ones_like
+from shared.core import sqrt
+from shared.core import full_like, ones_like
 
 
 fn adam_step(

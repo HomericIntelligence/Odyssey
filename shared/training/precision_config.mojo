@@ -21,9 +21,9 @@ Usage:
 See examples/mixed_precision_training.mojo for complete usage
 """
 
-from shared.core.extensor import ExTensor, full, zeros
+from shared.core import ExTensor, full, zeros
 from shared.core.dtype_cast import cast_tensor
-from shared.core.numerical_safety import has_nan, has_inf
+from shared.core import has_nan, has_inf
 from shared.training.mixed_precision import (
     GradientScaler,
     convert_to_fp32_master,

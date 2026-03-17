@@ -25,7 +25,7 @@ Example:
         print("Warning: Large gradient norm detected:", total_norm)
 """
 
-from shared.core.extensor import ExTensor
+from shared.core import ExTensor
 from collections import List
 from math import sqrt
 

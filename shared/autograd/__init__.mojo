@@ -172,15 +172,11 @@ from shared.autograd.functional import (
 # ============================================================================
 # These are the underlying backward implementations used by the tape.
 
-# Pooling backward passes
-from shared.core.pooling import (
+# Pooling and dropout backward passes
+from shared.core import (
     maxpool2d_backward,
     avgpool2d_backward,
     global_avgpool2d_backward,
-)
-
-# Dropout backward passes
-from shared.core.dropout import (
     dropout_backward,
     dropout2d_backward,
 )

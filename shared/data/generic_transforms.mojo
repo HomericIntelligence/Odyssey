@@ -27,7 +27,7 @@ Example:
     ```
 """
 
-from shared.core.extensor import ExTensor
+from shared.core import ExTensor
 from shared.data.transforms import Transform
 
 

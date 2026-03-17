@@ -45,9 +45,7 @@ Design Note:
     - Gradient clipping by global norm
 """
 
-from shared.core.extensor import ExTensor
-from shared.core.arithmetic import subtract, multiply, divide, add
-from shared.core.elementwise import sqrt
+from shared.core import ExTensor, subtract, multiply, divide, add, sqrt
 from shared.autograd.variable import Variable
 from shared.autograd.tape import GradientTape
 from shared.autograd.functional import (

@@ -14,10 +14,10 @@ With weight decay (L2 regularization):
     params = params - learning_rate * (gradients + weight_decay * params)
 """
 
-from shared.core.extensor import ExTensor
-from shared.core.arithmetic import subtract, multiply, add
+from shared.core import ExTensor
+from shared.core import subtract, multiply, add
 from shared.core.arithmetic_simd import subtract_simd, multiply_simd, add_simd
-from shared.core.extensor import full_like
+from shared.core import full_like
 
 
 fn sgd_step(

@@ -32,7 +32,7 @@ from shared.training.mixed_precision import (
     check_gradients_finite,
     clip_gradients_by_norm,
 )
-from shared.core.numerical_safety import has_nan, has_inf
+from shared.core import has_nan, has_inf
 from shared.utils.serialization import NamedTensor
 from shared.training.callbacks import EarlyStopping
 from shared.training.base import TrainingState, CallbackSignal

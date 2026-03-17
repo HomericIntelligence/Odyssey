@@ -12,7 +12,7 @@ build/
 worktrees/
 dist/
 site/
-datasets/
+/datasets/
 
 # MkDocs build artifacts
 site/

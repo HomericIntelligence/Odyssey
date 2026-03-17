@@ -18,8 +18,8 @@ Usage:
     var fc_bias = fc_fixture.bias
 """
 
-from shared.core.extensor import ExTensor, zeros
-from shared.core.initializers import kaiming_uniform
+from shared.core import ExTensor, zeros
+from shared.core import kaiming_uniform
 
 
 struct ConvFixture:

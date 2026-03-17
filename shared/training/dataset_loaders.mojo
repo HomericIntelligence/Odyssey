@@ -20,7 +20,7 @@ Note:
     file I/O which is limited in the current Mojo version.
 """
 
-from shared.core.extensor import ExTensor
+from shared.core import ExTensor
 from shared.core import zeros
 
 

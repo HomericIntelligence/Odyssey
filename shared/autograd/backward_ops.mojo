@@ -30,16 +30,15 @@ Example:
     # 3. Stores gradients in registry for the input variables
 """
 
-from shared.core.extensor import ExTensor
-from shared.core.arithmetic import (
+from shared.core import (
+    ExTensor,
     add_backward,
     subtract_backward,
     multiply_backward,
     divide_backward,
-)
-from shared.core.reduction import sum_backward, mean_backward
-from shared.core.matrix import matmul_backward
-from shared.core.activation import (
+    sum_backward,
+    mean_backward,
+    matmul_backward,
     relu_backward,
     sigmoid_backward,
     tanh_backward,

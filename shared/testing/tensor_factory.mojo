@@ -27,7 +27,7 @@ Example:
 
 from random import random_float64
 from math import sqrt, log, cos, sin, pi
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core import ExTensor, zeros, ones, full
 
 
 # ============================================================================

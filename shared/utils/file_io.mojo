@@ -25,7 +25,7 @@
 
 from python import Python, PythonObject
 from memory import UnsafePointer
-from shared.core.extensor import ExTensor
+from shared.core import ExTensor, zeros
 from shared.utils.serialization import dtype_to_string
 
 
@@ -362,7 +362,6 @@ fn load_tensor_from_checkpoint(
         shape.append(Int(meta_parts[i]))
 
     # Create tensor
-    from shared.core.extensor import zeros
 
     var tensor = zeros(shape, dtype)
 

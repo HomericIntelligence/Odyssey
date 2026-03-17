@@ -20,7 +20,7 @@ Example:
 
 from sys import argv
 
-from shared.core.extensor import ExTensor
+from shared.core import ExTensor
 
 
 # ============================================================================
