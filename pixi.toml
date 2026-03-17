@@ -39,5 +39,8 @@ seaborn = ">=0.13.0,<1"
 default = { solve-group = "default" }
 notebook = { features = ["notebook"], solve-group = "default" }
 
+[pypi-dependencies]
+hephaestus = ">=0.4.0,<1"
+
 [tasks]
 bandit = "bandit --ini .bandit"
