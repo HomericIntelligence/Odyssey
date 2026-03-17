@@ -13,7 +13,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 # noqa: E402 - import must follow sys.path modification
-from download_cifar10 import main  # noqa: E402
+from download_cifar10 import main  # type: ignore[attr-defined]  # noqa: E402
 
 if __name__ == "__main__":
     main()
