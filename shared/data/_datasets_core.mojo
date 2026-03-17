@@ -10,7 +10,7 @@ Includes:
     - EMNISTDataset: Extended MNIST dataset with multiple splits
 """
 
-from shared.core.extensor import ExTensor, zeros
+from shared.core import ExTensor, zeros
 from shared.data.formats import load_idx_labels, load_idx_images
 from utils.index import Index
 

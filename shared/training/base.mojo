@@ -9,7 +9,8 @@ These contracts establish clear APIs for gradient utilities (#2393) and training
 """
 
 from collections import Dict, List
-from shared.core import ExTensor, has_nan, has_inf
+from shared.core import ExTensor
+from shared.core import has_nan, has_inf
 from math import sqrt
 
 

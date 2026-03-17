@@ -17,7 +17,7 @@ Design Philosophy:
 """
 
 from math import sqrt
-from shared.core.extensor import ExTensor, zeros_like, full_like
+from shared.core import ExTensor, zeros_like, full_like
 from shared.core.arithmetic_simd import multiply_simd
 
 

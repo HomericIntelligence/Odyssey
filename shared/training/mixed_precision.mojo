@@ -34,8 +34,8 @@ Usage:
 See mixed precision training examples in examples/mixed_precision/
 """
 
-from shared.core.extensor import ExTensor, full
-from shared.core.numerical_safety import has_nan, has_inf
+from shared.core import ExTensor, full
+from shared.core import has_nan, has_inf
 from math import log2
 from algorithm import vectorize
 from sys.info import simd_width_of

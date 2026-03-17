@@ -47,21 +47,17 @@ Examples:
     print(x.grad)  # Chain rule: dLoss/dx
 """
 
-from shared.core.extensor import ExTensor, ones_like, zeros_like
-from shared.core.arithmetic import (
+from shared.core import (
+    ExTensor,
+    ones_like,
+    zeros_like,
     add_backward,
     subtract_backward,
     multiply_backward,
     divide_backward,
-)
-from shared.core.reduction import (
     sum_backward,
     mean_backward,
-)
-from shared.core.matrix import (
     matmul_backward,
-)
-from shared.core.activation import (
     relu_backward,
     sigmoid_backward,
     tanh_backward,

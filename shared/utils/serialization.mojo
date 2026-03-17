@@ -39,7 +39,7 @@ Example:
     ```
 """
 
-from shared.core.extensor import ExTensor, zeros
+from shared.core import ExTensor, zeros
 from memory import UnsafePointer
 from collections import List, Dict
 from collections.optional import Optional

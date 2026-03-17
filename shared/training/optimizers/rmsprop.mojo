@@ -22,9 +22,9 @@ Reference:
     machine learning, 4(2), 26-31
 """
 
-from shared.core.extensor import ExTensor, zeros, full_like, zeros_like
-from shared.core.arithmetic import subtract, multiply, add, divide, power
-from shared.core.elementwise import sqrt
+from shared.core import ExTensor, zeros, full_like, zeros_like
+from shared.core import subtract, multiply, add, divide, power
+from shared.core import sqrt
 
 
 fn rmsprop_step(

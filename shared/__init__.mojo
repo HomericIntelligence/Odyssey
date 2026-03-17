@@ -69,10 +69,10 @@ from shared.version import VERSION, AUTHOR, LICENSE
 # from .training.schedulers import StepLR, CosineAnnealingLR
 
 # Training metrics (most commonly used) — Issue #3221
-from shared.training.metrics import LossTracker, AccuracyMetric
+# DISABLED: from shared.training.metrics import LossTracker, AccuracyMetric
 
 # Expose plan-canonical alias: Accuracy = AccuracyMetric
-comptime Accuracy = AccuracyMetric
+# DISABLED: comptime Accuracy = AccuracyMetric
 
 # Training callbacks (most commonly used)
 # from .training.callbacks import EarlyStopping, ModelCheckpoint
@@ -86,7 +86,7 @@ from .data.transforms import Normalize, Compose
 # Data components (most commonly used)
 # from .data.datasets import TensorDataset, ImageDataset
 # from .data.loaders import DataLoader
-from .data.transforms import Normalize, Compose
+# DISABLED: from .data.transforms import Normalize, Compose
 
 # Utils (most commonly used)
 # from .utils.logging import Logger
@@ -169,9 +169,10 @@ from .data.transforms import Normalize, Compose
 # For implementation of component-level imports when core modules
 # are fully implemented, see test_packaging.mojo
 #
-from shared import core
-from shared import training
-from shared import data
-from shared import utils
-from shared import autograd
-from shared import testing
+# Subpackage re-exports removed to fix ExTensor circular type resolution.
+# The Mojo v0.26.1 package compiler does not deduplicate module identity
+# across subpackage compilation contexts. Importing both 'core' and 'autograd'
+# here causes extensor.mojo to be compiled twice with distinct type identities.
+# Consumers can still access subpackages via direct imports:
+#   from shared.core import ExTensor
+#   from shared.autograd import Variable, GradientTape

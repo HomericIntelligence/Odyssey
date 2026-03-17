@@ -49,17 +49,17 @@ Usage:
 """
 
 from math import isnan, isinf
-from shared.core.extensor import ExTensor, zeros_like, ones_like
+from shared.core import ExTensor, zeros_like, ones_like
 from shared.core.conv import conv2d, conv2d_output_shape, conv2d_backward
 from shared.core.linear import linear, linear_backward
-from shared.core.pooling import (
+from shared.core import (
     maxpool2d,
     avgpool2d,
     pool_output_shape,
     maxpool2d_backward,
     avgpool2d_backward,
 )
-from shared.core.activation import (
+from shared.core import (
     relu,
     sigmoid,
     tanh,

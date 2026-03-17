@@ -53,7 +53,7 @@ Usage:
     var neg_inf = create_inf_tensor([3, 3], DType.float32, positive=False)
 """
 
-from shared.core.extensor import ExTensor
+from shared.core import ExTensor
 from shared.testing.tensor_factory import zeros
 from random import seed as random_seed, random_float64
 

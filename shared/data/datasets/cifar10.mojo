@@ -27,7 +27,8 @@ References:
     - Array API: https://data-apis.org/array-api/latest/
 """
 
-from shared.core import ExTensor, zeros, concatenate
+from shared.core import ExTensor, zeros
+from shared.core import concatenate
 from shared.data.formats import load_cifar10_batch
 from collections import List
 

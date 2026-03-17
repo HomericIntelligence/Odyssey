@@ -49,7 +49,7 @@ Example:
 
 from random import random_float64, seed as random_seed
 from math import isnan, isinf
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core import ExTensor, zeros, ones, full
 
 
 # ============================================================================
