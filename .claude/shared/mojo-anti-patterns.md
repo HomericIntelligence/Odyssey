@@ -2,6 +2,46 @@
 
 Common mistakes from 64+ test failures (PRs #2037-#2046). Flag ALL occurrences immediately.
 
+## Use-After-Free via UnsafePointer.bitcast (CRITICAL)
+
+### Dangling pointer from bitcast on struct field
+
+```mojo
+# WRONG — use-after-free: compiler destroys `target` after bitcast extraction
+# because `target` is never referenced again. `td` becomes a dangling pointer.
+var target = zeros(shape, DType.float32)
+var td = target._data.bitcast[Float32]()
+td[0] = 0.0   # WRITES TO FREED MEMORY
+td[1] = 1.0   # WRITES TO FREED MEMORY
+
+# CORRECT — use __setitem__ (safe API, keeps tensor alive)
+var target = zeros(shape, DType.float32)
+target[0] = Float32(0.0)
+target[1] = Float32(1.0)
+
+# ALSO CORRECT — keep original variable alive past the writes
+var target = zeros(shape, DType.float32)
+var td = target._data.bitcast[Float32]()
+td[0] = 0.0
+td[1] = 1.0
+_ = target  # prevents early destruction
+```
+
+**Why**: `UnsafePointer` does not participate in Mojo's ownership system.
+Extracting a pointer from a struct field does NOT extend the struct's lifetime.
+The compiler may destroy the struct as soon as the variable is no longer
+referenced, even if a derived pointer is still in use.
+
+**ASAN proof**: Building with `mojo build --sanitize address` shows:
+`ERROR: AddressSanitizer: heap-use-after-free` on the bitcast write line.
+
+**Safe patterns**: Bitcast inside methods (where `self` stays alive) or when the
+result tensor is returned (`return result^`) are safe because the variable is
+used after the bitcast writes.
+
+**Fix**: Replace `tensor._data.bitcast[T]()[i] = val` with `tensor[i] = val`.
+For reads, replace `tensor._data.bitcast[T]()[i]` with `tensor[i]`.
+
 ## Ownership Violations (40% of failures)
 
 ### Temporary rvalue ownership transfer
