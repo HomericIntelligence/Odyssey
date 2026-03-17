@@ -73,6 +73,7 @@ jobs:
         run: pip install semgrep
 
       - name: Run Semgrep
+        id: semgrep
         run: semgrep scan --config auto --sarif --output semgrep.sarif .
         continue-on-error: true
 
@@ -83,6 +84,11 @@ jobs:
             echo "⚠️ Semgrep did not produce SARIF output, created empty SARIF file"
           fi
           ls -la semgrep.sarif
+
+      - name: Warn on Semgrep findings
+        if: steps.semgrep.outcome == 'failure'
+        run: |
+          echo "::warning::Semgrep found potential security issues — review SARIF results in the Security tab"
 
       - name: Upload SARIF results
         if: always()

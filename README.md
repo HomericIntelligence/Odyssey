@@ -22,7 +22,7 @@ ML Odyssey is a research platform with two goals:
 2. **Provide a reusable shared library** of ML components that paper implementations build on
 
 The project currently has ~198K lines of Mojo code, 7 fully-implemented neural network
-architectures, and 223+ tests across layerwise unit tests and end-to-end integration tests.
+architectures, and 498+ tests across layerwise unit tests and end-to-end integration tests.
 
 ## Implemented Architectures
 
