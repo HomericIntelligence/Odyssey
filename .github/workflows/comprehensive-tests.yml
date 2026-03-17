@@ -120,7 +120,7 @@ jobs:
           echo "=================================================="
 
           if [ -d "shared" ]; then
-            just build ci
+            NATIVE=1 just build ci
             echo "✅ Shared package built successfully"
           else
             echo "⚠️  No shared package found yet"
