@@ -246,6 +246,7 @@ _build-inner mode="debug":
         -not -path "./examples/*" \
         -not -path "./benchmarks/*" \
         -not -path "./.templates/*" \
+        -not -path "./papers/_template/*" \
         -not -name "test_*.mojo" \
         -not -name "model.mojo" \
         -not -name "__init__.mojo" \
