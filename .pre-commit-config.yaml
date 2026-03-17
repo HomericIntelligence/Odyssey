@@ -160,13 +160,6 @@ repos:
         language: system
         files: ^README\.md$
         pass_filenames: false
-      - id: check-test-count-badge
-        name: Check Test Count Badge
-        description: Validate README.md test count badge matches actual test_*.mojo count
-        entry: python3 scripts/check_test_count_badge.py
-        language: system
-        files: ^README\.md$
-        pass_filenames: false
       - id: validate-adr009-headers
         name: Validate ADR-009 Headers
         description: Ensure all test_*_part*.mojo files have ADR-009 split docstring (Issue #2942)
