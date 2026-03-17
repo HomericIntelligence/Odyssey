@@ -410,7 +410,7 @@ didn't fix the bug — it reduced the probability of triggering it.
 ### The original LeNet-5 monolithic file
 
 The original 24-test monolithic file is preserved as an artifact:
-[test_lenet5_layers_monolithic.mojo](./artifacts/test_lenet5_layers_monolithic.mojo).
+[bug_repro_lenet5_layers_monolithic.mojo.bug](./artifacts/bug_repro_lenet5_layers_monolithic.mojo.bug).
 This is the file that first exposed the bug in December 2025 (Issue #2942). It uses
 project imports and requires the shared library to run, but it demonstrates the exact
 same crash pattern: tests pass one by one until allocation churn crosses the threshold,
@@ -547,7 +547,7 @@ pixi run mojo build --sanitize address -g \
 # Shows: WRITE of size 4, freed by Tensor::__del__, allocated by Tensor::__init__
 
 # 3. See the pre-workaround VGG16 test crash
-cp notes/blog/03-16-2026/artifacts/test_vgg16_e2e_part1_pre_fix.mojo \
+cp notes/blog/03-16-2026/artifacts/bug_repro_vgg16_e2e_part1_pre_fix.mojo.bug \
     tests/models/_tmp_pre_fix.mojo
 pixi run mojo run tests/models/_tmp_pre_fix.mojo
 # Expected: crash on test_vgg16_e2e_forward_backward
@@ -560,9 +560,12 @@ pixi run mojo run tests/models/test_vgg16_layers_part2.mojo
 # Expected: all pass
 
 # 5. See the original LeNet-5 monolithic crash (ADR-009 — same bug)
-pixi run mojo run notes/blog/03-16-2026/artifacts/test_lenet5_layers_monolithic.mojo
+cp notes/blog/03-16-2026/artifacts/bug_repro_lenet5_layers_monolithic.mojo.bug \
+    tests/models/_tmp_lenet5_monolithic.mojo
+pixi run mojo run tests/models/_tmp_lenet5_monolithic.mojo
 # Expected: crash after ~15 tests (same UAF, same libKGEN stack trace)
 # Note: Requires shared library packages to be built first (pixi run just build)
+rm tests/models/_tmp_lenet5_monolithic.mojo
 
 # 6. See the project-import reproducers crash
 pixi run mojo run repro_libkgen_crash.mojo
@@ -593,8 +596,8 @@ mojo build --sanitize address -g -o repro_asan repro_crash_standalone.mojo
 | [repro_crash_standalone.mojo](./artifacts/repro_crash_standalone.mojo) | Self-contained reproducer (223 lines, zero dependencies) |
 | [repro_libkgen_crash.mojo](./artifacts/repro_libkgen_crash.mojo) | Reproducer using project imports (128 lines) |
 | [repro_libasyncrt_crash.mojo](./artifacts/repro_libasyncrt_crash.mojo) | VGG16-scale reproducer (159 lines) |
-| [test_vgg16_e2e_part1_pre_fix.mojo](./artifacts/test_vgg16_e2e_part1_pre_fix.mojo) | Pre-workaround VGG16 test (crashes on 4th test) |
-| [test_lenet5_layers_monolithic.mojo](./artifacts/test_lenet5_layers_monolithic.mojo) | Original 24-test LeNet-5 file from Dec 2025 (crashes after ~15 tests) |
+| [bug_repro_vgg16_e2e_part1_pre_fix.mojo.bug](./artifacts/bug_repro_vgg16_e2e_part1_pre_fix.mojo.bug) | Pre-workaround VGG16 test (crashes on 4th test) |
+| [bug_repro_lenet5_layers_monolithic.mojo.bug](./artifacts/bug_repro_lenet5_layers_monolithic.mojo.bug) | Original 24-test LeNet-5 file from Dec 2025 (crashes after ~15 tests) |
 | [run_all_experiments.sh](./artifacts/run_all_experiments.sh) | Validates all blog claims (11 experiments) |
 
 ---

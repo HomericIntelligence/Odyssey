@@ -140,7 +140,7 @@ echo ""
 # ==========================================================================
 
 # Copy pre-workaround test into tests/models/ so imports resolve
-cp "$SCRIPT_DIR/test_vgg16_e2e_part1_pre_fix.mojo" \
+cp "$SCRIPT_DIR/bug_repro_vgg16_e2e_part1_pre_fix.mojo.bug" \
     "$REPO_ROOT/tests/models/_tmp_pre_fix_part1.mojo"
 
 run_test \
@@ -199,7 +199,7 @@ echo ""
 run_test \
     "LeNet-5 monolithic (24 tests) crashes after ~15" \
     "crash" \
-    "pixi run mojo run $SCRIPT_DIR/test_lenet5_layers_monolithic.mojo"
+    "cp $SCRIPT_DIR/bug_repro_lenet5_layers_monolithic.mojo.bug $REPO_ROOT/tests/models/_tmp_lenet5_monolithic.mojo && pixi run mojo run tests/models/_tmp_lenet5_monolithic.mojo; ret=\$?; rm -f $REPO_ROOT/tests/models/_tmp_lenet5_monolithic.mojo; exit \$ret"
 
 # ==========================================================================
 echo "--- 8. LeNet-5 Split Files Pass (ADR-009 Workaround) ---"
