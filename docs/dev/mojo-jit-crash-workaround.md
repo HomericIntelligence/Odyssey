@@ -43,22 +43,22 @@ symbol-to-submodule mapping below.
 |-----------|-----------|
 | ExTensor, zeros, ones, full, empty, arange, eye, linspace, ones_like, zeros_like, full_like, nan_tensor, inf_tensor, neg_inf_tensor, clone, item, diff, randn | `shared.core.extensor` |
 | reshape, squeeze, unsqueeze, expand_dims, flatten, ravel, concatenate, stack, split, tile, repeat, permute, is_contiguous, as_contiguous, view, broadcast_to, ... | `shared.core.shape` |
-| add, subtract, multiply, divide, floor_divide, modulo, power, multiply_scalar, *_backward | `shared.core.arithmetic` |
-| matmul, transpose, transpose_view, dot, outer, *_backward | `shared.core.matrix` |
-| relu, sigmoid, tanh, softmax, gelu, swish, mish, elu, selu, hard_*, *_backward | `shared.core.activation` |
-| linear, linear_no_bias, *_backward | `shared.core.linear` |
-| conv2d, depthwise_conv2d, depthwise_separable_conv2d, *_backward | `shared.core.conv` |
-| maxpool2d, avgpool2d, global_avgpool2d, *_backward | `shared.core.pooling` |
-| dropout, dropout2d, *_backward | `shared.core.dropout` |
-| batch_norm2d, layer_norm, group_norm, instance_norm, *_backward | `shared.core.normalization` |
-| abs, sign, exp, log, sqrt, sin, cos, clip, ceil, floor, round, trunc, logical_*, *_backward | `shared.core.elementwise` |
+| add, subtract, multiply, divide, floor_divide, modulo, power, multiply_scalar, \*\_backward | `shared.core.arithmetic` |
+| matmul, transpose, transpose_view, dot, outer, \*\_backward | `shared.core.matrix` |
+| relu, sigmoid, tanh, softmax, gelu, swish, mish, elu, selu, hard\_\*, \*\_backward | `shared.core.activation` |
+| linear, linear_no_bias, \*\_backward | `shared.core.linear` |
+| conv2d, depthwise_conv2d, depthwise_separable_conv2d, \*\_backward | `shared.core.conv` |
+| maxpool2d, avgpool2d, global_avgpool2d, \*\_backward | `shared.core.pooling` |
+| dropout, dropout2d, \*\_backward | `shared.core.dropout` |
+| batch_norm2d, layer_norm, group_norm, instance_norm, \*\_backward | `shared.core.normalization` |
+| abs, sign, exp, log, sqrt, sin, cos, clip, ceil, floor, round, trunc, logical\_\*, \*\_backward | `shared.core.elementwise` |
 | equal, not_equal, less, less_equal, greater, greater_equal | `shared.core.comparison` |
 | broadcast_shapes, are_shapes_broadcastable, compute_broadcast_strides, BroadcastIterator | `shared.core.broadcasting` |
 | xavier_uniform, xavier_normal, kaiming_uniform, kaiming_normal, he_uniform, he_normal, uniform, normal, constant | `shared.core.initializers` |
-| binary_cross_entropy, mean_squared_error, cross_entropy, smooth_l1_loss, hinge_loss, focal_loss, kl_divergence, *_backward | `shared.core.loss` |
+| binary_cross_entropy, mean_squared_error, cross_entropy, smooth_l1_loss, hinge_loss, focal_loss, kl_divergence, \*\_backward | `shared.core.loss` |
 | has_nan, has_inf, count_nan, count_inf, check_tensor_safety, tensor_min, tensor_max, ... | `shared.core.numerical_safety` |
 | dispatch_unary, dispatch_binary, dispatch_softmax, dispatch_gelu, ... | `shared.core.dtype_dispatch` |
-| sum, mean, max_reduce, min_reduce, variance, std, median, percentile, *_backward | `shared.core.reduction` |
+| sum, mean, max_reduce, min_reduce, variance, std, median, percentile, \*\_backward | `shared.core.reduction` |
 | argmax, top_k_indices, top_k, argsort | `shared.core.utils` |
 | validate_tensor_shape, validate_tensor_dtype, validate_matching_tensors, ... | `shared.core.validation` |
 | TensorMemoryPool, PoolConfig, PoolStats, get_global_pool, pooled_alloc, pooled_free | `shared.core.memory_pool` |

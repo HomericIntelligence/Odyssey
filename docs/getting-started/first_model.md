@@ -141,6 +141,7 @@ fn main() raises:
     print("ndim:", m.ndim(), "numel:", m.numel())
 ```
 
+```mojo
     # Load trained model
     var model = load_model[DigitClassifier]("best_model.mojo")
 

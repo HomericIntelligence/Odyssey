@@ -183,6 +183,7 @@ ci-docker-validate:
 
 # Build/compile Mojo files with mode-specific flags
 build mode="debug":
+    @just _ensure_build_dir {{mode}}
     @just _run "just _build-inner {{mode}}"
 
 [private]
@@ -298,6 +299,7 @@ ci-build:
 
 # Package shared library with mode-specific flags
 package mode="debug":
+    @just _ensure_build_dir {{mode}}
     @just _run "just _package-inner {{mode}}"
 
 [private]
