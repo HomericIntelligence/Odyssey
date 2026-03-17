@@ -36,4 +36,3 @@ jobs:
           echo "Checking that all steps-based jobs using ./.github/actions/ have actions/checkout as a preceding step..."
           echo "(Reusable workflow jobs using ./.github/workflows/ are skipped — they run in their own VM with their own checkout.)"
           python3 scripts/validate_workflow_checkout_order.py .github/workflows/
-
