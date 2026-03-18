@@ -251,9 +251,7 @@ def expand_pattern(base_path: str, pattern: str, root_dir: Path) -> Set[Path]:
     return matched_files
 
 
-def check_stale_patterns(
-    ci_groups: Dict[str, Dict[str, str]], root_dir: Path
-) -> List[str]:
+def check_stale_patterns(ci_groups: Dict[str, Dict[str, str]], root_dir: Path) -> List[str]:
     """Check for CI matrix entries that match zero existing test files.
 
     A stale pattern is one whose base path does not exist or whose glob
