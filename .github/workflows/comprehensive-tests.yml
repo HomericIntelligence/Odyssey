@@ -238,7 +238,7 @@ jobs:
                           # split it into two separate entries. See Issue #3357 for monitoring
                           # guidance and ADR-009 for heap corruption splitting constraints.
     strategy:
-      fail-fast: true  # Stop early on first failure to save compute
+      fail-fast: false  # Run all test groups even if one fails
       matrix:
         test-group:
           # IMPORTANT: The 'pattern' field accepts space-separated LITERAL filenames only,
@@ -718,10 +718,10 @@ jobs:
         uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
 
       - name: Build project
-        run: just build
+        run: NATIVE=1 just build
 
       - name: Validate package
-        run: just package
+        run: NATIVE=1 just package
 
   # ============================================================================
   # Gradient Checking Tests (absorbed from test-gradients.yml)
