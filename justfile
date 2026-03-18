@@ -247,9 +247,11 @@ _build-inner mode="debug":
         -not -path "./benchmarks/*" \
         -not -path "./.templates/*" \
         -not -path "./papers/_template/*" \
+        -not -path "./notes/*" \
         -not -name "test_*.mojo" \
         -not -name "model.mojo" \
         -not -name "__init__.mojo" \
+        -not -name "repro_*.mojo" \
         | while read -r file; do
             out="$BUILD_DIR/$(basename "$file" .mojo)"
             echo "→ Building: $file"
