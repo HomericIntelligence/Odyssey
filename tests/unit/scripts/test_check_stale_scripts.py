@@ -101,9 +101,7 @@ class TestFindReferences:
         """Appearance of script name inside its own file does not count."""
         scripts_dir = _make_scripts_dir(tmp_path, ["self_ref.py"])
         # Write the script name into its own body
-        (scripts_dir / "self_ref.py").write_text(
-            "# self_ref.py — this is the script itself\n", encoding="utf-8"
-        )
+        (scripts_dir / "self_ref.py").write_text("# self_ref.py — this is the script itself\n", encoding="utf-8")
         assert find_references("self_ref.py", [scripts_dir / "self_ref.py"], scripts_dir) is False
 
     def test_cross_script_reference(self, tmp_path: Path) -> None:
@@ -148,9 +146,7 @@ class TestFindStaleCandidates:
         """A script that only references itself is still considered stale."""
         scripts_dir = _make_scripts_dir(tmp_path, ["self_only.py"])
         # Write own name into its body — should not save it
-        (scripts_dir / "self_only.py").write_text(
-            "# self_only.py does something\n", encoding="utf-8"
-        )
+        (scripts_dir / "self_only.py").write_text("# self_only.py does something\n", encoding="utf-8")
         result = find_stale_candidates(tmp_path)
         assert "self_only.py" in result
 
@@ -167,7 +163,6 @@ class TestFindStaleCandidates:
 class TestMain:
     def test_returns_zero_no_stale(self, tmp_path: Path) -> None:
         """main() returns 0 when all scripts are referenced."""
-        scripts = ["referenced.py"]
         (tmp_path / "scripts").mkdir()
         (tmp_path / "scripts" / "referenced.py").write_text("", encoding="utf-8")
         (tmp_path / "justfile").write_text("python scripts/referenced.py\n", encoding="utf-8")
