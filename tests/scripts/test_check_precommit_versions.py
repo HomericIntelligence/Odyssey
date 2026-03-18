@@ -14,13 +14,11 @@ Covers:
 - main(): CLI exit codes
 """
 
-import subprocess
 import sys
 import textwrap
 from pathlib import Path
 
 import pytest
-import yaml
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
@@ -30,7 +28,6 @@ from check_precommit_versions import (
     check_version_consistency,
     check_version_drift,
     extract_external_hooks,
-    load_pixi_versions,
     load_precommit_config,
     main,
     normalize_version,
@@ -165,11 +162,7 @@ class TestLoadPrecommitConfig:
     def test_loads_repos_from_valid_yaml(self, tmp_path: Path) -> None:
         config = tmp_path / ".pre-commit-config.yaml"
         config.write_text(
-            "repos:\n"
-            "  - repo: https://github.com/example/repo\n"
-            "    rev: v1.0.0\n"
-            "    hooks:\n"
-            "      - id: some-hook\n"
+            "repos:\n  - repo: https://github.com/example/repo\n    rev: v1.0.0\n    hooks:\n      - id: some-hook\n"
         )
         repos = load_precommit_config(config)
         assert len(repos) == 1
@@ -196,44 +189,31 @@ class TestParsePixiDependenciesFallback:
 
     def test_parses_gte_constraint(self, tmp_path: Path) -> None:
         pixi = tmp_path / "pixi.toml"
-        pixi.write_text("[dependencies]\nmypy = \">=1.19.1,<2\"\n")
+        pixi.write_text('[dependencies]\nmypy = ">=1.19.1,<2"\n')
         result = _parse_pixi_dependencies_fallback(pixi)
         assert result.get("mypy") == "1.19.1"
 
     def test_parses_multiple_packages(self, tmp_path: Path) -> None:
         pixi = tmp_path / "pixi.toml"
-        pixi.write_text(
-            "[dependencies]\n"
-            "mypy = \">=1.19.1,<2\"\n"
-            "nbstripout = \">=0.7.1,<0.8\"\n"
-        )
+        pixi.write_text('[dependencies]\nmypy = ">=1.19.1,<2"\nnbstripout = ">=0.7.1,<0.8"\n')
         result = _parse_pixi_dependencies_fallback(pixi)
         assert result.get("nbstripout") == "0.7.1"
 
     def test_stops_at_next_section(self, tmp_path: Path) -> None:
         pixi = tmp_path / "pixi.toml"
-        pixi.write_text(
-            "[dependencies]\n"
-            "mypy = \">=1.19.1,<2\"\n"
-            "[tasks]\n"
-            "fake = \">=9.9.9\"\n"
-        )
+        pixi.write_text('[dependencies]\nmypy = ">=1.19.1,<2"\n[tasks]\nfake = ">=9.9.9"\n')
         result = _parse_pixi_dependencies_fallback(pixi)
         assert "fake" not in result
 
     def test_skips_comment_lines(self, tmp_path: Path) -> None:
         pixi = tmp_path / "pixi.toml"
-        pixi.write_text(
-            "[dependencies]\n"
-            "# This is a comment\n"
-            "mypy = \">=1.19.1,<2\"\n"
-        )
+        pixi.write_text('[dependencies]\n# This is a comment\nmypy = ">=1.19.1,<2"\n')
         result = _parse_pixi_dependencies_fallback(pixi)
         assert result.get("mypy") == "1.19.1"
 
     def test_package_names_lowercased(self, tmp_path: Path) -> None:
         pixi = tmp_path / "pixi.toml"
-        pixi.write_text("[dependencies]\nMyPkg = \">=1.0.0\"\n")
+        pixi.write_text('[dependencies]\nMyPkg = ">=1.0.0"\n')
         result = _parse_pixi_dependencies_fallback(pixi)
         assert "mypkg" in result
 
@@ -329,10 +309,7 @@ class TestCheckVersionConsistency:
         pixi = tmp_path / "pixi.toml"
         self._write_precommit(
             config,
-            "- repo: https://github.com/pre-commit/mirrors-mypy\n"
-            "  rev: v1.19.1\n"
-            "  hooks:\n"
-            "    - id: mypy\n",
+            "- repo: https://github.com/pre-commit/mirrors-mypy\n  rev: v1.19.1\n  hooks:\n    - id: mypy\n",
         )
         self._write_pixi(pixi, 'mypy = ">=1.19.1,<2"')
         issues = check_version_consistency(config, pixi)
@@ -343,10 +320,7 @@ class TestCheckVersionConsistency:
         pixi = tmp_path / "pixi.toml"
         self._write_precommit(
             config,
-            "- repo: https://github.com/pre-commit/mirrors-mypy\n"
-            "  rev: v1.18.0\n"
-            "  hooks:\n"
-            "    - id: mypy\n",
+            "- repo: https://github.com/pre-commit/mirrors-mypy\n  rev: v1.18.0\n  hooks:\n    - id: mypy\n",
         )
         self._write_pixi(pixi, 'mypy = ">=1.19.1,<2"')
         issues = check_version_consistency(config, pixi)
@@ -358,10 +332,7 @@ class TestCheckVersionConsistency:
         pixi = tmp_path / "pixi.toml"
         self._write_precommit(
             config,
-            "- repo: https://github.com/kynan/nbstripout\n"
-            "  rev: 0.7.1\n"
-            "  hooks:\n"
-            "    - id: nbstripout\n",
+            "- repo: https://github.com/kynan/nbstripout\n  rev: 0.7.1\n  hooks:\n    - id: nbstripout\n",
         )
         self._write_pixi(pixi, "")  # no nbstripout entry
         issues = check_version_consistency(config, pixi)
@@ -408,10 +379,7 @@ class TestMain:
         pixi = tmp_path / "pixi.toml"
         self._write_precommit(
             config,
-            "- repo: https://github.com/pre-commit/mirrors-mypy\n"
-            "  rev: v1.19.1\n"
-            "  hooks:\n"
-            "    - id: mypy\n",
+            "- repo: https://github.com/pre-commit/mirrors-mypy\n  rev: v1.19.1\n  hooks:\n    - id: mypy\n",
         )
         self._write_pixi(pixi, 'mypy = ">=1.19.1,<2"')
         rc = main(["--config", str(config), "--pixi", str(pixi)])
@@ -422,10 +390,7 @@ class TestMain:
         pixi = tmp_path / "pixi.toml"
         self._write_precommit(
             config,
-            "- repo: https://github.com/pre-commit/mirrors-mypy\n"
-            "  rev: v1.18.0\n"
-            "  hooks:\n"
-            "    - id: mypy\n",
+            "- repo: https://github.com/pre-commit/mirrors-mypy\n  rev: v1.18.0\n  hooks:\n    - id: mypy\n",
         )
         self._write_pixi(pixi, 'mypy = ">=1.19.1,<2"')
         rc = main(["--config", str(config), "--pixi", str(pixi)])
@@ -437,9 +402,7 @@ class TestMain:
         rc = main(["--config", str(tmp_path / "missing.yaml"), "--pixi", str(pixi)])
         assert rc == 1
 
-    def test_output_ok_message_when_consistent(
-        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
-    ) -> None:
+    def test_output_ok_message_when_consistent(self, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
         config = tmp_path / ".pre-commit-config.yaml"
         pixi = tmp_path / "pixi.toml"
         config.write_text("repos: []\n")
@@ -448,17 +411,12 @@ class TestMain:
         captured = capsys.readouterr()
         assert "OK" in captured.out
 
-    def test_output_drift_message_when_drift(
-        self, tmp_path: Path, capsys: pytest.CaptureFixture[str]
-    ) -> None:
+    def test_output_drift_message_when_drift(self, tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
         config = tmp_path / ".pre-commit-config.yaml"
         pixi = tmp_path / "pixi.toml"
         self._write_precommit(
             config,
-            "- repo: https://github.com/pre-commit/mirrors-mypy\n"
-            "  rev: v1.18.0\n"
-            "  hooks:\n"
-            "    - id: mypy\n",
+            "- repo: https://github.com/pre-commit/mirrors-mypy\n  rev: v1.18.0\n  hooks:\n    - id: mypy\n",
         )
         self._write_pixi(pixi, 'mypy = ">=1.19.1,<2"')
         main(["--config", str(config), "--pixi", str(pixi)])

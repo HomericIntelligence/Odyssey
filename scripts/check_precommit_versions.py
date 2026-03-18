@@ -288,9 +288,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     Returns:
         Exit code: 0 for success, 1 for drift detected or error
     """
-    parser = argparse.ArgumentParser(
-        description="Check .pre-commit-config.yaml revs match pixi.toml versions"
-    )
+    parser = argparse.ArgumentParser(description="Check .pre-commit-config.yaml revs match pixi.toml versions")
     parser.add_argument(
         "--config",
         type=Path,
@@ -318,10 +316,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         print("Pre-commit version drift detected:")
         for issue in issues:
             print(f"  - {issue}")
-        print(
-            "\nFix: update the rev in .pre-commit-config.yaml or the version "
-            "constraint in pixi.toml so they match."
-        )
+        print("\nFix: update the rev in .pre-commit-config.yaml or the version constraint in pixi.toml so they match.")
         return 1
 
     print("OK: all pre-commit hook versions are consistent with pixi.toml")

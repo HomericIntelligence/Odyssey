@@ -185,6 +185,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/nbconvert-core-7.17.0-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/nbconvert-pandoc-7.17.0-hc3985f0_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/nbformat-5.10.4-pyhd8ed1ab_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/nbstripout-0.9.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/ncurses-6.5-h2d0b736_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/nest-asyncio-1.6.0-pyhd8ed1ab_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/nodeenv-1.10.0-pyhd8ed1ab_0.conda
@@ -210,6 +211,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/platformdirs-4.9.2-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pluggy-1.6.0-pyhf9edf01_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/pre-commit-4.5.1-pyha770c72_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/pre-commit-hooks-4.5.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/prettytable-3.17.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/prometheus_client-0.24.1-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/prompt-toolkit-3.0.52-pyha770c72_0.conda
@@ -252,6 +254,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/rfc3987-syntax-1.1.0-pyhe01879c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rich-14.3.3-pyhcf101f3_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/rpds-py-0.30.0-py314h2e6c369_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/ruamel.yaml-0.19.1-pyhcf101f3_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/ruamel.yaml.clib-0.2.15-py314h0f05182_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/ruff-0.14.14-h40fa522_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.17.1-py314hf07bd8e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/seaborn-0.13.2-hd8ed1ab_3.conda
@@ -2436,6 +2440,16 @@ packages:
   license_family: BSD
   size: 100945
   timestamp: 1733402844974
+- conda: https://conda.anaconda.org/conda-forge/noarch/nbstripout-0.9.1-pyhd8ed1ab_0.conda
+  sha256: e5029a1ca06d5f02c9366ec8686f64c942d77f297bfa90a0a8215083d85a7a01
+  md5: 948b10290b9f4ebbb26de6da5c6b7c51
+  depends:
+  - nbformat
+  - python >=3.10
+  license: MIT
+  license_family: MIT
+  size: 24331
+  timestamp: 1771778886946
 - conda: https://conda.anaconda.org/conda-forge/linux-64/ncurses-6.5-h2d0b736_3.conda
   sha256: 3fde293232fa3fca98635e1167de6b7c7fda83caf24b9d6c91ec9eefb4f4d586
   md5: 47e340acb35de30501a76c7c799c41d7
@@ -2754,6 +2768,17 @@ packages:
   license_family: MIT
   size: 200827
   timestamp: 1765937577534
+- conda: https://conda.anaconda.org/conda-forge/noarch/pre-commit-hooks-4.5.0-pyhd8ed1ab_0.conda
+  sha256: 20e94b24b8d3caad2509aa10244ff1e239d38ed2429651dc83bfdf49742c49cc
+  md5: 37c16412358c225193dd4c918e1ee418
+  depends:
+  - python >=3.6
+  - ruamel.yaml >=0.15
+  - tomli >=1.1.0
+  license: MIT
+  license_family: MIT
+  size: 34760
+  timestamp: 1696708822389
 - conda: https://conda.anaconda.org/conda-forge/noarch/prettytable-3.17.0-pyhd8ed1ab_0.conda
   sha256: a1cc667bd683f26c319ccab257cd3e17b33f34ef90ff4f548a811a342358c952
   md5: 9a12c482f559d39f3ed9550ba9e0eeb0
@@ -3319,6 +3344,29 @@ packages:
   license_family: MIT
   size: 376121
   timestamp: 1764543122774
+- conda: https://conda.anaconda.org/conda-forge/noarch/ruamel.yaml-0.19.1-pyhcf101f3_0.conda
+  sha256: b48bebe297a63ae60f52e50be328262e880702db4d9b4e86731473ada459c2a1
+  md5: 06ad944772941d5dae1e0d09848d8e49
+  depends:
+  - python >=3.10
+  - ruamel.yaml.clib >=0.2.15
+  - python
+  license: MIT
+  license_family: MIT
+  size: 98448
+  timestamp: 1767538149184
+- conda: https://conda.anaconda.org/conda-forge/linux-64/ruamel.yaml.clib-0.2.15-py314h0f05182_1.conda
+  sha256: 3bd8db7556e87c98933a47ff9f962af7b8e0dc3757a72180b27cbfcb1f98d2d9
+  md5: 4f35ae1228a6c5d9df593367ffe8dda1
+  depends:
+  - python
+  - libgcc >=14
+  - __glibc >=2.17,<3.0.a0
+  - python_abi 3.14.* *_cp314
+  license: MIT
+  license_family: MIT
+  size: 150041
+  timestamp: 1766159514023
 - conda: https://conda.anaconda.org/conda-forge/linux-64/ruff-0.14.14-h40fa522_1.conda
   noarch: python
   sha256: 0c6c9825ff88195fd13936d63872213d6c88c1fe795d136881c0753c3037c5ff
