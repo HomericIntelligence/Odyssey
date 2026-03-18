@@ -438,11 +438,11 @@ list-models:
 
 # Launch Jupyter Lab
 jupyter:
-    @pixi run jupyter lab --no-browser --ip=127.0.0.1
+    @pixi run -e notebook jupyter lab --no-browser --ip=127.0.0.1
 
 # Launch Jupyter Notebook (classic)
 jupyter-notebook:
-    @pixi run jupyter notebook --no-browser --ip=127.0.0.1
+    @pixi run -e notebook jupyter notebook --no-browser --ip=127.0.0.1
 
 # Execute all notebooks (for CI validation)
 jupyter-validate:
@@ -455,7 +455,7 @@ jupyter-validate:
         if [ -f "$notebook" ]; then
             echo "Validating: $notebook"
             NOTEBOOK_COUNT=$((NOTEBOOK_COUNT + 1))
-            if pixi run jupyter nbconvert --execute --to notebook --inplace "$notebook" 2>&1; then
+            if pixi run -e notebook jupyter nbconvert --execute --to notebook --inplace "$notebook" 2>&1; then
                 PASSED=$((PASSED + 1))
             else
                 echo "❌ Failed to validate: $notebook"
@@ -479,7 +479,7 @@ jupyter-clear:
         if [ -f "$notebook" ]; then
             echo "Clearing: $notebook"
             NOTEBOOK_COUNT=$((NOTEBOOK_COUNT + 1))
-            pixi run jupyter nbconvert --clear-output --inplace "$notebook"
+            pixi run -e notebook jupyter nbconvert --clear-output --inplace "$notebook"
         fi
     done
     echo "Cleared outputs from $NOTEBOOK_COUNT notebooks"

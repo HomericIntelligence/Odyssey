@@ -23,15 +23,20 @@ mypy = ">=1.19.1,<2"
 nbstripout = ">=0.7.1"            # tracked to keep in sync with .pre-commit-config.yaml (Issue #4030)
 pre-commit-hooks = ">=4.5.0,<4.6"  # pinned to match .pre-commit-config.yaml rev (Issue #4030)
 types-PyYAML = ">=6.0"
-jupyterlab = ">=4.3.0,<5"
-matplotlib = ">=3.9.0,<4"
-ipywidgets = ">=8.1.0,<9"
 tqdm = ">=4.67.0,<5"
-seaborn = ">=0.13.0,<1"
 nbformat = ">=5.10.0,<6"
 nbconvert = ">=7.16.0,<8"
 flask = ">=3.0.0,<4"
-pydantic = ">=2.12.5,<3"
+
+[feature.notebook.dependencies]
+jupyterlab = ">=4.3.0,<5"
+matplotlib = ">=3.9.0,<4"
+ipywidgets = ">=8.1.0,<9"
+seaborn = ">=0.13.0,<1"
+
+[environments]
+default = { solve-group = "default" }
+notebook = { features = ["notebook"], solve-group = "default" }
 
 [tasks]
 bandit = "bandit --ini .bandit"
