@@ -182,6 +182,13 @@ repos:
         language: system
         files: ^README\.md$
         pass_filenames: false
+      - id: validate-test-file-sizes
+        name: Validate Test File Sizes
+        description: Enforce ≤10 tests per Mojo test file to prevent heap corruption (ADR-009 Phase 2)
+        entry: python3 scripts/validate_test_file_sizes.py
+        language: system
+        files: test_.*\.mojo$
+        pass_filenames: true
       - id: validate-adr009-headers
         name: Validate ADR-009 Headers
         description: Ensure all test_*_part*.mojo files have ADR-009 split docstring (Issue #2942)
