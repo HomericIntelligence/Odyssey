@@ -144,9 +144,7 @@ class TestGenerateReportStalePatterns:
 
     def test_stale_section_appended_when_patterns_exist(self) -> None:
         """Non-empty stale_patterns appends a stale section with all names."""
-        report = generate_report(
-            set(), [], self._make_coverage(), stale_patterns=["Alpha Tests", "Zebra Tests"]
-        )
+        report = generate_report(set(), [], self._make_coverage(), stale_patterns=["Alpha Tests", "Zebra Tests"])
         assert "### Stale CI Patterns" in report
         assert "- Alpha Tests" in report
         assert "- Zebra Tests" in report
@@ -166,9 +164,7 @@ class TestGenerateReportStalePatterns:
 
     def test_stale_only_no_uncovered(self) -> None:
         """Only stale patterns (no uncovered files) still produces the stale section."""
-        report = generate_report(
-            set(), [], self._make_coverage(), stale_patterns=["Deleted Group"]
-        )
+        report = generate_report(set(), [], self._make_coverage(), stale_patterns=["Deleted Group"])
         assert "### Stale CI Patterns" in report
         assert "- Deleted Group" in report
 
