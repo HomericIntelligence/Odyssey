@@ -149,10 +149,7 @@ def main() -> int:
         "--grayscale-method",
         choices=["luma", "average", "max"],
         default=None,
-        help=(
-            "Grayscale conversion strategy: luma (ITU-R 601, default), "
-            "average ((R+G+B)/3), max (brightest channel)"
-        ),
+        help=("Grayscale conversion strategy: luma (ITU-R 601, default), average ((R+G+B)/3), max (brightest channel)"),
     )
     args = parser.parse_args()
 
