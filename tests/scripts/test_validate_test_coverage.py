@@ -12,12 +12,7 @@ import pytest
 
 # Add scripts directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
-from validate_test_coverage import (
-    check_stale_patterns,
-    expand_pattern,
-    generate_report,
-    group_split_files,
-)
+from validate_test_coverage import check_stale_patterns, expand_pattern, generate_report, group_split_files
 
 
 # ---------------------------------------------------------------------------
@@ -65,10 +60,7 @@ class TestGroupSplitFiles:
 
     def test_multiple_parts_grouped_together(self) -> None:
         """Six part files are grouped under a single logical key."""
-        files = [
-            Path(f"tests/shared/core/test_elementwise_dispatch_part{i}.mojo")
-            for i in range(1, 7)
-        ]
+        files = [Path(f"tests/shared/core/test_elementwise_dispatch_part{i}.mojo") for i in range(1, 7)]
         groups = group_split_files(files)
         key = "tests/shared/core/test_elementwise_dispatch"
         assert key in groups

@@ -267,9 +267,7 @@ def group_split_files(test_files: List[Path]) -> Dict[str, List[Path]]:
     return groups
 
 
-def check_stale_patterns(
-    ci_groups: Dict[str, Dict[str, str]], root_dir: Path
-) -> List[str]:
+def check_stale_patterns(ci_groups: Dict[str, Dict[str, str]], root_dir: Path) -> List[str]:
     """Return CI group names whose patterns match zero existing test files.
 
     A "stale" group is one that was added to the CI matrix at some point but
@@ -378,9 +376,9 @@ def generate_report(
             # Suggest groups based on uncovered paths
             suggestions: Dict[str, Any] = {}
             for test_file in sorted(uncovered):
-                parts = test_file.parts
-                if len(parts) >= 2:
-                    suggested_group = parts[1]
+                path_parts: Tuple[str, ...] = test_file.parts
+                if len(path_parts) >= 2:
+                    suggested_group: str = path_parts[1]
                     if suggested_group not in suggestions:
                         suggestions[suggested_group] = []
                     suggestions[suggested_group].append(test_file)
@@ -412,16 +410,12 @@ def generate_report(
         report_lines.append("")
         report_lines.append("### Split File Groups")
         report_lines.append("")
-        report_lines.append(
-            "The following logical test groups are split across multiple `_partN.mojo` files:"
-        )
+        report_lines.append("The following logical test groups are split across multiple `_partN.mojo` files:")
         report_lines.append("")
         for group_key in sorted(split_groups.keys()):
-            parts = split_groups[group_key]
-            part_names = ", ".join(p.name for p in parts)
-            report_lines.append(
-                f"- `{group_key}` ({len(parts)} parts: {part_names})"
-            )
+            group_parts: List[Path] = split_groups[group_key]
+            part_names = ", ".join(p.name for p in group_parts)
+            report_lines.append(f"- `{group_key}` ({len(group_parts)} parts: {part_names})")
 
     return "\n".join(report_lines)
 
