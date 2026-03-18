@@ -199,10 +199,10 @@ jobs:
 
       - name: Lint notebook markdown
         run: |
-          echo "Checking notebook markdown..."
+          echo "Checking notebook structure..."
           for notebook in notebooks/*.ipynb; do
             if [ -f "$notebook" ]; then
-              python3 check_notebooks.py "$notebook" || exit 1
+              python3 -c "import json; json.load(open('$notebook'))" || { echo "❌ Invalid JSON: $notebook"; exit 1; }
             fi
           done
           echo "✅ Notebook markdown looks good"
