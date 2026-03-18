@@ -276,9 +276,7 @@ class TestGenerateReportStalePatterns:
 class TestCheckStalePatternsMultiPattern:
     """Tests for per-sub-pattern staleness in multi-pattern groups (issue #4012)."""
 
-    def test_one_stale_sub_pattern_reports_sub_pattern_not_group(
-        self, tmp_repo: Path
-    ) -> None:
+    def test_one_stale_sub_pattern_reports_sub_pattern_not_group(self, tmp_repo: Path) -> None:
         """When one sub-pattern is stale and another is live, only the stale sub-pattern is reported."""
         # tests/unit/test_foo.mojo exists; test_gone.mojo does not
         ci_groups = {
@@ -327,9 +325,7 @@ class TestCheckStalePatternsMultiPattern:
             "Partial Group (sub-pattern: test_gone2.mojo)",
         ]
 
-    def test_mixed_and_fully_stale_groups_sorted_together(
-        self, tmp_repo: Path
-    ) -> None:
+    def test_mixed_and_fully_stale_groups_sorted_together(self, tmp_repo: Path) -> None:
         """Results from mixed groups and fully stale groups are returned in sorted order."""
         ci_groups = {
             "Zebra Group": {
