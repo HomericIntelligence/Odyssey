@@ -28,6 +28,11 @@ services:
     stdin_open: true
     tty: true
     command: /bin/bash
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+          cpus: "4.0"
 
   # CI/Testing environment
   projectodyssey-ci:
@@ -53,6 +58,11 @@ services:
       - CI=true
       - PIXI_HOME=${HOME}/.pixi
     working_dir: /workspace
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: "2.0"
 
   # Production environment
   projectodyssey-prod:
@@ -74,6 +84,11 @@ services:
       - ENVIRONMENT=production
       - PIXI_HOME=${HOME}/.pixi
     working_dir: /workspace
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: "2.0"
 
 volumes:
   pixi-cache:
