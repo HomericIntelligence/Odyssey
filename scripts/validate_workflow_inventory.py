@@ -24,7 +24,7 @@ from typing import Set
 
 def extract_documented_workflows(readme_path: Path) -> Set[str]:
     """Extract workflow filenames from README.md table."""
-    documented = set()
+    documented: Set[str] = set()
 
     try:
         content = readme_path.read_text()
@@ -50,7 +50,7 @@ def extract_documented_workflows(readme_path: Path) -> Set[str]:
 
 def find_actual_workflows(workflows_dir: Path) -> Set[str]:
     """Find all .yml workflow files in the directory."""
-    workflows = set()
+    workflows: Set[str] = set()
 
     if not workflows_dir.exists():
         return workflows
