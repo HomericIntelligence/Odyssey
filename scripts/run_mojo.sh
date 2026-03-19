@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Transparently run any mojo subcommand inside a Podman or Docker container.
+# Transparently run any mojo subcommand inside a Podman container.
 # The host machine may lack a compatible GLIBC for Mojo — the container provides it.
 #
 # Usage:
@@ -10,7 +10,7 @@
 #
 # Environment variables:
 #   MOJO_IMAGE   Override the container image (default: projectodyssey:dev)
-#   MOJO_ENGINE  Override the container engine (default: auto-detect podman > docker)
+#   MOJO_ENGINE  Override the container engine (default: podman)
 
 set -euo pipefail
 
@@ -38,11 +38,9 @@ if [ -n "${MOJO_ENGINE:-}" ]; then
     ENGINE="$MOJO_ENGINE"
 elif check_podman_version; then
     ENGINE="podman"
-elif command -v docker &>/dev/null; then
-    ENGINE="docker"
 else
-    echo "Error: No container engine found." >&2
-    echo "Install Podman 4.0+: ./scripts/install-podman.sh" >&2
+    echo "Error: Podman 4.0+ not found." >&2
+    echo "Install Podman: ./scripts/install-podman.sh" >&2
     exit 1
 fi
 

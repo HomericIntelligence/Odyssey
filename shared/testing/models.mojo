@@ -1101,10 +1101,13 @@ struct SimpleMLP2(Copyable, Model, Movable):
             conformance and actual neural network operations.
         """
         # Placeholder: create output with correct shape
-        var batch_size = input._shape[0]
         var output_shape = List[Int]()
-        output_shape.append(batch_size)
-        output_shape.append(self.output_dim)
+        if len(input._shape) == 1:
+            output_shape.append(self.output_dim)
+        else:
+            var batch_size = input._shape[0]
+            output_shape.append(batch_size)
+            output_shape.append(self.output_dim)
         var output = zeros(output_shape, input._dtype)
 
         return output^
@@ -1113,12 +1116,29 @@ struct SimpleMLP2(Copyable, Model, Movable):
         """Get all trainable parameters.
 
         Returns:
-            Empty list (placeholder - no trainable parameters in this fixture).
+            List of 4 ExTensors: W1, b1, W2, b2 (placeholder weights).
 
         Raises:
             Error: If parameter collection fails.
         """
-        return List[ExTensor]()
+        var params = List[ExTensor]()
+        # W1: (input_dim, hidden_dim)
+        params.append(zeros([self.input_dim, self.hidden_dim], DType.float32))
+        # b1: (hidden_dim,)
+        params.append(zeros([self.hidden_dim], DType.float32))
+        # W2: (hidden_dim, output_dim)
+        params.append(zeros([self.hidden_dim, self.output_dim], DType.float32))
+        # b2: (output_dim,)
+        params.append(zeros([self.output_dim], DType.float32))
+        return params^
+
+    fn train(mut self):
+        """Set model to training mode (no-op placeholder)."""
+        pass
+
+    fn set_inference_mode(mut self):
+        """Set model to inference mode (no-op placeholder)."""
+        pass
 
     fn zero_grad(mut self) raises:
         """Placeholder for gradient reset (no gradient state in this fixture).

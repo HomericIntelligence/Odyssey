@@ -1,23 +1,49 @@
-name: Set Up Docker Compose
-description: Build and start the Docker compose dev container for test execution.
+name: Set Up Podman Container
+description: Build and start the Podman compose development container for CI.
 
 runs:
   using: composite
   steps:
-    - name: Build and start Docker compose service
+    - name: Ensure .gitconfig exists
+      shell: bash
+      run: touch "$HOME/.gitconfig"
+
+    - name: Export runner UID/GID
       shell: bash
       run: |
-        docker compose build projectodyssey-dev
-        docker compose up -d projectodyssey-dev
-        # Wait for container to be healthy
+        echo "USER_ID=$(id -u)" >> "$GITHUB_ENV"
+        echo "GROUP_ID=$(id -g)" >> "$GITHUB_ENV"
+
+    - name: Cache Podman storage
+      uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306  # v5
+      with:
+        path: ~/.local/share/containers
+        key: podman-${{ hashFiles('Dockerfile', 'pixi.toml', 'pixi.lock') }}
+        restore-keys: |
+          podman-
+
+    - name: Build container image
+      shell: bash
+      run: podman compose build projectodyssey-dev
+
+    - name: Start container
+      shell: bash
+      run: podman compose up -d projectodyssey-dev
+
+    - name: Wait for container and verify
+      shell: bash
+      run: |
         for i in $(seq 1 30); do
-          if docker compose ps -q projectodyssey-dev | xargs -r docker inspect -f '{{.State.Running}}' 2>/dev/null | grep -q true; then
+          if podman compose ps -q projectodyssey-dev 2>/dev/null \
+            | xargs -r podman inspect -f '{{.State.Running}}' 2>/dev/null \
+            | grep -q true; then
             echo "Container is running"
+            podman compose exec -T projectodyssey-dev pixi run mojo --version
             exit 0
           fi
-          echo "Waiting for container to start... ($i/30)"
-          sleep 1
+          echo "Waiting for container... ($i/30)"
+          sleep 2
         done
-        echo "ERROR: Container failed to start"
-        docker compose logs projectodyssey-dev
+        echo "ERROR: Container did not start within 60 seconds"
+        podman compose logs projectodyssey-dev
         exit 1

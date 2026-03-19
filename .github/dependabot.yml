@@ -115,9 +115,9 @@ updates:
           - "*"
 
   # ============================================================================
-  # Docker Base Images
+  # Container Base Images
   # ============================================================================
-  # Purpose: Keep Docker base images and dependencies current
+  # Purpose: Keep container base images and dependencies current
   # Frequency: Weekly (Wednesdays)
   # Scope: Dockerfile and Dockerfile.ci
   - package-ecosystem: "docker"

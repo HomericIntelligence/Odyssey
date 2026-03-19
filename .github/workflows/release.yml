@@ -415,9 +415,9 @@ jobs:
           find dist -type f -exec echo "  - {}" \;
 
   # ============================================================================
-  # Publish Docker Images
+  # Publish Container Images
   # ============================================================================
-  publish-docker:
+  publish-container:
     needs: [validate-version, create-release]
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -426,38 +426,32 @@ jobs:
       packages: write
 
     env:
-      # Docker image names must be lowercase
+      # Container image names must be lowercase
       IMAGE_NAME: homericintelligence/projectodyssey
 
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd  # v4
-
       - name: Log in to Container Registry
-        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2  # v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | podman login ghcr.io --username "${{ github.actor }}" --password-stdin
 
-      - name: Build and push release images
-        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294  # v7
-        with:
-          context: .
-          file: ./Dockerfile.ci
-          target: production
-          platforms: linux/amd64
-          push: true
-          tags: |
-            ghcr.io/${{ env.IMAGE_NAME }}:${{ needs.validate-version.outputs.version }}
-            ghcr.io/${{ env.IMAGE_NAME }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            VERSION=${{ needs.validate-version.outputs.version }}
+      - name: Build release image
+        env:
+          VERSION: ${{ needs.validate-version.outputs.version }}
+        run: |
+          podman build --format docker -f Dockerfile.ci --target production \
+            --build-arg VERSION="$VERSION" \
+            -t "ghcr.io/$IMAGE_NAME:$VERSION" \
+            -t "ghcr.io/$IMAGE_NAME:latest" \
+            .
+
+      - name: Push release images
+        env:
+          VERSION: ${{ needs.validate-version.outputs.version }}
+        run: |
+          podman push "ghcr.io/$IMAGE_NAME:$VERSION"
+          podman push "ghcr.io/$IMAGE_NAME:latest"
 
       - name: Generate SBOM
         uses: anchore/sbom-action@57aae528053a48a3f6235f2d9461b05fbcb7366d  # v0
@@ -479,7 +473,7 @@ jobs:
   # Post-Release Validation
   # ============================================================================
   validate-release:
-    needs: [validate-version, create-release, publish-docker]
+    needs: [validate-version, create-release, publish-container]
     runs-on: ubuntu-latest
     if: always()
 
