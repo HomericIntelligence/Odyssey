@@ -84,6 +84,10 @@ RUN pixi run pip install --upgrade pip pre-commit
 # Install pre-commit hooks (cached unless .pre-commit-config.yaml changes)
 RUN pixi run pre-commit install --install-hooks || true
 
+# Copy entrypoint script for container initialization
+COPY --chown=${USER_NAME}:${USER_NAME} docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 # Copy the rest of the workspace (invalidates only layers after this)
 COPY --chown=${USER_NAME}:${USER_NAME} . .
 

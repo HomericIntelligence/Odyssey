@@ -12,9 +12,11 @@ services:
     image: projectodyssey:dev
     volumes:
       - .:/workspace:delegated
+      - workspace-pixi:/workspace/.pixi
       - pixi-cache:${HOME}/.pixi
       - pre-commit-cache:/home/dev/.cache/pre-commit
       - ${HOME}/.gitconfig:/home/dev/.gitconfig:ro
+    entrypoint: ["/usr/local/bin/entrypoint.sh"]
     environment:
       - HOME=/home/dev
       - USER_ID=${USER_ID}
@@ -40,7 +42,9 @@ services:
     image: projectodyssey:ci
     volumes:
       - .:/workspace
+      - workspace-pixi:/workspace/.pixi
       - pixi-cache:${HOME}/.pixi
+    entrypoint: ["/usr/local/bin/entrypoint.sh"]
     environment:
       - HOME=/home/dev
       - USER_ID=${USER_ID}
@@ -75,4 +79,6 @@ volumes:
   pixi-cache:
     driver: local
   pre-commit-cache:
+    driver: local
+  workspace-pixi:
     driver: local

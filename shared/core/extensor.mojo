@@ -3438,7 +3438,7 @@ struct ExTensor(
             var parts = a.split(3)  # 3 parts of size 4 each
         ```
         """
-        from shared.core.shape import split as split_fn
+        from .shape import split as split_fn
 
         return split_fn(self, num_splits, axis)
 
@@ -3472,7 +3472,7 @@ struct ExTensor(
             # parts[2].shape() = (3,)  # indices 7-9
         ```
         """
-        from shared.core.shape import split_with_indices as split_with_indices_fn
+        from .shape import split_with_indices as split_with_indices_fn
 
         return split_with_indices_fn(self, split_indices, axis)
 
