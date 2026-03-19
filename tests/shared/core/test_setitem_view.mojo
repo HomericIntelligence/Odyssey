@@ -87,10 +87,19 @@ fn test_setitem_view_multidim_writes_correctly() raises:
     var idx_22 = [2, 2]
 
     assert_value_at(original, 0, 0.0, "original[0,0] should be 0.0 (outside slice)")
-    assert_value_at(original.__getitem__(idx_11), Float32(11.0), "original[1,1]")
-    assert_value_at(original.__getitem__(idx_12), Float32(12.0), "original[1,2]")
-    assert_value_at(original.__getitem__(idx_21), Float32(21.0), "original[2,1]")
-    assert_value_at(original.__getitem__(idx_22), Float32(22.0), "original[2,2]")
+    var val_11 = original.__getitem__(idx_11)
+    var val_12 = original.__getitem__(idx_12)
+    var val_21 = original.__getitem__(idx_21)
+    var val_22 = original.__getitem__(idx_22)
+
+    if val_11 != Float32(11.0):
+        raise Error("original[1,1] expected 11.0, got " + String(val_11))
+    if val_12 != Float32(12.0):
+        raise Error("original[1,2] expected 12.0, got " + String(val_12))
+    if val_21 != Float32(21.0):
+        raise Error("original[2,1] expected 21.0, got " + String(val_21))
+    if val_22 != Float32(22.0):
+        raise Error("original[2,2] expected 22.0, got " + String(val_22))
 
 
 fn test_setitem_view_does_not_corrupt_adjacent_elements() raises:
