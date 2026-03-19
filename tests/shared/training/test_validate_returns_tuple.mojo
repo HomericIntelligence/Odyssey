@@ -1,8 +1,7 @@
-"""Tests for validate() returning Tuple[Float64, Float64].
+"""Tests for validate() return value.
 
-Issue #3683: Unify accuracy computation between validate() and run().
-Verifies that validate() now returns (loss, accuracy) as a tuple,
-eliminating the duplicate forward pass that existed in run().
+Issue #3683: Verify that validate() returns average validation loss
+as a Float64 scalar, consistent with the validation_loop API.
 """
 
 from tests.shared.conftest import (
@@ -41,69 +40,62 @@ fn create_loader(n_batches: Int = 3) raises -> DataLoader:
 
 
 # ============================================================================
-# Tuple return tests
+# Return value tests
 # ============================================================================
 
 
-fn test_validate_returns_tuple_both_values() raises:
-    """Test validate() returns a tuple with loss and accuracy components."""
+fn test_validate_returns_float64() raises:
+    """Test validate() returns a Float64 average loss value."""
     var loader = create_loader(n_batches=3)
     var result = validate(simple_forward, simple_loss, loader)
-    # Index access: result[0] is loss, result[1] is accuracy
-    var loss = result[0]
-    var accuracy = result[1]
-    assert_greater(loss, Float64(-1e-10))
-    assert_greater(accuracy, Float64(-1e-10))
-    print("  test_validate_returns_tuple_both_values: PASSED")
-
-
-fn test_validate_tuple_destructuring() raises:
-    """Test validate() result can be destructured with var (loss, acc) = ..."""
-    var loader = create_loader(n_batches=3)
-    var (loss, accuracy) = validate(simple_forward, simple_loss, loader)
-    assert_greater(loss, Float64(-1e-10))
-    assert_less(loss, Float64(1e10))
-    assert_greater(accuracy, Float64(-1e-10))
-    print("  test_validate_tuple_destructuring: PASSED")
+    assert_greater(result, Float64(-1e-10))
+    print("  test_validate_returns_float64: PASSED")
 
 
 fn test_validate_loss_value_correct() raises:
-    """Test validate() loss component equals the expected average loss."""
+    """Test validate() loss equals the expected average loss."""
     var loader = create_loader(n_batches=3)
     # simple_loss returns 1.0 per batch -> average loss = 1.0
-    var (avg_loss, _) = validate(simple_forward, simple_loss, loader)
+    var avg_loss = validate(simple_forward, simple_loss, loader)
     assert_almost_equal(avg_loss, Float64(1.0), Float64(1e-5))
     print("  test_validate_loss_value_correct: PASSED")
 
 
-fn test_validate_accuracy_zero_when_disabled() raises:
-    """Test validate() returns accuracy=0.0 when compute_accuracy=False."""
+fn test_validate_loss_nonnegative() raises:
+    """Test validate() returns a non-negative loss value."""
     var loader = create_loader(n_batches=3)
-    var (_, accuracy) = validate(
-        simple_forward, simple_loss, loader, compute_accuracy=False
-    )
-    assert_almost_equal(accuracy, Float64(0.0), Float64(1e-10))
-    print("  test_validate_accuracy_zero_when_disabled: PASSED")
+    var avg_loss = validate(simple_forward, simple_loss, loader)
+    assert_greater(avg_loss, Float64(-1e-10))
+    assert_less(avg_loss, Float64(1e10))
+    print("  test_validate_loss_nonnegative: PASSED")
 
 
-fn test_validate_accuracy_nonzero_when_enabled() raises:
-    """Test validate() returns non-zero accuracy when compute_accuracy=True."""
+fn test_validate_with_accuracy_enabled() raises:
+    """Test validate() with compute_accuracy=True still returns Float64 loss."""
     var loader = create_loader(n_batches=3)
-    var (_, accuracy) = validate(
+    var avg_loss = validate(
         simple_forward, simple_loss, loader, compute_accuracy=True
     )
-    # Accuracy is a valid fraction in [0.0, 1.0]
-    assert_greater(accuracy, Float64(-1e-10))
-    assert_less(accuracy, Float64(1.0) + Float64(1e-5))
-    print("  test_validate_accuracy_nonzero_when_enabled: PASSED")
+    assert_almost_equal(avg_loss, Float64(1.0), Float64(1e-5))
+    print("  test_validate_with_accuracy_enabled: PASSED")
 
 
-fn test_validate_ignore_accuracy_with_underscore() raises:
-    """Test that accuracy can be discarded using _ in destructuring."""
+fn test_validate_with_accuracy_disabled() raises:
+    """Test validate() with compute_accuracy=False still returns Float64 loss."""
+    var loader = create_loader(n_batches=3)
+    var avg_loss = validate(
+        simple_forward, simple_loss, loader, compute_accuracy=False
+    )
+    assert_almost_equal(avg_loss, Float64(1.0), Float64(1e-5))
+    print("  test_validate_with_accuracy_disabled: PASSED")
+
+
+fn test_validate_different_batch_counts() raises:
+    """Test validate() returns correct loss with different batch counts."""
     var loader = create_loader(n_batches=2)
-    var (loss, _) = validate(simple_forward, simple_loss, loader)
-    assert_almost_equal(loss, Float64(1.0), Float64(1e-5))
-    print("  test_validate_ignore_accuracy_with_underscore: PASSED")
+    var avg_loss = validate(simple_forward, simple_loss, loader)
+    assert_almost_equal(avg_loss, Float64(1.0), Float64(1e-5))
+    print("  test_validate_different_batch_counts: PASSED")
 
 
 # ============================================================================
@@ -112,12 +104,12 @@ fn test_validate_ignore_accuracy_with_underscore() raises:
 
 
 fn main() raises:
-    """Run all validate() tuple return tests."""
-    print("Running validate() tuple return tests...")
-    test_validate_returns_tuple_both_values()
-    test_validate_tuple_destructuring()
+    """Run all validate() return value tests."""
+    print("Running validate() return value tests...")
+    test_validate_returns_float64()
     test_validate_loss_value_correct()
-    test_validate_accuracy_zero_when_disabled()
-    test_validate_accuracy_nonzero_when_enabled()
-    test_validate_ignore_accuracy_with_underscore()
-    print("\nAll validate() tuple return tests passed!")
+    test_validate_loss_nonnegative()
+    test_validate_with_accuracy_enabled()
+    test_validate_with_accuracy_disabled()
+    test_validate_different_batch_counts()
+    print("\nAll validate() return value tests passed!")
