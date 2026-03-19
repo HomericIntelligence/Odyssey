@@ -93,8 +93,8 @@ fn test_single_tensor_serialization() raises:
     var shape: List[Int] = [2, 3]
     var tensor = full(shape, 3.14, DType.float32)
 
-    # Create temp file
-    var tmpfile = "test_tensor_serialization.tmp"
+    # Create temp file in /tmp to avoid Docker permission issues
+    var tmpfile = "/tmp/test_tensor_serialization.tmp"
 
     try:
         # Save tensor
@@ -132,7 +132,7 @@ fn test_tensor_with_name() raises:
     var shape: List[Int] = [2, 2]
     var tensor = ones(shape, DType.float32)
 
-    var tmpfile = "test_named_tensor.tmp"
+    var tmpfile = "/tmp/test_named_tensor.tmp"
 
     try:
         # Save with name
