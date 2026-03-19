@@ -4,32 +4,32 @@
 """End-to-end tests for VGG-16 model on CIFAR-10 (Part 1 of 2).
 
 VGG-16 Architecture:
-- Input: (batch, 3, 32, 32) CIFAR-10 images
+- Input: (batch, 3, 32, 32) CIFAR-10 images.
 - Feature Extraction:
-  * Block 1: Conv64 -> Conv64 -> MaxPool
-  * Block 2: Conv128 -> Conv128 -> MaxPool
-  * Block 3: Conv256 -> Conv256 -> Conv256 -> MaxPool
-  * Block 4: Conv512 -> Conv512 -> Conv512 -> MaxPool
-  * Block 5: Conv512 -> Conv512 -> Conv512 -> MaxPool
+  * Block 1: Conv64 -> Conv64 -> MaxPool.
+  * Block 2: Conv128 -> Conv128 -> MaxPool.
+  * Block 3: Conv256 -> Conv256 -> Conv256 -> MaxPool.
+  * Block 4: Conv512 -> Conv512 -> Conv512 -> MaxPool.
+  * Block 5: Conv512 -> Conv512 -> Conv512 -> MaxPool.
 - Classification Head:
-  * Global Average Pool: (batch, 512, 1, 1) -> (batch, 512)
-  * FC 512 -> 256 + ReLU
-  * FC 256 -> 256 + ReLU
-  * FC 256 -> 10 (CIFAR-10 classes)
+  * Global Average Pool: (batch, 512, 1, 1) -> (batch, 512).
+  * FC 512 -> 256 + ReLU.
+  * FC 256 -> 256 + ReLU.
+  * FC 256 -> 10 (CIFAR-10 classes).
 
 Part 1 Tests (forward pass and training):
-- Forward pass with realistic input shapes
-- Output shape verification (batch, 10)
-- Forward pass with small batch size
-- Forward pass with varying input values
-- Backward pass through full model
-- Inference mode (no gradients needed)
+- Forward pass with realistic input shapes.
+- Output shape verification (batch, 10).
+- Forward pass with small batch size.
+- Forward pass with varying input values.
+- Backward pass through full model.
+- Inference mode (no gradients needed).
 
-See test_vgg16_e2e_part2.mojo for gradient flow, output range, shape
+See `test_vgg16_e2e_part2.mojo` for gradient flow, output range, shape
 progression, and numerical stability tests.
 
-All tests use CIFAR-10 compatible shapes: (batch, 3, 32, 32)
-Batch sizes: 4 (inference) and 2 (training, small for speed)
+All tests use CIFAR-10 compatible shapes: (batch, 3, 32, 32).
+Batch sizes: 4 (inference) and 2 (training, small for speed).
 """
 
 from tests.shared.conftest import (
@@ -63,12 +63,12 @@ fn conv_block(
     """Apply a VGG conv block: sequential conv layers with ReLU.
 
     Args:
-        input_tensor: Input tensor
-        out_channels: Output channels for conv layers
-        num_convs: Number of consecutive conv layers to apply
+        input_tensor: Input tensor.
+        out_channels: Output channels for conv layers.
+        num_convs: Number of consecutive conv layers to apply.
 
     Returns:
-        Output tensor after all convolutions and ReLU activations
+        Output tensor after all convolutions and ReLU activations.
     """
     var in_channels = input_tensor.shape()[1]
     var height = input_tensor.shape()[2]
@@ -107,10 +107,10 @@ fn vgg16_forward(
     """Forward pass through VGG-16 model.
 
     Args:
-        input_tensor: Input batch (batch, 3, 32, 32)
+        input_tensor: Input batch (batch, 3, 32, 32).
 
     Returns:
-        Logits for 10 classes (batch, 10)
+        Logits for 10 classes (batch, 10).
     """
     var x = input_tensor
 
@@ -191,9 +191,9 @@ fn test_vgg16_e2e_forward_inference() raises:
     """Test VGG-16 forward pass with realistic CIFAR-10 input.
 
     Tests:
-    - Input shape: (4, 3, 32, 32) - realistic CIFAR-10 batch
-    - Output shape: (4, 10) - 10 CIFAR-10 classes
-    - No errors through full model
+    - Input shape: (4, 3, 32, 32) - realistic CIFAR-10 batch.
+    - Output shape: (4, 10) - 10 CIFAR-10 classes.
+    - No errors through full model.
     """
     var batch_size = 4
     var num_classes = 10
@@ -279,9 +279,9 @@ fn test_vgg16_e2e_forward_backward() raises:
     """Test VGG-16 backward pass through full model.
 
     Integration test:
-    - Forward pass produces logits
-    - Loss computation
-    - Backward pass computes input gradients
+    - Forward pass produces logits.
+    - Loss computation.
+    - Backward pass computes input gradients.
 
     Note: Full parameter gradient computation is complex. This test
     validates that backward pass completes without error.
@@ -320,9 +320,9 @@ fn test_vgg16_e2e_inference_mode() raises:
     """Test VGG-16 inference mode (multiple samples).
 
     Inference characteristics:
-    - Batch processing efficiency
-    - Output shape consistency
-    - Realistic batch sizes (4, 8, 16)
+    - Batch processing efficiency.
+    - Output shape consistency.
+    - Realistic batch sizes (4, 8, 16).
     """
     for batch_size in [1, 2, 4, 8]:
         # Create input
