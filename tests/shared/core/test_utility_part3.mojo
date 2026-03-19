@@ -1,6 +1,6 @@
 """Tests for ExTensor utility operations - Part 3: __len__, __setitem__, __bool__, and partial __hash__.
 
-Tests length accessor, item assignment, boolean conversion behavior,
+Tests length accessor, item assignment, boolean conversion via __bool__,
 and hash consistency for large and small float values.
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
@@ -117,14 +117,14 @@ fn test_bool_single_element() raises:
 
 
 fn test_bool_requires_single_element() raises:
-    """Test that bool_strict() raises for multi-element tensor."""
+    """Test that __bool__() raises for multi-element tensor."""
     var shape = List[Int]()
     shape.append(5)
     var t = ones(shape, DType.float32)
 
     var error_raised = False
     try:
-        var val = t.bool_strict()  # Should raise error for multi-element tensor
+        var val = t.__bool__()  # Should raise error for multi-element tensor
         _ = val  # Suppress unused warning
     except e:
         error_raised = True
@@ -139,7 +139,7 @@ fn test_bool_requires_single_element() raises:
             )
 
     if not error_raised:
-        raise Error("bool_strict() on multi-element tensor should raise error")
+        raise Error("__bool__() on multi-element tensor should raise error")
 
 
 # ============================================================================
