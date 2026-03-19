@@ -29,10 +29,10 @@ fn test_load_json_config() raises:
     var config = Config()
     config.set("learning_rate", 0.001)
     config.set("batch_size", 32)
-    config.to_json("tests/configs/fixtures/test_output.json")
+    config.to_json("/tmp/test_output.json")
 
     # Load it back
-    var loaded = load_config("tests/configs/fixtures/test_output.json")
+    var loaded = load_config("/tmp/test_output.json")
 
     assert_true(loaded.has("learning_rate"), "Should have learning_rate")
     assert_true(loaded.has("batch_size"), "Should have batch_size")
@@ -68,12 +68,12 @@ fn test_load_empty_file() raises:
     Verifies proper error handling for empty files.
     """
     # Create empty file
-    with open("tests/configs/fixtures/empty.yaml", "w") as f:
+    with open("/tmp/test_empty.yaml", "w") as f:
         _ = f.write("")
 
     var error_raised = False
     try:
-        _ = load_config("tests/configs/fixtures/empty.yaml")
+        _ = load_config("/tmp/test_empty.yaml")
     except:
         error_raised = True
 
