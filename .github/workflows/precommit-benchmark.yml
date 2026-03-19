@@ -53,7 +53,9 @@ jobs:
         id: time-hooks
         run: |
           START=$SECONDS
-          pixi run pre-commit run --all-files --show-diff-on-failure
+          # Skip mojo-format — it is advisory/non-blocking (same as pre-commit.yml)
+          # because the Mojo 0.26.1 formatter has known bugs.
+          SKIP=mojo-format pixi run pre-commit run --all-files --show-diff-on-failure
           HOOK_EXIT=$?
           ELAPSED=$((SECONDS - START))
           echo "elapsed=$ELAPSED" >> "$GITHUB_OUTPUT"
