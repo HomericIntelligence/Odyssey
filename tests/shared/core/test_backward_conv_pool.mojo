@@ -23,7 +23,7 @@ from shared.testing import check_gradient
 # ============================================================================
 
 
-fn _make_test_conv2d_tensors() -> Tuple[ExTensor, ExTensor, ExTensor]:
+fn _make_test_conv2d_tensors() raises -> Tuple[ExTensor, ExTensor, ExTensor]:
     """Create and initialize test tensors for conv2d backward tests.
 
     Returns:
@@ -146,10 +146,10 @@ fn test_conv2d_backward_grad_input_numerical() raises:
     """
     var (x, kernel, bias) = _make_test_conv2d_tensors()
 
-    fn forward_input(inp: ExTensor) raises -> ExTensor:
+    fn forward_input(inp: ExTensor) raises escaping -> ExTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=0)
 
-    fn backward_input(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:
+    fn backward_input(grad_out: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
         var grads = conv2d_backward(grad_out, inp, kernel, stride=1, padding=0)
         return grads.grad_input
 
@@ -169,10 +169,10 @@ fn test_conv2d_backward_grad_weights_numerical() raises:
     var (x, kernel, bias) = _make_test_conv2d_tensors()
 
     # Treat kernel as the variable being perturbed; x is held fixed
-    fn forward_weights(k: ExTensor) raises -> ExTensor:
+    fn forward_weights(k: ExTensor) raises escaping -> ExTensor:
         return conv2d(x, k, bias, stride=1, padding=0)
 
-    fn backward_weights(grad_out: ExTensor, k: ExTensor) raises -> ExTensor:
+    fn backward_weights(grad_out: ExTensor, k: ExTensor) raises escaping -> ExTensor:
         var grads = conv2d_backward(grad_out, x, k, stride=1, padding=0)
         return grads.grad_weights
 
@@ -318,10 +318,10 @@ fn test_conv2d_backward_gradient() raises:
     bias_shape.append(2)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(inp: ExTensor) raises -> ExTensor:
+    fn forward(inp: ExTensor) raises escaping -> ExTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=0)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:
+    fn backward(grad_out: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
         var grads = conv2d_backward(grad_out, inp, kernel, stride=1, padding=0)
         return grads.grad_input
 
