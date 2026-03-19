@@ -19,7 +19,7 @@ from testing import assert_true
 
 
 fn test_are_shapes_broadcastable_ndim_reduction_returns_false() raises:
-    """are_shapes_broadcastable([3,4,5], [4,5]) must return False (ndim reduction)."""
+    """Verify are_shapes_broadcastable([3,4,5], [4,5]) returns False (ndim reduction)."""
     var shape1 = List[Int]()
     shape1.append(3)
     shape1.append(4)
@@ -34,7 +34,7 @@ fn test_are_shapes_broadcastable_ndim_reduction_returns_false() raises:
 
 
 fn test_are_shapes_broadcastable_1d_vs_2d_reduction() raises:
-    """are_shapes_broadcastable([3,4], [4]) must return False (ndim reduction)."""
+    """Verify are_shapes_broadcastable([3,4], [4]) returns False (ndim reduction)."""
     var shape1 = List[Int]()
     shape1.append(3)
     shape1.append(4)
@@ -47,7 +47,7 @@ fn test_are_shapes_broadcastable_1d_vs_2d_reduction() raises:
 
 
 fn test_are_shapes_broadcastable_empty_target_returns_false() raises:
-    """are_shapes_broadcastable([3], []) must return False (empty target)."""
+    """Verify are_shapes_broadcastable([3], []) returns False (empty target)."""
     var shape1 = List[Int]()
     shape1.append(3)
     var shape2 = List[Int]()
@@ -63,7 +63,7 @@ fn test_are_shapes_broadcastable_empty_target_returns_false() raises:
 
 
 fn test_are_shapes_broadcastable_expanding_ndim_ok() raises:
-    """are_shapes_broadcastable([4,5], [3,4,5]) must return True (expanding dims)."""
+    """Verify are_shapes_broadcastable([4,5], [3,4,5]) returns True (expanding dims)."""
     var shape1 = List[Int]()
     shape1.append(4)
     shape1.append(5)
@@ -78,7 +78,7 @@ fn test_are_shapes_broadcastable_expanding_ndim_ok() raises:
 
 
 fn test_are_shapes_broadcastable_same_ndim_compatible() raises:
-    """are_shapes_broadcastable([3,4], [3,4]) must return True (same shape)."""
+    """Verify are_shapes_broadcastable([3,4], [3,4]) returns True (same shape)."""
     var shape1 = List[Int]()
     shape1.append(3)
     shape1.append(4)
@@ -92,7 +92,7 @@ fn test_are_shapes_broadcastable_same_ndim_compatible() raises:
 
 
 fn test_are_shapes_broadcastable_broadcast_1_dim_ok() raises:
-    """are_shapes_broadcastable([1,4], [3,4]) must return True (dim-1 broadcast)."""
+    """Verify are_shapes_broadcastable([1,4], [3,4]) returns True (dim-1 broadcast)."""
     var shape1 = List[Int]()
     shape1.append(1)
     shape1.append(4)
@@ -106,7 +106,7 @@ fn test_are_shapes_broadcastable_broadcast_1_dim_ok() raises:
 
 
 fn test_are_shapes_broadcastable_incompatible_dims_unchanged() raises:
-    """are_shapes_broadcastable([3,4], [5,4]) must return False (incompatible dims)."""
+    """Verify are_shapes_broadcastable([3,4], [5,4]) returns False (incompatible dims)."""
     var shape1 = List[Int]()
     shape1.append(3)
     shape1.append(4)
@@ -120,7 +120,7 @@ fn test_are_shapes_broadcastable_incompatible_dims_unchanged() raises:
 
 
 fn test_are_shapes_broadcastable_scalar_source_empty_target() raises:
-    """are_shapes_broadcastable([], []) must return True (both empty/scalar)."""
+    """Verify are_shapes_broadcastable([], []) returns True (both empty/scalar)."""
     var shape1 = List[Int]()
     var shape2 = List[Int]()
     assert_true(
@@ -130,7 +130,7 @@ fn test_are_shapes_broadcastable_scalar_source_empty_target() raises:
 
 
 fn test_are_shapes_broadcastable_scalar_source_to_1d() raises:
-    """are_shapes_broadcastable([], [3]) must return True (scalar to 1D)."""
+    """Verify are_shapes_broadcastable([], [3]) returns True (scalar to 1D)."""
     var shape1 = List[Int]()
     var shape2 = List[Int]()
     shape2.append(3)
