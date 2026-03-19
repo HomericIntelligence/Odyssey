@@ -177,7 +177,9 @@ fn test_recommend_precision_dtype() raises:
     assert_equal(medium_dtype, DType.float16, "Medium models should use FP16")
 
     # Large model with BF16 hardware - should recommend BF16
-    var large_dtype = recommend_precision_dtype(2000.0, hardware_has_fp16=True)
+    var large_dtype = recommend_precision_dtype(
+        2000.0, hardware_has_fp16=True, hardware_has_bf16=True
+    )
     assert_equal(large_dtype, DType.bfloat16, "Large models should use BF16")
 
     # Large model without BF16 hardware (e.g. Apple Silicon) - should fall back to FP16
