@@ -439,12 +439,17 @@ struct ExTensor(
     fn __moveinit__(out self, deinit existing: Self):
         """Move constructor - transfers ownership.
 
-        For safety, we copy the List fields instead of moving them with ^
-        to avoid potential corruption issues with List's internal buffer.
+        Transfers all fields from existing to self. List fields use explicit
+        element-by-element copy to ensure independent ownership and avoid
+        dangling pointer issues with List's internal buffer after deinit.
         """
         self._data = existing._data
-        self._shape = existing._shape.copy()
-        self._strides = existing._strides.copy()
+        self._shape = List[Int]()
+        for i in range(len(existing._shape)):
+            self._shape.append(existing._shape[i])
+        self._strides = List[Int]()
+        for i in range(len(existing._strides)):
+            self._strides.append(existing._strides[i])
         self._dtype = existing._dtype
         self._numel = existing._numel
         self._is_view = existing._is_view

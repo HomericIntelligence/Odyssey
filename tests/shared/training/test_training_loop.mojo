@@ -652,6 +652,7 @@ fn test_dataloader_4d_partial_last_batch() raises:
     var data = ones([6, 2, 4, 4], DType.float32)
     var labels = zeros([6], DType.float32)
     var loader = DataLoader(data^, labels^, 4)
+    print("DEBUG partial: num_samples=", loader.num_samples, "num_batches=", loader.num_batches)
 
     # First full batch: shape (4, 2, 4, 4)
     var batch1 = loader.next()
@@ -737,7 +738,7 @@ fn test_dataloader_reset_4d_iteration() raises:
         var shape = List[Int]()
         for i in range(4):
             shape.append(batch.data.shape()[i])
-        shapes_epoch1.append(shape)
+        shapes_epoch1.append(shape.copy())
         batch_count_epoch1 += 1
 
     # Verify first epoch completed (2 batches of size 4)
@@ -755,7 +756,7 @@ fn test_dataloader_reset_4d_iteration() raises:
             shape.append(batch.data.shape()[i])
 
         # Verify shape matches first epoch
-        var expected = shapes_epoch1[batch_count_epoch2]
+        var expected = shapes_epoch1[batch_count_epoch2].copy()
         assert_equal(shape[0], expected[0])  # batch size
         assert_equal(shape[1], expected[1])  # C
         assert_equal(shape[2], expected[2])  # H

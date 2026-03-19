@@ -342,10 +342,11 @@ struct DataLoader(Copyable, Movable):
             labels: Full dataset labels (ownership transferred).
             batch_size: Batch size.
         """
+        var num_samples = data.shape()[0]
         self.data = data^
         self.labels = labels^
         self.batch_size = batch_size
-        self.num_samples = self.data.shape()[0]
+        self.num_samples = num_samples
         self.num_batches = (self.num_samples + batch_size - 1) // batch_size
         self.current_batch = 0
 
