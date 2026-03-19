@@ -46,8 +46,12 @@ fn create_temp_dir(prefix: String = "ml_odyssey_test_") raises -> String:
         in test teardown or try/finally block.
     """
     # Use Python's tempfile.mkdtemp for atomic directory creation
+    # Explicitly use /tmp as base to avoid permission issues in Docker
+    # containers where TMPDIR may point to a non-writable directory
     var tempfile = Python.import_module("tempfile")
-    var temp_path = tempfile.mkdtemp(prefix=PythonObject(prefix))
+    var temp_path = tempfile.mkdtemp(
+        prefix=PythonObject(prefix), dir=PythonObject("/tmp")
+    )
     return String(temp_path)
 
 
@@ -86,8 +90,9 @@ fn cleanup_temp_dir(path: String) raises:
     var tempfile = Python.import_module("tempfile")
     var temp_base = String(tempfile.gettempdir())
 
-    # Verify the path is within the system temp directory
-    if not path.startswith(temp_base):
+    # Verify the path is within the system temp directory or /tmp
+    # (create_temp_dir explicitly uses /tmp which may differ from gettempdir)
+    if not path.startswith(temp_base) and not path.startswith("/tmp"):
         raise Error(
             "cleanup_temp_dir only works with system temp paths for safety. "
             "Expected path within: "
