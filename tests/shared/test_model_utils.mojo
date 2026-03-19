@@ -36,7 +36,7 @@ fn test_save_load_model_weights() raises:
     names.append("fc1_weights")
 
     # Create temp directory
-    var tmpdir = "test_model_weights"
+    var tmpdir = "/tmp/test_model_weights"
 
     try:
         # Save weights
