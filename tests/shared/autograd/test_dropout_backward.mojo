@@ -1,7 +1,7 @@
-"""Tests for dropout backward pass via autograd module.
+"""Tests for dropout backward pass functions.
 
 This module tests the dropout_backward and dropout2d_backward functions
-exported from the autograd module. These tests ensure that the backward
+from the shared.core.dropout module. These tests ensure that the backward
 passes correctly handle mask caching and gradient computation.
 
 Tests cover:
@@ -20,18 +20,17 @@ from tests.shared.conftest import (
     assert_shape,
     assert_true,
 )
-from shared.autograd import dropout_backward, dropout2d_backward
-from shared.core.dropout import dropout, dropout2d
+from shared.core.dropout import dropout, dropout2d, dropout_backward, dropout2d_backward
 from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
 
 
 # ============================================================================
-# Standard Dropout Backward Tests (via Autograd Module)
+# Standard Dropout Backward Tests
 # ============================================================================
 
 
 fn test_dropout_backward_exported() raises:
-    """Test that dropout_backward is properly exported from autograd module."""
+    """Test that dropout_backward is accessible from shared.core.dropout."""
     # This test simply verifies the function is accessible
     var shape = List[Int]()
     shape.append(3)
@@ -185,13 +184,12 @@ fn test_dropout_backward_consistency() raises:
 
 
 # ============================================================================
-# Spatial Dropout (Dropout2D) Backward Tests (via Autograd Module)
+# Spatial Dropout (Dropout2D) Backward Tests
 # ============================================================================
 
 
 fn test_dropout2d_backward_exported() raises:
-    """Test that dropout2d_backward is properly exported from autograd module.
-    """
+    """Test that dropout2d_backward is accessible from shared.core.dropout."""
     var shape = List[Int]()
     shape.append(2)
     shape.append(3)
@@ -306,8 +304,8 @@ fn test_dropout2d_backward_channel_consistency() raises:
 
 
 fn main() raises:
-    """Run all dropout backward tests from autograd module."""
-    print("Running autograd dropout_backward tests...")
+    """Run all dropout backward tests."""
+    print("Running dropout_backward tests...")
 
     # Standard dropout backward tests
     test_dropout_backward_exported()
@@ -335,4 +333,4 @@ fn main() raises:
     test_dropout2d_backward_channel_consistency()
     print("✓ test_dropout2d_backward_channel_consistency")
 
-    print("\nAll autograd dropout_backward tests passed!")
+    print("\nAll dropout_backward tests passed!")
