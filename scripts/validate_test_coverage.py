@@ -190,13 +190,17 @@ def parse_ci_matrix(workflow_file: Path) -> Dict[str, Dict[str, str]]:
             for step in steps:
                 run_cmd = step.get("run", "")
                 # Parse command like: just test-group tests/configs "test_*.mojo"
+                # or: NATIVE=1 just test-group tests/configs "test_*.mojo"
                 if "test-group" in run_cmd:
                     parts = run_cmd.split()
-                    if len(parts) >= 3:
-                        path = parts[2]  # tests/configs or tests/shared/training
-                        pattern = parts[3].strip('"')  # "test_*.mojo"
+                    try:
+                        tg_idx = parts.index("test-group")
+                        path = parts[tg_idx + 1]
+                        pattern = parts[tg_idx + 2].strip('"')
                         name = job.get("name", job_name)
                         groups[name] = {"path": path, "pattern": pattern}
+                    except (ValueError, IndexError):
+                        pass
 
     return groups
 
