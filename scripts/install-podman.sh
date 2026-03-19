@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# Install Podman 4.0+ from official repositories on Debian/Ubuntu/PureOS
+# Install Podman 4.0+ via static binary from GitHub releases.
+# Works on any Linux x86_64 regardless of distro/GLIBC version.
 #
 # Usage:
-#   ./scripts/install-podman.sh
+#   ./scripts/install-podman.sh [version]
+#   ./scripts/install-podman.sh 5.8.1
 
 set -euo pipefail
 
@@ -27,148 +29,113 @@ if command -v podman &>/dev/null; then
     version=$(podman --version | grep -oP '\d+\.\d+\.\d+' | head -1)
     if [ "$major" -ge 4 ]; then
         info "Podman $version already installed — nothing to do"
-        podman --version
         exit 0
     else
-        warn "Podman $version found but 4.0+ required — upgrading"
+        warn "Podman $version found but 4.0+ required — will install newer version"
     fi
 fi
 
 # ============================================================
-# Step 1: Detect OS
+# Step 1: Determine version to install
 # ============================================================
 
-section "Detecting OS"
+section "Determining version"
 
-if [ ! -f /etc/os-release ]; then
-    error "Cannot detect OS: /etc/os-release not found"
+if [ -n "${1:-}" ]; then
+    VERSION="$1"
+    info "Using requested version: $VERSION"
+else
+    info "Fetching latest release from GitHub..."
+    VERSION=$(curl -fsSL "https://api.github.com/repos/containers/podman/releases/latest" \
+        | grep '"tag_name"' | grep -oP '\d+\.\d+\.\d+')
+    info "Latest version: $VERSION"
+fi
+
+INSTALL_DIR="${HOME}/.local/bin"
+INSTALL_PATH="${INSTALL_DIR}/podman"
+
+# ============================================================
+# Step 2: Download static binary
+# ============================================================
+
+section "Downloading Podman $VERSION static binary"
+
+DOWNLOAD_URL="https://github.com/containers/podman/releases/download/v${VERSION}/podman-remote-static-linux_amd64.tar.gz"
+info "URL: $DOWNLOAD_URL"
+
+TMPDIR=$(mktemp -d)
+trap 'rm -rf "$TMPDIR"' EXIT
+
+info "Downloading..."
+curl -fsSL --progress-bar "$DOWNLOAD_URL" -o "$TMPDIR/podman.tar.gz"
+
+info "Extracting..."
+tar -xz -C "$TMPDIR" -f "$TMPDIR/podman.tar.gz"
+
+# Find the binary (name varies by version)
+BINARY=$(find "$TMPDIR" -name "podman*" -type f -perm /111 | head -1)
+if [ -z "$BINARY" ]; then
+    error "Could not find podman binary in archive"
+    ls -la "$TMPDIR/"
     exit 1
 fi
 
-# shellcheck source=/dev/null
-. /etc/os-release
-
-info "OS: ${NAME:-unknown} ${VERSION_ID:-unknown} (ID: ${ID:-unknown})"
-
-# Map distro to Kubic repo path
-# PureOS 10 = Debian 11 base; PureOS has no ID_LIKE so we handle it explicitly
-case "${ID:-}" in
-    debian)
-        KUBIC_DISTRO="Debian_${VERSION_ID}"
-        ;;
-    ubuntu)
-        KUBIC_DISTRO="xUbuntu_${VERSION_ID}"
-        ;;
-    pureos)
-        # PureOS 10 (Byzantium) is based on Debian 11
-        KUBIC_DISTRO="Debian_11"
-        ;;
-    *)
-        # Try ID_LIKE fallback
-        if [[ "${ID_LIKE:-}" == *"debian"* ]]; then
-            KUBIC_DISTRO="Debian_${VERSION_ID}"
-        else
-            error "Unsupported distro: ${ID:-unknown}"
-            echo "For other distros, see: https://podman.io/docs/installation"
-            exit 1
-        fi
-        ;;
-esac
-
-info "Mapped to Kubic distro: $KUBIC_DISTRO"
+info "Found binary: $(basename "$BINARY")"
 
 # ============================================================
-# Step 2: Find a working Kubic repository
+# Step 3: Install to ~/.local/bin
 # ============================================================
 
-section "Finding Podman repository"
+section "Installing to $INSTALL_PATH"
 
-KUBIC_CANDIDATES=(
-    "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/${KUBIC_DISTRO}"
-    "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/${KUBIC_DISTRO}"
-)
+mkdir -p "$INSTALL_DIR"
+cp "$BINARY" "$INSTALL_PATH"
+chmod 755 "$INSTALL_PATH"
 
-KUBIC_BASE=""
-for candidate in "${KUBIC_CANDIDATES[@]}"; do
-    if curl -fsS --head "${candidate}/Release" &>/dev/null; then
-        KUBIC_BASE="$candidate"
-        info "Using repository: $KUBIC_BASE"
-        break
-    else
-        warn "Not available: $candidate"
-    fi
-done
+info "Installed: $INSTALL_PATH"
 
-if [ -z "$KUBIC_BASE" ]; then
-    error "No Kubic repository found for ${KUBIC_DISTRO}"
+# ============================================================
+# Step 4: PATH check
+# ============================================================
+
+section "Checking PATH"
+
+if ! echo "$PATH" | grep -q "${HOME}/.local/bin"; then
+    warn "~/.local/bin is not in your PATH"
     echo ""
-    echo "Manual alternatives:"
-    echo "  Option A: Static binary (no sudo needed)"
-    echo "    PODMAN_VERSION=5.3.1"
-    echo "    curl -fsSL https://github.com/containers/podman/releases/download/v\${PODMAN_VERSION}/podman-remote-static-linux_amd64.tar.gz | tar -xz"
-    echo "    sudo install -m755 bin/podman-remote-static-linux_amd64 /usr/local/bin/podman"
+    echo "Add it to your shell config:"
     echo ""
-    echo "  Option B: Build from source"
-    echo "    https://podman.io/docs/installation#building-from-scratch"
-    exit 1
+    echo "  echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.bashrc"
+    echo "  source ~/.bashrc"
+    echo ""
+    echo "Or for this session only:"
+    echo "  export PATH=\"\$HOME/.local/bin:\$PATH\""
+    echo ""
+    export PATH="${HOME}/.local/bin:${PATH}"
+    info "Added to PATH for this session"
 fi
 
 # ============================================================
-# Step 3: Install via apt
-# ============================================================
-
-section "Installing Podman"
-info "This requires sudo. You may be prompted for your password."
-
-echo "deb ${KUBIC_BASE}/ /" \
-    | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers.list >/dev/null
-
-curl -fsSL "${KUBIC_BASE}/Release.key" \
-    | gpg --dearmor \
-    | sudo tee /etc/apt/trusted.gpg.d/devel_kubic_libcontainers.gpg >/dev/null
-
-info "Running apt update..."
-sudo apt-get update -qq
-
-info "Installing podman..."
-sudo apt-get install -y podman
-
-# ============================================================
-# Step 4: Verify
+# Step 5: Verify
 # ============================================================
 
 section "Verifying installation"
 
-if ! command -v podman &>/dev/null; then
-    error "podman not found after installation — something went wrong"
-    exit 1
-fi
+installed_ver=$("$INSTALL_PATH" --version | grep -oP '\d+\.\d+\.\d+' | head -1)
+installed_major=$("$INSTALL_PATH" --version | grep -oP '\d+' | head -1)
 
-podman --version
-
-installed_major=$(podman --version | grep -oP '\d+' | head -1)
-installed_ver=$(podman --version | grep -oP '\d+\.\d+\.\d+' | head -1)
+info "Installed: podman $installed_ver at $INSTALL_PATH"
 
 if [ "$installed_major" -lt 4 ]; then
-    error "Installed Podman $installed_ver is older than 4.0"
+    error "Version $installed_ver is older than 4.0 — something went wrong"
     exit 1
-fi
-
-info "Podman $installed_ver installed successfully"
-
-section "Rootless check"
-if podman info 2>/dev/null | grep -q "rootless: true"; then
-    info "Running in rootless mode — good"
-else
-    warn "Not running in rootless mode. For rootless setup:"
-    echo "  https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md"
 fi
 
 echo ""
 info "Installation complete!"
 echo ""
 echo "Next steps:"
-echo "  pixi run just podman-build   # Build the development image (~5-10 min first time)"
-echo "  pixi run just shell          # Open interactive shell"
-echo "  pixi run just test-mojo      # Run all tests inside container"
+echo "  export PATH=\"\$HOME/.local/bin:\$PATH\"   # if not already in PATH"
+echo "  pixi run just podman-build               # Build dev image (~5-10 min)"
+echo "  pixi run just test-mojo                  # Run all tests"
 echo ""
