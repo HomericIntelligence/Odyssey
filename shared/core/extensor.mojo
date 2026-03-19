@@ -800,8 +800,8 @@ struct ExTensor(
         if index < 0 or index >= self._numel:
             raise Error("Index out of bounds")
 
-        # Return value based on dtype
-        return self._get_float32(index)
+        # Return value based on dtype, converting flat index to strided buffer position
+        return self._get_float32(self._flat_index_to_strided_element(index))
 
     fn __setitem__(mut self, index: Int, value: Float64) raises:
         """Set element at flat index.
@@ -822,15 +822,17 @@ struct ExTensor(
         if index < 0 or index >= self._numel:
             raise Error("Index out of bounds")
 
+        # Convert flat logical index to strided buffer position before writing
+        var buf_pos = self._flat_index_to_strided_element(index)
         if (
             self._dtype == DType.float16
             or self._dtype == DType.float32
             or self._dtype == DType.float64
             or self._dtype == DType.bfloat16
         ):
-            self._set_float64(index, value)
+            self._set_float64(buf_pos, value)
         else:
-            self._set_int64(index, Int64(value))
+            self._set_int64(buf_pos, Int64(value))
 
     fn __setitem__(mut self, index: Int, value: Int64) raises:
         """Set element at flat index using an integer value.
@@ -893,12 +895,21 @@ struct ExTensor(
                 + String(len(self._shape))
                 + ")"
             )
-        var flat_idx = 0
+        var buf_pos = 0
         for i in range(len(indices)):
             if indices[i] < 0 or indices[i] >= self._shape[i]:
                 raise Error("Index out of bounds at dimension " + String(i))
-            flat_idx += indices[i] * self._strides[i]
-        self.__setitem__(flat_idx, value)
+            buf_pos += indices[i] * self._strides[i]
+        # buf_pos is the strided buffer element position — call internal setters directly
+        if (
+            self._dtype == DType.float16
+            or self._dtype == DType.float32
+            or self._dtype == DType.float64
+            or self._dtype == DType.bfloat16
+        ):
+            self._set_float64(buf_pos, value)
+        else:
+            self._set_int64(buf_pos, Int64(value))
 
     fn __setitem__(mut self, indices: List[Int], value: Int64) raises:
         """Set element at multi-dimensional index using Int64 value.
@@ -925,12 +936,21 @@ struct ExTensor(
                 + String(len(self._shape))
                 + ")"
             )
-        var flat_idx = 0
+        var buf_pos = 0
         for i in range(len(indices)):
             if indices[i] < 0 or indices[i] >= self._shape[i]:
                 raise Error("Index out of bounds at dimension " + String(i))
-            flat_idx += indices[i] * self._strides[i]
-        self.__setitem__(flat_idx, value)
+            buf_pos += indices[i] * self._strides[i]
+        # buf_pos is the strided buffer element position — call internal setters directly
+        if (
+            self._dtype == DType.float16
+            or self._dtype == DType.float32
+            or self._dtype == DType.float64
+            or self._dtype == DType.bfloat16
+        ):
+            self._set_float64(buf_pos, Float64(value))
+        else:
+            self._set_int64(buf_pos, value)
 
     fn __getitem__(self, slice: Slice) raises -> Self:
         """Get slice of 1D tensor [start:end] or [start:end:step].
@@ -1133,6 +1153,33 @@ struct ExTensor(
                 dst_ptr[dst_offset + b] = src_ptr[src_offset + b]
 
         return result^
+
+    fn _flat_index_to_strided_element(self, index: Int) -> Int:
+        """Convert a flat logical element index to a strided buffer element position.
+
+        For contiguous tensors this returns `index` unchanged.  For non-contiguous
+        views (e.g. after `transpose()`) the flat index is decomposed into
+        per-dimension indices using the row-major dim sizes, then each dimension
+        index is multiplied by its stride to obtain the correct buffer position.
+
+        Args:
+            index: Flat logical element index in [0, numel).
+
+        Returns:
+            Buffer element position (multiply by dtype_size for byte offset).
+        """
+        var ndim = len(self._shape)
+        var remaining = index
+        var strided_pos = 0
+        for d in range(ndim):
+            # product of trailing dimensions
+            var trailing = 1
+            for k in range(d + 1, ndim):
+                trailing *= self._shape[k]
+            var dim_idx = remaining // trailing
+            remaining = remaining % trailing
+            strided_pos += dim_idx * self._strides[d]
+        return strided_pos
 
     fn _get_float64(self, index: Int) -> Float64:
         """Internal: Get value at index as Float64 (assumes float-compatible dtype).
