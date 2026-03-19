@@ -67,20 +67,20 @@ fn test_concatenate_axis_1() raises:
     # Result should be 3x6 (3 rows, 2+4 cols)
     assert_numel(c, 18, "Should have 18 elements (3*6)")
     # Verify row 0: [1, 1, 2, 2, 2, 2]
-    assert_value_at(c, 0, 1.0, "Row 0, col 0 should be 1.0")
-    assert_value_at(c, 1, 1.0, "Row 0, col 1 should be 1.0")
-    assert_value_at(c, 2, 2.0, "Row 0, col 2 should be 2.0")
-    assert_value_at(c, 5, 2.0, "Row 0, col 5 should be 2.0")
+    assert_value_at(c, 0, 1.0, message="Row 0, col 0 should be 1.0")
+    assert_value_at(c, 1, 1.0, message="Row 0, col 1 should be 1.0")
+    assert_value_at(c, 2, 2.0, message="Row 0, col 2 should be 2.0")
+    assert_value_at(c, 5, 2.0, message="Row 0, col 5 should be 2.0")
     # Verify row 1: [1, 1, 2, 2, 2, 2]
-    assert_value_at(c, 6, 1.0, "Row 1, col 0 should be 1.0")
-    assert_value_at(c, 7, 1.0, "Row 1, col 1 should be 1.0")
-    assert_value_at(c, 8, 2.0, "Row 1, col 2 should be 2.0")
-    assert_value_at(c, 11, 2.0, "Row 1, col 5 should be 2.0")
+    assert_value_at(c, 6, 1.0, message="Row 1, col 0 should be 1.0")
+    assert_value_at(c, 7, 1.0, message="Row 1, col 1 should be 1.0")
+    assert_value_at(c, 8, 2.0, message="Row 1, col 2 should be 2.0")
+    assert_value_at(c, 11, 2.0, message="Row 1, col 5 should be 2.0")
     # Verify row 2: [1, 1, 2, 2, 2, 2]
-    assert_value_at(c, 12, 1.0, "Row 2, col 0 should be 1.0")
-    assert_value_at(c, 13, 1.0, "Row 2, col 1 should be 1.0")
-    assert_value_at(c, 14, 2.0, "Row 2, col 2 should be 2.0")
-    assert_value_at(c, 17, 2.0, "Row 2, col 5 should be 2.0")
+    assert_value_at(c, 12, 1.0, message="Row 2, col 0 should be 1.0")
+    assert_value_at(c, 13, 1.0, message="Row 2, col 1 should be 1.0")
+    assert_value_at(c, 14, 2.0, message="Row 2, col 2 should be 2.0")
+    assert_value_at(c, 17, 2.0, message="Row 2, col 5 should be 2.0")
 
 
 # ============================================================================
@@ -143,12 +143,12 @@ fn test_split_equal() raises:
     for i in range(3):
         assert_numel(parts[i], 4, "Each part should have 4 elements")
     # Verify actual values: [0,1,2,3], [4,5,6,7], [8,9,10,11]
-    assert_value_at(parts[0], 0, 0.0, "Part 0, index 0 should be 0.0")
-    assert_value_at(parts[0], 3, 3.0, "Part 0, index 3 should be 3.0")
-    assert_value_at(parts[1], 0, 4.0, "Part 1, index 0 should be 4.0")
-    assert_value_at(parts[1], 3, 7.0, "Part 1, index 3 should be 7.0")
-    assert_value_at(parts[2], 0, 8.0, "Part 2, index 0 should be 8.0")
-    assert_value_at(parts[2], 3, 11.0, "Part 2, index 3 should be 11.0")
+    assert_value_at(parts[0], 0, 0.0, message="Part 0, index 0 should be 0.0")
+    assert_value_at(parts[0], 3, 3.0, message="Part 0, index 3 should be 3.0")
+    assert_value_at(parts[1], 0, 4.0, message="Part 1, index 0 should be 4.0")
+    assert_value_at(parts[1], 3, 7.0, message="Part 1, index 3 should be 7.0")
+    assert_value_at(parts[2], 0, 8.0, message="Part 2, index 0 should be 8.0")
+    assert_value_at(parts[2], 3, 11.0, message="Part 2, index 3 should be 11.0")
 
 
 fn test_split_unequal() raises:
@@ -168,12 +168,12 @@ fn test_split_unequal() raises:
     assert_numel(parts[1], 4, "Second part should have 4 elements")
     assert_numel(parts[2], 3, "Third part should have 3 elements")
     # Verify actual values: [0,1,2], [3,4,5,6], [7,8,9]
-    assert_value_at(parts[0], 0, 0.0, "Part 0, index 0 should be 0.0")
-    assert_value_at(parts[0], 2, 2.0, "Part 0, index 2 should be 2.0")
-    assert_value_at(parts[1], 0, 3.0, "Part 1, index 0 should be 3.0")
-    assert_value_at(parts[1], 3, 6.0, "Part 1, index 3 should be 6.0")
-    assert_value_at(parts[2], 0, 7.0, "Part 2, index 0 should be 7.0")
-    assert_value_at(parts[2], 2, 9.0, "Part 2, index 2 should be 9.0")
+    assert_value_at(parts[0], 0, 0.0, message="Part 0, index 0 should be 0.0")
+    assert_value_at(parts[0], 2, 2.0, message="Part 0, index 2 should be 2.0")
+    assert_value_at(parts[1], 0, 3.0, message="Part 1, index 0 should be 3.0")
+    assert_value_at(parts[1], 3, 6.0, message="Part 1, index 3 should be 6.0")
+    assert_value_at(parts[2], 0, 7.0, message="Part 2, index 0 should be 7.0")
+    assert_value_at(parts[2], 2, 9.0, message="Part 2, index 2 should be 9.0")
 
 
 # ============================================================================
@@ -192,15 +192,15 @@ fn test_tile_1d() raises:
 
     # Result: [0, 1, 2, 0, 1, 2, 0, 1, 2] (9 elements)
     assert_numel(b, 9, "Tiled tensor should have 9 elements")
-    assert_value_at(b, 0, 0.0, "Index 0 should be 0.0")
-    assert_value_at(b, 1, 1.0, "Index 1 should be 1.0")
-    assert_value_at(b, 2, 2.0, "Index 2 should be 2.0")
-    assert_value_at(b, 3, 0.0, "Index 3 should be 0.0 (repeat)")
-    assert_value_at(b, 4, 1.0, "Index 4 should be 1.0 (repeat)")
-    assert_value_at(b, 5, 2.0, "Index 5 should be 2.0 (repeat)")
-    assert_value_at(b, 6, 0.0, "Index 6 should be 0.0 (repeat)")
-    assert_value_at(b, 7, 1.0, "Index 7 should be 1.0 (repeat)")
-    assert_value_at(b, 8, 2.0, "Index 8 should be 2.0 (repeat)")
+    assert_value_at(b, 0, 0.0, message="Index 0 should be 0.0")
+    assert_value_at(b, 1, 1.0, message="Index 1 should be 1.0")
+    assert_value_at(b, 2, 2.0, message="Index 2 should be 2.0")
+    assert_value_at(b, 3, 0.0, message="Index 3 should be 0.0 (repeat)")
+    assert_value_at(b, 4, 1.0, message="Index 4 should be 1.0 (repeat)")
+    assert_value_at(b, 5, 2.0, message="Index 5 should be 2.0 (repeat)")
+    assert_value_at(b, 6, 0.0, message="Index 6 should be 0.0 (repeat)")
+    assert_value_at(b, 7, 1.0, message="Index 7 should be 1.0 (repeat)")
+    assert_value_at(b, 8, 2.0, message="Index 8 should be 2.0 (repeat)")
 
 
 fn test_tile_multidim() raises:
