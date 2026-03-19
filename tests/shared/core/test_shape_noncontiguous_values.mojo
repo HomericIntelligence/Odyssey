@@ -73,7 +73,9 @@ fn test_reshape_noncontiguous_to_flat() raises:
         var expected_row = i % 4
         var expected_col = i // 4
         var expected_val = Float32(expected_col * 4 + expected_row)
-        assert_value_at(result, i, expected_val, f"reshape element {i}")
+        assert_value_at(
+            result, i, Float64(expected_val), message="reshape element " + String(i)
+        )
 
 
 fn test_reshape_noncontiguous_to_2d() raises:
@@ -90,13 +92,23 @@ fn test_reshape_noncontiguous_to_2d() raises:
     # Row 0: [0, 4, 8, 1]
     # Row 1: [5, 9, 2, 6]
     # Row 2: [10, 3, 7, 11]
-    var expected_flat = List[Float32](
-        0.0, 4.0, 8.0, 1.0,
-        5.0, 9.0, 2.0, 6.0,
-        10.0, 3.0, 7.0, 11.0
-    )
+    var expected_flat = List[Float64]()
+    expected_flat.append(0.0)
+    expected_flat.append(4.0)
+    expected_flat.append(8.0)
+    expected_flat.append(1.0)
+    expected_flat.append(5.0)
+    expected_flat.append(9.0)
+    expected_flat.append(2.0)
+    expected_flat.append(6.0)
+    expected_flat.append(10.0)
+    expected_flat.append(3.0)
+    expected_flat.append(7.0)
+    expected_flat.append(11.0)
     for i in range(12):
-        assert_value_at(result, i, expected_flat[i], f"reshape({i})")
+        assert_value_at(
+            result, i, expected_flat[i], message="reshape(" + String(i) + ")"
+        )
 
 
 # ============================================================================
@@ -119,7 +131,9 @@ fn test_flatten_noncontiguous() raises:
         var expected_row = i % 4
         var expected_col = i // 4
         var expected_val = Float32(expected_col * 4 + expected_row)
-        assert_value_at(result, i, expected_val, f"flatten element {i}")
+        assert_value_at(
+            result, i, Float64(expected_val), message="flatten element " + String(i)
+        )
 
 
 # ============================================================================
@@ -139,11 +153,11 @@ fn test_tile_noncontiguous() raises:
 
     # Verify a few key elements
     # Top-left (0,0) should be 0.0
-    assert_value_at(result, 0, 0.0, "tile[0,0]")
+    assert_value_at(result, 0, 0.0, message="tile[0,0]")
     # Top-right (0,3) should be 0.0 (first repeat in col)
-    assert_value_at(result, 3, 0.0, "tile[0,3]")
+    assert_value_at(result, 3, 0.0, message="tile[0,3]")
     # Second row, first col (1,0) should be 1.0
-    assert_value_at(result, 6, 1.0, "tile[1,0]")
+    assert_value_at(result, 6, 1.0, message="tile[1,0]")
 
 
 # ============================================================================
