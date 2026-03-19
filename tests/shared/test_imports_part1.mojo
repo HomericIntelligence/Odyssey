@@ -118,12 +118,12 @@ fn test_training_metrics_imports() raises:
 
 
 fn test_training_dataloader_imports() raises:
-    """Test DataLoader and DataBatch are importable from shared.training package.
+    """Test DataLoader and DataBatch are importable from trainer_interface.
 
-    Verifies Issue #3851: DataLoader and DataBatch exported from
-    shared/training/__init__.mojo via the trainer_interface submodule.
+    Verifies Issue #3851: DataLoader and DataBatch defined in
+    shared/training/trainer_interface.mojo.
     """
-    from shared.training import DataLoader, DataBatch
+    from shared.training.trainer_interface import DataLoader, DataBatch
 
     print("✓ Training DataLoader/DataBatch package imports test passed")
 
