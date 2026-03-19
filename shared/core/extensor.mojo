@@ -1146,28 +1146,35 @@ struct ExTensor(
                 + ")"
             )
 
-        # Compute per-dimension starts and result shape
+        # Compute per-dimension starts, steps, and result shape
         var starts = List[Int]()
+        var steps = List[Int]()
         var result_shape = List[Int]()
         for dim in range(num_dims):
             var s = slices[dim]
             var size = self._shape[dim]
 
-            var start = s.start.or_else(0)
-            var end = s.end.or_else(size)
+            var step = s.step.or_else(1)
+            if step == 0:
+                raise Error(
+                    "Slice step cannot be zero for dimension " + String(dim)
+                )
 
-            # Normalize negative indices
-            if start < 0:
-                start = size + start
-            if end < 0:
-                end = size + end
+            var start: Int
+            var end: Int
+            if step < 0:
+                start = s.start.or_else(size - 1)
+                end = s.end.or_else(-size - 1)
+            else:
+                start = s.start.or_else(0)
+                end = s.end.or_else(size)
 
-            # Clamp to valid range
-            start = max(0, min(start, size))
-            end = max(0, min(end, size))
-
-            starts.append(start)
-            result_shape.append(max(0, end - start))
+            var normalized = self._normalize_slice_indices(
+                start, end, step, size
+            )
+            starts.append(normalized[0])
+            steps.append(normalized[2])
+            result_shape.append(normalized[3])
 
         # Allocate result tensor (independent copy, not a view)
         var result = Self(result_shape, self._dtype)
@@ -1189,7 +1196,7 @@ struct ExTensor(
             for dim in range(num_dims):
                 var out_idx = remaining // result._strides[dim]
                 remaining = remaining % result._strides[dim]
-                var src_idx = starts[dim] + out_idx
+                var src_idx = starts[dim] + out_idx * steps[dim]
                 src_flat += src_idx * self._strides[dim]
 
             # Copy element byte-by-byte
