@@ -35,9 +35,13 @@ fn test_setitem_flat_float32() raises:
 
 
 fn test_setitem_flat_int64() raises:
-    """Test flat __setitem__ (Int64) on an int tensor."""
+    """Test flat __setitem__ on an int tensor.
+
+    Note: Int64 can no longer be implicitly converted to Float32, so we
+    use a Float64 literal and rely on the Float64 overload instead.
+    """
     var t = zeros([4], DType.int32)
-    t[3] = Int64(99)
+    t[3] = 99.0
     assert_almost_equal(t._get_float64(3), 99.0, tolerance=1e-6)
 
 
