@@ -57,7 +57,7 @@ fn relu_backward(grad_out: ExTensor, x: ExTensor) raises -> ExTensor:
     for i in range(x.numel()):
         var grad = grad_out._get_float64(i)
         var x_val = x._get_float64(i)
-        result._set_float64(i, x_val > 0.0 ? grad : 0.0)
+        result._set_float64(i, grad if x_val > 0.0 else 0.0)
     return result^
 
 
