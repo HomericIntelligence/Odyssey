@@ -1256,6 +1256,9 @@ struct ExTensor(
         elif self._dtype == DType.float64:
             var ptr = (self._data + offset).bitcast[Float64]()
             ptr[] = value
+        else:
+            # For integer types, truncate Float64 to Int64 and delegate
+            self._set_int64(index, Int64(value))
 
     fn _get_float32(self, index: Int) -> Float32:
         """Internal: Get value at index as Float32 (assumes float-compatible dtype).
@@ -1316,6 +1319,9 @@ struct ExTensor(
         elif self._dtype == DType.bfloat16:
             var ptr = (self._data + offset).bitcast[BFloat16]()
             ptr[] = value.cast[DType.bfloat16]()
+        else:
+            # For integer types, truncate Float32 to Int64 and delegate
+            self._set_int64(index, Int64(value))
 
     fn _get_int64(self, index: Int) -> Int64:
         """Internal: Get value at index as Int64 (assumes integer-compatible dtype).
