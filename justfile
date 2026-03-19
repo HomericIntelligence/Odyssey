@@ -1,5 +1,5 @@
 # ML Odyssey Build System
-# Unified build/test/lint interface for Docker and native execution
+# Unified build/test/lint interface for Docker, Podman, and native execution
 
 # Default recipe - show help
 default: help
@@ -9,6 +9,9 @@ docker_service := "projectodyssey-dev"
 
 # Repository root
 repo_root := justfile_directory()
+
+# Auto-detect container engine: prefer podman (4.0+) over docker
+container_engine := `sh -c 'if command -v podman >/dev/null 2>&1 && [ "$(podman --version | grep -oP "\\d+" | head -1)" -ge 4 ] 2>/dev/null; then echo podman; elif command -v docker >/dev/null 2>&1; then echo docker; else echo none; fi'`
 
 # ==============================================================================
 # Automatically detect host UID/GID if not set
@@ -40,20 +43,32 @@ MOJO_TSAN := "--sanitize thread"
 # Internal Helpers
 # ==============================================================================
 
-# Run command in Docker or natively based on NATIVE env var
+# Run command in Docker, Podman, or natively based on NATIVE env var
 [private]
 _run cmd:
 	#!/usr/bin/env bash
 	set -e
 	if [[ "${NATIVE:-}" == "1" ]]; then
 		eval "{{cmd}}"
-	else
-		# Check if container is running
-		if ! docker compose ps -q {{docker_service}} | xargs docker inspect -f '{{"{{"}}.State.Running{{"}}"}}' | grep -q true; then
-			echo "Container {{docker_service}} not running. Starting..."
-			docker compose up -d {{docker_service}}
-		fi
+	elif command -v docker &>/dev/null && \
+		docker compose ps -q {{docker_service}} 2>/dev/null \
+		| xargs -r docker inspect -f '{{"{{"}}{{".State.Running"}}{{"}}"}}'  2>/dev/null \
+		| grep -q true; then
+		# Docker compose container is running — use it
 		docker compose exec -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} -T {{docker_service}} bash -c "{{cmd}}"
+	elif command -v podman &>/dev/null && \
+		[ "$(podman --version | grep -oP '\d+' | head -1)" -ge 4 ] 2>/dev/null; then
+		# Podman 4.0+ available — run in container image
+		podman run --rm --userns=keep-id \
+			-v "{{repo_root}}:/workspace:Z" \
+			-w /workspace \
+			projectodyssey:dev bash -c "{{cmd}}"
+	else
+		echo "Error: No container engine available."
+		echo "  Install Podman 4.0+: ./scripts/install-podman.sh"
+		echo "  Or start Docker:     just docker-up"
+		echo "  Or run natively:     NATIVE=1 just <recipe>"
+		exit 1
 	fi
 
 # Ensure build directory exists
@@ -101,6 +116,59 @@ docker-status:
 
 native prefix:
     @NATIVE=1 just {{prefix}}
+
+# ==============================================================================
+# Podman Support
+# ==============================================================================
+
+# Check Podman version (requires 4.0+)
+[private]
+_check_podman:
+    #!/usr/bin/env bash
+    if ! command -v podman &>/dev/null; then
+        echo "Error: podman not found."
+        echo "Install it: ./scripts/install-podman.sh"
+        exit 1
+    fi
+    major=$(podman --version | grep -oP '\d+' | head -1)
+    version=$(podman --version | grep -oP '\d+\.\d+\.\d+' | head -1)
+    if [ "$major" -lt 4 ]; then
+        echo "Error: Podman 4.0+ required (found $version)."
+        echo "Upgrade: ./scripts/install-podman.sh"
+        exit 1
+    fi
+    echo "Podman $version found"
+
+# Build development image with Podman
+podman-build: _check_podman
+    @podman build --target development \
+        --build-arg USER_ID={{USER_ID}} \
+        --build-arg GROUP_ID={{GROUP_ID}} \
+        --build-arg USER_NAME=dev \
+        -t projectodyssey:dev \
+        .
+
+# Open interactive shell in Podman container
+podman-shell: _check_podman
+    @podman run -it --rm --userns=keep-id \
+        -v {{repo_root}}:/workspace:Z \
+        -w /workspace \
+        -e HOME=/home/dev \
+        projectodyssey:dev bash
+
+# Run any mojo command in Podman container: just podman-mojo -- test -I . tests/
+podman-mojo *args: _check_podman
+    @podman run --rm --userns=keep-id \
+        -v {{repo_root}}:/workspace:Z \
+        -w /workspace \
+        projectodyssey:dev pixi run mojo {{args}}
+
+# Run tests via Podman
+podman-test *args: _check_podman
+    @podman run --rm --userns=keep-id \
+        -v {{repo_root}}:/workspace:Z \
+        -w /workspace \
+        projectodyssey:dev pixi run mojo test -I . {{args}}
 
 # ==============================================================================
 # Docker Registry (GHCR)
@@ -584,6 +652,7 @@ help:
     @echo "======================="
     @echo ""
     @echo "Docker mode (default):  just <recipe>"
+    @echo "Podman mode:            just podman-<recipe>"
     @echo "Native mode:            just native <recipe>"
     @echo ""
     @echo "Training:  train [model] [precision] [epochs], infer [model] [checkpoint]"
@@ -593,6 +662,7 @@ help:
     @echo "Test:      test, test-python, test-group, test-mojo"
     @echo "Jupyter:   jupyter, jupyter-notebook, jupyter-validate, jupyter-clear"
     @echo "Docker:    docker-up, docker-down, docker-logs"
+    @echo "Podman:    podman-build, podman-shell, podman-mojo, podman-test"
     @echo "Dev:       dev, shell, docs, docs-serve, pre-commit, validate"
     @echo "Utility:   help, status, clean, clean-all"
     @echo ""
