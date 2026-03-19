@@ -20,7 +20,8 @@ from tests.shared.conftest import (
 )
 from shared.core.extensor import ExTensor, zeros, ones, full, arange
 from shared.core.arithmetic import add, subtract, multiply
-from shared.core.shape import transpose_view, as_contiguous
+from shared.core.matrix import transpose_view
+from shared.core.shape import as_contiguous
 
 
 fn _make_nc_2x3() raises -> ExTensor:
