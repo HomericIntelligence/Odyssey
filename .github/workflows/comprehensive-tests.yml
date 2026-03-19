@@ -105,6 +105,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
+      - name: Set up container
+        uses: ./.github/actions/setup-container
+
       - name: Set up Pixi
         uses: ./.github/actions/setup-pixi
 
@@ -121,7 +124,7 @@ jobs:
           echo "=================================================="
 
           if [ -d "shared" ]; then
-            NATIVE=1 just build ci
+            just build ci
             echo "✅ Shared package built successfully"
           else
             echo "⚠️  No shared package found yet"
@@ -336,6 +339,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
+      - name: Set up container
+        uses: ./.github/actions/setup-container
+
       - name: Set up Pixi
         uses: ./.github/actions/setup-pixi
 
@@ -358,7 +364,7 @@ jobs:
 
           # Use justfile to run test group
           # The justfile handles all the complexity of test discovery and execution
-          if NATIVE=1 just test-group "${{ matrix.test-group.path }}" "${{ matrix.test-group.pattern }}"; then
+          if just test-group "${{ matrix.test-group.path }}" "${{ matrix.test-group.pattern }}"; then
             test_result="passed"
             exit_code=0
           fi
@@ -405,6 +411,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
 
+      - name: Set up container
+        uses: ./.github/actions/setup-container
+
       - name: Set up Pixi
         uses: ./.github/actions/setup-pixi
 
@@ -412,7 +421,7 @@ jobs:
         uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
 
       - name: Run Configs tests
-        run: NATIVE=1 just test-group tests/configs "test_*.mojo"
+        run: just test-group tests/configs "test_*.mojo"
 
       - name: Upload test results
         if: always()
@@ -439,6 +448,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
 
+      - name: Set up container
+        uses: ./.github/actions/setup-container
+
       - name: Set up Pixi
         uses: ./.github/actions/setup-pixi
 
@@ -446,7 +458,7 @@ jobs:
         uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
 
       - name: Run Benchmarks tests
-        run: NATIVE=1 just test-group tests/shared/benchmarks "bench_*.mojo"
+        run: just test-group tests/shared/benchmarks "bench_*.mojo"
 
       - name: Upload test results
         if: always()
@@ -469,6 +481,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
 
+      - name: Set up container
+        uses: ./.github/actions/setup-container
+
       - name: Set up Pixi
         uses: ./.github/actions/setup-pixi
 
@@ -476,7 +491,7 @@ jobs:
         uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
 
       - name: Run Core Layers tests
-        run: NATIVE=1 just test-group tests/shared/core/layers "test_*.mojo"
+        run: just test-group tests/shared/core/layers "test_*.mojo"
 
       - name: Upload test results
         if: always()
@@ -711,6 +726,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
 
+      - name: Set up container
+        uses: ./.github/actions/setup-container
+
       - name: Set up Pixi
         uses: ./.github/actions/setup-pixi
 
@@ -718,10 +736,10 @@ jobs:
         uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
 
       - name: Build project
-        run: NATIVE=1 just build
+        run: just build
 
       - name: Validate package
-        run: NATIVE=1 just package
+        run: just package
 
   # ============================================================================
   # Gradient Checking Tests (absorbed from test-gradients.yml)
@@ -739,6 +757,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
 
+      - name: Set up container
+        uses: ./.github/actions/setup-container
+
       - name: Set up Pixi
         uses: ./.github/actions/setup-pixi
 
@@ -749,7 +770,7 @@ jobs:
         run: |
           # Split per ADR-009: test_gradient_checking.mojo split to avoid Mojo 0.26.1 heap corruption
           # Routed through just test-group for JIT crash retry protection (issue #3329)
-          NATIVE=1 just test-group "tests/shared/core" "test_gradient_checking_basic.mojo test_gradient_checking_dtype.mojo"
+          just test-group "tests/shared/core" "test_gradient_checking_basic.mojo test_gradient_checking_dtype.mojo"
 
       - name: Check test results
         if: failure()
@@ -816,6 +837,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
 
+      - name: Set up container
+        uses: ./.github/actions/setup-container
+
       - name: Set up Pixi
         uses: ./.github/actions/setup-pixi
 
@@ -837,31 +861,31 @@ jobs:
       - name: Run Dataset Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          NATIVE=1 just test-group "tests/shared/data/datasets" "test_base_dataset.mojo test_tensor_dataset.mojo"
+          just test-group "tests/shared/data/datasets" "test_base_dataset.mojo test_tensor_dataset.mojo"
 
       - name: Run Loader Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          NATIVE=1 just test-group "tests/shared/data/loaders" "test_base_loader.mojo"
+          just test-group "tests/shared/data/loaders" "test_base_loader.mojo"
 
       - name: Run Transform Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          NATIVE=1 just test-group "tests/shared/data/transforms" "test_pipeline_part1.mojo test_pipeline_part2.mojo"
+          just test-group "tests/shared/data/transforms" "test_pipeline_part1.mojo test_pipeline_part2.mojo"
 
       - name: Run Sampler Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          NATIVE=1 just test-group "tests/shared/data/samplers" "test_sequential_part1.mojo test_sequential_part2.mojo"
+          just test-group "tests/shared/data/samplers" "test_sequential_part1.mojo test_sequential_part2.mojo"
 
       - name: Run All Data Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          NATIVE=1 just test-group "tests/shared/data" "run_all_tests.mojo"
+          just test-group "tests/shared/data" "run_all_tests.mojo"
 
       - name: Run File I/O Tests (includes remove_safely)
         run: |
-          NATIVE=1 just test-group "tests/shared/utils" "test_io_part2.mojo"
+          just test-group "tests/shared/utils" "test_io_part2.mojo"
 
       - name: Report Results
         if: always()
