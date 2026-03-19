@@ -783,8 +783,14 @@ struct ExTensor(
     fn __getitem__(self, index: Int) raises -> Float32:
         """Get element at flat index.
 
+        For contiguous tensors, the flat index maps directly to a memory offset.
+        For non-contiguous tensors (e.g., after transpose or axis>0 slice), the
+        flat index is first converted to multi-dimensional coordinates using the
+        tensor's shape, then mapped to a memory offset using strides.
+
         Args:
-            index: The flat index to access.
+            index: The flat index to access (logical element index in
+                row-major order of the tensor's shape).
 
         Returns:
             The value at the given index as Float32.
@@ -801,14 +807,34 @@ struct ExTensor(
         if index < 0 or index >= self._numel:
             raise Error("Index out of bounds")
 
+        # For non-contiguous tensors, convert flat index to nd-coordinates
+        # then use strides to compute the real memory offset.
+        if not self.is_contiguous():
+            var remaining = index
+            var mem_offset = 0
+            for i in range(len(self._shape)):
+                # Compute the product of dimensions after axis i
+                var dim_size = 1
+                for j in range(i + 1, len(self._shape)):
+                    dim_size *= self._shape[j]
+                var coord = remaining // dim_size
+                remaining = remaining % dim_size
+                mem_offset += coord * self._strides[i]
+            return self._get_float32(mem_offset)
+
         # Return value based on dtype
         return self._get_float32(index)
 
     fn __setitem__(mut self, index: Int, value: Float64) raises:
         """Set element at flat index.
 
+        For non-contiguous tensors, the flat index is converted to
+        multi-dimensional coordinates using the tensor's shape, then mapped
+        to a memory offset using strides (mirroring __getitem__ semantics).
+
         Args:
-            index: The flat index to set.
+            index: The flat index to set (logical element index in
+                row-major order of the tensor's shape).
             value: The value to store.
 
         Raises:
@@ -823,15 +849,30 @@ struct ExTensor(
         if index < 0 or index >= self._numel:
             raise Error("Index out of bounds")
 
+        # For non-contiguous tensors, convert flat index to memory offset
+        # via nd-coordinates and strides.
+        var actual_index = index
+        if not self.is_contiguous():
+            var remaining = index
+            var mem_offset = 0
+            for i in range(len(self._shape)):
+                var dim_size = 1
+                for j in range(i + 1, len(self._shape)):
+                    dim_size *= self._shape[j]
+                var coord = remaining // dim_size
+                remaining = remaining % dim_size
+                mem_offset += coord * self._strides[i]
+            actual_index = mem_offset
+
         if (
             self._dtype == DType.float16
             or self._dtype == DType.float32
             or self._dtype == DType.float64
             or self._dtype == DType.bfloat16
         ):
-            self._set_float64(index, value)
+            self._set_float64(actual_index, value)
         else:
-            self._set_int64(index, Int64(value))
+            self._set_int64(actual_index, Int64(value))
 
     fn __setitem__(mut self, index: Int, value: Int64) raises:
         """Set element at flat index using an integer value.
@@ -896,12 +937,14 @@ struct ExTensor(
                 + String(len(self._shape))
                 + ")"
             )
-        var flat_idx = 0
+        var mem_offset = 0
         for i in range(len(indices)):
             if indices[i] < 0 or indices[i] >= self._shape[i]:
                 raise Error("Index out of bounds at dimension " + String(i))
-            flat_idx += indices[i] * self._strides[i]
-        return self.__getitem__(flat_idx)
+            mem_offset += indices[i] * self._strides[i]
+        # Use _get_float32 directly with the stride-computed memory offset
+        # to avoid double-conversion in __getitem__(Int) for non-contiguous tensors.
+        return self._get_float32(mem_offset)
 
     fn __setitem__(mut self, indices: List[Int], value: Float64) raises:
         """Set element at multi-dimensional index.
@@ -928,12 +971,22 @@ struct ExTensor(
                 + String(len(self._shape))
                 + ")"
             )
-        var flat_idx = 0
+        var mem_offset = 0
         for i in range(len(indices)):
             if indices[i] < 0 or indices[i] >= self._shape[i]:
                 raise Error("Index out of bounds at dimension " + String(i))
-            flat_idx += indices[i] * self._strides[i]
-        self.__setitem__(flat_idx, value)
+            mem_offset += indices[i] * self._strides[i]
+        # Use _set_float64/_set_int64 directly with the stride-computed memory
+        # offset to avoid double-conversion in __setitem__(Int) for non-contiguous tensors.
+        if (
+            self._dtype == DType.float16
+            or self._dtype == DType.float32
+            or self._dtype == DType.float64
+            or self._dtype == DType.bfloat16
+        ):
+            self._set_float64(mem_offset, value)
+        else:
+            self._set_int64(mem_offset, Int64(value))
 
     fn __setitem__(mut self, indices: List[Int], value: Float32) raises:
         """Set element at multi-dimensional index using Float32 value.
