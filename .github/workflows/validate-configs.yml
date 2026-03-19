@@ -517,8 +517,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
+      - name: Set up container
+        uses: ./.github/actions/setup-container
 
       - name: Run training scripts (quick validation)
         run: |
@@ -539,9 +539,9 @@ jobs:
           for paper_dir in $PAPER_DIRS; do
             echo "Running training for: $paper_dir"
             if [ -f "$paper_dir/train.py" ]; then
-              pixi run python "$paper_dir/train.py" --quick-validation --epochs 1 || true
+              podman compose exec -T projectodyssey-dev bash -c "pixi run python $paper_dir/train.py --quick-validation --epochs 1" || true
             elif [ -f "$paper_dir/train.mojo" ]; then
-              pixi run mojo -I . "$paper_dir/train.mojo" --quick-validation --epochs 1 || true
+              podman compose exec -T projectodyssey-dev bash -c "pixi run mojo -I . $paper_dir/train.mojo --quick-validation --epochs 1" || true
             fi
           done
 

@@ -162,8 +162,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
+      - name: Set up container
+        uses: ./.github/actions/setup-container
 
       - name: Check implementation completeness
         run: |
@@ -245,12 +245,12 @@ jobs:
 
               # Run Python tests if they exist
               if [ -n "$(find "$paper_dir/tests" -name 'test_*.py' 2>/dev/null)" ]; then
-                pixi run pytest "$paper_dir/tests" --verbose || true
+                podman compose exec -T projectodyssey-dev bash -c "pixi run pytest $paper_dir/tests --verbose" || true
               fi
 
               # Run Mojo tests if they exist
               if [ -n "$(find "$paper_dir/tests" -name 'test_*.mojo' 2>/dev/null)" ]; then
-                pixi run mojo test -I . "$paper_dir/tests" --verbose || true
+                podman compose exec -T projectodyssey-dev bash -c "pixi run mojo test -I . $paper_dir/tests --verbose" || true
               fi
             fi
           done
@@ -273,8 +273,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
+      - name: Set up container
+        uses: ./.github/actions/setup-container
 
       - name: Run training scripts
         run: |
@@ -301,9 +301,9 @@ jobs:
 
             # Run training script with quick validation mode
             if [ -f "$paper_dir/train.py" ]; then
-              pixi run python "$paper_dir/train.py" --quick-validation --epochs 1 || true
+              podman compose exec -T projectodyssey-dev bash -c "pixi run python $paper_dir/train.py --quick-validation --epochs 1" || true
             elif [ -f "$paper_dir/train.mojo" ]; then
-              pixi run mojo -I . "$paper_dir/train.mojo" --quick-validation --epochs 1 || true
+              podman compose exec -T projectodyssey-dev bash -c "pixi run mojo -I . $paper_dir/train.mojo --quick-validation --epochs 1" || true
             fi
           done
 

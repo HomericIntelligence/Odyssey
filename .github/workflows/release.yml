@@ -113,8 +113,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
+      - name: Set up container
+        uses: ./.github/actions/setup-container
 
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
@@ -136,11 +136,13 @@ jobs:
           if [ -d "src" ] && [ -n "$(find src -name '*.mojo' -o -name '*.🔥' 2>/dev/null)" ]; then
             echo "Building Mojo packages..."
 
-            # Build all Mojo packages
-            find src -name "*.mojo" -o -name "*.🔥" | while read -r file; do
-              echo "Building: $file"
-              pixi run mojo build -I . "$file" -o "dist/mojo/$(basename "$file" .mojo)"
-            done
+            # Build all Mojo packages inside container
+            podman compose exec -T projectodyssey-dev bash -c '
+              find src -name "*.mojo" -o -name "*.🔥" | while read -r file; do
+                echo "Building: $file"
+                pixi run mojo build -I . "$file" -o "dist/mojo/$(basename "$file" .mojo)"
+              done
+            '
 
             echo "✅ Mojo packages built successfully"
           else
@@ -182,6 +184,7 @@ jobs:
       - name: Create build manifest
         run: |
           echo "Creating build manifest..."
+          MOJO_VERSION=$(podman compose exec -T projectodyssey-dev pixi run mojo --version 2>&1 || echo "Not available")
 
           cat > dist/BUILD_MANIFEST.txt <<EOF
           ML Odyssey Release Build
@@ -195,7 +198,7 @@ jobs:
           Build Environment:
           - Runner OS: ${{ runner.os }}
           - Python: $(python --version)
-          - Mojo: $(pixi run mojo --version 2>&1 || echo "Not available")
+          - Mojo: $MOJO_VERSION
 
           Artifacts:
           $(find dist -type f -ls)
@@ -222,8 +225,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
+      - name: Set up container
+        uses: ./.github/actions/setup-container
 
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
@@ -248,7 +251,7 @@ jobs:
           # Run Mojo tests if they exist
           if [ -d "tests/unit" ] && [ -n "$(find tests/unit -name '*.mojo' -o -name '*.🔥' 2>/dev/null)" ]; then
             echo "Running Mojo unit tests..."
-            pixi run mojo test -I . tests/unit/ --verbose
+            podman compose exec -T projectodyssey-dev bash -c 'pixi run mojo test -I . tests/unit/ --verbose'
           fi
 
           # Run Python tests if they exist
@@ -265,7 +268,7 @@ jobs:
           if [ -d "tests/integration" ]; then
             if [ -n "$(find tests/integration -name '*.mojo' -o -name '*.🔥' 2>/dev/null)" ]; then
               echo "Running Mojo integration tests..."
-              pixi run mojo test -I . tests/integration/ --verbose
+              podman compose exec -T projectodyssey-dev bash -c 'pixi run mojo test -I . tests/integration/ --verbose'
             fi
 
             if [ -n "$(find tests/integration -name 'test_*.py' 2>/dev/null)" ]; then
