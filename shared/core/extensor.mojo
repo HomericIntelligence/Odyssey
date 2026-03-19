@@ -1239,7 +1239,7 @@ struct ExTensor(
 
         # Fast-path: detect when only dim-0 is non-trivially sliced
         # and all remaining dimensions use full slices
-        var can_use_memcpy = num_dims > 0 and self._strides[0] == self._shape[1] if num_dims > 1 else 1
+        var can_use_memcpy = num_dims > 0 and self._strides[0] == self._shape[1] if num_dims > 1 else True
         if can_use_memcpy:
             # Check that all dims >= 1 use full slices
             for dim in range(1, num_dims):
