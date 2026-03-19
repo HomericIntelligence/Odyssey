@@ -1108,3 +1108,22 @@ struct SimpleMLP2(Copyable, Model, Movable):
         var output = zeros(output_shape, input._dtype)
 
         return output^
+
+    fn parameters(self) raises -> List[ExTensor]:
+        """Get all trainable parameters.
+
+        Returns:
+            Empty list (placeholder - no trainable parameters in this fixture).
+
+        Raises:
+            Error: If parameter collection fails.
+        """
+        return List[ExTensor]()
+
+    fn zero_grad(mut self) raises:
+        """Placeholder for gradient reset (no gradient state in this fixture).
+
+        Raises:
+            Error: If operation fails.
+        """
+        pass
