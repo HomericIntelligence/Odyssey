@@ -107,12 +107,19 @@ fn test_contiguous_on_noncontiguous() raises:
     # [1, 5, 9]
     # [2, 6, 10]
     # [3, 7, 11]
-    var expected = List[Float32](
-        0.0, 4.0, 8.0,
-        1.0, 5.0, 9.0,
-        2.0, 6.0, 10.0,
-        3.0, 7.0, 11.0,
-    )
+    var expected = List[Float32]()
+    expected.append(0.0)
+    expected.append(4.0)
+    expected.append(8.0)
+    expected.append(1.0)
+    expected.append(5.0)
+    expected.append(9.0)
+    expected.append(2.0)
+    expected.append(6.0)
+    expected.append(10.0)
+    expected.append(3.0)
+    expected.append(7.0)
+    expected.append(11.0)
 
     var data_ptr = c._data.bitcast[Float32]()
     for i in range(12):
