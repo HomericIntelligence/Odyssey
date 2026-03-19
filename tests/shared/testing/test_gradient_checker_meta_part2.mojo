@@ -29,6 +29,7 @@ References:
 from testing import assert_true, assert_equal
 from shared.testing import (
     check_gradients,
+    check_gradients_verbose,
     compute_numerical_gradient,
     relative_error,
 )
