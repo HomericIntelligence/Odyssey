@@ -61,12 +61,12 @@ fn conv_block(
     """Apply a VGG conv block: sequential conv layers with ReLU.
 
     Args:
-        input_tensor: Input tensor
-        out_channels: Output channels for conv layers
-        num_convs: Number of consecutive conv layers to apply
+        input_tensor: Input tensor.
+        out_channels: Output channels for conv layers.
+        num_convs: Number of consecutive conv layers to apply.
 
     Returns:
-        Output tensor after all convolutions and ReLU activations
+        Output tensor after all convolutions and ReLU activations.
     """
     var in_channels = input_tensor.shape()[1]
     var height = input_tensor.shape()[2]
@@ -105,10 +105,10 @@ fn vgg16_forward(
     """Forward pass through VGG-16 model.
 
     Args:
-        input_tensor: Input batch (batch, 3, 32, 32)
+        input_tensor: Input batch (batch, 3, 32, 32).
 
     Returns:
-        Logits for 10 classes (batch, 10)
+        Logits for 10 classes (batch, 10).
     """
     var x = input_tensor
 
@@ -189,9 +189,9 @@ fn test_vgg16_e2e_gradient_flow() raises:
     """Test that gradients can flow through VGG-16.
 
     This is a simplified test checking:
-    - Forward pass completes
-    - Output is differentiable (not constant)
-    - Loss computation possible
+    - Forward pass completes.
+    - Output is differentiable (not constant).
+    - Loss computation possible.
 
     Full gradient computation is complex and tested in
     test_vgg16_layers.mojo in detail.
