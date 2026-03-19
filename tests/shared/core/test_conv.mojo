@@ -1148,10 +1148,17 @@ fn test_conv2d_backward_gradient_input_with_padding() raises:
     handling (padding=1 and padding=2). The grad_input computation is most
     complex when padding > 0 due to the padded transposed convolution.
     This verifies mathematical correctness of the padded backward path.
+
+    Note: Input values are kept small (0.01 scale) to avoid Float32
+    precision loss in the numerical gradient's reduce_sum chain. With
+    larger values the output sum exceeds ~1000, and central-difference
+    finite differences lose significant digits when subtracting two
+    close Float32 sums.
     """
     var stride = 1
 
     # Input: (1, 1, 6, 6) with padding=1 or padding=2
+    # Use 0.01 scale to keep output sum small (~120) for Float32 precision
     var input_shape = List[Int]()
     input_shape.append(1)
     input_shape.append(1)
@@ -1160,7 +1167,7 @@ fn test_conv2d_backward_gradient_input_with_padding() raises:
     var x = zeros(input_shape, DType.float32)
     var x_data = x._data.bitcast[Float32]()
     for i in range(36):
-        x_data[i] = Float32(i) * Float32(0.1)
+        x_data[i] = Float32(i) * Float32(0.01)
 
     # Kernel: (1, 1, 3, 3)
     var kernel_shape = List[Int]()
@@ -1232,10 +1239,13 @@ fn test_conv2d_backward_gradient_kernel_with_padding() raises:
     Ensures kernel gradient computation is correct when input padding is used.
     Tests with padding=1 and padding=2 to exercise the padded forward path
     during weight gradient accumulation.
+
+    Note: Input values use 0.01 scale to keep output sum small for Float32
+    numerical gradient precision (see input gradient test docstring).
     """
     var stride = 1
 
-    # Input: (1, 1, 6, 6)
+    # Input: (1, 1, 6, 6) - use 0.01 scale for Float32 precision
     var input_shape = List[Int]()
     input_shape.append(1)
     input_shape.append(1)
@@ -1244,7 +1254,7 @@ fn test_conv2d_backward_gradient_kernel_with_padding() raises:
     var x = zeros(input_shape, DType.float32)
     var x_data = x._data.bitcast[Float32]()
     for i in range(36):
-        x_data[i] = Float32(i) * Float32(0.1)
+        x_data[i] = Float32(i) * Float32(0.01)
 
     # Kernel: (1, 1, 3, 3)
     var kernel_shape = List[Int]()
