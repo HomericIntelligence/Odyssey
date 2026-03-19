@@ -12,6 +12,7 @@ from shared.core.shape import broadcast_to, reshape
 
 # Import test helpers
 from tests.shared.conftest import (
+    assert_equal,
     assert_dtype,
     assert_numel,
     assert_dim,
