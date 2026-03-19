@@ -71,24 +71,34 @@ fn test_core_types_imports() raises:
 
 
 fn test_core_activations_direct_imports() raises:
-    """Test activations are importable directly from shared.core.activations sub-module.
+    """Test activations are importable directly from shared.core.activation sub-module.
     """
-    from shared.core.activations import relu, sigmoid, tanh, gelu
+    from shared.core.activation import relu, sigmoid, tanh, gelu
 
     print("✓ Core activations direct imports test passed")
 
 
 fn test_core_layers_direct_imports() raises:
-    """Test layers are importable directly from shared.core.layers sub-module.
+    """Test layers are importable directly from their shared.core sub-modules.
+
+    Note: linear, conv2d, flatten are pure functions in shared.core (not in
+    shared.core.layers which contains struct-based layer wrappers like Linear).
     """
-    from shared.core.layers import linear, conv2d, flatten
+    from shared.core.linear import linear
+    from shared.core.conv import conv2d
+    from shared.core.shape import flatten
 
     print("✓ Core layers direct imports test passed")
 
 
 fn test_core_types_direct_imports() raises:
-    """Test types are importable directly from shared.core.types sub-module."""
-    from shared.core.types import ExTensor
+    """Test types are importable directly from their shared.core sub-modules.
+
+    Note: ExTensor lives in shared.core.extensor (not shared.core.types which
+    contains dtype aliases like FP8, BF8, BF16).
+    """
+    from shared.core.extensor import ExTensor
+    from shared.core.types import FP8, BF8
 
     print("✓ Core types direct imports test passed")
 
@@ -161,8 +171,12 @@ fn test_training_optimizers_direct_imports() raises:
     """Test optimizers are importable directly from shared.training.optimizers sub-module.
 
     Validates the canonical import path for optimizers sub-module.
+
+    Note: The SGD struct is defined in shared.training (importable from there).
+    The shared.training.optimizers sub-module provides functional step functions
+    (sgd_step, adam_step, etc.) rather than struct-based optimizers.
     """
-    from shared.training.optimizers import SGD
+    from shared.training.optimizers import sgd_step, adam_step
 
     print("✓ Training optimizers direct imports test passed")
 
@@ -192,11 +206,15 @@ fn test_training_base_direct_imports() raises:
 
 
 fn test_training_loops_direct_imports() raises:
-    """Test loops components are importable directly from shared.training.loops sub-module.
+    """Test loops and base components are importable from their direct sub-modules.
 
-    Validates the canonical import path for loops sub-module.
+    Validates the canonical import paths for loops and base sub-modules.
+
+    Note: TrainingState is defined in shared.training.base (not shared.training.loops).
+    The loops sub-module provides TrainingLoop and ValidationLoop.
     """
-    from shared.training.loops import TrainingState
+    from shared.training.base import TrainingState
+    from shared.training.loops import TrainingLoop
 
     print("✓ Training loops direct imports test passed")
 
