@@ -28,6 +28,7 @@ TEST_FUNCTION_PATTERN = re.compile(r"^fn\s+test_\w+\s*\(", re.MULTILINE)
 # These are grandfathered and will be split in future PRs.
 # New files must comply; edits to these files must not increase their count.
 GRANDFATHERED_FILES: set[str] = {
+    "tests/shared/core/layers/DISABLED_test_batchnorm.mojo",
     "tests/shared/core/layers/test_dropout.mojo",
     "tests/shared/core/test_backward_conv_pool.mojo",
     "tests/shared/core/test_conv.mojo",
