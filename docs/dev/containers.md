@@ -1,6 +1,6 @@
-# Docker Usage Guide
+# Container Usage Guide
 
-This document describes how to use Docker for ml-odyssey development and deployment.
+This document describes how to use Podman for ml-odyssey development and deployment.
 
 ## Quick Start
 
@@ -8,29 +8,29 @@ This document describes how to use Docker for ml-odyssey development and deploym
 
 ```bash
 # Pull the latest runtime image
-docker pull ghcr.io/homericintelligence/projectodyssey:main
+podman pull ghcr.io/homericintelligence/projectodyssey:main
 
 # Run tests
-docker run --rm ghcr.io/homericintelligence/projectodyssey:main
+podman run --rm ghcr.io/homericintelligence/projectodyssey:main
 
 # Interactive shell
-docker run -it --rm ghcr.io/homericintelligence/projectodyssey:main bash
+podman run -it --rm ghcr.io/homericintelligence/projectodyssey:main bash
 ```
 
 ### Local Development
 
 ```bash
 # Start development environment
-just docker-up
+just podman-up
 
 # Enter shell
-just docker-shell
+just shell
 
 # Run tests inside container
 just test
 
 # Stop environment
-just docker-down
+just podman-down
 ```
 
 ## Image Variants
@@ -49,60 +49,42 @@ just docker-down
 
 ```bash
 # Build dev image (with your user ID for permissions)
-just docker-build
+just podman-build
 
 # Rebuild without cache
-just docker-rebuild
+just podman-rebuild
 ```
 
 ### CI/Production Images
 
 ```bash
 # Build runtime image
-just docker-build-ci runtime
+just podman-build-ci runtime
 
 # Build all targets
-just docker-build-ci-all
+just podman-build-ci-all
 
 # Build with specific tag
-docker build -f Dockerfile.ci --target production -t my-tag .
+podman build --format docker -f Dockerfile.ci --target production -t my-tag .
 ```
 
 ## Pushing to Registry
 
 ```bash
 # Login to GHCR
-echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
+echo $GITHUB_TOKEN | podman login ghcr.io -u USERNAME --password-stdin
 
 # Push specific target
-just docker-push runtime
+just podman-push runtime
 
 # Push all
-just docker-push-all
-```
-
-## Multi-Platform Builds
-
-The CI workflow builds for both `linux/amd64` and `linux/arm64`:
-
-```bash
-# Local multi-platform build (requires buildx)
-docker buildx build \
-  --file Dockerfile.ci \
-  --target runtime \
-  --platform linux/amd64,linux/arm64 \
-  -t ghcr.io/homericintelligence/projectodyssey:test \
-  --push \
-  .
+just podman-push-all
 ```
 
 ## Caching
 
-Docker builds use GitHub Actions cache for faster CI builds:
-
-- Layer caching via `type=gha`
-- Pixi lockfile caching
-- Build artifact caching
+Container builds in CI use `actions/cache` on `~/.local/share/containers` keyed
+by Dockerfile content for faster builds.
 
 ## Security
 
@@ -116,17 +98,17 @@ Docker builds use GitHub Actions cache for faster CI builds:
 
 ```bash
 # Rebuild with your user ID
-USER_ID=$(id -u) GROUP_ID=$(id -g) docker compose build
+USER_ID=$(id -u) GROUP_ID=$(id -g) podman compose build
 ```
 
 ### Cache Issues
 
 ```bash
-# Clean all Docker resources
-just docker-clean
+# Clean all container resources
+just podman-clean
 
 # Rebuild without cache
-just docker-rebuild
+just podman-rebuild
 ```
 
 ### Pixi Lock Mismatch

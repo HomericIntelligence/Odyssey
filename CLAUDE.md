@@ -450,21 +450,21 @@ just train                 # Train LeNet-5 with defaults
 just train lenet5 fp16 20  # Train with FP16, 20 epochs
 just infer lenet5 ./weights  # Run inference
 
-# Docker management
-just docker-up             # Start development environment
-just docker-down           # Stop environment
+# Podman management
+just podman-up             # Start development environment
+just podman-down           # Stop environment
 just shell          # Open shell in container
 ```
 
-### Docker Registry (GHCR)
+### Container Registry (GHCR)
 
 Images published to GHCR: `ghcr.io/homericintelligence/projectodyssey:{main,main-ci,main-prod}`.
 
 ```bash
-docker pull ghcr.io/homericintelligence/projectodyssey:main  # ~2GB runtime
-just docker-up    # Start dev environment
-just docker-shell # Open shell in container
-just docker-build-ci runtime  # Build locally
+podman pull ghcr.io/homericintelligence/projectodyssey:main  # ~2GB runtime
+just podman-up    # Start dev environment
+just shell        # Open shell in container
+just podman-build-ci runtime  # Build locally
 ```
 
 ### Why Use Justfile?
@@ -980,12 +980,12 @@ gh auth refresh -h github.com
 (especially Debian 10, Ubuntu 18.04) ship with older GLIBC versions (2.28, 2.29). Even if
 the local Mojo compiler works, the test runtime may fail due to binary incompatibility.
 
-**Solution**: Use Docker or CI for test validation instead of running tests locally:
+**Solution**: Use Podman or CI for test validation instead of running tests locally:
 
 ```bash
-# Option 1: Use Docker (recommended for local testing)
-just docker-up              # Start container with GLIBC 2.35
-just docker-shell           # Open shell in container
+# Option 1: Use Podman (recommended for local testing)
+just podman-up              # Start container with GLIBC 2.35
+just shell                  # Open shell in container
 # Inside container:
 just test-mojo              # Run tests in container
 
@@ -998,11 +998,11 @@ git push origin <branch>    # Push to GitHub
 
 ```bash
 ldd --version | head -1     # Shows GLIBC version
-# If output shows < 2.32, use Docker or CI for testing
+# If output shows < 2.32, use Podman or CI for testing
 ```
 
 **Note**: The CI environment uses Ubuntu with GLIBC 2.35. Any binaries built locally
-must be compatible with this version, or they will fail in CI. Use Docker images
+must be compatible with this version, or they will fail in CI. Use Podman containers
 matching the CI environment to develop locally.
 
 ## Important Files

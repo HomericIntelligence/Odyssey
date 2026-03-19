@@ -84,22 +84,6 @@ fn test_broadcast_to_compatible() raises:
     assert_value_at(b, 10, 1.0, "Row 3, col 1 should be 1.0 (broadcast)")
     assert_value_at(b, 11, 2.0, "Row 3, col 2 should be 2.0 (broadcast)")
 
-    # Verify value correctness: [0,1,2] should be repeated 4 times
-    # Row 0: [0, 1, 2]
-    assert_value_at(b, 0, 0, 0.0, "Element [0,0] should be 0")
-    assert_value_at(b, 0, 1, 1.0, "Element [0,1] should be 1")
-    assert_value_at(b, 0, 2, 2.0, "Element [0,2] should be 2")
-
-    # Row 2: [0, 1, 2] (verify pattern is repeated)
-    assert_value_at(b, 2, 0, 0.0, "Element [2,0] should be 0")
-    assert_value_at(b, 2, 1, 1.0, "Element [2,1] should be 1")
-    assert_value_at(b, 2, 2, 2.0, "Element [2,2] should be 2")
-
-    # Row 3: [0, 1, 2] (last row)
-    assert_value_at(b, 3, 0, 0.0, "Element [3,0] should be 0")
-    assert_value_at(b, 3, 1, 1.0, "Element [3,1] should be 1")
-    assert_value_at(b, 3, 2, 2.0, "Element [3,2] should be 2")
-
     # Verify output shape dimensions are exactly (4, 3)
     var b_shape = b.shape()
     assert_equal(b_shape[0], 4, "First dimension should be 4")
@@ -157,17 +141,17 @@ fn test_broadcast_to_size1_nonleading() raises:
     assert_equal(b_shape[1], 4, "Second dimension should be 4")
 
     # Verify values: each row should repeat its single value across 4 columns
-    # Row 0: [0, 0, 0, 0]
-    assert_value_at(b, 0, 0, 0.0, "Element [0,0] should be 0")
-    assert_value_at(b, 0, 3, 0.0, "Element [0,3] should be 0")
+    # Row 0: [0, 0, 0, 0] — flat indices 0..3
+    assert_value_at(b, 0, 0.0, "Element [0,0] should be 0")
+    assert_value_at(b, 3, 0.0, "Element [0,3] should be 0")
 
-    # Row 1: [1, 1, 1, 1]
-    assert_value_at(b, 1, 0, 1.0, "Element [1,0] should be 1")
-    assert_value_at(b, 1, 3, 1.0, "Element [1,3] should be 1")
+    # Row 1: [1, 1, 1, 1] — flat indices 4..7
+    assert_value_at(b, 4, 1.0, "Element [1,0] should be 1")
+    assert_value_at(b, 7, 1.0, "Element [1,3] should be 1")
 
-    # Row 2: [2, 2, 2, 2]
-    assert_value_at(b, 2, 0, 2.0, "Element [2,0] should be 2")
-    assert_value_at(b, 2, 3, 2.0, "Element [2,3] should be 2")
+    # Row 2: [2, 2, 2, 2] — flat indices 8..11
+    assert_value_at(b, 8, 2.0, "Element [2,0] should be 2")
+    assert_value_at(b, 11, 2.0, "Element [2,3] should be 2")
 
 
 # ============================================================================

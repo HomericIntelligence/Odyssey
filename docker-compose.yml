@@ -11,11 +11,11 @@ services:
         GROUP_ID: ${GROUP_ID}
     image: projectodyssey:dev
     volumes:
-      - .:/workspace:delegated
+      - .:/workspace:Z
       - workspace-pixi:/workspace/.pixi
-      - pixi-cache:${HOME}/.pixi
+      - pixi-cache:/home/dev/.pixi
       - pre-commit-cache:/home/dev/.cache/pre-commit
-      - ${HOME}/.gitconfig:/home/dev/.gitconfig:ro
+      - ${HOME:-.}/.gitconfig:/home/dev/.gitconfig:ro
     entrypoint: ["/usr/local/bin/entrypoint.sh"]
     environment:
       - HOME=/home/dev
@@ -23,7 +23,7 @@ services:
       - GROUP_ID=${GROUP_ID}
       - ENVIRONMENT=development
       - TERM=xterm-256color
-      - PIXI_HOME=${HOME}/.pixi
+      - PIXI_HOME=/home/dev/.pixi
     working_dir: /workspace
     stdin_open: true
     tty: true
@@ -48,7 +48,7 @@ services:
     volumes:
       - .:/workspace
       - workspace-pixi:/workspace/.pixi
-      - pixi-cache:${HOME}/.pixi
+      - pixi-cache:/home/dev/.pixi
     entrypoint: ["/usr/local/bin/entrypoint.sh"]
     environment:
       - HOME=/home/dev
@@ -56,7 +56,7 @@ services:
       - GROUP_ID=${GROUP_ID}
       - ENVIRONMENT=ci
       - CI=true
-      - PIXI_HOME=${HOME}/.pixi
+      - PIXI_HOME=/home/dev/.pixi
     working_dir: /workspace
     deploy:
       resources:
@@ -82,7 +82,7 @@ services:
       - USER_ID=${USER_ID}
       - GROUP_ID=${GROUP_ID}
       - ENVIRONMENT=production
-      - PIXI_HOME=${HOME}/.pixi
+      - PIXI_HOME=/home/dev/.pixi
     working_dir: /workspace
     deploy:
       resources:

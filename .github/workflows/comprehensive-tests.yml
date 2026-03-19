@@ -108,12 +108,6 @@ jobs:
       - name: Set up container
         uses: ./.github/actions/setup-container
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
-
-      - name: Check Mojo version
-        run: pixi run mojo --version
-
       - name: Install Just
         uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
 
@@ -142,9 +136,9 @@ jobs:
           total_files=$(find shared -name "*.mojo" -type f | wc -l)
           echo "Total .mojo files in shared/: $total_files"
 
-          # Build the shared package (compiles all modules properly with relative imports)
-          export REPO_ROOT=$(pwd)
-          if pixi run mojo package -I "$REPO_ROOT" shared -o /tmp/shared.mojopkg 2>&1; then
+          # Build the shared package inside the container
+          if podman compose exec -T projectodyssey-dev bash -c \
+            'export REPO_ROOT=$(pwd) && pixi run mojo package -I "$REPO_ROOT" shared -o /tmp/shared.mojopkg'; then
             echo "✅ PASSED: shared package compiled successfully"
             echo "compilation_status=success" >> $GITHUB_ENV
           else
@@ -342,9 +336,6 @@ jobs:
       - name: Set up container
         uses: ./.github/actions/setup-container
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
-
       - name: Install Just
         uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
 
@@ -414,9 +405,6 @@ jobs:
       - name: Set up container
         uses: ./.github/actions/setup-container
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
-
       - name: Install Just
         uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
 
@@ -451,9 +439,6 @@ jobs:
       - name: Set up container
         uses: ./.github/actions/setup-container
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
-
       - name: Install Just
         uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
 
@@ -483,9 +468,6 @@ jobs:
 
       - name: Set up container
         uses: ./.github/actions/setup-container
-
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
 
       - name: Install Just
         uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
@@ -729,9 +711,6 @@ jobs:
       - name: Set up container
         uses: ./.github/actions/setup-container
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
-
       - name: Install Just
         uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
 
@@ -759,9 +738,6 @@ jobs:
 
       - name: Set up container
         uses: ./.github/actions/setup-container
-
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
 
       - name: Install Just
         uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
@@ -840,14 +816,8 @@ jobs:
       - name: Set up container
         uses: ./.github/actions/setup-container
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
-
       - name: Install Just
         uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
-
-      - name: Verify Mojo installation
-        run: pixi run mojo --version
 
       - name: Check if test files exist
         id: check-tests

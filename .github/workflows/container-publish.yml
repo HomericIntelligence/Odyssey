@@ -1,6 +1,6 @@
-name: Docker Build and Publish
+name: Container Build and Publish
 
-# Build and publish Docker images to GitHub Container Registry
+# Build and publish container images to GitHub Container Registry using Podman
 # Triggered on pushes to main, version tags, and PRs (build-only)
 
 on:
@@ -19,7 +19,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  # Docker image names must be lowercase - github.repository preserves case
+  # Container image names must be lowercase - github.repository preserves case
   IMAGE_NAME: homericintelligence/projectodyssey
 
 permissions:
@@ -29,7 +29,7 @@ permissions:
 
 jobs:
   # ============================================================================
-  # Build and Push Docker Images
+  # Build and Push Container Images
   # ============================================================================
   build-and-push:
     runs-on: ubuntu-latest
@@ -50,51 +50,89 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a  # v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd  # v4
+      - name: Cache Podman storage
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306  # v5
+        with:
+          path: ~/.local/share/containers
+          key: podman-ci-${{ matrix.target }}-${{ hashFiles('Dockerfile.ci') }}
+          restore-keys: |
+            podman-ci-${{ matrix.target }}-
 
       - name: Log in to Container Registry
         if: github.event_name != 'pull_request' || github.event.inputs.push == 'true'
-        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2  # v4
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | podman login "$REGISTRY" --username "${{ github.actor }}" --password-stdin
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf  # v6
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          flavor: |
-            suffix=${{ matrix.suffix }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix=sha-
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' && matrix.target == 'runtime' }}
+      - name: Generate tags
+        id: tags
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+          SUFFIX: ${{ matrix.suffix }}
+          TARGET: ${{ matrix.target }}
+          REF: ${{ github.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          TAGS=""
+          SHORT_SHA="${SHA:0:7}"
 
-      - name: Build and push
-        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294  # v7
-        with:
-          context: .
-          file: ./Dockerfile.ci
-          target: ${{ matrix.target }}
-          platforms: linux/amd64
-          push: ${{ (github.event_name != 'pull_request' || github.event.inputs.push == 'true') && matrix.target != 'ci' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            BUILD_DATE=${{ github.event.head_commit.timestamp }}
-            VCS_REF=${{ github.sha }}
-            VERSION=${{ github.ref_name }}
+          # Branch tag
+          if [[ "$EVENT_NAME" == "push" && "$REF" == refs/heads/* ]]; then
+            TAGS="${TAGS}${REGISTRY}/${IMAGE_NAME}:${REF_NAME}${SUFFIX} "
+          fi
+
+          # PR tag
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            TAGS="${TAGS}${REGISTRY}/${IMAGE_NAME}:pr-${PR_NUMBER}${SUFFIX} "
+          fi
+
+          # Semver tags
+          if [[ "$REF" == refs/tags/v* ]]; then
+            VERSION="${REF_NAME#v}"
+            TAGS="${TAGS}${REGISTRY}/${IMAGE_NAME}:${VERSION}${SUFFIX} "
+            MINOR="${VERSION%.*}"
+            TAGS="${TAGS}${REGISTRY}/${IMAGE_NAME}:${MINOR}${SUFFIX} "
+          fi
+
+          # SHA tag
+          TAGS="${TAGS}${REGISTRY}/${IMAGE_NAME}:sha-${SHORT_SHA}${SUFFIX} "
+
+          # Latest tag (only for runtime on main)
+          if [[ "$REF" == "refs/heads/main" && "$TARGET" == "runtime" ]]; then
+            TAGS="${TAGS}${REGISTRY}/${IMAGE_NAME}:latest "
+          fi
+
+          echo "tags=$TAGS" >> "$GITHUB_OUTPUT"
+          echo "Generated tags: $TAGS"
+
+      - name: Build image
+        env:
+          BUILD_DATE: ${{ github.event.head_commit.timestamp }}
+          SHA: ${{ github.sha }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          TAG_ARGS=""
+          for tag in ${{ steps.tags.outputs.tags }}; do
+            TAG_ARGS="$TAG_ARGS -t $tag"
+          done
+
+          podman build --format docker \
+            -f Dockerfile.ci \
+            --target "${{ matrix.target }}" \
+            --platform linux/amd64 \
+            --build-arg BUILD_DATE="$BUILD_DATE" \
+            --build-arg VCS_REF="$SHA" \
+            --build-arg VERSION="$REF_NAME" \
+            $TAG_ARGS \
+            .
+
+      - name: Push images
+        if: (github.event_name != 'pull_request' || github.event.inputs.push == 'true') && matrix.target != 'ci'
+        run: |
+          for tag in ${{ steps.tags.outputs.tags }}; do
+            echo "Pushing $tag..."
+            podman push "$tag"
+          done
 
       - name: Generate SBOM
         if: github.event_name != 'pull_request' && matrix.target == 'runtime'
@@ -126,31 +164,33 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Log in to Container Registry
-        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2  # v4
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | podman login "$REGISTRY" --username "${{ github.actor }}" --password-stdin
 
       - name: Test runtime image
+        env:
+          IMAGE_TAG: ${{ github.ref_name }}
         run: |
           echo "Testing runtime image..."
-          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }} \
+          podman run --rm "$REGISTRY/$IMAGE_NAME:$IMAGE_TAG" \
             pixi run mojo --version
-          echo "✅ Runtime image working"
+          echo "Runtime image working"
 
       - name: Test production image
+        env:
+          IMAGE_TAG: ${{ github.ref_name }}
         run: |
           echo "Testing production image..."
-          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}-prod \
+          podman run --rm "$REGISTRY/$IMAGE_NAME:${IMAGE_TAG}-prod" \
             pixi run mojo --version
-          echo "✅ Production image working"
+          echo "Production image working"
 
       - name: Run smoke tests
+        env:
+          IMAGE_TAG: ${{ github.ref_name }}
         run: |
           echo "Running smoke tests in container..."
-          docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }} \
-            pixi run mojo test -I . tests/smoke/ || echo "⚠️ Smoke tests not found or failed"
+          podman run --rm "$REGISTRY/$IMAGE_NAME:$IMAGE_TAG" \
+            pixi run mojo test -I . tests/smoke/ || echo "Smoke tests not found or failed"
 
   # ============================================================================
   # Security Scan
@@ -163,11 +203,7 @@ jobs:
 
     steps:
       - name: Log in to Container Registry
-        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2  # v4
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | podman login "$REGISTRY" --username "${{ github.actor }}" --password-stdin
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1  # master
@@ -192,28 +228,30 @@ jobs:
 
     steps:
       - name: Generate summary
+        env:
+          IMAGE_TAG: ${{ github.ref_name }}
         run: |
-          echo "# 🐳 Docker Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "# Container Build Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Registry**: \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Registry**: \`$REGISTRY/$IMAGE_NAME\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## Images Built" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Target | Tag | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|--------|-----|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| runtime | \`${{ github.ref_name }}\` | ${{ needs.build-and-push.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| ci | \`${{ github.ref_name }}-ci\` | ${{ needs.build-and-push.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| production | \`${{ github.ref_name }}-prod\` | ${{ needs.build-and-push.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| runtime | \`$IMAGE_TAG\` | ${{ needs.build-and-push.result == 'success' && 'pass' || 'fail' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| ci | \`${IMAGE_TAG}-ci\` | ${{ needs.build-and-push.result == 'success' && 'pass' || 'fail' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| production | \`${IMAGE_TAG}-prod\` | ${{ needs.build-and-push.result == 'success' && 'pass' || 'fail' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## Usage" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
           echo "# Pull latest" >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "podman pull $REGISTRY/$IMAGE_NAME:$IMAGE_TAG" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "# Run tests" >> $GITHUB_STEP_SUMMARY
-          echo "docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "podman run --rm $REGISTRY/$IMAGE_NAME:$IMAGE_TAG" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "# Interactive shell" >> $GITHUB_STEP_SUMMARY
-          echo "docker run -it ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }} bash" >> $GITHUB_STEP_SUMMARY
+          echo "podman run -it $REGISTRY/$IMAGE_NAME:$IMAGE_TAG bash" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

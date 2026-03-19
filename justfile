@@ -1,11 +1,11 @@
 # ML Odyssey Build System
-# Unified build/test/lint interface for Docker, Podman, and native execution
+# Unified build/test/lint interface for Podman containers and native execution
 
 # Default recipe - show help
 default: help
 
-# Docker service name
-docker_service := "projectodyssey-dev"
+# Podman compose service name
+podman_service := "projectodyssey-dev"
 
 # Repository root
 repo_root := justfile_directory()
@@ -41,22 +41,21 @@ MOJO_TSAN := "--sanitize thread"
 # Internal Helpers
 # ==============================================================================
 
-# Run command in Docker compose container, or natively with NATIVE=1
+# Run command in Podman compose container or natively based on NATIVE env var
 [private]
 _run cmd:
 	#!/usr/bin/env bash
 	set -e
 	if [[ "${NATIVE:-}" == "1" ]]; then
 		eval "{{cmd}}"
-	elif command -v docker &>/dev/null && \
-		docker compose ps -q {{docker_service}} 2>/dev/null \
-		| xargs -r docker inspect -f '{{"{{"}}{{".State.Running"}}{{"}}"}}'  2>/dev/null \
+	elif command -v podman &>/dev/null && \
+		podman compose ps -q {{podman_service}} 2>/dev/null \
+		| xargs -r podman inspect -f '{{"{{"}}{{".State.Running"}}{{"}}"}}'  2>/dev/null \
 		| grep -q true; then
-		# Docker compose container is running — use it
-		docker compose exec -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} -T {{docker_service}} bash -c "{{cmd}}"
+		podman compose exec -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} -T {{podman_service}} bash -c "{{cmd}}"
 	else
-		echo "Error: Docker compose container '{{docker_service}}' is not running."
-		echo "  Start Docker:     just docker-up"
+		echo "Error: Podman compose container '{{podman_service}}' is not running."
+		echo "  Start Podman:     just podman-up"
 		echo "  Or run natively:  NATIVE=1 just <recipe>"
 		exit 1
 	fi
@@ -67,172 +66,115 @@ _ensure_build_dir mode:
     @mkdir -p build/{{mode}}
 
 # ==============================================================================
-# Docker Management
+# Podman Management
 # ==============================================================================
 
-# Start Docker development environment
-docker-up:
-    @docker compose up -d {{docker_service}}
+# Start Podman development environment
+podman-up:
+    @podman compose up -d {{podman_service}}
 
-# Stop Docker development environment
-docker-down:
-    @docker compose down
+# Stop Podman development environment
+podman-down:
+    @podman compose down
 
-# Build Docker images
-docker-build:
-    @docker compose build \
+# Build Podman images
+podman-build:
+    @podman compose build \
         --build-arg USER_ID={{USER_ID}} \
         --build-arg GROUP_ID={{GROUP_ID}} \
         --build-arg USER_NAME=dev
 
-# Rebuild Docker images (no cache)
-docker-rebuild:
-    @docker compose build --no-cache \
+# Rebuild Podman images (no cache)
+podman-rebuild:
+    @podman compose build --no-cache \
         --build-arg USER_ID={{USER_ID}} \
         --build-arg GROUP_ID={{GROUP_ID}} \
         --build-arg USER_NAME=dev
 
-# View Docker logs
-docker-logs:
-    @docker compose logs -f {{docker_service}}
+# View Podman container logs
+podman-logs:
+    @podman compose logs -f {{podman_service}}
 
-# Clean Docker resources
-docker-clean:
-    @docker compose down -v --rmi local
+# Clean Podman resources
+podman-clean:
+    @podman compose down -v --rmi local
 
-# Show Docker status
-docker-status:
-    @docker compose ps
+# Show Podman container status
+podman-status:
+    @podman compose ps
 
 native prefix:
     @NATIVE=1 just {{prefix}}
 
 # ==============================================================================
-# Podman Support
-# ==============================================================================
-
-# Check Podman version (requires 4.0+)
-[private]
-_check_podman:
-    #!/usr/bin/env bash
-    if ! command -v podman &>/dev/null; then
-        echo "Error: podman not found."
-        echo "Install it: ./scripts/install-podman.sh"
-        exit 1
-    fi
-    major=$(podman --version | grep -oP '\d+' | head -1)
-    version=$(podman --version | grep -oP '\d+\.\d+\.\d+' | head -1)
-    if [ "$major" -lt 4 ]; then
-        echo "Error: Podman 4.0+ required (found $version)."
-        echo "Upgrade: ./scripts/install-podman.sh"
-        exit 1
-    fi
-    echo "Podman $version found"
-
-# Build development image with Podman
-podman-build: _check_podman
-    @podman build --target development \
-        --build-arg USER_ID={{USER_ID}} \
-        --build-arg GROUP_ID={{GROUP_ID}} \
-        --build-arg USER_NAME=dev \
-        -t projectodyssey:dev \
-        .
-
-# Open interactive shell in Podman container
-podman-shell: _check_podman
-    @podman run -it --rm --userns=keep-id \
-        -v {{repo_root}}:/workspace:Z \
-        -w /workspace \
-        -e HOME=/home/dev \
-        projectodyssey:dev bash
-
-# Run any mojo command in Podman container: just podman-mojo -- test -I . tests/
-podman-mojo *args: _check_podman
-    @podman run --rm --userns=keep-id \
-        -v {{repo_root}}:/workspace:Z \
-        -w /workspace \
-        projectodyssey:dev pixi run mojo {{args}}
-
-# Run tests via Podman
-podman-test *args: _check_podman
-    @podman run --rm --userns=keep-id \
-        -v {{repo_root}}:/workspace:Z \
-        -w /workspace \
-        projectodyssey:dev pixi run mojo test -I . {{args}}
-
-# ==============================================================================
-# Docker Registry (GHCR)
+# Container Registry (GHCR)
 # ==============================================================================
 
 # Default registry
 REGISTRY := "ghcr.io"
 REPO_NAME := "homericintelligence/projectodyssey"
 
-# Build CI-optimized Docker image
-docker-build-ci target="runtime":
-    @docker build -f Dockerfile.ci --target {{target}} \
+# Build CI-optimized container image
+podman-build-ci target="runtime":
+    @podman build --format docker -f Dockerfile.ci --target {{target}} \
         -t {{REGISTRY}}/{{REPO_NAME}}:{{target}} \
         -t {{REGISTRY}}/{{REPO_NAME}}:{{target}}-$(git rev-parse --short HEAD) \
         .
 
 # Build all CI image targets
-docker-build-ci-all:
-    @just docker-build-ci runtime
-    @just docker-build-ci ci
-    @just docker-build-ci production
+podman-build-ci-all:
+    @just podman-build-ci runtime
+    @just podman-build-ci ci
+    @just podman-build-ci production
 
-# Push Docker image to GHCR (requires `docker login ghcr.io`)
-docker-push target="runtime":
-    @docker push {{REGISTRY}}/{{REPO_NAME}}:{{target}}
-    @docker push {{REGISTRY}}/{{REPO_NAME}}:{{target}}-$(git rev-parse --short HEAD)
+# Push container image to GHCR (requires `podman login ghcr.io`)
+podman-push target="runtime":
+    @podman push {{REGISTRY}}/{{REPO_NAME}}:{{target}}
+    @podman push {{REGISTRY}}/{{REPO_NAME}}:{{target}}-$(git rev-parse --short HEAD)
 
 # Push all images to GHCR
-docker-push-all:
-    @just docker-push runtime
-    @just docker-push ci
-    @just docker-push production
+podman-push-all:
+    @just podman-push runtime
+    @just podman-push ci
+    @just podman-push production
 
-# Build and push Docker image
-docker-release target="runtime":
-    @just docker-build-ci {{target}}
-    @just docker-push {{target}}
+# Build and push container image
+podman-release target="runtime":
+    @just podman-build-ci {{target}}
+    @just podman-push {{target}}
 
-# Test Docker image locally
-docker-test-image target="runtime":
+# Test container image locally
+podman-test-image target="runtime":
     @echo "Testing {{target}} image..."
-    @docker run --rm {{REGISTRY}}/{{REPO_NAME}}:{{target}} pixi run mojo --version
+    @podman run --rm {{REGISTRY}}/{{REPO_NAME}}:{{target}} pixi run mojo --version
     @echo "✅ Image {{target}} is working"
 
-# Run tests in Docker image
-docker-run-tests target="runtime":
-    @docker run --rm {{REGISTRY}}/{{REPO_NAME}}:{{target}} \
+# Run tests in container image
+podman-run-tests target="runtime":
+    @podman run --rm {{REGISTRY}}/{{REPO_NAME}}:{{target}} \
         pixi run mojo test -I . tests/
 
-# Interactive shell in Docker image
-docker-run-shell target="runtime":
-    @docker run -it --rm {{REGISTRY}}/{{REPO_NAME}}:{{target}} bash
+# Interactive shell in container image
+podman-run-shell target="runtime":
+    @podman run -it --rm {{REGISTRY}}/{{REPO_NAME}}:{{target}} bash
 
 # ==============================================================================
-# CI Docker Build (matches GitHub Actions)
+# CI Container Build (matches GitHub Actions)
 # ==============================================================================
 
-# Build Docker image exactly as CI does
-ci-docker-build:
-    @docker buildx build \
+# Build container image exactly as CI does
+ci-podman-build:
+    @podman build --format docker \
         --file Dockerfile.ci \
         --target runtime \
         --platform linux/amd64 \
-        --cache-from type=local,src=/tmp/.buildx-cache \
-        --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max \
         -t {{REGISTRY}}/{{REPO_NAME}}:local \
         .
-    @rm -rf /tmp/.buildx-cache
-    @mv /tmp/.buildx-cache-new /tmp/.buildx-cache 2>/dev/null || true
 
-# Validate Docker build without pushing
-ci-docker-validate:
+# Validate container build without pushing
+ci-podman-validate:
     @echo "Validating Dockerfile.ci..."
-    @docker build -f Dockerfile.ci --target runtime . >/dev/null
+    @podman build -f Dockerfile.ci --target runtime . >/dev/null
     @echo "✅ Dockerfile.ci is valid"
 
 # ==============================================================================
@@ -480,7 +422,7 @@ jupyter-clear:
 
 # Open development shell
 shell:
-    @docker compose exec -it -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} {{docker_service}} bash
+    @podman compose exec -it -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} {{podman_service}} bash
 
 # Serve documentation
 docs-serve:
@@ -518,9 +460,9 @@ check-glibc:
         exit 0
     else
         echo "⚠️  WARNING: GLIBC $current_glibc is older than required $required_glibc"
-        echo "   Mojo tests will fail locally. Use Docker for testing:"
-        echo "   just docker-up"
-        echo "   just docker-shell"
+        echo "   Mojo tests will fail locally. Use Podman for testing:"
+        echo "   just podman-up"
+        echo "   just shell"
         echo "   just test-mojo"
         exit 0
     fi
@@ -736,8 +678,7 @@ help:
     @echo "ML Odyssey Build System"
     @echo "======================="
     @echo ""
-    @echo "Docker mode (default):  just <recipe>"
-    @echo "Podman mode:            just podman-<recipe>"
+    @echo "Podman mode (default):  just <recipe>"
     @echo "Native mode:            just native <recipe>"
     @echo ""
     @echo "Training:  train [model] [precision] [epochs], infer [model] [checkpoint]"
@@ -746,9 +687,8 @@ help:
     @echo "Package:   package [mode], package-debug, package-release"
     @echo "Test:      test, test-python, test-group, test-mojo"
     @echo "Jupyter:   jupyter, jupyter-notebook, jupyter-validate, jupyter-clear"
-    @echo "Docker:    docker-up, docker-down, docker-logs"
-    @echo "Podman:    podman-build, podman-shell, podman-mojo, podman-test"
-    @echo "Dev:       dev, shell, docs, docs-serve, pre-commit, validate"
+    @echo "Podman:    podman-up, podman-down, podman-build, podman-logs, podman-status"
+    @echo "Dev:       shell, docs, docs-serve, pre-commit, validate"
     @echo "Utility:   help, status, clean, clean-all"
     @echo ""
     @echo "Examples:"
@@ -765,11 +705,11 @@ status:
     @echo "================="
     @echo "ML Odyssey Status"
     @echo "================="
-    @docker compose ps
+    @podman compose ps
     @ls -la build/ 2>/dev/null || echo "No build artifacts"
     @echo "Versions:"
     @python3 --version || echo "Python not found"
-    @docker --version || echo "Docker not found"
+    @podman --version || echo "Podman not found"
     @just --version || echo "Just not found"
     @pixi --version
     @pixi --list
@@ -781,8 +721,8 @@ clean:
     @find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
     @echo "Clean complete"
 
-# Clean everything including Docker
-clean-all: clean docker-clean
+# Clean everything including Podman containers
+clean-all: clean podman-clean
 
 # ==============================================================================
 # Dependency Audit
