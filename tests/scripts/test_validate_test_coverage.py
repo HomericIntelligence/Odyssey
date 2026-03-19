@@ -341,7 +341,6 @@ class TestCheckStalePatternsMultiPattern:
         ]
 
 
-
 # ---------------------------------------------------------------------------
 # expand_pattern (regression guard — unchanged behaviour)
 # ---------------------------------------------------------------------------
