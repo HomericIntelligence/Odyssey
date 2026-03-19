@@ -57,8 +57,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
+      - name: Set up container
+        uses: ./.github/actions/setup-container
 
       - name: Check if should run this suite
         id: check-suite
@@ -75,6 +75,8 @@ jobs:
 
       - name: Run benchmark suite - ${{ matrix.benchmark-suite }}
         if: steps.check-suite.outputs.run == 'true'
+        env:
+          SUITE: ${{ matrix.benchmark-suite }}
         run: |
           mkdir -p benchmark-results
 
@@ -82,29 +84,29 @@ jobs:
           if [ ! -d "benchmarks" ]; then
             echo "⚠️  No benchmarks/ directory found yet"
             echo "This is expected during initial development."
-            echo '{"suite": "${{ matrix.benchmark-suite }}", "status": "not_implemented"}' > benchmark-results/${{ matrix.benchmark-suite }}.json
+            echo "{\"suite\": \"$SUITE\", \"status\": \"not_implemented\"}" > "benchmark-results/$SUITE.json"
             exit 0
           fi
 
-          SUITE_PATH="benchmarks/${{ matrix.benchmark-suite }}"
+          SUITE_PATH="benchmarks/$SUITE"
 
           if [ -d "$SUITE_PATH" ]; then
             if [ -f "$SUITE_PATH/run_benchmark.py" ]; then
               echo "Running Python benchmark..."
-              pixi run python "$SUITE_PATH/run_benchmark.py" --output benchmark-results/${{ matrix.benchmark-suite }}.json
+              podman compose exec -T projectodyssey-dev bash -c "pixi run python $SUITE_PATH/run_benchmark.py --output benchmark-results/$SUITE.json"
             elif [ -f "$SUITE_PATH/run_benchmark.mojo" ]; then
               echo "Running Mojo benchmark..."
-              pixi run mojo -I . "$SUITE_PATH/run_benchmark.mojo" --output benchmark-results/${{ matrix.benchmark-suite }}.json
+              podman compose exec -T projectodyssey-dev bash -c "pixi run mojo -I . $SUITE_PATH/run_benchmark.mojo --output benchmark-results/$SUITE.json"
             else
               echo "⚠️  No benchmark runner found in $SUITE_PATH"
-              echo '{"suite": "${{ matrix.benchmark-suite }}", "status": "not_implemented"}' > benchmark-results/${{ matrix.benchmark-suite }}.json
+              echo "{\"suite\": \"$SUITE\", \"status\": \"not_implemented\"}" > "benchmark-results/$SUITE.json"
             fi
           else
             echo "⚠️  Benchmark suite not found: $SUITE_PATH"
-            echo '{"suite": "${{ matrix.benchmark-suite }}", "status": "not_found"}' > benchmark-results/${{ matrix.benchmark-suite }}.json
+            echo "{\"suite\": \"$SUITE\", \"status\": \"not_found\"}" > "benchmark-results/$SUITE.json"
           fi
 
-          echo "✅ Benchmark suite complete: ${{ matrix.benchmark-suite }}"
+          echo "✅ Benchmark suite complete: $SUITE"
 
       - name: Upload benchmark results
         if: always()
@@ -216,8 +218,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
+      - name: Set up container
+        uses: ./.github/actions/setup-container
 
       - name: Run SIMD benchmarks
         run: |
@@ -233,7 +235,7 @@ jobs:
           delay=1
           while [ $attempt -lt 3 ]; do
             attempt=$((attempt + 1))
-            if pixi run mojo run -I . benchmarks/bench_simd.mojo | tee benchmark-results/simd-output.txt; then
+            if podman compose exec -T projectodyssey-dev bash -c 'pixi run mojo run -I . benchmarks/bench_simd.mojo' | tee benchmark-results/simd-output.txt; then
               echo "✅ SIMD benchmarks completed successfully"
               break
             fi

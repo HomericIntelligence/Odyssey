@@ -26,8 +26,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v4
 
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
+      - name: Set up container
+        uses: ./.github/actions/setup-container
 
       - name: Run model E2E tests
         run: |
@@ -57,7 +57,7 @@ jobs:
             # Run Mojo tests if they exist
             mojo_tests=$(find "$model_dir" -name 'test_*.mojo' 2>/dev/null | head -1)
             if [ -n "$mojo_tests" ]; then
-              if pixi run mojo test -I . "$model_dir" --verbose \
+              if podman compose exec -T projectodyssey-dev bash -c "pixi run mojo test -I . $model_dir --verbose" \
                   2>&1 | tee "test-results/${model_name}-mojo.txt"; then
                 echo "Mojo E2E tests passed for $model_name"
               else
@@ -71,7 +71,7 @@ jobs:
             # Run Python tests if they exist
             py_tests=$(find "$model_dir" -name 'test_*.py' 2>/dev/null | head -1)
             if [ -n "$py_tests" ]; then
-              if pixi run pytest "$model_dir" --verbose \
+              if podman compose exec -T projectodyssey-dev bash -c "pixi run pytest $model_dir --verbose" \
                   2>&1 | tee "test-results/${model_name}-python.txt"; then
                 echo "Python E2E tests passed for $model_name"
               else
