@@ -22,6 +22,7 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_less,
     assert_greater,
+    assert_shape,
     create_test_vector,
     TestFixtures,
 )
