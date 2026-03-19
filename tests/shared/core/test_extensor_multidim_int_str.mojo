@@ -12,7 +12,7 @@ from tests.shared.conftest import assert_true
 
 fn test_str_int32_2d_tensor() raises:
     """Test __str__ for 2D int32 tensor includes correct shape."""
-    var t = full([2, 3], Int32(42), DType.int32)
+    var t = full([2, 3], Float64(42), DType.int32)
     var s = String(t)
     assert_true(s.startswith("ExTensor([["))
     assert_true("42" in s)
@@ -22,7 +22,7 @@ fn test_str_int32_2d_tensor() raises:
 
 fn test_str_int32_3d_tensor() raises:
     """Test __str__ for 3D int32 tensor includes correct shape."""
-    var t = full([2, 2, 2], Int32(99), DType.int32)
+    var t = full([2, 2, 2], Float64(99), DType.int32)
     var s = String(t)
     assert_true("[2, 2, 2]" in s)
     assert_true("99" in s)
@@ -31,7 +31,7 @@ fn test_str_int32_3d_tensor() raises:
 
 fn test_str_int64_2d_tensor() raises:
     """Test __str__ for 2D int64 tensor includes correct shape."""
-    var t = full([3, 4], Int64(123456), DType.int64)
+    var t = full([3, 4], Float64(123456), DType.int64)
     var s = String(t)
     assert_true("[3, 4]" in s)
     assert_true("123456" in s)
@@ -40,7 +40,7 @@ fn test_str_int64_2d_tensor() raises:
 
 fn test_str_uint32_2d_tensor() raises:
     """Test __str__ for 2D uint32 tensor includes correct shape."""
-    var t = full([2, 5], UInt32(1000000), DType.uint32)
+    var t = full([2, 5], Float64(1000000), DType.uint32)
     var s = String(t)
     assert_true("[2, 5]" in s)
     assert_true("1000000" in s)
@@ -49,7 +49,7 @@ fn test_str_uint32_2d_tensor() raises:
 
 fn test_str_bool_2d_true() raises:
     """Test __str__ for 2D bool tensor with true values."""
-    var t = full([2, 3], True, DType.bool)
+    var t = full([2, 3], Float64(1), DType.bool)
     var s = String(t)
     assert_true("[2, 3]" in s)
     assert_true("True" in s)
@@ -58,7 +58,7 @@ fn test_str_bool_2d_true() raises:
 
 fn test_str_bool_2d_false() raises:
     """Test __str__ for 2D bool tensor with false values."""
-    var t = full([2, 3], False, DType.bool)
+    var t = full([2, 3], Float64(0), DType.bool)
     var s = String(t)
     assert_true("[2, 3]" in s)
     assert_true("False" in s)
@@ -68,7 +68,7 @@ fn test_str_bool_2d_false() raises:
 fn test_str_bool_3d_mixed() raises:
     """Test __str__ for 3D bool tensor."""
     # Create a 3D bool tensor - shape [2, 2, 2]
-    var t = full([2, 2, 2], True, DType.bool)
+    var t = full([2, 2, 2], Float64(1), DType.bool)
     var s = String(t)
     assert_true("[2, 2, 2]" in s)
     assert_true("True" in s)
@@ -77,7 +77,7 @@ fn test_str_bool_3d_mixed() raises:
 
 fn test_str_int16_2d_tensor() raises:
     """Test __str__ for 2D int16 tensor includes correct shape."""
-    var t = full([4, 5], Int16(500), DType.int16)
+    var t = full([4, 5], Float64(500), DType.int16)
     var s = String(t)
     assert_true("[4, 5]" in s)
     assert_true("500" in s)
@@ -86,7 +86,7 @@ fn test_str_int16_2d_tensor() raises:
 
 fn test_str_uint16_2d_tensor() raises:
     """Test __str__ for 2D uint16 tensor includes correct shape."""
-    var t = full([3, 3], UInt16(30000), DType.uint16)
+    var t = full([3, 3], Float64(30000), DType.uint16)
     var s = String(t)
     assert_true("[3, 3]" in s)
     assert_true("30000" in s)
