@@ -430,8 +430,8 @@ fn test_hash_integer_dtype_distinct() raises:
     """Integer tensors with different values hash differently."""
     var shape = List[Int]()
     shape.append(3)
-    var a = full(shape, Int32(100), DType.int32)
-    var b = full(shape, Int32(101), DType.int32)
+    var a = full(shape, Float64(100), DType.int32)
+    var b = full(shape, Float64(101), DType.int32)
     if hash(a) == hash(b):
         raise Error("int32 tensors with different values should hash differently")
 
