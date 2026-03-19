@@ -147,12 +147,6 @@ from shared.autograd.schedulers import (
     ExponentialLR,
 )
 
-from shared.autograd.grad_utils import (
-    clip_grad_value_,
-    clip_grad_norm_,
-    clip_grad_global_norm_,
-)
-
 from shared.autograd.functional import (
     LossAndGrad,
     mse_loss_and_grad,

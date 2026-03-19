@@ -42,11 +42,26 @@ Reference: https://data-apis.org/array-api/latest/API_specification/index.html
 from collections import List
 from memory import UnsafePointer, memset_zero, alloc, bitcast
 from sys.info import simd_width_of
-from math import ceildiv, sqrt, log, cos, sin
+from math import ceildiv, sqrt, log, cos, sin, floor as math_floor
 from utils.numerics import inf as numeric_inf, neg_inf as numeric_neg_inf
 from random import random_float64, seed as random_seed
 from hashlib.hasher import Hasher
-from .memory_pool import pooled_alloc, pooled_free
+from shared.core.memory_pool import pooled_alloc, pooled_free
+from shared.core.broadcasting import broadcast_shapes, compute_broadcast_strides, are_shapes_broadcastable
+from shared.core.dtype_ordinal import (
+    dtype_to_ordinal,
+    DTYPE_FLOAT16,
+    DTYPE_FLOAT32,
+    DTYPE_FLOAT64,
+    DTYPE_INT8,
+    DTYPE_INT16,
+    DTYPE_INT32,
+    DTYPE_INT64,
+    DTYPE_UINT8,
+    DTYPE_UINT16,
+    DTYPE_UINT32,
+    DTYPE_UINT64,
+)
 
 # Memory safety constants
 comptime MAX_TENSOR_BYTES: Int = 2_000_000_000  # 2 GB max per tensor
@@ -1377,9 +1392,11 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        from shared.core.arithmetic import add
+        @always_inline
+        fn _add[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x + y
 
-        return add(self, other)
+        return _extensor_binary_arith[_add](self, other)
 
     fn __sub__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise subtraction: a - b.
@@ -1393,9 +1410,11 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        from shared.core.arithmetic import subtract
+        @always_inline
+        fn _sub[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x - y
 
-        return subtract(self, other)
+        return _extensor_binary_arith[_sub](self, other)
 
     fn __mul__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise multiplication: a * b.
@@ -1409,9 +1428,11 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        from shared.core.arithmetic import multiply
+        @always_inline
+        fn _mul[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x * y
 
-        return multiply(self, other)
+        return _extensor_binary_arith[_mul](self, other)
 
     fn __truediv__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise division: a / b.
@@ -1426,9 +1447,11 @@ struct ExTensor(
             Error: If tensors have incompatible shapes or division by zero.
 
         """
-        from shared.core.arithmetic import divide
+        @always_inline
+        fn _div[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x / y
 
-        return divide(self, other)
+        return _extensor_binary_arith[_div](self, other)
 
     fn __floordiv__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise floor division: a // b.
@@ -1442,9 +1465,11 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes or division by zero.
         """
-        from shared.core.arithmetic import floor_divide
+        @always_inline
+        fn _floordiv[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return math_floor(x / y).cast[T]()
 
-        return floor_divide(self, other)
+        return _extensor_binary_arith[_floordiv](self, other)
 
     fn __mod__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise modulo: a % b.
@@ -1458,9 +1483,11 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        from shared.core.arithmetic import modulo
+        @always_inline
+        fn _mod[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x - math_floor(x / y).cast[T]() * y
 
-        return modulo(self, other)
+        return _extensor_binary_arith[_mod](self, other)
 
     fn __pow__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise power: a ** b.
@@ -1474,9 +1501,11 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        from shared.core.arithmetic import power
+        @always_inline
+        fn _pow[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x**y
 
-        return power(self, other)
+        return _extensor_binary_arith[_pow](self, other)
 
     fn __matmul__(self, other: ExTensor) raises -> ExTensor:
         """Matrix multiplication: a @ b.
@@ -1489,10 +1518,12 @@ struct ExTensor(
 
         Raises:
             Error: If tensors have incompatible dimensions for multiplication.
-        """
-        from shared.core.matrix import matmul
 
-        return matmul(self, other)
+        Note:
+            This operator handles 2D×2D matrix multiplication. For 1D vectors
+            or batched matmul, use shared.core.matrix.matmul directly.
+        """
+        return _extensor_matmul(self, other)
 
     fn __eq__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise equality: a == b.
@@ -1511,9 +1542,11 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        from shared.core.comparison import equal
+        @always_inline
+        fn _eq[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
+            return x == y
 
-        return equal(self, other)
+        return _extensor_compare_op[_eq](self, other)
 
     fn __ne__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise inequality: a != b.
@@ -1527,9 +1560,11 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        from shared.core.comparison import not_equal
+        @always_inline
+        fn _ne[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
+            return x != y
 
-        return not_equal(self, other)
+        return _extensor_compare_op[_ne](self, other)
 
     fn __lt__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise less than: a < b.
@@ -1543,9 +1578,11 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        from shared.core.comparison import less
+        @always_inline
+        fn _lt[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
+            return x < y
 
-        return less(self, other)
+        return _extensor_compare_op[_lt](self, other)
 
     fn __le__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise less or equal: a <= b.
@@ -1559,9 +1596,11 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        from shared.core.comparison import less_equal
+        @always_inline
+        fn _le[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
+            return x <= y
 
-        return less_equal(self, other)
+        return _extensor_compare_op[_le](self, other)
 
     fn __gt__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise greater than: a > b.
@@ -1575,9 +1614,11 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        from shared.core.comparison import greater
+        @always_inline
+        fn _gt[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
+            return x > y
 
-        return greater(self, other)
+        return _extensor_compare_op[_gt](self, other)
 
     fn __ge__(self, other: ExTensor) raises -> ExTensor:
         """Element-wise greater or equal: a >= b.
@@ -1591,9 +1632,11 @@ struct ExTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        from shared.core.comparison import greater_equal
+        @always_inline
+        fn _ge[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
+            return x >= y
 
-        return greater_equal(self, other)
+        return _extensor_compare_op[_ge](self, other)
 
     # ========================================================================
     # FP8 Conversion Methods
@@ -2704,9 +2747,11 @@ struct ExTensor(
             Error: If tensors have incompatible shapes.
 
         """
-        from shared.core.arithmetic import subtract
+        @always_inline
+        fn _sub[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x - y
 
-        return subtract(other, self)
+        return _extensor_binary_arith[_sub](other, self)
 
     fn __rmul__(self, other: ExTensor) raises -> ExTensor:
         """Reflected multiplication: other * self (commutative, so same as __mul__).
@@ -2724,9 +2769,11 @@ struct ExTensor(
             Error: If tensors have incompatible shapes or division by zero.
 
         """
-        from shared.core.arithmetic import divide
+        @always_inline
+        fn _div[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x / y
 
-        return divide(other, self)
+        return _extensor_binary_arith[_div](other, self)
 
     # In-place operators - mutate self instead of creating new tensor
     fn __iadd__(mut self, other: ExTensor) raises:
@@ -2736,9 +2783,7 @@ struct ExTensor(
             Error: If tensors have incompatible shapes or dtypes.
 
         """
-        from shared.core.arithmetic import add
-
-        var result = add(self, other)
+        var result = self.__add__(other)
         # Copy result data into self (must match shape/dtype)
         if result.numel() == self.numel() and result.dtype() == self.dtype():
             for i in range(self._numel):
@@ -2755,9 +2800,7 @@ struct ExTensor(
             Error: If tensors have incompatible shapes or dtypes.
 
         """
-        from shared.core.arithmetic import subtract
-
-        var result = subtract(self, other)
+        var result = self.__sub__(other)
         # Copy result data into self (must match shape/dtype)
         if result.numel() == self.numel() and result.dtype() == self.dtype():
             for i in range(self._numel):
@@ -2774,9 +2817,7 @@ struct ExTensor(
             Error: If tensors have incompatible shapes or dtypes.
 
         """
-        from shared.core.arithmetic import multiply
-
-        var result = multiply(self, other)
+        var result = self.__mul__(other)
         # Copy result data into self (must match shape/dtype)
         if result.numel() == self.numel() and result.dtype() == self.dtype():
             for i in range(self._numel):
@@ -2793,9 +2834,7 @@ struct ExTensor(
             Error: If tensors have incompatible shapes or dtypes, or division by zero.
 
         """
-        from shared.core.arithmetic import divide
-
-        var result = divide(self, other)
+        var result = self.__truediv__(other)
         # Copy result data into self (must match shape/dtype)
         if result.numel() == self.numel() and result.dtype() == self.dtype():
             for i in range(self._numel):
@@ -2895,9 +2934,7 @@ struct ExTensor(
             Error: If operation fails.
 
         """
-        from shared.core.elementwise import abs
-
-        return abs(self)
+        return _extensor_abs(self)
 
     fn __len__(self) -> Int:
         """Return the size of the first dimension.
@@ -3065,8 +3102,6 @@ struct ExTensor(
             # hash(x) != hash(z)  (with overwhelming probability)
             ```
         """
-        from shared.core.dtype_ordinal import dtype_to_ordinal
-
         # Hash shape
         for i in range(len(self._shape)):
             hasher.update(self._shape[i])
@@ -3244,9 +3279,75 @@ struct ExTensor(
             weights.save("checkpoint/weights.bin", "conv1_weights")
             ```
         """
-        from shared.utils.serialization import save_tensor
+        # Inline serialization to avoid circular import via shared.utils.serialization.
+        # See Issue #4513.
+        var local_tensor = self
+        var shape = local_tensor.shape()
+        var dtype = local_tensor.dtype()
+        var numel = local_tensor.numel()
 
-        save_tensor(self, path, name)
+        # Build dtype string
+        var dtype_str: String
+        if dtype == DType.float16:
+            dtype_str = "float16"
+        elif dtype == DType.float32:
+            dtype_str = "float32"
+        elif dtype == DType.float64:
+            dtype_str = "float64"
+        elif dtype == DType.int8:
+            dtype_str = "int8"
+        elif dtype == DType.int16:
+            dtype_str = "int16"
+        elif dtype == DType.int32:
+            dtype_str = "int32"
+        elif dtype == DType.int64:
+            dtype_str = "int64"
+        elif dtype == DType.uint8:
+            dtype_str = "uint8"
+        elif dtype == DType.uint16:
+            dtype_str = "uint16"
+        elif dtype == DType.uint32:
+            dtype_str = "uint32"
+        elif dtype == DType.uint64:
+            dtype_str = "uint64"
+        else:
+            dtype_str = "float32"
+
+        # Build metadata line
+        var metadata = dtype_str + " "
+        for i in range(len(shape)):
+            metadata += String(shape[i])
+            if i < len(shape) - 1:
+                metadata += " "
+
+        # Compute dtype byte size
+        var dtype_size: Int
+        if dtype == DType.float16 or dtype == DType.int16 or dtype == DType.uint16:
+            dtype_size = 2
+        elif dtype == DType.float64 or dtype == DType.int64 or dtype == DType.uint64:
+            dtype_size = 8
+        elif dtype == DType.int8 or dtype == DType.uint8:
+            dtype_size = 1
+        else:
+            dtype_size = 4
+
+        var total_bytes = numel * dtype_size
+
+        # Convert tensor data to hex
+        var hex_chars = "0123456789abcdef"
+        var hex_data = String("")
+        for i in range(total_bytes):
+            var byte = Int(local_tensor._data[i])
+            var high = (byte >> 4) & 0xF
+            var low = byte & 0xF
+            hex_data += chr(Int(hex_chars.as_bytes()[high]))
+            hex_data += chr(Int(hex_chars.as_bytes()[low]))
+
+        # Write to file
+        with open(path, "w") as f:
+            _ = f.write(name + "\n")
+            _ = f.write(metadata + "\n")
+            _ = f.write(hex_data + "\n")
 
     @staticmethod
     fn load(path: String) raises -> ExTensor:
@@ -3269,16 +3370,93 @@ struct ExTensor(
             var tensor = ExTensor.load("checkpoint/weights.bin")
             ```
         """
-        from shared.utils.serialization import load_tensor
+        # Inline deserialization to avoid circular import via shared.utils.serialization.
+        # See Issue #4513.
+        var content: String
+        with open(path, "r") as f:
+            content = f.read()
 
-        return load_tensor(path)
+        var lines = content.split("\n")
+        if len(lines) < 3:
+            raise Error("Invalid tensor file format: expected 3+ lines")
+
+        var _ = String(lines[0])  # name (stored for info)
+        var metadata = String(lines[1])
+        var hex_data = String(lines[2])
+
+        # Parse metadata: dtype shape_dims...
+        var meta_parts = metadata.split(" ")
+        if len(meta_parts) < 1:
+            raise Error("Invalid metadata format: expected dtype and shape")
+
+        var dtype_str = meta_parts[0]
+        var dtype: DType
+        if dtype_str == "float16":
+            dtype = DType.float16
+        elif dtype_str == "float32":
+            dtype = DType.float32
+        elif dtype_str == "float64":
+            dtype = DType.float64
+        elif dtype_str == "int8":
+            dtype = DType.int8
+        elif dtype_str == "int16":
+            dtype = DType.int16
+        elif dtype_str == "int32":
+            dtype = DType.int32
+        elif dtype_str == "int64":
+            dtype = DType.int64
+        elif dtype_str == "uint8":
+            dtype = DType.uint8
+        elif dtype_str == "uint16":
+            dtype = DType.uint16
+        elif dtype_str == "uint32":
+            dtype = DType.uint32
+        elif dtype_str == "uint64":
+            dtype = DType.uint64
+        else:
+            raise Error("Unknown dtype: " + dtype_str)
+
+        # Parse shape
+        var shape = List[Int]()
+        for i in range(1, len(meta_parts)):
+            if len(meta_parts[i]) > 0:
+                shape.append(Int(meta_parts[i]))
+
+        # Create tensor with zeros and fill with decoded hex data
+        var tensor = ExTensor(shape, dtype)
+        # Zero-initialize
+        for i in range(tensor.numel()):
+            tensor._set_float64(i, 0.0)
+
+        # Decode hex into tensor bytes
+        var length = len(hex_data)
+        if length % 2 != 0:
+            raise Error("Hex string must have even length")
+
+        @parameter
+        fn hex_char_val(c: UInt8) raises -> Int:
+            if c >= ord("0") and c <= ord("9"):
+                return Int(c) - ord("0")
+            elif c >= ord("a") and c <= ord("f"):
+                return Int(c) - ord("a") + 10
+            elif c >= ord("A") and c <= ord("F"):
+                return Int(c) - ord("A") + 10
+            else:
+                raise Error("Invalid hex character")
+
+        var hex_bytes = hex_data.as_bytes()
+        for i in range(0, length, 2):
+            var high = hex_char_val(hex_bytes[i])
+            var low = hex_char_val(hex_bytes[i + 1])
+            tensor._data[i // 2] = UInt8((high << 4) | low)
+
+        return tensor^
 
     fn broadcast_to(self, target_shape: List[Int]) raises -> ExTensor:
         """Broadcast tensor to target shape.
 
-        Method wrapper for the module-level `broadcast_to()` function,
-        providing convenient object syntax: `tensor.broadcast_to([4, 3])`
-        instead of `broadcast_to(tensor, [4, 3])`.
+        Provides convenient object syntax: `tensor.broadcast_to([4, 3])`.
+        Uses module-level broadcasting utilities (no circular import).
 
         Args:
             target_shape: Target shape to broadcast to.
@@ -3298,9 +3476,293 @@ struct ExTensor(
             var b = a.broadcast_to(target)  # Shape (4, 3)
         ```
         """
-        from shared.core.shape import broadcast_to as broadcast_to_fn
+        # Inline broadcast_to to avoid circular import via shared.core.shape.
+        # Uses module-level are_shapes_broadcastable and compute_broadcast_strides.
+        # See Issue #4513.
+        var shape = self.shape()
 
-        return broadcast_to_fn(self, target_shape)
+        if len(target_shape) < len(shape):
+            raise Error("broadcast_to: cannot broadcast to fewer dimensions")
+
+        if not are_shapes_broadcastable(shape, target_shape):
+            raise Error("broadcast_to: shapes are not broadcast-compatible")
+
+        var broadcast_strides = compute_broadcast_strides(shape, target_shape)
+        var result = ExTensor(target_shape, self.dtype())
+        var result_numel = result.numel()
+
+        for i in range(result_numel):
+            var coords = List[Int]()
+            var temp_i = i
+            for j in range(len(target_shape)):
+                var stride = 1
+                for k in range(j + 1, len(target_shape)):
+                    stride *= target_shape[k]
+                var coord = temp_i // stride
+                coords.append(coord)
+                temp_i = temp_i % stride
+
+            var src_idx = 0
+            for j in range(len(target_shape)):
+                src_idx += coords[j] * broadcast_strides[j]
+
+            var val = self._get_float64(src_idx)
+            result._set_float64(i, val)
+
+        return result^
+
+
+# ============================================================================
+# Private Broadcasting Helpers
+# ============================================================================
+# These helpers implement element-wise operations with NumPy-style broadcasting
+# for use by ExTensor's operator overloads (__add__, __sub__, etc.).
+# They are defined here (rather than in arithmetic.mojo/comparison.mojo) to
+# break the circular import chain: extensor ← arithmetic ← extensor.
+# See Issue #4513.
+
+
+fn _extensor_binary_arith[
+    op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+](a: ExTensor, b: ExTensor) raises -> ExTensor:
+    """Apply a compile-time-typed binary arithmetic op with broadcasting."""
+    if a._dtype != b._dtype:
+        raise Error("Cannot operate on tensors with different dtypes")
+
+    var result_shape = broadcast_shapes(a.shape(), b.shape())
+    var strides_a = compute_broadcast_strides(a.shape(), result_shape)
+    var strides_b = compute_broadcast_strides(b.shape(), result_shape)
+
+    var total_elems = 1
+    for i in range(len(result_shape)):
+        total_elems *= result_shape[i]
+
+    var result_strides = List[Int]()
+    var stride = 1
+    for i in range(len(result_shape) - 1, -1, -1):
+        result_strides.append(stride)
+        stride *= result_shape[i]
+    var result_strides_final = List[Int]()
+    for i in range(len(result_strides) - 1, -1, -1):
+        result_strides_final.append(result_strides[i])
+
+    var ordinal = dtype_to_ordinal(a._dtype)
+
+    @parameter
+    fn _apply[dtype: DType]() raises -> ExTensor:
+        var result = ExTensor(result_shape, dtype)
+        var a_ptr = a._data.bitcast[Scalar[dtype]]()
+        var b_ptr = b._data.bitcast[Scalar[dtype]]()
+        var r_ptr = result._data.bitcast[Scalar[dtype]]()
+        for result_idx in range(total_elems):
+            var idx_a = 0
+            var idx_b = 0
+            var temp_idx = result_idx
+            for dim in range(len(result_shape)):
+                var coord = temp_idx // result_strides_final[dim]
+                temp_idx = temp_idx % result_strides_final[dim]
+                idx_a += coord * strides_a[dim]
+                idx_b += coord * strides_b[dim]
+            r_ptr[result_idx] = op[dtype](a_ptr[idx_a], b_ptr[idx_b])
+        return result^
+
+    if ordinal == DTYPE_FLOAT16:
+        return _apply[DType.float16]()
+    elif ordinal == DTYPE_FLOAT32:
+        return _apply[DType.float32]()
+    elif ordinal == DTYPE_FLOAT64:
+        return _apply[DType.float64]()
+    elif ordinal == DTYPE_INT8:
+        return _apply[DType.int8]()
+    elif ordinal == DTYPE_INT16:
+        return _apply[DType.int16]()
+    elif ordinal == DTYPE_INT32:
+        return _apply[DType.int32]()
+    elif ordinal == DTYPE_INT64:
+        return _apply[DType.int64]()
+    elif ordinal == DTYPE_UINT8:
+        return _apply[DType.uint8]()
+    elif ordinal == DTYPE_UINT16:
+        return _apply[DType.uint16]()
+    elif ordinal == DTYPE_UINT32:
+        return _apply[DType.uint32]()
+    elif ordinal == DTYPE_UINT64:
+        return _apply[DType.uint64]()
+    else:
+        raise Error("Unsupported dtype for binary operation")
+
+
+fn _extensor_compare_op[
+    op: fn[T: DType] (Scalar[T], Scalar[T]) -> Bool
+](a: ExTensor, b: ExTensor) raises -> ExTensor:
+    """Apply a compile-time-typed binary comparison op with broadcasting."""
+    if a._dtype != b._dtype:
+        raise Error("Cannot compare tensors with different dtypes")
+
+    var result_shape = broadcast_shapes(a.shape(), b.shape())
+    var strides_a = compute_broadcast_strides(a.shape(), result_shape)
+    var strides_b = compute_broadcast_strides(b.shape(), result_shape)
+
+    var total_elems = 1
+    for i in range(len(result_shape)):
+        total_elems *= result_shape[i]
+
+    var result = ExTensor(result_shape, DType.bool)
+    var ordinal = dtype_to_ordinal(a._dtype)
+
+    @parameter
+    fn _apply[dtype: DType]():
+        var a_ptr = a._data.bitcast[Scalar[dtype]]()
+        var b_ptr = b._data.bitcast[Scalar[dtype]]()
+        var r_ptr = result._data.bitcast[Scalar[DType.bool]]()
+        var result_strides = List[Int]()
+        var s = 1
+        for i in range(len(result_shape) - 1, -1, -1):
+            result_strides.append(s)
+            s *= result_shape[i]
+        var result_strides_final = List[Int]()
+        for i in range(len(result_strides) - 1, -1, -1):
+            result_strides_final.append(result_strides[i])
+        for result_idx in range(total_elems):
+            var idx_a = 0
+            var idx_b = 0
+            var remaining = result_idx
+            for d in range(len(result_shape) - 1, -1, -1):
+                var coord = remaining % result_shape[d]
+                remaining //= result_shape[d]
+                idx_a += coord * strides_a[d]
+                idx_b += coord * strides_b[d]
+            r_ptr[result_idx] = op[dtype](a_ptr[idx_a], b_ptr[idx_b])
+
+    if ordinal == DTYPE_FLOAT16:
+        _apply[DType.float16]()
+    elif ordinal == DTYPE_FLOAT32:
+        _apply[DType.float32]()
+    elif ordinal == DTYPE_FLOAT64:
+        _apply[DType.float64]()
+    elif ordinal == DTYPE_INT8:
+        _apply[DType.int8]()
+    elif ordinal == DTYPE_INT16:
+        _apply[DType.int16]()
+    elif ordinal == DTYPE_INT32:
+        _apply[DType.int32]()
+    elif ordinal == DTYPE_INT64:
+        _apply[DType.int64]()
+    elif ordinal == DTYPE_UINT8:
+        _apply[DType.uint8]()
+    elif ordinal == DTYPE_UINT16:
+        _apply[DType.uint16]()
+    elif ordinal == DTYPE_UINT32:
+        _apply[DType.uint32]()
+    elif ordinal == DTYPE_UINT64:
+        _apply[DType.uint64]()
+
+    return result^
+
+
+fn _extensor_matmul(a: ExTensor, b: ExTensor) raises -> ExTensor:
+    """Basic matrix multiplication (2D × 2D) for ExTensor.__matmul__.
+
+    Note: For full matmul with batching and contiguity handling, use
+    shared.core.matrix.matmul. This implementation handles the common 2D case
+    to avoid the circular import: extensor ← matrix ← shape ← extensor.
+    """
+    var a_ndim = len(a._shape)
+    var b_ndim = len(b._shape)
+
+    # 2D x 2D: (m, k) @ (k, n) -> (m, n)
+    if a_ndim == 2 and b_ndim == 2:
+        var m = a._shape[0]
+        var k = a._shape[1]
+        var n = b._shape[1]
+        if k != b._shape[0]:
+            raise Error(
+                "matmul: incompatible dimensions "
+                + String(k)
+                + " vs "
+                + String(b._shape[0])
+            )
+        if a._dtype != b._dtype:
+            raise Error("matmul: tensors must have the same dtype")
+        var result = ExTensor([m, n], a._dtype)
+        var ordinal = dtype_to_ordinal(a._dtype)
+
+        @parameter
+        fn _mm[dtype: DType]():
+            var a_ptr = a._data.bitcast[Scalar[dtype]]()
+            var b_ptr = b._data.bitcast[Scalar[dtype]]()
+            var r_ptr = result._data.bitcast[Scalar[dtype]]()
+            for i in range(m):
+                for j in range(n):
+                    var acc = Scalar[dtype](0)
+                    for p in range(k):
+                        acc += a_ptr[i * k + p] * b_ptr[p * n + j]
+                    r_ptr[i * n + j] = acc
+
+        if ordinal == DTYPE_FLOAT16:
+            _mm[DType.float16]()
+        elif ordinal == DTYPE_FLOAT32:
+            _mm[DType.float32]()
+        elif ordinal == DTYPE_FLOAT64:
+            _mm[DType.float64]()
+        elif ordinal == DTYPE_INT8:
+            _mm[DType.int8]()
+        elif ordinal == DTYPE_INT16:
+            _mm[DType.int16]()
+        elif ordinal == DTYPE_INT32:
+            _mm[DType.int32]()
+        elif ordinal == DTYPE_INT64:
+            _mm[DType.int64]()
+        else:
+            raise Error("matmul: unsupported dtype")
+        return result^
+
+    # 1D x 2D or 2D x 1D: delegate to the local arithmetic for now
+    # by raising a helpful error pointing to matrix.matmul
+    raise Error(
+        "ExTensor.__matmul__ only supports 2D×2D. "
+        "For 1D/batched matmul use shared.core.matrix.matmul directly."
+    )
+
+
+fn _extensor_abs(tensor: ExTensor) raises -> ExTensor:
+    """Absolute value for ExTensor.__abs__ (avoids importing elementwise)."""
+    var result = ExTensor(tensor._shape, tensor._dtype)
+    var ordinal = dtype_to_ordinal(tensor._dtype)
+
+    @parameter
+    fn _apply[dtype: DType]():
+        var src = tensor._data.bitcast[Scalar[dtype]]()
+        var dst = result._data.bitcast[Scalar[dtype]]()
+        for i in range(tensor._numel):
+            var v = src[i]
+            dst[i] = -v if v < Scalar[dtype](0) else v
+
+    if ordinal == DTYPE_FLOAT16:
+        _apply[DType.float16]()
+    elif ordinal == DTYPE_FLOAT32:
+        _apply[DType.float32]()
+    elif ordinal == DTYPE_FLOAT64:
+        _apply[DType.float64]()
+    elif ordinal == DTYPE_INT8:
+        _apply[DType.int8]()
+    elif ordinal == DTYPE_INT16:
+        _apply[DType.int16]()
+    elif ordinal == DTYPE_INT32:
+        _apply[DType.int32]()
+    elif ordinal == DTYPE_INT64:
+        _apply[DType.int64]()
+    elif ordinal == DTYPE_UINT8:
+        _apply[DType.uint8]()
+    elif ordinal == DTYPE_UINT16:
+        _apply[DType.uint16]()
+    elif ordinal == DTYPE_UINT32:
+        _apply[DType.uint32]()
+    elif ordinal == DTYPE_UINT64:
+        _apply[DType.uint64]()
+    else:
+        raise Error("abs: unsupported dtype")
+    return result^
 
 
 # ============================================================================

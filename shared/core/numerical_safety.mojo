@@ -505,3 +505,116 @@ fn check_gradient_safety[
 
         # Check gradient vanishing
         check_gradient_vanishing(gradient, min_norm, name)
+
+
+# ============================================================================
+# Gradient Clipping Utilities
+# ============================================================================
+# Moved from shared/autograd/grad_utils.mojo to break the circular type
+# resolution between shared.core and shared.autograd that prevented
+# `mojo package shared` from compiling. (Issue #4513)
+
+
+fn clip_grad_value_(mut grad: ExTensor, max_value: Float64) raises:
+    """Clip each gradient element to [-max_value, max_value].
+
+    This is the simplest form of gradient clipping. Each element is
+    independently clipped to stay within the specified range.
+
+    Args:
+        grad: The gradient tensor to clip (modified in-place).
+        max_value: Maximum absolute value allowed. Elements outside
+                   [-max_value, max_value] are clipped.
+
+    Raises:
+        Error: If max_value is negative.
+    """
+    if max_value < 0.0:
+        raise Error("max_value must be non-negative, got: " + String(max_value))
+
+    for i in range(grad.numel()):
+        var val = grad._get_float64(i)
+        if val > max_value:
+            grad._set_float64(i, max_value)
+        elif val < -max_value:
+            grad._set_float64(i, -max_value)
+
+
+fn clip_grad_norm_(mut grad: ExTensor, max_norm: Float64) raises -> Float64:
+    """Clip gradient if its L2 norm exceeds max_norm.
+
+    Computes the L2 norm of the gradient: norm = sqrt(sum(grad^2)).
+    If norm > max_norm, scales the gradient by (max_norm / norm).
+    This preserves the direction of the gradient while limiting its magnitude.
+
+    Args:
+        grad: The gradient tensor to clip (modified in-place if norm exceeds max_norm).
+        max_norm: Maximum allowed L2 norm.
+
+    Returns:
+        The original L2 norm of the gradient (before clipping).
+
+    Raises:
+        Error: If max_norm is negative.
+    """
+    if max_norm < 0.0:
+        raise Error("max_norm must be non-negative, got: " + String(max_norm))
+
+    var norm_squared = 0.0
+    for i in range(grad.numel()):
+        var val = grad._get_float64(i)
+        norm_squared += val * val
+
+    var norm = sqrt(norm_squared)
+
+    if norm > max_norm and norm > 0.0:
+        var scale_factor = max_norm / norm
+        for i in range(grad.numel()):
+            var val = grad._get_float64(i)
+            grad._set_float64(i, val * scale_factor)
+
+    return norm
+
+
+fn clip_grad_global_norm_(
+    mut grads: List[ExTensor], max_norm: Float64
+) raises -> Float64:
+    """Clip gradients based on their global L2 norm across all parameters.
+
+    Computes a single norm across all gradient tensors and clips all gradients
+    uniformly if the global norm exceeds max_norm.
+
+    Args:
+        grads: List of gradient tensors (modified in-place if global norm exceeds max_norm).
+        max_norm: Maximum allowed global L2 norm.
+
+    Returns:
+        The original global L2 norm (before clipping).
+
+    Raises:
+        Error: If max_norm is negative or grads list is empty.
+    """
+    if max_norm < 0.0:
+        raise Error("max_norm must be non-negative, got: " + String(max_norm))
+
+    if len(grads) == 0:
+        raise Error("grads list cannot be empty")
+
+    var total_norm_squared = 0.0
+    for grad_idx in range(len(grads)):
+        var grad = grads[grad_idx]
+        for elem_idx in range(grad.numel()):
+            var val = grad._get_float64(elem_idx)
+            total_norm_squared += val * val
+
+    var global_norm = sqrt(total_norm_squared)
+
+    if global_norm > max_norm and global_norm > 0.0:
+        var scale_factor = max_norm / global_norm
+        for grad_idx in range(len(grads)):
+            var grad = grads[grad_idx]
+            for elem_idx in range(grad.numel()):
+                var val = grad._get_float64(elem_idx)
+                grad._set_float64(elem_idx, val * scale_factor)
+
+    return global_norm
