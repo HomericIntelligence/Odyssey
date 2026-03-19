@@ -187,9 +187,7 @@ def resolve_batch_inputs(input_arg: str) -> list:
     input_path = Path(input_arg)
 
     if input_path.is_dir():
-        matches = sorted(
-            p for p in input_path.iterdir() if p.suffix.lower() in _IMAGE_EXTENSIONS
-        )
+        matches = sorted(p for p in input_path.iterdir() if p.suffix.lower() in _IMAGE_EXTENSIONS)
     else:
         raw = sorted(glob.glob(input_arg))
         matches = [Path(p) for p in raw if Path(p).suffix.lower() in _IMAGE_EXTENSIONS]
