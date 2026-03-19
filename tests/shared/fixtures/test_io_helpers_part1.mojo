@@ -25,6 +25,37 @@ from tests.shared.fixtures.io_helpers import (
     temp_file_path,
 )
 
+# Use /tmp/ prefix for all temp files to avoid Docker permission issues
+# when the source tree is mounted read-only.
+comptime _TMP_PREFIX = "/tmp/ml_odyssey_test_io_part1_"
+
+
+fn _make_tmp_dir(suffix: String) raises -> String:
+    """Create a unique temp directory under /tmp/ using Mojo builtins."""
+    var path = _TMP_PREFIX + suffix
+    from os import mkdir
+
+    try:
+        mkdir(path)
+    except:
+        # Directory may already exist from a previous failed run
+        pass
+    return path
+
+
+fn _cleanup_tmp_dir(path: String) raises:
+    """Remove a temp directory under /tmp/ using Python shutil (safe)."""
+    # Only clean paths under /tmp/ for safety
+    if not path.startswith("/tmp/"):
+        raise Error("Refusing to clean non-/tmp/ path: " + path)
+    from python import Python
+
+    var shutil = Python.import_module("shutil")
+    try:
+        shutil.rmtree(path)
+    except:
+        pass  # Ignore cleanup errors
+
 
 # ============================================================================
 # Tier 1 Tests - Foundation Functions
@@ -35,19 +66,20 @@ fn test_file_exists_positive() raises:
     """Test file_exists returns True for existing file."""
     print("TEST: test_file_exists_positive")
 
-    # Create a temporary file to test with
-    var temp_dir = create_temp_dir()
-    var test_file = temp_file_path(temp_dir, "test_file.txt")
+    # Create a temporary file in /tmp/ to test with
+    var temp_dir = _make_tmp_dir("file_exists_pos")
+    var test_file = temp_dir + "/test_file.txt"
 
-    # Create the file
-    create_mock_text_file(test_file, num_lines=1)
+    # Create the file directly in /tmp/
+    with open(test_file, "w") as f:
+        f.write("test content")
 
     # Test: file should exist
     var exists = file_exists(test_file)
     assert_true(exists, "File should exist after creation")
 
     # Cleanup
-    cleanup_temp_dir(temp_dir)
+    _cleanup_tmp_dir(temp_dir)
     print("PASS: file_exists returns True for existing file")
 
 
@@ -69,15 +101,15 @@ fn test_dir_exists_positive() raises:
     """Test dir_exists returns True for existing directory."""
     print("TEST: test_dir_exists_positive")
 
-    # Create a temporary directory
-    var temp_dir = create_temp_dir()
+    # Create a temporary directory under /tmp/
+    var temp_dir = _make_tmp_dir("dir_exists_pos")
 
     # Test: directory should exist
     var exists = dir_exists(temp_dir)
     assert_true(exists, "Directory should exist after creation")
 
     # Cleanup
-    cleanup_temp_dir(temp_dir)
+    _cleanup_tmp_dir(temp_dir)
     print("PASS: dir_exists returns True for existing directory")
 
 
@@ -143,9 +175,9 @@ fn test_create_mock_config_creates_file() raises:
     """Test create_mock_config creates a file."""
     print("TEST: test_create_mock_config_creates_file")
 
-    # Setup
-    var temp_dir = create_temp_dir()
-    var config_path = temp_file_path(temp_dir, "config.yaml")
+    # Setup - use /tmp/ directly to avoid Docker permission issues
+    var temp_dir = _make_tmp_dir("mock_config")
+    var config_path = temp_dir + "/config.yaml"
     var content = "key: value\ntest: 123"
 
     # Create config file
@@ -156,7 +188,7 @@ fn test_create_mock_config_creates_file() raises:
     assert_true(exists, "Config file should exist after creation")
 
     # Cleanup
-    cleanup_temp_dir(temp_dir)
+    _cleanup_tmp_dir(temp_dir)
     print("PASS: create_mock_config creates file")
 
 
@@ -164,9 +196,9 @@ fn test_create_mock_text_file_creates_file() raises:
     """Test create_mock_text_file creates a file."""
     print("TEST: test_create_mock_text_file_creates_file")
 
-    # Setup
-    var temp_dir = create_temp_dir()
-    var text_path = temp_file_path(temp_dir, "data.txt")
+    # Setup - use /tmp/ directly to avoid Docker permission issues
+    var temp_dir = _make_tmp_dir("mock_text")
+    var text_path = temp_dir + "/data.txt"
 
     # Create text file
     create_mock_text_file(text_path, num_lines=5)
@@ -176,7 +208,7 @@ fn test_create_mock_text_file_creates_file() raises:
     assert_true(exists, "Text file should exist after creation")
 
     # Cleanup
-    cleanup_temp_dir(temp_dir)
+    _cleanup_tmp_dir(temp_dir)
     print("PASS: create_mock_text_file creates file")
 
 
