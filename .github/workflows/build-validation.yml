@@ -34,6 +34,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
 
+      - name: Set up container
+        uses: ./.github/actions/setup-container
+
       - name: Set up Pixi
         uses: ./.github/actions/setup-pixi
 
@@ -43,13 +46,13 @@ jobs:
       - name: Build shared package (debug mode)
         run: |
           echo "Building shared Mojo package in debug mode..."
-          NATIVE=1 just build
+          just build
           echo "✓ Build succeeded"
 
       - name: Validate package compilation
         run: |
           echo "Running validation-only package compilation..."
-          NATIVE=1 just package
+          just package
           echo "✓ Package validation succeeded"
 
       - name: Report build status

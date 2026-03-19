@@ -10,8 +10,6 @@ docker_service := "projectodyssey-dev"
 # Repository root
 repo_root := justfile_directory()
 
-# Auto-detect container engine: prefer podman (4.0+) over docker
-container_engine := `sh -c 'if command -v podman >/dev/null 2>&1 && [ "$(podman --version | grep -oP "\\d+" | head -1)" -ge 4 ] 2>/dev/null; then echo podman; elif command -v docker >/dev/null 2>&1; then echo docker; else echo none; fi'`
 
 # ==============================================================================
 # Automatically detect host UID/GID if not set
@@ -43,7 +41,7 @@ MOJO_TSAN := "--sanitize thread"
 # Internal Helpers
 # ==============================================================================
 
-# Run command in Docker, Podman, or natively based on NATIVE env var
+# Run command in Docker compose container, or natively with NATIVE=1
 [private]
 _run cmd:
 	#!/usr/bin/env bash
@@ -56,18 +54,10 @@ _run cmd:
 		| grep -q true; then
 		# Docker compose container is running — use it
 		docker compose exec -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} -T {{docker_service}} bash -c "{{cmd}}"
-	elif command -v podman &>/dev/null && \
-		[ "$(podman --version | grep -oP '\d+' | head -1)" -ge 4 ] 2>/dev/null; then
-		# Podman 4.0+ available — run in container image
-		podman run --rm --userns=keep-id \
-			-v "{{repo_root}}:/workspace:Z" \
-			-w /workspace \
-			projectodyssey:dev bash -c "{{cmd}}"
 	else
-		echo "Error: No container engine available."
-		echo "  Install Podman 4.0+: ./scripts/install-podman.sh"
-		echo "  Or start Docker:     just docker-up"
-		echo "  Or run natively:     NATIVE=1 just <recipe>"
+		echo "Error: Docker compose container '{{docker_service}}' is not running."
+		echo "  Start Docker:     just docker-up"
+		echo "  Or run natively:  NATIVE=1 just <recipe>"
 		exit 1
 	fi
 

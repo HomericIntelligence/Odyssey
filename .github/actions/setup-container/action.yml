@@ -1,0 +1,23 @@
+name: Set Up Docker Compose
+description: Build and start the Docker compose dev container for test execution.
+
+runs:
+  using: composite
+  steps:
+    - name: Build and start Docker compose service
+      shell: bash
+      run: |
+        docker compose build projectodyssey-dev
+        docker compose up -d projectodyssey-dev
+        # Wait for container to be healthy
+        for i in $(seq 1 30); do
+          if docker compose ps -q projectodyssey-dev | xargs -r docker inspect -f '{{.State.Running}}' 2>/dev/null | grep -q true; then
+            echo "Container is running"
+            exit 0
+          fi
+          echo "Waiting for container to start... ($i/30)"
+          sleep 1
+        done
+        echo "ERROR: Container failed to start"
+        docker compose logs projectodyssey-dev
+        exit 1
