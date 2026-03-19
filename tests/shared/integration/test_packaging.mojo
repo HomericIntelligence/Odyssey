@@ -114,7 +114,7 @@ fn test_layer_root_level_imports() raises:
     assert_true(out_shape[1] == 2, "Linear output features should be 2")
 
     # Smoke-test: Conv2D alias resolves to Conv2dLayer
-    var conv = Conv2D(1, 4, 3)
+    var conv = Conv2D(1, 4, 3, 3)
     assert_true(True, "Conv2D alias should resolve to Conv2dLayer")
 
     # Smoke-test: ReLU alias resolves to ReLULayer
