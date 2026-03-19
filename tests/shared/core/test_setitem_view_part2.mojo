@@ -1,11 +1,13 @@
-"""Tests for __setitem__ and __getitem__ on view (non-contiguous) tensors.
+# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
+# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
+# high test load. Split from test_setitem_view.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
+"""Tests for flat-index get/set on transposed and slice views (Part 2 of 2).
 
 Covers:
-- Sliced 1D and multi-dim view tensor write-back
-- Flat Int index on transposed (non-contiguous stride) view tensor
-- Write-back via flat index on slice() view
 - __getitem__ flat index on transposed view returns correct value
-- No corruption of adjacent elements after view write
+- __setitem__ flat index on transposed view writes correct element
+- Write-back via flat index on slice() view
+- No corruption of adjacent elements after flat view write
 
 Issue: #4076 — Verify multi-dim __setitem__ works with non-contiguous (view) tensors
 """
@@ -358,48 +360,12 @@ fn test_setitem_on_slice_view_writes_to_parent() raises:
 
 
 # ============================================================================
-# Integer dtype view
-# ============================================================================
-
-
-fn test_setitem_view_int32_dtype() raises:
-    """__setitem__ flat index on a transposed int32 view writes correct element."""
-    var mat = zeros([2, 3], DType.int32)
-    var v = mat.transpose(0, 1)  # shape (3, 2), strides [1, 3]
-
-    # flat 1 on (3,2) = [0,1] -> buf 0*1+1*3=3 -> mat flat 3 = mat[1,0]
-    v[1] = 88.0
-    assert_almost_equal(Float64(v[1]), 88.0, tolerance=1e-6)
-    assert_almost_equal(Float64(mat[3]), 88.0, tolerance=1e-6)
-
-
-# ============================================================================
 # Entry point
 # ============================================================================
 
 
 fn main() raises:
-    print("Running __setitem__ view tensor tests...")
-
-    # Slice view tests
-    print("  test_setitem_view_has_correct_setup...")
-    test_setitem_view_has_correct_setup()
-
-    print("  test_setitem_view_1d_writes_correctly...")
-    test_setitem_view_1d_writes_correctly()
-
-    print("  test_setitem_view_multidim_writes_correctly...")
-    test_setitem_view_multidim_writes_correctly()
-
-    print("  test_setitem_view_does_not_corrupt_adjacent_elements...")
-    test_setitem_view_does_not_corrupt_adjacent_elements()
-
-    # Transpose/non-contiguous view tests
-    print("  test_transpose_creates_noncontiguous_view...")
-    test_transpose_creates_noncontiguous_view()
-
-    print("  test_slice_creates_view...")
-    test_slice_creates_view()
+    print("Running __setitem__ view tensor tests (Part 2)...")
 
     print("  test_getitem_flat_on_transposed_view...")
     test_getitem_flat_on_transposed_view()
@@ -422,7 +388,4 @@ fn main() raises:
     print("  test_setitem_on_slice_view_writes_to_parent...")
     test_setitem_on_slice_view_writes_to_parent()
 
-    print("  test_setitem_view_int32_dtype...")
-    test_setitem_view_int32_dtype()
-
-    print("All __setitem__ view tests passed!")
+    print("All __setitem__ view tests (Part 2) passed!")
