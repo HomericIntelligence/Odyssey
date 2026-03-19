@@ -358,7 +358,7 @@ jobs:
 
           # Use justfile to run test group
           # The justfile handles all the complexity of test discovery and execution
-          if just test-group "${{ matrix.test-group.path }}" "${{ matrix.test-group.pattern }}"; then
+          if NATIVE=1 just test-group "${{ matrix.test-group.path }}" "${{ matrix.test-group.pattern }}"; then
             test_result="passed"
             exit_code=0
           fi
@@ -412,7 +412,7 @@ jobs:
         uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
 
       - name: Run Configs tests
-        run: just test-group tests/configs "test_*.mojo"
+        run: NATIVE=1 just test-group tests/configs "test_*.mojo"
 
       - name: Upload test results
         if: always()
@@ -446,7 +446,7 @@ jobs:
         uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
 
       - name: Run Benchmarks tests
-        run: just test-group tests/shared/benchmarks "bench_*.mojo"
+        run: NATIVE=1 just test-group tests/shared/benchmarks "bench_*.mojo"
 
       - name: Upload test results
         if: always()
@@ -476,7 +476,7 @@ jobs:
         uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
 
       - name: Run Core Layers tests
-        run: just test-group tests/shared/core/layers "test_*.mojo"
+        run: NATIVE=1 just test-group tests/shared/core/layers "test_*.mojo"
 
       - name: Upload test results
         if: always()
@@ -749,7 +749,7 @@ jobs:
         run: |
           # Split per ADR-009: test_gradient_checking.mojo split to avoid Mojo 0.26.1 heap corruption
           # Routed through just test-group for JIT crash retry protection (issue #3329)
-          just test-group "tests/shared/core" "test_gradient_checking_basic.mojo test_gradient_checking_dtype.mojo"
+          NATIVE=1 just test-group "tests/shared/core" "test_gradient_checking_basic.mojo test_gradient_checking_dtype.mojo"
 
       - name: Check test results
         if: failure()
@@ -837,31 +837,31 @@ jobs:
       - name: Run Dataset Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          just test-group "tests/shared/data/datasets" "test_base_dataset.mojo test_tensor_dataset.mojo"
+          NATIVE=1 just test-group "tests/shared/data/datasets" "test_base_dataset.mojo test_tensor_dataset.mojo"
 
       - name: Run Loader Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          just test-group "tests/shared/data/loaders" "test_base_loader.mojo"
+          NATIVE=1 just test-group "tests/shared/data/loaders" "test_base_loader.mojo"
 
       - name: Run Transform Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          just test-group "tests/shared/data/transforms" "test_pipeline_part1.mojo test_pipeline_part2.mojo"
+          NATIVE=1 just test-group "tests/shared/data/transforms" "test_pipeline_part1.mojo test_pipeline_part2.mojo"
 
       - name: Run Sampler Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          just test-group "tests/shared/data/samplers" "test_sequential_part1.mojo test_sequential_part2.mojo"
+          NATIVE=1 just test-group "tests/shared/data/samplers" "test_sequential_part1.mojo test_sequential_part2.mojo"
 
       - name: Run All Data Tests
         if: steps.check-tests.outputs.tests_exist == 'true'
         run: |
-          just test-group "tests/shared/data" "run_all_tests.mojo"
+          NATIVE=1 just test-group "tests/shared/data" "run_all_tests.mojo"
 
       - name: Run File I/O Tests (includes remove_safely)
         run: |
-          just test-group "tests/shared/utils" "test_io_part2.mojo"
+          NATIVE=1 just test-group "tests/shared/utils" "test_io_part2.mojo"
 
       - name: Report Results
         if: always()
