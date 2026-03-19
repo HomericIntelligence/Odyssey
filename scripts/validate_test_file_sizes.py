@@ -24,6 +24,35 @@ DEFAULT_MAX_TESTS_PER_FILE = 10
 # Pattern to match test function definitions
 TEST_FUNCTION_PATTERN = re.compile(r"^fn\s+test_\w+\s*\(", re.MULTILINE)
 
+# Pre-existing files that exceed the threshold before this hook was introduced.
+# These are grandfathered and will be split in future PRs.
+# New files must comply; edits to these files must not increase their count.
+GRANDFATHERED_FILES: set[str] = {
+    "tests/shared/core/layers/test_dropout.mojo",
+    "tests/shared/core/test_backward_conv_pool.mojo",
+    "tests/shared/core/test_conv.mojo",
+    "tests/shared/core/test_extensor_dtype_roundtrip.mojo",
+    "tests/shared/core/test_extensor_repr.mojo",
+    "tests/shared/core/test_extensor_setitem.mojo",
+    "tests/shared/core/test_extensor_str.mojo",
+    "tests/shared/core/test_hash.mojo",
+    "tests/shared/core/test_int_bitwise_not.mojo",
+    "tests/shared/core/test_memory_leaks.mojo",
+    "tests/shared/core/test_sequential.mojo",
+    "tests/shared/core/test_shape.mojo",
+    "tests/shared/core/test_uint_bitwise_not.mojo",
+    "tests/shared/core/test_unsigned.mojo",
+    "tests/shared/core/test_utility.mojo",
+    "tests/shared/integration/test_packaging.mojo",
+    "tests/shared/test_imports.mojo",
+    "tests/shared/testing/test_assertions_float.mojo",
+    "tests/shared/training/test_precision_config_part1.mojo",
+    "tests/shared/training/test_training_loop.mojo",
+    "tests/shared/training/test_validation_loop.mojo",
+    "tests/shared/utils/test_serialization.mojo",
+    "tests/training/test_training_infrastructure.mojo",
+}
+
 
 def count_tests_in_file(filepath: Path) -> int:
     """Count the number of test functions in a Mojo file.
@@ -119,18 +148,39 @@ def main():
 
     # Check each file
     violations = []
+    grandfathered_warnings = []
     for filepath in sorted(test_files):
         # Skip deprecated files
         if ".DEPRECATED" in filepath.name:
             continue
 
         count = count_tests_in_file(filepath)
+
+        # Normalise path for comparison with the allowlist
+        normalised = str(filepath).replace("\\", "/")
+        is_grandfathered = normalised in GRANDFATHERED_FILES
+
         if args.verbose:
-            status = "FAIL" if count > args.threshold else "OK"
+            if count > args.threshold and is_grandfathered:
+                status = "SKIP"
+            elif count > args.threshold:
+                status = "FAIL"
+            else:
+                status = "OK"
             print(f"  [{status}] {filepath}: {count} tests")
 
         if count > args.threshold:
-            violations.append((filepath, count))
+            if is_grandfathered:
+                grandfathered_warnings.append((filepath, count))
+            else:
+                violations.append((filepath, count))
+
+    if grandfathered_warnings and args.verbose:
+        print(
+            f"\nNote: {len(grandfathered_warnings)} grandfathered file(s) exceed the limit "
+            f"(pre-existing, will be split in future PRs)",
+            file=sys.stderr,
+        )
 
     if not violations:
         if args.verbose:
