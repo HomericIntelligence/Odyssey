@@ -560,5 +560,3 @@ struct PrecisionConfig(Copyable, Movable):
             print("  Overflow rate: " + String(overflow_rate) + "%")
         if self.use_gradient_scaler:
             print("  Current scale: " + String(self.get_scale()))
-
-
