@@ -4,23 +4,8 @@ This module provides gradient computation capabilities for training neural netwo
 
 Note:
     Mojo v0.26.1+ automatically exports all imported symbols to package consumers.
-    No ``__all__`` equivalent is needed. Any symbol imported in this module is
-    automatically available to users of the ``shared.autograd`` package.
-
-    This module also re-exports selected backward functions from ``shared.core``
-    (pooling and dropout backward passes) so callers can import them from a single
-    location. These re-exports work cleanly — there is no chain limitation when
-    importing from ``shared.autograd`` directly.
-
-    Import from ``shared.autograd`` (works):
-
-    ```mojo
-    from shared.autograd import Variable, GradientTape
-    from shared.autograd import maxpool2d_backward, dropout_backward
-    ```
-
-    Importing from the ``shared`` top-level package is subject to the chain
-    limitation described in #3210 and should be avoided.
+    No __all__ equivalent is needed. Any symbol imported in this module is
+    automatically available to users of the shared.autograd package.
 
 Core Components:
 - Variable: Tensor wrapper with gradient tracking
@@ -162,15 +147,6 @@ from shared.autograd.schedulers import (
     ExponentialLR,
 )
 
-# Gradient clipping utilities are defined in shared.core.grad_utils to avoid
-# circular type resolution: importing shared.core.extensor from shared.autograd
-# causes extensor.mojo to be compiled twice with distinct type identities.
-from shared.core.grad_utils import (
-    clip_grad_value_,
-    clip_grad_norm_,
-    clip_grad_global_norm_,
-)
-
 from shared.autograd.functional import (
     LossAndGrad,
     mse_loss_and_grad,
@@ -185,15 +161,23 @@ from shared.autograd.functional import (
     apply_gradients,
 )
 
+# ============================================================================
+# Re-export Backward Functions from shared.core
+# ============================================================================
+# These are the underlying backward implementations used by the tape.
+
+# Pooling backward passes
+from shared.core.pooling import (
+    maxpool2d_backward,
+    avgpool2d_backward,
+    global_avgpool2d_backward,
+)
+
+# Dropout backward passes
+from shared.core.dropout import (
+    dropout_backward,
+    dropout2d_backward,
+)
+
 # Note: (Mojo v0.26.1): In Mojo, all imported symbols are automatically available
 # to package consumers. No __all__ equivalent is needed.
-#
-# Note: backward functions for pooling and dropout (maxpool2d_backward,
-# avgpool2d_backward, global_avgpool2d_backward, dropout_backward,
-# dropout2d_backward) are intentionally NOT re-exported here.
-# Importing shared.core.pooling or shared.core.dropout from shared.autograd
-# causes extensor.mojo to be compiled twice with distinct type identities,
-# producing "ExTensor cannot be converted from ExTensor" errors during
-# `mojo package shared`. Import these directly from shared.core:
-#   from shared.core.pooling import maxpool2d_backward
-#   from shared.core.dropout import dropout_backward
