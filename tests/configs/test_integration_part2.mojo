@@ -118,7 +118,7 @@ fn test_config_save_and_reload() raises:
     var config = load_experiment_config("lenet5", "baseline")
 
     # Save to temporary file
-    var temp_path = "tests/configs/fixtures/temp_config.yaml"
+    var temp_path = "/tmp/temp_config.yaml"
     config.to_yaml(temp_path)
 
     # Reload and verify
