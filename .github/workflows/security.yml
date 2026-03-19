@@ -46,6 +46,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          args: --exit-code=1
           config: .gitleaks.toml
 
   # ============================================================================
