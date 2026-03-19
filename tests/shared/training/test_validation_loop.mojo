@@ -184,6 +184,23 @@ fn test_validation_loop_run_resets_loader() raises:
     print("  test_validation_loop_run_resets_loader: PASSED")
 
 
+fn test_validation_loop_run_compute_accuracy_false() raises:
+    """Test ValidationLoop.run() with compute_accuracy=False skips accuracy.
+
+    When compute_accuracy=False, run() should not compute accuracy and
+    metrics.val_accuracy should remain at its default value of 0.0.
+    """
+    var vloop = ValidationLoop(compute_accuracy=False)
+    var loader = create_val_loader(n_batches=3)
+    var metrics = TrainingMetrics()
+    var val_loss = vloop.run(simple_forward, simple_loss, loader, metrics)
+    # Loss should still be valid
+    assert_greater(val_loss, Float64(-1e-10))
+    # Accuracy should remain 0.0 since compute_accuracy=False
+    assert_almost_equal(metrics.val_accuracy, Float64(0.0), Float64(1e-10))
+    print("  test_validation_loop_run_compute_accuracy_false: PASSED")
+
+
 fn test_validation_loop_run_accuracy_tracked() raises:
     """Test ValidationLoop.run() stores computed accuracy in TrainingMetrics.val_accuracy.
 
@@ -262,32 +279,6 @@ fn test_validation_loop_run_subset_resets_loader() raises:
     assert_greater(val_loss, Float64(-1e-10))
     assert_less(val_loss, Float64(1e10))
     print("  test_validation_loop_run_subset_resets_loader: PASSED")
-
-
-fn test_validation_loop_run_resets_loader() raises:
-    """Test run() resets a pre-exhausted DataLoader before iterating.
-
-    Strategy: Create a loader with exactly 2 batches, then exhaust it by
-    setting current_batch = num_batches. Without reset(), has_next() returns
-    False immediately -> 0 batches processed -> division by zero. With reset(),
-    the loader restarts and processes all 2 batches -> valid finite loss.
-
-    This proves run() calls val_loader.reset() internally (via validate(),
-    line 94 of validation_loop.mojo).
-    """
-    var vloop = ValidationLoop()
-    # 2 batches total (8 samples, batch_size=4)
-    var loader = create_val_loader(n_batches=2)
-    # Pre-exhaust: advance to end so has_next() returns False
-    loader.current_batch = loader.num_batches
-    assert_true(not loader.has_next())
-    var metrics = TrainingMetrics()
-    # run() delegates to validate() which calls val_loader.reset() internally
-    var val_loss = vloop.run(simple_forward, simple_loss, loader, metrics)
-    # Valid finite loss proves batches were processed after reset (not 0)
-    assert_greater(val_loss, Float64(-1e-10))
-    assert_less(val_loss, Float64(1e10))
-    print("  test_validation_loop_run_resets_loader: PASSED")
 
 
 fn test_validation_loop_run_subset_updates_val_accuracy() raises:
