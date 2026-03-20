@@ -58,6 +58,9 @@ ENV PATH="$HOME/.local/bin:$HOME/.pixi/bin:$PATH"
 # ---------------------------
 FROM base AS development
 
+# Re-declare ARG so it's available in this stage (ARGs don't persist across FROM)
+ARG USER_NAME=dev
+
 # Switch to dev user
 USER ${USER_NAME}
 WORKDIR /workspace
@@ -109,6 +112,9 @@ CMD ["pixi", "run", "pytest", "tests/", "-v"]
 # Stage 4: Production
 # ---------------------------
 FROM base AS production
+
+# Re-declare ARG so it's available in this stage (ARGs don't persist across FROM)
+ARG USER_NAME=dev
 
 # Copy only what's needed: pixi env and project source (no dev tools)
 COPY --from=development /home/${USER_NAME}/.pixi /home/${USER_NAME}/.pixi
