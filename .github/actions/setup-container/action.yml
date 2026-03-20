@@ -37,6 +37,16 @@ runs:
       shell: bash
       run: podman compose up -d projectodyssey-dev
 
+    - name: Fix workspace permissions
+      shell: bash
+      run: |
+        # Rootless Podman UID-maps bind-mounted host files, so the container
+        # user may not be able to write to the workspace.  Make the checkout
+        # world-writable (dirs get +x for traversal) so mojo build, test
+        # fixtures, etc. can create output files.  Safe: CI runners are
+        # ephemeral single-use VMs.
+        chmod -R a+rwX . || true
+
     - name: Wait for container and verify
       shell: bash
       run: |
