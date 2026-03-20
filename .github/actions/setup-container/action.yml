@@ -22,6 +22,13 @@ runs:
         restore-keys: |
           podman-
 
+    - name: Start Podman socket
+      shell: bash
+      run: |
+        systemctl --user start podman.socket || true
+        export DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock
+        echo "DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock" >> "$GITHUB_ENV"
+
     - name: Build container image
       shell: bash
       run: podman compose build projectodyssey-dev
