@@ -183,7 +183,6 @@ ci-podman-validate:
 
 # Build/compile Mojo files with mode-specific flags
 build mode="debug":
-    @just _ensure_build_dir {{mode}}
     @just _run "just _build-inner {{mode}}"
 
 [private]
@@ -195,7 +194,7 @@ _build-inner mode="debug":
     # Configuration
     # ------------------------------------------------------------
 
-    MODE="${1:-debug}"          # debug | release | test | ci
+    MODE="{{mode}}"             # debug | release | test | ci
     REPO_ROOT="$(pwd)"
     STRICT="--Werror"
 
@@ -302,7 +301,6 @@ ci-build:
 
 # Package shared library with mode-specific flags
 package mode="debug":
-    @just _ensure_build_dir {{mode}}
     @just _run "just _package-inner {{mode}}"
 
 [private]
