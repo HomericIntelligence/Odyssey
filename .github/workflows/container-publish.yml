@@ -134,11 +134,16 @@ jobs:
             podman push "$tag"
           done
 
+      - name: Export image for SBOM
+        if: github.event_name != 'pull_request' && matrix.target == 'runtime'
+        run: |
+          podman save -o /tmp/runtime-image.tar "$REGISTRY/$IMAGE_NAME:${{ github.ref_name }}"
+
       - name: Generate SBOM
         if: github.event_name != 'pull_request' && matrix.target == 'runtime'
         uses: anchore/sbom-action@57aae528053a48a3f6235f2d9461b05fbcb7366d  # v0
         with:
-          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+          image: /tmp/runtime-image.tar
           artifact-name: sbom-${{ matrix.target }}.spdx.json
           output-file: sbom-${{ matrix.target }}.spdx.json
 
