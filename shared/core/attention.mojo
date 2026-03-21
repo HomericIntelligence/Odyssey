@@ -90,8 +90,6 @@ fn scaled_dot_product_attention_masked(
             - For causal (autoregressive) attention, use a lower-triangular mask.
     """
     var q_shape = query.shape()
-    var k_shape = key.shape()
-    var v_shape = value.shape()
 
     # Support both 3D (batch, seq, dim) and 4D (batch, heads, seq, dim) inputs
     var ndim = len(q_shape)
@@ -110,7 +108,6 @@ fn scaled_dot_product_attention_masked(
 
     # Scale scores
     var scale_tensor = zeros_like(scores)
-    var scale_ptr = scale_tensor._data
     var numel = scores.numel()
 
     if scores.dtype() == DType.float32:
@@ -239,7 +236,6 @@ fn scaled_dot_product_attention_backward_masked(
 
     # Scale the gradient
     var scale_tensor = zeros_like(grad_softmax)
-    var scale_ptr = scale_tensor._data
     var numel = grad_softmax.numel()
 
     if grad_softmax.dtype() == DType.float32:
@@ -362,7 +358,6 @@ fn create_causal_mask(
     shape.append(seq_len)
 
     var mask = zeros(shape, dtype)
-    var mask_ptr = mask._data
 
     var neg_inf = Float64(-1e9)
 
@@ -555,7 +550,6 @@ fn multi_head_attention_masked(
 
     # Scale scores
     var scale_tensor = zeros_like(scores)
-    var scale_ptr = scale_tensor._data
     var numel = scores.numel()
 
     if scores.dtype() == DType.float32:
