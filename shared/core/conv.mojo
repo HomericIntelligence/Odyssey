@@ -134,9 +134,7 @@ fn _conv2d_kernel[
                                 + oh * out_width
                                 + ow
                             )
-                            output._data.bitcast[Scalar[DType.float16]]()[
-                                out_idx
-                            ] = Float16(sum_val)
+                            output[out_idx] = Float64(sum_val)
                         else:
                             var sum_val = Scalar[dtype](0.0)
 
@@ -198,9 +196,7 @@ fn _conv2d_kernel[
                                 + oh * out_width
                                 + ow
                             )
-                            output._data.bitcast[Scalar[dtype]]()[
-                                out_idx
-                            ] = sum_val
+                            output[out_idx] = Float64(sum_val)
 
         parallelize[conv_batch](batch)
     else:
@@ -276,9 +272,7 @@ fn _conv2d_kernel[
                                 + oh * out_width
                                 + ow
                             )
-                            output._data.bitcast[Scalar[DType.float16]]()[
-                                out_idx
-                            ] = Float16(sum_val)
+                            output[out_idx] = Float64(sum_val)
                         else:
                             var sum_val = Scalar[dtype](0.0)
 
@@ -340,9 +334,7 @@ fn _conv2d_kernel[
                                 + oh * out_width
                                 + ow
                             )
-                            output._data.bitcast[Scalar[dtype]]()[
-                                out_idx
-                            ] = sum_val
+                            output[out_idx] = Float64(sum_val)
 
     return output^
 
@@ -612,9 +604,7 @@ fn _conv2d_backward_kernel[
                         + ih * in_width
                         + iw
                     )
-                    grad_input._data.bitcast[Scalar[dtype]]()[
-                        grad_in_idx
-                    ] = grad_sum
+                    grad_input[grad_in_idx] = Float64(grad_sum)
 
     # Compute grad_kernel
     # For each kernel position, sum input * grad_output over all valid positions
@@ -678,9 +668,7 @@ fn _conv2d_backward_kernel[
                         + kh * kW
                         + kw
                     )
-                    grad_kernel._data.bitcast[Scalar[dtype]]()[
-                        grad_k_idx
-                    ] = grad_sum
+                    grad_kernel[grad_k_idx] = Float64(grad_sum)
 
     # Compute grad_bias: sum over batch, height, width
     var grad_bias_shape = List[Int]()
@@ -704,7 +692,7 @@ fn _conv2d_backward_kernel[
                     ]()[grad_out_idx]
                     bias_grad_sum += grad_out_val
 
-        grad_bias._data.bitcast[Scalar[dtype]]()[oc] = bias_grad_sum
+        grad_bias[oc] = Float64(bias_grad_sum)
 
     return GradientTriple(grad_input^, grad_kernel^, grad_bias^)
 
@@ -1017,7 +1005,7 @@ fn depthwise_conv2d(
                         + oh * out_width
                         + ow
                     )
-                    output._data.bitcast[Float32]()[out_idx] = sum_val
+                    output[out_idx] = Float64(sum_val)
 
     return output^
 
@@ -1162,7 +1150,7 @@ fn depthwise_conv2d_backward(
                         + ih * in_width
                         + iw
                     )
-                    grad_input._data.bitcast[Float32]()[grad_in_idx] = grad_sum
+                    grad_input[grad_in_idx] = Float64(grad_sum)
 
     # Compute grad_kernel
     for c in range(channels):
@@ -1208,7 +1196,7 @@ fn depthwise_conv2d_backward(
 
                 # Write to grad_kernel (shape: [channels, 1, kH, kW])
                 var grad_k_idx = c * (1 * kH * kW) + kh * kW + kw
-                grad_kernel._data.bitcast[Float32]()[grad_k_idx] = grad_sum
+                grad_kernel[grad_k_idx] = Float64(grad_sum)
 
     # Compute grad_bias: sum over batch, height, width
     var grad_bias_shape = List[Int]()
@@ -1232,7 +1220,7 @@ fn depthwise_conv2d_backward(
                     ]
                     bias_grad_sum += grad_out_val
 
-        grad_bias._data.bitcast[Float32]()[c] = bias_grad_sum
+        grad_bias[c] = Float64(bias_grad_sum)
 
     return GradientTriple(grad_input^, grad_kernel^, grad_bias^)
 

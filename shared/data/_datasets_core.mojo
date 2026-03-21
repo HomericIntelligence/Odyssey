@@ -201,7 +201,7 @@ struct FileDataset(Copyable, Dataset, Movable):
         # Create label tensor explicitly to avoid ambiguous constructor
         var label_shape: List[Int] = [1]
         var label = zeros(label_shape, DType.int32)
-        label._data.bitcast[Int32]()[0] = Int32(self.labels[idx])
+        label[0] = Int64(self.labels[idx])
 
         var result = (data, label)
 

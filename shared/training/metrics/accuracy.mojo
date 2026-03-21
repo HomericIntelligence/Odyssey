@@ -150,7 +150,7 @@ fn argmax(var tensor: ExTensor, axis: Int) raises -> ExTensor:
                     max_val = val
                     max_idx = c
 
-            result._data.bitcast[Int32]()[b] = Int32(max_idx)
+            result[b] = Int64(max_idx)
 
         return result^
     else:
@@ -372,7 +372,7 @@ fn per_class_accuracy(
         else:
             acc = 0.0  # No samples for this class
 
-        result._data.bitcast[Float64]()[c] = acc
+        result[c] = acc
 
     return result^
 

@@ -216,7 +216,7 @@ struct ExTensor(
         self._allocated_size = dtype_size
         self._refcount = alloc[Int](1)
         self._refcount[] = 1
-        self._data.bitcast[Int64]()[] = Int64(value)
+        self[0] = Int64(value)
 
     fn __init__(out self, value: FloatLiteral) raises:
         """Create a scalar ExTensor from a float literal.
@@ -248,7 +248,7 @@ struct ExTensor(
         self._allocated_size = dtype_size
         self._refcount = alloc[Int](1)
         self._refcount[] = 1
-        self._data.bitcast[Float64]()[] = Float64(value)
+        self[0] = Float64(value)
 
     fn __init__(out self, value: Int) raises:
         """Create a scalar ExTensor from an Int.
@@ -274,7 +274,7 @@ struct ExTensor(
         self._allocated_size = dtype_size
         self._refcount = alloc[Int](1)
         self._refcount[] = 1
-        self._data.bitcast[Int64]()[] = Int64(value)
+        self[0] = Int64(value)
 
     fn __init__(out self, value: Float64) raises:
         """Create a scalar ExTensor from a Float64.
@@ -305,7 +305,7 @@ struct ExTensor(
         self._allocated_size = dtype_size
         self._refcount = alloc[Int](1)
         self._refcount[] = 1
-        self._data.bitcast[Float64]()[] = value
+        self[0] = value
 
     fn __init__(out self, var data: List[Float32]) raises:
         """Create 1D tensor from List[Float32].
@@ -415,7 +415,7 @@ struct ExTensor(
 
         # Copy data
         for i in range(len(data)):
-            self._data.bitcast[Int64]()[i] = Int64(data[i])
+            self[i] = Float64(data[i])
 
     fn __copyinit__(out self, existing: Self):
         """Copy constructor - creates shared ownership with reference counting.
@@ -1875,7 +1875,7 @@ struct ExTensor(
             # Bitcast uint8 to FP8, then convert to float32
             var fp8_val = bitcast[FP8, 1](SIMD[DType.uint8, 1](fp8_bits))
             var float_val = Float32(fp8_val[0])
-            result._data.bitcast[Float32]()[i] = float_val
+            result[i] = Float64(float_val)
 
         return result^
 
@@ -2092,9 +2092,7 @@ struct ExTensor(
             elif self._dtype == DType.int32:
                 val = Float32(self._data.bitcast[Int32]()[i])
             elif self._dtype == DType.int64:
-                result._data.bitcast[Int64]()[i] = self._data.bitcast[Int64]()[
-                    i
-                ]
+                result[i] = Int64(self._data.bitcast[Int64]()[i])
                 continue
             elif self._dtype == DType.uint8:
                 val = Float32(self._data.bitcast[UInt8]()[i])
@@ -2108,7 +2106,7 @@ struct ExTensor(
                 raise Error("Unsupported dtype for to_int64 conversion")
 
             var i64_val = Int64(val)
-            result._data.bitcast[Int64]()[i] = i64_val
+            result[i] = i64_val
 
         return result^
 
@@ -2427,7 +2425,7 @@ struct ExTensor(
             # Bitcast uint8 to BF8, then convert to float32
             var bf8_val = bitcast[BF8, 1](SIMD[DType.uint8, 1](bf8_bits))
             var float_val = Float32(bf8_val[0])
-            result._data.bitcast[Float32]()[i] = float_val
+            result[i] = Float64(float_val)
 
         return result^
 
@@ -2631,15 +2629,13 @@ struct ExTensor(
             for i in range(32):
                 var output_idx = block_idx * 32 + i
                 if output_idx < output_size:
-                    result._data.bitcast[Float32]()[output_idx] = values[i]
+                    result[output_idx] = Float64(values[i])
 
         # Trim result to original size if needed
         if output_size < padded_output_size:
             var trimmed = ExTensor([output_size], DType.float32)
             for i in range(output_size):
-                trimmed._data.bitcast[Float32]()[i] = result._data.bitcast[
-                    Float32
-                ]()[i]
+                trimmed[i] = Float64(result._data.bitcast[Float32]()[i])
             return trimmed^
 
         return result^
@@ -2849,15 +2845,13 @@ struct ExTensor(
             for i in range(16):
                 var output_idx = block_idx * 16 + i
                 if output_idx < output_size:
-                    result._data.bitcast[Float32]()[output_idx] = values[i]
+                    result[output_idx] = Float64(values[i])
 
         # Trim result to original size if needed
         if output_size < padded_output_size:
             var trimmed = ExTensor([output_size], DType.float32)
             for i in range(output_size):
-                trimmed._data.bitcast[Float32]()[i] = result._data.bitcast[
-                    Float32
-                ]()[i]
+                trimmed[i] = Float64(result._data.bitcast[Float32]()[i])
             return trimmed^
 
         return result^

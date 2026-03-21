@@ -159,7 +159,7 @@ fn maxpool2d(
                             + oh * out_width
                             + ow
                         )
-                        output._data.bitcast[Float32]()[out_idx] = max_val
+                        output[out_idx] = Float64(max_val)
 
         parallelize[maxpool_batch](batch)
     else:
@@ -206,7 +206,7 @@ fn maxpool2d(
                             + oh * out_width
                             + ow
                         )
-                        output._data.bitcast[Float32]()[out_idx] = max_val
+                        output[out_idx] = Float64(max_val)
 
     return output^
 
@@ -283,7 +283,7 @@ fn _maxpool2d_optimized(
                         + oh * out_width
                         + ow
                     )
-                    output._data.bitcast[Float32]()[out_idx] = max_val
+                    output[out_idx] = Float64(max_val)
 
 
 fn avgpool2d(
@@ -400,7 +400,7 @@ fn avgpool2d(
                         + oh * out_width
                         + ow
                     )
-                    output._data.bitcast[Float32]()[out_idx] = avg_val
+                    output[out_idx] = Float64(avg_val)
 
     return output^
 
@@ -477,7 +477,7 @@ fn global_avgpool2d(x: ExTensor, method: String = "direct") raises -> ExTensor:
 
             # Write to output
             var out_idx = b * channels + c
-            output._data.bitcast[Float32]()[out_idx] = avg_val
+            output[out_idx] = Float64(avg_val)
 
     return output^
 
@@ -606,9 +606,7 @@ fn maxpool2d_backward(
                             + max_h * in_width
                             + max_w
                         )
-                        grad_input._data.bitcast[Float32]()[
-                            grad_in_idx
-                        ] += grad_out_val
+                        grad_input[grad_in_idx] = grad_input._data.bitcast[Float32]()[grad_in_idx] + grad_out_val
 
     return grad_input^
 
@@ -733,9 +731,7 @@ fn avgpool2d_backward(
                                     + in_h * in_width
                                     + in_w
                                 )
-                                grad_input._data.bitcast[Float32]()[
-                                    grad_in_idx
-                                ] += grad_per_position
+                                grad_input[grad_in_idx] = grad_input._data.bitcast[Float32]()[grad_in_idx] + grad_per_position
 
     return grad_input^
 
@@ -812,8 +808,6 @@ fn global_avgpool2d_backward(
                         + h * width
                         + w
                     )
-                    grad_input._data.bitcast[Float32]()[
-                        grad_in_idx
-                    ] = grad_per_position
+                    grad_input[grad_in_idx] = Float64(grad_per_position)
 
     return grad_input^

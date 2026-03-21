@@ -56,17 +56,17 @@ fn test_linear_backward_numerical() raises:
     input_shape.append(1)
     input_shape.append(2)
     var x = ones(input_shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = 1.0
-    x._data.bitcast[Float32]()[1] = 2.0
+    x[0] = Float64(1.0)
+    x[1] = Float64(2.0)
 
     var weight_shape = List[Int]()
     weight_shape.append(2)
     weight_shape.append(2)
     var weights = zeros(weight_shape, DType.float32)
-    weights._data.bitcast[Float32]()[0] = 0.5
-    weights._data.bitcast[Float32]()[1] = 0.3
-    weights._data.bitcast[Float32]()[2] = 0.2
-    weights._data.bitcast[Float32]()[3] = 0.4
+    weights[0] = Float64(0.5)
+    weights[1] = Float64(0.3)
+    weights[2] = Float64(0.2)
+    weights[3] = Float64(0.4)
 
     var grad_out_shape = List[Int]()
     grad_out_shape.append(1)
@@ -129,30 +129,30 @@ fn test_linear_backward_gradient() raises:
     input_shape.append(batch)
     input_shape.append(in_features)
     var x = zeros(input_shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = 0.5
-    x._data.bitcast[Float32]()[1] = -0.3
-    x._data.bitcast[Float32]()[2] = 1.2
-    x._data.bitcast[Float32]()[3] = -0.8
-    x._data.bitcast[Float32]()[4] = 0.1
-    x._data.bitcast[Float32]()[5] = 0.7
+    x[0] = Float64(0.5)
+    x[1] = Float64(-0.3)
+    x[2] = Float64(1.2)
+    x[3] = Float64(-0.8)
+    x[4] = Float64(0.1)
+    x[5] = Float64(0.7)
 
     var weight_shape = List[Int]()
     weight_shape.append(out_features)
     weight_shape.append(in_features)
     var weights = zeros(weight_shape, DType.float32)
-    weights._data.bitcast[Float32]()[0] = 0.4
-    weights._data.bitcast[Float32]()[1] = 0.2
-    weights._data.bitcast[Float32]()[2] = -0.3
-    weights._data.bitcast[Float32]()[3] = 0.6
-    weights._data.bitcast[Float32]()[4] = -0.2
-    weights._data.bitcast[Float32]()[5] = 0.5
+    weights[0] = Float64(0.4)
+    weights[1] = Float64(0.2)
+    weights[2] = Float64(-0.3)
+    weights[3] = Float64(0.6)
+    weights[4] = Float64(-0.2)
+    weights[5] = Float64(0.5)
 
     fn forward(inp: ExTensor) raises -> ExTensor:
         var bias_shape = List[Int]()
         bias_shape.append(out_features)
         var bias = zeros(bias_shape, DType.float32)
-        bias._data.bitcast[Float32]()[0] = 0.3
-        bias._data.bitcast[Float32]()[1] = -0.2
+        bias[0] = Float64(0.3)
+        bias[1] = Float64(-0.2)
         return linear(inp, weights, bias)
 
     fn backward(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:

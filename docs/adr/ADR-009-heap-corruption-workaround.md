@@ -1,8 +1,10 @@
 # ADR-009: Heap Corruption Workaround for Mojo Runtime Bug
 
-**Status**: Accepted
+**Status**: Resolved
 
 **Date**: 2025-12-30
+
+**Resolved**: 2026-03-20
 
 **Issue Reference**: [Issue #2942](https://github.com/HomericIntelligence/ProjectOdyssey/issues/2942)
 
@@ -199,6 +201,24 @@ are created. See Issue #4110 for details.
 - `tests/models/test_lenet5_reshape_layers.mojo`
 - `tests/models/test_lenet5_layers.mojo.DEPRECATED`
 
+## Resolution
+
+**Root Cause Identified**: The heap corruption was caused by `UnsafePointer.bitcast` triggering
+use-after-free (UAF) due to Mojo's ASAP (As Soon As Possible) destruction semantics. When writing
+`tensor._data.bitcast[T]()[i] = val`, the compiler may destroy `tensor` before the write completes
+because the last "use" of `tensor` appears to be the `._data` access.
+
+**Upstream Issue**: [modular/modular#6187](https://github.com/modular/modular/issues/6187)
+
+**Root Cause Analysis**: [Day 53 Blog Post](../../notes/blog/03-16-2026/README.md)
+
+**Fix Applied**: Replace all `tensor._data.bitcast[T]()[i] = val` writes with `tensor[i] = Float64(val)`
+(`__setitem__`), which keeps the tensor alive through the write operation. Bitcast reads are safe
+and do not need changing.
+
+**Consequence**: File splitting (the ADR-009 workaround) is no longer needed. Split part files
+are being consolidated back into single files.
+
 ## Revision History
 
 | Version | Date       | Author      | Changes                                                              |
@@ -207,14 +227,17 @@ are created. See Issue #4110 for details.
 | 1.1     | 2026-03-06 | Claude Code | Investigation: `^` in `__moveinit__` corrupts slice shapes in Mojo  |
 |         |            |             | 0.26.1 — workaround (file splitting + `.copy()`) remains correct.   |
 |         |            |             | Also fixes `mojo format` line-length in `layer_testers.mojo`.       |
+| 2.0     | 2026-03-20 | Claude Code | Resolved: root cause identified as `UnsafePointer.bitcast` UAF      |
+|         |            |             | (modular/modular#6187). Fix: replace bitcast writes with            |
+|         |            |             | `__setitem__`. File splitting no longer needed.                      |
 
 ---
 
 ## Document Metadata
 
 - **Location**: `/docs/adr/ADR-009-heap-corruption-workaround.md`
-- **Status**: Accepted
-- **Review Frequency**: As-needed (review on Mojo upgrade)
-- **Next Review**: On Mojo 0.27+ upgrade
+- **Status**: Resolved
+- **Review Frequency**: N/A (resolved)
+- **Next Review**: N/A
 - **Supersedes**: None
-- **Superseded By**: None (will be superseded when Mojo fix is available)
+- **Superseded By**: bitcast→`__setitem__` fix (see Resolution section)

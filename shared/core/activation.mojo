@@ -157,39 +157,39 @@ fn leaky_relu(tensor: ExTensor, alpha: Float64 = 0.01) raises -> ExTensor:
         var alpha16 = Float16(alpha)
         for i in range(tensor._numel):
             var val = tensor._data.bitcast[Float16]()[i]
-            result._data.bitcast[Float16]()[i] = max(alpha16 * val, val)
+            result[i] = Float64(max(alpha16 * val, val))
     elif tensor._dtype == DType.float32:
         var alpha32 = Float32(alpha)
         for i in range(tensor._numel):
             var val = tensor._data.bitcast[Float32]()[i]
-            result._data.bitcast[Float32]()[i] = max(alpha32 * val, val)
+            result[i] = Float64(max(alpha32 * val, val))
     elif tensor._dtype == DType.float64:
         for i in range(tensor._numel):
             var val = tensor._data.bitcast[Float64]()[i]
-            result._data.bitcast[Float64]()[i] = max(alpha * val, val)
+            result[i] = max(alpha * val, val)
     elif tensor._dtype == DType.int8:
         var alpha_scaled = Int8(alpha * 128)  # Scale for fixed-point
         for i in range(tensor._numel):
             var val = tensor._data.bitcast[Int8]()[i]
             var scaled = (alpha_scaled * val) >> 7  # Divide by 128
-            result._data.bitcast[Int8]()[i] = max(scaled, val)
+            result[i] = Float64(Int64(scaled))
     elif tensor._dtype == DType.int16:
         var alpha_scaled = Int16(alpha * 32768)
         for i in range(tensor._numel):
             var val = tensor._data.bitcast[Int16]()[i]
             var scaled = (alpha_scaled * val) >> 15
-            result._data.bitcast[Int16]()[i] = max(scaled, val)
+            result[i] = Float64(Int64(scaled))
     elif tensor._dtype == DType.int32:
         var alpha32 = Float32(alpha)
         for i in range(tensor._numel):
             var val = tensor._data.bitcast[Int32]()[i]
             var scaled = Int32(alpha32 * Float32(val))
-            result._data.bitcast[Int32]()[i] = max(scaled, val)
+            result[i] = Float64(Int64(scaled))
     elif tensor._dtype == DType.int64:
         for i in range(tensor._numel):
             var val = tensor._data.bitcast[Int64]()[i]
             var scaled = Int64(alpha * Float64(val))
-            result._data.bitcast[Int64]()[i] = max(scaled, val)
+            result[i] = Float64(scaled)
     else:
         raise Error(
             "leaky_relu: unsupported dtype (use float16/32/64 or int8/16/32/64)"
@@ -350,37 +350,33 @@ fn sigmoid(tensor: ExTensor) raises -> ExTensor:
         for i in range(size):
             var x = data_ptr.bitcast[Float32]()[i]
             if x > Float32(SIGMOID_CLIP_THRESHOLD):
-                result_ptr.bitcast[Float32]()[i] = Float32(1.0)
+                result[i] = Float32(1.0)
             elif x < Float32(-SIGMOID_CLIP_THRESHOLD):
-                result_ptr.bitcast[Float32]()[i] = Float32(0.0)
+                result[i] = Float32(0.0)
             else:
                 var exp_neg_x = exp_scalar_f32(-x)
-                result_ptr.bitcast[Float32]()[i] = Float32(1.0) / (
-                    Float32(1.0) + exp_neg_x
-                )
+                result[i] = Float32(1.0) / (Float32(1.0) + exp_neg_x)
     elif tensor.dtype() == DType.float64:
         for i in range(size):
             var x = data_ptr.bitcast[Float64]()[i]
             if x > Float64(SIGMOID_CLIP_THRESHOLD):
-                result_ptr.bitcast[Float64]()[i] = Float64(1.0)
+                result[i] = Float64(1.0)
             elif x < Float64(-SIGMOID_CLIP_THRESHOLD):
-                result_ptr.bitcast[Float64]()[i] = Float64(0.0)
+                result[i] = Float64(0.0)
             else:
                 var exp_neg_x = exp_scalar_f64(-x)
-                result_ptr.bitcast[Float64]()[i] = Float64(1.0) / (
-                    Float64(1.0) + exp_neg_x
-                )
+                result[i] = Float64(1.0) / (Float64(1.0) + exp_neg_x)
     elif tensor.dtype() == DType.float16:
         # Tensor-level handling: convert to Float32, compute, convert back
         for i in range(size):
             var x = Float32(data_ptr.bitcast[Float16]()[i])
             if x > Float32(SIGMOID_CLIP_THRESHOLD):
-                result_ptr.bitcast[Float16]()[i] = Float16(1.0)
+                result[i] = Float16(1.0)
             elif x < Float32(-SIGMOID_CLIP_THRESHOLD):
-                result_ptr.bitcast[Float16]()[i] = Float16(0.0)
+                result[i] = Float16(0.0)
             else:
                 var exp_neg_x = exp_scalar_f32(-x)
-                result_ptr.bitcast[Float16]()[i] = Float16(
+                result[i] = Float16(
                     Float32(1.0) / (Float32(1.0) + exp_neg_x)
                 )
     else:
@@ -970,7 +966,7 @@ fn softplus(tensor: ExTensor, beta: Float64 = 1.0) raises -> ExTensor:
             var x_abs = abs(x)
             var exp_neg_abs = exp_scalar_f32(-x_abs)
             var log_term = math_log(Float64(1.0 + exp_neg_abs))
-            result_ptr.bitcast[Float32]()[i] = x_pos + Float32(log_term)
+            result[i] = Float32(x_pos + Float32(log_term))
     elif tensor.dtype() == DType.float64:
         for i in range(size):
             var x = data_ptr.bitcast[Float64]()[i]
@@ -978,7 +974,7 @@ fn softplus(tensor: ExTensor, beta: Float64 = 1.0) raises -> ExTensor:
             var x_abs = abs(x)
             var exp_neg_abs = exp_scalar_f64(-x_abs)
             var log_term = math_log(Float64(1.0) + exp_neg_abs)
-            result_ptr.bitcast[Float64]()[i] = x_pos + log_term
+            result[i] = x_pos + log_term
     elif tensor.dtype() == DType.float16:
         for i in range(size):
             var x = Float32(data_ptr.bitcast[Float16]()[i])
@@ -986,7 +982,7 @@ fn softplus(tensor: ExTensor, beta: Float64 = 1.0) raises -> ExTensor:
             var x_abs = abs(x)
             var exp_neg_abs = exp_scalar_f32(-x_abs)
             var log_term = math_log(Float64(1.0 + exp_neg_abs))
-            result_ptr.bitcast[Float16]()[i] = Float16(
+            result[i] = Float16(
                 x_pos + Float32(log_term)
             )
     else:
@@ -1059,31 +1055,29 @@ fn elu(tensor: ExTensor, alpha: Float64 = 1.0) raises -> ExTensor:
         for i in range(size):
             var val = data_ptr.bitcast[Float32]()[i]
             if val > 0:
-                result_ptr.bitcast[Float32]()[i] = val
+                result[i] = Float32(val)
             else:
                 var val_clipped = max(val, Float32(-20.0))
                 var exp_val = exp_scalar_f32(val_clipped)
-                result_ptr.bitcast[Float32]()[i] = Float32(alpha) * (
-                    exp_val - 1.0
-                )
+                result[i] = Float32(alpha) * (exp_val - 1.0)
     elif tensor.dtype() == DType.float64:
         for i in range(size):
             var val = data_ptr.bitcast[Float64]()[i]
             if val > 0:
-                result_ptr.bitcast[Float64]()[i] = val
+                result[i] = Float64(val)
             else:
                 var val_clipped = max(val, Float64(-20.0))
                 var exp_val = exp_scalar_f64(val_clipped)
-                result_ptr.bitcast[Float64]()[i] = alpha * (exp_val - 1.0)
+                result[i] = alpha * (exp_val - 1.0)
     elif tensor.dtype() == DType.float16:
         for i in range(size):
             var val = Float32(data_ptr.bitcast[Float16]()[i])
             if val > 0:
-                result_ptr.bitcast[Float16]()[i] = Float16(val)
+                result[i] = Float16(val)
             else:
                 var val_clipped = max(val, Float32(-20.0))
                 var exp_val = exp_scalar_f32(val_clipped)
-                result_ptr.bitcast[Float16]()[i] = Float16(
+                result[i] = Float16(
                     Float32(alpha) * (exp_val - 1.0)
                 )
     else:
@@ -1130,35 +1124,35 @@ fn selu(
         for i in range(size):
             var val = data_ptr.bitcast[Float32]()[i]
             if val > 0:
-                result_ptr.bitcast[Float32]()[i] = Float32(lambda_) * val
+                result[i] = Float32(lambda_) * val
             else:
                 var val_clipped = max(val, Float32(-20.0))
                 var exp_val = exp_scalar_f32(val_clipped)
-                result_ptr.bitcast[Float32]()[i] = (
+                result[i] = (
                     Float32(lambda_) * Float32(alpha) * (exp_val - 1.0)
                 )
     elif tensor.dtype() == DType.float64:
         for i in range(size):
             var val = data_ptr.bitcast[Float64]()[i]
             if val > 0:
-                result_ptr.bitcast[Float64]()[i] = lambda_ * val
+                result[i] = lambda_ * val
             else:
                 var val_clipped = max(val, Float64(-20.0))
                 var exp_val = exp_scalar_f64(val_clipped)
-                result_ptr.bitcast[Float64]()[i] = (
+                result[i] = (
                     lambda_ * alpha * (exp_val - 1.0)
                 )
     elif tensor.dtype() == DType.float16:
         for i in range(size):
             var val = Float32(data_ptr.bitcast[Float16]()[i])
             if val > 0:
-                result_ptr.bitcast[Float16]()[i] = Float16(
+                result[i] = Float16(
                     Float32(lambda_) * val
                 )
             else:
                 var val_clipped = max(val, Float32(-20.0))
                 var exp_val = exp_scalar_f32(val_clipped)
-                result_ptr.bitcast[Float16]()[i] = Float16(
+                result[i] = Float16(
                     Float32(lambda_) * Float32(alpha) * (exp_val - 1.0)
                 )
     else:
@@ -1208,11 +1202,11 @@ fn selu_backward(
             var grad_val = grad_ptr.bitcast[Float32]()[i]
 
             if val > 0:
-                result_ptr.bitcast[Float32]()[i] = grad_val * Float32(lambda_)
+                result[i] = grad_val * Float32(lambda_)
             else:
                 var val_clipped = max(val, Float32(-20.0))
                 var exp_val = exp_scalar_f32(val_clipped)
-                result_ptr.bitcast[Float32]()[i] = (
+                result[i] = (
                     grad_val * Float32(lambda_) * Float32(alpha) * exp_val
                 )
     elif x.dtype() == DType.float64:
@@ -1221,11 +1215,11 @@ fn selu_backward(
             var grad_val = grad_ptr.bitcast[Float64]()[i]
 
             if val > 0:
-                result_ptr.bitcast[Float64]()[i] = grad_val * lambda_
+                result[i] = grad_val * lambda_
             else:
                 var val_clipped = max(val, Float64(-20.0))
                 var exp_val = exp_scalar_f64(val_clipped)
-                result_ptr.bitcast[Float64]()[i] = (
+                result[i] = (
                     grad_val * lambda_ * alpha * exp_val
                 )
     elif x.dtype() == DType.float16:
@@ -1234,13 +1228,13 @@ fn selu_backward(
             var grad_val = Float32(grad_ptr.bitcast[Float16]()[i])
 
             if val > 0:
-                result_ptr.bitcast[Float16]()[i] = Float16(
+                result[i] = Float16(
                     grad_val * Float32(lambda_)
                 )
             else:
                 var val_clipped = max(val, Float32(-20.0))
                 var exp_val = exp_scalar_f32(val_clipped)
-                result_ptr.bitcast[Float16]()[i] = Float16(
+                result[i] = Float16(
                     grad_val * Float32(lambda_) * Float32(alpha) * exp_val
                 )
     else:
@@ -1351,11 +1345,11 @@ fn elu_backward(
             var grad_val = grad_ptr.bitcast[Float32]()[i]
 
             if val > 0:
-                result_ptr.bitcast[Float32]()[i] = grad_val
+                result[i] = Float32(grad_val)
             else:
                 var val_clipped = max(val, Float32(-20.0))
                 var exp_val = exp_scalar_f32(val_clipped)
-                result_ptr.bitcast[Float32]()[i] = (
+                result[i] = (
                     grad_val * Float32(alpha) * exp_val
                 )
     elif x.dtype() == DType.float64:
@@ -1364,22 +1358,22 @@ fn elu_backward(
             var grad_val = grad_ptr.bitcast[Float64]()[i]
 
             if val > 0:
-                result_ptr.bitcast[Float64]()[i] = grad_val
+                result[i] = Float64(grad_val)
             else:
                 var val_clipped = max(val, Float64(-20.0))
                 var exp_val = exp_scalar_f64(val_clipped)
-                result_ptr.bitcast[Float64]()[i] = grad_val * alpha * exp_val
+                result[i] = grad_val * alpha * exp_val
     elif x.dtype() == DType.float16:
         for i in range(size):
             var val = Float32(x_ptr.bitcast[Float16]()[i])
             var grad_val = Float32(grad_ptr.bitcast[Float16]()[i])
 
             if val > 0:
-                result_ptr.bitcast[Float16]()[i] = Float16(grad_val)
+                result[i] = Float16(grad_val)
             else:
                 var val_clipped = max(val, Float32(-20.0))
                 var exp_val = exp_scalar_f32(val_clipped)
-                result_ptr.bitcast[Float16]()[i] = Float16(
+                result[i] = Float16(
                     grad_val * Float32(alpha) * exp_val
                 )
     else:
