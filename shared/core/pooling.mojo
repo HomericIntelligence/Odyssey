@@ -159,7 +159,7 @@ fn maxpool2d(
                             + oh * out_width
                             + ow
                         )
-                        output[out_idx] = Float64(max_val)
+                        output._set_float64(out_idx, Float64(max_val))
 
         parallelize[maxpool_batch](batch)
     else:
@@ -206,7 +206,7 @@ fn maxpool2d(
                             + oh * out_width
                             + ow
                         )
-                        output[out_idx] = Float64(max_val)
+                        output[out_idx] = Float32(max_val)
 
     return output^
 
@@ -283,7 +283,7 @@ fn _maxpool2d_optimized(
                         + oh * out_width
                         + ow
                     )
-                    output[out_idx] = Float64(max_val)
+                    output._set_float64(out_idx, Float64(max_val))
 
 
 fn avgpool2d(
@@ -400,7 +400,7 @@ fn avgpool2d(
                         + oh * out_width
                         + ow
                     )
-                    output[out_idx] = Float64(avg_val)
+                    output[out_idx] = Float32(avg_val)
 
     return output^
 
@@ -477,7 +477,7 @@ fn global_avgpool2d(x: ExTensor, method: String = "direct") raises -> ExTensor:
 
             # Write to output
             var out_idx = b * channels + c
-            output[out_idx] = Float64(avg_val)
+            output[out_idx] = Float32(avg_val)
 
     return output^
 
@@ -808,6 +808,6 @@ fn global_avgpool2d_backward(
                         + h * width
                         + w
                     )
-                    grad_input[grad_in_idx] = Float64(grad_per_position)
+                    grad_input[grad_in_idx] = Float32(grad_per_position)
 
     return grad_input^
