@@ -138,21 +138,21 @@ struct DropoutLayer(Copyable, Movable):
                 # Generate random value in [0, 1)
                 var rand_val = Float32(random_float64())
                 # Keep element if rand_val > dropout_rate, else drop it
-                mask._data.bitcast[Float32]()[i] = Float32(1.0) if (
+                mask[i] = Float64(1.0) if (
                     rand_val > Float32(self.dropout_rate)
-                ) else Float32(0.0)
+                ) else Float64(0.0)
         elif input._dtype == DType.float64:
             for i in range(input._numel):
                 var rand_val = random_float64()
-                mask._data.bitcast[Float32]()[i] = Float32(1.0) if (
+                mask[i] = 1.0 if (
                     rand_val > Float64(self.dropout_rate)
-                ) else Float32(0.0)
+                ) else 0.0
         elif input._dtype == DType.float16:
             for i in range(input._numel):
                 var rand_val = Float32(random_float64())
-                mask._data.bitcast[Float32]()[i] = Float32(1.0) if (
+                mask[i] = Float64(1.0) if (
                     rand_val > Float32(self.dropout_rate)
-                ) else Float32(0.0)
+                ) else Float64(0.0)
         else:
             raise Error("dropout: only float16/32/64 dtypes supported")
 
@@ -167,23 +167,17 @@ struct DropoutLayer(Copyable, Movable):
             for i in range(input._numel):
                 var input_val = input._data.bitcast[Float32]()[i]
                 var mask_val = mask._data.bitcast[Float32]()[i]
-                result._data.bitcast[Float32]()[i] = (
-                    mask_val * input_val * scale
-                )
+                result[i] = Float64(mask_val * input_val * scale)
         elif input._dtype == DType.float64:
             for i in range(input._numel):
                 var input_val = input._data.bitcast[Float64]()[i]
                 var mask_val = Float64(mask._data.bitcast[Float32]()[i])
-                result._data.bitcast[Float64]()[i] = (
-                    mask_val * input_val * Float64(scale)
-                )
+                result[i] = mask_val * input_val * Float64(scale)
         elif input._dtype == DType.float16:
             for i in range(input._numel):
                 var input_val = input._data.bitcast[Float16]()[i]
                 var mask_val = Float16(mask._data.bitcast[Float32]()[i])
-                result._data.bitcast[Float16]()[i] = (
-                    mask_val * input_val * Float16(scale)
-                )
+                result[i] = Float64(mask_val * input_val * Float16(scale))
         else:
             raise Error("dropout: only float16/32/64 dtypes supported")
 
@@ -223,21 +217,17 @@ struct DropoutLayer(Copyable, Movable):
             for i in range(grad_output._numel):
                 var grad_val = grad_output._data.bitcast[Float32]()[i]
                 var mask_val = mask._data.bitcast[Float32]()[i]
-                result._data.bitcast[Float32]()[i] = mask_val * grad_val * scale
+                result[i] = Float64(mask_val * grad_val * scale)
         elif grad_output._dtype == DType.float64:
             for i in range(grad_output._numel):
                 var grad_val = grad_output._data.bitcast[Float64]()[i]
                 var mask_val = Float64(mask._data.bitcast[Float32]()[i])
-                result._data.bitcast[Float64]()[i] = (
-                    mask_val * grad_val * Float64(scale)
-                )
+                result[i] = mask_val * grad_val * Float64(scale)
         elif grad_output._dtype == DType.float16:
             for i in range(grad_output._numel):
                 var grad_val = grad_output._data.bitcast[Float16]()[i]
                 var mask_val = Float16(mask._data.bitcast[Float32]()[i])
-                result._data.bitcast[Float16]()[i] = (
-                    mask_val * grad_val * Float16(scale)
-                )
+                result[i] = Float64(mask_val * grad_val * Float16(scale))
         else:
             raise Error("dropout backward: only float16/32/64 dtypes supported")
 

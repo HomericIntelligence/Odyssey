@@ -39,7 +39,7 @@ fn _make_test_conv2d_tensors() raises -> Tuple[ExTensor, ExTensor, ExTensor]:
 
     # Initialize with non-uniform values for meaningful gradient check
     for i in range(16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x[i] = Float64(Float32(i) * 0.1)
 
     var kernel_shape = List[Int]()
     kernel_shape.append(1)
@@ -50,7 +50,7 @@ fn _make_test_conv2d_tensors() raises -> Tuple[ExTensor, ExTensor, ExTensor]:
 
     # Initialize kernel with non-uniform values
     for i in range(9):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+        kernel[i] = Float64(Float32(i) * 0.05 + 0.1)
 
     var bias_shape = List[Int]()
     bias_shape.append(1)
@@ -218,10 +218,10 @@ fn test_maxpool2d_backward_gradient_routing() raises:
     input_shape.append(2)
     input_shape.append(2)
     var x = zeros(input_shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = 1.0
-    x._data.bitcast[Float32]()[1] = 2.0
-    x._data.bitcast[Float32]()[2] = 3.0
-    x._data.bitcast[Float32]()[3] = 4.0
+    x[0] = Float64(1.0)
+    x[1] = Float64(2.0)
+    x[2] = Float64(3.0)
+    x[3] = Float64(4.0)
 
     var output = maxpool2d(x, kernel_size=2, stride=2, padding=0)
     var grad_output = ones_like(output)
@@ -303,7 +303,7 @@ fn test_conv2d_backward_gradient() raises:
     input_shape.append(5)
     var x = zeros(input_shape, DType.float32)
     for i in range(1 * 2 * 5 * 5):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1 - 2.5
+        x[i] = Float64(Float32(i) * 0.1 - 2.5)
 
     var kernel_shape = List[Int]()
     kernel_shape.append(2)
@@ -312,7 +312,7 @@ fn test_conv2d_backward_gradient() raises:
     kernel_shape.append(3)
     var kernel = zeros(kernel_shape, DType.float32)
     for i in range(2 * 2 * 3 * 3):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 - 0.5
+        kernel[i] = Float64(Float32(i) * 0.05 - 0.5)
 
     var bias_shape = List[Int]()
     bias_shape.append(2)
@@ -339,7 +339,7 @@ fn test_maxpool2d_backward_gradient() raises:
     input_shape.append(4)
     var x = zeros(input_shape, DType.float32)
     for i in range(1 * 2 * 4 * 4):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1 - 1.6
+        x[i] = Float64(Float32(i) * 0.1 - 1.6)
 
     fn forward(inp: ExTensor) raises escaping -> ExTensor:
         return maxpool2d(inp, kernel_size=2, stride=2, padding=0)
@@ -363,7 +363,7 @@ fn test_avgpool2d_backward_gradient() raises:
     input_shape.append(4)
     var x = zeros(input_shape, DType.float32)
     for i in range(1 * 2 * 4 * 4):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1 - 1.6
+        x[i] = Float64(Float32(i) * 0.1 - 1.6)
 
     fn forward(inp: ExTensor) raises escaping -> ExTensor:
         return avgpool2d(inp, kernel_size=2, stride=2, padding=0)

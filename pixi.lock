@@ -587,6 +587,7 @@ packages:
   - typing_extensions >=4.0.0
   - python
   license: MIT
+  license_family: MIT
   size: 22949
   timestamp: 1773926359134
 - conda: https://conda.anaconda.org/conda-forge/noarch/attrs-26.1.0-pyhcf101f3_0.conda
@@ -1298,6 +1299,7 @@ packages:
   - zipp >=3.20
   - python
   license: Apache-2.0
+  license_family: APACHE
   size: 34387
   timestamp: 1773931568510
 - conda: https://conda.anaconda.org/conda-forge/noarch/iniconfig-2.3.0-pyhd8ed1ab_0.conda
@@ -3865,6 +3867,7 @@ packages:
   - libgcc >=14
   - libstdcxx >=14
   license: MIT
+  license_family: MIT
   size: 334139
   timestamp: 1773959575393
 - conda: https://conda.anaconda.org/conda-forge/noarch/wcwidth-0.6.0-pyhd8ed1ab_0.conda

@@ -651,8 +651,8 @@ fn assert_value_at(
     tensor: ExTensor,
     index: Int,
     expected: Float64,
-    message: String = "",
     tolerance: Float64 = TOLERANCE_DEFAULT,
+    message: String = "",
 ) raises:
     """Assert tensor value at flat index matches expected value.
 
@@ -660,8 +660,8 @@ fn assert_value_at(
             tensor: ExTensor to check.
             index: Flat index to check.
             expected: Expected value.
-            message: Optional error message.
             tolerance: Acceptable difference (default: 1e-6).
+            message: Optional error message.
 
     Raises:
             Error: If value doesn't match within tolerance.

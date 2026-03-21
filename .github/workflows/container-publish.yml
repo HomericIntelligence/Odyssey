@@ -208,7 +208,11 @@ jobs:
 
     steps:
       - name: Log in to Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | podman login "$REGISTRY" --username "${{ github.actor }}" --password-stdin
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_ACTOR: ${{ github.actor }}
+        run: |
+          echo "$GH_TOKEN" | docker login "$REGISTRY" --username "$GH_ACTOR" --password-stdin
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1  # master

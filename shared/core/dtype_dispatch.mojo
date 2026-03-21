@@ -24,7 +24,7 @@ Example usage:
     # Before (40+ lines):
     if tensor.dtype() == DType.float32:
         for i in range(size):
-            result._data.bitcast[Float32]()[i] = op(tensor._data.bitcast[Float32]()[i])
+            result[i] = Float64(op(tensor._data.bitcast[Float32]()[i]))
     elif tensor.dtype() == DType.float64:
         # ... repeat for all dtypes.
 

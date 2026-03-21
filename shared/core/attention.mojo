@@ -116,10 +116,10 @@ fn scaled_dot_product_attention_masked(
     if scores.dtype() == DType.float32:
         var scale_f32 = Float32(scale)
         for i in range(numel):
-            scale_ptr.bitcast[Float32]()[i] = scale_f32
+            scale_tensor[i] = Float64(scale_f32)
     elif scores.dtype() == DType.float64:
         for i in range(numel):
-            scale_ptr.bitcast[Float64]()[i] = scale
+            scale_tensor[i] = scale
     else:
         raise Error("Error: only float32/64 supported.")
 
@@ -245,10 +245,10 @@ fn scaled_dot_product_attention_backward_masked(
     if grad_softmax.dtype() == DType.float32:
         var scale_f32 = Float32(scale)
         for i in range(numel):
-            scale_ptr.bitcast[Float32]()[i] = scale_f32
+            scale_tensor[i] = Float64(scale_f32)
     elif grad_softmax.dtype() == DType.float64:
         for i in range(numel):
-            scale_ptr.bitcast[Float64]()[i] = scale
+            scale_tensor[i] = scale
     else:
         raise Error("Error: only float32/64 supported.")
 
@@ -303,7 +303,7 @@ fn _softmax_backward(
             for i in range(last_dim):
                 var s = softmax_ptr.bitcast[Float32]()[offset + i]
                 var g = grad_ptr.bitcast[Float32]()[offset + i]
-                result_ptr.bitcast[Float32]()[offset + i] = s * (g - dot_sum)
+                result[offset + i] = Float64(s * (g - dot_sum))
 
     elif grad_output.dtype() == DType.float64:
         for b in range(batch_size):
@@ -319,7 +319,7 @@ fn _softmax_backward(
             for i in range(last_dim):
                 var s = softmax_ptr.bitcast[Float64]()[offset + i]
                 var g = grad_ptr.bitcast[Float64]()[offset + i]
-                result_ptr.bitcast[Float64]()[offset + i] = s * (g - dot_sum)
+                result[offset + i] = s * (g - dot_sum)
 
     else:
         raise Error("Error: only float32/64 supported.")
@@ -373,7 +373,7 @@ fn create_causal_mask(
                 var idx = i * seq_len + j
                 if j > i:
                     # Future position - mask it out
-                    mask_ptr.bitcast[Float32]()[idx] = neg_inf_f32
+                    mask[idx] = Float64(neg_inf_f32)
                 # else: keep as 0 (no masking)
 
     elif dtype == DType.float64:
@@ -381,7 +381,7 @@ fn create_causal_mask(
             for j in range(seq_len):
                 var idx = i * seq_len + j
                 if j > i:
-                    mask_ptr.bitcast[Float64]()[idx] = neg_inf
+                    mask[idx] = neg_inf
 
     else:
         raise Error("Error: only float32/64 supported.")
@@ -561,10 +561,10 @@ fn multi_head_attention_masked(
     if scores.dtype() == DType.float32:
         var scale_f32 = Float32(scale)
         for i in range(numel):
-            scale_ptr.bitcast[Float32]()[i] = scale_f32
+            scale_tensor[i] = Float64(scale_f32)
     else:
         for i in range(numel):
-            scale_ptr.bitcast[Float64]()[i] = scale
+            scale_tensor[i] = scale
 
     var scaled_scores = multiply(scores, scale_tensor)
 
@@ -630,9 +630,9 @@ fn _reshape_for_heads(
                             + s * d_k
                             + k
                         )
-                        result_ptr.bitcast[Float32]()[dst_idx] = x_ptr.bitcast[
+                        result[dst_idx] = Float64(x_ptr.bitcast[
                             Float32
-                        ]()[src_idx]
+                        ]()[src_idx])
     else:
         for b in range(batch):
             for s in range(seq_len):
@@ -647,7 +647,7 @@ fn _reshape_for_heads(
                             + s * d_k
                             + k
                         )
-                        result_ptr.bitcast[Float64]()[dst_idx] = x_ptr.bitcast[
+                        result[dst_idx] = x_ptr.bitcast[
                             Float64
                         ]()[src_idx]
 
@@ -693,9 +693,9 @@ fn _reshape_from_heads(
                         var dst_idx = (
                             b * (seq_len * d_model) + s * d_model + h * d_k + k
                         )
-                        result_ptr.bitcast[Float32]()[dst_idx] = x_ptr.bitcast[
+                        result[dst_idx] = Float64(x_ptr.bitcast[
                             Float32
-                        ]()[src_idx]
+                        ]()[src_idx])
     else:
         for b in range(batch):
             for s in range(seq_len):
@@ -710,7 +710,7 @@ fn _reshape_from_heads(
                         var dst_idx = (
                             b * (seq_len * d_model) + s * d_model + h * d_k + k
                         )
-                        result_ptr.bitcast[Float64]()[dst_idx] = x_ptr.bitcast[
+                        result[dst_idx] = x_ptr.bitcast[
                             Float64
                         ]()[src_idx]
 
@@ -848,16 +848,10 @@ fn multi_head_attention_backward(
     # Gradient through scaling
     var scale = Float64(1.0) / sqrt(Float64(d_k))
     var scale_tensor = zeros_like(grad_scaled_scores)
-    var scale_ptr = scale_tensor._data
     var numel = grad_scaled_scores.numel()
 
-    if grad_scaled_scores.dtype() == DType.float32:
-        var scale_f32 = Float32(scale)
-        for i in range(numel):
-            scale_ptr.bitcast[Float32]()[i] = scale_f32
-    else:
-        for i in range(numel):
-            scale_ptr.bitcast[Float64]()[i] = scale
+    for i in range(numel):
+        scale_tensor[i] = scale
 
     var grad_scores = multiply(grad_scaled_scores, scale_tensor)
 
