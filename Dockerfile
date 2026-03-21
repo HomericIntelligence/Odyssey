@@ -81,8 +81,10 @@ COPY --chown=${USER_NAME}:${USER_NAME} pixi.toml pixi.lock pyproject.toml requir
 # Install project dependencies (cached unless manifests change)
 RUN pixi install
 
-# Install pre-commit inside Pixi environment
-RUN pixi run pip install --upgrade pip pre-commit
+# Ensure pre-commit is available in Pixi environment
+# (pip and pre-commit are already installed by pixi install via pixi.toml;
+#  avoid `pip install --upgrade pip` which can fail with directory conflicts)
+RUN pixi run pre-commit --version
 
 # Install pre-commit hooks (cached unless .pre-commit-config.yaml changes)
 RUN pixi run pre-commit install --install-hooks || true
