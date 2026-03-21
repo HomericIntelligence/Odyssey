@@ -71,8 +71,8 @@ fn conv_block(
         Output tensor after all convolutions and ReLU activations.
     """
     var in_channels = input_tensor.shape()[1]
-    var height = input_tensor.shape()[2]
-    var width = input_tensor.shape()[3]
+    var _height = input_tensor.shape()[2]
+    var _width = input_tensor.shape()[3]
     var result = input_tensor
 
     for _ in range(num_convs):
@@ -309,7 +309,7 @@ fn test_vgg16_e2e_forward_backward() raises:
 
     # Loss computation (simplified cross-entropy approximation)
     # Using MSE as proxy since cross_entropy_loss may not be available
-    var loss = logits  # Placeholder for loss computation
+    var _loss = logits  # Placeholder for loss computation
 
     # Verify loss has valid shape
     assert_equal(logits.shape()[0], batch_size)

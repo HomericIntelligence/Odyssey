@@ -355,12 +355,8 @@ fn dir_exists(path: String) -> Bool:
         ```
     """
     # Use Mojo's Path.is_dir() native method
-    try:
-        var dir_path = Path(path)
-        return dir_path.is_dir()
-    except:
-        # Return False if path is invalid or inaccessible
-        return False
+    var dir_path = Path(path)
+    return dir_path.is_dir()
 
 
 # ============================================================================

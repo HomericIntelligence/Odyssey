@@ -61,7 +61,7 @@ fn test_sgd_initialization() raises:
     )
 
     # Verify the result has the correct shape
-    assert_shape(result, shape, "SGD step result shape matches input")
+    assert_shape(result[0], shape, "SGD step result shape matches input")
 
 
 fn test_sgd_basic_update() raises:
@@ -240,7 +240,7 @@ fn test_adam_initialization() raises:
     )
 
     # Verify the result has the correct shape
-    assert_shape(result, shape, "Adam initialization result shape matches input")
+    assert_shape(result[0], shape, "Adam initialization result shape matches input")
 
 
 fn test_adam_parameter_update() raises:

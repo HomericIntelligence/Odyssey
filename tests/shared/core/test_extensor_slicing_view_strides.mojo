@@ -20,7 +20,7 @@ from tests.shared.conftest import assert_true, assert_false, assert_almost_equal
 
 
 fn test_transpose_is_view() raises:
-    """transpose() returns a tensor marked as a view."""
+    """Transpose() returns a tensor marked as a view."""
     var t = arange(0.0, 6.0, 1.0, DType.float32)
     var t2d = t.reshape([2, 3])
     var tx = t2d.transpose(0, 1)  # shape (3, 2)
@@ -29,7 +29,7 @@ fn test_transpose_is_view() raises:
 
 
 fn test_transpose_shape_strides() raises:
-    """transpose() permutes shape and strides correctly."""
+    """Transpose() permutes shape and strides correctly."""
     var t = arange(0.0, 12.0, 1.0, DType.float32)
     var t2d = t.reshape([3, 4])  # strides [4, 1]
     var tx = t2d.transpose(0, 1)  # shape (4, 3), strides [1, 4]
@@ -42,7 +42,7 @@ fn test_transpose_shape_strides() raises:
 
 
 fn test_reshape_preserves_numel() raises:
-    """reshape() preserves numel across shape changes."""
+    """Reshape() preserves numel across shape changes."""
     var t = arange(0.0, 24.0, 1.0, DType.float32)
     var t3d = t.reshape([2, 3, 4])
 
@@ -55,7 +55,7 @@ fn test_reshape_preserves_numel() raises:
 
 
 fn test_transpose_shares_data() raises:
-    """transpose() shares underlying data pointer with original."""
+    """Transpose() shares underlying data pointer with original."""
     var t = arange(0.0, 6.0, 1.0, DType.float32)
     var t2d = t.reshape([2, 3])
     var tx = t2d.transpose(0, 1)
@@ -118,7 +118,7 @@ fn test_transposed_element_access() raises:
 
 
 fn test_view_creates_zero_copy() raises:
-    """view() from shape.mojo creates a zero-copy tensor with new shape."""
+    """View() from shape.mojo creates a zero-copy tensor with new shape."""
     var t = ones([2, 3], DType.float32)
     var v = view(t, [6])
 
