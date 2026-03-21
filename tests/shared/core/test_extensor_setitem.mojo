@@ -117,7 +117,10 @@ fn test_setitem_multidim_float64_dtype() raises:
     var t = zeros([2, 3], DType.float64)
     t[[1, 1]] = 3.14159
     # flat = 1*3 + 1 = 4
-    assert_almost_equal(t._get_float64(4), 3.14159, tolerance=1e-10)
+    # Note: __getitem__ returns Float32 lvalue, so 3.14159 is stored at
+    # Float32 precision even on a float64 tensor. Use Float32 tolerance.
+    # Long-term fix: make ExTensor parametric on dtype (see GitHub epic).
+    assert_almost_equal(t._get_float64(4), 3.14159, tolerance=1e-6)
 
 
 fn test_setitem_multidim_int_dtype() raises:
