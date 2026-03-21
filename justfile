@@ -49,9 +49,8 @@ _run cmd:
 	if [[ "${NATIVE:-}" == "1" ]]; then
 		eval "{{cmd}}"
 	elif command -v podman &>/dev/null && \
-		podman compose ps -q {{podman_service}} 2>/dev/null \
-		| xargs -r podman inspect -f '{{"{{"}}{{".State.Running"}}{{"}}"}}'  2>/dev/null \
-		| grep -q true; then
+		podman ps -q --filter "name={{podman_service}}" --filter "status=running" 2>/dev/null \
+		| grep -q .; then
 		podman compose exec -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} -T {{podman_service}} bash -c "{{cmd}}"
 	else
 		echo "Error: Podman compose container '{{podman_service}}' is not running."
