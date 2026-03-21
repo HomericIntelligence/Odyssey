@@ -76,7 +76,7 @@ struct SavedTensors(Copyable, Movable):
         var copy = zeros_like(tensor)
         var size = tensor.numel()
         for i in range(size):
-            copy[i] = Float64(tensor._data.bitcast[Float32]()[i])
+            copy.set(i, Float64(tensor._data.bitcast[Float32]()[i]))
         self.tensors.append(copy^)
 
     fn add_shape(mut self, shape: List[Int]):
@@ -253,13 +253,13 @@ struct VariableRegistry:
             for i in range(size):
                 var existing_val = existing._data.bitcast[Float32]()[i]
                 var grad_val = grad._data.bitcast[Float32]()[i]
-                existing[i] = Float64(existing_val + grad_val)
+                existing.set(i, Float64(existing_val + grad_val))
             self.grads[id] = existing^
         else:
             # First gradient - copy it using tensor __setitem__
             var grad_copy = zeros_like(grad)
             for i in range(size):
-                grad_copy[i] = Float64(grad._data.bitcast[Float32]()[i])
+                grad_copy.set(i, Float64(grad._data.bitcast[Float32]()[i]))
             self.grads[id] = grad_copy^
             self.has_grad[id] = True
 

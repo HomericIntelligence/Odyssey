@@ -74,7 +74,7 @@ struct ConfusionMatrix(Metric):
         var shape: List[Int] = [num_classes, num_classes]
         self.matrix = ExTensor(shape, DType.int32)
         for i in range(num_classes * num_classes):
-            self.matrix[i] = Int64(0)
+            self.matrix.set(i, Int64(0))
 
         # Explicit copy of class_names list
         self.class_names = List[String](class_names)
@@ -148,12 +148,12 @@ struct ConfusionMatrix(Metric):
             # Increment count at [true_label, pred]
             var idx = true_label * self.num_classes + pred
             var current_val = Int(self.matrix._data.bitcast[Int32]()[idx])
-            self.matrix[idx] = Int64(current_val + 1)
+            self.matrix.set(idx, Int64(current_val + 1))
 
     fn reset(mut self):
         """Reset all counts to zero."""
         for i in range(self.num_classes * self.num_classes):
-            self.matrix[i] = Int64(0)
+            self.matrix._set_int64(i, Int64(0))
 
     fn normalize(self, mode: String = "none") raises -> ExTensor:
         """Normalize confusion matrix by row, column, total, or none.
@@ -180,7 +180,7 @@ struct ConfusionMatrix(Metric):
             # Raw counts
             for i in range(self.num_classes * self.num_classes):
                 var count = Float64(self.matrix._data.bitcast[Int32]()[i])
-                result[i] = count
+                result.set(i, count)
 
         elif mode == "row":
             # Normalize by row sum (divide each row by its sum)
@@ -197,9 +197,9 @@ struct ConfusionMatrix(Metric):
                     var count = Float64(self.matrix._data.bitcast[Int32]()[idx])
 
                     if row_sum > 0.0:
-                        result[idx] = count / row_sum
+                        result.set(idx, count / row_sum)
                     else:
-                        result[idx] = 0.0
+                        result.set(idx, 0.0)
 
         elif mode == "column":
             # Normalize by column sum (divide each column by its sum)
@@ -216,9 +216,9 @@ struct ConfusionMatrix(Metric):
                     var count = Float64(self.matrix._data.bitcast[Int32]()[idx])
 
                     if col_sum > 0.0:
-                        result[idx] = count / col_sum
+                        result.set(idx, count / col_sum)
                     else:
-                        result[idx] = 0.0
+                        result.set(idx, 0.0)
 
         elif mode == "total":
             # Normalize by total count
@@ -229,9 +229,9 @@ struct ConfusionMatrix(Metric):
             for i in range(self.num_classes * self.num_classes):
                 var count = Float64(self.matrix._data.bitcast[Int32]()[i])
                 if total_sum > 0.0:
-                    result[i] = count / total_sum
+                    result.set(i, count / total_sum)
                 else:
-                    result[i] = 0.0
+                    result.set(i, 0.0)
 
         else:
             raise Error(
@@ -272,9 +272,9 @@ struct ConfusionMatrix(Metric):
 
             # Compute precision
             if col_sum > 0.0:
-                result[col] = correct / col_sum
+                result.set(col, correct / col_sum)
             else:
-                result[col] = 0.0
+                result.set(col, 0.0)
 
         return result^
 
@@ -309,9 +309,9 @@ struct ConfusionMatrix(Metric):
 
             # Compute recall
             if row_sum > 0.0:
-                result[row] = correct / row_sum
+                result.set(row, correct / row_sum)
             else:
-                result[row] = 0.0
+                result.set(row, 0.0)
 
         return result^
 
@@ -340,9 +340,9 @@ struct ConfusionMatrix(Metric):
             var r = recall._data.bitcast[Float64]()[i]
 
             if p + r > 0.0:
-                result[i] = 2.0 * (p * r) / (p + r)
+                result.set(i, 2.0 * (p * r) / (p + r))
             else:
-                result[i] = 0.0
+                result.set(i, 0.0)
 
         return result^
 
@@ -395,6 +395,6 @@ fn argmax(var tensor: ExTensor) raises -> ExTensor:
                 max_val = val
                 max_idx = c
 
-        result[b] = Int64(max_idx)
+        result.set(b, Int64(max_idx))
 
     return result^
