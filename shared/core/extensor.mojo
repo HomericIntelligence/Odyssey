@@ -825,32 +825,23 @@ struct ExTensor(
         # Return value based on dtype
         return self._get_float32(index)
 
-    fn __setitem__(mut self, index: Int, value: Float64) raises:
-        """Set element at flat index.
+    fn _resolve_index(self, index: Int) raises -> Int:
+        """Resolve flat index to memory offset, with bounds check.
 
-        For non-contiguous tensors, the flat index is converted to
-        multi-dimensional coordinates using the tensor's shape, then mapped
-        to a memory offset using strides (mirroring __getitem__ semantics).
-
-        Note: Mojo does not dispatch `obj[i] = val` to __setitem__ — it
-        treats `obj[i]` as an lvalue via __getitem__ (returns Float32).
-        Use `tensor.set(i, val)` for type-safe assignment from any numeric
-        type.
+        For non-contiguous tensors, converts flat index to memory offset
+        via nd-coordinates and strides.
 
         Args:
-            index: The flat index to set (logical element index in
-                row-major order of the tensor's shape).
-            value: The value to store.
+            index: Flat logical index.
+
+        Returns:
+            Memory offset for the element.
 
         Raises:
             Error: If index is out of bounds.
         """
         if index < 0 or index >= self._numel:
             raise Error("Index out of bounds")
-
-        # For non-contiguous tensors, convert flat index to memory offset
-        # via nd-coordinates and strides.
-        var actual_index = index
         if not self.is_contiguous():
             var remaining = index
             var mem_offset = 0
@@ -861,41 +852,44 @@ struct ExTensor(
                 var coord = remaining // dim_size
                 remaining = remaining % dim_size
                 mem_offset += coord * self._strides[i]
-            actual_index = mem_offset
+            return mem_offset
+        return index
 
+    fn __setitem__(mut self, index: Int, value: Float64) raises:
+        """Set element at flat index.
+
+        Note: Mojo does not dispatch `obj[i] = val` to __setitem__ — it
+        treats `obj[i]` as an lvalue via __getitem__ (returns Float32).
+        Use `tensor.set(i, val)` for type-safe assignment from any numeric
+        type.
+
+        Args:
+            index: The flat index to set.
+            value: The value to store.
+
+        Raises:
+            Error: If index is out of bounds.
+        """
+        var idx = self._resolve_index(index)
         if (
             self._dtype == DType.float16
             or self._dtype == DType.float32
             or self._dtype == DType.float64
             or self._dtype == DType.bfloat16
         ):
-            self._set_float64(actual_index, value)
+            self._set_float64(idx, value)
         else:
-            self._set_int64(actual_index, Int64(value))
+            self._set_int64(idx, Int64(value))
 
     fn __setitem__(mut self, index: Int, value: Int64) raises:
-        """Set element at flat index using an integer value.
-
-        Args:
-            index: The flat index to set.
-            value: The integer value to store.
-
-        Raises:
-            Error: If index is out of bounds.
-        """
-        self.__setitem__(index, Float64(value))
+        """Set element at flat index using an integer value."""
+        var idx = self._resolve_index(index)
+        self._set_int64(idx, value)
 
     fn __setitem__(mut self, index: Int, value: Float32) raises:
-        """Set element at flat index using a Float32 value.
-
-        Args:
-            index: The flat index to set.
-            value: The Float32 value to store.
-
-        Raises:
-            Error: If index is out of bounds.
-        """
-        self.__setitem__(index, Float64(value))
+        """Set element at flat index using a Float32 value."""
+        var idx = self._resolve_index(index)
+        self._set_float32(idx, value)
 
     # ===----------------------------------------------------------------------===#
     # set() — type-safe element assignment
@@ -905,67 +899,82 @@ struct ExTensor(
     # assigning Float64/Float16/Int64/etc. fails with a type error.
     # Use `tensor.set(i, val)` instead of `tensor[i] = val` when the
     # RHS is not Float32.
+    #
+    # Each overload calls the appropriate internal setter directly to
+    # avoid precision-losing type round-trips (e.g. Float32→Float64→Float32).
     # ===----------------------------------------------------------------------===#
 
     @always_inline
     fn set(mut self, index: Int, value: Float64) raises:
         """Set element at flat index from a Float64 value."""
-        self.__setitem__(index, value)
+        var idx = self._resolve_index(index)
+        self._set_float64(idx, value)
 
     @always_inline
     fn set(mut self, index: Int, value: Float32) raises:
         """Set element at flat index from a Float32 value."""
-        self.__setitem__(index, Float64(value))
+        var idx = self._resolve_index(index)
+        self._set_float32(idx, value)
 
     @always_inline
     fn set(mut self, index: Int, value: Float16) raises:
         """Set element at flat index from a Float16 value."""
-        self.__setitem__(index, Float64(Float32(value)))
+        var idx = self._resolve_index(index)
+        self._set_float32(idx, Float32(value))
 
     @always_inline
     fn set(mut self, index: Int, value: Int) raises:
         """Set element at flat index from an Int value."""
-        self.__setitem__(index, Float64(value))
+        var idx = self._resolve_index(index)
+        self._set_int64(idx, Int64(value))
 
     @always_inline
     fn set(mut self, index: Int, value: Int64) raises:
         """Set element at flat index from an Int64 value."""
-        self.__setitem__(index, Float64(value))
+        var idx = self._resolve_index(index)
+        self._set_int64(idx, value)
 
     @always_inline
     fn set(mut self, index: Int, value: Int32) raises:
         """Set element at flat index from an Int32 value."""
-        self.__setitem__(index, Float64(Int(value)))
+        var idx = self._resolve_index(index)
+        self._set_int64(idx, Int64(Int(value)))
 
     @always_inline
     fn set(mut self, index: Int, value: Int16) raises:
         """Set element at flat index from an Int16 value."""
-        self.__setitem__(index, Float64(Int(value)))
+        var idx = self._resolve_index(index)
+        self._set_int64(idx, Int64(Int(value)))
 
     @always_inline
     fn set(mut self, index: Int, value: Int8) raises:
         """Set element at flat index from an Int8 value."""
-        self.__setitem__(index, Float64(Int(value)))
+        var idx = self._resolve_index(index)
+        self._set_int64(idx, Int64(Int(value)))
 
     @always_inline
     fn set(mut self, index: Int, value: UInt8) raises:
         """Set element at flat index from a UInt8 value."""
-        self.__setitem__(index, Float64(Int(value)))
+        var idx = self._resolve_index(index)
+        self._set_int64(idx, Int64(Int(value)))
 
     @always_inline
     fn set(mut self, index: Int, value: UInt16) raises:
         """Set element at flat index from a UInt16 value."""
-        self.__setitem__(index, Float64(Int(value)))
+        var idx = self._resolve_index(index)
+        self._set_int64(idx, Int64(Int(value)))
 
     @always_inline
     fn set(mut self, index: Int, value: UInt32) raises:
         """Set element at flat index from a UInt32 value."""
-        self.__setitem__(index, Float64(Int(value)))
+        var idx = self._resolve_index(index)
+        self._set_int64(idx, Int64(Int(value)))
 
     @always_inline
     fn set(mut self, index: Int, value: UInt64) raises:
         """Set element at flat index from a UInt64 value."""
-        self.__setitem__(index, Float64(Int(value)))
+        var idx = self._resolve_index(index)
+        self._set_int64(idx, Int64(Int(value)))
 
     fn __getitem__(self, indices: List[Int]) raises -> Float32:
         """Get element at multi-dimensional index.
@@ -999,8 +1008,6 @@ struct ExTensor(
             if indices[i] < 0 or indices[i] >= self._shape[i]:
                 raise Error("Index out of bounds at dimension " + String(i))
             mem_offset += indices[i] * self._strides[i]
-        # Use _get_float32 directly with the stride-computed memory offset
-        # to avoid double-conversion in __getitem__(Int) for non-contiguous tensors.
         return self._get_float32(mem_offset)
 
     fn __setitem__(mut self, indices: List[Int], value: Float64) raises:
