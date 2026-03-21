@@ -50,35 +50,35 @@ fn cast_tensor(tensor: ExTensor, target_dtype: DType) raises -> ExTensor:
     if tensor.dtype() == DType.float32 and target_dtype == DType.float16:
         var src_ptr = tensor._data.bitcast[Float32]()
         for i in range(size):
-            result[i] = Float64(src_ptr[i])
+            result[i] = Float32(src_ptr[i])
         return result
 
     # FP16 -> FP32
     if tensor.dtype() == DType.float16 and target_dtype == DType.float32:
         var src_ptr = tensor._data.bitcast[Float16]()
         for i in range(size):
-            result[i] = Float64(src_ptr[i])
+            result[i] = Float32(src_ptr[i])
         return result
 
     # FP32 -> FP32 (copy)
     if tensor.dtype() == DType.float32 and target_dtype == DType.float32:
         var src_ptr = tensor._data.bitcast[Float32]()
         for i in range(size):
-            result[i] = Float64(src_ptr[i])
+            result[i] = Float32(src_ptr[i])
         return result
 
     # FP64 -> FP32
     if tensor.dtype() == DType.float64 and target_dtype == DType.float32:
         var src_ptr = tensor._data.bitcast[Float64]()
         for i in range(size):
-            result[i] = src_ptr[i]
+            result[i] = Float32(src_ptr[i])
         return result
 
     # FP32 -> FP64
     if tensor.dtype() == DType.float32 and target_dtype == DType.float64:
         var src_ptr = tensor._data.bitcast[Float32]()
         for i in range(size):
-            result[i] = Float64(src_ptr[i])
+            result[i] = Float32(src_ptr[i])
         return result
 
     # Generic slow path for other conversions
@@ -124,7 +124,7 @@ fn cast_to_bfloat16(tensor: ExTensor) raises -> ExTensor:
         # Convert to bfloat16 using native SIMD, then bitcast to uint16 for storage
         var bf16_val = SIMD[BF16, 1](f32_val)
         var bf16_bits = bitcast[DType.uint16, 1](bf16_val)[0]
-        result[i] = Float64(bf16_bits)
+        result[i] = Float32(bf16_bits)
 
     return result
 
@@ -176,11 +176,11 @@ fn cast_from_bfloat16(
         var f32_val = Float32(bf16_val[0])
 
         if target_dtype == DType.float32:
-            result[i] = Float64(f32_val)
+            result[i] = Float32(f32_val)
         elif target_dtype == DType.float64:
-            result[i] = Float64(f32_val)
+            result[i] = Float32(f32_val)
         elif target_dtype == DType.float16:
-            result[i] = Float64(f32_val)
+            result[i] = Float32(f32_val)
 
     return result
 

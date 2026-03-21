@@ -82,19 +82,19 @@ fn dropout(
     if x.dtype() == DType.float32:
         for i in range(size):
             var rand_val = Float32(random.random_float64())
-            mask[i] = Float64(1.0) if rand_val > Float32(
+            mask[i] = Float32(1.0) if rand_val > Float32(
                 p
-            ) else Float64(0.0)
+            ) else Float32(0.0)
     elif x.dtype() == DType.float64:
         for i in range(size):
             var rand_val = random.random_float64()
-            mask[i] = 1.0 if rand_val > p else 0.0
+            mask.set(i, 1.0 if rand_val > p else 0.0)
     elif x.dtype() == DType.float16:
         for i in range(size):
             var rand_val = Float32(random.random_float64())
-            mask[i] = Float64(1.0) if rand_val > Float32(
+            mask[i] = Float32(1.0) if rand_val > Float32(
                 p
-            ) else Float64(0.0)
+            ) else Float32(0.0)
     else:
         raise Error("dropout: only float16/32/64 dtypes supported")
 
@@ -181,23 +181,23 @@ fn dropout2d(
             for c in range(channels):
                 var rand_val = Float32(random.random_float64())
                 var idx = b * channels + c
-                channel_mask[idx] = Float64(
+                channel_mask[idx] = Float32(
                     1.0
-                ) if rand_val > Float32(p) else Float64(0.0)
+                ) if rand_val > Float32(p) else Float32(0.0)
     elif x.dtype() == DType.float64:
         for b in range(batch):
             for c in range(channels):
                 var rand_val = random.random_float64()
                 var idx = b * channels + c
-                channel_mask[idx] = 1.0 if rand_val > p else 0.0
+                channel_mask.set(idx, 1.0 if rand_val > p else 0.0)
     elif x.dtype() == DType.float16:
         for b in range(batch):
             for c in range(channels):
                 var rand_val = Float32(random.random_float64())
                 var idx = b * channels + c
-                channel_mask[idx] = Float64(
+                channel_mask[idx] = Float32(
                     1.0
-                ) if rand_val > Float32(p) else Float64(0.0)
+                ) if rand_val > Float32(p) else Float32(0.0)
     else:
         raise Error("dropout2d: only float16/32/64 dtypes supported")
 
@@ -216,7 +216,7 @@ fn dropout2d(
                             + h * width
                             + w
                         )
-                        full_mask[idx] = Float64(mask_val)
+                        full_mask[idx] = Float32(mask_val)
     elif x.dtype() == DType.float64:
         for b in range(batch):
             for c in range(channels):
@@ -229,7 +229,7 @@ fn dropout2d(
                             + h * width
                             + w
                         )
-                        full_mask[idx] = mask_val
+                        full_mask.set(idx, mask_val)
     elif x.dtype() == DType.float16:
         for b in range(batch):
             for c in range(channels):
@@ -242,7 +242,7 @@ fn dropout2d(
                             + h * width
                             + w
                         )
-                        full_mask[idx] = Float64(mask_val)
+                        full_mask.set(idx, Float16(mask_val))
 
     # Apply mask and scale
     var masked = multiply(x, full_mask)

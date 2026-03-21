@@ -210,7 +210,7 @@ because the last "use" of `tensor` appears to be the `._data` access.
 
 **Upstream Issue**: [modular/modular#6187](https://github.com/modular/modular/issues/6187)
 
-**Root Cause Analysis**: [Day 53 Blog Post](../../notes/blog/03-16-2026/README.md)
+**Root Cause Analysis**: [Day 53 Blog Post](https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/notes/blog/03-16-2026/README.md)
 
 **Fix Applied**: Replace all `tensor._data.bitcast[T]()[i] = val` writes with `tensor[i] = Float64(val)`
 (`__setitem__`), which keeps the tensor alive through the write operation. Bitcast reads are safe

@@ -124,7 +124,7 @@ fn batch_norm2d(
         var batch_var_ptr = batch_var._data
         var x_ptr = x._data
 
-        var spatial_size = Float32(batch * height * width)
+        var spatial_size = batch * height * width
 
         # Compute mean per channel
         if x.dtype() == DType.float32:
@@ -140,7 +140,7 @@ fn batch_norm2d(
                                 + w
                             )
                             sum_val += x_ptr.bitcast[Float32]()[idx]
-                batch_mean[c] = Float64(sum_val / spatial_size)
+                batch_mean[c] = Float32(sum_val / Float32(spatial_size))
 
             # Compute variance per channel
             for c in range(channels):
@@ -157,7 +157,7 @@ fn batch_norm2d(
                             )
                             var diff = x_ptr.bitcast[Float32]()[idx] - mean_val
                             sum_sq_diff += diff * diff
-                batch_var[c] = Float64(sum_sq_diff / spatial_size)
+                batch_var[c] = Float32(sum_sq_diff / Float32(spatial_size))
 
         elif x.dtype() == DType.float64:
             for c in range(channels):
@@ -172,9 +172,7 @@ fn batch_norm2d(
                                 + w
                             )
                             sum_val += x_ptr.bitcast[Float64]()[idx]
-                batch_mean[c] = sum_val / Float64(
-                    spatial_size
-                )
+                batch_mean.set(c, sum_val / Float64(spatial_size))
 
             for c in range(channels):
                 var mean_val = batch_mean_ptr.bitcast[Float64]()[c]
@@ -190,9 +188,7 @@ fn batch_norm2d(
                             )
                             var diff = x_ptr.bitcast[Float64]()[idx] - mean_val
                             sum_sq_diff += diff * diff
-                batch_var[c] = sum_sq_diff / Float64(
-                    spatial_size
-                )
+                batch_var.set(c, sum_sq_diff / Float64(spatial_size))
         else:
             raise Error("batch_norm2d: only float32/64 dtypes supported")
 
@@ -224,9 +220,7 @@ fn batch_norm2d(
                                 )
                                 var x_val = x_ptr.bitcast[Float32]()[idx]
                                 var x_norm = (x_val - mean_val) / std
-                                output[idx] = Float64(
-                                    gamma_val * x_norm + beta_val
-                                )
+                                output._set_float64(idx, Float64(gamma_val * x_norm + beta_val))
 
                 parallelize[normalize_batch_f32](batch)
             else:
@@ -249,7 +243,7 @@ fn batch_norm2d(
                                 )
                                 var x_val = x_ptr.bitcast[Float32]()[idx]
                                 var x_norm = (x_val - mean_val) / std
-                                output[idx] = Float64(
+                                output[idx] = Float32(
                                     gamma_val * x_norm + beta_val
                                 )
 
@@ -275,9 +269,7 @@ fn batch_norm2d(
                                 )
                                 var x_val = x_ptr.bitcast[Float64]()[idx]
                                 var x_norm = (x_val - mean_val) / std
-                                output[idx] = (
-                                    gamma_val * x_norm + beta_val
-                                )
+                                output._set_float64(idx, gamma_val * x_norm + beta_val)
 
                 parallelize[normalize_batch_f64](batch)
             else:
@@ -300,9 +292,7 @@ fn batch_norm2d(
                                 )
                                 var x_val = x_ptr.bitcast[Float64]()[idx]
                                 var x_norm = (x_val - mean_val) / std
-                                output[idx] = (
-                                    gamma_val * x_norm + beta_val
-                                )
+                                output.set(idx, gamma_val * x_norm + beta_val)
 
         # Update running statistics
         var new_running_mean = zeros_like(running_mean)
@@ -319,11 +309,11 @@ fn batch_norm2d(
                 var bm_val = batch_mean_ptr.bitcast[Float32]()[c]
                 var bv_val = batch_var_ptr.bitcast[Float32]()[c]
 
-                new_running_mean[c] = Float64(
+                new_running_mean[c] = Float32(
                     Float32(1.0 - momentum) * rm_val
                     + Float32(momentum) * bm_val
                 )
-                new_running_var[c] = Float64(
+                new_running_var[c] = Float32(
                     Float32(1.0 - momentum) * rv_val
                     + Float32(momentum) * bv_val
                 )
@@ -335,12 +325,18 @@ fn batch_norm2d(
                 var bm_val = batch_mean_ptr.bitcast[Float64]()[c]
                 var bv_val = batch_var_ptr.bitcast[Float64]()[c]
 
-                new_running_mean[c] = (
-                    1.0 - momentum
-                ) * rm_val + momentum * bm_val
-                new_running_var[c] = (
-                    1.0 - momentum
-                ) * rv_val + momentum * bv_val
+                new_running_mean.set(
+                    c,
+                    (
+                        1.0 - momentum
+                    ) * rm_val + momentum * bm_val
+                )
+                new_running_var.set(
+                    c,
+                    (
+                        1.0 - momentum
+                    ) * rv_val + momentum * bv_val
+                )
 
         return (output, new_running_mean, new_running_var)
 
@@ -376,9 +372,7 @@ fn batch_norm2d(
                                 )
                                 var x_val = x_ptr.bitcast[Float32]()[idx]
                                 var x_norm = (x_val - mean_val) / std
-                                output[idx] = Float64(
-                                    gamma_val * x_norm + beta_val
-                                )
+                                output._set_float64(idx, Float64(gamma_val * x_norm + beta_val))
 
                 parallelize[normalize_batch_infer_f32](batch)
             else:
@@ -401,7 +395,7 @@ fn batch_norm2d(
                                 )
                                 var x_val = x_ptr.bitcast[Float32]()[idx]
                                 var x_norm = (x_val - mean_val) / std
-                                output[idx] = Float64(
+                                output[idx] = Float32(
                                     gamma_val * x_norm + beta_val
                                 )
 
@@ -427,9 +421,7 @@ fn batch_norm2d(
                                 )
                                 var x_val = x_ptr.bitcast[Float64]()[idx]
                                 var x_norm = (x_val - mean_val) / std
-                                output[idx] = (
-                                    gamma_val * x_norm + beta_val
-                                )
+                                output._set_float64(idx, gamma_val * x_norm + beta_val)
 
                 parallelize[normalize_batch_infer_f64](batch)
             else:
@@ -452,9 +444,7 @@ fn batch_norm2d(
                                 )
                                 var x_val = x_ptr.bitcast[Float64]()[idx]
                                 var x_norm = (x_val - mean_val) / std
-                                output[idx] = (
-                                    gamma_val * x_norm + beta_val
-                                )
+                                output.set(idx, gamma_val * x_norm + beta_val)
 
         # Running stats unchanged in inference mode
         return (output, running_mean, running_var)
@@ -608,7 +598,7 @@ fn batch_norm2d_backward(
                                 + w
                             )
                             sum_val += x_ptr.bitcast[Float32]()[idx]
-                batch_mean[c] = Float64(sum_val / N)
+                batch_mean[c] = Float32(sum_val / N)
 
             # Compute variance per channel
             for c in range(channels):
@@ -625,7 +615,7 @@ fn batch_norm2d_backward(
                             )
                             var diff = x_ptr.bitcast[Float32]()[idx] - mean_val
                             sum_sq_diff += diff * diff
-                batch_var[c] = Float64(sum_sq_diff / N)
+                batch_var[c] = Float32(sum_sq_diff / N)
 
             # Step 2: Compute grad_beta and grad_gamma
             for c in range(channels):
@@ -654,8 +644,8 @@ fn batch_norm2d_backward(
                             sum_grad_output += grad_out
                             sum_grad_output_x_norm += grad_out * x_norm
 
-                grad_beta[c] = Float64(sum_grad_output)
-                grad_gamma[c] = Float64(sum_grad_output_x_norm)
+                grad_beta[c] = Float32(sum_grad_output)
+                grad_gamma[c] = Float32(sum_grad_output_x_norm)
 
             # Step 3: Compute grad_input using Kratzert's three-term formula
             # Follows: https://kratzert.github.io/2016/02/12/understanding-the-gradient-flow-through-the-batch-normalization-layer.html
@@ -717,7 +707,7 @@ fn batch_norm2d_backward(
                             var x_val = x_ptr.bitcast[Float32]()[idx]
                             var x_norm = (x_val - mean_val) * invstd
 
-                            grad_input[idx] = Float64(
+                            grad_input[idx] = Float32(
                                 (grad_out - k / N - x_norm * dotp / N)
                                 * gamma_val
                                 * invstd
@@ -739,7 +729,7 @@ fn batch_norm2d_backward(
                                 + w
                             )
                             sum_val += x_ptr.bitcast[Float64]()[idx]
-                batch_mean[c] = sum_val / N
+                batch_mean.set(c, sum_val / N)
 
             # Compute variance per channel
             for c in range(channels):
@@ -756,7 +746,7 @@ fn batch_norm2d_backward(
                             )
                             var diff = x_ptr.bitcast[Float64]()[idx] - mean_val
                             sum_sq_diff += diff * diff
-                batch_var[c] = sum_sq_diff / N
+                batch_var.set(c, sum_sq_diff / N)
 
             # Step 2: Compute grad_beta and grad_gamma
             for c in range(channels):
@@ -785,8 +775,8 @@ fn batch_norm2d_backward(
                             sum_grad_output += grad_out
                             sum_grad_output_x_norm += grad_out * x_norm
 
-                grad_beta[c] = sum_grad_output
-                grad_gamma[c] = sum_grad_output_x_norm
+                grad_beta.set(c, sum_grad_output)
+                grad_gamma.set(c, sum_grad_output_x_norm)
 
             # Step 3: Compute grad_input using Kratzert's three-term formula
             # Follows: https://kratzert.github.io/2016/02/12/understanding-the-gradient-flow-through-the-batch-normalization-layer.html
@@ -842,10 +832,13 @@ fn batch_norm2d_backward(
                             var x_val = x_ptr.bitcast[Float64]()[idx]
                             var x_norm = (x_val - mean_val) * invstd
 
-                            grad_input[idx] = (
-                                (grad_out - k / N - x_norm * dotp / N)
-                                * gamma_val
-                                * invstd
+                            grad_input.set(
+                                idx,
+                                (
+                                    (grad_out - k / N - x_norm * dotp / N)
+                                    * gamma_val
+                                    * invstd
+                                )
                             )
 
         else:
@@ -887,8 +880,8 @@ fn batch_norm2d_backward(
                             sum_grad_output += grad_out
                             sum_grad_output_x_norm += grad_out * x_norm
 
-                grad_beta[c] = Float64(sum_grad_output)
-                grad_gamma[c] = Float64(sum_grad_output_x_norm)
+                grad_beta[c] = Float32(sum_grad_output)
+                grad_gamma[c] = Float32(sum_grad_output_x_norm)
 
             # Compute grad_input (simple rescaling)
             for b in range(batch):
@@ -908,7 +901,7 @@ fn batch_norm2d_backward(
                             var grad_out = grad_output_ptr.bitcast[Float32]()[
                                 idx
                             ]
-                            grad_input[idx] = Float64(
+                            grad_input[idx] = Float32(
                                 grad_out * gamma_val / std
                             )
 
@@ -940,8 +933,8 @@ fn batch_norm2d_backward(
                             sum_grad_output += grad_out
                             sum_grad_output_x_norm += grad_out * x_norm
 
-                grad_beta[c] = sum_grad_output
-                grad_gamma[c] = sum_grad_output_x_norm
+                grad_beta.set(c, sum_grad_output)
+                grad_gamma.set(c, sum_grad_output_x_norm)
 
             # Compute grad_input (simple rescaling)
             for b in range(batch):
@@ -961,9 +954,7 @@ fn batch_norm2d_backward(
                             var grad_out = grad_output_ptr.bitcast[Float64]()[
                                 idx
                             ]
-                            grad_input[idx] = (
-                                grad_out * gamma_val / std
-                            )
+                            grad_input.set(idx, grad_out * gamma_val / std)
 
         else:
             raise Error(
@@ -1058,7 +1049,7 @@ fn layer_norm(
                     var x_norm = (x_val - mean_val) / std
                     var gamma_val = gamma_ptr.bitcast[Float32]()[f]
                     var beta_val = beta_ptr.bitcast[Float32]()[f]
-                    output[idx] = Float64(
+                    output[idx] = Float32(
                         gamma_val * x_norm + beta_val
                     )
 
@@ -1084,9 +1075,7 @@ fn layer_norm(
                     var x_norm = (x_val - mean_val) / std
                     var gamma_val = gamma_ptr.bitcast[Float64]()[f]
                     var beta_val = beta_ptr.bitcast[Float64]()[f]
-                    output[idx] = (
-                        gamma_val * x_norm + beta_val
-                    )
+                    output.set(idx, gamma_val * x_norm + beta_val)
         else:
             raise Error("layer_norm: only float32/64 dtypes supported")
 
@@ -1158,7 +1147,7 @@ fn layer_norm(
                             var beta_val = beta_ptr.bitcast[Float32]()[
                                 gamma_idx
                             ]
-                            output[idx] = Float64(
+                            output[idx] = Float32(
                                 gamma_val * x_norm + beta_val
                             )
 
@@ -1210,9 +1199,7 @@ fn layer_norm(
                             var beta_val = beta_ptr.bitcast[Float64]()[
                                 gamma_idx
                             ]
-                            output[idx] = (
-                                gamma_val * x_norm + beta_val
-                            )
+                            output.set(idx, gamma_val * x_norm + beta_val)
         else:
             raise Error("layer_norm: only float32/64 dtypes supported")
 
@@ -1337,8 +1324,8 @@ fn layer_norm_backward(
                     var x_val = x_ptr.bitcast[Float32]()[idx]
                     var x_norm = (x_val - mean_val) / std
 
-                    grad_beta[f] = Float64(grad_beta[f] + grad_out)
-                    grad_gamma[f] = Float64(grad_gamma[f] + grad_out * x_norm)
+                    grad_beta[f] = Float32(grad_beta[f] + grad_out)
+                    grad_gamma[f] = Float32(grad_gamma[f] + grad_out * x_norm)
 
             # Second pass: compute grad_input for each sample
             for b in range(batch):
@@ -1397,7 +1384,7 @@ fn layer_norm_backward(
                     var term2 = grad_var * Float32(2.0) * x_minus_mean / N
                     var term3 = grad_mean / N
 
-                    grad_input[idx] = Float64(
+                    grad_input[idx] = Float32(
                         term1 + term2 + term3
                     )
 
@@ -1425,8 +1412,8 @@ fn layer_norm_backward(
                     var x_val = x_ptr.bitcast[Float64]()[idx]
                     var x_norm = (x_val - mean_val) / std
 
-                    grad_beta[f] = grad_beta[f] + grad_out
-                    grad_gamma[f] = grad_gamma[f] + grad_out * x_norm
+                    grad_beta.set(f, Float64(grad_beta[f]) + grad_out)
+                    grad_gamma.set(f, Float64(grad_gamma[f]) + grad_out * x_norm)
 
             for b in range(batch):
                 var sum_val = Float64(0.0)
@@ -1474,9 +1461,7 @@ fn layer_norm_backward(
                     var term2 = grad_var * Float64(2.0) * x_minus_mean / N64
                     var term3 = grad_mean / N64
 
-                    grad_input[idx] = (
-                        term1 + term2 + term3
-                    )
+                    grad_input.set(idx, term1 + term2 + term3)
 
         else:
             raise Error("layer_norm_backward: only float32/64 dtypes supported")
@@ -1554,8 +1539,8 @@ fn layer_norm_backward(
                             var x_val = x_ptr.bitcast[Float32]()[idx]
                             var x_norm = (x_val - mean_val) / std
 
-                            grad_beta[gamma_idx] = Float64(grad_beta[gamma_idx] + grad_out)
-                            grad_gamma[gamma_idx] = Float64(grad_gamma[gamma_idx] + grad_out * x_norm)
+                            grad_beta[gamma_idx] = Float32(grad_beta[gamma_idx] + grad_out)
+                            grad_gamma[gamma_idx] = Float32(grad_gamma[gamma_idx] + grad_out * x_norm)
 
             # Second pass: compute grad_input for each sample
             for b in range(batch):
@@ -1649,7 +1634,7 @@ fn layer_norm_backward(
                             )
                             var term3 = grad_mean / N
 
-                            grad_input[idx] = Float64(
+                            grad_input[idx] = Float32(
                                 term1 + term2 + term3
                             )
 
@@ -1701,8 +1686,8 @@ fn layer_norm_backward(
                             var x_val = x_ptr.bitcast[Float64]()[idx]
                             var x_norm = (x_val - mean_val) / std
 
-                            grad_beta[gamma_idx] = grad_beta[gamma_idx] + grad_out
-                            grad_gamma[gamma_idx] = grad_gamma[gamma_idx] + grad_out * x_norm
+                            grad_beta.set(gamma_idx, Float64(grad_beta[gamma_idx]) + grad_out)
+                            grad_gamma.set(gamma_idx, Float64(grad_gamma[gamma_idx]) + grad_out * x_norm)
 
             for b in range(batch):
                 var sum_val = Float64(0.0)
@@ -1792,9 +1777,7 @@ fn layer_norm_backward(
                             )
                             var term3 = grad_mean / N64
 
-                            grad_input[idx] = (
-                                term1 + term2 + term3
-                            )
+                            grad_input.set(idx, term1 + term2 + term3)
 
         else:
             raise Error("layer_norm_backward: only float32/64 dtypes supported")
@@ -1927,7 +1910,7 @@ fn group_norm(
                             )
                             var x_val = x_ptr.bitcast[Float32]()[idx]
                             var x_norm = (x_val - mean_val) / std
-                            output[idx] = Float64(
+                            output[idx] = Float32(
                                 gamma_val * x_norm + beta_val
                             )
 
@@ -1980,9 +1963,7 @@ fn group_norm(
                             )
                             var x_val = x_ptr.bitcast[Float64]()[idx]
                             var x_norm = (x_val - mean_val) / std
-                            output[idx] = (
-                                gamma_val * x_norm + beta_val
-                            )
+                            output.set(idx, gamma_val * x_norm + beta_val)
     else:
         raise Error("group_norm: only float32/64 dtypes supported")
 
@@ -2120,8 +2101,8 @@ fn group_norm_backward(
                             var x_val = x_ptr.bitcast[Float32]()[idx]
                             var x_norm = (x_val - mean_val) / std
 
-                            grad_beta[c] = Float64(grad_beta[c] + grad_out)
-                            grad_gamma[c] = Float64(grad_gamma[c] + grad_out * x_norm)
+                            grad_beta[c] = Float32(grad_beta[c] + grad_out)
+                            grad_gamma[c] = Float32(grad_gamma[c] + grad_out * x_norm)
 
         # Second pass: compute grad_input
         for b in range(batch):
@@ -2213,7 +2194,7 @@ fn group_norm_backward(
                             )
                             var term3 = grad_mean / N
 
-                            grad_input[idx] = Float64(
+                            grad_input[idx] = Float32(
                                 term1 + term2 + term3
                             )
 
@@ -2268,8 +2249,8 @@ fn group_norm_backward(
                             var x_val = x_ptr.bitcast[Float64]()[idx]
                             var x_norm = (x_val - mean_val) / std
 
-                            grad_beta[c] = grad_beta[c] + grad_out
-                            grad_gamma[c] = grad_gamma[c] + grad_out * x_norm
+                            grad_beta.set(c, Float64(grad_beta[c]) + grad_out)
+                            grad_gamma.set(c, Float64(grad_gamma[c]) + grad_out * x_norm)
 
         for b in range(batch):
             for g in range(num_groups):
@@ -2357,9 +2338,7 @@ fn group_norm_backward(
                             )
                             var term3 = grad_mean / N
 
-                            grad_input[idx] = (
-                                term1 + term2 + term3
-                            )
+                            grad_input.set(idx, term1 + term2 + term3)
 
     else:
         raise Error("group_norm_backward: only float32/64 dtypes supported")
@@ -2475,7 +2454,7 @@ fn instance_norm(
                         )
                         var x_val = x_ptr.bitcast[Float32]()[idx]
                         var x_norm = (x_val - mean_val) / std
-                        output[idx] = Float64(
+                        output[idx] = Float32(
                             gamma_val * x_norm + beta_val
                         )
 
@@ -2522,9 +2501,7 @@ fn instance_norm(
                         )
                         var x_val = x_ptr.bitcast[Float64]()[idx]
                         var x_norm = (x_val - mean_val) / std
-                        output[idx] = (
-                            gamma_val * x_norm + beta_val
-                        )
+                        output.set(idx, gamma_val * x_norm + beta_val)
     else:
         raise Error("instance_norm: only float32/64 dtypes supported")
 
@@ -2645,8 +2622,8 @@ fn instance_norm_backward(
                         var x_val = x_ptr.bitcast[Float32]()[idx]
                         var x_norm = (x_val - mean_val) / std
 
-                        grad_beta[c] = Float64(grad_beta[c] + grad_out)
-                        grad_gamma[c] = Float64(grad_gamma[c] + grad_out * x_norm)
+                        grad_beta[c] = Float32(grad_beta[c] + grad_out)
+                        grad_gamma[c] = Float32(grad_gamma[c] + grad_out * x_norm)
 
         # Second pass: compute grad_input
         for b in range(batch):
@@ -2725,7 +2702,7 @@ fn instance_norm_backward(
                         var term2 = grad_var * Float32(2.0) * x_minus_mean / N
                         var term3 = grad_mean / N
 
-                        grad_input[idx] = Float64(
+                        grad_input[idx] = Float32(
                             term1 + term2 + term3
                         )
 
@@ -2773,8 +2750,8 @@ fn instance_norm_backward(
                         var x_val = x_ptr.bitcast[Float64]()[idx]
                         var x_norm = (x_val - mean_val) / std
 
-                        grad_beta[c] = grad_beta[c] + grad_out
-                        grad_gamma[c] = grad_gamma[c] + grad_out * x_norm
+                        grad_beta.set(c, Float64(grad_beta[c]) + grad_out)
+                        grad_gamma.set(c, Float64(grad_gamma[c]) + grad_out * x_norm)
 
         # Second pass: compute grad_input
         for b in range(batch):
@@ -2848,9 +2825,7 @@ fn instance_norm_backward(
                         var term2 = grad_var * Float64(2.0) * x_minus_mean / N
                         var term3 = grad_mean / N
 
-                        grad_input[idx] = (
-                            term1 + term2 + term3
-                        )
+                        grad_input.set(idx, term1 + term2 + term3)
 
     else:
         raise Error("instance_norm_backward: only float32/64 dtypes supported")

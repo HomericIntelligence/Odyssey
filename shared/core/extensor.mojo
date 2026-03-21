@@ -216,7 +216,7 @@ struct ExTensor(
         self._allocated_size = dtype_size
         self._refcount = alloc[Int](1)
         self._refcount[] = 1
-        self[0] = Int64(value)
+        self._set_int64(0, Int64(value))
 
     fn __init__(out self, value: FloatLiteral) raises:
         """Create a scalar ExTensor from a float literal.
@@ -248,7 +248,7 @@ struct ExTensor(
         self._allocated_size = dtype_size
         self._refcount = alloc[Int](1)
         self._refcount[] = 1
-        self[0] = Float64(value)
+        self._set_float64(0, Float64(value))
 
     fn __init__(out self, value: Int) raises:
         """Create a scalar ExTensor from an Int.
@@ -274,7 +274,7 @@ struct ExTensor(
         self._allocated_size = dtype_size
         self._refcount = alloc[Int](1)
         self._refcount[] = 1
-        self[0] = Int64(value)
+        self._set_int64(0, Int64(value))
 
     fn __init__(out self, value: Float64) raises:
         """Create a scalar ExTensor from a Float64.
@@ -305,7 +305,7 @@ struct ExTensor(
         self._allocated_size = dtype_size
         self._refcount = alloc[Int](1)
         self._refcount[] = 1
-        self[0] = value
+        self._set_float64(0, value)
 
     fn __init__(out self, var data: List[Float32]) raises:
         """Create 1D tensor from List[Float32].
@@ -415,7 +415,7 @@ struct ExTensor(
 
         # Copy data
         for i in range(len(data)):
-            self[i] = Float64(data[i])
+            self._set_float64(i, Float64(data[i]))
 
     fn __copyinit__(out self, existing: Self):
         """Copy constructor - creates shared ownership with reference counting.
@@ -832,6 +832,11 @@ struct ExTensor(
         multi-dimensional coordinates using the tensor's shape, then mapped
         to a memory offset using strides (mirroring __getitem__ semantics).
 
+        Note: Mojo does not dispatch `obj[i] = val` to __setitem__ — it
+        treats `obj[i]` as an lvalue via __getitem__ (returns Float32).
+        Use `tensor.set(i, val)` for type-safe assignment from any numeric
+        type.
+
         Args:
             index: The flat index to set (logical element index in
                 row-major order of the tensor's shape).
@@ -839,12 +844,6 @@ struct ExTensor(
 
         Raises:
             Error: If index is out of bounds.
-
-        Example:
-            ```mojo
-            var t = zeros([3], DType.float32)
-            t[1] = 9.5
-        ```
         """
         if index < 0 or index >= self._numel:
             raise Error("Index out of bounds")
@@ -883,12 +882,6 @@ struct ExTensor(
 
         Raises:
             Error: If index is out of bounds.
-
-        Example:
-            ```mojo
-            var t = zeros([3], DType.int32)
-            t[2] = Int64(7)
-        ```
         """
         self.__setitem__(index, Float64(value))
 
@@ -901,14 +894,78 @@ struct ExTensor(
 
         Raises:
             Error: If index is out of bounds.
-
-        Example:
-            ```mojo
-            var t = zeros([3], DType.float32)
-            t[1] = Float32(9.5)
-        ```
         """
         self.__setitem__(index, Float64(value))
+
+    # ===----------------------------------------------------------------------===#
+    # set() — type-safe element assignment
+    #
+    # Mojo does NOT dispatch `obj[i] = val` to __setitem__; it treats
+    # `obj[i]` as an lvalue via __getitem__ (returns Float32), so
+    # assigning Float64/Float16/Int64/etc. fails with a type error.
+    # Use `tensor.set(i, val)` instead of `tensor[i] = val` when the
+    # RHS is not Float32.
+    # ===----------------------------------------------------------------------===#
+
+    @always_inline
+    fn set(mut self, index: Int, value: Float64) raises:
+        """Set element at flat index from a Float64 value."""
+        self.__setitem__(index, value)
+
+    @always_inline
+    fn set(mut self, index: Int, value: Float32) raises:
+        """Set element at flat index from a Float32 value."""
+        self.__setitem__(index, Float64(value))
+
+    @always_inline
+    fn set(mut self, index: Int, value: Float16) raises:
+        """Set element at flat index from a Float16 value."""
+        self.__setitem__(index, Float64(Float32(value)))
+
+    @always_inline
+    fn set(mut self, index: Int, value: Int) raises:
+        """Set element at flat index from an Int value."""
+        self.__setitem__(index, Float64(value))
+
+    @always_inline
+    fn set(mut self, index: Int, value: Int64) raises:
+        """Set element at flat index from an Int64 value."""
+        self.__setitem__(index, Float64(value))
+
+    @always_inline
+    fn set(mut self, index: Int, value: Int32) raises:
+        """Set element at flat index from an Int32 value."""
+        self.__setitem__(index, Float64(Int(value)))
+
+    @always_inline
+    fn set(mut self, index: Int, value: Int16) raises:
+        """Set element at flat index from an Int16 value."""
+        self.__setitem__(index, Float64(Int(value)))
+
+    @always_inline
+    fn set(mut self, index: Int, value: Int8) raises:
+        """Set element at flat index from an Int8 value."""
+        self.__setitem__(index, Float64(Int(value)))
+
+    @always_inline
+    fn set(mut self, index: Int, value: UInt8) raises:
+        """Set element at flat index from a UInt8 value."""
+        self.__setitem__(index, Float64(Int(value)))
+
+    @always_inline
+    fn set(mut self, index: Int, value: UInt16) raises:
+        """Set element at flat index from a UInt16 value."""
+        self.__setitem__(index, Float64(Int(value)))
+
+    @always_inline
+    fn set(mut self, index: Int, value: UInt32) raises:
+        """Set element at flat index from a UInt32 value."""
+        self.__setitem__(index, Float64(Int(value)))
+
+    @always_inline
+    fn set(mut self, index: Int, value: UInt64) raises:
+        """Set element at flat index from a UInt64 value."""
+        self.__setitem__(index, Float64(Int(value)))
 
     fn __getitem__(self, indices: List[Int]) raises -> Float32:
         """Get element at multi-dimensional index.
@@ -1875,7 +1932,7 @@ struct ExTensor(
             # Bitcast uint8 to FP8, then convert to float32
             var fp8_val = bitcast[FP8, 1](SIMD[DType.uint8, 1](fp8_bits))
             var float_val = Float32(fp8_val[0])
-            result[i] = Float64(float_val)
+            result[i] = Float32(float_val)
 
         return result^
 
@@ -2092,7 +2149,7 @@ struct ExTensor(
             elif self._dtype == DType.int32:
                 val = Float32(self._data.bitcast[Int32]()[i])
             elif self._dtype == DType.int64:
-                result[i] = Int64(self._data.bitcast[Int64]()[i])
+                result._set_int64(i, self._data.bitcast[Int64]()[i])
                 continue
             elif self._dtype == DType.uint8:
                 val = Float32(self._data.bitcast[UInt8]()[i])
@@ -2106,7 +2163,7 @@ struct ExTensor(
                 raise Error("Unsupported dtype for to_int64 conversion")
 
             var i64_val = Int64(val)
-            result[i] = i64_val
+            result._set_int64(i, i64_val)
 
         return result^
 
@@ -2425,7 +2482,7 @@ struct ExTensor(
             # Bitcast uint8 to BF8, then convert to float32
             var bf8_val = bitcast[BF8, 1](SIMD[DType.uint8, 1](bf8_bits))
             var float_val = Float32(bf8_val[0])
-            result[i] = Float64(float_val)
+            result[i] = Float32(float_val)
 
         return result^
 
@@ -2629,13 +2686,13 @@ struct ExTensor(
             for i in range(32):
                 var output_idx = block_idx * 32 + i
                 if output_idx < output_size:
-                    result[output_idx] = Float64(values[i])
+                    result[output_idx] = Float32(values[i])
 
         # Trim result to original size if needed
         if output_size < padded_output_size:
             var trimmed = ExTensor([output_size], DType.float32)
             for i in range(output_size):
-                trimmed[i] = Float64(result._data.bitcast[Float32]()[i])
+                trimmed[i] = result._data.bitcast[Float32]()[i]
             return trimmed^
 
         return result^
@@ -2845,13 +2902,13 @@ struct ExTensor(
             for i in range(16):
                 var output_idx = block_idx * 16 + i
                 if output_idx < output_size:
-                    result[output_idx] = Float64(values[i])
+                    result[output_idx] = Float32(values[i])
 
         # Trim result to original size if needed
         if output_size < padded_output_size:
             var trimmed = ExTensor([output_size], DType.float32)
             for i in range(output_size):
-                trimmed[i] = Float64(result._data.bitcast[Float32]()[i])
+                trimmed[i] = result._data.bitcast[Float32]()[i]
             return trimmed^
 
         return result^
