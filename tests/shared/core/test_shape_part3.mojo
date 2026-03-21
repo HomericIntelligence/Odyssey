@@ -35,12 +35,12 @@ fn test_repeat_elements() raises:
 
     # Result: [0, 0, 1, 1, 2, 2] (6 elements)
     assert_numel(b, 6, "Repeated tensor should have 6 elements")
-    assert_value_at(b, 0, 0.0, "Index 0 should be 0.0")
-    assert_value_at(b, 1, 0.0, "Index 1 should be 0.0 (repeat)")
-    assert_value_at(b, 2, 1.0, "Index 2 should be 1.0")
-    assert_value_at(b, 3, 1.0, "Index 3 should be 1.0 (repeat)")
-    assert_value_at(b, 4, 2.0, "Index 4 should be 2.0")
-    assert_value_at(b, 5, 2.0, "Index 5 should be 2.0 (repeat)")
+    assert_value_at(b, 0, 0.0, message="Index 0 should be 0.0")
+    assert_value_at(b, 1, 0.0, message="Index 1 should be 0.0 (repeat)")
+    assert_value_at(b, 2, 1.0, message="Index 2 should be 1.0")
+    assert_value_at(b, 3, 1.0, message="Index 3 should be 1.0 (repeat)")
+    assert_value_at(b, 4, 2.0, message="Index 4 should be 2.0")
+    assert_value_at(b, 5, 2.0, message="Index 5 should be 2.0 (repeat)")
 
 
 fn test_repeat_axis() raises:
@@ -74,15 +74,15 @@ fn test_broadcast_to_compatible() raises:
     assert_dim(b, 2, "Broadcasted tensor should be 2D")
     assert_numel(b, 12, "Should have 12 elements")
     # Verify each row is [0, 1, 2]
-    assert_value_at(b, 0, 0.0, "Row 0, col 0 should be 0.0")
-    assert_value_at(b, 1, 1.0, "Row 0, col 1 should be 1.0")
-    assert_value_at(b, 2, 2.0, "Row 0, col 2 should be 2.0")
-    assert_value_at(b, 3, 0.0, "Row 1, col 0 should be 0.0 (broadcast)")
-    assert_value_at(b, 4, 1.0, "Row 1, col 1 should be 1.0 (broadcast)")
-    assert_value_at(b, 5, 2.0, "Row 1, col 2 should be 2.0 (broadcast)")
-    assert_value_at(b, 9, 0.0, "Row 3, col 0 should be 0.0 (broadcast)")
-    assert_value_at(b, 10, 1.0, "Row 3, col 1 should be 1.0 (broadcast)")
-    assert_value_at(b, 11, 2.0, "Row 3, col 2 should be 2.0 (broadcast)")
+    assert_value_at(b, 0, 0.0, message="Row 0, col 0 should be 0.0")
+    assert_value_at(b, 1, 1.0, message="Row 0, col 1 should be 1.0")
+    assert_value_at(b, 2, 2.0, message="Row 0, col 2 should be 2.0")
+    assert_value_at(b, 3, 0.0, message="Row 1, col 0 should be 0.0 (broadcast)")
+    assert_value_at(b, 4, 1.0, message="Row 1, col 1 should be 1.0 (broadcast)")
+    assert_value_at(b, 5, 2.0, message="Row 1, col 2 should be 2.0 (broadcast)")
+    assert_value_at(b, 9, 0.0, message="Row 3, col 0 should be 0.0 (broadcast)")
+    assert_value_at(b, 10, 1.0, message="Row 3, col 1 should be 1.0 (broadcast)")
+    assert_value_at(b, 11, 2.0, message="Row 3, col 2 should be 2.0 (broadcast)")
 
     # Verify output shape dimensions are exactly (4, 3)
     var b_shape = b.shape()
@@ -142,16 +142,16 @@ fn test_broadcast_to_size1_nonleading() raises:
 
     # Verify values: each row should repeat its single value across 4 columns
     # Row 0: [0, 0, 0, 0] — flat indices 0..3
-    assert_value_at(b, 0, 0.0, "Element [0,0] should be 0")
-    assert_value_at(b, 3, 0.0, "Element [0,3] should be 0")
+    assert_value_at(b, 0, 0.0, message="Element [0,0] should be 0")
+    assert_value_at(b, 3, 0.0, message="Element [0,3] should be 0")
 
     # Row 1: [1, 1, 1, 1] — flat indices 4..7
-    assert_value_at(b, 4, 1.0, "Element [1,0] should be 1")
-    assert_value_at(b, 7, 1.0, "Element [1,3] should be 1")
+    assert_value_at(b, 4, 1.0, message="Element [1,0] should be 1")
+    assert_value_at(b, 7, 1.0, message="Element [1,3] should be 1")
 
     # Row 2: [2, 2, 2, 2] — flat indices 8..11
-    assert_value_at(b, 8, 2.0, "Element [2,0] should be 2")
-    assert_value_at(b, 11, 2.0, "Element [2,3] should be 2")
+    assert_value_at(b, 8, 2.0, message="Element [2,0] should be 2")
+    assert_value_at(b, 11, 2.0, message="Element [2,3] should be 2")
 
 
 # ============================================================================
@@ -178,9 +178,9 @@ fn test_permute_axes() raises:
     assert_dim(b, 3, "Should still be 3D")
     assert_numel(b, 24, "Should have same elements")
     # All values should still be 1.0 (from ones())
-    assert_value_at(b, 0, 1.0, "Index 0 should be 1.0")
-    assert_value_at(b, 5, 1.0, "Index 5 should be 1.0")
-    assert_value_at(b, 23, 1.0, "Index 23 (last) should be 1.0")
+    assert_value_at(b, 0, 1.0, message="Index 0 should be 1.0")
+    assert_value_at(b, 5, 1.0, message="Index 5 should be 1.0")
+    assert_value_at(b, 23, 1.0, message="Index 23 (last) should be 1.0")
 
     # Verify output shape dimensions are exactly (4, 2, 3)
     # Permutation [2, 0, 1] on (2, 3, 4) -> (4, 2, 3)

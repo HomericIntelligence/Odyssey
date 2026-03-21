@@ -77,8 +77,6 @@ fn dropout(
     if seed > 0:
         random.seed(seed)
 
-    var threshold = Float32(1.0 - p)
-
     if x.dtype() == DType.float32:
         for i in range(size):
             var rand_val = Float32(random.random_float64())
