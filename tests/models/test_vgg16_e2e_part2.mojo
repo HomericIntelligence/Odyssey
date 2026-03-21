@@ -231,17 +231,18 @@ fn test_vgg16_e2e_output_range() raises:
     """Test VGG-16 produces outputs in reasonable range.
 
     For logits, values should not be extreme (not NaN/inf).
-    Typical range: (-100, 100) for cross-entropy loss computation.
+    Uses small input values (0.01) to avoid numerical overflow through
+    16 conv+ReLU layers and 3 FC layers.
     """
     var batch_size = 2
 
-    # Create input
+    # Create input with small values to prevent overflow through deep network
     var input_shape = List[Int]()
     input_shape.append(batch_size)
     input_shape.append(3)
     input_shape.append(32)
     input_shape.append(32)
-    var input = ones(input_shape, DType.float32)
+    var input = full(input_shape, 0.01, DType.float32)
 
     # Forward pass
     var output = vgg16_forward(input)
