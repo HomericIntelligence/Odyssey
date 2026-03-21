@@ -93,8 +93,8 @@ fn _is_uniform_tensor(tensor: ExTensor) -> Bool:
 
 
 fn check_gradients(
-    forward_fn: fn (ExTensor) raises escaping -> ExTensor,
-    backward_fn: fn (ExTensor, ExTensor) raises escaping -> ExTensor,
+    forward_fn: fn (ExTensor) raises -> ExTensor,
+    backward_fn: fn (ExTensor, ExTensor) raises -> ExTensor,
     input: ExTensor,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
     tolerance: Float64 = 1e-2,
@@ -227,8 +227,8 @@ fn check_gradients(
 
 
 fn check_gradients_verbose(
-    forward_fn: fn (ExTensor) raises escaping -> ExTensor,
-    backward_fn: fn (ExTensor, ExTensor) raises escaping -> ExTensor,
+    forward_fn: fn (ExTensor) raises -> ExTensor,
+    backward_fn: fn (ExTensor, ExTensor) raises -> ExTensor,
     input: ExTensor,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
     tolerance: Float64 = 1e-2,
@@ -358,7 +358,7 @@ fn relative_error(analytical: Float64, numerical: Float64) -> Float64:
 
 
 fn compute_numerical_gradient(
-    forward_fn: fn (ExTensor) raises escaping -> ExTensor,
+    forward_fn: fn (ExTensor) raises -> ExTensor,
     x: ExTensor,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
 ) raises -> ExTensor:

@@ -136,10 +136,7 @@ fn test_gradient_check_partial_transpose() raises:
 
     # Permute axes (0, 2, 1) -> shape becomes (2, 2, 3)
     # This creates a non-contiguous layout
-    var axes = List[Int](capacity=3)
-    axes.append(0)
-    axes.append(2)
-    axes.append(1)
+    var axes: List[Int] = [0, 2, 1]
     var x_permuted = matrix.transpose_view(x, axes)
 
     assert_false(

@@ -53,9 +53,9 @@ fn test_subpackage_accessibility() raises:
     assert_true(shape[1] == 3, "Second dimension should be 3")
 
     # Test that we can actually instantiate classes
-    var test_optimizer = SGD(learning_rate=0.01)
-    var test_loss = MSELoss()
-    var test_logger = Logger("test.log")
+    var _test_optimizer = SGD(learning_rate=0.01)
+    var _test_loss = MSELoss()
+    var _test_logger = Logger("test.log")
 
     print("✓ Subpackage accessibility test passed")
 
@@ -114,11 +114,11 @@ fn test_layer_root_level_imports() raises:
     assert_true(out_shape[1] == 2, "Linear output features should be 2")
 
     # Smoke-test: Conv2D alias resolves to Conv2dLayer
-    var conv = Conv2D(1, 4, 3, 3)
+    var _conv = Conv2D(1, 4, 3, 3)
     assert_true(True, "Conv2D alias should resolve to Conv2dLayer")
 
     # Smoke-test: ReLU alias resolves to ReLULayer
-    var act = ReLU()
+    var _act = ReLU()
     assert_true(True, "ReLU alias should resolve to ReLULayer")
 
     print("✓ Layer root-level imports test passed")
@@ -157,7 +157,7 @@ fn test_core_training_integration() raises:
 
     # Create optimizer using training
     var optimizer = SGD(learning_rate=0.01)
-    var loss_fn = MSELoss()
+    var _loss_fn = MSELoss()
 
     # Verify types are correct and components can be instantiated
     var data_shape = data.shape()
@@ -211,8 +211,8 @@ fn test_training_data_integration() raises:
     var optimizer = SGD(learning_rate=0.01)
 
     # Verify integration by checking component properties
-    var data_shape = data.shape()
-    var labels_shape = labels.shape()
+    var _data_shape = data.shape()
+    var _labels_shape = labels.shape()
     assert_true(data.dim() == 2, "Data should be 2D tensor")
     assert_true(labels.dim() == 2, "Labels should be 2D tensor")
     assert_true(
@@ -247,16 +247,16 @@ fn test_complete_training_workflow() raises:
 
     # 3. Create optimizer and loss (training)
     var optimizer = SGD(learning_rate=0.01)
-    var loss_fn = MSELoss()
+    var _loss_fn = MSELoss()
 
     # 4. Create logger (utils)
-    var logger = Logger("training.log")
+    var _logger = Logger("training.log")
 
     # 5. Verify workflow components work together
-    var weights_shape = weights.shape()
-    var bias_shape = bias.shape()
-    var data_shape = data.shape()
-    var labels_shape = labels.shape()
+    var _weights_shape = weights.shape()
+    var _bias_shape = bias.shape()
+    var _data_shape = data.shape()
+    var _labels_shape = labels.shape()
     assert_true(weights.dim() == 2, "Weights should be 2D tensor")
     assert_true(bias.dim() == 1, "Bias should be 1D tensor")
     assert_true(data.dim() == 2, "Data should be 2D tensor")
@@ -289,11 +289,11 @@ fn test_paper_implementation_pattern() raises:
 
     # Training setup
     var optimizer = SGD(learning_rate=0.001)
-    var scheduler = CosineAnnealingLR(0.001, 50)
+    var _scheduler = CosineAnnealingLR(0.001, 50)
 
     # Callbacks
-    var early_stop = EarlyStopping()
-    var checkpoint = ModelCheckpoint()
+    var _early_stop = EarlyStopping()
+    var _checkpoint = ModelCheckpoint()
 
     # Create dataset
     var data = zeros([10, 1, 28, 28], DType.float32)
@@ -368,7 +368,7 @@ fn test_normalize_compose_from_shared_data() raises:
     from shared.data import Normalize, Compose
 
     # Verify Normalize can be instantiated
-    var normalizer = Normalize(Float64(0.5), Float64(0.5))
+    var _normalizer = Normalize(Float64(0.5), Float64(0.5))
 
     print("✓ Normalize and Compose importable from shared.data")
 
@@ -432,7 +432,7 @@ fn test_losstracker_from_shared() raises:
     from shared import LossTracker
 
     # Verify LossTracker can be instantiated
-    var tracker = LossTracker()
+    var _tracker = LossTracker()
 
     print("✓ LossTracker importable from shared")
 
@@ -442,7 +442,7 @@ fn test_accuracymetric_from_shared() raises:
     from shared import AccuracyMetric
 
     # Verify AccuracyMetric can be instantiated
-    var metric = AccuracyMetric()
+    var _metric = AccuracyMetric()
 
     print("✓ AccuracyMetric importable from shared")
 
@@ -452,8 +452,8 @@ fn test_accuracy_alias_from_shared() raises:
     from shared import Accuracy, AccuracyMetric
 
     # Verify Accuracy can be instantiated and works the same way
-    var metric_via_alias = Accuracy()
-    var metric_via_full_name = AccuracyMetric()
+    var _metric_via_alias = Accuracy()
+    var _metric_via_full_name = AccuracyMetric()
 
     # Both should be instantiable - verifying the alias works
     print("✓ Accuracy alias importable from shared and matches AccuracyMetric")
@@ -464,7 +464,7 @@ fn test_losstracker_from_shared_training() raises:
     from shared.training import LossTracker
 
     # Verify LossTracker can be instantiated
-    var tracker = LossTracker()
+    var _tracker = LossTracker()
 
     print("✓ LossTracker importable from shared.training")
 
@@ -474,7 +474,7 @@ fn test_accuracymetric_from_shared_training() raises:
     from shared.training import AccuracyMetric
 
     # Verify AccuracyMetric can be instantiated
-    var metric = AccuracyMetric()
+    var _metric = AccuracyMetric()
 
     print("✓ AccuracyMetric importable from shared.training")
 
@@ -567,13 +567,13 @@ fn test_cross_module_computation() raises:
     var labels = zeros([32, 10], DType.float32)  # 32 samples, 10 classes
 
     # Create dataset
-    var dataset = ExTensorDataset(data, labels)
+    var _dataset = ExTensorDataset(data, labels)
 
     # Create a simple network forward pass
     var weights1 = zeros([64, 128], DType.float32)  # Input layer
-    var bias1 = zeros([128], DType.float32)
+    var _bias1 = zeros([128], DType.float32)
     var weights2 = zeros([128, 10], DType.float32)  # Output layer
-    var bias2 = zeros([10], DType.float32)
+    var _bias2 = zeros([10], DType.float32)
 
     # Forward pass - this is where integration failures would occur
     var hidden = matmul(data, weights1)  # (32,64) × (64,128) = (32,128)
@@ -590,7 +590,7 @@ fn test_cross_module_computation() raises:
     assert_true(logits.dtype() == DType.float32, "DType should be preserved")
 
     # Test with training components
-    var optimizer = SGD(learning_rate=0.001)
+    var _optimizer = SGD(learning_rate=0.001)
     var loss_fn = MSELoss()
 
     # Compute loss
@@ -608,14 +608,14 @@ fn test_tensor_operations_safety() raises:
 
     # Test zero-sized tensors
     var empty_data = zeros([0, 5], DType.float32)
-    var empty_labels = zeros([0, 3], DType.float32)
+    var _empty_labels = zeros([0, 3], DType.float32)
     assert_true(
         empty_data.num_elements() == 0, "Empty tensor should have 0 elements"
     )
 
     # Test single-element tensors
     var single_data = zeros([1], DType.float32)
-    var single_labels = zeros([1], DType.float32)
+    var _single_labels = zeros([1], DType.float32)
     assert_true(
         single_data.num_elements() == 1,
         "Single element tensor should have 1 element",
@@ -699,15 +699,15 @@ fn test_integration_stress() raises:
     var train_labels = zeros([batch_size, output_dim], DType.float32)
 
     # Create dataset
-    var dataset = ExTensorDataset(train_data, train_labels)
+    var _dataset = ExTensorDataset(train_data, train_labels)
 
     # Create network parameters
     var w1 = zeros([input_dim, hidden_dim], DType.float32)
-    var b1 = zeros([hidden_dim], DType.float32)
+    var _b1 = zeros([hidden_dim], DType.float32)
     var w2 = zeros([hidden_dim, hidden_dim], DType.float32)
-    var b2 = zeros([hidden_dim], DType.float32)
+    var _b2 = zeros([hidden_dim], DType.float32)
     var w3 = zeros([hidden_dim, output_dim], DType.float32)
-    var b3 = zeros([output_dim], DType.float32)
+    var _b3 = zeros([output_dim], DType.float32)
 
     # Forward pass through 3-layer network
     var x1 = matmul(train_data, w1)  # (128,784) × (784,256) = (128,256)
@@ -738,7 +738,7 @@ fn test_integration_stress() raises:
     assert_true(x3_shape[1] == output_dim, "Final output classes should match")
 
     # Test with training components
-    var optimizer = SGD(learning_rate=0.01)
+    var _optimizer = SGD(learning_rate=0.01)
     var loss_fn = MSELoss()
 
     # Compute loss
