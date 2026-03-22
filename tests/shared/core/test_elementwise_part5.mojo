@@ -21,7 +21,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
+from shared.core.extensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.elementwise import (
     abs,
     sign,
@@ -150,14 +150,14 @@ fn test_clip_backward_gradient() raises:
     x._data.bitcast[Float32]()[2] = 0.5
 
     # Forward function wrapper
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return clip(inp, min_val=-1.0, max_val=1.0)
 
     var y = clip(x, min_val=-1.0, max_val=1.0)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward_fn(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return clip_backward(grad, inp, min_val=-1.0, max_val=1.0)
 
     # Use numerical gradient checking (gold standard)

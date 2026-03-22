@@ -22,7 +22,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
+from shared.core.extensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.reduction import (
     variance,
     std,
@@ -124,13 +124,13 @@ fn test_var_backward_gradient() raises:
     x._data.bitcast[Float32]()[4] = 0.1
     x._data.bitcast[Float32]()[5] = 0.7
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return variance(inp, axis=1, ddof=0)
 
     var y = forward(x)
     var grad_out = ones_like(y)
 
-    fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return variance_backward(grad, inp, axis=1, ddof=0)
 
     check_gradient(forward, backward, x, grad_out, rtol=2e-3, atol=1e-6)
@@ -169,13 +169,13 @@ fn test_std_backward_gradient() raises:
     x._data.bitcast[Float32]()[4] = 0.1
     x._data.bitcast[Float32]()[5] = 0.7
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return std(inp, axis=1, ddof=0)
 
     var y = forward(x)
     var grad_out = ones_like(y)
 
-    fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return std_backward(grad, inp, axis=1, ddof=0)
 
     check_gradient(forward, backward, x, grad_out, rtol=2e-3, atol=1e-6)

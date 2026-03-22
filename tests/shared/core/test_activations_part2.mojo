@@ -14,7 +14,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from shared.core.extensor import (
-    ExTensor,
+    AnyTensor,
     zeros,
     full,
     ones_like,
@@ -47,7 +47,7 @@ fn test_leaky_relu_backward() raises:
     x._data.bitcast[Float32]()[1] = 1.0
 
     # Forward function wrapper
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return leaky_relu(x, alpha=0.1)
 
     var y = leaky_relu(x, alpha=0.1)
@@ -55,8 +55,8 @@ fn test_leaky_relu_backward() raises:
 
     # Use numerical gradient checking (gold standard)
     fn backward_wrapper(
-        grad: ExTensor, x: ExTensor
-    ) raises escaping -> ExTensor:
+        grad: AnyTensor, x: AnyTensor
+    ) raises escaping -> AnyTensor:
         return leaky_relu_backward(grad, x, alpha=0.1)
 
     # Note: rtol=1e-3 is appropriate for float32 finite differences
@@ -176,14 +176,14 @@ fn test_prelu_backward() raises:
     alpha._data.bitcast[Float32]()[1] = 0.5
 
     # Forward function wrapper
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return prelu(x, alpha)
 
     var y = prelu(x, alpha)
     var grad_out = ones_like(y)
 
     # Validate gradient w.r.t. input using numerical checking
-    fn backward_input(grad: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward_input(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = prelu_backward(grad, x, alpha)
         return result.grad_a
 
@@ -231,14 +231,14 @@ fn test_sigmoid_backward() raises:
     x._data.bitcast[Float32]()[2] = 1.0
 
     # Forward function wrapper
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return sigmoid(x)
 
     var y = sigmoid(x)
     var grad_out = ones_like(y)
 
     # Note: sigmoid_backward takes output y, not input x
-    fn backward_fn(grad: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var out = sigmoid(x)  # Recompute output inside wrapper
         return sigmoid_backward(grad, out)
 

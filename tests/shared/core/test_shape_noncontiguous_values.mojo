@@ -17,9 +17,9 @@ Non-contiguous setup pattern (transpose_view):
       [0,4,8,  1,5,9,  2,6,10,  3,7,11]
 """
 
-# Import ExTensor and shape operations
+# Import AnyTensor and shape operations
 from shared.core import (
-    ExTensor,
+    AnyTensor,
     arange,
     reshape,
     flatten,
@@ -45,7 +45,7 @@ from tests.shared.conftest import (
 # ============================================================================
 
 
-fn make_noncontiguous_4x3() raises -> ExTensor:
+fn make_noncontiguous_4x3() raises -> AnyTensor:
     """Return a (4,3) non-contiguous tensor via transpose_view of arange(12) reshaped (3,4).
 
     Flat memory order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
@@ -135,7 +135,7 @@ fn test_concatenate_noncontiguous_values() raises:
     Total 24 elements: first 12 from t_nc, second 12 same.
     """
     var t_nc = make_noncontiguous_4x3()
-    var tensors: List[ExTensor] = [t_nc, t_nc]
+    var tensors: List[AnyTensor] = [t_nc, t_nc]
     var result = concatenate(tensors, axis=0)
 
     var result_shape = result.shape()

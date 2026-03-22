@@ -13,7 +13,7 @@ from tests.shared.conftest import (
     assert_dim,
     assert_numel,
 )
-from shared.core.extensor import ExTensor, ones
+from shared.core.extensor import AnyTensor, ones
 from shared.core.arithmetic import (
     add,
     multiply,

@@ -1,14 +1,14 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_creation.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for ExTensor creation operations - Part 2: full(), empty(), and from_array() placeholders.
+"""Tests for AnyTensor creation operations - Part 2: full(), empty(), and from_array() placeholders.
 
 Tests full() and empty() creation functions, plus from_array() placeholders.
 Split from test_creation.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
-# Import ExTensor and creation operations
-from shared.core.extensor import ExTensor, full, empty
+# Import AnyTensor and creation operations
+from shared.core.extensor import AnyTensor, full, empty
 
 # Import test helpers
 from tests.shared.conftest import (
@@ -143,7 +143,7 @@ fn test_from_array_1d() raises:
 fn main() raises:
     """Run full(), empty(), and from_array() placeholder creation tests."""
     print(
-        "Running ExTensor creation tests - Part 2: full(), empty(),"
+        "Running AnyTensor creation tests - Part 2: full(), empty(),"
         " from_array()..."
     )
 

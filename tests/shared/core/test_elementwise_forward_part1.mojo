@@ -1,12 +1,12 @@
-"""Tests for ExTensor element-wise mathematical operations - Part 1: abs and sign.
+"""Tests for AnyTensor element-wise mathematical operations - Part 1: abs and sign.
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_elementwise_forward.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange
+# Import AnyTensor and operations
+from shared.core.extensor import AnyTensor, zeros, ones, full, arange
 from shared.core.elementwise import abs, sign
 
 # Import test helpers
@@ -134,7 +134,7 @@ fn test_sign_mixed() raises:
 
 fn main() raises:
     """Run abs and sign element-wise math tests."""
-    print("Running ExTensor element-wise math tests (Part 1: abs, sign)...")
+    print("Running AnyTensor element-wise math tests (Part 1: abs, sign)...")
 
     # abs() tests
     print("  Testing abs()...")

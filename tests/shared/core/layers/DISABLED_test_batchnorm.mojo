@@ -16,7 +16,7 @@ from shared.testing.assertions import (
     assert_equal_int,
     assert_true,
 )
-from shared.core.extensor import ExTensor, zeros, ones, randn
+from shared.core.extensor import AnyTensor, zeros, ones, randn
 from shared.core.layers.batchnorm import BatchNorm2dLayer
 
 

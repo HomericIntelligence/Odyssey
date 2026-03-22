@@ -1,14 +1,14 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_memory_leaks.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Memory leak detection tests for ExTensor - Part 3: Edge Cases & Destructor.
+"""Memory leak detection tests for AnyTensor - Part 3: Edge Cases & Destructor.
 
 Tests verify:
 1. Edge cases (empty tensor, 1D tensor, different dtypes)
 2. Destructor edge cases
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.extensor import AnyTensor, zeros, ones, full
 from tests.shared.conftest import assert_true, assert_equal_int
 
 
@@ -72,7 +72,7 @@ fn test_destructor_with_valid_refcount() raises:
     assert_true(True, "Destructor edge case test completed")
 
 
-fn _check_view_refcount(original: ExTensor, initial_refcount: Int) raises -> Int:
+fn _check_view_refcount(original: AnyTensor, initial_refcount: Int) raises -> Int:
     """Helper: create view in inner scope, check refcount, return inner value."""
     var shape = List[Int]()
     shape.append(3)

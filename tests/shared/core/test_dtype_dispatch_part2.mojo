@@ -14,7 +14,7 @@ from tests.shared.conftest import (
     assert_equal_int,
     assert_true,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.extensor import AnyTensor, zeros, ones, full
 from shared.core.dtype_dispatch import (
     dispatch_binary,
     dispatch_scalar,

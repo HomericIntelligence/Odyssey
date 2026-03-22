@@ -1,11 +1,11 @@
-"""Tests for ExTensor element-wise mathematical operations - Part 4: cos and tanh.
+"""Tests for AnyTensor element-wise mathematical operations - Part 4: cos and tanh.
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_elementwise_forward.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-# Import ExTensor and operations
+# Import AnyTensor and operations
 from shared.core.extensor import zeros, ones, full
 from shared.core.elementwise import cos, tanh
 
@@ -110,7 +110,7 @@ fn test_tanh_small_values() raises:
 
 fn main() raises:
     """Run cos and tanh element-wise math tests."""
-    print("Running ExTensor element-wise math tests (Part 4: cos, tanh)...")
+    print("Running AnyTensor element-wise math tests (Part 4: cos, tanh)...")
 
     # cos() tests
     print("  Testing cos()...")

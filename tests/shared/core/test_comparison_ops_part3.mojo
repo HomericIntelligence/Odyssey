@@ -1,4 +1,4 @@
-"""Tests for ExTensor comparison operations - Part 3: greater, greater_equal, negatives.
+"""Tests for AnyTensor comparison operations - Part 3: greater, greater_equal, negatives.
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
@@ -9,8 +9,8 @@ greater, greater_equal, and edge cases with negative values.
 All operations return boolean tensors (DType.bool).
 """
 
-# Import ExTensor and comparison operations
-from shared.core.extensor import ExTensor, full, ones, zeros
+# Import AnyTensor and comparison operations
+from shared.core.extensor import AnyTensor, full, ones, zeros
 from shared.core.comparison import greater, greater_equal, less
 
 # Import test helpers
@@ -143,7 +143,7 @@ fn main() raises:
     """Run greater, greater_equal, and negative value comparison operation tests.
     """
     print(
-        "Running ExTensor greater/greater_equal comparison operation tests..."
+        "Running AnyTensor greater/greater_equal comparison operation tests..."
     )
 
     # greater() tests

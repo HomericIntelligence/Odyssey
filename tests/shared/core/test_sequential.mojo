@@ -13,7 +13,7 @@ Design Note:
 """
 
 from shared.core.module import Module
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.extensor import AnyTensor, zeros, ones
 from shared.core.sequential import Sequential2, Sequential3
 from tests.shared.conftest import (
     assert_true,
@@ -40,7 +40,7 @@ struct IdentityModule(Module, Movable):
         """Initialize identity module."""
         self.is_training = True
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Return input unchanged.
 
         Args:
@@ -51,13 +51,13 @@ struct IdentityModule(Module, Movable):
         """
         return input
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Return empty parameter list.
 
         Returns:
             Empty list (no trainable parameters).
         """
-        return List[ExTensor]()
+        return List[AnyTensor]()
 
     fn train(mut self):
         """Set to training mode."""
@@ -87,7 +87,7 @@ struct ScaleModule(Module, Movable):
         self.scale = scale
         self.is_training = True
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Scale all elements by self.scale.
 
         Args:
@@ -104,13 +104,13 @@ struct ScaleModule(Module, Movable):
             )
         return result
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Return empty parameter list.
 
         Returns:
             Empty list (no trainable parameters).
         """
-        return List[ExTensor]()
+        return List[AnyTensor]()
 
     fn train(mut self):
         """Set to training mode."""
@@ -136,7 +136,7 @@ struct CountingModule:
         self.call_count = 0
         self.is_training = True
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Increment call count and return input unchanged.
 
         Args:
@@ -148,13 +148,13 @@ struct CountingModule:
         self.call_count += 1
         return input
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Return empty parameter list.
 
         Returns:
             Empty list (no trainable parameters).
         """
-        return List[ExTensor]()
+        return List[AnyTensor]()
 
     fn train(mut self):
         """Set to training mode."""
@@ -183,7 +183,7 @@ struct DummyModuleWithParams(Module, Movable):
         self.num_params = num_params
         self.is_training = True
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Return input unchanged.
 
         Args:
@@ -194,13 +194,13 @@ struct DummyModuleWithParams(Module, Movable):
         """
         return input
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Return dummy parameter list of specified size.
 
         Returns:
             List of scalar zero tensors, length == self.num_params.
         """
-        var params: List[ExTensor] = []
+        var params: List[AnyTensor] = []
         for _ in range(self.num_params):
             var shape: List[Int] = [1]
             params.append(zeros(shape, DType.float32))

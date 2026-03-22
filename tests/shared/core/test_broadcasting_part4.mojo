@@ -1,4 +1,4 @@
-"""Tests for ExTensor broadcasting operations - Part 4: BroadcastIterator implementation.
+"""Tests for AnyTensor broadcasting operations - Part 4: BroadcastIterator implementation.
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
@@ -7,8 +7,8 @@
 Tests the BroadcastIterator implementation for correctness across 1D, 2D, 3D cases.
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full
+# Import AnyTensor and operations
+from shared.core.extensor import AnyTensor, zeros, ones, full
 from shared.core.arithmetic import add, multiply
 from testing import assert_true
 
@@ -295,7 +295,7 @@ fn test_broadcast_iterator_exhaustion() raises:
 
 fn main() raises:
     """Run broadcasting part 4 tests."""
-    print("Running ExTensor broadcasting tests - Part 4...")
+    print("Running AnyTensor broadcasting tests - Part 4...")
 
     # Complex 3D broadcasting
     print("  Testing complex 3D broadcasting with multiply...")

@@ -22,7 +22,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
+from shared.core.extensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.reduction import (
     sum,
     mean,
@@ -83,14 +83,14 @@ fn test_sum_backward_gradient() raises:
     x._data.bitcast[Float32]()[5] = 0.7
 
     # Forward function wrapper (sum along axis 1)
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return sum(inp, axis=1)
 
     var y = forward(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return sum_backward(grad, inp, axis=1)
 
     # Use numerical gradient checking (gold standard)
@@ -145,14 +145,14 @@ fn test_mean_backward_gradient() raises:
     x._data.bitcast[Float32]()[5] = 0.7
 
     # Forward function wrapper (mean along axis 1)
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return mean(inp, axis=1)
 
     var y = forward(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return mean_backward(grad, inp, axis=1)
 
     # Use numerical gradient checking (gold standard)
@@ -205,14 +205,14 @@ fn test_max_reduce_backward_gradient() raises:
     x._data.bitcast[Float32]()[5] = 0.7
 
     # Forward function wrapper (max along axis 1)
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return max_reduce(inp, axis=1)
 
     var y = forward(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return max_reduce_backward(grad, inp, axis=1)
 
     # Use numerical gradient checking (gold standard)
@@ -265,14 +265,14 @@ fn test_min_reduce_backward_gradient() raises:
     x._data.bitcast[Float32]()[5] = 0.7
 
     # Forward function wrapper (min along axis 1)
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return min_reduce(inp, axis=1)
 
     var y = forward(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return min_reduce_backward(grad, inp, axis=1)
 
     # Use numerical gradient checking (gold standard)

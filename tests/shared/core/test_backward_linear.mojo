@@ -8,7 +8,7 @@ from tests.shared.conftest import (
     assert_equal,
     assert_true,
 )
-from shared.core.extensor import ExTensor, zeros, ones, ones_like
+from shared.core.extensor import AnyTensor, zeros, ones, ones_like
 from shared.core.linear import linear, linear_backward
 from shared.testing import (
     check_gradient,
@@ -147,7 +147,7 @@ fn test_linear_backward_gradient() raises:
     weights.set(4, Float64(-0.2))
     weights.set(5, Float64(0.5))
 
-    fn forward(inp: ExTensor) raises -> ExTensor:
+    fn forward(inp: AnyTensor) raises -> AnyTensor:
         var bias_shape = List[Int]()
         bias_shape.append(out_features)
         var bias = zeros(bias_shape, DType.float32)
@@ -155,7 +155,7 @@ fn test_linear_backward_gradient() raises:
         bias.set(1, Float64(-0.2))
         return linear(inp, weights, bias)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = linear_backward(grad_out, inp, weights)
         return grads.grad_input
 

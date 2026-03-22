@@ -1,4 +1,4 @@
-"""Tests for ExTensor __setitem__ with flat and multi-dimensional index support.
+"""Tests for AnyTensor __setitem__ with flat and multi-dimensional index support.
 
 Covers:
 - Flat Int index overloads (Float64, Int64, Float32)
@@ -9,7 +9,7 @@ Covers:
 CI verification: issue #3840. All 17 tests verified passing in CI.
 """
 
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.extensor import AnyTensor, zeros, ones
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 
@@ -119,7 +119,7 @@ fn test_setitem_multidim_float64_dtype() raises:
     # flat = 1*3 + 1 = 4
     # Note: __getitem__ returns Float32 lvalue, so 3.14159 is stored at
     # Float32 precision even on a float64 tensor. Use Float32 tolerance.
-    # Long-term fix: make ExTensor parametric on dtype (see GitHub epic).
+    # Long-term fix: make AnyTensor parametric on dtype (see GitHub epic).
     assert_almost_equal(t._get_float64(4), 3.14159, tolerance=1e-6)
 
 

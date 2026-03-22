@@ -13,8 +13,8 @@ Tests edge cases for exp operations including:
 
 from math import isnan, isinf, exp
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full
+# Import AnyTensor and operations
+from shared.core.extensor import AnyTensor, zeros, ones, full
 from shared.core.elementwise import (
     exp as exp_op,
 )

@@ -1,14 +1,14 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_memory_leaks.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Memory leak detection tests for ExTensor - Part 1: Reference Counting & Allocation.
+"""Memory leak detection tests for AnyTensor - Part 1: Reference Counting & Allocation.
 
 Tests verify:
 1. Reference counting correctness
 2. Memory deallocation on scope exit
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.extensor import AnyTensor, zeros, ones, full
 from tests.shared.conftest import assert_true, assert_equal_int
 
 
@@ -49,7 +49,7 @@ fn test_multiple_copies_refcount() raises:
     )
 
 
-fn _copy_and_check_refcount(tensor1: ExTensor) -> Int:
+fn _copy_and_check_refcount(tensor1: AnyTensor) -> Int:
     """Helper: copy tensor in inner scope and return inner refcount."""
     var tensor2 = tensor1
     return tensor1._refcount[]
@@ -68,7 +68,7 @@ fn test_scope_exit_decrements_refcount() raises:
     assert_equal_int(outer_refcount, 1, "Refcount should be 1 after scope exit")
 
 
-fn _modify_through_copy(tensor1: ExTensor) raises:
+fn _modify_through_copy(tensor1: AnyTensor) raises:
     """Helper: copy tensor in inner scope and modify shared data."""
     var tensor2 = tensor1
     assert_true(tensor1._data == tensor2._data, "Should share data")

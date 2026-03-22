@@ -1,11 +1,11 @@
-"""Tests for ExTensor element-wise mathematical operations - Part 5: clip and dtype.
+"""Tests for AnyTensor element-wise mathematical operations - Part 5: clip and dtype.
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_elementwise_forward.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-# Import ExTensor and operations
+# Import AnyTensor and operations
 from shared.core.extensor import ones, full, arange
 from shared.core.elementwise import abs, sign, exp, log, sqrt, clip
 
@@ -93,7 +93,7 @@ fn test_operations_preserve_dtype() raises:
 
 fn main() raises:
     """Run clip and dtype preservation element-wise math tests."""
-    print("Running ExTensor element-wise math tests (Part 5: clip, dtype)...")
+    print("Running AnyTensor element-wise math tests (Part 5: clip, dtype)...")
 
     # clip() tests
     print("  Testing clip()...")

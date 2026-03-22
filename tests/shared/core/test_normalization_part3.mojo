@@ -26,7 +26,7 @@ from shared.testing import (
     compute_numerical_gradient,
     assert_gradients_close,
 )
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
+from shared.core.extensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.normalization import (
     batch_norm2d,
     batch_norm2d_backward,
@@ -231,7 +231,7 @@ fn test_layer_norm_backward_gradient_input() raises:
     # Numerical gradient via finite differences.
     # The scalar loss is sum(layer_norm(x) * grad_output), so the numerical
     # gradient matches what layer_norm_backward(grad_output, x, gamma) computes.
-    fn forward_for_grad(inp: ExTensor) raises -> ExTensor:
+    fn forward_for_grad(inp: AnyTensor) raises -> AnyTensor:
         var out = layer_norm(inp, gamma, beta, epsilon=1e-5)
         # Weighted sum: sum(out * grad_output) matches backward with non-uniform grad_output
         var weighted = multiply(out, grad_output)
@@ -344,7 +344,7 @@ fn test_layer_norm_backward_gradient_input_4d() raises:
     # Numerical gradient via finite differences.
     # The scalar loss is sum(layer_norm(x) * grad_output), so the numerical
     # gradient matches what layer_norm_backward(grad_output, x, gamma) computes.
-    fn forward_for_grad_4d(inp: ExTensor) raises -> ExTensor:
+    fn forward_for_grad_4d(inp: AnyTensor) raises -> AnyTensor:
         var out = layer_norm(inp, gamma, beta, epsilon=1e-5)
         # Weighted sum: sum(out * grad_output) matches backward with non-uniform grad_output
         var weighted = multiply(out, grad_output)
@@ -521,7 +521,7 @@ fn test_batch_norm2d_backward_gradient_gamma_inference_mode() raises:
     var grad_gamma_analytical = result_bwd[1]
 
     # Numerical gradient: perturb gamma in inference mode
-    fn forward_for_gamma_infer(g: ExTensor) raises -> ExTensor:
+    fn forward_for_gamma_infer(g: AnyTensor) raises -> AnyTensor:
         var res = batch_norm2d(
             x, g, beta, running_mean, running_var, training=False, epsilon=1e-5
         )
@@ -605,7 +605,7 @@ fn test_batch_norm2d_backward_gradient_beta_inference_mode() raises:
     var grad_beta_analytical = result_bwd[2]
 
     # Numerical gradient: perturb beta in inference mode
-    fn forward_for_beta_infer(b: ExTensor) raises -> ExTensor:
+    fn forward_for_beta_infer(b: AnyTensor) raises -> AnyTensor:
         var res = batch_norm2d(
             x, gamma, b, running_mean, running_var, training=False, epsilon=1e-5
         )

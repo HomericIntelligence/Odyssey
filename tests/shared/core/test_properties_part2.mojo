@@ -1,12 +1,12 @@
-"""Tests for ExTensor dtype bool and numel properties (Part 2 of 5).
+"""Tests for AnyTensor dtype bool and numel properties (Part 2 of 5).
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_properties.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange, eye
+# Import AnyTensor and operations
+from shared.core.extensor import AnyTensor, zeros, ones, full, arange, eye
 
 # Import test helpers
 from tests.shared.conftest import (
@@ -122,7 +122,7 @@ fn test_strides_2d_row_major() raises:
 
 fn main() raises:
     """Run dtype bool, numel, and stride property tests (Part 2)."""
-    print("Running ExTensor dtype bool, numel, and stride tests (Part 2)...")
+    print("Running AnyTensor dtype bool, numel, and stride tests (Part 2)...")
 
     # DType bool test
     print("  Testing dtype bool...")

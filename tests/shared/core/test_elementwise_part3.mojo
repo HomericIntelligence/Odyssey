@@ -20,7 +20,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
+from shared.core.extensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.elementwise import (
     abs,
     sign,
@@ -90,14 +90,14 @@ fn test_log10_backward_gradient() raises:
     x._data.bitcast[Float32]()[2] = 2.0
 
     # Forward function wrapper
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return log10(inp)
 
     var y = log10(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward_fn(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return log10_backward(grad, inp)
 
     # Use numerical gradient checking (gold standard)
@@ -140,14 +140,14 @@ fn test_log2_backward_gradient() raises:
     x._data.bitcast[Float32]()[2] = 2.0
 
     # Forward function wrapper
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return log2(inp)
 
     var y = log2(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward_fn(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return log2_backward(grad, inp)
 
     # Use numerical gradient checking (gold standard)
@@ -234,14 +234,14 @@ fn test_sqrt_backward_gradient() raises:
     x._data.bitcast[Float32]()[2] = 2.0
 
     # Forward function wrapper
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return sqrt(inp)
 
     var y = sqrt(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward_fn(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return sqrt_backward(grad, inp)
 
     # Use numerical gradient checking (gold standard)

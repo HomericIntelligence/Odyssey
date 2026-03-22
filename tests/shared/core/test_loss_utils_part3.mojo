@@ -16,7 +16,7 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_true,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.extensor import AnyTensor, zeros, ones, full
 from shared.core.loss_utils import (
     blend_tensors,
     compute_difference,

@@ -1,13 +1,13 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_shape.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for ExTensor shape manipulation: flatten_to_2d additional cases.
+"""Tests for AnyTensor shape manipulation: flatten_to_2d additional cases.
 
 Split from test_shape.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, ones, zeros, arange
+# Import AnyTensor and operations
+from shared.core.extensor import AnyTensor, ones, zeros, arange
 from shared.core.shape import flatten_to_2d, concatenate, as_contiguous
 
 # Import test helpers
@@ -67,7 +67,7 @@ fn test_concatenate_axis_1_per_row_values() raises:
     var b = arange(6.0, 12.0, 1.0, DType.float32)
     b = b.reshape(shape)  # [[6,7],[8,9],[10,11]]
 
-    var tensors: List[ExTensor] = List[ExTensor]()
+    var tensors: List[AnyTensor] = List[AnyTensor]()
     tensors.append(a)
     tensors.append(b)
     var result = concatenate(tensors, 1)  # 3x4
@@ -117,7 +117,7 @@ fn test_as_contiguous_3d_non_contiguous() raises:
 
 fn main() raises:
     """Run shape manipulation tests part 4."""
-    print("Running ExTensor shape manipulation tests (part 4)...")
+    print("Running AnyTensor shape manipulation tests (part 4)...")
 
     print("  Testing flatten_to_2d() additional cases...")
     test_flatten_to_2d_single_batch()

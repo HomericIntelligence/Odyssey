@@ -1,4 +1,4 @@
-"""Tests for ExTensor __str__ on multi-dimensional int32 and bool tensors.
+"""Tests for AnyTensor __str__ on multi-dimensional int32 and bool tensors.
 
 Verifies that __str__ correctly renders shape information for 2D+ tensors with
 non-float dtypes, alongside integer formatting via _format_element().
@@ -6,7 +6,7 @@ non-float dtypes, alongside integer formatting via _format_element().
 Related: issue #4048, issue #3376
 """
 
-from shared.core.extensor import ExTensor, zeros, full
+from shared.core.extensor import AnyTensor, zeros, full
 from tests.shared.conftest import assert_true
 
 
@@ -95,7 +95,7 @@ fn test_str_uint16_2d_tensor() raises:
 
 fn main() raises:
     """Run multi-dimensional int/bool __str__ tests."""
-    print("Running ExTensor __str__ multi-dimensional integer tests...")
+    print("Running AnyTensor __str__ multi-dimensional integer tests...")
 
     test_str_int32_2d_tensor()
     print("  [OK] test_str_int32_2d_tensor")
@@ -124,4 +124,4 @@ fn main() raises:
     test_str_uint16_2d_tensor()
     print("  [OK] test_str_uint16_2d_tensor")
 
-    print("All ExTensor __str__ multi-dimensional integer tests passed!")
+    print("All AnyTensor __str__ multi-dimensional integer tests passed!")

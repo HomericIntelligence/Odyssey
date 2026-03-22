@@ -16,7 +16,7 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_close_float,
 )
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
+from shared.core.extensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.loss import binary_cross_entropy, binary_cross_entropy_backward
 from shared.core.loss import mean_squared_error, mean_squared_error_backward
 from shared.core.reduction import mean
@@ -28,8 +28,8 @@ fn test_binary_cross_entropy_perfect_prediction() raises:
 
     var shape = List[Int]()
     shape.append(4)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     # Perfect predictions: pred = target
     for i in range(4):
@@ -56,8 +56,8 @@ fn test_binary_cross_entropy_worst_prediction() raises:
 
     var shape = List[Int]()
     shape.append(4)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     # Worst predictions: pred = 1 - target
     for i in range(4):
@@ -85,8 +85,8 @@ fn test_binary_cross_entropy_gradient_shape() raises:
 
     var shape = List[Int]()
     shape.append(3)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     for i in range(3):
         predictions._set_float64(i, 0.5)
@@ -116,8 +116,8 @@ fn test_mean_squared_error_zero_loss() raises:
 
     var shape = List[Int]()
     shape.append(5)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     # Identical values
     for i in range(5):
@@ -144,8 +144,8 @@ fn test_mean_squared_error_known_values() raises:
 
     var shape = List[Int]()
     shape.append(3)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     # Predictions: [2, 3, 4]
     # Targets:     [1, 3, 5]
@@ -182,8 +182,8 @@ fn test_mean_squared_error_gradient() raises:
 
     var shape = List[Int]()
     shape.append(3)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     # Simple case: predictions = [2, 3, 4], targets = [1, 3, 5]
     # Gradient should be 2 * (predictions - targets) = 2 * [1, 0, -1] = [2, 0, -2]
@@ -230,8 +230,8 @@ fn test_loss_numerical_stability() raises:
 
     var shape = List[Int]()
     shape.append(2)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     # Test BCE with values close to 0 and 1 (should be clipped)
     predictions._set_float64(0, 0.0)  # Should be clipped to epsilon

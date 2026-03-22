@@ -1,14 +1,14 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_creation.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for ExTensor creation operations - Part 1: zeros() and ones().
+"""Tests for AnyTensor creation operations - Part 1: zeros() and ones().
 
 Tests zeros() and ones() creation functions with various shapes and dtypes.
 Split from test_creation.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
-# Import ExTensor and creation operations
-from shared.core.extensor import ExTensor, zeros, ones
+# Import AnyTensor and creation operations
+from shared.core.extensor import AnyTensor, zeros, ones
 
 # Import test helpers
 from tests.shared.conftest import (
@@ -146,7 +146,7 @@ fn test_ones_3d_float64() raises:
 
 fn main() raises:
     """Run zeros() and ones() creation tests."""
-    print("Running ExTensor creation tests - Part 1: zeros() and ones()...")
+    print("Running AnyTensor creation tests - Part 1: zeros() and ones()...")
 
     # zeros() tests
     test_zeros_1d_float32()

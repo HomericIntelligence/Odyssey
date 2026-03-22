@@ -1,4 +1,4 @@
-"""Tests for ExTensor comparison operations - Part 1: equal and not_equal.
+"""Tests for AnyTensor comparison operations - Part 1: equal and not_equal.
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
@@ -9,8 +9,8 @@ equal, not_equal.
 All operations return boolean tensors (DType.bool).
 """
 
-# Import ExTensor and comparison operations
-from shared.core.extensor import ExTensor, full, ones, zeros
+# Import AnyTensor and comparison operations
+from shared.core.extensor import AnyTensor, full, ones, zeros
 from shared.core.comparison import equal, not_equal
 
 # Import test helpers
@@ -126,7 +126,7 @@ fn test_not_equal_with_dunder() raises:
 
 fn main() raises:
     """Run equal and not_equal comparison operation tests."""
-    print("Running ExTensor equal/not_equal comparison operation tests...")
+    print("Running AnyTensor equal/not_equal comparison operation tests...")
 
     # equal() tests
     print("  Testing equal()...")

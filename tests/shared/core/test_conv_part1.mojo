@@ -21,7 +21,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.extensor import AnyTensor, zeros, ones, full
 from shared.core.conv import (
     conv2d,
     conv2d_no_bias,

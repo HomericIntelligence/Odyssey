@@ -1,4 +1,4 @@
-"""Tests for ExTensor broadcasting operations - Part 3: Output shapes, dtype, and integration.
+"""Tests for AnyTensor broadcasting operations - Part 3: Output shapes, dtype, and integration.
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
@@ -7,8 +7,8 @@
 Tests broadcast output shapes, dtype preservation, and integration with comparison/arithmetic ops.
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full
+# Import AnyTensor and operations
+from shared.core.extensor import AnyTensor, zeros, ones, full
 from shared.core.arithmetic import add, multiply
 from testing import assert_true
 
@@ -186,7 +186,7 @@ fn test_broadcast_with_divide() raises:
 
 fn main() raises:
     """Run broadcasting part 3 tests."""
-    print("Running ExTensor broadcasting tests - Part 3...")
+    print("Running AnyTensor broadcasting tests - Part 3...")
 
     # Output shape verification
     print("  Testing broadcast output shapes...")

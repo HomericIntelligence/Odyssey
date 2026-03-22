@@ -23,7 +23,7 @@ from tests.shared.conftest import (
     assert_value_at,
 )
 from shared.core.extensor import (
-    ExTensor,
+    AnyTensor,
     zeros,
     ones,
     zeros_like,

@@ -1,4 +1,4 @@
-"""Tests for ExTensor reduction operations - Part 3: min_reduce() and axis-specific sum/mean.
+"""Tests for AnyTensor reduction operations - Part 3: min_reduce() and axis-specific sum/mean.
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
@@ -8,8 +8,8 @@ Tests reduction operations following the Array API Standard:
 min_reduce (all-elements) and sum/mean with axis parameter.
 """
 
-# Import ExTensor and reduction operations
-from shared.core.extensor import ExTensor, full, ones, zeros, arange
+# Import AnyTensor and reduction operations
+from shared.core.extensor import AnyTensor, full, ones, zeros, arange
 from shared.core.reduction import sum, mean, max_reduce, min_reduce
 
 # Import test helpers
@@ -140,7 +140,7 @@ fn test_mean_axis_0() raises:
 
 fn main() raises:
     """Run min_reduce and axis-specific sum/mean tests."""
-    print("Running ExTensor reduction forward tests - Part 3...")
+    print("Running AnyTensor reduction forward tests - Part 3...")
 
     # min_reduce() tests
     print("  Testing min_reduce()...")

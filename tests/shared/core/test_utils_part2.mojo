@@ -16,7 +16,7 @@ from tests.shared.conftest import (
     assert_true,
     assert_close_float,
 )
-from shared.core.extensor import ExTensor, zeros, ones, arange
+from shared.core.extensor import AnyTensor, zeros, ones, arange
 from shared.core.utils import (
     top_k_indices,
     top_k,

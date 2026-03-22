@@ -1,10 +1,10 @@
-"""Tests for ExTensor _get_float32 and _set_float32 methods.
+"""Tests for AnyTensor _get_float32 and _set_float32 methods.
 
 Note: Split from test_extensor_new_methods.mojo due to Mojo 0.26.1 heap
 corruption bug that occurs after ~15 cumulative tests. See ADR-009.
 """
 
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.extensor import AnyTensor, zeros, ones
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 

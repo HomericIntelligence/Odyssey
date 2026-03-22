@@ -1,4 +1,4 @@
-"""Tests for ExTensor utility operations - Part 3: __len__, __setitem__, __bool__, and partial __hash__.
+"""Tests for AnyTensor utility operations - Part 3: __len__, __setitem__, __bool__, and partial __hash__.
 
 Tests length accessor, item assignment, boolean conversion via __bool__,
 and hash consistency for large and small float values.
@@ -8,8 +8,8 @@ and hash consistency for large and small float values.
 # high test load. Split from test_utility.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange, clone, item, diff
+# Import AnyTensor and operations
+from shared.core.extensor import AnyTensor, zeros, ones, full, arange, clone, item, diff
 from shared.core.shape import as_contiguous
 from shared.core.matrix import transpose_view
 
@@ -184,7 +184,7 @@ fn test_hash_small_values_distinguish() raises:
 fn main() raises:
     """Run utility operation tests - Part 3: __len__, __setitem__, __bool__, and partial __hash__.
     """
-    print("Running ExTensor utility operation tests (Part 3)...")
+    print("Running AnyTensor utility operation tests (Part 3)...")
 
     # __len__
     print("  Testing __len__...")

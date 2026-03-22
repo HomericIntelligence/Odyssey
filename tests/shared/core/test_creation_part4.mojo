@@ -1,14 +1,14 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_creation.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for ExTensor creation operations - Part 4: eye() (rectangular/offset) and linspace().
+"""Tests for AnyTensor creation operations - Part 4: eye() (rectangular/offset) and linspace().
 
 Tests rectangular and offset-diagonal eye() and linspace() creation functions.
 Split from test_creation.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
-# Import ExTensor and creation operations
-from shared.core.extensor import ExTensor, eye, linspace
+# Import AnyTensor and creation operations
+from shared.core.extensor import AnyTensor, eye, linspace
 
 # Import test helpers
 from tests.shared.conftest import (
@@ -148,7 +148,7 @@ fn test_linspace_large_num() raises:
 fn main() raises:
     """Run eye() (rectangular/offset) and linspace() creation tests."""
     print(
-        "Running ExTensor creation tests - Part 4: eye() rectangular/offset and"
+        "Running AnyTensor creation tests - Part 4: eye() rectangular/offset and"
         " linspace()..."
     )
 

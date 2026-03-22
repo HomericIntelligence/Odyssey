@@ -1,14 +1,14 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for ExTensor method-style API: split and split_with_indices.
+"""Tests for AnyTensor method-style API: split and split_with_indices.
 
-Verifies that the thin wrapper methods on ExTensor produce identical results
+Verifies that the thin wrapper methods on AnyTensor produce identical results
 to the functional implementations in shared.core.shape. Follows #3243 and #3804.
 """
 
 from shared.core import (
-    ExTensor,
+    AnyTensor,
     zeros,
     ones,
     full,
@@ -159,8 +159,8 @@ fn test_split_with_indices_method_vs_free_fn() raises:
 
 
 fn main() raises:
-    """Run ExTensor method API tests for split and split_with_indices."""
-    print("Testing ExTensor method API: split and split_with_indices...")
+    """Run AnyTensor method API tests for split and split_with_indices."""
+    print("Testing AnyTensor method API: split and split_with_indices...")
 
     print("  Testing split() method (equal splits)...")
     test_split_method_equal()
@@ -177,4 +177,4 @@ fn main() raises:
     print("  Testing split_with_indices() method vs free function...")
     test_split_with_indices_method_vs_free_fn()
 
-    print("All ExTensor method API tests passed!")
+    print("All AnyTensor method API tests passed!")

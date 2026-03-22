@@ -1,15 +1,15 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_edge_cases.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for ExTensor edge cases - Part 4: Modulo and power edge cases.
+"""Tests for AnyTensor edge cases - Part 4: Modulo and power edge cases.
 
 Split from test_edge_cases.mojo per ADR-009 (≤10 fn test_ functions per file).
 """
 
 from math import isnan, isinf
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange, nan_tensor, inf_tensor, neg_inf_tensor
+# Import AnyTensor and operations
+from shared.core.extensor import AnyTensor, zeros, ones, full, arange, nan_tensor, inf_tensor, neg_inf_tensor
 from shared.core.arithmetic import add, subtract, multiply, divide, floor_divide, modulo, power
 from shared.core.comparison import equal, not_equal, less, less_equal, greater, greater_equal
 
@@ -130,7 +130,7 @@ fn test_power_zero_base_positive_exp() raises:
 
 fn main() raises:
     """Run edge case tests - Part 4."""
-    print("Running ExTensor edge case tests (Part 4)...")
+    print("Running AnyTensor edge case tests (Part 4)...")
 
     # Modulo edge cases
     print("  Testing modulo edge cases...")

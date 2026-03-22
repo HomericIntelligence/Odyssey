@@ -30,7 +30,7 @@ from shared.testing import (
     compute_numerical_gradient,
     assert_gradients_close,
 )
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
+from shared.core.extensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.normalization import (
     batch_norm2d,
     batch_norm2d_backward,
@@ -100,7 +100,7 @@ fn test_batch_norm2d_backward_gradient_beta() raises:
     var grad_beta_analytical = result_bwd[2]
 
     # Numerical gradient: perturb beta
-    fn forward_for_beta(b: ExTensor) raises -> ExTensor:
+    fn forward_for_beta(b: AnyTensor) raises -> AnyTensor:
         var res = batch_norm2d(
             x, gamma, b, running_mean, running_var, training=True, epsilon=1e-5
         )

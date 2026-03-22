@@ -5,7 +5,7 @@ Should never crash even after 100+ runs.
 
 See docs/dev/mojo-jit-crash-workaround.md for context.
 """
-from shared.core.extensor import ExTensor, zeros
+from shared.core.extensor import AnyTensor, zeros
 from testing import assert_true
 
 

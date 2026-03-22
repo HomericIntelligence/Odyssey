@@ -1,7 +1,7 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_extensor_slicing.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Unit tests for ExTensor edge cases and view semantics (#3013).
+"""Unit tests for AnyTensor edge cases and view semantics (#3013).
 
 Tests cover:
 - Edge cases (out-of-bounds clamping)
@@ -10,7 +10,7 @@ Tests cover:
 Following TDD principles - tests written before implementation.
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, full, arange
+from shared.core.extensor import AnyTensor, zeros, ones, full, arange
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 

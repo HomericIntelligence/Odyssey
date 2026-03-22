@@ -7,7 +7,7 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_equal,
 )
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
+from shared.core.extensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import (
     maxpool2d,
@@ -23,7 +23,7 @@ from shared.testing import check_gradient
 # ============================================================================
 
 
-fn _make_test_conv2d_tensors() raises -> Tuple[ExTensor, ExTensor, ExTensor]:
+fn _make_test_conv2d_tensors() raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
     """Create and initialize test tensors for conv2d backward tests.
 
     Returns:
@@ -146,10 +146,10 @@ fn test_conv2d_backward_grad_input_numerical() raises:
     """
     var (x, kernel, bias) = _make_test_conv2d_tensors()
 
-    fn forward_input(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward_input(inp: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=0)
 
-    fn backward_input(grad_out: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward_input(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         var grads = conv2d_backward(grad_out, inp, kernel, stride=1, padding=0)
         return grads.grad_input
 
@@ -169,10 +169,10 @@ fn test_conv2d_backward_grad_weights_numerical() raises:
     var (x, kernel, bias) = _make_test_conv2d_tensors()
 
     # Treat kernel as the variable being perturbed; x is held fixed
-    fn forward_weights(k: ExTensor) raises escaping -> ExTensor:
+    fn forward_weights(k: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, k, bias, stride=1, padding=0)
 
-    fn backward_weights(grad_out: ExTensor, k: ExTensor) raises escaping -> ExTensor:
+    fn backward_weights(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
         var grads = conv2d_backward(grad_out, x, k, stride=1, padding=0)
         return grads.grad_weights
 
@@ -318,10 +318,10 @@ fn test_conv2d_backward_gradient() raises:
     bias_shape.append(2)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=0)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         var grads = conv2d_backward(grad_out, inp, kernel, stride=1, padding=0)
         return grads.grad_input
 
@@ -341,10 +341,10 @@ fn test_maxpool2d_backward_gradient() raises:
     for i in range(1 * 2 * 4 * 4):
         x.set(i, Float64(Float32(i) * 0.1 - 1.6))
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return maxpool2d(inp, kernel_size=2, stride=2, padding=0)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return maxpool2d_backward(
             grad_out, inp, kernel_size=2, stride=2, padding=0
         )
@@ -365,10 +365,10 @@ fn test_avgpool2d_backward_gradient() raises:
     for i in range(1 * 2 * 4 * 4):
         x.set(i, Float64(Float32(i) * 0.1 - 1.6))
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return avgpool2d(inp, kernel_size=2, stride=2, padding=0)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return avgpool2d_backward(
             grad_out, inp, kernel_size=2, stride=2, padding=0
         )

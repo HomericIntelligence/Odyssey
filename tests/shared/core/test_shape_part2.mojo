@@ -1,13 +1,13 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_shape.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for ExTensor shape manipulation: concatenate, stack, split, tile.
+"""Tests for AnyTensor shape manipulation: concatenate, stack, split, tile.
 
 Split from test_shape.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange
+# Import AnyTensor and operations
+from shared.core.extensor import AnyTensor, zeros, ones, full, arange
 from shared.core.shape import concatenate, stack
 
 # Import test helpers
@@ -37,7 +37,7 @@ fn test_concatenate_axis_0() raises:
     var a = ones(shape_a, DType.float32)  # 2x3
     var b = full(shape_b, 2.0, DType.float32)  # 3x3
 
-    var tensors: List[ExTensor] = []
+    var tensors: List[AnyTensor] = []
     tensors.append(a)
     tensors.append(b)
     var c = concatenate(tensors, axis=0)
@@ -59,7 +59,7 @@ fn test_concatenate_axis_1() raises:
     var a = ones(shape_a, DType.float32)  # 3x2
     var b = full(shape_b, 2.0, DType.float32)  # 3x4
 
-    var tensors: List[ExTensor] = []
+    var tensors: List[AnyTensor] = []
     tensors.append(a)
     tensors.append(b)
     var c = concatenate(tensors, axis=1)
@@ -97,7 +97,7 @@ fn test_stack_new_axis() raises:
     var a = ones(shape, DType.float32)  # 2x3
     var b = full(shape, 2.0, DType.float32)  # 2x3
 
-    var tensors: List[ExTensor] = []
+    var tensors: List[AnyTensor] = []
     tensors.append(a)
     tensors.append(b)
     var c = stack(tensors, axis=0)
@@ -116,7 +116,7 @@ fn test_stack_axis_1() raises:
     var a = ones(shape, DType.float32)
     var b = full(shape, 2.0, DType.float32)
 
-    var tensors: List[ExTensor] = []
+    var tensors: List[AnyTensor] = []
     tensors.append(a)
     tensors.append(b)
     var c = stack(tensors, axis=1)
@@ -227,7 +227,7 @@ fn test_tile_multidim() raises:
 
 fn main() raises:
     """Run shape manipulation tests part 2 (concatenate, stack, split, tile)."""
-    print("Running ExTensor shape manipulation tests (part 2)...")
+    print("Running AnyTensor shape manipulation tests (part 2)...")
 
     # concatenate() tests
     print("  Testing concatenate()...")

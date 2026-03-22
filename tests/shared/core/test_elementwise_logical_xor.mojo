@@ -18,7 +18,7 @@ from tests.shared.conftest import (
     assert_equal,
     assert_true,
 )
-from shared.core.extensor import ExTensor, zeros
+from shared.core.extensor import AnyTensor, zeros
 from shared.core.elementwise import logical_xor
 
 

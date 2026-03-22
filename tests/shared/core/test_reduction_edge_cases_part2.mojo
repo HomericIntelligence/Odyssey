@@ -10,8 +10,8 @@ Tests edge cases for sum, mean, max_reduce, min_reduce operations including:
 # high test load. Split from test_reduction_edge_cases.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange
+# Import AnyTensor and operations
+from shared.core.extensor import AnyTensor, zeros, ones, full, arange
 from shared.core.reduction import sum, mean, max_reduce, min_reduce
 
 # Import test helpers

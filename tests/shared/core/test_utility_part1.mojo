@@ -1,4 +1,4 @@
-"""Tests for ExTensor utility operations - Part 1: copy/clone and property accessors.
+"""Tests for AnyTensor utility operations - Part 1: copy/clone and property accessors.
 
 Tests utility functions including copy, clone, numel, dim, shape, dtype,
 and stride calculations.
@@ -8,8 +8,8 @@ and stride calculations.
 # high test load. Split from test_utility.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange, clone, item, diff
+# Import AnyTensor and operations
+from shared.core.extensor import AnyTensor, zeros, ones, full, arange, clone, item, diff
 from shared.core.shape import as_contiguous
 from shared.core.matrix import transpose_view
 
@@ -142,7 +142,7 @@ fn test_stride_row_major() raises:
 fn main() raises:
     """Run utility operation tests - Part 1: copy/clone and property accessors.
     """
-    print("Running ExTensor utility operation tests (Part 1)...")
+    print("Running AnyTensor utility operation tests (Part 1)...")
 
     # copy() and clone() tests
     print("  Testing copy() and clone()...")

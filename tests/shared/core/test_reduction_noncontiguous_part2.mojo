@@ -16,12 +16,12 @@ from tests.shared.conftest import (
     assert_equal_int,
     assert_false,
 )
-from shared.core.extensor import ExTensor, zeros, arange
+from shared.core.extensor import AnyTensor, zeros, arange
 from shared.core.reduction import max_reduce, min_reduce
 from shared.core.matrix import transpose_view
 
 
-fn _make_nc_2x3() raises -> ExTensor:
+fn _make_nc_2x3() raises -> AnyTensor:
     """Non-contiguous 3×2 tensor (transpose of 2×3 sequential).
 
     Logical layout (3×2 row-major): 0,3,1,4,2,5

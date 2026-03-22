@@ -8,7 +8,7 @@ Tests cover:
 
 from testing import assert_true, assert_false
 from shared.core.layers import ReLULayer
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.extensor import AnyTensor, zeros, ones, full
 
 
 fn test_relu_forward_basic() raises:
@@ -16,7 +16,7 @@ fn test_relu_forward_basic() raises:
     var layer = ReLULayer()
 
     # Create input with mixed positive and negative values
-    var input = ExTensor([5], DType.float32)
+    var input = AnyTensor([5], DType.float32)
     var input_values: List[Float32] = [-2.0, -1.0, 0.0, 1.0, 2.0]
     for i in range(5):
         input._data.bitcast[Float32]()[i] = input_values[i]
@@ -38,7 +38,7 @@ fn test_relu_forward_all_negative() raises:
     """Test ReLU forward pass with all negative inputs."""
     var layer = ReLULayer()
 
-    var input = ExTensor([4], DType.float32)
+    var input = AnyTensor([4], DType.float32)
     var input_values: List[Float32] = [-5.0, -2.0, -0.1, -10.0]
     for i in range(4):
         input._data.bitcast[Float32]()[i] = input_values[i]
@@ -57,7 +57,7 @@ fn test_relu_forward_all_positive() raises:
     """Test ReLU forward pass with all positive inputs."""
     var layer = ReLULayer()
 
-    var input = ExTensor([4], DType.float32)
+    var input = AnyTensor([4], DType.float32)
     var input_values: List[Float32] = [0.5, 1.0, 5.0, 10.0]
     for i in range(4):
         input._data.bitcast[Float32]()[i] = input_values[i]
@@ -79,7 +79,7 @@ fn test_relu_forward_batch() raises:
     var layer = ReLULayer()
 
     # Create 2x3 batch
-    var input = ExTensor([2, 3], DType.float32)
+    var input = AnyTensor([2, 3], DType.float32)
     var input_values: List[Float32] = [-1.0, 0.5, -0.5, 2.0, -2.0, 1.5]
     for i in range(6):
         input._data.bitcast[Float32]()[i] = input_values[i]
@@ -99,13 +99,13 @@ fn test_relu_backward_basic() raises:
     var layer = ReLULayer()
 
     # Input: [-2, -1, 0, 1, 2]
-    var input = ExTensor([5], DType.float32)
+    var input = AnyTensor([5], DType.float32)
     var input_values: List[Float32] = [-2.0, -1.0, 0.0, 1.0, 2.0]
     for i in range(5):
         input._data.bitcast[Float32]()[i] = input_values[i]
 
     # Gradient from upstream: [0.1, 0.2, 0.3, 0.4, 0.5]
-    var grad_output = ExTensor([5], DType.float32)
+    var grad_output = AnyTensor([5], DType.float32)
     var grad_values: List[Float32] = [0.1, 0.2, 0.3, 0.4, 0.5]
     for i in range(5):
         grad_output._data.bitcast[Float32]()[i] = grad_values[i]
@@ -128,12 +128,12 @@ fn test_relu_backward_all_positive() raises:
     """Test ReLU backward pass with all positive inputs."""
     var layer = ReLULayer()
 
-    var input = ExTensor([4], DType.float32)
+    var input = AnyTensor([4], DType.float32)
     var input_values: List[Float32] = [1.0, 2.0, 3.0, 4.0]
     for i in range(4):
         input._data.bitcast[Float32]()[i] = input_values[i]
 
-    var grad_output = ExTensor([4], DType.float32)
+    var grad_output = AnyTensor([4], DType.float32)
     var grad_values: List[Float32] = [0.1, 0.2, 0.3, 0.4]
     for i in range(4):
         grad_output._data.bitcast[Float32]()[i] = grad_values[i]
@@ -155,12 +155,12 @@ fn test_relu_backward_all_negative() raises:
     """Test ReLU backward pass with all negative inputs."""
     var layer = ReLULayer()
 
-    var input = ExTensor([4], DType.float32)
+    var input = AnyTensor([4], DType.float32)
     var input_values: List[Float32] = [-1.0, -2.0, -3.0, -4.0]
     for i in range(4):
         input._data.bitcast[Float32]()[i] = input_values[i]
 
-    var grad_output = ExTensor([4], DType.float32)
+    var grad_output = AnyTensor([4], DType.float32)
     var grad_values: List[Float32] = [0.1, 0.2, 0.3, 0.4]
     for i in range(4):
         grad_output._data.bitcast[Float32]()[i] = grad_values[i]
@@ -188,7 +188,7 @@ fn test_relu_forward_float64() raises:
     """Test ReLU forward pass with float64 dtype."""
     var layer = ReLULayer()
 
-    var input = ExTensor([4], DType.float64)
+    var input = AnyTensor([4], DType.float64)
     var input_values: List[Float64] = [-1.5, 0.5, -2.5, 3.5]
     for i in range(4):
         input._data.bitcast[Float64]()[i] = input_values[i]
@@ -210,12 +210,12 @@ fn test_relu_backward_float64() raises:
     """Test ReLU backward pass with float64 dtype."""
     var layer = ReLULayer()
 
-    var input = ExTensor([4], DType.float64)
+    var input = AnyTensor([4], DType.float64)
     var input_values: List[Float64] = [-1.0, 0.0, 1.0, 2.0]
     for i in range(4):
         input._data.bitcast[Float64]()[i] = input_values[i]
 
-    var grad_output = ExTensor([4], DType.float64)
+    var grad_output = AnyTensor([4], DType.float64)
     var grad_values: List[Float64] = [0.1, 0.2, 0.3, 0.4]
     for i in range(4):
         grad_output._data.bitcast[Float64]()[i] = grad_values[i]

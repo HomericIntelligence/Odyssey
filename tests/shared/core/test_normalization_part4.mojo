@@ -23,7 +23,7 @@ from shared.testing import (
     compute_numerical_gradient,
     assert_gradients_close,
 )
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like
+from shared.core.extensor import AnyTensor, zeros, ones, zeros_like
 from shared.core.normalization import (
     batch_norm2d,
     batch_norm2d_backward,
@@ -103,7 +103,7 @@ fn _check_grad_input_batch_size(batch_size: Int) raises:
             )
     else:
         # Standard gradient check for batch_size=2 and batch_size=4.
-        fn forward_for_grad(inp: ExTensor) raises -> ExTensor:
+        fn forward_for_grad(inp: AnyTensor) raises -> AnyTensor:
             var res = batch_norm2d(
                 inp,
                 gamma,
@@ -191,7 +191,7 @@ fn _check_grad_gamma_batch_size(batch_size: Int) raises:
             )
     else:
         # Standard gradient check: perturb gamma.
-        fn forward_for_gamma(g: ExTensor) raises -> ExTensor:
+        fn forward_for_gamma(g: AnyTensor) raises -> AnyTensor:
             var res = batch_norm2d(
                 x, g, beta, running_mean, running_var, training=True, epsilon=1e-5
             )
@@ -276,7 +276,7 @@ fn _check_grad_beta_batch_size(batch_size: Int) raises:
             )
     else:
         # Standard gradient check: perturb beta.
-        fn forward_for_beta(b: ExTensor) raises -> ExTensor:
+        fn forward_for_beta(b: AnyTensor) raises -> AnyTensor:
             var res = batch_norm2d(
                 x, gamma, b, running_mean, running_var, training=True, epsilon=1e-5
             )

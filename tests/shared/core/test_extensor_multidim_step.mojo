@@ -1,14 +1,14 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split per file convention. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for ExTensor multi-dimensional slicing with step support.
+"""Tests for AnyTensor multi-dimensional slicing with step support.
 
 The *slices overload of __getitem__ now supports non-unit steps on all
 dimensions, consistent with the 1D __getitem__(Slice) overload.  These
 tests verify that step slicing produces correct shapes and values.
 """
 
-from shared.core.extensor import ExTensor, zeros, arange
+from shared.core.extensor import AnyTensor, zeros, arange
 from tests.shared.conftest import assert_true, assert_equal
 
 

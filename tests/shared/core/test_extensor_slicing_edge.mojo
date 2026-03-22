@@ -1,9 +1,9 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_extensor_slicing.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for ExTensor slice edge cases and copy semantics."""
+"""Tests for AnyTensor slice edge cases and copy semantics."""
 
-from shared.core.extensor import ExTensor, zeros, ones, full, arange
+from shared.core.extensor import AnyTensor, zeros, ones, full, arange
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 

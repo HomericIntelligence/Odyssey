@@ -18,7 +18,7 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_close_float,
 )
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
+from shared.core.extensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.loss import smooth_l1_loss, smooth_l1_loss_backward
 from shared.core.loss import hinge_loss, hinge_loss_backward
 from shared.core.loss import focal_loss, focal_loss_backward
@@ -49,11 +49,11 @@ fn test_smooth_l1_backward_gradient() raises:
     targets._set_float64(3, 0.5)
 
     # Forward function wrapper
-    fn forward(pred: ExTensor) raises escaping -> ExTensor:
+    fn forward(pred: AnyTensor) raises escaping -> AnyTensor:
         return smooth_l1_loss(pred, targets, beta=beta)
 
     # Backward function wrapper
-    fn backward(grad_out: ExTensor, pred: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
         return smooth_l1_loss_backward(grad_out, pred, targets, beta=beta)
 
     var loss = forward(predictions)
@@ -73,8 +73,8 @@ fn test_hinge_loss_correct_prediction() raises:
 
     var shape = List[Int]()
     shape.append(3)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     # Correct predictions with high confidence
     # y*pred = 1*2.0 = 2.0, so loss = max(0, 1 - 2.0) = max(0, -1.0) = 0.0
@@ -102,8 +102,8 @@ fn test_hinge_loss_wrong_prediction() raises:
 
     var shape = List[Int]()
     shape.append(2)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     # Wrong predictions (margin violated)
     # y*pred = 1*(-0.5) = -0.5, so loss = max(0, 1 - (-0.5)) = 1.5
@@ -134,8 +134,8 @@ fn test_hinge_loss_at_margin() raises:
 
     var shape = List[Int]()
     shape.append(2)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     # At the margin: y*pred = 1, so loss = max(0, 1 - 1) = 0
     predictions._set_float64(0, 1.0)
@@ -163,8 +163,8 @@ fn test_hinge_loss_backward() raises:
 
     var shape = List[Int]()
     shape.append(3)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     # Mix of correct and wrong predictions
     # Case 1: y*pred = 2.0 > 1 (correct), grad should be 0
@@ -222,11 +222,11 @@ fn test_hinge_loss_backward_gradient() raises:
     targets._set_float64(3, 1.0)
 
     # Forward function wrapper
-    fn forward(pred: ExTensor) raises escaping -> ExTensor:
+    fn forward(pred: AnyTensor) raises escaping -> AnyTensor:
         return hinge_loss(pred, targets)
 
     # Backward function wrapper
-    fn backward(grad_out: ExTensor, pred: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
         return hinge_loss_backward(grad_out, pred, targets)
 
     var loss = forward(predictions)
@@ -246,8 +246,8 @@ fn test_focal_loss_perfect_prediction() raises:
 
     var shape = List[Int]()
     shape.append(4)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     # Perfect predictions: pred = target
     for i in range(4):

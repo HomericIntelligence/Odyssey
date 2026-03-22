@@ -30,7 +30,7 @@ from shared.testing import (
     compute_numerical_gradient,
     assert_gradients_close,
 )
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
+from shared.core.extensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.normalization import (
     batch_norm2d,
     batch_norm2d_backward,
@@ -345,7 +345,7 @@ fn test_batch_norm2d_backward_gradient_input() raises:
     # Numerical gradient via finite differences.
     # forward_for_grad computes weighted sum: sum(output * grad_output)
     # so the numerical gradient matches what the backward should compute.
-    fn forward_for_grad(inp: ExTensor) raises -> ExTensor:
+    fn forward_for_grad(inp: AnyTensor) raises -> AnyTensor:
         var result_nested = batch_norm2d(
             inp,
             gamma,
@@ -452,7 +452,7 @@ fn test_batch_norm2d_backward_gradient_input_inference_mode() raises:
     var grad_input = result_bwd[0]
 
     # Numerical gradient: closure uses training=False with fixed running stats
-    fn forward_for_grad_infer(inp: ExTensor) raises -> ExTensor:
+    fn forward_for_grad_infer(inp: AnyTensor) raises -> AnyTensor:
         var res = batch_norm2d(
             inp,
             gamma,
@@ -542,7 +542,7 @@ fn test_batch_norm2d_backward_gradient_gamma() raises:
     # Numerical gradient: perturb gamma
     # The forward closure computes: sum(batch_norm2d(x, g, ...) * grad_output)
     # so the numerical gradient matches what batch_norm2d_backward should produce.
-    fn forward_for_gamma(g: ExTensor) raises -> ExTensor:
+    fn forward_for_gamma(g: AnyTensor) raises -> AnyTensor:
         var res = batch_norm2d(
             x, g, beta, running_mean, running_var, training=True, epsilon=1e-5
         )

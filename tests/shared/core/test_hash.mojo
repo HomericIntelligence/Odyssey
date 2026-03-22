@@ -1,4 +1,4 @@
-"""Tests for ExTensor __hash__ NaN stability (issue #3382).
+"""Tests for AnyTensor __hash__ NaN stability (issue #3382).
 
 Verifies that different NaN bit patterns (quiet NaN, signaling NaN, negative NaN,
 different NaN payloads) all produce the same hash, ensuring deterministic hash
@@ -7,7 +7,7 @@ behavior for tensors containing NaN values.
 
 from memory import UnsafePointer
 from shared.core import (
-    ExTensor,
+    AnyTensor,
     zeros,
     ones,
     full,
@@ -24,47 +24,47 @@ from tests.shared.conftest import (
 # ============================================================================
 
 
-fn make_f32_nan_tensor(bits: UInt32) raises -> ExTensor:
+fn make_f32_nan_tensor(bits: UInt32) raises -> AnyTensor:
     """Create a scalar float32 tensor whose single element has the given raw bits.
 
     Args:
         bits: The IEEE 754 bit pattern to store. Must represent a NaN.
 
     Returns:
-        A scalar (0-D) ExTensor with DType.float32 containing that bit pattern.
+        A scalar (0-D) AnyTensor with DType.float32 containing that bit pattern.
     """
     var shape = List[Int]()
-    var t = ExTensor(shape, DType.float32)
+    var t = AnyTensor(shape, DType.float32)
     t._data.bitcast[UInt32]()[] = bits
     return t^
 
 
-fn make_f64_nan_tensor(bits: UInt64) raises -> ExTensor:
+fn make_f64_nan_tensor(bits: UInt64) raises -> AnyTensor:
     """Create a scalar float64 tensor whose single element has the given raw bits.
 
     Args:
         bits: The IEEE 754 bit pattern to store. Must represent a NaN.
 
     Returns:
-        A scalar (0-D) ExTensor with DType.float64 containing that bit pattern.
+        A scalar (0-D) AnyTensor with DType.float64 containing that bit pattern.
     """
     var shape = List[Int]()
-    var t = ExTensor(shape, DType.float64)
+    var t = AnyTensor(shape, DType.float64)
     t._data.bitcast[UInt64]()[] = bits
     return t^
 
 
-fn make_f16_nan_tensor(bits: UInt16) raises -> ExTensor:
+fn make_f16_nan_tensor(bits: UInt16) raises -> AnyTensor:
     """Create a scalar float16 tensor whose single element has the given raw bits.
 
     Args:
         bits: The IEEE 754 bit pattern to store. Must represent a NaN.
 
     Returns:
-        A scalar (0-D) ExTensor with DType.float16 containing that bit pattern.
+        A scalar (0-D) AnyTensor with DType.float16 containing that bit pattern.
     """
     var shape = List[Int]()
-    var t = ExTensor(shape, DType.float16)
+    var t = AnyTensor(shape, DType.float16)
     t._data.bitcast[UInt16]()[] = bits
     return t^
 
@@ -263,12 +263,12 @@ fn test_hash_mixed_nan_different_nan_patterns() raises:
     shape.append(2)
 
     # First tensor: element 0 = positive quiet NaN, element 1 = 1.0
-    var a = ExTensor(shape, DType.float32)
+    var a = AnyTensor(shape, DType.float32)
     a._data.bitcast[UInt32]()[0] = UInt32(0x7FC00000)  # +qNaN
     a._data.bitcast[Float32]()[1] = Float32(1.0)
 
     # Second tensor: element 0 = negative quiet NaN, element 1 = 1.0
-    var b = ExTensor(shape, DType.float32)
+    var b = AnyTensor(shape, DType.float32)
     b._data.bitcast[UInt32]()[0] = UInt32(0xFFC00000)  # -qNaN
     b._data.bitcast[Float32]()[1] = Float32(1.0)
 
@@ -448,11 +448,11 @@ fn test_hash_nan_canonicalization_scalar() raises:
     """
     # Positive quiet NaN
     var shape = List[Int]()
-    var pos_nan = ExTensor(shape, DType.float32)
+    var pos_nan = AnyTensor(shape, DType.float32)
     pos_nan._data.bitcast[UInt32]()[] = UInt32(0x7FC00000)
 
     # Negative quiet NaN
-    var neg_nan = ExTensor(shape, DType.float32)
+    var neg_nan = AnyTensor(shape, DType.float32)
     neg_nan._data.bitcast[UInt32]()[] = UInt32(0xFFC00000)
 
     assert_equal_int(

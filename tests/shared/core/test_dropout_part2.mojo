@@ -21,7 +21,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
+from shared.core.extensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.dropout import (
     dropout,
     dropout2d,
@@ -160,7 +160,7 @@ fn test_dropout2d_backward_gradient() raises:
 
     # Forward function wrapper - manually apply the SAME mask
     # This makes the function deterministic for gradient checking
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         # Apply the same mask that was generated initially
         from shared.core.arithmetic import multiply
         from shared.core.extensor import full_like
@@ -171,7 +171,7 @@ fn test_dropout2d_backward_gradient() raises:
         return multiply(masked, scale_tensor)
 
     # Backward function wrapper - use stored mask instead of regenerating
-    fn backward(grad: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         # Use the mask from forward pass to ensure consistency
         return dropout2d_backward(grad, mask, p=p)
 

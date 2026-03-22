@@ -18,13 +18,13 @@ from tests.shared.conftest import (
     assert_false,
     assert_true,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full, arange
+from shared.core.extensor import AnyTensor, zeros, ones, full, arange
 from shared.core.arithmetic import add, subtract, multiply
 from shared.core.matrix import transpose_view
 from shared.core.shape import as_contiguous
 
 
-fn _make_nc_2x3() raises -> ExTensor:
+fn _make_nc_2x3() raises -> AnyTensor:
     """Non-contiguous 3×2 tensor (logical values: 0,3,1,4,2,5)."""
     var base = arange(0.0, 6.0, 1.0, DType.float32)
     var shaped = base.reshape([2, 3])

@@ -11,8 +11,8 @@ Tests edge cases for log operations including:
 
 from math import isnan, isinf, log
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full
+# Import AnyTensor and operations
+from shared.core.extensor import AnyTensor, zeros, ones, full
 from shared.core.elementwise import (
     log as log_op,
 )

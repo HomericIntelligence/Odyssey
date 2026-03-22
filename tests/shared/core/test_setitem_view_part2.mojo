@@ -12,7 +12,7 @@ Covers:
 Issue: #4076 — Verify multi-dim __setitem__ works with non-contiguous (view) tensors
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, arange
+from shared.core.extensor import AnyTensor, zeros, ones, arange
 from tests.shared.conftest import (
     assert_true,
     assert_almost_equal,

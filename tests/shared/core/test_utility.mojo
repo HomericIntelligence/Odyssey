@@ -1,12 +1,12 @@
-"""Tests for ExTensor utility operations.
+"""Tests for AnyTensor utility operations.
 
 Tests utility functions including copy, clone, properties, conversions,
 and helper methods like numel, dim, size, stride, is_contiguous.
 """
 
-# Import ExTensor and operations
+# Import AnyTensor and operations
 from shared.core import (
-    ExTensor,
+    AnyTensor,
     zeros,
     ones,
     full,
@@ -845,7 +845,7 @@ fn test_hash_empty_tensor_dtype_differs() raises:
         )
 
 
-fn make_bf16_nan_tensor(raw_bits: UInt16) raises -> ExTensor:
+fn make_bf16_nan_tensor(raw_bits: UInt16) raises -> AnyTensor:
     """Create a scalar BF16 tensor with the given raw NaN bit pattern.
 
     Bypasses _set_float64 by writing raw UInt16 bits directly via pointer cast,
@@ -862,11 +862,11 @@ fn make_bf16_nan_tensor(raw_bits: UInt16) raises -> ExTensor:
         raw_bits: Raw UInt16 bit pattern for a BF16 NaN value.
 
     Returns:
-        Scalar ExTensor with DType.bfloat16 containing the given bit pattern.
+        Scalar AnyTensor with DType.bfloat16 containing the given bit pattern.
     """
     var shape = List[Int]()
     shape.append(1)
-    var tensor = ExTensor(shape, DType.bfloat16)
+    var tensor = AnyTensor(shape, DType.bfloat16)
     var ptr = tensor._data.bitcast[UInt16]()
     ptr[] = raw_bits
     return tensor^
@@ -993,7 +993,7 @@ fn test_diff_higher_order() raises:
 
 fn main() raises:
     """Run all utility operation tests."""
-    print("Running ExTensor utility operation tests...")
+    print("Running AnyTensor utility operation tests...")
 
     # copy() and clone() tests
     print("  Testing copy() and clone()...")

@@ -8,7 +8,7 @@ from tests.shared.conftest import (
     assert_equal,
     assert_true,
 )
-from shared.core.extensor import ExTensor, zeros, ones, ones_like
+from shared.core.extensor import AnyTensor, zeros, ones, ones_like
 from shared.core.loss import (
     cross_entropy,
     cross_entropy_backward,
@@ -175,10 +175,10 @@ fn test_cross_entropy_backward_gradient() raises:
     targets.set(0, Float64(1.0))
     targets.set(4, Float64(1.0))
 
-    fn forward(inp: ExTensor) raises -> ExTensor:
+    fn forward(inp: AnyTensor) raises -> AnyTensor:
         return cross_entropy(inp, targets)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return cross_entropy_backward(grad_out, inp, targets)
 
     var loss = forward(logits)
@@ -212,10 +212,10 @@ fn test_binary_cross_entropy_backward_gradient() raises:
     targets.set(6, Float64(0.0))
     targets.set(7, Float64(1.0))
 
-    fn forward(inp: ExTensor) raises -> ExTensor:
+    fn forward(inp: AnyTensor) raises -> AnyTensor:
         return binary_cross_entropy(inp, targets)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return binary_cross_entropy_backward(grad_out, inp, targets)
 
     var loss = forward(predictions)
@@ -261,10 +261,10 @@ fn test_mean_squared_error_backward_gradient() raises:
     targets.set(10, Float64(0.0))
     targets.set(11, Float64(0.6))
 
-    fn forward(inp: ExTensor) raises -> ExTensor:
+    fn forward(inp: AnyTensor) raises -> AnyTensor:
         return mean_squared_error(inp, targets)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return mean_squared_error_backward(grad_out, inp, targets)
 
     var loss = forward(predictions)

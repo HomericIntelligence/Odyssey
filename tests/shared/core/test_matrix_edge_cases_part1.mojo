@@ -9,8 +9,8 @@ Tests edge cases for matmul and shape operations on matrices including:
 # high test load. Split from test_matrix_edge_cases.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, zeros_like, eye
+# Import AnyTensor and operations
+from shared.core.extensor import AnyTensor, zeros, ones, full, zeros_like, eye
 from shared.core.matrix import matmul
 
 # Import test helpers

@@ -22,7 +22,7 @@ from tests.shared.conftest import (
 )
 from tests.shared.conftest import TestFixtures
 from shared.core.extensor import (
-    ExTensor,
+    AnyTensor,
     zeros,
     ones,
     full,

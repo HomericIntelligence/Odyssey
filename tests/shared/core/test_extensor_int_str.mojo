@@ -1,11 +1,11 @@
-"""Tests for ExTensor __str__ on integer types (int8, int16, int32, int64, uint8, uint16, uint32, uint64).
+"""Tests for AnyTensor __str__ on integer types (int8, int16, int32, int64, uint8, uint16, uint32, uint64).
 
 Verifies that _format_element() correctly handles all integer dtype paths for string representation.
 
 Related: issue #4047, issue #3376
 """
 
-from shared.core.extensor import ExTensor, zeros, full, arange
+from shared.core.extensor import AnyTensor, zeros, full, arange
 from tests.shared.conftest import assert_true, assert_equal
 
 
@@ -105,7 +105,7 @@ fn test_str_uint8_negative_not_in_output() raises:
 
 fn main() raises:
     """Run integer dtype __str__ tests."""
-    print("Running ExTensor __str__ integer dtype tests...")
+    print("Running AnyTensor __str__ integer dtype tests...")
 
     test_str_int8()
     print("  [OK] test_str_int8")
@@ -137,4 +137,4 @@ fn main() raises:
     test_str_uint8_negative_not_in_output()
     print("  [OK] test_str_uint8_negative_not_in_output")
 
-    print("All ExTensor __str__ integer dtype tests passed!")
+    print("All AnyTensor __str__ integer dtype tests passed!")

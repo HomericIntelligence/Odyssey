@@ -21,11 +21,11 @@ from tests.shared.conftest import (
     assert_false,
     assert_true,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.extensor import AnyTensor, zeros, ones, full
 from shared.core.conv import conv2d_backward, conv2d_no_bias_backward
 
 
-fn _make_nc_grad_output() raises -> ExTensor:
+fn _make_nc_grad_output() raises -> AnyTensor:
     """Non-contiguous grad_output of logical shape (1,1,4,2).
 
     Base (1,1,2,4) all-ones transposed to (1,1,4,2): strides [8,8,1,4]
@@ -38,7 +38,7 @@ fn _make_nc_grad_output() raises -> ExTensor:
     return nc^
 
 
-fn _make_nc_input() raises -> ExTensor:
+fn _make_nc_input() raises -> AnyTensor:
     """Non-contiguous input of logical shape (1,1,6,4) with all ones.
 
     Base (1,1,4,6) transposed to (1,1,6,4): strides [24,24,1,6]

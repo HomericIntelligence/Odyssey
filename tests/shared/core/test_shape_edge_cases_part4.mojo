@@ -10,8 +10,8 @@ Tests edge cases for stack operations and dimension preservation including:
 - Reshape/squeeze/unsqueeze preserve element count
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange
+# Import AnyTensor and operations
+from shared.core.extensor import AnyTensor, zeros, ones, full, arange
 from shared.core.shape import reshape, squeeze, unsqueeze, concatenate, stack
 
 # Import test helpers
@@ -36,7 +36,7 @@ fn test_stack_single_tensor() raises:
     shape.append(3)
     var t = ones(shape, DType.float32)
 
-    var tensors = List[ExTensor]()
+    var tensors = List[AnyTensor]()
     tensors.append(t)
     var result = stack(tensors, 0)
 
@@ -53,7 +53,7 @@ fn test_stack_2d_tensors() raises:
     var t1 = ones(shape, DType.float32)
     var t2 = full(shape, 2.0, DType.float32)
 
-    var tensors = List[ExTensor]()
+    var tensors = List[AnyTensor]()
     tensors.append(t1)
     tensors.append(t2)
     var result = stack(tensors, 0)
@@ -71,7 +71,7 @@ fn test_stack_along_different_axis() raises:
     var t1 = ones(shape, DType.float32)
     var t2 = full(shape, 2.0, DType.float32)
 
-    var tensors = List[ExTensor]()
+    var tensors = List[AnyTensor]()
     tensors.append(t1)
     tensors.append(t2)
     var result = stack(tensors, 1)

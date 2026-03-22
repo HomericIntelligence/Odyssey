@@ -1,4 +1,4 @@
-"""Tests for ExTensor __str__ truncation behavior.
+"""Tests for AnyTensor __str__ truncation behavior.
 
 Verifies NumPy-style truncation: tensors with more than 1000 elements
 show first 3 and last 3 elements with '...' in between.
@@ -6,7 +6,7 @@ show first 3 and last 3 elements with '...' in between.
 Related: issue #3375
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, full, arange
+from shared.core.extensor import AnyTensor, zeros, ones, full, arange
 from tests.shared.conftest import assert_true, assert_equal
 
 
@@ -137,7 +137,7 @@ fn test_str_empty_multidim_tensor_int32() raises:
 
 fn main() raises:
     """Run __str__ truncation tests."""
-    print("Running ExTensor __str__ truncation tests...")
+    print("Running AnyTensor __str__ truncation tests...")
 
     test_str_empty_tensor()
     print("  [OK] test_str_empty_tensor")
@@ -178,4 +178,4 @@ fn main() raises:
     test_str_empty_multidim_tensor_int32()
     print("  [OK] test_str_empty_multidim_tensor_int32")
 
-    print("All ExTensor __str__ truncation tests passed!")
+    print("All AnyTensor __str__ truncation tests passed!")

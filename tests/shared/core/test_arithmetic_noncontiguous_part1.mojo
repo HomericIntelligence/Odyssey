@@ -17,13 +17,13 @@ from tests.shared.conftest import (
     assert_false,
     assert_true,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full, arange
+from shared.core.extensor import AnyTensor, zeros, ones, full, arange
 from shared.core.arithmetic import add, subtract, multiply, divide
 from shared.core.matrix import transpose_view
 from shared.core.shape import as_contiguous
 
 
-fn _make_noncontiguous_2x3() raises -> ExTensor:
+fn _make_noncontiguous_2x3() raises -> AnyTensor:
     """Create a non-contiguous 3×2 tensor by transposing a 2×3.
 
     The logical values (row-major for 3×2) are:

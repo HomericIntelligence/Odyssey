@@ -1,12 +1,12 @@
-"""Tests for ExTensor scalar dim, value access, and creation patterns (Part 4 of 5).
+"""Tests for AnyTensor scalar dim, value access, and creation patterns (Part 4 of 5).
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_properties.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange, eye
+# Import AnyTensor and operations
+from shared.core.extensor import AnyTensor, zeros, ones, full, arange, eye
 
 # Import test helpers
 from tests.shared.conftest import (
@@ -121,7 +121,7 @@ fn test_full_pattern() raises:
 fn main() raises:
     """Run scalar dim, value access, and creation pattern tests (Part 4)."""
     print(
-        "Running ExTensor scalar dim, value access, and creation pattern tests"
+        "Running AnyTensor scalar dim, value access, and creation pattern tests"
         " (Part 4)..."
     )
 

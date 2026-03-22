@@ -18,7 +18,7 @@ from tests.shared.conftest import (
 )
 from tests.shared.conftest import TestFixtures
 from shared.core.extensor import (
-    ExTensor,
+    AnyTensor,
     zeros,
     ones,
     ones_like,
@@ -237,10 +237,10 @@ fn test_add_backward_gradient() raises:
         a._data.bitcast[Float32]()[i] = Float32(i) * 0.1 - 1.2
         b._data.bitcast[Float32]()[i] = Float32(i) * 0.15 - 0.8
 
-    fn forward(inp: ExTensor) raises -> ExTensor:
+    fn forward(inp: AnyTensor) raises -> AnyTensor:
         return add(inp, b)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = add_backward(grad_out, inp, b)
         return grads.grad_a
 
@@ -269,10 +269,10 @@ fn test_subtract_backward_gradient() raises:
         a._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 0.5
         b._data.bitcast[Float32]()[i] = Float32(i) * 0.2 - 1.5
 
-    fn forward(inp: ExTensor) raises -> ExTensor:
+    fn forward(inp: AnyTensor) raises -> AnyTensor:
         return subtract(inp, b)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = subtract_backward(grad_out, inp, b)
         return grads.grad_a
 
@@ -302,10 +302,10 @@ fn test_multiply_backward_gradient() raises:
         a._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 0.1
         b._data.bitcast[Float32]()[i] = Float32(i) * 0.15 + 0.2
 
-    fn forward(inp: ExTensor) raises -> ExTensor:
+    fn forward(inp: AnyTensor) raises -> AnyTensor:
         return multiply(inp, b)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = multiply_backward(grad_out, inp, b)
         return grads.grad_a
 
@@ -335,10 +335,10 @@ fn test_divide_backward_gradient() raises:
         a._data.bitcast[Float32]()[i] = Float32(i) * 0.2 + 0.5
         b._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 1.0  # Ensure b > 0
 
-    fn forward(inp: ExTensor) raises -> ExTensor:
+    fn forward(inp: AnyTensor) raises -> AnyTensor:
         return divide(inp, b)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = divide_backward(grad_out, inp, b)
         return grads.grad_a
 

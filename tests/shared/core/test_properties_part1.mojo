@@ -1,12 +1,12 @@
-"""Tests for ExTensor shape and dtype properties (Part 1 of 5).
+"""Tests for AnyTensor shape and dtype properties (Part 1 of 5).
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_properties.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange, eye
+# Import AnyTensor and operations
+from shared.core.extensor import AnyTensor, zeros, ones, full, arange, eye
 
 # Import test helpers
 from tests.shared.conftest import (
@@ -121,7 +121,7 @@ fn test_dtype_int64() raises:
 
 fn main() raises:
     """Run shape and dtype property tests (Part 1)."""
-    print("Running ExTensor shape and dtype property tests (Part 1)...")
+    print("Running AnyTensor shape and dtype property tests (Part 1)...")
 
     # Shape property tests
     print("  Testing shape property...")

@@ -1,4 +1,4 @@
-"""Tests for ExTensor __repr__ truncation behavior.
+"""Tests for AnyTensor __repr__ truncation behavior.
 
 Verifies NumPy-style truncation: tensors with more than 1000 elements
 show first 3 and last 3 elements with '...' in between.
@@ -6,7 +6,7 @@ show first 3 and last 3 elements with '...' in between.
 Related: issue #4038, follow-up from #3375
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, full, arange
+from shared.core.extensor import AnyTensor, zeros, ones, full, arange
 from tests.shared.conftest import assert_true, assert_equal
 
 
@@ -119,7 +119,7 @@ fn test_repr_empty_tensor_float16() raises:
 
 fn main() raises:
     """Run __repr__ truncation tests."""
-    print("Running ExTensor __repr__ truncation tests...")
+    print("Running AnyTensor __repr__ truncation tests...")
 
     test_repr_empty_tensor()
     print("  [OK] test_repr_empty_tensor")
@@ -154,4 +154,4 @@ fn main() raises:
     test_repr_empty_tensor_float16()
     print("  [OK] test_repr_empty_tensor_float16")
 
-    print("All ExTensor __repr__ truncation tests passed!")
+    print("All AnyTensor __repr__ truncation tests passed!")

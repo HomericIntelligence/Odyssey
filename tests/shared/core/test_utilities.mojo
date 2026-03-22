@@ -7,7 +7,7 @@ This module tests the utility functions:
 """
 
 from shared.core.extensor import (
-    ExTensor,
+    AnyTensor,
     zeros,
     ones,
     full,

@@ -9,8 +9,8 @@ Tests edge cases for squeeze and unsqueeze operations including:
 - Unsqueeze at various positions
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange
+# Import AnyTensor and operations
+from shared.core.extensor import AnyTensor, zeros, ones, full, arange
 from shared.core.shape import reshape, squeeze, unsqueeze, concatenate, stack
 
 # Import test helpers

@@ -12,7 +12,7 @@ from tests.shared.conftest import (
     assert_equal,
     assert_true,
 )
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.extensor import AnyTensor, zeros, ones
 from shared.core.validation import (
     validate_tensor_dtype,
     validate_matching_tensors,

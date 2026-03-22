@@ -33,7 +33,7 @@ from tests.shared.conftest import (
 )
 from tests.shared.conftest import TestFixtures
 from shared.core.extensor import (
-    ExTensor,
+    AnyTensor,
     zeros,
     ones,
     zeros_like,
@@ -256,11 +256,11 @@ fn test_transpose_backward_gradient() raises:
         x._data.bitcast[Float32]()[i] = Float32(i) * 0.15 - 2.0
 
     # Forward function wrapper
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return transpose(inp)
 
     # Backward function wrapper
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return transpose_backward(grad_out)
 
     var output = forward(x)

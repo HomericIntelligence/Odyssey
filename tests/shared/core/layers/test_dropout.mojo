@@ -10,7 +10,7 @@ Tests cover:
 
 from testing import assert_true, assert_false, assert_almost_equal
 from shared.core.layers import DropoutLayer
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.extensor import AnyTensor, zeros, ones, full
 
 
 fn test_dropout_init_valid() raises:
@@ -97,7 +97,7 @@ fn test_dropout_forward_inference_mode() raises:
     layer.set_training(False)
 
     # Create input
-    var input = ExTensor([4], DType.float32)
+    var input = AnyTensor([4], DType.float32)
     var input_values: List[Float32] = [1.0, 2.0, 3.0, 4.0]
     for i in range(4):
         input._data.bitcast[Float32]()[i] = input_values[i]
@@ -121,7 +121,7 @@ fn test_dropout_forward_training_mode_shape() raises:
     layer.set_training(True)
 
     # Create input with various shapes
-    var input_1d = ExTensor([10], DType.float32)
+    var input_1d = AnyTensor([10], DType.float32)
     for i in range(10):
         input_1d._data.bitcast[Float32]()[i] = Float32(i)
 
@@ -131,7 +131,7 @@ fn test_dropout_forward_training_mode_shape() raises:
         "1D output shape should be preserved",
     )
 
-    var input_2d = ExTensor([4, 5], DType.float32)
+    var input_2d = AnyTensor([4, 5], DType.float32)
     for i in range(20):
         input_2d._data.bitcast[Float32]()[i] = Float32(i)
 
@@ -152,7 +152,7 @@ fn test_dropout_forward_training_mode_zeros() raises:
     layer.set_training(True)
 
     # Create input with all ones
-    var input = ExTensor([100], DType.float32)
+    var input = AnyTensor([100], DType.float32)
     for i in range(100):
         input._data.bitcast[Float32]()[i] = 1.0
 
@@ -181,7 +181,7 @@ fn test_dropout_forward_training_mode_scale() raises:
     layer.set_training(True)
 
     # Create input with all ones
-    var input = ExTensor([100], DType.float32)
+    var input = AnyTensor([100], DType.float32)
     for i in range(100):
         input._data.bitcast[Float32]()[i] = 1.0
 
@@ -205,14 +205,14 @@ fn test_dropout_backward_shape() raises:
     layer.set_training(True)
 
     # Create input and forward pass to get mask
-    var input = ExTensor([4, 5], DType.float32)
+    var input = AnyTensor([4, 5], DType.float32)
     for i in range(20):
         input._data.bitcast[Float32]()[i] = 1.0
 
     var output = layer.forward(input)
 
     # Create gradient
-    var grad_output = ExTensor([4, 5], DType.float32)
+    var grad_output = AnyTensor([4, 5], DType.float32)
     for i in range(20):
         grad_output._data.bitcast[Float32]()[i] = 0.1
 
@@ -234,7 +234,7 @@ fn test_dropout_backward_scaling() raises:
     layer.set_training(True)
 
     # Create input and forward pass
-    var input = ExTensor([4], DType.float32)
+    var input = AnyTensor([4], DType.float32)
     for i in range(4):
         input._data.bitcast[Float32]()[i] = 1.0
 
@@ -242,7 +242,7 @@ fn test_dropout_backward_scaling() raises:
     var mask = layer.last_mask
 
     # Create gradient with all ones
-    var grad_output = ExTensor([4], DType.float32)
+    var grad_output = AnyTensor([4], DType.float32)
     for i in range(4):
         grad_output._data.bitcast[Float32]()[i] = 1.0
 
@@ -279,7 +279,7 @@ fn test_dropout_forward_float64() raises:
     var layer = DropoutLayer(0.5)
     layer.set_training(True)
 
-    var input = ExTensor([50], DType.float64)
+    var input = AnyTensor([50], DType.float64)
     for i in range(50):
         input._data.bitcast[Float64]()[i] = 1.0
 
@@ -306,7 +306,7 @@ fn test_dropout_zero_dropout_rate() raises:
     var layer = DropoutLayer(0.0)
     layer.set_training(True)
 
-    var input = ExTensor([10], DType.float32)
+    var input = AnyTensor([10], DType.float32)
     for i in range(10):
         input._data.bitcast[Float32]()[i] = 1.0
 
@@ -328,7 +328,7 @@ fn test_dropout_high_dropout_rate() raises:
     var layer = DropoutLayer(0.9)
     layer.set_training(True)
 
-    var input = ExTensor([100], DType.float32)
+    var input = AnyTensor([100], DType.float32)
     for i in range(100):
         input._data.bitcast[Float32]()[i] = 1.0
 
