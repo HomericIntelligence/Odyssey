@@ -404,6 +404,16 @@ fn conv2d(
     if kernel_in_channels != in_channels:
         raise Error("Kernel in_channels must match input in_channels")
 
+    if x.dtype() != kernel.dtype() or x.dtype() != bias.dtype():
+        raise Error(
+            "conv2d: all tensors must have the same dtype. Got x: "
+            + String(x.dtype())
+            + ", kernel: "
+            + String(kernel.dtype())
+            + ", bias: "
+            + String(bias.dtype())
+        )
+
     # Compute output dimensions using shape computation helper
     var (out_h, out_w) = conv2d_output_shape(
         in_height, in_width, kH, kW, stride, padding

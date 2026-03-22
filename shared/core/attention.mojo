@@ -125,6 +125,14 @@ fn scaled_dot_product_attention_masked(
     # Apply mask if provided (additive masking)
     var mask_shape = mask.shape()
     if len(mask_shape) > 0 and mask.numel() > 0:
+        if mask.dtype() != scaled_scores.dtype():
+            raise Error(
+                "attention: mask dtype ("
+                + String(mask.dtype())
+                + ") must match scores dtype ("
+                + String(scaled_scores.dtype())
+                + ")"
+            )
         scaled_scores = add(scaled_scores, mask)
 
     # Apply softmax along the last dimension (key sequence length)
