@@ -6,10 +6,10 @@ for use in neural network training.
 
 Key components:
 - ReLULayer: ReLU activation layer
-  Implements: y = max(0, x) forward, ∂L/∂x = grad * (x > 0) backward
+  Implements: y = max(0, x) forward, dL/dx = grad * (x > 0) backward
 """
 
-from ..extensor import ExTensor, zeros_like
+from ..extensor import AnyTensor, zeros_like
 from ..activation import relu, relu_backward
 from ..module import Module
 
@@ -48,7 +48,7 @@ struct ReLULayer(Copyable, Module, Movable):
         """
         pass
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: y = max(0, x).
 
         Applies ReLU activation element-wise to the input tensor.
@@ -65,22 +65,23 @@ struct ReLULayer(Copyable, Module, Movable):
         Example:
             ```mojo
             var layer = ReLULayer()
-            var input = ExTensor.from_list([-2, -1, 0, 1, 2], DType.float32)
+            var input = AnyTensor.from_list([-2, -1, 0, 1, 2], DType.float32)
             var output = layer.forward(input)  # [0, 0, 0, 1, 2]
             ```
         """
         return relu(input)
 
     fn backward(
-        mut self, grad_output: ExTensor, input: ExTensor
-    ) raises -> ExTensor:
+        mut self, grad_output: AnyTensor, input: AnyTensor
+    ) raises -> AnyTensor:
         """Backward pass: compute gradient w.r.t. input.
 
         Computes the gradient of ReLU with respect to input.
         Gradient is passed through where input > 0, zeroed elsewhere.
 
         Args:
-            grad_output: Gradient w.r.t. output from upstream, same shape as input.
+            grad_output: Gradient w.r.t. output from upstream, same shape
+                as input.
             input: Input tensor from forward pass.
 
         Returns:
@@ -94,16 +95,18 @@ struct ReLULayer(Copyable, Module, Movable):
         Example:
             ```mojo
             var layer = ReLULayer()
-            var input = ExTensor.from_list([-2, -1, 0, 1, 2], DType.float32)
+            var input = AnyTensor.from_list([-2, -1, 0, 1, 2], DType.float32)
             var output = layer.forward(input)
-            var grad_output = ExTensor.from_list([0.1, 0.2, 0.3, 0.4, 0.5], DType.float32)
+            var grad_output = AnyTensor.from_list(
+                [0.1, 0.2, 0.3, 0.4, 0.5], DType.float32
+            )
             var grad_input = layer.backward(grad_output, input)
             # grad_input = [0, 0, 0, 0.4, 0.5]
             ```
         """
         return relu_backward(grad_output, input)
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Get list of trainable parameters.
 
         Returns:
@@ -119,7 +122,7 @@ struct ReLULayer(Copyable, Module, Movable):
             # params is empty
             ```
         """
-        var params: List[ExTensor] = []
+        var params: List[AnyTensor] = []
         return params^
 
     fn train(mut self):

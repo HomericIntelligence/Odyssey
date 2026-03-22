@@ -618,3 +618,70 @@ fn clip_grad_global_norm_(
                 grad._set_float64(elem_idx, val * scale_factor)
 
     return global_norm
+
+
+# ============================================================================
+# Typed overloads for Tensor[dtype] (compile-time typed wrappers)
+# ============================================================================
+
+from shared.tensor.tensor import Tensor
+
+
+fn has_nan_typed[dt: DType](tensor: Tensor[dt]) raises -> Bool:
+    """Typed overload of has_nan for Tensor[dtype].
+
+    Args:
+        tensor: Input tensor to check.
+
+    Returns:
+        True if any element is NaN.
+
+    Raises:
+        Error if conversion fails.
+    """
+    return has_nan(tensor.as_any())
+
+
+fn has_inf_typed[dt: DType](tensor: Tensor[dt]) raises -> Bool:
+    """Typed overload of has_inf for Tensor[dtype].
+
+    Args:
+        tensor: Input tensor to check.
+
+    Returns:
+        True if any element is infinity.
+
+    Raises:
+        Error if conversion fails.
+    """
+    return has_inf(tensor.as_any())
+
+
+fn tensor_min_typed[dt: DType](tensor: Tensor[dt]) raises -> Float64:
+    """Typed overload of tensor_min for Tensor[dtype].
+
+    Args:
+        tensor: Input tensor.
+
+    Returns:
+        Minimum value as Float64.
+
+    Raises:
+        Error if conversion fails.
+    """
+    return tensor_min(tensor.as_any())
+
+
+fn tensor_max_typed[dt: DType](tensor: Tensor[dt]) raises -> Float64:
+    """Typed overload of tensor_max for Tensor[dtype].
+
+    Args:
+        tensor: Input tensor.
+
+    Returns:
+        Maximum value as Float64.
+
+    Raises:
+        Error if conversion fails.
+    """
+    return tensor_max(tensor.as_any())

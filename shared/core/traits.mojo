@@ -19,18 +19,18 @@ Trait Categories:
 
 Example:
     struct MyLayer(Differentiable, Parameterized):
-        fn forward(self, input: ExTensor) -> ExTensor:
+        fn forward(self, input: AnyTensor) -> AnyTensor:
             # ... implementation.
 
-        fn backward(self, grad_output: ExTensor) -> ExTensor:
+        fn backward(self, grad_output: AnyTensor) -> AnyTensor:
             # ... implementation.
 
-        fn parameters(self) -> List[ExTensor]:
+        fn parameters(self) -> List[AnyTensor]:
             return [self.weights, self.bias]
     ```
 """
 
-from .extensor import ExTensor
+from .extensor import AnyTensor
 
 
 trait Differentiable:
@@ -51,18 +51,18 @@ trait Differentiable:
     Example:
         ```mojo
         struct ReLULayer(Differentiable):
-            var last_input: ExTensor  # Cache for backward pass
+            var last_input: AnyTensor  # Cache for backward pass
 
-            fn forward(mut self, input: ExTensor) -> ExTensor:
+            fn forward(mut self, input: AnyTensor) -> AnyTensor:
                 self.last_input = input.copy()
                 return relu(input)
 
-            fn backward(self, grad_output: ExTensor) -> ExTensor:
+            fn backward(self, grad_output: AnyTensor) -> AnyTensor:
                 return relu_backward(grad_output, self.last_input)
         ```
     """
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute forward pass.
 
         Args:
@@ -79,7 +79,7 @@ trait Differentiable:
         """
         ...
 
-    fn backward(self, grad_output: ExTensor) raises -> ExTensor:
+    fn backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Compute backward pass (input gradient).
 
         Args:
@@ -116,15 +116,15 @@ trait Parameterized:
     Example:
         ```mojo
         struct LinearLayer(Parameterized):
-            var weights: ExTensor
-            var bias: ExTensor
-            var grad_weights: ExTensor
-            var grad_bias: ExTensor
+            var weights: AnyTensor
+            var bias: AnyTensor
+            var grad_weights: AnyTensor
+            var grad_bias: AnyTensor
 
-            fn parameters(self) -> List[ExTensor]:
+            fn parameters(self) -> List[AnyTensor]:
                 return [self.weights, self.bias]
 
-            fn gradients(self) -> List[ExTensor]:
+            fn gradients(self) -> List[AnyTensor]:
                 return [self.grad_weights, self.grad_bias]
 
             fn zero_grad(mut self):
@@ -133,7 +133,7 @@ trait Parameterized:
         ```
     """
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Get all learnable parameters.
 
         Returns:
@@ -148,7 +148,7 @@ trait Parameterized:
         """
         ...
 
-    fn gradients(self) raises -> List[ExTensor]:
+    fn gradients(self) raises -> List[AnyTensor]:
         """Get gradients for all parameters.
 
         Returns:
@@ -202,8 +202,8 @@ trait Serializable:
     Example:
         ```mojo
         struct ConvLayer(Serializable):
-            var weights: ExTensor
-            var bias: ExTensor
+            var weights: AnyTensor
+            var bias: AnyTensor
 
             fn save(self, path: String) raises:
                 # Save weights and bias to file
@@ -357,7 +357,7 @@ struct ComposedOp[
     """The first operation in the composition."""
     var second: Self.S
     """The second operation in the composition."""
-    var _intermediate: ExTensor
+    var _intermediate: AnyTensor
     """Cached intermediate tensor (output of first operation, input to second)."""
 
     fn __init__(out self, first: Self.F, second: Self.S) raises:
@@ -373,9 +373,9 @@ struct ComposedOp[
         self.first = first.copy()
         self.second = second.copy()
         # Initialize with empty tensor - will be set during forward pass
-        self._intermediate = ExTensor(List[Int](), DType.float32)
+        self._intermediate = AnyTensor(List[Int](), DType.float32)
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute forward pass by chaining operations.
 
         Applies first operation, then second operation:
@@ -408,7 +408,7 @@ struct ComposedOp[
 
         return output
 
-    fn backward(self, grad_output: ExTensor) raises -> ExTensor:
+    fn backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Compute backward pass by applying chain rule.
 
         Applies operations in reverse order with chain rule:
@@ -465,7 +465,7 @@ trait Trainable:
             fn is_training(self) -> Bool:
                 return self.training
 
-            fn forward(self, input: ExTensor) -> ExTensor:
+            fn forward(self, input: AnyTensor) -> AnyTensor:
                 if self.training:
                     # Apply dropout
                 else:
@@ -515,11 +515,11 @@ trait Model:
     Example:
         ```mojo
         struct SimpleMLP(Model):
-            fn forward(mut self, input: ExTensor) raises -> ExTensor:
+            fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
                 # ... layer computations ...
                 return output^
 
-            fn parameters(self) raises -> List[ExTensor]:
+            fn parameters(self) raises -> List[AnyTensor]:
                 return [self.layer1_weights, self.layer1_bias, ...]^
 
             fn zero_grad(mut self) raises:
@@ -527,7 +527,7 @@ trait Model:
         ```
     """
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Execute forward pass through the model.
 
         Args:
@@ -541,7 +541,7 @@ trait Model:
         """
         ...
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Return list of all trainable parameters.
 
         Returns:
@@ -578,13 +578,13 @@ trait Loss:
     Example:
         ```mojo
         struct MSELoss(Loss):
-            fn compute(self, pred: ExTensor, target: ExTensor) raises -> ExTensor:
+            fn compute(self, pred: AnyTensor, target: AnyTensor) raises -> AnyTensor:
                 var diff = subtract(pred, target)
                 return mean(multiply(diff, diff))
         ```
     """
 
-    fn compute(self, pred: ExTensor, target: ExTensor) raises -> ExTensor:
+    fn compute(self, pred: AnyTensor, target: AnyTensor) raises -> AnyTensor:
         """Compute loss between predictions and targets.
 
         Args:
@@ -614,7 +614,7 @@ trait Optimizer:
         struct SGD(Optimizer):
             var learning_rate: Float32
 
-            fn step(mut self, params: List[ExTensor]) raises:
+            fn step(mut self, params: List[AnyTensor]) raises:
                 for param in params:
                     param -= self.learning_rate * param.grad
 
@@ -623,7 +623,7 @@ trait Optimizer:
         ```
     """
 
-    fn step(mut self, params: List[ExTensor]) raises:
+    fn step(mut self, params: List[AnyTensor]) raises:
         """Update parameters using computed gradients.
 
         Args:
