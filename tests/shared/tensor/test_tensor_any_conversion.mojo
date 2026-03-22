@@ -60,7 +60,7 @@ fn test_as_tensor_basic() raises:
     var any_t = zeros([4], DType.float32)
     var t = any_t.as_tensor[DType.float32]()
     assert_true(t.numel() == 4, "as_tensor preserves numel")
-    assert_true(t.dtype() == DType.float32, "as_tensor preserves dtype")
+    assert_true(t.get_dtype() == DType.float32, "as_tensor preserves dtype")
     print("PASS: test_as_tensor_basic")
 
 

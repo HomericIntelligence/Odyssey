@@ -31,14 +31,14 @@ fn test_tensor_float64_creation() raises:
     """Tensor[DType.float64] can be created with a shape."""
     var t = Tensor[DType.float64]([2, 3])
     assert_true(t.numel() == 6, "numel should be 6")
-    assert_true(t.dtype() == DType.float64, "dtype should be float64")
+    assert_true(t.get_dtype() == DType.float64, "dtype should be float64")
     print("PASS: test_tensor_float64_creation")
 
 
 fn test_tensor_default_dtype() raises:
     """Tensor with no dtype parameter defaults to float32."""
     var t = Tensor([5])
-    assert_true(t.dtype() == DType.float32, "default dtype should be float32")
+    assert_true(t.get_dtype() == DType.float32, "default dtype should be float32")
     print("PASS: test_tensor_default_dtype")
 
 

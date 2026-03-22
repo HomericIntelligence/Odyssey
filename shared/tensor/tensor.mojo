@@ -155,7 +155,7 @@ struct Tensor[dtype: DType = DType.float32](
 
     fn __init__(
         out self,
-        data: UnsafePointer[Scalar[dtype], origin=MutAnyOrigin],
+        data: UnsafePointer[Scalar[Self.dtype], origin=MutAnyOrigin],
         shape: List[Int],
         strides: List[Int],
         refcount: UnsafePointer[Int, origin=MutAnyOrigin],
@@ -334,7 +334,7 @@ struct Tensor[dtype: DType = DType.float32](
         """Return shape as list of dimension sizes (returns a copy)."""
         return self._shape.copy()
 
-    fn dtype(self) -> DType:
+    fn get_dtype(self) -> DType:
         """Return the element data type (compile-time constant)."""
         return Self.dtype
 
@@ -468,7 +468,7 @@ struct Tensor[dtype: DType = DType.float32](
         tensors (e.g., after transpose) display correct logical values.
 
         Returns:
-            String in the format: Tensor([v0, v1, ...], dtype=<dtype>)
+            String in the format: `Tensor([v0, v1, ...], dtype=<dtype>)`
         """
         var result = String("Tensor([")
         if self._numel > TENSOR_PRINT_THRESHOLD:
