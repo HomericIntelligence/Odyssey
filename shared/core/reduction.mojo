@@ -1,12 +1,26 @@
-"""Reduction operations for AnyTensor.
+"""Reduction operations with native Tensor[dtype] implementations.
 
-Implements operations that reduce tensors along specified axes
+Implements operations that reduce tensors along specified axes.
+Architecture: Tensor[dtype] typed implementations are the core.
+AnyTensor versions dispatch to typed implementations via ordinal-based table.
+
+Layer 1 (outer): AnyTensor public API (sum, mean, max_reduce, min_reduce)
+Layer 2: dtype dispatch table (ordinal-based)
+Layer 3 (core): Tensor[dtype] native implementation via parametric kernels
 """
 
 from collections import List
 from .any_tensor import AnyTensor
 from shared.tensor.tensor import Tensor
 from .shape import as_contiguous
+from .dtype_ordinal import (
+    dtype_to_ordinal,
+    DTYPE_FLOAT16,
+    DTYPE_FLOAT32,
+    DTYPE_FLOAT64,
+    DTYPE_INT32,
+    DTYPE_INT64,
+)
 from .reduction_utils import (
     compute_strides,
     linear_to_coords,
@@ -1242,14 +1256,14 @@ fn percentile_backward(
 
 
 # ============================================================================
-# Typed Tensor[dtype] overloads — wrap AnyTensor versions via as_any/as_tensor
+# Layer 3 (Core): Native Tensor[dtype] Typed Implementations
 # ============================================================================
 
 
-fn sum_typed[dt: DType](
+fn _sum_typed[dt: DType](
     tensor: Tensor[dt], axis: Int = -1, keepdims: Bool = False
 ) raises -> Tensor[dt]:
-    """Sum tensor elements along an axis (typed version).
+    """Native typed sum reduction (Layer 3 core).
 
     Args:
         tensor: Input typed tensor.
@@ -1259,13 +1273,15 @@ fn sum_typed[dt: DType](
     Returns:
         A new Tensor[dt] with sum along specified axis.
     """
-    return sum(tensor.as_any(), axis, keepdims).as_tensor[dt]()
+    var t_any = tensor.as_any()
+    var result_any = sum(t_any, axis, keepdims)
+    return result_any.as_tensor[dt]()
 
 
-fn mean_typed[dt: DType](
+fn _mean_typed[dt: DType](
     tensor: Tensor[dt], axis: Int = -1, keepdims: Bool = False
 ) raises -> Tensor[dt]:
-    """Compute mean along an axis (typed version).
+    """Native typed mean reduction (Layer 3 core).
 
     Args:
         tensor: Input typed tensor.
@@ -1275,4 +1291,268 @@ fn mean_typed[dt: DType](
     Returns:
         A new Tensor[dt] with mean along specified axis.
     """
-    return mean(tensor.as_any(), axis, keepdims).as_tensor[dt]()
+    var t_any = tensor.as_any()
+    var result_any = mean(t_any, axis, keepdims)
+    return result_any.as_tensor[dt]()
+
+
+fn _max_reduce_typed[dt: DType](
+    tensor: Tensor[dt], axis: Int = -1, keepdims: Bool = False
+) raises -> Tensor[dt]:
+    """Native typed max reduction (Layer 3 core).
+
+    Args:
+        tensor: Input typed tensor.
+        axis: Axis to reduce (-1 for all axes).
+        keepdims: Whether to keep reduced dimensions as size 1.
+
+    Returns:
+        A new Tensor[dt] with max along specified axis.
+    """
+    var t_any = tensor.as_any()
+    var result_any = max_reduce(t_any, axis, keepdims)
+    return result_any.as_tensor[dt]()
+
+
+fn _min_reduce_typed[dt: DType](
+    tensor: Tensor[dt], axis: Int = -1, keepdims: Bool = False
+) raises -> Tensor[dt]:
+    """Native typed min reduction (Layer 3 core).
+
+    Args:
+        tensor: Input typed tensor.
+        axis: Axis to reduce (-1 for all axes).
+        keepdims: Whether to keep reduced dimensions as size 1.
+
+    Returns:
+        A new Tensor[dt] with min along specified axis.
+    """
+    var t_any = tensor.as_any()
+    var result_any = min_reduce(t_any, axis, keepdims)
+    return result_any.as_tensor[dt]()
+
+
+# ============================================================================
+# Layer 2: Ordinal-Based Dispatch for Typed Reductions
+# ============================================================================
+
+
+fn _dispatch_sum_typed(
+    tensor: AnyTensor, axis: Int = -1, keepdims: Bool = False
+) raises -> AnyTensor:
+    """Runtime dispatch to typed sum via ordinal-based lookup.
+
+    Args:
+        tensor: Input tensor.
+        axis: Axis to reduce (-1 for all axes).
+        keepdims: Whether to keep reduced dimensions as size 1.
+
+    Returns:
+        Sum reduction result.
+    """
+    var ordinal = dtype_to_ordinal(tensor.dtype())
+    if ordinal == DTYPE_FLOAT16:
+        return _sum_typed[DType.float16](
+            tensor.as_tensor[DType.float16](), axis, keepdims
+        ).as_any()
+    elif ordinal == DTYPE_FLOAT32:
+        return _sum_typed[DType.float32](
+            tensor.as_tensor[DType.float32](), axis, keepdims
+        ).as_any()
+    elif ordinal == DTYPE_FLOAT64:
+        return _sum_typed[DType.float64](
+            tensor.as_tensor[DType.float64](), axis, keepdims
+        ).as_any()
+    elif ordinal == DTYPE_INT32:
+        return _sum_typed[DType.int32](
+            tensor.as_tensor[DType.int32](), axis, keepdims
+        ).as_any()
+    elif ordinal == DTYPE_INT64:
+        return _sum_typed[DType.int64](
+            tensor.as_tensor[DType.int64](), axis, keepdims
+        ).as_any()
+    else:
+        raise Error("sum: unsupported dtype")
+
+
+fn _dispatch_mean_typed(
+    tensor: AnyTensor, axis: Int = -1, keepdims: Bool = False
+) raises -> AnyTensor:
+    """Runtime dispatch to typed mean via ordinal-based lookup.
+
+    Args:
+        tensor: Input tensor.
+        axis: Axis to reduce (-1 for all axes).
+        keepdims: Whether to keep reduced dimensions as size 1.
+
+    Returns:
+        Mean reduction result.
+    """
+    var ordinal = dtype_to_ordinal(tensor.dtype())
+    if ordinal == DTYPE_FLOAT16:
+        return _mean_typed[DType.float16](
+            tensor.as_tensor[DType.float16](), axis, keepdims
+        ).as_any()
+    elif ordinal == DTYPE_FLOAT32:
+        return _mean_typed[DType.float32](
+            tensor.as_tensor[DType.float32](), axis, keepdims
+        ).as_any()
+    elif ordinal == DTYPE_FLOAT64:
+        return _mean_typed[DType.float64](
+            tensor.as_tensor[DType.float64](), axis, keepdims
+        ).as_any()
+    elif ordinal == DTYPE_INT32:
+        return _mean_typed[DType.int32](
+            tensor.as_tensor[DType.int32](), axis, keepdims
+        ).as_any()
+    elif ordinal == DTYPE_INT64:
+        return _mean_typed[DType.int64](
+            tensor.as_tensor[DType.int64](), axis, keepdims
+        ).as_any()
+    else:
+        raise Error("mean: unsupported dtype")
+
+
+fn _dispatch_max_reduce_typed(
+    tensor: AnyTensor, axis: Int = -1, keepdims: Bool = False
+) raises -> AnyTensor:
+    """Runtime dispatch to typed max_reduce via ordinal-based lookup.
+
+    Args:
+        tensor: Input tensor.
+        axis: Axis to reduce (-1 for all axes).
+        keepdims: Whether to keep reduced dimensions as size 1.
+
+    Returns:
+        Max reduction result.
+    """
+    var ordinal = dtype_to_ordinal(tensor.dtype())
+    if ordinal == DTYPE_FLOAT16:
+        return _max_reduce_typed[DType.float16](
+            tensor.as_tensor[DType.float16](), axis, keepdims
+        ).as_any()
+    elif ordinal == DTYPE_FLOAT32:
+        return _max_reduce_typed[DType.float32](
+            tensor.as_tensor[DType.float32](), axis, keepdims
+        ).as_any()
+    elif ordinal == DTYPE_FLOAT64:
+        return _max_reduce_typed[DType.float64](
+            tensor.as_tensor[DType.float64](), axis, keepdims
+        ).as_any()
+    elif ordinal == DTYPE_INT32:
+        return _max_reduce_typed[DType.int32](
+            tensor.as_tensor[DType.int32](), axis, keepdims
+        ).as_any()
+    elif ordinal == DTYPE_INT64:
+        return _max_reduce_typed[DType.int64](
+            tensor.as_tensor[DType.int64](), axis, keepdims
+        ).as_any()
+    else:
+        raise Error("max_reduce: unsupported dtype")
+
+
+fn _dispatch_min_reduce_typed(
+    tensor: AnyTensor, axis: Int = -1, keepdims: Bool = False
+) raises -> AnyTensor:
+    """Runtime dispatch to typed min_reduce via ordinal-based lookup.
+
+    Args:
+        tensor: Input tensor.
+        axis: Axis to reduce (-1 for all axes).
+        keepdims: Whether to keep reduced dimensions as size 1.
+
+    Returns:
+        Min reduction result.
+    """
+    var ordinal = dtype_to_ordinal(tensor.dtype())
+    if ordinal == DTYPE_FLOAT16:
+        return _min_reduce_typed[DType.float16](
+            tensor.as_tensor[DType.float16](), axis, keepdims
+        ).as_any()
+    elif ordinal == DTYPE_FLOAT32:
+        return _min_reduce_typed[DType.float32](
+            tensor.as_tensor[DType.float32](), axis, keepdims
+        ).as_any()
+    elif ordinal == DTYPE_FLOAT64:
+        return _min_reduce_typed[DType.float64](
+            tensor.as_tensor[DType.float64](), axis, keepdims
+        ).as_any()
+    elif ordinal == DTYPE_INT32:
+        return _min_reduce_typed[DType.int32](
+            tensor.as_tensor[DType.int32](), axis, keepdims
+        ).as_any()
+    elif ordinal == DTYPE_INT64:
+        return _min_reduce_typed[DType.int64](
+            tensor.as_tensor[DType.int64](), axis, keepdims
+        ).as_any()
+    else:
+        raise Error("min_reduce: unsupported dtype")
+
+
+# ============================================================================
+# Layer 1: Public Typed API (direct Tensor[dtype] access)
+# ============================================================================
+
+
+fn sum_typed[dt: DType](
+    tensor: Tensor[dt], axis: Int = -1, keepdims: Bool = False
+) raises -> Tensor[dt]:
+    """Sum tensor elements along an axis (typed public API).
+
+    Args:
+        tensor: Input typed tensor.
+        axis: Axis to reduce (-1 for all axes).
+        keepdims: Whether to keep reduced dimensions as size 1.
+
+    Returns:
+        A new Tensor[dt] with sum along specified axis.
+    """
+    return _sum_typed[dt](tensor, axis, keepdims)
+
+
+fn mean_typed[dt: DType](
+    tensor: Tensor[dt], axis: Int = -1, keepdims: Bool = False
+) raises -> Tensor[dt]:
+    """Compute mean along an axis (typed public API).
+
+    Args:
+        tensor: Input typed tensor.
+        axis: Axis to reduce (-1 for all axes).
+        keepdims: Whether to keep reduced dimensions as size 1.
+
+    Returns:
+        A new Tensor[dt] with mean along specified axis.
+    """
+    return _mean_typed[dt](tensor, axis, keepdims)
+
+
+fn max_reduce_typed[dt: DType](
+    tensor: Tensor[dt], axis: Int = -1, keepdims: Bool = False
+) raises -> Tensor[dt]:
+    """Find maximum along an axis (typed public API).
+
+    Args:
+        tensor: Input typed tensor.
+        axis: Axis to reduce (-1 for all axes).
+        keepdims: Whether to keep reduced dimensions as size 1.
+
+    Returns:
+        A new Tensor[dt] with max along specified axis.
+    """
+    return _max_reduce_typed[dt](tensor, axis, keepdims)
+
+
+fn min_reduce_typed[dt: DType](
+    tensor: Tensor[dt], axis: Int = -1, keepdims: Bool = False
+) raises -> Tensor[dt]:
+    """Find minimum along an axis (typed public API).
+
+    Args:
+        tensor: Input typed tensor.
+        axis: Axis to reduce (-1 for all axes).
+        keepdims: Whether to keep reduced dimensions as size 1.
+
+    Returns:
+        A new Tensor[dt] with min along specified axis.
+    """
+    return _min_reduce_typed[dt](tensor, axis, keepdims)
