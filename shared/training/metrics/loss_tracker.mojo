@@ -16,7 +16,7 @@ Issues covered:
 from collections import List
 from math import sqrt
 from shared.training.metrics.base import Metric
-from shared.core import ExTensor
+from shared.core import AnyTensor
 
 # min and max are now builtins in Mojo - no import needed
 
@@ -398,7 +398,7 @@ struct LossTracker(Metric):
         return List[String](self.components)
 
     # Metric trait implementation (for coordination interface)
-    fn update(mut self, predictions: ExTensor, labels: ExTensor) raises:
+    fn update(mut self, predictions: AnyTensor, labels: AnyTensor) raises:
         """Update metric with predictions and labels (Metric trait).
 
         Note: LossTracker doesn't use predictions/labels directly.

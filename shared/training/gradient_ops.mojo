@@ -24,12 +24,12 @@ Example:
         accumulate_gradient_inplace(accumulated_grad, grad)  # No allocation!
 """
 
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.core.types.dtype_aliases import BF16
 
 
 fn accumulate_gradient_inplace(
-    mut accumulated: ExTensor, new_grad: ExTensor
+    mut accumulated: AnyTensor, new_grad: AnyTensor
 ) raises:
     """Accumulate gradient in-place without creating intermediate tensors.
 
@@ -84,7 +84,7 @@ fn accumulate_gradient_inplace(
 
 
 fn _accumulate_float32(
-    mut accumulated: ExTensor, new_grad: ExTensor, size: Int
+    mut accumulated: AnyTensor, new_grad: AnyTensor, size: Int
 ) raises:
     """Direct float32 accumulation using pointer operations."""
     var acc_ptr = accumulated._data.bitcast[Float32]()
@@ -95,7 +95,7 @@ fn _accumulate_float32(
 
 
 fn _accumulate_float16(
-    mut accumulated: ExTensor, new_grad: ExTensor, size: Int
+    mut accumulated: AnyTensor, new_grad: AnyTensor, size: Int
 ) raises:
     """Direct float16 accumulation using pointer operations."""
     var acc_ptr = accumulated._data.bitcast[Float16]()
@@ -106,7 +106,7 @@ fn _accumulate_float16(
 
 
 fn _accumulate_bfloat16(
-    mut accumulated: ExTensor, new_grad: ExTensor, size: Int
+    mut accumulated: AnyTensor, new_grad: AnyTensor, size: Int
 ) raises:
     """Direct bfloat16 accumulation using pointer operations."""
     var acc_ptr = accumulated._data.bitcast[Scalar[BF16]]()
@@ -117,7 +117,7 @@ fn _accumulate_bfloat16(
 
 
 fn _accumulate_fallback(
-    mut accumulated: ExTensor, new_grad: ExTensor, size: Int
+    mut accumulated: AnyTensor, new_grad: AnyTensor, size: Int
 ) raises:
     """Fallback accumulation for unsupported dtypes."""
     for i in range(size):
@@ -126,7 +126,7 @@ fn _accumulate_fallback(
         accumulated._set_float64(i, acc_val + grad_val)
 
 
-fn scale_gradient_inplace(mut gradient: ExTensor, scale: Float32) raises:
+fn scale_gradient_inplace(mut gradient: AnyTensor, scale: Float32) raises:
     """Scale gradient in-place without creating intermediate tensors.
 
     Performs `gradient *= scale` by directly modifying the gradient
@@ -165,7 +165,7 @@ fn scale_gradient_inplace(mut gradient: ExTensor, scale: Float32) raises:
         _scale_fallback(gradient, Float64(scale), size)
 
 
-fn _scale_float32(mut gradient: ExTensor, scale: Float32, size: Int) raises:
+fn _scale_float32(mut gradient: AnyTensor, scale: Float32, size: Int) raises:
     """Direct float32 scaling using pointer operations."""
     var grad_ptr = gradient._data.bitcast[Float32]()
 
@@ -173,7 +173,7 @@ fn _scale_float32(mut gradient: ExTensor, scale: Float32, size: Int) raises:
         grad_ptr[i] = grad_ptr[i] * scale
 
 
-fn _scale_float16(mut gradient: ExTensor, scale: Float16, size: Int) raises:
+fn _scale_float16(mut gradient: AnyTensor, scale: Float16, size: Int) raises:
     """Direct float16 scaling using pointer operations."""
     var grad_ptr = gradient._data.bitcast[Float16]()
 
@@ -182,7 +182,7 @@ fn _scale_float16(mut gradient: ExTensor, scale: Float16, size: Int) raises:
 
 
 fn _scale_bfloat16(
-    mut gradient: ExTensor, scale: Scalar[BF16], size: Int
+    mut gradient: AnyTensor, scale: Scalar[BF16], size: Int
 ) raises:
     """Direct bfloat16 scaling using pointer operations."""
     var grad_ptr = gradient._data.bitcast[Scalar[BF16]]()
@@ -191,14 +191,14 @@ fn _scale_bfloat16(
         grad_ptr[i] = grad_ptr[i] * scale
 
 
-fn _scale_fallback(mut gradient: ExTensor, scale: Float64, size: Int) raises:
+fn _scale_fallback(mut gradient: AnyTensor, scale: Float64, size: Int) raises:
     """Fallback scaling for unsupported dtypes."""
     for i in range(size):
         var grad_val = gradient._get_float64(i)
         gradient._set_float64(i, grad_val * scale)
 
 
-fn zero_gradient_inplace(mut gradient: ExTensor) raises:
+fn zero_gradient_inplace(mut gradient: AnyTensor) raises:
     """Zero gradient in-place without creating intermediate tensors.
 
     Performs `gradient[:] = 0` by directly modifying the gradient
@@ -236,7 +236,7 @@ fn zero_gradient_inplace(mut gradient: ExTensor) raises:
         _zero_fallback(gradient, size)
 
 
-fn _zero_float32(mut gradient: ExTensor, size: Int) raises:
+fn _zero_float32(mut gradient: AnyTensor, size: Int) raises:
     """Direct float32 zeroing using pointer operations."""
     var grad_ptr = gradient._data.bitcast[Float32]()
 
@@ -244,7 +244,7 @@ fn _zero_float32(mut gradient: ExTensor, size: Int) raises:
         grad_ptr[i] = 0.0
 
 
-fn _zero_float16(mut gradient: ExTensor, size: Int) raises:
+fn _zero_float16(mut gradient: AnyTensor, size: Int) raises:
     """Direct float16 zeroing using pointer operations."""
     var grad_ptr = gradient._data.bitcast[Float16]()
 
@@ -252,7 +252,7 @@ fn _zero_float16(mut gradient: ExTensor, size: Int) raises:
         grad_ptr[i] = 0.0
 
 
-fn _zero_bfloat16(mut gradient: ExTensor, size: Int) raises:
+fn _zero_bfloat16(mut gradient: AnyTensor, size: Int) raises:
     """Direct bfloat16 zeroing using pointer operations."""
     var grad_ptr = gradient._data.bitcast[Scalar[BF16]]()
 
@@ -260,7 +260,7 @@ fn _zero_bfloat16(mut gradient: ExTensor, size: Int) raises:
         grad_ptr[i] = 0.0
 
 
-fn _zero_fallback(mut gradient: ExTensor, size: Int) raises:
+fn _zero_fallback(mut gradient: AnyTensor, size: Int) raises:
     """Fallback zeroing for unsupported dtypes."""
     for i in range(size):
         gradient._set_float64(i, 0.0)

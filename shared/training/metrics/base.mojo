@@ -13,7 +13,7 @@ Design principles:
 """
 
 from collections import List
-from shared.core import ExTensor
+from shared.core import AnyTensor
 
 
 trait Metric:
@@ -27,7 +27,7 @@ trait Metric:
     This ensures consistent API across accuracy, loss, confusion matrix, etc.
     """
 
-    fn update(mut self, predictions: ExTensor, labels: ExTensor) raises:
+    fn update(mut self, predictions: AnyTensor, labels: AnyTensor) raises:
         """Update metric state with a batch of predictions and labels.
 
         Args:
@@ -60,7 +60,7 @@ struct MetricResult(Copyable, Movable):
     """Whether this is a scalar or tensor metric."""
     var scalar_value: Float64
     """Scalar metric value (if is_scalar=True)."""
-    var tensor_value: ExTensor
+    var tensor_value: AnyTensor
     """Tensor metric value (if is_scalar=False)."""
 
     fn __init__(out self, name: String, value: Float64) raises:
@@ -76,9 +76,9 @@ struct MetricResult(Copyable, Movable):
         self.name = name
         self.is_scalar = True
         self.scalar_value = value
-        self.tensor_value = ExTensor(List[Int](), DType.float32)  # Placeholder
+        self.tensor_value = AnyTensor(List[Int](), DType.float32)  # Placeholder
 
-    fn __init__(out self, name: String, var value: ExTensor):
+    fn __init__(out self, name: String, var value: AnyTensor):
         """Create tensor metric result (ownership transferred).
 
         Args:
@@ -103,7 +103,7 @@ struct MetricResult(Copyable, Movable):
             raise Error("Metric '" + self.name + "' is not scalar")
         return self.scalar_value
 
-    fn get_tensor(self) raises -> ExTensor:
+    fn get_tensor(self) raises -> AnyTensor:
         """Get tensor value.
 
         Returns:

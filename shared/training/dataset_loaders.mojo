@@ -20,7 +20,7 @@ Note:
     file I/O which is limited in the current Mojo version.
 """
 
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.core import zeros
 
 
@@ -37,18 +37,18 @@ struct DatasetSplit(Copyable, Movable):
         num_classes: Number of output classes.
     """
 
-    var train_images: ExTensor
-    var train_labels: ExTensor
-    var test_images: ExTensor
-    var test_labels: ExTensor
+    var train_images: AnyTensor
+    var train_labels: AnyTensor
+    var test_images: AnyTensor
+    var test_labels: AnyTensor
     var num_classes: Int
 
     fn __init__(
         out self,
-        var train_images: ExTensor,
-        var train_labels: ExTensor,
-        var test_images: ExTensor,
-        var test_labels: ExTensor,
+        var train_images: AnyTensor,
+        var train_labels: AnyTensor,
+        var test_images: AnyTensor,
+        var test_labels: AnyTensor,
         num_classes: Int,
     ):
         """Initialize dataset split.

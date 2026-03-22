@@ -14,20 +14,20 @@ With weight decay (L2 regularization):
     params = params - learning_rate * (gradients + weight_decay * params)
 """
 
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.core import subtract, multiply, add
 from shared.core.arithmetic_simd import subtract_simd, multiply_simd, add_simd
 from shared.core import full_like
 
 
 fn sgd_step(
-    params: ExTensor,
-    gradients: ExTensor,
-    velocity: ExTensor,
+    params: AnyTensor,
+    gradients: AnyTensor,
+    velocity: AnyTensor,
     learning_rate: Float64,
     momentum: Float64 = 0.0,
     weight_decay: Float64 = 0.0,
-) raises -> Tuple[ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor]:
     """Perform a single SGD optimization step - pure functional.
 
         Returns new parameters and new velocity. Caller manages all state.
@@ -48,7 +48,7 @@ fn sgd_step(
 
         Example (basic SGD without momentum):
             ```mojo
-            from shared.core import ExTensor, zeros_like
+            from shared.core import AnyTensor, zeros_like
             from shared.training.optimizers import sgd_step
 
             var W = xavier_uniform(784, 128, DType.float32)
@@ -118,8 +118,8 @@ fn sgd_step(
 
 
 fn sgd_step_simple(
-    params: ExTensor, gradients: ExTensor, learning_rate: Float64
-) raises -> ExTensor:
+    params: AnyTensor, gradients: AnyTensor, learning_rate: Float64
+) raises -> AnyTensor:
     """Simplified SGD step without momentum or weight decay.
 
         This is a convenience function for basic gradient descent.
@@ -159,9 +159,9 @@ fn sgd_step_simple(
 
 
 fn sgd_momentum_update_inplace(
-    mut param: ExTensor,
-    grad: ExTensor,
-    mut velocity: ExTensor,
+    mut param: AnyTensor,
+    grad: AnyTensor,
+    mut velocity: AnyTensor,
     lr: Float64,
     momentum: Float64,
 ) raises:
@@ -186,7 +186,7 @@ fn sgd_momentum_update_inplace(
 
         Example:
             ```mojo
-            from shared.core import ExTensor, zeros_like
+            from shared.core import AnyTensor, zeros_like
             from shared.training.optimizers import sgd_momentum_update_inplace
 
             var W = xavier_uniform([784, 128], DType.float32)
@@ -254,7 +254,7 @@ fn sgd_momentum_update_inplace(
 
 fn initialize_velocities(
     param_shapes: List[List[Int]], dtype: DType = DType.float32
-) raises -> List[ExTensor]:
+) raises -> List[AnyTensor]:
     """Create zero-initialized velocity tensors for SGD with momentum.
 
         This utility function creates momentum buffers for all parameters in a model
@@ -293,7 +293,7 @@ fn initialize_velocities(
     """
     from shared.core.extensor import zeros
 
-    var velocities: List[ExTensor] = []
+    var velocities: List[AnyTensor] = []
 
     for i in range(len(param_shapes)):
         # Copy the shape since List[Int] is not ImplicitlyCopyable
@@ -306,8 +306,8 @@ fn initialize_velocities(
 
 
 fn initialize_velocities_from_params(
-    params: List[ExTensor],
-) raises -> List[ExTensor]:
+    params: List[AnyTensor],
+) raises -> List[AnyTensor]:
     """Create zero-initialized velocity tensors matching a list of parameters.
 
         Convenience function that extracts shapes from existing parameter tensors
@@ -327,7 +327,7 @@ fn initialize_velocities_from_params(
             from shared.training.optimizers import initialize_velocities_from_params
 
             # Collect all model parameters
-            var params : List[ExTensor] = []
+            var params : List[AnyTensor] = []
             params.append(model.conv1_kernel)
             params.append(model.conv1_bias)
             params.append(model.fc1_weights)
@@ -338,7 +338,7 @@ fn initialize_velocities_from_params(
     """
     from shared.core.extensor import zeros
 
-    var velocities: List[ExTensor] = []
+    var velocities: List[AnyTensor] = []
 
     for i in range(len(params)):
         var param = params[i]

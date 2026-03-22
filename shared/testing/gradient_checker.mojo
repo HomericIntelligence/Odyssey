@@ -17,10 +17,10 @@ Benefits:
 Usage:
     from shared.testing.gradient_checker import check_gradients
 
-    fn forward(x: ExTensor) -> ExTensor:
+    fn forward(x: AnyTensor) -> AnyTensor:
         return relu(x)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) -> AnyTensor:
         return relu_backward(grad_out, x)
 
     var input = randn([3, 4], DType.float32)
@@ -37,7 +37,7 @@ References:
     - Goodfellow et al., Deep Learning, Chapter 4.3
 """
 
-from shared.core import ExTensor, zeros_like
+from shared.core import AnyTensor, zeros_like
 
 
 # ============================================================================
@@ -63,7 +63,7 @@ struct IndexGradientPair(Copyable, Movable):
     var gradient: Float64
 
 
-fn _is_uniform_tensor(tensor: ExTensor) -> Bool:
+fn _is_uniform_tensor(tensor: AnyTensor) -> Bool:
     """Check if all elements in a tensor have the same value (uniform tensor).
 
     Args:
@@ -93,9 +93,9 @@ fn _is_uniform_tensor(tensor: ExTensor) -> Bool:
 
 
 fn check_gradients(
-    forward_fn: fn (ExTensor) raises escaping -> ExTensor,
-    backward_fn: fn (ExTensor, ExTensor) raises escaping -> ExTensor,
-    input: ExTensor,
+    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
+    backward_fn: fn (AnyTensor, AnyTensor) raises escaping -> AnyTensor,
+    input: AnyTensor,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
     tolerance: Float64 = 1e-2,
 ) raises -> Bool:
@@ -130,10 +130,10 @@ fn check_gradients(
 
         Example:
             ```mojo
-            fn my_forward(x: ExTensor) -> ExTensor:
+            fn my_forward(x: AnyTensor) -> AnyTensor:
                 return x * x  # f(x) = x²
 
-            fn my_backward(grad_out: ExTensor, x: ExTensor) -> ExTensor:
+            fn my_backward(grad_out: AnyTensor, x: AnyTensor) -> AnyTensor:
                 return multiply(grad_out, multiply(x, full_like(x, 2.0)))  # f'(x) = 2x
 
             var x = full([3, 4], 2.0, DType.float32)
@@ -227,9 +227,9 @@ fn check_gradients(
 
 
 fn check_gradients_verbose(
-    forward_fn: fn (ExTensor) raises escaping -> ExTensor,
-    backward_fn: fn (ExTensor, ExTensor) raises escaping -> ExTensor,
-    input: ExTensor,
+    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
+    backward_fn: fn (AnyTensor, AnyTensor) raises escaping -> AnyTensor,
+    input: AnyTensor,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
     tolerance: Float64 = 1e-2,
     print_all: Bool = False,
@@ -358,10 +358,10 @@ fn relative_error(analytical: Float64, numerical: Float64) -> Float64:
 
 
 fn compute_numerical_gradient(
-    forward_fn: fn (ExTensor) raises escaping -> ExTensor,
-    x: ExTensor,
+    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
+    x: AnyTensor,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Compute numerical gradient using finite differences.
 
         Uses central difference formula: ∇f(x) ≈ (f(x + ε) - f(x - ε)) / 2ε.
@@ -371,12 +371,12 @@ fn compute_numerical_gradient(
         differences, making it much more accurate.
 
     Args:
-            forward_fn: Function that computes forward pass (takes ExTensor, returns ExTensor).
+            forward_fn: Function that computes forward pass (takes AnyTensor, returns AnyTensor).
             x: Input tensor at which to compute gradient.
             epsilon: Small perturbation for finite differences (default: 1e-5).
 
     Returns:
-            ExTensor containing numerical gradient, same shape as x.
+            AnyTensor containing numerical gradient, same shape as x.
 
     Raises:
             Error: If forward function fails or dtypes are incompatible.
@@ -396,10 +396,10 @@ fn compute_numerical_gradient(
         Example:
             ```mojo
              Validate ReLU gradient
-            fn relu_forward(x: ExTensor) raises -> ExTensor:
+            fn relu_forward(x: AnyTensor) raises -> AnyTensor:
                 return relu(x)
 
-            var x = ExTensor(List[Int](), DType.float32)
+            var x = AnyTensor(List[Int](), DType.float32)
             var numerical_grad = compute_numerical_gradient(relu_forward, x)
             var analytical_grad = relu_backward(ones_like(x), x)
             assert_gradients_close(analytical_grad, numerical_grad, rtol=1e-4)
@@ -447,8 +447,8 @@ fn compute_numerical_gradient(
 
 
 fn compute_sampled_numerical_gradient(
-    forward_fn: fn (ExTensor) raises escaping -> ExTensor,
-    x: ExTensor,
+    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
+    x: AnyTensor,
     num_samples: Int = 100,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
     seed: Int = 42,
@@ -483,10 +483,10 @@ fn compute_sampled_numerical_gradient(
 
     Example:
         ```mojo
-        fn forward(x: ExTensor) raises escaping -> ExTensor:
+        fn forward(x: AnyTensor) raises escaping -> AnyTensor:
             return relu(x)
 
-        var x = ExTensor([100, 100], DType.float32)
+        var x = AnyTensor([100, 100], DType.float32)
         var sampled = compute_sampled_numerical_gradient(
             forward, x, num_samples=100, epsilon=3e-4, seed=42
         )
@@ -545,7 +545,7 @@ fn compute_sampled_numerical_gradient(
 
 
 fn assert_sampled_gradients_close(
-    analytical_grad: ExTensor,
+    analytical_grad: AnyTensor,
     sampled_numerical: List[IndexGradientPair],
     rtol: Float64 = 1e-2,
     atol: Float64 = 1e-2,  # 1% absolute tolerance for small gradients
@@ -632,8 +632,8 @@ fn assert_sampled_gradients_close(
 
 
 fn assert_gradients_close(
-    analytical: ExTensor,
-    numerical: ExTensor,
+    analytical: AnyTensor,
+    numerical: AnyTensor,
     rtol: Float64 = 1e-3,
     atol: Float64 = 1e-6,
     message: String = "Gradients do not match",
@@ -724,10 +724,10 @@ fn assert_gradients_close(
         raise Error(msg)
 
 
-fn _deep_copy(tensor: ExTensor) raises -> ExTensor:
+fn _deep_copy(tensor: AnyTensor) raises -> AnyTensor:
     """Create a deep copy of a tensor with independent data buffer.
 
-        ExTensor's __copyinit__ creates shallow copies (shared data via reference counting).
+        AnyTensor's __copyinit__ creates shallow copies (shared data via reference counting).
         This function creates a true deep copy with separate memory allocation.
 
     Args:
@@ -737,7 +737,7 @@ fn _deep_copy(tensor: ExTensor) raises -> ExTensor:
             New tensor with copied data (independent memory allocation).
     """
     # Create new tensor with same shape and dtype
-    var result = ExTensor(tensor.shape(), tensor._dtype)
+    var result = AnyTensor(tensor.shape(), tensor._dtype)
 
     # Copy all data elements
     for i in range(tensor.numel()):
@@ -747,10 +747,10 @@ fn _deep_copy(tensor: ExTensor) raises -> ExTensor:
 
 
 fn check_gradient(
-    forward_fn: fn (ExTensor) raises escaping -> ExTensor,
-    backward_fn: fn (ExTensor, ExTensor) raises escaping -> ExTensor,
-    x: ExTensor,
-    grad_output: ExTensor,
+    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
+    backward_fn: fn (AnyTensor, AnyTensor) raises escaping -> AnyTensor,
+    x: AnyTensor,
+    grad_output: AnyTensor,
     epsilon: Float64 = 0.0,  # Auto-select based on dtype if 0.0
     rtol: Float64 = 1e-3,
     atol: Float64 = 1e-6,
@@ -775,13 +775,13 @@ fn check_gradient(
         Example:
             ```mojo
             fn test_relu_gradient() raises:
-                var x = ExTensor(List[Int](), DType.float32)
+                var x = AnyTensor(List[Int](), DType.float32)
                 # ... initialize x with test values ...
 
-                fn forward(inp: ExTensor) raises escaping -> ExTensor:
+                fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
                     return relu(inp)
 
-                fn backward_wrapper(grad: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+                fn backward_wrapper(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
                     return relu_backward(grad, x)
 
                 var grad_out = ones_like(relu(x))
@@ -817,7 +817,7 @@ fn check_gradient(
 
     for i in range(x.numel()):
         # Create deep copies to avoid corrupting original x
-        # (ExTensor.__copyinit__ creates shallow copies with shared data)
+        # (AnyTensor.__copyinit__ creates shallow copies with shared data)
         var x_plus = _deep_copy(x)
         var old_val = x._get_float64(i)
         x_plus._set_float64(i, old_val + eps)

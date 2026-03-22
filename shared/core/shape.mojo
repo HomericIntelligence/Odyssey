@@ -1,4 +1,4 @@
-"""Shape manipulation operations for ExTensor.
+"""Shape manipulation operations for AnyTensor.
 
 Implements shape operations like reshape, squeeze, unsqueeze, flatten, concatenate, stack, split
 Following the Python Array API Standard 2023.12.
@@ -11,7 +11,7 @@ Optimizations:
 
 from collections import List
 from memory import memcpy, UnsafePointer
-from .extensor import ExTensor
+from .extensor import AnyTensor
 from shared.tensor.tensor import Tensor
 
 
@@ -20,7 +20,7 @@ from shared.tensor.tensor import Tensor
 # ============================================================================
 
 
-fn is_contiguous(tensor: ExTensor) -> Bool:
+fn is_contiguous(tensor: AnyTensor) -> Bool:
     """Check if tensor data is contiguous in memory (row-major C order).
 
         A tensor is contiguous if elements are laid out sequentially in memory
@@ -36,12 +36,12 @@ fn is_contiguous(tensor: ExTensor) -> Bool:
             Contiguous tensors can be efficiently copied with memcpy instead of
             element-by-element copying.
     """
-    # Delegate to ExTensor.is_contiguous() method to avoid code duplication
+    # Delegate to AnyTensor.is_contiguous() method to avoid code duplication
     # (Issue #3844: consolidated implementations)
     return tensor.is_contiguous()
 
 
-fn as_contiguous(tensor: ExTensor) raises -> ExTensor:
+fn as_contiguous(tensor: AnyTensor) raises -> AnyTensor:
     """Convert tensor to contiguous memory layout if needed.
 
         If the tensor is already contiguous, returns a copy. If it's a view with
@@ -63,7 +63,7 @@ fn as_contiguous(tensor: ExTensor) raises -> ExTensor:
     if is_contiguous(tensor):
         # Already contiguous - just copy
         var shape = tensor.shape()
-        var result = ExTensor(shape, tensor.dtype())
+        var result = AnyTensor(shape, tensor.dtype())
         var numel = tensor.numel()
 
         # Use memcpy for efficient bulk copy
@@ -76,7 +76,7 @@ fn as_contiguous(tensor: ExTensor) raises -> ExTensor:
         # Non-contiguous - use stride-based indexing to read source elements
         var shape = tensor.shape()
         var ndim = len(shape)
-        var result = ExTensor(shape, tensor.dtype())
+        var result = AnyTensor(shape, tensor.dtype())
         var numel = tensor.numel()
         var dtype_size = tensor._get_dtype_size()
         var src_ptr = tensor._data
@@ -100,7 +100,7 @@ fn as_contiguous(tensor: ExTensor) raises -> ExTensor:
         return result^
 
 
-fn view(tensor: ExTensor, new_shape: List[Int]) raises -> ExTensor:
+fn view(tensor: AnyTensor, new_shape: List[Int]) raises -> AnyTensor:
     """Create a zero-copy view of tensor with new shape (if compatible).
 
         Attempts to create a view with different shape while preserving the
@@ -115,7 +115,7 @@ fn view(tensor: ExTensor, new_shape: List[Int]) raises -> ExTensor:
             new_shape: Target shape.
 
     Returns:
-            A new ExTensor sharing the same data with different shape/strides.
+            A new AnyTensor sharing the same data with different shape/strides.
 
     Raises:
             Error: If reshape cannot be done as a view (would require data movement).
@@ -145,12 +145,12 @@ fn view(tensor: ExTensor, new_shape: List[Int]) raises -> ExTensor:
     if new_numel != old_numel:
         raise Error("view: new shape must have same number of elements")
 
-    # Use ExTensor's built-in reshape which creates views via __copyinit__
+    # Use AnyTensor's built-in reshape which creates views via __copyinit__
     # This leverages reference counting for safe shared ownership
     return tensor.reshape(new_shape)
 
 
-fn reshape(tensor: ExTensor, new_shape: List[Int]) raises -> ExTensor:
+fn reshape(tensor: AnyTensor, new_shape: List[Int]) raises -> AnyTensor:
     """Reshape tensor to new shape.
 
     Args:
@@ -219,7 +219,7 @@ fn reshape(tensor: ExTensor, new_shape: List[Int]) raises -> ExTensor:
         raise Error("reshape: new shape must have same number of elements")
 
     # Create new tensor with new shape (data copy)
-    var result = ExTensor(final_shape, tensor.dtype())
+    var result = AnyTensor(final_shape, tensor.dtype())
 
     # Copy data respecting tensor strides (handles non-contiguous inputs)
     if is_contiguous(tensor):
@@ -250,7 +250,7 @@ fn reshape(tensor: ExTensor, new_shape: List[Int]) raises -> ExTensor:
     return result^
 
 
-fn squeeze(tensor: ExTensor, axis: Int = -999) raises -> ExTensor:
+fn squeeze(tensor: AnyTensor, axis: Int = -999) raises -> AnyTensor:
     """Remove size-1 dimensions.
 
     Args:
@@ -313,7 +313,7 @@ fn squeeze(tensor: ExTensor, axis: Int = -999) raises -> ExTensor:
         return reshape(tensor, new_shape)
 
 
-fn unsqueeze(tensor: ExTensor, axis: Int) raises -> ExTensor:
+fn unsqueeze(tensor: AnyTensor, axis: Int) raises -> AnyTensor:
     """Add a size-1 dimension at specified position.
 
     Args:
@@ -357,7 +357,7 @@ fn unsqueeze(tensor: ExTensor, axis: Int) raises -> ExTensor:
 
 
 @always_inline
-fn expand_dims(tensor: ExTensor, axis: Int) raises -> ExTensor:
+fn expand_dims(tensor: AnyTensor, axis: Int) raises -> AnyTensor:
     """Alias for unsqueeze(). Add a size-1 dimension at specified position.
 
     Args:
@@ -373,7 +373,7 @@ fn expand_dims(tensor: ExTensor, axis: Int) raises -> ExTensor:
     return unsqueeze(tensor, axis)
 
 
-fn flatten(tensor: ExTensor) raises -> ExTensor:
+fn flatten(tensor: AnyTensor) raises -> AnyTensor:
     """Flatten tensor to 1D.
 
     Args:
@@ -399,7 +399,7 @@ fn flatten(tensor: ExTensor) raises -> ExTensor:
 
 
 @always_inline
-fn ravel(tensor: ExTensor) raises -> ExTensor:
+fn ravel(tensor: AnyTensor) raises -> AnyTensor:
     """Flatten tensor to 1D (comptime for flatten).
 
         Note: Our implementation now uses zero-copy views for contiguous tensors.
@@ -430,7 +430,7 @@ fn ravel(tensor: ExTensor) raises -> ExTensor:
         return flatten(tensor)
 
 
-fn concatenate(tensors: List[ExTensor], axis: Int = 0) raises -> ExTensor:
+fn concatenate(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor:
     """Concatenate tensors along an existing axis.
 
     Args:
@@ -447,7 +447,7 @@ fn concatenate(tensors: List[ExTensor], axis: Int = 0) raises -> ExTensor:
     ```
             var a = ones([2, 3], DType.float32)  # 2x3
             var b = ones([3, 3], DType.float32)  # 3x3
-            var tensors : List[ExTensor] = []
+            var tensors : List[AnyTensor] = []
             tensors.append(a)
             tensors.append(b)
             var c = concatenate(tensors, axis=0)  # Shape (5, 3)
@@ -499,7 +499,7 @@ fn concatenate(tensors: List[ExTensor], axis: Int = 0) raises -> ExTensor:
             result_shape.append(ref_shape[i])
 
     # Create result tensor
-    var result = ExTensor(result_shape, dtype)
+    var result = AnyTensor(result_shape, dtype)
 
     # Copy data from each tensor into the result
     var dtype_size = result._get_dtype_size()
@@ -583,7 +583,7 @@ fn concatenate(tensors: List[ExTensor], axis: Int = 0) raises -> ExTensor:
     return result^
 
 
-fn stack(tensors: List[ExTensor], axis: Int = 0) raises -> ExTensor:
+fn stack(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor:
     """Stack tensors along a new axis.
 
     Args:
@@ -600,7 +600,7 @@ fn stack(tensors: List[ExTensor], axis: Int = 0) raises -> ExTensor:
     ```
             var a = ones([2, 3], DType.float32)  # 2x3
             var b = ones([2, 3], DType.float32)  # 2x3
-            var tensors : List[ExTensor] = []
+            var tensors : List[AnyTensor] = []
             tensors.append(a)
             tensors.append(b)
             var c = stack(tensors, axis=0)  # Shape (2, 2, 3)
@@ -638,7 +638,7 @@ fn stack(tensors: List[ExTensor], axis: Int = 0) raises -> ExTensor:
         raise Error("stack: axis out of range")
 
     # Unsqueeze each tensor and concatenate
-    var unsqueezed: List[ExTensor] = []
+    var unsqueezed: List[AnyTensor] = []
     for i in range(num_tensors):
         unsqueezed.append(unsqueeze(tensors[i], actual_axis))
 
@@ -651,8 +651,8 @@ fn stack(tensors: List[ExTensor], axis: Int = 0) raises -> ExTensor:
 
 
 fn split(
-    tensor: ExTensor, num_splits: Int, axis: Int = 0
-) raises -> List[ExTensor]:
+    tensor: AnyTensor, num_splits: Int, axis: Int = 0
+) raises -> List[AnyTensor]:
     """Split tensor into equal parts along an axis.
 
     Divides tensor into num_splits equal parts along the specified axis.
@@ -664,7 +664,7 @@ fn split(
         axis: Axis along which to split (default: 0).
 
     Returns:
-        List of ExTensor objects, each with same shape except along split axis.
+        List of AnyTensor objects, each with same shape except along split axis.
 
     Raises:
         Error: If axis is invalid, num_splits <= 0, or tensor size not divisible.
@@ -704,7 +704,7 @@ fn split(
     var chunk_size = split_size // num_splits
 
     # Create slices for each split
-    var results: List[ExTensor] = []
+    var results: List[AnyTensor] = []
 
     for i in range(num_splits):
         var start_idx = i * chunk_size
@@ -718,8 +718,8 @@ fn split(
 
 
 fn split_with_indices(
-    tensor: ExTensor, split_indices: List[Int], axis: Int = 0
-) raises -> List[ExTensor]:
+    tensor: AnyTensor, split_indices: List[Int], axis: Int = 0
+) raises -> List[AnyTensor]:
     """Split tensor at specified indices along an axis.
 
     Divides tensor at specified indices along the given axis.
@@ -731,7 +731,7 @@ fn split_with_indices(
         axis: Axis along which to split (default: 0).
 
     Returns:
-        List of ExTensor objects resulting from splits.
+        List of AnyTensor objects resulting from splits.
 
     Raises:
         Error: If axis is invalid or indices are out of bounds/unordered.
@@ -781,7 +781,7 @@ fn split_with_indices(
             )
 
     # Create slices based on indices
-    var results: List[ExTensor] = []
+    var results: List[AnyTensor] = []
     var prev_idx = 0
 
     for i in range(num_indices):
@@ -919,7 +919,7 @@ fn flatten_size(height: Int, width: Int, channels: Int) -> Int:
     return height * width * channels
 
 
-fn flatten_to_2d(tensor: ExTensor) raises -> ExTensor:
+fn flatten_to_2d(tensor: AnyTensor) raises -> AnyTensor:
     """Flatten a 4D tensor to 2D, preserving the batch dimension.
 
         Commonly used before fully connected layers in CNNs to reshape
@@ -1067,7 +1067,7 @@ fn linear_output_shape(batch_size: Int, out_features: Int) -> Tuple[Int, Int]:
     return Tuple[Int, Int](batch_size, out_features)
 
 
-fn tile(tensor: ExTensor, reps: List[Int]) raises -> ExTensor:
+fn tile(tensor: AnyTensor, reps: List[Int]) raises -> AnyTensor:
     """Tile tensor by repeating along each dimension.
 
     Args:
@@ -1120,7 +1120,7 @@ fn tile(tensor: ExTensor, reps: List[Int]) raises -> ExTensor:
         result_shape.append(padded_shape[i] * padded_reps[i])
 
     # Create result tensor
-    var result = ExTensor(result_shape, tensor.dtype())
+    var result = AnyTensor(result_shape, tensor.dtype())
     var result_numel = result.numel()
 
     # Fill result by repeating input
@@ -1166,7 +1166,7 @@ fn tile(tensor: ExTensor, reps: List[Int]) raises -> ExTensor:
     return result^
 
 
-fn repeat(tensor: ExTensor, n: Int, axis: Int = -1) raises -> ExTensor:
+fn repeat(tensor: AnyTensor, n: Int, axis: Int = -1) raises -> AnyTensor:
     """Repeat each element n times along axis.
 
     Args:
@@ -1195,7 +1195,7 @@ fn repeat(tensor: ExTensor, n: Int, axis: Int = -1) raises -> ExTensor:
         var numel = flat.numel()
         var result_shape = List[Int]()
         result_shape.append(numel * n)
-        var result = ExTensor(result_shape, tensor.dtype())
+        var result = AnyTensor(result_shape, tensor.dtype())
 
         for i in range(numel):
             var val = flat._get_float64(i)
@@ -1222,7 +1222,7 @@ fn repeat(tensor: ExTensor, n: Int, axis: Int = -1) raises -> ExTensor:
                 result_shape.append(shape[i])
 
         # Create result tensor
-        var result = ExTensor(result_shape, tensor.dtype())
+        var result = AnyTensor(result_shape, tensor.dtype())
         var result_numel = result.numel()
 
         # Fill result by repeating elements
@@ -1261,7 +1261,7 @@ fn repeat(tensor: ExTensor, n: Int, axis: Int = -1) raises -> ExTensor:
         return result^
 
 
-fn broadcast_to(tensor: ExTensor, target_shape: List[Int]) raises -> ExTensor:
+fn broadcast_to(tensor: AnyTensor, target_shape: List[Int]) raises -> AnyTensor:
     """Broadcast tensor to target shape.
 
     Args:
@@ -1307,7 +1307,7 @@ fn broadcast_to(tensor: ExTensor, target_shape: List[Int]) raises -> ExTensor:
     var broadcast_strides = compute_broadcast_strides(shape, target_shape)
 
     # Create result tensor
-    var result = ExTensor(target_shape, tensor.dtype())
+    var result = AnyTensor(target_shape, tensor.dtype())
     var result_numel = result.numel()
 
     # Fill result using broadcast strides
@@ -1335,7 +1335,7 @@ fn broadcast_to(tensor: ExTensor, target_shape: List[Int]) raises -> ExTensor:
     return result^
 
 
-fn permute(tensor: ExTensor, dims: List[Int]) raises -> ExTensor:
+fn permute(tensor: AnyTensor, dims: List[Int]) raises -> AnyTensor:
     """Permute tensor dimensions (generalized transpose).
 
     Args:
@@ -1397,7 +1397,7 @@ fn permute(tensor: ExTensor, dims: List[Int]) raises -> ExTensor:
         new_shape.append(shape[dims[i]])
 
     # Create result tensor
-    var result = ExTensor(new_shape, tensor.dtype())
+    var result = AnyTensor(new_shape, tensor.dtype())
     var result_numel = result.numel()
 
     # Fill result by permuting coordinates

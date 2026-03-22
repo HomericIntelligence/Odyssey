@@ -4,7 +4,7 @@ This module provides the main DataLoader class and related utilities
 for efficient batch loading during training.
 """
 
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 from shared.data._datasets_core import Dataset
 from shared.data.samplers import Sampler, SequentialSampler, RandomSampler
 
@@ -20,9 +20,9 @@ struct Batch(Copyable, Movable):
     Holds data and labels for a batch, along with batch metadata.
     """
 
-    var data: ExTensor
+    var data: AnyTensor
     """Batch data tensor."""
-    var labels: ExTensor
+    var labels: AnyTensor
     """Batch labels tensor."""
     var batch_size: Int
     """Number of samples in the batch."""
@@ -31,8 +31,8 @@ struct Batch(Copyable, Movable):
 
     fn __init__(
         out self,
-        var data: ExTensor,
-        var labels: ExTensor,
+        var data: AnyTensor,
+        var labels: AnyTensor,
         var indices: List[Int],
     ) raises:
         """Create a batch.
@@ -214,8 +214,8 @@ struct BatchLoader[
                 break
 
             # Load batch data
-            var batch_data = List[ExTensor](capacity=len(batch_indices))
-            var batch_labels = List[ExTensor](capacity=len(batch_indices))
+            var batch_data = List[AnyTensor](capacity=len(batch_indices))
+            var batch_labels = List[AnyTensor](capacity=len(batch_indices))
 
             for idx in batch_indices:
                 var sample = self.dataset.__getitem__(idx)
@@ -231,7 +231,7 @@ struct BatchLoader[
 
         return batches^
 
-    fn _stack_tensors(self, tensors: List[ExTensor]) raises -> ExTensor:
+    fn _stack_tensors(self, tensors: List[AnyTensor]) raises -> AnyTensor:
         """Stack list of tensors into a batch tensor.
 
         Creates a new tensor with shape [batch_size, *tensor_shape] by
@@ -243,7 +243,7 @@ struct BatchLoader[
             tensors: List of tensors to stack.
 
         Returns:
-            ExTensor with batch dimension prepended (shape: [batch_size, *tensor_shape]).
+            AnyTensor with batch dimension prepended (shape: [batch_size, *tensor_shape]).
 
         Raises:
             Error: If tensors list is empty or tensors have incompatible shapes.
@@ -306,6 +306,6 @@ struct BatchLoader[
                 stacked_data.append(Float32(tensors[tensor_idx][elem_idx]))
 
         # Create output tensor from the list
-        var stacked = ExTensor(stacked_data^)
+        var stacked = AnyTensor(stacked_data^)
 
         return stacked^

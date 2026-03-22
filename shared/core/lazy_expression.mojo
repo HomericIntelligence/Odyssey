@@ -22,7 +22,7 @@ Example:
 """
 
 from collections import List
-from .extensor import ExTensor
+from .extensor import AnyTensor
 from .broadcasting import broadcast_shapes, compute_broadcast_strides
 
 
@@ -108,12 +108,12 @@ struct TensorExpr(Movable):
 
     var _nodes: List[ExprNode]
     var _root_idx: Int
-    var _tensors: List[ExTensor]
+    var _tensors: List[AnyTensor]
     var _scalars: List[Float64]
     var _result_shape: List[Int]
     var _dtype: DType
 
-    fn __init__(out self, tensor: ExTensor) raises:
+    fn __init__(out self, tensor: AnyTensor) raises:
         """Create expression from a single tensor (entry point).
 
         Args:
@@ -123,7 +123,7 @@ struct TensorExpr(Movable):
             Error: If tensor is invalid.
         """
         self._nodes = List[ExprNode]()
-        self._tensors = List[ExTensor]()
+        self._tensors = List[AnyTensor]()
         self._scalars = List[Float64]()
 
         # Create leaf node for tensor
@@ -184,7 +184,7 @@ struct TensorExpr(Movable):
                 count += 1
         return count
 
-    fn _add_leaf_node(mut self, tensor: ExTensor) raises -> Int:
+    fn _add_leaf_node(mut self, tensor: AnyTensor) raises -> Int:
         """Internal: Add a leaf node for a tensor.
 
         Args:
@@ -449,7 +449,7 @@ struct TensorExpr(Movable):
 # ============================================================================
 
 
-fn expr(tensor: ExTensor) raises -> TensorExpr:
+fn expr(tensor: AnyTensor) raises -> TensorExpr:
     """Create a lazy expression from a tensor (entry point).
 
     This is the main entry point for building lazy expressions. It wraps

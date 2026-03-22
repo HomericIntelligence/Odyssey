@@ -9,7 +9,7 @@ Modules:
 Architecture:
     - `formats` provides low-level file I/O and format parsing
     - `datasets` provides high-level, user-friendly interfaces
-    - All data is returned as ExTensor for consistency with core library
+    - All data is returned as AnyTensor for consistency with core library
 
 Example:
     from shared.data import load_emnist_train, load_emnist_test
@@ -74,7 +74,7 @@ from shared.data.constants import (
 # Dataset classes and loaders
 from shared.data.datasets import (
     Dataset,  # Base dataset interface
-    ExTensorDataset,  # In-memory tensor dataset wrapper
+    AnyTensorDataset,  # In-memory tensor dataset wrapper
     FileDataset,  # File-based lazy-loading dataset
     CIFAR10Dataset,  # CIFAR-10 dataset with train/test splits
     get_cifar10_classes,  # CIFAR-10 class names

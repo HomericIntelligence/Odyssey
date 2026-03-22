@@ -37,7 +37,7 @@ Example:
     ```
 """
 
-from shared.core import ExTensor, zeros, ones, zeros_like
+from shared.core import AnyTensor, zeros, ones, zeros_like
 from shared.core.traits import Model
 
 
@@ -110,7 +110,7 @@ struct SimpleCNN(Copyable, Movable):
         shape.append(self.num_classes)
         return shape^
 
-    fn forward(self, input: ExTensor) raises -> ExTensor:
+    fn forward(self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass (simplified for testing).
 
         Creates output tensor with correct shape filled with dummy values.
@@ -198,7 +198,7 @@ struct LinearModel(Copyable, Movable):
         shape.append(self.out_features)
         return shape^
 
-    fn forward(self, input: ExTensor) raises -> ExTensor:
+    fn forward(self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass.
 
         Creates output tensor with correct shape filled with zeros.
@@ -467,7 +467,7 @@ struct SimpleLinearModel:
 struct Parameter(Copyable, Movable):
     """Trainable parameter with data and gradient.
 
-    Wraps an ExTensor for the parameter data with an associated gradient tensor.
+    Wraps an AnyTensor for the parameter data with an associated gradient tensor.
     Used in model layers to track trainable weights and biases.
 
     Attributes:
@@ -475,12 +475,12 @@ struct Parameter(Copyable, Movable):
         grad: The gradient tensor for backpropagation.
     """
 
-    var data: ExTensor
+    var data: AnyTensor
     """The parameter tensor (weights or bias)."""
-    var grad: ExTensor
+    var grad: AnyTensor
     """The gradient tensor for backpropagation."""
 
-    fn __init__(out self, data: ExTensor) raises:
+    fn __init__(out self, data: AnyTensor) raises:
         """Initialize parameter with data tensor and zero gradient.
 
         Args:
@@ -709,14 +709,14 @@ struct SimpleMLP(Copyable, Model, Movable):
             )
             return output^
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
-        """Forward pass through MLP with ExTensor input.
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+        """Forward pass through MLP with AnyTensor input.
 
         Args:
-            input: Input ExTensor.
+            input: Input AnyTensor.
 
         Returns:
-            Output ExTensor.
+            Output AnyTensor.
 
         Raises:
             Error: If tensor conversion fails or memory allocation fails.
@@ -730,10 +730,10 @@ struct SimpleMLP(Copyable, Model, Movable):
         ```
 
         Note:
-            This is the Model trait implementation that accepts ExTensor.
+            This is the Model trait implementation that accepts AnyTensor.
             Uses ReLU activation between layers: ReLU(x) = max(0, x).
         """
-        # Extract Float32 values from ExTensor
+        # Extract Float32 values from AnyTensor
         var input_list = List[Float32]()
         var input_numel = input.numel()
         for i in range(input_numel):
@@ -742,7 +742,7 @@ struct SimpleMLP(Copyable, Model, Movable):
         # Call existing forward with List[Float32]
         var output_list = self.forward(input_list)
 
-        # Convert back to ExTensor
+        # Convert back to AnyTensor
         var output = zeros([len(output_list)], DType.float32)
         for i in range(len(output_list)):
             output._set_float32(i, output_list[i])
@@ -808,11 +808,11 @@ struct SimpleMLP(Copyable, Model, Movable):
             total += len(self.layer3_weights) + len(self.layer3_bias)
         return total
 
-    fn get_weights(self) raises -> ExTensor:
-        """Get flattened weights as ExTensor.
+    fn get_weights(self) raises -> AnyTensor:
+        """Get flattened weights as AnyTensor.
 
         Returns:
-            ExTensor containing all weights flattened.
+            AnyTensor containing all weights flattened.
 
         Raises:
             Error: If tensor creation fails.
@@ -838,7 +838,7 @@ struct SimpleMLP(Copyable, Model, Movable):
         for i in range(len(self.layer3_bias)):
             all_weights.append(self.layer3_bias[i])
 
-        # Create ExTensor from flattened weights
+        # Create AnyTensor from flattened weights
         var shape: List[Int] = [len(all_weights)]
         var tensor = zeros(shape, DType.float32)
 
@@ -848,11 +848,11 @@ struct SimpleMLP(Copyable, Model, Movable):
 
         return tensor
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Get list of parameter tensors.
 
         Returns:
-            List of ExTensor objects containing weights and biases.
+            List of AnyTensor objects containing weights and biases.
 
         Raises:
             Error: If tensor creation fails.
@@ -865,7 +865,7 @@ struct SimpleMLP(Copyable, Model, Movable):
                 print(param.shape())
         ```
         """
-        var param_list: List[ExTensor] = []
+        var param_list: List[AnyTensor] = []
 
         # Layer 1 weights parameter
         var w1_shape: List[Int] = [self.hidden_dim, self.input_dim]
@@ -931,7 +931,7 @@ struct SimpleMLP(Copyable, Model, Movable):
         # on Parameter objects during backpropagation
         pass
 
-    fn state_dict(self) raises -> Dict[String, ExTensor]:
+    fn state_dict(self) raises -> Dict[String, AnyTensor]:
         """Export weights as state dictionary.
 
         Returns:
@@ -949,7 +949,7 @@ struct SimpleMLP(Copyable, Model, Movable):
         Note:
             Returns owned Dict with ownership transfer to avoid copy errors.
         """
-        var state = Dict[String, ExTensor]()
+        var state = Dict[String, AnyTensor]()
 
         # Layer 1 weights
         var w1_shape: List[Int] = [self.hidden_dim, self.input_dim]
@@ -999,7 +999,7 @@ struct SimpleMLP(Copyable, Model, Movable):
 
         return state^
 
-    fn load_state_dict(mut self, state: Dict[String, ExTensor]):
+    fn load_state_dict(mut self, state: Dict[String, AnyTensor]):
         """Load weights from state dictionary.
 
         Args:
@@ -1078,7 +1078,7 @@ struct SimpleMLP2(Copyable, Model, Movable):
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass using manual layer composition.
 
         This demonstrates the data flow through sequential layers without
@@ -1112,16 +1112,16 @@ struct SimpleMLP2(Copyable, Model, Movable):
 
         return output^
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Get all trainable parameters.
 
         Returns:
-            List of 4 ExTensors: W1, b1, W2, b2 (placeholder weights).
+            List of 4 AnyTensors: W1, b1, W2, b2 (placeholder weights).
 
         Raises:
             Error: If parameter collection fails.
         """
-        var params = List[ExTensor]()
+        var params = List[AnyTensor]()
         # W1: (input_dim, hidden_dim)
         params.append(zeros([self.input_dim, self.hidden_dim], DType.float32))
         # b1: (hidden_dim,)

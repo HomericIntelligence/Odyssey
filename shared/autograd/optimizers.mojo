@@ -35,7 +35,7 @@ Usage Pattern:
         current_lr = optimizer.get_lr()
 
 Design Note:
-    This module operates on Variables (from autograd), not raw ExTensors.
+    This module operates on Variables (from autograd), not raw AnyTensors.
     The optimizer updates Variable.data based on Variable.grad.
 
     All optimizers implement the Optimizer trait from optimizer_base.mojo,
@@ -45,7 +45,7 @@ Design Note:
     - Gradient clipping by global norm
 """
 
-from shared.core import ExTensor, subtract, multiply, divide, add, sqrt
+from shared.core import AnyTensor, subtract, multiply, divide, add, sqrt
 from shared.autograd.variable import Variable
 from shared.autograd.tape import GradientTape
 from shared.autograd.functional import (
@@ -97,7 +97,7 @@ struct SGD(Copyable, Movable, Optimizer):
     """Step size for gradient descent updates."""
     var momentum: Float64
     """Momentum coefficient for accelerated gradient descent."""
-    var velocities: List[ExTensor]
+    var velocities: List[AnyTensor]
     """Velocity buffers for each parameter (initialized on first step)."""
     var _initialized: Bool
     """Flag indicating whether velocity buffers have been initialized."""
@@ -118,7 +118,7 @@ struct SGD(Copyable, Movable, Optimizer):
         """
         self.learning_rate = learning_rate
         self.momentum = momentum
-        self.velocities = List[ExTensor]()
+        self.velocities = List[AnyTensor]()
         self._initialized = False
 
     fn step(
@@ -156,11 +156,11 @@ struct SGD(Copyable, Movable, Optimizer):
         """
         # Initialize velocity buffers on first call if using momentum
         if self.momentum > 0.0 and not self._initialized:
-            self.velocities = List[ExTensor]()
+            self.velocities = List[AnyTensor]()
             for i in range(len(parameters)):
                 # Create zero-initialized velocity tensor matching parameter shape
                 var vel_shape = parameters[i].data.shape()
-                var vel = ExTensor(vel_shape, parameters[i].data.dtype())
+                var vel = AnyTensor(vel_shape, parameters[i].data.dtype())
                 vel._fill_zero()
                 self.velocities.append(vel^)
             self._initialized = True
@@ -305,9 +305,9 @@ struct Adam(Copyable, Movable, Optimizer):
     """L2 regularization coefficient."""
     var t: Int
     """Current step counter."""
-    var m_buffers: List[ExTensor]
+    var m_buffers: List[AnyTensor]
     """First moment buffers for each parameter ID."""
-    var v_buffers: List[ExTensor]
+    var v_buffers: List[AnyTensor]
     """Second moment buffers for each parameter ID."""
     var has_buffer: List[Bool]
     """Flags indicating whether moment buffers exist for each parameter ID."""
@@ -345,8 +345,8 @@ struct Adam(Copyable, Movable, Optimizer):
         self.epsilon = epsilon
         self.weight_decay = weight_decay
         self.t = 0
-        self.m_buffers = List[ExTensor]()
-        self.v_buffers = List[ExTensor]()
+        self.m_buffers = List[AnyTensor]()
+        self.v_buffers = List[AnyTensor]()
         self.has_buffer = List[Bool]()
 
     fn step(
@@ -413,23 +413,23 @@ struct Adam(Copyable, Movable, Optimizer):
                 var placeholder_shape = List[Int]()
                 placeholder_shape.append(1)
                 self.m_buffers.append(
-                    ExTensor(placeholder_shape, DType.float32)
+                    AnyTensor(placeholder_shape, DType.float32)
                 )
                 self.v_buffers.append(
-                    ExTensor(placeholder_shape, DType.float32)
+                    AnyTensor(placeholder_shape, DType.float32)
                 )
                 self.has_buffer.append(False)
 
             # Initialize moment buffers if they don't exist
             if not self.has_buffer[param_id]:
                 # m_t = zeros like grad
-                var m = ExTensor(grad.shape(), grad.dtype())
+                var m = AnyTensor(grad.shape(), grad.dtype())
                 for j in range(m.numel()):
                     m._set_float64(j, 0.0)
                 self.m_buffers[param_id] = m^
 
                 # v_t = zeros like grad
-                var v = ExTensor(grad.shape(), grad.dtype())
+                var v = AnyTensor(grad.shape(), grad.dtype())
                 for j in range(v.numel()):
                     v._set_float64(j, 0.0)
                 self.v_buffers[param_id] = v^
@@ -441,7 +441,7 @@ struct Adam(Copyable, Movable, Optimizer):
             var v = self.v_buffers[param_id]
 
             # Update biased first moment estimate: m_t = β₁ * m_{t-1} + (1 - β₁) * g_t
-            var m_new = ExTensor(grad.shape(), grad.dtype())
+            var m_new = AnyTensor(grad.shape(), grad.dtype())
             for j in range(grad.numel()):
                 var m_prev = m._get_float64(j)
                 var grad_val = grad._get_float64(j)
@@ -450,7 +450,7 @@ struct Adam(Copyable, Movable, Optimizer):
             self.m_buffers[param_id] = m_new^
 
             # Update biased second moment estimate: v_t = β₂ * v_{t-1} + (1 - β₂) * g_t²
-            var v_new = ExTensor(grad.shape(), grad.dtype())
+            var v_new = AnyTensor(grad.shape(), grad.dtype())
             for j in range(grad.numel()):
                 var v_prev = v._get_float64(j)
                 var grad_val = grad._get_float64(j)
@@ -471,7 +471,7 @@ struct Adam(Copyable, Movable, Optimizer):
 
             # Compute update: α * m̂_t / (√v̂_t + ε)
             # First: √v̂_t
-            var v_hat_sqrt = ExTensor(v_hat.shape(), v_hat.dtype())
+            var v_hat_sqrt = AnyTensor(v_hat.shape(), v_hat.dtype())
             for j in range(v_hat.numel()):
                 var v_val = v_hat._get_float64(j)
                 var sqrt_v = v_val**0.5
@@ -492,7 +492,7 @@ struct Adam(Copyable, Movable, Optimizer):
                 var weight_decay_update = multiply_scalar(
                     parameters[i].data, self.learning_rate * self.weight_decay
                 )
-                param_update = ExTensor(
+                param_update = AnyTensor(
                     scaled_grad.shape(), scaled_grad.dtype()
                 )
                 for j in range(scaled_grad.numel()):
@@ -614,9 +614,9 @@ struct AdamW(Copyable, Movable, Optimizer):
     """Decoupled weight decay coefficient."""
     var t: Int
     """Current step counter."""
-    var m_buffers: List[ExTensor]
+    var m_buffers: List[AnyTensor]
     """First moment buffers for each parameter ID."""
-    var v_buffers: List[ExTensor]
+    var v_buffers: List[AnyTensor]
     """Second moment buffers for each parameter ID."""
     var has_buffer: List[Bool]
     """Flags indicating whether moment buffers exist for each parameter ID."""
@@ -654,8 +654,8 @@ struct AdamW(Copyable, Movable, Optimizer):
         self.epsilon = epsilon
         self.weight_decay = weight_decay
         self.t = 0
-        self.m_buffers = List[ExTensor]()
-        self.v_buffers = List[ExTensor]()
+        self.m_buffers = List[AnyTensor]()
+        self.v_buffers = List[AnyTensor]()
         self.has_buffer = List[Bool]()
 
     fn step(
@@ -721,21 +721,21 @@ struct AdamW(Copyable, Movable, Optimizer):
                 var placeholder_shape = List[Int]()
                 placeholder_shape.append(1)
                 self.m_buffers.append(
-                    ExTensor(placeholder_shape, DType.float32)
+                    AnyTensor(placeholder_shape, DType.float32)
                 )
                 self.v_buffers.append(
-                    ExTensor(placeholder_shape, DType.float32)
+                    AnyTensor(placeholder_shape, DType.float32)
                 )
                 self.has_buffer.append(False)
 
             # Initialize moment buffers if they don't exist
             if not self.has_buffer[param_id]:
-                var m = ExTensor(grad.shape(), grad.dtype())
+                var m = AnyTensor(grad.shape(), grad.dtype())
                 for j in range(m.numel()):
                     m._set_float64(j, 0.0)
                 self.m_buffers[param_id] = m^
 
-                var v = ExTensor(grad.shape(), grad.dtype())
+                var v = AnyTensor(grad.shape(), grad.dtype())
                 for j in range(v.numel()):
                     v._set_float64(j, 0.0)
                 self.v_buffers[param_id] = v^
@@ -747,7 +747,7 @@ struct AdamW(Copyable, Movable, Optimizer):
             var v = self.v_buffers[param_id]
 
             # Update biased first moment estimate: m_t = β₁ * m_{t-1} + (1 - β₁) * g_t
-            var m_new = ExTensor(grad.shape(), grad.dtype())
+            var m_new = AnyTensor(grad.shape(), grad.dtype())
             for j in range(grad.numel()):
                 var m_prev = m._get_float64(j)
                 var grad_val = grad._get_float64(j)
@@ -756,7 +756,7 @@ struct AdamW(Copyable, Movable, Optimizer):
             self.m_buffers[param_id] = m_new^
 
             # Update biased second moment estimate: v_t = β₂ * v_{t-1} + (1 - β₂) * g_t²
-            var v_new = ExTensor(grad.shape(), grad.dtype())
+            var v_new = AnyTensor(grad.shape(), grad.dtype())
             for j in range(grad.numel()):
                 var v_prev = v._get_float64(j)
                 var grad_val = grad._get_float64(j)
@@ -776,7 +776,7 @@ struct AdamW(Copyable, Movable, Optimizer):
             var v_hat = multiply_scalar(v_updated, 1.0 / bias_correction2)
 
             # Compute √v̂_t
-            var v_hat_sqrt = ExTensor(v_hat.shape(), v_hat.dtype())
+            var v_hat_sqrt = AnyTensor(v_hat.shape(), v_hat.dtype())
             for j in range(v_hat.numel()):
                 var v_val = v_hat._get_float64(j)
                 var sqrt_v = v_val**0.5
@@ -793,7 +793,7 @@ struct AdamW(Copyable, Movable, Optimizer):
 
             # Apply decoupled weight decay: α * λ * θ_{t-1}
             # θ_t = θ_{t-1} - α * m̂_t / (√v̂_t + ε) - α * λ * θ_{t-1}
-            var new_data = ExTensor(
+            var new_data = AnyTensor(
                 parameters[i].data.shape(), parameters[i].data.dtype()
             )
             for j in range(parameters[i].data.numel()):
@@ -892,7 +892,7 @@ struct AdaGrad(Copyable, Movable, Optimizer):
     """Small constant for numerical stability."""
     var weight_decay: Float64
     """L2 regularization coefficient."""
-    var G_buffers: Dict[Int, ExTensor]
+    var G_buffers: Dict[Int, AnyTensor]
     """Accumulated squared gradients for each parameter ID."""
 
     fn __init__(
@@ -923,7 +923,7 @@ struct AdaGrad(Copyable, Movable, Optimizer):
         self.learning_rate = learning_rate
         self.epsilon = epsilon
         self.weight_decay = weight_decay
-        self.G_buffers = Dict[Int, ExTensor]()
+        self.G_buffers = Dict[Int, AnyTensor]()
 
     fn step(
         mut self, mut parameters: List[Variable], mut tape: GradientTape
@@ -970,7 +970,7 @@ struct AdaGrad(Copyable, Movable, Optimizer):
             var grad = tape.registry.get_grad(param_id)
 
             # Initialize or retrieve accumulated gradient buffer
-            var G = ExTensor(
+            var G = AnyTensor(
                 parameters[i].data.shape(), parameters[i].data.dtype()
             )
             if i in self.G_buffers:
@@ -1121,9 +1121,9 @@ struct RMSprop(Copyable, Movable, Optimizer):
     """L2 regularization coefficient."""
     var momentum: Float64
     """Momentum factor for accelerated updates."""
-    var v_buffers: List[ExTensor]
+    var v_buffers: List[AnyTensor]
     """Running average of squared gradients per parameter ID."""
-    var m_buffers: List[ExTensor]
+    var m_buffers: List[AnyTensor]
     """Momentum buffers per parameter ID (if momentum > 0)."""
     var has_buffer: List[Bool]
     """Flags indicating initialized buffers for each parameter ID."""
@@ -1157,8 +1157,8 @@ struct RMSprop(Copyable, Movable, Optimizer):
         self.epsilon = epsilon
         self.weight_decay = weight_decay
         self.momentum = momentum
-        self.v_buffers = List[ExTensor]()
-        self.m_buffers = List[ExTensor]()
+        self.v_buffers = List[AnyTensor]()
+        self.m_buffers = List[AnyTensor]()
         self.has_buffer = List[Bool]()
 
     fn step(
@@ -1198,23 +1198,23 @@ struct RMSprop(Copyable, Movable, Optimizer):
                 var placeholder_shape = List[Int]()
                 placeholder_shape.append(1)
                 self.v_buffers.append(
-                    ExTensor(placeholder_shape, DType.float32)
+                    AnyTensor(placeholder_shape, DType.float32)
                 )
                 self.m_buffers.append(
-                    ExTensor(placeholder_shape, DType.float32)
+                    AnyTensor(placeholder_shape, DType.float32)
                 )
                 self.has_buffer.append(False)
 
             # Initialize buffers if they don't exist for this parameter
             if not self.has_buffer[param_id]:
                 # v_t = zeros like grad
-                var v = ExTensor(grad.shape(), grad.dtype())
+                var v = AnyTensor(grad.shape(), grad.dtype())
                 for j in range(v.numel()):
                     v._set_float64(j, 0.0)
                 self.v_buffers[param_id] = v^
 
                 # m_t = zeros like grad (for momentum)
-                var m = ExTensor(grad.shape(), grad.dtype())
+                var m = AnyTensor(grad.shape(), grad.dtype())
                 for j in range(m.numel()):
                     m._set_float64(j, 0.0)
                 self.m_buffers[param_id] = m^
@@ -1231,7 +1231,7 @@ struct RMSprop(Copyable, Movable, Optimizer):
 
             # Update running average of squared gradients
             var v = self.v_buffers[param_id]
-            var v_new = ExTensor(grad.shape(), grad.dtype())
+            var v_new = AnyTensor(grad.shape(), grad.dtype())
             for j in range(grad.numel()):
                 var v_prev = v._get_float64(j)
                 var grad_val = working_grad._get_float64(j)
@@ -1246,7 +1246,7 @@ struct RMSprop(Copyable, Movable, Optimizer):
             var v_updated = self.v_buffers[param_id]
 
             # Compute adaptive learning rate
-            var adaptive_grad = ExTensor(
+            var adaptive_grad = AnyTensor(
                 working_grad.shape(), working_grad.dtype()
             )
             for j in range(working_grad.numel()):
@@ -1261,7 +1261,7 @@ struct RMSprop(Copyable, Movable, Optimizer):
             # Apply momentum if specified
             if self.momentum > 0.0:
                 var m = self.m_buffers[param_id]
-                var m_new = ExTensor(update.shape(), update.dtype())
+                var m_new = AnyTensor(update.shape(), update.dtype())
                 for j in range(update.numel()):
                     var m_prev = m._get_float64(j)
                     var upd_val = update._get_float64(j)

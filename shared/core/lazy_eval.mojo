@@ -12,7 +12,7 @@ Architecture:
 """
 
 from collections import List
-from .extensor import ExTensor, full
+from .extensor import AnyTensor, full
 from .lazy_expression import (
     TensorExpr,
     ExprNode,
@@ -142,7 +142,7 @@ fn _evaluate_at_index[
 ](
     expr: TensorExpr,
     nodes: List[ExprNode],
-    tensors: List[ExTensor],
+    tensors: List[AnyTensor],
     scalars: List[Float64],
     result_shape: List[Int],
     node_idx: Int,
@@ -271,7 +271,7 @@ fn _evaluate_at_index[
 # ============================================================================
 
 
-fn _dispatch_evaluate(expr: TensorExpr) raises -> ExTensor:
+fn _dispatch_evaluate(expr: TensorExpr) raises -> AnyTensor:
     """Runtime dispatch to compile-time specialized evaluation.
 
     Performs dtype dispatch and calls specialized kernel.
@@ -318,7 +318,7 @@ fn _dispatch_evaluate(expr: TensorExpr) raises -> ExTensor:
 # ============================================================================
 
 
-fn _evaluate_typed[dtype: DType](expr: TensorExpr) raises -> ExTensor:
+fn _evaluate_typed[dtype: DType](expr: TensorExpr) raises -> AnyTensor:
     """Compile-time specialized evaluation kernel.
 
     Args:
@@ -358,7 +358,7 @@ fn _evaluate_typed[dtype: DType](expr: TensorExpr) raises -> ExTensor:
 # ============================================================================
 
 
-fn evaluate(expr: TensorExpr) raises -> ExTensor:
+fn evaluate(expr: TensorExpr) raises -> AnyTensor:
     """Evaluate lazy expression to produce result tensor.
 
     Performs fused evaluation of the entire expression tree, producing a

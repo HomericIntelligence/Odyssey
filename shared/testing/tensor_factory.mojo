@@ -11,7 +11,7 @@ This module consolidates tensor creation utilities to:
 
 Example:
     from shared.testing import tensor_factory
-    from shared.core import ExTensor
+    from shared.core import AnyTensor
 
     # Create tensors with unified factory
     var zeros = tensor_factory.zeros_tensor([10, 5], DType.float32)
@@ -27,7 +27,7 @@ Example:
 
 from random import random_float64
 from math import sqrt, log, cos, sin, pi
-from shared.core import ExTensor, zeros, ones, full
+from shared.core import AnyTensor, zeros, ones, full
 
 
 # ============================================================================
@@ -35,7 +35,7 @@ from shared.core import ExTensor, zeros, ones, full
 # ============================================================================
 
 
-fn zeros_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
+fn zeros_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create a tensor filled with zeros.
 
     Args:
@@ -43,7 +43,7 @@ fn zeros_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
         dtype: Data type of tensor elements.
 
     Returns:
-        ExTensor with all elements initialized to zero.
+        AnyTensor with all elements initialized to zero.
 
     Example:
     ```
@@ -57,7 +57,7 @@ fn zeros_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
     return zeros(shape, dtype)
 
 
-fn ones_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
+fn ones_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create a tensor filled with ones.
 
     Args:
@@ -65,7 +65,7 @@ fn ones_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
         dtype: Data type of tensor elements.
 
     Returns:
-        ExTensor with all elements initialized to one.
+        AnyTensor with all elements initialized to one.
 
     Example:
     ```
@@ -81,7 +81,7 @@ fn ones_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
 
 fn full_tensor(
     shape: List[Int], fill_value: Float64, dtype: DType
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Create a tensor filled with a specific value.
 
     Args:
@@ -90,7 +90,7 @@ fn full_tensor(
         dtype: Data type of tensor elements.
 
     Returns:
-        ExTensor with all elements initialized to fill_value (converted to dtype).
+        AnyTensor with all elements initialized to fill_value (converted to dtype).
 
     Example:
     ```
@@ -110,7 +110,7 @@ fn random_tensor(
     low: Float64 = 0.0,
     high: Float64 = 1.0,
     seed: Int = -1,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Create a tensor with random values from uniform distribution [low, high).
 
     Args:
@@ -122,7 +122,7 @@ fn random_tensor(
               Note: Current implementation does not use seed parameter.
 
     Returns:
-        ExTensor with random values uniformly distributed in [low, high).
+        AnyTensor with random values uniformly distributed in [low, high).
 
     Example:
         var weights = random_tensor(
@@ -184,7 +184,7 @@ fn random_normal_tensor(
     mean: Float64 = 0.0,
     std: Float64 = 1.0,
     seed: Int = -1,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Create a tensor with random values from normal distribution N(mean, std^2).
 
     Uses Box-Muller transform to convert uniform random values to normal distribution.
@@ -198,7 +198,7 @@ fn random_normal_tensor(
               Note: Current implementation does not use seed parameter.
 
     Returns:
-        ExTensor with random values from normal distribution N(mean, std^2).
+        AnyTensor with random values from normal distribution N(mean, std^2).
 
     Example:
         var weights = random_normal_tensor(
@@ -272,7 +272,7 @@ fn random_normal_tensor(
 
 
 fn set_tensor_value(
-    mut tensor: ExTensor, index: Int, value: Float64, dtype: DType
+    mut tensor: AnyTensor, index: Int, value: Float64, dtype: DType
 ) raises:
     """Set a single tensor element with automatic dtype conversion.
 

@@ -49,7 +49,7 @@ Example:
 
 from random import random_float64, seed as random_seed
 from math import isnan, isinf
-from shared.core import ExTensor, zeros, ones, full
+from shared.core import AnyTensor, zeros, ones, full
 
 
 # ============================================================================
@@ -327,7 +327,7 @@ fn create_random_tensor(
     dtype: DType,
     low: Float64 = -1.0,
     high: Float64 = 1.0,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Create tensor with random values.
 
     Generates a tensor filled with random values uniformly distributed
@@ -341,7 +341,7 @@ fn create_random_tensor(
         high: Maximum value (exclusive).
 
     Returns:
-        ExTensor filled with random values.
+        AnyTensor filled with random values.
 
     Raises:
         Error: If tensor creation fails.
@@ -369,7 +369,7 @@ fn create_random_tensor(
 
 fn create_edge_case_tensor(
     shape: List[Int], dtype: DType, edge_type: String
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Create tensor filled with edge case values.
 
     Generates tensors with special numeric values for testing edge cases.
@@ -388,7 +388,7 @@ fn create_edge_case_tensor(
             - "mixed": Mix of edge case values.
 
     Returns:
-        ExTensor filled with edge case values.
+        AnyTensor filled with edge case values.
 
     Raises:
         Error: If tensor creation fails or unknown edge_type.
@@ -469,7 +469,7 @@ fn create_edge_case_tensor(
 # ============================================================================
 
 
-fn has_nan(tensor: ExTensor) -> Bool:
+fn has_nan(tensor: AnyTensor) -> Bool:
     """Check if tensor contains any NaN values.
 
     Args:
@@ -491,7 +491,7 @@ fn has_nan(tensor: ExTensor) -> Bool:
     return False
 
 
-fn has_inf(tensor: ExTensor) -> Bool:
+fn has_inf(tensor: AnyTensor) -> Bool:
     """Check if tensor contains any infinity values.
 
     Args:
@@ -513,7 +513,7 @@ fn has_inf(tensor: ExTensor) -> Bool:
     return False
 
 
-fn is_finite(tensor: ExTensor) -> Bool:
+fn is_finite(tensor: AnyTensor) -> Bool:
     """Check if all tensor values are finite (not NaN or Inf).
 
     Args:
@@ -535,7 +535,7 @@ fn is_finite(tensor: ExTensor) -> Bool:
     return True
 
 
-fn all_values_in_range(tensor: ExTensor, low: Float64, high: Float64) -> Bool:
+fn all_values_in_range(tensor: AnyTensor, low: Float64, high: Float64) -> Bool:
     """Check if all tensor values are within specified range.
 
     Args:
@@ -599,7 +599,7 @@ struct NumericInvariants(Copyable, Movable):
 
 
 fn check_numeric_invariants(
-    tensor: ExTensor, allow_nan: Bool = False, allow_inf: Bool = False
+    tensor: AnyTensor, allow_nan: Bool = False, allow_inf: Bool = False
 ) -> NumericInvariants:
     """Check numeric invariants on a tensor.
 
@@ -660,7 +660,7 @@ fn check_numeric_invariants(
 # ============================================================================
 
 
-fn verify_shape_preserved(original: ExTensor, result: ExTensor) -> Bool:
+fn verify_shape_preserved(original: AnyTensor, result: AnyTensor) -> Bool:
     """Verify that operation preserved tensor shape.
 
     Args:
@@ -690,7 +690,7 @@ fn verify_shape_preserved(original: ExTensor, result: ExTensor) -> Bool:
     return True
 
 
-fn verify_dtype_preserved(original: ExTensor, result: ExTensor) -> Bool:
+fn verify_dtype_preserved(original: AnyTensor, result: AnyTensor) -> Bool:
     """Verify that operation preserved tensor dtype.
 
     Args:
@@ -710,7 +710,7 @@ fn verify_dtype_preserved(original: ExTensor, result: ExTensor) -> Bool:
     return original.dtype() == result.dtype()
 
 
-fn verify_numel_preserved(original: ExTensor, result: ExTensor) -> Bool:
+fn verify_numel_preserved(original: AnyTensor, result: AnyTensor) -> Bool:
     """Verify that operation preserved number of elements.
 
     Args:

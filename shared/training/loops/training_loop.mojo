@@ -24,7 +24,7 @@ Design principles:
 """
 
 from collections import List
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.training.metrics import AccuracyMetric, LossTracker
 from shared.training.trainer_interface import (
     DataLoader,
@@ -34,12 +34,12 @@ from shared.training.trainer_interface import (
 
 
 fn training_step(
-    model_forward: fn (ExTensor) raises -> ExTensor,
-    compute_loss: fn (ExTensor, ExTensor) raises -> ExTensor,
+    model_forward: fn (AnyTensor) raises -> AnyTensor,
+    compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
     optimizer_step: fn () raises -> None,
     zero_gradients: fn () raises -> None,
-    data: ExTensor,
-    labels: ExTensor,
+    data: AnyTensor,
+    labels: AnyTensor,
 ) raises -> Float64:
     """Execute single training step (forward, backward, update).
 
@@ -59,7 +59,7 @@ fn training_step(
 
     Note:
         The backward pass is invoked implicitly via optimizer_step(). A full
-        implementation would call loss_tensor.backward() directly once ExTensor
+        implementation would call loss_tensor.backward() directly once AnyTensor
         supports automatic differentiation.
     """
     # Zero gradients from previous step
@@ -82,8 +82,8 @@ fn training_step(
 
 
 fn train_one_epoch(
-    model_forward: fn (ExTensor) raises -> ExTensor,
-    compute_loss: fn (ExTensor, ExTensor) raises -> ExTensor,
+    model_forward: fn (AnyTensor) raises -> AnyTensor,
+    compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
     optimizer_step: fn () raises -> None,
     zero_gradients: fn () raises -> None,
     mut train_loader: DataLoader,
@@ -207,10 +207,10 @@ struct TrainingLoop:
 
     fn run_epoch_manual(
         self,
-        train_data: ExTensor,
-        train_labels: ExTensor,
+        train_data: AnyTensor,
+        train_labels: AnyTensor,
         batch_size: Int,
-        compute_batch_loss: fn (ExTensor, ExTensor) raises -> Float32,
+        compute_batch_loss: fn (AnyTensor, AnyTensor) raises -> Float32,
         epoch: Int,
         total_epochs: Int,
     ) raises -> Float32:
@@ -224,7 +224,7 @@ struct TrainingLoop:
             train_labels: Training labels.
             batch_size: Mini-batch size.
             compute_batch_loss: Function to process one batch and return loss.
-                               Signature: fn(batch_data: ExTensor, batch_labels: ExTensor) -> Float32.
+                               Signature: fn(batch_data: AnyTensor, batch_labels: AnyTensor) -> Float32.
             epoch: Current epoch number (1-indexed).
             total_epochs: Total number of epochs.
 
@@ -244,7 +244,7 @@ struct TrainingLoop:
             var start_idx = batch_idx * batch_size
             var end_idx = min(start_idx + batch_size, num_samples)
 
-            # Extract batch slice using ExTensor.slice()
+            # Extract batch slice using AnyTensor.slice()
             var batch_data = train_data.slice(start_idx, end_idx, axis=0)
             var batch_labels = train_labels.slice(start_idx, end_idx, axis=0)
 
@@ -271,8 +271,8 @@ struct TrainingLoop:
 
     fn run_epoch(
         self,
-        model_forward: fn (ExTensor) raises -> ExTensor,
-        compute_loss: fn (ExTensor, ExTensor) raises -> ExTensor,
+        model_forward: fn (AnyTensor) raises -> AnyTensor,
+        compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
         optimizer_step: fn () raises -> None,
         zero_gradients: fn () raises -> None,
         mut train_loader: DataLoader,
@@ -303,8 +303,8 @@ struct TrainingLoop:
 
     fn run(
         self,
-        model_forward: fn (ExTensor) raises -> ExTensor,
-        compute_loss: fn (ExTensor, ExTensor) raises -> ExTensor,
+        model_forward: fn (AnyTensor) raises -> AnyTensor,
+        compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
         optimizer_step: fn () raises -> None,
         zero_gradients: fn () raises -> None,
         mut train_loader: DataLoader,

@@ -13,9 +13,9 @@ Example:
     from shared.training.trainer_interface import (
         create_simple_dataloader,
     )
-    from shared.core.extensor import ExTensor
+    from shared.core.extensor import AnyTensor
 
-    fn step(x: ExTensor, y: ExTensor) raises -> ExTensor:
+    fn step(x: AnyTensor, y: AnyTensor) raises -> AnyTensor:
         return x  # replace with real forward+loss
 
     var loader = create_simple_dataloader(
@@ -28,7 +28,7 @@ Example:
     ```
 """
 
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.training.trainer_interface import DataLoader
 
 
@@ -90,7 +90,7 @@ struct TrainingCallbacks(Copyable, Movable):
 fn run_epoch_with_batches(
     mut loader: DataLoader,
     callbacks: TrainingCallbacks,
-    step_fn: fn (ExTensor, ExTensor) raises -> ExTensor,
+    step_fn: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
 ) raises -> Float32:
     """Run one training epoch with batch processing.
 
