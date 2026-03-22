@@ -48,6 +48,7 @@ from random import random_float64, seed as random_seed
 from hashlib.hasher import Hasher
 from shared.base.memory_pool import pooled_alloc, pooled_free
 from shared.tensor.tensor import Tensor
+from shared.tensor.tensor_traits import TensorLike
 from shared.base.broadcasting import broadcast_shapes, compute_broadcast_strides, are_shapes_broadcastable
 from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
@@ -82,6 +83,7 @@ struct AnyTensor(
     Representable,
     Sized,
     Stringable,
+    TensorLike,
 ):
     """Dynamic tensor with runtime-determined shape and data type.
 
