@@ -12,6 +12,7 @@ Optimizations:
 from collections import List
 from memory import memcpy, UnsafePointer
 from .extensor import ExTensor
+from shared.tensor.tensor import Tensor
 
 
 # ============================================================================
@@ -1433,3 +1434,172 @@ fn permute(tensor: ExTensor, dims: List[Int]) raises -> ExTensor:
         result._set_float64(i, val)
 
     return result^
+
+
+# ============================================================================
+# Tensor[dtype] Typed Overloads (Phase 3a)
+# ============================================================================
+# These wrap the existing ExTensor implementations via as_any() -> call ->
+# _any_to_tensor(). Correct and testable; optimization comes in later phases.
+
+
+fn _any_to_tensor[dt: DType](any_t: ExTensor) raises -> Tensor[dt]:
+    """Convert ExTensor to Tensor[dt] via zero-copy shared refcount.
+
+    Internal helper for typed overloads. Uses Tensor's internal constructor
+    which increments the shared refcount (B4 protocol).
+
+    Parameters:
+        dt: The compile-time DType to bitcast the data pointer to.
+
+    Args:
+        any_t: The ExTensor to convert (must have matching dtype).
+
+    Returns:
+        A Tensor[dt] sharing the same data and refcount.
+
+    Raises:
+        Error: If any_t's runtime dtype doesn't match dt.
+    """
+    if any_t._dtype != dt:
+        raise Error(
+            "_any_to_tensor: dtype mismatch — ExTensor has "
+            + String(any_t._dtype)
+            + " but requested "
+            + String(dt)
+        )
+    return Tensor[dt](
+        any_t._data.bitcast[Scalar[dt]](),
+        any_t._shape,
+        any_t._strides,
+        any_t._refcount,
+        any_t._numel,
+        any_t._is_view,
+        any_t._allocated_size,
+        any_t._original_numel_quantized,
+    )
+
+
+fn reshape[dt: DType](tensor: Tensor[dt], new_shape: List[Int]) raises -> Tensor[dt]:
+    """Reshape tensor to new shape (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+        new_shape: Target shape (must have same total number of elements).
+
+    Returns:
+        A new typed tensor with the specified shape.
+
+    Raises:
+        Error: If new shape has different number of elements.
+    """
+    var any_t = tensor.as_any()
+    var result_any = reshape(any_t, new_shape)
+    return _any_to_tensor[dt](result_any)
+
+
+fn squeeze[dt: DType](tensor: Tensor[dt], axis: Int = -999) raises -> Tensor[dt]:
+    """Remove size-1 dimensions (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+        axis: Specific dimension to squeeze (optional, default squeezes all size-1 dims).
+
+    Returns:
+        Typed tensor with size-1 dimensions removed.
+
+    Raises:
+        Error: If specified axis is not size 1.
+    """
+    var any_t = tensor.as_any()
+    var result_any = squeeze(any_t, axis)
+    return _any_to_tensor[dt](result_any)
+
+
+fn unsqueeze[dt: DType](tensor: Tensor[dt], axis: Int) raises -> Tensor[dt]:
+    """Add a size-1 dimension at specified position (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+        axis: Position to insert new dimension (supports negative indexing).
+
+    Returns:
+        Typed tensor with additional size-1 dimension.
+
+    Raises:
+        Error: If operation fails.
+    """
+    var any_t = tensor.as_any()
+    var result_any = unsqueeze(any_t, axis)
+    return _any_to_tensor[dt](result_any)
+
+
+fn expand_dims[dt: DType](tensor: Tensor[dt], axis: Int) raises -> Tensor[dt]:
+    """Alias for unsqueeze(). Add a size-1 dimension at specified position (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+        axis: Position to insert new dimension.
+
+    Returns:
+        Typed tensor with additional size-1 dimension.
+
+    Raises:
+        Error: If operation fails.
+    """
+    return unsqueeze[dt](tensor, axis)
+
+
+fn flatten[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Flatten tensor to 1D (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        1D typed tensor with all elements in row-major (C) order.
+
+    Raises:
+        Error: If operation fails.
+    """
+    var any_t = tensor.as_any()
+    var result_any = flatten(any_t)
+    return _any_to_tensor[dt](result_any)
+
+
+fn permute[dt: DType](tensor: Tensor[dt], dims: List[Int]) raises -> Tensor[dt]:
+    """Permute tensor dimensions (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+        dims: Permutation of dimensions (must be valid permutation of [0..ndim-1]).
+
+    Returns:
+        Typed tensor with permuted dimensions.
+
+    Raises:
+        Error: If dims is not a valid permutation.
+    """
+    var any_t = tensor.as_any()
+    var result_any = permute(any_t, dims)
+    return _any_to_tensor[dt](result_any)
+
+
+fn broadcast_to[dt: DType](
+    tensor: Tensor[dt], target_shape: List[Int]
+) raises -> Tensor[dt]:
+    """Broadcast tensor to target shape (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+        target_shape: Target shape to broadcast to.
+
+    Returns:
+        Typed broadcasted tensor.
+
+    Raises:
+        Error: If shapes are not broadcast-compatible.
+    """
+    var any_t = tensor.as_any()
+    var result_any = broadcast_to(any_t, target_shape)
+    return _any_to_tensor[dt](result_any)

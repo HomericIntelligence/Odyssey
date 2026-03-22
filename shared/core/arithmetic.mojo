@@ -9,6 +9,7 @@ from .extensor import ExTensor, full
 from .broadcasting import broadcast_shapes, compute_broadcast_strides
 from .shape import as_contiguous
 from .gradient_types import GradientPair
+from shared.tensor.tensor import Tensor
 from .dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
@@ -807,6 +808,164 @@ fn divide_backward(
 
 
 # ==============================================================================
+# ============================================================================
+# Tensor[dtype] Typed Overloads (Phase 3b)
+# ============================================================================
+# These wrap the existing ExTensor implementations via as_any() -> call ->
+# _any_to_tensor(). Correct and testable; optimization comes in later phases.
+
+
+fn _any_to_tensor[dt: DType](any_t: ExTensor) raises -> Tensor[dt]:
+    """Convert ExTensor to Tensor[dt] via zero-copy shared refcount.
+
+    Internal helper for typed overloads. Uses Tensor's internal constructor
+    which increments the shared refcount (B4 protocol).
+
+    Parameters:
+        dt: The compile-time DType to bitcast the data pointer to.
+
+    Args:
+        any_t: The ExTensor to convert (must have matching dtype).
+
+    Returns:
+        A Tensor[dt] sharing the same data and refcount.
+
+    Raises:
+        Error: If any_t's runtime dtype doesn't match dt.
+    """
+    if any_t._dtype != dt:
+        raise Error(
+            "_any_to_tensor: dtype mismatch — ExTensor has "
+            + String(any_t._dtype)
+            + " but requested "
+            + String(dt)
+        )
+    return Tensor[dt](
+        any_t._data.bitcast[Scalar[dt]](),
+        any_t._shape,
+        any_t._strides,
+        any_t._refcount,
+        any_t._numel,
+        any_t._is_view,
+        any_t._allocated_size,
+        any_t._original_numel_quantized,
+    )
+
+
+fn add[dt: DType](a: Tensor[dt], b: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise addition (typed version).
+
+    Args:
+        a: First typed tensor.
+        b: Second typed tensor.
+
+    Returns:
+        A new typed tensor containing a + b.
+
+    Raises:
+        Error: If shapes are not broadcast-compatible.
+    """
+    var any_a = a.as_any()
+    var any_b = b.as_any()
+    var result_any = add(any_a, any_b)
+    return _any_to_tensor[dt](result_any)
+
+
+fn subtract[dt: DType](a: Tensor[dt], b: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise subtraction (typed version).
+
+    Args:
+        a: First typed tensor.
+        b: Second typed tensor.
+
+    Returns:
+        A new typed tensor containing a - b.
+
+    Raises:
+        Error: If shapes are not broadcast-compatible.
+    """
+    var any_a = a.as_any()
+    var any_b = b.as_any()
+    var result_any = subtract(any_a, any_b)
+    return _any_to_tensor[dt](result_any)
+
+
+fn multiply[dt: DType](a: Tensor[dt], b: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise multiplication (typed version).
+
+    Args:
+        a: First typed tensor.
+        b: Second typed tensor.
+
+    Returns:
+        A new typed tensor containing a * b.
+
+    Raises:
+        Error: If shapes are not broadcast-compatible.
+    """
+    var any_a = a.as_any()
+    var any_b = b.as_any()
+    var result_any = multiply(any_a, any_b)
+    return _any_to_tensor[dt](result_any)
+
+
+fn divide[dt: DType](a: Tensor[dt], b: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise division (typed version).
+
+    Args:
+        a: First typed tensor (numerator).
+        b: Second typed tensor (denominator).
+
+    Returns:
+        A new typed tensor containing a / b.
+
+    Raises:
+        Error: If shapes are not broadcast-compatible.
+    """
+    var any_a = a.as_any()
+    var any_b = b.as_any()
+    var result_any = divide(any_a, any_b)
+    return _any_to_tensor[dt](result_any)
+
+
+fn floor_divide[dt: DType](a: Tensor[dt], b: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise floor division (typed version).
+
+    Args:
+        a: First typed tensor (numerator).
+        b: Second typed tensor (denominator).
+
+    Returns:
+        A new typed tensor containing a // b.
+
+    Raises:
+        Error: If shapes are not broadcast-compatible.
+    """
+    var any_a = a.as_any()
+    var any_b = b.as_any()
+    var result_any = floor_divide(any_a, any_b)
+    return _any_to_tensor[dt](result_any)
+
+
+fn power[dt: DType](a: Tensor[dt], b: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise exponentiation (typed version).
+
+    Args:
+        a: Base typed tensor.
+        b: Exponent typed tensor.
+
+    Returns:
+        A new typed tensor containing a ** b.
+
+    Raises:
+        Error: If shapes are not broadcast-compatible.
+    """
+    var any_a = a.as_any()
+    var any_b = b.as_any()
+    var result_any = power(any_a, any_b)
+    return _any_to_tensor[dt](result_any)
+
+
 # FUTURE WORK: Operator Overloading (out of scope for issues #219-220)
 # ==============================================================================
 #

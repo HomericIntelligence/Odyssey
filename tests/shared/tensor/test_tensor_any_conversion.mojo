@@ -18,6 +18,7 @@ Tests cover:
 from testing import assert_true, assert_almost_equal
 from shared.tensor.tensor import Tensor
 from shared.core.extensor import ExTensor, AnyTensor, zeros
+from shared.core.tensor_conversion import any_to_tensor
 
 
 fn test_anytensor_alias_works() raises:
@@ -56,20 +57,20 @@ fn test_as_any_preserves_shape() raises:
 
 
 fn test_as_tensor_basic() raises:
-    """AnyTensor.as_tensor[dtype]() returns a Tensor[dtype]."""
+    """Standalone any_to_tensor returns a Tensor[dtype]."""
     var any_t = zeros([4], DType.float32)
-    var t = any_t.as_tensor[DType.float32]()
+    var t = any_to_tensor[DType.float32](any_t)
     assert_true(t.numel() == 4, "as_tensor preserves numel")
     assert_true(t.dtype() == DType.float32, "as_tensor preserves dtype")
     print("PASS: test_as_tensor_basic")
 
 
 fn test_as_tensor_dtype_mismatch() raises:
-    """as_tensor with wrong dtype should raise."""
+    """any_to_tensor with wrong dtype should raise."""
     var any_t = zeros([4], DType.float32)
     var raised = False
     try:
-        var t = any_t.as_tensor[DType.float64]()
+        var t = any_to_tensor[DType.float64](any_t)
         _ = t  # suppress unused warning
     except:
         raised = True
@@ -86,7 +87,7 @@ fn test_roundtrip_tensor_any_tensor() raises:
 
     # Round-trip
     var any_t = t1.as_any()
-    var t2 = any_t.as_tensor[DType.float32]()
+    var t2 = any_to_tensor[DType.float32](any_t)
 
     assert_almost_equal(Float32(t2[0]), Float32(1.5), atol=1e-6)
     assert_almost_equal(Float32(t2[1]), Float32(0.25), atol=1e-6)

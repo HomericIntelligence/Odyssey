@@ -1,9 +1,9 @@
-"""Tensor[dtype] — compile-time typed parametric tensor.
+"""Tensor[dt] — compile-time typed parametric tensor.
 
 Provides a tensor type parametric on DType, enabling typed element access via
-`__getitem__` that returns `Scalar[Self.dtype]` (no runtime dtype branching).
+`__getitem__` that returns `Scalar[Self.dt]` (no runtime dtype branching).
 
-Uses typed `UnsafePointer[Scalar[dtype]]` storage instead of type-erased
+Uses typed `UnsafePointer[Scalar[dt]]` storage instead of type-erased
 `UnsafePointer[UInt8]`. Pointer arithmetic auto-scales by element size (H1),
 so no manual `* dtype_size` is needed for element offsets.
 
@@ -35,7 +35,7 @@ comptime TENSOR_PRINT_THRESHOLD: Int = 1000  # Truncate if numel > threshold
 comptime TENSOR_PRINT_SHOW_ELEMENTS: Int = 3  # Show first/last N elements
 
 
-struct Tensor[dtype: DType = DType.float32](
+struct Tensor[dt: DType = DType.float32](
     Copyable,
     ImplicitlyCopyable,
     Movable,
@@ -46,8 +46,8 @@ struct Tensor[dtype: DType = DType.float32](
 ):
     """Compile-time typed tensor with SIMD-like element access.
 
-    Parametric on DType, enabling `__getitem__` to return `Scalar[Self.dtype]`
-    without runtime dtype branching. Uses typed `UnsafePointer[Scalar[dtype]]`
+    Parametric on DType, enabling `__getitem__` to return `Scalar[Self.dt]`
+    without runtime dtype branching. Uses typed `UnsafePointer[Scalar[dt]]`
     storage where pointer arithmetic auto-scales by element size.
 
     Memory Safety: Implements reference counting for safe shared ownership.
@@ -56,7 +56,7 @@ struct Tensor[dtype: DType = DType.float32](
     for zero-copy conversion via `as_any()`.
 
     Parameters:
-        dtype: The compile-time data type of tensor elements (default: float32).
+        dt: The compile-time data type of tensor elements (default: float32).
 
     Attributes:
         _data: Typed pointer to element storage (auto-scales pointer arithmetic).
@@ -69,7 +69,7 @@ struct Tensor[dtype: DType = DType.float32](
         _original_numel_quantized: For quantized tensors, original size before padding.
     """
 
-    var _data: UnsafePointer[Scalar[Self.dtype], origin=MutAnyOrigin]
+    var _data: UnsafePointer[Scalar[Self.dt], origin=MutAnyOrigin]
     """Typed pointer to element storage."""
     var _shape: List[Int]
     """List of dimension sizes."""
@@ -143,7 +143,7 @@ struct Tensor[dtype: DType = DType.float32](
 
         # Allocate through memory pool (returns UInt8 pointer), then bitcast
         # to typed pointer. _allocated_size is in BYTES.
-        self._data = pooled_alloc(total_bytes).bitcast[Scalar[Self.dtype]]()
+        self._data = pooled_alloc(total_bytes).bitcast[Scalar[Self.dt]]()
         self._allocated_size = total_bytes
 
         # Zero-initialize the memory
@@ -155,7 +155,7 @@ struct Tensor[dtype: DType = DType.float32](
 
     fn __init__(
         out self,
-        data: UnsafePointer[Scalar[dtype], origin=MutAnyOrigin],
+        data: UnsafePointer[Scalar[Self.dt], origin=MutAnyOrigin],
         shape: List[Int],
         strides: List[Int],
         refcount: UnsafePointer[Int, origin=MutAnyOrigin],
@@ -253,8 +253,8 @@ struct Tensor[dtype: DType = DType.float32](
     # Element access
     # ------------------------------------------------------------------
 
-    fn __getitem__(self, index: Int) raises -> Scalar[Self.dtype]:
-        """Get element at flat index — returns typed Scalar[Self.dtype].
+    fn __getitem__(self, index: Int) raises -> Scalar[Self.dt]:
+        """Get element at flat index — returns typed Scalar[Self.dt].
 
         For contiguous tensors, the flat index maps directly to a memory
         offset. For non-contiguous tensors (e.g., after transpose), the
@@ -268,7 +268,7 @@ struct Tensor[dtype: DType = DType.float32](
                 row-major order of the tensor's shape).
 
         Returns:
-            The value at the given index as Scalar[Self.dtype].
+            The value at the given index as Scalar[Self.dt].
 
         Raises:
             Error: If index is out of bounds.
@@ -294,8 +294,8 @@ struct Tensor[dtype: DType = DType.float32](
         # Contiguous — direct indexed access (auto-scales, no * dtype_size)
         return self._data[index]
 
-    fn __setitem__(mut self, index: Int, value: Scalar[Self.dtype]) raises:
-        """Set element at flat index — accepts typed Scalar[Self.dtype].
+    fn __setitem__(mut self, index: Int, value: Scalar[Self.dt]) raises:
+        """Set element at flat index — accepts typed Scalar[Self.dt].
 
         Args:
             index: The flat index to set.
@@ -336,7 +336,7 @@ struct Tensor[dtype: DType = DType.float32](
 
     fn dtype(self) -> DType:
         """Return the element data type (compile-time constant)."""
-        return Self.dtype
+        return Self.dt
 
     fn ndim(self) -> Int:
         """Return the number of dimensions (rank)."""
@@ -425,7 +425,7 @@ struct Tensor[dtype: DType = DType.float32](
         var shape_copy = List[Int]()
         for i in range(len(self._shape)):
             shape_copy.append(self._shape[i])
-        var result = ExTensor(shape_copy, Self.dtype)
+        var result = ExTensor(shape_copy, Self.dt)
 
         # --- Tear down the temporary ExTensor's independent allocation ---
         # Free the independently allocated data buffer (safe: result is the
@@ -496,7 +496,7 @@ struct Tensor[dtype: DType = DType.float32](
                     result += String(self[i])
                 except:
                     result += "?"
-        result += "], dtype=" + String(Self.dtype) + ")"
+        result += "], dtype=" + String(Self.dt) + ")"
         return result
 
     fn __repr__(self) -> String:
@@ -515,7 +515,7 @@ struct Tensor[dtype: DType = DType.float32](
             shape_str += String(self._shape[i])
         shape_str += "]"
         var result = String("Tensor(shape=") + shape_str
-        result += ", dtype=" + String(Self.dtype)
+        result += ", dtype=" + String(Self.dt)
         result += ", numel=" + String(self._numel)
         result += ", data=["
         if self._numel > TENSOR_PRINT_THRESHOLD:
@@ -558,25 +558,25 @@ struct Tensor[dtype: DType = DType.float32](
         Matches ExTensor._get_dtype_size_static() output for the same dtype.
         """
         # DType size lookup — same logic as ExTensor but resolved at
-        # compile time since Self.dtype is a parameter.
+        # compile time since Self.dt is a parameter.
         @parameter
-        if Self.dtype == DType.float16 or Self.dtype == DType.bfloat16:
+        if Self.dt == DType.float16 or Self.dt == DType.bfloat16:
             return 2
-        elif Self.dtype == DType.float32:
+        elif Self.dt == DType.float32:
             return 4
-        elif Self.dtype == DType.float64:
+        elif Self.dt == DType.float64:
             return 8
         elif (
-            Self.dtype == DType.int8
-            or Self.dtype == DType.uint8
-            or Self.dtype == DType.bool
+            Self.dt == DType.int8
+            or Self.dt == DType.uint8
+            or Self.dt == DType.bool
         ):
             return 1
-        elif Self.dtype == DType.int16 or Self.dtype == DType.uint16:
+        elif Self.dt == DType.int16 or Self.dt == DType.uint16:
             return 2
-        elif Self.dtype == DType.int32 or Self.dtype == DType.uint32:
+        elif Self.dt == DType.int32 or Self.dt == DType.uint32:
             return 4
-        elif Self.dtype == DType.int64 or Self.dtype == DType.uint64:
+        elif Self.dt == DType.int64 or Self.dt == DType.uint64:
             return 8
         else:
             return 4  # Default fallback

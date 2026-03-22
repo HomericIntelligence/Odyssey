@@ -16,6 +16,7 @@ Tests cover:
 from testing import assert_true, assert_almost_equal
 from shared.tensor.tensor import Tensor
 from shared.core.extensor import AnyTensor, zeros
+from shared.core.tensor_conversion import any_to_tensor
 
 
 fn test_refcount_shared_on_as_any() raises:
@@ -36,7 +37,7 @@ fn test_refcount_shared_on_as_tensor() raises:
     var any_t = zeros([4], DType.float32)
     any_t._set_float32(0, Float32(0.25))
 
-    var t = any_t.as_tensor[DType.float32]()
+    var t = any_to_tensor[DType.float32](any_t)
 
     assert_almost_equal(Float32(t[0]), Float32(0.25), atol=1e-6)
     print("PASS: test_refcount_shared_on_as_tensor")
@@ -47,7 +48,7 @@ fn _make_tensor_from_anytensor() raises -> Tensor[DType.float32]:
     var any_t = zeros([4], DType.float32)
     any_t._set_float32(0, Float32(1.5))
     any_t._set_float32(1, Float32(0.5))
-    return any_t.as_tensor[DType.float32]()
+    return any_to_tensor[DType.float32](any_t)
     # any_t is destroyed here — ASAP destruction
 
 
@@ -91,8 +92,8 @@ fn test_tensor_multiple_conversions() raises:
     var any_t = zeros([4], DType.float32)
     any_t._set_float32(0, Float32(0.5))
 
-    var t1 = any_t.as_tensor[DType.float32]()
-    var t2 = any_t.as_tensor[DType.float32]()
+    var t1 = any_to_tensor[DType.float32](any_t)
+    var t2 = any_to_tensor[DType.float32](any_t)
 
     assert_almost_equal(Float32(t1[0]), Float32(0.5), atol=1e-6)
     assert_almost_equal(Float32(t2[0]), Float32(0.5), atol=1e-6)

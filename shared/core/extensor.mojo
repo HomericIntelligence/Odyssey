@@ -3404,12 +3404,17 @@ struct AnyTensor(
         Creates a Tensor[dtype] that shares the same data buffer and refcount.
         The dtype parameter must match self._dtype at runtime.
 
-        Args:
+        Note: Due to circular import constraints (extensor.mojo cannot import
+        shared.tensor.tensor at module level), this method cannot declare
+        Tensor[dtype] as a return type. Use the standalone `any_to_tensor()`
+        function from shared.core.tensor_conversion instead, or construct
+        Tensor[dtype] directly via its internal constructor.
+
+        Parameters:
             dtype: The compile-time DType parameter (must match self._dtype).
 
         Raises:
-            Error: If dtype doesn't match self._dtype, or if Tensor[dtype]
-                is not yet available.
+            Error: Always raises — use standalone conversion functions instead.
         """
         if self._dtype != dtype:
             raise Error(
@@ -3418,8 +3423,10 @@ struct AnyTensor(
                 + " but as_tensor called with "
                 + String(dtype)
             )
-        # TODO: Wire up after Tensor[dtype] is available in shared.tensor.tensor
-        raise Error("as_tensor: not yet implemented — awaiting Tensor[dtype] struct")
+        raise Error(
+            "as_tensor: use standalone any_to_tensor() from"
+            " shared.core.tensor_conversion instead"
+        )
 
     # ============================================================================
     # Utility Methods
