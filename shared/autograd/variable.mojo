@@ -1,6 +1,6 @@
 """Variable - Autograd-enabled tensor wrapper.
 
-Provides automatic differentiation capabilities by wrapping ExTensor with
+Provides automatic differentiation capabilities by wrapping AnyTensor with
 gradient tracking and computation graph recording.
 
 This module implements a tape-based autograd system similar to PyTorch's eager
@@ -8,7 +8,7 @@ mode execution, where operations are recorded during the forward pass and
 replayed in reverse during backward propagation.
 
 Key Concepts:
-- Variable wraps an ExTensor and adds requires_grad flag and grad storage
+- Variable wraps an AnyTensor and adds requires_grad flag and grad storage
 - Operations on Variables are recorded in a gradient tape
 - Calling .backward(tape) triggers automatic gradient computation via chain rule
 - Gradients accumulate across multiple backward passes (call tape.clear() to reset)
@@ -36,7 +36,7 @@ Examples:
     print(tape.get_grad(y.id))  # dLoss/dy
 """
 
-from shared.core import ExTensor, ones_like, zeros_like
+from shared.core import AnyTensor, ones_like, zeros_like
 from shared.core import add, subtract, multiply, divide
 from shared.core import relu, sigmoid, tanh
 from shared.core import sum, mean
@@ -64,9 +64,9 @@ from shared.autograd.tape import (
 struct Variable(Copyable, Movable):
     """Tensor wrapper with automatic differentiation support.
 
-        Variable extends ExTensor with gradient tracking capabilities. Each Variable
+        Variable extends AnyTensor with gradient tracking capabilities. Each Variable
         maintains:
-        - data: The actual tensor values (ExTensor)
+        - data: The actual tensor values (AnyTensor)
         - id: Unique identifier for tape tracking
         - requires_grad: Whether to track operations for this variable
 
@@ -74,7 +74,7 @@ struct Variable(Copyable, Movable):
         itself. This allows for gradient accumulation and cleanup via the tape.
 
         Attributes:
-            data: The underlying ExTensor containing values.
+            data: The underlying AnyTensor containing values.
             id: Unique identifier for gradient tracking.
             requires_grad: Flag indicating whether this Variable participates in autograd.
 
@@ -84,13 +84,13 @@ struct Variable(Copyable, Movable):
             gradient computation.
     """
 
-    var data: ExTensor
+    var data: AnyTensor
     var id: Int
     var requires_grad: Bool
 
     fn __init__(
         out self,
-        var data: ExTensor,
+        var data: AnyTensor,
         requires_grad: Bool,
         mut tape: GradientTape,
     ) raises:
@@ -126,7 +126,7 @@ struct Variable(Copyable, Movable):
 
     fn __init__(
         out self,
-        var data: ExTensor,
+        var data: AnyTensor,
         requires_grad: Bool,
         id: Int,
     ):
@@ -174,18 +174,18 @@ struct Variable(Copyable, Movable):
         var grad = ones_like(self.data)
         tape.backward(self.id, grad^)
 
-    fn detach(self) -> ExTensor:
+    fn detach(self) -> AnyTensor:
         """Get the underlying tensor without gradient tracking.
 
         Useful for breaking the computation graph when you want to use values
         without tracking gradients.
 
         Returns:
-            The underlying ExTensor (copy).
+            The underlying AnyTensor (copy).
 
         Examples:
             var x = Variable(data, True, tape).
-            var y = x.detach()  # y is just an ExTensor, no gradient tracking.
+            var y = x.detach()  # y is just an AnyTensor, no gradient tracking.
         """
         return self.data
 

@@ -57,7 +57,7 @@ Guidelines for Implementation:
     5. Add docstrings with concrete examples showing usage.
 """
 
-from .extensor import ExTensor
+from .extensor import AnyTensor
 
 
 struct GradientPair(Copyable, Movable):
@@ -78,12 +78,12 @@ struct GradientPair(Copyable, Movable):
         ```
     """
 
-    var grad_a: ExTensor
+    var grad_a: AnyTensor
     """Gradient with respect to first input."""
-    var grad_b: ExTensor
+    var grad_b: AnyTensor
     """Gradient with respect to second input."""
 
-    fn __init__(out self, var grad_a: ExTensor, var grad_b: ExTensor):
+    fn __init__(out self, var grad_a: AnyTensor, var grad_b: AnyTensor):
         """Initialize gradient pair.
 
         Args:
@@ -114,18 +114,18 @@ struct GradientTriple(Copyable, Movable):
         ```
     """
 
-    var grad_input: ExTensor
+    var grad_input: AnyTensor
     """Gradient with respect to input activation."""
-    var grad_weights: ExTensor
+    var grad_weights: AnyTensor
     """Gradient with respect to weights."""
-    var grad_bias: ExTensor
+    var grad_bias: AnyTensor
     """Gradient with respect to bias."""
 
     fn __init__(
         out self,
-        var grad_input: ExTensor,
-        var grad_weights: ExTensor,
-        var grad_bias: ExTensor,
+        var grad_input: AnyTensor,
+        var grad_weights: AnyTensor,
+        var grad_bias: AnyTensor,
     ):
         """Initialize gradient triple.
 
@@ -161,21 +161,21 @@ struct GradientQuad(Copyable, Movable):
         ```
     """
 
-    var grad_a: ExTensor
+    var grad_a: AnyTensor
     """Gradient with respect to first input."""
-    var grad_b: ExTensor
+    var grad_b: AnyTensor
     """Gradient with respect to second input."""
-    var grad_c: ExTensor
+    var grad_c: AnyTensor
     """Gradient with respect to third input."""
-    var grad_d: ExTensor
+    var grad_d: AnyTensor
     """Gradient with respect to fourth input."""
 
     fn __init__(
         out self,
-        var grad_a: ExTensor,
-        var grad_b: ExTensor,
-        var grad_c: ExTensor,
-        var grad_d: ExTensor,
+        var grad_a: AnyTensor,
+        var grad_b: AnyTensor,
+        var grad_c: AnyTensor,
+        var grad_d: AnyTensor,
     ):
         """Initialize gradient quad.
 
@@ -209,12 +209,12 @@ struct Conv2dNoBiasGradient(Copyable, Movable):
         ```
     """
 
-    var grad_input: ExTensor
+    var grad_input: AnyTensor
     """Gradient with respect to input activation."""
-    var grad_weights: ExTensor
+    var grad_weights: AnyTensor
     """Gradient with respect to convolution kernel."""
 
-    fn __init__(out self, var grad_input: ExTensor, var grad_weights: ExTensor):
+    fn __init__(out self, var grad_input: AnyTensor, var grad_weights: AnyTensor):
         """Initialize conv2d no-bias gradient.
 
         Args:
@@ -243,12 +243,12 @@ struct DepthwiseConv2dNoBiasGradient(Copyable, Movable):
         ```
     """
 
-    var grad_input: ExTensor
+    var grad_input: AnyTensor
     """Gradient with respect to input activation."""
-    var grad_weights: ExTensor
+    var grad_weights: AnyTensor
     """Gradient with respect to depthwise convolution kernel."""
 
-    fn __init__(out self, var grad_input: ExTensor, var grad_weights: ExTensor):
+    fn __init__(out self, var grad_input: AnyTensor, var grad_weights: AnyTensor):
         """Initialize depthwise conv2d no-bias gradient.
 
         Args:
@@ -284,21 +284,21 @@ struct DepthwiseSeparableConv2dGradient(Copyable, Movable):
         ```
     """
 
-    var grad_input: ExTensor
+    var grad_input: AnyTensor
     """Gradient with respect to input activation."""
-    var grad_depthwise_kernel: ExTensor
+    var grad_depthwise_kernel: AnyTensor
     """Gradient with respect to depthwise convolution kernel."""
-    var grad_pointwise_kernel: ExTensor
+    var grad_pointwise_kernel: AnyTensor
     """Gradient with respect to pointwise convolution kernel."""
-    var grad_bias: ExTensor
+    var grad_bias: AnyTensor
     """Gradient with respect to bias."""
 
     fn __init__(
         out self,
-        var grad_input: ExTensor,
-        var grad_depthwise_kernel: ExTensor,
-        var grad_pointwise_kernel: ExTensor,
-        var grad_bias: ExTensor,
+        var grad_input: AnyTensor,
+        var grad_depthwise_kernel: AnyTensor,
+        var grad_pointwise_kernel: AnyTensor,
+        var grad_bias: AnyTensor,
     ):
         """Initialize depthwise separable conv2d gradient.
 
