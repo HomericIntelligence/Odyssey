@@ -42,7 +42,7 @@ Reference: https://data-apis.org/array-api/latest/API_specification/index.html
 from collections import List
 from memory import UnsafePointer, memset_zero, alloc, bitcast
 from sys.info import simd_width_of
-from math import ceildiv, sqrt, log, cos, sin, floor as math_floor
+from math import ceildiv, sqrt, log, cos, sin
 from utils.numerics import inf as numeric_inf, neg_inf as numeric_neg_inf
 from random import random_float64, seed as random_seed
 from hashlib.hasher import Hasher
@@ -1654,11 +1654,9 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        @always_inline
-        fn _add[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
-            return x + y
+        from shared.core.arithmetic import add
 
-        return _anytensor_binary_arith[_add](self, other)
+        return add(self, other)
 
     fn __sub__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise subtraction: a - b.
@@ -1672,11 +1670,9 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        @always_inline
-        fn _sub[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
-            return x - y
+        from shared.core.arithmetic import subtract
 
-        return _anytensor_binary_arith[_sub](self, other)
+        return subtract(self, other)
 
     fn __mul__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise multiplication: a * b.
@@ -1690,11 +1686,9 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        @always_inline
-        fn _mul[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
-            return x * y
+        from shared.core.arithmetic import multiply
 
-        return _anytensor_binary_arith[_mul](self, other)
+        return multiply(self, other)
 
     fn __truediv__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise division: a / b.
@@ -1709,11 +1703,9 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes or division by zero.
 
         """
-        @always_inline
-        fn _div[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
-            return x / y
+        from shared.core.arithmetic import divide
 
-        return _anytensor_binary_arith[_div](self, other)
+        return divide(self, other)
 
     fn __floordiv__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise floor division: a // b.
@@ -1727,11 +1719,9 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes or division by zero.
         """
-        @always_inline
-        fn _floordiv[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
-            return math_floor(x / y).cast[T]()
+        from shared.core.arithmetic import floor_divide
 
-        return _anytensor_binary_arith[_floordiv](self, other)
+        return floor_divide(self, other)
 
     fn __mod__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise modulo: a % b.
@@ -1745,11 +1735,9 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        @always_inline
-        fn _mod[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
-            return x - math_floor(x / y).cast[T]() * y
+        from shared.core.arithmetic import modulo
 
-        return _anytensor_binary_arith[_mod](self, other)
+        return modulo(self, other)
 
     fn __pow__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise power: a ** b.
@@ -1763,11 +1751,9 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        @always_inline
-        fn _pow[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
-            return x**y
+        from shared.core.arithmetic import power
 
-        return _anytensor_binary_arith[_pow](self, other)
+        return power(self, other)
 
     fn __matmul__(self, other: AnyTensor) raises -> AnyTensor:
         """Matrix multiplication: a @ b.
@@ -3003,11 +2989,9 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes.
 
         """
-        @always_inline
-        fn _sub[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
-            return x - y
+        from shared.core.arithmetic import subtract
 
-        return _anytensor_binary_arith[_sub](other, self)
+        return subtract(other, self)
 
     fn __rmul__(self, other: AnyTensor) raises -> AnyTensor:
         """Reflected multiplication: other * self (commutative, so same as __mul__).
@@ -3025,11 +3009,9 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes or division by zero.
 
         """
-        @always_inline
-        fn _div[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
-            return x / y
+        from shared.core.arithmetic import divide
 
-        return _anytensor_binary_arith[_div](other, self)
+        return divide(other, self)
 
     # In-place operators - mutate self instead of creating new tensor
     fn __iadd__(mut self, other: AnyTensor) raises:
@@ -3039,15 +3021,9 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes or dtypes.
 
         """
-        var result = self.__add__(other)
-        # Copy result data into self (must match shape/dtype)
-        if result.numel() == self.numel() and result.dtype() == self.dtype():
-            for i in range(self._numel):
-                self._set_float64(i, result._get_float64(i))
-        else:
-            raise Error(
-                "In-place operation requires matching shapes and dtypes"
-            )
+        from shared.core.arithmetic import add
+
+        self = add(self, other)
 
     fn __isub__(mut self, other: AnyTensor) raises:
         """In-place subtraction: `self -= other`.
@@ -3056,15 +3032,9 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes or dtypes.
 
         """
-        var result = self.__sub__(other)
-        # Copy result data into self (must match shape/dtype)
-        if result.numel() == self.numel() and result.dtype() == self.dtype():
-            for i in range(self._numel):
-                self._set_float64(i, result._get_float64(i))
-        else:
-            raise Error(
-                "In-place operation requires matching shapes and dtypes"
-            )
+        from shared.core.arithmetic import subtract
+
+        self = subtract(self, other)
 
     fn __imul__(mut self, other: AnyTensor) raises:
         """In-place multiplication: `self *= other`.
@@ -3073,15 +3043,9 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes or dtypes.
 
         """
-        var result = self.__mul__(other)
-        # Copy result data into self (must match shape/dtype)
-        if result.numel() == self.numel() and result.dtype() == self.dtype():
-            for i in range(self._numel):
-                self._set_float64(i, result._get_float64(i))
-        else:
-            raise Error(
-                "In-place operation requires matching shapes and dtypes"
-            )
+        from shared.core.arithmetic import multiply
+
+        self = multiply(self, other)
 
     fn __itruediv__(mut self, other: AnyTensor) raises:
         """In-place division: `self /= other`.
@@ -3090,15 +3054,9 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes or dtypes, or division by zero.
 
         """
-        var result = self.__truediv__(other)
-        # Copy result data into self (must match shape/dtype)
-        if result.numel() == self.numel() and result.dtype() == self.dtype():
-            for i in range(self._numel):
-                self._set_float64(i, result._get_float64(i))
-        else:
-            raise Error(
-                "In-place operation requires matching shapes and dtypes"
-            )
+        from shared.core.arithmetic import divide
+
+        self = divide(self, other)
 
     # Unary operators - operate on single tensor
     fn __neg__(self) raises -> AnyTensor:
@@ -3108,69 +3066,9 @@ struct AnyTensor(
             Error: If tensor allocation fails.
 
         """
-        # Create result tensor with same shape and dtype
-        var result = AnyTensor(self._shape, self._dtype)
+        from shared.core.elementwise import negate
 
-        # Negate each element based on dtype
-        if self._dtype == DType.float32:
-            var self_ptr = self._data.bitcast[Float32]()
-            var result_ptr = result._data.bitcast[Float32]()
-            for i in range(self._numel):
-                result_ptr[i] = -self_ptr[i]
-        elif self._dtype == DType.float64:
-            var self_ptr = self._data.bitcast[Float64]()
-            var result_ptr = result._data.bitcast[Float64]()
-            for i in range(self._numel):
-                result_ptr[i] = -self_ptr[i]
-        elif self._dtype == DType.float16:
-            var self_ptr = self._data.bitcast[Float16]()
-            var result_ptr = result._data.bitcast[Float16]()
-            for i in range(self._numel):
-                result_ptr[i] = -self_ptr[i]
-        elif self._dtype == DType.int8:
-            var self_ptr = self._data.bitcast[Int8]()
-            var result_ptr = result._data.bitcast[Int8]()
-            for i in range(self._numel):
-                result_ptr[i] = -self_ptr[i]
-        elif self._dtype == DType.int16:
-            var self_ptr = self._data.bitcast[Int16]()
-            var result_ptr = result._data.bitcast[Int16]()
-            for i in range(self._numel):
-                result_ptr[i] = -self_ptr[i]
-        elif self._dtype == DType.int32:
-            var self_ptr = self._data.bitcast[Int32]()
-            var result_ptr = result._data.bitcast[Int32]()
-            for i in range(self._numel):
-                result_ptr[i] = -self_ptr[i]
-        elif self._dtype == DType.int64:
-            var self_ptr = self._data.bitcast[Int64]()
-            var result_ptr = result._data.bitcast[Int64]()
-            for i in range(self._numel):
-                result_ptr[i] = -self_ptr[i]
-        elif self._dtype == DType.uint8:
-            var self_ptr = self._data.bitcast[UInt8]()
-            var result_ptr = result._data.bitcast[UInt8]()
-            for i in range(self._numel):
-                result_ptr[i] = -self_ptr[i]
-        elif self._dtype == DType.uint16:
-            var self_ptr = self._data.bitcast[UInt16]()
-            var result_ptr = result._data.bitcast[UInt16]()
-            for i in range(self._numel):
-                result_ptr[i] = -self_ptr[i]
-        elif self._dtype == DType.uint32:
-            var self_ptr = self._data.bitcast[UInt32]()
-            var result_ptr = result._data.bitcast[UInt32]()
-            for i in range(self._numel):
-                result_ptr[i] = -self_ptr[i]
-        elif self._dtype == DType.uint64:
-            var self_ptr = self._data.bitcast[UInt64]()
-            var result_ptr = result._data.bitcast[UInt64]()
-            for i in range(self._numel):
-                result_ptr[i] = -self_ptr[i]
-        else:
-            raise Error("Unsupported dtype for negation")
-
-        return result^
+        return negate(self)
 
     fn __pos__(self) raises -> AnyTensor:
         """Positive: +self (returns a copy).
@@ -3190,7 +3088,9 @@ struct AnyTensor(
             Error: If operation fails.
 
         """
-        return _anytensor_abs(self)
+        from shared.core.elementwise import abs
+
+        return abs(self)
 
     fn __len__(self) -> Int:
         """Return the size of the first dimension.
@@ -3781,81 +3681,12 @@ struct AnyTensor(
 # ============================================================================
 # Private Broadcasting Helpers
 # ============================================================================
-# These helpers implement element-wise operations with NumPy-style broadcasting
-# for use by AnyTensor's operator overloads (__add__, __sub__, etc.).
-# They are defined here (rather than in arithmetic.mojo/comparison.mojo) to
-# break the circular import chain: any_tensor <- arithmetic <- any_tensor.
+# Comparison helper implements element-wise comparison with NumPy-style
+# broadcasting for use by AnyTensor's comparison overloads (__eq__, __lt__, etc.).
+# Defined here (rather than in comparison.mojo) to break the circular import
+# chain: any_tensor <- comparison <- any_tensor. Arithmetic operators now
+# delegate to shared.core.arithmetic via local-scope imports.
 # See Issue #4513.
-
-
-fn _anytensor_binary_arith[
-    op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
-](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
-    """Apply a compile-time-typed binary arithmetic op with broadcasting."""
-    if a._dtype != b._dtype:
-        raise Error("Cannot operate on tensors with different dtypes")
-
-    var result_shape = broadcast_shapes(a.shape(), b.shape())
-    var strides_a = compute_broadcast_strides(a.shape(), result_shape)
-    var strides_b = compute_broadcast_strides(b.shape(), result_shape)
-
-    var total_elems = 1
-    for i in range(len(result_shape)):
-        total_elems *= result_shape[i]
-
-    var result_strides = List[Int]()
-    var stride = 1
-    for i in range(len(result_shape) - 1, -1, -1):
-        result_strides.append(stride)
-        stride *= result_shape[i]
-    var result_strides_final = List[Int]()
-    for i in range(len(result_strides) - 1, -1, -1):
-        result_strides_final.append(result_strides[i])
-
-    var ordinal = dtype_to_ordinal(a._dtype)
-
-    @parameter
-    fn _apply[dtype: DType]() raises -> AnyTensor:
-        var result = AnyTensor(result_shape, dtype)
-        var a_ptr = a._data.bitcast[Scalar[dtype]]()
-        var b_ptr = b._data.bitcast[Scalar[dtype]]()
-        var r_ptr = result._data.bitcast[Scalar[dtype]]()
-        for result_idx in range(total_elems):
-            var idx_a = 0
-            var idx_b = 0
-            var temp_idx = result_idx
-            for dim in range(len(result_shape)):
-                var coord = temp_idx // result_strides_final[dim]
-                temp_idx = temp_idx % result_strides_final[dim]
-                idx_a += coord * strides_a[dim]
-                idx_b += coord * strides_b[dim]
-            r_ptr[result_idx] = op[dtype](a_ptr[idx_a], b_ptr[idx_b])
-        return result^
-
-    if ordinal == DTYPE_FLOAT16:
-        return _apply[DType.float16]()
-    elif ordinal == DTYPE_FLOAT32:
-        return _apply[DType.float32]()
-    elif ordinal == DTYPE_FLOAT64:
-        return _apply[DType.float64]()
-    elif ordinal == DTYPE_INT8:
-        return _apply[DType.int8]()
-    elif ordinal == DTYPE_INT16:
-        return _apply[DType.int16]()
-    elif ordinal == DTYPE_INT32:
-        return _apply[DType.int32]()
-    elif ordinal == DTYPE_INT64:
-        return _apply[DType.int64]()
-    elif ordinal == DTYPE_UINT8:
-        return _apply[DType.uint8]()
-    elif ordinal == DTYPE_UINT16:
-        return _apply[DType.uint16]()
-    elif ordinal == DTYPE_UINT32:
-        return _apply[DType.uint32]()
-    elif ordinal == DTYPE_UINT64:
-        return _apply[DType.uint64]()
-    else:
-        raise Error("Unsupported dtype for binary operation")
 
 
 fn _anytensor_compare_op[
@@ -3989,46 +3820,6 @@ fn _anytensor_matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         "AnyTensor.__matmul__ only supports 2D x 2D. "
         "For 1D/batched matmul use shared.core.matrix.matmul directly."
     )
-
-
-fn _anytensor_abs(tensor: AnyTensor) raises -> AnyTensor:
-    """Absolute value for AnyTensor.__abs__ (avoids importing elementwise)."""
-    var result = AnyTensor(tensor._shape, tensor._dtype)
-    var ordinal = dtype_to_ordinal(tensor._dtype)
-
-    @parameter
-    fn _apply[dtype: DType]():
-        var src = tensor._data.bitcast[Scalar[dtype]]()
-        var dst = result._data.bitcast[Scalar[dtype]]()
-        for i in range(tensor._numel):
-            var v = src[i]
-            dst[i] = -v if v < Scalar[dtype](0) else v
-
-    if ordinal == DTYPE_FLOAT16:
-        _apply[DType.float16]()
-    elif ordinal == DTYPE_FLOAT32:
-        _apply[DType.float32]()
-    elif ordinal == DTYPE_FLOAT64:
-        _apply[DType.float64]()
-    elif ordinal == DTYPE_INT8:
-        _apply[DType.int8]()
-    elif ordinal == DTYPE_INT16:
-        _apply[DType.int16]()
-    elif ordinal == DTYPE_INT32:
-        _apply[DType.int32]()
-    elif ordinal == DTYPE_INT64:
-        _apply[DType.int64]()
-    elif ordinal == DTYPE_UINT8:
-        _apply[DType.uint8]()
-    elif ordinal == DTYPE_UINT16:
-        _apply[DType.uint16]()
-    elif ordinal == DTYPE_UINT32:
-        _apply[DType.uint32]()
-    elif ordinal == DTYPE_UINT64:
-        _apply[DType.uint64]()
-    else:
-        raise Error("abs: unsupported dtype")
-    return result^
 
 
 # ============================================================================
