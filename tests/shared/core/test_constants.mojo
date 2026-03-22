@@ -4,7 +4,7 @@ Tests verify that all constants are properly defined with correct values
 and that they match their documented usage throughout the codebase.
 """
 
-from shared.core.numerical_constants import (
+from shared.base.numerical_constants import (
     EPSILON_DIV,
     EPSILON_LOSS,
     EPSILON_NORM,

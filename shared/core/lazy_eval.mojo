@@ -26,8 +26,8 @@ from .lazy_expression import (
     OP_SCALAR_MUL,
     OP_SCALAR_DIV,
 )
-from .broadcasting import compute_broadcast_strides
-from .dtype_ordinal import (
+from shared.base.broadcasting import compute_broadcast_strides
+from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,

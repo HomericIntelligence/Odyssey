@@ -46,9 +46,9 @@ from math import ceildiv, sqrt, log, cos, sin, floor as math_floor
 from utils.numerics import inf as numeric_inf, neg_inf as numeric_neg_inf
 from random import random_float64, seed as random_seed
 from hashlib.hasher import Hasher
-from shared.core.memory_pool import pooled_alloc, pooled_free
-from shared.core.broadcasting import broadcast_shapes, compute_broadcast_strides, are_shapes_broadcastable
-from shared.core.dtype_ordinal import (
+from shared.base.memory_pool import pooled_alloc, pooled_free
+from shared.base.broadcasting import broadcast_shapes, compute_broadcast_strides, are_shapes_broadcastable
+from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,

@@ -6,11 +6,11 @@ Implements element-wise arithmetic operations following NumPy-style broadcasting
 from collections import List
 from math import nan
 from .any_tensor import AnyTensor, full
-from .broadcasting import broadcast_shapes, compute_broadcast_strides
+from shared.base.broadcasting import broadcast_shapes, compute_broadcast_strides
 from .shape import as_contiguous
 from .gradient_types import GradientPair
 from shared.tensor.tensor import Tensor
-from .dtype_ordinal import (
+from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,

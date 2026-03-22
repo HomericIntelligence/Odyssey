@@ -21,7 +21,7 @@ Example:
 
 from collections import List
 from memory import UnsafePointer, memset_zero, alloc
-from shared.core.memory_pool import pooled_alloc, pooled_free
+from shared.base.memory_pool import pooled_alloc, pooled_free
 from shared.tensor.tensor_traits import TensorLike
 from shared.core.any_tensor import AnyTensor
 
