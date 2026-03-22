@@ -14,7 +14,7 @@ from tests.shared.conftest import (
 from shared.data.datasets import TensorDataset
 from shared.data.loaders import BatchLoader
 from shared.data.samplers import SequentialSampler, RandomSampler
-from shared.core.extensor import ExTensor
+from shared.core.extensor import AnyTensor
 
 
 # ============================================================================
@@ -33,7 +33,7 @@ fn test_batch_loader_all_samples_per_epoch() raises:
         data_list.append(Float32(i))
     var data_shape = List[Int]()
     data_shape.append(100)
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     for i in range(len(data_list)):
         data._set_float32(i, data_list[i])
     var labels_list = List[Int]()
@@ -41,7 +41,7 @@ fn test_batch_loader_all_samples_per_epoch() raises:
         labels_list.append(i)
     var labels_shape = List[Int]()
     labels_shape.append(100)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     for i in range(len(labels_list)):
         labels._set_int32(i, Int32(labels_list[i]))
     var dataset = TensorDataset(data^, labels^)
@@ -70,7 +70,7 @@ fn test_batch_loader_efficient_batching() raises:
         data_list.append(Float32(i))
     var data_shape = List[Int]()
     data_shape.append(1000)
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     for i in range(len(data_list)):
         data._set_float32(i, data_list[i])
     var labels_list = List[Int]()
@@ -78,7 +78,7 @@ fn test_batch_loader_efficient_batching() raises:
         labels_list.append(i)
     var labels_shape = List[Int]()
     labels_shape.append(1000)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     for i in range(len(labels_list)):
         labels._set_int32(i, Int32(labels_list[i]))
     var dataset = TensorDataset(data^, labels^)
@@ -101,7 +101,7 @@ fn test_batch_loader_iteration_speed() raises:
         data_list.append(Float32(i))
     var data_shape = List[Int]()
     data_shape.append(3200)
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     for i in range(len(data_list)):
         data._set_float32(i, data_list[i])
     var labels_list = List[Int]()
@@ -109,7 +109,7 @@ fn test_batch_loader_iteration_speed() raises:
         labels_list.append(i)
     var labels_shape = List[Int]()
     labels_shape.append(3200)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     for i in range(len(labels_list)):
         labels._set_int32(i, Int32(labels_list[i]))
     var dataset = TensorDataset(data^, labels^)

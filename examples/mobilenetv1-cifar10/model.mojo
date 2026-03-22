@@ -20,7 +20,7 @@ References:
 """
 
 from shared.core import (
-    ExTensor,
+    AnyTensor,
     zeros,
     conv2d,
     batch_norm2d,
@@ -35,12 +35,12 @@ from shared.core.shape import conv2d_output_shape
 
 
 fn depthwise_conv2d(
-    x: ExTensor,
-    weights: ExTensor,
-    bias: ExTensor,
+    x: AnyTensor,
+    weights: AnyTensor,
+    bias: AnyTensor,
     stride: Int = 1,
     padding: Int = 1,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Depthwise convolution: Apply one filter per input channel.
 
     Unlike standard convolution that mixes all input channels, depthwise
@@ -147,20 +147,20 @@ struct DepthwiseSeparableBlock:
     """
 
     # Depthwise convolution (3×3, per-channel)
-    var dw_weights: ExTensor  # (in_channels, 1, 3, 3)
-    var dw_bias: ExTensor  # (in_channels,)
-    var dw_bn_gamma: ExTensor
-    var dw_bn_beta: ExTensor
-    var dw_bn_running_mean: ExTensor
-    var dw_bn_running_var: ExTensor
+    var dw_weights: AnyTensor  # (in_channels, 1, 3, 3)
+    var dw_bias: AnyTensor  # (in_channels,)
+    var dw_bn_gamma: AnyTensor
+    var dw_bn_beta: AnyTensor
+    var dw_bn_running_mean: AnyTensor
+    var dw_bn_running_var: AnyTensor
 
     # Pointwise convolution (1×1, channel mixing)
-    var pw_weights: ExTensor  # (out_channels, in_channels, 1, 1)
-    var pw_bias: ExTensor  # (out_channels,)
-    var pw_bn_gamma: ExTensor
-    var pw_bn_beta: ExTensor
-    var pw_bn_running_mean: ExTensor
-    var pw_bn_running_var: ExTensor
+    var pw_weights: AnyTensor  # (out_channels, in_channels, 1, 1)
+    var pw_bias: AnyTensor  # (out_channels,)
+    var pw_bn_gamma: AnyTensor
+    var pw_bn_beta: AnyTensor
+    var pw_bn_running_mean: AnyTensor
+    var pw_bn_running_var: AnyTensor
 
     fn __init__(
         out self, in_channels: Int, out_channels: Int, stride: Int = 1
@@ -199,8 +199,8 @@ struct DepthwiseSeparableBlock:
         self.pw_bn_running_var = constant(pw_bias_shape, 1.0)
 
     fn forward(
-        mut self, x: ExTensor, stride: Int, training: Bool
-    ) raises -> ExTensor:
+        mut self, x: AnyTensor, stride: Int, training: Bool
+    ) raises -> AnyTensor:
         """Forward pass through depthwise separable block.
 
         Args:
@@ -255,12 +255,12 @@ struct MobileNetV1:
     """
 
     # Initial standard convolution
-    var initial_conv_weights: ExTensor
-    var initial_conv_bias: ExTensor
-    var initial_bn_gamma: ExTensor
-    var initial_bn_beta: ExTensor
-    var initial_bn_running_mean: ExTensor
-    var initial_bn_running_var: ExTensor
+    var initial_conv_weights: AnyTensor
+    var initial_conv_bias: AnyTensor
+    var initial_bn_gamma: AnyTensor
+    var initial_bn_beta: AnyTensor
+    var initial_bn_running_mean: AnyTensor
+    var initial_bn_running_var: AnyTensor
 
     # Depthwise separable blocks (13 total)
     var ds_block_1: DepthwiseSeparableBlock  # 32 → 64, stride=1
@@ -278,8 +278,8 @@ struct MobileNetV1:
     var ds_block_13: DepthwiseSeparableBlock  # 1024 → 1024, stride=1
 
     # Final classifier
-    var fc_weights: ExTensor
-    var fc_bias: ExTensor
+    var fc_weights: AnyTensor
+    var fc_bias: AnyTensor
 
     fn __init__(out self, num_classes: Int = 10) raises:
         """Initialize MobileNetV1 model.
@@ -327,7 +327,7 @@ struct MobileNetV1:
         var fc_bias_shape: List[Int] = [num_classes]
         self.fc_bias = zeros(fc_bias_shape, DType.float32)
 
-    fn forward(mut self, x: ExTensor, training: Bool = True) raises -> ExTensor:
+    fn forward(mut self, x: AnyTensor, training: Bool = True) raises -> AnyTensor:
         """Forward pass through MobileNetV1.
 
         Args:
@@ -438,7 +438,7 @@ struct MobileNetV1:
         var param_names = get_model_parameter_names("mobilenetv1")
 
         # Create empty list for loaded parameters
-        var loaded_params: List[ExTensor] = []
+        var loaded_params: List[AnyTensor] = []
 
         # Load using shared utility
         load_model_weights(loaded_params, weights_dir, param_names)
@@ -837,7 +837,7 @@ struct MobileNetV1:
         )
 
         # Collect all parameters in order
-        var parameters: List[ExTensor] = []
+        var parameters: List[AnyTensor] = []
 
         # Initial convolution parameters
         parameters.append(self.initial_conv_weights)

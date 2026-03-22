@@ -20,7 +20,7 @@ from tests.shared.conftest import (
     assert_less,
     TestFixtures,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.extensor import AnyTensor, zeros, ones, full
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import maxpool2d, maxpool2d_backward
 from shared.core.linear import linear, linear_backward
@@ -41,10 +41,10 @@ struct SimpleMLP:
     Architecture: input(10) -> fc1(10->20) -> relu -> fc2(20->5) -> output.
     """
 
-    var fc1_weights: ExTensor
-    var fc1_bias: ExTensor
-    var fc2_weights: ExTensor
-    var fc2_bias: ExTensor
+    var fc1_weights: AnyTensor
+    var fc1_bias: AnyTensor
+    var fc2_weights: AnyTensor
+    var fc2_bias: AnyTensor
 
     fn __init__(out self) raises:
         """Initialize with small random weights."""
@@ -68,7 +68,7 @@ struct SimpleMLP:
         fc2_b_shape.append(5)
         self.fc2_bias = zeros(fc2_b_shape, DType.float32)
 
-    fn forward(self, input: ExTensor) raises -> ExTensor:
+    fn forward(self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: fc1 -> relu -> fc2."""
         var fc1_out = linear(input, self.fc1_weights, self.fc1_bias)
         var relu_out = relu(fc1_out)
@@ -76,7 +76,7 @@ struct SimpleMLP:
         return fc2_out^
 
     fn train_step(
-        mut self, input: ExTensor, labels: ExTensor, learning_rate: Float32
+        mut self, input: AnyTensor, labels: AnyTensor, learning_rate: Float32
     ) raises -> Float32:
         """Execute one training step with manual backprop.
 
@@ -117,7 +117,7 @@ struct SimpleMLP:
         return loss
 
 
-fn _sgd_update(mut param: ExTensor, grad: ExTensor, lr: Float32) raises:
+fn _sgd_update(mut param: AnyTensor, grad: AnyTensor, lr: Float32) raises:
     """Update parameter: param = param - lr * grad."""
     var numel = param.numel()
     var param_data = param._data.bitcast[Float32]()
@@ -128,7 +128,7 @@ fn _sgd_update(mut param: ExTensor, grad: ExTensor, lr: Float32) raises:
 
 fn create_dummy_batch(
     batch_size: Int, input_dim: Int, num_classes: Int
-) raises -> Tuple[ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create dummy batch for testing.
 
     Returns:
@@ -150,7 +150,7 @@ fn create_dummy_batch(
     for i in range(batch_size):
         labels_data[i * num_classes] = Float32(1.0)
 
-    return Tuple[ExTensor, ExTensor](input^, labels^)
+    return Tuple[AnyTensor, AnyTensor](input^, labels^)
 
 
 # ============================================================================

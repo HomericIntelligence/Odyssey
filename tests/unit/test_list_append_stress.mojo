@@ -1,8 +1,8 @@
 """Stress test for List[Int] append operations.
 
-The crash occurs during List[Int].append(0) in ExTensor.__init__ at line 107.
+The crash occurs during List[Int].append(0) in AnyTensor.__init__ at line 107.
 This test stresses List operations to identify if there's a memory issue with
-List itself or with the specific pattern used in ExTensor.
+List itself or with the specific pattern used in AnyTensor.
 """
 
 from collections import List
@@ -61,7 +61,7 @@ fn test_list_rapid_allocations() raises:
 
 
 fn test_list_append_pattern_from_extensor() raises:
-    """Test the exact append pattern used in ExTensor.__init__.
+    """Test the exact append pattern used in AnyTensor.__init__.
 
     This reproduces the pattern from lines 104-110:
         self._strides = List[Int]()
@@ -72,7 +72,7 @@ fn test_list_append_pattern_from_extensor() raises:
             self._strides[i] = stride
             stride *= self._shape[i]
     """
-    print("\n=== Test 4: ExTensor Stride Pattern ===")
+    print("\n=== Test 4: AnyTensor Stride Pattern ===")
 
     # Test case 1: 1D shape
     print("\nTest case 1: 1D shape [2]")
@@ -154,7 +154,7 @@ fn test_list_reverse_iteration_append() raises:
 
         var lst = List[Int]()
 
-        # Reverse iteration append (like in ExTensor)
+        # Reverse iteration append (like in AnyTensor)
         print("    Reverse iteration append...")
         for _ in range(size - 1, -1, -1):
             lst.append(0)
@@ -218,7 +218,7 @@ fn test_list_zero_append_stress() raises:
         lst1.append(0)
     print("    len =", len(lst1))
 
-    # Pattern 2: Sequential backward (like ExTensor)
+    # Pattern 2: Sequential backward (like AnyTensor)
     print("\n  Pattern 2: Backward loop, forward append of zeros...")
     var lst2 = List[Int]()
     for _ in range(100 - 1, -1, -1):

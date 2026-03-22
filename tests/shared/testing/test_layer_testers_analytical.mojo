@@ -8,7 +8,7 @@ Example usage:
 """
 
 from shared.testing import LayerTester
-from shared.core.extensor import ExTensor, zeros
+from shared.core.extensor import AnyTensor, zeros
 from shared.core.initializers import kaiming_uniform
 
 

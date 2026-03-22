@@ -7,7 +7,7 @@ Tests gradient finite checking, gradient clipping by value and norm,
 and basic FP16 tensor operations.
 """
 
-from shared.core.extensor import ExTensor, full
+from shared.core.extensor import AnyTensor, full
 from shared.training.mixed_precision import (
     check_gradients_finite,
     clip_gradients_by_norm,
@@ -102,7 +102,7 @@ fn test_clip_gradients_by_value() raises:
 
     # Create gradients with various values (5 elements)
     var shape: List[Int] = [5]
-    var grads = ExTensor(shape, DType.float32)
+    var grads = AnyTensor(shape, DType.float32)
 
     # Set some values manually
     grads._set_float64(0, -2.0)
@@ -130,7 +130,7 @@ fn test_clip_gradients_by_norm() raises:
 
     # Create gradients with known norm (3 elements)
     var shape: List[Int] = [3]
-    var grads = ExTensor(shape, DType.float32)
+    var grads = AnyTensor(shape, DType.float32)
 
     # Set values: [3.0, 4.0, 0.0] -> norm = sqrt(9 + 16) = 5.0
     grads._set_float64(0, 3.0)

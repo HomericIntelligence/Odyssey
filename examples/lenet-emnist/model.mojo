@@ -19,7 +19,7 @@ References:
     - Reference Implementation: https://github.com/mattwang44/LeNet-from-Scratch
 """
 
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import maxpool2d, maxpool2d_backward
 from shared.core.linear import linear, linear_backward
@@ -138,16 +138,16 @@ struct LeNet5(Model, Movable):
     var num_classes: Int
 
     # Layer parameters
-    var conv1_kernel: ExTensor
-    var conv1_bias: ExTensor
-    var conv2_kernel: ExTensor
-    var conv2_bias: ExTensor
-    var fc1_weights: ExTensor
-    var fc1_bias: ExTensor
-    var fc2_weights: ExTensor
-    var fc2_bias: ExTensor
-    var fc3_weights: ExTensor
-    var fc3_bias: ExTensor
+    var conv1_kernel: AnyTensor
+    var conv1_bias: AnyTensor
+    var conv2_kernel: AnyTensor
+    var conv2_bias: AnyTensor
+    var fc1_weights: AnyTensor
+    var fc1_bias: AnyTensor
+    var fc2_weights: AnyTensor
+    var fc2_bias: AnyTensor
+    var fc3_weights: AnyTensor
+    var fc3_bias: AnyTensor
 
     fn __init__(out self, num_classes: Int = 47) raises:
         """Initialize LeNet-5 model with random weights.
@@ -222,7 +222,7 @@ struct LeNet5(Model, Movable):
         var fc3_bias_shape: List[Int] = [num_classes]
         self.fc3_bias = zeros(fc3_bias_shape, DType.float32)
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass through LeNet-5.
 
         Args:
@@ -284,7 +284,7 @@ struct LeNet5(Model, Movable):
 
         return output^
 
-    fn predict(mut self, input: ExTensor) raises -> Int:
+    fn predict(mut self, input: AnyTensor) raises -> Int:
         """Predict class for a single input.
 
         Args:
@@ -320,7 +320,7 @@ struct LeNet5(Model, Movable):
             - etc.
         """
         # Collect all parameters
-        var parameters: List[ExTensor] = []
+        var parameters: List[AnyTensor] = []
         parameters.append(self.conv1_kernel)
         parameters.append(self.conv1_bias)
         parameters.append(self.conv2_kernel)
@@ -351,7 +351,7 @@ struct LeNet5(Model, Movable):
         var param_names = get_model_parameter_names("lenet5")
 
         # Create empty list for loaded parameters
-        var loaded_params: List[ExTensor] = []
+        var loaded_params: List[AnyTensor] = []
 
         # Load using shared utility
         load_model_weights(loaded_params, weights_dir, param_names)
@@ -371,16 +371,16 @@ struct LeNet5(Model, Movable):
     fn update_parameters(
         mut self,
         learning_rate: Float32,
-        grad_conv1_kernel: ExTensor,
-        grad_conv1_bias: ExTensor,
-        grad_conv2_kernel: ExTensor,
-        grad_conv2_bias: ExTensor,
-        grad_fc1_weights: ExTensor,
-        grad_fc1_bias: ExTensor,
-        grad_fc2_weights: ExTensor,
-        grad_fc2_bias: ExTensor,
-        grad_fc3_weights: ExTensor,
-        grad_fc3_bias: ExTensor,
+        grad_conv1_kernel: AnyTensor,
+        grad_conv1_bias: AnyTensor,
+        grad_conv2_kernel: AnyTensor,
+        grad_conv2_bias: AnyTensor,
+        grad_fc1_weights: AnyTensor,
+        grad_fc1_bias: AnyTensor,
+        grad_fc2_weights: AnyTensor,
+        grad_fc2_bias: AnyTensor,
+        grad_fc3_weights: AnyTensor,
+        grad_fc3_bias: AnyTensor,
     ) raises:
         """Update parameters using SGD.
 
@@ -409,7 +409,7 @@ struct LeNet5(Model, Movable):
         _sgd_update(self.fc3_weights, grad_fc3_weights, learning_rate)
         _sgd_update(self.fc3_bias, grad_fc3_bias, learning_rate)
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Return all trainable parameters.
 
         Returns:
@@ -419,7 +419,7 @@ struct LeNet5(Model, Movable):
             This method copies the parameter tensors. For in-place updates,
             use update_parameters() instead.
         """
-        var params: List[ExTensor] = []
+        var params: List[AnyTensor] = []
         params.append(self.conv1_kernel)
         params.append(self.conv1_bias)
         params.append(self.conv2_kernel)
@@ -445,7 +445,7 @@ struct LeNet5(Model, Movable):
         pass
 
 
-fn _sgd_update(mut param: ExTensor, grad: ExTensor, lr: Float32) raises:
+fn _sgd_update(mut param: AnyTensor, grad: AnyTensor, lr: Float32) raises:
     """SGD parameter update: param = param - lr * grad"""
     var numel = param.numel()
     var param_data = param._data.bitcast[Float32]()

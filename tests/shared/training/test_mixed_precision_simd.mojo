@@ -4,7 +4,7 @@ Tests SIMD-optimized FP16→FP32 and FP32→FP16 conversions with various tensor
 and edge cases.
 """
 
-from shared.core.extensor import ExTensor, full
+from shared.core.extensor import AnyTensor, full
 from shared.training.mixed_precision import (
     convert_to_fp32_master,
     update_model_from_master,
@@ -17,7 +17,7 @@ fn test_convert_fp16_to_fp32_small() raises:
     print("Testing FP16→FP32 conversion (small)...")
 
     # Create small FP16 tensor with known values
-    var fp16_params = ExTensor([8], DType.float16)
+    var fp16_params = AnyTensor([8], DType.float16)
     var fp16_ptr = fp16_params._data.bitcast[Float16]()
 
     # Fill with test values
@@ -49,7 +49,7 @@ fn test_convert_fp16_to_fp32_medium() raises:
     print("Testing FP16→FP32 conversion (medium)...")
 
     # Create medium FP16 tensor (256 elements)
-    var fp16_params = ExTensor([16, 16], DType.float16)
+    var fp16_params = AnyTensor([16, 16], DType.float16)
     var fp16_ptr = fp16_params._data.bitcast[Float16]()
 
     # Fill with special values
@@ -87,7 +87,7 @@ fn test_convert_fp16_to_fp32_large() raises:
     print("Testing FP16→FP32 conversion (large)...")
 
     # Create large FP16 tensor (1024x1024 = 1M elements)
-    var fp16_params = ExTensor([1024, 1024], DType.float16)
+    var fp16_params = AnyTensor([1024, 1024], DType.float16)
     var fp16_ptr = fp16_params._data.bitcast[Float16]()
 
     # Fill with incrementing values
@@ -115,7 +115,7 @@ fn test_convert_fp32_to_fp16_small() raises:
     print("Testing FP32→FP16 conversion (small)...")
 
     # Create small FP32 tensor with known values
-    var fp32_master = ExTensor([8], DType.float32)
+    var fp32_master = AnyTensor([8], DType.float32)
     var fp32_ptr = fp32_master._data.bitcast[Float32]()
 
     # Fill with test values
@@ -123,7 +123,7 @@ fn test_convert_fp32_to_fp16_small() raises:
         fp32_ptr[i] = Float32(i + 1)
 
     # Create FP16 target
-    var fp16_model = ExTensor([8], DType.float16)
+    var fp16_model = AnyTensor([8], DType.float16)
 
     # Update from master
     update_model_from_master(fp16_model, fp32_master)
@@ -146,7 +146,7 @@ fn test_convert_fp32_to_fp16_medium() raises:
     print("Testing FP32→FP16 conversion (medium)...")
 
     # Create medium FP32 tensor
-    var fp32_master = ExTensor([16, 16], DType.float32)
+    var fp32_master = AnyTensor([16, 16], DType.float32)
     var fp32_ptr = fp32_master._data.bitcast[Float32]()
 
     # Fill with special values
@@ -164,7 +164,7 @@ fn test_convert_fp32_to_fp16_medium() raises:
         fp32_ptr[i] = test_values[i % 7]
 
     # Create FP16 target
-    var fp16_model = ExTensor([16, 16], DType.float16)
+    var fp16_model = AnyTensor([16, 16], DType.float16)
 
     # Update from master
     update_model_from_master(fp16_model, fp32_master)
@@ -187,7 +187,7 @@ fn test_convert_fp32_to_fp16_large() raises:
     print("Testing FP32→FP16 conversion (large)...")
 
     # Create large FP32 tensor
-    var fp32_master = ExTensor([1024, 1024], DType.float32)
+    var fp32_master = AnyTensor([1024, 1024], DType.float32)
     var fp32_ptr = fp32_master._data.bitcast[Float32]()
 
     # Fill with incrementing values
@@ -195,7 +195,7 @@ fn test_convert_fp32_to_fp16_large() raises:
         fp32_ptr[i] = Float32((i % 100) / 100.0)
 
     # Create FP16 target
-    var fp16_model = ExTensor([1024, 1024], DType.float16)
+    var fp16_model = AnyTensor([1024, 1024], DType.float16)
 
     # Update from master
     update_model_from_master(fp16_model, fp32_master)
@@ -218,7 +218,7 @@ fn test_roundtrip_fp16_fp32_fp16() raises:
     print("Testing roundtrip FP16→FP32→FP16...")
 
     # Create initial FP16 tensor
-    var fp16_original = ExTensor([64], DType.float16)
+    var fp16_original = AnyTensor([64], DType.float16)
     var fp16_ptr = fp16_original._data.bitcast[Float16]()
 
     for i in range(64):
@@ -228,7 +228,7 @@ fn test_roundtrip_fp16_fp32_fp16() raises:
     var fp32_intermediate = convert_to_fp32_master(fp16_original)
 
     # Convert back to FP16
-    var fp16_roundtrip = ExTensor([64], DType.float16)
+    var fp16_roundtrip = AnyTensor([64], DType.float16)
     update_model_from_master(fp16_roundtrip, fp32_intermediate)
 
     # Verify roundtrip preserves values (with FP16 precision limits)
@@ -249,7 +249,7 @@ fn test_convert_fp32_to_fp32() raises:
     print("Testing FP32→FP32 conversion (SIMD path)...")
 
     # Create FP32 tensor
-    var fp32_params = ExTensor([64], DType.float32)
+    var fp32_params = AnyTensor([64], DType.float32)
     var fp32_ptr = fp32_params._data.bitcast[Float32]()
 
     for i in range(64):
@@ -283,7 +283,7 @@ fn test_non_power_of_2_sizes() raises:
 
     for size in test_sizes:
         # Test FP16→FP32
-        var fp16_tensor = ExTensor([size], DType.float16)
+        var fp16_tensor = AnyTensor([size], DType.float16)
         var fp16_ptr = fp16_tensor._data.bitcast[Float16]()
 
         for i in range(size):
@@ -301,13 +301,13 @@ fn test_non_power_of_2_sizes() raises:
             )
 
         # Test FP32→FP16
-        var fp32_tensor = ExTensor([size], DType.float32)
+        var fp32_tensor = AnyTensor([size], DType.float32)
         fp32_ptr = fp32_tensor._data.bitcast[Float32]()
 
         for i in range(size):
             fp32_ptr[i] = Float32(i % 10)
 
-        var fp16_result = ExTensor([size], DType.float16)
+        var fp16_result = AnyTensor([size], DType.float16)
         update_model_from_master(fp16_result, fp32_tensor)
         fp16_ptr = fp16_result._data.bitcast[Float16]()
 

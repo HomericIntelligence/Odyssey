@@ -18,7 +18,7 @@ References:
 
 from model import LeNet5
 from shared.data import load_idx_labels, load_idx_images, normalize_images
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 from shared.utils.arg_parser import ArgumentParser
 from shared.training.metrics import (
     evaluate_with_predict,
@@ -137,7 +137,7 @@ fn parse_args() raises -> InferenceConfig:
     return InferenceConfig(weights_dir, data_dir)
 
 
-fn infer_single(mut model: LeNet5, image: ExTensor) raises -> PredictionResult:
+fn infer_single(mut model: LeNet5, image: AnyTensor) raises -> PredictionResult:
     """Run inference on a single image.
 
     Args:
@@ -172,7 +172,7 @@ fn infer_single(mut model: LeNet5, image: ExTensor) raises -> PredictionResult:
 
 
 fn evaluate_test_set(
-    mut model: LeNet5, images: ExTensor, labels: ExTensor
+    mut model: LeNet5, images: AnyTensor, labels: AnyTensor
 ) raises -> EvaluationResult:
     """Evaluate model on entire test set.
 

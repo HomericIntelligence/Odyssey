@@ -12,7 +12,7 @@ Split from test_base.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
 from shared.core.extensor import (
-    ExTensor,
+    AnyTensor,
     zeros,
     ones,
     full,
@@ -102,7 +102,7 @@ fn test_compute_gradient_norm_l2() raises:
     ptr[0] = 3.0
     ptr[1] = 4.0
 
-    var params: List[ExTensor] = []
+    var params: List[AnyTensor] = []
     params.append(tensor)
 
     var norm = compute_gradient_norm(params, "L2")
@@ -129,7 +129,7 @@ fn test_compute_gradient_norm_l1() raises:
     ptr[1] = 2.0
     ptr[2] = 3.0
 
-    var params: List[ExTensor] = []
+    var params: List[AnyTensor] = []
     params.append(tensor)
 
     var norm = compute_gradient_norm(params, "L1")
@@ -160,7 +160,7 @@ fn test_compute_gradient_norm_multiple_tensors() raises:
 
     var tensor2 = full(shape2, 0.0, DType.float64)
 
-    var params: List[ExTensor] = []
+    var params: List[AnyTensor] = []
     params.append(tensor1)
     params.append(tensor2)
 

@@ -4,7 +4,7 @@
 """Tests for PrecisionConfig module (part 2 of 2): scaling, gradients, and clipping."""
 
 from shared.training.precision_config import PrecisionConfig, PrecisionMode
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.extensor import AnyTensor, zeros, ones
 
 
 fn test_scale_unscale() raises:

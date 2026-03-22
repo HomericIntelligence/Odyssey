@@ -21,7 +21,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from shared.core.dropout import dropout, dropout2d, dropout_backward, dropout2d_backward
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
+from shared.core.extensor import AnyTensor, zeros, ones, zeros_like, ones_like
 
 
 # ============================================================================

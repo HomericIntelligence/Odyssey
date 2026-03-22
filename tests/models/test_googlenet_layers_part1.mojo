@@ -23,7 +23,7 @@ from tests.shared.conftest import (
     assert_shape,
     assert_true,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full, randn
+from shared.core.extensor import AnyTensor, zeros, ones, full, randn
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import maxpool2d, global_avgpool2d
 from shared.core.linear import linear
@@ -47,24 +47,24 @@ struct InceptionModule:
     """
 
     # Branch 1: 1×1 convolution
-    var conv1x1_1_weights: ExTensor
-    var conv1x1_1_bias: ExTensor
+    var conv1x1_1_weights: AnyTensor
+    var conv1x1_1_bias: AnyTensor
 
     # Branch 2: 1×1 reduce → 3×3
-    var conv1x1_2_weights: ExTensor
-    var conv1x1_2_bias: ExTensor
-    var conv3x3_weights: ExTensor
-    var conv3x3_bias: ExTensor
+    var conv1x1_2_weights: AnyTensor
+    var conv1x1_2_bias: AnyTensor
+    var conv3x3_weights: AnyTensor
+    var conv3x3_bias: AnyTensor
 
     # Branch 3: 1×1 reduce → 5×5
-    var conv1x1_3_weights: ExTensor
-    var conv1x1_3_bias: ExTensor
-    var conv5x5_weights: ExTensor
-    var conv5x5_bias: ExTensor
+    var conv1x1_3_weights: AnyTensor
+    var conv1x1_3_bias: AnyTensor
+    var conv5x5_weights: AnyTensor
+    var conv5x5_bias: AnyTensor
 
     # Branch 4: pool → 1×1 projection
-    var conv1x1_4_weights: ExTensor
-    var conv1x1_4_bias: ExTensor
+    var conv1x1_4_weights: AnyTensor
+    var conv1x1_4_bias: AnyTensor
 
     fn __init__(
         out self,
@@ -125,7 +125,7 @@ struct InceptionModule:
         )
         self.conv1x1_4_bias = zeros([pool_proj], DType.float32)
 
-    fn forward(self, x: ExTensor) raises -> ExTensor:
+    fn forward(self, x: AnyTensor) raises -> AnyTensor:
         """Forward pass through all 4 branches with concatenation.
 
         Returns:
@@ -169,8 +169,8 @@ struct InceptionModule:
 
 
 fn concatenate_depthwise(
-    t1: ExTensor, t2: ExTensor, t3: ExTensor, t4: ExTensor
-) raises -> ExTensor:
+    t1: AnyTensor, t2: AnyTensor, t3: AnyTensor, t4: AnyTensor
+) raises -> AnyTensor:
     """Concatenate 4 tensors along the channel dimension (axis=1).
 
     Args:

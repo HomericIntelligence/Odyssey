@@ -21,10 +21,10 @@ from shared.data.transforms import (
     CenterCrop,
     RandomErasing,
 )
-from shared.core.extensor import ExTensor
+from shared.core.extensor import AnyTensor
 
 # Type comptime for compatibility
-comptime Tensor = ExTensor
+comptime Tensor = AnyTensor
 
 
 # ============================================================================
@@ -48,7 +48,7 @@ fn test_random_horizontal_flip_probability() raises:
         data_list.append(Float32(i + 1))
     var data_shape = List[Int]()
     data_shape.append(len(data_list))
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     for i in range(len(data_list)):
         data._set_float32(i, data_list[i])
 
@@ -79,7 +79,7 @@ fn test_random_flip_always() raises:
         data_list.append(Float32(i + 1))
     var data_shape = List[Int]()
     data_shape.append(len(data_list))
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     for i in range(len(data_list)):
         data._set_float32(i, data_list[i])
 
@@ -104,7 +104,7 @@ fn test_random_flip_never() raises:
         data_list.append(Float32(i + 1))
     var data_shape = List[Int]()
     data_shape.append(len(data_list))
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     for i in range(len(data_list)):
         data._set_float32(i, data_list[i])
 
@@ -133,7 +133,7 @@ fn test_random_erasing_basic() raises:
         data_list.append(1.0)
     var data_shape = List[Int]()
     data_shape.append(len(data_list))
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     for i in range(len(data_list)):
         data._set_float32(i, data_list[i])
 
@@ -162,7 +162,7 @@ fn test_random_erasing_scale() raises:
         data_list.append(1.0)
     var data_shape = List[Int]()
     data_shape.append(len(data_list))
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     for i in range(len(data_list)):
         data._set_float32(i, data_list[i])
 
@@ -199,7 +199,7 @@ fn test_compose_random_augmentations() raises:
         data_list.append(1.0)
     var data_shape = List[Int]()
     data_shape.append(len(data_list))
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     for i in range(len(data_list)):
         data._set_float32(i, data_list[i])
 
@@ -230,7 +230,7 @@ fn test_augmentation_determinism_in_pipeline() raises:
         data_list.append(1.0)
     var data_shape = List[Int]()
     data_shape.append(len(data_list))
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     for i in range(len(data_list)):
         data._set_float32(i, data_list[i])
 

@@ -33,7 +33,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.extensor import ExTensor, zeros, ones, full, randn
+from shared.core.extensor import AnyTensor, zeros, ones, full, randn
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.linear import linear, linear_backward
 from shared.core.activation import relu, relu_backward
@@ -49,9 +49,9 @@ from shared.core.loss import cross_entropy
 
 
 fn resnet18_forward_simplified(
-    x: ExTensor,
+    x: AnyTensor,
     training: Bool = True,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Simplified ResNet-18 forward pass for testing.
 
     Uses small tensor sizes and representative architecture.
@@ -82,9 +82,9 @@ fn resnet18_forward_simplified(
     var running_mean = zeros([64], DType.float32)
     var running_var = ones([64], DType.float32)
 
-    var bn_out: ExTensor
-    var _: ExTensor
-    var __: ExTensor
+    var bn_out: AnyTensor
+    var _: AnyTensor
+    var __: AnyTensor
     (bn_out, _, __) = batch_norm2d(
         x_out,
         gamma,
@@ -210,13 +210,13 @@ fn resnet18_forward_simplified(
 
 
 fn _forward_basic_block(
-    x: ExTensor,
+    x: AnyTensor,
     in_channels: Int,
     out_channels: Int,
     stride: Int,
     use_projection: Bool,
     training: Bool,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Forward pass for a single basic block.
 
     Args:
@@ -248,9 +248,9 @@ fn _forward_basic_block(
     var running_mean1 = zeros([out_channels], DType.float32)
     var running_var1 = ones([out_channels], DType.float32)
 
-    var bn1_out: ExTensor
-    var _: ExTensor
-    var __: ExTensor
+    var bn1_out: AnyTensor
+    var _: AnyTensor
+    var __: AnyTensor
     (bn1_out, _, __) = batch_norm2d(
         conv1_out,
         gamma1,
@@ -280,7 +280,7 @@ fn _forward_basic_block(
     var running_mean2 = zeros([out_channels], DType.float32)
     var running_var2 = ones([out_channels], DType.float32)
 
-    var bn2_out: ExTensor
+    var bn2_out: AnyTensor
     (bn2_out, _, __) = batch_norm2d(
         conv2_out,
         gamma2,
@@ -291,7 +291,7 @@ fn _forward_basic_block(
     )
 
     # Skip connection
-    var skip: ExTensor
+    var skip: AnyTensor
     if use_projection:
         # Projection shortcut: 1x1 conv + BN
         var proj_weight_shape = List[Int]()
@@ -311,9 +311,9 @@ fn _forward_basic_block(
         var running_mean_proj = zeros([out_channels], DType.float32)
         var running_var_proj = ones([out_channels], DType.float32)
 
-        var bn_proj_out: ExTensor
-        var _bn_proj_rm: ExTensor
-        var _bn_proj_rv: ExTensor
+        var bn_proj_out: AnyTensor
+        var _bn_proj_rm: AnyTensor
+        var _bn_proj_rv: AnyTensor
         (bn_proj_out, _bn_proj_rm, _bn_proj_rv) = batch_norm2d(
             proj_out,
             gamma_proj,

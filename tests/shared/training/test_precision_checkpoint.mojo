@@ -18,7 +18,7 @@ from tests.shared.conftest import (
     TestFixtures,
 )
 from shared.training.precision_config import PrecisionConfig, PrecisionMode
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.extensor import AnyTensor, zeros, ones, full
 from collections import List
 
 

@@ -12,8 +12,8 @@ high test load. Split from test_emnist.mojo. See docs/adr/ADR-009-heap-corruptio
 """
 
 from testing import assert_equal, assert_true, assert_false, assert_raises
-from shared.data import EMNISTDataset, ExTensorDataset, Dataset
-from shared.core.extensor import ExTensor
+from shared.data import EMNISTDataset, AnyTensorDataset, Dataset
+from shared.core.extensor import AnyTensor
 
 
 # ============================================================================

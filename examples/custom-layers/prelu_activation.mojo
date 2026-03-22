@@ -11,10 +11,10 @@ Usage:
 See documentation: docs/advanced/custom-layers.md
 """
 
-from shared.core import ExTensor, zeros, clip
+from shared.core import AnyTensor, zeros, clip
 
 
-fn prelu_simple(input: ExTensor, alpha: Float32) raises -> ExTensor:
+fn prelu_simple(input: AnyTensor, alpha: Float32) raises -> AnyTensor:
     """Apply PReLU activation element-wise.
 
     Args:
@@ -54,7 +54,7 @@ fn main() raises:
     input_data.append(0.0)
     input_data.append(1.0)
     input_data.append(2.0)
-    var input = ExTensor(input_data^)
+    var input = AnyTensor(input_data^)
 
     print("Input values:")
     var input_ptr = input._data.bitcast[Float32]()

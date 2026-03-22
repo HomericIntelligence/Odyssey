@@ -10,11 +10,11 @@ ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 high test load. Split from test_training_loop.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 
-Issue #2728: Enable Training Loop Tests with SimpleMLP and ExTensor.randn.
+Issue #2728: Enable Training Loop Tests with SimpleMLP and AnyTensor.randn.
 Tests enabled after core infrastructure was completed:
 - MSELoss.compute() implementation
 - SGD/TrainingLoop integration via autograd
-- ExTensor.randn export from shared.core
+- AnyTensor.randn export from shared.core
 """
 
 from tests.shared.conftest import (

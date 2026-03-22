@@ -22,7 +22,7 @@ Training Infrastructure Tests (#303-322):
 """
 
 from testing import assert_true, assert_false, assert_equal, assert_almost_equal
-from shared.core.extensor import ExTensor
+from shared.core.extensor import AnyTensor
 from shared.training.trainer_interface import TrainerConfig, TrainingMetrics
 from shared.training.loops.training_loop import TrainingLoop
 from shared.training.loops.validation_loop import ValidationLoop

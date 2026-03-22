@@ -1,6 +1,6 @@
 """High-level integration tests for dataset abstractions (Part 2 of 2).
 
-Tests cover edge cases and advanced access patterns for ExTensorDataset.
+Tests cover edge cases and advanced access patterns for AnyTensorDataset.
 Individual unit tests exist in datasets/ subdirectory.
 
 ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
@@ -20,10 +20,10 @@ from tests.shared.conftest import (
     assert_greater,
     TestFixtures,
 )
-from shared.data.datasets import ExTensorDataset
+from shared.data.datasets import AnyTensorDataset
 from shared.data.loaders import BatchLoader
 from shared.data.samplers import SequentialSampler
-from shared.core.extensor import ExTensor
+from shared.core.extensor import AnyTensor
 
 
 # ============================================================================
@@ -32,7 +32,7 @@ from shared.core.extensor import ExTensor
 
 
 fn test_dataset_small_size() raises:
-    """Test ExTensorDataset with very small number of samples.
+    """Test AnyTensorDataset with very small number of samples.
 
     Should handle minimal datasets (2-5 samples) correctly.
 
@@ -50,19 +50,19 @@ fn test_dataset_small_size() raises:
     var data_list = List[Float32]()
     data_list.append(1.0)
     data_list.append(2.0)
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     labels_list.append(0)
     labels_list.append(1)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
     assert_equal(dataset.__len__(), 2)
 
 
 fn test_dataset_single_sample() raises:
-    """Test ExTensorDataset with single sample (minimal edge case).
+    """Test AnyTensorDataset with single sample (minimal edge case).
 
     Should handle 1-sample datasets correctly.
 
@@ -80,13 +80,13 @@ fn test_dataset_single_sample() raises:
 
     var data_list = List[Float32]()
     data_list.append(42.0)
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     labels_list.append(99)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
 
     assert_equal(dataset.__len__(), 1)
     var s0 = dataset.__getitem__(0)
@@ -94,7 +94,7 @@ fn test_dataset_single_sample() raises:
 
 
 fn test_dataset_large_size() raises:
-    """Test ExTensorDataset with larger number of samples.
+    """Test AnyTensorDataset with larger number of samples.
 
     Should scale to thousands of samples without issues.
 
@@ -113,19 +113,19 @@ fn test_dataset_large_size() raises:
     var data_list = List[Float32]()
     for i in range(1000):
         data_list.append(Float32(i % 100) / 100.0)
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(1000):
         labels_list.append(i % 10)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
     assert_equal(dataset.__len__(), 1000)
 
 
 fn test_dataset_repeated_access() raises:
-    """Test ExTensorDataset handles repeated access to same sample.
+    """Test AnyTensorDataset handles repeated access to same sample.
 
     Accessing the same index multiple times should always return same sample.
 
@@ -143,14 +143,14 @@ fn test_dataset_repeated_access() raises:
     var data_list = List[Float32]()
     for i in range(10):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(10):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
 
     # Access same sample multiple times
     var s5_a = dataset.__getitem__(5)
@@ -162,7 +162,7 @@ fn test_dataset_repeated_access() raises:
 
 
 fn test_dataset_with_different_batch_sizes() raises:
-    """Test ExTensorDataset works with various batch sizes in loader.
+    """Test AnyTensorDataset works with various batch sizes in loader.
 
     Should integrate with loaders using different batch_size values.
 
@@ -180,14 +180,14 @@ fn test_dataset_with_different_batch_sizes() raises:
     var data_list = List[Float32]()
     for i in range(100):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(100):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
     var dataset_len = dataset.__len__()
 
     # Verify dataset reports correct length

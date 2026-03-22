@@ -9,7 +9,7 @@ from shared.testing import (
     assert_gradients_close,
     relative_error,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.extensor import AnyTensor, zeros, ones, full
 
 
 # ============================================================================

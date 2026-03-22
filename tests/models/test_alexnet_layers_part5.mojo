@@ -8,7 +8,7 @@ Flatten operation, and full forward pass sequence through all AlexNet layers.
 # high test load. Split from test_alexnet_layers.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.extensor import AnyTensor, zeros, ones, full
 from shared.core.conv import conv2d
 from shared.core.pooling import maxpool2d
 from shared.core.linear import linear
@@ -37,7 +37,7 @@ from math import isnan, isinf
 # ============================================================================
 
 
-fn create_conv1_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_conv1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv1 layer parameters (3→64, 11x11 kernel)."""
     var in_channels = 3
     var out_channels = 64
@@ -57,7 +57,7 @@ fn create_conv1_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
     return kernel, bias
 
 
-fn create_conv2_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_conv2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv2 layer parameters (64→192, 5x5 kernel)."""
     var in_channels = 64
     var out_channels = 192
@@ -77,7 +77,7 @@ fn create_conv2_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
     return kernel, bias
 
 
-fn create_conv3_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_conv3_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv3 layer parameters (192→384, 3x3 kernel)."""
     var in_channels = 192
     var out_channels = 384
@@ -97,7 +97,7 @@ fn create_conv3_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
     return kernel, bias
 
 
-fn create_conv4_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_conv4_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv4 layer parameters (384→384, 3x3 kernel)."""
     var in_channels = 384
     var out_channels = 384
@@ -117,7 +117,7 @@ fn create_conv4_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
     return kernel, bias
 
 
-fn create_conv5_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_conv5_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv5 layer parameters (384→256, 3x3 kernel)."""
     var in_channels = 384
     var out_channels = 256
@@ -137,7 +137,7 @@ fn create_conv5_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
     return kernel, bias
 
 
-fn create_fc1_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_fc1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create FC1 layer parameters (9216→4096)."""
     var in_features = 9216  # 256 * 6 * 6
     var out_features = 4096
@@ -151,7 +151,7 @@ fn create_fc1_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
     return weights, bias
 
 
-fn create_fc2_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_fc2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create FC2 layer parameters (4096→4096)."""
     var in_features = 4096
     var out_features = 4096
@@ -165,7 +165,7 @@ fn create_fc2_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
     return weights, bias
 
 
-fn create_fc3_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_fc3_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create FC3 layer parameters (4096→1000)."""
     var in_features = 4096
     var out_features = 1000

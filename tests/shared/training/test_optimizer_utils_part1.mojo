@@ -14,7 +14,7 @@ These tests verify the common utilities available to all optimizer implementatio
 """
 
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
-from shared.core.extensor import ExTensor, zeros, ones, full, zeros_like
+from shared.core.extensor import AnyTensor, zeros, ones, full, zeros_like
 from shared.training.optimizers import (
     initialize_optimizer_state,
     initialize_optimizer_state_from_params,
@@ -49,7 +49,7 @@ fn test_initialize_optimizer_state() raises:
 
 fn test_initialize_optimizer_state_from_params() raises:
     """Test optimizer state initialization from parameters."""
-    var params: List[ExTensor] = []
+    var params: List[AnyTensor] = []
     params.append(ones([2, 3], DType.float32))
     params.append(ones([3], DType.float32))
 
@@ -110,7 +110,7 @@ fn test_compute_global_norm() raises:
     var t1 = full([3], 1.0, DType.float32)
     var t2 = full([4], 2.0, DType.float32)
 
-    var tensors: List[ExTensor] = []
+    var tensors: List[AnyTensor] = []
     tensors.append(t1)
     tensors.append(t2)
 

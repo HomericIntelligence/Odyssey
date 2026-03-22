@@ -94,14 +94,14 @@ fn test_cross_module_computation() raises:
     from shared.core import zeros, ones, relu
     from shared.core.matrix import matmul
     from shared.training import SGD, MSELoss
-    from shared.data import ExTensorDataset
+    from shared.data import AnyTensorDataset
 
     # Create realistic tensors
     var data = zeros([32, 64], DType.float32)  # Batch of 32, features of 64
     var labels = zeros([32, 10], DType.float32)  # 32 samples, 10 classes
 
     # Create dataset
-    var dataset = ExTensorDataset(data, labels)
+    var dataset = AnyTensorDataset(data, labels)
 
     # Create a simple network forward pass
     var weights1 = zeros([64, 128], DType.float32)  # Input layer
@@ -189,14 +189,14 @@ fn test_error_propagation() raises:
     """Test that errors propagate correctly between modules."""
     from shared.core import zeros
     from shared.training import SGD
-    from shared.data import ExTensorDataset
+    from shared.data import AnyTensorDataset
 
     # Test that incompatible tensor shapes fail appropriately
     var good_data = zeros([10, 5], DType.float32)
     var good_labels = zeros([10, 3], DType.float32)
 
     # This should work
-    var good_dataset = ExTensorDataset(good_data, good_labels)
+    var good_dataset = AnyTensorDataset(good_data, good_labels)
     assert_true(len(good_dataset) > 0, "Valid dataset should be created")
 
     # Test optimizer with edge case learning rates
@@ -220,7 +220,7 @@ fn test_integration_stress() raises:
     from shared.core import zeros, ones, relu
     from shared.core.matrix import matmul
     from shared.training import SGD, MSELoss
-    from shared.data import ExTensorDataset
+    from shared.data import AnyTensorDataset
 
     # Create a realistic batch size
     var batch_size = 128
@@ -233,7 +233,7 @@ fn test_integration_stress() raises:
     var train_labels = zeros([batch_size, output_dim], DType.float32)
 
     # Create dataset
-    var dataset = ExTensorDataset(train_data, train_labels)
+    var dataset = AnyTensorDataset(train_data, train_labels)
 
     # Create network parameters
     var w1 = zeros([input_dim, hidden_dim], DType.float32)

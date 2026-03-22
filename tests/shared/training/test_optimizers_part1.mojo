@@ -26,7 +26,7 @@ from tests.shared.conftest import (
     create_test_vector,
     TestFixtures,
 )
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like
+from shared.core.extensor import AnyTensor, zeros, ones, zeros_like
 from shared.training.optimizers.sgd import sgd_step, sgd_step_simple
 from shared.training.optimizers.adam import adam_step, adam_step_simple
 

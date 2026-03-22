@@ -20,7 +20,7 @@ from shared.benchmarking import (
     print_benchmark_report,
     BenchmarkResult,
 )
-from shared.core import ExTensor, ones, zeros
+from shared.core import AnyTensor, ones, zeros
 
 
 # ============================================================================
@@ -45,7 +45,7 @@ struct SimpleNN(Copyable, Movable):
     var output_size: Int
 
 
-fn forward_pass(network: SimpleNN, input_data: ExTensor) raises -> ExTensor:
+fn forward_pass(network: SimpleNN, input_data: AnyTensor) raises -> AnyTensor:
     """Perform a forward pass through the network.
 
     Args:
@@ -66,7 +66,7 @@ fn forward_pass(network: SimpleNN, input_data: ExTensor) raises -> ExTensor:
 
 
 fn training_step(
-    network: SimpleNN, input_data: ExTensor, targets: ExTensor
+    network: SimpleNN, input_data: AnyTensor, targets: AnyTensor
 ) raises -> Float32:
     """Perform a training step.
 

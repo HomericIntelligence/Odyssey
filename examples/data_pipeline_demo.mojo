@@ -29,7 +29,7 @@ See Also:
 """
 
 from shared.data import (
-    ExTensorDataset,
+    AnyTensorDataset,
     BatchLoader,
     RandomSampler,
     SequentialSampler,
@@ -39,7 +39,7 @@ from shared.data import (
     PrefetchDataLoader,
 )
 from shared.data.transforms import Normalize, Compose
-from shared.core.extensor import ExTensor, ones, zeros
+from shared.core.extensor import AnyTensor, ones, zeros
 from collections import List
 
 
@@ -50,7 +50,7 @@ from collections import List
 
 fn create_demo_dataset(
     num_samples: Int = 32, num_classes: Int = 10
-) raises -> Tuple[ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create synthetic training data for demonstration.
 
     Args:
@@ -96,7 +96,7 @@ fn demo_basic_pipeline() raises:
     var images, labels = create_demo_dataset(num_samples=16, num_classes=10)
 
     # Create dataset
-    var dataset = ExTensorDataset(images^, labels^)
+    var dataset = AnyTensorDataset(images^, labels^)
     print("✓ Created dataset with " + String(dataset.__len__()) + " samples")
 
     # Create sampler (Sequential = no shuffling)
@@ -144,7 +144,7 @@ fn demo_transform_pipeline() raises:
     var images, labels = create_demo_dataset(num_samples=16, num_classes=10)
 
     # Create base dataset
-    var dataset = ExTensorDataset(images^, labels^)
+    var dataset = AnyTensorDataset(images^, labels^)
     print("✓ Created dataset with " + String(dataset.__len__()) + " samples")
 
     # Create and apply transform
@@ -190,7 +190,7 @@ fn demo_shuffling_pipeline() raises:
     var images, labels = create_demo_dataset(num_samples=16, num_classes=10)
 
     # Create dataset
-    var dataset = ExTensorDataset(images^, labels^)
+    var dataset = AnyTensorDataset(images^, labels^)
     print("✓ Created dataset with " + String(dataset.__len__()) + " samples")
 
     # Create sampler with shuffling
@@ -227,7 +227,7 @@ fn demo_complete_pipeline() raises:
     var images, labels = create_demo_dataset(num_samples=32, num_classes=10)
 
     # Step 1: Create dataset
-    var dataset = ExTensorDataset(images^, labels^)
+    var dataset = AnyTensorDataset(images^, labels^)
     print(
         "✓ Step 1: Created dataset (" + String(dataset.__len__()) + " samples)"
     )
@@ -273,7 +273,7 @@ fn demo_performance_comparison() raises:
     # Configuration 1: No caching
     print("\nConfiguration 1: Sequential, no caching, no transforms")
     var images1, labels1 = create_demo_dataset(num_samples=64, num_classes=10)
-    var dataset1 = ExTensorDataset(images1^, labels1^)
+    var dataset1 = AnyTensorDataset(images1^, labels1^)
     var sampler1 = SequentialSampler(dataset1.__len__())
     var loader1 = BatchLoader(dataset1^, sampler1^, batch_size=16)
     var batches1 = loader1.__iter__()
@@ -282,7 +282,7 @@ fn demo_performance_comparison() raises:
     # Configuration 2: With transforms
     print("\nConfiguration 2: Sequential with transforms")
     var images2, labels2 = create_demo_dataset(num_samples=64, num_classes=10)
-    var dataset2 = ExTensorDataset(images2^, labels2^)
+    var dataset2 = AnyTensorDataset(images2^, labels2^)
     var normalize2 = Normalize(mean=0.5, std=0.5)
     var transformed2 = TransformedDataset(dataset2^, normalize2^)
     var sampler2 = SequentialSampler(transformed2.__len__())
@@ -295,7 +295,7 @@ fn demo_performance_comparison() raises:
     # Configuration 3: With shuffling and caching
     print("\nConfiguration 3: Random sampling with caching")
     var images3, labels3 = create_demo_dataset(num_samples=64, num_classes=10)
-    var dataset3 = ExTensorDataset(images3^, labels3^)
+    var dataset3 = AnyTensorDataset(images3^, labels3^)
     var cached3 = CachedDataset(dataset3^, max_cache_size=-1)
     var sampler3 = RandomSampler(cached3.__len__())
     var loader3 = BatchLoader(cached3^, sampler3^, batch_size=16)

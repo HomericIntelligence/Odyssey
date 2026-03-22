@@ -10,7 +10,7 @@ This test uses functional layer composition (no AlexNet model class required).
 Tests the same forward-backward pipeline that a full model would use.
 """
 
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.extensor import AnyTensor, zeros, ones
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import maxpool2d
 from shared.core.linear import linear, linear_backward
@@ -39,22 +39,22 @@ from math import isnan, isinf
 fn create_alexnet_parameters(
     dtype: DType,
 ) raises -> Tuple[
-    ExTensor,
-    ExTensor,
-    ExTensor,
-    ExTensor,
-    ExTensor,
-    ExTensor,
-    ExTensor,
-    ExTensor,
-    ExTensor,
-    ExTensor,
-    ExTensor,
-    ExTensor,
-    ExTensor,
-    ExTensor,
-    ExTensor,
-    ExTensor,
+    AnyTensor,
+    AnyTensor,
+    AnyTensor,
+    AnyTensor,
+    AnyTensor,
+    AnyTensor,
+    AnyTensor,
+    AnyTensor,
+    AnyTensor,
+    AnyTensor,
+    AnyTensor,
+    AnyTensor,
+    AnyTensor,
+    AnyTensor,
+    AnyTensor,
+    AnyTensor,
 ]:
     """Create all AlexNet parameters (conv kernels, biases, FC weights, biases).
     """
@@ -121,24 +121,24 @@ fn create_alexnet_parameters(
 
 
 fn alexnet_forward(
-    x: ExTensor,
-    c1_k: ExTensor,
-    c1_b: ExTensor,
-    c2_k: ExTensor,
-    c2_b: ExTensor,
-    c3_k: ExTensor,
-    c3_b: ExTensor,
-    c4_k: ExTensor,
-    c4_b: ExTensor,
-    c5_k: ExTensor,
-    c5_b: ExTensor,
-    fc1_w: ExTensor,
-    fc1_b: ExTensor,
-    fc2_w: ExTensor,
-    fc2_b: ExTensor,
-    fc3_w: ExTensor,
-    fc3_b: ExTensor,
-) raises -> ExTensor:
+    x: AnyTensor,
+    c1_k: AnyTensor,
+    c1_b: AnyTensor,
+    c2_k: AnyTensor,
+    c2_b: AnyTensor,
+    c3_k: AnyTensor,
+    c3_b: AnyTensor,
+    c4_k: AnyTensor,
+    c4_b: AnyTensor,
+    c5_k: AnyTensor,
+    c5_b: AnyTensor,
+    fc1_w: AnyTensor,
+    fc1_b: AnyTensor,
+    fc2_w: AnyTensor,
+    fc2_b: AnyTensor,
+    fc3_w: AnyTensor,
+    fc3_b: AnyTensor,
+) raises -> AnyTensor:
     """Forward pass through AlexNet."""
     # Conv1 + ReLU + MaxPool
     var c1 = conv2d(x, c1_k, c1_b, stride=4, padding=2)

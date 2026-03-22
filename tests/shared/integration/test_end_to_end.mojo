@@ -20,7 +20,7 @@ from tests.shared.conftest import (
     TestFixtures,
 )
 from shared.testing import SimpleMLP
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.extensor import AnyTensor, zeros, ones
 from shared.core.loss import mean_squared_error
 from shared.core.reduction import mean
 from shared.core.activation import softmax
@@ -305,7 +305,7 @@ fn test_model_checkpoint_save_load() raises:
 
     var original_output = model.forward(test_input)
 
-    # Get parameters (List[ExTensor]) for verification
+    # Get parameters (List[AnyTensor]) for verification
     var params = model.parameters()
 
     # Verify we have the expected number of parameters
@@ -478,8 +478,8 @@ fn test_full_pipeline_integration() raises:
 
     # Step 2: Create synthetic dataset
     var n_samples = 10
-    var train_inputs: List[ExTensor] = []
-    var train_targets: List[ExTensor] = []
+    var train_inputs: List[AnyTensor] = []
+    var train_targets: List[AnyTensor] = []
 
     for sample_idx in range(n_samples):
         # Create input

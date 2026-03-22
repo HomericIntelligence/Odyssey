@@ -1,7 +1,7 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_data_integrity.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Data Integrity Tests for ExTensor Quantization Functions (Part 2).
+"""Data Integrity Tests for AnyTensor Quantization Functions (Part 2).
 
 Tests for Phase 3 data integrity fixes:
 - #1912 (DATA-004): Unsafe bitcasts without bounds checks
@@ -14,7 +14,7 @@ Run with: `mojo test_data_integrity_part2.mojo`
 
 from collections import List
 from memory import UnsafePointer
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.extensor import AnyTensor, zeros, ones
 from tests.shared.conftest import assert_equal_int, assert_true
 
 

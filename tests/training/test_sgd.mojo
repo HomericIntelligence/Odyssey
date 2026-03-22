@@ -5,7 +5,7 @@ This module tests the SGD optimizer implementations:
 - sgd_step (SGD with momentum and weight decay)
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.extensor import AnyTensor, zeros, ones, full
 from shared.core.arithmetic import subtract, multiply
 from shared.training.optimizers import sgd_step_simple, sgd_step
 
@@ -16,8 +16,8 @@ fn test_sgd_step_simple_basic() raises:
 
     var shape = List[Int]()
     shape.append(3)
-    var params = ExTensor(shape, DType.float32)
-    var gradients = ExTensor(shape, DType.float32)
+    var params = AnyTensor(shape, DType.float32)
+    var gradients = AnyTensor(shape, DType.float32)
 
     # Initial params: [1, 2, 3]
     params._set_float64(0, 1.0)
@@ -63,7 +63,7 @@ fn test_sgd_step_zero_gradients() raises:
 
     var shape = List[Int]()
     shape.append(3)
-    var params = ExTensor(shape, DType.float32)
+    var params = AnyTensor(shape, DType.float32)
     var gradients = zeros(shape, DType.float32)
 
     # Initial params: [1, 2, 3]
@@ -101,8 +101,8 @@ fn test_sgd_step_large_learning_rate() raises:
 
     var shape = List[Int]()
     shape.append(2)
-    var params = ExTensor(shape, DType.float32)
-    var gradients = ExTensor(shape, DType.float32)
+    var params = AnyTensor(shape, DType.float32)
+    var gradients = AnyTensor(shape, DType.float32)
 
     # Initial params: [10, 20]
     params._set_float64(0, 10.0)
@@ -137,8 +137,8 @@ fn test_sgd_step_negative_gradients() raises:
 
     var shape = List[Int]()
     shape.append(2)
-    var params = ExTensor(shape, DType.float32)
-    var gradients = ExTensor(shape, DType.float32)
+    var params = AnyTensor(shape, DType.float32)
+    var gradients = AnyTensor(shape, DType.float32)
 
     # Initial params: [1, 2]
     params._set_float64(0, 1.0)
@@ -174,8 +174,8 @@ fn test_sgd_step_with_weight_decay() raises:
 
     var shape = List[Int]()
     shape.append(2)
-    var params = ExTensor(shape, DType.float32)
-    var gradients = ExTensor(shape, DType.float32)
+    var params = AnyTensor(shape, DType.float32)
+    var gradients = AnyTensor(shape, DType.float32)
     var velocity = zeros(shape, DType.float32)  # Not used, but required
 
     # Initial params: [1, 2]
@@ -220,7 +220,7 @@ fn test_sgd_multi_step_convergence() raises:
 
     var shape = List[Int]()
     shape.append(1)
-    var params = ExTensor(shape, DType.float32)
+    var params = AnyTensor(shape, DType.float32)
 
     # Start at params = 10, try to reach target = 0
     params._set_float64(0, 10.0)
@@ -236,7 +236,7 @@ fn test_sgd_multi_step_convergence() raises:
         var error = current - target
         var grad = 2.0 * error
 
-        var gradients = ExTensor(shape, DType.float32)
+        var gradients = AnyTensor(shape, DType.float32)
         gradients._set_float64(0, grad)
 
         # Update

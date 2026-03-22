@@ -11,7 +11,7 @@ from tests.shared.conftest import (
     TestFixtures,
 )
 from shared.data.datasets import TensorDataset
-from shared.core.extensor import ExTensor
+from shared.core.extensor import AnyTensor
 
 
 # ============================================================================
@@ -157,9 +157,9 @@ fn test_tensor_dataset_negative_indexing() raises:
     dataset[-2] the second-to-last, etc.
     """
     var data_list: List[Float32] = [Float32(1.0), Float32(2.0), Float32(3.0)]
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
     var labels_list: List[Int] = [0, 1, 2]
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
     var dataset = TensorDataset(data^, labels^)
 
     var last_sample = dataset[-1]
@@ -178,9 +178,9 @@ fn test_tensor_dataset_out_of_bounds() raises:
     should raise IndexError to prevent silent failures.
     """
     var data_list: List[Float32] = [Float32(1.0), Float32(2.0), Float32(3.0)]
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
     var labels_list: List[Int] = [0, 1, 2]
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
     var dataset = TensorDataset(data^, labels^)
 
     # Test positive out of bounds
@@ -207,9 +207,9 @@ fn test_tensor_dataset_iteration_consistency() raises:
     ensuring deterministic behavior for debugging and testing.
     """
     var data_list: List[Float32] = [Float32(1.0), Float32(2.0)]
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
     var labels_list: List[Int] = [0, 1]
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
     var dataset = TensorDataset(data^, labels^)
 
     var sample1 = dataset[0]
@@ -234,9 +234,9 @@ fn test_tensor_dataset_no_copy_on_access() raises:
     rather than creating copies, reducing memory overhead.
     """
     var data_list: List[Float32] = [Float32(1.0), Float32(2.0)]
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
     var labels_list: List[Int] = [0, 1]
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
     var dataset = TensorDataset(data^, labels^)
 
     # Access first sample
@@ -266,8 +266,8 @@ fn test_tensor_dataset_memory_efficiency() raises:
         data.append(Float32(i))
         labels.append(i)
 
-    var data_tensor = ExTensor(data^)
-    var labels_tensor = ExTensor(labels^)
+    var data_tensor = AnyTensor(data^)
+    var labels_tensor = AnyTensor(labels^)
     var dataset = TensorDataset(data_tensor^, labels_tensor^)
 
     # Verify dataset was created successfully with all samples

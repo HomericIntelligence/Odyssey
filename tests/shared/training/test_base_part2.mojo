@@ -11,7 +11,7 @@ Split from test_base.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
 from shared.core.extensor import (
-    ExTensor,
+    AnyTensor,
     zeros,
     ones,
     full,

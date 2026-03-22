@@ -1,16 +1,16 @@
-"""Test utilities for ExTensor testing.
+"""Test utilities for AnyTensor testing.
 
 Provides utility functions for test setup, debugging, and validation.
 """
 
-from shared.core.extensor import ExTensor
+from shared.core.extensor import AnyTensor
 
 
-fn print_tensor(tensor: ExTensor) -> String:
+fn print_tensor(tensor: AnyTensor) -> String:
     """Pretty-print tensor with shape, dtype, and values.
 
     Args:
-        tensor: The ExTensor to print.
+        tensor: The AnyTensor to print.
 
     Returns:
         String representation of the tensor with shape, dtype, and values.
@@ -63,11 +63,11 @@ fn print_tensor(tensor: ExTensor) -> String:
     return result
 
 
-fn tensor_summary(tensor: ExTensor) -> String:
+fn tensor_summary(tensor: AnyTensor) -> String:
     """Print tensor statistics: shape, dtype, min, max, mean, std.
 
     Args:
-        tensor: The ExTensor to summarize.
+        tensor: The AnyTensor to summarize.
 
     Returns:
         String with shape, dtype, numel, and statistical summary.
@@ -126,7 +126,7 @@ fn tensor_summary(tensor: ExTensor) -> String:
     return result
 
 
-fn compare_tensors(a: ExTensor, b: ExTensor) -> String:
+fn compare_tensors(a: AnyTensor, b: AnyTensor) -> String:
     """Detailed comparison of two tensors for debugging test failures.
 
     Args:

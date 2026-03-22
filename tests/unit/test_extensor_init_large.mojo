@@ -1,18 +1,18 @@
-"""Test ExTensor initialization with various large shapes.
+"""Test AnyTensor initialization with various large shapes.
 
 This test focuses on line 107 in extensor.mojo which is where the crash occurs.
 Line 107: self._strides.append(0)  # Preallocate
 
-The crash happens during stride calculation in ExTensor.__init__.
+The crash happens during stride calculation in AnyTensor.__init__.
 """
 
-from shared.core.extensor import ExTensor, zeros
+from shared.core.extensor import AnyTensor, zeros
 from testing import assert_equal, assert_true
 
 
 fn test_extensor_init_simple() raises:
-    """Test basic ExTensor initialization."""
-    print("\n=== Test 1: Basic ExTensor Initialization ===")
+    """Test basic AnyTensor initialization."""
+    print("\n=== Test 1: Basic AnyTensor Initialization ===")
 
     # Small tensor
     var shape1 = List[Int]()
@@ -20,7 +20,7 @@ fn test_extensor_init_simple() raises:
     shape1.append(3)
 
     print("Creating tensor shape (2, 3)...")
-    var t1 = ExTensor(shape1, DType.float32)
+    var t1 = AnyTensor(shape1, DType.float32)
     print("SUCCESS: numel =", t1.numel(), "dim =", t1.dim())
 
     # Check strides (need explicit copy since List[Int] isn't ImplicitlyCopyable)
@@ -31,7 +31,7 @@ fn test_extensor_init_simple() raises:
 
 
 fn test_extensor_init_large_shapes() raises:
-    """Test ExTensor with progressively larger shapes."""
+    """Test AnyTensor with progressively larger shapes."""
     print("\n=== Test 2: Large Shape Initialization ===")
 
     # Test case 1: (10, 10)
@@ -71,7 +71,7 @@ fn test_shape_creation(shape: List[Int]) raises:
 
     print("  numel =", numel)
     try:
-        var t = ExTensor(shape, DType.float32)
+        var t = AnyTensor(shape, DType.float32)
         print("  SUCCESS: Created tensor with", t.dim(), "dimensions")
 
         # Verify strides were calculated correctly
@@ -95,14 +95,14 @@ fn test_shape_creation(shape: List[Int]) raises:
 
 
 fn test_extensor_init_multidimensional() raises:
-    """Test ExTensor with various dimensionalities."""
+    """Test AnyTensor with various dimensionalities."""
     print("\n=== Test 3: Multi-Dimensional Tensors ===")
 
     # 1D
     print("\n1D tensor (100)...")
     var shape1 = List[Int]()
     shape1.append(100)
-    var t1 = ExTensor(shape1, DType.float32)
+    var t1 = AnyTensor(shape1, DType.float32)
     print("  SUCCESS: strides =", t1._strides[0])
 
     # 2D
@@ -110,7 +110,7 @@ fn test_extensor_init_multidimensional() raises:
     var shape2 = List[Int]()
     shape2.append(10)
     shape2.append(20)
-    var t2 = ExTensor(shape2, DType.float32)
+    var t2 = AnyTensor(shape2, DType.float32)
     print("  SUCCESS: strides =", t2._strides[0], t2._strides[1])
 
     # 3D
@@ -119,7 +119,7 @@ fn test_extensor_init_multidimensional() raises:
     shape3.append(5)
     shape3.append(10)
     shape3.append(15)
-    var t3 = ExTensor(shape3, DType.float32)
+    var t3 = AnyTensor(shape3, DType.float32)
     print(
         "  SUCCESS: strides =", t3._strides[0], t3._strides[1], t3._strides[2]
     )
@@ -131,7 +131,7 @@ fn test_extensor_init_multidimensional() raises:
     shape4.append(1)
     shape4.append(28)
     shape4.append(28)
-    var t4 = ExTensor(shape4, DType.float32)
+    var t4 = AnyTensor(shape4, DType.float32)
     print(
         "  SUCCESS: strides =",
         t4._strides[0],
@@ -205,9 +205,9 @@ fn test_extensor_stride_preallocate() raises:
             print(strides_test[j], end=" ")
         print()
 
-        # Now test actual ExTensor creation
-        print("  Creating ExTensor with same shape...")
-        var t = ExTensor(shape, DType.float32)
+        # Now test actual AnyTensor creation
+        print("  Creating AnyTensor with same shape...")
+        var t = AnyTensor(shape, DType.float32)
         print("  SUCCESS")
 
 
@@ -219,28 +219,28 @@ fn test_memory_limits() raises:
     print("\nSmall tensor (100 bytes)...")
     var shape1 = List[Int]()
     shape1.append(25)  # 25 * 4 bytes = 100 bytes
-    var t1 = ExTensor(shape1, DType.float32)
+    var t1 = AnyTensor(shape1, DType.float32)
     print("  SUCCESS:", t1.numel() * 4, "bytes")
 
     # Medium tensor (1 MB)
     print("\nMedium tensor (~1 MB)...")
     var shape2 = List[Int]()
     shape2.append(250000)  # 250k * 4 bytes = 1 MB
-    var t2 = ExTensor(shape2, DType.float32)
+    var t2 = AnyTensor(shape2, DType.float32)
     print("  SUCCESS:", t2.numel() * 4, "bytes")
 
     # Large tensor (100 MB)
     print("\nLarge tensor (~100 MB)...")
     var shape3 = List[Int]()
     shape3.append(25000000)  # 25M * 4 bytes = 100 MB
-    var t3 = ExTensor(shape3, DType.float32)
+    var t3 = AnyTensor(shape3, DType.float32)
     print("  SUCCESS:", t3.numel() * 4, "bytes")
 
     # Very large tensor (500 MB - warning threshold)
     print("\nVery large tensor (~500 MB) - should warn...")
     var shape4 = List[Int]()
     shape4.append(125000000)  # 125M * 4 bytes = 500 MB
-    var t4 = ExTensor(shape4, DType.float32)
+    var t4 = AnyTensor(shape4, DType.float32)
     print("  SUCCESS:", t4.numel() * 4, "bytes")
 
     # Exceeds limit (should raise error)
@@ -250,14 +250,14 @@ fn test_memory_limits() raises:
         shape5.append(
             1000000000
         )  # 1B * 4 bytes = 4 GB (exceeds MAX_TENSOR_BYTES)
-        var t5 = ExTensor(shape5, DType.float32)
+        var t5 = AnyTensor(shape5, DType.float32)
         print("  ERROR: Should have raised exception!")
     except e:
         print("  SUCCESS: Caught expected error:", e)
 
 
 fn main() raises:
-    """Run all ExTensor initialization tests."""
+    """Run all AnyTensor initialization tests."""
     print("=" * 60)
     print("EXTENSOR INITIALIZATION TESTS")
     print("=" * 60)

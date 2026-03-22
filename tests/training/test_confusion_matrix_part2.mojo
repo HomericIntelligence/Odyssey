@@ -18,7 +18,7 @@ bug that occurs after ~15 cumulative tests. See Issue #2942.
 """
 
 from testing import assert_true, assert_false, assert_equal, assert_almost_equal
-from shared.core.extensor import ExTensor
+from shared.core.extensor import AnyTensor
 from shared.training.metrics import ConfusionMatrix
 
 
@@ -32,10 +32,10 @@ fn test_confusion_matrix_with_logits() raises:
     var logits_shape = List[Int]()
     logits_shape.append(4)
     logits_shape.append(3)
-    var logits = ExTensor(logits_shape, DType.float32)
+    var logits = AnyTensor(logits_shape, DType.float32)
     var labels_shape = List[Int]()
     labels_shape.append(4)  # 4 samples
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
 
     # Sample 0: true=0, logits=[10, 0, 0] -> pred=0 ✓
     logits._data.bitcast[Float32]()[0] = 10.0
@@ -91,10 +91,10 @@ fn test_confusion_matrix_reset() raises:
     # Add some data
     var preds_shape = List[Int]()
     preds_shape.append(2)  # 2 samples
-    var preds = ExTensor(preds_shape, DType.int32)
+    var preds = AnyTensor(preds_shape, DType.int32)
     var labels_shape = List[Int]()
     labels_shape.append(2)  # 2 samples
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     preds._data.bitcast[Int32]()[0] = 0
     preds._data.bitcast[Int32]()[1] = 1
     labels._data.bitcast[Int32]()[0] = 0
@@ -156,8 +156,8 @@ fn test_confusion_matrix_single_class() raises:
     # All predictions are class 0, all labels are class 0
     var preds_shape = List[Int]()
     preds_shape.append(3)
-    var preds = ExTensor(preds_shape, DType.int32)
-    var labels = ExTensor(preds_shape, DType.int32)
+    var preds = AnyTensor(preds_shape, DType.int32)
+    var labels = AnyTensor(preds_shape, DType.int32)
     preds._data.bitcast[Int32]()[0] = 0
     preds._data.bitcast[Int32]()[1] = 0
     preds._data.bitcast[Int32]()[2] = 0
@@ -185,8 +185,8 @@ fn test_confusion_matrix_misclassification() raises:
 
     var shape = List[Int]()
     shape.append(4)
-    var preds = ExTensor(shape, DType.int32)
-    var labels = ExTensor(shape, DType.int32)
+    var preds = AnyTensor(shape, DType.int32)
+    var labels = AnyTensor(shape, DType.int32)
 
     # 2 correct, 2 wrong
     preds._data.bitcast[Int32]()[0] = 0

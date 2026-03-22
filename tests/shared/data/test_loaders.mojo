@@ -17,10 +17,10 @@ from tests.shared.conftest import (
     assert_greater,
     TestFixtures,
 )
-from shared.data.datasets import ExTensorDataset
+from shared.data.datasets import AnyTensorDataset
 from shared.data.loaders import BatchLoader
 from shared.data.samplers import SequentialSampler, RandomSampler
-from shared.core.extensor import ExTensor
+from shared.core.extensor import AnyTensor
 
 
 # ============================================================================
@@ -32,7 +32,7 @@ fn test_loader_dataset_sampler_integration() raises:
     """Test BatchLoader works end-to-end with TensorDataset and SequentialSampler.
 
     Integration Points:
-        - ExTensorDataset initialization
+        - AnyTensorDataset initialization
         - SequentialSampler index generation
         - BatchLoader iteration with both components
 
@@ -47,14 +47,14 @@ fn test_loader_dataset_sampler_integration() raises:
     var data_list = List[Float32]()
     for i in range(100):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(100):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
     var dataset_len = dataset.__len__()
 
     # Create sampler
@@ -87,14 +87,14 @@ fn test_loader_perfect_batch_division() raises:
     var data_list = List[Float32]()
     for i in range(96):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(96):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
     var dataset_len = dataset.__len__()
     var sampler = SequentialSampler(dataset_len)
     var loader = BatchLoader(dataset^, sampler^, batch_size=32, shuffle=False)
@@ -121,14 +121,14 @@ fn test_loader_drop_last_enabled() raises:
     var data_list = List[Float32]()
     for i in range(100):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(100):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
     var dataset_len = dataset.__len__()
     var sampler = SequentialSampler(dataset_len)
     var loader = BatchLoader(dataset^, sampler^, batch_size=32, drop_last=True)
@@ -156,14 +156,14 @@ fn test_loader_batch_size_larger_than_dataset() raises:
     var data_list = List[Float32]()
     for i in range(10):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(10):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
     var dataset_len = dataset.__len__()
     var sampler = SequentialSampler(dataset_len)
 
@@ -191,13 +191,13 @@ fn test_loader_single_sample_dataset() raises:
 
     var data_list = List[Float32]()
     data_list.append(42.0)
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     labels_list.append(0)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
     var dataset_len = dataset.__len__()
     var sampler = SequentialSampler(dataset_len)
     var loader = BatchLoader(dataset^, sampler^, batch_size=32, shuffle=False)
@@ -317,14 +317,14 @@ fn test_loader_small_batch_size() raises:
     var data_list = List[Float32]()
     for i in range(10):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(10):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
     var dataset_len = dataset.__len__()
     var sampler = SequentialSampler(dataset_len)
     var loader = BatchLoader(dataset^, sampler^, batch_size=1, shuffle=False)
@@ -350,14 +350,14 @@ fn test_loader_large_batch_size() raises:
     var data_list = List[Float32]()
     for i in range(100):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(100):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
     var dataset_len = dataset.__len__()
     var sampler = SequentialSampler(dataset_len)
     var loader = BatchLoader(dataset^, sampler^, batch_size=128, shuffle=False)

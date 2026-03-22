@@ -1,4 +1,4 @@
-"""Test fixtures for ExTensor testing.
+"""Test fixtures for AnyTensor testing.
 
 Provides common tensor creation utilities for tests, including
 random tensors, sequential tensors, and special value tensors.
@@ -7,7 +7,7 @@ These fixtures wrap the comprehensive infrastructure in shared.testing
 with convenient test-specific APIs.
 """
 
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.extensor import AnyTensor, zeros, ones
 from shared.core.extensor import nan_tensor as shared_nan_tensor
 from shared.core.extensor import inf_tensor as shared_inf_tensor
 from shared.testing.data_generators import random_tensor as shared_random_tensor
@@ -16,7 +16,7 @@ from shared.testing.data_generators import random_uniform
 
 fn random_tensor(
     shape: List[Int], dtype: DType = DType.float32
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Create a tensor with random values from uniform distribution [0, 1).
 
     Args:
@@ -24,7 +24,7 @@ fn random_tensor(
         dtype: Data type of tensor elements (default: float32).
 
     Returns:
-        ExTensor with random values uniformly distributed in [0, 1).
+        AnyTensor with random values uniformly distributed in [0, 1).
 
     Example:
         ```mojo
@@ -40,7 +40,7 @@ fn random_tensor(
 
 fn sequential_tensor(
     shape: List[Int], dtype: DType = DType.float32
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Create tensor with sequential values 0, 1, 2, 3, ...
 
     Tensor is filled with sequential values in row-major order, then reshaped
@@ -51,7 +51,7 @@ fn sequential_tensor(
         dtype: Data type of tensor elements (default: float32).
 
     Returns:
-        ExTensor with values 0, 1, 2, ... in flattened order.
+        AnyTensor with values 0, 1, 2, ... in flattened order.
 
     Example:
         ```mojo
@@ -76,14 +76,14 @@ fn sequential_tensor(
     return tensor
 
 
-fn nan_tensor(shape: List[Int]) raises -> ExTensor:
+fn nan_tensor(shape: List[Int]) raises -> AnyTensor:
     """Create tensor filled with NaN values.
 
     Args:
         shape: Shape of the output tensor as a list of dimensions.
 
     Returns:
-        ExTensor with all elements set to NaN.
+        AnyTensor with all elements set to NaN.
 
     Example:
         ```mojo
@@ -102,14 +102,14 @@ fn nan_tensor(shape: List[Int]) raises -> ExTensor:
     return shared_nan_tensor(shape, DType.float32)
 
 
-fn inf_tensor(shape: List[Int]) raises -> ExTensor:
+fn inf_tensor(shape: List[Int]) raises -> AnyTensor:
     """Create tensor filled with infinity values.
 
     Args:
         shape: Shape of the output tensor as a list of dimensions.
 
     Returns:
-        ExTensor with all elements set to positive infinity.
+        AnyTensor with all elements set to positive infinity.
 
     Example:
         ```mojo
@@ -128,14 +128,14 @@ fn inf_tensor(shape: List[Int]) raises -> ExTensor:
     return shared_inf_tensor(shape, DType.float32)
 
 
-fn ones_like(tensor: ExTensor) raises -> ExTensor:
+fn ones_like(tensor: AnyTensor) raises -> AnyTensor:
     """Create tensor of ones matching input shape and dtype.
 
     Args:
         tensor: Template tensor to match shape and dtype from.
 
     Returns:
-        ExTensor of ones with same shape and dtype as input.
+        AnyTensor of ones with same shape and dtype as input.
 
     Example:
         ```mojo
@@ -150,14 +150,14 @@ fn ones_like(tensor: ExTensor) raises -> ExTensor:
     return ones(tensor.shape(), tensor.dtype())
 
 
-fn zeros_like(tensor: ExTensor) raises -> ExTensor:
+fn zeros_like(tensor: AnyTensor) raises -> AnyTensor:
     """Create tensor of zeros matching input shape and dtype.
 
     Args:
         tensor: Template tensor to match shape and dtype from.
 
     Returns:
-        ExTensor of zeros with same shape and dtype as input.
+        AnyTensor of zeros with same shape and dtype as input.
 
     Example:
         ```mojo

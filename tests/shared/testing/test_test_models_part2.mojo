@@ -4,7 +4,7 @@ Split from test_test_models.mojo per ADR-009 to avoid Mojo heap corruption.
 
 Coverage:
     - SimpleMLP initialization (1 and 2 hidden layers)
-    - SimpleMLP forward pass (List[Float32] and ExTensor inputs)
+    - SimpleMLP forward pass (List[Float32] and AnyTensor inputs)
 """
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
@@ -17,7 +17,7 @@ from shared.testing import (
     assert_equal,
 )
 from shared.core.extensor import (
-    ExTensor,
+    AnyTensor,
     zeros,
     ones,
 )
@@ -93,7 +93,7 @@ fn test_simple_mlp_forward_2_hidden() raises:
 
 
 fn test_simple_mlp_forward_extensor_1_hidden() raises:
-    """Test SimpleMLP ExTensor forward pass with 1 hidden layer."""
+    """Test SimpleMLP AnyTensor forward pass with 1 hidden layer."""
     var mlp = SimpleMLP(10, 20, 5, num_hidden_layers=1)
     var input_shape = [10]
     var input = zeros(input_shape, DType.float32)
@@ -111,7 +111,7 @@ fn test_simple_mlp_forward_extensor_1_hidden() raises:
 
 
 fn test_simple_mlp_forward_extensor_2_hidden() raises:
-    """Test SimpleMLP ExTensor forward pass with 2 hidden layers."""
+    """Test SimpleMLP AnyTensor forward pass with 2 hidden layers."""
     var mlp = SimpleMLP(10, 20, 5, num_hidden_layers=2)
     var input_shape = [10]
     var input = ones(input_shape, DType.float32)

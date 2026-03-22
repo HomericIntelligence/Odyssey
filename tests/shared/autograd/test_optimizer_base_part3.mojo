@@ -16,7 +16,7 @@ Split from test_optimizer_base.mojo to comply with ADR-009 (≤10 fn test_ per f
 
 from testing import assert_true, assert_equal
 from tests.shared.conftest import assert_almost_equal
-from shared.core.extensor import ExTensor, zeros
+from shared.core.extensor import AnyTensor, zeros
 from shared.autograd import Variable, GradientTape, SGD, Adam, AdaGrad, RMSprop
 from shared.autograd.optimizer_base import (
     clip_gradients_by_global_norm,
@@ -36,11 +36,11 @@ fn test_clip_gradients_multiple_parameters() raises:
 
     # Create two parameters
     var shape: List[Int] = [2]
-    var data1 = ExTensor(shape, DType.float32)
+    var data1 = AnyTensor(shape, DType.float32)
     var param1 = Variable(data1^, True, tape)
     var var_id1 = param1.id
 
-    var data2 = ExTensor(shape, DType.float32)
+    var data2 = AnyTensor(shape, DType.float32)
     var param2 = Variable(data2^, True, tape)
     var var_id2 = param2.id
 
@@ -49,12 +49,12 @@ fn test_clip_gradients_multiple_parameters() raises:
     parameters.append(param2.copy())
 
     # Add gradients to both parameters
-    var grad1 = ExTensor(shape, DType.float32)
+    var grad1 = AnyTensor(shape, DType.float32)
     grad1._set_float64(0, 3.0)
     grad1._set_float64(1, 0.0)
     tape.registry.set_grad(var_id1, grad1^)
 
-    var grad2 = ExTensor(shape, DType.float32)
+    var grad2 = AnyTensor(shape, DType.float32)
     grad2._set_float64(0, 0.0)
     grad2._set_float64(1, 4.0)
     tape.registry.set_grad(var_id2, grad2^)
@@ -105,15 +105,15 @@ fn test_count_parameters_with_gradients() raises:
 
     # Create 3 parameters
     var shape: List[Int] = [1]
-    var data1 = ExTensor(shape, DType.float32)
+    var data1 = AnyTensor(shape, DType.float32)
     var param1 = Variable(data1^, True, tape)
     var var_id1 = param1.id
 
-    var data2 = ExTensor(shape, DType.float32)
+    var data2 = AnyTensor(shape, DType.float32)
     var param2 = Variable(data2^, True, tape)
     var var_id2 = param2.id
 
-    var data3 = ExTensor(shape, DType.float32)
+    var data3 = AnyTensor(shape, DType.float32)
     var param3 = Variable(data3^, False, tape)  # Doesn't require grad
 
     var parameters: List[Variable] = []
@@ -122,10 +122,10 @@ fn test_count_parameters_with_gradients() raises:
     parameters.append(param3.copy())
 
     # Add gradients for param1 and param2 only
-    var grad1 = ExTensor(shape, DType.float32)
+    var grad1 = AnyTensor(shape, DType.float32)
     tape.registry.set_grad(var_id1, grad1^)
 
-    var grad2 = ExTensor(shape, DType.float32)
+    var grad2 = AnyTensor(shape, DType.float32)
     tape.registry.set_grad(var_id2, grad2^)
 
     # Count should be 2 (param3 doesn't require grad)
@@ -140,7 +140,7 @@ fn test_count_parameters_with_no_gradients() raises:
 
     # Create parameter without gradient
     var shape: List[Int] = [1]
-    var data = ExTensor(shape, DType.float32)
+    var data = AnyTensor(shape, DType.float32)
     var param = Variable(data^, True, tape)
     var parameters: List[Variable] = []
     parameters.append(param.copy())
@@ -163,7 +163,7 @@ fn test_optimizer_integration_with_gradient_clipping() raises:
 
     # Create parameter
     var shape: List[Int] = [2]
-    var data = ExTensor(shape, DType.float32)
+    var data = AnyTensor(shape, DType.float32)
     data._set_float64(0, 1.0)
     data._set_float64(1, 2.0)
 
@@ -173,7 +173,7 @@ fn test_optimizer_integration_with_gradient_clipping() raises:
     parameters.append(param.copy())
 
     # Add large gradient
-    var grad = ExTensor(shape, DType.float32)
+    var grad = AnyTensor(shape, DType.float32)
     grad._set_float64(0, 10.0)
     grad._set_float64(1, 0.0)
     tape.registry.set_grad(var_id, grad^)

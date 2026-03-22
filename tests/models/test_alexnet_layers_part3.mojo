@@ -8,7 +8,7 @@ layers independently with special FP-representable values.
 # high test load. Split from test_alexnet_layers.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.extensor import AnyTensor, zeros, ones, full
 from shared.core.conv import conv2d
 from shared.core.pooling import maxpool2d
 from shared.core.linear import linear

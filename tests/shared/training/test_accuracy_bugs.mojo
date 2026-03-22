@@ -11,8 +11,8 @@ Bugs tested:
 - Line 348: per_class_accuracy() - var result_shape = List[Int]()
 """
 
-# Import ExTensor and metrics
-from shared.core.extensor import ExTensor, ones, zeros
+# Import AnyTensor and metrics
+from shared.core.extensor import AnyTensor, ones, zeros
 from shared.training.metrics.accuracy import top1_accuracy, per_class_accuracy
 
 

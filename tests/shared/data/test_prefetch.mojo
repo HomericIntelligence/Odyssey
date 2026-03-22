@@ -8,14 +8,14 @@ from tests.shared.conftest import (
     assert_equal,
 )
 from shared.data import (
-    ExTensorDataset,
+    AnyTensorDataset,
     BatchLoader,
     RandomSampler,
     TransformedDataset,
 )
 from shared.data.prefetch import PrefetchBuffer, PrefetchDataLoader
 from shared.data.loaders import Batch
-from shared.core.extensor import ExTensor, ones, zeros
+from shared.core.extensor import AnyTensor, ones, zeros
 from collections import List
 
 
@@ -131,7 +131,7 @@ fn test_prefetch_data_loader_creation() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
     var sampler = RandomSampler(10)
     var loader = BatchLoader(dataset^, sampler^, batch_size=2)
 
@@ -150,7 +150,7 @@ fn test_prefetch_data_loader_invalid_prefetch_factor() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
     var sampler = RandomSampler(10)
     var loader = BatchLoader(dataset^, sampler^, batch_size=2)
 
@@ -172,7 +172,7 @@ fn test_prefetch_data_loader_iteration() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
     var sampler = RandomSampler(10)
     var loader = BatchLoader(dataset^, sampler^, batch_size=2)
 

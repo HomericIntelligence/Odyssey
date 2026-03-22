@@ -33,7 +33,7 @@ from shared.training.trainer_interface import (
     TrainingMetrics,
 )
 from shared.training.metrics import ConfusionMatrix
-from shared.core.extensor import ExTensor
+from shared.core.extensor import AnyTensor
 from shared.core import ones, zeros, randn
 
 
@@ -42,12 +42,12 @@ from shared.core import ones, zeros, randn
 # ============================================================================
 
 
-fn simple_forward(data: ExTensor) raises -> ExTensor:
+fn simple_forward(data: AnyTensor) raises -> AnyTensor:
     """Simple forward: returns ones matching data shape."""
     return ones(data.shape(), data.dtype())
 
 
-fn simple_loss(pred: ExTensor, labels: ExTensor) raises -> ExTensor:
+fn simple_loss(pred: AnyTensor, labels: AnyTensor) raises -> AnyTensor:
     """Simple loss: returns scalar ones tensor."""
     return ones([1], DType.float32)
 
@@ -348,7 +348,7 @@ fn test_validation_loop_confusion_matrix_basic() raises:
     var data_shape = List[Int]()
     data_shape.append(n_samples)
     data_shape.append(2)
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     # Row 0: [1.0, 0.0] -> argmax=0
     data._data.bitcast[Float32]()[0] = Float32(1.0)
     data._data.bitcast[Float32]()[1] = Float32(0.0)
@@ -364,7 +364,7 @@ fn test_validation_loop_confusion_matrix_basic() raises:
 
     var labels_shape = List[Int]()
     labels_shape.append(n_samples)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     labels._data.bitcast[Int32]()[0] = Int32(0)
     labels._data.bitcast[Int32]()[1] = Int32(1)
     labels._data.bitcast[Int32]()[2] = Int32(0)
@@ -390,7 +390,7 @@ fn test_confusion_matrix_binary_counts() raises:
 
     var preds_shape = List[Int]()
     preds_shape.append(4)
-    var preds = ExTensor(preds_shape, DType.int32)
+    var preds = AnyTensor(preds_shape, DType.int32)
     preds._data.bitcast[Int32]()[0] = Int32(0)
     preds._data.bitcast[Int32]()[1] = Int32(1)
     preds._data.bitcast[Int32]()[2] = Int32(1)
@@ -398,7 +398,7 @@ fn test_confusion_matrix_binary_counts() raises:
 
     var labels_shape = List[Int]()
     labels_shape.append(4)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     labels._data.bitcast[Int32]()[0] = Int32(0)
     labels._data.bitcast[Int32]()[1] = Int32(1)
     labels._data.bitcast[Int32]()[2] = Int32(0)
@@ -426,7 +426,7 @@ fn test_confusion_matrix_all_correct() raises:
 
     var preds_shape = List[Int]()
     preds_shape.append(4)
-    var preds = ExTensor(preds_shape, DType.int32)
+    var preds = AnyTensor(preds_shape, DType.int32)
     preds._data.bitcast[Int32]()[0] = Int32(0)
     preds._data.bitcast[Int32]()[1] = Int32(0)
     preds._data.bitcast[Int32]()[2] = Int32(1)
@@ -434,7 +434,7 @@ fn test_confusion_matrix_all_correct() raises:
 
     var labels_shape = List[Int]()
     labels_shape.append(4)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     labels._data.bitcast[Int32]()[0] = Int32(0)
     labels._data.bitcast[Int32]()[1] = Int32(0)
     labels._data.bitcast[Int32]()[2] = Int32(1)
@@ -460,7 +460,7 @@ fn test_confusion_matrix_all_wrong() raises:
 
     var preds_shape = List[Int]()
     preds_shape.append(4)
-    var preds = ExTensor(preds_shape, DType.int32)
+    var preds = AnyTensor(preds_shape, DType.int32)
     preds._data.bitcast[Int32]()[0] = Int32(1)
     preds._data.bitcast[Int32]()[1] = Int32(1)
     preds._data.bitcast[Int32]()[2] = Int32(0)
@@ -468,7 +468,7 @@ fn test_confusion_matrix_all_wrong() raises:
 
     var labels_shape = List[Int]()
     labels_shape.append(4)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     labels._data.bitcast[Int32]()[0] = Int32(0)
     labels._data.bitcast[Int32]()[1] = Int32(0)
     labels._data.bitcast[Int32]()[2] = Int32(1)

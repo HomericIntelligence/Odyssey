@@ -7,7 +7,7 @@ Split from test_heap_corruption_combined.mojo (ADR-009).
 Contains 8 fn test_ functions (limit: 10).
 """
 
-from shared.core.extensor import ExTensor
+from shared.core.extensor import AnyTensor
 from shared.core.conv import conv2d
 from shared.core.activation import relu
 from shared.testing.layer_params import ConvFixture
@@ -23,7 +23,7 @@ from shared.testing.layer_testers import LayerTester
 # ============================================================================
 
 
-fn create_conv1_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_conv1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv1 layer parameters (1→6, 5x5 kernel)."""
     var fixture = ConvFixture(
         in_channels=1, out_channels=6, kernel_size=5, dtype=dtype
@@ -31,7 +31,7 @@ fn create_conv1_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
     return fixture.kernel, fixture.bias
 
 
-fn create_conv2_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_conv2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv2 layer parameters (6→16, 5x5 kernel)."""
     var fixture = ConvFixture(
         in_channels=6, out_channels=16, kernel_size=5, dtype=dtype

@@ -15,7 +15,7 @@ from tests.shared.conftest import (
     assert_equal,
     assert_almost_equal,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.extensor import AnyTensor, zeros, ones, full
 from shared.training.metrics import (
     evaluate_with_predict,
     evaluate_logits_batch,
@@ -32,9 +32,9 @@ from collections import List
 struct MockPredictor:
     """Mock model for testing evaluate() function."""
 
-    var predictions: ExTensor
+    var predictions: AnyTensor
 
-    fn __init__(out self, var predictions: ExTensor):
+    fn __init__(out self, var predictions: AnyTensor):
         """Initialize with fixed predictions.
 
         Args:
@@ -42,7 +42,7 @@ struct MockPredictor:
         """
         self.predictions = predictions^
 
-    fn predict(self, sample: ExTensor) raises -> Int:
+    fn predict(self, sample: AnyTensor) raises -> Int:
         """Mock predict method that uses stored predictions.
 
         Args:

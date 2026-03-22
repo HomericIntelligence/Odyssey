@@ -19,7 +19,7 @@ bug that occurs after ~15 cumulative tests. See Issue #2942.
 """
 
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
-from shared.core.extensor import ExTensor, zeros, ones, full, zeros_like
+from shared.core.extensor import AnyTensor, zeros, ones, full, zeros_like
 from shared.training.optimizers import (
     compute_weight_decay_term,
     apply_weight_decay,
@@ -50,7 +50,7 @@ fn test_clip_global_norm() raises:
     var t1 = full([3], 1.0, DType.float32)
     var t2 = full([4], 2.0, DType.float32)
 
-    var tensors: List[ExTensor] = []
+    var tensors: List[AnyTensor] = []
     tensors.append(t1)
     tensors.append(t2)
 
@@ -117,7 +117,7 @@ fn test_apply_bias_correction() raises:
 
 fn test_validate_optimizer_state_valid() raises:
     """Test validation of valid optimizer state."""
-    var params: List[ExTensor] = []
+    var params: List[AnyTensor] = []
     var shape1 = List[Int]()
     shape1.append(2)
     shape1.append(3)
@@ -126,12 +126,12 @@ fn test_validate_optimizer_state_valid() raises:
     shape2.append(3)
     params.append(ones(shape2, DType.float32))
 
-    var states = List[List[ExTensor]]()
-    states.append(List[ExTensor]())
+    var states = List[List[AnyTensor]]()
+    states.append(List[AnyTensor]())
     states[0].append(zeros_like(params[0]))
     states[0].append(zeros_like(params[0]))
 
-    states.append(List[ExTensor]())
+    states.append(List[AnyTensor]())
     states[1].append(zeros_like(params[1]))
     states[1].append(zeros_like(params[1]))
 

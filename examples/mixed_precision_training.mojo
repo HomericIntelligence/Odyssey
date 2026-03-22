@@ -18,7 +18,7 @@ Usage:
     mojo examples/mixed_precision_training.mojo
 """
 
-from shared.core import ExTensor, full
+from shared.core import AnyTensor, full
 from shared.training.mixed_precision import (
     GradientScaler,
     convert_to_fp32_master,
@@ -29,14 +29,14 @@ from shared.training.mixed_precision import (
 from shared.training.trainer_interface import TrainerConfig
 
 
-fn simulate_forward_pass(params: ExTensor, input: ExTensor) raises -> ExTensor:
+fn simulate_forward_pass(params: AnyTensor, input: AnyTensor) raises -> AnyTensor:
     """Simulate a simple forward pass: output = params * input."""
     return params * input
 
 
 fn simulate_backward_pass(
-    output: ExTensor, target: ExTensor
-) raises -> ExTensor:
+    output: AnyTensor, target: AnyTensor
+) raises -> AnyTensor:
     """Simulate backward pass: compute gradients."""
     # In real training, this would compute actual gradients
     # For demo, just return the error
@@ -44,7 +44,7 @@ fn simulate_backward_pass(
 
 
 fn simple_optimizer_step(
-    mut master_params: ExTensor, gradients: ExTensor, learning_rate: Float64
+    mut master_params: AnyTensor, gradients: AnyTensor, learning_rate: Float64
 ) raises:
     """Simple SGD update: params = params - lr * grads."""
     var lr_tensor = full(

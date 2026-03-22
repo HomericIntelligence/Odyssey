@@ -28,7 +28,7 @@ from tests.shared.conftest import (
     create_test_vector,
     TestFixtures,
 )
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like
+from shared.core.extensor import AnyTensor, zeros, ones, zeros_like
 from shared.training.optimizers.sgd import sgd_step, sgd_step_simple
 from shared.training.optimizers.adam import adam_step, adam_step_simple
 from shared.training.optimizers.adamw import adamw_step
@@ -168,9 +168,9 @@ fn test_rmsprop_parameter_update() raises:
         - params = params - lr * grad / (sqrt(v) + epsilon).
     """
     # TODO(#1538): Implement when RMSprop is available
-    # var params = ExTensor([1], DType.float32)
+    # var params = AnyTensor([1], DType.float32)
     # params._data.bitcast[Float32]()[0] = 1.0
-    # var grads = ExTensor([1], DType.float32)
+    # var grads = AnyTensor([1], DType.float32)
     # grads._data.bitcast[Float32]()[0] = 0.1
     # #
     # var optimizer = RMSprop(learning_rate=0.01, alpha=0.99, epsilon=1e-8)

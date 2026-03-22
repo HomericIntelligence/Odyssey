@@ -1,14 +1,14 @@
-"""Basic ExTensor usage example.
+"""Basic AnyTensor usage example.
 
 Demonstrates creation operations and basic tensor manipulation.
 """
 
-from shared.core import ExTensor, zeros, ones, full, arange, eye, linspace
+from shared.core import AnyTensor, zeros, ones, full, arange, eye, linspace
 
 
 fn main() raises:
-    """Run basic ExTensor examples."""
-    print("ExTensor Basic Usage Examples")
+    """Run basic AnyTensor examples."""
+    print("AnyTensor Basic Usage Examples")
     print("=" * 50)
 
     # Create tensors with different shapes

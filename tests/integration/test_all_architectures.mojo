@@ -17,13 +17,13 @@ Usage:
     mojo run tests/integration/test_all_architectures.mojo
 """
 
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.extensor import AnyTensor, zeros, ones
 import sys
 
 
 fn test_model_forward(
     model_name: String,
-    forward_fn: fn (ExTensor, Bool) raises -> ExTensor,
+    forward_fn: fn (AnyTensor, Bool) raises -> AnyTensor,
     batch_size: Int = 4,
 ) raises -> Bool:
     """Test a model's forward pass with dummy data.

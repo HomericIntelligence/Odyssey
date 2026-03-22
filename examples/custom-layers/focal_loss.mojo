@@ -8,7 +8,7 @@ Usage:
 See documentation: docs/advanced/custom-layers.md
 """
 
-from shared.core.extensor import ExTensor, zeros, ones_like, full_like
+from shared.core.extensor import AnyTensor, zeros, ones_like, full_like
 from shared.core.arithmetic import subtract, multiply, add, power
 from shared.core.elementwise import log, clip
 from shared.core.reduction import mean
@@ -31,8 +31,8 @@ struct FocalLoss:
         self.gamma = gamma
 
     fn __call__(
-        self, predictions: ExTensor, targets: ExTensor
-    ) raises -> ExTensor:
+        self, predictions: AnyTensor, targets: AnyTensor
+    ) raises -> AnyTensor:
         """Compute focal loss for binary classification.
 
         Args:

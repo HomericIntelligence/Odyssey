@@ -1,7 +1,7 @@
 """Core Operations coordination tests.
 
 Validates integration of all core operations: initializers, metrics, tensor ops,
-and activations from the ExTensor framework.
+and activations from the AnyTensor framework.
 
 Coordination tests (#298-302):
 - #299: Core operations integration
@@ -16,7 +16,7 @@ Testing strategy:
 """
 
 from testing import assert_true, assert_false, assert_equal, assert_almost_equal
-from shared.core.extensor import ExTensor
+from shared.core.extensor import AnyTensor
 from shared.core.initializers import (
     xavier_uniform,
     xavier_normal,
@@ -108,7 +108,7 @@ fn test_forward_pass_with_metrics() raises:
     # Create fake labels
     var labels_shape = List[Int]()
     labels_shape.append(5)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     labels._data.bitcast[Int32]()[0] = 0
     labels._data.bitcast[Int32]()[1] = 1
     labels._data.bitcast[Int32]()[2] = 2
@@ -174,7 +174,7 @@ fn test_training_loop_simulation() raises:
             )
             var labels_shape = List[Int]()
             labels_shape.append(batch_size)
-            var labels = ExTensor(labels_shape, DType.int32)
+            var labels = AnyTensor(labels_shape, DType.int32)
 
             for i in range(batch_size):
                 labels._data.bitcast[Int32]()[i] = Int32(
@@ -320,7 +320,7 @@ fn test_batch_processing_pipeline() raises:
         var input = normal(input_shape, seed_val=batch_idx)
         var labels_shape = List[Int]()
         labels_shape.append(batch_size)
-        var labels = ExTensor(labels_shape, DType.int32)
+        var labels = AnyTensor(labels_shape, DType.int32)
 
         for i in range(batch_size):
             labels._data.bitcast[Int32]()[i] = Int32(i % num_classes)
@@ -378,7 +378,7 @@ fn test_multi_layer_network_integration() raises:
     var input = normal([4, 784], seed_val=42)
     var labels_shape = List[Int]()
     labels_shape.append(4)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     labels._data.bitcast[Int32]()[0] = 7
     labels._data.bitcast[Int32]()[1] = 2
     labels._data.bitcast[Int32]()[2] = 1
@@ -419,9 +419,9 @@ fn test_error_handling_across_components() raises:
 
     # Test mismatched shapes in metric updates
     var preds_shape = List[Int]()
-    var preds = ExTensor(preds_shape, DType.int32)
+    var preds = AnyTensor(preds_shape, DType.int32)
     var labels_shape = List[Int]()
-    var labels = ExTensor(labels_shape, DType.int32)  # Mismatched size
+    var labels = AnyTensor(labels_shape, DType.int32)  # Mismatched size
 
     var accuracy = AccuracyMetric()
 
@@ -474,7 +474,7 @@ fn main() raises:
     print("  ✓ Multi-layer networks work end-to-end")
     print("  ✓ Error handling is graceful and consistent")
     print("\nCore Operations Hierarchy:")
-    print("  ExTensor Framework:")
+    print("  AnyTensor Framework:")
     print("    - Tensor operations (matmul, arithmetic, reductions)")
     print("    - Activation functions (ReLU, sigmoid, tanh, softmax)")
     print("    - Loss functions (MSE, BCE, cross-entropy)")

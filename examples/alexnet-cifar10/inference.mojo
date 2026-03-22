@@ -18,7 +18,7 @@ References:
 from model import AlexNet
 from shared.data.datasets import CIFAR10Dataset
 from shared.data import DatasetInfo
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.utils.arg_parser import ArgumentParser
 from shared.training.metrics import evaluate_with_predict
 
@@ -42,7 +42,7 @@ fn parse_args() raises -> Tuple[String, String]:
 
 
 fn evaluate_model(
-    mut model: AlexNet, test_images: ExTensor, test_labels: ExTensor
+    mut model: AlexNet, test_images: AnyTensor, test_labels: AnyTensor
 ) raises -> Tuple[Float32, Float32]:
     """Evaluate model on test set with Top-1 and Top-5 accuracy.
 
@@ -123,7 +123,7 @@ fn evaluate_model(
     return (top1_accuracy_fraction, top5_accuracy)
 
 
-fn _argmax(tensor: ExTensor) raises -> Int:
+fn _argmax(tensor: AnyTensor) raises -> Int:
     """Find index of maximum value in 1D tensor.
 
     Args:
@@ -144,7 +144,7 @@ fn _argmax(tensor: ExTensor) raises -> Int:
     return max_idx
 
 
-fn _top_k_indices(tensor: ExTensor, k: Int) raises -> List[Int]:
+fn _top_k_indices(tensor: AnyTensor, k: Int) raises -> List[Int]:
     """Find indices of top-k maximum values in 1D tensor.
 
     Args:

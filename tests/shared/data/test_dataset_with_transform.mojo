@@ -9,9 +9,9 @@ from tests.shared.conftest import (
     assert_equal,
     TestFixtures,
 )
-from shared.data import ExTensorDataset, TransformedDataset
+from shared.data import AnyTensorDataset, TransformedDataset
 from shared.data.transforms import Normalize
-from shared.core.extensor import ExTensor, ones, zeros
+from shared.core.extensor import AnyTensor, ones, zeros
 from collections import List
 
 
@@ -31,7 +31,7 @@ fn test_transformed_dataset_creation() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var base_dataset = ExTensorDataset(data^, labels^)
+    var base_dataset = AnyTensorDataset(data^, labels^)
     var normalize = Normalize(mean=0.5, std=0.5)
     var transformed = TransformedDataset(base_dataset^, normalize^)
 
@@ -49,7 +49,7 @@ fn test_transformed_dataset_length() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var base_dataset = ExTensorDataset(data^, labels^)
+    var base_dataset = AnyTensorDataset(data^, labels^)
     var normalize = Normalize(mean=0.5, std=0.5)
     var transformed = TransformedDataset(base_dataset^, normalize^)
 
@@ -67,7 +67,7 @@ fn test_transformed_dataset_applies_transform() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var base_dataset = ExTensorDataset(data^, labels^)
+    var base_dataset = AnyTensorDataset(data^, labels^)
     var normalize = Normalize(mean=0.5, std=0.5)
     var transformed = TransformedDataset(base_dataset^, normalize^)
 
@@ -95,7 +95,7 @@ fn test_transformed_dataset_preserves_labels() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var base_dataset = ExTensorDataset(data^, labels^)
+    var base_dataset = AnyTensorDataset(data^, labels^)
     var normalize = Normalize(mean=0.5, std=0.5)
     var transformed = TransformedDataset(base_dataset^, normalize^)
 
@@ -119,7 +119,7 @@ fn test_transformed_dataset_all_samples() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var base_dataset = ExTensorDataset(data^, labels^)
+    var base_dataset = AnyTensorDataset(data^, labels^)
     var normalize = Normalize(mean=0.5, std=0.5)
     var transformed = TransformedDataset(base_dataset^, normalize^)
 

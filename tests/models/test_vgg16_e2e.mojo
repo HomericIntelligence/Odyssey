@@ -34,7 +34,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.extensor import ExTensor, zeros, ones, full, randn
+from shared.core.extensor import AnyTensor, zeros, ones, full, randn
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.linear import linear, linear_backward
 from shared.core.activation import relu, relu_backward
@@ -49,10 +49,10 @@ from shared.core import mean
 
 
 fn conv_block(
-    input_tensor: ExTensor,
+    input_tensor: AnyTensor,
     out_channels: Int,
     num_convs: Int,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Apply a VGG conv block: sequential conv layers with ReLU.
 
     Args:
@@ -95,8 +95,8 @@ fn conv_block(
 
 
 fn vgg16_forward(
-    input_tensor: ExTensor,
-) raises -> ExTensor:
+    input_tensor: AnyTensor,
+) raises -> AnyTensor:
     """Forward pass through VGG-16 model.
 
     Args:

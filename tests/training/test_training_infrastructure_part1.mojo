@@ -17,7 +17,7 @@ Training Infrastructure Tests (#303-322):
 """
 
 from testing import assert_true, assert_false, assert_equal, assert_almost_equal
-from shared.core.extensor import ExTensor
+from shared.core.extensor import AnyTensor
 from shared.training.trainer_interface import (
     TrainerConfig,
     TrainingMetrics,
@@ -153,10 +153,10 @@ fn test_dataloader_basic() raises:
     var data_shape = List[Int]()
     data_shape.append(10)
     data_shape.append(5)
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     var labels_shape = List[Int]()
     labels_shape.append(10)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
 
     var loader = DataLoader(data, labels, batch_size=3)
 
@@ -174,10 +174,10 @@ fn test_dataloader_iteration() raises:
     var data_shape = List[Int]()
     data_shape.append(10)
     data_shape.append(5)
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     var labels_shape = List[Int]()
     labels_shape.append(10)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
 
     var loader = DataLoader(data, labels, batch_size=3)
 

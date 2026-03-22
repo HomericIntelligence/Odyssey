@@ -7,7 +7,7 @@ Split from test_heap_corruption_combined.mojo (ADR-009).
 Contains 8 fn test_ functions (limit: 10).
 """
 
-from shared.core.extensor import ExTensor
+from shared.core.extensor import AnyTensor
 from shared.core.pooling import maxpool2d
 from shared.core.linear import linear
 from shared.core.activation import relu
@@ -24,7 +24,7 @@ from shared.testing.layer_testers import LayerTester
 # ============================================================================
 
 
-fn create_fc1_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_fc1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create FC1 layer parameters (400→120)."""
     var fixture = LinearFixture(in_features=400, out_features=120, dtype=dtype)
     return fixture.weights, fixture.bias

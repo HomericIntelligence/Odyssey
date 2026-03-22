@@ -7,7 +7,7 @@ This example shows:
 4. Memory savings with FP8 (8-bit vs 32-bit)
 """
 
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 
 
 fn main() raises:
@@ -17,7 +17,7 @@ fn main() raises:
     )
     print("This example demonstrates the expected API structure.")
     print(
-        "When FP8 conversion methods are available in ExTensor,"
+        "When FP8 conversion methods are available in AnyTensor,"
     )
     print("this example can be fully implemented.")
     print("")

@@ -21,7 +21,7 @@ from tests.shared.conftest import (
     assert_shape,
     assert_true,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full, randn
+from shared.core.extensor import AnyTensor, zeros, ones, full, randn
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import maxpool2d, global_avgpool2d
 from shared.core.linear import linear
@@ -30,8 +30,8 @@ from shared.core.initializers import kaiming_normal, xavier_normal, constant
 
 
 fn concatenate_depthwise(
-    t1: ExTensor, t2: ExTensor, t3: ExTensor, t4: ExTensor
-) raises -> ExTensor:
+    t1: AnyTensor, t2: AnyTensor, t3: AnyTensor, t4: AnyTensor
+) raises -> AnyTensor:
     """Concatenate 4 tensors along the channel dimension (axis=1).
 
     Args:

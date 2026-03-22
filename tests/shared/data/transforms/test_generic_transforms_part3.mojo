@@ -6,7 +6,7 @@
 Tests second half of clamp transforms and debug transforms.
 """
 
-from shared.core.extensor import ExTensor
+from shared.core.extensor import AnyTensor
 from tests.shared.conftest import (
     assert_true,
     assert_equal,
@@ -31,7 +31,7 @@ from shared.data.generic_transforms import (
 )
 
 # Type comptime for test convenience
-comptime Tensor = ExTensor
+comptime Tensor = AnyTensor
 
 
 # ============================================================================
@@ -45,7 +45,7 @@ fn test_clamp_all_in_range() raises:
     values.append(2.0)
     values.append(5.0)
     values.append(8.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
     var clamp = ClampTransform(1.0, 10.0)
 
     var result = clamp(data)
@@ -62,7 +62,7 @@ fn test_clamp_negative_range() raises:
     values.append(-5.0)
     values.append(0.0)
     values.append(5.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
     var clamp = ClampTransform(-8.0, -2.0)
 
     var result = clamp(data)
@@ -81,7 +81,7 @@ fn test_clamp_zero_crossing() raises:
     values.append(0.0)
     values.append(1.0)
     values.append(5.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
     var clamp = ClampTransform(-2.0, 2.0)
 
     var result = clamp(data)
@@ -104,7 +104,7 @@ fn test_debug_passthrough() raises:
     values.append(1.0)
     values.append(2.0)
     values.append(3.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
     var debug = DebugTransform("test")
 
     var result = debug(data)
@@ -119,7 +119,7 @@ fn test_debug_passthrough() raises:
 fn test_debug_with_empty_tensor() raises:
     """Test debug transform with empty tensor."""
     var values = List[Float32]()
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
     var debug = DebugTransform("empty_test")
 
     var result = debug(data)
@@ -133,7 +133,7 @@ fn test_debug_with_large_tensor() raises:
     for i in range(100):
         values.append(Float32(i))
 
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
     var debug = DebugTransform("large_test")
 
     var result = debug(data)

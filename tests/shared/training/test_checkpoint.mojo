@@ -11,7 +11,7 @@ Test Coverage:
 - Metadata persistence: Epoch, metrics stored correctly
 """
 
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.extensor import AnyTensor, zeros, ones
 from shared.training.checkpoint import CheckpointManager
 from shared.testing.assertions import (
     assert_true,
@@ -21,9 +21,9 @@ from shared.testing.assertions import (
 from collections import List
 
 
-fn create_test_params() raises -> List[ExTensor]:
+fn create_test_params() raises -> List[AnyTensor]:
     """Create simple test parameters."""
-    var params = List[ExTensor]()
+    var params = List[AnyTensor]()
     params.append(ones([10, 10], DType.float32))  # param1
     params.append(ones([5], DType.float32))  # param2
     return params^
@@ -58,7 +58,7 @@ fn test_save_and_load_checkpoint() raises:
     )
 
     # Load checkpoint
-    var loaded_params = List[ExTensor]()
+    var loaded_params = List[AnyTensor]()
     var loaded_epoch = ckpt_mgr.load_latest(loaded_params, param_names)
 
     # Verify epoch
@@ -73,7 +73,7 @@ fn test_load_latest_no_checkpoint() raises:
     var ckpt_dir = "/tmp/test_checkpoint_no_exist"
     var ckpt_mgr = CheckpointManager(ckpt_dir, max_to_keep=3)
 
-    var params = List[ExTensor]()
+    var params = List[AnyTensor]()
     var param_names = create_param_names()
 
     # Should return epoch 0 when no checkpoint exists
@@ -115,7 +115,7 @@ fn test_save_best_model() raises:
     ckpt_mgr.save_best(params, param_names, epoch=3, metric_value=0.4)
 
     # Load best model
-    var best_params = List[ExTensor]()
+    var best_params = List[AnyTensor]()
     ckpt_mgr.load_best(best_params, param_names)
 
     # Verify best model was loaded
@@ -148,7 +148,7 @@ fn test_resume_training() raises:
         )
 
     # Resume from latest checkpoint
-    var resumed_params = List[ExTensor]()
+    var resumed_params = List[AnyTensor]()
     var start_epoch = ckpt_mgr.load_latest(resumed_params, param_names)
 
     # Should resume from epoch 3
@@ -171,7 +171,7 @@ fn test_multiple_checkpoints() raises:
         )
 
     # Load latest (should be epoch 10)
-    var loaded_params = List[ExTensor]()
+    var loaded_params = List[AnyTensor]()
     var latest_epoch = ckpt_mgr.load_latest(loaded_params, param_names)
 
     assert_equal_int(latest_epoch, 10, "Latest epoch should be 10")
@@ -205,7 +205,7 @@ fn test_best_model_maximize_metric() raises:
     # Verify best model tracking
     # Note: We can't directly check best_metric_value since it's internal
     # but save_best should only save when metric improves
-    var best_params = List[ExTensor]()
+    var best_params = List[AnyTensor]()
     ckpt_mgr.load_best(best_params, param_names)
 
     assert_equal_int(len(best_params), 2, "Should load best model parameters")

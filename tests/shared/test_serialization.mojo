@@ -9,7 +9,7 @@ Tests the complete serialization pipeline including:
 
 from testing import assert_true, assert_equal
 from shared.testing.assertions import assert_almost_equal
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.extensor import AnyTensor, zeros, ones, full
 from shared.utils.serialization import (
     NamedTensor,
     save_tensor,

@@ -1,9 +1,9 @@
-"""Test configuration for ExTensor test suite.
+"""Test configuration for AnyTensor test suite.
 
 This file contains shared configuration and setup for all tests.
 """
 
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.extensor import AnyTensor, zeros, ones
 
 
 # ============================================================================
@@ -168,11 +168,11 @@ struct TestFixtures:
         ```
     """
 
-    fn small_tensor(self) raises -> ExTensor:
+    fn small_tensor(self) raises -> AnyTensor:
         """Create a small 3x3 tensor with known values.
 
         Returns:
-            ExTensor with shape [3, 3] and deterministic values.
+            AnyTensor with shape [3, 3] and deterministic values.
 
         Example:
             ```mojo
@@ -186,7 +186,7 @@ struct TestFixtures:
             tensor._set_float64(i, Float64(i + 1))
         return tensor
 
-    fn random_tensor(self, rows: Int, cols: Int) raises -> ExTensor:
+    fn random_tensor(self, rows: Int, cols: Int) raises -> AnyTensor:
         """Create a random tensor with deterministic seed.
 
         Args:
@@ -194,7 +194,7 @@ struct TestFixtures:
             cols: Number of columns.
 
         Returns:
-            ExTensor with shape [rows, cols] containing random values.
+            AnyTensor with shape [rows, cols] containing random values.
 
         Note:
             Uses seed=42 for reproducibility.

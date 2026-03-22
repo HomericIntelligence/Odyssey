@@ -19,7 +19,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from shared.core.extensor import (
-    ExTensor,
+    AnyTensor,
     zeros,
     ones,
     full,

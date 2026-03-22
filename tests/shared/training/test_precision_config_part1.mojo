@@ -5,7 +5,7 @@ bug that occurs after ~15 cumulative tests. See Issue #2942.
 """
 
 from shared.training.precision_config import PrecisionConfig, PrecisionMode
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.extensor import AnyTensor, zeros, ones
 
 
 fn test_precision_mode_values() raises:

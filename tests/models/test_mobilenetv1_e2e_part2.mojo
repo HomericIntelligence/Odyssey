@@ -40,7 +40,7 @@ from tests.shared.conftest import (
     assert_true,
     TestFixtures,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full, randn
+from shared.core.extensor import AnyTensor, zeros, ones, full, randn
 from shared.core.conv import (
     conv2d,
     depthwise_conv2d,

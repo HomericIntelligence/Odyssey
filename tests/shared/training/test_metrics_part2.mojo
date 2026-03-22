@@ -17,7 +17,7 @@ from tests.shared.conftest import (
     assert_equal,
     assert_almost_equal,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.extensor import AnyTensor, zeros, ones, full
 from shared.training.metrics import (
     LossTracker,
     Statistics,

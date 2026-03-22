@@ -6,7 +6,7 @@
 Tests identity transforms and lambda transforms.
 """
 
-from shared.core.extensor import ExTensor
+from shared.core.extensor import AnyTensor
 from tests.shared.conftest import (
     assert_true,
     assert_equal,
@@ -31,7 +31,7 @@ from shared.data.generic_transforms import (
 )
 
 # Type comptime for test convenience
-comptime Tensor = ExTensor
+comptime Tensor = AnyTensor
 
 
 # ============================================================================
@@ -45,7 +45,7 @@ fn test_identity_basic() raises:
     values.append(1.0)
     values.append(2.0)
     values.append(3.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
     var identity = IdentityTransform()
 
     var result = identity(data)
@@ -63,7 +63,7 @@ fn test_identity_preserves_values() raises:
     values.append(-1.5)
     values.append(42.0)
     values.append(100.5)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
     var identity = IdentityTransform()
 
     var result = identity(data)
@@ -75,7 +75,7 @@ fn test_identity_preserves_values() raises:
 fn test_identity_empty_tensor() raises:
     """Test identity handles empty tensor."""
     var values = List[Float32]()
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
     var identity = IdentityTransform()
 
     var result = identity(data)
@@ -94,7 +94,7 @@ fn test_lambda_double_values() raises:
     values.append(1.0)
     values.append(2.0)
     values.append(3.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
 
     fn double_fn(value: Float32) -> Float32:
         return value * 2.0
@@ -113,7 +113,7 @@ fn test_lambda_add_constant() raises:
     values.append(1.0)
     values.append(2.0)
     values.append(3.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
 
     fn add_ten(value: Float32) -> Float32:
         return value + 10.0
@@ -132,7 +132,7 @@ fn test_lambda_square_values() raises:
     values.append(2.0)
     values.append(3.0)
     values.append(4.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
 
     fn square(value: Float32) -> Float32:
         return value * value
@@ -151,7 +151,7 @@ fn test_lambda_negative_values() raises:
     values.append(-1.0)
     values.append(-2.0)
     values.append(-3.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
 
     fn abs_value(value: Float32) -> Float32:
         return abs(value)
