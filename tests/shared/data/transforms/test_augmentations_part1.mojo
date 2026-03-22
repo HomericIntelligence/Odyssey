@@ -24,8 +24,6 @@ from shared.data.transforms import (
 )
 from shared.core.any_tensor import AnyTensor
 
-# Type comptime for compatibility
-comptime Tensor = AnyTensor
 
 
 # ============================================================================
@@ -81,7 +79,7 @@ fn test_random_augmentation_varies() raises:
 
     var aug = RandomRotation((15.0, 15.0))
 
-    var results = List[Tensor]()
+    var results = List[AnyTensor]()
     for _ in range(10):
         results.append(aug(data))
 
@@ -198,7 +196,7 @@ fn test_random_crop_varies_location() raises:
 
     var crop = RandomCrop((50, 50))
 
-    var crops = List[Tensor]()
+    var crops = List[AnyTensor]()
     for _ in range(10):
         crops.append(crop(data))
 

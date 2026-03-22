@@ -223,6 +223,20 @@ requirements
 
 See `/agents/README.md` for complete agent documentation and `/agents/hierarchy.md` for visual hierarchy.
 
+### Tensor Architecture
+
+The project uses a dual-type tensor system (see [ADR-012](docs/adr/ADR-012-parametric-dtype-tensor-architecture.md)):
+
+- **`Tensor[dtype: DType]`** -- compile-time typed tensor with SIMD-like element access. Used inside layer implementations.
+- **`AnyTensor`** -- runtime-typed tensor for trait interfaces, collections, serialization, and autograd tape.
+
+Both conform to `TensorLike` trait. Zero-copy conversion via `as_tensor[dtype]()` and `as_any()`.
+
+```mojo
+from shared.core.any_tensor import AnyTensor, zeros
+from shared.tensor.tensor import Tensor
+```
+
 ## Claude 4 & Claude Code Optimization
 
 This section provides guidance on optimizing interactions with Claude 4 (Sonnet and Opus) and

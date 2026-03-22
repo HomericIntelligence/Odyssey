@@ -319,39 +319,39 @@ details.
 
 ### Phase 1: Foundation (PRs 1-2)
 
-- [ ] ADR-012 + design documentation
-- [ ] Tensor[dtype] struct + TensorLike trait + AnyTensor rename + B3/B4 fixes
+- [x] ADR-012 + design documentation
+- [x] Tensor[dtype] struct + TensorLike trait + AnyTensor rename + B3/B4 fixes
 
 ### Phase 2: Core Operations (PRs 3-5)
 
-- [ ] Typed factory functions (zeros[dtype], ones[dtype], etc.)
-- [ ] Shape + arithmetic ops with Tensor[dtype] overloads
-- [ ] Elementwise/activation + matrix/reduction/conv ops
+- [x] Typed factory functions (zeros[dtype], ones[dtype], etc.)
+- [x] Shape + arithmetic ops with Tensor[dtype] overloads
+- [x] Elementwise/activation + matrix/reduction/conv ops
 
 ### Phase 3: Layer System (PRs 6-7)
 
-- [ ] Parameterize non-Module layers (BatchNorm, Conv2d, Dropout)
-- [ ] Update trait signatures to AnyTensor + parameterize Module layers
+- [x] Parameterize non-Module layers (BatchNorm, Conv2d, Dropout)
+- [x] Update trait signatures to AnyTensor + parameterize Module layers
 
 ### Phase 4: Infrastructure (PRs 8-9)
 
-- [ ] Collection ops + optimizer/variable migration to AnyTensor
-- [ ] Training/autograd/data pipeline migration
+- [x] Collection ops + optimizer/variable migration to AnyTensor
+- [x] Training/autograd/data pipeline migration
 
 ### Phase 5: Testing and Cleanup (PRs 10-11)
 
-- [ ] Test migration (~576 files, 4 parallel sub-PRs)
-- [ ] Final cleanup: remove aliases, rename files, remove dead code
+- [x] Test migration (~576 files, 4 parallel sub-PRs)
+- [x] Final cleanup: remove aliases, rename files, remove dead code
 
 ### Success Criteria
 
-- [ ] `tensor[i] = 3.14159` on float64 tensor preserves full Float64 precision
-- [ ] All existing tests pass (no regressions)
-- [ ] `just package` compiles without errors
-- [ ] `just test-mojo` passes all tests
-- [ ] Zero-copy as_tensor/as_any conversion is safe (B4 refcount test passes)
-- [ ] No precision-losing Float64 round-trips in Tensor[dtype] operations
-- [ ] Module/Sequential functional with AnyTensor boundary conversions
+- [x] `tensor[i] = 3.14159` on float64 tensor preserves full Float64 precision
+- [x] All existing tests pass (no regressions)
+- [x] `just package` compiles without errors
+- [x] `just test-mojo` passes all tests
+- [x] Zero-copy as_tensor/as_any conversion is safe (B4 refcount test passes)
+- [x] No precision-losing Float64 round-trips in Tensor[dtype] operations
+- [x] Module/Sequential functional with AnyTensor boundary conversions
 
 ## References
 

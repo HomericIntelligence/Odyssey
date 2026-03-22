@@ -738,7 +738,7 @@ fn greater_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 # ============================================================================
 
 
-fn equal[dt: DType](
+fn equal_typed[dt: DType](
     a: Tensor[dt], b: Tensor[dt]
 ) raises -> Tensor[DType.bool]:
     """Element-wise equality comparison (typed version).
@@ -753,7 +753,7 @@ fn equal[dt: DType](
     return equal(a.as_any(), b.as_any()).as_tensor[DType.bool]()
 
 
-fn not_equal[dt: DType](
+fn not_equal_typed[dt: DType](
     a: Tensor[dt], b: Tensor[dt]
 ) raises -> Tensor[DType.bool]:
     """Element-wise inequality comparison (typed version).
@@ -768,7 +768,7 @@ fn not_equal[dt: DType](
     return not_equal(a.as_any(), b.as_any()).as_tensor[DType.bool]()
 
 
-fn less[dt: DType](
+fn less_typed[dt: DType](
     a: Tensor[dt], b: Tensor[dt]
 ) raises -> Tensor[DType.bool]:
     """Element-wise less-than comparison (typed version).
@@ -783,7 +783,7 @@ fn less[dt: DType](
     return less(a.as_any(), b.as_any()).as_tensor[DType.bool]()
 
 
-fn greater[dt: DType](
+fn greater_typed[dt: DType](
     a: Tensor[dt], b: Tensor[dt]
 ) raises -> Tensor[DType.bool]:
     """Element-wise greater-than comparison (typed version).

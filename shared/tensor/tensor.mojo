@@ -334,7 +334,7 @@ struct Tensor[dtype: DType = DType.float32](
         """Return shape as list of dimension sizes (returns a copy)."""
         return self._shape.copy()
 
-    fn dtype(self) -> DType:
+    fn get_dtype(self) -> DType:
         """Return the element data type (compile-time constant)."""
         return Self.dtype
 

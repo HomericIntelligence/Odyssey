@@ -23,8 +23,6 @@ from shared.data.transforms import (
 )
 from shared.core.any_tensor import AnyTensor
 
-# Type comptime for compatibility
-comptime Tensor = AnyTensor
 
 
 # ============================================================================

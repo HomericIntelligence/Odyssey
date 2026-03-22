@@ -1587,7 +1587,7 @@ fn hard_tanh_backward(
 # ============================================================================
 
 
-fn relu[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
+fn relu_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     """Apply ReLU activation: max(0, x) (typed version).
 
     Args:
@@ -1599,7 +1599,7 @@ fn relu[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     return relu(input.as_any()).as_tensor[dt]()
 
 
-fn sigmoid[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
+fn sigmoid_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     """Apply sigmoid activation: 1 / (1 + exp(-x)) (typed version).
 
     Args:
@@ -1611,7 +1611,7 @@ fn sigmoid[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     return sigmoid(input.as_any()).as_tensor[dt]()
 
 
-fn softmax[dt: DType](
+fn softmax_typed[dt: DType](
     input: Tensor[dt], axis: Int = -1
 ) raises -> Tensor[dt]:
     """Apply softmax activation (typed version).

@@ -30,8 +30,6 @@ from shared.data.generic_transforms import (
     AnyTransform,
 )
 
-# Type comptime for test convenience
-comptime Tensor = AnyTensor
 
 
 # ============================================================================
@@ -106,7 +104,7 @@ fn test_batch_transform_basic() raises:
     values3.append(5.0)
     values3.append(6.0)
 
-    var tensors: List[Tensor] = []
+    var tensors: List[AnyTensor] = []
     tensors.append(AnyTensor(values1^))
     tensors.append(AnyTensor(values2^))
     tensors.append(AnyTensor(values3^))
@@ -134,7 +132,7 @@ fn test_batch_transform_basic() raises:
 
 fn test_batch_transform_empty_list() raises:
     """Test batch transform with empty list."""
-    var tensors: List[Tensor] = []
+    var tensors: List[AnyTensor] = []
 
     fn double_fn(value: Float32) -> Float32:
         return value * 2.0
@@ -154,7 +152,7 @@ fn test_batch_transform_single_tensor() raises:
     values.append(2.0)
     values.append(3.0)
 
-    var tensors: List[Tensor] = []
+    var tensors: List[AnyTensor] = []
     tensors.append(AnyTensor(values^))
 
     fn add_ten(value: Float32) -> Float32:
@@ -183,7 +181,7 @@ fn test_batch_transform_different_sizes() raises:
     values3.append(5.0)
     values3.append(6.0)
 
-    var tensors: List[Tensor] = []
+    var tensors: List[AnyTensor] = []
     tensors.append(AnyTensor(values1^))
     tensors.append(AnyTensor(values2^))
     tensors.append(AnyTensor(values3^))
@@ -223,7 +221,7 @@ fn test_batch_transform_with_clamp() raises:
     values2.append(20.0)
     values2.append(25.0)
 
-    var tensors: List[Tensor] = []
+    var tensors: List[AnyTensor] = []
     tensors.append(AnyTensor(values1^))
     tensors.append(AnyTensor(values2^))
 

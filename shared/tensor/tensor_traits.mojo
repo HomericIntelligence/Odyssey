@@ -18,7 +18,7 @@ trait TensorLike(Copyable, Movable):
         """Return shape as list of dimension sizes."""
         ...
 
-    fn dtype(self) -> DType:
+    fn get_dtype(self) -> DType:
         """Return the element data type."""
         ...
 

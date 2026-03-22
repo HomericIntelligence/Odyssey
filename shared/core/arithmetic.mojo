@@ -837,7 +837,7 @@ fn divide_backward(
 # ============================================================================
 
 
-fn add[dt: DType](a: Tensor[dt], b: Tensor[dt]) raises -> Tensor[dt]:
+fn add_typed[dt: DType](a: Tensor[dt], b: Tensor[dt]) raises -> Tensor[dt]:
     """Element-wise addition (typed version).
 
     Args:
@@ -850,7 +850,7 @@ fn add[dt: DType](a: Tensor[dt], b: Tensor[dt]) raises -> Tensor[dt]:
     return add(a.as_any(), b.as_any()).as_tensor[dt]()
 
 
-fn subtract[dt: DType](
+fn subtract_typed[dt: DType](
     a: Tensor[dt], b: Tensor[dt]
 ) raises -> Tensor[dt]:
     """Element-wise subtraction (typed version).
@@ -865,7 +865,7 @@ fn subtract[dt: DType](
     return subtract(a.as_any(), b.as_any()).as_tensor[dt]()
 
 
-fn multiply[dt: DType](
+fn multiply_typed[dt: DType](
     a: Tensor[dt], b: Tensor[dt]
 ) raises -> Tensor[dt]:
     """Element-wise multiplication (typed version).
@@ -880,7 +880,7 @@ fn multiply[dt: DType](
     return multiply(a.as_any(), b.as_any()).as_tensor[dt]()
 
 
-fn divide[dt: DType](
+fn divide_typed[dt: DType](
     a: Tensor[dt], b: Tensor[dt]
 ) raises -> Tensor[dt]:
     """Element-wise division (typed version).

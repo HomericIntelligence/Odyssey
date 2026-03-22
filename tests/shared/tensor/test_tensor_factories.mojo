@@ -31,7 +31,7 @@ fn test_zeros() raises:
     """zeros[DType.float32] creates a zero-filled tensor."""
     var t = zeros[DType.float32]([3, 4])
     assert_true(t.numel() == 12, "numel should be 12")
-    assert_true(t.dtype() == DType.float32, "dtype should be float32")
+    assert_true(t.get_dtype() == DType.float32, "dtype should be float32")
     for i in range(12):
         assert_almost_equal(
             Float64(t[i]), 0.0, atol=1e-6, msg="element should be 0"
@@ -66,7 +66,7 @@ fn test_zeros_like() raises:
     var original = ones[DType.float32]([3, 2])
     var z = zeros_like(original)
     assert_true(z.numel() == 6, "numel should match original")
-    assert_true(z.dtype() == DType.float32, "dtype should match")
+    assert_true(z.get_dtype() == DType.float32, "dtype should match")
     for i in range(6):
         assert_almost_equal(
             Float64(z[i]), 0.0, atol=1e-6, msg="element should be 0"
@@ -119,7 +119,7 @@ fn test_linspace() raises:
 fn test_factory_float64() raises:
     """Factory functions work with float64 dtype."""
     var t = zeros[DType.float64]([2, 2])
-    assert_true(t.dtype() == DType.float64, "dtype should be float64")
+    assert_true(t.get_dtype() == DType.float64, "dtype should be float64")
     assert_true(t.numel() == 4, "numel should be 4")
     for i in range(4):
         assert_almost_equal(

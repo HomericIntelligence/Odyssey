@@ -539,6 +539,14 @@ struct AnyTensor(
         """
         return self._dtype
 
+    fn get_dtype(self) -> DType:
+        """Return the element data type (TensorLike conformance).
+
+        Returns:
+            The DType of tensor elements.
+        """
+        return self._dtype
+
     fn numel(self) -> Int:
         """Return the total number of elements in the tensor.
 
