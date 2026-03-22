@@ -108,6 +108,21 @@ fn batch_norm2d(
             "batch_norm2d requires 4D input (batch, channels, height, width)"
         )
 
+    if (
+        x.dtype() != gamma.dtype()
+        or x.dtype() != beta.dtype()
+        or x.dtype() != running_mean.dtype()
+        or x.dtype() != running_var.dtype()
+    ):
+        raise Error(
+            "batch_norm2d: all tensors must have the same dtype. Got x: "
+            + String(x.dtype())
+            + ", gamma: "
+            + String(gamma.dtype())
+            + ", beta: "
+            + String(beta.dtype())
+        )
+
     var batch = x_shape[0]
     var channels = x_shape[1]
     var height = x_shape[2]
