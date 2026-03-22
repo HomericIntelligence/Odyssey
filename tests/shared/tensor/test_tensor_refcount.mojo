@@ -42,34 +42,35 @@ fn test_refcount_shared_on_as_tensor() raises:
     print("PASS: test_refcount_shared_on_as_tensor")
 
 
-fn test_refcount_survives_source_destruction() raises:
-    """B4 regression: source destroyed, converted tensor still valid.
-
-    Create AnyTensor, convert to Tensor[dtype], verify Tensor still has
-    valid data after AnyTensor would be destroyed by ASAP destruction.
-    """
-    var t: Tensor[DType.float32]
-    # Inner scope -- AnyTensor created and converted here
+fn _make_tensor_from_anytensor() raises -> Tensor[DType.float32]:
+    """Helper: create AnyTensor, convert to Tensor, return Tensor (AnyTensor destroyed on return)."""
     var any_t = zeros([4], DType.float32)
     any_t._set_float32(0, Float32(1.5))
     any_t._set_float32(1, Float32(0.5))
-    t = any_t.as_tensor[DType.float32]()
-    # any_t still alive here, but after this scope it could be collected
+    return any_t.as_tensor[DType.float32]()
+    # any_t is destroyed here — ASAP destruction
 
-    # t should still have valid data
+
+fn test_refcount_survives_source_destruction() raises:
+    """B4 regression: AnyTensor destroyed, Tensor[dtype] still valid."""
+    var t = _make_tensor_from_anytensor()
+    # any_t is definitively gone
     assert_almost_equal(Float32(t[0]), Float32(1.5), atol=1e-6)
     assert_almost_equal(Float32(t[1]), Float32(0.5), atol=1e-6)
     print("PASS: test_refcount_survives_source_destruction")
 
 
-fn test_refcount_survives_tensor_destruction() raises:
-    """Reverse B4: Tensor[dtype] destroyed, AnyTensor still valid."""
-    var any_t: AnyTensor
+fn _make_anytensor_from_tensor() raises -> AnyTensor:
+    """Helper: create Tensor, convert to AnyTensor, return AnyTensor (Tensor destroyed on return)."""
     var t = Tensor[DType.float32]([4])
     t._data[0] = Scalar[DType.float32](0.125)
-    any_t = t.as_any()
-    # t still alive here but could be collected after
+    return t.as_any()
+    # t is destroyed here — ASAP destruction
 
+
+fn test_refcount_survives_tensor_destruction() raises:
+    """Reverse B4: Tensor[dtype] destroyed, AnyTensor still valid."""
+    var any_t = _make_anytensor_from_tensor()
     assert_almost_equal(any_t._get_float32(0), Float32(0.125), atol=1e-6)
     print("PASS: test_refcount_survives_tensor_destruction")
 
