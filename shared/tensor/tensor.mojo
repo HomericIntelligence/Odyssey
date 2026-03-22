@@ -405,34 +405,50 @@ struct Tensor[dtype: DType = DType.float32](
         so ASAP destruction of either only decrements (not frees) the count
         until the last reference goes away (B4).
 
+        Safety: This method performs manual field replacement on an ExTensor
+        because ExTensor lacks an internal constructor accepting raw pointers.
+        The temporary ExTensor's independent allocation is fully torn down
+        (data freed, refcount freed) before fields are replaced with shared
+        pointers from this Tensor.
+
+        TODO(#5005): Replace with ExTensor internal constructor once available,
+        eliminating the allocate-then-free overhead and fragile field surgery.
+
         Returns:
             An ExTensor sharing the same data and refcount.
 
         Raises:
             Error: If ExTensor construction fails.
         """
-        # Create an ExTensor with same shape/dtype — this allocates new memory
+        # Create an ExTensor with same shape/dtype — this allocates its own
+        # independent data buffer and refcount pointer.
         var shape_copy = List[Int]()
         for i in range(len(self._shape)):
             shape_copy.append(self._shape[i])
         var result = ExTensor(shape_copy, Self.dtype)
 
-        # Free the ExTensor's own allocation — we'll replace it with ours
-        pooled_free(result._data, result._allocated_size)
-        result._refcount[] -= 1
-        if result._refcount[] == 0:
-            result._refcount.free()
+        # --- Tear down the temporary ExTensor's independent allocation ---
+        # Free the independently allocated data buffer (safe: result is the
+        # sole owner at this point, refcount == 1).
+        var tmp_data = result._data
+        var tmp_alloc_size = result._allocated_size
+        var tmp_refcount = result._refcount
+        pooled_free(tmp_data, tmp_alloc_size)
+        # Free the independent refcount pointer (was allocated with alloc[Int](1))
+        tmp_refcount.free()
 
+        # --- Replace fields with shared pointers from this Tensor ---
         # Share our data pointer (bitcast typed -> UInt8 for ExTensor)
         result._data = self._data.bitcast[UInt8]()
+        result._allocated_size = self._allocated_size
         result._shape = self._shape.copy()
         result._strides = self._strides.copy()
         result._numel = self._numel
         result._is_view = self._is_view
-        result._allocated_size = self._allocated_size
         result._original_numel_quantized = self._original_numel_quantized
 
-        # Share our refcount and increment (B4 critical)
+        # Share our refcount and increment for shared ownership (B4 critical).
+        # After this, both `self` and `result` point to the same refcount.
         result._refcount = self._refcount
         result._refcount[] += 1
 
@@ -448,38 +464,50 @@ struct Tensor[dtype: DType = DType.float32](
         For tensors with more than 1000 elements, shows only the first 3 and
         last 3 elements with '...' in between.
 
+        Uses stride-aware element access via `self[i]` so non-contiguous
+        tensors (e.g., after transpose) display correct logical values.
+
         Returns:
             String in the format: Tensor([v0, v1, ...], dtype=<dtype>)
         """
-        comptime TRUNCATE_THRESHOLD = 1000
-        comptime SHOW_ELEMENTS = 3
-
         var result = String("Tensor([")
-        if self._numel > TRUNCATE_THRESHOLD:
-            for i in range(SHOW_ELEMENTS):
+        if self._numel > TENSOR_PRINT_THRESHOLD:
+            for i in range(TENSOR_PRINT_SHOW_ELEMENTS):
                 if i > 0:
                     result += ", "
-                result += String(self._data[i])
+                try:
+                    result += String(self[i])
+                except:
+                    result += "?"
             result += ", ..."
-            for i in range(self._numel - SHOW_ELEMENTS, self._numel):
-                result += ", " + String(self._data[i])
+            for i in range(
+                self._numel - TENSOR_PRINT_SHOW_ELEMENTS, self._numel
+            ):
+                result += ", "
+                try:
+                    result += String(self[i])
+                except:
+                    result += "?"
         else:
             for i in range(self._numel):
                 if i > 0:
                     result += ", "
-                result += String(self._data[i])
+                try:
+                    result += String(self[i])
+                except:
+                    result += "?"
         result += "], dtype=" + String(Self.dtype) + ")"
         return result
 
     fn __repr__(self) -> String:
         """Detailed representation for debugging.
 
+        Uses stride-aware element access via `self[i]` so non-contiguous
+        tensors (e.g., after transpose) display correct logical values.
+
         Returns:
             String with shape, dtype, numel, and data.
         """
-        comptime TRUNCATE_THRESHOLD = 1000
-        comptime SHOW_ELEMENTS = 3
-
         var shape_str = String("[")
         for i in range(len(self._shape)):
             if i > 0:
@@ -490,19 +518,31 @@ struct Tensor[dtype: DType = DType.float32](
         result += ", dtype=" + String(Self.dtype)
         result += ", numel=" + String(self._numel)
         result += ", data=["
-        if self._numel > TRUNCATE_THRESHOLD:
-            for i in range(SHOW_ELEMENTS):
+        if self._numel > TENSOR_PRINT_THRESHOLD:
+            for i in range(TENSOR_PRINT_SHOW_ELEMENTS):
                 if i > 0:
                     result += ", "
-                result += String(self._data[i])
+                try:
+                    result += String(self[i])
+                except:
+                    result += "?"
             result += ", ..."
-            for i in range(self._numel - SHOW_ELEMENTS, self._numel):
-                result += ", " + String(self._data[i])
+            for i in range(
+                self._numel - TENSOR_PRINT_SHOW_ELEMENTS, self._numel
+            ):
+                result += ", "
+                try:
+                    result += String(self[i])
+                except:
+                    result += "?"
         else:
             for i in range(self._numel):
                 if i > 0:
                     result += ", "
-                result += String(self._data[i])
+                try:
+                    result += String(self[i])
+                except:
+                    result += "?"
         result += "])"
         return result
 
