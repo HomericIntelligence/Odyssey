@@ -192,6 +192,30 @@ fn _dispatch_float_unary_typed[
 
 
 @always_inline
+fn _neg_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+    """Negation operation."""
+    return -x
+
+
+fn negate(tensor: AnyTensor) raises -> AnyTensor:
+    """Negate all elements element-wise (-x).
+
+    Args:
+            tensor: Input tensor.
+
+    Returns:
+            A new tensor with negated values.
+
+    Examples:
+    ```
+            var a = full(shape, 3.0, DType.float32)
+            var b = negate(a)  # All values become -3.0
+    ```
+    """
+    return dispatch_unary[_neg_op](tensor)
+
+
+@always_inline
 fn _abs_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Absolute value operation."""
     if x >= Scalar[T](0):
