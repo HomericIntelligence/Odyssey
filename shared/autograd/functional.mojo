@@ -32,7 +32,7 @@ Common Patterns Supported:
 """
 
 from shared.core import (
-    ExTensor,
+    AnyTensor,
     add,
     multiply,
     subtract,
@@ -56,7 +56,7 @@ from shared.core import (
 # ============================================================================
 
 
-fn multiply_scalar(tensor: ExTensor, scalar: Float64) raises -> ExTensor:
+fn multiply_scalar(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     """Multiply tensor by a scalar value.
 
         More efficient than creating a full tensor filled with the scalar value.
@@ -71,14 +71,14 @@ fn multiply_scalar(tensor: ExTensor, scalar: Float64) raises -> ExTensor:
     Raises:
             Error: If operation fails.
     """
-    var result = ExTensor(tensor.shape(), tensor.dtype())
+    var result = AnyTensor(tensor.shape(), tensor.dtype())
     for i in range(tensor.numel()):
         var val = tensor._get_float64(i)
         result._set_float64(i, val * scalar)
     return result
 
 
-fn add_scalar(tensor: ExTensor, scalar: Float64) raises -> ExTensor:
+fn add_scalar(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     """Add a scalar value to all elements of a tensor.
 
     Args:
@@ -91,14 +91,14 @@ fn add_scalar(tensor: ExTensor, scalar: Float64) raises -> ExTensor:
     Raises:
             Error: If operation fails.
     """
-    var result = ExTensor(tensor.shape(), tensor.dtype())
+    var result = AnyTensor(tensor.shape(), tensor.dtype())
     for i in range(tensor.numel()):
         var val = tensor._get_float64(i)
         result._set_float64(i, val + scalar)
     return result
 
 
-fn subtract_scalar(tensor: ExTensor, scalar: Float64) raises -> ExTensor:
+fn subtract_scalar(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     """Subtract a scalar value from all elements of a tensor.
 
     Args:
@@ -111,14 +111,14 @@ fn subtract_scalar(tensor: ExTensor, scalar: Float64) raises -> ExTensor:
     Raises:
             Error: If operation fails.
     """
-    var result = ExTensor(tensor.shape(), tensor.dtype())
+    var result = AnyTensor(tensor.shape(), tensor.dtype())
     for i in range(tensor.numel()):
         var val = tensor._get_float64(i)
         result._set_float64(i, val - scalar)
     return result
 
 
-fn divide_scalar(tensor: ExTensor, scalar: Float64) raises -> ExTensor:
+fn divide_scalar(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     """Divide all elements of a tensor by a scalar value.
 
     Args:
@@ -134,7 +134,7 @@ fn divide_scalar(tensor: ExTensor, scalar: Float64) raises -> ExTensor:
     if scalar == 0.0:
         raise Error("Cannot divide by zero")
 
-    var result = ExTensor(tensor.shape(), tensor.dtype())
+    var result = AnyTensor(tensor.shape(), tensor.dtype())
     for i in range(tensor.numel()):
         var val = tensor._get_float64(i)
         result._set_float64(i, val / scalar)
@@ -147,8 +147,8 @@ fn divide_scalar(tensor: ExTensor, scalar: Float64) raises -> ExTensor:
 
 
 fn apply_gradient(
-    parameter: ExTensor, gradient: ExTensor, learning_rate: Float64
-) raises -> ExTensor:
+    parameter: AnyTensor, gradient: AnyTensor, learning_rate: Float64
+) raises -> AnyTensor:
     """Apply a gradient to a parameter with given learning rate.
 
         Performs: parameter = parameter - learning_rate * gradient.
@@ -173,8 +173,8 @@ fn apply_gradient(
 
 
 fn apply_gradients(
-    mut parameters: List[ExTensor],
-    gradients: List[ExTensor],
+    mut parameters: List[AnyTensor],
+    gradients: List[AnyTensor],
     learning_rate: Float64,
 ) raises:
     """Apply gradients to multiple parameters in-place.
@@ -213,10 +213,10 @@ struct LossAndGrad:
         grad: Gradient tensor (same shape as input).
     """
 
-    var loss: ExTensor
-    var grad: ExTensor
+    var loss: AnyTensor
+    var grad: AnyTensor
 
-    fn __init__(out self, var loss: ExTensor, var grad: ExTensor):
+    fn __init__(out self, var loss: AnyTensor, var grad: AnyTensor):
         """Initialize loss and gradient pair.
 
         Args:
@@ -228,7 +228,7 @@ struct LossAndGrad:
 
 
 fn mse_loss_and_grad(
-    predictions: ExTensor, targets: ExTensor
+    predictions: AnyTensor, targets: AnyTensor
 ) raises -> LossAndGrad:
     """Compute MSE loss and gradient in one pass.
 
@@ -263,7 +263,7 @@ fn mse_loss_and_grad(
 
 
 fn bce_loss_and_grad(
-    predictions: ExTensor, targets: ExTensor, epsilon: Float64 = 1e-7
+    predictions: AnyTensor, targets: AnyTensor, epsilon: Float64 = 1e-7
 ) raises -> LossAndGrad:
     """Compute binary cross-entropy loss and gradient.
 
@@ -299,7 +299,7 @@ fn bce_loss_and_grad(
 
 
 fn ce_loss_and_grad(
-    logits: ExTensor, targets: ExTensor, epsilon: Float64 = 1e-7
+    logits: AnyTensor, targets: AnyTensor, epsilon: Float64 = 1e-7
 ) raises -> LossAndGrad:
     """Compute cross-entropy loss and gradient.
 
@@ -337,8 +337,8 @@ fn ce_loss_and_grad(
 
 # Helper function for manual gradient computation patterns
 fn compute_gradient(
-    predictions: ExTensor, targets: ExTensor, loss_type: String = "mse"
-) raises -> ExTensor:
+    predictions: AnyTensor, targets: AnyTensor, loss_type: String = "mse"
+) raises -> AnyTensor:
     """Compute gradient for common loss functions.
 
         Convenience function that dispatches to the appropriate loss_and_grad

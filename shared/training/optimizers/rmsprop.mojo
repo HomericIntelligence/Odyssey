@@ -22,23 +22,23 @@ Reference:
     machine learning, 4(2), 26-31
 """
 
-from shared.core import ExTensor, zeros, full_like, zeros_like
+from shared.core import AnyTensor, zeros, full_like, zeros_like
 from shared.core import subtract, multiply, add, divide, power
 from shared.core import sqrt
 
 
 fn rmsprop_step(
-    params: ExTensor,
-    gradients: ExTensor,
-    square_avg: ExTensor,
+    params: AnyTensor,
+    gradients: AnyTensor,
+    square_avg: AnyTensor,
     t: Int,
     learning_rate: Float64,
     alpha: Float64 = 0.99,
     epsilon: Float64 = 1e-8,
     weight_decay: Float64 = 0.0,
     momentum: Float64 = 0.0,
-    buf: Optional[ExTensor] = None,
-) raises -> Tuple[ExTensor, ExTensor, ExTensor]:
+    buf: Optional[AnyTensor] = None,
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
     """Perform a single RMSprop optimization step - pure functional.
 
         Returns new parameters, new square average, and new momentum buffer
@@ -61,7 +61,7 @@ fn rmsprop_step(
 
     Example (basic RMSprop):
         ```mojo
-        from shared.core import ExTensor, zeros_like
+        from shared.core import AnyTensor, zeros_like
         from shared.training.optimizers import rmsprop_step
 
         var W = xavier_uniform(784, 128, DType.float32)
@@ -114,7 +114,7 @@ fn rmsprop_step(
         raise Error("Timestep t must be positive (starts at 1)")
 
     # Initialize buf if not provided
-    var initialized_buf: ExTensor
+    var initialized_buf: AnyTensor
     if buf:
         initialized_buf = buf.value()
     else:
@@ -169,13 +169,13 @@ fn rmsprop_step(
 
 
 fn rmsprop_step_simple(
-    params: ExTensor,
-    gradients: ExTensor,
-    square_avg: ExTensor,
+    params: AnyTensor,
+    gradients: AnyTensor,
+    square_avg: AnyTensor,
     learning_rate: Float64,
     alpha: Float64 = 0.99,
     epsilon: Float64 = 1e-8,
-) raises -> Tuple[ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor]:
     """Simplified RMSprop step without weight decay, momentum, or timestep.
 
         This is a convenience function for basic RMSprop updates.
@@ -193,7 +193,7 @@ fn rmsprop_step_simple(
 
     Example:
         ```mojo
-        from shared.core import ExTensor, zeros_like
+        from shared.core import AnyTensor, zeros_like
         from shared.training.optimizers import rmsprop_step_simple
 
         var W = xavier_uniform(784, 128, DType.float32)

@@ -5,16 +5,16 @@ a transform pipeline. Transforms are applied to data but not labels,
 enabling data augmentation during training.
 
 Example:
-    from shared.data import ExTensorDataset, TransformedDataset
+    from shared.data import AnyTensorDataset, TransformedDataset
     from shared.data.transforms import Normalize
 
-    var dataset = ExTensorDataset(images, labels)
+    var dataset = AnyTensorDataset(images, labels)
     var normalize = Normalize(mean=0.5, std=0.5)
     var transformed = TransformedDataset(dataset, normalize)
     var img, label = transformed[0]  # Returns normalized image
 """
 
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.data._datasets_core import Dataset
 from shared.data.transforms import Transform
 
@@ -29,11 +29,11 @@ struct TransformedDataset[
 
     Parameters:
         D: Dataset type that conforms to the Dataset trait.
-        T: Transform type with __call__(ExTensor) -> ExTensor method.
+        T: Transform type with __call__(AnyTensor) -> AnyTensor method.
 
     Examples:
         ```mojo
-        var dataset = ExTensorDataset(images, labels)
+        var dataset = AnyTensorDataset(images, labels)
         var normalize = Normalize(mean=0.5, std=0.5)
         var transformed = TransformedDataset(dataset, normalize)
 
@@ -65,7 +65,7 @@ struct TransformedDataset[
         """
         return self.dataset.__len__()
 
-    fn __getitem__(self, index: Int) raises -> Tuple[ExTensor, ExTensor]:
+    fn __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get a sample with transform applied.
 
         The transform is applied to the data but not the labels.
@@ -82,7 +82,7 @@ struct TransformedDataset[
         var data, labels = self.dataset.__getitem__(index)
 
         # Apply transform to data only, not labels
-        # The transform must have __call__(ExTensor) -> ExTensor method
+        # The transform must have __call__(AnyTensor) -> AnyTensor method
         var transformed_data = self.transform(data)
 
         return (transformed_data, labels)

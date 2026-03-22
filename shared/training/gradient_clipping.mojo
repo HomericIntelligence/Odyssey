@@ -25,7 +25,7 @@ Example:
         print("Warning: Large gradient norm detected:", total_norm)
 """
 
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from collections import List
 from math import sqrt
 
@@ -36,7 +36,7 @@ from shared.training.mixed_precision import (
 )
 
 
-fn compute_gradient_norm_list(gradients: List[ExTensor]) raises -> Float32:
+fn compute_gradient_norm_list(gradients: List[AnyTensor]) raises -> Float32:
     """Compute global L2 norm across all gradient tensors.
 
     Args:
@@ -69,7 +69,7 @@ fn compute_gradient_norm_list(gradients: List[ExTensor]) raises -> Float32:
 
 
 fn clip_gradients_by_global_norm(
-    mut gradients: List[ExTensor], max_norm: Float32
+    mut gradients: List[AnyTensor], max_norm: Float32
 ) raises -> Float32:
     """Clip gradients by global norm across all parameters.
 
@@ -122,7 +122,7 @@ fn clip_gradients_by_global_norm(
 
 
 fn clip_gradients_per_param(
-    mut gradients: List[ExTensor], max_norm: Float32
+    mut gradients: List[AnyTensor], max_norm: Float32
 ) raises:
     """Clip each parameter's gradients independently by their local norm.
 
@@ -172,7 +172,7 @@ fn clip_gradients_per_param(
 
 
 fn clip_gradients_by_value_list(
-    mut gradients: List[ExTensor], min_value: Float32, max_value: Float32
+    mut gradients: List[AnyTensor], min_value: Float32, max_value: Float32
 ) raises:
     """Clip all gradients by value range.
 
@@ -288,7 +288,7 @@ struct GradientStatistics:
 
 
 fn compute_gradient_statistics(
-    gradients: List[ExTensor],
+    gradients: List[AnyTensor],
 ) raises -> GradientStatistics:
     """Compute comprehensive gradient statistics for monitoring.
 

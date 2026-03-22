@@ -21,12 +21,12 @@ Features:
 
 """
 
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from collections import List
 
 
 fn evaluate_with_predict(
-    predictions: List[Int], labels: ExTensor
+    predictions: List[Int], labels: AnyTensor
 ) raises -> Float32:
     """Evaluate model using pre-computed predictions.
 
@@ -68,7 +68,7 @@ fn evaluate_with_predict(
     return Float32(correct) / Float32(len(predictions))
 
 
-fn evaluate_logits_batch(logits: ExTensor, labels: ExTensor) raises -> Float32:
+fn evaluate_logits_batch(logits: AnyTensor, labels: AnyTensor) raises -> Float32:
     """Evaluate using logits (2D) by computing argmax per sample.
 
         Evaluates a batch of logits by computing argmax for each sample
@@ -125,7 +125,7 @@ fn evaluate_logits_batch(logits: ExTensor, labels: ExTensor) raises -> Float32:
 
 
 fn compute_accuracy_on_batch(
-    predictions: ExTensor, labels: ExTensor
+    predictions: AnyTensor, labels: AnyTensor
 ) raises -> Float32:
     """Compute accuracy for a single batch (simple utility).
 

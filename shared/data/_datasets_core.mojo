@@ -5,12 +5,12 @@ for loading and accessing data in ML workflows.
 
 Includes:
     - Dataset trait: Base interface for all datasets
-    - ExTensorDataset: In-memory tensor dataset wrapper
+    - AnyTensorDataset: In-memory tensor dataset wrapper
     - FileDataset: Lazy-loading dataset from files
     - EMNISTDataset: Extended MNIST dataset with multiple splits
 """
 
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 from shared.data.formats import load_idx_labels, load_idx_images
 from utils.index import Index
 
@@ -35,7 +35,7 @@ trait Dataset:
         """
         ...
 
-    fn __getitem__(self, index: Int) raises -> Tuple[ExTensor, ExTensor]:
+    fn __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get a sample from the dataset.
 
         Args:
@@ -51,22 +51,22 @@ trait Dataset:
 
 
 # ============================================================================
-# ExTensorDataset Implementation
+# AnyTensorDataset Implementation
 # ============================================================================
 
 
-struct ExTensorDataset(Copyable, Dataset, Movable, Sized):
+struct AnyTensorDataset(Copyable, Dataset, Movable, Sized):
     """Dataset wrapping tensors for in-memory data.
 
     Stores data and labels as tensors and provides indexed access.
     Suitable for small to medium datasets that fit in memory.
     """
 
-    var data: ExTensor
-    var labels: ExTensor
+    var data: AnyTensor
+    var labels: AnyTensor
     var _len: Int
 
-    fn __init__(out self, var data: ExTensor, var labels: ExTensor) raises:
+    fn __init__(out self, var data: AnyTensor, var labels: AnyTensor) raises:
         """Create dataset from tensors.
 
         Args:
@@ -87,7 +87,7 @@ struct ExTensorDataset(Copyable, Dataset, Movable, Sized):
         """Return number of samples."""
         return self._len
 
-    fn __getitem__(self, index: Int) raises -> Tuple[ExTensor, ExTensor]:
+    fn __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get sample at index.
 
         Args:
@@ -135,7 +135,7 @@ struct FileDataset(Copyable, Dataset, Movable):
     var labels: List[Int]
     var _len: Int
     var cache_enabled: Bool
-    var _cache: Dict[Int, Tuple[ExTensor, ExTensor]]
+    var _cache: Dict[Int, Tuple[AnyTensor, AnyTensor]]
 
     fn __init__(
         out self,
@@ -160,13 +160,13 @@ struct FileDataset(Copyable, Dataset, Movable):
         self.labels = labels^
         self._len = len(self.file_paths)
         self.cache_enabled = cache
-        self._cache = Dict[Int, Tuple[ExTensor, ExTensor]]()
+        self._cache = Dict[Int, Tuple[AnyTensor, AnyTensor]]()
 
     fn __len__(self) -> Int:
         """Return number of samples."""
         return self._len
 
-    fn __getitem__(self, index: Int) raises -> Tuple[ExTensor, ExTensor]:
+    fn __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
         """Load and return sample at index.
 
         Args:
@@ -211,7 +211,7 @@ struct FileDataset(Copyable, Dataset, Movable):
 
         return result
 
-    fn _load_file(self, path: String) raises -> ExTensor:
+    fn _load_file(self, path: String) raises -> AnyTensor:
         """Load data from file based on file extension.
 
         Supports multiple file formats with format-specific decoders.
@@ -263,7 +263,7 @@ struct FileDataset(Copyable, Dataset, Movable):
                 "Unsupported file format: " + ext + ". Supported: csv, bin, txt"
             )
 
-    fn _load_csv(self, path: String) raises -> ExTensor:
+    fn _load_csv(self, path: String) raises -> AnyTensor:
         """Load CSV file as tensor.
 
         Parses CSV rows and columns into a 2D tensor.
@@ -285,9 +285,9 @@ struct FileDataset(Copyable, Dataset, Movable):
         # Placeholder: 10x5 CSV data
         for _ in range(50):
             data.append(Float32(1.0))
-        return ExTensor(data^)
+        return AnyTensor(data^)
 
-    fn _load_binary(self, path: String) raises -> ExTensor:
+    fn _load_binary(self, path: String) raises -> AnyTensor:
         """Load binary file as tensor.
 
         Reads raw float32 values from binary file.
@@ -309,9 +309,9 @@ struct FileDataset(Copyable, Dataset, Movable):
         # Placeholder: 100 float32 values
         for _ in range(100):
             data.append(Float32(1.0))
-        return ExTensor(data^)
+        return AnyTensor(data^)
 
-    fn _load_text(self, path: String) raises -> ExTensor:
+    fn _load_text(self, path: String) raises -> AnyTensor:
         """Load text file as tensor.
 
         Parses space and newline separated numbers into a tensor.
@@ -333,7 +333,7 @@ struct FileDataset(Copyable, Dataset, Movable):
         # Placeholder: 50 float32 values
         for _ in range(50):
             data.append(Float32(1.0))
-        return ExTensor(data^)
+        return AnyTensor(data^)
 
 
 # ============================================================================
@@ -355,8 +355,8 @@ struct EMNISTDataset(Copyable, Dataset, Movable):
         data_dir: Directory containing the EMNIST data files.
     """
 
-    var data: ExTensor
-    var labels: ExTensor
+    var data: AnyTensor
+    var labels: AnyTensor
     var _len: Int
     var split: String
     var data_dir: String
@@ -446,7 +446,7 @@ struct EMNISTDataset(Copyable, Dataset, Movable):
         """
         return self._len
 
-    fn __getitem__(self, index: Int) raises -> Tuple[ExTensor, ExTensor]:
+    fn __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get a sample from the dataset.
 
         Args:
@@ -454,8 +454,8 @@ struct EMNISTDataset(Copyable, Dataset, Movable):
 
         Returns:
             Tuple of (image, label) tensors where:
-            - image: ExTensor with shape (1, 28, 28) - single grayscale image.
-            - label: ExTensor with shape (1,) - integer label.
+            - image: AnyTensor with shape (1, 28, 28) - single grayscale image.
+            - label: AnyTensor with shape (1,) - integer label.
 
         Raises:
             Error: If index is out of bounds.
@@ -480,31 +480,31 @@ struct EMNISTDataset(Copyable, Dataset, Movable):
             self.labels.slice(idx, idx + 1, axis=0),
         )
 
-    fn get_train_data(self) raises -> ExTensorDataset:
-        """Get training data as ExTensorDataset.
+    fn get_train_data(self) raises -> AnyTensorDataset:
+        """Get training data as AnyTensorDataset.
 
         Returns:
-            ExTensorDataset containing all training data and labels.
+            AnyTensorDataset containing all training data and labels.
 
         Raises:
             Error: If data or labels are invalid.
         """
-        return ExTensorDataset(self.data, self.labels)
+        return AnyTensorDataset(self.data, self.labels)
 
-    fn get_test_data(self) raises -> ExTensorDataset:
-        """Get test data as ExTensorDataset.
+    fn get_test_data(self) raises -> AnyTensorDataset:
+        """Get test data as AnyTensorDataset.
 
         Note: This method returns the same data as get_train_data since
         EMNISTDataset is initialized with either train or test split via __init__.
         Use __init__ with train=False to load test data.
 
         Returns:
-            ExTensorDataset containing all data and labels.
+            AnyTensorDataset containing all data and labels.
 
         Raises:
             Error: If data or labels are invalid.
         """
-        return ExTensorDataset(self.data, self.labels)
+        return AnyTensorDataset(self.data, self.labels)
 
     fn shape(self) -> List[Int]:
         """Return the shape of individual samples.
@@ -554,7 +554,7 @@ struct EMNISTDataset(Copyable, Dataset, Movable):
 fn load_emnist_train(
     data_dir: String,
     split: String = "balanced",
-) raises -> Tuple[ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor]:
     """Load EMNIST training dataset.
 
     Args:
@@ -574,7 +574,7 @@ fn load_emnist_train(
 fn load_emnist_test(
     data_dir: String,
     split: String = "balanced",
-) raises -> Tuple[ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor]:
     """Load EMNIST test dataset.
 
     Args:
@@ -597,4 +597,4 @@ fn load_emnist_test(
 
 
 # Type comptime for backwards compatibility
-comptime TensorDataset = ExTensorDataset
+comptime TensorDataset = AnyTensorDataset

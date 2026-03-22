@@ -27,14 +27,14 @@ Usage:
     scaler.step()  # Update scale factor
 
     # SIMD-optimized FP16/FP32 conversion
-    var fp16_params = ExTensor(..., DType.float16)
+    var fp16_params = AnyTensor(..., DType.float16)
     var fp32_master = convert_to_fp32_master(fp16_params)  # ~4x faster
     update_model_from_master(fp16_params, fp32_master)  # ~4x faster
 
 See mixed precision training examples in examples/mixed_precision/
 """
 
-from shared.core import ExTensor, full
+from shared.core import AnyTensor, full
 from shared.core import has_nan, has_inf
 from math import log2
 from algorithm import vectorize
@@ -120,7 +120,7 @@ struct GradientScaler(Copyable, Movable):
         self.min_scale = min_scale
         self.max_scale = max_scale
 
-    fn scale_loss(self, loss: ExTensor) raises -> ExTensor:
+    fn scale_loss(self, loss: AnyTensor) raises -> AnyTensor:
         """Scale loss by current scale factor.
 
         Args:
@@ -150,7 +150,7 @@ struct GradientScaler(Copyable, Movable):
         var scale_tensor = full(loss.shape(), Float64(self.scale), loss.dtype())
         return loss * scale_tensor
 
-    fn unscale_gradients(self, gradients: ExTensor) raises -> ExTensor:
+    fn unscale_gradients(self, gradients: AnyTensor) raises -> AnyTensor:
         """Unscale gradients by dividing by scale factor.
 
         Args:
@@ -236,7 +236,7 @@ struct GradientScaler(Copyable, Movable):
         return self._num_steps
 
 
-fn convert_to_fp32_master(params: ExTensor) raises -> ExTensor:
+fn convert_to_fp32_master(params: AnyTensor) raises -> AnyTensor:
     """Convert model parameters to FP32 master weights with SIMD optimization.
 
     Creates FP32 copy of parameters for optimizer state management.
@@ -264,7 +264,7 @@ fn convert_to_fp32_master(params: ExTensor) raises -> ExTensor:
     Example:
         ```mojo
         # Model params in FP16
-        var fp16_params = ExTensor.zeros((1000, 1000), DType.float16)
+        var fp16_params = AnyTensor.zeros((1000, 1000), DType.float16)
 
         # Create FP32 master weights for optimizer
         var master_params = convert_to_fp32_master(fp16_params)
@@ -275,7 +275,7 @@ fn convert_to_fp32_master(params: ExTensor) raises -> ExTensor:
         raise Error("Cannot convert empty parameter tensor")
 
     # Create FP32 tensor with same shape
-    var result = ExTensor(params.shape(), DType.float32)
+    var result = AnyTensor(params.shape(), DType.float32)
     var size = params._numel
 
     # If already FP32, use SIMD copy
@@ -300,7 +300,7 @@ fn convert_to_fp32_master(params: ExTensor) raises -> ExTensor:
 
 
 fn update_model_from_master(
-    mut model_params: ExTensor, master_params: ExTensor
+    mut model_params: AnyTensor, master_params: AnyTensor
 ) raises:
     """Update model parameters from FP32 master weights with SIMD optimization.
 
@@ -357,7 +357,7 @@ fn update_model_from_master(
         model_params._set_float64(i, val)
 
 
-fn check_gradients_finite(gradients: ExTensor) raises -> Bool:
+fn check_gradients_finite(gradients: AnyTensor) raises -> Bool:
     """Check if gradients contain only finite values.
 
     Returns True if gradients are all finite (no NaN or Inf).
@@ -385,8 +385,8 @@ fn check_gradients_finite(gradients: ExTensor) raises -> Bool:
 
 
 fn clip_gradients_by_norm(
-    gradients: ExTensor, max_norm: Float32
-) raises -> ExTensor:
+    gradients: AnyTensor, max_norm: Float32
+) raises -> AnyTensor:
     """Clip gradients by global norm.
 
     Scales gradients if their L2 norm exceeds max_norm.
@@ -437,8 +437,8 @@ fn clip_gradients_by_norm(
 
 
 fn clip_gradients_by_value(
-    gradients: ExTensor, min_value: Float32, max_value: Float32
-) raises -> ExTensor:
+    gradients: AnyTensor, min_value: Float32, max_value: Float32
+) raises -> AnyTensor:
     """Clip gradients by value range with SIMD optimization.
 
     Clamps each gradient value to [min_value, max_value].
@@ -478,7 +478,7 @@ fn clip_gradients_by_value(
         return gradients  # No clipping needed for empty tensor
 
     # Clamp each element to [min_value, max_value]
-    var result = ExTensor(gradients.shape(), gradients.dtype())
+    var result = AnyTensor(gradients.shape(), gradients.dtype())
     var size = gradients._numel
 
     # Use SIMD optimized path for Float32
@@ -510,7 +510,7 @@ fn clip_gradients_by_value(
 
 
 @always_inline
-fn _convert_fp32_to_fp32_simd(src: ExTensor, mut dst: ExTensor) raises:
+fn _convert_fp32_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD copy for FP32 to FP32 conversion.
 
     Uses vectorized load/store for maximum throughput.
@@ -531,7 +531,7 @@ fn _convert_fp32_to_fp32_simd(src: ExTensor, mut dst: ExTensor) raises:
 
 
 @always_inline
-fn _update_fp32_from_fp32_simd(src: ExTensor, mut dst: ExTensor) raises:
+fn _update_fp32_from_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD copy from FP32 master to FP32 model params.
 
     Uses vectorized load/store for maximum throughput.
@@ -553,7 +553,7 @@ fn _update_fp32_from_fp32_simd(src: ExTensor, mut dst: ExTensor) raises:
 
 @always_inline
 fn _clip_by_value_simd_float32(
-    src: ExTensor, mut dst: ExTensor, min_val: Float32, max_val: Float32
+    src: AnyTensor, mut dst: AnyTensor, min_val: Float32, max_val: Float32
 ):
     """SIMD clamp for Float32 gradients.
 
@@ -579,7 +579,7 @@ fn _clip_by_value_simd_float32(
 
 @always_inline
 fn _clip_by_value_simd_float64(
-    src: ExTensor, mut dst: ExTensor, min_val: Float32, max_val: Float32
+    src: AnyTensor, mut dst: AnyTensor, min_val: Float32, max_val: Float32
 ):
     """SIMD clamp for Float64 gradients.
 
@@ -606,7 +606,7 @@ fn _clip_by_value_simd_float64(
 
 
 @always_inline
-fn _convert_fp16_to_fp32_simd(src: ExTensor, mut dst: ExTensor) raises:
+fn _convert_fp16_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD conversion from FP16 to FP32 with vectorization.
 
     Uses SIMD casting to vectorize FP16→FP32 conversion.
@@ -638,7 +638,7 @@ fn _convert_fp16_to_fp32_simd(src: ExTensor, mut dst: ExTensor) raises:
 
 
 @always_inline
-fn _convert_fp32_to_fp16_simd(src: ExTensor, mut dst: ExTensor) raises:
+fn _convert_fp32_to_fp16_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD conversion from FP32 to FP16 with vectorization.
 
     Uses SIMD casting to vectorize FP32→FP16 conversion.

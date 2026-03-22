@@ -33,7 +33,7 @@ Example:
     var start_epoch = ckpt_mgr.load_latest(model_params, param_names)
 """
 
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.training.model_utils import save_model_weights, load_model_weights
 from shared.utils.file_io import (
     create_directory,
@@ -106,7 +106,7 @@ struct CheckpointManager:
 
     fn save_checkpoint(
         self,
-        parameters: List[ExTensor],
+        parameters: List[AnyTensor],
         param_names: List[String],
         epoch: Int,
         train_loss: Float32 = 0.0,
@@ -158,7 +158,7 @@ struct CheckpointManager:
 
     fn save_best(
         mut self,
-        mut parameters: List[ExTensor],
+        mut parameters: List[AnyTensor],
         param_names: List[String],
         epoch: Int,
         metric_value: Float32,
@@ -209,7 +209,7 @@ struct CheckpointManager:
 
     fn load_latest(
         mut self,
-        mut parameters: List[ExTensor],
+        mut parameters: List[AnyTensor],
         param_names: List[String],
     ) raises -> Int:
         """Load the most recent checkpoint.
@@ -246,7 +246,7 @@ struct CheckpointManager:
         return latest_epoch
 
     fn load_best(
-        mut self, mut parameters: List[ExTensor], param_names: List[String]
+        mut self, mut parameters: List[AnyTensor], param_names: List[String]
     ) raises:
         """Load the best model checkpoint.
 

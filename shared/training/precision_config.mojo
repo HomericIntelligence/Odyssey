@@ -23,7 +23,7 @@ See examples/mixed_precision_training.mojo for complete usage
 
 from sys import is_defined
 
-from shared.core.extensor import ExTensor, full, zeros
+from shared.core.extensor import AnyTensor, full, zeros
 from shared.core.dtype_cast import cast_tensor
 from shared.core.numerical_safety import has_nan, has_inf
 from shared.training.mixed_precision import (
@@ -325,7 +325,7 @@ struct PrecisionConfig(Copyable, Movable):
                 + ". Use fp32, fp16, bf16, or fp8."
             )
 
-    fn cast_to_compute(self, tensor: ExTensor) raises -> ExTensor:
+    fn cast_to_compute(self, tensor: AnyTensor) raises -> AnyTensor:
         """Cast tensor to compute precision.
 
         Args:
@@ -341,7 +341,7 @@ struct PrecisionConfig(Copyable, Movable):
             return tensor
         return cast_tensor(tensor, self.compute_dtype)
 
-    fn cast_to_storage(self, tensor: ExTensor) raises -> ExTensor:
+    fn cast_to_storage(self, tensor: AnyTensor) raises -> AnyTensor:
         """Cast tensor to storage precision.
 
         Args:
@@ -357,7 +357,7 @@ struct PrecisionConfig(Copyable, Movable):
             return tensor
         return cast_tensor(tensor, self.storage_dtype)
 
-    fn cast_to_master(self, tensor: ExTensor) raises -> ExTensor:
+    fn cast_to_master(self, tensor: AnyTensor) raises -> AnyTensor:
         """Cast tensor to master (FP32) precision.
 
         Args:
@@ -371,7 +371,7 @@ struct PrecisionConfig(Copyable, Movable):
         """
         return convert_to_fp32_master(tensor)
 
-    fn scale_loss(self, loss: ExTensor) raises -> ExTensor:
+    fn scale_loss(self, loss: AnyTensor) raises -> AnyTensor:
         """Scale loss for mixed precision training.
 
         For FP32, returns loss unchanged.
@@ -390,7 +390,7 @@ struct PrecisionConfig(Copyable, Movable):
             return loss
         return self.scaler.scale_loss(loss)
 
-    fn unscale_gradients(self, gradients: ExTensor) raises -> ExTensor:
+    fn unscale_gradients(self, gradients: AnyTensor) raises -> AnyTensor:
         """Unscale gradients after backward pass.
 
         For FP32, returns gradients unchanged.
@@ -409,7 +409,7 @@ struct PrecisionConfig(Copyable, Movable):
             return gradients
         return self.scaler.unscale_gradients(gradients)
 
-    fn check_gradients(self, gradients: ExTensor) raises -> Bool:
+    fn check_gradients(self, gradients: AnyTensor) raises -> Bool:
         """Check if gradients are valid (no NaN/Inf).
 
         Args:
@@ -479,8 +479,8 @@ struct PrecisionConfig(Copyable, Movable):
         return self.mode != PrecisionMode.FP32
 
     fn clip_gradients(
-        self, gradients: ExTensor, max_norm: Float32
-    ) raises -> ExTensor:
+        self, gradients: AnyTensor, max_norm: Float32
+    ) raises -> AnyTensor:
         """Clip gradients by global norm.
 
         Useful for preventing gradient explosion in mixed precision.

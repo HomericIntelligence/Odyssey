@@ -13,7 +13,7 @@ Issues covered:
 - #288-292: Confusion matrix implementation
 """
 
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from collections import List
 from math import sqrt
 from shared.training.metrics.base import Metric
@@ -52,7 +52,7 @@ struct ConfusionMatrix(Metric):
     """
 
     var num_classes: Int
-    var matrix: ExTensor  # Shape: [num_classes, num_classes], dtype=int32
+    var matrix: AnyTensor  # Shape: [num_classes, num_classes], dtype=int32
     var class_names: List[String]
     var has_class_names: Bool
 
@@ -72,7 +72,7 @@ struct ConfusionMatrix(Metric):
 
         # Initialize matrix with zeros
         var shape: List[Int] = [num_classes, num_classes]
-        self.matrix = ExTensor(shape, DType.int32)
+        self.matrix = AnyTensor(shape, DType.int32)
         for i in range(num_classes * num_classes):
             self.matrix.set(i, Int64(0))
 
@@ -80,7 +80,7 @@ struct ConfusionMatrix(Metric):
         self.class_names = List[String](class_names)
         self.has_class_names = len(class_names) > 0
 
-    fn update(mut self, predictions: ExTensor, labels: ExTensor) raises:
+    fn update(mut self, predictions: AnyTensor, labels: AnyTensor) raises:
         """Update confusion matrix with new batch of predictions.
 
         Args:
@@ -92,7 +92,7 @@ struct ConfusionMatrix(Metric):
                    or labels/predictions dtype is not int32 or int64.
         """
         # Get predicted classes
-        var pred_classes: ExTensor
+        var pred_classes: AnyTensor
         var pred_shape = predictions.shape()
 
         if len(pred_shape) == 2:
@@ -155,7 +155,7 @@ struct ConfusionMatrix(Metric):
         for i in range(self.num_classes * self.num_classes):
             self.matrix._set_int64(i, Int64(0))
 
-    fn normalize(self, mode: String = "none") raises -> ExTensor:
+    fn normalize(self, mode: String = "none") raises -> AnyTensor:
         """Normalize confusion matrix by row, column, total, or none.
 
         Args:
@@ -174,7 +174,7 @@ struct ConfusionMatrix(Metric):
         var result_shape = List[Int]()
         result_shape.append(self.num_classes)
         result_shape.append(self.num_classes)
-        var result = ExTensor(result_shape, DType.float64)
+        var result = AnyTensor(result_shape, DType.float64)
 
         if mode == "none":
             # Raw counts
@@ -241,7 +241,7 @@ struct ConfusionMatrix(Metric):
 
         return result^
 
-    fn get_precision(self) raises -> ExTensor:
+    fn get_precision(self) raises -> AnyTensor:
         """Compute per-class precision.
 
         Precision[i] = matrix[i, i] / sum(matrix[:, i])
@@ -257,7 +257,7 @@ struct ConfusionMatrix(Metric):
         """
         var result_shape = List[Int]()
         result_shape.append(self.num_classes)
-        var result = ExTensor(result_shape, DType.float64)
+        var result = AnyTensor(result_shape, DType.float64)
 
         for col in range(self.num_classes):
             # Compute column sum (total predicted as this class)
@@ -278,7 +278,7 @@ struct ConfusionMatrix(Metric):
 
         return result^
 
-    fn get_recall(self) raises -> ExTensor:
+    fn get_recall(self) raises -> AnyTensor:
         """Compute per-class recall.
 
         Recall[i] = matrix[i, i] / sum(matrix[i, :])
@@ -294,7 +294,7 @@ struct ConfusionMatrix(Metric):
         """
         var result_shape = List[Int]()
         result_shape.append(self.num_classes)
-        var result = ExTensor(result_shape, DType.float64)
+        var result = AnyTensor(result_shape, DType.float64)
 
         for row in range(self.num_classes):
             # Compute row sum (total samples of this class)
@@ -315,7 +315,7 @@ struct ConfusionMatrix(Metric):
 
         return result^
 
-    fn get_f1_score(self) raises -> ExTensor:
+    fn get_f1_score(self) raises -> AnyTensor:
         """Compute per-class F1-score.
 
         F1[i] = 2 * (precision[i] * recall[i]) / (precision[i] + recall[i]).
@@ -333,7 +333,7 @@ struct ConfusionMatrix(Metric):
 
         var result_shape = List[Int]()
         result_shape.append(self.num_classes)
-        var result = ExTensor(result_shape, DType.float64)
+        var result = AnyTensor(result_shape, DType.float64)
 
         for i in range(self.num_classes):
             var p = precision._data.bitcast[Float64]()[i]
@@ -348,7 +348,7 @@ struct ConfusionMatrix(Metric):
 
 
 # Helper function for argmax (same as in accuracy.mojo, but duplicated for independence)
-fn argmax(var tensor: ExTensor) raises -> ExTensor:
+fn argmax(var tensor: AnyTensor) raises -> AnyTensor:
     """Compute argmax along last axis for 2D tensor.
 
     Args:
@@ -369,7 +369,7 @@ fn argmax(var tensor: ExTensor) raises -> ExTensor:
 
     var result_shape = List[Int]()
     result_shape.append(batch_size)
-    var result = ExTensor(result_shape, DType.int32)
+    var result = AnyTensor(result_shape, DType.int32)
 
     for b in range(batch_size):
         var max_idx = 0

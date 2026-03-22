@@ -15,7 +15,7 @@ Design principles:
 """
 
 from collections import List
-from shared.core.extensor import ExTensor
+from shared.core import AnyTensor
 from shared.training.metrics import AccuracyMetric, LossTracker, ConfusionMatrix
 from shared.training.trainer_interface import (
     DataLoader,
@@ -25,10 +25,10 @@ from shared.training.trainer_interface import (
 
 
 fn validation_step(
-    model_forward: fn (ExTensor) raises -> ExTensor,
-    compute_loss: fn (ExTensor, ExTensor) raises -> ExTensor,
-    data: ExTensor,
-    labels: ExTensor,
+    model_forward: fn (AnyTensor) raises -> AnyTensor,
+    compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
+    data: AnyTensor,
+    labels: AnyTensor,
 ) raises -> Float64:
     """Execute single validation step (forward pass only, no gradients).
 
@@ -57,8 +57,8 @@ fn validation_step(
 
 
 fn validate(
-    model_forward: fn (ExTensor) raises -> ExTensor,
-    compute_loss: fn (ExTensor, ExTensor) raises -> ExTensor,
+    model_forward: fn (AnyTensor) raises -> AnyTensor,
+    compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
     mut val_loader: DataLoader,
     compute_accuracy: Bool = True,
     compute_confusion: Bool = False,
@@ -183,8 +183,8 @@ struct ValidationLoop:
 
     fn run(
         self,
-        model_forward: fn (ExTensor) raises -> ExTensor,
-        compute_loss: fn (ExTensor, ExTensor) raises -> ExTensor,
+        model_forward: fn (AnyTensor) raises -> AnyTensor,
+        compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
         mut val_loader: DataLoader,
         mut metrics: TrainingMetrics,
     ) raises -> Float64:
@@ -229,8 +229,8 @@ struct ValidationLoop:
 
     fn run_subset(
         self,
-        model_forward: fn (ExTensor) raises -> ExTensor,
-        compute_loss: fn (ExTensor, ExTensor) raises -> ExTensor,
+        model_forward: fn (AnyTensor) raises -> AnyTensor,
+        compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
         mut val_loader: DataLoader,
         max_batches: Int,
         mut metrics: TrainingMetrics,

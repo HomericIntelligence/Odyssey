@@ -4,16 +4,16 @@ This module provides utilities for extracting mini-batches from datasets
 for training and evaluation.
 """
 
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 
 
 fn extract_batch(
-    data: ExTensor, start_idx: Int, batch_size: Int
-) raises -> ExTensor:
+    data: AnyTensor, start_idx: Int, batch_size: Int
+) raises -> AnyTensor:
     """Extract a mini-batch from a dataset tensor using zero-copy slicing.
 
     Extracts a contiguous slice of samples from the dataset starting at
-    start_idx and containing up to batch_size samples. Uses ExTensor's
+    start_idx and containing up to batch_size samples. Uses AnyTensor's
     slice() method for efficient memory views instead of copying data.
 
     Args:
@@ -73,12 +73,12 @@ fn extract_batch(
 
 
 fn extract_batch_pair(
-    data: ExTensor, labels: ExTensor, start_idx: Int, batch_size: Int
-) raises -> Tuple[ExTensor, ExTensor]:
+    data: AnyTensor, labels: AnyTensor, start_idx: Int, batch_size: Int
+) raises -> Tuple[AnyTensor, AnyTensor]:
     """Extract matching mini-batches of data and labels using zero-copy slicing.
 
     Convenience function that extracts matching slices from both data and
-    label tensors with a single call. Uses ExTensor's slice() method for
+    label tensors with a single call. Uses AnyTensor's slice() method for
     efficient memory views.
 
     Args:

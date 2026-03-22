@@ -27,7 +27,7 @@ References:
     - Array API: https://data-apis.org/array-api/latest/
 """
 
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 from shared.core import concatenate
 from shared.data.formats import load_cifar10_batch
 from collections import List
@@ -95,10 +95,10 @@ struct CIFAR10Dataset(Copyable, Movable):
     """
 
     var data_dir: String
-    var _train_data: ExTensor
-    var _train_labels: ExTensor
-    var _test_data: ExTensor
-    var _test_labels: ExTensor
+    var _train_data: AnyTensor
+    var _train_labels: AnyTensor
+    var _test_data: AnyTensor
+    var _test_labels: AnyTensor
     var _train_loaded: Bool
     var _test_loaded: Bool
 
@@ -133,7 +133,7 @@ struct CIFAR10Dataset(Copyable, Movable):
         """
         return 50000
 
-    fn __getitem__(mut self, index: Int) raises -> Tuple[ExTensor, ExTensor]:
+    fn __getitem__(mut self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get a sample from the training set.
 
         Args:
@@ -141,8 +141,8 @@ struct CIFAR10Dataset(Copyable, Movable):
 
         Returns:
             Tuple of (image, label) where:
-                - image: ExTensor of shape (3, 32, 32) with float32 values.
-                - label: ExTensor of shape (1,) with uint8 class index.
+                - image: AnyTensor of shape (3, 32, 32) with float32 values.
+                - label: AnyTensor of shape (1,) with uint8 class index.
 
         Raises:
             Error: If index is out of bounds or data cannot be loaded.
@@ -179,8 +179,8 @@ struct CIFAR10Dataset(Copyable, Movable):
         Raises:
             Error: If batch files cannot be read or loaded
         """
-        var all_images: List[ExTensor] = []
-        var all_labels: List[ExTensor] = []
+        var all_images: List[AnyTensor] = []
+        var all_labels: List[AnyTensor] = []
 
         # Load 5 training batches
         for batch_num in range(1, 6):
@@ -194,13 +194,13 @@ struct CIFAR10Dataset(Copyable, Movable):
         self._train_labels = self._concatenate_tensors(all_labels)
         self._train_loaded = True
 
-    fn get_train_data(mut self) raises -> Tuple[ExTensor, ExTensor]:
+    fn get_train_data(mut self) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get all training data.
 
         Returns:
             Tuple of (images, labels) where:
-                - images: ExTensor of shape (50000, 3, 32, 32) with float32 values.
-                - labels: ExTensor of shape (50000,) with uint8 class indices.
+                - images: AnyTensor of shape (50000, 3, 32, 32) with float32 values.
+                - labels: AnyTensor of shape (50000,) with uint8 class indices.
 
         Raises:
             Error: If data files cannot be loaded.
@@ -231,13 +231,13 @@ struct CIFAR10Dataset(Copyable, Movable):
         self._test_labels = labels
         self._test_loaded = True
 
-    fn get_test_data(mut self) raises -> Tuple[ExTensor, ExTensor]:
+    fn get_test_data(mut self) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get all test data.
 
         Returns:
             Tuple of (images, labels) where:
-                - images: ExTensor of shape (10000, 3, 32, 32) with float32 values.
-                - labels: ExTensor of shape (10000,) with uint8 class indices.
+                - images: AnyTensor of shape (10000, 3, 32, 32) with float32 values.
+                - labels: AnyTensor of shape (10000,) with uint8 class indices.
 
         Raises:
             Error: If test data files cannot be loaded.
@@ -251,11 +251,11 @@ struct CIFAR10Dataset(Copyable, Movable):
 
         return (self._test_data, self._test_labels)
 
-    fn _concatenate_tensors(self, tensors: List[ExTensor]) raises -> ExTensor:
+    fn _concatenate_tensors(self, tensors: List[AnyTensor]) raises -> AnyTensor:
         """Concatenate a list of tensors along the first (batch) dimension.
 
         Args:
-            tensors: List of ExTensor objects with same shape except first dimension
+            tensors: List of AnyTensor objects with same shape except first dimension
 
         Returns:
             Concatenated tensor with first dimension equal to sum of input dimensions
