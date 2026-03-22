@@ -1,4 +1,4 @@
-"""ExTensor - Extensible Tensor for ML Odyssey.
+"""AnyTensor - Extensible Tensor for ML Odyssey.
 
 A comprehensive, dynamic tensor class implementing the Python Array API Standard
 
@@ -67,13 +67,13 @@ from shared.core.dtype_ordinal import (
 comptime MAX_TENSOR_BYTES: Int = 2_000_000_000  # 2 GB max per tensor
 comptime WARN_TENSOR_BYTES: Int = 500_000_000  # 500 MB warning threshold
 
-# Print options for ExTensor.__str__ and __repr__ truncation
+# Print options for AnyTensor.__str__ and __repr__ truncation
 # Can be modified globally to control output behavior (e.g., in test utilities)
 comptime EXTENSOR_PRINT_THRESHOLD: Int = 1000  # Truncate if numel > threshold
 comptime EXTENSOR_PRINT_SHOW_ELEMENTS: Int = 3  # Show first/last N elements
 
 
-struct ExTensor(
+struct AnyTensor(
     Copyable,
     Hashable,
     ImplicitlyCopyable,
@@ -84,7 +84,7 @@ struct ExTensor(
 ):
     """Dynamic tensor with runtime-determined shape and data type.
 
-        ExTensor provides a flexible tensor implementation for machine learning workloads,
+        AnyTensor provides a flexible tensor implementation for machine learning workloads,
         supporting arbitrary dimensions (0D scalars to N-D tensors), multiple data types,
         and NumPy-style broadcasting for all operations.
 
@@ -133,7 +133,7 @@ struct ExTensor(
     """Actual allocated size (may differ from requested due to pool bucketing)."""
 
     fn __init__(out self, shape: List[Int], dtype: DType) raises:
-        """Initialize a new ExTensor with given shape and dtype.
+        """Initialize a new AnyTensor with given shape and dtype.
 
         Args:
             shape: The shape of the tensor as a vector of dimension sizes.
@@ -178,7 +178,7 @@ struct ExTensor(
             stride *= self._shape[i]
 
         # Validate memory requirements
-        var dtype_size = ExTensor._get_dtype_size_static(dtype)
+        var dtype_size = AnyTensor._get_dtype_size_static(dtype)
         var total_bytes = self._numel * dtype_size
 
         if total_bytes > MAX_TENSOR_BYTES:
@@ -202,9 +202,9 @@ struct ExTensor(
         self._refcount[] = 1  # Start with 1 reference
 
     fn __init__(out self, value: IntLiteral) raises:
-        """Create a scalar ExTensor from an integer literal.
+        """Create a scalar AnyTensor from an integer literal.
 
-        Enables implicit conversion from integer literals to ExTensor.
+        Enables implicit conversion from integer literals to AnyTensor.
         Creates a 0D (scalar) tensor with Int64 dtype.
 
         Args:
@@ -215,7 +215,7 @@ struct ExTensor(
 
         Example:
             ```mojo
-            var x: ExTensor = 42  # Implicit conversion from IntLiteral
+            var x: AnyTensor = 42  # Implicit conversion from IntLiteral
         ```
         ```
         """
@@ -226,7 +226,7 @@ struct ExTensor(
         self._numel = 1
         self._is_view = False
         self._original_numel_quantized = -1
-        var dtype_size = ExTensor._get_dtype_size_static(DType.int64)
+        var dtype_size = AnyTensor._get_dtype_size_static(DType.int64)
         self._data = pooled_alloc(dtype_size)
         self._allocated_size = dtype_size
         self._refcount = alloc[Int](1)
@@ -234,9 +234,9 @@ struct ExTensor(
         self._set_int64(0, Int64(value))
 
     fn __init__(out self, value: FloatLiteral) raises:
-        """Create a scalar ExTensor from a float literal.
+        """Create a scalar AnyTensor from a float literal.
 
-        Enables implicit conversion from float literals to ExTensor.
+        Enables implicit conversion from float literals to AnyTensor.
         Creates a 0D (scalar) tensor with Float64 dtype.
 
         Args:
@@ -247,7 +247,7 @@ struct ExTensor(
 
         Example:
             ```mojo
-            var x: ExTensor = 3.14  # Implicit conversion from FloatLiteral
+            var x: AnyTensor = 3.14  # Implicit conversion from FloatLiteral
         ```
         ```
         """
@@ -258,7 +258,7 @@ struct ExTensor(
         self._numel = 1
         self._is_view = False
         self._original_numel_quantized = -1
-        var dtype_size = ExTensor._get_dtype_size_static(DType.float64)
+        var dtype_size = AnyTensor._get_dtype_size_static(DType.float64)
         self._data = pooled_alloc(dtype_size)
         self._allocated_size = dtype_size
         self._refcount = alloc[Int](1)
@@ -266,9 +266,9 @@ struct ExTensor(
         self._set_float64(0, Float64(value))
 
     fn __init__(out self, value: Int) raises:
-        """Create a scalar ExTensor from an Int.
+        """Create a scalar AnyTensor from an Int.
 
-        Enables implicit conversion from Int to ExTensor.
+        Enables implicit conversion from Int to AnyTensor.
         Creates a 0D (scalar) tensor with Int64 dtype.
 
         Args:
@@ -284,7 +284,7 @@ struct ExTensor(
         self._numel = 1
         self._is_view = False
         self._original_numel_quantized = -1
-        var dtype_size = ExTensor._get_dtype_size_static(DType.int64)
+        var dtype_size = AnyTensor._get_dtype_size_static(DType.int64)
         self._data = pooled_alloc(dtype_size)
         self._allocated_size = dtype_size
         self._refcount = alloc[Int](1)
@@ -292,9 +292,9 @@ struct ExTensor(
         self._set_int64(0, Int64(value))
 
     fn __init__(out self, value: Float64) raises:
-        """Create a scalar ExTensor from a Float64.
+        """Create a scalar AnyTensor from a Float64.
 
-        Enables implicit conversion from Float64 to ExTensor.
+        Enables implicit conversion from Float64 to AnyTensor.
         Creates a 0D (scalar) tensor with Float64 dtype.
 
         Args:
@@ -305,7 +305,7 @@ struct ExTensor(
 
         Example:
             ```mojo
-            var x: ExTensor = Float64(3.14)
+            var x: AnyTensor = Float64(3.14)
         ```
         """
         # Initialize scalar tensor (0D shape)
@@ -315,7 +315,7 @@ struct ExTensor(
         self._numel = 1
         self._is_view = False
         self._original_numel_quantized = -1
-        var dtype_size = ExTensor._get_dtype_size_static(DType.float64)
+        var dtype_size = AnyTensor._get_dtype_size_static(DType.float64)
         self._data = pooled_alloc(dtype_size)
         self._allocated_size = dtype_size
         self._refcount = alloc[Int](1)
@@ -334,7 +334,7 @@ struct ExTensor(
         Example:
             ```mojo
             var values : List[Float32] = [1.0, 2.0, 3.0]
-            var tensor = ExTensor(values)
+            var tensor = AnyTensor(values)
         ```
         ```
         """
@@ -356,7 +356,7 @@ struct ExTensor(
         self._strides.append(1)
 
         # Allocate memory
-        var dtype_size = ExTensor._get_dtype_size_static(DType.float32)
+        var dtype_size = AnyTensor._get_dtype_size_static(DType.float32)
         var total_bytes = self._numel * dtype_size
 
         if total_bytes > MAX_TENSOR_BYTES:
@@ -389,7 +389,7 @@ struct ExTensor(
         Example:
             ```mojo
             var values : List[Int] = [1, 2, 3]
-            var tensor = ExTensor(values)
+            var tensor = AnyTensor(values)
         ```
         ```
         """
@@ -411,7 +411,7 @@ struct ExTensor(
         self._strides.append(1)
 
         # Allocate memory
-        var dtype_size = ExTensor._get_dtype_size_static(DType.int64)
+        var dtype_size = AnyTensor._get_dtype_size_static(DType.int64)
         var total_bytes = self._numel * dtype_size
 
         if total_bytes > MAX_TENSOR_BYTES:
@@ -490,7 +490,7 @@ struct ExTensor(
 
     fn _get_dtype_size(self) -> Int:
         """Get size in bytes for the tensor's dtype."""
-        return ExTensor._get_dtype_size_static(self._dtype)
+        return AnyTensor._get_dtype_size_static(self._dtype)
 
     @staticmethod
     fn _get_dtype_size_static(dtype: DType) -> Int:
@@ -546,7 +546,7 @@ struct ExTensor(
             The product of all dimension sizes.
 
         Examples:
-            `var t = ExTensor.zeros((3, 4), DType.float32)
+            `var t = AnyTensor.zeros((3, 4), DType.float32)
             print(t.numel())  # 12`
         """
         return self._numel
@@ -572,9 +572,19 @@ struct ExTensor(
             The number of dimensions.
 
         Examples:```
-            var t = ExTensor.zeros((3, 4), DType.float32)
+            var t = AnyTensor.zeros((3, 4), DType.float32)
             print(t.dim())  # 2
             ```
+        """
+        return len(self._shape)
+
+    fn ndim(self) -> Int:
+        """Return the number of dimensions (rank).
+
+        Alias for `dim()`, provided for future TensorLike trait conformance.
+
+        Returns:
+            The number of dimensions.
         """
         return len(self._shape)
 
@@ -595,7 +605,7 @@ struct ExTensor(
             expected_stride *= self._shape[i]
         return True
 
-    fn reshape(self, new_shape: List[Int]) raises -> ExTensor:
+    fn reshape(self, new_shape: List[Int]) raises -> AnyTensor:
         """Reshape tensor to new shape (must have same total elements).
 
         Returns a zero-copy view (shallow pointer copy) sharing data with the
@@ -653,7 +663,7 @@ struct ExTensor(
 
         return result^
 
-    fn slice(self, start: Int, end: Int, axis: Int = 0) raises -> ExTensor:
+    fn slice(self, start: Int, end: Int, axis: Int = 0) raises -> AnyTensor:
         """Extract a slice along the specified axis, returning a view into the original data.
 
         Creates a shallow copy of the tensor struct whose `_data` pointer is offset
@@ -666,7 +676,7 @@ struct ExTensor(
             axis: Axis to slice along (default: 0, the batch dimension).
 
         Returns:
-            A new ExTensor whose `_data` pointer references the same underlying memory
+            A new AnyTensor whose `_data` pointer references the same underlying memory
             as the original, offset to `start` along `axis`. The `_is_view` flag is
             set to True. This is a zero-copy view: no data bytes are allocated or copied.
             Modifying elements of the returned tensor will affect the original.
@@ -741,7 +751,7 @@ struct ExTensor(
 
         return result^
 
-    fn transpose(self, dim0: Int, dim1: Int) raises -> ExTensor:
+    fn transpose(self, dim0: Int, dim1: Int) raises -> AnyTensor:
         """Return a non-contiguous view with dim0 and dim1 swapped.
 
         Creates a stride-based view sharing the same underlying data — no
@@ -759,7 +769,7 @@ struct ExTensor(
             dim1: Second dimension to swap.
 
         Returns:
-            A new ExTensor view with permuted shape and strides.
+            A new AnyTensor view with permuted shape and strides.
 
         Raises:
             Error: If tensor has fewer than 2 dimensions or dims are out of
@@ -1620,7 +1630,7 @@ struct ExTensor(
     # Dunder Methods (Operator Overloading)
     # ========================================================================
 
-    fn __add__(self, other: ExTensor) raises -> ExTensor:
+    fn __add__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise addition: a + b.
 
         Args:
@@ -1638,7 +1648,7 @@ struct ExTensor(
 
         return _extensor_binary_arith[_add](self, other)
 
-    fn __sub__(self, other: ExTensor) raises -> ExTensor:
+    fn __sub__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise subtraction: a - b.
 
         Args:
@@ -1656,7 +1666,7 @@ struct ExTensor(
 
         return _extensor_binary_arith[_sub](self, other)
 
-    fn __mul__(self, other: ExTensor) raises -> ExTensor:
+    fn __mul__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise multiplication: a * b.
 
         Args:
@@ -1674,7 +1684,7 @@ struct ExTensor(
 
         return _extensor_binary_arith[_mul](self, other)
 
-    fn __truediv__(self, other: ExTensor) raises -> ExTensor:
+    fn __truediv__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise division: a / b.
 
         Args:
@@ -1693,7 +1703,7 @@ struct ExTensor(
 
         return _extensor_binary_arith[_div](self, other)
 
-    fn __floordiv__(self, other: ExTensor) raises -> ExTensor:
+    fn __floordiv__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise floor division: a // b.
 
         Args:
@@ -1711,7 +1721,7 @@ struct ExTensor(
 
         return _extensor_binary_arith[_floordiv](self, other)
 
-    fn __mod__(self, other: ExTensor) raises -> ExTensor:
+    fn __mod__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise modulo: a % b.
 
         Args:
@@ -1729,7 +1739,7 @@ struct ExTensor(
 
         return _extensor_binary_arith[_mod](self, other)
 
-    fn __pow__(self, other: ExTensor) raises -> ExTensor:
+    fn __pow__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise power: a ** b.
 
         Args:
@@ -1747,7 +1757,7 @@ struct ExTensor(
 
         return _extensor_binary_arith[_pow](self, other)
 
-    fn __matmul__(self, other: ExTensor) raises -> ExTensor:
+    fn __matmul__(self, other: AnyTensor) raises -> AnyTensor:
         """Matrix multiplication: a @ b.
 
         Args:
@@ -1765,7 +1775,7 @@ struct ExTensor(
         """
         return _extensor_matmul(self, other)
 
-    fn __eq__(self, other: ExTensor) raises -> ExTensor:
+    fn __eq__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise equality: a == b.
 
         Note: NaN comparison follows IEEE 754 semantics — NaN is never equal to
@@ -1788,7 +1798,7 @@ struct ExTensor(
 
         return _extensor_compare_op[_eq](self, other)
 
-    fn __ne__(self, other: ExTensor) raises -> ExTensor:
+    fn __ne__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise inequality: a != b.
 
         Args:
@@ -1806,7 +1816,7 @@ struct ExTensor(
 
         return _extensor_compare_op[_ne](self, other)
 
-    fn __lt__(self, other: ExTensor) raises -> ExTensor:
+    fn __lt__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise less than: a < b.
 
         Args:
@@ -1824,7 +1834,7 @@ struct ExTensor(
 
         return _extensor_compare_op[_lt](self, other)
 
-    fn __le__(self, other: ExTensor) raises -> ExTensor:
+    fn __le__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise less or equal: a <= b.
 
         Args:
@@ -1842,7 +1852,7 @@ struct ExTensor(
 
         return _extensor_compare_op[_le](self, other)
 
-    fn __gt__(self, other: ExTensor) raises -> ExTensor:
+    fn __gt__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise greater than: a > b.
 
         Args:
@@ -1860,7 +1870,7 @@ struct ExTensor(
 
         return _extensor_compare_op[_gt](self, other)
 
-    fn __ge__(self, other: ExTensor) raises -> ExTensor:
+    fn __ge__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise greater or equal: a >= b.
 
         Args:
@@ -1882,7 +1892,7 @@ struct ExTensor(
     # FP8 Conversion Methods
     # ========================================================================
 
-    fn to_fp8(self) raises -> ExTensor:
+    fn to_fp8(self) raises -> AnyTensor:
         """Convert tensor values to FP8 E4M3 format.
 
         This method converts a tensor of any floating-point dtype to FP8 format,
@@ -1890,7 +1900,7 @@ struct ExTensor(
         bits, 3 mantissa bits) which is optimized for ML workloads.
 
         Returns:
-            A new ExTensor with dtype=uint8 containing FP8-encoded values.
+            A new AnyTensor with dtype=uint8 containing FP8-encoded values.
 
         Raises:
             Error: If the source tensor is not a floating-point dtype.
@@ -1918,7 +1928,7 @@ struct ExTensor(
             raise Error("to_fp8() requires a floating-point tensor")
 
         # Create output tensor with uint8 dtype
-        var result = ExTensor(self._shape, DType.uint8)
+        var result = AnyTensor(self._shape, DType.uint8)
 
         # Convert each element to FP8
         for i in range(self._numel):
@@ -1946,14 +1956,14 @@ struct ExTensor(
 
         return result^
 
-    fn from_fp8(self) raises -> ExTensor:
+    fn from_fp8(self) raises -> AnyTensor:
         """Convert FP8-encoded tensor (uint8) back to Float32.
 
         This method interprets a uint8 tensor as FP8 E4M3 encoded values and
         converts them back to Float32 for computation.
 
         Returns:
-            A new ExTensor with dtype=float32 containing decoded values.
+            A new AnyTensor with dtype=float32 containing decoded values.
 
         Raises:
             Error: If the source tensor is not uint8 dtype.
@@ -1974,7 +1984,7 @@ struct ExTensor(
             raise Error("from_fp8() requires a uint8 tensor (FP8-encoded)")
 
         # Create output tensor with float32 dtype
-        var result = ExTensor(self._shape, DType.float32)
+        var result = AnyTensor(self._shape, DType.float32)
 
         # Convert each element from FP8 to Float32 using native SIMD
         for i in range(self._numel):
@@ -1990,14 +2000,14 @@ struct ExTensor(
     # Integer Type Conversions
     # ===----------------------------------------------------------------------===#
 
-    fn to_int8(self) raises -> ExTensor:
+    fn to_int8(self) raises -> AnyTensor:
         """Convert tensor values to Int8 format.
 
         Converts a tensor of any dtype to Int8 format, clamping values to the
         range [-128, 127].
 
         Returns:
-            A new ExTensor with dtype=int8 containing converted values.
+            A new AnyTensor with dtype=int8 containing converted values.
 
         Raises:
             Error: If conversion is not supported for the source dtype.
@@ -2011,7 +2021,7 @@ struct ExTensor(
         """
 
         # Create output tensor with int8 dtype
-        var result = ExTensor(self._shape, DType.int8)
+        var result = AnyTensor(self._shape, DType.int8)
 
         # Convert each element to Int8
         for i in range(self._numel):
@@ -2059,20 +2069,20 @@ struct ExTensor(
 
         return result^
 
-    fn to_int16(self) raises -> ExTensor:
+    fn to_int16(self) raises -> AnyTensor:
         """Convert tensor values to Int16 format.
 
         Converts a tensor of any dtype to Int16 format, clamping values to the
         range [-32768, 32767].
 
         Returns:
-            A new ExTensor with dtype=int16 containing converted values.
+            A new AnyTensor with dtype=int16 containing converted values.
 
         Raises:
             Error: If conversion fails or bounds check error occurs.
 
         """
-        var result = ExTensor(self._shape, DType.int16)
+        var result = AnyTensor(self._shape, DType.int16)
 
         for i in range(self._numel):
             if i >= self._numel:
@@ -2115,20 +2125,20 @@ struct ExTensor(
 
         return result^
 
-    fn to_int32(self) raises -> ExTensor:
+    fn to_int32(self) raises -> AnyTensor:
         """Convert tensor values to Int32 format.
 
         Converts a tensor of any dtype to Int32 format, clamping values to the
         range [-2147483648, 2147483647].
 
         Returns:
-            A new ExTensor with dtype=int32 containing converted values.
+            A new AnyTensor with dtype=int32 containing converted values.
 
         Raises:
             Error: If conversion fails or bounds check error occurs.
 
         """
-        var result = ExTensor(self._shape, DType.int32)
+        var result = AnyTensor(self._shape, DType.int32)
 
         for i in range(self._numel):
             if i >= self._numel:
@@ -2167,19 +2177,19 @@ struct ExTensor(
 
         return result^
 
-    fn to_int64(self) raises -> ExTensor:
+    fn to_int64(self) raises -> AnyTensor:
         """Convert tensor values to Int64 format.
 
         Converts a tensor of any dtype to Int64 format.
 
         Returns:
-            A new ExTensor with dtype=int64 containing converted values.
+            A new AnyTensor with dtype=int64 containing converted values.
 
         Raises:
             Error: If conversion fails or bounds check error occurs.
 
         """
-        var result = ExTensor(self._shape, DType.int64)
+        var result = AnyTensor(self._shape, DType.int64)
 
         for i in range(self._numel):
             if i >= self._numel:
@@ -2217,20 +2227,20 @@ struct ExTensor(
 
         return result^
 
-    fn to_uint8(self) raises -> ExTensor:
+    fn to_uint8(self) raises -> AnyTensor:
         """Convert tensor values to UInt8 format.
 
         Converts a tensor of any dtype to UInt8 format, clamping values to the
         range [0, 255].
 
         Returns:
-            A new ExTensor with dtype=uint8 containing converted values.
+            A new AnyTensor with dtype=uint8 containing converted values.
 
         Raises:
             Error: If conversion fails or bounds check error occurs.
 
         """
-        var result = ExTensor(self._shape, DType.uint8)
+        var result = AnyTensor(self._shape, DType.uint8)
 
         for i in range(self._numel):
             if i >= self._numel:
@@ -2273,20 +2283,20 @@ struct ExTensor(
 
         return result^
 
-    fn to_uint16(self) raises -> ExTensor:
+    fn to_uint16(self) raises -> AnyTensor:
         """Convert tensor values to UInt16 format.
 
         Converts a tensor of any dtype to UInt16 format, clamping values to the
         range [0, 65535].
 
         Returns:
-            A new ExTensor with dtype=uint16 containing converted values.
+            A new AnyTensor with dtype=uint16 containing converted values.
 
         Raises:
             Error: If conversion fails or bounds check error occurs.
 
         """
-        var result = ExTensor(self._shape, DType.uint16)
+        var result = AnyTensor(self._shape, DType.uint16)
 
         for i in range(self._numel):
             if i >= self._numel:
@@ -2326,20 +2336,20 @@ struct ExTensor(
 
         return result^
 
-    fn to_uint32(self) raises -> ExTensor:
+    fn to_uint32(self) raises -> AnyTensor:
         """Convert tensor values to UInt32 format.
 
         Converts a tensor of any dtype to UInt32 format, clamping values to the
         range [0, 4294967295].
 
         Returns:
-            A new ExTensor with dtype=uint32 containing converted values.
+            A new AnyTensor with dtype=uint32 containing converted values.
 
         Raises:
             Error: If conversion fails or bounds check error occurs.
 
         """
-        var result = ExTensor(self._shape, DType.uint32)
+        var result = AnyTensor(self._shape, DType.uint32)
 
         for i in range(self._numel):
             if i >= self._numel:
@@ -2379,19 +2389,19 @@ struct ExTensor(
 
         return result^
 
-    fn to_uint64(self) raises -> ExTensor:
+    fn to_uint64(self) raises -> AnyTensor:
         """Convert tensor values to UInt64 format.
 
         Converts a tensor of any dtype to UInt64 format, clamping negative values to 0.
 
         Returns:
-            A new ExTensor with dtype=uint64 containing converted values.
+            A new AnyTensor with dtype=uint64 containing converted values.
 
         Raises:
             Error: If conversion fails or bounds check error occurs.
 
         """
-        var result = ExTensor(self._shape, DType.uint64)
+        var result = AnyTensor(self._shape, DType.uint64)
 
         for i in range(self._numel):
             if i >= self._numel:
@@ -2435,7 +2445,7 @@ struct ExTensor(
     # BF8 Conversion Methods
     # ========================================================================
 
-    fn to_bf8(self) raises -> ExTensor:
+    fn to_bf8(self) raises -> AnyTensor:
         """Convert tensor values to BF8 E5M2 format.
 
         This method converts a tensor of any floating-point dtype to BF8 format,
@@ -2443,7 +2453,7 @@ struct ExTensor(
         bits, 2 mantissa bits) which provides larger range than FP8 E4M3.
 
         Returns:
-            A new ExTensor with dtype=uint8 containing BF8-encoded values.
+            A new AnyTensor with dtype=uint8 containing BF8-encoded values.
 
         Raises:
             Error: If the source tensor is not a floating-point dtype.
@@ -2472,7 +2482,7 @@ struct ExTensor(
             raise Error("to_bf8() requires a floating-point tensor")
 
         # Create output tensor with uint8 dtype
-        var result = ExTensor(self._shape, DType.uint8)
+        var result = AnyTensor(self._shape, DType.uint8)
 
         # Convert each element to BF8
         for i in range(self._numel):
@@ -2496,14 +2506,14 @@ struct ExTensor(
 
         return result^
 
-    fn from_bf8(self) raises -> ExTensor:
+    fn from_bf8(self) raises -> AnyTensor:
         """Convert BF8-encoded tensor (uint8) back to Float32.
 
         This method interprets a uint8 tensor as BF8 E5M2 encoded values and
         converts them back to Float32 for computation.
 
         Returns:
-            A new ExTensor with dtype=float32 containing decoded values.
+            A new AnyTensor with dtype=float32 containing decoded values.
 
         Raises:
             Error: If the source tensor is not uint8 dtype.
@@ -2524,7 +2534,7 @@ struct ExTensor(
             raise Error("from_bf8() requires a uint8 tensor (BF8-encoded)")
 
         # Create output tensor with float32 dtype
-        var result = ExTensor(self._shape, DType.float32)
+        var result = AnyTensor(self._shape, DType.float32)
 
         # Convert each element from BF8 to Float32 using native SIMD
         for i in range(self._numel):
@@ -2540,7 +2550,7 @@ struct ExTensor(
     # FP4 Blocked Type Conversions
     # ===----------------------------------------------------------------------===#
 
-    fn to_mxfp4(self) raises -> ExTensor:
+    fn to_mxfp4(self) raises -> AnyTensor:
         """Convert tensor values to MXFP4 blocked format.
 
         This method converts a tensor of any floating-point dtype to MXFP4 format,
@@ -2548,7 +2558,7 @@ struct ExTensor(
         a shared E8M0 scale.
 
         Returns:
-            A new ExTensor with dtype=uint8 containing MXFP4-encoded blocks.
+            A new AnyTensor with dtype=uint8 containing MXFP4-encoded blocks.
 
         Raises:
             Error: If the source tensor is not a floating-point dtype.
@@ -2565,20 +2575,20 @@ struct ExTensor(
             var restored2 = mxfp4_t2.from_mxfp4()  # Correctly restores 33 elements!
 
             # Small tensors (1 element still uses full 32-element block)
-            var scalar = ExTensor([1], DType.float32)
+            var scalar = AnyTensor([1], DType.float32)
             var quantized_scalar = scalar.to_mxfp4()  # Returns 17 bytes (padded to 32)
 
             # Multi-dimensional tensors (flattened for quantization)
-            var weights = ExTensor([64, 128], DType.float32)  # 8192 elements
+            var weights = AnyTensor([64, 128], DType.float32)  # 8192 elements
             var quantized_weights = weights.to_mxfp4()  # 256 blocks × 17 bytes = 4352 bytes
 
             # ML workflow: quantize model weights for memory efficiency
-            fn quantize_model_weights(weights: ExTensor) raises -> ExTensor:
+            fn quantize_model_weights(weights: AnyTensor) raises -> AnyTensor:
                 # Convert FP32 weights to MXFP4 (16:1 compression)
                 return weights.to_mxfp4()
 
             # ML workflow: quantize gradients during training
-            fn quantize_gradients(gradients: ExTensor) raises -> ExTensor:
+            fn quantize_gradients(gradients: AnyTensor) raises -> AnyTensor:
                 # MXFP4 works for both positive and negative values
                 var quantized = gradients.to_mxfp4()
                 # Dequantize before optimizer update
@@ -2621,7 +2631,7 @@ struct ExTensor(
         # Create output tensor as flattened uint8 array
         var output_shape = List[Int]()
         output_shape.append(total_bytes)
-        var result = ExTensor(output_shape, DType.uint8)
+        var result = AnyTensor(output_shape, DType.uint8)
 
         # Store original size before padding
         result._original_numel_quantized = self._numel
@@ -2670,14 +2680,14 @@ struct ExTensor(
 
         return result^
 
-    fn from_mxfp4(self) raises -> ExTensor:
+    fn from_mxfp4(self) raises -> AnyTensor:
         """Convert MXFP4-encoded tensor (uint8 blocks) back to Float32.
 
         This method interprets a uint8 tensor as MXFP4 blocks and converts them
         back to Float32 for computation.
 
         Returns:
-            A new ExTensor with dtype=float32 containing decoded values.
+            A new AnyTensor with dtype=float32 containing decoded values.
 
         Raises:
             Error: If the source tensor is not uint8 dtype or not block-aligned.
@@ -2715,7 +2725,7 @@ struct ExTensor(
         # Create output tensor with proper shape
         var output_shape = List[Int]()
         output_shape.append(padded_output_size)
-        var result = ExTensor(output_shape, DType.float32)
+        var result = AnyTensor(output_shape, DType.float32)
 
         # Decode each block
         for block_idx in range(num_blocks):
@@ -2740,14 +2750,14 @@ struct ExTensor(
 
         # Trim result to original size if needed
         if output_size < padded_output_size:
-            var trimmed = ExTensor([output_size], DType.float32)
+            var trimmed = AnyTensor([output_size], DType.float32)
             for i in range(output_size):
                 trimmed[i] = result._data.bitcast[Float32]()[i]
             return trimmed^
 
         return result^
 
-    fn to_nvfp4(self) raises -> ExTensor:
+    fn to_nvfp4(self) raises -> AnyTensor:
         """Convert tensor values to NVFP4 blocked format.
 
         This method converts a tensor of any floating-point dtype to NVFP4 format,
@@ -2755,7 +2765,7 @@ struct ExTensor(
         a shared E4M3 scale.
 
         Returns:
-            A new ExTensor with dtype=uint8 containing NVFP4-encoded blocks.
+            A new AnyTensor with dtype=uint8 containing NVFP4-encoded blocks.
 
         Raises:
             Error: If the source tensor is not a floating-point dtype.
@@ -2773,26 +2783,26 @@ struct ExTensor(
                 var restored2 = nvfp4_t2.from_nvfp4()  # Correctly restores 17 elements!
 
                 # Small tensors (1 element still uses full 16-element block)
-                var scalar = ExTensor([1], DType.float32)
+                var scalar = AnyTensor([1], DType.float32)
                 var quantized_scalar = scalar.to_nvfp4()  # Returns 9 bytes (padded to 16)
 
                 # Multi-dimensional tensors (flattened for quantization)
-                var activations = ExTensor([128, 256], DType.float32)  # 32768 elements
+                var activations = AnyTensor([128, 256], DType.float32)  # 32768 elements
                 var quantized_activations = activations.to_nvfp4()  # 2048 blocks × 9 bytes = 18432 bytes
 
                 # ML workflow: quantize activations with better accuracy than MXFP4
-                fn quantize_activations(activations: ExTensor) raises -> ExTensor:
+                fn quantize_activations(activations: AnyTensor) raises -> AnyTensor:
                     # NVFP4 provides better accuracy (smaller blocks = better scale granularity)
                     return activations.to_nvfp4()
 
                 # ML workflow: quantize gradients with E4M3 scale (recommended by paper)
-                fn quantize_gradients_nvfp4(gradients: ExTensor) raises -> ExTensor:
+                fn quantize_gradients_nvfp4(gradients: AnyTensor) raises -> AnyTensor:
                     # E4M3 achieves best results according to Dettmers et al. 2023
                     var quantized = gradients.to_nvfp4()
                     return quantized.from_nvfp4()
 
                 # Compare accuracy: NVFP4 vs MXFP4
-                fn compare_quantization_accuracy(data: ExTensor) raises:
+                fn compare_quantization_accuracy(data: AnyTensor) raises:
                     var mxfp4_quantized = data.to_mxfp4().from_mxfp4()
                     var nvfp4_quantized = data.to_nvfp4().from_nvfp4()
                     # NVFP4 typically has lower error due to smaller blocks (16 vs 32)
@@ -2835,7 +2845,7 @@ struct ExTensor(
         # Create output tensor as flattened uint8 array
         var output_shape = List[Int]()
         output_shape.append(total_bytes)
-        var result = ExTensor(output_shape, DType.uint8)
+        var result = AnyTensor(output_shape, DType.uint8)
 
         # Store original size before padding
         result._original_numel_quantized = self._numel
@@ -2884,14 +2894,14 @@ struct ExTensor(
 
         return result^
 
-    fn from_nvfp4(self) raises -> ExTensor:
+    fn from_nvfp4(self) raises -> AnyTensor:
         """Convert NVFP4-encoded tensor (uint8 blocks) back to Float32.
 
         This method interprets a uint8 tensor as NVFP4 blocks and converts them
         back to Float32 for computation.
 
         Returns:
-            A new ExTensor with dtype=float32 containing decoded values.
+            A new AnyTensor with dtype=float32 containing decoded values.
 
         Raises:
             Error: If the source tensor is not uint8 dtype or not block-aligned.
@@ -2931,7 +2941,7 @@ struct ExTensor(
         # Create output tensor with proper shape
         var output_shape = List[Int]()
         output_shape.append(padded_output_size)
-        var result = ExTensor(output_shape, DType.float32)
+        var result = AnyTensor(output_shape, DType.float32)
 
         # Decode each block
         for block_idx in range(num_blocks):
@@ -2956,7 +2966,7 @@ struct ExTensor(
 
         # Trim result to original size if needed
         if output_size < padded_output_size:
-            var trimmed = ExTensor([output_size], DType.float32)
+            var trimmed = AnyTensor([output_size], DType.float32)
             for i in range(output_size):
                 trimmed[i] = result._data.bitcast[Float32]()[i]
             return trimmed^
@@ -2965,7 +2975,7 @@ struct ExTensor(
 
     # Reflected operators - enable reversed operand order (e.g., 2 + tensor)
     # These are called when the left operand doesn't support the operation
-    fn __radd__(self, other: ExTensor) raises -> ExTensor:
+    fn __radd__(self, other: AnyTensor) raises -> AnyTensor:
         """Reflected addition: `other + self` (commutative, so same as __add__).
 
         Raises:
@@ -2974,7 +2984,7 @@ struct ExTensor(
         """
         return self.__add__(other)
 
-    fn __rsub__(self, other: ExTensor) raises -> ExTensor:
+    fn __rsub__(self, other: AnyTensor) raises -> AnyTensor:
         """Reflected subtraction: `other - self` (order matters: returns other - self).
 
         Raises:
@@ -2987,7 +2997,7 @@ struct ExTensor(
 
         return _extensor_binary_arith[_sub](other, self)
 
-    fn __rmul__(self, other: ExTensor) raises -> ExTensor:
+    fn __rmul__(self, other: AnyTensor) raises -> AnyTensor:
         """Reflected multiplication: other * self (commutative, so same as __mul__).
 
         Raises:
@@ -2996,7 +3006,7 @@ struct ExTensor(
         """
         return self.__mul__(other)
 
-    fn __rtruediv__(self, other: ExTensor) raises -> ExTensor:
+    fn __rtruediv__(self, other: AnyTensor) raises -> AnyTensor:
         """Reflected division: other / self (order matters: returns other / self).
 
         Raises:
@@ -3010,7 +3020,7 @@ struct ExTensor(
         return _extensor_binary_arith[_div](other, self)
 
     # In-place operators - mutate self instead of creating new tensor
-    fn __iadd__(mut self, other: ExTensor) raises:
+    fn __iadd__(mut self, other: AnyTensor) raises:
         """In-place addition: `self += other`.
 
         Raises:
@@ -3027,7 +3037,7 @@ struct ExTensor(
                 "In-place operation requires matching shapes and dtypes"
             )
 
-    fn __isub__(mut self, other: ExTensor) raises:
+    fn __isub__(mut self, other: AnyTensor) raises:
         """In-place subtraction: `self -= other`.
 
         Raises:
@@ -3044,7 +3054,7 @@ struct ExTensor(
                 "In-place operation requires matching shapes and dtypes"
             )
 
-    fn __imul__(mut self, other: ExTensor) raises:
+    fn __imul__(mut self, other: AnyTensor) raises:
         """In-place multiplication: `self *= other`.
 
         Raises:
@@ -3061,7 +3071,7 @@ struct ExTensor(
                 "In-place operation requires matching shapes and dtypes"
             )
 
-    fn __itruediv__(mut self, other: ExTensor) raises:
+    fn __itruediv__(mut self, other: AnyTensor) raises:
         """In-place division: `self /= other`.
 
         Raises:
@@ -3079,7 +3089,7 @@ struct ExTensor(
             )
 
     # Unary operators - operate on single tensor
-    fn __neg__(self) raises -> ExTensor:
+    fn __neg__(self) raises -> AnyTensor:
         """Negation: `-self`.
 
         Raises:
@@ -3087,7 +3097,7 @@ struct ExTensor(
 
         """
         # Create result tensor with same shape and dtype
-        var result = ExTensor(self._shape, self._dtype)
+        var result = AnyTensor(self._shape, self._dtype)
 
         # Negate each element based on dtype
         if self._dtype == DType.float32:
@@ -3150,7 +3160,7 @@ struct ExTensor(
 
         return result^
 
-    fn __pos__(self) raises -> ExTensor:
+    fn __pos__(self) raises -> AnyTensor:
         """Positive: +self (returns a copy).
 
         Raises:
@@ -3161,7 +3171,7 @@ struct ExTensor(
         var copy = self
         return copy^
 
-    fn __abs__(self) raises -> ExTensor:
+    fn __abs__(self) raises -> AnyTensor:
         """Absolute value: abs(self).
 
         Raises:
@@ -3251,19 +3261,19 @@ struct ExTensor(
         last 3 elements with '...' in between to prevent performance issues.
 
         Returns:
-            String in the format: ExTensor([v0, v1, ...], dtype=<dtype>)
-            For large tensors: ExTensor([v0, v1, v2, ..., vN-2, vN-1, vN], dtype=<dtype>)
+            String in the format: AnyTensor([v0, v1, ...], dtype=<dtype>)
+            For large tensors: AnyTensor([v0, v1, v2, ..., vN-2, vN-1, vN], dtype=<dtype>)
 
         Example:
             ```mojo
             var x = arange(1000, DType.float32)
-            print(x)  # ExTensor([0.0, 1.0, 2.0, ..., 997.0, 998.0, 999.0], dtype=float32)
+            print(x)  # AnyTensor([0.0, 1.0, 2.0, ..., 997.0, 998.0, 999.0], dtype=float32)
             ```
         """
         comptime TRUNCATE_THRESHOLD = 1000
         comptime SHOW_ELEMENTS = 3
 
-        var result = String("ExTensor([")
+        var result = String("AnyTensor([")
         if self._numel > TRUNCATE_THRESHOLD:
             for i in range(SHOW_ELEMENTS):
                 if i > 0:
@@ -3284,8 +3294,8 @@ struct ExTensor(
         """Detailed representation for debugging.
 
         Returns:
-            String in the format: ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[...]).
-            For large tensors: ExTensor(shape=[...], dtype=<dtype>, numel=N, data=[v0, v1, v2, ..., vN-2, vN-1, vN]).
+            String in the format: AnyTensor(shape=[...], dtype=<dtype>, numel=N, data=[...]).
+            For large tensors: AnyTensor(shape=[...], dtype=<dtype>, numel=N, data=[v0, v1, v2, ..., vN-2, vN-1, vN]).
         """
         comptime TRUNCATE_THRESHOLD = 1000
         comptime SHOW_ELEMENTS = 3
@@ -3296,7 +3306,7 @@ struct ExTensor(
                 shape_str += ", "
             shape_str += String(self._shape[i])
         shape_str += "]"
-        var result = String("ExTensor(shape=") + shape_str
+        var result = String("AnyTensor(shape=") + shape_str
         result += ", dtype=" + String(self._dtype)
         result += ", numel=" + String(self._numel)
         result += ", data=["
@@ -3319,7 +3329,7 @@ struct ExTensor(
     fn __hash__[H: Hasher](self, mut hasher: H):
         """Compute hash based on shape, dtype, and data.
 
-        ExTensor implements the `Hashable` trait, allowing tensors to be used as
+        AnyTensor implements the `Hashable` trait, allowing tensors to be used as
         dictionary keys or in hash-based data structures. Two tensors with identical
         shape, dtype, and element values will produce the same hash.
 
@@ -3368,14 +3378,14 @@ struct ExTensor(
                 ]()[]
                 hasher.update(int_bits)
 
-    fn contiguous(self) raises -> ExTensor:
+    fn contiguous(self) raises -> AnyTensor:
         """Return a contiguous copy of the tensor.
 
         If the tensor is already contiguous, returns a clone.
         Otherwise, creates a new contiguous tensor with the same data.
 
         Returns:
-            A contiguous ExTensor with the same shape, dtype, and values.
+            A contiguous AnyTensor with the same shape, dtype, and values.
 
         Raises:
             Error: If memory allocation fails.
@@ -3388,11 +3398,34 @@ struct ExTensor(
         """
         return self.clone()
 
+    fn as_tensor[dtype: DType](self) raises:
+        """Zero-copy conversion to compile-time typed Tensor[dtype].
+
+        Creates a Tensor[dtype] that shares the same data buffer and refcount.
+        The dtype parameter must match self._dtype at runtime.
+
+        Args:
+            dtype: The compile-time DType parameter (must match self._dtype).
+
+        Raises:
+            Error: If dtype doesn't match self._dtype, or if Tensor[dtype]
+                is not yet available.
+        """
+        if self._dtype != dtype:
+            raise Error(
+                "DType mismatch: tensor has dtype "
+                + String(self._dtype)
+                + " but as_tensor called with "
+                + String(dtype)
+            )
+        # TODO: Wire up after Tensor[dtype] is available in shared.tensor.tensor
+        raise Error("as_tensor: not yet implemented — awaiting Tensor[dtype] struct")
+
     # ============================================================================
     # Utility Methods
     # ============================================================================
 
-    fn clone(self) raises -> ExTensor:
+    fn clone(self) raises -> AnyTensor:
         """Create a clone of the tensor.
 
         Creates a new tensor with the same shape, dtype, and values but with
@@ -3402,7 +3435,7 @@ struct ExTensor(
         This method follows PyTorch naming conventions.
 
         Returns:
-            A new ExTensor that is a deep copy of self.
+            A new AnyTensor that is a deep copy of self.
 
         Raises:
             Error: If memory allocation fails.
@@ -3414,7 +3447,7 @@ struct ExTensor(
             ```
         """
         var shape_copy = self._shape.copy()
-        var result = ExTensor(shape_copy, self._dtype)
+        var result = AnyTensor(shape_copy, self._dtype)
 
         # Iterate through all elements using multi-dimensional indexing
         # to correctly handle non-contiguous source tensors with stride-aware access
@@ -3517,7 +3550,7 @@ struct ExTensor(
             result.append(self._get_float64(i))
         return result^
 
-    fn diff(self, n: Int = 1) raises -> ExTensor:
+    fn diff(self, n: Int = 1) raises -> AnyTensor:
         """Calculate consecutive differences.
 
         Computes the n-th order discrete difference along the first axis.
@@ -3526,7 +3559,7 @@ struct ExTensor(
             n: Order of differences (default: 1).
 
         Returns:
-            A new ExTensor with differences computed.
+            A new AnyTensor with differences computed.
 
         Raises:
             Error: If n <= 0 or n >= tensor size.
@@ -3552,7 +3585,7 @@ struct ExTensor(
             var new_size = current._numel - 1
             var new_shape = List[Int]()
             new_shape.append(new_size)
-            var result = ExTensor(new_shape, current._dtype)
+            var result = AnyTensor(new_shape, current._dtype)
 
             for i in range(new_size):
                 var val = current._get_float64(i + 1) - current._get_float64(i)
@@ -3586,31 +3619,31 @@ struct ExTensor(
         save_tensor(self, path, name)
 
     @staticmethod
-    fn load(path: String) raises -> ExTensor:
+    fn load(path: String) raises -> AnyTensor:
         """Load tensor from file.
 
         Reads hex-encoded tensor data and metadata, reconstructs
-        ExTensor with original dtype and shape.
+        AnyTensor with original dtype and shape.
 
         Args:
             path: Input file path.
 
         Returns:
-            Loaded ExTensor.
+            Loaded AnyTensor.
 
         Raises:
             Error: If file format is invalid or file doesn't exist.
 
         Example:
             ```mojo
-            var tensor = ExTensor.load("checkpoint/weights.bin")
+            var tensor = AnyTensor.load("checkpoint/weights.bin")
             ```
         """
         from .tensor_io import load_tensor
 
         return load_tensor(path)
 
-    fn split(self, num_splits: Int, axis: Int = 0) raises -> List[ExTensor]:
+    fn split(self, num_splits: Int, axis: Int = 0) raises -> List[AnyTensor]:
         """Split tensor into equal-sized parts along an axis.
 
         Method wrapper for the module-level `split()` function, providing
@@ -3622,7 +3655,7 @@ struct ExTensor(
             axis: Axis along which to split (default: 0).
 
         Returns:
-            List of ExTensor objects, each with same shape except along
+            List of AnyTensor objects, each with same shape except along
             split axis.
 
         Raises:
@@ -3641,7 +3674,7 @@ struct ExTensor(
 
     fn split_with_indices(
         self, split_indices: List[Int], axis: Int = 0
-    ) raises -> List[ExTensor]:
+    ) raises -> List[AnyTensor]:
         """Split tensor at specified indices along an axis.
 
         Method wrapper for the module-level `split_with_indices()` function,
@@ -3655,7 +3688,7 @@ struct ExTensor(
             axis: Axis along which to split (default: 0).
 
         Returns:
-            List of ExTensor objects resulting from splits.
+            List of AnyTensor objects resulting from splits.
 
         Raises:
             Error: If axis is invalid or indices are out of bounds/unordered.
@@ -3673,7 +3706,7 @@ struct ExTensor(
 
         return split_with_indices_fn(self, split_indices, axis)
 
-    fn broadcast_to(self, target_shape: List[Int]) raises -> ExTensor:
+    fn broadcast_to(self, target_shape: List[Int]) raises -> AnyTensor:
         """Broadcast tensor to target shape.
 
         Provides convenient object syntax: `tensor.broadcast_to([4, 3])`.
@@ -3691,7 +3724,7 @@ struct ExTensor(
             raise Error("broadcast_to: shapes are not broadcast-compatible")
 
         var broadcast_strides = compute_broadcast_strides(shape, target_shape)
-        var result = ExTensor(target_shape, self.dtype())
+        var result = AnyTensor(target_shape, self.dtype())
         var result_numel = result.numel()
 
         for i in range(result_numel):
@@ -3715,11 +3748,15 @@ struct ExTensor(
         return result^
 
 
+# Backward-compatibility alias: existing code using ExTensor continues to work.
+comptime ExTensor = AnyTensor
+
+
 # ============================================================================
 # Private Broadcasting Helpers
 # ============================================================================
 # These helpers implement element-wise operations with NumPy-style broadcasting
-# for use by ExTensor's operator overloads (__add__, __sub__, etc.).
+# for use by AnyTensor's operator overloads (__add__, __sub__, etc.).
 # They are defined here (rather than in arithmetic.mojo/comparison.mojo) to
 # break the circular import chain: extensor <- arithmetic <- extensor.
 # See Issue #4513.
@@ -3727,7 +3764,7 @@ struct ExTensor(
 
 fn _extensor_binary_arith[
     op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
-](a: ExTensor, b: ExTensor) raises -> ExTensor:
+](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Apply a compile-time-typed binary arithmetic op with broadcasting."""
     if a._dtype != b._dtype:
         raise Error("Cannot operate on tensors with different dtypes")
@@ -3752,8 +3789,8 @@ fn _extensor_binary_arith[
     var ordinal = dtype_to_ordinal(a._dtype)
 
     @parameter
-    fn _apply[dtype: DType]() raises -> ExTensor:
-        var result = ExTensor(result_shape, dtype)
+    fn _apply[dtype: DType]() raises -> AnyTensor:
+        var result = AnyTensor(result_shape, dtype)
         var a_ptr = a._data.bitcast[Scalar[dtype]]()
         var b_ptr = b._data.bitcast[Scalar[dtype]]()
         var r_ptr = result._data.bitcast[Scalar[dtype]]()
@@ -3797,7 +3834,7 @@ fn _extensor_binary_arith[
 
 fn _extensor_compare_op[
     op: fn[T: DType] (Scalar[T], Scalar[T]) -> Bool
-](a: ExTensor, b: ExTensor) raises -> ExTensor:
+](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Apply a compile-time-typed binary comparison op with broadcasting."""
     if a._dtype != b._dtype:
         raise Error("Cannot compare tensors with different dtypes")
@@ -3810,7 +3847,7 @@ fn _extensor_compare_op[
     for i in range(len(result_shape)):
         total_elems *= result_shape[i]
 
-    var result = ExTensor(result_shape, DType.bool)
+    var result = AnyTensor(result_shape, DType.bool)
     var ordinal = dtype_to_ordinal(a._dtype)
 
     @parameter
@@ -3863,8 +3900,8 @@ fn _extensor_compare_op[
     return result^
 
 
-fn _extensor_matmul(a: ExTensor, b: ExTensor) raises -> ExTensor:
-    """Basic matrix multiplication (2D x 2D) for ExTensor.__matmul__.
+fn _extensor_matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+    """Basic matrix multiplication (2D x 2D) for AnyTensor.__matmul__.
 
     Note: For full matmul with batching and contiguity handling, use
     shared.core.matrix.matmul. This implementation handles the common 2D case
@@ -3887,7 +3924,7 @@ fn _extensor_matmul(a: ExTensor, b: ExTensor) raises -> ExTensor:
             )
         if a._dtype != b._dtype:
             raise Error("matmul: tensors must have the same dtype")
-        var result = ExTensor([m, n], a._dtype)
+        var result = AnyTensor([m, n], a._dtype)
         var ordinal = dtype_to_ordinal(a._dtype)
 
         @parameter
@@ -3923,14 +3960,14 @@ fn _extensor_matmul(a: ExTensor, b: ExTensor) raises -> ExTensor:
     # 1D x 2D or 2D x 1D: delegate to the local arithmetic for now
     # by raising a helpful error pointing to matrix.matmul
     raise Error(
-        "ExTensor.__matmul__ only supports 2D x 2D. "
+        "AnyTensor.__matmul__ only supports 2D x 2D. "
         "For 1D/batched matmul use shared.core.matrix.matmul directly."
     )
 
 
-fn _extensor_abs(tensor: ExTensor) raises -> ExTensor:
-    """Absolute value for ExTensor.__abs__ (avoids importing elementwise)."""
-    var result = ExTensor(tensor._shape, tensor._dtype)
+fn _extensor_abs(tensor: AnyTensor) raises -> AnyTensor:
+    """Absolute value for AnyTensor.__abs__ (avoids importing elementwise)."""
+    var result = AnyTensor(tensor._shape, tensor._dtype)
     var ordinal = dtype_to_ordinal(tensor._dtype)
 
     @parameter
@@ -3973,7 +4010,7 @@ fn _extensor_abs(tensor: ExTensor) raises -> ExTensor:
 # ============================================================================
 
 
-fn zeros(shape: List[Int], dtype: DType) raises -> ExTensor:
+fn zeros(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create a tensor filled with zeros.
 
     Args:
@@ -3981,7 +4018,7 @@ fn zeros(shape: List[Int], dtype: DType) raises -> ExTensor:
             dtype: The data type of tensor elements.
 
     Returns:
-            A new ExTensor filled with zeros.
+            A new AnyTensor filled with zeros.
 
     Raises:
             Error: If tensor size exceeds MAX_TENSOR_BYTES or allocation fails.
@@ -3995,12 +4032,12 @@ fn zeros(shape: List[Int], dtype: DType) raises -> ExTensor:
     Performance:
         O(n) time where n is the number of elements.
     """
-    var tensor = ExTensor(shape, dtype)
+    var tensor = AnyTensor(shape, dtype)
     tensor._fill_zero()  # Efficiently zero out all bytes
     return tensor^
 
 
-fn ones(shape: List[Int], dtype: DType) raises -> ExTensor:
+fn ones(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create a tensor filled with ones.
 
     Args:
@@ -4008,7 +4045,7 @@ fn ones(shape: List[Int], dtype: DType) raises -> ExTensor:
             dtype: The data type of tensor elements.
 
     Returns:
-            A new ExTensor filled with ones.
+            A new AnyTensor filled with ones.
 
     Raises:
             Error: If tensor size exceeds MAX_TENSOR_BYTES or allocation fails.
@@ -4019,7 +4056,7 @@ fn ones(shape: List[Int], dtype: DType) raises -> ExTensor:
             # Creates a 3x4 tensor of float32 ones.
     ```
     """
-    var tensor = ExTensor(shape, dtype)
+    var tensor = AnyTensor(shape, dtype)
 
     # Fill with ones based on dtype category
     if (
@@ -4035,7 +4072,7 @@ fn ones(shape: List[Int], dtype: DType) raises -> ExTensor:
     return tensor^
 
 
-fn full(shape: List[Int], fill_value: Float64, dtype: DType) raises -> ExTensor:
+fn full(shape: List[Int], fill_value: Float64, dtype: DType) raises -> AnyTensor:
     """Create a tensor filled with a specific value.
 
     Args:
@@ -4044,7 +4081,7 @@ fn full(shape: List[Int], fill_value: Float64, dtype: DType) raises -> ExTensor:
             dtype: The data type of tensor elements.
 
     Returns:
-            A new ExTensor filled with fill_value.
+            A new AnyTensor filled with fill_value.
 
     Raises:
             Error: If tensor size exceeds MAX_TENSOR_BYTES or allocation fails.
@@ -4054,7 +4091,7 @@ fn full(shape: List[Int], fill_value: Float64, dtype: DType) raises -> ExTensor:
             # Creates a 3x4 tensor filled with 42.0
             ```
     """
-    var tensor = ExTensor(shape, dtype)
+    var tensor = AnyTensor(shape, dtype)
 
     # Fill with value based on dtype category
     if (
@@ -4070,7 +4107,7 @@ fn full(shape: List[Int], fill_value: Float64, dtype: DType) raises -> ExTensor:
     return tensor^
 
 
-fn empty(shape: List[Int], dtype: DType) raises -> ExTensor:
+fn empty(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create an uninitialized tensor (fast allocation).
 
     Args:
@@ -4078,7 +4115,7 @@ fn empty(shape: List[Int], dtype: DType) raises -> ExTensor:
             dtype: The data type of tensor elements.
 
     Returns:
-            A new ExTensor with uninitialized memory.
+            A new AnyTensor with uninitialized memory.
 
     Raises:
             Error: If tensor size exceeds MAX_TENSOR_BYTES or allocation fails.
@@ -4094,13 +4131,13 @@ fn empty(shape: List[Int], dtype: DType) raises -> ExTensor:
     ```
     """
     # Just allocate without initialization
-    var tensor = ExTensor(shape, dtype)
+    var tensor = AnyTensor(shape, dtype)
     return tensor^
 
 
 fn arange(
     start: Float64, stop: Float64, step: Float64, dtype: DType
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Create 1D tensor with evenly spaced values.
 
     Args:
@@ -4110,7 +4147,7 @@ fn arange(
             dtype: The data type of tensor elements.
 
     Returns:
-            A new 1D ExTensor with values in range [start, stop) with given step.
+            A new 1D AnyTensor with values in range [start, stop) with given step.
 
     Raises:
             Error: If tensor size exceeds MAX_TENSOR_BYTES or allocation fails.
@@ -4129,7 +4166,7 @@ fn arange(
     var shape = List[Int]()
     shape.append(num_elements)
 
-    var tensor = ExTensor(shape, dtype)
+    var tensor = AnyTensor(shape, dtype)
 
     # Fill with sequence
     var value = start
@@ -4148,7 +4185,7 @@ fn arange(
     return tensor^
 
 
-fn eye(n: Int, m: Int, k: Int, dtype: DType) raises -> ExTensor:
+fn eye(n: Int, m: Int, k: Int, dtype: DType) raises -> AnyTensor:
     """Create 2D tensor with ones on diagonal.
 
     Args:
@@ -4158,7 +4195,7 @@ fn eye(n: Int, m: Int, k: Int, dtype: DType) raises -> ExTensor:
             dtype: The data type of tensor elements.
 
     Returns:
-            A new 2D ExTensor with ones on the k-th diagonal.
+            A new 2D AnyTensor with ones on the k-th diagonal.
 
     Raises:
             Error: If tensor size exceeds MAX_TENSOR_BYTES or allocation fails.
@@ -4176,7 +4213,7 @@ fn eye(n: Int, m: Int, k: Int, dtype: DType) raises -> ExTensor:
     shape.append(n)
     shape.append(m)
 
-    var tensor = ExTensor(shape, dtype)
+    var tensor = AnyTensor(shape, dtype)
     tensor._fill_zero()
 
     # Set diagonal to one
@@ -4199,7 +4236,7 @@ fn eye(n: Int, m: Int, k: Int, dtype: DType) raises -> ExTensor:
 
 fn linspace(
     start: Float64, stop: Float64, num: Int, dtype: DType
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Create 1D tensor with evenly spaced values (inclusive).
 
     Args:
@@ -4209,7 +4246,7 @@ fn linspace(
             dtype: The data type of tensor elements.
 
     Returns:
-            A new 1D ExTensor with num evenly spaced values.
+            A new 1D AnyTensor with num evenly spaced values.
 
     Raises:
             Error: If tensor size exceeds MAX_TENSOR_BYTES or allocation fails.
@@ -4225,7 +4262,7 @@ fn linspace(
     var shape = List[Int]()
     shape.append(num)
 
-    var tensor = ExTensor(shape, dtype)
+    var tensor = AnyTensor(shape, dtype)
 
     if num == 1:
         # Special case: single value
@@ -4258,14 +4295,14 @@ fn linspace(
     return tensor^
 
 
-fn ones_like(tensor: ExTensor) raises -> ExTensor:
+fn ones_like(tensor: AnyTensor) raises -> AnyTensor:
     """Create tensor of ones with same shape and dtype as input.
 
     Args:
             tensor: Template tensor to match shape and dtype.
 
     Returns:
-            A new ExTensor filled with ones, same shape and dtype as input.
+            A new AnyTensor filled with ones, same shape and dtype as input.
 
     Raises:
             Error: If tensor creation fails.
@@ -4281,14 +4318,14 @@ fn ones_like(tensor: ExTensor) raises -> ExTensor:
     return ones(shape, dtype)
 
 
-fn zeros_like(tensor: ExTensor) raises -> ExTensor:
+fn zeros_like(tensor: AnyTensor) raises -> AnyTensor:
     """Create tensor of zeros with same shape and dtype as input.
 
     Args:
             tensor: Template tensor to match shape and dtype.
 
     Returns:
-            A new ExTensor filled with zeros, same shape and dtype as input.
+            A new AnyTensor filled with zeros, same shape and dtype as input.
 
     Raises:
             Error: If tensor creation fails.
@@ -4304,7 +4341,7 @@ fn zeros_like(tensor: ExTensor) raises -> ExTensor:
     return zeros(shape, dtype)
 
 
-fn full_like(tensor: ExTensor, fill_value: Float64) raises -> ExTensor:
+fn full_like(tensor: AnyTensor, fill_value: Float64) raises -> AnyTensor:
     """Create tensor filled with a value, same shape and dtype as input.
 
     Args:
@@ -4312,7 +4349,7 @@ fn full_like(tensor: ExTensor, fill_value: Float64) raises -> ExTensor:
             fill_value: Value to fill the tensor with.
 
     Returns:
-            A new ExTensor filled with fill_value, same shape and dtype as input.
+            A new AnyTensor filled with fill_value, same shape and dtype as input.
 
     Raises:
             Error: If tensor creation fails.
@@ -4328,7 +4365,7 @@ fn full_like(tensor: ExTensor, fill_value: Float64) raises -> ExTensor:
     return full(shape, fill_value, dtype)
 
 
-fn nan_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
+fn nan_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create a tensor filled with NaN values.
 
     Args:
@@ -4336,7 +4373,7 @@ fn nan_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
             dtype: The data type of tensor elements (must be floating-point).
 
     Returns:
-            A new ExTensor filled with NaN values.
+            A new AnyTensor filled with NaN values.
 
     Raises:
             Error: If dtype is not floating-point, or if tensor size exceeds MAX_TENSOR_BYTES.
@@ -4355,7 +4392,7 @@ fn nan_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
     ):
         raise Error("nan_tensor: only floating-point dtypes support NaN")
 
-    var tensor = ExTensor(shape, dtype)
+    var tensor = AnyTensor(shape, dtype)
 
     # Fill tensor with NaN values
     # IEEE 754 NaN is represented as 0.0 / 0.0
@@ -4367,7 +4404,7 @@ fn nan_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
     return tensor^
 
 
-fn inf_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
+fn inf_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create a tensor filled with positive infinity values.
 
     Args:
@@ -4375,7 +4412,7 @@ fn inf_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
             dtype: The data type of tensor elements (must be floating-point).
 
     Returns:
-            A new ExTensor filled with positive infinity values.
+            A new AnyTensor filled with positive infinity values.
 
     Raises:
             Error: If dtype is not floating-point, or if tensor size exceeds MAX_TENSOR_BYTES.
@@ -4394,7 +4431,7 @@ fn inf_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
     ):
         raise Error("inf_tensor: only floating-point dtypes support Inf")
 
-    var tensor = ExTensor(shape, dtype)
+    var tensor = AnyTensor(shape, dtype)
 
     # Fill tensor with +inf values using proper IEEE 754 infinity constant
     var inf_value: Float64 = numeric_inf[DType.float64]()
@@ -4405,7 +4442,7 @@ fn inf_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
     return tensor^
 
 
-fn neg_inf_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
+fn neg_inf_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create a tensor filled with negative infinity values.
 
     Args:
@@ -4413,7 +4450,7 @@ fn neg_inf_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
             dtype: The data type of tensor elements (must be floating-point).
 
     Returns:
-            A new ExTensor filled with negative infinity values.
+            A new AnyTensor filled with negative infinity values.
 
     Raises:
             Error: If dtype is not floating-point, or if tensor size exceeds MAX_TENSOR_BYTES.
@@ -4432,7 +4469,7 @@ fn neg_inf_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
     ):
         raise Error("neg_inf_tensor: only floating-point dtypes support Inf")
 
-    var tensor = ExTensor(shape, dtype)
+    var tensor = AnyTensor(shape, dtype)
 
     # Fill tensor with -inf values using proper IEEE 754 infinity constant
     var neg_inf_value: Float64 = numeric_neg_inf[DType.float64]()
@@ -4480,7 +4517,7 @@ fn _dtype_to_string(dtype: DType) -> String:
         return "unknown"
 
 
-fn randn(shape: List[Int], dtype: DType, seed: Int = 0) raises -> ExTensor:
+fn randn(shape: List[Int], dtype: DType, seed: Int = 0) raises -> AnyTensor:
     """Create tensor filled with random values from standard normal distribution.
 
         Uses Box-Muller transform to generate normally distributed random values
@@ -4492,7 +4529,7 @@ fn randn(shape: List[Int], dtype: DType, seed: Int = 0) raises -> ExTensor:
             seed: Random seed for reproducibility (default: 0 uses system randomness).
 
     Returns:
-            A new ExTensor filled with random values from N(0, 1).
+            A new AnyTensor filled with random values from N(0, 1).
 
     Raises:
             Error: If tensor size exceeds MAX_TENSOR_BYTES or allocation fails.
@@ -4524,7 +4561,7 @@ fn randn(shape: List[Int], dtype: DType, seed: Int = 0) raises -> ExTensor:
     if seed > 0:
         random_seed(seed)
 
-    var tensor = ExTensor(shape, dtype)
+    var tensor = AnyTensor(shape, dtype)
 
     # Box-Muller transform: generates pairs of independent N(0,1) values
     # from pairs of uniform random values
@@ -4608,7 +4645,7 @@ fn calculate_max_batch_size(
     for i in range(len(sample_shape)):
         sample_elements *= sample_shape[i]
 
-    var dtype_size = ExTensor._get_dtype_size_static(dtype)
+    var dtype_size = AnyTensor._get_dtype_size_static(dtype)
     var bytes_per_sample = sample_elements * dtype_size
 
     if bytes_per_sample <= 0:
@@ -4633,16 +4670,16 @@ fn calculate_max_batch_size(
 # ============================================================================
 
 
-fn clone(tensor: ExTensor) raises -> ExTensor:
+fn clone(tensor: AnyTensor) raises -> AnyTensor:
     """Create a clone of the tensor.
 
-    This is a convenience wrapper around the ExTensor.clone() method.
+    This is a convenience wrapper around the AnyTensor.clone() method.
 
     Args:
         tensor: The tensor to clone.
 
     Returns:
-        A new ExTensor that is a deep copy of the input.
+        A new AnyTensor that is a deep copy of the input.
 
     Raises:
         Error: If memory allocation fails.
@@ -4656,10 +4693,10 @@ fn clone(tensor: ExTensor) raises -> ExTensor:
     return tensor.clone()
 
 
-fn item(tensor: ExTensor) raises -> Float64:
+fn item(tensor: AnyTensor) raises -> Float64:
     """Extract the value from a single-element tensor.
 
-    This is a convenience wrapper around the ExTensor.item() method.
+    This is a convenience wrapper around the AnyTensor.item() method.
 
     Args:
         tensor: A tensor with exactly one element.
@@ -4679,17 +4716,17 @@ fn item(tensor: ExTensor) raises -> Float64:
     return tensor.item()
 
 
-fn diff(tensor: ExTensor, n: Int = 1) raises -> ExTensor:
+fn diff(tensor: AnyTensor, n: Int = 1) raises -> AnyTensor:
     """Calculate consecutive differences along an axis.
 
-    This is a convenience wrapper around the ExTensor.diff() method.
+    This is a convenience wrapper around the AnyTensor.diff() method.
 
     Args:
         tensor: The input tensor.
         n: Order of differences (default: 1).
 
     Returns:
-        A new ExTensor with differences computed.
+        A new AnyTensor with differences computed.
 
     Raises:
         Error: If operation fails.

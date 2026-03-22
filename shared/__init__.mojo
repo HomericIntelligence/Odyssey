@@ -9,7 +9,7 @@ This package provides reusable ML/AI components including:
 
 Usage:
     # Import commonly used components directly
-    from shared import Linear, Conv2D, ReLU, SGD, Adam, Tensor
+    from shared import Linear, Conv2D, ReLU, SGD, Adam, AnyTensor
 
     # Import from specific modules for less common items
     from shared.core.layers import MaxPool2D, Dropout
@@ -75,11 +75,9 @@ from shared.core.module import Module
 # Sequential — only parametric variants exist (Sequential2, Sequential3, …); no
 # single-type Sequential class yet. NOT YET IMPLEMENTED.
 
-# Core tensors — ExTensor is the canonical tensor type; Tensor is an alias
-from shared.core.extensor import ExTensor, zeros, ones, randn
-
-# Alias: Tensor = ExTensor for convenience
-comptime Tensor = ExTensor
+# Core tensors — AnyTensor is the canonical runtime-typed tensor;
+# ExTensor is a backward-compatibility alias for AnyTensor.
+from shared.core.extensor import ExTensor, AnyTensor, zeros, ones, randn
 
 # Training optimizers — only functional step-functions exist (sgd_step, adam_step, etc.);
 # no SGD/Adam/AdamW struct classes yet. NOT YET IMPLEMENTED.
@@ -139,7 +137,7 @@ from shared.utils.visualization import plot_training_curves
 # Core - Layers: Linear, Conv2D, ReLU, MaxPool2D, Dropout, Flatten
 # Core - Activations: relu, sigmoid, tanh, softmax
 # Core - Module system: Module, Sequential
-# Core - Tensors: Tensor, zeros, ones, randn
+# Core - Tensors: AnyTensor (ExTensor alias), zeros, ones, randn
 # Training - Optimizers: SGD, Adam, AdaGrad, RMSprop, AdamW (via autograd)
 # Training - Schedulers: StepLR, CosineAnnealingLR
 # Training - Metrics: Accuracy, LossTracker, ConfusionMatrix, CSVMetricsLogger
@@ -185,7 +183,7 @@ from shared.utils.visualization import plot_training_curves
 # │ BatchNorm2dLayer, BatchNorm2d            │ shared.core.layers.batchnorm (alias)     │
 # │ relu, sigmoid, tanh, softmax             │ shared.core.activation                   │
 # │ Module                                   │ shared.core.module (trait)               │
-# │ ExTensor, Tensor                         │ shared.core.extensor (Tensor alias)      │
+# │ AnyTensor, ExTensor                      │ shared.core.extensor (ExTensor alias)     │
 # │ zeros, ones, randn                       │ shared.core.extensor                     │
 # │ StepLR, CosineAnnealingLR                │ shared.training.schedulers.lr_schedulers │
 # │ LossTracker, AccuracyMetric              │ shared.training.metrics                  │

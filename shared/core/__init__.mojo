@@ -7,16 +7,16 @@ without maintaining internal state.
 
 Architecture:
     - Pure functional design - no classes, no internal state
-    - All functions work with ExTensor (no Tensor alias)
+    - All functions work with AnyTensor (ExTensor is a backward-compat alias)
     - Caller manages all state (weights, biases, momentum, etc.)
     - Functions return new values, never mutate inputs
 
 Modules:
-    extensor: Core tensor type (ExTensor, implements Hashable via __hash__) and creation functions
+    extensor: Core tensor type (AnyTensor/ExTensor, implements Hashable via __hash__) and creation functions
     types: Custom data types (type aliases for FP8/BF8/BF16/FP4, MXFP4/NVFP4 blocked formats)
     arithmetic: Element-wise arithmetic operations (add, subtract, multiply, divide)
     matrix: Matrix operations (matmul, transpose, dot, outer)
-    extensor methods: ExTensor method operations (transpose method via ExTensor.transpose())
+    extensor methods: AnyTensor method operations (transpose method via AnyTensor.transpose())
     activation: Activation functions (relu, sigmoid, tanh, softmax, gelu)
     activation_ops: Activation operation utilities (scalar exp functions)
     linear: Linear transformations
@@ -45,7 +45,7 @@ Note:
     Callers may import directly from the parent package:
 
     ```mojo
-    from shared.core import ExTensor, linear, relu
+    from shared.core import AnyTensor, linear, relu
     ```
 
     The chain limitation described in #3210 only applies to importing from the
@@ -54,7 +54,7 @@ Note:
 
 Example:
    ```mojo
-    from shared.core.extensor import ExTensor, zeros
+    from shared.core.extensor import AnyTensor, zeros
     from shared.core.linear import linear
     from shared.core.activation import relu
     from shared.core.matrix import matmul, transpose
@@ -157,10 +157,12 @@ from shared.core.optimizer_constants import (
 # ============================================================================
 # Core Tensor Type and Creation Functions
 # ============================================================================
-# ExTensor implements the Hashable trait (__hash__), allowing tensors to be
-# used as dictionary keys or in hash-based data structures via hash(tensor).
+# AnyTensor (formerly ExTensor) implements the Hashable trait (__hash__),
+# allowing tensors to be used as dictionary keys or in hash-based data
+# structures via hash(tensor). ExTensor is a backward-compatibility alias.
 
 from shared.core.extensor import (
+    AnyTensor,
     ExTensor,
     zeros,
     ones,
