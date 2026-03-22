@@ -31,7 +31,7 @@ from shared.training.optimizers import SGD
 ```mojo
 fn __init__(
     out self,
-    parameters: List[ExTensor],
+    parameters: List[AnyTensor],
     lr: Float,
     momentum: Float = 0.0,
     weight_decay: Float = 0.0,
@@ -83,7 +83,7 @@ from shared.training.optimizers import Adam
 ```mojo
 fn __init__(
     out self,
-    parameters: List[ExTensor],
+    parameters: List[AnyTensor],
     lr: Float = 0.001,
     betas: Tuple[Float, Float] = (0.9, 0.999),
     eps: Float = 1e-8,
@@ -130,7 +130,7 @@ from shared.training.optimizers import AdamW
 ```mojo
 fn __init__(
     out self,
-    parameters: List[ExTensor],
+    parameters: List[AnyTensor],
     lr: Float = 0.001,
     betas: Tuple[Float, Float] = (0.9, 0.999),
     eps: Float = 1e-8,
@@ -168,7 +168,7 @@ from shared.training.optimizers import RMSprop
 ```mojo
 fn __init__(
     out self,
-    parameters: List[ExTensor],
+    parameters: List[AnyTensor],
     lr: Float = 0.01,
     alpha: Float = 0.99,
     eps: Float = 1e-8,
@@ -202,7 +202,7 @@ from shared.training.optimizers import LARS
 ```mojo
 fn __init__(
     out self,
-    parameters: List[ExTensor],
+    parameters: List[AnyTensor],
     lr: Float,
     momentum: Float = 0.9,
     weight_decay: Float = 0.0,

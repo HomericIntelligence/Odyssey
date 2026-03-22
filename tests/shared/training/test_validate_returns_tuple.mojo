@@ -12,7 +12,7 @@ from tests.shared.conftest import (
 )
 from shared.training.loops.validation_loop import validate
 from shared.training.trainer_interface import DataLoader
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 from shared.core import ones, zeros
 
 
@@ -21,12 +21,12 @@ from shared.core import ones, zeros
 # ============================================================================
 
 
-fn simple_forward(data: ExTensor) raises -> ExTensor:
+fn simple_forward(data: AnyTensor) raises -> AnyTensor:
     """Simple forward: returns ones matching data shape."""
     return ones(data.shape(), data.dtype())
 
 
-fn simple_loss(pred: ExTensor, labels: ExTensor) raises -> ExTensor:
+fn simple_loss(pred: AnyTensor, labels: AnyTensor) raises -> AnyTensor:
     """Simple loss: returns scalar ones tensor."""
     return ones([1], DType.float32)
 

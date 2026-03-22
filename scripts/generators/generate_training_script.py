@@ -40,7 +40,7 @@ from shared.training import {optimizer_class}, {loss_class}
 from shared.training.early_stopping import EarlyStopping
 from shared.training.checkpoint import CheckpointManager
 from shared.training.metrics import Accuracy
-from shared.core import ExTensor
+from shared.core import AnyTensor
 
 
 # =============================================================================

@@ -1,15 +1,15 @@
-# ExTensor View Contract
+# AnyTensor View Contract
 
 **Status**: Active | **Tracked**: #3802 | **Last Updated**: 2026-03-14
 
-This document describes the copy-vs-view semantics for `ExTensor` operations.
+This document describes the copy-vs-view semantics for `AnyTensor` operations.
 Understanding when an operation returns a view (shared data pointer) vs a copy
 (independent data buffer) is essential for correct gradient computation and
 memory management.
 
 ## Background
 
-`ExTensor` uses reference-counted storage: each tensor holds an `UnsafePointer`
+`AnyTensor` uses reference-counted storage: each tensor holds an `UnsafePointer`
 to a flat data buffer plus a reference count. When a tensor is "copied" in Mojo's
 value-semantic sense, the `__copyinit__` method increments the reference count
 rather than duplicating the buffer — this is what makes views possible.
@@ -28,7 +28,7 @@ A tensor is an **independent copy** when:
 
 ## Refcount Mechanics
 
-`ExTensor` uses a heap-allocated `Int` as a shared reference counter
+`AnyTensor` uses a heap-allocated `Int` as a shared reference counter
 (`_refcount: UnsafePointer[Int]`). Every constructor initialises the counter to 1.
 The two key lifecycle methods are:
 
@@ -62,9 +62,9 @@ These operations return a view — no data duplication occurs:
 
 | Operation               | Location         | View? | Notes                                  |
 |-------------------------|------------------|-------|----------------------------------------|
-| `reshape(new_shape)`    | `extensor.mojo`  | Yes   | Zero-copy; shape metadata changes only |
-| `transpose(dim0, dim1)` | `extensor.mojo`  | Yes   | Strides permuted; pointer shared       |
-| `slice(...)`            | `extensor.mojo`  | Yes   | Offset pointer into same buffer        |
+| `reshape(new_shape)`    | `any_tensor.mojo`  | Yes   | Zero-copy; shape metadata changes only |
+| `transpose(dim0, dim1)` | `any_tensor.mojo`  | Yes   | Strides permuted; pointer shared       |
+| `slice(...)`            | `any_tensor.mojo`  | Yes   | Offset pointer into same buffer        |
 | `squeeze(dim)`          | `shape.mojo`     | Yes   | Removes size-1 dimensions              |
 | `unsqueeze(dim)`        | `shape.mojo`     | Yes   | Inserts size-1 dimensions              |
 | `broadcast_to(shape)`   | `shape.mojo`     | Yes   | Stride-based broadcast; no copy        |
@@ -74,7 +74,7 @@ underlying buffer is incremented by the `__copyinit__` in the view constructor.
 
 ## `view_with_strides()` — Not Available
 
-`view_with_strides()` does **not exist** on `ExTensor`. It was proposed during the
+`view_with_strides()` does **not exist** on `AnyTensor`. It was proposed during the
 issue-3236 development cycle but never implemented; the prototype caused CI failures and
 was dropped before merge.
 
@@ -96,9 +96,9 @@ These operations allocate a new data buffer:
 
 | Operation                                       | Location         | Notes                                 |
 |-------------------------------------------------|------------------|---------------------------------------|
-| `as_contiguous()`                               | `extensor.mojo`  | Forces C-order layout into new buffer |
-| `copy()`                                        | `extensor.mojo`  | Explicit deep copy                    |
-| Element-wise ops (`__add__`, `__mul__`, etc.)   | `extensor.mojo`  | Output is always new tensor           |
+| `as_contiguous()`                               | `any_tensor.mojo`  | Forces C-order layout into new buffer |
+| `copy()`                                        | `any_tensor.mojo`  | Explicit deep copy                    |
+| Element-wise ops (`__add__`, `__mul__`, etc.)   | `any_tensor.mojo`  | Output is always new tensor           |
 | Reduction ops (`sum()`, `mean()`, etc.)         | `reduction.mojo` | Output is always new tensor           |
 | `concatenate(tensors, axis)`                    | `shape.mojo`     | Allocates output; copies all inputs   |
 
@@ -108,7 +108,7 @@ These operations allocate a new data buffer:
 sense above. It copies the raw bytes and then sets permuted strides — the data pointer
 is independent. This makes it useful for testing `is_contiguous()` and `as_contiguous()`
 in isolation but it is **not** the recommended API for transposing tensors in production
-code. Prefer `transpose()` on `ExTensor`.
+code. Prefer `transpose()` on `AnyTensor`.
 
 ## Detecting Views at Runtime
 
@@ -162,7 +162,7 @@ Call `as_contiguous()` before any kernel that assumes C-order (row-major) stride
 **The guard pattern** — used in `matrix.mojo:604-611`:
 
 ```mojo
-var a_cont: ExTensor
+var a_cont: AnyTensor
 if a.is_contiguous():
     a_cont = a               # zero-copy shared-ownership assignment
 else:
@@ -193,7 +193,7 @@ if t.is_view():
 
 ## See Also
 
-- `shared/core/extensor.mojo` — `reshape()`, `transpose()`, `slice()`
+- `shared/core/any_tensor.mojo` — `reshape()`, `transpose()`, `slice()`
 - `shared/core/shape.mojo` — `broadcast_to()`, `squeeze()`, `unsqueeze()`
 - `shared/core/matrix.mojo` — `transpose_view()` (test utility)
 - Issue #4082 — `transpose()` vs `transpose_view()` cross-reference

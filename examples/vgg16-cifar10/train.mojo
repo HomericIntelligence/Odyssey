@@ -19,7 +19,7 @@ References:
 
 from model import VGG16
 from shared.data.datasets import CIFAR10Dataset
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import maxpool2d, maxpool2d_backward
 from shared.core.linear import linear, linear_backward
@@ -39,11 +39,11 @@ from shared.training.metrics.evaluate import evaluate_with_predict
 
 fn compute_gradients(
     mut model: VGG16,
-    input: ExTensor,
-    labels: ExTensor,
+    input: AnyTensor,
+    labels: AnyTensor,
     learning_rate: Float32,
     momentum: Float32,
-    mut velocities: List[ExTensor],
+    mut velocities: List[AnyTensor],
 ) raises -> Float32:
     """Compute gradients and update parameters for one batch.
 
@@ -685,7 +685,7 @@ fn compute_gradients(
 
 
 fn evaluate(
-    mut model: VGG16, test_images: ExTensor, test_labels: ExTensor
+    mut model: VGG16, test_images: AnyTensor, test_labels: AnyTensor
 ) raises -> Float32:
     """Evaluate model on test set using shared metrics utilities.
 
@@ -734,7 +734,7 @@ fn evaluate(
     return accuracy
 
 
-fn initialize_velocities(model: VGG16) raises -> List[ExTensor]:
+fn initialize_velocities(model: VGG16) raises -> List[AnyTensor]:
     """Initialize momentum velocities for all parameters (32 tensors).
 
     Args:
@@ -743,7 +743,7 @@ fn initialize_velocities(model: VGG16) raises -> List[ExTensor]:
     Returns:
         DynamicVector of zero-initialized velocity tensors matching parameter shapes.
     """
-    var velocities: List[ExTensor] = []
+    var velocities: List[AnyTensor] = []
 
     # Initialize velocities for all 32 parameters (conv1-5 blocks + fc1-3)
     # Block 1 (4 params)

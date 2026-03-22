@@ -16,7 +16,7 @@ Output:
     SIMD time, and speedup factor.
 """
 
-from shared.core import ExTensor, zeros, ones
+from shared.core import AnyTensor, zeros, ones
 from shared.core.arithmetic import add, subtract, multiply, divide
 from shared.core.arithmetic_simd import (
     add_simd,
@@ -30,8 +30,8 @@ from time import perf_counter_ns
 fn benchmark_operation(
     name: String,
     size: Int,
-    scalar_fn: fn (ExTensor, ExTensor) raises -> ExTensor,
-    simd_fn: fn (ExTensor, ExTensor) raises -> ExTensor,
+    scalar_fn: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
+    simd_fn: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
     dtype: DType,
     iterations: Int = 100,
 ) raises:

@@ -12,7 +12,7 @@ Tests cover:
 """
 
 from tests.shared.conftest import assert_almost_equal, assert_equal
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.any_tensor import AnyTensor, zeros, ones
 from shared.core.conv import conv2d, conv2d_backward
 
 

@@ -7,8 +7,8 @@ high test load. Split from test_high_dimensional.mojo. See docs/adr/ADR-009-heap
 Tests large tensor operations, precision with reductions, and numerical behavior.
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange
+# Import AnyTensor and operations
+from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange
 from shared.core.arithmetic import add, multiply, subtract
 from shared.core.reduction import sum, mean, max_reduce, min_reduce
 

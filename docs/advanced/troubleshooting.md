@@ -172,7 +172,7 @@ ls -la shared/training/**init**.mojo
 
 ```mojo
 # CORRECT - Import from root
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 from shared.training.optimizer import Adam
 
 # For relative imports within a package, use ..
@@ -266,7 +266,7 @@ from .version import VERSION
 1. Verify input and output shapes in your code:
 
 ```mojo
-var x = ExTensor(...)
+var x = AnyTensor(...)
 print("Input shape:", x._shape)
 var y = forward(x)
 print("Output shape:", y._shape)
@@ -327,20 +327,20 @@ list.append(42)
 ```mojo
 # WRONG - Empty shape means 0D scalar (1 element only)
 var shape = List[Int]()
-var tensor = ExTensor(shape, DType.float32)
+var tensor = AnyTensor(shape, DType.float32)
 tensor._data[1] = 1.0  # SEGFAULT - out of bounds
 
 # CORRECT - Initialize shape with dimensions
 var shape = List[Int]()
 shape.append(4)
-var tensor = ExTensor(shape, DType.float32)
+var tensor = AnyTensor(shape, DType.float32)
 # Now indices 0-3 are valid
 ```
 
 1. Check bounds before indexing:
 
 ```mojo
-fn safe_access(tensor: ExTensor, index: Int) -> Float32:
+fn safe_access(tensor: AnyTensor, index: Int) -> Float32:
     if index >= 0 and index < tensor.numel():
         return tensor._data[index]
     else:
@@ -400,10 +400,10 @@ cat docs/MEMORY_REQUIREMENTS.md
 
 ```mojo
 # WRONG - Passing Int instead of DType
-var tensor = ExTensor(shape, 32)
+var tensor = AnyTensor(shape, 32)
 
 # CORRECT - Use DType enum
-var tensor = ExTensor(shape, DType.float32)
+var tensor = AnyTensor(shape, DType.float32)
 ```
 
 1. Use correct DType values:
@@ -421,13 +421,13 @@ DType.bfloat16    # Brain float 16
 
 ```mojo
 # WRONG - Mixing dtypes
-var a = ExTensor(shape, DType.float32)
-var b = ExTensor(shape, DType.float16)
+var a = AnyTensor(shape, DType.float32)
+var b = AnyTensor(shape, DType.float16)
 var c = add(a, b)  # Type mismatch
 
 # CORRECT - Matching dtypes
-var a = ExTensor(shape, DType.float32)
-var b = ExTensor(shape, DType.float32)
+var a = AnyTensor(shape, DType.float32)
+var b = AnyTensor(shape, DType.float32)
 var c = add(a, b)
 ```
 
@@ -475,11 +475,11 @@ Create a named variable first, then pass it:
 
 ```mojo
 # WRONG - Cannot transfer ownership of temporary
-var tensor = ExTensor(List[Int](), DType.float32)
+var tensor = AnyTensor(List[Int](), DType.float32)
 
 # CORRECT - Named variable can be transferred
 var shape = List[Int]()
-var tensor = ExTensor(shape, DType.float32)
+var tensor = AnyTensor(shape, DType.float32)
 ```
 
 For multiple parameters:
@@ -685,7 +685,7 @@ for batch in batches:
 1. Use `del` to explicitly free large tensors:
 
 ```mojo
-var x = ExTensor(large_shape, DType.float32)
+var x = AnyTensor(large_shape, DType.float32)
 # ... use x ...
 del x  # Explicitly free if needed
 ```
@@ -736,7 +736,7 @@ fn get_simd_width() -> Int:
 
 ```mojo
 # SIMD works best with aligned memory
-# ExTensor uses DTypePointer which is automatically aligned
+# AnyTensor uses DTypePointer which is automatically aligned
 ```
 
 ---
@@ -798,7 +798,7 @@ pixi run mojo test tests/models/test_lenet5_layers.mojo::test_forward_pass
 ```mojo
 fn test_with_debug():
     """Test with debug output."""
-    var x = ExTensor(shape, DType.float32)
+    var x = AnyTensor(shape, DType.float32)
     var y = forward(x)
 
     # Debug output
@@ -844,10 +844,10 @@ fn test_gradients():
 
 ```mojo
 # WRONG - Too large for unit test
-var x = ExTensor(shape=[1024, 1024, 512], DType.float32)
+var x = AnyTensor(shape=[1024, 1024, 512], DType.float32)
 
 # CORRECT - Smaller for fast unit tests
-var x = ExTensor(shape=[32, 64, 64], DType.float32)
+var x = AnyTensor(shape=[32, 64, 64], DType.float32)
 ```
 
 1. Reduce number of test iterations:

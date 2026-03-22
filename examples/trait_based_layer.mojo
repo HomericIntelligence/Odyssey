@@ -21,7 +21,7 @@ Usage:
     mojo run examples/trait_based_layer.mojo
 """
 
-from shared.core import ExTensor, zeros, zeros_like
+from shared.core import AnyTensor, zeros, zeros_like
 from shared.core.linear import linear, linear_backward
 from shared.core.traits import (
     Differentiable,
@@ -50,7 +50,7 @@ struct ReLULayer(Differentiable):
         ```
     """
 
-    var last_input: ExTensor  # Cached for backward pass
+    var last_input: AnyTensor  # Cached for backward pass
 
     fn __init__(out self) raises:
         """Initialize ReLU layer."""
@@ -59,7 +59,7 @@ struct ReLULayer(Differentiable):
         shape.append(1)
         self.last_input = zeros(shape, DType.float32)
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: ReLU(x) = max(0, x).
 
         Args:
@@ -82,7 +82,7 @@ struct ReLULayer(Differentiable):
 
         return output^
 
-    fn backward(self, grad_output: ExTensor) raises -> ExTensor:
+    fn backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Backward pass: ∂ReLU/∂x = 1 if x > 0 else 0.
 
         Args:
@@ -130,14 +130,14 @@ struct FullyConnectedLayer(Differentiable, Parameterized):
         ```
     """
 
-    var weights: ExTensor
-    var bias: ExTensor
-    var grad_weights: ExTensor
-    var grad_bias: ExTensor
+    var weights: AnyTensor
+    var bias: AnyTensor
+    var grad_weights: AnyTensor
+    var grad_bias: AnyTensor
 
     # Cached for backward pass
-    var last_input: ExTensor
-    var last_output: ExTensor
+    var last_input: AnyTensor
+    var last_output: AnyTensor
 
     fn __init__(out self, in_features: Int, out_features: Int) raises:
         """Initialize fully connected layer.
@@ -179,7 +179,7 @@ struct FullyConnectedLayer(Differentiable, Parameterized):
         self.bias._fill_value_float(0.0)
 
     # Differentiable trait implementation
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: y = xW^T + b.
 
         Args:
@@ -193,7 +193,7 @@ struct FullyConnectedLayer(Differentiable, Parameterized):
         self.last_output = linear(input, self.weights, self.bias)
         return self.last_output
 
-    fn backward(self, grad_output: ExTensor) raises -> ExTensor:
+    fn backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Backward pass: Compute gradients w.r.t. input and parameters.
 
         Args:
@@ -219,24 +219,24 @@ struct FullyConnectedLayer(Differentiable, Parameterized):
         return result.grad_input
 
     # Parameterized trait implementation
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Get all learnable parameters.
 
         Returns:
             List of [weights, bias].
         """
-        var params: List[ExTensor] = []
+        var params: List[AnyTensor] = []
         params.append(self.weights)
         params.append(self.bias)
         return params^
 
-    fn gradients(self) raises -> List[ExTensor]:
+    fn gradients(self) raises -> List[AnyTensor]:
         """Get gradients for all parameters.
 
         Returns:
             List of [grad_weights, grad_bias].
         """
-        var grads: List[ExTensor] = []
+        var grads: List[AnyTensor] = []
         grads.append(self.grad_weights)
         grads.append(self.grad_bias)
         return grads^
@@ -278,20 +278,20 @@ struct BatchNormLayer(Differentiable, Parameterized, Serializable, Trainable):
     """
 
     # Learnable parameters
-    var gamma: ExTensor  # Scale
-    var beta: ExTensor  # Shift
+    var gamma: AnyTensor  # Scale
+    var beta: AnyTensor  # Shift
 
     # Running statistics (non-trainable)
-    var running_mean: ExTensor
-    var running_var: ExTensor
+    var running_mean: AnyTensor
+    var running_var: AnyTensor
 
     # Gradients
-    var grad_gamma: ExTensor
-    var grad_beta: ExTensor
+    var grad_gamma: AnyTensor
+    var grad_beta: AnyTensor
 
     # Cached for backward
-    var last_input: ExTensor
-    var last_normalized: ExTensor
+    var last_input: AnyTensor
+    var last_normalized: AnyTensor
 
     # Training state
     var training_mode: Bool
@@ -333,7 +333,7 @@ struct BatchNormLayer(Differentiable, Parameterized, Serializable, Trainable):
         self.epsilon = 1e-5
 
     # Differentiable trait
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: Normalize, scale, and shift.
 
         Note:
@@ -346,7 +346,7 @@ struct BatchNormLayer(Differentiable, Parameterized, Serializable, Trainable):
         # Placeholder: Use shared/core/normalization.batch_norm2d() for production
         return input
 
-    fn backward(self, grad_output: ExTensor) raises -> ExTensor:
+    fn backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Backward pass: Compute gradients.
 
         Note:
@@ -357,16 +357,16 @@ struct BatchNormLayer(Differentiable, Parameterized, Serializable, Trainable):
         return grad_output
 
     # Parameterized trait
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Get learnable parameters (gamma, beta)."""
-        var params: List[ExTensor] = []
+        var params: List[AnyTensor] = []
         params.append(self.gamma)
         params.append(self.beta)
         return params^
 
-    fn gradients(self) raises -> List[ExTensor]:
+    fn gradients(self) raises -> List[AnyTensor]:
         """Get parameter gradients."""
-        var grads: List[ExTensor] = []
+        var grads: List[AnyTensor] = []
         grads.append(self.grad_gamma)
         grads.append(self.grad_beta)
         return grads^
@@ -524,16 +524,16 @@ fn main() raises:
 # BEFORE (No traits):
 # ===================
 # struct MyLayer:
-#     var weights: ExTensor
-#     var bias: ExTensor
+#     var weights: AnyTensor
+#     var bias: AnyTensor
 #
-#     fn forward(mut self, input: ExTensor) -> ExTensor:
+#     fn forward(mut self, input: AnyTensor) -> AnyTensor:
 #         # ... implementation
 #
-#     fn backward(self, grad: ExTensor) -> ExTensor:
+#     fn backward(self, grad: AnyTensor) -> AnyTensor:
 #         # ... implementation
 #
-#     fn get_parameters(self) -> List[ExTensor]:
+#     fn get_parameters(self) -> List[AnyTensor]:
 #         # ... implementation
 #
 # Issues:
@@ -545,19 +545,19 @@ fn main() raises:
 # AFTER (With traits):
 # ====================
 # struct MyLayer(Differentiable, Parameterized):
-#     var weights: ExTensor
-#     var bias: ExTensor
+#     var weights: AnyTensor
+#     var bias: AnyTensor
 #
-#     fn forward(mut self, input: ExTensor) -> ExTensor:
+#     fn forward(mut self, input: AnyTensor) -> AnyTensor:
 #         # ... same implementation
 #
-#     fn backward(self, grad: ExTensor) -> ExTensor:
+#     fn backward(self, grad: AnyTensor) -> AnyTensor:
 #         # ... same implementation
 #
-#     fn parameters(self) -> List[ExTensor]:
+#     fn parameters(self) -> List[AnyTensor]:
 #         # ... same implementation (renamed)
 #
-#     fn gradients(self) -> List[ExTensor]:
+#     fn gradients(self) -> List[AnyTensor]:
 #         # ... new method
 #
 #     fn zero_grad(mut self):

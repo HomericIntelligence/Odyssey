@@ -109,7 +109,7 @@ def generate_imports(layer_types: list[str]) -> str:
         Import statement string
     """
     nn_layers = []
-    core_imports = ["ExTensor"]
+    core_imports = ["AnyTensor"]
 
     for layer in layer_types:
         if layer in (

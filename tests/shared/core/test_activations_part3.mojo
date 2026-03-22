@@ -13,8 +13,8 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_true,
 )
-from shared.core.extensor import (
-    ExTensor,
+from shared.core.any_tensor import (
+    AnyTensor,
     zeros,
     ones_like,
 )
@@ -157,14 +157,14 @@ fn test_tanh_backward() raises:
     x._data.bitcast[Float32]()[2] = 1.0
 
     # Forward function wrapper
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return tanh(x)
 
     var y = tanh(x)
     var grad_out = ones_like(y)
 
     # Note: tanh_backward takes output y, not input x
-    fn backward_fn(grad: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var out = tanh(x)  # Recompute output inside wrapper
         return tanh_backward(grad, out)
 

@@ -22,11 +22,11 @@ Functions:
     validate_matching_dtype: Validate two tensors have matching dtype
 """
 
-from .extensor import ExTensor
+from .any_tensor import AnyTensor
 
 
 fn validate_tensor_shape(
-    tensor: ExTensor, expected_shape: List[Int], name: String
+    tensor: AnyTensor, expected_shape: List[Int], name: String
 ) raises:
     """Validate that a tensor has the expected shape.
 
@@ -75,7 +75,7 @@ fn validate_tensor_shape(
 
 
 fn validate_tensor_dtype(
-    tensor: ExTensor, expected_dtype: DType, name: String
+    tensor: AnyTensor, expected_dtype: DType, name: String
 ) raises:
     """Validate that a tensor has the expected data type.
 
@@ -109,7 +109,7 @@ fn validate_tensor_dtype(
 
 
 fn validate_matching_tensors(
-    a: ExTensor, b: ExTensor, a_name: String, b_name: String
+    a: AnyTensor, b: AnyTensor, a_name: String, b_name: String
 ) raises:
     """Validate that two tensors have matching shape and dtype.
 
@@ -178,7 +178,7 @@ fn validate_matching_tensors(
             )
 
 
-fn validate_2d_input(tensor: ExTensor, name: String) raises:
+fn validate_2d_input(tensor: AnyTensor, name: String) raises:
     """Validate that a tensor is exactly 2-dimensional.
 
     Args:
@@ -211,7 +211,7 @@ fn validate_2d_input(tensor: ExTensor, name: String) raises:
         )
 
 
-fn validate_4d_input(tensor: ExTensor, name: String) raises:
+fn validate_4d_input(tensor: AnyTensor, name: String) raises:
     """Validate that a tensor is exactly 4-dimensional.
 
     Args:
@@ -244,7 +244,7 @@ fn validate_4d_input(tensor: ExTensor, name: String) raises:
         )
 
 
-fn validate_1d_input(tensor: ExTensor, name: String) raises:
+fn validate_1d_input(tensor: AnyTensor, name: String) raises:
     """Validate that a tensor is exactly 1-dimensional.
 
     Args:
@@ -277,7 +277,7 @@ fn validate_1d_input(tensor: ExTensor, name: String) raises:
         )
 
 
-fn validate_3d_input(tensor: ExTensor, name: String) raises:
+fn validate_3d_input(tensor: AnyTensor, name: String) raises:
     """Validate that a tensor is exactly 3-dimensional.
 
     Args:
@@ -310,7 +310,7 @@ fn validate_3d_input(tensor: ExTensor, name: String) raises:
         )
 
 
-fn validate_axis(tensor: ExTensor, axis: Int, name: String) raises:
+fn validate_axis(tensor: AnyTensor, axis: Int, name: String) raises:
     """Validate that axis is within valid range for tensor dimensions.
 
     Supports both positive and negative indexing (e.g., -1 for last axis).
@@ -351,7 +351,7 @@ fn validate_axis(tensor: ExTensor, axis: Int, name: String) raises:
 
 
 fn validate_slice_range(
-    tensor: ExTensor, axis: Int, start: Int, end: Int, name: String
+    tensor: AnyTensor, axis: Int, start: Int, end: Int, name: String
 ) raises:
     """Validate that slice range is within bounds for the given axis.
 
@@ -407,7 +407,7 @@ fn validate_slice_range(
         )
 
 
-fn validate_float_dtype(tensor: ExTensor, name: String) raises:
+fn validate_float_dtype(tensor: AnyTensor, name: String) raises:
     """Validate that tensor has a floating-point dtype.
 
     Args:
@@ -472,7 +472,7 @@ fn validate_positive_shape(shape: List[Int], name: String) raises:
 
 
 fn validate_matmul_dims(
-    a: ExTensor, b: ExTensor, a_name: String, b_name: String
+    a: AnyTensor, b: AnyTensor, a_name: String, b_name: String
 ) raises:
     """Validate that two tensors have compatible dimensions for matmul.
 
@@ -530,7 +530,7 @@ fn validate_matmul_dims(
 
 
 fn validate_broadcast_compatible(
-    a: ExTensor, b: ExTensor, a_name: String, b_name: String
+    a: AnyTensor, b: AnyTensor, a_name: String, b_name: String
 ) raises:
     """Validate that two tensors have broadcast-compatible shapes.
 
@@ -597,7 +597,7 @@ fn validate_broadcast_compatible(
             )
 
 
-fn validate_non_empty(tensor: ExTensor, name: String) raises:
+fn validate_non_empty(tensor: AnyTensor, name: String) raises:
     """Validate that tensor is not empty (has at least one element).
 
     Args:
@@ -630,7 +630,7 @@ fn validate_non_empty(tensor: ExTensor, name: String) raises:
 
 
 fn validate_matching_dtype(
-    a: ExTensor, b: ExTensor, a_name: String, b_name: String
+    a: AnyTensor, b: AnyTensor, a_name: String, b_name: String
 ) raises:
     """Validate that two tensors have matching dtypes.
 

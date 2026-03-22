@@ -63,7 +63,7 @@ mojo package shared
 
 - ✅ `fn take(var data: List[Int])` - Takes ownership
 - ✅ `return self.list^` - Transfer operator for non-copyable
-- ✅ `fn use(data: ExTensor)` - Borrowed reference
+- ✅ `fn use(data: AnyTensor)` - Borrowed reference
 - ❌ `return self.list` - Missing transfer for List
 - ❌ `fn take(data: List[Int])` - Ambiguous (appears borrowed)
 

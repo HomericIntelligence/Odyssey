@@ -6,8 +6,8 @@ This module tests the utility functions:
 - full_like
 """
 
-from shared.core.extensor import (
-    ExTensor,
+from shared.core.any_tensor import (
+    AnyTensor,
     zeros,
     ones,
     full,

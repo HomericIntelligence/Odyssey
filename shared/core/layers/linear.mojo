@@ -9,7 +9,7 @@ Key components:
   Implements: y = xW + b (with broadcasting support for batched inputs).
 """
 
-from ..extensor import AnyTensor, zeros, randn, zeros_like
+from ..any_tensor import AnyTensor, zeros, randn, zeros_like
 from ..module import Module
 from shared.tensor.tensor import Tensor
 

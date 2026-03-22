@@ -18,7 +18,7 @@ from shared.core.activation import relu, sigmoid, tanh, gelu
 from shared.core.activation import relu_backward, sigmoid_backward, tanh_backward, gelu_backward
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.linear import linear, linear_backward
-from shared.core.extensor import ExTensor, full, zeros
+from shared.core.any_tensor import AnyTensor, full, zeros
 from shared.core.initializers import kaiming_uniform
 from shared.testing.gradient_checker import check_gradients
 from shared.testing.special_values import (
@@ -38,12 +38,12 @@ fn test_relu_gradient_positive_values() raises:
         [2, 3], DType.float32, seed=42, low=0.1, high=2.0
     )
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return relu(inp)
 
     fn backward_fn(
-        grad_out: ExTensor, inp: ExTensor
-    ) raises escaping -> ExTensor:
+        grad_out: AnyTensor, inp: AnyTensor
+    ) raises escaping -> AnyTensor:
         return relu_backward(grad_out, inp)
 
     var passed = check_gradients(
@@ -58,12 +58,12 @@ fn test_relu_gradient_negative_values() raises:
         [2, 3], DType.float32, seed=123, low=-2.0, high=-0.1
     )
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return relu(inp)
 
     fn backward_fn(
-        grad_out: ExTensor, inp: ExTensor
-    ) raises escaping -> ExTensor:
+        grad_out: AnyTensor, inp: AnyTensor
+    ) raises escaping -> AnyTensor:
         return relu_backward(grad_out, inp)
 
     var passed = check_gradients(
@@ -78,12 +78,12 @@ fn test_relu_gradient_mixed_values() raises:
         [2, 3], DType.float32, seed=999, low=-1.0, high=1.0
     )
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return relu(inp)
 
     fn backward_fn(
-        grad_out: ExTensor, inp: ExTensor
-    ) raises escaping -> ExTensor:
+        grad_out: AnyTensor, inp: AnyTensor
+    ) raises escaping -> AnyTensor:
         return relu_backward(grad_out, inp)
 
     var passed = check_gradients(
@@ -103,12 +103,12 @@ fn test_relu_gradient_near_zero() raises:
         [2, 3], DType.float32, seed=555, low=-0.01, high=0.01
     )
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return relu(inp)
 
     fn backward_fn(
-        grad_out: ExTensor, inp: ExTensor
-    ) raises escaping -> ExTensor:
+        grad_out: AnyTensor, inp: AnyTensor
+    ) raises escaping -> AnyTensor:
         return relu_backward(grad_out, inp)
 
     var passed = check_gradients(
@@ -128,12 +128,12 @@ fn test_relu_gradient_large_values() raises:
         [2, 3], DType.float32, seed=42, low=10.0, high=20.0
     )
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return relu(inp)
 
     fn backward_fn(
-        grad_out: ExTensor, inp: ExTensor
-    ) raises escaping -> ExTensor:
+        grad_out: AnyTensor, inp: AnyTensor
+    ) raises escaping -> AnyTensor:
         return relu_backward(grad_out, inp)
 
     # Use wider tolerance (5%) for large values due to numerical precision
@@ -157,12 +157,12 @@ fn test_sigmoid_gradient_normal_range() raises:
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return sigmoid(inp)
 
     fn backward_fn(
-        grad_out: ExTensor, inp: ExTensor
-    ) raises escaping -> ExTensor:
+        grad_out: AnyTensor, inp: AnyTensor
+    ) raises escaping -> AnyTensor:
         var output = sigmoid(inp)  # Compute sigmoid(x) first
         return sigmoid_backward(grad_out, output)
 
@@ -183,12 +183,12 @@ fn test_sigmoid_gradient_saturation_positive() raises:
     shape.append(3)
     var x = full(shape, 10.0, DType.float32)
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return sigmoid(inp)
 
     fn backward_fn(
-        grad_out: ExTensor, inp: ExTensor
-    ) raises escaping -> ExTensor:
+        grad_out: AnyTensor, inp: AnyTensor
+    ) raises escaping -> AnyTensor:
         var output = sigmoid(inp)  # Compute sigmoid(x) first
         return sigmoid_backward(grad_out, output)
 
@@ -210,12 +210,12 @@ fn test_sigmoid_gradient_saturation_negative() raises:
     shape.append(3)
     var x = full(shape, -10.0, DType.float32)
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return sigmoid(inp)
 
     fn backward_fn(
-        grad_out: ExTensor, inp: ExTensor
-    ) raises escaping -> ExTensor:
+        grad_out: AnyTensor, inp: AnyTensor
+    ) raises escaping -> AnyTensor:
         var output = sigmoid(inp)  # Compute sigmoid(x) first
         return sigmoid_backward(grad_out, output)
 
@@ -240,12 +240,12 @@ fn test_tanh_gradient() raises:
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return tanh(inp)
 
     fn backward_fn(
-        grad_out: ExTensor, inp: ExTensor
-    ) raises escaping -> ExTensor:
+        grad_out: AnyTensor, inp: AnyTensor
+    ) raises escaping -> AnyTensor:
         var output = tanh(inp)  # Compute tanh(x) first
         return tanh_backward(grad_out, output)
 
@@ -264,12 +264,12 @@ fn test_gelu_gradient() raises:
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return gelu(inp)
 
     fn backward_fn(
-        grad_out: ExTensor, inp: ExTensor
-    ) raises escaping -> ExTensor:
+        grad_out: AnyTensor, inp: AnyTensor
+    ) raises escaping -> AnyTensor:
         return gelu_backward(grad_out, inp)
 
     var passed = check_gradients(
@@ -314,12 +314,12 @@ fn test_conv2d_gradient_input() raises:
     input_shape.append(8)
     var x = create_seeded_random_tensor(input_shape, DType.float32, seed=42)
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=1)
 
     fn backward_fn(
-        grad_out: ExTensor, inp: ExTensor
-    ) raises escaping -> ExTensor:
+        grad_out: AnyTensor, inp: AnyTensor
+    ) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, inp, kernel, stride=1, padding=1)
         return result.grad_input
 
@@ -357,12 +357,12 @@ fn test_linear_gradient_input() raises:
     input_shape.append(in_features)
     var x = create_seeded_random_tensor(input_shape, DType.float32, seed=42)
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return linear(inp, weights, bias)
 
     fn backward_fn(
-        grad_out: ExTensor, inp: ExTensor
-    ) raises escaping -> ExTensor:
+        grad_out: AnyTensor, inp: AnyTensor
+    ) raises escaping -> AnyTensor:
         var result = linear_backward(grad_out, inp, weights)
         return result.grad_input
 

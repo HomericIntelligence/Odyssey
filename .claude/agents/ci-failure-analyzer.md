@@ -136,10 +136,10 @@ to guide remediation.
 ```markdown
 ## Summary
 
-Multiple test files fail to compile with type mismatch error in ExTensor constructor.
+Multiple test files fail to compile with type mismatch error in AnyTensor constructor.
 
 ## Root Cause
-ExTensor constructor requires owned List[Int] for shape parameter, but temporary expressions are being passed.
+AnyTensor constructor requires owned List[Int] for shape parameter, but temporary expressions are being passed.
 
 ## Affected Components
 - tests/shared/core/test_extensor.mojo:45
@@ -147,17 +147,17 @@ ExTensor constructor requires owned List[Int] for shape parameter, but temporary
 - tests/shared/core/test_model.mojo:123
 
 ## Recommended Action
-Use list literals for ExTensor shape parameters:
+Use list literals for AnyTensor shape parameters:
 ```mojo
 # WRONG - Invalid variadic constructor
-var tensor = ExTensor(List[Int](4), DType.float32)
+var tensor = AnyTensor(List[Int](4), DType.float32)
 
 # CORRECT - List literal (type inference)
-var tensor = ExTensor([4], DType.float32)
+var tensor = AnyTensor([4], DType.float32)
 
 # CORRECT - Explicit type annotation
 var shape: List[Int] = [4]
-var tensor = ExTensor(shape, DType.float32)
+var tensor = AnyTensor(shape, DType.float32)
 ```
 
 ```text

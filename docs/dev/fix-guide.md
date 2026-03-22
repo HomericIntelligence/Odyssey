@@ -82,12 +82,12 @@ fn __init__(mut self, size: Int) -> Self:
 
 ---
 
-## Error Pattern 2: ExTensor Ownership Violations (11 errors)
+## Error Pattern 2: AnyTensor Ownership Violations (11 errors)
 
 ### Symptom
 
 ```text
-error: value of type 'ExTensor' cannot be implicitly copied, it does not conform to 'ImplicitlyCopyable'
+error: value of type 'AnyTensor' cannot be implicitly copied, it does not conform to 'ImplicitlyCopyable'
             return data
                    ^~~~
 note: consider transferring the value with '^'
@@ -103,7 +103,7 @@ note: consider transferring the value with '^'
 ### Current Code Pattern
 
 ```mojo
-fn __call__(self, data: ExTensor) raises -> ExTensor:
+fn __call__(self, data: AnyTensor) raises -> AnyTensor:
     # ... process data ...
     return data  # ERROR: implicit copy
 ```text
@@ -111,7 +111,7 @@ fn __call__(self, data: ExTensor) raises -> ExTensor:
 ### Fixed Code Pattern
 
 ```mojo
-fn __call__(self, data: ExTensor) raises -> ExTensor:
+fn __call__(self, data: AnyTensor) raises -> AnyTensor:
     # ... process data ...
     return data^  # Transfer ownership
 ```text
@@ -127,7 +127,7 @@ Add `^` caret operator after `data` to explicitly transfer ownership.
 **Before**:
 
 ```mojo
-fn __call__(self, data: ExTensor) raises -> ExTensor:
+fn __call__(self, data: AnyTensor) raises -> AnyTensor:
     # ... rotation logic ...
     return data
 ```text
@@ -135,7 +135,7 @@ fn __call__(self, data: ExTensor) raises -> ExTensor:
 **After**:
 
 ```mojo
-fn __call__(self, data: ExTensor) raises -> ExTensor:
+fn __call__(self, data: AnyTensor) raises -> AnyTensor:
     # ... rotation logic ...
     return data^
 ```text
@@ -175,7 +175,7 @@ from shared.data.transforms import (
     Pipeline,
     Compose,
 )
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 ```text
 
 ### Solution
@@ -184,26 +184,26 @@ from shared.core.extensor import ExTensor
 
 ```mojo
 # Change line 19 from:
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 
 # To:
-from shared.core.extensor import ExTensor, Tensor
+from shared.core.any_tensor import AnyTensor, Tensor
 ```text
 
 **Option B**: Replace all Tensor usages (if Tensor is not available)
 
 ```bash
 # Run in tests/shared/data/transforms/ directory
-sed -i 's/Tensor(/ExTensor(/g' test_augmentations.mojo
-sed -i 's/List\[Tensor\]/List[ExTensor]/g' test_augmentations.mojo
+sed -i 's/Tensor(/AnyTensor(/g' test_augmentations.mojo
+sed -i 's/List\[Tensor\]/List[AnyTensor]/g' test_augmentations.mojo
 ```text
 
 ### Verify Which Works
 
-1. Check `/shared/core/extensor.mojo` for Tensor definition
-2. If Tensor exists and is different from ExTensor, use Option A (add import)
-3. If Tensor is an alias for ExTensor, use Option A (add import)
-4. If Tensor doesn't exist, use Option B (replace with ExTensor)
+1. Check `/shared/core/any_tensor.mojo` for Tensor definition
+2. If Tensor exists and is different from AnyTensor, use Option A (add import)
+3. If Tensor is an alias for AnyTensor, use Option A (add import)
+4. If Tensor doesn't exist, use Option B (replace with AnyTensor)
 
 ---
 
@@ -358,7 +358,7 @@ Fixes 17 errors - unblocks all test compilation
 
 **After Step 1**: Run `pixi run mojo -I . tests/shared/data/run_all_tests.mojo` to check progress
 
-### Step 2: Fix ExTensor Ownership (15 min)
+### Step 2: Fix AnyTensor Ownership (15 min)
 
 Fixes 11 errors - enables transform tests
 
@@ -379,7 +379,7 @@ Fixes 17 usage errors - enables augmentation tests
 ```bash
 # Edit tests/shared/data/transforms/test_augmentations.mojo:
 # Add Tensor to import on line 19:
-from shared.core.extensor import ExTensor, Tensor
+from shared.core.any_tensor import AnyTensor, Tensor
 ```text
 
 **After Step 3**: Run full test suite - should reach runtime
@@ -424,7 +424,7 @@ Should not see: `__init__ method must return Self`
 ### After Step 2 (Fix ownership)
 
 Expected: Fewer compilation errors
-Should not see: `ExTensor' cannot be implicitly copied`
+Should not see: `AnyTensor' cannot be implicitly copied`
 
 ### After Step 3 (Fix Tensor import)
 
@@ -516,7 +516,7 @@ struct MyStruct(Copyable, Movable):
 ### Implementation Files (2)
 
 1. `/shared/data/transforms.mojo`
-2. `/shared/core/extensor.mojo` (check for Tensor definition)
+2. `/shared/core/any_tensor.mojo` (check for Tensor definition)
 
 ---
 

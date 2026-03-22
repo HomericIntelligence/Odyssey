@@ -18,7 +18,7 @@ from tests.shared.conftest import (
     TestFixtures,
 )
 from shared.data.transforms import Compose, Normalize, Reshape
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 
 
 # ============================================================================
@@ -46,7 +46,7 @@ fn test_normalize_output_range() raises:
     var data_list = List[Float32]()
     for i in range(20):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var normalize = Normalize()
     var result = normalize(data)

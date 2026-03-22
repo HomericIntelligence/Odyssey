@@ -1,4 +1,4 @@
-# ExTensor
+# AnyTensor
 
 The core tensor class in ML Odyssey. Provides a dynamic, multi-dimensional array with automatic
 gradient computation support.
@@ -6,10 +6,10 @@ gradient computation support.
 ## Overview
 
 ```mojo
-from shared.core import ExTensor
+from shared.core import AnyTensor
 ```
 
-`ExTensor` is a dynamic tensor supporting:
+`AnyTensor` is a dynamic tensor supporting:
 
 - Arbitrary dimensions (0D scalars to N-D tensors)
 - Multiple data types (float32, float16, bfloat16, int8, etc.)
@@ -23,8 +23,8 @@ from shared.core import ExTensor
 Create a tensor filled with zeros.
 
 ```mojo
-fn zeros(shape: List[Int], dtype: DType = DType.float32) raises -> ExTensor
-fn zeros[dtype: DType](dims: Int...) raises -> ExTensor  # Variadic version
+fn zeros(shape: List[Int], dtype: DType = DType.float32) raises -> AnyTensor
+fn zeros[dtype: DType](dims: Int...) raises -> AnyTensor  # Variadic version
 ```
 
 **Parameters:**
@@ -46,8 +46,8 @@ var b = zeros(List[Int](2, 3, 4), DType.float16)  # Shape: (2, 3, 4)
 Create a tensor filled with ones.
 
 ```mojo
-fn ones(shape: List[Int], dtype: DType = DType.float32) raises -> ExTensor
-fn ones[dtype: DType](dims: Int...) raises -> ExTensor
+fn ones(shape: List[Int], dtype: DType = DType.float32) raises -> AnyTensor
+fn ones[dtype: DType](dims: Int...) raises -> AnyTensor
 ```
 
 **Example:**
@@ -63,7 +63,7 @@ var x = ones[DType.float32](64, 128)
 Create a tensor filled with a specified value.
 
 ```mojo
-fn full(shape: List[Int], fill_value: Scalar, dtype: DType) raises -> ExTensor
+fn full(shape: List[Int], fill_value: Scalar, dtype: DType) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -85,8 +85,8 @@ var x = full(List[Int](3, 3), 3.14, DType.float32)
 Create a tensor with random values from a normal distribution.
 
 ```mojo
-fn randn(shape: List[Int], dtype: DType = DType.float32, seed: Int = -1) raises -> ExTensor
-fn randn[dtype: DType](dims: Int...) raises -> ExTensor
+fn randn(shape: List[Int], dtype: DType = DType.float32, seed: Int = -1) raises -> AnyTensor
+fn randn[dtype: DType](dims: Int...) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -109,7 +109,7 @@ var w = randn[DType.float32](784, 128, seed=42)  # Reproducible weights
 Create a 1D tensor with evenly spaced values.
 
 ```mojo
-fn arange(start: Scalar, stop: Scalar, step: Scalar, dtype: DType) raises -> ExTensor
+fn arange(start: Scalar, stop: Scalar, step: Scalar, dtype: DType) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -133,7 +133,7 @@ var y = arange(0.0, 1.0, 0.1, DType.float32)   # [0, 0.1, 0.2, ..., 0.9]
 Create an identity matrix.
 
 ```mojo
-fn eye(n: Int, dtype: DType = DType.float32) raises -> ExTensor
+fn eye(n: Int, dtype: DType = DType.float32) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -154,7 +154,7 @@ var I = eye(3)  # 3x3 identity matrix
 Create a 1D tensor with linearly spaced values.
 
 ```mojo
-fn linspace(start: Scalar, stop: Scalar, num: Int, dtype: DType) raises -> ExTensor
+fn linspace(start: Scalar, stop: Scalar, num: Int, dtype: DType) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -294,7 +294,7 @@ var value = x.item[DType.float32]()  # 3.14
 Access elements using indexing.
 
 ```mojo
-fn __getitem__(self, indices: List[Int]) raises -> ExTensor
+fn __getitem__(self, indices: List[Int]) raises -> AnyTensor
 ```
 
 **Example:**
@@ -312,7 +312,7 @@ var elem = x[List[Int](1, 2)]  # Element at (1, 2)
 Reshape tensor to new dimensions.
 
 ```mojo
-fn reshape(self, new_shape: List[Int]) raises -> ExTensor
+fn reshape(self, new_shape: List[Int]) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -332,8 +332,8 @@ var z = y.reshape(List[Int](2, 6))             # Shape: (2, 6)
 Transpose the tensor.
 
 ```mojo
-fn transpose(self) raises -> ExTensor
-fn T(self) raises -> ExTensor  # Alias
+fn transpose(self) raises -> AnyTensor
+fn T(self) raises -> AnyTensor  # Alias
 ```
 
 **Example:**
@@ -348,7 +348,7 @@ var y = x.T  # Shape: (4, 3)
 Remove dimensions of size 1.
 
 ```mojo
-fn squeeze(self, dim: Optional[Int] = None) raises -> ExTensor
+fn squeeze(self, dim: Optional[Int] = None) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -368,7 +368,7 @@ var z = x.squeeze(dim=0)     # Shape: (3, 1, 4)
 Add a dimension of size 1.
 
 ```mojo
-fn unsqueeze(self, dim: Int) raises -> ExTensor
+fn unsqueeze(self, dim: Int) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -388,7 +388,7 @@ var z = x.unsqueeze(-1)  # Shape: (3, 4, 1)
 Return a contiguous copy of the tensor.
 
 ```mojo
-fn contiguous(self) raises -> ExTensor
+fn contiguous(self) raises -> AnyTensor
 ```
 
 **Example:**

@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-Split ExTensor into two types: `Tensor[dtype: DType]` (compile-time typed, SIMD-like
+Split AnyTensor into two types: `Tensor[dtype: DType]` (compile-time typed, SIMD-like
 element access) and `AnyTensor` (runtime-typed, type-erased for collections/I/O/trait
 interfaces). Both conform to a shared `TensorLike` trait and support zero-copy conversion
 via `as_tensor[dtype]()` and `as_any()` with shared reference counting. The new types live
@@ -20,7 +20,7 @@ in a `shared/tensor/` package while existing files remain in `shared/core/`.
 
 ### Problem Statement
 
-ExTensor stores `_dtype` as a **runtime** field (`var _dtype: DType`) and uses
+AnyTensor stores `_dtype` as a **runtime** field (`var _dtype: DType`) and uses
 type-erased `UnsafePointer[UInt8]` storage. This causes three categories of problems:
 
 1. **Wrong return types**: `__getitem__` always returns `Float32` regardless of actual
@@ -32,13 +32,13 @@ type-erased `UnsafePointer[UInt8]` storage. This causes three categories of prob
    The 12 `set()` overloads are a workaround introducing precision-losing Float64
    round-trips.
 
-3. **Massive runtime branching**: 177 dtype branch checks in `extensor.mojo`, 174 in
+3. **Massive runtime branching**: 177 dtype branch checks in `any_tensor.mojo`, 174 in
    consumers, and 708 `_data.bitcast[T]()` calls. All of this should be monomorphized
    by the compiler instead of branching at runtime.
 
-**Source**: `shared/core/extensor.mojo:798` (`__getitem__` returns `Float32`),
-`shared/core/extensor.mojo:116` (`var _dtype: DType` runtime field),
-`shared/core/extensor.mojo:922-992` (12 `set()` overloads)
+**Source**: `shared/core/any_tensor.mojo:798` (`__getitem__` returns `Float32`),
+`shared/core/any_tensor.mojo:116` (`var _dtype: DType` runtime field),
+`shared/core/any_tensor.mojo:922-992` (12 `set()` overloads)
 
 ### Constraints
 
@@ -47,9 +47,9 @@ type-erased `UnsafePointer[UInt8]` storage. This causes three categories of prob
 - Mojo v0.26.1 does not support variadic generic parameters (`[*Ts: Module]`)
 - Mojo v0.26.1 has re-export chain limitations (#3754) that prevent transparent imports
   through intermediate `__init__.mojo` files
-- `shared/__init__.mojo:82` defines `comptime Tensor = ExTensor`, creating a naming
+- `shared/__init__.mojo:82` defines `comptime Tensor = AnyTensor`, creating a naming
   collision with the new `struct Tensor[dtype: DType]` (B3)
-- 522 files import ExTensor across the codebase (~15,700 lines to migrate)
+- 522 files import AnyTensor across the codebase (~15,700 lines to migrate)
 - Mojo uses eager monomorphization, risking binary bloat with many dtype instantiations
 
 ### Requirements
@@ -71,7 +71,7 @@ Introduce a dual-type system:
   `UnsafePointer[Scalar[Self.dtype]]` storage. Element access returns the correct type.
   Used inside layer implementations and for type-safe arithmetic.
 
-- **`AnyTensor`** -- the existing ExTensor renamed. Runtime-typed with
+- **`AnyTensor`** -- the existing AnyTensor renamed. Runtime-typed with
   `UnsafePointer[UInt8]` storage. Used at trait boundaries (Module.forward),
   heterogeneous collections (`List[AnyTensor]`), serialization/I/O, and autograd tape.
 
@@ -79,7 +79,7 @@ Introduce a dual-type system:
   both types conform to.
 
 The new files live in `shared/tensor/` (tensor.mojo, tensor_traits.mojo). Existing files
-remain in `shared/core/` -- no package reorganization. `comptime ExTensor = AnyTensor`
+remain in `shared/core/` -- no package reorganization. `comptime AnyTensor = AnyTensor`
 alias provides backward compatibility during the migration.
 
 ### Technical Details
@@ -183,7 +183,7 @@ shared/
         tensor.mojo      # struct Tensor[dtype: DType]
         tensor_traits.mojo  # trait TensorLike
     core/                # UNCHANGED -- all existing files stay here
-        extensor.mojo    # struct AnyTensor (renamed from ExTensor)
+        any_tensor.mojo    # struct AnyTensor (renamed from AnyTensor)
         ...              # all existing operation files unchanged
 ```
 
@@ -211,7 +211,7 @@ shared/
 ### Trade-offs Accepted
 
 1. **~15,700 lines to migrate** across 522 files for full precision correctness and
-   type safety. Mitigated by `comptime ExTensor = AnyTensor` alias providing backward
+   type safety. Mitigated by `comptime AnyTensor = AnyTensor` alias providing backward
    compatibility during the 11-PR migration.
 
 2. **Module stays on AnyTensor**: Type safety benefits apply only INSIDE individual
@@ -249,11 +249,11 @@ shared/
 
 - AnyTensor preserves ALL current functionality unchanged
 - Memory pool is dtype-agnostic (no changes needed)
-- Existing tests pass unchanged via `comptime ExTensor = AnyTensor` alias
+- Existing tests pass unchanged via `comptime AnyTensor = AnyTensor` alias
 
 ## Alternatives Considered
 
-### Alternative 1: Keep ExTensor runtime-typed with improved set()
+### Alternative 1: Keep AnyTensor runtime-typed with improved set()
 
 **Description**: Keep the current architecture but add better `set()` overloads that
 avoid precision loss.
@@ -276,7 +276,7 @@ from working.
 
 ### Alternative 2: Single parametric type with Variant for collections
 
-**Description**: Replace ExTensor with only `Tensor[dtype]`, using `Variant` for
+**Description**: Replace AnyTensor with only `Tensor[dtype]`, using `Variant` for
 heterogeneous collections.
 
 **Pros**:
@@ -373,7 +373,7 @@ details.
 
 - [Mojo SIMD Documentation](https://docs.modular.com/mojo/std/builtin/simd/SIMD/):
   Target behavior for Tensor[dtype]
-- [ExTensor Refactor Plan](../dev/extensor-refactor-plan.md): Complete 17 sub-phase
+- [AnyTensor Refactor Plan](../dev/extensor-refactor-plan.md): Complete 17 sub-phase
   migration plan with review findings
 
 ## Revision History

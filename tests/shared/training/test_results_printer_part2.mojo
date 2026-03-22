@@ -14,7 +14,7 @@ from tests.shared.conftest import (
     assert_false,
     assert_equal,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.training.metrics import (
     print_evaluation_summary,
     print_per_class_accuracy,
@@ -70,7 +70,7 @@ fn test_print_per_class_accuracy_with_class_names() raises:
 
     # Create per-class accuracy tensor
     var shape: List[Int] = [3]
-    var accuracies = ExTensor(shape, DType.float64)
+    var accuracies = AnyTensor(shape, DType.float64)
     accuracies._data.bitcast[Float64]()[0] = 0.92
     accuracies._data.bitcast[Float64]()[1] = 0.88
     accuracies._data.bitcast[Float64]()[2] = 0.95
@@ -92,7 +92,7 @@ fn test_print_per_class_accuracy_varied_values() raises:
 
     # Create varied per-class accuracy tensor
     var shape: List[Int] = [5]
-    var accuracies = ExTensor(shape, DType.float64)
+    var accuracies = AnyTensor(shape, DType.float64)
     accuracies._data.bitcast[Float64]()[0] = 0.50
     accuracies._data.bitcast[Float64]()[1] = 0.75
     accuracies._data.bitcast[Float64]()[2] = 0.99
@@ -139,7 +139,7 @@ fn test_print_confusion_matrix_basic() raises:
 
     # Create simple 3x3 confusion matrix
     var shape: List[Int] = [3, 3]
-    var matrix = ExTensor(shape, DType.int32)
+    var matrix = AnyTensor(shape, DType.int32)
 
     # Initialize with simple pattern (diagonal dominance)
     for i in range(3):
@@ -161,7 +161,7 @@ fn test_print_confusion_matrix_with_class_names() raises:
 
     # Create 3x3 confusion matrix
     var shape: List[Int] = [3, 3]
-    var matrix = ExTensor(shape, DType.int32)
+    var matrix = AnyTensor(shape, DType.int32)
 
     # Fill with test data
     matrix._data.bitcast[Int32]()[0] = 90  # 0,0

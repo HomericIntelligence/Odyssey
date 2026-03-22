@@ -50,7 +50,7 @@ struct {{name}}(Module):
         \"\"\"
 {{layer_initializations}}
 
-    fn forward(self, input: ExTensor) -> ExTensor:
+    fn forward(self, input: AnyTensor) -> AnyTensor:
         \"\"\"Forward pass through the network.
 
         Args:
@@ -65,13 +65,13 @@ struct {{name}}(Module):
 
         return x
 
-    fn parameters(self) -> List[ExTensor]:
+    fn parameters(self) -> List[AnyTensor]:
         \"\"\"Get all trainable parameters.
 
         Returns:
             List of parameter tensors
         \"\"\"
-        var params = List[ExTensor]()
+        var params = List[AnyTensor]()
 {{parameter_collection}}
         return params
 """,
@@ -94,7 +94,7 @@ struct {{name}}(Module):
         self.latent_dim = latent_dim
 {{layer_initializations}}
 
-    fn encode(self, input: ExTensor) -> ExTensor:
+    fn encode(self, input: AnyTensor) -> AnyTensor:
         \"\"\"Encode input to latent space.
 
         Args:
@@ -107,7 +107,7 @@ struct {{name}}(Module):
         # TEMPLATE: Implement encoder
         return x
 
-    fn decode(self, z: ExTensor) -> ExTensor:
+    fn decode(self, z: AnyTensor) -> AnyTensor:
         \"\"\"Decode latent representation.
 
         Args:
@@ -120,7 +120,7 @@ struct {{name}}(Module):
         # TEMPLATE: Implement decoder
         return x
 
-    fn forward(self, input: ExTensor) -> ExTensor:
+    fn forward(self, input: AnyTensor) -> AnyTensor:
         \"\"\"Forward pass (encode then decode).
 
         Args:
@@ -132,9 +132,9 @@ struct {{name}}(Module):
         var z = self.encode(input)
         return self.decode(z)
 
-    fn parameters(self) -> List[ExTensor]:
+    fn parameters(self) -> List[AnyTensor]:
         \"\"\"Get all trainable parameters.\"\"\"
-        var params = List[ExTensor]()
+        var params = List[AnyTensor]()
 {{parameter_collection}}
         return params
 """,
@@ -160,7 +160,7 @@ struct {{name}}(Module):
         self.num_anchors = num_anchors
 {{layer_initializations}}
 
-    fn forward(self, input: ExTensor) -> Tuple[ExTensor, ExTensor]:
+    fn forward(self, input: AnyTensor) -> Tuple[AnyTensor, AnyTensor]:
         \"\"\"Forward pass returning class scores and bounding boxes.
 
         Args:
@@ -176,9 +176,9 @@ struct {{name}}(Module):
         # TEMPLATE: Return class scores and bbox predictions
         return (x, x)
 
-    fn parameters(self) -> List[ExTensor]:
+    fn parameters(self) -> List[AnyTensor]:
         \"\"\"Get all trainable parameters.\"\"\"
-        var params = List[ExTensor]()
+        var params = List[AnyTensor]()
 {{parameter_collection}}
         return params
 """,
@@ -201,7 +201,7 @@ struct {{name}}(Module):
         self.num_classes = num_classes
 {{layer_initializations}}
 
-    fn forward(self, input: ExTensor) -> ExTensor:
+    fn forward(self, input: AnyTensor) -> AnyTensor:
         \"\"\"Forward pass returning pixel-wise predictions.
 
         Args:
@@ -216,9 +216,9 @@ struct {{name}}(Module):
 
         return x
 
-    fn parameters(self) -> List[ExTensor]:
+    fn parameters(self) -> List[AnyTensor]:
         \"\"\"Get all trainable parameters.\"\"\"
-        var params = List[ExTensor]()
+        var params = List[AnyTensor]()
 {{parameter_collection}}
         return params
 """,

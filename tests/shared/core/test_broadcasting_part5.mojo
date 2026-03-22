@@ -1,4 +1,4 @@
-"""Tests for ExTensor broadcasting operations - Part 5: are_shapes_broadcastable ndim guard.
+"""Tests for AnyTensor broadcasting operations - Part 5: are_shapes_broadcastable ndim guard.
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
@@ -147,7 +147,7 @@ fn test_are_shapes_broadcastable_scalar_source_to_1d() raises:
 
 fn main() raises:
     """Run broadcasting part 5 tests (ndim guard in are_shapes_broadcastable)."""
-    print("Running ExTensor broadcasting tests - Part 5...")
+    print("Running AnyTensor broadcasting tests - Part 5...")
 
     # ndim reduction cases (must return False)
     print("  Testing ndim reduction returns False...")

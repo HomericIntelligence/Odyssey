@@ -5,7 +5,7 @@
 ## Root Cause
 
 The JIT crash is triggered by **compilation footprint**, not random instability. When a test
-file does `from shared.core import ExTensor, zeros`, the Mojo JIT must compile **all 37,401
+file does `from shared.core import AnyTensor, zeros`, the Mojo JIT must compile **all 37,401
 lines** across 60+ source files, because `shared/core/__init__.mojo` eagerly re-exports 200+
 symbols from 40+ modules. This compilation volume intermittently overflows a JIT-internal
 buffer, triggering glibc's `__fortify_fail_abort`.
@@ -17,7 +17,7 @@ buffer, triggering glibc's `__fortify_fail_abort`.
 - `shared/core/__init__.mojo` imports from 40+ submodules including `dtype_dispatch.mojo`
   (176+ monomorphizations) and `elementwise.mojo` (154+ monomorphizations)
 - Files using `from shared.core import` (package-level) → compile all 37K lines per test
-- Files using `from shared.core.extensor import` (targeted) → compile ~500-2000 lines per test
+- Files using `from shared.core.any_tensor import` (targeted) → compile ~500-2000 lines per test
 - The crash is non-deterministic because ASLR, memory layout, and JIT caching vary per run
 
 ## Fix Applied
@@ -26,10 +26,10 @@ buffer, triggering glibc's `__fortify_fail_abort`.
 
 ```mojo
 # BEFORE: compiles all 37,401 lines via __init__.mojo
-from shared.core import ExTensor, zeros, ones, matmul, relu
+from shared.core import AnyTensor, zeros, ones, matmul, relu
 
 # AFTER: compiles only the needed modules (~500-2000 lines)
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.any_tensor import AnyTensor, zeros, ones
 from shared.core.matrix import matmul
 from shared.core.activation import relu
 ```
@@ -41,7 +41,7 @@ symbol-to-submodule mapping below.
 
 | Symbol(s) | Submodule |
 |-----------|-----------|
-| ExTensor, zeros, ones, full, empty, arange, eye, linspace, ones_like, zeros_like, full_like, nan_tensor, inf_tensor, neg_inf_tensor, clone, item, diff, randn | `shared.core.extensor` |
+| AnyTensor, zeros, ones, full, empty, arange, eye, linspace, ones_like, zeros_like, full_like, nan_tensor, inf_tensor, neg_inf_tensor, clone, item, diff, randn | `shared.core.any_tensor` |
 | reshape, squeeze, unsqueeze, expand_dims, flatten, ravel, concatenate, stack, split, tile, repeat, permute, is_contiguous, as_contiguous, view, broadcast_to, ... | `shared.core.shape` |
 | add, subtract, multiply, divide, floor_divide, modulo, power, multiply_scalar, \*\_backward | `shared.core.arithmetic` |
 | matmul, transpose, transpose_view, dot, outer, \*\_backward | `shared.core.matrix` |
@@ -116,11 +116,11 @@ When writing new test files, always use targeted submodule imports:
 
 ```mojo
 # CORRECT: only compiles what you need
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.any_tensor import AnyTensor, zeros, ones
 from shared.core.activation import relu, sigmoid
 
 # WRONG: compiles all 37K lines, risks JIT crash
-from shared.core import ExTensor, zeros, ones, relu, sigmoid
+from shared.core import AnyTensor, zeros, ones, relu, sigmoid
 ```
 
 ## Relationship to Heap Corruption Bug (ADR-009)
@@ -144,7 +144,7 @@ different workarounds.
 Two synthetic test files were created to isolate the import-style variable:
 
 - `tests/shared/core/test_jit_crash_heavy_import.mojo` — uses `from shared.core import` (package-level)
-- `tests/shared/core/test_jit_crash_light_import.mojo` — uses `from shared.core.extensor import` (targeted)
+- `tests/shared/core/test_jit_crash_light_import.mojo` — uses `from shared.core.any_tensor import` (targeted)
 
 ### Local Results (GLIBC 2.39, Mojo 0.26.1, WSL2 Linux 6.6.87)
 

@@ -1,12 +1,12 @@
-"""Tests for ExTensor stride (3D), contiguity, and dimension properties (Part 3 of 5).
+"""Tests for AnyTensor stride (3D), contiguity, and dimension properties (Part 3 of 5).
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_properties.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange, eye
+# Import AnyTensor and operations
+from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange, eye
 
 # Import test helpers
 from tests.shared.conftest import (
@@ -115,7 +115,7 @@ fn test_dim_3d() raises:
 fn main() raises:
     """Run stride 3D, contiguity, and dimension property tests (Part 3)."""
     print(
-        "Running ExTensor stride, contiguity, and dimension tests (Part 3)..."
+        "Running AnyTensor stride, contiguity, and dimension tests (Part 3)..."
     )
 
     # Stride 3D test

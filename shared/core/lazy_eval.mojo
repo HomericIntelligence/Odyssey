@@ -12,7 +12,7 @@ Architecture:
 """
 
 from collections import List
-from .extensor import AnyTensor, full
+from .any_tensor import AnyTensor, full
 from .lazy_expression import (
     TensorExpr,
     ExprNode,

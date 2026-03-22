@@ -11,8 +11,8 @@ Tests edge cases for tanh and trigonometric operations including:
 
 from math import isnan, isinf, sin, cos, tanh
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full
+# Import AnyTensor and operations
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.activation import tanh as tanh_op
 
 # Import test helpers

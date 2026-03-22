@@ -1,7 +1,7 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_creation.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for bfloat16 dtype support in ExTensor factory functions.
+"""Tests for bfloat16 dtype support in AnyTensor factory functions.
 
 Verifies that arange(), eye(), linspace(), and randn() correctly route
 bfloat16 tensors to _set_float64 (floating-point path) rather than
@@ -10,9 +10,9 @@ _set_int64. Regression tests for issue #3906.
 Split per ADR-009 (≤10 fn test_ per file).
 """
 
-# Import ExTensor and creation operations
+# Import AnyTensor and creation operations
 from shared.core import (
-    ExTensor,
+    AnyTensor,
     arange,
     eye,
     linspace,
@@ -156,7 +156,7 @@ fn test_randn_bfloat16_nonzero() raises:
 fn main() raises:
     """Run bfloat16 dtype guard tests for factory functions."""
     print(
-        "Running ExTensor bfloat16 dtype guard tests (issue #3906)..."
+        "Running AnyTensor bfloat16 dtype guard tests (issue #3906)..."
     )
 
     # arange() bfloat16 tests

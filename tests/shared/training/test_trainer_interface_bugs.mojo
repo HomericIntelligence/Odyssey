@@ -10,8 +10,8 @@ Bug tested:
 - Line 270: DataLoader.next() - var batch_labels_shape = List[Int]()
 """
 
-# Import ExTensor and trainer interface
-from shared.core.extensor import ExTensor, ones
+# Import AnyTensor and trainer interface
+from shared.core.any_tensor import AnyTensor, ones
 from shared.training.trainer_interface import DataLoader
 
 
@@ -23,7 +23,7 @@ from shared.training.trainer_interface import DataLoader
 fn test_dataloader_next_normal_batch() raises:
     """Test DataLoader.next() with normal batch (triggers bug at line 270).
 
-    Bug: Line 270 uses List[Int]() then is passed to ExTensor.
+    Bug: Line 270 uses List[Int]() then is passed to AnyTensor.
     This crashes because the list has undefined size.
     """
     # Create dummy dataset

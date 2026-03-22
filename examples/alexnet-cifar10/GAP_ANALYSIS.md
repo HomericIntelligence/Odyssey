@@ -40,10 +40,10 @@ These are essential for the example to run:
 
 ```mojo
 fn normalize_rgb(
-    images: ExTensor,
+    images: AnyTensor,
     mean: (Float32, Float32, Float32),
     std: (Float32, Float32, Float32)
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Normalize RGB images with per-channel mean and std.
 
     Args:
@@ -79,9 +79,9 @@ fn normalize_rgb(
 
 ```mojo
 fn sgd_momentum_update(
-    inout param: ExTensor,
-    grad: ExTensor,
-    inout velocity: ExTensor,
+    inout param: AnyTensor,
+    grad: AnyTensor,
+    inout velocity: AnyTensor,
     lr: Float32,
     momentum: Float32
 ) raises:
@@ -191,8 +191,8 @@ fn step_lr_schedule(
 **What's Needed**:
 
 ```mojo
-fn random_horizontal_flip(image: ExTensor, p: Float32 = 0.5) raises -> ExTensor
-fn random_crop(image: ExTensor, size: (Int, Int), padding: Int = 4) raises -> ExTensor
+fn random_horizontal_flip(image: AnyTensor, p: Float32 = 0.5) raises -> AnyTensor
+fn random_crop(image: AnyTensor, size: (Int, Int), padding: Int = 4) raises -> AnyTensor
 ```text
 
 **Why Useful**: Improves generalization, can boost accuracy by 3-5%
@@ -359,7 +359,7 @@ These components are fully functional and ready to use:
 
 **Features**:
 
-- ExTensor class with shape/dtype management
+- AnyTensor class with shape/dtype management
 - zeros, ones, zeros_like, ones_like, full_like
 - Reshape, indexing, numel
 

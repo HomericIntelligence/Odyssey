@@ -183,7 +183,7 @@ Refs #124, #125
 ```mojo
 # Implementation for issue #123
 # See https://github.com/owner/repo/issues/123 for design decisions
-fn tensor_multiply(a: ExTensor, b: ExTensor) -> ExTensor:
+fn tensor_multiply(a: AnyTensor, b: AnyTensor) -> AnyTensor:
     ...
 ```
 

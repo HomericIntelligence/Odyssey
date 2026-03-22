@@ -18,7 +18,7 @@ Example:
     ```
 """
 
-from .extensor import ExTensor, zeros
+from .any_tensor import AnyTensor, zeros
 
 
 # ============================================================================
@@ -27,10 +27,10 @@ from .extensor import ExTensor, zeros
 
 
 fn normalize_rgb(
-    images: ExTensor,
+    images: AnyTensor,
     mean: Tuple[Float32, Float32, Float32],
     std: Tuple[Float32, Float32, Float32],
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Normalize RGB images with per-channel mean and standard deviation.
 
     Applies normalization to RGB images using the formula:

@@ -10,7 +10,7 @@ Do NOT remove these placeholders - they are required for code generation to work
 """
 
 from shared.nn import Module
-from shared.core import ExTensor
+from shared.core import AnyTensor
 
 
 struct {{name}}(Module):
@@ -21,8 +21,8 @@ struct {{name}}(Module):
 
 {{member_vars}}
     # TEMPLATE: Add trainable parameters as needed (filled in during code generation)
-    # var weight: ExTensor
-    # var bias: ExTensor
+    # var weight: AnyTensor
+    # var bias: AnyTensor
 
     fn __init__(out self{{init_params}}):
         """Initialize {{name}}.
@@ -33,7 +33,7 @@ struct {{name}}(Module):
 {{member_inits}}
         # TEMPLATE: Initialize trainable parameters (filled in during code generation)
 
-    fn forward(self, {{forward_args}}) -> ExTensor:
+    fn forward(self, {{forward_args}}) -> AnyTensor:
         """Forward pass through the layer.
 
         Args:
@@ -47,12 +47,12 @@ struct {{name}}(Module):
 
         return x
 
-    fn parameters(self) -> List[ExTensor]:
+    fn parameters(self) -> List[AnyTensor]:
         """Get trainable parameters.
 
         Returns:
             List of parameter tensors
         """
-        var params = List[ExTensor]()
+        var params = List[AnyTensor]()
         # TEMPLATE: Collect trainable parameters (filled in during code generation)
         return params

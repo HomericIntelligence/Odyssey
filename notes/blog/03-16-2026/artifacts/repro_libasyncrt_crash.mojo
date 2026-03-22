@@ -29,7 +29,7 @@ Stack trace (constant across runs):
   #4 libAsyncRTRuntimeGlobals.so +0x416ba  (allocator — crash origin)
 """
 
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.any_tensor import AnyTensor, zeros, ones
 from shared.core.conv import conv2d
 from shared.core.linear import linear
 from shared.core.activation import relu
@@ -37,10 +37,10 @@ from shared.core.pooling import maxpool2d
 
 
 fn conv_block(
-    input_tensor: ExTensor,
+    input_tensor: AnyTensor,
     out_channels: Int,
     num_convs: Int,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """VGG-style conv block: N sequential conv+relu layers."""
     var in_channels = input_tensor.shape()[1]
     var result = input_tensor
@@ -60,7 +60,7 @@ fn conv_block(
     return result
 
 
-fn vgg16_forward(input_tensor: ExTensor) raises -> ExTensor:
+fn vgg16_forward(input_tensor: AnyTensor) raises -> AnyTensor:
     """Full VGG-16 forward pass: 13 conv layers + 3 FC layers."""
     var x = input_tensor
     x = conv_block(x, 64, 2)
@@ -102,7 +102,7 @@ fn vgg16_forward(input_tensor: ExTensor) raises -> ExTensor:
     return x
 
 
-fn make_input(batch_size: Int) raises -> ExTensor:
+fn make_input(batch_size: Int) raises -> AnyTensor:
     var s = List[Int]()
     s.append(batch_size)
     s.append(3)

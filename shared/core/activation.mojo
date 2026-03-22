@@ -22,7 +22,7 @@ Issues covered:
 
 from math import exp, erf, sqrt, tanh as math_tanh, log as math_log
 from collections import List
-from .extensor import ExTensor, full, zeros_like
+from .any_tensor import AnyTensor, full, zeros_like
 from shared.tensor.tensor import Tensor
 from .arithmetic import add, subtract, multiply
 from .reduction import sum as tensor_sum, max as tensor_max
@@ -73,7 +73,7 @@ fn _relu_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     return max(Scalar[T](0), x)
 
 
-fn relu(tensor: ExTensor) raises -> ExTensor:
+fn relu(tensor: AnyTensor) raises -> AnyTensor:
     """Apply ReLU (Rectified Linear Unit) activation: max(0, x).
 
         ReLU zeros out negative values while preserving positive values unchanged.
@@ -94,7 +94,7 @@ fn relu(tensor: ExTensor) raises -> ExTensor:
 
     Examples:
     ```
-        var x = ExTensor(...)  # [-2, -1, 0, 1, 2]
+        var x = AnyTensor(...)  # [-2, -1, 0, 1, 2]
         var y = relu(x)        # [0, 0, 0, 1, 2]
     ```
     """
@@ -107,7 +107,7 @@ fn _relu6_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     return min(max(Scalar[T](0), x), Scalar[T](RELU6_UPPER_BOUND))
 
 
-fn relu6(tensor: ExTensor) raises -> ExTensor:
+fn relu6(tensor: AnyTensor) raises -> AnyTensor:
     """Apply ReLU6 activation: min(max(0, x), 6).
 
     ReLU6 clamps values to [0, 6], commonly used in MobileNet architectures.
@@ -121,14 +121,14 @@ fn relu6(tensor: ExTensor) raises -> ExTensor:
 
     Examples:
     ```mojo
-        var x = ExTensor(...)  # [-2, 0, 3, 8, 10]
+        var x = AnyTensor(...)  # [-2, 0, 3, 8, 10]
         var y = relu6(x)       # [0, 0, 3, 6, 6]
     ```
     """
     return dispatch_unary[_relu6_op](tensor)
 
 
-fn leaky_relu(tensor: ExTensor, alpha: Float64 = 0.01) raises -> ExTensor:
+fn leaky_relu(tensor: AnyTensor, alpha: Float64 = 0.01) raises -> AnyTensor:
     """Apply Leaky ReLU activation: max(alpha*x, x).
 
     Leaky ReLU introduces a small slope for negative values to prevent
@@ -148,11 +148,11 @@ fn leaky_relu(tensor: ExTensor, alpha: Float64 = 0.01) raises -> ExTensor:
 
     Examples:
     ```mojo
-            var x = ExTensor(...)           # [-2, -1, 0, 1, 2]
+            var x = AnyTensor(...)           # [-2, -1, 0, 1, 2]
             var y = leaky_relu(x, 0.01)     # [-0.02, -0.01, 0, 1, 2]
     ```
     """
-    var result = ExTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor._shape, tensor._dtype)
 
     if tensor._dtype == DType.float16:
         var alpha16 = Float16(alpha)
@@ -202,7 +202,7 @@ fn leaky_relu(tensor: ExTensor, alpha: Float64 = 0.01) raises -> ExTensor:
 @always_inline
 fn _prelu_impl[
     dtype: DType
-](result: ExTensor, tensor: ExTensor, alpha: ExTensor, is_scalar: Bool) raises:
+](result: AnyTensor, tensor: AnyTensor, alpha: AnyTensor, is_scalar: Bool) raises:
     """Dtype-generic implementation of PReLU forward pass.
 
     Parameters:
@@ -227,7 +227,7 @@ fn _prelu_impl[
         result_ptr[i] = max(a * val, val)
 
 
-fn prelu(tensor: ExTensor, alpha: ExTensor) raises -> ExTensor:
+fn prelu(tensor: AnyTensor, alpha: AnyTensor) raises -> AnyTensor:
     """Apply PReLU (Parametric ReLU) activation: max(alpha*x, x).
 
             PReLU is similar to Leaky ReLU but uses learnable parameters for the
@@ -248,7 +248,7 @@ fn prelu(tensor: ExTensor, alpha: ExTensor) raises -> ExTensor:
 
     Examples:
     ```
-            var x = ExTensor(...)      # [-2, -1, 0, 1, 2]
+            var x = AnyTensor(...)      # [-2, -1, 0, 1, 2]
             var a = full(x.shape(), 0.25, DType.float32)
             var y = prelu(x, a)        # [-0.5, -0.25, 0, 1, 2]
     ```
@@ -260,7 +260,7 @@ fn prelu(tensor: ExTensor, alpha: ExTensor) raises -> ExTensor:
     if tensor._dtype != alpha._dtype:
         raise Error("prelu: tensor and alpha must have same dtype")
 
-    var result = ExTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor._shape, tensor._dtype)
     var is_scalar = alpha._numel == 1
 
     if tensor._dtype == DType.float16:
@@ -312,7 +312,7 @@ fn _sigmoid_op[T: DType](x: Scalar[T]) -> Scalar[T]:
             return Scalar[T](1.0) / (Scalar[T](1.0) + exp(-x))
 
 
-fn sigmoid(tensor: ExTensor) raises -> ExTensor:
+fn sigmoid(tensor: AnyTensor) raises -> AnyTensor:
     """Apply sigmoid activation: 1 / (1 + exp(-x)).
 
     Sigmoid maps inputs to (0, 1) range. Uses numerically stable implementation
@@ -338,7 +338,7 @@ fn sigmoid(tensor: ExTensor) raises -> ExTensor:
 
     Examples:
     ```
-            var x = ExTensor(...)  # [-2, 0, 2]
+            var x = AnyTensor(...)  # [-2, 0, 2]
             var y = sigmoid(x)     # [0.119, 0.5, 0.881]
     ```
     """
@@ -408,7 +408,7 @@ fn _tanh_op[T: DType](x: Scalar[T]) -> Scalar[T]:
         return Scalar[T](math_tanh(Float64(x)))
 
 
-fn tanh(tensor: ExTensor) raises -> ExTensor:
+fn tanh(tensor: AnyTensor) raises -> AnyTensor:
     """Apply tanh (hyperbolic tangent) activation.
 
         Tanh maps inputs to (-1, 1) range. This is a numerically stable
@@ -427,7 +427,7 @@ fn tanh(tensor: ExTensor) raises -> ExTensor:
 
     Examples:
     ```
-            var x = ExTensor(...)  # [-2, 0, 2]
+            var x = AnyTensor(...)  # [-2, 0, 2]
             var y = tanh(x)        # [-0.964, 0, 0.964]
     ```
     """
@@ -439,7 +439,7 @@ fn tanh(tensor: ExTensor) raises -> ExTensor:
 # ============================================================================
 
 
-fn softmax(tensor: ExTensor, axis: Int = -1) raises -> ExTensor:
+fn softmax(tensor: AnyTensor, axis: Int = -1) raises -> AnyTensor:
     """Apply softmax activation: exp(x) / sum(exp(x)) along specified axis.
 
         Softmax converts logits to probability distribution. Uses log-sum-exp trick
@@ -462,7 +462,7 @@ fn softmax(tensor: ExTensor, axis: Int = -1) raises -> ExTensor:
 
     Examples:
     ```
-            var logits = ExTensor(...)  # [[1, 2, 3], [4, 5, 6]]
+            var logits = AnyTensor(...)  # [[1, 2, 3], [4, 5, 6]]
             var probs = softmax(logits, axis=-1)
             # [[0.09, 0.24, 0.67], [0.09, 0.24, 0.67]]
     ```
@@ -489,7 +489,7 @@ fn softmax(tensor: ExTensor, axis: Int = -1) raises -> ExTensor:
     return dispatch_softmax(tensor, outer_size, axis_size, axis_stride)
 
 
-fn gelu(tensor: ExTensor, approximate: Bool = False) raises -> ExTensor:
+fn gelu(tensor: AnyTensor, approximate: Bool = False) raises -> AnyTensor:
     """Apply GELU (Gaussian Error Linear Unit) activation.
 
         GELU provides smooth, non-linear activation used in transformers (BERT, GPT).
@@ -513,7 +513,7 @@ fn gelu(tensor: ExTensor, approximate: Bool = False) raises -> ExTensor:
 
     Examples:
     ```
-            var x = ExTensor(...)     # [-2, 0, 2]
+            var x = AnyTensor(...)     # [-2, 0, 2]
             var y_exact = gelu(x, approximate=False)
             var y_approx = gelu(x, approximate=True)
     ```
@@ -544,8 +544,8 @@ fn _relu_backward_op[T: DType](grad: Scalar[T], x: Scalar[T]) -> Scalar[T]:
 
 
 fn relu_backward(
-    grad_output: ExTensor, x: ExTensor
-) raises escaping -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor
+) raises escaping -> AnyTensor:
     """Compute gradient of ReLU activation.
 
         ReLU gradient: `dL/dx = dL/dy * (x > 0)`
@@ -562,9 +562,9 @@ fn relu_backward(
 
     Examples:
     ```
-            var x = ExTensor(...)  # Input
+            var x = AnyTensor(...)  # Input
             var y = relu(x)        # Forward pass
-            var grad_y = ExTensor(...)  # Gradient from loss
+            var grad_y = AnyTensor(...)  # Gradient from loss
             var grad_x = relu_backward(grad_y, x)  # Backward pass
     ```
     """
@@ -579,7 +579,7 @@ fn relu_backward(
 @always_inline
 fn _leaky_relu_backward_impl[
     dtype: DType
-](result: ExTensor, grad_output: ExTensor, x: ExTensor, alpha: Float64) raises:
+](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, alpha: Float64) raises:
     """Dtype-generic implementation of leaky ReLU backward pass."""
     var alpha_typed = Scalar[dtype](alpha)
     var result_ptr = result._data.bitcast[Scalar[dtype]]()
@@ -593,8 +593,8 @@ fn _leaky_relu_backward_impl[
 
 
 fn leaky_relu_backward(
-    grad_output: ExTensor, x: ExTensor, alpha: Float64 = 0.01
-) raises escaping -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor, alpha: Float64 = 0.01
+) raises escaping -> AnyTensor:
     """Compute gradient of Leaky ReLU activation.
 
         Leaky ReLU gradient: `dL/dx = dL/dy * (1 if x > 0 else alpha)`.
@@ -619,7 +619,7 @@ fn leaky_relu_backward(
             "leaky_relu_backward: grad_output and x must have same shape"
         )
 
-    var result = ExTensor(x._shape, x._dtype)
+    var result = AnyTensor(x._shape, x._dtype)
 
     if x._dtype == DType.float16:
         _leaky_relu_backward_impl[DType.float16](result, grad_output, x, alpha)
@@ -637,11 +637,11 @@ fn leaky_relu_backward(
 fn _prelu_backward_impl[
     dtype: DType
 ](
-    grad_input: ExTensor,
-    grad_alpha: ExTensor,
-    grad_output: ExTensor,
-    x: ExTensor,
-    alpha: ExTensor,
+    grad_input: AnyTensor,
+    grad_alpha: AnyTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
+    alpha: AnyTensor,
     is_scalar: Bool,
 ) raises:
     """Dtype-generic implementation of PReLU backward pass."""
@@ -671,7 +671,7 @@ fn _prelu_backward_impl[
 
 
 fn prelu_backward(
-    grad_output: ExTensor, x: ExTensor, alpha: ExTensor
+    grad_output: AnyTensor, x: AnyTensor, alpha: AnyTensor
 ) raises escaping -> GradientPair:
     """Compute gradients of PReLU activation.
 
@@ -695,8 +695,8 @@ fn prelu_backward(
     if grad_output._numel != x._numel:
         raise Error("prelu_backward: grad_output and x must have same shape")
 
-    var grad_input = ExTensor(x._shape, x._dtype)
-    var grad_alpha = ExTensor(alpha._shape, alpha._dtype)
+    var grad_input = AnyTensor(x._shape, x._dtype)
+    var grad_alpha = AnyTensor(alpha._shape, alpha._dtype)
     var is_scalar = alpha._numel == 1
 
     if x._dtype == DType.float16:
@@ -735,8 +735,8 @@ fn _sigmoid_backward_op[T: DType](grad: Scalar[T], y: Scalar[T]) -> Scalar[T]:
 
 
 fn sigmoid_backward(
-    grad_output: ExTensor, output: ExTensor
-) raises escaping -> ExTensor:
+    grad_output: AnyTensor, output: AnyTensor
+) raises escaping -> AnyTensor:
     """Compute gradient of sigmoid activation.
 
         Sigmoid gradient: `dL/dx = dL/dy * y * (1 - y)`
@@ -785,8 +785,8 @@ fn _tanh_backward_op[T: DType](grad: Scalar[T], y: Scalar[T]) -> Scalar[T]:
 
 
 fn tanh_backward(
-    grad_output: ExTensor, output: ExTensor
-) raises escaping -> ExTensor:
+    grad_output: AnyTensor, output: AnyTensor
+) raises escaping -> AnyTensor:
     """Compute gradient of tanh activation.
 
         Tanh gradient: `dL/dx = dL/dy * (1 - y^2)`
@@ -818,8 +818,8 @@ fn tanh_backward(
 
 
 fn gelu_backward(
-    grad_output: ExTensor, x: ExTensor, approximate: Bool = False
-) raises escaping -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor, approximate: Bool = False
+) raises escaping -> AnyTensor:
     """Compute gradient of GELU activation.
 
         GELU gradient (exact): `dL/dx = dL/dy * [Phi(x) + x*phi(x)]`
@@ -847,8 +847,8 @@ fn gelu_backward(
 
 
 fn softmax_backward(
-    grad_output: ExTensor, output: ExTensor, axis: Int = -1
-) raises escaping -> ExTensor:
+    grad_output: AnyTensor, output: AnyTensor, axis: Int = -1
+) raises escaping -> AnyTensor:
     """Compute gradient of softmax activation.
 
         Softmax gradient (along axis):
@@ -906,7 +906,7 @@ fn softmax_backward(
 # ============================================================================
 
 
-fn swish(tensor: ExTensor) raises -> ExTensor:
+fn swish(tensor: AnyTensor) raises -> AnyTensor:
     """Swish activation function (also known as SiLU - Sigmoid Linear Unit).
 
         Swish is a smooth, non-monotonic activation function that performs better
@@ -932,7 +932,7 @@ fn swish(tensor: ExTensor) raises -> ExTensor:
     return multiply(tensor, sig)
 
 
-fn softplus(tensor: ExTensor, beta: Float64 = 1.0) raises -> ExTensor:
+fn softplus(tensor: AnyTensor, beta: Float64 = 1.0) raises -> AnyTensor:
     """Softplus activation function with fused kernel (7x allocation reduction).
 
     Computes `softplus(x) = (1/beta) * log(1 + exp(beta * x))` element-wise.
@@ -993,7 +993,7 @@ fn softplus(tensor: ExTensor, beta: Float64 = 1.0) raises -> ExTensor:
     return result^
 
 
-fn mish(tensor: ExTensor) raises -> ExTensor:
+fn mish(tensor: AnyTensor) raises -> AnyTensor:
     """Mish activation function.
 
     Mish is a smooth, self-regularized non-monotonic activation function
@@ -1021,7 +1021,7 @@ fn mish(tensor: ExTensor) raises -> ExTensor:
     return multiply(tensor, tanh_softplus)
 
 
-fn elu(tensor: ExTensor, alpha: Float64 = 1.0) raises -> ExTensor:
+fn elu(tensor: AnyTensor, alpha: Float64 = 1.0) raises -> AnyTensor:
     """Exponential Linear Unit (ELU) activation function.
 
         ELU has negative values which pushes mean unit activations closer to zero,
@@ -1086,10 +1086,10 @@ fn elu(tensor: ExTensor, alpha: Float64 = 1.0) raises -> ExTensor:
 
 
 fn selu(
-    tensor: ExTensor,
+    tensor: AnyTensor,
     alpha: Float64 = 1.6732632423543772848170429916717,
     lambda_: Float64 = 1.0507009873554804934193349852946,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Scaled Exponential Linear Unit (SELU) activation function.
 
     SELU enables self-normalizing neural networks where activations
@@ -1166,11 +1166,11 @@ fn selu(
 
 
 fn selu_backward(
-    grad_output: ExTensor,
-    x: ExTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
     alpha: Float64 = 1.6732632423543772848170429916717,
     lambda_: Float64 = 1.0507009873554804934193349852946,
-) raises escaping -> ExTensor:
+) raises escaping -> AnyTensor:
     """Backward pass for SELU activation.
 
     The derivative is:
@@ -1243,8 +1243,8 @@ fn selu_backward(
 
 
 fn swish_backward(
-    grad_output: ExTensor, x: ExTensor
-) raises escaping -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor
+) raises escaping -> AnyTensor:
     """Backward pass for Swish activation.
 
         The derivative of swish is:
@@ -1275,8 +1275,8 @@ fn swish_backward(
 
 
 fn mish_backward(
-    grad_output: ExTensor, x: ExTensor
-) raises escaping -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor
+) raises escaping -> AnyTensor:
     """Backward pass for Mish activation.
 
         The derivative involves the derivative of tanh(softplus(x)).
@@ -1313,8 +1313,8 @@ fn mish_backward(
 
 
 fn elu_backward(
-    grad_output: ExTensor, x: ExTensor, alpha: Float64 = 1.0
-) raises escaping -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor, alpha: Float64 = 1.0
+) raises escaping -> AnyTensor:
     """Backward pass for ELU activation.
 
         The derivative is:
@@ -1386,7 +1386,7 @@ fn elu_backward(
 # ============================================================================
 
 
-fn hard_sigmoid(tensor: ExTensor) raises -> ExTensor:
+fn hard_sigmoid(tensor: AnyTensor) raises -> AnyTensor:
     """Hard Sigmoid activation function.
 
         A piecewise linear approximation of sigmoid that is faster to compute.
@@ -1415,7 +1415,7 @@ fn hard_sigmoid(tensor: ExTensor) raises -> ExTensor:
     return dispatch_hard_sigmoid(tensor)
 
 
-fn hard_swish(tensor: ExTensor) raises -> ExTensor:
+fn hard_swish(tensor: AnyTensor) raises -> AnyTensor:
     """Hard Swish activation function.
 
         A piecewise linear approximation of Swish using hard_sigmoid.
@@ -1445,8 +1445,8 @@ fn hard_swish(tensor: ExTensor) raises -> ExTensor:
 
 
 fn hard_tanh(
-    tensor: ExTensor, min_val: Float64 = -1.0, max_val: Float64 = 1.0
-) raises -> ExTensor:
+    tensor: AnyTensor, min_val: Float64 = -1.0, max_val: Float64 = 1.0
+) raises -> AnyTensor:
     """Hard Tanh activation function.
 
         A piecewise linear approximation of tanh that clips values to a range.
@@ -1482,8 +1482,8 @@ fn hard_tanh(
 
 
 fn hard_sigmoid_backward(
-    grad_output: ExTensor, x: ExTensor
-) raises escaping -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor
+) raises escaping -> AnyTensor:
     """Backward pass for Hard Sigmoid activation.
 
         The derivative is:
@@ -1513,8 +1513,8 @@ fn hard_sigmoid_backward(
 
 
 fn hard_swish_backward(
-    grad_output: ExTensor, x: ExTensor
-) raises escaping -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor
+) raises escaping -> AnyTensor:
     """Backward pass for Hard Swish activation.
 
         The derivative is:
@@ -1547,11 +1547,11 @@ fn hard_swish_backward(
 
 
 fn hard_tanh_backward(
-    grad_output: ExTensor,
-    x: ExTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
     min_val: Float64 = -1.0,
     max_val: Float64 = 1.0,
-) raises escaping -> ExTensor:
+) raises escaping -> AnyTensor:
     """Backward pass for Hard Tanh activation.
 
         The derivative is:

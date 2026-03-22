@@ -4,12 +4,12 @@ This test reproduces the segmentation fault that occurs during LeNet-5 training
 when cross_entropy is called with logits shape (2, 47) and one-hot targets.
 
 Stack trace shows crash at:
-#11 shared::core::extensor::ExTensor::__init__ at line 107
+#11 shared::core::any_tensor::AnyTensor::__init__ at line 107
 #12 shared::core::loss::cross_entropy at line 293
 #13 train::compute_gradients at line 127
 """
 
-from shared.core.extensor import ExTensor, zeros
+from shared.core.any_tensor import AnyTensor, zeros
 from shared.core.loss import cross_entropy
 from testing import assert_raises
 
@@ -42,7 +42,7 @@ fn test_cross_entropy_small_batch() raises:
     targets._set_float64(47 + 10, 1.0)  # Second sample, class 10
 
     print("Calling cross_entropy...")
-    print("This should crash with segmentation fault at ExTensor.__init__:107")
+    print("This should crash with segmentation fault at AnyTensor.__init__:107")
 
     try:
         var loss = cross_entropy(logits, targets)

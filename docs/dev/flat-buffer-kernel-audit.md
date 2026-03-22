@@ -21,7 +21,7 @@ correct guard pattern. This should be replicated across other modules.
 **Correct Pattern** (from matrix.mojo):
 
 ```mojo
-var input_cont: ExTensor
+var input_cont: AnyTensor
 if input.is_contiguous():
     input_cont = input
 else:
@@ -150,8 +150,8 @@ For each identified kernel, choose one of:
 **Option A: Add input guard** (preferred for widely-used kernels)
 
 ```mojo
-fn my_kernel_impl(tensor: ExTensor) raises:
-    var t_cont: ExTensor
+fn my_kernel_impl(tensor: AnyTensor) raises:
+    var t_cont: AnyTensor
     if tensor.is_contiguous():
         t_cont = tensor
     else:
@@ -162,7 +162,7 @@ fn my_kernel_impl(tensor: ExTensor) raises:
 **Option B: Skip fast path** (preferred for already-protected code)
 
 ```mojo
-fn my_kernel_fast(a: ExTensor, b: ExTensor) raises -> Optional[ExTensor]:
+fn my_kernel_fast(a: AnyTensor, b: AnyTensor) raises -> Optional[AnyTensor]:
     if not a.is_contiguous() or not b.is_contiguous():
         return None  # Skip fast path, use generic implementation
     # Fast path using bitcast

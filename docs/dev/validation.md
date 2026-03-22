@@ -27,7 +27,7 @@ Links to [learnings.md](../learnings.md), [phases.md](phases.md).
 
 **Files**: `FOUNDATION_TEST_SUMMARY.md`, `FOUNDATION_TEST_INDEX.md`, `FOUNDATION_TEST_QUICK_FIX.md`
 
-**Summary**: (From backups) Core tensor ops (ExTensor init, arithmetic, shape);
+**Summary**: (From backups) Core tensor ops (AnyTensor init, arithmetic, shape);
 quick fixes for leaks/transpose; index of unit/integration tests.
 
 **Status**: Passed post-fixes; stress tests 10k iters.

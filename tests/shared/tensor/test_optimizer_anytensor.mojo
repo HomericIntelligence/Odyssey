@@ -5,7 +5,7 @@
 # high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Tests verify that SGD and Adam optimizers work correctly when Variable.data
-is AnyTensor (since ExTensor is now an alias for AnyTensor). The optimizers
+is AnyTensor (since AnyTensor is now an alias for AnyTensor). The optimizers
 operate on List[Variable] with gradients stored in GradientTape.
 
 Tests cover:
@@ -18,7 +18,7 @@ Tests cover:
 
 from testing import assert_true
 from tests.shared.conftest import assert_almost_equal
-from shared.core.extensor import AnyTensor, zeros
+from shared.core.any_tensor import AnyTensor, zeros
 from shared.autograd import Variable, GradientTape, SGD, Adam
 
 

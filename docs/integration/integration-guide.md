@@ -79,7 +79,7 @@ Check status: `.github/workflows/test-gradients.yml`
 ```mojo
 from shared.core.arithmetic import add, multiply
 
-fn update_weights(params: ExTensor, gradients: ExTensor, lr: Float64) -> ExTensor:
+fn update_weights(params: AnyTensor, gradients: AnyTensor, lr: Float64) -> AnyTensor:
     var lr_tensor = full_like(params, lr)
     var update = multiply(lr_tensor, gradients)
     return subtract(params, update)
@@ -90,7 +90,7 @@ fn update_weights(params: ExTensor, gradients: ExTensor, lr: Float64) -> ExTenso
 ```mojo
 from shared.core.arithmetic_simd import add_simd, multiply_simd, subtract_simd
 
-fn update_weights(params: ExTensor, gradients: ExTensor, lr: Float64) -> ExTensor:
+fn update_weights(params: AnyTensor, gradients: AnyTensor, lr: Float64) -> AnyTensor:
     # SIMD automatically used for same-shape tensors, falls back for broadcasting
     var lr_tensor = full_like(params, lr)
     var update = multiply_simd(lr_tensor, gradients)  # 4x faster!
@@ -123,14 +123,14 @@ mojo run -D ENABLE_PROFILING examples/resnet18-cifar10/train.mojo
 
 **Example Conversion:**
 
-#### Before (ExTensor)
+#### Before (AnyTensor)
 
 ```mojo
 struct ResNet18:
-    var conv1_kernel: ExTensor
-    var conv1_bias: ExTensor
-    var fc_weights: ExTensor
-    var fc_bias: ExTensor
+    var conv1_kernel: AnyTensor
+    var conv1_bias: AnyTensor
+    var fc_weights: AnyTensor
+    var fc_bias: AnyTensor
 
     fn __init__(inout self):
         self.conv1_kernel = he_uniform([64, 3, 3, 3], DType.float32)
@@ -170,7 +170,7 @@ struct ResNet18:
 2. **Update field declarations:**
 
    ```mojo
-   var weights: TypedTensor[DType.float32]  # Instead of ExTensor
+   var weights: TypedTensor[DType.float32]  # Instead of AnyTensor
    ```text
 
 3. **Update initialization:**
@@ -213,7 +213,7 @@ struct ResNet18:
 #### Before (Dynamic)
 
 ```mojo
-fn conv2d_3x3(input: ExTensor, kernel: ExTensor) -> ExTensor:
+fn conv2d_3x3(input: AnyTensor, kernel: AnyTensor) -> AnyTensor:
     # Runtime kernel size checks
     if kernel.shape()[2] != 3 or kernel.shape()[3] != 3:
         raise Error("Expected 3x3 kernel")
@@ -226,9 +226,9 @@ fn conv2d_3x3(input: ExTensor, kernel: ExTensor) -> ExTensor:
 from shared.core.fixed_tensor import FixedTensor, Kernel3x3_f32
 
 fn conv2d_3x3_fixed(
-    input: ExTensor,
+    input: AnyTensor,
     kernel: Kernel3x3_f32  # Compile-time 3x3 guarantee
-) -> ExTensor:
+) -> AnyTensor:
     # No runtime checks needed!
     # Compiler can unroll all loops
     # 30-50% faster for small kernels
@@ -301,34 +301,34 @@ struct LinearLayer(Differentiable, Parameterized, Serializable):
 
     var weights: TypedTensor[DType.float32]
     var bias: TypedTensor[DType.float32]
-    var last_input: ExTensor  # Cached for backward
+    var last_input: AnyTensor  # Cached for backward
 
     fn __init__(inout self, in_features: Int, out_features: Int):
         """Initialize with He initialization."""
         self.weights = he_uniform_typed[DType.float32]([out_features, in_features])
         self.bias = zeros[DType.float32]([out_features])
-        self.last_input = ExTensor([0], DType.float32)  # Placeholder
+        self.last_input = AnyTensor([0], DType.float32)  # Placeholder
 
     # Differentiable trait
-    fn forward(inout self, input: ExTensor) raises -> ExTensor:
+    fn forward(inout self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: y = xW^T + b."""
         self.last_input = input.copy()  # Cache for backward
         var output = matmul(input, self.weights.transpose())
         return add_simd(output, self.bias)
 
-    fn backward(self, grad_output: ExTensor) raises -> ExTensor:
+    fn backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Backward pass using cached input."""
         # grad_input = grad_output @ W
         var grad_input = matmul(grad_output, self.weights)
         return grad_input
 
     # Parameterized trait
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Return learnable parameters."""
-        # Convert TypedTensor to ExTensor for compatibility
+        # Convert TypedTensor to AnyTensor for compatibility
         return [self.weights.to_extensor(), self.bias.to_extensor()]
 
-    fn gradients(self) raises -> List[ExTensor]:
+    fn gradients(self) raises -> List[AnyTensor]:
         """Return parameter gradients."""
         # Compute gradients from cached values
         var grad_weights = matmul(self.last_input.transpose(), grad_output)
@@ -377,7 +377,7 @@ fn benchmark_training_epoch():
     print("Benchmarking training epoch...")
 
     # Before optimizations
-    var model_old = ResNet18_Old()  # Using ExTensor
+    var model_old = ResNet18_Old()  # Using AnyTensor
     var time_old = measure_epoch(model_old)
 
     # After optimizations

@@ -12,8 +12,8 @@ Tests edge cases for sqrt operations including:
 
 from math import isnan, isinf, sqrt
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full
+# Import AnyTensor and operations
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.elementwise import (
     sqrt as sqrt_op,
 )
@@ -119,7 +119,7 @@ fn test_sqrt_vector() raises:
     vals.append(4.0)
     vals.append(9.0)
     vals.append(16.0)
-    var t = ExTensor(shape, DType.float32)
+    var t = AnyTensor(shape, DType.float32)
     for i in range(4):
         t._set_float32(i, vals[i])
 

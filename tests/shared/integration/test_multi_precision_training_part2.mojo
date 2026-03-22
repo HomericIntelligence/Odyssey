@@ -23,7 +23,7 @@ from tests.shared.conftest import (
     assert_dtype,
     TestFixtures,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.training.precision_config import PrecisionConfig, PrecisionMode
 from shared.training.mixed_precision import GradientScaler
 from shared.training.dtype_utils import (

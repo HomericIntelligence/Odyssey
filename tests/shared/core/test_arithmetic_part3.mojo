@@ -18,7 +18,7 @@ from tests.shared.conftest import (
     assert_numel,
     assert_dtype,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.arithmetic import (
     multiply,
     multiply_backward,

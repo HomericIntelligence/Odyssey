@@ -37,11 +37,11 @@ shared/utils/toml_loader.mojo:104:36: error: no matching function in initializat
 ### 2. Compilation Error - missing `view_with_strides`
 
 ```text
-shared/core/matrix.mojo:824:18: error: 'ExTensor' value has no attribute 'view_with_strides'
+shared/core/matrix.mojo:824:18: error: 'AnyTensor' value has no attribute 'view_with_strides'
     return tensor.view_with_strides(result_shape, result_strides)
 ```
 
-**Root cause**: `transpose()` called a method that was never implemented on ExTensor.
+**Root cause**: `transpose()` called a method that was never implemented on AnyTensor.
 
 **Fix**: Replaced with element-by-element data copy using multi-index decomposition
 and permuted indices.

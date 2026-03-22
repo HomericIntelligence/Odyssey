@@ -67,7 +67,7 @@ grep -rn "FIXME\|TODO" shared/ --include="*.mojo"
 - Files: `shared/training/__init__.mojo`
 - Change: Uncommented export statements
 
-### PR #3041: Update ExTensor Array API
+### PR #3041: Update AnyTensor Array API
 
 - Branch: `3032-extensor-matrix-ops`
 - Files: `shared/core/extensor.mojo`

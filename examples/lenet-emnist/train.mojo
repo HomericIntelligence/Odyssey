@@ -36,7 +36,7 @@ from shared.data import (
     normalize_images,
     one_hot_encode,
 )
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import maxpool2d, maxpool2d_backward
 from shared.core.linear import linear, linear_backward
@@ -107,7 +107,7 @@ fn parse_args() raises -> TrainConfig:
 
 
 fn compute_gradients(
-    mut model: LeNet5, input: ExTensor, labels: ExTensor, learning_rate: Float32
+    mut model: LeNet5, input: AnyTensor, labels: AnyTensor, learning_rate: Float32
 ) raises -> Float32:
     """Compute gradients and update parameters for one batch.
 
@@ -268,8 +268,8 @@ fn compute_gradients(
 
 fn train_epoch(
     mut model: LeNet5,
-    train_images: ExTensor,
-    train_labels: ExTensor,
+    train_images: AnyTensor,
+    train_labels: AnyTensor,
     batch_size: Int,
     learning_rate: Float32,
     epoch: Int,

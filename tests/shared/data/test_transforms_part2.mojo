@@ -21,7 +21,7 @@ from tests.shared.conftest import (
     TestFixtures,
 )
 from shared.data.transforms import Compose, Normalize, Reshape
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 
 
 # ============================================================================
@@ -46,20 +46,20 @@ fn test_transform_on_dataset_sample() raises:
     """
     TestFixtures.set_seed()
 
-    from shared.data.datasets import ExTensorDataset
+    from shared.data.datasets import AnyTensorDataset
 
     # Create small dataset
     var data_list = List[Float32]()
     for i in range(20):
         data_list.append(Float32(i) * 0.1)
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(20):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
 
     # Get sample from dataset
     var sample = dataset.__getitem__(0)
@@ -90,20 +90,20 @@ fn test_transform_batch_consistency() raises:
     """
     TestFixtures.set_seed()
 
-    from shared.data.datasets import ExTensorDataset
+    from shared.data.datasets import AnyTensorDataset
 
     # Create dataset
     var data_list = List[Float32]()
     for i in range(20):
         data_list.append(Float32(i) * 0.1)
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(20):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
 
     var normalize = Normalize()
 
@@ -139,7 +139,7 @@ fn test_transform_on_small_tensor() raises:
 
     var data_list = List[Float32]()
     data_list.append(42.0)
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var normalize = Normalize()
     var result = normalize(data)
@@ -167,7 +167,7 @@ fn test_transform_on_large_tensor() raises:
     var data_list = List[Float32]()
     for i in range(1000):
         data_list.append(Float32(i % 100) * 0.01)
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var normalize = Normalize()
     var result = normalize(data)
@@ -195,7 +195,7 @@ fn test_transform_zero_value_handling() raises:
     var data_list = List[Float32]()
     for _ in range(10):
         data_list.append(0.0)
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var normalize = Normalize()
     # This might result in NaN/Inf, but should not crash
@@ -224,7 +224,7 @@ fn test_transform_negative_values() raises:
     var data_list = List[Float32]()
     for i in range(10):
         data_list.append(Float32(i) - 5.0)  # -5 to 4
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var normalize = Normalize()
     var result = normalize(data)
@@ -252,7 +252,7 @@ fn test_transform_repeated_application() raises:
     var data_list = List[Float32]()
     for i in range(20):
         data_list.append(Float32(i) * 0.1)
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var normalize = Normalize()
 
@@ -282,7 +282,7 @@ fn test_transform_preserves_element_count() raises:
     var data_list = List[Float32]()
     for i in range(30):
         data_list.append(Float32(i) * 0.05)
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var original_count = data.num_elements()
 

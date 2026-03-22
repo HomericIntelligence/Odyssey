@@ -25,16 +25,16 @@ Measure machine learning model performance using appropriate metrics for the tas
 struct ModelEvaluator:
     fn evaluate_classification(
         mut self,
-        predictions: ExTensor,
-        ground_truth: ExTensor
+        predictions: AnyTensor,
+        ground_truth: AnyTensor
     ) -> Tuple[Float32, Float32, Float32]:
         # Returns accuracy, precision, recall
         ...
 
     fn evaluate_regression(
         mut self,
-        predictions: ExTensor,
-        ground_truth: ExTensor
+        predictions: AnyTensor,
+        ground_truth: AnyTensor
     ) -> Tuple[Float32, Float32]:
         # Returns MSE, MAE
         ...

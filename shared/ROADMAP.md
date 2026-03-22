@@ -9,7 +9,7 @@ and provides a prioritized roadmap for future development.
 
 | Module | Description | Status |
 |--------|-------------|--------|
-| `extensor.mojo` | ExTensor type with memory management | Complete |
+| `any_tensor.mojo` | AnyTensor type with memory management | Complete |
 | `activation.mojo` | ReLU, sigmoid, tanh, softmax, GELU, swish, mish, ELU, hard activations | Complete |
 | `arithmetic.mojo` | Element-wise add, subtract, multiply, divide | Complete |
 | `arithmetic_simd.mojo` | SIMD-optimized arithmetic | Complete |

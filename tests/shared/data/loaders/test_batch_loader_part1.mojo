@@ -14,7 +14,7 @@ from tests.shared.conftest import (
 from shared.data.datasets import TensorDataset
 from shared.data.loaders import BatchLoader
 from shared.data.samplers import SequentialSampler, RandomSampler
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 
 
 # ============================================================================
@@ -31,11 +31,11 @@ fn test_batch_loader_fixed_batch_size() raises:
     var data_list = List[Float32]()
     for i in range(100):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
     var labels_list = List[Int]()
     for i in range(100):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
     var dataset = TensorDataset(data^, labels^)
     var dataset_len = dataset.__len__()
     var sampler = SequentialSampler(dataset_len)
@@ -54,11 +54,11 @@ fn test_batch_loader_perfect_division() raises:
     var data_list = List[Float32]()
     for i in range(96):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
     var labels_list = List[Int]()
     for i in range(96):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
     var dataset = TensorDataset(data^, labels^)
     var dataset_len = dataset.__len__()
     var sampler = SequentialSampler(dataset_len)
@@ -78,7 +78,7 @@ fn test_batch_loader_partial_last_batch() raises:
         data_list.append(Float32(i))
     var data_shape = List[Int]()
     data_shape.append(100)
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     for i in range(len(data_list)):
         data._set_float32(i, data_list[i])
 
@@ -87,7 +87,7 @@ fn test_batch_loader_partial_last_batch() raises:
         labels_list.append(i)
     var labels_shape = List[Int]()
     labels_shape.append(100)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     for i in range(len(labels_list)):
         labels._set_int32(i, Int32(labels_list[i]))
 
@@ -107,7 +107,7 @@ fn test_batch_loader_partial_last_batch() raises:
         data_list2.append(Float32(i))
     var data_shape2 = List[Int]()
     data_shape2.append(100)
-    var data2 = ExTensor(data_shape2, DType.float32)
+    var data2 = AnyTensor(data_shape2, DType.float32)
     for i in range(len(data_list2)):
         data2._set_float32(i, data_list2[i])
 
@@ -116,7 +116,7 @@ fn test_batch_loader_partial_last_batch() raises:
         labels_list2.append(i)
     var labels_shape2 = List[Int]()
     labels_shape2.append(100)
-    var labels2 = ExTensor(labels_shape2, DType.int32)
+    var labels2 = AnyTensor(labels_shape2, DType.int32)
     for i in range(len(labels_list2)):
         labels2._set_int32(i, Int32(labels_list2[i]))
 
@@ -140,7 +140,7 @@ fn test_batch_loader_tensor_stacking() raises:
         data_list.append(Float32(i))
     var data_shape = List[Int]()
     data_shape.append(100)
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     for i in range(len(data_list)):
         data._set_float32(i, data_list[i])
 
@@ -149,7 +149,7 @@ fn test_batch_loader_tensor_stacking() raises:
         labels_list.append(i)
     var labels_shape = List[Int]()
     labels_shape.append(100)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     for i in range(len(labels_list)):
         labels._set_int32(i, Int32(labels_list[i]))
 
@@ -178,7 +178,7 @@ fn test_batch_loader_no_shuffle() raises:
         data_list.append(Float32(i))
     var data_shape = List[Int]()
     data_shape.append(100)
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     for i in range(len(data_list)):
         data._set_float32(i, data_list[i])
     var labels_list = List[Int]()
@@ -186,7 +186,7 @@ fn test_batch_loader_no_shuffle() raises:
         labels_list.append(i)
     var labels_shape = List[Int]()
     labels_shape.append(100)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     for i in range(len(labels_list)):
         labels._set_int32(i, Int32(labels_list[i]))
     var dataset = TensorDataset(data^, labels^)
@@ -209,7 +209,7 @@ fn test_batch_loader_shuffle() raises:
         data_list.append(Float32(i))
     var data_shape = List[Int]()
     data_shape.append(100)
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     for i in range(len(data_list)):
         data._set_float32(i, data_list[i])
     var labels_list = List[Int]()
@@ -217,7 +217,7 @@ fn test_batch_loader_shuffle() raises:
         labels_list.append(i)
     var labels_shape = List[Int]()
     labels_shape.append(100)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     for i in range(len(labels_list)):
         labels._set_int32(i, Int32(labels_list[i]))
     var dataset = TensorDataset(data^, labels^)
@@ -240,7 +240,7 @@ fn test_batch_loader_shuffle_deterministic() raises:
         data_list.append(Float32(i))
     var data_shape = List[Int]()
     data_shape.append(100)
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     for i in range(len(data_list)):
         data._set_float32(i, data_list[i])
     var labels_list = List[Int]()
@@ -248,7 +248,7 @@ fn test_batch_loader_shuffle_deterministic() raises:
         labels_list.append(i)
     var labels_shape = List[Int]()
     labels_shape.append(100)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     for i in range(len(labels_list)):
         labels._set_int32(i, Int32(labels_list[i]))
     var dataset = TensorDataset(data^, labels^)
@@ -269,7 +269,7 @@ fn test_batch_loader_shuffle_per_epoch() raises:
         data_list.append(Float32(i))
     var data_shape = List[Int]()
     data_shape.append(100)
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     for i in range(len(data_list)):
         data._set_float32(i, data_list[i])
     var labels_list = List[Int]()
@@ -277,7 +277,7 @@ fn test_batch_loader_shuffle_per_epoch() raises:
         labels_list.append(i)
     var labels_shape = List[Int]()
     labels_shape.append(100)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     for i in range(len(labels_list)):
         labels._set_int32(i, Int32(labels_list[i]))
     var dataset = TensorDataset(data^, labels^)
@@ -304,13 +304,13 @@ fn test_batch_loader_1d_data() raises:
     """
     var data_shape = List[Int]()
     data_shape.append(8)  # 1D tensor with 8 elements
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     for i in range(8):
         data._set_float32(i, Float32(i))
 
     var labels_shape = List[Int]()
     labels_shape.append(8)  # Labels also 1D: 8 elements
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     for i in range(8):
         labels._set_int32(i, Int32(i * 10))
 

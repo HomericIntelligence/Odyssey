@@ -14,8 +14,8 @@ from tests.shared.conftest import (
     assert_equal,
     assert_true,
 )
-from shared.core.extensor import (
-    ExTensor,
+from shared.core.any_tensor import (
+    AnyTensor,
     zeros,
     ones,
     ones_like,
@@ -123,14 +123,14 @@ fn test_softmax_backward() raises:
     x._data.bitcast[Float32]()[5] = 1.5
 
     # Forward function wrapper
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return softmax(x, axis=1)
 
     var y = softmax(x, axis=1)
     var grad_out = ones_like(y)
 
     # Note: softmax_backward takes output y, not input x
-    fn backward_fn(grad: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var out = softmax(x, axis=1)  # Recompute output inside wrapper
         return softmax_backward(grad, out, axis=1)
 

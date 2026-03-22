@@ -12,7 +12,7 @@
 from shared.autograd import mse_loss_and_grad, SGD  # Imported but not used!
 
 # Manual update instead:
-var lr_tensor = ExTensor(DynamicVector[Int](1), DType.float32)
+var lr_tensor = AnyTensor(DynamicVector[Int](1), DType.float32)
 lr_tensor._set_float64(0, learning_rate)
 w = subtract(w, multiply(lr_tensor, grad_w_sum))
 b = subtract(b, multiply(lr_tensor, grad_b_sum))
@@ -22,7 +22,7 @@ b = subtract(b, multiply(lr_tensor, grad_b_sum))
 
 ### 2. **API Mismatch: Optimizer vs Examples**
 
-**Problem**: `SGD.step()` expects `DynamicVector[Variable]`, but examples use raw `ExTensor`.
+**Problem**: `SGD.step()` expects `DynamicVector[Variable]`, but examples use raw `AnyTensor`.
 
 **optimizers.mojo:90**:
 
@@ -33,8 +33,8 @@ fn step(self, inout parameters: DynamicVector[Variable]) raises:
 **Example uses**:
 
 ```mojo
-var w = ExTensor(...)  # Not a Variable!
-var b = ExTensor(...)  # Not a Variable!
+var w = AnyTensor(...)  # Not a Variable!
+var b = AnyTensor(...)  # Not a Variable!
 ```text
 
 **Impact**: Can't actually use the optimizer with the functional API.
@@ -45,7 +45,7 @@ var b = ExTensor(...)  # Not a Variable!
 
 ```mojo
 # Current (verbose):
-var lr_tensor = ExTensor(grad.shape(), grad.dtype())
+var lr_tensor = AnyTensor(grad.shape(), grad.dtype())
 for i in range(lr_tensor.numel()):
     lr_tensor._set_float64(i, learning_rate)
 var update = multiply(lr_tensor, grad)
@@ -82,7 +82,7 @@ var grad_w_sum = sum(grad_w_expanded)  # Already exists!
 ```mojo
 var momentum: Float64
 # TODO: Add velocity storage for momentum
-# var velocities: DynamicVector[ExTensor]
+# var velocities: DynamicVector[AnyTensor]
 ```text
 
 **Impact**: Misleading API - users think momentum works but it doesn't.
@@ -94,7 +94,7 @@ var momentum: Float64
 **optimizers.mojo:132-137**:
 
 ```mojo
-var lr_tensor = ExTensor(grad.shape(), grad.dtype())
+var lr_tensor = AnyTensor(grad.shape(), grad.dtype())
 for j in range(lr_tensor.numel()):
     lr_tensor._set_float64(j, self.learning_rate)
 var update = multiply(lr_tensor, grad)
@@ -136,12 +136,12 @@ var update = multiply(lr_tensor, grad)
 **File**: `shared/core/arithmetic.mojo` (or new `shared/core/scalar_ops.mojo`)
 
 ```mojo
-fn multiply_scalar(tensor: ExTensor, scalar: Float64) raises -> ExTensor:
+fn multiply_scalar(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     """Multiply tensor by scalar value.
 
     More efficient than creating a full tensor of the same scalar.
     """
-    var result = ExTensor(tensor.shape(), tensor.dtype())
+    var result = AnyTensor(tensor.shape(), tensor.dtype())
     for i in range(tensor.numel()):
         let val = tensor._get_float64(i)
         result._set_float64(i, val * scalar)
@@ -150,13 +150,13 @@ fn multiply_scalar(tensor: ExTensor, scalar: Float64) raises -> ExTensor:
 
 ### Solution 2: Unified API Approach
 
-**Option A**: Make optimizer work with ExTensor
+**Option A**: Make optimizer work with AnyTensor
 
 ```mojo
 fn step_tensors(
     self,
-    inout parameters: DynamicVector[ExTensor],
-    gradients: DynamicVector[ExTensor]
+    inout parameters: DynamicVector[AnyTensor],
+    gradients: DynamicVector[AnyTensor]
 ) raises:
     """Update raw tensors using gradients."""
 ```text
@@ -176,8 +176,8 @@ var b = Variable(b_data, requires_grad=True)
 
 ```mojo
 fn apply_gradients(
-    inout parameters: DynamicVector[ExTensor],
-    gradients: DynamicVector[ExTensor],
+    inout parameters: DynamicVector[AnyTensor],
+    gradients: DynamicVector[AnyTensor],
     learning_rate: Float64
 ) raises:
     """Apply gradients to parameters: params -= lr * grads."""
@@ -195,12 +195,12 @@ fn apply_gradients(
 
 ```mojo
 # Collect gradients
-var grads = DynamicVector[ExTensor]()
+var grads = DynamicVector[AnyTensor]()
 grads.push_back(grad_w_sum)
 grads.push_back(grad_b_sum)
 
 # Collect parameters
-var params = DynamicVector[ExTensor]()
+var params = DynamicVector[AnyTensor]()
 params.push_back(w)
 params.push_back(b)
 

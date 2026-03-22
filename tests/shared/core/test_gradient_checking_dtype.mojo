@@ -10,7 +10,7 @@ corruption bug that occurs after ~15 cumulative tests. See ADR-009.
 
 from tests.shared.conftest import assert_true
 from shared.testing import check_gradients
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.activation import (
     relu,
     relu_backward,
@@ -32,11 +32,11 @@ fn test_composite_relu_multiply() raises:
     var input_a = full(shape, 2.0, DType.float32)
     var input_b = full(shape, 3.0, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         var mul_result = multiply(x, input_b)
         return relu(mul_result)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var mul_result = multiply(x, input_b)
         var grad_relu = relu_backward(grad_out, mul_result)
         var grads = multiply_backward(grad_relu, x, input_b)
@@ -62,10 +62,10 @@ fn test_linear_gradient_fp32() raises:
     bias_shape.append(3)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return linear(x, weights, bias)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var grads = linear_backward(grad_out, x, weights)
         return grads.grad_input
 
@@ -93,10 +93,10 @@ fn test_linear_gradient_fp16() raises:
     bias_shape.append(3)
     var bias = config.cast_to_compute(zeros(bias_shape, DType.float32))
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return linear(x, weights, bias)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var grads = linear_backward(grad_out, x, weights)
         return grads.grad_input
 
@@ -126,10 +126,10 @@ fn test_conv2d_gradient_fp32() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, kernel, bias, stride=1, padding=0)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var grads = conv2d_backward(grad_out, x, kernel, stride=1, padding=0)
         return grads.grad_input
 
@@ -160,10 +160,10 @@ fn test_conv2d_grad_3x3_same_padding() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, kernel, bias, stride=1, padding=1)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var grads = conv2d_backward(grad_out, x, kernel, stride=1, padding=1)
         return grads.grad_input
 
@@ -196,10 +196,10 @@ fn test_conv2d_grad_3x3_strided() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, kernel, bias, stride=2, padding=0)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var grads = conv2d_backward(grad_out, x, kernel, stride=2, padding=0)
         return grads.grad_input
 
@@ -230,10 +230,10 @@ fn test_conv2d_grad_multichannel() raises:
     bias_shape.append(3)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, kernel, bias, stride=1, padding=0)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var grads = conv2d_backward(grad_out, x, kernel, stride=1, padding=0)
         return grads.grad_input
 
@@ -262,10 +262,10 @@ fn test_cross_entropy_gradient_fp32() raises:
     var labels = zeros(labels_shape, DType.float32)
     labels._set_float64(0, 1.0)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return cross_entropy(x, labels)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return cross_entropy_backward(grad_out, x, labels)
 
     var passed = check_gradients(
@@ -305,12 +305,12 @@ fn test_conv2d_gradient_fp16() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d(x, kernel, bias, stride=1, padding=0)
         # Conv computes in FP32 for numerical stability
         return result^
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var grads = conv2d_backward(grad_out, x, kernel, stride=1, padding=0)
         return grads.grad_input
 
@@ -350,10 +350,10 @@ fn test_cross_entropy_gradient_fp16() raises:
     labels_fp32._set_float64(0, 1.0)  # Sample 0: class 0
     var labels = config.cast_to_compute(labels_fp32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return cross_entropy(x, labels)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return cross_entropy_backward(grad_out, x, labels)
 
     # FP16 with relaxed tolerance for exp/log operations

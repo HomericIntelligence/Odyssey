@@ -21,7 +21,7 @@ References:
     - CIFAR-10 Dataset: https://www.cs.toronto.edu/~kriz/cifar.html
 """
 
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import maxpool2d, maxpool2d_backward
 from shared.core.linear import linear, linear_backward
@@ -203,24 +203,24 @@ struct AlexNet:
     var dropout_rate: Float32
 
     # Convolutional layer parameters
-    var conv1_kernel: ExTensor
-    var conv1_bias: ExTensor
-    var conv2_kernel: ExTensor
-    var conv2_bias: ExTensor
-    var conv3_kernel: ExTensor
-    var conv3_bias: ExTensor
-    var conv4_kernel: ExTensor
-    var conv4_bias: ExTensor
-    var conv5_kernel: ExTensor
-    var conv5_bias: ExTensor
+    var conv1_kernel: AnyTensor
+    var conv1_bias: AnyTensor
+    var conv2_kernel: AnyTensor
+    var conv2_bias: AnyTensor
+    var conv3_kernel: AnyTensor
+    var conv3_bias: AnyTensor
+    var conv4_kernel: AnyTensor
+    var conv4_bias: AnyTensor
+    var conv5_kernel: AnyTensor
+    var conv5_bias: AnyTensor
 
     # Fully connected layer parameters
-    var fc1_weights: ExTensor
-    var fc1_bias: ExTensor
-    var fc2_weights: ExTensor
-    var fc2_bias: ExTensor
-    var fc3_weights: ExTensor
-    var fc3_bias: ExTensor
+    var fc1_weights: AnyTensor
+    var fc1_bias: AnyTensor
+    var fc2_weights: AnyTensor
+    var fc2_bias: AnyTensor
+    var fc3_weights: AnyTensor
+    var fc3_bias: AnyTensor
 
     fn __init__(
         out self, num_classes: Int = 10, dropout_rate: Float32 = 0.5
@@ -311,8 +311,8 @@ struct AlexNet:
         self.fc3_bias = zeros(fc3_bias_shape, DType.float32)
 
     fn forward(
-        mut self, input: ExTensor, training: Bool = True
-    ) raises -> ExTensor:
+        mut self, input: AnyTensor, training: Bool = True
+    ) raises -> AnyTensor:
         """Forward pass through AlexNet.
 
         Args:
@@ -421,7 +421,7 @@ struct AlexNet:
 
         return output
 
-    fn predict(mut self, input: ExTensor) raises -> Int:
+    fn predict(mut self, input: AnyTensor) raises -> Int:
         """Predict class for a single input.
 
         Args:
@@ -455,7 +455,7 @@ struct AlexNet:
             - conv1_kernel.weights, conv1_bias.weights, etc.
         """
         # Collect all parameters
-        var parameters: List[ExTensor] = []
+        var parameters: List[AnyTensor] = []
         parameters.append(self.conv1_kernel)
         parameters.append(self.conv1_bias)
         parameters.append(self.conv2_kernel)
@@ -492,7 +492,7 @@ struct AlexNet:
         var param_names = get_model_parameter_names("alexnet")
 
         # Create empty list for loaded parameters
-        var loaded_params: List[ExTensor] = []
+        var loaded_params: List[AnyTensor] = []
 
         # Load using shared utility
         load_model_weights(loaded_params, weights_dir, param_names)
@@ -519,38 +519,38 @@ struct AlexNet:
         mut self,
         learning_rate: Float32,
         momentum: Float32,
-        grad_conv1_kernel: ExTensor,
-        grad_conv1_bias: ExTensor,
-        grad_conv2_kernel: ExTensor,
-        grad_conv2_bias: ExTensor,
-        grad_conv3_kernel: ExTensor,
-        grad_conv3_bias: ExTensor,
-        grad_conv4_kernel: ExTensor,
-        grad_conv4_bias: ExTensor,
-        grad_conv5_kernel: ExTensor,
-        grad_conv5_bias: ExTensor,
-        grad_fc1_weights: ExTensor,
-        grad_fc1_bias: ExTensor,
-        grad_fc2_weights: ExTensor,
-        grad_fc2_bias: ExTensor,
-        grad_fc3_weights: ExTensor,
-        grad_fc3_bias: ExTensor,
-        mut velocity_conv1_kernel: ExTensor,
-        mut velocity_conv1_bias: ExTensor,
-        mut velocity_conv2_kernel: ExTensor,
-        mut velocity_conv2_bias: ExTensor,
-        mut velocity_conv3_kernel: ExTensor,
-        mut velocity_conv3_bias: ExTensor,
-        mut velocity_conv4_kernel: ExTensor,
-        mut velocity_conv4_bias: ExTensor,
-        mut velocity_conv5_kernel: ExTensor,
-        mut velocity_conv5_bias: ExTensor,
-        mut velocity_fc1_weights: ExTensor,
-        mut velocity_fc1_bias: ExTensor,
-        mut velocity_fc2_weights: ExTensor,
-        mut velocity_fc2_bias: ExTensor,
-        mut velocity_fc3_weights: ExTensor,
-        mut velocity_fc3_bias: ExTensor,
+        grad_conv1_kernel: AnyTensor,
+        grad_conv1_bias: AnyTensor,
+        grad_conv2_kernel: AnyTensor,
+        grad_conv2_bias: AnyTensor,
+        grad_conv3_kernel: AnyTensor,
+        grad_conv3_bias: AnyTensor,
+        grad_conv4_kernel: AnyTensor,
+        grad_conv4_bias: AnyTensor,
+        grad_conv5_kernel: AnyTensor,
+        grad_conv5_bias: AnyTensor,
+        grad_fc1_weights: AnyTensor,
+        grad_fc1_bias: AnyTensor,
+        grad_fc2_weights: AnyTensor,
+        grad_fc2_bias: AnyTensor,
+        grad_fc3_weights: AnyTensor,
+        grad_fc3_bias: AnyTensor,
+        mut velocity_conv1_kernel: AnyTensor,
+        mut velocity_conv1_bias: AnyTensor,
+        mut velocity_conv2_kernel: AnyTensor,
+        mut velocity_conv2_bias: AnyTensor,
+        mut velocity_conv3_kernel: AnyTensor,
+        mut velocity_conv3_bias: AnyTensor,
+        mut velocity_conv4_kernel: AnyTensor,
+        mut velocity_conv4_bias: AnyTensor,
+        mut velocity_conv5_kernel: AnyTensor,
+        mut velocity_conv5_bias: AnyTensor,
+        mut velocity_fc1_weights: AnyTensor,
+        mut velocity_fc1_bias: AnyTensor,
+        mut velocity_fc2_weights: AnyTensor,
+        mut velocity_fc2_bias: AnyTensor,
+        mut velocity_fc3_weights: AnyTensor,
+        mut velocity_fc3_bias: AnyTensor,
     ) raises:
         """Update parameters using SGD with momentum.
 

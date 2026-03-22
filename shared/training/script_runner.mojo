@@ -13,7 +13,7 @@ Example:
     from shared.training.trainer_interface import (
         create_simple_dataloader,
     )
-    from shared.core.extensor import AnyTensor
+    from shared.core.any_tensor import AnyTensor
 
     fn step(x: AnyTensor, y: AnyTensor) raises -> AnyTensor:
         return x  # replace with real forward+loss

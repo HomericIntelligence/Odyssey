@@ -14,7 +14,7 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_equal_int,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.arithmetic import (
     modulo,
     power,

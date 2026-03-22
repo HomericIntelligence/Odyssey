@@ -11,7 +11,7 @@ All functions are pure functional - they process inputs to produce outputs witho
 maintaining internal state.
 """
 
-from .extensor import ExTensor, ones_like, zeros_like, full_like
+from .any_tensor import AnyTensor, ones_like, zeros_like, full_like
 from .arithmetic import add, subtract, multiply, divide
 from .elementwise import log, clip, abs
 from .comparison import less, greater
@@ -19,8 +19,8 @@ from .dtype_cast import cast_tensor
 
 
 fn clip_predictions(
-    predictions: ExTensor, epsilon: Float64 = 1e-7
-) raises -> ExTensor:
+    predictions: AnyTensor, epsilon: Float64 = 1e-7
+) raises -> AnyTensor:
     """Clip predictions to prevent log(0) and numerical instability.
 
         Formula:
@@ -50,8 +50,8 @@ fn clip_predictions(
 
 
 fn create_epsilon_tensor(
-    template: ExTensor, epsilon: Float64 = 1e-7
-) raises -> ExTensor:
+    template: AnyTensor, epsilon: Float64 = 1e-7
+) raises -> AnyTensor:
     """Create an epsilon tensor with same shape as template.
 
     Args:
@@ -75,7 +75,7 @@ fn create_epsilon_tensor(
 
 
 fn validate_tensor_shapes(
-    tensor1: ExTensor, tensor2: ExTensor, operation: String
+    tensor1: AnyTensor, tensor2: AnyTensor, operation: String
 ) raises:
     """Validate that two tensors have compatible shapes.
 
@@ -97,7 +97,7 @@ fn validate_tensor_shapes(
 
 
 fn validate_tensor_dtypes(
-    tensor1: ExTensor, tensor2: ExTensor, operation: String
+    tensor1: AnyTensor, tensor2: AnyTensor, operation: String
 ) raises:
     """Validate that two tensors have compatible dtypes.
 
@@ -118,7 +118,7 @@ fn validate_tensor_dtypes(
         raise Error(operation + ": Input tensors must have the same dtype")
 
 
-fn compute_one_minus_tensor(tensor: ExTensor) raises -> ExTensor:
+fn compute_one_minus_tensor(tensor: AnyTensor) raises -> AnyTensor:
     """Compute 1.0 - tensor efficiently.
 
         This is a common operation in loss functions (e.g., 1 - predictions).
@@ -141,7 +141,7 @@ fn compute_one_minus_tensor(tensor: ExTensor) raises -> ExTensor:
     return subtract(one, tensor)
 
 
-fn compute_sign_tensor(tensor: ExTensor) raises -> ExTensor:
+fn compute_sign_tensor(tensor: AnyTensor) raises -> AnyTensor:
     """Compute sign of tensor: +1 if x > 0, -1 if x < 0, 0 if x == 0.
 
         This is used in loss functions like smooth L1 for gradient computation.
@@ -178,8 +178,8 @@ fn compute_sign_tensor(tensor: ExTensor) raises -> ExTensor:
 
 
 fn blend_tensors(
-    tensor1: ExTensor, tensor2: ExTensor, mask: ExTensor
-) raises -> ExTensor:
+    tensor1: AnyTensor, tensor2: AnyTensor, mask: AnyTensor
+) raises -> AnyTensor:
     """Blend two tensors based on a binary mask.
 
         Formula:
@@ -217,7 +217,7 @@ fn blend_tensors(
     return add(term1, term2)
 
 
-fn compute_max_stable(tensor: ExTensor) raises -> ExTensor:
+fn compute_max_stable(tensor: AnyTensor) raises -> AnyTensor:
     """Find maximum value in tensor for numerical stability (log-sum-exp trick).
 
         This is used in cross-entropy to find the max logit for numerical stability.
@@ -239,7 +239,7 @@ fn compute_max_stable(tensor: ExTensor) raises -> ExTensor:
     return tensor
 
 
-fn compute_difference(tensor1: ExTensor, tensor2: ExTensor) raises -> ExTensor:
+fn compute_difference(tensor1: AnyTensor, tensor2: AnyTensor) raises -> AnyTensor:
     """Compute tensor1 - tensor2 with error checking.
 
     Args:
@@ -258,7 +258,7 @@ fn compute_difference(tensor1: ExTensor, tensor2: ExTensor) raises -> ExTensor:
     return subtract(tensor1, tensor2)
 
 
-fn compute_product(tensor1: ExTensor, tensor2: ExTensor) raises -> ExTensor:
+fn compute_product(tensor1: AnyTensor, tensor2: AnyTensor) raises -> AnyTensor:
     """Compute element-wise product of two tensors with error checking.
 
     Args:
@@ -278,8 +278,8 @@ fn compute_product(tensor1: ExTensor, tensor2: ExTensor) raises -> ExTensor:
 
 
 fn compute_ratio(
-    tensor1: ExTensor, tensor2: ExTensor, epsilon: Float64 = 1e-7
-) raises -> ExTensor:
+    tensor1: AnyTensor, tensor2: AnyTensor, epsilon: Float64 = 1e-7
+) raises -> AnyTensor:
     """Compute element-wise ratio tensor1 / tensor2 with numerical stability.
 
         Adds epsilon to denominator to prevent division by zero.
@@ -313,7 +313,7 @@ fn compute_ratio(
     return divide(tensor1, stable_denominator)
 
 
-fn negate_tensor(tensor: ExTensor) raises -> ExTensor:
+fn negate_tensor(tensor: AnyTensor) raises -> AnyTensor:
     """Negate all elements of a tensor (multiply by -1).
 
     Args:

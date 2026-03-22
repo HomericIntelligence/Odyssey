@@ -146,13 +146,13 @@ For EACH issue in your batch, analyze its content and determine:
 1. **depends_on**: What other issues (from the reference list) must be completed BEFORE this issue can start?
 2. **blocks**: What other issues cannot start until THIS issue is completed?
 3. **priority**:
-   - P0: Foundation/core infrastructure (ExTensor, basic ops, core utilities)
+   - P0: Foundation/core infrastructure (AnyTensor, basic ops, core utilities)
    - P1: Important features that build on P0 (training, autograd, models)
    - P2: Nice-to-have improvements (docs, examples, optimizations)
 4. **reasoning**: Brief explanation (1-2 sentences)
 
 ## DEPENDENCY RULES:
-- Core/foundation issues (ExTensor, basic tensor ops) should be P0 and have few dependencies
+- Core/foundation issues (AnyTensor, basic tensor ops) should be P0 and have few dependencies
 - Training issues depend on core tensor operations
 - Test issues depend on their corresponding implementation issues
 - Bug fixes depend on the feature they're fixing existing

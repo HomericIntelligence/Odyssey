@@ -10,7 +10,7 @@ Mojo code.
 
 **What exists today**:
 
-- A shared library (`shared/`) providing `ExTensor` — a typed, N-dimensional tensor type
+- A shared library (`shared/`) providing `AnyTensor` — a typed, N-dimensional tensor type
 - Tensor creation, shape, and element operations in `shared/core/`
 - Data loading utilities in `shared/data/`
 - Training infrastructure in `shared/training/`
@@ -31,7 +31,7 @@ Before starting, ensure you have:
 ## The Shared Library
 
 The `shared/` directory contains the core ML components used across all paper implementations.
-The entry point is `ExTensor` in `shared/core/`.
+The entry point is `AnyTensor` in `shared/core/`.
 
 ### Creating Tensors
 

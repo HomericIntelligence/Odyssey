@@ -333,7 +333,7 @@ These trade-offs are **preferable** to:
   <packages>
     <package name="shared.core" line-rate="0.95" branch-rate="0.90">
       <classes>
-        <class name="ExTensor" filename="shared/core/extensor.mojo" line-rate="0.95">
+        <class name="AnyTensor" filename="shared/core/any_tensor.mojo" line-rate="0.95">
           <lines>
             <line number="45" hits="10" branch="false"/>
             <line number="46" hits="0" branch="false"/>

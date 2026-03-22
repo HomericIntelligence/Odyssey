@@ -20,7 +20,7 @@ Example:
 
 from sys import argv
 
-from shared.core import ExTensor
+from shared.core import AnyTensor
 
 
 # ============================================================================
@@ -170,7 +170,7 @@ fn parse_inference_args_with_defaults(
 # ============================================================================
 
 
-fn evaluate_accuracy(predictions: ExTensor, labels: ExTensor) raises -> Float32:
+fn evaluate_accuracy(predictions: AnyTensor, labels: AnyTensor) raises -> Float32:
     """Calculate classification accuracy from predictions and labels.
 
         Computes the percentage of predictions that match the ground truth labels
@@ -255,7 +255,7 @@ fn evaluate_accuracy(predictions: ExTensor, labels: ExTensor) raises -> Float32:
     return Float32(correct) / Float32(n)
 
 
-fn count_correct(predictions: ExTensor, labels: ExTensor) raises -> Int:
+fn count_correct(predictions: AnyTensor, labels: AnyTensor) raises -> Int:
     """Count the number of correct predictions.
 
         Lower-level function for computing accuracy incrementally over batches.

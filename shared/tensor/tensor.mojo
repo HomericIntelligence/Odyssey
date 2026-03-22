@@ -7,7 +7,7 @@ Uses typed `UnsafePointer[Scalar[dtype]]` storage instead of type-erased
 `UnsafePointer[UInt8]`. Pointer arithmetic auto-scales by element size (H1),
 so no manual `* dtype_size` is needed for element offsets.
 
-Zero-copy conversion to ExTensor (future AnyTensor) via `as_any()` with shared
+Zero-copy conversion to AnyTensor (future AnyTensor) via `as_any()` with shared
 refcount (B4). Both types share a `TensorLike` trait interface.
 
 Example:
@@ -23,14 +23,14 @@ from collections import List
 from memory import UnsafePointer, memset_zero, alloc
 from shared.core.memory_pool import pooled_alloc, pooled_free
 from shared.tensor.tensor_traits import TensorLike
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 
 
-# Memory safety constants (match ExTensor limits)
+# Memory safety constants (match AnyTensor limits)
 comptime MAX_TENSOR_BYTES: Int = 2_000_000_000  # 2 GB max per tensor
 comptime WARN_TENSOR_BYTES: Int = 500_000_000  # 500 MB warning threshold
 
-# Print options for truncation (match ExTensor behavior)
+# Print options for truncation (match AnyTensor behavior)
 comptime TENSOR_PRINT_THRESHOLD: Int = 1000  # Truncate if numel > threshold
 comptime TENSOR_PRINT_SHOW_ELEMENTS: Int = 3  # Show first/last N elements
 
@@ -52,7 +52,7 @@ struct Tensor[dtype: DType = DType.float32](
 
     Memory Safety: Implements reference counting for safe shared ownership.
     Copying increments the refcount; memory is freed only when the last
-    reference is destroyed. Compatible with ExTensor's refcount protocol
+    reference is destroyed. Compatible with AnyTensor's refcount protocol
     for zero-copy conversion via `as_any()`.
 
     Parameters:
@@ -396,38 +396,38 @@ struct Tensor[dtype: DType = DType.float32](
     # Conversion
     # ------------------------------------------------------------------
 
-    fn as_any(self) raises -> ExTensor:
-        """Zero-copy conversion to runtime-typed ExTensor (future AnyTensor).
+    fn as_any(self) raises -> AnyTensor:
+        """Zero-copy conversion to runtime-typed AnyTensor (future AnyTensor).
 
-        Creates an ExTensor sharing the same underlying data via a shared
-        refcount pointer. The ExTensor's `_data` is the byte-level view of
+        Creates an AnyTensor sharing the same underlying data via a shared
+        refcount pointer. The AnyTensor's `_data` is the byte-level view of
         this tensor's typed pointer. Both objects share the same refcount,
         so ASAP destruction of either only decrements (not frees) the count
         until the last reference goes away (B4).
 
-        Safety: This method performs manual field replacement on an ExTensor
-        because ExTensor lacks an internal constructor accepting raw pointers.
-        The temporary ExTensor's independent allocation is fully torn down
+        Safety: This method performs manual field replacement on an AnyTensor
+        because AnyTensor lacks an internal constructor accepting raw pointers.
+        The temporary AnyTensor's independent allocation is fully torn down
         (data freed, refcount freed) before fields are replaced with shared
         pointers from this Tensor.
 
-        TODO(#5005): Replace with ExTensor internal constructor once available,
+        TODO(#5005): Replace with AnyTensor internal constructor once available,
         eliminating the allocate-then-free overhead and fragile field surgery.
 
         Returns:
-            An ExTensor sharing the same data and refcount.
+            An AnyTensor sharing the same data and refcount.
 
         Raises:
-            Error: If ExTensor construction fails.
+            Error: If AnyTensor construction fails.
         """
-        # Create an ExTensor with same shape/dtype — this allocates its own
+        # Create an AnyTensor with same shape/dtype — this allocates its own
         # independent data buffer and refcount pointer.
         var shape_copy = List[Int]()
         for i in range(len(self._shape)):
             shape_copy.append(self._shape[i])
-        var result = ExTensor(shape_copy, Self.dtype)
+        var result = AnyTensor(shape_copy, Self.dtype)
 
-        # --- Tear down the temporary ExTensor's independent allocation ---
+        # --- Tear down the temporary AnyTensor's independent allocation ---
         # Free the independently allocated data buffer (safe: result is the
         # sole owner at this point, refcount == 1).
         var tmp_data = result._data
@@ -438,7 +438,7 @@ struct Tensor[dtype: DType = DType.float32](
         tmp_refcount.free()
 
         # --- Replace fields with shared pointers from this Tensor ---
-        # Share our data pointer (bitcast typed -> UInt8 for ExTensor)
+        # Share our data pointer (bitcast typed -> UInt8 for AnyTensor)
         result._data = self._data.bitcast[UInt8]()
         result._allocated_size = self._allocated_size
         result._shape = self._shape.copy()
@@ -555,9 +555,9 @@ struct Tensor[dtype: DType = DType.float32](
         """Return the size in bytes of a single element.
 
         Uses compile-time dtype knowledge — no runtime branching needed.
-        Matches ExTensor._get_dtype_size_static() output for the same dtype.
+        Matches AnyTensor._get_dtype_size_static() output for the same dtype.
         """
-        # DType size lookup — same logic as ExTensor but resolved at
+        # DType size lookup — same logic as AnyTensor but resolved at
         # compile time since Self.dtype is a parameter.
         @parameter
         if Self.dtype == DType.float16 or Self.dtype == DType.bfloat16:

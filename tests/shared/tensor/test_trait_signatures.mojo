@@ -4,7 +4,7 @@
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
 
-Phase 5a changes trait signatures from ExTensor to AnyTensor:
+Phase 5a changes trait signatures from AnyTensor to AnyTensor:
 - Module.forward(mut self, input: AnyTensor) -> AnyTensor
 - Module.parameters(self) -> List[AnyTensor]
 - Differentiable.forward/backward -> AnyTensor
@@ -22,7 +22,7 @@ Tests cover:
 """
 
 from testing import assert_true, assert_almost_equal
-from shared.core.extensor import AnyTensor, zeros, ones
+from shared.core.any_tensor import AnyTensor, zeros, ones
 from shared.core.module import Module
 from shared.core.layers.linear import Linear
 from shared.core.layers.relu import ReLULayer

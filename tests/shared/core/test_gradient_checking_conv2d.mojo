@@ -19,7 +19,7 @@ References:
 """
 
 from shared.core.conv import conv2d, conv2d_backward
-from shared.core.extensor import ExTensor, zeros
+from shared.core.any_tensor import AnyTensor, zeros
 from shared.testing.gradient_checker import check_gradients
 from shared.testing.assertions import assert_true
 
@@ -48,10 +48,10 @@ fn test_conv2d_same_padding_grad_input() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=1)
 
-    fn backward_fn(grad_out: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, inp, kernel, stride=1, padding=1)
         return result.grad_input
 
@@ -83,10 +83,10 @@ fn test_conv2d_same_padding_grad_weights() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(k: ExTensor) raises escaping -> ExTensor:
+    fn forward(k: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, k, bias, stride=1, padding=1)
 
-    fn backward_fn(grad_out: ExTensor, k: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, x, k, stride=1, padding=1)
         return result.grad_weights
 
@@ -118,10 +118,10 @@ fn test_conv2d_same_padding_grad_bias() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(b: ExTensor) raises escaping -> ExTensor:
+    fn forward(b: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, kernel, b, stride=1, padding=1)
 
-    fn backward_fn(grad_out: ExTensor, b: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad_out: AnyTensor, b: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, x, kernel, stride=1, padding=1)
         return result.grad_bias
 
@@ -153,10 +153,10 @@ fn test_conv2d_strided_grad_input() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=2, padding=0)
 
-    fn backward_fn(grad_out: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, inp, kernel, stride=2, padding=0)
         return result.grad_input
 
@@ -188,10 +188,10 @@ fn test_conv2d_strided_grad_weights() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(k: ExTensor) raises escaping -> ExTensor:
+    fn forward(k: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, k, bias, stride=2, padding=0)
 
-    fn backward_fn(grad_out: ExTensor, k: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, x, k, stride=2, padding=0)
         return result.grad_weights
 
@@ -223,10 +223,10 @@ fn test_conv2d_strided_grad_bias() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(b: ExTensor) raises escaping -> ExTensor:
+    fn forward(b: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, kernel, b, stride=2, padding=0)
 
-    fn backward_fn(grad_out: ExTensor, b: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad_out: AnyTensor, b: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, x, kernel, stride=2, padding=0)
         return result.grad_bias
 
@@ -258,10 +258,10 @@ fn test_conv2d_multichannel_grad_input() raises:
     bias_shape.append(3)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=1)
 
-    fn backward_fn(grad_out: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, inp, kernel, stride=1, padding=1)
         return result.grad_input
 
@@ -293,10 +293,10 @@ fn test_conv2d_multichannel_grad_weights() raises:
     bias_shape.append(3)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(k: ExTensor) raises escaping -> ExTensor:
+    fn forward(k: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, k, bias, stride=1, padding=1)
 
-    fn backward_fn(grad_out: ExTensor, k: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, x, k, stride=1, padding=1)
         return result.grad_weights
 
@@ -328,10 +328,10 @@ fn test_conv2d_multichannel_grad_bias() raises:
     bias_shape.append(3)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(b: ExTensor) raises escaping -> ExTensor:
+    fn forward(b: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, kernel, b, stride=1, padding=1)
 
-    fn backward_fn(grad_out: ExTensor, b: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad_out: AnyTensor, b: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, x, kernel, stride=1, padding=1)
         return result.grad_bias
 

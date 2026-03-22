@@ -30,7 +30,7 @@ Example:
     ```
 """
 
-from .extensor import AnyTensor
+from .any_tensor import AnyTensor
 
 
 trait Differentiable:

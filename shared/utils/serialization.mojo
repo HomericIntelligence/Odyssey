@@ -39,7 +39,7 @@ Example:
     ```
 """
 
-from shared.core.extensor import ExTensor, zeros
+from shared.core.any_tensor import AnyTensor, zeros
 from shared.core.tensor_io import (
     save_tensor,
     load_tensor,
@@ -71,9 +71,9 @@ struct NamedTensor(Copyable, Movable):
     """
 
     var name: String
-    var tensor: ExTensor
+    var tensor: AnyTensor
 
-    fn __init__(out self, name: String, tensor: ExTensor):
+    fn __init__(out self, name: String, tensor: AnyTensor):
         """Create named tensor.
 
         Args:

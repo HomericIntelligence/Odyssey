@@ -11,7 +11,7 @@ high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
 from testing import assert_true, assert_raises
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.training.metrics import ConfusionMatrix
 
 
@@ -23,13 +23,13 @@ fn test_float32_labels_raises() raises:
 
     var preds_shape = List[Int]()
     preds_shape.append(2)
-    var preds = ExTensor(preds_shape, DType.int32)
+    var preds = AnyTensor(preds_shape, DType.int32)
     preds._data.bitcast[Int32]()[0] = 0
     preds._data.bitcast[Int32]()[1] = 1
 
     var labels_shape = List[Int]()
     labels_shape.append(2)
-    var labels = ExTensor(labels_shape, DType.float32)
+    var labels = AnyTensor(labels_shape, DType.float32)
     labels._data.bitcast[Float32]()[0] = 0.0
     labels._data.bitcast[Float32]()[1] = 1.0
 
@@ -56,13 +56,13 @@ fn test_float64_labels_raises() raises:
 
     var preds_shape = List[Int]()
     preds_shape.append(2)
-    var preds = ExTensor(preds_shape, DType.int32)
+    var preds = AnyTensor(preds_shape, DType.int32)
     preds._data.bitcast[Int32]()[0] = 0
     preds._data.bitcast[Int32]()[1] = 1
 
     var labels_shape = List[Int]()
     labels_shape.append(2)
-    var labels = ExTensor(labels_shape, DType.float64)
+    var labels = AnyTensor(labels_shape, DType.float64)
     labels._data.bitcast[Float64]()[0] = 0.0
     labels._data.bitcast[Float64]()[1] = 1.0
 
@@ -89,13 +89,13 @@ fn test_float32_predictions_1d_raises() raises:
 
     var preds_shape = List[Int]()
     preds_shape.append(2)
-    var preds = ExTensor(preds_shape, DType.float32)
+    var preds = AnyTensor(preds_shape, DType.float32)
     preds._data.bitcast[Float32]()[0] = 0.0
     preds._data.bitcast[Float32]()[1] = 1.0
 
     var labels_shape = List[Int]()
     labels_shape.append(2)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     labels._data.bitcast[Int32]()[0] = 0
     labels._data.bitcast[Int32]()[1] = 1
 
@@ -122,14 +122,14 @@ fn test_int32_labels_accepted() raises:
 
     var preds_shape = List[Int]()
     preds_shape.append(3)
-    var preds = ExTensor(preds_shape, DType.int32)
+    var preds = AnyTensor(preds_shape, DType.int32)
     preds._data.bitcast[Int32]()[0] = 0
     preds._data.bitcast[Int32]()[1] = 1
     preds._data.bitcast[Int32]()[2] = 2
 
     var labels_shape = List[Int]()
     labels_shape.append(3)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     labels._data.bitcast[Int32]()[0] = 0
     labels._data.bitcast[Int32]()[1] = 1
     labels._data.bitcast[Int32]()[2] = 2
@@ -147,14 +147,14 @@ fn test_int64_labels_accepted() raises:
 
     var preds_shape = List[Int]()
     preds_shape.append(3)
-    var preds = ExTensor(preds_shape, DType.int64)
+    var preds = AnyTensor(preds_shape, DType.int64)
     preds._data.bitcast[Int64]()[0] = 0
     preds._data.bitcast[Int64]()[1] = 1
     preds._data.bitcast[Int64]()[2] = 2
 
     var labels_shape = List[Int]()
     labels_shape.append(3)
-    var labels = ExTensor(labels_shape, DType.int64)
+    var labels = AnyTensor(labels_shape, DType.int64)
     labels._data.bitcast[Int64]()[0] = 0
     labels._data.bitcast[Int64]()[1] = 1
     labels._data.bitcast[Int64]()[2] = 2
@@ -174,7 +174,7 @@ fn test_float32_logits_2d_accepted() raises:
     var preds_shape = List[Int]()
     preds_shape.append(2)
     preds_shape.append(3)
-    var preds = ExTensor(preds_shape, DType.float32)
+    var preds = AnyTensor(preds_shape, DType.float32)
     # Sample 0: logits [1.0, 0.0, 0.0] → argmax=0
     preds._data.bitcast[Float32]()[0] = 1.0
     preds._data.bitcast[Float32]()[1] = 0.0
@@ -186,7 +186,7 @@ fn test_float32_logits_2d_accepted() raises:
 
     var labels_shape = List[Int]()
     labels_shape.append(2)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     labels._data.bitcast[Int32]()[0] = 0
     labels._data.bitcast[Int32]()[1] = 1
 

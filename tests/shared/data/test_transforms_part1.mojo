@@ -20,7 +20,7 @@ from tests.shared.conftest import (
     TestFixtures,
 )
 from shared.data.transforms import Compose, Normalize, Reshape
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 
 
 # ============================================================================
@@ -47,7 +47,7 @@ fn test_compose_empty_pipeline() raises:
     var data_list = List[Float32]()
     for i in range(10):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     # Create empty Compose pipeline
     var pipeline = Compose[Normalize]()
@@ -77,7 +77,7 @@ fn test_compose_single_transform() raises:
     var data_list = List[Float32]()
     for i in range(20):
         data_list.append(Float32(i) / 10.0)
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     # Create single-transform pipeline
     var transforms_list = List[Normalize]()
@@ -111,7 +111,7 @@ fn test_compose_multiple_transforms() raises:
     var data_list = List[Float32]()
     for i in range(20):
         data_list.append(Float32(i) / 10.0)
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     # Create pipeline with normalize transform
     var transforms_list = List[Normalize]()
@@ -144,7 +144,7 @@ fn test_compose_determinism() raises:
     var data_list = List[Float32]()
     for i in range(15):
         data_list.append(Float32(i) * 0.5)
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var transforms_list = List[Normalize]()
     transforms_list.append(Normalize())
@@ -184,7 +184,7 @@ fn test_normalize_transform() raises:
     var data_list = List[Float32]()
     for i in range(10):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var normalize = Normalize()
     var result = normalize(data)
@@ -213,7 +213,7 @@ fn test_reshape_transform() raises:
     var data_list = List[Float32]()
     for i in range(10):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     # Create reshape to (2, 5)
     var new_shape = List[Int]()
@@ -251,7 +251,7 @@ fn test_transform_stateless() raises:
     var data_list = List[Float32]()
     for i in range(10):
         data_list.append(Float32(i) * 0.1)
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var normalize = Normalize()
 
@@ -284,7 +284,7 @@ fn test_transform_no_mutation() raises:
     var data_list = List[Float32]()
     for i in range(10):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var original_shape = data.shape()
 

@@ -130,7 +130,7 @@ rm .claude/ralph-loop.local.md
 | #3038 | #3034 | Implement script\_runner |
 | #3039 | #3034 | Implement dataset\_loaders |
 | #3040 | #3034 | Export script utilities |
-| #3041 | #3032 | Update ExTensor Array API |
+| #3041 | #3032 | Update AnyTensor Array API |
 
 ### Items NOT Resolved (External Blockers)
 

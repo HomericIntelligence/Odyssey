@@ -15,7 +15,7 @@ Tests cover:
 
 from testing import assert_true, assert_almost_equal
 from shared.tensor.tensor import Tensor
-from shared.core.extensor import AnyTensor, zeros
+from shared.core.any_tensor import AnyTensor, zeros
 
 
 fn test_refcount_shared_on_as_any() raises:

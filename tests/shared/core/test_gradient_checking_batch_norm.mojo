@@ -13,7 +13,7 @@ corruption bug that occurs after ~15 cumulative tests. See ADR-009.
 
 from tests.shared.conftest import assert_true
 from shared.testing import check_gradients
-from shared.core import ExTensor, zeros, ones
+from shared.core import AnyTensor, zeros, ones
 from shared.core.normalization import batch_norm2d, batch_norm2d_backward
 
 
@@ -36,11 +36,11 @@ fn test_batch_norm_gradient_batch_size_1() raises:
     var running_mean = zeros(mean_shape, DType.float32)
     var running_var = ones(mean_shape, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         var result = batch_norm2d(x, gamma, training=True)
         return result[0]
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = batch_norm2d_backward(
             grad_out, x, gamma, running_mean, running_var, training=True
         )
@@ -68,11 +68,11 @@ fn test_batch_norm_gradient_batch_size_2() raises:
     var running_mean = zeros(mean_shape, DType.float32)
     var running_var = ones(mean_shape, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         var result = batch_norm2d(x, gamma, training=True)
         return result[0]
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = batch_norm2d_backward(
             grad_out, x, gamma, running_mean, running_var, training=True
         )
@@ -100,11 +100,11 @@ fn test_batch_norm_gradient_batch_size_4() raises:
     var running_mean = zeros(mean_shape, DType.float32)
     var running_var = ones(mean_shape, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         var result = batch_norm2d(x, gamma, training=True)
         return result[0]
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = batch_norm2d_backward(
             grad_out, x, gamma, running_mean, running_var, training=True
         )
@@ -132,11 +132,11 @@ fn test_batch_norm_gamma_gradient_batch_size_2() raises:
     var running_mean = zeros(mean_shape, DType.float32)
     var running_var = ones(mean_shape, DType.float32)
 
-    fn forward(g: ExTensor) raises escaping -> ExTensor:
+    fn forward(g: AnyTensor) raises escaping -> AnyTensor:
         var result = batch_norm2d(input, g, training=True)
         return result[0]
 
-    fn backward(grad_out: ExTensor, g: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, g: AnyTensor) raises escaping -> AnyTensor:
         var result = batch_norm2d_backward(
             grad_out, input, g, running_mean, running_var, training=True
         )

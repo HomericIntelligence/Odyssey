@@ -24,7 +24,7 @@ Note: Split from monolithic test file due to Mojo 0.26.1 heap corruption
 bug that occurs after ~15 cumulative tests. See Issue #2942.
 """
 
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.any_tensor import AnyTensor, zeros, ones
 from shared.core.conv import conv2d
 from shared.core.pooling import maxpool2d
 from shared.core.linear import linear
@@ -62,16 +62,16 @@ struct LeNet5:
     """
 
     var num_classes: Int
-    var conv1_kernel: ExTensor
-    var conv1_bias: ExTensor
-    var conv2_kernel: ExTensor
-    var conv2_bias: ExTensor
-    var fc1_weights: ExTensor
-    var fc1_bias: ExTensor
-    var fc2_weights: ExTensor
-    var fc2_bias: ExTensor
-    var fc3_weights: ExTensor
-    var fc3_bias: ExTensor
+    var conv1_kernel: AnyTensor
+    var conv1_bias: AnyTensor
+    var conv2_kernel: AnyTensor
+    var conv2_bias: AnyTensor
+    var fc1_weights: AnyTensor
+    var fc1_bias: AnyTensor
+    var fc2_weights: AnyTensor
+    var fc2_bias: AnyTensor
+    var fc3_weights: AnyTensor
+    var fc3_bias: AnyTensor
 
     fn __init__(out self, num_classes: Int = 47) raises:
         """Initialize LeNet-5 model with random weights."""
@@ -114,7 +114,7 @@ struct LeNet5:
         )
         self.fc3_bias = zeros([num_classes], DType.float32)
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass through LeNet-5."""
         # Conv1 + ReLU + MaxPool
         var conv1_out = conv2d(
@@ -150,7 +150,7 @@ struct LeNet5:
 
         return output^
 
-    fn predict(mut self, input: ExTensor) raises -> Int:
+    fn predict(mut self, input: AnyTensor) raises -> Int:
         """Predict class for a single input."""
         var logits = self.forward(input)
 
@@ -165,9 +165,9 @@ struct LeNet5:
 
         return max_idx
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Return all trainable parameters."""
-        var params: List[ExTensor] = []
+        var params: List[AnyTensor] = []
         params.append(self.conv1_kernel)
         params.append(self.conv1_bias)
         params.append(self.conv2_kernel)

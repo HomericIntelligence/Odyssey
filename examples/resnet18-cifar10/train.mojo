@@ -29,7 +29,7 @@ Usage:
     mojo run examples/resnet18-cifar10/train.mojo --epochs 200 --batch-size 128 --lr 0.01
 """
 
-from shared.core import ExTensor, zeros, ones
+from shared.core import AnyTensor, zeros, ones
 from shared.core.loss import cross_entropy, cross_entropy_backward
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import avgpool2d, avgpool2d_backward
@@ -48,7 +48,7 @@ from model import ResNet18
 
 
 fn compute_accuracy(
-    mut model: ResNet18, images: ExTensor, labels: ExTensor
+    mut model: ResNet18, images: AnyTensor, labels: AnyTensor
 ) raises -> Float32:
     """Compute classification accuracy on a dataset.
 
@@ -108,8 +108,8 @@ fn compute_accuracy(
 
 fn compute_batch_gradients(
     mut model: ResNet18,
-    batch_images: ExTensor,
-    batch_labels: ExTensor,
+    batch_images: AnyTensor,
+    batch_labels: AnyTensor,
 ) raises -> Float32:
     """Compute gradients and loss for one batch.
 
@@ -155,12 +155,12 @@ fn compute_batch_gradients(
 
 fn train_epoch(
     mut model: ResNet18,
-    train_images: ExTensor,
-    train_labels: ExTensor,
+    train_images: AnyTensor,
+    train_labels: AnyTensor,
     batch_size: Int,
     learning_rate: Float32,
     momentum: Float32,
-    mut velocities: List[ExTensor],
+    mut velocities: List[AnyTensor],
     epoch: Int,
     total_epochs: Int,
 ) raises -> Float32:
@@ -306,7 +306,7 @@ fn main() raises:
 
     # Initialize momentum velocities (one per trainable parameter)
     print("Initializing momentum velocities...")
-    var velocities: List[ExTensor] = []
+    var velocities: List[AnyTensor] = []
 
     # Note: In a complete implementation, initialize 84 velocity tensors
     # matching the shape of each parameter. For this demonstration:

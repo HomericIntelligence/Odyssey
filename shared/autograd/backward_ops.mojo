@@ -31,7 +31,7 @@ Example:
 """
 
 from shared.core import (
-    ExTensor,
+    AnyTensor,
     add_backward,
     subtract_backward,
     multiply_backward,
@@ -57,7 +57,7 @@ fn backward_add(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
-    grad_output: ExTensor,
+    grad_output: AnyTensor,
 ) raises:
     """Backward pass for element-wise addition.
 
@@ -86,7 +86,7 @@ fn backward_subtract(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
-    grad_output: ExTensor,
+    grad_output: AnyTensor,
 ) raises:
     """Backward pass for element-wise subtraction.
 
@@ -115,7 +115,7 @@ fn backward_multiply(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
-    grad_output: ExTensor,
+    grad_output: AnyTensor,
 ) raises:
     """Backward pass for element-wise multiplication.
 
@@ -144,7 +144,7 @@ fn backward_divide(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
-    grad_output: ExTensor,
+    grad_output: AnyTensor,
 ) raises:
     """Backward pass for element-wise division.
 
@@ -178,7 +178,7 @@ fn backward_sum(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
-    grad_output: ExTensor,
+    grad_output: AnyTensor,
 ) raises:
     """Backward pass for sum reduction.
 
@@ -207,7 +207,7 @@ fn backward_mean(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
-    grad_output: ExTensor,
+    grad_output: AnyTensor,
 ) raises:
     """Backward pass for mean reduction.
 
@@ -241,7 +241,7 @@ fn backward_matmul(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
-    grad_output: ExTensor,
+    grad_output: AnyTensor,
 ) raises:
     """Backward pass for matrix multiplication.
 
@@ -275,7 +275,7 @@ fn backward_relu(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
-    grad_output: ExTensor,
+    grad_output: AnyTensor,
 ) raises:
     """Backward pass for ReLU activation.
 
@@ -301,7 +301,7 @@ fn backward_sigmoid(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
-    grad_output: ExTensor,
+    grad_output: AnyTensor,
 ) raises:
     """Backward pass for sigmoid activation.
 
@@ -330,7 +330,7 @@ fn backward_tanh(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
-    grad_output: ExTensor,
+    grad_output: AnyTensor,
 ) raises:
     """Backward pass for tanh activation.
 

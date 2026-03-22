@@ -20,7 +20,7 @@ compared to Float32. This is an expected limitation of Float16 arithmetic
 (not a bug). See issue #3009 for detailed analysis.
 """
 
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 from shared.testing.layer_params import LinearFixture
 from shared.testing.layer_testers import LayerTester
 
@@ -30,19 +30,19 @@ from shared.testing.layer_testers import LayerTester
 # ============================================================================
 
 
-fn create_fc1_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_fc1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create FC1 layer parameters (400→120)."""
     var fixture = LinearFixture(in_features=400, out_features=120, dtype=dtype)
     return fixture.weights, fixture.bias
 
 
-fn create_fc2_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_fc2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create FC2 layer parameters (120→84)."""
     var fixture = LinearFixture(in_features=120, out_features=84, dtype=dtype)
     return fixture.weights, fixture.bias
 
 
-fn create_fc3_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_fc3_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create FC3 layer parameters (84→10)."""
     var fixture = LinearFixture(in_features=84, out_features=10, dtype=dtype)
     return fixture.weights, fixture.bias

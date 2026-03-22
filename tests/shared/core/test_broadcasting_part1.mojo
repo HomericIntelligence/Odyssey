@@ -1,4 +1,4 @@
-"""Tests for ExTensor broadcasting operations - Part 1: Scalar and vector-to-matrix.
+"""Tests for AnyTensor broadcasting operations - Part 1: Scalar and vector-to-matrix.
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
@@ -7,8 +7,8 @@
 Tests NumPy-style broadcasting rules for scalar and vector-to-matrix cases.
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full
+# Import AnyTensor and operations
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.arithmetic import add, multiply
 from testing import assert_true
 
@@ -178,7 +178,7 @@ fn test_broadcast_size_one_dim_middle() raises:
 
 fn main() raises:
     """Run broadcasting part 1 tests."""
-    print("Running ExTensor broadcasting tests - Part 1...")
+    print("Running AnyTensor broadcasting tests - Part 1...")
 
     # Scalar broadcasting
     print("  Testing scalar broadcasting...")

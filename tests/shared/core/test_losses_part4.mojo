@@ -17,7 +17,7 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_close_float,
 )
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
+from shared.core.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.loss import focal_loss, focal_loss_backward
 from shared.core.loss import kl_divergence, kl_divergence_backward
 from shared.core.reduction import mean
@@ -30,8 +30,8 @@ fn test_focal_loss_hard_examples() raises:
 
     var shape = List[Int]()
     shape.append(2)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     # Easy example: p=0.9, target=1 (easy positive)
     predictions._set_float64(0, 0.9)
@@ -64,8 +64,8 @@ fn test_focal_loss_backward_shape() raises:
 
     var shape = List[Int]()
     shape.append(3)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     for i in range(3):
         predictions._set_float64(i, 0.5)
@@ -103,11 +103,11 @@ fn test_focal_loss_backward_gradient() raises:
     targets._set_float64(3, 0.0)
 
     # Forward function wrapper
-    fn forward(pred: ExTensor) raises escaping -> ExTensor:
+    fn forward(pred: AnyTensor) raises escaping -> AnyTensor:
         return focal_loss(pred, targets)
 
     # Backward function wrapper
-    fn backward(grad_out: ExTensor, pred: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
         return focal_loss_backward(grad_out, pred, targets)
 
     var loss = forward(predictions)
@@ -127,8 +127,8 @@ fn test_kl_divergence_same_distribution() raises:
 
     var shape = List[Int]()
     shape.append(4)
-    var p = ExTensor(shape, DType.float32)
-    var q = ExTensor(shape, DType.float32)
+    var p = AnyTensor(shape, DType.float32)
+    var q = AnyTensor(shape, DType.float32)
 
     # Same distribution
     for i in range(4):
@@ -157,8 +157,8 @@ fn test_kl_divergence_different_distributions() raises:
 
     var shape = List[Int]()
     shape.append(3)
-    var p = ExTensor(shape, DType.float32)
-    var q = ExTensor(shape, DType.float32)
+    var p = AnyTensor(shape, DType.float32)
+    var q = AnyTensor(shape, DType.float32)
 
     # Distribution p: [0.5, 0.3, 0.2]
     p._set_float64(0, 0.5)
@@ -191,8 +191,8 @@ fn test_kl_divergence_backward_shape() raises:
 
     var shape = List[Int]()
     shape.append(4)
-    var p = ExTensor(shape, DType.float32)
-    var q = ExTensor(shape, DType.float32)
+    var p = AnyTensor(shape, DType.float32)
+    var q = AnyTensor(shape, DType.float32)
 
     # Initialize with valid probability distributions
     for i in range(4):
@@ -231,13 +231,13 @@ fn test_kl_divergence_backward_gradient() raises:
     q._set_float64(3, 0.1)
 
     # Forward function wrapper
-    fn forward(q_dist: ExTensor) raises escaping -> ExTensor:
+    fn forward(q_dist: AnyTensor) raises escaping -> AnyTensor:
         return kl_divergence(p, q_dist)
 
     # Backward function wrapper
     fn backward(
-        grad_out: ExTensor, q_dist: ExTensor
-    ) raises escaping -> ExTensor:
+        grad_out: AnyTensor, q_dist: AnyTensor
+    ) raises escaping -> AnyTensor:
         return kl_divergence_backward(grad_out, p, q_dist)
 
     var kl = forward(q)

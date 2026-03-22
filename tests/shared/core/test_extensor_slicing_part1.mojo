@@ -1,7 +1,7 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_extensor_slicing.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Unit tests for ExTensor basic 1D and strided slicing operations (#3013).
+# high test load. Split from test_anytensor_slicing.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
+"""Unit tests for AnyTensor basic 1D and strided slicing operations (#3013).
 
 Tests cover:
 - Basic 1D slicing (tensor[start:end])
@@ -11,7 +11,7 @@ Tests cover:
 Following TDD principles - tests written before implementation.
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, full, arange
+from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 

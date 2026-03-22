@@ -10,8 +10,8 @@ Tests edge cases for concatenate operations including:
 - Concatenate 1D tensors
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange
+# Import AnyTensor and operations
+from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange
 from shared.core.shape import reshape, squeeze, unsqueeze, concatenate, stack
 
 # Import test helpers
@@ -37,7 +37,7 @@ fn test_concatenate_single_tensor() raises:
     shape.append(4)
     var t = ones(shape, DType.float32)
 
-    var tensors = List[ExTensor]()
+    var tensors = List[AnyTensor]()
     tensors.append(t)
     var result = concatenate(tensors, 0)
 
@@ -54,7 +54,7 @@ fn test_concatenate_along_axis_0() raises:
     var t1 = ones(shape, DType.float32)
     var t2 = full(shape, 2.0, DType.float32)
 
-    var tensors = List[ExTensor]()
+    var tensors = List[AnyTensor]()
     tensors.append(t1)
     tensors.append(t2)
     var result = concatenate(tensors, 0)
@@ -76,7 +76,7 @@ fn test_concatenate_along_axis_1() raises:
     var t1 = ones(shape_a, DType.float32)
     var t2 = full(shape_b, 2.0, DType.float32)
 
-    var tensors = List[ExTensor]()
+    var tensors = List[AnyTensor]()
     tensors.append(t1)
     tensors.append(t2)
     var result = concatenate(tensors, 1)
@@ -98,7 +98,7 @@ fn test_concatenate_with_empty() raises:
     var t1 = zeros(shape_a, DType.float32)
     var t2 = ones(shape_b, DType.float32)
 
-    var tensors = List[ExTensor]()
+    var tensors = List[AnyTensor]()
     tensors.append(t1)
     tensors.append(t2)
     var result = concatenate(tensors, 1)
@@ -114,7 +114,7 @@ fn test_concatenate_1d_tensors() raises:
     var t1 = full(shape, 1.0, DType.float32)
     var t2 = full(shape, 2.0, DType.float32)
 
-    var tensors = List[ExTensor]()
+    var tensors = List[AnyTensor]()
     tensors.append(t1)
     tensors.append(t2)
     var result = concatenate(tensors, 0)

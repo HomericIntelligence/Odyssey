@@ -23,7 +23,7 @@ Usage:
 
 from algorithm import vectorize
 from sys.info import simd_width_of
-from .extensor import ExTensor
+from .any_tensor import AnyTensor
 
 
 # ============================================================================
@@ -31,7 +31,7 @@ from .extensor import ExTensor
 # ============================================================================
 
 
-fn shapes_match(a: ExTensor, b: ExTensor) -> Bool:
+fn shapes_match(a: AnyTensor, b: AnyTensor) -> Bool:
     """Check if two tensors have identical shapes.
 
     Args:
@@ -51,7 +51,7 @@ fn shapes_match(a: ExTensor, b: ExTensor) -> Bool:
     return True
 
 
-fn can_use_fast_path(a: ExTensor, b: ExTensor) -> Bool:
+fn can_use_fast_path(a: AnyTensor, b: AnyTensor) -> Bool:
     """Check if tensors are eligible for contiguous fast path.
 
     The fast path applies when:
@@ -92,7 +92,7 @@ fn can_use_fast_path(a: ExTensor, b: ExTensor) -> Bool:
 # ============================================================================
 
 
-fn _add_contiguous_dispatch(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn _add_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Dispatch to dtype-specific contiguous addition.
 
     Args:
@@ -127,7 +127,7 @@ fn _add_contiguous_dispatch(a: ExTensor, b: ExTensor) raises -> ExTensor:
 
 
 @always_inline
-fn _add_contiguous[dtype: DType](a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn _add_contiguous[dtype: DType](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Optimized addition for contiguous same-shape tensors.
 
     Uses SIMD vectorization for float32/float64 and scalar loops for others.
@@ -140,7 +140,7 @@ fn _add_contiguous[dtype: DType](a: ExTensor, b: ExTensor) raises -> ExTensor:
     Returns:
         Result tensor containing a + b.
     """
-    var result = ExTensor(a.shape(), dtype)
+    var result = AnyTensor(a.shape(), dtype)
     var size = a.numel()
 
     var a_ptr = a._data.bitcast[Scalar[dtype]]()
@@ -173,7 +173,7 @@ fn _add_contiguous[dtype: DType](a: ExTensor, b: ExTensor) raises -> ExTensor:
 # ============================================================================
 
 
-fn _subtract_contiguous_dispatch(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn _subtract_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Dispatch to dtype-specific contiguous subtraction.
 
     Args:
@@ -210,7 +210,7 @@ fn _subtract_contiguous_dispatch(a: ExTensor, b: ExTensor) raises -> ExTensor:
 @always_inline
 fn _subtract_contiguous[
     dtype: DType
-](a: ExTensor, b: ExTensor) raises -> ExTensor:
+](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Optimized subtraction for contiguous same-shape tensors.
 
     Args:
@@ -220,7 +220,7 @@ fn _subtract_contiguous[
     Returns:
         Result tensor containing a - b.
     """
-    var result = ExTensor(a.shape(), dtype)
+    var result = AnyTensor(a.shape(), dtype)
     var size = a.numel()
 
     var a_ptr = a._data.bitcast[Scalar[dtype]]()
@@ -252,7 +252,7 @@ fn _subtract_contiguous[
 # ============================================================================
 
 
-fn _multiply_contiguous_dispatch(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn _multiply_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Dispatch to dtype-specific contiguous multiplication.
 
     Args:
@@ -289,7 +289,7 @@ fn _multiply_contiguous_dispatch(a: ExTensor, b: ExTensor) raises -> ExTensor:
 @always_inline
 fn _multiply_contiguous[
     dtype: DType
-](a: ExTensor, b: ExTensor) raises -> ExTensor:
+](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Optimized multiplication for contiguous same-shape tensors.
 
     Args:
@@ -299,7 +299,7 @@ fn _multiply_contiguous[
     Returns:
         Result tensor containing a * b.
     """
-    var result = ExTensor(a.shape(), dtype)
+    var result = AnyTensor(a.shape(), dtype)
     var size = a.numel()
 
     var a_ptr = a._data.bitcast[Scalar[dtype]]()
@@ -331,7 +331,7 @@ fn _multiply_contiguous[
 # ============================================================================
 
 
-fn _divide_contiguous_dispatch(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn _divide_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Dispatch to dtype-specific contiguous division.
 
     Args:
@@ -368,7 +368,7 @@ fn _divide_contiguous_dispatch(a: ExTensor, b: ExTensor) raises -> ExTensor:
 @always_inline
 fn _divide_contiguous[
     dtype: DType
-](a: ExTensor, b: ExTensor) raises -> ExTensor:
+](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Optimized division for contiguous same-shape tensors.
 
     Args:
@@ -378,7 +378,7 @@ fn _divide_contiguous[
     Returns:
         Result tensor containing a / b.
     """
-    var result = ExTensor(a.shape(), dtype)
+    var result = AnyTensor(a.shape(), dtype)
     var size = a.numel()
 
     var a_ptr = a._data.bitcast[Scalar[dtype]]()

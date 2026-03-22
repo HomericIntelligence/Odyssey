@@ -1,10 +1,10 @@
-"""Comparison operations for ExTensor with broadcasting support.
+"""Comparison operations for AnyTensor with broadcasting support.
 
 Implements element-wise comparison operations following NumPy-style broadcasting
 """
 
 from collections import List
-from .extensor import ExTensor
+from .any_tensor import AnyTensor
 from shared.tensor.tensor import Tensor
 from .broadcasting import broadcast_shapes, compute_broadcast_strides
 
@@ -18,9 +18,9 @@ from .broadcasting import broadcast_shapes, compute_broadcast_strides
 fn _compare_equal_impl[
     dtype: DType
 ](
-    result: ExTensor,
-    a: ExTensor,
-    b: ExTensor,
+    result: AnyTensor,
+    a: AnyTensor,
+    b: AnyTensor,
     strides_a: List[Int],
     strides_b: List[Int],
     result_shape: List[Int],
@@ -45,9 +45,9 @@ fn _compare_equal_impl[
 
 
 fn _dispatch_compare_equal(
-    result: ExTensor,
-    a: ExTensor,
-    b: ExTensor,
+    result: AnyTensor,
+    a: AnyTensor,
+    b: AnyTensor,
     strides_a: List[Int],
     strides_b: List[Int],
     result_shape: List[Int],
@@ -95,9 +95,9 @@ fn _dispatch_compare_equal(
 fn _compare_not_equal_impl[
     dtype: DType
 ](
-    result: ExTensor,
-    a: ExTensor,
-    b: ExTensor,
+    result: AnyTensor,
+    a: AnyTensor,
+    b: AnyTensor,
     strides_a: List[Int],
     strides_b: List[Int],
     result_shape: List[Int],
@@ -122,9 +122,9 @@ fn _compare_not_equal_impl[
 
 
 fn _dispatch_compare_not_equal(
-    result: ExTensor,
-    a: ExTensor,
-    b: ExTensor,
+    result: AnyTensor,
+    a: AnyTensor,
+    b: AnyTensor,
     strides_a: List[Int],
     strides_b: List[Int],
     result_shape: List[Int],
@@ -172,9 +172,9 @@ fn _dispatch_compare_not_equal(
 fn _compare_less_impl[
     dtype: DType
 ](
-    result: ExTensor,
-    a: ExTensor,
-    b: ExTensor,
+    result: AnyTensor,
+    a: AnyTensor,
+    b: AnyTensor,
     strides_a: List[Int],
     strides_b: List[Int],
     result_shape: List[Int],
@@ -199,9 +199,9 @@ fn _compare_less_impl[
 
 
 fn _dispatch_compare_less(
-    result: ExTensor,
-    a: ExTensor,
-    b: ExTensor,
+    result: AnyTensor,
+    a: AnyTensor,
+    b: AnyTensor,
     strides_a: List[Int],
     strides_b: List[Int],
     result_shape: List[Int],
@@ -249,9 +249,9 @@ fn _dispatch_compare_less(
 fn _compare_less_equal_impl[
     dtype: DType
 ](
-    result: ExTensor,
-    a: ExTensor,
-    b: ExTensor,
+    result: AnyTensor,
+    a: AnyTensor,
+    b: AnyTensor,
     strides_a: List[Int],
     strides_b: List[Int],
     result_shape: List[Int],
@@ -276,9 +276,9 @@ fn _compare_less_equal_impl[
 
 
 fn _dispatch_compare_less_equal(
-    result: ExTensor,
-    a: ExTensor,
-    b: ExTensor,
+    result: AnyTensor,
+    a: AnyTensor,
+    b: AnyTensor,
     strides_a: List[Int],
     strides_b: List[Int],
     result_shape: List[Int],
@@ -326,9 +326,9 @@ fn _dispatch_compare_less_equal(
 fn _compare_greater_impl[
     dtype: DType
 ](
-    result: ExTensor,
-    a: ExTensor,
-    b: ExTensor,
+    result: AnyTensor,
+    a: AnyTensor,
+    b: AnyTensor,
     strides_a: List[Int],
     strides_b: List[Int],
     result_shape: List[Int],
@@ -353,9 +353,9 @@ fn _compare_greater_impl[
 
 
 fn _dispatch_compare_greater(
-    result: ExTensor,
-    a: ExTensor,
-    b: ExTensor,
+    result: AnyTensor,
+    a: AnyTensor,
+    b: AnyTensor,
     strides_a: List[Int],
     strides_b: List[Int],
     result_shape: List[Int],
@@ -403,9 +403,9 @@ fn _dispatch_compare_greater(
 fn _compare_greater_equal_impl[
     dtype: DType
 ](
-    result: ExTensor,
-    a: ExTensor,
-    b: ExTensor,
+    result: AnyTensor,
+    a: AnyTensor,
+    b: AnyTensor,
     strides_a: List[Int],
     strides_b: List[Int],
     result_shape: List[Int],
@@ -430,9 +430,9 @@ fn _compare_greater_equal_impl[
 
 
 fn _dispatch_compare_greater_equal(
-    result: ExTensor,
-    a: ExTensor,
-    b: ExTensor,
+    result: AnyTensor,
+    a: AnyTensor,
+    b: AnyTensor,
     strides_a: List[Int],
     strides_b: List[Int],
     result_shape: List[Int],
@@ -476,7 +476,7 @@ fn _dispatch_compare_greater_equal(
         raise Error("greater_equal: unsupported dtype")
 
 
-fn equal(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise equality comparison with broadcasting.
 
     Performs exact equality comparison on all supported dtypes. Follows IEEE 754
@@ -523,7 +523,7 @@ fn equal(a: ExTensor, b: ExTensor) raises -> ExTensor:
         raise Error("Cannot compare tensors with different dtypes")
 
     var result_shape = broadcast_shapes(a.shape(), b.shape())
-    var result = ExTensor(result_shape, DType.bool)
+    var result = AnyTensor(result_shape, DType.bool)
 
     var strides_a = compute_broadcast_strides(a.shape(), result_shape)
     var strides_b = compute_broadcast_strides(b.shape(), result_shape)
@@ -538,7 +538,7 @@ fn equal(a: ExTensor, b: ExTensor) raises -> ExTensor:
     return result^
 
 
-fn not_equal(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn not_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise inequality comparison with broadcasting.
 
     Args:
@@ -562,7 +562,7 @@ fn not_equal(a: ExTensor, b: ExTensor) raises -> ExTensor:
         raise Error("Cannot compare tensors with different dtypes")
 
     var result_shape = broadcast_shapes(a.shape(), b.shape())
-    var result = ExTensor(result_shape, DType.bool)
+    var result = AnyTensor(result_shape, DType.bool)
 
     var strides_a = compute_broadcast_strides(a.shape(), result_shape)
     var strides_b = compute_broadcast_strides(b.shape(), result_shape)
@@ -577,7 +577,7 @@ fn not_equal(a: ExTensor, b: ExTensor) raises -> ExTensor:
     return result^
 
 
-fn less(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn less(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise less-than comparison with broadcasting.
 
     Args:
@@ -601,7 +601,7 @@ fn less(a: ExTensor, b: ExTensor) raises -> ExTensor:
         raise Error("Cannot compare tensors with different dtypes")
 
     var result_shape = broadcast_shapes(a.shape(), b.shape())
-    var result = ExTensor(result_shape, DType.bool)
+    var result = AnyTensor(result_shape, DType.bool)
 
     var strides_a = compute_broadcast_strides(a.shape(), result_shape)
     var strides_b = compute_broadcast_strides(b.shape(), result_shape)
@@ -616,7 +616,7 @@ fn less(a: ExTensor, b: ExTensor) raises -> ExTensor:
     return result^
 
 
-fn less_equal(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn less_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise less-than-or-equal comparison with broadcasting.
 
     Args:
@@ -640,7 +640,7 @@ fn less_equal(a: ExTensor, b: ExTensor) raises -> ExTensor:
         raise Error("Cannot compare tensors with different dtypes")
 
     var result_shape = broadcast_shapes(a.shape(), b.shape())
-    var result = ExTensor(result_shape, DType.bool)
+    var result = AnyTensor(result_shape, DType.bool)
 
     var strides_a = compute_broadcast_strides(a.shape(), result_shape)
     var strides_b = compute_broadcast_strides(b.shape(), result_shape)
@@ -655,7 +655,7 @@ fn less_equal(a: ExTensor, b: ExTensor) raises -> ExTensor:
     return result^
 
 
-fn greater(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn greater(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise greater-than comparison with broadcasting.
 
     Args:
@@ -679,7 +679,7 @@ fn greater(a: ExTensor, b: ExTensor) raises -> ExTensor:
         raise Error("Cannot compare tensors with different dtypes")
 
     var result_shape = broadcast_shapes(a.shape(), b.shape())
-    var result = ExTensor(result_shape, DType.bool)
+    var result = AnyTensor(result_shape, DType.bool)
 
     var strides_a = compute_broadcast_strides(a.shape(), result_shape)
     var strides_b = compute_broadcast_strides(b.shape(), result_shape)
@@ -694,7 +694,7 @@ fn greater(a: ExTensor, b: ExTensor) raises -> ExTensor:
     return result^
 
 
-fn greater_equal(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn greater_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise greater-than-or-equal comparison with broadcasting.
 
     Args:
@@ -718,7 +718,7 @@ fn greater_equal(a: ExTensor, b: ExTensor) raises -> ExTensor:
         raise Error("Cannot compare tensors with different dtypes")
 
     var result_shape = broadcast_shapes(a.shape(), b.shape())
-    var result = ExTensor(result_shape, DType.bool)
+    var result = AnyTensor(result_shape, DType.bool)
 
     var strides_a = compute_broadcast_strides(a.shape(), result_shape)
     var strides_b = compute_broadcast_strides(b.shape(), result_shape)

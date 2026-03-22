@@ -3,13 +3,13 @@
 Detailed histories of critical bug fixes from root MDs (backed up in `notes/root-backup/`).
 See [learnings.md](../learnings.md) for generalized lessons.
 
-## ExTensor Memory Leak (reshape/slice)
+## AnyTensor Memory Leak (reshape/slice)
 
 **Files**: `BUGFIX_MEMORY_LEAK.md`, `PHASE2_MEMORY_SAFETY_SUMMARY.md`
 
 **Problem**: Dummy allocations in views orphaned; tcmalloc OOM during training.
 
-**Root Cause**: `ExTensor(dummy_shape, dtype)` alloc -> overwrite `_data` without free.
+**Root Cause**: `AnyTensor(dummy_shape, dtype)` alloc -> overwrite `_data` without free.
 
 **Fix**:
 
@@ -19,7 +19,7 @@ See [learnings.md](../learnings.md) for generalized lessons.
 
 **Verification**: Stress tests (10k iters), full training no leaks.
 
-**Modified**: `shared/core/extensor.mojo`.
+**Modified**: `shared/core/any_tensor.mojo`.
 
 ## Broadcasting Crash
 

@@ -23,7 +23,7 @@ from shared.testing.special_values import (
 )
 from shared.testing.assertions import assert_true
 from shared.testing.tensor_factory import zeros_tensor
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 
 
 fn test_activation_layer_backward_tanh() raises:

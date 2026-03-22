@@ -1,14 +1,14 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_memory_leaks.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Memory leak detection tests for ExTensor - Part 2: Stress Tests & View Lifetime.
+"""Memory leak detection tests for AnyTensor - Part 2: Stress Tests & View Lifetime.
 
 Tests verify:
 1. No memory leaks in repeated operations
 2. View lifetime management
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from tests.shared.conftest import assert_true, assert_equal_int
 
 

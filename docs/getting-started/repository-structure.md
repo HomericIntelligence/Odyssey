@@ -138,7 +138,7 @@ papers/
 
 **Structure**:
 
-- `core/` - ExTensor type, creation ops, shape ops
+- `core/` - AnyTensor type, creation ops, shape ops
 - `training/` - Optimizers, training infrastructure
 - `autograd/` - Automatic differentiation
 - `data/` - Data loading utilities

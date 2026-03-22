@@ -1,9 +1,9 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_extensor_unary_ops.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for ExTensor __neg__ and __pos__ unary operators."""
+# high test load. Split from test_anytensor_unary_ops.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
+"""Tests for AnyTensor __neg__ and __pos__ unary operators."""
 
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 

@@ -20,7 +20,7 @@ Testing strategy:
 """
 
 from testing import assert_true, assert_false, assert_equal, assert_almost_equal
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 from shared.training.metrics import (
     Metric,
     MetricResult,
@@ -109,10 +109,10 @@ fn test_multi_metric_training_simulation() raises:
             # Create fake batch data
             var preds_shape = List[Int]()
             preds_shape.append(4)
-            var preds = ExTensor(preds_shape, DType.int32)
+            var preds = AnyTensor(preds_shape, DType.int32)
             var labels_shape = List[Int]()
             labels_shape.append(4)
-            var labels = ExTensor(labels_shape, DType.int32)
+            var labels = AnyTensor(labels_shape, DType.int32)
 
             for i in range(4):
                 var pred_class = (i + batch + epoch) % 3
@@ -155,10 +155,10 @@ fn test_metric_interface_consistency() raises:
     # Create test data
     var preds_shape = List[Int]()
     preds_shape.append(2)
-    var preds = ExTensor(preds_shape, DType.int32)
+    var preds = AnyTensor(preds_shape, DType.int32)
     var labels_shape = List[Int]()
     labels_shape.append(2)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
     preds._data.bitcast[Int32]()[0] = 0
     preds._data.bitcast[Int32]()[1] = 1
     labels._data.bitcast[Int32]()[0] = 0

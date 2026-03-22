@@ -1,4 +1,4 @@
-"""SIMD-optimized activation functions for ExTensor.
+"""SIMD-optimized activation functions for AnyTensor.
 
 This module provides vectorized implementations of activation functions,
 achieving 2-8x speedup over scalar implementations for large tensors.
@@ -37,7 +37,7 @@ Related:
 from algorithm import vectorize
 from sys.info import simd_width_of
 from math import exp as math_exp
-from .extensor import ExTensor
+from .any_tensor import AnyTensor
 from .activation_constants import SIGMOID_CLIP_THRESHOLD
 
 
@@ -46,7 +46,7 @@ from .activation_constants import SIGMOID_CLIP_THRESHOLD
 # ============================================================================
 
 
-fn relu_simd(tensor: ExTensor) raises -> ExTensor:
+fn relu_simd(tensor: AnyTensor) raises -> AnyTensor:
     """SIMD-optimized ReLU activation: max(0, x).
 
     Uses vectorized max operations for float32/float64 tensors,
@@ -69,7 +69,7 @@ fn relu_simd(tensor: ExTensor) raises -> ExTensor:
         var y = relu_simd(x)  # SIMD accelerated
         ```
     """
-    var result = ExTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor._shape, tensor._dtype)
 
     if tensor._dtype == DType.float32:
         _relu_simd_float32(tensor, result)
@@ -85,7 +85,7 @@ fn relu_simd(tensor: ExTensor) raises -> ExTensor:
 
 
 @always_inline
-fn _relu_simd_float32(tensor: ExTensor, mut result: ExTensor):
+fn _relu_simd_float32(tensor: AnyTensor, mut result: AnyTensor):
     """SIMD ReLU for float32 tensors."""
     comptime simd_width = simd_width_of[DType.float32]()
     var size = tensor._numel
@@ -104,7 +104,7 @@ fn _relu_simd_float32(tensor: ExTensor, mut result: ExTensor):
 
 
 @always_inline
-fn _relu_simd_float64(tensor: ExTensor, mut result: ExTensor):
+fn _relu_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
     """SIMD ReLU for float64 tensors."""
     comptime simd_width = simd_width_of[DType.float64]()
     var size = tensor._numel
@@ -126,7 +126,7 @@ fn _relu_simd_float64(tensor: ExTensor, mut result: ExTensor):
 # ============================================================================
 
 
-fn leaky_relu_simd(tensor: ExTensor, alpha: Float64 = 0.01) raises -> ExTensor:
+fn leaky_relu_simd(tensor: AnyTensor, alpha: Float64 = 0.01) raises -> AnyTensor:
     """SIMD-optimized Leaky ReLU activation: max(alpha*x, x).
 
     Uses vectorized operations for float32/float64 tensors,
@@ -149,7 +149,7 @@ fn leaky_relu_simd(tensor: ExTensor, alpha: Float64 = 0.01) raises -> ExTensor:
         var y = leaky_relu_simd(x, 0.01)  # SIMD accelerated
         ```
     """
-    var result = ExTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor._shape, tensor._dtype)
 
     if tensor._dtype == DType.float32:
         _leaky_relu_simd_float32(tensor, result, Float32(alpha))
@@ -166,7 +166,7 @@ fn leaky_relu_simd(tensor: ExTensor, alpha: Float64 = 0.01) raises -> ExTensor:
 
 @always_inline
 fn _leaky_relu_simd_float32(
-    tensor: ExTensor, mut result: ExTensor, alpha: Float32
+    tensor: AnyTensor, mut result: AnyTensor, alpha: Float32
 ):
     """SIMD Leaky ReLU for float32 tensors."""
     comptime simd_width = simd_width_of[DType.float32]()
@@ -188,7 +188,7 @@ fn _leaky_relu_simd_float32(
 
 @always_inline
 fn _leaky_relu_simd_float64(
-    tensor: ExTensor, mut result: ExTensor, alpha: Float64
+    tensor: AnyTensor, mut result: AnyTensor, alpha: Float64
 ):
     """SIMD Leaky ReLU for float64 tensors."""
     comptime simd_width = simd_width_of[DType.float64]()
@@ -212,7 +212,7 @@ fn _leaky_relu_simd_float64(
 # ============================================================================
 
 
-fn relu6_simd(tensor: ExTensor) raises -> ExTensor:
+fn relu6_simd(tensor: AnyTensor) raises -> AnyTensor:
     """SIMD-optimized ReLU6 activation: min(max(0, x), 6).
 
     ReLU6 clamps values to [0, 6], commonly used in MobileNet architectures.
@@ -233,7 +233,7 @@ fn relu6_simd(tensor: ExTensor) raises -> ExTensor:
         var y = relu6_simd(x)  # Values clamped to [0, 6]
         ```
     """
-    var result = ExTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor._shape, tensor._dtype)
 
     if tensor._dtype == DType.float32:
         _relu6_simd_float32(tensor, result)
@@ -249,7 +249,7 @@ fn relu6_simd(tensor: ExTensor) raises -> ExTensor:
 
 
 @always_inline
-fn _relu6_simd_float32(tensor: ExTensor, mut result: ExTensor):
+fn _relu6_simd_float32(tensor: AnyTensor, mut result: AnyTensor):
     """SIMD ReLU6 for float32 tensors."""
     comptime simd_width = simd_width_of[DType.float32]()
     var size = tensor._numel
@@ -269,7 +269,7 @@ fn _relu6_simd_float32(tensor: ExTensor, mut result: ExTensor):
 
 
 @always_inline
-fn _relu6_simd_float64(tensor: ExTensor, mut result: ExTensor):
+fn _relu6_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
     """SIMD ReLU6 for float64 tensors."""
     comptime simd_width = simd_width_of[DType.float64]()
     var size = tensor._numel
@@ -292,7 +292,7 @@ fn _relu6_simd_float64(tensor: ExTensor, mut result: ExTensor):
 # ============================================================================
 
 
-fn elu_simd(tensor: ExTensor, alpha: Float64 = 1.0) raises -> ExTensor:
+fn elu_simd(tensor: AnyTensor, alpha: Float64 = 1.0) raises -> AnyTensor:
     """SIMD-optimized ELU activation: x if x > 0 else alpha * (exp(x) - 1).
 
     Uses vectorized operations for float32/float64 tensors,
@@ -316,7 +316,7 @@ fn elu_simd(tensor: ExTensor, alpha: Float64 = 1.0) raises -> ExTensor:
         var y = elu_simd(x, 1.0)  # SIMD accelerated
         ```
     """
-    var result = ExTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor._shape, tensor._dtype)
 
     if tensor._dtype == DType.float32:
         _elu_simd_float32(tensor, result, Float32(alpha))
@@ -332,7 +332,7 @@ fn elu_simd(tensor: ExTensor, alpha: Float64 = 1.0) raises -> ExTensor:
 
 
 @always_inline
-fn _elu_simd_float32(tensor: ExTensor, mut result: ExTensor, alpha: Float32):
+fn _elu_simd_float32(tensor: AnyTensor, mut result: AnyTensor, alpha: Float32):
     """SIMD ELU for float32 tensors."""
     from .activation_ops import exp_scalar_f32
 
@@ -369,7 +369,7 @@ fn _elu_simd_float32(tensor: ExTensor, mut result: ExTensor, alpha: Float32):
 
 
 @always_inline
-fn _elu_simd_float64(tensor: ExTensor, mut result: ExTensor, alpha: Float64):
+fn _elu_simd_float64(tensor: AnyTensor, mut result: AnyTensor, alpha: Float64):
     """SIMD ELU for float64 tensors."""
     from .activation_ops import exp_scalar_f64
 
@@ -404,10 +404,10 @@ fn _elu_simd_float64(tensor: ExTensor, mut result: ExTensor, alpha: Float64):
 
 
 fn selu_simd(
-    tensor: ExTensor,
+    tensor: AnyTensor,
     alpha: Float64 = 1.6732632423543772848170429916717,
     lambda_: Float64 = 1.0507009873554804934193349852946,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """SIMD-optimized SELU activation: λ * (x if x > 0 else α * (exp(x) - 1)).
 
     Uses vectorized operations for float32/float64 tensors,
@@ -431,7 +431,7 @@ fn selu_simd(
         var y = selu_simd(x)  # SIMD accelerated
         ```
     """
-    var result = ExTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor._shape, tensor._dtype)
 
     if tensor._dtype == DType.float32:
         _selu_simd_float32(tensor, result, Float32(alpha), Float32(lambda_))
@@ -448,7 +448,7 @@ fn selu_simd(
 
 @always_inline
 fn _selu_simd_float32(
-    tensor: ExTensor, mut result: ExTensor, alpha: Float32, lambda_: Float32
+    tensor: AnyTensor, mut result: AnyTensor, alpha: Float32, lambda_: Float32
 ):
     """SIMD SELU for float32 tensors."""
     comptime simd_width = simd_width_of[DType.float32]()
@@ -479,7 +479,7 @@ fn _selu_simd_float32(
 
 @always_inline
 fn _selu_simd_float64(
-    tensor: ExTensor, mut result: ExTensor, alpha: Float64, lambda_: Float64
+    tensor: AnyTensor, mut result: AnyTensor, alpha: Float64, lambda_: Float64
 ):
     """SIMD SELU for float64 tensors."""
     comptime simd_width = simd_width_of[DType.float64]()
@@ -513,7 +513,7 @@ fn _selu_simd_float64(
 # ============================================================================
 
 
-fn swish_simd(tensor: ExTensor) raises -> ExTensor:
+fn swish_simd(tensor: AnyTensor) raises -> AnyTensor:
     """SIMD-optimized Swish activation: x * sigmoid(x).
 
     Uses vectorized operations for float32/float64 tensors,
@@ -535,7 +535,7 @@ fn swish_simd(tensor: ExTensor) raises -> ExTensor:
         var y = swish_simd(x)  # SIMD accelerated
         ```
     """
-    var result = ExTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor._shape, tensor._dtype)
 
     if tensor._dtype == DType.float32:
         _swish_simd_float32(tensor, result)
@@ -551,7 +551,7 @@ fn swish_simd(tensor: ExTensor) raises -> ExTensor:
 
 
 @always_inline
-fn _swish_simd_float32(tensor: ExTensor, mut result: ExTensor):
+fn _swish_simd_float32(tensor: AnyTensor, mut result: AnyTensor):
     """SIMD Swish for float32 tensors."""
     comptime simd_width = simd_width_of[DType.float32]()
     var size = tensor._numel
@@ -583,7 +583,7 @@ fn _swish_simd_float32(tensor: ExTensor, mut result: ExTensor):
 
 
 @always_inline
-fn _swish_simd_float64(tensor: ExTensor, mut result: ExTensor):
+fn _swish_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
     """SIMD Swish for float64 tensors."""
     comptime simd_width = simd_width_of[DType.float64]()
     var size = tensor._numel

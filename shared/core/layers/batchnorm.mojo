@@ -11,7 +11,7 @@ Key components:
              y = gamma * (x - running_mean) / sqrt(running_var + eps) + beta (inference)
 """
 
-from ..extensor import AnyTensor, zeros, ones, zeros_like, ones_like
+from ..any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from ..normalization_simd import batch_norm2d_fused
 from shared.tensor.tensor import Tensor
 

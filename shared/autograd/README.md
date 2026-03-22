@@ -41,13 +41,13 @@ print(y.grad)  # ∂loss/∂y
 
 ### Variable
 
-`Variable` wraps an `ExTensor` and adds gradient tracking:
+`Variable` wraps an `AnyTensor` and adds gradient tracking:
 
 ```mojo
 from shared.autograd import Variable
 from shared.core import zeros
 
-# Create Variable from ExTensor
+# Create Variable from AnyTensor
 var data = zeros(DynamicVector[Int](3, 4), DType.float32)
 var x = Variable(data, requires_grad=True)
 
@@ -66,7 +66,7 @@ var y = x.detach()  # y shares data but doesn't track gradients
 
 **Key Methods:**
 
-- `__init__(data, requires_grad=False)`: Create Variable from ExTensor
+- `__init__(data, requires_grad=False)`: Create Variable from AnyTensor
 - `zero_grad()`: Reset gradients to None
 - `backward()`: Trigger backward pass (compute gradients)
 - `detach()`: Create new Variable without gradient tracking
@@ -302,12 +302,12 @@ the graph directly into tensors (like PyTorch) because:
 3. **Memory efficiency** - Tape can be cleared after backward pass
 4. **YAGNI principle** - We can add more sophisticated graph tracking later if needed
 
-### Integration with ExTensor
+### Integration with AnyTensor
 
-The autograd system **wraps** ExTensor rather than modifying it because:
+The autograd system **wraps** AnyTensor rather than modifying it because:
 
-1. **Separation of concerns** - ExTensor handles tensor ops, autograd handles differentiation
-2. **Backward compatibility** - Existing code using ExTensor continues to work
+1. **Separation of concerns** - AnyTensor handles tensor ops, autograd handles differentiation
+2. **Backward compatibility** - Existing code using AnyTensor continues to work
 3. **Optional gradients** - Not all tensors need gradient tracking
 4. **KISS principle** - Simpler architecture with clear boundaries
 

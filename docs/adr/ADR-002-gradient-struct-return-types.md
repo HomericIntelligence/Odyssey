@@ -14,7 +14,7 @@ compilation failures in backward pass functions that needed to return multiple g
 Functions like `add_backward()`, `matmul_backward()`, and `prelu_backward()` attempted to return tuples:
 
 ```mojo
-fn add_backward(...) raises -> (ExTensor, ExTensor):
+fn add_backward(...) raises -> (AnyTensor, AnyTensor):
     var grad_a = ...
     var grad_b = ...
     return (grad_a, grad_b)  // COMPILATION ERROR
@@ -52,21 +52,21 @@ Two struct types for different return arities:
 
 ```mojo
 struct GradientPair:
-    var grad_a: ExTensor
-    var grad_b: ExTensor
+    var grad_a: AnyTensor
+    var grad_b: AnyTensor
 
-    fn __init__(inout self, grad_a: ExTensor, grad_b: ExTensor):
+    fn __init__(inout self, grad_a: AnyTensor, grad_b: AnyTensor):
         self.grad_a = grad_a
         self.grad_b = grad_b
 ```
 
 ```mojo
 struct GradientTriple:
-    var grad_input: ExTensor
-    var grad_weights: ExTensor
-    var grad_bias: ExTensor
+    var grad_input: AnyTensor
+    var grad_weights: AnyTensor
+    var grad_bias: AnyTensor
 
-    fn __init__(inout self, grad_input: ExTensor, grad_weights: ExTensor, grad_bias: ExTensor):
+    fn __init__(inout self, grad_input: AnyTensor, grad_weights: AnyTensor, grad_bias: AnyTensor):
         self.grad_input = grad_input
         self.grad_weights = grad_weights
         self.grad_bias = grad_bias
@@ -101,8 +101,8 @@ var grad_b = grads.grad_b
 ### Option 1: Separate Functions
 
 ```mojo
-fn add_backward_a(grad_output, a_shape, b_shape) -> ExTensor
-fn add_backward_b(grad_output, a_shape, b_shape) -> ExTensor
+fn add_backward_a(grad_output, a_shape, b_shape) -> AnyTensor
+fn add_backward_b(grad_output, a_shape, b_shape) -> AnyTensor
 ```
 
 **Rejected**: Violates DRY principle, requires duplicate computation, poor API coherence.
@@ -118,7 +118,7 @@ fn add_backward(grad_output, a_shape, b_shape, inout grad_a, inout grad_b) raise
 ### Option 3: Python-style Tuple (current attempt)
 
 ```mojo
-fn add_backward(...) raises -> (ExTensor, ExTensor)
+fn add_backward(...) raises -> (AnyTensor, AnyTensor)
 ```
 
 **Rejected**: Does not compile reliably in Mojo v0.26.1.
@@ -134,7 +134,7 @@ fn add_backward(...) raises -> (ExTensor, ExTensor)
 
 2. **arithmetic.mojo**
    - Import `GradientPair`
-   - Change return type: `(ExTensor, ExTensor)` → `GradientPair`
+   - Change return type: `(AnyTensor, AnyTensor)` → `GradientPair`
    - Update return statements: `return (a, b)` → `return GradientPair(a, b)`
    - Update docstrings with new API example
 

@@ -10,10 +10,10 @@ See documentation: docs/core/mojo-patterns.md
 
 from algorithm import vectorize
 from sys.info import simd_width_of
-from shared.core import ExTensor
+from shared.core import AnyTensor
 
 
-fn simple_simd_add(tensor1: ExTensor, tensor2: ExTensor) raises -> ExTensor:
+fn simple_simd_add(tensor1: AnyTensor, tensor2: AnyTensor) raises -> AnyTensor:
     """Demonstrate SIMD addition using vectorize.
 
     Args:
@@ -26,7 +26,7 @@ fn simple_simd_add(tensor1: ExTensor, tensor2: ExTensor) raises -> ExTensor:
     if tensor1.numel() != tensor2.numel():
         raise Error("Tensors must have same number of elements")
 
-    var result = ExTensor(tensor1._shape, tensor1._dtype)
+    var result = AnyTensor(tensor1._shape, tensor1._dtype)
 
     if tensor1._dtype == DType.float32:
         comptime simd_width = simd_width_of[DType.float32]()
@@ -61,14 +61,14 @@ fn main() raises:
     data1.append(2.0)
     data1.append(3.0)
     data1.append(4.0)
-    var tensor1 = ExTensor(data1^)
+    var tensor1 = AnyTensor(data1^)
 
     var data2 = List[Float32]()
     data2.append(10.0)
     data2.append(20.0)
     data2.append(30.0)
     data2.append(40.0)
-    var tensor2 = ExTensor(data2^)
+    var tensor2 = AnyTensor(data2^)
 
     print("Input tensors: 4 elements each")
     print("Using SIMD width for float32:", simd_width_of[DType.float32]())

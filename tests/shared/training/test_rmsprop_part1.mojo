@@ -21,7 +21,7 @@ from tests.shared.conftest import (
     assert_shape_equal,
     TestFixtures,
 )
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.any_tensor import AnyTensor, zeros, ones
 from shared.training.optimizers.rmsprop import rmsprop_step, rmsprop_step_simple
 
 
