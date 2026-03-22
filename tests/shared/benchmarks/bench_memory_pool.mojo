@@ -3,7 +3,7 @@
 Compares pool vs system malloc for various allocation sizes.
 """
 
-from shared.core.memory_pool import get_global_pool, pooled_alloc, pooled_free
+from shared.base.memory_pool import get_global_pool, pooled_alloc, pooled_free
 from memory import alloc
 from time import perf_counter_ns
 

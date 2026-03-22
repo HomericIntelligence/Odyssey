@@ -23,7 +23,7 @@ Example:
 
 from collections import List
 from .any_tensor import AnyTensor
-from .broadcasting import broadcast_shapes, compute_broadcast_strides
+from shared.base.broadcasting import broadcast_shapes, compute_broadcast_strides
 
 
 # ============================================================================

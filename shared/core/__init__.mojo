@@ -80,7 +80,7 @@ from shared.version import VERSION
 # Default Hyperparameters
 # ============================================================================
 
-from shared.core.defaults import (
+from shared.base.defaults import (
     DEFAULT_LEAKY_RELU_ALPHA,
     DEFAULT_ELU_ALPHA,
     DEFAULT_HARD_TANH_MIN,
@@ -98,7 +98,7 @@ from shared.core.defaults import (
 # Mathematical Constants
 # ============================================================================
 
-from shared.core.math_constants import (
+from shared.base.math_constants import (
     PI,
     SQRT_2,
     SQRT_2_OVER_PI,
@@ -112,7 +112,7 @@ from shared.core.math_constants import (
 # Numerical Stability Constants
 # ============================================================================
 
-from shared.core.numerical_constants import (
+from shared.base.numerical_constants import (
     EPSILON_DIV,
     EPSILON_LOSS,
     EPSILON_NORM,
@@ -468,7 +468,7 @@ from shared.core.comparison import (
 # Broadcasting Utilities
 # ============================================================================
 
-from shared.core.broadcasting import (
+from shared.base.broadcasting import (
     broadcast_shapes,
     are_shapes_broadcastable,
     compute_broadcast_strides,
@@ -660,7 +660,7 @@ from shared.core.parallel_utils import (
 # Memory Pool for Efficient Small Allocations
 # ============================================================================
 
-from shared.core.memory_pool import (
+from shared.base.memory_pool import (
     TensorMemoryPool,
     PoolConfig,
     PoolStats,

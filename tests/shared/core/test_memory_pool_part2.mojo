@@ -10,7 +10,7 @@ Tests cover:
 - pooled_alloc/pooled_free functions
 """
 
-from shared.core.memory_pool import (
+from shared.base.memory_pool import (
     TensorMemoryPool,
     PoolConfig,
     PoolStats,

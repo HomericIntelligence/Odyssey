@@ -6,7 +6,7 @@ Implements element-wise comparison operations following NumPy-style broadcasting
 from collections import List
 from .any_tensor import AnyTensor
 from shared.tensor.tensor import Tensor
-from .broadcasting import broadcast_shapes, compute_broadcast_strides
+from shared.base.broadcasting import broadcast_shapes, compute_broadcast_strides
 
 
 # ============================================================================

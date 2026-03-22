@@ -42,7 +42,7 @@ See notes/issues/dtype-refactoring-plan.md for complete design documentation
 
 from .any_tensor import AnyTensor
 from collections import List
-from .dtype_ordinal import (
+from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     format_dtype_name,
     DTYPE_FLOAT16,

@@ -4,7 +4,7 @@ Tests DType to ordinal conversion and dtype name formatting.
 """
 
 from testing import assert_equal, assert_true, assert_false
-from shared.core.dtype_ordinal import (
+from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     format_dtype_name,
     DTYPE_FLOAT16,

@@ -1286,7 +1286,7 @@ fn broadcast_to(tensor: AnyTensor, target_shape: List[Int]) raises -> AnyTensor:
             var b = broadcast_to(a, target)  # Shape (4, 3)
     ```
     """
-    from .broadcasting import (
+    from shared.base.broadcasting import (
         are_shapes_broadcastable,
         compute_broadcast_strides,
     )

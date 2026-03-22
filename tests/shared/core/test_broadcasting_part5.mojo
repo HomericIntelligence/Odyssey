@@ -9,7 +9,7 @@ Broadcasting cannot reduce the number of dimensions: if shape2 has fewer
 dimensions than shape1, are_shapes_broadcastable must return False.
 """
 
-from shared.core.broadcasting import are_shapes_broadcastable
+from shared.base.broadcasting import are_shapes_broadcastable
 from testing import assert_true
 
 

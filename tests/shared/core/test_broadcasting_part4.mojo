@@ -54,7 +54,7 @@ fn test_broadcast_complex_3d_with_multiply() raises:
 
 fn test_broadcast_iterator_1d() raises:
     """Test BroadcastIterator with 1D tensors."""
-    from shared.core.broadcasting import BroadcastIterator
+    from shared.base.broadcasting import BroadcastIterator
 
     # Shape: [3]
     # Strides: [1] for both (no broadcasting)
@@ -88,7 +88,7 @@ fn test_broadcast_iterator_1d() raises:
 
 fn test_broadcast_iterator_2d_no_broadcast() raises:
     """Test BroadcastIterator with 2D tensors (no broadcasting)."""
-    from shared.core.broadcasting import BroadcastIterator
+    from shared.base.broadcasting import BroadcastIterator
 
     # Shape: [2, 3]
     # Strides: [3, 1] for both (row-major, no broadcasting)
@@ -141,7 +141,7 @@ fn test_broadcast_iterator_2d_no_broadcast() raises:
 
 fn test_broadcast_iterator_2d_broadcast_second() raises:
     """Test BroadcastIterator with 2D broadcast (second tensor is [1,3])."""
-    from shared.core.broadcasting import BroadcastIterator
+    from shared.base.broadcasting import BroadcastIterator
 
     # Shape: [2, 3] (broadcast result)
     # Tensor A: [2, 3], strides [3, 1]
@@ -193,7 +193,7 @@ fn test_broadcast_iterator_2d_broadcast_second() raises:
 
 fn test_broadcast_iterator_3d_complex() raises:
     """Test BroadcastIterator with complex 3D case."""
-    from shared.core.broadcasting import BroadcastIterator
+    from shared.base.broadcasting import BroadcastIterator
 
     # Shape: [2, 3, 4] (broadcast result)
     # Both tensors have same shape, strides [12, 4, 1]
@@ -230,7 +230,7 @@ fn test_broadcast_iterator_3d_complex() raises:
 
 fn test_broadcast_iterator_scalar_broadcast() raises:
     """Test BroadcastIterator broadcasting scalar to 1D."""
-    from shared.core.broadcasting import BroadcastIterator
+    from shared.base.broadcasting import BroadcastIterator
 
     # Shape: [5] (broadcast result)
     # Tensor A: [5], strides [1]
@@ -261,7 +261,7 @@ fn test_broadcast_iterator_scalar_broadcast() raises:
 
 fn test_broadcast_iterator_exhaustion() raises:
     """Test that BroadcastIterator properly signals exhaustion."""
-    from shared.core.broadcasting import BroadcastIterator
+    from shared.base.broadcasting import BroadcastIterator
 
     var shape = List[Int]()
     shape.append(2)
