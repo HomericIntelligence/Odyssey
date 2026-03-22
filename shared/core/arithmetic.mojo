@@ -1,6 +1,12 @@
-"""Arithmetic operations for AnyTensor with broadcasting support.
+"""Arithmetic operations with native Tensor[dtype] implementations.
 
 Implements element-wise arithmetic operations following NumPy-style broadcasting.
+Architecture: Tensor[dtype] typed implementations are the core (zero dtype branches).
+AnyTensor versions dispatch to typed implementations via ordinal-based table.
+
+Layer 1 (outer): AnyTensor public API (add, subtract, etc.)
+Layer 2: dtype dispatch table (ordinal-based)
+Layer 3 (core): Tensor[dtype] native implementation (_broadcast_binary_typed)
 """
 
 from collections import List
@@ -27,46 +33,42 @@ from shared.base.dtype_ordinal import (
 
 
 # ============================================================================
-# Generic Broadcasting Helper (eliminates code duplication and conversion overhead)
+# Layer 3 (Core): Native Tensor[dtype] Broadcasting Implementation
 # ============================================================================
 
 
-fn _broadcast_binary[
+fn _broadcast_binary_typed[
     dtype: DType, op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
-](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
-    """Apply binary operation with broadcasting and compile-time dtype specialization.
+](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[dtype]:
+    """Apply binary operation with broadcasting on native Tensor[dtype].
 
-    This helper eliminates 200+ lines of duplicated broadcasting code and removes
-    dtype conversion overhead by using compile-time specialization.
+    This is the core implementation -- zero dtype branches, zero bitcasts.
+    Tensor[dtype]._data is already typed as UnsafePointer[Scalar[dtype]].
 
     Parameters:
         dtype: Compile-time dtype parameter.
         op: Binary operation function (e.g., add, subtract, multiply, divide).
 
     Args:
-        a: First tensor.
-        b: Second tensor.
-
-    Example:
-        ```mojo
-        fn add_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
-            return x + y
-
-        var result = _broadcast_binary[DType.float32, add_op](a, b)
-        ```
+        a: First tensor (typed).
+        b: Second tensor (typed).
 
     Returns:
-        Result tensor with operation applied element-wise with broadcasting.
+        Result Tensor[dtype] with operation applied element-wise with broadcasting.
     """
     # Ensure inputs are contiguous before flat-buffer kernel access.
     # Non-contiguous views (e.g. from transpose) have non-unit strides that
     # are not reflected in flat index arithmetic, causing silent wrong results.
-    var a_cont = a if a.is_contiguous() else as_contiguous(a)
-    var b_cont = b if b.is_contiguous() else as_contiguous(b)
+    # Tensor[dtype] lacks as_contiguous(), so we round-trip via AnyTensor only
+    # when needed (rare path -- most tensors are contiguous).
+    var a_any = a.as_any()
+    var b_any = b.as_any()
+    var a_cont = a_any if a.is_contiguous() else as_contiguous(a_any)
+    var b_cont = b_any if b.is_contiguous() else as_contiguous(b_any)
 
     # Compute broadcast shape
     var result_shape = broadcast_shapes(a_cont.shape(), b_cont.shape())
-    var result = AnyTensor(result_shape, dtype)
+    var result = Tensor[dtype](result_shape)
 
     # Compute broadcast strides
     var strides_a = compute_broadcast_strides(a_cont.shape(), result_shape)
@@ -89,10 +91,12 @@ fn _broadcast_binary[
     for i in range(len(result_strides) - 1, -1, -1):
         result_strides_final.append(result_strides[i])
 
-    # Get typed pointers for zero-overhead access
+    # Get typed pointers -- Tensor[dtype]._data is already typed, but
+    # a_cont/b_cont are AnyTensor (from contiguity check), so bitcast from
+    # their UInt8 storage. Result uses native typed pointer directly.
     var a_ptr = a_cont._data.bitcast[Scalar[dtype]]()
     var b_ptr = b_cont._data.bitcast[Scalar[dtype]]()
-    var result_ptr = result._data.bitcast[Scalar[dtype]]()
+    var result_ptr = result._data
 
     # Iterate over all result elements
     for result_idx in range(total_elems):
@@ -114,15 +118,47 @@ fn _broadcast_binary[
     return result^
 
 
+# ============================================================================
+# Layer 2: AnyTensor Broadcasting Helper (delegates to typed core)
+# ============================================================================
+
+
+fn _broadcast_binary[
+    dtype: DType, op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+    """Apply binary operation with broadcasting via typed core.
+
+    Converts AnyTensor inputs to Tensor[dtype], calls the typed implementation,
+    and converts the result back to AnyTensor.
+
+    Parameters:
+        dtype: Compile-time dtype parameter.
+        op: Binary operation function (e.g., add, subtract, multiply, divide).
+
+    Args:
+        a: First tensor.
+        b: Second tensor.
+
+    Returns:
+        Result tensor with operation applied element-wise with broadcasting.
+    """
+    return _broadcast_binary_typed[dtype, op](
+        a.as_tensor[dtype](), b.as_tensor[dtype]()
+    ).as_any()
+
+
+# ============================================================================
+# Layer 2: Runtime Dtype Dispatch (ordinal-based jump table)
+# ============================================================================
+
+
 fn _dispatch_broadcast_binary[
     op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
-    """Runtime dispatch to compile-time specialized broadcasting binary operation.
+    """Runtime dispatch to compile-time specialized Tensor[dtype] implementation.
 
-    This dispatcher performs runtime dtype checking but dispatches to compile-time
-    specialized versions, ensuring zero overhead compared to hand-written dtype branches.
-
-    Uses ordinal-based dispatch for optimized lookup (compiler can generate jump table).
+    Performs runtime dtype checking and dispatches to the typed core via
+    ordinal-based lookup (compiler can generate jump table).
 
     Parameters:
         op: Binary operation function pointer.
@@ -318,14 +354,44 @@ fn divide(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     return _dispatch_broadcast_binary[_div_op](a, b)
 
 
+fn _multiply_scalar_typed[
+    dt: DType
+](tensor: Tensor[dt], scalar: Float32) raises -> Tensor[dt]:
+    """Native typed scalar multiplication (Layer 3 core).
+
+    Multiplies each element by a scalar without creating an intermediate
+    full tensor. Zero dtype branches -- pointer is already typed.
+
+    Args:
+        tensor: Input tensor (typed).
+        scalar: Scalar value to multiply by.
+
+    Returns:
+        A new Tensor[dt] with each element multiplied by the scalar.
+    """
+    # Ensure input is contiguous before flat-buffer kernel access.
+    # Tensor[dt] lacks as_contiguous(), so round-trip via AnyTensor if needed.
+    var t_any = tensor.as_any()
+    var t_cont = t_any if tensor.is_contiguous() else as_contiguous(t_any)
+
+    var result = Tensor[dt](t_cont.shape())
+    var numel = result.numel()
+
+    var input_ptr = t_cont._data.bitcast[Scalar[dt]]()
+    var result_ptr = result._data
+    var scalar_cast = Scalar[dt](scalar)
+    for i in range(numel):
+        result_ptr[i] = input_ptr[i] * scalar_cast
+
+    return result^
+
+
 fn multiply_scalar(tensor: AnyTensor, scalar: Float32) raises -> AnyTensor:
     """Multiply tensor by a scalar value efficiently.
 
-    Optimized version that multiplies each element by a scalar without
-    creating an intermediate full tensor. Useful for operations like negation
-    (multiply by -1.0) or scaling in gradient computations.
-
-    Uses ordinal-based dispatch for optimized lookup (compiler can generate jump table).
+    Dispatches to native Tensor[dtype] implementation via ordinal-based table.
+    Useful for operations like negation (multiply by -1.0) or scaling in
+    gradient computations.
 
     Args:
         tensor: Input tensor to multiply.
@@ -346,88 +412,56 @@ fn multiply_scalar(tensor: AnyTensor, scalar: Float32) raises -> AnyTensor:
         var negated = multiply_scalar(b, -1.0)  # Shape (2, 3), all -3.0
         ```
     """
-    # Ensure input is contiguous before flat-buffer kernel access.
-    var t = tensor if tensor.is_contiguous() else as_contiguous(tensor)
-
-    var result = AnyTensor(t.shape(), t.dtype())
-    var numel = 1
-    for dim in t.shape():
-        numel *= dim
-
     # Get ordinal for dispatch (compiler can optimize to efficient lookup)
-    var ordinal = dtype_to_ordinal(t.dtype())
+    var ordinal = dtype_to_ordinal(tensor.dtype())
 
-    # Dispatch based on ordinal - compiler generates jump table for consecutive integers
+    # Dispatch to typed core via ordinal-based jump table
     if ordinal == DTYPE_FLOAT16:
-        var input_ptr = t._data.bitcast[Scalar[DType.float16]]()
-        var result_ptr = result._data.bitcast[Scalar[DType.float16]]()
-        var scalar_cast = Scalar[DType.float16](scalar)
-        for i in range(numel):
-            result_ptr[i] = input_ptr[i] * scalar_cast
+        return _multiply_scalar_typed[DType.float16](
+            tensor.as_tensor[DType.float16](), scalar
+        ).as_any()
     elif ordinal == DTYPE_FLOAT32:
-        var input_ptr = t._data.bitcast[Scalar[DType.float32]]()
-        var result_ptr = result._data.bitcast[Scalar[DType.float32]]()
-        var scalar_cast = Scalar[DType.float32](scalar)
-        for i in range(numel):
-            result_ptr[i] = input_ptr[i] * scalar_cast
+        return _multiply_scalar_typed[DType.float32](
+            tensor.as_tensor[DType.float32](), scalar
+        ).as_any()
     elif ordinal == DTYPE_FLOAT64:
-        var input_ptr = t._data.bitcast[Scalar[DType.float64]]()
-        var result_ptr = result._data.bitcast[Scalar[DType.float64]]()
-        var scalar_cast = Scalar[DType.float64](scalar)
-        for i in range(numel):
-            result_ptr[i] = input_ptr[i] * scalar_cast
+        return _multiply_scalar_typed[DType.float64](
+            tensor.as_tensor[DType.float64](), scalar
+        ).as_any()
     elif ordinal == DTYPE_INT8:
-        var input_ptr = t._data.bitcast[Scalar[DType.int8]]()
-        var result_ptr = result._data.bitcast[Scalar[DType.int8]]()
-        var scalar_cast = Scalar[DType.int8](scalar)
-        for i in range(numel):
-            result_ptr[i] = input_ptr[i] * scalar_cast
+        return _multiply_scalar_typed[DType.int8](
+            tensor.as_tensor[DType.int8](), scalar
+        ).as_any()
     elif ordinal == DTYPE_INT16:
-        var input_ptr = t._data.bitcast[Scalar[DType.int16]]()
-        var result_ptr = result._data.bitcast[Scalar[DType.int16]]()
-        var scalar_cast = Scalar[DType.int16](scalar)
-        for i in range(numel):
-            result_ptr[i] = input_ptr[i] * scalar_cast
+        return _multiply_scalar_typed[DType.int16](
+            tensor.as_tensor[DType.int16](), scalar
+        ).as_any()
     elif ordinal == DTYPE_INT32:
-        var input_ptr = t._data.bitcast[Scalar[DType.int32]]()
-        var result_ptr = result._data.bitcast[Scalar[DType.int32]]()
-        var scalar_cast = Scalar[DType.int32](scalar)
-        for i in range(numel):
-            result_ptr[i] = input_ptr[i] * scalar_cast
+        return _multiply_scalar_typed[DType.int32](
+            tensor.as_tensor[DType.int32](), scalar
+        ).as_any()
     elif ordinal == DTYPE_INT64:
-        var input_ptr = t._data.bitcast[Scalar[DType.int64]]()
-        var result_ptr = result._data.bitcast[Scalar[DType.int64]]()
-        var scalar_cast = Scalar[DType.int64](scalar)
-        for i in range(numel):
-            result_ptr[i] = input_ptr[i] * scalar_cast
+        return _multiply_scalar_typed[DType.int64](
+            tensor.as_tensor[DType.int64](), scalar
+        ).as_any()
     elif ordinal == DTYPE_UINT8:
-        var input_ptr = t._data.bitcast[Scalar[DType.uint8]]()
-        var result_ptr = result._data.bitcast[Scalar[DType.uint8]]()
-        var scalar_cast = Scalar[DType.uint8](scalar)
-        for i in range(numel):
-            result_ptr[i] = input_ptr[i] * scalar_cast
+        return _multiply_scalar_typed[DType.uint8](
+            tensor.as_tensor[DType.uint8](), scalar
+        ).as_any()
     elif ordinal == DTYPE_UINT16:
-        var input_ptr = t._data.bitcast[Scalar[DType.uint16]]()
-        var result_ptr = result._data.bitcast[Scalar[DType.uint16]]()
-        var scalar_cast = Scalar[DType.uint16](scalar)
-        for i in range(numel):
-            result_ptr[i] = input_ptr[i] * scalar_cast
+        return _multiply_scalar_typed[DType.uint16](
+            tensor.as_tensor[DType.uint16](), scalar
+        ).as_any()
     elif ordinal == DTYPE_UINT32:
-        var input_ptr = t._data.bitcast[Scalar[DType.uint32]]()
-        var result_ptr = result._data.bitcast[Scalar[DType.uint32]]()
-        var scalar_cast = Scalar[DType.uint32](scalar)
-        for i in range(numel):
-            result_ptr[i] = input_ptr[i] * scalar_cast
+        return _multiply_scalar_typed[DType.uint32](
+            tensor.as_tensor[DType.uint32](), scalar
+        ).as_any()
     elif ordinal == DTYPE_UINT64:
-        var input_ptr = t._data.bitcast[Scalar[DType.uint64]]()
-        var result_ptr = result._data.bitcast[Scalar[DType.uint64]]()
-        var scalar_cast = Scalar[DType.uint64](scalar)
-        for i in range(numel):
-            result_ptr[i] = input_ptr[i] * scalar_cast
+        return _multiply_scalar_typed[DType.uint64](
+            tensor.as_tensor[DType.uint64](), scalar
+        ).as_any()
     else:
         raise Error("Unsupported dtype for multiply_scalar operation")
-
-    return result^
 
 
 fn floor_divide(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
@@ -833,12 +867,14 @@ fn divide_backward(
 
 
 # ============================================================================
-# Typed Tensor[dtype] overloads — wrap AnyTensor versions via as_any/as_tensor
+# Typed Tensor[dtype] overloads — direct call to typed core (no round-trip)
 # ============================================================================
 
 
 fn add_typed[dt: DType](a: Tensor[dt], b: Tensor[dt]) raises -> Tensor[dt]:
-    """Element-wise addition (typed version).
+    """Element-wise addition (typed version, zero dtype branches).
+
+    Calls the native Tensor[dtype] implementation directly.
 
     Args:
         a: First input tensor.
@@ -847,13 +883,20 @@ fn add_typed[dt: DType](a: Tensor[dt], b: Tensor[dt]) raises -> Tensor[dt]:
     Returns:
         A new Tensor[dt] with element-wise sum.
     """
-    return add(a.as_any(), b.as_any()).as_tensor[dt]()
+
+    @always_inline
+    fn _add_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+        return x + y
+
+    return _broadcast_binary_typed[dt, _add_op](a, b)
 
 
 fn subtract_typed[dt: DType](
     a: Tensor[dt], b: Tensor[dt]
 ) raises -> Tensor[dt]:
-    """Element-wise subtraction (typed version).
+    """Element-wise subtraction (typed version, zero dtype branches).
+
+    Calls the native Tensor[dtype] implementation directly.
 
     Args:
         a: First input tensor.
@@ -862,13 +905,20 @@ fn subtract_typed[dt: DType](
     Returns:
         A new Tensor[dt] with element-wise difference.
     """
-    return subtract(a.as_any(), b.as_any()).as_tensor[dt]()
+
+    @always_inline
+    fn _sub_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+        return x - y
+
+    return _broadcast_binary_typed[dt, _sub_op](a, b)
 
 
 fn multiply_typed[dt: DType](
     a: Tensor[dt], b: Tensor[dt]
 ) raises -> Tensor[dt]:
-    """Element-wise multiplication (typed version).
+    """Element-wise multiplication (typed version, zero dtype branches).
+
+    Calls the native Tensor[dtype] implementation directly.
 
     Args:
         a: First input tensor.
@@ -877,13 +927,20 @@ fn multiply_typed[dt: DType](
     Returns:
         A new Tensor[dt] with element-wise product.
     """
-    return multiply(a.as_any(), b.as_any()).as_tensor[dt]()
+
+    @always_inline
+    fn _mul_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+        return x * y
+
+    return _broadcast_binary_typed[dt, _mul_op](a, b)
 
 
 fn divide_typed[dt: DType](
     a: Tensor[dt], b: Tensor[dt]
 ) raises -> Tensor[dt]:
-    """Element-wise division (typed version).
+    """Element-wise division (typed version, zero dtype branches).
+
+    Calls the native Tensor[dtype] implementation directly.
 
     Args:
         a: First input tensor.
@@ -892,4 +949,110 @@ fn divide_typed[dt: DType](
     Returns:
         A new Tensor[dt] with element-wise quotient.
     """
-    return divide(a.as_any(), b.as_any()).as_tensor[dt]()
+
+    @always_inline
+    fn _div_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+        return x / y
+
+    return _broadcast_binary_typed[dt, _div_op](a, b)
+
+
+fn floor_divide_typed[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[dt]:
+    """Element-wise floor division (typed version, zero dtype branches).
+
+    Calls the native Tensor[dtype] implementation directly.
+
+    Args:
+        a: First input tensor.
+        b: Second input tensor.
+
+    Returns:
+        A new Tensor[dt] with element-wise floor quotient.
+    """
+
+    @always_inline
+    fn _floor_div_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+        @parameter
+        if T.is_floating_point():
+            if y == Scalar[T](0):
+                return x / y
+        var div_result = x / y
+        var as_int = Int(div_result)
+        var floored = Scalar[T](as_int) if div_result >= Scalar[T](
+            0
+        ) else Scalar[T](as_int - 1)
+        return floored
+
+    return _broadcast_binary_typed[dt, _floor_div_op](a, b)
+
+
+fn modulo_typed[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[dt]:
+    """Element-wise modulo (typed version, zero dtype branches).
+
+    Calls the native Tensor[dtype] implementation directly.
+
+    Args:
+        a: First input tensor.
+        b: Second input tensor.
+
+    Returns:
+        A new Tensor[dt] with element-wise modulo result.
+    """
+
+    @always_inline
+    fn _mod_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+        @parameter
+        if T.is_floating_point():
+            if y == Scalar[T](0):
+                return Scalar[T](nan[T]())
+        var div_result = x / y
+        var as_int = Int(div_result)
+        var floored = Scalar[T](as_int) if div_result >= Scalar[T](
+            0
+        ) else Scalar[T](as_int - 1)
+        return x - floored * y
+
+    return _broadcast_binary_typed[dt, _mod_op](a, b)
+
+
+fn power_typed[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[dt]:
+    """Element-wise power (typed version, zero dtype branches).
+
+    Calls the native Tensor[dtype] implementation directly.
+
+    Args:
+        a: Base tensor.
+        b: Exponent tensor.
+
+    Returns:
+        A new Tensor[dt] with element-wise power result.
+    """
+
+    @always_inline
+    fn _pow_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+        return x**y
+
+    return _broadcast_binary_typed[dt, _pow_op](a, b)
+
+
+fn multiply_scalar_typed[dt: DType](
+    tensor: Tensor[dt], scalar: Float32
+) raises -> Tensor[dt]:
+    """Multiply tensor by a scalar (typed version, zero dtype branches).
+
+    Calls the native Tensor[dtype] implementation directly.
+
+    Args:
+        tensor: Input tensor.
+        scalar: Scalar value to multiply by.
+
+    Returns:
+        A new Tensor[dt] with each element multiplied by the scalar.
+    """
+    return _multiply_scalar_typed[dt](tensor, scalar)
