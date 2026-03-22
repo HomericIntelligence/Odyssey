@@ -5,6 +5,7 @@ Implements mathematical functions like exp, log, sqrt, trigonometric functions, 
 
 from collections import List
 from .extensor import ExTensor
+from shared.tensor.tensor import Tensor
 from .dtype_dispatch import (
     dispatch_unary,
     dispatch_binary,
@@ -1603,3 +1604,80 @@ fn log2_backward(grad_output: ExTensor, x: ExTensor) raises -> ExTensor:
     var result = ExTensor(grad_output.shape(), grad_output.dtype())
     _dispatch_log2_backward(result, grad_output, x, grad_output.numel())
     return result
+
+
+# ============================================================================
+# Typed Tensor[dtype] overloads — wrap AnyTensor versions via as_any/as_tensor
+# ============================================================================
+
+
+fn exp[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise exponential (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        A new Tensor[dt] with exp applied element-wise.
+    """
+    return exp(tensor.as_any()).as_tensor[dt]()
+
+
+fn log[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise natural logarithm (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        A new Tensor[dt] with log applied element-wise.
+    """
+    return log(tensor.as_any()).as_tensor[dt]()
+
+
+fn sqrt[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise square root (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        A new Tensor[dt] with sqrt applied element-wise.
+    """
+    return sqrt(tensor.as_any()).as_tensor[dt]()
+
+
+fn abs[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise absolute value (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        A new Tensor[dt] with abs applied element-wise.
+    """
+    return abs(tensor.as_any()).as_tensor[dt]()
+
+
+fn sin[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise sine (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        A new Tensor[dt] with sin applied element-wise.
+    """
+    return sin(tensor.as_any()).as_tensor[dt]()
+
+
+fn cos[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise cosine (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        A new Tensor[dt] with cos applied element-wise.
+    """
+    return cos(tensor.as_any()).as_tensor[dt]()

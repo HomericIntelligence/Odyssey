@@ -13,6 +13,7 @@ Includes:
 from collections import List
 from memory import memcpy
 from .extensor import ExTensor
+from shared.tensor.tensor import Tensor
 from .gradient_types import GradientPair
 from .shape import as_contiguous
 
@@ -1612,3 +1613,38 @@ fn transpose_backward(
 
     # Apply inverse permutation to gradient
     return transpose(grad_output, inverse_perm^)
+
+
+# ============================================================================
+# Typed Tensor[dtype] overloads — wrap AnyTensor versions via as_any/as_tensor
+# ============================================================================
+
+
+fn matmul[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[dt]:
+    """Matrix multiplication (typed version).
+
+    Args:
+        a: First input tensor.
+        b: Second input tensor.
+
+    Returns:
+        A new Tensor[dt] with the matrix product.
+    """
+    return matmul(a.as_any(), b.as_any()).as_tensor[dt]()
+
+
+fn transpose[dt: DType](
+    tensor: Tensor[dt], axes: Optional[List[Int]] = None
+) raises -> Tensor[dt]:
+    """Transpose tensor dimensions (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+        axes: Optional permutation of axes. If None, reverses all axes.
+
+    Returns:
+        A new Tensor[dt] with permuted dimensions.
+    """
+    return transpose(tensor.as_any(), axes).as_tensor[dt]()

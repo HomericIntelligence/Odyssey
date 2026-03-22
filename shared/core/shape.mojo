@@ -12,6 +12,7 @@ Optimizations:
 from collections import List
 from memory import memcpy, UnsafePointer
 from .extensor import ExTensor
+from shared.tensor.tensor import Tensor
 
 
 # ============================================================================
@@ -1433,3 +1434,95 @@ fn permute(tensor: ExTensor, dims: List[Int]) raises -> ExTensor:
         result._set_float64(i, val)
 
     return result^
+
+
+# ============================================================================
+# Typed Tensor[dtype] overloads — wrap AnyTensor versions via as_any/as_tensor
+# ============================================================================
+
+
+fn reshape[dt: DType](
+    tensor: Tensor[dt], new_shape: List[Int]
+) raises -> Tensor[dt]:
+    """Reshape tensor to new shape (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+        new_shape: Target shape (must have same total elements).
+
+    Returns:
+        A new Tensor[dt] with the given shape.
+    """
+    return reshape(tensor.as_any(), new_shape).as_tensor[dt]()
+
+
+fn squeeze[dt: DType](
+    tensor: Tensor[dt], axis: Int = -999
+) raises -> Tensor[dt]:
+    """Remove size-1 dimensions (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+        axis: Specific axis to squeeze, or -999 for all size-1 dims.
+
+    Returns:
+        A new Tensor[dt] with size-1 dimensions removed.
+    """
+    return squeeze(tensor.as_any(), axis).as_tensor[dt]()
+
+
+fn unsqueeze[dt: DType](tensor: Tensor[dt], axis: Int) raises -> Tensor[dt]:
+    """Insert a size-1 dimension at the given axis (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+        axis: Position to insert the new dimension.
+
+    Returns:
+        A new Tensor[dt] with an added size-1 dimension.
+    """
+    return unsqueeze(tensor.as_any(), axis).as_tensor[dt]()
+
+
+fn expand_dims[dt: DType](
+    tensor: Tensor[dt], axis: Int
+) raises -> Tensor[dt]:
+    """Insert a size-1 dimension at the given axis (typed version).
+
+    Alias for unsqueeze, following NumPy naming convention.
+
+    Args:
+        tensor: Input typed tensor.
+        axis: Position to insert the new dimension.
+
+    Returns:
+        A new Tensor[dt] with an added size-1 dimension.
+    """
+    return expand_dims(tensor.as_any(), axis).as_tensor[dt]()
+
+
+fn flatten[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Flatten tensor to 1D (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        A new 1D Tensor[dt] with all elements in row-major order.
+    """
+    return flatten(tensor.as_any()).as_tensor[dt]()
+
+
+fn broadcast_to[dt: DType](
+    tensor: Tensor[dt], target_shape: List[Int]
+) raises -> Tensor[dt]:
+    """Broadcast tensor to target shape (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+        target_shape: Shape to broadcast to.
+
+    Returns:
+        A new Tensor[dt] broadcast to the target shape.
+    """
+    return broadcast_to(tensor.as_any(), target_shape).as_tensor[dt]()

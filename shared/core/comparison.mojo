@@ -5,6 +5,7 @@ Implements element-wise comparison operations following NumPy-style broadcasting
 
 from collections import List
 from .extensor import ExTensor
+from shared.tensor.tensor import Tensor
 from .broadcasting import broadcast_shapes, compute_broadcast_strides
 
 
@@ -730,3 +731,68 @@ fn greater_equal(a: ExTensor, b: ExTensor) raises -> ExTensor:
         result, a, b, strides_a, strides_b, result_shape, total_elems
     )
     return result^
+
+
+# ============================================================================
+# Typed Tensor[dtype] overloads — wrap AnyTensor versions via as_any/as_tensor
+# ============================================================================
+
+
+fn equal[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[DType.bool]:
+    """Element-wise equality comparison (typed version).
+
+    Args:
+        a: First input tensor.
+        b: Second input tensor.
+
+    Returns:
+        A new Tensor[DType.bool] with element-wise equality results.
+    """
+    return equal(a.as_any(), b.as_any()).as_tensor[DType.bool]()
+
+
+fn not_equal[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[DType.bool]:
+    """Element-wise inequality comparison (typed version).
+
+    Args:
+        a: First input tensor.
+        b: Second input tensor.
+
+    Returns:
+        A new Tensor[DType.bool] with element-wise inequality results.
+    """
+    return not_equal(a.as_any(), b.as_any()).as_tensor[DType.bool]()
+
+
+fn less[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[DType.bool]:
+    """Element-wise less-than comparison (typed version).
+
+    Args:
+        a: First input tensor.
+        b: Second input tensor.
+
+    Returns:
+        A new Tensor[DType.bool] with element-wise less-than results.
+    """
+    return less(a.as_any(), b.as_any()).as_tensor[DType.bool]()
+
+
+fn greater[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[DType.bool]:
+    """Element-wise greater-than comparison (typed version).
+
+    Args:
+        a: First input tensor.
+        b: Second input tensor.
+
+    Returns:
+        A new Tensor[DType.bool] with element-wise greater-than results.
+    """
+    return greater(a.as_any(), b.as_any()).as_tensor[DType.bool]()

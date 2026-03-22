@@ -3398,18 +3398,23 @@ struct AnyTensor(
         """
         return self.clone()
 
-    fn as_tensor[dtype: DType](self) raises:
+    fn as_tensor[dtype: DType](self) raises -> Tensor[dtype]:
         """Zero-copy conversion to compile-time typed Tensor[dtype].
 
         Creates a Tensor[dtype] that shares the same data buffer and refcount.
         The dtype parameter must match self._dtype at runtime.
 
+        Uses a function-scoped import to break the circular dependency
+        (extensor.mojo <- tensor.mojo <- extensor.mojo).
+
         Args:
             dtype: The compile-time DType parameter (must match self._dtype).
 
+        Returns:
+            A Tensor[dtype] sharing the same data and refcount.
+
         Raises:
-            Error: If dtype doesn't match self._dtype, or if Tensor[dtype]
-                is not yet available.
+            Error: If dtype doesn't match self._dtype.
         """
         if self._dtype != dtype:
             raise Error(
@@ -3418,8 +3423,20 @@ struct AnyTensor(
                 + " but as_tensor called with "
                 + String(dtype)
             )
-        # TODO: Wire up after Tensor[dtype] is available in shared.tensor.tensor
-        raise Error("as_tensor: not yet implemented — awaiting Tensor[dtype] struct")
+        # Local import to break circular dependency
+        from shared.tensor.tensor import Tensor
+
+        # Zero-copy: bitcast data pointer, share refcount
+        return Tensor[dtype](
+            self._data.bitcast[Scalar[dtype]](),
+            self._shape,
+            self._strides,
+            self._refcount,
+            self._numel,
+            self._is_view,
+            self._allocated_size,
+            self._original_numel_quantized,
+        )
 
     # ============================================================================
     # Utility Methods
