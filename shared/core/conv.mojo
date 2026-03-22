@@ -25,7 +25,7 @@ from .gradient_types import (
     DepthwiseConv2dNoBiasGradient,
 )
 from .parallel_utils import should_parallelize
-from .dtype_ordinal import (
+from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,

@@ -824,18 +824,16 @@ fn maxpool2d_typed[
     dt: DType
 ](
     x: Tensor[dt],
-    kernel_h: Int,
-    kernel_w: Int,
-    stride: Int = 1,
+    kernel_size: Int,
+    stride: Int = 0,
     padding: Int = 0,
 ) raises -> Tensor[dt]:
     """Typed overload of maxpool2d for Tensor[dtype].
 
     Args:
         x: Input tensor of shape (batch, channels, height, width).
-        kernel_h: Kernel height.
-        kernel_w: Kernel width.
-        stride: Stride (default: 1).
+        kernel_size: Size of the pooling window.
+        stride: Stride (default: kernel_size if 0).
         padding: Padding (default: 0).
 
     Returns:
@@ -845,7 +843,7 @@ fn maxpool2d_typed[
         Error if tensor operations fail.
     """
     return maxpool2d(
-        x.as_any(), kernel_h, kernel_w, stride, padding
+        x.as_any(), kernel_size, stride, padding
     ).as_tensor[dt]()
 
 
@@ -853,18 +851,16 @@ fn avgpool2d_typed[
     dt: DType
 ](
     x: Tensor[dt],
-    kernel_h: Int,
-    kernel_w: Int,
-    stride: Int = 1,
+    kernel_size: Int,
+    stride: Int = 0,
     padding: Int = 0,
 ) raises -> Tensor[dt]:
     """Typed overload of avgpool2d for Tensor[dtype].
 
     Args:
         x: Input tensor of shape (batch, channels, height, width).
-        kernel_h: Kernel height.
-        kernel_w: Kernel width.
-        stride: Stride (default: 1).
+        kernel_size: Size of the pooling window.
+        stride: Stride (default: kernel_size if 0).
         padding: Padding (default: 0).
 
     Returns:
@@ -874,7 +870,7 @@ fn avgpool2d_typed[
         Error if tensor operations fail.
     """
     return avgpool2d(
-        x.as_any(), kernel_h, kernel_w, stride, padding
+        x.as_any(), kernel_size, stride, padding
     ).as_tensor[dt]()
 
 

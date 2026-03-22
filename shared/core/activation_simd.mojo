@@ -619,12 +619,14 @@ fn _relu_simd_typed[dt: DType](input: Tensor[dt], mut result: Tensor[dt]):
     """SIMD ReLU for native Tensor[dtype] -- zero bitcasts."""
     comptime simd_width = simd_width_of[dt]()
     var size = input.numel()
+    var in_ptr = input._data
+    var out_ptr = result._data
 
     @parameter
     fn vectorized_relu[width: Int](idx: Int) unified {mut}:
-        var vec = input._data.load[width=width](idx)
+        var vec = in_ptr.load[width=width](idx)
         var zero_vec = SIMD[dt, width](0)
-        result._data.store[width=width](idx, max(zero_vec, vec))
+        out_ptr.store[width=width](idx, max(zero_vec, vec))
 
     vectorize[simd_width](size, vectorized_relu)
 
@@ -652,13 +654,15 @@ fn _leaky_relu_simd_typed[dt: DType](
     """SIMD Leaky ReLU for native Tensor[dtype] -- zero bitcasts."""
     comptime simd_width = simd_width_of[dt]()
     var size = input.numel()
+    var in_ptr = input._data
+    var out_ptr = result._data
 
     @parameter
     fn vectorized_leaky_relu[width: Int](idx: Int) unified {mut}:
-        var vec = input._data.load[width=width](idx)
+        var vec = in_ptr.load[width=width](idx)
         var alpha_vec = SIMD[dt, width](alpha)
         var scaled = alpha_vec * vec
-        result._data.store[width=width](idx, max(scaled, vec))
+        out_ptr.store[width=width](idx, max(scaled, vec))
 
     vectorize[simd_width](size, vectorized_leaky_relu)
 
@@ -686,10 +690,12 @@ fn _elu_simd_typed[dt: DType](
     """SIMD ELU for native Tensor[dtype] -- zero bitcasts."""
     comptime simd_width = simd_width_of[dt]()
     var size = input.numel()
+    var in_ptr = input._data
+    var out_ptr = result._data
 
     @parameter
     fn vectorized_elu[width: Int](idx: Int) unified {mut}:
-        var vec = input._data.load[width=width](idx)
+        var vec = in_ptr.load[width=width](idx)
         var zero_vec = SIMD[dt, width](0)
         var one_vec = SIMD[dt, width](1)
         var alpha_vec = SIMD[dt, width](alpha)
@@ -700,7 +706,7 @@ fn _elu_simd_typed[dt: DType](
         var neg_result = alpha_vec * (exp_result - one_vec)
 
         var mask = vec.gt(zero_vec)
-        result._data.store[width=width](idx, mask.select(pos_result, neg_result))
+        out_ptr.store[width=width](idx, mask.select(pos_result, neg_result))
 
     vectorize[simd_width](size, vectorized_elu)
 
@@ -728,10 +734,12 @@ fn _selu_simd_typed[dt: DType](
     """SIMD SELU for native Tensor[dtype] -- zero bitcasts."""
     comptime simd_width = simd_width_of[dt]()
     var size = input.numel()
+    var in_ptr = input._data
+    var out_ptr = result._data
 
     @parameter
     fn vectorized_selu[width: Int](idx: Int) unified {mut}:
-        var vec = input._data.load[width=width](idx)
+        var vec = in_ptr.load[width=width](idx)
         var zero_vec = SIMD[dt, width](0)
         var one_vec = SIMD[dt, width](1)
         var alpha_vec = SIMD[dt, width](alpha)
@@ -743,7 +751,7 @@ fn _selu_simd_typed[dt: DType](
         var neg_result = lambda_vec * alpha_vec * (exp_result - one_vec)
 
         var mask = vec.gt(zero_vec)
-        result._data.store[width=width](idx, mask.select(pos_result, neg_result))
+        out_ptr.store[width=width](idx, mask.select(pos_result, neg_result))
 
     vectorize[simd_width](size, vectorized_selu)
 
@@ -772,16 +780,18 @@ fn _swish_simd_typed[dt: DType](input: Tensor[dt], mut result: Tensor[dt]):
     """SIMD Swish for native Tensor[dtype] -- zero bitcasts."""
     comptime simd_width = simd_width_of[dt]()
     var size = input.numel()
+    var in_ptr = input._data
+    var out_ptr = result._data
 
     @parameter
     fn vectorized_swish_typed[width: Int](idx: Int) unified {mut}:
-        var vec = input._data.load[width=width](idx)
+        var vec = in_ptr.load[width=width](idx)
         var neg_vec = -vec
         var neg_clipped = max(neg_vec, SIMD[dt, width](-20.0))
         var exp_neg = math_exp(neg_clipped)
         var one_vec = SIMD[dt, width](1)
         var sigmoid = one_vec / (one_vec + exp_neg)
-        result._data.store[width=width](idx, vec * sigmoid)
+        out_ptr.store[width=width](idx, vec * sigmoid)
 
     vectorize[simd_width](size, vectorized_swish_typed)
 

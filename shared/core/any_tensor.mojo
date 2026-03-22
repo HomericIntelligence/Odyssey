@@ -47,6 +47,7 @@ from utils.numerics import inf as numeric_inf, neg_inf as numeric_neg_inf
 from random import random_float64, seed as random_seed
 from hashlib.hasher import Hasher
 from shared.base.memory_pool import pooled_alloc, pooled_free
+from shared.tensor.tensor import Tensor
 from shared.base.broadcasting import broadcast_shapes, compute_broadcast_strides, are_shapes_broadcastable
 from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
@@ -3335,9 +3336,6 @@ struct AnyTensor(
                 + " but as_tensor called with "
                 + String(dtype)
             )
-        # Local import to break circular dependency
-        from shared.tensor.tensor import Tensor
-
         # Zero-copy: bitcast data pointer, share refcount
         return Tensor[dtype](
             self._data.bitcast[Scalar[dtype]](),

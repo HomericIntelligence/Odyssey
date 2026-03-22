@@ -22,7 +22,7 @@ from .any_tensor import AnyTensor
 from shared.tensor.tensor import Tensor
 from .gradient_types import GradientPair
 from .shape import as_contiguous
-from .dtype_ordinal import (
+from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,

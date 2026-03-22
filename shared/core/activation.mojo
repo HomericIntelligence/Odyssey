@@ -50,7 +50,7 @@ from .dtype_dispatch import (
     dispatch_hard_tanh,
     dispatch_hard_tanh_backward,
 )
-from .dtype_ordinal import (
+from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
     DTYPE_FLOAT32,
