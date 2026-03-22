@@ -18,7 +18,7 @@ Usage:
     var fc_bias = fc_fixture.bias
 """
 
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 from shared.core import kaiming_uniform
 
 
@@ -48,8 +48,8 @@ struct ConvFixture:
         ```
     """
 
-    var kernel: ExTensor
-    var bias: ExTensor
+    var kernel: AnyTensor
+    var bias: AnyTensor
     var in_channels: Int
     var out_channels: Int
     var kernel_size: Int
@@ -115,8 +115,8 @@ struct LinearFixture:
         ```
     """
 
-    var weights: ExTensor
-    var bias: ExTensor
+    var weights: AnyTensor
+    var bias: AnyTensor
     var in_features: Int
     var out_features: Int
 

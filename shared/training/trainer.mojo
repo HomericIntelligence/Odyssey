@@ -17,7 +17,7 @@ Design principles:
 """
 
 from collections import List
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.training.trainer_interface import (
     Trainer,
     TrainerConfig,
@@ -114,8 +114,8 @@ struct BaseTrainer(Trainer):
 
     fn fit(
         mut self,
-        model_forward: fn (ExTensor) raises -> ExTensor,
-        compute_loss: fn (ExTensor, ExTensor) raises -> ExTensor,
+        model_forward: fn (AnyTensor) raises -> AnyTensor,
+        compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
         optimizer_step: fn () raises -> None,
         zero_gradients: fn () raises -> None,
         mut train_loader: DataLoader,

@@ -26,7 +26,7 @@ References:
 
 from collections import List
 from memory import UnsafePointer
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 from shared.data import (
     CIFAR10_IMAGE_SIZE,
     CIFAR10_CHANNELS,
@@ -121,7 +121,7 @@ struct CIFARLoader(Copyable, Movable):
         """
         return file_size // self.bytes_per_image
 
-    fn load_labels(self, filepath: String) raises -> ExTensor:
+    fn load_labels(self, filepath: String) raises -> AnyTensor:
         """Load labels from CIFAR binary format file.
 
         For CIFAR-10, returns shape (num_images,) with single label per image.
@@ -131,7 +131,7 @@ struct CIFARLoader(Copyable, Movable):
             filepath: Path to CIFAR binary file.
 
         Returns:
-            ExTensor containing labels.
+            AnyTensor containing labels.
 
         Raises:
             Error: If file cannot be read or format is invalid.
@@ -175,7 +175,7 @@ struct CIFARLoader(Copyable, Movable):
 
             return labels^
 
-    fn load_images(self, filepath: String) raises -> ExTensor:
+    fn load_images(self, filepath: String) raises -> AnyTensor:
         """Load images from CIFAR binary format file.
 
         Returns shape (num_images, channels, image_size, image_size) with uint8 pixel values.
@@ -185,7 +185,7 @@ struct CIFARLoader(Copyable, Movable):
             filepath: Path to CIFAR binary file.
 
         Returns:
-            ExTensor of shape (num_images, 3, 32, 32) with uint8 pixel values.
+            AnyTensor of shape (num_images, 3, 32, 32) with uint8 pixel values.
 
         Raises:
             Error: If file cannot be read or format is invalid.
@@ -227,7 +227,7 @@ struct CIFARLoader(Copyable, Movable):
 
         return images^
 
-    fn load_batch(self, filepath: String) raises -> Tuple[ExTensor, ExTensor]:
+    fn load_batch(self, filepath: String) raises -> Tuple[AnyTensor, AnyTensor]:
         """Load a complete batch of images and labels from CIFAR file.
 
         Convenience function that loads both images and labels in a single call.
@@ -237,8 +237,8 @@ struct CIFARLoader(Copyable, Movable):
 
         Returns:
             Tuple of (images, labels) where:
-            - images: ExTensor of shape (num_images, 3, 32, 32) with uint8 pixels.
-            - labels: ExTensor with shape (num_images,) for CIFAR-10 or (num_images, 2) for CIFAR-100.
+            - images: AnyTensor of shape (num_images, 3, 32, 32) with uint8 pixels.
+            - labels: AnyTensor with shape (num_images,) for CIFAR-10 or (num_images, 2) for CIFAR-100.
 
         Raises:
             Error: If file cannot be read or format is invalid.
@@ -246,4 +246,4 @@ struct CIFARLoader(Copyable, Movable):
         var images = self.load_images(filepath)
         var labels = self.load_labels(filepath)
 
-        return Tuple[ExTensor, ExTensor](images, labels)
+        return Tuple[AnyTensor, AnyTensor](images, labels)

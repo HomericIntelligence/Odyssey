@@ -22,7 +22,7 @@ Example:
     var img, label = cached[0]  # Returns from cache if available
 """
 
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.data._datasets_core import Dataset
 
 
@@ -58,7 +58,7 @@ struct CachedDataset[D: Dataset & Copyable & Movable](
 
     var dataset: Self.D
     """Base dataset to wrap."""
-    var cache: Dict[Int, Tuple[ExTensor, ExTensor]]
+    var cache: Dict[Int, Tuple[AnyTensor, AnyTensor]]
     """Cache of loaded samples (index -> (data, label))."""
     var cache_enabled: Bool
     """Whether caching is enabled."""
@@ -83,7 +83,7 @@ struct CachedDataset[D: Dataset & Copyable & Movable](
             cache_enabled: Whether to enable caching (default True).
         """
         self.dataset = dataset^
-        self.cache = Dict[Int, Tuple[ExTensor, ExTensor]]()
+        self.cache = Dict[Int, Tuple[AnyTensor, AnyTensor]]()
         self.cache_enabled = cache_enabled
         self.max_cache_size = max_cache_size
         self.cache_hits = 0
@@ -97,7 +97,7 @@ struct CachedDataset[D: Dataset & Copyable & Movable](
         """
         return self.dataset.__len__()
 
-    fn __getitem__(self, index: Int) raises -> Tuple[ExTensor, ExTensor]:
+    fn __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get a sample, using cache if available.
 
         Attempts to retrieve from cache first. If not cached, loads from
@@ -120,7 +120,7 @@ struct CachedDataset[D: Dataset & Copyable & Movable](
         # Cache miss - load from base dataset
         return self.dataset.__getitem__(index)
 
-    fn _get_and_cache(mut self, index: Int) raises -> Tuple[ExTensor, ExTensor]:
+    fn _get_and_cache(mut self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get a sample with mutable access, enabling cache updates.
 
         Unlike __getitem__, this method can update cache and statistics.
@@ -181,7 +181,7 @@ struct CachedDataset[D: Dataset & Copyable & Movable](
 
     fn clear_cache(mut self):
         """Clear all cached samples."""
-        self.cache = Dict[Int, Tuple[ExTensor, ExTensor]]()
+        self.cache = Dict[Int, Tuple[AnyTensor, AnyTensor]]()
         self.cache_hits = 0
         self.cache_misses = 0
 

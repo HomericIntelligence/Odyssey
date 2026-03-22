@@ -11,7 +11,7 @@ Design Note:
     - tape.mojo: Imports types from tape_types, imports functions from backward_ops
 """
 
-from shared.core import ExTensor, zeros_like
+from shared.core import AnyTensor, zeros_like
 
 
 struct SavedTensors(Copyable, Movable):
@@ -23,7 +23,7 @@ struct SavedTensors(Copyable, Movable):
     - Reductions (sum, mean): Need input tensor for gradient computation.
     """
 
-    var tensors: List[ExTensor]
+    var tensors: List[AnyTensor]
     """Saved tensors for backward computation."""
     var shapes: List[List[Int]]
     """Saved shapes for tensor reconstruction."""
@@ -32,18 +32,18 @@ struct SavedTensors(Copyable, Movable):
 
     fn __init__(out self):
         """Initialize empty saved tensors."""
-        self.tensors: List[ExTensor] = []
+        self.tensors: List[AnyTensor] = []
         self.shapes = List[List[Int]]()
         self.scalars: List[Float64] = []
 
     fn __copyinit__(out self, existing: Self):
         """Copy constructor - explicitly copy lists."""
         # Initialize empty lists
-        self.tensors: List[ExTensor] = []
+        self.tensors: List[AnyTensor] = []
         self.shapes = List[List[Int]]()
         self.scalars: List[Float64] = []
 
-        # Copy tensors (ExTensor is Copyable)
+        # Copy tensors (AnyTensor is Copyable)
         for i in range(len(existing.tensors)):
             self.tensors.append(existing.tensors[i])
 
@@ -64,7 +64,7 @@ struct SavedTensors(Copyable, Movable):
         self.shapes = existing.shapes^
         self.scalars = existing.scalars^
 
-    fn add_tensor(mut self, tensor: ExTensor) raises:
+    fn add_tensor(mut self, tensor: AnyTensor) raises:
         """Save a tensor for backward pass.
 
         Modifies self in-place by appending tensor to internal storage.
@@ -191,7 +191,7 @@ struct VariableRegistry:
     for variables by their ID.
     """
 
-    var grads: List[ExTensor]
+    var grads: List[AnyTensor]
     """Gradient tensors indexed by variable ID."""
     var has_grad: List[Bool]
     """Flag indicating whether gradient has been computed for each variable."""
@@ -202,7 +202,7 @@ struct VariableRegistry:
 
     fn __init__(out self):
         """Initialize empty registry."""
-        self.grads: List[ExTensor] = []
+        self.grads: List[AnyTensor] = []
         self.has_grad: List[Bool] = []
         self.requires_grad: List[Bool] = []
         self.next_id = 0
@@ -226,14 +226,14 @@ struct VariableRegistry:
         # Create a placeholder tensor (will be replaced when gradient is computed)
         var placeholder_shape = List[Int]()
         placeholder_shape.append(1)
-        var placeholder = ExTensor(placeholder_shape, DType.float32)
+        var placeholder = AnyTensor(placeholder_shape, DType.float32)
         self.grads.append(placeholder^)
         self.has_grad.append(False)
         self.requires_grad.append(requires_grad)
 
         return id
 
-    fn set_grad(mut self, id: Int, grad: ExTensor) raises:
+    fn set_grad(mut self, id: Int, grad: AnyTensor) raises:
         """Set or accumulate gradient for a variable.
 
         Args:
@@ -263,7 +263,7 @@ struct VariableRegistry:
             self.grads[id] = grad_copy^
             self.has_grad[id] = True
 
-    fn get_grad(self, id: Int) raises -> ExTensor:
+    fn get_grad(self, id: Int) raises -> AnyTensor:
         """Get gradient for a variable.
 
         Args:
@@ -280,7 +280,7 @@ struct VariableRegistry:
         # Return empty placeholder
         var placeholder_shape = List[Int]()
         placeholder_shape.append(1)
-        return ExTensor(placeholder_shape, DType.float32)
+        return AnyTensor(placeholder_shape, DType.float32)
 
     fn has_gradient(self, id: Int) -> Bool:
         """Check if a variable has a computed gradient.

@@ -41,7 +41,7 @@ Functions:
 
 from math import isnan, isinf
 from collections.optional import Optional
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.testing.tolerance_constants import (
     TOLERANCE_DEFAULT,
     TOLERANCE_FLOAT32,
@@ -450,7 +450,7 @@ fn assert_shape_equal(
 
 
 fn assert_not_equal_tensor(
-    a: ExTensor, b: ExTensor, message: String = ""
+    a: AnyTensor, b: AnyTensor, message: String = ""
 ) raises:
     """Assert two tensors are not equal element-wise.
 
@@ -495,8 +495,8 @@ fn assert_not_equal_tensor(
         raise Error(error_msg)
 
 
-fn assert_tensor_equal(a: ExTensor, b: ExTensor, message: String = "") raises:
-    """Assert two ExTensors are equal (shape and all elements).
+fn assert_tensor_equal(a: AnyTensor, b: AnyTensor, message: String = "") raises:
+    """Assert two AnyTensors are equal (shape and all elements).
 
     Args:
             a: First tensor.
@@ -543,12 +543,12 @@ fn assert_tensor_equal(a: ExTensor, b: ExTensor, message: String = "") raises:
 
 
 fn assert_shape(
-    tensor: ExTensor, expected: List[Int], message: String = ""
+    tensor: AnyTensor, expected: List[Int], message: String = ""
 ) raises:
     """Assert tensor has expected shape.
 
     Args:
-            tensor: ExTensor to check.
+            tensor: AnyTensor to check.
             expected: Expected shape as List.
             message: Optional error message.
 
@@ -582,11 +582,11 @@ fn assert_shape(
             raise Error(error_msg)
 
 
-fn assert_dtype(tensor: ExTensor, expected: DType, message: String = "") raises:
+fn assert_dtype(tensor: AnyTensor, expected: DType, message: String = "") raises:
     """Assert tensor has expected dtype.
 
     Args:
-            tensor: ExTensor to check.
+            tensor: AnyTensor to check.
             expected: Expected DType.
             message: Optional error message.
 
@@ -601,11 +601,11 @@ fn assert_dtype(tensor: ExTensor, expected: DType, message: String = "") raises:
         raise Error(error_msg)
 
 
-fn assert_numel(tensor: ExTensor, expected: Int, message: String = "") raises:
+fn assert_numel(tensor: AnyTensor, expected: Int, message: String = "") raises:
     """Assert tensor has expected number of elements.
 
     Args:
-            tensor: ExTensor to check.
+            tensor: AnyTensor to check.
             expected: Expected total element count.
             message: Optional error message.
 
@@ -620,11 +620,11 @@ fn assert_numel(tensor: ExTensor, expected: Int, message: String = "") raises:
         raise Error(error_msg)
 
 
-fn assert_dim(tensor: ExTensor, expected: Int, message: String = "") raises:
+fn assert_dim(tensor: AnyTensor, expected: Int, message: String = "") raises:
     """Assert tensor has expected number of dimensions.
 
     Args:
-            tensor: ExTensor to check.
+            tensor: AnyTensor to check.
             expected: Expected dimension count.
             message: Optional error message.
 
@@ -648,7 +648,7 @@ fn assert_dim(tensor: ExTensor, expected: Int, message: String = "") raises:
 
 
 fn assert_value_at(
-    tensor: ExTensor,
+    tensor: AnyTensor,
     index: Int,
     expected: Float64,
     tolerance: Float64 = TOLERANCE_DEFAULT,
@@ -657,7 +657,7 @@ fn assert_value_at(
     """Assert tensor value at flat index matches expected value.
 
     Args:
-            tensor: ExTensor to check.
+            tensor: AnyTensor to check.
             index: Flat index to check.
             expected: Expected value.
             tolerance: Acceptable difference (default: 1e-6).
@@ -688,7 +688,7 @@ fn assert_value_at(
 
 
 fn assert_all_values(
-    tensor: ExTensor,
+    tensor: AnyTensor,
     expected: Float64,
     tolerance: Float64 = TOLERANCE_DEFAULT,
     message: String = "",
@@ -696,7 +696,7 @@ fn assert_all_values(
     """Assert all tensor values match expected constant.
 
     Args:
-            tensor: ExTensor to check.
+            tensor: AnyTensor to check.
             expected: Expected constant value.
             tolerance: Acceptable difference (default: 1e-6).
             message: Optional error message.
@@ -724,8 +724,8 @@ fn assert_all_values(
 
 
 fn assert_all_close(
-    a: ExTensor,
-    b: ExTensor,
+    a: AnyTensor,
+    b: AnyTensor,
     tolerance: Float64 = TOLERANCE_DEFAULT,
     message: String = "",
 ) raises:
@@ -812,11 +812,11 @@ fn assert_type[T: AnyType](value: T, expected_type: String) raises:
     pass
 
 
-fn assert_contiguous(tensor: ExTensor, message: String = "") raises:
+fn assert_contiguous(tensor: AnyTensor, message: String = "") raises:
     """Assert tensor has contiguous memory layout.
 
     Args:
-            tensor: ExTensor to check.
+            tensor: AnyTensor to check.
             message: Optional error message.
 
     Raises:
@@ -834,7 +834,7 @@ fn assert_contiguous(tensor: ExTensor, message: String = "") raises:
 
 fn assert_matrices_equal[
     dtype: DType
-](a: ExTensor, b: ExTensor, rtol: Float64 = 1e-5, atol: Float64 = 1e-8) raises:
+](a: AnyTensor, b: AnyTensor, rtol: Float64 = 1e-5, atol: Float64 = 1e-8) raises:
     """Compare two matrices element-wise with relative and absolute tolerance.
 
     This is the canonical shared implementation for correctness verification

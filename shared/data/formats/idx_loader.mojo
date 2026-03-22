@@ -18,7 +18,7 @@ References:
     - IDX Format: http://yann.lecun.com/exdb/mnist/
 """
 
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 from memory import UnsafePointer
 
 
@@ -40,14 +40,14 @@ fn read_uint32_be(data: UnsafePointer[UInt8], offset: Int) -> Int:
     return (b0 << 24) | (b1 << 16) | (b2 << 8) | b3
 
 
-fn load_idx_labels(filepath: String) raises -> ExTensor:
+fn load_idx_labels(filepath: String) raises -> AnyTensor:
     """Load labels from IDX file format.
 
     Args:
             filepath: Path to IDX labels file.
 
     Returns:
-            ExTensor of shape (num_samples,) with uint8 label values.
+            AnyTensor of shape (num_samples,) with uint8 label values.
 
     Raises:
             Error: If file format is invalid or cannot be read.
@@ -87,14 +87,14 @@ fn load_idx_labels(filepath: String) raises -> ExTensor:
     return labels^
 
 
-fn load_idx_images(filepath: String) raises -> ExTensor:
+fn load_idx_images(filepath: String) raises -> AnyTensor:
     """Load grayscale images from IDX file format.
 
     Args:
             filepath: Path to IDX grayscale images file.
 
     Returns:
-            ExTensor of shape (num_samples, 1, rows, cols) with uint8 pixel values.
+            AnyTensor of shape (num_samples, 1, rows, cols) with uint8 pixel values.
 
     Raises:
             Error: If file format is invalid or cannot be read.
@@ -144,14 +144,14 @@ fn load_idx_images(filepath: String) raises -> ExTensor:
     return images^
 
 
-fn load_idx_images_rgb(filepath: String) raises -> ExTensor:
+fn load_idx_images_rgb(filepath: String) raises -> AnyTensor:
     """Load RGB images from IDX file format.
 
     Args:
             filepath: Path to IDX RGB images file.
 
     Returns:
-            ExTensor of shape (num_samples, channels, rows, cols) with uint8 pixel values.
+            AnyTensor of shape (num_samples, channels, rows, cols) with uint8 pixel values.
 
     Raises:
             Error: If file format is invalid or cannot be read.
@@ -206,14 +206,14 @@ fn load_idx_images_rgb(filepath: String) raises -> ExTensor:
     return images^
 
 
-fn normalize_images(mut images: ExTensor) raises -> ExTensor:
+fn normalize_images(mut images: AnyTensor) raises -> AnyTensor:
     """Normalize uint8 images to float32 in range [0, 1].
 
     Args:
-            images: Input images as uint8 ExTensor.
+            images: Input images as uint8 AnyTensor.
 
     Returns:
-            Normalized images as float32 ExTensor.
+            Normalized images as float32 AnyTensor.
 
     Note:
             Converts pixel values from [0, 255] to [0.0, 1.0].
@@ -234,15 +234,15 @@ fn normalize_images(mut images: ExTensor) raises -> ExTensor:
     return normalized^
 
 
-fn one_hot_encode(labels: ExTensor, num_classes: Int) raises -> ExTensor:
+fn one_hot_encode(labels: AnyTensor, num_classes: Int) raises -> AnyTensor:
     """Convert integer labels to one-hot encoded float32 tensor.
 
     Args:
-            labels: Integer labels as uint8 ExTensor, shape (num_samples,).
+            labels: Integer labels as uint8 AnyTensor, shape (num_samples,).
             num_classes: Total number of classes.
 
     Returns:
-            One-hot encoded labels as float32 ExTensor, shape (num_samples, num_classes).
+            One-hot encoded labels as float32 AnyTensor, shape (num_samples, num_classes).
 
         Example:
             ```mojo
@@ -281,14 +281,14 @@ fn one_hot_encode(labels: ExTensor, num_classes: Int) raises -> ExTensor:
     return one_hot^
 
 
-fn normalize_images_rgb(mut images: ExTensor) raises -> ExTensor:
+fn normalize_images_rgb(mut images: AnyTensor) raises -> AnyTensor:
     """Normalize uint8 RGB images to float32 with ImageNet normalization.
 
     Args:
-            images: Input images as uint8 ExTensor of shape (N, 3, H, W).
+            images: Input images as uint8 AnyTensor of shape (N, 3, H, W).
 
     Returns:
-            Normalized images as float32 ExTensor.
+            Normalized images as float32 AnyTensor.
 
     Note:
             Applies ImageNet normalization:
@@ -346,7 +346,7 @@ fn normalize_images_rgb(mut images: ExTensor) raises -> ExTensor:
 
 fn load_cifar10_batch(
     batch_dir: String, batch_name: String
-) raises -> Tuple[ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor]:
     """Load a single CIFAR-10 batch (images and labels) from IDX format.
 
     Args:
@@ -355,8 +355,8 @@ fn load_cifar10_batch(
 
     Returns:
             Tuple of (images, labels):
-            - images: ExTensor of shape (N, 3, 32, 32) normalized float32.
-            - labels: ExTensor of shape (N,) uint8.
+            - images: AnyTensor of shape (N, 3, 32, 32) normalized float32.
+            - labels: AnyTensor of shape (N,) uint8.
 
     Raises:
             Error: If batch files cannot be read.

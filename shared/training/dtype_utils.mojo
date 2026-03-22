@@ -29,11 +29,11 @@ Usage:
 
     # Or explicitly pass hardware capabilities (for testing/override)
     var dtype = recommend_precision_dtype(model_size_mb=500.0, hardware_has_bf16=False)
-    var params = ExTensor.zeros((100, 100), dtype)
+    var params = AnyTensor.zeros((100, 100), dtype)
 
     # Query BF16 support directly
     if detect_hardware_bf16_support():
-        var params = ExTensor.zeros((100, 100), bfloat16_dtype)
+        var params = AnyTensor.zeros((100, 100), bfloat16_dtype)
 """
 
 
@@ -257,9 +257,9 @@ fn detect_hardware_bf16_support() -> Bool:
     Example:
         ```mojo
         if detect_hardware_bf16_support():
-            var params = ExTensor.zeros((1000, 1000), DType.bfloat16)
+            var params = AnyTensor.zeros((1000, 1000), DType.bfloat16)
         else:
-            var params = ExTensor.zeros((1000, 1000), DType.float16)
+            var params = AnyTensor.zeros((1000, 1000), DType.float16)
         ```
     """
     return not is_defined["APPLE"]()
@@ -320,7 +320,7 @@ fn recommend_precision_dtype(
         Example:
             ```mojo
             var dtype = recommend_precision_dtype(model_size_mb=500.0)
-            var params = ExTensor.zeros((1000, 1000), dtype)
+            var params = AnyTensor.zeros((1000, 1000), dtype)
             ```
     """
     if not hardware_has_fp16:

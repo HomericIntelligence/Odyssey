@@ -30,7 +30,7 @@ Example:
     ```
 """
 
-from shared.core import ExTensor, zeros, ones, full, zeros_like
+from shared.core import AnyTensor, zeros, ones, full, zeros_like
 from shared.testing.models import SimpleCNN, LinearModel
 
 
@@ -91,7 +91,7 @@ fn create_linear_model(
 
 fn create_test_input(
     batch_size: Int, in_features: Int, dtype: DType = DType.float32
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Create a test input tensor for linear models.
 
         Creates a simple tensor filled with ones for testing
@@ -122,7 +122,7 @@ fn create_test_input(
 
 fn create_test_targets(
     batch_size: Int, num_classes: Int, dtype: DType = DType.int32
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Create a test target tensor for classification.
 
         Creates a tensor filled with zeros for testing
@@ -149,7 +149,7 @@ fn create_test_targets(
     return zeros(shape, dtype)
 
 
-fn assert_tensor_shape(tensor: ExTensor, expected_shape: List[Int]) -> Bool:
+fn assert_tensor_shape(tensor: AnyTensor, expected_shape: List[Int]) -> Bool:
     """Validate tensor has expected shape.
 
     Args:
@@ -175,7 +175,7 @@ fn assert_tensor_shape(tensor: ExTensor, expected_shape: List[Int]) -> Bool:
     return True
 
 
-fn assert_tensor_dtype(tensor: ExTensor, expected_dtype: DType) -> Bool:
+fn assert_tensor_dtype(tensor: AnyTensor, expected_dtype: DType) -> Bool:
     """Validate tensor has expected data type.
 
     Args:
@@ -194,7 +194,7 @@ fn assert_tensor_dtype(tensor: ExTensor, expected_dtype: DType) -> Bool:
     return tensor._dtype == expected_dtype
 
 
-fn assert_tensor_all_finite(tensor: ExTensor) -> Bool:
+fn assert_tensor_all_finite(tensor: AnyTensor) -> Bool:
     """Check if all tensor values are finite (no NaN or Inf).
 
     Args:
@@ -221,7 +221,7 @@ fn assert_tensor_all_finite(tensor: ExTensor) -> Bool:
     return True
 
 
-fn assert_tensor_not_all_zeros(tensor: ExTensor) -> Bool:
+fn assert_tensor_not_all_zeros(tensor: AnyTensor) -> Bool:
     """Check if tensor contains at least one non-zero value.
 
         Useful for verifying weights are initialized and gradients are flowing.

@@ -182,7 +182,7 @@ struct TransformedDataset[D: Dataset, T](Dataset):
     var dataset: D
     var transform: T
 
-    fn __getitem__(self, index: Int) -> (ExTensor, ExTensor):
+    fn __getitem__(self, index: Int) -> (AnyTensor, AnyTensor):
         var data, labels = self.dataset[index]
         var transformed = self.transform(data)
         return (transformed, labels)
@@ -197,7 +197,7 @@ struct TransformedDataset[D: Dataset, T](Dataset):
 **Example**:
 
 ```mojo
-var dataset = ExTensorDataset(images, labels)
+var dataset = AnyTensorDataset(images, labels)
 var normalize = Normalize(mean=0.5, std=0.5)
 var augmented = TransformedDataset(dataset, normalize)
 # augmented[0] returns (normalized_data, original_labels)
@@ -211,10 +211,10 @@ Caches samples to avoid repeated I/O:
 struct CachedDataset[D: Dataset](Dataset):
     """Caches loaded samples up to max_cache_size."""
     var dataset: D
-    var cache: Dict[Int, Tuple[ExTensor, ExTensor]]
+    var cache: Dict[Int, Tuple[AnyTensor, AnyTensor]]
     var max_cache_size: Int
 
-    fn __getitem__(mut self, index: Int) -> (ExTensor, ExTensor):
+    fn __getitem__(mut self, index: Int) -> (AnyTensor, AnyTensor):
         if index in cache:
             return cache[index]  # Cache hit
         # Load from dataset and cache
@@ -513,12 +513,12 @@ struct RandomRotation(Transform):
 
 ```mojo
 from shared.data import (
-    ExTensorDataset, BatchLoader, RandomSampler, Normalize,
+    AnyTensorDataset, BatchLoader, RandomSampler, Normalize,
     TransformedDataset
 )
 
 # Create base dataset
-var dataset = ExTensorDataset(images, labels)
+var dataset = AnyTensorDataset(images, labels)
 
 # (Optional) Add transforms for augmentation
 var normalize = Normalize(mean=0.5, std=0.5)
@@ -547,12 +547,12 @@ for batch in batches:
 
 ```mojo
 from shared.data import (
-    ExTensorDataset, BatchLoader, RandomSampler, CachedDataset,
+    AnyTensorDataset, BatchLoader, RandomSampler, CachedDataset,
     TransformedDataset, PrefetchDataLoader, Normalize
 )
 
 # Step 1: Create dataset
-var dataset = ExTensorDataset(images, labels)
+var dataset = AnyTensorDataset(images, labels)
 
 # Step 2: Add transforms
 var normalize = Normalize(mean=0.5, std=0.5)
@@ -587,7 +587,7 @@ for epoch in range(num_epochs):
 
 ```mojo
 from shared.data import (
-    ExTensorDataset, TransformedDataset, RandomHorizontalFlip,
+    AnyTensorDataset, TransformedDataset, RandomHorizontalFlip,
     RandomCrop, Normalize, Compose
 )
 
@@ -599,7 +599,7 @@ var transforms = Compose([
 ])
 
 # Create dataset
-var dataset = ExTensorDataset(images, labels)
+var dataset = AnyTensorDataset(images, labels)
 
 # Apply transforms
 var augmented = TransformedDataset(dataset, transforms)

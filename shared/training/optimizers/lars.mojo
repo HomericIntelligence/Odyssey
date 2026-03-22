@@ -17,7 +17,7 @@ Reference:
     for Massive Batch Training. arXiv preprint arXiv:1708.03888
 """
 
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.core import subtract, multiply, add
 from shared.core.arithmetic_simd import subtract_simd, multiply_simd, add_simd
 from shared.core import full_like
@@ -25,15 +25,15 @@ from shared.core import compute_tensor_l2_norm
 
 
 fn lars_step(
-    params: ExTensor,
-    gradients: ExTensor,
-    velocity: ExTensor,
+    params: AnyTensor,
+    gradients: AnyTensor,
+    velocity: AnyTensor,
     learning_rate: Float64,
     momentum: Float64 = 0.9,
     weight_decay: Float64 = 0.0001,
     trust_coefficient: Float64 = 0.001,
     epsilon: Float64 = 1e-8,
-) raises -> Tuple[ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor]:
     """Perform a single LARS optimization step - pure functional.
 
         Returns new parameters and new velocity. Caller manages all state.
@@ -57,7 +57,7 @@ fn lars_step(
 
     Example (LARS with momentum):
         ```mojo
-        from shared.core import ExTensor, zeros_like
+        from shared.core import AnyTensor, zeros_like
         from shared.training.optimizers import lars_step
 
         var W = xavier_uniform([784, 128], DType.float32)
@@ -145,11 +145,11 @@ fn lars_step(
 
 
 fn lars_step_simple(
-    params: ExTensor,
-    gradients: ExTensor,
-    velocity: ExTensor,
+    params: AnyTensor,
+    gradients: AnyTensor,
+    velocity: AnyTensor,
     learning_rate: Float64,
-) raises -> Tuple[ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor]:
     """Simplified LARS step with default hyperparameters.
 
     This is a convenience function for basic LARS optimization.

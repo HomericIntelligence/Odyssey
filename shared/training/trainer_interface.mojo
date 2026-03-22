@@ -16,7 +16,7 @@ Design principles:
 """
 
 from collections import List
-from shared.core import ExTensor
+from shared.core import AnyTensor
 
 
 struct TrainerConfig(Copyable, Movable):
@@ -292,14 +292,14 @@ struct DataBatch(Copyable, Movable):
     Represents a mini-batch with input features and labels
     """
 
-    var data: ExTensor
+    var data: AnyTensor
     """Input features [batch_size, feature_dim]."""
-    var labels: ExTensor
+    var labels: AnyTensor
     """Labels [batch_size] or [batch_size, num_classes]."""
     var batch_size: Int
     """Batch size."""
 
-    fn __init__(out self, var data: ExTensor, var labels: ExTensor):
+    fn __init__(out self, var data: AnyTensor, var labels: AnyTensor):
         """Initialize data batch.
 
         Args:
@@ -319,9 +319,9 @@ struct DataLoader(Copyable, Movable):
     Production code should use proper data loading infrastructure.
     """
 
-    var data: ExTensor
+    var data: AnyTensor
     """Full dataset features."""
-    var labels: ExTensor
+    var labels: AnyTensor
     """Full dataset labels."""
     var batch_size: Int
     """Batch size for iteration."""
@@ -333,7 +333,7 @@ struct DataLoader(Copyable, Movable):
     """Current batch index."""
 
     fn __init__(
-        out self, var data: ExTensor, var labels: ExTensor, batch_size: Int
+        out self, var data: AnyTensor, var labels: AnyTensor, batch_size: Int
     ):
         """Initialize data loader.
 
@@ -391,7 +391,7 @@ struct DataLoader(Copyable, Movable):
 
 
 fn create_simple_dataloader(
-    var data: ExTensor, var labels: ExTensor, batch_size: Int
+    var data: AnyTensor, var labels: AnyTensor, batch_size: Int
 ) raises -> DataLoader:
     """Create a simple dataloader for training.
 

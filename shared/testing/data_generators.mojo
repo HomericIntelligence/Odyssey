@@ -10,7 +10,7 @@ behavior across different input distributions and dataset characteristics.
 
 Example:
     from shared.testing import random_tensor, random_normal, synthetic_classification_data
-    from shared.core import ExTensor
+    from shared.core import AnyTensor
 
     # Create a random tensor
     var weights = random_tensor([10, 5], DType.float32)
@@ -25,7 +25,7 @@ Example:
 
 from random import random_float64
 from math import sqrt, log, cos, sin, pi
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 
 
 # ============================================================================
@@ -35,7 +35,7 @@ from shared.core import ExTensor, zeros
 
 fn random_tensor(
     shape: List[Int], dtype: DType = DType.float32
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Generate tensor with random values from uniform distribution [0, 1).
 
     Args:
@@ -43,7 +43,7 @@ fn random_tensor(
             dtype: Data type of tensor elements (default: float32).
 
     Returns:
-            ExTensor with random values uniformly distributed in [0, 1).
+            AnyTensor with random values uniformly distributed in [0, 1).
 
     Example:
         ```mojo
@@ -100,7 +100,7 @@ fn random_uniform(
     low: Float64 = 0.0,
     high: Float64 = 1.0,
     dtype: DType = DType.float32,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Generate tensor with random values from uniform distribution [low, high).
 
     Args:
@@ -110,7 +110,7 @@ fn random_uniform(
             dtype: Data type of tensor elements (default: float32).
 
     Returns:
-            ExTensor with random values uniformly distributed in [low, high)
+            AnyTensor with random values uniformly distributed in [low, high)
 
         Example:
             ```mojo
@@ -171,7 +171,7 @@ fn random_normal(
     mean: Float64 = 0.0,
     std: Float64 = 1.0,
     dtype: DType = DType.float32,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Generate tensor with random values from normal distribution N(mean, std^2).
 
         Uses Box-Muller transform to convert uniform random values to normal distribution
@@ -183,7 +183,7 @@ fn random_normal(
             dtype: Data type of tensor elements (default: float32).
 
     Returns:
-            ExTensor with random values from normal distribution N(mean, std^2)
+            AnyTensor with random values from normal distribution N(mean, std^2)
 
         Example:
             ```mojo
@@ -261,7 +261,7 @@ fn synthetic_classification_data(
     num_features: Int,
     num_classes: Int,
     dtype: DType = DType.float32,
-) raises -> Tuple[ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor]:
     """Generate synthetic classification dataset.
 
         Creates a random dataset with linearly separable classes by generating
@@ -275,8 +275,8 @@ fn synthetic_classification_data(
 
     Returns:
             Tuple of (features, labels) where:
-            - features: ExTensor of shape [num_samples, num_features]
-            - labels: ExTensor of shape [num_samples] with values in [0, num_classes)
+            - features: AnyTensor of shape [num_samples, num_features]
+            - labels: AnyTensor of shape [num_samples] with values in [0, num_classes)
 
         Example:
             ```mojo
@@ -338,4 +338,4 @@ fn synthetic_classification_data(
             var features_idx = sample_idx * num_features + feat_idx
             features._set_float64(features_idx, feature_val)
 
-    return Tuple[ExTensor, ExTensor](features^, labels^)
+    return Tuple[AnyTensor, AnyTensor](features^, labels^)

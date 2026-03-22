@@ -53,7 +53,7 @@ Usage:
     var neg_inf = create_inf_tensor([3, 3], DType.float32, positive=False)
 """
 
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.testing.tensor_factory import zeros
 from random import seed as random_seed, random_float64
 
@@ -77,7 +77,7 @@ comptime SPECIAL_VALUE_NEG_ONE: Float64 = -1.0
 
 fn create_special_value_tensor(
     shape: List[Int], dtype: DType, value: Float64 = SPECIAL_VALUE_ONE
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Create tensor filled with a special value.
 
     Args:
@@ -86,7 +86,7 @@ fn create_special_value_tensor(
         value: Special value to fill (must be -1.0, -0.5, 0.0, 0.5, 1.0, or 1.5).
 
     Returns:
-        ExTensor filled with the special value.
+        AnyTensor filled with the special value.
 
     Raises:
         Error if value is not a special value (-1.0, -0.5, 0.0, 0.5, 1.0, 1.5).
@@ -142,7 +142,7 @@ fn create_special_value_tensor(
 
 fn create_alternating_pattern_tensor(
     shape: List[Int], dtype: DType
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Create tensor with alternating special values pattern.
 
     Pattern repeats: -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, -1.0, -0.5, 0.0, ...
@@ -155,7 +155,7 @@ fn create_alternating_pattern_tensor(
         dtype: Data type (FP4, FP8, FP16, FP32, BF16, or Int8).
 
     Returns:
-        ExTensor with alternating special value pattern.
+        AnyTensor with alternating special value pattern.
 
     Example:
         ```mojo
@@ -194,7 +194,7 @@ fn create_alternating_pattern_tensor(
 
 
 fn verify_special_value_invariants(
-    tensor: ExTensor, expected_value: Float64
+    tensor: AnyTensor, expected_value: Float64
 ) raises:
     """Verify all elements match expected special value.
 
@@ -257,7 +257,7 @@ fn create_seeded_random_tensor(
     seed: Int = 42,
     low: Float64 = -1.0,
     high: Float64 = 1.0,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Create random tensor with fixed seed for gradient checking.
 
     Generates a tensor filled with random values in the range [low, high] using
@@ -273,7 +273,7 @@ fn create_seeded_random_tensor(
         high: Maximum value for random range (default: 1.0).
 
     Returns:
-        ExTensor with seeded random values in [low, high].
+        AnyTensor with seeded random values in [low, high].
 
     Raises:
         Error if low >= high (invalid range).
@@ -324,7 +324,7 @@ fn create_seeded_random_tensor(
     return tensor^
 
 
-fn create_zeros_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
+fn create_zeros_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create tensor filled with zeros (special value).
 
     Convenience wrapper around create_special_value_tensor for zero initialization.
@@ -334,7 +334,7 @@ fn create_zeros_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
         dtype: Data type.
 
     Returns:
-        ExTensor filled with zeros.
+        AnyTensor filled with zeros.
 
     Example:
         ```mojo
@@ -348,7 +348,7 @@ fn create_zeros_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
     return create_special_value_tensor(shape, dtype, SPECIAL_VALUE_ZERO)
 
 
-fn create_ones_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
+fn create_ones_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create tensor filled with ones (special value).
 
     Convenience wrapper around create_special_value_tensor for one initialization.
@@ -358,7 +358,7 @@ fn create_ones_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
         dtype: Data type.
 
     Returns:
-        ExTensor filled with ones.
+        AnyTensor filled with ones.
 
     Example:
         ```mojo
@@ -372,7 +372,7 @@ fn create_ones_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
     return create_special_value_tensor(shape, dtype, SPECIAL_VALUE_ONE)
 
 
-fn create_halves_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
+fn create_halves_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create tensor filled with 0.5 values (special value).
 
     Convenience wrapper around create_special_value_tensor for half initialization.
@@ -382,7 +382,7 @@ fn create_halves_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
         dtype: Data type.
 
     Returns:
-        ExTensor filled with 0.5.
+        AnyTensor filled with 0.5.
 
     Example:
         ```mojo
@@ -398,7 +398,7 @@ fn create_halves_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
 
 fn create_one_and_half_tensor(
     shape: List[Int], dtype: DType
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Create tensor filled with 1.5 values (special value).
 
     Convenience wrapper around create_special_value_tensor for 1.5 initialization.
@@ -408,7 +408,7 @@ fn create_one_and_half_tensor(
         dtype: Data type.
 
     Returns:
-        ExTensor filled with 1.5.
+        AnyTensor filled with 1.5.
 
     Example:
         ```mojo
@@ -427,7 +427,7 @@ fn create_one_and_half_tensor(
 # ============================================================================
 
 
-fn create_nan_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
+fn create_nan_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create tensor filled with NaN (Not a Number) values.
 
     Creates NaN values by dividing zero by zero (0.0 / 0.0).
@@ -438,7 +438,7 @@ fn create_nan_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
         dtype: Data type.
 
     Returns:
-        ExTensor filled with NaN values.
+        AnyTensor filled with NaN values.
 
     Raises:
         Error: If operation fails.
@@ -462,7 +462,7 @@ fn create_nan_tensor(shape: List[Int], dtype: DType) raises -> ExTensor:
 
 fn create_inf_tensor(
     shape: List[Int], dtype: DType, positive: Bool = True
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Create tensor filled with Infinity values.
 
     Creates Infinity by dividing by zero (1.0/0.0 or -1.0/0.0).
@@ -474,7 +474,7 @@ fn create_inf_tensor(
         positive: If True, create +Infinity; if False, create -Infinity.
 
     Returns:
-        ExTensor filled with Infinity values.
+        AnyTensor filled with Infinity values.
 
     Raises:
         Error: If operation fails.
