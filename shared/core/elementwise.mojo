@@ -1,6 +1,12 @@
-"""Element-wise mathematical operations for AnyTensor.
+"""Element-wise mathematical operations with native Tensor[dtype] implementations.
 
 Implements mathematical functions like exp, log, sqrt, trigonometric functions, etc.
+Architecture: Tensor[dtype] typed implementations are the core (zero dtype branches).
+AnyTensor versions dispatch to typed implementations via ordinal-based table.
+
+Layer 1 (outer): AnyTensor public API (exp, log, sqrt, etc.)
+Layer 2: dtype dispatch table (ordinal-based)
+Layer 3 (core): Tensor[dtype] native implementation (_exp_typed, etc.)
 """
 
 from collections import List
@@ -11,6 +17,20 @@ from .dtype_dispatch import (
     dispatch_binary,
     dispatch_float_unary,
     dispatch_float_binary,
+)
+from shared.base.dtype_ordinal import (
+    dtype_to_ordinal,
+    DTYPE_FLOAT16,
+    DTYPE_FLOAT32,
+    DTYPE_FLOAT64,
+    DTYPE_INT8,
+    DTYPE_INT16,
+    DTYPE_INT32,
+    DTYPE_INT64,
+    DTYPE_UINT8,
+    DTYPE_UINT16,
+    DTYPE_UINT32,
+    DTYPE_UINT64,
 )
 from shared.base.broadcasting import broadcast_shapes, compute_broadcast_strides
 from math import sqrt as math_sqrt
@@ -63,6 +83,110 @@ fn math_round[T: DType](x: Scalar[T]) -> Scalar[T]:
 
 
 # ============================================================================
+# Layer 3 (Core): Generic Typed Unary Operation
+# ============================================================================
+
+
+fn _unary_typed[
+    dt: DType, op: fn[T: DType] (Scalar[T]) -> Scalar[T]
+](input: Tensor[dt]) raises -> Tensor[dt]:
+    """Apply unary operation on native Tensor[dtype] -- zero dtype branches.
+
+    This is the core implementation. Tensor[dt]._data is already typed as
+    UnsafePointer[Scalar[dt]], so no bitcasts are needed.
+
+    Parameters:
+        dt: Compile-time dtype parameter.
+        op: Unary scalar operation function.
+
+    Args:
+        input: Input tensor (typed).
+
+    Returns:
+        Result Tensor[dt] with operation applied element-wise.
+    """
+    var result = Tensor[dt](input.shape())
+    var size = input.numel()
+    for i in range(size):
+        result._data[i] = op[dt](input._data[i])
+    return result^
+
+
+# ============================================================================
+# Layer 2: AnyTensor Dispatch Helpers (delegates to typed core)
+# ============================================================================
+
+
+fn _dispatch_unary_typed[
+    op: fn[T: DType] (Scalar[T]) -> Scalar[T]
+](tensor: AnyTensor) raises -> AnyTensor:
+    """Runtime dispatch to Tensor[dtype] typed unary core (all dtypes).
+
+    Converts AnyTensor to Tensor[dt], calls the typed implementation,
+    and converts the result back to AnyTensor.
+
+    Parameters:
+        op: Unary operation function pointer.
+
+    Args:
+        tensor: Input tensor.
+
+    Returns:
+        Result tensor with operation applied element-wise.
+    """
+    var ordinal = dtype_to_ordinal(tensor._dtype)
+    if ordinal == DTYPE_FLOAT16:
+        return _unary_typed[DType.float16, op](tensor.as_tensor[DType.float16]()).as_any()
+    elif ordinal == DTYPE_FLOAT32:
+        return _unary_typed[DType.float32, op](tensor.as_tensor[DType.float32]()).as_any()
+    elif ordinal == DTYPE_FLOAT64:
+        return _unary_typed[DType.float64, op](tensor.as_tensor[DType.float64]()).as_any()
+    elif ordinal == DTYPE_INT8:
+        return _unary_typed[DType.int8, op](tensor.as_tensor[DType.int8]()).as_any()
+    elif ordinal == DTYPE_INT16:
+        return _unary_typed[DType.int16, op](tensor.as_tensor[DType.int16]()).as_any()
+    elif ordinal == DTYPE_INT32:
+        return _unary_typed[DType.int32, op](tensor.as_tensor[DType.int32]()).as_any()
+    elif ordinal == DTYPE_INT64:
+        return _unary_typed[DType.int64, op](tensor.as_tensor[DType.int64]()).as_any()
+    elif ordinal == DTYPE_UINT8:
+        return _unary_typed[DType.uint8, op](tensor.as_tensor[DType.uint8]()).as_any()
+    elif ordinal == DTYPE_UINT16:
+        return _unary_typed[DType.uint16, op](tensor.as_tensor[DType.uint16]()).as_any()
+    elif ordinal == DTYPE_UINT32:
+        return _unary_typed[DType.uint32, op](tensor.as_tensor[DType.uint32]()).as_any()
+    elif ordinal == DTYPE_UINT64:
+        return _unary_typed[DType.uint64, op](tensor.as_tensor[DType.uint64]()).as_any()
+    else:
+        raise Error("Unsupported dtype for unary operation")
+
+
+fn _dispatch_float_unary_typed[
+    op: fn[T: DType] (Scalar[T]) -> Scalar[T]
+](tensor: AnyTensor) raises -> AnyTensor:
+    """Runtime dispatch to Tensor[dtype] typed unary core (float dtypes only).
+
+    Parameters:
+        op: Unary operation function pointer.
+
+    Args:
+        tensor: Input tensor (must be float16/32/64).
+
+    Returns:
+        Result tensor with operation applied element-wise.
+    """
+    var ordinal = dtype_to_ordinal(tensor._dtype)
+    if ordinal == DTYPE_FLOAT16:
+        return _unary_typed[DType.float16, op](tensor.as_tensor[DType.float16]()).as_any()
+    elif ordinal == DTYPE_FLOAT32:
+        return _unary_typed[DType.float32, op](tensor.as_tensor[DType.float32]()).as_any()
+    elif ordinal == DTYPE_FLOAT64:
+        return _unary_typed[DType.float64, op](tensor.as_tensor[DType.float64]()).as_any()
+    else:
+        raise Error("Unsupported dtype for float unary operation (requires float16/32/64)")
+
+
+# ============================================================================
 # Unary Operations (Element-wise)
 # ============================================================================
 
@@ -91,7 +215,7 @@ fn abs(tensor: AnyTensor) raises -> AnyTensor:
             var b = abs(a)  # All values become 3.0
     ```
     """
-    return dispatch_unary[_abs_op](tensor)
+    return _dispatch_unary_typed[_abs_op](tensor)
 
 
 @always_inline
@@ -120,7 +244,7 @@ fn sign(tensor: AnyTensor) raises -> AnyTensor:
             var b = sign(a)  # [-1.0, 0.0, 1.0]
     ```
     """
-    return dispatch_unary[_sign_op](tensor)
+    return _dispatch_unary_typed[_sign_op](tensor)
 
 
 @always_inline
@@ -149,7 +273,7 @@ fn exp(tensor: AnyTensor) raises -> AnyTensor:
             var b = exp(a)  # All values become 1.0 (e^0)
     ```
     """
-    return dispatch_float_unary[_exp_op](tensor)
+    return _dispatch_float_unary_typed[_exp_op](tensor)
 
 
 @always_inline
@@ -181,7 +305,7 @@ fn log(tensor: AnyTensor) raises -> AnyTensor:
             var b = log(a)  # All values become 0.0 (ln(1))
     ```
     """
-    return dispatch_float_unary[_log_op](tensor)
+    return _dispatch_float_unary_typed[_log_op](tensor)
 
 
 @always_inline
@@ -213,7 +337,7 @@ fn sqrt(tensor: AnyTensor) raises -> AnyTensor:
             var b = sqrt(a)  # All values become 2.0
     ```
     """
-    return dispatch_float_unary[_sqrt_op](tensor)
+    return _dispatch_float_unary_typed[_sqrt_op](tensor)
 
 
 @always_inline
@@ -242,7 +366,7 @@ fn sin(tensor: AnyTensor) raises -> AnyTensor:
             var b = sin(a)  # All values become 0.0 (sin(0))
     ```
     """
-    return dispatch_float_unary[_sin_op](tensor)
+    return _dispatch_float_unary_typed[_sin_op](tensor)
 
 
 @always_inline
@@ -271,7 +395,7 @@ fn cos(tensor: AnyTensor) raises -> AnyTensor:
             var b = cos(a)  # All values become 1.0 (cos(0))
     ```
     """
-    return dispatch_float_unary[_cos_op](tensor)
+    return _dispatch_float_unary_typed[_cos_op](tensor)
 
 
 @always_inline
@@ -300,7 +424,7 @@ fn tanh(tensor: AnyTensor) raises -> AnyTensor:
             var b = tanh(a)  # All values become 0.0 (tanh(0))
     ```
     """
-    return dispatch_float_unary[_tanh_op](tensor)
+    return _dispatch_float_unary_typed[_tanh_op](tensor)
 
 
 # ============================================================================
@@ -751,7 +875,7 @@ fn ceil(tensor: AnyTensor) raises -> AnyTensor:
             var b = ceil(a)  # [2.0, 3.0, 4.0]
     ```
     """
-    return dispatch_float_unary[_ceil_op](tensor)
+    return _dispatch_float_unary_typed[_ceil_op](tensor)
 
 
 @always_inline
@@ -780,7 +904,7 @@ fn floor(tensor: AnyTensor) raises -> AnyTensor:
             var b = floor(a)  # [1.0, 2.0, 3.0]
     ```
     """
-    return dispatch_float_unary[_floor_op](tensor)
+    return _dispatch_float_unary_typed[_floor_op](tensor)
 
 
 @always_inline
@@ -809,7 +933,7 @@ fn round(tensor: AnyTensor) raises -> AnyTensor:
             var b = round(a)  # [1.0, 2.0, 4.0] (or [1.0, 3.0, 4.0] depending on rounding mode)
     ```
     """
-    return dispatch_float_unary[_round_op](tensor)
+    return _dispatch_float_unary_typed[_round_op](tensor)
 
 
 @always_inline
@@ -838,7 +962,7 @@ fn trunc(tensor: AnyTensor) raises -> AnyTensor:
             var b = trunc(a)  # [1.0, -2.0, 3.0]
     ```
     """
-    return dispatch_float_unary[_trunc_op](tensor)
+    return _dispatch_float_unary_typed[_trunc_op](tensor)
 
 
 # ============================================================================
@@ -1607,12 +1731,14 @@ fn log2_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
 
 
 # ============================================================================
-# Typed Tensor[dtype] overloads — wrap AnyTensor versions via as_any/as_tensor
+# Typed Tensor[dtype] overloads — call typed core directly (zero AnyTensor roundtrip)
 # ============================================================================
 
 
 fn exp_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     """Element-wise exponential (typed version).
+
+    Calls typed core directly -- no AnyTensor conversion overhead.
 
     Args:
         tensor: Input typed tensor.
@@ -1620,11 +1746,13 @@ fn exp_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     Returns:
         A new Tensor[dt] with exp applied element-wise.
     """
-    return exp(tensor.as_any()).as_tensor[dt]()
+    return _unary_typed[dt, _exp_op](tensor)
 
 
 fn log_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     """Element-wise natural logarithm (typed version).
+
+    Calls typed core directly -- no AnyTensor conversion overhead.
 
     Args:
         tensor: Input typed tensor.
@@ -1632,11 +1760,13 @@ fn log_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     Returns:
         A new Tensor[dt] with log applied element-wise.
     """
-    return log(tensor.as_any()).as_tensor[dt]()
+    return _unary_typed[dt, _log_op](tensor)
 
 
 fn sqrt_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     """Element-wise square root (typed version).
+
+    Calls typed core directly -- no AnyTensor conversion overhead.
 
     Args:
         tensor: Input typed tensor.
@@ -1644,11 +1774,13 @@ fn sqrt_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     Returns:
         A new Tensor[dt] with sqrt applied element-wise.
     """
-    return sqrt(tensor.as_any()).as_tensor[dt]()
+    return _unary_typed[dt, _sqrt_op](tensor)
 
 
 fn abs_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     """Element-wise absolute value (typed version).
+
+    Calls typed core directly -- no AnyTensor conversion overhead.
 
     Args:
         tensor: Input typed tensor.
@@ -1656,11 +1788,13 @@ fn abs_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     Returns:
         A new Tensor[dt] with abs applied element-wise.
     """
-    return abs(tensor.as_any()).as_tensor[dt]()
+    return _unary_typed[dt, _abs_op](tensor)
 
 
 fn sin_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     """Element-wise sine (typed version).
+
+    Calls typed core directly -- no AnyTensor conversion overhead.
 
     Args:
         tensor: Input typed tensor.
@@ -1668,11 +1802,13 @@ fn sin_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     Returns:
         A new Tensor[dt] with sin applied element-wise.
     """
-    return sin(tensor.as_any()).as_tensor[dt]()
+    return _unary_typed[dt, _sin_op](tensor)
 
 
 fn cos_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     """Element-wise cosine (typed version).
+
+    Calls typed core directly -- no AnyTensor conversion overhead.
 
     Args:
         tensor: Input typed tensor.
@@ -1680,4 +1816,60 @@ fn cos_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     Returns:
         A new Tensor[dt] with cos applied element-wise.
     """
-    return cos(tensor.as_any()).as_tensor[dt]()
+    return _unary_typed[dt, _cos_op](tensor)
+
+
+fn tanh_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise hyperbolic tangent (typed version).
+
+    Calls typed core directly -- no AnyTensor conversion overhead.
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        A new Tensor[dt] with tanh applied element-wise.
+    """
+    return _unary_typed[dt, _tanh_op](tensor)
+
+
+fn ceil_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise ceiling (typed version).
+
+    Calls typed core directly -- no AnyTensor conversion overhead.
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        A new Tensor[dt] with ceil applied element-wise.
+    """
+    return _unary_typed[dt, _ceil_op](tensor)
+
+
+fn floor_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise floor (typed version).
+
+    Calls typed core directly -- no AnyTensor conversion overhead.
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        A new Tensor[dt] with floor applied element-wise.
+    """
+    return _unary_typed[dt, _floor_op](tensor)
+
+
+fn sign_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise sign (typed version).
+
+    Calls typed core directly -- no AnyTensor conversion overhead.
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        A new Tensor[dt] with sign applied element-wise.
+    """
+    return _unary_typed[dt, _sign_op](tensor)

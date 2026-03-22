@@ -1,7 +1,13 @@
-"""Activation functions for neural networks.
+"""Activation functions with native Tensor[dtype] implementations.
 
 Provides common activation functions including ReLU family, sigmoid, tanh,
 softmax, and GELU with numerically stable implementations and gradient support.
+Architecture: Tensor[dtype] typed implementations are the core (zero dtype branches).
+AnyTensor versions dispatch to typed implementations via ordinal-based table.
+
+Layer 1 (outer): AnyTensor public API (relu, sigmoid, etc.)
+Layer 2: dtype dispatch table (ordinal-based)
+Layer 3 (core): Tensor[dtype] native implementation (_relu_typed, etc.)
 
 Reference implementations follow PyTorch and TensorFlow conventions:
 - ReLU family: max(0, x), max(alpha*x, x), parametric variants
@@ -44,12 +50,288 @@ from .dtype_dispatch import (
     dispatch_hard_tanh,
     dispatch_hard_tanh_backward,
 )
+from .dtype_ordinal import (
+    dtype_to_ordinal,
+    DTYPE_FLOAT16,
+    DTYPE_FLOAT32,
+    DTYPE_FLOAT64,
+    DTYPE_INT8,
+    DTYPE_INT16,
+    DTYPE_INT32,
+    DTYPE_INT64,
+    DTYPE_UINT8,
+    DTYPE_UINT16,
+    DTYPE_UINT32,
+    DTYPE_UINT64,
+)
 from .gradient_types import GradientPair
 from .activation_ops import exp_scalar_f32, exp_scalar_f64
 from .activation_constants import (
     RELU6_UPPER_BOUND,
     SIGMOID_CLIP_THRESHOLD,
 )
+
+
+# ============================================================================
+# Layer 3 (Core): Native Tensor[dtype] Activation Implementations
+# ============================================================================
+
+
+fn _relu_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
+    """Native typed ReLU -- zero dtype branches.
+
+    Tensor[dt]._data is already typed as UnsafePointer[Scalar[dt]].
+
+    Args:
+        input: Input tensor (typed).
+
+    Returns:
+        Result Tensor[dt] with ReLU applied element-wise.
+    """
+    var result = Tensor[dt](input.shape())
+    var size = input.numel()
+    for i in range(size):
+        result._data[i] = max(Scalar[dt](0), input._data[i])
+    return result^
+
+
+fn _relu6_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
+    """Native typed ReLU6 -- zero dtype branches.
+
+    Args:
+        input: Input tensor (typed).
+
+    Returns:
+        Result Tensor[dt] with ReLU6 applied element-wise.
+    """
+    var result = Tensor[dt](input.shape())
+    var size = input.numel()
+    for i in range(size):
+        result._data[i] = min(max(Scalar[dt](0), input._data[i]), Scalar[dt](RELU6_UPPER_BOUND))
+    return result^
+
+
+fn _sigmoid_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
+    """Native typed sigmoid -- zero dtype branches.
+
+    Uses numerically stable implementation with input clipping.
+
+    Args:
+        input: Input tensor (typed).
+
+    Returns:
+        Result Tensor[dt] with sigmoid applied element-wise.
+    """
+    var result = Tensor[dt](input.shape())
+    var size = input.numel()
+    for i in range(size):
+        var x = input._data[i]
+        if x > Scalar[dt](SIGMOID_CLIP_THRESHOLD):
+            result._data[i] = Scalar[dt](1.0)
+        elif x < Scalar[dt](-SIGMOID_CLIP_THRESHOLD):
+            result._data[i] = Scalar[dt](0.0)
+        else:
+            result._data[i] = Scalar[dt](1.0) / (Scalar[dt](1.0) + exp(-x))
+    return result^
+
+
+fn _leaky_relu_typed[dt: DType](
+    input: Tensor[dt], alpha: Float64
+) raises -> Tensor[dt]:
+    """Native typed leaky ReLU -- zero dtype branches.
+
+    Args:
+        input: Input tensor (typed).
+        alpha: Slope for negative values.
+
+    Returns:
+        Result Tensor[dt] with leaky ReLU applied element-wise.
+    """
+    var result = Tensor[dt](input.shape())
+    var size = input.numel()
+    var alpha_typed = Scalar[dt](alpha)
+    for i in range(size):
+        var val = input._data[i]
+        result._data[i] = max(alpha_typed * val, val)
+    return result^
+
+
+fn _elu_typed[dt: DType](
+    input: Tensor[dt], alpha: Float64
+) raises -> Tensor[dt]:
+    """Native typed ELU -- zero dtype branches.
+
+    Args:
+        input: Input tensor (typed).
+        alpha: Scale for negative values.
+
+    Returns:
+        Result Tensor[dt] with ELU applied element-wise.
+    """
+    var result = Tensor[dt](input.shape())
+    var size = input.numel()
+    var alpha_typed = Scalar[dt](alpha)
+    for i in range(size):
+        var val = input._data[i]
+        if val > Scalar[dt](0):
+            result._data[i] = val
+        else:
+            var val_clipped = max(val, Scalar[dt](-20.0))
+            result._data[i] = alpha_typed * (exp(val_clipped) - Scalar[dt](1.0))
+    return result^
+
+
+fn _selu_typed[dt: DType](
+    input: Tensor[dt], alpha: Float64, lambda_: Float64
+) raises -> Tensor[dt]:
+    """Native typed SELU -- zero dtype branches.
+
+    Args:
+        input: Input tensor (typed).
+        alpha: Scale for exponential branch.
+        lambda_: Overall scale factor.
+
+    Returns:
+        Result Tensor[dt] with SELU applied element-wise.
+    """
+    var result = Tensor[dt](input.shape())
+    var size = input.numel()
+    var alpha_typed = Scalar[dt](alpha)
+    var lambda_typed = Scalar[dt](lambda_)
+    for i in range(size):
+        var val = input._data[i]
+        if val > Scalar[dt](0):
+            result._data[i] = lambda_typed * val
+        else:
+            var val_clipped = max(val, Scalar[dt](-20.0))
+            result._data[i] = lambda_typed * alpha_typed * (exp(val_clipped) - Scalar[dt](1.0))
+    return result^
+
+
+# ============================================================================
+# Layer 2: AnyTensor Dispatch Helpers (delegates to typed activation cores)
+# ============================================================================
+
+
+fn _dispatch_relu(tensor: AnyTensor) raises -> AnyTensor:
+    """Runtime dispatch to Tensor[dtype] typed ReLU core (all dtypes)."""
+    var ordinal = dtype_to_ordinal(tensor._dtype)
+    if ordinal == DTYPE_FLOAT16:
+        return _relu_typed[DType.float16](tensor.as_tensor[DType.float16]()).as_any()
+    elif ordinal == DTYPE_FLOAT32:
+        return _relu_typed[DType.float32](tensor.as_tensor[DType.float32]()).as_any()
+    elif ordinal == DTYPE_FLOAT64:
+        return _relu_typed[DType.float64](tensor.as_tensor[DType.float64]()).as_any()
+    elif ordinal == DTYPE_INT8:
+        return _relu_typed[DType.int8](tensor.as_tensor[DType.int8]()).as_any()
+    elif ordinal == DTYPE_INT16:
+        return _relu_typed[DType.int16](tensor.as_tensor[DType.int16]()).as_any()
+    elif ordinal == DTYPE_INT32:
+        return _relu_typed[DType.int32](tensor.as_tensor[DType.int32]()).as_any()
+    elif ordinal == DTYPE_INT64:
+        return _relu_typed[DType.int64](tensor.as_tensor[DType.int64]()).as_any()
+    elif ordinal == DTYPE_UINT8:
+        return _relu_typed[DType.uint8](tensor.as_tensor[DType.uint8]()).as_any()
+    elif ordinal == DTYPE_UINT16:
+        return _relu_typed[DType.uint16](tensor.as_tensor[DType.uint16]()).as_any()
+    elif ordinal == DTYPE_UINT32:
+        return _relu_typed[DType.uint32](tensor.as_tensor[DType.uint32]()).as_any()
+    elif ordinal == DTYPE_UINT64:
+        return _relu_typed[DType.uint64](tensor.as_tensor[DType.uint64]()).as_any()
+    else:
+        raise Error("relu: unsupported dtype")
+
+
+fn _dispatch_relu6(tensor: AnyTensor) raises -> AnyTensor:
+    """Runtime dispatch to Tensor[dtype] typed ReLU6 core."""
+    var ordinal = dtype_to_ordinal(tensor._dtype)
+    if ordinal == DTYPE_FLOAT16:
+        return _relu6_typed[DType.float16](tensor.as_tensor[DType.float16]()).as_any()
+    elif ordinal == DTYPE_FLOAT32:
+        return _relu6_typed[DType.float32](tensor.as_tensor[DType.float32]()).as_any()
+    elif ordinal == DTYPE_FLOAT64:
+        return _relu6_typed[DType.float64](tensor.as_tensor[DType.float64]()).as_any()
+    elif ordinal == DTYPE_INT8:
+        return _relu6_typed[DType.int8](tensor.as_tensor[DType.int8]()).as_any()
+    elif ordinal == DTYPE_INT16:
+        return _relu6_typed[DType.int16](tensor.as_tensor[DType.int16]()).as_any()
+    elif ordinal == DTYPE_INT32:
+        return _relu6_typed[DType.int32](tensor.as_tensor[DType.int32]()).as_any()
+    elif ordinal == DTYPE_INT64:
+        return _relu6_typed[DType.int64](tensor.as_tensor[DType.int64]()).as_any()
+    else:
+        raise Error("relu6: unsupported dtype")
+
+
+fn _dispatch_sigmoid(tensor: AnyTensor) raises -> AnyTensor:
+    """Runtime dispatch to Tensor[dtype] typed sigmoid core (float only)."""
+    var ordinal = dtype_to_ordinal(tensor._dtype)
+    if ordinal == DTYPE_FLOAT16:
+        return _sigmoid_typed[DType.float16](tensor.as_tensor[DType.float16]()).as_any()
+    elif ordinal == DTYPE_FLOAT32:
+        return _sigmoid_typed[DType.float32](tensor.as_tensor[DType.float32]()).as_any()
+    elif ordinal == DTYPE_FLOAT64:
+        return _sigmoid_typed[DType.float64](tensor.as_tensor[DType.float64]()).as_any()
+    else:
+        raise Error(
+            "sigmoid only supports float16, float32, float64, got: "
+            + String(tensor._dtype)
+        )
+
+
+fn _dispatch_leaky_relu(
+    tensor: AnyTensor, alpha: Float64
+) raises -> AnyTensor:
+    """Runtime dispatch to Tensor[dtype] typed leaky ReLU core."""
+    var ordinal = dtype_to_ordinal(tensor._dtype)
+    if ordinal == DTYPE_FLOAT16:
+        return _leaky_relu_typed[DType.float16](tensor.as_tensor[DType.float16](), alpha).as_any()
+    elif ordinal == DTYPE_FLOAT32:
+        return _leaky_relu_typed[DType.float32](tensor.as_tensor[DType.float32](), alpha).as_any()
+    elif ordinal == DTYPE_FLOAT64:
+        return _leaky_relu_typed[DType.float64](tensor.as_tensor[DType.float64](), alpha).as_any()
+    elif ordinal == DTYPE_INT8:
+        return _leaky_relu_typed[DType.int8](tensor.as_tensor[DType.int8](), alpha).as_any()
+    elif ordinal == DTYPE_INT16:
+        return _leaky_relu_typed[DType.int16](tensor.as_tensor[DType.int16](), alpha).as_any()
+    elif ordinal == DTYPE_INT32:
+        return _leaky_relu_typed[DType.int32](tensor.as_tensor[DType.int32](), alpha).as_any()
+    elif ordinal == DTYPE_INT64:
+        return _leaky_relu_typed[DType.int64](tensor.as_tensor[DType.int64](), alpha).as_any()
+    else:
+        raise Error(
+            "leaky_relu: unsupported dtype (use float16/32/64 or int8/16/32/64)"
+        )
+
+
+fn _dispatch_elu(
+    tensor: AnyTensor, alpha: Float64
+) raises -> AnyTensor:
+    """Runtime dispatch to Tensor[dtype] typed ELU core (float only)."""
+    var ordinal = dtype_to_ordinal(tensor._dtype)
+    if ordinal == DTYPE_FLOAT16:
+        return _elu_typed[DType.float16](tensor.as_tensor[DType.float16](), alpha).as_any()
+    elif ordinal == DTYPE_FLOAT32:
+        return _elu_typed[DType.float32](tensor.as_tensor[DType.float32](), alpha).as_any()
+    elif ordinal == DTYPE_FLOAT64:
+        return _elu_typed[DType.float64](tensor.as_tensor[DType.float64](), alpha).as_any()
+    else:
+        raise Error("elu: only float16/32/64 dtypes supported")
+
+
+fn _dispatch_selu(
+    tensor: AnyTensor, alpha: Float64, lambda_: Float64
+) raises -> AnyTensor:
+    """Runtime dispatch to Tensor[dtype] typed SELU core (float only)."""
+    var ordinal = dtype_to_ordinal(tensor._dtype)
+    if ordinal == DTYPE_FLOAT16:
+        return _selu_typed[DType.float16](tensor.as_tensor[DType.float16](), alpha, lambda_).as_any()
+    elif ordinal == DTYPE_FLOAT32:
+        return _selu_typed[DType.float32](tensor.as_tensor[DType.float32](), alpha, lambda_).as_any()
+    elif ordinal == DTYPE_FLOAT64:
+        return _selu_typed[DType.float64](tensor.as_tensor[DType.float64](), alpha, lambda_).as_any()
+    else:
+        raise Error("selu: only float16/32/64 dtypes supported")
 
 
 # ============================================================================
@@ -98,7 +380,7 @@ fn relu(tensor: AnyTensor) raises -> AnyTensor:
         var y = relu(x)        # [0, 0, 0, 1, 2]
     ```
     """
-    return dispatch_unary[_relu_op](tensor)
+    return _dispatch_relu(tensor)
 
 
 @always_inline
@@ -125,7 +407,7 @@ fn relu6(tensor: AnyTensor) raises -> AnyTensor:
         var y = relu6(x)       # [0, 0, 3, 6, 6]
     ```
     """
-    return dispatch_unary[_relu6_op](tensor)
+    return _dispatch_relu6(tensor)
 
 
 fn leaky_relu(tensor: AnyTensor, alpha: Float64 = 0.01) raises -> AnyTensor:
@@ -152,51 +434,7 @@ fn leaky_relu(tensor: AnyTensor, alpha: Float64 = 0.01) raises -> AnyTensor:
             var y = leaky_relu(x, 0.01)     # [-0.02, -0.01, 0, 1, 2]
     ```
     """
-    var result = AnyTensor(tensor._shape, tensor._dtype)
-
-    if tensor._dtype == DType.float16:
-        var alpha16 = Float16(alpha)
-        for i in range(tensor._numel):
-            var val = tensor._data.bitcast[Float16]()[i]
-            result[i] = Float32(max(alpha16 * val, val))
-    elif tensor._dtype == DType.float32:
-        var alpha32 = Float32(alpha)
-        for i in range(tensor._numel):
-            var val = tensor._data.bitcast[Float32]()[i]
-            result[i] = Float32(max(alpha32 * val, val))
-    elif tensor._dtype == DType.float64:
-        for i in range(tensor._numel):
-            var val = tensor._data.bitcast[Float64]()[i]
-            result[i] = Float32(max(alpha * val, val))
-    elif tensor._dtype == DType.int8:
-        var alpha_scaled = Int8(alpha * 128)  # Scale for fixed-point
-        for i in range(tensor._numel):
-            var val = tensor._data.bitcast[Int8]()[i]
-            var scaled = (alpha_scaled * val) >> 7  # Divide by 128
-            result[i] = Float32(scaled)
-    elif tensor._dtype == DType.int16:
-        var alpha_scaled = Int16(alpha * 32768)
-        for i in range(tensor._numel):
-            var val = tensor._data.bitcast[Int16]()[i]
-            var scaled = (alpha_scaled * val) >> 15
-            result[i] = Float32(scaled)
-    elif tensor._dtype == DType.int32:
-        var alpha32 = Float32(alpha)
-        for i in range(tensor._numel):
-            var val = tensor._data.bitcast[Int32]()[i]
-            var scaled = Int32(alpha32 * Float32(val))
-            result[i] = Float32(scaled)
-    elif tensor._dtype == DType.int64:
-        for i in range(tensor._numel):
-            var val = tensor._data.bitcast[Int64]()[i]
-            var scaled = Int64(alpha * Float64(val))
-            result[i] = Float32(scaled)
-    else:
-        raise Error(
-            "leaky_relu: unsupported dtype (use float16/32/64 or int8/16/32/64)"
-        )
-
-    return result
+    return _dispatch_leaky_relu(tensor, alpha)
 
 
 @always_inline
@@ -324,9 +562,6 @@ fn sigmoid(tensor: AnyTensor) raises -> AnyTensor:
 
     Supported dtypes: float16, float32, float64.
 
-    This fused implementation handles float16 at tensor level instead of
-    per-element conversion, reducing overhead.
-
     Args:
             tensor: Input tensor of any shape.
 
@@ -342,49 +577,7 @@ fn sigmoid(tensor: AnyTensor) raises -> AnyTensor:
             var y = sigmoid(x)     # [0.119, 0.5, 0.881]
     ```
     """
-    var result = zeros_like(tensor)
-    var data_ptr = tensor._data
-    var result_ptr = result._data
-    var size = tensor.numel()
-
-    if tensor.dtype() == DType.float32:
-        for i in range(size):
-            var x = data_ptr.bitcast[Float32]()[i]
-            if x > Float32(SIGMOID_CLIP_THRESHOLD):
-                result[i] = Float32(1.0)
-            elif x < Float32(-SIGMOID_CLIP_THRESHOLD):
-                result[i] = Float32(0.0)
-            else:
-                var exp_neg_x = exp_scalar_f32(-x)
-                result[i] = Float32(1.0) / (Float32(1.0) + exp_neg_x)
-    elif tensor.dtype() == DType.float64:
-        for i in range(size):
-            var x = data_ptr.bitcast[Float64]()[i]
-            if x > Float64(SIGMOID_CLIP_THRESHOLD):
-                result[i] = Float32(1.0)
-            elif x < Float64(-SIGMOID_CLIP_THRESHOLD):
-                result[i] = Float32(0.0)
-            else:
-                var exp_neg_x = exp_scalar_f64(-x)
-                result[i] = Float32(Float32(1.0) / (Float32(1.0) + Float32(exp_neg_x)))
-    elif tensor.dtype() == DType.float16:
-        # Tensor-level handling: convert to Float32, compute, convert back
-        for i in range(size):
-            var x = Float32(data_ptr.bitcast[Float16]()[i])
-            if x > Float32(SIGMOID_CLIP_THRESHOLD):
-                result[i] = Float32(1.0)
-            elif x < Float32(-SIGMOID_CLIP_THRESHOLD):
-                result[i] = Float32(0.0)
-            else:
-                var exp_neg_x = exp_scalar_f32(-x)
-                result[i] = Float32(1.0) / (Float32(1.0) + exp_neg_x)
-    else:
-        raise Error(
-            "sigmoid only supports float16, float32, float64, got: "
-            + String(tensor.dtype())
-        )
-
-    return result^
+    return _dispatch_sigmoid(tensor)
 
 
 @always_inline
@@ -406,6 +599,22 @@ fn _tanh_op[T: DType](x: Scalar[T]) -> Scalar[T]:
         return Scalar[T](math_tanh(Float32(x)))
     else:  # float64
         return Scalar[T](math_tanh(Float64(x)))
+
+
+fn _tanh_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
+    """Native typed tanh -- zero dtype branches.
+
+    Args:
+        input: Input tensor (typed).
+
+    Returns:
+        Result Tensor[dt] with tanh applied element-wise.
+    """
+    var result = Tensor[dt](input.shape())
+    var size = input.numel()
+    for i in range(size):
+        result._data[i] = _tanh_op[dt](input._data[i])
+    return result^
 
 
 fn tanh(tensor: AnyTensor) raises -> AnyTensor:
@@ -431,7 +640,15 @@ fn tanh(tensor: AnyTensor) raises -> AnyTensor:
             var y = tanh(x)        # [-0.964, 0, 0.964]
     ```
     """
-    return dispatch_float_unary[_tanh_op](tensor)
+    var ordinal = dtype_to_ordinal(tensor._dtype)
+    if ordinal == DTYPE_FLOAT16:
+        return _tanh_typed[DType.float16](tensor.as_tensor[DType.float16]()).as_any()
+    elif ordinal == DTYPE_FLOAT32:
+        return _tanh_typed[DType.float32](tensor.as_tensor[DType.float32]()).as_any()
+    elif ordinal == DTYPE_FLOAT64:
+        return _tanh_typed[DType.float64](tensor.as_tensor[DType.float64]()).as_any()
+    else:
+        raise Error("tanh: unsupported dtype (requires float16/32/64)")
 
 
 # ============================================================================
@@ -1045,44 +1262,7 @@ fn elu(tensor: AnyTensor, alpha: Float64 = 1.0) raises -> AnyTensor:
             Clevert et al., "Fast and Accurate Deep Network Learning by.
             Exponential Linear Units (ELUs)" (2015).
     """
-    var result = zeros_like(tensor)
-    var data_ptr = tensor._data
-    var result_ptr = result._data
-    var size = tensor.numel()
-
-    if tensor.dtype() == DType.float32:
-        for i in range(size):
-            var val = data_ptr.bitcast[Float32]()[i]
-            if val > 0:
-                result[i] = Float32(val)
-            else:
-                var val_clipped = max(val, Float32(-20.0))
-                var exp_val = exp_scalar_f32(val_clipped)
-                result[i] = Float32(alpha) * (exp_val - 1.0)
-    elif tensor.dtype() == DType.float64:
-        for i in range(size):
-            var val = data_ptr.bitcast[Float64]()[i]
-            if val > 0:
-                result[i] = Float32(val)
-            else:
-                var val_clipped = max(val, Float64(-20.0))
-                var exp_val = exp_scalar_f64(val_clipped)
-                result[i] = Float32(alpha * (Float64(exp_val) - 1.0))
-    elif tensor.dtype() == DType.float16:
-        for i in range(size):
-            var val = Float32(data_ptr.bitcast[Float16]()[i])
-            if val > 0:
-                result[i] = Float32(val)
-            else:
-                var val_clipped = max(val, Float32(-20.0))
-                var exp_val = exp_scalar_f32(val_clipped)
-                result[i] = Float32(
-                    Float32(alpha) * (exp_val - 1.0)
-                )
-    else:
-        raise Error("elu: only float16/32/64 dtypes supported")
-
-    return result
+    return _dispatch_elu(tensor, alpha)
 
 
 fn selu(
@@ -1096,9 +1276,9 @@ fn selu(
     converge to zero mean and unit variance during training.
 
     Formula:
-        selu(x) = λ * (x if x > 0 else α * (exp(x) - 1))
-        where α ≈ 1.6732632423543772848 (optimal scaling for SNNs)
-        and λ ≈ 1.0507009873554804934 (variance normalization)
+        selu(x) = lambda * (x if x > 0 else alpha * (exp(x) - 1))
+        where alpha = 1.6732632423543772848 (optimal scaling for SNNs)
+        and lambda = 1.0507009873554804934 (variance normalization)
 
     Args:
         tensor: Input tensor of any shape.
@@ -1114,50 +1294,7 @@ fn selu(
     Reference:
         Klambauer et al., "Self-Normalizing Neural Networks" (2017).
     """
-    var result = zeros_like(tensor)
-    var data_ptr = tensor._data
-    var result_ptr = result._data
-    var size = tensor.numel()
-
-    if tensor.dtype() == DType.float32:
-        for i in range(size):
-            var val = data_ptr.bitcast[Float32]()[i]
-            if val > 0:
-                result[i] = Float32(lambda_) * val
-            else:
-                var val_clipped = max(val, Float32(-20.0))
-                var exp_val = exp_scalar_f32(val_clipped)
-                result[i] = (
-                    Float32(lambda_) * Float32(alpha) * (exp_val - 1.0)
-                )
-    elif tensor.dtype() == DType.float64:
-        for i in range(size):
-            var val = data_ptr.bitcast[Float64]()[i]
-            if val > 0:
-                result[i] = Float32(lambda_ * val)
-            else:
-                var val_clipped = max(val, Float64(-20.0))
-                var exp_val = exp_scalar_f64(val_clipped)
-                result[i] = Float32(
-                    lambda_ * alpha * (exp_val - 1.0)
-                )
-    elif tensor.dtype() == DType.float16:
-        for i in range(size):
-            var val = Float32(data_ptr.bitcast[Float16]()[i])
-            if val > 0:
-                result[i] = Float32(
-                    Float32(lambda_) * val
-                )
-            else:
-                var val_clipped = max(val, Float32(-20.0))
-                var exp_val = exp_scalar_f32(val_clipped)
-                result.set(i, Float16(
-                    Float32(lambda_) * Float32(alpha) * (exp_val - 1.0)
-                ))
-    else:
-        raise Error("selu: only float16/32/64 dtypes supported")
-
-    return result
+    return _dispatch_selu(tensor, alpha, lambda_)
 
 
 # ============================================================================
@@ -1583,12 +1720,14 @@ fn hard_tanh_backward(
 
 
 # ============================================================================
-# Typed Tensor[dtype] overloads — wrap AnyTensor versions via as_any/as_tensor
+# Typed Tensor[dtype] overloads — call typed core directly (zero AnyTensor roundtrip)
 # ============================================================================
 
 
 fn relu_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     """Apply ReLU activation: max(0, x) (typed version).
+
+    Calls typed core directly -- no AnyTensor conversion overhead.
 
     Args:
         input: Input typed tensor.
@@ -1596,11 +1735,13 @@ fn relu_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     Returns:
         A new Tensor[dt] with ReLU applied element-wise.
     """
-    return relu(input.as_any()).as_tensor[dt]()
+    return _relu_typed[dt](input)
 
 
 fn sigmoid_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     """Apply sigmoid activation: 1 / (1 + exp(-x)) (typed version).
+
+    Calls typed core directly -- no AnyTensor conversion overhead.
 
     Args:
         input: Input typed tensor.
@@ -1608,13 +1749,97 @@ fn sigmoid_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     Returns:
         A new Tensor[dt] with sigmoid applied element-wise.
     """
-    return sigmoid(input.as_any()).as_tensor[dt]()
+    return _sigmoid_typed[dt](input)
+
+
+fn tanh_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
+    """Apply tanh activation (typed version).
+
+    Calls typed core directly -- no AnyTensor conversion overhead.
+
+    Args:
+        input: Input typed tensor.
+
+    Returns:
+        A new Tensor[dt] with tanh applied element-wise.
+    """
+    return _tanh_typed[dt](input)
+
+
+fn leaky_relu_typed[dt: DType](
+    input: Tensor[dt], alpha: Float64 = 0.01
+) raises -> Tensor[dt]:
+    """Apply Leaky ReLU activation (typed version).
+
+    Calls typed core directly -- no AnyTensor conversion overhead.
+
+    Args:
+        input: Input typed tensor.
+        alpha: Slope for negative values (default: 0.01).
+
+    Returns:
+        A new Tensor[dt] with leaky ReLU applied element-wise.
+    """
+    return _leaky_relu_typed[dt](input, alpha)
+
+
+fn elu_typed[dt: DType](
+    input: Tensor[dt], alpha: Float64 = 1.0
+) raises -> Tensor[dt]:
+    """Apply ELU activation (typed version).
+
+    Calls typed core directly -- no AnyTensor conversion overhead.
+
+    Args:
+        input: Input typed tensor.
+        alpha: Scale for negative values (default: 1.0).
+
+    Returns:
+        A new Tensor[dt] with ELU applied element-wise.
+    """
+    return _elu_typed[dt](input, alpha)
+
+
+fn selu_typed[dt: DType](
+    input: Tensor[dt],
+    alpha: Float64 = 1.6732632423543772848170429916717,
+    lambda_: Float64 = 1.0507009873554804934193349852946,
+) raises -> Tensor[dt]:
+    """Apply SELU activation (typed version).
+
+    Calls typed core directly -- no AnyTensor conversion overhead.
+
+    Args:
+        input: Input typed tensor.
+        alpha: Scale for exponential branch.
+        lambda_: Overall scale factor.
+
+    Returns:
+        A new Tensor[dt] with SELU applied element-wise.
+    """
+    return _selu_typed[dt](input, alpha, lambda_)
+
+
+fn relu6_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
+    """Apply ReLU6 activation: min(max(0, x), 6) (typed version).
+
+    Calls typed core directly -- no AnyTensor conversion overhead.
+
+    Args:
+        input: Input typed tensor.
+
+    Returns:
+        A new Tensor[dt] with ReLU6 applied element-wise.
+    """
+    return _relu6_typed[dt](input)
 
 
 fn softmax_typed[dt: DType](
     input: Tensor[dt], axis: Int = -1
 ) raises -> Tensor[dt]:
     """Apply softmax activation (typed version).
+
+    Softmax uses specialized dispatch and is not yet inverted to typed core.
 
     Args:
         input: Input typed tensor.
