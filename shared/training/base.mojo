@@ -9,7 +9,7 @@ These contracts establish clear APIs for gradient utilities (#2393) and training
 """
 
 from collections import Dict, List
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.core import has_nan, has_inf
 from math import sqrt
 
@@ -265,7 +265,7 @@ trait LRScheduler:
 # ============================================================================
 
 
-fn has_nan_or_inf(tensor: ExTensor) -> Bool:
+fn has_nan_or_inf(tensor: AnyTensor) -> Bool:
     """Check if tensor contains NaN or Inf values (numerical instability detection).
 
     Detects numerical instability in gradients during training by checking for:
@@ -315,7 +315,7 @@ fn is_valid_loss(loss: Float64) raises -> Bool:
     # Create a single-element tensor for loss value
     var shape = List[Int]()
     shape.append(1)
-    var loss_tensor = ExTensor(shape, DType.float64)
+    var loss_tensor = AnyTensor(shape, DType.float64)
 
     # Access the tensor's data pointer and set the loss value
     var ptr = loss_tensor._data.bitcast[Float64]()
@@ -326,7 +326,7 @@ fn is_valid_loss(loss: Float64) raises -> Bool:
 
 
 fn compute_gradient_norm(
-    parameters: List[ExTensor], norm_type: String = "L2"
+    parameters: List[AnyTensor], norm_type: String = "L2"
 ) -> Float64:
     """Compute gradient norm for training diagnostics and exploding gradient detection.
 
@@ -421,7 +421,7 @@ fn clip_gradients(
     Note:
         This is a legacy function that works with lists of Float64.
         For tensor-based gradient clipping, use compute_gradient_norm()
-        with ExTensor parameters instead.
+        with AnyTensor parameters instead.
     """
     # Compute L2 norm of the gradient list
     var norm_sq = Float64(0.0)

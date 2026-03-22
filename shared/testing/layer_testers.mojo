@@ -50,7 +50,7 @@ Usage:
 """
 
 from math import isnan, isinf
-from shared.core.extensor import ExTensor, zeros_like, ones_like
+from shared.core.extensor import AnyTensor, zeros_like, ones_like
 from shared.core.conv import conv2d, conv2d_output_shape, conv2d_backward
 from shared.core.linear import linear, linear_backward
 from shared.core.normalization import batch_norm2d, batch_norm2d_backward
@@ -113,8 +113,8 @@ struct LayerTester:
         kernel_size: Int,
         input_h: Int,
         input_w: Int,
-        weights: ExTensor,
-        bias: ExTensor,
+        weights: AnyTensor,
+        bias: AnyTensor,
         dtype: DType,
         stride: Int = 1,
         padding: Int = 0,
@@ -196,8 +196,8 @@ struct LayerTester:
     fn test_linear_layer(
         in_features: Int,
         out_features: Int,
-        weights: ExTensor,
-        bias: ExTensor,
+        weights: AnyTensor,
+        bias: AnyTensor,
         dtype: DType,
     ) raises:
         """Test fully connected layer with special values.
@@ -307,7 +307,7 @@ struct LayerTester:
         )
 
         # Forward pass
-        var output: ExTensor
+        var output: AnyTensor
         if pool_type == "max":
             output = maxpool2d(input, pool_size, stride, padding=padding)
         else:
@@ -376,7 +376,7 @@ struct LayerTester:
         var input = create_alternating_pattern_tensor(shape, dtype)
 
         # Forward pass
-        var output: ExTensor
+        var output: AnyTensor
         if activation == "relu":
             output = relu(input)
         elif activation == "sigmoid":
@@ -432,7 +432,7 @@ struct LayerTester:
 
     @staticmethod
     fn test_layer_dtype_consistency(
-        input: ExTensor, output: ExTensor, layer_name: String = "Layer"
+        input: AnyTensor, output: AnyTensor, layer_name: String = "Layer"
     ) raises:
         """Test that layer preserves dtype from input to output.
 
@@ -460,7 +460,7 @@ struct LayerTester:
 
     @staticmethod
     fn test_layer_no_invalid_values(
-        output: ExTensor, layer_name: String = "Layer"
+        output: AnyTensor, layer_name: String = "Layer"
     ) raises:
         """Test that layer output contains no NaN or Inf values.
 
@@ -503,8 +503,8 @@ struct LayerTester:
         kernel_size: Int,
         input_h: Int,
         input_w: Int,
-        weights: ExTensor,
-        bias: ExTensor,
+        weights: AnyTensor,
+        bias: AnyTensor,
         dtype: DType,
         stride: Int = 1,
         padding: Int = 0,
@@ -613,7 +613,7 @@ struct LayerTester:
         var tolerance = 1e-1  # 10% tolerance for all dtypes
 
         # Define forward function for gradient checking
-        fn forward(x: ExTensor) raises escaping -> ExTensor:
+        fn forward(x: AnyTensor) raises escaping -> AnyTensor:
             return conv2d(x, weights, bias, stride=stride, padding=padding)
 
         # Use sampled or exhaustive gradient checking based on num_gradient_samples
@@ -695,8 +695,8 @@ struct LayerTester:
     fn test_linear_layer_backward(
         in_features: Int,
         out_features: Int,
-        weights: ExTensor,
-        bias: ExTensor,
+        weights: AnyTensor,
+        bias: AnyTensor,
         dtype: DType,
         validate_analytical: Bool = False,
         num_gradient_samples: Int = 0,
@@ -774,7 +774,7 @@ struct LayerTester:
         )
 
         # Define forward function for gradient checking
-        fn forward(x: ExTensor) raises escaping -> ExTensor:
+        fn forward(x: AnyTensor) raises escaping -> AnyTensor:
             return linear(x, weights, bias)
 
         # Use sampled or exhaustive gradient checking based on num_gradient_samples
@@ -911,7 +911,7 @@ struct LayerTester:
         )
 
         # Forward pass
-        var output: ExTensor
+        var output: AnyTensor
         if activation == "relu":
             output = relu(input)
         elif activation == "sigmoid":
@@ -940,7 +940,7 @@ struct LayerTester:
         var tolerance = 1e-2 if dtype == DType.float32 else 1e-1
 
         # Define forward function for gradient checking
-        fn forward(x: ExTensor) raises escaping -> ExTensor:
+        fn forward(x: AnyTensor) raises escaping -> AnyTensor:
             if activation == "relu":
                 return relu(x)
             elif activation == "sigmoid":
@@ -974,7 +974,7 @@ struct LayerTester:
             var grad_output = ones_like(output)
 
             # Compute analytical gradient using activation-specific backward
-            var analytical_grad: ExTensor
+            var analytical_grad: AnyTensor
             if activation == "relu":
                 # ReLU backward takes input
                 analytical_grad = relu_backward(grad_output, input)
@@ -999,10 +999,10 @@ struct LayerTester:
     fn test_batchnorm_layer(
         num_features: Int,
         input_shape: List[Int],
-        gamma: ExTensor,
-        beta: ExTensor,
-        running_mean: ExTensor,
-        running_var: ExTensor,
+        gamma: AnyTensor,
+        beta: AnyTensor,
+        running_mean: AnyTensor,
+        running_var: AnyTensor,
         dtype: DType,
         training_mode: Bool = True,
     ) raises:
@@ -1080,10 +1080,10 @@ struct LayerTester:
     fn test_batchnorm_layer_backward(
         num_features: Int,
         input_shape: List[Int],
-        gamma: ExTensor,
-        beta: ExTensor,
-        running_mean: ExTensor,
-        running_var: ExTensor,
+        gamma: AnyTensor,
+        beta: AnyTensor,
+        running_mean: AnyTensor,
+        running_var: AnyTensor,
         dtype: DType,
     ) raises:
         """Test BatchNorm backward pass with gradient checking.
@@ -1181,7 +1181,7 @@ struct LayerTester:
         # Define forward function for gradient checking.
         # Loss = sum(output * grad_output) so that the numerical gradient matches
         # the analytical gradient from batch_norm2d_backward(grad_output, ...).
-        fn forward_for_grad(x: ExTensor) raises escaping -> ExTensor:
+        fn forward_for_grad(x: AnyTensor) raises escaping -> AnyTensor:
             var (out, _, _) = batch_norm2d(
                 x, gamma, beta, running_mean, running_var, training=True
             )

@@ -19,7 +19,7 @@ Features:
 
 """
 
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.core.traits import Model
 from shared.data.batch_utils import extract_batch_pair, compute_num_batches
 from collections import List
@@ -89,8 +89,8 @@ fn evaluate_model[
     M: Model
 ](
     mut model: M,
-    images: ExTensor,
-    labels: ExTensor,
+    images: AnyTensor,
+    labels: AnyTensor,
     batch_size: Int = 100,
     num_classes: Int = 10,
     verbose: Bool = True,
@@ -101,7 +101,7 @@ fn evaluate_model[
     generic function that works with any model type M that implements forward().
 
     Parameters:
-        M: Model type that must implement forward(images: ExTensor) -> ExTensor.
+        M: Model type that must implement forward(images: AnyTensor) -> AnyTensor.
 
     Args:
         model: Model to evaluate (must have forward() method).
@@ -228,8 +228,8 @@ fn evaluate_model_simple[
     M: Model
 ](
     mut model: M,
-    images: ExTensor,
-    labels: ExTensor,
+    images: AnyTensor,
+    labels: AnyTensor,
     batch_size: Int = 100,
     num_classes: Int = 10,
     verbose: Bool = True,
@@ -240,7 +240,7 @@ fn evaluate_model_simple[
     is needed, without per-class statistics.
 
     Parameters:
-        M: Model type that must implement forward(images: ExTensor) -> ExTensor.
+        M: Model type that must implement forward(images: AnyTensor) -> AnyTensor.
 
     Args:
         model: Model to evaluate (must have forward() method).
@@ -326,8 +326,8 @@ fn evaluate_topk[
     M: Model
 ](
     mut model: M,
-    images: ExTensor,
-    labels: ExTensor,
+    images: AnyTensor,
+    labels: AnyTensor,
     k: Int = 5,
     batch_size: Int = 100,
     num_classes: Int = 10,
@@ -339,7 +339,7 @@ fn evaluate_topk[
     label is in the top-k predictions.
 
     Parameters:
-        M: Model type that must implement forward(images: ExTensor) -> ExTensor.
+        M: Model type that must implement forward(images: AnyTensor) -> AnyTensor.
 
     Args:
         model: Model to evaluate.

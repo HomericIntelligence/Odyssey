@@ -27,7 +27,7 @@ Example:
     ```
 """
 
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.data.transforms import Transform
 
 
@@ -56,7 +56,7 @@ struct IdentityTransform(Copyable, Movable, Transform):
         """Create identity transform."""
         pass
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Apply identity transform (passthrough).
 
         Args:
@@ -107,7 +107,7 @@ struct LambdaTransform(Copyable, Movable, Transform):
         """
         self.func = func
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Apply function to each element.
 
         Args:
@@ -126,7 +126,7 @@ struct LambdaTransform(Copyable, Movable, Transform):
             var transformed = self.func(value)
             result_values.append(transformed)
 
-        return ExTensor(result_values^)
+        return AnyTensor(result_values^)
 
 
 # ============================================================================
@@ -147,7 +147,7 @@ struct ConditionalTransform[T: Transform & Copyable & Movable](
 
     Example:
         ```mojo
-        >> fn is_large(tensor: ExTensor) -> Bool:
+        >> fn is_large(tensor: AnyTensor) -> Bool:
         ...     return tensor.num_elements() > 100
         >>>
         >>> var transform = ConditionalTransform(is_large, augment)
@@ -155,14 +155,14 @@ struct ConditionalTransform[T: Transform & Copyable & Movable](
         ```
     """
 
-    var predicate: fn (ExTensor) raises -> Bool
+    var predicate: fn (AnyTensor) raises -> Bool
     """Predicate function to evaluate on tensor."""
     var transform: Self.T
     """Transform to apply if predicate is true."""
 
     fn __init__(
         out self,
-        predicate: fn (ExTensor) raises -> Bool,
+        predicate: fn (AnyTensor) raises -> Bool,
         var transform: Self.T,
     ):
         """Create conditional transform.
@@ -174,7 +174,7 @@ struct ConditionalTransform[T: Transform & Copyable & Movable](
         self.predicate = predicate
         self.transform = transform^
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Apply transform if predicate is true.
 
         Args:
@@ -234,14 +234,14 @@ struct ClampTransform(Copyable, Movable, Transform):
         self.min_val = min_val
         self.max_val = max_val
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Clamp all values to [min_val, max_val].
 
         Args:
             data: Input tensor.
 
         Returns:
-            ExTensor with all values clamped to range.
+            AnyTensor with all values clamped to range.
 
         Raises:
             Error: If tensor creation fails.
@@ -259,7 +259,7 @@ struct ClampTransform(Copyable, Movable, Transform):
             else:
                 result_values.append(value)
 
-        return ExTensor(result_values^)
+        return AnyTensor(result_values^)
 
 
 # ============================================================================
@@ -295,7 +295,7 @@ struct DebugTransform(Copyable, Movable, Transform):
         """
         self.name = name
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Print tensor info and return unchanged.
 
         Args:
@@ -463,7 +463,7 @@ struct AnyTransform(Copyable, Movable, Transform):
         self._to_int32 = None
         self._sequential = transform^
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Apply the wrapped transform.
 
         Args:
@@ -532,14 +532,14 @@ struct SequentialTransform(Copyable, Movable, Transform):
         """
         self.transforms = transforms^
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Apply all transforms sequentially.
 
         Args:
             data: Input tensor.
 
         Returns:
-            ExTensor after all transforms applied.
+            AnyTensor after all transforms applied.
 
         Raises:
             Error: If any transform fails.
@@ -585,7 +585,7 @@ struct BatchTransform(Copyable, Movable):
 
     Example:
         ```mojo
-        >> var batch : List[ExTensor] = []
+        >> var batch : List[AnyTensor] = []
         >>> # ... fill batch ...
         >>>
         >>> var transform = BatchTransform(AnyTransform(normalize))
@@ -604,7 +604,7 @@ struct BatchTransform(Copyable, Movable):
         """
         self.transform = transform^
 
-    fn __call__(self, batch: List[ExTensor]) raises -> List[ExTensor]:
+    fn __call__(self, batch: List[AnyTensor]) raises -> List[AnyTensor]:
         """Apply transform to each tensor in batch.
 
         Args:
@@ -616,7 +616,7 @@ struct BatchTransform(Copyable, Movable):
         Raises:
             Error: If any transform fails.
         """
-        var results = List[ExTensor](capacity=len(batch))
+        var results = List[AnyTensor](capacity=len(batch))
 
         for i in range(len(batch)):
             var transformed = self.transform(batch[i])
@@ -658,26 +658,26 @@ struct ToFloat32(Copyable, Movable, Transform):
         """Create ToFloat32 converter."""
         pass
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Convert to Float32.
 
         Args:
             data: Input tensor.
 
         Returns:
-            ExTensor with all values as Float32.
+            AnyTensor with all values as Float32.
 
         Raises:
             Error: If tensor creation fails.
         """
-        # ExTensor is already Float32 in current implementation
+        # AnyTensor is already Float32 in current implementation
         # Just create a copy with Float32 values
         var result_values = List[Float32](capacity=data.num_elements())
 
         for i in range(data.num_elements()):
             result_values.append(Float32(data[i]))
 
-        return ExTensor(result_values^)
+        return AnyTensor(result_values^)
 
 
 struct ToInt32(Copyable, Movable, Transform):
@@ -701,14 +701,14 @@ struct ToInt32(Copyable, Movable, Transform):
         """Create ToInt32 converter."""
         pass
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Convert to Int32 (truncate).
 
         Args:
             data: Input tensor.
 
         Returns:
-            ExTensor with all values truncated to Int32.
+            AnyTensor with all values truncated to Int32.
 
         Raises:
             Error: If tensor creation fails.
@@ -724,7 +724,7 @@ struct ToInt32(Copyable, Movable, Transform):
             var int_value = Int(value)
             result_values.append(Float32(int_value))
 
-        return ExTensor(result_values^)
+        return AnyTensor(result_values^)
 
 
 # ============================================================================
@@ -733,8 +733,8 @@ struct ToInt32(Copyable, Movable, Transform):
 
 
 fn apply_to_tensor(
-    data: ExTensor, func: fn (Float32) -> Float32
-) raises -> ExTensor:
+    data: AnyTensor, func: fn (Float32) -> Float32
+) raises -> AnyTensor:
     """Apply function element-wise to tensor.
 
     Helper function for creating ad-hoc transforms without
@@ -745,7 +745,7 @@ fn apply_to_tensor(
         func: Function to apply to each element.
 
     Returns:
-        ExTensor with function applied element-wise to all values.
+        AnyTensor with function applied element-wise to all values.
 
     Raises:
         Error: If tensor creation fails.

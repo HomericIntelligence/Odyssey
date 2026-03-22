@@ -5,14 +5,14 @@ This module provides transformations for preprocessing and augmenting data.
 IMPORTANT LIMITATIONS:
 - Image transforms assume square images (H = W)
 - Default assumption: 3 channels (RGB)
-- ExTensor layout: Flattened (H, W, C) with channels-last
+- AnyTensor layout: Flattened (H, W, C) with channels-last
 - For non-square or grayscale images, dimensions must be manually validated
 
-These limitations are due to Mojo's current ExTensor API not exposing shape metadata.
+These limitations are due to Mojo's current AnyTensor API not exposing shape metadata.
 Future versions may support arbitrary image dimensions.
 """
 
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 from math import sqrt, floor, ceil, sin, cos
 from random import random_si64
 from shared.data.random_transform_base import RandomTransformBase, random_float
@@ -24,7 +24,7 @@ from shared.data.random_transform_base import RandomTransformBase, random_float
 
 
 fn infer_image_dimensions(
-    data: ExTensor, channels: Int = 3
+    data: AnyTensor, channels: Int = 3
 ) raises -> Tuple[Int, Int, Int]:
     """Infer image dimensions from flattened tensor.
 
@@ -59,7 +59,7 @@ fn infer_image_dimensions(
             return (size, size, 1)
 
     # Neither worked - raise error
-    raise Error("ExTensor size doesn't match square image assumption")
+    raise Error("AnyTensor size doesn't match square image assumption")
 
 
 # ============================================================================
@@ -73,7 +73,7 @@ trait Transform(Copyable, Movable):
     Transforms modify data in-place or return transformed copies.
     """
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Apply the transform to data.
 
         Args:
@@ -117,7 +117,7 @@ struct Compose[T: Transform & Copyable & Movable](Copyable, Movable, Transform):
         """
         self.transforms = transforms^
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Apply all transforms sequentially.
 
         Args:
@@ -152,21 +152,21 @@ comptime Pipeline[T: Transform & Copyable & Movable] = Compose[T]
 
 
 # ============================================================================
-# ExTensor Transforms
+# AnyTensor Transforms
 # ============================================================================
 
 
-struct ToExTensor(Copyable, Movable, Transform):
+struct ToAnyTensor(Copyable, Movable, Transform):
     """Convert data to tensor format.
 
     Ensures data is in tensor format with appropriate dtype.
     """
 
     fn __init__(out self):
-        """Create ToExTensor converter."""
+        """Create ToAnyTensor converter."""
         pass
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Convert to tensor.
 
         Args:
@@ -203,7 +203,7 @@ struct Normalize(Copyable, Movable, Transform):
         self.mean = mean
         self.std = std
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Normalize tensor by subtracting mean and dividing by std.
 
         Applies the formula: (data - mean) / std to all elements.
@@ -230,7 +230,7 @@ struct Normalize(Copyable, Movable, Transform):
             normalized.append(Float32(norm_value))
 
         # Create tensor from normalized values
-        return ExTensor(normalized^)
+        return AnyTensor(normalized^)
 
 
 struct Reshape(Copyable, Movable, Transform):
@@ -250,7 +250,7 @@ struct Reshape(Copyable, Movable, Transform):
         """
         self.target_shape = target_shape^
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Reshape tensor to target shape.
 
         Validates that the total number of elements remains the same.
@@ -287,7 +287,7 @@ struct Reshape(Copyable, Movable, Transform):
             reshaped_data.append(Float32(data[i]))
 
         # Create output tensor from the list
-        var reshaped = ExTensor(reshaped_data^)
+        var reshaped = AnyTensor(reshaped_data^)
 
         return reshaped^
 
@@ -320,7 +320,7 @@ struct Resize(Copyable, Movable, Transform):
         self.size = size
         self.interpolation = interpolation
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Resize image tensor using bilinear interpolation.
 
         Resizes spatial dimensions (H, W) while preserving channels (C).
@@ -407,7 +407,7 @@ struct Resize(Copyable, Movable, Transform):
                     resized_data.append(Float32(v))
 
         # Create output tensor from the list
-        var resized = ExTensor(resized_data^)
+        var resized = AnyTensor(resized_data^)
 
         return resized^
 
@@ -429,7 +429,7 @@ struct CenterCrop(Copyable, Movable, Transform):
         """
         self.size = size
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Center crop image to target size.
 
         Extracts a center rectangle from a 2D image tensor.
@@ -474,7 +474,7 @@ struct CenterCrop(Copyable, Movable, Transform):
                     ) * channels + c
                     cropped.append(Float32(data[src_idx]))
 
-        return ExTensor(cropped^)
+        return AnyTensor(cropped^)
 
 
 struct RandomCrop(Copyable, Movable, Transform):
@@ -498,7 +498,7 @@ struct RandomCrop(Copyable, Movable, Transform):
         self.size = size
         self.padding = padding
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Random crop image to target size.
 
         Extracts a random rectangle from a 2D image tensor.
@@ -576,7 +576,7 @@ struct RandomCrop(Copyable, Movable, Transform):
                         # Out of bounds (in padding region), fill with 0
                         cropped.append(Float32(0.0))
 
-        return ExTensor(cropped^)
+        return AnyTensor(cropped^)
 
 
 struct RandomHorizontalFlip(Copyable, Movable, Transform):
@@ -596,7 +596,7 @@ struct RandomHorizontalFlip(Copyable, Movable, Transform):
         """
         self.base = RandomTransformBase(p)
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Randomly flip image horizontally with probability p.
 
         Flips the image along the width dimension (reverses each row).
@@ -637,7 +637,7 @@ struct RandomHorizontalFlip(Copyable, Movable, Transform):
                     var src_idx = (h * width + w_orig) * channels + c
                     flipped.append(Float32(data[src_idx]))
 
-        return ExTensor(flipped^)
+        return AnyTensor(flipped^)
 
 
 struct RandomVerticalFlip(Copyable, Movable, Transform):
@@ -657,7 +657,7 @@ struct RandomVerticalFlip(Copyable, Movable, Transform):
         """
         self.base = RandomTransformBase(p)
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Randomly flip image vertically with probability p.
 
         Flips the image along the height dimension (reverses rows).
@@ -698,7 +698,7 @@ struct RandomVerticalFlip(Copyable, Movable, Transform):
                     var src_idx = (h_orig * width + w) * channels + c
                     flipped.append(Float32(data[src_idx]))
 
-        return ExTensor(flipped^)
+        return AnyTensor(flipped^)
 
 
 struct RandomRotation(Copyable, Movable, Transform):
@@ -724,7 +724,7 @@ struct RandomRotation(Copyable, Movable, Transform):
         self.degrees = degrees
         self.fill_value = fill_value
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Randomly rotate image within specified degree range.
 
         Performs rotation around image center using nearest-neighbor sampling.
@@ -802,7 +802,7 @@ struct RandomRotation(Copyable, Movable, Transform):
                         # Fill with fill_value for out-of-bounds pixels
                         rotated.append(Float32(self.fill_value))
 
-        return ExTensor(rotated^)
+        return AnyTensor(rotated^)
 
 
 struct RandomErasing(Copyable, Movable, Transform):
@@ -845,7 +845,7 @@ struct RandomErasing(Copyable, Movable, Transform):
         self.ratio = ratio
         self.value = value
 
-    fn __call__(self, data: ExTensor) raises -> ExTensor:
+    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Apply random erasing with probability p.
 
         Randomly erases a rectangular region from the image by:
@@ -940,4 +940,4 @@ struct RandomErasing(Copyable, Movable, Transform):
             else:
                 result.append(Float32(data[i]))
 
-        return ExTensor(result^)
+        return AnyTensor(result^)

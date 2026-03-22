@@ -21,7 +21,7 @@ Reference:
     arXiv preprint arXiv:1412.6980
 """
 
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.core import subtract, multiply, add, divide, power
 from shared.core.arithmetic_simd import (
     subtract_simd,
@@ -34,17 +34,17 @@ from shared.core import full_like, ones_like
 
 
 fn adam_step(
-    params: ExTensor,
-    gradients: ExTensor,
-    m: ExTensor,
-    v: ExTensor,
+    params: AnyTensor,
+    gradients: AnyTensor,
+    m: AnyTensor,
+    v: AnyTensor,
     t: Int,
     learning_rate: Float64,
     beta1: Float64 = 0.9,
     beta2: Float64 = 0.999,
     epsilon: Float64 = 1e-8,
     weight_decay: Float64 = 0.0,
-) raises -> Tuple[ExTensor, ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
     """Perform a single Adam optimization step - pure functional.
 
         Returns new parameters, new first moment (m), and new second moment (v).
@@ -67,7 +67,7 @@ fn adam_step(
 
     Example (basic Adam):
         ```mojo
-        from shared.core import ExTensor, zeros_like
+        from shared.core import AnyTensor, zeros_like
         from shared.training.optimizers import adam_step
 
         var W = xavier_uniform(784, 128, DType.float32)
@@ -161,13 +161,13 @@ fn adam_step(
 
 
 fn adam_step_simple(
-    params: ExTensor,
-    gradients: ExTensor,
-    m: ExTensor,
-    v: ExTensor,
+    params: AnyTensor,
+    gradients: AnyTensor,
+    m: AnyTensor,
+    v: AnyTensor,
     t: Int,
     learning_rate: Float64,
-) raises -> Tuple[ExTensor, ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
     """Simplified Adam step with default hyperparameters.
 
         This is a convenience function for basic Adam optimization.

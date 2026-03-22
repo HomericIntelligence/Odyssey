@@ -13,7 +13,7 @@ Features:
 """
 
 from collections import List
-from shared.core import ExTensor
+from shared.core import AnyTensor
 
 
 # ============================================================================
@@ -128,7 +128,7 @@ fn print_evaluation_summary(
 # ============================================================================
 
 
-fn print_per_class_accuracy(per_class_accuracies: ExTensor) raises:
+fn print_per_class_accuracy(per_class_accuracies: AnyTensor) raises:
     """Print per-class accuracy metrics with default numeric class labels.
 
         Displays accuracy for each class in a table format using numeric indices
@@ -142,7 +142,7 @@ fn print_per_class_accuracy(per_class_accuracies: ExTensor) raises:
 
         Example:
             ```mojo
-            var per_class = ExTensor([10], DType.float64)
+            var per_class = AnyTensor([10], DType.float64)
             # ... populate with per-class accuracies ...
             print_per_class_accuracy(per_class)
 
@@ -166,7 +166,7 @@ fn print_per_class_accuracy(per_class_accuracies: ExTensor) raises:
 
 
 fn print_per_class_accuracy(
-    per_class_accuracies: ExTensor,
+    per_class_accuracies: AnyTensor,
     class_names: List[String],
     column_width: Int = 15,
 ) raises:
@@ -185,7 +185,7 @@ fn print_per_class_accuracy(
 
         Example:
             ```mojo
-            var per_class = ExTensor([3], DType.float64)
+            var per_class = AnyTensor([3], DType.float64)
             # ... populate with per-class accuracies ...
             var names = List[String]()
             names.append("Cat")
@@ -250,7 +250,7 @@ fn print_per_class_accuracy(
 # ============================================================================
 
 
-fn print_confusion_matrix(matrix: ExTensor) raises:
+fn print_confusion_matrix(matrix: AnyTensor) raises:
     """Print confusion matrix with default numeric class labels.
 
         Displays confusion matrix with proper alignment using numeric indices
@@ -265,7 +265,7 @@ fn print_confusion_matrix(matrix: ExTensor) raises:
         Example:
             ```mojo
             var cm_shape = [3, 3]
-            var matrix = ExTensor(cm_shape, DType.int32)
+            var matrix = AnyTensor(cm_shape, DType.int32)
             # ... populate matrix ...
             print_confusion_matrix(matrix)
 
@@ -296,7 +296,7 @@ fn print_confusion_matrix(matrix: ExTensor) raises:
 
 
 fn print_confusion_matrix(
-    matrix: ExTensor,
+    matrix: AnyTensor,
     class_names: List[String],
     normalized: Bool = False,
     column_width: Int = 10,
@@ -318,7 +318,7 @@ fn print_confusion_matrix(
         Example:
             ```mojo
             var cm_shape = [3, 3]
-            var matrix = ExTensor(cm_shape, DType.int32)
+            var matrix = AnyTensor(cm_shape, DType.int32)
             # ... populate matrix ...
             var names = List[String]()
             names.append("Cat")

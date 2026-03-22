@@ -41,7 +41,7 @@ Example:
     ```
 """
 
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.utils.serialization import save_tensor, load_tensor
 from collections import List
 
@@ -52,7 +52,7 @@ from collections import List
 
 
 fn save_model_weights(
-    parameters: List[ExTensor], directory: String, param_names: List[String]
+    parameters: List[AnyTensor], directory: String, param_names: List[String]
 ) raises:
     """Save model weights to directory.
 
@@ -69,7 +69,7 @@ fn save_model_weights(
 
         Example:
             ```mojo
-            var params : List[ExTensor] = []
+            var params : List[AnyTensor] = []
             params.append(model.conv1_kernel)
             params.append(model.fc1_weights)
 
@@ -97,7 +97,7 @@ fn save_model_weights(
 
 
 fn load_model_weights(
-    mut parameters: List[ExTensor], directory: String, param_names: List[String]
+    mut parameters: List[AnyTensor], directory: String, param_names: List[String]
 ) raises:
     """Load model weights from directory.
 
@@ -114,7 +114,7 @@ fn load_model_weights(
 
         Example:
             ```mojo
-            var params : List[ExTensor] = []
+            var params : List[AnyTensor] = []
             var names = List[String]()
             names.append("conv1_kernel")
             names.append("fc1_weights")
@@ -275,7 +275,7 @@ fn get_model_parameter_names(model_type: String) raises -> List[String]:
         raise Error("Unknown model type: " + model_type)
 
 
-fn validate_shapes(loaded: List[ExTensor], expected: List[ExTensor]) raises:
+fn validate_shapes(loaded: List[AnyTensor], expected: List[AnyTensor]) raises:
     """Validate that loaded tensors match expected shapes.
 
     Useful for checking that checkpoint weights are compatible with

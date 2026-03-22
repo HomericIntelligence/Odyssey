@@ -7,8 +7,8 @@ Modules:
 
 Classes:
     Dataset: Base trait for all datasets
-    ExTensorDataset: In-memory tensor dataset
-    TensorDataset: Alias for ExTensorDataset
+    AnyTensorDataset: In-memory tensor dataset
+    TensorDataset: Alias for AnyTensorDataset
     FileDataset: Lazy-loading file-based dataset
     CIFAR10Dataset: High-level interface for CIFAR-10 data access
 
@@ -25,7 +25,7 @@ Example:
 # Core dataset types from _datasets_core.mojo
 from shared.data._datasets_core import (
     Dataset,
-    ExTensorDataset,
+    AnyTensorDataset,
     TensorDataset,
     FileDataset,
 )

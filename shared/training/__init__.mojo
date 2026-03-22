@@ -36,7 +36,7 @@ Note:
     ```
 """
 
-from shared.core.extensor import ExTensor
+from shared.core.extensor import AnyTensor
 from shared.core.traits import Model, Loss, Optimizer
 from shared.training.trainer_interface import DataLoader
 from shared.autograd.tape import GradientTape
@@ -137,7 +137,7 @@ struct SGD(Movable, Optimizer):
         """
         self.learning_rate = learning_rate
 
-    fn step(mut self, params: List[ExTensor]) raises:
+    fn step(mut self, params: List[AnyTensor]) raises:
         """Update parameters using gradients.
 
         Implements: param = param - learning_rate * grad.
@@ -197,7 +197,7 @@ struct MSELoss(Loss, Movable):
         """
         self.reduction = reduction
 
-    fn compute(self, pred: ExTensor, target: ExTensor) raises -> ExTensor:
+    fn compute(self, pred: AnyTensor, target: AnyTensor) raises -> AnyTensor:
         """Compute MSE loss between predictions and targets.
 
         Implements the Loss trait interface.
@@ -207,7 +207,7 @@ struct MSELoss(Loss, Movable):
             target: Ground truth targets.
 
         Returns:
-            Scalar loss value as ExTensor.
+            Scalar loss value as AnyTensor.
 
         Raises:
             Error: If operation fails.
@@ -232,7 +232,7 @@ struct MSELoss(Loss, Movable):
             # Default to no reduction ("none")
             return squared
 
-    fn forward(self, output: ExTensor, target: ExTensor) raises -> Float32:
+    fn forward(self, output: AnyTensor, target: AnyTensor) raises -> Float32:
         """Compute MSE loss (legacy interface for backward compatibility).
 
         Args:
@@ -247,7 +247,7 @@ struct MSELoss(Loss, Movable):
         """
         return Float32(0.0)
 
-    fn backward(self, grad_output: ExTensor) raises -> ExTensor:
+    fn backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Compute gradient of loss.
 
         Args:
@@ -312,7 +312,7 @@ struct TrainingLoop[
         self.loss_fn = loss_fn^
         self.tape = GradientTape()
 
-    fn step(mut self, inputs: ExTensor, targets: ExTensor) raises -> ExTensor:
+    fn step(mut self, inputs: AnyTensor, targets: AnyTensor) raises -> AnyTensor:
         """Perform single training step.
 
         Implements the training loop cycle using trait methods:
@@ -323,11 +323,11 @@ struct TrainingLoop[
         5. Return loss value.
 
         Args:
-            inputs: Input ExTensor.
-            targets: Target ExTensor.
+            inputs: Input AnyTensor.
+            targets: Target AnyTensor.
 
         Returns:
-            Scalar loss value as ExTensor.
+            Scalar loss value as AnyTensor.
 
         Raises:
             Error: If operation fails.
@@ -379,14 +379,14 @@ struct TrainingLoop[
 
         return loss_var.detach()
 
-    fn forward(mut self, inputs: ExTensor) raises -> ExTensor:
+    fn forward(mut self, inputs: AnyTensor) raises -> AnyTensor:
         """Execute forward pass via Model trait.
 
         Args:
-            inputs: Input ExTensor.
+            inputs: Input AnyTensor.
 
         Returns:
-            Model output ExTensor.
+            Model output AnyTensor.
 
         Raises:
             Error: If operation fails.
@@ -395,8 +395,8 @@ struct TrainingLoop[
         return self.model.forward(inputs)
 
     fn compute_loss(
-        self, outputs: ExTensor, targets: ExTensor
-    ) raises -> ExTensor:
+        self, outputs: AnyTensor, targets: AnyTensor
+    ) raises -> AnyTensor:
         """Compute loss via Loss trait.
 
         Args:
@@ -404,7 +404,7 @@ struct TrainingLoop[
             targets: Ground truth targets.
 
         Returns:
-            Scalar loss value as ExTensor.
+            Scalar loss value as AnyTensor.
 
         Raises:
             Error: If operation fails.
@@ -504,7 +504,7 @@ struct CrossEntropyLoss(Loss, Movable):
         """
         self.reduction = reduction
 
-    fn compute(self, pred: ExTensor, target: ExTensor) raises -> ExTensor:
+    fn compute(self, pred: AnyTensor, target: AnyTensor) raises -> AnyTensor:
         """Compute cross entropy loss between predictions and targets.
 
         Args:
@@ -512,7 +512,7 @@ struct CrossEntropyLoss(Loss, Movable):
             target: Ground truth targets (class indices or one-hot).
 
         Returns:
-            Scalar loss value as ExTensor.
+            Scalar loss value as AnyTensor.
 
         Raises:
             Error: If operation fails.

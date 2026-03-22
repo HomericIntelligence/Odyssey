@@ -11,16 +11,16 @@ by separating data preparation from training iterations. Future versions
 can be upgraded to async when Mojo adds these primitives.
 
 Example:
-    from shared.data import ExTensorDataset, BatchLoader, RandomSampler
+    from shared.data import AnyTensorDataset, BatchLoader, RandomSampler
     from shared.data.prefetch import PrefetchDataLoader
 
-    var dataset = ExTensorDataset(images, labels)
+    var dataset = AnyTensorDataset(images, labels)
     var sampler = RandomSampler(dataset.__len__())
     var loader = BatchLoader(dataset, sampler, batch_size=32)
     var prefetch_loader = PrefetchDataLoader(loader, prefetch_factor=2)
 """
 
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.data.loaders import Batch, BatchLoader
 from shared.data.datasets import Dataset
 from shared.data.samplers import Sampler
@@ -32,7 +32,7 @@ struct PrefetchBuffer(Copyable, Movable):
     Manages a fixed-size buffer of batches. Currently uses synchronous
     pre-computation. Can be upgraded to async when Mojo adds Task primitives.
 
-    Note: Batch storage requires careful memory management since ExTensor
+    Note: Batch storage requires careful memory management since AnyTensor
     uses heap allocation. This buffer owns the batches until consumption.
     """
 
@@ -131,7 +131,7 @@ struct PrefetchDataLoader[
 
     Example:
         ```mojo
-        var dataset = ExTensorDataset(images, labels)
+        var dataset = AnyTensorDataset(images, labels)
         var sampler = RandomSampler(dataset.__len__())
         var loader = BatchLoader(dataset, sampler, batch_size=32)
 

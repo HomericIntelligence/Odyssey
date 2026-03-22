@@ -30,7 +30,7 @@ Features:
 
 from random import random_float64, seed
 from math import sqrt
-from shared.core import ExTensor, zeros, ones
+from shared.core import AnyTensor, zeros, ones
 from shared.core import reshape
 from shared.testing.data_generators import random_tensor
 
@@ -276,7 +276,7 @@ fn run_property_test_with_seed(
 
 
 fn assert_tensors_close(
-    a: ExTensor, b: ExTensor, atol: Float64 = 1e-6, rtol: Float64 = 1e-5
+    a: AnyTensor, b: AnyTensor, atol: Float64 = 1e-6, rtol: Float64 = 1e-5
 ) raises:
     """Assert two tensors are element-wise close.
 
@@ -322,7 +322,7 @@ fn assert_tensors_close(
             )
 
 
-fn tensors_equal(a: ExTensor, b: ExTensor, atol: Float64 = 1e-6) raises -> Bool:
+fn tensors_equal(a: AnyTensor, b: AnyTensor, atol: Float64 = 1e-6) raises -> Bool:
     """Check if two tensors are element-wise equal within tolerance.
 
     Args:

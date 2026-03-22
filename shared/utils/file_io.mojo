@@ -25,7 +25,7 @@
 
 from python import Python, PythonObject
 from memory import UnsafePointer
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 from shared.utils.serialization import dtype_to_string
 
 
@@ -254,14 +254,14 @@ fn load_checkpoint(filepath: String) raises -> Checkpoint:
 
 
 # ============================================================================
-# ExTensor Checkpoint Support
+# AnyTensor Checkpoint Support
 # ============================================================================
 
 
 fn save_tensor_to_checkpoint(
-    tensor: ExTensor, name: String, checkpoint_dir: String
+    tensor: AnyTensor, name: String, checkpoint_dir: String
 ) -> Bool:
-    """Save ExTensor to checkpoint directory using hex format.
+    """Save AnyTensor to checkpoint directory using hex format.
 
         Uses the same hex-encoding format as weights.mojo for compatibility.
         Creates checkpoint_dir if it doesn't exist.
@@ -319,15 +319,15 @@ fn save_tensor_to_checkpoint(
 
 fn load_tensor_from_checkpoint(
     name: String, checkpoint_dir: String
-) raises -> ExTensor:
-    """Load ExTensor from checkpoint directory.
+) raises -> AnyTensor:
+    """Load AnyTensor from checkpoint directory.
 
     Args:
             name: Parameter name (e.g., "conv1_kernel").
             checkpoint_dir: Directory containing checkpoint files.
 
     Returns:
-            Loaded ExTensor.
+            Loaded AnyTensor.
 
     Raises:
             Error: If file doesn't exist or format is invalid.
