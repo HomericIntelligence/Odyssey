@@ -57,10 +57,10 @@ struct Linear[dtype: DType = DType.float32](Copyable, Module, Movable):
         self.out_features = out_features
 
         # Initialize weights with randn (standard normal distribution)
-        self.weight = randn([in_features, out_features], dtype)
+        self.weight = randn([in_features, out_features], Self.dtype)
 
         # Initialize bias to zeros
-        self.bias = zeros([out_features], dtype)
+        self.bias = zeros([out_features], Self.dtype)
 
     fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: y = xW + b.

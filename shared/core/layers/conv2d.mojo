@@ -98,15 +98,15 @@ struct Conv2dLayer[dtype: DType = DType.float32](Copyable, Movable):
         var fan_in = in_channels * kernel_h * kernel_w
         var fan_out = out_channels * kernel_h * kernel_w
         self.weight = kaiming_uniform(
-            fan_in, fan_out, weight_shape, "fan_in", dtype
+            fan_in, fan_out, weight_shape, "fan_in", Self.dtype
         )
 
         # Initialize bias to zeros
         var bias_shape = List[Int]()
         bias_shape.append(out_channels)
-        self.bias = zeros(bias_shape, dtype)
+        self.bias = zeros(bias_shape, Self.dtype)
 
-    fn forward(self, input: Tensor[dtype]) raises -> Tensor[dtype]:
+    fn forward(self, input: Tensor[Self.dtype]) raises -> Tensor[Self.dtype]:
         """Forward pass: y = conv2d(x, weight, bias, stride, padding).
 
         Applies the learned convolutional filters to the input.
@@ -129,10 +129,10 @@ struct Conv2dLayer[dtype: DType = DType.float32](Copyable, Movable):
         """
         return conv2d(
             input.as_any(), self.weight, self.bias, self.stride, self.padding
-        ).as_tensor[dtype]()
+        ).as_tensor[Self.dtype]()
 
     fn backward(
-        self, grad_output: Tensor[dtype], input: Tensor[dtype]
+        self, grad_output: Tensor[Self.dtype], input: Tensor[Self.dtype]
     ) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
         """Backward pass: compute gradients w.r.t. input, weight, and bias.
 

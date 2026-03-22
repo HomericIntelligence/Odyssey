@@ -85,26 +85,26 @@ struct BatchNorm2dLayer[dtype: DType = DType.float32](Copyable, Movable):
         # Initialize gamma (scale) to 1.0 for each channel
         var gamma_shape = List[Int]()
         gamma_shape.append(num_channels)
-        self.gamma = ones(gamma_shape, dtype)
+        self.gamma = ones(gamma_shape, Self.dtype)
 
         # Initialize beta (shift) to 0.0
         var beta_shape = List[Int]()
         beta_shape.append(num_channels)
-        self.beta = zeros(beta_shape, dtype)
+        self.beta = zeros(beta_shape, Self.dtype)
 
         # Initialize running_mean to 0.0
         var running_mean_shape = List[Int]()
         running_mean_shape.append(num_channels)
-        self.running_mean = zeros(running_mean_shape, dtype)
+        self.running_mean = zeros(running_mean_shape, Self.dtype)
 
         # Initialize running_var to 1.0
         var running_var_shape = List[Int]()
         running_var_shape.append(num_channels)
-        self.running_var = ones(running_var_shape, dtype)
+        self.running_var = ones(running_var_shape, Self.dtype)
 
     fn forward(
-        mut self, input: Tensor[dtype], training: Bool = True
-    ) raises -> Tensor[dtype]:
+        mut self, input: Tensor[Self.dtype], training: Bool = True
+    ) raises -> Tensor[Self.dtype]:
         """Forward pass with batch normalization.
 
         In training mode: computes batch statistics and updates running stats
@@ -144,7 +144,7 @@ struct BatchNorm2dLayer[dtype: DType = DType.float32](Copyable, Movable):
             self.running_mean = new_running_mean^
             self.running_var = new_running_var^
 
-        return output.as_tensor[dtype]()
+        return output.as_tensor[Self.dtype]()
 
     fn parameters(self) raises -> List[AnyTensor]:
         """Get list of trainable parameters.

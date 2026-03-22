@@ -155,7 +155,7 @@ struct Tensor[dtype: DType = DType.float32](
 
     fn __init__(
         out self,
-        data: UnsafePointer[Scalar[dtype], origin=MutAnyOrigin],
+        data: UnsafePointer[Scalar[Self.dtype], origin=MutAnyOrigin],
         shape: List[Int],
         strides: List[Int],
         refcount: UnsafePointer[Int, origin=MutAnyOrigin],

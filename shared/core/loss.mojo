@@ -1120,7 +1120,7 @@ fn smooth_l1_loss_typed[
 ](
     predictions: Tensor[dt],
     targets: Tensor[dt],
-    beta: Float64 = 1.0,
+    beta: Float32 = 1.0,
 ) raises -> Tensor[dt]:
     """Typed overload of smooth_l1_loss for Tensor[dtype].
 
