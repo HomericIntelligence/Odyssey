@@ -262,6 +262,9 @@ from shared.core.matrix import (
     outer,
     matmul_backward,
     transpose_backward,
+    transpose_typed,
+    dot_typed,
+    outer_typed,
 )
 
 # ============================================================================
@@ -355,6 +358,8 @@ from shared.core.conv import (
     depthwise_separable_conv2d_no_bias,
     depthwise_separable_conv2d_backward,
     depthwise_separable_conv2d_no_bias_backward,
+    conv2d_typed,
+    conv2d_no_bias_typed,
 )
 
 from shared.core.pooling import (
@@ -589,6 +594,10 @@ from shared.core.reduction import (
     std_backward,
     median_backward,
     percentile_backward,
+    sum_typed,
+    mean_typed,
+    max_reduce_typed,
+    min_reduce_typed,
 )
 
 from shared.core.reduction_ops import (
