@@ -7,7 +7,7 @@ Uses typed `UnsafePointer[Scalar[dtype]]` storage instead of type-erased
 `UnsafePointer[UInt8]`. Pointer arithmetic auto-scales by element size (H1),
 so no manual `* dtype_size` is needed for element offsets.
 
-Zero-copy conversion to AnyTensor (future AnyTensor) via `as_any()` with shared
+Zero-copy conversion to AnyTensor via `as_any()` with shared
 refcount (B4). Both types share a `TensorLike` trait interface.
 
 Example:

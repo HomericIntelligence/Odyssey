@@ -64,7 +64,7 @@ comptime ReLU = ReLULayer
 comptime Dropout = DropoutLayer
 comptime BatchNorm2d = BatchNorm2dLayer
 
-# MaxPool2D, Flatten — NOT YET IMPLEMENTED in shared/core/layers/
+# MaxPool2D, Flatten — pending layer implementation
 
 # Core activations (function form) — all four confirmed in shared/core/activation.mojo
 from shared.core.activation import relu, sigmoid, tanh, softmax
@@ -72,14 +72,12 @@ from shared.core.activation import relu, sigmoid, tanh, softmax
 # Core module system
 # Module is a trait (not a struct) — can be imported but not instantiated directly
 from shared.core.module import Module
-# Sequential — only parametric variants exist (Sequential2, Sequential3, …); no
-# single-type Sequential class yet. NOT YET IMPLEMENTED.
+# Sequential — only parametric variants exist (Sequential2, Sequential3, …)
 
 # Core tensors — AnyTensor is the canonical runtime-typed tensor.
 from shared.core.any_tensor import AnyTensor, zeros, ones, randn
 
-# Training optimizers — only functional step-functions exist (sgd_step, adam_step, etc.);
-# no SGD/Adam/AdamW struct classes yet. NOT YET IMPLEMENTED.
+# Training optimizers — struct classes available via shared.autograd.optimizers
 
 # Training schedulers — struct implementations confirmed in lr_schedulers.mojo
 from shared.training.schedulers.lr_schedulers import StepLR, CosineAnnealingLR
@@ -103,12 +101,9 @@ from shared.autograd.optimizers import SGD, Adam, AdaGrad, RMSprop, AdamW
 # Training callbacks — struct implementations confirmed in shared/training/callbacks.mojo
 from shared.training.callbacks import EarlyStopping, ModelCheckpoint
 
-# Training loops — train_epoch / validate_epoch not implemented; existing functions are
-# train_one_epoch (training_loop.mojo) and validate (validation_loop.mojo).
-# NOT YET IMPLEMENTED with documented API names.
+# Training loops — available as train_one_epoch / validate (see training_loop.mojo)
 
-# Data components — TensorDataset/ImageDataset/DataLoader structs not yet implemented
-# (only AnyTensorDataset exists). NOT YET IMPLEMENTED.
+# Data components — AnyTensorDataset available; typed wrappers pending
 
 # Utils
 from shared.utils.logging import Logger
