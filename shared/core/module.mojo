@@ -21,7 +21,7 @@ Example:
     ```mojo
     from .module import Module
     from .layers import Linear
-    from .extensor import ExTensor, zeros
+    from .extensor import AnyTensor, zeros
 
     # Linear layer implements Module trait
     var layer = Linear(10, 5)
@@ -41,7 +41,7 @@ Sequential Usage Example:
     ```mojo
     from .module import Module
     from .layers import Linear, ReLU
-    from .extensor import ExTensor, zeros
+    from .extensor import AnyTensor, zeros
 
     # Compose layers using Sequential2
     from .sequential import Sequential2
@@ -63,7 +63,7 @@ See Also:
     - shared.core.layers.linear: Linear layer implementation example
 """
 
-from .extensor import ExTensor
+from .extensor import AnyTensor
 
 
 trait Module:
@@ -80,10 +80,10 @@ trait Module:
     Modules that need training/eval mode switching implement train() and eval()
 
     Type Parameters:
-        - No generic parameters - all modules work with ExTensor
+        - No generic parameters - all modules work with AnyTensor at boundaries
     """
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute forward pass of the module.
 
         Args:
@@ -101,7 +101,7 @@ trait Module:
         """
         ...
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Get list of trainable parameters.
 
         Returns a list of all learnable parameters (weights, biases, etc.)
@@ -109,7 +109,7 @@ trait Module:
         no trainable parameters (e.g., activation functions, pooling).
 
         Returns:
-            List of ExTensor containing all trainable parameters.
+            List of AnyTensor containing all trainable parameters.
             Order should be consistent across calls.
 
         Raises:

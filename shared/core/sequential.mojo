@@ -37,7 +37,7 @@ See Also:
     - shared.core.layers: Available layer implementations
 """
 
-from .extensor import ExTensor
+from .extensor import AnyTensor
 from .module import Module
 
 
@@ -85,7 +85,7 @@ struct Sequential2[T0: Module & Movable, T1: Module & Movable](Movable):
         self.layer0 = other.layer0^
         self.layer1 = other.layer1^
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute chained forward pass through both layers.
 
         Args:
@@ -100,16 +100,16 @@ struct Sequential2[T0: Module & Movable, T1: Module & Movable](Movable):
         var out0 = self.layer0.forward(input)
         return self.layer1.forward(out0)
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Collect trainable parameters from both layers.
 
         Returns:
-            List of ExTensor containing parameters from layer0 then layer1.
+            List of AnyTensor containing parameters from layer0 then layer1.
 
         Raises:
             Error: If parameter collection fails.
         """
-        var params: List[ExTensor] = []
+        var params: List[AnyTensor] = []
         var p0 = self.layer0.parameters()
         var p1 = self.layer1.parameters()
         for i in range(len(p0)):
@@ -188,7 +188,7 @@ struct Sequential3[
         self.layer1 = other.layer1^
         self.layer2 = other.layer2^
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute chained forward pass through all three layers.
 
         Args:
@@ -204,16 +204,16 @@ struct Sequential3[
         var out1 = self.layer1.forward(out0)
         return self.layer2.forward(out1)
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Collect trainable parameters from all three layers.
 
         Returns:
-            List of ExTensor containing parameters from layer0, layer1, layer2.
+            List of AnyTensor containing parameters from layer0, layer1, layer2.
 
         Raises:
             Error: If parameter collection fails.
         """
-        var params: List[ExTensor] = []
+        var params: List[AnyTensor] = []
         var p0 = self.layer0.parameters()
         var p1 = self.layer1.parameters()
         var p2 = self.layer2.parameters()
@@ -307,7 +307,7 @@ struct Sequential4[
         self.layer2 = other.layer2^
         self.layer3 = other.layer3^
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute chained forward pass through all four layers.
 
         Args:
@@ -324,16 +324,16 @@ struct Sequential4[
         var out2 = self.layer2.forward(out1)
         return self.layer3.forward(out2)
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Collect trainable parameters from all four layers.
 
         Returns:
-            List of ExTensor containing parameters from all layers.
+            List of AnyTensor containing parameters from all layers.
 
         Raises:
             Error: If parameter collection fails.
         """
-        var params: List[ExTensor] = []
+        var params: List[AnyTensor] = []
         var p0 = self.layer0.parameters()
         var p1 = self.layer1.parameters()
         var p2 = self.layer2.parameters()
@@ -440,7 +440,7 @@ struct Sequential5[
         self.layer3 = other.layer3^
         self.layer4 = other.layer4^
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute chained forward pass through all five layers.
 
         Args:
@@ -458,16 +458,16 @@ struct Sequential5[
         var out3 = self.layer3.forward(out2)
         return self.layer4.forward(out3)
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Collect trainable parameters from all five layers.
 
         Returns:
-            List of ExTensor containing parameters from all layers.
+            List of AnyTensor containing parameters from all layers.
 
         Raises:
             Error: If parameter collection fails.
         """
-        var params: List[ExTensor] = []
+        var params: List[AnyTensor] = []
         var p0 = self.layer0.parameters()
         var p1 = self.layer1.parameters()
         var p2 = self.layer2.parameters()
