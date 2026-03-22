@@ -2846,3 +2846,242 @@ fn instance_norm_backward(
         raise Error("instance_norm_backward: only float32/64 dtypes supported")
 
     return (grad_input, grad_gamma, grad_beta)
+
+
+# ============================================================================
+# Typed Tensor[dtype] overloads — wrap AnyTensor versions via as_any/as_tensor
+# ============================================================================
+
+from shared.tensor.tensor import Tensor
+
+
+fn batch_norm2d[
+    dt: DType
+](
+    x: Tensor[dt],
+    gamma: Tensor[dt],
+    beta: Tensor[dt],
+    running_mean: Tensor[dt],
+    running_var: Tensor[dt],
+    training: Bool,
+    momentum: Float64 = 0.1,
+    epsilon: Float64 = 1e-5,
+) raises -> Tuple[Tensor[dt], Tensor[dt], Tensor[dt]]:
+    """Functional 2D batch normalization (typed version).
+
+    Args:
+        x: Input tensor of shape (batch, channels, height, width).
+        gamma: Scale parameter of shape (channels,).
+        beta: Shift parameter of shape (channels,).
+        running_mean: Running mean of shape (channels,).
+        running_var: Running variance of shape (channels,).
+        training: If True, use batch statistics and update running stats.
+        momentum: Momentum for running statistics update.
+        epsilon: Small constant for numerical stability.
+
+    Returns:
+        Tuple of (output, new_running_mean, new_running_var).
+    """
+    var (out, new_mean, new_var) = batch_norm2d(
+        x.as_any(),
+        gamma.as_any(),
+        beta.as_any(),
+        running_mean.as_any(),
+        running_var.as_any(),
+        training,
+        momentum,
+        epsilon,
+    )
+    return (
+        out.as_tensor[dt](),
+        new_mean.as_tensor[dt](),
+        new_var.as_tensor[dt](),
+    )
+
+
+fn batch_norm2d_backward[
+    dt: DType
+](
+    grad_output: Tensor[dt],
+    x: Tensor[dt],
+    gamma: Tensor[dt],
+    running_mean: Tensor[dt],
+    running_var: Tensor[dt],
+    training: Bool,
+    epsilon: Float64 = 1e-5,
+) raises -> Tuple[Tensor[dt], Tensor[dt], Tensor[dt]]:
+    """Backward pass for 2D batch normalization (typed version).
+
+    Args:
+        grad_output: Gradient w.r.t. output.
+        x: Original input tensor.
+        gamma: Scale parameter.
+        running_mean: Running mean.
+        running_var: Running variance.
+        training: Whether in training mode.
+        epsilon: Small constant for numerical stability.
+
+    Returns:
+        Tuple of (grad_input, grad_gamma, grad_beta).
+    """
+    var (gi, gg, gb) = batch_norm2d_backward(
+        grad_output.as_any(),
+        x.as_any(),
+        gamma.as_any(),
+        running_mean.as_any(),
+        running_var.as_any(),
+        training,
+        epsilon,
+    )
+    return (gi.as_tensor[dt](), gg.as_tensor[dt](), gb.as_tensor[dt]())
+
+
+fn layer_norm[
+    dt: DType
+](
+    x: Tensor[dt],
+    gamma: Tensor[dt],
+    beta: Tensor[dt],
+    epsilon: Float64 = 1e-5,
+) raises -> Tensor[dt]:
+    """Functional layer normalization (typed version).
+
+    Args:
+        x: Input tensor.
+        gamma: Scale parameter.
+        beta: Shift parameter.
+        epsilon: Small constant for numerical stability.
+
+    Returns:
+        Normalized tensor.
+    """
+    return layer_norm(
+        x.as_any(), gamma.as_any(), beta.as_any(), epsilon
+    ).as_tensor[dt]()
+
+
+fn layer_norm_backward[
+    dt: DType
+](
+    grad_output: Tensor[dt],
+    x: Tensor[dt],
+    gamma: Tensor[dt],
+    epsilon: Float64 = 1e-5,
+) raises -> Tuple[Tensor[dt], Tensor[dt], Tensor[dt]]:
+    """Backward pass for layer normalization (typed version).
+
+    Args:
+        grad_output: Gradient w.r.t. output.
+        x: Original input tensor.
+        gamma: Scale parameter.
+        epsilon: Small constant for numerical stability.
+
+    Returns:
+        Tuple of (grad_input, grad_gamma, grad_beta).
+    """
+    var (gi, gg, gb) = layer_norm_backward(
+        grad_output.as_any(), x.as_any(), gamma.as_any(), epsilon
+    )
+    return (gi.as_tensor[dt](), gg.as_tensor[dt](), gb.as_tensor[dt]())
+
+
+fn group_norm[
+    dt: DType
+](
+    x: Tensor[dt],
+    num_groups: Int,
+    gamma: Tensor[dt],
+    beta: Tensor[dt],
+    epsilon: Float64 = 1e-5,
+) raises -> Tensor[dt]:
+    """Functional group normalization (typed version).
+
+    Args:
+        x: Input tensor.
+        num_groups: Number of groups.
+        gamma: Scale parameter.
+        beta: Shift parameter.
+        epsilon: Small constant for numerical stability.
+
+    Returns:
+        Normalized tensor.
+    """
+    return group_norm(
+        x.as_any(), num_groups, gamma.as_any(), beta.as_any(), epsilon
+    ).as_tensor[dt]()
+
+
+fn group_norm_backward[
+    dt: DType
+](
+    grad_output: Tensor[dt],
+    x: Tensor[dt],
+    num_groups: Int,
+    gamma: Tensor[dt],
+    epsilon: Float64 = 1e-5,
+) raises -> Tuple[Tensor[dt], Tensor[dt], Tensor[dt]]:
+    """Backward pass for group normalization (typed version).
+
+    Args:
+        grad_output: Gradient w.r.t. output.
+        x: Original input tensor.
+        num_groups: Number of groups.
+        gamma: Scale parameter.
+        epsilon: Small constant for numerical stability.
+
+    Returns:
+        Tuple of (grad_input, grad_gamma, grad_beta).
+    """
+    var (gi, gg, gb) = group_norm_backward(
+        grad_output.as_any(), x.as_any(), num_groups, gamma.as_any(), epsilon
+    )
+    return (gi.as_tensor[dt](), gg.as_tensor[dt](), gb.as_tensor[dt]())
+
+
+fn instance_norm[
+    dt: DType
+](
+    x: Tensor[dt],
+    gamma: Tensor[dt],
+    beta: Tensor[dt],
+    epsilon: Float64 = 1e-5,
+) raises -> Tensor[dt]:
+    """Functional instance normalization (typed version).
+
+    Args:
+        x: Input tensor.
+        gamma: Scale parameter.
+        beta: Shift parameter.
+        epsilon: Small constant for numerical stability.
+
+    Returns:
+        Normalized tensor.
+    """
+    return instance_norm(
+        x.as_any(), gamma.as_any(), beta.as_any(), epsilon
+    ).as_tensor[dt]()
+
+
+fn instance_norm_backward[
+    dt: DType
+](
+    grad_output: Tensor[dt],
+    x: Tensor[dt],
+    gamma: Tensor[dt],
+    epsilon: Float64 = 1e-5,
+) raises -> Tuple[Tensor[dt], Tensor[dt], Tensor[dt]]:
+    """Backward pass for instance normalization (typed version).
+
+    Args:
+        grad_output: Gradient w.r.t. output.
+        x: Original input tensor.
+        gamma: Scale parameter.
+        epsilon: Small constant for numerical stability.
+
+    Returns:
+        Tuple of (grad_input, grad_gamma, grad_beta).
+    """
+    var (gi, gg, gb) = instance_norm_backward(
+        grad_output.as_any(), x.as_any(), gamma.as_any(), epsilon
+    )
+    return (gi.as_tensor[dt](), gg.as_tensor[dt](), gb.as_tensor[dt]())

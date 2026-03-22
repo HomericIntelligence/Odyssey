@@ -618,3 +618,173 @@ fn clip_grad_global_norm_(
                 grad._set_float64(elem_idx, val * scale_factor)
 
     return global_norm
+
+
+# ============================================================================
+# Typed Tensor[dtype] overloads — wrap AnyTensor versions via as_any/as_tensor
+# ============================================================================
+
+from shared.tensor.tensor import Tensor
+
+
+fn has_nan[dt: DType](tensor: Tensor[dt]) raises -> Bool:
+    """Check if tensor contains any NaN values (typed version).
+
+    Args:
+        tensor: Input typed tensor to check.
+
+    Returns:
+        True if any element is NaN, False otherwise.
+
+    Raises:
+        Error: If conversion fails.
+    """
+    return has_nan(tensor.as_any())
+
+
+fn has_inf[dt: DType](tensor: Tensor[dt]) raises -> Bool:
+    """Check if tensor contains any Inf values (typed version).
+
+    Args:
+        tensor: Input typed tensor to check.
+
+    Returns:
+        True if any element is Inf or -Inf, False otherwise.
+
+    Raises:
+        Error: If conversion fails.
+    """
+    return has_inf(tensor.as_any())
+
+
+fn count_nan[dt: DType](tensor: Tensor[dt]) raises -> Int:
+    """Count number of NaN values in tensor (typed version).
+
+    Args:
+        tensor: Input typed tensor to check.
+
+    Returns:
+        Number of NaN elements.
+
+    Raises:
+        Error: If conversion fails.
+    """
+    return count_nan(tensor.as_any())
+
+
+fn count_inf[dt: DType](tensor: Tensor[dt]) raises -> Int:
+    """Count number of Inf values in tensor (typed version).
+
+    Args:
+        tensor: Input typed tensor to check.
+
+    Returns:
+        Number of Inf/-Inf elements.
+
+    Raises:
+        Error: If conversion fails.
+    """
+    return count_inf(tensor.as_any())
+
+
+fn tensor_min[dt: DType](tensor: Tensor[dt]) raises -> Float64:
+    """Find minimum value in tensor (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        Minimum value as Float64.
+
+    Raises:
+        Error: If conversion fails.
+    """
+    return tensor_min(tensor.as_any())
+
+
+fn tensor_max[dt: DType](tensor: Tensor[dt]) raises -> Float64:
+    """Find maximum value in tensor (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        Maximum value as Float64.
+
+    Raises:
+        Error: If conversion fails.
+    """
+    return tensor_max(tensor.as_any())
+
+
+fn check_tensor_range[dt: DType](
+    tensor: Tensor[dt],
+    min_val: Float64,
+    max_val: Float64,
+    name: String = "tensor",
+) raises:
+    """Check if all tensor values are within [min_val, max_val] (typed version).
+
+    Args:
+        tensor: Typed tensor to check.
+        min_val: Minimum allowed value.
+        max_val: Maximum allowed value.
+        name: Name for error message.
+
+    Raises:
+        Error: If any value is outside the range.
+    """
+    check_tensor_range(tensor.as_any(), min_val, max_val, name)
+
+
+fn compute_tensor_l2_norm[dt: DType](
+    tensor: Tensor[dt],
+) raises -> Float64:
+    """Compute L2 norm of tensor (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        L2 norm as Float64.
+
+    Raises:
+        Error: If conversion fails.
+    """
+    return compute_tensor_l2_norm(tensor.as_any())
+
+
+fn check_gradient_norm[dt: DType](
+    gradient: Tensor[dt],
+    max_norm: Float64 = 1000.0,
+    name: String = "gradient",
+) raises:
+    """Check if gradient L2 norm exceeds threshold (typed version).
+
+    Args:
+        gradient: Gradient typed tensor to check.
+        max_norm: Maximum allowed L2 norm.
+        name: Name for error message.
+
+    Raises:
+        Error: If gradient norm exceeds max_norm.
+    """
+    check_gradient_norm(gradient.as_any(), max_norm, name)
+
+
+fn check_gradient_vanishing[dt: DType](
+    gradient: Tensor[dt],
+    min_norm: Float64 = 1e-7,
+    name: String = "gradient",
+) raises:
+    """Check if gradient L2 norm is too small (typed version).
+
+    Args:
+        gradient: Gradient typed tensor to check.
+        min_norm: Minimum expected L2 norm.
+        name: Name for error message.
+
+    Raises:
+        Error: If gradient norm is below min_norm.
+    """
+    check_gradient_vanishing(gradient.as_any(), min_norm, name)

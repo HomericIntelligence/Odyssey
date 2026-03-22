@@ -811,3 +811,165 @@ fn global_avgpool2d_backward(
                     grad_input[grad_in_idx] = Float32(grad_per_position)
 
     return grad_input^
+
+
+# ============================================================================
+# Typed Tensor[dtype] overloads — wrap AnyTensor versions via as_any/as_tensor
+# ============================================================================
+
+from shared.tensor.tensor import Tensor
+
+
+fn maxpool2d[
+    dt: DType
+](
+    x: Tensor[dt],
+    kernel_size: Int,
+    stride: Int = 0,
+    padding: Int = 0,
+    method: String = "direct",
+) raises -> Tensor[dt]:
+    """Functional 2D max pooling (typed version).
+
+    Args:
+        x: Input tensor of shape (batch, channels, height, width).
+        kernel_size: Size of the pooling window.
+        stride: Stride for pooling (default: kernel_size if 0).
+        padding: Zero-padding added to input.
+        method: Implementation method.
+
+    Returns:
+        Pooled output tensor.
+    """
+    return maxpool2d(
+        x.as_any(), kernel_size, stride, padding, method
+    ).as_tensor[dt]()
+
+
+fn avgpool2d[
+    dt: DType
+](
+    x: Tensor[dt],
+    kernel_size: Int,
+    stride: Int = 0,
+    padding: Int = 0,
+    method: String = "direct",
+) raises -> Tensor[dt]:
+    """Functional 2D average pooling (typed version).
+
+    Args:
+        x: Input tensor of shape (batch, channels, height, width).
+        kernel_size: Size of the pooling window.
+        stride: Stride for pooling (default: kernel_size if 0).
+        padding: Zero-padding added to input.
+        method: Implementation method.
+
+    Returns:
+        Pooled output tensor.
+    """
+    return avgpool2d(
+        x.as_any(), kernel_size, stride, padding, method
+    ).as_tensor[dt]()
+
+
+fn global_avgpool2d[
+    dt: DType
+](x: Tensor[dt], method: String = "direct") raises -> Tensor[dt]:
+    """Functional global average pooling (typed version).
+
+    Args:
+        x: Input tensor of shape (batch, channels, height, width).
+        method: Implementation method.
+
+    Returns:
+        Pooled output tensor of shape (batch, channels, 1, 1).
+    """
+    return global_avgpool2d(x.as_any(), method).as_tensor[dt]()
+
+
+fn maxpool2d_backward[
+    dt: DType
+](
+    grad_output: Tensor[dt],
+    x: Tensor[dt],
+    kernel_size: Int,
+    stride: Int = 0,
+    padding: Int = 0,
+    method: String = "direct",
+) raises -> Tensor[dt]:
+    """Backward pass for 2D max pooling (typed version).
+
+    Args:
+        grad_output: Gradient w.r.t. output.
+        x: Input from forward pass.
+        kernel_size: Size of the pooling window.
+        stride: Stride used in forward pass.
+        padding: Padding used in forward pass.
+        method: Implementation method.
+
+    Returns:
+        Gradient w.r.t. input.
+    """
+    return maxpool2d_backward(
+        grad_output.as_any(),
+        x.as_any(),
+        kernel_size,
+        stride,
+        padding,
+        method,
+    ).as_tensor[dt]()
+
+
+fn avgpool2d_backward[
+    dt: DType
+](
+    grad_output: Tensor[dt],
+    x: Tensor[dt],
+    kernel_size: Int,
+    stride: Int = 0,
+    padding: Int = 0,
+    method: String = "direct",
+) raises -> Tensor[dt]:
+    """Backward pass for 2D average pooling (typed version).
+
+    Args:
+        grad_output: Gradient w.r.t. output.
+        x: Input from forward pass.
+        kernel_size: Size of the pooling window.
+        stride: Stride used in forward pass.
+        padding: Padding used in forward pass.
+        method: Implementation method.
+
+    Returns:
+        Gradient w.r.t. input.
+    """
+    return avgpool2d_backward(
+        grad_output.as_any(),
+        x.as_any(),
+        kernel_size,
+        stride,
+        padding,
+        method,
+    ).as_tensor[dt]()
+
+
+fn global_avgpool2d_backward[
+    dt: DType
+](
+    grad_output: Tensor[dt],
+    x: Tensor[dt],
+    method: String = "direct",
+) raises -> Tensor[dt]:
+    """Backward pass for global average pooling (typed version).
+
+    Args:
+        grad_output: Gradient w.r.t. output.
+        x: Input from forward pass.
+        method: Implementation method.
+
+    Returns:
+        Gradient w.r.t. input.
+    """
+    return global_avgpool2d_backward(
+        grad_output.as_any(), x.as_any(), method
+    ).as_tensor[dt]()

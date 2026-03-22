@@ -901,3 +901,108 @@ fn multi_head_attention_backward(
     return MultiHeadAttentionBackwardResult(
         grad_query, grad_key, grad_value, grad_wq, grad_wk, grad_wv, grad_wo
     )
+
+
+# ============================================================================
+# Typed Tensor[dtype] overloads — wrap AnyTensor versions via as_any/as_tensor
+# ============================================================================
+
+from shared.tensor.tensor import Tensor
+
+
+fn scaled_dot_product_attention[
+    dt: DType
+](
+    query: Tensor[dt],
+    key: Tensor[dt],
+    value: Tensor[dt],
+    dropout_p: Float64 = 0.0,
+) raises -> Tensor[dt]:
+    """Scaled dot-product attention without mask (typed version).
+
+    Args:
+        query: Query tensor.
+        key: Key tensor.
+        value: Value tensor.
+        dropout_p: Dropout probability.
+
+    Returns:
+        Attention output tensor.
+    """
+    return scaled_dot_product_attention(
+        query.as_any(), key.as_any(), value.as_any(), dropout_p
+    ).as_tensor[dt]()
+
+
+fn scaled_dot_product_attention_masked[
+    dt: DType
+](
+    query: Tensor[dt],
+    key: Tensor[dt],
+    value: Tensor[dt],
+    mask: Tensor[dt],
+    dropout_p: Float64 = 0.0,
+) raises -> Tensor[dt]:
+    """Scaled dot-product attention with mask (typed version).
+
+    Args:
+        query: Query tensor.
+        key: Key tensor.
+        value: Value tensor.
+        mask: Attention mask tensor.
+        dropout_p: Dropout probability.
+
+    Returns:
+        Attention output tensor.
+    """
+    return scaled_dot_product_attention_masked(
+        query.as_any(),
+        key.as_any(),
+        value.as_any(),
+        mask.as_any(),
+        dropout_p,
+    ).as_tensor[dt]()
+
+
+fn scaled_dot_product_attention_backward[
+    dt: DType
+](
+    grad_output: Tensor[dt],
+    query: Tensor[dt],
+    key: Tensor[dt],
+    value: Tensor[dt],
+    attention_weights: Tensor[dt],
+) raises -> GradientTriple:
+    """Backward pass for scaled dot-product attention (typed version).
+
+    Args:
+        grad_output: Gradient w.r.t. attention output.
+        query: Original query tensor.
+        key: Original key tensor.
+        value: Original value tensor.
+        attention_weights: Attention weights from forward pass.
+
+    Returns:
+        GradientTriple containing gradients for query, key, and value.
+    """
+    return scaled_dot_product_attention_backward(
+        grad_output.as_any(),
+        query.as_any(),
+        key.as_any(),
+        value.as_any(),
+        attention_weights.as_any(),
+    )
+
+
+fn create_causal_mask[
+    dt: DType
+](seq_len: Int) raises -> Tensor[dt]:
+    """Create a causal (lower-triangular) attention mask (typed version).
+
+    Args:
+        seq_len: Sequence length for the mask.
+
+    Returns:
+        Mask tensor of shape (seq_len, seq_len).
+    """
+    return create_causal_mask(seq_len, dt).as_tensor[dt]()

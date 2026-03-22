@@ -1023,3 +1023,285 @@ fn kl_divergence_backward(
 
     # Chain rule: multiply by upstream gradient
     return multiply(grad_output, grad)
+
+
+# ============================================================================
+# Typed Tensor[dtype] overloads — wrap AnyTensor versions via as_any/as_tensor
+# ============================================================================
+
+from shared.tensor.tensor import Tensor
+
+
+fn binary_cross_entropy[
+    dt: DType
+](
+    predictions: Tensor[dt],
+    targets: Tensor[dt],
+    epsilon: Float64 = 1e-7,
+) raises -> Tensor[dt]:
+    """Binary cross-entropy loss (typed version).
+
+    Args:
+        predictions: Predicted probabilities.
+        targets: Ground truth binary labels.
+        epsilon: Small constant for numerical stability.
+
+    Returns:
+        Element-wise loss tensor.
+    """
+    return binary_cross_entropy(
+        predictions.as_any(), targets.as_any(), epsilon
+    ).as_tensor[dt]()
+
+
+fn binary_cross_entropy_backward[
+    dt: DType
+](
+    grad_output: Tensor[dt],
+    predictions: Tensor[dt],
+    targets: Tensor[dt],
+    epsilon: Float64 = 1e-7,
+) raises -> Tensor[dt]:
+    """Backward pass for binary cross-entropy (typed version).
+
+    Args:
+        grad_output: Gradient from upstream.
+        predictions: Original predictions.
+        targets: Original targets.
+        epsilon: Small constant for numerical stability.
+
+    Returns:
+        Gradient w.r.t. predictions.
+    """
+    return binary_cross_entropy_backward(
+        grad_output.as_any(),
+        predictions.as_any(),
+        targets.as_any(),
+        epsilon,
+    ).as_tensor[dt]()
+
+
+fn mean_squared_error[
+    dt: DType
+](predictions: Tensor[dt], targets: Tensor[dt]) raises -> Tensor[dt]:
+    """Mean squared error loss (typed version).
+
+    Args:
+        predictions: Predicted values.
+        targets: Ground truth values.
+
+    Returns:
+        Squared error tensor.
+    """
+    return mean_squared_error(
+        predictions.as_any(), targets.as_any()
+    ).as_tensor[dt]()
+
+
+fn mean_squared_error_backward[
+    dt: DType
+](
+    grad_output: Tensor[dt],
+    predictions: Tensor[dt],
+    targets: Tensor[dt],
+) raises -> Tensor[dt]:
+    """Backward pass for MSE loss (typed version).
+
+    Args:
+        grad_output: Gradient from upstream.
+        predictions: Original predictions.
+        targets: Original targets.
+
+    Returns:
+        Gradient w.r.t. predictions.
+    """
+    return mean_squared_error_backward(
+        grad_output.as_any(), predictions.as_any(), targets.as_any()
+    ).as_tensor[dt]()
+
+
+fn cross_entropy[
+    dt: DType
+](
+    logits: Tensor[dt],
+    targets: Tensor[dt],
+    axis: Int = -1,
+    epsilon: Float64 = 1e-7,
+) raises -> Tensor[dt]:
+    """Cross-entropy loss for multi-class classification (typed version).
+
+    Args:
+        logits: Raw model outputs (pre-softmax).
+        targets: One-hot encoded targets.
+        axis: Axis for softmax computation.
+        epsilon: Small constant for numerical stability.
+
+    Returns:
+        Per-sample loss tensor.
+    """
+    return cross_entropy(
+        logits.as_any(), targets.as_any(), axis, epsilon
+    ).as_tensor[dt]()
+
+
+fn cross_entropy_backward[
+    dt: DType
+](
+    grad_output: Tensor[dt],
+    logits: Tensor[dt],
+    targets: Tensor[dt],
+    epsilon: Float64 = 1e-7,
+) raises -> Tensor[dt]:
+    """Backward pass for cross-entropy loss (typed version).
+
+    Args:
+        grad_output: Gradient from upstream.
+        logits: Original logits.
+        targets: Original targets.
+        epsilon: Small constant for numerical stability.
+
+    Returns:
+        Gradient w.r.t. logits.
+    """
+    return cross_entropy_backward(
+        grad_output.as_any(), logits.as_any(), targets.as_any(), epsilon
+    ).as_tensor[dt]()
+
+
+fn hinge_loss[
+    dt: DType
+](predictions: Tensor[dt], targets: Tensor[dt]) raises -> Tensor[dt]:
+    """Hinge loss for SVMs (typed version).
+
+    Args:
+        predictions: Predicted values.
+        targets: Ground truth labels (+1 or -1).
+
+    Returns:
+        Element-wise hinge loss tensor.
+    """
+    return hinge_loss(
+        predictions.as_any(), targets.as_any()
+    ).as_tensor[dt]()
+
+
+fn hinge_loss_backward[
+    dt: DType
+](
+    grad_output: Tensor[dt],
+    predictions: Tensor[dt],
+    targets: Tensor[dt],
+) raises -> Tensor[dt]:
+    """Backward pass for hinge loss (typed version).
+
+    Args:
+        grad_output: Gradient from upstream.
+        predictions: Original predictions.
+        targets: Original targets.
+
+    Returns:
+        Gradient w.r.t. predictions.
+    """
+    return hinge_loss_backward(
+        grad_output.as_any(), predictions.as_any(), targets.as_any()
+    ).as_tensor[dt]()
+
+
+fn focal_loss[
+    dt: DType
+](
+    predictions: Tensor[dt],
+    targets: Tensor[dt],
+    alpha: Float32 = 0.25,
+    gamma_param: Float32 = 2.0,
+) raises -> Tensor[dt]:
+    """Focal loss for class imbalance (typed version).
+
+    Args:
+        predictions: Predicted probabilities.
+        targets: Ground truth binary labels.
+        alpha: Weighting factor.
+        gamma_param: Focusing parameter.
+
+    Returns:
+        Element-wise focal loss tensor.
+    """
+    return focal_loss(
+        predictions.as_any(), targets.as_any(), alpha, gamma_param
+    ).as_tensor[dt]()
+
+
+fn focal_loss_backward[
+    dt: DType
+](
+    grad_output: Tensor[dt],
+    predictions: Tensor[dt],
+    targets: Tensor[dt],
+    alpha: Float32 = 0.25,
+    gamma_param: Float32 = 2.0,
+) raises -> Tensor[dt]:
+    """Backward pass for focal loss (typed version).
+
+    Args:
+        grad_output: Gradient from upstream.
+        predictions: Original predictions.
+        targets: Original targets.
+        alpha: Weighting factor.
+        gamma_param: Focusing parameter.
+
+    Returns:
+        Gradient w.r.t. predictions.
+    """
+    return focal_loss_backward(
+        grad_output.as_any(),
+        predictions.as_any(),
+        targets.as_any(),
+        alpha,
+        gamma_param,
+    ).as_tensor[dt]()
+
+
+fn kl_divergence[
+    dt: DType
+](
+    p: Tensor[dt],
+    q: Tensor[dt],
+    epsilon: Float64 = 1e-7,
+) raises -> Tensor[dt]:
+    """KL divergence loss (typed version).
+
+    Args:
+        p: True distribution.
+        q: Approximate distribution.
+        epsilon: Small constant for numerical stability.
+
+    Returns:
+        Element-wise KL divergence tensor.
+    """
+    return kl_divergence(
+        p.as_any(), q.as_any(), epsilon
+    ).as_tensor[dt]()
+
+
+fn kl_divergence_backward[
+    dt: DType
+](
+    grad_output: Tensor[dt],
+    p: Tensor[dt],
+    q: Tensor[dt],
+    epsilon: Float64 = 1e-7,
+) raises -> Tensor[dt]:
+    """Backward pass for KL divergence (typed version).
+
+    Args:
+        grad_output: Gradient from upstream.
+        p: True distribution.
+        q: Approximate distribution.
+        epsilon: Small constant for numerical stability.
+
+    Returns:
+        Gradient w.r.t. q.
+    """
+    return kl_divergence_backward(
+        grad_output.as_any(), p.as_any(), q.as_any(), epsilon
+    ).as_tensor[dt]()

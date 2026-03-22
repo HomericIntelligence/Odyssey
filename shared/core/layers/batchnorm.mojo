@@ -13,31 +13,35 @@ Key components:
 
 from ..extensor import ExTensor, zeros, ones, zeros_like, ones_like
 from ..normalization_simd import batch_norm2d_fused
+from shared.tensor.tensor import Tensor
 
 
-struct BatchNorm2dLayer(Copyable, Movable):
-    """2D Batch Normalization layer.
+struct BatchNorm2dLayer[dtype: DType = DType.float32](Copyable, Movable):
+    """2D Batch Normalization layer parameterized on dtype.
 
-    Normalizes activations across the batch dimension for each channel
-    Maintains running statistics for use during inference
+    Normalizes activations across the batch dimension for each channel.
+    Maintains running statistics for use during inference.
+
+    Parameters:
+        dtype: The data type for all internal tensors (default: float32).
 
     Attributes:
-        gamma: Scale parameter of shape (channels,)
-        beta: Shift parameter of shape (channels,)
-        running_mean: Running mean of shape (channels,)
-        running_var: Running variance of shape (channels,)
-        num_channels: Number of channels to normalize
-        momentum: Momentum for running statistics update
-        eps: Small constant for numerical stability
+        gamma: Scale parameter of shape (channels,).
+        beta: Shift parameter of shape (channels,).
+        running_mean: Running mean of shape (channels,).
+        running_var: Running variance of shape (channels,).
+        num_channels: Number of channels to normalize.
+        momentum: Momentum for running statistics update.
+        eps: Small constant for numerical stability.
     """
 
-    var gamma: ExTensor
+    var gamma: Tensor[dtype]
     """Scale parameter of shape (channels,)."""
-    var beta: ExTensor
+    var beta: Tensor[dtype]
     """Shift parameter of shape (channels,)."""
-    var running_mean: ExTensor
+    var running_mean: Tensor[dtype]
     """Running mean of shape (channels,)."""
-    var running_var: ExTensor
+    var running_var: Tensor[dtype]
     """Running variance of shape (channels,)."""
     var num_channels: Int
     """Number of channels to normalize."""
@@ -66,12 +70,15 @@ struct BatchNorm2dLayer(Copyable, Movable):
                 (default: 1e-5).
 
         Raises:
-            Error if tensor creation fails
+            Error if tensor creation fails.
 
         Example:
             ```mojo
             # Normalize 16 channels from Conv2d output
             var bn = BatchNorm2dLayer(16, momentum=0.1)
+
+            # FP16 batch norm
+            var bn16 = BatchNorm2dLayer[DType.float16](16)
             ```
         """
         self.num_channels = num_channels
@@ -82,37 +89,37 @@ struct BatchNorm2dLayer(Copyable, Movable):
         # Shape: (channels,)
         var gamma_shape = List[Int]()
         gamma_shape.append(num_channels)
-        self.gamma = ones(gamma_shape, DType.float32)
+        self.gamma = ones(gamma_shape, dtype).as_tensor[dtype]()
 
         # Initialize beta (shift) to 0.0
         # Shape: (channels,)
         var beta_shape = List[Int]()
         beta_shape.append(num_channels)
-        self.beta = zeros(beta_shape, DType.float32)
+        self.beta = zeros(beta_shape, dtype).as_tensor[dtype]()
 
         # Initialize running_mean to 0.0
         # Shape: (channels,)
         var running_mean_shape = List[Int]()
         running_mean_shape.append(num_channels)
-        self.running_mean = zeros(running_mean_shape, DType.float32)
+        self.running_mean = zeros(running_mean_shape, dtype).as_tensor[dtype]()
 
         # Initialize running_var to 1.0
         # Shape: (channels,)
         var running_var_shape = List[Int]()
         running_var_shape.append(num_channels)
-        self.running_var = ones(running_var_shape, DType.float32)
+        self.running_var = ones(running_var_shape, dtype).as_tensor[dtype]()
 
     fn forward(
-        mut self, input: ExTensor, training: Bool = True
-    ) raises -> ExTensor:
+        mut self, input: Tensor[dtype], training: Bool = True
+    ) raises -> Tensor[dtype]:
         """Forward pass with batch normalization.
 
-        In training mode: computes batch statistics and updates running statistics
-        In inference mode: uses running statistics for normalization
+        In training mode: computes batch statistics and updates running statistics.
+        In inference mode: uses running statistics for normalization.
 
         Args:
             input: Input tensor of shape (batch, channels, height, width).
-            training: If True, use batch statistics and update running stats
+            training: If True, use batch statistics and update running stats.
                      If False, use running statistics (default: True).
 
         Returns:
@@ -126,7 +133,8 @@ struct BatchNorm2dLayer(Copyable, Movable):
             when training=True to track exponential moving averages.
 
         Formula (training):
-        ```
+
+        ```text
             mean = mean(x, axis=(0, 2, 3))  # Per channel
             var = var(x, axis=(0, 2, 3))
             x_norm = (x - mean) / sqrt(var + eps)
@@ -136,7 +144,8 @@ struct BatchNorm2dLayer(Copyable, Movable):
         ```
 
         Formula (inference):
-        ```
+
+        ```text
             x_norm = (x - running_mean) / sqrt(running_var + eps)
             output = gamma * x_norm + beta
         ```
@@ -153,12 +162,13 @@ struct BatchNorm2dLayer(Copyable, Movable):
             var output = bn.forward(input, training=False)
             ```
         """
+        # Delegate to ExTensor-based fused implementation via as_any/as_tensor
         var (output, new_running_mean, new_running_var) = batch_norm2d_fused(
-            input,
-            self.gamma,
-            self.beta,
-            self.running_mean,
-            self.running_var,
+            input.as_any(),
+            self.gamma.as_any(),
+            self.beta.as_any(),
+            self.running_mean.as_any(),
+            self.running_var.as_any(),
             training,
             Float64(self.momentum),
             Float64(self.eps),
@@ -166,20 +176,20 @@ struct BatchNorm2dLayer(Copyable, Movable):
 
         # Update running statistics if training
         if training:
-            self.running_mean = new_running_mean^
-            self.running_var = new_running_var^
+            self.running_mean = new_running_mean.as_tensor[dtype]()
+            self.running_var = new_running_var.as_tensor[dtype]()
 
-        return output^
+        return output.as_tensor[dtype]()
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[Tensor[dtype]]:
         """Get list of trainable parameters.
 
         Returns:
-            List containing [gamma, beta] tensors that need gradients
-            (Running statistics are not trainable parameters)
+            List containing [gamma, beta] tensors that need gradients.
+            (Running statistics are not trainable parameters.)
 
         Raises:
-            Error if tensor copying fails
+            Error if tensor copying fails.
 
         Example:
             ```mojo
@@ -188,19 +198,19 @@ struct BatchNorm2dLayer(Copyable, Movable):
             # params[0] is gamma (scale), params[1] is beta (shift)
             ```
         """
-        var params: List[ExTensor] = []
+        var params = List[Tensor[dtype]]()
 
-        # Create copies of gamma and beta tensors
-        var gamma_copy = zeros_like(self.gamma)
-        var beta_copy = zeros_like(self.beta)
+        # Create copies of gamma and beta via ExTensor round-trip
+        var gamma_any = zeros_like(self.gamma.as_any())
+        var beta_any = zeros_like(self.beta.as_any())
 
         var gamma_size = self.gamma.numel()
         var beta_size = self.beta.numel()
 
-        var gamma_src = self.gamma._data.bitcast[Float32]()
-        var gamma_dst = gamma_copy._data.bitcast[Float32]()
-        var beta_src = self.beta._data.bitcast[Float32]()
-        var beta_dst = beta_copy._data.bitcast[Float32]()
+        var gamma_src = self.gamma.as_any()._data.bitcast[Float32]()
+        var gamma_dst = gamma_any._data.bitcast[Float32]()
+        var beta_src = self.beta.as_any()._data.bitcast[Float32]()
+        var beta_dst = beta_any._data.bitcast[Float32]()
 
         for i in range(gamma_size):
             gamma_dst[i] = gamma_src[i]
@@ -208,19 +218,21 @@ struct BatchNorm2dLayer(Copyable, Movable):
         for i in range(beta_size):
             beta_dst[i] = beta_src[i]
 
-        params.append(gamma_copy^)
-        params.append(beta_copy^)
+        params.append(gamma_any.as_tensor[dtype]())
+        params.append(beta_any.as_tensor[dtype]())
         return params^
 
-    fn get_running_stats(self) raises -> Tuple[ExTensor, ExTensor]:
+    fn get_running_stats(
+        self,
+    ) raises -> Tuple[Tensor[dtype], Tensor[dtype]]:
         """Get current running statistics.
 
         Returns:
             Tuple of (running_mean, running_var) for use during inference
-            or checkpointing
+            or checkpointing.
 
         Raises:
-            Error if tensor copying fails
+            Error if tensor copying fails.
 
         Example:
             ```mojo
@@ -229,16 +241,16 @@ struct BatchNorm2dLayer(Copyable, Movable):
             var (mean, var) = bn.get_running_stats()
             ```
         """
-        var mean_copy = zeros_like(self.running_mean)
-        var var_copy = zeros_like(self.running_var)
+        var mean_any = zeros_like(self.running_mean.as_any())
+        var var_any = zeros_like(self.running_var.as_any())
 
         var mean_size = self.running_mean.numel()
         var var_size = self.running_var.numel()
 
-        var mean_src = self.running_mean._data.bitcast[Float32]()
-        var mean_dst = mean_copy._data.bitcast[Float32]()
-        var var_src = self.running_var._data.bitcast[Float32]()
-        var var_dst = var_copy._data.bitcast[Float32]()
+        var mean_src = self.running_mean.as_any()._data.bitcast[Float32]()
+        var mean_dst = mean_any._data.bitcast[Float32]()
+        var var_src = self.running_var.as_any()._data.bitcast[Float32]()
+        var var_dst = var_any._data.bitcast[Float32]()
 
         for i in range(mean_size):
             mean_dst[i] = mean_src[i]
@@ -246,10 +258,15 @@ struct BatchNorm2dLayer(Copyable, Movable):
         for i in range(var_size):
             var_dst[i] = var_src[i]
 
-        return Tuple[ExTensor, ExTensor](mean_copy^, var_copy^)
+        return (
+            mean_any.as_tensor[dtype](),
+            var_any.as_tensor[dtype](),
+        )
 
     fn set_running_stats(
-        mut self, running_mean: ExTensor, running_var: ExTensor
+        mut self,
+        running_mean: Tensor[dtype],
+        running_var: Tensor[dtype],
     ) raises:
         """Set running statistics (for loading from checkpoint).
 
@@ -277,16 +294,19 @@ struct BatchNorm2dLayer(Copyable, Movable):
         if var_size != self.running_var.numel():
             raise Error("Running variance size mismatch")
 
-        self.running_mean = zeros_like(self.running_mean)
-        self.running_var = zeros_like(self.running_var)
+        var new_mean_any = zeros_like(self.running_mean.as_any())
+        var new_var_any = zeros_like(self.running_var.as_any())
 
-        var mean_src = running_mean._data.bitcast[Float32]()
-        var mean_dst = self.running_mean._data.bitcast[Float32]()
-        var var_src = running_var._data.bitcast[Float32]()
-        var var_dst = self.running_var._data.bitcast[Float32]()
+        var mean_src = running_mean.as_any()._data.bitcast[Float32]()
+        var mean_dst = new_mean_any._data.bitcast[Float32]()
+        var var_src = running_var.as_any()._data.bitcast[Float32]()
+        var var_dst = new_var_any._data.bitcast[Float32]()
 
         for i in range(mean_size):
             mean_dst[i] = mean_src[i]
 
         for i in range(var_size):
             var_dst[i] = var_src[i]
+
+        self.running_mean = new_mean_any.as_tensor[dtype]()
+        self.running_var = new_var_any.as_tensor[dtype]()

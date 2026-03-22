@@ -12,13 +12,19 @@ Key components:
 from ..extensor import ExTensor, zeros, randn, zeros_like
 from ..initializers import kaiming_uniform
 from ..conv import conv2d, conv2d_backward
+from shared.tensor.tensor import Tensor
 
 
-struct Conv2dLayer(Copyable, Movable):
-    """2D Convolutional layer: y = conv2d(x, weight, bias, stride, padding).
+struct Conv2dLayer[dtype: DType = DType.float32](Copyable, Movable):
+    """2D Convolutional layer parameterized on dtype.
+
+    y = conv2d(x, weight, bias, stride, padding).
 
     A 2D convolutional neural network layer that applies learnable filters
     to spatially structured inputs (images).
+
+    Parameters:
+        dtype: The data type for weight and bias tensors (default: float32).
 
     Attributes:
         weight: Filter weights of shape (out_channels, in_channels, kernel_h, kernel_w).
@@ -31,9 +37,9 @@ struct Conv2dLayer(Copyable, Movable):
         padding: Zero-padding added to input.
     """
 
-    var weight: ExTensor
+    var weight: Tensor[dtype]
     """Filter weights of shape (out_channels, in_channels, kernel_h, kernel_w)."""
-    var bias: ExTensor
+    var bias: Tensor[dtype]
     """Bias vector of shape (out_channels,)."""
     var in_channels: Int
     """Number of input channels."""
@@ -77,6 +83,9 @@ struct Conv2dLayer(Copyable, Movable):
             ```mojo
             # 3x3 convolution: 3 input channels -> 16 output channels
             var layer = Conv2dLayer(3, 16, 3, 3, stride=1, padding=1)
+
+            # FP16 convolution
+            var layer16 = Conv2dLayer[DType.float16](3, 16, 3, 3)
             ```
         """
         self.in_channels = in_channels
@@ -99,16 +108,16 @@ struct Conv2dLayer(Copyable, Movable):
         # Fan-out for conv2d: out_channels * kernel_h * kernel_w
         var fan_out = out_channels * kernel_h * kernel_w
         self.weight = kaiming_uniform(
-            fan_in, fan_out, weight_shape, "fan_in", DType.float32
-        )
+            fan_in, fan_out, weight_shape, "fan_in", dtype
+        ).as_tensor[dtype]()
 
         # Initialize bias to zeros
         # Shape: (out_channels,)
         var bias_shape = List[Int]()
         bias_shape.append(out_channels)
-        self.bias = zeros(bias_shape, DType.float32)
+        self.bias = zeros(bias_shape, dtype).as_tensor[dtype]()
 
-    fn forward(self, input: ExTensor) raises -> ExTensor:
+    fn forward(self, input: Tensor[dtype]) raises -> Tensor[dtype]:
         """Forward pass: y = conv2d(x, weight, bias, stride, padding).
 
         Applies the learned convolutional filters to the input.
@@ -134,11 +143,17 @@ struct Conv2dLayer(Copyable, Movable):
             var output = layer.forward(input)  # Shape: [1, 16, 32, 32]
             ```
         """
-        return conv2d(input, self.weight, self.bias, self.stride, self.padding)
+        return conv2d(
+            input.as_any(),
+            self.weight.as_any(),
+            self.bias.as_any(),
+            self.stride,
+            self.padding,
+        ).as_tensor[dtype]()
 
     fn backward(
-        self, grad_output: ExTensor, input: ExTensor
-    ) raises -> Tuple[ExTensor, ExTensor, ExTensor]:
+        self, grad_output: Tensor[dtype], input: Tensor[dtype]
+    ) raises -> Tuple[Tensor[dtype], Tensor[dtype], Tensor[dtype]]:
         """Backward pass: compute gradients w.r.t. input, weight, and bias.
 
         Computes gradients needed for training via backpropagation.
@@ -168,18 +183,26 @@ struct Conv2dLayer(Copyable, Movable):
             ```
         """
         var result = conv2d_backward(
-            grad_output, input, self.weight, self.stride, self.padding
+            grad_output.as_any(),
+            input.as_any(),
+            self.weight.as_any(),
+            self.stride,
+            self.padding,
         )
-        return (result.grad_input, result.grad_weights, result.grad_bias)
+        return (
+            result.grad_input.as_tensor[dtype](),
+            result.grad_weights.as_tensor[dtype](),
+            result.grad_bias.as_tensor[dtype](),
+        )
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[Tensor[dtype]]:
         """Get list of trainable parameters.
 
         Returns:
-            List containing [weight, bias] tensors that need gradients
+            List containing [weight, bias] tensors that need gradients.
 
         Raises:
-            Error if tensor copying fails
+            Error if tensor copying fails.
 
         Example:
             ```mojo
@@ -188,21 +211,21 @@ struct Conv2dLayer(Copyable, Movable):
             # params[0] is weight, params[1] is bias
             ```
         """
-        var params: List[ExTensor] = []
+        var params = List[Tensor[dtype]]()
 
-        # Create copies of weight and bias tensors
-        var weight_copy = zeros_like(self.weight)
-        var bias_copy = zeros_like(self.bias)
+        # Create copies via ExTensor round-trip
+        var weight_any = zeros_like(self.weight.as_any())
+        var bias_any = zeros_like(self.bias.as_any())
 
         var weight_size = self.weight.numel()
         var bias_size = self.bias.numel()
 
         for i in range(weight_size):
-            weight_copy._data[i] = self.weight._data[i]
+            weight_any._data[i] = self.weight.as_any()._data[i]
 
         for i in range(bias_size):
-            bias_copy._data[i] = self.bias._data[i]
+            bias_any._data[i] = self.bias.as_any()._data[i]
 
-        params.append(weight_copy^)
-        params.append(bias_copy^)
+        params.append(weight_any.as_tensor[dtype]())
+        params.append(bias_any.as_tensor[dtype]())
         return params^
