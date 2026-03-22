@@ -35,6 +35,12 @@ comptime TENSOR_PRINT_THRESHOLD: Int = 1000  # Truncate if numel > threshold
 comptime TENSOR_PRINT_SHOW_ELEMENTS: Int = 3  # Show first/last N elements
 
 
+# NOTE(H6): Mojo uses eager monomorphization. Each Tensor[dtype] instantiation
+# generates separate code. Monitor CI compilation times for bloat.
+# Expected instantiations: float16, float32, float64 (3 types x N functions).
+# If compile time exceeds 5 minutes, restrict dtype usage or optimize.
+
+
 struct Tensor[dtype: DType = DType.float32](
     Copyable,
     ImplicitlyCopyable,
