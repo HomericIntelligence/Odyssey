@@ -1029,6 +1029,11 @@ fn kl_divergence_backward(
 # Typed overloads for Tensor[dtype] (compile-time typed wrappers)
 # ============================================================================
 
+# ============================================================================
+# Typed Tensor[dtype] overloads — typed entry points for forward loss functions
+# ============================================================================
+# Backward functions stay on AnyTensor (gradient computation is dtype-generic).
+
 from shared.tensor.tensor import Tensor
 
 
@@ -1037,12 +1042,14 @@ fn mean_squared_error_typed[
 ](predictions: Tensor[dt], targets: Tensor[dt]) raises -> Tensor[dt]:
     """Typed overload of mean_squared_error for Tensor[dtype].
 
+    Provides compile-time type safety for the MSE forward pass.
+
     Args:
         predictions: Model predictions.
         targets: Ground truth targets.
 
     Returns:
-        Scalar MSE loss tensor.
+        Squared error tensor, same shape as inputs.
 
     Raises:
         Error if tensor operations fail.
@@ -1054,39 +1061,105 @@ fn mean_squared_error_typed[
 
 fn cross_entropy_typed[
     dt: DType
-](predictions: Tensor[dt], targets: Tensor[dt]) raises -> Tensor[dt]:
+](
+    logits: Tensor[dt],
+    targets: Tensor[dt],
+    axis: Int = -1,
+    epsilon: Float64 = 1e-7,
+) raises -> Tensor[dt]:
     """Typed overload of cross_entropy for Tensor[dtype].
 
+    Provides compile-time type safety for the cross-entropy forward pass.
+
     Args:
-        predictions: Model predictions (logits or probabilities).
-        targets: Ground truth targets (one-hot or class indices).
+        logits: Raw model outputs (before softmax).
+        targets: One-hot encoded ground truth.
+        axis: Axis for softmax (default: -1).
+        epsilon: Numerical stability constant.
 
     Returns:
-        Scalar cross-entropy loss tensor.
+        Cross-entropy loss tensor.
 
     Raises:
         Error if tensor operations fail.
     """
     return cross_entropy(
-        predictions.as_any(), targets.as_any()
+        logits.as_any(), targets.as_any(), axis, epsilon
     ).as_tensor[dt]()
 
 
 fn binary_cross_entropy_typed[
     dt: DType
-](predictions: Tensor[dt], targets: Tensor[dt]) raises -> Tensor[dt]:
+](
+    predictions: Tensor[dt],
+    targets: Tensor[dt],
+    epsilon: Float64 = 1e-7,
+) raises -> Tensor[dt]:
     """Typed overload of binary_cross_entropy for Tensor[dtype].
+
+    Provides compile-time type safety for the BCE forward pass.
 
     Args:
         predictions: Model predictions in [0, 1].
         targets: Binary labels (0 or 1).
+        epsilon: Numerical stability constant.
 
     Returns:
-        Scalar BCE loss tensor.
+        BCE loss tensor, same shape as inputs.
 
     Raises:
         Error if tensor operations fail.
     """
     return binary_cross_entropy(
-        predictions.as_any(), targets.as_any()
+        predictions.as_any(), targets.as_any(), epsilon
+    ).as_tensor[dt]()
+
+
+fn smooth_l1_loss_typed[
+    dt: DType
+](
+    predictions: Tensor[dt],
+    targets: Tensor[dt],
+    beta: Float64 = 1.0,
+) raises -> Tensor[dt]:
+    """Typed overload of smooth_l1_loss for Tensor[dtype].
+
+    Args:
+        predictions: Model predictions.
+        targets: Ground truth targets.
+        beta: Threshold for switching between L1 and L2 (default: 1.0).
+
+    Returns:
+        Smooth L1 loss tensor.
+
+    Raises:
+        Error if tensor operations fail.
+    """
+    return smooth_l1_loss(
+        predictions.as_any(), targets.as_any(), beta
+    ).as_tensor[dt]()
+
+
+fn kl_divergence_typed[
+    dt: DType
+](
+    p: Tensor[dt],
+    q: Tensor[dt],
+    epsilon: Float64 = 1e-10,
+) raises -> Tensor[dt]:
+    """Typed overload of kl_divergence for Tensor[dtype].
+
+    Args:
+        p: True distribution (probabilities).
+        q: Approximate distribution (probabilities).
+        epsilon: Numerical stability constant.
+
+    Returns:
+        KL divergence loss tensor.
+
+    Raises:
+        Error if tensor operations fail.
+    """
+    return kl_divergence(
+        p.as_any(), q.as_any(), epsilon
     ).as_tensor[dt]()

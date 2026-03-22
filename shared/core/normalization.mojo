@@ -2849,8 +2849,11 @@ fn instance_norm_backward(
 
 
 # ============================================================================
-# Typed overloads for Tensor[dtype] (compile-time typed wrappers)
+# Typed Tensor[dtype] overloads — typed entry points for forward functions
 # ============================================================================
+# Backward functions stay on AnyTensor (gradient computation is dtype-generic).
+# Forward functions provide typed entry points that delegate to the internal
+# AnyTensor implementation (which already has dtype-specific fast paths).
 
 from shared.tensor.tensor import Tensor
 
@@ -2869,9 +2872,9 @@ fn batch_norm2d_typed[
 ) raises -> Tuple[Tensor[dt], Tensor[dt], Tensor[dt]]:
     """Typed overload of batch_norm2d for Tensor[dtype].
 
-    Wraps the AnyTensor batch_norm2d function with compile-time type
-    safety. Converts inputs to AnyTensor, calls batch_norm2d, and
-    converts outputs back to Tensor[dt].
+    Provides compile-time type safety. Converts Tensor[dt] inputs to AnyTensor,
+    calls the internal batch_norm2d implementation (which has dtype-specific
+    fast paths), and converts outputs back to Tensor[dt].
 
     Args:
         x: Input tensor of shape (batch, channels, height, width).
@@ -2900,3 +2903,35 @@ fn batch_norm2d_typed[
         epsilon,
     )
     return (out.as_tensor[dt](), rm.as_tensor[dt](), rv.as_tensor[dt]())
+
+
+fn layer_norm_typed[
+    dt: DType
+](
+    x: Tensor[dt],
+    gamma: Tensor[dt],
+    beta: Tensor[dt],
+    epsilon: Float64 = 1e-5,
+) raises -> Tensor[dt]:
+    """Typed overload of layer_norm for Tensor[dtype].
+
+    Provides compile-time type safety for the layer normalization forward pass.
+
+    Args:
+        x: Input tensor of shape (batch, features) or (batch, channels, height, width).
+        gamma: Scale parameter.
+        beta: Shift parameter.
+        epsilon: Numerical stability constant (default: 1e-5).
+
+    Returns:
+        Normalized Tensor[dt], same shape as input.
+
+    Raises:
+        Error if tensor operations fail.
+    """
+    return layer_norm(
+        x.as_any(),
+        gamma.as_any(),
+        beta.as_any(),
+        epsilon,
+    ).as_tensor[dt]()

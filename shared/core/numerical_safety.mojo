@@ -1,10 +1,13 @@
-"""Numerical safety utilities for detecting and preventing numerical instabilities.
+"""Numerical safety utilities with native Tensor[dtype] implementations.
 
 This module provides tools for:
 - NaN/Inf detection in tensors
 - Gradient explosion/vanishing detection
 - Numerical range checking
 - Compile-time optional safety checks (zero overhead when disabled)
+
+Architecture: Tensor[dtype] typed implementations are the core.
+AnyTensor versions dispatch to typed implementations via ordinal-based table.
 
 All safety checks use @parameter for compile-time enable/disable, ensuring zero
 runtime overhead when safety mode is disabled.
@@ -25,6 +28,224 @@ Example:
 from .any_tensor import AnyTensor
 from math import isnan, isinf, sqrt
 from collections import List
+from shared.tensor.tensor import Tensor
+from shared.base.dtype_ordinal import (
+    dtype_to_ordinal,
+    DTYPE_FLOAT16,
+    DTYPE_FLOAT32,
+    DTYPE_FLOAT64,
+    DTYPE_INT8,
+    DTYPE_INT16,
+    DTYPE_INT32,
+    DTYPE_INT64,
+    DTYPE_UINT8,
+    DTYPE_UINT16,
+    DTYPE_UINT32,
+    DTYPE_UINT64,
+)
+
+
+# ============================================================================
+# Layer 3 (Core): Native Tensor[dtype] implementations
+# ============================================================================
+
+
+fn _has_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
+    """Check if typed tensor contains any NaN values (core implementation).
+
+    Parameters:
+        dtype: Compile-time dtype parameter.
+
+    Args:
+        tensor: Input typed tensor to check.
+
+    Returns:
+        True if any element is NaN, False otherwise.
+    """
+    # Integer/unsigned types cannot have NaN
+    @parameter
+    if dtype == DType.int8 or dtype == DType.int16 or dtype == DType.int32 or dtype == DType.int64 or dtype == DType.uint8 or dtype == DType.uint16 or dtype == DType.uint32 or dtype == DType.uint64 or dtype == DType.bool:
+        return False
+
+    var size = tensor.numel()
+    var ptr = tensor._data
+    for i in range(size):
+        @parameter
+        if dtype == DType.float16:
+            if isnan(Float32(ptr[i])):
+                return True
+        else:
+            if isnan(ptr[i]):
+                return True
+    return False
+
+
+fn _has_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
+    """Check if typed tensor contains any Inf values (core implementation).
+
+    Parameters:
+        dtype: Compile-time dtype parameter.
+
+    Args:
+        tensor: Input typed tensor to check.
+
+    Returns:
+        True if any element is Inf or -Inf, False otherwise.
+    """
+    @parameter
+    if dtype == DType.int8 or dtype == DType.int16 or dtype == DType.int32 or dtype == DType.int64 or dtype == DType.uint8 or dtype == DType.uint16 or dtype == DType.uint32 or dtype == DType.uint64 or dtype == DType.bool:
+        return False
+
+    var size = tensor.numel()
+    var ptr = tensor._data
+    for i in range(size):
+        @parameter
+        if dtype == DType.float16:
+            if isinf(Float32(ptr[i])):
+                return True
+        else:
+            if isinf(ptr[i]):
+                return True
+    return False
+
+
+fn _count_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
+    """Count NaN values in typed tensor (core implementation).
+
+    Parameters:
+        dtype: Compile-time dtype parameter.
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        Number of NaN elements.
+    """
+    @parameter
+    if dtype == DType.int8 or dtype == DType.int16 or dtype == DType.int32 or dtype == DType.int64 or dtype == DType.uint8 or dtype == DType.uint16 or dtype == DType.uint32 or dtype == DType.uint64 or dtype == DType.bool:
+        return 0
+
+    var size = tensor.numel()
+    var count = 0
+    var ptr = tensor._data
+    for i in range(size):
+        @parameter
+        if dtype == DType.float16:
+            if isnan(Float32(ptr[i])):
+                count += 1
+        else:
+            if isnan(ptr[i]):
+                count += 1
+    return count
+
+
+fn _count_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
+    """Count Inf values in typed tensor (core implementation).
+
+    Parameters:
+        dtype: Compile-time dtype parameter.
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        Number of Inf/-Inf elements.
+    """
+    @parameter
+    if dtype == DType.int8 or dtype == DType.int16 or dtype == DType.int32 or dtype == DType.int64 or dtype == DType.uint8 or dtype == DType.uint16 or dtype == DType.uint32 or dtype == DType.uint64 or dtype == DType.bool:
+        return 0
+
+    var size = tensor.numel()
+    var count = 0
+    var ptr = tensor._data
+    for i in range(size):
+        @parameter
+        if dtype == DType.float16:
+            if isinf(Float32(ptr[i])):
+                count += 1
+        else:
+            if isinf(ptr[i]):
+                count += 1
+    return count
+
+
+fn _tensor_min_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
+    """Find minimum value in typed tensor (core implementation).
+
+    Parameters:
+        dtype: Compile-time dtype parameter.
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        Minimum value as Float64.
+    """
+    var size = tensor.numel()
+    if size == 0:
+        return 0.0
+
+    var min_val = Float64(1e308)
+    var ptr = tensor._data
+    for i in range(size):
+        var val = Float64(ptr[i])
+        if val < min_val:
+            min_val = val
+    return min_val
+
+
+fn _tensor_max_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
+    """Find maximum value in typed tensor (core implementation).
+
+    Parameters:
+        dtype: Compile-time dtype parameter.
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        Maximum value as Float64.
+    """
+    var size = tensor.numel()
+    if size == 0:
+        return 0.0
+
+    var max_val = Float64(-1e308)
+    var ptr = tensor._data
+    for i in range(size):
+        var val = Float64(ptr[i])
+        if val > max_val:
+            max_val = val
+    return max_val
+
+
+fn _compute_l2_norm_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
+    """Compute L2 norm of typed tensor (core implementation).
+
+    Parameters:
+        dtype: Compile-time dtype parameter.
+
+    Args:
+        tensor: Input typed tensor.
+
+    Returns:
+        L2 norm as Float64.
+    """
+    var size = tensor.numel()
+    var sum_sq = Float64(0.0)
+    var ptr = tensor._data
+    for i in range(size):
+        var val = Float64(ptr[i])
+        sum_sq += val * val
+    return sqrt(sum_sq)
+
+
+# ============================================================================
+# Layer 2: AnyTensor dispatch (ordinal-based)
+# ============================================================================
+# For Bool-returning functions, we dispatch via ordinal to typed cores.
+# Only float types are relevant for NaN/Inf checks but we dispatch all
+# for consistency (integer types return False/0 via compile-time guard).
 
 
 fn has_nan(tensor: AnyTensor) -> Bool:
@@ -45,23 +266,23 @@ fn has_nan(tensor: AnyTensor) -> Bool:
     Note:
             Checks all elements regardless of dtype. Supports all floating-point types.
     """
-    var size = tensor.numel()
-
-    if tensor.dtype() == DType.float32:
-        var ptr = tensor._data.bitcast[Float32]()
-        for i in range(size):
-            if isnan(ptr[i]):
-                return True
-    elif tensor.dtype() == DType.float64:
-        var ptr = tensor._data.bitcast[Float64]()
-        for i in range(size):
-            if isnan(ptr[i]):
-                return True
-    elif tensor.dtype() == DType.float16:
-        var ptr = tensor._data.bitcast[Float16]()
-        for i in range(size):
-            if isnan(Float32(ptr[i])):  # Convert to float32 for isnan check
-                return True
+    # Only float types can have NaN - fast path for integers
+    var dtype = tensor.dtype()
+    if dtype == DType.float32:
+        try:
+            return _has_nan_core[DType.float32](tensor.as_tensor[DType.float32]())
+        except:
+            return False
+    elif dtype == DType.float64:
+        try:
+            return _has_nan_core[DType.float64](tensor.as_tensor[DType.float64]())
+        except:
+            return False
+    elif dtype == DType.float16:
+        try:
+            return _has_nan_core[DType.float16](tensor.as_tensor[DType.float16]())
+        except:
+            return False
     # Integer types cannot have NaN
     return False
 
@@ -84,24 +305,22 @@ fn has_inf(tensor: AnyTensor) -> Bool:
     Note:
             Checks all elements regardless of dtype. Supports all floating-point types.
     """
-    var size = tensor.numel()
-
-    if tensor.dtype() == DType.float32:
-        var ptr = tensor._data.bitcast[Float32]()
-        for i in range(size):
-            if isinf(ptr[i]):
-                return True
-    elif tensor.dtype() == DType.float64:
-        var ptr = tensor._data.bitcast[Float64]()
-        for i in range(size):
-            if isinf(ptr[i]):
-                return True
-    elif tensor.dtype() == DType.float16:
-        var ptr = tensor._data.bitcast[Float16]()
-        for i in range(size):
-            if isinf(Float32(ptr[i])):
-                return True
-    # Integer types cannot have Inf
+    var dtype = tensor.dtype()
+    if dtype == DType.float32:
+        try:
+            return _has_inf_core[DType.float32](tensor.as_tensor[DType.float32]())
+        except:
+            return False
+    elif dtype == DType.float64:
+        try:
+            return _has_inf_core[DType.float64](tensor.as_tensor[DType.float64]())
+        except:
+            return False
+    elif dtype == DType.float16:
+        try:
+            return _has_inf_core[DType.float16](tensor.as_tensor[DType.float16]())
+        except:
+            return False
     return False
 
 
@@ -120,26 +339,23 @@ fn count_nan(tensor: AnyTensor) -> Int:
             assert_equal(count_nan(x), 2)
             ```
     """
-    var size = tensor.numel()
-    var count = 0
-
-    if tensor.dtype() == DType.float32:
-        var ptr = tensor._data.bitcast[Float32]()
-        for i in range(size):
-            if isnan(ptr[i]):
-                count += 1
-    elif tensor.dtype() == DType.float64:
-        var ptr = tensor._data.bitcast[Float64]()
-        for i in range(size):
-            if isnan(ptr[i]):
-                count += 1
-    elif tensor.dtype() == DType.float16:
-        var ptr = tensor._data.bitcast[Float16]()
-        for i in range(size):
-            if isnan(Float32(ptr[i])):
-                count += 1
-
-    return count
+    var dtype = tensor.dtype()
+    if dtype == DType.float32:
+        try:
+            return _count_nan_core[DType.float32](tensor.as_tensor[DType.float32]())
+        except:
+            return 0
+    elif dtype == DType.float64:
+        try:
+            return _count_nan_core[DType.float64](tensor.as_tensor[DType.float64]())
+        except:
+            return 0
+    elif dtype == DType.float16:
+        try:
+            return _count_nan_core[DType.float16](tensor.as_tensor[DType.float16]())
+        except:
+            return 0
+    return 0
 
 
 fn count_inf(tensor: AnyTensor) -> Int:
@@ -157,26 +373,23 @@ fn count_inf(tensor: AnyTensor) -> Int:
             assert_equal(count_inf(x), 2)
             ```
     """
-    var size = tensor.numel()
-    var count = 0
-
-    if tensor.dtype() == DType.float32:
-        var ptr = tensor._data.bitcast[Float32]()
-        for i in range(size):
-            if isinf(ptr[i]):
-                count += 1
-    elif tensor.dtype() == DType.float64:
-        var ptr = tensor._data.bitcast[Float64]()
-        for i in range(size):
-            if isinf(ptr[i]):
-                count += 1
-    elif tensor.dtype() == DType.float16:
-        var ptr = tensor._data.bitcast[Float16]()
-        for i in range(size):
-            if isinf(Float32(ptr[i])):
-                count += 1
-
-    return count
+    var dtype = tensor.dtype()
+    if dtype == DType.float32:
+        try:
+            return _count_inf_core[DType.float32](tensor.as_tensor[DType.float32]())
+        except:
+            return 0
+    elif dtype == DType.float64:
+        try:
+            return _count_inf_core[DType.float64](tensor.as_tensor[DType.float64]())
+        except:
+            return 0
+    elif dtype == DType.float16:
+        try:
+            return _count_inf_core[DType.float16](tensor.as_tensor[DType.float16]())
+        except:
+            return 0
+    return 0
 
 
 @parameter
@@ -235,32 +448,23 @@ fn tensor_min(tensor: AnyTensor) -> Float64:
             assert_equal(tensor_min(x), -5.0)
             ```
     """
-    var size = tensor.numel()
-    if size == 0:
-        return 0.0
-
-    var min_val = Float64(1e308)  # Very large positive number
-
-    if tensor.dtype() == DType.float32:
-        var ptr = tensor._data.bitcast[Float32]()
-        for i in range(size):
-            var val = Float64(ptr[i])
-            if val < min_val:
-                min_val = val
-    elif tensor.dtype() == DType.float64:
-        var ptr = tensor._data.bitcast[Float64]()
-        for i in range(size):
-            var val = ptr[i]
-            if val < min_val:
-                min_val = val
-    elif tensor.dtype() == DType.float16:
-        var ptr = tensor._data.bitcast[Float16]()
-        for i in range(size):
-            var val = Float64(Float32(ptr[i]))
-            if val < min_val:
-                min_val = val
-
-    return min_val
+    var dtype = tensor.dtype()
+    if dtype == DType.float32:
+        try:
+            return _tensor_min_core[DType.float32](tensor.as_tensor[DType.float32]())
+        except:
+            return 0.0
+    elif dtype == DType.float64:
+        try:
+            return _tensor_min_core[DType.float64](tensor.as_tensor[DType.float64]())
+        except:
+            return 0.0
+    elif dtype == DType.float16:
+        try:
+            return _tensor_min_core[DType.float16](tensor.as_tensor[DType.float16]())
+        except:
+            return 0.0
+    return 0.0
 
 
 fn tensor_max(tensor: AnyTensor) -> Float64:
@@ -278,32 +482,23 @@ fn tensor_max(tensor: AnyTensor) -> Float64:
             assert_equal(tensor_max(x), 10.0)
             ```
     """
-    var size = tensor.numel()
-    if size == 0:
-        return 0.0
-
-    var max_val = Float64(-1e308)  # Very large negative number
-
-    if tensor.dtype() == DType.float32:
-        var ptr = tensor._data.bitcast[Float32]()
-        for i in range(size):
-            var val = Float64(ptr[i])
-            if val > max_val:
-                max_val = val
-    elif tensor.dtype() == DType.float64:
-        var ptr = tensor._data.bitcast[Float64]()
-        for i in range(size):
-            var val = ptr[i]
-            if val > max_val:
-                max_val = val
-    elif tensor.dtype() == DType.float16:
-        var ptr = tensor._data.bitcast[Float16]()
-        for i in range(size):
-            var val = Float64(Float32(ptr[i]))
-            if val > max_val:
-                max_val = val
-
-    return max_val
+    var dtype = tensor.dtype()
+    if dtype == DType.float32:
+        try:
+            return _tensor_max_core[DType.float32](tensor.as_tensor[DType.float32]())
+        except:
+            return 0.0
+    elif dtype == DType.float64:
+        try:
+            return _tensor_max_core[DType.float64](tensor.as_tensor[DType.float64]())
+        except:
+            return 0.0
+    elif dtype == DType.float16:
+        try:
+            return _tensor_max_core[DType.float16](tensor.as_tensor[DType.float16]())
+        except:
+            return 0.0
+    return 0.0
 
 
 fn check_tensor_range(
@@ -363,26 +558,23 @@ fn compute_tensor_l2_norm(tensor: AnyTensor) -> Float64:
             assert_equal(compute_tensor_l2_norm(x), 5.0)  # sqrt(9 + 16)
             ```
     """
-    var size = tensor.numel()
-    var sum_sq = Float64(0.0)
-
-    if tensor.dtype() == DType.float32:
-        var ptr = tensor._data.bitcast[Float32]()
-        for i in range(size):
-            var val = Float64(ptr[i])
-            sum_sq += val * val
-    elif tensor.dtype() == DType.float64:
-        var ptr = tensor._data.bitcast[Float64]()
-        for i in range(size):
-            var val = ptr[i]
-            sum_sq += val * val
-    elif tensor.dtype() == DType.float16:
-        var ptr = tensor._data.bitcast[Float16]()
-        for i in range(size):
-            var val = Float64(Float32(ptr[i]))
-            sum_sq += val * val
-
-    return sqrt(sum_sq)
+    var dtype = tensor.dtype()
+    if dtype == DType.float32:
+        try:
+            return _compute_l2_norm_core[DType.float32](tensor.as_tensor[DType.float32]())
+        except:
+            return 0.0
+    elif dtype == DType.float64:
+        try:
+            return _compute_l2_norm_core[DType.float64](tensor.as_tensor[DType.float64]())
+        except:
+            return 0.0
+    elif dtype == DType.float16:
+        try:
+            return _compute_l2_norm_core[DType.float16](tensor.as_tensor[DType.float16]())
+        except:
+            return 0.0
+    return 0.0
 
 
 fn check_gradient_norm(
@@ -621,10 +813,8 @@ fn clip_grad_global_norm_(
 
 
 # ============================================================================
-# Typed overloads for Tensor[dtype] (compile-time typed wrappers)
+# Typed overloads for Tensor[dtype] — delegate to typed cores directly
 # ============================================================================
-
-from shared.tensor.tensor import Tensor
 
 
 fn has_nan_typed[dt: DType](tensor: Tensor[dt]) raises -> Bool:
@@ -639,7 +829,7 @@ fn has_nan_typed[dt: DType](tensor: Tensor[dt]) raises -> Bool:
     Raises:
         Error if conversion fails.
     """
-    return has_nan(tensor.as_any())
+    return _has_nan_core[dt](tensor)
 
 
 fn has_inf_typed[dt: DType](tensor: Tensor[dt]) raises -> Bool:
@@ -654,7 +844,7 @@ fn has_inf_typed[dt: DType](tensor: Tensor[dt]) raises -> Bool:
     Raises:
         Error if conversion fails.
     """
-    return has_inf(tensor.as_any())
+    return _has_inf_core[dt](tensor)
 
 
 fn tensor_min_typed[dt: DType](tensor: Tensor[dt]) raises -> Float64:
@@ -669,7 +859,7 @@ fn tensor_min_typed[dt: DType](tensor: Tensor[dt]) raises -> Float64:
     Raises:
         Error if conversion fails.
     """
-    return tensor_min(tensor.as_any())
+    return _tensor_min_core[dt](tensor)
 
 
 fn tensor_max_typed[dt: DType](tensor: Tensor[dt]) raises -> Float64:
@@ -684,4 +874,4 @@ fn tensor_max_typed[dt: DType](tensor: Tensor[dt]) raises -> Float64:
     Raises:
         Error if conversion fails.
     """
-    return tensor_max(tensor.as_any())
+    return _tensor_max_core[dt](tensor)
