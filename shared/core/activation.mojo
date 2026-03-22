@@ -23,6 +23,7 @@ Issues covered:
 from math import exp, erf, sqrt, tanh as math_tanh, log as math_log
 from collections import List
 from .extensor import ExTensor, full, zeros_like
+from shared.tensor.tensor import Tensor
 from .arithmetic import add, subtract, multiply
 from .reduction import sum as tensor_sum, max as tensor_max
 from .elementwise import log
@@ -1579,3 +1580,47 @@ fn hard_tanh_backward(
         )
 
     return dispatch_hard_tanh_backward(grad_output, x, min_val, max_val)
+
+
+# ============================================================================
+# Typed Tensor[dtype] overloads — wrap AnyTensor versions via as_any/as_tensor
+# ============================================================================
+
+
+fn relu[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
+    """Apply ReLU activation: max(0, x) (typed version).
+
+    Args:
+        input: Input typed tensor.
+
+    Returns:
+        A new Tensor[dt] with ReLU applied element-wise.
+    """
+    return relu(input.as_any()).as_tensor[dt]()
+
+
+fn sigmoid[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
+    """Apply sigmoid activation: 1 / (1 + exp(-x)) (typed version).
+
+    Args:
+        input: Input typed tensor.
+
+    Returns:
+        A new Tensor[dt] with sigmoid applied element-wise.
+    """
+    return sigmoid(input.as_any()).as_tensor[dt]()
+
+
+fn softmax[dt: DType](
+    input: Tensor[dt], axis: Int = -1
+) raises -> Tensor[dt]:
+    """Apply softmax activation (typed version).
+
+    Args:
+        input: Input typed tensor.
+        axis: Axis along which to apply softmax (default: -1).
+
+    Returns:
+        A new Tensor[dt] with softmax applied along the given axis.
+    """
+    return softmax(input.as_any(), axis).as_tensor[dt]()

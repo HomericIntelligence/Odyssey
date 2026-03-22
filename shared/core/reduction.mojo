@@ -5,6 +5,7 @@ Implements operations that reduce tensors along specified axes
 
 from collections import List
 from .extensor import ExTensor
+from shared.tensor.tensor import Tensor
 from .shape import as_contiguous
 from .reduction_utils import (
     compute_strides,
@@ -1238,3 +1239,40 @@ fn percentile_backward(
                 result._set_float64(upper_input_idx, fraction * grad_val)
 
     return result^
+
+
+# ============================================================================
+# Typed Tensor[dtype] overloads — wrap AnyTensor versions via as_any/as_tensor
+# ============================================================================
+
+
+fn sum[dt: DType](
+    tensor: Tensor[dt], axis: Int = -1, keepdims: Bool = False
+) raises -> Tensor[dt]:
+    """Sum tensor elements along an axis (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+        axis: Axis to reduce (-1 for all axes).
+        keepdims: Whether to keep reduced dimensions as size 1.
+
+    Returns:
+        A new Tensor[dt] with sum along specified axis.
+    """
+    return sum(tensor.as_any(), axis, keepdims).as_tensor[dt]()
+
+
+fn mean[dt: DType](
+    tensor: Tensor[dt], axis: Int = -1, keepdims: Bool = False
+) raises -> Tensor[dt]:
+    """Compute mean along an axis (typed version).
+
+    Args:
+        tensor: Input typed tensor.
+        axis: Axis to reduce (-1 for all axes).
+        keepdims: Whether to keep reduced dimensions as size 1.
+
+    Returns:
+        A new Tensor[dt] with mean along specified axis.
+    """
+    return mean(tensor.as_any(), axis, keepdims).as_tensor[dt]()

@@ -9,6 +9,7 @@ from .extensor import ExTensor, full
 from .broadcasting import broadcast_shapes, compute_broadcast_strides
 from .shape import as_contiguous
 from .gradient_types import GradientPair
+from shared.tensor.tensor import Tensor
 from .dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
@@ -829,3 +830,66 @@ fn divide_backward(
 #   fn __iadd__, __isub__, __imul__, __itruediv__, etc.
 #
 # These implementations should delegate to the functions in this module.
+
+
+# ============================================================================
+# Typed Tensor[dtype] overloads — wrap AnyTensor versions via as_any/as_tensor
+# ============================================================================
+
+
+fn add[dt: DType](a: Tensor[dt], b: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise addition (typed version).
+
+    Args:
+        a: First input tensor.
+        b: Second input tensor.
+
+    Returns:
+        A new Tensor[dt] with element-wise sum.
+    """
+    return add(a.as_any(), b.as_any()).as_tensor[dt]()
+
+
+fn subtract[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[dt]:
+    """Element-wise subtraction (typed version).
+
+    Args:
+        a: First input tensor.
+        b: Second input tensor.
+
+    Returns:
+        A new Tensor[dt] with element-wise difference.
+    """
+    return subtract(a.as_any(), b.as_any()).as_tensor[dt]()
+
+
+fn multiply[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[dt]:
+    """Element-wise multiplication (typed version).
+
+    Args:
+        a: First input tensor.
+        b: Second input tensor.
+
+    Returns:
+        A new Tensor[dt] with element-wise product.
+    """
+    return multiply(a.as_any(), b.as_any()).as_tensor[dt]()
+
+
+fn divide[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[dt]:
+    """Element-wise division (typed version).
+
+    Args:
+        a: First input tensor.
+        b: Second input tensor.
+
+    Returns:
+        A new Tensor[dt] with element-wise quotient.
+    """
+    return divide(a.as_any(), b.as_any()).as_tensor[dt]()
