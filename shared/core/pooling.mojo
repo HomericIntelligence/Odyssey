@@ -811,3 +811,86 @@ fn global_avgpool2d_backward(
                     grad_input[grad_in_idx] = Float32(grad_per_position)
 
     return grad_input^
+
+
+# ============================================================================
+# Typed overloads for Tensor[dtype] (compile-time typed wrappers)
+# ============================================================================
+
+from shared.tensor.tensor import Tensor
+
+
+fn maxpool2d_typed[
+    dt: DType
+](
+    x: Tensor[dt],
+    kernel_h: Int,
+    kernel_w: Int,
+    stride: Int = 1,
+    padding: Int = 0,
+) raises -> Tensor[dt]:
+    """Typed overload of maxpool2d for Tensor[dtype].
+
+    Args:
+        x: Input tensor of shape (batch, channels, height, width).
+        kernel_h: Kernel height.
+        kernel_w: Kernel width.
+        stride: Stride (default: 1).
+        padding: Padding (default: 0).
+
+    Returns:
+        Output tensor with max pooling applied.
+
+    Raises:
+        Error if tensor operations fail.
+    """
+    return maxpool2d(
+        x.as_any(), kernel_h, kernel_w, stride, padding
+    ).as_tensor[dt]()
+
+
+fn avgpool2d_typed[
+    dt: DType
+](
+    x: Tensor[dt],
+    kernel_h: Int,
+    kernel_w: Int,
+    stride: Int = 1,
+    padding: Int = 0,
+) raises -> Tensor[dt]:
+    """Typed overload of avgpool2d for Tensor[dtype].
+
+    Args:
+        x: Input tensor of shape (batch, channels, height, width).
+        kernel_h: Kernel height.
+        kernel_w: Kernel width.
+        stride: Stride (default: 1).
+        padding: Padding (default: 0).
+
+    Returns:
+        Output tensor with average pooling applied.
+
+    Raises:
+        Error if tensor operations fail.
+    """
+    return avgpool2d(
+        x.as_any(), kernel_h, kernel_w, stride, padding
+    ).as_tensor[dt]()
+
+
+fn global_avgpool2d_typed[
+    dt: DType
+](x: Tensor[dt], method: String = "direct") raises -> Tensor[dt]:
+    """Typed overload of global_avgpool2d for Tensor[dtype].
+
+    Args:
+        x: Input tensor of shape (batch, channels, height, width).
+        method: Implementation method (default: "direct").
+
+    Returns:
+        Output tensor of shape (batch, channels, 1, 1).
+
+    Raises:
+        Error if tensor operations fail.
+    """
+    return global_avgpool2d(x.as_any(), method).as_tensor[dt]()

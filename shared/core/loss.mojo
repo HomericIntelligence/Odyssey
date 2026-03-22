@@ -1023,3 +1023,70 @@ fn kl_divergence_backward(
 
     # Chain rule: multiply by upstream gradient
     return multiply(grad_output, grad)
+
+
+# ============================================================================
+# Typed overloads for Tensor[dtype] (compile-time typed wrappers)
+# ============================================================================
+
+from shared.tensor.tensor import Tensor
+
+
+fn mean_squared_error_typed[
+    dt: DType
+](predictions: Tensor[dt], targets: Tensor[dt]) raises -> Tensor[dt]:
+    """Typed overload of mean_squared_error for Tensor[dtype].
+
+    Args:
+        predictions: Model predictions.
+        targets: Ground truth targets.
+
+    Returns:
+        Scalar MSE loss tensor.
+
+    Raises:
+        Error if tensor operations fail.
+    """
+    return mean_squared_error(
+        predictions.as_any(), targets.as_any()
+    ).as_tensor[dt]()
+
+
+fn cross_entropy_typed[
+    dt: DType
+](predictions: Tensor[dt], targets: Tensor[dt]) raises -> Tensor[dt]:
+    """Typed overload of cross_entropy for Tensor[dtype].
+
+    Args:
+        predictions: Model predictions (logits or probabilities).
+        targets: Ground truth targets (one-hot or class indices).
+
+    Returns:
+        Scalar cross-entropy loss tensor.
+
+    Raises:
+        Error if tensor operations fail.
+    """
+    return cross_entropy(
+        predictions.as_any(), targets.as_any()
+    ).as_tensor[dt]()
+
+
+fn binary_cross_entropy_typed[
+    dt: DType
+](predictions: Tensor[dt], targets: Tensor[dt]) raises -> Tensor[dt]:
+    """Typed overload of binary_cross_entropy for Tensor[dtype].
+
+    Args:
+        predictions: Model predictions in [0, 1].
+        targets: Binary labels (0 or 1).
+
+    Returns:
+        Scalar BCE loss tensor.
+
+    Raises:
+        Error if tensor operations fail.
+    """
+    return binary_cross_entropy(
+        predictions.as_any(), targets.as_any()
+    ).as_tensor[dt]()
