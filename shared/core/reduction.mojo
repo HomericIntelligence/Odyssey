@@ -1246,7 +1246,7 @@ fn percentile_backward(
 # ============================================================================
 
 
-fn sum[dt: DType](
+fn sum_typed[dt: DType](
     tensor: Tensor[dt], axis: Int = -1, keepdims: Bool = False
 ) raises -> Tensor[dt]:
     """Sum tensor elements along an axis (typed version).
@@ -1262,7 +1262,7 @@ fn sum[dt: DType](
     return sum(tensor.as_any(), axis, keepdims).as_tensor[dt]()
 
 
-fn mean[dt: DType](
+fn mean_typed[dt: DType](
     tensor: Tensor[dt], axis: Int = -1, keepdims: Bool = False
 ) raises -> Tensor[dt]:
     """Compute mean along an axis (typed version).

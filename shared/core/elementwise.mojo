@@ -1611,7 +1611,7 @@ fn log2_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
 # ============================================================================
 
 
-fn exp[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+fn exp_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     """Element-wise exponential (typed version).
 
     Args:
@@ -1623,7 +1623,7 @@ fn exp[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     return exp(tensor.as_any()).as_tensor[dt]()
 
 
-fn log[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+fn log_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     """Element-wise natural logarithm (typed version).
 
     Args:
@@ -1635,7 +1635,7 @@ fn log[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     return log(tensor.as_any()).as_tensor[dt]()
 
 
-fn sqrt[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+fn sqrt_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     """Element-wise square root (typed version).
 
     Args:
@@ -1647,7 +1647,7 @@ fn sqrt[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     return sqrt(tensor.as_any()).as_tensor[dt]()
 
 
-fn abs[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+fn abs_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     """Element-wise absolute value (typed version).
 
     Args:
@@ -1659,7 +1659,7 @@ fn abs[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     return abs(tensor.as_any()).as_tensor[dt]()
 
 
-fn sin[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+fn sin_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     """Element-wise sine (typed version).
 
     Args:
@@ -1671,7 +1671,7 @@ fn sin[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     return sin(tensor.as_any()).as_tensor[dt]()
 
 
-fn cos[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+fn cos_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     """Element-wise cosine (typed version).
 
     Args:

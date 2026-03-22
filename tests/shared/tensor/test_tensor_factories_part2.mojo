@@ -32,7 +32,7 @@ fn test_randn() raises:
     """randn[DType.float32] creates a tensor with random values."""
     var t = randn[DType.float32]([10], seed=42)
     assert_true(t.numel() == 10, "numel should be 10")
-    assert_true(t.dtype() == DType.float32, "dtype should be float32")
+    assert_true(t.get_dtype() == DType.float32, "dtype should be float32")
     # Just verify shape and dtype; values are random
     print("PASS: test_randn")
 
@@ -80,7 +80,7 @@ fn test_empty() raises:
     """empty[DType.float32] creates a tensor (values uninitialized)."""
     var t = empty[DType.float32]([3, 4])
     assert_true(t.numel() == 12, "numel should be 12")
-    assert_true(t.dtype() == DType.float32, "dtype should be float32")
+    assert_true(t.get_dtype() == DType.float32, "dtype should be float32")
     var s = t.shape()
     assert_true(s[0] == 3, "dim 0 should be 3")
     assert_true(s[1] == 4, "dim 1 should be 4")

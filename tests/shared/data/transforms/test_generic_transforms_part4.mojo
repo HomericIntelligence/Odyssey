@@ -30,8 +30,6 @@ from shared.data.generic_transforms import (
     AnyTransform,
 )
 
-# Type comptime for test convenience
-comptime Tensor = AnyTensor
 
 
 # ============================================================================

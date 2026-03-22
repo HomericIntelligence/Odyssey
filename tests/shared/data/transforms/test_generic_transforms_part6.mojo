@@ -30,8 +30,6 @@ from shared.data.generic_transforms import (
     AnyTransform,
 )
 
-# Type comptime for test convenience
-comptime Tensor = AnyTensor
 
 
 # ============================================================================
@@ -114,7 +112,7 @@ fn test_integration_batch_preprocessing() raises:
     values2.append(300.0)
     values2.append(400.0)
 
-    var batch: List[Tensor] = []
+    var batch: List[AnyTensor] = []
     batch.append(AnyTensor(values1^))
     batch.append(AnyTensor(values2^))
 

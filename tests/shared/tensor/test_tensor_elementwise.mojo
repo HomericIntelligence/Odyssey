@@ -5,23 +5,23 @@
 # high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Tests cover:
-- exp[dt]: Element-wise exponential
-- relu[dt]: ReLU activation
-- sigmoid[dt]: Sigmoid activation
+- exp_typed[dt]: Element-wise exponential
+- relu_typed[dt]: ReLU activation
+- sigmoid_typed[dt]: Sigmoid activation
 """
 
 from testing import assert_true, assert_almost_equal
 from shared.tensor.tensor import Tensor
 from shared.tensor.factories import full, zeros
-from shared.core.elementwise import exp, log, sqrt, abs, sin, cos
-from shared.core.activation import relu, sigmoid
+from shared.core.elementwise import exp_typed, log_typed, sqrt_typed, abs_typed, sin_typed, cos_typed
+from shared.core.activation import relu_typed, sigmoid_typed
 
 
 fn test_exp_typed() raises:
     """exp preserves dtype and computes correct values."""
     var t = zeros[DType.float32]([4])
-    var r = exp(t)
-    assert_true(r.dtype() == DType.float32, "dtype should be float32")
+    var r = exp_typed(t)
+    assert_true(r.get_dtype() == DType.float32, "dtype should be float32")
     # exp(0) = 1.0
     for i in range(4):
         assert_almost_equal(
@@ -33,7 +33,7 @@ fn test_exp_typed() raises:
 fn test_exp_one() raises:
     """exp(1.0) computes e."""
     var t = full[DType.float32]([2], 1.0)
-    var r = exp(t)
+    var r = exp_typed(t)
     for i in range(2):
         assert_almost_equal(
             Float64(r[i]),
@@ -47,8 +47,8 @@ fn test_exp_one() raises:
 fn test_log_typed() raises:
     """log computes correct values."""
     var t = full[DType.float32]([3], 1.0)
-    var r = log(t)
-    assert_true(r.dtype() == DType.float32, "dtype should be float32")
+    var r = log_typed(t)
+    assert_true(r.get_dtype() == DType.float32, "dtype should be float32")
     # log(1) = 0.0
     for i in range(3):
         assert_almost_equal(
@@ -60,8 +60,8 @@ fn test_log_typed() raises:
 fn test_sqrt_typed() raises:
     """sqrt computes correct values."""
     var t = full[DType.float32]([3], 0.25)
-    var r = sqrt(t)
-    assert_true(r.dtype() == DType.float32, "dtype should be float32")
+    var r = sqrt_typed(t)
+    assert_true(r.get_dtype() == DType.float32, "dtype should be float32")
     for i in range(3):
         assert_almost_equal(
             Float64(r[i]), 0.5, atol=1e-6, msg="sqrt(0.25) = 0.5"
@@ -72,7 +72,7 @@ fn test_sqrt_typed() raises:
 fn test_abs_typed() raises:
     """abs computes correct values for negative inputs."""
     var t = full[DType.float32]([3], -1.5)
-    var r = abs(t)
+    var r = abs_typed(t)
     for i in range(3):
         assert_almost_equal(
             Float64(r[i]), 1.5, atol=1e-6, msg="abs(-1.5) = 1.5"
@@ -87,8 +87,8 @@ fn test_relu_typed() raises:
     t._data[1] = Scalar[DType.float32](0.0)
     t._data[2] = Scalar[DType.float32](0.5)
     t._data[3] = Scalar[DType.float32](1.5)
-    var r = relu(t)
-    assert_true(r.dtype() == DType.float32, "dtype should be float32")
+    var r = relu_typed(t)
+    assert_true(r.get_dtype() == DType.float32, "dtype should be float32")
     assert_almost_equal(
         Float64(r[0]), 0.0, atol=1e-6, msg="relu(-1) = 0"
     )
@@ -107,8 +107,8 @@ fn test_relu_typed() raises:
 fn test_sigmoid_typed() raises:
     """sigmoid maps 0 to 0.5."""
     var t = zeros[DType.float32]([3])
-    var r = sigmoid(t)
-    assert_true(r.dtype() == DType.float32, "dtype should be float32")
+    var r = sigmoid_typed(t)
+    assert_true(r.get_dtype() == DType.float32, "dtype should be float32")
     # sigmoid(0) = 0.5
     for i in range(3):
         assert_almost_equal(
@@ -120,8 +120,8 @@ fn test_sigmoid_typed() raises:
 fn test_sin_cos_typed() raises:
     """sin and cos compute correct values."""
     var t = zeros[DType.float32]([2])
-    var s = sin(t)
-    var c = cos(t)
+    var s = sin_typed(t)
+    var c = cos_typed(t)
     # sin(0) = 0, cos(0) = 1
     for i in range(2):
         assert_almost_equal(

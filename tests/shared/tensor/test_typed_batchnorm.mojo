@@ -27,16 +27,16 @@ fn test_batchnorm_default_dtype() raises:
     """BatchNorm2dLayer defaults to float32 weights."""
     var bn = BatchNorm2dLayer(num_channels=4)
     # gamma and beta should have float32 dtype
-    assert_true(bn.gamma.dtype() == DType.float32, "gamma dtype should be float32")
-    assert_true(bn.beta.dtype() == DType.float32, "beta dtype should be float32")
+    assert_true(bn.gamma.get_dtype() == DType.float32, "gamma dtype should be float32")
+    assert_true(bn.beta.get_dtype() == DType.float32, "beta dtype should be float32")
     print("PASS: test_batchnorm_default_dtype")
 
 
 fn test_batchnorm_float64() raises:
     """BatchNorm2dLayer[DType.float64] uses float64 tensors."""
     var bn = BatchNorm2dLayer[DType.float64](num_channels=4)
-    assert_true(bn.gamma.dtype() == DType.float64, "gamma dtype should be float64")
-    assert_true(bn.beta.dtype() == DType.float64, "beta dtype should be float64")
+    assert_true(bn.gamma.get_dtype() == DType.float64, "gamma dtype should be float64")
+    assert_true(bn.beta.get_dtype() == DType.float64, "beta dtype should be float64")
     print("PASS: test_batchnorm_float64")
 
 
@@ -75,11 +75,11 @@ fn test_batchnorm_running_stats_float64() raises:
     """Running stats use the parameterized dtype."""
     var bn = BatchNorm2dLayer[DType.float64](num_channels=4)
     assert_true(
-        bn.running_mean.dtype() == DType.float64,
+        bn.running_mean.get_dtype() == DType.float64,
         "running_mean dtype should be float64",
     )
     assert_true(
-        bn.running_var.dtype() == DType.float64,
+        bn.running_var.get_dtype() == DType.float64,
         "running_var dtype should be float64",
     )
     print("PASS: test_batchnorm_running_stats_float64")
@@ -95,7 +95,7 @@ fn test_batchnorm_forward_typed() raises:
     input._data[9] = Scalar[DType.float32](1.5)
     input._data[10] = Scalar[DType.float32](0.25)
     var output = bn.forward(input)
-    assert_true(output.dtype() == DType.float32, "output dtype should be float32")
+    assert_true(output.get_dtype() == DType.float32, "output dtype should be float32")
     # Output should have same shape as input: [1, 2, 3, 3]
     var s = output.shape()
     assert_true(s[0] == 1, "batch dim")

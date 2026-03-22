@@ -1620,7 +1620,7 @@ fn transpose_backward(
 # ============================================================================
 
 
-fn matmul[dt: DType](
+fn matmul_typed[dt: DType](
     a: Tensor[dt], b: Tensor[dt]
 ) raises -> Tensor[dt]:
     """Matrix multiplication (typed version).
@@ -1635,7 +1635,7 @@ fn matmul[dt: DType](
     return matmul(a.as_any(), b.as_any()).as_tensor[dt]()
 
 
-fn transpose[dt: DType](
+fn transpose_typed[dt: DType](
     tensor: Tensor[dt], axes: Optional[List[Int]] = None
 ) raises -> Tensor[dt]:
     """Transpose tensor dimensions (typed version).

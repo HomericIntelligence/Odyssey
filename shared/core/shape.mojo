@@ -1441,7 +1441,7 @@ fn permute(tensor: AnyTensor, dims: List[Int]) raises -> AnyTensor:
 # ============================================================================
 
 
-fn reshape[dt: DType](
+fn reshape_typed[dt: DType](
     tensor: Tensor[dt], new_shape: List[Int]
 ) raises -> Tensor[dt]:
     """Reshape tensor to new shape (typed version).
@@ -1456,7 +1456,7 @@ fn reshape[dt: DType](
     return reshape(tensor.as_any(), new_shape).as_tensor[dt]()
 
 
-fn squeeze[dt: DType](
+fn squeeze_typed[dt: DType](
     tensor: Tensor[dt], axis: Int = -999
 ) raises -> Tensor[dt]:
     """Remove size-1 dimensions (typed version).
@@ -1471,7 +1471,7 @@ fn squeeze[dt: DType](
     return squeeze(tensor.as_any(), axis).as_tensor[dt]()
 
 
-fn unsqueeze[dt: DType](tensor: Tensor[dt], axis: Int) raises -> Tensor[dt]:
+fn unsqueeze_typed[dt: DType](tensor: Tensor[dt], axis: Int) raises -> Tensor[dt]:
     """Insert a size-1 dimension at the given axis (typed version).
 
     Args:
@@ -1484,7 +1484,7 @@ fn unsqueeze[dt: DType](tensor: Tensor[dt], axis: Int) raises -> Tensor[dt]:
     return unsqueeze(tensor.as_any(), axis).as_tensor[dt]()
 
 
-fn expand_dims[dt: DType](
+fn expand_dims_typed[dt: DType](
     tensor: Tensor[dt], axis: Int
 ) raises -> Tensor[dt]:
     """Insert a size-1 dimension at the given axis (typed version).
@@ -1501,7 +1501,7 @@ fn expand_dims[dt: DType](
     return expand_dims(tensor.as_any(), axis).as_tensor[dt]()
 
 
-fn flatten[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+fn flatten_typed[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     """Flatten tensor to 1D (typed version).
 
     Args:
@@ -1513,7 +1513,7 @@ fn flatten[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
     return flatten(tensor.as_any()).as_tensor[dt]()
 
 
-fn broadcast_to[dt: DType](
+fn broadcast_to_typed[dt: DType](
     tensor: Tensor[dt], target_shape: List[Int]
 ) raises -> Tensor[dt]:
     """Broadcast tensor to target shape (typed version).
