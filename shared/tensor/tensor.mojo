@@ -37,6 +37,7 @@ comptime TENSOR_PRINT_SHOW_ELEMENTS: Int = 3  # Show first/last N elements
 
 struct Tensor[dtype: DType = DType.float32](
     Copyable,
+    Hashable,
     ImplicitlyCopyable,
     Movable,
     Sized,
@@ -545,6 +546,80 @@ struct Tensor[dtype: DType = DType.float32](
                     result += "?"
         result += "])"
         return result
+
+    # ------------------------------------------------------------------
+    # Hashing (typed access — no _get_float64 round-trip)
+    # ------------------------------------------------------------------
+
+    fn __hash__[H: Hasher](self, mut hasher: H):
+        """Compute hash based on shape, dtype, and data.
+
+        Uses typed `self._data[i]` access (Scalar[Self.dtype]) instead of
+        _get_float64 to avoid precision-losing round-trips through Float64.
+
+        Parameters:
+            H: The hasher type conforming to the Hasher trait.
+
+        Args:
+            hasher: The hasher to write values into.
+        """
+        # Hash shape dimensions
+        for i in range(len(self._shape)):
+            hasher.update(self._shape[i])
+        # Hash dtype ordinal
+        from shared.core.dtype_ordinal import dtype_to_ordinal
+
+        hasher.update(dtype_to_ordinal(Self.dtype))
+        # Hash data — typed access via self._data[i] (Scalar[Self.dtype])
+        # Canonicalize NaN so all NaN bit patterns hash equally
+        from math import isnan
+
+        for i in range(self._numel):
+            var val = self._data[i]  # Scalar[Self.dtype] — typed, no precision loss
+            # Convert typed element to bytes for hashing
+            var as_f64 = Float64(val)
+            if isnan(as_f64):
+                # Canonical NaN: positive quiet NaN (0x7FF8000000000000)
+                hasher.update(UInt64(0x7FF8000000000000))
+            else:
+                var int_bits = UnsafePointer[Float64](to=as_f64).bitcast[
+                    UInt64
+                ]()[]
+                hasher.update(int_bits)
+
+    # ------------------------------------------------------------------
+    # Serialization
+    # ------------------------------------------------------------------
+
+    fn save(self, path: String, name: String = "") raises:
+        """Save tensor to file (delegates to AnyTensor serialization).
+
+        Args:
+            path: Output file path.
+            name: Optional tensor name (defaults to empty string).
+
+        Raises:
+            Error: If file write fails or path is invalid.
+        """
+        self.as_any().save(path, name)
+
+    @staticmethod
+    fn load(path: String) raises -> Tensor[dtype]:
+        """Load tensor from file.
+
+        The file must contain a tensor with dtype matching Self.dtype.
+
+        Args:
+            path: Input file path.
+
+        Returns:
+            Loaded Tensor[dtype].
+
+        Raises:
+            Error: If file dtype doesn't match Self.dtype or file is invalid.
+        """
+        var any_t = AnyTensor.load(path)
+        return any_t.as_tensor[dtype]()
 
     # ------------------------------------------------------------------
     # Static helpers
