@@ -1,35 +1,72 @@
-"""Comparison operations for AnyTensor with broadcasting support.
+"""Comparison operations with native Tensor[dtype] implementations.
 
-Implements element-wise comparison operations following NumPy-style broadcasting
+Implements element-wise comparison operations following NumPy-style broadcasting.
+
+Architecture: Tensor[dtype] typed implementations are the core (zero dtype branches).
+AnyTensor versions dispatch to typed implementations via ordinal-based table.
+
+Layer 1 (outer): AnyTensor public API (equal, less, greater, etc.)
+Layer 2: dtype dispatch table (ordinal-based)
+Layer 3 (core): Tensor[dtype] native implementation
 """
 
 from collections import List
 from .any_tensor import AnyTensor
 from shared.tensor.tensor import Tensor
 from shared.base.broadcasting import broadcast_shapes, compute_broadcast_strides
+from shared.base.dtype_ordinal import (
+    dtype_to_ordinal,
+    DTYPE_FLOAT16,
+    DTYPE_FLOAT32,
+    DTYPE_FLOAT64,
+    DTYPE_INT8,
+    DTYPE_INT16,
+    DTYPE_INT32,
+    DTYPE_INT64,
+    DTYPE_UINT8,
+    DTYPE_UINT16,
+    DTYPE_UINT32,
+    DTYPE_UINT64,
+)
 
 
 # ============================================================================
-# Dtype-specialized comparison helpers
+# Layer 3 (Core): Native Tensor[dtype] Comparison Implementations
 # ============================================================================
+# Each comparison op has its own typed core function that uses Tensor[dtype]._data
+# directly -- zero bitcasts, zero dtype branches.
 
 
-@always_inline
-fn _compare_equal_impl[
+fn _equal_typed[
     dtype: DType
-](
-    result: AnyTensor,
-    a: AnyTensor,
-    b: AnyTensor,
-    strides_a: List[Int],
-    strides_b: List[Int],
-    result_shape: List[Int],
-    total_elems: Int,
-):
-    """Dtype-specialized equal comparison."""
-    var a_ptr = a._data.bitcast[Scalar[dtype]]()
-    var b_ptr = b._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[DType.bool]]()
+](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[DType.bool]:
+    """Element-wise equality on native Tensor[dtype] (core).
+
+    Parameters:
+        dtype: Compile-time dtype parameter.
+
+    Args:
+        a: First typed tensor.
+        b: Second typed tensor.
+
+    Returns:
+        Boolean result tensor.
+    """
+    var a_shape = a.shape()
+    var b_shape = b.shape()
+    var result_shape = broadcast_shapes(a_shape, b_shape)
+    var result = Tensor[DType.bool](result_shape)
+
+    var strides_a = compute_broadcast_strides(a_shape, result_shape)
+    var strides_b = compute_broadcast_strides(b_shape, result_shape)
+
+    var total_elems = 1
+    for i in range(len(result_shape)):
+        total_elems *= result_shape[i]
+
+    var a_ptr = a._data
+    var b_ptr = b._data
+    var out_ptr = result._data
 
     for result_idx in range(total_elems):
         var remaining = result_idx
@@ -43,70 +80,39 @@ fn _compare_equal_impl[
 
         out_ptr[result_idx] = a_ptr[idx_a] == b_ptr[idx_b]
 
-
-fn _dispatch_compare_equal(
-    result: AnyTensor,
-    a: AnyTensor,
-    b: AnyTensor,
-    strides_a: List[Int],
-    strides_b: List[Int],
-    result_shape: List[Int],
-    total_elems: Int,
-) raises:
-    """Runtime dispatch for equal comparison."""
-    var dtype = a.dtype()
-    if dtype == DType.float16:
-        _compare_equal_impl[DType.float16](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.float32:
-        _compare_equal_impl[DType.float32](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.float64:
-        _compare_equal_impl[DType.float64](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int8:
-        _compare_equal_impl[DType.int8](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int16:
-        _compare_equal_impl[DType.int16](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int32:
-        _compare_equal_impl[DType.int32](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int64:
-        _compare_equal_impl[DType.int64](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.bool:
-        _compare_equal_impl[DType.bool](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    else:
-        raise Error("equal: unsupported dtype")
+    return result^
 
 
-@always_inline
-fn _compare_not_equal_impl[
+fn _not_equal_typed[
     dtype: DType
-](
-    result: AnyTensor,
-    a: AnyTensor,
-    b: AnyTensor,
-    strides_a: List[Int],
-    strides_b: List[Int],
-    result_shape: List[Int],
-    total_elems: Int,
-):
-    """Dtype-specialized not_equal comparison."""
-    var a_ptr = a._data.bitcast[Scalar[dtype]]()
-    var b_ptr = b._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[DType.bool]]()
+](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[DType.bool]:
+    """Element-wise inequality on native Tensor[dtype] (core).
+
+    Parameters:
+        dtype: Compile-time dtype parameter.
+
+    Args:
+        a: First typed tensor.
+        b: Second typed tensor.
+
+    Returns:
+        Boolean result tensor.
+    """
+    var a_shape = a.shape()
+    var b_shape = b.shape()
+    var result_shape = broadcast_shapes(a_shape, b_shape)
+    var result = Tensor[DType.bool](result_shape)
+
+    var strides_a = compute_broadcast_strides(a_shape, result_shape)
+    var strides_b = compute_broadcast_strides(b_shape, result_shape)
+
+    var total_elems = 1
+    for i in range(len(result_shape)):
+        total_elems *= result_shape[i]
+
+    var a_ptr = a._data
+    var b_ptr = b._data
+    var out_ptr = result._data
 
     for result_idx in range(total_elems):
         var remaining = result_idx
@@ -120,70 +126,39 @@ fn _compare_not_equal_impl[
 
         out_ptr[result_idx] = a_ptr[idx_a] != b_ptr[idx_b]
 
-
-fn _dispatch_compare_not_equal(
-    result: AnyTensor,
-    a: AnyTensor,
-    b: AnyTensor,
-    strides_a: List[Int],
-    strides_b: List[Int],
-    result_shape: List[Int],
-    total_elems: Int,
-) raises:
-    """Runtime dispatch for not_equal comparison."""
-    var dtype = a.dtype()
-    if dtype == DType.float16:
-        _compare_not_equal_impl[DType.float16](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.float32:
-        _compare_not_equal_impl[DType.float32](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.float64:
-        _compare_not_equal_impl[DType.float64](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int8:
-        _compare_not_equal_impl[DType.int8](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int16:
-        _compare_not_equal_impl[DType.int16](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int32:
-        _compare_not_equal_impl[DType.int32](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int64:
-        _compare_not_equal_impl[DType.int64](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.bool:
-        _compare_not_equal_impl[DType.bool](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    else:
-        raise Error("not_equal: unsupported dtype")
+    return result^
 
 
-@always_inline
-fn _compare_less_impl[
+fn _less_typed[
     dtype: DType
-](
-    result: AnyTensor,
-    a: AnyTensor,
-    b: AnyTensor,
-    strides_a: List[Int],
-    strides_b: List[Int],
-    result_shape: List[Int],
-    total_elems: Int,
-):
-    """Dtype-specialized less comparison."""
-    var a_ptr = a._data.bitcast[Scalar[dtype]]()
-    var b_ptr = b._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[DType.bool]]()
+](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[DType.bool]:
+    """Element-wise less-than on native Tensor[dtype] (core).
+
+    Parameters:
+        dtype: Compile-time dtype parameter.
+
+    Args:
+        a: First typed tensor.
+        b: Second typed tensor.
+
+    Returns:
+        Boolean result tensor.
+    """
+    var a_shape = a.shape()
+    var b_shape = b.shape()
+    var result_shape = broadcast_shapes(a_shape, b_shape)
+    var result = Tensor[DType.bool](result_shape)
+
+    var strides_a = compute_broadcast_strides(a_shape, result_shape)
+    var strides_b = compute_broadcast_strides(b_shape, result_shape)
+
+    var total_elems = 1
+    for i in range(len(result_shape)):
+        total_elems *= result_shape[i]
+
+    var a_ptr = a._data
+    var b_ptr = b._data
+    var out_ptr = result._data
 
     for result_idx in range(total_elems):
         var remaining = result_idx
@@ -197,70 +172,39 @@ fn _compare_less_impl[
 
         out_ptr[result_idx] = a_ptr[idx_a] < b_ptr[idx_b]
 
-
-fn _dispatch_compare_less(
-    result: AnyTensor,
-    a: AnyTensor,
-    b: AnyTensor,
-    strides_a: List[Int],
-    strides_b: List[Int],
-    result_shape: List[Int],
-    total_elems: Int,
-) raises:
-    """Runtime dispatch for less comparison."""
-    var dtype = a.dtype()
-    if dtype == DType.float16:
-        _compare_less_impl[DType.float16](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.float32:
-        _compare_less_impl[DType.float32](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.float64:
-        _compare_less_impl[DType.float64](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int8:
-        _compare_less_impl[DType.int8](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int16:
-        _compare_less_impl[DType.int16](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int32:
-        _compare_less_impl[DType.int32](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int64:
-        _compare_less_impl[DType.int64](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.bool:
-        _compare_less_impl[DType.bool](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    else:
-        raise Error("less: unsupported dtype")
+    return result^
 
 
-@always_inline
-fn _compare_less_equal_impl[
+fn _less_equal_typed[
     dtype: DType
-](
-    result: AnyTensor,
-    a: AnyTensor,
-    b: AnyTensor,
-    strides_a: List[Int],
-    strides_b: List[Int],
-    result_shape: List[Int],
-    total_elems: Int,
-):
-    """Dtype-specialized less_equal comparison."""
-    var a_ptr = a._data.bitcast[Scalar[dtype]]()
-    var b_ptr = b._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[DType.bool]]()
+](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[DType.bool]:
+    """Element-wise less-equal on native Tensor[dtype] (core).
+
+    Parameters:
+        dtype: Compile-time dtype parameter.
+
+    Args:
+        a: First typed tensor.
+        b: Second typed tensor.
+
+    Returns:
+        Boolean result tensor.
+    """
+    var a_shape = a.shape()
+    var b_shape = b.shape()
+    var result_shape = broadcast_shapes(a_shape, b_shape)
+    var result = Tensor[DType.bool](result_shape)
+
+    var strides_a = compute_broadcast_strides(a_shape, result_shape)
+    var strides_b = compute_broadcast_strides(b_shape, result_shape)
+
+    var total_elems = 1
+    for i in range(len(result_shape)):
+        total_elems *= result_shape[i]
+
+    var a_ptr = a._data
+    var b_ptr = b._data
+    var out_ptr = result._data
 
     for result_idx in range(total_elems):
         var remaining = result_idx
@@ -274,70 +218,39 @@ fn _compare_less_equal_impl[
 
         out_ptr[result_idx] = a_ptr[idx_a] <= b_ptr[idx_b]
 
-
-fn _dispatch_compare_less_equal(
-    result: AnyTensor,
-    a: AnyTensor,
-    b: AnyTensor,
-    strides_a: List[Int],
-    strides_b: List[Int],
-    result_shape: List[Int],
-    total_elems: Int,
-) raises:
-    """Runtime dispatch for less_equal comparison."""
-    var dtype = a.dtype()
-    if dtype == DType.float16:
-        _compare_less_equal_impl[DType.float16](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.float32:
-        _compare_less_equal_impl[DType.float32](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.float64:
-        _compare_less_equal_impl[DType.float64](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int8:
-        _compare_less_equal_impl[DType.int8](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int16:
-        _compare_less_equal_impl[DType.int16](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int32:
-        _compare_less_equal_impl[DType.int32](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int64:
-        _compare_less_equal_impl[DType.int64](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.bool:
-        _compare_less_equal_impl[DType.bool](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    else:
-        raise Error("less_equal: unsupported dtype")
+    return result^
 
 
-@always_inline
-fn _compare_greater_impl[
+fn _greater_typed[
     dtype: DType
-](
-    result: AnyTensor,
-    a: AnyTensor,
-    b: AnyTensor,
-    strides_a: List[Int],
-    strides_b: List[Int],
-    result_shape: List[Int],
-    total_elems: Int,
-):
-    """Dtype-specialized greater comparison."""
-    var a_ptr = a._data.bitcast[Scalar[dtype]]()
-    var b_ptr = b._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[DType.bool]]()
+](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[DType.bool]:
+    """Element-wise greater-than on native Tensor[dtype] (core).
+
+    Parameters:
+        dtype: Compile-time dtype parameter.
+
+    Args:
+        a: First typed tensor.
+        b: Second typed tensor.
+
+    Returns:
+        Boolean result tensor.
+    """
+    var a_shape = a.shape()
+    var b_shape = b.shape()
+    var result_shape = broadcast_shapes(a_shape, b_shape)
+    var result = Tensor[DType.bool](result_shape)
+
+    var strides_a = compute_broadcast_strides(a_shape, result_shape)
+    var strides_b = compute_broadcast_strides(b_shape, result_shape)
+
+    var total_elems = 1
+    for i in range(len(result_shape)):
+        total_elems *= result_shape[i]
+
+    var a_ptr = a._data
+    var b_ptr = b._data
+    var out_ptr = result._data
 
     for result_idx in range(total_elems):
         var remaining = result_idx
@@ -351,70 +264,39 @@ fn _compare_greater_impl[
 
         out_ptr[result_idx] = a_ptr[idx_a] > b_ptr[idx_b]
 
-
-fn _dispatch_compare_greater(
-    result: AnyTensor,
-    a: AnyTensor,
-    b: AnyTensor,
-    strides_a: List[Int],
-    strides_b: List[Int],
-    result_shape: List[Int],
-    total_elems: Int,
-) raises:
-    """Runtime dispatch for greater comparison."""
-    var dtype = a.dtype()
-    if dtype == DType.float16:
-        _compare_greater_impl[DType.float16](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.float32:
-        _compare_greater_impl[DType.float32](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.float64:
-        _compare_greater_impl[DType.float64](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int8:
-        _compare_greater_impl[DType.int8](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int16:
-        _compare_greater_impl[DType.int16](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int32:
-        _compare_greater_impl[DType.int32](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int64:
-        _compare_greater_impl[DType.int64](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.bool:
-        _compare_greater_impl[DType.bool](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    else:
-        raise Error("greater: unsupported dtype")
+    return result^
 
 
-@always_inline
-fn _compare_greater_equal_impl[
+fn _greater_equal_typed[
     dtype: DType
-](
-    result: AnyTensor,
-    a: AnyTensor,
-    b: AnyTensor,
-    strides_a: List[Int],
-    strides_b: List[Int],
-    result_shape: List[Int],
-    total_elems: Int,
-):
-    """Dtype-specialized greater_equal comparison."""
-    var a_ptr = a._data.bitcast[Scalar[dtype]]()
-    var b_ptr = b._data.bitcast[Scalar[dtype]]()
-    var out_ptr = result._data.bitcast[Scalar[DType.bool]]()
+](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[DType.bool]:
+    """Element-wise greater-equal on native Tensor[dtype] (core).
+
+    Parameters:
+        dtype: Compile-time dtype parameter.
+
+    Args:
+        a: First typed tensor.
+        b: Second typed tensor.
+
+    Returns:
+        Boolean result tensor.
+    """
+    var a_shape = a.shape()
+    var b_shape = b.shape()
+    var result_shape = broadcast_shapes(a_shape, b_shape)
+    var result = Tensor[DType.bool](result_shape)
+
+    var strides_a = compute_broadcast_strides(a_shape, result_shape)
+    var strides_b = compute_broadcast_strides(b_shape, result_shape)
+
+    var total_elems = 1
+    for i in range(len(result_shape)):
+        total_elems *= result_shape[i]
+
+    var a_ptr = a._data
+    var b_ptr = b._data
+    var out_ptr = result._data
 
     for result_idx in range(total_elems):
         var remaining = result_idx
@@ -428,52 +310,65 @@ fn _compare_greater_equal_impl[
 
         out_ptr[result_idx] = a_ptr[idx_a] >= b_ptr[idx_b]
 
+    return result^
 
-fn _dispatch_compare_greater_equal(
-    result: AnyTensor,
-    a: AnyTensor,
-    b: AnyTensor,
-    strides_a: List[Int],
-    strides_b: List[Int],
-    result_shape: List[Int],
-    total_elems: Int,
-) raises:
-    """Runtime dispatch for greater_equal comparison."""
-    var dtype = a.dtype()
-    if dtype == DType.float16:
-        _compare_greater_equal_impl[DType.float16](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.float32:
-        _compare_greater_equal_impl[DType.float32](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.float64:
-        _compare_greater_equal_impl[DType.float64](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int8:
-        _compare_greater_equal_impl[DType.int8](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int16:
-        _compare_greater_equal_impl[DType.int16](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int32:
-        _compare_greater_equal_impl[DType.int32](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.int64:
-        _compare_greater_equal_impl[DType.int64](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    elif dtype == DType.bool:
-        _compare_greater_equal_impl[DType.bool](
-            result, a, b, strides_a, strides_b, result_shape, total_elems
-        )
-    else:
-        raise Error("greater_equal: unsupported dtype")
+
+# ============================================================================
+# Layer 2: AnyTensor dispatch helpers (as_tensor -> typed core -> as_any)
+# ============================================================================
+
+
+fn _equal_dispatch[
+    dtype: DType
+](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+    return _equal_typed[dtype](
+        a.as_tensor[dtype](), b.as_tensor[dtype]()
+    ).as_any()
+
+
+fn _not_equal_dispatch[
+    dtype: DType
+](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+    return _not_equal_typed[dtype](
+        a.as_tensor[dtype](), b.as_tensor[dtype]()
+    ).as_any()
+
+
+fn _less_dispatch[
+    dtype: DType
+](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+    return _less_typed[dtype](
+        a.as_tensor[dtype](), b.as_tensor[dtype]()
+    ).as_any()
+
+
+fn _less_equal_dispatch[
+    dtype: DType
+](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+    return _less_equal_typed[dtype](
+        a.as_tensor[dtype](), b.as_tensor[dtype]()
+    ).as_any()
+
+
+fn _greater_dispatch[
+    dtype: DType
+](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+    return _greater_typed[dtype](
+        a.as_tensor[dtype](), b.as_tensor[dtype]()
+    ).as_any()
+
+
+fn _greater_equal_dispatch[
+    dtype: DType
+](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+    return _greater_equal_typed[dtype](
+        a.as_tensor[dtype](), b.as_tensor[dtype]()
+    ).as_any()
+
+
+# ============================================================================
+# Layer 1: AnyTensor Public API
+# ============================================================================
 
 
 fn equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
@@ -522,20 +417,36 @@ fn equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
 
-    var result_shape = broadcast_shapes(a.shape(), b.shape())
-    var result = AnyTensor(result_shape, DType.bool)
+    # Handle DType.bool separately (not in ordinal table)
+    if a.dtype() == DType.bool:
+        return _equal_dispatch[DType.bool](a, b)
 
-    var strides_a = compute_broadcast_strides(a.shape(), result_shape)
-    var strides_b = compute_broadcast_strides(b.shape(), result_shape)
+    var ordinal = dtype_to_ordinal(a.dtype())
 
-    var total_elems = 1
-    for i in range(len(result_shape)):
-        total_elems *= result_shape[i]
-
-    _dispatch_compare_equal(
-        result, a, b, strides_a, strides_b, result_shape, total_elems
-    )
-    return result^
+    if ordinal == DTYPE_FLOAT16:
+        return _equal_dispatch[DType.float16](a, b)
+    elif ordinal == DTYPE_FLOAT32:
+        return _equal_dispatch[DType.float32](a, b)
+    elif ordinal == DTYPE_FLOAT64:
+        return _equal_dispatch[DType.float64](a, b)
+    elif ordinal == DTYPE_INT8:
+        return _equal_dispatch[DType.int8](a, b)
+    elif ordinal == DTYPE_INT16:
+        return _equal_dispatch[DType.int16](a, b)
+    elif ordinal == DTYPE_INT32:
+        return _equal_dispatch[DType.int32](a, b)
+    elif ordinal == DTYPE_INT64:
+        return _equal_dispatch[DType.int64](a, b)
+    elif ordinal == DTYPE_UINT8:
+        return _equal_dispatch[DType.uint8](a, b)
+    elif ordinal == DTYPE_UINT16:
+        return _equal_dispatch[DType.uint16](a, b)
+    elif ordinal == DTYPE_UINT32:
+        return _equal_dispatch[DType.uint32](a, b)
+    elif ordinal == DTYPE_UINT64:
+        return _equal_dispatch[DType.uint64](a, b)
+    else:
+        raise Error("equal: unsupported dtype")
 
 
 fn not_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
@@ -561,20 +472,35 @@ fn not_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
 
-    var result_shape = broadcast_shapes(a.shape(), b.shape())
-    var result = AnyTensor(result_shape, DType.bool)
+    if a.dtype() == DType.bool:
+        return _not_equal_dispatch[DType.bool](a, b)
 
-    var strides_a = compute_broadcast_strides(a.shape(), result_shape)
-    var strides_b = compute_broadcast_strides(b.shape(), result_shape)
+    var ordinal = dtype_to_ordinal(a.dtype())
 
-    var total_elems = 1
-    for i in range(len(result_shape)):
-        total_elems *= result_shape[i]
-
-    _dispatch_compare_not_equal(
-        result, a, b, strides_a, strides_b, result_shape, total_elems
-    )
-    return result^
+    if ordinal == DTYPE_FLOAT16:
+        return _not_equal_dispatch[DType.float16](a, b)
+    elif ordinal == DTYPE_FLOAT32:
+        return _not_equal_dispatch[DType.float32](a, b)
+    elif ordinal == DTYPE_FLOAT64:
+        return _not_equal_dispatch[DType.float64](a, b)
+    elif ordinal == DTYPE_INT8:
+        return _not_equal_dispatch[DType.int8](a, b)
+    elif ordinal == DTYPE_INT16:
+        return _not_equal_dispatch[DType.int16](a, b)
+    elif ordinal == DTYPE_INT32:
+        return _not_equal_dispatch[DType.int32](a, b)
+    elif ordinal == DTYPE_INT64:
+        return _not_equal_dispatch[DType.int64](a, b)
+    elif ordinal == DTYPE_UINT8:
+        return _not_equal_dispatch[DType.uint8](a, b)
+    elif ordinal == DTYPE_UINT16:
+        return _not_equal_dispatch[DType.uint16](a, b)
+    elif ordinal == DTYPE_UINT32:
+        return _not_equal_dispatch[DType.uint32](a, b)
+    elif ordinal == DTYPE_UINT64:
+        return _not_equal_dispatch[DType.uint64](a, b)
+    else:
+        raise Error("not_equal: unsupported dtype")
 
 
 fn less(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
@@ -600,20 +526,35 @@ fn less(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
 
-    var result_shape = broadcast_shapes(a.shape(), b.shape())
-    var result = AnyTensor(result_shape, DType.bool)
+    if a.dtype() == DType.bool:
+        return _less_dispatch[DType.bool](a, b)
 
-    var strides_a = compute_broadcast_strides(a.shape(), result_shape)
-    var strides_b = compute_broadcast_strides(b.shape(), result_shape)
+    var ordinal = dtype_to_ordinal(a.dtype())
 
-    var total_elems = 1
-    for i in range(len(result_shape)):
-        total_elems *= result_shape[i]
-
-    _dispatch_compare_less(
-        result, a, b, strides_a, strides_b, result_shape, total_elems
-    )
-    return result^
+    if ordinal == DTYPE_FLOAT16:
+        return _less_dispatch[DType.float16](a, b)
+    elif ordinal == DTYPE_FLOAT32:
+        return _less_dispatch[DType.float32](a, b)
+    elif ordinal == DTYPE_FLOAT64:
+        return _less_dispatch[DType.float64](a, b)
+    elif ordinal == DTYPE_INT8:
+        return _less_dispatch[DType.int8](a, b)
+    elif ordinal == DTYPE_INT16:
+        return _less_dispatch[DType.int16](a, b)
+    elif ordinal == DTYPE_INT32:
+        return _less_dispatch[DType.int32](a, b)
+    elif ordinal == DTYPE_INT64:
+        return _less_dispatch[DType.int64](a, b)
+    elif ordinal == DTYPE_UINT8:
+        return _less_dispatch[DType.uint8](a, b)
+    elif ordinal == DTYPE_UINT16:
+        return _less_dispatch[DType.uint16](a, b)
+    elif ordinal == DTYPE_UINT32:
+        return _less_dispatch[DType.uint32](a, b)
+    elif ordinal == DTYPE_UINT64:
+        return _less_dispatch[DType.uint64](a, b)
+    else:
+        raise Error("less: unsupported dtype")
 
 
 fn less_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
@@ -639,20 +580,35 @@ fn less_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
 
-    var result_shape = broadcast_shapes(a.shape(), b.shape())
-    var result = AnyTensor(result_shape, DType.bool)
+    if a.dtype() == DType.bool:
+        return _less_equal_dispatch[DType.bool](a, b)
 
-    var strides_a = compute_broadcast_strides(a.shape(), result_shape)
-    var strides_b = compute_broadcast_strides(b.shape(), result_shape)
+    var ordinal = dtype_to_ordinal(a.dtype())
 
-    var total_elems = 1
-    for i in range(len(result_shape)):
-        total_elems *= result_shape[i]
-
-    _dispatch_compare_less_equal(
-        result, a, b, strides_a, strides_b, result_shape, total_elems
-    )
-    return result^
+    if ordinal == DTYPE_FLOAT16:
+        return _less_equal_dispatch[DType.float16](a, b)
+    elif ordinal == DTYPE_FLOAT32:
+        return _less_equal_dispatch[DType.float32](a, b)
+    elif ordinal == DTYPE_FLOAT64:
+        return _less_equal_dispatch[DType.float64](a, b)
+    elif ordinal == DTYPE_INT8:
+        return _less_equal_dispatch[DType.int8](a, b)
+    elif ordinal == DTYPE_INT16:
+        return _less_equal_dispatch[DType.int16](a, b)
+    elif ordinal == DTYPE_INT32:
+        return _less_equal_dispatch[DType.int32](a, b)
+    elif ordinal == DTYPE_INT64:
+        return _less_equal_dispatch[DType.int64](a, b)
+    elif ordinal == DTYPE_UINT8:
+        return _less_equal_dispatch[DType.uint8](a, b)
+    elif ordinal == DTYPE_UINT16:
+        return _less_equal_dispatch[DType.uint16](a, b)
+    elif ordinal == DTYPE_UINT32:
+        return _less_equal_dispatch[DType.uint32](a, b)
+    elif ordinal == DTYPE_UINT64:
+        return _less_equal_dispatch[DType.uint64](a, b)
+    else:
+        raise Error("less_equal: unsupported dtype")
 
 
 fn greater(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
@@ -678,20 +634,35 @@ fn greater(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
 
-    var result_shape = broadcast_shapes(a.shape(), b.shape())
-    var result = AnyTensor(result_shape, DType.bool)
+    if a.dtype() == DType.bool:
+        return _greater_dispatch[DType.bool](a, b)
 
-    var strides_a = compute_broadcast_strides(a.shape(), result_shape)
-    var strides_b = compute_broadcast_strides(b.shape(), result_shape)
+    var ordinal = dtype_to_ordinal(a.dtype())
 
-    var total_elems = 1
-    for i in range(len(result_shape)):
-        total_elems *= result_shape[i]
-
-    _dispatch_compare_greater(
-        result, a, b, strides_a, strides_b, result_shape, total_elems
-    )
-    return result^
+    if ordinal == DTYPE_FLOAT16:
+        return _greater_dispatch[DType.float16](a, b)
+    elif ordinal == DTYPE_FLOAT32:
+        return _greater_dispatch[DType.float32](a, b)
+    elif ordinal == DTYPE_FLOAT64:
+        return _greater_dispatch[DType.float64](a, b)
+    elif ordinal == DTYPE_INT8:
+        return _greater_dispatch[DType.int8](a, b)
+    elif ordinal == DTYPE_INT16:
+        return _greater_dispatch[DType.int16](a, b)
+    elif ordinal == DTYPE_INT32:
+        return _greater_dispatch[DType.int32](a, b)
+    elif ordinal == DTYPE_INT64:
+        return _greater_dispatch[DType.int64](a, b)
+    elif ordinal == DTYPE_UINT8:
+        return _greater_dispatch[DType.uint8](a, b)
+    elif ordinal == DTYPE_UINT16:
+        return _greater_dispatch[DType.uint16](a, b)
+    elif ordinal == DTYPE_UINT32:
+        return _greater_dispatch[DType.uint32](a, b)
+    elif ordinal == DTYPE_UINT64:
+        return _greater_dispatch[DType.uint64](a, b)
+    else:
+        raise Error("greater: unsupported dtype")
 
 
 fn greater_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
@@ -717,24 +688,39 @@ fn greater_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
 
-    var result_shape = broadcast_shapes(a.shape(), b.shape())
-    var result = AnyTensor(result_shape, DType.bool)
+    if a.dtype() == DType.bool:
+        return _greater_equal_dispatch[DType.bool](a, b)
 
-    var strides_a = compute_broadcast_strides(a.shape(), result_shape)
-    var strides_b = compute_broadcast_strides(b.shape(), result_shape)
+    var ordinal = dtype_to_ordinal(a.dtype())
 
-    var total_elems = 1
-    for i in range(len(result_shape)):
-        total_elems *= result_shape[i]
-
-    _dispatch_compare_greater_equal(
-        result, a, b, strides_a, strides_b, result_shape, total_elems
-    )
-    return result^
+    if ordinal == DTYPE_FLOAT16:
+        return _greater_equal_dispatch[DType.float16](a, b)
+    elif ordinal == DTYPE_FLOAT32:
+        return _greater_equal_dispatch[DType.float32](a, b)
+    elif ordinal == DTYPE_FLOAT64:
+        return _greater_equal_dispatch[DType.float64](a, b)
+    elif ordinal == DTYPE_INT8:
+        return _greater_equal_dispatch[DType.int8](a, b)
+    elif ordinal == DTYPE_INT16:
+        return _greater_equal_dispatch[DType.int16](a, b)
+    elif ordinal == DTYPE_INT32:
+        return _greater_equal_dispatch[DType.int32](a, b)
+    elif ordinal == DTYPE_INT64:
+        return _greater_equal_dispatch[DType.int64](a, b)
+    elif ordinal == DTYPE_UINT8:
+        return _greater_equal_dispatch[DType.uint8](a, b)
+    elif ordinal == DTYPE_UINT16:
+        return _greater_equal_dispatch[DType.uint16](a, b)
+    elif ordinal == DTYPE_UINT32:
+        return _greater_equal_dispatch[DType.uint32](a, b)
+    elif ordinal == DTYPE_UINT64:
+        return _greater_equal_dispatch[DType.uint64](a, b)
+    else:
+        raise Error("greater_equal: unsupported dtype")
 
 
 # ============================================================================
-# Typed Tensor[dtype] overloads — wrap AnyTensor versions via as_any/as_tensor
+# Typed Tensor[dtype] overloads — delegate to typed cores directly
 # ============================================================================
 
 
@@ -750,7 +736,7 @@ fn equal_typed[dt: DType](
     Returns:
         A new Tensor[DType.bool] with element-wise equality results.
     """
-    return equal(a.as_any(), b.as_any()).as_tensor[DType.bool]()
+    return _equal_typed[dt](a, b)
 
 
 fn not_equal_typed[dt: DType](
@@ -765,7 +751,7 @@ fn not_equal_typed[dt: DType](
     Returns:
         A new Tensor[DType.bool] with element-wise inequality results.
     """
-    return not_equal(a.as_any(), b.as_any()).as_tensor[DType.bool]()
+    return _not_equal_typed[dt](a, b)
 
 
 fn less_typed[dt: DType](
@@ -780,7 +766,22 @@ fn less_typed[dt: DType](
     Returns:
         A new Tensor[DType.bool] with element-wise less-than results.
     """
-    return less(a.as_any(), b.as_any()).as_tensor[DType.bool]()
+    return _less_typed[dt](a, b)
+
+
+fn less_equal_typed[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[DType.bool]:
+    """Element-wise less-than-or-equal comparison (typed version).
+
+    Args:
+        a: First input tensor.
+        b: Second input tensor.
+
+    Returns:
+        A new Tensor[DType.bool] with element-wise less-equal results.
+    """
+    return _less_equal_typed[dt](a, b)
 
 
 fn greater_typed[dt: DType](
@@ -795,4 +796,19 @@ fn greater_typed[dt: DType](
     Returns:
         A new Tensor[DType.bool] with element-wise greater-than results.
     """
-    return greater(a.as_any(), b.as_any()).as_tensor[DType.bool]()
+    return _greater_typed[dt](a, b)
+
+
+fn greater_equal_typed[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[DType.bool]:
+    """Element-wise greater-than-or-equal comparison (typed version).
+
+    Args:
+        a: First input tensor.
+        b: Second input tensor.
+
+    Returns:
+        A new Tensor[DType.bool] with element-wise greater-equal results.
+    """
+    return _greater_equal_typed[dt](a, b)
