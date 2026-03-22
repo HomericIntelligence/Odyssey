@@ -47,6 +47,7 @@ from utils.numerics import inf as numeric_inf, neg_inf as numeric_neg_inf
 from random import random_float64, seed as random_seed
 from hashlib.hasher import Hasher
 from shared.core.memory_pool import pooled_alloc, pooled_free
+from shared.tensor.tensor_traits import TensorLike
 from shared.core.broadcasting import broadcast_shapes, compute_broadcast_strides, are_shapes_broadcastable
 from shared.core.dtype_ordinal import (
     dtype_to_ordinal,
@@ -81,6 +82,7 @@ struct AnyTensor(
     Representable,
     Sized,
     Stringable,
+    TensorLike,
 ):
     """Dynamic tensor with runtime-determined shape and data type.
 
@@ -3034,8 +3036,11 @@ struct AnyTensor(
         var result = self.__add__(other)
         # Copy result data into self (must match shape/dtype)
         if result.numel() == self.numel() and result.dtype() == self.dtype():
-            for i in range(self._numel):
-                self._set_float64(i, result._get_float64(i))
+            # Direct byte copy preserves precision for all dtypes
+            # (avoids float64 round-trip that loses precision for int64/float16)
+            var total_bytes = self._numel * self._get_dtype_size()
+            for b in range(total_bytes):
+                self._data[b] = result._data[b]
         else:
             raise Error(
                 "In-place operation requires matching shapes and dtypes"
@@ -3051,8 +3056,10 @@ struct AnyTensor(
         var result = self.__sub__(other)
         # Copy result data into self (must match shape/dtype)
         if result.numel() == self.numel() and result.dtype() == self.dtype():
-            for i in range(self._numel):
-                self._set_float64(i, result._get_float64(i))
+            # Direct byte copy preserves precision for all dtypes
+            var total_bytes = self._numel * self._get_dtype_size()
+            for b in range(total_bytes):
+                self._data[b] = result._data[b]
         else:
             raise Error(
                 "In-place operation requires matching shapes and dtypes"
@@ -3068,8 +3075,10 @@ struct AnyTensor(
         var result = self.__mul__(other)
         # Copy result data into self (must match shape/dtype)
         if result.numel() == self.numel() and result.dtype() == self.dtype():
-            for i in range(self._numel):
-                self._set_float64(i, result._get_float64(i))
+            # Direct byte copy preserves precision for all dtypes
+            var total_bytes = self._numel * self._get_dtype_size()
+            for b in range(total_bytes):
+                self._data[b] = result._data[b]
         else:
             raise Error(
                 "In-place operation requires matching shapes and dtypes"
@@ -3085,8 +3094,10 @@ struct AnyTensor(
         var result = self.__truediv__(other)
         # Copy result data into self (must match shape/dtype)
         if result.numel() == self.numel() and result.dtype() == self.dtype():
-            for i in range(self._numel):
-                self._set_float64(i, result._get_float64(i))
+            # Direct byte copy preserves precision for all dtypes
+            var total_bytes = self._numel * self._get_dtype_size()
+            for b in range(total_bytes):
+                self._data[b] = result._data[b]
         else:
             raise Error(
                 "In-place operation requires matching shapes and dtypes"
