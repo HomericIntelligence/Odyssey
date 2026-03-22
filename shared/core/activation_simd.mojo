@@ -19,6 +19,7 @@ Design:
 - Compile-time SIMD width selection based on dtype
 - @always_inline for hot path optimization
 - Numerical stability with clipping for exp operations
+- Parametric helpers (_relu_simd[dt], etc.) reduce code duplication (M4)
 
 Usage:
     from .activation_simd import relu_simd, elu_simd, selu_simd, swish_simd
@@ -72,9 +73,9 @@ fn relu_simd(tensor: AnyTensor) raises -> AnyTensor:
     var result = AnyTensor(tensor._shape, tensor._dtype)
 
     if tensor._dtype == DType.float32:
-        _relu_simd_float32(tensor, result)
+        _relu_simd[DType.float32](tensor, result)
     elif tensor._dtype == DType.float64:
-        _relu_simd_float64(tensor, result)
+        _relu_simd[DType.float64](tensor, result)
     else:
         # Fall back to scalar for other dtypes
         from .activation import relu
@@ -85,40 +86,41 @@ fn relu_simd(tensor: AnyTensor) raises -> AnyTensor:
 
 
 @always_inline
-fn _relu_simd_float32(tensor: AnyTensor, mut result: AnyTensor):
-    """SIMD ReLU for float32 tensors."""
-    comptime simd_width = simd_width_of[DType.float32]()
+fn _relu_simd[dt: DType](tensor: AnyTensor, mut result: AnyTensor):
+    """SIMD ReLU for any floating-point dtype.
+
+    Parametric helper that handles float32 and float64 with a single
+    implementation, reducing code duplication (M4).
+
+    Parameters:
+        dt: The floating-point dtype to operate on.
+    """
+    comptime simd_width = simd_width_of[dt]()
     var size = tensor._numel
 
-    var in_ptr = tensor._data.bitcast[Float32]()
-    var out_ptr = result._data.bitcast[Float32]()
+    var in_ptr = tensor._data.bitcast[Scalar[dt]]()
+    var out_ptr = result._data.bitcast[Scalar[dt]]()
 
     @parameter
     fn vectorized_relu[width: Int](idx: Int) unified {mut}:
         var vec = in_ptr.load[width=width](idx)
         # SIMD max with zero vector
-        var zero_vec = SIMD[DType.float32, width](0)
+        var zero_vec = SIMD[dt, width](0)
         out_ptr.store[width=width](idx, max(zero_vec, vec))
 
     vectorize[simd_width](size, vectorized_relu)
 
 
 @always_inline
+fn _relu_simd_float32(tensor: AnyTensor, mut result: AnyTensor):
+    """SIMD ReLU for float32 tensors (backward-compat wrapper)."""
+    _relu_simd[DType.float32](tensor, result)
+
+
+@always_inline
 fn _relu_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
-    """SIMD ReLU for float64 tensors."""
-    comptime simd_width = simd_width_of[DType.float64]()
-    var size = tensor._numel
-
-    var in_ptr = tensor._data.bitcast[Float64]()
-    var out_ptr = result._data.bitcast[Float64]()
-
-    @parameter
-    fn vectorized_relu[width: Int](idx: Int) unified {mut}:
-        var vec = in_ptr.load[width=width](idx)
-        var zero_vec = SIMD[DType.float64, width](0)
-        out_ptr.store[width=width](idx, max(zero_vec, vec))
-
-    vectorize[simd_width](size, vectorized_relu)
+    """SIMD ReLU for float64 tensors (backward-compat wrapper)."""
+    _relu_simd[DType.float64](tensor, result)
 
 
 # ============================================================================
@@ -408,7 +410,7 @@ fn selu_simd(
     alpha: Float64 = 1.6732632423543772848170429916717,
     lambda_: Float64 = 1.0507009873554804934193349852946,
 ) raises -> AnyTensor:
-    """SIMD-optimized SELU activation: λ * (x if x > 0 else α * (exp(x) - 1)).
+    """SIMD-optimized SELU activation: lambda * (x if x > 0 else alpha * (exp(x) - 1)).
 
     Uses vectorized operations for float32/float64 tensors,
     falls back to scalar for other dtypes.

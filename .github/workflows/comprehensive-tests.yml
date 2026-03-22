@@ -124,7 +124,7 @@ jobs:
             echo "⚠️  No shared package found yet"
           fi
 
-      - name: Compile shared package
+      - name: Compile shared package (with timing)
         run: |
           echo "=================================================="
           echo "Compiling shared package..."
@@ -135,6 +135,9 @@ jobs:
           # Count total files for reporting
           total_files=$(find shared -name "*.mojo" -type f | wc -l)
           echo "Total .mojo files in shared/: $total_files"
+
+          # Track compilation time for monomorphization bloat detection (H6)
+          START=$(date +%s)
 
           # Build the shared package inside the container
           if podman compose exec -T projectodyssey-dev bash -c \
@@ -149,11 +152,27 @@ jobs:
             exit 1
           fi
 
+          END=$(date +%s)
+          ELAPSED=$((END - START))
+
+          # Report compilation time to step summary
+          echo "## Compilation Time: ${ELAPSED}s" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Total .mojo files**: ${total_files}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Package compilation**: ${ELAPSED} seconds" >> $GITHUB_STEP_SUMMARY
+          if [ $ELAPSED -gt 300 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "> **WARNING**: Compilation took over 5 minutes (${ELAPSED}s)." >> $GITHUB_STEP_SUMMARY
+            echo "> This may indicate excessive monomorphization from Tensor[dtype] instantiations." >> $GITHUB_STEP_SUMMARY
+            echo "> See shared/tensor/tensor.mojo H6 comment for details." >> $GITHUB_STEP_SUMMARY
+          fi
+
           # Save compilation summary
           cat > compilation-results/summary.txt << EOF
           Mojo Compilation Check
           ======================
           Total .mojo files: $total_files
+          Compilation time: ${ELAPSED}s
           Status: success
           EOF
 
