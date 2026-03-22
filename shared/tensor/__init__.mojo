@@ -6,4 +6,4 @@ Provides:
 """
 
 from shared.tensor.tensor_traits import TensorLike
-from shared.tensor.tensor import Tensor
+from shared.tensor.tensor import Tensor, from_any_tensor

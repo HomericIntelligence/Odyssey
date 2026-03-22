@@ -5,6 +5,7 @@ Implements element-wise comparison operations following NumPy-style broadcasting
 
 from collections import List
 from .extensor import ExTensor
+from shared.tensor.tensor import Tensor, from_any_tensor
 from .broadcasting import broadcast_shapes, compute_broadcast_strides
 
 
@@ -730,3 +731,102 @@ fn greater_equal(a: ExTensor, b: ExTensor) raises -> ExTensor:
         result, a, b, strides_a, strides_b, result_shape, total_elems
     )
     return result^
+
+
+# ============================================================================
+# Tensor[dtype] typed overloads (wrapping AnyTensor implementations)
+# ============================================================================
+
+
+fn equal[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[DType.bool]:
+    """Element-wise equality comparison (typed version).
+
+    Args:
+        a: First tensor.
+        b: Second tensor.
+
+    Returns:
+        A boolean Tensor with element-wise equality results.
+    """
+    return from_any_tensor[DType.bool](equal(a.as_any(), b.as_any()))
+
+
+fn not_equal[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[DType.bool]:
+    """Element-wise inequality comparison (typed version).
+
+    Args:
+        a: First tensor.
+        b: Second tensor.
+
+    Returns:
+        A boolean Tensor with element-wise inequality results.
+    """
+    return from_any_tensor[DType.bool](not_equal(a.as_any(), b.as_any()))
+
+
+fn less[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[DType.bool]:
+    """Element-wise less-than comparison (typed version).
+
+    Args:
+        a: First tensor.
+        b: Second tensor.
+
+    Returns:
+        A boolean Tensor with element-wise less-than results.
+    """
+    return from_any_tensor[DType.bool](less(a.as_any(), b.as_any()))
+
+
+fn less_equal[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[DType.bool]:
+    """Element-wise less-than-or-equal comparison (typed version).
+
+    Args:
+        a: First tensor.
+        b: Second tensor.
+
+    Returns:
+        A boolean Tensor with element-wise less-or-equal results.
+    """
+    return from_any_tensor[DType.bool](
+        less_equal(a.as_any(), b.as_any())
+    )
+
+
+fn greater[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[DType.bool]:
+    """Element-wise greater-than comparison (typed version).
+
+    Args:
+        a: First tensor.
+        b: Second tensor.
+
+    Returns:
+        A boolean Tensor with element-wise greater-than results.
+    """
+    return from_any_tensor[DType.bool](greater(a.as_any(), b.as_any()))
+
+
+fn greater_equal[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[DType.bool]:
+    """Element-wise greater-than-or-equal comparison (typed version).
+
+    Args:
+        a: First tensor.
+        b: Second tensor.
+
+    Returns:
+        A boolean Tensor with element-wise greater-or-equal results.
+    """
+    return from_any_tensor[DType.bool](
+        greater_equal(a.as_any(), b.as_any())
+    )

@@ -5,6 +5,7 @@ Implements mathematical functions like exp, log, sqrt, trigonometric functions, 
 
 from collections import List
 from .extensor import ExTensor
+from shared.tensor.tensor import Tensor, from_any_tensor
 from .dtype_dispatch import (
     dispatch_unary,
     dispatch_binary,
@@ -1603,3 +1604,108 @@ fn log2_backward(grad_output: ExTensor, x: ExTensor) raises -> ExTensor:
     var result = ExTensor(grad_output.shape(), grad_output.dtype())
     _dispatch_log2_backward(result, grad_output, x, grad_output.numel())
     return result
+
+
+# ============================================================================
+# Tensor[dtype] typed overloads (wrapping AnyTensor implementations)
+# ============================================================================
+
+
+fn exp[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise exponential (typed version).
+
+    Args:
+        tensor: Input tensor.
+
+    Returns:
+        A new Tensor[dt] with exp applied element-wise.
+    """
+    return from_any_tensor[dt](exp(tensor.as_any()))
+
+
+fn log[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise natural logarithm (typed version).
+
+    Args:
+        tensor: Input tensor.
+
+    Returns:
+        A new Tensor[dt] with log applied element-wise.
+    """
+    return from_any_tensor[dt](log(tensor.as_any()))
+
+
+fn sqrt[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise square root (typed version).
+
+    Args:
+        tensor: Input tensor.
+
+    Returns:
+        A new Tensor[dt] with sqrt applied element-wise.
+    """
+    return from_any_tensor[dt](sqrt(tensor.as_any()))
+
+
+fn abs[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise absolute value (typed version).
+
+    Args:
+        tensor: Input tensor.
+
+    Returns:
+        A new Tensor[dt] with abs applied element-wise.
+    """
+    return from_any_tensor[dt](abs(tensor.as_any()))
+
+
+fn clip[dt: DType](
+    tensor: Tensor[dt], min_val: Float64, max_val: Float64
+) raises -> Tensor[dt]:
+    """Clip (clamp) values to a range element-wise (typed version).
+
+    Args:
+        tensor: Input tensor.
+        min_val: Minimum value.
+        max_val: Maximum value.
+
+    Returns:
+        A new Tensor[dt] with clipped values.
+    """
+    return from_any_tensor[dt](clip(tensor.as_any(), min_val, max_val))
+
+
+fn sin[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise sine (typed version).
+
+    Args:
+        tensor: Input tensor.
+
+    Returns:
+        A new Tensor[dt] with sin applied element-wise.
+    """
+    return from_any_tensor[dt](sin(tensor.as_any()))
+
+
+fn cos[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise cosine (typed version).
+
+    Args:
+        tensor: Input tensor.
+
+    Returns:
+        A new Tensor[dt] with cos applied element-wise.
+    """
+    return from_any_tensor[dt](cos(tensor.as_any()))
+
+
+fn tanh[dt: DType](tensor: Tensor[dt]) raises -> Tensor[dt]:
+    """Element-wise hyperbolic tangent (typed version).
+
+    Args:
+        tensor: Input tensor.
+
+    Returns:
+        A new Tensor[dt] with tanh applied element-wise.
+    """
+    return from_any_tensor[dt](tanh(tensor.as_any()))

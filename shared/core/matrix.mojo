@@ -13,6 +13,7 @@ Includes:
 from collections import List
 from memory import memcpy
 from .extensor import ExTensor
+from shared.tensor.tensor import Tensor, from_any_tensor
 from .gradient_types import GradientPair
 from .shape import as_contiguous
 
@@ -1612,3 +1613,68 @@ fn transpose_backward(
 
     # Apply inverse permutation to gradient
     return transpose(grad_output, inverse_perm^)
+
+
+# ============================================================================
+# Tensor[dtype] typed overloads (wrapping AnyTensor implementations)
+# ============================================================================
+
+
+fn matmul[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[dt]:
+    """Matrix multiplication (typed version).
+
+    Args:
+        a: First tensor.
+        b: Second tensor.
+
+    Returns:
+        A new Tensor[dt] with the matrix product.
+    """
+    return from_any_tensor[dt](matmul(a.as_any(), b.as_any()))
+
+
+fn transpose[dt: DType](
+    tensor: Tensor[dt], axes: Optional[List[Int]] = None
+) raises -> Tensor[dt]:
+    """Transpose tensor dimensions (typed version).
+
+    Args:
+        tensor: Input tensor.
+        axes: Optional permutation of axes. If None, reverses all axes.
+
+    Returns:
+        A new Tensor[dt] with transposed dimensions.
+    """
+    return from_any_tensor[dt](transpose(tensor.as_any(), axes))
+
+
+fn dot[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[dt]:
+    """Dot product of tensors (typed version).
+
+    Args:
+        a: First tensor.
+        b: Second tensor.
+
+    Returns:
+        Dot product result as Tensor[dt].
+    """
+    return from_any_tensor[dt](dot(a.as_any(), b.as_any()))
+
+
+fn outer[dt: DType](
+    a: Tensor[dt], b: Tensor[dt]
+) raises -> Tensor[dt]:
+    """Outer product of two vectors (typed version).
+
+    Args:
+        a: First 1D tensor.
+        b: Second 1D tensor.
+
+    Returns:
+        A 2D Tensor[dt] containing the outer product.
+    """
+    return from_any_tensor[dt](outer(a.as_any(), b.as_any()))

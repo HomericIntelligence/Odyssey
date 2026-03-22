@@ -16,7 +16,7 @@ Tests cover:
 """
 
 from testing import assert_true, assert_almost_equal
-from shared.tensor.tensor import Tensor
+from shared.tensor.tensor import Tensor, from_any_tensor
 from shared.core.extensor import ExTensor, AnyTensor, zeros
 
 
@@ -44,7 +44,7 @@ fn test_as_any_basic() raises:
 
 
 fn test_as_any_preserves_shape() raises:
-    """as_any preserves full shape."""
+    """As_any() preserves full shape."""
     var t = Tensor[DType.float64]([2, 3, 4])
     var any_t = t.as_any()
     var s = any_t.shape()
@@ -56,24 +56,24 @@ fn test_as_any_preserves_shape() raises:
 
 
 fn test_as_tensor_basic() raises:
-    """AnyTensor.as_tensor[dtype]() returns a Tensor[dtype]."""
+    """From_any_tensor converts AnyTensor to Tensor[dtype]."""
     var any_t = zeros([4], DType.float32)
-    var t = any_t.as_tensor[DType.float32]()
-    assert_true(t.numel() == 4, "as_tensor preserves numel")
-    assert_true(t.dtype() == DType.float32, "as_tensor preserves dtype")
+    var t = from_any_tensor[DType.float32](any_t)
+    assert_true(t.numel() == 4, "from_any_tensor preserves numel")
+    assert_true(t.dtype() == DType.float32, "from_any_tensor preserves dtype")
     print("PASS: test_as_tensor_basic")
 
 
 fn test_as_tensor_dtype_mismatch() raises:
-    """as_tensor with wrong dtype should raise."""
+    """From_any_tensor with wrong dtype should raise."""
     var any_t = zeros([4], DType.float32)
     var raised = False
     try:
-        var t = any_t.as_tensor[DType.float64]()
+        var t = from_any_tensor[DType.float64](any_t)
         _ = t  # suppress unused warning
     except:
         raised = True
-    assert_true(raised, "as_tensor with wrong dtype should raise")
+    assert_true(raised, "from_any_tensor with wrong dtype should raise")
     print("PASS: test_as_tensor_dtype_mismatch")
 
 
@@ -86,7 +86,7 @@ fn test_roundtrip_tensor_any_tensor() raises:
 
     # Round-trip
     var any_t = t1.as_any()
-    var t2 = any_t.as_tensor[DType.float32]()
+    var t2 = from_any_tensor[DType.float32](any_t)
 
     assert_almost_equal(Float32(t2[0]), Float32(1.5), atol=1e-6)
     assert_almost_equal(Float32(t2[1]), Float32(0.25), atol=1e-6)

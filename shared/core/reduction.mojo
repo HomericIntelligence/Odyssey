@@ -5,6 +5,7 @@ Implements operations that reduce tensors along specified axes
 
 from collections import List
 from .extensor import ExTensor
+from shared.tensor.tensor import Tensor, from_any_tensor
 from .shape import as_contiguous
 from .reduction_utils import (
     compute_strides,
@@ -1238,3 +1239,76 @@ fn percentile_backward(
                 result._set_float64(upper_input_idx, fraction * grad_val)
 
     return result^
+
+
+# ============================================================================
+# Tensor[dtype] typed overloads (wrapping AnyTensor implementations)
+# ============================================================================
+
+
+fn sum[dt: DType](
+    tensor: Tensor[dt], axis: Int = -1, keepdims: Bool = False
+) raises -> Tensor[dt]:
+    """Sum tensor elements along an axis (typed version).
+
+    Args:
+        tensor: Input tensor.
+        axis: Axis to reduce (-1 for all axes).
+        keepdims: Whether to keep reduced dimensions as size 1.
+
+    Returns:
+        A new Tensor[dt] with sum along specified axis.
+    """
+    return from_any_tensor[dt](sum(tensor.as_any(), axis, keepdims))
+
+
+fn mean[dt: DType](
+    tensor: Tensor[dt], axis: Int = -1, keepdims: Bool = False
+) raises -> Tensor[dt]:
+    """Compute mean of tensor elements along an axis (typed version).
+
+    Args:
+        tensor: Input tensor.
+        axis: Axis to reduce (-1 for all axes).
+        keepdims: Whether to keep reduced dimensions as size 1.
+
+    Returns:
+        A new Tensor[dt] with mean along specified axis.
+    """
+    return from_any_tensor[dt](mean(tensor.as_any(), axis, keepdims))
+
+
+fn max_reduce[dt: DType](
+    tensor: Tensor[dt], axis: Int = -1, keepdims: Bool = False
+) raises -> Tensor[dt]:
+    """Find maximum of tensor elements along an axis (typed version).
+
+    Args:
+        tensor: Input tensor.
+        axis: Axis to reduce (-1 for all axes).
+        keepdims: Whether to keep reduced dimensions as size 1.
+
+    Returns:
+        A new Tensor[dt] with max along specified axis.
+    """
+    return from_any_tensor[dt](
+        max_reduce(tensor.as_any(), axis, keepdims)
+    )
+
+
+fn min_reduce[dt: DType](
+    tensor: Tensor[dt], axis: Int = -1, keepdims: Bool = False
+) raises -> Tensor[dt]:
+    """Find minimum of tensor elements along an axis (typed version).
+
+    Args:
+        tensor: Input tensor.
+        axis: Axis to reduce (-1 for all axes).
+        keepdims: Whether to keep reduced dimensions as size 1.
+
+    Returns:
+        A new Tensor[dt] with min along specified axis.
+    """
+    return from_any_tensor[dt](
+        min_reduce(tensor.as_any(), axis, keepdims)
+    )

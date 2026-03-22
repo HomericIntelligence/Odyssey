@@ -3404,22 +3404,19 @@ struct AnyTensor(
         Creates a Tensor[dtype] that shares the same data buffer and refcount.
         The dtype parameter must match self._dtype at runtime.
 
+        Note: Use shared.tensor.tensor.from_any_tensor[dtype](any_tensor) instead.
+        This method cannot return Tensor[dtype] directly due to circular imports
+        (AnyTensor is defined in shared.core, Tensor is in shared.tensor).
+
         Args:
             dtype: The compile-time DType parameter (must match self._dtype).
 
         Raises:
-            Error: If dtype doesn't match self._dtype, or if Tensor[dtype]
-                is not yet available.
+            Error: Always — use from_any_tensor() free function instead.
         """
-        if self._dtype != dtype:
-            raise Error(
-                "DType mismatch: tensor has dtype "
-                + String(self._dtype)
-                + " but as_tensor called with "
-                + String(dtype)
-            )
-        # TODO: Wire up after Tensor[dtype] is available in shared.tensor.tensor
-        raise Error("as_tensor: not yet implemented — awaiting Tensor[dtype] struct")
+        raise Error(
+            "as_tensor: use shared.tensor.tensor.from_any_tensor[dtype]() instead"
+        )
 
     # ============================================================================
     # Utility Methods

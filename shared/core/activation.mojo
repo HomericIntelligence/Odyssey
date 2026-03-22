@@ -23,6 +23,7 @@ Issues covered:
 from math import exp, erf, sqrt, tanh as math_tanh, log as math_log
 from collections import List
 from .extensor import ExTensor, full, zeros_like
+from shared.tensor.tensor import Tensor, from_any_tensor
 from .arithmetic import add, subtract, multiply
 from .reduction import sum as tensor_sum, max as tensor_max
 from .elementwise import log
@@ -1579,3 +1580,74 @@ fn hard_tanh_backward(
         )
 
     return dispatch_hard_tanh_backward(grad_output, x, min_val, max_val)
+
+
+# ============================================================================
+# Tensor[dtype] typed overloads (wrapping AnyTensor implementations)
+# ============================================================================
+
+
+fn relu[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
+    """ReLU activation (typed version).
+
+    Args:
+        input: Input tensor.
+
+    Returns:
+        A new Tensor[dt] with ReLU applied element-wise.
+    """
+    return from_any_tensor[dt](relu(input.as_any()))
+
+
+fn sigmoid[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
+    """Sigmoid activation (typed version).
+
+    Args:
+        input: Input tensor.
+
+    Returns:
+        A new Tensor[dt] with sigmoid applied element-wise.
+    """
+    return from_any_tensor[dt](sigmoid(input.as_any()))
+
+
+fn tanh[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
+    """Tanh activation (typed version).
+
+    Args:
+        input: Input tensor.
+
+    Returns:
+        A new Tensor[dt] with tanh applied element-wise.
+    """
+    return from_any_tensor[dt](tanh(input.as_any()))
+
+
+fn softmax[dt: DType](
+    input: Tensor[dt], axis: Int = -1
+) raises -> Tensor[dt]:
+    """Softmax activation (typed version).
+
+    Args:
+        input: Input tensor.
+        axis: Axis along which softmax is computed.
+
+    Returns:
+        A new Tensor[dt] with softmax applied.
+    """
+    return from_any_tensor[dt](softmax(input.as_any(), axis))
+
+
+fn gelu[dt: DType](
+    input: Tensor[dt], approximate: Bool = False
+) raises -> Tensor[dt]:
+    """GELU activation (typed version).
+
+    Args:
+        input: Input tensor.
+        approximate: Use tanh approximation if True.
+
+    Returns:
+        A new Tensor[dt] with GELU applied element-wise.
+    """
+    return from_any_tensor[dt](gelu(input.as_any(), approximate))
