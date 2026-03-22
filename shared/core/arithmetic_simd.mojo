@@ -1,7 +1,10 @@
-"""SIMD-optimized arithmetic operations for AnyTensor.
+"""SIMD-optimized arithmetic operations with native Tensor[dtype] implementations.
 
 This module provides vectorized implementations of arithmetic operations
 for same-shape tensors, achieving 2-8x speedup over scalar implementations.
+
+Architecture: Tensor[dtype] typed implementations are the core. AnyTensor
+public functions dispatch to typed core via dtype checking.
 
 Performance characteristics:
 - float32: ~4x speedup on modern CPUs (AVX2/AVX-512)
@@ -26,10 +29,136 @@ Usage:
 from algorithm import vectorize
 from sys.info import simd_width_of
 from .any_tensor import AnyTensor
+from shared.tensor.tensor import Tensor
 
 
 # ============================================================================
-# SIMD Addition
+# Layer 3 (Core): Native Tensor[dtype] SIMD Implementations
+# ============================================================================
+
+
+@always_inline
+fn _add_simd_typed[
+    dtype: DType
+](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[dtype]:
+    """SIMD addition for typed Tensor[dtype]. Zero bitcasts."""
+    var result = Tensor[dtype](a.shape())
+    var size = a.numel()
+
+    var a_ptr = a._data
+    var b_ptr = b._data
+    var result_ptr = result._data
+
+    @parameter
+    if dtype == DType.float32 or dtype == DType.float64:
+        comptime simd_width = simd_width_of[dtype]()
+
+        @parameter
+        fn vectorized_add[width: Int](idx: Int) unified {mut}:
+            var a_vec = a_ptr.load[width=width](idx)
+            var b_vec = b_ptr.load[width=width](idx)
+            result_ptr.store[width=width](idx, a_vec + b_vec)
+
+        vectorize[simd_width](size, vectorized_add)
+    else:
+        for i in range(size):
+            result_ptr[i] = a_ptr[i] + b_ptr[i]
+
+    return result^
+
+
+@always_inline
+fn _subtract_simd_typed[
+    dtype: DType
+](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[dtype]:
+    """SIMD subtraction for typed Tensor[dtype]. Zero bitcasts."""
+    var result = Tensor[dtype](a.shape())
+    var size = a.numel()
+
+    var a_ptr = a._data
+    var b_ptr = b._data
+    var result_ptr = result._data
+
+    @parameter
+    if dtype == DType.float32 or dtype == DType.float64:
+        comptime simd_width = simd_width_of[dtype]()
+
+        @parameter
+        fn vectorized_subtract[width: Int](idx: Int) unified {mut}:
+            var a_vec = a_ptr.load[width=width](idx)
+            var b_vec = b_ptr.load[width=width](idx)
+            result_ptr.store[width=width](idx, a_vec - b_vec)
+
+        vectorize[simd_width](size, vectorized_subtract)
+    else:
+        for i in range(size):
+            result_ptr[i] = a_ptr[i] - b_ptr[i]
+
+    return result^
+
+
+@always_inline
+fn _multiply_simd_typed[
+    dtype: DType
+](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[dtype]:
+    """SIMD multiplication for typed Tensor[dtype]. Zero bitcasts."""
+    var result = Tensor[dtype](a.shape())
+    var size = a.numel()
+
+    var a_ptr = a._data
+    var b_ptr = b._data
+    var result_ptr = result._data
+
+    @parameter
+    if dtype == DType.float32 or dtype == DType.float64:
+        comptime simd_width = simd_width_of[dtype]()
+
+        @parameter
+        fn vectorized_multiply[width: Int](idx: Int) unified {mut}:
+            var a_vec = a_ptr.load[width=width](idx)
+            var b_vec = b_ptr.load[width=width](idx)
+            result_ptr.store[width=width](idx, a_vec * b_vec)
+
+        vectorize[simd_width](size, vectorized_multiply)
+    else:
+        for i in range(size):
+            result_ptr[i] = a_ptr[i] * b_ptr[i]
+
+    return result^
+
+
+@always_inline
+fn _divide_simd_typed[
+    dtype: DType
+](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[dtype]:
+    """SIMD division for typed Tensor[dtype]. Zero bitcasts."""
+    var result = Tensor[dtype](a.shape())
+    var size = a.numel()
+
+    var a_ptr = a._data
+    var b_ptr = b._data
+    var result_ptr = result._data
+
+    @parameter
+    if dtype == DType.float32 or dtype == DType.float64:
+        comptime simd_width = simd_width_of[dtype]()
+
+        @parameter
+        fn vectorized_divide[width: Int](idx: Int) unified {mut}:
+            var a_vec = a_ptr.load[width=width](idx)
+            var b_vec = b_ptr.load[width=width](idx)
+            result_ptr.store[width=width](idx, a_vec / b_vec)
+
+        vectorize[simd_width](size, vectorized_divide)
+    else:
+        for i in range(size):
+            result_ptr[i] = a_ptr[i] / b_ptr[i]
+
+    return result^
+
+
+# ============================================================================
+# Layer 1 (Public): AnyTensor SIMD Functions (dispatch to typed core)
 # ============================================================================
 
 
@@ -77,63 +206,20 @@ fn add_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
         return add(a, b)
 
-    var result = AnyTensor(a.shape(), a.dtype())
-
-    # Dispatch to dtype-specific SIMD implementation
+    # Dispatch to typed SIMD core
     if a.dtype() == DType.float32:
-        _add_simd_float32(a, b, result)
+        return _add_simd_typed[DType.float32](
+            a.as_tensor[DType.float32](), b.as_tensor[DType.float32]()
+        ).as_any()
     elif a.dtype() == DType.float64:
-        _add_simd_float64(a, b, result)
+        return _add_simd_typed[DType.float64](
+            a.as_tensor[DType.float64](), b.as_tensor[DType.float64]()
+        ).as_any()
     else:
         # Fall back to scalar for other dtypes
         from .arithmetic import add
 
         return add(a, b)
-
-    return result^
-
-
-@always_inline
-fn _add_simd_float32(a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
-    """SIMD addition for float32 tensors."""
-    comptime simd_width = simd_width_of[DType.float32]()
-    var size = a.numel()
-
-    var a_ptr = a._data.bitcast[Float32]()
-    var b_ptr = b._data.bitcast[Float32]()
-    var result_ptr = result._data.bitcast[Float32]()
-
-    @parameter
-    fn vectorized_add[width: Int](idx: Int) unified {mut}:
-        var a_vec = a_ptr.load[width=width](idx)
-        var b_vec = b_ptr.load[width=width](idx)
-        result_ptr.store[width=width](idx, a_vec + b_vec)
-
-    vectorize[simd_width](size, vectorized_add)
-
-
-@always_inline
-fn _add_simd_float64(a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
-    """SIMD addition for float64 tensors."""
-    comptime simd_width = simd_width_of[DType.float64]()
-    var size = a.numel()
-
-    var a_ptr = a._data.bitcast[Float64]()
-    var b_ptr = b._data.bitcast[Float64]()
-    var result_ptr = result._data.bitcast[Float64]()
-
-    @parameter
-    fn vectorized_add[width: Int](idx: Int) unified {mut}:
-        var a_vec = a_ptr.load[width=width](idx)
-        var b_vec = b_ptr.load[width=width](idx)
-        result_ptr.store[width=width](idx, a_vec + b_vec)
-
-    vectorize[simd_width](size, vectorized_add)
-
-
-# ============================================================================
-# SIMD Subtraction
-# ============================================================================
 
 
 fn subtract_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
@@ -157,65 +243,18 @@ fn subtract_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
         return subtract(a, b)
 
-    var result = AnyTensor(a.shape(), a.dtype())
-
     if a.dtype() == DType.float32:
-        _subtract_simd_float32(a, b, result)
+        return _subtract_simd_typed[DType.float32](
+            a.as_tensor[DType.float32](), b.as_tensor[DType.float32]()
+        ).as_any()
     elif a.dtype() == DType.float64:
-        _subtract_simd_float64(a, b, result)
+        return _subtract_simd_typed[DType.float64](
+            a.as_tensor[DType.float64](), b.as_tensor[DType.float64]()
+        ).as_any()
     else:
         from .arithmetic import subtract
 
         return subtract(a, b)
-
-    return result^
-
-
-@always_inline
-fn _subtract_simd_float32(
-    a: AnyTensor, b: AnyTensor, mut result: AnyTensor
-) raises:
-    """SIMD subtraction for float32 tensors."""
-    comptime simd_width = simd_width_of[DType.float32]()
-    var size = a.numel()
-
-    var a_ptr = a._data.bitcast[Float32]()
-    var b_ptr = b._data.bitcast[Float32]()
-    var result_ptr = result._data.bitcast[Float32]()
-
-    @parameter
-    fn vectorized_subtract[width: Int](idx: Int) unified {mut}:
-        var a_vec = a_ptr.load[width=width](idx)
-        var b_vec = b_ptr.load[width=width](idx)
-        result_ptr.store[width=width](idx, a_vec - b_vec)
-
-    vectorize[simd_width](size, vectorized_subtract)
-
-
-@always_inline
-fn _subtract_simd_float64(
-    a: AnyTensor, b: AnyTensor, mut result: AnyTensor
-) raises:
-    """SIMD subtraction for float64 tensors."""
-    comptime simd_width = simd_width_of[DType.float64]()
-    var size = a.numel()
-
-    var a_ptr = a._data.bitcast[Float64]()
-    var b_ptr = b._data.bitcast[Float64]()
-    var result_ptr = result._data.bitcast[Float64]()
-
-    @parameter
-    fn vectorized_subtract[width: Int](idx: Int) unified {mut}:
-        var a_vec = a_ptr.load[width=width](idx)
-        var b_vec = b_ptr.load[width=width](idx)
-        result_ptr.store[width=width](idx, a_vec - b_vec)
-
-    vectorize[simd_width](size, vectorized_subtract)
-
-
-# ============================================================================
-# SIMD Multiplication
-# ============================================================================
 
 
 fn multiply_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
@@ -239,65 +278,18 @@ fn multiply_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
         return multiply(a, b)
 
-    var result = AnyTensor(a.shape(), a.dtype())
-
     if a.dtype() == DType.float32:
-        _multiply_simd_float32(a, b, result)
+        return _multiply_simd_typed[DType.float32](
+            a.as_tensor[DType.float32](), b.as_tensor[DType.float32]()
+        ).as_any()
     elif a.dtype() == DType.float64:
-        _multiply_simd_float64(a, b, result)
+        return _multiply_simd_typed[DType.float64](
+            a.as_tensor[DType.float64](), b.as_tensor[DType.float64]()
+        ).as_any()
     else:
         from .arithmetic import multiply
 
         return multiply(a, b)
-
-    return result^
-
-
-@always_inline
-fn _multiply_simd_float32(
-    a: AnyTensor, b: AnyTensor, mut result: AnyTensor
-) raises:
-    """SIMD multiplication for float32 tensors."""
-    comptime simd_width = simd_width_of[DType.float32]()
-    var size = a.numel()
-
-    var a_ptr = a._data.bitcast[Float32]()
-    var b_ptr = b._data.bitcast[Float32]()
-    var result_ptr = result._data.bitcast[Float32]()
-
-    @parameter
-    fn vectorized_multiply[width: Int](idx: Int) unified {mut}:
-        var a_vec = a_ptr.load[width=width](idx)
-        var b_vec = b_ptr.load[width=width](idx)
-        result_ptr.store[width=width](idx, a_vec * b_vec)
-
-    vectorize[simd_width](size, vectorized_multiply)
-
-
-@always_inline
-fn _multiply_simd_float64(
-    a: AnyTensor, b: AnyTensor, mut result: AnyTensor
-) raises:
-    """SIMD multiplication for float64 tensors."""
-    comptime simd_width = simd_width_of[DType.float64]()
-    var size = a.numel()
-
-    var a_ptr = a._data.bitcast[Float64]()
-    var b_ptr = b._data.bitcast[Float64]()
-    var result_ptr = result._data.bitcast[Float64]()
-
-    @parameter
-    fn vectorized_multiply[width: Int](idx: Int) unified {mut}:
-        var a_vec = a_ptr.load[width=width](idx)
-        var b_vec = b_ptr.load[width=width](idx)
-        result_ptr.store[width=width](idx, a_vec * b_vec)
-
-    vectorize[simd_width](size, vectorized_multiply)
-
-
-# ============================================================================
-# SIMD Division
-# ============================================================================
 
 
 fn divide_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
@@ -321,53 +313,15 @@ fn divide_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
         return divide(a, b)
 
-    var result = AnyTensor(a.shape(), a.dtype())
-
     if a.dtype() == DType.float32:
-        _divide_simd_float32(a, b, result)
+        return _divide_simd_typed[DType.float32](
+            a.as_tensor[DType.float32](), b.as_tensor[DType.float32]()
+        ).as_any()
     elif a.dtype() == DType.float64:
-        _divide_simd_float64(a, b, result)
+        return _divide_simd_typed[DType.float64](
+            a.as_tensor[DType.float64](), b.as_tensor[DType.float64]()
+        ).as_any()
     else:
         from .arithmetic import divide
 
         return divide(a, b)
-
-    return result^
-
-
-@always_inline
-fn _divide_simd_float32(a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
-    """SIMD division for float32 tensors."""
-    comptime simd_width = simd_width_of[DType.float32]()
-    var size = a.numel()
-
-    var a_ptr = a._data.bitcast[Float32]()
-    var b_ptr = b._data.bitcast[Float32]()
-    var result_ptr = result._data.bitcast[Float32]()
-
-    @parameter
-    fn vectorized_divide[width: Int](idx: Int) unified {mut}:
-        var a_vec = a_ptr.load[width=width](idx)
-        var b_vec = b_ptr.load[width=width](idx)
-        result_ptr.store[width=width](idx, a_vec / b_vec)
-
-    vectorize[simd_width](size, vectorized_divide)
-
-
-@always_inline
-fn _divide_simd_float64(a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
-    """SIMD division for float64 tensors."""
-    comptime simd_width = simd_width_of[DType.float64]()
-    var size = a.numel()
-
-    var a_ptr = a._data.bitcast[Float64]()
-    var b_ptr = b._data.bitcast[Float64]()
-    var result_ptr = result._data.bitcast[Float64]()
-
-    @parameter
-    fn vectorized_divide[width: Int](idx: Int) unified {mut}:
-        var a_vec = a_ptr.load[width=width](idx)
-        var b_vec = b_ptr.load[width=width](idx)
-        result_ptr.store[width=width](idx, a_vec / b_vec)
-
-    vectorize[simd_width](size, vectorized_divide)
