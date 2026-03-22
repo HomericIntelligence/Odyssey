@@ -12,7 +12,7 @@ an aggregate value (sum, mean, max, etc.).
 Compute the sum of tensor elements.
 
 ```mojo
-fn sum(self, axis: Optional[Int] = None, keepdim: Bool = False) raises -> ExTensor
+fn sum(self, axis: Optional[Int] = None, keepdim: Bool = False) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -42,7 +42,7 @@ var row_sums = x.sum(axis=1, keepdim=True)  # Shape: (3, 1)
 Compute the mean of tensor elements.
 
 ```mojo
-fn mean(self, axis: Optional[Int] = None, keepdim: Bool = False) raises -> ExTensor
+fn mean(self, axis: Optional[Int] = None, keepdim: Bool = False) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -70,7 +70,7 @@ var row_means = x.mean(axis=1, keepdim=True)  # Shape: (3, 1)
 Compute the maximum value of tensor elements.
 
 ```mojo
-fn max(self, axis: Optional[Int] = None, keepdim: Bool = False) raises -> ExTensor
+fn max(self, axis: Optional[Int] = None, keepdim: Bool = False) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -98,7 +98,7 @@ var row_max = x.max(axis=1, keepdim=True)  # Shape: (3, 1)
 Compute the minimum value of tensor elements.
 
 ```mojo
-fn min(self, axis: Optional[Int] = None, keepdim: Bool = False) raises -> ExTensor
+fn min(self, axis: Optional[Int] = None, keepdim: Bool = False) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -126,7 +126,7 @@ var row_min = x.min(axis=1, keepdim=True)  # Shape: (3, 1)
 Find the index of the maximum value.
 
 ```mojo
-fn argmax(self, axis: Optional[Int] = None) raises -> ExTensor
+fn argmax(self, axis: Optional[Int] = None) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -153,7 +153,7 @@ var row_argmax = x.argmax(axis=1)  # Shape: (3,) - index per row
 Find the index of the minimum value.
 
 ```mojo
-fn argmin(self, axis: Optional[Int] = None) raises -> ExTensor
+fn argmin(self, axis: Optional[Int] = None) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -177,7 +177,7 @@ var row_argmin = x.argmin(axis=1)  # Shape: (3,)
 Compute the product of tensor elements.
 
 ```mojo
-fn prod(self, axis: Optional[Int] = None, keepdim: Bool = False) raises -> ExTensor
+fn prod(self, axis: Optional[Int] = None, keepdim: Bool = False) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -197,8 +197,8 @@ var product = x.prod()  # 64.0 (2^6)
 Logical reduction operations.
 
 ```mojo
-fn any(self, axis: Optional[Int] = None) raises -> ExTensor
-fn all(self, axis: Optional[Int] = None) raises -> ExTensor
+fn any(self, axis: Optional[Int] = None) raises -> AnyTensor
+fn all(self, axis: Optional[Int] = None) raises -> AnyTensor
 ```
 
 **Examples:**
@@ -242,4 +242,4 @@ x.sum(axis=-2)  # Same as axis=1, shape: (3, 5)
 
 - [Arithmetic Operations](arithmetic.md) - Element-wise operations
 - [Linear Algebra](linalg.md) - Matrix operations
-- [ExTensor Reference](../tensor.md) - Core tensor class
+- [AnyTensor Reference](../tensor.md) - Core tensor class

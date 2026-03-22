@@ -10,8 +10,8 @@ This module tests the gradient clipping and loss validation functions:
 Split from test_base.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
-from shared.core.extensor import (
-    ExTensor,
+from shared.core.any_tensor import (
+    AnyTensor,
     zeros,
     ones,
     full,

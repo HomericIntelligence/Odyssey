@@ -4,14 +4,14 @@ This module provides a pure functional implementation of linear transformations,
 following the pattern y = xW^T + b. The caller manages all state (weights, bias).
 """
 
-from .extensor import ExTensor
+from .any_tensor import AnyTensor
 from .matrix import matmul, transpose
 from .arithmetic import add
 from .reduction import sum
 from .gradient_types import GradientPair, GradientTriple
 
 
-fn linear(x: ExTensor, weights: ExTensor, bias: ExTensor) raises -> ExTensor:
+fn linear(x: AnyTensor, weights: AnyTensor, bias: AnyTensor) raises -> AnyTensor:
     """Functional linear transformation: y = xW^T + b.
 
         Pure function - caller manages weights and bias. No internal state
@@ -26,7 +26,7 @@ fn linear(x: ExTensor, weights: ExTensor, bias: ExTensor) raises -> ExTensor:
 
         Example:
             ```mojo
-            from shared.core import ExTensor, linear, zeros, xavier_uniform
+            from shared.core import AnyTensor, linear, zeros, xavier_uniform
 
             # Caller manages state
             var w = xavier_uniform(10, 784, DType.float32)
@@ -46,7 +46,7 @@ fn linear(x: ExTensor, weights: ExTensor, bias: ExTensor) raises -> ExTensor:
     return add(out, bias)
 
 
-fn linear_no_bias(x: ExTensor, weights: ExTensor) raises -> ExTensor:
+fn linear_no_bias(x: AnyTensor, weights: AnyTensor) raises -> AnyTensor:
     """Functional linear transformation without bias: y = xW^T.
 
         Pure function for linear transformation with no bias term.
@@ -65,7 +65,7 @@ fn linear_no_bias(x: ExTensor, weights: ExTensor) raises -> ExTensor:
 
 
 fn linear_backward(
-    grad_output: ExTensor, x: ExTensor, weights: ExTensor
+    grad_output: AnyTensor, x: AnyTensor, weights: AnyTensor
 ) raises -> GradientTriple:
     """Backward pass for linear transformation.
 
@@ -90,7 +90,7 @@ fn linear_backward(
 
         Example:
             ```
-            from shared.core import ExTensor, linear, linear_backward
+            from shared.core import AnyTensor, linear, linear_backward
 
             # Forward pass
             var output = linear(x, weights, bias)
@@ -124,7 +124,7 @@ fn linear_backward(
 
 
 fn linear_no_bias_backward(
-    grad_output: ExTensor, x: ExTensor, weights: ExTensor
+    grad_output: AnyTensor, x: AnyTensor, weights: AnyTensor
 ) raises -> GradientPair:
     """Backward pass for linear transformation without bias.
 

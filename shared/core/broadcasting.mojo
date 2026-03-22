@@ -1,4 +1,4 @@
-"""Broadcasting utilities for ExTensor.
+"""Broadcasting utilities for AnyTensor.
 
 Implements NumPy-style broadcasting rules for tensor operations
 """

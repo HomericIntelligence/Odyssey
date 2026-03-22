@@ -12,7 +12,7 @@ Features:
     - Inference mode (no training, no batch norm running stats updates)
 """
 
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 from shared.data import extract_batch_pair, compute_num_batches, DatasetInfo
 from shared.data.datasets import CIFAR10Dataset, get_cifar10_classes
 from shared.training.metrics import evaluate_logits_batch
@@ -21,8 +21,8 @@ from model import MobileNetV1
 
 fn evaluate_model(
     mut model: MobileNetV1,
-    images: ExTensor,
-    labels: ExTensor,
+    images: AnyTensor,
+    labels: AnyTensor,
     batch_size: Int = 100,
     verbose: Bool = True,
 ) raises -> Tuple[Float32, List[Int], List[Int]]:

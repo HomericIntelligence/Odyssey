@@ -8,9 +8,9 @@ All layers follow a consistent interface:
 
 ```mojo
 trait Layer:
-    fn forward(mut self, x: ExTensor) raises -> ExTensor
-    fn backward(mut self, grad_output: ExTensor) raises -> ExTensor
-    fn parameters(self) -> List[ExTensor]
+    fn forward(mut self, x: AnyTensor) raises -> AnyTensor
+    fn backward(mut self, grad_output: AnyTensor) raises -> AnyTensor
+    fn parameters(self) -> List[AnyTensor]
 ```
 
 ## Linear Layers

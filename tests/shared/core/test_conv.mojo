@@ -25,7 +25,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.extensor import ExTensor, zeros, ones, full, ones_like
+from shared.core.any_tensor import AnyTensor, zeros, ones, full, ones_like
 from shared.core.conv import (
     conv2d,
     conv2d_no_bias,
@@ -1056,7 +1056,7 @@ fn test_conv2d_backward_gradient_input() raises:
     var analytical_grad = result.grad_input
 
     # Numerical gradient: forward_fn sums conv output (equivalent to ones grad_output)
-    fn forward_for_input(inp: ExTensor) raises -> ExTensor:
+    fn forward_for_input(inp: AnyTensor) raises -> AnyTensor:
         var out = conv2d_no_bias(inp, kernel, stride, padding)
         var reduced = out
         while reduced.dim() > 0:
@@ -1116,7 +1116,7 @@ fn test_conv2d_backward_gradient_kernel() raises:
     var analytical_grad = result.grad_weights
 
     # Numerical gradient: forward_fn sums conv output (equivalent to ones grad_output)
-    fn forward_for_kernel(k: ExTensor) raises -> ExTensor:
+    fn forward_for_kernel(k: AnyTensor) raises -> AnyTensor:
         var out = conv2d_no_bias(x, k, stride, padding)
         var reduced = out
         while reduced.dim() > 0:
@@ -1187,7 +1187,7 @@ fn test_conv2d_backward_gradient_input_with_padding() raises:
     var result = conv2d_backward(grad_output, x, kernel, stride, padding)
     var analytical_grad = result.grad_input
 
-    fn forward_for_input_p1(inp: ExTensor) raises -> ExTensor:
+    fn forward_for_input_p1(inp: AnyTensor) raises -> AnyTensor:
         var out = conv2d_no_bias(inp, kernel, stride, padding)
         var reduced = out
         while reduced.dim() > 0:
@@ -1213,7 +1213,7 @@ fn test_conv2d_backward_gradient_input_with_padding() raises:
     result = conv2d_backward(grad_output, x, kernel, stride, padding)
     analytical_grad = result.grad_input
 
-    fn forward_for_input_p2(inp: ExTensor) raises -> ExTensor:
+    fn forward_for_input_p2(inp: AnyTensor) raises -> AnyTensor:
         var out = conv2d_no_bias(inp, kernel, stride, padding)
         var reduced = out
         while reduced.dim() > 0:
@@ -1274,7 +1274,7 @@ fn test_conv2d_backward_gradient_kernel_with_padding() raises:
     var result = conv2d_backward(grad_output, x, kernel, stride, padding)
     var analytical_grad = result.grad_weights
 
-    fn forward_for_kernel_p1(k: ExTensor) raises -> ExTensor:
+    fn forward_for_kernel_p1(k: AnyTensor) raises -> AnyTensor:
         var out = conv2d_no_bias(x, k, stride, padding)
         var reduced = out
         while reduced.dim() > 0:
@@ -1300,7 +1300,7 @@ fn test_conv2d_backward_gradient_kernel_with_padding() raises:
     result = conv2d_backward(grad_output, x, kernel, stride, padding)
     analytical_grad = result.grad_weights
 
-    fn forward_for_kernel_p2(k: ExTensor) raises -> ExTensor:
+    fn forward_for_kernel_p2(k: AnyTensor) raises -> AnyTensor:
         var out = conv2d_no_bias(x, k, stride, padding)
         var reduced = out
         while reduced.dim() > 0:

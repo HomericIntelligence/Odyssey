@@ -11,7 +11,7 @@ runtime overhead when safety mode is disabled.
 
 Example:
     ```mojo
-    from shared.core import ExTensor, check_tensor_safety
+    from shared.core import AnyTensor, check_tensor_safety
 
     # Enable safety checks at compile time
     var output = model_forward(x)
@@ -22,12 +22,12 @@ Example:
     ```
 """
 
-from .extensor import ExTensor
+from .any_tensor import AnyTensor
 from math import isnan, isinf, sqrt
 from collections import List
 
 
-fn has_nan(tensor: ExTensor) -> Bool:
+fn has_nan(tensor: AnyTensor) -> Bool:
     """Check if tensor contains any NaN values.
 
     Args:
@@ -38,7 +38,7 @@ fn has_nan(tensor: ExTensor) -> Bool:
 
         Example:
             ```mojo
-            var x = ExTensor([[1.0, float("nan"), 3.0]])
+            var x = AnyTensor([[1.0, float("nan"), 3.0]])
             assert_true(has_nan(x))
             ```
 
@@ -66,7 +66,7 @@ fn has_nan(tensor: ExTensor) -> Bool:
     return False
 
 
-fn has_inf(tensor: ExTensor) -> Bool:
+fn has_inf(tensor: AnyTensor) -> Bool:
     """Check if tensor contains any Inf values (positive or negative).
 
     Args:
@@ -77,7 +77,7 @@ fn has_inf(tensor: ExTensor) -> Bool:
 
         Example:
             ```mojo
-            var x = ExTensor([[1.0, float("inf"), 3.0]])
+            var x = AnyTensor([[1.0, float("inf"), 3.0]])
             assert_true(has_inf(x))
             ```
 
@@ -105,7 +105,7 @@ fn has_inf(tensor: ExTensor) -> Bool:
     return False
 
 
-fn count_nan(tensor: ExTensor) -> Int:
+fn count_nan(tensor: AnyTensor) -> Int:
     """Count number of NaN values in tensor.
 
     Args:
@@ -116,7 +116,7 @@ fn count_nan(tensor: ExTensor) -> Int:
 
         Example:
             ```mojo
-            var x = ExTensor([[1.0, float("nan"), float("nan")]])
+            var x = AnyTensor([[1.0, float("nan"), float("nan")]])
             assert_equal(count_nan(x), 2)
             ```
     """
@@ -142,7 +142,7 @@ fn count_nan(tensor: ExTensor) -> Int:
     return count
 
 
-fn count_inf(tensor: ExTensor) -> Int:
+fn count_inf(tensor: AnyTensor) -> Int:
     """Count number of Inf values in tensor.
 
     Args:
@@ -153,7 +153,7 @@ fn count_inf(tensor: ExTensor) -> Int:
 
         Example:
             ```mojo
-            var x = ExTensor([[1.0, float("inf"), float("-inf")]])
+            var x = AnyTensor([[1.0, float("inf"), float("-inf")]])
             assert_equal(count_inf(x), 2)
             ```
     """
@@ -182,7 +182,7 @@ fn count_inf(tensor: ExTensor) -> Int:
 @parameter
 fn check_tensor_safety[
     enable: Bool = False
-](tensor: ExTensor, name: String = "tensor") raises:
+](tensor: AnyTensor, name: String = "tensor") raises:
     """Check tensor for NaN/Inf values with compile-time optional behavior.
 
         When enable=True, raises Error if NaN or Inf found.
@@ -220,7 +220,7 @@ fn check_tensor_safety[
     # If enable=False, this entire function body is eliminated at compile time
 
 
-fn tensor_min(tensor: ExTensor) -> Float64:
+fn tensor_min(tensor: AnyTensor) -> Float64:
     """Find minimum value in tensor.
 
     Args:
@@ -231,7 +231,7 @@ fn tensor_min(tensor: ExTensor) -> Float64:
 
         Example:
             ```mojo
-            var x = ExTensor([[1.0, -5.0, 3.0]])
+            var x = AnyTensor([[1.0, -5.0, 3.0]])
             assert_equal(tensor_min(x), -5.0)
             ```
     """
@@ -263,7 +263,7 @@ fn tensor_min(tensor: ExTensor) -> Float64:
     return min_val
 
 
-fn tensor_max(tensor: ExTensor) -> Float64:
+fn tensor_max(tensor: AnyTensor) -> Float64:
     """Find maximum value in tensor.
 
     Args:
@@ -274,7 +274,7 @@ fn tensor_max(tensor: ExTensor) -> Float64:
 
         Example:
             ```mojo
-            var x = ExTensor([[1.0, 10.0, 3.0]])
+            var x = AnyTensor([[1.0, 10.0, 3.0]])
             assert_equal(tensor_max(x), 10.0)
             ```
     """
@@ -307,7 +307,7 @@ fn tensor_max(tensor: ExTensor) -> Float64:
 
 
 fn check_tensor_range(
-    tensor: ExTensor,
+    tensor: AnyTensor,
     min_val: Float64,
     max_val: Float64,
     name: String = "tensor",
@@ -348,7 +348,7 @@ fn check_tensor_range(
         )
 
 
-fn compute_tensor_l2_norm(tensor: ExTensor) -> Float64:
+fn compute_tensor_l2_norm(tensor: AnyTensor) -> Float64:
     """Compute L2 norm of tensor: sqrt(sum(x^2)).
 
     Args:
@@ -359,7 +359,7 @@ fn compute_tensor_l2_norm(tensor: ExTensor) -> Float64:
 
         Example:
             ```mojo
-            var x = ExTensor([[3.0, 4.0]])
+            var x = AnyTensor([[3.0, 4.0]])
             assert_equal(compute_tensor_l2_norm(x), 5.0)  # sqrt(9 + 16)
             ```
     """
@@ -386,7 +386,7 @@ fn compute_tensor_l2_norm(tensor: ExTensor) -> Float64:
 
 
 fn check_gradient_norm(
-    gradient: ExTensor, max_norm: Float64 = 1000.0, name: String = "gradient"
+    gradient: AnyTensor, max_norm: Float64 = 1000.0, name: String = "gradient"
 ) raises:
     """Check if gradient L2 norm exceeds threshold (gradient explosion detection).
 
@@ -423,7 +423,7 @@ fn check_gradient_norm(
 
 
 fn check_gradient_vanishing(
-    gradient: ExTensor, min_norm: Float64 = 1e-7, name: String = "gradient"
+    gradient: AnyTensor, min_norm: Float64 = 1e-7, name: String = "gradient"
 ) raises:
     """Check if gradient L2 norm is too small (gradient vanishing detection).
 
@@ -463,7 +463,7 @@ fn check_gradient_vanishing(
 fn check_gradient_safety[
     enable: Bool = False
 ](
-    gradient: ExTensor,
+    gradient: AnyTensor,
     max_norm: Float64 = 1000.0,
     min_norm: Float64 = 1e-7,
     name: String = "gradient",
@@ -515,7 +515,7 @@ fn check_gradient_safety[
 # `mojo package shared` from compiling. (Issue #4513)
 
 
-fn clip_grad_value_(mut grad: ExTensor, max_value: Float64) raises:
+fn clip_grad_value_(mut grad: AnyTensor, max_value: Float64) raises:
     """Clip each gradient element to [-max_value, max_value].
 
     This is the simplest form of gradient clipping. Each element is
@@ -540,7 +540,7 @@ fn clip_grad_value_(mut grad: ExTensor, max_value: Float64) raises:
             grad._set_float64(i, -max_value)
 
 
-fn clip_grad_norm_(mut grad: ExTensor, max_norm: Float64) raises -> Float64:
+fn clip_grad_norm_(mut grad: AnyTensor, max_norm: Float64) raises -> Float64:
     """Clip gradient if its L2 norm exceeds max_norm.
 
     Computes the L2 norm of the gradient: norm = sqrt(sum(grad^2)).
@@ -577,7 +577,7 @@ fn clip_grad_norm_(mut grad: ExTensor, max_norm: Float64) raises -> Float64:
 
 
 fn clip_grad_global_norm_(
-    mut grads: List[ExTensor], max_norm: Float64
+    mut grads: List[AnyTensor], max_norm: Float64
 ) raises -> Float64:
     """Clip gradients based on their global L2 norm across all parameters.
 

@@ -6,7 +6,7 @@
 Tests integration scenarios and edge cases.
 """
 
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 from tests.shared.conftest import (
     assert_true,
     assert_equal,
@@ -31,7 +31,7 @@ from shared.data.generic_transforms import (
 )
 
 # Type comptime for test convenience
-comptime Tensor = ExTensor
+comptime Tensor = AnyTensor
 
 
 # ============================================================================
@@ -47,7 +47,7 @@ fn test_integration_preprocessing_pipeline() raises:
     values.append(5.0)
     values.append(10.0)
     values.append(15.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
 
     fn normalize(value: Float32) -> Float32:
         # Scale to [0, 1]
@@ -76,13 +76,13 @@ fn test_integration_conditional_augmentation() raises:
     large_values.append(2.0)
     large_values.append(3.0)
     large_values.append(4.0)
-    var large_data = ExTensor(large_values^)
+    var large_data = AnyTensor(large_values^)
     var small_values = List[Float32]()
     small_values.append(1.0)
     small_values.append(2.0)
-    var small_data = ExTensor(small_values^)
+    var small_data = AnyTensor(small_values^)
 
-    fn is_large_enough(tensor: ExTensor) raises -> Bool:
+    fn is_large_enough(tensor: AnyTensor) raises -> Bool:
         return tensor.num_elements() >= 3
 
     fn augment(value: Float32) -> Float32:
@@ -115,8 +115,8 @@ fn test_integration_batch_preprocessing() raises:
     values2.append(400.0)
 
     var batch: List[Tensor] = []
-    batch.append(ExTensor(values1^))
-    batch.append(ExTensor(values2^))
+    batch.append(AnyTensor(values1^))
+    batch.append(AnyTensor(values2^))
 
     fn scale_down(value: Float32) -> Float32:
         return value / 100.0
@@ -145,7 +145,7 @@ fn test_integration_type_conversion_pipeline() raises:
     values.append(1.9)
     values.append(2.5)
     values.append(3.1)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
 
     var transforms: List[AnyTransform] = []
     transforms.append(AnyTransform(ToInt32()))  # Convert to int (truncate)
@@ -172,7 +172,7 @@ fn test_edge_case_very_large_values() raises:
     values.append(1e6)
     values.append(1e7)
     values.append(1e8)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
     var clamp = ClampTransform(0.0, 1e9)
 
     var result = clamp(data)
@@ -188,7 +188,7 @@ fn test_edge_case_very_small_values() raises:
     values.append(1e-6)
     values.append(1e-7)
     values.append(1e-8)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
     var clamp = ClampTransform(1e-9, 1.0)
 
     var result = clamp(data)
@@ -204,7 +204,7 @@ fn test_edge_case_all_zeros() raises:
     values.append(0.0)
     values.append(0.0)
     values.append(0.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
 
     fn add_one(value: Float32) -> Float32:
         return value + 1.0
@@ -221,7 +221,7 @@ fn test_edge_case_single_element() raises:
     """Test transforms with single element."""
     var values = List[Float32]()
     values.append(42.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
 
     var transforms: List[AnyTransform] = []
     transforms.append(AnyTransform(ClampTransform(0.0, 100.0)))

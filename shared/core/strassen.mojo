@@ -4,7 +4,7 @@ Implements Strassen's divide-and-conquer algorithm reducing O(n³) to O(n^2.807)
 by performing 7 multiplications instead of 8.
 """
 
-from .extensor import ExTensor, zeros
+from .any_tensor import AnyTensor, zeros
 from .arithmetic import add, subtract
 from .matmul import matmul_tiled
 
@@ -22,7 +22,7 @@ fn next_power_of_2(n: Int) -> Int:
     return power
 
 
-fn _strassen_recursive(A: ExTensor, B: ExTensor) raises -> ExTensor:
+fn _strassen_recursive(A: AnyTensor, B: AnyTensor) raises -> AnyTensor:
     """Recursive core of Strassen's algorithm using 7 products."""
     var shape = A.shape()
     var n = shape[0]
@@ -31,7 +31,7 @@ fn _strassen_recursive(A: ExTensor, B: ExTensor) raises -> ExTensor:
         var c_shape = List[Int]()
         c_shape.append(n)
         c_shape.append(n)
-        var C = ExTensor(c_shape, A.dtype())
+        var C = AnyTensor(c_shape, A.dtype())
         matmul_tiled(A, B, C)
         return C^
 
@@ -41,16 +41,16 @@ fn _strassen_recursive(A: ExTensor, B: ExTensor) raises -> ExTensor:
     var A11_shape = List[Int]()
     A11_shape.append(n_half)
     A11_shape.append(n_half)
-    var A11 = ExTensor(A11_shape, A.dtype())
+    var A11 = AnyTensor(A11_shape, A.dtype())
 
-    var A12 = ExTensor(A11_shape, A.dtype())
-    var A21 = ExTensor(A11_shape, A.dtype())
-    var A22 = ExTensor(A11_shape, A.dtype())
+    var A12 = AnyTensor(A11_shape, A.dtype())
+    var A21 = AnyTensor(A11_shape, A.dtype())
+    var A22 = AnyTensor(A11_shape, A.dtype())
 
-    var B11 = ExTensor(A11_shape, B.dtype())
-    var B12 = ExTensor(A11_shape, B.dtype())
-    var B21 = ExTensor(A11_shape, B.dtype())
-    var B22 = ExTensor(A11_shape, B.dtype())
+    var B11 = AnyTensor(A11_shape, B.dtype())
+    var B12 = AnyTensor(A11_shape, B.dtype())
+    var B21 = AnyTensor(A11_shape, B.dtype())
+    var B22 = AnyTensor(A11_shape, B.dtype())
 
     # Extract A quadrants
     if A.dtype() == DType.float32:
@@ -155,7 +155,7 @@ fn _strassen_recursive(A: ExTensor, B: ExTensor) raises -> ExTensor:
     var c_shape = List[Int]()
     c_shape.append(n)
     c_shape.append(n)
-    var C = ExTensor(c_shape, A.dtype())
+    var C = AnyTensor(c_shape, A.dtype())
 
     if A.dtype() == DType.float32:
         var c_ptr = C._data.bitcast[Float32]()
@@ -193,7 +193,7 @@ fn _strassen_recursive(A: ExTensor, B: ExTensor) raises -> ExTensor:
     return C^
 
 
-fn matmul_strassen(A: ExTensor, B: ExTensor, mut C: ExTensor) raises:
+fn matmul_strassen(A: AnyTensor, B: AnyTensor, mut C: AnyTensor) raises:
     """Matrix multiplication using Strassen's algorithm."""
     if A.dtype() != B.dtype() or A.dtype() != C.dtype():
         raise Error("matmul_strassen: all tensors must have the same dtype")

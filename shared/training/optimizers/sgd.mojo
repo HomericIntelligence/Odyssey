@@ -291,7 +291,7 @@ fn initialize_velocities(
             The order of velocities matches the order of shapes provided.
             Ensure you use the same ordering when calling sgd_momentum_update_inplace.
     """
-    from shared.core.extensor import zeros
+    from shared.core.any_tensor import zeros
 
     var velocities: List[AnyTensor] = []
 
@@ -336,7 +336,7 @@ fn initialize_velocities_from_params(
             var velocities = initialize_velocities_from_params(params)
             ```
     """
-    from shared.core.extensor import zeros
+    from shared.core.any_tensor import zeros
 
     var velocities: List[AnyTensor] = []
 

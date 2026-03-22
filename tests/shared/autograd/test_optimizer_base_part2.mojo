@@ -15,7 +15,7 @@ Split from test_optimizer_base.mojo to comply with ADR-009 (≤10 fn test_ per f
 
 from testing import assert_true, assert_equal
 from tests.shared.conftest import assert_almost_equal
-from shared.core.extensor import ExTensor, zeros
+from shared.core.any_tensor import AnyTensor, zeros
 from shared.autograd import Variable, GradientTape, SGD, Adam, AdaGrad, RMSprop
 from shared.autograd.optimizer_base import (
     zero_grad_impl,
@@ -34,12 +34,12 @@ fn test_zero_grad_implementation() raises:
 
     # Create a variable to register with the tape (gets auto-assigned ID)
     var shape: List[Int] = [1]
-    var data = ExTensor(shape, DType.float32)
+    var data = AnyTensor(shape, DType.float32)
     var param = Variable(data^, True, tape)
     var var_id = param.id
 
     # Add a gradient for this variable
-    var grad = ExTensor(shape, DType.float32)
+    var grad = AnyTensor(shape, DType.float32)
     grad._set_float64(0, 1.0)
     tape.registry.set_grad(var_id, grad^)
 
@@ -64,12 +64,12 @@ fn test_sgd_zero_grad() raises:
 
     # Create a variable to register with tape
     var shape: List[Int] = [1]
-    var data = ExTensor(shape, DType.float32)
+    var data = AnyTensor(shape, DType.float32)
     var param = Variable(data^, True, tape)
     var var_id = param.id
 
     # Add gradient
-    var grad = ExTensor(shape, DType.float32)
+    var grad = AnyTensor(shape, DType.float32)
     tape.registry.set_grad(var_id, grad^)
 
     # Clear gradients
@@ -89,12 +89,12 @@ fn test_adam_zero_grad() raises:
 
     # Create a variable to register with tape
     var shape: List[Int] = [1]
-    var data = ExTensor(shape, DType.float32)
+    var data = AnyTensor(shape, DType.float32)
     var param = Variable(data^, True, tape)
     var var_id = param.id
 
     # Add gradient
-    var grad = ExTensor(shape, DType.float32)
+    var grad = AnyTensor(shape, DType.float32)
     tape.registry.set_grad(var_id, grad^)
 
     # Clear gradients
@@ -115,7 +115,7 @@ fn test_zero_grad_preserves_optimizer_state() raises:
 
     # Create a parameter
     var shape: List[Int] = [2]
-    var data = ExTensor(shape, DType.float32)
+    var data = AnyTensor(shape, DType.float32)
     data._set_float64(0, 1.0)
     data._set_float64(1, 2.0)
 
@@ -125,7 +125,7 @@ fn test_zero_grad_preserves_optimizer_state() raises:
     parameters.append(param.copy())
 
     # Add gradient
-    var grad = ExTensor(shape, DType.float32)
+    var grad = AnyTensor(shape, DType.float32)
     grad._set_float64(0, 0.1)
     grad._set_float64(1, 0.2)
     tape.registry.set_grad(var_id, grad^)
@@ -157,14 +157,14 @@ fn test_clip_gradients_no_clipping_needed() raises:
 
     # Create parameter
     var shape: List[Int] = [3]
-    var data = ExTensor(shape, DType.float32)
+    var data = AnyTensor(shape, DType.float32)
     var param = Variable(data^, True, tape)
     var var_id = param.id
     var parameters: List[Variable] = []
     parameters.append(param.copy())
 
     # Add small gradient (norm < 5.0)
-    var grad = ExTensor(shape, DType.float32)
+    var grad = AnyTensor(shape, DType.float32)
     grad._set_float64(0, 0.1)
     grad._set_float64(1, 0.1)
     grad._set_float64(2, 0.1)
@@ -193,14 +193,14 @@ fn test_clip_gradients_with_clipping() raises:
 
     # Create parameter
     var shape: List[Int] = [3]
-    var data = ExTensor(shape, DType.float32)
+    var data = AnyTensor(shape, DType.float32)
     var param = Variable(data^, True, tape)
     var var_id = param.id
     var parameters: List[Variable] = []
     parameters.append(param.copy())
 
     # Add large gradient (norm > 1.0)
-    var grad = ExTensor(shape, DType.float32)
+    var grad = AnyTensor(shape, DType.float32)
     grad._set_float64(0, 3.0)
     grad._set_float64(1, 4.0)
     grad._set_float64(2, 0.0)

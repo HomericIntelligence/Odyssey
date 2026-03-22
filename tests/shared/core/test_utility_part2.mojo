@@ -1,4 +1,4 @@
-"""Tests for ExTensor utility operations - Part 2: contiguity, item(), and tolist().
+"""Tests for AnyTensor utility operations - Part 2: contiguity, item(), and tolist().
 
 Tests contiguity checks, as_contiguous(), item() scalar extraction,
 and tolist() conversion methods.
@@ -8,9 +8,9 @@ and tolist() conversion methods.
 # high test load. Split from test_utility.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-# Import ExTensor and operations
+# Import AnyTensor and operations
 from shared.core import (
-    ExTensor,
+    AnyTensor,
     zeros,
     ones,
     full,
@@ -206,7 +206,7 @@ fn test_tolist_nested() raises:
 fn main() raises:
     """Run utility operation tests - Part 2: contiguity, item(), and tolist().
     """
-    print("Running ExTensor utility operation tests (Part 2)...")
+    print("Running AnyTensor utility operation tests (Part 2)...")
 
     # Contiguity
     print("  Testing contiguity...")

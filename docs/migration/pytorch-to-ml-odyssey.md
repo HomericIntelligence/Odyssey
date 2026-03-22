@@ -11,7 +11,7 @@ benefits. This guide covers the key differences and provides practical migration
 
 | Concept | PyTorch | ML Odyssey |
 |---------|---------|------------|
-| Tensor | `torch.Tensor` | `ExTensor` |
+| Tensor | `torch.Tensor` | `AnyTensor` |
 | Module | `nn.Module` | `Module` trait |
 | Autograd | Automatic | `Tape` context |
 | Device | `.to('cuda')` | CPU (GPU coming) |
@@ -348,14 +348,14 @@ struct SimpleModel:
         self.relu = ReLU()
         self.fc2 = Linear(128, 10)
 
-    fn forward(mut self, x: ExTensor) raises -> ExTensor:
+    fn forward(mut self, x: AnyTensor) raises -> AnyTensor:
         var out = self.fc1.forward(x)
         out = self.relu.forward(out)
         out = self.fc2.forward(out)
         return out
 
-    fn parameters(self) -> List[ExTensor]:
-        var params = List[ExTensor]()
+    fn parameters(self) -> List[AnyTensor]:
+        var params = List[AnyTensor]()
         params.extend(self.fc1.parameters())
         params.extend(self.fc2.parameters())
         return params^
@@ -510,7 +510,7 @@ model.parameters()  # Works automatically
 struct Model:
     var fc: Linear
 
-    fn parameters(self) -> List[ExTensor]:
+    fn parameters(self) -> List[AnyTensor]:
         return self.fc.parameters()  # Must implement
 ```
 
@@ -584,7 +584,7 @@ model.load_state_dict(weights)
 
 ## Migration Checklist
 
-- [ ] Replace `torch.Tensor` with `ExTensor`
+- [ ] Replace `torch.Tensor` with `AnyTensor`
 - [ ] Add explicit dtype to tensor creation
 - [ ] Replace `class` with `struct` for models
 - [ ] Change `__call__` to explicit `.forward()` calls

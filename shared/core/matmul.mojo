@@ -35,7 +35,7 @@ References:
 from algorithm import vectorize
 from sys.info import simd_width_of
 from memory import memset_zero
-from .extensor import ExTensor, zeros
+from .any_tensor import AnyTensor, zeros
 from .error_utils import format_dtype, format_matmul_error
 from .strassen import (
     matmul_strassen,
@@ -66,7 +66,7 @@ comptime TRANSPOSE_THRESHOLD: Int = 64
 # ============================================================================
 
 
-fn matmul_typed(a: ExTensor, b: ExTensor, mut c: ExTensor) raises:
+fn matmul_typed(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
     """Dtype-specific matrix multiplication kernel.
 
     Eliminates Float64 conversion overhead by using direct typed memory access.
@@ -122,7 +122,7 @@ fn matmul_typed(a: ExTensor, b: ExTensor, mut c: ExTensor) raises:
 
 @always_inline
 fn _matmul_typed_float32(
-    a: ExTensor, b: ExTensor, mut c: ExTensor, M: Int, K: Int, N: Int
+    a: AnyTensor, b: AnyTensor, mut c: AnyTensor, M: Int, K: Int, N: Int
 ) raises:
     """Float32-specific matmul implementation.
 
@@ -143,7 +143,7 @@ fn _matmul_typed_float32(
 
 @always_inline
 fn _matmul_typed_float64(
-    a: ExTensor, b: ExTensor, mut c: ExTensor, M: Int, K: Int, N: Int
+    a: AnyTensor, b: AnyTensor, mut c: AnyTensor, M: Int, K: Int, N: Int
 ) raises:
     """Float64-specific matmul implementation.
 
@@ -167,7 +167,7 @@ fn _matmul_typed_float64(
 # ============================================================================
 
 
-fn matmul_simd(a: ExTensor, b: ExTensor, mut c: ExTensor) raises:
+fn matmul_simd(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
     """SIMD-vectorized matrix multiplication kernel.
 
     Vectorizes the J-loop (columns of C and B) for contiguous memory access.
@@ -219,7 +219,7 @@ fn matmul_simd(a: ExTensor, b: ExTensor, mut c: ExTensor) raises:
 
 @always_inline
 fn _matmul_simd_float32(
-    a: ExTensor, b: ExTensor, mut c: ExTensor, M: Int, K: Int, N: Int
+    a: AnyTensor, b: AnyTensor, mut c: AnyTensor, M: Int, K: Int, N: Int
 ) raises:
     """Float32-specific SIMD matmul implementation."""
     comptime simd_width = simd_width_of[DType.float32]()
@@ -244,7 +244,7 @@ fn _matmul_simd_float32(
 
 @always_inline
 fn _matmul_simd_float64(
-    a: ExTensor, b: ExTensor, mut c: ExTensor, M: Int, K: Int, N: Int
+    a: AnyTensor, b: AnyTensor, mut c: AnyTensor, M: Int, K: Int, N: Int
 ) raises:
     """Float64-specific SIMD matmul implementation."""
     comptime simd_width = simd_width_of[DType.float64]()
@@ -272,7 +272,7 @@ fn _matmul_simd_float64(
 # ============================================================================
 
 
-fn matmul_tiled(a: ExTensor, b: ExTensor, mut c: ExTensor) raises:
+fn matmul_tiled(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
     """Cache-blocked matrix multiplication with SIMD.
 
     Implements 2D tiling to improve cache locality. Block sizes are tuned
@@ -326,14 +326,14 @@ fn matmul_tiled(a: ExTensor, b: ExTensor, mut c: ExTensor) raises:
 
 
 @always_inline
-fn _zero_matrix(mut c: ExTensor, size: Int):
+fn _zero_matrix(mut c: AnyTensor, size: Int):
     """Zero out the matrix using memset."""
     memset_zero(c._data, size * c._get_dtype_size())
 
 
 @always_inline
 fn _matmul_tiled_float32(
-    a: ExTensor, b: ExTensor, mut c: ExTensor, M: Int, K: Int, N: Int
+    a: AnyTensor, b: AnyTensor, mut c: AnyTensor, M: Int, K: Int, N: Int
 ) raises:
     """Float32-specific cache-blocked SIMD matmul implementation."""
     comptime simd_width = simd_width_of[DType.float32]()
@@ -371,7 +371,7 @@ fn _matmul_tiled_float32(
 
 @always_inline
 fn _matmul_tiled_float64(
-    a: ExTensor, b: ExTensor, mut c: ExTensor, M: Int, K: Int, N: Int
+    a: AnyTensor, b: AnyTensor, mut c: AnyTensor, M: Int, K: Int, N: Int
 ) raises:
     """Float64-specific cache-blocked SIMD matmul implementation."""
     comptime simd_width = simd_width_of[DType.float64]()
@@ -412,7 +412,7 @@ fn _matmul_tiled_float64(
 # ============================================================================
 
 
-fn matmul_transpose(a: ExTensor, b: ExTensor, mut c: ExTensor) raises:
+fn matmul_transpose(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
     """Fully optimized GEMM with transpose and register blocking.
 
     Combines all optimizations for maximum performance:
@@ -484,12 +484,12 @@ fn matmul_transpose(a: ExTensor, b: ExTensor, mut c: ExTensor) raises:
 
 
 @always_inline
-fn _transpose_matrix_float32(b: ExTensor, K: Int, N: Int) raises -> ExTensor:
+fn _transpose_matrix_float32(b: AnyTensor, K: Int, N: Int) raises -> AnyTensor:
     """Transpose B matrix (K x N) to B^T (N x K) for contiguous access."""
     var b_t_shape = List[Int]()
     b_t_shape.append(N)
     b_t_shape.append(K)
-    var b_t = ExTensor(b_t_shape, DType.float32)
+    var b_t = AnyTensor(b_t_shape, DType.float32)
 
     var b_ptr = b._data.bitcast[Float32]()
     var bt_ptr = b_t._data.bitcast[Float32]()
@@ -508,12 +508,12 @@ fn _transpose_matrix_float32(b: ExTensor, K: Int, N: Int) raises -> ExTensor:
 
 
 @always_inline
-fn _transpose_matrix_float64(b: ExTensor, K: Int, N: Int) raises -> ExTensor:
+fn _transpose_matrix_float64(b: AnyTensor, K: Int, N: Int) raises -> AnyTensor:
     """Transpose B matrix (K x N) to B^T (N x K) for contiguous access."""
     var b_t_shape = List[Int]()
     b_t_shape.append(N)
     b_t_shape.append(K)
-    var b_t = ExTensor(b_t_shape, DType.float64)
+    var b_t = AnyTensor(b_t_shape, DType.float64)
 
     var b_ptr = b._data.bitcast[Float64]()
     var bt_ptr = b_t._data.bitcast[Float64]()
@@ -533,7 +533,7 @@ fn _transpose_matrix_float64(b: ExTensor, K: Int, N: Int) raises -> ExTensor:
 
 @always_inline
 fn _matmul_float32(
-    a: ExTensor, b: ExTensor, mut c: ExTensor, M: Int, K: Int, N: Int
+    a: AnyTensor, b: AnyTensor, mut c: AnyTensor, M: Int, K: Int, N: Int
 ) raises:
     """Float32-specific fully optimized GEMM with transpose and register blocking.
     """
@@ -618,7 +618,7 @@ fn _matmul_float32(
 
 @always_inline
 fn _matmul_float64(
-    a: ExTensor, b: ExTensor, mut c: ExTensor, M: Int, K: Int, N: Int
+    a: AnyTensor, b: AnyTensor, mut c: AnyTensor, M: Int, K: Int, N: Int
 ) raises:
     """Float64-specific fully optimized GEMM with transpose and register blocking.
     """
@@ -701,7 +701,7 @@ fn _matmul_float64(
 # ============================================================================
 
 
-fn matmul(a: ExTensor, b: ExTensor, mut c: ExTensor) raises:
+fn matmul(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
     """Production matrix multiplication - uses best performing kernel.
 
     This is the main production function that users should call.
@@ -718,7 +718,7 @@ fn matmul(a: ExTensor, b: ExTensor, mut c: ExTensor) raises:
     matmul_tiled(a, b, c)
 
 
-fn matmul_optimized(a: ExTensor, b: ExTensor, mut c: ExTensor) raises:
+fn matmul_optimized(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
     """Dispatch to the most optimized matmul kernel.
 
     Selects the optimized matmul kernel for large matrices, falling back to simpler
@@ -766,7 +766,7 @@ fn matmul_optimized(a: ExTensor, b: ExTensor, mut c: ExTensor) raises:
 
 
 fn assert_matrices_equal(
-    a: ExTensor, b: ExTensor, rtol: Float64 = 1e-5, atol: Float64 = 1e-8
+    a: AnyTensor, b: AnyTensor, rtol: Float64 = 1e-5, atol: Float64 = 1e-8
 ) raises:
     """Compare two matrices element-wise with tolerance.
 
@@ -858,12 +858,12 @@ fn verify_matmul_correctness(M: Int, K: Int, N: Int) raises -> Bool:
     var a_shape = List[Int]()
     a_shape.append(M)
     a_shape.append(K)
-    var a = ExTensor(a_shape, DType.float32)
+    var a = AnyTensor(a_shape, DType.float32)
 
     var b_shape = List[Int]()
     b_shape.append(K)
     b_shape.append(N)
-    var b = ExTensor(b_shape, DType.float32)
+    var b = AnyTensor(b_shape, DType.float32)
 
     # Initialize with simple values for reproducibility
     var a_ptr = a._data.bitcast[Float32]()
@@ -880,10 +880,10 @@ fn verify_matmul_correctness(M: Int, K: Int, N: Int) raises -> Bool:
     c_shape.append(M)
     c_shape.append(N)
 
-    var c1 = ExTensor(c_shape, DType.float32)
-    var c2 = ExTensor(c_shape, DType.float32)
-    var c3 = ExTensor(c_shape, DType.float32)
-    var c4 = ExTensor(c_shape, DType.float32)
+    var c1 = AnyTensor(c_shape, DType.float32)
+    var c2 = AnyTensor(c_shape, DType.float32)
+    var c3 = AnyTensor(c_shape, DType.float32)
+    var c4 = AnyTensor(c_shape, DType.float32)
 
     # Run all stages
     matmul_typed(a, b, c1)

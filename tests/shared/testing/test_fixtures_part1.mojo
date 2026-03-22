@@ -11,7 +11,7 @@ from shared.testing.models import SimpleCNN, LinearModel
 from shared.testing.fixtures import (
     create_test_cnn,
 )
-from shared.core.extensor import ones
+from shared.core.any_tensor import ones
 
 
 fn test_simple_cnn_initialization() raises:

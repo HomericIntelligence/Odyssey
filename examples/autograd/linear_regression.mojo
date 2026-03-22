@@ -11,7 +11,7 @@ Training: Learn w and b to fit the data y = 2x + 1
 """
 
 from shared.autograd import mse_loss_and_grad, apply_gradient, multiply_scalar
-from shared.core.extensor import ExTensor, zeros
+from shared.core.any_tensor import AnyTensor, zeros
 from shared.core.arithmetic import add, multiply
 from shared.core.reduction import sum as tensor_sum
 
@@ -29,10 +29,10 @@ fn linear_regression_functional() raises:
     var num_epochs: Int = 50
 
     # Create parameters: w and b
-    var w = ExTensor(List[Int](), DType.float32)
+    var w = AnyTensor(List[Int](), DType.float32)
     w._set_float64(0, 0.5)  # Initialize w = 0.5
 
-    var b = ExTensor(List[Int](), DType.float32)
+    var b = AnyTensor(List[Int](), DType.float32)
     b._set_float64(0, 0.0)  # Initialize b = 0.0
 
     print("Initial parameters:")
@@ -43,11 +43,11 @@ fn linear_regression_functional() raises:
     # Create training data: y = 2*x + 1
     # X = [1, 2, 3, 4, 5]
     # Y = [3, 5, 7, 9, 11]
-    var X = ExTensor(List[Int](), DType.float32)
+    var X = AnyTensor(List[Int](), DType.float32)
     for i in range(5):
         X._set_float64(i, Float64(i + 1))
 
-    var Y = ExTensor(List[Int](), DType.float32)
+    var Y = AnyTensor(List[Int](), DType.float32)
     for i in range(5):
         Y._set_float64(i, Float64(2 * (i + 1) + 1))
 
@@ -60,7 +60,7 @@ fn linear_regression_functional() raises:
         var w_val = w._get_float64(0)
         var b_val = b._get_float64(0)
 
-        var predictions = ExTensor(List[Int](), DType.float32)
+        var predictions = AnyTensor(List[Int](), DType.float32)
         for i in range(5):
             var pred = w_val * X._get_float64(i) + b_val
             predictions._set_float64(i, pred)

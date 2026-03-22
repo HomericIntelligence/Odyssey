@@ -6,7 +6,7 @@
 Tests type conversion transforms and first part of sequential transforms.
 """
 
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 from tests.shared.conftest import (
     assert_true,
     assert_equal,
@@ -31,7 +31,7 @@ from shared.data.generic_transforms import (
 )
 
 # Type comptime for test convenience
-comptime Tensor = ExTensor
+comptime Tensor = AnyTensor
 
 
 # ============================================================================
@@ -45,7 +45,7 @@ fn test_to_float32_preserves_values() raises:
     values.append(1.5)
     values.append(2.5)
     values.append(3.5)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
     var converter = ToFloat32()
 
     var result = converter(data)
@@ -61,7 +61,7 @@ fn test_to_int32_truncates() raises:
     values.append(1.9)
     values.append(2.5)
     values.append(3.1)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
     var converter = ToInt32()
 
     var result = converter(data)
@@ -77,7 +77,7 @@ fn test_to_int32_negative() raises:
     values.append(-1.9)
     values.append(-2.5)
     values.append(-3.1)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
     var converter = ToInt32()
 
     var result = converter(data)
@@ -93,7 +93,7 @@ fn test_to_int32_zero() raises:
     values.append(0.0)
     values.append(0.1)
     values.append(-0.1)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
     var converter = ToInt32()
 
     var result = converter(data)
@@ -114,7 +114,7 @@ fn test_sequential_basic() raises:
     values.append(1.0)
     values.append(2.0)
     values.append(3.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
 
     fn double_fn(value: Float32) -> Float32:
         return value * 2.0
@@ -141,7 +141,7 @@ fn test_sequential_single_transform() raises:
     values.append(1.0)
     values.append(2.0)
     values.append(3.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
 
     fn double_fn(value: Float32) -> Float32:
         return value * 2.0
@@ -163,7 +163,7 @@ fn test_sequential_empty() raises:
     values.append(1.0)
     values.append(2.0)
     values.append(3.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
 
     var transforms: List[AnyTransform] = []
     var sequential = SequentialTransform(transforms^)

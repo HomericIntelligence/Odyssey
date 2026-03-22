@@ -21,7 +21,7 @@ from shared.benchmarking import (
     print_benchmark_summary,
     BenchmarkResult,
 )
-from shared.core import ExTensor, ones, relu, zeros
+from shared.core import AnyTensor, ones, relu, zeros
 
 
 # ============================================================================

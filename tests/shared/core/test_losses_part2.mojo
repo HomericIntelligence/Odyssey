@@ -17,7 +17,7 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_close_float,
 )
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
+from shared.core.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.loss import binary_cross_entropy, binary_cross_entropy_backward
 from shared.core.loss import mean_squared_error, mean_squared_error_backward
 from shared.core.loss import smooth_l1_loss, smooth_l1_loss_backward
@@ -46,11 +46,11 @@ fn test_binary_cross_entropy_backward_gradient() raises:
     targets._set_float64(3, 0.0)
 
     # Forward function wrapper
-    fn forward(pred: ExTensor) raises escaping -> ExTensor:
+    fn forward(pred: AnyTensor) raises escaping -> AnyTensor:
         return binary_cross_entropy(pred, targets)
 
     # Backward function wrapper
-    fn backward(grad_out: ExTensor, pred: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
         return binary_cross_entropy_backward(grad_out, pred, targets)
 
     var loss = forward(predictions)
@@ -87,11 +87,11 @@ fn test_mean_squared_error_backward_gradient() raises:
     targets._set_float64(4, 0.8)
 
     # Forward function wrapper
-    fn forward(pred: ExTensor) raises escaping -> ExTensor:
+    fn forward(pred: AnyTensor) raises escaping -> AnyTensor:
         return mean_squared_error(pred, targets)
 
     # Backward function wrapper
-    fn backward(grad_out: ExTensor, pred: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
         return mean_squared_error_backward(grad_out, pred, targets)
 
     var loss = forward(predictions)
@@ -111,8 +111,8 @@ fn test_smooth_l1_zero_beta_boundary() raises:
 
     var shape = List[Int]()
     shape.append(3)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     # Test with differences exactly at beta (1.0)
     # At |x| = beta: both formulas should give same value
@@ -148,8 +148,8 @@ fn test_smooth_l1_quadratic_region() raises:
 
     var shape = List[Int]()
     shape.append(1)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     # Small difference (0.1) with beta=1.0 should be in quadratic region
     # L = 0.5 * 0.1^2 / 1.0 = 0.005
@@ -178,8 +178,8 @@ fn test_smooth_l1_linear_region() raises:
 
     var shape = List[Int]()
     shape.append(1)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     # Large difference (2.0) with beta=1.0 should be in linear region
     # L = 2.0 - 0.5 * 1.0 = 1.5
@@ -208,8 +208,8 @@ fn test_smooth_l1_backward_quadratic() raises:
 
     var shape = List[Int]()
     shape.append(1)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     # Small difference (0.1) with beta=1.0
     # Gradient should be: diff / beta = 0.1 / 1.0 = 0.1
@@ -243,8 +243,8 @@ fn test_smooth_l1_backward_linear() raises:
 
     var shape = List[Int]()
     shape.append(1)
-    var predictions = ExTensor(shape, DType.float32)
-    var targets = ExTensor(shape, DType.float32)
+    var predictions = AnyTensor(shape, DType.float32)
+    var targets = AnyTensor(shape, DType.float32)
 
     # Large difference (2.0) with beta=1.0
     # Gradient should be: sign(diff) = sign(2.0) = 1.0

@@ -10,8 +10,8 @@ Tests edge cases for matmul including:
 # high test load. Split from test_matrix_edge_cases.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, zeros_like, eye
+# Import AnyTensor and operations
+from shared.core.any_tensor import AnyTensor, zeros, ones, full, zeros_like, eye
 from shared.core.matrix import matmul
 
 # Import test helpers
@@ -121,11 +121,11 @@ fn test_matmul_known_result() raises:
     shape_b.append(2)
     shape_b.append(1)
 
-    var a = ExTensor(shape_a, DType.float32)
+    var a = AnyTensor(shape_a, DType.float32)
     a._set_float32(0, 1.0)
     a._set_float32(1, 2.0)
 
-    var b = ExTensor(shape_b, DType.float32)
+    var b = AnyTensor(shape_b, DType.float32)
     b._set_float32(0, 3.0)
     b._set_float32(1, 4.0)
 

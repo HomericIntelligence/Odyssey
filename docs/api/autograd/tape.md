@@ -230,7 +230,7 @@ Save memory by recomputing forward pass during backward:
 ```mojo
 from shared.autograd import checkpoint
 
-fn expensive_forward(x: ExTensor) -> ExTensor:
+fn expensive_forward(x: AnyTensor) -> AnyTensor:
     # Memory-intensive operations
     ...
 
@@ -272,6 +272,6 @@ clip_grad_value(model.parameters(), clip_value=0.5)
 
 ## See Also
 
-- [ExTensor Reference](../tensor.md) - Core tensor class
+- [AnyTensor Reference](../tensor.md) - Core tensor class
 - [Optimizers](../training/optimizers.md) - Apply gradients
 - [Layers](../nn/layers.md) - Neural network layers

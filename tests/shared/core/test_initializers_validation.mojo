@@ -12,7 +12,7 @@ Validation strategy:
 - Statistical correctness (mean, variance, distribution shape)
 - API consistency (parameters, return types, error handling)
 - Reproducibility (seeding behavior)
-- Integration (interoperability with ExTensor)
+- Integration (interoperability with AnyTensor)
 """
 
 from tests.shared.conftest import (
@@ -24,11 +24,11 @@ from tests.shared.conftest import (
     assert_true,
 )
 from math import sqrt
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 from shared.core.initializers import xavier_uniform, xavier_normal, kaiming_uniform, kaiming_normal, uniform, normal, constant
 
 
-fn compute_mean(tensor: ExTensor) -> Float64:
+fn compute_mean(tensor: AnyTensor) -> Float64:
     """Compute mean of tensor values."""
     var sum = Float64(0.0)
     var size = tensor.numel()
@@ -46,7 +46,7 @@ fn compute_mean(tensor: ExTensor) -> Float64:
     return sum / Float64(size)
 
 
-fn compute_variance(tensor: ExTensor, mean: Float64) -> Float64:
+fn compute_variance(tensor: AnyTensor, mean: Float64) -> Float64:
     """Compute variance of tensor values."""
     var sum_sq = Float64(0.0)
     var size = tensor.numel()
@@ -71,7 +71,7 @@ fn compute_variance(tensor: ExTensor, mean: Float64) -> Float64:
 
 
 fn test_all_initializers_produce_tensors() raises:
-    """Validate that all initializers produce valid ExTensor objects."""
+    """Validate that all initializers produce valid AnyTensor objects."""
     print("Testing all initializers produce valid tensors...")
 
     var shape: List[Int] = [100, 100]
@@ -450,14 +450,14 @@ fn test_initializers_api_consistency() raises:
     var n = normal(shape, 0.0, 0.01, DType.float32, 42)
     var c = constant(shape, 0.5, DType.float32)
 
-    # All should return ExTensor
-    assert_equal(xu.numel(), 10000, "Xavier uniform returns ExTensor")
-    assert_equal(xn.numel(), 10000, "Xavier normal returns ExTensor")
-    assert_equal(ku.numel(), 10000, "Kaiming uniform returns ExTensor")
-    assert_equal(kn.numel(), 10000, "Kaiming normal returns ExTensor")
-    assert_equal(u.numel(), 10000, "Uniform returns ExTensor")
-    assert_equal(n.numel(), 10000, "Normal returns ExTensor")
-    assert_equal(c.numel(), 10000, "Constant returns ExTensor")
+    # All should return AnyTensor
+    assert_equal(xu.numel(), 10000, "Xavier uniform returns AnyTensor")
+    assert_equal(xn.numel(), 10000, "Xavier normal returns AnyTensor")
+    assert_equal(ku.numel(), 10000, "Kaiming uniform returns AnyTensor")
+    assert_equal(kn.numel(), 10000, "Kaiming normal returns AnyTensor")
+    assert_equal(u.numel(), 10000, "Uniform returns AnyTensor")
+    assert_equal(n.numel(), 10000, "Normal returns AnyTensor")
+    assert_equal(c.numel(), 10000, "Constant returns AnyTensor")
 
     # All should raise on invalid inputs (tested in individual test files)
 

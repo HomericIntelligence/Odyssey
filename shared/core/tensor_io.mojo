@@ -1,16 +1,16 @@
-"""Tensor I/O utilities: save/load ExTensor to/from hex-encoded text files.
+"""Tensor I/O utilities: save/load AnyTensor to/from hex-encoded text files.
 
-This module provides the core save/load implementation for ExTensor. It is
+This module provides the core save/load implementation for AnyTensor. It is
 defined in shared.core (rather than shared.utils) to avoid a circular type
 resolution issue in Mojo v0.26.1:
 
-    Problem: shared.utils.serialization imports ExTensor from shared.core.extensor.
-    When extensor.mojo has a method that imports from shared.utils.serialization,
-    the package compiler compiles extensor.mojo twice with distinct type identities,
-    breaking all operator overloads with 'ExTensor cannot convert from ExTensor' errors.
+    Problem: shared.utils.serialization imports AnyTensor from shared.core.any_tensor.
+    When any_tensor.mojo has a method that imports from shared.utils.serialization,
+    the package compiler compiles any_tensor.mojo twice with distinct type identities,
+    breaking all operator overloads with 'AnyTensor cannot convert from AnyTensor' errors.
 
     Fix: Move save/load core implementation here (shared.core.tensor_io) so
-    extensor.mojo can use a relative import (from .tensor_io import save_tensor)
+    any_tensor.mojo can use a relative import (from .tensor_io import save_tensor)
     instead of a cross-package import.
 
     shared.utils.serialization re-exports these functions for backward compatibility.
@@ -23,7 +23,7 @@ File format (hex-encoded text):
 
 from memory import UnsafePointer
 from collections import List
-from .extensor import ExTensor, zeros
+from .any_tensor import AnyTensor, zeros
 
 
 # ============================================================================
@@ -31,7 +31,7 @@ from .extensor import ExTensor, zeros
 # ============================================================================
 
 
-fn save_tensor(tensor: ExTensor, filepath: String, name: String = "") raises:
+fn save_tensor(tensor: AnyTensor, filepath: String, name: String = "") raises:
     """Save tensor to file in hex format.
 
     Args:
@@ -65,14 +65,14 @@ fn save_tensor(tensor: ExTensor, filepath: String, name: String = "") raises:
         _ = f.write(hex_data + "\n")
 
 
-fn load_tensor(filepath: String) raises -> ExTensor:
+fn load_tensor(filepath: String) raises -> AnyTensor:
     """Load tensor from file.
 
     Args:
         filepath: Input file path.
 
     Returns:
-        Loaded ExTensor.
+        Loaded AnyTensor.
 
     Raises:
         Error: If file format is invalid or file doesn't exist.
@@ -106,7 +106,7 @@ fn load_tensor(filepath: String) raises -> ExTensor:
     return tensor^
 
 
-fn load_tensor_with_name(filepath: String) raises -> Tuple[String, ExTensor]:
+fn load_tensor_with_name(filepath: String) raises -> Tuple[String, AnyTensor]:
     """Load tensor with its associated name.
 
     Args:
@@ -144,7 +144,7 @@ fn load_tensor_with_name(filepath: String) raises -> Tuple[String, ExTensor]:
     var tensor = zeros(shape, dtype)
     hex_to_bytes(hex_data, tensor)
 
-    return Tuple[String, ExTensor](name, tensor^)
+    return Tuple[String, AnyTensor](name, tensor^)
 
 
 # ============================================================================
@@ -178,7 +178,7 @@ fn bytes_to_hex(data: UnsafePointer[UInt8], num_bytes: Int) -> String:
     return result
 
 
-fn hex_to_bytes(hex_str: String, tensor: ExTensor) raises:
+fn hex_to_bytes(hex_str: String, tensor: AnyTensor) raises:
     """Convert hexadecimal string to bytes and store in tensor.
 
     Args:

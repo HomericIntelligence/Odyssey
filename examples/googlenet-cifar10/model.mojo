@@ -20,7 +20,7 @@ References:
 """
 
 from shared.core import (
-    ExTensor,
+    AnyTensor,
     zeros,
     conv2d,
     maxpool2d,
@@ -55,50 +55,50 @@ struct InceptionModule:
     """
 
     # Branch 1: 1×1 convolution
-    var conv1x1_1_weights: ExTensor
-    var conv1x1_1_bias: ExTensor
-    var bn1x1_1_gamma: ExTensor
-    var bn1x1_1_beta: ExTensor
-    var bn1x1_1_running_mean: ExTensor
-    var bn1x1_1_running_var: ExTensor
+    var conv1x1_1_weights: AnyTensor
+    var conv1x1_1_bias: AnyTensor
+    var bn1x1_1_gamma: AnyTensor
+    var bn1x1_1_beta: AnyTensor
+    var bn1x1_1_running_mean: AnyTensor
+    var bn1x1_1_running_var: AnyTensor
 
     # Branch 2: 1×1 reduce → 3×3
-    var conv1x1_2_weights: ExTensor
-    var conv1x1_2_bias: ExTensor
-    var bn1x1_2_gamma: ExTensor
-    var bn1x1_2_beta: ExTensor
-    var bn1x1_2_running_mean: ExTensor
-    var bn1x1_2_running_var: ExTensor
+    var conv1x1_2_weights: AnyTensor
+    var conv1x1_2_bias: AnyTensor
+    var bn1x1_2_gamma: AnyTensor
+    var bn1x1_2_beta: AnyTensor
+    var bn1x1_2_running_mean: AnyTensor
+    var bn1x1_2_running_var: AnyTensor
 
-    var conv3x3_weights: ExTensor
-    var conv3x3_bias: ExTensor
-    var bn3x3_gamma: ExTensor
-    var bn3x3_beta: ExTensor
-    var bn3x3_running_mean: ExTensor
-    var bn3x3_running_var: ExTensor
+    var conv3x3_weights: AnyTensor
+    var conv3x3_bias: AnyTensor
+    var bn3x3_gamma: AnyTensor
+    var bn3x3_beta: AnyTensor
+    var bn3x3_running_mean: AnyTensor
+    var bn3x3_running_var: AnyTensor
 
     # Branch 3: 1×1 reduce → 5×5
-    var conv1x1_3_weights: ExTensor
-    var conv1x1_3_bias: ExTensor
-    var bn1x1_3_gamma: ExTensor
-    var bn1x1_3_beta: ExTensor
-    var bn1x1_3_running_mean: ExTensor
-    var bn1x1_3_running_var: ExTensor
+    var conv1x1_3_weights: AnyTensor
+    var conv1x1_3_bias: AnyTensor
+    var bn1x1_3_gamma: AnyTensor
+    var bn1x1_3_beta: AnyTensor
+    var bn1x1_3_running_mean: AnyTensor
+    var bn1x1_3_running_var: AnyTensor
 
-    var conv5x5_weights: ExTensor
-    var conv5x5_bias: ExTensor
-    var bn5x5_gamma: ExTensor
-    var bn5x5_beta: ExTensor
-    var bn5x5_running_mean: ExTensor
-    var bn5x5_running_var: ExTensor
+    var conv5x5_weights: AnyTensor
+    var conv5x5_bias: AnyTensor
+    var bn5x5_gamma: AnyTensor
+    var bn5x5_beta: AnyTensor
+    var bn5x5_running_mean: AnyTensor
+    var bn5x5_running_var: AnyTensor
 
     # Branch 4: pool → 1×1 projection
-    var conv1x1_4_weights: ExTensor
-    var conv1x1_4_bias: ExTensor
-    var bn1x1_4_gamma: ExTensor
-    var bn1x1_4_beta: ExTensor
-    var bn1x1_4_running_mean: ExTensor
-    var bn1x1_4_running_var: ExTensor
+    var conv1x1_4_weights: AnyTensor
+    var conv1x1_4_bias: AnyTensor
+    var bn1x1_4_gamma: AnyTensor
+    var bn1x1_4_beta: AnyTensor
+    var bn1x1_4_running_mean: AnyTensor
+    var bn1x1_4_running_var: AnyTensor
 
     fn __init__(
         out self,
@@ -197,7 +197,7 @@ struct InceptionModule:
         self.bn1x1_4_running_mean = zeros(conv1x1_4_bias_shape, DType.float32)
         self.bn1x1_4_running_var = constant(conv1x1_4_bias_shape, 1.0)
 
-    fn forward(mut self, x: ExTensor, training: Bool) raises -> ExTensor:
+    fn forward(mut self, x: AnyTensor, training: Bool) raises -> AnyTensor:
         """Forward pass through Inception module.
 
         Args:
@@ -520,8 +520,8 @@ struct InceptionModule:
 
 
 fn concatenate_depthwise(
-    t1: ExTensor, t2: ExTensor, t3: ExTensor, t4: ExTensor
-) raises -> ExTensor:
+    t1: AnyTensor, t2: AnyTensor, t3: AnyTensor, t4: AnyTensor
+) raises -> AnyTensor:
     """Concatenate 4 tensors along the channel dimension (axis=1).
 
     Args:
@@ -603,12 +603,12 @@ struct GoogLeNet:
     """
 
     # Initial convolution block
-    var initial_conv_weights: ExTensor
-    var initial_conv_bias: ExTensor
-    var initial_bn_gamma: ExTensor
-    var initial_bn_beta: ExTensor
-    var initial_bn_running_mean: ExTensor
-    var initial_bn_running_var: ExTensor
+    var initial_conv_weights: AnyTensor
+    var initial_conv_bias: AnyTensor
+    var initial_bn_gamma: AnyTensor
+    var initial_bn_beta: AnyTensor
+    var initial_bn_running_mean: AnyTensor
+    var initial_bn_running_var: AnyTensor
 
     # Inception modules
     var inception_3a: InceptionModule
@@ -622,8 +622,8 @@ struct GoogLeNet:
     var inception_5b: InceptionModule
 
     # Final classifier
-    var fc_weights: ExTensor
-    var fc_bias: ExTensor
+    var fc_weights: AnyTensor
+    var fc_bias: AnyTensor
 
     fn __init__(out self, num_classes: Int = 10) raises:
         """Initialize GoogLeNet model.
@@ -754,7 +754,7 @@ struct GoogLeNet:
         var fc_bias_shape: List[Int] = [num_classes]
         self.fc_bias = zeros(fc_bias_shape, DType.float32)
 
-    fn forward(mut self, x: ExTensor, training: Bool = True) raises -> ExTensor:
+    fn forward(mut self, x: AnyTensor, training: Bool = True) raises -> AnyTensor:
         """Forward pass through GoogLeNet.
 
         Args:

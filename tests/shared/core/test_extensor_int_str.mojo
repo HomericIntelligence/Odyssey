@@ -1,11 +1,11 @@
-"""Tests for ExTensor __str__ on integer types (int8, int16, int32, int64, uint8, uint16, uint32, uint64).
+"""Tests for AnyTensor __str__ on integer types (int8, int16, int32, int64, uint8, uint16, uint32, uint64).
 
 Verifies that _format_element() correctly handles all integer dtype paths for string representation.
 
 Related: issue #4047, issue #3376
 """
 
-from shared.core.extensor import ExTensor, zeros, full, arange
+from shared.core.any_tensor import AnyTensor, zeros, full, arange
 from tests.shared.conftest import assert_true, assert_equal
 
 
@@ -13,7 +13,7 @@ fn test_str_int8() raises:
     """Test __str__ for int8 tensor."""
     var t = full([3], Float64(5), DType.int8)
     var s = String(t)
-    assert_true(s.startswith("ExTensor(["))
+    assert_true(s.startswith("AnyTensor(["))
     assert_true("5" in s)
     assert_true("dtype=int8" in s)
 
@@ -22,7 +22,7 @@ fn test_str_int16() raises:
     """Test __str__ for int16 tensor."""
     var t = full([3], Float64(1000), DType.int16)
     var s = String(t)
-    assert_true(s.startswith("ExTensor(["))
+    assert_true(s.startswith("AnyTensor(["))
     assert_true("1000" in s)
     assert_true("dtype=int16" in s)
 
@@ -31,7 +31,7 @@ fn test_str_int32() raises:
     """Test __str__ for int32 tensor."""
     var t = full([3], Float64(100000), DType.int32)
     var s = String(t)
-    assert_true(s.startswith("ExTensor(["))
+    assert_true(s.startswith("AnyTensor(["))
     assert_true("100000" in s)
     assert_true("dtype=int32" in s)
 
@@ -40,7 +40,7 @@ fn test_str_int64() raises:
     """Test __str__ for int64 tensor."""
     var t = full([3], Float64(9999999999), DType.int64)
     var s = String(t)
-    assert_true(s.startswith("ExTensor(["))
+    assert_true(s.startswith("AnyTensor(["))
     assert_true("9999999999" in s)
     assert_true("dtype=int64" in s)
 
@@ -49,7 +49,7 @@ fn test_str_uint8() raises:
     """Test __str__ for uint8 tensor."""
     var t = full([3], Float64(255), DType.uint8)
     var s = String(t)
-    assert_true(s.startswith("ExTensor(["))
+    assert_true(s.startswith("AnyTensor(["))
     assert_true("255" in s)
     assert_true("dtype=uint8" in s)
 
@@ -58,7 +58,7 @@ fn test_str_uint16() raises:
     """Test __str__ for uint16 tensor."""
     var t = full([3], Float64(65535), DType.uint16)
     var s = String(t)
-    assert_true(s.startswith("ExTensor(["))
+    assert_true(s.startswith("AnyTensor(["))
     assert_true("65535" in s)
     assert_true("dtype=uint16" in s)
 
@@ -67,7 +67,7 @@ fn test_str_uint32() raises:
     """Test __str__ for uint32 tensor."""
     var t = full([3], Float64(4294967295), DType.uint32)
     var s = String(t)
-    assert_true(s.startswith("ExTensor(["))
+    assert_true(s.startswith("AnyTensor(["))
     assert_true("4294967295" in s)
     assert_true("dtype=uint32" in s)
 
@@ -76,7 +76,7 @@ fn test_str_uint64() raises:
     """Test __str__ for uint64 tensor."""
     var t = full([3], Float64(18446744073709551615), DType.uint64)
     var s = String(t)
-    assert_true(s.startswith("ExTensor(["))
+    assert_true(s.startswith("AnyTensor(["))
     assert_true("18446744073709551615" in s)
     assert_true("dtype=uint64" in s)
 
@@ -105,7 +105,7 @@ fn test_str_uint8_negative_not_in_output() raises:
 
 fn main() raises:
     """Run integer dtype __str__ tests."""
-    print("Running ExTensor __str__ integer dtype tests...")
+    print("Running AnyTensor __str__ integer dtype tests...")
 
     test_str_int8()
     print("  [OK] test_str_int8")
@@ -137,4 +137,4 @@ fn main() raises:
     test_str_uint8_negative_not_in_output()
     print("  [OK] test_str_uint8_negative_not_in_output")
 
-    print("All ExTensor __str__ integer dtype tests passed!")
+    print("All AnyTensor __str__ integer dtype tests passed!")

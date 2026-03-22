@@ -14,7 +14,7 @@ from shared.testing import (
     check_gradients_verbose,
     compute_numerical_gradient,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full, randn
+from shared.core.any_tensor import AnyTensor, zeros, ones, full, randn
 from shared.core import shape
 from shared.core import matrix
 
@@ -31,14 +31,14 @@ fn test_gradient_check_transposed_input() raises:
     """
     print("Testing gradient checking with transposed input...")
 
-    fn simple_square(x: ExTensor) raises escaping -> ExTensor:
+    fn simple_square(x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var val = x._get_float64(i)
             result._set_float64(i, val * val)
         return result^
 
-    fn simple_square_backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn simple_square_backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var grad = grad_out._get_float64(i)
@@ -73,14 +73,14 @@ fn test_gradient_check_transposed_relu() raises:
     """
     print("Testing ReLU gradient checking with transposed input...")
 
-    fn relu_forward(x: ExTensor) raises escaping -> ExTensor:
+    fn relu_forward(x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var val = x._get_float64(i)
             result._set_float64(i, max(val, 0.0))
         return result^
 
-    fn relu_backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn relu_backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var grad = grad_out._get_float64(i)
@@ -118,14 +118,14 @@ fn test_gradient_check_partial_transpose() raises:
     """
     print("Testing gradient checking with partial axis permutation...")
 
-    fn simple_square(x: ExTensor) raises escaping -> ExTensor:
+    fn simple_square(x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var val = x._get_float64(i)
             result._set_float64(i, val * val)
         return result^
 
-    fn simple_square_backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn simple_square_backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var grad = grad_out._get_float64(i)
@@ -163,14 +163,14 @@ fn test_gradient_check_contiguous_copy() raises:
     """
     print("Testing gradient check after as_contiguous() conversion...")
 
-    fn simple_square(x: ExTensor) raises escaping -> ExTensor:
+    fn simple_square(x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var val = x._get_float64(i)
             result._set_float64(i, val * val)
         return result^
 
-    fn simple_square_backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn simple_square_backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var grad = grad_out._get_float64(i)
@@ -206,7 +206,7 @@ fn test_numerical_gradient_noncont() raises:
     """
     print("Testing numerical gradient computation on non-contiguous tensor...")
 
-    fn simple_square(x: ExTensor) raises escaping -> ExTensor:
+    fn simple_square(x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var val = x._get_float64(i)
@@ -247,14 +247,14 @@ fn test_gradient_check_verbose_noncont() raises:
     """
     print("Testing verbose gradient checking with non-contiguous tensor...")
 
-    fn simple_square(x: ExTensor) raises escaping -> ExTensor:
+    fn simple_square(x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var val = x._get_float64(i)
             result._set_float64(i, val * val)
         return result^
 
-    fn simple_square_backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn simple_square_backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var grad = grad_out._get_float64(i)

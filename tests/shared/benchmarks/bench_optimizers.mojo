@@ -18,7 +18,7 @@ from tests.shared.conftest import (
     measure_time,
     TestFixtures,
 )
-from shared.core.extensor import ExTensor, randn, zeros_like
+from shared.core.any_tensor import AnyTensor, randn, zeros_like
 from shared.training.optimizers.sgd import sgd_step, sgd_step_simple
 from shared.training.optimizers.adam import adam_step, adam_step_simple
 from time import perf_counter_ns

@@ -7,16 +7,16 @@ without maintaining internal state.
 
 Architecture:
     - Pure functional design - no classes, no internal state
-    - All functions work with AnyTensor (ExTensor is a backward-compat alias)
+    - All functions work with AnyTensor
     - Caller manages all state (weights, biases, momentum, etc.)
     - Functions return new values, never mutate inputs
 
 Modules:
-    extensor: Core tensor type (AnyTensor/ExTensor, implements Hashable via __hash__) and creation functions
+    any_tensor: Core tensor type (AnyTensor, implements Hashable via __hash__) and creation functions
     types: Custom data types (type aliases for FP8/BF8/BF16/FP4, MXFP4/NVFP4 blocked formats)
     arithmetic: Element-wise arithmetic operations (add, subtract, multiply, divide)
     matrix: Matrix operations (matmul, transpose, dot, outer)
-    extensor methods: AnyTensor method operations (transpose method via AnyTensor.transpose())
+    any_tensor methods: AnyTensor method operations (transpose method via AnyTensor.transpose())
     activation: Activation functions (relu, sigmoid, tanh, softmax, gelu)
     activation_ops: Activation operation utilities (scalar exp functions)
     linear: Linear transformations
@@ -49,12 +49,12 @@ Note:
     ```
 
     The chain limitation described in #3210 only applies to importing from the
-    ``shared`` top-level package (e.g. ``from shared import ExTensor``), not from
+    ``shared`` top-level package (e.g. ``from shared import AnyTensor``), not from
     ``shared.core`` or its submodules directly.
 
 Example:
    ```mojo
-    from shared.core.extensor import AnyTensor, zeros
+    from shared.core.any_tensor import AnyTensor, zeros
     from shared.core.linear import linear
     from shared.core.activation import relu
     from shared.core.matrix import matmul, transpose
@@ -157,13 +157,12 @@ from shared.core.optimizer_constants import (
 # ============================================================================
 # Core Tensor Type and Creation Functions
 # ============================================================================
-# AnyTensor (formerly ExTensor) implements the Hashable trait (__hash__),
+# AnyTensor implements the Hashable trait (__hash__),
 # allowing tensors to be used as dictionary keys or in hash-based data
-# structures via hash(tensor). ExTensor is a backward-compatibility alias.
+# structures via hash(tensor).
 
-from shared.core.extensor import (
+from shared.core.any_tensor import (
     AnyTensor,
-    ExTensor,
     zeros,
     ones,
     full,
@@ -697,7 +696,7 @@ from shared.core.lazy_eval import (
 # ============================================================================
 # Defined here (in shared.core) rather than shared.autograd to avoid a
 # circular type identity issue in Mojo v0.26.1: cross-package imports of
-# ExTensor from shared.autograd cause extensor.mojo to be compiled twice
+# AnyTensor from shared.autograd cause any_tensor.mojo to be compiled twice
 # with distinct type identities, breaking operator overloads.
 
 from shared.core.grad_utils import (
@@ -709,9 +708,9 @@ from shared.core.grad_utils import (
 # ============================================================================
 # Tensor I/O (Save/Load) Utilities
 # ============================================================================
-# Defined in shared.core to avoid circular type resolution: extensor.mojo's
+# Defined in shared.core to avoid circular type resolution: any_tensor.mojo's
 # save/load methods use these functions, and they must be in the same package
-# to avoid cross-package ExTensor type identity conflicts.
+# to avoid cross-package AnyTensor type identity conflicts.
 
 from shared.core.tensor_io import (
     save_tensor,

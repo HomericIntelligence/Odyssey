@@ -29,7 +29,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.extensor import ExTensor, zeros, ones, full, randn
+from shared.core.any_tensor import AnyTensor, zeros, ones, full, randn
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.activation import relu, relu_backward
 from shared.core.normalization import batch_norm2d
@@ -42,21 +42,21 @@ from shared.core.arithmetic import add
 
 
 fn create_basic_block(
-    x: ExTensor,
-    conv1_weight: ExTensor,
-    conv1_bias: ExTensor,
-    bn1_gamma: ExTensor,
-    bn1_beta: ExTensor,
-    bn1_running_mean: ExTensor,
-    bn1_running_var: ExTensor,
-    conv2_weight: ExTensor,
-    conv2_bias: ExTensor,
-    bn2_gamma: ExTensor,
-    bn2_beta: ExTensor,
-    bn2_running_mean: ExTensor,
-    bn2_running_var: ExTensor,
+    x: AnyTensor,
+    conv1_weight: AnyTensor,
+    conv1_bias: AnyTensor,
+    bn1_gamma: AnyTensor,
+    bn1_beta: AnyTensor,
+    bn1_running_mean: AnyTensor,
+    bn1_running_var: AnyTensor,
+    conv2_weight: AnyTensor,
+    conv2_bias: AnyTensor,
+    bn2_gamma: AnyTensor,
+    bn2_beta: AnyTensor,
+    bn2_running_mean: AnyTensor,
+    bn2_running_var: AnyTensor,
     training: Bool = True,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Forward pass for a basic residual block without projection.
 
     Formula:
@@ -91,9 +91,9 @@ fn create_basic_block(
     """
     # First conv -> BN -> ReLU
     var conv1_out = conv2d(x, conv1_weight, conv1_bias, stride=1, padding=1)
-    var bn1_out: ExTensor
-    var _: ExTensor
-    var __: ExTensor
+    var bn1_out: AnyTensor
+    var _: AnyTensor
+    var __: AnyTensor
     (bn1_out, _, __) = batch_norm2d(
         conv1_out,
         bn1_gamma,
@@ -108,7 +108,7 @@ fn create_basic_block(
     var conv2_out = conv2d(
         relu1_out, conv2_weight, conv2_bias, stride=1, padding=1
     )
-    var bn2_out: ExTensor
+    var bn2_out: AnyTensor
     (bn2_out, _, __) = batch_norm2d(
         conv2_out,
         bn2_gamma,
@@ -422,9 +422,9 @@ fn test_residual_block_128_channels_projection() raises:
         x, conv1_weight, conv1_bias, stride=2, padding=1
     )  # (2, 128, 16, 16)
 
-    var bn1_out: ExTensor
-    var _: ExTensor
-    var __: ExTensor
+    var bn1_out: AnyTensor
+    var _: AnyTensor
+    var __: AnyTensor
     (bn1_out, _, __) = batch_norm2d(
         conv1_out,
         bn1_gamma,
@@ -439,7 +439,7 @@ fn test_residual_block_128_channels_projection() raises:
     var conv2_out = conv2d(
         relu1_out, conv2_weight, conv2_bias, stride=1, padding=1
     )
-    var bn2_out: ExTensor
+    var bn2_out: AnyTensor
     (bn2_out, _, __) = batch_norm2d(
         conv2_out,
         bn2_gamma,
@@ -575,9 +575,9 @@ fn test_batchnorm2d_training_mode() raises:
     var running_var = ones([channels], DType.float32)
 
     # Forward pass in training mode
-    var output: ExTensor
-    var new_running_mean: ExTensor
-    var new_running_var: ExTensor
+    var output: AnyTensor
+    var new_running_mean: AnyTensor
+    var new_running_var: AnyTensor
     (output, new_running_mean, new_running_var) = batch_norm2d(
         x,
         gamma,
@@ -627,9 +627,9 @@ fn test_batchnorm2d_inference_mode() raises:
     var running_var = ones([channels], DType.float32)
 
     # Forward pass in inference mode
-    var output: ExTensor
-    var new_running_mean: ExTensor
-    var new_running_var: ExTensor
+    var output: AnyTensor
+    var new_running_mean: AnyTensor
+    var new_running_var: AnyTensor
     (output, new_running_mean, new_running_var) = batch_norm2d(
         x,
         gamma,

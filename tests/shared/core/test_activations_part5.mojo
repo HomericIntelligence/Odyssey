@@ -13,8 +13,8 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_true,
 )
-from shared.core.extensor import (
-    ExTensor,
+from shared.core.any_tensor import (
+    AnyTensor,
     zeros,
     ones_like,
 )
@@ -114,14 +114,14 @@ fn test_gelu_backward_gradient() raises:
     x._data.bitcast[Float32]()[2] = 0.5
 
     # Forward function wrapper
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return gelu(x, approximate=False)
 
     var y = gelu(x, approximate=False)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward_fn(grad: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return gelu_backward(grad, x, approximate=False)
 
     # Use numerical gradient checking (gold standard)
@@ -177,14 +177,14 @@ fn test_swish_backward_gradient() raises:
     x._data.bitcast[Float32]()[2] = 0.5
 
     # Forward function wrapper
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return swish(x)
 
     var y = swish(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward_fn(grad: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return swish_backward(grad, x)
 
     # Use numerical gradient checking (gold standard)

@@ -1,4 +1,4 @@
-"""Tests for ExTensor serialization and deserialization.
+"""Tests for AnyTensor serialization and deserialization.
 
 Tests the save_tensor() and load_tensor() standalone functions for:
 - Single tensor round-trip (save -> load -> compare values)
@@ -6,10 +6,10 @@ Tests the save_tensor() and load_tensor() standalone functions for:
 - Various tensor shapes (1D, 2D, 3D, 4D)
 - Named tensor persistence
 
-Runs as: pixi run mojo ./tests/shared/core/test_extensor_serialization.mojo
+Runs as: pixi run mojo ./tests/shared/core/test_extensor_serialization.mojo (legacy name)
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, arange
+from shared.core.any_tensor import AnyTensor, zeros, ones, arange
 from shared.utils.serialization import save_tensor, load_tensor
 
 
@@ -234,7 +234,7 @@ fn test_large_tensor_serialization() raises:
 fn main() raises:
     """Run all serialization tests."""
     print("\n" + "#" * 80)
-    print("# ExTensor Serialization Tests")
+    print("# AnyTensor Serialization Tests")
     print("#" * 80)
 
     test_save_load_float32()

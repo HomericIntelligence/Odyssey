@@ -1,4 +1,4 @@
-"""Tests for ExTensor comparison operations - Part 2: less and less_equal.
+"""Tests for AnyTensor comparison operations - Part 2: less and less_equal.
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
@@ -9,8 +9,8 @@ less, less_equal.
 All operations return boolean tensors (DType.bool).
 """
 
-# Import ExTensor and comparison operations
-from shared.core.extensor import ExTensor, full, ones, zeros
+# Import AnyTensor and comparison operations
+from shared.core.any_tensor import AnyTensor, full, ones, zeros
 from shared.core.comparison import less, less_equal
 
 # Import test helpers
@@ -119,7 +119,7 @@ fn test_less_equal_with_dunder() raises:
 
 fn main() raises:
     """Run less and less_equal comparison operation tests."""
-    print("Running ExTensor less/less_equal comparison operation tests...")
+    print("Running AnyTensor less/less_equal comparison operation tests...")
 
     # less() tests
     print("  Testing less()...")

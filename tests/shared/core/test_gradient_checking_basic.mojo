@@ -10,7 +10,7 @@ corruption bug that occurs after ~15 cumulative tests. See ADR-009.
 
 from tests.shared.conftest import assert_true
 from shared.testing import check_gradients
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.activation import (
     relu,
     relu_backward,
@@ -34,10 +34,10 @@ fn test_relu_gradient() raises:
     shape.append(4)
     var input = full(shape, 2.0, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return relu(x)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return relu_backward(grad_out, x)
 
     var passed = check_gradients(forward, backward, input)
@@ -51,10 +51,10 @@ fn test_relu_negative_inputs() raises:
     shape.append(4)
     var input = full(shape, -2.0, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return relu(x)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return relu_backward(grad_out, x)
 
     var passed = check_gradients(forward, backward, input)
@@ -82,10 +82,10 @@ fn test_relu_mixed_inputs() raises:
     input._set_float64(10, 0.1)
     input._set_float64(11, -0.1)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return relu(x)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return relu_backward(grad_out, x)
 
     var passed = check_gradients(forward, backward, input)
@@ -99,10 +99,10 @@ fn test_sigmoid_gradient() raises:
     shape.append(4)
     var input = full(shape, 0.5, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return sigmoid(x)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var output = sigmoid(x)
         return sigmoid_backward(grad_out, output)
 
@@ -117,10 +117,10 @@ fn test_tanh_gradient() raises:
     shape.append(4)
     var input = full(shape, 0.5, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return tanh(x)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var output = tanh(x)
         return tanh_backward(grad_out, output)
 
@@ -136,10 +136,10 @@ fn test_add_gradient() raises:
     var input_a = ones(shape, DType.float32)
     var input_b = ones(shape, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return add(x, input_b)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var grads = add_backward(grad_out, x, input_b)
         return grads.grad_a
 
@@ -155,10 +155,10 @@ fn test_multiply_gradient() raises:
     var input_a = full(shape, 2.0, DType.float32)
     var input_b = full(shape, 3.0, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return multiply(x, input_b)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var grads = multiply_backward(grad_out, x, input_b)
         return grads.grad_a
 
@@ -173,10 +173,10 @@ fn test_gradient_at_zero() raises:
     shape.append(2)
     var input = full(shape, 0.01, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return relu(x)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return relu_backward(grad_out, x)
 
     var passed = check_gradients(forward, backward, input)
@@ -190,10 +190,10 @@ fn test_gradient_small_tensor() raises:
     shape.append(1)
     var input = full(shape, 2.0, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return relu(x)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return relu_backward(grad_out, x)
 
     var passed = check_gradients(forward, backward, input)

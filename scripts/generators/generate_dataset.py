@@ -36,7 +36,7 @@ struct {{name}}(Dataset):
     Loads images and labels from disk.
     \"\"\"
 
-    var images: List[ExTensor]
+    var images: List[AnyTensor]
     var labels: List[Int]
     var data_dir: String
     var transform: Optional[Transform]
@@ -56,7 +56,7 @@ struct {{name}}(Dataset):
         \"\"\"
         self.data_dir = data_dir
         self.transform = transform
-        self.images = List[ExTensor]()
+        self.images = List[AnyTensor]()
         self.labels = List[Int]()
 
         # Load the appropriate split
@@ -89,7 +89,7 @@ struct {{name}}(Dataset):
         \"\"\"
         return len(self.images)
 
-    fn __getitem__(self, idx: Int) -> Tuple[ExTensor, Int]:
+    fn __getitem__(self, idx: Int) -> Tuple[AnyTensor, Int]:
         \"\"\"Get item by index.
 
         Args:
@@ -106,7 +106,7 @@ struct {{name}}(Dataset):
 
         return (image, self.labels[idx])
 
-    fn get_batch(self, indices: List[Int]) -> Tuple[ExTensor, ExTensor]:
+    fn get_batch(self, indices: List[Int]) -> Tuple[AnyTensor, AnyTensor]:
         \"\"\"Get a batch of samples.
 
         Args:
@@ -115,7 +115,7 @@ struct {{name}}(Dataset):
         Returns:
             (images_batch, labels_batch) tuple
         \"\"\"
-        var batch_images = List[ExTensor]()
+        var batch_images = List[AnyTensor]()
         var batch_labels = List[Int]()
 
         for idx in indices:
@@ -125,7 +125,7 @@ struct {{name}}(Dataset):
 
         # Stack into batch tensors
         # TEMPLATE: Implement proper stacking
-        return (batch_images[0], ExTensor.from_list(batch_labels))
+        return (batch_images[0], AnyTensor.from_list(batch_labels))
 """,
     "text": """
 struct {{name}}(Dataset):
@@ -200,7 +200,7 @@ struct {{name}}(Dataset):
         \"\"\"Get dataset size.\"\"\"
         return len(self.texts)
 
-    fn __getitem__(self, idx: Int) -> Tuple[ExTensor, Int]:
+    fn __getitem__(self, idx: Int) -> Tuple[AnyTensor, Int]:
         \"\"\"Get item by index.
 
         Args:
@@ -217,7 +217,7 @@ struct {{name}}(Dataset):
         if len(tokens) > self.max_length:
             tokens = tokens[:self.max_length]
 
-        return (ExTensor.from_list(tokens), self.labels[idx])
+        return (AnyTensor.from_list(tokens), self.labels[idx])
 """,
     "tabular": """
 struct {{name}}(Dataset):
@@ -226,8 +226,8 @@ struct {{name}}(Dataset):
     Loads structured tabular data.
     \"\"\"
 
-    var features: ExTensor
-    var labels: ExTensor
+    var features: AnyTensor
+    var labels: AnyTensor
     var feature_names: List[String]
     var num_samples: Int
     var num_features: Int
@@ -259,7 +259,7 @@ struct {{name}}(Dataset):
         \"\"\"Get dataset size.\"\"\"
         return self.num_samples
 
-    fn __getitem__(self, idx: Int) -> Tuple[ExTensor, ExTensor]:
+    fn __getitem__(self, idx: Int) -> Tuple[AnyTensor, AnyTensor]:
         \"\"\"Get item by index.
 
         Args:
@@ -270,7 +270,7 @@ struct {{name}}(Dataset):
         \"\"\"
         return (self.features[idx], self.labels[idx])
 
-    fn normalize(mut self, mean: Optional[ExTensor] = None, std: Optional[ExTensor] = None):
+    fn normalize(mut self, mean: Optional[AnyTensor] = None, std: Optional[AnyTensor] = None):
         \"\"\"Normalize features to zero mean and unit variance.
 
         Args:
@@ -287,8 +287,8 @@ struct {{name}}(Dataset):
     A template for custom data loading.
     \"\"\"
 
-    var data: List[ExTensor]
-    var targets: List[ExTensor]
+    var data: List[AnyTensor]
+    var targets: List[AnyTensor]
 
     fn __init__(out self, data_path: String):
         \"\"\"Initialize dataset.
@@ -296,8 +296,8 @@ struct {{name}}(Dataset):
         Args:
             data_path: Path to data
         \"\"\"
-        self.data = List[ExTensor]()
-        self.targets = List[ExTensor]()
+        self.data = List[AnyTensor]()
+        self.targets = List[AnyTensor]()
         self._load_data(data_path)
 
     fn _load_data(mut self, data_path: String):
@@ -313,7 +313,7 @@ struct {{name}}(Dataset):
         \"\"\"Get dataset size.\"\"\"
         return len(self.data)
 
-    fn __getitem__(self, idx: Int) -> Tuple[ExTensor, ExTensor]:
+    fn __getitem__(self, idx: Int) -> Tuple[AnyTensor, AnyTensor]:
         \"\"\"Get item by index.
 
         Args:
@@ -377,7 +377,7 @@ Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 """
 
 from shared.datasets import Dataset
-from shared.core import ExTensor
+from shared.core import AnyTensor
 '''
 
     return header + code

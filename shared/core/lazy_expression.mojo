@@ -22,7 +22,7 @@ Example:
 """
 
 from collections import List
-from .extensor import AnyTensor
+from .any_tensor import AnyTensor
 from .broadcasting import broadcast_shapes, compute_broadcast_strides
 
 

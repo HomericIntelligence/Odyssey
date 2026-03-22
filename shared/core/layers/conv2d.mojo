@@ -9,7 +9,7 @@ Key components:
   Implements: y = conv2d(x, weight, bias, stride, padding)
 """
 
-from ..extensor import AnyTensor, zeros, randn, zeros_like
+from ..any_tensor import AnyTensor, zeros, randn, zeros_like
 from ..initializers import kaiming_uniform
 from ..conv import conv2d, conv2d_backward
 from shared.tensor.tensor import Tensor

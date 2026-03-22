@@ -48,11 +48,11 @@ For reads, replace `tensor._data.bitcast[T]()[i]` with `tensor[i]`.
 
 ```mojo
 # WRONG - Cannot transfer ownership of temporary
-var tensor = ExTensor(List[Int](), DType.int32)
+var tensor = AnyTensor(List[Int](), DType.int32)
 
 # CORRECT - Create named variable first
 var shape = List[Int]()
-var tensor = ExTensor(shape, DType.int32)
+var tensor = AnyTensor(shape, DType.int32)
 ```
 
 **Fix**: Create named variable for ALL ownership transfers to `var` parameters.
@@ -127,14 +127,14 @@ list.append(42)
 ```mojo
 # WRONG - Empty shape is 0D scalar (1 element only)
 var shape = List[Int]()
-var tensor = ExTensor(shape, DType.float32)
+var tensor = AnyTensor(shape, DType.float32)
 tensor._data[0] = 1.0
 tensor._data[1] = 2.0  # SEGFAULT - out of bounds!
 
 # CORRECT - Initialize shape dimensions
 var shape = List[Int]()
 shape.append(4)
-var tensor = ExTensor(shape, DType.float32)
+var tensor = AnyTensor(shape, DType.float32)
 # Now can safely access indices 0-3
 ```
 

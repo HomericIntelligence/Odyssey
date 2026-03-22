@@ -37,7 +37,7 @@ See Also:
     - shared.core.layers: Available layer implementations
 """
 
-from .extensor import AnyTensor
+from .any_tensor import AnyTensor
 from .module import Module
 
 

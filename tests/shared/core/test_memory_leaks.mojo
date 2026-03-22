@@ -1,4 +1,4 @@
-"""Memory leak detection tests for ExTensor.
+"""Memory leak detection tests for AnyTensor.
 
 Tests verify:
 1. Reference counting correctness
@@ -28,7 +28,7 @@ Note: These tests work around Mojo v0.26.1 limitations:
 - Tests use reference count as proxy for memory safety
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from tests.shared.conftest import assert_true, assert_equal_int
 
 
@@ -69,7 +69,7 @@ fn test_multiple_copies_refcount() raises:
     )
 
 
-fn _copy_and_check_refcount(tensor1: ExTensor) -> Int:
+fn _copy_and_check_refcount(tensor1: AnyTensor) -> Int:
     """Helper: copy tensor in inner scope and return inner refcount."""
     var tensor2 = tensor1
     return tensor1._refcount[]
@@ -88,7 +88,7 @@ fn test_scope_exit_decrements_refcount() raises:
     assert_equal_int(outer_refcount, 1, "Refcount should be 1 after scope exit")
 
 
-fn _modify_through_copy(tensor1: ExTensor) raises:
+fn _modify_through_copy(tensor1: AnyTensor) raises:
     """Helper: copy tensor in inner scope and modify shared data."""
     var tensor2 = tensor1
     assert_true(tensor1._data == tensor2._data, "Should share data")
@@ -221,7 +221,7 @@ fn test_view_flag_on_reshape() raises:
     assert_true(tensor._data == reshaped._data, "View should share data")
 
 
-fn _create_and_drop_view(original: ExTensor) raises:
+fn _create_and_drop_view(original: AnyTensor) raises:
     """Helper: create view in inner scope (dropped on return)."""
     var shape = List[Int]()
     shape.append(3)
@@ -315,7 +315,7 @@ fn test_destructor_with_valid_refcount() raises:
     assert_true(True, "Destructor edge case test completed")
 
 
-fn _check_view_refcount(original: ExTensor, initial_refcount: Int) raises -> Int:
+fn _check_view_refcount(original: AnyTensor, initial_refcount: Int) raises -> Int:
     """Helper: create view in inner scope, check refcount, return inner value."""
     var shape = List[Int]()
     shape.append(3)

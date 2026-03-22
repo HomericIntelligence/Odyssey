@@ -45,10 +45,10 @@ struct GradientPair(Copyable, Movable):
         grad_b: Gradient with respect to second input.
     """
 
-    var grad_a: ExTensor
-    var grad_b: ExTensor
+    var grad_a: AnyTensor
+    var grad_b: AnyTensor
 
-    fn __init__(out self, var grad_a: ExTensor, var grad_b: ExTensor):
+    fn __init__(out self, var grad_a: AnyTensor, var grad_b: AnyTensor):
         self.grad_a = grad_a^
         self.grad_b = grad_b^
 ```
@@ -57,12 +57,12 @@ struct GradientPair(Copyable, Movable):
 
 ```mojo
 # Without pattern (loses type information):
-fn add_backward(grad_output: ExTensor, shape_a: List[Int], shape_b: List[Int]) -> Tuple[ExTensor, ExTensor]:
+fn add_backward(grad_output: AnyTensor, shape_a: List[Int], shape_b: List[Int]) -> Tuple[AnyTensor, AnyTensor]:
     # ... compute gradients ...
     return (grad_a, grad_b)  # Loses semantic meaning
 
 # With GradientPair pattern (clear intent):
-fn add_backward(grad_output: ExTensor, shape_a: List[Int], shape_b: List[Int]) -> GradientPair:
+fn add_backward(grad_output: AnyTensor, shape_a: List[Int], shape_b: List[Int]) -> GradientPair:
     # ... compute gradients ...
     var result = GradientPair(grad_a, grad_b)
     return result
@@ -78,9 +78,9 @@ var grad_b = grads.grad_b
 ```mojo
 # Use GradientTriple for layer backward passes
 fn linear_backward(
-    grad_output: ExTensor,
-    x: ExTensor,
-    weights: ExTensor
+    grad_output: AnyTensor,
+    x: AnyTensor,
+    weights: AnyTensor
 ) -> GradientTriple:
     """Compute gradients for linear layer.
 
@@ -170,7 +170,7 @@ fn relu_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     return max(Scalar[T](0), x)
 
 # Step 2: Dispatch to compile-time specialized version (works for any dtype)
-fn relu(tensor: ExTensor) raises -> ExTensor:
+fn relu(tensor: AnyTensor) raises -> AnyTensor:
     return dispatch_unary[relu_op](tensor)
 
 # Usage:
@@ -188,7 +188,7 @@ fn add_op[T: DType](a: Scalar[T], b: Scalar[T]) -> Scalar[T]:
     return a + b
 
 # Step 2: Use dispatch_binary for runtime dtype checking
-fn add(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn add(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     return dispatch_binary[add_op](a, b)
 
 # Usage:
@@ -205,7 +205,7 @@ fn mul_op[T: DType](a: Scalar[T], b: Scalar[T]) -> Scalar[T]:
     return a * b
 
 # Step 2: Use dispatch_scalar for tensor-scalar operations
-fn multiply(tensor: ExTensor, scalar: Float64) raises -> ExTensor:
+fn multiply(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     return dispatch_scalar[mul_op](tensor, scalar)
 
 # Usage:
@@ -227,7 +227,7 @@ fn sigmoid_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     return one / (one + exp_neg_x)
 
 # Step 2: Use dispatch_float_unary for float-only operations
-fn sigmoid(tensor: ExTensor) raises -> ExTensor:
+fn sigmoid(tensor: AnyTensor) raises -> AnyTensor:
     return dispatch_float_unary[sigmoid_op](tensor)
 
 # Usage:
@@ -346,7 +346,7 @@ fn gelu_approximate[T: DType](x: Scalar[T]) -> Scalar[T]:
 ```mojo
 from shared.core.numerical_constants import EPSILON_LOSS, EPSILON_NORM
 
-fn cross_entropy_loss(logits: ExTensor, labels: ExTensor) raises -> Float64:
+fn cross_entropy_loss(logits: AnyTensor, labels: AnyTensor) raises -> Float64:
     """Cross-entropy loss with numerical stability.
 
     Uses EPSILON_LOSS to prevent log(0).
@@ -361,12 +361,12 @@ fn cross_entropy_loss(logits: ExTensor, labels: ExTensor) raises -> Float64:
     return compute_loss(clipped, labels)
 
 fn batch_norm_forward(
-    x: ExTensor,
-    weight: ExTensor,
-    bias: ExTensor,
-    running_mean: ExTensor,
-    running_var: ExTensor
-) raises -> ExTensor:
+    x: AnyTensor,
+    weight: AnyTensor,
+    bias: AnyTensor,
+    running_mean: AnyTensor,
+    running_var: AnyTensor
+) raises -> AnyTensor:
     """Batch normalization with numerical stability.
 
     Uses EPSILON_NORM to prevent division by zero.
@@ -416,7 +416,7 @@ Utility modules contain sets of related functions that:
 ### Example: Gradient Clipping Utilities
 
 ```mojo
-fn clip_grad_value_(mut grad: ExTensor, max_value: Float64) raises:
+fn clip_grad_value_(mut grad: AnyTensor, max_value: Float64) raises:
     """Clip each gradient element to [-max_value, max_value].
 
     Args:
@@ -438,7 +438,7 @@ fn clip_grad_value_(mut grad: ExTensor, max_value: Float64) raises:
             grad._set_float64(i, -max_value)
 
 
-fn clip_grad_norm_(mut grad: ExTensor, max_norm: Float64) raises -> Float64:
+fn clip_grad_norm_(mut grad: AnyTensor, max_norm: Float64) raises -> Float64:
     """Clip gradient if its L2 norm exceeds max_norm.
 
     Args:
@@ -479,8 +479,8 @@ from shared.autograd import clip_grad_value_, clip_grad_norm_, clip_grad_global_
 
 fn training_step(
     model: MyModel,
-    x: ExTensor,
-    y: ExTensor,
+    x: AnyTensor,
+    y: AnyTensor,
     optimizer: SGD
 ) raises:
     """Single training step with gradient clipping."""
@@ -536,9 +536,9 @@ from shared.core.numerical_constants import EPSILON_LOSS
 from shared.autograd.grad_utils import clip_grad_norm_
 
 fn linear_backward(
-    grad_output: ExTensor,
-    x: ExTensor,
-    weights: ExTensor
+    grad_output: AnyTensor,
+    x: AnyTensor,
+    weights: AnyTensor
 ) -> GradientTriple:
     """Linear layer backward pass demonstrating all consolidation patterns.
 

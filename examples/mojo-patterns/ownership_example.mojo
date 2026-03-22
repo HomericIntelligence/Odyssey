@@ -8,11 +8,11 @@ Usage:
 See documentation: docs/core/mojo-patterns.md
 """
 
-from shared.core import ExTensor, ones, sum, mean, multiply, item, full
+from shared.core import AnyTensor, ones, sum, mean, multiply, item, full
 
 
 # Borrowed: read-only access (no ownership transfer)
-fn compute_loss(predictions: ExTensor, targets: ExTensor) raises -> Float64:
+fn compute_loss(predictions: AnyTensor, targets: AnyTensor) raises -> Float64:
     """Compute loss without taking ownership."""
     var diff = predictions - targets
     var squared = multiply(diff, diff)
@@ -21,7 +21,7 @@ fn compute_loss(predictions: ExTensor, targets: ExTensor) raises -> Float64:
 
 
 # Owned: take ownership (move semantics)
-fn consume_tensor(var tensor: ExTensor) raises -> Float64:
+fn consume_tensor(var tensor: AnyTensor) raises -> Float64:
     """Take ownership and consume tensor."""
     var sum_tensor = sum(tensor)
     var result = item(sum_tensor)
@@ -31,7 +31,7 @@ fn consume_tensor(var tensor: ExTensor) raises -> Float64:
 
 # Inout: mutable reference (modify in place)
 fn update_weights(
-    mut weights: ExTensor, gradients: ExTensor, lr: Float64
+    mut weights: AnyTensor, gradients: AnyTensor, lr: Float64
 ) raises:
     """Update weights in place."""
     var lr_tensor = full(gradients.shape(), lr, gradients.dtype())

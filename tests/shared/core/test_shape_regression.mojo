@@ -14,8 +14,8 @@ Bugs tested:
 - Line 296: concatenate() - var result_shape = List[Int]()
 """
 
-# Import ExTensor and shape operations
-from shared.core.extensor import ExTensor, ones, zeros, arange
+# Import AnyTensor and shape operations
+from shared.core.any_tensor import AnyTensor, ones, zeros, arange
 from shared.core.shape import reshape, squeeze, unsqueeze, flatten, concatenate
 
 # Import test helpers
@@ -197,7 +197,7 @@ fn test_concatenate_along_axis() raises:
     var b = ones(shape2, DType.float32)  # 3x3
 
     # Concatenate along axis 0
-    var tensors: List[ExTensor] = []
+    var tensors: List[AnyTensor] = []
     tensors.append(a)
     tensors.append(b)
 

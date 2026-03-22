@@ -5,7 +5,7 @@
 # high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Tests cover:
-- ExTensor alias backward compatibility
+- AnyTensor alias backward compatibility
 - AnyTensor direct creation
 - Tensor[dtype].as_any() returns AnyTensor
 - as_any() preserves shape
@@ -17,13 +17,13 @@ Tests cover:
 
 from testing import assert_true, assert_almost_equal
 from shared.tensor.tensor import Tensor
-from shared.core.extensor import ExTensor, AnyTensor, zeros
+from shared.core.any_tensor import AnyTensor, zeros
 
 
 fn test_anytensor_alias_works() raises:
-    """ExTensor alias still works for backward compat."""
-    var t: ExTensor = zeros([3, 4], DType.float32)
-    assert_true(t.numel() == 12, "ExTensor alias should work")
+    """AnyTensor alias still works for backward compat."""
+    var t: AnyTensor = zeros([3, 4], DType.float32)
+    assert_true(t.numel() == 12, "AnyTensor alias should work")
     print("PASS: test_anytensor_alias_works")
 
 

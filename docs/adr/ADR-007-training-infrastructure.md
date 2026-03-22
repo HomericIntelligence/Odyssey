@@ -44,12 +44,12 @@ duplication and inconsistency.
 
 ```mojo
 fn training_step(
-    model_forward: fn(ExTensor) raises -> ExTensor,
-    compute_loss: fn(ExTensor, ExTensor) raises -> ExTensor,
+    model_forward: fn(AnyTensor) raises -> AnyTensor,
+    compute_loss: fn(AnyTensor, AnyTensor) raises -> AnyTensor,
     optimizer_step: fn() raises -> None,
     zero_gradients: fn() raises -> None,
-    data: ExTensor,
-    labels: ExTensor,
+    data: AnyTensor,
+    labels: AnyTensor,
 ) raises -> Float64:
     # 1. Zero gradients from previous step
     zero_gradients()
@@ -80,8 +80,8 @@ struct TrainingLoop:
 
     fn run_epoch(
         self,
-        model_forward: fn(ExTensor) raises -> ExTensor,
-        compute_loss: fn(ExTensor, ExTensor) raises -> ExTensor,
+        model_forward: fn(AnyTensor) raises -> AnyTensor,
+        compute_loss: fn(AnyTensor, AnyTensor) raises -> AnyTensor,
         optimizer_step: fn() raises -> None,
         zero_gradients: fn() raises -> None,
         mut train_loader: DataLoader,
@@ -192,8 +192,8 @@ struct LossTracker:
 
 ```mojo
 struct DataLoader:
-    var data: ExTensor
-    var labels: ExTensor
+    var data: AnyTensor
+    var labels: AnyTensor
     var batch_size: Int
     var shuffle: Bool
     var current_index: Int
@@ -204,8 +204,8 @@ struct DataLoader:
     fn next(mut self) -> DataBatch
 
 struct DataBatch:
-    var data: ExTensor
-    var labels: ExTensor
+    var data: AnyTensor
+    var labels: AnyTensor
 ```
 
 ### Manual Batch Processing
@@ -215,10 +215,10 @@ For compatibility with existing examples:
 ```mojo
 fn run_epoch_manual(
     self,
-    train_data: ExTensor,
-    train_labels: ExTensor,
+    train_data: AnyTensor,
+    train_labels: AnyTensor,
     batch_size: Int,
-    compute_batch_loss: fn(ExTensor, ExTensor) raises -> Float32,
+    compute_batch_loss: fn(AnyTensor, AnyTensor) raises -> Float32,
     epoch: Int,
     total_epochs: Int,
 ) raises -> Float32:

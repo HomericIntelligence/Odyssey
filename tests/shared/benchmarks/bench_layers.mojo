@@ -20,7 +20,7 @@ from tests.shared.conftest import (
 )
 from shared.core.layers.linear import Linear
 from shared.core.activation import relu, sigmoid, tanh
-from shared.core.extensor import ExTensor, ones, zeros_like
+from shared.core.any_tensor import AnyTensor, ones, zeros_like
 from time import perf_counter_ns
 from collections import List
 

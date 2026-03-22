@@ -1,4 +1,4 @@
-"""Tests for ExTensor __str__ truncation behavior.
+"""Tests for AnyTensor __str__ truncation behavior.
 
 Verifies NumPy-style truncation: tensors with more than 1000 elements
 show first 3 and last 3 elements with '...' in between.
@@ -6,7 +6,7 @@ show first 3 and last 3 elements with '...' in between.
 Related: issue #3375
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, full, arange
+from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange
 from tests.shared.conftest import assert_true, assert_equal
 
 
@@ -14,14 +14,14 @@ fn test_str_empty_tensor() raises:
     """Test __str__ for empty tensor (numel=0)."""
     var t = zeros([0], DType.float32)
     var s = String(t)
-    assert_equal(s, "ExTensor([], dtype=float32)")
+    assert_equal(s, "AnyTensor([], dtype=float32)")
 
 
 fn test_str_single_element() raises:
     """Test __str__ for scalar / 1-element tensor."""
     var t = full([1], 3.0, DType.float32)
     var s = String(t)
-    assert_equal(s, "ExTensor([3.0], dtype=float32)")
+    assert_equal(s, "AnyTensor([3.0], dtype=float32)")
 
 
 fn test_str_small_tensor_no_truncation() raises:
@@ -29,7 +29,7 @@ fn test_str_small_tensor_no_truncation() raises:
     var t = arange(0.0, 5.0, 1.0, DType.float32)
     var s = String(t)
     # Should contain all values
-    assert_true(s.startswith("ExTensor(["))
+    assert_true(s.startswith("AnyTensor(["))
     assert_true("0.0" in s)
     assert_true("1.0" in s)
     assert_true("4.0" in s)
@@ -65,7 +65,7 @@ fn test_str_large_tensor_format() raises:
     var t = arange(0.0, 2000.0, 1.0, DType.float32)
     var s = String(t)
     # Must start and end correctly
-    assert_true(s.startswith("ExTensor([0.0, 1.0, 2.0, ..."))
+    assert_true(s.startswith("AnyTensor([0.0, 1.0, 2.0, ..."))
     assert_true(s.endswith(", dtype=float32)"))
     assert_true("1999.0" in s)
     assert_true("1998.0" in s)
@@ -103,28 +103,28 @@ fn test_str_empty_tensor_int32() raises:
     """
     var t = zeros([0], DType.int32)
     var s = String(t)
-    assert_equal(s, "ExTensor([], dtype=int32)")
+    assert_equal(s, "AnyTensor([], dtype=int32)")
 
 
 fn test_str_empty_tensor_int64() raises:
     """Test __str__ for empty tensor with int64 dtype."""
     var t = zeros([0], DType.int64)
     var s = String(t)
-    assert_equal(s, "ExTensor([], dtype=int64)")
+    assert_equal(s, "AnyTensor([], dtype=int64)")
 
 
 fn test_str_empty_tensor_uint32() raises:
     """Test __str__ for empty tensor with uint32 dtype."""
     var t = zeros([0], DType.uint32)
     var s = String(t)
-    assert_equal(s, "ExTensor([], dtype=uint32)")
+    assert_equal(s, "AnyTensor([], dtype=uint32)")
 
 
 fn test_str_empty_tensor_float16() raises:
     """Test __str__ for empty tensor with float16 dtype (floating-point variant)."""
     var t = zeros([0], DType.float16)
     var s = String(t)
-    assert_equal(s, "ExTensor([], dtype=float16)")
+    assert_equal(s, "AnyTensor([], dtype=float16)")
 
 
 fn test_str_empty_multidim_tensor_int32() raises:
@@ -132,12 +132,12 @@ fn test_str_empty_multidim_tensor_int32() raises:
     var t = zeros([2, 0], DType.int32)
     var s = String(t)
     # Empty tensor should still show as empty list
-    assert_equal(s, "ExTensor([], dtype=int32)")
+    assert_equal(s, "AnyTensor([], dtype=int32)")
 
 
 fn main() raises:
     """Run __str__ truncation tests."""
-    print("Running ExTensor __str__ truncation tests...")
+    print("Running AnyTensor __str__ truncation tests...")
 
     test_str_empty_tensor()
     print("  [OK] test_str_empty_tensor")
@@ -178,4 +178,4 @@ fn main() raises:
     test_str_empty_multidim_tensor_int32()
     print("  [OK] test_str_empty_multidim_tensor_int32")
 
-    print("All ExTensor __str__ truncation tests passed!")
+    print("All AnyTensor __str__ truncation tests passed!")

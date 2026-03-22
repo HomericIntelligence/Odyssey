@@ -238,7 +238,7 @@ Use 'mojo-gen list' to see all available generators.
     # Layer command
     layer_parser = subparsers.add_parser("layer", help="Generate layer code")
     layer_parser.add_argument("name", help="Layer name (PascalCase)")
-    layer_parser.add_argument("--inputs", "-i", default="input:ExTensor", help="Input specs")
+    layer_parser.add_argument("--inputs", "-i", default="input:AnyTensor", help="Input specs")
     layer_parser.add_argument("--params", "-p", help="Parameter specs")
     layer_parser.add_argument("--no-parameters", action="store_true", help="No trainable params")
     layer_parser.add_argument("--output", "-o", required=True, help="Output path")

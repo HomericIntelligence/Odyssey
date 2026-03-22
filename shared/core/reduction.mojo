@@ -1,10 +1,10 @@
-"""Reduction operations for ExTensor.
+"""Reduction operations for AnyTensor.
 
 Implements operations that reduce tensors along specified axes
 """
 
 from collections import List
-from .extensor import ExTensor
+from .any_tensor import AnyTensor
 from shared.tensor.tensor import Tensor
 from .shape import as_contiguous
 from .reduction_utils import (
@@ -37,7 +37,7 @@ from .reduction_ops import (
 
 fn _reduce_all_impl[
     dtype: DType, Op: ReduceOp
-](result: ExTensor, tensor: ExTensor, numel: Int):
+](result: AnyTensor, tensor: AnyTensor, numel: Int):
     """Generic dtype-specialized reduction over all elements."""
     var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
     var out_ptr = result._data.bitcast[Scalar[dtype]]()
@@ -54,7 +54,7 @@ fn _reduce_all_impl[
 
 fn _dispatch_reduce_all[
     Op: ReduceOp
-](result: ExTensor, tensor: ExTensor, numel: Int) raises:
+](result: AnyTensor, tensor: AnyTensor, numel: Int) raises:
     """Generic runtime dispatch for reduction over all elements."""
     # Ensure input is contiguous before flat-buffer kernel access.
     var t = tensor if tensor.is_contiguous() else as_contiguous(tensor)
@@ -76,8 +76,8 @@ fn _dispatch_reduce_all[
 fn _reduce_axis_impl[
     dtype: DType, Op: ReduceOp
 ](
-    result: ExTensor,
-    tensor: ExTensor,
+    result: AnyTensor,
+    tensor: AnyTensor,
     outer_size: Int,
     axis_size: Int,
     inner_size: Int,
@@ -106,8 +106,8 @@ fn _reduce_axis_impl[
 fn _dispatch_reduce_axis[
     Op: ReduceOp
 ](
-    result: ExTensor,
-    tensor: ExTensor,
+    result: AnyTensor,
+    tensor: AnyTensor,
     outer_size: Int,
     axis_size: Int,
     inner_size: Int,
@@ -141,8 +141,8 @@ fn _dispatch_reduce_axis[
 
 
 fn sum(
-    tensor: ExTensor, axis: Int = -1, keepdims: Bool = False
-) raises -> ExTensor:
+    tensor: AnyTensor, axis: Int = -1, keepdims: Bool = False
+) raises -> AnyTensor:
     """Sum tensor elements along an axis.
 
     Args:
@@ -166,7 +166,7 @@ fn sum(
         if keepdims:
             for _ in range(tensor.dim()):
                 result_shape.append(1)
-        var result = ExTensor(result_shape, tensor.dtype())
+        var result = AnyTensor(result_shape, tensor.dtype())
 
         _dispatch_reduce_all[SumOp](result, tensor, tensor.numel())
         return result^
@@ -183,7 +183,7 @@ fn sum(
 
         # Use direct index computation (no coordinate allocations)
         var result_shape = build_reduced_shape(tensor.shape(), axis, keepdims)
-        var result = ExTensor(result_shape, tensor.dtype())
+        var result = AnyTensor(result_shape, tensor.dtype())
         result._fill_zero()
 
         var sizes = compute_axis_strides(tensor.shape(), axis)
@@ -198,8 +198,8 @@ fn sum(
 
 
 fn mean(
-    tensor: ExTensor, axis: Int = -1, keepdims: Bool = False
-) raises -> ExTensor:
+    tensor: AnyTensor, axis: Int = -1, keepdims: Bool = False
+) raises -> AnyTensor:
     """Compute mean of tensor elements along an axis.
 
     Args:
@@ -222,7 +222,7 @@ fn mean(
         if keepdims:
             for _ in range(tensor.dim()):
                 result_shape.append(1)
-        var result = ExTensor(result_shape, tensor.dtype())
+        var result = AnyTensor(result_shape, tensor.dtype())
 
         _dispatch_reduce_all[MeanOp](result, tensor, tensor.numel())
         return result^
@@ -238,7 +238,7 @@ fn mean(
             )
 
         var result_shape = build_reduced_shape(tensor.shape(), axis, keepdims)
-        var result = ExTensor(result_shape, tensor.dtype())
+        var result = AnyTensor(result_shape, tensor.dtype())
         result._fill_zero()
 
         var sizes = compute_axis_strides(tensor.shape(), axis)
@@ -253,8 +253,8 @@ fn mean(
 
 
 fn max_reduce(
-    tensor: ExTensor, axis: Int = -1, keepdims: Bool = False
-) raises -> ExTensor:
+    tensor: AnyTensor, axis: Int = -1, keepdims: Bool = False
+) raises -> AnyTensor:
     """Find maximum of tensor elements along an axis.
 
     Args:
@@ -277,7 +277,7 @@ fn max_reduce(
         if keepdims:
             for _ in range(tensor.dim()):
                 result_shape.append(1)
-        var result = ExTensor(result_shape, tensor.dtype())
+        var result = AnyTensor(result_shape, tensor.dtype())
 
         _dispatch_reduce_all[MaxOp](result, tensor, tensor.numel())
         return result^
@@ -293,7 +293,7 @@ fn max_reduce(
             )
 
         var result_shape = build_reduced_shape(tensor.shape(), axis, keepdims)
-        var result = ExTensor(result_shape, tensor.dtype())
+        var result = AnyTensor(result_shape, tensor.dtype())
         result._fill_zero()
 
         var sizes = compute_axis_strides(tensor.shape(), axis)
@@ -308,8 +308,8 @@ fn max_reduce(
 
 
 fn min_reduce(
-    tensor: ExTensor, axis: Int = -1, keepdims: Bool = False
-) raises -> ExTensor:
+    tensor: AnyTensor, axis: Int = -1, keepdims: Bool = False
+) raises -> AnyTensor:
     """Find minimum of tensor elements along an axis.
 
     Args:
@@ -332,7 +332,7 @@ fn min_reduce(
         if keepdims:
             for _ in range(tensor.dim()):
                 result_shape.append(1)
-        var result = ExTensor(result_shape, tensor.dtype())
+        var result = AnyTensor(result_shape, tensor.dtype())
 
         _dispatch_reduce_all[MinOp](result, tensor, tensor.numel())
         return result^
@@ -348,7 +348,7 @@ fn min_reduce(
             )
 
         var result_shape = build_reduced_shape(tensor.shape(), axis, keepdims)
-        var result = ExTensor(result_shape, tensor.dtype())
+        var result = AnyTensor(result_shape, tensor.dtype())
         result._fill_zero()
 
         var sizes = compute_axis_strides(tensor.shape(), axis)
@@ -369,7 +369,7 @@ fn min_reduce(
 
 fn reduce_backward[
     Op: ReduceBackwardOp
-](grad_output: ExTensor, x: ExTensor, axis: Int = -1) raises -> ExTensor:
+](grad_output: AnyTensor, x: AnyTensor, axis: Int = -1) raises -> AnyTensor:
     """Generic backward pass for reduction operations.
 
     Consolidates the coordinate transformation logic used by all backward passes.
@@ -384,7 +384,7 @@ fn reduce_backward[
         Gradient w.r.t. input (∂L/∂X) - broadcast back to input_shape.
     """
     var input_shape = x.shape()
-    var result = ExTensor(input_shape, grad_output.dtype())
+    var result = AnyTensor(input_shape, grad_output.dtype())
     result._fill_zero()
     var op = Op()
 
@@ -463,8 +463,8 @@ fn reduce_backward[
 
 
 fn sum_backward(
-    grad_output: ExTensor, x: ExTensor, axis: Int = -1
-) raises -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor, axis: Int = -1
+) raises -> AnyTensor:
     """Compute gradient for sum reduction.
 
         For Y = sum(X, axis), given ∂L/∂Y, computes:
@@ -500,8 +500,8 @@ fn sum_backward(
 
 
 fn mean_backward(
-    grad_output: ExTensor, x: ExTensor, axis: Int = -1
-) raises -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor, axis: Int = -1
+) raises -> AnyTensor:
     """Compute gradient for mean reduction.
 
         For Y = mean(X, axis), given ∂L/∂Y, computes:
@@ -533,8 +533,8 @@ fn mean_backward(
 
 
 fn max_reduce_backward(
-    grad_output: ExTensor, x: ExTensor, axis: Int = -1
-) raises -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor, axis: Int = -1
+) raises -> AnyTensor:
     """Compute gradient for max reduction.
 
         For Y = max_reduce(X, axis), given ∂L/∂Y, computes:
@@ -572,8 +572,8 @@ fn max_reduce_backward(
 
 
 fn min_reduce_backward(
-    grad_output: ExTensor, x: ExTensor, axis: Int = -1
-) raises -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor, axis: Int = -1
+) raises -> AnyTensor:
     """Compute gradient for min reduction.
 
         For Y = min_reduce(X, axis), given ∂L/∂Y, computes:
@@ -607,7 +607,7 @@ fn min_reduce_backward(
 # ============================================================================
 
 
-fn variance(tensor: ExTensor, axis: Int = -1, ddof: Int = 0) raises -> ExTensor:
+fn variance(tensor: AnyTensor, axis: Int = -1, ddof: Int = 0) raises -> AnyTensor:
     """Compute variance of tensor elements along an axis.
 
     Variance measures how spread out values are from the mean.
@@ -634,7 +634,7 @@ fn variance(tensor: ExTensor, axis: Int = -1, ddof: Int = 0) raises -> ExTensor:
     if axis == -1:
         # Variance of all elements
         var result_shape = List[Int]()
-        var result = ExTensor(result_shape, tensor.dtype())
+        var result = AnyTensor(result_shape, tensor.dtype())
 
         var mean_val = mu._get_float64(0)
         var N = tensor.numel()
@@ -659,7 +659,7 @@ fn variance(tensor: ExTensor, axis: Int = -1, ddof: Int = 0) raises -> ExTensor:
             )
 
         var result_shape = build_reduced_shape(tensor.shape(), axis, False)
-        var result = ExTensor(result_shape, tensor.dtype())
+        var result = AnyTensor(result_shape, tensor.dtype())
 
         var sizes = compute_axis_strides(tensor.shape(), axis)
         var outer_size = sizes[0]
@@ -688,8 +688,8 @@ fn variance(tensor: ExTensor, axis: Int = -1, ddof: Int = 0) raises -> ExTensor:
 
 
 fn variance_backward(
-    grad_output: ExTensor, x: ExTensor, axis: Int = -1, ddof: Int = 0
-) raises -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor, axis: Int = -1, ddof: Int = 0
+) raises -> AnyTensor:
     """Compute gradient for variance reduction.
 
     For Y = variance(X, axis, ddof), given ∂L/∂Y, computes:
@@ -705,7 +705,7 @@ fn variance_backward(
         Gradient w.r.t. input (∂L/∂X).
     """
     var input_shape = x.shape()
-    var result = ExTensor(input_shape, grad_output.dtype())
+    var result = AnyTensor(input_shape, grad_output.dtype())
 
     # Compute mean (needed for gradient)
     var mu = mean(x, axis)
@@ -746,7 +746,7 @@ fn variance_backward(
     return result^
 
 
-fn std(tensor: ExTensor, axis: Int = -1, ddof: Int = 0) raises -> ExTensor:
+fn std(tensor: AnyTensor, axis: Int = -1, ddof: Int = 0) raises -> AnyTensor:
     """Compute standard deviation of tensor elements along an axis.
 
     Standard deviation is the square root of variance.
@@ -780,8 +780,8 @@ fn std(tensor: ExTensor, axis: Int = -1, ddof: Int = 0) raises -> ExTensor:
 
 
 fn std_backward(
-    grad_output: ExTensor, x: ExTensor, axis: Int = -1, ddof: Int = 0
-) raises -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor, axis: Int = -1, ddof: Int = 0
+) raises -> AnyTensor:
     """Compute gradient for std reduction.
 
     For Y = std(X, axis, ddof), given ∂L/∂Y, computes:
@@ -797,7 +797,7 @@ fn std_backward(
         Gradient w.r.t. input (∂L/∂X).
     """
     var input_shape = x.shape()
-    var result = ExTensor(input_shape, grad_output.dtype())
+    var result = AnyTensor(input_shape, grad_output.dtype())
     var mu = mean(x, axis)
     var sigma = std(x, axis, ddof)
 
@@ -839,7 +839,7 @@ fn std_backward(
     return result^
 
 
-fn median(tensor: ExTensor, axis: Int = -1) raises -> ExTensor:
+fn median(tensor: AnyTensor, axis: Int = -1) raises -> AnyTensor:
     """Compute median of tensor elements along an axis.
 
     For odd count: returns the middle value after sorting.
@@ -861,7 +861,7 @@ fn median(tensor: ExTensor, axis: Int = -1) raises -> ExTensor:
     if axis == -1:
         # Median of all elements
         var result_shape = List[Int]()
-        var result = ExTensor(result_shape, tensor.dtype())
+        var result = AnyTensor(result_shape, tensor.dtype())
 
         # Collect all values
         var N = tensor.numel()
@@ -897,7 +897,7 @@ fn median(tensor: ExTensor, axis: Int = -1) raises -> ExTensor:
             )
 
         var result_shape = build_reduced_shape(tensor.shape(), axis, False)
-        var result = ExTensor(result_shape, tensor.dtype())
+        var result = AnyTensor(result_shape, tensor.dtype())
 
         var sizes = compute_axis_strides(tensor.shape(), axis)
         var outer_size = sizes[0]
@@ -937,8 +937,8 @@ fn median(tensor: ExTensor, axis: Int = -1) raises -> ExTensor:
 
 
 fn median_backward(
-    grad_output: ExTensor, x: ExTensor, axis: Int = -1
-) raises -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor, axis: Int = -1
+) raises -> AnyTensor:
     """Compute gradient for median (subgradient).
 
     Gradient flows only to the median element(s).
@@ -953,7 +953,7 @@ fn median_backward(
         Gradient w.r.t. input (∂L/∂X).
     """
     var input_shape = x.shape()
-    var result = ExTensor(input_shape, x.dtype())
+    var result = AnyTensor(input_shape, x.dtype())
     result._fill_zero()  # Initialize all gradients to 0
 
     if axis == -1:
@@ -1033,7 +1033,7 @@ fn median_backward(
     return result^
 
 
-fn percentile(tensor: ExTensor, q: Float64, axis: Int = -1) raises -> ExTensor:
+fn percentile(tensor: AnyTensor, q: Float64, axis: Int = -1) raises -> AnyTensor:
     """Compute percentile of tensor elements along an axis.
 
     Uses linear interpolation between adjacent ranked values.
@@ -1060,7 +1060,7 @@ fn percentile(tensor: ExTensor, q: Float64, axis: Int = -1) raises -> ExTensor:
 
     if axis == -1:
         var result_shape = List[Int]()
-        var result = ExTensor(result_shape, tensor.dtype())
+        var result = AnyTensor(result_shape, tensor.dtype())
 
         var N = tensor.numel()
         var values = List[Float64]()
@@ -1099,7 +1099,7 @@ fn percentile(tensor: ExTensor, q: Float64, axis: Int = -1) raises -> ExTensor:
             )
 
         var result_shape = build_reduced_shape(tensor.shape(), axis, False)
-        var result = ExTensor(result_shape, tensor.dtype())
+        var result = AnyTensor(result_shape, tensor.dtype())
 
         var sizes = compute_axis_strides(tensor.shape(), axis)
         var outer_size = sizes[0]
@@ -1141,8 +1141,8 @@ fn percentile(tensor: ExTensor, q: Float64, axis: Int = -1) raises -> ExTensor:
 
 
 fn percentile_backward(
-    grad_output: ExTensor, x: ExTensor, q: Float64, axis: Int = -1
-) raises -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor, q: Float64, axis: Int = -1
+) raises -> AnyTensor:
     """Compute gradient for percentile.
 
     Distributes gradient to the interpolated elements proportionally.
@@ -1157,7 +1157,7 @@ fn percentile_backward(
         Gradient w.r.t. input (∂L/∂X).
     """
     var input_shape = x.shape()
-    var result = ExTensor(input_shape, x.dtype())
+    var result = AnyTensor(input_shape, x.dtype())
     result._fill_zero()
 
     if axis == -1:

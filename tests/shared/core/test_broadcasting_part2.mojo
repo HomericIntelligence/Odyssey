@@ -1,4 +1,4 @@
-"""Tests for ExTensor broadcasting operations - Part 2: Size-1 dims, missing dims, complex multi-dim.
+"""Tests for AnyTensor broadcasting operations - Part 2: Size-1 dims, missing dims, complex multi-dim.
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
@@ -7,8 +7,8 @@
 Tests NumPy-style broadcasting rules for trailing size-1 dimensions, missing dimensions, and complex cases.
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full
+# Import AnyTensor and operations
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.arithmetic import add, multiply
 from testing import assert_true
 
@@ -223,7 +223,7 @@ fn test_broadcast_output_shape_scalar_1d() raises:
 
 fn main() raises:
     """Run broadcasting part 2 tests."""
-    print("Running ExTensor broadcasting tests - Part 2...")
+    print("Running AnyTensor broadcasting tests - Part 2...")
 
     # Size-1 dimension broadcasting (trailing)
     print("  Testing size-1 dimension broadcasting (trailing)...")

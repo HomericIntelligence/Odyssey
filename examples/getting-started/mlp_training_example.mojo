@@ -14,7 +14,7 @@ pipeline is fully functional.
 """
 
 from shared.core import (
-    ExTensor,
+    AnyTensor,
     # Creation
     zeros,
     ones,
@@ -48,7 +48,7 @@ from shared.core.matrix import matmul, matmul_backward
 from shared.training.optimizers import sgd_step_simple
 
 
-fn create_synthetic_data() raises -> Tuple[ExTensor, ExTensor]:
+fn create_synthetic_data() raises -> Tuple[AnyTensor, AnyTensor]:
     """Create synthetic XOR-like binary classification data.
 
     Returns:
@@ -60,8 +60,8 @@ fn create_synthetic_data() raises -> Tuple[ExTensor, ExTensor]:
     var input_shape = [4, 2]
     var target_shape = [4, 1]
 
-    var inputs = ExTensor(input_shape, DType.float32)
-    var targets = ExTensor(target_shape, DType.float32)
+    var inputs = AnyTensor(input_shape, DType.float32)
+    var targets = AnyTensor(target_shape, DType.float32)
 
     # XOR-like pattern:
     # [0, 0] -> 0
@@ -157,7 +157,7 @@ fn train_mlp() raises:
 
         # For simplicity, process first sample
         var x_sample_shape = [input_size]
-        var x_sample = ExTensor(x_sample_shape, DType.float32)
+        var x_sample = AnyTensor(x_sample_shape, DType.float32)
         x_sample._set_float64(0, X._get_float64(0))  # First feature
         x_sample._set_float64(1, X._get_float64(1))  # Second feature
 
@@ -171,7 +171,7 @@ fn train_mlp() raises:
 
         # Get target for this sample
         var y_sample_shape = [output_size]
-        var y_sample = ExTensor(y_sample_shape, DType.float32)
+        var y_sample = AnyTensor(y_sample_shape, DType.float32)
         y_sample._set_float64(0, y_true._get_float64(0))
 
         # Compute loss
@@ -259,7 +259,7 @@ fn train_mlp() raises:
     for i in range(4):
         # Get sample
         var x_test_shape = [input_size]
-        var x_test = ExTensor(x_test_shape, DType.float32)
+        var x_test = AnyTensor(x_test_shape, DType.float32)
         x_test._set_float64(0, X._get_float64(i * 2))
         x_test._set_float64(1, X._get_float64(i * 2 + 1))
 

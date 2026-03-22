@@ -20,15 +20,15 @@ from testing import assert_true, assert_equal
 
 fn test_core_data_integration() raises:
     """Test integration between core and data modules."""
-    from shared.core import ExTensor, zeros, ones
-    from shared.data import ExTensorDataset
+    from shared.core import AnyTensor, zeros, ones
+    from shared.data import AnyTensorDataset
 
     # Create tensors using core
     var data = zeros([10, 5], DType.float32)
     var labels = ones([10, 1], DType.float32)
 
     # Create dataset using data
-    var dataset = ExTensorDataset(data, labels)
+    var dataset = AnyTensorDataset(data, labels)
 
     # Verify dataset was created and has correct properties
     var data_shape = data.shape()
@@ -45,13 +45,13 @@ fn test_core_data_integration() raises:
 fn test_training_data_integration() raises:
     """Test integration between training and data modules."""
     from shared.training import SGD
-    from shared.data import ExTensorDataset
+    from shared.data import AnyTensorDataset
     from shared.core import zeros, ones
 
     # Create simple dataset
     var data = zeros([10, 5], DType.float32)
     var labels = ones([10, 1], DType.float32)
-    var dataset = ExTensorDataset(data, labels)
+    var dataset = AnyTensorDataset(data, labels)
 
     # Create optimizer
     var optimizer = SGD(learning_rate=0.01)
@@ -77,7 +77,7 @@ fn test_complete_training_workflow() raises:
     """Test complete training workflow using all modules."""
     from shared.core import zeros, ones, relu
     from shared.training import SGD, MSELoss
-    from shared.data import ExTensorDataset
+    from shared.data import AnyTensorDataset
     from shared.utils import Logger
 
     # 1. Create model parameters (core)
@@ -87,7 +87,7 @@ fn test_complete_training_workflow() raises:
     # 2. Create data (data)
     var data = zeros([10, 10], DType.float32)
     var labels = ones([10, 5], DType.float32)
-    var dataset = ExTensorDataset(data, labels)
+    var dataset = AnyTensorDataset(data, labels)
 
     # 3. Create optimizer and loss (training)
     var optimizer = SGD(learning_rate=0.01)
@@ -115,14 +115,14 @@ fn test_paper_implementation_pattern() raises:
     """Test typical usage pattern from paper implementation."""
     # Simulates how a paper implementation would use the shared library
 
-    from shared.core import ExTensor, zeros, conv2d, flatten, relu
+    from shared.core import AnyTensor, zeros, conv2d, flatten, relu
     from shared.training import (
         SGD,
         CosineAnnealingLR,
         EarlyStopping,
         ModelCheckpoint,
     )
-    from shared.data import ExTensorDataset
+    from shared.data import AnyTensorDataset
 
     # Paper-specific tensors for conv operations
     var input_data = zeros([1, 1, 28, 28], DType.float32)
@@ -138,7 +138,7 @@ fn test_paper_implementation_pattern() raises:
     # Create dataset
     var data = zeros([10, 1, 28, 28], DType.float32)
     var labels = zeros([10, 10], DType.float32)
-    var dataset = ExTensorDataset(data, labels)
+    var dataset = AnyTensorDataset(data, labels)
 
     # Verify all components are properly instantiated
     assert_true(input_data.dim() == 4, "Input data should be 4D tensor")

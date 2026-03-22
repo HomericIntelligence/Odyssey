@@ -1,9 +1,9 @@
 <!-- markdownlint-disable -->
 
-# ExTensor → Tensor[dtype] + AnyTensor Migration Plan
+# AnyTensor → Tensor[dtype] + AnyTensor Migration Plan
 
 **Epic**: [#4998](https://github.com/HomericIntelligence/ProjectOdyssey/issues/4998)
-**Goal**: Split ExTensor into two types following Mojo conventions:
+**Goal**: Split AnyTensor into two types following Mojo conventions:
 - **`Tensor[dtype: DType]`** — compile-time typed, SIMD-like. `tensor[i] = value` just works.
 - **`AnyTensor`** — runtime-typed, type-erased. For collections, I/O, trait interfaces. Uses `.set(i, val)` for element access.
 
@@ -23,13 +23,13 @@ fn relu(t: Tensor) -> Tensor: ...
 # WORKS — call sites still infer dt from arguments:
 fn relu[dt: DType](t: Tensor[dt]) -> Tensor[dt]: ...
 ```
-All 480 functions returning ExTensor need explicit `[dt: DType]` parameters. Line count estimates revised upward 30-50%.
+All 480 functions returning AnyTensor need explicit `[dt: DType]` parameters. Line count estimates revised upward 30-50%.
 
-**B2: `lazy_expression.mojo` / `lazy_eval.mojo` missing from all phases.** These hold `var _tensors: List[ExTensor]` (line 111) and interact with core ops and collections. Added to Phase 5.
+**B2: `lazy_expression.mojo` / `lazy_eval.mojo` missing from all phases.** These hold `var _tensors: List[AnyTensor]` (line 111) and interact with core ops and collections. Added to Phase 5.
 
-**B3: `comptime Tensor = ExTensor` naming collision.** `shared/__init__.mojo:82` defines `comptime Tensor = ExTensor`. Creating a new `struct Tensor[dtype: DType]` while this alias exists causes a naming collision. Additionally, 8 test files define local `comptime Tensor = ExTensor` aliases. **Fix**: Phase 1b must remove this alias BEFORE the new struct is importable. Replace with proper re-export from `shared/tensor/`. Update test files with local aliases too.
+**B3: `comptime Tensor = AnyTensor` naming collision.** `shared/__init__.mojo:82` defines `comptime Tensor = AnyTensor`. Creating a new `struct Tensor[dtype: DType]` while this alias exists causes a naming collision. Additionally, 8 test files define local `comptime Tensor = AnyTensor` aliases. **Fix**: Phase 1b must remove this alias BEFORE the new struct is importable. Replace with proper re-export from `shared/tensor/`. Update test files with local aliases too.
 
-**B4: `as_tensor[dtype]()`/`as_any()` refcount protocol unspecified.** The zero-copy conversion code in section 11.8 (lines 896-916) uses `...` to elide the critical refcount detail. ExTensor's refcount protocol (`extensor.mojo:435-489`) increments in `__copyinit__`, decrements in `__del__`, frees at 0. If `as_tensor()` creates a `Tensor[dtype]` WITHOUT incrementing the shared refcount, then when the source AnyTensor is destroyed (Mojo's ASAP destruction), the refcount drops to 0 and frees memory — leaving the Tensor[dtype] with a dangling pointer.
+**B4: `as_tensor[dtype]()`/`as_any()` refcount protocol unspecified.** The zero-copy conversion code in section 11.8 (lines 896-916) uses `...` to elide the critical refcount detail. AnyTensor's refcount protocol (`any_tensor.mojo:435-489`) increments in `__copyinit__`, decrements in `__del__`, frees at 0. If `as_tensor()` creates a `Tensor[dtype]` WITHOUT incrementing the shared refcount, then when the source AnyTensor is destroyed (Mojo's ASAP destruction), the refcount drops to 0 and frees memory — leaving the Tensor[dtype] with a dangling pointer.
 
 **Fix**: Both `as_tensor()` and `as_any()` MUST:
 1. Share the SAME `_refcount` pointer (not allocate new)
@@ -57,43 +57,43 @@ Required test: create AnyTensor, convert to Tensor[dtype], let AnyTensor go out 
 
 #### HIGH (8)
 
-**H1: Slice pointer arithmetic double-offset.** Current: `result._data = self._data + offset_bytes` where `offset_bytes = start * strides * dtype_size`. For typed `UnsafePointer[Scalar[dtype]]`, pointer arithmetic auto-scales by element size — the `* dtype_size` must be REMOVED. Silent wrong data at runtime if missed. (`extensor.mojo:721-733`)
+**H1: Slice pointer arithmetic double-offset.** Current: `result._data = self._data + offset_bytes` where `offset_bytes = start * strides * dtype_size`. For typed `UnsafePointer[Scalar[dtype]]`, pointer arithmetic auto-scales by element size — the `* dtype_size` must be REMOVED. Silent wrong data at runtime if missed. (`any_tensor.mojo:721-733`)
 
 **H2: I/O boundary underspecified.** `save_tensor()` takes `UnsafePointer[UInt8]`. Solution: `Tensor[dtype].save()` → `as_any().save()`. Loading always returns `AnyTensor` → `as_tensor[dtype]()`. (`tensor_io.mojo:34-65, 181-201`)
 
-**H3: Phase 3→5 circular dependency.** `concatenate()`, `stack()`, `split()` in `shape.mojo` take `List[ExTensor]` — core ops but use collections. Moved to Phase 5. (`shape.mojo:432, 585, 654, 721`)
+**H3: Phase 3→5 circular dependency.** `concatenate()`, `stack()`, `split()` in `shape.mojo` take `List[AnyTensor]` — core ops but use collections. Moved to Phase 5. (`shape.mojo:432, 585, 654, 721`)
 
-**H4: `__str__`/`__repr__` use `_get_float64` internally.** Need typed access for `Tensor[dtype]`. Also hardcodes `"ExTensor(["` string. Added to Phase 1. (`extensor.mojo:3247-3317`)
+**H4: `__str__`/`__repr__` use `_get_float64` internally.** Need typed access for `Tensor[dtype]`. Also hardcodes `"AnyTensor(["` string. Added to Phase 1. (`any_tensor.mojo:3247-3317`)
 
 **H5: Scope underestimated 30-50%.** 480 functions need explicit `[dt: DType]` on signatures (not just type name change).
 
 **H6: Eager instantiation binary bloat.** Mojo uses eager instantiation (confirmed by blog post investigation). 317 functions x 11 dtypes = 3,487 worst-case. Mitigation: restrict to 3 float types (float16/32/64) initially.
 
-**H7: Module/Sequential trait boundary forces AnyTensor round-trips.** `shared/core/module.mojo:86` defines `fn forward(mut self, input: ExTensor) raises -> ExTensor`. Mojo 0.26.1 doesn't support parametric trait methods. This means: (a) layers like `Linear[dtype]` must still accept AnyTensor in their `forward()` signature; (b) `Sequential2[T0, T1]` chains layers through AnyTensor, losing type safety between layers; (c) every inter-layer boundary does AnyTensor→Tensor[dtype]→compute→as_any() round-trip. **Impact**: Type safety benefits of Tensor[dtype] apply only INSIDE individual layer implementations, not across the composition boundary. **Key detail**: Only `Linear` and `ReLULayer` implement Module. `BatchNorm2dLayer`, `Conv2dLayer`, `DropoutLayer` do NOT — they can be freely parameterized without trait constraints.
+**H7: Module/Sequential trait boundary forces AnyTensor round-trips.** `shared/core/module.mojo:86` defines `fn forward(mut self, input: AnyTensor) raises -> AnyTensor`. Mojo 0.26.1 doesn't support parametric trait methods. This means: (a) layers like `Linear[dtype]` must still accept AnyTensor in their `forward()` signature; (b) `Sequential2[T0, T1]` chains layers through AnyTensor, losing type safety between layers; (c) every inter-layer boundary does AnyTensor→Tensor[dtype]→compute→as_any() round-trip. **Impact**: Type safety benefits of Tensor[dtype] apply only INSIDE individual layer implementations, not across the composition boundary. **Key detail**: Only `Linear` and `ReLULayer` implement Module. `BatchNorm2dLayer`, `Conv2dLayer`, `DropoutLayer` do NOT — they can be freely parameterized without trait constraints.
 
-**H8: Total scope underestimated ~2x.** Phase 1 estimate of ~200 lines changed is wrong — renaming the struct in the 4,703-line extensor.mojo + updating `shared/__init__.mojo` + adding `as_tensor()` is ~1,500 lines. Phase 7 estimate of ~3,000 lines across 386 test files (8 lines/file avg) is wrong — 3,975 creation calls + 412 import lines + set() calls = ~5,600-8,000 lines. Revised total: ~15,700 lines (up from 9,700).
+**H8: Total scope underestimated ~2x.** Phase 1 estimate of ~200 lines changed is wrong — renaming the struct in the 4,703-line any_tensor.mojo + updating `shared/__init__.mojo` + adding `as_tensor()` is ~1,500 lines. Phase 7 estimate of ~3,000 lines across 386 test files (8 lines/file avg) is wrong — 3,975 creation calls + 412 import lines + set() calls = ~5,600-8,000 lines. Revised total: ~15,700 lines (up from 9,700).
 
 #### MEDIUM (6)
 
-- **M1**: In-place operators (`__iadd__` etc.) use `_get_float64`/`_set_float64` round-trip — pre-existing precision bug (`extensor.mojo:3013-3079`)
-- **M2**: `__hash__` uses `_get_float64` — precision loss for int types (`extensor.mojo:3319-3369`)
+- **M1**: In-place operators (`__iadd__` etc.) use `_get_float64`/`_set_float64` round-trip — pre-existing precision bug (`any_tensor.mojo:3013-3079`)
+- **M2**: `__hash__` uses `_get_float64` — precision loss for int types (`any_tensor.mojo:3319-3369`)
 - **M3**: `Hashable` conformance not specified in `TensorLike` trait design
 - **M4**: SIMD helpers (`_relu_simd_float32`/`_float64`) should merge to single parametric version
 - **M5**: Circular import in `tensor_io.mojo` (lines 3-14) must be preserved during rename
-- **M6**: Phase 4→5 trait dependency. `Linear` and `ReLULayer` implement the `Module` trait (`module.mojo:69`). They can't be parameterized until Module's `forward` signature changes from `ExTensor` to `AnyTensor`. Phase ordering must be: traits first (Phase 5a), then Module-implementing layers (Phase 4b).
+- **M6**: Phase 4→5 trait dependency. `Linear` and `ReLULayer` implement the `Module` trait (`module.mojo:69`). They can't be parameterized until Module's `forward` signature changes from `AnyTensor` to `AnyTensor`. Phase ordering must be: traits first (Phase 5a), then Module-implementing layers (Phase 4b).
 
 #### LOW (4)
 
-- `__str__` hardcodes `"ExTensor(["` — string-assertion tests break
+- `__str__` hardcodes `"AnyTensor(["` — string-assertion tests break
 - Reflected operators (`__radd__` etc.) not listed but delegate to non-reflected (auto-migrate)
 - `__neg__` has 12 dtype branches — not explicitly listed in "remove bitcasts" steps
-- `_extensor_binary_arith` (`extensor.mojo:3728-3796`) transformation not explicitly mapped. This is the central dispatch pattern used by `__add__`, `__sub__`, `__mul__`, `__truediv__`, `__floordiv__`, `__mod__`, `__pow__`. New typed version: `fn _tensor_binary_arith[dtype: DType, op: fn(Scalar[dtype], Scalar[dtype]) -> Scalar[dtype]](a: Tensor[dtype], b: Tensor[dtype]) -> Tensor[dtype]` — zero dispatch cascade, broadcasting logic unchanged. AnyTensor version preserved until Phase 7e.
+- `_extensor_binary_arith` (`any_tensor.mojo:3728-3796`) transformation not explicitly mapped. This is the central dispatch pattern used by `__add__`, `__sub__`, `__mul__`, `__truediv__`, `__floordiv__`, `__mod__`, `__pow__`. New typed version: `fn _tensor_binary_arith[dtype: DType, op: fn(Scalar[dtype], Scalar[dtype]) -> Scalar[dtype]](a: Tensor[dtype], b: Tensor[dtype]) -> Tensor[dtype]` — zero dispatch cascade, broadcasting logic unchanged. AnyTensor version preserved until Phase 7e.
 
 #### VERIFIED CLAIMS
 
 | Claim | Status |
 |-------|--------|
-| `comptime ExTensor = AnyTensor` works as alias | VERIFIED |
+| `comptime AnyTensor = AnyTensor` works as alias | VERIFIED |
 | Operator overloads work with `Self` on parametric struct | VERIFIED |
 | Cross-dtype `Tensor[f32] + Tensor[f64]` is compile-time error | VERIFIED |
 | Zero-copy bitcast view safe (no ASAP UAF) | VERIFIED (requires shared refcount — see B4) |
@@ -113,7 +113,7 @@ Required test: create AnyTensor, convert to Tensor[dtype], let AnyTensor go out 
 
 1. [Problem Statement](#1-problem-statement)
 2. [How SIMD Works (The Target Behavior)](#2-how-simd-works)
-3. [Why ExTensor Can't Do This Today](#3-why-extensor-cant-do-this-today)
+3. [Why AnyTensor Can't Do This Today](#3-why-extensor-cant-do-this-today)
 4. [The Parametric Solution](#4-the-parametric-solution)
 5. [Critical Design Decisions](#5-critical-design-decisions)
 6. [Impact Assessment](#6-impact-assessment)
@@ -128,7 +128,7 @@ Required test: create AnyTensor, convert to Tensor[dtype], let AnyTensor go out 
 
 ## 1. Problem Statement
 
-ExTensor stores `_dtype` as a **runtime** field (`var _dtype: DType`). This means:
+AnyTensor stores `_dtype` as a **runtime** field (`var _dtype: DType`). This means:
 
 - `__getitem__` returns a fixed type (`Float32`) regardless of the tensor's actual dtype
 - `tensor[i] = Float64(x)` fails: "cannot implicitly convert 'Float64' to 'Float32'"
@@ -138,8 +138,8 @@ ExTensor stores `_dtype` as a **runtime** field (`var _dtype: DType`). This mean
 
 The current workaround (`set()` method) introduces precision-losing Float64 round-trips and requires callers to use a non-standard API.
 
-**Source**: `shared/core/extensor.mojo:798` — `__getitem__` returns `Float32`
-**Source**: `shared/core/extensor.mojo:116` — `var _dtype: DType` runtime field
+**Source**: `shared/core/any_tensor.mojo:798` — `__getitem__` returns `Float32`
+**Source**: `shared/core/any_tensor.mojo:116` — `var _dtype: DType` runtime field
 
 ---
 
@@ -166,13 +166,13 @@ Key behaviors:
 
 ---
 
-## 3. Why ExTensor Can't Do This Today
+## 3. Why AnyTensor Can't Do This Today
 
 ### 3.1 Runtime DType Prevents Parametric Return Types
 
 ```mojo
 # Current — runtime dtype
-struct ExTensor:
+struct AnyTensor:
     var _dtype: DType  # runtime value
     fn __getitem__(self, i: Int) raises -> Float32:  # FIXED return type
         return self._get_float32(i)
@@ -183,10 +183,10 @@ struct ExTensor:
 ### 3.2 Massive Runtime Branching
 
 The codebase contains:
-- **177 dtype branch checks** inside `extensor.mojo` alone
+- **177 dtype branch checks** inside `any_tensor.mojo` alone
 - **174 dtype branch checks** across consumer files
 - **708 `_data.bitcast[T]()` calls** across the `shared/` directory
-- **158 bitcast calls** inside `extensor.mojo`
+- **158 bitcast calls** inside `any_tensor.mojo`
 
 Each of these represents code that should be monomorphized by the compiler instead of branching at runtime.
 
@@ -194,7 +194,7 @@ Each of these represents code that should be monomorphized by the compiler inste
 
 Mojo's `obj[i] = val` uses `__getitem__` as an lvalue, not `__setitem__`. All `__setitem__` overloads are dead code for subscript assignment syntax. The 12 `set()` overloads are a workaround, not a solution.
 
-**Source**: `shared/core/extensor.mojo:922-992` — 12 `set()` overloads
+**Source**: `shared/core/any_tensor.mojo:922-992` — 12 `set()` overloads
 **Source**: Verified by test — `__setitem__` is never called via `[i]=` syntax
 
 ---
@@ -252,7 +252,7 @@ fn _set(mut self, index: Int, value: Scalar[Self.dtype]):
 
 ```mojo
 # BEFORE: runtime dtype parameter
-fn zeros(shape: List[Int], dtype: DType) raises -> ExTensor: ...
+fn zeros(shape: List[Int], dtype: DType) raises -> AnyTensor: ...
 
 # AFTER: compile-time dtype parameter
 fn zeros[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]: ...
@@ -272,7 +272,7 @@ t[0] = 3.14  # Just works — Scalar[float32] lvalue
 
 ```mojo
 var runtime_dtype: DType = DType.float32  # runtime value
-var t = ExTensor[runtime_dtype]([3])       # COMPILE ERROR
+var t = AnyTensor[runtime_dtype]([3])       # COMPILE ERROR
 ```
 
 **Solution**: Where dtype must be determined at runtime (e.g., loading from file, user config), use the existing `dtype_dispatch` pattern to fan out:
@@ -287,11 +287,11 @@ fn load_tensor(path: String) raises -> ???:
     # ...
 ```
 
-This is the same pattern already used in `_extensor_binary_arith` at `extensor.mojo:3728`.
+This is the same pattern already used in `_extensor_binary_arith` at `any_tensor.mojo:3728`.
 
 ### 5.2 Heterogeneous Collections
 
-**Problem**: `List[AnyTensor]` works today because all ExTensors are the same type. With parametric ExTensor, `List[Tensor[DType.float32]]` can't hold `Tensor[DType.float64]`.
+**Problem**: `List[AnyTensor]` works today because all AnyTensors are the same type. With parametric AnyTensor, `List[Tensor[DType.float32]]` can't hold `Tensor[DType.float64]`.
 
 **Solution**: Define a trait `Tensor` that `Tensor[dtype]` conforms to. Use `List[AnyTensor]` (trait object) for heterogeneous collections:
 
@@ -312,7 +312,7 @@ struct Tensor[dtype: DType](Tensor):
 
 **Problem**: `shared/training/mixed_precision.mojo` intentionally converts between dtypes:
 ```mojo
-fn convert_to_fp32_master(params: ExTensor) -> ExTensor  # float16 → float32
+fn convert_to_fp32_master(params: AnyTensor) -> AnyTensor  # float16 → float32
 ```
 
 **Solution**: With parametric types, this becomes explicit and type-safe:
@@ -329,7 +329,7 @@ fn cast[target: DType](self) raises -> Tensor[target]:
     return result^
 ```
 
-**Source**: `shared/training/mixed_precision.mojo:8,5` — 8 ExTensor params, 5 returns, 6 dtype branches
+**Source**: `shared/training/mixed_precision.mojo:8,5` — 8 AnyTensor params, 5 returns, 6 dtype branches
 
 ### 5.4 Memory Pool Compatibility
 
@@ -340,7 +340,7 @@ fn cast[target: DType](self) raises -> Tensor[target]:
 
 ### 5.5 Module/Sequential Stays on AnyTensor
 
-**Problem**: Mojo 0.26.1 doesn't support parametric trait methods. The `Module` trait (`shared/core/module.mojo:86`) defines `fn forward(mut self, input: ExTensor) raises -> ExTensor`. This signature cannot become `fn forward[dt: DType](mut self, input: Tensor[dt]) raises -> Tensor[dt]`.
+**Problem**: Mojo 0.26.1 doesn't support parametric trait methods. The `Module` trait (`shared/core/module.mojo:86`) defines `fn forward(mut self, input: AnyTensor) raises -> AnyTensor`. This signature cannot become `fn forward[dt: DType](mut self, input: Tensor[dt]) raises -> Tensor[dt]`.
 
 **Consequence**: Type safety benefits of `Tensor[dtype]` apply only INSIDE individual layer implementations, not across the composition boundary:
 - `Linear[DType.float32].forward()` internally works with `Tensor[DType.float32]`
@@ -359,9 +359,9 @@ fn cast[target: DType](self) raises -> Tensor[target]:
 
 | Metric | Count |
 |--------|-------|
-| Functions taking ExTensor as parameter | 368 |
-| Functions returning ExTensor | 480 |
-| Runtime dtype branch checks (extensor.mojo) | 177 |
+| Functions taking AnyTensor as parameter | 368 |
+| Functions returning AnyTensor | 480 |
+| Runtime dtype branch checks (any_tensor.mojo) | 177 |
 | Runtime dtype branch checks (consumers) | 174 |
 | `_data.bitcast[T]()` calls (total) | 708 |
 | Factory functions to update | 14 |
@@ -369,13 +369,13 @@ fn cast[target: DType](self) raises -> Tensor[target]:
 | Internal getter/setter methods to simplify | 6 |
 | Type conversion methods | 16 |
 | Test files using `DType.float32` | 386 |
-| Source files importing ExTensor | 73 |
+| Source files importing AnyTensor | 73 |
 
 ### 6.2 Top 10 Most Impacted Files
 
 | Rank | File | Total Signals | Why Hard |
 |------|------|--------------|----------|
-| 1 | `shared/core/extensor.mojo` | 263 | The struct itself — every method changes |
+| 1 | `shared/core/any_tensor.mojo` | 263 | The struct itself — every method changes |
 | 2 | `shared/core/elementwise.mojo` | 99 | 27 function signatures change |
 | 3 | `shared/core/activation.mojo` | 79 | 18 dtype branches, 29 return sites |
 | 4 | `shared/core/arithmetic_contiguous.mojo` | 67 | 40 dtype comparisons in 4 functions |
@@ -408,7 +408,7 @@ These files already use `[dtype: DType]` function parameters and will be easiest
 Phase 0:  Package split (shared/base + shared/tensor + shared/core)
     ↓
 Phase 1a: Create Tensor[dtype] + TensorLike trait in shared/tensor/ (additive only)
-Phase 1b: Rename struct ExTensor → AnyTensor, add alias, fix naming collision (B3)
+Phase 1b: Rename struct AnyTensor → AnyTensor, add alias, fix naming collision (B3)
     ↓
 Phase 2:  Factory functions return Tensor[dtype]
     ↓
@@ -432,7 +432,7 @@ Phase 7a: Tests — shared/core/ (~180 files)
 Phase 7b: Tests — models/ (~45 files)
 Phase 7c: Tests — training/ + autograd/ + data/ (~120 files)
 Phase 7d: Tests — integration/ + remaining (~40 files)
-Phase 7e: Final cleanup — remove alias, rename extensor.mojo → any_tensor.mojo
+Phase 7e: Final cleanup — remove alias, rename any_tensor.mojo → any_tensor.mojo
 ```
 
 **Key ordering change**: Phase 5a (traits) moves BEFORE Phase 4b (Module layers), because `Linear` and `ReLULayer` implement `Module` and can't be parameterized until Module accepts AnyTensor (see M6).
@@ -463,9 +463,9 @@ Each sub-phase is its own PR. Each follows the 12-step workflow (Plan → Test �
 
 ### Phase 1: Tensor[dtype] + AnyTensor + TensorLike Trait
 
-**Goal**: Create `Tensor[dtype]` alongside the existing ExTensor (renamed to `AnyTensor`), with a shared `TensorLike` trait.
+**Goal**: Create `Tensor[dtype]` alongside the existing AnyTensor (renamed to `AnyTensor`), with a shared `TensorLike` trait.
 
-**Files**: `shared/tensor/tensor.mojo` (NEW), `shared/tensor/tensor_traits.mojo` (NEW), `shared/tensor/extensor.mojo` (MOVED from `shared/core/`), `shared/base/` (NEW — extracted from `shared/core/`)
+**Files**: `shared/tensor/tensor.mojo` (NEW), `shared/tensor/tensor_traits.mojo` (NEW), `shared/tensor/any_tensor.mojo` (MOVED from `shared/core/`), `shared/base/` (NEW — extracted from `shared/core/`)
 
 **3-Layer Package Architecture** (prerequisite: Phase 0 package split):
 ```
@@ -486,7 +486,7 @@ shared/tensor/           # LAYER 2: Imports base only
     __init__.mojo
     tensor.mojo          # NEW struct Tensor[dtype: DType]
     tensor_traits.mojo   # NEW trait TensorLike
-    extensor.mojo        # struct AnyTensor (MOVED from core, filename kept until Phase 7e)
+    any_tensor.mojo        # struct AnyTensor (MOVED from core, filename kept until Phase 7e)
     gradient_types.mojo  # GradientPair/Triple/Quad (moved from core)
     validation.mojo      # shape/dtype validation (moved from core)
     tensor_io.mojo       # save/load (moved from core)
@@ -505,12 +505,12 @@ shared/core/             # LAYER 3: Imports base + tensor
 ```
 
 **Dependency chain verified** (no circular deps):
-- `extensor.mojo` imports: `memory_pool` (→base), `broadcasting` (→base), `dtype_ordinal` (→base) ✓
+- `any_tensor.mojo` imports: `memory_pool` (→base), `broadcasting` (→base), `dtype_ordinal` (→base) ✓
 - `broadcasting.mojo` imports: nothing from shared (pure stdlib) ✓
 - `validation.mojo` imports: `extensor` (→tensor, same package) ✓
 - `traits.mojo` imports: `extensor` (→tensor, cross-package but acyclic) ✓
 
-**File rename strategy**: Do NOT rename `extensor.mojo` → `any_tensor.mojo` until Phase 7e. Keep filename throughout migration to avoid breaking 569 import paths early. Add `comptime ExTensor = AnyTensor` alias inside the file.
+**File rename strategy**: Do NOT rename `any_tensor.mojo` → `any_tensor.mojo` until Phase 7e. Keep filename throughout migration to avoid breaking 569 import paths early. Add `comptime AnyTensor = AnyTensor` alias inside the file.
 
 **Estimated scope**: Phase 0 (~500 lines import path updates), Phase 1a (~800 lines new), Phase 1b (~1,500 lines changed)
 
@@ -532,11 +532,11 @@ Move files from `shared/core/` to create the 3-layer architecture described abov
 - Zero existing code changes in this phase
 
 #### Phase 1b — Rename Struct + Fix Collision
-- Rename `struct ExTensor` → `struct AnyTensor` inside `extensor.mojo` (keep filename)
-- Add `comptime ExTensor = AnyTensor` alias for backward compat
+- Rename `struct AnyTensor` → `struct AnyTensor` inside `any_tensor.mojo` (keep filename)
+- Add `comptime AnyTensor = AnyTensor` alias for backward compat
 - Add `as_tensor[dtype: DType]() -> Tensor[dtype]` method with shared refcount (see B4)
 - Conform AnyTensor to `TensorLike` trait
-- Remove `comptime Tensor = ExTensor` from `shared/__init__.mojo:82` (see B3)
+- Remove `comptime Tensor = AnyTensor` from `shared/__init__.mojo:82` (see B3)
 - Add proper Tensor[dtype] re-export from shared/tensor/
 - Update `shared/core/__init__.mojo` and `shared/__init__.mojo` exports
 
@@ -560,9 +560,9 @@ Move files from `shared/core/` to create the 3-layer architecture described abov
 - Implement `__getitem__` returning `Scalar[Self.dtype]`, `__str__`, `__repr__`, `__hash__` with typed access
 - Implement `as_any() -> AnyTensor` (zero-copy, bitcast to UInt8)
 - Implement `cast[target: DType]() -> Tensor[target]`
-- Rename ExTensor → AnyTensor in `shared/core/any_tensor.mojo`, add `as_tensor[dtype]()`, conform to `TensorLike`
+- Rename AnyTensor → AnyTensor in `shared/core/any_tensor.mojo`, add `as_tensor[dtype]()`, conform to `TensorLike`
 - Update `shared/core/__init__.mojo` and `shared/__init__.mojo` exports
-- Add `comptime ExTensor = AnyTensor` alias for backward compat
+- Add `comptime AnyTensor = AnyTensor` alias for backward compat
 - Ensure pointer arithmetic does NOT multiply by dtype_size (typed pointer auto-scales)
 
 #### Phase 1.7 — Review Implementation
@@ -627,7 +627,7 @@ Move files from `shared/core/` to create the 3-layer architecture described abov
 
 **Estimated scope**: ~2,500 lines changed across ~20 files
 
-**Key transformation** — `_extensor_binary_arith` (`extensor.mojo:3728-3796`) becomes:
+**Key transformation** — `_extensor_binary_arith` (`any_tensor.mojo:3728-3796`) becomes:
 ```mojo
 fn _tensor_binary_arith[
     dtype: DType, op: fn(Scalar[dtype], Scalar[dtype]) -> Scalar[dtype]
@@ -670,14 +670,14 @@ Each sub-phase follows the 12-step workflow (Plan → Test → Implement → Rev
 **Estimated scope**: ~500 lines changed
 
 - Parameterize: `BatchNorm2dLayer[dtype: DType = DType.float32]`, `Conv2dLayer[dtype: DType = DType.float32]`
-- `DropoutLayer` has no ExTensor fields — may not need parameterization
+- `DropoutLayer` has no AnyTensor fields — may not need parameterization
 - Design `cast[target]()` for `dtype_cast.mojo`
 - I/O: `Tensor[dtype].save()` → `self.as_any().save()`. Loading returns `AnyTensor`
 - Preserve circular import workaround in `tensor_io.mojo` (lines 3-14)
 
 ### Phase 5a: Update Trait Signatures → AnyTensor
 
-**Goal**: Change trait signatures from `ExTensor` to `AnyTensor`. Must happen BEFORE Phase 4b (see M6).
+**Goal**: Change trait signatures from `AnyTensor` to `AnyTensor`. Must happen BEFORE Phase 4b (see M6).
 
 **Files**: `traits.mojo`, `module.mojo`
 
@@ -706,7 +706,7 @@ Each sub-phase follows the 12-step workflow (Plan → Test → Implement → Rev
 
 ### Phase 5b: Collection Operations → List[AnyTensor]
 
-**Goal**: Migrate operations that take `List[ExTensor]` to `List[AnyTensor]`.
+**Goal**: Migrate operations that take `List[AnyTensor]` to `List[AnyTensor]`.
 
 **Files**: `shape.mojo` (collection ops), `lazy_expression.mojo`, `lazy_eval.mojo`
 
@@ -770,16 +770,16 @@ Each sub-phase follows the 12-step workflow (Plan → Test → Implement → Rev
 
 ### Phase 7: Tests + Final Cleanup (5 sub-PRs)
 
-**Goal**: Migrate all 395+ test files, remove ExTensor alias, rename file, remove all workarounds.
+**Goal**: Migrate all 395+ test files, remove AnyTensor alias, rename file, remove all workarounds.
 
 **Estimated scope**: ~6,100 lines changed across 395+ files
 
 **Mechanical replacement patterns** (for parallel sub-agents):
 - `zeros([3, 4], DType.float32)` → `zeros[DType.float32]([3, 4])`
-- `var t: ExTensor = ...` → `var t = ...` (type inference)
+- `var t: AnyTensor = ...` → `var t = ...` (type inference)
 - `tensor.set(i, val)` → `tensor[i] = val`
 - `tensor._set_float64(i, val)` → `tensor[i] = Scalar[dtype](val)`
-- Import path updates from `shared.core.extensor` → `shared.tensor.extensor`
+- Import path updates from `shared.core.any_tensor` → `shared.tensor.extensor`
 
 #### Phase 7a — Tests: shared/core/ (~180 files, ~2,500 lines)
 - Core tensor operation tests
@@ -796,8 +796,8 @@ Each sub-phase follows the 12-step workflow (Plan → Test → Implement → Rev
 - Integration tests, packaging tests, benchmark tests
 
 #### Phase 7e — Final Cleanup (~500 lines)
-- Remove `comptime ExTensor = AnyTensor` alias
-- Rename file `extensor.mojo` → `any_tensor.mojo`, update ALL import paths
+- Remove `comptime AnyTensor = AnyTensor` alias
+- Rename file `any_tensor.mojo` → `any_tensor.mojo`, update ALL import paths
 - Remove deprecated `set()` overloads from AnyTensor (if no longer needed)
 - Remove dead code: old internal setters/getters (`_get_float64`, `_set_float64`, etc.)
 - Remove `dtype_dispatch.mojo` if fully superseded
@@ -822,9 +822,9 @@ Each sub-phase follows the 12-step workflow (Plan → Test → Implement → Rev
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| `mixed_precision.mojo` cross-dtype semantics | Training | Make explicit: `ExTensor[float16] → ExTensor[float32]` |
+| `mixed_precision.mojo` cross-dtype semantics | Training | Make explicit: `AnyTensor[float16] → AnyTensor[float32]` |
 | `__init__` can't take runtime dtype | All callers | Move dtype to compile-time parameter position |
-| Quantization methods (FP8, MXFP4, NVFP4) | Inference | These produce `ExTensor[uint8]` — explicit output type |
+| Quantization methods (FP8, MXFP4, NVFP4) | Inference | These produce `AnyTensor[uint8]` — explicit output type |
 
 ### 9.3 Low Risk
 
@@ -874,7 +874,7 @@ The parametric refactor should IMPROVE precision:
 
 ## 11. Corner Cases & Blockers (Deep Analysis)
 
-This section documents findings from 4 parallel research agents that audited every ExTensor usage pattern in the codebase and tested Mojo 0.26.1 parametric capabilities.
+This section documents findings from 4 parallel research agents that audited every AnyTensor usage pattern in the codebase and tested Mojo 0.26.1 parametric capabilities.
 
 ### 11.1 BLOCKER: No Trait Objects / Existential Types in Mojo 0.26.1
 
@@ -884,14 +884,14 @@ This section documents findings from 4 parallel research agents that audited eve
 
 | Pattern | Location | Why It Breaks |
 |---------|----------|---------------|
-| `fn parameters(self) -> List[ExTensor]` | `traits.mojo:136,151` | Can't hold mixed-dtype params |
-| `fn step(mut self, params: List[ExTensor])` | `traits.mojo:626` | Optimizer receives mixed list |
-| `var velocities: List[ExTensor]` | `autograd/optimizers.mojo:100` | Created from `param.dtype()` at runtime |
-| `fn state_dict(self) -> Dict[String, ExTensor]` | `testing/models.mojo:934` | Mixed-dtype state |
-| `var G_buffers: Dict[Int, ExTensor]` | `autograd/optimizers.mojo:895` | Per-param dtype |
-| `Dict[Int, Tuple[ExTensor, ExTensor]]` | `data/cache.mojo:61` | (float data, int label) tuples |
-| `var data: List[ExTensor]` / `var targets: List[ExTensor]` | `.templates/dataset_template.mojo:22-23` | float images + int labels |
-| `var train_images: ExTensor` + `var train_labels: ExTensor` | `training/dataset_loaders.mojo:40-43` | Different dtypes in same struct |
+| `fn parameters(self) -> List[AnyTensor]` | `traits.mojo:136,151` | Can't hold mixed-dtype params |
+| `fn step(mut self, params: List[AnyTensor])` | `traits.mojo:626` | Optimizer receives mixed list |
+| `var velocities: List[AnyTensor]` | `autograd/optimizers.mojo:100` | Created from `param.dtype()` at runtime |
+| `fn state_dict(self) -> Dict[String, AnyTensor]` | `testing/models.mojo:934` | Mixed-dtype state |
+| `var G_buffers: Dict[Int, AnyTensor]` | `autograd/optimizers.mojo:895` | Per-param dtype |
+| `Dict[Int, Tuple[AnyTensor, AnyTensor]]` | `data/cache.mojo:61` | (float data, int label) tuples |
+| `var data: List[AnyTensor]` / `var targets: List[AnyTensor]` | `.templates/dataset_template.mojo:22-23` | float images + int labels |
+| `var train_images: AnyTensor` + `var train_labels: AnyTensor` | `training/dataset_loaders.mojo:40-43` | Different dtypes in same struct |
 
 **Workaround**: `Variant[Tensor[DType.float32], Tensor[DType.float64], ...]` — tagged union. Verified to compile. But requires `isa[T]()` + `unsafe_get[T]()` dispatch at every access site.
 
@@ -904,14 +904,14 @@ These patterns cannot use compile-time dtype:
 | `var dtype = _parse_tensor_dtype(dtype_str)` | `utils/file_io.mojo:357` | Loaded from file header |
 | `var compute_dtype: DType` | `training/precision_config.mojo:144` | Config struct field |
 | `if dtype_str == "float16": dtype = DType.float16` | `papers/_template/examples/train.mojo:138-146` | CLI argument |
-| `ExTensor(grad.shape(), grad.dtype())` | `autograd/optimizers.mojo:163` (19 sites) | Derived from another tensor |
+| `AnyTensor(grad.shape(), grad.dtype())` | `autograd/optimizers.mojo:163` (19 sites) | Derived from another tensor |
 | `zeros([channels], x.dtype())` | `normalization.mojo:120-121` (hundreds of sites) | Derived from input tensor |
 
-The `zeros(shape, tensor.dtype())` pattern appears **hundreds of times**. With parametric ExTensor, these become `zeros[dtype](shape)` where `dtype` is the compile-time parameter of the input tensor — this works. But file I/O and CLI paths require a dispatch fan-out at the boundary.
+The `zeros(shape, tensor.dtype())` pattern appears **hundreds of times**. With parametric AnyTensor, these become `zeros[dtype](shape)` where `dtype` is the compile-time parameter of the input tensor — this works. But file I/O and CLI paths require a dispatch fan-out at the boundary.
 
-### 11.3 BLOCKER: ExTensor as Struct Fields (Cascading Parameterization)
+### 11.3 BLOCKER: AnyTensor as Struct Fields (Cascading Parameterization)
 
-Every struct storing `ExTensor` must either become parametric or use type erasure:
+Every struct storing `AnyTensor` must either become parametric or use type erasure:
 
 | Struct | Fields | File |
 |--------|--------|------|
@@ -929,16 +929,16 @@ Every struct storing `ExTensor` must either become parametric or use type erasur
 
 **Critical**: `Variable` becoming `Variable[dtype]` makes the entire autograd tape parametric.
 
-### 11.4 BLOCKER: Trait Signatures Reference ExTensor
+### 11.4 BLOCKER: Trait Signatures Reference AnyTensor
 
-All 5 core traits reference `ExTensor`:
+All 5 core traits reference `AnyTensor`:
 
 ```
-Differentiable:  fn forward(input: ExTensor) -> ExTensor
-Parameterized:   fn parameters() -> List[ExTensor]
-Model:           fn forward(input: ExTensor) -> ExTensor
-Loss:            fn compute(pred: ExTensor, target: ExTensor) -> ExTensor
-Optimizer:       fn step(params: List[ExTensor])
+Differentiable:  fn forward(input: AnyTensor) -> AnyTensor
+Parameterized:   fn parameters() -> List[AnyTensor]
+Model:           fn forward(input: AnyTensor) -> AnyTensor
+Loss:            fn compute(pred: AnyTensor, target: AnyTensor) -> AnyTensor
+Optimizer:       fn step(params: List[AnyTensor])
 ```
 
 Trait methods can't be parametric on additional type parameters in Mojo 0.26.1.
@@ -955,7 +955,7 @@ Trait methods can't be parametric on additional type parameters in Mojo 0.26.1.
 
 ### 11.6 Cross-DType Policy: Hard Reject Everywhere
 
-The audit found that **every** binary ExTensor operation rejects mismatched dtypes with a hard error — there is zero dtype promotion in the codebase. 20+ guard sites across arithmetic, comparison, matmul, loss, optimizers, autograd. This is GOOD for the parametric migration — the compiler will enforce what runtime checks currently do.
+The audit found that **every** binary AnyTensor operation rejects mismatched dtypes with a hard error — there is zero dtype promotion in the codebase. 20+ guard sites across arithmetic, comparison, matmul, loss, optimizers, autograd. This is GOOD for the parametric migration — the compiler will enforce what runtime checks currently do.
 
 ### 11.7 Mojo 0.26.1 Parametric Capabilities (Verified by Compilation)
 
@@ -969,7 +969,7 @@ The audit found that **every** binary ExTensor operation rejects mismatched dtyp
 | Type inference: `var t = zeros[DType.float32]([3])` | **Yes** |
 | `sizeof[Scalar[Self.dtype]]()` | **Yes** |
 | `List[TensorLike]` (trait objects) | **No** |
-| `Variant[ExTensor[float32], ExTensor[float64]]` | **Yes** |
+| `Variant[AnyTensor[float32], AnyTensor[float64]]` | **Yes** |
 | Runtime dtype → compile-time parameter | **No** |
 | Parametric trait methods | **No** |
 | `rebind` for cross-type casting | **No** (same-type assertion only) |
@@ -1011,7 +1011,7 @@ struct AnyTensor(TensorLike):
     var _dtype: DType  # runtime
     var _shape: List[Int]
     var _strides: List[Int]
-    # ... (current ExTensor internals)
+    # ... (current AnyTensor internals)
 
     fn as_tensor[dtype: DType](self) raises -> Tensor[dtype]:
         """Zero-copy conversion to typed tensor. Raises on dtype mismatch."""
@@ -1069,7 +1069,7 @@ fn relu(tensor: Tensor) -> Tensor: ...
 # Equivalent to: fn relu[dtype: DType, //](tensor: Tensor[dtype]) -> Tensor[dtype]
 ```
 
-This means many function signatures won't need explicit `[dtype: DType]` — just change the type name from `ExTensor` to `Tensor` and the compiler handles the rest.
+This means many function signatures won't need explicit `[dtype: DType]` — just change the type name from `AnyTensor` to `Tensor` and the compiler handles the rest.
 
 Source: [Parameters docs](https://github.com/modular/modular/blob/modular/v26.1/mojo/docs/manual/parameters/index.mdx) — "Automatic parameterization" section
 
@@ -1141,7 +1141,7 @@ Source: [Traits docs](https://github.com/modular/modular/blob/modular/v26.1/mojo
 
 | File | Relevance |
 |------|-----------|
-| `shared/core/extensor.mojo` | The struct — 4704 lines, 177 dtype branches, 158 bitcasts |
+| `shared/core/any_tensor.mojo` | The struct — 4704 lines, 177 dtype branches, 158 bitcasts |
 | `shared/core/dtype_dispatch.mojo` | Existing parametric dispatch infrastructure |
 | `shared/core/dtype_ordinal.mojo` | Ordinal mapping for dispatch fan-out |
 | `shared/core/conv.mojo` | Best example of fully-parametric kernel pattern |
@@ -1167,7 +1167,7 @@ Source: [Traits docs](https://github.com/modular/modular/blob/modular/v26.1/mojo
 | Item | Reference |
 |------|-----------|
 | PR #4997 | Short-term fix: `set()` method, `_resolve_index`, tolerance adjustments |
-| Issue #4998 | This epic — parametric ExTensor migration |
+| Issue #4998 | This epic — parametric AnyTensor migration |
 | ADR-009 | Heap corruption workaround that motivated the bitcast→setitem migration |
 | Skill: mojo-setitem-lvalue-semantics | ProjectMnemosyne — documents the `__getitem__` lvalue discovery |
 | Skill: extensor-parametric-dtype-migration | ProjectMnemosyne — architecture research |
@@ -1179,9 +1179,9 @@ Source: [Traits docs](https://github.com/modular/modular/blob/modular/v26.1/mojo
 Use the following prompt to start each phase:
 
 ```
-Implement Phase N of the ExTensor parametric DType migration (issue #4998).
+Implement Phase N of the AnyTensor parametric DType migration (issue #4998).
 
-Read ~/ExTensorRefactor.md for the full plan. Focus on Phase N only.
+Read ~/AnyTensorRefactor.md for the full plan. Focus on Phase N only.
 
 Key constraints:
 - Tensor[dtype: DType] must behave like SIMD — tensor[i] = value just works

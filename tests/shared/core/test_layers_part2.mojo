@@ -20,7 +20,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.any_tensor import AnyTensor, zeros, ones
 from shared.core.linear import linear, linear_no_bias
 from shared.core.activation import relu, sigmoid, tanh, softmax
 
@@ -188,7 +188,7 @@ fn test_maxpool2d_max_selection() raises:
     # # Create input with known values
     # # [[1, 2], [3, 4]] -> max = 4
     # var data = [1.0, 2.0, 3.0, 4.0]
-    # var input = ExTensor([1, 1, 2, 2], DType.float32)
+    # var input = AnyTensor([1, 1, 2, 2], DType.float32)
     # # Fill with data
     # var output = pool.forward(input)
     #

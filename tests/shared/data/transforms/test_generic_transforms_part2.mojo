@@ -6,7 +6,7 @@
 Tests conditional transforms and the first half of clamp transforms.
 """
 
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 from tests.shared.conftest import (
     assert_true,
     assert_equal,
@@ -31,7 +31,7 @@ from shared.data.generic_transforms import (
 )
 
 # Type comptime for test convenience
-comptime Tensor = ExTensor
+comptime Tensor = AnyTensor
 
 
 # ============================================================================
@@ -45,9 +45,9 @@ fn test_conditional_always_apply() raises:
     values.append(1.0)
     values.append(2.0)
     values.append(3.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
 
-    fn always_true(tensor: ExTensor) raises -> Bool:
+    fn always_true(tensor: AnyTensor) raises -> Bool:
         return True
 
     fn double_fn(value: Float32) -> Float32:
@@ -72,9 +72,9 @@ fn test_conditional_never_apply() raises:
     values.append(1.0)
     values.append(2.0)
     values.append(3.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
 
-    fn always_false(tensor: ExTensor) raises -> Bool:
+    fn always_false(tensor: AnyTensor) raises -> Bool:
         return False
 
     fn double_fn(value: Float32) -> Float32:
@@ -98,15 +98,15 @@ fn test_conditional_based_on_size() raises:
     var small_values = List[Float32]()
     small_values.append(1.0)
     small_values.append(2.0)
-    var small_data = ExTensor(small_values^)
+    var small_data = AnyTensor(small_values^)
     var large_values = List[Float32]()
     large_values.append(1.0)
     large_values.append(2.0)
     large_values.append(3.0)
     large_values.append(4.0)
-    var large_data = ExTensor(large_values^)
+    var large_data = AnyTensor(large_values^)
 
-    fn is_large(tensor: ExTensor) raises -> Bool:
+    fn is_large(tensor: AnyTensor) raises -> Bool:
         return tensor.num_elements() > 3
 
     fn double_fn(value: Float32) -> Float32:
@@ -135,14 +135,14 @@ fn test_conditional_based_on_values() raises:
     positive_values.append(1.0)
     positive_values.append(2.0)
     positive_values.append(3.0)
-    var positive_data = ExTensor(positive_values^)
+    var positive_data = AnyTensor(positive_values^)
     var mixed_values = List[Float32]()
     mixed_values.append(-1.0)
     mixed_values.append(2.0)
     mixed_values.append(3.0)
-    var mixed_data = ExTensor(mixed_values^)
+    var mixed_data = AnyTensor(mixed_values^)
 
-    fn all_positive(tensor: ExTensor) raises -> Bool:
+    fn all_positive(tensor: AnyTensor) raises -> Bool:
         for i in range(tensor.num_elements()):
             if tensor[i] < 0.0:
                 return False
@@ -179,7 +179,7 @@ fn test_clamp_basic() raises:
     values.append(1.0)
     values.append(1.5)
     values.append(2.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
     var clamp = ClampTransform(0.3, 1.2)
 
     var result = clamp(data)
@@ -197,7 +197,7 @@ fn test_clamp_all_below_min() raises:
     values.append(-5.0)
     values.append(-2.0)
     values.append(0.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
     var clamp = ClampTransform(1.0, 10.0)
 
     var result = clamp(data)
@@ -213,7 +213,7 @@ fn test_clamp_all_above_max() raises:
     values.append(15.0)
     values.append(20.0)
     values.append(25.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
     var clamp = ClampTransform(1.0, 10.0)
 
     var result = clamp(data)

@@ -10,7 +10,7 @@ See documentation: docs/advanced/custom-layers.md
 
 from shared.core.module import Module
 from shared.core.layers import Linear
-from shared.core.extensor import ExTensor, randn
+from shared.core.any_tensor import AnyTensor, randn
 from shared.core.activation import softmax
 from shared.core.matrix import matmul, transpose
 
@@ -47,7 +47,7 @@ struct MultiHeadAttention(Module):
         self.v_proj = Linear(embed_dim, embed_dim)
         self.out_proj = Linear(embed_dim, embed_dim)
 
-    fn forward(mut self, x: ExTensor) raises -> ExTensor:
+    fn forward(mut self, x: AnyTensor) raises -> AnyTensor:
         """Compute multi-head attention.
 
         Args:
@@ -101,8 +101,8 @@ struct MultiHeadAttention(Module):
         # Output projection
         return self.out_proj.forward(attn_output)
 
-    fn parameters(self) raises -> List[ExTensor]:
-        var params = List[ExTensor]()
+    fn parameters(self) raises -> List[AnyTensor]:
+        var params = List[AnyTensor]()
         params.extend(self.q_proj.parameters())
         params.extend(self.k_proj.parameters())
         params.extend(self.v_proj.parameters())

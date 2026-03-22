@@ -5,12 +5,12 @@ Generate boilerplate code for custom neural network layers.
 Usage:
     python scripts/generators/generate_layer.py \\
         --name AttentionLayer \\
-        --inputs "query:ExTensor,key:ExTensor,value:ExTensor" \\
+        --inputs "query:AnyTensor,key:AnyTensor,value:AnyTensor" \\
         --output shared/nn/attention.mojo
 
     python scripts/generators/generate_layer.py \\
         --name SEBlock \\
-        --inputs "x:ExTensor" \\
+        --inputs "x:AnyTensor" \\
         --params "reduction:Int=16" \\
         --output shared/nn/se_block.mojo
 
@@ -31,13 +31,13 @@ def parse_inputs(inputs_str: str) -> list[tuple[str, str]]:
     """Parse input specification string.
 
     Args:
-        inputs_str: Comma-separated input specs like "query:ExTensor,key:ExTensor"
+        inputs_str: Comma-separated input specs like "query:AnyTensor,key:AnyTensor"
 
     Returns:
         List of (name, type) tuples
     """
     if not inputs_str:
-        return [("input", "ExTensor")]
+        return [("input", "AnyTensor")]
 
     inputs = []
     for spec in inputs_str.split(","):
@@ -46,7 +46,7 @@ def parse_inputs(inputs_str: str) -> list[tuple[str, str]]:
             name, type_name = spec.split(":", 1)
             inputs.append((name.strip(), type_name.strip()))
         else:
-            inputs.append((spec, "ExTensor"))
+            inputs.append((spec, "AnyTensor"))
     return inputs
 
 
@@ -130,25 +130,25 @@ def generate_layer_code(
 
     # Generate parameters method
     if has_parameters:
-        params_method = '''    fn parameters(self) -> List[ExTensor]:
+        params_method = '''    fn parameters(self) -> List[AnyTensor]:
         """Get trainable parameters.
 
         Returns:
             List of parameter tensors
         """
-        var params = List[ExTensor]()
+        var params = List[AnyTensor]()
         # TEMPLATE: Collect trainable parameters
         # params.append(self.weight)
         # params.append(self.bias)
         return params'''
     else:
-        params_method = '''    fn parameters(self) -> List[ExTensor]:
+        params_method = '''    fn parameters(self) -> List[AnyTensor]:
         """Get trainable parameters (empty - no trainable params).
 
         Returns:
             Empty list
         """
-        return List[ExTensor]()'''
+        return List[AnyTensor]()'''
 
     code = f'''# {snake_name}.mojo
 """
@@ -159,7 +159,7 @@ Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 """
 
 from shared.nn import Module
-from shared.core import ExTensor
+from shared.core import AnyTensor
 
 
 struct {name}(Module):
@@ -170,8 +170,8 @@ struct {name}(Module):
 
 {member_vars_str}
     # TEMPLATE: Add trainable parameters as needed
-    # var weight: ExTensor
-    # var bias: ExTensor
+    # var weight: AnyTensor
+    # var bias: AnyTensor
 
     fn __init__(out self{init_signature}):
         """Initialize {name}.
@@ -180,10 +180,10 @@ struct {name}(Module):
         """
 {member_inits_str}
         # TEMPLATE: Initialize trainable parameters
-        # self.weight = ExTensor.randn([out_features, in_features])
-        # self.bias = ExTensor.zeros([out_features])
+        # self.weight = AnyTensor.randn([out_features, in_features])
+        # self.bias = AnyTensor.zeros([out_features])
 
-    fn forward(self, {forward_args}) -> ExTensor:
+    fn forward(self, {forward_args}) -> AnyTensor:
         """Forward pass through the layer.
 
         Args:
@@ -220,21 +220,21 @@ Examples:
     # Generate attention layer
     python scripts/generators/generate_layer.py \\
         --name AttentionLayer \\
-        --inputs "query:ExTensor,key:ExTensor,value:ExTensor" \\
+        --inputs "query:AnyTensor,key:AnyTensor,value:AnyTensor" \\
         --params "num_heads:Int=8,hidden_dim:Int=512" \\
         --output shared/nn/attention.mojo
 
     # Generate squeeze-and-excitation block
     python scripts/generators/generate_layer.py \\
         --name SEBlock \\
-        --inputs "x:ExTensor" \\
+        --inputs "x:AnyTensor" \\
         --params "channels:Int,reduction:Int=16" \\
         --output shared/nn/se_block.mojo
 
     # Generate layer without trainable parameters
     python scripts/generators/generate_layer.py \\
         --name Reshape \\
-        --inputs "x:ExTensor" \\
+        --inputs "x:AnyTensor" \\
         --params "shape:List[Int]" \\
         --no-parameters \\
         --output shared/nn/reshape.mojo
@@ -244,7 +244,7 @@ Examples:
     parser.add_argument("--name", required=True, help="Layer name (PascalCase)")
     parser.add_argument(
         "--inputs",
-        default="input:ExTensor",
+        default="input:AnyTensor",
         help="Forward input specs: name:Type,name2:Type2",
     )
     parser.add_argument(

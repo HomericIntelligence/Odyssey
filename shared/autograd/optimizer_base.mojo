@@ -197,9 +197,9 @@ fn clip_gradients_by_global_norm(
             var grad = tape.registry.get_grad(param_id)
 
             # Create scaled gradient
-            from shared.core.extensor import ExTensor
+            from shared.core.any_tensor import AnyTensor
 
-            var scaled_grad = ExTensor(grad.shape(), grad.dtype())
+            var scaled_grad = AnyTensor(grad.shape(), grad.dtype())
 
             for j in range(grad.numel()):
                 var val = grad._get_float64(j)

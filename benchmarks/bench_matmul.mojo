@@ -32,7 +32,7 @@ Output:
 """
 
 from shared.utils.arg_parser import ArgumentParser
-from shared.core import ExTensor, zeros, ones
+from shared.core import AnyTensor, zeros, ones
 from time import perf_counter_ns
 from collections import List
 
@@ -50,7 +50,7 @@ from shared.core.matmul import (
 
 fn matmul_naive[
     dtype: DType
-](a: ExTensor, b: ExTensor, mut result: ExTensor) raises:
+](a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
     """Stage 0: Baseline naive implementation (Float64 conversion).
 
     This is the reference implementation. Slow but simple and correct.
@@ -73,7 +73,7 @@ fn matmul_naive[
 
 fn matmul_typed[
     dtype: DType
-](a: ExTensor, b: ExTensor, mut result: ExTensor) raises:
+](a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
     """Stage 1: Dtype-specific kernel (eliminates Float64 conversion).
 
     Uses real implementation from shared.core.matmul.
@@ -84,7 +84,7 @@ fn matmul_typed[
 
 fn matmul_simd[
     dtype: DType
-](a: ExTensor, b: ExTensor, mut result: ExTensor) raises:
+](a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
     """Stage 2: SIMD vectorization (vectorize J-loop).
 
     Uses real implementation from shared.core.matmul.
@@ -95,7 +95,7 @@ fn matmul_simd[
 
 fn matmul_tiled[
     dtype: DType
-](a: ExTensor, b: ExTensor, mut result: ExTensor) raises:
+](a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
     """Stage 3: Cache-aware blocking/tiling (production kernel).
 
     Uses real implementation from shared.core.matmul.
@@ -115,9 +115,9 @@ fn verify_stage[
 ](
     stage_id: Int,
     stage_name: String,
-    a: ExTensor,
-    b: ExTensor,
-    reference: ExTensor,
+    a: AnyTensor,
+    b: AnyTensor,
+    reference: AnyTensor,
     rtol: Float64 = 1e-5,
     atol: Float64 = 1e-8,
 ) raises:
@@ -138,7 +138,7 @@ fn verify_stage[
     var result_shape = List[Int]()
     result_shape.append(a.shape()[0])
     result_shape.append(b.shape()[1])
-    var result = ExTensor(result_shape, dtype)
+    var result = AnyTensor(result_shape, dtype)
 
     # Run the stage-specific kernel
     if stage_id == 0:
@@ -198,7 +198,7 @@ fn verify_all_stages[dtype: DType](size: Int) raises:
     var b = ones(shape, dtype)
 
     # Generate reference result using baseline (v0)
-    var reference = ExTensor(shape, dtype)
+    var reference = AnyTensor(shape, dtype)
     matmul_naive[dtype](a, b, reference)
 
     # Verify each stage
@@ -233,7 +233,7 @@ fn bench_stage[
 
     var a = ones(shape, dtype)
     var b = ones(shape, dtype)
-    var result = ExTensor(shape, dtype)
+    var result = AnyTensor(shape, dtype)
 
     # Warmup (3 iterations)
     for _ in range(3):

@@ -69,8 +69,8 @@ comptime WARN_TENSOR_BYTES: Int = 500_000_000  # 500 MB warning threshold
 
 # Print options for AnyTensor.__str__ and __repr__ truncation
 # Can be modified globally to control output behavior (e.g., in test utilities)
-comptime EXTENSOR_PRINT_THRESHOLD: Int = 1000  # Truncate if numel > threshold
-comptime EXTENSOR_PRINT_SHOW_ELEMENTS: Int = 3  # Show first/last N elements
+comptime ANYTENSOR_PRINT_THRESHOLD: Int = 1000  # Truncate if numel > threshold
+comptime ANYTENSOR_PRINT_SHOW_ELEMENTS: Int = 3  # Show first/last N elements
 
 
 struct AnyTensor(
@@ -919,6 +919,10 @@ struct AnyTensor(
     # ===----------------------------------------------------------------------===#
     # set() — type-safe element assignment
     #
+    # TODO: Remove these set() overloads once Tensor[dtype] with proper typed
+    # __setitem__ is used everywhere. Currently still needed because AnyTensor
+    # is used in metrics, normalization, dropout, attention, and other modules.
+    #
     # Mojo does NOT dispatch `obj[i] = val` to __setitem__; it treats
     # `obj[i]` as an lvalue via __getitem__ (returns Float32), so
     # assigning Float64/Float16/Int64/etc. fails with a type error.
@@ -1646,7 +1650,7 @@ struct AnyTensor(
         fn _add[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
             return x + y
 
-        return _extensor_binary_arith[_add](self, other)
+        return _anytensor_binary_arith[_add](self, other)
 
     fn __sub__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise subtraction: a - b.
@@ -1664,7 +1668,7 @@ struct AnyTensor(
         fn _sub[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
             return x - y
 
-        return _extensor_binary_arith[_sub](self, other)
+        return _anytensor_binary_arith[_sub](self, other)
 
     fn __mul__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise multiplication: a * b.
@@ -1682,7 +1686,7 @@ struct AnyTensor(
         fn _mul[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
             return x * y
 
-        return _extensor_binary_arith[_mul](self, other)
+        return _anytensor_binary_arith[_mul](self, other)
 
     fn __truediv__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise division: a / b.
@@ -1701,7 +1705,7 @@ struct AnyTensor(
         fn _div[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
             return x / y
 
-        return _extensor_binary_arith[_div](self, other)
+        return _anytensor_binary_arith[_div](self, other)
 
     fn __floordiv__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise floor division: a // b.
@@ -1719,7 +1723,7 @@ struct AnyTensor(
         fn _floordiv[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
             return math_floor(x / y).cast[T]()
 
-        return _extensor_binary_arith[_floordiv](self, other)
+        return _anytensor_binary_arith[_floordiv](self, other)
 
     fn __mod__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise modulo: a % b.
@@ -1737,7 +1741,7 @@ struct AnyTensor(
         fn _mod[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
             return x - math_floor(x / y).cast[T]() * y
 
-        return _extensor_binary_arith[_mod](self, other)
+        return _anytensor_binary_arith[_mod](self, other)
 
     fn __pow__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise power: a ** b.
@@ -1755,7 +1759,7 @@ struct AnyTensor(
         fn _pow[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
             return x**y
 
-        return _extensor_binary_arith[_pow](self, other)
+        return _anytensor_binary_arith[_pow](self, other)
 
     fn __matmul__(self, other: AnyTensor) raises -> AnyTensor:
         """Matrix multiplication: a @ b.
@@ -1773,7 +1777,7 @@ struct AnyTensor(
             This operator handles 2D×2D matrix multiplication. For 1D vectors
             or batched matmul, use shared.core.matrix.matmul directly.
         """
-        return _extensor_matmul(self, other)
+        return _anytensor_matmul(self, other)
 
     fn __eq__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise equality: a == b.
@@ -1796,7 +1800,7 @@ struct AnyTensor(
         fn _eq[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
             return x == y
 
-        return _extensor_compare_op[_eq](self, other)
+        return _anytensor_compare_op[_eq](self, other)
 
     fn __ne__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise inequality: a != b.
@@ -1814,7 +1818,7 @@ struct AnyTensor(
         fn _ne[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
             return x != y
 
-        return _extensor_compare_op[_ne](self, other)
+        return _anytensor_compare_op[_ne](self, other)
 
     fn __lt__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise less than: a < b.
@@ -1832,7 +1836,7 @@ struct AnyTensor(
         fn _lt[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
             return x < y
 
-        return _extensor_compare_op[_lt](self, other)
+        return _anytensor_compare_op[_lt](self, other)
 
     fn __le__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise less or equal: a <= b.
@@ -1850,7 +1854,7 @@ struct AnyTensor(
         fn _le[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
             return x <= y
 
-        return _extensor_compare_op[_le](self, other)
+        return _anytensor_compare_op[_le](self, other)
 
     fn __gt__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise greater than: a > b.
@@ -1868,7 +1872,7 @@ struct AnyTensor(
         fn _gt[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
             return x > y
 
-        return _extensor_compare_op[_gt](self, other)
+        return _anytensor_compare_op[_gt](self, other)
 
     fn __ge__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise greater or equal: a >= b.
@@ -1886,7 +1890,7 @@ struct AnyTensor(
         fn _ge[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
             return x >= y
 
-        return _extensor_compare_op[_ge](self, other)
+        return _anytensor_compare_op[_ge](self, other)
 
     # ========================================================================
     # FP8 Conversion Methods
@@ -2995,7 +2999,7 @@ struct AnyTensor(
         fn _sub[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
             return x - y
 
-        return _extensor_binary_arith[_sub](other, self)
+        return _anytensor_binary_arith[_sub](other, self)
 
     fn __rmul__(self, other: AnyTensor) raises -> AnyTensor:
         """Reflected multiplication: other * self (commutative, so same as __mul__).
@@ -3017,7 +3021,7 @@ struct AnyTensor(
         fn _div[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
             return x / y
 
-        return _extensor_binary_arith[_div](other, self)
+        return _anytensor_binary_arith[_div](other, self)
 
     # In-place operators - mutate self instead of creating new tensor
     fn __iadd__(mut self, other: AnyTensor) raises:
@@ -3178,7 +3182,7 @@ struct AnyTensor(
             Error: If operation fails.
 
         """
-        return _extensor_abs(self)
+        return _anytensor_abs(self)
 
     fn __len__(self) -> Int:
         """Return the size of the first dimension.
@@ -3405,7 +3409,7 @@ struct AnyTensor(
         The dtype parameter must match self._dtype at runtime.
 
         Uses a function-scoped import to break the circular dependency
-        (extensor.mojo <- tensor.mojo <- extensor.mojo).
+        (any_tensor.mojo <- tensor.mojo <- any_tensor.mojo).
 
         Args:
             dtype: The compile-time DType parameter (must match self._dtype).
@@ -3765,9 +3769,6 @@ struct AnyTensor(
         return result^
 
 
-# Backward-compatibility alias: existing code using ExTensor continues to work.
-comptime ExTensor = AnyTensor
-
 
 # ============================================================================
 # Private Broadcasting Helpers
@@ -3775,11 +3776,11 @@ comptime ExTensor = AnyTensor
 # These helpers implement element-wise operations with NumPy-style broadcasting
 # for use by AnyTensor's operator overloads (__add__, __sub__, etc.).
 # They are defined here (rather than in arithmetic.mojo/comparison.mojo) to
-# break the circular import chain: extensor <- arithmetic <- extensor.
+# break the circular import chain: any_tensor <- arithmetic <- any_tensor.
 # See Issue #4513.
 
 
-fn _extensor_binary_arith[
+fn _anytensor_binary_arith[
     op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Apply a compile-time-typed binary arithmetic op with broadcasting."""
@@ -3849,7 +3850,7 @@ fn _extensor_binary_arith[
         raise Error("Unsupported dtype for binary operation")
 
 
-fn _extensor_compare_op[
+fn _anytensor_compare_op[
     op: fn[T: DType] (Scalar[T], Scalar[T]) -> Bool
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Apply a compile-time-typed binary comparison op with broadcasting."""
@@ -3917,12 +3918,12 @@ fn _extensor_compare_op[
     return result^
 
 
-fn _extensor_matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+fn _anytensor_matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Basic matrix multiplication (2D x 2D) for AnyTensor.__matmul__.
 
     Note: For full matmul with batching and contiguity handling, use
     shared.core.matrix.matmul. This implementation handles the common 2D case
-    to avoid the circular import: extensor <- matrix <- shape <- extensor.
+    to avoid the circular import: any_tensor <- matrix <- shape <- any_tensor.
     """
     var a_ndim = len(a._shape)
     var b_ndim = len(b._shape)
@@ -3982,7 +3983,7 @@ fn _extensor_matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     )
 
 
-fn _extensor_abs(tensor: AnyTensor) raises -> AnyTensor:
+fn _anytensor_abs(tensor: AnyTensor) raises -> AnyTensor:
     """Absolute value for AnyTensor.__abs__ (avoids importing elementwise)."""
     var result = AnyTensor(tensor._shape, tensor._dtype)
     var ordinal = dtype_to_ordinal(tensor._dtype)

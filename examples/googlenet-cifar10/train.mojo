@@ -33,7 +33,7 @@ Training Details:
 """
 
 from shared.core import (
-    ExTensor,
+    AnyTensor,
     zeros,
     conv2d,
     maxpool2d,
@@ -66,8 +66,8 @@ from model import GoogLeNet, InceptionModule
 
 fn train_epoch(
     mut model: GoogLeNet,
-    train_images: ExTensor,
-    train_labels: ExTensor,
+    train_images: AnyTensor,
+    train_labels: AnyTensor,
     batch_size: Int,
     learning_rate: Float32,
     momentum: Float32,
@@ -328,8 +328,8 @@ fn train_epoch(
 
 fn validate(
     mut model: GoogLeNet,
-    val_images: ExTensor,
-    val_labels: ExTensor,
+    val_images: AnyTensor,
+    val_labels: AnyTensor,
     batch_size: Int,
 ) raises -> Float32:
     """Validate model on validation set.

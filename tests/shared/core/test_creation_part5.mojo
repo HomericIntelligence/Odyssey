@@ -1,14 +1,14 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_creation.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for ExTensor creation operations - Part 5: dtype support.
+"""Tests for AnyTensor creation operations - Part 5: dtype support.
 
 Tests dtype support across creation operations.
 Split from test_creation.mojo per ADR-009 (≤10 fn test_ per file).
 Edge cases moved to test_creation_edge_cases.mojo."""
 
-# Import ExTensor and creation operations
-from shared.core.extensor import ExTensor, zeros, ones, full
+# Import AnyTensor and creation operations
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 
 # Import test helpers
 from tests.shared.conftest import (
@@ -97,7 +97,7 @@ fn test_creation_bool() raises:
 
 fn main() raises:
     """Run dtype support creation tests."""
-    print("Running ExTensor creation tests - Part 5: dtype support...")
+    print("Running AnyTensor creation tests - Part 5: dtype support...")
 
     test_creation_float16()
     test_creation_float32()

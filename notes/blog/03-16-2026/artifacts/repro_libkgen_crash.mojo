@@ -7,7 +7,7 @@ libAsyncRTRuntimeGlobals.so triggered by the following sequence:
 
 1. step_a(): Run conv2d operations that allocate and free many intermediate
    tensors (~20+ alloc/free cycles). When the function returns, all local
-   ExTensor objects are destroyed, freeing their backing memory.
+   AnyTensor objects are destroyed, freeing their backing memory.
 
 2. step_b(): Create a small tensor, obtain a bitcast pointer to its data,
    write through that pointer, then run another conv2d operation.
@@ -34,13 +34,13 @@ Stack trace (constant across runs):
   #3 libc.so.6                  +0x45330   (sigaction)
   #4 libAsyncRTRuntimeGlobals.so +0x416ba  (allocator — crash origin)
 
-NOTE: This reproducer requires ProjectOdyssey's shared.core library (ExTensor,
+NOTE: This reproducer requires ProjectOdyssey's shared.core library (AnyTensor,
 conv2d, relu). The crash is in the Mojo runtime allocator, not in our library
 code. A fully self-contained reproducer would require reimplementing conv2d
 (~200 lines) which defeats the purpose of minimality.
 """
 
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.any_tensor import AnyTensor, zeros, ones
 from shared.core.conv import conv2d
 from shared.core.activation import relu
 
@@ -49,7 +49,7 @@ fn step_a() raises:
     """Heavy tensor alloc/free churn via conv2d.
 
     Two conv2d+relu operations create many intermediate tensors.
-    All are freed when this function returns (ExTensor destructor
+    All are freed when this function returns (AnyTensor destructor
     decrements refcount, frees when refcount reaches 0).
     """
     # Input: (batch=2, channels=3, height=32, width=32)

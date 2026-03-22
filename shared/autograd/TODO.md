@@ -184,8 +184,8 @@ If the project outgrows the current functional helpers:
 
    ```mojo
    struct Variable:
-       var tensor: ExTensor
-       var grad: ExTensor  # Accumulated gradient
+       var tensor: AnyTensor
+       var grad: AnyTensor  # Accumulated gradient
        var requires_grad: Bool
        var grad_fn: String  # Operation name for backward dispatch
    ```
@@ -196,13 +196,13 @@ If the project outgrows the current functional helpers:
    struct TapeNode:
        var operation: String  # "relu", "linear", etc.
        var parents: List[TapeNode]
-       var params: Dict[String, ExTensor]  # For functions like conv2d_backward
+       var params: Dict[String, AnyTensor]  # For functions like conv2d_backward
    ```
 
 3. **Phase 3: Add backward dispatcher** - Automatic backward function selection
 
    ```mojo
-   fn backward(tape_node: TapeNode) -> List[ExTensor]:
+   fn backward(tape_node: TapeNode) -> List[AnyTensor]:
        # Use operation name to dispatch to correct backward function
        # Automatically chain gradients through computation graph
    ```

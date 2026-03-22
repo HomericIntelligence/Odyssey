@@ -25,7 +25,7 @@ from collections import List
 
 
 # ============================================================================
-# Minimal tensor struct (inlined from ExTensor)
+# Minimal tensor struct (inlined from AnyTensor)
 # ============================================================================
 
 

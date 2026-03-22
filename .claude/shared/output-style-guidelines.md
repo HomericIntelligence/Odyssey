@@ -10,7 +10,7 @@ Follow these guidelines for different contexts.
 ```markdown
 GOOD: Updated CLAUDE.md:173-185
 
-GOOD: Modified ExTensor initialization in shared/core/extensor.mojo:45
+GOOD: Modified AnyTensor initialization in shared/core/extensor.mojo:45
 
 BAD: Updated CLAUDE.md (missing line numbers)
 
@@ -80,7 +80,7 @@ BAD: Fixes the issue about Claude docs
 ```markdown
 GOOD:
 
-**Issue**: Inconsistent parameter naming in ExTensor methods
+**Issue**: Inconsistent parameter naming in AnyTensor methods
 
 **Location**: `/home/user/ProjectOdyssey/shared/core/extensor.mojo:120-145`
 
@@ -107,7 +107,7 @@ BAD: The shape method is wrong
 GOOD:
 
 ### Critical (Must Fix Before Merge)
-1. Memory leak in ExTensor.__del__() - data not freed
+1. Memory leak in AnyTensor.__del__() - data not freed
 2. Missing bounds check in __getitem__() - potential segfault
 
 ### Important (Should Fix)
@@ -138,7 +138,7 @@ All tests passed (3/3)
 
 ```bash
 $ mojo build shared/core/extensor.mojo
-error: ExTensor.mojo:145:16: cannot transfer ownership of
+error: AnyTensor.mojo:145:16: cannot transfer ownership of
   non-copyable type
     return self._data
            ^

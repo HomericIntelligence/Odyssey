@@ -10,8 +10,8 @@ Bug tested:
 - Line 323: argmax() - var result_shape = List[Int]()
 """
 
-# Import ExTensor and confusion matrix
-from shared.core.extensor import ExTensor, ones, zeros
+# Import AnyTensor and confusion matrix
+from shared.core.any_tensor import AnyTensor, ones, zeros
 from shared.training.metrics.confusion_matrix import ConfusionMatrix
 
 

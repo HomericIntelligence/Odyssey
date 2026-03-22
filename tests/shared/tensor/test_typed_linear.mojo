@@ -20,7 +20,7 @@ Tests cover:
 
 from testing import assert_true, assert_almost_equal
 from shared.core.layers.linear import Linear
-from shared.core.extensor import AnyTensor, zeros, ones
+from shared.core.any_tensor import AnyTensor, zeros, ones
 
 
 fn test_linear_default_dtype() raises:

@@ -1,4 +1,4 @@
-"""Trait-based elementwise operation dispatcher for ExTensor.
+"""Trait-based elementwise operation dispatcher for AnyTensor.
 
 Provides high-level trait-based abstraction for elementwise operations,
 eliminating the need to write operation functions for each operation type.
@@ -37,7 +37,7 @@ See notes/issues/elementwise-dispatch-design.md for complete design.
 """
 
 from collections import List
-from .extensor import ExTensor
+from .any_tensor import AnyTensor
 from math import sqrt as math_sqrt, exp as math_exp, log as math_log
 from math import sin as math_sin, cos as math_cos, tanh as math_tanh
 
@@ -158,7 +158,7 @@ trait ElementwiseBinaryOp:
 # ============================================================================
 
 
-fn apply_unary[Op: ElementwiseUnaryOp](input: ExTensor) raises -> ExTensor:
+fn apply_unary[Op: ElementwiseUnaryOp](input: AnyTensor) raises -> AnyTensor:
     """Apply unary operation to all elements in tensor.
 
     Applies the operation defined by Op to each element of the input tensor,
@@ -194,7 +194,7 @@ fn apply_unary[Op: ElementwiseUnaryOp](input: ExTensor) raises -> ExTensor:
         - Single pass through data (linear time complexity).
         - Zero-copy for operation implementation.
     """
-    var result = ExTensor(input.shape(), input.dtype())
+    var result = AnyTensor(input.shape(), input.dtype())
     var op = Op()
 
     var numel = input.numel()
@@ -213,7 +213,7 @@ fn apply_unary[Op: ElementwiseUnaryOp](input: ExTensor) raises -> ExTensor:
 
 fn apply_binary[
     Op: ElementwiseBinaryOp
-](a: ExTensor, b: ExTensor) raises -> ExTensor:
+](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Apply binary operation to all element pairs in two tensors.
 
     Applies the operation defined by Op to each pair of elements from
@@ -266,7 +266,7 @@ fn apply_binary[
     if a.dtype() != b.dtype():
         raise Error("apply_binary: tensors must have same dtype")
 
-    var result = ExTensor(a.shape(), a.dtype())
+    var result = AnyTensor(a.shape(), a.dtype())
     var op = Op()
 
     var numel = a.numel()

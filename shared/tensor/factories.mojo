@@ -14,7 +14,7 @@ Factory functions:
 
 from collections import List
 from shared.tensor.tensor import Tensor
-from shared.core.extensor import (
+from shared.core.any_tensor import (
     zeros as _zeros,
     ones as _ones,
     full as _full,

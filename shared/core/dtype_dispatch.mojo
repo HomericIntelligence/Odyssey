@@ -40,7 +40,7 @@ Error Handling:
 See notes/issues/dtype-refactoring-plan.md for complete design documentation
 """
 
-from .extensor import ExTensor
+from .any_tensor import AnyTensor
 from collections import List
 from .dtype_ordinal import (
     dtype_to_ordinal,
@@ -85,7 +85,7 @@ fn _format_dtype_name(dtype: DType) -> String:
 
 fn elementwise_unary[
     dtype: DType, op: fn[T: DType] (Scalar[T]) -> Scalar[T]
-](tensor: ExTensor) raises -> ExTensor:
+](tensor: AnyTensor) raises -> AnyTensor:
     """Apply unary operation with compile-time dtype specialization.
 
         This function is compile-time specialized for a specific dtype and operation.
@@ -114,7 +114,7 @@ fn elementwise_unary[
         var result = elementwise_unary[DType.float32, my_op](tensor)
         ```
     """
-    var result = ExTensor(tensor._shape, dtype)
+    var result = AnyTensor(tensor._shape, dtype)
     var size = tensor._numel
 
     var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
@@ -128,7 +128,7 @@ fn elementwise_unary[
 
 fn dispatch_unary[
     op: fn[T: DType] (Scalar[T]) -> Scalar[T]
-](tensor: ExTensor) raises -> ExTensor:
+](tensor: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch to compile-time specialized unary operation.
 
         This function performs runtime dtype checking but dispatches to compile-time
@@ -205,7 +205,7 @@ fn dispatch_unary[
 
 fn elementwise_binary[
     dtype: DType, op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
-](lhs: ExTensor, rhs: ExTensor) raises -> ExTensor:
+](lhs: AnyTensor, rhs: AnyTensor) raises -> AnyTensor:
     """Apply binary operation with compile-time dtype specialization.
 
         This function is compile-time specialized for a specific dtype and operation.
@@ -237,7 +237,7 @@ fn elementwise_binary[
             "elementwise_binary: tensors must have same number of elements"
         )
 
-    var result = ExTensor(lhs._shape, dtype)
+    var result = AnyTensor(lhs._shape, dtype)
     var size = lhs._numel
 
     var lhs_ptr = lhs._data.bitcast[Scalar[dtype]]()
@@ -252,7 +252,7 @@ fn elementwise_binary[
 
 fn dispatch_binary[
     op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
-](lhs: ExTensor, rhs: ExTensor) raises -> ExTensor:
+](lhs: AnyTensor, rhs: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch to compile-time specialized binary operation.
 
         This function performs runtime dtype checking but dispatches to compile-time
@@ -340,7 +340,7 @@ fn dispatch_binary[
 
 fn elementwise_scalar[
     dtype: DType, op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
-](tensor: ExTensor, scalar: Float64) raises -> ExTensor:
+](tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     """Apply scalar binary operation with compile-time dtype specialization.
 
         This function applies a binary operation between a tensor and a scalar value.
@@ -367,7 +367,7 @@ fn elementwise_scalar[
         var result = elementwise_scalar[DType.float32, mul_op](tensor, 2.5)
             ```
     """
-    var result = ExTensor(tensor._shape, dtype)
+    var result = AnyTensor(tensor._shape, dtype)
     var size = tensor._numel
 
     var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
@@ -382,7 +382,7 @@ fn elementwise_scalar[
 
 fn dispatch_scalar[
     op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
-](tensor: ExTensor, scalar: Float64) raises -> ExTensor:
+](tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     """Runtime dispatch to compile-time specialized scalar operation.
 
         This function performs runtime dtype checking but dispatches to compile-time
@@ -460,7 +460,7 @@ fn dispatch_scalar[
 
 fn dispatch_float_unary[
     op: fn[T: DType] (Scalar[T]) -> Scalar[T]
-](tensor: ExTensor) raises -> ExTensor:
+](tensor: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch for floating-point only unary operations.
 
         Use this for operations like sigmoid, tanh, exp, log that only support
@@ -515,7 +515,7 @@ fn dispatch_float_unary[
 
 fn dispatch_float_binary[
     op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
-](lhs: ExTensor, rhs: ExTensor) raises -> ExTensor:
+](lhs: AnyTensor, rhs: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch for floating-point only binary operations.
 
         Use this for operations that only support floating-point dtypes.
@@ -572,7 +572,7 @@ fn dispatch_float_binary[
 
 fn dispatch_float_scalar[
     op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
-](tensor: ExTensor, scalar: Float64) raises -> ExTensor:
+](tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     """Runtime dispatch for floating-point only scalar operations.
 
         Use this for operations that only support floating-point dtypes.
@@ -623,8 +623,8 @@ fn dispatch_float_scalar[
 fn _softmax_impl[
     dtype: DType
 ](
-    result: ExTensor,
-    tensor: ExTensor,
+    result: AnyTensor,
+    tensor: AnyTensor,
     outer_size: Int,
     axis_size: Int,
     axis_stride: Int,
@@ -720,8 +720,8 @@ fn _softmax_impl[
 
 
 fn dispatch_softmax(
-    tensor: ExTensor, outer_size: Int, axis_size: Int, axis_stride: Int
-) raises -> ExTensor:
+    tensor: AnyTensor, outer_size: Int, axis_size: Int, axis_stride: Int
+) raises -> AnyTensor:
     """Runtime dispatch for softmax operation.
 
     Args:
@@ -736,7 +736,7 @@ fn dispatch_softmax(
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = ExTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor._shape, tensor._dtype)
 
     if tensor._dtype == DType.float16:
         _softmax_impl[DType.float16](
@@ -762,9 +762,9 @@ fn dispatch_softmax(
 fn _softmax_backward_impl[
     dtype: DType
 ](
-    result: ExTensor,
-    grad_output: ExTensor,
-    output: ExTensor,
+    result: AnyTensor,
+    grad_output: AnyTensor,
+    output: AnyTensor,
     outer_size: Int,
     axis_size: Int,
     axis_stride: Int,
@@ -823,12 +823,12 @@ fn _softmax_backward_impl[
 
 
 fn dispatch_softmax_backward(
-    grad_output: ExTensor,
-    output: ExTensor,
+    grad_output: AnyTensor,
+    output: AnyTensor,
     outer_size: Int,
     axis_size: Int,
     axis_stride: Int,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Runtime dispatch for softmax backward operation.
 
     Args:
@@ -844,7 +844,7 @@ fn dispatch_softmax_backward(
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = ExTensor(output._shape, output._dtype)
+    var result = AnyTensor(output._shape, output._dtype)
 
     if output._dtype == DType.float16:
         _softmax_backward_impl[DType.float16](
@@ -870,7 +870,7 @@ fn dispatch_softmax_backward(
 
 fn _gelu_impl[
     dtype: DType
-](result: ExTensor, tensor: ExTensor, approximate: Bool) raises:
+](result: AnyTensor, tensor: AnyTensor, approximate: Bool) raises:
     """Compile-time specialized GELU implementation.
 
     GELU(x) = x * Phi(x) where Phi is the CDF of standard normal.
@@ -937,7 +937,7 @@ fn _gelu_impl[
                 out_ptr[i] = x * 0.5 * (1.0 + erf_val)
 
 
-fn dispatch_gelu(tensor: ExTensor, approximate: Bool) raises -> ExTensor:
+fn dispatch_gelu(tensor: AnyTensor, approximate: Bool) raises -> AnyTensor:
     """Runtime dispatch for GELU activation.
 
     Args:
@@ -950,7 +950,7 @@ fn dispatch_gelu(tensor: ExTensor, approximate: Bool) raises -> ExTensor:
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = ExTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor._shape, tensor._dtype)
 
     if tensor._dtype == DType.float16:
         _gelu_impl[DType.float16](result, tensor, approximate)
@@ -970,7 +970,7 @@ fn dispatch_gelu(tensor: ExTensor, approximate: Bool) raises -> ExTensor:
 fn _gelu_backward_impl[
     dtype: DType
 ](
-    result: ExTensor, grad_output: ExTensor, x: ExTensor, approximate: Bool
+    result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, approximate: Bool
 ) raises:
     """Compile-time specialized GELU backward implementation.
 
@@ -1065,8 +1065,8 @@ fn _gelu_backward_impl[
 
 
 fn dispatch_gelu_backward(
-    grad_output: ExTensor, x: ExTensor, approximate: Bool
-) raises -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor, approximate: Bool
+) raises -> AnyTensor:
     """Runtime dispatch for GELU backward operation.
 
     Args:
@@ -1080,7 +1080,7 @@ fn dispatch_gelu_backward(
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = ExTensor(x._shape, x._dtype)
+    var result = AnyTensor(x._shape, x._dtype)
 
     if x._dtype == DType.float16:
         _gelu_backward_impl[DType.float16](result, grad_output, x, approximate)
@@ -1098,7 +1098,7 @@ fn dispatch_gelu_backward(
     return result^
 
 
-fn _hard_sigmoid_impl[dtype: DType](result: ExTensor, tensor: ExTensor) raises:
+fn _hard_sigmoid_impl[dtype: DType](result: AnyTensor, tensor: AnyTensor) raises:
     """Compile-time specialized hard_sigmoid implementation.
 
     hard_sigmoid(x) = clip((x + 3) / 6, 0, 1).
@@ -1130,7 +1130,7 @@ fn _hard_sigmoid_impl[dtype: DType](result: ExTensor, tensor: ExTensor) raises:
             out_ptr[i] = max(zero, min(one, val))
 
 
-fn dispatch_hard_sigmoid(tensor: ExTensor) raises -> ExTensor:
+fn dispatch_hard_sigmoid(tensor: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch for hard_sigmoid activation.
 
     Args:
@@ -1142,7 +1142,7 @@ fn dispatch_hard_sigmoid(tensor: ExTensor) raises -> ExTensor:
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = ExTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor._shape, tensor._dtype)
 
     if tensor._dtype == DType.float16:
         _hard_sigmoid_impl[DType.float16](result, tensor)
@@ -1162,7 +1162,7 @@ fn dispatch_hard_sigmoid(tensor: ExTensor) raises -> ExTensor:
 
 fn _hard_sigmoid_backward_impl[
     dtype: DType
-](result: ExTensor, grad_output: ExTensor, x: ExTensor) raises:
+](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor) raises:
     """Compile-time specialized hard_sigmoid backward implementation.
 
     Derivative: 1/6 if -3 < x < 3, else 0.
@@ -1202,8 +1202,8 @@ fn _hard_sigmoid_backward_impl[
 
 
 fn dispatch_hard_sigmoid_backward(
-    grad_output: ExTensor, x: ExTensor
-) raises -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor
+) raises -> AnyTensor:
     """Runtime dispatch for hard_sigmoid backward operation.
 
     Args:
@@ -1216,7 +1216,7 @@ fn dispatch_hard_sigmoid_backward(
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = ExTensor(x._shape, x._dtype)
+    var result = AnyTensor(x._shape, x._dtype)
 
     if x._dtype == DType.float16:
         _hard_sigmoid_backward_impl[DType.float16](result, grad_output, x)
@@ -1234,7 +1234,7 @@ fn dispatch_hard_sigmoid_backward(
     return result^
 
 
-fn _hard_swish_impl[dtype: DType](result: ExTensor, tensor: ExTensor) raises:
+fn _hard_swish_impl[dtype: DType](result: AnyTensor, tensor: AnyTensor) raises:
     """Compile-time specialized hard_swish implementation.
 
     hard_swish(x) = x * hard_sigmoid(x) = x * clip((x + 3) / 6, 0, 1).
@@ -1276,7 +1276,7 @@ fn _hard_swish_impl[dtype: DType](result: ExTensor, tensor: ExTensor) raises:
                 out_ptr[i] = x * (x + three) / six
 
 
-fn dispatch_hard_swish(tensor: ExTensor) raises -> ExTensor:
+fn dispatch_hard_swish(tensor: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch for hard_swish activation.
 
     Args:
@@ -1288,7 +1288,7 @@ fn dispatch_hard_swish(tensor: ExTensor) raises -> ExTensor:
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = ExTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor._shape, tensor._dtype)
 
     if tensor._dtype == DType.float16:
         _hard_swish_impl[DType.float16](result, tensor)
@@ -1308,7 +1308,7 @@ fn dispatch_hard_swish(tensor: ExTensor) raises -> ExTensor:
 
 fn _hard_swish_backward_impl[
     dtype: DType
-](result: ExTensor, grad_output: ExTensor, x: ExTensor) raises:
+](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor) raises:
     """Compile-time specialized hard_swish backward implementation.
 
     Derivative: 0 if x <= -3, 1 if x >= 3, (2x + 3) / 6 otherwise.
@@ -1353,8 +1353,8 @@ fn _hard_swish_backward_impl[
 
 
 fn dispatch_hard_swish_backward(
-    grad_output: ExTensor, x: ExTensor
-) raises -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor
+) raises -> AnyTensor:
     """Runtime dispatch for hard_swish backward operation.
 
     Args:
@@ -1367,7 +1367,7 @@ fn dispatch_hard_swish_backward(
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = ExTensor(x._shape, x._dtype)
+    var result = AnyTensor(x._shape, x._dtype)
 
     if x._dtype == DType.float16:
         _hard_swish_backward_impl[DType.float16](result, grad_output, x)
@@ -1388,7 +1388,7 @@ fn dispatch_hard_swish_backward(
 fn _hard_tanh_impl[
     dtype: DType
 ](
-    result: ExTensor, tensor: ExTensor, min_val: Float64, max_val: Float64
+    result: AnyTensor, tensor: AnyTensor, min_val: Float64, max_val: Float64
 ) raises:
     """Compile-time specialized hard_tanh implementation.
 
@@ -1413,8 +1413,8 @@ fn _hard_tanh_impl[
 
 
 fn dispatch_hard_tanh(
-    tensor: ExTensor, min_val: Float64, max_val: Float64
-) raises -> ExTensor:
+    tensor: AnyTensor, min_val: Float64, max_val: Float64
+) raises -> AnyTensor:
     """Runtime dispatch for hard_tanh activation.
 
     Args:
@@ -1428,7 +1428,7 @@ fn dispatch_hard_tanh(
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = ExTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor._shape, tensor._dtype)
 
     if tensor._dtype == DType.float16:
         _hard_tanh_impl[DType.float16](result, tensor, min_val, max_val)
@@ -1448,9 +1448,9 @@ fn dispatch_hard_tanh(
 fn _hard_tanh_backward_impl[
     dtype: DType
 ](
-    result: ExTensor,
-    grad_output: ExTensor,
-    x: ExTensor,
+    result: AnyTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
     min_val: Float64,
     max_val: Float64,
 ) raises:
@@ -1484,8 +1484,8 @@ fn _hard_tanh_backward_impl[
 
 
 fn dispatch_hard_tanh_backward(
-    grad_output: ExTensor, x: ExTensor, min_val: Float64, max_val: Float64
-) raises -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor, min_val: Float64, max_val: Float64
+) raises -> AnyTensor:
     """Runtime dispatch for hard_tanh backward operation.
 
     Args:
@@ -1500,7 +1500,7 @@ fn dispatch_hard_tanh_backward(
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = ExTensor(x._shape, x._dtype)
+    var result = AnyTensor(x._shape, x._dtype)
 
     if x._dtype == DType.float16:
         _hard_tanh_backward_impl[DType.float16](

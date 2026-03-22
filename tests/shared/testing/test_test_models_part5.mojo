@@ -24,8 +24,8 @@ from shared.testing import (
     assert_equal,
     assert_close_float,
 )
-from shared.core.extensor import (
-    ExTensor,
+from shared.core.any_tensor import (
+    AnyTensor,
     zeros,
     ones,
 )

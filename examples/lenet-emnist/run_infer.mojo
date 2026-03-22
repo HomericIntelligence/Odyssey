@@ -21,7 +21,7 @@ from shared.data import (
     normalize_images,
     DatasetInfo,
 )
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 from shared.utils.arg_parser import ArgumentParser
 from shared.training.metrics import top1_accuracy, AccuracyMetric
 from collections import List
@@ -102,7 +102,7 @@ fn parse_args() raises -> InferConfig:
     return config^
 
 
-fn load_image(filepath: String) raises -> ExTensor:
+fn load_image(filepath: String) raises -> AnyTensor:
     """Load image from file and normalize for model inference.
 
     Currently supports IDX format (.idx3-ubyte for images). PNG support
@@ -164,7 +164,7 @@ fn load_image(filepath: String) raises -> ExTensor:
 
 
 fn get_top_k_predictions(
-    logits: ExTensor, k: Int
+    logits: AnyTensor, k: Int
 ) raises -> List[Tuple[Int, Float32]]:
     """Get top-k predictions from logits.
 
@@ -203,7 +203,7 @@ fn get_top_k_predictions(
 
 
 fn evaluate_test_set(
-    mut model: LeNet5, test_images: ExTensor, test_labels: ExTensor
+    mut model: LeNet5, test_images: AnyTensor, test_labels: AnyTensor
 ) raises -> Float32:
     """Evaluate model on full test set.
 

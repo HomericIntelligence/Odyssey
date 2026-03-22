@@ -14,8 +14,8 @@ from tests.shared.conftest import (
     assert_equal,
     assert_true,
 )
-from shared.core.extensor import (
-    ExTensor,
+from shared.core.any_tensor import (
+    AnyTensor,
     zeros,
     ones,
     zeros_like,
@@ -101,7 +101,7 @@ fn test_relu_backward() raises:
     x._data.bitcast[Float32]()[3] = 2.0
 
     # Forward function wrapper
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return relu(x)
 
     var y = relu(x)
@@ -109,8 +109,8 @@ fn test_relu_backward() raises:
 
     # Backward function wrapper
     fn backward_wrapper(
-        grad: ExTensor, x: ExTensor
-    ) raises escaping -> ExTensor:
+        grad: AnyTensor, x: AnyTensor
+    ) raises escaping -> AnyTensor:
         return relu_backward(grad, x)
 
     # Use numerical gradient checking (gold standard)

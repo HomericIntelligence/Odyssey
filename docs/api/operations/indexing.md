@@ -9,7 +9,7 @@ Access and manipulate tensor elements and subarrays.
 Access individual elements using a list of indices.
 
 ```mojo
-fn __getitem__(self, indices: List[Int]) raises -> ExTensor
+fn __getitem__(self, indices: List[Int]) raises -> AnyTensor
 ```
 
 **Example:**
@@ -35,7 +35,7 @@ Set individual elements.
 
 ```mojo
 fn __setitem__(mut self, indices: List[Int], value: Scalar) raises
-fn __setitem__(mut self, indices: List[Int], value: ExTensor) raises
+fn __setitem__(mut self, indices: List[Int], value: AnyTensor) raises
 ```
 
 **Example:**
@@ -57,7 +57,7 @@ x[List[Int](1)] = ones[DType.float32](4)
 Extract a contiguous subtensor.
 
 ```mojo
-fn slice(self, starts: List[Int], ends: List[Int]) raises -> ExTensor
+fn slice(self, starts: List[Int], ends: List[Int]) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -81,7 +81,7 @@ var y = x.slice(starts, ends)  # Shape: (3, 10)
 Slice along a single axis.
 
 ```mojo
-fn slice_along_axis(self, axis: Int, start: Int, end: Int) raises -> ExTensor
+fn slice_along_axis(self, axis: Int, start: Int, end: Int) raises -> AnyTensor
 ```
 
 **Example:**
@@ -103,7 +103,7 @@ var z = x.slice_along_axis(axis=2, start=32, end=96)  # Shape: (32, 64, 64)
 Select elements along an axis using indices tensor.
 
 ```mojo
-fn index_select(self, axis: Int, indices: ExTensor) raises -> ExTensor
+fn index_select(self, axis: Int, indices: AnyTensor) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -126,7 +126,7 @@ var y = x.index_select(axis=0, idx)  # Shape: (3, 3)
 Gather elements using multi-dimensional indices.
 
 ```mojo
-fn gather(self, axis: Int, indices: ExTensor) raises -> ExTensor
+fn gather(self, axis: Int, indices: AnyTensor) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -149,7 +149,7 @@ var y = x.gather(axis=1, indices)  # Shape: (3, 2)
 Scatter values into tensor at specified indices.
 
 ```mojo
-fn scatter(mut self, axis: Int, indices: ExTensor, values: ExTensor) raises
+fn scatter(mut self, axis: Int, indices: AnyTensor, values: AnyTensor) raises
 ```
 
 **Example:**
@@ -168,7 +168,7 @@ x.scatter(axis=1, indices, values)
 Select elements where mask is true.
 
 ```mojo
-fn masked_select(self, mask: ExTensor) raises -> ExTensor
+fn masked_select(self, mask: AnyTensor) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -190,7 +190,7 @@ var positive = x.masked_select(mask)  # 1D tensor
 Fill elements where mask is true.
 
 ```mojo
-fn masked_fill(mut self, mask: ExTensor, value: Scalar) raises
+fn masked_fill(mut self, mask: AnyTensor, value: Scalar) raises
 ```
 
 **Example:**
@@ -206,7 +206,7 @@ x.masked_fill(mask, 0.0)  # Set negative values to zero
 Select elements from two tensors based on condition.
 
 ```mojo
-fn where(condition: ExTensor, x: ExTensor, y: ExTensor) raises -> ExTensor
+fn where(condition: AnyTensor, x: AnyTensor, y: AnyTensor) raises -> AnyTensor
 ```
 
 **Example:**
@@ -227,7 +227,7 @@ var result = where(condition, x, y)  # 1 where positive, 0 otherwise
 Join tensors along an existing axis.
 
 ```mojo
-fn concatenate(tensors: List[ExTensor], axis: Int = 0) raises -> ExTensor
+fn concatenate(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor
 ```
 
 **Example:**
@@ -237,7 +237,7 @@ from shared.core import concatenate, randn
 
 var a = randn[DType.float32](2, 3)
 var b = randn[DType.float32](3, 3)
-var c = concatenate(List[ExTensor](a, b), axis=0)  # Shape: (5, 3)
+var c = concatenate(List[AnyTensor](a, b), axis=0)  # Shape: (5, 3)
 ```
 
 ### stack
@@ -245,7 +245,7 @@ var c = concatenate(List[ExTensor](a, b), axis=0)  # Shape: (5, 3)
 Join tensors along a new axis.
 
 ```mojo
-fn stack(tensors: List[ExTensor], axis: Int = 0) raises -> ExTensor
+fn stack(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor
 ```
 
 **Example:**
@@ -255,7 +255,7 @@ from shared.core import stack, randn
 
 var a = randn[DType.float32](3, 4)
 var b = randn[DType.float32](3, 4)
-var c = stack(List[ExTensor](a, b), axis=0)  # Shape: (2, 3, 4)
+var c = stack(List[AnyTensor](a, b), axis=0)  # Shape: (2, 3, 4)
 ```
 
 ### split
@@ -263,7 +263,7 @@ var c = stack(List[ExTensor](a, b), axis=0)  # Shape: (2, 3, 4)
 Split tensor into chunks.
 
 ```mojo
-fn split(self, chunks: Int, axis: Int = 0) raises -> List[ExTensor]
+fn split(self, chunks: Int, axis: Int = 0) raises -> List[AnyTensor]
 ```
 
 **Example:**
@@ -280,7 +280,7 @@ var chunks = x.split(5, axis=0)  # 5 tensors of shape (2, 4)
 Create a view with different shape (no copy).
 
 ```mojo
-fn view(self, new_shape: List[Int]) raises -> ExTensor
+fn view(self, new_shape: List[Int]) raises -> AnyTensor
 ```
 
 **Example:**
@@ -295,7 +295,7 @@ var y = x.view(List[Int](2, 3, 4))  # Shares data with x
 Flatten to 1D tensor.
 
 ```mojo
-fn flatten(self) raises -> ExTensor
+fn flatten(self) raises -> AnyTensor
 ```
 
 **Example:**
@@ -309,4 +309,4 @@ var y = x.flatten()  # Shape: (24,)
 
 - [Shape Operations](../tensor.md#shape-operations) - reshape, squeeze, unsqueeze
 - [Arithmetic Operations](arithmetic.md) - Element-wise operations
-- [ExTensor Reference](../tensor.md) - Core tensor class
+- [AnyTensor Reference](../tensor.md) - Core tensor class

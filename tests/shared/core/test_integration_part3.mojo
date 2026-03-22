@@ -1,4 +1,4 @@
-"""Integration tests for ExTensor operations - Part 3: Identity, Scalar, and Large Tensors.
+"""Integration tests for AnyTensor operations - Part 3: Identity, Scalar, and Large Tensors.
 
 Tests zero and identity element behavior, scalar patterns, and large tensor operations.
 Split from test_integration.mojo per ADR-009 to avoid heap corruption.
@@ -8,8 +8,8 @@ Split from test_integration.mojo per ADR-009 to avoid heap corruption.
 # high test load. Split from test_integration.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange, eye, linspace
+# Import AnyTensor and operations
+from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange, eye, linspace
 from shared.core.arithmetic import add, subtract, multiply
 
 # Import test helpers
@@ -113,7 +113,7 @@ fn test_large_tensor_operations() raises:
 fn main() raises:
     """Run integration tests part 3: identity elements, scalar, and large tensor ops.
     """
-    print("Running ExTensor integration tests (part 3)...")
+    print("Running AnyTensor integration tests (part 3)...")
 
     # Identity elements
     print("  Testing identity element behavior...")

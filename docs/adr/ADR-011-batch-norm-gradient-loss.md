@@ -105,7 +105,7 @@ fn test_batch_norm_gradient() raises:
     var output = layer.forward(input, training=True)
 
     # Loss: sum(output^2)
-    fn forward_for_grad(inp: ExTensor) raises -> ExTensor:
+    fn forward_for_grad(inp: AnyTensor) raises -> AnyTensor:
         var out = layer.forward(inp, training=True)
         var squared = multiply(out, out)
         var result = squared

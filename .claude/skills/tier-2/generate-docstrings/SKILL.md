@@ -22,7 +22,7 @@ Write comprehensive docstrings for functions and classes following standard form
 
 ```python
 # Google-style docstring format
-def matrix_multiply(a: ExTensor, b: ExTensor) -> ExTensor:
+def matrix_multiply(a: AnyTensor, b: AnyTensor) -> AnyTensor:
     """Multiply two matrices using optimized Mojo kernels.
 
     Args:
@@ -37,8 +37,8 @@ def matrix_multiply(a: ExTensor, b: ExTensor) -> ExTensor:
 
     Example:
         ```mojo
-        >> a = ExTensor([[1, 2], [3, 4]], DType.float32)
-        >>> b = ExTensor([[1, 0], [0, 1]], DType.float32)
+        >> a = AnyTensor([[1, 2], [3, 4]], DType.float32)
+        >>> b = AnyTensor([[1, 0], [0, 1]], DType.float32)
         >>> c = matrix_multiply(a, b)
         ```
     """

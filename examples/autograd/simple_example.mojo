@@ -20,7 +20,7 @@ from shared.autograd.variable import (
     variable_subtract,
     variable_mean,
 )
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.any_tensor import AnyTensor, zeros, ones
 
 
 fn simple_linear_regression() raises:
@@ -58,11 +58,11 @@ fn simple_linear_regression() raises:
     # Create simple training data: y = 2*x + 1
     # X = [1, 2, 3, 4, 5]
     # Y = [3, 5, 7, 9, 11]
-    var X = ExTensor(List[Int](), DType.float32)
+    var X = AnyTensor(List[Int](), DType.float32)
     for i in range(5):
         X._set_float64(i, Float64(i + 1))
 
-    var Y = ExTensor(List[Int](), DType.float32)
+    var Y = AnyTensor(List[Int](), DType.float32)
     for i in range(5):
         Y._set_float64(i, Float64(2 * (i + 1) + 1))
 
@@ -80,12 +80,12 @@ fn simple_linear_regression() raises:
 
         # Forward pass: predictions = w * X + b
         # Expand scalar parameters to match X shape for broadcasting
-        var w_expanded_data = ExTensor(List[Int](), DType.float32)
+        var w_expanded_data = AnyTensor(List[Int](), DType.float32)
         for i in range(5):
             w_expanded_data._set_float64(i, w.data._get_float64(0))
         var w_expanded = Variable(w_expanded_data, True, tape)
 
-        var b_expanded_data = ExTensor(List[Int](), DType.float32)
+        var b_expanded_data = AnyTensor(List[Int](), DType.float32)
         for i in range(5):
             b_expanded_data._set_float64(i, b.data._get_float64(0))
         var b_expanded = Variable(b_expanded_data, True, tape)
@@ -111,13 +111,13 @@ fn simple_linear_regression() raises:
         var grad_b_expanded = tape.get_grad(b_expanded.id)
 
         # Sum gradients across batch dimension to get parameter gradients
-        var grad_w_sum_data = ExTensor(List[Int](), DType.float32)
+        var grad_w_sum_data = AnyTensor(List[Int](), DType.float32)
         var grad_w_val = 0.0
         for i in range(5):
             grad_w_val += grad_w_expanded._get_float64(i)
         grad_w_sum_data._set_float64(0, grad_w_val)
 
-        var grad_b_sum_data = ExTensor(List[Int](), DType.float32)
+        var grad_b_sum_data = AnyTensor(List[Int](), DType.float32)
         var grad_b_val = 0.0
         for i in range(5):
             grad_b_val += grad_b_expanded._get_float64(i)

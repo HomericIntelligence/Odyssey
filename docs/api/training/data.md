@@ -18,17 +18,17 @@ Base class for datasets.
 
 ```mojo
 struct MyDataset(Dataset):
-    var data: ExTensor
-    var labels: ExTensor
+    var data: AnyTensor
+    var labels: AnyTensor
 
-    fn __init__(out self, data: ExTensor, labels: ExTensor):
+    fn __init__(out self, data: AnyTensor, labels: AnyTensor):
         self.data = data
         self.labels = labels
 
     fn __len__(self) -> Int:
         return self.data.shape()[0]
 
-    fn __getitem__(self, index: Int) raises -> Tuple[ExTensor, ExTensor]:
+    fn __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
         return (self.data[index], self.labels[index])
 ```
 
@@ -112,8 +112,8 @@ Each batch contains:
 
 ```mojo
 struct Batch:
-    var data: ExTensor    # Input features
-    var labels: ExTensor  # Target labels
+    var data: AnyTensor    # Input features
+    var labels: AnyTensor  # Target labels
 ```
 
 ## Data Transforms
@@ -225,7 +225,7 @@ struct ImageFolderDataset(Dataset):
     fn __len__(self) -> Int:
         return len(self.image_paths)
 
-    fn __getitem__(self, index: Int) raises -> Tuple[ExTensor, ExTensor]:
+    fn __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
         var image = load_image(self.image_paths[index])
         var label = self.labels[index]
         return (image, label)
@@ -299,4 +299,4 @@ for epoch in range(10):
 
 - [Optimizers](optimizers.md) - Training optimization
 - [Autograd](../autograd/tape.md) - Gradient computation
-- [ExTensor Reference](../tensor.md) - Core tensor class
+- [AnyTensor Reference](../tensor.md) - Core tensor class

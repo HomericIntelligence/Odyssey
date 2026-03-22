@@ -6,8 +6,8 @@ All operations are stateless - caller manages running statistics and parameters.
 
 from algorithm import parallelize
 
-from .extensor import (
-    ExTensor,
+from .any_tensor import (
+    AnyTensor,
     zeros,
     zeros_like,
     ones_like,
@@ -27,15 +27,15 @@ from .scalar_ops import (
 
 
 fn batch_norm2d(
-    x: ExTensor,
-    gamma: ExTensor,
-    beta: ExTensor,
-    running_mean: ExTensor,
-    running_var: ExTensor,
+    x: AnyTensor,
+    gamma: AnyTensor,
+    beta: AnyTensor,
+    running_mean: AnyTensor,
+    running_var: AnyTensor,
     training: Bool,
     momentum: Float64 = 0.1,
     epsilon: Float64 = 1e-5,
-) raises -> Tuple[ExTensor, ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
     """Functional 2D batch normalization.
 
         Normalizes activations across the batch dimension for each channel.
@@ -466,14 +466,14 @@ fn batch_norm2d(
 
 
 fn batch_norm2d_backward(
-    grad_output: ExTensor,
-    x: ExTensor,
-    gamma: ExTensor,
-    running_mean: ExTensor,
-    running_var: ExTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
+    gamma: AnyTensor,
+    running_mean: AnyTensor,
+    running_var: AnyTensor,
     training: Bool,
     epsilon: Float64 = 1e-5,
-) raises -> Tuple[ExTensor, ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
     """Backward pass for 2D batch normalization.
 
         Computes gradients with respect to input, gamma, and beta parameters.
@@ -980,8 +980,8 @@ fn batch_norm2d_backward(
 
 
 fn layer_norm(
-    x: ExTensor, gamma: ExTensor, beta: ExTensor, epsilon: Float64 = 1e-5
-) raises -> ExTensor:
+    x: AnyTensor, gamma: AnyTensor, beta: AnyTensor, epsilon: Float64 = 1e-5
+) raises -> AnyTensor:
     """Functional layer normalization.
 
         Normalizes activations across the feature dimension for each sample.
@@ -1225,8 +1225,8 @@ fn layer_norm(
 
 
 fn layer_norm_backward(
-    grad_output: ExTensor, x: ExTensor, gamma: ExTensor, epsilon: Float64 = 1e-5
-) raises -> Tuple[ExTensor, ExTensor, ExTensor]:
+    grad_output: AnyTensor, x: AnyTensor, gamma: AnyTensor, epsilon: Float64 = 1e-5
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
     """Backward pass for layer normalization.
 
         Computes gradients with respect to input, gamma, and beta parameters.
@@ -1804,12 +1804,12 @@ fn layer_norm_backward(
 
 
 fn group_norm(
-    x: ExTensor,
+    x: AnyTensor,
     num_groups: Int,
-    gamma: ExTensor,
-    beta: ExTensor,
+    gamma: AnyTensor,
+    beta: AnyTensor,
     epsilon: Float64 = 1e-5,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Functional group normalization.
 
         Normalizes activations by dividing channels into groups and normalizing
@@ -1986,12 +1986,12 @@ fn group_norm(
 
 
 fn group_norm_backward(
-    grad_output: ExTensor,
-    x: ExTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
     num_groups: Int,
-    gamma: ExTensor,
+    gamma: AnyTensor,
     epsilon: Float64 = 1e-5,
-) raises -> Tuple[ExTensor, ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
     """Backward pass for group normalization.
 
         Computes gradients with respect to input, gamma, and beta parameters.
@@ -2362,11 +2362,11 @@ fn group_norm_backward(
 
 
 fn instance_norm(
-    x: ExTensor,
-    gamma: ExTensor,
-    beta: ExTensor,
+    x: AnyTensor,
+    gamma: AnyTensor,
+    beta: AnyTensor,
     epsilon: Float64 = 1e-5,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Functional instance normalization.
 
         Normalizes each sample independently across spatial dimensions for each channel.
@@ -2524,11 +2524,11 @@ fn instance_norm(
 
 
 fn instance_norm_backward(
-    grad_output: ExTensor,
-    x: ExTensor,
-    gamma: ExTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
+    gamma: AnyTensor,
     epsilon: Float64 = 1e-5,
-) raises -> Tuple[ExTensor, ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
     """Backward pass for instance normalization.
 
         Computes gradients with respect to input, gamma, and beta parameters.
@@ -2869,8 +2869,8 @@ fn batch_norm2d_typed[
 ) raises -> Tuple[Tensor[dt], Tensor[dt], Tensor[dt]]:
     """Typed overload of batch_norm2d for Tensor[dtype].
 
-    Wraps the ExTensor batch_norm2d function with compile-time type
-    safety. Converts inputs to ExTensor, calls batch_norm2d, and
+    Wraps the AnyTensor batch_norm2d function with compile-time type
+    safety. Converts inputs to AnyTensor, calls batch_norm2d, and
     converts outputs back to Tensor[dt].
 
     Args:

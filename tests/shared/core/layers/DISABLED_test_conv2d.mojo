@@ -17,7 +17,7 @@ from shared.testing.assertions import (
     assert_shape,
     assert_true,
 )
-from shared.core.extensor import ExTensor, zeros, ones, randn
+from shared.core.any_tensor import AnyTensor, zeros, ones, randn
 from shared.core.layers.conv2d import Conv2dLayer
 
 

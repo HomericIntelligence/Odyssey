@@ -3,7 +3,7 @@
 This script loads a trained ResNet-18 model and evaluates it on the CIFAR-10 test set.
 
 Shared Modules Used:
-    - shared.core: Tensor operations and ExTensor type
+    - shared.core: Tensor operations and AnyTensor type
     - shared.data: Batch extraction and data utilities
     - shared.data.datasets: CIFAR-10 test set loading
     - shared.training.metrics: Evaluation and accuracy computation
@@ -24,7 +24,7 @@ Features:
     - Inference mode (no training, no batch norm running stats updates)
 """
 
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 from shared.data import extract_batch_pair, compute_num_batches, DatasetInfo
 from shared.data.datasets import CIFAR10Dataset
 from shared.training.metrics import (
@@ -55,8 +55,8 @@ comptime CLASS_NAMES = [
 
 fn evaluate_model(
     mut model: ResNet18,
-    images: ExTensor,
-    labels: ExTensor,
+    images: AnyTensor,
+    labels: AnyTensor,
     batch_size: Int = 100,
     verbose: Bool = True,
 ) raises -> Tuple[Float32, List[Int], List[Int]]:

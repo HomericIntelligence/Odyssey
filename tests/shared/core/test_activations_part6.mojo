@@ -14,8 +14,8 @@ from tests.shared.conftest import (
     assert_equal,
     assert_true,
 )
-from shared.core.extensor import (
-    ExTensor,
+from shared.core.any_tensor import (
+    AnyTensor,
     zeros,
     ones,
     ones_like,
@@ -67,14 +67,14 @@ fn test_mish_backward_gradient() raises:
     x._data.bitcast[Float32]()[2] = 0.5
 
     # Forward function wrapper
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return mish(x)
 
     var y = mish(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward_fn(grad: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return mish_backward(grad, x)
 
     # Use numerical gradient checking (gold standard)
@@ -123,14 +123,14 @@ fn test_elu_backward() raises:
     x._data.bitcast[Float32]()[2] = 1.0
 
     # Forward function wrapper
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return elu(x, alpha=1.0)
 
     var y = elu(x, alpha=1.0)
     var grad_out = ones_like(y)
 
     # Note: elu_backward takes x, y, and alpha
-    fn backward_fn(grad: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return elu_backward(grad, x, alpha=1.0)
 
     # Use numerical gradient checking (gold standard)

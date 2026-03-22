@@ -6,7 +6,7 @@
 Tests second part of sequential transforms and batch transforms.
 """
 
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 from tests.shared.conftest import (
     assert_true,
     assert_equal,
@@ -31,7 +31,7 @@ from shared.data.generic_transforms import (
 )
 
 # Type comptime for test convenience
-comptime Tensor = ExTensor
+comptime Tensor = AnyTensor
 
 
 # ============================================================================
@@ -45,7 +45,7 @@ fn test_sequential_with_clamp() raises:
     values.append(0.5)
     values.append(1.5)
     values.append(2.5)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
 
     fn double_fn(value: Float32) -> Float32:
         return value * 2.0
@@ -70,7 +70,7 @@ fn test_sequential_deterministic() raises:
     values.append(1.0)
     values.append(2.0)
     values.append(3.0)
-    var data = ExTensor(values^)
+    var data = AnyTensor(values^)
 
     fn triple(value: Float32) -> Float32:
         return value * 3.0
@@ -107,9 +107,9 @@ fn test_batch_transform_basic() raises:
     values3.append(6.0)
 
     var tensors: List[Tensor] = []
-    tensors.append(ExTensor(values1^))
-    tensors.append(ExTensor(values2^))
-    tensors.append(ExTensor(values3^))
+    tensors.append(AnyTensor(values1^))
+    tensors.append(AnyTensor(values2^))
+    tensors.append(AnyTensor(values3^))
 
     fn double_fn(value: Float32) -> Float32:
         return value * 2.0
@@ -155,7 +155,7 @@ fn test_batch_transform_single_tensor() raises:
     values.append(3.0)
 
     var tensors: List[Tensor] = []
-    tensors.append(ExTensor(values^))
+    tensors.append(AnyTensor(values^))
 
     fn add_ten(value: Float32) -> Float32:
         return value + 10.0
@@ -184,9 +184,9 @@ fn test_batch_transform_different_sizes() raises:
     values3.append(6.0)
 
     var tensors: List[Tensor] = []
-    tensors.append(ExTensor(values1^))
-    tensors.append(ExTensor(values2^))
-    tensors.append(ExTensor(values3^))
+    tensors.append(AnyTensor(values1^))
+    tensors.append(AnyTensor(values2^))
+    tensors.append(AnyTensor(values3^))
 
     fn double_fn(value: Float32) -> Float32:
         return value * 2.0
@@ -224,8 +224,8 @@ fn test_batch_transform_with_clamp() raises:
     values2.append(25.0)
 
     var tensors: List[Tensor] = []
-    tensors.append(ExTensor(values1^))
-    tensors.append(ExTensor(values2^))
+    tensors.append(AnyTensor(values1^))
+    tensors.append(AnyTensor(values2^))
 
     var base_transform = ClampTransform(2.0, 18.0)
     var batch = BatchTransform(AnyTransform(base_transform^))
