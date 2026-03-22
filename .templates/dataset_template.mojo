@@ -10,7 +10,7 @@ Do NOT remove these placeholders - they are required for code generation to work
 """
 
 from shared.datasets import Dataset
-from shared.core import ExTensor
+from shared.core import AnyTensor
 
 
 struct {{name}}(Dataset):
@@ -19,8 +19,8 @@ struct {{name}}(Dataset):
     A custom dataset loader.
     """
 
-    var data: List[ExTensor]
-    var targets: List[ExTensor]
+    var data: List[AnyTensor]
+    var targets: List[AnyTensor]
     var data_dir: String
 
     fn __init__(out self, data_dir: String, train: Bool = True):
@@ -31,8 +31,8 @@ struct {{name}}(Dataset):
             train: Whether to load training or test split
         """
         self.data_dir = data_dir
-        self.data = List[ExTensor]()
-        self.targets = List[ExTensor]()
+        self.data = List[AnyTensor]()
+        self.targets = List[AnyTensor]()
 
         var split = "train" if train else "test"
         self._load_data(split)
@@ -54,7 +54,7 @@ struct {{name}}(Dataset):
         """
         return len(self.data)
 
-    fn __getitem__(self, idx: Int) -> Tuple[ExTensor, ExTensor]:
+    fn __getitem__(self, idx: Int) -> Tuple[AnyTensor, AnyTensor]:
         """Get item by index.
 
         Args:
@@ -65,7 +65,7 @@ struct {{name}}(Dataset):
         """
         return (self.data[idx], self.targets[idx])
 
-    fn get_batch(self, indices: List[Int]) -> Tuple[ExTensor, ExTensor]:
+    fn get_batch(self, indices: List[Int]) -> Tuple[AnyTensor, AnyTensor]:
         """Get a batch of samples.
 
         Args:
@@ -74,8 +74,8 @@ struct {{name}}(Dataset):
         Returns:
             (data_batch, targets_batch) tuple
         """
-        var batch_data = List[ExTensor]()
-        var batch_targets = List[ExTensor]()
+        var batch_data = List[AnyTensor]()
+        var batch_targets = List[AnyTensor]()
 
         for idx in indices:
             var sample = self[idx[]]

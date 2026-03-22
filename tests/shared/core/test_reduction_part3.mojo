@@ -19,7 +19,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
+from shared.core.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.reduction import (
     median,
     percentile,

@@ -1,4 +1,4 @@
-"""Tests for ExTensor reduction operations - Part 2: mean() and max_reduce() basics.
+"""Tests for AnyTensor reduction operations - Part 2: mean() and max_reduce() basics.
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
@@ -8,8 +8,8 @@ Tests reduction operations following the Array API Standard:
 mean (keepdims/dtype) and max_reduce (all-elements) with axis=-1.
 """
 
-# Import ExTensor and reduction operations
-from shared.core.extensor import ExTensor, full, ones, zeros, arange
+# Import AnyTensor and reduction operations
+from shared.core.any_tensor import AnyTensor, full, ones, zeros, arange
 from shared.core.reduction import sum, mean, max_reduce, min_reduce
 
 # Import test helpers
@@ -125,7 +125,7 @@ fn test_min_all_same() raises:
 
 fn main() raises:
     """Run mean (keepdims/dtype) and max_reduce basic tests."""
-    print("Running ExTensor reduction forward tests - Part 2...")
+    print("Running AnyTensor reduction forward tests - Part 2...")
 
     # mean() keepdims/dtype tests
     print("  Testing mean() keepdims and dtype...")

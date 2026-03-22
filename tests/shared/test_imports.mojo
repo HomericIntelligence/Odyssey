@@ -16,7 +16,7 @@ from testing import assert_true
 
 fn test_core_imports() raises:
     """Test core package imports work correctly."""
-    from shared.core import ExTensor, zeros, ones, randn
+    from shared.core import AnyTensor, zeros, ones, randn
     from shared.core import relu, sigmoid, tanh, softmax, gelu
 
     # Test that functions are actually callable and work correctly
@@ -65,7 +65,7 @@ fn test_core_activations_imports() raises:
 
 fn test_core_types_imports() raises:
     """Test core types imports."""
-    from shared.core import ExTensor, FP8, BF8
+    from shared.core import AnyTensor, FP8, BF8
 
     print("✓ Core types imports test passed")
 
@@ -94,10 +94,10 @@ fn test_core_layers_direct_imports() raises:
 fn test_core_types_direct_imports() raises:
     """Test types are importable directly from their shared.core sub-modules.
 
-    Note: ExTensor lives in shared.core.extensor (not shared.core.types which
+    Note: AnyTensor lives in shared.core.any_tensor (not shared.core.types which
     contains dtype aliases like FP8, BF8, BF16).
     """
-    from shared.core.extensor import ExTensor
+    from shared.core.any_tensor import AnyTensor
     from shared.core.types import FP8, BF8
 
     print("✓ Core types direct imports test passed")
@@ -290,7 +290,7 @@ fn test_data_imports() raises:
     """Test data package imports work correctly."""
     from shared.data import (
         Dataset,
-        ExTensorDataset,
+        AnyTensorDataset,
         CIFAR10Dataset,
         EMNISTDataset,
     )
@@ -300,7 +300,7 @@ fn test_data_imports() raises:
 
 fn test_data_datasets_imports() raises:
     """Test data datasets imports."""
-    from shared.data import Dataset, ExTensorDataset, FileDataset
+    from shared.data import Dataset, AnyTensorDataset, FileDataset
 
     print("✓ Data datasets imports test passed")
 
@@ -323,7 +323,7 @@ fn test_data_transforms_imports() raises:
 fn test_data_datasets_direct_imports() raises:
     """Test datasets are importable directly from shared.data.datasets sub-module.
     """
-    from shared.data.datasets import Dataset, ExTensorDataset
+    from shared.data.datasets import Dataset, AnyTensorDataset
 
     print("✓ Data datasets direct imports test passed")
 
@@ -387,7 +387,7 @@ fn test_root_imports() raises:
     """Test root package convenience imports work."""
     # Root package doesn't re-export all components
     # Users should import from subpackages
-    from shared.core import ExTensor
+    from shared.core import AnyTensor
     from shared.training import SGD
     from shared.utils import Logger
 

@@ -18,7 +18,7 @@ from tests.shared.conftest import (
     measure_time,
     TestFixtures,
 )
-from shared.core.extensor import ExTensor, zeros, ones, randn
+from shared.core.any_tensor import AnyTensor, zeros, ones, randn
 from time import perf_counter_ns
 from collections import List
 

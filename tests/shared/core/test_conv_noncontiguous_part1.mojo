@@ -24,12 +24,12 @@ from tests.shared.conftest import (
     assert_false,
     assert_true,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full, arange
+from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange
 from shared.core.conv import conv2d, conv2d_no_bias
 from shared.core.shape import as_contiguous
 
 
-fn _make_nc_nchw_symmetric() raises -> ExTensor:
+fn _make_nc_nchw_symmetric() raises -> AnyTensor:
     """Create a non-contiguous (1,1,6,4) tensor by transposing (1,1,4,6).
 
     The input (1,1,4,6) has all ones. Transposing H (dim2) and W (dim3)

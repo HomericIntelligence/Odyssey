@@ -4,9 +4,9 @@ Re-exports from shared.core.grad_utils to maintain backward compatibility.
 
 Note:
     The implementation was moved to shared.core.grad_utils to avoid a circular
-    type resolution issue in Mojo v0.26.1: importing shared.core.extensor from
-    within shared.autograd causes extensor.mojo to be compiled twice with
-    distinct type identities, breaking ExTensor operator overloads during
+    type resolution issue in Mojo v0.26.1: importing shared.core.any_tensor from
+    within shared.autograd causes any_tensor.mojo to be compiled twice with
+    distinct type identities, breaking AnyTensor operator overloads during
     `mojo package shared`.
 
     Import directly from shared.core.grad_utils or shared.autograd — both work:
@@ -17,7 +17,7 @@ References:
     - On the difficulty of training Recurrent Neural Networks (Pascanu et al., 2013)
       https://arxiv.org/abs/1211.1541
     - ADR-009: Heap Corruption Workaround
-    - Issue #4513: ExTensor circular type resolution
+    - Issue #4513: AnyTensor circular type resolution
 """
 
 from shared.core.grad_utils import (

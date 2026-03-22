@@ -8,7 +8,7 @@ This module provides:
 
 from random import seed
 from time import perf_counter_ns
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 from shared.testing import SimpleMLP
 
 # Re-export all assertions from shared.testing.assertions for backward compatibility
@@ -70,13 +70,13 @@ struct TestFixtures:
         seed(Self.deterministic_seed())
 
     @staticmethod
-    fn small_tensor() raises -> ExTensor:
+    fn small_tensor() raises -> AnyTensor:
         """Create small 3x3 tensor for unit tests.
 
         Returns:
-            3x3 ExTensor with deterministic values (0.1).
+            3x3 AnyTensor with deterministic values (0.1).
         """
-        from shared.core.extensor import full
+        from shared.core.any_tensor import full
 
         var shape = List[Int]()
         shape.append(3)
@@ -84,13 +84,13 @@ struct TestFixtures:
         return full(shape, Float64(0.1), DType.float32)
 
     @staticmethod
-    fn medium_tensor() raises -> ExTensor:
+    fn medium_tensor() raises -> AnyTensor:
         """Create medium 10x10 tensor for unit tests.
 
         Returns:
-            10x10 ExTensor with zeros.
+            10x10 AnyTensor with zeros.
         """
-        from shared.core.extensor import zeros
+        from shared.core.any_tensor import zeros
 
         var shape = List[Int]()
         shape.append(10)
@@ -98,13 +98,13 @@ struct TestFixtures:
         return zeros(shape, DType.float32)
 
     @staticmethod
-    fn simple_weights() raises -> ExTensor:
+    fn simple_weights() raises -> AnyTensor:
         """Create simple weight tensor for linear layer tests.
 
         Returns:
-            5x3 ExTensor with deterministic small values.
+            5x3 AnyTensor with deterministic small values.
         """
-        from shared.core.extensor import full
+        from shared.core.any_tensor import full
 
         var shape = List[Int]()
         shape.append(5)
@@ -112,13 +112,13 @@ struct TestFixtures:
         return full(shape, Float64(0.01), DType.float32)
 
     @staticmethod
-    fn simple_bias() raises -> ExTensor:
+    fn simple_bias() raises -> AnyTensor:
         """Create simple bias tensor for linear layer tests.
 
         Returns:
-            5-element ExTensor with zeros.
+            5-element AnyTensor with zeros.
         """
-        from shared.core.extensor import zeros
+        from shared.core.any_tensor import zeros
 
         var shape = List[Int]()
         shape.append(5)
@@ -127,7 +127,7 @@ struct TestFixtures:
     @staticmethod
     fn synthetic_data(
         n_samples: Int = 100, n_features: Int = 10
-    ) raises -> ExTensor:
+    ) raises -> AnyTensor:
         """Create synthetic data tensor for testing.
 
         Args:
@@ -135,9 +135,9 @@ struct TestFixtures:
             n_features: Number of features (columns).
 
         Returns:
-            ExTensor of shape (n_samples, n_features) with random values.
+            AnyTensor of shape (n_samples, n_features) with random values.
         """
-        from shared.core.extensor import randn
+        from shared.core.any_tensor import randn
 
         var shape = List[Int]()
         shape.append(n_samples)
@@ -145,16 +145,16 @@ struct TestFixtures:
         return randn(shape, DType.float32)
 
     @staticmethod
-    fn synthetic_labels(n_samples: Int = 100) raises -> ExTensor:
+    fn synthetic_labels(n_samples: Int = 100) raises -> AnyTensor:
         """Create synthetic label tensor for testing.
 
         Args:
             n_samples: Number of samples.
 
         Returns:
-            ExTensor of shape (n_samples,) with binary labels (0 or 1).
+            AnyTensor of shape (n_samples,) with binary labels (0 or 1).
         """
-        from shared.core.extensor import zeros
+        from shared.core.any_tensor import zeros
 
         var shape = List[Int]()
         shape.append(n_samples)

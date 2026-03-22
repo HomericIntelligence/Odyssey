@@ -222,11 +222,11 @@ fn test_activation_gradient() raises:
     var input = create_random_tensor(shape, random_seed=42)
 
     # Define forward function
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return activation_func(x)
 
     # Define backward function
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return activation_backward(grad_out, x)
 
     # Check gradients using numerical differentiation
@@ -248,10 +248,10 @@ fn test_complex_operation_gradient() raises:
     var shape = List[Int](2, 3)
     var input = create_random_tensor(shape, random_seed=42)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return complex_operation(x)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return complex_operation_backward(grad_out, x)
 
     # Use verbose mode to see numerical vs analytical gradients
@@ -279,10 +279,10 @@ fn test_relu_mixed_inputs_gradient() raises:
     input[4] = 0.1    # Small positive
     input[5] = -0.1   # Small negative
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return relu(x)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return relu_backward(grad_out, x)
 
     var passed = check_gradients(forward, backward, input)
@@ -348,7 +348,7 @@ for i in range(output.numel()):
 
 # forward_for_grad computes the weighted scalar loss sum(output * grad_output),
 # so numerical finite differences match what backward should return.
-fn forward_for_grad(inp: ExTensor) raises -> ExTensor:
+fn forward_for_grad(inp: AnyTensor) raises -> AnyTensor:
     var result = batch_norm2d(inp, gamma, beta, running_mean, running_var,
                               training=True, epsilon=1e-5)
     var out = result[0]
@@ -677,10 +677,10 @@ fn test_activation_gradient() raises:
     var shape = List[Int](5, 10)
     var input = create_random_tensor(shape, random_seed=42)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return activation_func(x)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return activation_backward(grad_out, x)
 
     var passed = check_gradients(forward, backward, input)
@@ -728,10 +728,10 @@ fn test_layer_gradient() raises:
     var layer = DenseLayer(input_size=10, output_size=5)
     var input = create_random_tensor([32, 10], random_seed=42)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return layer.forward(x)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return layer.backward(grad_out, x)
 
     var passed = check_gradients(forward, backward, input)
@@ -769,7 +769,7 @@ from tests.shared.fixtures.mock_tensors import (
     create_random_tensor,
     create_zeros_tensor,
 )
-from shared.core import ExTensor
+from shared.core import AnyTensor
 
 
 # ============================================================================

@@ -13,7 +13,7 @@ Where:
     d_k: Key dimension (used for scaling).
 """
 
-from .extensor import ExTensor, zeros, zeros_like, ones
+from .any_tensor import AnyTensor, zeros, zeros_like, ones
 from .matrix import matmul, transpose
 from .activation import softmax
 from .arithmetic import multiply, divide, add
@@ -22,11 +22,11 @@ from math import sqrt
 
 
 fn scaled_dot_product_attention(
-    query: ExTensor,
-    key: ExTensor,
-    value: ExTensor,
+    query: AnyTensor,
+    key: AnyTensor,
+    value: AnyTensor,
     dropout_p: Float64 = 0.0,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Scaled dot-product attention without mask.
 
     Raises:
@@ -42,12 +42,12 @@ fn scaled_dot_product_attention(
 
 
 fn scaled_dot_product_attention_masked(
-    query: ExTensor,
-    key: ExTensor,
-    value: ExTensor,
-    mask: ExTensor,
+    query: AnyTensor,
+    key: AnyTensor,
+    value: AnyTensor,
+    mask: AnyTensor,
     dropout_p: Float64 = 0.0,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Scaled dot-product attention.
 
         Computes attention weights from query-key similarity and applies them to values.
@@ -154,11 +154,11 @@ comptime ScaledDotProductAttentionBackwardResult = GradientTriple
 
 
 fn scaled_dot_product_attention_backward(
-    grad_output: ExTensor,
-    query: ExTensor,
-    key: ExTensor,
-    value: ExTensor,
-    attention_weights: ExTensor,
+    grad_output: AnyTensor,
+    query: AnyTensor,
+    key: AnyTensor,
+    value: AnyTensor,
+    attention_weights: AnyTensor,
 ) raises -> GradientTriple:
     """Backward pass for scaled dot-product attention without mask.
 
@@ -173,12 +173,12 @@ fn scaled_dot_product_attention_backward(
 
 
 fn scaled_dot_product_attention_backward_masked(
-    grad_output: ExTensor,
-    query: ExTensor,
-    key: ExTensor,
-    value: ExTensor,
-    attention_weights: ExTensor,
-    mask: ExTensor,
+    grad_output: AnyTensor,
+    query: AnyTensor,
+    key: AnyTensor,
+    value: AnyTensor,
+    attention_weights: AnyTensor,
+    mask: AnyTensor,
 ) raises -> GradientTriple:
     """Backward pass for scaled dot-product attention.
 
@@ -269,8 +269,8 @@ fn scaled_dot_product_attention_backward_masked(
 
 
 fn _softmax_backward(
-    grad_output: ExTensor, softmax_output: ExTensor
-) raises -> ExTensor:
+    grad_output: AnyTensor, softmax_output: AnyTensor
+) raises -> AnyTensor:
     """Internal helper for softmax backward pass.
 
     Computes gradient through softmax: d_softmax/d_input = s * (g - sum(g * s)).
@@ -333,7 +333,7 @@ fn _softmax_backward(
 
 fn create_causal_mask(
     seq_len: Int, dtype: DType = DType.float32
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Create a causal (lower-triangular) attention mask.
 
         Returns a mask where positions that should be ignored have large negative
@@ -403,21 +403,21 @@ struct MultiHeadAttentionWeights(Movable):
     Holds the projection matrices for Q, K, V and output projection.
     """
 
-    var wq: ExTensor
+    var wq: AnyTensor
     """Query projection weight matrix of shape (d_model, d_model)."""
-    var wk: ExTensor
+    var wk: AnyTensor
     """Key projection weight matrix of shape (d_model, d_model)."""
-    var wv: ExTensor
+    var wv: AnyTensor
     """Value projection weight matrix of shape (d_model, d_model)."""
-    var wo: ExTensor
+    var wo: AnyTensor
     """Output projection weight matrix of shape (d_model, d_model)."""
 
     fn __init__(
         out self,
-        wq: ExTensor,
-        wk: ExTensor,
-        wv: ExTensor,
-        wo: ExTensor,
+        wq: AnyTensor,
+        wk: AnyTensor,
+        wv: AnyTensor,
+        wo: AnyTensor,
     ):
         self.wq = wq
         self.wk = wk
@@ -437,12 +437,12 @@ struct MultiHeadAttentionResult(Movable):
     Contains output and attention weights for visualization/analysis.
     """
 
-    var output: ExTensor
+    var output: AnyTensor
     """Attention output of shape (batch, seq_len, d_model)."""
-    var attention_weights: ExTensor
+    var attention_weights: AnyTensor
     """Attention weights for visualization and analysis."""
 
-    fn __init__(out self, output: ExTensor, attention_weights: ExTensor):
+    fn __init__(out self, output: AnyTensor, attention_weights: AnyTensor):
         self.output = output
         self.attention_weights = attention_weights
 
@@ -452,9 +452,9 @@ struct MultiHeadAttentionResult(Movable):
 
 
 fn multi_head_attention(
-    query: ExTensor,
-    key: ExTensor,
-    value: ExTensor,
+    query: AnyTensor,
+    key: AnyTensor,
+    value: AnyTensor,
     weights: MultiHeadAttentionWeights,
     num_heads: Int,
 ) raises -> MultiHeadAttentionResult:
@@ -473,12 +473,12 @@ fn multi_head_attention(
 
 
 fn multi_head_attention_masked(
-    query: ExTensor,
-    key: ExTensor,
-    value: ExTensor,
+    query: AnyTensor,
+    key: AnyTensor,
+    value: AnyTensor,
     weights: MultiHeadAttentionWeights,
     num_heads: Int,
-    mask: ExTensor,
+    mask: AnyTensor,
 ) raises -> MultiHeadAttentionResult:
     """Multi-head attention mechanism.
 
@@ -593,8 +593,8 @@ fn multi_head_attention_masked(
 
 
 fn _reshape_for_heads(
-    x: ExTensor, batch: Int, seq_len: Int, num_heads: Int, d_k: Int
-) raises -> ExTensor:
+    x: AnyTensor, batch: Int, seq_len: Int, num_heads: Int, d_k: Int
+) raises -> AnyTensor:
     """Reshape from (batch, seq, d_model) to (batch, num_heads, seq, d_k).
 
     Internal helper for multi-head attention.
@@ -657,8 +657,8 @@ fn _reshape_for_heads(
 
 
 fn _reshape_from_heads(
-    x: ExTensor, batch: Int, seq_len: Int, num_heads: Int, d_k: Int
-) raises -> ExTensor:
+    x: AnyTensor, batch: Int, seq_len: Int, num_heads: Int, d_k: Int
+) raises -> AnyTensor:
     """Reshape from (batch, num_heads, seq, d_k) to (batch, seq, d_model).
 
     Internal helper for multi-head attention.
@@ -725,30 +725,30 @@ struct MultiHeadAttentionBackwardResult(Movable):
     Contains gradients for all inputs and weight matrices.
     """
 
-    var grad_query: ExTensor
+    var grad_query: AnyTensor
     """Gradient with respect to query tensor."""
-    var grad_key: ExTensor
+    var grad_key: AnyTensor
     """Gradient with respect to key tensor."""
-    var grad_value: ExTensor
+    var grad_value: AnyTensor
     """Gradient with respect to value tensor."""
-    var grad_wq: ExTensor
+    var grad_wq: AnyTensor
     """Gradient with respect to query projection weight matrix."""
-    var grad_wk: ExTensor
+    var grad_wk: AnyTensor
     """Gradient with respect to key projection weight matrix."""
-    var grad_wv: ExTensor
+    var grad_wv: AnyTensor
     """Gradient with respect to value projection weight matrix."""
-    var grad_wo: ExTensor
+    var grad_wo: AnyTensor
     """Gradient with respect to output projection weight matrix."""
 
     fn __init__(
         out self,
-        grad_query: ExTensor,
-        grad_key: ExTensor,
-        grad_value: ExTensor,
-        grad_wq: ExTensor,
-        grad_wk: ExTensor,
-        grad_wv: ExTensor,
-        grad_wo: ExTensor,
+        grad_query: AnyTensor,
+        grad_key: AnyTensor,
+        grad_value: AnyTensor,
+        grad_wq: AnyTensor,
+        grad_wk: AnyTensor,
+        grad_wv: AnyTensor,
+        grad_wo: AnyTensor,
     ):
         self.grad_query = grad_query
         self.grad_key = grad_key
@@ -769,12 +769,12 @@ struct MultiHeadAttentionBackwardResult(Movable):
 
 
 fn multi_head_attention_backward(
-    grad_output: ExTensor,
-    query: ExTensor,
-    key: ExTensor,
-    value: ExTensor,
+    grad_output: AnyTensor,
+    query: AnyTensor,
+    key: AnyTensor,
+    value: AnyTensor,
     weights: MultiHeadAttentionWeights,
-    attention_weights: ExTensor,
+    attention_weights: AnyTensor,
     num_heads: Int,
 ) raises -> MultiHeadAttentionBackwardResult:
     """Backward pass for multi-head attention.

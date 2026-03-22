@@ -65,10 +65,10 @@ fn test_tensor_getitem_returns_typed() raises:
 
 
 fn test_tensor_str_output() raises:
-    """__str__ should say Tensor, not ExTensor."""
+    """__str__ should say Tensor, not AnyTensor."""
     var t = Tensor[DType.float32]([3])
     var s = String(t)
-    assert_true("Tensor(" in s, "str should contain 'Tensor(' not 'ExTensor('")
+    assert_true("Tensor(" in s, "str should contain 'Tensor(' not 'AnyTensor('")
     assert_true("float32" in s, "str should contain dtype")
     print("PASS: test_tensor_str_output")
 

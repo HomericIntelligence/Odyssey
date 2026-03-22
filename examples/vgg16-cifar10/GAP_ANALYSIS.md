@@ -105,10 +105,10 @@ var (grad_relu5_2, grad_conv5_3_k, grad_conv5_3_b) = conv2d_backward(grad_conv5_
 
 ```mojo
 fn extract_batch(
-    data: ExTensor,
+    data: AnyTensor,
     start_idx: Int,
     batch_size: Int
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Extract a mini-batch from dataset.
 
     Args:
@@ -166,13 +166,13 @@ fn extract_batch(
 **What's Needed**:
 
 ```mojo
-fn initialize_velocities(borrowed model: VGG16) raises -> DynamicVector[ExTensor]:
+fn initialize_velocities(borrowed model: VGG16) raises -> DynamicVector[AnyTensor]:
     """Initialize momentum velocity tensors for all parameters.
 
     Returns:
         Vector of 32 velocity tensors (one per parameter) initialized to zeros
     """
-    var velocities = DynamicVector[ExTensor]()
+    var velocities = DynamicVector[AnyTensor]()
 
     # Block 1 velocities
     velocities.push_back(zeros_like(model.conv1_1_kernel))
@@ -242,8 +242,8 @@ fn update_all_parameters(
     inout model: VGG16,
     learning_rate: Float32,
     momentum: Float32,
-    inout velocities: DynamicVector[ExTensor],
-    grad_params: DynamicVector[ExTensor]
+    inout velocities: DynamicVector[AnyTensor],
+    grad_params: DynamicVector[AnyTensor]
 ) raises:
     """Update all 32 parameters using SGD with momentum.
 
@@ -374,7 +374,7 @@ var augmented_batch = apply_augmentation(batch_images)  # Random crop + flip
 **What's Needed**:
 
 ```mojo
-fn clip_gradients(inout grads: DynamicVector[ExTensor], max_norm: Float32) raises:
+fn clip_gradients(inout grads: DynamicVector[AnyTensor], max_norm: Float32) raises:
     """Clip gradients by global norm to prevent exploding gradients.
 
     Args:

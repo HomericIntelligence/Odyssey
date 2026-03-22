@@ -247,4 +247,4 @@ var grad_x = relu_backward(grad_y, x)
 
 - [Layers](layers.md) - Neural network layers
 - [Losses](losses.md) - Loss functions
-- [ExTensor Reference](../tensor.md) - Core tensor class
+- [AnyTensor Reference](../tensor.md) - Core tensor class

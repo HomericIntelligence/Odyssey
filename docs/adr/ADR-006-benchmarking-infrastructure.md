@@ -353,8 +353,8 @@ tests/shared/benchmarking/
 
 ```mojo
 fn expensive_operation() raises:
-    var a = ExTensor.randn([1000, 1000])
-    var b = ExTensor.randn([1000, 1000])
+    var a = AnyTensor.randn([1000, 1000])
+    var b = AnyTensor.randn([1000, 1000])
     var c = a.matmul(b)
 
 var result = benchmark_function(expensive_operation, warmup_iters=10, measure_iters=100)

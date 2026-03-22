@@ -11,8 +11,8 @@ high test load. Split from test_emnist.mojo. See docs/adr/ADR-009-heap-corruptio
 """
 
 from testing import assert_equal, assert_true, assert_false, assert_raises
-from shared.data import EMNISTDataset, ExTensorDataset, Dataset
-from shared.core.extensor import ExTensor
+from shared.data import EMNISTDataset, AnyTensorDataset, Dataset
+from shared.core.any_tensor import AnyTensor
 
 
 # ============================================================================
@@ -137,7 +137,7 @@ fn test_emnist_getitem_index() raises:
         var sample_data, sample_label = dataset.__getitem__(0)
         _ = sample_label  # Consume unused variable
 
-        # Verify sample is a valid ExTensor
+        # Verify sample is a valid AnyTensor
         var data_shape = sample_data.shape()
         assert_equal(
             len(data_shape), 4, "Image should have 4 dimensions (N, C, H, W)"

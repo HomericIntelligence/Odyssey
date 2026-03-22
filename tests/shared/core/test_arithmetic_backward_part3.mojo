@@ -17,8 +17,8 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.extensor import (
-    ExTensor,
+from shared.core.any_tensor import (
+    AnyTensor,
     zeros,
     ones,
     ones_like,
@@ -80,10 +80,10 @@ fn test_add_backward_b_gradient() raises:
         a._data.bitcast[Float32]()[i] = Float32(i) * 0.1 - 0.5
         b._data.bitcast[Float32]()[i] = Float32(i) * 0.12 + 0.3
 
-    fn forward(inp: ExTensor) raises -> ExTensor:
+    fn forward(inp: AnyTensor) raises -> AnyTensor:
         return add(a, inp)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = add_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -112,10 +112,10 @@ fn test_subtract_backward_b_gradient() raises:
         a._data.bitcast[Float32]()[i] = Float32(i) * 0.15 + 0.2
         b._data.bitcast[Float32]()[i] = Float32(i) * 0.1 - 1.0
 
-    fn forward(inp: ExTensor) raises -> ExTensor:
+    fn forward(inp: AnyTensor) raises -> AnyTensor:
         return subtract(a, inp)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = subtract_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -144,10 +144,10 @@ fn test_multiply_backward_b_gradient() raises:
         a._data.bitcast[Float32]()[i] = Float32(i) * 0.2 + 0.1
         b._data.bitcast[Float32]()[i] = Float32(i) * 0.15 + 0.15
 
-    fn forward(inp: ExTensor) raises -> ExTensor:
+    fn forward(inp: AnyTensor) raises -> AnyTensor:
         return multiply(a, inp)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = multiply_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -176,10 +176,10 @@ fn test_divide_backward_b_gradient() raises:
         a._data.bitcast[Float32]()[i] = Float32(i) * 0.2 + 0.5
         b._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 1.5  # b > 0
 
-    fn forward(inp: ExTensor) raises -> ExTensor:
+    fn forward(inp: AnyTensor) raises -> AnyTensor:
         return divide(a, inp)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = divide_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -212,10 +212,10 @@ fn test_add_backward_broadcast_gradient() raises:
     for i in range(3):
         b._data.bitcast[Float32]()[i] = Float32(i) * 0.15 - 0.3
 
-    fn forward(inp: ExTensor) raises -> ExTensor:
+    fn forward(inp: AnyTensor) raises -> AnyTensor:
         return add(a, inp)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = add_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -248,10 +248,10 @@ fn test_multiply_backward_broadcast_gradient() raises:
     for i in range(3):
         b._data.bitcast[Float32]()[i] = Float32(i) * 0.2 + 0.2
 
-    fn forward(inp: ExTensor) raises -> ExTensor:
+    fn forward(inp: AnyTensor) raises -> AnyTensor:
         return multiply(a, inp)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = multiply_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -284,10 +284,10 @@ fn test_divide_backward_broadcast_gradient() raises:
     for i in range(3):
         b._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 1.0  # b > 0
 
-    fn forward(inp: ExTensor) raises -> ExTensor:
+    fn forward(inp: AnyTensor) raises -> AnyTensor:
         return divide(a, inp)
 
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = divide_backward(grad_out, a, inp)
         return grads.grad_b
 

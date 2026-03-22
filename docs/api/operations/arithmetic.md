@@ -17,8 +17,8 @@ All arithmetic operations support:
 Element-wise addition.
 
 ```mojo
-fn __add__(self, other: ExTensor) raises -> ExTensor
-fn add(a: ExTensor, b: ExTensor) raises -> ExTensor
+fn __add__(self, other: AnyTensor) raises -> AnyTensor
+fn add(a: AnyTensor, b: AnyTensor) raises -> AnyTensor
 ```
 
 **Example:**
@@ -45,8 +45,8 @@ var z = x + y  # y broadcasted to (3, 4)
 Element-wise subtraction.
 
 ```mojo
-fn __sub__(self, other: ExTensor) raises -> ExTensor
-fn subtract(a: ExTensor, b: ExTensor) raises -> ExTensor
+fn __sub__(self, other: AnyTensor) raises -> AnyTensor
+fn subtract(a: AnyTensor, b: AnyTensor) raises -> AnyTensor
 ```
 
 **Example:**
@@ -62,8 +62,8 @@ var c = a - b  # All elements are 4.0
 Element-wise multiplication (Hadamard product).
 
 ```mojo
-fn __mul__(self, other: ExTensor) raises -> ExTensor
-fn multiply(a: ExTensor, b: ExTensor) raises -> ExTensor
+fn __mul__(self, other: AnyTensor) raises -> AnyTensor
+fn multiply(a: AnyTensor, b: AnyTensor) raises -> AnyTensor
 ```
 
 **Example:**
@@ -79,8 +79,8 @@ var c = a * b  # All elements are 6.0
 Element-wise division.
 
 ```mojo
-fn __truediv__(self, other: ExTensor) raises -> ExTensor
-fn divide(a: ExTensor, b: ExTensor) raises -> ExTensor
+fn __truediv__(self, other: AnyTensor) raises -> AnyTensor
+fn divide(a: AnyTensor, b: AnyTensor) raises -> AnyTensor
 ```
 
 **Example:**
@@ -96,8 +96,8 @@ var c = a / b  # All elements are 5.0
 Element-wise floor division.
 
 ```mojo
-fn __floordiv__(self, other: ExTensor) raises -> ExTensor
-fn floor_divide(a: ExTensor, b: ExTensor) raises -> ExTensor
+fn __floordiv__(self, other: AnyTensor) raises -> AnyTensor
+fn floor_divide(a: AnyTensor, b: AnyTensor) raises -> AnyTensor
 ```
 
 **Example:**
@@ -113,8 +113,8 @@ var c = a // b  # All elements are 3.0
 Element-wise modulo.
 
 ```mojo
-fn __mod__(self, other: ExTensor) raises -> ExTensor
-fn modulo(a: ExTensor, b: ExTensor) raises -> ExTensor
+fn __mod__(self, other: AnyTensor) raises -> AnyTensor
+fn modulo(a: AnyTensor, b: AnyTensor) raises -> AnyTensor
 ```
 
 **Example:**
@@ -130,8 +130,8 @@ var c = a % b  # All elements are 1.0
 Element-wise exponentiation.
 
 ```mojo
-fn __pow__(self, other: ExTensor) raises -> ExTensor
-fn power(a: ExTensor, b: ExTensor) raises -> ExTensor
+fn __pow__(self, other: AnyTensor) raises -> AnyTensor
+fn power(a: AnyTensor, b: AnyTensor) raises -> AnyTensor
 ```
 
 **Example:**
@@ -149,8 +149,8 @@ var c = a ** b  # All elements are 8.0
 Element-wise negation.
 
 ```mojo
-fn __neg__(self) -> ExTensor
-fn negative(x: ExTensor) raises -> ExTensor
+fn __neg__(self) -> AnyTensor
+fn negative(x: AnyTensor) raises -> AnyTensor
 ```
 
 **Example:**
@@ -165,8 +165,8 @@ var b = -a  # All elements are -1.0
 Element-wise absolute value.
 
 ```mojo
-fn abs(self) raises -> ExTensor
-fn absolute(x: ExTensor) raises -> ExTensor
+fn abs(self) raises -> AnyTensor
+fn absolute(x: AnyTensor) raises -> AnyTensor
 ```
 
 **Example:**
@@ -193,10 +193,10 @@ var v = x ** 2.0  # Square all elements
 In-place operations modify the tensor directly (where supported).
 
 ```mojo
-fn iadd(mut self, other: ExTensor) raises -> None
-fn isub(mut self, other: ExTensor) raises -> None
-fn imul(mut self, other: ExTensor) raises -> None
-fn idiv(mut self, other: ExTensor) raises -> None
+fn iadd(mut self, other: AnyTensor) raises -> None
+fn isub(mut self, other: AnyTensor) raises -> None
+fn imul(mut self, other: AnyTensor) raises -> None
+fn idiv(mut self, other: AnyTensor) raises -> None
 ```
 
 **Example:**
@@ -246,4 +246,4 @@ var z = x + y  # Raises: "DType mismatch: float32 vs int32"
 ## See Also
 
 - [Reduction Operations](reduction.md) - Sum, mean, max, min
-- [ExTensor Reference](../tensor.md) - Core tensor class
+- [AnyTensor Reference](../tensor.md) - Core tensor class

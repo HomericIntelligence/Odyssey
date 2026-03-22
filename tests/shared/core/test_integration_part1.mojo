@@ -1,4 +1,4 @@
-"""Integration tests for ExTensor operations - Part 1: Chained and Creation Patterns.
+"""Integration tests for AnyTensor operations - Part 1: Chained and Creation Patterns.
 
 Tests chained arithmetic operations and creation + arithmetic patterns.
 Split from test_integration.mojo per ADR-009 to avoid heap corruption.
@@ -8,8 +8,8 @@ Split from test_integration.mojo per ADR-009 to avoid heap corruption.
 # high test load. Split from test_integration.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange, eye, linspace
+# Import AnyTensor and operations
+from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange, eye, linspace
 from shared.core.arithmetic import add, subtract, multiply
 
 # Import test helpers
@@ -146,7 +146,7 @@ fn test_linspace_operations() raises:
 
 fn main() raises:
     """Run integration tests part 1: chained and creation patterns."""
-    print("Running ExTensor integration tests (part 1)...")
+    print("Running AnyTensor integration tests (part 1)...")
 
     # Chained operations
     print("  Testing chained operations...")

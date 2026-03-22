@@ -8,7 +8,7 @@ This example shows:
 5. Comparing BF8 (E5M2) vs FP8 (E4M3) characteristics
 """
 
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 
 
 fn main() raises:
@@ -18,7 +18,7 @@ fn main() raises:
     )
     print("This example demonstrates the expected API structure.")
     print(
-        "When BF8 conversion methods are available in ExTensor,"
+        "When BF8 conversion methods are available in AnyTensor,"
     )
     print("this example can be fully implemented.")
     print("")

@@ -11,8 +11,8 @@ from tests.shared.conftest import (
     assert_equal,
     assert_almost_equal,
 )
-from shared.data import ExTensorDataset, CachedDataset
-from shared.core.extensor import ExTensor, ones, zeros
+from shared.data import AnyTensorDataset, CachedDataset
+from shared.core.any_tensor import AnyTensor, ones, zeros
 from collections import List
 
 
@@ -32,7 +32,7 @@ fn test_cached_dataset_creation() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var base_dataset = ExTensorDataset(data^, labels^)
+    var base_dataset = AnyTensorDataset(data^, labels^)
     var cached = CachedDataset(base_dataset^, max_cache_size=-1)
 
     assert_equal(cached.__len__(), 10)
@@ -50,7 +50,7 @@ fn test_cached_dataset_length() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var base_dataset = ExTensorDataset(data^, labels^)
+    var base_dataset = AnyTensorDataset(data^, labels^)
     var cached = CachedDataset(base_dataset^, max_cache_size=-1)
 
     assert_equal(cached.__len__(), 42)
@@ -67,7 +67,7 @@ fn test_cached_dataset_stores_samples() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var base_dataset = ExTensorDataset(data^, labels^)
+    var base_dataset = AnyTensorDataset(data^, labels^)
     var cached = CachedDataset(base_dataset^, max_cache_size=-1)
 
     # Access a sample via mutable method
@@ -88,7 +88,7 @@ fn test_cached_dataset_cache_hit() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var base_dataset = ExTensorDataset(data^, labels^)
+    var base_dataset = AnyTensorDataset(data^, labels^)
     var cached = CachedDataset(base_dataset^, max_cache_size=-1)
 
     # First access - cache miss
@@ -113,7 +113,7 @@ fn test_cached_dataset_max_cache_size() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var base_dataset = ExTensorDataset(data^, labels^)
+    var base_dataset = AnyTensorDataset(data^, labels^)
     var cached = CachedDataset(base_dataset^, max_cache_size=3)
 
     # Access 5 samples via mutable method
@@ -135,7 +135,7 @@ fn test_cached_dataset_disabled_cache() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var base_dataset = ExTensorDataset(data^, labels^)
+    var base_dataset = AnyTensorDataset(data^, labels^)
     var cached = CachedDataset(
         base_dataset^, max_cache_size=-1, cache_enabled=False
     )
@@ -157,7 +157,7 @@ fn test_cached_dataset_preload_cache() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var base_dataset = ExTensorDataset(data^, labels^)
+    var base_dataset = AnyTensorDataset(data^, labels^)
     var cached = CachedDataset(base_dataset^, max_cache_size=-1)
 
     cached._preload_cache()
@@ -177,7 +177,7 @@ fn test_cached_dataset_clear_cache() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var base_dataset = ExTensorDataset(data^, labels^)
+    var base_dataset = AnyTensorDataset(data^, labels^)
     var cached = CachedDataset(base_dataset^, max_cache_size=-1)
 
     # Add to cache

@@ -13,7 +13,7 @@ Test Coverage:
 All tests use small tensors for fast runtime.
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.training.gradient_ops import (
     accumulate_gradient_inplace,
     scale_gradient_inplace,

@@ -45,7 +45,7 @@ fn test_data_imports() raises:
     """Test data package imports work correctly."""
     from shared.data import (
         Dataset,
-        ExTensorDataset,
+        AnyTensorDataset,
         CIFAR10Dataset,
         EMNISTDataset,
     )
@@ -55,7 +55,7 @@ fn test_data_imports() raises:
 
 fn test_data_datasets_imports() raises:
     """Test data datasets imports."""
-    from shared.data import Dataset, ExTensorDataset, FileDataset
+    from shared.data import Dataset, AnyTensorDataset, FileDataset
 
     print("✓ Data datasets imports test passed")
 

@@ -1,4 +1,4 @@
-# ExTensor Backward Pass Implementation Catalog
+# AnyTensor Backward Pass Implementation Catalog
 
 **Status**: Comprehensive training readiness verification
 **Date**: 2025-11-18
@@ -17,8 +17,8 @@
 ### 1. _reduce_broadcast_dims (Helper Function)
 
 **Location**: Lines 498-545
-**Signature**: `fn _reduce_broadcast_dims(grad: ExTensor, original_shape: DynamicVector[Int]) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn _reduce_broadcast_dims(grad: AnyTensor, original_shape: DynamicVector[Int]) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Helper function that reduces gradients from broadcast shapes back to original shapes.
 
@@ -52,9 +52,9 @@ For forward pass that broadcast X[original_shape] → Y[broadcast_shape]:
 ### 2. add_backward
 
 **Location**: Lines 548-586
-**Signature**: `fn add_backward(grad_output: ExTensor, a_shape: DynamicVector[Int],
-b_shape: DynamicVector[Int]) raises -> (ExTensor, ExTensor)`
-**Return Type**: `Tuple[ExTensor, ExTensor]`
+**Signature**: `fn add_backward(grad_output: AnyTensor, a_shape: DynamicVector[Int],
+b_shape: DynamicVector[Int]) raises -> (AnyTensor, AnyTensor)`
+**Return Type**: `Tuple[AnyTensor, AnyTensor]`
 
 **Purpose**: Compute gradients for element-wise addition with broadcasting support.
 
@@ -92,9 +92,9 @@ If A was prepended: A[5] + B[3,4,5] → grad_a summed over first 2 dims
 ### 3. subtract_backward
 
 **Location**: Lines 589-618
-**Signature**: `fn subtract_backward(grad_output: ExTensor,
-a_shape: DynamicVector[Int], b_shape: DynamicVector[Int]) raises -> (ExTensor, ExTensor)`
-**Return Type**: `Tuple[ExTensor, ExTensor]`
+**Signature**: `fn subtract_backward(grad_output: AnyTensor,
+a_shape: DynamicVector[Int], b_shape: DynamicVector[Int]) raises -> (AnyTensor, AnyTensor)`
+**Return Type**: `Tuple[AnyTensor, AnyTensor]`
 
 **Purpose**: Compute gradients for element-wise subtraction with broadcasting.
 
@@ -129,8 +129,8 @@ Backward:
 ### 4. multiply_backward
 
 **Location**: Lines 621-651
-**Signature**: `fn multiply_backward(grad_output: ExTensor, a: ExTensor, b: ExTensor) raises -> (ExTensor, ExTensor)`
-**Return Type**: `Tuple[ExTensor, ExTensor]`
+**Signature**: `fn multiply_backward(grad_output: AnyTensor, a: AnyTensor, b: AnyTensor) raises -> (AnyTensor, AnyTensor)`
+**Return Type**: `Tuple[AnyTensor, AnyTensor]`
 
 **Purpose**: Compute gradients for element-wise multiplication (product rule).
 
@@ -168,8 +168,8 @@ grad_a_reduced = reduce(grad_a, a.shape())
 ### 5. divide_backward
 
 **Location**: Lines 654-709
-**Signature**: `fn divide_backward(grad_output: ExTensor, a: ExTensor, b: ExTensor) raises -> (ExTensor, ExTensor)`
-**Return Type**: `Tuple[ExTensor, ExTensor]`
+**Signature**: `fn divide_backward(grad_output: AnyTensor, a: AnyTensor, b: AnyTensor) raises -> (AnyTensor, AnyTensor)`
+**Return Type**: `Tuple[AnyTensor, AnyTensor]`
 
 **Purpose**: Compute gradients for element-wise division (quotient rule).
 
@@ -219,8 +219,8 @@ grad_b_reduced = reduce(grad_b, b.shape())
 ### 1. matmul_backward
 
 **Location**: Lines 326-432
-**Signature**: `fn matmul_backward(grad_output: ExTensor, a: ExTensor, b: ExTensor) raises -> (ExTensor, ExTensor)`
-**Return Type**: `Tuple[ExTensor, ExTensor]`
+**Signature**: `fn matmul_backward(grad_output: AnyTensor, a: AnyTensor, b: AnyTensor) raises -> (AnyTensor, AnyTensor)`
+**Return Type**: `Tuple[AnyTensor, AnyTensor]`
 
 **Purpose**: Compute gradients for matrix multiplication across all supported cases.
 
@@ -279,8 +279,8 @@ For element-wise: C[i,j] = Σ_k A[i,k] * B[k,j]
 ### 2. transpose_backward
 
 **Location**: Lines 435-456
-**Signature**: `fn transpose_backward(grad_output: ExTensor) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn transpose_backward(grad_output: AnyTensor) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Compute gradient for transpose operation.
 
@@ -315,8 +315,8 @@ Transpose is self-inverse: transpose(transpose(X)) = X
 ### 1. sum_backward
 
 **Location**: Lines 359-438
-**Signature**: `fn sum_backward(grad_output: ExTensor, input_shape: DynamicVector[Int], axis: Int = -1) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn sum_backward(grad_output: AnyTensor, input_shape: DynamicVector[Int], axis: Int = -1) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Compute gradient for sum reduction operation.
 
@@ -355,8 +355,8 @@ If axis = 1: (3, 5) ∂L/∂Y → broadcast to (3, 4, 5) by replicating along di
 ### 2. mean_backward
 
 **Location**: Lines 441-487
-**Signature**: `fn mean_backward(grad_output: ExTensor, input_shape: DynamicVector[Int], axis: Int = -1) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn mean_backward(grad_output: AnyTensor, input_shape: DynamicVector[Int], axis: Int = -1) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Compute gradient for mean reduction.
 
@@ -398,8 +398,8 @@ else:
 ### 3. max_reduce_backward
 
 **Location**: Lines 490-624
-**Signature**: `fn max_reduce_backward(grad_output: ExTensor, x: ExTensor, axis: Int = -1) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn max_reduce_backward(grad_output: AnyTensor, x: AnyTensor, axis: Int = -1) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Compute gradient for max reduction (max pooling gradient).
 
@@ -440,8 +440,8 @@ If multiple elements are maximum:
 ### 4. min_reduce_backward
 
 **Location**: Lines 627-753
-**Signature**: `fn min_reduce_backward(grad_output: ExTensor, x: ExTensor, axis: Int = -1) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn min_reduce_backward(grad_output: AnyTensor, x: AnyTensor, axis: Int = -1) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Compute gradient for min reduction.
 
@@ -480,8 +480,8 @@ If multiple elements are minimum:
 ### 1. exp_backward
 
 **Location**: Lines 574-602
-**Signature**: `fn exp_backward(grad_output: ExTensor, output: ExTensor) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn exp_backward(grad_output: AnyTensor, output: AnyTensor) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Compute gradient for exponential function.
 
@@ -511,8 +511,8 @@ Uses output from forward pass to avoid recomputing exp(X).
 ### 2. log_backward
 
 **Location**: Lines 605-639
-**Signature**: `fn log_backward(grad_output: ExTensor, x: ExTensor) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn log_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Compute gradient for natural logarithm.
 
@@ -544,8 +544,8 @@ Backward:
 ### 3. sqrt_backward
 
 **Location**: Lines 642-678
-**Signature**: `fn sqrt_backward(grad_output: ExTensor, output: ExTensor) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn sqrt_backward(grad_output: AnyTensor, output: AnyTensor) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Compute gradient for square root.
 
@@ -579,8 +579,8 @@ Uses output to avoid recomputing sqrt(X).
 ### 4. abs_backward
 
 **Location**: Lines 681-720
-**Signature**: `fn abs_backward(grad_output: ExTensor, x: ExTensor) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn abs_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Compute gradient for absolute value.
 
@@ -611,8 +611,8 @@ where sign(X) = 1 if X > 0, -1 if X < 0, 0 if X = 0
 ### 5. clip_backward
 
 **Location**: Lines 723-759
-**Signature**: `fn clip_backward(grad_output: ExTensor, x: ExTensor, min_val: Float64, max_val: Float64) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn clip_backward(grad_output: AnyTensor, x: AnyTensor, min_val: Float64, max_val: Float64) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Compute gradient for clipping (clamping) operation.
 
@@ -643,8 +643,8 @@ Gradient only flows through "active" region.
 ### 6. log10_backward
 
 **Location**: Lines 762-788
-**Signature**: `fn log10_backward(grad_output: ExTensor, x: ExTensor) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn log10_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Compute gradient for base-10 logarithm.
 
@@ -677,8 +677,8 @@ where ln(10) ≈ 2.302585092994046
 ### 7. log2_backward
 
 **Location**: Lines 791-817
-**Signature**: `fn log2_backward(grad_output: ExTensor, x: ExTensor) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn log2_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Compute gradient for base-2 logarithm.
 
@@ -716,8 +716,8 @@ where ln(2) ≈ 0.6931471805599453
 ### 1. relu_backward
 
 **Location**: Lines 551-604
-**Signature**: `fn relu_backward(grad_output: ExTensor, x: ExTensor) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn relu_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Compute gradient for ReLU activation.
 
@@ -750,8 +750,8 @@ where (X > 0) is a binary mask: 1 if X > 0, else 0
 ### 2. leaky_relu_backward
 
 **Location**: Lines 607-647
-**Signature**: `fn leaky_relu_backward(grad_output: ExTensor, x: ExTensor, alpha: Float64 = 0.01) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn leaky_relu_backward(grad_output: AnyTensor, x: AnyTensor, alpha: Float64 = 0.01) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Compute gradient for Leaky ReLU activation.
 
@@ -785,8 +785,8 @@ Default alpha = 0.01
 ### 3. prelu_backward
 
 **Location**: Lines 650-725
-**Signature**: `fn prelu_backward(grad_output: ExTensor, x: ExTensor, alpha: ExTensor) raises -> (ExTensor, ExTensor)`
-**Return Type**: `Tuple[ExTensor, ExTensor]`
+**Signature**: `fn prelu_backward(grad_output: AnyTensor, x: AnyTensor, alpha: AnyTensor) raises -> (AnyTensor, AnyTensor)`
+**Return Type**: `Tuple[AnyTensor, AnyTensor]`
 
 **Purpose**: Compute gradients for Parametric ReLU (learnable alpha).
 
@@ -821,8 +821,8 @@ Backward:
 ### 4. sigmoid_backward
 
 **Location**: Lines 728-769
-**Signature**: `fn sigmoid_backward(grad_output: ExTensor, output: ExTensor) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn sigmoid_backward(grad_output: AnyTensor, output: AnyTensor) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Compute gradient for sigmoid activation.
 
@@ -855,8 +855,8 @@ Uses output from forward pass to avoid recomputing sigmoid.
 ### 5. tanh_backward
 
 **Location**: Lines 772-813
-**Signature**: `fn tanh_backward(grad_output: ExTensor, output: ExTensor) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn tanh_backward(grad_output: AnyTensor, output: AnyTensor) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Compute gradient for tanh activation.
 
@@ -888,8 +888,8 @@ Uses output from forward pass.
 ### 6. gelu_backward
 
 **Location**: Lines 816-928
-**Signature**: `fn gelu_backward(grad_output: ExTensor, x: ExTensor, approximate: Bool = False) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn gelu_backward(grad_output: AnyTensor, x: AnyTensor, approximate: Bool = False) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Compute gradient for GELU activation with exact or approximate formula.
 
@@ -950,8 +950,8 @@ LN10 = 2.302585092994046
 ### 7. softmax_backward
 
 **Location**: Lines 931-1051
-**Signature**: `fn softmax_backward(grad_output: ExTensor, output: ExTensor, axis: Int = -1) raises -> ExTensor`
-**Return Type**: `ExTensor`
+**Signature**: `fn softmax_backward(grad_output: AnyTensor, output: AnyTensor, axis: Int = -1) raises -> AnyTensor`
+**Return Type**: `AnyTensor`
 
 **Purpose**: Compute gradient for softmax activation (accounts for normalization Jacobian).
 
@@ -1020,17 +1020,17 @@ grad[2] = 0.3 * (1.0 - 1.0) = 0.0
 
 ```mojo
 fn batch_norm2d_backward(
-    grad_output: ExTensor,
-    x: ExTensor,
-    gamma: ExTensor,
-    running_mean: ExTensor,
-    running_var: ExTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
+    gamma: AnyTensor,
+    running_mean: AnyTensor,
+    running_var: AnyTensor,
     training: Bool,
     epsilon: Float64 = 1e-5,
-) raises -> Tuple[ExTensor, ExTensor, ExTensor]
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]
 ```
 
-**Return Type**: `Tuple[ExTensor, ExTensor, ExTensor]` — `(grad_input, grad_gamma, grad_beta)`
+**Return Type**: `Tuple[AnyTensor, AnyTensor, AnyTensor]` — `(grad_input, grad_gamma, grad_beta)`
 
 **Purpose**: Backward pass for 2D batch normalization. Computes gradients with respect
 to input and the learnable scale (gamma) and shift (beta) parameters.
@@ -1130,14 +1130,14 @@ not using the `_reduce_broadcast_dims` helper.
 
 ```mojo
 fn layer_norm_backward(
-    grad_output: ExTensor,
-    x: ExTensor,
-    gamma: ExTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
+    gamma: AnyTensor,
     epsilon: Float64 = 1e-5,
-) raises -> Tuple[ExTensor, ExTensor, ExTensor]
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]
 ```
 
-**Return Type**: `Tuple[ExTensor, ExTensor, ExTensor]` — `(grad_input, grad_gamma, grad_beta)`
+**Return Type**: `Tuple[AnyTensor, AnyTensor, AnyTensor]` — `(grad_input, grad_gamma, grad_beta)`
 
 **Purpose**: Backward pass for layer normalization. Unlike batch normalization,
 normalization is computed independently per sample over the feature dimensions — there
@@ -1307,7 +1307,7 @@ formula documentation, dtype support, and recommended gradient-check tolerances.
 
 ### STATUS: READY FOR TRAINING
 
-The ExTensor framework has comprehensive backward pass support for:
+The AnyTensor framework has comprehensive backward pass support for:
 
 - All essential arithmetic operations
 - Matrix operations for neural network layers

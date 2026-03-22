@@ -40,10 +40,10 @@ from {module_path} import *
 # =============================================================================
 # Test Fixtures
 # =============================================================================
-fn create_test_data() -> ExTensor:
+fn create_test_data() -> AnyTensor:
     """Create test data with reproducible values."""
     # Use FP-representable special values for reproducibility
-    return ExTensor.from_list([0.0, 0.5, 1.0, 1.5, -0.5, -1.0])
+    return AnyTensor.from_list([0.0, 0.5, 1.0, 1.5, -0.5, -1.0])
 
 
 # =============================================================================
@@ -144,7 +144,7 @@ Generated: {timestamp}
 
 from testing import assert_equal, assert_true, assert_almost_equal
 from {module_path} import *
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.testing import gradient_check, LayerTester
 
 
@@ -157,10 +157,10 @@ fn create_layer() -> {layer_type}:
     return {layer_type}()
 
 
-fn create_input() -> ExTensor:
+fn create_input() -> AnyTensor:
     """Create test input tensor."""
     # Use FP-representable values for reproducibility
-    return ExTensor.randn([2, 16], seed=42)
+    return AnyTensor.randn([2, 16], seed=42)
 
 
 # =============================================================================
@@ -214,7 +214,7 @@ fn test_backward_shape():
     var output = layer.forward(input)
 
     # Create upstream gradient
-    var grad_output = ExTensor.ones_like(output)
+    var grad_output = AnyTensor.ones_like(output)
 
     # Backward
     var grad_input = output.backward(grad_output)
@@ -259,7 +259,7 @@ fn test_parameter_gradients():
 
     # Forward + backward
     var output = layer.forward(input)
-    var grad_output = ExTensor.ones_like(output)
+    var grad_output = AnyTensor.ones_like(output)
     _ = output.backward(grad_output)
 
     # Check parameter gradients
@@ -273,7 +273,7 @@ fn test_parameter_gradients():
 fn test_batch_size_one():
     """Test with batch size of 1."""
     var layer = create_layer()
-    var input = ExTensor.randn([1, 16], seed=42)
+    var input = AnyTensor.randn([1, 16], seed=42)
 
     var output = layer.forward(input)
 
@@ -283,7 +283,7 @@ fn test_batch_size_one():
 fn test_large_batch():
     """Test with large batch size."""
     var layer = create_layer()
-    var input = ExTensor.randn([256, 16], seed=42)
+    var input = AnyTensor.randn([256, 16], seed=42)
 
     var output = layer.forward(input)
 
@@ -297,7 +297,7 @@ fn test_dtypes():
     """Test layer with different dtypes."""
     # Test with float32 (default)
     var layer_f32 = create_layer()
-    var input_f32 = ExTensor.randn([2, 16], dtype=DType.float32, seed=42)
+    var input_f32 = AnyTensor.randn([2, 16], dtype=DType.float32, seed=42)
     var output_f32 = layer_f32.forward(input_f32)
     assert_equal(output_f32.dtype(), DType.float32)
 
@@ -360,7 +360,7 @@ Generated: {timestamp}
 
 from testing import assert_equal, assert_true, assert_almost_equal
 from {module_path} import *
-from shared.core import ExTensor
+from shared.core import AnyTensor
 from shared.training import SGD, CrossEntropyLoss
 
 
@@ -376,15 +376,15 @@ fn create_model() -> {model_type}:
     return {model_type}(num_classes=NUM_CLASSES)
 
 
-fn create_input() -> ExTensor:
+fn create_input() -> AnyTensor:
     """Create test input tensor."""
     # TEMPLATE: Adjust shape for model input requirements
-    return ExTensor.randn([BATCH_SIZE, 3, 32, 32], seed=42)
+    return AnyTensor.randn([BATCH_SIZE, 3, 32, 32], seed=42)
 
 
-fn create_target() -> ExTensor:
+fn create_target() -> AnyTensor:
     """Create test target tensor."""
-    return ExTensor.randint(0, NUM_CLASSES, [BATCH_SIZE], seed=42)
+    return AnyTensor.randint(0, NUM_CLASSES, [BATCH_SIZE], seed=42)
 
 
 # =============================================================================

@@ -10,7 +10,7 @@ Key components:
                y = x during inference
 """
 
-from ..extensor import AnyTensor, zeros_like, full
+from ..any_tensor import AnyTensor, zeros_like, full
 from random import random_float64
 
 

@@ -1,4 +1,4 @@
-"""Matrix operations for ExTensor.
+"""Matrix operations for AnyTensor.
 
 Implements linear algebra operations like matrix multiplication and transpose
 
@@ -12,7 +12,7 @@ Includes:
 
 from collections import List
 from memory import memcpy
-from .extensor import ExTensor
+from .any_tensor import AnyTensor
 from shared.tensor.tensor import Tensor
 from .gradient_types import GradientPair
 from .shape import as_contiguous
@@ -26,7 +26,7 @@ from .shape import as_contiguous
 @always_inline
 fn _matmul_2d_1d_impl[
     dtype: DType
-](result: ExTensor, a: ExTensor, b: ExTensor, m: Int, k: Int):
+](result: AnyTensor, a: AnyTensor, b: AnyTensor, m: Int, k: Int):
     """Dtype-specialized 2D @ 1D matmul.
 
     For Float16, uses FP32 accumulation internally (industry-standard mixed precision).
@@ -58,7 +58,7 @@ fn _matmul_2d_1d_impl[
 
 
 fn _dispatch_matmul_2d_1d(
-    result: ExTensor, a: ExTensor, b: ExTensor, m: Int, k: Int
+    result: AnyTensor, a: AnyTensor, b: AnyTensor, m: Int, k: Int
 ) raises:
     """Runtime dispatch for 2D @ 1D matmul."""
     var dt = a.dtype()
@@ -79,7 +79,7 @@ fn _dispatch_matmul_2d_1d(
 @always_inline
 fn _matmul_1d_2d_impl[
     dtype: DType
-](result: ExTensor, a: ExTensor, b: ExTensor, m: Int, n: Int):
+](result: AnyTensor, a: AnyTensor, b: AnyTensor, m: Int, n: Int):
     """Dtype-specialized 1D @ 2D matmul.
 
     For Float16, uses FP32 accumulation internally (industry-standard mixed precision).
@@ -111,7 +111,7 @@ fn _matmul_1d_2d_impl[
 
 
 fn _dispatch_matmul_1d_2d(
-    result: ExTensor, a: ExTensor, b: ExTensor, m: Int, n: Int
+    result: AnyTensor, a: AnyTensor, b: AnyTensor, m: Int, n: Int
 ) raises:
     """Runtime dispatch for 1D @ 2D matmul."""
     var dt = a.dtype()
@@ -133,9 +133,9 @@ fn _dispatch_matmul_1d_2d(
 fn _matmul_2d_2d_impl[
     dtype: DType
 ](
-    result: ExTensor,
-    a: ExTensor,
-    b: ExTensor,
+    result: AnyTensor,
+    a: AnyTensor,
+    b: AnyTensor,
     a_rows: Int,
     a_cols: Int,
     b_cols: Int,
@@ -175,9 +175,9 @@ fn _matmul_2d_2d_impl[
 
 
 fn _dispatch_matmul_2d_2d(
-    result: ExTensor,
-    a: ExTensor,
-    b: ExTensor,
+    result: AnyTensor,
+    a: AnyTensor,
+    b: AnyTensor,
     a_rows: Int,
     a_cols: Int,
     b_cols: Int,
@@ -202,9 +202,9 @@ fn _dispatch_matmul_2d_2d(
 fn _matmul_batched_impl[
     dtype: DType
 ](
-    result: ExTensor,
-    a: ExTensor,
-    b: ExTensor,
+    result: AnyTensor,
+    a: AnyTensor,
+    b: AnyTensor,
     batch_size: Int,
     a_rows: Int,
     a_cols: Int,
@@ -262,9 +262,9 @@ fn _matmul_batched_impl[
 
 
 fn _dispatch_matmul_batched(
-    result: ExTensor,
-    a: ExTensor,
-    b: ExTensor,
+    result: AnyTensor,
+    a: AnyTensor,
+    b: AnyTensor,
     batch_size: Int,
     a_rows: Int,
     a_cols: Int,
@@ -348,8 +348,8 @@ fn _dispatch_matmul_batched(
 fn _transpose_copy_impl[
     dtype: DType
 ](
-    result: ExTensor,
-    tensor: ExTensor,
+    result: AnyTensor,
+    tensor: AnyTensor,
     ndim: Int,
     result_shape: List[Int],
     input_strides: List[Int],
@@ -376,8 +376,8 @@ fn _transpose_copy_impl[
 
 
 fn _dispatch_transpose_copy(
-    result: ExTensor,
-    tensor: ExTensor,
+    result: AnyTensor,
+    tensor: AnyTensor,
     ndim: Int,
     result_shape: List[Int],
     input_strides: List[Int],
@@ -425,7 +425,7 @@ fn _dispatch_transpose_copy(
 @always_inline
 fn _dot_impl[
     dtype: DType
-](result: ExTensor, a: ExTensor, b: ExTensor, length: Int):
+](result: AnyTensor, a: AnyTensor, b: AnyTensor, length: Int):
     """Dtype-specialized dot product."""
     var a_ptr = a._data.bitcast[Scalar[dtype]]()
     var b_ptr = b._data.bitcast[Scalar[dtype]]()
@@ -438,7 +438,7 @@ fn _dot_impl[
 
 
 fn _dispatch_dot(
-    result: ExTensor, a: ExTensor, b: ExTensor, length: Int
+    result: AnyTensor, a: AnyTensor, b: AnyTensor, length: Int
 ) raises:
     """Runtime dispatch for dot product."""
     var dt = a.dtype()
@@ -459,7 +459,7 @@ fn _dispatch_dot(
 @always_inline
 fn _outer_impl[
     dtype: DType
-](result: ExTensor, a: ExTensor, b: ExTensor, len_a: Int, len_b: Int):
+](result: AnyTensor, a: AnyTensor, b: AnyTensor, len_a: Int, len_b: Int):
     """Dtype-specialized outer product."""
     var a_ptr = a._data.bitcast[Scalar[dtype]]()
     var b_ptr = b._data.bitcast[Scalar[dtype]]()
@@ -472,7 +472,7 @@ fn _outer_impl[
 
 
 fn _dispatch_outer(
-    result: ExTensor, a: ExTensor, b: ExTensor, len_a: Int, len_b: Int
+    result: AnyTensor, a: AnyTensor, b: AnyTensor, len_a: Int, len_b: Int
 ) raises:
     """Runtime dispatch for outer product."""
     var dt = a.dtype()
@@ -493,7 +493,7 @@ fn _dispatch_outer(
 @always_inline
 fn _matmul_backward_2d_1d_impl[
     dtype: DType
-](grad_a: ExTensor, grad_output: ExTensor, b: ExTensor, m: Int, k: Int):
+](grad_a: AnyTensor, grad_output: AnyTensor, b: AnyTensor, m: Int, k: Int):
     """Dtype-specialized grad_a for 2D @ 1D backward."""
     var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
     var b_ptr = b._data.bitcast[Scalar[dtype]]()
@@ -506,7 +506,7 @@ fn _matmul_backward_2d_1d_impl[
 
 
 fn _dispatch_matmul_backward_2d_1d(
-    grad_a: ExTensor, grad_output: ExTensor, b: ExTensor, m: Int, k: Int
+    grad_a: AnyTensor, grad_output: AnyTensor, b: AnyTensor, m: Int, k: Int
 ) raises:
     """Runtime dispatch for 2D @ 1D backward."""
     var dt = grad_output.dtype()
@@ -527,7 +527,7 @@ fn _dispatch_matmul_backward_2d_1d(
 @always_inline
 fn _matmul_backward_1d_2d_impl[
     dtype: DType
-](grad_b: ExTensor, a: ExTensor, grad_output: ExTensor, k: Int, n: Int):
+](grad_b: AnyTensor, a: AnyTensor, grad_output: AnyTensor, k: Int, n: Int):
     """Dtype-specialized grad_b for 1D @ 2D backward."""
     var a_ptr = a._data.bitcast[Scalar[dtype]]()
     var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
@@ -540,7 +540,7 @@ fn _matmul_backward_1d_2d_impl[
 
 
 fn _dispatch_matmul_backward_1d_2d(
-    grad_b: ExTensor, a: ExTensor, grad_output: ExTensor, k: Int, n: Int
+    grad_b: AnyTensor, a: AnyTensor, grad_output: AnyTensor, k: Int, n: Int
 ) raises:
     """Runtime dispatch for 1D @ 2D backward."""
     var dt = a.dtype()
@@ -558,7 +558,7 @@ fn _dispatch_matmul_backward_1d_2d(
         raise Error("matmul_backward: unsupported dtype")
 
 
-fn matmul(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Matrix multiplication.
 
     Args:
@@ -600,8 +600,8 @@ fn matmul(a: ExTensor, b: ExTensor) raises -> ExTensor:
     # use direct flat-buffer indexing. For already-contiguous tensors we take
     # a shared-ownership copy (view) to avoid allocation; for non-contiguous
     # tensors (e.g. transpose views) we materialize a fresh contiguous copy.
-    var a_cont: ExTensor
-    var b_cont: ExTensor
+    var a_cont: AnyTensor
+    var b_cont: AnyTensor
     if a.is_contiguous():
         a_cont = a
     else:
@@ -641,7 +641,7 @@ fn matmul(a: ExTensor, b: ExTensor) raises -> ExTensor:
         # Result is a vector of shape (m,)
         var result_shape = List[Int](capacity=1)
         result_shape.append(m)
-        var result = ExTensor(result_shape, a_cont.dtype())
+        var result = AnyTensor(result_shape, a_cont.dtype())
 
         _dispatch_matmul_2d_1d(result, a_cont, b_cont, m, k)
         return result^
@@ -666,7 +666,7 @@ fn matmul(a: ExTensor, b: ExTensor) raises -> ExTensor:
         # Result is a vector of shape (n,)
         var result_shape = List[Int](capacity=1)
         result_shape.append(n)
-        var result = ExTensor(result_shape, a_cont.dtype())
+        var result = AnyTensor(result_shape, a_cont.dtype())
 
         _dispatch_matmul_1d_2d(result, a_cont, b_cont, m, n)
         return result^
@@ -703,7 +703,7 @@ fn matmul(a: ExTensor, b: ExTensor) raises -> ExTensor:
     result_shape.append(b_cols)
 
     # Create result
-    var result = ExTensor(result_shape, a_cont.dtype())
+    var result = AnyTensor(result_shape, a_cont.dtype())
 
     # Implement matrix multiplication
     # For 2D case: result[i, j] = sum(a[i, k] * b[k, j] for k in range(a_cols))
@@ -738,8 +738,8 @@ fn matmul(a: ExTensor, b: ExTensor) raises -> ExTensor:
 
 
 fn transpose(
-    tensor: ExTensor, axes: Optional[List[Int]] = None
-) raises -> ExTensor:
+    tensor: AnyTensor, axes: Optional[List[Int]] = None
+) raises -> AnyTensor:
     """Transpose tensor dimensions with optional axis permutation.
 
         Supports arbitrary axis permutation for N-dimensional tensors, matching NumPy semantics
@@ -827,7 +827,7 @@ fn transpose(
         ordered_strides.append(input_strides[i])
 
     # Allocate result tensor with permuted shape
-    var result = ExTensor(result_shape, tensor.dtype())
+    var result = AnyTensor(result_shape, tensor.dtype())
     var numel = tensor.numel()
 
     # Copy data element-by-element using multi-index decomposition
@@ -861,8 +861,8 @@ fn transpose(
 
 
 fn transpose_view(
-    tensor: ExTensor, axes: Optional[List[Int]] = None
-) raises -> ExTensor:
+    tensor: AnyTensor, axes: Optional[List[Int]] = None
+) raises -> AnyTensor:
     """Return a transposed tensor with permuted strides (test utility only).
 
     **IMPORTANT**: Despite the name "view", this function does NOT implement
@@ -879,7 +879,7 @@ fn transpose_view(
     non-trivial permutation the result has is_contiguous() == False.
 
     Note: `transpose_view()` is a lower-level testing utility. For production use,
-    prefer `ExTensor.transpose()` (2-axis swap) or implement general permutation
+    prefer `AnyTensor.transpose()` (2-axis swap) or implement general permutation
     logic wrapping this function. See #4082 for discussion of the API relationship.
 
     Args:
@@ -887,7 +887,7 @@ fn transpose_view(
         axes: Optional permutation of axes. Defaults to reversing all axes.
 
     Returns:
-        A new independent ExTensor (not a view) with permuted shape and strides.
+        A new independent AnyTensor (not a view) with permuted shape and strides.
         For any non-trivial permutation the result has is_contiguous() == False.
 
     Raises:
@@ -895,8 +895,8 @@ fn transpose_view(
 
     See Also:
         - `transpose()`: Zero-copy view with stride permutation (production API)
-        - `ExTensor.reshape()`: Another zero-copy view operation
-        - `docs/dev/extensor-view-contract.md`: View semantics reference.
+        - `AnyTensor.reshape()`: Another zero-copy view operation
+        - `docs/dev/anytensor-view-contract.md`: View semantics reference.
     """
     var ndim = tensor.dim()
     var input_shape = tensor.shape()
@@ -953,7 +953,7 @@ fn transpose_view(
         result_strides.append(ordered_strides[axis])
 
     # Allocate result with the permuted shape (gets default C-order strides)
-    var result = ExTensor(result_shape, tensor.dtype())
+    var result = AnyTensor(result_shape, tensor.dtype())
 
     # Copy raw bytes (preserves original flat data order)
     var numel = tensor.numel()
@@ -967,7 +967,7 @@ fn transpose_view(
     return result^
 
 
-fn dot(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn dot(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Dot product of tensors.
 
     Args:
@@ -999,7 +999,7 @@ fn dot(a: ExTensor, b: ExTensor) raises -> ExTensor:
             raise Error("Incompatible shapes for dot product")
 
         var result_shape = List[Int]()  # Scalar (0D)
-        var result = ExTensor(result_shape, a.dtype())
+        var result = AnyTensor(result_shape, a.dtype())
 
         var length = a.shape()[0]
         _dispatch_dot(result, a, b, length)
@@ -1009,7 +1009,7 @@ fn dot(a: ExTensor, b: ExTensor) raises -> ExTensor:
         return matmul(a, b)
 
 
-fn outer(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn outer(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Outer product of two vectors.
 
     Args:
@@ -1041,7 +1041,7 @@ fn outer(a: ExTensor, b: ExTensor) raises -> ExTensor:
     result_shape.append(a.shape()[0])
     result_shape.append(b.shape()[0])
 
-    var result = ExTensor(result_shape, a.dtype())
+    var result = AnyTensor(result_shape, a.dtype())
 
     var len_a = a.shape()[0]
     var len_b = b.shape()[0]
@@ -1050,7 +1050,7 @@ fn outer(a: ExTensor, b: ExTensor) raises -> ExTensor:
     return result^
 
 
-fn inner(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn inner(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Generalized inner product of two tensors.
 
     For 1D tensors: equivalent to dot product (returns scalar).
@@ -1116,7 +1116,7 @@ fn inner(a: ExTensor, b: ExTensor) raises -> ExTensor:
         var result_shape = List[Int](capacity=2)
         result_shape.append(m)
         result_shape.append(n)
-        var result = ExTensor(result_shape, a.dtype())
+        var result = AnyTensor(result_shape, a.dtype())
 
         # inner(A, B) = A @ B (standard matrix multiplication)
         _dispatch_matmul_2d_2d(result, a, b, m, k, n)
@@ -1141,7 +1141,7 @@ fn inner(a: ExTensor, b: ExTensor) raises -> ExTensor:
     )
 
 
-fn tensordot(a: ExTensor, b: ExTensor, axes: Int) raises -> ExTensor:
+fn tensordot(a: AnyTensor, b: AnyTensor, axes: Int) raises -> AnyTensor:
     """Tensor dot product along specified axes.
 
     Contracts the last `axes` dimensions of `a` with the first `axes` dimensions of `b`.
@@ -1218,7 +1218,7 @@ fn tensordot(a: ExTensor, b: ExTensor, axes: Int) raises -> ExTensor:
     # Special case: scalar result (no output dimensions)
     if len(result_shape) == 0:
         # Contract all dimensions - use trace/diagonal sum approach
-        var result = ExTensor(result_shape, a.dtype())
+        var result = AnyTensor(result_shape, a.dtype())
 
         if axes == a_ndim and axes == b_ndim:
             # Full contraction - compute dot product of flattened tensors
@@ -1236,7 +1236,7 @@ fn tensordot(a: ExTensor, b: ExTensor, axes: Int) raises -> ExTensor:
         return result^
 
     # General case: reshape, matmul, reshape back
-    var result = ExTensor(result_shape, a.dtype())
+    var result = AnyTensor(result_shape, a.dtype())
 
     # Reshape a: [..., contracted_dims...] -> [..., product(contracted_dims)]
     var a_contract_size = 1
@@ -1262,12 +1262,12 @@ fn tensordot(a: ExTensor, b: ExTensor, axes: Int) raises -> ExTensor:
         var a_reshaped_shape = List[Int](capacity=2)
         a_reshaped_shape.append(a_rows)
         a_reshaped_shape.append(a_contract_size)
-        var a_reshaped = ExTensor(a_reshaped_shape, a.dtype())
+        var a_reshaped = AnyTensor(a_reshaped_shape, a.dtype())
 
         var b_reshaped_shape = List[Int](capacity=2)
         b_reshaped_shape.append(a_contract_size)
         b_reshaped_shape.append(b_cols)
-        var b_reshaped = ExTensor(b_reshaped_shape, b.dtype())
+        var b_reshaped = AnyTensor(b_reshaped_shape, b.dtype())
 
         # Copy data from original tensors
         var a_src = a._data.bitcast[Scalar[DType.float32]]()
@@ -1295,9 +1295,9 @@ fn tensordot(a: ExTensor, b: ExTensor, axes: Int) raises -> ExTensor:
 fn _matmul_2d_2d_grad_a_impl[
     dtype: DType
 ](
-    grad_a: ExTensor,
-    grad_output: ExTensor,
-    b: ExTensor,
+    grad_a: AnyTensor,
+    grad_output: AnyTensor,
+    b: AnyTensor,
     grad_out_rows: Int,
     grad_out_cols: Int,
     b_rows: Int,
@@ -1336,9 +1336,9 @@ fn _matmul_2d_2d_grad_a_impl[
 fn _matmul_2d_2d_grad_b_impl[
     dtype: DType
 ](
-    grad_b: ExTensor,
-    a: ExTensor,
-    grad_output: ExTensor,
+    grad_b: AnyTensor,
+    a: AnyTensor,
+    grad_output: AnyTensor,
     a_rows: Int,
     a_cols: Int,
     grad_out_cols: Int,
@@ -1373,9 +1373,9 @@ fn _matmul_2d_2d_grad_b_impl[
 
 
 fn _dispatch_matmul_2d_2d_grad_a(
-    grad_a: ExTensor,
-    grad_output: ExTensor,
-    b: ExTensor,
+    grad_a: AnyTensor,
+    grad_output: AnyTensor,
+    b: AnyTensor,
     grad_out_rows: Int,
     grad_out_cols: Int,
     b_rows: Int,
@@ -1407,9 +1407,9 @@ fn _dispatch_matmul_2d_2d_grad_a(
 
 
 fn _dispatch_matmul_2d_2d_grad_b(
-    grad_b: ExTensor,
-    a: ExTensor,
-    grad_output: ExTensor,
+    grad_b: AnyTensor,
+    a: AnyTensor,
+    grad_output: AnyTensor,
     a_rows: Int,
     a_cols: Int,
     grad_out_cols: Int,
@@ -1441,7 +1441,7 @@ fn _dispatch_matmul_2d_2d_grad_b(
 
 
 fn matmul_backward(
-    grad_output: ExTensor, a: ExTensor, b: ExTensor
+    grad_output: AnyTensor, a: AnyTensor, b: AnyTensor
 ) raises -> GradientPair:
     """Compute gradients for matrix multiplication.
 
@@ -1502,7 +1502,7 @@ fn matmul_backward(
         var grad_a_shape = List[Int](capacity=2)
         grad_a_shape.append(a_shape[0])  # m
         grad_a_shape.append(a_shape[1])  # k
-        var grad_a = ExTensor(grad_a_shape, a.dtype())
+        var grad_a = AnyTensor(grad_a_shape, a.dtype())
 
         var m = a_shape[0]
         var k = a_shape[1]
@@ -1528,7 +1528,7 @@ fn matmul_backward(
         var grad_b_shape = List[Int](capacity=2)
         grad_b_shape.append(b_shape[0])  # k
         grad_b_shape.append(b_shape[1])  # n
-        var grad_b = ExTensor(grad_b_shape, b.dtype())
+        var grad_b = AnyTensor(grad_b_shape, b.dtype())
 
         var k = b_shape[0]
         var n = b_shape[1]
@@ -1549,8 +1549,8 @@ fn matmul_backward(
 
 
 fn transpose_backward(
-    grad_output: ExTensor, axes: Optional[List[Int]] = None
-) raises -> ExTensor:
+    grad_output: AnyTensor, axes: Optional[List[Int]] = None
+) raises -> AnyTensor:
     """Compute gradient for transpose operation.
 
         For Y = transpose(X, axes), given ∂L/∂Y, computes:

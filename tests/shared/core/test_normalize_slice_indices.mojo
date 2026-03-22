@@ -1,17 +1,17 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Unit tests for ExTensor._normalize_slice_indices helper."""
+"""Unit tests for AnyTensor._normalize_slice_indices helper."""
 
-from shared.core.extensor import ExTensor, zeros
+from shared.core.any_tensor import AnyTensor, zeros
 from tests.shared.conftest import assert_equal
 
 
-fn _make_1d(size: Int) raises -> ExTensor:
+fn _make_1d(size: Int) raises -> AnyTensor:
     """Create a 1D tensor of the given size."""
     var shape = List[Int]()
     shape.append(size)
-    return ExTensor(shape, DType.float32)
+    return AnyTensor(shape, DType.float32)
 
 
 fn test_normalize_forward_full() raises:

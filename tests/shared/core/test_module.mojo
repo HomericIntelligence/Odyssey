@@ -5,7 +5,7 @@ a simple module implementation.
 """
 
 from shared.core.module import Module
-from shared.core.extensor import ExTensor, zeros
+from shared.core.any_tensor import AnyTensor, zeros
 from tests.shared.conftest import assert_true, assert_equal_int
 
 
@@ -29,7 +29,7 @@ struct DummyModule:
         self.output_size = output_size
         self.is_training = True
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass returns zeros of specified size.
 
         Args:
@@ -41,13 +41,13 @@ struct DummyModule:
         var shape: List[Int] = [1, self.output_size]
         return zeros(shape, DType.float32)
 
-    fn parameters(self) raises -> List[ExTensor]:
+    fn parameters(self) raises -> List[AnyTensor]:
         """Return empty parameter list.
 
         Returns:
             Empty list (no trainable parameters).
         """
-        return List[ExTensor]()
+        return List[AnyTensor]()
 
     fn train(mut self):
         """Set to training mode."""

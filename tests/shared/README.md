@@ -356,7 +356,7 @@ fn test_sgd_parameter_update():
     params_list.append(3.0)
     var params_shape = List[Int]()
     params_shape.append(3)
-    var params = ExTensor(params_shape, DType.float32)
+    var params = AnyTensor(params_shape, DType.float32)
     for i in range(len(params_list)):
         params._set_float32(i, params_list[i])
 
@@ -366,7 +366,7 @@ fn test_sgd_parameter_update():
     grads_list.append(0.3)
     var grads_shape = List[Int]()
     grads_shape.append(3)
-    var grads = ExTensor(grads_shape, DType.float32)
+    var grads = AnyTensor(grads_shape, DType.float32)
     for i in range(len(grads_list)):
         grads._set_float32(i, grads_list[i])
 

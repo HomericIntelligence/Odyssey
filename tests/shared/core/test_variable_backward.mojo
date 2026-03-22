@@ -15,7 +15,7 @@ from tests.shared.conftest import (
     assert_equal_int,
     assert_true,
 )
-from shared.core.extensor import ExTensor, zeros, ones, ones_like
+from shared.core.any_tensor import AnyTensor, zeros, ones, ones_like
 from shared.autograd.variable import (
     Variable,
     variable_add,

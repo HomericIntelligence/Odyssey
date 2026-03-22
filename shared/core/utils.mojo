@@ -6,14 +6,14 @@ This module provides common utility functions for tensor manipulation including:
 - top_k: Find top k values and their indices
 - argsort: Sort indices by values
 
-All functions work with ExTensor and follow the pure functional design pattern
+All functions work with AnyTensor and follow the pure functional design pattern
 """
 
 from collections import List
-from .extensor import ExTensor
+from .any_tensor import AnyTensor
 
 
-fn argmax(tensor: ExTensor) raises -> Int:
+fn argmax(tensor: AnyTensor) raises -> Int:
     """Find the index of the maximum value in a flattened tensor.
 
     Args:
@@ -46,7 +46,7 @@ fn argmax(tensor: ExTensor) raises -> Int:
     return max_idx
 
 
-fn argmax(tensor: ExTensor, axis: Int) raises -> ExTensor:
+fn argmax(tensor: AnyTensor, axis: Int) raises -> AnyTensor:
     """Find indices of maximum values along an axis.
 
     Args:
@@ -80,7 +80,7 @@ fn argmax(tensor: ExTensor, axis: Int) raises -> ExTensor:
         if i != axis:
             result_shape.append(tensor.shape()[i])
 
-    var result = ExTensor(result_shape, DType.int64)
+    var result = AnyTensor(result_shape, DType.int64)
 
     # Compute strides for indexing
     var input_shape = tensor.shape()
@@ -147,7 +147,7 @@ fn argmax(tensor: ExTensor, axis: Int) raises -> ExTensor:
     return result^
 
 
-fn top_k_indices(tensor: ExTensor, k: Int) raises -> List[Int]:
+fn top_k_indices(tensor: AnyTensor, k: Int) raises -> List[Int]:
     """Find indices of the k largest values in a flattened tensor.
 
     Args:
@@ -210,7 +210,7 @@ fn top_k_indices(tensor: ExTensor, k: Int) raises -> List[Int]:
     return result^
 
 
-fn top_k(tensor: ExTensor, k: Int) raises -> Tuple[ExTensor, List[Int]]:
+fn top_k(tensor: AnyTensor, k: Int) raises -> Tuple[AnyTensor, List[Int]]:
     """Find the k largest values and their indices in a flattened tensor.
 
     Args:
@@ -236,7 +236,7 @@ fn top_k(tensor: ExTensor, k: Int) raises -> Tuple[ExTensor, List[Int]]:
     # Create result tensor for values
     var values_shape = List[Int]()
     values_shape.append(k)
-    var values = ExTensor(values_shape, tensor.dtype())
+    var values = AnyTensor(values_shape, tensor.dtype())
 
     for i in range(k):
         var idx = indices[i]
@@ -246,7 +246,7 @@ fn top_k(tensor: ExTensor, k: Int) raises -> Tuple[ExTensor, List[Int]]:
     return (values, indices^)
 
 
-fn argsort(tensor: ExTensor, descending: Bool = False) raises -> List[Int]:
+fn argsort(tensor: AnyTensor, descending: Bool = False) raises -> List[Int]:
     """Return indices that would sort the tensor.
 
     Args:

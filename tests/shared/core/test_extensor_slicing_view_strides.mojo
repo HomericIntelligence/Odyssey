@@ -1,15 +1,15 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split per ADR-009. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for ExTensor view/stride semantics via transpose and reshape.
+"""Tests for AnyTensor view/stride semantics via transpose and reshape.
 
 The methods view_with_strides() and _nd_index_to_flat_offset() were removed
-from ExTensor. These tests validate the same stride-based view behaviour
+from AnyTensor. These tests validate the same stride-based view behaviour
 using the current public API: transpose(), reshape(), view() from shape.mojo,
 and multi-dimensional __getitem__.
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, arange
+from shared.core.any_tensor import AnyTensor, zeros, ones, arange
 from shared.core.shape import view
 from tests.shared.conftest import assert_true, assert_false, assert_almost_equal, assert_equal
 

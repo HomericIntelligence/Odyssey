@@ -35,11 +35,11 @@ Create named variables for ownership transfer:
 
 ```mojo
 # WRONG
-var tensor = ExTensor(List[Int](), DType.float32)
+var tensor = AnyTensor(List[Int](), DType.float32)
 
 # CORRECT
 var shape = List[Int]()
-var tensor = ExTensor(shape, DType.float32)
+var tensor = AnyTensor(shape, DType.float32)
 ```
 
 ### 3. Deprecated Syntax

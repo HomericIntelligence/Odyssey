@@ -1,4 +1,4 @@
-"""SIMD-optimized fused batch normalization operations for ExTensor.
+"""SIMD-optimized fused batch normalization operations for AnyTensor.
 
 This module provides vectorized implementations of 2D batch normalization,
 achieving 2-3x speedup over scalar implementations for large tensors.
@@ -36,8 +36,8 @@ Related:
 
 from algorithm import vectorize
 from sys.info import simd_width_of
-from .extensor import (
-    ExTensor,
+from .any_tensor import (
+    AnyTensor,
     zeros,
     zeros_like,
     ones_like,
@@ -52,13 +52,13 @@ from .scalar_ops import sqrt_scalar_f32, sqrt_scalar_f64
 
 
 fn batch_norm2d_fused_inference(
-    x: ExTensor,
-    gamma: ExTensor,
-    beta: ExTensor,
-    running_mean: ExTensor,
-    running_var: ExTensor,
+    x: AnyTensor,
+    gamma: AnyTensor,
+    beta: AnyTensor,
+    running_mean: AnyTensor,
+    running_var: AnyTensor,
     epsilon: Float64 = 1e-5,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Fused SIMD batch normalization for inference mode.
 
     In inference mode, batch statistics are fixed (running mean/variance),
@@ -99,7 +99,7 @@ fn batch_norm2d_fused_inference(
         )
         ```
     """
-    var result = ExTensor(x._shape, x._dtype)
+    var result = AnyTensor(x._shape, x._dtype)
 
     if x._dtype == DType.float32:
         _batch_norm2d_fused_inference_float32(
@@ -123,12 +123,12 @@ fn batch_norm2d_fused_inference(
 
 @always_inline
 fn _batch_norm2d_fused_inference_float32(
-    x: ExTensor,
-    gamma: ExTensor,
-    beta: ExTensor,
-    running_mean: ExTensor,
-    running_var: ExTensor,
-    mut result: ExTensor,
+    x: AnyTensor,
+    gamma: AnyTensor,
+    beta: AnyTensor,
+    running_mean: AnyTensor,
+    running_var: AnyTensor,
+    mut result: AnyTensor,
     epsilon: Float64,
 ):
     """SIMD batch normalization inference for float32.
@@ -182,12 +182,12 @@ fn _batch_norm2d_fused_inference_float32(
 
 @always_inline
 fn _batch_norm2d_fused_inference_float64(
-    x: ExTensor,
-    gamma: ExTensor,
-    beta: ExTensor,
-    running_mean: ExTensor,
-    running_var: ExTensor,
-    mut result: ExTensor,
+    x: AnyTensor,
+    gamma: AnyTensor,
+    beta: AnyTensor,
+    running_mean: AnyTensor,
+    running_var: AnyTensor,
+    mut result: AnyTensor,
     epsilon: Float64,
 ):
     """SIMD batch normalization inference for float64."""
@@ -236,15 +236,15 @@ fn _batch_norm2d_fused_inference_float64(
 
 
 fn batch_norm2d_fused(
-    x: ExTensor,
-    gamma: ExTensor,
-    beta: ExTensor,
-    running_mean: ExTensor,
-    running_var: ExTensor,
+    x: AnyTensor,
+    gamma: AnyTensor,
+    beta: AnyTensor,
+    running_mean: AnyTensor,
+    running_var: AnyTensor,
     training: Bool,
     momentum: Float64 = 0.1,
     epsilon: Float64 = 1e-5,
-) raises -> Tuple[ExTensor, ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
     """Fused SIMD batch normalization with training support.
 
     Combines mean/variance computation, normalization, and running stats update
@@ -300,7 +300,7 @@ fn batch_norm2d_fused(
             x, gamma, beta, running_mean, running_var, epsilon
         )
         # Return unchanged running stats in inference mode
-        return Tuple[ExTensor, ExTensor, ExTensor](
+        return Tuple[AnyTensor, AnyTensor, AnyTensor](
             output^, running_mean, running_var
         )
 
@@ -331,14 +331,14 @@ fn batch_norm2d_fused(
 
 @always_inline
 fn _batch_norm2d_fused_training_float32(
-    x: ExTensor,
-    gamma: ExTensor,
-    beta: ExTensor,
-    running_mean: ExTensor,
-    running_var: ExTensor,
+    x: AnyTensor,
+    gamma: AnyTensor,
+    beta: AnyTensor,
+    running_mean: AnyTensor,
+    running_var: AnyTensor,
     momentum: Float64,
     epsilon: Float64,
-) raises -> Tuple[ExTensor, ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
     """SIMD batch normalization training for float32.
 
     Two-pass algorithm:
@@ -360,7 +360,7 @@ fn _batch_norm2d_fused_training_float32(
     var running_mean_ptr = running_mean._data.bitcast[Float32]()
     var running_var_ptr = running_var._data.bitcast[Float32]()
 
-    var output = ExTensor(x._shape, x._dtype)
+    var output = AnyTensor(x._shape, x._dtype)
     var out_ptr = output._data.bitcast[Float32]()
 
     var new_running_mean = zeros_like(running_mean)
@@ -446,21 +446,21 @@ fn _batch_norm2d_fused_training_float32(
             1.0 - momentum_f32
         ) * old_var + momentum_f32 * batch_var_val
 
-    return Tuple[ExTensor, ExTensor, ExTensor](
+    return Tuple[AnyTensor, AnyTensor, AnyTensor](
         output^, new_running_mean^, new_running_var^
     )
 
 
 @always_inline
 fn _batch_norm2d_fused_training_float64(
-    x: ExTensor,
-    gamma: ExTensor,
-    beta: ExTensor,
-    running_mean: ExTensor,
-    running_var: ExTensor,
+    x: AnyTensor,
+    gamma: AnyTensor,
+    beta: AnyTensor,
+    running_mean: AnyTensor,
+    running_var: AnyTensor,
     momentum: Float64,
     epsilon: Float64,
-) raises -> Tuple[ExTensor, ExTensor, ExTensor]:
+) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
     """SIMD batch normalization training for float64."""
     comptime simd_width = simd_width_of[DType.float64]()
 
@@ -477,7 +477,7 @@ fn _batch_norm2d_fused_training_float64(
     var running_mean_ptr = running_mean._data.bitcast[Float64]()
     var running_var_ptr = running_var._data.bitcast[Float64]()
 
-    var output = ExTensor(x._shape, x._dtype)
+    var output = AnyTensor(x._shape, x._dtype)
     var out_ptr = output._data.bitcast[Float64]()
 
     var new_running_mean = zeros_like(running_mean)
@@ -556,6 +556,6 @@ fn _batch_norm2d_fused_training_float64(
         ) * old_mean + momentum * batch_mean_val
         new_var_ptr[c] = (1.0 - momentum) * old_var + momentum * batch_var_val
 
-    return Tuple[ExTensor, ExTensor, ExTensor](
+    return Tuple[AnyTensor, AnyTensor, AnyTensor](
         output^, new_running_mean^, new_running_var^
     )

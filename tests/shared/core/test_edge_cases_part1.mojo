@@ -1,7 +1,7 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_edge_cases.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for ExTensor edge cases - Part 1: Empty tensors, 0D scalars, large tensors.
+"""Tests for AnyTensor edge cases - Part 1: Empty tensors, 0D scalars, large tensors.
 
 Split from test_edge_cases.mojo per ADR-009 (≤10 fn test_ functions per file).
 """
@@ -13,9 +13,9 @@ from math import isnan, isinf
 # forces the JIT to compile all 37,401 lines across 60+ modules via __init__.mojo,
 # which intermittently overflows a JIT-internal buffer and triggers __fortify_fail_abort.
 # Run 20+ times to observe: `for i in $(seq 1 20); do pixi run mojo run tests/shared/core/test_edge_cases_part1.mojo 2>&1 | grep -E "OK|crashed|PASS"; done`
-# Import ExTensor and operations
+# Import AnyTensor and operations
 from shared.core import (
-    ExTensor,
+    AnyTensor,
     zeros,
     ones,
     full,
@@ -162,7 +162,7 @@ fn test_large_dimension_count() raises:
 
 fn main() raises:
     """Run edge case tests - Part 1."""
-    print("Running ExTensor edge case tests (Part 1)...")
+    print("Running AnyTensor edge case tests (Part 1)...")
 
     # Empty tensors
     print("  Testing empty tensors...")

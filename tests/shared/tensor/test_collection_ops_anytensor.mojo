@@ -5,7 +5,7 @@
 # high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Tests verify that collection ops (concatenate, stack, split) work correctly
-when called with AnyTensor values. Since ExTensor is now an alias for AnyTensor,
+when called with AnyTensor values. Since AnyTensor is now an alias for AnyTensor,
 these tests confirm the migration preserves correct behavior.
 
 Tests cover:
@@ -17,7 +17,7 @@ Tests cover:
 """
 
 from testing import assert_true, assert_almost_equal
-from shared.core.extensor import AnyTensor, zeros, ones
+from shared.core.any_tensor import AnyTensor, zeros, ones
 from shared.core.shape import concatenate, stack, split
 
 

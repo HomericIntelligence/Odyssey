@@ -36,7 +36,7 @@ from shared.testing import (
     compute_numerical_gradient,
     relative_error,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full, zeros_like
+from shared.core.any_tensor import AnyTensor, zeros, ones, full, zeros_like
 
 
 # ============================================================================
@@ -44,7 +44,7 @@ from shared.core.extensor import ExTensor, zeros, ones, full, zeros_like
 # ============================================================================
 
 
-fn square_forward(input: ExTensor) raises escaping -> ExTensor:
+fn square_forward(input: AnyTensor) raises escaping -> AnyTensor:
     """Forward pass: f(x) = x^2.
 
     Args:
@@ -61,8 +61,8 @@ fn square_forward(input: ExTensor) raises escaping -> ExTensor:
 
 
 fn square_backward_correct(
-    grad_out: ExTensor, input: ExTensor
-) raises escaping -> ExTensor:
+    grad_out: AnyTensor, input: AnyTensor
+) raises escaping -> AnyTensor:
     """Correct backward pass for f(x) = x^2: df/dx = 2x.
 
     This is the mathematically correct gradient.
@@ -84,8 +84,8 @@ fn square_backward_correct(
 
 
 fn square_backward_wrong_linear(
-    grad_out: ExTensor, input: ExTensor
-) raises escaping -> ExTensor:
+    grad_out: AnyTensor, input: AnyTensor
+) raises escaping -> AnyTensor:
     """Wrong backward pass for f(x) = x^2: Using df/dx = x (incorrect!).
 
     This is intentionally wrong to test that gradient checker catches errors.
@@ -108,8 +108,8 @@ fn square_backward_wrong_linear(
 
 
 fn square_backward_wrong_triple(
-    grad_out: ExTensor, input: ExTensor
-) raises escaping -> ExTensor:
+    grad_out: AnyTensor, input: AnyTensor
+) raises escaping -> AnyTensor:
     """Wrong backward pass for f(x) = x^2: Using df/dx = 3x (incorrect!).
 
     This is intentionally wrong to test gradient checker sensitivity.
@@ -149,10 +149,10 @@ fn test_gradient_checker_accepts_correct_gradient() raises:
 
     var x = full([1], 1.0, DType.float32)
 
-    fn forward(t: ExTensor) raises escaping -> ExTensor:
+    fn forward(t: AnyTensor) raises escaping -> AnyTensor:
         return square_forward(t)
 
-    fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return square_backward_correct(grad, inp)
 
     var passed = check_gradients(
@@ -185,10 +185,10 @@ fn test_gradient_checker_correct_gradient_multiple_values() raises:
         var test_val = test_values[i]
         var x = full([1], test_val, DType.float32)
 
-        fn forward(t: ExTensor) raises escaping -> ExTensor:
+        fn forward(t: AnyTensor) raises escaping -> AnyTensor:
             return square_forward(t)
 
-        fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+        fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
             return square_backward_correct(grad, inp)
 
         var passed = check_gradients(
@@ -214,10 +214,10 @@ fn test_gradient_checker_correct_gradient_multidimensional() raises:
 
     var x = full([2, 3], 1.5, DType.float32)
 
-    fn forward(t: ExTensor) raises escaping -> ExTensor:
+    fn forward(t: AnyTensor) raises escaping -> AnyTensor:
         return square_forward(t)
 
-    fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return square_backward_correct(grad, inp)
 
     var passed = check_gradients(
@@ -250,10 +250,10 @@ fn test_gradient_checker_rejects_wrong_gradient_linear() raises:
 
     var x = full([1], 1.0, DType.float32)
 
-    fn forward(t: ExTensor) raises escaping -> ExTensor:
+    fn forward(t: AnyTensor) raises escaping -> AnyTensor:
         return square_forward(t)
 
-    fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return square_backward_wrong_linear(grad, inp)
 
     var passed = check_gradients(
@@ -278,10 +278,10 @@ fn test_gradient_checker_rejects_wrong_gradient_triple() raises:
 
     var x = full([1], 1.0, DType.float32)
 
-    fn forward(t: ExTensor) raises escaping -> ExTensor:
+    fn forward(t: AnyTensor) raises escaping -> AnyTensor:
         return square_forward(t)
 
-    fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return square_backward_wrong_triple(grad, inp)
 
     var passed = check_gradients(
@@ -313,10 +313,10 @@ fn test_gradient_checker_wrong_gradient_multiple_values() raises:
         var test_val = test_values[i]
         var x = full([1], test_val, DType.float32)
 
-        fn forward(t: ExTensor) raises escaping -> ExTensor:
+        fn forward(t: AnyTensor) raises escaping -> AnyTensor:
             return square_forward(t)
 
-        fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+        fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
             return square_backward_wrong_linear(grad, inp)
 
         var passed = check_gradients(
@@ -350,7 +350,7 @@ fn test_compute_numerical_gradient_matches_analytical() raises:
 
     var x = full([1], 2.0, DType.float32)
 
-    fn forward(t: ExTensor) raises escaping -> ExTensor:
+    fn forward(t: AnyTensor) raises escaping -> AnyTensor:
         return square_forward(t)
 
     var numerical_grad = compute_numerical_gradient(forward, x, epsilon=1e-5)

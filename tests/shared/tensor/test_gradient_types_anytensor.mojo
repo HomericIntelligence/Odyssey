@@ -5,7 +5,7 @@
 # high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Tests verify that gradient container types (GradientPair, GradientTriple,
-GradientQuad) store AnyTensor fields correctly. Since ExTensor is now an
+GradientQuad) store AnyTensor fields correctly. Since AnyTensor is now an
 alias for AnyTensor, these tests confirm the migration preserves correct
 storage and retrieval of gradient tensors.
 
@@ -17,7 +17,7 @@ Tests cover:
 """
 
 from testing import assert_true, assert_almost_equal
-from shared.core.extensor import AnyTensor, zeros, ones
+from shared.core.any_tensor import AnyTensor, zeros, ones
 from shared.core.gradient_types import GradientPair, GradientTriple, GradientQuad
 
 

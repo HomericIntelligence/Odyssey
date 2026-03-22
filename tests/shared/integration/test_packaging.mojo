@@ -40,9 +40,9 @@ fn test_subpackage_accessibility() raises:
     from shared import core, training, data, utils
 
     # Verify subpackages are accessible by testing exports
-    from shared.core import ExTensor, zeros
+    from shared.core import AnyTensor, zeros
     from shared.training import SGD, MSELoss
-    from shared.data import Dataset, ExTensorDataset
+    from shared.data import Dataset, AnyTensorDataset
     from shared.utils import Logger, Config
 
     # Test that we can actually call the functions
@@ -68,7 +68,7 @@ fn test_subpackage_accessibility() raises:
 fn test_root_level_imports() raises:
     """Test most commonly used components are available at root level."""
     # Root package doesn't re-export all components directly
-    from shared.core import ExTensor
+    from shared.core import AnyTensor
     from shared.training import SGD
     from shared.utils import Logger
 
@@ -93,8 +93,8 @@ fn test_layer_root_level_imports() raises:
     # Core module trait
     from shared import Module
 
-    # Core tensors and creation functions (ExTensor + Tensor alias)
-    from shared import ExTensor, Tensor, zeros, ones, randn
+    # Core tensors and creation functions (AnyTensor + Tensor alias)
+    from shared import AnyTensor, Tensor, zeros, ones, randn
 
     # Training schedulers
     from shared import StepLR, CosineAnnealingLR
@@ -126,9 +126,9 @@ fn test_layer_root_level_imports() raises:
 
 fn test_module_level_imports() raises:
     """Test importing from specific modules."""
-    from shared.core import ExTensor, relu, linear
+    from shared.core import AnyTensor, relu, linear
     from shared.training import SGD, MSELoss
-    from shared.data import ExTensorDataset, Batch
+    from shared.data import AnyTensorDataset, Batch
 
     print("✓ Module level imports test passed")
 
@@ -149,7 +149,7 @@ fn test_nested_imports() raises:
 
 fn test_core_training_integration() raises:
     """Test integration between core and training modules."""
-    from shared.core import ExTensor, zeros
+    from shared.core import AnyTensor, zeros
     from shared.training import SGD, MSELoss
 
     # Create tensors using core
@@ -174,15 +174,15 @@ fn test_core_training_integration() raises:
 
 fn test_core_data_integration() raises:
     """Test integration between core and data modules."""
-    from shared.core import ExTensor, zeros, ones
-    from shared.data import ExTensorDataset
+    from shared.core import AnyTensor, zeros, ones
+    from shared.data import AnyTensorDataset
 
     # Create tensors using core
     var data = zeros([10, 5], DType.float32)
     var labels = ones([10, 1], DType.float32)
 
     # Create dataset using data
-    var dataset = ExTensorDataset(data, labels)
+    var dataset = AnyTensorDataset(data, labels)
 
     # Verify dataset was created and has correct properties
     var data_shape = data.shape()
@@ -199,13 +199,13 @@ fn test_core_data_integration() raises:
 fn test_training_data_integration() raises:
     """Test integration between training and data modules."""
     from shared.training import SGD
-    from shared.data import ExTensorDataset
+    from shared.data import AnyTensorDataset
     from shared.core import zeros, ones
 
     # Create simple dataset
     var data = zeros([10, 5], DType.float32)
     var labels = ones([10, 1], DType.float32)
-    var dataset = ExTensorDataset(data, labels)
+    var dataset = AnyTensorDataset(data, labels)
 
     # Create optimizer
     var optimizer = SGD(learning_rate=0.01)
@@ -233,7 +233,7 @@ fn test_complete_training_workflow() raises:
     """Test complete training workflow using all modules."""
     from shared.core import zeros, ones, relu
     from shared.training import SGD, MSELoss
-    from shared.data import ExTensorDataset
+    from shared.data import AnyTensorDataset
     from shared.utils import Logger
 
     # 1. Create model parameters (core)
@@ -243,7 +243,7 @@ fn test_complete_training_workflow() raises:
     # 2. Create data (data)
     var data = zeros([10, 10], DType.float32)
     var labels = ones([10, 5], DType.float32)
-    var dataset = ExTensorDataset(data, labels)
+    var dataset = AnyTensorDataset(data, labels)
 
     # 3. Create optimizer and loss (training)
     var optimizer = SGD(learning_rate=0.01)
@@ -275,14 +275,14 @@ fn test_paper_implementation_pattern() raises:
     """Test typical usage pattern from paper implementation."""
     # Simulates how a paper implementation would use the shared library
 
-    from shared.core import ExTensor, zeros, conv2d, flatten, relu
+    from shared.core import AnyTensor, zeros, conv2d, flatten, relu
     from shared.training import (
         SGD,
         CosineAnnealingLR,
         EarlyStopping,
         ModelCheckpoint,
     )
-    from shared.data import ExTensorDataset
+    from shared.data import AnyTensorDataset
 
     # Paper-specific tensors for conv operations
     var input_data = zeros([1, 1, 28, 28], DType.float32)
@@ -298,7 +298,7 @@ fn test_paper_implementation_pattern() raises:
     # Create dataset
     var data = zeros([10, 1, 28, 28], DType.float32)
     var labels = zeros([10, 10], DType.float32)
-    var dataset = ExTensorDataset(data, labels)
+    var dataset = AnyTensorDataset(data, labels)
 
     # Verify all components are properly instantiated
     assert_true(input_data.dim() == 4, "Input data should be 4D tensor")
@@ -394,7 +394,7 @@ fn test_normalize_compose_from_shared_data() raises:
 #     Verifies that:
 #     - Compose can be instantiated
 #     - Normalize can be chained inside a Compose
-#     - The composed transforms can be called on an ExTensor
+#     - The composed transforms can be called on an AnyTensor
 #
 #     Follow-up from #3220 - stronger coverage of the re-exported API.
 #     """
@@ -560,14 +560,14 @@ fn test_cross_module_computation() raises:
     from shared.core import zeros, ones, relu
     from shared.core.matrix import matmul
     from shared.training import SGD, MSELoss
-    from shared.data import ExTensorDataset
+    from shared.data import AnyTensorDataset
 
     # Create realistic tensors
     var data = zeros([32, 64], DType.float32)  # Batch of 32, features of 64
     var labels = zeros([32, 10], DType.float32)  # 32 samples, 10 classes
 
     # Create dataset
-    var _dataset = ExTensorDataset(data, labels)
+    var _dataset = AnyTensorDataset(data, labels)
 
     # Create a simple network forward pass
     var weights1 = zeros([64, 128], DType.float32)  # Input layer
@@ -655,14 +655,14 @@ fn test_error_propagation() raises:
     """Test that errors propagate correctly between modules."""
     from shared.core import zeros
     from shared.training import SGD
-    from shared.data import ExTensorDataset
+    from shared.data import AnyTensorDataset
 
     # Test that incompatible tensor shapes fail appropriately
     var good_data = zeros([10, 5], DType.float32)
     var good_labels = zeros([10, 3], DType.float32)
 
     # This should work
-    var good_dataset = ExTensorDataset(good_data, good_labels)
+    var good_dataset = AnyTensorDataset(good_data, good_labels)
     assert_true(len(good_dataset) > 0, "Valid dataset should be created")
 
     # Test optimizer with edge case learning rates
@@ -686,7 +686,7 @@ fn test_integration_stress() raises:
     from shared.core import zeros, ones, relu
     from shared.core.matrix import matmul
     from shared.training import SGD, MSELoss
-    from shared.data import ExTensorDataset
+    from shared.data import AnyTensorDataset
 
     # Create a realistic batch size
     var batch_size = 128
@@ -699,7 +699,7 @@ fn test_integration_stress() raises:
     var train_labels = zeros([batch_size, output_dim], DType.float32)
 
     # Create dataset
-    var _dataset = ExTensorDataset(train_data, train_labels)
+    var _dataset = AnyTensorDataset(train_data, train_labels)
 
     # Create network parameters
     var w1 = zeros([input_dim, hidden_dim], DType.float32)

@@ -7,8 +7,8 @@ Dropout randomly zeros some elements of the input tensor with probability p duri
 This helps prevent overfitting by randomly "dropping out" neurons.
 """
 
-from .extensor import (
-    ExTensor,
+from .any_tensor import (
+    AnyTensor,
     zeros,
     zeros_like,
     ones_like,
@@ -19,8 +19,8 @@ import random
 
 
 fn dropout(
-    x: ExTensor, p: Float64, training: Bool, seed: Int = 0
-) raises -> Tuple[ExTensor, ExTensor]:
+    x: AnyTensor, p: Float64, training: Bool, seed: Int = 0
+) raises -> Tuple[AnyTensor, AnyTensor]:
     """Functional dropout with mask return.
 
         Randomly zeros elements with probability p during training
@@ -42,7 +42,7 @@ fn dropout(
 
         Example:
             ```mojo
-            from shared.core import ExTensor, dropout, dropout_backward
+            from shared.core import AnyTensor, dropout, dropout_backward
 
             # Training mode
             var (output, mask) = dropout(x, p=0.5, training=True, seed=42)
@@ -106,8 +106,8 @@ fn dropout(
 
 
 fn dropout2d(
-    x: ExTensor, p: Float64, training: Bool, seed: Int = 0
-) raises -> Tuple[ExTensor, ExTensor]:
+    x: AnyTensor, p: Float64, training: Bool, seed: Int = 0
+) raises -> Tuple[AnyTensor, AnyTensor]:
     """Functional 2D dropout (spatial dropout) for CNNs.
 
         Randomly zeros entire channels with probability p during training
@@ -252,8 +252,8 @@ fn dropout2d(
 
 
 fn dropout_backward(
-    grad_output: ExTensor, mask: ExTensor, p: Float64
-) raises -> ExTensor:
+    grad_output: AnyTensor, mask: AnyTensor, p: Float64
+) raises -> AnyTensor:
     """Backward pass for dropout.
 
         Routes gradients only through positions that were not dropped
@@ -292,8 +292,8 @@ fn dropout_backward(
 
 
 fn dropout2d_backward(
-    grad_output: ExTensor, mask: ExTensor, p: Float64
-) raises -> ExTensor:
+    grad_output: AnyTensor, mask: AnyTensor, p: Float64
+) raises -> AnyTensor:
     """Backward pass for 2D dropout (spatial dropout).
 
     Args:

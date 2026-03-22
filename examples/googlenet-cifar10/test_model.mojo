@@ -1,7 +1,7 @@
 """Quick integration test for GoogLeNet model"""
 
 from model import GoogLeNet
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 
 
 fn main() raises:

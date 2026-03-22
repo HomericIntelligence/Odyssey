@@ -1,4 +1,4 @@
-"""Tests for ExTensor reduction operations - Part 4: axis-specific max/min and consistency.
+"""Tests for AnyTensor reduction operations - Part 4: axis-specific max/min and consistency.
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
@@ -8,8 +8,8 @@ Tests reduction operations following the Array API Standard:
 mean axis=1, max_reduce/min_reduce with axis parameter, and cross-reduction consistency.
 """
 
-# Import ExTensor and reduction operations
-from shared.core.extensor import ExTensor, full, ones, zeros, arange
+# Import AnyTensor and reduction operations
+from shared.core.any_tensor import AnyTensor, full, ones, zeros, arange
 from shared.core.reduction import sum, mean, max_reduce, min_reduce
 
 # Import test helpers
@@ -133,7 +133,7 @@ fn test_reductions_consistent() raises:
 
 fn main() raises:
     """Run axis-specific max/min and consistency tests."""
-    print("Running ExTensor reduction forward tests - Part 4...")
+    print("Running AnyTensor reduction forward tests - Part 4...")
 
     # Axis-specific mean test
     print("  Testing axis-specific mean()...")

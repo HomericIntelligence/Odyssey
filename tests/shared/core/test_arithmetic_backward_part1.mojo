@@ -17,8 +17,8 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.extensor import (
-    ExTensor,
+from shared.core.any_tensor import (
+    AnyTensor,
     zeros,
     ones,
     ones_like,
@@ -61,11 +61,11 @@ fn create_shape_vec(*dims: Int) -> List[Int]:
     return shape^
 
 
-fn fill_tensor_sequential(tensor: ExTensor, start_val: Float32 = 1.0) -> None:
+fn fill_tensor_sequential(tensor: AnyTensor, start_val: Float32 = 1.0) -> None:
     """Fill tensor with sequential values starting from start_val.
 
     Args:
-        tensor: ExTensor to fill.
+        tensor: AnyTensor to fill.
         start_val: Starting value for sequence.
     """
     for i in range(tensor.numel()):

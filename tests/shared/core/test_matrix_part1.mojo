@@ -28,8 +28,8 @@ from tests.shared.conftest import (
     assert_value_at,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.extensor import (
-    ExTensor,
+from shared.core.any_tensor import (
+    AnyTensor,
     zeros,
     ones,
     zeros_like,

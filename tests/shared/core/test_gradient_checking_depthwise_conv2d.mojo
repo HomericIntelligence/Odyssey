@@ -10,7 +10,7 @@ corruption bug that occurs after ~15 cumulative tests. See ADR-009.
 
 from tests.shared.conftest import assert_true
 from shared.testing import check_gradients
-from shared.core import ExTensor, zeros, ones
+from shared.core import AnyTensor, zeros, ones
 from shared.core.conv import depthwise_conv2d, depthwise_conv2d_backward
 
 
@@ -30,10 +30,10 @@ fn test_depthwise_conv2d_gradient_kernel_basic() raises:
     kernel_shape.append(3)  # kernel width
     var kernel = ones(kernel_shape, DType.float32)
 
-    fn forward(k: ExTensor) raises escaping -> ExTensor:
+    fn forward(k: AnyTensor) raises escaping -> AnyTensor:
         return depthwise_conv2d(input, k, stride=1, padding=1)
 
-    fn backward(grad_out: ExTensor, k: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
         var result = depthwise_conv2d_backward(grad_out, input, k, stride=1, padding=1)
         return result.grad_b
 
@@ -61,10 +61,10 @@ fn test_depthwise_conv2d_gradient_bias_basic() raises:
     bias_shape.append(2)  # channels
     var bias = ones(bias_shape, DType.float32)
 
-    fn forward(b: ExTensor) raises escaping -> ExTensor:
+    fn forward(b: AnyTensor) raises escaping -> AnyTensor:
         return depthwise_conv2d(input, kernel, bias, stride=1, padding=1)
 
-    fn backward(grad_out: ExTensor, b: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, b: AnyTensor) raises escaping -> AnyTensor:
         var result = depthwise_conv2d_backward(grad_out, input, kernel, stride=1, padding=1)
         return result.grad_c
 
@@ -88,10 +88,10 @@ fn test_depthwise_conv2d_gradient_input_basic() raises:
     kernel_shape.append(3)  # kernel width
     var kernel = ones(kernel_shape, DType.float32)
 
-    fn forward(x: ExTensor) raises escaping -> ExTensor:
+    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return depthwise_conv2d(x, kernel, stride=1, padding=1)
 
-    fn backward(grad_out: ExTensor, x: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = depthwise_conv2d_backward(grad_out, x, kernel, stride=1, padding=1)
         return result.grad_a
 
@@ -115,10 +115,10 @@ fn test_depthwise_conv2d_gradient_kernel_strided() raises:
     kernel_shape.append(3)  # kernel width
     var kernel = ones(kernel_shape, DType.float32)
 
-    fn forward(k: ExTensor) raises escaping -> ExTensor:
+    fn forward(k: AnyTensor) raises escaping -> AnyTensor:
         return depthwise_conv2d(input, k, stride=2, padding=1)
 
-    fn backward(grad_out: ExTensor, k: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
         var result = depthwise_conv2d_backward(grad_out, input, k, stride=2, padding=1)
         return result.grad_b
 

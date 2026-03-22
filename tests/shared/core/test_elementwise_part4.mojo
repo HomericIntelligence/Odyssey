@@ -20,7 +20,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.extensor import ExTensor, zeros, ones, zeros_like, ones_like
+from shared.core.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.elementwise import (
     abs,
     sign,
@@ -145,14 +145,14 @@ fn test_sin_backward_gradient() raises:
     x._data.bitcast[Float32]()[2] = 0.5
 
     # Forward function wrapper
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return sin(inp)
 
     var y = sin(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward_fn(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return sin_backward(grad, inp)
 
     # Use numerical gradient checking (gold standard)
@@ -197,14 +197,14 @@ fn test_cos_backward_gradient() raises:
     x._data.bitcast[Float32]()[2] = 0.5
 
     # Forward function wrapper
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return cos(inp)
 
     var y = cos(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward_fn(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward_fn(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return cos_backward(grad, inp)
 
     # Use numerical gradient checking (gold standard)

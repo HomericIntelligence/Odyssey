@@ -11,12 +11,12 @@ Do NOT remove these placeholders - they are required for code generation to work
 
 from testing import assert_equal, assert_true, assert_false
 from {{module_path}} import *
-from shared.core import ExTensor
+from shared.core import AnyTensor
 
 
-fn create_test_data() -> ExTensor:
+fn create_test_data() -> AnyTensor:
     """Create test data with reproducible FP-representable values."""
-    return ExTensor.from_list([0.0, 0.5, 1.0, 1.5, -0.5, -1.0])
+    return AnyTensor.from_list([0.0, 0.5, 1.0, 1.5, -0.5, -1.0])
 
 
 fn test_initialization():

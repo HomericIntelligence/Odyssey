@@ -11,7 +11,7 @@ Optimizations:
 
 from collections import List
 from memory import memcpy, UnsafePointer
-from .extensor import AnyTensor
+from .any_tensor import AnyTensor
 from shared.tensor.tensor import Tensor
 
 

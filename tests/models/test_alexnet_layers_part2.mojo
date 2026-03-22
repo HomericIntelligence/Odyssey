@@ -16,7 +16,7 @@ These are expected, fundamental limitations of Float16 arithmetic (not bugs).
 See issue #3009 for detailed analysis.
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.conv import conv2d
 from shared.core.pooling import maxpool2d
 from shared.core.linear import linear
@@ -45,7 +45,7 @@ from math import isnan, isinf
 # ============================================================================
 
 
-fn create_conv3_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_conv3_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv3 layer parameters (192→384, 3x3 kernel)."""
     var in_channels = 192
     var out_channels = 384
@@ -68,7 +68,7 @@ fn create_conv3_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
     return kernel, bias
 
 
-fn create_conv4_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_conv4_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv4 layer parameters (384→384, 3x3 kernel)."""
     var in_channels = 384
     var out_channels = 384
@@ -91,7 +91,7 @@ fn create_conv4_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
     return kernel, bias
 
 
-fn create_conv5_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_conv5_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv5 layer parameters (384→256, 3x3 kernel)."""
     var in_channels = 384
     var out_channels = 256

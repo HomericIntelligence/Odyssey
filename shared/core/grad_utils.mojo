@@ -19,7 +19,7 @@ Usage Example:
     var norm = clip_grad_norm_(grad, max_norm=1.0)
 
     # Clip multiple gradients by their global L2 norm
-    var gradients : List[ExTensor] = [grad1, grad2, grad3]
+    var gradients : List[AnyTensor] = [grad1, grad2, grad3]
     var global_norm = clip_grad_global_norm_(gradients, max_norm=1.0)
         ```
 
@@ -29,10 +29,10 @@ References:
 """
 
 from math import sqrt
-from .extensor import ExTensor
+from .any_tensor import AnyTensor
 
 
-fn clip_grad_value_(mut grad: ExTensor, max_value: Float64) raises:
+fn clip_grad_value_(mut grad: AnyTensor, max_value: Float64) raises:
     """Clip each gradient element to [-max_value, max_value].
 
         This is the simplest form of gradient clipping. Each element is
@@ -69,7 +69,7 @@ fn clip_grad_value_(mut grad: ExTensor, max_value: Float64) raises:
             grad._set_float64(i, -max_value)
 
 
-fn clip_grad_norm_(mut grad: ExTensor, max_norm: Float64) raises -> Float64:
+fn clip_grad_norm_(mut grad: AnyTensor, max_norm: Float64) raises -> Float64:
     """Clip gradient if its L2 norm exceeds max_norm.
 
         Computes the L2 norm of the gradient: norm = sqrt(sum(grad^2))
@@ -126,7 +126,7 @@ fn clip_grad_norm_(mut grad: ExTensor, max_norm: Float64) raises -> Float64:
 
 
 fn clip_grad_global_norm_(
-    mut grads: List[ExTensor], max_norm: Float64
+    mut grads: List[AnyTensor], max_norm: Float64
 ) raises -> Float64:
     """Clip gradients based on their global L2 norm across all parameters.
 
@@ -151,7 +151,7 @@ fn clip_grad_global_norm_(
         ```mojo
         var grad1 = full([10,], 1.0, DType.float32)
         var grad2 = full([20,], 1.0, DType.float32)
-        var grads: List[ExTensor] = [grad1, grad2]
+        var grads: List[AnyTensor] = [grad1, grad2]
 
         var global_norm = clip_grad_global_norm_(grads, max_norm=1.0)
         # global_norm is sqrt(10 + 20) = sqrt(30) ≈ 5.48

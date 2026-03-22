@@ -5,7 +5,7 @@
 
 Tests cover:
 - Memory management (clear)
-- ExTensor integration with pool
+- AnyTensor integration with pool
 - Reference counting with pooled memory
 - pooled_alloc/pooled_free functions
 """
@@ -17,7 +17,7 @@ from shared.core.memory_pool import (
     pooled_alloc,
     pooled_free,
 )
-from shared.core.extensor import ExTensor, zeros
+from shared.core.any_tensor import AnyTensor, zeros
 
 
 fn test_trim_releases_memory() raises:
@@ -74,8 +74,8 @@ fn test_clear_releases_all() raises:
     print("✓ test_clear_releases_all passed")
 
 
-fn test_extensor_uses_pool() raises:
-    """Verify ExTensor allocations work correctly."""
+fn test_anytensor_uses_pool() raises:
+    """Verify AnyTensor allocations work correctly."""
     # Create a tensor - it will use pooled_alloc internally
     var shape = List[Int]()
     shape.append(10)
@@ -91,7 +91,7 @@ fn test_extensor_uses_pool() raises:
     if stats.allocations < 1:
         raise Error("Pool should track allocations")
 
-    print("✓ test_extensor_uses_pool passed")
+    print("✓ test_anytensor_uses_pool passed")
 
 
 fn test_reference_counting_with_pool() raises:
@@ -126,7 +126,7 @@ fn main() raises:
 
     test_trim_releases_memory()
     test_clear_releases_all()
-    test_extensor_uses_pool()
+    test_anytensor_uses_pool()
     test_reference_counting_with_pool()
     test_pooled_alloc_deallocate()
 

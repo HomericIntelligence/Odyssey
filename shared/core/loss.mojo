@@ -18,7 +18,7 @@ All loss functions include:
 - Support for batched inputs
 """
 
-from .extensor import ExTensor, ones_like, zeros_like, full_like
+from .any_tensor import AnyTensor, ones_like, zeros_like, full_like
 from .arithmetic import add, subtract, multiply, divide, power
 from .elementwise import log, clip, exp, abs
 from .reduction import mean, sum, max_reduce
@@ -29,8 +29,8 @@ from .dtype_cast import cast_tensor
 
 
 fn binary_cross_entropy(
-    predictions: ExTensor, targets: ExTensor, epsilon: Float64 = 1e-7
-) raises -> ExTensor:
+    predictions: AnyTensor, targets: AnyTensor, epsilon: Float64 = 1e-7
+) raises -> AnyTensor:
     """Binary cross-entropy loss for binary classification.
 
         Formula:
@@ -93,11 +93,11 @@ fn binary_cross_entropy(
 
 
 fn binary_cross_entropy_backward(
-    grad_output: ExTensor,
-    predictions: ExTensor,
-    targets: ExTensor,
+    grad_output: AnyTensor,
+    predictions: AnyTensor,
+    targets: AnyTensor,
     epsilon: Float64 = 1e-7,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Backward pass for binary cross-entropy loss.
 
         Computes gradient of BCE loss with respect to predictions.
@@ -163,8 +163,8 @@ fn binary_cross_entropy_backward(
 
 
 fn mean_squared_error(
-    predictions: ExTensor, targets: ExTensor
-) raises -> ExTensor:
+    predictions: AnyTensor, targets: AnyTensor
+) raises -> AnyTensor:
     """Mean squared error loss for regression.
 
         Formula:
@@ -203,8 +203,8 @@ fn mean_squared_error(
 
 
 fn mean_squared_error_backward(
-    grad_output: ExTensor, predictions: ExTensor, targets: ExTensor
-) raises -> ExTensor:
+    grad_output: AnyTensor, predictions: AnyTensor, targets: AnyTensor
+) raises -> AnyTensor:
     """Backward pass for mean squared error loss.
 
         Computes gradient of MSE loss with respect to predictions.
@@ -248,8 +248,8 @@ fn mean_squared_error_backward(
 
 
 fn cross_entropy(
-    logits: ExTensor, targets: ExTensor, axis: Int = -1, epsilon: Float64 = 1e-7
-) raises -> ExTensor:
+    logits: AnyTensor, targets: AnyTensor, axis: Int = -1, epsilon: Float64 = 1e-7
+) raises -> AnyTensor:
     """Cross-entropy loss for multi-class classification.
 
         Formula:
@@ -336,11 +336,11 @@ fn cross_entropy(
 
 
 fn cross_entropy_backward(
-    grad_output: ExTensor,
-    logits: ExTensor,
-    targets: ExTensor,
+    grad_output: AnyTensor,
+    logits: AnyTensor,
+    targets: AnyTensor,
     epsilon: Float64 = 1e-7,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Backward pass for cross-entropy loss.
 
         For cross-entropy with softmax, the gradient simplifies to:
@@ -397,8 +397,8 @@ fn cross_entropy_backward(
 
 
 fn smooth_l1_loss(
-    predictions: ExTensor, targets: ExTensor, beta: Float32 = 1.0
-) raises -> ExTensor:
+    predictions: AnyTensor, targets: AnyTensor, beta: Float32 = 1.0
+) raises -> AnyTensor:
     """Smooth L1 loss (Huber loss) for robust regression.
 
         Formula:
@@ -476,11 +476,11 @@ fn smooth_l1_loss(
 
 
 fn smooth_l1_loss_backward(
-    grad_output: ExTensor,
-    predictions: ExTensor,
-    targets: ExTensor,
+    grad_output: AnyTensor,
+    predictions: AnyTensor,
+    targets: AnyTensor,
     beta: Float32 = 1.0,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Backward pass for Smooth L1 loss (Huber loss).
 
         Computes gradient of Smooth L1 loss with respect to predictions.
@@ -566,7 +566,7 @@ fn smooth_l1_loss_backward(
     return multiply(grad_output, blended_grad)
 
 
-fn hinge_loss(predictions: ExTensor, targets: ExTensor) raises -> ExTensor:
+fn hinge_loss(predictions: AnyTensor, targets: AnyTensor) raises -> AnyTensor:
     """Hinge loss for Support Vector Machines (SVMs).
 
         Formula:
@@ -629,8 +629,8 @@ fn hinge_loss(predictions: ExTensor, targets: ExTensor) raises -> ExTensor:
 
 
 fn hinge_loss_backward(
-    grad_output: ExTensor, predictions: ExTensor, targets: ExTensor
-) raises -> ExTensor:
+    grad_output: AnyTensor, predictions: AnyTensor, targets: AnyTensor
+) raises -> AnyTensor:
     """Backward pass for hinge loss.
 
         Computes gradient of hinge loss with respect to predictions.
@@ -699,11 +699,11 @@ fn hinge_loss_backward(
 
 
 fn focal_loss(
-    predictions: ExTensor,
-    targets: ExTensor,
+    predictions: AnyTensor,
+    targets: AnyTensor,
     alpha: Float32 = 0.25,
     gamma: Float32 = 2.0,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Focal loss for addressing class imbalance in classification.
 
         Formula:
@@ -793,12 +793,12 @@ fn focal_loss(
 
 
 fn focal_loss_backward(
-    grad_output: ExTensor,
-    predictions: ExTensor,
-    targets: ExTensor,
+    grad_output: AnyTensor,
+    predictions: AnyTensor,
+    targets: AnyTensor,
     alpha: Float32 = 0.25,
     gamma: Float32 = 2.0,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Backward pass for focal loss.
 
         Computes gradient of focal loss with respect to predictions.
@@ -909,8 +909,8 @@ fn focal_loss_backward(
 
 
 fn kl_divergence(
-    p: ExTensor, q: ExTensor, epsilon: Float64 = 1e-7
-) raises -> ExTensor:
+    p: AnyTensor, q: AnyTensor, epsilon: Float64 = 1e-7
+) raises -> AnyTensor:
     """Kullback-Leibler divergence loss for distribution matching.
 
         Formula:
@@ -975,8 +975,8 @@ fn kl_divergence(
 
 
 fn kl_divergence_backward(
-    grad_output: ExTensor, p: ExTensor, q: ExTensor, epsilon: Float64 = 1e-7
-) raises -> ExTensor:
+    grad_output: AnyTensor, p: AnyTensor, q: AnyTensor, epsilon: Float64 = 1e-7
+) raises -> AnyTensor:
     """Backward pass for KL divergence loss.
 
         Computes gradient of KL divergence with respect to q (the predicted distribution).

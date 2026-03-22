@@ -246,7 +246,7 @@ fn benchmark_relu() raises:
     from shared.benchmarking import benchmark_function
 
     fn compute_relu() raises:
-        var tensor = ExTensor([1024, 1024], DType.float32)
+        var tensor = AnyTensor([1024, 1024], DType.float32)
         relu(tensor)
 
     var stats = benchmark_function(compute_relu, measure_iters=50)
@@ -263,8 +263,8 @@ fn benchmark_matmul_with_gflops() raises:
     from shared.benchmarking import benchmark_function
 
     fn compute_matmul() raises:
-        var a = ExTensor([512, 512], DType.float32)
-        var b = ExTensor([512, 512], DType.float32)
+        var a = AnyTensor([512, 512], DType.float32)
+        var b = AnyTensor([512, 512], DType.float32)
         var c = zeros[DType.float32]([512, 512])
         matmul(a, b, c)
 
@@ -387,8 +387,8 @@ fn benchmark_tensor_operations() raises:
 
     # Add operation
     fn bench_add() raises:
-        var a = ExTensor([1024, 1024], DType.float32)
-        var b = ExTensor([1024, 1024], DType.float32)
+        var a = AnyTensor([1024, 1024], DType.float32)
+        var b = AnyTensor([1024, 1024], DType.float32)
         var c = zeros[DType.float32]([1024, 1024])
         tensor_add(a, b, c)
 
@@ -397,8 +397,8 @@ fn benchmark_tensor_operations() raises:
 
     # Multiply operation
     fn bench_mul() raises:
-        var a = ExTensor([1024, 1024], DType.float32)
-        var b = ExTensor([1024, 1024], DType.float32)
+        var a = AnyTensor([1024, 1024], DType.float32)
+        var b = AnyTensor([1024, 1024], DType.float32)
         var c = zeros[DType.float32]([1024, 1024])
         tensor_multiply(a, b, c)
 
@@ -407,7 +407,7 @@ fn benchmark_tensor_operations() raises:
 
     # ReLU operation
     fn bench_relu() raises:
-        var a = ExTensor([1024, 1024], DType.float32)
+        var a = AnyTensor([1024, 1024], DType.float32)
         relu(a)
 
     results.append(benchmark_function(bench_relu, measure_iters=50))
@@ -427,7 +427,7 @@ from memory import memset_pattern
 
 fn benchmark_with_memory_tracking() raises:
     fn memory_intensive_op() raises:
-        var tensor = ExTensor([10000, 10000], DType.float32)
+        var tensor = AnyTensor([10000, 10000], DType.float32)
         # Operations on large tensor
         pass
 
@@ -493,7 +493,7 @@ fn benchmark_cache_efficiency() raises:
 
     fn row_major_access() raises:
         # Efficient: sequential memory access
-        var matrix = ExTensor([1024, 1024], DType.float32)
+        var matrix = AnyTensor([1024, 1024], DType.float32)
         var sum = 0.0
         for i in range(1024):
             for j in range(1024):
@@ -501,7 +501,7 @@ fn benchmark_cache_efficiency() raises:
 
     fn column_major_access() raises:
         # Inefficient: scattered memory access
-        var matrix = ExTensor([1024, 1024], DType.float32)
+        var matrix = AnyTensor([1024, 1024], DType.float32)
         var sum = 0.0
         for j in range(1024):
             for i in range(1024):

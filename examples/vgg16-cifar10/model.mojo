@@ -54,7 +54,7 @@ References:
     - CIFAR-10 Dataset: https://www.cs.toronto.edu/~kriz/cifar.html
 """
 
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import maxpool2d, maxpool2d_backward
 from shared.core.linear import linear, linear_backward
@@ -184,48 +184,48 @@ struct VGG16:
     var dropout_rate: Float32
 
     # Block 1 parameters
-    var conv1_1_kernel: ExTensor
-    var conv1_1_bias: ExTensor
-    var conv1_2_kernel: ExTensor
-    var conv1_2_bias: ExTensor
+    var conv1_1_kernel: AnyTensor
+    var conv1_1_bias: AnyTensor
+    var conv1_2_kernel: AnyTensor
+    var conv1_2_bias: AnyTensor
 
     # Block 2 parameters
-    var conv2_1_kernel: ExTensor
-    var conv2_1_bias: ExTensor
-    var conv2_2_kernel: ExTensor
-    var conv2_2_bias: ExTensor
+    var conv2_1_kernel: AnyTensor
+    var conv2_1_bias: AnyTensor
+    var conv2_2_kernel: AnyTensor
+    var conv2_2_bias: AnyTensor
 
     # Block 3 parameters
-    var conv3_1_kernel: ExTensor
-    var conv3_1_bias: ExTensor
-    var conv3_2_kernel: ExTensor
-    var conv3_2_bias: ExTensor
-    var conv3_3_kernel: ExTensor
-    var conv3_3_bias: ExTensor
+    var conv3_1_kernel: AnyTensor
+    var conv3_1_bias: AnyTensor
+    var conv3_2_kernel: AnyTensor
+    var conv3_2_bias: AnyTensor
+    var conv3_3_kernel: AnyTensor
+    var conv3_3_bias: AnyTensor
 
     # Block 4 parameters
-    var conv4_1_kernel: ExTensor
-    var conv4_1_bias: ExTensor
-    var conv4_2_kernel: ExTensor
-    var conv4_2_bias: ExTensor
-    var conv4_3_kernel: ExTensor
-    var conv4_3_bias: ExTensor
+    var conv4_1_kernel: AnyTensor
+    var conv4_1_bias: AnyTensor
+    var conv4_2_kernel: AnyTensor
+    var conv4_2_bias: AnyTensor
+    var conv4_3_kernel: AnyTensor
+    var conv4_3_bias: AnyTensor
 
     # Block 5 parameters
-    var conv5_1_kernel: ExTensor
-    var conv5_1_bias: ExTensor
-    var conv5_2_kernel: ExTensor
-    var conv5_2_bias: ExTensor
-    var conv5_3_kernel: ExTensor
-    var conv5_3_bias: ExTensor
+    var conv5_1_kernel: AnyTensor
+    var conv5_1_bias: AnyTensor
+    var conv5_2_kernel: AnyTensor
+    var conv5_2_bias: AnyTensor
+    var conv5_3_kernel: AnyTensor
+    var conv5_3_bias: AnyTensor
 
     # Fully connected layer parameters
-    var fc1_weights: ExTensor
-    var fc1_bias: ExTensor
-    var fc2_weights: ExTensor
-    var fc2_bias: ExTensor
-    var fc3_weights: ExTensor
-    var fc3_bias: ExTensor
+    var fc1_weights: AnyTensor
+    var fc1_bias: AnyTensor
+    var fc2_weights: AnyTensor
+    var fc2_bias: AnyTensor
+    var fc3_weights: AnyTensor
+    var fc3_bias: AnyTensor
 
     fn __init__(
         out self, num_classes: Int = 10, dropout_rate: Float32 = 0.5
@@ -401,8 +401,8 @@ struct VGG16:
         self.fc3_bias = zeros([num_classes], DType.float32)
 
     fn forward(
-        mut self, input: ExTensor, training: Bool = True
-    ) raises -> ExTensor:
+        mut self, input: AnyTensor, training: Bool = True
+    ) raises -> AnyTensor:
         """Forward pass through VGG-16.
 
         Args:
@@ -587,7 +587,7 @@ struct VGG16:
 
         return output
 
-    fn predict(mut self, input: ExTensor) raises -> Int:
+    fn predict(mut self, input: AnyTensor) raises -> Int:
         """Predict class for a single input.
 
         Args:
@@ -621,7 +621,7 @@ struct VGG16:
             - conv1_1_kernel.weights, conv1_1_bias.weights, etc.
         """
         # Collect all parameters in order
-        var parameters: List[ExTensor] = []
+        var parameters: List[AnyTensor] = []
         parameters.append(self.conv1_1_kernel)
         parameters.append(self.conv1_1_bias)
         parameters.append(self.conv1_2_kernel)
@@ -674,7 +674,7 @@ struct VGG16:
         var param_names = get_model_parameter_names("vgg16")
 
         # Create empty list for loaded parameters
-        var loaded_params: List[ExTensor] = []
+        var loaded_params: List[AnyTensor] = []
 
         # Load using shared utility
         load_model_weights(loaded_params, weights_dir, param_names)

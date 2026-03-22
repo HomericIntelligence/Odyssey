@@ -21,7 +21,7 @@ ensuring we stay well below the crash threshold.
 ### Problem Statement
 
 Memory allocation crashes occur with heap corruption after running exactly 15 layer tests
-cumulatively. The crash happens during `alloc[UInt8]()` in `ExTensor.__init__` when allocating
+cumulatively. The crash happens during `alloc[UInt8]()` in `AnyTensor.__init__` when allocating
 a small 1600-byte tensor, despite all previous allocations/deallocations completing successfully.
 
 The crash manifests in `libKGENCompilerRTShared.so`, indicating a Mojo runtime/compiler issue
@@ -30,7 +30,7 @@ rather than a bug in our code.
 ### Key Findings
 
 1. **NOT a bug in layer implementations** - Same operations work in different files
-2. **NOT a bug in ExTensor memory management** - All allocations/frees tracked correctly
+2. **NOT a bug in AnyTensor memory management** - All allocations/frees tracked correctly
 3. **Cannot create minimal reproduction** - Tried 17 different isolated test cases
 4. **Requires exact sequence of 15 specific tests** - Any subset <15 works fine
 5. **Heap corruption in Mojo allocator** - Crash in `libKGENCompilerRTShared.so`

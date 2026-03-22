@@ -11,7 +11,7 @@ Note: Split into a dedicated file following ADR-009 pattern — heap corruption 
 ~15 cumulative tests in a single file in Mojo 0.26.1.
 """
 
-from shared.core.extensor import ExTensor, zeros
+from shared.core.any_tensor import AnyTensor, zeros
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 
@@ -216,62 +216,62 @@ fn test_dtype_sizes() raises:
     at compile time as a regression test.
     """
     assert_equal(
-        ExTensor._get_dtype_size_static(DType.float16),
+        AnyTensor._get_dtype_size_static(DType.float16),
         2,
         "float16 should be 2 bytes",
     )
     assert_equal(
-        ExTensor._get_dtype_size_static(DType.bfloat16),
+        AnyTensor._get_dtype_size_static(DType.bfloat16),
         2,
         "bfloat16 should be 2 bytes",
     )
     assert_equal(
-        ExTensor._get_dtype_size_static(DType.float32),
+        AnyTensor._get_dtype_size_static(DType.float32),
         4,
         "float32 should be 4 bytes",
     )
     assert_equal(
-        ExTensor._get_dtype_size_static(DType.float64),
+        AnyTensor._get_dtype_size_static(DType.float64),
         8,
         "float64 should be 8 bytes",
     )
     assert_equal(
-        ExTensor._get_dtype_size_static(DType.int8),
+        AnyTensor._get_dtype_size_static(DType.int8),
         1,
         "int8 should be 1 byte",
     )
     assert_equal(
-        ExTensor._get_dtype_size_static(DType.uint8),
+        AnyTensor._get_dtype_size_static(DType.uint8),
         1,
         "uint8 should be 1 byte",
     )
     assert_equal(
-        ExTensor._get_dtype_size_static(DType.int16),
+        AnyTensor._get_dtype_size_static(DType.int16),
         2,
         "int16 should be 2 bytes",
     )
     assert_equal(
-        ExTensor._get_dtype_size_static(DType.uint16),
+        AnyTensor._get_dtype_size_static(DType.uint16),
         2,
         "uint16 should be 2 bytes",
     )
     assert_equal(
-        ExTensor._get_dtype_size_static(DType.int32),
+        AnyTensor._get_dtype_size_static(DType.int32),
         4,
         "int32 should be 4 bytes",
     )
     assert_equal(
-        ExTensor._get_dtype_size_static(DType.uint32),
+        AnyTensor._get_dtype_size_static(DType.uint32),
         4,
         "uint32 should be 4 bytes",
     )
     assert_equal(
-        ExTensor._get_dtype_size_static(DType.int64),
+        AnyTensor._get_dtype_size_static(DType.int64),
         8,
         "int64 should be 8 bytes",
     )
     assert_equal(
-        ExTensor._get_dtype_size_static(DType.uint64),
+        AnyTensor._get_dtype_size_static(DType.uint64),
         8,
         "uint64 should be 8 bytes",
     )

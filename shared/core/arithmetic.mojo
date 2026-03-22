@@ -1,11 +1,11 @@
-"""Arithmetic operations for ExTensor with broadcasting support.
+"""Arithmetic operations for AnyTensor with broadcasting support.
 
 Implements element-wise arithmetic operations following NumPy-style broadcasting.
 """
 
 from collections import List
 from math import nan
-from .extensor import ExTensor, full
+from .any_tensor import AnyTensor, full
 from .broadcasting import broadcast_shapes, compute_broadcast_strides
 from .shape import as_contiguous
 from .gradient_types import GradientPair
@@ -33,7 +33,7 @@ from .dtype_ordinal import (
 
 fn _broadcast_binary[
     dtype: DType, op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
-](a: ExTensor, b: ExTensor) raises -> ExTensor:
+](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Apply binary operation with broadcasting and compile-time dtype specialization.
 
     This helper eliminates 200+ lines of duplicated broadcasting code and removes
@@ -66,7 +66,7 @@ fn _broadcast_binary[
 
     # Compute broadcast shape
     var result_shape = broadcast_shapes(a_cont.shape(), b_cont.shape())
-    var result = ExTensor(result_shape, dtype)
+    var result = AnyTensor(result_shape, dtype)
 
     # Compute broadcast strides
     var strides_a = compute_broadcast_strides(a_cont.shape(), result_shape)
@@ -116,7 +116,7 @@ fn _broadcast_binary[
 
 fn _dispatch_broadcast_binary[
     op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
-](a: ExTensor, b: ExTensor) raises -> ExTensor:
+](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch to compile-time specialized broadcasting binary operation.
 
     This dispatcher performs runtime dtype checking but dispatches to compile-time
@@ -171,7 +171,7 @@ fn _dispatch_broadcast_binary[
         raise Error("Unsupported dtype for binary operation")
 
 
-fn add(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn add(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise addition with broadcasting.
 
     Args:
@@ -206,7 +206,7 @@ fn add(a: ExTensor, b: ExTensor) raises -> ExTensor:
     return _dispatch_broadcast_binary[_add_op](a, b)
 
 
-fn subtract(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn subtract(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise subtraction with broadcasting.
 
     Args:
@@ -240,7 +240,7 @@ fn subtract(a: ExTensor, b: ExTensor) raises -> ExTensor:
     return _dispatch_broadcast_binary[_sub_op](a, b)
 
 
-fn multiply(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn multiply(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise multiplication with broadcasting.
 
     Args:
@@ -273,7 +273,7 @@ fn multiply(a: ExTensor, b: ExTensor) raises -> ExTensor:
     return _dispatch_broadcast_binary[_mul_op](a, b)
 
 
-fn divide(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn divide(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise division with broadcasting.
 
     Args:
@@ -318,7 +318,7 @@ fn divide(a: ExTensor, b: ExTensor) raises -> ExTensor:
     return _dispatch_broadcast_binary[_div_op](a, b)
 
 
-fn multiply_scalar(tensor: ExTensor, scalar: Float32) raises -> ExTensor:
+fn multiply_scalar(tensor: AnyTensor, scalar: Float32) raises -> AnyTensor:
     """Multiply tensor by a scalar value efficiently.
 
     Optimized version that multiplies each element by a scalar without
@@ -349,7 +349,7 @@ fn multiply_scalar(tensor: ExTensor, scalar: Float32) raises -> ExTensor:
     # Ensure input is contiguous before flat-buffer kernel access.
     var t = tensor if tensor.is_contiguous() else as_contiguous(tensor)
 
-    var result = ExTensor(t.shape(), t.dtype())
+    var result = AnyTensor(t.shape(), t.dtype())
     var numel = 1
     for dim in t.shape():
         numel *= dim
@@ -430,7 +430,7 @@ fn multiply_scalar(tensor: ExTensor, scalar: Float32) raises -> ExTensor:
     return result^
 
 
-fn floor_divide(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn floor_divide(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise floor division with broadcasting.
 
     Args:
@@ -483,7 +483,7 @@ fn floor_divide(a: ExTensor, b: ExTensor) raises -> ExTensor:
     return _dispatch_broadcast_binary[_floor_div_op](a, b)
 
 
-fn modulo(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn modulo(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise modulo with broadcasting.
 
     Args:
@@ -528,7 +528,7 @@ fn modulo(a: ExTensor, b: ExTensor) raises -> ExTensor:
     return _dispatch_broadcast_binary[_mod_op](a, b)
 
 
-fn power(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn power(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise exponentiation with broadcasting.
 
     Args:
@@ -573,8 +573,8 @@ fn power(a: ExTensor, b: ExTensor) raises -> ExTensor:
 
 
 fn _reduce_broadcast_dims(
-    grad: ExTensor, original_shape: List[Int]
-) raises -> ExTensor:
+    grad: AnyTensor, original_shape: List[Int]
+) raises -> AnyTensor:
     """Reduce gradient from broadcast shape back to original shape.
 
     When forward pass broadcasts input from original_shape to grad.shape(),
@@ -631,7 +631,7 @@ fn _reduce_broadcast_dims(
 
 
 fn add_backward(
-    grad_output: ExTensor, a: ExTensor, b: ExTensor
+    grad_output: AnyTensor, a: AnyTensor, b: AnyTensor
 ) raises -> GradientPair:
     """Compute gradients for element-wise addition.
 
@@ -678,7 +678,7 @@ fn add_backward(
 
 
 fn subtract_backward(
-    grad_output: ExTensor, a: ExTensor, b: ExTensor
+    grad_output: AnyTensor, a: AnyTensor, b: AnyTensor
 ) raises -> GradientPair:
     """Compute gradients for element-wise subtraction.
 
@@ -709,7 +709,7 @@ fn subtract_backward(
 
 
 fn multiply_backward(
-    grad_output: ExTensor, a: ExTensor, b: ExTensor
+    grad_output: AnyTensor, a: AnyTensor, b: AnyTensor
 ) raises -> GradientPair:
     """Compute gradients for element-wise multiplication.
 
@@ -748,7 +748,7 @@ fn multiply_backward(
 
 
 fn divide_backward(
-    grad_output: ExTensor, a: ExTensor, b: ExTensor
+    grad_output: AnyTensor, a: AnyTensor, b: AnyTensor
 ) raises -> GradientPair:
     """Compute gradients for element-wise division.
 
@@ -811,17 +811,17 @@ fn divide_backward(
 # FUTURE WORK: Operator Overloading (out of scope for issues #219-220)
 # ==============================================================================
 #
-# The following dunder methods should be implemented on the ExTensor struct
+# The following dunder methods should be implemented on the AnyTensor struct
 # to enable natural operator syntax (e.g., a + b instead of add(a, b)):
 #
 # Basic operators:
-#   fn __add__(self, other: ExTensor) -> ExTensor
-#   fn __sub__(self, other: ExTensor) -> ExTensor
-#   fn __mul__(self, other: ExTensor) -> ExTensor
-#   fn __truediv__(self, other: ExTensor) -> ExTensor
-#   fn __floordiv__(self, other: ExTensor) -> ExTensor
-#   fn __mod__(self, other: ExTensor) -> ExTensor
-#   fn __pow__(self, other: ExTensor) -> ExTensor
+#   fn __add__(self, other: AnyTensor) -> AnyTensor
+#   fn __sub__(self, other: AnyTensor) -> AnyTensor
+#   fn __mul__(self, other: AnyTensor) -> AnyTensor
+#   fn __truediv__(self, other: AnyTensor) -> AnyTensor
+#   fn __floordiv__(self, other: AnyTensor) -> AnyTensor
+#   fn __mod__(self, other: AnyTensor) -> AnyTensor
+#   fn __pow__(self, other: AnyTensor) -> AnyTensor
 #
 # Reflected variants (for operations like: 2 + tensor):
 #   fn __radd__, __rsub__, __rmul__, __rtruediv__, etc.

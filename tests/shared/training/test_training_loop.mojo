@@ -7,11 +7,11 @@ Tests cover:
 - Weight updates via optimizer
 - Batch iteration and epoch completion
 
-Issue #2728: Enable Training Loop Tests with SimpleMLP and ExTensor.randn.
+Issue #2728: Enable Training Loop Tests with SimpleMLP and AnyTensor.randn.
 Tests enabled after core infrastructure was completed:
 - MSELoss.compute() implementation
 - SGD/TrainingLoop integration via autograd
-- ExTensor.randn export from shared.core
+- AnyTensor.randn export from shared.core
 """
 
 from tests.shared.conftest import (
@@ -32,7 +32,7 @@ from tests.shared.conftest import (
 )
 from shared.training import SGD, MSELoss, TrainingLoop
 from shared.training.trainer_interface import DataLoader
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 from shared.core import ones, zeros, randn, subtract, multiply
 from shared.testing import SimpleMLP
 
@@ -254,9 +254,9 @@ fn test_training_loop_computes_loss() raises:
     """Test training loop computes loss correctly.
 
     API Contract:
-        fn compute_loss(self, outputs: Tensor, targets: Tensor) -> ExTensor
+        fn compute_loss(self, outputs: Tensor, targets: Tensor) -> AnyTensor
         - Calls loss_fn.compute(outputs, targets)
-        - Returns loss value as ExTensor.
+        - Returns loss value as AnyTensor.
     """
     # Create model, optimizer, and loss function
     var model = create_simple_model()
@@ -288,10 +288,10 @@ fn test_training_loop_computes_loss() raises:
 
 
 fn test_training_loop_loss_scalar() raises:
-    """Test training loop returns loss as ExTensor.
+    """Test training loop returns loss as AnyTensor.
 
     API Contract:
-        Loss should be returned as ExTensor containing the reduced loss value.
+        Loss should be returned as AnyTensor containing the reduced loss value.
         The loss tensor typically has shape [1] or [] (scalar).
     """
     # Create model, optimizer, and loss function
@@ -309,7 +309,7 @@ fn test_training_loop_loss_scalar() raises:
     # Run training step
     var loss = training_loop.step(inputs, targets)
 
-    # Loss should be an ExTensor (can extract float value)
+    # Loss should be an AnyTensor (can extract float value)
     var loss_val = loss._get_float32(0)
 
     # Loss value should be a valid number (not NaN or Inf for this simple case)
@@ -730,7 +730,7 @@ fn test_run_epoch_with_batches() raises:
     # Define step function that computes loss from batch
     # For each batch: loss = sum(batch_data) - batch_labels
     # With ones input and zeros labels, each batch should have positive loss
-    fn step_fn(batch_data: ExTensor, batch_labels: ExTensor) raises -> ExTensor:
+    fn step_fn(batch_data: AnyTensor, batch_labels: AnyTensor) raises -> AnyTensor:
         # Simple loss: sum squared differences
         # Since batch_data=ones and batch_labels=zeros, loss will be > 0
         var diff = subtract(batch_data, batch_labels)

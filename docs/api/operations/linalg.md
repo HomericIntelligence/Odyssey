@@ -9,8 +9,8 @@ Matrix operations and linear algebra routines.
 Matrix multiplication following NumPy broadcasting rules.
 
 ```mojo
-fn __matmul__(self, other: ExTensor) raises -> ExTensor
-fn matmul(a: ExTensor, b: ExTensor) raises -> ExTensor
+fn __matmul__(self, other: AnyTensor) raises -> AnyTensor
+fn matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -52,7 +52,7 @@ var batch_C = batch_A @ batch_B  # Shape: (32, 64, 256)
 Dot product of two 1D tensors.
 
 ```mojo
-fn dot(a: ExTensor, b: ExTensor) raises -> ExTensor
+fn dot(a: AnyTensor, b: AnyTensor) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -75,7 +75,7 @@ var result = dot(a, b)  # Shape: () - scalar
 Outer product of two 1D tensors.
 
 ```mojo
-fn outer(a: ExTensor, b: ExTensor) raises -> ExTensor
+fn outer(a: AnyTensor, b: AnyTensor) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -102,8 +102,8 @@ var result = outer(a, b)  # Shape: (3, 4)
 Transpose the tensor (swap last two dimensions).
 
 ```mojo
-fn transpose(self) raises -> ExTensor
-fn T(self) raises -> ExTensor  # Property alias
+fn transpose(self) raises -> AnyTensor
+fn T(self) raises -> AnyTensor  # Property alias
 ```
 
 **Example:**
@@ -119,7 +119,7 @@ var AT2 = A.transpose()  # Same as A.T
 Permute dimensions in arbitrary order.
 
 ```mojo
-fn permute(self, dims: List[Int]) raises -> ExTensor
+fn permute(self, dims: List[Int]) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -140,7 +140,7 @@ var y = x.permute(List[Int](0, 2, 1, 3))  # Shape: (2, 4, 3, 5)
 Compute tensor norm.
 
 ```mojo
-fn norm(self, p: Float = 2.0, axis: Optional[Int] = None) raises -> ExTensor
+fn norm(self, p: Float = 2.0, axis: Optional[Int] = None) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -173,7 +173,7 @@ var linf = x.norm(p=Float.inf)
 Extract diagonal or create diagonal matrix.
 
 ```mojo
-fn diag(self, offset: Int = 0) raises -> ExTensor
+fn diag(self, offset: Int = 0) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -199,7 +199,7 @@ var D = v.diag()  # Shape: (3, 3)
 Compute the trace (sum of diagonal elements).
 
 ```mojo
-fn trace(self) raises -> ExTensor
+fn trace(self) raises -> AnyTensor
 ```
 
 **Example:**
@@ -216,7 +216,7 @@ var t = A.trace()  # 4.0
 Singular value decomposition.
 
 ```mojo
-fn svd(self) raises -> Tuple[ExTensor, ExTensor, ExTensor]
+fn svd(self) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]
 ```
 
 **Returns:** (U, S, Vh) where `A = U @ diag(S) @ Vh`
@@ -234,7 +234,7 @@ var (U, S, Vh) = A.svd()
 QR decomposition.
 
 ```mojo
-fn qr(self) raises -> Tuple[ExTensor, ExTensor]
+fn qr(self) raises -> Tuple[AnyTensor, AnyTensor]
 ```
 
 **Returns:** (Q, R) where `A = Q @ R`
@@ -254,7 +254,7 @@ var (Q, R) = A.qr()
 Solve linear system Ax = b.
 
 ```mojo
-fn solve(A: ExTensor, b: ExTensor) raises -> ExTensor
+fn solve(A: AnyTensor, b: AnyTensor) raises -> AnyTensor
 ```
 
 **Parameters:**
@@ -277,7 +277,7 @@ var x = solve(A, b)  # Ax = b
 Compute matrix inverse.
 
 ```mojo
-fn inv(self) raises -> ExTensor
+fn inv(self) raises -> AnyTensor
 ```
 
 **Example:**
@@ -292,4 +292,4 @@ var A_inv = A.inv()
 
 - [Arithmetic Operations](arithmetic.md) - Element-wise operations
 - [Reduction Operations](reduction.md) - Sum, mean, max, min
-- [ExTensor Reference](../tensor.md) - Core tensor class
+- [AnyTensor Reference](../tensor.md) - Core tensor class

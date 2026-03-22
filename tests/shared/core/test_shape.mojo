@@ -1,11 +1,11 @@
-"""Tests for ExTensor shape manipulation operations.
+"""Tests for AnyTensor shape manipulation operations.
 
 Tests shape manipulation including reshape, squeeze, unsqueeze, expand_dims,
 flatten, ravel, concatenate, stack, split, tile, repeat, broadcast_to, permute.
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange
+# Import AnyTensor and operations
+from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange
 from shared.core.shape import (
     reshape,
     squeeze,
@@ -221,7 +221,7 @@ fn test_concatenate_axis_0() raises:
     var a = ones(shape_a, DType.float32)  # 2x3
     var b = full(shape_b, 2.0, DType.float32)  # 3x3
 
-    var tensors: List[ExTensor] = []
+    var tensors: List[AnyTensor] = []
     tensors.append(a)
     tensors.append(b)
     var c = concatenate(tensors, axis=0)
@@ -252,7 +252,7 @@ fn test_concatenate_axis_1() raises:
     var a = ones(shape_a, DType.float32)  # 3x2
     var b = full(shape_b, 2.0, DType.float32)  # 3x4
 
-    var tensors: List[ExTensor] = []
+    var tensors: List[AnyTensor] = []
     tensors.append(a)
     tensors.append(b)
     var c = concatenate(tensors, axis=1)
@@ -280,7 +280,7 @@ fn test_stack_new_axis() raises:
     var a = ones(shape, DType.float32)  # 2x3
     var b = full(shape, 2.0, DType.float32)  # 2x3
 
-    var tensors: List[ExTensor] = []
+    var tensors: List[AnyTensor] = []
     tensors.append(a)
     tensors.append(b)
     var c = stack(tensors, axis=0)
@@ -311,7 +311,7 @@ fn test_stack_axis_1() raises:
     var a = ones(shape, DType.float32)
     var b = full(shape, 2.0, DType.float32)
 
-    var tensors: List[ExTensor] = []
+    var tensors: List[AnyTensor] = []
     tensors.append(a)
     tensors.append(b)
     var c = stack(tensors, axis=1)
@@ -653,7 +653,7 @@ fn test_flatten_to_2d_preserves_dtype() raises:
 
 fn main() raises:
     """Run all shape manipulation tests."""
-    print("Running ExTensor shape manipulation tests...")
+    print("Running AnyTensor shape manipulation tests...")
 
     # reshape() tests
     print("  Testing reshape()...")

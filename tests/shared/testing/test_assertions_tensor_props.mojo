@@ -13,7 +13,7 @@ from shared.testing.assertions import (
     assert_value_at,
     assert_all_values,
 )
-from shared.core.extensor import ones
+from shared.core.any_tensor import ones
 
 
 fn test_assert_dtype_tensor_passes() raises:

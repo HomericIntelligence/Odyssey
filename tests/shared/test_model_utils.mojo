@@ -8,7 +8,7 @@ Tests the model weight save/load functionality including:
 """
 
 from testing import assert_true, assert_equal
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.training.model_utils import (
     save_model_weights,
     load_model_weights,
@@ -23,7 +23,7 @@ import os
 fn test_save_load_model_weights() raises:
     """Test saving and loading model weights."""
     # Create test parameters
-    var params: List[ExTensor] = []
+    var params: List[AnyTensor] = []
     var shape1: List[Int] = [3, 4]
     var shape2: List[Int] = [4, 2]
 
@@ -49,7 +49,7 @@ fn test_save_load_model_weights() raises:
         assert_true(_file_exists(file2), "fc1_weights.weights not created")
 
         # Load weights
-        var loaded: List[ExTensor] = []
+        var loaded: List[AnyTensor] = []
         load_model_weights(loaded, tmpdir, names)
 
         # Verify number of parameters
@@ -134,8 +134,8 @@ fn test_get_vgg16_parameter_names() raises:
 fn test_validate_shapes_matching() raises:
     """Test shape validation with matching tensors."""
     # Create matching tensors
-    var expected: List[ExTensor] = []
-    var loaded: List[ExTensor] = []
+    var expected: List[AnyTensor] = []
+    var loaded: List[AnyTensor] = []
 
     var shape1: List[Int] = [3, 4]
     var shape2: List[Int] = [4, 5, 6]
@@ -152,8 +152,8 @@ fn test_validate_shapes_matching() raises:
 
 fn test_validate_shapes_rank_mismatch() raises:
     """Test shape validation with rank mismatch."""
-    var expected: List[ExTensor] = []
-    var loaded: List[ExTensor] = []
+    var expected: List[AnyTensor] = []
+    var loaded: List[AnyTensor] = []
 
     var shape1: List[Int] = [3, 4]
     var shape2: List[Int] = [3, 4, 1]  # Different rank
@@ -172,8 +172,8 @@ fn test_validate_shapes_rank_mismatch() raises:
 
 fn test_validate_shapes_dimension_mismatch() raises:
     """Test shape validation with dimension mismatch."""
-    var expected: List[ExTensor] = []
-    var loaded: List[ExTensor] = []
+    var expected: List[AnyTensor] = []
+    var loaded: List[AnyTensor] = []
 
     var shape1: List[Int] = [3, 4]
     var shape2: List[Int] = [3, 5]  # Different second dimension
@@ -192,8 +192,8 @@ fn test_validate_shapes_dimension_mismatch() raises:
 
 fn test_validate_shapes_count_mismatch() raises:
     """Test shape validation with parameter count mismatch."""
-    var expected: List[ExTensor] = []
-    var loaded: List[ExTensor] = []
+    var expected: List[AnyTensor] = []
+    var loaded: List[AnyTensor] = []
 
     var shape1: List[Int] = [3, 4]
 

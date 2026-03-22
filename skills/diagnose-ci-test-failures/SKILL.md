@@ -83,7 +83,7 @@ Then in the step: `continue-on-error: ${{ matrix.test-group.continue-on-error ==
 
 **Why it failed**: `_get_float32()` uses flat `index × dtype_size` — it's not stride-aware. Making
 transpose a view without fixing element access everywhere would silently return wrong values.
-The blast radius covers the entire ExTensor API.
+The blast radius covers the entire AnyTensor API.
 
 **Lesson**: When a "simple fix" requires changing a fundamental assumption (flat vs strided indexing),
 scope it as a separate effort. Skip the tests and file an issue.

@@ -8,7 +8,7 @@ The caller manages all state (kernels, biases).
 from algorithm import parallelize
 from collections import List
 
-from .extensor import ExTensor, zeros
+from .any_tensor import AnyTensor, zeros
 from .arithmetic import add
 from .reduction import sum as reduce_sum
 from .shape import conv2d_output_shape, as_contiguous
@@ -27,9 +27,9 @@ from .parallel_utils import should_parallelize
 fn _conv2d_kernel[
     dtype: DType
 ](
-    x: ExTensor,
-    kernel: ExTensor,
-    bias: ExTensor,
+    x: AnyTensor,
+    kernel: AnyTensor,
+    bias: AnyTensor,
     stride: Int,
     padding: Int,
     batch: Int,
@@ -41,7 +41,7 @@ fn _conv2d_kernel[
     out_width: Int,
     kH: Int,
     kW: Int,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Dtype-generic conv2d kernel - handles accumulation in correct precision.
 
     This helper eliminates hardcoded Float32 accumulation, preventing overflow
@@ -340,12 +340,12 @@ fn _conv2d_kernel[
 
 
 fn conv2d(
-    x: ExTensor,
-    kernel: ExTensor,
-    bias: ExTensor,
+    x: AnyTensor,
+    kernel: AnyTensor,
+    bias: AnyTensor,
     stride: Int = 1,
     padding: Int = 0,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Functional 2D convolution using direct convolution: y = conv2d(x, kernel) + bias.
 
         Pure function - caller manages kernel and bias. No internal state.
@@ -366,7 +366,7 @@ fn conv2d(
 
         Example:
             ```mojo
-            from shared.core import ExTensor, conv2d, zeros, he_uniform
+            from shared.core import AnyTensor, conv2d, zeros, he_uniform
 
             # Caller manages state
             var kernel = he_uniform((16, 3, 3, 3), DType.float32)  # 16 filters, 3x3
@@ -487,8 +487,8 @@ fn conv2d(
 
 
 fn conv2d_no_bias(
-    x: ExTensor, kernel: ExTensor, stride: Int = 1, padding: Int = 0
-) raises -> ExTensor:
+    x: AnyTensor, kernel: AnyTensor, stride: Int = 1, padding: Int = 0
+) raises -> AnyTensor:
     """Functional 2D convolution without bias: y = conv2d(x, kernel).
 
         Pure function for convolution with no bias term.
@@ -522,9 +522,9 @@ fn conv2d_no_bias(
 fn _conv2d_backward_kernel[
     dtype: DType
 ](
-    grad_output: ExTensor,
-    x: ExTensor,
-    kernel: ExTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
+    kernel: AnyTensor,
     stride: Int,
     padding: Int,
     batch: Int,
@@ -708,9 +708,9 @@ fn _conv2d_backward_kernel[
 
 
 fn conv2d_backward(
-    grad_output: ExTensor,
-    x: ExTensor,
-    kernel: ExTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
+    kernel: AnyTensor,
     stride: Int = 1,
     padding: Int = 0,
 ) raises -> GradientTriple:
@@ -841,9 +841,9 @@ fn conv2d_backward(
 
 
 fn conv2d_no_bias_backward(
-    grad_output: ExTensor,
-    x: ExTensor,
-    kernel: ExTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
+    kernel: AnyTensor,
     stride: Int = 1,
     padding: Int = 0,
 ) raises -> Conv2dNoBiasGradient:
@@ -863,19 +863,19 @@ fn conv2d_no_bias_backward(
             Error: If tensor shapes are incompatible.
     """
     var result = conv2d_backward(grad_output, x, kernel, stride, padding)
-    # Copy needed fields before result is destroyed (ExTensor is ImplicitlyCopyable)
+    # Copy needed fields before result is destroyed (AnyTensor is ImplicitlyCopyable)
     var grad_input_copy = result.grad_input
     var grad_kernel_copy = result.grad_weights
     return Conv2dNoBiasGradient(grad_input_copy^, grad_kernel_copy^)
 
 
 fn depthwise_conv2d(
-    x: ExTensor,
-    kernel: ExTensor,
-    bias: ExTensor,
+    x: AnyTensor,
+    kernel: AnyTensor,
+    bias: AnyTensor,
     stride: Int = 1,
     padding: Int = 0,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Functional depthwise 2D convolution: y = depthwise_conv2d(x, kernel) + bias.
 
         Each input channel is convolved with its own filter (no cross-channel mixing).
@@ -1021,8 +1021,8 @@ fn depthwise_conv2d(
 
 
 fn depthwise_conv2d_no_bias(
-    x: ExTensor, kernel: ExTensor, stride: Int = 1, padding: Int = 0
-) raises -> ExTensor:
+    x: AnyTensor, kernel: AnyTensor, stride: Int = 1, padding: Int = 0
+) raises -> AnyTensor:
     """Functional depthwise 2D convolution without bias.
 
     Args:
@@ -1050,9 +1050,9 @@ fn depthwise_conv2d_no_bias(
 
 
 fn depthwise_conv2d_backward(
-    grad_output: ExTensor,
-    x: ExTensor,
-    kernel: ExTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
+    kernel: AnyTensor,
     stride: Int = 1,
     padding: Int = 0,
 ) raises -> GradientTriple:
@@ -1236,9 +1236,9 @@ fn depthwise_conv2d_backward(
 
 
 fn depthwise_conv2d_no_bias_backward(
-    grad_output: ExTensor,
-    x: ExTensor,
-    kernel: ExTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
+    kernel: AnyTensor,
     stride: Int = 1,
     padding: Int = 0,
 ) raises -> DepthwiseConv2dNoBiasGradient:
@@ -1260,7 +1260,7 @@ fn depthwise_conv2d_no_bias_backward(
     var result = depthwise_conv2d_backward(
         grad_output, x, kernel, stride, padding
     )
-    # Copy needed fields before result is destroyed (ExTensor is ImplicitlyCopyable)
+    # Copy needed fields before result is destroyed (AnyTensor is ImplicitlyCopyable)
     var grad_input_copy = result.grad_input
     var grad_kernel_copy = result.grad_weights
     return DepthwiseConv2dNoBiasGradient(grad_input_copy^, grad_kernel_copy^)
@@ -1272,13 +1272,13 @@ fn depthwise_conv2d_no_bias_backward(
 
 
 fn depthwise_separable_conv2d(
-    x: ExTensor,
-    depthwise_kernel: ExTensor,
-    pointwise_kernel: ExTensor,
-    bias: ExTensor,
+    x: AnyTensor,
+    depthwise_kernel: AnyTensor,
+    pointwise_kernel: AnyTensor,
+    bias: AnyTensor,
     stride: Int = 1,
     padding: Int = 0,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Depthwise separable 2D convolution.
 
         Combines depthwise and pointwise convolutions for efficient mobile architectures.
@@ -1340,12 +1340,12 @@ fn depthwise_separable_conv2d(
 
 
 fn depthwise_separable_conv2d_no_bias(
-    x: ExTensor,
-    depthwise_kernel: ExTensor,
-    pointwise_kernel: ExTensor,
+    x: AnyTensor,
+    depthwise_kernel: AnyTensor,
+    pointwise_kernel: AnyTensor,
     stride: Int = 1,
     padding: Int = 0,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Depthwise separable 2D convolution without bias.
 
     Args:
@@ -1375,10 +1375,10 @@ fn depthwise_separable_conv2d_no_bias(
 
 
 fn depthwise_separable_conv2d_backward(
-    grad_output: ExTensor,
-    x: ExTensor,
-    depthwise_kernel: ExTensor,
-    pointwise_kernel: ExTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
+    depthwise_kernel: AnyTensor,
+    pointwise_kernel: AnyTensor,
     stride: Int = 1,
     padding: Int = 0,
 ) raises -> GradientQuad:
@@ -1433,10 +1433,10 @@ fn depthwise_separable_conv2d_backward(
 
 
 fn depthwise_separable_conv2d_no_bias_backward(
-    grad_output: ExTensor,
-    x: ExTensor,
-    depthwise_kernel: ExTensor,
-    pointwise_kernel: ExTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
+    depthwise_kernel: AnyTensor,
+    pointwise_kernel: AnyTensor,
     stride: Int = 1,
     padding: Int = 0,
 ) raises -> GradientTriple:

@@ -14,7 +14,7 @@ from tests.shared.conftest import (
     assert_false,
     assert_equal,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.training.metrics import (
     print_evaluation_summary,
     print_per_class_accuracy,
@@ -36,7 +36,7 @@ fn test_print_confusion_matrix_binary() raises:
 
     # Create 2x2 confusion matrix (binary classification)
     var shape: List[Int] = [2, 2]
-    var matrix = ExTensor(shape, DType.int32)
+    var matrix = AnyTensor(shape, DType.int32)
 
     matrix._data.bitcast[Int32]()[0] = 950  # TP
     matrix._data.bitcast[Int32]()[1] = 50  # FP
@@ -58,7 +58,7 @@ fn test_print_confusion_matrix_normalized() raises:
 
     # Create 2x2 normalized confusion matrix (as percentages)
     var shape: List[Int] = [2, 2]
-    var matrix = ExTensor(shape, DType.float32)
+    var matrix = AnyTensor(shape, DType.float32)
 
     matrix._data.bitcast[Float32]()[0] = 0.95  # 95%
     matrix._data.bitcast[Float32]()[1] = 0.05  # 5%
@@ -76,7 +76,7 @@ fn test_print_confusion_matrix_large() raises:
 
     # Create 10x10 confusion matrix
     var shape: List[Int] = [10, 10]
-    var matrix = ExTensor(shape, DType.int32)
+    var matrix = AnyTensor(shape, DType.int32)
 
     # Fill with simple pattern
     for i in range(10):
@@ -200,7 +200,7 @@ fn test_full_training_workflow_output() raises:
 
     # Print per-class accuracy
     var per_class_shape: List[Int] = [5]
-    var per_class = ExTensor(per_class_shape, DType.float64)
+    var per_class = AnyTensor(per_class_shape, DType.float64)
     per_class._data.bitcast[Float64]()[0] = 0.85
     per_class._data.bitcast[Float64]()[1] = 0.92
     per_class._data.bitcast[Float64]()[2] = 0.88
@@ -218,7 +218,7 @@ fn test_full_training_workflow_output() raises:
 
     # Print confusion matrix
     var cm_shape: List[Int] = [5, 5]
-    var cm = ExTensor(cm_shape, DType.int32)
+    var cm = AnyTensor(cm_shape, DType.int32)
     for i in range(5):
         for j in range(5):
             var idx = i * 5 + j

@@ -241,11 +241,11 @@ fn test_linear_backward() raises:
     var input = create_seeded_random_tensor([1, 32], DType.float32, seed=42)
 
     # Define forward pass
-    fn forward(t: ExTensor) raises escaping -> ExTensor:
+    fn forward(t: AnyTensor) raises escaping -> AnyTensor:
         return linear(t, weights, bias)^
 
     # Define backward pass
-    fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return linear_backward(grad, inp, weights)^
 
     # Check gradients match
@@ -339,7 +339,7 @@ for i in range(output.numel()):
 
 ```mojo
 # Loss = sum(output * grad_output) — non-degenerate for any non-uniform grad_output
-fn forward_for_grad(inp: ExTensor) raises -> ExTensor:
+fn forward_for_grad(inp: AnyTensor) raises -> AnyTensor:
     var out = batch_norm2d(inp, gamma, beta, ...)[0]
     var weighted = multiply(out, grad_output)
     while weighted.dim() > 0:

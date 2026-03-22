@@ -29,11 +29,11 @@ error: use of unknown declaration 'inout'
 ```mojo
 // WRONG (deprecated):
 fn modify(inout self):
-fn process(inout data: ExTensor):
+fn process(inout data: AnyTensor):
 
 // CORRECT:
 fn modify(mut self):
-fn process(mut data: ExTensor):
+fn process(mut data: AnyTensor):
 ```
 
 **Files Affected**: 8 files in `shared/core/arithmetic_simd.mojo`
@@ -135,7 +135,7 @@ from sys import simdwidthof
 from sys.info import simdwidthof
 ```
 
-**Files Affected**: `shared/core/extensor.mojo`
+**Files Affected**: `shared/core/any_tensor.mojo`
 
 ---
 
@@ -279,12 +279,12 @@ struct Dataset(Copyable, Movable):
 
 #### 4.1 ImplicitlyCopyable Removed (21 errors)
 
-**Pattern**: ExTensor, List[T] no longer implicitly copyable - need explicit transfer or copy.
+**Pattern**: AnyTensor, List[T] no longer implicitly copyable - need explicit transfer or copy.
 
 **Error**:
 
 ```text
-error: value of type 'ExTensor' cannot be implicitly copied,
+error: value of type 'AnyTensor' cannot be implicitly copied,
        it does not conform to 'ImplicitlyCopyable'
 ```
 
@@ -351,24 +351,24 @@ var value = ptr.bitcast[Type]()[]
 
 ### 5. API Method Changes (214 errors)
 
-#### 5.1 ExTensor Method → Function Migration (21 errors)
+#### 5.1 AnyTensor Method → Function Migration (21 errors)
 
 **Pattern**: Instance methods moved to standalone functions.
 
 **Errors & Fixes**:
 
-**1. ExTensor.from_scalar() removed (8 errors)**
+**1. AnyTensor.from_scalar() removed (8 errors)**
 
 ```mojo
 // WRONG:
-var result = ExTensor.from_scalar(value, dtype)
+var result = AnyTensor.from_scalar(value, dtype)
 
 // CORRECT:
-from shared.core.extensor import full
+from shared.core.any_tensor import full
 var result = full(tensor._shape, value, tensor._dtype)
 ```
 
-**2. ExTensor.sum() removed (4 errors)**
+**2. AnyTensor.sum() removed (4 errors)**
 
 ```mojo
 // WRONG:
@@ -379,7 +379,7 @@ from shared.core.reduction import sum as tensor_sum
 var total = tensor_sum(tensor)
 ```
 
-**3. ExTensor.matmul() removed (8 errors)**
+**3. AnyTensor.matmul() removed (8 errors)**
 
 ```mojo
 // WRONG:
@@ -390,14 +390,14 @@ from shared.core.matrix import matmul
 var result = matmul(a, b)
 ```
 
-**4. ExTensor() constructor requires arguments (1 error)**
+**4. AnyTensor() constructor requires arguments (1 error)**
 
 ```mojo
 // WRONG:
-self.tensor = ExTensor()
+self.tensor = AnyTensor()
 
 // CORRECT:
-self.tensor = ExTensor(List[Float32](), DType.float32)
+self.tensor = AnyTensor(List[Float32](), DType.float32)
 ```
 
 **Files Affected**: shared/core/activation.mojo, shared/testing/gradient_checker.mojo, tests/,
@@ -468,7 +468,7 @@ var tensor = full(shape, value, DType.float32)
 #### 5.4 Property vs Method: .shape() → .shape (628 errors)
 
 **Pattern**: `shape` changed from method to property in many files, but remains a method in
-extensor.mojo.
+any_tensor.mojo.
 
 **Error**:
 
@@ -765,7 +765,7 @@ if len(shape_vec) == 2:
 4. ✅ **Add explicit traits**: `(Copyable, Movable)` to all structs
 5. ✅ **No struct inheritance** - use composition
 6. ✅ **Use parametric generics** `[T: Trait]`, not trait fields
-7. ✅ **Ownership transfer**: Use `^` for ExTensor, List assignments
+7. ✅ **Ownership transfer**: Use `^` for AnyTensor, List assignments
 8. ✅ **Import from correct modules**:
    - DType: `from memory import DType`
    - simdwidthof: `from sys.info import simdwidthof`
@@ -773,8 +773,8 @@ if len(shape_vec) == 2:
 
 ### High Priority (Common Patterns)
 
-1. ✅ **ExTensor API changes**:
-   - Use `full()` not `ExTensor.from_scalar()`
+1. ✅ **AnyTensor API changes**:
+   - Use `full()` not `AnyTensor.from_scalar()`
    - Use `tensor_sum()` not `.sum()`
    - Use `matmul()` not `.matmul()`
 2. ✅ **Explicit dtype parameters** for zeros(), ones(), full()
@@ -793,7 +793,7 @@ if len(shape_vec) == 2:
 
 ### Core Infrastructure (15 files)
 
-- shared/core/extensor.mojo, activation.mojo, arithmetic_simd.mojo
+- shared/core/any_tensor.mojo, activation.mojo, arithmetic_simd.mojo
 - shared/core/matrix.mojo, broadcasting.mojo, bfloat16.mojo
 - shared/core/types/ (7 files)
 - shared/core/pooling.mojo, conv.mojo, dropout.mojo, etc.

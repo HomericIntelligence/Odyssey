@@ -21,7 +21,7 @@ from shared.benchmarking import (
     print_benchmark_summary,
     BenchmarkResult,
 )
-from shared.core import ExTensor, ones
+from shared.core import AnyTensor, ones
 
 
 # ============================================================================
@@ -48,8 +48,8 @@ struct SimpleNetwork(Copyable, Movable):
 
 
 fn simple_forward(
-    mut network: SimpleNetwork, input_data: ExTensor
-) raises -> ExTensor:
+    mut network: SimpleNetwork, input_data: AnyTensor
+) raises -> AnyTensor:
     """Perform a simple forward pass.
 
     Args:

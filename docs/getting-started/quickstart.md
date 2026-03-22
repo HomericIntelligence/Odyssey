@@ -34,7 +34,7 @@ mojo 0.26.x (... build info ...)
 ## 3. Run Your First Test
 
 Run the tensor creation test suite — a fast, self-contained unit test that exercises
-the core `ExTensor` type from the shared library:
+the core `AnyTensor` type from the shared library:
 
 ```bash
 pixi run mojo tests/shared/core/test_creation_part1.mojo
@@ -43,7 +43,7 @@ pixi run mojo tests/shared/core/test_creation_part1.mojo
 Expected output:
 
 ```text
-Running ExTensor creation tests - Part 1: zeros() and ones()...
+Running AnyTensor creation tests - Part 1: zeros() and ones()...
 All Part 1 creation tests completed!
 ```
 
@@ -51,11 +51,11 @@ If the test completes without errors, your environment is working correctly.
 
 ## 4. Minimal Usage Example
 
-The shared library's `core` module provides `ExTensor` and functional tensor operations.
+The shared library's `core` module provides `AnyTensor` and functional tensor operations.
 Create a file called `hello_ml.mojo` at the repository root:
 
 ```mojo
-from shared.core import ExTensor, zeros, ones
+from shared.core import AnyTensor, zeros, ones
 
 fn main() raises:
     # Create a 1D tensor of zeros with 5 elements

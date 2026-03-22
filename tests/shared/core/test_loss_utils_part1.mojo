@@ -19,7 +19,7 @@ from tests.shared.conftest import (
     assert_true,
     assert_close_float,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.loss_utils import (
     clip_predictions,
     create_epsilon_tensor,

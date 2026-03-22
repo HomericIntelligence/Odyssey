@@ -1,15 +1,15 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_edge_cases.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for ExTensor edge cases - Part 6: Numerical stability and special dtype behaviors.
+"""Tests for AnyTensor edge cases - Part 6: Numerical stability and special dtype behaviors.
 
 Split from test_edge_cases.mojo per ADR-009 (≤10 fn test_ functions per file).
 """
 
 from math import isnan, isinf
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange, nan_tensor, inf_tensor, neg_inf_tensor
+# Import AnyTensor and operations
+from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange, nan_tensor, inf_tensor, neg_inf_tensor
 from shared.core.arithmetic import add, subtract, multiply, divide, floor_divide, modulo, power
 from shared.core.comparison import equal, not_equal, less, less_equal, greater, greater_equal
 
@@ -120,7 +120,7 @@ fn test_uint8_range() raises:
 
 fn main() raises:
     """Run edge case tests - Part 6."""
-    print("Running ExTensor edge case tests (Part 6)...")
+    print("Running AnyTensor edge case tests (Part 6)...")
 
     # Numerical stability
     print("  Testing numerical stability...")

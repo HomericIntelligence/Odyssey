@@ -7,7 +7,7 @@ All operations are stateless - caller provides all inputs.
 from algorithm import parallelize
 from collections import List
 
-from .extensor import ExTensor, zeros
+from .any_tensor import AnyTensor, zeros
 from .shape import pool_output_shape
 from .parallel_utils import should_parallelize
 
@@ -15,12 +15,12 @@ from .parallel_utils import should_parallelize
 
 
 fn maxpool2d(
-    x: ExTensor,
+    x: AnyTensor,
     kernel_size: Int,
     stride: Int = 0,  # 0 means use kernel_size
     padding: Int = 0,
     method: String = "direct",
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Functional 2D max pooling with selectable implementation.
 
         Pure function - no internal state. Downsamples spatial dimensions by
@@ -42,7 +42,7 @@ fn maxpool2d(
 
         Example:
             ```mojo
-            from shared.core import ExTensor, maxpool2d
+            from shared.core import AnyTensor, maxpool2d
 
             # Pure function call - no state to manage
             var pooled = maxpool2d(input, kernel_size=2, stride=2)
@@ -212,8 +212,8 @@ fn maxpool2d(
 
 
 fn _maxpool2d_optimized(
-    x: ExTensor,
-    mut output: ExTensor,
+    x: AnyTensor,
+    mut output: AnyTensor,
     batch: Int,
     channels: Int,
     in_height: Int,
@@ -287,12 +287,12 @@ fn _maxpool2d_optimized(
 
 
 fn avgpool2d(
-    x: ExTensor,
+    x: AnyTensor,
     kernel_size: Int,
     stride: Int = 0,  # 0 means use kernel_size
     padding: Int = 0,
     method: String = "direct",
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Functional 2D average pooling with selectable implementation.
 
         Pure function - no internal state. Downsamples spatial dimensions by
@@ -310,7 +310,7 @@ fn avgpool2d(
 
         Example:
             ```mojo
-            from shared.core import ExTensor, avgpool2d
+            from shared.core import AnyTensor, avgpool2d
 
             # Pure function call - no state to manage
             var pooled = avgpool2d(input, kernel_size=2, stride=2)
@@ -405,7 +405,7 @@ fn avgpool2d(
     return output^
 
 
-fn global_avgpool2d(x: ExTensor, method: String = "direct") raises -> ExTensor:
+fn global_avgpool2d(x: AnyTensor, method: String = "direct") raises -> AnyTensor:
     """Functional global average pooling with selectable implementation.
 
         Pure function that reduces spatial dimensions (H, W) to (1, 1) by
@@ -420,7 +420,7 @@ fn global_avgpool2d(x: ExTensor, method: String = "direct") raises -> ExTensor:
 
         Example:
             ```mojo
-            from shared.core import ExTensor, global_avgpool2d
+            from shared.core import AnyTensor, global_avgpool2d
 
             # Pure function call
             var pooled = global_avgpool2d(input)  # (B, C, H, W) -> Tuple[B, C, 1, 1]
@@ -483,13 +483,13 @@ fn global_avgpool2d(x: ExTensor, method: String = "direct") raises -> ExTensor:
 
 
 fn maxpool2d_backward(
-    grad_output: ExTensor,
-    x: ExTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
     kernel_size: Int,
     stride: Int = 0,
     padding: Int = 0,
     method: String = "direct",
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Backward pass for 2D max pooling.
 
         Computes gradient with respect to input. Routes gradients only to the
@@ -612,13 +612,13 @@ fn maxpool2d_backward(
 
 
 fn avgpool2d_backward(
-    grad_output: ExTensor,
-    x: ExTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
     kernel_size: Int,
     stride: Int = 0,
     padding: Int = 0,
     method: String = "direct",
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Backward pass for 2D average pooling.
 
         Computes gradient with respect to input. Distributes gradients equally
@@ -737,8 +737,8 @@ fn avgpool2d_backward(
 
 
 fn global_avgpool2d_backward(
-    grad_output: ExTensor, x: ExTensor, method: String = "direct"
-) raises -> ExTensor:
+    grad_output: AnyTensor, x: AnyTensor, method: String = "direct"
+) raises -> AnyTensor:
     """Backward pass for global average pooling.
 
         Computes gradient with respect to input. Distributes gradients equally

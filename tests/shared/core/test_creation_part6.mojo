@@ -1,15 +1,15 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_creation.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for ExTensor creation operations - Part 6: NaN/Inf dtype validation.
+"""Tests for AnyTensor creation operations - Part 6: NaN/Inf dtype validation.
 
 Tests nan_tensor(), inf_tensor(), and neg_inf_tensor() with supported float dtypes
 and verifies rejection of unsupported dtypes (int32, bfloat16).
 Split from test_creation.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
-# Import ExTensor and creation operations
-from shared.core.extensor import ExTensor, nan_tensor, inf_tensor, neg_inf_tensor
+# Import AnyTensor and creation operations
+from shared.core.any_tensor import AnyTensor, nan_tensor, inf_tensor, neg_inf_tensor
 
 # Import test helpers
 from tests.shared.conftest import (
@@ -154,7 +154,7 @@ fn test_inf_tensor_rejects_int32() raises:
 
 fn main() raises:
     """Run NaN/Inf creation tests with dtype validation."""
-    print("Running ExTensor creation tests - Part 6: NaN/Inf dtype validation...")
+    print("Running AnyTensor creation tests - Part 6: NaN/Inf dtype validation...")
 
     # bfloat16 rejection tests (not in nan/inf supported dtype list)
     test_nan_tensor_rejects_bfloat16()

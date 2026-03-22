@@ -1,7 +1,7 @@
-"""Test helpers for ExTensor test suite.
+"""Test helpers for AnyTensor test suite.
 
 Provides utility functions, fixtures, and helpers for comprehensive testing
-of ExTensor and related components.
+of AnyTensor and related components.
 
 Exports:
 - print_tensor: Pretty-print tensors for debugging

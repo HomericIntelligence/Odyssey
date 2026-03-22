@@ -40,7 +40,7 @@ Key Innovation:
     - Solves vanishing gradient problem in deep networks
 
 Shared Modules Used:
-    - shared.core: Core tensor operations (ExTensor, zeros, ones)
+    - shared.core: Core tensor operations (AnyTensor, zeros, ones)
     - shared.core.conv: Convolution operations (conv2d, conv2d_backward)
     - shared.core.pooling: Pooling operations (avgpool2d, avgpool2d_backward)
     - shared.core.linear: Linear/fully-connected layers (linear, linear_backward)
@@ -58,7 +58,7 @@ References:
     - CIFAR-10 Dataset: https://www.cs.toronto.edu/~kriz/cifar.html
 """
 
-from shared.core import ExTensor, zeros, ones
+from shared.core import AnyTensor, zeros, ones
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import avgpool2d, avgpool2d_backward
 from shared.core.linear import linear, linear_backward
@@ -107,153 +107,153 @@ struct ResNet18(Movable):
     var num_classes: Int
 
     # Initial conv + BN (6 params)
-    var conv1_kernel: ExTensor
-    var conv1_bias: ExTensor
-    var bn1_gamma: ExTensor
-    var bn1_beta: ExTensor
-    var bn1_running_mean: ExTensor
-    var bn1_running_var: ExTensor
+    var conv1_kernel: AnyTensor
+    var conv1_bias: AnyTensor
+    var bn1_gamma: AnyTensor
+    var bn1_beta: AnyTensor
+    var bn1_running_mean: AnyTensor
+    var bn1_running_var: AnyTensor
 
     # ========== Stage 1 (64 channels): 2 blocks, no projection ==========
     # Block 1 (8 params)
-    var s1b1_conv1_kernel: ExTensor
-    var s1b1_conv1_bias: ExTensor
-    var s1b1_bn1_gamma: ExTensor
-    var s1b1_bn1_beta: ExTensor
-    var s1b1_bn1_running_mean: ExTensor
-    var s1b1_bn1_running_var: ExTensor
-    var s1b1_conv2_kernel: ExTensor
-    var s1b1_conv2_bias: ExTensor
-    var s1b1_bn2_gamma: ExTensor
-    var s1b1_bn2_beta: ExTensor
-    var s1b1_bn2_running_mean: ExTensor
-    var s1b1_bn2_running_var: ExTensor
+    var s1b1_conv1_kernel: AnyTensor
+    var s1b1_conv1_bias: AnyTensor
+    var s1b1_bn1_gamma: AnyTensor
+    var s1b1_bn1_beta: AnyTensor
+    var s1b1_bn1_running_mean: AnyTensor
+    var s1b1_bn1_running_var: AnyTensor
+    var s1b1_conv2_kernel: AnyTensor
+    var s1b1_conv2_bias: AnyTensor
+    var s1b1_bn2_gamma: AnyTensor
+    var s1b1_bn2_beta: AnyTensor
+    var s1b1_bn2_running_mean: AnyTensor
+    var s1b1_bn2_running_var: AnyTensor
 
     # Block 2 (8 params)
-    var s1b2_conv1_kernel: ExTensor
-    var s1b2_conv1_bias: ExTensor
-    var s1b2_bn1_gamma: ExTensor
-    var s1b2_bn1_beta: ExTensor
-    var s1b2_bn1_running_mean: ExTensor
-    var s1b2_bn1_running_var: ExTensor
-    var s1b2_conv2_kernel: ExTensor
-    var s1b2_conv2_bias: ExTensor
-    var s1b2_bn2_gamma: ExTensor
-    var s1b2_bn2_beta: ExTensor
-    var s1b2_bn2_running_mean: ExTensor
-    var s1b2_bn2_running_var: ExTensor
+    var s1b2_conv1_kernel: AnyTensor
+    var s1b2_conv1_bias: AnyTensor
+    var s1b2_bn1_gamma: AnyTensor
+    var s1b2_bn1_beta: AnyTensor
+    var s1b2_bn1_running_mean: AnyTensor
+    var s1b2_bn1_running_var: AnyTensor
+    var s1b2_conv2_kernel: AnyTensor
+    var s1b2_conv2_bias: AnyTensor
+    var s1b2_bn2_gamma: AnyTensor
+    var s1b2_bn2_beta: AnyTensor
+    var s1b2_bn2_running_mean: AnyTensor
+    var s1b2_bn2_running_var: AnyTensor
 
     # ========== Stage 2 (128 channels): 2 blocks, block1 has projection ==========
     # Block 1 (12 params: 8 main + 4 projection)
-    var s2b1_conv1_kernel: ExTensor
-    var s2b1_conv1_bias: ExTensor
-    var s2b1_bn1_gamma: ExTensor
-    var s2b1_bn1_beta: ExTensor
-    var s2b1_bn1_running_mean: ExTensor
-    var s2b1_bn1_running_var: ExTensor
-    var s2b1_conv2_kernel: ExTensor
-    var s2b1_conv2_bias: ExTensor
-    var s2b1_bn2_gamma: ExTensor
-    var s2b1_bn2_beta: ExTensor
-    var s2b1_bn2_running_mean: ExTensor
-    var s2b1_bn2_running_var: ExTensor
+    var s2b1_conv1_kernel: AnyTensor
+    var s2b1_conv1_bias: AnyTensor
+    var s2b1_bn1_gamma: AnyTensor
+    var s2b1_bn1_beta: AnyTensor
+    var s2b1_bn1_running_mean: AnyTensor
+    var s2b1_bn1_running_var: AnyTensor
+    var s2b1_conv2_kernel: AnyTensor
+    var s2b1_conv2_bias: AnyTensor
+    var s2b1_bn2_gamma: AnyTensor
+    var s2b1_bn2_beta: AnyTensor
+    var s2b1_bn2_running_mean: AnyTensor
+    var s2b1_bn2_running_var: AnyTensor
     # Projection shortcut (4 params)
-    var s2b1_proj_kernel: ExTensor
-    var s2b1_proj_bias: ExTensor
-    var s2b1_proj_bn_gamma: ExTensor
-    var s2b1_proj_bn_beta: ExTensor
-    var s2b1_proj_bn_running_mean: ExTensor
-    var s2b1_proj_bn_running_var: ExTensor
+    var s2b1_proj_kernel: AnyTensor
+    var s2b1_proj_bias: AnyTensor
+    var s2b1_proj_bn_gamma: AnyTensor
+    var s2b1_proj_bn_beta: AnyTensor
+    var s2b1_proj_bn_running_mean: AnyTensor
+    var s2b1_proj_bn_running_var: AnyTensor
 
     # Block 2 (8 params)
-    var s2b2_conv1_kernel: ExTensor
-    var s2b2_conv1_bias: ExTensor
-    var s2b2_bn1_gamma: ExTensor
-    var s2b2_bn1_beta: ExTensor
-    var s2b2_bn1_running_mean: ExTensor
-    var s2b2_bn1_running_var: ExTensor
-    var s2b2_conv2_kernel: ExTensor
-    var s2b2_conv2_bias: ExTensor
-    var s2b2_bn2_gamma: ExTensor
-    var s2b2_bn2_beta: ExTensor
-    var s2b2_bn2_running_mean: ExTensor
-    var s2b2_bn2_running_var: ExTensor
+    var s2b2_conv1_kernel: AnyTensor
+    var s2b2_conv1_bias: AnyTensor
+    var s2b2_bn1_gamma: AnyTensor
+    var s2b2_bn1_beta: AnyTensor
+    var s2b2_bn1_running_mean: AnyTensor
+    var s2b2_bn1_running_var: AnyTensor
+    var s2b2_conv2_kernel: AnyTensor
+    var s2b2_conv2_bias: AnyTensor
+    var s2b2_bn2_gamma: AnyTensor
+    var s2b2_bn2_beta: AnyTensor
+    var s2b2_bn2_running_mean: AnyTensor
+    var s2b2_bn2_running_var: AnyTensor
 
     # ========== Stage 3 (256 channels): 2 blocks, block1 has projection ==========
     # Block 1 (12 params: 8 main + 4 projection)
-    var s3b1_conv1_kernel: ExTensor
-    var s3b1_conv1_bias: ExTensor
-    var s3b1_bn1_gamma: ExTensor
-    var s3b1_bn1_beta: ExTensor
-    var s3b1_bn1_running_mean: ExTensor
-    var s3b1_bn1_running_var: ExTensor
-    var s3b1_conv2_kernel: ExTensor
-    var s3b1_conv2_bias: ExTensor
-    var s3b1_bn2_gamma: ExTensor
-    var s3b1_bn2_beta: ExTensor
-    var s3b1_bn2_running_mean: ExTensor
-    var s3b1_bn2_running_var: ExTensor
+    var s3b1_conv1_kernel: AnyTensor
+    var s3b1_conv1_bias: AnyTensor
+    var s3b1_bn1_gamma: AnyTensor
+    var s3b1_bn1_beta: AnyTensor
+    var s3b1_bn1_running_mean: AnyTensor
+    var s3b1_bn1_running_var: AnyTensor
+    var s3b1_conv2_kernel: AnyTensor
+    var s3b1_conv2_bias: AnyTensor
+    var s3b1_bn2_gamma: AnyTensor
+    var s3b1_bn2_beta: AnyTensor
+    var s3b1_bn2_running_mean: AnyTensor
+    var s3b1_bn2_running_var: AnyTensor
     # Projection shortcut (4 params)
-    var s3b1_proj_kernel: ExTensor
-    var s3b1_proj_bias: ExTensor
-    var s3b1_proj_bn_gamma: ExTensor
-    var s3b1_proj_bn_beta: ExTensor
-    var s3b1_proj_bn_running_mean: ExTensor
-    var s3b1_proj_bn_running_var: ExTensor
+    var s3b1_proj_kernel: AnyTensor
+    var s3b1_proj_bias: AnyTensor
+    var s3b1_proj_bn_gamma: AnyTensor
+    var s3b1_proj_bn_beta: AnyTensor
+    var s3b1_proj_bn_running_mean: AnyTensor
+    var s3b1_proj_bn_running_var: AnyTensor
 
     # Block 2 (8 params)
-    var s3b2_conv1_kernel: ExTensor
-    var s3b2_conv1_bias: ExTensor
-    var s3b2_bn1_gamma: ExTensor
-    var s3b2_bn1_beta: ExTensor
-    var s3b2_bn1_running_mean: ExTensor
-    var s3b2_bn1_running_var: ExTensor
-    var s3b2_conv2_kernel: ExTensor
-    var s3b2_conv2_bias: ExTensor
-    var s3b2_bn2_gamma: ExTensor
-    var s3b2_bn2_beta: ExTensor
-    var s3b2_bn2_running_mean: ExTensor
-    var s3b2_bn2_running_var: ExTensor
+    var s3b2_conv1_kernel: AnyTensor
+    var s3b2_conv1_bias: AnyTensor
+    var s3b2_bn1_gamma: AnyTensor
+    var s3b2_bn1_beta: AnyTensor
+    var s3b2_bn1_running_mean: AnyTensor
+    var s3b2_bn1_running_var: AnyTensor
+    var s3b2_conv2_kernel: AnyTensor
+    var s3b2_conv2_bias: AnyTensor
+    var s3b2_bn2_gamma: AnyTensor
+    var s3b2_bn2_beta: AnyTensor
+    var s3b2_bn2_running_mean: AnyTensor
+    var s3b2_bn2_running_var: AnyTensor
 
     # ========== Stage 4 (512 channels): 2 blocks, block1 has projection ==========
     # Block 1 (12 params: 8 main + 4 projection)
-    var s4b1_conv1_kernel: ExTensor
-    var s4b1_conv1_bias: ExTensor
-    var s4b1_bn1_gamma: ExTensor
-    var s4b1_bn1_beta: ExTensor
-    var s4b1_bn1_running_mean: ExTensor
-    var s4b1_bn1_running_var: ExTensor
-    var s4b1_conv2_kernel: ExTensor
-    var s4b1_conv2_bias: ExTensor
-    var s4b1_bn2_gamma: ExTensor
-    var s4b1_bn2_beta: ExTensor
-    var s4b1_bn2_running_mean: ExTensor
-    var s4b1_bn2_running_var: ExTensor
+    var s4b1_conv1_kernel: AnyTensor
+    var s4b1_conv1_bias: AnyTensor
+    var s4b1_bn1_gamma: AnyTensor
+    var s4b1_bn1_beta: AnyTensor
+    var s4b1_bn1_running_mean: AnyTensor
+    var s4b1_bn1_running_var: AnyTensor
+    var s4b1_conv2_kernel: AnyTensor
+    var s4b1_conv2_bias: AnyTensor
+    var s4b1_bn2_gamma: AnyTensor
+    var s4b1_bn2_beta: AnyTensor
+    var s4b1_bn2_running_mean: AnyTensor
+    var s4b1_bn2_running_var: AnyTensor
     # Projection shortcut (4 params)
-    var s4b1_proj_kernel: ExTensor
-    var s4b1_proj_bias: ExTensor
-    var s4b1_proj_bn_gamma: ExTensor
-    var s4b1_proj_bn_beta: ExTensor
-    var s4b1_proj_bn_running_mean: ExTensor
-    var s4b1_proj_bn_running_var: ExTensor
+    var s4b1_proj_kernel: AnyTensor
+    var s4b1_proj_bias: AnyTensor
+    var s4b1_proj_bn_gamma: AnyTensor
+    var s4b1_proj_bn_beta: AnyTensor
+    var s4b1_proj_bn_running_mean: AnyTensor
+    var s4b1_proj_bn_running_var: AnyTensor
 
     # Block 2 (8 params)
-    var s4b2_conv1_kernel: ExTensor
-    var s4b2_conv1_bias: ExTensor
-    var s4b2_bn1_gamma: ExTensor
-    var s4b2_bn1_beta: ExTensor
-    var s4b2_bn1_running_mean: ExTensor
-    var s4b2_bn1_running_var: ExTensor
-    var s4b2_conv2_kernel: ExTensor
-    var s4b2_conv2_bias: ExTensor
-    var s4b2_bn2_gamma: ExTensor
-    var s4b2_bn2_beta: ExTensor
-    var s4b2_bn2_running_mean: ExTensor
-    var s4b2_bn2_running_var: ExTensor
+    var s4b2_conv1_kernel: AnyTensor
+    var s4b2_conv1_bias: AnyTensor
+    var s4b2_bn1_gamma: AnyTensor
+    var s4b2_bn1_beta: AnyTensor
+    var s4b2_bn1_running_mean: AnyTensor
+    var s4b2_bn1_running_var: AnyTensor
+    var s4b2_conv2_kernel: AnyTensor
+    var s4b2_conv2_bias: AnyTensor
+    var s4b2_bn2_gamma: AnyTensor
+    var s4b2_bn2_beta: AnyTensor
+    var s4b2_bn2_running_mean: AnyTensor
+    var s4b2_bn2_running_var: AnyTensor
 
     # FC layer (2 params)
-    var fc_weights: ExTensor
-    var fc_bias: ExTensor
+    var fc_weights: AnyTensor
+    var fc_bias: AnyTensor
 
     fn __init__(out self, num_classes: Int = 10) raises:
         """Initialize ResNet-18 model with random weights.
@@ -525,8 +525,8 @@ struct ResNet18(Movable):
         self.fc_bias = zeros(fc_bias_shape, DType.float32)
 
     fn forward(
-        mut self, input: ExTensor, training: Bool = True
-    ) raises -> ExTensor:
+        mut self, input: AnyTensor, training: Bool = True
+    ) raises -> AnyTensor:
         """Forward pass through ResNet-18.
 
         Args:
@@ -984,7 +984,7 @@ struct ResNet18(Movable):
 
         return logits
 
-    fn predict(mut self, input: ExTensor) raises -> Int:
+    fn predict(mut self, input: AnyTensor) raises -> Int:
         """Predict class for a single input.
 
         Args:

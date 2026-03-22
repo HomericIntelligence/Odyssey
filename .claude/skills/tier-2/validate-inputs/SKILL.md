@@ -24,7 +24,7 @@ Implement input validation to ensure functions receive correct data types, shape
 # Input validation pattern
 def validate_tensor(tensor):
     assert tensor is not None, "Tensor cannot be None"
-    assert isinstance(tensor, ExTensor), "Must be ExTensor type"
+    assert isinstance(tensor, AnyTensor), "Must be AnyTensor type"
     assert len(tensor.shape) > 0, "Tensor shape cannot be empty"
     assert tensor.dtype() in [DType.float32, DType.float64], "Invalid dtype"
     return True

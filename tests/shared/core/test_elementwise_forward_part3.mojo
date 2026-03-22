@@ -1,12 +1,12 @@
-"""Tests for ExTensor element-wise mathematical operations - Part 3: sqrt and sin.
+"""Tests for AnyTensor element-wise mathematical operations - Part 3: sqrt and sin.
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_elementwise_forward.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full
+# Import AnyTensor and operations
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.elementwise import sqrt, sin
 
 # Import test helpers
@@ -26,7 +26,7 @@ fn test_sqrt_perfect_squares() raises:
     # Create array: [1, 4, 9, 16, 25]
     var shape = List[Int]()
     shape.append(5)
-    var a = ExTensor(shape, DType.float32)
+    var a = AnyTensor(shape, DType.float32)
     a._set_float64(0, 1.0)
     a._set_float64(1, 4.0)
     a._set_float64(2, 9.0)
@@ -120,7 +120,7 @@ fn test_sin_pi() raises:
 
 fn main() raises:
     """Run sqrt and sin element-wise math tests."""
-    print("Running ExTensor element-wise math tests (Part 3: sqrt, sin)...")
+    print("Running AnyTensor element-wise math tests (Part 3: sqrt, sin)...")
 
     # sqrt() tests
     print("  Testing sqrt()...")

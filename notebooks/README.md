@@ -300,7 +300,7 @@ When Mojo gains Jupyter kernel support, notebooks can:
 
 - Include native Mojo cells with syntax highlighting
 - Use `%%mojo` magic commands
-- Display ExTensor directly without conversion
+- Display AnyTensor directly without conversion
 - Access Mojo REPL interactively
 
 ## Contributing

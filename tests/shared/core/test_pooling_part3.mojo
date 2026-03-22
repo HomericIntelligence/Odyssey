@@ -17,7 +17,7 @@ from tests.shared.conftest import (
     assert_shape,
     assert_true,
 )
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.pooling import (
     maxpool2d,
     maxpool2d_backward,

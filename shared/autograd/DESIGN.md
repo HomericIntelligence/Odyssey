@@ -10,7 +10,7 @@ what's currently implemented, what's in progress, and what's deferred.
 ### ✅ Implemented
 
 1. **Variable wrapper** (`variable.mojo`)
-   - Wraps ExTensor with `requires_grad` flag
+   - Wraps AnyTensor with `requires_grad` flag
    - Stores gradients in `grad` field
    - Provides `zero_grad()`, `backward()`, `detach()` methods
 
@@ -86,7 +86,7 @@ management makes this difficult.
 
 ### Challenge 3: Operation Overloading
 
-**Problem**: Need to override all ExTensor operations for Variables.
+**Problem**: Need to override all AnyTensor operations for Variables.
 
 **Mojo Support**: Has operator overloading (`__add__`, `__mul__`, etc.)
 
@@ -105,7 +105,7 @@ Given the challenges, I recommend a **pragmatic, phased approach**:
 - Manual gradient example
 
 **Value**: Provides clean API and documentation. Users can write gradients manually
-with better structure than raw ExTensor operations.
+with better structure than raw AnyTensor operations.
 
 ### Phase 2: Helper Functions (CURRENT)
 
@@ -168,7 +168,7 @@ tape.backward(loss)
 **Value proposition**:
 
 - Works today with current Mojo
-- Reduces boilerplate compared to pure ExTensor
+- Reduces boilerplate compared to pure AnyTensor
 - Clear API for training loops
 - Foundation for future full autograd
 

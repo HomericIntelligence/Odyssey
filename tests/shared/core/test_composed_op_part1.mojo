@@ -14,7 +14,7 @@ Split from test_composed_op.mojo per ADR-009 (≤10 fn test_ per file).
 
 from testing import assert_true, assert_equal
 from tests.shared.conftest import assert_almost_equal, assert_shape_equal
-from shared.core.extensor import ExTensor, ones, zeros
+from shared.core.any_tensor import AnyTensor, ones, zeros
 from shared.core.traits import Differentiable, Composable, ComposedOp
 
 
@@ -23,7 +23,7 @@ from shared.core.traits import Differentiable, Composable, ComposedOp
 # ============================================================================
 
 
-fn make_tensor_with_shape(numel: Int) raises -> ExTensor:
+fn make_tensor_with_shape(numel: Int) raises -> AnyTensor:
     """Create a tensor with given number of elements."""
     var shape_list = List[Int]()
     shape_list.append(numel)
@@ -51,14 +51,14 @@ struct ScaleMul(Copyable, Differentiable, Movable):
     """
 
     var scale: Float64
-    var last_input: ExTensor
+    var last_input: AnyTensor
 
     fn __init__(out self, scale: Float64) raises:
         """Initialize with scale factor."""
         self.scale = scale
         self.last_input = make_tensor_with_shape(1)
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: multiply by scale."""
         self.last_input = input.copy()
         var output = input.copy()
@@ -67,7 +67,7 @@ struct ScaleMul(Copyable, Differentiable, Movable):
             output._set_float64(i, input._get_float64(i) * self.scale)
         return output
 
-    fn backward(self, grad_output: ExTensor) raises -> ExTensor:
+    fn backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Backward pass: multiply gradient by scale."""
         # Use clone() for deep copy - copy() creates a shallow view that shares data
         var grad_input = grad_output.clone()
@@ -86,14 +86,14 @@ struct ScaleAdd(Copyable, Differentiable, Movable):
     """
 
     var offset: Float64
-    var last_input: ExTensor
+    var last_input: AnyTensor
 
     fn __init__(out self, offset: Float64) raises:
         """Initialize with offset value."""
         self.offset = offset
         self.last_input = make_tensor_with_shape(1)
 
-    fn forward(mut self, input: ExTensor) raises -> ExTensor:
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: add offset."""
         self.last_input = input.copy()
         var output = input.copy()
@@ -102,7 +102,7 @@ struct ScaleAdd(Copyable, Differentiable, Movable):
             output._set_float64(i, input._get_float64(i) + self.offset)
         return output
 
-    fn backward(self, grad_output: ExTensor) raises -> ExTensor:
+    fn backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Backward pass: gradient passes through unchanged."""
         # Use clone() for deep copy - copy() creates a shallow view that shares data
         return grad_output.clone()

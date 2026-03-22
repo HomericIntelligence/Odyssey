@@ -80,7 +80,7 @@ fn test_layer_backward():
     var output = layer.forward(input)
 
     # Backward pass (analytical gradient)
-    var grad_output = ExTensor.ones_like(output)
+    var grad_output = AnyTensor.ones_like(output)
     var grad_input = layer.backward(grad_output)
 
     # Numerical gradient (finite differences)
@@ -187,8 +187,8 @@ Numerical gradients (finite differences) are simple and reliable:
 
 ```mojo
 # Numerical gradient via finite differences
-fn numerical_gradient(f: fn(x) -> y, x: ExTensor, eps: Float64) -> ExTensor:
-    grad = ExTensor.zeros_like(x)
+fn numerical_gradient(f: fn(x) -> y, x: AnyTensor, eps: Float64) -> AnyTensor:
+    grad = AnyTensor.zeros_like(x)
     for i in range(x.numel()):
         x_plus = x.clone(); x_plus[i] += eps
         x_minus = x.clone(); x_minus[i] -= eps

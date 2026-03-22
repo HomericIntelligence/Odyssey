@@ -1,13 +1,13 @@
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_shape.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for ExTensor shape manipulation: repeat, broadcast_to, permute, dtype preservation.
+"""Tests for AnyTensor shape manipulation: repeat, broadcast_to, permute, dtype preservation.
 
 Split from test_shape.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import ExTensor, zeros, ones, full, arange
+# Import AnyTensor and operations
+from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange
 from shared.core.shape import broadcast_to, reshape
 
 # Import test helpers
@@ -249,7 +249,7 @@ fn test_flatten_to_2d_basic() raises:
 fn main() raises:
     """Run shape manipulation tests part 3 (repeat, broadcast_to, permute, dtype, flatten_to_2d).
     """
-    print("Running ExTensor shape manipulation tests (part 3)...")
+    print("Running AnyTensor shape manipulation tests (part 3)...")
 
     # repeat() tests
     print("  Testing repeat()...")

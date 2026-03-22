@@ -50,7 +50,7 @@ Usage:
 """
 
 from math import isnan, isinf
-from shared.core.extensor import AnyTensor, zeros_like, ones_like
+from shared.core.any_tensor import AnyTensor, zeros_like, ones_like
 from shared.core.conv import conv2d, conv2d_output_shape, conv2d_backward
 from shared.core.linear import linear, linear_backward
 from shared.core.normalization import batch_norm2d, batch_norm2d_backward

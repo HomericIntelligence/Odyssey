@@ -10,7 +10,7 @@ These tests verify:
 - Incompatible shapes raise the expected error.
 """
 
-from shared.core import ExTensor, zeros, concatenate
+from shared.core import AnyTensor, zeros, concatenate
 from tests.shared.conftest import (
     assert_numel,
     assert_dim,
@@ -37,7 +37,7 @@ fn test_concat_contiguous_axis0() raises:
     for i in range(6):
         b._set_float64(i, 1.0)
 
-    var tensors: List[ExTensor] = []
+    var tensors: List[AnyTensor] = []
     tensors.append(a)
     tensors.append(b)
 
@@ -89,7 +89,7 @@ fn test_concat_noncontiguous_axis0() raises:
 
     # Contiguous pad tensor filled with 0.0
     var pad = zeros(shape, DType.float32)
-    var tensors: List[ExTensor] = []
+    var tensors: List[AnyTensor] = []
     tensors.append(t)
     tensors.append(pad)
 
@@ -129,7 +129,7 @@ fn test_concat_incompatible_shapes_raises() raises:
     shape_b.append(4)  # Different column count — incompatible for axis=0 concat
     var b = zeros(shape_b, DType.float32)
 
-    var tensors: List[ExTensor] = []
+    var tensors: List[AnyTensor] = []
     tensors.append(a)
     tensors.append(b)
 

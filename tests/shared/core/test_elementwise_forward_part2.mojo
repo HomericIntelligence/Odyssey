@@ -1,12 +1,12 @@
-"""Tests for ExTensor element-wise mathematical operations - Part 2: exp and log.
+"""Tests for AnyTensor element-wise mathematical operations - Part 2: exp and log.
 
 # ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. Split from test_elementwise_forward.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-# Import ExTensor and operations
-from shared.core.extensor import zeros, ones, full
+# Import AnyTensor and operations
+from shared.core.any_tensor import zeros, ones, full
 from shared.core.elementwise import exp, log
 
 # Import test helpers
@@ -110,7 +110,7 @@ fn test_log_powers_of_2() raises:
 
 fn main() raises:
     """Run exp and log element-wise math tests."""
-    print("Running ExTensor element-wise math tests (Part 2: exp, log)...")
+    print("Running AnyTensor element-wise math tests (Part 2: exp, log)...")
 
     # exp() tests
     print("  Testing exp()...")

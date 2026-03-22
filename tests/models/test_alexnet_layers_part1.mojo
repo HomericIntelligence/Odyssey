@@ -22,7 +22,7 @@ These are expected, fundamental limitations of Float16 arithmetic (not bugs).
 See issue #3009 for detailed analysis.
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.conv import conv2d
 from shared.core.pooling import maxpool2d
 from shared.core.linear import linear
@@ -51,7 +51,7 @@ from math import isnan, isinf
 # ============================================================================
 
 
-fn create_conv1_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_conv1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv1 layer parameters (3→64, 11x11 kernel)."""
     var in_channels = 3
     var out_channels = 64
@@ -74,7 +74,7 @@ fn create_conv1_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
     return kernel, bias
 
 
-fn create_conv2_parameters(dtype: DType) raises -> Tuple[ExTensor, ExTensor]:
+fn create_conv2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv2 layer parameters (64→192, 5x5 kernel)."""
     var in_channels = 64
     var out_channels = 192

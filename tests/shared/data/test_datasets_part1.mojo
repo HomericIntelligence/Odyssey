@@ -20,10 +20,10 @@ from tests.shared.conftest import (
     assert_greater,
     TestFixtures,
 )
-from shared.data.datasets import ExTensorDataset
+from shared.data.datasets import AnyTensorDataset
 from shared.data.loaders import BatchLoader
 from shared.data.samplers import SequentialSampler
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 
 
 # ============================================================================
@@ -32,12 +32,12 @@ from shared.core.extensor import ExTensor
 
 
 fn test_dataset_length_consistency() raises:
-    """Test ExTensorDataset reports correct length.
+    """Test AnyTensorDataset reports correct length.
 
     __len__() should match actual number of samples in first dimension.
 
     Integration Points:
-        - ExTensorDataset initialization
+        - AnyTensorDataset initialization
         - Length metadata accuracy
 
     Success Criteria:
@@ -49,21 +49,21 @@ fn test_dataset_length_consistency() raises:
     var data_list = List[Float32]()
     for i in range(100):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(100):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
 
     # Check length matches
     assert_equal(dataset.__len__(), 100)
 
 
 fn test_dataset_sequential_access() raises:
-    """Test ExTensorDataset supports sequential __getitem__ access.
+    """Test AnyTensorDataset supports sequential __getitem__ access.
 
     Should be able to retrieve samples by index in order.
 
@@ -82,14 +82,14 @@ fn test_dataset_sequential_access() raises:
     var data_list = List[Float32]()
     for i in range(10):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(10):
         labels_list.append(i * 2)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
 
     # Access first sample
     var sample0 = dataset.__getitem__(0)
@@ -103,7 +103,7 @@ fn test_dataset_sequential_access() raises:
 
 
 fn test_dataset_negative_indexing() raises:
-    """Test ExTensorDataset supports negative indexing.
+    """Test AnyTensorDataset supports negative indexing.
 
     Negative indices count from end: -1 is last, -2 is second-to-last, etc.
 
@@ -121,14 +121,14 @@ fn test_dataset_negative_indexing() raises:
     var data_list = List[Float32]()
     for i in range(20):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(20):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
 
     # Access with negative indices
     var last = dataset.__getitem__(-1)
@@ -139,7 +139,7 @@ fn test_dataset_negative_indexing() raises:
 
 
 fn test_dataset_bounds_checking() raises:
-    """Test ExTensorDataset handles out-of-bounds access properly.
+    """Test AnyTensorDataset handles out-of-bounds access properly.
 
     Accessing index >= len() should raise error.
     Accessing very negative index should raise error.
@@ -157,14 +157,14 @@ fn test_dataset_bounds_checking() raises:
     var data_list = List[Float32]()
     for i in range(10):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(10):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
 
     # Valid access should work
     var valid = dataset.__getitem__(0)
@@ -174,12 +174,12 @@ fn test_dataset_bounds_checking() raises:
 
 
 fn test_dataset_with_loader() raises:
-    """Test ExTensorDataset works seamlessly with BatchLoader.
+    """Test AnyTensorDataset works seamlessly with BatchLoader.
 
     Dataset should integrate with loader for batching.
 
     Integration Points:
-        - ExTensorDataset + BatchLoader
+        - AnyTensorDataset + BatchLoader
         - Loader batch count calculation
         - Dataset trait conformance
 
@@ -193,14 +193,14 @@ fn test_dataset_with_loader() raises:
     var data_list = List[Float32]()
     for i in range(100):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(100):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
     var dataset_len = dataset.__len__()
 
     var sampler = SequentialSampler(dataset_len)
@@ -216,7 +216,7 @@ fn test_dataset_with_loader() raises:
 
 
 fn test_tensor_dataset_batching_shapes() raises:
-    """Test ExTensorDataset produces correct shapes when batched.
+    """Test AnyTensorDataset produces correct shapes when batched.
 
     When batches are created from 1D input, batch shape should be [batch_size].
 
@@ -234,21 +234,21 @@ fn test_tensor_dataset_batching_shapes() raises:
     var data_list = List[Float32]()
     for i in range(50):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(50):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
     var dataset_len = dataset.__len__()
 
     assert_equal(dataset_len, 50)
 
 
 fn test_dataset_random_access() raises:
-    """Test ExTensorDataset supports random access via samplers.
+    """Test AnyTensorDataset supports random access via samplers.
 
     Can access arbitrary indices via __getitem__ in any order.
 
@@ -266,14 +266,14 @@ fn test_dataset_random_access() raises:
     var data_list = List[Float32]()
     for i in range(20):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(20):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
 
     # Access in non-sequential order
     var s0 = dataset.__getitem__(0)
@@ -291,7 +291,7 @@ fn test_dataset_random_access() raises:
 
 
 fn test_dataset_interface_protocol() raises:
-    """Test ExTensorDataset conforms to Dataset trait protocol.
+    """Test AnyTensorDataset conforms to Dataset trait protocol.
 
     Must implement __len__() and __getitem__() correctly.
 
@@ -310,14 +310,14 @@ fn test_dataset_interface_protocol() raises:
     var data_list = List[Float32]()
     for i in range(30):
         data_list.append(Float32(i))
-    var data = ExTensor(data_list^)
+    var data = AnyTensor(data_list^)
 
     var labels_list = List[Int]()
     for i in range(30):
         labels_list.append(i)
-    var labels = ExTensor(labels_list^)
+    var labels = AnyTensor(labels_list^)
 
-    var dataset = ExTensorDataset(data^, labels^)
+    var dataset = AnyTensorDataset(data^, labels^)
 
     # Both methods should be accessible
     var len_val = dataset.__len__()

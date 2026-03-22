@@ -6,7 +6,7 @@ Usage:
     mojo run examples/vgg16-cifar10/inference.mojo --weights-dir vgg16_weights --data-dir datasets/cifar10
 """
 
-from shared.core import ExTensor, zeros
+from shared.core import AnyTensor, zeros
 from shared.data.formats import load_cifar10_batch
 from shared.data.datasets import CIFAR10Dataset
 from shared.data import extract_batch_pair, DatasetInfo
@@ -35,7 +35,7 @@ fn parse_args() raises -> Tuple[String, String]:
 
 
 fn compute_test_accuracy(
-    mut model: VGG16, test_images: ExTensor, test_labels: ExTensor
+    mut model: VGG16, test_images: AnyTensor, test_labels: AnyTensor
 ) raises -> Float32:
     """Compute accuracy on test set using shared metrics utilities.
 

@@ -9,7 +9,7 @@ Key components:
   Implements: y = max(0, x) forward, dL/dx = grad * (x > 0) backward
 """
 
-from ..extensor import AnyTensor, zeros_like
+from ..any_tensor import AnyTensor, zeros_like
 from ..activation import relu, relu_backward
 from ..module import Module
 

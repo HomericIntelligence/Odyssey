@@ -32,14 +32,14 @@ constructor conventions. The `out self` vs `mut self` distinction is critical.
 
 ```mojo
 # WRONG - Cannot transfer ownership of temporary
-var labels = ExTensor(List[Int](), DType.int32)
+var labels = AnyTensor(List[Int](), DType.int32)
 ```
 
 **Error Message**:
 
 ```text
 error: cannot implicitly convert 'NoneType' to 'List[Int]'
-  var labels = ExTensor(List[Int](), DType.int32)
+  var labels = AnyTensor(List[Int](), DType.int32)
                         ^~~~~~~~~~~~
 ```
 
@@ -51,11 +51,11 @@ error: cannot implicitly convert 'NoneType' to 'List[Int]'
 ```mojo
 # CORRECT - Named variable can be transferred
 var labels_shape = List[Int]()
-var labels = ExTensor(labels_shape, DType.int32)
+var labels = AnyTensor(labels_shape, DType.int32)
 ```
 
 **Why This Works**: The named variable `labels_shape` has storage and a lifetime, so its
-ownership can be transferred to the ExTensor constructor.
+ownership can be transferred to the AnyTensor constructor.
 
 **Prevention**:
 
@@ -310,7 +310,7 @@ fn main() raises:
 
 ```mojo
 # shared/core/shape.mojo - Implementation exists
-fn reshape(tensor: ExTensor, shape: List[Int]) -> ExTensor:
+fn reshape(tensor: AnyTensor, shape: List[Int]) -> AnyTensor:
     # ... implementation ...
 
 # shared/core/__init__.mojo - NOT exported!
@@ -373,17 +373,17 @@ from shared.core.shape() import reshape
 
 ```mojo
 # Test code expects this to work
-var tensor = ExTensor(List[Float32](1.0, 2.0, 3.0))
+var tensor = AnyTensor(List[Float32](1.0, 2.0, 3.0))
 
-# But ExTensor only has:
+# But AnyTensor only has:
 # fn __init__(out self, shape: List[Int], dtype: DType)
 ```
 
 **Error Message**:
 
 ```text
-error: no matching constructor for 'ExTensor.__init__'
-  var tensor = ExTensor(List[Float32](1.0, 2.0, 3.0))
+error: no matching constructor for 'AnyTensor.__init__'
+  var tensor = AnyTensor(List[Float32](1.0, 2.0, 3.0))
                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 note: candidate: fn __init__(out self, shape: List[Int], dtype: DType)
 ```
@@ -394,8 +394,8 @@ constructors.
 **Correct Pattern** - Add missing constructors:
 
 ```mojo
-# shared/core/extensor.mojo - Add convenience constructors
-struct ExTensor:
+# shared/core/any_tensor.mojo - Add convenience constructors
+struct AnyTensor:
     # Existing constructor
     fn __init__(out self, shape: List[Int], dtype: DType):
         # ...
@@ -428,7 +428,7 @@ struct ExTensor:
 
 **Files Affected**: PR #2044
 
-- `shared/core/extensor.mojo` (added List constructors)
+- `shared/core/any_tensor.mojo` (added List constructors)
 - Multiple test files expecting this API
 
 ---
@@ -492,7 +492,7 @@ var c = add(a, b)
 
 ```mojo
 # WRONG - Cannot assign to uninitialized index
-var tensors = List[ExTensor]()
+var tensors = List[AnyTensor]()
 tensors[0] = a  # Runtime error - index out of bounds
 tensors[1] = b
 ```
@@ -510,12 +510,12 @@ you cannot "grow" a list by assigning to new indices.
 
 ```mojo
 # CORRECT - Use append() to add elements
-var tensors = List[ExTensor]()
+var tensors = List[AnyTensor]()
 tensors.append(a)  # Creates index 0
 tensors.append(b)  # Creates index 1
 
 # Or pre-allocate with capacity
-var tensors = List[ExTensor](capacity=10)
+var tensors = List[AnyTensor](capacity=10)
 # But still must append, not assign to empty slots
 ```
 
@@ -683,7 +683,7 @@ var dt = tensor.dtype()  # dtype is a method
 
 ```mojo
 # WRONG - Missing escaping for closure passed to check_gradient
-fn forward(inp: ExTensor) raises -> ExTensor:
+fn forward(inp: AnyTensor) raises -> AnyTensor:
     return sum(inp, axis=1)
 
 check_gradient(forward, x)  # Error - forward escapes scope
@@ -704,10 +704,10 @@ it "escapes" the current scope. Mojo requires explicit marking for safety.
 
 ```mojo
 # CORRECT - Add escaping keyword
-fn forward(inp: ExTensor) raises escaping -> ExTensor:
+fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
     return sum(inp, axis=1)
 
-fn backward(grad: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
     return sum_backward(grad, inp, axis=1)
 
 check_gradient(forward, backward, x)
@@ -828,12 +828,12 @@ for i in range(5):
 
 ### 5.2 Uninitialized Tensor Data
 
-**Anti-pattern**: Creating ExTensor with empty shape but accessing indices
+**Anti-pattern**: Creating AnyTensor with empty shape but accessing indices
 
 ```mojo
 # WRONG - Empty shape means 0D scalar, but code accesses multiple indices
 var shape = List[Int]()  # Empty = 0D scalar
-var predictions = ExTensor(shape, DType.float32)
+var predictions = AnyTensor(shape, DType.float32)
 # Later: accessing _data[0], _data[1], etc. - segfault!
 predictions._data.bitcast[Float32]()[0] = 0.5
 predictions._data.bitcast[Float32]()[1] = 0.7  # Segfault - out of bounds
@@ -845,7 +845,7 @@ predictions._data.bitcast[Float32]()[1] = 0.7  # Segfault - out of bounds
 Segmentation fault (core dumped)
 ```
 
-**Root Cause**: An ExTensor created with empty shape has only 1 element (0D scalar).
+**Root Cause**: An AnyTensor created with empty shape has only 1 element (0D scalar).
 Accessing beyond that causes memory corruption.
 
 **Correct Pattern**:
@@ -854,7 +854,7 @@ Accessing beyond that causes memory corruption.
 # CORRECT - Specify shape dimension
 var shape = List[Int]()
 shape.append(4)  # 1D tensor with 4 elements
-var predictions = ExTensor(shape, DType.float32)
+var predictions = AnyTensor(shape, DType.float32)
 predictions._data.bitcast[Float32]()[0] = 0.5
 predictions._data.bitcast[Float32]()[1] = 0.7
 predictions._data.bitcast[Float32]()[2] = 0.9
@@ -863,7 +863,7 @@ predictions._data.bitcast[Float32]()[3] = 0.3
 
 **Prevention**:
 
-- Always initialize shape with `append()` before creating ExTensor
+- Always initialize shape with `append()` before creating AnyTensor
 - Verify `tensor.numel()` matches expected element count
 - Add bounds checking in debug builds
 
@@ -1139,10 +1139,10 @@ _ = trainer.train(epochs=1)
 ```mojo
 ✅ var shape = List[Int]()
    shape.append(3)
-   var tensor = ExTensor(shape, dtype)
+   var tensor = AnyTensor(shape, dtype)
 
 ❌ var shape = List[Int]()
-   var tensor = ExTensor(shape, dtype)  # 0D scalar!
+   var tensor = AnyTensor(shape, dtype)  # 0D scalar!
 ```
 
 ### Type Comparisons
@@ -1192,10 +1192,10 @@ _ = trainer.train(epochs=1)
    ```mojo
    var shape = List[Int]()
    shape.append(N)              # ✅ Correct
-   var tensor = ExTensor(shape, dtype)
+   var tensor = AnyTensor(shape, dtype)
 
    var shape = List[Int]()      # ❌ WRONG (0D scalar)
-   var tensor = ExTensor(shape, dtype)
+   var tensor = AnyTensor(shape, dtype)
    ```
 
 ### Section 2: Add to "Common Mistakes to Avoid"
@@ -1269,11 +1269,11 @@ Add to `.pre-commit-config.yaml`:
 var shape = List[Int]()
 shape.append(batch_size)
 shape.append(features)
-var tensor = ExTensor(shape, DType.float32)
+var tensor = AnyTensor(shape, DType.float32)
 
 # ❌ WRONG - Empty shape is 0D scalar
 var shape = List[Int]()
-var tensor = ExTensor(shape, DType.float32)
+var tensor = AnyTensor(shape, DType.float32)
 ```
 
 #### Initialize ALL Tensor Elements

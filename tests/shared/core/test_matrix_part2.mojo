@@ -30,8 +30,8 @@ from tests.shared.conftest import (
     assert_value_at,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.extensor import (
-    ExTensor,
+from shared.core.any_tensor import (
+    AnyTensor,
     zeros,
     ones,
     zeros_like,
@@ -203,11 +203,11 @@ fn test_matmul_backward_gradient_a() raises:
         b._data.bitcast[Float32]()[i] = Float32(i) * 0.2 + 0.1
 
     # Forward function wrapper
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return matmul(inp, b)
 
     # Backward function wrapper for grad_a
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         var grads = matmul_backward(grad_out, inp, b)
         return grads.grad_a
 
@@ -250,11 +250,11 @@ fn test_matmul_backward_gradient_b() raises:
         b._data.bitcast[Float32]()[i] = Float32(i) * 0.2 + 0.1
 
     # Forward function wrapper
-    fn forward(inp: ExTensor) raises escaping -> ExTensor:
+    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return matmul(a, inp)
 
     # Backward function wrapper for grad_b
-    fn backward(grad_out: ExTensor, inp: ExTensor) raises escaping -> ExTensor:
+    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         var grads = matmul_backward(grad_out, a, inp)
         return grads.grad_b
 

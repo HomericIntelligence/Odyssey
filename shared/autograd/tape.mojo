@@ -48,7 +48,7 @@ Examples:
 """
 
 from shared.core import (
-    ExTensor,
+    AnyTensor,
     ones_like,
     zeros_like,
     add_backward,
@@ -228,7 +228,7 @@ struct GradientTape:
         self.nodes.append(node^)
 
     fn _dispatch_backward_op(
-        mut self, op_type: String, node_idx: Int, grad_output: ExTensor
+        mut self, op_type: String, node_idx: Int, grad_output: AnyTensor
     ) raises:
         """Dispatch backward pass computation for the given operation type.
 
@@ -269,7 +269,7 @@ struct GradientTape:
                 "Unsupported operation type for backward pass: " + op_type
             )
 
-    fn backward(mut self, output_id: Int, output_grad: ExTensor) raises:
+    fn backward(mut self, output_id: Int, output_grad: AnyTensor) raises:
         """Compute gradients by traversing tape in reverse.
 
         Applies the chain rule in reverse topological order:
@@ -314,7 +314,7 @@ struct GradientTape:
             # Dispatch to appropriate backward function
             self._dispatch_backward_op(op_type, node_idx, grad_output)
 
-    fn get_grad(self, var_id: Int) raises -> ExTensor:
+    fn get_grad(self, var_id: Int) raises -> AnyTensor:
         """Get the computed gradient for a variable.
 
         Args:

@@ -4,7 +4,7 @@ Comprehensive API documentation for ML Odyssey's tensor library and neural netwo
 
 ## Quick Navigation
 
-- [ExTensor](tensor.md) - Core tensor class with autograd support
+- [AnyTensor](tensor.md) - Core tensor class with autograd support
 - [Operations](operations/) - Tensor operations (arithmetic, reduction, linear algebra)
 - [Neural Networks](nn/) - Layers, activations, and losses
 - [Autograd](autograd/) - Automatic differentiation system
@@ -12,9 +12,9 @@ Comprehensive API documentation for ML Odyssey's tensor library and neural netwo
 
 ## Core Concepts
 
-### ExTensor
+### AnyTensor
 
-The `ExTensor` struct is the fundamental data structure in ML Odyssey. It supports:
+The `AnyTensor` struct is the fundamental data structure in ML Odyssey. It supports:
 
 - Multi-dimensional arrays with arbitrary shape
 - Multiple data types (float32, float16, bfloat16, int8, etc.)
@@ -22,7 +22,7 @@ The `ExTensor` struct is the fundamental data structure in ML Odyssey. It suppor
 - SIMD-optimized operations
 
 ```mojo
-from shared.core import ExTensor, zeros, ones, randn
+from shared.core import AnyTensor, zeros, ones, randn
 
 # Create tensors
 var x = zeros[DType.float32](2, 3)        # Shape: (2, 3)
@@ -81,7 +81,7 @@ out = relu.forward(out)
 ```text
 shared/
 ├── core/                    # Core tensor library
-│   ├── extensor.mojo       # ExTensor struct
+│   ├── any_tensor.mojo       # AnyTensor struct
 │   ├── arithmetic.mojo     # +, -, *, /, etc.
 │   ├── reduction.mojo      # sum, mean, max, min
 │   ├── shape.mojo          # reshape, transpose, view
@@ -144,7 +144,7 @@ var z = x + y  # Raises: "DType mismatch: float32 vs int32"
 
 ## Next Steps
 
-- [ExTensor Reference](tensor.md) - Complete tensor API
+- [AnyTensor Reference](tensor.md) - Complete tensor API
 - [Operations Guide](operations/arithmetic.md) - Arithmetic operations
 - [Building Models](nn/layers.md) - Neural network layers
 - [Training Guide](training/optimizers.md) - Optimization algorithms

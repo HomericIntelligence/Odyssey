@@ -24,7 +24,7 @@ Issues covered:
 from random import random_float64, random_si64, seed as random_seed
 from math import sqrt, log, cos, sin
 from collections import List
-from .extensor import ExTensor
+from .any_tensor import AnyTensor
 
 
 # ============================================================================
@@ -35,7 +35,7 @@ from .extensor import ExTensor
 @always_inline
 fn _fill_uniform_scaled[
     dtype: DType
-](result: ExTensor, scale: Float64, offset: Float64) raises:
+](result: AnyTensor, scale: Float64, offset: Float64) raises:
     """Fill tensor with scaled uniform random values: offset + random() * scale.
 
         This is a dtype-generic helper that eliminates dtype branching.
@@ -58,7 +58,7 @@ fn _fill_uniform_scaled[
 @always_inline
 fn _fill_normal_boxmuller[
     dtype: DType
-](result: ExTensor, mean: Float64, std: Float64) raises:
+](result: AnyTensor, mean: Float64, std: Float64) raises:
     """Fill tensor with normal random values using Box-Muller transform.
 
         This is a dtype-generic helper that eliminates dtype branching.
@@ -98,7 +98,7 @@ fn _fill_normal_boxmuller[
 
 
 @always_inline
-fn _fill_constant[dtype: DType](result: ExTensor, value: Float64) raises:
+fn _fill_constant[dtype: DType](result: AnyTensor, value: Float64) raises:
     """Fill tensor with constant value.
 
         This is a dtype-generic helper that eliminates dtype branching.
@@ -122,7 +122,7 @@ fn _fill_constant[dtype: DType](result: ExTensor, value: Float64) raises:
 
 
 fn _dispatch_fill_uniform_scaled(
-    result: ExTensor, scale: Float64, offset: Float64
+    result: AnyTensor, scale: Float64, offset: Float64
 ) raises:
     """Dispatch uniform fill based on tensor dtype.
 
@@ -152,7 +152,7 @@ fn _dispatch_fill_uniform_scaled(
 
 
 fn _dispatch_fill_normal_boxmuller(
-    result: ExTensor, mean: Float64, std: Float64
+    result: AnyTensor, mean: Float64, std: Float64
 ) raises:
     """Dispatch normal fill based on tensor dtype.
 
@@ -181,7 +181,7 @@ fn _dispatch_fill_normal_boxmuller(
         )
 
 
-fn _dispatch_fill_constant(result: ExTensor, value: Float64) raises:
+fn _dispatch_fill_constant(result: AnyTensor, value: Float64) raises:
     """Dispatch constant fill based on tensor dtype.
 
     Centralizes dtype branching for _fill_constant to avoid
@@ -219,7 +219,7 @@ fn xavier_uniform(
     shape: List[Int],
     dtype: DType = DType.float32,
     seed_val: Int = -1,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Initialize weights using Xavier/Glorot uniform distribution.
 
         Draws samples from uniform distribution U(-a, a) where:
@@ -271,7 +271,7 @@ fn xavier_uniform(
     var bound = sqrt(6.0 / Float64(fan_in + fan_out))
 
     # Create tensor
-    var result = ExTensor(shape, dtype)
+    var result = AnyTensor(shape, dtype)
 
     # Fill with uniform random values in [-bound, bound]
     _dispatch_fill_uniform_scaled(result, 2.0 * bound, -bound)
@@ -285,7 +285,7 @@ fn xavier_normal(
     shape: List[Int],
     dtype: DType = DType.float32,
     seed_val: Int = -1,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Initialize weights using Xavier/Glorot normal distribution.
 
         Draws samples from normal distribution N(0, std²) where:
@@ -337,7 +337,7 @@ fn xavier_normal(
     var std = sqrt(2.0 / Float64(fan_in + fan_out))
 
     # Create tensor
-    var result = ExTensor(shape, dtype)
+    var result = AnyTensor(shape, dtype)
 
     # Fill with normal random values using Box-Muller transform
     _dispatch_fill_normal_boxmuller(result, 0.0, std)
@@ -360,7 +360,7 @@ fn kaiming_uniform(
     fan_mode: String = "fan_in",
     dtype: DType = DType.float32,
     seed_val: Int = -1,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Initialize weights using Kaiming/He uniform distribution.
 
         Draws samples from uniform distribution U(-a, a) where:
@@ -428,7 +428,7 @@ fn kaiming_uniform(
     var bound = sqrt(6.0 / Float64(fan))
 
     # Create tensor
-    var result = ExTensor(shape, dtype)
+    var result = AnyTensor(shape, dtype)
 
     # Fill with uniform random values in [-bound, bound]
     _dispatch_fill_uniform_scaled(result, 2.0 * bound, -bound)
@@ -443,7 +443,7 @@ fn kaiming_normal(
     fan_mode: String = "fan_in",
     dtype: DType = DType.float32,
     seed_val: Int = -1,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Initialize weights using Kaiming/He normal distribution.
 
         Draws samples from normal distribution N(0, std²) where:
@@ -510,7 +510,7 @@ fn kaiming_normal(
     var std = sqrt(2.0 / Float64(fan))
 
     # Create tensor
-    var result = ExTensor(shape, dtype)
+    var result = AnyTensor(shape, dtype)
 
     # Fill with normal random values using Box-Muller transform
     _dispatch_fill_normal_boxmuller(result, 0.0, std)
@@ -529,7 +529,7 @@ fn uniform(
     high: Float64 = 0.1,
     dtype: DType = DType.float32,
     seed_val: Int = -1,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Initialize weights using uniform distribution.
 
         Draws samples from uniform distribution U(low, high) with configurable bounds.
@@ -568,7 +568,7 @@ fn uniform(
         random_seed(seed_val)
 
     # Create tensor
-    var result = ExTensor(shape, dtype)
+    var result = AnyTensor(shape, dtype)
 
     # Fill with uniform random values in [low, high]
     var range_val = high - low
@@ -583,7 +583,7 @@ fn normal(
     std: Float64 = 0.01,
     dtype: DType = DType.float32,
     seed_val: Int = -1,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Initialize weights using normal (Gaussian) distribution.
 
         Draws samples from normal distribution N(mean, std²) with configurable parameters.
@@ -624,7 +624,7 @@ fn normal(
         random_seed(seed_val)
 
     # Create tensor
-    var result = ExTensor(shape, dtype)
+    var result = AnyTensor(shape, dtype)
 
     # Fill with normal random values using Box-Muller transform
     _dispatch_fill_normal_boxmuller(result, mean, std)
@@ -634,7 +634,7 @@ fn normal(
 
 fn constant(
     shape: List[Int], value: Float64, dtype: DType = DType.float32
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Initialize tensor with constant value.
 
         Fills all elements with the specified constant value.
@@ -663,7 +663,7 @@ fn constant(
             var bias = constant(List[Int](), 0.01)
     ```
     """
-    var result = ExTensor(shape, dtype)
+    var result = AnyTensor(shape, dtype)
     _dispatch_fill_constant(result, value)
     return result^
 
@@ -680,7 +680,7 @@ fn he_uniform(
     fan_mode: String = "fan_in",
     dtype: DType = DType.float32,
     seed_val: Int = -1,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Alias for kaiming_uniform.
 
     He and Kaiming refer to the same initialization method (Kaiming He is the author).
@@ -701,7 +701,7 @@ fn he_normal(
     fan_mode: String = "fan_in",
     dtype: DType = DType.float32,
     seed_val: Int = -1,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Alias for kaiming_normal.
 
     He and Kaiming refer to the same initialization method (Kaiming He is the author).
@@ -751,7 +751,7 @@ fn _compute_fan_from_shape(shape: List[Int]) raises -> Tuple[Int, Int]:
 
 fn he_uniform(
     shape: List[Int], dtype: DType = DType.float32
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Convenience overload that computes fan_in/fan_out from shape.
 
         For conv weights [out_channels, in_channels, kH, kW]:
@@ -781,7 +781,7 @@ fn he_uniform(
 
 fn xavier_uniform(
     shape: List[Int], dtype: DType = DType.float32
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Convenience overload that computes fan_in/fan_out from shape.
 
         For conv weights [out_channels, in_channels, kH, kW]:

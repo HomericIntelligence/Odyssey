@@ -1,4 +1,4 @@
-"""Trait-based reduction operation definitions for ExTensor.
+"""Trait-based reduction operation definitions for AnyTensor.
 
 Provides trait-based abstraction for reduction operations (sum, mean, max, min),
 eliminating code duplication across dtype-specialized implementations.

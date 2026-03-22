@@ -23,16 +23,16 @@ functional ResNet-18 implementation.
 
 ```mojo
 fn batch_norm2d_backward(
-    grad_output: ExTensor,
-    x: ExTensor,
-    gamma: ExTensor,
-    beta: ExTensor,
-    running_mean: ExTensor,
-    running_var: ExTensor,
+    grad_output: AnyTensor,
+    x: AnyTensor,
+    gamma: AnyTensor,
+    beta: AnyTensor,
+    running_mean: AnyTensor,
+    running_var: AnyTensor,
     training: Bool = True,
     momentum: Float64 = 0.1,
     eps: Float64 = 1e-5
-) raises -> (ExTensor, ExTensor, ExTensor):
+) raises -> (AnyTensor, AnyTensor, AnyTensor):
     """Backward pass for 2D batch normalization.
 
     Args:

@@ -10,7 +10,7 @@ Test Coverage:
 - compute_gradient_statistics: Gradient monitoring and health checks
 """
 
-from shared.core.extensor import ExTensor, zeros, ones, full
+from shared.core.any_tensor import AnyTensor, zeros, ones, full
 from shared.training.gradient_clipping import (
     compute_gradient_norm_list,
     clip_gradients_by_global_norm,
@@ -27,9 +27,9 @@ from collections import List
 from math import sqrt
 
 
-fn create_test_gradients() raises -> List[ExTensor]:
+fn create_test_gradients() raises -> List[AnyTensor]:
     """Create test gradients with known norms."""
-    var grads = List[ExTensor]()
+    var grads = List[AnyTensor]()
 
     # Gradient 1: all ones (norm = sqrt(100) = 10)
     grads.append(ones([100], DType.float32))
@@ -124,7 +124,7 @@ fn test_clip_by_global_norm_with_clipping() raises:
 
 fn test_clip_per_param() raises:
     """Test per-parameter gradient clipping."""
-    var grads = List[ExTensor]()
+    var grads = List[AnyTensor]()
 
     # Gradient 1: all 10.0 (norm = sqrt(100*100) = 100)
     grads.append(full([100], 10.0, DType.float32))
@@ -161,7 +161,7 @@ fn test_clip_per_param() raises:
 
 fn test_clip_by_value() raises:
     """Test gradient clipping by value range."""
-    var grads = List[ExTensor]()
+    var grads = List[AnyTensor]()
 
     # Create gradient with values outside [-1.0, 1.0]
     var grad = full([100], 5.0, DType.float32)
@@ -182,7 +182,7 @@ fn test_clip_by_value() raises:
 
 fn test_clip_by_value_negative() raises:
     """Test gradient clipping with negative values."""
-    var grads = List[ExTensor]()
+    var grads = List[AnyTensor]()
 
     # Create gradient with negative values
     var grad = full([50], -10.0, DType.float32)
@@ -203,7 +203,7 @@ fn test_clip_by_value_negative() raises:
 
 fn test_gradient_statistics() raises:
     """Test gradient statistics computation."""
-    var grads = List[ExTensor]()
+    var grads = List[AnyTensor]()
 
     # Create gradients with known statistics
     grads.append(ones([100], DType.float32))  # 100 ones
@@ -245,7 +245,7 @@ fn test_gradient_statistics() raises:
 
 fn test_gradient_statistics_empty() raises:
     """Test gradient statistics with empty list."""
-    var grads = List[ExTensor]()
+    var grads = List[AnyTensor]()
 
     var stats = compute_gradient_statistics(grads)
 
@@ -260,7 +260,7 @@ fn test_gradient_statistics_empty() raises:
 
 fn test_clip_zero_gradients() raises:
     """Test clipping with zero gradients."""
-    var grads = List[ExTensor]()
+    var grads = List[AnyTensor]()
     grads.append(zeros([100], DType.float32))
 
     # Should not crash with zero gradients

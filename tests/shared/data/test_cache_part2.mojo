@@ -11,8 +11,8 @@ from tests.shared.conftest import (
     assert_equal,
     assert_almost_equal,
 )
-from shared.data import ExTensorDataset, CachedDataset
-from shared.core.extensor import ExTensor, ones, zeros
+from shared.data import AnyTensorDataset, CachedDataset
+from shared.core.any_tensor import AnyTensor, ones, zeros
 from collections import List
 
 
@@ -32,7 +32,7 @@ fn test_cached_dataset_enable_disable() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var base_dataset = ExTensorDataset(data^, labels^)
+    var base_dataset = AnyTensorDataset(data^, labels^)
     var cached = CachedDataset(base_dataset^, max_cache_size=-1)
 
     # Cache is enabled by default
@@ -58,7 +58,7 @@ fn test_cached_dataset_hit_rate() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var base_dataset = ExTensorDataset(data^, labels^)
+    var base_dataset = AnyTensorDataset(data^, labels^)
     var cached = CachedDataset(base_dataset^, max_cache_size=-1)
 
     # No accesses yet - should return 0.0
@@ -83,7 +83,7 @@ fn test_cached_dataset_get_stats() raises:
     var data = ones(data_shape, DType.float32)
     var labels = zeros(label_shape, DType.float32)
 
-    var base_dataset = ExTensorDataset(data^, labels^)
+    var base_dataset = AnyTensorDataset(data^, labels^)
     var cached = CachedDataset(base_dataset^, max_cache_size=-1)
 
     var _d1, _l1 = cached._get_and_cache(0)

@@ -12,7 +12,7 @@ Test Categories:
 Total: 8 tests.
 """
 
-from shared.core.extensor import ExTensor, zeros, ones
+from shared.core.any_tensor import AnyTensor, zeros, ones
 from tests.shared.conftest import assert_equal, assert_almost_equal
 
 

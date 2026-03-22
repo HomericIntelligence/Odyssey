@@ -18,7 +18,7 @@ from tests.shared.conftest import (
     assert_equal,
     assert_true,
 )
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 from shared.core.initializers import (
     kaiming_uniform,
     kaiming_normal,
@@ -32,7 +32,7 @@ from math import sqrt
 # ============================================================================
 
 
-fn compute_mean(tensor: ExTensor) -> Float64:
+fn compute_mean(tensor: AnyTensor) -> Float64:
     """Compute mean of tensor values."""
     var sum = Float64(0.0)
     var size = tensor.numel()
@@ -53,7 +53,7 @@ fn compute_mean(tensor: ExTensor) -> Float64:
     return sum / Float64(size)
 
 
-fn compute_variance(tensor: ExTensor, mean: Float64) -> Float64:
+fn compute_variance(tensor: AnyTensor, mean: Float64) -> Float64:
     """Compute variance of tensor values."""
     var sum_sq_diff = Float64(0.0)
     var size = tensor.numel()
@@ -77,7 +77,7 @@ fn compute_variance(tensor: ExTensor, mean: Float64) -> Float64:
     return sum_sq_diff / Float64(size)
 
 
-fn compute_std(tensor: ExTensor, mean: Float64) -> Float64:
+fn compute_std(tensor: AnyTensor, mean: Float64) -> Float64:
     """Compute standard deviation of tensor values."""
     return sqrt(compute_variance(tensor, mean))
 

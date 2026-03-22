@@ -1,4 +1,4 @@
-"""SIMD-optimized arithmetic operations for ExTensor.
+"""SIMD-optimized arithmetic operations for AnyTensor.
 
 This module provides vectorized implementations of arithmetic operations
 for same-shape tensors, achieving 2-8x speedup over scalar implementations.
@@ -25,7 +25,7 @@ Usage:
 
 from algorithm import vectorize
 from sys.info import simd_width_of
-from .extensor import ExTensor
+from .any_tensor import AnyTensor
 
 
 # ============================================================================
@@ -33,7 +33,7 @@ from .extensor import ExTensor
 # ============================================================================
 
 
-fn add_simd(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn add_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """SIMD-optimized element-wise addition for same-shape tensors.
 
         Uses vectorized operations when possible, falls back to broadcasting
@@ -77,7 +77,7 @@ fn add_simd(a: ExTensor, b: ExTensor) raises -> ExTensor:
 
         return add(a, b)
 
-    var result = ExTensor(a.shape(), a.dtype())
+    var result = AnyTensor(a.shape(), a.dtype())
 
     # Dispatch to dtype-specific SIMD implementation
     if a.dtype() == DType.float32:
@@ -94,7 +94,7 @@ fn add_simd(a: ExTensor, b: ExTensor) raises -> ExTensor:
 
 
 @always_inline
-fn _add_simd_float32(a: ExTensor, b: ExTensor, mut result: ExTensor) raises:
+fn _add_simd_float32(a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
     """SIMD addition for float32 tensors."""
     comptime simd_width = simd_width_of[DType.float32]()
     var size = a.numel()
@@ -113,7 +113,7 @@ fn _add_simd_float32(a: ExTensor, b: ExTensor, mut result: ExTensor) raises:
 
 
 @always_inline
-fn _add_simd_float64(a: ExTensor, b: ExTensor, mut result: ExTensor) raises:
+fn _add_simd_float64(a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
     """SIMD addition for float64 tensors."""
     comptime simd_width = simd_width_of[DType.float64]()
     var size = a.numel()
@@ -136,7 +136,7 @@ fn _add_simd_float64(a: ExTensor, b: ExTensor, mut result: ExTensor) raises:
 # ============================================================================
 
 
-fn subtract_simd(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn subtract_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """SIMD-optimized element-wise subtraction for same-shape tensors.
 
     Args:
@@ -157,7 +157,7 @@ fn subtract_simd(a: ExTensor, b: ExTensor) raises -> ExTensor:
 
         return subtract(a, b)
 
-    var result = ExTensor(a.shape(), a.dtype())
+    var result = AnyTensor(a.shape(), a.dtype())
 
     if a.dtype() == DType.float32:
         _subtract_simd_float32(a, b, result)
@@ -173,7 +173,7 @@ fn subtract_simd(a: ExTensor, b: ExTensor) raises -> ExTensor:
 
 @always_inline
 fn _subtract_simd_float32(
-    a: ExTensor, b: ExTensor, mut result: ExTensor
+    a: AnyTensor, b: AnyTensor, mut result: AnyTensor
 ) raises:
     """SIMD subtraction for float32 tensors."""
     comptime simd_width = simd_width_of[DType.float32]()
@@ -194,7 +194,7 @@ fn _subtract_simd_float32(
 
 @always_inline
 fn _subtract_simd_float64(
-    a: ExTensor, b: ExTensor, mut result: ExTensor
+    a: AnyTensor, b: AnyTensor, mut result: AnyTensor
 ) raises:
     """SIMD subtraction for float64 tensors."""
     comptime simd_width = simd_width_of[DType.float64]()
@@ -218,7 +218,7 @@ fn _subtract_simd_float64(
 # ============================================================================
 
 
-fn multiply_simd(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn multiply_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """SIMD-optimized element-wise multiplication for same-shape tensors.
 
     Args:
@@ -239,7 +239,7 @@ fn multiply_simd(a: ExTensor, b: ExTensor) raises -> ExTensor:
 
         return multiply(a, b)
 
-    var result = ExTensor(a.shape(), a.dtype())
+    var result = AnyTensor(a.shape(), a.dtype())
 
     if a.dtype() == DType.float32:
         _multiply_simd_float32(a, b, result)
@@ -255,7 +255,7 @@ fn multiply_simd(a: ExTensor, b: ExTensor) raises -> ExTensor:
 
 @always_inline
 fn _multiply_simd_float32(
-    a: ExTensor, b: ExTensor, mut result: ExTensor
+    a: AnyTensor, b: AnyTensor, mut result: AnyTensor
 ) raises:
     """SIMD multiplication for float32 tensors."""
     comptime simd_width = simd_width_of[DType.float32]()
@@ -276,7 +276,7 @@ fn _multiply_simd_float32(
 
 @always_inline
 fn _multiply_simd_float64(
-    a: ExTensor, b: ExTensor, mut result: ExTensor
+    a: AnyTensor, b: AnyTensor, mut result: AnyTensor
 ) raises:
     """SIMD multiplication for float64 tensors."""
     comptime simd_width = simd_width_of[DType.float64]()
@@ -300,7 +300,7 @@ fn _multiply_simd_float64(
 # ============================================================================
 
 
-fn divide_simd(a: ExTensor, b: ExTensor) raises -> ExTensor:
+fn divide_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """SIMD-optimized element-wise division for same-shape tensors.
 
     Args:
@@ -321,7 +321,7 @@ fn divide_simd(a: ExTensor, b: ExTensor) raises -> ExTensor:
 
         return divide(a, b)
 
-    var result = ExTensor(a.shape(), a.dtype())
+    var result = AnyTensor(a.shape(), a.dtype())
 
     if a.dtype() == DType.float32:
         _divide_simd_float32(a, b, result)
@@ -336,7 +336,7 @@ fn divide_simd(a: ExTensor, b: ExTensor) raises -> ExTensor:
 
 
 @always_inline
-fn _divide_simd_float32(a: ExTensor, b: ExTensor, mut result: ExTensor) raises:
+fn _divide_simd_float32(a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
     """SIMD division for float32 tensors."""
     comptime simd_width = simd_width_of[DType.float32]()
     var size = a.numel()
@@ -355,7 +355,7 @@ fn _divide_simd_float32(a: ExTensor, b: ExTensor, mut result: ExTensor) raises:
 
 
 @always_inline
-fn _divide_simd_float64(a: ExTensor, b: ExTensor, mut result: ExTensor) raises:
+fn _divide_simd_float64(a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
     """SIMD division for float64 tensors."""
     comptime simd_width = simd_width_of[DType.float64]()
     var size = a.numel()

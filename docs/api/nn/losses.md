@@ -259,11 +259,11 @@ Create custom losses by combining existing operations:
 
 ```mojo
 fn focal_loss(
-    logits: ExTensor,
-    targets: ExTensor,
+    logits: AnyTensor,
+    targets: AnyTensor,
     gamma: Float = 2.0,
     alpha: Float = 0.25,
-) raises -> ExTensor:
+) raises -> AnyTensor:
     """Focal loss for imbalanced classification."""
     var probs = softmax(logits, dim=-1)
     var ce = cross_entropy_loss(logits, targets, reduction="none")

@@ -17,7 +17,7 @@ Testing strategy:
 """
 
 from testing import assert_true, assert_false, assert_equal, assert_almost_equal
-from shared.core.extensor import ExTensor
+from shared.core.any_tensor import AnyTensor
 from shared.training.trainer_interface import (
     TrainerConfig,
     TrainingMetrics,
@@ -38,16 +38,16 @@ from shared.training.trainer import (
 # ==================================================================
 
 
-fn mock_model_forward(input: ExTensor) raises -> ExTensor:
+fn mock_model_forward(input: AnyTensor) raises -> AnyTensor:
     """Mock model forward pass - returns input unchanged."""
     return input
 
 
 fn mock_compute_loss(
-    predictions: ExTensor, labels: ExTensor
-) raises -> ExTensor:
+    predictions: AnyTensor, labels: AnyTensor
+) raises -> AnyTensor:
     """Mock loss computation - returns constant loss."""
-    var loss = ExTensor(List[Int](), DType.float32)
+    var loss = AnyTensor(List[Int](), DType.float32)
     loss._data.bitcast[Float32]()[0] = 0.5
     return loss
 
@@ -189,9 +189,9 @@ fn test_dataloader_basic() raises:
     var data_shape = List[Int]()
     data_shape.append(10)
     data_shape.append(5)
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     var labels_shape = List[Int]()
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
 
     var loader = DataLoader(data, labels, batch_size=3)
 
@@ -209,10 +209,10 @@ fn test_dataloader_iteration() raises:
     var data_shape = List[Int]()
     data_shape.append(10)
     data_shape.append(5)
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     var labels_shape = List[Int]()
     labels_shape.append(10)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
 
     var loader = DataLoader(data, labels, batch_size=3)
 
@@ -299,12 +299,12 @@ fn test_validation_loop_run_updates_val_accuracy() raises:
     var data_shape = List[Int]()
     data_shape.append(4)
     data_shape.append(3)
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
 
     # Labels: shape [4], dtype int32, all zeros (class 0)
     var labels_shape = List[Int]()
     labels_shape.append(4)
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
 
     var val_loader = DataLoader(data, labels, batch_size=4)
     var validation_loop = ValidationLoop(compute_accuracy=True)
@@ -430,9 +430,9 @@ fn test_databatch_creation() raises:
     var data_shape = List[Int]()
     data_shape.append(5)
     data_shape.append(10)
-    var data = ExTensor(data_shape, DType.float32)
+    var data = AnyTensor(data_shape, DType.float32)
     var labels_shape = List[Int]()
-    var labels = ExTensor(labels_shape, DType.int32)
+    var labels = AnyTensor(labels_shape, DType.int32)
 
     var batch = DataBatch(data, labels)
 

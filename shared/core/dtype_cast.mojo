@@ -4,12 +4,12 @@ Provides efficient dtype conversion for tensors with optimized paths
 for common conversions (FP32 <-> FP16, FP32 <-> BF16).
 """
 
-from .extensor import ExTensor
+from .any_tensor import AnyTensor
 from shared.core.types.dtype_aliases import BF16
 from memory import bitcast
 
 
-fn cast_tensor(tensor: ExTensor, target_dtype: DType) raises -> ExTensor:
+fn cast_tensor(tensor: AnyTensor, target_dtype: DType) raises -> AnyTensor:
     """Cast tensor to different dtype with optimized conversion paths.
 
     Provides fast conversion between common dtypes used in mixed precision
@@ -42,7 +42,7 @@ fn cast_tensor(tensor: ExTensor, target_dtype: DType) raises -> ExTensor:
     if tensor.dtype() == target_dtype:
         return tensor
 
-    var result = ExTensor(tensor.shape(), target_dtype)
+    var result = AnyTensor(tensor.shape(), target_dtype)
     var size = tensor._numel
 
     # Optimized paths for common conversions
@@ -89,7 +89,7 @@ fn cast_tensor(tensor: ExTensor, target_dtype: DType) raises -> ExTensor:
     return result
 
 
-fn cast_to_bfloat16(tensor: ExTensor) raises -> ExTensor:
+fn cast_to_bfloat16(tensor: AnyTensor) raises -> AnyTensor:
     """Convert tensor to BF16 storage (stored as uint16).
 
     Creates new tensor with BF16 values stored as uint16.
@@ -106,7 +106,7 @@ fn cast_to_bfloat16(tensor: ExTensor) raises -> ExTensor:
 
     Example:
         ```mojo
-        var fp32_params = ExTensor.randn((1000, 1000), DType.float32)
+        var fp32_params = AnyTensor.randn((1000, 1000), DType.float32)
         var bf16_params = cast_to_bfloat16(fp32_params)
         # bf16_params.dtype() == DType.uint16
         ```
@@ -115,7 +115,7 @@ fn cast_to_bfloat16(tensor: ExTensor) raises -> ExTensor:
         raise Error("Cannot convert empty tensor to BF16")
 
     # Create uint16 tensor for BF16 storage
-    var result = ExTensor(tensor.shape(), DType.uint16)
+    var result = AnyTensor(tensor.shape(), DType.uint16)
     var size = tensor._numel
 
     # Convert each element using native SIMD conversion
@@ -130,8 +130,8 @@ fn cast_to_bfloat16(tensor: ExTensor) raises -> ExTensor:
 
 
 fn cast_from_bfloat16(
-    tensor: ExTensor, target_dtype: DType = DType.float32
-) raises -> ExTensor:
+    tensor: AnyTensor, target_dtype: DType = DType.float32
+) raises -> AnyTensor:
     """Convert tensor from BF16 storage to floating point.
 
     Assumes input tensor stores BF16 values as uint16.
@@ -165,7 +165,7 @@ fn cast_from_bfloat16(
     ):
         raise Error("Target dtype must be floating point")
 
-    var result = ExTensor(tensor.shape(), target_dtype)
+    var result = AnyTensor(tensor.shape(), target_dtype)
     var size = tensor._numel
 
     # Convert each element using native SIMD conversion
