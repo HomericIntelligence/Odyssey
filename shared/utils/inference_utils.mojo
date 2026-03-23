@@ -20,7 +20,7 @@ Example:
 
 from sys import argv
 
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 
 # ============================================================================

@@ -13,7 +13,7 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_equal_int,
 )
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.dtype_dispatch import (
     dispatch_unary,
     dispatch_binary,

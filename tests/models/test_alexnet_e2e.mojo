@@ -10,7 +10,7 @@ This test uses functional layer composition (no AlexNet model class required).
 Tests the same forward-backward pipeline that a full model would use.
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import maxpool2d
 from shared.core.linear import linear, linear_backward

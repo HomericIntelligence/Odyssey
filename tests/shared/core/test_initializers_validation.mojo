@@ -24,7 +24,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from math import sqrt
-from shared.core.any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.core.initializers import xavier_uniform, xavier_normal, kaiming_uniform, kaiming_normal, uniform, normal, constant
 
 

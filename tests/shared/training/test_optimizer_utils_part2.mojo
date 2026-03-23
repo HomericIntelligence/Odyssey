@@ -19,7 +19,7 @@ bug that occurs after ~15 cumulative tests. See Issue #2942.
 """
 
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
-from shared.core.any_tensor import AnyTensor, zeros, ones, full, zeros_like
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, zeros_like
 from shared.training.optimizers import (
     compute_weight_decay_term,
     apply_weight_decay,

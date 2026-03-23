@@ -12,7 +12,7 @@ from tests.shared.conftest import (
     assert_almost_equal,
 )
 from shared.data import AnyTensorDataset, CachedDataset
-from shared.core.any_tensor import AnyTensor, ones, zeros
+from shared.tensor.any_tensor import AnyTensor, ones, zeros
 from collections import List
 
 

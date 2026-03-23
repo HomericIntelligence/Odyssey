@@ -5,7 +5,7 @@ a simple module implementation.
 """
 
 from shared.core.module import Module
-from shared.core.any_tensor import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from tests.shared.conftest import assert_true, assert_equal_int
 
 

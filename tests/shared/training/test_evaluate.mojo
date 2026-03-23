@@ -15,7 +15,7 @@ from tests.shared.conftest import (
     assert_equal,
     assert_almost_equal,
 )
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.training.metrics import (
     evaluate_with_predict,
     evaluate_logits_batch,

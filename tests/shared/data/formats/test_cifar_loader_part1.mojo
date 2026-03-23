@@ -15,7 +15,7 @@ Run with: mojo test tests/shared/data/formats/test_cifar_loader_part1.mojo
 
 from collections import List
 from memory import UnsafePointer
-from shared.core.any_tensor import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.data.formats import (
     CIFARLoader,
     CIFAR10_BYTES_PER_IMAGE,

@@ -22,7 +22,7 @@ from tests.shared.conftest import (
     assert_greater,
 )
 from shared.training.trainer_interface import DataLoader
-from shared.core.any_tensor import ones, zeros
+from shared.tensor.any_tensor import ones, zeros
 
 
 # ============================================================================

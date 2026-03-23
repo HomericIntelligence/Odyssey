@@ -15,7 +15,7 @@ from shared.testing.assertions import (
     assert_numel,
     assert_dim,
 )
-from shared.core.any_tensor import ones
+from shared.tensor.any_tensor import ones
 
 
 fn test_assert_greater_or_equal_float32_passes() raises:

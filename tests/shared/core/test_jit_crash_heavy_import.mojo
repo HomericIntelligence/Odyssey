@@ -6,7 +6,8 @@ Run 30+ times to observe intermittent 'execution crashed'.
 
 See docs/dev/mojo-jit-crash-workaround.md for context.
 """
-from shared.core import AnyTensor, zeros, ones, full, arange, relu, sigmoid, matmul, softmax
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
+from shared.core import relu, sigmoid, matmul, softmax
 from testing import assert_true
 
 

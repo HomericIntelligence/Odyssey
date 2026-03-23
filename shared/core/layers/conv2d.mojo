@@ -9,10 +9,9 @@ Key components:
   Implements: y = conv2d(x, weight, bias, stride, padding)
 """
 
-from ..any_tensor import AnyTensor, zeros, randn, zeros_like
+from shared.tensor.any_tensor import AnyTensor, zeros, randn, zeros_like
 from ..initializers import kaiming_uniform
 from ..conv import conv2d, conv2d_backward
-from shared.tensor.tensor import Tensor
 
 
 struct Conv2dLayer[dtype: DType = DType.float32](Copyable, Movable):
@@ -106,7 +105,7 @@ struct Conv2dLayer[dtype: DType = DType.float32](Copyable, Movable):
         bias_shape.append(out_channels)
         self.bias = zeros(bias_shape, Self.dtype)
 
-    fn forward(self, input: Tensor[Self.dtype]) raises -> Tensor[Self.dtype]:
+    fn forward(self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: y = conv2d(x, weight, bias, stride, padding).
 
         Applies the learned convolutional filters to the input.
@@ -123,16 +122,16 @@ struct Conv2dLayer[dtype: DType = DType.float32](Copyable, Movable):
         Example:
             ```mojo
             var layer = Conv2dLayer(3, 16, 3, 3, stride=1, padding=1)
-            var input_t = Tensor[DType.float32]([1, 3, 32, 32])
+            var input_t = zeros([1, 3, 32, 32], DType.float32)
             var output = layer.forward(input_t)
             ```
         """
         return conv2d(
-            input.as_any(), self.weight, self.bias, self.stride, self.padding
-        ).as_tensor[Self.dtype]()
+            input, self.weight, self.bias, self.stride, self.padding
+        )
 
     fn backward(
-        self, grad_output: Tensor[Self.dtype], input: Tensor[Self.dtype]
+        self, grad_output: AnyTensor, input: AnyTensor
     ) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
         """Backward pass: compute gradients w.r.t. input, weight, and bias.
 
@@ -158,8 +157,8 @@ struct Conv2dLayer[dtype: DType = DType.float32](Copyable, Movable):
             ```
         """
         var result = conv2d_backward(
-            grad_output.as_any(),
-            input.as_any(),
+            grad_output,
+            input,
             self.weight,
             self.stride,
             self.padding,

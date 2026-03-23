@@ -12,7 +12,7 @@ Features:
     - Inference mode (no training, no batch norm running stats updates)
 """
 
-from shared.core import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.data import extract_batch_pair, compute_num_batches, DatasetInfo
 from shared.data.datasets import CIFAR10Dataset, get_cifar10_classes
 from shared.training.metrics import evaluate_logits_batch

@@ -20,7 +20,7 @@ from tests.shared.conftest import (
 from shared.data.datasets import AnyTensorDataset
 from shared.data.loaders import BatchLoader
 from shared.data.samplers import SequentialSampler, RandomSampler
-from shared.core.any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 
 # ============================================================================

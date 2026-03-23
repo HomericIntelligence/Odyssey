@@ -22,7 +22,7 @@ Example:
     var img, label = cached[0]  # Returns from cache if available
 """
 
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.data._datasets_core import Dataset
 
 

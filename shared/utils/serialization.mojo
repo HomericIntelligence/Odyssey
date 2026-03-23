@@ -39,8 +39,8 @@ Example:
     ```
 """
 
-from shared.core.any_tensor import AnyTensor, zeros
-from shared.core.tensor_io import (
+from shared.tensor.any_tensor import AnyTensor, zeros
+from shared.tensor.tensor_io import (
     save_tensor,
     load_tensor,
     load_tensor_with_name,

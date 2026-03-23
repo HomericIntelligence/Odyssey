@@ -13,33 +13,20 @@ This example trains on synthetic XOR-like data to demonstrate that the training
 pipeline is fully functional.
 """
 
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, ones_like
 from shared.core import (
-    AnyTensor,
-    # Creation
-    zeros,
-    ones,
-    full,
-    ones_like,
-    # Arithmetic
     add,
     subtract,
     multiply,
-    # Activations
     relu,
     sigmoid,
-    # Activation backward
     relu_backward,
     sigmoid_backward,
-    # Backward passes
     add_backward,
-    # Reduction
     mean,
-    # Reduction backward
     mean_backward,
-    # Loss functions
     binary_cross_entropy,
     binary_cross_entropy_backward,
-    # Initializers
     xavier_uniform,
 )
 

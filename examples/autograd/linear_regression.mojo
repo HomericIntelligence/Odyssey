@@ -11,7 +11,7 @@ Training: Learn w and b to fit the data y = 2x + 1
 """
 
 from shared.autograd import mse_loss_and_grad, apply_gradient, multiply_scalar
-from shared.core.any_tensor import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.core.arithmetic import add, multiply
 from shared.core.reduction import sum as tensor_sum
 

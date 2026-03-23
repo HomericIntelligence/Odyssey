@@ -21,7 +21,7 @@ Usage:
     mojo run examples/trait_based_layer.mojo
 """
 
-from shared.core import AnyTensor, zeros, zeros_like
+from shared.tensor.any_tensor import AnyTensor, zeros, zeros_like
 from shared.core.linear import linear, linear_backward
 from shared.core.traits import (
     Differentiable,

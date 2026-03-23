@@ -14,7 +14,7 @@ Example:
     var img, label = transformed[0]  # Returns normalized image
 """
 
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.data._datasets_core import Dataset
 from shared.data.transforms import Transform
 

@@ -12,7 +12,7 @@ AnyTensor versions dispatch to typed implementations via ordinal-based table.
 from algorithm import parallelize
 from collections import List
 
-from .any_tensor import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from .arithmetic import add
 from .reduction import sum as reduce_sum
 from .shape import conv2d_output_shape, as_contiguous
@@ -1492,5 +1492,3 @@ fn depthwise_separable_conv2d_no_bias_backward(
         grad_depthwise_kernel^,
         grad_pointwise_kernel^,
     )
-
-

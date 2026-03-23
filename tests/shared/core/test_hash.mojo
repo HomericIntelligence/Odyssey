@@ -6,14 +6,7 @@ behavior for tensors containing NaN values.
 """
 
 from memory import UnsafePointer
-from shared.core import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    arange,
-    nan_tensor,
-)
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange, nan_tensor
 from tests.shared.conftest import (
     assert_equal_int,
 )

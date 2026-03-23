@@ -41,7 +41,7 @@ Functions:
 
 from math import isnan, isinf
 from collections.optional import Optional
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.testing.tolerance_constants import (
     TOLERANCE_DEFAULT,
     TOLERANCE_FLOAT32,

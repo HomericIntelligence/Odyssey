@@ -14,7 +14,7 @@ from tests.shared.conftest import (
     assert_equal,
     assert_true,
 )
-from shared.core.any_tensor import AnyTensor, ones, zeros, zeros_like
+from shared.tensor.any_tensor import AnyTensor, ones, zeros, zeros_like
 from shared.core.layers.linear import Linear
 
 

@@ -7,7 +7,7 @@ Split from test_shape.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
 # Import AnyTensor and operations
-from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
 from shared.core.shape import reshape, squeeze, unsqueeze, expand_dims, flatten, ravel
 
 # Import test helpers

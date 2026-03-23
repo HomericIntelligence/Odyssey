@@ -9,7 +9,7 @@ Split from test_edge_cases.mojo per ADR-009 (≤10 fn test_ functions per file).
 from math import isnan, isinf
 
 # Import AnyTensor and operations
-from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange, nan_tensor, inf_tensor, neg_inf_tensor
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange, nan_tensor, inf_tensor, neg_inf_tensor
 from shared.core.arithmetic import add, subtract, multiply, divide, floor_divide, modulo, power
 from shared.core.comparison import equal, not_equal, less, less_equal, greater, greater_equal
 

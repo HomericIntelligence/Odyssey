@@ -20,7 +20,7 @@ from testing import assert_true
 
 fn test_core_imports() raises:
     """Test core package imports work correctly."""
-    from shared.core import AnyTensor, zeros, ones, randn
+    from shared.tensor.any_tensor import AnyTensor, zeros, ones, randn
     from shared.core import relu, sigmoid, tanh, softmax, gelu
 
     # Test that functions are actually callable and work correctly
@@ -69,7 +69,8 @@ fn test_core_activations_imports() raises:
 
 fn test_core_types_imports() raises:
     """Test core types imports."""
-    from shared.core import AnyTensor, FP8, BF8
+    from shared.tensor.any_tensor import AnyTensor
+    from shared.core import FP8, BF8
 
     print("✓ Core types imports test passed")
 

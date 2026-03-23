@@ -10,7 +10,7 @@ Layer 3 (core): Tensor[dtype] native implementation via parametric kernels
 """
 
 from collections import List
-from .any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from .shape import as_contiguous
 from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
@@ -1252,5 +1252,3 @@ fn percentile_backward(
                 result._set_float64(upper_input_idx, fraction * grad_val)
 
     return result^
-
-

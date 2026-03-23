@@ -12,7 +12,7 @@ from shared.testing.assertions import (
     assert_tensor_equal,
     assert_not_equal_tensor,
 )
-from shared.core.any_tensor import ones, zeros, full
+from shared.tensor.any_tensor import ones, zeros, full
 
 
 fn test_assert_all_values_passes() raises:

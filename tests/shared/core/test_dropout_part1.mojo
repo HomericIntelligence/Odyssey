@@ -22,7 +22,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.dropout import (
     dropout,
     dropout2d,
@@ -242,7 +242,7 @@ fn test_dropout_backward_gradient() raises:
     fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         # Apply the same mask that was generated initially
         from shared.core.arithmetic import multiply
-        from shared.core.any_tensor import full_like
+        from shared.tensor.any_tensor import full_like
 
         var masked = multiply(x, mask)
         var scale = 1.0 / (1.0 - p)

@@ -4,7 +4,7 @@ This module provides a pure functional implementation of linear transformations,
 following the pattern y = xW^T + b. The caller manages all state (weights, bias).
 """
 
-from .any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from .matrix import matmul, transpose
 from .arithmetic import add
 from .reduction import sum

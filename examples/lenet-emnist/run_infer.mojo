@@ -21,7 +21,7 @@ from shared.data import (
     normalize_images,
     DatasetInfo,
 )
-from shared.core import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.utils.arg_parser import ArgumentParser
 from shared.training.metrics import top1_accuracy, AccuracyMetric
 from collections import List

@@ -33,7 +33,7 @@ Example:
     var start_epoch = ckpt_mgr.load_latest(model_params, param_names)
 """
 
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.training.model_utils import save_model_weights, load_model_weights
 from shared.utils.file_io import (
     create_directory,

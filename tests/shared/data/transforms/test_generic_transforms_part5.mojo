@@ -6,7 +6,7 @@
 Tests second part of sequential transforms and batch transforms.
 """
 
-from shared.core.any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from tests.shared.conftest import (
     assert_true,
     assert_equal,

@@ -33,8 +33,8 @@ from shared.training.trainer_interface import (
     TrainingMetrics,
 )
 from shared.training.metrics import ConfusionMatrix
-from shared.core.any_tensor import AnyTensor
-from shared.core import ones, zeros, randn
+from shared.tensor.any_tensor import AnyTensor
+from shared.tensor.any_tensor import ones, zeros, randn
 
 
 # ============================================================================

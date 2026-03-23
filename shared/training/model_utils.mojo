@@ -41,7 +41,7 @@ Example:
     ```
 """
 
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.utils.serialization import save_tensor, load_tensor
 from collections import List
 

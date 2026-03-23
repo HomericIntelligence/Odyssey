@@ -10,7 +10,7 @@ Tests cover:
 
 from testing import assert_true, assert_false, assert_almost_equal
 from shared.core.layers import DropoutLayer
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 
 
 fn test_dropout_init_valid() raises:

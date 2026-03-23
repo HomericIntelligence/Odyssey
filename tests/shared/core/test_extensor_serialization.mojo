@@ -9,7 +9,7 @@ Tests the save_tensor() and load_tensor() standalone functions for:
 Runs as: pixi run mojo ./tests/shared/core/test_extensor_serialization.mojo (legacy name)
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, ones, arange
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, arange
 from shared.utils.serialization import save_tensor, load_tensor
 
 

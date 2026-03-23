@@ -11,7 +11,7 @@ Note: Split into a dedicated file following ADR-009 pattern — heap corruption 
 ~15 cumulative tests in a single file in Mojo 0.26.1.
 """
 
-from shared.core.any_tensor import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 

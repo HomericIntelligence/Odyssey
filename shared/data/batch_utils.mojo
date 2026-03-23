@@ -4,7 +4,7 @@ This module provides utilities for extracting mini-batches from datasets
 for training and evaluation.
 """
 
-from shared.core import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 
 
 fn extract_batch(

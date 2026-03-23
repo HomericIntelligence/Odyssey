@@ -22,7 +22,7 @@ Tests cover:
 """
 
 from testing import assert_true, assert_almost_equal
-from shared.core.any_tensor import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.module import Module
 from shared.core.layers.linear import Linear
 from shared.core.layers.relu import ReLULayer

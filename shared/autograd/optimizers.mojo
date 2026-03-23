@@ -45,7 +45,8 @@ Design Note:
     - Gradient clipping by global norm
 """
 
-from shared.core import AnyTensor, subtract, multiply, divide, add, sqrt
+from shared.tensor.any_tensor import AnyTensor
+from shared.core import subtract, multiply, divide, add, sqrt
 from shared.autograd.variable import Variable
 from shared.autograd.tape import GradientTape
 from shared.autograd.functional import (

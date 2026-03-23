@@ -6,7 +6,7 @@ This file provides the AnyTensor public API only.
 """
 
 from collections import List
-from .any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
@@ -39,7 +39,7 @@ fn equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         A new boolean tensor containing a == b
 
     Raises:
-        Error if shapes are not broadcast-compatible or dtypes don't match
+        Error if shapes are not broadcast-compatible or dtypes don't match.
     """
     from shared.tensor.typed.comparison import _equal_dispatch
 
@@ -89,7 +89,7 @@ fn not_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         A new boolean tensor containing a != b
 
     Raises:
-        Error if shapes are not broadcast-compatible or dtypes don't match
+        Error if shapes are not broadcast-compatible or dtypes don't match.
     """
     from shared.tensor.typed.comparison import _not_equal_dispatch
 
@@ -138,7 +138,7 @@ fn less(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         A new boolean tensor containing a < b
 
     Raises:
-        Error if shapes are not broadcast-compatible or dtypes don't match
+        Error if shapes are not broadcast-compatible or dtypes don't match.
     """
     from shared.tensor.typed.comparison import _less_dispatch
 
@@ -187,7 +187,7 @@ fn less_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         A new boolean tensor containing a <= b
 
     Raises:
-        Error if shapes are not broadcast-compatible or dtypes don't match
+        Error if shapes are not broadcast-compatible or dtypes don't match.
     """
     from shared.tensor.typed.comparison import _less_equal_dispatch
 
@@ -236,7 +236,7 @@ fn greater(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         A new boolean tensor containing a > b
 
     Raises:
-        Error if shapes are not broadcast-compatible or dtypes don't match
+        Error if shapes are not broadcast-compatible or dtypes don't match.
     """
     from shared.tensor.typed.comparison import _greater_dispatch
 
@@ -285,7 +285,7 @@ fn greater_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         A new boolean tensor containing a >= b
 
     Raises:
-        Error if shapes are not broadcast-compatible or dtypes don't match
+        Error if shapes are not broadcast-compatible or dtypes don't match.
     """
     from shared.tensor.typed.comparison import _greater_equal_dispatch
 

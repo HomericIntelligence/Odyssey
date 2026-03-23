@@ -7,7 +7,7 @@ This example shows:
 4. Memory savings with FP8 (8-bit vs 32-bit)
 """
 
-from shared.core import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 
 
 fn main() raises:

@@ -34,7 +34,7 @@ Usage:
 See mixed precision training examples in examples/mixed_precision/
 """
 
-from shared.core import AnyTensor, full
+from shared.tensor.any_tensor import AnyTensor, full
 from shared.core import has_nan, has_inf
 from math import log2
 from algorithm import vectorize

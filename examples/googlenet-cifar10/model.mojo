@@ -19,9 +19,8 @@ References:
     https://arxiv.org/abs/1409.4842
 """
 
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.core import (
-    AnyTensor,
-    zeros,
     conv2d,
     maxpool2d,
     global_avgpool2d,

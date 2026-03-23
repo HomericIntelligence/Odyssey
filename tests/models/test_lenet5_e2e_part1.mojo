@@ -24,7 +24,7 @@ Note: Split from monolithic test file due to Mojo 0.26.1 heap corruption
 bug that occurs after ~15 cumulative tests. See Issue #2942.
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.conv import conv2d
 from shared.core.pooling import maxpool2d
 from shared.core.linear import linear

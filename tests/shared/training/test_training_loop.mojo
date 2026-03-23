@@ -32,8 +32,9 @@ from tests.shared.conftest import (
 )
 from shared.training import SGD, MSELoss, TrainingLoop
 from shared.training.trainer_interface import DataLoader
-from shared.core.any_tensor import AnyTensor
-from shared.core import ones, zeros, randn, subtract, multiply
+from shared.tensor.any_tensor import AnyTensor
+from shared.tensor.any_tensor import ones, zeros, randn
+from shared.core import subtract, multiply
 from shared.testing import SimpleMLP
 
 # TrainingLoop is generic with trait bounds for compile-time type safety.

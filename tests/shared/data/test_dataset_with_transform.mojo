@@ -11,7 +11,7 @@ from tests.shared.conftest import (
 )
 from shared.data import AnyTensorDataset, TransformedDataset
 from shared.data.transforms import Normalize
-from shared.core.any_tensor import AnyTensor, ones, zeros
+from shared.tensor.any_tensor import AnyTensor, ones, zeros
 from collections import List
 
 

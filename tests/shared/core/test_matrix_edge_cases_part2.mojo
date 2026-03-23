@@ -11,7 +11,7 @@ Tests edge cases for matmul including:
 """
 
 # Import AnyTensor and operations
-from shared.core.any_tensor import AnyTensor, zeros, ones, full, zeros_like, eye
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, zeros_like, eye
 from shared.core.matrix import matmul
 
 # Import test helpers

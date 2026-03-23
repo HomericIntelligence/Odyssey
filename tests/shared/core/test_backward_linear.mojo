@@ -8,7 +8,7 @@ from tests.shared.conftest import (
     assert_equal,
     assert_true,
 )
-from shared.core.any_tensor import AnyTensor, zeros, ones, ones_like
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, ones_like
 from shared.core.linear import linear, linear_backward
 from shared.testing import (
     check_gradient,

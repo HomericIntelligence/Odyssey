@@ -8,7 +8,7 @@ dimensions, consistent with the 1D __getitem__(Slice) overload.  These
 tests verify that step slicing produces correct shapes and values.
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, arange
+from shared.tensor.any_tensor import AnyTensor, zeros, arange
 from tests.shared.conftest import assert_true, assert_equal
 
 

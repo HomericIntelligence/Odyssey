@@ -47,10 +47,8 @@ Examples:
     print(x.grad)  # Chain rule: dLoss/dx
 """
 
+from shared.tensor.any_tensor import AnyTensor, ones_like, zeros_like
 from shared.core import (
-    AnyTensor,
-    ones_like,
-    zeros_like,
     add_backward,
     subtract_backward,
     multiply_backward,

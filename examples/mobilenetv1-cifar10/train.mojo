@@ -26,16 +26,14 @@ Training Details:
     - Epochs: 200 (recommended)
 """
 
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.core import (
-    AnyTensor,
-    zeros,
     conv2d,
     batch_norm2d,
     relu,
     linear,
     global_avgpool2d,
     cross_entropy,
-    # Backward functions
     conv2d_backward,
     batch_norm2d_backward,
     relu_backward,

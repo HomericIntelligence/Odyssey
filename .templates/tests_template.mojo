@@ -11,7 +11,7 @@ Do NOT remove these placeholders - they are required for code generation to work
 
 from testing import assert_equal, assert_true, assert_false
 from {{module_path}} import *
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 
 fn create_test_data() -> AnyTensor:

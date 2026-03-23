@@ -26,7 +26,7 @@ from shared.testing import (
     compute_numerical_gradient,
     assert_gradients_close,
 )
-from shared.core.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.normalization import (
     batch_norm2d,
     batch_norm2d_backward,

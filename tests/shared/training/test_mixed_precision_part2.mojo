@@ -7,7 +7,7 @@ Tests gradient finite checking, gradient clipping by value and norm,
 and basic FP16 tensor operations.
 """
 
-from shared.core.any_tensor import AnyTensor, full
+from shared.tensor.any_tensor import AnyTensor, full
 from shared.training.mixed_precision import (
     check_gradients_finite,
     clip_gradients_by_norm,

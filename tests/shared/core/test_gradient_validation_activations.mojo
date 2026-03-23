@@ -20,7 +20,7 @@ References:
 
 from shared.core.activation import relu, sigmoid
 from shared.core.activation import relu_backward, sigmoid_backward
-from shared.core.any_tensor import AnyTensor, full
+from shared.tensor.any_tensor import AnyTensor, full
 from shared.testing.gradient_checker import check_gradients
 from shared.testing.special_values import create_seeded_random_tensor
 from shared.testing.assertions import assert_true

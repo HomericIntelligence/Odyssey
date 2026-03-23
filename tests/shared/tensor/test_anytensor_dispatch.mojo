@@ -16,7 +16,7 @@ Tests cover:
 from testing import assert_true, assert_almost_equal
 from shared.tensor.tensor import Tensor
 from shared.tensor.factories import ones as typed_ones, full as typed_full
-from shared.core.any_tensor import (
+from shared.tensor.any_tensor import (
     AnyTensor,
     zeros as any_zeros,
     ones as any_ones,

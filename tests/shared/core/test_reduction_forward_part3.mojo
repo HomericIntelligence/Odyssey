@@ -9,7 +9,7 @@ min_reduce (all-elements) and sum/mean with axis parameter.
 """
 
 # Import AnyTensor and reduction operations
-from shared.core.any_tensor import AnyTensor, full, ones, zeros, arange
+from shared.tensor.any_tensor import AnyTensor, full, ones, zeros, arange
 from shared.core.reduction import sum, mean, max_reduce, min_reduce
 
 # Import test helpers

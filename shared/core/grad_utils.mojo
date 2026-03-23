@@ -29,7 +29,7 @@ References:
 """
 
 from math import sqrt
-from .any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 
 fn clip_grad_value_(mut grad: AnyTensor, max_value: Float64) raises:

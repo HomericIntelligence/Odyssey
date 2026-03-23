@@ -7,7 +7,7 @@ This file provides the AnyTensor public API only.
 
 from collections import List
 from math import nan
-from .any_tensor import AnyTensor, full
+from shared.tensor.any_tensor import AnyTensor, full
 from .gradient_types import GradientPair
 
 

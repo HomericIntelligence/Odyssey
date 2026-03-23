@@ -18,7 +18,7 @@ Example:
     ```
 """
 
-from .any_tensor import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 
 
 # ============================================================================

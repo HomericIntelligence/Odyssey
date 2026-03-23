@@ -19,7 +19,7 @@ Features:
 
 """
 
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.core.traits import Model
 from shared.data.batch_utils import extract_batch_pair, compute_num_batches
 from collections import List

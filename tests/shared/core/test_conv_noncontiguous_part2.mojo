@@ -21,7 +21,7 @@ from tests.shared.conftest import (
     assert_false,
     assert_true,
 )
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.conv import conv2d_backward, conv2d_no_bias_backward
 
 

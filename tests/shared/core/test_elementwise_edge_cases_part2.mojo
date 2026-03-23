@@ -12,7 +12,7 @@ Tests edge cases for log operations including:
 from math import isnan, isinf, log
 
 # Import AnyTensor and operations
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.elementwise import (
     log as log_op,
 )

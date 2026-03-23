@@ -19,7 +19,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.any_tensor import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.linear import linear, linear_no_bias
 from shared.core.activation import relu, sigmoid, tanh, softmax
 

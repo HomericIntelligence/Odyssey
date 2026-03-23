@@ -3,7 +3,7 @@
 # high test load. Split from test_anytensor_unary_ops.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """Tests for AnyTensor __abs__ operator and combined unary/binary operations."""
 
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 

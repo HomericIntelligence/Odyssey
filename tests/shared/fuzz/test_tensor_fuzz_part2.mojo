@@ -26,7 +26,7 @@ Note:
 from random import seed as random_seed
 from math import isnan, isinf
 
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.arithmetic import add, subtract, multiply, divide
 
 from shared.testing.fuzz_core import (

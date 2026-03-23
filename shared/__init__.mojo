@@ -75,7 +75,8 @@ from shared.core.module import Module
 # Sequential — only parametric variants exist (Sequential2, Sequential3, …)
 
 # Core tensors — AnyTensor is the canonical runtime-typed tensor.
-from shared.core.any_tensor import AnyTensor, zeros, ones, randn
+# Import directly: from shared.tensor.any_tensor import AnyTensor, zeros, ones, randn
+# NOT re-exported here to avoid circular imports.
 
 # Training optimizers — struct classes available via shared.autograd.optimizers
 

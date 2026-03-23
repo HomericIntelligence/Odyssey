@@ -33,7 +33,7 @@ from shared.testing import (
     compute_numerical_gradient,
     relative_error,
 )
-from shared.core import AnyTensor, zeros, ones, full, zeros_like
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, zeros_like
 
 
 # ============================================================================

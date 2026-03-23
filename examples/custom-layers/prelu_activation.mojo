@@ -11,7 +11,8 @@ Usage:
 See documentation: docs/advanced/custom-layers.md
 """
 
-from shared.core import AnyTensor, zeros, clip
+from shared.tensor.any_tensor import AnyTensor, zeros
+from shared.core import clip
 
 
 fn prelu_simple(input: AnyTensor, alpha: Float32) raises -> AnyTensor:

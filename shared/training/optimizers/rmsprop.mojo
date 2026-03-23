@@ -22,7 +22,7 @@ Reference:
     machine learning, 4(2), 26-31
 """
 
-from shared.core import AnyTensor, zeros, full_like, zeros_like
+from shared.tensor.any_tensor import AnyTensor, zeros, full_like, zeros_like
 from shared.core import subtract, multiply, add, divide, power
 from shared.core import sqrt
 

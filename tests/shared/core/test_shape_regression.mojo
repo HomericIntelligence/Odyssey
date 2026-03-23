@@ -15,7 +15,7 @@ Bugs tested:
 """
 
 # Import AnyTensor and shape operations
-from shared.core.any_tensor import AnyTensor, ones, zeros, arange
+from shared.tensor.any_tensor import AnyTensor, ones, zeros, arange
 from shared.core.shape import reshape, squeeze, unsqueeze, flatten, concatenate
 
 # Import test helpers

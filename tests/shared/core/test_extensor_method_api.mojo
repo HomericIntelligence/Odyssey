@@ -7,15 +7,8 @@ Verifies that the thin wrapper methods on AnyTensor produce identical results
 to the functional implementations in shared.core.shape. Follows #3243 and #3804.
 """
 
-from shared.core import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    arange,
-    split,
-    split_with_indices,
-)
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
+from shared.core import split, split_with_indices
 
 from tests.shared.conftest import (
     assert_numel,

@@ -8,7 +8,7 @@ Split from test_creation.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
 # Import AnyTensor and creation operations
-from shared.core.any_tensor import AnyTensor, eye, linspace
+from shared.tensor.any_tensor import AnyTensor, eye, linspace
 
 # Import test helpers
 from tests.shared.conftest import (

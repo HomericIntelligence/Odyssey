@@ -13,7 +13,7 @@ Tests edge cases for sqrt operations including:
 from math import isnan, isinf, sqrt
 
 # Import AnyTensor and operations
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.elementwise import (
     sqrt as sqrt_op,
 )

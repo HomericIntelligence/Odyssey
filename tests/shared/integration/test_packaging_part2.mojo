@@ -20,7 +20,7 @@ from testing import assert_true, assert_equal
 
 fn test_core_data_integration() raises:
     """Test integration between core and data modules."""
-    from shared.core import AnyTensor, zeros, ones
+    from shared.tensor.any_tensor import AnyTensor, zeros, ones
     from shared.data import AnyTensorDataset
 
     # Create tensors using core
@@ -46,7 +46,7 @@ fn test_training_data_integration() raises:
     """Test integration between training and data modules."""
     from shared.training import SGD
     from shared.data import AnyTensorDataset
-    from shared.core import zeros, ones
+    from shared.tensor.any_tensor import zeros, ones
 
     # Create simple dataset
     var data = zeros([10, 5], DType.float32)
@@ -75,7 +75,8 @@ fn test_training_data_integration() raises:
 
 fn test_complete_training_workflow() raises:
     """Test complete training workflow using all modules."""
-    from shared.core import zeros, ones, relu
+    from shared.tensor.any_tensor import zeros, ones
+    from shared.core import relu
     from shared.training import SGD, MSELoss
     from shared.data import AnyTensorDataset
     from shared.utils import Logger
@@ -115,7 +116,8 @@ fn test_paper_implementation_pattern() raises:
     """Test typical usage pattern from paper implementation."""
     # Simulates how a paper implementation would use the shared library
 
-    from shared.core import AnyTensor, zeros, conv2d, flatten, relu
+    from shared.tensor.any_tensor import AnyTensor, zeros
+    from shared.core import conv2d, flatten, relu
     from shared.training import (
         SGD,
         CosineAnnealingLR,

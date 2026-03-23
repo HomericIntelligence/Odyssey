@@ -21,7 +21,7 @@ from tests.shared.conftest import (
     assert_shape,
     assert_true,
 )
-from shared.core.any_tensor import AnyTensor, zeros, ones, full, randn
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, randn
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import maxpool2d, global_avgpool2d
 from shared.core.linear import linear

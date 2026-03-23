@@ -9,7 +9,7 @@ Stack trace shows crash at:
 #13 train::compute_gradients at line 127
 """
 
-from shared.core.any_tensor import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.core.loss import cross_entropy
 from testing import assert_raises
 

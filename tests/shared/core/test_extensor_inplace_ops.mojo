@@ -4,7 +4,7 @@ Note: Split from test_anytensor_operators.mojo due to Mojo 0.26.1 heap
 corruption bug that occurs after ~15 cumulative tests. See ADR-009.
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 

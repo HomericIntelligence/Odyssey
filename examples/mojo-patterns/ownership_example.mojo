@@ -8,7 +8,8 @@ Usage:
 See documentation: docs/core/mojo-patterns.md
 """
 
-from shared.core import AnyTensor, ones, sum, mean, multiply, item, full
+from shared.tensor.any_tensor import AnyTensor, ones, item, full
+from shared.core import sum, mean, multiply
 
 
 # Borrowed: read-only access (no ownership transfer)

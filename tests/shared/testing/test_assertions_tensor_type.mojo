@@ -13,7 +13,7 @@ from shared.testing.assertions import (
     assert_type,
     assert_not_equal_tensor,
 )
-from shared.core.any_tensor import ones, full
+from shared.tensor.any_tensor import ones, full
 
 
 fn test_assert_type_int() raises:

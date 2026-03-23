@@ -43,7 +43,7 @@ fn test_root_imports() raises:
     """Test root package convenience imports work."""
     # Root package doesn't re-export all components
     # Users should import from subpackages
-    from shared.core import AnyTensor
+    from shared.tensor.any_tensor import AnyTensor
     from shared.training import SGD
     from shared.utils import Logger
 

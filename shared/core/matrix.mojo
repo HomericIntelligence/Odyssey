@@ -18,7 +18,7 @@ Includes:
 
 from collections import List
 from memory import memcpy
-from .any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from .gradient_types import GradientPair
 from .shape import as_contiguous
 from shared.base.dtype_ordinal import (
@@ -1632,5 +1632,3 @@ fn transpose_backward(
 
     # Apply inverse permutation to gradient
     return transpose(grad_output, inverse_perm^)
-
-

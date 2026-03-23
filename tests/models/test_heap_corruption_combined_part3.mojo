@@ -7,7 +7,7 @@ Split from test_heap_corruption_combined.mojo (ADR-009).
 Contains 8 fn test_ functions (limit: 10).
 """
 
-from shared.core.any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.core.linear import linear
 from shared.testing.layer_params import LinearFixture
 from shared.testing.assertions import (

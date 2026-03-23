@@ -20,7 +20,7 @@ from shared.autograd.variable import (
     variable_subtract,
     variable_mean,
 )
-from shared.core.any_tensor import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
 
 
 fn simple_linear_regression() raises:

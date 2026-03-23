@@ -11,7 +11,7 @@ Tests cover:
 Following TDD principles - tests written before implementation.
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 

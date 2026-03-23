@@ -2,25 +2,9 @@
 
 Provides:
 - Tensor[dtype: DType]: Compile-time typed tensor with SIMD-like element access
+- AnyTensor: Runtime-typed tensor (import from shared.tensor.any_tensor)
 - TensorLike: Shared trait interface for all tensor types
-- Factory functions: zeros, ones, full, empty, arange, eye, linspace, randn, etc.
+- Factory functions: Available via shared.tensor.factories
 """
 
 from shared.tensor.tensor_traits import TensorLike
-from shared.tensor.tensor import Tensor
-from shared.tensor.factories import (
-    zeros,
-    ones,
-    full,
-    empty,
-    arange,
-    eye,
-    linspace,
-    randn,
-    zeros_like,
-    ones_like,
-    full_like,
-    nan_tensor,
-    inf_tensor,
-    neg_inf_tensor,
-)

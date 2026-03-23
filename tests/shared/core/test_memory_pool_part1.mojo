@@ -17,7 +17,7 @@ from shared.base.memory_pool import (
     pooled_alloc,
     pooled_free,
 )
-from shared.core.any_tensor import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 
 
 fn test_pool_default_init() raises:

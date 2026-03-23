@@ -26,7 +26,7 @@ References:
 
 from collections import List
 from memory import UnsafePointer
-from shared.core import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.data import (
     CIFAR10_IMAGE_SIZE,
     CIFAR10_CHANNELS,

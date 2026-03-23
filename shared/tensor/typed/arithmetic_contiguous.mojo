@@ -6,7 +6,7 @@ Internal module -- not part of the public API.
 from algorithm import vectorize
 from sys.info import simd_width_of
 from shared.tensor.tensor import Tensor
-from shared.core.any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 
 @always_inline

@@ -29,7 +29,7 @@ Usage:
     mojo run examples/resnet18-cifar10/train.mojo --epochs 200 --batch-size 128 --lr 0.01
 """
 
-from shared.core import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.loss import cross_entropy, cross_entropy_backward
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import avgpool2d, avgpool2d_backward

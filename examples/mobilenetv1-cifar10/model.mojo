@@ -19,9 +19,8 @@ References:
     https://arxiv.org/abs/1704.04861
 """
 
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.core import (
-    AnyTensor,
-    zeros,
     conv2d,
     batch_norm2d,
     relu,

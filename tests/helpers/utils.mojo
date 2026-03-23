@@ -3,7 +3,7 @@
 Provides utility functions for test setup, debugging, and validation.
 """
 
-from shared.core.any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 
 fn print_tensor(tensor: AnyTensor) -> String:

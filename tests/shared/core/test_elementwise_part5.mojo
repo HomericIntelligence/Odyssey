@@ -21,7 +21,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.elementwise import (
     abs,
     sign,

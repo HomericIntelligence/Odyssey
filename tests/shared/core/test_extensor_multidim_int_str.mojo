@@ -6,7 +6,7 @@ non-float dtypes, alongside integer formatting via _format_element().
 Related: issue #4048, issue #3376
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, full
+from shared.tensor.any_tensor import AnyTensor, zeros, full
 from tests.shared.conftest import assert_true
 
 

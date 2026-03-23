@@ -54,7 +54,7 @@ Note:
 
 Example:
    ```mojo
-    from shared.core.any_tensor import AnyTensor, zeros
+    from shared.tensor.any_tensor import AnyTensor, zeros
     from shared.core.linear import linear
     from shared.core.activation import relu
     from shared.core.matrix import matmul, transpose
@@ -157,30 +157,9 @@ from shared.core.optimizer_constants import (
 # ============================================================================
 # Core Tensor Type and Creation Functions
 # ============================================================================
-# AnyTensor implements the Hashable trait (__hash__),
-# allowing tensors to be used as dictionary keys or in hash-based data
-# structures via hash(tensor).
-
-from shared.core.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    empty,
-    arange,
-    eye,
-    linspace,
-    ones_like,
-    zeros_like,
-    full_like,
-    nan_tensor,
-    inf_tensor,
-    neg_inf_tensor,
-    clone,
-    item,
-    diff,
-    randn,
-)
+# AnyTensor and factory functions (zeros, ones, etc.) are now in shared.tensor.any_tensor.
+# Import directly: from shared.tensor.any_tensor import AnyTensor, zeros, ones
+# NOT re-exported here to avoid circular imports between shared.core and shared.tensor.
 
 # ============================================================================
 # Shape Manipulation Operations
@@ -708,17 +687,6 @@ from shared.core.grad_utils import (
 # ============================================================================
 # Tensor I/O (Save/Load) Utilities
 # ============================================================================
-# Defined in shared.core to avoid circular type resolution: any_tensor.mojo's
-# save/load methods use these functions, and they must be in the same package
-# to avoid cross-package AnyTensor type identity conflicts.
-
-from shared.core.tensor_io import (
-    save_tensor,
-    load_tensor,
-    load_tensor_with_name,
-    bytes_to_hex,
-    hex_to_bytes,
-    get_dtype_size,
-    parse_dtype,
-    dtype_to_string,
-)
+# Now in shared.tensor.tensor_io. Import directly:
+#   from shared.tensor.tensor_io import save_tensor, load_tensor
+# NOT re-exported here to avoid circular imports between shared.core and shared.tensor.

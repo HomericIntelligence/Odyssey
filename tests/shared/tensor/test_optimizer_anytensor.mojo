@@ -18,7 +18,7 @@ Tests cover:
 
 from testing import assert_true
 from tests.shared.conftest import assert_almost_equal
-from shared.core.any_tensor import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.autograd import Variable, GradientTape, SGD, Adam
 
 

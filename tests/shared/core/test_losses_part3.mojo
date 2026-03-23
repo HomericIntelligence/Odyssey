@@ -18,7 +18,7 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_close_float,
 )
-from shared.core.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.loss import smooth_l1_loss, smooth_l1_loss_backward
 from shared.core.loss import hinge_loss, hinge_loss_backward
 from shared.core.loss import focal_loss, focal_loss_backward

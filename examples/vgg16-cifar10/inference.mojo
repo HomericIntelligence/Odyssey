@@ -6,7 +6,7 @@ Usage:
     mojo run examples/vgg16-cifar10/inference.mojo --weights-dir vgg16_weights --data-dir datasets/cifar10
 """
 
-from shared.core import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.data.formats import load_cifar10_batch
 from shared.data.datasets import CIFAR10Dataset
 from shared.data import extract_batch_pair, DatasetInfo

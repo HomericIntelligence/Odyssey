@@ -8,7 +8,7 @@ Shared Modules Used:
 """
 
 from model import ResNet18
-from shared.core import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.utils.serialization import save_tensor, load_tensor
 from shared.data import DatasetInfo
 from collections import List

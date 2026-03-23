@@ -6,7 +6,7 @@
 Tests type conversion transforms and first part of sequential transforms.
 """
 
-from shared.core.any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from tests.shared.conftest import (
     assert_true,
     assert_equal,

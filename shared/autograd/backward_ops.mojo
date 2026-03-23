@@ -30,8 +30,8 @@ Example:
     # 3. Stores gradients in registry for the input variables
 """
 
+from shared.tensor.any_tensor import AnyTensor
 from shared.core import (
-    AnyTensor,
     add_backward,
     subtract_backward,
     multiply_backward,

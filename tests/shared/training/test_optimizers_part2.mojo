@@ -28,7 +28,7 @@ from tests.shared.conftest import (
     create_test_vector,
     TestFixtures,
 )
-from shared.core.any_tensor import AnyTensor, zeros, ones, zeros_like
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like
 from shared.training.optimizers.sgd import sgd_step, sgd_step_simple
 from shared.training.optimizers.adam import adam_step, adam_step_simple
 from shared.training.optimizers.adamw import adamw_step

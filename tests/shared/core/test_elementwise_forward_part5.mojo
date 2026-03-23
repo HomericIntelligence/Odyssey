@@ -6,7 +6,7 @@
 """
 
 # Import AnyTensor and operations
-from shared.core.any_tensor import ones, full, arange
+from shared.tensor.any_tensor import ones, full, arange
 from shared.core.elementwise import abs, sign, exp, log, sqrt, clip
 
 # Import test helpers

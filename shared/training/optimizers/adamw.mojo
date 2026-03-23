@@ -23,7 +23,7 @@ Reference:
     arXiv preprint arXiv:1711.05101
 """
 
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.core import subtract, multiply, add, divide, power
 from shared.core.arithmetic_simd import (
     subtract_simd,
@@ -32,7 +32,7 @@ from shared.core.arithmetic_simd import (
     divide_simd,
 )
 from shared.core import sqrt
-from shared.core import full_like, ones_like
+from shared.tensor.any_tensor import full_like, ones_like
 
 
 fn adamw_step(

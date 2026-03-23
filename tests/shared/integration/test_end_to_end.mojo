@@ -20,7 +20,7 @@ from tests.shared.conftest import (
     TestFixtures,
 )
 from shared.testing import SimpleMLP
-from shared.core.any_tensor import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.loss import mean_squared_error
 from shared.core.reduction import mean
 from shared.core.activation import softmax

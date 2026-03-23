@@ -24,7 +24,7 @@ Example:
         accumulate_gradient_inplace(accumulated_grad, grad)  # No allocation!
 """
 
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.core.types.dtype_aliases import BF16
 
 

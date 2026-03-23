@@ -9,7 +9,7 @@ and hash consistency for large and small float values.
 """
 
 # Import AnyTensor and operations
-from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange, clone, item, diff
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange, clone, item, diff
 from shared.core.shape import as_contiguous
 from shared.core.matrix import transpose_view
 

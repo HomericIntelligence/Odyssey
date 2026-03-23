@@ -9,7 +9,7 @@ mean (keepdims/dtype) and max_reduce (all-elements) with axis=-1.
 """
 
 # Import AnyTensor and reduction operations
-from shared.core.any_tensor import AnyTensor, full, ones, zeros, arange
+from shared.tensor.any_tensor import AnyTensor, full, ones, zeros, arange
 from shared.core.reduction import sum, mean, max_reduce, min_reduce
 
 # Import test helpers

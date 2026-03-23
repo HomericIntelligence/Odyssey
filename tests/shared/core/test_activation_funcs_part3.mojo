@@ -18,7 +18,7 @@ from tests.shared.conftest import (
     assert_less_or_equal,
     assert_true,
 )
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.activation import (
     relu,
     relu_backward,

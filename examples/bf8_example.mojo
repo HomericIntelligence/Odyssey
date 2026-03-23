@@ -8,7 +8,7 @@ This example shows:
 5. Comparing BF8 (E5M2) vs FP8 (E4M3) characteristics
 """
 
-from shared.core import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 
 
 fn main() raises:

@@ -17,7 +17,7 @@ from tests.shared.conftest import (
     assert_false,
     assert_true,
 )
-from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
 from shared.core.arithmetic import add, subtract, multiply, divide
 from shared.core.matrix import transpose_view
 from shared.core.shape import as_contiguous

@@ -7,7 +7,7 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_equal,
 )
-from shared.core.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import (
     maxpool2d,

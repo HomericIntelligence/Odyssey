@@ -11,13 +11,7 @@ Split per ADR-009 (≤10 fn test_ per file).
 """
 
 # Import AnyTensor and creation operations
-from shared.core import (
-    AnyTensor,
-    arange,
-    eye,
-    linspace,
-    randn,
-)
+from shared.tensor.any_tensor import AnyTensor, arange, eye, linspace, randn
 
 # Import test helpers
 from tests.shared.conftest import (

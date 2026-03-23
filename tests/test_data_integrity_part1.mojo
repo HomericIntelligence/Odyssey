@@ -15,7 +15,7 @@ Run with: `mojo test_data_integrity_part1.mojo`
 
 from collections import List
 from memory import UnsafePointer
-from shared.core.any_tensor import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from tests.shared.conftest import assert_equal_int, assert_true
 
 

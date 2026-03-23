@@ -10,7 +10,7 @@ See documentation: docs/advanced/custom-layers.md
 
 from shared.core.module import Module
 from shared.core.layers import Linear
-from shared.core.any_tensor import AnyTensor, randn
+from shared.tensor.any_tensor import AnyTensor, randn
 from shared.core.activation import softmax
 from shared.core.matrix import matmul, transpose
 

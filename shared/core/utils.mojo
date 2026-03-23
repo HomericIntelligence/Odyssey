@@ -10,7 +10,7 @@ All functions work with AnyTensor and follow the pure functional design pattern
 """
 
 from collections import List
-from .any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 
 fn argmax(tensor: AnyTensor) raises -> Int:

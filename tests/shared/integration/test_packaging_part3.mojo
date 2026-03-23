@@ -91,7 +91,8 @@ fn test_api_version_compatibility() raises:
 
 fn test_cross_module_computation() raises:
     """Test that components actually work together in real computations."""
-    from shared.core import zeros, ones, relu
+    from shared.tensor.any_tensor import zeros, ones
+    from shared.core import relu
     from shared.core.matrix import matmul
     from shared.training import SGD, MSELoss
     from shared.data import AnyTensorDataset
@@ -138,7 +139,7 @@ fn test_cross_module_computation() raises:
 
 fn test_tensor_operations_safety() raises:
     """Test that tensor operations handle edge cases safely."""
-    from shared.core import zeros, ones, full
+    from shared.tensor.any_tensor import zeros, ones, full
 
     # Test zero-sized tensors
     var empty_data = zeros([0, 5], DType.float32)
@@ -187,7 +188,7 @@ fn test_tensor_operations_safety() raises:
 
 fn test_error_propagation() raises:
     """Test that errors propagate correctly between modules."""
-    from shared.core import zeros
+    from shared.tensor.any_tensor import zeros
     from shared.training import SGD
     from shared.data import AnyTensorDataset
 
@@ -217,7 +218,8 @@ fn test_error_propagation() raises:
 
 fn test_integration_stress() raises:
     """Stress test with realistic deep learning workload."""
-    from shared.core import zeros, ones, relu
+    from shared.tensor.any_tensor import zeros, ones
+    from shared.core import relu
     from shared.core.matrix import matmul
     from shared.training import SGD, MSELoss
     from shared.data import AnyTensorDataset

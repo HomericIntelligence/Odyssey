@@ -47,8 +47,8 @@ from utils.numerics import inf as numeric_inf, neg_inf as numeric_neg_inf
 from random import random_float64, seed as random_seed
 from hashlib.hasher import Hasher
 from shared.base.memory_pool import pooled_alloc, pooled_free
-from shared.tensor.tensor import Tensor
-from shared.tensor.tensor_traits import TensorLike
+from .tensor import Tensor
+from .tensor_traits import TensorLike
 from shared.base.broadcasting import broadcast_shapes, compute_broadcast_strides, are_shapes_broadcastable
 from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
@@ -1657,9 +1657,12 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        from shared.core.arithmetic import add
 
-        return add(self, other)
+        @always_inline
+        fn _add[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x + y
+
+        return _anytensor_binary_op[_add](self, other)
 
     fn __sub__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise subtraction: a - b.
@@ -1673,9 +1676,12 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        from shared.core.arithmetic import subtract
 
-        return subtract(self, other)
+        @always_inline
+        fn _sub[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x - y
+
+        return _anytensor_binary_op[_sub](self, other)
 
     fn __mul__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise multiplication: a * b.
@@ -1689,9 +1695,12 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        from shared.core.arithmetic import multiply
 
-        return multiply(self, other)
+        @always_inline
+        fn _mul[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x * y
+
+        return _anytensor_binary_op[_mul](self, other)
 
     fn __truediv__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise division: a / b.
@@ -1706,9 +1715,12 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes or division by zero.
 
         """
-        from shared.core.arithmetic import divide
 
-        return divide(self, other)
+        @always_inline
+        fn _div[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x / y
+
+        return _anytensor_binary_op[_div](self, other)
 
     fn __floordiv__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise floor division: a // b.
@@ -1722,9 +1734,12 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes or division by zero.
         """
-        from shared.core.arithmetic import floor_divide
 
-        return floor_divide(self, other)
+        @always_inline
+        fn _floordiv[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x // y
+
+        return _anytensor_binary_op[_floordiv](self, other)
 
     fn __mod__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise modulo: a % b.
@@ -1738,9 +1753,12 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        from shared.core.arithmetic import modulo
 
-        return modulo(self, other)
+        @always_inline
+        fn _mod[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x % y
+
+        return _anytensor_binary_op[_mod](self, other)
 
     fn __pow__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise power: a ** b.
@@ -1754,9 +1772,12 @@ struct AnyTensor(
         Raises:
             Error: If tensors have incompatible shapes.
         """
-        from shared.core.arithmetic import power
 
-        return power(self, other)
+        @always_inline
+        fn _pow[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            return x ** y
+
+        return _anytensor_binary_op[_pow](self, other)
 
     fn __matmul__(self, other: AnyTensor) raises -> AnyTensor:
         """Matrix multiplication: a @ b.
@@ -1916,7 +1937,7 @@ struct AnyTensor(
             are clamped. This is useful for memory-efficient training/inference.
             FP16 inputs are converted to FP32 before quantization.
         """
-        from .types.dtype_aliases import FP8
+        from shared.core.types.dtype_aliases import FP8
         from memory import bitcast
 
         # Verify source is floating point
@@ -1977,7 +1998,7 @@ struct AnyTensor(
             This assumes the uint8 tensor contains valid FP8 E4M3 encoded values.
             Use this to decode tensors created by to_fp8().
         """
-        from .types.dtype_aliases import FP8
+        from shared.core.types.dtype_aliases import FP8
         from memory import bitcast
 
         # Verify source is uint8
@@ -2470,7 +2491,7 @@ struct AnyTensor(
             training/inference where range is more important than precision.
             FP16 inputs are converted to FP32 before quantization.
         """
-        from .types.dtype_aliases import BF8
+        from shared.core.types.dtype_aliases import BF8
         from memory import bitcast
 
         # Verify source is floating point
@@ -2527,7 +2548,7 @@ struct AnyTensor(
             This assumes the uint8 tensor contains valid BF8 E5M2 encoded values.
             Use this to decode tensors created by to_bf8().
         """
-        from .types.dtype_aliases import BF8
+        from shared.core.types.dtype_aliases import BF8
         from memory import bitcast
 
         # Verify source is uint8
@@ -2614,7 +2635,7 @@ struct AnyTensor(
             Memory efficiency: 17 bytes per 32 Float32 values (16:1 compression).
             FP16 inputs are converted to FP32 before quantization.
         """
-        from .types.mxfp4 import MXFP4Block
+        from shared.core.types.mxfp4 import MXFP4Block
 
         # Verify source is floating point
         if not (
@@ -2702,8 +2723,8 @@ struct AnyTensor(
             Use this to decode tensors created by to_mxfp4().
             Original tensor size is restored from metadata if available.
         """
-        from .types.mxfp4 import MXFP4Block
-        from .types.dtype_aliases import E8M0
+        from shared.core.types.mxfp4 import MXFP4Block
+        from shared.core.types.dtype_aliases import E8M0
 
         # Verify source is uint8
         if self._dtype != DType.uint8:
@@ -2828,7 +2849,7 @@ struct AnyTensor(
                 Memory efficiency: 9 bytes per 16 Float32 values (14:1 compression).
                 FP16 inputs are converted to FP32 before quantization.
         """
-        from .types.nvfp4 import NVFP4Block
+        from shared.core.types.nvfp4 import NVFP4Block
 
         # Verify source is floating point
         if not (
@@ -2918,8 +2939,8 @@ struct AnyTensor(
                 Use this to decode tensors created by to_nvfp4().
                 Original tensor size is restored from metadata if available.
         """
-        from .types.nvfp4 import NVFP4Block
-        from .types.dtype_aliases import FP8
+        from shared.core.types.nvfp4 import NVFP4Block
+        from shared.core.types.dtype_aliases import FP8
 
         # Verify source is uint8
         if self._dtype != DType.uint8:
@@ -2992,9 +3013,7 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes.
 
         """
-        from shared.core.arithmetic import subtract
-
-        return subtract(other, self)
+        return other - self
 
     fn __rmul__(self, other: AnyTensor) raises -> AnyTensor:
         """Reflected multiplication: other * self (commutative, so same as __mul__).
@@ -3012,9 +3031,7 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes or division by zero.
 
         """
-        from shared.core.arithmetic import divide
-
-        return divide(other, self)
+        return other / self
 
     # In-place operators - mutate self instead of creating new tensor
     fn __iadd__(mut self, other: AnyTensor) raises:
@@ -3024,9 +3041,7 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes or dtypes.
 
         """
-        from shared.core.arithmetic import add
-
-        self = add(self, other)
+        self = self + other
 
     fn __isub__(mut self, other: AnyTensor) raises:
         """In-place subtraction: `self -= other`.
@@ -3035,9 +3050,7 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes or dtypes.
 
         """
-        from shared.core.arithmetic import subtract
-
-        self = subtract(self, other)
+        self = self - other
 
     fn __imul__(mut self, other: AnyTensor) raises:
         """In-place multiplication: `self *= other`.
@@ -3046,9 +3059,7 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes or dtypes.
 
         """
-        from shared.core.arithmetic import multiply
-
-        self = multiply(self, other)
+        self = self * other
 
     fn __itruediv__(mut self, other: AnyTensor) raises:
         """In-place division: `self /= other`.
@@ -3057,9 +3068,7 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes or dtypes, or division by zero.
 
         """
-        from shared.core.arithmetic import divide
-
-        self = divide(self, other)
+        self = self / other
 
     # Unary operators - operate on single tensor
     fn __neg__(self) raises -> AnyTensor:
@@ -3069,9 +3078,12 @@ struct AnyTensor(
             Error: If tensor allocation fails.
 
         """
-        from shared.core.elementwise import negate
 
-        return negate(self)
+        @always_inline
+        fn _neg[T: DType](x: Scalar[T]) -> Scalar[T]:
+            return -x
+
+        return _anytensor_unary_op[_neg](self)
 
     fn __pos__(self) raises -> AnyTensor:
         """Positive: +self (returns a copy).
@@ -3091,9 +3103,14 @@ struct AnyTensor(
             Error: If operation fails.
 
         """
-        from shared.core.elementwise import abs
 
-        return abs(self)
+        @always_inline
+        fn _abs[T: DType](x: Scalar[T]) -> Scalar[T]:
+            if x < Scalar[T](0):
+                return -x
+            return x
+
+        return _anytensor_unary_op[_abs](self)
 
     fn __len__(self) -> Int:
         """Return the size of the first dimension.
@@ -3319,10 +3336,9 @@ struct AnyTensor(
         Creates a Tensor[dtype] that shares the same data buffer and refcount.
         The dtype parameter must match self._dtype at runtime.
 
-        Uses a function-scoped import to break the circular dependency
-        (any_tensor.mojo <- tensor.mojo <- any_tensor.mojo).
+        Both files are siblings in shared/tensor/, so no circular dependency.
 
-        Args:
+        Parameters:
             dtype: The compile-time DType parameter (must match self._dtype).
 
         Returns:
@@ -3597,9 +3613,28 @@ struct AnyTensor(
             var parts = a.split(3)  # 3 parts of size 4 each
         ```
         """
-        from .shape import split as split_fn
-
-        return split_fn(self, num_splits, axis)
+        if num_splits <= 0:
+            raise Error("split: num_splits must be positive, got " + String(num_splits))
+        if axis < 0 or axis >= len(self._shape):
+            raise Error(
+                "split: axis " + String(axis) + " out of range for "
+                + String(len(self._shape)) + "-D tensor"
+            )
+        var dim_size = self._shape[axis]
+        if dim_size % num_splits != 0:
+            raise Error(
+                "split: dimension " + String(dim_size)
+                + " not divisible by " + String(num_splits)
+            )
+        var chunk_size = dim_size // num_splits
+        var parts = List[AnyTensor]()
+        for i in range(num_splits):
+            var start = i * chunk_size
+            var end = start + chunk_size
+            # slice returns a view; clone to get independent memory
+            var part = self.slice(start, end, axis).clone()
+            parts.append(part^)
+        return parts^
 
     fn split_with_indices(
         self, split_indices: List[Int], axis: Int = 0
@@ -3631,9 +3666,30 @@ struct AnyTensor(
             # parts[2].shape() = (3,)  # indices 7-9
         ```
         """
-        from .shape import split_with_indices as split_with_indices_fn
-
-        return split_with_indices_fn(self, split_indices, axis)
+        if axis < 0 or axis >= len(self._shape):
+            raise Error(
+                "split_with_indices: axis " + String(axis)
+                + " out of range for " + String(len(self._shape)) + "-D tensor"
+            )
+        var dim_size = self._shape[axis]
+        var parts = List[AnyTensor]()
+        var prev = 0
+        for i in range(len(split_indices)):
+            var idx = split_indices[i]
+            if idx < prev or idx > dim_size:
+                raise Error(
+                    "split_with_indices: index " + String(idx)
+                    + " out of bounds or unordered"
+                )
+            if idx > prev:
+                var part = self.slice(prev, idx, axis).clone()
+                parts.append(part^)
+            prev = idx
+        # Final segment from last index to end
+        if prev < dim_size:
+            var part = self.slice(prev, dim_size, axis).clone()
+            parts.append(part^)
+        return parts^
 
     fn broadcast_to(self, target_shape: List[Int]) raises -> AnyTensor:
         """Broadcast tensor to target shape.
@@ -3681,12 +3737,120 @@ struct AnyTensor(
 # ============================================================================
 # Private Broadcasting Helpers
 # ============================================================================
-# Comparison helper implements element-wise comparison with NumPy-style
-# broadcasting for use by AnyTensor's comparison overloads (__eq__, __lt__, etc.).
-# Defined here (rather than in comparison.mojo) to break the circular import
-# chain: any_tensor <- comparison <- any_tensor. Arithmetic operators now
-# delegate to shared.core.arithmetic via local-scope imports.
+# Binary, unary, and comparison helpers implement element-wise operations with
+# NumPy-style broadcasting for use by AnyTensor's operator overloads.
+# Defined here (rather than in arithmetic/comparison modules) to break circular
+# import chains. Both files are now siblings in shared/tensor/.
 # See Issue #4513.
+
+
+fn _anytensor_binary_op[
+    op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+    """Apply a compile-time-typed binary arithmetic op with broadcasting."""
+    if a._dtype != b._dtype:
+        raise Error("Cannot operate on tensors with different dtypes")
+
+    var result_shape = broadcast_shapes(a.shape(), b.shape())
+    var strides_a = compute_broadcast_strides(a.shape(), result_shape)
+    var strides_b = compute_broadcast_strides(b.shape(), result_shape)
+
+    var total_elems = 1
+    for i in range(len(result_shape)):
+        total_elems *= result_shape[i]
+
+    var result = AnyTensor(result_shape, a._dtype)
+    var ordinal = dtype_to_ordinal(a._dtype)
+
+    @parameter
+    fn _apply[dtype: DType]():
+        var a_ptr = a._data.bitcast[Scalar[dtype]]()
+        var b_ptr = b._data.bitcast[Scalar[dtype]]()
+        var r_ptr = result._data.bitcast[Scalar[dtype]]()
+        var result_strides = List[Int]()
+        var s = 1
+        for i in range(len(result_shape) - 1, -1, -1):
+            result_strides.append(s)
+            s *= result_shape[i]
+        var result_strides_final = List[Int]()
+        for i in range(len(result_strides) - 1, -1, -1):
+            result_strides_final.append(result_strides[i])
+        for result_idx in range(total_elems):
+            var idx_a = 0
+            var idx_b = 0
+            var remaining = result_idx
+            for d in range(len(result_shape) - 1, -1, -1):
+                var coord = remaining % result_shape[d]
+                remaining //= result_shape[d]
+                idx_a += coord * strides_a[d]
+                idx_b += coord * strides_b[d]
+            r_ptr[result_idx] = op[dtype](a_ptr[idx_a], b_ptr[idx_b])
+
+    if ordinal == DTYPE_FLOAT16:
+        _apply[DType.float16]()
+    elif ordinal == DTYPE_FLOAT32:
+        _apply[DType.float32]()
+    elif ordinal == DTYPE_FLOAT64:
+        _apply[DType.float64]()
+    elif ordinal == DTYPE_INT8:
+        _apply[DType.int8]()
+    elif ordinal == DTYPE_INT16:
+        _apply[DType.int16]()
+    elif ordinal == DTYPE_INT32:
+        _apply[DType.int32]()
+    elif ordinal == DTYPE_INT64:
+        _apply[DType.int64]()
+    elif ordinal == DTYPE_UINT8:
+        _apply[DType.uint8]()
+    elif ordinal == DTYPE_UINT16:
+        _apply[DType.uint16]()
+    elif ordinal == DTYPE_UINT32:
+        _apply[DType.uint32]()
+    elif ordinal == DTYPE_UINT64:
+        _apply[DType.uint64]()
+
+    return result^
+
+
+fn _anytensor_unary_op[
+    op: fn[T: DType] (Scalar[T]) -> Scalar[T]
+](tensor: AnyTensor) raises -> AnyTensor:
+    """Apply a compile-time-typed unary op element-wise."""
+    var shape = tensor.shape()
+    var result = AnyTensor(shape, tensor._dtype)
+    var ordinal = dtype_to_ordinal(tensor._dtype)
+
+    @parameter
+    fn _apply[dtype: DType]():
+        var src_ptr = tensor._data.bitcast[Scalar[dtype]]()
+        var dst_ptr = result._data.bitcast[Scalar[dtype]]()
+        for i in range(tensor._numel):
+            dst_ptr[i] = op[dtype](src_ptr[i])
+
+    if ordinal == DTYPE_FLOAT16:
+        _apply[DType.float16]()
+    elif ordinal == DTYPE_FLOAT32:
+        _apply[DType.float32]()
+    elif ordinal == DTYPE_FLOAT64:
+        _apply[DType.float64]()
+    elif ordinal == DTYPE_INT8:
+        _apply[DType.int8]()
+    elif ordinal == DTYPE_INT16:
+        _apply[DType.int16]()
+    elif ordinal == DTYPE_INT32:
+        _apply[DType.int32]()
+    elif ordinal == DTYPE_INT64:
+        _apply[DType.int64]()
+    elif ordinal == DTYPE_UINT8:
+        _apply[DType.uint8]()
+    elif ordinal == DTYPE_UINT16:
+        _apply[DType.uint16]()
+    elif ordinal == DTYPE_UINT32:
+        _apply[DType.uint32]()
+    elif ordinal == DTYPE_UINT64:
+        _apply[DType.uint64]()
+
+    return result^
 
 
 fn _anytensor_compare_op[

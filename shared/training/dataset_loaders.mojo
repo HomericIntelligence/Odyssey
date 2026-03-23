@@ -20,8 +20,8 @@ Note:
     file I/O which is limited in the current Mojo version.
 """
 
-from shared.core import AnyTensor
-from shared.core import zeros
+from shared.tensor.any_tensor import AnyTensor
+from shared.tensor.any_tensor import zeros
 
 
 struct DatasetSplit(Copyable, Movable):

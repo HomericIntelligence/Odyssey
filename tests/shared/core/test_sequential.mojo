@@ -13,7 +13,7 @@ Design Note:
 """
 
 from shared.core.module import Module
-from shared.core.any_tensor import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.sequential import Sequential2, Sequential3
 from tests.shared.conftest import (
     assert_true,

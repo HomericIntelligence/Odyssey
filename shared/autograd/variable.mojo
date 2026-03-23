@@ -36,7 +36,7 @@ Examples:
     print(tape.get_grad(y.id))  # dLoss/dy
 """
 
-from shared.core import AnyTensor, ones_like, zeros_like
+from shared.tensor.any_tensor import AnyTensor, ones_like, zeros_like
 from shared.core import add, subtract, multiply, divide
 from shared.core import relu, sigmoid, tanh
 from shared.core import sum, mean

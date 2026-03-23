@@ -16,7 +16,7 @@ from tests.shared.conftest import (
     assert_equal_int,
     assert_false,
 )
-from shared.core.any_tensor import AnyTensor, zeros, arange
+from shared.tensor.any_tensor import AnyTensor, zeros, arange
 from shared.core.reduction import max_reduce, min_reduce
 from shared.core.matrix import transpose_view
 

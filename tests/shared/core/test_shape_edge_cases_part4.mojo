@@ -11,7 +11,7 @@ Tests edge cases for stack operations and dimension preservation including:
 """
 
 # Import AnyTensor and operations
-from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
 from shared.core.shape import reshape, squeeze, unsqueeze, concatenate, stack
 
 # Import test helpers

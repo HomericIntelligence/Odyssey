@@ -5,7 +5,7 @@ Internal module -- not part of the public API.
 
 from collections import List
 from shared.tensor.tensor import Tensor
-from shared.core.any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 
 fn _extract_quadrants_typed[

@@ -5,7 +5,7 @@ Internal module -- not part of the public API.
 
 from collections import List
 from shared.tensor.tensor import Tensor
-from shared.core.any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.base.broadcasting import broadcast_shapes, compute_broadcast_strides
 from shared.core.shape import as_contiguous
 from shared.base.dtype_ordinal import (

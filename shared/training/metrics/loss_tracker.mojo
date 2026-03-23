@@ -16,7 +16,7 @@ Issues covered:
 from collections import List
 from math import sqrt
 from shared.training.metrics.base import Metric
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 # min and max are now builtins in Mojo - no import needed
 
