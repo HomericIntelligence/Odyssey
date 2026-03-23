@@ -1,19 +1,12 @@
-"""Comparison operations with native Tensor[dtype] implementations.
+"""Comparison operations for AnyTensor.
 
 Implements element-wise comparison operations following NumPy-style broadcasting.
-
-Architecture: Tensor[dtype] typed implementations are the core (zero dtype branches).
-AnyTensor versions dispatch to typed implementations via ordinal-based table.
-
-Layer 1 (outer): AnyTensor public API (equal, less, greater, etc.)
-Layer 2: dtype dispatch table (ordinal-based)
-Layer 3 (core): Tensor[dtype] native implementation
+Typed Tensor[dtype] implementations live in shared/tensor/typed/comparison.mojo.
+This file provides the AnyTensor public API only.
 """
 
 from collections import List
 from .any_tensor import AnyTensor
-from shared.tensor.tensor import Tensor
-from shared.base.broadcasting import broadcast_shapes, compute_broadcast_strides
 from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
@@ -31,371 +24,12 @@ from shared.base.dtype_ordinal import (
 
 
 # ============================================================================
-# Layer 3 (Core): Native Tensor[dtype] Comparison Implementations
-# ============================================================================
-# Each comparison op has its own typed core function that uses Tensor[dtype]._data
-# directly -- zero bitcasts, zero dtype branches.
-
-
-fn _equal_typed[
-    dtype: DType
-](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[DType.bool]:
-    """Element-wise equality on native Tensor[dtype] (core).
-
-    Parameters:
-        dtype: Compile-time dtype parameter.
-
-    Args:
-        a: First typed tensor.
-        b: Second typed tensor.
-
-    Returns:
-        Boolean result tensor.
-    """
-    var a_shape = a.shape()
-    var b_shape = b.shape()
-    var result_shape = broadcast_shapes(a_shape, b_shape)
-    var result = Tensor[DType.bool](result_shape)
-
-    var strides_a = compute_broadcast_strides(a_shape, result_shape)
-    var strides_b = compute_broadcast_strides(b_shape, result_shape)
-
-    var total_elems = 1
-    for i in range(len(result_shape)):
-        total_elems *= result_shape[i]
-
-    var a_ptr = a._data
-    var b_ptr = b._data
-    var out_ptr = result._data
-
-    for result_idx in range(total_elems):
-        var remaining = result_idx
-        var idx_a = 0
-        var idx_b = 0
-        for d in range(len(result_shape) - 1, -1, -1):
-            var coord = remaining % result_shape[d]
-            remaining //= result_shape[d]
-            idx_a += coord * strides_a[d]
-            idx_b += coord * strides_b[d]
-
-        out_ptr[result_idx] = a_ptr[idx_a] == b_ptr[idx_b]
-
-    return result^
-
-
-fn _not_equal_typed[
-    dtype: DType
-](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[DType.bool]:
-    """Element-wise inequality on native Tensor[dtype] (core).
-
-    Parameters:
-        dtype: Compile-time dtype parameter.
-
-    Args:
-        a: First typed tensor.
-        b: Second typed tensor.
-
-    Returns:
-        Boolean result tensor.
-    """
-    var a_shape = a.shape()
-    var b_shape = b.shape()
-    var result_shape = broadcast_shapes(a_shape, b_shape)
-    var result = Tensor[DType.bool](result_shape)
-
-    var strides_a = compute_broadcast_strides(a_shape, result_shape)
-    var strides_b = compute_broadcast_strides(b_shape, result_shape)
-
-    var total_elems = 1
-    for i in range(len(result_shape)):
-        total_elems *= result_shape[i]
-
-    var a_ptr = a._data
-    var b_ptr = b._data
-    var out_ptr = result._data
-
-    for result_idx in range(total_elems):
-        var remaining = result_idx
-        var idx_a = 0
-        var idx_b = 0
-        for d in range(len(result_shape) - 1, -1, -1):
-            var coord = remaining % result_shape[d]
-            remaining //= result_shape[d]
-            idx_a += coord * strides_a[d]
-            idx_b += coord * strides_b[d]
-
-        out_ptr[result_idx] = a_ptr[idx_a] != b_ptr[idx_b]
-
-    return result^
-
-
-fn _less_typed[
-    dtype: DType
-](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[DType.bool]:
-    """Element-wise less-than on native Tensor[dtype] (core).
-
-    Parameters:
-        dtype: Compile-time dtype parameter.
-
-    Args:
-        a: First typed tensor.
-        b: Second typed tensor.
-
-    Returns:
-        Boolean result tensor.
-    """
-    var a_shape = a.shape()
-    var b_shape = b.shape()
-    var result_shape = broadcast_shapes(a_shape, b_shape)
-    var result = Tensor[DType.bool](result_shape)
-
-    var strides_a = compute_broadcast_strides(a_shape, result_shape)
-    var strides_b = compute_broadcast_strides(b_shape, result_shape)
-
-    var total_elems = 1
-    for i in range(len(result_shape)):
-        total_elems *= result_shape[i]
-
-    var a_ptr = a._data
-    var b_ptr = b._data
-    var out_ptr = result._data
-
-    for result_idx in range(total_elems):
-        var remaining = result_idx
-        var idx_a = 0
-        var idx_b = 0
-        for d in range(len(result_shape) - 1, -1, -1):
-            var coord = remaining % result_shape[d]
-            remaining //= result_shape[d]
-            idx_a += coord * strides_a[d]
-            idx_b += coord * strides_b[d]
-
-        out_ptr[result_idx] = a_ptr[idx_a] < b_ptr[idx_b]
-
-    return result^
-
-
-fn _less_equal_typed[
-    dtype: DType
-](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[DType.bool]:
-    """Element-wise less-equal on native Tensor[dtype] (core).
-
-    Parameters:
-        dtype: Compile-time dtype parameter.
-
-    Args:
-        a: First typed tensor.
-        b: Second typed tensor.
-
-    Returns:
-        Boolean result tensor.
-    """
-    var a_shape = a.shape()
-    var b_shape = b.shape()
-    var result_shape = broadcast_shapes(a_shape, b_shape)
-    var result = Tensor[DType.bool](result_shape)
-
-    var strides_a = compute_broadcast_strides(a_shape, result_shape)
-    var strides_b = compute_broadcast_strides(b_shape, result_shape)
-
-    var total_elems = 1
-    for i in range(len(result_shape)):
-        total_elems *= result_shape[i]
-
-    var a_ptr = a._data
-    var b_ptr = b._data
-    var out_ptr = result._data
-
-    for result_idx in range(total_elems):
-        var remaining = result_idx
-        var idx_a = 0
-        var idx_b = 0
-        for d in range(len(result_shape) - 1, -1, -1):
-            var coord = remaining % result_shape[d]
-            remaining //= result_shape[d]
-            idx_a += coord * strides_a[d]
-            idx_b += coord * strides_b[d]
-
-        out_ptr[result_idx] = a_ptr[idx_a] <= b_ptr[idx_b]
-
-    return result^
-
-
-fn _greater_typed[
-    dtype: DType
-](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[DType.bool]:
-    """Element-wise greater-than on native Tensor[dtype] (core).
-
-    Parameters:
-        dtype: Compile-time dtype parameter.
-
-    Args:
-        a: First typed tensor.
-        b: Second typed tensor.
-
-    Returns:
-        Boolean result tensor.
-    """
-    var a_shape = a.shape()
-    var b_shape = b.shape()
-    var result_shape = broadcast_shapes(a_shape, b_shape)
-    var result = Tensor[DType.bool](result_shape)
-
-    var strides_a = compute_broadcast_strides(a_shape, result_shape)
-    var strides_b = compute_broadcast_strides(b_shape, result_shape)
-
-    var total_elems = 1
-    for i in range(len(result_shape)):
-        total_elems *= result_shape[i]
-
-    var a_ptr = a._data
-    var b_ptr = b._data
-    var out_ptr = result._data
-
-    for result_idx in range(total_elems):
-        var remaining = result_idx
-        var idx_a = 0
-        var idx_b = 0
-        for d in range(len(result_shape) - 1, -1, -1):
-            var coord = remaining % result_shape[d]
-            remaining //= result_shape[d]
-            idx_a += coord * strides_a[d]
-            idx_b += coord * strides_b[d]
-
-        out_ptr[result_idx] = a_ptr[idx_a] > b_ptr[idx_b]
-
-    return result^
-
-
-fn _greater_equal_typed[
-    dtype: DType
-](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[DType.bool]:
-    """Element-wise greater-equal on native Tensor[dtype] (core).
-
-    Parameters:
-        dtype: Compile-time dtype parameter.
-
-    Args:
-        a: First typed tensor.
-        b: Second typed tensor.
-
-    Returns:
-        Boolean result tensor.
-    """
-    var a_shape = a.shape()
-    var b_shape = b.shape()
-    var result_shape = broadcast_shapes(a_shape, b_shape)
-    var result = Tensor[DType.bool](result_shape)
-
-    var strides_a = compute_broadcast_strides(a_shape, result_shape)
-    var strides_b = compute_broadcast_strides(b_shape, result_shape)
-
-    var total_elems = 1
-    for i in range(len(result_shape)):
-        total_elems *= result_shape[i]
-
-    var a_ptr = a._data
-    var b_ptr = b._data
-    var out_ptr = result._data
-
-    for result_idx in range(total_elems):
-        var remaining = result_idx
-        var idx_a = 0
-        var idx_b = 0
-        for d in range(len(result_shape) - 1, -1, -1):
-            var coord = remaining % result_shape[d]
-            remaining //= result_shape[d]
-            idx_a += coord * strides_a[d]
-            idx_b += coord * strides_b[d]
-
-        out_ptr[result_idx] = a_ptr[idx_a] >= b_ptr[idx_b]
-
-    return result^
-
-
-# ============================================================================
-# Layer 2: AnyTensor dispatch helpers (as_tensor -> typed core -> as_any)
-# ============================================================================
-
-
-fn _equal_dispatch[
-    dtype: DType
-](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
-    return _equal_typed[dtype](
-        a.as_tensor[dtype](), b.as_tensor[dtype]()
-    ).as_any()
-
-
-fn _not_equal_dispatch[
-    dtype: DType
-](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
-    return _not_equal_typed[dtype](
-        a.as_tensor[dtype](), b.as_tensor[dtype]()
-    ).as_any()
-
-
-fn _less_dispatch[
-    dtype: DType
-](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
-    return _less_typed[dtype](
-        a.as_tensor[dtype](), b.as_tensor[dtype]()
-    ).as_any()
-
-
-fn _less_equal_dispatch[
-    dtype: DType
-](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
-    return _less_equal_typed[dtype](
-        a.as_tensor[dtype](), b.as_tensor[dtype]()
-    ).as_any()
-
-
-fn _greater_dispatch[
-    dtype: DType
-](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
-    return _greater_typed[dtype](
-        a.as_tensor[dtype](), b.as_tensor[dtype]()
-    ).as_any()
-
-
-fn _greater_equal_dispatch[
-    dtype: DType
-](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
-    return _greater_equal_typed[dtype](
-        a.as_tensor[dtype](), b.as_tensor[dtype]()
-    ).as_any()
-
-
-# ============================================================================
 # Layer 1: AnyTensor Public API
 # ============================================================================
 
 
 fn equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise equality comparison with broadcasting.
-
-    Performs exact equality comparison on all supported dtypes. Follows IEEE 754
-    semantics for floating-point comparisons:
-    - NaN != NaN (per IEEE 754 standard)
-    - Positive infinity == positive infinity
-    - Negative infinity == negative infinity
-    - Subnormal numbers are compared exactly
-
-    Note on Precision:
-    For floating-point dtypes, equality uses exact binary comparison, not
-    tolerance-based comparison. This means that values that are mathematically
-    equal but have different floating-point representations will compare as
-    unequal. For tolerance-based comparison, users should implement
-    custom logic using subtraction and comparison with a tolerance threshold.
-
-    Example (precision loss):
-        ```mojo
-        # These may not be equal due to floating-point arithmetic
-        var x = full([3], 0.1, DType.float32)
-        var y = divide(full([3], 1.0, DType.float32),
-                       full([3], 10.0, DType.float32))
-        var result = equal(x, y)  # May contain False values due to rounding
-        ```
 
     Args:
         a: First tensor.
@@ -406,14 +40,9 @@ fn equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
     Raises:
         Error if shapes are not broadcast-compatible or dtypes don't match
-
-    Examples:
-        ```mojo
-        var a = full([3, 4], 2.0, DType.float32)
-        var b = full([3, 4], 2.0, DType.float32)
-        var c = equal(a, b)  # Shape (3, 4), all True
-        ```
     """
+    from shared.tensor.typed.comparison import _equal_dispatch
+
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
 
@@ -461,14 +90,9 @@ fn not_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
     Raises:
         Error if shapes are not broadcast-compatible or dtypes don't match
-
-    Examples:
-        ```mojo
-        var a = full([3, 4], 2.0, DType.float32)
-        var b = full([3, 4], 3.0, DType.float32)
-        var c = not_equal(a, b)  # Shape (3, 4), all True
-        ```
     """
+    from shared.tensor.typed.comparison import _not_equal_dispatch
+
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
 
@@ -515,14 +139,9 @@ fn less(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
     Raises:
         Error if shapes are not broadcast-compatible or dtypes don't match
-
-    Examples:
-        ```mojo
-        var a = full([3, 4], 2.0, DType.float32)
-        var b = full([3, 4], 3.0, DType.float32)
-        var c = less(a, b)  # Shape (3, 4), all True
-        ```
     """
+    from shared.tensor.typed.comparison import _less_dispatch
+
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
 
@@ -569,14 +188,9 @@ fn less_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
     Raises:
         Error if shapes are not broadcast-compatible or dtypes don't match
-
-    Examples:
-        ```mojo
-        var a = full([3, 4], 2.0, DType.float32)
-        var b = full([3, 4], 2.0, DType.float32)
-        var c = less_equal(a, b)  # Shape (3, 4), all True
-        ```
     """
+    from shared.tensor.typed.comparison import _less_equal_dispatch
+
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
 
@@ -623,14 +237,9 @@ fn greater(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
     Raises:
         Error if shapes are not broadcast-compatible or dtypes don't match
-
-    Examples:
-        ```mojo
-        var a = full([3, 4], 3.0, DType.float32)
-        var b = full([3, 4], 2.0, DType.float32)
-        var c = greater(a, b)  # Shape (3, 4), all True
-        ```
     """
+    from shared.tensor.typed.comparison import _greater_dispatch
+
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
 
@@ -677,14 +286,9 @@ fn greater_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
     Raises:
         Error if shapes are not broadcast-compatible or dtypes don't match
-
-    Examples:
-        ```mojo
-        var a = full([3, 4], 3.0, DType.float32)
-        var b = full([3, 4], 3.0, DType.float32)
-        var c = greater_equal(a, b)  # Shape (3, 4), all True
-        ```
     """
+    from shared.tensor.typed.comparison import _greater_equal_dispatch
+
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
 
@@ -717,5 +321,3 @@ fn greater_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         return _greater_equal_dispatch[DType.uint64](a, b)
     else:
         raise Error("greater_equal: unsupported dtype")
-
-
