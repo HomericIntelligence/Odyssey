@@ -20,7 +20,6 @@ Optimizations:
 from collections import List
 from memory import memcpy, UnsafePointer
 from .any_tensor import AnyTensor
-from shared.tensor.tensor import Tensor
 from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
@@ -63,66 +62,6 @@ fn is_contiguous(tensor: AnyTensor) -> Bool:
     return tensor.is_contiguous()
 
 
-# ============================================================================
-# Layer 3 (Core): Native Tensor[dtype] as_contiguous implementation
-# ============================================================================
-
-
-fn _as_contiguous_typed[
-    dtype: DType
-](tensor: Tensor[dtype]) raises -> Tensor[dtype]:
-    """Convert tensor to contiguous memory layout (native Tensor[dtype] core).
-
-    Zero dtype branches, zero bitcasts.
-
-    Parameters:
-        dtype: Compile-time dtype parameter.
-
-    Args:
-        tensor: Input typed tensor.
-
-    Returns:
-        A new contiguous Tensor[dtype] with the same data.
-    """
-    var shape = tensor.shape()
-    var numel = tensor.numel()
-    var result = Tensor[dtype](shape)
-    var src_ptr = tensor._data
-    var dst_ptr = result._data
-
-    if tensor.is_contiguous():
-        # Fast path: direct typed copy
-        for i in range(numel):
-            dst_ptr[i] = src_ptr[i]
-    else:
-        # Slow path: stride-based indexing
-        var ndim = len(shape)
-        for i in range(numel):
-            var src_elem_offset = 0
-            var remaining = i
-            for d in range(ndim - 1, -1, -1):
-                var coord = remaining % shape[d]
-                remaining //= shape[d]
-                src_elem_offset += coord * tensor._strides[d]
-            dst_ptr[i] = src_ptr[src_elem_offset]
-
-    return result^
-
-
-# ============================================================================
-# Layer 2: AnyTensor dispatch for as_contiguous
-# ============================================================================
-
-
-fn _as_contiguous_dispatch[
-    dtype: DType
-](tensor: AnyTensor) raises -> AnyTensor:
-    """Dispatch as_contiguous to typed core."""
-    return _as_contiguous_typed[dtype](
-        tensor.as_tensor[dtype]()
-    ).as_any()
-
-
 fn as_contiguous(tensor: AnyTensor) raises -> AnyTensor:
     """Convert tensor to contiguous memory layout if needed.
 
@@ -142,6 +81,8 @@ fn as_contiguous(tensor: AnyTensor) raises -> AnyTensor:
             This function always copies data. For zero-copy operations, check
             is_contiguous() first.
     """
+    from shared.tensor.typed.shape import _as_contiguous_dispatch
+
     var ordinal = dtype_to_ordinal(tensor.dtype())
 
     if ordinal == DTYPE_FLOAT16:
@@ -220,11 +161,6 @@ fn view(tensor: AnyTensor, new_shape: List[Int]) raises -> AnyTensor:
     return tensor.reshape(new_shape)
 
 
-# ============================================================================
-# Layer 3 (Core): Native Tensor[dtype] reshape implementation
-# ============================================================================
-
-
 fn _resolve_shape(
     new_shape: List[Int], total_elements: Int
 ) raises -> List[Int]:
@@ -281,73 +217,6 @@ fn _resolve_shape(
 
     return final_shape^
 
-
-fn _reshape_typed[
-    dtype: DType
-](tensor: Tensor[dtype], new_shape: List[Int]) raises -> Tensor[dtype]:
-    """Reshape tensor to new shape (native Tensor[dtype] core).
-
-    This is the core implementation -- zero dtype branches, zero bitcasts.
-    Tensor[dtype]._data is already typed as UnsafePointer[Scalar[dtype]].
-
-    Parameters:
-        dtype: Compile-time dtype parameter.
-
-    Args:
-        tensor: Input typed tensor.
-        new_shape: Target shape (must have same total number of elements).
-
-    Returns:
-        A new Tensor[dtype] with the specified shape.
-
-    Raises:
-        Error: If new shape has different number of elements.
-    """
-    var total_elements = tensor.numel()
-    var final_shape = _resolve_shape(new_shape, total_elements)
-
-    # Create new tensor with new shape
-    var result = Tensor[dtype](final_shape)
-
-    # Copy data using typed pointers -- zero bitcasts
-    if tensor.is_contiguous():
-        # Fast path: direct typed copy
-        var src_ptr = tensor._data
-        var dst_ptr = result._data
-        for i in range(total_elements):
-            dst_ptr[i] = src_ptr[i]
-    else:
-        # Slow path: compute stride-based offset for each element
-        var src_shape = tensor.shape()
-        var ndim = len(src_shape)
-        var src_ptr = tensor._data
-        var dst_ptr = result._data
-        for i in range(total_elements):
-            var remaining = i
-            var src_elem_offset = 0
-            for d in range(ndim - 1, -1, -1):
-                var coord = remaining % src_shape[d]
-                remaining //= src_shape[d]
-                src_elem_offset += coord * tensor._strides[d]
-            dst_ptr[i] = src_ptr[src_elem_offset]
-
-    return result^
-
-
-# ============================================================================
-# Layer 2: AnyTensor dispatch helpers (as_tensor -> typed core -> as_any)
-# ============================================================================
-
-
-fn _reshape_dispatch[
-    dtype: DType
-](tensor: AnyTensor, new_shape: List[Int]) raises -> AnyTensor:
-    """Dispatch reshape to typed core."""
-    return _reshape_typed[dtype](
-        tensor.as_tensor[dtype](), new_shape
-    ).as_any()
-
-
 fn reshape(tensor: AnyTensor, new_shape: List[Int]) raises -> AnyTensor:
     """Reshape tensor to new shape.
 
@@ -371,6 +240,8 @@ fn reshape(tensor: AnyTensor, new_shape: List[Int]) raises -> AnyTensor:
             var c = reshape(a, [3, -1])  # Shape (3, 4) - infers 4
     ```
     """
+    from shared.tensor.typed.shape import _reshape_dispatch
+
     var ordinal = dtype_to_ordinal(tensor.dtype())
 
     if ordinal == DTYPE_FLOAT16:
@@ -397,22 +268,6 @@ fn reshape(tensor: AnyTensor, new_shape: List[Int]) raises -> AnyTensor:
         return _reshape_dispatch[DType.uint64](tensor, new_shape)
     else:
         raise Error("reshape: unsupported dtype")
-
-fn reshape[dt: DType](tensor: Tensor[dt], new_shape: List[Int]) raises -> Tensor[dt]:
-    """Reshape tensor to new shape (typed overload).
-
-    Parameters:
-        dt: Compile-time dtype parameter.
-
-    Args:
-        tensor: Input typed tensor.
-        new_shape: Target shape (must have same total elements).
-
-    Returns:
-        A new Tensor[dt] with the given shape.
-    """
-    return _reshape_typed[dt](tensor, new_shape)
-
 
 fn squeeze(tensor: AnyTensor, axis: Int = -999) raises -> AnyTensor:
     """Remove size-1 dimensions.
@@ -1425,84 +1280,6 @@ fn repeat(tensor: AnyTensor, n: Int, axis: Int = -1) raises -> AnyTensor:
         return result^
 
 
-# ============================================================================
-# Layer 3 (Core): Native Tensor[dtype] broadcast_to implementation
-# ============================================================================
-
-
-fn _broadcast_to_typed[
-    dtype: DType
-](tensor: Tensor[dtype], target_shape: List[Int]) raises -> Tensor[dtype]:
-    """Broadcast tensor to target shape (native Tensor[dtype] core).
-
-    Zero dtype branches, zero bitcasts.
-
-    Parameters:
-        dtype: Compile-time dtype parameter.
-
-    Args:
-        tensor: Input typed tensor.
-        target_shape: Target shape to broadcast to.
-
-    Returns:
-        Broadcasted Tensor[dtype].
-    """
-    from shared.base.broadcasting import (
-        are_shapes_broadcastable,
-        compute_broadcast_strides,
-    )
-
-    var shape = tensor.shape()
-
-    if len(target_shape) < len(shape):
-        raise Error("broadcast_to: cannot broadcast to fewer dimensions")
-
-    if not are_shapes_broadcastable(shape, target_shape):
-        raise Error("broadcast_to: shapes are not broadcast-compatible")
-
-    var broadcast_strides = compute_broadcast_strides(shape, target_shape)
-
-    var result = Tensor[dtype](target_shape)
-    var result_numel = result.numel()
-
-    var src_ptr = tensor._data
-    var dst_ptr = result._data
-
-    for i in range(result_numel):
-        var coords = List[Int]()
-        var temp_i = i
-        for j in range(len(target_shape)):
-            var stride = 1
-            for k in range(j + 1, len(target_shape)):
-                stride *= target_shape[k]
-            var coord = temp_i // stride
-            coords.append(coord)
-            temp_i = temp_i % stride
-
-        var src_idx = 0
-        for j in range(len(target_shape)):
-            src_idx += coords[j] * broadcast_strides[j]
-
-        # Copy value using typed pointer -- zero bitcasts
-        dst_ptr[i] = src_ptr[src_idx]
-
-    return result^
-
-
-# ============================================================================
-# Layer 2: AnyTensor dispatch for broadcast_to
-# ============================================================================
-
-
-fn _broadcast_to_dispatch[
-    dtype: DType
-](tensor: AnyTensor, target_shape: List[Int]) raises -> AnyTensor:
-    """Dispatch broadcast_to to typed core."""
-    return _broadcast_to_typed[dtype](
-        tensor.as_tensor[dtype](), target_shape
-    ).as_any()
-
-
 fn broadcast_to(tensor: AnyTensor, target_shape: List[Int]) raises -> AnyTensor:
     """Broadcast tensor to target shape.
 
@@ -1528,6 +1305,8 @@ fn broadcast_to(tensor: AnyTensor, target_shape: List[Int]) raises -> AnyTensor:
             var b = broadcast_to(a, target)  # Shape (4, 3)
     ```
     """
+    from shared.tensor.typed.shape import _broadcast_to_dispatch
+
     var ordinal = dtype_to_ordinal(tensor.dtype())
 
     if ordinal == DTYPE_FLOAT16:
@@ -1554,29 +1333,6 @@ fn broadcast_to(tensor: AnyTensor, target_shape: List[Int]) raises -> AnyTensor:
         return _broadcast_to_dispatch[DType.uint64](tensor, target_shape)
     else:
         raise Error("broadcast_to: unsupported dtype")
-
-fn broadcast_to[dt: DType](
-    tensor: Tensor[dt], target_shape: List[Int]
-) raises -> Tensor[dt]:
-    """Broadcast tensor to target shape (typed overload).
-
-    Parameters:
-        dt: Compile-time dtype parameter.
-
-    Args:
-        tensor: Input typed tensor.
-        target_shape: Shape to broadcast to.
-
-    Returns:
-        A new Tensor[dt] broadcast to the target shape.
-    """
-    return _broadcast_to_typed[dt](tensor, target_shape)
-
-
-# ============================================================================
-# Layer 3 (Core): Native Tensor[dtype] permute implementation
-# ============================================================================
-
 
 fn _validate_permute_dims(dims: List[Int], ndim: Int) raises:
     """Validate dims is a valid permutation of [0..ndim-1].
@@ -1617,89 +1373,6 @@ fn _validate_permute_dims(dims: List[Int], ndim: Int) raises:
         seen[d] = True
 
 
-fn _permute_typed[
-    dtype: DType
-](tensor: Tensor[dtype], dims: List[Int]) raises -> Tensor[dtype]:
-    """Permute tensor dimensions (native Tensor[dtype] core).
-
-    Zero dtype branches, zero bitcasts.
-
-    Parameters:
-        dtype: Compile-time dtype parameter.
-
-    Args:
-        tensor: Input typed tensor.
-        dims: Permutation of dimensions.
-
-    Returns:
-        Tensor with permuted dimensions.
-    """
-    var shape = tensor.shape()
-    var ndim = len(shape)
-
-    _validate_permute_dims(dims, ndim)
-
-    # Compute new shape
-    var new_shape = List[Int]()
-    for i in range(ndim):
-        new_shape.append(shape[dims[i]])
-
-    # Create result tensor
-    var result = Tensor[dtype](new_shape)
-    var result_numel = result.numel()
-
-    var src_ptr = tensor._data
-    var dst_ptr = result._data
-
-    # Fill result by permuting coordinates
-    for i in range(result_numel):
-        # Compute coordinates in result tensor
-        var result_coords = List[Int]()
-        var temp_i = i
-        for j in range(ndim):
-            var stride = 1
-            for k in range(j + 1, ndim):
-                stride *= new_shape[k]
-            var coord = temp_i // stride
-            result_coords.append(coord)
-            temp_i = temp_i % stride
-
-        # Compute source coordinates by inverse permutation
-        var src_coords = List[Int]()
-        for _ in range(ndim):
-            src_coords.append(0)
-
-        for j in range(ndim):
-            src_coords[dims[j]] = result_coords[j]
-
-        # Compute source index
-        var src_idx = 0
-        for j in range(ndim):
-            var src_stride = 1
-            for k in range(j + 1, ndim):
-                src_stride *= shape[k]
-            src_idx += src_coords[j] * src_stride
-
-        # Copy value using typed pointer -- zero bitcasts
-        dst_ptr[i] = src_ptr[src_idx]
-
-    return result^
-
-
-# ============================================================================
-# Layer 2: AnyTensor dispatch for permute
-# ============================================================================
-
-
-fn _permute_dispatch[
-    dtype: DType
-](tensor: AnyTensor, dims: List[Int]) raises -> AnyTensor:
-    """Dispatch permute to typed core."""
-    return _permute_typed[dtype](
-        tensor.as_tensor[dtype](), dims
-    ).as_any()
-
-
 fn permute(tensor: AnyTensor, dims: List[Int]) raises -> AnyTensor:
     """Permute tensor dimensions (generalized transpose).
 
@@ -1723,6 +1396,8 @@ fn permute(tensor: AnyTensor, dims: List[Int]) raises -> AnyTensor:
             var b = permute(a, perm)  # Shape (4, 2, 3)
     ```
     """
+    from shared.tensor.typed.shape import _permute_dispatch
+
     var ordinal = dtype_to_ordinal(tensor.dtype())
 
     if ordinal == DTYPE_FLOAT16:
@@ -1749,20 +1424,3 @@ fn permute(tensor: AnyTensor, dims: List[Int]) raises -> AnyTensor:
         return _permute_dispatch[DType.uint64](tensor, dims)
     else:
         raise Error("permute: unsupported dtype")
-
-fn permute[dt: DType](tensor: Tensor[dt], dims: List[Int]) raises -> Tensor[dt]:
-    """Permute tensor dimensions (typed overload).
-
-    Parameters:
-        dt: Compile-time dtype parameter.
-
-    Args:
-        tensor: Input typed tensor.
-        dims: Permutation of dimensions.
-
-    Returns:
-        A new Tensor[dt] with permuted dimensions.
-    """
-    return _permute_typed[dt](tensor, dims)
-
-

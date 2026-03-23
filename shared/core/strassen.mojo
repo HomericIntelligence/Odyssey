@@ -3,14 +3,12 @@
 Implements Strassen's divide-and-conquer algorithm reducing O(n^3) to O(n^2.807)
 by performing 7 multiplications instead of 8.
 
-Architecture: Tensor[dtype] typed core eliminates all dtype branches/bitcasts.
-AnyTensor entry point dispatches to typed core via ordinal-based table.
+Typed helper cores live in shared/tensor/typed/strassen.mojo.
 """
 
 from .any_tensor import AnyTensor, zeros
 from .arithmetic import add, subtract
 from .matmul import matmul_tiled
-from shared.tensor.tensor import Tensor
 from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
@@ -40,123 +38,13 @@ fn next_power_of_2(n: Int) -> Int:
     return power
 
 
-# ============================================================================
-# Layer 3 (Core): Native Tensor[dtype] Strassen Implementation
-# ============================================================================
-
-
-fn _extract_quadrants_typed[
-    dtype: DType
-](
-    src: Tensor[dtype], n: Int, n_half: Int
-) raises -> Tuple[
-    Tensor[dtype],
-    Tensor[dtype],
-    Tensor[dtype],
-    Tensor[dtype],
-]:
-    """Extract four quadrants from a square matrix (typed core).
-
-    Parameters:
-        dtype: Compile-time dtype parameter.
-
-    Args:
-        src: Source matrix of shape (n, n).
-        n: Full dimension.
-        n_half: Half dimension (n // 2).
-
-    Returns:
-        Tuple of (top-left, top-right, bottom-left, bottom-right) quadrants.
-    """
-    var q_shape = List[Int]()
-    q_shape.append(n_half)
-    q_shape.append(n_half)
-
-    var q11 = Tensor[dtype](q_shape)
-    var q12 = Tensor[dtype](q_shape)
-    var q21 = Tensor[dtype](q_shape)
-    var q22 = Tensor[dtype](q_shape)
-
-    var src_ptr = src._data
-    var q11_ptr = q11._data
-    var q12_ptr = q12._data
-    var q21_ptr = q21._data
-    var q22_ptr = q22._data
-
-    for i in range(n_half):
-        for j in range(n_half):
-            q11_ptr.store(i * n_half + j, src_ptr.load(i * n + j))
-            q12_ptr.store(i * n_half + j, src_ptr.load(i * n + (j + n_half)))
-            q21_ptr.store(i * n_half + j, src_ptr.load((i + n_half) * n + j))
-            q22_ptr.store(
-                i * n_half + j,
-                src_ptr.load((i + n_half) * n + (j + n_half)),
-            )
-
-    return (q11^, q12^, q21^, q22^)
-
-
-fn _combine_quadrants_typed[
-    dtype: DType
-](
-    c11: Tensor[dtype],
-    c12: Tensor[dtype],
-    c21: Tensor[dtype],
-    c22: Tensor[dtype],
-    n: Int,
-    n_half: Int,
-) raises -> Tensor[dtype]:
-    """Combine four quadrants into a full matrix (typed core).
-
-    Parameters:
-        dtype: Compile-time dtype parameter.
-
-    Args:
-        c11: Top-left quadrant.
-        c12: Top-right quadrant.
-        c21: Bottom-left quadrant.
-        c22: Bottom-right quadrant.
-        n: Full dimension.
-        n_half: Half dimension.
-
-    Returns:
-        Combined matrix of shape (n, n).
-    """
-    var c_shape = List[Int]()
-    c_shape.append(n)
-    c_shape.append(n)
-    var result = Tensor[dtype](c_shape)
-
-    var c_ptr = result._data
-    var c11_ptr = c11._data
-    var c12_ptr = c12._data
-    var c21_ptr = c21._data
-    var c22_ptr = c22._data
-
-    for i in range(n_half):
-        for j in range(n_half):
-            c_ptr.store(i * n + j, c11_ptr.load(i * n_half + j))
-            c_ptr.store(
-                i * n + (j + n_half), c12_ptr.load(i * n_half + j)
-            )
-            c_ptr.store(
-                (i + n_half) * n + j, c21_ptr.load(i * n_half + j)
-            )
-            c_ptr.store(
-                (i + n_half) * n + (j + n_half),
-                c22_ptr.load(i * n_half + j),
-            )
-
-    return result^
-
-
 fn _strassen_recursive(A: AnyTensor, B: AnyTensor) raises -> AnyTensor:
-    """Recursive core of Strassen's algorithm using 7 products.
+    """Recursive core of Strassen's algorithm using 7 products."""
+    from shared.tensor.typed.strassen import (
+        _extract_quadrants_typed,
+        _combine_quadrants_typed,
+    )
 
-    Note: This remains on AnyTensor because the recursive calls use
-    arithmetic add/subtract which operate on AnyTensor. The quadrant
-    extraction/combination uses typed cores to eliminate bitcasts.
-    """
     var shape = A.shape()
     var n = shape[0]
 
@@ -278,32 +166,10 @@ fn _strassen_recursive(A: AnyTensor, B: AnyTensor) raises -> AnyTensor:
         raise Error("strassen: only float32/float64 supported")
 
 
-fn _matmul_strassen_copy_result[
-    dtype: DType
-](src: AnyTensor, mut dst: AnyTensor, m: Int, n: Int) raises:
-    """Copy Strassen result using typed pointers (zero bitcasts).
-
-    Parameters:
-        dtype: Compile-time dtype parameter.
-
-    Args:
-        src: Source result from Strassen.
-        dst: Destination tensor.
-        m: Number of rows.
-        n: Number of columns.
-    """
-    var src_typed = src.as_tensor[dtype]()
-    var dst_typed = dst.as_tensor[dtype]()
-    var src_ptr = src_typed._data
-    var dst_ptr = dst_typed._data
-    for i in range(m):
-        for j in range(n):
-            var idx = i * n + j
-            dst_ptr.store(idx, src_ptr.load(idx))
-
-
 fn matmul_strassen(A: AnyTensor, B: AnyTensor, mut C: AnyTensor) raises:
     """Matrix multiplication using Strassen's algorithm."""
+    from shared.tensor.typed.strassen import _matmul_strassen_copy_result
+
     if A.dtype() != B.dtype() or A.dtype() != C.dtype():
         raise Error("matmul_strassen: all tensors must have the same dtype")
 
