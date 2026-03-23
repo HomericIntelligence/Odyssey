@@ -9,6 +9,7 @@ Modules:
     memory_pool: Memory pool for small tensor allocations (stdlib only)
     broadcasting: NumPy-style broadcasting utilities (pure functions)
     dtype_ordinal: DType-to-ordinal mapping for dispatch (constants only)
+    shape_utils: Shape utility functions (pure functions, no tensor deps)
     defaults: Default hyperparameters (constants only)
     math_constants: Mathematical constants (constants only)
     numerical_constants: Numerical stability constants (constants only)
@@ -63,6 +64,12 @@ from shared.base.dtype_ordinal import (
     DTYPE_UNSUPPORTED,
     SUPPORTED_DTYPE_COUNT,
 )
+
+# ============================================================================
+# Shape Utilities
+# ============================================================================
+
+from shared.base.shape_utils import _resolve_shape
 
 # ============================================================================
 # Default Hyperparameters

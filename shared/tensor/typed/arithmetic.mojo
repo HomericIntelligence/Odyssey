@@ -7,7 +7,6 @@ from collections import List
 from shared.tensor.tensor import Tensor
 from shared.tensor.any_tensor import AnyTensor
 from shared.base.broadcasting import broadcast_shapes, compute_broadcast_strides
-from shared.core.shape import as_contiguous
 from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
@@ -53,6 +52,10 @@ fn _broadcast_binary_typed[
     # are not reflected in flat index arithmetic, causing silent wrong results.
     # Tensor[dtype] lacks as_contiguous(), so we round-trip via AnyTensor only
     # when needed (rare path -- most tensors are contiguous).
+    # NOTE: Function-scoped import to avoid circular dependency
+    # (shared.tensor.typed -> shared.core -> shared.tensor.typed).
+    from shared.core.shape import as_contiguous
+
     var a_any = a.as_any()
     var b_any = b.as_any()
     var a_cont = a_any if a.is_contiguous() else as_contiguous(a_any)
@@ -216,6 +219,9 @@ fn _multiply_scalar_typed[
     """
     # Ensure input is contiguous before flat-buffer kernel access.
     # Tensor[dt] lacks as_contiguous() so round-trip via AnyTensor if needed.
+    # NOTE: Function-scoped import to avoid circular dependency.
+    from shared.core.shape import as_contiguous
+
     var t_any = tensor.as_any()
     var t_cont = t_any if tensor.is_contiguous() else as_contiguous(t_any)
 

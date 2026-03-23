@@ -112,7 +112,7 @@ fn _reshape_typed[
     Raises:
         Error: If new shape has different number of elements.
     """
-    from shared.core.shape import _resolve_shape
+    from shared.base.shape_utils import _resolve_shape
 
     var total_elements = tensor.numel()
     var final_shape = _resolve_shape(new_shape, total_elements)
