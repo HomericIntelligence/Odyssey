@@ -6,7 +6,7 @@ This module tests the utility functions:
 - full_like
 """
 
-from shared.core.any_tensor import (
+from shared.tensor.any_tensor import (
     AnyTensor,
     zeros,
     ones,

@@ -18,7 +18,7 @@ from tests.shared.conftest import (
     TestFixtures,
 )
 from shared.data.transforms import Compose, Normalize, Reshape
-from shared.core.any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 
 # ============================================================================

@@ -36,7 +36,7 @@ Note:
     ```
 """
 
-from shared.core.any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.core.traits import Model, Loss, Optimizer
 from shared.training.trainer_interface import DataLoader
 from shared.autograd.tape import GradientTape

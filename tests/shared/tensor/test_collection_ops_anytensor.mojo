@@ -17,7 +17,7 @@ Tests cover:
 """
 
 from testing import assert_true, assert_almost_equal
-from shared.core.any_tensor import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.shape import concatenate, stack, split
 
 

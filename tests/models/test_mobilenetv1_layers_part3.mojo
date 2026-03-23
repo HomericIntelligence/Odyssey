@@ -18,7 +18,7 @@ from tests.shared.conftest import (
     assert_shape,
     assert_true,
 )
-from shared.core.any_tensor import (
+from shared.tensor.any_tensor import (
     AnyTensor,
     zeros,
     ones,

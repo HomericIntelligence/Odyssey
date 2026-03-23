@@ -7,7 +7,7 @@ All operations are stateless - caller provides all inputs.
 from algorithm import parallelize
 from collections import List
 
-from .any_tensor import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from .shape import pool_output_shape
 from .parallel_utils import should_parallelize
 
@@ -811,5 +811,3 @@ fn global_avgpool2d_backward(
                     grad_input[grad_in_idx] = Float32(grad_per_position)
 
     return grad_input^
-
-

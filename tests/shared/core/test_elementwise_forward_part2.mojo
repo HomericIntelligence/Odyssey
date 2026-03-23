@@ -6,7 +6,7 @@
 """
 
 # Import AnyTensor and operations
-from shared.core.any_tensor import zeros, ones, full
+from shared.tensor.any_tensor import zeros, ones, full
 from shared.core.elementwise import exp, log
 
 # Import test helpers

@@ -21,7 +21,7 @@ Example:
     ```mojo
     from .module import Module
     from .layers import Linear
-    from .any_tensor import AnyTensor, zeros
+    from shared.tensor.any_tensor import AnyTensor, zeros
 
     # Linear layer implements Module trait
     var layer = Linear(10, 5)
@@ -41,7 +41,7 @@ Sequential Usage Example:
     ```mojo
     from .module import Module
     from .layers import Linear, ReLU
-    from .any_tensor import AnyTensor, zeros
+    from shared.tensor.any_tensor import AnyTensor, zeros
 
     # Compose layers using Sequential2
     from .sequential import Sequential2
@@ -63,7 +63,7 @@ See Also:
     - shared.core.layers.linear: Linear layer implementation example
 """
 
-from .any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 
 trait Module:

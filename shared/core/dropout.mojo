@@ -7,7 +7,7 @@ Dropout randomly zeros some elements of the input tensor with probability p duri
 This helps prevent overfitting by randomly "dropping out" neurons.
 """
 
-from .any_tensor import (
+from shared.tensor.any_tensor import (
     AnyTensor,
     zeros,
     zeros_like,

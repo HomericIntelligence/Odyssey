@@ -6,7 +6,7 @@ All operations are stateless - caller manages running statistics and parameters.
 
 from algorithm import parallelize
 
-from .any_tensor import (
+from shared.tensor.any_tensor import (
     AnyTensor,
     zeros,
     zeros_like,
@@ -2846,5 +2846,3 @@ fn instance_norm_backward(
         raise Error("instance_norm_backward: only float32/64 dtypes supported")
 
     return (grad_input, grad_gamma, grad_beta)
-
-

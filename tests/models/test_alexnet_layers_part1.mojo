@@ -22,7 +22,7 @@ These are expected, fundamental limitations of Float16 arithmetic (not bugs).
 See issue #3009 for detailed analysis.
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.conv import conv2d
 from shared.core.pooling import maxpool2d
 from shared.core.linear import linear

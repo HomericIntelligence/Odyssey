@@ -14,7 +14,7 @@ Split from test_composed_op.mojo per ADR-009 (≤10 fn test_ per file).
 
 from testing import assert_true, assert_equal
 from tests.shared.conftest import assert_almost_equal, assert_shape_equal
-from shared.core.any_tensor import AnyTensor, ones, zeros
+from shared.tensor.any_tensor import AnyTensor, ones, zeros
 from shared.core.traits import Differentiable, Composable, ComposedOp
 
 

@@ -5,18 +5,8 @@ and helper methods like numel, dim, size, stride, is_contiguous.
 """
 
 # Import AnyTensor and operations
-from shared.core import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    arange,
-    clone,
-    item,
-    diff,
-    as_contiguous,
-    transpose_view,
-)
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange, clone, item, diff
+from shared.core import as_contiguous, transpose_view
 
 # Import test helpers
 from tests.shared.conftest import (

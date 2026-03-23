@@ -17,7 +17,7 @@ Testing strategy:
 """
 
 from testing import assert_true, assert_false, assert_equal, assert_almost_equal
-from shared.core.any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.training.trainer_interface import (
     TrainerConfig,
     TrainingMetrics,

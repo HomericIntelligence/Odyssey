@@ -8,7 +8,7 @@ This module provides:
 
 from random import seed
 from time import perf_counter_ns
-from shared.core.any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.testing import SimpleMLP
 
 # Re-export all assertions from shared.testing.assertions for backward compatibility
@@ -76,7 +76,7 @@ struct TestFixtures:
         Returns:
             3x3 AnyTensor with deterministic values (0.1).
         """
-        from shared.core.any_tensor import full
+        from shared.tensor.any_tensor import full
 
         var shape = List[Int]()
         shape.append(3)
@@ -90,7 +90,7 @@ struct TestFixtures:
         Returns:
             10x10 AnyTensor with zeros.
         """
-        from shared.core.any_tensor import zeros
+        from shared.tensor.any_tensor import zeros
 
         var shape = List[Int]()
         shape.append(10)
@@ -104,7 +104,7 @@ struct TestFixtures:
         Returns:
             5x3 AnyTensor with deterministic small values.
         """
-        from shared.core.any_tensor import full
+        from shared.tensor.any_tensor import full
 
         var shape = List[Int]()
         shape.append(5)
@@ -118,7 +118,7 @@ struct TestFixtures:
         Returns:
             5-element AnyTensor with zeros.
         """
-        from shared.core.any_tensor import zeros
+        from shared.tensor.any_tensor import zeros
 
         var shape = List[Int]()
         shape.append(5)
@@ -137,7 +137,7 @@ struct TestFixtures:
         Returns:
             AnyTensor of shape (n_samples, n_features) with random values.
         """
-        from shared.core.any_tensor import randn
+        from shared.tensor.any_tensor import randn
 
         var shape = List[Int]()
         shape.append(n_samples)
@@ -154,7 +154,7 @@ struct TestFixtures:
         Returns:
             AnyTensor of shape (n_samples,) with binary labels (0 or 1).
         """
-        from shared.core.any_tensor import zeros
+        from shared.tensor.any_tensor import zeros
 
         var shape = List[Int]()
         shape.append(n_samples)

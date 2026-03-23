@@ -7,7 +7,7 @@ Tests gradient scaler initialization, loss scaling, gradient unscaling,
 scaler step updates, backoff, min/max limits, and FP32 master weight conversion.
 """
 
-from shared.core.any_tensor import AnyTensor, full
+from shared.tensor.any_tensor import AnyTensor, full
 from shared.training.mixed_precision import (
     GradientScaler,
     convert_to_fp32_master,

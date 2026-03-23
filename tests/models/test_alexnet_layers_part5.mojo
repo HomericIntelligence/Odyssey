@@ -8,7 +8,7 @@ Flatten operation, and full forward pass sequence through all AlexNet layers.
 # high test load. Split from test_alexnet_layers.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.conv import conv2d
 from shared.core.pooling import maxpool2d
 from shared.core.linear import linear

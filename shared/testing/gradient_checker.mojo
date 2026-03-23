@@ -37,7 +37,7 @@ References:
     - Goodfellow et al., Deep Learning, Chapter 4.3
 """
 
-from shared.core import AnyTensor, zeros_like
+from shared.tensor.any_tensor import AnyTensor, zeros_like
 
 
 # ============================================================================

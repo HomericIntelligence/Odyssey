@@ -18,7 +18,7 @@ All loss functions include:
 - Support for batched inputs
 """
 
-from .any_tensor import AnyTensor, ones_like, zeros_like, full_like
+from shared.tensor.any_tensor import AnyTensor, ones_like, zeros_like, full_like
 from .arithmetic import add, subtract, multiply, divide, power
 from .elementwise import log, clip, exp, abs
 from .reduction import mean, sum, max_reduce
@@ -1023,5 +1023,3 @@ fn kl_divergence_backward(
 
     # Chain rule: multiply by upstream gradient
     return multiply(grad_output, grad)
-
-

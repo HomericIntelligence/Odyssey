@@ -12,7 +12,7 @@ Tests edge cases for sum, mean, max_reduce, min_reduce operations including:
 """
 
 # Import AnyTensor and operations
-from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
 from shared.core.reduction import sum, mean, max_reduce, min_reduce
 
 # Import test helpers

@@ -21,7 +21,7 @@ from shared.testing.special_values import (
 )
 from shared.testing.assertions import assert_true
 from shared.testing.tensor_factory import zeros_tensor
-from shared.core.any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 
 fn test_layer_dtype_consistency_passes() raises:

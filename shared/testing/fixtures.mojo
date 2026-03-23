@@ -30,7 +30,7 @@ Example:
     ```
 """
 
-from shared.core import AnyTensor, zeros, ones, full, zeros_like
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, zeros_like
 from shared.testing.models import SimpleCNN, LinearModel
 
 

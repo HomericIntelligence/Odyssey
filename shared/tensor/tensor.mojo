@@ -23,7 +23,7 @@ from collections import List
 from memory import UnsafePointer, memset_zero, alloc
 from shared.base.memory_pool import pooled_alloc, pooled_free
 from shared.tensor.tensor_traits import TensorLike
-from shared.core.any_tensor import AnyTensor
+from .any_tensor import AnyTensor
 
 
 # Memory safety constants (match AnyTensor limits)
@@ -468,7 +468,7 @@ struct Tensor[dtype: DType = DType.float32](
         tensors (e.g., after transpose) display correct logical values.
 
         Returns:
-            String in the format: Tensor([v0, v1, ...], dtype=<dtype>)
+            String in the format: ``Tensor([v0, v1, ...], dtype=<dtype>)``.
         """
         var result = String("Tensor([")
         if self._numel > TENSOR_PRINT_THRESHOLD:

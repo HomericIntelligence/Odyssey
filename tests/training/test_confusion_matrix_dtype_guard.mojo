@@ -11,7 +11,7 @@ high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
 from testing import assert_true, assert_raises
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.training.metrics import ConfusionMatrix
 
 

@@ -8,7 +8,7 @@ element access on sliced views returns correct values, writes through
 views affect the original, and slice + transpose composition works.
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, ones, arange
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, arange
 from tests.shared.conftest import assert_true, assert_false, assert_almost_equal, assert_equal
 
 

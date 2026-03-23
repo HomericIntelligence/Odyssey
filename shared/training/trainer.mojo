@@ -17,7 +17,7 @@ Design principles:
 """
 
 from collections import List
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.training.trainer_interface import (
     Trainer,
     TrainerConfig,

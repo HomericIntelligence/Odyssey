@@ -44,7 +44,7 @@ fn test_subpackage_accessibility() raises:
     from shared import core, training, data, utils
 
     # Verify subpackages are accessible by testing exports
-    from shared.core import AnyTensor, zeros
+    from shared.tensor.any_tensor import AnyTensor, zeros
     from shared.training import SGD, MSELoss
     from shared.data import Dataset, AnyTensorDataset
     from shared.utils import Logger, Config
@@ -72,7 +72,7 @@ fn test_subpackage_accessibility() raises:
 fn test_root_level_imports() raises:
     """Test most commonly used components are available at root level."""
     # Root package doesn't re-export all components directly
-    from shared.core import AnyTensor
+    from shared.tensor.any_tensor import AnyTensor
     from shared.training import SGD
     from shared.utils import Logger
 
@@ -81,7 +81,8 @@ fn test_root_level_imports() raises:
 
 fn test_module_level_imports() raises:
     """Test importing from specific modules."""
-    from shared.core import AnyTensor, relu, linear
+    from shared.tensor.any_tensor import AnyTensor
+    from shared.core import relu, linear
     from shared.training import SGD, MSELoss
     from shared.data import AnyTensorDataset, Batch
 
@@ -99,7 +100,7 @@ fn test_nested_imports() raises:
 
 fn test_core_training_integration() raises:
     """Test integration between core and training modules."""
-    from shared.core import AnyTensor, zeros
+    from shared.tensor.any_tensor import AnyTensor, zeros
     from shared.training import SGD, MSELoss
 
     # Create tensors using core

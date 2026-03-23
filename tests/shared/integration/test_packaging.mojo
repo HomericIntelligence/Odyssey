@@ -40,7 +40,7 @@ fn test_subpackage_accessibility() raises:
     from shared import core, training, data, utils
 
     # Verify subpackages are accessible by testing exports
-    from shared.core import AnyTensor, zeros
+    from shared.tensor.any_tensor import AnyTensor, zeros
     from shared.training import SGD, MSELoss
     from shared.data import Dataset, AnyTensorDataset
     from shared.utils import Logger, Config
@@ -68,7 +68,7 @@ fn test_subpackage_accessibility() raises:
 fn test_root_level_imports() raises:
     """Test most commonly used components are available at root level."""
     # Root package doesn't re-export all components directly
-    from shared.core import AnyTensor
+    from shared.tensor.any_tensor import AnyTensor
     from shared.training import SGD
     from shared.utils import Logger
 
@@ -126,7 +126,8 @@ fn test_layer_root_level_imports() raises:
 
 fn test_module_level_imports() raises:
     """Test importing from specific modules."""
-    from shared.core import AnyTensor, relu, linear
+    from shared.tensor.any_tensor import AnyTensor
+    from shared.core import relu, linear
     from shared.training import SGD, MSELoss
     from shared.data import AnyTensorDataset, Batch
 
@@ -149,7 +150,7 @@ fn test_nested_imports() raises:
 
 fn test_core_training_integration() raises:
     """Test integration between core and training modules."""
-    from shared.core import AnyTensor, zeros
+    from shared.tensor.any_tensor import AnyTensor, zeros
     from shared.training import SGD, MSELoss
 
     # Create tensors using core
@@ -174,7 +175,7 @@ fn test_core_training_integration() raises:
 
 fn test_core_data_integration() raises:
     """Test integration between core and data modules."""
-    from shared.core import AnyTensor, zeros, ones
+    from shared.tensor.any_tensor import AnyTensor, zeros, ones
     from shared.data import AnyTensorDataset
 
     # Create tensors using core
@@ -200,7 +201,7 @@ fn test_training_data_integration() raises:
     """Test integration between training and data modules."""
     from shared.training import SGD
     from shared.data import AnyTensorDataset
-    from shared.core import zeros, ones
+    from shared.tensor.any_tensor import zeros, ones
 
     # Create simple dataset
     var data = zeros([10, 5], DType.float32)
@@ -231,7 +232,8 @@ fn test_training_data_integration() raises:
 
 fn test_complete_training_workflow() raises:
     """Test complete training workflow using all modules."""
-    from shared.core import zeros, ones, relu
+    from shared.tensor.any_tensor import zeros, ones
+    from shared.core import relu
     from shared.training import SGD, MSELoss
     from shared.data import AnyTensorDataset
     from shared.utils import Logger
@@ -275,7 +277,8 @@ fn test_paper_implementation_pattern() raises:
     """Test typical usage pattern from paper implementation."""
     # Simulates how a paper implementation would use the shared library
 
-    from shared.core import AnyTensor, zeros, conv2d, flatten, relu
+    from shared.tensor.any_tensor import AnyTensor, zeros
+    from shared.core import conv2d, flatten, relu
     from shared.training import (
         SGD,
         CosineAnnealingLR,
@@ -557,7 +560,8 @@ fn test_api_version_compatibility() raises:
 
 fn test_cross_module_computation() raises:
     """Test that components actually work together in real computations."""
-    from shared.core import zeros, ones, relu
+    from shared.tensor.any_tensor import zeros, ones
+    from shared.core import relu
     from shared.core.matrix import matmul
     from shared.training import SGD, MSELoss
     from shared.data import AnyTensorDataset
@@ -604,7 +608,7 @@ fn test_cross_module_computation() raises:
 
 fn test_tensor_operations_safety() raises:
     """Test that tensor operations handle edge cases safely."""
-    from shared.core import zeros, ones, full
+    from shared.tensor.any_tensor import zeros, ones, full
 
     # Test zero-sized tensors
     var empty_data = zeros([0, 5], DType.float32)
@@ -653,7 +657,7 @@ fn test_tensor_operations_safety() raises:
 
 fn test_error_propagation() raises:
     """Test that errors propagate correctly between modules."""
-    from shared.core import zeros
+    from shared.tensor.any_tensor import zeros
     from shared.training import SGD
     from shared.data import AnyTensorDataset
 
@@ -683,7 +687,8 @@ fn test_error_propagation() raises:
 
 fn test_integration_stress() raises:
     """Stress test with realistic deep learning workload."""
-    from shared.core import zeros, ones, relu
+    from shared.tensor.any_tensor import zeros, ones
+    from shared.core import relu
     from shared.core.matrix import matmul
     from shared.training import SGD, MSELoss
     from shared.data import AnyTensorDataset

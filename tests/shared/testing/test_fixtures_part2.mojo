@@ -15,7 +15,7 @@ from shared.testing.fixtures import (
     assert_tensor_shape,
     assert_tensor_dtype,
 )
-from shared.core.any_tensor import ones
+from shared.tensor.any_tensor import ones
 
 
 fn test_create_linear_model() raises:

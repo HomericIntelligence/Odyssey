@@ -20,7 +20,7 @@ Example:
     var prefetch_loader = PrefetchDataLoader(loader, prefetch_factor=2)
 """
 
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.data.loaders import Batch, BatchLoader
 from shared.data.datasets import Dataset
 from shared.data.samplers import Sampler

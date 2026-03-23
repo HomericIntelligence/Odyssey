@@ -18,7 +18,7 @@ Usage:
     mojo examples/mixed_precision_training.mojo
 """
 
-from shared.core import AnyTensor, full
+from shared.tensor.any_tensor import AnyTensor, full
 from shared.training.mixed_precision import (
     GradientScaler,
     convert_to_fp32_master,

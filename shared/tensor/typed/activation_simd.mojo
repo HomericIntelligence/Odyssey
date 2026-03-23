@@ -4,7 +4,7 @@ Internal module -- not part of the public API.
 """
 
 from sys import simd_width_of
-from math import max
+from algorithm import vectorize
 from shared.tensor.tensor import Tensor
 
 

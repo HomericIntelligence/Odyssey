@@ -12,7 +12,7 @@ Bugs tested:
 """
 
 # Import AnyTensor and metrics
-from shared.core.any_tensor import AnyTensor, ones, zeros
+from shared.tensor.any_tensor import AnyTensor, ones, zeros
 from shared.training.metrics.accuracy import top1_accuracy, per_class_accuracy
 
 

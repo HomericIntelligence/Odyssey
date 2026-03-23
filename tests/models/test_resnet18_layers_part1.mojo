@@ -29,7 +29,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.any_tensor import AnyTensor, zeros, ones, full, randn
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, randn
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.activation import relu, relu_backward
 from shared.core.normalization import batch_norm2d

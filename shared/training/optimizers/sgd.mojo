@@ -14,10 +14,10 @@ With weight decay (L2 regularization):
     params = params - learning_rate * (gradients + weight_decay * params)
 """
 
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.core import subtract, multiply, add
 from shared.core.arithmetic_simd import subtract_simd, multiply_simd, add_simd
-from shared.core import full_like
+from shared.tensor.any_tensor import full_like
 
 
 fn sgd_step(
@@ -291,7 +291,7 @@ fn initialize_velocities(
             The order of velocities matches the order of shapes provided.
             Ensure you use the same ordering when calling sgd_momentum_update_inplace.
     """
-    from shared.core.any_tensor import zeros
+    from shared.tensor.any_tensor import zeros
 
     var velocities: List[AnyTensor] = []
 
@@ -336,7 +336,7 @@ fn initialize_velocities_from_params(
             var velocities = initialize_velocities_from_params(params)
             ```
     """
-    from shared.core.any_tensor import zeros
+    from shared.tensor.any_tensor import zeros
 
     var velocities: List[AnyTensor] = []
 

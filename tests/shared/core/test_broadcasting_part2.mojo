@@ -8,7 +8,7 @@ Tests NumPy-style broadcasting rules for trailing size-1 dimensions, missing dim
 """
 
 # Import AnyTensor and operations
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.arithmetic import add, multiply
 from testing import assert_true
 

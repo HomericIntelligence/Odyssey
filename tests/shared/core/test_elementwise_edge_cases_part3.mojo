@@ -14,7 +14,7 @@ Tests edge cases for exp operations including:
 from math import isnan, isinf, exp
 
 # Import AnyTensor and operations
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.elementwise import (
     exp as exp_op,
 )

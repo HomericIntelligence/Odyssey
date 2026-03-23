@@ -14,7 +14,7 @@ from math import isnan, isinf
 # which intermittently overflows a JIT-internal buffer and triggers __fortify_fail_abort.
 # Run 20+ times to observe: `for i in $(seq 1 20); do pixi run mojo run tests/shared/core/test_edge_cases_part1.mojo 2>&1 | grep -E "OK|crashed|PASS"; done`
 # Import AnyTensor and operations
-from shared.core import (
+from shared.tensor.any_tensor import (
     AnyTensor,
     zeros,
     ones,
@@ -23,6 +23,8 @@ from shared.core import (
     nan_tensor,
     inf_tensor,
     neg_inf_tensor,
+)
+from shared.core import (
     add,
     subtract,
     multiply,

@@ -24,7 +24,7 @@ from tests.shared.conftest import (
     assert_false,
     assert_true,
 )
-from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
 from shared.core.conv import conv2d, conv2d_no_bias
 from shared.core.shape import as_contiguous
 

@@ -19,7 +19,7 @@ Optimizations:
 
 from collections import List
 from memory import memcpy, UnsafePointer
-from .any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,

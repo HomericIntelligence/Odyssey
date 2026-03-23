@@ -1,7 +1,7 @@
 """Basic tests for lazy expression evaluation."""
 
 from collections import List
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.lazy_expression import expr, TensorExpr
 from shared.core.lazy_eval import evaluate
 from shared.core.arithmetic import add, subtract, multiply, divide

@@ -25,7 +25,7 @@
 
 from python import Python, PythonObject
 from memory import UnsafePointer
-from shared.core import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.utils.serialization import dtype_to_string
 
 

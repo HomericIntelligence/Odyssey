@@ -24,7 +24,7 @@ Design principles:
 """
 
 from collections import List
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.training.metrics import AccuracyMetric, LossTracker
 from shared.training.trainer_interface import (
     DataLoader,

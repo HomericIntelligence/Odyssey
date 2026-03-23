@@ -7,9 +7,9 @@ These fixtures wrap the comprehensive infrastructure in shared.testing
 with convenient test-specific APIs.
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, ones
-from shared.core.any_tensor import nan_tensor as shared_nan_tensor
-from shared.core.any_tensor import inf_tensor as shared_inf_tensor
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import nan_tensor as shared_nan_tensor
+from shared.tensor.any_tensor import inf_tensor as shared_inf_tensor
 from shared.testing.data_generators import random_tensor as shared_random_tensor
 from shared.testing.data_generators import random_uniform
 

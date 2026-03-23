@@ -10,7 +10,7 @@ from shared.datasets.{{dataset_snake}} import {{dataset}}Dataset
 from shared.training import {{optimizer}}, {{loss}}
 from shared.training.early_stopping import EarlyStopping
 from shared.training.checkpoint import CheckpointManager
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 
 # Hyperparameters

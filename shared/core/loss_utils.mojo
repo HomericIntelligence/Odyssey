@@ -11,7 +11,7 @@ All functions are pure functional - they process inputs to produce outputs witho
 maintaining internal state.
 """
 
-from .any_tensor import AnyTensor, ones_like, zeros_like, full_like
+from shared.tensor.any_tensor import AnyTensor, ones_like, zeros_like, full_like
 from .arithmetic import add, subtract, multiply, divide
 from .elementwise import log, clip, abs
 from .comparison import less, greater

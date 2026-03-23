@@ -37,7 +37,7 @@ Example:
     ```
 """
 
-from shared.core import AnyTensor, zeros, ones, zeros_like
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like
 from shared.core.traits import Model
 
 

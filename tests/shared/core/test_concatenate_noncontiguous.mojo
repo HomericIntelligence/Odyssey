@@ -10,7 +10,8 @@ These tests verify:
 - Incompatible shapes raise the expected error.
 """
 
-from shared.core import AnyTensor, zeros, concatenate
+from shared.tensor.any_tensor import AnyTensor, zeros
+from shared.core import concatenate
 from tests.shared.conftest import (
     assert_numel,
     assert_dim,

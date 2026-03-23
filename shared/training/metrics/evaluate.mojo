@@ -21,7 +21,7 @@ Features:
 
 """
 
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from collections import List
 
 

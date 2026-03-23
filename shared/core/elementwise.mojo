@@ -10,7 +10,7 @@ Layer 3 (core): Tensor[dtype] native implementation (_exp_typed, etc.)
 """
 
 from collections import List
-from .any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from .dtype_dispatch import (
     dispatch_unary,
     dispatch_binary,
@@ -81,11 +81,6 @@ fn math_round[T: DType](x: Scalar[T]) -> Scalar[T]:
         return floor_val
 
 
-# Typed dispatch cores live in shared.tensor.typed.elementwise
-# Imported at module level since they don't bring Tensor type into scope
-from shared.tensor.typed.elementwise import _dispatch_unary_typed
-from shared.tensor.typed.elementwise import _dispatch_float_unary_typed
-
 
 # ============================================================================
 # Unary Operations (Element-wise)
@@ -140,6 +135,8 @@ fn abs(tensor: AnyTensor) raises -> AnyTensor:
             var b = abs(a)  # All values become 3.0
     ```
     """
+    from shared.tensor.typed.elementwise import _dispatch_unary_typed
+
     return _dispatch_unary_typed[_abs_op](tensor)
 
 
@@ -169,6 +166,8 @@ fn sign(tensor: AnyTensor) raises -> AnyTensor:
             var b = sign(a)  # [-1.0, 0.0, 1.0]
     ```
     """
+    from shared.tensor.typed.elementwise import _dispatch_unary_typed
+
     return _dispatch_unary_typed[_sign_op](tensor)
 
 
@@ -198,6 +197,8 @@ fn exp(tensor: AnyTensor) raises -> AnyTensor:
             var b = exp(a)  # All values become 1.0 (e^0)
     ```
     """
+    from shared.tensor.typed.elementwise import _dispatch_float_unary_typed
+
     return _dispatch_float_unary_typed[_exp_op](tensor)
 
 
@@ -230,6 +231,8 @@ fn log(tensor: AnyTensor) raises -> AnyTensor:
             var b = log(a)  # All values become 0.0 (ln(1))
     ```
     """
+    from shared.tensor.typed.elementwise import _dispatch_float_unary_typed
+
     return _dispatch_float_unary_typed[_log_op](tensor)
 
 
@@ -262,6 +265,8 @@ fn sqrt(tensor: AnyTensor) raises -> AnyTensor:
             var b = sqrt(a)  # All values become 2.0
     ```
     """
+    from shared.tensor.typed.elementwise import _dispatch_float_unary_typed
+
     return _dispatch_float_unary_typed[_sqrt_op](tensor)
 
 
@@ -291,6 +296,8 @@ fn sin(tensor: AnyTensor) raises -> AnyTensor:
             var b = sin(a)  # All values become 0.0 (sin(0))
     ```
     """
+    from shared.tensor.typed.elementwise import _dispatch_float_unary_typed
+
     return _dispatch_float_unary_typed[_sin_op](tensor)
 
 
@@ -320,6 +327,8 @@ fn cos(tensor: AnyTensor) raises -> AnyTensor:
             var b = cos(a)  # All values become 1.0 (cos(0))
     ```
     """
+    from shared.tensor.typed.elementwise import _dispatch_float_unary_typed
+
     return _dispatch_float_unary_typed[_cos_op](tensor)
 
 
@@ -349,6 +358,8 @@ fn tanh(tensor: AnyTensor) raises -> AnyTensor:
             var b = tanh(a)  # All values become 0.0 (tanh(0))
     ```
     """
+    from shared.tensor.typed.elementwise import _dispatch_float_unary_typed
+
     return _dispatch_float_unary_typed[_tanh_op](tensor)
 
 
@@ -800,6 +811,8 @@ fn ceil(tensor: AnyTensor) raises -> AnyTensor:
             var b = ceil(a)  # [2.0, 3.0, 4.0]
     ```
     """
+    from shared.tensor.typed.elementwise import _dispatch_float_unary_typed
+
     return _dispatch_float_unary_typed[_ceil_op](tensor)
 
 
@@ -829,6 +842,8 @@ fn floor(tensor: AnyTensor) raises -> AnyTensor:
             var b = floor(a)  # [1.0, 2.0, 3.0]
     ```
     """
+    from shared.tensor.typed.elementwise import _dispatch_float_unary_typed
+
     return _dispatch_float_unary_typed[_floor_op](tensor)
 
 
@@ -858,6 +873,8 @@ fn round(tensor: AnyTensor) raises -> AnyTensor:
             var b = round(a)  # [1.0, 2.0, 4.0] (or [1.0, 3.0, 4.0] depending on rounding mode)
     ```
     """
+    from shared.tensor.typed.elementwise import _dispatch_float_unary_typed
+
     return _dispatch_float_unary_typed[_round_op](tensor)
 
 
@@ -887,6 +904,8 @@ fn trunc(tensor: AnyTensor) raises -> AnyTensor:
             var b = trunc(a)  # [1.0, -2.0, 3.0]
     ```
     """
+    from shared.tensor.typed.elementwise import _dispatch_float_unary_typed
+
     return _dispatch_float_unary_typed[_trunc_op](tensor)
 
 
@@ -1653,5 +1672,3 @@ fn log2_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     var result = AnyTensor(grad_output.shape(), grad_output.dtype())
     _dispatch_log2_backward(result, grad_output, x, grad_output.numel())
     return result
-
-

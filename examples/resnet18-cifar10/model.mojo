@@ -58,7 +58,7 @@ References:
     - CIFAR-10 Dataset: https://www.cs.toronto.edu/~kriz/cifar.html
 """
 
-from shared.core import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import avgpool2d, avgpool2d_backward
 from shared.core.linear import linear, linear_backward

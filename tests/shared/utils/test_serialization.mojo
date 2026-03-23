@@ -4,7 +4,7 @@ Tests checkpoint save/load operations with named tensors and metadata.
 Covers both single tensor and collection operations.
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.utils import (
     NamedTensor,
     save_named_tensors,

@@ -31,8 +31,8 @@ Common Patterns Supported:
 - Parameter update helpers
 """
 
+from shared.tensor.any_tensor import AnyTensor, ones
 from shared.core import (
-    AnyTensor,
     add,
     multiply,
     subtract,
@@ -47,7 +47,6 @@ from shared.core import (
     binary_cross_entropy_backward,
     cross_entropy,
     cross_entropy_backward,
-    ones,
 )
 
 

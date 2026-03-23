@@ -28,7 +28,7 @@ Note: These tests work around Mojo v0.26.1 limitations:
 - Tests use reference count as proxy for memory safety
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from tests.shared.conftest import assert_true, assert_equal_int
 
 

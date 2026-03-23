@@ -11,9 +11,8 @@ Key components:
              y = gamma * (x - running_mean) / sqrt(running_var + eps) + beta (inference)
 """
 
-from ..any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from ..normalization_simd import batch_norm2d_fused
-from shared.tensor.tensor import Tensor
 
 
 struct BatchNorm2dLayer[dtype: DType = DType.float32](Copyable, Movable):
@@ -103,8 +102,8 @@ struct BatchNorm2dLayer[dtype: DType = DType.float32](Copyable, Movable):
         self.running_var = ones(running_var_shape, Self.dtype)
 
     fn forward(
-        mut self, input: Tensor[Self.dtype], training: Bool = True
-    ) raises -> Tensor[Self.dtype]:
+        mut self, input: AnyTensor, training: Bool = True
+    ) raises -> AnyTensor:
         """Forward pass with batch normalization.
 
         In training mode: computes batch statistics and updates running stats
@@ -124,12 +123,12 @@ struct BatchNorm2dLayer[dtype: DType = DType.float32](Copyable, Movable):
         Example:
             ```mojo
             var bn = BatchNorm2dLayer(16)
-            var input_t = Tensor[DType.float32]([2, 16, 32, 32])
+            var input_t = zeros([2, 16, 32, 32], DType.float32)
             var output = bn.forward(input_t, training=True)
             ```
         """
         var (output, new_running_mean, new_running_var) = batch_norm2d_fused(
-            input.as_any(),
+            input,
             self.gamma,
             self.beta,
             self.running_mean,
@@ -144,7 +143,7 @@ struct BatchNorm2dLayer[dtype: DType = DType.float32](Copyable, Movable):
             self.running_mean = new_running_mean^
             self.running_var = new_running_var^
 
-        return output.as_tensor[Self.dtype]()
+        return output^
 
     fn parameters(self) raises -> List[AnyTensor]:
         """Get list of trainable parameters.

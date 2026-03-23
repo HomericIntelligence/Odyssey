@@ -22,7 +22,7 @@ from shared.core.activation import tanh, gelu
 from shared.core.activation import tanh_backward, gelu_backward
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.linear import linear, linear_backward
-from shared.core.any_tensor import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.core.initializers import kaiming_uniform
 from shared.testing.gradient_checker import check_gradients
 from shared.testing.special_values import create_seeded_random_tensor

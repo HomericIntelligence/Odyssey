@@ -10,7 +10,7 @@ All operations return boolean tensors (DType.bool).
 """
 
 # Import AnyTensor and comparison operations
-from shared.core.any_tensor import AnyTensor, full, ones, zeros
+from shared.tensor.any_tensor import AnyTensor, full, ones, zeros
 from shared.core.comparison import less, less_equal
 
 # Import test helpers

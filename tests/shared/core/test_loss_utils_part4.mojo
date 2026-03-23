@@ -14,7 +14,7 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_greater_or_equal,
 )
-from shared.core.any_tensor import AnyTensor, zeros, full
+from shared.tensor.any_tensor import AnyTensor, zeros, full
 from shared.core.loss_utils import (
     compute_ratio,
     negate_tensor,

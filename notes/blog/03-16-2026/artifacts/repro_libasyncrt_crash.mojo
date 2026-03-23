@@ -29,7 +29,7 @@ Stack trace (constant across runs):
   #4 libAsyncRTRuntimeGlobals.so +0x416ba  (allocator — crash origin)
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.conv import conv2d
 from shared.core.linear import linear
 from shared.core.activation import relu

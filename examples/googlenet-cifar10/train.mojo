@@ -32,9 +32,8 @@ Training Details:
     - Epochs: 200 (recommended)
 """
 
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.core import (
-    AnyTensor,
-    zeros,
     conv2d,
     maxpool2d,
     global_avgpool2d,
@@ -43,7 +42,6 @@ from shared.core import (
     linear,
     dropout,
     cross_entropy,
-    # Backward functions
     conv2d_backward,
     maxpool2d_backward,
     global_avgpool2d_backward,

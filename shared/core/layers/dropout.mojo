@@ -10,7 +10,7 @@ Key components:
                y = x during inference
 """
 
-from ..any_tensor import AnyTensor, zeros_like, full
+from shared.tensor.any_tensor import AnyTensor, zeros_like, full
 from random import random_float64
 
 

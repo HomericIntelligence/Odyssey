@@ -22,7 +22,7 @@ from testing import assert_true, assert_almost_equal
 from shared.core.sequential import Sequential2, Sequential3
 from shared.core.layers.linear import Linear
 from shared.core.layers.relu import ReLULayer
-from shared.core.any_tensor import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
 
 
 fn test_sequential2_forward_linear_relu() raises:

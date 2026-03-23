@@ -5,7 +5,7 @@ Internal module -- not part of the public API.
 
 from math import exp, erf, sqrt, tanh as math_tanh, log as math_log
 from shared.tensor.tensor import Tensor
-from shared.core.any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.core.activation_constants import (
     RELU6_UPPER_BOUND,
     SIGMOID_CLIP_THRESHOLD,
@@ -345,4 +345,3 @@ fn _tanh_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     for i in range(size):
         result._data[i] = _tanh_op[dt](input._data[i])
     return result^
-

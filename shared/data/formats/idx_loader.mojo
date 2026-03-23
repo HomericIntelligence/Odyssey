@@ -18,7 +18,7 @@ References:
     - IDX Format: http://yann.lecun.com/exdb/mnist/
 """
 
-from shared.core import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from memory import UnsafePointer
 
 

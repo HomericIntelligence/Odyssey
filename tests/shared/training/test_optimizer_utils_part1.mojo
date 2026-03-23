@@ -14,7 +14,7 @@ These tests verify the common utilities available to all optimizer implementatio
 """
 
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
-from shared.core.any_tensor import AnyTensor, zeros, ones, full, zeros_like
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, zeros_like
 from shared.training.optimizers import (
     initialize_optimizer_state,
     initialize_optimizer_state_from_params,

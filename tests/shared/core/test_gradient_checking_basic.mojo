@@ -10,7 +10,7 @@ corruption bug that occurs after ~15 cumulative tests. See ADR-009.
 
 from tests.shared.conftest import assert_true
 from shared.testing import check_gradients
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.activation import (
     relu,
     relu_backward,

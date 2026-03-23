@@ -40,7 +40,7 @@ Error Handling:
 See notes/issues/dtype-refactoring-plan.md for complete design documentation
 """
 
-from .any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from collections import List
 from shared.base.dtype_ordinal import (
     dtype_to_ordinal,

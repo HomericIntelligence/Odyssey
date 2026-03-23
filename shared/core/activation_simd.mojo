@@ -37,7 +37,7 @@ Related:
 from algorithm import vectorize
 from sys.info import simd_width_of
 from math import exp as math_exp
-from .any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from .activation_constants import SIGMOID_CLIP_THRESHOLD
 
 
@@ -605,7 +605,3 @@ fn _swish_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
         out_ptr.store[width=width](idx, swish_result)
 
     vectorize[simd_width](size, vectorized_swish)
-
-
-
-

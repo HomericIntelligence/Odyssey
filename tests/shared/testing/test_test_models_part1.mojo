@@ -17,7 +17,7 @@ from shared.testing import (
     assert_true,
     assert_equal,
 )
-from shared.core.any_tensor import (
+from shared.tensor.any_tensor import (
     AnyTensor,
     zeros,
     ones,

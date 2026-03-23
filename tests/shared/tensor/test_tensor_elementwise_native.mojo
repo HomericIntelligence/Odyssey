@@ -11,7 +11,7 @@ Tests cover:
 """
 
 from testing import assert_true, assert_almost_equal
-from shared.core.any_tensor import AnyTensor, full as any_full, zeros as any_zeros
+from shared.tensor.any_tensor import AnyTensor, full as any_full, zeros as any_zeros
 from shared.core.elementwise import (
     exp,
     log,

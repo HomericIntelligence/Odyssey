@@ -10,7 +10,7 @@ See documentation: docs/core/mojo-patterns.md
 
 from algorithm import vectorize
 from sys.info import simd_width_of
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 
 fn simple_simd_add(tensor1: AnyTensor, tensor2: AnyTensor) raises -> AnyTensor:

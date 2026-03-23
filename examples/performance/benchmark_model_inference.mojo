@@ -21,7 +21,7 @@ from shared.benchmarking import (
     print_benchmark_summary,
     BenchmarkResult,
 )
-from shared.core import AnyTensor, ones
+from shared.tensor.any_tensor import AnyTensor, ones
 
 
 # ============================================================================

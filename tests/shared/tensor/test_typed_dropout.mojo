@@ -19,7 +19,7 @@ Tests cover:
 
 from testing import assert_true, assert_almost_equal
 from shared.core.layers.dropout import DropoutLayer
-from shared.core.any_tensor import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 
 
 fn test_dropout_forward_preserves_dtype_f32() raises:

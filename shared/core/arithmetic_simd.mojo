@@ -28,16 +28,7 @@ Usage:
 
 from algorithm import vectorize
 from sys.info import simd_width_of
-from .any_tensor import AnyTensor
-
-
-# Typed SIMD cores live in shared.tensor.typed.arithmetic_simd
-from shared.tensor.typed.arithmetic_simd import (
-    _add_simd_typed,
-    _subtract_simd_typed,
-    _multiply_simd_typed,
-    _divide_simd_typed,
-)
+from shared.tensor.any_tensor import AnyTensor
 
 
 # ============================================================================
@@ -90,6 +81,8 @@ fn add_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         return add(a, b)
 
     # Dispatch to typed SIMD core
+    from shared.tensor.typed.arithmetic_simd import _add_simd_typed
+
     if a.dtype() == DType.float32:
         return _add_simd_typed[DType.float32](
             a.as_tensor[DType.float32](), b.as_tensor[DType.float32]()
@@ -126,6 +119,8 @@ fn subtract_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
         return subtract(a, b)
 
+    from shared.tensor.typed.arithmetic_simd import _subtract_simd_typed
+
     if a.dtype() == DType.float32:
         return _subtract_simd_typed[DType.float32](
             a.as_tensor[DType.float32](), b.as_tensor[DType.float32]()
@@ -161,6 +156,8 @@ fn multiply_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
         return multiply(a, b)
 
+    from shared.tensor.typed.arithmetic_simd import _multiply_simd_typed
+
     if a.dtype() == DType.float32:
         return _multiply_simd_typed[DType.float32](
             a.as_tensor[DType.float32](), b.as_tensor[DType.float32]()
@@ -195,6 +192,8 @@ fn divide_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         from .arithmetic import divide
 
         return divide(a, b)
+
+    from shared.tensor.typed.arithmetic_simd import _divide_simd_typed
 
     if a.dtype() == DType.float32:
         return _divide_simd_typed[DType.float32](

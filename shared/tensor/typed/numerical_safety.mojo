@@ -200,6 +200,3 @@ fn _compute_l2_norm_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
         var val = Float64(ptr[i])
         sum_sq += val * val
     return sqrt(sum_sq)
-
-
-

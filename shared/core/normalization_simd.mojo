@@ -36,7 +36,7 @@ Related:
 
 from algorithm import vectorize
 from sys.info import simd_width_of
-from .any_tensor import (
+from shared.tensor.any_tensor import (
     AnyTensor,
     zeros,
     zeros_like,

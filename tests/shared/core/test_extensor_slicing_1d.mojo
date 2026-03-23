@@ -3,7 +3,7 @@
 # high test load. Split from test_anytensor_slicing.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """Tests for AnyTensor 1D slicing operations (basic and strided)."""
 
-from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 

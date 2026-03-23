@@ -9,7 +9,7 @@ Covers:
 CI verification: issue #3840. All 17 tests verified passing in CI.
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 

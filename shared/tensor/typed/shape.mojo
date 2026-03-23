@@ -5,7 +5,7 @@ Internal module -- not part of the public API.
 
 from collections import List, Optional
 from shared.tensor.tensor import Tensor
-from shared.core.any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.base.broadcasting import (
     are_shapes_broadcastable,
     compute_broadcast_strides,

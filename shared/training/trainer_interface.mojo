@@ -16,7 +16,7 @@ Design principles:
 """
 
 from collections import List
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 
 struct TrainerConfig(Copyable, Movable):

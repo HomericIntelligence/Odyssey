@@ -15,7 +15,7 @@ from shared.data import (
 )
 from shared.data.prefetch import PrefetchBuffer, PrefetchDataLoader
 from shared.data.loaders import Batch
-from shared.core.any_tensor import AnyTensor, ones, zeros
+from shared.tensor.any_tensor import AnyTensor, ones, zeros
 from collections import List
 
 

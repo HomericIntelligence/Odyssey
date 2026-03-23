@@ -10,7 +10,7 @@ Test Coverage:
 - compute_gradient_statistics: Gradient monitoring and health checks
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.training.gradient_clipping import (
     compute_gradient_norm_list,
     clip_gradients_by_global_norm,

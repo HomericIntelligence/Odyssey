@@ -13,7 +13,7 @@ Where:
     d_k: Key dimension (used for scaling).
 """
 
-from .any_tensor import AnyTensor, zeros, zeros_like, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, zeros_like, ones
 from .matrix import matmul, transpose
 from .activation import softmax
 from .arithmetic import multiply, divide, add
@@ -901,5 +901,3 @@ fn multi_head_attention_backward(
     return MultiHeadAttentionBackwardResult(
         grad_query, grad_key, grad_value, grad_wq, grad_wk, grad_wv, grad_wo
     )
-
-

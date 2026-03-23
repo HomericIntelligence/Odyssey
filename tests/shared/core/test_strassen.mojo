@@ -19,7 +19,7 @@ from tests.shared.conftest import (
     assert_equal_int,
     assert_true,
 )
-from shared.core.any_tensor import AnyTensor, zeros, ones, zeros_like
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like
 from shared.core.strassen import matmul_strassen, next_power_of_2
 from shared.core.matmul import matmul_tiled
 

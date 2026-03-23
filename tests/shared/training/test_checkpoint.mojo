@@ -11,7 +11,7 @@ Test Coverage:
 - Metadata persistence: Epoch, metrics stored correctly
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.training.checkpoint import CheckpointManager
 from shared.testing.assertions import (
     assert_true,

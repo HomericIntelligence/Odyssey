@@ -9,7 +9,7 @@ UInt32, and UInt64 built-in types, including:
 - Handling overflow and type casting
 """
 
-from shared.core.any_tensor import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 
 
 fn example_basic_signed_integers() raises:

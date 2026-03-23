@@ -9,7 +9,7 @@ using the current public API: transpose(), reshape(), view() from shape.mojo,
 and multi-dimensional __getitem__.
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, ones, arange
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, arange
 from shared.core.shape import view
 from tests.shared.conftest import assert_true, assert_false, assert_almost_equal, assert_equal
 

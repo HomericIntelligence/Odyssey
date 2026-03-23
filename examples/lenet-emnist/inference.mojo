@@ -18,7 +18,7 @@ References:
 
 from model import LeNet5
 from shared.data import load_idx_labels, load_idx_images, normalize_images
-from shared.core import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.utils.arg_parser import ArgumentParser
 from shared.training.metrics import (
     evaluate_with_predict,

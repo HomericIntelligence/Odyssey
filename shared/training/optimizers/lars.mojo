@@ -17,10 +17,10 @@ Reference:
     for Massive Batch Training. arXiv preprint arXiv:1708.03888
 """
 
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.core import subtract, multiply, add
 from shared.core.arithmetic_simd import subtract_simd, multiply_simd, add_simd
-from shared.core import full_like
+from shared.tensor.any_tensor import full_like
 from shared.core import compute_tensor_l2_norm
 
 

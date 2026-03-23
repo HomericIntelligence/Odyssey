@@ -17,7 +17,7 @@ Tests cover:
 
 from testing import assert_true, assert_almost_equal
 from shared.tensor.tensor import Tensor
-from shared.core.any_tensor import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 
 
 fn test_anytensor_alias_works() raises:

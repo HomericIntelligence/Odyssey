@@ -8,7 +8,7 @@ Tests large tensor operations, precision with reductions, and numerical behavior
 """
 
 # Import AnyTensor and operations
-from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
 from shared.core.arithmetic import add, multiply, subtract
 from shared.core.reduction import sum, mean, max_reduce, min_reduce
 

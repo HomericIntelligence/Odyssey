@@ -25,18 +25,9 @@ Example:
     ```
 """
 
-from .any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from math import isnan, isinf, sqrt
 from collections import List
-from shared.tensor.typed.numerical_safety import (
-    _has_nan_core,
-    _has_inf_core,
-    _count_nan_core,
-    _count_inf_core,
-    _tensor_min_core,
-    _tensor_max_core,
-    _compute_l2_norm_core,
-)
 from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
@@ -84,6 +75,8 @@ fn has_nan(tensor: AnyTensor) -> Bool:
     Note:
             Checks all elements regardless of dtype. Supports all floating-point types.
     """
+    from shared.tensor.typed.numerical_safety import _has_nan_core
+
     # Only float types can have NaN - fast path for integers
     var dtype = tensor.dtype()
     if dtype == DType.float32:
@@ -123,6 +116,8 @@ fn has_inf(tensor: AnyTensor) -> Bool:
     Note:
             Checks all elements regardless of dtype. Supports all floating-point types.
     """
+    from shared.tensor.typed.numerical_safety import _has_inf_core
+
     var dtype = tensor.dtype()
     if dtype == DType.float32:
         try:
@@ -157,6 +152,8 @@ fn count_nan(tensor: AnyTensor) -> Int:
             assert_equal(count_nan(x), 2)
             ```
     """
+    from shared.tensor.typed.numerical_safety import _count_nan_core
+
     var dtype = tensor.dtype()
     if dtype == DType.float32:
         try:
@@ -191,6 +188,8 @@ fn count_inf(tensor: AnyTensor) -> Int:
             assert_equal(count_inf(x), 2)
             ```
     """
+    from shared.tensor.typed.numerical_safety import _count_inf_core
+
     var dtype = tensor.dtype()
     if dtype == DType.float32:
         try:
@@ -266,6 +265,8 @@ fn tensor_min(tensor: AnyTensor) -> Float64:
             assert_equal(tensor_min(x), -5.0)
             ```
     """
+    from shared.tensor.typed.numerical_safety import _tensor_min_core
+
     var dtype = tensor.dtype()
     if dtype == DType.float32:
         try:
@@ -300,6 +301,8 @@ fn tensor_max(tensor: AnyTensor) -> Float64:
             assert_equal(tensor_max(x), 10.0)
             ```
     """
+    from shared.tensor.typed.numerical_safety import _tensor_max_core
+
     var dtype = tensor.dtype()
     if dtype == DType.float32:
         try:
@@ -376,6 +379,8 @@ fn compute_tensor_l2_norm(tensor: AnyTensor) -> Float64:
             assert_equal(compute_tensor_l2_norm(x), 5.0)  # sqrt(9 + 16)
             ```
     """
+    from shared.tensor.typed.numerical_safety import _compute_l2_norm_core
+
     var dtype = tensor.dtype()
     if dtype == DType.float32:
         try:
@@ -628,5 +633,3 @@ fn clip_grad_global_norm_(
                 grad._set_float64(elem_idx, val * scale_factor)
 
     return global_norm
-
-

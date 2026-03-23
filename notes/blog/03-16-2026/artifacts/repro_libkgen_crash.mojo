@@ -40,7 +40,7 @@ code. A fully self-contained reproducer would require reimplementing conv2d
 (~200 lines) which defeats the purpose of minimality.
 """
 
-from shared.core.any_tensor import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.conv import conv2d
 from shared.core.activation import relu
 

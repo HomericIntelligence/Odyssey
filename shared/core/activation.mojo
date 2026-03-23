@@ -28,7 +28,7 @@ Issues covered:
 
 from math import exp, erf, sqrt, tanh as math_tanh, log as math_log
 from collections import List
-from .any_tensor import AnyTensor, full, zeros_like
+from shared.tensor.any_tensor import AnyTensor, full, zeros_like
 from .arithmetic import add, subtract, multiply
 from .reduction import sum as tensor_sum, max as tensor_max
 from .elementwise import log
@@ -68,18 +68,6 @@ from .activation_ops import exp_scalar_f32, exp_scalar_f64
 from .activation_constants import (
     RELU6_UPPER_BOUND,
     SIGMOID_CLIP_THRESHOLD,
-)
-
-
-# Typed dispatch cores live in shared.tensor.typed.activation
-from shared.tensor.typed.activation import (
-    _dispatch_relu,
-    _dispatch_relu6,
-    _dispatch_sigmoid,
-    _dispatch_leaky_relu,
-    _dispatch_elu,
-    _dispatch_selu,
-    _tanh_typed,
 )
 
 
@@ -129,6 +117,8 @@ fn relu(tensor: AnyTensor) raises -> AnyTensor:
         var y = relu(x)        # [0, 0, 0, 1, 2]
     ```
     """
+    from shared.tensor.typed.activation import _dispatch_relu
+
     return _dispatch_relu(tensor)
 
 
@@ -156,6 +146,8 @@ fn relu6(tensor: AnyTensor) raises -> AnyTensor:
         var y = relu6(x)       # [0, 0, 3, 6, 6]
     ```
     """
+    from shared.tensor.typed.activation import _dispatch_relu6
+
     return _dispatch_relu6(tensor)
 
 
@@ -183,6 +175,8 @@ fn leaky_relu(tensor: AnyTensor, alpha: Float64 = 0.01) raises -> AnyTensor:
             var y = leaky_relu(x, 0.01)     # [-0.02, -0.01, 0, 1, 2]
     ```
     """
+    from shared.tensor.typed.activation import _dispatch_leaky_relu
+
     return _dispatch_leaky_relu(tensor, alpha)
 
 
@@ -326,6 +320,8 @@ fn sigmoid(tensor: AnyTensor) raises -> AnyTensor:
             var y = sigmoid(x)     # [0.119, 0.5, 0.881]
     ```
     """
+    from shared.tensor.typed.activation import _dispatch_sigmoid
+
     return _dispatch_sigmoid(tensor)
 
 
@@ -373,6 +369,8 @@ fn tanh(tensor: AnyTensor) raises -> AnyTensor:
             var y = tanh(x)        # [-0.964, 0, 0.964]
     ```
     """
+    from shared.tensor.typed.activation import _tanh_typed
+
     var ordinal = dtype_to_ordinal(tensor._dtype)
     if ordinal == DTYPE_FLOAT16:
         return _tanh_typed[DType.float16](tensor.as_tensor[DType.float16]()).as_any()
@@ -995,6 +993,8 @@ fn elu(tensor: AnyTensor, alpha: Float64 = 1.0) raises -> AnyTensor:
             Clevert et al., "Fast and Accurate Deep Network Learning by.
             Exponential Linear Units (ELUs)" (2015).
     """
+    from shared.tensor.typed.activation import _dispatch_elu
+
     return _dispatch_elu(tensor, alpha)
 
 
@@ -1027,6 +1027,8 @@ fn selu(
     Reference:
         Klambauer et al., "Self-Normalizing Neural Networks" (2017).
     """
+    from shared.tensor.typed.activation import _dispatch_selu
+
     return _dispatch_selu(tensor, alpha, lambda_)
 
 
@@ -1450,5 +1452,3 @@ fn hard_tanh_backward(
         )
 
     return dispatch_hard_tanh_backward(grad_output, x, min_val, max_val)
-
-

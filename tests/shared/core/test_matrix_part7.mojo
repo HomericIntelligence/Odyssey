@@ -30,7 +30,7 @@ from tests.shared.conftest import (
     assert_value_at,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.any_tensor import (
+from shared.tensor.any_tensor import (
     AnyTensor,
     zeros,
     ones,

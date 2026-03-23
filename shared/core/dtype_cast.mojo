@@ -4,7 +4,7 @@ Provides efficient dtype conversion for tensors with optimized paths
 for common conversions (FP32 <-> FP16, FP32 <-> BF16).
 """
 
-from .any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.core.types.dtype_aliases import BF16
 from memory import bitcast
 

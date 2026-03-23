@@ -19,7 +19,7 @@ References:
 """
 
 from shared.core.conv import conv2d, conv2d_backward
-from shared.core.any_tensor import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.testing.gradient_checker import check_gradients
 from shared.testing.assertions import assert_true
 

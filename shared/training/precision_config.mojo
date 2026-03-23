@@ -23,7 +23,7 @@ See examples/mixed_precision_training.mojo for complete usage
 
 from sys import is_defined
 
-from shared.core.any_tensor import AnyTensor, full, zeros
+from shared.tensor.any_tensor import AnyTensor, full, zeros
 from shared.core.dtype_cast import cast_tensor
 from shared.core.numerical_safety import has_nan, has_inf
 from shared.training.mixed_precision import (

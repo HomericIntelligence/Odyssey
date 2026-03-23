@@ -35,7 +35,7 @@ References:
 from algorithm import vectorize
 from sys.info import simd_width_of
 from memory import memset_zero
-from .any_tensor import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from .error_utils import format_dtype, format_matmul_error
 from .strassen import (
     matmul_strassen,

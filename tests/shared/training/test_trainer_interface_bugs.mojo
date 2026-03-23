@@ -11,7 +11,7 @@ Bug tested:
 """
 
 # Import AnyTensor and trainer interface
-from shared.core.any_tensor import AnyTensor, ones
+from shared.tensor.any_tensor import AnyTensor, ones
 from shared.training.trainer_interface import DataLoader
 
 

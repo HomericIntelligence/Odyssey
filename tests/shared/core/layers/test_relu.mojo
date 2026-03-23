@@ -8,7 +8,7 @@ Tests cover:
 
 from testing import assert_true, assert_false
 from shared.core.layers import ReLULayer
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 
 
 fn test_relu_forward_basic() raises:

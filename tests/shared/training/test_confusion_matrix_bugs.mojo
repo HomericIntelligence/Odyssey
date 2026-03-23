@@ -11,7 +11,7 @@ Bug tested:
 """
 
 # Import AnyTensor and confusion matrix
-from shared.core.any_tensor import AnyTensor, ones, zeros
+from shared.tensor.any_tensor import AnyTensor, ones, zeros
 from shared.training.metrics.confusion_matrix import ConfusionMatrix
 
 

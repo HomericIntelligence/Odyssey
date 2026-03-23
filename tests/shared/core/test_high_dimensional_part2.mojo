@@ -8,7 +8,7 @@ Tests 6D/7D tensor operations, broadcasting, and large tensors.
 """
 
 # Import AnyTensor and operations
-from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
 from shared.core.arithmetic import add, multiply, subtract
 from shared.core.reduction import sum, mean, max_reduce, min_reduce
 

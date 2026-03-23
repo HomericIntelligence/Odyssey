@@ -22,7 +22,7 @@ Functions:
     validate_matching_dtype: Validate two tensors have matching dtype
 """
 
-from .any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 
 fn validate_tensor_shape(

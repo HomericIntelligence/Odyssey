@@ -16,7 +16,7 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_close_float,
 )
-from shared.core.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.loss import binary_cross_entropy, binary_cross_entropy_backward
 from shared.core.loss import mean_squared_error, mean_squared_error_backward
 from shared.core.reduction import mean

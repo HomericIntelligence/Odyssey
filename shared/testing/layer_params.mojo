@@ -18,7 +18,7 @@ Usage:
     var fc_bias = fc_fixture.bias
 """
 
-from shared.core import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.core import kaiming_uniform
 
 

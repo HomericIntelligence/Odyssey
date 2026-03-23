@@ -9,7 +9,7 @@ Tests:
 - Flatten operation: float32, float16
 """
 
-from shared.core.any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from shared.testing.assertions import (
     assert_shape,
     assert_dtype,

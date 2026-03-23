@@ -18,9 +18,8 @@ Non-contiguous setup pattern (transpose_view):
 """
 
 # Import AnyTensor and shape operations
+from shared.tensor.any_tensor import AnyTensor, arange
 from shared.core import (
-    AnyTensor,
-    arange,
     reshape,
     flatten,
     concatenate,

@@ -19,7 +19,7 @@ References:
     - Reference Implementation: https://github.com/mattwang44/LeNet-from-Scratch
 """
 
-from shared.core import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import maxpool2d, maxpool2d_backward
 from shared.core.linear import linear, linear_backward

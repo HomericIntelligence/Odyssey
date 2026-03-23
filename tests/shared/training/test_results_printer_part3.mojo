@@ -14,7 +14,7 @@ from tests.shared.conftest import (
     assert_false,
     assert_equal,
 )
-from shared.core.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.training.metrics import (
     print_evaluation_summary,
     print_per_class_accuracy,

@@ -9,7 +9,7 @@ mean axis=1, max_reduce/min_reduce with axis parameter, and cross-reduction cons
 """
 
 # Import AnyTensor and reduction operations
-from shared.core.any_tensor import AnyTensor, full, ones, zeros, arange
+from shared.tensor.any_tensor import AnyTensor, full, ones, zeros, arange
 from shared.core.reduction import sum, mean, max_reduce, min_reduce
 
 # Import test helpers

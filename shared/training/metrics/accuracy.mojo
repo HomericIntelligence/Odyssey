@@ -15,7 +15,7 @@ Issues covered:
 - #278-282: Accuracy metrics implementation
 """
 
-from shared.core import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 from collections import List
 from shared.training.metrics.base import Metric
 

@@ -13,7 +13,7 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_true,
 )
-from shared.core.any_tensor import (
+from shared.tensor.any_tensor import (
     AnyTensor,
     zeros,
     ones_like,

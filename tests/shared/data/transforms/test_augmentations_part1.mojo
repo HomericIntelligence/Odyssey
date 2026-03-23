@@ -22,7 +22,7 @@ from shared.data.transforms import (
     CenterCrop,
     RandomErasing,
 )
-from shared.core.any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 
 

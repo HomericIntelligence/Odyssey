@@ -32,7 +32,7 @@ Output:
 """
 
 from shared.utils.arg_parser import ArgumentParser
-from shared.core import AnyTensor, zeros, ones
+from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from time import perf_counter_ns
 from collections import List
 

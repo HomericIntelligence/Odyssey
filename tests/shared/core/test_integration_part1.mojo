@@ -9,7 +9,7 @@ Split from test_integration.mojo per ADR-009 to avoid heap corruption.
 """
 
 # Import AnyTensor and operations
-from shared.core.any_tensor import AnyTensor, zeros, ones, full, arange, eye, linspace
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange, eye, linspace
 from shared.core.arithmetic import add, subtract, multiply
 
 # Import test helpers

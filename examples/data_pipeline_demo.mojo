@@ -39,7 +39,7 @@ from shared.data import (
     PrefetchDataLoader,
 )
 from shared.data.transforms import Normalize, Compose
-from shared.core.any_tensor import AnyTensor, ones, zeros
+from shared.tensor.any_tensor import AnyTensor, ones, zeros
 from collections import List
 
 

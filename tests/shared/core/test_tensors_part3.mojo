@@ -21,7 +21,7 @@ from tests.shared.conftest import (
     assert_dtype_equal,
 )
 from tests.shared.conftest import TestFixtures
-from shared.core.any_tensor import (
+from shared.tensor.any_tensor import (
     AnyTensor,
     zeros,
     ones,
