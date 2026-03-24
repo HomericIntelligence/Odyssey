@@ -22,8 +22,8 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["src*"]
-exclude = ["tests*", "notes*", "agents*", "papers*", "docs*", "logs*", "scripts*"]
+include = ["scripts*"]
+exclude = ["tests*", "notes*", "agents*", "papers*", "docs*", "logs*"]
 
 [project.optional-dependencies]
 dev = [
@@ -44,14 +44,14 @@ python_classes = "Test*"
 python_functions = "test_*"
 addopts = [
     "--verbose",
-    "--cov=src",
+    "--cov=scripts",
     "--cov-report=term-missing",
     "--cov-report=xml",
     "--cov-report=html",
 ]
 
 [tool.coverage.run]
-source = ["src"]
+source = ["scripts"]
 omit = ["tests/*", "**/__pycache__/*"]
 
 [tool.coverage.report]
@@ -63,26 +63,5 @@ skip_covered = false
 line-length = 120
 target-version = "py311"
 
-# mypy configuration note: pyproject.toml [tool.mypy] and mypy.ini are both present.
-# mypy.ini takes precedence over pyproject.toml when both exist (mypy resolution order:
-# mypy.ini > .mypy.ini > setup.cfg > pyproject.toml). Settings here are intentionally
-# kept as a fallback reference; mypy.ini is the authoritative config. See #4034.
-[tool.mypy]
-python_version = "3.12"
-warn_return_any = false
-warn_unused_configs = true
-disallow_untyped_defs = false
-disallow_incomplete_defs = false
-check_untyped_defs = false
-no_implicit_optional = false
-warn_redundant_casts = true
-warn_unused_ignores = false
-warn_no_return = false
-warn_unreachable = false
-strict_equality = true
-show_error_codes = true
-pretty = true
-ignore_missing_imports = true
-explicit_package_bases = true
-mypy_path = "."
-exclude = "generators/"
+# mypy configuration: mypy.ini is the single source of truth.
+# Do NOT add [tool.mypy] here -- see mypy.ini for all mypy settings.
