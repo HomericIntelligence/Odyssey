@@ -42,12 +42,21 @@ jobs:
           fetch-depth: 0  # Required: full history needed for gitleaks git-log mode (do not remove, see #3316)
 
       - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7  # v2.3.9
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: --exit-code=1
-          config: .gitleaks.toml
+        run: |
+          # Pinned to v8.30.0 — update hash when upgrading version (see #3316)
+          wget -q https://github.com/gitleaks/gitleaks/releases/download/v8.30.0/gitleaks_8.30.0_linux_x64.tar.gz
+          # Verify integrity before execution — SHA256 from https://github.com/gitleaks/gitleaks/releases/download/v8.30.0/gitleaks_8.30.0_checksums.txt
+          echo "79a3ab579b53f71efd634f3aaf7e04a0fa0cf206b7ed434638d1547a2470a66e  gitleaks_8.30.0_linux_x64.tar.gz" | sha256sum --check
+          tar -xzf gitleaks_8.30.0_linux_x64.tar.gz
+          chmod +x gitleaks
+
+          if [ -f .gitleaks.toml ]; then
+            echo "Using .gitleaks.toml configuration"
+            ./gitleaks detect --source=. --config=.gitleaks.toml --verbose --exit-code=1
+          else
+            echo "No .gitleaks.toml found, using default configuration"
+            ./gitleaks detect --source=. --verbose --exit-code=1
+          fi
 
   # ============================================================================
   # SAST Scanning
