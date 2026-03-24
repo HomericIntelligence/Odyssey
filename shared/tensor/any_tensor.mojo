@@ -1349,6 +1349,10 @@ struct AnyTensor(
             for dim in range(1, num_dims):
                 var s = slices[dim]
                 var size = self._shape[dim]
+                var step = s.step.or_else(1)
+                if step != 1:
+                    can_use_memcpy = False
+                    break
                 var start = s.start.or_else(0)
                 var end = s.end.or_else(size)
                 if start < 0:
