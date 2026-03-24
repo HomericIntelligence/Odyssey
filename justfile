@@ -417,6 +417,44 @@ jupyter-clear:
 # Development
 # ==============================================================================
 
+# One-command development environment setup (run after cloning)
+bootstrap:
+    #!/usr/bin/env bash
+    set -e
+    echo "Setting up ML Odyssey development environment..."
+    echo ""
+
+    # Step 1: Install pixi dependencies
+    echo "==> Installing pixi dependencies..."
+    pixi install
+    echo "    Done."
+    echo ""
+
+    # Step 2: Install pre-commit hooks
+    echo "==> Installing pre-commit hooks..."
+    pixi run pre-commit install
+    echo "    Done."
+    echo ""
+
+    # Step 3: Validate the setup
+    echo "==> Validating setup..."
+    echo -n "    Mojo:    "; pixi run mojo --version 2>/dev/null || echo "not available (use Podman for Mojo)"
+    echo -n "    Python:  "; python3 --version 2>/dev/null || echo "not found"
+    echo -n "    Just:    "; just --version 2>/dev/null || echo "not found"
+    echo -n "    Pixi:    "; pixi --version 2>/dev/null || echo "not found"
+    echo ""
+
+    # Step 4: GLIBC compatibility check
+    echo "==> Checking GLIBC compatibility..."
+    just check-glibc 2>/dev/null || true
+    echo ""
+
+    echo "Bootstrap complete! Next steps:"
+    echo "  just help          Show available commands"
+    echo "  just podman-up     Start Podman dev environment"
+    echo "  just test          Run all tests"
+    echo "  just build         Build the project"
+
 # Open development shell
 shell:
     @podman compose exec -it -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} {{podman_service}} bash
@@ -685,7 +723,7 @@ help:
     @echo "Test:      test, test-python, test-group, test-mojo"
     @echo "Jupyter:   jupyter, jupyter-notebook, jupyter-validate, jupyter-clear"
     @echo "Podman:    podman-up, podman-down, podman-build, podman-logs, podman-status"
-    @echo "Dev:       shell, docs, docs-serve, pre-commit, validate"
+    @echo "Dev:       bootstrap, shell, docs, docs-serve, pre-commit, validate"
     @echo "Utility:   help, status, clean, clean-all"
     @echo ""
     @echo "Examples:"
