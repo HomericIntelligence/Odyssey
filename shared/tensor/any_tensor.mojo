@@ -3192,34 +3192,126 @@ struct AnyTensor(
         For tensors with more than 1000 elements, shows only the first 3 and
         last 3 elements with '...' in between to prevent performance issues.
 
+        Formats values by dtype:
+        - Float types: display as decimals (1.0, 2.5, etc.)
+        - Integer types: display without decimals (1, 42, -100, etc.)
+        - Bool type: display as True/False
+
+        For multi-dimensional tensors (2D+), includes shape info and nested brackets.
+
         Returns:
-            String in the format: AnyTensor([v0, v1, ...], dtype=<dtype>)
-            For large tensors: AnyTensor([v0, v1, v2, ..., vN-2, vN-1, vN], dtype=<dtype>)
+            1D: AnyTensor([v0, v1, ...], dtype=<dtype>)
+            2D+: AnyTensor([[v0, v1, ...], ...], shape=[d0, d1, ...], dtype=<dtype>)
 
         Example:
             ```mojo
             var x = arange(1000, DType.float32)
             print(x)  # AnyTensor([0.0, 1.0, 2.0, ..., 997.0, 998.0, 999.0], dtype=float32)
+            var y = full([2, 3], Float64(42), DType.int32)
+            print(y)  # AnyTensor([[42, 42, 42], [42, 42, 42]], shape=[2, 3], dtype=int32)
             ```
         """
         comptime TRUNCATE_THRESHOLD = 1000
         comptime SHOW_ELEMENTS = 3
 
-        var result = String("AnyTensor([")
-        if self._numel > TRUNCATE_THRESHOLD:
-            for i in range(SHOW_ELEMENTS):
-                if i > 0:
-                    result += ", "
-                result += String(self._get_float64(i))
-            result += ", ..."
-            for i in range(self._numel - SHOW_ELEMENTS, self._numel):
-                result += ", " + String(self._get_float64(i))
-        else:
-            for i in range(self._numel):
-                if i > 0:
-                    result += ", "
-                result += String(self._get_float64(i))
+        var ndim = len(self._shape)
+
+        # Special case: empty tensor
+        if ndim == 0 or self._numel == 0:
+            return "AnyTensor([], dtype=" + String(self._dtype) + ")"
+
+        # For 1D tensors: use flat format
+        if ndim == 1:
+            var result = String("AnyTensor([")
+            if self._numel > TRUNCATE_THRESHOLD:
+                for i in range(SHOW_ELEMENTS):
+                    if i > 0:
+                        result += ", "
+                    result += self._format_element(i)
+                result += ", ..."
+                for i in range(self._numel - SHOW_ELEMENTS, self._numel):
+                    result += ", " + self._format_element(i)
+            else:
+                for i in range(self._numel):
+                    if i > 0:
+                        result += ", "
+                    result += self._format_element(i)
+            result += "], dtype=" + String(self._dtype) + ")"
+            return result
+
+        # For multi-dimensional tensors (2D+): build nested brackets
+        # Use a list to track flat index counter across recursion
+        var counter = List[Int]()
+        counter.append(0)
+        var data_str = self._format_nd_recursive(0, counter)
+
+        var result = "AnyTensor(" + data_str + ", shape=["
+        for i in range(len(self._shape)):
+            if i > 0:
+                result += ", "
+            result += String(self._shape[i])
         result += "], dtype=" + String(self._dtype) + ")"
+        return result
+
+    fn _format_element(self, flat_idx: Int) -> String:
+        """Format a single element based on dtype.
+
+        Args:
+            flat_idx: The flat index in the buffer.
+
+        Returns:
+            String representation of the element.
+        """
+        if self._dtype == DType.bool:
+            return "True" if self._get_int64(flat_idx) != 0 else "False"
+        elif (
+            self._dtype == DType.int8
+            or self._dtype == DType.int16
+            or self._dtype == DType.int32
+            or self._dtype == DType.int64
+            or self._dtype == DType.uint8
+            or self._dtype == DType.uint16
+            or self._dtype == DType.uint32
+            or self._dtype == DType.uint64
+        ):
+            return String(self._get_int64(flat_idx))
+        else:
+            # Float types
+            return String(self._get_float64(flat_idx))
+
+    fn _format_nd_recursive(
+        self, dim: Int, counter: List[Int]
+    ) -> String:
+        """Recursively format N-dimensional tensor with nested brackets.
+
+        Args:
+            dim: Current dimension level (0 = outermost).
+            counter: Mutable list containing current flat index position.
+
+        Returns:
+            String with nested brackets representing the N-D structure.
+        """
+        var ndim = len(self._shape)
+
+        # Base case: innermost dimension (last dim)
+        if dim == ndim - 1:
+            var result = String("[")
+            for i in range(self._shape[dim]):
+                if i > 0:
+                    result += ", "
+                result += self._format_element(counter[0])
+                counter[0] += 1
+            result += "]"
+            return result
+
+        # Recursive case: format sub-array
+        var result = String("[")
+        for i in range(self._shape[dim]):
+            if i > 0:
+                result += ", "
+            result += self._format_nd_recursive(dim + 1, counter)
+
+        result += "]"
         return result
 
     fn __repr__(self) -> String:
