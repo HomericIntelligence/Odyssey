@@ -9,7 +9,7 @@
 
 > **Note:** This post documents a full debugging investigation that pivoted three times between
 > "runtime bug," "user error," and "compiler bug." Every claim is backed by ASAN output or
-> Mojo documentation. Reproducer files and a validation script are in [artifacts/](./artifacts/).
+> Mojo documentation. Reproducer files and a validation script are in [repro/](/repro/).
 
 ---
 
@@ -254,7 +254,7 @@ Removing **any one** of these prevents the crash:
 
 ### The self-contained reproducer
 
-I created a 223-line zero-dependency reproducer ([repro_crash_standalone.mojo](./artifacts/repro_crash_standalone.mojo))
+I created a 223-line zero-dependency reproducer ([repro_crash_standalone.mojo](/repro/repro_crash_standalone.mojo))
 that inlines a minimal Tensor struct, conv2d, and relu. It crashes deterministically:
 
 ```bash
@@ -410,7 +410,7 @@ didn't fix the bug — it reduced the probability of triggering it.
 ### The original LeNet-5 monolithic file
 
 The original 24-test monolithic file is preserved as an artifact:
-[bug_repro_lenet5_layers_monolithic.mojo.bug](./artifacts/bug_repro_lenet5_layers_monolithic.mojo.bug).
+[bug_repro_lenet5_layers_monolithic.mojo.bug](/repro/bug_repro_lenet5_layers_monolithic.mojo.bug).
 This is the file that first exposed the bug in December 2025 (Issue #2942). It uses
 project imports and requires the shared library to run, but it demonstrates the exact
 same crash pattern: tests pass one by one until allocation churn crosses the threshold,
@@ -525,29 +525,29 @@ Every experiment from the investigation, with its result:
 
 ## Reproduce It Yourself
 
-All artifacts are in [artifacts/](./artifacts/). Run the full validation:
+All reproducers are in [repro/](/repro/). Run the full validation:
 
 ```bash
-bash notes/blog/03-16-2026/artifacts/run_all_experiments.sh
+bash repro/run_all_experiments.sh
 ```
 
 The script prints the exact repro command for each experiment. Or run individually:
 
 ```bash
 # 1. See the crash (no ASAN — just the raw segfault)
-pixi run mojo run notes/blog/03-16-2026/artifacts/repro_crash_standalone.mojo
+pixi run mojo run repro/repro_crash_standalone.mojo
 # Expected: "Step A: ... OK" then crash with libKGEN stack trace
 
 # 2. Build with ASAN to prove heap-use-after-free
 pixi run mojo build --sanitize address -g \
     -o /tmp/repro_asan \
-    notes/blog/03-16-2026/artifacts/repro_crash_standalone.mojo
+    repro/repro_crash_standalone.mojo
 /tmp/repro_asan
 # Expected: "ERROR: AddressSanitizer: heap-use-after-free on address ..."
 # Shows: WRITE of size 4, freed by Tensor::__del__, allocated by Tensor::__init__
 
 # 3. See the pre-workaround VGG16 test crash
-cp notes/blog/03-16-2026/artifacts/bug_repro_vgg16_e2e_part1_pre_fix.mojo.bug \
+cp repro/bug_repro_vgg16_e2e_part1_pre_fix.mojo.bug \
     tests/models/_tmp_pre_fix.mojo
 pixi run mojo run tests/models/_tmp_pre_fix.mojo
 # Expected: crash on test_vgg16_e2e_forward_backward
@@ -560,7 +560,7 @@ pixi run mojo run tests/models/test_vgg16_layers_part2.mojo
 # Expected: all pass
 
 # 5. See the original LeNet-5 monolithic crash (ADR-009 — same bug)
-cp notes/blog/03-16-2026/artifacts/bug_repro_lenet5_layers_monolithic.mojo.bug \
+cp repro/bug_repro_lenet5_layers_monolithic.mojo.bug \
     tests/models/_tmp_lenet5_monolithic.mojo
 pixi run mojo run tests/models/_tmp_lenet5_monolithic.mojo
 # Expected: crash after ~15 tests (same UAF, same libKGEN stack trace)
@@ -568,8 +568,8 @@ pixi run mojo run tests/models/_tmp_lenet5_monolithic.mojo
 rm tests/models/_tmp_lenet5_monolithic.mojo
 
 # 6. See the project-import reproducers crash
-pixi run mojo run repro_libkgen_crash.mojo
-pixi run mojo run repro_libasyncrt_crash.mojo
+pixi run mojo run repro/repro_libkgen_crash.mojo
+pixi run mojo run repro/repro_libasyncrt_crash.mojo
 # Expected: both crash with the same libKGEN/libAsyncRT stack trace
 ```
 
@@ -579,7 +579,7 @@ These are the exact commands from the upstream bug report:
 
 ```bash
 # Build the self-contained reproducer with address sanitizer
-mojo build --sanitize address -g -o repro_asan repro_crash_standalone.mojo
+mojo build --sanitize address -g -o repro_asan repro/repro_crash_standalone.mojo
 
 # Run it — ASAN catches the use-after-free
 ./repro_asan
@@ -593,12 +593,12 @@ mojo build --sanitize address -g -o repro_asan repro_crash_standalone.mojo
 
 | File | Description |
 | ---- | ----------- |
-| [repro_crash_standalone.mojo](./artifacts/repro_crash_standalone.mojo) | Self-contained reproducer (223 lines, zero dependencies) |
-| [repro_libkgen_crash.mojo](./artifacts/repro_libkgen_crash.mojo) | Reproducer using project imports (128 lines) |
-| [repro_libasyncrt_crash.mojo](./artifacts/repro_libasyncrt_crash.mojo) | VGG16-scale reproducer (159 lines) |
-| [bug_repro_vgg16_e2e_part1_pre_fix.mojo.bug](./artifacts/bug_repro_vgg16_e2e_part1_pre_fix.mojo.bug) | Pre-workaround VGG16 test (crashes on 4th test) |
-| [bug_repro_lenet5_layers_monolithic.mojo.bug](./artifacts/bug_repro_lenet5_layers_monolithic.mojo.bug) | Original 24-test LeNet-5 file from Dec 2025 (crashes after ~15 tests) |
-| [run_all_experiments.sh](./artifacts/run_all_experiments.sh) | Validates all blog claims (11 experiments) |
+| [repro_crash_standalone.mojo](/repro/repro_crash_standalone.mojo) | Self-contained reproducer (223 lines, zero dependencies) |
+| [repro_libkgen_crash.mojo](/repro/repro_libkgen_crash.mojo) | Reproducer using project imports (128 lines) |
+| [repro_libasyncrt_crash.mojo](/repro/repro_libasyncrt_crash.mojo) | VGG16-scale reproducer (159 lines) |
+| [bug_repro_vgg16_e2e_part1_pre_fix.mojo.bug](/repro/bug_repro_vgg16_e2e_part1_pre_fix.mojo.bug) | Pre-workaround VGG16 test (crashes on 4th test) |
+| [bug_repro_lenet5_layers_monolithic.mojo.bug](/repro/bug_repro_lenet5_layers_monolithic.mojo.bug) | Original 24-test LeNet-5 file from Dec 2025 (crashes after ~15 tests) |
+| [run_all_experiments.sh](/repro/run_all_experiments.sh) | Validates all blog claims (11 experiments) |
 
 ---
 
