@@ -9,21 +9,22 @@ services:
       args:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
+        USER_NAME: ${USER_NAME:-dev}
     image: projectodyssey:dev
     volumes:
       - .:/workspace:Z
       - workspace-pixi:/workspace/.pixi
-      - pixi-cache:/home/dev/.pixi
-      - pre-commit-cache:/home/dev/.cache/pre-commit
-      - ${HOME}/.gitconfig:/home/dev/.gitconfig:ro
+      - pixi-cache:/home/${USER_NAME:-dev}/.pixi
+      - pre-commit-cache:/home/${USER_NAME:-dev}/.cache/pre-commit
+      - ${HOME}/.gitconfig:/home/${USER_NAME:-dev}/.gitconfig:ro
     entrypoint: ["/usr/local/bin/entrypoint.sh"]
     environment:
-      - HOME=/home/dev
+      - HOME=/home/${USER_NAME:-dev}
       - USER_ID=${USER_ID}
       - GROUP_ID=${GROUP_ID}
       - ENVIRONMENT=development
       - TERM=xterm-256color
-      - PIXI_HOME=/home/dev/.pixi
+      - PIXI_HOME=/home/${USER_NAME:-dev}/.pixi
     working_dir: /workspace
     stdin_open: true
     tty: true
@@ -41,19 +42,20 @@ services:
       args:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
+        USER_NAME: ${USER_NAME:-dev}
     image: projectodyssey:ci
     volumes:
       - .:/workspace
       - workspace-pixi:/workspace/.pixi
-      - pixi-cache:/home/dev/.pixi
+      - pixi-cache:/home/${USER_NAME:-dev}/.pixi
     entrypoint: ["/usr/local/bin/entrypoint.sh"]
     environment:
-      - HOME=/home/dev
+      - HOME=/home/${USER_NAME:-dev}
       - USER_ID=${USER_ID}
       - GROUP_ID=${GROUP_ID}
       - ENVIRONMENT=ci
       - CI=true
-      - PIXI_HOME=/home/dev/.pixi
+      - PIXI_HOME=/home/${USER_NAME:-dev}/.pixi
     working_dir: /workspace
 
   # Production environment
@@ -66,15 +68,16 @@ services:
       args:
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
+        USER_NAME: ${USER_NAME:-dev}
     image: projectodyssey:prod
     volumes:
       - .:/workspace:ro
     environment:
-      - HOME=/home/dev
+      - HOME=/home/${USER_NAME:-dev}
       - USER_ID=${USER_ID}
       - GROUP_ID=${GROUP_ID}
       - ENVIRONMENT=production
-      - PIXI_HOME=/home/dev/.pixi
+      - PIXI_HOME=/home/${USER_NAME:-dev}/.pixi
     working_dir: /workspace
 
 volumes:
