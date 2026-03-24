@@ -424,6 +424,16 @@ This project uses Pixi for environment management:
 # Mojo is the primary language target for future implementations
 ```
 
+**Environment Variables**: Copy `.env.example` to `.env` and customize for your system:
+
+```bash
+cp .env.example .env
+```
+
+See `.env.example` for all available variables (container user mapping, native vs Podman
+execution, log levels, etc.). The justfile auto-detects most values, so `.env` is optional
+for typical setups.
+
 **GLIBC Constraint**: CI runners use Ubuntu with GLIBC 2.35 (Mojo requires 2.32+). Any
 native binaries built locally must be compatible with this version to avoid CI failures.
 If you're unable to run tests locally due to GLIBC version mismatch, see the
