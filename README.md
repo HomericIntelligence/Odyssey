@@ -16,13 +16,69 @@ maximum performance and type safety.
 
 ## What This Is
 
-ML Odyssey is a research platform with two goals:
+ML Odyssey is a **standalone Mojo-based ML framework** for reproducing classic AI/ML
+research papers with production-quality implementations. It has two goals:
 
 1. **Reproduce landmark neural network papers** with verified, high-performance Mojo implementations
 2. **Provide a reusable shared library** of ML components that paper implementations build on
 
 The project currently has ~198K lines of Mojo code, 7 fully-implemented neural network
 architectures, and 562+ tests across layerwise unit tests and end-to-end integration tests.
+
+> **Note on project identity:** The GitHub repo description says "Training framework written
+> in Mojo." This repo is sometimes described elsewhere as an "experimental agent research
+> sandbox" -- that description is **incorrect**. ML Odyssey is an ML training framework, not
+> an agent platform. It has no integration with ai-maestro, NATS, or any distributed agent
+> mesh. The "agent system" referenced in this repo refers to
+> [Claude Code](https://claude.ai/code) automation for development workflow (code generation,
+> PR creation, CI management), not a runtime agent mesh.
+
+## Part of HomericIntelligence
+
+ProjectOdyssey is one of several repositories in the
+[HomericIntelligence](https://github.com/HomericIntelligence) organization. Here is how the
+repos relate:
+
+| Repository | Role |
+|---|---|
+| **ProjectOdyssey** (this repo) | ML training framework in Mojo -- neural nets, autograd, shared lib |
+| [Odysseus][odysseus] | Ecosystem meta-repo and architecture docs |
+| [AchaeanFleet][achaeanfleet] | Container images for the agent mesh -- Dockerfiles, Compose, CI |
+| [Myrmidons][myrmidons] | GitOps agent provisioning -- agent definitions as code |
+| [ProjectHephaestus][hephaestus] | Shared utilities and tools used across the ecosystem |
+| [ProjectMnemosyne][mnemosyne] | Skills marketplace -- collective memory of team learnings |
+| [ProjectScylla][scylla] | Testing and optimization framework for agentic workflows |
+| [ProjectKeystone][keystone] | Foundation project |
+| [ProjectArgus][argus] | Ecosystem project |
+| [ProjectHermes][hermes] | Ecosystem project |
+| [ProjectProteus][proteus] | Ecosystem project |
+| [ProjectTelemachy][telemachy] | Ecosystem project |
+
+[odysseus]: https://github.com/HomericIntelligence/Odysseus
+[achaeanfleet]: https://github.com/HomericIntelligence/AchaeanFleet
+[myrmidons]: https://github.com/HomericIntelligence/Myrmidons
+[hephaestus]: https://github.com/HomericIntelligence/ProjectHephaestus
+[mnemosyne]: https://github.com/HomericIntelligence/ProjectMnemosyne
+[scylla]: https://github.com/HomericIntelligence/ProjectScylla
+[keystone]: https://github.com/HomericIntelligence/ProjectKeystone
+[argus]: https://github.com/HomericIntelligence/ProjectArgus
+[hermes]: https://github.com/HomericIntelligence/ProjectHermes
+[proteus]: https://github.com/HomericIntelligence/ProjectProteus
+[telemachy]: https://github.com/HomericIntelligence/ProjectTelemachy
+
+### What ProjectOdyssey is NOT
+
+To avoid confusion with other ecosystem repos:
+
+- **Not a distributed agent mesh.** AchaeanFleet and Myrmidons handle agent orchestration.
+  ProjectOdyssey has zero integration with ai-maestro, NATS, or any agent registration/task
+  queue system.
+- **Not an agent research sandbox.** It is a straightforward ML training framework. The only
+  "agents" here are Claude Code development automation (see `.claude/agents/`), which manage
+  code generation and CI -- they do not run as distributed services.
+- **No REST API.** There is no REST client, no agent registration endpoint, and no promotion
+  path to AchaeanFleet. Implementations live entirely in this repo as Mojo libraries and
+  executables.
 
 ## Implemented Architectures
 
