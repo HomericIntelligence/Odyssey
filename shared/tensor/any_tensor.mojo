@@ -3240,10 +3240,7 @@ struct AnyTensor(
             return result
 
         # For multi-dimensional tensors (2D+): build nested brackets
-        # Use a list to track flat index counter across recursion
-        var counter = List[Int]()
-        counter.append(0)
-        var data_str = self._format_nd_recursive(0, counter)
+        var data_str = self._format_nd_slice(0, 0)
 
         var result = "AnyTensor(" + data_str + ", shape=["
         for i in range(len(self._shape)):
@@ -3279,14 +3276,17 @@ struct AnyTensor(
             # Float types
             return String(self._get_float64(flat_idx))
 
-    fn _format_nd_recursive(
-        self, dim: Int, counter: List[Int]
+    fn _format_nd_slice(
+        self, dim: Int, base_offset: Int
     ) -> String:
-        """Recursively format N-dimensional tensor with nested brackets.
+        """Format a slice of the N-dimensional tensor with nested brackets.
+
+        Uses row-major (C-order) layout: the flat index for multi-dim coordinates
+        is computed from the base offset and dimension strides.
 
         Args:
             dim: Current dimension level (0 = outermost).
-            counter: Mutable list containing current flat index position.
+            base_offset: Flat index offset for the start of this slice.
 
         Returns:
             String with nested brackets representing the N-D structure.
@@ -3299,17 +3299,21 @@ struct AnyTensor(
             for i in range(self._shape[dim]):
                 if i > 0:
                     result += ", "
-                result += self._format_element(counter[0])
-                counter[0] += 1
+                result += self._format_element(base_offset + i)
             result += "]"
             return result
+
+        # Compute stride for current dimension (product of all inner dims)
+        var stride = 1
+        for d in range(dim + 1, ndim):
+            stride *= self._shape[d]
 
         # Recursive case: format sub-array
         var result = String("[")
         for i in range(self._shape[dim]):
             if i > 0:
                 result += ", "
-            result += self._format_nd_recursive(dim + 1, counter)
+            result += self._format_nd_slice(dim + 1, base_offset + i * stride)
 
         result += "]"
         return result
