@@ -35,6 +35,7 @@ from shared.core.activation import relu, relu_backward
 from shared.core.pooling import maxpool2d, maxpool2d_backward
 from shared.core.loss import cross_entropy
 from shared.core import mean
+from math import sqrt
 
 
 # ============================================================================
@@ -69,7 +70,11 @@ fn conv_block(
         kernel_shape.append(in_channels)
         kernel_shape.append(3)
         kernel_shape.append(3)
-        var kernel = ones(kernel_shape, DType.float32)
+        # He initialization: sqrt(2 / fan_in) prevents exponential
+        # growth/vanishing through deep ReLU networks
+        var fan_in = in_channels * 3 * 3
+        var scale = sqrt(2.0 / Float64(fan_in))
+        var kernel = full(kernel_shape, Float32(scale), DType.float32)
 
         # Create bias
         var bias_shape = List[Int]()
@@ -128,20 +133,23 @@ fn vgg16_forward(
     flat_shape.append(512)
     var x_flat = x.reshape(flat_shape)
 
-    # FC1: 512 -> 256 + ReLU
-    var fc1_w = ones([256, 512], DType.float32)
+    # FC1: 512 -> 256 + ReLU (He init: sqrt(2/fan_in))
+    var fc1_scale = sqrt(2.0 / Float64(512))
+    var fc1_w = full([256, 512], Float32(fc1_scale), DType.float32)
     var fc1_b = zeros([256], DType.float32)
     x = linear(x_flat, fc1_w, fc1_b)
     x = relu(x)
 
-    # FC2: 256 -> 256 + ReLU
-    var fc2_w = ones([256, 256], DType.float32)
+    # FC2: 256 -> 256 + ReLU (He init: sqrt(2/fan_in))
+    var fc2_scale = sqrt(2.0 / Float64(256))
+    var fc2_w = full([256, 256], Float32(fc2_scale), DType.float32)
     var fc2_b = zeros([256], DType.float32)
     x = linear(x, fc2_w, fc2_b)
     x = relu(x)
 
-    # FC3: 256 -> 10 (output layer, no activation)
-    var fc3_w = ones([10, 256], DType.float32)
+    # FC3: 256 -> 10 (output layer, no activation — Xavier init)
+    var fc3_scale = sqrt(1.0 / Float64(256))
+    var fc3_w = full([10, 256], Float32(fc3_scale), DType.float32)
     var fc3_b = zeros([10], DType.float32)
     x = linear(x, fc3_w, fc3_b)
 

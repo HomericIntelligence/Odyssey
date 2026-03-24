@@ -128,7 +128,7 @@ fn test_conv2d_backward_typed() raises:
     var input = Tensor[DType.float32]([1, 1, 5, 5])
     for i in range(input.numel()):
         input._data[i] = Scalar[DType.float32](0.5)
-    var output = layer.forward(input)
+    var output = layer.forward(input.as_any())
     var grad_output = Tensor[DType.float32](output.shape())
     for i in range(grad_output.numel()):
         grad_output._data[i] = Scalar[DType.float32](1.0)
