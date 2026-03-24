@@ -18,7 +18,7 @@ from shared.core.reduction import sum, mean
 
 
 fn test_matmul() raises:
-    """matmul computes correct matrix product."""
+    """Matmul computes correct matrix product."""
     # [2, 3] @ [3, 2] = [2, 2]
     var a = any_ones([2, 3], DType.float32)
     var b = any_ones([3, 2], DType.float32)
@@ -36,7 +36,7 @@ fn test_matmul() raises:
 
 
 fn test_matmul_identity() raises:
-    """matmul with identity-like matrix preserves values."""
+    """Matmul with identity-like matrix preserves values."""
     var a = any_full([2, 2], 0.5, DType.float32)
     var eye = any_zeros([2, 2], DType.float32)
     eye[0] = 1.0
@@ -50,7 +50,7 @@ fn test_matmul_identity() raises:
 
 
 fn test_transpose() raises:
-    """transpose swaps dimensions and preserves dtype."""
+    """Transpose swaps dimensions and preserves dtype."""
     var t = any_zeros([2, 3], DType.float32)
     for i in range(6):
         t[i] = Float32(i)
@@ -63,7 +63,7 @@ fn test_transpose() raises:
 
 
 fn test_sum_all() raises:
-    """sum over all elements computes correct total."""
+    """Sum over all elements computes correct total."""
     var t = any_full([2, 3], 0.5, DType.float32)
     var s = sum(t)
     assert_true(s.dtype() == DType.float32, "dtype should be float32")
@@ -75,7 +75,7 @@ fn test_sum_all() raises:
 
 
 fn test_sum_axis() raises:
-    """sum along axis computes correct result."""
+    """Sum along axis computes correct result."""
     var t = any_ones([2, 3], DType.float32)
     var s = sum(t, axis=1)
     var shape = s.shape()
@@ -89,7 +89,7 @@ fn test_sum_axis() raises:
 
 
 fn test_mean_all() raises:
-    """mean over all elements computes correct average."""
+    """Mean over all elements computes correct average."""
     var t = any_full([2, 3], 1.5, DType.float32)
     var m = mean(t)
     assert_true(m.dtype() == DType.float32, "dtype should be float32")
@@ -101,7 +101,7 @@ fn test_mean_all() raises:
 
 
 fn test_mean_axis() raises:
-    """mean along axis computes correct result."""
+    """Mean along axis computes correct result."""
     var t = any_zeros([2, 2], DType.float32)
     t[0] = 1.0
     t[1] = 0.0
@@ -118,7 +118,7 @@ fn test_mean_axis() raises:
 
 
 fn test_sum_float64() raises:
-    """sum works with float64 dtype."""
+    """Sum works with float64 dtype."""
     var t = any_full([3], 1.0, DType.float64)
     var s = sum(t)
     assert_true(s.dtype() == DType.float64, "dtype should be float64")

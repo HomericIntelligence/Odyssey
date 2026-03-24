@@ -30,12 +30,16 @@ fn test_depthwise_conv2d_gradient_kernel_basic() raises:
     kernel_shape.append(3)  # kernel width
     var kernel = ones(kernel_shape, DType.float32)
 
+    var bias_shape = List[Int]()
+    bias_shape.append(2)  # channels
+    var bias = ones(bias_shape, DType.float32)
+
     fn forward(k: AnyTensor) raises escaping -> AnyTensor:
-        return depthwise_conv2d(input, k, stride=1, padding=1)
+        return depthwise_conv2d(input, k, bias, stride=1, padding=1)
 
     fn backward(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
         var result = depthwise_conv2d_backward(grad_out, input, k, stride=1, padding=1)
-        return result.grad_b
+        return result.grad_weights
 
     var passed = check_gradients(forward, backward, kernel)
     assert_true(passed, "depthwise_conv2d kernel gradient check failed")
@@ -62,11 +66,11 @@ fn test_depthwise_conv2d_gradient_bias_basic() raises:
     var bias = ones(bias_shape, DType.float32)
 
     fn forward(b: AnyTensor) raises escaping -> AnyTensor:
-        return depthwise_conv2d(input, kernel, bias, stride=1, padding=1)
+        return depthwise_conv2d(input, kernel, b, stride=1, padding=1)
 
     fn backward(grad_out: AnyTensor, b: AnyTensor) raises escaping -> AnyTensor:
         var result = depthwise_conv2d_backward(grad_out, input, kernel, stride=1, padding=1)
-        return result.grad_c
+        return result.grad_bias
 
     var passed = check_gradients(forward, backward, bias)
     assert_true(passed, "depthwise_conv2d bias gradient check failed")
@@ -88,12 +92,16 @@ fn test_depthwise_conv2d_gradient_input_basic() raises:
     kernel_shape.append(3)  # kernel width
     var kernel = ones(kernel_shape, DType.float32)
 
+    var bias_shape = List[Int]()
+    bias_shape.append(2)  # channels
+    var bias = ones(bias_shape, DType.float32)
+
     fn forward(x: AnyTensor) raises escaping -> AnyTensor:
-        return depthwise_conv2d(x, kernel, stride=1, padding=1)
+        return depthwise_conv2d(x, kernel, bias, stride=1, padding=1)
 
     fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = depthwise_conv2d_backward(grad_out, x, kernel, stride=1, padding=1)
-        return result.grad_a
+        return result.grad_input
 
     var passed = check_gradients(forward, backward, input)
     assert_true(passed, "depthwise_conv2d input gradient check failed")
@@ -115,12 +123,16 @@ fn test_depthwise_conv2d_gradient_kernel_strided() raises:
     kernel_shape.append(3)  # kernel width
     var kernel = ones(kernel_shape, DType.float32)
 
+    var bias_shape = List[Int]()
+    bias_shape.append(2)  # channels
+    var bias = ones(bias_shape, DType.float32)
+
     fn forward(k: AnyTensor) raises escaping -> AnyTensor:
-        return depthwise_conv2d(input, k, stride=2, padding=1)
+        return depthwise_conv2d(input, k, bias, stride=2, padding=1)
 
     fn backward(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
         var result = depthwise_conv2d_backward(grad_out, input, k, stride=2, padding=1)
-        return result.grad_b
+        return result.grad_weights
 
     var passed = check_gradients(forward, backward, kernel)
     assert_true(passed, "depthwise_conv2d kernel gradient check with stride=2 failed")

@@ -21,7 +21,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros
 
 
 fn test_anytensor_alias_works() raises:
-    """AnyTensor alias still works for backward compat."""
+    """AnyTensor alias still works for backward compatibility."""
     var t: AnyTensor = zeros([3, 4], DType.float32)
     assert_true(t.numel() == 12, "AnyTensor alias should work")
     print("PASS: test_anytensor_alias_works")
@@ -44,7 +44,7 @@ fn test_as_any_basic() raises:
 
 
 fn test_as_any_preserves_shape() raises:
-    """as_any preserves full shape."""
+    """As_any preserves full shape."""
     var t = Tensor[DType.float64]([2, 3, 4])
     var any_t = t.as_any()
     var s = any_t.shape()
@@ -65,7 +65,7 @@ fn test_as_tensor_basic() raises:
 
 
 fn test_as_tensor_dtype_mismatch() raises:
-    """as_tensor with wrong dtype should raise."""
+    """As_tensor with wrong dtype should raise."""
     var any_t = zeros([4], DType.float32)
     var raised = False
     try:
@@ -95,7 +95,7 @@ fn test_roundtrip_tensor_any_tensor() raises:
 
 fn test_tensor_import_from_package() raises:
     """Verify import from shared.tensor works."""
-    from shared.tensor import Tensor as T
+    from shared.tensor.tensor import Tensor as T
     var t = T[DType.float32]([2])
     assert_true(t.numel() == 2, "import from shared.tensor works")
     print("PASS: test_tensor_import_from_package")

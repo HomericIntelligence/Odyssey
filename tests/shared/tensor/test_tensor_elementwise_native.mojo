@@ -101,7 +101,7 @@ fn test_sin_cos_correctness() raises:
 
 
 fn test_exp_edge_cases() raises:
-    """exp(0)=1 and exp(1)~2.71828."""
+    """Exp(0)=1 and exp(1)~2.71828."""
     var t = any_zeros([2], DType.float32)
     t[0] = 0.0
     t[1] = 1.0
@@ -116,7 +116,7 @@ fn test_exp_edge_cases() raises:
 
 
 fn test_log_sqrt_edge_cases() raises:
-    """log(1)=0 and sqrt(4)=2."""
+    """Log(1)=0 and sqrt(4)=2."""
     # log(1) = 0
     var t1 = any_full([2], 1.0, DType.float32)
     var r1 = log(t1)
@@ -136,7 +136,7 @@ fn test_log_sqrt_edge_cases() raises:
 
 
 fn test_abs_edge_cases() raises:
-    """abs(-3)=3, abs(0)=0, abs(1.5)=1.5."""
+    """Abs(-3)=3, abs(0)=0, abs(1.5)=1.5."""
     var t = any_zeros([3], DType.float32)
     t[0] = -3.0
     t[1] = 0.0

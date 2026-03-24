@@ -17,7 +17,7 @@ from shared.core.arithmetic import add, subtract, multiply, divide
 
 
 fn test_add() raises:
-    """add preserves dtype and computes correct values."""
+    """Add preserves dtype and computes correct values."""
     var a = any_full([2, 2], 0.5, DType.float32)
     var b = any_full([2, 2], 1.0, DType.float32)
     var c = add(a, b)
@@ -31,7 +31,7 @@ fn test_add() raises:
 
 
 fn test_add_zeros() raises:
-    """add with zeros is identity."""
+    """Add with zeros is identity."""
     var a = any_full([3], 1.5, DType.float32)
     var b = any_full([3], 0.0, DType.float32)
     var c = add(a, b)
@@ -43,7 +43,7 @@ fn test_add_zeros() raises:
 
 
 fn test_subtract() raises:
-    """subtract computes correct values."""
+    """Subtract computes correct values."""
     var a = any_full([2, 2], 1.5, DType.float32)
     var b = any_full([2, 2], 0.5, DType.float32)
     var c = subtract(a, b)
@@ -56,7 +56,7 @@ fn test_subtract() raises:
 
 
 fn test_multiply() raises:
-    """multiply computes correct values."""
+    """Multiply computes correct values."""
     var a = any_full([2, 2], 0.5, DType.float32)
     var b = any_full([2, 2], 1.5, DType.float32)
     var c = multiply(a, b)
@@ -69,7 +69,7 @@ fn test_multiply() raises:
 
 
 fn test_multiply_ones() raises:
-    """multiply with ones is identity."""
+    """Multiply with ones is identity."""
     var a = any_full([3], 0.25, DType.float32)
     var b = any_ones([3], DType.float32)
     var c = multiply(a, b)
@@ -81,7 +81,7 @@ fn test_multiply_ones() raises:
 
 
 fn test_divide() raises:
-    """divide computes correct values."""
+    """Divide computes correct values."""
     var a = any_full([2, 2], 1.5, DType.float32)
     var b = any_full([2, 2], 0.5, DType.float32)
     var c = divide(a, b)
@@ -94,7 +94,7 @@ fn test_divide() raises:
 
 
 fn test_divide_by_ones() raises:
-    """divide by ones is identity."""
+    """Divide by ones is identity."""
     var a = any_full([3], 0.25, DType.float32)
     var b = any_ones([3], DType.float32)
     var c = divide(a, b)

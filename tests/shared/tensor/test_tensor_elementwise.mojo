@@ -17,7 +17,7 @@ from shared.core.activation import relu, sigmoid
 
 
 fn test_exp() raises:
-    """exp preserves dtype and computes correct values."""
+    """Exp preserves dtype and computes correct values."""
     var t = any_zeros([4], DType.float32)
     var r = exp(t)
     assert_true(r.dtype() == DType.float32, "dtype should be float32")
@@ -30,7 +30,7 @@ fn test_exp() raises:
 
 
 fn test_exp_one() raises:
-    """exp(1.0) computes e."""
+    """Exp(1.0) computes e."""
     var t = any_full([2], 1.0, DType.float32)
     var r = exp(t)
     for i in range(2):
@@ -44,7 +44,7 @@ fn test_exp_one() raises:
 
 
 fn test_log() raises:
-    """log computes correct values."""
+    """Log computes correct values."""
     var t = any_full([3], 1.0, DType.float32)
     var r = log(t)
     assert_true(r.dtype() == DType.float32, "dtype should be float32")
@@ -57,7 +57,7 @@ fn test_log() raises:
 
 
 fn test_sqrt() raises:
-    """sqrt computes correct values."""
+    """Sqrt computes correct values."""
     var t = any_full([3], 0.25, DType.float32)
     var r = sqrt(t)
     assert_true(r.dtype() == DType.float32, "dtype should be float32")
@@ -69,7 +69,7 @@ fn test_sqrt() raises:
 
 
 fn test_abs() raises:
-    """abs computes correct values for negative inputs."""
+    """Abs computes correct values for negative inputs."""
     var t = any_full([3], -1.5, DType.float32)
     var r = abs(t)
     for i in range(3):
@@ -80,7 +80,7 @@ fn test_abs() raises:
 
 
 fn test_relu() raises:
-    """relu zeros out negatives and preserves positives."""
+    """Relu zeros out negatives and preserves positives."""
     var t = any_zeros([4], DType.float32)
     t[0] = -1.0
     t[1] = 0.0
@@ -104,7 +104,7 @@ fn test_relu() raises:
 
 
 fn test_sigmoid() raises:
-    """sigmoid maps 0 to 0.5."""
+    """Sigmoid maps 0 to 0.5."""
     var t = any_zeros([3], DType.float32)
     var r = sigmoid(t)
     assert_true(r.dtype() == DType.float32, "dtype should be float32")
@@ -117,7 +117,7 @@ fn test_sigmoid() raises:
 
 
 fn test_sin_cos() raises:
-    """sin and cos compute correct values."""
+    """Sin and cos compute correct values."""
     var t = any_zeros([2], DType.float32)
     var s = sin(t)
     var c = cos(t)

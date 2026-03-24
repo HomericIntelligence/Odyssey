@@ -73,7 +73,7 @@ fn test_logical_xor_shape_preserved() raises:
 
 
 fn test_logical_xor_all_false() raises:
-    """zeros XOR zeros → all zeros."""
+    """Zeros XOR zeros → all zeros."""
     var shape = List[Int]()
     shape.append(3)
     var a = zeros(shape, DType.float32)
@@ -86,7 +86,7 @@ fn test_logical_xor_all_false() raises:
 
 
 fn test_logical_xor_all_true() raises:
-    """ones XOR ones → all zeros (T XOR T = F)."""
+    """Ones XOR ones → all zeros (T XOR T = F)."""
     var shape = List[Int]()
     shape.append(3)
     var a = zeros(shape, DType.float32)
@@ -102,7 +102,7 @@ fn test_logical_xor_all_true() raises:
 
 
 fn test_logical_xor_identity() raises:
-    """tensor XOR zeros → bool(tensor) (XOR with False is identity)."""
+    """Tensor XOR zeros → bool(tensor) (XOR with False is identity)."""
     var shape = List[Int]()
     shape.append(3)
     var a = zeros(shape, DType.float32)

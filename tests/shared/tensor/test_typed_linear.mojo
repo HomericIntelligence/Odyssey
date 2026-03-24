@@ -1,4 +1,4 @@
-"""Tests for Linear[dtype] with typed Tensor weights (Phase 4b).
+"""Tests for Linear[dtype] With Typed Tensor Weights (Phase 4b).
 
 # ADR-009: This file is intentionally limited to <=10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
@@ -43,7 +43,7 @@ fn test_linear_float64() raises:
 
 
 fn test_linear_parameters_as_anytensor() raises:
-    """parameters() returns List[AnyTensor] (Module trait compliance)."""
+    """Parameters() returns List[AnyTensor] (Module trait compliance)."""
     var layer = Linear(4, 2)
     var params = layer.parameters()
     assert_true(len(params) == 2, "has weight and bias params")
@@ -58,7 +58,7 @@ fn test_linear_parameters_as_anytensor() raises:
 
 
 fn test_linear_forward_anytensor_boundary() raises:
-    """forward() accepts AnyTensor, returns AnyTensor (H7 boundary)."""
+    """Forward() accepts AnyTensor, returns AnyTensor (H7 boundary)."""
     var layer = Linear(4, 2)
     var input: AnyTensor = zeros([1, 4], DType.float32)
     var output: AnyTensor = layer.forward(input)
@@ -70,7 +70,7 @@ fn test_linear_forward_anytensor_boundary() raises:
 
 
 fn test_linear_identity_weight_correctness() raises:
-    """Linear with identity weights and known bias produces correct output.
+    """Linear With Identity Weights and Known Bias Produces Correct Output.
 
     Input: [1.0, 0.5] (1x2)
     Weight: [[1, 0], [0, 1]] (2x2 identity)
