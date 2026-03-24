@@ -19,7 +19,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros
 
 
 fn test_refcount_shared_on_as_any() raises:
-    """as_any() shares refcount -- both tensors access same data."""
+    """As_any() shares refcount -- both tensors access same data."""
     var t = Tensor[DType.float32]([4])
     t._data[0] = Scalar[DType.float32](1.5)
 
@@ -32,7 +32,7 @@ fn test_refcount_shared_on_as_any() raises:
 
 
 fn test_refcount_shared_on_as_tensor() raises:
-    """as_tensor() shares refcount -- both tensors access same data."""
+    """As_tensor() shares refcount -- both tensors access same data."""
     var any_t = zeros([4], DType.float32)
     any_t._set_float32(0, Float32(0.25))
 

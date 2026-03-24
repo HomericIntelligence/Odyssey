@@ -22,7 +22,7 @@ from shared.core.shape import (
 
 
 fn test_reshape() raises:
-    """reshape preserves dtype and values through round-trip."""
+    """Reshape preserves dtype and values through round-trip."""
     var t = any_full([2, 3], 1.5, DType.float32)
     var r = reshape(t, [3, 2])
     var s = r.shape()
@@ -38,7 +38,7 @@ fn test_reshape() raises:
 
 
 fn test_reshape_to_1d() raises:
-    """reshape to 1D works correctly."""
+    """Reshape to 1D works correctly."""
     var t = any_ones([2, 3], DType.float32)
     var r = reshape(t, [6])
     var s = r.shape()
@@ -48,7 +48,7 @@ fn test_reshape_to_1d() raises:
 
 
 fn test_squeeze() raises:
-    """squeeze removes size-1 dimensions."""
+    """Squeeze removes size-1 dimensions."""
     var t = any_ones([1, 3, 1], DType.float32)
     var s = squeeze(t)
     var shape = s.shape()
@@ -59,7 +59,7 @@ fn test_squeeze() raises:
 
 
 fn test_squeeze_axis() raises:
-    """squeeze with specific axis removes only that dimension."""
+    """Squeeze with specific axis removes only that dimension."""
     var t = any_ones([1, 3, 1], DType.float32)
     var s = squeeze(t, axis=0)
     var shape = s.shape()
@@ -70,7 +70,7 @@ fn test_squeeze_axis() raises:
 
 
 fn test_unsqueeze() raises:
-    """unsqueeze inserts size-1 dimension."""
+    """Unsqueeze inserts size-1 dimension."""
     var t = any_ones([3, 4], DType.float32)
     var u = unsqueeze(t, axis=0)
     var shape = u.shape()
@@ -83,7 +83,7 @@ fn test_unsqueeze() raises:
 
 
 fn test_unsqueeze_last() raises:
-    """unsqueeze at last axis works correctly."""
+    """Unsqueeze at last axis works correctly."""
     var t = any_ones([3, 4], DType.float32)
     var u = unsqueeze(t, axis=2)
     var shape = u.shape()
@@ -95,7 +95,7 @@ fn test_unsqueeze_last() raises:
 
 
 fn test_flatten() raises:
-    """flatten converts to 1D preserving values."""
+    """Flatten converts to 1D preserving values."""
     var t = any_full([2, 3], 0.25, DType.float32)
     var f = flatten(t)
     var shape = f.shape()
@@ -110,7 +110,7 @@ fn test_flatten() raises:
 
 
 fn test_flatten_already_1d() raises:
-    """flatten of 1D tensor returns same shape."""
+    """Flatten of 1D tensor returns same shape."""
     var t = any_ones([5], DType.float32)
     var f = flatten(t)
     var shape = f.shape()

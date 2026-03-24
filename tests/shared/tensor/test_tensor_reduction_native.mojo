@@ -52,7 +52,7 @@ fn test_mean_correctness() raises:
 
 
 fn test_sum_known_values() raises:
-    """sum([1,2,3]) = 6."""
+    """Sum([1,2,3]) = 6."""
     var t = any_zeros([3], DType.float32)
     t[0] = 1.0
     t[1] = 2.0
@@ -68,7 +68,7 @@ fn test_sum_known_values() raises:
 
 
 fn test_mean_known_values() raises:
-    """mean([2,4,6]) = 4."""
+    """Mean([2,4,6]) = 4."""
     var t = any_zeros([3], DType.float32)
     t[0] = 2.0
     t[1] = 4.0
@@ -84,7 +84,7 @@ fn test_mean_known_values() raises:
 
 
 fn test_sum_axis() raises:
-    """sum along axis 1 for a [2, 3] tensor."""
+    """Sum along axis 1 for a [2, 3] tensor."""
     var t = any_ones([2, 3], DType.float32)
     var result = sum(t, axis=1)
     var shape = result.shape()
@@ -100,7 +100,7 @@ fn test_sum_axis() raises:
 
 
 fn test_mean_axis() raises:
-    """mean along axis 1 for known values."""
+    """Mean along axis 1 for known values."""
     var t = any_zeros([2, 2], DType.float32)
     t[0] = 1.0
     t[1] = 0.0
@@ -120,7 +120,7 @@ fn test_mean_axis() raises:
 
 
 fn test_max_reduce() raises:
-    """max_reduce returns maximum element."""
+    """Max_reduce returns maximum element."""
     var t = any_zeros([4], DType.float32)
     t[0] = -1.0
     t[1] = 0.5
@@ -137,7 +137,7 @@ fn test_max_reduce() raises:
 
 
 fn test_min_reduce() raises:
-    """min_reduce returns minimum element."""
+    """Min_reduce returns minimum element."""
     var t = any_zeros([4], DType.float32)
     t[0] = -1.0
     t[1] = 0.5

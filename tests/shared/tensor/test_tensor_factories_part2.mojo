@@ -29,7 +29,7 @@ from shared.tensor.factories import (
 
 
 fn test_randn() raises:
-    """randn[DType.float32] creates a tensor with random values."""
+    """Randn[DType.float32] creates a tensor with random values."""
     var t = randn[DType.float32]([10], seed=42)
     assert_true(t.numel() == 10, "numel should be 10")
     assert_true(t.get_dtype() == DType.float32, "dtype should be float32")
@@ -38,7 +38,7 @@ fn test_randn() raises:
 
 
 fn test_nan_tensor() raises:
-    """nan_tensor[DType.float32] creates a NaN-filled tensor."""
+    """Nan_tensor[DType.float32] creates a NaN-filled tensor."""
     var t = nan_tensor[DType.float32]([2, 2])
     assert_true(t.numel() == 4, "numel should be 4")
     for i in range(4):
@@ -49,7 +49,7 @@ fn test_nan_tensor() raises:
 
 
 fn test_inf_tensor() raises:
-    """inf_tensor[DType.float32] creates a +inf tensor."""
+    """Inf_tensor[DType.float32] creates a +inf tensor."""
     var t = inf_tensor[DType.float32]([2, 2])
     assert_true(t.numel() == 4, "numel should be 4")
     for i in range(4):
@@ -63,7 +63,7 @@ fn test_inf_tensor() raises:
 
 
 fn test_neg_inf_tensor() raises:
-    """neg_inf_tensor[DType.float32] creates a -inf tensor."""
+    """Neg_inf_tensor[DType.float32] creates a -inf tensor."""
     var t = neg_inf_tensor[DType.float32]([2, 2])
     assert_true(t.numel() == 4, "numel should be 4")
     for i in range(4):
@@ -77,7 +77,7 @@ fn test_neg_inf_tensor() raises:
 
 
 fn test_empty() raises:
-    """empty[DType.float32] creates a tensor (values uninitialized)."""
+    """Empty[DType.float32] creates a tensor (values uninitialized)."""
     var t = empty[DType.float32]([3, 4])
     assert_true(t.numel() == 12, "numel should be 12")
     assert_true(t.get_dtype() == DType.float32, "dtype should be float32")
@@ -88,7 +88,7 @@ fn test_empty() raises:
 
 
 fn test_ones_like() raises:
-    """ones_like creates a one-filled tensor with same shape."""
+    """Ones_like creates a one-filled tensor with same shape."""
     var original = ones[DType.float32]([2, 3])
     var o = ones_like(original)
     assert_true(o.numel() == 6, "numel should match original")
@@ -100,7 +100,7 @@ fn test_ones_like() raises:
 
 
 fn test_full_like() raises:
-    """full_like creates a constant-filled tensor with same shape."""
+    """Full_like creates a constant-filled tensor with same shape."""
     var original = ones[DType.float32]([2, 2])
     var f = full_like(original, 0.25)
     assert_true(f.numel() == 4, "numel should match original")

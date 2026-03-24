@@ -28,7 +28,7 @@ from shared.tensor.factories import (
 
 
 fn test_zeros() raises:
-    """zeros[DType.float32] creates a zero-filled tensor."""
+    """Zeros[DType.float32] creates a zero-filled tensor."""
     var t = zeros[DType.float32]([3, 4])
     assert_true(t.numel() == 12, "numel should be 12")
     assert_true(t.get_dtype() == DType.float32, "dtype should be float32")
@@ -40,7 +40,7 @@ fn test_zeros() raises:
 
 
 fn test_ones() raises:
-    """ones[DType.float32] creates a one-filled tensor."""
+    """Ones[DType.float32] creates a one-filled tensor."""
     var t = ones[DType.float32]([2, 3])
     assert_true(t.numel() == 6, "numel should be 6")
     for i in range(6):
@@ -51,7 +51,7 @@ fn test_ones() raises:
 
 
 fn test_full() raises:
-    """full[DType.float32] creates a constant-filled tensor."""
+    """Full[DType.float32] creates a constant-filled tensor."""
     var t = full[DType.float32]([2, 2], 0.5)
     assert_true(t.numel() == 4, "numel should be 4")
     for i in range(4):
@@ -62,7 +62,7 @@ fn test_full() raises:
 
 
 fn test_zeros_like() raises:
-    """zeros_like creates a zero tensor with same shape."""
+    """Zeros_like creates a zero tensor with same shape."""
     var original = ones[DType.float32]([3, 2])
     var z = zeros_like(original)
     assert_true(z.numel() == 6, "numel should match original")
@@ -75,7 +75,7 @@ fn test_zeros_like() raises:
 
 
 fn test_arange() raises:
-    """arange[DType.float32] creates a 1D sequence tensor."""
+    """Arange[DType.float32] creates a 1D sequence tensor."""
     var t = arange[DType.float32](0.0, 4.0, 1.0)
     assert_true(t.numel() == 4, "numel should be 4")
     for i in range(4):
@@ -89,7 +89,7 @@ fn test_arange() raises:
 
 
 fn test_eye() raises:
-    """eye[DType.float32] creates a 2D identity-like tensor."""
+    """Eye[DType.float32] creates a 2D identity-like tensor."""
     var t = eye[DType.float32](3, 3)
     assert_true(t.numel() == 9, "numel should be 9")
     for i in range(3):
@@ -105,7 +105,7 @@ fn test_eye() raises:
 
 
 fn test_linspace() raises:
-    """linspace[DType.float32] creates evenly spaced values."""
+    """Linspace[DType.float32] creates evenly spaced values."""
     var t = linspace[DType.float32](0.0, 1.0, 5)
     assert_true(t.numel() == 5, "numel should be 5")
     assert_almost_equal(Float64(t[0]), 0.0, atol=1e-6, msg="first element")

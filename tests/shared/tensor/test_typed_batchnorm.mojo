@@ -1,7 +1,7 @@
 # ADR-009: This file is intentionally limited to <=10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for parameterized BatchNorm2dLayer[dtype].
+"""Tests for Parameterized BatchNorm2dLayer[dtype].
 
 TDD tests for Phase 4a (PR 6, epic #4998): parameterize non-Module layers.
 BatchNorm2dLayer becomes BatchNorm2dLayer[dtype: DType = DType.float32] with
@@ -122,7 +122,7 @@ fn test_batchnorm_forward_inference() raises:
 
 
 fn test_batchnorm_parameters_typed() raises:
-    """parameters() returns List[AnyTensor] with gamma and beta."""
+    """Parameters() returns List[AnyTensor] with gamma and beta."""
     var bn = BatchNorm2dLayer(num_channels=4)
     var params = bn.parameters()
     assert_true(len(params) == 2, "should have 2 parameters (gamma, beta)")
@@ -132,7 +132,7 @@ fn test_batchnorm_parameters_typed() raises:
 
 
 fn test_batchnorm_parameters_float64() raises:
-    """parameters() preserves float64 dtype (catches CRITICAL-1 bitcast bug)."""
+    """Parameters() preserves float64 dtype (catches CRITICAL-1 bitcast bug)."""
     var bn = BatchNorm2dLayer[DType.float64](num_channels=4)
     var params = bn.parameters()
     # Verify dtype is preserved (catches bitcast[Float32] bug)

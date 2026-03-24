@@ -1,7 +1,7 @@
 # ADR-009: This file is intentionally limited to <=10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 # high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""Tests for parameterized Conv2dLayer[dtype].
+"""Tests for Parameterized Conv2dLayer[dtype].
 
 TDD tests for Phase 4a (PR 6, epic #4998): parameterize non-Module layers.
 Conv2dLayer becomes Conv2dLayer[dtype: DType = DType.float32] with
@@ -109,7 +109,7 @@ fn test_conv2d_forward_output_shape_no_padding() raises:
 
 
 fn test_conv2d_parameters_typed() raises:
-    """parameters() returns List with weight and bias."""
+    """Parameters() returns List with weight and bias."""
     var layer = Conv2dLayer(
         in_channels=1, out_channels=2, kernel_h=3, kernel_w=3
     )

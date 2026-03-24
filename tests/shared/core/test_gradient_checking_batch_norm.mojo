@@ -31,13 +31,17 @@ fn test_batch_norm_gradient_batch_size_1() raises:
     gamma_shape.append(2)  # channels
     var gamma = ones(gamma_shape, DType.float32)
 
+    var beta_shape = List[Int]()
+    beta_shape.append(2)  # channels
+    var beta = zeros(beta_shape, DType.float32)
+
     var mean_shape = List[Int]()
     mean_shape.append(2)  # channels
     var running_mean = zeros(mean_shape, DType.float32)
     var running_var = ones(mean_shape, DType.float32)
 
     fn forward(x: AnyTensor) raises escaping -> AnyTensor:
-        var result = batch_norm2d(x, gamma, training=True)
+        var result = batch_norm2d(x, gamma, beta, running_mean, running_var, training=True)
         return result[0]
 
     fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
@@ -63,13 +67,17 @@ fn test_batch_norm_gradient_batch_size_2() raises:
     gamma_shape.append(2)  # channels
     var gamma = ones(gamma_shape, DType.float32)
 
+    var beta_shape = List[Int]()
+    beta_shape.append(2)  # channels
+    var beta = zeros(beta_shape, DType.float32)
+
     var mean_shape = List[Int]()
     mean_shape.append(2)  # channels
     var running_mean = zeros(mean_shape, DType.float32)
     var running_var = ones(mean_shape, DType.float32)
 
     fn forward(x: AnyTensor) raises escaping -> AnyTensor:
-        var result = batch_norm2d(x, gamma, training=True)
+        var result = batch_norm2d(x, gamma, beta, running_mean, running_var, training=True)
         return result[0]
 
     fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
@@ -95,13 +103,17 @@ fn test_batch_norm_gradient_batch_size_4() raises:
     gamma_shape.append(2)  # channels
     var gamma = ones(gamma_shape, DType.float32)
 
+    var beta_shape = List[Int]()
+    beta_shape.append(2)  # channels
+    var beta = zeros(beta_shape, DType.float32)
+
     var mean_shape = List[Int]()
     mean_shape.append(2)  # channels
     var running_mean = zeros(mean_shape, DType.float32)
     var running_var = ones(mean_shape, DType.float32)
 
     fn forward(x: AnyTensor) raises escaping -> AnyTensor:
-        var result = batch_norm2d(x, gamma, training=True)
+        var result = batch_norm2d(x, gamma, beta, running_mean, running_var, training=True)
         return result[0]
 
     fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
@@ -127,13 +139,17 @@ fn test_batch_norm_gamma_gradient_batch_size_2() raises:
     gamma_shape.append(2)  # channels
     var gamma = ones(gamma_shape, DType.float32)
 
+    var beta_shape = List[Int]()
+    beta_shape.append(2)  # channels
+    var beta = zeros(beta_shape, DType.float32)
+
     var mean_shape = List[Int]()
     mean_shape.append(2)  # channels
     var running_mean = zeros(mean_shape, DType.float32)
     var running_var = ones(mean_shape, DType.float32)
 
     fn forward(g: AnyTensor) raises escaping -> AnyTensor:
-        var result = batch_norm2d(input, g, training=True)
+        var result = batch_norm2d(input, g, beta, running_mean, running_var, training=True)
         return result[0]
 
     fn backward(grad_out: AnyTensor, g: AnyTensor) raises escaping -> AnyTensor:

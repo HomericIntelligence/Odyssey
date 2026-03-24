@@ -22,7 +22,7 @@ from shared.core.shape import concatenate, stack, split
 
 
 fn test_concatenate_axis0() raises:
-    """concatenate joins AnyTensor list along axis 0."""
+    """Concatenate joins AnyTensor list along axis 0."""
     var a: AnyTensor = ones([2, 3], DType.float32)
     var b: AnyTensor = ones([3, 3], DType.float32)
     var tensors = List[AnyTensor]()
@@ -38,7 +38,7 @@ fn test_concatenate_axis0() raises:
 
 
 fn test_concatenate_axis1() raises:
-    """concatenate joins AnyTensor list along axis 1."""
+    """Concatenate joins AnyTensor list along axis 1."""
     var a: AnyTensor = ones([2, 3], DType.float32)
     var b: AnyTensor = ones([2, 4], DType.float32)
     var tensors = List[AnyTensor]()
@@ -52,7 +52,7 @@ fn test_concatenate_axis1() raises:
 
 
 fn test_concatenate_single_tensor() raises:
-    """concatenate with single tensor returns equivalent tensor."""
+    """Concatenate with single tensor returns equivalent tensor."""
     var a: AnyTensor = zeros([3, 4], DType.float32)
     var tensors = List[AnyTensor]()
     tensors.append(a)
@@ -64,7 +64,7 @@ fn test_concatenate_single_tensor() raises:
 
 
 fn test_stack_axis0() raises:
-    """stack creates new axis 0 from AnyTensor list."""
+    """Stack creates new axis 0 from AnyTensor list."""
     var a: AnyTensor = ones([3, 4], DType.float32)
     var b: AnyTensor = ones([3, 4], DType.float32)
     var tensors = List[AnyTensor]()
@@ -80,7 +80,7 @@ fn test_stack_axis0() raises:
 
 
 fn test_stack_1d_tensors() raises:
-    """stack 1D AnyTensors creates 2D result."""
+    """Stack 1D AnyTensors creates 2D result."""
     var a: AnyTensor = zeros([4], DType.float32)
     var b: AnyTensor = zeros([4], DType.float32)
     var c: AnyTensor = zeros([4], DType.float32)
@@ -96,7 +96,7 @@ fn test_stack_1d_tensors() raises:
 
 
 fn test_split_equal_parts() raises:
-    """split divides AnyTensor into equal parts along axis 0."""
+    """Split divides AnyTensor into equal parts along axis 0."""
     var t: AnyTensor = ones([6, 4], DType.float32)
     var parts = split(t, 3, axis=0)
     assert_true(len(parts) == 3, "should produce 3 parts")
@@ -108,7 +108,7 @@ fn test_split_equal_parts() raises:
 
 
 fn test_split_axis1() raises:
-    """split along axis 1 produces correct shapes."""
+    """Split along axis 1 produces correct shapes."""
     var t: AnyTensor = ones([4, 6], DType.float32)
     var parts = split(t, 2, axis=1)
     assert_true(len(parts) == 2, "should produce 2 parts")
@@ -120,7 +120,7 @@ fn test_split_axis1() raises:
 
 
 fn test_split_into_single() raises:
-    """split with num_splits=1 returns the whole tensor."""
+    """Split with num_splits=1 returns the whole tensor."""
     var t: AnyTensor = zeros([4, 3], DType.float32)
     var parts = split(t, 1, axis=0)
     assert_true(len(parts) == 1, "should produce 1 part")
