@@ -1,7 +1,7 @@
 #!/bin/bash
 # run_all_experiments.sh — validates every claim in the Day 53 blog post
 #
-# Usage: cd ProjectOdyssey && bash notes/blog/03-16-2026/artifacts/run_all_experiments.sh
+# Usage: cd ProjectOdyssey && bash repro/run_all_experiments.sh
 #
 # Runs each experiment and prints the command, expected outcome, and PASS/FAIL.
 
@@ -11,7 +11,7 @@ PASS=0
 FAIL=0
 TOTAL=0
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 cd "$REPO_ROOT"
 
@@ -178,12 +178,12 @@ echo ""
 run_test \
     "repro_libkgen_crash.mojo crashes" \
     "crash" \
-    "pixi run mojo run repro_libkgen_crash.mojo"
+    "pixi run mojo run $SCRIPT_DIR/repro_libkgen_crash.mojo"
 
 run_test \
     "repro_libasyncrt_crash.mojo crashes" \
     "crash" \
-    "pixi run mojo run repro_libasyncrt_crash.mojo"
+    "pixi run mojo run $SCRIPT_DIR/repro_libasyncrt_crash.mojo"
 
 # ==========================================================================
 echo "--- 7. LeNet-5 Monolithic File Crashes (ADR-009 — Same Bug) ---"
