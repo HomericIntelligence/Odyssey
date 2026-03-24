@@ -360,6 +360,56 @@ struct Tensor[dtype: DType = DType.float32](
         return self._shape[0]
 
     # ------------------------------------------------------------------
+    # Scalar extraction
+    # ------------------------------------------------------------------
+
+    fn item(self) raises -> Scalar[Self.dtype]:
+        """Extract the value from a single-element tensor.
+
+        Returns:
+            The scalar value as Scalar[Self.dtype].
+
+        Raises:
+            Error: If tensor has more than one element.
+
+        Example:
+            ```mojo
+            var t = Tensor[DType.float32]([1])
+            t[0] = 42.0
+            var val = t.item()  # Returns Scalar[DType.float32](42.0)
+            ```
+        """
+        if self._numel != 1:
+            raise Error(
+                "item() requires single-element tensor, got "
+                + String(self._numel)
+                + " elements"
+            )
+        return self._data[0]
+
+    fn __bool__(self) raises -> Bool:
+        """Return the boolean value of a single-element tensor.
+
+        Follows PyTorch/NumPy convention: a single-element tensor can be
+        used in boolean context. Returns True if the value is non-zero.
+
+        Returns:
+            True if the single element is non-zero, False otherwise.
+
+        Raises:
+            Error: If tensor has more than one element.
+
+        Example:
+            ```mojo
+            var t = Tensor[DType.float32]([1])
+            t[0] = 5.0
+            if t:  # True
+                print("non-zero")
+            ```
+        """
+        return self.item().__bool__()
+
+    # ------------------------------------------------------------------
     # Query methods
     # ------------------------------------------------------------------
 

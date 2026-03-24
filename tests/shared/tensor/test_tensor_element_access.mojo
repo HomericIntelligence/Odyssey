@@ -13,6 +13,8 @@ Tests cover:
 - __str__ output format
 - __len__ returns first dimension
 - 1D tensor correctness
+- item() single-element extraction and multi-element error
+- __bool__ truthiness for zero/non-zero and multi-element error
 """
 
 from testing import assert_true, assert_almost_equal
@@ -99,6 +101,67 @@ fn test_tensor_getitem_float64_typed() raises:
     print("PASS: test_tensor_getitem_float64_typed")
 
 
+fn test_tensor_item_single_element() raises:
+    """Verify item() extracts value from single-element tensor."""
+    var t = Tensor[DType.float32]([1])
+    t[0] = Scalar[DType.float32](42.0)
+    var val = t.item()
+    assert_almost_equal(Float32(val), Float32(42.0), atol=1e-6)
+    print("PASS: test_tensor_item_single_element")
+
+
+fn test_tensor_item_raises_multi_element() raises:
+    """Verify item() raises for multi-element tensor."""
+    var t = Tensor[DType.float32]([5])
+    var error_raised = False
+    try:
+        var val = t.item()
+        _ = val
+    except e:
+        error_raised = True
+        var error_msg = String(e)
+        if "single" not in error_msg.lower():
+            raise Error(
+                "Error message should mention single-element requirement"
+            )
+    if not error_raised:
+        raise Error("item() on multi-element tensor should raise error")
+    print("PASS: test_tensor_item_raises_multi_element")
+
+
+fn test_tensor_bool_single_element() raises:
+    """__bool__ on single-element tensor returns correct truthiness."""
+    var t_zero = Tensor[DType.float32]([1])
+    t_zero[0] = Scalar[DType.float32](0.0)
+    var t_nonzero = Tensor[DType.float32]([1])
+    t_nonzero[0] = Scalar[DType.float32](5.0)
+
+    if t_zero:
+        raise Error("Zero tensor should be falsy")
+    if not t_nonzero:
+        raise Error("Non-zero tensor should be truthy")
+    print("PASS: test_tensor_bool_single_element")
+
+
+fn test_tensor_bool_raises_multi_element() raises:
+    """__bool__ raises for multi-element tensor."""
+    var t = Tensor[DType.float32]([5])
+    var error_raised = False
+    try:
+        var val = t.__bool__()
+        _ = val
+    except e:
+        error_raised = True
+        var error_msg = String(e)
+        if "single" not in error_msg.lower():
+            raise Error(
+                "Error message should mention single-element requirement"
+            )
+    if not error_raised:
+        raise Error("__bool__ on multi-element tensor should raise error")
+    print("PASS: test_tensor_bool_raises_multi_element")
+
+
 fn main() raises:
     test_tensor_float32_creation()
     test_tensor_float64_creation()
@@ -109,4 +172,8 @@ fn main() raises:
     test_tensor_str_output()
     test_tensor_len()
     test_tensor_1d()
-    print("All 9 tensor element access tests passed!")
+    test_tensor_item_single_element()
+    test_tensor_item_raises_multi_element()
+    test_tensor_bool_single_element()
+    test_tensor_bool_raises_multi_element()
+    print("All 13 tensor element access tests passed!")
