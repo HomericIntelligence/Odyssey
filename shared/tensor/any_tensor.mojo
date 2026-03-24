@@ -3239,7 +3239,33 @@ struct AnyTensor(
             result += "], dtype=" + String(self._dtype) + ")"
             return result
 
-        # For multi-dimensional tensors (2D+): build nested brackets
+        # For multi-dimensional tensors (2D+): build nested brackets.
+        # Truncate if total elements exceed threshold to prevent
+        # massive string output for large tensors (e.g., [100, 100]).
+        if self._numel > TRUNCATE_THRESHOLD:
+            # Show first and last sub-arrays along outermost dimension
+            var stride = 1
+            for d in range(1, ndim):
+                stride *= self._shape[d]
+
+            var data_str = String("[")
+            for i in range(SHOW_ELEMENTS):
+                if i > 0:
+                    data_str += ", "
+                data_str += self._format_nd_slice(1, i * stride)
+            data_str += ", ..."
+            for i in range(self._shape[0] - SHOW_ELEMENTS, self._shape[0]):
+                data_str += ", " + self._format_nd_slice(1, i * stride)
+            data_str += "]"
+
+            var result = "AnyTensor(" + data_str + ", shape=["
+            for i in range(len(self._shape)):
+                if i > 0:
+                    result += ", "
+                result += String(self._shape[i])
+            result += "], dtype=" + String(self._dtype) + ")"
+            return result
+
         var data_str = self._format_nd_slice(0, 0)
 
         var result = "AnyTensor(" + data_str + ", shape=["
@@ -3253,6 +3279,9 @@ struct AnyTensor(
     fn _format_element(self, flat_idx: Int) -> String:
         """Format a single element based on dtype.
 
+        Handles unsigned integers natively to avoid sign corruption when
+        values exceed Int64 range (e.g., uint64 values > 2^63).
+
         Args:
             flat_idx: The flat index in the buffer.
 
@@ -3261,6 +3290,15 @@ struct AnyTensor(
         """
         if self._dtype == DType.bool:
             return "True" if self._get_int64(flat_idx) != 0 else "False"
+        elif self._dtype == DType.uint64:
+            # Read as native UInt64 to avoid sign corruption via _get_int64
+            var dtype_size = self._get_dtype_size()
+            var ptr = (self._data + flat_idx * dtype_size).bitcast[UInt64]()
+            return String(ptr[])
+        elif self._dtype == DType.uint32:
+            var dtype_size = self._get_dtype_size()
+            var ptr = (self._data + flat_idx * dtype_size).bitcast[UInt32]()
+            return String(ptr[])
         elif (
             self._dtype == DType.int8
             or self._dtype == DType.int16
@@ -3268,8 +3306,6 @@ struct AnyTensor(
             or self._dtype == DType.int64
             or self._dtype == DType.uint8
             or self._dtype == DType.uint16
-            or self._dtype == DType.uint32
-            or self._dtype == DType.uint64
         ):
             return String(self._get_int64(flat_idx))
         else:
