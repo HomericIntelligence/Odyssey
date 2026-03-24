@@ -36,6 +36,9 @@ training_*.txt
 *_weights/
 checkpoints/
 
+# Environment files
+.env
+
 # Editor files
 *.swp
 .coverage
