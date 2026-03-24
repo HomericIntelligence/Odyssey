@@ -3281,8 +3281,11 @@ struct AnyTensor(
     ) -> String:
         """Format a slice of the N-dimensional tensor with nested brackets.
 
-        Uses row-major (C-order) layout: the flat index for multi-dim coordinates
-        is computed from the base offset and dimension strides.
+        Design: uses offset-based recursion instead of threading a mutable counter
+        through calls. Each call computes its flat indices as base_offset + i * stride,
+        making the function pure — its behavior is determined entirely by its arguments,
+        not hidden mutable state. This mirrors the row-major index formula directly:
+        element [i,j,k] lives at flat index i*(J*K) + j*K + k.
 
         Args:
             dim: Current dimension level (0 = outermost).
