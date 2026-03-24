@@ -3577,6 +3577,18 @@ struct AnyTensor(
                 elif self._dtype == DType.int64:
                     var ptr = (self._data + offset_bytes).bitcast[Int64]()
                     val = Float64(ptr[])
+                elif self._dtype == DType.uint8:
+                    var ptr = (self._data + offset_bytes).bitcast[UInt8]()
+                    val = Float64(Int(ptr[]))
+                elif self._dtype == DType.uint16:
+                    var ptr = (self._data + offset_bytes).bitcast[UInt16]()
+                    val = Float64(Int(ptr[]))
+                elif self._dtype == DType.uint32:
+                    var ptr = (self._data + offset_bytes).bitcast[UInt32]()
+                    val = Float64(Int(ptr[]))
+                elif self._dtype == DType.uint64:
+                    var ptr = (self._data + offset_bytes).bitcast[UInt64]()
+                    val = Float64(Int(ptr[]))
                 else:
                     val = 0.0
 
