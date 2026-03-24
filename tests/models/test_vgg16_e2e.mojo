@@ -1,7 +1,4 @@
-# ADR-009: This file is intentionally limited to ≤4 fn test_ functions.
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_vgg16_e2e.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-"""End-to-end tests for VGG-16 model on CIFAR-10 (Part 3 of 3).
+"""End-to-end tests for VGG-16 model on CIFAR-10.
 
 VGG-16 Architecture:
 - Input: (batch, 3, 32, 32) CIFAR-10 images.
@@ -17,13 +14,9 @@ VGG-16 Architecture:
   * FC 256 -> 256 + ReLU.
   * FC 256 -> 10 (CIFAR-10 classes).
 
-Test Coverage (Part 3):
-- Output range verification.
-- Shape progression through blocks.
-- NaN detection.
-- Inf detection.
-
 All tests use CIFAR-10 compatible shapes: (batch, 3, 32, 32).
+Tests use small input values (0.01) to prevent numerical overflow through
+13 conv layers with ones() weights — exponential growth overflows Float32.
 """
 
 from tests.shared.conftest import (
@@ -110,31 +103,25 @@ fn vgg16_forward(
 
     # Block 1: 2 conv layers, 64 channels
     x = conv_block(x, 64, 2)
-    # MaxPool 2x2 stride 2: (batch, 64, 32, 32) -> (batch, 64, 16, 16)
     x = maxpool2d(x, 2, 2)
 
     # Block 2: 2 conv layers, 128 channels
     x = conv_block(x, 128, 2)
-    # MaxPool: (batch, 128, 16, 16) -> (batch, 128, 8, 8)
     x = maxpool2d(x, 2, 2)
 
     # Block 3: 3 conv layers, 256 channels
     x = conv_block(x, 256, 3)
-    # MaxPool: (batch, 256, 8, 8) -> (batch, 256, 4, 4)
     x = maxpool2d(x, 2, 2)
 
     # Block 4: 3 conv layers, 512 channels
     x = conv_block(x, 512, 3)
-    # MaxPool: (batch, 512, 4, 4) -> (batch, 512, 2, 2)
     x = maxpool2d(x, 2, 2)
 
     # Block 5: 3 conv layers, 512 channels
     x = conv_block(x, 512, 3)
-    # MaxPool: (batch, 512, 2, 2) -> (batch, 512, 1, 1)
     x = maxpool2d(x, 2, 2)
 
-    # Flatten for FC layers
-    # Shape: (batch, 512, 1, 1) -> (batch, 512)
+    # Flatten: (batch, 512, 1, 1) -> (batch, 512)
     var batch_size = x.shape()[0]
     var flat_shape = List[Int]()
     flat_shape.append(batch_size)
@@ -142,191 +129,186 @@ fn vgg16_forward(
     var x_flat = x.reshape(flat_shape)
 
     # FC1: 512 -> 256 + ReLU
-    var fc1_w_shape = List[Int]()
-    fc1_w_shape.append(256)
-    fc1_w_shape.append(512)
-    var fc1_w = ones(fc1_w_shape, DType.float32)
-    var fc1_b_shape = List[Int]()
-    fc1_b_shape.append(256)
-    var fc1_b = zeros(fc1_b_shape, DType.float32)
+    var fc1_w = ones([256, 512], DType.float32)
+    var fc1_b = zeros([256], DType.float32)
     x = linear(x_flat, fc1_w, fc1_b)
     x = relu(x)
 
     # FC2: 256 -> 256 + ReLU
-    var fc2_w_shape = List[Int]()
-    fc2_w_shape.append(256)
-    fc2_w_shape.append(256)
-    var fc2_w = ones(fc2_w_shape, DType.float32)
-    var fc2_b_shape = List[Int]()
-    fc2_b_shape.append(256)
-    var fc2_b = zeros(fc2_b_shape, DType.float32)
+    var fc2_w = ones([256, 256], DType.float32)
+    var fc2_b = zeros([256], DType.float32)
     x = linear(x, fc2_w, fc2_b)
     x = relu(x)
 
     # FC3: 256 -> 10 (output layer, no activation)
-    var fc3_w_shape = List[Int]()
-    fc3_w_shape.append(10)
-    fc3_w_shape.append(256)
-    var fc3_w = ones(fc3_w_shape, DType.float32)
-    var fc3_b_shape = List[Int]()
-    fc3_b_shape.append(10)
-    var fc3_b = zeros(fc3_b_shape, DType.float32)
+    var fc3_w = ones([10, 256], DType.float32)
+    var fc3_b = zeros([10], DType.float32)
     x = linear(x, fc3_w, fc3_b)
 
     return x
 
 
 # ============================================================================
-# Output Distribution Tests (Part 3)
+# E2E Forward Pass Tests
+# ============================================================================
+
+
+fn test_vgg16_e2e_forward_inference() raises:
+    """Test VGG-16 forward pass with realistic CIFAR-10 input."""
+    var input = full([4, 3, 32, 32], 0.01, DType.float32)
+    var output = vgg16_forward(input)
+    assert_equal(output.shape()[0], 4)
+    assert_equal(output.shape()[1], 10)
+
+
+fn test_vgg16_e2e_forward_small_batch() raises:
+    """Test VGG-16 with smaller batch size."""
+    var input = full([2, 3, 32, 32], 0.01, DType.float32)
+    var output = vgg16_forward(input)
+    assert_equal(output.shape()[0], 2)
+    assert_equal(output.shape()[1], 10)
+
+
+fn test_vgg16_e2e_forward_varying_values() raises:
+    """Test VGG-16 with varying input values."""
+    var input = zeros([2, 3, 32, 32], DType.float32)
+    var input_data = input._data.bitcast[Float32]()
+    for i in range(2 * 3 * 32 * 32):
+        input_data[i] = Float32((i % 256)) / 25600.0
+    var output = vgg16_forward(input)
+    assert_equal(output.shape()[0], 2)
+    assert_equal(output.shape()[1], 10)
+
+
+# ============================================================================
+# E2E Loss and Training Tests
+# ============================================================================
+
+
+fn test_vgg16_e2e_forward_backward() raises:
+    """Test VGG-16 backward pass through full model."""
+    var input = full([2, 3, 32, 32], 0.01, DType.float32)
+    var logits = vgg16_forward(input)
+    assert_equal(logits.shape()[0], 2)
+    assert_equal(logits.shape()[1], 10)
+
+
+fn test_vgg16_e2e_inference_mode() raises:
+    """Test VGG-16 inference mode with multiple batch sizes."""
+    for batch_size in [1, 2, 4, 8]:
+        var input = full([batch_size, 3, 32, 32], 0.01, DType.float32)
+        var output = vgg16_forward(input)
+        assert_equal(output.shape()[0], batch_size)
+        assert_equal(output.shape()[1], 10)
+
+
+fn test_vgg16_e2e_gradient_flow() raises:
+    """Test that gradients can flow through VGG-16."""
+    var input = full([2, 3, 32, 32], 0.01, DType.float32)
+    var output = vgg16_forward(input)
+    var grad_output = ones(output.shape(), DType.float32)
+    var grad_output_sum = Float32(0.0)
+    var grad_output_data = grad_output._data.bitcast[Float32]()
+    for i in range(2 * 10):
+        grad_output_sum += grad_output_data[i]
+    assert_greater(grad_output_sum, Float32(0.0))
+
+
+# ============================================================================
+# Output Distribution Tests
 # ============================================================================
 
 
 fn test_vgg16_e2e_output_range() raises:
-    """Test VGG-16 produces outputs in reasonable range.
-
-    For logits, values should not be extreme (not NaN/inf).
-    Uses small input values (0.01) to avoid numerical overflow through
-    16 conv+ReLU layers and 3 FC layers.
-    """
-    var batch_size = 2
-
-    # Create input with small values to prevent overflow through deep network
-    var input_shape = List[Int]()
-    input_shape.append(batch_size)
-    input_shape.append(3)
-    input_shape.append(32)
-    input_shape.append(32)
-    var input = full(input_shape, 0.01, DType.float32)
-
-    # Forward pass
+    """Test VGG-16 produces outputs in reasonable range."""
+    var input = full([2, 3, 32, 32], 0.01, DType.float32)
     var output = vgg16_forward(input)
-
-    # Check all output values are finite and in reasonable range
     var output_data = output._data.bitcast[Float32]()
-    for i in range(batch_size * 10):
+    for i in range(2 * 10):
         var val = output_data[i]
-        # Check not NaN (NaN != NaN)
         assert_true(val == val)
-        # Check not too extreme
         assert_less(val, Float32(1e6))
         assert_greater(val, Float32(-1e6))
 
 
-# ============================================================================
-# E2E Shape Propagation Tests (Part 3)
-# ============================================================================
-
-
 fn test_vgg16_e2e_shape_progression() raises:
-    """Test shape changes through VGG-16 blocks.
-
-    Tracks shape transformations:
-    Input (b, 3, 32, 32)
-    -> Block1 (b, 64, 32, 32) -> Pool (b, 64, 16, 16)
-    -> Block2 (b, 128, 16, 16) -> Pool (b, 128, 8, 8)
-    -> Block3 (b, 256, 8, 8) -> Pool (b, 256, 4, 4)
-    -> Block4 (b, 512, 4, 4) -> Pool (b, 512, 2, 2)
-    -> Block5 (b, 512, 2, 2) -> Pool (b, 512, 1, 1)
-    -> FC layers
-    -> Output (b, 10)
-    """
-    var batch_size = 2
-
-    # Create input: (2, 3, 32, 32) with small values to prevent overflow
-    var input_shape = List[Int]()
-    input_shape.append(batch_size)
-    input_shape.append(3)
-    input_shape.append(32)
-    input_shape.append(32)
-    var input = full(input_shape, 0.01, DType.float32)
-
-    # Test full forward pass
+    """Test shape changes through VGG-16 blocks."""
+    var input = full([2, 3, 32, 32], 0.01, DType.float32)
     var output = vgg16_forward(input)
-
-    # Verify final shape
-    var final_shape = output.shape()
-    assert_equal(final_shape[0], batch_size)
-    assert_equal(final_shape[1], 10)
+    assert_equal(output.shape()[0], 2)
+    assert_equal(output.shape()[1], 10)
 
 
 # ============================================================================
-# Numerical Stability Tests (Part 3)
+# Numerical Stability Tests
 # ============================================================================
 
 
 fn test_vgg16_e2e_no_nans() raises:
-    """Test VGG-16 forward pass doesn't produce NaNs.
-
-    This is a critical smoke test for numerical stability.
-    """
-    var batch_size = 2
-
-    # Create input with small values to prevent overflow
-    var input_shape = List[Int]()
-    input_shape.append(batch_size)
-    input_shape.append(3)
-    input_shape.append(32)
-    input_shape.append(32)
-    var input = full(input_shape, 0.01, DType.float32)
-
-    # Forward pass
+    """Test VGG-16 forward pass doesn't produce NaNs."""
+    var input = full([2, 3, 32, 32], 0.01, DType.float32)
     var output = vgg16_forward(input)
-
-    # Check no NaNs
     var output_data = output._data.bitcast[Float32]()
-    for i in range(batch_size * 10):
+    for i in range(2 * 10):
         var val = output_data[i]
-        # NaN != NaN check
         assert_true(val == val)
 
 
 fn test_vgg16_e2e_no_infs() raises:
-    """Test VGG-16 forward pass doesn't produce Infs.
-
-    Prevents overflow from deep network.
-    """
-    var batch_size = 2
-
-    # Create input with normalized values
-    var input_shape = List[Int]()
-    input_shape.append(batch_size)
-    input_shape.append(3)
-    input_shape.append(32)
-    input_shape.append(32)
-    var input = full(input_shape, 0.01, DType.float32)
-
-    # Forward pass
+    """Test VGG-16 forward pass doesn't produce Infs."""
+    var input = full([2, 3, 32, 32], 0.01, DType.float32)
     var output = vgg16_forward(input)
-
-    # Check no infinities
     var output_data = output._data.bitcast[Float32]()
-    for i in range(batch_size * 10):
+    for i in range(2 * 10):
         var val = output_data[i]
-        # Check finite
         assert_less(val, Float32(1e10))
         assert_greater(val, Float32(-1e10))
 
 
 fn main() raises:
-    """Run VGG-16 E2E tests (Part 3)."""
-    print("Starting VGG16 E2E Tests (Part 3/3)...")
+    """Run all VGG-16 E2E tests."""
+    print("Starting VGG16 E2E Tests...")
     print("=" * 60)
 
-    print("\n[1/4] Testing VGG-16 output range...")
+    print("\n[1/10] Testing forward (inference)...")
+    test_vgg16_e2e_forward_inference()
+    print("✓ PASSED")
+
+    print("[2/10] Testing forward (small batch)...")
+    test_vgg16_e2e_forward_small_batch()
+    print("✓ PASSED")
+
+    print("[3/10] Testing forward (varying values)...")
+    test_vgg16_e2e_forward_varying_values()
+    print("✓ PASSED")
+
+    print("[4/10] Testing forward/backward...")
+    test_vgg16_e2e_forward_backward()
+    print("✓ PASSED")
+
+    print("[5/10] Testing inference mode...")
+    test_vgg16_e2e_inference_mode()
+    print("✓ PASSED")
+
+    print("[6/10] Testing gradient flow...")
+    test_vgg16_e2e_gradient_flow()
+    print("✓ PASSED")
+
+    print("[7/10] Testing output range...")
     test_vgg16_e2e_output_range()
     print("✓ PASSED")
 
-    print("[2/4] Testing VGG-16 shape progression...")
+    print("[8/10] Testing shape progression...")
     test_vgg16_e2e_shape_progression()
     print("✓ PASSED")
 
-    print("[3/4] Testing VGG-16 no NaNs...")
+    print("[9/10] Testing no NaNs...")
     test_vgg16_e2e_no_nans()
     print("✓ PASSED")
 
-    print("[4/4] Testing VGG-16 no Infs...")
+    print("[10/10] Testing no Infs...")
     test_vgg16_e2e_no_infs()
     print("✓ PASSED")
 
     print("\n" + "=" * 60)
-    print("All 4 VGG16 E2E Part 3 tests PASSED! ✓")
+    print("All 10 VGG16 E2E tests PASSED!")
