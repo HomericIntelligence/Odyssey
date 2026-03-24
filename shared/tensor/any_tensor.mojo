@@ -4790,6 +4790,31 @@ fn calculate_max_batch_size(
 # ============================================================================
 
 
+fn copy(tensor: AnyTensor) raises -> AnyTensor:
+    """Create an independent deep copy of the tensor.
+
+    This is a convenience wrapper around the AnyTensor.clone() method,
+    following NumPy naming conventions. The returned tensor has its own
+    independent memory; modifications to it do not affect the original.
+
+    Args:
+        tensor: The tensor to copy.
+
+    Returns:
+        A new AnyTensor that is a deep copy of the input.
+
+    Raises:
+        Error: If memory allocation fails.
+
+    Example:
+        ```mojo
+        var x = ones([3, 4], DType.float32)
+        var y = copy(x)  # Independent deep copy
+        ```
+    """
+    return tensor.clone()
+
+
 fn clone(tensor: AnyTensor) raises -> AnyTensor:
     """Create a clone of the tensor.
 

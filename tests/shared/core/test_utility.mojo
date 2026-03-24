@@ -5,7 +5,7 @@ and helper methods like numel, dim, size, stride, is_contiguous.
 """
 
 # Import AnyTensor and operations
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange, clone, item, diff
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange, copy, clone, item, diff
 from shared.core import as_contiguous, transpose_view
 
 # Import test helpers
@@ -29,15 +29,20 @@ from tests.shared.conftest import (
 
 
 fn test_copy_independence() raises:
-    """Test that copy creates independent tensor."""
+    """Test that copy() creates an independent deep copy."""
     var shape = List[Int]()
     shape.append(5)
     var a = full(shape, 3.0, DType.float32)
-    var b = clone(a)
+    var b = copy(a)
 
-    # Check that clone creates a copy with same values
-    assert_value_at(b, 0, 3.0, 1e-6, "Clone should have same value")
-    assert_value_at(b, 4, 3.0, 1e-6, "Clone should have same value at end")
+    # Check that copy creates a tensor with same values
+    assert_value_at(b, 0, 3.0, 1e-6, "Copy should have same value")
+    assert_value_at(b, 4, 3.0, 1e-6, "Copy should have same value at end")
+
+    # Verify independence: modifying copy doesn't affect original
+    b.set(0, Float64(99.0))
+    assert_almost_equal(b._get_float64(0), 99.0, 1e-6, "Copy should be modified")
+    assert_value_at(a, 0, 3.0, 1e-6, "Original should be unchanged after copy modification")
 
 
 fn test_clone_identical() raises:
