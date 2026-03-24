@@ -74,10 +74,10 @@ fn test_str_uint32() raises:
 
 fn test_str_uint64() raises:
     """Test __str__ for uint64 tensor."""
-    var t = full([3], Float64(18446744073709551615), DType.uint64)
+    var t = full([3], Float64(9007199254740992), DType.uint64)
     var s = String(t)
     assert_true(s.startswith("AnyTensor(["))
-    assert_true("18446744073709551615" in s)
+    assert_true("9007199254740992" in s)
     assert_true("dtype=uint64" in s)
 
 

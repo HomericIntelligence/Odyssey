@@ -624,7 +624,7 @@ fn _conv2d_backward_kernel[
                         + ih * in_width
                         + iw
                     )
-                    grad_input[grad_in_idx] = Float32(grad_sum)
+                    grad_input._set_float64(grad_in_idx, Float64(grad_sum))
 
     # Compute grad_kernel
     # For each kernel position, sum input * grad_output over all valid positions
@@ -688,7 +688,7 @@ fn _conv2d_backward_kernel[
                         + kh * kW
                         + kw
                     )
-                    grad_kernel[grad_k_idx] = Float32(grad_sum)
+                    grad_kernel._set_float64(grad_k_idx, Float64(grad_sum))
 
     # Compute grad_bias: sum over batch, height, width
     var grad_bias_shape = List[Int]()
@@ -712,7 +712,7 @@ fn _conv2d_backward_kernel[
                     ]()[grad_out_idx]
                     bias_grad_sum += grad_out_val
 
-        grad_bias[oc] = Float32(bias_grad_sum)
+        grad_bias._set_float64(oc, Float64(bias_grad_sum))
 
     return GradientTriple(grad_input^, grad_kernel^, grad_bias^)
 

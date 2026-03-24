@@ -128,7 +128,7 @@ fn maxpool2d(
                         var in_w_end = in_w_start + kernel_size
 
                         # Find maximum in window
-                        var max_val = Float32(-1e9)  # Very small initial value
+                        var max_val = Float32(-65504.0)  # Very small initial value
 
                         for kh in range(kernel_size):
                             for kw in range(kernel_size):
@@ -175,7 +175,7 @@ fn maxpool2d(
                         var in_w_end = in_w_start + kernel_size
 
                         # Find maximum in window
-                        var max_val = Float32(-1e9)  # Very small initial value
+                        var max_val = Float32(-65504.0)  # Very small initial value
 
                         for kh in range(kernel_size):
                             for kw in range(kernel_size):
@@ -237,7 +237,7 @@ fn _maxpool2d_optimized(
     var row_max_size = in_height * out_width
     var row_max = List[Float32]()
     for _ in range(row_max_size):
-        row_max.append(Float32(-1e9))
+        row_max.append(Float32(-65504.0))
 
     for b in range(batch):
         for c in range(channels):
@@ -246,7 +246,7 @@ fn _maxpool2d_optimized(
                 for ow in range(out_width):
                     # Window starts at w_start = ow * stride - padding
                     var w_start = ow * stride - padding
-                    var row_max_val = Float32(-1e9)
+                    var row_max_val = Float32(-65504.0)
 
                     for kw in range(kernel_size):
                         var iw = w_start + kw
@@ -268,7 +268,7 @@ fn _maxpool2d_optimized(
                 var h_start = oh * stride - padding
 
                 for ow in range(out_width):
-                    var max_val = Float32(-1e9)
+                    var max_val = Float32(-65504.0)
 
                     for kh in range(kernel_size):
                         var ih = h_start + kh
@@ -559,7 +559,7 @@ fn maxpool2d_backward(
                     var in_w_start = ow * actual_stride - padding
 
                     # Find the position of maximum value in the window
-                    var max_val = Float32(-1e9)
+                    var max_val = Float32(-65504.0)
                     var max_h = -1
                     var max_w = -1
 

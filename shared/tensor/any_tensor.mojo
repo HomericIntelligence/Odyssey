@@ -1373,7 +1373,7 @@ struct AnyTensor(
             # Copy each row contiguously
             var src_offset = starts[0] * stride_numel * dtype_size
             for i in range(result_shape[0]):
-                var src_addr = src_ptr + src_offset + i * stride_numel * dtype_size
+                var src_addr = src_ptr + src_offset + i * steps[0] * stride_numel * dtype_size
                 var dst_addr = dst_ptr + i * stride_numel * dtype_size
                 # memcpy semantics: copy stride_numel elements
                 for b in range(stride_numel * dtype_size):
