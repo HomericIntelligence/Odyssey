@@ -27,7 +27,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones
 
 fn test_sequential2_forward_linear_relu() raises:
     """Sequential2 chains Linear + ReLU via AnyTensor boundary."""
-    var model = Sequential2[Linear, ReLULayer](
+    var model = Sequential2[Linear[DType.float32], ReLULayer](
         Linear(4, 2),
         ReLULayer(),
     )
@@ -43,7 +43,7 @@ fn test_sequential2_forward_linear_relu() raises:
 
 fn test_sequential2_parameters_collected() raises:
     """Sequential2 collects parameters from all layers."""
-    var model = Sequential2[Linear, ReLULayer](
+    var model = Sequential2[Linear[DType.float32], ReLULayer](
         Linear(4, 2),
         ReLULayer(),
     )
@@ -59,7 +59,7 @@ fn test_sequential2_parameters_collected() raises:
 
 fn test_sequential2_train_propagation() raises:
     """Sequential2 propagates train mode to sub-layers."""
-    var model = Sequential2[Linear, ReLULayer](
+    var model = Sequential2[Linear[DType.float32], ReLULayer](
         Linear(4, 2),
         ReLULayer(),
     )
@@ -74,7 +74,7 @@ fn test_sequential2_train_propagation() raises:
 
 fn test_sequential2_output_dtype_preserved() raises:
     """Sequential2 output preserves dtype through AnyTensor chain."""
-    var model = Sequential2[Linear, ReLULayer](
+    var model = Sequential2[Linear[DType.float32], ReLULayer](
         Linear(4, 2),
         ReLULayer(),
     )
@@ -93,7 +93,7 @@ fn test_sequential2_relu_clips_negatives() raises:
     Uses ones input to get deterministic matmul output from Linear,
     then verifies ReLU zeroes any negative values.
     """
-    var model = Sequential2[Linear, ReLULayer](
+    var model = Sequential2[Linear[DType.float32], ReLULayer](
         Linear(4, 2),
         ReLULayer(),
     )
@@ -111,7 +111,7 @@ fn test_sequential2_relu_clips_negatives() raises:
 
 fn test_sequential3_forward_chain() raises:
     """Sequential3 chains Linear + ReLU + Linear via AnyTensor."""
-    var model = Sequential3[Linear, ReLULayer, Linear](
+    var model = Sequential3[Linear[DType.float32], ReLULayer, Linear[DType.float32]](
         Linear(4, 3),
         ReLULayer(),
         Linear(3, 2),
@@ -126,7 +126,7 @@ fn test_sequential3_forward_chain() raises:
 
 fn test_sequential3_parameters_combined() raises:
     """Sequential3 collects parameters from all sub-layers."""
-    var model = Sequential3[Linear, ReLULayer, Linear](
+    var model = Sequential3[Linear[DType.float32], ReLULayer, Linear[DType.float32]](
         Linear(4, 3),
         ReLULayer(),
         Linear(3, 2),
