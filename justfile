@@ -721,6 +721,16 @@ clean:
 # Clean everything including Podman containers
 clean-all: clean podman-clean
 
+# Clean up stale git worktrees (dry-run by default, pass "apply" to remove)
+clean-worktrees mode="dry-run":
+    @if [ "{{mode}}" = "apply" ]; then \
+        ./scripts/cleanup_stale_worktrees.sh; \
+    elif [ "{{mode}}" = "apply-all" ]; then \
+        ./scripts/cleanup_stale_worktrees.sh --include-unmerged; \
+    else \
+        ./scripts/cleanup_stale_worktrees.sh --dry-run; \
+    fi
+
 # ==============================================================================
 # Dependency Audit
 # ==============================================================================
