@@ -96,10 +96,9 @@ fn test_linear_struct_forward_single_sample() raises:
     bias_data[0] = 0.0
     bias_data[1] = 0.0
 
-    # Create input: [1, 2, 3]
-    var input_shape: List[Int] = [3]
-    var input = zeros_like(zeros(input_shape, DType.float32))
-    # Need to properly initialize the input
+    # Create input: [[1, 2, 3]] (2D: batch=1, features=3)
+    # AnyTensor.__matmul__ requires 2D inputs
+    var input_shape: List[Int] = [1, 3]
     var input_val = ones(input_shape, DType.float32)
     var input_data = input_val._data.bitcast[Float32]()
     input_data[0] = 1.0
@@ -109,9 +108,10 @@ fn test_linear_struct_forward_single_sample() raises:
     # Forward pass
     var output = input_val @ layer.weight + layer.bias
 
-    # Check output shape
+    # Check output shape: (1, 2)
     var output_shape = output.shape()
-    assert_equal(output_shape[0], 2)
+    assert_equal(output_shape[0], 1)
+    assert_equal(output_shape[1], 2)
 
     # Check values: [1*1 + 2*0 + 3*0, 1*0 + 2*1 + 3*0] = [1, 2]
     var output_data = output._data.bitcast[Float32]()

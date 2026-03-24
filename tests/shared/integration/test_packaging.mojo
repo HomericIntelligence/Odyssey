@@ -93,8 +93,10 @@ fn test_layer_root_level_imports() raises:
     # Core module trait
     from shared import Module
 
-    # Core tensors and creation functions (AnyTensor + Tensor alias)
-    from shared import AnyTensor, Tensor, zeros, ones, randn
+    # Core tensors and creation functions
+    # AnyTensor is NOT re-exported from shared (avoids circular imports)
+    from shared.tensor.any_tensor import AnyTensor, zeros, ones, randn
+    from shared.tensor.tensor import Tensor
 
     # Training schedulers
     from shared import StepLR, CosineAnnealingLR
