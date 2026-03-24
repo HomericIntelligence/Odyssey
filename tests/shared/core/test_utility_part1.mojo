@@ -58,6 +58,120 @@ fn test_clone_identical() raises:
         assert_value_at(b, i, Float64(i), 1e-6, "Clone should have same values")
 
 
+fn test_clone_non_contiguous() raises:
+    """Test that clone of a non-contiguous (transposed) tensor produces correct contiguous copy.
+
+    A transposed tensor has permuted strides and is_contiguous() == False.
+    clone() must iterate via stride-aware multi-dim indexing and produce a
+    fresh contiguous tensor with the transposed logical order.
+    """
+    # Create (3,4) tensor with values 0..11, then transpose to (4,3)
+    var shape = List[Int]()
+    shape.append(3)
+    shape.append(4)
+    var a = arange(0.0, 12.0, 1.0, DType.float32)
+    var b = a.reshape(shape)
+    var t = b.transpose(0, 1)  # Shape (4,3), non-contiguous
+
+    assert_false(
+        t.is_contiguous(), "Transposed tensor should not be contiguous"
+    )
+
+    var c = clone(t)
+
+    # Clone should be contiguous
+    assert_true(c.is_contiguous(), "Clone of transposed tensor should be contiguous")
+
+    # Clone shape should match the transposed shape (4,3)
+    var c_shape = c.shape()
+    assert_equal_int(c_shape[0], 4, "Cloned shape dim 0 should be 4")
+    assert_equal_int(c_shape[1], 3, "Cloned shape dim 1 should be 3")
+
+    # Verify element values: transpose of row-major (3,4) with vals 0..11
+    # Row 0 of transpose = col 0 of original: 0, 4, 8
+    assert_almost_equal(c._get_float64(0), 0.0, 1e-6, "c[0,0]=0")
+    assert_almost_equal(c._get_float64(1), 4.0, 1e-6, "c[0,1]=4")
+    assert_almost_equal(c._get_float64(2), 8.0, 1e-6, "c[0,2]=8")
+    # Row 1: 1, 5, 9
+    assert_almost_equal(c._get_float64(3), 1.0, 1e-6, "c[1,0]=1")
+    assert_almost_equal(c._get_float64(4), 5.0, 1e-6, "c[1,1]=5")
+    assert_almost_equal(c._get_float64(5), 9.0, 1e-6, "c[1,2]=9")
+    # Row 2: 2, 6, 10
+    assert_almost_equal(c._get_float64(6), 2.0, 1e-6, "c[2,0]=2")
+    assert_almost_equal(c._get_float64(7), 6.0, 1e-6, "c[2,1]=6")
+    assert_almost_equal(c._get_float64(8), 10.0, 1e-6, "c[2,2]=10")
+    # Row 3: 3, 7, 11
+    assert_almost_equal(c._get_float64(9), 3.0, 1e-6, "c[3,0]=3")
+    assert_almost_equal(c._get_float64(10), 7.0, 1e-6, "c[3,1]=7")
+    assert_almost_equal(c._get_float64(11), 11.0, 1e-6, "c[3,2]=11")
+
+
+fn test_clone_zero_element_tensor() raises:
+    """Test that clone of a 0-element tensor succeeds and preserves metadata.
+
+    A tensor with shape (0,) or (2,0,3) has numel == 0. clone() should
+    return a new tensor with the same shape, dtype, and zero elements
+    without crashing or allocating wrong sizes.
+    """
+    # 1D empty tensor
+    var shape_1d = List[Int]()
+    shape_1d.append(0)
+    var empty_1d = zeros(shape_1d, DType.float32)
+    var c1 = clone(empty_1d)
+    assert_numel(c1, 0, "Cloned 0-element 1D tensor should have 0 elements")
+    assert_dtype(c1, DType.float32, "Cloned 0-element tensor should keep dtype")
+    var c1_shape = c1.shape()
+    assert_equal_int(c1_shape[0], 0, "Cloned shape should be (0,)")
+
+    # Multi-dim empty tensor: shape (2, 0, 3)
+    var shape_nd = List[Int]()
+    shape_nd.append(2)
+    shape_nd.append(0)
+    shape_nd.append(3)
+    var empty_nd = zeros(shape_nd, DType.float64)
+    var c2 = clone(empty_nd)
+    assert_numel(c2, 0, "Cloned (2,0,3) tensor should have 0 elements")
+    assert_dtype(c2, DType.float64, "Cloned (2,0,3) tensor should keep dtype")
+    var c2_shape = c2.shape()
+    assert_equal_int(c2_shape[0], 2, "Cloned shape dim 0 should be 2")
+    assert_equal_int(c2_shape[1], 0, "Cloned shape dim 1 should be 0")
+    assert_equal_int(c2_shape[2], 3, "Cloned shape dim 2 should be 3")
+
+
+fn test_clone_multiple_dtypes() raises:
+    """Test that clone preserves values for uint8, float64, and bfloat16 dtypes.
+
+    Ensures the stride-aware element copy in clone() correctly reads and writes
+    elements for each dtype without precision loss or type confusion.
+    """
+    var shape = List[Int]()
+    shape.append(4)
+
+    # uint8: small integer values
+    var t_u8 = full(shape, 42.0, DType.uint8)
+    var c_u8 = clone(t_u8)
+    assert_dtype(c_u8, DType.uint8, "uint8 clone should keep dtype")
+    for i in range(4):
+        assert_value_at(c_u8, i, 42.0, 1e-6, "uint8 clone value should be 42")
+
+    # float64: high-precision value
+    var t_f64 = full(shape, 3.141592653589793, DType.float64)
+    var c_f64 = clone(t_f64)
+    assert_dtype(c_f64, DType.float64, "float64 clone should keep dtype")
+    for i in range(4):
+        assert_value_at(
+            c_f64, i, 3.141592653589793, 1e-12, "float64 clone should preserve precision"
+        )
+
+    # bfloat16: reduced precision value
+    var t_bf = full(shape, 1.5, DType.bfloat16)
+    var c_bf = clone(t_bf)
+    assert_dtype(c_bf, DType.bfloat16, "bfloat16 clone should keep dtype")
+    for i in range(4):
+        # bfloat16 has limited precision; use wider tolerance
+        assert_value_at(c_bf, i, 1.5, 0.01, "bfloat16 clone value should be ~1.5")
+
+
 # ============================================================================
 # Test property accessors
 # ============================================================================
@@ -148,6 +262,9 @@ fn main() raises:
     print("  Testing copy() and clone()...")
     test_copy_independence()
     test_clone_identical()
+    test_clone_non_contiguous()
+    test_clone_zero_element_tensor()
+    test_clone_multiple_dtypes()
 
     # Property accessors
     print("  Testing property accessors...")
