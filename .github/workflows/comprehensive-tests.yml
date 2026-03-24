@@ -757,7 +757,38 @@ jobs:
         run: |
           # Split per ADR-009: test_gradient_checking.mojo split to avoid Mojo 0.26.1 heap corruption
           # Routed through just test-group for JIT crash retry protection (issue #3329)
-          just test-group "tests/shared/core" "test_gradient_checking_basic.mojo test_gradient_checking_dtype.mojo"
+          mkdir -p test-results
+          start_time=$(date +%s)
+          test_result="failed"
+          exit_code=1
+
+          if just test-group "tests/shared/core" "test_gradient_checking_basic.mojo test_gradient_checking_dtype.mojo"; then
+            test_result="passed"
+            exit_code=0
+          fi
+
+          end_time=$(date +%s)
+          duration=$((end_time - start_time))
+
+          cat > "test-results/Gradient-Checking-Tests.json" << EOF
+          {
+            "group": "Gradient Checking Tests",
+            "tests": 1,
+            "passed": $([ "$test_result" = "passed" ] && echo 1 || echo 0),
+            "failed": $([ "$test_result" = "failed" ] && echo 1 || echo 0),
+            "duration": $duration
+          }
+          EOF
+
+          exit $exit_code
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7
+        with:
+          name: test-results-Gradient-Checking-Tests
+          path: test-results/
+          retention-days: 7
 
       - name: Check test results
         if: failure()
@@ -833,6 +864,8 @@ jobs:
       - name: Check if test files exist
         id: check-tests
         run: |
+          mkdir -p test-results
+          echo "start_time=$(date +%s)" >> $GITHUB_ENV
           if [ -d "tests/shared/data" ]; then
             echo "tests_exist=true" >> $GITHUB_OUTPUT
           else
@@ -870,14 +903,44 @@ jobs:
 
       - name: Report Results
         if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+          TESTS_EXIST: ${{ steps.check-tests.outputs.tests_exist }}
         run: |
-          if [ "${{ steps.check-tests.outputs.tests_exist }}" = "true" ]; then
+          end_time=$(date +%s)
+          duration=$((end_time - start_time))
+
+          if [ "$JOB_STATUS" = "success" ]; then
+            test_result="passed"
+          else
+            test_result="failed"
+          fi
+
+          cat > "test-results/Data-Utilities.json" << EOF
+          {
+            "group": "Data Utilities",
+            "tests": 1,
+            "passed": $([ "$test_result" = "passed" ] && echo 1 || echo 0),
+            "failed": $([ "$test_result" = "failed" ] && echo 1 || echo 0),
+            "duration": $duration
+          }
+          EOF
+
+          if [ "$TESTS_EXIST" = "true" ]; then
             echo "Data utilities test suite completed"
             echo "Check individual test outputs above for details"
           else
             echo "⚠️  Data utilities tests not yet implemented"
             echo "This workflow will run once tests/shared/data/ tests are created"
           fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f  # v7
+        with:
+          name: test-results-Data-Utilities
+          path: test-results/
+          retention-days: 7
 
   # ============================================================================
   # Test Metrics / Coverage (absorbed from coverage.yml)
