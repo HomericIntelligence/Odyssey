@@ -80,7 +80,7 @@ fn test_conv2d_forward_typed() raises:
     input._data[0] = Scalar[DType.float32](0.5)
     input._data[1] = Scalar[DType.float32](1.0)
     input._data[12] = Scalar[DType.float32](1.5)
-    var output = layer.forward(input)
+    var output = layer.forward(input.as_any())
     assert_true(output.get_dtype() == DType.float32, "output dtype should be float32")
     # With padding=1, stride=1, kernel 3x3: output = [1, 2, 5, 5]
     var s = output.shape()
@@ -97,7 +97,7 @@ fn test_conv2d_forward_output_shape_no_padding() raises:
         in_channels=1, out_channels=4, kernel_h=3, kernel_w=3
     )
     var input = Tensor[DType.float32]([1, 1, 8, 8])
-    var output = layer.forward(input)
+    var output = layer.forward(input.as_any())
     # out_h = (8 + 0 - 3) // 1 + 1 = 6
     # out_w = (8 + 0 - 3) // 1 + 1 = 6
     var s = output.shape()
@@ -133,7 +133,7 @@ fn test_conv2d_backward_typed() raises:
     for i in range(grad_output.numel()):
         grad_output._data[i] = Scalar[DType.float32](1.0)
     var (grad_input, grad_weight, grad_bias) = layer.backward(
-        grad_output, input
+        grad_output.as_any(), input.as_any()
     )
     # grad_input should match input shape
     assert_true(grad_input.numel() == input.numel(), "grad_input numel")
@@ -153,7 +153,7 @@ fn test_conv2d_stride() raises:
         in_channels=1, out_channels=2, kernel_h=3, kernel_w=3, stride=2
     )
     var input = Tensor[DType.float32]([1, 1, 8, 8])
-    var output = layer.forward(input)
+    var output = layer.forward(input.as_any())
     # out_h = (8 + 0 - 3) // 2 + 1 = 3
     # out_w = (8 + 0 - 3) // 2 + 1 = 3
     var s = output.shape()

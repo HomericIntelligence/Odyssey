@@ -94,7 +94,7 @@ fn test_batchnorm_forward_typed() raises:
     input._data[1] = Scalar[DType.float32](1.0)
     input._data[9] = Scalar[DType.float32](1.5)
     input._data[10] = Scalar[DType.float32](0.25)
-    var output = bn.forward(input)
+    var output = bn.forward(input.as_any())
     assert_true(output.get_dtype() == DType.float32, "output dtype should be float32")
     # Output should have same shape as input: [1, 2, 3, 3]
     var s = output.shape()
@@ -115,7 +115,7 @@ fn test_batchnorm_forward_inference() raises:
     # In inference mode with running_mean=0, running_var=1, gamma=1, beta=0:
     # output = gamma * (input - running_mean) / sqrt(running_var + eps) + beta
     # output = 1 * (1 - 0) / sqrt(1 + 1e-5) + 0 ~ 1.0
-    var output = bn.forward(input, training=False)
+    var output = bn.forward(input.as_any(), training=False)
     assert_true(output.numel() == 18, "output should have 18 elements")
     assert_almost_equal(Float32(output[0]), Float32(1.0), atol=1e-4)
     print("PASS: test_batchnorm_forward_inference")

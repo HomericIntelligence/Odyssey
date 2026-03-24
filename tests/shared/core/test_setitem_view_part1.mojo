@@ -44,8 +44,8 @@ fn test_setitem_view_has_correct_setup() raises:
         raise Error("Slice [2:8] should have 6 elements")
 
     # Element values should be correct
-    assert_value_at(view, 0, 2.0, "view[0] should be 2.0")
-    assert_value_at(view, 5, 7.0, "view[5] should be 7.0")
+    assert_value_at(view, 0, 2.0, tolerance=1e-6, message="view[0] should be 2.0")
+    assert_value_at(view, 5, 7.0, tolerance=1e-6, message="view[5] should be 7.0")
 
 
 fn test_setitem_view_1d_writes_correctly() raises:
@@ -63,11 +63,11 @@ fn test_setitem_view_1d_writes_correctly() raises:
     view[2] = 77.0
 
     # Verify writes affected the correct positions in the original
-    assert_value_at(original, 0, 0.0, "original[0] should be 0.0 (before slice)")
-    assert_value_at(original, 2, 99.0, "original[2] should be 99.0 (from view[0])")
-    assert_value_at(original, 3, 88.0, "original[3] should be 88.0 (from view[1])")
-    assert_value_at(original, 4, 77.0, "original[4] should be 77.0 (from view[2])")
-    assert_value_at(original, 5, 0.0, "original[5] should be 0.0 (after slice)")
+    assert_value_at(original, 0, 0.0, tolerance=1e-6, message="original[0] should be 0.0 (before slice)")
+    assert_value_at(original, 2, 99.0, tolerance=1e-6, message="original[2] should be 99.0 (from view[0])")
+    assert_value_at(original, 3, 88.0, tolerance=1e-6, message="original[3] should be 88.0 (from view[1])")
+    assert_value_at(original, 4, 77.0, tolerance=1e-6, message="original[4] should be 77.0 (from view[2])")
+    assert_value_at(original, 5, 0.0, tolerance=1e-6, message="original[5] should be 0.0 (after slice)")
 
 
 fn test_setitem_view_multidim_writes_correctly() raises:
@@ -101,7 +101,7 @@ fn test_setitem_view_multidim_writes_correctly() raises:
     var idx_21 = [2, 1]
     var idx_22 = [2, 2]
 
-    assert_value_at(original, 0, 0.0, "original[0,0] should be 0.0 (outside slice)")
+    assert_value_at(original, 0, 0.0, tolerance=1e-6, message="original[0,0] should be 0.0 (outside slice)")
     var val_11 = original.__getitem__(idx_11)
     var val_12 = original.__getitem__(idx_12)
     var val_21 = original.__getitem__(idx_21)
@@ -132,14 +132,14 @@ fn test_setitem_view_does_not_corrupt_adjacent_elements() raises:
 
     # Check elements outside the slice are unchanged
     for i in range(3):
-        assert_value_at(original, i, 1.0, f"original[{i}] should be 1.0")
+        assert_value_at(original, i, 1.0, tolerance=1e-6, message=f"original[{i}] should be 1.0")
 
     for i in range(7, 10):
-        assert_value_at(original, i, 1.0, f"original[{i}] should be 1.0")
+        assert_value_at(original, i, 1.0, tolerance=1e-6, message=f"original[{i}] should be 1.0")
 
     # Check elements inside the slice are updated
     for i in range(3, 7):
-        assert_value_at(original, i, 99.0, f"original[{i}] should be 99.0")
+        assert_value_at(original, i, 99.0, tolerance=1e-6, message=f"original[{i}] should be 99.0")
 
 
 # ============================================================================
