@@ -1,10 +1,9 @@
-"""Tests for AnyTensor shape manipulation operations.
+"""Tests for AnyTensor shape manipulation: reshape, squeeze, unsqueeze, expand_dims, flatten.
 
-Tests shape manipulation including reshape, squeeze, unsqueeze, expand_dims,
-flatten, ravel, concatenate, stack, split, tile, repeat, broadcast_to, permute.
+Split from test_shape.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
-# Import AnyTensor and operations
+
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
 from shared.core.shape import (
     reshape,
@@ -18,8 +17,6 @@ from shared.core.shape import (
     flatten_to_2d,
     broadcast_to,
 )
-
-# Import test helpers
 from tests.shared.conftest import (
     assert_dtype,
     assert_numel,
@@ -27,11 +24,19 @@ from tests.shared.conftest import (
     assert_value_at,
     assert_all_values,
 )
-
-
-# ============================================================================
-# Test reshape()
-# ============================================================================
+from shared.core.shape import reshape, squeeze, unsqueeze, expand_dims, flatten, ravel
+from shared.core.shape import concatenate, stack
+from shared.core.shape import broadcast_to, reshape
+from tests.shared.conftest import (
+    assert_equal,
+    assert_dtype,
+    assert_numel,
+    assert_dim,
+    assert_value_at,
+    assert_all_values,
+)
+from shared.tensor.any_tensor import AnyTensor, ones, zeros, arange
+from shared.core.shape import flatten_to_2d, concatenate, as_contiguous
 
 
 fn test_reshape_valid() raises:
@@ -100,11 +105,6 @@ fn test_reshape_infer_dimension() raises:
         )
 
 
-# ============================================================================
-# Test squeeze()
-# ============================================================================
-
-
 fn test_squeeze_all_dims() raises:
     """Test removing all size-1 dimensions."""
     var shape = List[Int]()
@@ -138,11 +138,6 @@ fn test_squeeze_specific_dim() raises:
     )
 
 
-# ============================================================================
-# Test unsqueeze() / expand_dims()
-# ============================================================================
-
-
 fn test_unsqueeze_add_dim() raises:
     """Test adding a size-1 dimension."""
     var shape = List[Int]()
@@ -168,11 +163,6 @@ fn test_expand_dims_at_end() raises:
     # Result should be (3, 4, 1)
     assert_dim(b, 3, "Should add trailing dimension")
     assert_all_values(b, 1.0, message="expand_dims should preserve values")
-
-
-# ============================================================================
-# Test flatten() / ravel()
-# ============================================================================
 
 
 fn test_flatten_c_order() raises:
@@ -202,11 +192,6 @@ fn test_ravel_view() raises:
     # Currently returns a 1D copy (view semantics deferred to future work)
     assert_dim(b, 1, "Ravel should be 1D")
     assert_all_values(b, 1.0, message="ravel should preserve values")
-
-
-# ============================================================================
-# Test concatenate()
-# ============================================================================
 
 
 fn test_concatenate_axis_0() raises:
@@ -266,11 +251,6 @@ fn test_concatenate_axis_1() raises:
     assert_value_at(c, 5, 2.0, message="concat_axis_1 row0 col5 should be 2.0")
 
 
-# ============================================================================
-# Test stack()
-# ============================================================================
-
-
 fn test_stack_new_axis() raises:
     """Test stacking tensors along new axis."""
     var shape = List[Int]()
@@ -328,11 +308,6 @@ fn test_stack_axis_1() raises:
     )
 
 
-# ============================================================================
-# Test split()
-# ============================================================================
-
-
 fn test_split_equal() raises:
     """Test splitting into equal parts."""
     from shared.core.shape import split
@@ -363,11 +338,6 @@ fn test_split_unequal() raises:
     assert_numel(parts[0], 3, "First part should have 3 elements")
     assert_numel(parts[1], 4, "Second part should have 4 elements")
     assert_numel(parts[2], 3, "Third part should have 3 elements")
-
-
-# ============================================================================
-# Test tile()
-# ============================================================================
 
 
 fn test_tile_1d() raises:
@@ -468,11 +438,6 @@ fn test_tile_multidim_values() raises:
     assert_value_at(b, 23, 5.0, message="tile row3 col5 (repeat)")
 
 
-# ============================================================================
-# Test repeat()
-# ============================================================================
-
-
 fn test_repeat_elements() raises:
     """Test repeating each element."""
     from shared.core.shape import repeat
@@ -496,11 +461,6 @@ fn test_repeat_axis() raises:
 
     # Result should be 4x3 (each row repeated twice)
     assert_numel(b, 12, "Should have 12 elements (4*3)")
-
-
-# ============================================================================
-# Test broadcast_to()
-# ============================================================================
 
 
 fn test_broadcast_to_compatible() raises:
@@ -542,11 +502,6 @@ fn test_broadcast_to_incompatible() raises:
         raise Error("broadcast_to with incompatible shape should raise error")
 
 
-# ============================================================================
-# Test permute()
-# ============================================================================
-
-
 fn test_permute_axes() raises:
     """Test permuting axes (similar to transpose with axes)."""
     from shared.core.shape import permute
@@ -567,11 +522,6 @@ fn test_permute_axes() raises:
     assert_numel(b, 24, "Should have same elements")
 
 
-# ============================================================================
-# Test dtype preservation
-# ============================================================================
-
-
 fn test_reshape_preserves_dtype() raises:
     """Test that reshape preserves dtype."""
     var a = arange(0.0, 12.0, 1.0, DType.float64)
@@ -581,11 +531,6 @@ fn test_reshape_preserves_dtype() raises:
     var b = reshape(a, new_shape)
 
     assert_dtype(b, DType.float64, "Reshape should preserve dtype")
-
-
-# ============================================================================
-# Test flatten_to_2d()
-# ============================================================================
 
 
 fn test_flatten_to_2d_basic() raises:
@@ -646,79 +591,193 @@ fn test_flatten_to_2d_preserves_dtype() raises:
         raise Error("flatten_to_2d should preserve dtype")
 
 
-# ============================================================================
-# Main test runner
-# ============================================================================
+fn test_broadcast_to_size1_nonleading() raises:
+    """Test broadcasting with size-1 dimension in non-leading position.
+
+    Tests the case (3,1)->(3,4) where the source has a size-1 dimension
+    that is not in the leading position. Verifies stride-0 logic handles
+    this correctly and values are repeated along the correct axis.
+    """
+    var shape = List[Int]()
+    shape.append(3)
+    shape.append(1)
+    var a = arange(0.0, 3.0, 1.0, DType.float32)  # Values [0, 1, 2]
+    var a_reshaped = reshape(a, shape)  # Shape (3, 1), values [[0], [1], [2]]
+
+    var target_shape = List[Int]()
+    target_shape.append(3)
+    target_shape.append(4)
+    var b = broadcast_to(a_reshaped, target_shape)  # Should be (3, 4)
+
+    # Verify shape
+    assert_dim(b, 2, "Result should be 2D")
+    var b_shape = b.shape()
+    assert_equal(b_shape[0], 3, "First dimension should be 3")
+    assert_equal(b_shape[1], 4, "Second dimension should be 4")
+
+    # Verify values: each row should repeat its single value across 4 columns
+    # Row 0: [0, 0, 0, 0] — flat indices 0..3
+    assert_value_at(b, 0, 0.0, message="Element [0,0] should be 0")
+    assert_value_at(b, 3, 0.0, message="Element [0,3] should be 0")
+
+    # Row 1: [1, 1, 1, 1] — flat indices 4..7
+    assert_value_at(b, 4, 1.0, message="Element [1,0] should be 1")
+    assert_value_at(b, 7, 1.0, message="Element [1,3] should be 1")
+
+    # Row 2: [2, 2, 2, 2] — flat indices 8..11
+    assert_value_at(b, 8, 2.0, message="Element [2,0] should be 2")
+    assert_value_at(b, 11, 2.0, message="Element [2,3] should be 2")
+
+
+fn test_concatenate_axis_1_per_row_values() raises:
+    """Test concatenate axis=1 has correct per-row values. Closes #3798."""
+    # Create 3x2 tensors with known values
+    var shape: List[Int] = [3, 2]
+    var a = arange(0.0, 6.0, 1.0, DType.float32)
+    a = a.reshape(shape)  # [[0,1],[2,3],[4,5]]
+    var b = arange(6.0, 12.0, 1.0, DType.float32)
+    b = b.reshape(shape)  # [[6,7],[8,9],[10,11]]
+
+    var tensors: List[AnyTensor] = List[AnyTensor]()
+    tensors.append(a)
+    tensors.append(b)
+    var result = concatenate(tensors, 1)  # 3x4
+
+    # Row 0: [0,1,6,7]
+    assert_value_at(result, 0, 0.0)
+    assert_value_at(result, 1, 1.0)
+    assert_value_at(result, 2, 6.0)
+    assert_value_at(result, 3, 7.0)
+
+    # Row 1: [2,3,8,9]
+    assert_value_at(result, 4, 2.0)
+    assert_value_at(result, 5, 3.0)
+    assert_value_at(result, 6, 8.0)
+    assert_value_at(result, 7, 9.0)
+
+    # Row 2: [4,5,10,11]
+    assert_value_at(result, 8, 4.0)
+    assert_value_at(result, 9, 5.0)
+    assert_value_at(result, 10, 10.0)
+    assert_value_at(result, 11, 11.0)
+
+    print("PASS: test_concatenate_axis_1_per_row_values")
+
+
+fn test_as_contiguous_3d_non_contiguous() raises:
+    """Test as_contiguous produces correct values for 3D tensor. Closes #4090.
+    """
+    # Create [2,3,4] tensor with sequential values
+    var t = arange(0.0, 24.0, 1.0, DType.float32)
+    var shape: List[Int] = [2, 3, 4]
+    t = t.reshape(shape)
+
+    # as_contiguous on already-contiguous should preserve values
+    var c = as_contiguous(t)
+    assert_numel(c, 24)
+
+    # Check a few key values: element [1,2,3] = 1*12 + 2*4 + 3 = 23
+    assert_value_at(c, 23, 23.0)
+    # element [0,0,0] = 0
+    assert_value_at(c, 0, 0.0)
+    # element [1,0,0] = 12
+    assert_value_at(c, 12, 12.0)
+
+    print("PASS: test_as_contiguous_3d_non_contiguous")
 
 
 fn main() raises:
-    """Run all shape manipulation tests."""
-    print("Running AnyTensor shape manipulation tests...")
+    """Run all test_shape tests."""
+    print("Running test_shape tests...")
 
-    # reshape() tests
-    print("  Testing reshape()...")
     test_reshape_valid()
+    print("✓ test_reshape_valid")
+
     test_reshape_invalid_size()
+    print("✓ test_reshape_invalid_size")
+
     test_reshape_infer_dimension()
+    print("✓ test_reshape_infer_dimension")
 
-    # squeeze() tests
-    print("  Testing squeeze()...")
     test_squeeze_all_dims()
+    print("✓ test_squeeze_all_dims")
+
     test_squeeze_specific_dim()
+    print("✓ test_squeeze_specific_dim")
 
-    # unsqueeze() / expand_dims() tests
-    print("  Testing unsqueeze() / expand_dims()...")
     test_unsqueeze_add_dim()
+    print("✓ test_unsqueeze_add_dim")
+
     test_expand_dims_at_end()
+    print("✓ test_expand_dims_at_end")
 
-    # flatten() / ravel() tests
-    print("  Testing flatten() / ravel()...")
     test_flatten_c_order()
+    print("✓ test_flatten_c_order")
+
     test_ravel_view()
+    print("✓ test_ravel_view")
 
-    # concatenate() tests
-    print("  Testing concatenate()...")
     test_concatenate_axis_0()
+    print("✓ test_concatenate_axis_0")
+
     test_concatenate_axis_1()
+    print("✓ test_concatenate_axis_1")
 
-    # stack() tests
-    print("  Testing stack()...")
     test_stack_new_axis()
+    print("✓ test_stack_new_axis")
+
     test_stack_axis_1()
+    print("✓ test_stack_axis_1")
 
-    # split() tests
-    print("  Testing split()...")
     test_split_equal()
+    print("✓ test_split_equal")
+
     test_split_unequal()
+    print("✓ test_split_unequal")
 
-    # tile() tests
-    print("  Testing tile()...")
     test_tile_1d()
+    print("✓ test_tile_1d")
+
     test_tile_multidim()
+    print("✓ test_tile_multidim")
+
     test_tile_multidim_values()
+    print("✓ test_tile_multidim_values")
 
-    # repeat() tests
-    print("  Testing repeat()...")
     test_repeat_elements()
+    print("✓ test_repeat_elements")
+
     test_repeat_axis()
+    print("✓ test_repeat_axis")
 
-    # broadcast_to() tests
-    print("  Testing broadcast_to()...")
     test_broadcast_to_compatible()
+    print("✓ test_broadcast_to_compatible")
+
     test_broadcast_to_incompatible()
+    print("✓ test_broadcast_to_incompatible")
 
-    # permute() tests
-    print("  Testing permute()...")
     test_permute_axes()
+    print("✓ test_permute_axes")
 
-    # Dtype preservation
-    print("  Testing dtype preservation...")
     test_reshape_preserves_dtype()
+    print("✓ test_reshape_preserves_dtype")
 
-    # flatten_to_2d() tests
-    print("  Testing flatten_to_2d()...")
     test_flatten_to_2d_basic()
-    test_flatten_to_2d_single_batch()
-    test_flatten_to_2d_preserves_dtype()
+    print("✓ test_flatten_to_2d_basic")
 
-    print("All shape manipulation tests completed!")
+    test_flatten_to_2d_single_batch()
+    print("✓ test_flatten_to_2d_single_batch")
+
+    test_flatten_to_2d_preserves_dtype()
+    print("✓ test_flatten_to_2d_preserves_dtype")
+
+    test_broadcast_to_size1_nonleading()
+    print("✓ test_broadcast_to_size1_nonleading")
+
+    test_concatenate_axis_1_per_row_values()
+    print("✓ test_concatenate_axis_1_per_row_values")
+
+    test_as_contiguous_3d_non_contiguous()
+    print("✓ test_as_contiguous_3d_non_contiguous")
+
+    print("\nAll test_shape tests passed!")

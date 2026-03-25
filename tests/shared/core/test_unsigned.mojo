@@ -1,18 +1,10 @@
-"""Tests for Mojo's built-in unsigned integer types (UInt8, UInt16, UInt32, UInt64).
+"""Tests for unsigned integer wrapping and narrowing
 
-These tests verify the behavior of Mojo's native unsigned integer builtins,
-including arithmetic, bitwise operations, comparisons, boundary values,
-overflow and underflow wrapping behavior, and conversions.
-
-Wrapping Semantics:
-    Unsigned integers use modular (wrap-around) arithmetic on overflow and underflow:
-
-    - Overflow: max_value + 1 wraps to 0. For example UInt8(255) + 1 == UInt8(0).
-    - Underflow: 0 - 1 wraps to max_value. For example UInt8(0) - 1 == UInt8(255).
-
-    This matches C/C++ unsigned integer behavior and is defined (not undefined behavior).
-    Test functions `test_*_overflow` and `test_*_underflow` validate this contract for
-    each unsigned type. See also: `test_uint8_boundary_values` for edge-case coverage.
+Tests cover:
+- Multiply overflow wrapping for UInt16/32/64 (#3673)
+- Subtract underflow wrapping for UInt16/32/64 (#3673)
+- Narrowing conversions to UInt16/32 (#3675)
+- Boundary arithmetic overflow (#3676)
 """
 
 
@@ -662,246 +654,409 @@ fn test_uint_narrowing_to_uint32() raises:
         raise Error("UInt64(0).cast[DType.uint32]() should be 0")
 
 
-fn main():
-    """Main test runner for unsigned integer type tests."""
-    try:
-        test_uint8_construction()
-        print("OK test_uint8_construction")
-    except e:
-        print("FAIL test_uint8_construction:", e)
+fn test_uint16_multiply_overflow() raises:
+    """Test UInt16 multiplication overflow wraps. Closes #3673."""
+    # 256 * 256 = 65536 = 0 mod 2^16
+    var result: UInt16 = UInt16(256) * UInt16(256)
+    if result != 0:
+        raise Error(
+            "UInt16 multiply overflow: expected 0, got " + String(result)
+        )
 
-    try:
-        test_uint16_construction()
-        print("OK test_uint16_construction")
-    except e:
-        print("FAIL test_uint16_construction:", e)
+    # 1000 * 100 = 100000, mod 65536 = 34464
+    var result2: UInt16 = UInt16(1000) * UInt16(100)
+    if result2 != 34464:
+        raise Error(
+            "UInt16 multiply overflow: expected 34464, got " + String(result2)
+        )
 
-    try:
-        test_uint32_construction()
-        print("OK test_uint32_construction")
-    except e:
-        print("FAIL test_uint32_construction:", e)
 
-    try:
-        test_uint64_construction()
-        print("OK test_uint64_construction")
-    except e:
-        print("FAIL test_uint64_construction:", e)
+fn test_uint32_multiply_overflow() raises:
+    """Test UInt32 multiplication overflow wraps. Closes #3673."""
+    # 65536 * 65536 = 2^32 = 0 mod 2^32
+    var result: UInt32 = UInt32(65536) * UInt32(65536)
+    if result != 0:
+        raise Error(
+            "UInt32 multiply overflow: expected 0, got " + String(result)
+        )
 
-    try:
-        test_uint8_arithmetic()
-        print("OK test_uint8_arithmetic")
-    except e:
-        print("FAIL test_uint8_arithmetic:", e)
 
-    try:
-        test_uint16_arithmetic()
-        print("OK test_uint16_arithmetic")
-    except e:
-        print("FAIL test_uint16_arithmetic:", e)
+fn test_uint64_multiply_overflow() raises:
+    """Test UInt64 multiplication overflow wraps. Closes #3673."""
+    # 2^32 * 2^32 = 2^64 = 0 mod 2^64
+    var result: UInt64 = UInt64(4294967296) * UInt64(4294967296)
+    if result != 0:
+        raise Error(
+            "UInt64 multiply overflow: expected 0, got " + String(result)
+        )
 
-    try:
-        test_uint32_arithmetic()
-        print("OK test_uint32_arithmetic")
-    except e:
-        print("FAIL test_uint32_arithmetic:", e)
 
-    try:
-        test_uint64_arithmetic()
-        print("OK test_uint64_arithmetic")
-    except e:
-        print("FAIL test_uint64_arithmetic:", e)
+fn test_uint16_subtract_underflow() raises:
+    """Test UInt16 subtraction underflow wrapping. Closes #3673."""
+    # 5 - 10 = 65531 (wraps)
+    var result: UInt16 = UInt16(5) - UInt16(10)
+    if result != 65531:
+        raise Error(
+            "UInt16 subtract underflow: expected 65531, got " + String(result)
+        )
 
-    try:
-        test_uint8_bitwise()
-        print("OK test_uint8_bitwise")
-    except e:
-        print("FAIL test_uint8_bitwise:", e)
 
-    try:
-        test_uint16_bitwise()
-        print("OK test_uint16_bitwise")
-    except e:
-        print("FAIL test_uint16_bitwise:", e)
+fn test_uint32_subtract_underflow() raises:
+    """Test UInt32 subtraction underflow wrapping. Closes #3673."""
+    var result: UInt32 = UInt32(5) - UInt32(10)
+    if result != 4294967291:
+        raise Error(
+            "UInt32 subtract underflow: expected 4294967291, got "
+            + String(result)
+        )
 
-    try:
-        test_uint32_bitwise()
-        print("OK test_uint32_bitwise")
-    except e:
-        print("FAIL test_uint32_bitwise:", e)
 
-    try:
-        test_uint64_bitwise()
-        print("OK test_uint64_bitwise")
-    except e:
-        print("FAIL test_uint64_bitwise:", e)
+fn test_uint64_subtract_underflow() raises:
+    """Test UInt64 subtraction underflow wrapping. Closes #3673."""
+    var result: UInt64 = UInt64(5) - UInt64(10)
+    if result != 18446744073709551611:
+        raise Error(
+            "UInt64 subtract underflow: expected 18446744073709551611, got "
+            + String(result)
+        )
 
-    try:
-        test_uint8_comparisons()
-        print("OK test_uint8_comparisons")
-    except e:
-        print("FAIL test_uint8_comparisons:", e)
 
-    try:
-        test_uint32_comparisons()
-        print("OK test_uint32_comparisons")
-    except e:
-        print("FAIL test_uint32_comparisons:", e)
+fn test_narrowing_to_uint16() raises:
+    """Test narrowing conversion truncates to UInt16. Closes #3675."""
+    # 65536 -> 0 (truncate to 16 bits)
+    var val: UInt16 = UInt16(UInt32(65536))
+    if val != 0:
+        raise Error("Narrowing 65536 to UInt16: expected 0, got " + String(val))
 
-    try:
-        test_uint_widening_conversion()
-        print("OK test_uint_widening_conversion")
-    except e:
-        print("FAIL test_uint_widening_conversion:", e)
+    # 65537 -> 1
+    var val2: UInt16 = UInt16(UInt32(65537))
+    if val2 != 1:
+        raise Error(
+            "Narrowing 65537 to UInt16: expected 1, got " + String(val2)
+        )
 
-    try:
-        test_uint_narrowing_conversion()
-        print("OK test_uint_narrowing_conversion")
-    except e:
-        print("FAIL test_uint_narrowing_conversion:", e)
 
-    try:
-        test_uint_to_int_conversion()
-        print("OK test_uint_to_int_conversion")
-    except e:
-        print("FAIL test_uint_to_int_conversion:", e)
+fn test_narrowing_to_uint32() raises:
+    """Test narrowing conversion truncates to UInt32. Closes #3675."""
+    # 2^32 -> 0
+    var val: UInt32 = UInt32(UInt64(4294967296))
+    if val != 0:
+        raise Error("Narrowing 2^32 to UInt32: expected 0, got " + String(val))
 
-    try:
-        test_uint_from_int_conversion()
-        print("OK test_uint_from_int_conversion")
-    except e:
-        print("FAIL test_uint_from_int_conversion:", e)
+    # 2^32 + 1 -> 1
+    var val2: UInt32 = UInt32(UInt64(4294967297))
+    if val2 != 1:
+        raise Error(
+            "Narrowing 2^32+1 to UInt32: expected 1, got " + String(val2)
+        )
 
-    try:
-        test_uint8_zero_operations()
-        print("OK test_uint8_zero_operations")
-    except e:
-        print("FAIL test_uint8_zero_operations:", e)
 
-    try:
-        test_uint64_large_values()
-        print("OK test_uint64_large_values")
-    except e:
-        print("FAIL test_uint64_large_values:", e)
+fn test_uint8_boundary_arithmetic() raises:
+    """Test UInt8 arithmetic at boundary values. Closes #3676."""
+    # 255 + 1 == 0
+    var r1: UInt8 = UInt8(255) + UInt8(1)
+    if r1 != 0:
+        raise Error("UInt8 255+1: expected 0, got " + String(r1))
 
-    try:
-        test_uint_type_min_max_operations()
-        print("OK test_uint_type_min_max_operations")
-    except e:
-        print("FAIL test_uint_type_min_max_operations:", e)
+    # 0 - 1 == 255
+    var r2: UInt8 = UInt8(0) - UInt8(1)
+    if r2 != 255:
+        raise Error("UInt8 0-1: expected 255, got " + String(r2))
 
-    try:
-        test_uint8_overflow_wrap()
-        print("OK test_uint8_overflow_wrap")
-    except e:
-        print("FAIL test_uint8_overflow_wrap:", e)
+    # 255 * 255 == 1 (mod 256: 65025 mod 256 = 1)
+    var r3: UInt8 = UInt8(255) * UInt8(255)
+    if r3 != 1:
+        raise Error("UInt8 255*255: expected 1, got " + String(r3))
 
-    try:
-        test_uint8_underflow_wrap()
-        print("OK test_uint8_underflow_wrap")
-    except e:
-        print("FAIL test_uint8_underflow_wrap:", e)
 
-    try:
-        test_uint16_overflow_wrap()
-        print("OK test_uint16_overflow_wrap")
-    except e:
-        print("FAIL test_uint16_overflow_wrap:", e)
+fn test_uint16_bitwise_and() raises:
+    """Test UInt16 bitwise AND. Closes #3892."""
+    var a: UInt16 = 0xFF0F
+    var b: UInt16 = 0xF0FF
+    var result = a & b
+    if result != 0xF00F:
+        raise Error("UInt16 AND: expected 0xF00F, got " + String(result))
 
-    try:
-        test_uint16_underflow_wrap()
-        print("OK test_uint16_underflow_wrap")
-    except e:
-        print("FAIL test_uint16_underflow_wrap:", e)
 
-    try:
-        test_uint32_overflow_wrap()
-        print("OK test_uint32_overflow_wrap")
-    except e:
-        print("FAIL test_uint32_overflow_wrap:", e)
+fn test_uint16_bitwise_or_xor() raises:
+    """Test UInt16 bitwise OR and XOR. Closes #3892."""
+    var a: UInt16 = 0xFF00
+    var b: UInt16 = 0x00FF
 
-    try:
-        test_uint32_underflow_wrap()
-        print("OK test_uint32_underflow_wrap")
-    except e:
-        print("FAIL test_uint32_underflow_wrap:", e)
+    var or_result = a | b
+    if or_result != 0xFFFF:
+        raise Error("UInt16 OR: expected 0xFFFF, got " + String(or_result))
 
-    try:
-        test_uint64_overflow_wrap()
-        print("OK test_uint64_overflow_wrap")
-    except e:
-        print("FAIL test_uint64_overflow_wrap:", e)
+    var xor_result = a ^ b
+    if xor_result != 0xFFFF:
+        raise Error("UInt16 XOR: expected 0xFFFF, got " + String(xor_result))
 
-    try:
-        test_uint64_underflow_wrap()
-        print("OK test_uint64_underflow_wrap")
-    except e:
-        print("FAIL test_uint64_underflow_wrap:", e)
+    # XOR with same value = 0
+    var xor_same = a ^ a
+    if xor_same != 0:
+        raise Error("UInt16 XOR self: expected 0, got " + String(xor_same))
 
-    try:
-        test_uint8_overflow_wrap_add_chain()
-        print("OK test_uint8_overflow_wrap_add_chain")
-    except e:
-        print("FAIL test_uint8_overflow_wrap_add_chain:", e)
 
-    try:
-        test_uint16_overflow_wrap_add_chain()
-        print("OK test_uint16_overflow_wrap_add_chain")
-    except e:
-        print("FAIL test_uint16_overflow_wrap_add_chain:", e)
+fn test_uint64_bitwise_and() raises:
+    """Test UInt64 bitwise AND. Closes #3893."""
+    var a: UInt64 = 0xFFFFFFFF00000000
+    var b: UInt64 = 0x00000000FFFFFFFF
+    var result = a & b
+    if result != 0:
+        raise Error("UInt64 AND: expected 0, got " + String(result))
 
-    try:
-        test_uint32_overflow_wrap_add_chain()
-        print("OK test_uint32_overflow_wrap_add_chain")
-    except e:
-        print("FAIL test_uint32_overflow_wrap_add_chain:", e)
 
-    try:
-        test_uint64_overflow_wrap_add_chain()
-        print("OK test_uint64_overflow_wrap_add_chain")
-    except e:
-        print("FAIL test_uint64_overflow_wrap_add_chain:", e)
+fn test_uint64_bitwise_or_xor() raises:
+    """Test UInt64 bitwise OR and XOR. Closes #3893."""
+    var a: UInt64 = 0xFFFFFFFF00000000
+    var b: UInt64 = 0x00000000FFFFFFFF
+    var or_result = a | b
+    if or_result != 0xFFFFFFFFFFFFFFFF:
+        raise Error("UInt64 OR: expected max, got " + String(or_result))
 
-    try:
-        test_uint8_overflow_wrap_multiply()
-        print("OK test_uint8_overflow_wrap_multiply")
-    except e:
-        print("FAIL test_uint8_overflow_wrap_multiply:", e)
+    var xor_result = a ^ b
+    if xor_result != 0xFFFFFFFFFFFFFFFF:
+        raise Error("UInt64 XOR: expected max, got " + String(xor_result))
 
-    try:
-        test_uint8_accumulated_overflow()
-        print("OK test_uint8_accumulated_overflow")
-    except e:
-        print("FAIL test_uint8_accumulated_overflow:", e)
 
-    try:
-        test_uint16_accumulated_overflow()
-        print("OK test_uint16_accumulated_overflow")
-    except e:
-        print("FAIL test_uint16_accumulated_overflow:", e)
+fn test_uint16_shift_operations() raises:
+    """Test UInt16 shift left/right. Closes #3892."""
+    var val: UInt16 = 1
+    var shifted_left = val << 15
+    if shifted_left != 32768:
+        raise Error(
+            "UInt16 shift left 15: expected 32768, got " + String(shifted_left)
+        )
 
-    try:
-        test_uint32_accumulated_overflow()
-        print("OK test_uint32_accumulated_overflow")
-    except e:
-        print("FAIL test_uint32_accumulated_overflow:", e)
+    var shifted_right = shifted_left >> 15
+    if shifted_right != 1:
+        raise Error(
+            "UInt16 shift right 15: expected 1, got " + String(shifted_right)
+        )
 
-    try:
-        test_uint64_accumulated_overflow()
-        print("OK test_uint64_accumulated_overflow")
-    except e:
-        print("FAIL test_uint64_accumulated_overflow:", e)
 
-    try:
-        test_uint_narrowing_to_uint16()
-        print("OK test_uint_narrowing_to_uint16")
-    except e:
-        print("FAIL test_uint_narrowing_to_uint16:", e)
+fn test_uint16_overflow_boundary() raises:
+    """Test UInt16 overflow at exact boundary. Closes #3894."""
+    # 65535 + 1 = 0
+    var r1: UInt16 = UInt16(65535) + UInt16(1)
+    if r1 != 0:
+        raise Error("UInt16 65535+1: expected 0, got " + String(r1))
 
-    try:
-        test_uint_narrowing_to_uint32()
-        print("OK test_uint_narrowing_to_uint32")
-    except e:
-        print("FAIL test_uint_narrowing_to_uint32:", e)
+    # 65534 + 2 = 0
+    var r2: UInt16 = UInt16(65534) + UInt16(2)
+    if r2 != 0:
+        raise Error("UInt16 65534+2: expected 0, got " + String(r2))
 
-    print("\n=== Unsigned Integer Type Tests Complete ===")
+
+fn test_uint32_overflow_boundary() raises:
+    """Test UInt32 overflow at exact boundary. Closes #3895."""
+    var r1: UInt32 = UInt32(4294967295) + UInt32(1)
+    if r1 != 0:
+        raise Error("UInt32 max+1: expected 0, got " + String(r1))
+
+    var r2: UInt32 = UInt32(4294967294) + UInt32(2)
+    if r2 != 0:
+        raise Error("UInt32 max-1+2: expected 0, got " + String(r2))
+
+
+fn test_uint64_overflow_boundary() raises:
+    """Test UInt64 overflow at exact boundary. Closes #3896."""
+    var r1: UInt64 = UInt64(18446744073709551615) + UInt64(1)
+    if r1 != 0:
+        raise Error("UInt64 max+1: expected 0, got " + String(r1))
+
+
+fn test_uint_not_operations() raises:
+    """Test bitwise NOT for various unsigned types. Closes #3892, #3893."""
+    var u8: UInt8 = ~UInt8(0)
+    if u8 != 255:
+        raise Error("NOT UInt8(0): expected 255, got " + String(u8))
+
+    var u16: UInt16 = ~UInt16(0)
+    if u16 != 65535:
+        raise Error("NOT UInt16(0): expected 65535, got " + String(u16))
+
+    var u64: UInt64 = ~UInt64(0)
+    if u64 != 18446744073709551615:
+        raise Error("NOT UInt64(0): expected max, got " + String(u64))
+
+
+fn main() raises:
+    """Run all test_unsigned tests."""
+    print("Running test_unsigned tests...")
+
+    test_uint8_construction()
+    print("✓ test_uint8_construction")
+
+    test_uint16_construction()
+    print("✓ test_uint16_construction")
+
+    test_uint32_construction()
+    print("✓ test_uint32_construction")
+
+    test_uint64_construction()
+    print("✓ test_uint64_construction")
+
+    test_uint8_arithmetic()
+    print("✓ test_uint8_arithmetic")
+
+    test_uint16_arithmetic()
+    print("✓ test_uint16_arithmetic")
+
+    test_uint32_arithmetic()
+    print("✓ test_uint32_arithmetic")
+
+    test_uint64_arithmetic()
+    print("✓ test_uint64_arithmetic")
+
+    test_uint8_bitwise()
+    print("✓ test_uint8_bitwise")
+
+    test_uint16_bitwise()
+    print("✓ test_uint16_bitwise")
+
+    test_uint32_bitwise()
+    print("✓ test_uint32_bitwise")
+
+    test_uint64_bitwise()
+    print("✓ test_uint64_bitwise")
+
+    test_uint8_comparisons()
+    print("✓ test_uint8_comparisons")
+
+    test_uint32_comparisons()
+    print("✓ test_uint32_comparisons")
+
+    test_uint_widening_conversion()
+    print("✓ test_uint_widening_conversion")
+
+    test_uint_to_int_conversion()
+    print("✓ test_uint_to_int_conversion")
+
+    test_uint_from_int_conversion()
+    print("✓ test_uint_from_int_conversion")
+
+    test_uint8_zero_operations()
+    print("✓ test_uint8_zero_operations")
+
+    test_uint64_large_values()
+    print("✓ test_uint64_large_values")
+
+    test_uint_type_min_max_operations()
+    print("✓ test_uint_type_min_max_operations")
+
+    test_uint_narrowing_conversion()
+    print("✓ test_uint_narrowing_conversion")
+
+    test_uint8_overflow_wrap()
+    print("✓ test_uint8_overflow_wrap")
+
+    test_uint8_underflow_wrap()
+    print("✓ test_uint8_underflow_wrap")
+
+    test_uint16_overflow_wrap()
+    print("✓ test_uint16_overflow_wrap")
+
+    test_uint16_underflow_wrap()
+    print("✓ test_uint16_underflow_wrap")
+
+    test_uint32_overflow_wrap()
+    print("✓ test_uint32_overflow_wrap")
+
+    test_uint32_underflow_wrap()
+    print("✓ test_uint32_underflow_wrap")
+
+    test_uint64_overflow_wrap()
+    print("✓ test_uint64_overflow_wrap")
+
+    test_uint64_underflow_wrap()
+    print("✓ test_uint64_underflow_wrap")
+
+    test_uint8_overflow_wrap_add_chain()
+    print("✓ test_uint8_overflow_wrap_add_chain")
+
+    test_uint16_overflow_wrap_add_chain()
+    print("✓ test_uint16_overflow_wrap_add_chain")
+
+    test_uint32_overflow_wrap_add_chain()
+    print("✓ test_uint32_overflow_wrap_add_chain")
+
+    test_uint64_overflow_wrap_add_chain()
+    print("✓ test_uint64_overflow_wrap_add_chain")
+
+    test_uint8_overflow_wrap_multiply()
+    print("✓ test_uint8_overflow_wrap_multiply")
+
+    test_uint8_accumulated_overflow()
+    print("✓ test_uint8_accumulated_overflow")
+
+    test_uint16_accumulated_overflow()
+    print("✓ test_uint16_accumulated_overflow")
+
+    test_uint32_accumulated_overflow()
+    print("✓ test_uint32_accumulated_overflow")
+
+    test_uint64_accumulated_overflow()
+    print("✓ test_uint64_accumulated_overflow")
+
+    test_uint_narrowing_to_uint16()
+    print("✓ test_uint_narrowing_to_uint16")
+
+    test_uint_narrowing_to_uint32()
+    print("✓ test_uint_narrowing_to_uint32")
+
+    test_uint16_multiply_overflow()
+    print("✓ test_uint16_multiply_overflow")
+
+    test_uint32_multiply_overflow()
+    print("✓ test_uint32_multiply_overflow")
+
+    test_uint64_multiply_overflow()
+    print("✓ test_uint64_multiply_overflow")
+
+    test_uint16_subtract_underflow()
+    print("✓ test_uint16_subtract_underflow")
+
+    test_uint32_subtract_underflow()
+    print("✓ test_uint32_subtract_underflow")
+
+    test_uint64_subtract_underflow()
+    print("✓ test_uint64_subtract_underflow")
+
+    test_narrowing_to_uint16()
+    print("✓ test_narrowing_to_uint16")
+
+    test_narrowing_to_uint32()
+    print("✓ test_narrowing_to_uint32")
+
+    test_uint8_boundary_arithmetic()
+    print("✓ test_uint8_boundary_arithmetic")
+
+    test_uint16_bitwise_and()
+    print("✓ test_uint16_bitwise_and")
+
+    test_uint16_bitwise_or_xor()
+    print("✓ test_uint16_bitwise_or_xor")
+
+    test_uint64_bitwise_and()
+    print("✓ test_uint64_bitwise_and")
+
+    test_uint64_bitwise_or_xor()
+    print("✓ test_uint64_bitwise_or_xor")
+
+    test_uint16_shift_operations()
+    print("✓ test_uint16_shift_operations")
+
+    test_uint16_overflow_boundary()
+    print("✓ test_uint16_overflow_boundary")
+
+    test_uint32_overflow_boundary()
+    print("✓ test_uint32_overflow_boundary")
+
+    test_uint64_overflow_boundary()
+    print("✓ test_uint64_overflow_boundary")
+
+    test_uint_not_operations()
+    print("✓ test_uint_not_operations")
+
+    print("\nAll test_unsigned tests passed!")

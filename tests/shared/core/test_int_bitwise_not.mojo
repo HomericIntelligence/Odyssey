@@ -1,9 +1,12 @@
-"""Tests for the bitwise NOT (~) operator on signed integer types.
+"""Tests for the bitwise NOT (~) operator on signed integer types (part 1).
 
-Covers Int8, Int16, Int32, and Int64 with semantics following two's complement:
-~x == -x - 1. Includes boundary values (zero, min, max), and double-inversion identity.
+Covers Int8 and Int16 with signed-specific boundary values using two's complement
+semantics: ~x == -x - 1.
 
 Follow-up from #3293 (issue #3896).
+
+Note: Split from part2 due to Mojo 0.26.1 heap corruption bug that occurs after
+~15 cumulative tests. See ADR-009 and Issue #2942.
 """
 
 
@@ -192,156 +195,83 @@ fn test_int64_double_inversion() raises:
         raise Error("~~Int64(123456789) expected 123456789")
 
 
-fn main():
-    """Main test runner for Int bitwise NOT operator tests."""
-    try:
-        test_int8_not_zero()
-        print("OK test_int8_not_zero")
-    except e:
-        print("FAIL test_int8_not_zero:", e)
+fn main() raises:
+    """Run all test_int_bitwise_not tests."""
+    print("Running test_int_bitwise_not tests...")
 
-    try:
-        test_int8_not_neg_one()
-        print("OK test_int8_not_neg_one")
-    except e:
-        print("FAIL test_int8_not_neg_one:", e)
+    test_int8_not_zero()
+    print("✓ test_int8_not_zero")
 
-    try:
-        test_int8_not_positive()
-        print("OK test_int8_not_positive")
-    except e:
-        print("FAIL test_int8_not_positive:", e)
+    test_int8_not_neg_one()
+    print("✓ test_int8_not_neg_one")
 
-    try:
-        test_int8_not_negative()
-        print("OK test_int8_not_negative")
-    except e:
-        print("FAIL test_int8_not_negative:", e)
+    test_int8_not_positive()
+    print("✓ test_int8_not_positive")
 
-    try:
-        test_int8_not_max()
-        print("OK test_int8_not_max")
-    except e:
-        print("FAIL test_int8_not_max:", e)
+    test_int8_not_negative()
+    print("✓ test_int8_not_negative")
 
-    try:
-        test_int8_not_min()
-        print("OK test_int8_not_min")
-    except e:
-        print("FAIL test_int8_not_min:", e)
+    test_int8_not_max()
+    print("✓ test_int8_not_max")
 
-    try:
-        test_int8_double_inversion()
-        print("OK test_int8_double_inversion")
-    except e:
-        print("FAIL test_int8_double_inversion:", e)
+    test_int8_not_min()
+    print("✓ test_int8_not_min")
 
-    try:
-        test_int16_not_zero()
-        print("OK test_int16_not_zero")
-    except e:
-        print("FAIL test_int16_not_zero:", e)
+    test_int8_double_inversion()
+    print("✓ test_int8_double_inversion")
 
-    try:
-        test_int16_not_neg_one()
-        print("OK test_int16_not_neg_one")
-    except e:
-        print("FAIL test_int16_not_neg_one:", e)
+    test_int16_not_zero()
+    print("✓ test_int16_not_zero")
 
-    try:
-        test_int16_not_positive()
-        print("OK test_int16_not_positive")
-    except e:
-        print("FAIL test_int16_not_positive:", e)
+    test_int16_not_neg_one()
+    print("✓ test_int16_not_neg_one")
 
-    try:
-        test_int16_not_max()
-        print("OK test_int16_not_max")
-    except e:
-        print("FAIL test_int16_not_max:", e)
+    test_int16_not_positive()
+    print("✓ test_int16_not_positive")
 
-    try:
-        test_int16_not_min()
-        print("OK test_int16_not_min")
-    except e:
-        print("FAIL test_int16_not_min:", e)
+    test_int16_not_max()
+    print("✓ test_int16_not_max")
 
-    try:
-        test_int16_double_inversion()
-        print("OK test_int16_double_inversion")
-    except e:
-        print("FAIL test_int16_double_inversion:", e)
+    test_int16_not_min()
+    print("✓ test_int16_not_min")
 
-    try:
-        test_int32_not_zero()
-        print("OK test_int32_not_zero")
-    except e:
-        print("FAIL test_int32_not_zero:", e)
+    test_int16_double_inversion()
+    print("✓ test_int16_double_inversion")
 
-    try:
-        test_int32_not_neg_one()
-        print("OK test_int32_not_neg_one")
-    except e:
-        print("FAIL test_int32_not_neg_one:", e)
+    test_int32_not_zero()
+    print("✓ test_int32_not_zero")
 
-    try:
-        test_int32_not_positive()
-        print("OK test_int32_not_positive")
-    except e:
-        print("FAIL test_int32_not_positive:", e)
+    test_int32_not_neg_one()
+    print("✓ test_int32_not_neg_one")
 
-    try:
-        test_int32_not_max()
-        print("OK test_int32_not_max")
-    except e:
-        print("FAIL test_int32_not_max:", e)
+    test_int32_not_positive()
+    print("✓ test_int32_not_positive")
 
-    try:
-        test_int32_not_min()
-        print("OK test_int32_not_min")
-    except e:
-        print("FAIL test_int32_not_min:", e)
+    test_int32_not_max()
+    print("✓ test_int32_not_max")
 
-    try:
-        test_int32_double_inversion()
-        print("OK test_int32_double_inversion")
-    except e:
-        print("FAIL test_int32_double_inversion:", e)
+    test_int32_not_min()
+    print("✓ test_int32_not_min")
 
-    try:
-        test_int64_not_zero()
-        print("OK test_int64_not_zero")
-    except e:
-        print("FAIL test_int64_not_zero:", e)
+    test_int32_double_inversion()
+    print("✓ test_int32_double_inversion")
 
-    try:
-        test_int64_not_neg_one()
-        print("OK test_int64_not_neg_one")
-    except e:
-        print("FAIL test_int64_not_neg_one:", e)
+    test_int64_not_zero()
+    print("✓ test_int64_not_zero")
 
-    try:
-        test_int64_not_positive()
-        print("OK test_int64_not_positive")
-    except e:
-        print("FAIL test_int64_not_positive:", e)
+    test_int64_not_neg_one()
+    print("✓ test_int64_not_neg_one")
 
-    try:
-        test_int64_not_max()
-        print("OK test_int64_not_max")
-    except e:
-        print("FAIL test_int64_not_max:", e)
+    test_int64_not_positive()
+    print("✓ test_int64_not_positive")
 
-    try:
-        test_int64_not_min()
-        print("OK test_int64_not_min")
-    except e:
-        print("FAIL test_int64_not_min:", e)
+    test_int64_not_max()
+    print("✓ test_int64_not_max")
 
-    try:
-        test_int64_double_inversion()
-        print("OK test_int64_double_inversion")
-    except e:
-        print("FAIL test_int64_double_inversion:", e)
+    test_int64_not_min()
+    print("✓ test_int64_not_min")
 
-    print("\n=== Int Bitwise NOT Tests Complete ===")
+    test_int64_double_inversion()
+    print("✓ test_int64_double_inversion")
+
+    print("\nAll test_int_bitwise_not tests passed!")

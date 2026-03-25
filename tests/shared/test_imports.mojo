@@ -4,14 +4,10 @@ Import Validation Tests
 Tests that all public imports work correctly for the shared library.
 These tests verify both import functionality and basic component behavior.
 
-Run with: mojo test tests/shared/test_imports.mojo
 """
 
-from testing import assert_true
 
-# ============================================================================
-# Core Package Imports
-# ============================================================================
+from testing import assert_true
 
 
 fn test_core_imports() raises:
@@ -102,11 +98,6 @@ fn test_core_types_direct_imports() raises:
     from shared.core.types import FP8, BF8
 
     print("✓ Core types direct imports test passed")
-
-
-# ============================================================================
-# Training Package Imports
-# ============================================================================
 
 
 fn test_training_imports() raises:
@@ -282,11 +273,6 @@ fn test_training_loops_imports() raises:
     print("✓ Training loops imports test passed")
 
 
-# ============================================================================
-# Data Package Imports
-# ============================================================================
-
-
 fn test_data_imports() raises:
     """Test data package imports work correctly."""
     from shared.data import (
@@ -337,11 +323,6 @@ fn test_data_loaders_direct_imports() raises:
     print("✓ Data loaders direct imports test passed")
 
 
-# ============================================================================
-# Utils Package Imports
-# ============================================================================
-
-
 fn test_utils_imports() raises:
     """Test utils package imports work correctly."""
     from shared.utils import Logger, LogLevel, get_logger
@@ -379,11 +360,6 @@ fn test_utils_config_imports() raises:
     print("✓ Utils config imports test passed")
 
 
-# ============================================================================
-# Root Package Imports
-# ============================================================================
-
-
 fn test_root_imports() raises:
     """Test root package convenience imports work."""
     # Root package doesn't re-export all components
@@ -400,11 +376,6 @@ fn test_subpackage_imports() raises:
     from shared import core, training, data, utils
 
     print("✓ Subpackage imports test passed")
-
-
-# ============================================================================
-# Nested Imports
-# ============================================================================
 
 
 fn test_nested_optimizer_imports() raises:
@@ -427,11 +398,6 @@ fn test_nested_metric_imports() raises:
     from shared.training import Callback
 
     print("✓ Nested metric imports test passed")
-
-
-# ============================================================================
-# Version Info
-# ============================================================================
 
 
 fn test_version_info() raises:
@@ -474,74 +440,127 @@ fn test_version_info() raises:
     print("✓ Version info test passed")
 
 
-# ============================================================================
-# Main Test Runner
-# ============================================================================
+fn test_training_dataloader_imports() raises:
+    """Test DataLoader and DataBatch are importable from trainer_interface.
+
+    Verifies Issue #3851: DataLoader and DataBatch defined in
+    shared/training/trainer_interface.mojo.
+    """
+    from shared.training.trainer_interface import DataLoader, DataBatch
+
+    print("✓ Training DataLoader/DataBatch package imports test passed")
 
 
 fn main() raises:
-    """Run all import validation tests."""
-    print("\n" + "=" * 70)
-    print("Running Import Validation Tests")
-    print("=" * 70 + "\n")
+    """Run all test_imports tests."""
+    print("Running test_imports tests...")
 
-    # Core package tests
-    print("Testing Core Package...")
     test_core_imports()
+    print("✓ test_core_imports")
+
     test_core_layers_imports()
+    print("✓ test_core_layers_imports")
+
     test_core_activations_imports()
+    print("✓ test_core_activations_imports")
+
     test_core_types_imports()
+    print("✓ test_core_types_imports")
+
     test_core_activations_direct_imports()
+    print("✓ test_core_activations_direct_imports")
+
     test_core_layers_direct_imports()
+    print("✓ test_core_layers_direct_imports")
+
     test_core_types_direct_imports()
+    print("✓ test_core_types_direct_imports")
 
-    # Training package tests
-    print("\nTesting Training Package...")
     test_training_imports()
+    print("✓ test_training_imports")
+
     test_training_optimizers_imports()
+    print("✓ test_training_optimizers_imports")
+
     test_shared_optimizer_imports()
+    print("✓ test_shared_optimizer_imports")
+
     test_training_schedulers_imports()
+    print("✓ test_training_schedulers_imports")
+
     test_training_metrics_imports()
+    print("✓ test_training_metrics_imports")
+
     test_training_callbacks_imports()
+    print("✓ test_training_callbacks_imports")
+
     test_training_optimizers_direct_imports()
+    print("✓ test_training_optimizers_direct_imports")
+
     test_training_schedulers_direct_imports()
+    print("✓ test_training_schedulers_direct_imports")
+
     test_training_base_direct_imports()
+    print("✓ test_training_base_direct_imports")
+
     test_training_loops_direct_imports()
+    print("✓ test_training_loops_direct_imports")
+
     test_training_callbacks_direct_imports()
+    print("✓ test_training_callbacks_direct_imports")
+
     test_training_loops_imports()
+    print("✓ test_training_loops_imports")
 
-    # Data package tests
-    print("\nTesting Data Package...")
     test_data_imports()
+    print("✓ test_data_imports")
+
     test_data_datasets_imports()
+    print("✓ test_data_datasets_imports")
+
     test_data_loaders_imports()
+    print("✓ test_data_loaders_imports")
+
     test_data_transforms_imports()
+    print("✓ test_data_transforms_imports")
+
     test_data_datasets_direct_imports()
+    print("✓ test_data_datasets_direct_imports")
+
     test_data_loaders_direct_imports()
+    print("✓ test_data_loaders_direct_imports")
 
-    # Utils package tests
-    print("\nTesting Utils Package...")
     test_utils_imports()
+    print("✓ test_utils_imports")
+
     test_utils_logging_imports()
+    print("✓ test_utils_logging_imports")
+
     test_utils_visualization_imports()
+    print("✓ test_utils_visualization_imports")
+
     test_utils_config_imports()
+    print("✓ test_utils_config_imports")
 
-    # Root package tests
-    print("\nTesting Root Package...")
     test_root_imports()
+    print("✓ test_root_imports")
+
     test_subpackage_imports()
+    print("✓ test_subpackage_imports")
 
-    # Nested imports tests
-    print("\nTesting Nested Imports...")
     test_nested_optimizer_imports()
+    print("✓ test_nested_optimizer_imports")
+
     test_nested_scheduler_imports()
+    print("✓ test_nested_scheduler_imports")
+
     test_nested_metric_imports()
+    print("✓ test_nested_metric_imports")
 
-    # Version info test
-    print("\nTesting Version Info...")
     test_version_info()
+    print("✓ test_version_info")
 
-    # Summary
-    print("\n" + "=" * 70)
-    print("✅ All Import Validation Tests Passed!")
-    print("=" * 70)
+    test_training_dataloader_imports()
+    print("✓ test_training_dataloader_imports")
+
+    print("\nAll test_imports tests passed!")

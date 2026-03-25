@@ -1,14 +1,16 @@
-"""Tests for AnyTensor utility operations.
+"""Tests for AnyTensor utility operations
 
-Tests utility functions including copy, clone, properties, conversions,
-and helper methods like numel, dim, size, stride, is_contiguous.
+Tests utility functions including copy, clone, numel, dim, shape, dtype,
+and stride calculations.
+
+# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
+# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
+# high test load. Split from test_utility.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-# Import AnyTensor and operations
+
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange, copy, clone, item, diff
 from shared.core import as_contiguous, transpose_view
-
-# Import test helpers
 from tests.shared.conftest import (
     assert_dtype,
     assert_equal,
@@ -21,11 +23,36 @@ from tests.shared.conftest import (
     assert_true,
     assert_false,
 )
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange, clone, item, diff
+from shared.core.shape import as_contiguous
+from shared.core.matrix import transpose_view
 
 
-# ============================================================================
-# Test copy() and clone()
-# ============================================================================
+fn make_bf16_nan_tensor(raw_bits: UInt16) raises -> AnyTensor:
+    """Create a scalar BF16 tensor with the given raw NaN bit pattern.
+
+    Bypasses _set_float64 by writing raw UInt16 bits directly via pointer cast,
+    since nan_tensor() uses _set_float64 which may not preserve unusual NaN bit
+    patterns for bfloat16.
+
+    BF16 bit layout (16 bits): 1 sign | 8 exponent | 7 mantissa.
+    NaN requires all-one exponent (0xFF) and non-zero mantissa.
+    Canonical quiet NaN: 0x7FC0 (positive, mantissa msb set).
+    Negative quiet NaN:  0xFFC0 (negative, mantissa msb set).
+    Note: 0xFF80 has zero mantissa — that is negative infinity, not NaN.
+
+    Args:
+        raw_bits: Raw UInt16 bit pattern for a BF16 NaN value.
+
+    Returns:
+        Scalar AnyTensor with DType.bfloat16 containing the given bit pattern.
+    """
+    var shape = List[Int]()
+    shape.append(1)
+    var tensor = AnyTensor(shape, DType.bfloat16)
+    var ptr = tensor._data.bitcast[UInt16]()
+    ptr[] = raw_bits
+    return tensor^
 
 
 fn test_copy_independence() raises:
@@ -172,11 +199,6 @@ fn test_clone_multiple_dtypes() raises:
         assert_value_at(c_bf, i, 1.5, 0.01, "bfloat16 clone value should be ~1.5")
 
 
-# ============================================================================
-# Test property accessors
-# ============================================================================
-
-
 fn test_numel_total_elements() raises:
     """Test numel() returns total number of elements."""
     var shape = List[Int]()
@@ -228,11 +250,6 @@ fn test_dtype_property() raises:
     assert_dtype(t64, DType.float64, "Should be float64")
 
 
-# ============================================================================
-# Test stride calculations
-# ============================================================================
-
-
 fn test_stride_row_major() raises:
     """Test stride calculation for row-major (C-order)."""
     var shape = List[Int]()
@@ -246,11 +263,6 @@ fn test_stride_row_major() raises:
     assert_equal_int(t._strides[0], 12, "Stride for dim 0 should be 12")
     assert_equal_int(t._strides[1], 4, "Stride for dim 1 should be 4")
     assert_equal_int(t._strides[2], 1, "Stride for dim 2 should be 1")
-
-
-# ============================================================================
-# Test contiguity
-# ============================================================================
 
 
 fn test_is_contiguous_true() raises:
@@ -273,11 +285,6 @@ fn test_is_contiguous_after_transpose() raises:
     assert_false(
         b.is_contiguous(), "Transposed tensor should not be contiguous"
     )
-
-
-# ============================================================================
-# Test contiguous() - make contiguous copy
-# ============================================================================
 
 
 fn test_contiguous_on_noncontiguous() raises:
@@ -430,11 +437,6 @@ fn test_as_contiguous_3d_values_correct() raises:
     assert_almost_equal(c._get_float64(1), 12.0, 1e-6, "Element from [1,0,0]")
 
 
-# ============================================================================
-# Test transpose() - edge cases
-# ============================================================================
-
-
 fn test_transpose_1d_tensor_raises() raises:
     """Test that transpose on 1D tensor raises an error.
 
@@ -524,11 +526,6 @@ fn test_transpose_same_dim_identity() raises:
     )
 
 
-# ============================================================================
-# Test item() - scalar extraction
-# ============================================================================
-
-
 fn test_item_single_element() raises:
     """Test extracting value from single-element tensor."""
     var shape = List[Int]()
@@ -554,11 +551,6 @@ fn test_item_requires_single_element() raises:
 
     if not raised:
         raise Error("item() should raise error for multi-element tensor")
-
-
-# ============================================================================
-# Test tolist() - convert to nested list
-# ============================================================================
 
 
 fn test_tolist_1d() raises:
@@ -590,11 +582,6 @@ fn test_tolist_nested() raises:
         )
 
 
-# ============================================================================
-# Test __len__
-# ============================================================================
-
-
 fn test_len_first_dim() raises:
     """Test __len__ returns size of first dimension."""
     var shape = List[Int]()
@@ -614,11 +601,6 @@ fn test_len_1d() raises:
 
     var length = len(t)
     assert_equal_int(length, 10, "__len__ should return size for 1D")
-
-
-# ============================================================================
-# Test __setitem__
-# ============================================================================
 
 
 fn test_setitem_valid_index() raises:
@@ -694,11 +676,6 @@ fn test_getitem_negative_index() raises:
         raise Error("__getitem__ should raise error for negative index")
 
 
-# ============================================================================
-# Test __bool__
-# ============================================================================
-
-
 fn test_bool_single_element() raises:
     """Test __bool__ on single-element tensor."""
     var shape = List[Int]()
@@ -737,11 +714,6 @@ fn test_bool_requires_single_element() raises:
         raise Error("__bool__ on multi-element tensor should raise error")
 
 
-# ============================================================================
-# Test type conversions
-# ============================================================================
-
-
 fn test_int_conversion() raises:
     """Test int conversion via item()."""
     var shape = List[Int]()
@@ -760,11 +732,6 @@ fn test_float_conversion() raises:
     # Use item() to extract value as Float64
     var val = item(t)
     assert_almost_equal(val, 42.0, 1e-6, "item() should return Float64 value")
-
-
-# ============================================================================
-# Test __str__ and __repr__
-# ============================================================================
 
 
 fn test_str_readable() raises:
@@ -791,11 +758,6 @@ fn test_repr_complete() raises:
         ),
         "__repr__ format",
     )
-
-
-# ============================================================================
-# Test __hash__
-# ============================================================================
 
 
 fn test_hash_immutable() raises:
@@ -954,33 +916,6 @@ fn test_hash_empty_tensor_dtype_differs() raises:
         )
 
 
-fn make_bf16_nan_tensor(raw_bits: UInt16) raises -> AnyTensor:
-    """Create a scalar BF16 tensor with the given raw NaN bit pattern.
-
-    Bypasses _set_float64 by writing raw UInt16 bits directly via pointer cast,
-    since nan_tensor() uses _set_float64 which may not preserve unusual NaN bit
-    patterns for bfloat16.
-
-    BF16 bit layout (16 bits): 1 sign | 8 exponent | 7 mantissa.
-    NaN requires all-one exponent (0xFF) and non-zero mantissa.
-    Canonical quiet NaN: 0x7FC0 (positive, mantissa msb set).
-    Negative quiet NaN:  0xFFC0 (negative, mantissa msb set).
-    Note: 0xFF80 has zero mantissa — that is negative infinity, not NaN.
-
-    Args:
-        raw_bits: Raw UInt16 bit pattern for a BF16 NaN value.
-
-    Returns:
-        Scalar AnyTensor with DType.bfloat16 containing the given bit pattern.
-    """
-    var shape = List[Int]()
-    shape.append(1)
-    var tensor = AnyTensor(shape, DType.bfloat16)
-    var ptr = tensor._data.bitcast[UInt16]()
-    ptr[] = raw_bits
-    return tensor^
-
-
 fn test_hash_bf16_nan_canonical() raises:
     """Test that canonical BF16 NaN (0x7FC0) hashes consistently.
 
@@ -1068,11 +1003,6 @@ fn test_hash_empty_tensor_shapes_differ() raises:
         )
 
 
-# ============================================================================
-# Test diff() - consecutive differences
-# ============================================================================
-
-
 fn test_diff_1d() raises:
     """Test computing consecutive differences."""
     var t = arange(0.0, 5.0, 1.0, DType.float32)  # [0, 1, 2, 3, 4]
@@ -1095,112 +1025,161 @@ fn test_diff_higher_order() raises:
         assert_value_at(d, i, 0.0, 1e-6, "Second-order differences should be 0")
 
 
-# ============================================================================
-# Main test runner
-# ============================================================================
-
-
 fn main() raises:
-    """Run all utility operation tests."""
-    print("Running AnyTensor utility operation tests...")
+    """Run all test_utility tests."""
+    print("Running test_utility tests...")
 
-    # copy() and clone() tests
-    print("  Testing copy() and clone()...")
     test_copy_independence()
+    print("✓ test_copy_independence")
+
     test_clone_identical()
+    print("✓ test_clone_identical")
+
     test_clone_non_contiguous()
+    print("✓ test_clone_non_contiguous")
+
     test_clone_zero_element_tensor()
+    print("✓ test_clone_zero_element_tensor")
+
     test_clone_multiple_dtypes()
+    print("✓ test_clone_multiple_dtypes")
 
-    # Property accessors
-    print("  Testing property accessors...")
     test_numel_total_elements()
+    print("✓ test_numel_total_elements")
+
     test_dim_num_dimensions()
+    print("✓ test_dim_num_dimensions")
+
     test_shape_property()
+    print("✓ test_shape_property")
+
     test_dtype_property()
+    print("✓ test_dtype_property")
 
-    # Stride calculations
-    print("  Testing stride calculations...")
     test_stride_row_major()
+    print("✓ test_stride_row_major")
 
-    # Contiguity
-    print("  Testing contiguity...")
     test_is_contiguous_true()
+    print("✓ test_is_contiguous_true")
+
     test_is_contiguous_after_transpose()
+    print("✓ test_is_contiguous_after_transpose")
+
     test_contiguous_on_noncontiguous()
+    print("✓ test_contiguous_on_noncontiguous")
+
     test_as_contiguous_values_correct()
+    print("✓ test_as_contiguous_values_correct")
+
     test_as_contiguous_3d_values_correct()
+    print("✓ test_as_contiguous_3d_values_correct")
 
-    # transpose() edge cases
-    print("  Testing transpose() edge cases...")
     test_transpose_1d_tensor_raises()
+    print("✓ test_transpose_1d_tensor_raises")
+
     test_transpose_out_of_range_dim0()
+    print("✓ test_transpose_out_of_range_dim0")
+
     test_transpose_out_of_range_dim1()
+    print("✓ test_transpose_out_of_range_dim1")
+
     test_transpose_same_dim_identity()
+    print("✓ test_transpose_same_dim_identity")
 
-    # item() extraction
-    print("  Testing item()...")
     test_item_single_element()
+    print("✓ test_item_single_element")
+
     test_item_requires_single_element()
+    print("✓ test_item_requires_single_element")
 
-    # tolist() conversion
-    print("  Testing tolist()...")
     test_tolist_1d()
+    print("✓ test_tolist_1d")
+
     test_tolist_nested()
+    print("✓ test_tolist_nested")
 
-    # __len__
-    print("  Testing __len__...")
     test_len_first_dim()
+    print("✓ test_len_first_dim")
+
     test_len_1d()
+    print("✓ test_len_1d")
 
-    # __setitem__
-    print("  Testing __setitem__...")
     test_setitem_valid_index()
+    print("✓ test_setitem_valid_index")
+
     test_setitem_integer_dtype()
+    print("✓ test_setitem_integer_dtype")
+
     test_setitem_out_of_bounds()
+    print("✓ test_setitem_out_of_bounds")
+
     test_setitem_negative_index()
+    print("✓ test_setitem_negative_index")
 
-    # __getitem__
-    print("  Testing __getitem__...")
     test_getitem_negative_index()
+    print("✓ test_getitem_negative_index")
 
-    # __bool__
-    print("  Testing __bool__...")
     test_bool_single_element()
+    print("✓ test_bool_single_element")
+
     test_bool_requires_single_element()
+    print("✓ test_bool_requires_single_element")
 
-    # Type conversions
-    print("  Testing type conversions...")
     test_int_conversion()
+    print("✓ test_int_conversion")
+
     test_float_conversion()
+    print("✓ test_float_conversion")
 
-    # __str__ and __repr__
-    print("  Testing __str__ and __repr__...")
     test_str_readable()
+    print("✓ test_str_readable")
+
     test_repr_complete()
+    print("✓ test_repr_complete")
 
-    # __hash__
-    print("  Testing __hash__...")
     test_hash_immutable()
+    print("✓ test_hash_immutable")
+
     test_hash_different_values_differ()
+    print("✓ test_hash_different_values_differ")
+
     test_hash_large_values()
+    print("✓ test_hash_large_values")
+
     test_hash_small_values_distinguish()
+    print("✓ test_hash_small_values_distinguish")
+
     test_hash_different_dtypes_differ()
+    print("✓ test_hash_different_dtypes_differ")
+
     test_hash_different_shapes_differ()
-    test_hash_integer_dtype_consistent()
+    print("✓ test_hash_different_shapes_differ")
+
     test_hash_same_values_different_dtype()
+    print("✓ test_hash_same_values_different_dtype")
+
+    test_hash_integer_dtype_consistent()
+    print("✓ test_hash_integer_dtype_consistent")
+
     test_hash_empty_tensor_dtype_differs()
-    test_hash_empty_tensor_shapes_differ()
+    print("✓ test_hash_empty_tensor_dtype_differs")
 
-    # __hash__ BF16 NaN canonicalization
-    print("  Testing __hash__ BF16 NaN canonicalization...")
     test_hash_bf16_nan_canonical()
+    print("✓ test_hash_bf16_nan_canonical")
+
     test_hash_bf16_nan_negative()
+    print("✓ test_hash_bf16_nan_negative")
+
     test_hash_bf16_nan_canonicalization()
+    print("✓ test_hash_bf16_nan_canonicalization")
 
-    # diff()
-    print("  Testing diff()...")
+    test_hash_empty_tensor_shapes_differ()
+    print("✓ test_hash_empty_tensor_shapes_differ")
+
     test_diff_1d()
-    test_diff_higher_order()
+    print("✓ test_diff_1d")
 
-    print("All utility operation tests completed!")
+    test_diff_higher_order()
+    print("✓ test_diff_higher_order")
+
+    print("\nAll test_utility tests passed!")
