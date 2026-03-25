@@ -40,20 +40,8 @@ jobs:
       - name: Install Just
         uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
 
-      - name: Build shared package (debug mode)
+      - name: Build and validate shared package
         run: |
-          echo "Building shared Mojo package in debug mode..."
-          just build
-          echo "✓ Build succeeded"
-
-      - name: Validate package compilation
-        run: |
-          echo "Running validation-only package compilation..."
-          just package
-          echo "✓ Package validation succeeded"
-
-      - name: Report build status
-        if: always()
-        run: |
-          echo "Build validation completed successfully"
-          echo "Shared Mojo package compiles without errors"
+          echo "Running CI build validation..."
+          NATIVE=1 just ci-build
+          echo "✓ CI build validation succeeded"
