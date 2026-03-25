@@ -285,10 +285,8 @@ fn convert_to_fp32_master(params: AnyTensor) raises -> AnyTensor:
 
     # If FP16, use scalar conversion (FP16 SIMD blocked, see ADR-010)
     if params.dtype() == DType.float16:
-        var src_ptr = params._data.bitcast[Float16]()
-        var dst_ptr = result._data.bitcast[Float32]()
         for i in range(size):
-            dst_ptr[i] = Float32(src_ptr[i])
+            result.store[DType.float32](i, Float32(params.load[DType.float16](i)))
         return result
 
     # Generic path for other dtypes
@@ -519,8 +517,8 @@ fn _convert_fp32_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     comptime simd_width = simd_width_of[DType.float32]()
     var size = src._numel
 
-    var src_ptr = src._data.bitcast[Float32]()
-    var dst_ptr = dst._data.bitcast[Float32]()
+    var src_ptr = src.data_ptr[DType.float32]()
+    var dst_ptr = dst.data_ptr[DType.float32]()
 
     @parameter
     fn vectorized_copy[width: Int](idx: Int) unified {mut}:
@@ -540,8 +538,8 @@ fn _update_fp32_from_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     comptime simd_width = simd_width_of[DType.float32]()
     var size = src._numel
 
-    var src_ptr = src._data.bitcast[Float32]()
-    var dst_ptr = dst._data.bitcast[Float32]()
+    var src_ptr = src.data_ptr[DType.float32]()
+    var dst_ptr = dst.data_ptr[DType.float32]()
 
     @parameter
     fn vectorized_copy[width: Int](idx: Int) unified {mut}:
@@ -563,8 +561,8 @@ fn _clip_by_value_simd_float32(
     comptime simd_width = simd_width_of[DType.float32]()
     var size = src._numel
 
-    var src_ptr = src._data.bitcast[Float32]()
-    var dst_ptr = dst._data.bitcast[Float32]()
+    var src_ptr = src.data_ptr[DType.float32]()
+    var dst_ptr = dst.data_ptr[DType.float32]()
 
     @parameter
     fn vectorized_clamp[width: Int](idx: Int) unified {mut}:
@@ -589,8 +587,8 @@ fn _clip_by_value_simd_float64(
     comptime simd_width = simd_width_of[DType.float64]()
     var size = src._numel
 
-    var src_ptr = src._data.bitcast[Float64]()
-    var dst_ptr = dst._data.bitcast[Float64]()
+    var src_ptr = src.data_ptr[DType.float64]()
+    var dst_ptr = dst.data_ptr[DType.float64]()
     var min_f64 = Float64(min_val)
     var max_f64 = Float64(max_val)
 
@@ -613,15 +611,15 @@ fn _convert_fp16_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     Achieves ~4x speedup over scalar implementation.
 
     Implementation Details:
-    - Loads FP16 elements via bitcast and scalar access
+    - Loads FP16 elements via data_ptr and scalar access
     - Converts each element individually to FP32 SIMD vector
     - Stores FP32 SIMD vector using vectorized store
     """
     comptime simd_width = simd_width_of[DType.float32]()
     var size = src._numel
 
-    var src_ptr = src._data.bitcast[Float16]()
-    var dst_ptr = dst._data.bitcast[Float32]()
+    var src_ptr = src.data_ptr[DType.float16]()
+    var dst_ptr = dst.data_ptr[DType.float32]()
 
     @parameter
     fn vectorized_convert[width: Int](idx: Int) unified {mut}:
@@ -652,8 +650,8 @@ fn _convert_fp32_to_fp16_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     comptime simd_width = simd_width_of[DType.float32]()
     var size = src._numel
 
-    var src_ptr = src._data.bitcast[Float32]()
-    var dst_ptr = dst._data.bitcast[Float16]()
+    var src_ptr = src.data_ptr[DType.float32]()
+    var dst_ptr = dst.data_ptr[DType.float16]()
 
     @parameter
     fn vectorized_convert[width: Int](idx: Int) unified {mut}:

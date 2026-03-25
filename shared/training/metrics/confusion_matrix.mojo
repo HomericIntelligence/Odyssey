@@ -128,14 +128,14 @@ struct ConfusionMatrix(Metric):
             var true_label: Int
 
             if pred_classes._dtype == DType.int32:
-                pred = Int(pred_classes._data.bitcast[Int32]()[i])
+                pred = Int(pred_classes.load[DType.int32](i))
             else:
-                pred = Int(pred_classes._data.bitcast[Int64]()[i])
+                pred = Int(pred_classes.load[DType.int64](i))
 
             if labels._dtype == DType.int32:
-                true_label = Int(labels._data.bitcast[Int32]()[i])
+                true_label = Int(labels.load[DType.int32](i))
             else:
-                true_label = Int(labels._data.bitcast[Int64]()[i])
+                true_label = Int(labels.load[DType.int64](i))
 
             # Validate indices
             if true_label < 0 or true_label >= self.num_classes:
@@ -147,7 +147,7 @@ struct ConfusionMatrix(Metric):
 
             # Increment count at [true_label, pred]
             var idx = true_label * self.num_classes + pred
-            var current_val = Int(self.matrix._data.bitcast[Int32]()[idx])
+            var current_val = Int(self.matrix.load[DType.int32](idx))
             self.matrix.set(idx, Int64(current_val + 1))
 
     fn reset(mut self):
@@ -179,7 +179,7 @@ struct ConfusionMatrix(Metric):
         if mode == "none":
             # Raw counts
             for i in range(self.num_classes * self.num_classes):
-                var count = Float64(self.matrix._data.bitcast[Int32]()[i])
+                var count = Float64(self.matrix.load[DType.int32](i))
                 result.set(i, count)
 
         elif mode == "row":
@@ -189,12 +189,12 @@ struct ConfusionMatrix(Metric):
                 var row_sum: Float64 = 0.0
                 for col in range(self.num_classes):
                     var idx = row * self.num_classes + col
-                    row_sum += Float64(self.matrix._data.bitcast[Int32]()[idx])
+                    row_sum += Float64(self.matrix.load[DType.int32](idx))
 
                 # Normalize row
                 for col in range(self.num_classes):
                     var idx = row * self.num_classes + col
-                    var count = Float64(self.matrix._data.bitcast[Int32]()[idx])
+                    var count = Float64(self.matrix.load[DType.int32](idx))
 
                     if row_sum > 0.0:
                         result.set(idx, count / row_sum)
@@ -208,12 +208,12 @@ struct ConfusionMatrix(Metric):
                 var col_sum: Float64 = 0.0
                 for row in range(self.num_classes):
                     var idx = row * self.num_classes + col
-                    col_sum += Float64(self.matrix._data.bitcast[Int32]()[idx])
+                    col_sum += Float64(self.matrix.load[DType.int32](idx))
 
                 # Normalize column
                 for row in range(self.num_classes):
                     var idx = row * self.num_classes + col
-                    var count = Float64(self.matrix._data.bitcast[Int32]()[idx])
+                    var count = Float64(self.matrix.load[DType.int32](idx))
 
                     if col_sum > 0.0:
                         result.set(idx, count / col_sum)
@@ -224,10 +224,10 @@ struct ConfusionMatrix(Metric):
             # Normalize by total count
             var total_sum: Float64 = 0.0
             for i in range(self.num_classes * self.num_classes):
-                total_sum += Float64(self.matrix._data.bitcast[Int32]()[i])
+                total_sum += Float64(self.matrix.load[DType.int32](i))
 
             for i in range(self.num_classes * self.num_classes):
-                var count = Float64(self.matrix._data.bitcast[Int32]()[i])
+                var count = Float64(self.matrix.load[DType.int32](i))
                 if total_sum > 0.0:
                     result.set(i, count / total_sum)
                 else:
@@ -264,11 +264,11 @@ struct ConfusionMatrix(Metric):
             var col_sum: Float64 = 0.0
             for row in range(self.num_classes):
                 var idx = row * self.num_classes + col
-                col_sum += Float64(self.matrix._data.bitcast[Int32]()[idx])
+                col_sum += Float64(self.matrix.load[DType.int32](idx))
 
             # Get diagonal (correct predictions)
             var diag_idx = col * self.num_classes + col
-            var correct = Float64(self.matrix._data.bitcast[Int32]()[diag_idx])
+            var correct = Float64(self.matrix.load[DType.int32](diag_idx))
 
             # Compute precision
             if col_sum > 0.0:
@@ -301,11 +301,11 @@ struct ConfusionMatrix(Metric):
             var row_sum: Float64 = 0.0
             for col in range(self.num_classes):
                 var idx = row * self.num_classes + col
-                row_sum += Float64(self.matrix._data.bitcast[Int32]()[idx])
+                row_sum += Float64(self.matrix.load[DType.int32](idx))
 
             # Get diagonal (correct predictions)
             var diag_idx = row * self.num_classes + row
-            var correct = Float64(self.matrix._data.bitcast[Int32]()[diag_idx])
+            var correct = Float64(self.matrix.load[DType.int32](diag_idx))
 
             # Compute recall
             if row_sum > 0.0:
@@ -336,8 +336,8 @@ struct ConfusionMatrix(Metric):
         var result = AnyTensor(result_shape, DType.float64)
 
         for i in range(self.num_classes):
-            var p = precision._data.bitcast[Float64]()[i]
-            var r = recall._data.bitcast[Float64]()[i]
+            var p = precision.load[DType.float64](i)
+            var r = recall.load[DType.float64](i)
 
             if p + r > 0.0:
                 result.set(i, 2.0 * (p * r) / (p + r))
@@ -377,9 +377,9 @@ fn argmax(var tensor: AnyTensor) raises -> AnyTensor:
 
         # Get first value
         if tensor._dtype == DType.float32:
-            max_val = Float64(tensor._data.bitcast[Float32]()[b * num_classes])
+            max_val = Float64(tensor.load[DType.float32](b * num_classes))
         else:
-            max_val = tensor._data.bitcast[Float64]()[b * num_classes]
+            max_val = Float64(tensor.load[DType.float64](b * num_classes))
 
         # Find max
         for c in range(1, num_classes):
@@ -387,9 +387,9 @@ fn argmax(var tensor: AnyTensor) raises -> AnyTensor:
             var val: Float64
 
             if tensor._dtype == DType.float32:
-                val = Float64(tensor._data.bitcast[Float32]()[idx])
+                val = Float64(tensor.load[DType.float32](idx))
             else:
-                val = tensor._data.bitcast[Float64]()[idx]
+                val = Float64(tensor.load[DType.float64](idx))
 
             if val > max_val:
                 max_val = val
