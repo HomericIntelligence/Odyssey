@@ -1656,10 +1656,6 @@ struct AnyTensor(
         Returns:
             Element value as Scalar[dtype].
         """
-        debug_assert(
-            self._dtype == dtype,
-            "AnyTensor.load[dtype] mismatch",
-        )
         return self._data.bitcast[Scalar[dtype]]()[index]
 
     @always_inline
@@ -1676,10 +1672,6 @@ struct AnyTensor(
             index: Flat element index.
             value: Value to store.
         """
-        debug_assert(
-            self._dtype == dtype,
-            "AnyTensor.store[dtype] mismatch",
-        )
         self._data.bitcast[Scalar[dtype]]()[index] = value
 
     @always_inline
@@ -1698,10 +1690,6 @@ struct AnyTensor(
         Returns:
             Typed UnsafePointer to element data.
         """
-        debug_assert(
-            self._dtype == dtype,
-            "AnyTensor.data_ptr[dtype] mismatch",
-        )
         return self._data.bitcast[Scalar[dtype]]()
 
     fn _fill_zero(mut self):
