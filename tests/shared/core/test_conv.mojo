@@ -1,20 +1,13 @@
-"""Unit tests for 2D convolution layer operations.
+"""Unit tests for 2D convolution layer
 
 Tests cover:
-- conv2d: Forward pass with bias y = conv2d(x, kernel, bias, stride, padding)
-- conv2d_no_bias: Forward pass without bias y = conv2d(x, kernel, stride, padding)
-- conv2d_backward: Backward pass computing gradients w.r.t. input, kernel, and bias
-- conv2d_no_bias_backward: Backward pass without bias
-- Shape computations and dimension handling
-- Various kernel sizes (1x1, 3x3, 5x5)
+- conv2d: Parameter initialization and output shapes
+- Various kernel sizes (1x1, 3x3)
 - Various stride values (1, 2)
-- Various padding values (0, 1, 2)
-- Multi-channel input/output
-- Numerical correctness
-- Gradient computation accuracy
-
-All tests use pure functional API - no internal state.
+- Various padding values (0, 1)
+- Multi-channel input/output shape checks
 """
+
 
 from tests.shared.conftest import (
     assert_almost_equal,
@@ -37,11 +30,7 @@ from shared.testing import (
     assert_gradients_close,
 )
 from shared.core.reduction import sum as reduce_sum
-
-
-# ============================================================================
-# Conv2D Forward Pass Tests
-# ============================================================================
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 
 
 fn test_conv2d_initialization() raises:
@@ -601,11 +590,6 @@ fn test_conv2d_batched() raises:
     assert_equal(out_shape[3], 3)
 
 
-# ============================================================================
-# Conv2D Backward Pass Tests
-# ============================================================================
-
-
 fn test_conv2d_backward_shapes() raises:
     """Test that conv2d_backward returns correct gradient shapes."""
     var batch = 1
@@ -1136,11 +1120,6 @@ fn test_conv2d_backward_gradient_kernel() raises:
     )
 
 
-# ============================================================================
-# Integration Tests
-# ============================================================================
-
-
 fn test_conv2d_backward_gradient_input_with_padding() raises:
     """Numerical gradient check for grad_input with padding > 0.
 
@@ -1460,16 +1439,120 @@ fn test_conv2d_5x5_kernel() raises:
     assert_equal(out_shape[3], in_width)
 
 
-# ============================================================================
-# Main Test Runner
-# ============================================================================
+fn test_conv2d_backward_multichannel_padding1_values() raises:
+    """Test conv2d_backward computes correct gradient values with padding=1.
+
+    Verifies that border pixels receive fewer gradient contributions than interior
+    pixels — a correctness property unique to padded convolutions.
+
+    Config: batch=1, in_channels=3, out_channels=8, spatial=5x5, kH=kW=3,
+    stride=1, padding=1 -> output shape (1, 8, 5, 5) (same-padding).
+
+    With all-ones input, all-ones kernel, all-ones grad_output:
+    grad_input[0, ic, ih, iw] = out_channels * overlap_count(ih, iw)
+
+    Where overlap_count is the number of output positions (oh, ow) whose
+    receptive field covers (ih, iw). With padding=1 and 5x5 spatial:
+    - Input row/col 0 or 4: covered by 2 output positions in that dimension
+    - Input row/col 1, 2, 3: covered by 3 output positions in that dimension
+
+    Expected grad_input values (same for all in_channels):
+    - Corner (0,0): 2*2 = 4 covering outputs -> 4 * 8 = 32.0
+    - Edge non-corner (e.g., 0,1): 2*3 = 6 -> 6 * 8 = 48.0
+    - Interior (e.g., 1,1): 3*3 = 9 -> 9 * 8 = 72.0
+    """
+    var batch = 1
+    var in_channels = 3
+    var out_channels = 8
+    var in_height = 5
+    var in_width = 5
+    var kH = 3
+    var kW = 3
+    var stride = 1
+    var padding = 1
+
+    # Input: (1, 3, 5, 5) all ones
+    var input_shape = List[Int]()
+    input_shape.append(batch)
+    input_shape.append(in_channels)
+    input_shape.append(in_height)
+    input_shape.append(in_width)
+    var x = ones(input_shape, DType.float32)
+
+    # Kernel: (8, 3, 3, 3) all ones
+    var kernel_shape = List[Int]()
+    kernel_shape.append(out_channels)
+    kernel_shape.append(in_channels)
+    kernel_shape.append(kH)
+    kernel_shape.append(kW)
+    var kernel = ones(kernel_shape, DType.float32)
+
+    var bias_shape = List[Int]()
+    bias_shape.append(out_channels)
+    var bias = zeros(bias_shape, DType.float32)
+
+    # Forward pass: output shape (1, 8, 5, 5) — same-padding preserves spatial dims
+    var output = conv2d(x, kernel, bias, stride, padding)
+    var grad_output = ones(output.shape(), DType.float32)
+
+    # Backward pass
+    var result = conv2d_backward(grad_output, x, kernel, stride, padding)
+    var grad_input = result.grad_input
+
+    # Verify grad_input shape
+    assert_equal(grad_input.shape()[0], batch)
+    assert_equal(grad_input.shape()[1], in_channels)
+    assert_equal(grad_input.shape()[2], in_height)
+    assert_equal(grad_input.shape()[3], in_width)
+
+    # Helper to index flat grad_input: shape (1, in_channels, 5, 5)
+    # flat index = ic * 5*5 + ih * 5 + iw
+    var grad_input_data = grad_input._data.bitcast[Float32]()
+
+    # Corner pixel (0, 0): overlap = 2 * 2 = 4 -> expected 4 * 8 = 32.0
+    var expected_corner = Float32(32.0)
+    # Edge non-corner pixel (0, 1): overlap = 2 * 3 = 6 -> expected 6 * 8 = 48.0
+    var expected_edge = Float32(48.0)
+    # Interior pixel (1, 1): overlap = 3 * 3 = 9 -> expected 9 * 8 = 72.0
+    var expected_interior = Float32(72.0)
+
+    # Check all in_channels have the same pattern (symmetry: all-ones kernel)
+    for ic in range(in_channels):
+        var base = ic * in_height * in_width
+
+        # Corner (ih=0, iw=0)
+        assert_almost_equal(
+            grad_input_data[base + 0 * in_width + 0],
+            expected_corner,
+            tolerance=1e-3,
+        )
+
+        # Edge non-corner (ih=0, iw=1)
+        assert_almost_equal(
+            grad_input_data[base + 0 * in_width + 1],
+            expected_edge,
+            tolerance=1e-3,
+        )
+
+        # Interior (ih=1, iw=1)
+        assert_almost_equal(
+            grad_input_data[base + 1 * in_width + 1],
+            expected_interior,
+            tolerance=1e-3,
+        )
+
+    # Verify border < interior: corner < edge < interior
+    var corner_val = grad_input_data[0]
+    var edge_val = grad_input_data[1]
+    var interior_val = grad_input_data[1 * in_width + 1]
+    assert_true(corner_val < edge_val)
+    assert_true(edge_val < interior_val)
 
 
 fn main() raises:
-    """Run all Conv2D layer tests."""
-    print("Running Conv2D layer tests...")
+    """Run all test_conv tests."""
+    print("Running test_conv tests...")
 
-    # Forward pass tests
     test_conv2d_initialization()
     print("✓ test_conv2d_initialization")
 
@@ -1506,7 +1589,6 @@ fn main() raises:
     test_conv2d_batched()
     print("✓ test_conv2d_batched")
 
-    # Backward pass tests (return type is GradientTriple which is Copyable)
     test_conv2d_backward_shapes()
     print("✓ test_conv2d_backward_shapes")
 
@@ -1521,6 +1603,10 @@ fn main() raises:
 
     test_conv2d_backward_multichannel_values()
     print("✓ test_conv2d_backward_multichannel_values")
+
+    test_conv2d_backward_multichannel_batch_gt_1()
+    print("✓ test_conv2d_backward_multichannel_batch_gt_1")
+
     test_conv2d_backward_gradient_input()
     print("✓ test_conv2d_backward_gradient_input")
 
@@ -1533,7 +1619,6 @@ fn main() raises:
     test_conv2d_backward_gradient_kernel_with_padding()
     print("✓ test_conv2d_backward_gradient_kernel_with_padding")
 
-    # Integration tests
     test_conv2d_forward_backward_consistency()
     print("✓ test_conv2d_forward_backward_consistency")
 
@@ -1543,4 +1628,7 @@ fn main() raises:
     test_conv2d_5x5_kernel()
     print("✓ test_conv2d_5x5_kernel")
 
-    print("\nAll Conv2D layer tests passed!")
+    test_conv2d_backward_multichannel_padding1_values()
+    print("✓ test_conv2d_backward_multichannel_padding1_values")
+
+    print("\nAll test_conv tests passed!")

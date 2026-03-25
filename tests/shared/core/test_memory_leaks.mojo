@@ -1,40 +1,73 @@
-"""Memory leak detection tests for AnyTensor.
+"""Memory leak detection tests for AnyTensor
 
 Tests verify:
 1. Reference counting correctness
 2. Memory deallocation on scope exit
-3. No memory leaks in repeated operations
-4. View lifetime management
-5. Destructor edge cases
-
-This test suite uses 22 test functions covering:
-- Reference counting validation (5 tests)
-- Allocation/deallocation patterns (3 tests)
-- Stress tests (4 tests)
-- View lifetime management (3 tests)
-- Edge cases (3 tests)
-- Destructor edge cases (2 tests)
-
-Test strategy:
-- Use direct `_refcount[]` inspection for validation
-- Test scope-based cleanup semantics
-- Run stress tests with 1000+ iterations
-- Cover scalar, empty, and N-D tensor cases
-- Test all supported dtypes
-
-Note: These tests work around Mojo v0.26.1 limitations:
-- No runtime memory introspection APIs
-- `memory_usage()` returns stub values
-- Tests use reference count as proxy for memory safety
 """
+
 
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from tests.shared.conftest import assert_true, assert_equal_int
 
 
-# ============================================================================
-# Reference Counting Tests
-# ============================================================================
+fn _copy_and_check_refcount(tensor1: AnyTensor) -> Int:
+    """Helper: copy tensor in inner scope and return inner refcount."""
+    var tensor2 = tensor1
+    return tensor1._refcount[]
+
+
+fn _modify_through_copy(tensor1: AnyTensor) raises:
+    """Helper: copy tensor in inner scope and modify shared data."""
+    var tensor2 = tensor1
+    assert_true(tensor1._data == tensor2._data, "Should share data")
+    tensor2._data.bitcast[Float32]()[0] = 99.0
+
+
+fn _alloc_and_use_tensor() raises:
+    """Helper: allocate tensor in inner scope and use it."""
+    var tensor = zeros([100, 100], DType.float32)
+    _ = tensor.numel()
+
+
+fn _check_shared_deallocation() raises:
+    """Helper: verify refcount during nested sharing in inner scope."""
+    var tensor1 = zeros([10, 10], DType.float32)
+    var initial_refcount = tensor1._refcount[]
+    assert_equal_int(initial_refcount, 1, "Should start with refcount 1")
+
+    var inner_refcount = _copy_and_check_refcount(tensor1)
+    assert_equal_int(inner_refcount, 2, "Should have 2 refs in inner scope")
+
+    var outer_refcount = tensor1._refcount[]
+    assert_equal_int(
+        outer_refcount, 1, "Should have 1 ref after inner scope"
+    )
+
+
+fn _create_and_drop_view(original: AnyTensor) raises:
+    """Helper: create view in inner scope (dropped on return)."""
+    var shape = List[Int]()
+    shape.append(3)
+    shape.append(4)
+    var view = original.reshape(shape)
+    assert_true(view._is_view, "Should be marked as view")
+
+
+fn _check_view_refcount(original: AnyTensor, initial_refcount: Int) raises -> Int:
+    """Helper: create view in inner scope, check refcount, return inner value."""
+    var shape = List[Int]()
+    shape.append(3)
+    shape.append(4)
+    var view = original.reshape(shape)
+    assert_true(view._is_view, "Should be view")
+    # reshape calls copy() which increments refcount
+    var inner_refcount = original._refcount[]
+    assert_equal_int(
+        inner_refcount,
+        initial_refcount + 1,
+        "View creation should increment refcount",
+    )
+    return inner_refcount
 
 
 fn test_single_tensor_refcount() raises:
@@ -69,12 +102,6 @@ fn test_multiple_copies_refcount() raises:
     )
 
 
-fn _copy_and_check_refcount(tensor1: AnyTensor) -> Int:
-    """Helper: copy tensor in inner scope and return inner refcount."""
-    var tensor2 = tensor1
-    return tensor1._refcount[]
-
-
 fn test_scope_exit_decrements_refcount() raises:
     """Test refcount decrements when copy goes out of scope."""
     var tensor1 = zeros([10, 10], DType.float32)
@@ -88,13 +115,6 @@ fn test_scope_exit_decrements_refcount() raises:
     assert_equal_int(outer_refcount, 1, "Refcount should be 1 after scope exit")
 
 
-fn _modify_through_copy(tensor1: AnyTensor) raises:
-    """Helper: copy tensor in inner scope and modify shared data."""
-    var tensor2 = tensor1
-    assert_true(tensor1._data == tensor2._data, "Should share data")
-    tensor2._data.bitcast[Float32]()[0] = 99.0
-
-
 fn test_original_survives_copy_destruction() raises:
     """Test original tensor survives when copy is destroyed."""
     var tensor1 = zeros([10, 10], DType.float32)
@@ -106,17 +126,6 @@ fn test_original_survives_copy_destruction() raises:
     # Verify modification persists through original
     var value = tensor1._data.bitcast[Float32]()[0]
     assert_true(value == 99.0, "Original should reflect modification")
-
-
-# ============================================================================
-# Memory Allocation/Deallocation Tests
-# ============================================================================
-
-
-fn _alloc_and_use_tensor() raises:
-    """Helper: allocate tensor in inner scope and use it."""
-    var tensor = zeros([100, 100], DType.float32)
-    _ = tensor.numel()
 
 
 fn test_tensor_deallocation_single() raises:
@@ -134,30 +143,10 @@ fn test_tensor_deallocation_loop() raises:
     assert_true(True, "Loop deallocation completed without crash")
 
 
-fn _check_shared_deallocation() raises:
-    """Helper: verify refcount during nested sharing in inner scope."""
-    var tensor1 = zeros([10, 10], DType.float32)
-    var initial_refcount = tensor1._refcount[]
-    assert_equal_int(initial_refcount, 1, "Should start with refcount 1")
-
-    var inner_refcount = _copy_and_check_refcount(tensor1)
-    assert_equal_int(inner_refcount, 2, "Should have 2 refs in inner scope")
-
-    var outer_refcount = tensor1._refcount[]
-    assert_equal_int(
-        outer_refcount, 1, "Should have 1 ref after inner scope"
-    )
-
-
 fn test_shared_tensor_deallocation() raises:
     """Test shared tensor deallocates only when last reference destroyed."""
     _check_shared_deallocation()
     assert_true(True, "Shared tensor deallocation completed")
-
-
-# ============================================================================
-# Stress Tests for Memory Leaks
-# ============================================================================
 
 
 fn test_no_memory_leak_in_creation_loop() raises:
@@ -205,11 +194,6 @@ fn test_large_tensor_lifecycle() raises:
     assert_true(True, "Large tensor lifecycle test completed")
 
 
-# ============================================================================
-# View Lifetime Tests
-# ============================================================================
-
-
 fn test_view_flag_on_reshape() raises:
     """Test reshape creates a view with _is_view flag set."""
     var tensor = zeros([12], DType.float32)
@@ -219,15 +203,6 @@ fn test_view_flag_on_reshape() raises:
     var reshaped = tensor.reshape(shape)
     assert_true(reshaped._is_view, "Reshaped tensor should be a view")
     assert_true(tensor._data == reshaped._data, "View should share data")
-
-
-fn _create_and_drop_view(original: AnyTensor) raises:
-    """Helper: create view in inner scope (dropped on return)."""
-    var shape = List[Int]()
-    shape.append(3)
-    shape.append(4)
-    var view = original.reshape(shape)
-    assert_true(view._is_view, "Should be marked as view")
 
 
 fn test_view_does_not_free_data() raises:
@@ -253,11 +228,6 @@ fn test_view_modification_affects_original() raises:
     assert_true(
         value == 99.0, "Modification through view should affect original"
     )
-
-
-# ============================================================================
-# Edge Cases
-# ============================================================================
 
 
 fn test_empty_tensor_lifecycle() raises:
@@ -301,11 +271,6 @@ fn test_different_dtypes_lifecycle() raises:
     assert_true(True, "Different dtypes lifecycle test completed")
 
 
-# ============================================================================
-# Destructor Edge Cases
-# ============================================================================
-
-
 fn test_destructor_with_valid_refcount() raises:
     """Test destructor handles normal case correctly."""
     var tensor = zeros([10], DType.float32)
@@ -313,23 +278,6 @@ fn test_destructor_with_valid_refcount() raises:
     var refcount_value = tensor._refcount[]
     assert_equal_int(refcount_value, 1, "Should have valid refcount")
     assert_true(True, "Destructor edge case test completed")
-
-
-fn _check_view_refcount(original: AnyTensor, initial_refcount: Int) raises -> Int:
-    """Helper: create view in inner scope, check refcount, return inner value."""
-    var shape = List[Int]()
-    shape.append(3)
-    shape.append(4)
-    var view = original.reshape(shape)
-    assert_true(view._is_view, "Should be view")
-    # reshape calls copy() which increments refcount
-    var inner_refcount = original._refcount[]
-    assert_equal_int(
-        inner_refcount,
-        initial_refcount + 1,
-        "View creation should increment refcount",
-    )
-    return inner_refcount
 
 
 fn test_view_destructor_does_not_decrement_refcount() raises:
@@ -348,51 +296,68 @@ fn test_view_destructor_does_not_decrement_refcount() raises:
     )
 
 
-# ============================================================================
-# Test Runner
-# ============================================================================
-
-
 fn main() raises:
-    """Run all memory leak detection tests."""
-    print("Running memory leak detection tests...")
+    """Run all test_memory_leaks tests."""
+    print("Running test_memory_leaks tests...")
 
-    print("  Reference counting tests...")
     test_single_tensor_refcount()
+    print("✓ test_single_tensor_refcount")
+
     test_copy_increments_refcount()
+    print("✓ test_copy_increments_refcount")
+
     test_multiple_copies_refcount()
+    print("✓ test_multiple_copies_refcount")
+
     test_scope_exit_decrements_refcount()
+    print("✓ test_scope_exit_decrements_refcount")
+
     test_original_survives_copy_destruction()
-    print("    Passed")
+    print("✓ test_original_survives_copy_destruction")
 
-    print("  Allocation/deallocation tests...")
     test_tensor_deallocation_single()
+    print("✓ test_tensor_deallocation_single")
+
     test_tensor_deallocation_loop()
+    print("✓ test_tensor_deallocation_loop")
+
     test_shared_tensor_deallocation()
-    print("    Passed")
+    print("✓ test_shared_tensor_deallocation")
 
-    print("  Stress tests...")
     test_no_memory_leak_in_creation_loop()
+    print("✓ test_no_memory_leak_in_creation_loop")
+
     test_no_memory_leak_in_operation_loop()
+    print("✓ test_no_memory_leak_in_operation_loop")
+
     test_no_memory_leak_with_copies()
+    print("✓ test_no_memory_leak_with_copies")
+
     test_large_tensor_lifecycle()
-    print("    Passed")
+    print("✓ test_large_tensor_lifecycle")
 
-    print("  View lifetime tests...")
     test_view_flag_on_reshape()
+    print("✓ test_view_flag_on_reshape")
+
     test_view_does_not_free_data()
+    print("✓ test_view_does_not_free_data")
+
     test_view_modification_affects_original()
-    print("    Passed")
+    print("✓ test_view_modification_affects_original")
 
-    print("  Edge case tests...")
     test_empty_tensor_lifecycle()
+    print("✓ test_empty_tensor_lifecycle")
+
     test_1d_tensor_lifecycle()
+    print("✓ test_1d_tensor_lifecycle")
+
     test_different_dtypes_lifecycle()
-    print("    Passed")
+    print("✓ test_different_dtypes_lifecycle")
 
-    print("  Destructor edge case tests...")
     test_destructor_with_valid_refcount()
-    test_view_destructor_does_not_decrement_refcount()
-    print("    Passed")
+    print("✓ test_destructor_with_valid_refcount")
 
-    print("\nAll memory leak detection tests passed!")
+    test_view_destructor_does_not_decrement_refcount()
+    print("✓ test_view_destructor_does_not_decrement_refcount")
+
+    print("\nAll test_memory_leaks tests passed!")
