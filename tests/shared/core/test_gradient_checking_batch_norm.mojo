@@ -160,3 +160,12 @@ fn test_batch_norm_gamma_gradient_batch_size_2() raises:
 
     var passed = check_gradients(forward, backward, gamma)
     assert_true(passed, "batch_norm gamma gradient check failed for batch_size=2")
+
+
+fn main() raises:
+    print("Running batch norm gradient checking tests...")
+    test_batch_norm_gradient_batch_size_1()
+    test_batch_norm_gradient_batch_size_2()
+    test_batch_norm_gradient_batch_size_4()
+    test_batch_norm_gamma_gradient_batch_size_2()
+    print("All batch norm gradient checking tests passed!")
