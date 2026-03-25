@@ -11,6 +11,17 @@ The pool uses a three-tier bucket strategy:
 Each bucket maintains a free list of pre-allocated blocks that can be reused,
 reducing allocation overhead and system malloc pressure.
 
+Thread-Safety Guarantees:
+    - `TensorMemoryPool.allocate()` and `deallocate()` are safe to call
+      concurrently from multiple threads (e.g., via `parallelize`).
+    - Each size bucket has its own spinlock to minimize contention.
+    - Statistics counters use atomic operations for lock-free updates.
+    - `clear()` and `reset_stats()` are NOT safe to call concurrently
+      with `allocate()`/`deallocate()`. Call them only when no other
+      threads are accessing the pool.
+    - `pooled_alloc`/`pooled_free` currently bypass the pool and delegate
+      to system malloc, which is itself thread-safe.
+
 Example:
     ```mojo
     from .memory_pool import get_global_pool, pooled_alloc, pooled_free
@@ -27,11 +38,22 @@ Example:
 
 from collections import List
 from memory import UnsafePointer, alloc
+from os.atomic import Atomic
 
 # Size bucket boundaries (in bytes)
 comptime SMALL_SIZES_COUNT = 5
 comptime MEDIUM_SIZES_COUNT = 4
 comptime LARGE_THRESHOLD = 16384
+
+# AtomicStats byte offsets (each counter is 8 bytes / int64)
+comptime _ASTATS_ALLOCATIONS = 0
+comptime _ASTATS_DEALLOCATIONS = 8
+comptime _ASTATS_POOL_HITS = 16
+comptime _ASTATS_POOL_MISSES = 24
+comptime _ASTATS_BYTES_ALLOCATED = 32
+comptime _ASTATS_BYTES_CACHED = 40
+comptime _ASTATS_PEAK_CACHED = 48
+comptime _ASTATS_SIZE = 56
 
 
 fn _get_small_size(index: Int) -> Int:
@@ -58,6 +80,147 @@ fn _get_medium_size(index: Int) -> Int:
         return 8192
     else:
         return 16384
+
+
+struct SpinLock(Copyable, Movable):
+    """Simple test-and-set spinlock using atomic operations.
+
+    Uses a heap-allocated Atomic[DType.int64] as the lock state.
+    Value 0 means unlocked; a positive value means locked.
+
+    This struct is Copyable/Movable via shallow pointer copy, meaning
+    copies share the same underlying lock. This is intentional: when
+    FreeList or TensorMemoryPool is stored in a List, copies refer to
+    the same lock instance.
+    """
+
+    var _state: UnsafePointer[UInt8, origin=MutAnyOrigin]
+    """Heap-allocated 8-byte region reinterpreted as Atomic[DType.int64]."""
+
+    fn __init__(out self):
+        """Initialize an unlocked spinlock."""
+        self._state = alloc[UInt8](8)
+        for i in range(8):
+            self._state[i] = 0
+
+    fn _as_atomic(
+        self,
+    ) -> UnsafePointer[Atomic[DType.int64], origin=MutAnyOrigin]:
+        """Reinterpret backing store as an atomic int64."""
+        return self._state.bitcast[Atomic[DType.int64]]()
+
+    fn lock(self):
+        """Acquire the lock, spinning until available."""
+        var ptr = self._as_atomic()
+        while ptr[].fetch_add(1) != 0:
+            _ = ptr[].fetch_sub(1)
+
+    fn unlock(self):
+        """Release the lock."""
+        var ptr = self._as_atomic()
+        _ = ptr[].fetch_sub(1)
+
+    fn __del__(deinit self):
+        """Free the backing store."""
+        self._state.free()
+
+
+struct AtomicStats(Copyable, Movable):
+    """Atomic statistics counters for thread-safe pool monitoring.
+
+    Each counter is a heap-allocated Atomic[DType.int64] to allow
+    lock-free concurrent updates from multiple threads.
+
+    Copyable/Movable via shallow pointer copy (copies share the same
+    counters). This is intentional for embedding in TensorMemoryPool.
+    """
+
+    var _data: UnsafePointer[UInt8, origin=MutAnyOrigin]
+    """Heap-allocated storage for 7 atomic int64 counters (56 bytes)."""
+
+    fn __init__(out self):
+        """Initialize all counters to zero."""
+        self._data = alloc[UInt8](_ASTATS_SIZE)
+        for i in range(_ASTATS_SIZE):
+            self._data[i] = 0
+
+    fn _counter(
+        self, offset: Int
+    ) -> UnsafePointer[Atomic[DType.int64], origin=MutAnyOrigin]:
+        """Get pointer to atomic counter at given byte offset."""
+        return (self._data + offset).bitcast[Atomic[DType.int64]]()
+
+    fn add_allocations(self, n: Int):
+        """Atomically increment allocations counter."""
+        _ = self._counter(_ASTATS_ALLOCATIONS)[].fetch_add(n)
+
+    fn add_deallocations(self, n: Int):
+        """Atomically increment deallocations counter."""
+        _ = self._counter(_ASTATS_DEALLOCATIONS)[].fetch_add(n)
+
+    fn add_pool_hits(self, n: Int):
+        """Atomically increment pool hits counter."""
+        _ = self._counter(_ASTATS_POOL_HITS)[].fetch_add(n)
+
+    fn add_pool_misses(self, n: Int):
+        """Atomically increment pool misses counter."""
+        _ = self._counter(_ASTATS_POOL_MISSES)[].fetch_add(n)
+
+    fn add_bytes_allocated(self, n: Int):
+        """Atomically adjust bytes allocated counter."""
+        _ = self._counter(_ASTATS_BYTES_ALLOCATED)[].fetch_add(n)
+
+    fn add_bytes_cached(self, n: Int):
+        """Atomically adjust bytes cached counter."""
+        _ = self._counter(_ASTATS_BYTES_CACHED)[].fetch_add(n)
+
+    fn update_peak_cached(self):
+        """Update peak cached bytes if current cached exceeds it."""
+        var cached = self._counter(_ASTATS_BYTES_CACHED)[].load()
+        var peak_ptr = self._counter(_ASTATS_PEAK_CACHED)
+        # Simple load-compare-store; minor races here are acceptable
+        # since peak is a high-water-mark metric, not a correctness counter.
+        if cached > peak_ptr[].load():
+            peak_ptr[].max(Int64(cached))
+
+    fn snapshot(self) -> PoolStats:
+        """Take a consistent snapshot of all counters.
+
+        Returns:
+            A PoolStats struct with current counter values.
+        """
+        var s = PoolStats()
+        s.allocations = Int(
+            self._counter(_ASTATS_ALLOCATIONS)[].load()
+        )
+        s.deallocations = Int(
+            self._counter(_ASTATS_DEALLOCATIONS)[].load()
+        )
+        s.pool_hits = Int(
+            self._counter(_ASTATS_POOL_HITS)[].load()
+        )
+        s.pool_misses = Int(
+            self._counter(_ASTATS_POOL_MISSES)[].load()
+        )
+        s.bytes_allocated = Int(
+            self._counter(_ASTATS_BYTES_ALLOCATED)[].load()
+        )
+        s.bytes_cached = Int(
+            self._counter(_ASTATS_BYTES_CACHED)[].load()
+        )
+        s.peak_cached_bytes = Int(
+            self._counter(_ASTATS_PEAK_CACHED)[].load()
+        )
+        return s
+
+    fn reset(self):
+        """Reset all counters to zero."""
+        for i in range(_ASTATS_SIZE):
+            self._data[i] = 0
+
+    fn __del__(deinit self):
+        """Free the backing store."""
+        self._data.free()
 
 
 struct PoolStats(Copyable, ImplicitlyCopyable, Movable):
@@ -206,43 +369,58 @@ struct FreeList(Copyable, Movable):
 
 
 struct TensorMemoryPool(Copyable, Movable):
-    """Memory pool for small tensor allocations.
+    """Thread-safe memory pool for small tensor allocations.
 
     Implements a three-tier bucket strategy:
     - Small buckets (< 1KB): 64B, 128B, 256B, 512B, 1KB
     - Medium buckets (1-16KB): 2KB, 4KB, 8KB, 16KB
     - Large allocations (> 16KB): Direct system malloc
 
-    Pre-allocates blocks to the free lists based on configuration.
-    Allocations are served from the appropriate bucket's free list when available,
-    otherwise a new block is allocated from the system.
+    Thread-Safety:
+        - `allocate()` and `deallocate()` are safe to call concurrently.
+        - Each bucket has its own SpinLock to minimize contention.
+        - Statistics use AtomicStats for lock-free counter updates.
+        - `clear()`, `reset_stats()`, and `trim()` are NOT thread-safe;
+          call them only when no other threads access the pool.
 
     Attributes:
         small_lists: Free lists for small size classes.
         medium_lists: Free lists for medium size classes.
-        stats: Performance statistics.
+        stats: Performance statistics (non-atomic snapshot struct).
+        _atomic_stats: Atomic statistics for thread-safe updates.
+        _small_locks: Per-bucket spinlocks for small free lists.
+        _medium_locks: Per-bucket spinlocks for medium free lists.
     """
-
-    # Size bucket boundaries (in bytes)
 
     var small_lists: List[FreeList]
     """Free lists for < 1KB allocations."""
     var medium_lists: List[FreeList]
     """Free lists for 1KB-16KB allocations."""
     var stats: PoolStats
-    """Pool statistics."""
+    """Pool statistics (snapshot, updated from atomic stats)."""
+    var _atomic_stats: AtomicStats
+    """Atomic counters for thread-safe statistics."""
+    var _small_locks: List[SpinLock]
+    """Per-bucket spinlocks for small free lists."""
+    var _medium_locks: List[SpinLock]
+    """Per-bucket spinlocks for medium free lists."""
 
     fn __init__(out self):
         """Initialize pool with default configuration."""
         self.small_lists = List[FreeList]()
+        self._small_locks = List[SpinLock]()
         for i in range(SMALL_SIZES_COUNT):
             self.small_lists.append(FreeList(_get_small_size(i)))
+            self._small_locks.append(SpinLock())
 
         self.medium_lists = List[FreeList]()
+        self._medium_locks = List[SpinLock]()
         for i in range(MEDIUM_SIZES_COUNT):
             self.medium_lists.append(FreeList(_get_medium_size(i)))
+            self._medium_locks.append(SpinLock())
 
         self.stats = PoolStats()
+        self._atomic_stats = AtomicStats()
 
         # Pre-allocate default configuration
         self._preallocate_blocks(16, 8)
@@ -254,14 +432,19 @@ struct TensorMemoryPool(Copyable, Movable):
             config: Pool configuration specifying initial block counts.
         """
         self.small_lists = List[FreeList]()
+        self._small_locks = List[SpinLock]()
         for i in range(SMALL_SIZES_COUNT):
             self.small_lists.append(FreeList(_get_small_size(i)))
+            self._small_locks.append(SpinLock())
 
         self.medium_lists = List[FreeList]()
+        self._medium_locks = List[SpinLock]()
         for i in range(MEDIUM_SIZES_COUNT):
             self.medium_lists.append(FreeList(_get_medium_size(i)))
+            self._medium_locks.append(SpinLock())
 
         self.stats = PoolStats()
+        self._atomic_stats = AtomicStats()
 
         # Pre-allocate with custom configuration
         self._preallocate_blocks(
@@ -275,6 +458,9 @@ struct TensorMemoryPool(Copyable, Movable):
     fn _preallocate_blocks(mut self, small_count: Int, medium_count: Int):
         """Pre-allocate blocks to each bucket's free list.
 
+        Called during initialization only (single-threaded), so no
+        locking is needed here.
+
         Args:
             small_count: Number of blocks to pre-allocate to each small bucket.
             medium_count: Number of blocks to pre-allocate to each medium bucket.
@@ -285,7 +471,7 @@ struct TensorMemoryPool(Copyable, Movable):
             for _ in range(small_count):
                 var ptr = alloc[UInt8](size)
                 self.small_lists[i].push(ptr)
-                self.stats.bytes_cached += size
+                self._atomic_stats.add_bytes_cached(size)
 
         # Pre-allocate medium blocks
         for i in range(len(self.medium_lists)):
@@ -293,14 +479,16 @@ struct TensorMemoryPool(Copyable, Movable):
             for _ in range(medium_count):
                 var ptr = alloc[UInt8](size)
                 self.medium_lists[i].push(ptr)
-                self.stats.bytes_cached += size
+                self._atomic_stats.add_bytes_cached(size)
 
-        # Update peak
-        if self.stats.bytes_cached > self.stats.peak_cached_bytes:
-            self.stats.peak_cached_bytes = self.stats.bytes_cached
+        # Update peak and sync snapshot
+        self._atomic_stats.update_peak_cached()
+        self.stats = self._atomic_stats.snapshot()
 
     fn _find_bucket_index(self, size: Int) -> Int:
         """Find the smallest bucket that fits the requested size.
+
+        This is a read-only operation and is thread-safe without locking.
 
         Args:
             size: Number of bytes to allocate.
@@ -326,70 +514,76 @@ struct TensorMemoryPool(Copyable, Movable):
     ) -> UnsafePointer[UInt8, origin=MutAnyOrigin]:
         """Allocate memory from pool or system allocator.
 
+        Thread-safe: uses per-bucket spinlocks and atomic stats.
+
         Args:
             size: Number of bytes to allocate.
 
         Returns:
             UnsafePointer to allocated memory.
         """
-        self.stats.allocations += 1
+        self._atomic_stats.add_allocations(1)
 
-        # Large allocations bypass pool
+        # Large allocations bypass pool (no lock needed)
         if size > LARGE_THRESHOLD:
-            self.stats.pool_misses += 1
-            self.stats.bytes_allocated += size
+            self._atomic_stats.add_pool_misses(1)
+            self._atomic_stats.add_bytes_allocated(size)
             return alloc[UInt8](size)
 
         var bucket_idx = self._find_bucket_index(size)
 
         # No suitable bucket found, allocate directly
         if bucket_idx < 0:
-            self.stats.pool_misses += 1
-            self.stats.bytes_allocated += size
+            self._atomic_stats.add_pool_misses(1)
+            self._atomic_stats.add_bytes_allocated(size)
             return alloc[UInt8](size)
 
         # Try to get from small bucket
         if bucket_idx < len(self.small_lists):
+            self._small_locks[bucket_idx].lock()
             if not self.small_lists[bucket_idx].is_empty():
-                self.stats.pool_hits += 1
                 var ptr = self.small_lists[bucket_idx].pop()
-                self.stats.bytes_cached -= self.small_lists[
-                    bucket_idx
-                ].block_size
-                self.stats.bytes_allocated += self.small_lists[
-                    bucket_idx
-                ].block_size
+                self._small_locks[bucket_idx].unlock()
+                var actual_size = self.small_lists[bucket_idx].block_size
+                self._atomic_stats.add_pool_hits(1)
+                self._atomic_stats.add_bytes_cached(-actual_size)
+                self._atomic_stats.add_bytes_allocated(actual_size)
                 return ptr
             else:
-                # Pool miss - allocate new block
-                self.stats.pool_misses += 1
+                self._small_locks[bucket_idx].unlock()
+                # Pool miss - allocate new block outside the lock
                 var actual_size = self.small_lists[bucket_idx].block_size
-                self.stats.bytes_allocated += actual_size
+                self._atomic_stats.add_pool_misses(1)
+                self._atomic_stats.add_bytes_allocated(actual_size)
                 return alloc[UInt8](actual_size)
 
         # Try to get from medium bucket
         var medium_idx = bucket_idx - len(self.small_lists)
         if medium_idx < len(self.medium_lists):
+            self._medium_locks[medium_idx].lock()
             if not self.medium_lists[medium_idx].is_empty():
-                self.stats.pool_hits += 1
                 var ptr = self.medium_lists[medium_idx].pop()
-                self.stats.bytes_cached -= self.medium_lists[
+                self._medium_locks[medium_idx].unlock()
+                var actual_size = self.medium_lists[
                     medium_idx
                 ].block_size
-                self.stats.bytes_allocated += self.medium_lists[
-                    medium_idx
-                ].block_size
+                self._atomic_stats.add_pool_hits(1)
+                self._atomic_stats.add_bytes_cached(-actual_size)
+                self._atomic_stats.add_bytes_allocated(actual_size)
                 return ptr
             else:
-                # Pool miss - allocate new block
-                self.stats.pool_misses += 1
-                var actual_size = self.medium_lists[medium_idx].block_size
-                self.stats.bytes_allocated += actual_size
+                self._medium_locks[medium_idx].unlock()
+                # Pool miss - allocate new block outside the lock
+                var actual_size = self.medium_lists[
+                    medium_idx
+                ].block_size
+                self._atomic_stats.add_pool_misses(1)
+                self._atomic_stats.add_bytes_allocated(actual_size)
                 return alloc[UInt8](actual_size)
 
         # Fallback (should not reach here)
-        self.stats.pool_misses += 1
-        self.stats.bytes_allocated += size
+        self._atomic_stats.add_pool_misses(1)
+        self._atomic_stats.add_bytes_allocated(size)
         return alloc[UInt8](size)
 
     fn deallocate(
@@ -397,16 +591,18 @@ struct TensorMemoryPool(Copyable, Movable):
     ):
         """Return allocation to pool or system allocator.
 
+        Thread-safe: uses per-bucket spinlocks and atomic stats.
+
         Args:
             ptr: Pointer to memory to deallocate.
             size: Size of allocation.
         """
-        self.stats.deallocations += 1
+        self._atomic_stats.add_deallocations(1)
 
         # Large allocations bypass pool
         if size > LARGE_THRESHOLD:
             ptr.free()
-            self.stats.bytes_allocated -= size
+            self._atomic_stats.add_bytes_allocated(-size)
             return
 
         var bucket_idx = self._find_bucket_index(size)
@@ -414,46 +610,53 @@ struct TensorMemoryPool(Copyable, Movable):
         # No suitable bucket found, free directly
         if bucket_idx < 0:
             ptr.free()
-            self.stats.bytes_allocated -= size
+            self._atomic_stats.add_bytes_allocated(-size)
             return
 
         # Return to small bucket
         if bucket_idx < len(self.small_lists):
             var actual_size = self.small_lists[bucket_idx].block_size
+            self._small_locks[bucket_idx].lock()
             self.small_lists[bucket_idx].push(ptr)
-            self.stats.bytes_cached += actual_size
-            self.stats.bytes_allocated -= actual_size
-
-            if self.stats.bytes_cached > self.stats.peak_cached_bytes:
-                self.stats.peak_cached_bytes = self.stats.bytes_cached
+            self._small_locks[bucket_idx].unlock()
+            self._atomic_stats.add_bytes_cached(actual_size)
+            self._atomic_stats.add_bytes_allocated(-actual_size)
+            self._atomic_stats.update_peak_cached()
             return
 
         # Return to medium bucket
         var medium_idx = bucket_idx - len(self.small_lists)
         if medium_idx < len(self.medium_lists):
             var actual_size = self.medium_lists[medium_idx].block_size
+            self._medium_locks[medium_idx].lock()
             self.medium_lists[medium_idx].push(ptr)
-            self.stats.bytes_cached += actual_size
-            self.stats.bytes_allocated -= actual_size
-
-            if self.stats.bytes_cached > self.stats.peak_cached_bytes:
-                self.stats.peak_cached_bytes = self.stats.bytes_cached
+            self._medium_locks[medium_idx].unlock()
+            self._atomic_stats.add_bytes_cached(actual_size)
+            self._atomic_stats.add_bytes_allocated(-actual_size)
+            self._atomic_stats.update_peak_cached()
             return
 
         # Fallback (should not reach here)
         ptr.free()
-        self.stats.bytes_allocated -= size
+        self._atomic_stats.add_bytes_allocated(-size)
 
     fn get_stats(self) -> PoolStats:
         """Get current pool statistics.
 
+        Returns an atomic snapshot of all counters. Safe to call
+        concurrently with allocate()/deallocate().
+
         Returns:
             Copy of current statistics.
         """
-        return self.stats
+        return self._atomic_stats.snapshot()
 
     fn reset_stats(mut self):
-        """Reset all statistics to zero."""
+        """Reset all statistics to zero.
+
+        NOT thread-safe. Call only when no other threads access the pool.
+        """
+        self._atomic_stats.reset()
         self.stats = PoolStats()
 
     fn trim(mut self):
@@ -461,11 +664,16 @@ struct TensorMemoryPool(Copyable, Movable):
 
         This is a placeholder for future optimization to return
         cached blocks to the OS when they're not being used.
+
+        Note: When implemented, this must acquire all bucket locks.
         """
         pass
 
     fn clear(mut self):
-        """Release all pooled memory."""
+        """Release all pooled memory.
+
+        NOT thread-safe. Call only when no other threads access the pool.
+        """
         # Free all small bucket blocks
         for i in range(len(self.small_lists)):
             while not self.small_lists[i].is_empty():
@@ -478,9 +686,20 @@ struct TensorMemoryPool(Copyable, Movable):
                 var ptr = self.medium_lists[i].pop()
                 ptr.free()
 
-        # Reset stats
-        self.stats.bytes_cached = 0
-        self.stats.bytes_allocated = 0
+        # Reset byte counters only (preserve allocation/deallocation counts)
+        var current_cached = Int(
+            self._atomic_stats._counter(
+                _ASTATS_BYTES_CACHED
+            )[].load()
+        )
+        var current_alloc = Int(
+            self._atomic_stats._counter(
+                _ASTATS_BYTES_ALLOCATED
+            )[].load()
+        )
+        self._atomic_stats.add_bytes_cached(-current_cached)
+        self._atomic_stats.add_bytes_allocated(-current_alloc)
+        self.stats = self._atomic_stats.snapshot()
 
 
 # Global memory pool singleton
