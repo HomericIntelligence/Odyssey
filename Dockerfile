@@ -76,6 +76,7 @@ ENV PIXI_VERSION=0.65.0
 RUN curl -fsSL https://pixi.sh/install.sh | PIXI_VERSION=${PIXI_VERSION} bash
 
 # Copy dependency manifests first for layer caching
+# Note: requirements*.txt are auto-generated lockfiles from pixi.toml (see scripts/sync_requirements.py)
 COPY --chown=${USER_NAME}:${USER_NAME} pixi.toml pixi.lock pyproject.toml requirements.txt requirements-dev.txt .pre-commit-config.yaml ./
 
 # Install project dependencies (cached unless manifests change)

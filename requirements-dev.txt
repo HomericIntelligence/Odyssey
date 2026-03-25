@@ -1,18 +1,12 @@
-# Development dependencies
-# Pin exact versions for reproducibility
-# Update via Dependabot PRs
+# AUTO-GENERATED from pixi.toml — do not edit manually.
+# Regenerate with: python scripts/sync_requirements.py
+# These files exist for pip-only contexts (Docker, CI fallback).
+
 -r requirements.txt
 
-# Pre-commit hooks
-pre-commit==4.5.1
-
-# Security scanning
-safety==3.7.0
-bandit==1.9.4
-
-# Documentation
-mkdocs==1.6.1
-mkdocs-material==9.7.6
-
-# Benchmarking
-pytest-benchmark==5.2.3
+pre-commit==4.5.1  # Pre-commit hooks
+safety==3.7.0  # Security scanning
+bandit==1.9.4  # Security scanning
+mkdocs==1.6.1  # Documentation
+mkdocs-material==9.7.6  # Documentation
+pytest-benchmark==5.2.3  # Benchmarking

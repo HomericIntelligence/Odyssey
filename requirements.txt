@@ -1,23 +1,13 @@
-# Core testing dependencies
-# Pin exact versions for reproducibility
-# Update via Dependabot PRs
+# AUTO-GENERATED from pixi.toml — do not edit manually.
+# Regenerate with: python scripts/sync_requirements.py
+# These files exist for pip-only contexts (Docker, CI fallback).
 
 pytest==8.4.2
 pytest-cov==6.3.0
 pytest-timeout==2.4.0
 pytest-xdist==3.8.0
-
-# Code quality
-ruff==0.15.7
-
-# Type checking
+ruff==0.14.14
 mypy==1.19.1
-
-# Template engine (paper scaffolding, code generation)
-jinja2==3.1.6
-
-# YAML parsing (configuration)
-pyyaml==6.0.3
-
-# CLI framework (command-line tools)
-click==8.3.1
+jinja2==3.1.6  # Template engine (paper scaffolding, code generation)
+pyyaml==6.0.3  # YAML parsing (configuration)
+click==8.2.1  # CLI framework (command-line tools)
