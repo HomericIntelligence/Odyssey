@@ -171,8 +171,8 @@ fn check_gradients(
 
     # Step 2: Compute numerical gradient using finite differences
     var numerical_grad = zeros_like(input)
-    var input_copy_plus = _deep_copy(input)
-    var input_copy_minus = _deep_copy(input)
+    var input_copy_plus = input.clone()
+    var input_copy_minus = input.clone()
 
     for i in range(input.numel()):
         # Save original value
@@ -280,8 +280,8 @@ fn check_gradients_verbose(
         var analytical_grad = backward_fn(grad_output, input)
 
         var numerical_grad = zeros_like(input)
-        var input_copy_plus = _deep_copy(input)
-        var input_copy_minus = _deep_copy(input)
+        var input_copy_plus = input.clone()
+        var input_copy_minus = input.clone()
 
         for i in range(input.numel()):
             var original_val = input._get_float64(i)
@@ -724,28 +724,6 @@ fn assert_gradients_close(
         raise Error(msg)
 
 
-fn _deep_copy(tensor: AnyTensor) raises -> AnyTensor:
-    """Create a deep copy of a tensor with independent data buffer.
-
-        AnyTensor's __copyinit__ creates shallow copies (shared data via reference counting).
-        This function creates a true deep copy with separate memory allocation.
-
-    Args:
-            tensor: Tensor to deep copy.
-
-    Returns:
-            New tensor with copied data (independent memory allocation).
-    """
-    # Create new tensor with same shape and dtype
-    var result = AnyTensor(tensor.shape(), tensor._dtype)
-
-    # Copy all data elements
-    for i in range(tensor.numel()):
-        result._set_float64(i, tensor._get_float64(i))
-
-    return result^
-
-
 fn check_gradient(
     forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
     backward_fn: fn (AnyTensor, AnyTensor) raises escaping -> AnyTensor,
@@ -818,7 +796,7 @@ fn check_gradient(
     for i in range(x.numel()):
         # Create deep copies to avoid corrupting original x
         # (AnyTensor.__copyinit__ creates shallow copies with shared data)
-        var x_plus = _deep_copy(x)
+        var x_plus = x.clone()
         var old_val = x._get_float64(i)
         x_plus._set_float64(i, old_val + eps)
         var out_plus = forward_fn(x_plus)
@@ -827,7 +805,7 @@ fn check_gradient(
             loss_plus += out_plus._get_float64(j) * grad_output._get_float64(j)
 
         # Backward perturbation
-        var x_minus = _deep_copy(x)
+        var x_minus = x.clone()
         x_minus._set_float64(i, old_val - eps)
         var out_minus = forward_fn(x_minus)
         var loss_minus: Float64 = 0.0

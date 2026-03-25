@@ -252,7 +252,7 @@ fn test_check_gradients_does_not_mutate_input() raises:
     Verifies that the deep-copy fix for the shallow-copy memory hazard is in
     place. Before the fix, `input.copy()` (a `__copyinit__` shallow copy) shared
     the `_data` buffer with the original tensor, so `_set_float64` calls inside
-    check_gradients corrupted the caller's tensor. After the fix, `_deep_copy`
+    check_gradients corrupted the caller's tensor. After the fix, `clone()`
     allocates an independent buffer and the original is never modified.
     """
     print("Memory safety: check_gradients does not mutate input...")
