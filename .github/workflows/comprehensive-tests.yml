@@ -282,9 +282,24 @@ jobs:
           # ---- All data subsystems (formats/datasets/samplers/transforms/loaders) ----
           # NOTE: Data test JIT crashes mitigated by targeted submodule imports (#5103).
           # See docs/dev/mojo-jit-crash-workaround.md for details.
-          - name: "Data"
+          - name: "Data Core"
             path: "tests/shared/data"
-            pattern: "test_*.mojo datasets/test_*.mojo samplers/test_*.mojo transforms/test_*.mojo loaders/test_*.mojo formats/test_*.mojo"
+            pattern: "test_*.mojo"
+          - name: "Data Datasets"
+            path: "tests/shared/data/datasets"
+            pattern: "test_*.mojo"
+          - name: "Data Loaders"
+            path: "tests/shared/data/loaders"
+            pattern: "test_*.mojo"
+          - name: "Data Transforms"
+            path: "tests/shared/data/transforms"
+            pattern: "test_*.mojo"
+          - name: "Data Samplers"
+            path: "tests/shared/data/samplers"
+            pattern: "test_*.mojo"
+          - name: "Data Formats"
+            path: "tests/shared/data/formats"
+            pattern: "test_*.mojo"
           # ---- Autograd engine + shared benchmarking helpers ----
           # Kept as separate entries (not merged under tests/shared parent path)
           # to avoid silent pass-with-0-tests if a subdirectory is empty/renamed.
