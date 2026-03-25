@@ -136,3 +136,12 @@ fn test_depthwise_conv2d_gradient_kernel_strided() raises:
 
     var passed = check_gradients(forward, backward, kernel)
     assert_true(passed, "depthwise_conv2d kernel gradient check with stride=2 failed")
+
+
+fn main() raises:
+    print("Running depthwise conv2d gradient checking tests...")
+    test_depthwise_conv2d_gradient_kernel_basic()
+    test_depthwise_conv2d_gradient_bias_basic()
+    test_depthwise_conv2d_gradient_input_basic()
+    test_depthwise_conv2d_gradient_kernel_strided()
+    print("All depthwise conv2d gradient checking tests passed!")
