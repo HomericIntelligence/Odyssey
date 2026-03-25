@@ -80,6 +80,44 @@ fn validate(
     Raises:
             Error: If validation fails.
     """
+    var confusion_matrix = ConfusionMatrix(num_classes=num_classes)
+    return _validate_impl(
+        model_forward,
+        compute_loss,
+        val_loader,
+        confusion_matrix,
+        compute_accuracy,
+        compute_confusion,
+        num_classes,
+    )
+
+
+fn _validate_impl(
+    model_forward: fn (AnyTensor) raises -> AnyTensor,
+    compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
+    mut val_loader: DataLoader,
+    mut confusion_matrix: ConfusionMatrix,
+    compute_accuracy: Bool = True,
+    compute_confusion: Bool = False,
+    num_classes: Int = 10,
+) raises -> Float64:
+    """Run validation loop with caller-provided confusion matrix.
+
+    Args:
+            model_forward: Forward pass function.
+            compute_loss: Loss computation function.
+            val_loader: Validation data loader.
+            confusion_matrix: Confusion matrix to update (caller retains access).
+            compute_accuracy: Whether to compute accuracy.
+            compute_confusion: Whether to compute confusion matrix.
+            num_classes: Number of classes (for confusion matrix).
+
+    Returns:
+            Average validation loss.
+
+    Raises:
+            Error: If validation fails.
+    """
     print("\nRunning validation...")
 
     var total_loss = Float64(0.0)
@@ -88,7 +126,6 @@ fn validate(
     # Setup metrics
     var accuracy_metric = AccuracyMetric()
     var loss_tracker = LossTracker(window_size=100)
-    var confusion_matrix = ConfusionMatrix(num_classes=num_classes)
 
     # Reset dataloader
     val_loader.reset()
@@ -158,37 +195,47 @@ struct ValidationLoop:
     - Metric aggregation
     - Subset validation support
     - Memory-efficient evaluation
+    - Confusion matrix tracking (when compute_confusion=True)
     """
 
     var compute_accuracy: Bool
     var compute_confusion: Bool
     var num_classes: Int
+    var confusion_matrix: ConfusionMatrix
+    """Confusion matrix populated during run() when compute_confusion=True."""
 
     fn __init__(
         out self,
         compute_accuracy: Bool = True,
         compute_confusion: Bool = False,
         num_classes: Int = 10,
-    ):
+    ) raises:
         """Initialize validation loop.
 
         Args:
             compute_accuracy: Whether to compute accuracy.
             compute_confusion: Whether to compute confusion matrix.
             num_classes: Number of classes (for confusion matrix).
+
+        Raises:
+            Error: If confusion matrix initialization fails.
         """
         self.compute_accuracy = compute_accuracy
         self.compute_confusion = compute_confusion
         self.num_classes = num_classes
+        self.confusion_matrix = ConfusionMatrix(num_classes=num_classes)
 
     fn run(
-        self,
+        mut self,
         model_forward: fn (AnyTensor) raises -> AnyTensor,
         compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
         mut val_loader: DataLoader,
         mut metrics: TrainingMetrics,
     ) raises -> Float64:
         """Run validation loop.
+
+        After this call, self.confusion_matrix contains the accumulated
+        counts when compute_confusion=True.
 
         Args:
             model_forward: Forward pass function.
@@ -202,10 +249,14 @@ struct ValidationLoop:
         Raises:
             Error: If validation fails.
         """
-        var val_loss = validate(
+        # Reset confusion matrix for this run
+        self.confusion_matrix.reset()
+
+        var val_loss = _validate_impl(
             model_forward,
             compute_loss,
             val_loader,
+            self.confusion_matrix,
             self.compute_accuracy,
             self.compute_confusion,
             self.num_classes,

@@ -69,11 +69,14 @@ struct BaseTrainer(Trainer):
     var validation_loop: ValidationLoop
     var is_training: Bool
 
-    fn __init__(out self, config: TrainerConfig):
+    fn __init__(out self, config: TrainerConfig) raises:
         """Initialize base trainer.
 
         Args:
             config: Trainer configuration.
+
+        Raises:
+            Error: If validation loop initialization fails.
         """
         self.config = config.copy()
         self.metrics = TrainingMetrics()
@@ -424,7 +427,7 @@ struct BaseTrainer(Trainer):
         self.is_training = False
 
 
-fn create_trainer(config: TrainerConfig) -> BaseTrainer:
+fn create_trainer(config: TrainerConfig) raises -> BaseTrainer:
     """Create a base trainer with given configuration.
 
     Args:
@@ -432,15 +435,21 @@ fn create_trainer(config: TrainerConfig) -> BaseTrainer:
 
     Returns:
             Initialized BaseTrainer.
+
+    Raises:
+            Error: If trainer initialization fails.
     """
     return BaseTrainer(config)
 
 
-fn create_default_trainer() -> BaseTrainer:
+fn create_default_trainer() raises -> BaseTrainer:
     """Create a trainer with default configuration.
 
     Returns:
             BaseTrainer with default config.
+
+    Raises:
+            Error: If trainer initialization fails.
     """
     var config = TrainerConfig()
     return BaseTrainer(config)
