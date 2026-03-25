@@ -317,9 +317,8 @@ fn is_valid_loss(loss: Float64) raises -> Bool:
     shape.append(1)
     var loss_tensor = AnyTensor(shape, DType.float64)
 
-    # Access the tensor's data pointer and set the loss value
-    var ptr = loss_tensor._data.bitcast[Float64]()
-    ptr[0] = loss
+    # Set the loss value using parametric store
+    loss_tensor.store[DType.float64](0, loss)
 
     # Use has_nan_or_inf for consistency
     return not has_nan_or_inf(loss_tensor)
@@ -368,25 +367,22 @@ fn compute_gradient_norm(
 
         # Handle each dtype separately for efficiency
         if tensor.dtype() == DType.float32:
-            var ptr = tensor._data.bitcast[Float32]()
             for j in range(size):
-                var val = Float64(ptr[j])
+                var val = Float64(tensor.load[DType.float32](j))
                 if norm_type == "L2":
                     total_norm_sq += val * val
                 elif norm_type == "L1":
                     total_abs_norm += abs(val)
         elif tensor.dtype() == DType.float64:
-            var ptr = tensor._data.bitcast[Float64]()
             for j in range(size):
-                var val = ptr[j]
+                var val = tensor.load[DType.float64](j)
                 if norm_type == "L2":
                     total_norm_sq += val * val
                 elif norm_type == "L1":
                     total_abs_norm += abs(val)
         elif tensor.dtype() == DType.float16:
-            var ptr = tensor._data.bitcast[Float16]()
             for j in range(size):
-                var val = Float64(Float32(ptr[j]))
+                var val = Float64(Float32(tensor.load[DType.float16](j)))
                 if norm_type == "L2":
                     total_norm_sq += val * val
                 elif norm_type == "L1":

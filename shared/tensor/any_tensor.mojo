@@ -1472,6 +1472,67 @@ struct AnyTensor(
             # For integer types, truncate Float64 to Int64 and delegate
             self._set_int64(index, Int64(value))
 
+    # ================================================================
+    # Parametric element access — compile-time typed, no bounds check
+    # ================================================================
+
+    fn load[dtype: DType](self, index: Int) -> Scalar[dtype]:
+        """Load a single element with compile-time dtype.
+
+        Returns the element at `index` interpreted as `Scalar[dtype]`.
+        No bounds check is performed — the caller is responsible.
+
+        Keeping the tensor alive for the duration of the access prevents
+        ASAP-destruction UAF (modular/modular#6187) that raw bitcast
+        pointer extraction can trigger.
+
+        Args:
+            index: Flat element index.
+
+        Parameters:
+            dtype: The compile-time element type.
+
+        Returns:
+            The element value as Scalar[dtype].
+        """
+        var offset = index * AnyTensor._get_dtype_size_static(dtype)
+        return (self._data + offset).bitcast[Scalar[dtype]]()[]
+
+    fn store[dtype: DType](self, index: Int, value: Scalar[dtype]):
+        """Store a single element with compile-time dtype.
+
+        Writes `value` at `index` interpreted as `Scalar[dtype]`.
+        No bounds check is performed — the caller is responsible.
+
+        Keeping the tensor alive for the duration of the access prevents
+        ASAP-destruction UAF (modular/modular#6187) that raw bitcast
+        pointer extraction can trigger.
+
+        Args:
+            index: Flat element index.
+            value: The value to store.
+
+        Parameters:
+            dtype: The compile-time element type.
+        """
+        var offset = index * AnyTensor._get_dtype_size_static(dtype)
+        (self._data + offset).bitcast[Scalar[dtype]]()[] = value
+
+    fn data_ptr[dtype: DType](self) -> UnsafePointer[Scalar[dtype]]:
+        """Return a typed pointer to the underlying data buffer.
+
+        For SIMD / tight-loop scenarios where per-element load/store
+        overhead is too high.  The returned pointer is only valid while
+        `self` is alive.
+
+        Parameters:
+            dtype: The compile-time element type.
+
+        Returns:
+            An UnsafePointer[Scalar[dtype]] to the start of the buffer.
+        """
+        return self._data.bitcast[Scalar[dtype]]()
+
     fn _get_float32(self, index: Int) -> Float32:
         """Internal: Get value at index as Float32 (assumes float-compatible dtype).
 

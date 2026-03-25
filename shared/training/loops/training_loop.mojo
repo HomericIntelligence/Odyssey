@@ -72,7 +72,7 @@ fn training_step(
     var loss_tensor = compute_loss(predictions, labels)
 
     # Extract scalar loss (assume first element)
-    var loss_value = Float64(loss_tensor._data.bitcast[Float32]()[0])
+    var loss_value = Float64(loss_tensor.load[DType.float32](0))
 
     # Backward pass (implicit through optimizer_step)
     # Update weights
