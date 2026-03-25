@@ -2,6 +2,13 @@
 
 **Tracking**: Issue #3330, follow-up from #3120
 
+**Status**: The ADR-009 heap corruption workaround is **RESOLVED** (2026-03-20, bitcast UAF fix).
+No retry logic or `continue-on-error` masking exists in CI. All test failures are immediately
+visible. The test file splitting workaround from ADR-009 is no longer necessary.
+
+The JIT crash described in this document (`libKGENCompilerRTShared.so`) is a separate upstream
+Mojo 0.26.1 compiler bug that is mitigated by targeted submodule imports (see below).
+
 ## Root Cause
 
 The JIT crash is triggered by **compilation footprint**, not random instability. When a test
@@ -12,12 +19,12 @@ buffer, triggering glibc's `__fortify_fail_abort`.
 
 **Evidence**:
 
-- `__fortify_fail_abort` fires on buffer overflow detection — this is a **compilation-time**
+- `__fortify_fail_abort` fires on buffer overflow detection -- this is a **compilation-time**
   overflow, not a runtime bug
 - `shared/core/__init__.mojo` imports from 40+ submodules including `dtype_dispatch.mojo`
   (176+ monomorphizations) and `elementwise.mojo` (154+ monomorphizations)
-- Files using `from shared.core import` (package-level) → compile all 37K lines per test
-- Files using `from shared.core.any_tensor import` (targeted) → compile ~500-2000 lines per test
+- Files using `from shared.core import` (package-level) -> compile all 37K lines per test
+- Files using `from shared.core.any_tensor import` (targeted) -> compile ~500-2000 lines per test
 - The crash is non-deterministic because ASLR, memory layout, and JIT caching vary per run
 
 ## Fix Applied
@@ -67,29 +74,15 @@ symbol-to-submodule mapping below.
 | Module | `shared.core.module` |
 | Sequential2, Sequential3 | `shared.core.sequential` |
 
-## Problem
-
-An intermittent crash in the Mojo JIT compiler causes `mojo test` to output `execution crashed`
-and exit non-zero. The crash originates in `libKGENCompilerRTShared.so`, the Mojo runtime/compiler
-shared library.
-
-Sample crash output:
-
-```text
-execution crashed
-```
-
-This single line is the entire output. No test names, no stack trace, no assertion failures.
-
 ## Diagnosis: Compiler Flake vs. Test Bug
 
 The key diagnostic is **where the crash appears relative to test output**:
 
 | Symptom | Cause |
 |---------|-------|
-| `execution crashed` appears **before any test output** | Import explosion crash — check import style |
+| `execution crashed` appears **before any test output** | Import explosion crash -- check import style |
 | `execution crashed` or segfault appears **after test output** | Likely a real test bug |
-| Specific assertion failure message | Real test bug — investigate |
+| Specific assertion failure message | Real test bug -- investigate |
 
 ### Sample: Import Explosion Crash
 
@@ -123,28 +116,27 @@ from shared.core.activation import relu, sigmoid
 from shared.core import AnyTensor, zeros, ones, relu, sigmoid
 ```
 
-## Relationship to Heap Corruption Bug (ADR-009)
+## Relationship to Heap Corruption Bug (ADR-009) -- RESOLVED
 
-This crash is **distinct** from the deterministic heap corruption crash described in
-[ADR-009](../adr/ADR-009-heap-corruption-workaround.md):
+The heap corruption bug described in [ADR-009](../adr/ADR-009-heap-corruption-workaround.md)
+was **resolved on 2026-03-20** via a bitcast UAF fix. The test file splitting workaround from
+ADR-009 is no longer necessary. The `continue-on-error: true` workaround has been removed from
+`comprehensive-tests.yml`.
 
 | | JIT Crash (this doc) | Heap Corruption (ADR-009) |
 |-|---------------------|--------------------------|
 | **Trigger** | Package-level import compilation overflow | After exactly ~15 cumulative tests in one file |
 | **Output** | `execution crashed` before any test runs | Crash mid-run after test output |
-| **Root cause** | `__init__.mojo` import explosion → monomorphization overflow | Cumulative allocations exceed JIT heap limit |
-| **Fix** | Targeted submodule imports (applied) | Split files to ≤10 tests each (applied) |
-| **CI fix** | `continue-on-error` removed once imports converted | File splitting (already applied) |
-
-Both originate in `libKGENCompilerRTShared.so` but are separate bugs with different behaviors and
-different workarounds.
+| **Root cause** | `__init__.mojo` import explosion -> monomorphization overflow | Cumulative allocations exceed JIT heap limit |
+| **Fix** | Targeted submodule imports (applied) | Bitcast UAF fix (resolved 2026-03-20) |
+| **CI workarounds** | None -- every failure is immediately visible | None -- `continue-on-error` removed |
 
 ## Controlled Experiment (2026-03-15)
 
 Two synthetic test files were created to isolate the import-style variable:
 
-- `tests/shared/core/test_jit_crash_heavy_import.mojo` — uses `from shared.core import` (package-level)
-- `tests/shared/core/test_jit_crash_light_import.mojo` — uses `from shared.core.any_tensor import` (targeted)
+- `tests/shared/core/test_jit_crash_heavy_import.mojo` -- uses `from shared.core import` (package-level)
+- `tests/shared/core/test_jit_crash_light_import.mojo` -- uses `from shared.core.any_tensor import` (targeted)
 
 ### Local Results (GLIBC 2.39, Mojo 0.26.1, WSL2 Linux 6.6.87)
 
@@ -156,28 +148,11 @@ Two synthetic test files were created to isolate the import-style variable:
 **Conclusion**: The JIT crash was **not reproducible locally**. This suggests the crash is
 environment-specific (likely CI's GLIBC 2.35 or Docker memory constraints) or requires
 higher memory pressure than a single test file produces. The targeted import fix is still
-the correct defensive measure — it reduces compilation footprint by ~95% per test file,
+the correct defensive measure -- it reduces compilation footprint by ~95% per test file,
 which lowers the probability of hitting the JIT buffer overflow regardless of environment.
-
-**Next step**: Run the same experiment in CI (GLIBC 2.35, Ubuntu runner) to confirm whether
-the crash is environment-dependent.
-
-## Long-Term Resolution
-
-The targeted submodule import fix (applied in 126 test files) addresses the root cause. The
-`continue-on-error: true` workarounds in `comprehensive-tests.yml` can be removed once the
-converted tests are confirmed stable across multiple CI runs.
-
-When removing `continue-on-error`:
-
-1. Remove it from the matrix entries: Core Gradient, Data, Shared Infra & Testing, Models,
-   Core Types & Fuzz
-2. Remove it from standalone jobs: Configs, Benchmarks
-3. Verify by running each test group 5+ times in a row — they should pass consistently
 
 ## References
 
-- [Issue #3330](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3330) — Document JIT crash workaround
-- [Issue #3120](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3120) — Core Loss test crashes (follow-up context)
-- [ADR-009](../adr/ADR-009-heap-corruption-workaround.md) — Heap corruption workaround (related but distinct)
-- `.github/workflows/comprehensive-tests.yml` — `continue-on-error` mitigations (remove after fix confirmed)
+- [Issue #3330](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3330) -- Document JIT crash workaround
+- [Issue #3120](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3120) -- Core Loss test crashes (follow-up context)
+- [ADR-009](../adr/ADR-009-heap-corruption-workaround.md) -- Heap corruption workaround (resolved 2026-03-20)

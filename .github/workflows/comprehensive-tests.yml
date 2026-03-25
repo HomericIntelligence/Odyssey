@@ -739,9 +739,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     name: "Gradient Checking Tests"
-    # ADR-009: Mojo 0.26.1 JIT heap corruption causes random crashes.
-    # Non-blocking until Mojo runtime is stable.
-    continue-on-error: true
 
     steps:
       - name: Checkout code
@@ -755,8 +752,6 @@ jobs:
 
       - name: Run gradient checking tests
         run: |
-          # Split per ADR-009: test_gradient_checking.mojo split to avoid Mojo 0.26.1 heap corruption
-          # Routed through just test-group for JIT crash retry protection (issue #3329)
           mkdir -p test-results
           start_time=$(date +%s)
           test_result="failed"
