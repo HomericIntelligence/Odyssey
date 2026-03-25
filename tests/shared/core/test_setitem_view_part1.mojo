@@ -34,7 +34,7 @@ fn test_setitem_view_has_correct_setup() raises:
     """
     # Create a 1D tensor and slice it
     var original = arange(0.0, 10.0, 1.0, DType.float32)
-    var view = original[2:8]
+    var view = original.slice(2, 8)
 
     # Verify the view has correct properties
     if not view._is_view:
@@ -55,7 +55,7 @@ fn test_setitem_view_1d_writes_correctly() raises:
     position in the original tensor (offset by slice start).
     """
     var original = zeros([10], DType.float32)
-    var view = original[2:5]
+    var view = original.slice(2, 5)
 
     # Write to the view
     view[0] = 99.0
@@ -76,7 +76,9 @@ fn test_setitem_view_multidim_writes_correctly() raises:
     Slice a 2D tensor and verify writes go to the correct parent positions.
     """
     var original = zeros([3, 4], DType.float32)
-    var view = original[1:3, 1:3]
+    # Chain slice() on both axes to get a true view (shares memory).
+    # __getitem__(*slices) returns a copy, but slice() returns a view.
+    var view = original.slice(1, 3, axis=0).slice(1, 3, axis=1)
 
     # Write to the view (it should be 2x2)
     if view.shape()[0] != 2 or view.shape()[1] != 2:
@@ -124,7 +126,7 @@ fn test_setitem_view_does_not_corrupt_adjacent_elements() raises:
     remain unchanged.
     """
     var original = ones([10], DType.float32)
-    var view = original[3:7]
+    var view = original.slice(3, 7)
 
     # Write to view
     for i in range(4):
