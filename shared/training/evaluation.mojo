@@ -169,7 +169,7 @@ fn evaluate_model[
 
         # Compute batch accuracy by argmax
         var batch_correct = 0
-        var logits_data = logits._data.bitcast[Float32]()
+        var logits_data = logits.data_ptr[DType.float32]()
 
         for i in range(current_batch_size):
             # Find argmax (predicted class)
@@ -288,7 +288,7 @@ fn evaluate_model_simple[
         var logits = model.forward(batch_images)
 
         # Compute batch accuracy by argmax
-        var logits_data = logits._data.bitcast[Float32]()
+        var logits_data = logits.data_ptr[DType.float32]()
 
         for i in range(current_batch_size):
             # Find argmax (predicted class)
@@ -397,7 +397,7 @@ fn evaluate_topk[
         var logits = model.forward(batch_images)
 
         # Compute top-k accuracy
-        var logits_data = logits._data.bitcast[Float32]()
+        var logits_data = logits.data_ptr[DType.float32]()
 
         for i in range(current_batch_size):
             # Find top-k for this sample
