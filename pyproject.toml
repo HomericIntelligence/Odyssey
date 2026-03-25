@@ -1,3 +1,6 @@
+# Dependencies are managed in pixi.toml (single source of truth).
+# This file provides project metadata and tool configuration only.
+
 [build-system]
 requires = ["setuptools>=65.0", "wheel"]
 build-backend = "setuptools.build_meta"
@@ -13,29 +16,10 @@ authors = [
     {name = "Micah Villmow", email = "4211002+mvillmow@users.noreply.github.com"}
 ]
 
-dependencies = [
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
-    "pytest-timeout>=2.1.0",
-    "pytest-xdist>=3.0.0",
-]
-
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["scripts*"]
 exclude = ["tests*", "notes*", "agents*", "papers*", "docs*", "logs*"]
-
-[project.optional-dependencies]
-dev = [
-    "pre-commit>=3.0.0",
-    "safety>=2.0.0",
-    "bandit>=1.7.0",
-    "mkdocs>=1.5.0",
-    "mkdocs-material>=9.0.0",
-    "pytest-benchmark>=4.0.0",
-    "ruff>=0.1.0",
-    "mypy>=1.0.0",
-]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

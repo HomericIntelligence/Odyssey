@@ -30,6 +30,7 @@ COPY pixi.toml pixi.lock ./
 RUN pixi install --frozen
 
 # Copy source code
+# Note: requirements*.txt are auto-generated lockfiles from pixi.toml (see scripts/sync_requirements.py)
 COPY shared/ ./shared/
 COPY tests/ ./tests/
 COPY pyproject.toml requirements.txt requirements-dev.txt ./

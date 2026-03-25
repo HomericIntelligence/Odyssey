@@ -225,6 +225,26 @@ jobs:
           python scripts/audit_shared_links.py
 
   # ============================================================================
+  # Dependency Sync Validation - pixi.toml is single source of truth
+  # ============================================================================
+  validate-dep-sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    name: "Dependency Sync Validation"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: '3.11'
+
+      - name: Validate dependency consistency
+        run: python scripts/check_dep_sync.py
+
+  # ============================================================================
   # Comprehensive Mojo Test Suite - Parallelized by Test Group
   # ============================================================================
   test-mojo-comprehensive:

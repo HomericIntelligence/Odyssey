@@ -13,7 +13,7 @@ on:
     paths:
       - 'pixi.toml'
       - 'requirements.txt'
-      - 'tools/requirements.txt'
+      - 'requirements-dev.txt'
       - 'pyproject.toml'
       - '.github/dependabot.yml'
   schedule:
@@ -220,7 +220,7 @@ jobs:
           FILES_SCANNED=0
           VULN_COUNT=0
 
-          for file in requirements.txt tools/requirements.txt; do
+          for file in requirements.txt requirements-dev.txt; do
             if [ -f "$file" ]; then
               echo "### $file" >> safety-report.md
               echo "" >> safety-report.md
@@ -248,7 +248,7 @@ jobs:
           echo "## pip-audit Scan Results" > pip-audit-report.md
           echo "" >> pip-audit-report.md
 
-          pip install -r requirements.txt -r tools/requirements.txt 2>/dev/null || true
+          pip install -r requirements.txt -r requirements-dev.txt 2>/dev/null || true
 
           if pip-audit --format json --output pip-audit.json 2>/dev/null; then
             echo "✅ No vulnerabilities found" >> pip-audit-report.md
@@ -347,7 +347,7 @@ jobs:
 
       - name: Check licenses
         run: |
-          pip install -r requirements.txt -r tools/requirements.txt 2>/dev/null || true
+          pip install -r requirements.txt -r requirements-dev.txt 2>/dev/null || true
 
           echo "## License Audit Report" > license-report.md
           echo "" >> license-report.md
