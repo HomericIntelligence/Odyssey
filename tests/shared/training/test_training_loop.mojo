@@ -134,8 +134,9 @@ fn test_training_loop_multiple_epochs() raises:
         - Parameters should be updated via gradient descent.
 
     Note:
-        This test uses step() directly instead of run_epoch() since the
-        data loader integration is pending (TODO #3013).
+        This test uses step() directly to verify per-step loss decrease.
+        DataLoader integration is implemented and tested in
+        test_training_loop_full_epoch().
     """
     # Create model, optimizer, and loss function
     var model = create_simple_model()
