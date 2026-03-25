@@ -70,11 +70,12 @@ fn conv_block(
         kernel_shape.append(in_channels)
         kernel_shape.append(3)
         kernel_shape.append(3)
-        # He initialization: sqrt(2 / fan_in) prevents exponential
-        # growth/vanishing through deep ReLU networks
+        # Uniform weight scaling: 1/fan_in keeps output magnitude stable
+        # when all weights are identical (unlike random He init where
+        # positive/negative values cancel). See ADR-013.
         var fan_in = in_channels * 3 * 3
-        var scale = sqrt(2.0 / Float64(fan_in))
-        var kernel = full(kernel_shape, Float32(scale), DType.float32)
+        var scale = 1.0 / Float64(fan_in)
+        var kernel = full(kernel_shape, scale, DType.float32)
 
         # Create bias
         var bias_shape = List[Int]()
@@ -133,23 +134,23 @@ fn vgg16_forward(
     flat_shape.append(512)
     var x_flat = x.reshape(flat_shape)
 
-    # FC1: 512 -> 256 + ReLU (He init: sqrt(2/fan_in))
-    var fc1_scale = sqrt(2.0 / Float64(512))
-    var fc1_w = full([256, 512], Float32(fc1_scale), DType.float32)
+    # FC1: 512 -> 256 + ReLU (uniform: 1/fan_in)
+    var fc1_scale = 1.0 / Float64(512)
+    var fc1_w = full([256, 512], fc1_scale, DType.float32)
     var fc1_b = zeros([256], DType.float32)
     x = linear(x_flat, fc1_w, fc1_b)
     x = relu(x)
 
-    # FC2: 256 -> 256 + ReLU (He init: sqrt(2/fan_in))
-    var fc2_scale = sqrt(2.0 / Float64(256))
-    var fc2_w = full([256, 256], Float32(fc2_scale), DType.float32)
+    # FC2: 256 -> 256 + ReLU (uniform: 1/fan_in)
+    var fc2_scale = 1.0 / Float64(256)
+    var fc2_w = full([256, 256], fc2_scale, DType.float32)
     var fc2_b = zeros([256], DType.float32)
     x = linear(x, fc2_w, fc2_b)
     x = relu(x)
 
-    # FC3: 256 -> 10 (output layer, no activation — Xavier init)
-    var fc3_scale = sqrt(1.0 / Float64(256))
-    var fc3_w = full([10, 256], Float32(fc3_scale), DType.float32)
+    # FC3: 256 -> 10 (output layer, no activation — uniform: 1/fan_in)
+    var fc3_scale = 1.0 / Float64(256)
+    var fc3_w = full([10, 256], fc3_scale, DType.float32)
     var fc3_b = zeros([10], DType.float32)
     x = linear(x, fc3_w, fc3_b)
 
@@ -180,7 +181,7 @@ fn test_vgg16_e2e_forward_small_batch() raises:
 fn test_vgg16_e2e_forward_varying_values() raises:
     """Test VGG-16 with varying input values."""
     var input = zeros([2, 3, 32, 32], DType.float32)
-    var input_data = input._data.bitcast[Float32]()
+    var input_data = input.data_ptr[DType.float32]()
     for i in range(2 * 3 * 32 * 32):
         input_data[i] = Float32((i % 256)) / 25600.0
     var output = vgg16_forward(input)
@@ -216,7 +217,7 @@ fn test_vgg16_e2e_gradient_flow() raises:
     var output = vgg16_forward(input)
     var grad_output = ones(output.shape(), DType.float32)
     var grad_output_sum = Float32(0.0)
-    var grad_output_data = grad_output._data.bitcast[Float32]()
+    var grad_output_data = grad_output.data_ptr[DType.float32]()
     for i in range(2 * 10):
         grad_output_sum += grad_output_data[i]
     assert_greater(grad_output_sum, Float32(0.0))
@@ -231,7 +232,7 @@ fn test_vgg16_e2e_output_range() raises:
     """Test VGG-16 produces outputs in reasonable range."""
     var input = full([2, 3, 32, 32], 0.01, DType.float32)
     var output = vgg16_forward(input)
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output.data_ptr[DType.float32]()
     for i in range(2 * 10):
         var val = output_data[i]
         assert_true(val == val)
@@ -256,7 +257,7 @@ fn test_vgg16_e2e_no_nans() raises:
     """Test VGG-16 forward pass doesn't produce NaNs."""
     var input = full([2, 3, 32, 32], 0.01, DType.float32)
     var output = vgg16_forward(input)
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output.data_ptr[DType.float32]()
     for i in range(2 * 10):
         var val = output_data[i]
         assert_true(val == val)
@@ -266,7 +267,7 @@ fn test_vgg16_e2e_no_infs() raises:
     """Test VGG-16 forward pass doesn't produce Infs."""
     var input = full([2, 3, 32, 32], 0.01, DType.float32)
     var output = vgg16_forward(input)
-    var output_data = output._data.bitcast[Float32]()
+    var output_data = output.data_ptr[DType.float32]()
     for i in range(2 * 10):
         var val = output_data[i]
         assert_less(val, Float32(1e10))
