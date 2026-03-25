@@ -258,18 +258,19 @@ jobs:
       fail-fast: false  # Run all test groups even if one fails
       matrix:
         test-group:
-          # IMPORTANT: The 'pattern' field accepts space-separated LITERAL filenames only,
-          # NOT glob patterns. See Issue #4110 for CI pattern constraints.
+          # The 'pattern' field accepts space-separated filename patterns.
+          # Glob wildcards (e.g., test_activation*.mojo) are supported and preferred
+          # so that new test files are auto-discovered without manual updates.
+          # See Issue #4157 for CI pattern guidelines.
           # ---- Core tensor operations ----
           - name: "Core Tensors"
             path: "tests/shared/core"
             pattern: "test_tensors*.mojo test_arithmetic*.mojo test_broadcasting*.mojo test_shape*.mojo test_creation*.mojo test_reduction*.mojo test_matrix*.mojo test_matmul*.mojo test_strassen.mojo test_pooling*.mojo test_properties*.mojo test_high_dimensional*.mojo test_slicing*.mojo test_elementwise*.mojo test_comparison_ops*.mojo test_edge_cases*.mojo test_concatenate*.mojo test_reshape*.mojo"
           # ---- Activations + dtype dispatch ----
-          # Explicit file list — the previous catch-all "test_*.mojo" matched ALL 250+
-          # files in tests/shared/core/, causing 15-min timeouts and duplicate test runs.
+          # Uses wildcards to auto-include new test files without manual workflow updates.
           - name: "Core Activations & Types"
             path: "tests/shared/core"
-            pattern: "test_activation_funcs.mojo test_activation_ops.mojo test_activations.mojo test_advanced_activations.mojo test_dtype_dispatch.mojo test_dtype_ordinal.mojo"
+            pattern: "test_activation*.mojo test_advanced_activations*.mojo test_dtype_dispatch*.mojo test_dtype_ordinal*.mojo"
           # ---- Loss functions ----
           - name: "Core Loss"
             path: "tests/shared/core"
