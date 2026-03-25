@@ -221,35 +221,35 @@ fn test_empty_2d() raises:
 fn test_from_array_1d() raises:
     """Test creating tensor from 1D array.
 
-    Blocked on #3013 (from_array() not yet implemented).
+    Blocked on from_array() not yet being implemented.
     Tracked by #4127 to prevent this placeholder from going stale.
-    Once #3013 merges, implement using a 3-element Float32 array:
+    Once from_array() ships, implement using a 3-element Float32 array:
       [0.5, 1.0, 1.5] -> shape [3], dtype float32.
     """
-    # TODO(#3013): implement when from_array() ships
+    # TODO(#4127): implement when from_array() ships
     pass
 
 
 fn test_from_array_2d() raises:
     """Test creating tensor from 2D nested array.
 
-    Blocked on #3013 (from_array() not yet implemented).
+    Blocked on from_array() not yet being implemented.
     Tracked by #4127 to prevent this placeholder from going stale.
-    Once #3013 merges, implement using a 2x3 Float32 array:
+    Once from_array() ships, implement using a 2x3 Float32 array:
       [[0.5, 1.0, 1.5], [-0.5, -1.0, 0.0]] -> shape [2, 3], dtype float32.
     """
-    # TODO(#3013): implement when from_array() ships
+    # TODO(#4127): implement when from_array() ships
     pass
 
 
 fn test_from_array_3d() raises:
     """Test creating tensor from 3D nested array.
 
-    Blocked on #3013 (from_array() not yet implemented).
+    Blocked on from_array() not yet being implemented.
     Tracked by #4127 to prevent this placeholder from going stale.
-    Once #3013 merges, implement using a 2x2x3 Float32 array -> shape [2, 2, 3].
+    Once from_array() ships, implement using a 2x2x3 Float32 array -> shape [2, 2, 3].
     """
-    # TODO(#3013): implement when from_array() ships
+    # TODO(#4127): implement when from_array() ships
     pass
 
 
