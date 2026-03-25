@@ -245,11 +245,13 @@ jobs:
           # Uses wildcards to auto-include split files (*_part1, *_part2, etc.)
           - name: "Core Tensors"
             path: "tests/shared/core"
-            pattern: "test_tensors*.mojo test_arithmetic*.mojo test_broadcasting*.mojo test_shape*.mojo test_creation*.mojo test_reduction*.mojo test_matrix*.mojo test_matmul*.mojo test_strassen.mojo test_pooling*.mojo test_properties*.mojo test_high_dimensional*.mojo test_slicing*.mojo"
+            pattern: "test_tensors*.mojo test_arithmetic*.mojo test_broadcasting*.mojo test_shape*.mojo test_creation*.mojo test_reduction*.mojo test_matrix*.mojo test_matmul*.mojo test_strassen.mojo test_pooling*.mojo test_properties*.mojo test_high_dimensional*.mojo test_slicing*.mojo test_elementwise*.mojo test_comparison_ops*.mojo test_edge_cases*.mojo test_concatenate*.mojo test_reshape*.mojo"
           # ---- Activations + dtype dispatch ----
+          # Explicit file list — the previous catch-all "test_*.mojo" matched ALL 250+
+          # files in tests/shared/core/, causing 15-min timeouts and duplicate test runs.
           - name: "Core Activations & Types"
             path: "tests/shared/core"
-            pattern: "test_*.mojo"
+            pattern: "test_activation_funcs_part1.mojo test_activation_funcs_part2.mojo test_activation_funcs_part3.mojo test_activation_ops.mojo test_activations_part1.mojo test_activations_part2.mojo test_activations_part3.mojo test_activations_part4.mojo test_activations_part5.mojo test_activations_part6.mojo test_advanced_activations_part1.mojo test_advanced_activations_part2.mojo test_advanced_activations_part3.mojo test_dtype_dispatch_part1.mojo test_dtype_dispatch_part2.mojo test_dtype_dispatch_part3.mojo test_dtype_ordinal.mojo"
           # ---- Loss functions split per ADR-009 ----
           - name: "Core Loss"
             path: "tests/shared/core"
@@ -259,7 +261,7 @@ jobs:
           # Non-blocking pending Mojo runtime fix.
           - name: "Core Gradient"
             path: "tests/shared/core"
-            pattern: "test_backward_linear.mojo test_backward_conv_pool.mojo test_backward_losses.mojo test_gradient_checking_basic.mojo test_gradient_checking_dtype.mojo test_gradient_validation_activations.mojo test_gradient_validation_layers.mojo test_gradient_validation.mojo test_variable_backward.mojo test_depthwise_conv_grad_check.mojo"
+            pattern: "test_backward_linear.mojo test_backward_conv*.mojo test_backward_losses.mojo test_gradient_checking*.mojo test_gradient_validation*.mojo test_variable_backward.mojo test_depthwise_conv_grad_check.mojo"
           # ---- Core Utilities ----
           # NOTE: This pattern has 28+ explicit file patterns and is difficult to maintain.
           # Consider refactoring by moving layer-specific tests to tests/shared/core/layers/
@@ -270,7 +272,7 @@ jobs:
           #   test_extensor_multidim_int_str.mojo, test_extensor_slicing_view_strides.mojo
           - name: "Core Utilities"
             path: "tests/shared/core"
-            pattern: "test_utilities.mojo test_utility*.mojo test_utils*.mojo test_validation*.mojo test_integration*.mojo test_inplace_simd.mojo test_lazy_expression.mojo test_memory_pool_part*.mojo test_constants.mojo test_extensor_*.mojo test_setitem_view_part*.mojo test_memory_leaks*.mojo test_initializers_*.mojo test_layers*.mojo test_linear*.mojo test_conv*.mojo test_normalization*.mojo test_dropout_part*.mojo test_module.mojo test_composed_op*.mojo test_hash.mojo test_sequential.mojo"
+            pattern: "test_utilities.mojo test_utility*.mojo test_utils*.mojo test_validation*.mojo test_integration*.mojo test_inplace_simd.mojo test_lazy_expression.mojo test_memory_pool_part*.mojo test_constants.mojo test_extensor_*.mojo test_setitem_view_part*.mojo test_memory_leaks*.mojo test_initializers_*.mojo test_layers*.mojo test_linear*.mojo test_conv*.mojo test_normalization*.mojo test_dropout_part*.mojo test_module.mojo test_composed_op*.mojo test_hash.mojo test_sequential.mojo test_int_bitwise*.mojo test_uint_bitwise*.mojo test_unsigned*.mojo test_normalize_slice*.mojo test_jit_crash*.mojo"
           # ---- All data subsystems (formats/datasets/samplers/transforms/loaders) ----
           # NOTE: Some data tests (test_prefetch, test_random_transform_base) crash
           # on CI with heap corruption — non-blocking pending investigation

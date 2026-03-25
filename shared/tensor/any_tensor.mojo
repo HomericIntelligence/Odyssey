@@ -496,6 +496,7 @@ struct AnyTensor(
                     pooled_free(self._data, self._allocated_size)
                 self._refcount.free()
 
+    @always_inline
     fn _get_dtype_size(self) -> Int:
         """Get size in bytes for the tensor's dtype."""
         return AnyTensor._get_dtype_size_static(self._dtype)
@@ -1412,6 +1413,7 @@ struct AnyTensor(
 
         return result^
 
+    @always_inline
     fn _get_float64(self, index: Int) -> Float64:
         """Internal: Get value at index as Float64 (assumes float-compatible dtype).
 
@@ -1446,6 +1448,7 @@ struct AnyTensor(
             # For integer types, cast to float64
             return Float64(self._get_int64(index))
 
+    @always_inline
     fn _set_float64(self, index: Int, value: Float64):
         """Internal: Set value at index (assumes float-compatible dtype).
 
@@ -1472,6 +1475,7 @@ struct AnyTensor(
             # For integer types, truncate Float64 to Int64 and delegate
             self._set_int64(index, Int64(value))
 
+    @always_inline
     fn _get_float32(self, index: Int) -> Float32:
         """Internal: Get value at index as Float32 (assumes float-compatible dtype).
 
@@ -1504,6 +1508,7 @@ struct AnyTensor(
             # For integer types, cast to float32
             return Float32(self._get_int64(index))
 
+    @always_inline
     fn _set_float32(self, index: Int, value: Float32):
         """Internal: Set value at index as Float32 (assumes float-compatible dtype).
 
@@ -1535,6 +1540,7 @@ struct AnyTensor(
             # For integer types, truncate Float32 to Int64 and delegate
             self._set_int64(index, Int64(value))
 
+    @always_inline
     fn _get_int64(self, index: Int) -> Int64:
         """Internal: Get value at index as Int64 (assumes integer-compatible dtype).
 
@@ -1577,6 +1583,7 @@ struct AnyTensor(
         else:
             return 0  # Default fallback
 
+    @always_inline
     fn _set_int64(self, index: Int, value: Int64):
         """Internal: Set value at index (assumes integer-compatible dtype).
 
