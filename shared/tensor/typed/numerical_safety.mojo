@@ -1,13 +1,22 @@
 """Typed Tensor[dtype] numerical safety cores.
 
 Internal module -- not part of the public API.
+
+SIMD-vectorized implementations for hot-path NaN/Inf detection.
+has_nan/has_inf use manual SIMD loops with early exit.
+count_nan/count_inf use vectorize[] with lane reduction.
 """
 
-from math import isnan, isinf, sqrt
+from math import isnan, isinf, sqrt, nan
+from sys import simd_width_of
+from algorithm import vectorize
 from shared.tensor.tensor import Tensor
 
 fn _has_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
-    """Check if typed tensor contains any NaN values (core implementation).
+    """Check if typed tensor contains any NaN values (SIMD-vectorized).
+
+    Uses manual SIMD loop with early exit for maximum throughput.
+    Falls back to scalar loop for tail elements.
 
     Parameters:
         dtype: Compile-time dtype parameter.
@@ -25,20 +34,30 @@ fn _has_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
 
     var size = tensor.numel()
     var ptr = tensor._data
-    for i in range(size):
-        @parameter
-        if dtype == DType.float16:
-            if isnan(Float32(ptr[i])):
-                return True
-        else:
-            if isnan(ptr[i]):
-                return True
+    comptime simd_w = simd_width_of[dtype]()
+
+    # SIMD loop with early exit
+    var i = 0
+    while i + simd_w <= size:
+        var vec = ptr.load[width=simd_w](i)
+        if isnan(vec).reduce_or():
+            return True
+        i += simd_w
+
+    # Scalar tail
+    while i < size:
+        if isnan(ptr[i]):
+            return True
+        i += 1
     return False
 
 
 
 fn _has_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
-    """Check if typed tensor contains any Inf values (core implementation).
+    """Check if typed tensor contains any Inf values (SIMD-vectorized).
+
+    Uses manual SIMD loop with early exit for maximum throughput.
+    Falls back to scalar loop for tail elements.
 
     Parameters:
         dtype: Compile-time dtype parameter.
@@ -55,20 +74,29 @@ fn _has_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
 
     var size = tensor.numel()
     var ptr = tensor._data
-    for i in range(size):
-        @parameter
-        if dtype == DType.float16:
-            if isinf(Float32(ptr[i])):
-                return True
-        else:
-            if isinf(ptr[i]):
-                return True
+    comptime simd_w = simd_width_of[dtype]()
+
+    # SIMD loop with early exit
+    var i = 0
+    while i + simd_w <= size:
+        var vec = ptr.load[width=simd_w](i)
+        if isinf(vec).reduce_or():
+            return True
+        i += simd_w
+
+    # Scalar tail
+    while i < size:
+        if isinf(ptr[i]):
+            return True
+        i += 1
     return False
 
 
 
 fn _count_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
-    """Count NaN values in typed tensor (core implementation).
+    """Count NaN values in typed tensor (SIMD-vectorized).
+
+    Uses vectorize[] with SIMD lane reduction for parallel counting.
 
     Parameters:
         dtype: Compile-time dtype parameter.
@@ -86,20 +114,22 @@ fn _count_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
     var size = tensor.numel()
     var count = 0
     var ptr = tensor._data
-    for i in range(size):
-        @parameter
-        if dtype == DType.float16:
-            if isnan(Float32(ptr[i])):
-                count += 1
-        else:
-            if isnan(ptr[i]):
-                count += 1
+    comptime simd_w = simd_width_of[dtype]()
+
+    @parameter
+    fn _count[width: Int](idx: Int) unified {mut}:
+        var vec = ptr.load[width=width](idx)
+        count += Int(isnan(vec).cast[DType.uint8]().reduce_add())
+
+    vectorize[simd_w](size, _count)
     return count
 
 
 
 fn _count_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
-    """Count Inf values in typed tensor (core implementation).
+    """Count Inf values in typed tensor (SIMD-vectorized).
+
+    Uses vectorize[] with SIMD lane reduction for parallel counting.
 
     Parameters:
         dtype: Compile-time dtype parameter.
@@ -117,14 +147,14 @@ fn _count_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
     var size = tensor.numel()
     var count = 0
     var ptr = tensor._data
-    for i in range(size):
-        @parameter
-        if dtype == DType.float16:
-            if isinf(Float32(ptr[i])):
-                count += 1
-        else:
-            if isinf(ptr[i]):
-                count += 1
+    comptime simd_w = simd_width_of[dtype]()
+
+    @parameter
+    fn _count[width: Int](idx: Int) unified {mut}:
+        var vec = ptr.load[width=width](idx)
+        count += Int(isinf(vec).cast[DType.uint8]().reduce_add())
+
+    vectorize[simd_w](size, _count)
     return count
 
 
