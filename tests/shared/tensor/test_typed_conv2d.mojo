@@ -132,9 +132,12 @@ fn test_conv2d_backward_typed() raises:
     var grad_output = Tensor[DType.float32](output.shape())
     for i in range(grad_output.numel()):
         grad_output._data[i] = Scalar[DType.float32](1.0)
-    var (grad_input, grad_weight, grad_bias) = layer.backward(
+    var grads = layer.backward(
         grad_output.as_any(), input.as_any()
     )
+    var grad_input = grads[0]
+    var grad_weight = grads[1]
+    var grad_bias = grads[2]
     # grad_input should match input shape
     assert_true(grad_input.numel() == input.numel(), "grad_input numel")
     assert_true(grad_input.get_dtype() == DType.float32, "grad_input dtype")

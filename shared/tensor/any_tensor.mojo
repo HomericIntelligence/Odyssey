@@ -1361,7 +1361,8 @@ struct AnyTensor(
                     end = size + end
                 start = max(0, min(start, size))
                 end = max(0, min(end, size))
-                if start != 0 or end != size:
+                var sl_step = s.step.or_else(1)
+                if start != 0 or end != size or sl_step != 1:
                     can_use_memcpy = False
                     break
 

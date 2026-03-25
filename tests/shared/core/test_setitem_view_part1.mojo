@@ -134,14 +134,14 @@ fn test_setitem_view_does_not_corrupt_adjacent_elements() raises:
 
     # Check elements outside the slice are unchanged
     for i in range(3):
-        assert_value_at(original, i, 1.0, message="original should be 1.0")
+        assert_value_at(original, i, 1.0, tolerance=1e-6, message="original[" + String(i) + "] should be 1.0")
 
     for i in range(7, 10):
-        assert_value_at(original, i, 1.0, message="original should be 1.0")
+        assert_value_at(original, i, 1.0, tolerance=1e-6, message="original[" + String(i) + "] should be 1.0")
 
     # Check elements inside the slice are updated
     for i in range(3, 7):
-        assert_value_at(original, i, 99.0, message="original should be 99.0")
+        assert_value_at(original, i, 99.0, tolerance=1e-6, message="original[" + String(i) + "] should be 99.0")
 
 
 # ============================================================================
