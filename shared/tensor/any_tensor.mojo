@@ -488,7 +488,12 @@ struct AnyTensor(
 
             # If last reference, free everything
             if self._refcount[] == 0:
-                pooled_free(self._data, self._allocated_size)
+                # Views share the parent tensor's data allocation — their
+                # _data pointer is an offset into the parent's buffer, not
+                # a separately malloc'd address. Only non-view tensors own
+                # their data allocation and should free it.
+                if not self._is_view:
+                    pooled_free(self._data, self._allocated_size)
                 self._refcount.free()
 
     fn _get_dtype_size(self) -> Int:
