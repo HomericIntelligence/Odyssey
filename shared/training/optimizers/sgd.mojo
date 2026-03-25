@@ -215,32 +215,34 @@ fn sgd_momentum_update_inplace(
 
     # Dispatch based on dtype
     if param.dtype() == DType.float32:
-        var param_data = param._data.bitcast[Float32]()
-        var grad_data = grad._data.bitcast[Float32]()
-        var velocity_data = velocity._data.bitcast[Float32]()
-
         var lr_f32 = Float32(lr)
         var momentum_f32 = Float32(momentum)
 
         # Update velocity and parameters in-place
         for i in range(numel):
             # velocity = momentum * velocity - lr * grad
-            velocity_data[i] = (
-                momentum_f32 * velocity_data[i] - lr_f32 * grad_data[i]
+            var v = (
+                momentum_f32 * velocity.load[DType.float32](i)
+                - lr_f32 * grad.load[DType.float32](i)
             )
+            velocity.store[DType.float32](i, v)
             # param = param + velocity
-            param_data[i] += velocity_data[i]
+            param.store[DType.float32](
+                i, param.load[DType.float32](i) + v
+            )
     elif param.dtype() == DType.float64:
-        var param_data = param._data.bitcast[Float64]()
-        var grad_data = grad._data.bitcast[Float64]()
-        var velocity_data = velocity._data.bitcast[Float64]()
-
         # Update velocity and parameters in-place
         for i in range(numel):
             # velocity = momentum * velocity - lr * grad
-            velocity_data[i] = momentum * velocity_data[i] - lr * grad_data[i]
+            var v = (
+                momentum * velocity.load[DType.float64](i)
+                - lr * grad.load[DType.float64](i)
+            )
+            velocity.store[DType.float64](i, v)
             # param = param + velocity
-            param_data[i] += velocity_data[i]
+            param.store[DType.float64](
+                i, param.load[DType.float64](i) + v
+            )
     else:
         raise Error(
             "sgd_momentum_update_inplace only supports float32 and float64"

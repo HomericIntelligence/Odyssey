@@ -86,34 +86,37 @@ fn accumulate_gradient_inplace(
 fn _accumulate_float32(
     mut accumulated: AnyTensor, new_grad: AnyTensor, size: Int
 ) raises:
-    """Direct float32 accumulation using pointer operations."""
-    var acc_ptr = accumulated._data.bitcast[Float32]()
-    var grad_ptr = new_grad._data.bitcast[Float32]()
-
+    """Direct float32 accumulation using load/store operations."""
     for i in range(size):
-        acc_ptr[i] = acc_ptr[i] + grad_ptr[i]
+        accumulated.store[DType.float32](
+            i,
+            accumulated.load[DType.float32](i)
+            + new_grad.load[DType.float32](i),
+        )
 
 
 fn _accumulate_float16(
     mut accumulated: AnyTensor, new_grad: AnyTensor, size: Int
 ) raises:
-    """Direct float16 accumulation using pointer operations."""
-    var acc_ptr = accumulated._data.bitcast[Float16]()
-    var grad_ptr = new_grad._data.bitcast[Float16]()
-
+    """Direct float16 accumulation using load/store operations."""
     for i in range(size):
-        acc_ptr[i] = acc_ptr[i] + grad_ptr[i]
+        accumulated.store[DType.float16](
+            i,
+            accumulated.load[DType.float16](i)
+            + new_grad.load[DType.float16](i),
+        )
 
 
 fn _accumulate_bfloat16(
     mut accumulated: AnyTensor, new_grad: AnyTensor, size: Int
 ) raises:
-    """Direct bfloat16 accumulation using pointer operations."""
-    var acc_ptr = accumulated._data.bitcast[Scalar[BF16]]()
-    var grad_ptr = new_grad._data.bitcast[Scalar[BF16]]()
-
+    """Direct bfloat16 accumulation using load/store operations."""
     for i in range(size):
-        acc_ptr[i] = acc_ptr[i] + grad_ptr[i]
+        accumulated.store[DType.bfloat16](
+            i,
+            accumulated.load[DType.bfloat16](i)
+            + new_grad.load[DType.bfloat16](i),
+        )
 
 
 fn _accumulate_fallback(
@@ -166,29 +169,29 @@ fn scale_gradient_inplace(mut gradient: AnyTensor, scale: Float32) raises:
 
 
 fn _scale_float32(mut gradient: AnyTensor, scale: Float32, size: Int) raises:
-    """Direct float32 scaling using pointer operations."""
-    var grad_ptr = gradient._data.bitcast[Float32]()
-
+    """Direct float32 scaling using load/store operations."""
     for i in range(size):
-        grad_ptr[i] = grad_ptr[i] * scale
+        gradient.store[DType.float32](
+            i, gradient.load[DType.float32](i) * scale
+        )
 
 
 fn _scale_float16(mut gradient: AnyTensor, scale: Float16, size: Int) raises:
-    """Direct float16 scaling using pointer operations."""
-    var grad_ptr = gradient._data.bitcast[Float16]()
-
+    """Direct float16 scaling using load/store operations."""
     for i in range(size):
-        grad_ptr[i] = grad_ptr[i] * scale
+        gradient.store[DType.float16](
+            i, gradient.load[DType.float16](i) * scale
+        )
 
 
 fn _scale_bfloat16(
     mut gradient: AnyTensor, scale: Scalar[BF16], size: Int
 ) raises:
-    """Direct bfloat16 scaling using pointer operations."""
-    var grad_ptr = gradient._data.bitcast[Scalar[BF16]]()
-
+    """Direct bfloat16 scaling using load/store operations."""
     for i in range(size):
-        grad_ptr[i] = grad_ptr[i] * scale
+        gradient.store[DType.bfloat16](
+            i, gradient.load[DType.bfloat16](i) * scale
+        )
 
 
 fn _scale_fallback(mut gradient: AnyTensor, scale: Float64, size: Int) raises:
@@ -237,27 +240,21 @@ fn zero_gradient_inplace(mut gradient: AnyTensor) raises:
 
 
 fn _zero_float32(mut gradient: AnyTensor, size: Int) raises:
-    """Direct float32 zeroing using pointer operations."""
-    var grad_ptr = gradient._data.bitcast[Float32]()
-
+    """Direct float32 zeroing using load/store operations."""
     for i in range(size):
-        grad_ptr[i] = 0.0
+        gradient.store[DType.float32](i, Float32(0.0))
 
 
 fn _zero_float16(mut gradient: AnyTensor, size: Int) raises:
-    """Direct float16 zeroing using pointer operations."""
-    var grad_ptr = gradient._data.bitcast[Float16]()
-
+    """Direct float16 zeroing using load/store operations."""
     for i in range(size):
-        grad_ptr[i] = 0.0
+        gradient.store[DType.float16](i, Float16(0.0))
 
 
 fn _zero_bfloat16(mut gradient: AnyTensor, size: Int) raises:
-    """Direct bfloat16 zeroing using pointer operations."""
-    var grad_ptr = gradient._data.bitcast[Scalar[BF16]]()
-
+    """Direct bfloat16 zeroing using load/store operations."""
     for i in range(size):
-        grad_ptr[i] = 0.0
+        gradient.store[DType.bfloat16](i, Scalar[BF16](0.0))
 
 
 fn _zero_fallback(mut gradient: AnyTensor, size: Int) raises:

@@ -51,7 +51,7 @@ fn validation_step(
     var loss_tensor = compute_loss(predictions, labels)
 
     # Extract scalar loss
-    var loss_value = Float64(loss_tensor._data.bitcast[Float32]()[0])
+    var loss_value = Float64(loss_tensor.load[DType.float32](0))
 
     return loss_value
 
@@ -133,9 +133,9 @@ fn validate(
         var f1 = confusion_matrix.get_f1_score()
         print("  Per-class Precision/Recall/F1:")
         for i in range(num_classes):
-            var p = precision._data.bitcast[Float64]()[i]
-            var r = recall._data.bitcast[Float64]()[i]
-            var f = f1._data.bitcast[Float64]()[i]
+            var p = precision.load[DType.float64](i)
+            var r = recall.load[DType.float64](i)
+            var f = f1.load[DType.float64](i)
             print(
                 "    Class "
                 + String(i)
