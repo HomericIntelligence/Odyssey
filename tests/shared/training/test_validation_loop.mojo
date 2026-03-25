@@ -485,6 +485,90 @@ fn test_confusion_matrix_all_wrong() raises:
 
 
 # ============================================================================
+# Helper: identity forward (returns input unchanged for controlled logits)
+# ============================================================================
+
+
+fn identity_forward(data: AnyTensor) raises -> AnyTensor:
+    """Identity forward: returns the input data unchanged.
+
+    Used to control predictions via crafted input logits.
+    """
+    return data
+
+
+# ============================================================================
+# ValidationLoop Confusion Matrix Integration Test (Issue #3185)
+# ============================================================================
+
+
+fn test_validation_loop_confusion_matrix_integration() raises:
+    """Integration test: ValidationLoop populates confusion matrix with correct counts.
+
+    Constructs ValidationLoop(compute_confusion=True, num_classes=2), runs
+    validation with crafted 2-column logit data and known int32 labels,
+    then inspects vloop.confusion_matrix to verify exact cell counts.
+
+    Fixture (single batch of 4 samples):
+        Data (logits):  [[1.0, 0.0], [0.0, 1.0], [0.0, 1.0], [1.0, 0.0]]
+        -> argmax:      [0, 1, 1, 0]
+        Labels:         [0, 1, 0, 1]
+
+    Expected confusion matrix (row=true, col=pred):
+            pred=0  pred=1
+    true=0    1       1    (TN=1, FP=1)
+    true=1    1       1    (FN=1, TP=1)
+
+    Closes #3185.
+    """
+    var vloop = ValidationLoop(
+        compute_confusion=True, compute_accuracy=False, num_classes=2
+    )
+
+    # Construct data: 4 samples, 2 logit columns
+    var n_samples = 4
+    var data_shape = List[Int]()
+    data_shape.append(n_samples)
+    data_shape.append(2)
+    var data = AnyTensor(data_shape, DType.float32)
+    # Row 0: [1.0, 0.0] -> argmax=0
+    data._data.bitcast[Float32]()[0] = Float32(1.0)
+    data._data.bitcast[Float32]()[1] = Float32(0.0)
+    # Row 1: [0.0, 1.0] -> argmax=1
+    data._data.bitcast[Float32]()[2] = Float32(0.0)
+    data._data.bitcast[Float32]()[3] = Float32(1.0)
+    # Row 2: [0.0, 1.0] -> argmax=1
+    data._data.bitcast[Float32]()[4] = Float32(0.0)
+    data._data.bitcast[Float32]()[5] = Float32(1.0)
+    # Row 3: [1.0, 0.0] -> argmax=0
+    data._data.bitcast[Float32]()[6] = Float32(1.0)
+    data._data.bitcast[Float32]()[7] = Float32(0.0)
+
+    var labels_shape = List[Int]()
+    labels_shape.append(n_samples)
+    var labels = AnyTensor(labels_shape, DType.int32)
+    labels._data.bitcast[Int32]()[0] = Int32(0)
+    labels._data.bitcast[Int32]()[1] = Int32(1)
+    labels._data.bitcast[Int32]()[2] = Int32(0)
+    labels._data.bitcast[Int32]()[3] = Int32(1)
+
+    var loader = DataLoader(data^, labels^, batch_size=4)
+    var metrics = TrainingMetrics()
+
+    # Run validation through ValidationLoop (the full integration path)
+    _ = vloop.run(identity_forward, simple_loss, loader, metrics)
+
+    # Inspect the confusion matrix stored on ValidationLoop
+    var raw = vloop.confusion_matrix.normalize(mode="none")
+    # Matrix layout: raw[row*2 + col] where row=true, col=pred
+    assert_equal_int(Int(raw._data.bitcast[Float64]()[0]), 1)  # [0,0] TN=1
+    assert_equal_int(Int(raw._data.bitcast[Float64]()[1]), 1)  # [0,1] FP=1
+    assert_equal_int(Int(raw._data.bitcast[Float64]()[2]), 1)  # [1,0] FN=1
+    assert_equal_int(Int(raw._data.bitcast[Float64]()[3]), 1)  # [1,1] TP=1
+    print("  test_validation_loop_confusion_matrix_integration: PASSED")
+
+
+# ============================================================================
 # Test Main
 # ============================================================================
 
@@ -524,5 +608,6 @@ fn main() raises:
     test_confusion_matrix_binary_counts()
     test_confusion_matrix_all_correct()
     test_confusion_matrix_all_wrong()
+    test_validation_loop_confusion_matrix_integration()
 
     print("\nAll validation loop tests passed!")
