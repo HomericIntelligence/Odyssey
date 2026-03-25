@@ -4,12 +4,16 @@
 
 """Gradient checking tests for depthwise_conv2d backward pass.
 
+Uses non-uniform input values and explicit epsilon/tolerance to avoid
+degenerate gradient patterns from uniform (ones) inputs. See issue #3282
+and the depthwise-conv2d-gradient-checking skill for rationale.
+
 Note: Split from test_gradient_checking.mojo due to Mojo 0.26.1 heap
 corruption bug that occurs after ~15 cumulative tests. See ADR-009.
 """
 
-from tests.shared.conftest import assert_true
-from shared.testing import check_gradients
+from shared.testing.gradient_checker import check_gradients
+from shared.testing.assertions import assert_true
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.conv import depthwise_conv2d, depthwise_conv2d_backward
 
@@ -21,18 +25,22 @@ fn test_depthwise_conv2d_gradient_kernel_basic() raises:
     shape.append(2)  # channels
     shape.append(4)  # height
     shape.append(4)  # width
-    var input = ones(shape, DType.float32)
+    var input = zeros(shape, DType.float32)
+    for i in range(input.numel()):
+        input._data.bitcast[Float32]()[i] = Float32(i) * Float32(0.1)
 
     var kernel_shape = List[Int]()
     kernel_shape.append(2)  # channels
     kernel_shape.append(1)  # 1 for depthwise
     kernel_shape.append(3)  # kernel height
     kernel_shape.append(3)  # kernel width
-    var kernel = ones(kernel_shape, DType.float32)
+    var kernel = zeros(kernel_shape, DType.float32)
+    for i in range(kernel.numel()):
+        kernel._data.bitcast[Float32]()[i] = Float32(i) * Float32(0.05) + Float32(0.1)
 
     var bias_shape = List[Int]()
     bias_shape.append(2)  # channels
-    var bias = ones(bias_shape, DType.float32)
+    var bias = zeros(bias_shape, DType.float32)
 
     fn forward(k: AnyTensor) raises escaping -> AnyTensor:
         return depthwise_conv2d(input, k, bias, stride=1, padding=1)
@@ -41,7 +49,7 @@ fn test_depthwise_conv2d_gradient_kernel_basic() raises:
         var result = depthwise_conv2d_backward(grad_out, input, k, stride=1, padding=1)
         return result.grad_weights
 
-    var passed = check_gradients(forward, backward, kernel)
+    var passed = check_gradients(forward, backward, kernel, tolerance=1e-2)
     assert_true(passed, "depthwise_conv2d kernel gradient check failed")
 
 
@@ -52,18 +60,22 @@ fn test_depthwise_conv2d_gradient_bias_basic() raises:
     shape.append(2)  # channels
     shape.append(4)  # height
     shape.append(4)  # width
-    var input = ones(shape, DType.float32)
+    var input = zeros(shape, DType.float32)
+    for i in range(input.numel()):
+        input._data.bitcast[Float32]()[i] = Float32(i) * Float32(0.1)
 
     var kernel_shape = List[Int]()
     kernel_shape.append(2)  # channels
     kernel_shape.append(1)  # 1 for depthwise
     kernel_shape.append(3)  # kernel height
     kernel_shape.append(3)  # kernel width
-    var kernel = ones(kernel_shape, DType.float32)
+    var kernel = zeros(kernel_shape, DType.float32)
+    for i in range(kernel.numel()):
+        kernel._data.bitcast[Float32]()[i] = Float32(i) * Float32(0.05) + Float32(0.1)
 
     var bias_shape = List[Int]()
     bias_shape.append(2)  # channels
-    var bias = ones(bias_shape, DType.float32)
+    var bias = zeros(bias_shape, DType.float32)
 
     fn forward(b: AnyTensor) raises escaping -> AnyTensor:
         return depthwise_conv2d(input, kernel, b, stride=1, padding=1)
@@ -72,7 +84,7 @@ fn test_depthwise_conv2d_gradient_bias_basic() raises:
         var result = depthwise_conv2d_backward(grad_out, input, kernel, stride=1, padding=1)
         return result.grad_bias
 
-    var passed = check_gradients(forward, backward, bias)
+    var passed = check_gradients(forward, backward, bias, tolerance=1e-2)
     assert_true(passed, "depthwise_conv2d bias gradient check failed")
 
 
@@ -83,18 +95,22 @@ fn test_depthwise_conv2d_gradient_input_basic() raises:
     shape.append(2)  # channels
     shape.append(4)  # height
     shape.append(4)  # width
-    var input = ones(shape, DType.float32)
+    var input = zeros(shape, DType.float32)
+    for i in range(input.numel()):
+        input._data.bitcast[Float32]()[i] = Float32(i) * Float32(0.1)
 
     var kernel_shape = List[Int]()
     kernel_shape.append(2)  # channels
     kernel_shape.append(1)  # 1 for depthwise
     kernel_shape.append(3)  # kernel height
     kernel_shape.append(3)  # kernel width
-    var kernel = ones(kernel_shape, DType.float32)
+    var kernel = zeros(kernel_shape, DType.float32)
+    for i in range(kernel.numel()):
+        kernel._data.bitcast[Float32]()[i] = Float32(i) * Float32(0.05) + Float32(0.1)
 
     var bias_shape = List[Int]()
     bias_shape.append(2)  # channels
-    var bias = ones(bias_shape, DType.float32)
+    var bias = zeros(bias_shape, DType.float32)
 
     fn forward(x: AnyTensor) raises escaping -> AnyTensor:
         return depthwise_conv2d(x, kernel, bias, stride=1, padding=1)
@@ -103,7 +119,7 @@ fn test_depthwise_conv2d_gradient_input_basic() raises:
         var result = depthwise_conv2d_backward(grad_out, x, kernel, stride=1, padding=1)
         return result.grad_input
 
-    var passed = check_gradients(forward, backward, input)
+    var passed = check_gradients(forward, backward, input, tolerance=1e-2)
     assert_true(passed, "depthwise_conv2d input gradient check failed")
 
 
@@ -114,18 +130,22 @@ fn test_depthwise_conv2d_gradient_kernel_strided() raises:
     shape.append(2)  # channels
     shape.append(6)  # height
     shape.append(6)  # width
-    var input = ones(shape, DType.float32)
+    var input = zeros(shape, DType.float32)
+    for i in range(input.numel()):
+        input._data.bitcast[Float32]()[i] = Float32(i) * Float32(0.1)
 
     var kernel_shape = List[Int]()
     kernel_shape.append(2)  # channels
     kernel_shape.append(1)  # 1 for depthwise
     kernel_shape.append(3)  # kernel height
     kernel_shape.append(3)  # kernel width
-    var kernel = ones(kernel_shape, DType.float32)
+    var kernel = zeros(kernel_shape, DType.float32)
+    for i in range(kernel.numel()):
+        kernel._data.bitcast[Float32]()[i] = Float32(i) * Float32(0.05) + Float32(0.1)
 
     var bias_shape = List[Int]()
     bias_shape.append(2)  # channels
-    var bias = ones(bias_shape, DType.float32)
+    var bias = zeros(bias_shape, DType.float32)
 
     fn forward(k: AnyTensor) raises escaping -> AnyTensor:
         return depthwise_conv2d(input, k, bias, stride=2, padding=1)
@@ -134,7 +154,7 @@ fn test_depthwise_conv2d_gradient_kernel_strided() raises:
         var result = depthwise_conv2d_backward(grad_out, input, k, stride=2, padding=1)
         return result.grad_weights
 
-    var passed = check_gradients(forward, backward, kernel)
+    var passed = check_gradients(forward, backward, kernel, tolerance=1e-2)
     assert_true(passed, "depthwise_conv2d kernel gradient check with stride=2 failed")
 
 
