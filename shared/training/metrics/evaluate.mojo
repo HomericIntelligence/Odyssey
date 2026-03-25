@@ -103,7 +103,7 @@ fn evaluate_logits_batch(logits: AnyTensor, labels: AnyTensor) raises -> Float32
         raise Error("evaluate_logits_batch: batch size mismatch")
 
     var correct = 0
-    var logits_data = logits._data.bitcast[Float32]()
+    var logits_data = logits.data_ptr[DType.float32]()
 
     for i in range(batch_size):
         # Find argmax for this sample
@@ -173,7 +173,7 @@ fn compute_accuracy_on_batch(
     if len(pred_shape) == 2:
         # Predictions are logits, compute argmax
         var num_classes = pred_shape[1]
-        var pred_data = predictions._data.bitcast[Float32]()
+        var pred_data = predictions.data_ptr[DType.float32]()
 
         for i in range(batch_size):
             # Find argmax for this sample
