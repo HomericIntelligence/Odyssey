@@ -7,10 +7,10 @@
 Verifies all three conv2d backward outputs via finite-difference gradient
 checking across three configurations: same-padding, strided, and multi-channel.
 
-Uses default epsilon=3e-4 (GRADIENT_CHECK_EPSILON_FLOAT32) instead of 1e-4.
-With epsilon=1e-4 and multi-channel configs (75 output elements, values ~44.5),
-accumulated float32 precision error exceeds 1e-2 absolute tolerance. The default
-3e-4 gives ~1.2% error, within tolerance. See issue #2704.
+Uses check_gradient() (not check_gradients()) because it applies combined
+relative+absolute tolerance: |diff| <= atol + rtol * max_magnitude. This is
+essential for multi-channel configs where gradient magnitudes reach ~30-45,
+making pure absolute tolerance of 0.01 too tight. See issue #2704.
 
 Test Coverage:
 - Config A (same-padding): stride=1, padding=1, input (1,1,4,4), kernel (1,1,3,3)
@@ -24,9 +24,16 @@ References:
 """
 
 from shared.core.conv import conv2d, conv2d_backward
-from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.testing.gradient_checker import check_gradients
-from shared.testing.assertions import assert_true
+from shared.tensor.any_tensor import AnyTensor, zeros, zeros_like
+from shared.testing.gradient_checker import check_gradient
+
+
+fn _make_ones_grad_output(output: AnyTensor) raises -> AnyTensor:
+    """Create ones grad_output matching output shape."""
+    var grad_output = zeros_like(output)
+    for i in range(output.numel()):
+        grad_output._set_float64(i, 1.0)
+    return grad_output^
 
 
 fn test_conv2d_same_padding_grad_input() raises:
@@ -60,8 +67,9 @@ fn test_conv2d_same_padding_grad_input() raises:
         var result = conv2d_backward(grad_out, inp, kernel, stride=1, padding=1)
         return result.grad_input
 
-    var passed = check_gradients(forward, backward_fn, x, tolerance=1e-2)
-    assert_true(passed, "Conv2D same-padding grad_input check failed")
+    var output = forward(x)
+    var grad_output = _make_ones_grad_output(output)
+    check_gradient(forward, backward_fn, x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 fn test_conv2d_same_padding_grad_weights() raises:
@@ -95,8 +103,9 @@ fn test_conv2d_same_padding_grad_weights() raises:
         var result = conv2d_backward(grad_out, x, k, stride=1, padding=1)
         return result.grad_weights
 
-    var passed = check_gradients(forward, backward_fn, kernel, tolerance=1e-2)
-    assert_true(passed, "Conv2D same-padding grad_weights check failed")
+    var output = forward(kernel)
+    var grad_output = _make_ones_grad_output(output)
+    check_gradient(forward, backward_fn, kernel, grad_output, rtol=1e-2, atol=1e-2)
 
 
 fn test_conv2d_same_padding_grad_bias() raises:
@@ -130,8 +139,9 @@ fn test_conv2d_same_padding_grad_bias() raises:
         var result = conv2d_backward(grad_out, x, kernel, stride=1, padding=1)
         return result.grad_bias
 
-    var passed = check_gradients(forward, backward_fn, bias, tolerance=1e-2)
-    assert_true(passed, "Conv2D same-padding grad_bias check failed")
+    var output = forward(bias)
+    var grad_output = _make_ones_grad_output(output)
+    check_gradient(forward, backward_fn, bias, grad_output, rtol=1e-2, atol=1e-2)
 
 
 fn test_conv2d_strided_grad_input() raises:
@@ -165,8 +175,9 @@ fn test_conv2d_strided_grad_input() raises:
         var result = conv2d_backward(grad_out, inp, kernel, stride=2, padding=0)
         return result.grad_input
 
-    var passed = check_gradients(forward, backward_fn, x, tolerance=1e-2)
-    assert_true(passed, "Conv2D strided grad_input check failed")
+    var output = forward(x)
+    var grad_output = _make_ones_grad_output(output)
+    check_gradient(forward, backward_fn, x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 fn test_conv2d_strided_grad_weights() raises:
@@ -200,8 +211,9 @@ fn test_conv2d_strided_grad_weights() raises:
         var result = conv2d_backward(grad_out, x, k, stride=2, padding=0)
         return result.grad_weights
 
-    var passed = check_gradients(forward, backward_fn, kernel, tolerance=1e-2)
-    assert_true(passed, "Conv2D strided grad_weights check failed")
+    var output = forward(kernel)
+    var grad_output = _make_ones_grad_output(output)
+    check_gradient(forward, backward_fn, kernel, grad_output, rtol=1e-2, atol=1e-2)
 
 
 fn test_conv2d_strided_grad_bias() raises:
@@ -235,8 +247,9 @@ fn test_conv2d_strided_grad_bias() raises:
         var result = conv2d_backward(grad_out, x, kernel, stride=2, padding=0)
         return result.grad_bias
 
-    var passed = check_gradients(forward, backward_fn, bias, tolerance=1e-2)
-    assert_true(passed, "Conv2D strided grad_bias check failed")
+    var output = forward(bias)
+    var grad_output = _make_ones_grad_output(output)
+    check_gradient(forward, backward_fn, bias, grad_output, rtol=1e-2, atol=1e-2)
 
 
 fn test_conv2d_multichannel_grad_input() raises:
@@ -270,8 +283,9 @@ fn test_conv2d_multichannel_grad_input() raises:
         var result = conv2d_backward(grad_out, inp, kernel, stride=1, padding=1)
         return result.grad_input
 
-    var passed = check_gradients(forward, backward_fn, x, tolerance=1e-2)
-    assert_true(passed, "Conv2D multi-channel grad_input check failed")
+    var output = forward(x)
+    var grad_output = _make_ones_grad_output(output)
+    check_gradient(forward, backward_fn, x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 fn test_conv2d_multichannel_grad_weights() raises:
@@ -305,8 +319,9 @@ fn test_conv2d_multichannel_grad_weights() raises:
         var result = conv2d_backward(grad_out, x, k, stride=1, padding=1)
         return result.grad_weights
 
-    var passed = check_gradients(forward, backward_fn, kernel, tolerance=1e-2)
-    assert_true(passed, "Conv2D multi-channel grad_weights check failed")
+    var output = forward(kernel)
+    var grad_output = _make_ones_grad_output(output)
+    check_gradient(forward, backward_fn, kernel, grad_output, rtol=1e-2, atol=1e-2)
 
 
 fn test_conv2d_multichannel_grad_bias() raises:
@@ -340,8 +355,9 @@ fn test_conv2d_multichannel_grad_bias() raises:
         var result = conv2d_backward(grad_out, x, kernel, stride=1, padding=1)
         return result.grad_bias
 
-    var passed = check_gradients(forward, backward_fn, bias, tolerance=1e-2)
-    assert_true(passed, "Conv2D multi-channel grad_bias check failed")
+    var output = forward(bias)
+    var grad_output = _make_ones_grad_output(output)
+    check_gradient(forward, backward_fn, bias, grad_output, rtol=1e-2, atol=1e-2)
 
 
 fn main() raises:
