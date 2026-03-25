@@ -82,14 +82,14 @@ fn top1_accuracy(predictions: AnyTensor, labels: AnyTensor) raises -> Float64:
         var label_val: Int
 
         if pred_classes._dtype == DType.int32:
-            pred_val = Int(pred_classes._data.bitcast[Int32]()[i])
+            pred_val = Int(pred_classes.load[DType.int32](i))
         else:  # int64.
-            pred_val = Int(pred_classes._data.bitcast[Int64]()[i])
+            pred_val = Int(pred_classes.load[DType.int64](i))
 
         if labels._dtype == DType.int32:
-            label_val = Int(labels._data.bitcast[Int32]()[i])
+            label_val = Int(labels.load[DType.int32](i))
         else:  # int64.
-            label_val = Int(labels._data.bitcast[Int64]()[i])
+            label_val = Int(labels.load[DType.int64](i))
 
         if pred_val == label_val:
             correct += 1
@@ -131,10 +131,10 @@ fn argmax(var tensor: AnyTensor, axis: Int) raises -> AnyTensor:
             # Get first value
             if tensor._dtype == DType.float32:
                 max_val = Float64(
-                    tensor._data.bitcast[Float32]()[b * num_classes]
+                    tensor.load[DType.float32](b * num_classes)
                 )
             else:  # float64
-                max_val = tensor._data.bitcast[Float64]()[b * num_classes]
+                max_val = Float64(tensor.load[DType.float64](b * num_classes))
 
             # Find max
             for c in range(1, num_classes):
@@ -142,9 +142,9 @@ fn argmax(var tensor: AnyTensor, axis: Int) raises -> AnyTensor:
                 var val: Float64
 
                 if tensor._dtype == DType.float32:
-                    val = Float64(tensor._data.bitcast[Float32]()[idx])
+                    val = Float64(tensor.load[DType.float32](idx))
                 else:
-                    val = tensor._data.bitcast[Float64]()[idx]
+                    val = Float64(tensor.load[DType.float64](idx))
 
                 if val > max_val:
                     max_val = val
@@ -211,9 +211,9 @@ fn topk_accuracy(
         # Get true label
         var label_val: Int
         if labels._dtype == DType.int32:
-            label_val = Int(labels._data.bitcast[Int32]()[b])
+            label_val = Int(labels.load[DType.int32](b))
         else:
-            label_val = Int(labels._data.bitcast[Int64]()[b])
+            label_val = Int(labels.load[DType.int64](b))
 
         # Get top-k indices for this sample
         var top_k_indices = get_topk_indices(predictions, b, k)
@@ -260,9 +260,9 @@ fn get_topk_indices(
     for c in range(num_classes):
         var idx = offset + c
         if predictions._dtype == DType.float32:
-            values.append(Float64(predictions._data.bitcast[Float32]()[idx]))
+            values.append(Float64(predictions.load[DType.float32](idx)))
         else:
-            values.append(predictions._data.bitcast[Float64]()[idx])
+            values.append(Float64(predictions.load[DType.float64](idx)))
         indices.append(c)
 
     # Simple selection: repeatedly find max and swap to front
@@ -344,14 +344,14 @@ fn per_class_accuracy(
         var label_val: Int
 
         if pred_classes._dtype == DType.int32:
-            pred_val = Int(pred_classes._data.bitcast[Int32]()[i])
+            pred_val = Int(pred_classes.load[DType.int32](i))
         else:
-            pred_val = Int(pred_classes._data.bitcast[Int64]()[i])
+            pred_val = Int(pred_classes.load[DType.int64](i))
 
         if labels._dtype == DType.int32:
-            label_val = Int(labels._data.bitcast[Int32]()[i])
+            label_val = Int(labels.load[DType.int32](i))
         else:
-            label_val = Int(labels._data.bitcast[Int64]()[i])
+            label_val = Int(labels.load[DType.int64](i))
 
         # Increment total count for true class
         total_counts[label_val] += 1
@@ -433,14 +433,14 @@ struct AccuracyMetric(Metric):
             var label_val: Int
 
             if pred_classes._dtype == DType.int32:
-                pred_val = Int(pred_classes._data.bitcast[Int32]()[i])
+                pred_val = Int(pred_classes.load[DType.int32](i))
             else:
-                pred_val = Int(pred_classes._data.bitcast[Int64]()[i])
+                pred_val = Int(pred_classes.load[DType.int64](i))
 
             if labels._dtype == DType.int32:
-                label_val = Int(labels._data.bitcast[Int32]()[i])
+                label_val = Int(labels.load[DType.int32](i))
             else:
-                label_val = Int(labels._data.bitcast[Int64]()[i])
+                label_val = Int(labels.load[DType.int64](i))
 
             if pred_val == label_val:
                 self.correct_count += 1

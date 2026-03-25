@@ -227,9 +227,9 @@ fn print_per_class_accuracy(
     for i in range(num_classes):
         var acc: Float64
         if per_class_accuracies._dtype == DType.float32:
-            acc = Float64(per_class_accuracies._data.bitcast[Float32]()[i])
+            acc = Float64(per_class_accuracies.load[DType.float32](i))
         else:  # float64.
-            acc = per_class_accuracies._data.bitcast[Float64]()[i]
+            acc = Float64(per_class_accuracies.load[DType.float64](i))
 
         var acc_str = String(acc)
 
@@ -400,11 +400,11 @@ fn print_confusion_matrix(
             var value: Float64
 
             if matrix._dtype == DType.int32:
-                value = Float64(matrix._data.bitcast[Int32]()[idx])
+                value = Float64(matrix.load[DType.int32](idx))
             elif matrix._dtype == DType.float32:
-                value = Float64(matrix._data.bitcast[Float32]()[idx])
+                value = Float64(matrix.load[DType.float32](idx))
             else:  # float64
-                value = matrix._data.bitcast[Float64]()[idx]
+                value = Float64(matrix.load[DType.float64](idx))
 
             var val_str: String
             if normalized:
