@@ -290,9 +290,34 @@ build-all:
     @just build release
     @just build test
 
-# CI: Build Mojo files with strict analysis (mojo build)
+# CI: Build and validate all Mojo code (entry points + shared library)
 ci-build:
+    @echo "Running CI build validation..."
+    @just build ci
+    @just package ci
+    @echo "✅ CI build validation complete"
 
+# Type-check shared library (compile without producing artifacts)
+check:
+    @just _run "just _check-inner"
+
+[private]
+_check-inner:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    REPO_ROOT="$(pwd)"
+    echo "🔍 Type-checking shared/ library..."
+
+    # Use mojo package to validate compilation (no --check flag available)
+    OUT=$(mktemp -d)
+    trap "rm -rf $OUT" EXIT
+
+    if pixi run mojo package --Werror -I "$REPO_ROOT" shared -o "$OUT/shared.mojopkg" 2>&1; then
+        echo "✅ shared/ type-check passed"
+    else
+        echo "❌ shared/ has compilation errors"
+        exit 1
+    fi
 
 # ==============================================================================
 # Package Recipes (mojo package - create .mojopkg libraries)
@@ -543,8 +568,7 @@ validate:
     @test -f pixi.toml && echo "✅ pixi.toml exists"
     @test -f docker-compose.yml && echo "✅ docker-compose.yml exists"
     @echo "Running full CI validation..."
-    @just build
-    @just package
+    @just ci-build
     @just test-mojo
     @echo "✅ Validation complete"
 
@@ -740,7 +764,7 @@ help:
     @echo ""
     @echo "Training:  train [model] [precision] [epochs], infer [model] [checkpoint]"
     @echo "           list-models, infer-image [model] [checkpoint] [image_path]"
-    @echo "Build:     build [mode], build-debug, build-release"
+    @echo "Build:     build [mode], build-debug, build-release, check, ci-build"
     @echo "Package:   package [mode], package-debug, package-release"
     @echo "Test:      test, test-python, test-group, test-mojo"
     @echo "Jupyter:   jupyter, jupyter-notebook, jupyter-validate, jupyter-clear"
