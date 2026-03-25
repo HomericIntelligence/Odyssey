@@ -1627,6 +1627,83 @@ struct AnyTensor(
         """
         self._set_int64(index, value.cast[DType.int64]())
 
+    # ===----------------------------------------------------------------------===#
+    # Parametric Element Access (compile-time dtype, no bounds check)
+    #
+    # These replace raw `_data.bitcast[T]()` patterns throughout the codebase.
+    # Use load[dtype]/store[dtype] for per-element access in inner loops.
+    # Use data_ptr[dtype]() when SIMD load/store or bulk pointer ops are needed.
+    #
+    # Why: Mojo's ASAP destruction can free tensors whose bitcast-derived
+    # pointers are still live (modular/modular#6187). These methods keep
+    # `self` alive for the duration of the access.
+    # ===----------------------------------------------------------------------===#
+
+    @always_inline
+    fn load[dtype: DType](self, index: Int) -> Scalar[dtype]:
+        """Load element at flat index as Scalar[dtype]. No bounds check.
+
+        The caller must ensure dtype matches self._dtype and index is in
+        bounds. Direct memory access for inner loops where dtype is known
+        at compile time.
+
+        Parameters:
+            dtype: Compile-time DType matching self._dtype.
+
+        Args:
+            index: Flat element index.
+
+        Returns:
+            Element value as Scalar[dtype].
+        """
+        debug_assert(
+            self._dtype == dtype,
+            "AnyTensor.load[dtype] mismatch",
+        )
+        return self._data.bitcast[Scalar[dtype]]()[index]
+
+    @always_inline
+    fn store[dtype: DType](self, index: Int, value: Scalar[dtype]):
+        """Store element at flat index. No bounds check.
+
+        The caller must ensure dtype matches self._dtype and index is in
+        bounds.
+
+        Parameters:
+            dtype: Compile-time DType matching self._dtype.
+
+        Args:
+            index: Flat element index.
+            value: Value to store.
+        """
+        debug_assert(
+            self._dtype == dtype,
+            "AnyTensor.store[dtype] mismatch",
+        )
+        self._data.bitcast[Scalar[dtype]]()[index] = value
+
+    @always_inline
+    fn data_ptr[dtype: DType](
+        self,
+    ) -> UnsafePointer[Scalar[dtype], origin=MutAnyOrigin]:
+        """Get typed pointer to underlying data for bulk operations.
+
+        SAFETY: Caller MUST keep the source tensor alive for the duration
+        of pointer use. The returned pointer is invalidated if the tensor
+        is destroyed.
+
+        Parameters:
+            dtype: Compile-time DType matching self._dtype.
+
+        Returns:
+            Typed UnsafePointer to element data.
+        """
+        debug_assert(
+            self._dtype == dtype,
+            "AnyTensor.data_ptr[dtype] mismatch",
+        )
+        return self._data.bitcast[Scalar[dtype]]()
+
     fn _fill_zero(mut self):
         """Internal: Fill tensor with zeros (works for all dtypes)."""
         var dtype_size = self._get_dtype_size()
