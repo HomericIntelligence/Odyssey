@@ -43,5 +43,5 @@ jobs:
       - name: Build and validate shared package
         run: |
           echo "Running CI build validation..."
-          NATIVE=1 just ci-build
+          just ci-build
           echo "✓ CI build validation succeeded"
