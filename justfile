@@ -575,6 +575,7 @@ _test-group-inner path pattern:
     test_count=0
     passed_count=0
     failed_count=0
+    jit_crash_count=0
     failed_tests=""
 
     echo "=================================================="
@@ -614,39 +615,21 @@ _test-group-inner path pattern:
     fi
 
     # Run each test file (with JIT crash retry — see #5104)
-    MAX_JIT_RETRIES=1
     for test_file in $test_files; do
         if [ -f "$test_file" ]; then
             echo ""
             echo "Running: $test_file"
             test_count=$((test_count + 1))
 
-            attempt=0
-            test_passed=false
-            while [ $attempt -le $MAX_JIT_RETRIES ]; do
-                output=$(pixi run mojo --Werror -I "$REPO_ROOT" -I . "$test_file" 2>&1) && {
-                    test_passed=true
-                    break
-                }
-                # Check if failure was a JIT crash (not an assertion failure)
-                if echo "$output" | grep -qi "execution crashed\|SIGABRT\|SIGSEGV\|libKGEN"; then
-                    attempt=$((attempt + 1))
-                    if [ $attempt -le $MAX_JIT_RETRIES ]; then
-                        echo "⚠️  JIT crash detected, retrying ($attempt/$MAX_JIT_RETRIES)..."
-                    fi
-                else
-                    # Real test failure (assertion, compilation, etc.) — don't retry
-                    echo "$output"
-                    break
-                fi
-            done
-
-            if $test_passed; then
-                echo "✅ PASSED: $test_file"
+            retry_result=0
+            bash "$REPO_ROOT/scripts/test-with-retry.sh" "$REPO_ROOT" "$test_file" || retry_result=$?
+            if [ $retry_result -eq 0 ]; then
                 passed_count=$((passed_count + 1))
+            elif [ $retry_result -eq 2 ]; then
+                failed_count=$((failed_count + 1))
+                jit_crash_count=$((jit_crash_count + 1))
+                failed_tests="$failed_tests\n  - $test_file (JIT crash)"
             else
-                echo "$output"
-                echo "❌ FAILED: $test_file"
                 failed_count=$((failed_count + 1))
                 failed_tests="$failed_tests\n  - $test_file"
             fi
@@ -660,6 +643,9 @@ _test-group-inner path pattern:
     echo "Total: $test_count tests"
     echo "Passed: $passed_count tests"
     echo "Failed: $failed_count tests"
+    if [ $jit_crash_count -gt 0 ]; then
+        echo "JIT crash retries: $jit_crash_count (persistent crashes after retry)"
+    fi
 
     # Guard against no tests being run (beyond initial empty check)
     if [ $test_count -eq 0 ]; then
@@ -713,8 +699,9 @@ _test-mojo-inner:
         fi
         if [ -f "$test_file" ]; then
             echo "Testing: $test_file"
-            if ! pixi run mojo --Werror -I "$REPO_ROOT" -I . "$test_file"; then
-                echo "❌ FAILED: $test_file"
+            retry_result=0
+            bash "$REPO_ROOT/scripts/test-with-retry.sh" "$REPO_ROOT" "$test_file" || retry_result=$?
+            if [ $retry_result -ne 0 ]; then
                 failed=1
             fi
         fi

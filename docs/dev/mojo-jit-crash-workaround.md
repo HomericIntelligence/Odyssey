@@ -3,8 +3,9 @@
 **Tracking**: Issue #3330, follow-up from #3120
 
 **Status**: The ADR-009 heap corruption workaround is **RESOLVED** (2026-03-20, bitcast UAF fix).
-No retry logic or `continue-on-error` masking exists in CI. All test failures are immediately
-visible. The test file splitting workaround from ADR-009 is no longer necessary.
+The test file splitting workaround from ADR-009 is no longer necessary. A per-file JIT crash
+retry mechanism was added (2026-03-25, ADR-014) to mitigate the remaining upstream JIT crash.
+Real test failures are never retried — only `execution crashed` (JIT fault) triggers a retry.
 
 The JIT crash described in this document (`libKGENCompilerRTShared.so`) is a separate upstream
 Mojo 0.26.1 compiler bug that is mitigated by targeted submodule imports (see below).
@@ -151,8 +152,38 @@ higher memory pressure than a single test file produces. The targeted import fix
 the correct defensive measure -- it reduces compilation footprint by ~95% per test file,
 which lowers the probability of hitting the JIT buffer overflow regardless of environment.
 
+## Per-File Retry Mitigation (2026-03-25)
+
+Despite targeted imports reducing JIT crash frequency, the crash still occurs non-deterministically
+in CI (~40-60% of runs have at least one crash). Since this is an upstream Mojo 0.26.1 compiler
+bug ([modular/modular#6187](https://github.com/modular/modular/issues/6187)), we added a per-file
+retry mechanism that detects JIT crashes and retries the affected test file once.
+
+**How it works**:
+
+- `scripts/test-with-retry.sh` wraps each `pixi run mojo` invocation
+- If the test exits non-zero AND output contains `execution crashed`, retry once
+- If the test exits non-zero without `execution crashed`, fail immediately (real test failure)
+- If the retry also crashes, report as JIT crash failure (exit code 2)
+- The justfile `_test-group-inner` and `_test-mojo-inner` recipes call this wrapper
+
+**Key property**: Real test failures (assertion errors, compile errors) are **never retried**.
+Only the JIT crash signature triggers a retry.
+
+**Exit codes from `scripts/test-with-retry.sh`**:
+
+| Code | Meaning |
+|------|---------|
+| 0 | Test passed (first attempt or after retry) |
+| 1 | Real test failure (not retried) |
+| 2 | JIT crash persisted after retry |
+
+See [ADR-014](../adr/ADR-014-jit-crash-retry-mitigation.md) for the full decision record.
+
 ## References
 
+- [Issue #5108](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5108) -- JIT crash comprehensive tracking
 - [Issue #3330](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3330) -- Document JIT crash workaround
 - [Issue #3120](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3120) -- Core Loss test crashes (follow-up context)
 - [ADR-009](../adr/ADR-009-heap-corruption-workaround.md) -- Heap corruption workaround (resolved 2026-03-20)
+- [ADR-014](../adr/ADR-014-jit-crash-retry-mitigation.md) -- JIT crash retry mitigation
