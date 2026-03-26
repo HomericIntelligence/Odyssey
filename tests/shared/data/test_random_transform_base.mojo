@@ -4,7 +4,7 @@ Verifies that RandomTransformBase correctly handles probability-based
 decisions for random transforms.
 """
 
-from shared.data import RandomTransformBase
+from shared.data.random_transform_base import RandomTransformBase
 from shared.testing import assert_true, assert_false, assert_equal
 
 

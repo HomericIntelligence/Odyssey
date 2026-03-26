@@ -9,7 +9,8 @@ Tests cover:
 
 
 from testing import assert_equal, assert_true, assert_false, assert_raises
-from shared.data import EMNISTDataset, AnyTensorDataset, Dataset
+from shared.data._datasets_core import EMNISTDataset
+from shared.data.datasets import AnyTensorDataset, Dataset
 from shared.tensor.any_tensor import AnyTensor
 
 

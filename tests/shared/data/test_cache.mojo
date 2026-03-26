@@ -9,7 +9,8 @@ from tests.shared.conftest import (
     assert_equal,
     assert_almost_equal,
 )
-from shared.data import AnyTensorDataset, CachedDataset
+from shared.data.datasets import AnyTensorDataset
+from shared.data.cache import CachedDataset
 from shared.tensor.any_tensor import AnyTensor, ones, zeros
 from collections import List
 

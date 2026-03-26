@@ -9,7 +9,8 @@ from tests.shared.conftest import (
     assert_equal,
     TestFixtures,
 )
-from shared.data import AnyTensorDataset, TransformedDataset
+from shared.data.datasets import AnyTensorDataset
+from shared.data.dataset_with_transform import TransformedDataset
 from shared.data.transforms import Normalize
 from shared.tensor.any_tensor import AnyTensor, ones, zeros
 from collections import List
