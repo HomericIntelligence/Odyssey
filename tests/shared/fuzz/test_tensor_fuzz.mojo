@@ -15,7 +15,7 @@ Fuzzing Categories:
     - Edge Cases: Empty tensors
 
 Usage:
-    mojo test tests/shared/fuzz/test_tensor_fuzz_part1.mojo
+    mojo test tests/shared/fuzz/test_tensor_fuzz.mojo
 
 Note:
     These tests use deterministic seeds for reproducibility.
@@ -27,6 +27,8 @@ from random import seed as random_seed
 from math import isnan, isinf
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.arithmetic import add, subtract, multiply, divide
+comptime DEFAULT_SEED: Int = 42
+
 from shared.testing.fuzz_core import (
     FuzzConfig,
     FuzzResult,
