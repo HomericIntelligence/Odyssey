@@ -35,6 +35,14 @@ Performance:
 References:
     - CS231n: http://cs231n.github.io/neural-networks-3/#gradcheck
     - Goodfellow et al., Deep Learning, Chapter 4.3
+
+Fix for intermittent JIT crashes (issue #5104):
+    All tight loops now use data_ptr[dtype]() to obtain typed pointers once
+    per loop scope, replacing per-element _get_float64/_set_float64 calls.
+    The per-element bitcast in _get/_set_float64 could trigger ASAP destruction
+    of the tensor while bitcast-derived pointers were still live
+    (modular/modular#6187). The data_ptr approach keeps the tensor alive for
+    the entire pointer scope.
 """
 
 from shared.tensor.any_tensor import AnyTensor, zeros_like
@@ -61,6 +69,36 @@ struct IndexGradientPair(Copyable, Movable):
 
     var index: Int
     var gradient: Float64
+
+
+# ============================================================================
+# Typed pointer helpers — eliminate per-element bitcast (fixes #5104)
+#
+# These helpers use data_ptr[dtype]() to get a typed pointer ONCE, then
+# index that pointer throughout the loop. This keeps the source tensor
+# alive for the entire scope, preventing ASAP destruction from freeing
+# tensor memory while a bitcast-derived pointer is still in use
+# (modular/modular#6187).
+# ============================================================================
+
+
+fn _get_val_as_f64[dtype: DType](tensor: AnyTensor, index: Int) -> Float64:
+    """Read tensor element at flat index as Float64 using typed pointer."""
+    var ptr = tensor.data_ptr[dtype]()
+    return Float64(ptr[index])
+
+
+fn _set_val_from_f64[dtype: DType](tensor: AnyTensor, index: Int, value: Float64):
+    """Write Float64 value to tensor element at flat index using typed pointer."""
+    var ptr = tensor.data_ptr[dtype]()
+    ptr[index] = Scalar[dtype](value)
+
+
+fn _fill_ones[dtype: DType](tensor: AnyTensor):
+    """Fill tensor with 1.0 using typed pointer."""
+    var ptr = tensor.data_ptr[dtype]()
+    for i in range(tensor.numel()):
+        ptr[i] = Scalar[dtype](1.0)
 
 
 fn _is_uniform_tensor(tensor: AnyTensor) -> Bool:
@@ -90,6 +128,92 @@ fn _is_uniform_tensor(tensor: AnyTensor) -> Bool:
         if abs(val - first_val) > 1e-9:
             return False
     return True
+
+
+# ============================================================================
+# Dtype-dispatched perturbation loop for check_gradients
+# ============================================================================
+
+
+fn _check_gradients_perturb[
+    dtype: DType
+](
+    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
+    input: AnyTensor,
+    input_copy_plus: AnyTensor,
+    input_copy_minus: AnyTensor,
+    numerical_grad: AnyTensor,
+    epsilon: Float64,
+) raises:
+    """Run the finite-difference perturbation loop using typed pointers.
+
+    Gets data_ptr[dtype]() once per tensor and indexes throughout the loop,
+    keeping all tensors alive and avoiding per-element bitcast (fixes #5104).
+    """
+    var in_ptr = input.data_ptr[dtype]()
+    var plus_ptr = input_copy_plus.data_ptr[dtype]()
+    var minus_ptr = input_copy_minus.data_ptr[dtype]()
+    var grad_ptr = numerical_grad.data_ptr[dtype]()
+
+    for i in range(input.numel()):
+        # Save original value
+        var original_val = Float64(in_ptr[i])
+
+        # f(x + ε)
+        plus_ptr[i] = Scalar[dtype](original_val + epsilon)
+        var output_plus = forward_fn(input_copy_plus)
+
+        # f(x - ε)
+        minus_ptr[i] = Scalar[dtype](original_val - epsilon)
+        var output_minus = forward_fn(input_copy_minus)
+
+        # Compute per-element numerical gradient: sum([f(x+ε) - f(x-ε)] / (2ε))
+        var numerical_sum: Float64 = 0.0
+        for j in range(output_plus.numel()):
+            var diff = output_plus._get_float64(j) - output_minus._get_float64(
+                j
+            )
+            numerical_sum += diff / (2.0 * epsilon)
+        grad_ptr[i] = Scalar[dtype](numerical_sum)
+
+        # Restore original value for next iteration
+        plus_ptr[i] = Scalar[dtype](original_val)
+        minus_ptr[i] = Scalar[dtype](original_val)
+
+
+fn _dispatch_check_gradients_perturb(
+    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
+    input: AnyTensor,
+    input_copy_plus: AnyTensor,
+    input_copy_minus: AnyTensor,
+    numerical_grad: AnyTensor,
+    epsilon: Float64,
+) raises:
+    """Dispatch perturbation loop to dtype-specific implementation."""
+    if input._dtype == DType.float16:
+        _check_gradients_perturb[DType.float16](
+            forward_fn, input, input_copy_plus, input_copy_minus,
+            numerical_grad, epsilon,
+        )
+    elif input._dtype == DType.bfloat16:
+        _check_gradients_perturb[DType.bfloat16](
+            forward_fn, input, input_copy_plus, input_copy_minus,
+            numerical_grad, epsilon,
+        )
+    elif input._dtype == DType.float32:
+        _check_gradients_perturb[DType.float32](
+            forward_fn, input, input_copy_plus, input_copy_minus,
+            numerical_grad, epsilon,
+        )
+    elif input._dtype == DType.float64:
+        _check_gradients_perturb[DType.float64](
+            forward_fn, input, input_copy_plus, input_copy_minus,
+            numerical_grad, epsilon,
+        )
+    else:
+        raise Error(
+            "Unsupported dtype for gradient checking: " + String(input._dtype)
+        )
 
 
 fn check_gradients(
@@ -153,8 +277,18 @@ fn check_gradients(
     var grad_output = zeros_like(output)
 
     # Set grad_output to ones (∂L/∂output = 1 for all elements)
-    for i in range(output.numel()):
-        grad_output._set_float64(i, 1.0)
+    # Use typed pointer fill to avoid per-element bitcast
+    if output._dtype == DType.float16:
+        _fill_ones[DType.float16](grad_output)
+    elif output._dtype == DType.bfloat16:
+        _fill_ones[DType.bfloat16](grad_output)
+    elif output._dtype == DType.float32:
+        _fill_ones[DType.float32](grad_output)
+    elif output._dtype == DType.float64:
+        _fill_ones[DType.float64](grad_output)
+    else:
+        for i in range(output.numel()):
+            grad_output._set_float64(i, 1.0)
 
     # GOTCHA: Warn if grad_output is uniform (all ones)
     # For normalization layers (batch norm, layer norm), uniform grad_output creates
@@ -170,38 +304,18 @@ fn check_gradients(
     var analytical_grad = backward_fn(grad_output, input)
 
     # Step 2: Compute numerical gradient using finite differences
+    # Uses dtype-dispatched perturbation loop with typed pointers (fixes #5104)
     var numerical_grad = zeros_like(input)
     var input_copy_plus = input.clone()
     var input_copy_minus = input.clone()
 
-    for i in range(input.numel()):
-        # Save original value
-        var original_val = input._get_float64(i)
-
-        # f(x + ε)
-        input_copy_plus._set_float64(i, original_val + epsilon)
-        var output_plus = forward_fn(input_copy_plus)
-
-        # f(x - ε)
-        input_copy_minus._set_float64(i, original_val - epsilon)
-        var output_minus = forward_fn(input_copy_minus)
-
-        # Compute per-element numerical gradient: sum([f(x+ε) - f(x-ε)] / (2ε))
-        # This matches the per-element analytical gradient from ones_like(output)
-        var numerical_sum = 0.0
-        for j in range(output_plus.numel()):
-            var diff = output_plus._get_float64(j) - output_minus._get_float64(
-                j
-            )
-            numerical_sum += diff / (2.0 * epsilon)
-        numerical_grad._set_float64(i, numerical_sum)
-
-        # Restore original value for next iteration
-        input_copy_plus._set_float64(i, original_val)
-        input_copy_minus._set_float64(i, original_val)
+    _dispatch_check_gradients_perturb(
+        forward_fn, input, input_copy_plus, input_copy_minus,
+        numerical_grad, epsilon,
+    )
 
     # Step 3: Compare analytical vs numerical gradients
-    var max_diff = 0.0
+    var max_diff: Float64 = 0.0
     var max_diff_idx = 0
 
     for i in range(input.numel()):
@@ -275,33 +389,27 @@ fn check_gradients_verbose(
         # Recompute for printing
         var output = forward_fn(input)
         var grad_output = zeros_like(output)
-        for i in range(output.numel()):
-            grad_output._set_float64(i, 1.0)
+        if output._dtype == DType.float16:
+            _fill_ones[DType.float16](grad_output)
+        elif output._dtype == DType.bfloat16:
+            _fill_ones[DType.bfloat16](grad_output)
+        elif output._dtype == DType.float32:
+            _fill_ones[DType.float32](grad_output)
+        elif output._dtype == DType.float64:
+            _fill_ones[DType.float64](grad_output)
+        else:
+            for i in range(output.numel()):
+                grad_output._set_float64(i, 1.0)
         var analytical_grad = backward_fn(grad_output, input)
 
         var numerical_grad = zeros_like(input)
         var input_copy_plus = input.clone()
         var input_copy_minus = input.clone()
 
-        for i in range(input.numel()):
-            var original_val = input._get_float64(i)
-
-            input_copy_plus._set_float64(i, original_val + epsilon)
-            var output_plus = forward_fn(input_copy_plus)
-
-            input_copy_minus._set_float64(i, original_val - epsilon)
-            var output_minus = forward_fn(input_copy_minus)
-
-            var numerical_sum = 0.0
-            for j in range(output_plus.numel()):
-                var diff = output_plus._get_float64(
-                    j
-                ) - output_minus._get_float64(j)
-                numerical_sum += diff / (2.0 * epsilon)
-            numerical_grad._set_float64(i, numerical_sum)
-
-            input_copy_plus._set_float64(i, original_val)
-            input_copy_minus._set_float64(i, original_val)
+        _dispatch_check_gradients_perturb(
+            forward_fn, input, input_copy_plus, input_copy_minus,
+            numerical_grad, epsilon,
+        )
 
         print("\nGradient Comparisons:")
         print("Index | Analytical | Numerical | Diff | Status")
@@ -357,6 +465,53 @@ fn relative_error(analytical: Float64, numerical: Float64) -> Float64:
     return numerator / denominator
 
 
+# ============================================================================
+# Dtype-dispatched perturbation loop for compute_numerical_gradient
+# ============================================================================
+
+
+fn _compute_numerical_grad_perturb[
+    dtype: DType
+](
+    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
+    x: AnyTensor,
+    grad: AnyTensor,
+    epsilon: Float64,
+) raises:
+    """Perturbation loop for compute_numerical_gradient using typed pointers."""
+    var x_ptr = x.data_ptr[dtype]()
+    var grad_ptr = grad.data_ptr[dtype]()
+
+    for i in range(x.numel()):
+        var original_val = Float64(x_ptr[i])
+
+        # Compute f(x + ε)
+        x_ptr[i] = Scalar[dtype](original_val + epsilon)
+        var f_plus = forward_fn(x)
+
+        # Compute f(x - ε)
+        x_ptr[i] = Scalar[dtype](original_val - epsilon)
+        var f_minus = forward_fn(x)
+
+        # Restore original value
+        x_ptr[i] = Scalar[dtype](original_val)
+
+        # Central difference: (f(x+ε) - f(x-ε)) / 2ε
+        var grad_val: Float64
+        if f_plus.numel() == 1:
+            grad_val = (f_plus._get_float64(0) - f_minus._get_float64(0)) / (
+                2.0 * epsilon
+            )
+        else:
+            grad_val = 0.0
+            for j in range(f_plus.numel()):
+                grad_val += (
+                    f_plus._get_float64(j) - f_minus._get_float64(j)
+                ) / (2.0 * epsilon)
+
+        grad_ptr[i] = Scalar[dtype](grad_val)
+
+
 fn compute_numerical_gradient(
     forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
     x: AnyTensor,
@@ -408,42 +563,71 @@ fn compute_numerical_gradient(
     # Create gradient tensor (same shape as input)
     var grad = zeros_like(x)
 
-    # Compute gradient for each element using finite differences
-    for i in range(x.numel()):
-        # Save original value
-        var original_val = x._get_float64(i)
-
-        # Compute f(x + ε)
-        x._set_float64(i, original_val + epsilon)
-        var f_plus = forward_fn(x)
-
-        # Compute f(x - ε)
-        x._set_float64(i, original_val - epsilon)
-        var f_minus = forward_fn(x)
-
-        # Restore original value
-        x._set_float64(i, original_val)
-
-        # Central difference: (f(x+ε) - f(x-ε)) / 2ε
-        # Handle both scalar and vector outputs
-        var grad_val: Float64
-        if f_plus.numel() == 1:
-            # Scalar output: gradient is simply the finite difference
-            grad_val = (f_plus._get_float64(0) - f_minus._get_float64(0)) / (
-                2.0 * epsilon
-            )
-        else:
-            # Vector output: sum of gradients (for loss functions)
-            # This assumes we're computing gradient of sum(output) w.r.t input
-            grad_val = 0.0
-            for j in range(f_plus.numel()):
-                grad_val += (
-                    f_plus._get_float64(j) - f_minus._get_float64(j)
-                ) / (2.0 * epsilon)
-
-        grad._set_float64(i, grad_val)
+    # Dispatch to dtype-specific perturbation loop (fixes #5104)
+    if x._dtype == DType.float16:
+        _compute_numerical_grad_perturb[DType.float16](
+            forward_fn, x, grad, epsilon,
+        )
+    elif x._dtype == DType.bfloat16:
+        _compute_numerical_grad_perturb[DType.bfloat16](
+            forward_fn, x, grad, epsilon,
+        )
+    elif x._dtype == DType.float32:
+        _compute_numerical_grad_perturb[DType.float32](
+            forward_fn, x, grad, epsilon,
+        )
+    elif x._dtype == DType.float64:
+        _compute_numerical_grad_perturb[DType.float64](
+            forward_fn, x, grad, epsilon,
+        )
+    else:
+        raise Error(
+            "Unsupported dtype for gradient checking: " + String(x._dtype)
+        )
 
     return grad^
+
+
+# ============================================================================
+# Dtype-dispatched perturbation loop for compute_sampled_numerical_gradient
+# ============================================================================
+
+
+fn _compute_sampled_grad_perturb[
+    dtype: DType
+](
+    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
+    x: AnyTensor,
+    indices: List[Int],
+    mut gradients: List[IndexGradientPair],
+    epsilon: Float64,
+) raises:
+    """Perturbation loop for sampled gradient computation using typed pointers."""
+    var x_ptr = x.data_ptr[dtype]()
+
+    for idx in indices:
+        var original_val = Float64(x_ptr[idx])
+
+        # f(x + ε)
+        x_ptr[idx] = Scalar[dtype](original_val + epsilon)
+        var f_plus = forward_fn(x)
+        var f_plus_sum: Float64 = 0.0
+        for j in range(f_plus.numel()):
+            f_plus_sum += f_plus._get_float64(j)
+
+        # f(x - ε)
+        x_ptr[idx] = Scalar[dtype](original_val - epsilon)
+        var f_minus = forward_fn(x)
+        var f_minus_sum: Float64 = 0.0
+        for j in range(f_minus.numel()):
+            f_minus_sum += f_minus._get_float64(j)
+
+        # Restore original
+        x_ptr[idx] = Scalar[dtype](original_val)
+
+        # Compute gradient: (f(x + ε) - f(x - ε)) / (2ε)
+        var grad = (f_plus_sum - f_minus_sum) / (2.0 * epsilon)
+        gradients.append(IndexGradientPair(idx, grad))
 
 
 fn compute_sampled_numerical_gradient(
@@ -514,32 +698,29 @@ fn compute_sampled_numerical_gradient(
         indices.append(rng_state)
         count += 1
 
-    # Compute gradients for sampled indices
+    # Compute gradients for sampled indices using typed pointers (fixes #5104)
     var gradients = List[IndexGradientPair]()
 
-    for idx in indices:
-        var original_val = x._get_float64(idx)
-
-        # f(x + ε)
-        x._set_float64(idx, original_val + epsilon)
-        var f_plus = forward_fn(x)
-        var f_plus_sum: Float64 = 0.0
-        for j in range(f_plus.numel()):
-            f_plus_sum += f_plus._get_float64(j)
-
-        # f(x - ε)
-        x._set_float64(idx, original_val - epsilon)
-        var f_minus = forward_fn(x)
-        var f_minus_sum: Float64 = 0.0
-        for j in range(f_minus.numel()):
-            f_minus_sum += f_minus._get_float64(j)
-
-        # Restore original
-        x._set_float64(idx, original_val)
-
-        # Compute gradient: (f(x + ε) - f(x - ε)) / (2ε)
-        var grad = (f_plus_sum - f_minus_sum) / (2.0 * epsilon)
-        gradients.append(IndexGradientPair(idx, grad))
+    if x._dtype == DType.float16:
+        _compute_sampled_grad_perturb[DType.float16](
+            forward_fn, x, indices, gradients, epsilon,
+        )
+    elif x._dtype == DType.bfloat16:
+        _compute_sampled_grad_perturb[DType.bfloat16](
+            forward_fn, x, indices, gradients, epsilon,
+        )
+    elif x._dtype == DType.float32:
+        _compute_sampled_grad_perturb[DType.float32](
+            forward_fn, x, indices, gradients, epsilon,
+        )
+    elif x._dtype == DType.float64:
+        _compute_sampled_grad_perturb[DType.float64](
+            forward_fn, x, indices, gradients, epsilon,
+        )
+    else:
+        raise Error(
+            "Unsupported dtype for gradient checking: " + String(x._dtype)
+        )
 
     return gradients^
 
@@ -724,6 +905,57 @@ fn assert_gradients_close(
         raise Error(msg)
 
 
+# ============================================================================
+# Dtype-dispatched perturbation loop for check_gradient
+# ============================================================================
+
+
+fn _check_gradient_perturb[
+    dtype: DType
+](
+    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
+    x: AnyTensor,
+    grad_output: AnyTensor,
+    grad: AnyTensor,
+    eps: Float64,
+) raises:
+    """Perturbation loop for check_gradient using typed pointers.
+
+    Uses data_ptr[dtype]() for the input tensor to avoid per-element bitcast.
+    Each iteration creates fresh clones (x_plus, x_minus), so we get a typed
+    pointer to x once for reading old_val, and to grad for writing results.
+    """
+    var x_ptr = x.data_ptr[dtype]()
+    var grad_ptr = grad.data_ptr[dtype]()
+
+    for i in range(x.numel()):
+        # Create deep copies to avoid corrupting original x
+        var x_plus = x.clone()
+        var old_val = Float64(x_ptr[i])
+        # Use typed pointer for setting the perturbed value in the clone
+        var plus_ptr = x_plus.data_ptr[dtype]()
+        plus_ptr[i] = Scalar[dtype](old_val + eps)
+        var out_plus = forward_fn(x_plus)
+        var loss_plus: Float64 = 0.0
+        for j in range(out_plus.numel()):
+            loss_plus += out_plus._get_float64(j) * grad_output._get_float64(j)
+
+        # Backward perturbation
+        var x_minus = x.clone()
+        var minus_ptr = x_minus.data_ptr[dtype]()
+        minus_ptr[i] = Scalar[dtype](old_val - eps)
+        var out_minus = forward_fn(x_minus)
+        var loss_minus: Float64 = 0.0
+        for j in range(out_minus.numel()):
+            loss_minus += out_minus._get_float64(j) * grad_output._get_float64(
+                j
+            )
+
+        # Central difference
+        var numerical_grad = (loss_plus - loss_minus) / (2.0 * eps)
+        grad_ptr[i] = Scalar[dtype](numerical_grad)
+
+
 fn check_gradient(
     forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
     backward_fn: fn (AnyTensor, AnyTensor) raises escaping -> AnyTensor,
@@ -788,35 +1020,29 @@ fn check_gradient(
     # Compute analytical gradient
     var analytical = backward_fn(grad_output, x)
 
-    # Compute numerical gradient for scalar loss
-    # For non-scalar outputs, we compute gradient of: loss = sum(forward(x) * grad_output)
-    # We'll approximate this by perturbing x and seeing how the scalar loss changes
+    # Compute numerical gradient using typed pointer perturbation (fixes #5104)
     var grad = zeros_like(x)
 
-    for i in range(x.numel()):
-        # Create deep copies to avoid corrupting original x
-        # (AnyTensor.__copyinit__ creates shallow copies with shared data)
-        var x_plus = x.clone()
-        var old_val = x._get_float64(i)
-        x_plus._set_float64(i, old_val + eps)
-        var out_plus = forward_fn(x_plus)
-        var loss_plus: Float64 = 0.0
-        for j in range(out_plus.numel()):
-            loss_plus += out_plus._get_float64(j) * grad_output._get_float64(j)
-
-        # Backward perturbation
-        var x_minus = x.clone()
-        x_minus._set_float64(i, old_val - eps)
-        var out_minus = forward_fn(x_minus)
-        var loss_minus: Float64 = 0.0
-        for j in range(out_minus.numel()):
-            loss_minus += out_minus._get_float64(j) * grad_output._get_float64(
-                j
-            )
-
-        # Central difference
-        var numerical_grad = (loss_plus - loss_minus) / (2.0 * eps)
-        grad._set_float64(i, numerical_grad)
+    if x._dtype == DType.float16:
+        _check_gradient_perturb[DType.float16](
+            forward_fn, x, grad_output, grad, eps,
+        )
+    elif x._dtype == DType.bfloat16:
+        _check_gradient_perturb[DType.bfloat16](
+            forward_fn, x, grad_output, grad, eps,
+        )
+    elif x._dtype == DType.float32:
+        _check_gradient_perturb[DType.float32](
+            forward_fn, x, grad_output, grad, eps,
+        )
+    elif x._dtype == DType.float64:
+        _check_gradient_perturb[DType.float64](
+            forward_fn, x, grad_output, grad, eps,
+        )
+    else:
+        raise Error(
+            "Unsupported dtype for gradient checking: " + String(x._dtype)
+        )
 
     # Compare
     assert_gradients_close(
