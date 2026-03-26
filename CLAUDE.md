@@ -87,7 +87,8 @@ gh pr merge --auto --rebase
 
 - [Agent Hierarchy](/agents/hierarchy.md) - 6-level hierarchy
 - [Agent Configurations](/.claude/agents/) - 29 agents
-- [Skills Directory](/.claude/skills/) - 58 skills
+- [Skills](https://github.com/HomericIntelligence/ProjectMnemosyne) - 61 skills
+  (migrated to ProjectMnemosyne; use `/mnemosyne:advise` to search)
 
 ## Working with Agents
 
@@ -142,7 +143,9 @@ Agents delegate to skills using five patterns: **Direct** (invoke for specific a
   track-implementation-progress
 - **Review**: review-pr-changes, create-review-checklist
 
-See `.claude/skills/` for complete implementations. Skills use YAML frontmatter with `mcp_fallback` for MCP integration.
+See [ProjectMnemosyne](https://github.com/HomericIntelligence/ProjectMnemosyne) for complete
+implementations. Skills have been migrated to a flat `skills/<name>.md` format. Use
+`/mnemosyne:advise` to search skills by category or functionality.
 
 ### Key Development Principles
 
@@ -286,7 +289,7 @@ Extended thinking consumes tokens. Use appropriate budgets based on task complex
 
 ```text
 Is the task well-defined with predictable steps?
-├─ YES → Use an Agent Skill
+├─ YES → Use a Skill from ProjectMnemosyne
 │   ├─ Is it a GitHub operation? → Use gh-* skills
 │   ├─ Is it a Mojo operation? → Use mojo-* skills
 │   ├─ Is it a CI/CD task? → Use ci-* skills
@@ -299,11 +302,12 @@ Is the task well-defined with predictable steps?
     └─ Does it need extended thinking? → Use sub-agent
 ```
 
-**Agent Skills** - Use for automation with predictable workflows:
+**Skills** - Use for automation with predictable workflows (available in ProjectMnemosyne):
 
 - **Characteristics**: Declarative YAML, fixed steps, composable, fast
 - **Best for**: GitHub API calls, running tests, formatting code, CI workflows
 - **Examples**: `gh-create-pr-linked`, `mojo-format`, `run-precommit`
+- **Access**: Use `/mnemosyne:advise` to search and invoke skills
 
 **Sub-Agents** - Use for tasks requiring reasoning and adaptation:
 
@@ -367,8 +371,8 @@ See [Tool Use Optimization](.claude/shared/tool-use-optimization.md#agentic-loop
 
 ## Delegation to Agent Hub
 
-.claude/ is the centralized location for agentic descriptions and SKILLs. Sub-agents reference
-`.claude/agents/*.md` and `.claude/skills/*.md` for roles, capabilities, and prod fix learnings.
+.claude/ is the centralized location for agentic descriptions. Sub-agents reference
+`.claude/agents/*.md` for roles, capabilities, and prod fix learnings. Skills have been migrated to ProjectMnemosyne.
 
 ### Shared Reference Files
 
@@ -669,9 +673,9 @@ The repository uses three separate locations for documentation to avoid duplicat
 ### Contents
 
 - Mojo patterns and error handling (mojo-test-failure-patterns.md)
-- Skills architecture (skills-design.md, skills-architecture.md)
 - Orchestration patterns (orchestration-patterns.md)
 - Backward pass catalog (backward-pass-catalog.md)
+- Skills architecture and design (see ProjectMnemosyne for current implementations)
 
 **When to Use**: Writing detailed specifications, architectural decisions, or comprehensive guides.
 
