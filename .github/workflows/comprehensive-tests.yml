@@ -117,7 +117,7 @@ jobs:
           echo "Building and validating Mojo packages..."
           echo "=================================================="
 
-          NATIVE=1 just ci-build
+          just ci-build
 
           mkdir -p compilation-results
           total_files=$(find shared -name "*.mojo" -type f | wc -l)
