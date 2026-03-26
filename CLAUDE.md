@@ -10,6 +10,40 @@ comprehensive 4-level hierarchical planning structure with automated GitHub issu
 **Current Status**: Planning phase - repository structure and GitHub issues are being
 established before implementation begins.
 
+## Ecosystem Context
+
+ProjectOdyssey is part of the
+[HomericIntelligence](https://github.com/HomericIntelligence) organization.
+It is a **standalone ML training framework** — not a distributed agent or
+microservice.
+
+**This repo's role**: Mojo-based ML framework for reproducing classic research
+papers. The shared library (`shared/`) provides tensor ops, autograd, layers,
+and training infrastructure that all paper implementations build on.
+
+**What this repo is NOT** (to prevent AI agents from making incorrect
+assumptions):
+
+- **Not part of a distributed agent mesh.** Zero integration with ai-maestro,
+  NATS, or any agent registration/task queue. AchaeanFleet and Myrmidons
+  handle that.
+- **No promotion path to AchaeanFleet.** Implementations live entirely in this
+  repo as Mojo libraries and executables.
+- **No REST API.** No agent registration endpoint, no REST client.
+- **"Agents" here = Claude Code automation** (`.claude/agents/`) for
+  development workflow (code generation, PR creation, CI), not runtime
+  distributed services.
+
+**Key sibling repos** (see
+[README.md](README.md#part-of-homericintelligence) for the full table):
+
+| Repository | Role |
+|---|---|
+| [Odysseus](https://github.com/HomericIntelligence/Odysseus) | Ecosystem meta-repo and architecture docs |
+| [AchaeanFleet](https://github.com/HomericIntelligence/AchaeanFleet) | Container images for the agent mesh (separate from this repo) |
+| [ProjectMnemosyne](https://github.com/HomericIntelligence/ProjectMnemosyne) | Skills marketplace and team learnings |
+| [ProjectHephaestus](https://github.com/HomericIntelligence/ProjectHephaestus) | Shared utilities used across the ecosystem |
+
 ## ⚠️ CRITICAL RULES - READ FIRST
 
 ### 🚫 NEVER Push Directly to Main
