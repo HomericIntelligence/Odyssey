@@ -23,7 +23,8 @@ File format (hex-encoded text):
 
 from memory import UnsafePointer
 from collections import List
-from .any_tensor import AnyTensor, zeros
+from .any_tensor import AnyTensor
+from .tensor_creation import zeros
 
 
 # ============================================================================
