@@ -7,8 +7,8 @@ This package contains example scripts demonstrating ML Odyssey functionality:
 - integer_example.mojo      - Integer tensor operations
 - mixed_precision_training.mojo - Multi-precision training
 - data_pipeline_demo.mojo   - Data loading and preprocessing
-- alexnet-cifar10/          - AlexNet training on CIFAR-10
-- mojo-patterns/            - Mojo language pattern demonstrations
+- alexnet_cifar10/          - AlexNet training on CIFAR-10
+- mojo_patterns/            - Mojo language pattern demonstrations
 
 Run individual examples directly:
     mojo examples/basic_usage.mojo
@@ -37,8 +37,8 @@ fn main() raises:
     print("  4. integer_example.mojo      - Integer tensor operations")
     print("  5. mixed_precision_training.mojo - Multi-precision training")
     print("  6. data_pipeline_demo.mojo   - Data pipeline demonstration")
-    print("  7. alexnet-cifar10/          - AlexNet on CIFAR-10")
-    print("  8. mojo-patterns/            - Mojo language patterns")
+    print("  7. alexnet_cifar10/          - AlexNet on CIFAR-10")
+    print("  8. mojo_patterns/            - Mojo language patterns")
     print("\nRun examples directly:")
     print("    mojo examples/<example_name>.mojo")
     print()

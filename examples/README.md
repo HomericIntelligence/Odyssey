@@ -15,9 +15,9 @@ This directory contains standalone Mojo code examples referenced throughout the 
 
 ```text
 examples/
-├── getting-started/     # Beginner tutorials and quickstart examples
-├── mojo-patterns/       # Mojo-specific patterns and idioms
-├── custom-layers/       # Building custom neural network components
+├── getting_started/     # Beginner tutorials and quickstart examples
+├── mojo_patterns/       # Mojo-specific patterns and idioms
+├── custom_layers/       # Building custom neural network components
 └── performance/         # Optimization and performance techniques
 ```text
 
@@ -27,11 +27,11 @@ examples/
 
 ```bash
 # Run any example
-pixi run mojo run examples/getting-started/quickstart_example.mojo
+pixi run mojo run examples/getting_started/quickstart_example.mojo
 
 # Or navigate to examples directory first
 cd examples
-pixi run mojo run getting-started/quickstart_example.mojo
+pixi run mojo run getting_started/quickstart_example.mojo
 ```text
 
 ### Example Categories
@@ -155,7 +155,7 @@ When adding new examples:
 ### Pattern 1: Simple Execution
 
 ```bash
-pixi run mojo run examples/getting-started/quickstart_example.mojo
+pixi run mojo run examples/getting_started/quickstart_example.mojo
 ```text
 
 ### Pattern 2: With Custom Data
@@ -173,7 +173,7 @@ var y_train = load_your_labels()
 Use examples as starting points:
 
 ```bash
-cp examples/getting-started/quickstart_example.mojo my_model.mojo
+cp examples/getting_started/quickstart_example.mojo my_model.mojo
 # Edit my_model.mojo with your changes
 pixi run mojo run my_model.mojo
 ```text
@@ -200,7 +200,7 @@ cd /path/to/ProjectOdyssey
 ls shared/
 
 # Run from repository root
-pixi run mojo run examples/getting-started/quickstart_example.mojo
+pixi run mojo run examples/getting_started/quickstart_example.mojo
 ```text
 
 ### Placeholder Data

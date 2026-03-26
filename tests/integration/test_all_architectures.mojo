@@ -191,14 +191,14 @@ fn main() raises:
     print("\n" + "=" * 60)
     print("TEST 1/4: ResNet-18")
     print("=" * 60)
-    print("NOTE: Import paths use hyphens in directory names")
-    print("Attempting: examples/resnet18-cifar10/model.mojo")
+    print("NOTE: Import paths use underscores in directory names")
+    print("Attempting: examples/resnet18_cifar10/model.mojo")
     print()
 
     # Note: Mojo imports use the actual file system path
     # We'll need to run this from the repo root and check if models work
     var resnet_passed = False
-    print("⚠ Manual test required - cannot dynamically import with hyphens")
+    print("⚠ Manual test required - cannot dynamically import")
     results.append(resnet_passed)
     model_names.append("ResNet-18")
 
@@ -207,7 +207,7 @@ fn main() raises:
     print("TEST 2/4: GoogLeNet (Inception-v1)")
     print("=" * 60)
     var googlenet_passed = False
-    print("⚠ Manual test required - cannot dynamically import with hyphens")
+    print("⚠ Manual test required - cannot dynamically import")
     results.append(googlenet_passed)
     model_names.append("GoogLeNet")
 
@@ -216,7 +216,7 @@ fn main() raises:
     print("TEST 3/4: MobileNetV1")
     print("=" * 60)
     var mobilenet_passed = False
-    print("⚠ Manual test required - cannot dynamically import with hyphens")
+    print("⚠ Manual test required - cannot dynamically import")
     results.append(mobilenet_passed)
     model_names.append("MobileNetV1")
 
@@ -225,7 +225,7 @@ fn main() raises:
     print("TEST 4/4: VGG-16")
     print("=" * 60)
     var vgg_passed = False
-    print("⚠ Manual test required - cannot dynamically import with hyphens")
+    print("⚠ Manual test required - cannot dynamically import")
     results.append(vgg_passed)
     model_names.append("VGG-16")
 

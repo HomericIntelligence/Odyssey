@@ -110,15 +110,15 @@ fn update_weights(params: AnyTensor, gradients: AnyTensor, lr: Float64) -> AnyTe
 **Profiling Command:**
 
 ```bash
-mojo run -D ENABLE_PROFILING examples/resnet18-cifar10/train.mojo
+mojo run -D ENABLE_PROFILING examples/resnet18_cifar10/train.mojo
 ```text
 
 ### Phase 2.2: Convert Model Weights to TypedTensor
 
 **Target Files:**
 
-- `examples/resnet18-cifar10/model.mojo`
-- `examples/lenet-emnist/model.mojo`
+- `examples/resnet18_cifar10/model.mojo`
+- `examples/lenet_emnist/model.mojo`
 - Other model implementations
 
 **Example Conversion:**
@@ -190,10 +190,10 @@ struct ResNet18:
 
    ```bash
    # Before conversion
-   mojo run examples/resnet18-cifar10/train.mojo --benchmark
+   mojo run examples/resnet18_cifar10/train.mojo --benchmark
 
    # After conversion
-   mojo run examples/resnet18-cifar10/train.mojo --benchmark
+   mojo run examples/resnet18_cifar10/train.mojo --benchmark
 
    # Compare epoch times
    ```text

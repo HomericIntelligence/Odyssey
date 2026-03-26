@@ -69,7 +69,7 @@ fn prepare_mnist() raises -> (TensorDataset, TensorDataset):
 
 Create `model.mojo` with your neural network architecture.
 
-See `examples/getting-started/first_model_model.mojo`
+See `examples/getting_started/first_model_model.mojo`
 
 Key architecture:
 
@@ -86,13 +86,13 @@ self.model = Sequential([
 ])
 ```
 
-Full example: `examples/getting-started/first_model_model.mojo`
+Full example: `examples/getting_started/first_model_model.mojo`
 
 ## Step 4: Training Script
 
 Create `train.mojo` to train your model.
 
-See `examples/getting-started/first_model_train.mojo`
+See `examples/getting_started/first_model_train.mojo`
 
 Key training steps:
 
@@ -110,7 +110,7 @@ trainer.add_callback(ModelCheckpoint(filepath="best_model.mojo", save_best_only=
 trainer.train(train_loader, val_loader, epochs=10, verbose=True)
 ```
 
-Full example: `examples/getting-started/first_model_train.mojo`
+Full example: `examples/getting_started/first_model_train.mojo`
 
 ## Step 5: Run Training
 

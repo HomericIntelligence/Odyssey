@@ -22,6 +22,25 @@ struct StubData:
         self.value = value
 
 
+struct StubPipeline:
+    """Minimal stub pipeline that applies a fixed number of transforms."""
+
+    var num_transforms: Int
+
+    fn __init__(out self, num_transforms: Int):
+        self.num_transforms = num_transforms
+
+    fn apply(self, data: StubData) -> StubData:
+        """Apply all transforms sequentially."""
+        # Stub implementation: add 10 for each transform
+        var result = data.value + Float32(self.num_transforms * 10)
+        return StubData(result)
+
+    fn __len__(self) -> Int:
+        """Return number of transforms in pipeline."""
+        return self.num_transforms
+
+
 fn test_pipeline_creation() raises:
     """Test creating Pipeline from list of transforms.
 

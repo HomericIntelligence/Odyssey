@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Run mypy on each file individually to avoid duplicate module name errors.
 
-This wrapper is needed for directories with hyphenated names (e.g. examples/alexnet-cifar10/)
+This wrapper is needed for examples/ subdirectories (e.g. examples/alexnet_cifar10/)
 where multiple files share the same basename (download_cifar10.py). Passing them all to a
 single mypy invocation causes a "Duplicate module named" blocker error because mypy cannot
-resolve the hyphenated directory as a Python package component.
+resolve the directory as a Python package component.
 
 Usage:
     python scripts/mypy-each-file.py [mypy-args...] file1.py file2.py ...

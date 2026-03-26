@@ -6,7 +6,6 @@ Tests the composition of two differentiable operations including:
 - Intermediate tensor caching
 - Forward pass shape preservation
 
-Split from test_composed_op.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
 
@@ -63,6 +62,37 @@ struct ScaleMul(Copyable, Differentiable, Movable):
         for i in range(grad_input.numel()):
             grad_input._set_float64(i, grad_output._get_float64(i) * self.scale)
         return grad_input
+
+
+struct ScaleAdd(Copyable, Differentiable, Movable):
+    """Mock operation that adds a scalar to input.
+
+    Used for testing composition logic with predictable behavior.
+    Forward: y = x + offset
+    Backward: grad_x = grad_y (offset doesn't affect gradient)
+    """
+
+    var offset: Float64
+    var last_input: AnyTensor
+
+    fn __init__(out self, offset: Float64) raises:
+        """Initialize with offset value."""
+        self.offset = offset
+        self.last_input = make_tensor_with_shape(1)
+
+    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+        """Forward pass: add offset."""
+        self.last_input = input.copy()
+        var output = input.copy()
+        # Add offset to all elements
+        for i in range(output.numel()):
+            output._set_float64(i, input._get_float64(i) + self.offset)
+        return output
+
+    fn backward(self, grad_output: AnyTensor) raises -> AnyTensor:
+        """Backward pass: gradient passes through unchanged."""
+        # Use clone() for deep copy - copy() creates a shallow view that shares data
+        return grad_output.clone()
 
 
 fn test_composed_op_initialization() raises:

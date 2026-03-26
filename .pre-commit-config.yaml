@@ -117,9 +117,8 @@ repos:
         additional_dependencies: [types-PyYAML]
 
   # Type checking for examples/ — uses a per-file wrapper because examples/
-  # subdirectories have hyphenated names (e.g. alexnet-cifar10) that are not
-  # valid Python package names, causing "Duplicate module" errors when mypy
-  # receives multiple files with the same basename in one invocation.
+  # subdirectories (e.g. alexnet_cifar10) cause "Duplicate module" errors
+  # when mypy receives multiple files with the same basename in one invocation.
   - repo: local
     hooks:
       - id: mypy-examples

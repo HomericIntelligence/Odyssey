@@ -48,14 +48,14 @@ def find_test_files(root_dir: Path) -> List[Path]:
     # They run in the weekly E2E workflow, not per-PR
     exclude_files = [
         # EMNIST example tests (require dataset download)
-        "examples/lenet-emnist/test_gradients.mojo",
-        "examples/lenet-emnist/test_loss_decrease.mojo",
-        "examples/lenet-emnist/test_predictions.mojo",
-        "examples/lenet-emnist/test_training_metrics.mojo",
-        "examples/lenet-emnist/test_weight_updates.mojo",
-        "examples/googlenet-cifar10/test_model.mojo",
-        "examples/mobilenetv1-cifar10/test_model.mojo",
-        "examples/resnet18-cifar10/test_model.mojo",
+        "examples/lenet_emnist/test_gradients.mojo",
+        "examples/lenet_emnist/test_loss_decrease.mojo",
+        "examples/lenet_emnist/test_predictions.mojo",
+        "examples/lenet_emnist/test_training_metrics.mojo",
+        "examples/lenet_emnist/test_weight_updates.mojo",
+        "examples/googlenet_cifar10/test_model.mojo",
+        "examples/mobilenetv1_cifar10/test_model.mojo",
+        "examples/resnet18_cifar10/test_model.mojo",
     ]
 
     # Exclude E2E model tests (run weekly, not per-PR)
