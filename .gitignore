@@ -28,6 +28,7 @@ examples/*/inference
 test_*
 !tests/**
 .worktrees/
+.claude/worktrees/
 .issue_implementer/
 
 # Training artifacts
