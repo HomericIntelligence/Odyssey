@@ -162,6 +162,70 @@ struct InceptionModule:
 
 fn concatenate_depthwise(
     t1: AnyTensor, t2: AnyTensor, t3: AnyTensor, t4: AnyTensor
+) raises -> AnyTensor:
+    """Concatenate 4 tensors along the channel dimension (axis=1).
+
+    Args:
+        t1: Tensor 1 (batch, C1, H, W).
+        t2: Tensor 2 (batch, C2, H, W).
+        t3: Tensor 3 (batch, C3, H, W).
+        t4: Tensor 4 (batch, C4, H, W).
+
+    Returns:
+        Concatenated tensor (batch, C1+C2+C3+C4, H, W).
+    """
+    var batch_size = t1.shape()[0]
+    var c1 = t1.shape()[1]
+    var c2 = t2.shape()[1]
+    var c3 = t3.shape()[1]
+    var c4 = t4.shape()[1]
+    var height = t1.shape()[2]
+    var width = t1.shape()[3]
+
+    var total_channels = c1 + c2 + c3 + c4
+    var result = zeros([batch_size, total_channels, height, width], t1.dtype())
+
+    # Copy data from each tensor
+    var result_data = result._data.bitcast[Float32]()
+    var t1_data = t1._data.bitcast[Float32]()
+    var t2_data = t2._data.bitcast[Float32]()
+    var t3_data = t3._data.bitcast[Float32]()
+    var t4_data = t4._data.bitcast[Float32]()
+
+    var hw = height * width
+
+    for b in range(batch_size):
+        # Copy t1 channels
+        for c in range(c1):
+            for i in range(hw):
+                var src_idx = ((b * c1 + c) * hw) + i
+                var dst_idx = ((b * total_channels + c) * hw) + i
+                result_data[dst_idx] = t1_data[src_idx]
+
+        # Copy t2 channels (offset by c1)
+        for c in range(c2):
+            for i in range(hw):
+                var src_idx = ((b * c2 + c) * hw) + i
+                var dst_idx = ((b * total_channels + (c1 + c)) * hw) + i
+                result_data[dst_idx] = t2_data[src_idx]
+
+        # Copy t3 channels (offset by c1+c2)
+        for c in range(c3):
+            for i in range(hw):
+                var src_idx = ((b * c3 + c) * hw) + i
+                var dst_idx = ((b * total_channels + (c1 + c2 + c)) * hw) + i
+                result_data[dst_idx] = t3_data[src_idx]
+
+        # Copy t4 channels (offset by c1+c2+c3)
+        for c in range(c4):
+            for i in range(hw):
+                var src_idx = ((b * c4 + c) * hw) + i
+                var dst_idx = (
+                    (b * total_channels + (c1 + c2 + c3 + c)) * hw
+                ) + i
+                result_data[dst_idx] = t4_data[src_idx]
+
+    return result
 
 
 fn test_inception_module_initialization() raises:

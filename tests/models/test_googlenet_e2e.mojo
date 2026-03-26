@@ -238,6 +238,172 @@ struct InceptionModule:
 
 fn concatenate_depthwise(
     t1: AnyTensor, t2: AnyTensor, t3: AnyTensor, t4: AnyTensor
+) raises -> AnyTensor:
+    """Concatenate 4 tensors along channel dimension."""
+    var batch_size = t1.shape()[0]
+    var c1 = t1.shape()[1]
+    var c2 = t2.shape()[1]
+    var c3 = t3.shape()[1]
+    var c4 = t4.shape()[1]
+    var height = t1.shape()[2]
+    var width = t1.shape()[3]
+
+    var total_channels = c1 + c2 + c3 + c4
+    var result = zeros([batch_size, total_channels, height, width], t1.dtype())
+
+    var result_data = result._data.bitcast[Float32]()
+    var t1_data = t1._data.bitcast[Float32]()
+    var t2_data = t2._data.bitcast[Float32]()
+    var t3_data = t3._data.bitcast[Float32]()
+    var t4_data = t4._data.bitcast[Float32]()
+
+    var hw = height * width
+
+    for b in range(batch_size):
+        for c in range(c1):
+            for i in range(hw):
+                var src_idx = ((b * c1 + c) * hw) + i
+                var dst_idx = ((b * total_channels + c) * hw) + i
+                result_data[dst_idx] = t1_data[src_idx]
+
+        for c in range(c2):
+            for i in range(hw):
+                var src_idx = ((b * c2 + c) * hw) + i
+                var dst_idx = ((b * total_channels + (c1 + c)) * hw) + i
+                result_data[dst_idx] = t2_data[src_idx]
+
+        for c in range(c3):
+            for i in range(hw):
+                var src_idx = ((b * c3 + c) * hw) + i
+                var dst_idx = ((b * total_channels + (c1 + c2 + c)) * hw) + i
+                result_data[dst_idx] = t3_data[src_idx]
+
+        for c in range(c4):
+            for i in range(hw):
+                var src_idx = ((b * c4 + c) * hw) + i
+                var dst_idx = (
+                    (b * total_channels + (c1 + c2 + c3 + c)) * hw
+                ) + i
+                result_data[dst_idx] = t4_data[src_idx]
+
+    return result
+
+
+struct GoogLeNetSmall:
+    """Simplified GoogLeNet for E2E testing with smaller input size."""
+
+    # Initial conv
+    var initial_conv_weights: AnyTensor
+    var initial_conv_bias: AnyTensor
+    var initial_bn_gamma: AnyTensor
+    var initial_bn_beta: AnyTensor
+    var initial_bn_running_mean: AnyTensor
+    var initial_bn_running_var: AnyTensor
+
+    # Inception modules (3 instead of 9 for faster testing)
+    var inception_1: InceptionModule
+    var inception_2: InceptionModule
+    var inception_3: InceptionModule
+
+    # FC layer
+    var fc_weights: AnyTensor
+    var fc_bias: AnyTensor
+
+    fn __init__(out self, num_classes: Int = 10) raises:
+        """Initialize simplified GoogLeNet for testing."""
+        # Initial conv: 3->64, 3x3 kernel
+        self.initial_conv_weights = kaiming_normal(
+            fan_in=3 * 9, fan_out=64, shape=[64, 3, 3, 3]
+        )
+        self.initial_conv_bias = zeros([64], DType.float32)
+        self.initial_bn_gamma = constant([64], 1.0)
+        self.initial_bn_beta = zeros([64], DType.float32)
+        self.initial_bn_running_mean = zeros([64], DType.float32)
+        self.initial_bn_running_var = constant([64], 1.0)
+
+        # Inception modules (simplified channel config)
+        self.inception_1 = InceptionModule(
+            in_channels=64,
+            out_1x1=32,
+            reduce_3x3=24,
+            out_3x3=32,
+            reduce_5x5=8,
+            out_5x5=16,
+            pool_proj=16,
+        )
+
+        self.inception_2 = InceptionModule(
+            in_channels=96,
+            out_1x1=32,
+            reduce_3x3=24,
+            out_3x3=32,
+            reduce_5x5=8,
+            out_5x5=16,
+            pool_proj=16,
+        )
+
+        self.inception_3 = InceptionModule(
+            in_channels=96,
+            out_1x1=32,
+            reduce_3x3=24,
+            out_3x3=32,
+            reduce_5x5=8,
+            out_5x5=16,
+            pool_proj=16,
+        )
+
+        # FC layer: feature_dim -> num_classes
+        self.fc_weights = xavier_normal(96, num_classes, [num_classes, 96])
+        self.fc_bias = zeros([num_classes], DType.float32)
+
+    fn forward(mut self, x: AnyTensor, training: Bool = True) raises -> AnyTensor:
+        """Forward pass through simplified GoogLeNet."""
+        # Initial conv
+        var out = conv2d(
+            x,
+            self.initial_conv_weights,
+            self.initial_conv_bias,
+            stride=1,
+            padding=1,
+        )
+        out, _, _ = batch_norm2d(
+            out,
+            self.initial_bn_gamma,
+            self.initial_bn_beta,
+            self.initial_bn_running_mean,
+            self.initial_bn_running_var,
+            training,
+        )
+        out = relu(out)
+
+        # Inception 1
+        out = self.inception_1.forward(out, training)
+
+        # Inception 2
+        out = self.inception_2.forward(out, training)
+
+        # Inception 3
+        out = self.inception_3.forward(out, training)
+
+        # Global average pool: (batch, 96, H, W) -> (batch, 96, 1, 1)
+        out = global_avgpool2d(out)
+
+        # Flatten: (batch, 96, 1, 1) -> (batch, 96)
+        var batch_size = out.shape()[0]
+        var flat_shape = List[Int]()
+        flat_shape.append(batch_size)
+        flat_shape.append(96)
+        out = out.reshape(flat_shape)
+
+        # FC
+        out = linear(out, self.fc_weights, self.fc_bias)
+
+        return out
+
+
+# ============================================================================
+# E2E Initialization Tests
+# ============================================================================
 
 
 fn test_googlenet_initialization() raises:
