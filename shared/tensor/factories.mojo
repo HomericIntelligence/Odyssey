@@ -14,7 +14,7 @@ Factory functions:
 
 from collections import List
 from .tensor import Tensor
-from .any_tensor import (
+from .tensor_creation import (
     zeros as _zeros,
     ones as _ones,
     full as _full,
