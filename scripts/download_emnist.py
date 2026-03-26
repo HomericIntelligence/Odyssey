@@ -309,8 +309,8 @@ def main():
 
         print(f"\nDataset successfully downloaded to {args.output_dir}")
         print("\nUsage:")
-        print("  Training: examples/lenet-emnist/train.mojo")
-        print("  Inference: examples/lenet-emnist/inference.mojo")
+        print("  Training: examples/lenet_emnist/train.mojo")
+        print("  Inference: examples/lenet_emnist/inference.mojo")
 
         return 0
 

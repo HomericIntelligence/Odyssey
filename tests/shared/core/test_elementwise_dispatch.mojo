@@ -1,4 +1,4 @@
-"""Tests for elementwise dispatch
+"""Tests for elementwise dispatch."""
 
 
 from tests.shared.conftest import (
@@ -48,6 +48,26 @@ struct DoubleOp(ElementwiseUnaryOp):
 
     fn apply(self, value: Float64) -> Float64:
         return value * 2.0
+
+
+struct IncrementOp(ElementwiseUnaryOp):
+    """Custom operation: x + 1."""
+
+    fn __init__(out self):
+        pass
+
+    fn apply(self, value: Float64) -> Float64:
+        return value + 1.0
+
+
+struct AverageOp(ElementwiseBinaryOp):
+    """Custom operation: (a + b) / 2."""
+
+    fn __init__(out self):
+        pass
+
+    fn apply(self, a: Float64, b: Float64) -> Float64:
+        return (a + b) / 2.0
 
 
 fn test_apply_unary_exp_zeros() raises:

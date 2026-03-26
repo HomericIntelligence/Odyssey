@@ -276,13 +276,13 @@ just test-group tests/shared/core "test_*.mojo"
 1. **Train**:
 
    ```bash
-   just train lenet-emnist fp32 10
+   just train lenet_emnist fp32 10
    ```
 
 1. **Run inference**:
 
    ```bash
-   just infer lenet-emnist lenet5_weights
+   just infer lenet_emnist lenet5_weights
    ```
 
 1. **Document**:
@@ -455,7 +455,7 @@ just test-group tests/shared/core "test_*.mojo"
 just train
 
 # Run inference
-just infer lenet-emnist lenet5_weights
+just infer lenet_emnist lenet5_weights
 
 # Format code and validate
 just pre-commit-all

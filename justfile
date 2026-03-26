@@ -334,7 +334,7 @@ package-release: (package "release")
 # ==============================================================================
 
 # Train a model (default: LeNet-5 on EMNIST)
-train model="lenet-emnist" precision="fp32" epochs="10" batch_size="32" lr="0.001":
+train model="lenet_emnist" precision="fp32" epochs="10" batch_size="32" lr="0.001":
     @echo "Training {{model}} with precision={{precision}}, epochs={{epochs}}"
     @NATIVE=1 pixi run mojo run -I . examples/{{model}}/run_train.mojo \
         --epochs {{epochs}} \
@@ -343,14 +343,14 @@ train model="lenet-emnist" precision="fp32" epochs="10" batch_size="32" lr="0.00
         --precision {{precision}}
 
 # Run inference on test set
-infer model="lenet-emnist" checkpoint="lenet5_weights":
+infer model="lenet_emnist" checkpoint="lenet5_weights":
     @echo "Running inference for {{model}} with checkpoint={{checkpoint}}"
     @NATIVE=1 pixi run mojo run -I . examples/{{model}}/run_infer.mojo \
         --checkpoint {{checkpoint}} \
         --test-set
 
 # Run inference on single image
-infer-image checkpoint image_path model="lenet-emnist":
+infer-image checkpoint image_path model="lenet_emnist":
     @echo "Running inference on {{image_path}}"
     @NATIVE=1 pixi run mojo run -I . examples/{{model}}/run_infer.mojo \
         --checkpoint {{checkpoint}} \

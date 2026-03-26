@@ -9,7 +9,7 @@ This script:
 4. Normalizes images and saves in ML Odyssey format
 
 Usage:
-    python examples/alexnet-cifar10/download_cifar10.py [--output-dir datasets/cifar10]
+    python examples/alexnet_cifar10/download_cifar10.py [--output-dir datasets/cifar10]
 
 Requirements:
     - Python 3.7+
@@ -250,7 +250,7 @@ def verify_dataset(output_dir: Path):
     print("✓ All dataset files present")
     print(f"\nDataset ready at: {output_dir}")
     print("\nTo train AlexNet:")
-    print("  mojo run examples/alexnet-cifar10/train.mojo --epochs 100 --batch-size 128 --lr 0.01")
+    print("  mojo run examples/alexnet_cifar10/train.mojo --epochs 100 --batch-size 128 --lr 0.01")
 
 
 def main():

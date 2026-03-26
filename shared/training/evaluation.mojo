@@ -4,10 +4,10 @@ Consolidates duplicate evaluate_model implementations from example inference scr
 into a shared, reusable module supporting multiple evaluation patterns.
 
 Patterns consolidated from:
-- examples/lenet-emnist/inference.mojo (evaluate_test_set)
-- examples/alexnet-cifar10/inference.mojo (evaluate_model with top-1/top-5)
-- examples/resnet18-cifar10/inference.mojo (evaluate_model with per-class stats)
-- examples/vgg16-cifar10/inference.mojo (compute_test_accuracy)
+- examples/lenet_emnist/inference.mojo (evaluate_test_set)
+- examples/alexnet_cifar10/inference.mojo (evaluate_model with top-1/top-5)
+- examples/resnet18_cifar10/inference.mojo (evaluate_model with per-class stats)
+- examples/vgg16_cifar10/inference.mojo (compute_test_accuracy)
 
 Features:
 - Generic EvaluationResult struct with accuracy, per-class stats, and raw counts
