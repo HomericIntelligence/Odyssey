@@ -290,7 +290,7 @@ jobs:
           #   test_extensor_multidim_int_str.mojo, test_extensor_slicing_view_strides.mojo
           - name: "Core Utilities"
             path: "tests/shared/core"
-            pattern: "test_utilities.mojo test_utility*.mojo test_utils*.mojo test_validation*.mojo test_integration*.mojo test_inplace_simd.mojo test_lazy_expression.mojo test_memory_pool.mojo test_memory_pool_threadsafe.mojo test_constants.mojo test_extensor_*.mojo test_setitem_view.mojo test_memory_leaks*.mojo test_initializers*.mojo test_layers*.mojo test_linear*.mojo test_conv*.mojo test_normalization*.mojo test_dropout.mojo test_module.mojo test_composed_op*.mojo test_hash.mojo test_sequential.mojo test_int_bitwise*.mojo test_uint_bitwise*.mojo test_unsigned*.mojo test_normalize_slice*.mojo test_jit_crash*.mojo"
+            pattern: "test_utilities.mojo test_utility*.mojo test_utils*.mojo test_validation*.mojo test_integration*.mojo test_inplace_simd.mojo test_lazy_expression.mojo test_memory_pool.mojo test_memory_pool_threadsafe.mojo test_constants.mojo test_extensor_*.mojo test_setitem_view.mojo test_memory_leaks*.mojo test_initializers*.mojo test_layers*.mojo test_linear*.mojo test_conv*.mojo test_normalization*.mojo test_dropout.mojo test_module.mojo test_composed_op*.mojo test_hash.mojo test_sequential.mojo test_int_bitwise*.mojo test_uint_bitwise*.mojo test_unsigned*.mojo test_normalize_slice*.mojo test_jit_crash*.mojo test_numerical_safety_simd.mojo"
           # ---- All data subsystems (formats/datasets/samplers/transforms/loaders) ----
           # NOTE: Data test JIT crashes mitigated by targeted submodule imports (#5103).
           # See docs/dev/mojo-jit-crash-workaround.md for details.
