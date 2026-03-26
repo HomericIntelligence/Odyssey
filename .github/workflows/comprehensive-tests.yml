@@ -356,6 +356,10 @@ jobs:
 
           # Use justfile to run test group
           # The justfile handles all the complexity of test discovery and execution
+          # Note: just test-group uses scripts/test-with-retry.sh for JIT crash resilience.
+          # Individual test files are retried once on "execution crashed" (Mojo JIT fault).
+          # Real test failures (assertion errors, compile errors) are NOT retried.
+          # See: docs/adr/ADR-014-jit-crash-retry-mitigation.md
           if just test-group "${{ matrix.test-group.path }}" "${{ matrix.test-group.pattern }}"; then
             test_result="passed"
             exit_code=0
