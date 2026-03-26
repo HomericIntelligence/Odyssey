@@ -49,8 +49,8 @@ fn create_basic_block(
     bn2_running_mean: AnyTensor,
     bn2_running_var: AnyTensor,
     training: Bool = True,
-
-
+) raises -> AnyTensor:
+    """Forward pass for a basic residual block without projection."""
     var conv1_out = conv2d(x, conv1_weight, conv1_bias, stride=1, padding=1)
     var bn1_out: AnyTensor
     var _: AnyTensor

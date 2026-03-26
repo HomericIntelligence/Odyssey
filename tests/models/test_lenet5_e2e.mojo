@@ -173,6 +173,32 @@ struct LeNet5:
         """Reset all parameter gradients to zero (no-op for LeNet5)."""
         pass
 
+    fn update_parameters(
+        mut self,
+        learning_rate: Float32,
+        grad_conv1_kernel: AnyTensor,
+        grad_conv1_bias: AnyTensor,
+        grad_conv2_kernel: AnyTensor,
+        grad_conv2_bias: AnyTensor,
+        grad_fc1_weights: AnyTensor,
+        grad_fc1_bias: AnyTensor,
+        grad_fc2_weights: AnyTensor,
+        grad_fc2_bias: AnyTensor,
+        grad_fc3_weights: AnyTensor,
+        grad_fc3_bias: AnyTensor,
+    ) raises:
+        """Update parameters using SGD."""
+        _sgd_update(self.conv1_kernel, grad_conv1_kernel, learning_rate)
+        _sgd_update(self.conv1_bias, grad_conv1_bias, learning_rate)
+        _sgd_update(self.conv2_kernel, grad_conv2_kernel, learning_rate)
+        _sgd_update(self.conv2_bias, grad_conv2_bias, learning_rate)
+        _sgd_update(self.fc1_weights, grad_fc1_weights, learning_rate)
+        _sgd_update(self.fc1_bias, grad_fc1_bias, learning_rate)
+        _sgd_update(self.fc2_weights, grad_fc2_weights, learning_rate)
+        _sgd_update(self.fc2_bias, grad_fc2_bias, learning_rate)
+        _sgd_update(self.fc3_weights, grad_fc3_weights, learning_rate)
+        _sgd_update(self.fc3_bias, grad_fc3_bias, learning_rate)
+
 
 fn _sgd_update(mut param: AnyTensor, grad: AnyTensor, lr: Float32) raises:
     """SGD parameter update: param = param - lr * grad"""

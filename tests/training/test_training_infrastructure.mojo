@@ -48,8 +48,8 @@ fn mock_model_forward(input: AnyTensor) raises -> AnyTensor:
 
 fn mock_compute_loss(
     predictions: AnyTensor, labels: AnyTensor
-
-
+) raises -> AnyTensor:
+    """Mock loss computation - returns constant loss."""
     var loss = AnyTensor(List[Int](), DType.float32)
     loss._data.bitcast[Float32]()[0] = 0.5
     return loss
