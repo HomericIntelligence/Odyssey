@@ -39,6 +39,9 @@ from tests.shared.fixtures.io_helpers import (
 )
 
 
+comptime _TMP_PREFIX = "/tmp/ml_odyssey_test_io_"
+
+
 fn _make_tmp_dir(suffix: String) raises -> String:
     """Create a unique temp directory under /tmp/ using Mojo builtins."""
     var path = _TMP_PREFIX + suffix
