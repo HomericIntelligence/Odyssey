@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/retrospective-trigger.py\"",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/learn-trigger.py\"",
             "timeout": 120,
             "once": true
           }
@@ -14,7 +14,7 @@
     ]
   },
   "enabledPlugins": {
-    "skills-registry-commands@ProjectMnemosyne": true,
+    "hephaestus@ProjectHephaestus": true,
     "safety-net@cc-marketplace": true
   }
 }

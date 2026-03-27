@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Hook script triggered on SessionEnd to prompt for retrospective.
+Hook script triggered on SessionEnd to prompt for /learn.
 
 Receives JSON input with:
 - session_id: Session identifier
@@ -47,10 +47,10 @@ def main():
         # Error reading transcript, exit silently
         sys.exit(0)
 
-    # Output message prompting retrospective
+    # Output message prompting /learn
     output = {
         "systemMessage": (
-            "Session ending. Consider running /retrospective to capture learnings "
+            "Session ending. Consider running /learn to capture learnings "
             "from this session. Would you like to save your learnings to the "
             "skills marketplace before ending?"
         )
