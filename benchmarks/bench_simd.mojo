@@ -47,8 +47,8 @@ fn benchmark_operation(
     """
     # Create test tensors
     var shape = List[Int]()
-    shape[0] = size
-    shape[1] = size
+    shape.append(size)
+    shape.append(size)
 
     var a = ones(shape, dtype)
     var b = ones(shape, dtype)
@@ -97,8 +97,8 @@ fn verify_correctness() raises -> Bool:
     print("\n=== Verifying SIMD Correctness ===\n")
 
     var shape = List[Int]()
-    shape[0] = 10
-    shape[1] = 10
+    shape.append(10)
+    shape.append(10)
 
     var a = ones(shape, DType.float32)
     var b = ones(shape, DType.float32)

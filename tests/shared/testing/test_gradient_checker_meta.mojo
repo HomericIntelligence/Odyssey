@@ -61,8 +61,8 @@ fn square_forward(input: AnyTensor) raises escaping -> AnyTensor:
 
 fn square_backward_correct(
     grad_out: AnyTensor, input: AnyTensor
-
-
+) raises escaping -> AnyTensor:
+    """Correct backward pass for f(x) = x^2: df/dx = 2x."""
     var grad_in = zeros_like(input)
     for i in range(input.numel()):
         var x_val = input._get_float64(i)
@@ -74,10 +74,28 @@ fn square_backward_correct(
 
 fn square_backward_wrong_linear(
     grad_out: AnyTensor, input: AnyTensor
+) raises escaping -> AnyTensor:
+    """Wrong backward pass for f(x) = x^2: Using df/dx = x (incorrect!)."""
+    var grad_in = zeros_like(input)
+    for i in range(input.numel()):
+        var x_val = input._get_float64(i)
+        var grad_out_val = grad_out._get_float64(i)
+        # WRONG: missing factor of 2
+        grad_in._set_float64(i, grad_out_val * x_val)
+    return grad_in^
 
 
 fn square_backward_wrong_triple(
     grad_out: AnyTensor, input: AnyTensor
+) raises escaping -> AnyTensor:
+    """Wrong backward pass for f(x) = x^2: Using df/dx = 3x (incorrect!)."""
+    var grad_in = zeros_like(input)
+    for i in range(input.numel()):
+        var x_val = input._get_float64(i)
+        var grad_out_val = grad_out._get_float64(i)
+        # WRONG: coefficient of 3 instead of 2
+        grad_in._set_float64(i, grad_out_val * 3.0 * x_val)
+    return grad_in^
 
 
 fn test_gradient_checker_accepts_correct_gradient() raises:
