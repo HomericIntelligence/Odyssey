@@ -124,11 +124,13 @@ fn maxpool2d(
                         # Compute input window bounds
                         var in_h_start = oh * actual_stride - padding
                         var in_w_start = ow * actual_stride - padding
-                        var in_h_end = in_h_start + kernel_size
-                        var in_w_end = in_w_start + kernel_size
 
                         # Find maximum in window
-                        var max_val = Float32(-65504.0)  # Very small initial value
+                        # Use Float64(-65504.0) — smallest finite float16 value, safe
+                        # initial sentinel for all supported dtypes (float16/float32/float64).
+                        # Reading via _get_float64 is required to handle float16 correctly:
+                        # bitcast[Float32] reads wrong byte offsets for 2-byte float16 elements.
+                        var max_val = Float64(-65504.0)
 
                         for kh in range(kernel_size):
                             for kw in range(kernel_size):
@@ -148,7 +150,7 @@ fn maxpool2d(
                                         + in_h * in_width
                                         + in_w
                                     )
-                                    var val = x._data.bitcast[Float32]()[in_idx]
+                                    var val = x._get_float64(in_idx)
                                     if val > max_val:
                                         max_val = val
 
@@ -159,7 +161,7 @@ fn maxpool2d(
                             + oh * out_width
                             + ow
                         )
-                        output._set_float64(out_idx, Float64(max_val))
+                        output._set_float64(out_idx, max_val)
 
         parallelize[maxpool_batch](batch)
     else:
@@ -171,11 +173,13 @@ fn maxpool2d(
                         # Compute input window bounds
                         var in_h_start = oh * actual_stride - padding
                         var in_w_start = ow * actual_stride - padding
-                        var in_h_end = in_h_start + kernel_size
-                        var in_w_end = in_w_start + kernel_size
 
                         # Find maximum in window
-                        var max_val = Float32(-65504.0)  # Very small initial value
+                        # Use Float64(-65504.0) — smallest finite float16 value, safe
+                        # initial sentinel for all supported dtypes (float16/float32/float64).
+                        # Reading via _get_float64 is required to handle float16 correctly:
+                        # bitcast[Float32] reads wrong byte offsets for 2-byte float16 elements.
+                        var max_val = Float64(-65504.0)
 
                         for kh in range(kernel_size):
                             for kw in range(kernel_size):
@@ -195,7 +199,7 @@ fn maxpool2d(
                                         + in_h * in_width
                                         + in_w
                                     )
-                                    var val = x._data.bitcast[Float32]()[in_idx]
+                                    var val = x._get_float64(in_idx)
                                     if val > max_val:
                                         max_val = val
 
@@ -206,7 +210,7 @@ fn maxpool2d(
                             + oh * out_width
                             + ow
                         )
-                        output[out_idx] = Float32(max_val)
+                        output._set_float64(out_idx, max_val)
 
     return output^
 
@@ -232,12 +236,14 @@ fn _maxpool2d_optimized(
 
     This reduces complexity from O(k²) to O(k) per output when windows overlap.
     """
-    # Allocate row-wise max buffer for current batch/channel
+    # Allocate row-wise max buffer for current batch/channel.
+    # Use Float64 to correctly handle float16/float32/float64 input dtypes.
+    # bitcast[Float32] would read wrong byte offsets for float16 elements.
     # row_max[h][w] = max over [w, w+kernel_size) for row h
     var row_max_size = in_height * out_width
-    var row_max = List[Float32]()
+    var row_max = List[Float64]()
     for _ in range(row_max_size):
-        row_max.append(Float32(-65504.0))
+        row_max.append(Float64(-65504.0))
 
     for b in range(batch):
         for c in range(channels):
@@ -246,7 +252,7 @@ fn _maxpool2d_optimized(
                 for ow in range(out_width):
                     # Window starts at w_start = ow * stride - padding
                     var w_start = ow * stride - padding
-                    var row_max_val = Float32(-65504.0)
+                    var row_max_val = Float64(-65504.0)
 
                     for kw in range(kernel_size):
                         var iw = w_start + kw
@@ -257,7 +263,7 @@ fn _maxpool2d_optimized(
                                 + ih * in_width
                                 + iw
                             )
-                            var val = x._data.bitcast[Float32]()[in_idx]
+                            var val = x._get_float64(in_idx)
                             if val > row_max_val:
                                 row_max_val = val
 
@@ -268,7 +274,7 @@ fn _maxpool2d_optimized(
                 var h_start = oh * stride - padding
 
                 for ow in range(out_width):
-                    var max_val = Float32(-65504.0)
+                    var max_val = Float64(-65504.0)
 
                     for kh in range(kernel_size):
                         var ih = h_start + kh
@@ -283,7 +289,7 @@ fn _maxpool2d_optimized(
                         + oh * out_width
                         + ow
                     )
-                    output._set_float64(out_idx, Float64(max_val))
+                    output._set_float64(out_idx, max_val)
 
 
 fn avgpool2d(
@@ -354,6 +360,8 @@ fn avgpool2d(
     var output = zeros(out_shape, x.dtype())
 
     # Direct average pooling algorithm
+    # Use Float64 accumulators and _get_float64/_set_float64 to handle all
+    # dtypes correctly. bitcast[Float32] reads wrong byte offsets for float16.
     for b in range(batch):
         for c in range(channels):
             for oh in range(out_height):
@@ -363,7 +371,7 @@ fn avgpool2d(
                     var in_w_start = ow * actual_stride - padding
 
                     # Compute sum and count in window
-                    var sum_val = Float32(0.0)
+                    var sum_val = Float64(0.0)
                     var count = 0
 
                     for kh in range(kernel_size):
@@ -384,14 +392,14 @@ fn avgpool2d(
                                     + in_h * in_width
                                     + in_w
                                 )
-                                var val = x._data.bitcast[Float32]()[in_idx]
+                                var val = x._get_float64(in_idx)
                                 sum_val += val
                                 count += 1
 
                     # Compute average
-                    var avg_val = sum_val / Float32(
+                    var avg_val = sum_val / Float64(
                         count
-                    ) if count > 0 else Float32(0.0)
+                    ) if count > 0 else Float64(0.0)
 
                     # Write average to output
                     var out_idx = (
@@ -400,7 +408,7 @@ fn avgpool2d(
                         + oh * out_width
                         + ow
                     )
-                    output[out_idx] = Float32(avg_val)
+                    output._set_float64(out_idx, avg_val)
 
     return output^
 
@@ -455,11 +463,13 @@ fn global_avgpool2d(x: AnyTensor, method: String = "direct") raises -> AnyTensor
     out_shape.append(1)
     var output = zeros(out_shape, x.dtype())
 
-    # Compute global average for each channel
+    # Compute global average for each channel.
+    # Use Float64 accumulators and _get_float64/_set_float64 to handle all
+    # dtypes correctly. bitcast[Float32] reads wrong byte offsets for float16.
     for b in range(batch):
         for c in range(channels):
             # Sum all spatial values
-            var sum_val = Float32(0.0)
+            var sum_val = Float64(0.0)
 
             for h in range(height):
                 for w in range(width):
@@ -469,15 +479,15 @@ fn global_avgpool2d(x: AnyTensor, method: String = "direct") raises -> AnyTensor
                         + h * width
                         + w
                     )
-                    var val = x._data.bitcast[Float32]()[in_idx]
+                    var val = x._get_float64(in_idx)
                     sum_val += val
 
             # Compute average
-            var avg_val = sum_val / Float32(height * width)
+            var avg_val = sum_val / Float64(height * width)
 
             # Write to output
             var out_idx = b * channels + c
-            output[out_idx] = Float32(avg_val)
+            output._set_float64(out_idx, avg_val)
 
     return output^
 
@@ -549,6 +559,8 @@ fn maxpool2d_backward(
     var grad_input = zeros(x_shape, x.dtype())
 
     # For each batch and channel
+    # Use Float64 accumulators and _get_float64/_set_float64 to handle all
+    # dtypes correctly. bitcast[Float32] reads wrong byte offsets for float16.
     for b in range(batch):
         for c in range(channels):
             # For each output position
@@ -559,7 +571,7 @@ fn maxpool2d_backward(
                     var in_w_start = ow * actual_stride - padding
 
                     # Find the position of maximum value in the window
-                    var max_val = Float32(-65504.0)
+                    var max_val = Float64(-65504.0)
                     var max_h = -1
                     var max_w = -1
 
@@ -581,7 +593,7 @@ fn maxpool2d_backward(
                                     + in_h * in_width
                                     + in_w
                                 )
-                                var val = x._data.bitcast[Float32]()[in_idx]
+                                var val = x._get_float64(in_idx)
 
                                 if val > max_val:
                                     max_val = val
@@ -596,9 +608,7 @@ fn maxpool2d_backward(
                             + oh * out_width
                             + ow
                         )
-                        var grad_out_val = grad_output._data.bitcast[Float32]()[
-                            grad_out_idx
-                        ]
+                        var grad_out_val = grad_output._get_float64(grad_out_idx)
 
                         var grad_in_idx = (
                             b * (channels * in_height * in_width)
@@ -606,7 +616,10 @@ fn maxpool2d_backward(
                             + max_h * in_width
                             + max_w
                         )
-                        grad_input[grad_in_idx] = grad_input._data.bitcast[Float32]()[grad_in_idx] + grad_out_val
+                        grad_input._set_float64(
+                            grad_in_idx,
+                            grad_input._get_float64(grad_in_idx) + grad_out_val,
+                        )
 
     return grad_input^
 
@@ -674,6 +687,8 @@ fn avgpool2d_backward(
     var grad_input = zeros(x_shape, x.dtype())
 
     # For each batch and channel
+    # Use Float64 accumulators and _get_float64/_set_float64 to handle all
+    # dtypes correctly. bitcast[Float32] reads wrong byte offsets for float16.
     for b in range(batch):
         for c in range(channels):
             # For each output position
@@ -686,9 +701,7 @@ fn avgpool2d_backward(
                         + oh * out_width
                         + ow
                     )
-                    var grad_out_val = grad_output._data.bitcast[Float32]()[
-                        grad_out_idx
-                    ]
+                    var grad_out_val = grad_output._get_float64(grad_out_idx)
 
                     # Compute input window bounds
                     var in_h_start = oh * actual_stride - padding
@@ -710,9 +723,9 @@ fn avgpool2d_backward(
                                 count += 1
 
                     # Distribute gradient equally to all positions
-                    var grad_per_position = grad_out_val / Float32(
+                    var grad_per_position = grad_out_val / Float64(
                         count
-                    ) if count > 0 else Float32(0.0)
+                    ) if count > 0 else Float64(0.0)
 
                     for kh in range(kernel_size):
                         for kw in range(kernel_size):
@@ -731,7 +744,11 @@ fn avgpool2d_backward(
                                     + in_h * in_width
                                     + in_w
                                 )
-                                grad_input[grad_in_idx] = grad_input._data.bitcast[Float32]()[grad_in_idx] + grad_per_position
+                                grad_input._set_float64(
+                                    grad_in_idx,
+                                    grad_input._get_float64(grad_in_idx)
+                                    + grad_per_position,
+                                )
 
     return grad_input^
 
@@ -785,7 +802,9 @@ fn global_avgpool2d_backward(
     var grad_input = zeros(x_shape, x.dtype())
 
     # Total number of spatial elements
-    var spatial_size = Float32(height * width)
+    # Use Float64 accumulators and _get_float64/_set_float64 to handle all
+    # dtypes correctly. bitcast[Float32] reads wrong byte offsets for float16.
+    var spatial_size = Float64(height * width)
 
     # For each batch and channel
     for b in range(batch):
@@ -793,9 +812,7 @@ fn global_avgpool2d_backward(
             # Get grad_output value at position (b, c, 0, 0)
             # Since grad_output shape is (B, C, 1, 1), linear index is b*C + c
             var grad_out_idx = b * channels + c
-            var grad_out_val = grad_output._data.bitcast[Float32]()[
-                grad_out_idx
-            ]
+            var grad_out_val = grad_output._get_float64(grad_out_idx)
 
             # Distribute equally to all spatial positions
             var grad_per_position = grad_out_val / spatial_size
@@ -808,6 +825,6 @@ fn global_avgpool2d_backward(
                         + h * width
                         + w
                     )
-                    grad_input[grad_in_idx] = Float32(grad_per_position)
+                    grad_input._set_float64(grad_in_idx, grad_per_position)
 
     return grad_input^
