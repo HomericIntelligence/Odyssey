@@ -230,6 +230,9 @@ jobs:
 
           mkdir -p builds/benchmarks
 
+          # Create output directory inside container
+          podman compose exec -T projectodyssey-dev bash -c "mkdir -p /tmp/benchmark-results"
+
           # Retry for JIT crash resilience (issue #3329)
           attempt=0
           delay=1
@@ -248,6 +251,14 @@ jobs:
               exit 1
             fi
           done
+
+          # Copy results from container to host
+          CONTAINER_ID=$(podman compose ps -q projectodyssey-dev)
+          if [ -z "$CONTAINER_ID" ]; then
+            echo "❌ Failed to get container ID"
+            exit 1
+          fi
+          podman cp "$CONTAINER_ID:/tmp/benchmark-results/simd-output.txt" "benchmark-results/simd-output.txt" 2>/dev/null || true
 
       - name: Generate benchmark summary
         if: success()

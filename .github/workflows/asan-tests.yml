@@ -1,0 +1,59 @@
+name: ASAN Tests
+
+on:
+  pull_request:
+    paths:
+      - 'shared/**/*.mojo'
+      - 'tests/**/*.mojo'
+      - 'justfile'
+      - 'Dockerfile'
+      - '.github/workflows/asan-tests.yml'
+
+  push:
+    branches:
+      - main
+    paths:
+      - 'shared/**/*.mojo'
+      - 'tests/**/*.mojo'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  asan-tests:
+    name: AddressSanitizer Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Set up container
+        uses: ./.github/actions/setup-container
+
+      - name: Install Just
+        uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
+
+      - name: Run core types under ASAN
+        run: |
+          echo "Running shared/core/types tests under AddressSanitizer..."
+          just test-group-asan "tests/shared/core/types" "test_*.mojo"
+
+      - name: Run MXFP4 block tests under ASAN
+        run: |
+          echo "Running MXFP4 block tests under AddressSanitizer..."
+          just test-group-asan "tests/core/types" "test_mxfp4_block.mojo"
+
+      - name: Run serialization tests under ASAN
+        run: |
+          echo "Running serialization tests under AddressSanitizer..."
+          just test-group-asan "tests/examples" "test_trait_based_serialization.mojo"
+
+      - name: Report ASAN status
+        if: always()
+        run: |
+          echo "ASAN test run complete"
+          echo "Any heap-use-after-free, buffer overflow, or memory errors above are root causes of JIT crashes"
