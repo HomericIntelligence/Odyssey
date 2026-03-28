@@ -61,10 +61,7 @@ from shared.base.dtype_ordinal import (
     DTYPE_UINT32,
     DTYPE_UINT64,
 )
-
-# Memory safety constants
-comptime MAX_TENSOR_BYTES: Int = 2_000_000_000  # 2 GB max per tensor
-comptime WARN_TENSOR_BYTES: Int = 500_000_000  # 500 MB warning threshold
+from .tensor_constants import MAX_TENSOR_BYTES, WARN_TENSOR_BYTES
 
 # Print options for AnyTensor.__str__ and __repr__ truncation
 # Can be modified globally to control output behavior (e.g., in test utilities)

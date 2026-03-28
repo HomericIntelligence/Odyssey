@@ -590,6 +590,10 @@ test-python:
 test-group path pattern:
     @just _run "just _test-group-inner '{{path}}' '{{pattern}}'"
 
+# Run a test group under AddressSanitizer
+test-group-asan path pattern:
+    @just _run "just _test-group-asan-inner '{{path}}' '{{pattern}}'"
+
 [private]
 _test-group-inner path pattern:
     #!/usr/bin/env bash
@@ -685,6 +689,89 @@ _test-group-inner path pattern:
         exit 1
     fi
 
+[private]
+_test-group-asan-inner path pattern:
+    #!/usr/bin/env bash
+    set -e
+    REPO_ROOT="$(pwd)"
+    TEST_PATH="{{path}}"
+    test_count=0
+    passed_count=0
+    failed_count=0
+    failed_tests=""
+
+    echo "=================================================="
+    echo "ASAN Testing: {{path}}"
+    echo "Pattern: {{pattern}}"
+    echo "=================================================="
+
+    # Expand pattern into actual files
+    test_files=""
+    for pattern in {{pattern}}; do
+        if [[ "$pattern" == *"*"* ]]; then
+            # Glob pattern - expand it
+            for file in $TEST_PATH/$pattern; do
+                if [ -f "$file" ]; then
+                    test_files="$test_files $file"
+                fi
+            done
+        else
+            # Direct file or subdirectory pattern
+            if [ -f "$TEST_PATH/$pattern" ]; then
+                test_files="$test_files $TEST_PATH/$pattern"
+            elif [[ "$pattern" == *"/"* ]]; then
+                for file in $TEST_PATH/$pattern; do
+                    if [ -f "$file" ]; then
+                        test_files="$test_files $file"
+                    fi
+                done
+            fi
+        fi
+    done
+
+    if [ -z "$test_files" ]; then
+        echo "❌ ERROR: No test files found in {{path}} matching {{pattern}}"
+        exit 1
+    fi
+
+    for test_file in $test_files; do
+        if [ -f "$test_file" ]; then
+            echo ""
+            echo "Running (ASAN): $test_file"
+            test_count=$((test_count + 1))
+
+            if output=$(pixi run mojo {{MOJO_ASAN}} {{MOJO_STRICT}} -I "$REPO_ROOT" -I . "$test_file" 2>&1); then
+                echo "✅ PASSED: $test_file"
+                passed_count=$((passed_count + 1))
+            else
+                echo "$output"
+                echo "❌ FAILED: $test_file"
+                failed_count=$((failed_count + 1))
+                failed_tests="$failed_tests\n  - $test_file"
+            fi
+        fi
+    done
+
+    echo ""
+    echo "=================================================="
+    echo "ASAN Summary"
+    echo "=================================================="
+    echo "Total: $test_count tests"
+    echo "Passed: $passed_count tests"
+    echo "Failed: $failed_count tests"
+
+    if [ $test_count -eq 0 ]; then
+        echo "❌ ERROR: No tests were executed"
+        exit 1
+    fi
+
+    if [ $failed_count -gt 0 ]; then
+        echo ""
+        echo "Failed tests:"
+        echo -e "$failed_tests"
+        exit 1
+    fi
+
 # CI: Run all Mojo tests
 test-mojo:
     @just _run "just _test-mojo-inner"
@@ -753,7 +840,7 @@ help:
     @echo "           list-models, infer-image [model] [checkpoint] [image_path]"
     @echo "Build:     build [mode], build-debug, build-release, check, ci-build"
     @echo "Package:   package [mode], package-debug, package-release"
-    @echo "Test:      test, test-python, test-group, test-mojo"
+    @echo "Test:      test, test-python, test-group, test-group-asan, test-mojo"
     @echo "Jupyter:   jupyter, jupyter-notebook, jupyter-validate, jupyter-clear"
     @echo "Podman:    podman-up, podman-down, podman-build, podman-logs, podman-status"
     @echo "Dev:       bootstrap, shell, docs, docs-serve, pre-commit, validate"

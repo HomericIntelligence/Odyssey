@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     git \
     build-essential \
+    libasan8 \
     ca-certificates \
     vim \
     wget \
