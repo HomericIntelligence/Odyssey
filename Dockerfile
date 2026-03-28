@@ -4,7 +4,7 @@
 # ---------------------------
 # Stage 1: Base image with system deps
 # ---------------------------
-FROM ubuntu:24.04 AS base
+FROM mcr.microsoft.com/mirror/docker/library/ubuntu:24.04 AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
