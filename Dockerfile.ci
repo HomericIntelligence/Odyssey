@@ -4,7 +4,7 @@
 # ==============================================================================
 # Stage 1: Builder - Install dependencies and build packages
 # ==============================================================================
-FROM ubuntu:24.04 AS builder
+FROM mcr.microsoft.com/mirror/docker/library/ubuntu:24.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="/root/.pixi/bin:$PATH"
@@ -38,7 +38,7 @@ COPY pyproject.toml requirements.txt requirements-dev.txt ./
 # ==============================================================================
 # Stage 2: Runtime - Minimal image for running tests/inference
 # ==============================================================================
-FROM ubuntu:24.04 AS runtime
+FROM mcr.microsoft.com/mirror/docker/library/ubuntu:24.04 AS runtime
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="/root/.pixi/bin:$PATH"
