@@ -268,7 +268,9 @@ struct NVFP4(Copyable, Movable, Representable, Stringable):
     """E4M3 (FP8) scale factor using native type."""
 
     fn __init__(
-        out self, value: UInt8 = 0, scale: Scalar[FP8] = Scalar[FP8](1.0)
+        out self,
+        value: UInt8 = 0,
+        scale: Scalar[FP8] = bitcast[FP8, 1](SIMD[DType.uint8, 1](0x3C))[0],
     ):
         """Initialize NVFP4 from E2M1 value and E4M3 scale.
 
@@ -294,10 +296,10 @@ struct NVFP4(Copyable, Movable, Representable, Stringable):
         # Handle special cases
         if isnan(x) or isinf(x):
             var fp4_bits = _fp4_from_float32(x, 1.0)
-            return NVFP4(fp4_bits, Scalar[FP8](1.0))
+            return NVFP4(fp4_bits, bitcast[FP8, 1](SIMD[DType.uint8, 1](0x3C))[0])
 
         if x == 0.0:
-            return NVFP4(0, Scalar[FP8](1.0))
+            return NVFP4(0, bitcast[FP8, 1](SIMD[DType.uint8, 1](0x3C))[0])
 
         # Compute scale: find value such that |x| / scale is in E2M1 range [0, 6]
         var abs_x = x if x > 0 else -x
@@ -351,10 +353,10 @@ struct NVFP4(Copyable, Movable, Representable, Stringable):
         # Handle special cases
         if isnan(x) or isinf(x):
             var fp4_bits = _fp4_from_float32(x, 1.0)
-            return NVFP4(fp4_bits, Scalar[FP8](1.0))
+            return NVFP4(fp4_bits, bitcast[FP8, 1](SIMD[DType.uint8, 1](0x3C))[0])
 
         if x == 0.0:
-            return NVFP4(0, Scalar[FP8](1.0))
+            return NVFP4(0, bitcast[FP8, 1](SIMD[DType.uint8, 1](0x3C))[0])
 
         # Compute scale same as deterministic version
         var abs_x = x if x > 0 else -x
@@ -668,7 +670,7 @@ struct NVFP4Block(Copyable, Movable, Representable, Stringable):
     fn __init__(out self):
         """Initialize NVFP4Block with zeros."""
         self.data = SIMD[DType.uint8, 8](0)
-        self.scale = Scalar[FP8](1.0)  # Scale = 1.0
+        self.scale = bitcast[FP8, 1](SIMD[DType.uint8, 1](0x3C))[0]  # Scale = 1.0
 
     fn __init__(out self, data: SIMD[DType.uint8, 8], scale: Scalar[FP8]):
         """Initialize NVFP4Block from packed data and scale.

@@ -287,7 +287,7 @@ struct MXFP4(Copyable, Movable, Representable, Stringable):
     """8-bit E8M0 scale factor."""
 
     fn __init__(
-        out self, value: UInt8 = 0, scale: Scalar[E8M0] = Scalar[E8M0](1.0)
+        out self, value: UInt8 = 0, scale: Scalar[E8M0] = _e8m0_from_exponent(127)
     ):
         """Initialize MXFP4 from E2M1 value and E8M0 scale.
 
