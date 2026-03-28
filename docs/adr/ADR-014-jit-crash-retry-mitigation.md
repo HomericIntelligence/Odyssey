@@ -142,7 +142,7 @@ time without improving pass rates.
 - [Issue #5108](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5108) -- JIT crash comprehensive tracking
 - [modular/modular#6187](https://github.com/modular/modular/issues/6187) -- Upstream Mojo bug
 - [ADR-009](ADR-009-heap-corruption-workaround.md) -- Heap corruption workaround (resolved)
-- [docs/dev/mojo-jit-crash-workaround.md](../../docs/dev/mojo-jit-crash-workaround.md) -- Import-explosion variant
+- [docs/dev/mojo-jit-crash-workaround.md](../dev/mojo-jit-crash-workaround.md) -- Import-explosion variant
 
 ---
 

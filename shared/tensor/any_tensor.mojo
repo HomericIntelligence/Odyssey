@@ -2046,7 +2046,8 @@ struct AnyTensor(
             # Convert to FP8 using native SIMD and store as uint8
             var fp8_val = SIMD[FP8, 1](val)
             var fp8_bits = bitcast[DType.uint8, 1](fp8_val)[0]
-            result._data.bitcast[UInt8]()[i] = fp8_bits
+            var fp8_ptr = (result._data + i).bitcast[UInt8]()
+            fp8_ptr[] = fp8_bits
 
         return result^
 
@@ -2132,8 +2133,8 @@ struct AnyTensor(
             elif self._dtype == DType.float64:
                 val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
             elif self._dtype == DType.int8:
-                var source_val = self._data.bitcast[SIMD[DType.int8, 1]]()[i]
-                result._data.bitcast[SIMD[DType.int8, 1]]()[i] = source_val
+                var source_val = self._data.bitcast[Int8]()[i]
+                result._set_int64(i, source_val.cast[DType.int64]())
                 continue
             elif self._dtype == DType.int16:
                 val = Float32(self._data.bitcast[Int16]()[i])
@@ -2159,7 +2160,7 @@ struct AnyTensor(
                 int_val = -128
             elif int_val > 127:
                 int_val = 127
-            result._data.bitcast[SIMD[DType.int8, 1]]()[i][0] = int_val
+            result._set_int64(i, Int64(int_val))
 
         return result^
 
@@ -2192,8 +2193,8 @@ struct AnyTensor(
             elif self._dtype == DType.int8:
                 val = Float32(self._data.bitcast[Int8]()[i])
             elif self._dtype == DType.int16:
-                var source_val = self._data.bitcast[SIMD[DType.int16, 1]]()[i]
-                result._data.bitcast[SIMD[DType.int16, 1]]()[i] = source_val
+                var source_val = self._data.bitcast[Int16]()[i]
+                result._set_int64(i, source_val.cast[DType.int64]())
                 continue
             elif self._dtype == DType.int32:
                 val = Float32(self._data.bitcast[Int32]()[i])
@@ -2215,7 +2216,7 @@ struct AnyTensor(
                 int_val = -32768
             elif int_val > 32767:
                 int_val = 32767
-            result._data.bitcast[SIMD[DType.int16, 1]]()[i][0] = int_val
+            result._set_int64(i, Int64(int_val))
 
         return result^
 
@@ -2250,8 +2251,8 @@ struct AnyTensor(
             elif self._dtype == DType.int16:
                 val = Float32(self._data.bitcast[Int16]()[i])
             elif self._dtype == DType.int32:
-                var source_val = self._data.bitcast[SIMD[DType.int32, 1]]()[i]
-                result._data.bitcast[SIMD[DType.int32, 1]]()[i] = source_val
+                var source_val = self._data.bitcast[Int32]()[i]
+                result._set_int64(i, source_val.cast[DType.int64]())
                 continue
             elif self._dtype == DType.int64:
                 val = Float32(self._data.bitcast[Int64]()[i])
@@ -2267,7 +2268,7 @@ struct AnyTensor(
                 raise Error("Unsupported dtype for to_int32 conversion")
 
             var int_val = Int(val)
-            result._data.bitcast[SIMD[DType.int32, 1]]()[i][0] = int_val
+            result._set_int64(i, Int64(int_val))
 
         return result^
 
@@ -2356,8 +2357,8 @@ struct AnyTensor(
             elif self._dtype == DType.int64:
                 val = Float32(self._data.bitcast[Int64]()[i])
             elif self._dtype == DType.uint8:
-                var source_val = self._data.bitcast[SIMD[DType.uint8, 1]]()[i]
-                result._data.bitcast[SIMD[DType.uint8, 1]]()[i] = source_val
+                var source_val = self._data.bitcast[UInt8]()[i]
+                result._set_int64(i, source_val.cast[DType.int64]())
                 continue
             elif self._dtype == DType.uint16:
                 val = Float32(self._data.bitcast[UInt16]()[i])
@@ -2373,7 +2374,7 @@ struct AnyTensor(
                 int_val = 0
             elif int_val > 255:
                 int_val = 255
-            result._data.bitcast[SIMD[DType.uint8, 1]]()[i][0] = int_val
+            result._set_int64(i, Int64(int_val))
 
         return result^
 
@@ -2414,9 +2415,8 @@ struct AnyTensor(
             elif self._dtype == DType.uint8:
                 val = Float32(self._data.bitcast[UInt8]()[i])
             elif self._dtype == DType.uint16:
-                result._data.bitcast[UInt16]()[i] = self._data.bitcast[
-                    UInt16
-                ]()[i]
+                var source_val = self._data.bitcast[UInt16]()[i]
+                result._set_int64(i, source_val.cast[DType.int64]())
                 continue
             elif self._dtype == DType.uint32:
                 val = Float32(self._data.bitcast[UInt32]()[i])
@@ -2426,7 +2426,7 @@ struct AnyTensor(
                 raise Error("Unsupported dtype for to_uint16 conversion")
 
             var u16_val = UInt16(val)
-            result._data.bitcast[UInt16]()[i] = u16_val
+            result._set_int64(i, u16_val.cast[DType.int64]())
 
         return result^
 
@@ -2469,9 +2469,8 @@ struct AnyTensor(
             elif self._dtype == DType.uint16:
                 val = Float32(self._data.bitcast[UInt16]()[i])
             elif self._dtype == DType.uint32:
-                result._data.bitcast[UInt32]()[i] = self._data.bitcast[
-                    UInt32
-                ]()[i]
+                var source_val = self._data.bitcast[UInt32]()[i]
+                result._set_int64(i, source_val.cast[DType.int64]())
                 continue
             elif self._dtype == DType.uint64:
                 val = Float32(self._data.bitcast[UInt64]()[i])
@@ -2479,7 +2478,7 @@ struct AnyTensor(
                 raise Error("Unsupported dtype for to_uint32 conversion")
 
             var u32_val = UInt32(val)
-            result._data.bitcast[UInt32]()[i] = u32_val
+            result._set_int64(i, u32_val.cast[DType.int64]())
 
         return result^
 
@@ -2523,15 +2522,14 @@ struct AnyTensor(
             elif self._dtype == DType.uint32:
                 val = Float32(self._data.bitcast[UInt32]()[i])
             elif self._dtype == DType.uint64:
-                result._data.bitcast[UInt64]()[i] = self._data.bitcast[
-                    UInt64
-                ]()[i]
+                var source_val = self._data.bitcast[UInt64]()[i]
+                result._set_int64(i, source_val.cast[DType.int64]())
                 continue
             else:
                 raise Error("Unsupported dtype for to_uint64 conversion")
 
             var u64_val = UInt64(val)
-            result._data.bitcast[UInt64]()[i] = u64_val
+            result._set_int64(i, u64_val.cast[DType.int64]())
 
         return result^
 
@@ -2596,7 +2594,8 @@ struct AnyTensor(
             # Convert to BF8 using native SIMD and store as uint8
             var bf8_val = SIMD[BF8, 1](val)
             var bf8_bits = bitcast[DType.uint8, 1](bf8_val)[0]
-            result._data.bitcast[UInt8]()[i] = bf8_bits
+            var bf8_ptr = (result._data + i).bitcast[UInt8]()
+            bf8_ptr[] = bf8_bits
 
         return result^
 
@@ -2766,11 +2765,12 @@ struct AnyTensor(
             # Store block data (16 bytes + 1 scale byte)
             var block_offset = block_idx * 17
             for i in range(16):
-                result._data.bitcast[UInt8]()[block_offset + i] = block.data[i]
+                var mxfp4_ptr = (result._data + block_offset + i).bitcast[UInt8]()
+                mxfp4_ptr[] = block.data[i]
             # Extract exponent bits from E8M0 scale via bitcast
-            result._data.bitcast[UInt8]()[block_offset + 16] = bitcast[
-                DType.uint8, 1
-            ](block.scale)[0]
+            var scale_bits = bitcast[DType.uint8, 1](block.scale)[0]
+            var scale_ptr = (result._data + block_offset + 16).bitcast[UInt8]()
+            scale_ptr[] = scale_bits
 
         return result^
 
@@ -2980,11 +2980,12 @@ struct AnyTensor(
             # Store block data (8 bytes + 1 scale byte)
             var block_offset = block_idx * 9
             for i in range(8):
-                result._data.bitcast[UInt8]()[block_offset + i] = block.data[i]
+                var nvfp4_ptr = (result._data + block_offset + i).bitcast[UInt8]()
+                nvfp4_ptr[] = block.data[i]
             # Extract raw FP8 bits from scale via bitcast
-            result._data.bitcast[UInt8]()[block_offset + 8] = bitcast[
-                DType.uint8, 1
-            ](block.scale)[0]
+            var nvfp4_scale_bits = bitcast[DType.uint8, 1](block.scale)[0]
+            var nvfp4_scale_ptr = (result._data + block_offset + 8).bitcast[UInt8]()
+            nvfp4_scale_ptr[] = nvfp4_scale_bits
 
         return result^
 

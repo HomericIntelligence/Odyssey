@@ -96,7 +96,7 @@ struct SimpleMLP:
         var grad_output_shape = List[Int]()
         grad_output_shape.append(1)
         var grad_output = zeros(grad_output_shape, fc2_out.dtype())
-        grad_output._data.bitcast[Float32]()[0] = Float32(1.0)
+        grad_output._set_float32(0, Float32(1.0))
         var grad_logits = cross_entropy_backward(grad_output, fc2_out, labels)
 
         # FC2 backward
@@ -120,10 +120,10 @@ struct SimpleMLP:
 fn _sgd_update(mut param: AnyTensor, grad: AnyTensor, lr: Float32) raises:
     """Update parameter: param = param - lr * grad."""
     var numel = param.numel()
-    var param_data = param._data.bitcast[Float32]()
-    var grad_data = grad._data.bitcast[Float32]()
     for i in range(numel):
-        param_data[i] = param_data[i] - lr * grad_data[i]
+        var p = param._get_float32(i)
+        var g = grad._get_float32(i)
+        param._set_float32(i, p - lr * g)
 
 
 fn create_dummy_batch(
@@ -146,9 +146,8 @@ fn create_dummy_batch(
     labels_shape.append(num_classes)
     var labels = zeros(labels_shape, DType.float32)
     # Set class 0 as target for all samples
-    var labels_data = labels._data.bitcast[Float32]()
     for i in range(batch_size):
-        labels_data[i * num_classes] = Float32(1.0)
+        labels._set_float32(i * num_classes, Float32(1.0))
 
     return Tuple[AnyTensor, AnyTensor](input^, labels^)
 
