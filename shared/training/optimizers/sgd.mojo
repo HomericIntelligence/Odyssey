@@ -15,7 +15,7 @@ With weight decay (L2 regularization):
 """
 
 from shared.tensor.any_tensor import AnyTensor
-from shared.core import subtract, multiply, add
+from shared.core.arithmetic import subtract, multiply, add
 from shared.core.arithmetic_simd import subtract_simd, multiply_simd, add_simd
 from shared.tensor.any_tensor import full_like
 

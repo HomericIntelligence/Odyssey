@@ -46,7 +46,8 @@ Design Note:
 """
 
 from shared.tensor.any_tensor import AnyTensor
-from shared.core import subtract, multiply, divide, add, sqrt
+from shared.core.arithmetic import subtract, multiply, divide, add
+from shared.core.elementwise import sqrt
 from shared.autograd.variable import Variable
 from shared.autograd.tape import GradientTape
 from shared.autograd.functional import (

@@ -19,7 +19,7 @@ Usage:
 """
 
 from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.core import kaiming_uniform
+from shared.core.initializers import kaiming_uniform
 
 
 struct ConvFixture:

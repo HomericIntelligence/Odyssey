@@ -32,15 +32,9 @@ Common Patterns Supported:
 """
 
 from shared.tensor.any_tensor import AnyTensor, ones
-from shared.core import (
-    add,
-    multiply,
-    subtract,
-    divide,
-    sum,
-    mean,
-    sum_backward,
-    mean_backward,
+from shared.core.arithmetic import add, multiply, subtract, divide
+from shared.core.reduction import sum, mean, sum_backward, mean_backward
+from shared.core.loss import (
     mean_squared_error,
     mean_squared_error_backward,
     binary_cross_entropy,

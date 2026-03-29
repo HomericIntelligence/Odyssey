@@ -22,14 +22,14 @@ Reference:
 """
 
 from shared.tensor.any_tensor import AnyTensor
-from shared.core import subtract, multiply, add, divide, power
+from shared.core.arithmetic import subtract, multiply, add, divide, power
 from shared.core.arithmetic_simd import (
     subtract_simd,
     multiply_simd,
     add_simd,
     divide_simd,
 )
-from shared.core import sqrt
+from shared.core.elementwise import sqrt
 from shared.tensor.any_tensor import full_like, ones_like
 
 
