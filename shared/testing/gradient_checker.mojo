@@ -168,11 +168,15 @@ fn _check_gradients_perturb[
         var output_minus = forward_fn(input_copy_minus)
 
         # Compute per-element numerical gradient: sum([f(x+ε) - f(x-ε)] / (2ε))
+        # Use data_ptr[dtype]() once per tensor to keep output_plus/output_minus
+        # alive for the entire loop scope. Per-element _get_float64 performs a
+        # bitcast on each call and can trigger ASAP destruction of the temporary
+        # tensor before all elements are read (modular/modular#6187).
+        var out_plus_ptr = output_plus.data_ptr[dtype]()
+        var out_minus_ptr = output_minus.data_ptr[dtype]()
         var numerical_sum: Float64 = 0.0
         for j in range(output_plus.numel()):
-            var diff = output_plus._get_float64(j) - output_minus._get_float64(
-                j
-            )
+            var diff = Float64(out_plus_ptr[j]) - Float64(out_minus_ptr[j])
             numerical_sum += diff / (2.0 * epsilon)
         grad_ptr[i] = Scalar[dtype](numerical_sum)
 
@@ -497,16 +501,21 @@ fn _compute_numerical_grad_perturb[
         x_ptr[i] = Scalar[dtype](original_val)
 
         # Central difference: (f(x+ε) - f(x-ε)) / 2ε
+        # Use data_ptr[dtype]() to keep f_plus/f_minus alive for the loop
+        # scope. Per-element _get_float64 bitcasts can trigger ASAP destruction
+        # of temporary tensors returned by forward_fn (modular/modular#6187).
+        var f_plus_ptr = f_plus.data_ptr[dtype]()
+        var f_minus_ptr = f_minus.data_ptr[dtype]()
         var grad_val: Float64
         if f_plus.numel() == 1:
-            grad_val = (f_plus._get_float64(0) - f_minus._get_float64(0)) / (
+            grad_val = (Float64(f_plus_ptr[0]) - Float64(f_minus_ptr[0])) / (
                 2.0 * epsilon
             )
         else:
             grad_val = 0.0
             for j in range(f_plus.numel()):
                 grad_val += (
-                    f_plus._get_float64(j) - f_minus._get_float64(j)
+                    Float64(f_plus_ptr[j]) - Float64(f_minus_ptr[j])
                 ) / (2.0 * epsilon)
 
         grad_ptr[i] = Scalar[dtype](grad_val)
@@ -611,16 +620,20 @@ fn _compute_sampled_grad_perturb[
         # f(x + ε)
         x_ptr[idx] = Scalar[dtype](original_val + epsilon)
         var f_plus = forward_fn(x)
+        # Use data_ptr[dtype]() to keep f_plus alive across the loop (modular/modular#6187)
+        var f_plus_ptr = f_plus.data_ptr[dtype]()
         var f_plus_sum: Float64 = 0.0
         for j in range(f_plus.numel()):
-            f_plus_sum += f_plus._get_float64(j)
+            f_plus_sum += Float64(f_plus_ptr[j])
 
         # f(x - ε)
         x_ptr[idx] = Scalar[dtype](original_val - epsilon)
         var f_minus = forward_fn(x)
+        # Use data_ptr[dtype]() to keep f_minus alive across the loop (modular/modular#6187)
+        var f_minus_ptr = f_minus.data_ptr[dtype]()
         var f_minus_sum: Float64 = 0.0
         for j in range(f_minus.numel()):
-            f_minus_sum += f_minus._get_float64(j)
+            f_minus_sum += Float64(f_minus_ptr[j])
 
         # Restore original
         x_ptr[idx] = Scalar[dtype](original_val)
@@ -936,20 +949,23 @@ fn _check_gradient_perturb[
         var plus_ptr = x_plus.data_ptr[dtype]()
         plus_ptr[i] = Scalar[dtype](old_val + eps)
         var out_plus = forward_fn(x_plus)
+        # Use data_ptr[dtype]() to keep out_plus alive across the loop (modular/modular#6187)
+        var out_plus_ptr = out_plus.data_ptr[dtype]()
+        var grad_out_ptr = grad_output.data_ptr[dtype]()
         var loss_plus: Float64 = 0.0
         for j in range(out_plus.numel()):
-            loss_plus += out_plus._get_float64(j) * grad_output._get_float64(j)
+            loss_plus += Float64(out_plus_ptr[j]) * Float64(grad_out_ptr[j])
 
         # Backward perturbation
         var x_minus = x.clone()
         var minus_ptr = x_minus.data_ptr[dtype]()
         minus_ptr[i] = Scalar[dtype](old_val - eps)
         var out_minus = forward_fn(x_minus)
+        # Use data_ptr[dtype]() to keep out_minus alive across the loop (modular/modular#6187)
+        var out_minus_ptr = out_minus.data_ptr[dtype]()
         var loss_minus: Float64 = 0.0
         for j in range(out_minus.numel()):
-            loss_minus += out_minus._get_float64(j) * grad_output._get_float64(
-                j
-            )
+            loss_minus += Float64(out_minus_ptr[j]) * Float64(grad_out_ptr[j])
 
         # Central difference
         var numerical_grad = (loss_plus - loss_minus) / (2.0 * eps)
