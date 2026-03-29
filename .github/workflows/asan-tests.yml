@@ -52,6 +52,16 @@ jobs:
           echo "Running serialization tests under AddressSanitizer..."
           just test-group-asan "tests/examples" "test_trait_based_serialization.mojo"
 
+      - name: Run gradient checking tests under ASAN
+        run: |
+          echo "Running gradient checking tests under AddressSanitizer..."
+          just test-group-asan "tests/shared/core" "test_gradient_checking_basic.mojo test_gradient_checking_dtype.mojo"
+
+      - name: Run tensor dataset tests under ASAN
+        run: |
+          echo "Running tensor dataset tests under AddressSanitizer..."
+          just test-group-asan "tests/shared/data/datasets" "test_tensor_dataset.mojo"
+
       - name: Report ASAN status
         if: always()
         run: |
