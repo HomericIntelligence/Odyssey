@@ -37,9 +37,9 @@ Examples:
 """
 
 from shared.tensor.any_tensor import AnyTensor, ones_like, zeros_like
-from shared.core import add, subtract, multiply, divide
-from shared.core import relu, sigmoid, tanh
-from shared.core import sum, mean
+from shared.core.arithmetic import add, subtract, multiply, divide
+from shared.core.activation import relu, sigmoid, tanh
+from shared.core.reduction import sum, mean
 from shared.core.matrix import matmul
 comptime tensor_sum = sum
 comptime tensor_mean = mean

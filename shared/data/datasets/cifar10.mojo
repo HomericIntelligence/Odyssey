@@ -28,7 +28,7 @@ References:
 """
 
 from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.core import concatenate
+from shared.core.shape import concatenate
 from shared.data.formats import load_cifar10_batch
 from collections import List
 
