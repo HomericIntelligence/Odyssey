@@ -48,14 +48,15 @@ Examples:
 """
 
 from shared.tensor.any_tensor import AnyTensor, ones_like, zeros_like
-from shared.core import (
+from shared.core.arithmetic import (
     add_backward,
     subtract_backward,
     multiply_backward,
     divide_backward,
-    sum_backward,
-    mean_backward,
-    matmul_backward,
+)
+from shared.core.reduction import sum_backward, mean_backward
+from shared.core.matrix import matmul_backward
+from shared.core.activation import (
     relu_backward,
     sigmoid_backward,
     tanh_backward,
