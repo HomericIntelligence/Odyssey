@@ -10,6 +10,10 @@ podman_service := "projectodyssey-dev"
 # Repository root
 repo_root := justfile_directory()
 
+# Build output root — defaults to <repo>/build, can be overridden by a parent
+# meta-repo via env var (e.g. Odysseus sets BUILD_ROOT=/path/to/Odysseus/build/ProjectOdyssey)
+BUILD_ROOT := env_var_or_default("BUILD_ROOT", repo_root / "build")
+
 
 # ==============================================================================
 # Automatically detect host UID/GID if not set
@@ -41,7 +45,9 @@ MOJO_TSAN := "--sanitize thread"
 # Internal Helpers
 # ==============================================================================
 
-# Run command in Podman compose container or natively based on NATIVE env var
+# Run command in Podman compose container or natively based on NATIVE env var.
+# If BUILD_ROOT is outside the repo, mounts it into the container at /ext-build
+# and rewrites paths in cmd accordingly.
 [private]
 _run cmd:
 	#!/usr/bin/env bash
@@ -51,7 +57,20 @@ _run cmd:
 	elif command -v podman &>/dev/null && \
 		podman ps -q --filter "name={{podman_service}}" --filter "status=running" 2>/dev/null \
 		| grep -q .; then
-		podman compose exec -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} -T {{podman_service}} bash -c "{{cmd}}"
+		BUILD_ROOT="{{BUILD_ROOT}}"
+		REPO_ROOT="{{repo_root}}"
+		# If BUILD_ROOT is outside the workspace, mount it and rewrite paths in cmd
+		if [[ "$BUILD_ROOT" != "$REPO_ROOT"* ]]; then
+			mkdir -p "$BUILD_ROOT"
+			ORIGINAL_CMD='{{cmd}}'
+			REWRITTEN_CMD="${ORIGINAL_CMD//$BUILD_ROOT/\/ext-build}"
+			podman compose run --rm \
+				-e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} \
+				-v "$BUILD_ROOT":/ext-build:Z \
+				{{podman_service}} bash -c "$REWRITTEN_CMD"
+		else
+			podman compose exec -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} -T {{podman_service}} bash -c "{{cmd}}"
+		fi
 	else
 		echo "Error: Podman compose container '{{podman_service}}' is not running."
 		echo "  Start Podman:     just podman-up"
@@ -62,7 +81,7 @@ _run cmd:
 # Ensure build directory exists
 [private]
 _ensure_build_dir mode:
-    @mkdir -p build/{{mode}}
+    @mkdir -p "{{BUILD_ROOT}}/{{mode}}"
 
 # ==============================================================================
 # Podman Management
@@ -219,7 +238,7 @@ _build-inner mode="debug":
             ;;
     esac
 
-    BUILD_DIR="build/$MODE"
+    BUILD_DIR="{{BUILD_ROOT}}/$MODE"
     mkdir -p "$BUILD_DIR"
 
     echo "🔨 Building Mojo files"
