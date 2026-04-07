@@ -452,13 +452,13 @@ fn test_conv2d_numerical_correctness() raises:
     kernel_shape.append(1)
     kernel_shape.append(1)
     var kernel = ones(kernel_shape, DType.float32)
-    kernel._data.bitcast[Float32]()[0] = 2.0
+    kernel.set(0, Float32(2.0))
 
     # Create bias: (1,) with value 0.5
     var bias_shape = List[Int]()
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
-    bias._data.bitcast[Float32]()[0] = 0.5
+    bias.set(0, Float32(0.5))
 
     # Compute convolution
     var output = conv2d(input, kernel, bias, stride=1, padding=0)

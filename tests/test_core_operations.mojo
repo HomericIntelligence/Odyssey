@@ -109,11 +109,11 @@ fn test_forward_pass_with_metrics() raises:
     var labels_shape = List[Int]()
     labels_shape.append(5)
     var labels = AnyTensor(labels_shape, DType.int32)
-    labels._data.bitcast[Int32]()[0] = 0
-    labels._data.bitcast[Int32]()[1] = 1
-    labels._data.bitcast[Int32]()[2] = 2
-    labels._data.bitcast[Int32]()[3] = 0
-    labels._data.bitcast[Int32]()[4] = 1
+    labels.set(0, Int32(0))
+    labels.set(1, Int32(1))
+    labels.set(2, Int32(2))
+    labels.set(3, Int32(0))
+    labels.set(4, Int32(1))
 
     # Compute accuracy
     var accuracy = AccuracyMetric()
@@ -177,7 +177,7 @@ fn test_training_loop_simulation() raises:
             var labels = AnyTensor(labels_shape, DType.int32)
 
             for i in range(batch_size):
-                labels._data.bitcast[Int32]()[i] = Int32(
+                labels.set(i, Int32(Int32())
                     (i + batch_idx) % output_dim
                 )
 
@@ -323,7 +323,7 @@ fn test_batch_processing_pipeline() raises:
         var labels = AnyTensor(labels_shape, DType.int32)
 
         for i in range(batch_size):
-            labels._data.bitcast[Int32]()[i] = Int32(i % num_classes)
+            labels.set(i, Int32(Int32(i % num_classes)))
 
         # Forward pass
         var logits = matmul(input, weights)
@@ -379,10 +379,10 @@ fn test_multi_layer_network_integration() raises:
     var labels_shape = List[Int]()
     labels_shape.append(4)
     var labels = AnyTensor(labels_shape, DType.int32)
-    labels._data.bitcast[Int32]()[0] = 7
-    labels._data.bitcast[Int32]()[1] = 2
-    labels._data.bitcast[Int32]()[2] = 1
-    labels._data.bitcast[Int32]()[3] = 0
+    labels.set(0, Int32(7))
+    labels.set(1, Int32(2))
+    labels.set(2, Int32(1))
+    labels.set(3, Int32(0))
 
     # Forward pass through 3 layers
     var h1 = matmul(input, w1)  # (4, 256)

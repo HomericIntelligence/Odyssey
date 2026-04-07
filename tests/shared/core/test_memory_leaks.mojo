@@ -20,7 +20,7 @@ fn _modify_through_copy(tensor1: AnyTensor) raises:
     """Helper: copy tensor in inner scope and modify shared data."""
     var tensor2 = tensor1
     assert_true(tensor1._data == tensor2._data, "Should share data")
-    tensor2._data.bitcast[Float32]()[0] = 99.0
+    tensor2.set(0, Float32(99.0))
 
 
 fn _alloc_and_use_tensor() raises:
@@ -119,7 +119,7 @@ fn test_original_survives_copy_destruction() raises:
     """Test original tensor survives when copy is destroyed."""
     var tensor1 = zeros([10, 10], DType.float32)
     # Write a known value through data pointer
-    tensor1._data.bitcast[Float32]()[0] = 42.0
+    tensor1.set(0, Float32(42.0))
 
     _modify_through_copy(tensor1)
 
@@ -208,7 +208,7 @@ fn test_view_flag_on_reshape() raises:
 fn test_view_does_not_free_data() raises:
     """Test view destruction doesn't free shared data."""
     var original = zeros([12], DType.float32)
-    original._data.bitcast[Float32]()[0] = 42.0
+    original.set(0, Float32(42.0))
 
     _create_and_drop_view(original)
 
@@ -223,7 +223,7 @@ fn test_view_modification_affects_original() raises:
     shape.append(3)
     shape.append(4)
     var view = original.reshape(shape)
-    view._data.bitcast[Float32]()[0] = 99.0
+    view.set(0, Float32(99.0))
     var value = original._data.bitcast[Float32]()[0]
     assert_true(
         value == 99.0, "Modification through view should affect original"

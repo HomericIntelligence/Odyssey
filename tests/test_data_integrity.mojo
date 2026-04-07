@@ -25,7 +25,7 @@ fn test_mxfp4_aligned_roundtrip() raises:
     shape.append(32)
     var t = zeros(shape, DType.float32)
     for i in range(32):
-        t._data.bitcast[Float32]()[i] = Float32(i) + 1.0
+        t.set(i, Float32(Float32(i) + 1.0))
 
     var encoded = t.to_mxfp4()
     var decoded = encoded.from_mxfp4()
@@ -49,7 +49,7 @@ fn test_mxfp4_unaligned_roundtrip() raises:
     shape.append(33)
     var t = zeros(shape, DType.float32)
     for i in range(33):
-        t._data.bitcast[Float32]()[i] = Float32(i) + 1.0
+        t.set(i, Float32(Float32(i) + 1.0))
 
     # Encode: 33 elements → 2 blocks × 32 = 64 elements padded
     var encoded = t.to_mxfp4()
@@ -81,7 +81,7 @@ fn test_mxfp4_various_unaligned_sizes() raises:
         shape.append(original_size)
         var t = zeros(shape, DType.float32)
         for i in range(original_size):
-            t._data.bitcast[Float32]()[i] = Float32(i)
+            t.set(i, Float32(Float32(i)))
 
         # Round-trip
         var encoded = t.to_mxfp4()
@@ -115,7 +115,7 @@ fn test_nvfp4_unaligned_roundtrip() raises:
     shape.append(17)
     var t = zeros(shape, DType.float32)
     for i in range(17):
-        t._data.bitcast[Float32]()[i] = Float32(i) + 1.0
+        t.set(i, Float32(Float32(i) + 1.0))
 
     var encoded = t.to_nvfp4()
     assert_true(
@@ -141,7 +141,7 @@ fn test_fp8_bounds_checking() raises:
     shape.append(10)
     var t = zeros(shape, DType.float32)
     for i in range(10):
-        t._data.bitcast[Float32]()[i] = Float32(i)
+        t.set(i, Float32(Float32(i)))
 
     # Normal conversion should work
     var fp8_t = t.to_fp8()
@@ -203,7 +203,7 @@ fn test_fp16_conversion_behavior() raises:
         # Convert int to FP16
         var val_f32 = Float32(i) + 1.5
         # Store as FP16 (explicit cast required)
-        t_fp16._data.bitcast[Float16]()[i] = Float16(val_f32)
+        t_fp16.set(i, Float16(Float16(val_f32)))
 
     # Convert to MXFP4 (internally uses FP32)
     var mxfp4_t = t_fp16.to_mxfp4()
@@ -224,7 +224,7 @@ fn test_int_conversion_bounds() raises:
     shape.append(10)
     var t = zeros(shape, DType.float32)
     for i in range(10):
-        t._data.bitcast[Float32]()[i] = Float32(i)
+        t.set(i, Float32(Float32(i)))
 
     # Test to_int8
     var i8_t = t.to_int8()
@@ -253,7 +253,7 @@ fn test_metadata_preservation() raises:
     shape.append(123)
     var t = zeros(shape, DType.float32)
     for i in range(123):
-        t._data.bitcast[Float32]()[i] = Float32(i)
+        t.set(i, Float32(Float32(i)))
 
     # Encode to MXFP4
     var encoded = t.to_mxfp4()

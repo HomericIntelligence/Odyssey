@@ -28,7 +28,7 @@ fn make_f32_nan_tensor(bits: UInt32) raises -> AnyTensor:
     """
     var shape = List[Int]()
     var t = AnyTensor(shape, DType.float32)
-    t._data.bitcast[UInt32]()[] = bits
+    t.set(0, UInt32(bits))
     return t^
 
 
@@ -43,7 +43,7 @@ fn make_f64_nan_tensor(bits: UInt64) raises -> AnyTensor:
     """
     var shape = List[Int]()
     var t = AnyTensor(shape, DType.float64)
-    t._data.bitcast[UInt64]()[] = bits
+    t.set(0, UInt64(bits))
     return t^
 
 
@@ -58,7 +58,7 @@ fn make_f16_nan_tensor(bits: UInt16) raises -> AnyTensor:
     """
     var shape = List[Int]()
     var t = AnyTensor(shape, DType.float16)
-    t._data.bitcast[UInt16]()[] = bits
+    t.set(0, UInt16(bits))
     return t^
 
 
@@ -235,12 +235,12 @@ fn test_hash_mixed_nan_normal_deterministic() raises:
     shape.append(3)
     var a = nan_tensor(shape, DType.float32)
     # Set non-NaN elements
-    a._data.bitcast[Float32]()[1] = Float32(1.0)
-    a._data.bitcast[Float32]()[2] = Float32(2.0)
+    a.set(1, Float32(Float32(1.0)))
+    a.set(2, Float32(Float32(2.0)))
 
     var b = nan_tensor(shape, DType.float32)
-    b._data.bitcast[Float32]()[1] = Float32(1.0)
-    b._data.bitcast[Float32]()[2] = Float32(2.0)
+    b.set(1, Float32(Float32(1.0)))
+    b.set(2, Float32(Float32(2.0)))
 
     assert_equal_int(
         Int(hash(a)),
@@ -257,13 +257,13 @@ fn test_hash_mixed_nan_different_nan_patterns() raises:
 
     # First tensor: element 0 = positive quiet NaN, element 1 = 1.0
     var a = AnyTensor(shape, DType.float32)
-    a._data.bitcast[UInt32]()[0] = UInt32(0x7FC00000)  # +qNaN
-    a._data.bitcast[Float32]()[1] = Float32(1.0)
+    a.set(0, UInt32(UInt32(0x7FC00000)  # +qNaN))
+    a.set(1, Float32(Float32(1.0)))
 
     # Second tensor: element 0 = negative quiet NaN, element 1 = 1.0
     var b = AnyTensor(shape, DType.float32)
-    b._data.bitcast[UInt32]()[0] = UInt32(0xFFC00000)  # -qNaN
-    b._data.bitcast[Float32]()[1] = Float32(1.0)
+    b.set(0, UInt32(UInt32(0xFFC00000)  # -qNaN))
+    b.set(1, Float32(Float32(1.0)))
 
     assert_equal_int(
         Int(hash(a)),
@@ -442,11 +442,11 @@ fn test_hash_nan_canonicalization_scalar() raises:
     # Positive quiet NaN
     var shape = List[Int]()
     var pos_nan = AnyTensor(shape, DType.float32)
-    pos_nan._data.bitcast[UInt32]()[] = UInt32(0x7FC00000)
+    pos_nan.set(0, UInt32(UInt32(0x7FC00000)))
 
     # Negative quiet NaN
     var neg_nan = AnyTensor(shape, DType.float32)
-    neg_nan._data.bitcast[UInt32]()[] = UInt32(0xFFC00000)
+    neg_nan.set(0, UInt32(UInt32(0xFFC00000)))
 
     assert_equal_int(
         Int(hash(pos_nan)),

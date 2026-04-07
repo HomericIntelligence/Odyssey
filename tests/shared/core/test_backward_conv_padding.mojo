@@ -34,7 +34,7 @@ fn test_conv2d_backward_grad_input_padding1() raises:
 
     # Non-uniform input for meaningful gradient signal
     for i in range(16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(Float32(i) * 0.1))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(1)
@@ -45,7 +45,7 @@ fn test_conv2d_backward_grad_input_padding1() raises:
 
     # Non-uniform kernel weights
     for i in range(9):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(1)
@@ -62,7 +62,7 @@ fn test_conv2d_backward_grad_input_padding1() raises:
     var output = forward_input(x)
     var grad_output = zeros_like(output)
     for i in range(16):
-        grad_output._data.bitcast[Float32]()[i] = (
+        grad_output.set(i, Float32(())
             Float32(i % 4) * Float32(0.25) - Float32(0.3)
         )
 
@@ -88,7 +88,7 @@ fn test_conv2d_backward_grad_weights_padding1() raises:
 
     # Non-uniform input
     for i in range(16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(Float32(i) * 0.1))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(1)
@@ -99,7 +99,7 @@ fn test_conv2d_backward_grad_weights_padding1() raises:
 
     # Non-uniform kernel weights
     for i in range(9):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(1)
@@ -116,7 +116,7 @@ fn test_conv2d_backward_grad_weights_padding1() raises:
     var output = forward_weights(kernel)
     var grad_output = zeros_like(output)
     for i in range(16):
-        grad_output._data.bitcast[Float32]()[i] = (
+        grad_output.set(i, Float32(())
             Float32(i % 4) * Float32(0.25) - Float32(0.3)
         )
 
@@ -148,7 +148,7 @@ fn test_conv2d_backward_grad_input_padding2() raises:
 
     # Non-uniform input
     for i in range(25):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(Float32(i) * 0.1))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(1)
@@ -159,7 +159,7 @@ fn test_conv2d_backward_grad_input_padding2() raises:
 
     # Non-uniform kernel weights
     for i in range(9):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(1)
@@ -176,7 +176,7 @@ fn test_conv2d_backward_grad_input_padding2() raises:
     var output = forward_input(x)
     var grad_output = zeros_like(output)
     for i in range(49):
-        grad_output._data.bitcast[Float32]()[i] = (
+        grad_output.set(i, Float32(())
             Float32(i % 4) * Float32(0.25) - Float32(0.3)
         )
 
@@ -203,7 +203,7 @@ fn test_conv2d_backward_grad_weights_padding2() raises:
 
     # Non-uniform input
     for i in range(25):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(Float32(i) * 0.1))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(1)
@@ -214,7 +214,7 @@ fn test_conv2d_backward_grad_weights_padding2() raises:
 
     # Non-uniform kernel weights
     for i in range(9):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(1)
@@ -231,7 +231,7 @@ fn test_conv2d_backward_grad_weights_padding2() raises:
     var output = forward_weights(kernel)
     var grad_output = zeros_like(output)
     for i in range(49):
-        grad_output._data.bitcast[Float32]()[i] = (
+        grad_output.set(i, Float32(())
             Float32(i % 4) * Float32(0.25) - Float32(0.3)
         )
 

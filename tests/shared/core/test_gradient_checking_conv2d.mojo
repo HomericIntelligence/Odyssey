@@ -45,7 +45,7 @@ fn test_conv2d_same_padding_grad_input() raises:
     input_shape.append(4)
     var x = zeros(input_shape, DType.float32)
     for i in range(16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(Float32(i) * 0.1))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(1)
@@ -54,7 +54,7 @@ fn test_conv2d_same_padding_grad_input() raises:
     kernel_shape.append(3)
     var kernel = zeros(kernel_shape, DType.float32)
     for i in range(9):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(1)
@@ -81,7 +81,7 @@ fn test_conv2d_same_padding_grad_weights() raises:
     input_shape.append(4)
     var x = zeros(input_shape, DType.float32)
     for i in range(16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(Float32(i) * 0.1))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(1)
@@ -90,7 +90,7 @@ fn test_conv2d_same_padding_grad_weights() raises:
     kernel_shape.append(3)
     var kernel = zeros(kernel_shape, DType.float32)
     for i in range(9):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(1)
@@ -117,7 +117,7 @@ fn test_conv2d_same_padding_grad_bias() raises:
     input_shape.append(4)
     var x = zeros(input_shape, DType.float32)
     for i in range(16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(Float32(i) * 0.1))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(1)
@@ -126,7 +126,7 @@ fn test_conv2d_same_padding_grad_bias() raises:
     kernel_shape.append(3)
     var kernel = zeros(kernel_shape, DType.float32)
     for i in range(9):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(1)
@@ -153,7 +153,7 @@ fn test_conv2d_strided_grad_input() raises:
     input_shape.append(7)
     var x = zeros(input_shape, DType.float32)
     for i in range(49):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(Float32(i) * 0.1))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(1)
@@ -162,7 +162,7 @@ fn test_conv2d_strided_grad_input() raises:
     kernel_shape.append(3)
     var kernel = zeros(kernel_shape, DType.float32)
     for i in range(9):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(1)
@@ -189,7 +189,7 @@ fn test_conv2d_strided_grad_weights() raises:
     input_shape.append(7)
     var x = zeros(input_shape, DType.float32)
     for i in range(49):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(Float32(i) * 0.1))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(1)
@@ -198,7 +198,7 @@ fn test_conv2d_strided_grad_weights() raises:
     kernel_shape.append(3)
     var kernel = zeros(kernel_shape, DType.float32)
     for i in range(9):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(1)
@@ -225,7 +225,7 @@ fn test_conv2d_strided_grad_bias() raises:
     input_shape.append(7)
     var x = zeros(input_shape, DType.float32)
     for i in range(49):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(Float32(i) * 0.1))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(1)
@@ -234,7 +234,7 @@ fn test_conv2d_strided_grad_bias() raises:
     kernel_shape.append(3)
     var kernel = zeros(kernel_shape, DType.float32)
     for i in range(9):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(1)
@@ -261,7 +261,7 @@ fn test_conv2d_multichannel_grad_input() raises:
     input_shape.append(5)
     var x = zeros(input_shape, DType.float32)
     for i in range(50):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(Float32(i) * 0.1))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(3)
@@ -270,7 +270,7 @@ fn test_conv2d_multichannel_grad_input() raises:
     kernel_shape.append(3)
     var kernel = zeros(kernel_shape, DType.float32)
     for i in range(54):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(3)
@@ -297,7 +297,7 @@ fn test_conv2d_multichannel_grad_weights() raises:
     input_shape.append(5)
     var x = zeros(input_shape, DType.float32)
     for i in range(50):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(Float32(i) * 0.1))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(3)
@@ -306,7 +306,7 @@ fn test_conv2d_multichannel_grad_weights() raises:
     kernel_shape.append(3)
     var kernel = zeros(kernel_shape, DType.float32)
     for i in range(54):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(3)
@@ -333,7 +333,7 @@ fn test_conv2d_multichannel_grad_bias() raises:
     input_shape.append(5)
     var x = zeros(input_shape, DType.float32)
     for i in range(50):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(Float32(i) * 0.1))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(3)
@@ -342,7 +342,7 @@ fn test_conv2d_multichannel_grad_bias() raises:
     kernel_shape.append(3)
     var kernel = zeros(kernel_shape, DType.float32)
     for i in range(54):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(3)

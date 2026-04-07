@@ -114,9 +114,9 @@ fn test_dispatch_unary_int32() raises:
     shape.append(3)
     var x = zeros(shape, DType.int32)
 
-    x._data.bitcast[Int32]()[0] = 1
-    x._data.bitcast[Int32]()[1] = 2
-    x._data.bitcast[Int32]()[2] = 3
+    x.set(0, Int32(1))
+    x.set(1, Int32(2))
+    x.set(2, Int32(3))
 
     var result = dispatch_unary[identity_op](x)
 
@@ -132,8 +132,8 @@ fn test_dispatch_unary_uint8() raises:
     shape.append(2)
     var x = zeros(shape, DType.uint8)
 
-    x._data.bitcast[UInt8]()[0] = 42
-    x._data.bitcast[UInt8]()[1] = 84
+    x.set(0, UInt8(42))
+    x.set(1, UInt8(84))
 
     var result = dispatch_unary[identity_op](x)
 
@@ -203,10 +203,10 @@ fn test_dispatch_binary_int32() raises:
     var a = zeros(shape, DType.int32)
     var b = zeros(shape, DType.int32)
 
-    a._data.bitcast[Int32]()[0] = 10
-    a._data.bitcast[Int32]()[1] = 20
-    b._data.bitcast[Int32]()[0] = 5
-    b._data.bitcast[Int32]()[1] = 10
+    a.set(0, Int32(10))
+    a.set(1, Int32(20))
+    b.set(0, Int32(5))
+    b.set(1, Int32(10))
 
     var result = dispatch_binary[add_op](a, b)
 
@@ -274,8 +274,8 @@ fn test_dispatch_scalar_int32() raises:
     shape.append(2)
     var x = zeros(shape, DType.int32)
 
-    x._data.bitcast[Int32]()[0] = 5
-    x._data.bitcast[Int32]()[1] = 10
+    x.set(0, Int32(5))
+    x.set(1, Int32(10))
 
     var result = dispatch_scalar[add_op](x, 3.0)
 

@@ -63,9 +63,9 @@ fn test_metric_result_tensor() raises:
     var tensor_shape = List[Int]()
     tensor_shape.append(3)
     var tensor = AnyTensor(tensor_shape, DType.float32)
-    tensor._data.bitcast[Float32]()[0] = 0.9
-    tensor._data.bitcast[Float32]()[1] = 0.8
-    tensor._data.bitcast[Float32]()[2] = 0.95
+    tensor.set(0, Float32(0.9))
+    tensor.set(1, Float32(0.8))
+    tensor.set(2, Float32(0.95))
 
     var result = MetricResult("per_class_acc", tensor)
 
@@ -149,15 +149,15 @@ fn test_accuracy_metric_interface_compliance() raises:
     labels_shape.append(4)
     var labels = AnyTensor(labels_shape, DType.int32)
 
-    preds._data.bitcast[Int32]()[0] = 0  # ✓
-    preds._data.bitcast[Int32]()[1] = 1  # ✓
-    preds._data.bitcast[Int32]()[2] = 2  # ✗
-    preds._data.bitcast[Int32]()[3] = 0  # ✗
+    preds.set(0, Int32(0  # ✓))
+    preds.set(1, Int32(1  # ✓))
+    preds.set(2, Int32(2  # ✗))
+    preds.set(3, Int32(0  # ✗))
 
-    labels._data.bitcast[Int32]()[0] = 0
-    labels._data.bitcast[Int32]()[1] = 1
-    labels._data.bitcast[Int32]()[2] = 0
-    labels._data.bitcast[Int32]()[3] = 1
+    labels.set(0, Int32(0))
+    labels.set(1, Int32(1))
+    labels.set(2, Int32(0))
+    labels.set(3, Int32(1))
 
     # Update through Metric interface
     metric.update(preds, labels)
@@ -187,17 +187,17 @@ fn test_confusion_matrix_integration() raises:
     labels_shape.append(5)
     var labels = AnyTensor(labels_shape, DType.int32)
 
-    preds._data.bitcast[Int32]()[0] = 0
-    preds._data.bitcast[Int32]()[1] = 1
-    preds._data.bitcast[Int32]()[2] = 2
-    preds._data.bitcast[Int32]()[3] = 1
-    preds._data.bitcast[Int32]()[4] = 2
+    preds.set(0, Int32(0))
+    preds.set(1, Int32(1))
+    preds.set(2, Int32(2))
+    preds.set(3, Int32(1))
+    preds.set(4, Int32(2))
 
-    labels._data.bitcast[Int32]()[0] = 0
-    labels._data.bitcast[Int32]()[1] = 1
-    labels._data.bitcast[Int32]()[2] = 2
-    labels._data.bitcast[Int32]()[3] = 0
-    labels._data.bitcast[Int32]()[4] = 1
+    labels.set(0, Int32(0))
+    labels.set(1, Int32(1))
+    labels.set(2, Int32(2))
+    labels.set(3, Int32(0))
+    labels.set(4, Int32(1))
 
     # Update and compute precision
     cm.update(preds, labels)
@@ -365,8 +365,8 @@ fn test_multi_metric_training_simulation() raises:
             for i in range(4):
                 var pred_class = (i + batch + epoch) % 3
                 var true_class = (i + batch) % 3
-                preds._data.bitcast[Int32]()[i] = Int32(pred_class)
-                labels._data.bitcast[Int32]()[i] = Int32(true_class)
+                preds.set(i, Int32(Int32(pred_class)))
+                labels.set(i, Int32(Int32(true_class)))
 
             # Update all metrics
             accuracy.update(preds, labels)
@@ -407,10 +407,10 @@ fn test_metric_interface_consistency() raises:
     var labels_shape = List[Int]()
     labels_shape.append(2)
     var labels = AnyTensor(labels_shape, DType.int32)
-    preds._data.bitcast[Int32]()[0] = 0
-    preds._data.bitcast[Int32]()[1] = 1
-    labels._data.bitcast[Int32]()[0] = 0
-    labels._data.bitcast[Int32]()[1] = 1
+    preds.set(0, Int32(0))
+    preds.set(1, Int32(1))
+    labels.set(0, Int32(0))
+    labels.set(1, Int32(1))
 
     # Both should accept update()
     accuracy.update(preds, labels)

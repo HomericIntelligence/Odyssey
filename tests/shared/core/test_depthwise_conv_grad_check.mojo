@@ -75,7 +75,7 @@ fn test_depthwise_conv2d_backward_stride1_padding0_grad_input() raises:
     var x = zeros(input_shape, DType.float32)
 
     for i in range(16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(Float32(i) * 0.1))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(1)
@@ -85,7 +85,7 @@ fn test_depthwise_conv2d_backward_stride1_padding0_grad_input() raises:
     var kernel = zeros(kernel_shape, DType.float32)
 
     for i in range(9):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(1)
@@ -101,7 +101,7 @@ fn test_depthwise_conv2d_backward_stride1_padding0_grad_input() raises:
     var output = forward_input(x)
     var grad_output = zeros_like(output)
     for i in range(output.numel()):
-        grad_output._data.bitcast[Float32]()[i] = Float32(i % 4) * 0.25 - 0.3
+        grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
     check_gradient(forward_input, backward_input, x, grad_output, rtol=1e-2, atol=1e-2)
 
@@ -119,7 +119,7 @@ fn test_depthwise_conv2d_backward_stride2_grad_input() raises:
     var x = zeros(input_shape, DType.float32)
 
     for i in range(64):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.05
+        x.set(i, Float32(Float32(i) * 0.05))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(1)
@@ -129,7 +129,7 @@ fn test_depthwise_conv2d_backward_stride2_grad_input() raises:
     var kernel = zeros(kernel_shape, DType.float32)
 
     for i in range(9):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(1)
@@ -145,7 +145,7 @@ fn test_depthwise_conv2d_backward_stride2_grad_input() raises:
     var output = forward_input(x)
     var grad_output = zeros_like(output)
     for i in range(output.numel()):
-        grad_output._data.bitcast[Float32]()[i] = Float32(i % 4) * 0.25 - 0.3
+        grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
     check_gradient(forward_input, backward_input, x, grad_output, rtol=1e-2, atol=1e-2)
 
@@ -163,7 +163,7 @@ fn test_depthwise_conv2d_backward_padding1_grad_input() raises:
     var x = zeros(input_shape, DType.float32)
 
     for i in range(16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(Float32(i) * 0.1))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(1)
@@ -173,7 +173,7 @@ fn test_depthwise_conv2d_backward_padding1_grad_input() raises:
     var kernel = zeros(kernel_shape, DType.float32)
 
     for i in range(9):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(1)
@@ -189,7 +189,7 @@ fn test_depthwise_conv2d_backward_padding1_grad_input() raises:
     var output = forward_input(x)
     var grad_output = zeros_like(output)
     for i in range(output.numel()):
-        grad_output._data.bitcast[Float32]()[i] = Float32(i % 4) * 0.25 - 0.3
+        grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
     check_gradient(forward_input, backward_input, x, grad_output, rtol=1e-2, atol=1e-2)
 
@@ -208,7 +208,7 @@ fn test_depthwise_conv2d_backward_multichannel_grad_input() raises:
     var x = zeros(input_shape, DType.float32)
 
     for i in range(channels * 16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.05
+        x.set(i, Float32(Float32(i) * 0.05))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(channels)
@@ -218,7 +218,7 @@ fn test_depthwise_conv2d_backward_multichannel_grad_input() raises:
     var kernel = zeros(kernel_shape, DType.float32)
 
     for i in range(channels * 9):
-        kernel._data.bitcast[Float32]()[i] = Float32(i % 9) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i % 9) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(channels)
@@ -234,7 +234,7 @@ fn test_depthwise_conv2d_backward_multichannel_grad_input() raises:
     var output = forward_input(x)
     var grad_output = zeros_like(output)
     for i in range(output.numel()):
-        grad_output._data.bitcast[Float32]()[i] = Float32(i % 4) * 0.25 - 0.3
+        grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
     check_gradient(forward_input, backward_input, x, grad_output, rtol=1e-2, atol=1e-2)
 
@@ -252,7 +252,7 @@ fn test_depthwise_conv2d_backward_grad_weights_numerical() raises:
     var x = zeros(input_shape, DType.float32)
 
     for i in range(16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(Float32(i) * 0.1))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(1)
@@ -262,7 +262,7 @@ fn test_depthwise_conv2d_backward_grad_weights_numerical() raises:
     var kernel = zeros(kernel_shape, DType.float32)
 
     for i in range(9):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(1)
@@ -279,7 +279,7 @@ fn test_depthwise_conv2d_backward_grad_weights_numerical() raises:
     var output = forward_weights(kernel)
     var grad_output = zeros_like(output)
     for i in range(output.numel()):
-        grad_output._data.bitcast[Float32]()[i] = Float32(i % 4) * 0.25 - 0.3
+        grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
     check_gradient(forward_weights, backward_weights, kernel, grad_output, rtol=1e-2, atol=1e-2)
 
@@ -301,7 +301,7 @@ fn test_depthwise_conv2d_backward_grad_bias_value() raises:
     var x = zeros(input_shape, DType.float32)
 
     for i in range(channels * 9):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 0.1
+        x.set(i, Float32(Float32(i) * 0.1 + 0.1))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(channels)
@@ -311,7 +311,7 @@ fn test_depthwise_conv2d_backward_grad_bias_value() raises:
     var kernel = zeros(kernel_shape, DType.float32)
 
     for i in range(channels * 9):
-        kernel._data.bitcast[Float32]()[i] = Float32(i % 9) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i % 9) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(channels)
@@ -322,8 +322,8 @@ fn test_depthwise_conv2d_backward_grad_bias_value() raises:
 
     # grad_output: channel 0 gets 0.5, channel 1 gets -0.3
     var grad_output = zeros_like(output)
-    grad_output._data.bitcast[Float32]()[0] = Float32(0.5)
-    grad_output._data.bitcast[Float32]()[1] = Float32(-0.3)
+    grad_output.set(0, Float32(Float32(0.5)))
+    grad_output.set(1, Float32(Float32(-0.3)))
 
     var grads = depthwise_conv2d_backward(grad_output, x, kernel, stride=1, padding=0)
 
@@ -351,7 +351,7 @@ fn test_depthwise_conv2d_backward_grad_weights_multichannel() raises:
     var x = zeros(input_shape, DType.float32)
 
     for i in range(channels * 16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.05
+        x.set(i, Float32(Float32(i) * 0.05))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(channels)
@@ -361,7 +361,7 @@ fn test_depthwise_conv2d_backward_grad_weights_multichannel() raises:
     var kernel = zeros(kernel_shape, DType.float32)
 
     for i in range(channels * 4):
-        kernel._data.bitcast[Float32]()[i] = Float32(i % 4) * 0.1 + 0.1
+        kernel.set(i, Float32(Float32(i % 4) * 0.1 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(channels)
@@ -377,7 +377,7 @@ fn test_depthwise_conv2d_backward_grad_weights_multichannel() raises:
     var output = forward_weights(kernel)
     var grad_output = zeros_like(output)
     for i in range(output.numel()):
-        grad_output._data.bitcast[Float32]()[i] = Float32(i % 4) * 0.25 - 0.3
+        grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
     check_gradient(forward_weights, backward_weights, kernel, grad_output, rtol=1e-2, atol=1e-2)
 
@@ -403,7 +403,7 @@ fn test_depthwise_conv2d_backward_full_gradient_pipeline() raises:
     var x = zeros(input_shape, DType.float32)
 
     for i in range(channels * in_h * in_w):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1 - 1.2
+        x.set(i, Float32(Float32(i) * 0.1 - 1.2))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(channels)
@@ -413,18 +413,18 @@ fn test_depthwise_conv2d_backward_full_gradient_pipeline() raises:
     var kernel = zeros(kernel_shape, DType.float32)
 
     for i in range(channels * kh * kw):
-        kernel._data.bitcast[Float32]()[i] = Float32(i % 9) * 0.05 + 0.1
+        kernel.set(i, Float32(Float32(i % 9) * 0.05 + 0.1))
 
     var bias_shape = List[Int]()
     bias_shape.append(channels)
     var bias = zeros(bias_shape, DType.float32)
-    bias._data.bitcast[Float32]()[0] = Float32(0.1)
-    bias._data.bitcast[Float32]()[1] = Float32(-0.1)
+    bias.set(0, Float32(Float32(0.1)))
+    bias.set(1, Float32(Float32(-0.1)))
 
     var output = depthwise_conv2d(x, kernel, bias, stride=1, padding=0)
     var grad_output = zeros_like(output)
     for i in range(output.numel()):
-        grad_output._data.bitcast[Float32]()[i] = Float32(i % 4) * 0.25 - 0.3
+        grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
     var grads = depthwise_conv2d_backward(grad_output, x, kernel, stride=1, padding=0)
 

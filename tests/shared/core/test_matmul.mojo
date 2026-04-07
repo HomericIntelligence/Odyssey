@@ -61,16 +61,16 @@ fn test_matmul_baseline_2x2() raises:
     var b = zeros(shape_b, DType.float32)
 
     # A = [[1, 2], [3, 4]]
-    a._data.bitcast[Float32]()[0] = 1.0
-    a._data.bitcast[Float32]()[1] = 2.0
-    a._data.bitcast[Float32]()[2] = 3.0
-    a._data.bitcast[Float32]()[3] = 4.0
+    a.set(0, Float32(1.0))
+    a.set(1, Float32(2.0))
+    a.set(2, Float32(3.0))
+    a.set(3, Float32(4.0))
 
     # B = [[5, 6], [7, 8]]
-    b._data.bitcast[Float32]()[0] = 5.0
-    b._data.bitcast[Float32]()[1] = 6.0
-    b._data.bitcast[Float32]()[2] = 7.0
-    b._data.bitcast[Float32]()[3] = 8.0
+    b.set(0, Float32(5.0))
+    b.set(1, Float32(6.0))
+    b.set(2, Float32(7.0))
+    b.set(3, Float32(8.0))
 
     var result = matmul(a, b)
 
@@ -101,12 +101,12 @@ fn test_matmul_baseline_identity() raises:
 
     # A = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     for i in range(9):
-        a._data.bitcast[Float32]()[i] = Float32(i + 1)
+        a.set(i, Float32(Float32(i + 1)))
 
     # Identity = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-    identity._data.bitcast[Float32]()[0] = 1.0  # (0, 0)
-    identity._data.bitcast[Float32]()[4] = 1.0  # (1, 1)
-    identity._data.bitcast[Float32]()[8] = 1.0  # (2, 2)
+    identity.set(0, Float32(1.0  # (0, 0)))
+    identity.set(4, Float32(1.0  # (1, 1)))
+    identity.set(8, Float32(1.0  # (2, 2)))
 
     var result = matmul(a, identity)
 

@@ -34,7 +34,7 @@ fn test_depthwise_conv2d_gradient_kernel_basic() raises:
     shape.append(4)  # width
     var input = zeros(shape, DType.float32)
     for i in range(input.numel()):
-        input._data.bitcast[Float32]()[i] = Float32(i) * Float32(0.1)
+        input.set(i, Float32(Float32(i) * Float32(0.1)))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(2)  # channels
@@ -43,7 +43,7 @@ fn test_depthwise_conv2d_gradient_kernel_basic() raises:
     kernel_shape.append(3)  # kernel width
     var kernel = zeros(kernel_shape, DType.float32)
     for i in range(kernel.numel()):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * Float32(0.05) + Float32(0.1)
+        kernel.set(i, Float32(Float32(i) * Float32(0.05) + Float32(0.1)))
 
     var bias_shape = List[Int]()
     bias_shape.append(2)  # channels
@@ -70,7 +70,7 @@ fn test_depthwise_conv2d_gradient_bias_basic() raises:
     shape.append(4)  # width
     var input = zeros(shape, DType.float32)
     for i in range(input.numel()):
-        input._data.bitcast[Float32]()[i] = Float32(i) * Float32(0.1)
+        input.set(i, Float32(Float32(i) * Float32(0.1)))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(2)  # channels
@@ -79,7 +79,7 @@ fn test_depthwise_conv2d_gradient_bias_basic() raises:
     kernel_shape.append(3)  # kernel width
     var kernel = zeros(kernel_shape, DType.float32)
     for i in range(kernel.numel()):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * Float32(0.05) + Float32(0.1)
+        kernel.set(i, Float32(Float32(i) * Float32(0.05) + Float32(0.1)))
 
     var bias_shape = List[Int]()
     bias_shape.append(2)  # channels
@@ -106,7 +106,7 @@ fn test_depthwise_conv2d_gradient_input_basic() raises:
     shape.append(4)  # width
     var input = zeros(shape, DType.float32)
     for i in range(input.numel()):
-        input._data.bitcast[Float32]()[i] = Float32(i) * Float32(0.1)
+        input.set(i, Float32(Float32(i) * Float32(0.1)))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(2)  # channels
@@ -115,7 +115,7 @@ fn test_depthwise_conv2d_gradient_input_basic() raises:
     kernel_shape.append(3)  # kernel width
     var kernel = zeros(kernel_shape, DType.float32)
     for i in range(kernel.numel()):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * Float32(0.05) + Float32(0.1)
+        kernel.set(i, Float32(Float32(i) * Float32(0.05) + Float32(0.1)))
 
     var bias_shape = List[Int]()
     bias_shape.append(2)  # channels
@@ -142,7 +142,7 @@ fn test_depthwise_conv2d_gradient_kernel_strided() raises:
     shape.append(6)  # width
     var input = zeros(shape, DType.float32)
     for i in range(input.numel()):
-        input._data.bitcast[Float32]()[i] = Float32(i) * Float32(0.1)
+        input.set(i, Float32(Float32(i) * Float32(0.1)))
 
     var kernel_shape = List[Int]()
     kernel_shape.append(2)  # channels
@@ -151,7 +151,7 @@ fn test_depthwise_conv2d_gradient_kernel_strided() raises:
     kernel_shape.append(3)  # kernel width
     var kernel = zeros(kernel_shape, DType.float32)
     for i in range(kernel.numel()):
-        kernel._data.bitcast[Float32]()[i] = Float32(i) * Float32(0.05) + Float32(0.1)
+        kernel.set(i, Float32(Float32(i) * Float32(0.05) + Float32(0.1)))
 
     var bias_shape = List[Int]()
     bias_shape.append(2)  # channels
