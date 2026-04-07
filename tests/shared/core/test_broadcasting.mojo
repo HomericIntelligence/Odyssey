@@ -9,7 +9,8 @@ Tests NumPy-style broadcasting rules for scalar and vector-to-matrix cases.
 
 
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
-from shared.core.arithmetic import add, multiply
+from shared.core.arithmetic import add, multiply, subtract, divide
+from shared.core.comparison import greater, less_equal
 from testing import assert_true
 from tests.shared.conftest import (
     assert_dtype,
@@ -375,8 +376,6 @@ fn test_broadcast_preserves_dtype() raises:
 
 fn test_broadcast_with_comparison_scalar() raises:
     """Test broadcasting scalar with comparison operations."""
-    from shared.core import greater
-
     var shape_vec = List[Int]()
     shape_vec.append(5)
     var shape_scalar = List[Int]()
@@ -393,8 +392,6 @@ fn test_broadcast_with_comparison_scalar() raises:
 
 fn test_broadcast_with_comparison_vector_matrix() raises:
     """Test broadcasting vector to matrix with comparison."""
-    from shared.core import less_equal
-
     var shape_mat = List[Int]()
     shape_mat.append(3)
     shape_mat.append(4)
@@ -431,8 +428,6 @@ fn test_broadcast_chained_operations() raises:
 
 fn test_broadcast_with_subtract() raises:
     """Test broadcasting with subtraction."""
-    from shared.core import subtract
-
     var shape_2d = List[Int]()
     shape_2d.append(3)
     shape_2d.append(4)
@@ -449,8 +444,6 @@ fn test_broadcast_with_subtract() raises:
 
 fn test_broadcast_with_divide() raises:
     """Test broadcasting with division."""
-    from shared.core import divide
-
     var shape_mat = List[Int]()
     shape_mat.append(2)
     shape_mat.append(5)
