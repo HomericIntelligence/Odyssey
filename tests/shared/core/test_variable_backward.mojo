@@ -59,7 +59,7 @@ fn test_variable_backward_scalar_loss() raises:
     # Create input variables
     var shape = create_shape_1d(1)
     var x_data = ones(shape, DType.float32)
-    x_data._data.bitcast[Float32]()[0] = 2.0
+    x_data.set(0, Float32(2.0))
 
     var x = Variable(x_data, True, tape)
 
@@ -88,12 +88,12 @@ fn test_variable_backward_multiple_variables() raises:
     # Create two input variables
     var shape = create_shape_1d(2)
     var x_data = ones(shape, DType.float32)
-    x_data._data.bitcast[Float32]()[0] = 1.0
-    x_data._data.bitcast[Float32]()[1] = 2.0
+    x_data.set(0, Float32(1.0))
+    x_data.set(1, Float32(2.0))
 
     var y_data = ones(shape, DType.float32)
-    y_data._data.bitcast[Float32]()[0] = 3.0
-    y_data._data.bitcast[Float32]()[1] = 4.0
+    y_data.set(0, Float32(3.0))
+    y_data.set(1, Float32(4.0))
 
     var x = Variable(x_data, True, tape)
     var y = Variable(y_data, True, tape)
@@ -129,7 +129,7 @@ fn test_variable_backward_chain_rule() raises:
     # Create input variable
     var shape = create_shape_1d(1)
     var x_data = ones(shape, DType.float32)
-    x_data._data.bitcast[Float32]()[0] = 3.0
+    x_data.set(0, Float32(3.0))
 
     var x = Variable(x_data, True, tape)
 
@@ -158,8 +158,8 @@ fn test_variable_backward_independent_tapes() raises:
 
     var shape = create_shape_1d(2)
     var x1_data = ones(shape, DType.float32)
-    x1_data._data.bitcast[Float32]()[0] = 2.0
-    x1_data._data.bitcast[Float32]()[1] = 3.0
+    x1_data.set(0, Float32(2.0))
+    x1_data.set(1, Float32(3.0))
 
     var x1 = Variable(x1_data, True, tape1)
     var y1 = variable_multiply(x1, x1, tape1)
@@ -173,8 +173,8 @@ fn test_variable_backward_independent_tapes() raises:
     tape2.enable()
 
     var x2_data = ones(shape, DType.float32)
-    x2_data._data.bitcast[Float32]()[0] = 2.0
-    x2_data._data.bitcast[Float32]()[1] = 3.0
+    x2_data.set(0, Float32(2.0))
+    x2_data.set(1, Float32(3.0))
 
     var x2 = Variable(x2_data, True, tape2)
     var y2 = variable_multiply(x2, x2, tape2)
@@ -205,10 +205,10 @@ fn test_variable_backward_no_gradients_required() raises:
     # Create variables
     var shape = create_shape_1d(1)
     var x_data = ones(shape, DType.float32)
-    x_data._data.bitcast[Float32]()[0] = 2.0
+    x_data.set(0, Float32(2.0))
 
     var c_data = ones(shape, DType.float32)
-    c_data._data.bitcast[Float32]()[0] = 5.0
+    c_data.set(0, Float32(5.0))
 
     # x requires gradients, c does not
     var x = Variable(x_data, True, tape)

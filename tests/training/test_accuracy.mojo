@@ -41,15 +41,15 @@ fn test_top1_accuracy_perfect() raises:
 
     for i in range(batch_size):
         var true_class = i % num_classes
-        labels._data.bitcast[Int32]()[i] = Int32(true_class)
+        labels.set(i, Int32(Int32(true_class)))
 
         # Set logits: correct class = 10.0, others = 0.0
         for c in range(num_classes):
             var idx = i * num_classes + c
             if c == true_class:
-                logits._data.bitcast[Float32]()[idx] = 10.0
+                logits.set(idx, Float32(10.0))
             else:
-                logits._data.bitcast[Float32]()[idx] = 0.0
+                logits.set(idx, Float32(0.0))
 
     var acc = top1_accuracy(logits, labels)
 
@@ -76,25 +76,25 @@ fn test_top1_accuracy_half_correct() raises:
     # First 5 correct, last 5 incorrect
     for i in range(batch_size):
         var true_class = i % num_classes
-        labels._data.bitcast[Int32]()[i] = Int32(true_class)
+        labels.set(i, Int32(Int32(true_class)))
 
         if i < 5:
             # Correct prediction
             for c in range(num_classes):
                 var idx = i * num_classes + c
                 if c == true_class:
-                    logits._data.bitcast[Float32]()[idx] = 10.0
+                    logits.set(idx, Float32(10.0))
                 else:
-                    logits._data.bitcast[Float32]()[idx] = 0.0
+                    logits.set(idx, Float32(0.0))
         else:
             # Incorrect prediction (predict wrong class)
             var wrong_class = (true_class + 1) % num_classes
             for c in range(num_classes):
                 var idx = i * num_classes + c
                 if c == wrong_class:
-                    logits._data.bitcast[Float32]()[idx] = 10.0
+                    logits.set(idx, Float32(10.0))
                 else:
-                    logits._data.bitcast[Float32]()[idx] = 0.0
+                    logits.set(idx, Float32(0.0))
 
     var acc = top1_accuracy(logits, labels)
 
@@ -122,12 +122,12 @@ fn test_top1_accuracy_with_indices() raises:
 
     # Set up: first 4 correct, last 4 incorrect
     for i in range(batch_size):
-        labels._data.bitcast[Int32]()[i] = Int32(i % 4)
+        labels.set(i, Int32(Int32(i % 4)))
 
         if i < 4:
-            preds._data.bitcast[Int32]()[i] = Int32(i % 4)  # Correct
+            preds.set(i, Int32(Int32(i % 4)  # Correct))
         else:
-            preds._data.bitcast[Int32]()[i] = Int32((i + 1) % 4)  # Incorrect
+            preds.set(i, Int32(Int32((i + 1) % 4)  # Incorrect))
 
     var acc = top1_accuracy(preds, labels)
 
@@ -154,14 +154,14 @@ fn test_topk_accuracy_k1() raises:
     # Perfect predictions
     for i in range(batch_size):
         var true_class = i % num_classes
-        labels._data.bitcast[Int32]()[i] = Int32(true_class)
+        labels.set(i, Int32(Int32(true_class)))
 
         for c in range(num_classes):
             var idx = i * num_classes + c
             if c == true_class:
-                logits._data.bitcast[Float32]()[idx] = 10.0
+                logits.set(idx, Float32(10.0))
             else:
-                logits._data.bitcast[Float32]()[idx] = Float32(
+                logits.set(idx, Float32(Float32())
                     c
                 )  # Lower scores
 
@@ -239,13 +239,13 @@ fn test_topk_accuracy_k3() raises:
     for i in range(batch_size):
         for c in range(num_classes):
             var idx = i * num_classes + c
-            logits._data.bitcast[Float32]()[idx] = scores[i][c]
+            logits.set(idx, Float32(scores[i][c]))
 
     # Set labels
-    labels._data.bitcast[Int32]()[0] = 0
-    labels._data.bitcast[Int32]()[1] = 1
-    labels._data.bitcast[Int32]()[2] = 2
-    labels._data.bitcast[Int32]()[3] = 4
+    labels.set(0, Int32(0))
+    labels.set(1, Int32(1))
+    labels.set(2, Int32(2))
+    labels.set(3, Int32(4))
 
     var acc = topk_accuracy(logits, labels, k=3)
 
@@ -303,15 +303,15 @@ fn test_per_class_accuracy() raises:
 
     # Fill data
     for i in range(batch_size):
-        labels._data.bitcast[Int32]()[i] = Int32(true_classes[i])
+        labels.set(i, Int32(Int32(true_classes[i])))
 
         # Make predicted class have highest score
         for c in range(num_classes):
             var idx = i * num_classes + c
             if c == pred_classes[i]:
-                logits._data.bitcast[Float32]()[idx] = 10.0
+                logits.set(idx, Float32(10.0))
             else:
-                logits._data.bitcast[Float32]()[idx] = 0.0
+                logits.set(idx, Float32(0.0))
 
     var per_class_acc = per_class_accuracy(logits, labels, num_classes)
 
@@ -346,7 +346,7 @@ fn test_accuracy_metric_incremental() raises:
 
     for i in range(batch1_size):
         var true_class = i % 3
-        labels1._data.bitcast[Int32]()[i] = Int32(true_class)
+        labels1.set(i, Int32(Int32(true_class)))
 
         # First 6 correct, last 2 incorrect
         var pred_class = true_class if i < 6 else (true_class + 1) % 3
@@ -354,9 +354,9 @@ fn test_accuracy_metric_incremental() raises:
         for c in range(3):
             var idx = i * 3 + c
             if c == pred_class:
-                logits1._data.bitcast[Float32]()[idx] = 10.0
+                logits1.set(idx, Float32(10.0))
             else:
-                logits1._data.bitcast[Float32]()[idx] = 0.0
+                logits1.set(idx, Float32(0.0))
 
     metric.update(logits1, labels1)
 
@@ -375,7 +375,7 @@ fn test_accuracy_metric_incremental() raises:
 
     for i in range(batch2_size):
         var true_class = i % 3
-        labels2._data.bitcast[Int32]()[i] = Int32(true_class)
+        labels2.set(i, Int32(Int32(true_class)))
 
         # First 2 correct, last 2 incorrect
         var pred_class = true_class if i < 2 else (true_class + 1) % 3
@@ -383,9 +383,9 @@ fn test_accuracy_metric_incremental() raises:
         for c in range(3):
             var idx = i * 3 + c
             if c == pred_class:
-                logits2._data.bitcast[Float32]()[idx] = 10.0
+                logits2.set(idx, Float32(10.0))
             else:
-                logits2._data.bitcast[Float32]()[idx] = 0.0
+                logits2.set(idx, Float32(0.0))
 
     metric.update(logits2, labels2)
 

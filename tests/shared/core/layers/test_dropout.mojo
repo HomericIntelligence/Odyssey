@@ -100,7 +100,7 @@ fn test_dropout_forward_inference_mode() raises:
     var input = AnyTensor([4], DType.float32)
     var input_values: List[Float32] = [1.0, 2.0, 3.0, 4.0]
     for i in range(4):
-        input._data.bitcast[Float32]()[i] = input_values[i]
+        input.set(i, Float32(input_values[i]))
 
     var output = layer.forward(input)
 
@@ -123,7 +123,7 @@ fn test_dropout_forward_training_mode_shape() raises:
     # Create input with various shapes
     var input_1d = AnyTensor([10], DType.float32)
     for i in range(10):
-        input_1d._data.bitcast[Float32]()[i] = Float32(i)
+        input_1d.set(i, Float32(Float32(i)))
 
     var output_1d = layer.forward(input_1d)
     assert_true(
@@ -133,7 +133,7 @@ fn test_dropout_forward_training_mode_shape() raises:
 
     var input_2d = AnyTensor([4, 5], DType.float32)
     for i in range(20):
-        input_2d._data.bitcast[Float32]()[i] = Float32(i)
+        input_2d.set(i, Float32(Float32(i)))
 
     var output_2d = layer.forward(input_2d)
     assert_true(
@@ -154,7 +154,7 @@ fn test_dropout_forward_training_mode_zeros() raises:
     # Create input with all ones
     var input = AnyTensor([100], DType.float32)
     for i in range(100):
-        input._data.bitcast[Float32]()[i] = 1.0
+        input.set(i, Float32(1.0))
 
     var output = layer.forward(input)
 
@@ -183,7 +183,7 @@ fn test_dropout_forward_training_mode_scale() raises:
     # Create input with all ones
     var input = AnyTensor([100], DType.float32)
     for i in range(100):
-        input._data.bitcast[Float32]()[i] = 1.0
+        input.set(i, Float32(1.0))
 
     var output = layer.forward(input)
 
@@ -207,14 +207,14 @@ fn test_dropout_backward_shape() raises:
     # Create input and forward pass to get mask
     var input = AnyTensor([4, 5], DType.float32)
     for i in range(20):
-        input._data.bitcast[Float32]()[i] = 1.0
+        input.set(i, Float32(1.0))
 
     var output = layer.forward(input)
 
     # Create gradient
     var grad_output = AnyTensor([4, 5], DType.float32)
     for i in range(20):
-        grad_output._data.bitcast[Float32]()[i] = 0.1
+        grad_output.set(i, Float32(0.1))
 
     var grad_input = layer.backward(grad_output, layer.last_mask)
 
@@ -236,7 +236,7 @@ fn test_dropout_backward_scaling() raises:
     # Create input and forward pass
     var input = AnyTensor([4], DType.float32)
     for i in range(4):
-        input._data.bitcast[Float32]()[i] = 1.0
+        input.set(i, Float32(1.0))
 
     var output = layer.forward(input)
     var mask = layer.last_mask
@@ -244,7 +244,7 @@ fn test_dropout_backward_scaling() raises:
     # Create gradient with all ones
     var grad_output = AnyTensor([4], DType.float32)
     for i in range(4):
-        grad_output._data.bitcast[Float32]()[i] = 1.0
+        grad_output.set(i, Float32(1.0))
 
     var grad_input = layer.backward(grad_output, mask)
 
@@ -281,7 +281,7 @@ fn test_dropout_forward_float64() raises:
 
     var input = AnyTensor([50], DType.float64)
     for i in range(50):
-        input._data.bitcast[Float64]()[i] = 1.0
+        input.set(i, Float64(1.0))
 
     var output = layer.forward(input)
 
@@ -308,7 +308,7 @@ fn test_dropout_zero_dropout_rate() raises:
 
     var input = AnyTensor([10], DType.float32)
     for i in range(10):
-        input._data.bitcast[Float32]()[i] = 1.0
+        input.set(i, Float32(1.0))
 
     var output = layer.forward(input)
 
@@ -330,7 +330,7 @@ fn test_dropout_high_dropout_rate() raises:
 
     var input = AnyTensor([100], DType.float32)
     for i in range(100):
-        input._data.bitcast[Float32]()[i] = 1.0
+        input.set(i, Float32(1.0))
 
     var output = layer.forward(input)
 

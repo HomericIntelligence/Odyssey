@@ -35,14 +35,14 @@ fn test_logical_xor_values() raises:
     var b = zeros(shape, DType.float32)
 
     # a = [0, 0, 1, 1], b = [0, 1, 0, 1]
-    a._data.bitcast[Float32]()[0] = 0.0
-    a._data.bitcast[Float32]()[1] = 0.0
-    a._data.bitcast[Float32]()[2] = 1.0
-    a._data.bitcast[Float32]()[3] = 1.0
-    b._data.bitcast[Float32]()[0] = 0.0
-    b._data.bitcast[Float32]()[1] = 1.0
-    b._data.bitcast[Float32]()[2] = 0.0
-    b._data.bitcast[Float32]()[3] = 1.0
+    a.set(0, Float32(0.0))
+    a.set(1, Float32(0.0))
+    a.set(2, Float32(1.0))
+    a.set(3, Float32(1.0))
+    b.set(0, Float32(0.0))
+    b.set(1, Float32(1.0))
+    b.set(2, Float32(0.0))
+    b.set(3, Float32(1.0))
 
     var result = logical_xor(a, b)
 
@@ -92,8 +92,8 @@ fn test_logical_xor_all_true() raises:
     var a = zeros(shape, DType.float32)
     var b = zeros(shape, DType.float32)
     for i in range(3):
-        a._data.bitcast[Float32]()[i] = 1.0
-        b._data.bitcast[Float32]()[i] = 1.0
+        a.set(i, Float32(1.0))
+        b.set(i, Float32(1.0))
     var result = logical_xor(a, b)
     for i in range(3):
         assert_almost_equal(
@@ -107,9 +107,9 @@ fn test_logical_xor_identity() raises:
     shape.append(3)
     var a = zeros(shape, DType.float32)
     var b = zeros(shape, DType.float32)
-    a._data.bitcast[Float32]()[0] = 0.0
-    a._data.bitcast[Float32]()[1] = 1.0
-    a._data.bitcast[Float32]()[2] = 1.0
+    a.set(0, Float32(0.0))
+    a.set(1, Float32(1.0))
+    a.set(2, Float32(1.0))
     var result = logical_xor(a, b)
     assert_almost_equal(
         result._data.bitcast[Float32]()[0], Float32(0.0), tolerance=1e-5

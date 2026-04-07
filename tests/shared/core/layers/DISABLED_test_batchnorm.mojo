@@ -169,7 +169,7 @@ fn test_batchnorm_forward_training_mode() raises:
             for h in range(2):  # height
                 for w in range(2):  # width
                     var idx = i * (4 * 2 * 2) + c * (2 * 2) + h * 2 + w
-                    input._data.bitcast[Float32]()[idx] = Float32(2.0 + i * 2.0)
+                    input.set(idx, Float32(Float32(2.0 + i * 2.0)))
 
     # Forward in training mode
     var output = layer.forward(input, training=True)
@@ -329,7 +329,7 @@ fn test_batchnorm_set_running_stats() raises:
     new_var_shape.append(16)
     var new_var = zeros(new_var_shape, DType.float32)
     for i in range(16):
-        new_var._data.bitcast[Float32]()[i] = 2.0
+        new_var.set(i, Float32(2.0))
 
     # Set the statistics
     layer.set_running_stats(new_mean, new_var)

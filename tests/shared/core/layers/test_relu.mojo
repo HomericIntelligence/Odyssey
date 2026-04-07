@@ -19,7 +19,7 @@ fn test_relu_forward_basic() raises:
     var input = AnyTensor([5], DType.float32)
     var input_values: List[Float32] = [-2.0, -1.0, 0.0, 1.0, 2.0]
     for i in range(5):
-        input._data.bitcast[Float32]()[i] = input_values[i]
+        input.set(i, Float32(input_values[i]))
 
     var output = layer.forward(input)
 
@@ -41,7 +41,7 @@ fn test_relu_forward_all_negative() raises:
     var input = AnyTensor([4], DType.float32)
     var input_values: List[Float32] = [-5.0, -2.0, -0.1, -10.0]
     for i in range(4):
-        input._data.bitcast[Float32]()[i] = input_values[i]
+        input.set(i, Float32(input_values[i]))
 
     var output = layer.forward(input)
 
@@ -60,7 +60,7 @@ fn test_relu_forward_all_positive() raises:
     var input = AnyTensor([4], DType.float32)
     var input_values: List[Float32] = [0.5, 1.0, 5.0, 10.0]
     for i in range(4):
-        input._data.bitcast[Float32]()[i] = input_values[i]
+        input.set(i, Float32(input_values[i]))
 
     var output = layer.forward(input)
 
@@ -82,7 +82,7 @@ fn test_relu_forward_batch() raises:
     var input = AnyTensor([2, 3], DType.float32)
     var input_values: List[Float32] = [-1.0, 0.5, -0.5, 2.0, -2.0, 1.5]
     for i in range(6):
-        input._data.bitcast[Float32]()[i] = input_values[i]
+        input.set(i, Float32(input_values[i]))
 
     var output = layer.forward(input)
 
@@ -102,13 +102,13 @@ fn test_relu_backward_basic() raises:
     var input = AnyTensor([5], DType.float32)
     var input_values: List[Float32] = [-2.0, -1.0, 0.0, 1.0, 2.0]
     for i in range(5):
-        input._data.bitcast[Float32]()[i] = input_values[i]
+        input.set(i, Float32(input_values[i]))
 
     # Gradient from upstream: [0.1, 0.2, 0.3, 0.4, 0.5]
     var grad_output = AnyTensor([5], DType.float32)
     var grad_values: List[Float32] = [0.1, 0.2, 0.3, 0.4, 0.5]
     for i in range(5):
-        grad_output._data.bitcast[Float32]()[i] = grad_values[i]
+        grad_output.set(i, Float32(grad_values[i]))
 
     var grad_input = layer.backward(grad_output, input)
 
@@ -131,12 +131,12 @@ fn test_relu_backward_all_positive() raises:
     var input = AnyTensor([4], DType.float32)
     var input_values: List[Float32] = [1.0, 2.0, 3.0, 4.0]
     for i in range(4):
-        input._data.bitcast[Float32]()[i] = input_values[i]
+        input.set(i, Float32(input_values[i]))
 
     var grad_output = AnyTensor([4], DType.float32)
     var grad_values: List[Float32] = [0.1, 0.2, 0.3, 0.4]
     for i in range(4):
-        grad_output._data.bitcast[Float32]()[i] = grad_values[i]
+        grad_output.set(i, Float32(grad_values[i]))
 
     var grad_input = layer.backward(grad_output, input)
 
@@ -158,12 +158,12 @@ fn test_relu_backward_all_negative() raises:
     var input = AnyTensor([4], DType.float32)
     var input_values: List[Float32] = [-1.0, -2.0, -3.0, -4.0]
     for i in range(4):
-        input._data.bitcast[Float32]()[i] = input_values[i]
+        input.set(i, Float32(input_values[i]))
 
     var grad_output = AnyTensor([4], DType.float32)
     var grad_values: List[Float32] = [0.1, 0.2, 0.3, 0.4]
     for i in range(4):
-        grad_output._data.bitcast[Float32]()[i] = grad_values[i]
+        grad_output.set(i, Float32(grad_values[i]))
 
     var grad_input = layer.backward(grad_output, input)
 
@@ -191,7 +191,7 @@ fn test_relu_forward_float64() raises:
     var input = AnyTensor([4], DType.float64)
     var input_values: List[Float64] = [-1.5, 0.5, -2.5, 3.5]
     for i in range(4):
-        input._data.bitcast[Float64]()[i] = input_values[i]
+        input.set(i, Float64(input_values[i]))
 
     var output = layer.forward(input)
 
@@ -213,12 +213,12 @@ fn test_relu_backward_float64() raises:
     var input = AnyTensor([4], DType.float64)
     var input_values: List[Float64] = [-1.0, 0.0, 1.0, 2.0]
     for i in range(4):
-        input._data.bitcast[Float64]()[i] = input_values[i]
+        input.set(i, Float64(input_values[i]))
 
     var grad_output = AnyTensor([4], DType.float64)
     var grad_values: List[Float64] = [0.1, 0.2, 0.3, 0.4]
     for i in range(4):
-        grad_output._data.bitcast[Float64]()[i] = grad_values[i]
+        grad_output.set(i, Float64(grad_values[i]))
 
     var grad_input = layer.backward(grad_output, input)
 

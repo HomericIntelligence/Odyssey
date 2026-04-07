@@ -91,10 +91,10 @@ fn test_rmsprop_step_parameter_update() raises:
     shape.append(1)
 
     var params = ones(shape, DType.float32)
-    params._data.bitcast[Float32]()[0] = 1.0
+    params.set(0, Float32(1.0))
 
     var gradients = ones(shape, DType.float32)
-    gradients._data.bitcast[Float32]()[0] = 0.1
+    gradients.set(0, Float32(0.1))
 
     var square_avg = zeros(shape, DType.float32)
     var buf = zeros(shape, DType.float32)
@@ -140,10 +140,10 @@ fn test_rmsprop_simple_parameter_update() raises:
     shape.append(1)
 
     var params = ones(shape, DType.float32)
-    params._data.bitcast[Float32]()[0] = 1.0
+    params.set(0, Float32(1.0))
 
     var gradients = ones(shape, DType.float32)
-    gradients._data.bitcast[Float32]()[0] = 0.1
+    gradients.set(0, Float32(0.1))
 
     var square_avg = zeros(shape, DType.float32)
 
@@ -172,7 +172,7 @@ fn test_rmsprop_square_avg_accumulation() raises:
 
     var params = ones(shape, DType.float32)
     var gradients = ones(shape, DType.float32)
-    gradients._data.bitcast[Float32]()[0] = 0.1
+    gradients.set(0, Float32(0.1))
 
     var square_avg = zeros(shape, DType.float32)
     var buf = zeros(shape, DType.float32)
@@ -232,10 +232,10 @@ fn test_rmsprop_with_momentum() raises:
     shape.append(1)
 
     var params = ones(shape, DType.float32)
-    params._data.bitcast[Float32]()[0] = 1.0
+    params.set(0, Float32(1.0))
 
     var gradients = ones(shape, DType.float32)
-    gradients._data.bitcast[Float32]()[0] = 0.1
+    gradients.set(0, Float32(0.1))
 
     var square_avg = zeros(shape, DType.float32)
     var buf = zeros(shape, DType.float32)
@@ -289,7 +289,7 @@ fn test_rmsprop_with_weight_decay() raises:
     shape.append(1)
 
     var params = ones(shape, DType.float32)
-    params._data.bitcast[Float32]()[0] = 1.0
+    params.set(0, Float32(1.0))
 
     var gradients = zeros(shape, DType.float32)  # Zero gradient
     var square_avg = zeros(shape, DType.float32)
@@ -352,7 +352,7 @@ fn test_rmsprop_alpha_parameter() raises:
 
     var params = ones(shape, DType.float32)
     var gradients = ones(shape, DType.float32)
-    gradients._data.bitcast[Float32]()[0] = 0.1
+    gradients.set(0, Float32(0.1))
 
     var square_avg = zeros(shape, DType.float32)
     var buf = zeros(shape, DType.float32)
@@ -438,7 +438,7 @@ fn test_rmsprop_batch_update() raises:
 
     # Set different gradient values (non-zero to ensure parameter updates)
     for i in range(50):
-        gradients._data.bitcast[Float32]()[i] = Float32(i + 1) * 0.01
+        gradients.set(i, Float32(Float32(i + 1) * 0.01))
 
     var square_avg = zeros(shape, DType.float32)
     var buf = zeros(shape, DType.float32)
@@ -462,8 +462,7 @@ fn test_rmsprop_batch_update() raises:
     var all_different = True
     for i in range(50):
         if (
-            new_params._data.bitcast[Float32]()[i]
-            == params._data.bitcast[Float32]()[i]
+            new_params.set(i, Float32(= params._data.bitcast[Float32]()[i]))
         ):
             all_different = False
             break

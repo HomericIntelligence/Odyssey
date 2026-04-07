@@ -33,7 +33,7 @@ fn _make_non_uniform_grad_output(output: AnyTensor) raises -> AnyTensor:
     var grad_output = zeros(output.shape(), output._dtype)
     for i in range(output.numel()):
         var val = Float32(i % 4) * Float32(0.25) - Float32(0.3)
-        grad_output._data.bitcast[Float32]()[i] = val
+        grad_output.set(i, Float32(val))
     return grad_output^
 
 
@@ -41,7 +41,7 @@ fn _make_non_uniform_input(shape: List[Int]) raises -> AnyTensor:
     """Create non-uniform input to avoid zero-variance degenerate case."""
     var input = zeros(shape, DType.float32)
     for i in range(input.numel()):
-        input._data.bitcast[Float32]()[i] = Float32(i) * Float32(0.1) + Float32(0.1)
+        input.set(i, Float32(Float32(i) * Float32(0.1) + Float32(0.1)))
     return input^
 
 

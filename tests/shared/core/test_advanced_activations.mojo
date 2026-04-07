@@ -57,11 +57,11 @@ fn test_swish_values() raises:
     var x = zeros(shape, DType.float32)
 
     # Test values: [-2, -1, 0, 1, 2]
-    x._data.bitcast[Float32]()[0] = -2.0
-    x._data.bitcast[Float32]()[1] = -1.0
-    x._data.bitcast[Float32]()[2] = 0.0
-    x._data.bitcast[Float32]()[3] = 1.0
-    x._data.bitcast[Float32]()[4] = 2.0
+    x.set(0, Float32(-2.0))
+    x.set(1, Float32(-1.0))
+    x.set(2, Float32(0.0))
+    x.set(3, Float32(1.0))
+    x.set(4, Float32(2.0))
 
     var output = swish(x)
 
@@ -143,9 +143,9 @@ fn test_mish_values() raises:
     var x = zeros(shape, DType.float32)
 
     # Test values: [-1, 0, 1]
-    x._data.bitcast[Float32]()[0] = -1.0
-    x._data.bitcast[Float32]()[1] = 0.0
-    x._data.bitcast[Float32]()[2] = 1.0
+    x.set(0, Float32(-1.0))
+    x.set(1, Float32(0.0))
+    x.set(2, Float32(1.0))
 
     var output = mish(x)
 
@@ -186,7 +186,7 @@ fn test_mish_backward_positive() raises:
     var shape = List[Int]()
     shape.append(1)
     var x = ones(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = 1.0
+    x.set(0, Float32(1.0))
 
     var grad_output = ones(shape, DType.float32)
     var grad_input = mish_backward(grad_output, x)
@@ -216,9 +216,9 @@ fn test_elu_positive_values() raises:
     var x = zeros(shape, DType.float32)
 
     # Test positive values
-    x._data.bitcast[Float32]()[0] = 0.5
-    x._data.bitcast[Float32]()[1] = 1.0
-    x._data.bitcast[Float32]()[2] = 2.0
+    x.set(0, Float32(0.5))
+    x.set(1, Float32(1.0))
+    x.set(2, Float32(2.0))
 
     var output = elu(x, alpha=1.0)
 
@@ -241,9 +241,9 @@ fn test_elu_negative_values() raises:
     var x = zeros(shape, DType.float32)
 
     # Test negative values
-    x._data.bitcast[Float32]()[0] = -1.0
-    x._data.bitcast[Float32]()[1] = -0.5
-    x._data.bitcast[Float32]()[2] = -2.0
+    x.set(0, Float32(-1.0))
+    x.set(1, Float32(-0.5))
+    x.set(2, Float32(-2.0))
 
     var output = elu(x, alpha=1.0)
 
@@ -268,7 +268,7 @@ fn test_elu_alpha_parameter() raises:
     var shape = List[Int]()
     shape.append(1)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = -1.0
+    x.set(0, Float32(-1.0))
 
     # Test with alpha = 2.0
     var output = elu(x, alpha=2.0)
@@ -284,7 +284,7 @@ fn test_elu_at_zero() raises:
     var shape = List[Int]()
     shape.append(1)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = 0.0
+    x.set(0, Float32(0.0))
 
     var output = elu(x, alpha=1.0)
 
@@ -315,7 +315,7 @@ fn test_elu_backward_positive() raises:
     var shape = List[Int]()
     shape.append(1)
     var x = ones(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = 1.0
+    x.set(0, Float32(1.0))
 
     var grad_output = ones(shape, DType.float32)
     var grad_input = elu_backward(grad_output, x, alpha=1.0)
@@ -331,7 +331,7 @@ fn test_elu_backward_negative() raises:
     var shape = List[Int]()
     shape.append(1)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = -1.0
+    x.set(0, Float32(-1.0))
 
     var grad_output = ones(shape, DType.float32)
     var grad_input = elu_backward(grad_output, x, alpha=1.0)
@@ -348,7 +348,7 @@ fn test_elu_backward_at_zero() raises:
     var shape = List[Int]()
     shape.append(1)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = 0.0
+    x.set(0, Float32(0.0))
 
     var grad_output = ones(shape, DType.float32)
     var grad_input = elu_backward(grad_output, x, alpha=1.0)

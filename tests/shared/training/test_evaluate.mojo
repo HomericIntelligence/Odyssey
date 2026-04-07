@@ -265,7 +265,7 @@ fn test_compute_accuracy_on_batch_single_sample() raises:
     var labels_shape_single = List[Int]()
     labels_shape_single.append(1)
     var labels = zeros(labels_shape_single, DType.int32)
-    labels._data.bitcast[Int32]()[0] = 0
+    labels.set(0, Int32(0))
 
     var accuracy = compute_accuracy_on_batch(logits, labels)
 
