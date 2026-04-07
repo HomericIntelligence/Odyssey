@@ -78,12 +78,12 @@ fn example_tensor_conversions() raises:
     var t = zeros([2, 3], DType.float32)
 
     # Set some values
-    t._data.bitcast[Float32]()[0] = 10.5
-    t._data.bitcast[Float32]()[1] = -20.3
-    t._data.bitcast[Float32]()[2] = 200.0
-    t._data.bitcast[Float32]()[3] = -128.5
-    t._data.bitcast[Float32]()[4] = 0.0
-    t._data.bitcast[Float32]()[5] = 42.9
+    t.set(0, Float32(10.5))
+    t.set(1, Float32(-20.3))
+    t.set(2, Float32(200.0))
+    t.set(3, Float32(-128.5))
+    t.set(4, Float32(0.0))
+    t.set(5, Float32(42.9))
 
     print("Original float32 tensor values:")
     print("  [10.5, -20.3, 200.0, -128.5, 0.0, 42.9]")
@@ -183,11 +183,11 @@ fn example_practical_use_case() raises:
 
     # Create a float tensor with normalized values (0.0 to 1.0)
     var normalized = zeros([5], DType.float32)
-    normalized._data.bitcast[Float32]()[0] = 0.0
-    normalized._data.bitcast[Float32]()[1] = 0.25
-    normalized._data.bitcast[Float32]()[2] = 0.5
-    normalized._data.bitcast[Float32]()[3] = 0.75
-    normalized._data.bitcast[Float32]()[4] = 1.0
+    normalized.set(0, Float32(0.0))
+    normalized.set(1, Float32(0.25))
+    normalized.set(2, Float32(0.5))
+    normalized.set(3, Float32(0.75))
+    normalized.set(4, Float32(1.0))
 
     print("\nOriginal normalized values (0.0 to 1.0):")
     print("  [0.0, 0.25, 0.5, 0.75, 1.0]")
@@ -195,9 +195,7 @@ fn example_practical_use_case() raises:
     # Scale to 0-255 range
     var scaled = zeros([5], DType.float32)
     for i in range(5):
-        scaled._data.bitcast[Float32]()[i] = (
-            normalized._data.bitcast[Float32]()[i] * 255.0
-        )
+        scaled.set(i, Float32(normalized._data.bitcast[Float32]()[i] * 255.0))
 
     print("\nScaled to 0-255 range:")
     print("  [0.0, 63.75, 127.5, 191.25, 255.0]")
@@ -218,9 +216,7 @@ fn example_practical_use_case() raises:
     # Dequantize back to float
     var dequantized = zeros([5], DType.float32)
     for i in range(5):
-        dequantized._data.bitcast[Float32]()[i] = (
-            Float32(quantized._data.bitcast[UInt8]()[i]) / 255.0
-        )
+        dequantized.set(i, Float32(quantized._data.bitcast[UInt8]()[i]) / 255.0)
 
     print("\nDequantized back to 0.0-1.0 range:")
     print(

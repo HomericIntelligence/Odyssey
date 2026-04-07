@@ -185,7 +185,7 @@ fn compute_gradients(
     var grad_output_shape = List[Int]()
     grad_output_shape.append(1)
     var grad_output = zeros(grad_output_shape, logits.dtype())
-    grad_output._data.bitcast[Float32]()[0] = Float32(1.0)
+    grad_output.set(0, Float32(1.0))
     var grad_logits = cross_entropy_backward(grad_output, logits, labels)
 
     # FC3 backward

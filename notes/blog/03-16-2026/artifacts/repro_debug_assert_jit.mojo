@@ -59,7 +59,7 @@ struct Foo:
             self._dtype == dtype,
             "dtype mismatch",
         )
-        self._data.bitcast[Scalar[dtype]]()[index] = value
+        (self._data + index * sizeof[Scalar[dtype]]()).bitcast[Scalar[dtype]]()[] = value
 
 
 fn main():
