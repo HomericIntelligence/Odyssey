@@ -99,11 +99,11 @@ fn test_relu_basic() raises:
     var x = zeros(shape, DType.float32)
 
     # Set test values: [-2, -1, 0, 1, 2]
-    x._data.bitcast[Float32]()[0] = -2.0
-    x._data.bitcast[Float32]()[1] = -1.0
-    x._data.bitcast[Float32]()[2] = 0.0
-    x._data.bitcast[Float32]()[3] = 1.0
-    x._data.bitcast[Float32]()[4] = 2.0
+    x.set(0, Float32(-2.0))
+    x.set(1, Float32(-1.0))
+    x.set(2, Float32(0.0))
+    x.set(3, Float32(1.0))
+    x.set(4, Float32(2.0))
 
     var y = relu(x)
 
@@ -133,7 +133,7 @@ fn test_relu_non_negativity() raises:
 
     # Fill with values from -50 to 50
     for i in range(100):
-        x._data.bitcast[Float32]()[i] = Float32(i - 50)
+        x.set(i, Float32(i - 50))
 
     var y = relu(x)
 
@@ -150,10 +150,10 @@ fn test_relu_backward() raises:
     var x = zeros(shape, DType.float32)
 
     # Set test values: [-1, 1e-4, 0.5, 2]
-    x._data.bitcast[Float32]()[0] = -1.0
-    x._data.bitcast[Float32]()[1] = 1e-4
-    x._data.bitcast[Float32]()[2] = 0.5
-    x._data.bitcast[Float32]()[3] = 2.0
+    x.set(0, Float32(-1.0))
+    x.set(1, Float32(1e-4))
+    x.set(2, Float32(0.5))
+    x.set(3, Float32(2.0))
 
     # Forward function wrapper
     fn forward(x: AnyTensor) raises escaping -> AnyTensor:
@@ -194,11 +194,11 @@ fn test_relu_integer_types() raises:
     var shape = List[Int]()
     shape.append(5)
     var x_int32 = zeros(shape, DType.int32)
-    x_int32._data.bitcast[Int32]()[0] = -2
-    x_int32._data.bitcast[Int32]()[1] = -1
-    x_int32._data.bitcast[Int32]()[2] = 0
-    x_int32._data.bitcast[Int32]()[3] = 1
-    x_int32._data.bitcast[Int32]()[4] = 2
+    x_int32.set(0, Int32(-2))
+    x_int32.set(1, Int32(-1))
+    x_int32.set(2, Int32(0))
+    x_int32.set(3, Int32(1))
+    x_int32.set(4, Int32(2))
 
     var y_int32 = relu(x_int32)
 
@@ -211,11 +211,11 @@ fn test_relu_integer_types() raises:
 
     # Test uint8 (already non-negative)
     var x_uint8 = zeros(shape, DType.uint8)
-    x_uint8._data.bitcast[UInt8]()[0] = 0
-    x_uint8._data.bitcast[UInt8]()[1] = 1
-    x_uint8._data.bitcast[UInt8]()[2] = 128
-    x_uint8._data.bitcast[UInt8]()[3] = 255
-    x_uint8._data.bitcast[UInt8]()[4] = 100
+    x_uint8.set(0, UInt8(0))
+    x_uint8.set(1, UInt8(1))
+    x_uint8.set(2, UInt8(128))
+    x_uint8.set(3, UInt8(255))
+    x_uint8.set(4, UInt8(100))
 
     var y_uint8 = relu(x_uint8)
 
@@ -232,8 +232,8 @@ fn test_relu_float64() raises:
     shape.append(2)
     var x = zeros(shape, DType.float64)
 
-    x._data.bitcast[Float64]()[0] = -1.0
-    x._data.bitcast[Float64]()[1] = 1.0
+    x.set(0, Float64(-1.0))
+    x.set(1, Float64(1.0))
 
     var y = relu(x)
 
@@ -247,9 +247,9 @@ fn test_leaky_relu_basic() raises:
     shape.append(3)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = -2.0
-    x._data.bitcast[Float32]()[1] = 0.0
-    x._data.bitcast[Float32]()[2] = 2.0
+    x.set(0, Float32(-2.0))
+    x.set(1, Float32(0.0))
+    x.set(2, Float32(2.0))
 
     var y = leaky_relu(x, alpha=0.1)
 
@@ -270,9 +270,9 @@ fn test_leaky_relu_custom_alpha() raises:
     var shape = List[Int]()
     shape.append(3)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = -4.0
-    x._data.bitcast[Float32]()[1] = 0.0
-    x._data.bitcast[Float32]()[2] = 4.0
+    x.set(0, Float32(-4.0))
+    x.set(1, Float32(0.0))
+    x.set(2, Float32(4.0))
 
     var y = leaky_relu(x, alpha=0.25)
 
@@ -294,8 +294,8 @@ fn test_leaky_relu_backward() raises:
     shape.append(2)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = -1.0
-    x._data.bitcast[Float32]()[1] = 1.0
+    x.set(0, Float32(-1.0))
+    x.set(1, Float32(1.0))
 
     # Forward function wrapper
     fn forward(x: AnyTensor) raises escaping -> AnyTensor:
@@ -321,13 +321,13 @@ fn test_prelu_basic() raises:
     var x = zeros(shape, DType.float32)
     var alpha = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = -2.0
-    x._data.bitcast[Float32]()[1] = 0.0
-    x._data.bitcast[Float32]()[2] = 2.0
+    x.set(0, Float32(-2.0))
+    x.set(1, Float32(0.0))
+    x.set(2, Float32(2.0))
 
-    alpha._data.bitcast[Float32]()[0] = 0.25
-    alpha._data.bitcast[Float32]()[1] = 0.25
-    alpha._data.bitcast[Float32]()[2] = 0.25
+    alpha.set(0, Float32(0.25))
+    alpha.set(1, Float32(0.25))
+    alpha.set(2, Float32(0.25))
 
     var y = prelu(x, alpha)
 
@@ -348,11 +348,11 @@ fn test_prelu_scalar_alpha() raises:
     var shape = List[Int]()
     shape.append(5)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = -2.0
-    x._data.bitcast[Float32]()[1] = -1.0
-    x._data.bitcast[Float32]()[2] = 0.0
-    x._data.bitcast[Float32]()[3] = 1.0
-    x._data.bitcast[Float32]()[4] = 2.0
+    x.set(0, Float32(-2.0))
+    x.set(1, Float32(-1.0))
+    x.set(2, Float32(0.0))
+    x.set(3, Float32(1.0))
+    x.set(4, Float32(2.0))
 
     # Scalar alpha = 0.2
     var alpha_shape = List[Int]()
@@ -384,15 +384,15 @@ fn test_prelu_elementwise_alpha() raises:
     var shape = List[Int]()
     shape.append(3)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = -2.0
-    x._data.bitcast[Float32]()[1] = -1.0
-    x._data.bitcast[Float32]()[2] = 2.0
+    x.set(0, Float32(-2.0))
+    x.set(1, Float32(-1.0))
+    x.set(2, Float32(2.0))
 
     # Element-wise alpha = [0.1, 0.2, 0.3]
     var alpha = zeros(shape, DType.float32)
-    alpha._data.bitcast[Float32]()[0] = 0.1
-    alpha._data.bitcast[Float32]()[1] = 0.2
-    alpha._data.bitcast[Float32]()[2] = 0.3
+    alpha.set(0, Float32(0.1))
+    alpha.set(1, Float32(0.2))
+    alpha.set(2, Float32(0.3))
 
     var y = prelu(x, alpha)
 
@@ -415,11 +415,11 @@ fn test_prelu_backward() raises:
     var x = zeros(shape, DType.float32)
     var alpha = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = -1.0
-    x._data.bitcast[Float32]()[1] = 1.0
+    x.set(0, Float32(-1.0))
+    x.set(1, Float32(1.0))
 
-    alpha._data.bitcast[Float32]()[0] = 0.5
-    alpha._data.bitcast[Float32]()[1] = 0.5
+    alpha.set(0, Float32(0.5))
+    alpha.set(1, Float32(0.5))
 
     # Forward function wrapper
     fn forward(x: AnyTensor) raises escaping -> AnyTensor:
@@ -443,9 +443,9 @@ fn test_sigmoid_basic() raises:
     shape.append(3)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = -100.0  # Should be ~0
-    x._data.bitcast[Float32]()[1] = 0.0  # Should be 0.5
-    x._data.bitcast[Float32]()[2] = 100.0  # Should be ~1
+    x.set(0, Float32(-100.0  # Should be ~0))
+    x.set(1, Float32(0.0  # Should be 0.5))
+    x.set(2, Float32(100.0  # Should be ~1))
 
     var y = sigmoid(x)
 
@@ -467,9 +467,9 @@ fn test_sigmoid_backward() raises:
     var x = zeros(shape, DType.float32)
 
     # Use multiple test points for better coverage
-    x._data.bitcast[Float32]()[0] = -1.0
-    x._data.bitcast[Float32]()[1] = 0.0
-    x._data.bitcast[Float32]()[2] = 1.0
+    x.set(0, Float32(-1.0))
+    x.set(1, Float32(0.0))
+    x.set(2, Float32(1.0))
 
     # Forward function wrapper
     fn forward(x: AnyTensor) raises escaping -> AnyTensor:
@@ -494,11 +494,11 @@ fn test_sigmoid_range() raises:
     shape.append(5)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = -10.0
-    x._data.bitcast[Float32]()[1] = -1.0
-    x._data.bitcast[Float32]()[2] = 0.0
-    x._data.bitcast[Float32]()[3] = 1.0
-    x._data.bitcast[Float32]()[4] = 10.0
+    x.set(0, Float32(-10.0))
+    x.set(1, Float32(-1.0))
+    x.set(2, Float32(0.0))
+    x.set(3, Float32(1.0))
+    x.set(4, Float32(10.0))
 
     var y = sigmoid(x)
 
@@ -514,10 +514,10 @@ fn test_sigmoid_numerical_stability() raises:
     var shape = List[Int]()
     shape.append(4)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = -100.0
-    x._data.bitcast[Float32]()[1] = -20.0
-    x._data.bitcast[Float32]()[2] = 20.0
-    x._data.bitcast[Float32]()[3] = 100.0
+    x.set(0, Float32(-100.0))
+    x.set(1, Float32(-20.0))
+    x.set(2, Float32(20.0))
+    x.set(3, Float32(100.0))
 
     var y = sigmoid(x)
 
@@ -535,9 +535,9 @@ fn test_sigmoid_float16() raises:
     var shape = List[Int]()
     shape.append(3)
     var x = zeros(shape, DType.float16)
-    x._data.bitcast[Float16]()[0] = Float16(-1.0)
-    x._data.bitcast[Float16]()[1] = Float16(0.0)
-    x._data.bitcast[Float16]()[2] = Float16(1.0)
+    x.set(0, Float16(-1.0))
+    x.set(1, Float16(0.0))
+    x.set(2, Float16(1.0))
 
     var y = sigmoid(x)
 
@@ -557,7 +557,7 @@ fn test_sigmoid_float64() raises:
     shape.append(1)
     var x = zeros(shape, DType.float64)
 
-    x._data.bitcast[Float64]()[0] = 0.0
+    x.set(0, Float64(0.0))
 
     var y = sigmoid(x)
 
@@ -570,9 +570,9 @@ fn test_tanh_basic() raises:
     shape.append(3)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = -100.0  # Should be ~-1
-    x._data.bitcast[Float32]()[1] = 0.0  # Should be 0
-    x._data.bitcast[Float32]()[2] = 100.0  # Should be ~1
+    x.set(0, Float32(-100.0  # Should be ~-1))
+    x.set(1, Float32(0.0  # Should be 0))
+    x.set(2, Float32(100.0  # Should be ~1))
 
     var y = tanh(x)
 
@@ -592,9 +592,9 @@ fn test_tanh_values() raises:
     var shape = List[Int]()
     shape.append(3)
     var x = zeros(shape, DType.float64)
-    x._data.bitcast[Float64]()[0] = 0.0
-    x._data.bitcast[Float64]()[1] = 1.0
-    x._data.bitcast[Float64]()[2] = -1.0
+    x.set(0, Float64(0.0))
+    x.set(1, Float64(1.0))
+    x.set(2, Float64(-1.0))
 
     var y = tanh(x)
 
@@ -620,9 +620,9 @@ fn test_tanh_backward() raises:
     var x = zeros(shape, DType.float32)
 
     # Use multiple test points for better coverage
-    x._data.bitcast[Float32]()[0] = -1.0
-    x._data.bitcast[Float32]()[1] = 0.0
-    x._data.bitcast[Float32]()[2] = 1.0
+    x.set(0, Float32(-1.0))
+    x.set(1, Float32(0.0))
+    x.set(2, Float32(1.0))
 
     # Forward function wrapper
     fn forward(x: AnyTensor) raises escaping -> AnyTensor:
@@ -647,11 +647,11 @@ fn test_tanh_range() raises:
     shape.append(5)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = -10.0
-    x._data.bitcast[Float32]()[1] = -1.0
-    x._data.bitcast[Float32]()[2] = 0.0
-    x._data.bitcast[Float32]()[3] = 1.0
-    x._data.bitcast[Float32]()[4] = 10.0
+    x.set(0, Float32(-10.0))
+    x.set(1, Float32(-1.0))
+    x.set(2, Float32(0.0))
+    x.set(3, Float32(1.0))
+    x.set(4, Float32(10.0))
 
     var y = tanh(x)
 
@@ -699,9 +699,9 @@ fn test_softmax_one_hot() raises:
     shape.append(3)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 0.0
-    x._data.bitcast[Float32]()[1] = 10.0
-    x._data.bitcast[Float32]()[2] = 0.0
+    x.set(0, Float32(0.0))
+    x.set(1, Float32(10.0))
+    x.set(2, Float32(0.0))
 
     var y = softmax(x, axis=1)
 
@@ -726,7 +726,7 @@ fn test_softmax_sum_to_one() raises:
 
     # Set random values
     for i in range(8):
-        x._data.bitcast[Float32]()[i] = Float32(i % 5) - 2.0
+        x.set(i, Float32(i % 5) - 2.0)
 
     var y = softmax(x, axis=1)
 
@@ -746,9 +746,9 @@ fn test_softmax_numerical_stability() raises:
     var shape = List[Int]()
     shape.append(3)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = 1000.0
-    x._data.bitcast[Float32]()[1] = 1001.0
-    x._data.bitcast[Float32]()[2] = 1002.0
+    x.set(0, Float32(1000.0))
+    x.set(1, Float32(1001.0))
+    x.set(2, Float32(1002.0))
 
     var y = softmax(x, axis=-1)
 
@@ -772,12 +772,12 @@ fn test_softmax_backward() raises:
     var x = zeros(shape, DType.float32)
 
     # Set test values
-    x._data.bitcast[Float32]()[0] = -1.0
-    x._data.bitcast[Float32]()[1] = 0.0
-    x._data.bitcast[Float32]()[2] = 1.0
-    x._data.bitcast[Float32]()[3] = -0.5
-    x._data.bitcast[Float32]()[4] = 0.5
-    x._data.bitcast[Float32]()[5] = 1.5
+    x.set(0, Float32(-1.0))
+    x.set(1, Float32(0.0))
+    x.set(2, Float32(1.0))
+    x.set(3, Float32(-0.5))
+    x.set(4, Float32(0.5))
+    x.set(5, Float32(1.5))
 
     # Forward function wrapper
     fn forward(x: AnyTensor) raises escaping -> AnyTensor:
@@ -804,7 +804,7 @@ fn test_gelu_basic() raises:
     shape.append(1)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 0.0
+    x.set(0, Float32(0.0))
 
     var y = gelu(x)
 
@@ -820,8 +820,8 @@ fn test_gelu_positive() raises:
     shape.append(2)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 1.0
-    x._data.bitcast[Float32]()[1] = 2.0
+    x.set(0, Float32(1.0))
+    x.set(1, Float32(2.0))
 
     var y = gelu(x)
 
@@ -851,11 +851,11 @@ fn test_gelu_approximate() raises:
     var shape = List[Int]()
     shape.append(5)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = -2.0
-    x._data.bitcast[Float32]()[1] = -1.0
-    x._data.bitcast[Float32]()[2] = 0.0
-    x._data.bitcast[Float32]()[3] = 1.0
-    x._data.bitcast[Float32]()[4] = 2.0
+    x.set(0, Float32(-2.0))
+    x.set(1, Float32(-1.0))
+    x.set(2, Float32(0.0))
+    x.set(3, Float32(1.0))
+    x.set(4, Float32(2.0))
 
     var y = gelu(x, approximate=True)
 
@@ -881,11 +881,11 @@ fn test_gelu_exact() raises:
     var shape = List[Int]()
     shape.append(5)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = -2.0
-    x._data.bitcast[Float32]()[1] = -1.0
-    x._data.bitcast[Float32]()[2] = 0.0
-    x._data.bitcast[Float32]()[3] = 1.0
-    x._data.bitcast[Float32]()[4] = 2.0
+    x.set(0, Float32(-2.0))
+    x.set(1, Float32(-1.0))
+    x.set(2, Float32(0.0))
+    x.set(3, Float32(1.0))
+    x.set(4, Float32(2.0))
 
     var y = gelu(x, approximate=False)
 
@@ -906,11 +906,11 @@ fn test_gelu_comparison() raises:
     var shape = List[Int]()
     shape.append(5)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = -2.0
-    x._data.bitcast[Float32]()[1] = -1.0
-    x._data.bitcast[Float32]()[2] = 0.0
-    x._data.bitcast[Float32]()[3] = 1.0
-    x._data.bitcast[Float32]()[4] = 2.0
+    x.set(0, Float32(-2.0))
+    x.set(1, Float32(-1.0))
+    x.set(2, Float32(0.0))
+    x.set(3, Float32(1.0))
+    x.set(4, Float32(2.0))
 
     var y_approx = gelu(x, approximate=True)
     var y_exact = gelu(x, approximate=False)
@@ -932,9 +932,9 @@ fn test_gelu_float16() raises:
     var shape = List[Int]()
     shape.append(3)
     var x = zeros(shape, DType.float16)
-    x._data.bitcast[Float16]()[0] = Float16(-1.0)
-    x._data.bitcast[Float16]()[1] = Float16(0.0)
-    x._data.bitcast[Float16]()[2] = Float16(1.0)
+    x.set(0, Float16(-1.0))
+    x.set(1, Float16(0.0))
+    x.set(2, Float16(1.0))
 
     var y = gelu(x, approximate=True)
 
@@ -950,9 +950,9 @@ fn test_gelu_backward_gradient() raises:
     var x = zeros(shape, DType.float32)
 
     # Set non-uniform values
-    x._data.bitcast[Float32]()[0] = -0.5
-    x._data.bitcast[Float32]()[1] = 0.0
-    x._data.bitcast[Float32]()[2] = 0.5
+    x.set(0, Float32(-0.5))
+    x.set(1, Float32(0.0))
+    x.set(2, Float32(0.5))
 
     # Forward function wrapper
     fn forward(x: AnyTensor) raises escaping -> AnyTensor:
@@ -975,7 +975,7 @@ fn test_swish_basic() raises:
     shape.append(1)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 0.0
+    x.set(0, Float32(0.0))
 
     var y = swish(x)
 
@@ -991,7 +991,7 @@ fn test_swish_positive() raises:
     shape.append(1)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 10.0
+    x.set(0, Float32(10.0))
 
     var y = swish(x)
 
@@ -1008,9 +1008,9 @@ fn test_swish_backward_gradient() raises:
     var x = zeros(shape, DType.float32)
 
     # Set non-uniform values
-    x._data.bitcast[Float32]()[0] = -0.5
-    x._data.bitcast[Float32]()[1] = 0.0
-    x._data.bitcast[Float32]()[2] = 0.5
+    x.set(0, Float32(-0.5))
+    x.set(1, Float32(0.0))
+    x.set(2, Float32(0.5))
 
     # Forward function wrapper
     fn forward(x: AnyTensor) raises escaping -> AnyTensor:
@@ -1033,7 +1033,7 @@ fn test_mish_basic() raises:
     shape.append(1)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 0.0
+    x.set(0, Float32(0.0))
 
     var y = mish(x)
 
@@ -1065,9 +1065,9 @@ fn test_mish_backward_gradient() raises:
     var x = zeros(shape, DType.float32)
 
     # Set non-uniform values
-    x._data.bitcast[Float32]()[0] = -0.5
-    x._data.bitcast[Float32]()[1] = 0.0
-    x._data.bitcast[Float32]()[2] = 0.5
+    x.set(0, Float32(-0.5))
+    x.set(1, Float32(0.0))
+    x.set(2, Float32(0.5))
 
     # Forward function wrapper
     fn forward(x: AnyTensor) raises escaping -> AnyTensor:
@@ -1090,9 +1090,9 @@ fn test_elu_basic() raises:
     shape.append(3)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = -1.0
-    x._data.bitcast[Float32]()[1] = 0.0
-    x._data.bitcast[Float32]()[2] = 1.0
+    x.set(0, Float32(-1.0))
+    x.set(1, Float32(0.0))
+    x.set(2, Float32(1.0))
 
     var y = elu(x, alpha=1.0)
 
@@ -1116,9 +1116,9 @@ fn test_elu_backward() raises:
     shape.append(3)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = -1.0
-    x._data.bitcast[Float32]()[1] = 0.0
-    x._data.bitcast[Float32]()[2] = 1.0
+    x.set(0, Float32(-1.0))
+    x.set(1, Float32(0.0))
+    x.set(2, Float32(1.0))
 
     # Forward function wrapper
     fn forward(x: AnyTensor) raises escaping -> AnyTensor:
@@ -1147,9 +1147,9 @@ fn test_integration_forward_backward() raises:
     var shape = List[Int]()
     shape.append(3)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = -1.0
-    x._data.bitcast[Float32]()[1] = 0.5
-    x._data.bitcast[Float32]()[2] = 2.0
+    x.set(0, Float32(-1.0))
+    x.set(1, Float32(0.5))
+    x.set(2, Float32(2.0))
 
     # Forward pass: x -> ReLU -> Sigmoid
     var relu_out = relu(x)
