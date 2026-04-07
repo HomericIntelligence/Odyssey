@@ -37,7 +37,7 @@ Example:
 """
 
 from collections import List
-from memory import UnsafePointer, alloc
+from memory import UnsafePointer, alloc, memcpy
 from os.atomic import Atomic
 
 # Size bucket boundaries (in bytes)
@@ -86,12 +86,19 @@ struct SpinLock(Copyable, Movable):
     """Simple test-and-set spinlock using atomic operations.
 
     Uses a heap-allocated Atomic[DType.int64] as the lock state.
-    Value 0 means unlocked; a positive value means locked.
+    Value 0 means unlocked; value 1 means locked.
 
-    This struct is Copyable/Movable via shallow pointer copy, meaning
-    copies share the same underlying lock. This is intentional: when
-    FreeList or TensorMemoryPool is stored in a List, copies refer to
-    the same lock instance.
+    Explicit __copyinit__ deep-copies the backing storage so that each
+    SpinLock instance owns its own allocation.  Without an explicit copy
+    constructor Mojo synthesises a shallow memberwise copy that duplicates
+    the _state pointer value.  When List[SpinLock] reallocates (capacity
+    0→1→2→4→…) the old storage is destroyed, calling __del__ → free() on
+    every stale copy – a double-free that corrupts the heap.
+
+    Explicit __moveinit__ transfers pointer ownership so that
+    List reallocation moves (rather than copies-then-destroys) the
+    SpinLock instances, which is both safe and avoids the allocation
+    overhead of a deep copy.
     """
 
     var _state: UnsafePointer[UInt8, origin=MutAnyOrigin]
@@ -103,6 +110,24 @@ struct SpinLock(Copyable, Movable):
         for i in range(8):
             self._state[i] = 0
 
+    fn __copyinit__(out self, existing: Self):
+        """Deep copy – allocates new backing storage initialised to unlocked.
+
+        Each copy gets its own independent lock state rather than sharing
+        the same allocation, preventing double-free on destruction.
+        """
+        self._state = alloc[UInt8](8)
+        memcpy(dest=self._state, src=existing._state, count=8)
+
+    fn __moveinit__(out self, deinit existing: Self):
+        """Move – transfers pointer ownership without any allocation.
+
+        After the move, `existing` no longer owns the pointer and will not
+        free it.  This is what List uses when it grows its backing array,
+        so no double-free occurs during reallocation.
+        """
+        self._state = existing._state
+
     fn _as_atomic(
         self,
     ) -> UnsafePointer[Atomic[DType.int64], origin=MutAnyOrigin]:
@@ -110,10 +135,28 @@ struct SpinLock(Copyable, Movable):
         return self._state.bitcast[Atomic[DType.int64]]()
 
     fn lock(self):
-        """Acquire the lock, spinning until available."""
+        """Acquire the lock, spinning until available.
+
+        Uses fetch_add(1) as a test-and-set: if the old value is 0 the
+        lock was free and we now hold it (counter = 1).  If the old value
+        is non-zero someone else holds it; we undo our increment with
+        fetch_sub(1) and spin-wait until the counter reads 0 before
+        retrying.  This avoids the counter growing unboundedly under
+        contention (the original broken implementation could drive the
+        counter negative after an unlock interleaved with contenders'
+        subtract, permanently blocking all future waiters).
+        """
         var ptr = self._as_atomic()
-        while ptr[].fetch_add(1) != 0:
+        while True:
+            if ptr[].fetch_add(1) == 0:
+                # We transitioned 0 → 1: lock acquired.
+                return
+            # Counter was already ≥1; undo our increment and wait.
             _ = ptr[].fetch_sub(1)
+            # Spin until the counter looks free before attempting again
+            # to reduce bus traffic.
+            while ptr[].load() != 0:
+                pass
 
     fn unlock(self):
         """Release the lock."""
@@ -131,8 +174,10 @@ struct AtomicStats(Copyable, Movable):
     Each counter is a heap-allocated Atomic[DType.int64] to allow
     lock-free concurrent updates from multiple threads.
 
-    Copyable/Movable via shallow pointer copy (copies share the same
-    counters). This is intentional for embedding in TensorMemoryPool.
+    Explicit __copyinit__ and __moveinit__ are provided for the same
+    reason as SpinLock: without them Mojo synthesises a shallow copy that
+    duplicates the _data pointer, causing a double-free when the owning
+    struct is stored in a List that reallocates.
     """
 
     var _data: UnsafePointer[UInt8, origin=MutAnyOrigin]
@@ -143,6 +188,15 @@ struct AtomicStats(Copyable, Movable):
         self._data = alloc[UInt8](_ASTATS_SIZE)
         for i in range(_ASTATS_SIZE):
             self._data[i] = 0
+
+    fn __copyinit__(out self, existing: Self):
+        """Deep copy – allocates new backing storage with copied counter values."""
+        self._data = alloc[UInt8](_ASTATS_SIZE)
+        memcpy(dest=self._data, src=existing._data, count=_ASTATS_SIZE)
+
+    fn __moveinit__(out self, deinit existing: Self):
+        """Move – transfers pointer ownership without any allocation."""
+        self._data = existing._data
 
     fn _counter(
         self, offset: Int
