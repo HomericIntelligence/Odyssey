@@ -34,20 +34,20 @@ fn test_confusion_matrix_basic() raises:
     var preds_shape = List[Int]()
     preds_shape.append(5)  # 5 samples
     var preds = AnyTensor(preds_shape, DType.int32)
-    preds._data.bitcast[Int32]()[0] = 0
-    preds._data.bitcast[Int32]()[1] = 1
-    preds._data.bitcast[Int32]()[2] = 2
-    preds._data.bitcast[Int32]()[3] = 1  # Wrong
-    preds._data.bitcast[Int32]()[4] = 2  # Wrong
+    preds.set(0, Int32(0))
+    preds.set(1, Int32(1))
+    preds.set(2, Int32(2))
+    preds.set(3, Int32(1))  # Wrong
+    preds.set(4, Int32(2))  # Wrong
 
     var labels_shape = List[Int]()
     labels_shape.append(5)  # 5 samples
     var labels = AnyTensor(labels_shape, DType.int32)
-    labels._data.bitcast[Int32]()[0] = 0
-    labels._data.bitcast[Int32]()[1] = 1
-    labels._data.bitcast[Int32]()[2] = 2
-    labels._data.bitcast[Int32]()[3] = 0
-    labels._data.bitcast[Int32]()[4] = 1
+    labels.set(0, Int32(0))
+    labels.set(1, Int32(1))
+    labels.set(2, Int32(2))
+    labels.set(3, Int32(0))
+    labels.set(4, Int32(1))
 
     cm.update(preds, labels)
 
@@ -106,8 +106,8 @@ fn test_confusion_matrix_perfect() raises:
 
     for i in range(6):
         var cls = i % 3
-        preds._data.bitcast[Int32]()[i] = Int32(cls)
-        labels._data.bitcast[Int32]()[i] = Int32(cls)
+        preds.set(i, Int32(Int32(cls)))
+        labels.set(i, Int32(Int32(cls)))
 
     cm.update(preds, labels)
 
@@ -169,15 +169,15 @@ fn test_confusion_matrix_normalize_row() raises:
     labels_shape.append(4)  # 4 samples
     var labels = AnyTensor(labels_shape, DType.int32)
 
-    preds._data.bitcast[Int32]()[0] = 0  # ✓
-    preds._data.bitcast[Int32]()[1] = 1  # ✗ (true=0)
-    preds._data.bitcast[Int32]()[2] = 1  # ✓
-    preds._data.bitcast[Int32]()[3] = 1  # ✓
+    preds.set(0, Int32(0))  # ✓
+    preds.set(1, Int32(1))  # ✗ (true=0)
+    preds.set(2, Int32(1))  # ✓
+    preds.set(3, Int32(1))  # ✓
 
-    labels._data.bitcast[Int32]()[0] = 0
-    labels._data.bitcast[Int32]()[1] = 0
-    labels._data.bitcast[Int32]()[2] = 1
-    labels._data.bitcast[Int32]()[3] = 1
+    labels.set(0, Int32(0))
+    labels.set(1, Int32(0))
+    labels.set(2, Int32(1))
+    labels.set(3, Int32(1))
 
     cm.update(preds, labels)
 
@@ -217,15 +217,15 @@ fn test_confusion_matrix_normalize_column() raises:
     labels_shape.append(4)  # 4 samples
     var labels = AnyTensor(labels_shape, DType.int32)
 
-    preds._data.bitcast[Int32]()[0] = 0  # ✓
-    preds._data.bitcast[Int32]()[1] = 1  # ✗ (true=0)
-    preds._data.bitcast[Int32]()[2] = 1  # ✓
-    preds._data.bitcast[Int32]()[3] = 1  # ✓
+    preds.set(0, Int32(0))  # ✓
+    preds.set(1, Int32(1))  # ✗ (true=0)
+    preds.set(2, Int32(1))  # ✓
+    preds.set(3, Int32(1))  # ✓
 
-    labels._data.bitcast[Int32]()[0] = 0
-    labels._data.bitcast[Int32]()[1] = 0
-    labels._data.bitcast[Int32]()[2] = 1
-    labels._data.bitcast[Int32]()[3] = 1
+    labels.set(0, Int32(0))
+    labels.set(1, Int32(0))
+    labels.set(2, Int32(1))
+    labels.set(3, Int32(1))
 
     cm.update(preds, labels)
 
@@ -266,15 +266,15 @@ fn test_confusion_matrix_normalize_total() raises:
     labels_shape.append(4)  # 4 samples
     var labels = AnyTensor(labels_shape, DType.int32)
 
-    preds._data.bitcast[Int32]()[0] = 0
-    preds._data.bitcast[Int32]()[1] = 1
-    preds._data.bitcast[Int32]()[2] = 1
-    preds._data.bitcast[Int32]()[3] = 1
+    preds.set(0, Int32(0))
+    preds.set(1, Int32(1))
+    preds.set(2, Int32(1))
+    preds.set(3, Int32(1))
 
-    labels._data.bitcast[Int32]()[0] = 0
-    labels._data.bitcast[Int32]()[1] = 0
-    labels._data.bitcast[Int32]()[2] = 1
-    labels._data.bitcast[Int32]()[3] = 1
+    labels.set(0, Int32(0))
+    labels.set(1, Int32(0))
+    labels.set(2, Int32(1))
+    labels.set(3, Int32(1))
 
     cm.update(preds, labels)
 
@@ -308,17 +308,17 @@ fn test_confusion_matrix_precision() raises:
     labels_shape.append(5)  # 5 samples
     var labels = AnyTensor(labels_shape, DType.int32)
 
-    preds._data.bitcast[Int32]()[0] = 0  # ✓
-    preds._data.bitcast[Int32]()[1] = 0  # ✗ (true=1)
-    preds._data.bitcast[Int32]()[2] = 1  # ✓
-    preds._data.bitcast[Int32]()[3] = 1  # ✓
-    preds._data.bitcast[Int32]()[4] = 2  # ✓
+    preds.set(0, Int32(0))  # ✓
+    preds.set(1, Int32(0))  # ✗ (true=1)
+    preds.set(2, Int32(1))  # ✓
+    preds.set(3, Int32(1))  # ✓
+    preds.set(4, Int32(2))  # ✓
 
-    labels._data.bitcast[Int32]()[0] = 0
-    labels._data.bitcast[Int32]()[1] = 1
-    labels._data.bitcast[Int32]()[2] = 1
-    labels._data.bitcast[Int32]()[3] = 1
-    labels._data.bitcast[Int32]()[4] = 2
+    labels.set(0, Int32(0))
+    labels.set(1, Int32(1))
+    labels.set(2, Int32(1))
+    labels.set(3, Int32(1))
+    labels.set(4, Int32(2))
 
     cm.update(preds, labels)
 
@@ -359,17 +359,17 @@ fn test_confusion_matrix_recall() raises:
     labels_shape.append(5)  # 5 samples
     var labels = AnyTensor(labels_shape, DType.int32)
 
-    preds._data.bitcast[Int32]()[0] = 0  # ✓
-    preds._data.bitcast[Int32]()[1] = 0  # ✗ (true=1)
-    preds._data.bitcast[Int32]()[2] = 1  # ✓
-    preds._data.bitcast[Int32]()[3] = 1  # ✓
-    preds._data.bitcast[Int32]()[4] = 2  # ✓
+    preds.set(0, Int32(0))  # ✓
+    preds.set(1, Int32(0))  # ✗ (true=1)
+    preds.set(2, Int32(1))  # ✓
+    preds.set(3, Int32(1))  # ✓
+    preds.set(4, Int32(2))  # ✓
 
-    labels._data.bitcast[Int32]()[0] = 0
-    labels._data.bitcast[Int32]()[1] = 1
-    labels._data.bitcast[Int32]()[2] = 1
-    labels._data.bitcast[Int32]()[3] = 1
-    labels._data.bitcast[Int32]()[4] = 2
+    labels.set(0, Int32(0))
+    labels.set(1, Int32(1))
+    labels.set(2, Int32(1))
+    labels.set(3, Int32(1))
+    labels.set(4, Int32(2))
 
     cm.update(preds, labels)
 
@@ -406,15 +406,15 @@ fn test_confusion_matrix_f1_score() raises:
     labels_shape.append(4)  # 4 samples
     var labels = AnyTensor(labels_shape, DType.int32)
 
-    preds._data.bitcast[Int32]()[0] = 0  # ✓
-    preds._data.bitcast[Int32]()[1] = 0  # ✗ (true=1)
-    preds._data.bitcast[Int32]()[2] = 1  # ✓
-    preds._data.bitcast[Int32]()[3] = 1  # ✗ (true=0)
+    preds.set(0, Int32(0))  # ✓
+    preds.set(1, Int32(0))  # ✗ (true=1)
+    preds.set(2, Int32(1))  # ✓
+    preds.set(3, Int32(1))  # ✗ (true=0)
 
-    labels._data.bitcast[Int32]()[0] = 0
-    labels._data.bitcast[Int32]()[1] = 1
-    labels._data.bitcast[Int32]()[2] = 1
-    labels._data.bitcast[Int32]()[3] = 0
+    labels.set(0, Int32(0))
+    labels.set(1, Int32(1))
+    labels.set(2, Int32(1))
+    labels.set(3, Int32(0))
 
     cm.update(preds, labels)
 
@@ -450,28 +450,28 @@ fn test_confusion_matrix_with_logits() raises:
     var labels = AnyTensor(labels_shape, DType.int32)
 
     # Sample 0: true=0, logits=[10, 0, 0] -> pred=0 ✓
-    logits._data.bitcast[Float32]()[0] = 10.0
-    logits._data.bitcast[Float32]()[1] = 0.0
-    logits._data.bitcast[Float32]()[2] = 0.0
-    labels._data.bitcast[Int32]()[0] = 0
+    logits.set(0, Float32(10.0))
+    logits.set(1, Float32(0.0))
+    logits.set(2, Float32(0.0))
+    labels.set(0, Int32(0))
 
     # Sample 1: true=1, logits=[0, 10, 0] -> pred=1 ✓
-    logits._data.bitcast[Float32]()[3] = 0.0
-    logits._data.bitcast[Float32]()[4] = 10.0
-    logits._data.bitcast[Float32]()[5] = 0.0
-    labels._data.bitcast[Int32]()[1] = 1
+    logits.set(3, Float32(0.0))
+    logits.set(4, Float32(10.0))
+    logits.set(5, Float32(0.0))
+    labels.set(1, Int32(1))
 
     # Sample 2: true=2, logits=[0, 0, 10] -> pred=2 ✓
-    logits._data.bitcast[Float32]()[6] = 0.0
-    logits._data.bitcast[Float32]()[7] = 0.0
-    logits._data.bitcast[Float32]()[8] = 10.0
-    labels._data.bitcast[Int32]()[2] = 2
+    logits.set(6, Float32(0.0))
+    logits.set(7, Float32(0.0))
+    logits.set(8, Float32(10.0))
+    labels.set(2, Int32(2))
 
     # Sample 3: true=0, logits=[0, 10, 0] -> pred=1 ✗
-    logits._data.bitcast[Float32]()[9] = 0.0
-    logits._data.bitcast[Float32]()[10] = 10.0
-    logits._data.bitcast[Float32]()[11] = 0.0
-    labels._data.bitcast[Int32]()[3] = 0
+    logits.set(9, Float32(0.0))
+    logits.set(10, Float32(10.0))
+    logits.set(11, Float32(0.0))
+    labels.set(3, Int32(0))
 
     cm.update(logits, labels)
 
@@ -507,10 +507,10 @@ fn test_confusion_matrix_reset() raises:
     var labels_shape = List[Int]()
     labels_shape.append(2)  # 2 samples
     var labels = AnyTensor(labels_shape, DType.int32)
-    preds._data.bitcast[Int32]()[0] = 0
-    preds._data.bitcast[Int32]()[1] = 1
-    labels._data.bitcast[Int32]()[0] = 0
-    labels._data.bitcast[Int32]()[1] = 1
+    preds.set(0, Int32(0))
+    preds.set(1, Int32(1))
+    labels.set(0, Int32(0))
+    labels.set(1, Int32(1))
 
     cm.update(preds, labels)
 
@@ -570,12 +570,12 @@ fn test_confusion_matrix_single_class() raises:
     preds_shape.append(3)
     var preds = AnyTensor(preds_shape, DType.int32)
     var labels = AnyTensor(preds_shape, DType.int32)
-    preds._data.bitcast[Int32]()[0] = 0
-    preds._data.bitcast[Int32]()[1] = 0
-    preds._data.bitcast[Int32]()[2] = 0
-    labels._data.bitcast[Int32]()[0] = 0
-    labels._data.bitcast[Int32]()[1] = 0
-    labels._data.bitcast[Int32]()[2] = 0
+    preds.set(0, Int32(0))
+    preds.set(1, Int32(0))
+    preds.set(2, Int32(0))
+    labels.set(0, Int32(0))
+    labels.set(1, Int32(0))
+    labels.set(2, Int32(0))
 
     cm.update(preds, labels)
 
@@ -601,14 +601,14 @@ fn test_confusion_matrix_misclassification() raises:
     var labels = AnyTensor(shape, DType.int32)
 
     # 2 correct, 2 wrong
-    preds._data.bitcast[Int32]()[0] = 0
-    labels._data.bitcast[Int32]()[0] = 0  # correct
-    preds._data.bitcast[Int32]()[1] = 1
-    labels._data.bitcast[Int32]()[1] = 1  # correct
-    preds._data.bitcast[Int32]()[2] = 0
-    labels._data.bitcast[Int32]()[2] = 1  # wrong
-    preds._data.bitcast[Int32]()[3] = 1
-    labels._data.bitcast[Int32]()[3] = 0  # wrong
+    preds.set(0, Int32(0))
+    labels.set(0, Int32(0))  # correct
+    preds.set(1, Int32(1))
+    labels.set(1, Int32(1))  # correct
+    preds.set(2, Int32(0))
+    labels.set(2, Int32(1))  # wrong
+    preds.set(3, Int32(1))
+    labels.set(3, Int32(0))  # wrong
 
     cm.update(preds, labels)
 

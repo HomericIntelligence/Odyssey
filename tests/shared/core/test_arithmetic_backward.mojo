@@ -54,7 +54,7 @@ fn create_shape_vec(*dims: Int) -> List[Int]:
     return shape^
 
 
-fn fill_tensor_sequential(tensor: AnyTensor, start_val: Float32 = 1.0) -> None:
+fn fill_tensor_sequential(mut tensor: AnyTensor, start_val: Float32 = 1.0) raises -> None:
     """Fill tensor with sequential values starting from start_val.
 
     Args:
@@ -62,7 +62,7 @@ fn fill_tensor_sequential(tensor: AnyTensor, start_val: Float32 = 1.0) -> None:
         start_val: Starting value for sequence.
     """
     for i in range(tensor.numel()):
-        tensor._data.bitcast[Float32]()[i] = start_val + Float32(i)
+        tensor.set(i, Float32(start_val + Float32(i)))
 
 
 fn test_add_backward() raises:
@@ -195,7 +195,7 @@ fn test_multiply_backward() raises:
 
     # Fill b with value 2.0
     for i in range(b.numel()):
-        b._data.bitcast[Float32]()[i] = 2.0
+        b.set(i, Float32(2.0))
 
     var grad_output = ones(shape, DType.float32)
 
@@ -226,7 +226,7 @@ fn test_multiply_scalar_backward() raises:
 
     var a = ones(a_shape, DType.float32)
     var b_scalar = zeros(b_shape, DType.float32)
-    b_scalar._data.bitcast[Float32]()[0] = 2.0
+    b_scalar.set(0, Float32(2.0))
 
     var grad_output_shape = create_shape_vec(2, 3)
     var grad_output = ones(grad_output_shape, DType.float32)
@@ -264,8 +264,8 @@ fn test_divide_backward() raises:
 
     # Fill a with 2.0, b with 2.0
     for i in range(6):
-        a._data.bitcast[Float32]()[i] = 2.0
-        b._data.bitcast[Float32]()[i] = 2.0
+        a.set(i, Float32(2.0))
+        b.set(i, Float32(2.0))
 
     var grad_output = ones(shape, DType.float32)
 
@@ -298,8 +298,8 @@ fn test_divide_scalar_backward() raises:
     var b_scalar = zeros(b_shape, DType.float32)
 
     for i in range(6):
-        a._data.bitcast[Float32]()[i] = 2.0
-    b_scalar._data.bitcast[Float32]()[0] = 2.0
+        a.set(i, Float32(2.0))
+    b_scalar.set(0, Float32(2.0))
 
     var grad_output_shape = create_shape_vec(2, 3)
     var grad_output = ones(grad_output_shape, DType.float32)
@@ -400,7 +400,7 @@ fn test_multiply_broadcast() raises:
     var b = zeros(b_shape, DType.float32)
 
     for i in range(3):
-        b._data.bitcast[Float32]()[i] = Float32(i + 1)
+        b.set(i, Float32(Float32(i + 1)))
 
     var grad_output_shape = create_shape_vec(2, 3)
     var grad_output = ones(grad_output_shape, DType.float32)
@@ -435,9 +435,9 @@ fn test_divide_broadcast() raises:
 
     # Fill a with 2.0, b with 2.0
     for i in range(6):
-        a._data.bitcast[Float32]()[i] = 2.0
+        a.set(i, Float32(2.0))
     for i in range(3):
-        b._data.bitcast[Float32]()[i] = 2.0
+        b.set(i, Float32(2.0))
 
     var grad_output_shape = create_shape_vec(2, 3)
     var grad_output = ones(grad_output_shape, DType.float32)
@@ -473,8 +473,8 @@ fn test_add_backward_gradient() raises:
 
     # Initialize with non-uniform values
     for i in range(12):
-        a._data.bitcast[Float32]()[i] = Float32(i) * 0.1 - 1.2
-        b._data.bitcast[Float32]()[i] = Float32(i) * 0.15 - 0.8
+        a.set(i, Float32(Float32(i) * 0.1 - 1.2))
+        b.set(i, Float32(Float32(i) * 0.15 - 0.8))
 
     fn forward(inp: AnyTensor) raises -> AnyTensor:
         return add(inp, b)
@@ -500,8 +500,8 @@ fn test_subtract_backward_gradient() raises:
 
     # Initialize with non-uniform values
     for i in range(12):
-        a._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 0.5
-        b._data.bitcast[Float32]()[i] = Float32(i) * 0.2 - 1.5
+        a.set(i, Float32(Float32(i) * 0.1 + 0.5))
+        b.set(i, Float32(Float32(i) * 0.2 - 1.5))
 
     fn forward(inp: AnyTensor) raises -> AnyTensor:
         return subtract(inp, b)
@@ -528,8 +528,8 @@ fn test_multiply_backward_gradient() raises:
 
     # Initialize with non-uniform values (avoid zero to test product properly)
     for i in range(12):
-        a._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 0.1
-        b._data.bitcast[Float32]()[i] = Float32(i) * 0.15 + 0.2
+        a.set(i, Float32(Float32(i) * 0.1 + 0.1))
+        b.set(i, Float32(Float32(i) * 0.15 + 0.2))
 
     fn forward(inp: AnyTensor) raises -> AnyTensor:
         return multiply(inp, b)
@@ -556,8 +556,8 @@ fn test_divide_backward_gradient() raises:
 
     # Initialize with non-uniform values (avoid zero denominator)
     for i in range(12):
-        a._data.bitcast[Float32]()[i] = Float32(i) * 0.2 + 0.5
-        b._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 1.0  # Ensure b > 0
+        a.set(i, Float32(Float32(i) * 0.2 + 0.5))
+        b.set(i, Float32(Float32(i) * 0.1 + 1.0))  # Ensure b > 0
 
     fn forward(inp: AnyTensor) raises -> AnyTensor:
         return divide(inp, b)
@@ -583,8 +583,8 @@ fn test_add_backward_b_gradient() raises:
 
     # Initialize with non-uniform values
     for i in range(12):
-        a._data.bitcast[Float32]()[i] = Float32(i) * 0.1 - 0.5
-        b._data.bitcast[Float32]()[i] = Float32(i) * 0.12 + 0.3
+        a.set(i, Float32(Float32(i) * 0.1 - 0.5))
+        b.set(i, Float32(Float32(i) * 0.12 + 0.3))
 
     fn forward(inp: AnyTensor) raises -> AnyTensor:
         return add(a, inp)
@@ -610,8 +610,8 @@ fn test_subtract_backward_b_gradient() raises:
 
     # Initialize with non-uniform values
     for i in range(12):
-        a._data.bitcast[Float32]()[i] = Float32(i) * 0.15 + 0.2
-        b._data.bitcast[Float32]()[i] = Float32(i) * 0.1 - 1.0
+        a.set(i, Float32(Float32(i) * 0.15 + 0.2))
+        b.set(i, Float32(Float32(i) * 0.1 - 1.0))
 
     fn forward(inp: AnyTensor) raises -> AnyTensor:
         return subtract(a, inp)
@@ -637,8 +637,8 @@ fn test_multiply_backward_b_gradient() raises:
 
     # Initialize with non-uniform values (avoid zero for product)
     for i in range(12):
-        a._data.bitcast[Float32]()[i] = Float32(i) * 0.2 + 0.1
-        b._data.bitcast[Float32]()[i] = Float32(i) * 0.15 + 0.15
+        a.set(i, Float32(Float32(i) * 0.2 + 0.1))
+        b.set(i, Float32(Float32(i) * 0.15 + 0.15))
 
     fn forward(inp: AnyTensor) raises -> AnyTensor:
         return multiply(a, inp)
@@ -664,8 +664,8 @@ fn test_divide_backward_b_gradient() raises:
 
     # Initialize with non-uniform values (ensure b > 0 to avoid division by zero)
     for i in range(12):
-        a._data.bitcast[Float32]()[i] = Float32(i) * 0.2 + 0.5
-        b._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 1.5  # b > 0
+        a.set(i, Float32(Float32(i) * 0.2 + 0.5))
+        b.set(i, Float32(Float32(i) * 0.1 + 1.5))  # b > 0
 
     fn forward(inp: AnyTensor) raises -> AnyTensor:
         return divide(a, inp)
@@ -694,9 +694,9 @@ fn test_add_backward_broadcast_gradient() raises:
 
     # Initialize with non-uniform values
     for i in range(6):
-        a._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 0.2
+        a.set(i, Float32(Float32(i) * 0.1 + 0.2))
     for i in range(3):
-        b._data.bitcast[Float32]()[i] = Float32(i) * 0.15 - 0.3
+        b.set(i, Float32(Float32(i) * 0.15 - 0.3))
 
     fn forward(inp: AnyTensor) raises -> AnyTensor:
         return add(a, inp)
@@ -725,9 +725,9 @@ fn test_multiply_backward_broadcast_gradient() raises:
 
     # Initialize with non-uniform values (avoid zero for product)
     for i in range(6):
-        a._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 0.1
+        a.set(i, Float32(Float32(i) * 0.1 + 0.1))
     for i in range(3):
-        b._data.bitcast[Float32]()[i] = Float32(i) * 0.2 + 0.2
+        b.set(i, Float32(Float32(i) * 0.2 + 0.2))
 
     fn forward(inp: AnyTensor) raises -> AnyTensor:
         return multiply(a, inp)
@@ -756,9 +756,9 @@ fn test_divide_backward_broadcast_gradient() raises:
 
     # Initialize with non-uniform values (ensure b > 0)
     for i in range(6):
-        a._data.bitcast[Float32]()[i] = Float32(i) * 0.2 + 0.5
+        a.set(i, Float32(Float32(i) * 0.2 + 0.5))
     for i in range(3):
-        b._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 1.0  # b > 0
+        b.set(i, Float32(Float32(i) * 0.1 + 1.0))  # b > 0
 
     fn forward(inp: AnyTensor) raises -> AnyTensor:
         return divide(a, inp)

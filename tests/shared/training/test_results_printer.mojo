@@ -189,9 +189,9 @@ fn test_print_per_class_accuracy_with_class_names() raises:
     # Create per-class accuracy tensor
     var shape: List[Int] = [3]
     var accuracies = AnyTensor(shape, DType.float64)
-    accuracies._data.bitcast[Float64]()[0] = 0.92
-    accuracies._data.bitcast[Float64]()[1] = 0.88
-    accuracies._data.bitcast[Float64]()[2] = 0.95
+    accuracies.set(0, Float64(0.92))
+    accuracies.set(1, Float64(0.88))
+    accuracies.set(2, Float64(0.95))
 
     # Create class names
     var class_names = List[String]()
@@ -211,11 +211,11 @@ fn test_print_per_class_accuracy_varied_values() raises:
     # Create varied per-class accuracy tensor
     var shape: List[Int] = [5]
     var accuracies = AnyTensor(shape, DType.float64)
-    accuracies._data.bitcast[Float64]()[0] = 0.50
-    accuracies._data.bitcast[Float64]()[1] = 0.75
-    accuracies._data.bitcast[Float64]()[2] = 0.99
-    accuracies._data.bitcast[Float64]()[3] = 0.10
-    accuracies._data.bitcast[Float64]()[4] = 1.0
+    accuracies.set(0, Float64(0.50))
+    accuracies.set(1, Float64(0.75))
+    accuracies.set(2, Float64(0.99))
+    accuracies.set(3, Float64(0.10))
+    accuracies.set(4, Float64(1.0))
 
     print_per_class_accuracy(accuracies)
 
@@ -259,9 +259,9 @@ fn test_print_confusion_matrix_basic() raises:
         for j in range(3):
             var idx = i * 3 + j
             if i == j:
-                matrix._data.bitcast[Int32]()[idx] = 90
+                matrix.set(idx, Int32(90))
             else:
-                matrix._data.bitcast[Int32]()[idx] = 5
+                matrix.set(idx, Int32(5))
 
     print_confusion_matrix(matrix)
 
@@ -277,15 +277,15 @@ fn test_print_confusion_matrix_with_class_names() raises:
     var matrix = AnyTensor(shape, DType.int32)
 
     # Fill with test data
-    matrix._data.bitcast[Int32]()[0] = 90  # 0,0
-    matrix._data.bitcast[Int32]()[1] = 5  # 0,1
-    matrix._data.bitcast[Int32]()[2] = 5  # 0,2
-    matrix._data.bitcast[Int32]()[3] = 3  # 1,0
-    matrix._data.bitcast[Int32]()[4] = 92  # 1,1
-    matrix._data.bitcast[Int32]()[5] = 5  # 1,2
-    matrix._data.bitcast[Int32]()[6] = 2  # 2,0
-    matrix._data.bitcast[Int32]()[7] = 4  # 2,1
-    matrix._data.bitcast[Int32]()[8] = 94  # 2,2
+    matrix.set(0, Int32(90))  # 0,0
+    matrix.set(1, Int32(5))  # 0,1
+    matrix.set(2, Int32(5))  # 0,2
+    matrix.set(3, Int32(3))  # 1,0
+    matrix.set(4, Int32(92))  # 1,1
+    matrix.set(5, Int32(5))  # 1,2
+    matrix.set(6, Int32(2))  # 2,0
+    matrix.set(7, Int32(4))  # 2,1
+    matrix.set(8, Int32(94))  # 2,2
 
     var class_names = List[String]()
     class_names.append("Cat")
@@ -305,10 +305,10 @@ fn test_print_confusion_matrix_binary() raises:
     var shape: List[Int] = [2, 2]
     var matrix = AnyTensor(shape, DType.int32)
 
-    matrix._data.bitcast[Int32]()[0] = 950  # TP
-    matrix._data.bitcast[Int32]()[1] = 50  # FP
-    matrix._data.bitcast[Int32]()[2] = 30  # FN
-    matrix._data.bitcast[Int32]()[3] = 970  # TN
+    matrix.set(0, Int32(950))  # TP
+    matrix.set(1, Int32(50))  # FP
+    matrix.set(2, Int32(30))  # FN
+    matrix.set(3, Int32(970))  # TN
 
     var class_names = List[String]()
     class_names.append("Negative")
@@ -327,10 +327,10 @@ fn test_print_confusion_matrix_normalized() raises:
     var shape: List[Int] = [2, 2]
     var matrix = AnyTensor(shape, DType.float32)
 
-    matrix._data.bitcast[Float32]()[0] = 0.95  # 95%
-    matrix._data.bitcast[Float32]()[1] = 0.05  # 5%
-    matrix._data.bitcast[Float32]()[2] = 0.03  # 3%
-    matrix._data.bitcast[Float32]()[3] = 0.97  # 97%
+    matrix.set(0, Float32(0.95))  # 95%
+    matrix.set(1, Float32(0.05))  # 5%
+    matrix.set(2, Float32(0.03))  # 3%
+    matrix.set(3, Float32(0.97))  # 97%
 
     print_confusion_matrix(matrix)
 
@@ -350,9 +350,9 @@ fn test_print_confusion_matrix_large() raises:
         for j in range(10):
             var idx = i * 10 + j
             if i == j:
-                matrix._data.bitcast[Int32]()[idx] = 90
+                matrix.set(idx, Int32(90))
             else:
-                matrix._data.bitcast[Int32]()[idx] = 1
+                matrix.set(idx, Int32(1))
 
     print_confusion_matrix(matrix)
 
@@ -458,11 +458,11 @@ fn test_full_training_workflow_output() raises:
     # Print per-class accuracy
     var per_class_shape: List[Int] = [5]
     var per_class = AnyTensor(per_class_shape, DType.float64)
-    per_class._data.bitcast[Float64]()[0] = 0.85
-    per_class._data.bitcast[Float64]()[1] = 0.92
-    per_class._data.bitcast[Float64]()[2] = 0.88
-    per_class._data.bitcast[Float64]()[3] = 0.95
-    per_class._data.bitcast[Float64]()[4] = 0.80
+    per_class.set(0, Float64(0.85))
+    per_class.set(1, Float64(0.92))
+    per_class.set(2, Float64(0.88))
+    per_class.set(3, Float64(0.95))
+    per_class.set(4, Float64(0.80))
 
     var class_names = List[String]()
     class_names.append("Class0")
@@ -480,9 +480,9 @@ fn test_full_training_workflow_output() raises:
         for j in range(5):
             var idx = i * 5 + j
             if i == j:
-                cm._data.bitcast[Int32]()[idx] = 85
+                cm.set(idx, Int32(85))
             else:
-                cm._data.bitcast[Int32]()[idx] = 3
+                cm.set(idx, Int32(3))
 
     print_confusion_matrix(cm, class_names)
 

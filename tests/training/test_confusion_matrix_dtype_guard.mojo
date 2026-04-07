@@ -24,14 +24,14 @@ fn test_float32_labels_raises() raises:
     var preds_shape = List[Int]()
     preds_shape.append(2)
     var preds = AnyTensor(preds_shape, DType.int32)
-    preds._data.bitcast[Int32]()[0] = 0
-    preds._data.bitcast[Int32]()[1] = 1
+    preds.set(0, Int32(0))
+    preds.set(1, Int32(1))
 
     var labels_shape = List[Int]()
     labels_shape.append(2)
     var labels = AnyTensor(labels_shape, DType.float32)
-    labels._data.bitcast[Float32]()[0] = 0.0
-    labels._data.bitcast[Float32]()[1] = 1.0
+    labels.set(0, Float32(0.0))
+    labels.set(1, Float32(1.0))
 
     var raised = False
     try:
@@ -57,14 +57,14 @@ fn test_float64_labels_raises() raises:
     var preds_shape = List[Int]()
     preds_shape.append(2)
     var preds = AnyTensor(preds_shape, DType.int32)
-    preds._data.bitcast[Int32]()[0] = 0
-    preds._data.bitcast[Int32]()[1] = 1
+    preds.set(0, Int32(0))
+    preds.set(1, Int32(1))
 
     var labels_shape = List[Int]()
     labels_shape.append(2)
     var labels = AnyTensor(labels_shape, DType.float64)
-    labels._data.bitcast[Float64]()[0] = 0.0
-    labels._data.bitcast[Float64]()[1] = 1.0
+    labels.set(0, Float64(0.0))
+    labels.set(1, Float64(1.0))
 
     var raised = False
     try:
@@ -90,14 +90,14 @@ fn test_float32_predictions_1d_raises() raises:
     var preds_shape = List[Int]()
     preds_shape.append(2)
     var preds = AnyTensor(preds_shape, DType.float32)
-    preds._data.bitcast[Float32]()[0] = 0.0
-    preds._data.bitcast[Float32]()[1] = 1.0
+    preds.set(0, Float32(0.0))
+    preds.set(1, Float32(1.0))
 
     var labels_shape = List[Int]()
     labels_shape.append(2)
     var labels = AnyTensor(labels_shape, DType.int32)
-    labels._data.bitcast[Int32]()[0] = 0
-    labels._data.bitcast[Int32]()[1] = 1
+    labels.set(0, Int32(0))
+    labels.set(1, Int32(1))
 
     var raised = False
     try:
@@ -123,16 +123,16 @@ fn test_int32_labels_accepted() raises:
     var preds_shape = List[Int]()
     preds_shape.append(3)
     var preds = AnyTensor(preds_shape, DType.int32)
-    preds._data.bitcast[Int32]()[0] = 0
-    preds._data.bitcast[Int32]()[1] = 1
-    preds._data.bitcast[Int32]()[2] = 2
+    preds.set(0, Int32(0))
+    preds.set(1, Int32(1))
+    preds.set(2, Int32(2))
 
     var labels_shape = List[Int]()
     labels_shape.append(3)
     var labels = AnyTensor(labels_shape, DType.int32)
-    labels._data.bitcast[Int32]()[0] = 0
-    labels._data.bitcast[Int32]()[1] = 1
-    labels._data.bitcast[Int32]()[2] = 2
+    labels.set(0, Int32(0))
+    labels.set(1, Int32(1))
+    labels.set(2, Int32(2))
 
     # Should not raise
     cm.update(preds, labels)
@@ -148,16 +148,16 @@ fn test_int64_labels_accepted() raises:
     var preds_shape = List[Int]()
     preds_shape.append(3)
     var preds = AnyTensor(preds_shape, DType.int64)
-    preds._data.bitcast[Int64]()[0] = 0
-    preds._data.bitcast[Int64]()[1] = 1
-    preds._data.bitcast[Int64]()[2] = 2
+    preds.set(0, Int64(0))
+    preds.set(1, Int64(1))
+    preds.set(2, Int64(2))
 
     var labels_shape = List[Int]()
     labels_shape.append(3)
     var labels = AnyTensor(labels_shape, DType.int64)
-    labels._data.bitcast[Int64]()[0] = 0
-    labels._data.bitcast[Int64]()[1] = 1
-    labels._data.bitcast[Int64]()[2] = 2
+    labels.set(0, Int64(0))
+    labels.set(1, Int64(1))
+    labels.set(2, Int64(2))
 
     # Should not raise
     cm.update(preds, labels)
@@ -176,19 +176,19 @@ fn test_float32_logits_2d_accepted() raises:
     preds_shape.append(3)
     var preds = AnyTensor(preds_shape, DType.float32)
     # Sample 0: logits [1.0, 0.0, 0.0] → argmax=0
-    preds._data.bitcast[Float32]()[0] = 1.0
-    preds._data.bitcast[Float32]()[1] = 0.0
-    preds._data.bitcast[Float32]()[2] = 0.0
+    preds.set(0, Float32(1.0))
+    preds.set(1, Float32(0.0))
+    preds.set(2, Float32(0.0))
     # Sample 1: logits [0.0, 1.0, 0.0] → argmax=1
-    preds._data.bitcast[Float32]()[3] = 0.0
-    preds._data.bitcast[Float32]()[4] = 1.0
-    preds._data.bitcast[Float32]()[5] = 0.0
+    preds.set(3, Float32(0.0))
+    preds.set(4, Float32(1.0))
+    preds.set(5, Float32(0.0))
 
     var labels_shape = List[Int]()
     labels_shape.append(2)
     var labels = AnyTensor(labels_shape, DType.int32)
-    labels._data.bitcast[Int32]()[0] = 0
-    labels._data.bitcast[Int32]()[1] = 1
+    labels.set(0, Int32(0))
+    labels.set(1, Int32(1))
 
     # Should not raise — 2D path goes through argmax which returns int32
     cm.update(preds, labels)
