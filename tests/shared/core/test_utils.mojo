@@ -41,11 +41,11 @@ fn test_argmax_scalar_negative_values() raises:
     var shape = List[Int]()
     shape.append(5)
     var t = zeros(shape, DType.float32)
-    t._data.bitcast[Float32]()[0] = -5.0
-    t._data.bitcast[Float32]()[1] = -2.0
-    t._data.bitcast[Float32]()[2] = -10.0
-    t._data.bitcast[Float32]()[3] = -1.0
-    t._data.bitcast[Float32]()[4] = -3.0
+    t.set(0, Float32(-5.0))
+    t.set(1, Float32(-2.0))
+    t.set(2, Float32(-10.0))
+    t.set(3, Float32(-1.0))
+    t.set(4, Float32(-3.0))
     var idx = argmax(t)
     assert_equal_int(idx, 3)
 
@@ -57,7 +57,7 @@ fn test_argmax_scalar_multi_dimensional() raises:
     shape.append(4)
     var t = zeros(shape, DType.float32)
     # Set max at linear index 5 (row 1, col 1)
-    t._data.bitcast[Float32]()[5] = 42.0
+    t.set(5, Float32(42.0))
     var idx = argmax(t)
     assert_equal_int(idx, 5)
 
@@ -78,10 +78,10 @@ fn test_argmax_axis_2d_axis0() raises:
     var t = zeros(shape, DType.float32)
     # Set values such that row 2 has the max in each column
     # Column 0: indices 0, 4, 8 -> max at 8
-    t._data.bitcast[Float32]()[8] = 100.0
-    t._data.bitcast[Float32]()[9] = 100.0
-    t._data.bitcast[Float32]()[10] = 100.0
-    t._data.bitcast[Float32]()[11] = 100.0
+    t.set(8, Float32(100.0))
+    t.set(9, Float32(100.0))
+    t.set(10, Float32(100.0))
+    t.set(11, Float32(100.0))
 
     var result = argmax(t, axis=0)
     assert_shape(result, [4])
@@ -101,9 +101,9 @@ fn test_argmax_axis_2d_axis1() raises:
     # Row 0, col 3: linear index 3
     # Row 1, col 3: linear index 7
     # Row 2, col 3: linear index 11
-    t._data.bitcast[Float32]()[3] = 10.0
-    t._data.bitcast[Float32]()[7] = 20.0
-    t._data.bitcast[Float32]()[11] = 30.0
+    t.set(3, Float32(10.0))
+    t.set(7, Float32(20.0))
+    t.set(11, Float32(30.0))
 
     var result = argmax(t, axis=1)
     assert_shape(result, [3])
@@ -120,7 +120,7 @@ fn test_argmax_axis_3d() raises:
     shape.append(4)
     var t = zeros(shape, DType.float32)
     # Set max values
-    t._data.bitcast[Float32]()[5] = 50.0
+    t.set(5, Float32(50.0))
 
     var result = argmax(t, axis=2)
     assert_shape(result, [2, 3])
@@ -158,12 +158,12 @@ fn test_top_k_indices_with_duplicates() raises:
     var shape = List[Int]()
     shape.append(6)
     var t = zeros(shape, DType.float32)
-    t._data.bitcast[Float32]()[0] = 5.0
-    t._data.bitcast[Float32]()[1] = 5.0
-    t._data.bitcast[Float32]()[2] = 3.0
-    t._data.bitcast[Float32]()[3] = 3.0
-    t._data.bitcast[Float32]()[4] = 1.0
-    t._data.bitcast[Float32]()[5] = 1.0
+    t.set(0, Float32(5.0))
+    t.set(1, Float32(5.0))
+    t.set(2, Float32(3.0))
+    t.set(3, Float32(3.0))
+    t.set(4, Float32(1.0))
+    t.set(5, Float32(1.0))
 
     var indices = top_k_indices(t, 3)
     # First two should be indices 0 and 1 (both value 5)
@@ -207,11 +207,11 @@ fn test_argsort_ascending() raises:
     var shape = List[Int]()
     shape.append(5)
     var t = zeros(shape, DType.float32)
-    t._data.bitcast[Float32]()[0] = 5.0
-    t._data.bitcast[Float32]()[1] = 2.0
-    t._data.bitcast[Float32]()[2] = 8.0
-    t._data.bitcast[Float32]()[3] = 1.0
-    t._data.bitcast[Float32]()[4] = 9.0
+    t.set(0, Float32(5.0))
+    t.set(1, Float32(2.0))
+    t.set(2, Float32(8.0))
+    t.set(3, Float32(1.0))
+    t.set(4, Float32(9.0))
 
     var indices = argsort(t, descending=False)
     assert_equal_int(indices[0], 3)  # value 1
@@ -226,11 +226,11 @@ fn test_argsort_descending() raises:
     var shape = List[Int]()
     shape.append(5)
     var t = zeros(shape, DType.float32)
-    t._data.bitcast[Float32]()[0] = 5.0
-    t._data.bitcast[Float32]()[1] = 2.0
-    t._data.bitcast[Float32]()[2] = 8.0
-    t._data.bitcast[Float32]()[3] = 1.0
-    t._data.bitcast[Float32]()[4] = 9.0
+    t.set(0, Float32(5.0))
+    t.set(1, Float32(2.0))
+    t.set(2, Float32(8.0))
+    t.set(3, Float32(1.0))
+    t.set(4, Float32(9.0))
 
     var indices = argsort(t, descending=True)
     assert_equal_int(indices[0], 4)  # value 9
@@ -263,11 +263,11 @@ fn test_argsort_reverse_sorted() raises:
     var shape = List[Int]()
     shape.append(5)
     var t = zeros(shape, DType.float32)
-    t._data.bitcast[Float32]()[0] = 5.0
-    t._data.bitcast[Float32]()[1] = 4.0
-    t._data.bitcast[Float32]()[2] = 3.0
-    t._data.bitcast[Float32]()[3] = 2.0
-    t._data.bitcast[Float32]()[4] = 1.0
+    t.set(0, Float32(5.0))
+    t.set(1, Float32(4.0))
+    t.set(2, Float32(3.0))
+    t.set(3, Float32(2.0))
+    t.set(4, Float32(1.0))
 
     var indices = argsort(t, descending=False)
     assert_equal_int(indices[0], 4)
@@ -282,11 +282,11 @@ fn test_argsort_negative_values() raises:
     var shape = List[Int]()
     shape.append(5)
     var t = zeros(shape, DType.float32)
-    t._data.bitcast[Float32]()[0] = -5.0
-    t._data.bitcast[Float32]()[1] = 2.0
-    t._data.bitcast[Float32]()[2] = -1.0
-    t._data.bitcast[Float32]()[3] = 0.0
-    t._data.bitcast[Float32]()[4] = 3.0
+    t.set(0, Float32(-5.0))
+    t.set(1, Float32(2.0))
+    t.set(2, Float32(-1.0))
+    t.set(3, Float32(0.0))
+    t.set(4, Float32(3.0))
 
     var indices = argsort(t, descending=False)
     assert_equal_int(indices[0], 0)  # -5
@@ -302,12 +302,12 @@ fn test_argsort_multidimensional() raises:
     shape.append(2)
     shape.append(3)
     var t = zeros(shape, DType.float32)
-    t._data.bitcast[Float32]()[0] = 5.0
-    t._data.bitcast[Float32]()[1] = 1.0
-    t._data.bitcast[Float32]()[2] = 3.0
-    t._data.bitcast[Float32]()[3] = 2.0
-    t._data.bitcast[Float32]()[4] = 4.0
-    t._data.bitcast[Float32]()[5] = 0.0
+    t.set(0, Float32(5.0))
+    t.set(1, Float32(1.0))
+    t.set(2, Float32(3.0))
+    t.set(3, Float32(2.0))
+    t.set(4, Float32(4.0))
+    t.set(5, Float32(0.0))
 
     var indices = argsort(t, descending=False)
     assert_equal_int(indices[0], 5)  # 0
