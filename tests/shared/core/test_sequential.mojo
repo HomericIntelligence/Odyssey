@@ -98,10 +98,9 @@ struct ScaleModule(Module, Movable):
         """
         var result = zeros(input.shape(), DType.float32)
         var n = input.numel()
+        # Use safe set/get API to avoid ASAP-destruction UAF from bitcast pointer aliasing
         for i in range(n):
-            result._data.bitcast[Float32]()[i] = (
-                input._data.bitcast[Float32]()[i] * self.scale
-            )
+            result.set(i, input[i] * self.scale)
         return result
 
     fn parameters(self) raises -> List[AnyTensor]:
