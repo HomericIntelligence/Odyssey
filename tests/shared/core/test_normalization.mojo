@@ -65,13 +65,13 @@ fn _check_grad_input_batch_size(batch_size: Int) raises:
 
     var x = zeros(shape, DType.float32)
     for i in range(n_elems):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 0.05
+        x.set(i, Float32(i) * 0.1 + 0.05)
 
     var param_shape = List[Int]()
     param_shape.append(2)
     var gamma = ones(param_shape, DType.float32)
-    gamma._data.bitcast[Float32]()[0] = 1.5
-    gamma._data.bitcast[Float32]()[1] = 2.0
+    gamma.set(0, Float32(1.5))
+    gamma.set(1, Float32(2.0))
 
     var beta = zeros(param_shape, DType.float32)
     var running_mean = zeros(param_shape, DType.float32)
@@ -88,7 +88,7 @@ fn _check_grad_input_batch_size(batch_size: Int) raises:
     var grad_output = zeros_like(output)
     for i in range(n_elems):
         var val = Float32(i % 4) * Float32(0.25) - Float32(0.3)
-        grad_output._data.bitcast[Float32]()[i] = val
+        grad_output.set(i, Float32(val))
 
     # Analytical backward
     var bwd = batch_norm2d_backward(
@@ -160,13 +160,13 @@ fn _check_grad_gamma_batch_size(batch_size: Int) raises:
 
     var x = zeros(shape, DType.float32)
     for i in range(n_elems):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 0.05
+        x.set(i, Float32(i) * 0.1 + 0.05)
 
     var param_shape = List[Int]()
     param_shape.append(2)
     var gamma = ones(param_shape, DType.float32)
-    gamma._data.bitcast[Float32]()[0] = 1.5
-    gamma._data.bitcast[Float32]()[1] = 2.0
+    gamma.set(0, Float32(1.5))
+    gamma.set(1, Float32(2.0))
 
     var beta = zeros(param_shape, DType.float32)
     var running_mean = zeros(param_shape, DType.float32)
@@ -179,7 +179,7 @@ fn _check_grad_gamma_batch_size(batch_size: Int) raises:
 
     var grad_output = zeros_like(output)
     for i in range(n_elems):
-        grad_output._data.bitcast[Float32]()[i] = Float32(i + 1) * 0.1
+        grad_output.set(i, Float32(i + 1) * 0.1)
 
     var bwd = batch_norm2d_backward(
         grad_output,
@@ -242,17 +242,17 @@ fn _check_grad_beta_batch_size(batch_size: Int) raises:
 
     var x = zeros(shape, DType.float32)
     for i in range(n_elems):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 0.05
+        x.set(i, Float32(i) * 0.1 + 0.05)
 
     var param_shape = List[Int]()
     param_shape.append(2)
     var gamma = ones(param_shape, DType.float32)
-    gamma._data.bitcast[Float32]()[0] = 1.5
-    gamma._data.bitcast[Float32]()[1] = 2.0
+    gamma.set(0, Float32(1.5))
+    gamma.set(1, Float32(2.0))
 
     var beta = zeros(param_shape, DType.float32)
-    beta._data.bitcast[Float32]()[0] = 0.5
-    beta._data.bitcast[Float32]()[1] = -0.5
+    beta.set(0, Float32(0.5))
+    beta.set(1, Float32(-0.5))
 
     var running_mean = zeros(param_shape, DType.float32)
     var running_var = ones(param_shape, DType.float32)
@@ -264,7 +264,7 @@ fn _check_grad_beta_batch_size(batch_size: Int) raises:
 
     var grad_output = zeros_like(output)
     for i in range(n_elems):
-        grad_output._data.bitcast[Float32]()[i] = Float32(i + 1) * 0.1
+        grad_output.set(i, Float32(i + 1) * 0.1)
 
     var bwd = batch_norm2d_backward(
         grad_output,
@@ -366,7 +366,7 @@ fn test_batch_norm2d_training_mode() raises:
 
     # Set specific values: [0, 1, 2, 3, 4, 5, 6, 7]
     for i in range(8):
-        x._data.bitcast[Float32]()[i] = Float32(i)
+        x.set(i, Float32(i))
 
     # Mean should be 3.5, variance should be computed from data
     var param_shape = List[Int]()
@@ -414,10 +414,10 @@ fn test_batch_norm2d_inference_mode() raises:
 
     # Set running statistics
     var running_mean = zeros(param_shape, DType.float32)
-    running_mean._data.bitcast[Float32]()[0] = 0.5
+    running_mean.set(0, Float32(0.5))
 
     var running_var = ones(param_shape, DType.float32)
-    running_var._data.bitcast[Float32]()[0] = 0.25
+    running_var.set(0, Float32(0.25))
 
     # Inference mode
     var result3 = batch_norm2d(
@@ -466,12 +466,12 @@ fn test_batch_norm2d_scale_shift() raises:
 
     # Set gamma = [2.0, 3.0], beta = [1.0, -1.0]
     var gamma = zeros(param_shape, DType.float32)
-    gamma._data.bitcast[Float32]()[0] = 2.0
-    gamma._data.bitcast[Float32]()[1] = 3.0
+    gamma.set(0, Float32(2.0))
+    gamma.set(1, Float32(3.0))
 
     var beta = zeros(param_shape, DType.float32)
-    beta._data.bitcast[Float32]()[0] = 1.0
-    beta._data.bitcast[Float32]()[1] = -1.0
+    beta.set(0, Float32(1.0))
+    beta.set(1, Float32(-1.0))
 
     var running_mean = zeros(param_shape, DType.float32)
     var running_var = ones(param_shape, DType.float32)
@@ -563,14 +563,14 @@ fn test_batch_norm2d_backward_gradient_input() raises:
     # Create test input with varying values
     var x = zeros(shape, DType.float32)
     for i in range(16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(i) * 0.1)
 
     # Parameters
     var param_shape = List[Int]()
     param_shape.append(2)
     var gamma = ones(param_shape, DType.float32)
-    gamma._data.bitcast[Float32]()[0] = 1.5
-    gamma._data.bitcast[Float32]()[1] = 2.0
+    gamma.set(0, Float32(1.5))
+    gamma.set(1, Float32(2.0))
 
     var beta = zeros(param_shape, DType.float32)
     var running_mean = zeros(param_shape, DType.float32)
@@ -589,7 +589,7 @@ fn test_batch_norm2d_backward_gradient_input() raises:
     for i in range(16):
         # Alternating pattern to avoid symmetry: [0.5, -0.3, 0.8, -0.2, ...]
         var val = Float32(i % 4) * Float32(0.25) - Float32(0.3)
-        grad_output._data.bitcast[Float32]()[i] = val
+        grad_output.set(i, Float32(val))
 
     # Backward pass
     var result7 = batch_norm2d_backward(
@@ -665,24 +665,24 @@ fn test_batch_norm2d_backward_gradient_input_inference_mode() raises:
     # Input with varying values
     var x = zeros(shape, DType.float32)
     for i in range(16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(i) * 0.1)
 
     # Parameters: non-unit gamma, non-zero running stats per channel
     var param_shape = List[Int]()
     param_shape.append(2)
     var gamma = ones(param_shape, DType.float32)
-    gamma._data.bitcast[Float32]()[0] = 1.5
-    gamma._data.bitcast[Float32]()[1] = 2.0
+    gamma.set(0, Float32(1.5))
+    gamma.set(1, Float32(2.0))
 
     var beta = zeros(param_shape, DType.float32)
 
     var running_mean = zeros(param_shape, DType.float32)
-    running_mean._data.bitcast[Float32]()[0] = 0.3
-    running_mean._data.bitcast[Float32]()[1] = 0.7
+    running_mean.set(0, Float32(0.3))
+    running_mean.set(1, Float32(0.7))
 
     var running_var = ones(param_shape, DType.float32)
-    running_var._data.bitcast[Float32]()[0] = 0.5
-    running_var._data.bitcast[Float32]()[1] = 1.5
+    running_var.set(0, Float32(0.5))
+    running_var.set(1, Float32(1.5))
 
     # Forward pass in inference mode (running stats frozen)
     var result_fwd = batch_norm2d(
@@ -764,14 +764,14 @@ fn test_batch_norm2d_backward_gradient_gamma() raises:
 
     var x = zeros(shape, DType.float32)
     for i in range(16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(i) * 0.1)
 
     var param_shape = List[Int]()
     param_shape.append(2)
 
     var gamma = ones(param_shape, DType.float32)
-    gamma._data.bitcast[Float32]()[0] = 1.5
-    gamma._data.bitcast[Float32]()[1] = 2.0
+    gamma.set(0, Float32(1.5))
+    gamma.set(1, Float32(2.0))
 
     var beta = zeros(param_shape, DType.float32)
     var running_mean = zeros(param_shape, DType.float32)
@@ -786,7 +786,7 @@ fn test_batch_norm2d_backward_gradient_gamma() raises:
     # Non-uniform grad_output to exercise per-channel sensitivity
     var grad_output = zeros_like(output)
     for i in range(16):
-        grad_output._data.bitcast[Float32]()[i] = Float32(i + 1) * 0.1
+        grad_output.set(i, Float32(i + 1) * 0.1)
 
     # Analytical gradient
     var result_bwd = batch_norm2d_backward(
@@ -842,18 +842,18 @@ fn test_batch_norm2d_backward_gradient_beta() raises:
 
     var x = zeros(shape, DType.float32)
     for i in range(16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(i) * 0.1)
 
     var param_shape = List[Int]()
     param_shape.append(2)
 
     var gamma = ones(param_shape, DType.float32)
-    gamma._data.bitcast[Float32]()[0] = 1.5
-    gamma._data.bitcast[Float32]()[1] = 2.0
+    gamma.set(0, Float32(1.5))
+    gamma.set(1, Float32(2.0))
 
     var beta = zeros(param_shape, DType.float32)
-    beta._data.bitcast[Float32]()[0] = 0.5
-    beta._data.bitcast[Float32]()[1] = -0.5
+    beta.set(0, Float32(0.5))
+    beta.set(1, Float32(-0.5))
 
     var running_mean = zeros(param_shape, DType.float32)
     var running_var = ones(param_shape, DType.float32)
@@ -867,7 +867,7 @@ fn test_batch_norm2d_backward_gradient_beta() raises:
     # Non-uniform grad_output
     var grad_output = zeros_like(output)
     for i in range(16):
-        grad_output._data.bitcast[Float32]()[i] = Float32(i + 1) * 0.1
+        grad_output.set(i, Float32(i + 1) * 0.1)
 
     # Analytical gradient
     var result_bwd = batch_norm2d_backward(
@@ -921,12 +921,12 @@ fn test_batch_norm2d_backward_training_vs_inference() raises:
 
     var x = zeros(shape, DType.float32)
     for i in range(8):
-        x._data.bitcast[Float32]()[i] = Float32(i)
+        x.set(i, Float32(i))
 
     var param_shape = List[Int]()
     param_shape.append(1)
     var gamma = ones(param_shape, DType.float32)
-    gamma._data.bitcast[Float32]()[0] = 2.0
+    gamma.set(0, Float32(2.0))
 
     var beta = zeros(param_shape, DType.float32)
     var running_mean = zeros(param_shape, DType.float32)
@@ -1063,16 +1063,16 @@ fn test_layer_norm_normalization_2d() raises:
     var x = zeros(shape, DType.float32)
 
     # Sample 1: [0, 1, 2, 3]
-    x._data.bitcast[Float32]()[0] = 0.0
-    x._data.bitcast[Float32]()[1] = 1.0
-    x._data.bitcast[Float32]()[2] = 2.0
-    x._data.bitcast[Float32]()[3] = 3.0
+    x.set(0, Float32(0.0))
+    x.set(1, Float32(1.0))
+    x.set(2, Float32(2.0))
+    x.set(3, Float32(3.0))
 
     # Sample 2: [4, 5, 6, 7]
-    x._data.bitcast[Float32]()[4] = 4.0
-    x._data.bitcast[Float32]()[5] = 5.0
-    x._data.bitcast[Float32]()[6] = 6.0
-    x._data.bitcast[Float32]()[7] = 7.0
+    x.set(4, Float32(4.0))
+    x.set(5, Float32(5.0))
+    x.set(6, Float32(6.0))
+    x.set(7, Float32(7.0))
 
     var param_shape = List[Int]()
     param_shape.append(4)
@@ -1118,14 +1118,14 @@ fn test_layer_norm_scale_shift() raises:
 
     # Set gamma = [2.0, 3.0, 4.0], beta = [1.0, 0.0, -1.0]
     var gamma = zeros(param_shape, DType.float32)
-    gamma._data.bitcast[Float32]()[0] = 2.0
-    gamma._data.bitcast[Float32]()[1] = 3.0
-    gamma._data.bitcast[Float32]()[2] = 4.0
+    gamma.set(0, Float32(2.0))
+    gamma.set(1, Float32(3.0))
+    gamma.set(2, Float32(4.0))
 
     var beta = zeros(param_shape, DType.float32)
-    beta._data.bitcast[Float32]()[0] = 1.0
-    beta._data.bitcast[Float32]()[1] = 0.0
-    beta._data.bitcast[Float32]()[2] = -1.0
+    beta.set(0, Float32(1.0))
+    beta.set(1, Float32(0.0))
+    beta.set(2, Float32(-1.0))
 
     var output = layer_norm(x, gamma, beta, epsilon=1e-5)
 
@@ -1244,7 +1244,7 @@ fn test_layer_norm_backward_grad_beta() raises:
 
     # Set varying input values
     for i in range(12):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(i) * 0.1)
 
     var param_shape = List[Int]()
     param_shape.append(4)
@@ -1255,7 +1255,7 @@ fn test_layer_norm_backward_grad_beta() raises:
     for b in range(3):
         for f in range(4):
             var idx = b * 4 + f
-            grad_output._data.bitcast[Float32]()[idx] = (
+            grad_output.set(idx, Float32(())
                 Float32(b + 1) * Float32(f + 1) * 0.1
             )
 
@@ -1323,28 +1323,28 @@ fn test_layer_norm_backward_gradient_input() raises:
     # Input with varying values (not uniform, not zero)
     var x = zeros(shape, DType.float32)
     for i in range(8):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 0.05
+        x.set(i, Float32(i) * 0.1 + 0.05)
 
     # Parameters: non-trivial gamma, zero beta
     var param_shape = List[Int]()
     param_shape.append(4)
     var gamma = ones(param_shape, DType.float32)
-    gamma._data.bitcast[Float32]()[0] = 1.5
-    gamma._data.bitcast[Float32]()[1] = 0.8
-    gamma._data.bitcast[Float32]()[2] = 1.2
-    gamma._data.bitcast[Float32]()[3] = 2.0
+    gamma.set(0, Float32(1.5))
+    gamma.set(1, Float32(0.8))
+    gamma.set(2, Float32(1.2))
+    gamma.set(3, Float32(2.0))
     var beta = zeros(param_shape, DType.float32)
 
     # Non-uniform grad_output: critical to avoid algebraic cancellation
     var grad_output = zeros(shape, DType.float32)
-    grad_output._data.bitcast[Float32]()[0] = 0.3
-    grad_output._data.bitcast[Float32]()[1] = -0.5
-    grad_output._data.bitcast[Float32]()[2] = 1.2
-    grad_output._data.bitcast[Float32]()[3] = -0.8
-    grad_output._data.bitcast[Float32]()[4] = 0.7
-    grad_output._data.bitcast[Float32]()[5] = -0.2
-    grad_output._data.bitcast[Float32]()[6] = 0.9
-    grad_output._data.bitcast[Float32]()[7] = -1.1
+    grad_output.set(0, Float32(0.3))
+    grad_output.set(1, Float32(-0.5))
+    grad_output.set(2, Float32(1.2))
+    grad_output.set(3, Float32(-0.8))
+    grad_output.set(4, Float32(0.7))
+    grad_output.set(5, Float32(-0.2))
+    grad_output.set(6, Float32(0.9))
+    grad_output.set(7, Float32(-1.1))
 
     # Analytical backward pass
     var result = layer_norm_backward(grad_output, x, gamma, epsilon=1e-5)
@@ -1404,7 +1404,7 @@ fn test_layer_norm_backward_gradient_input_4d() raises:
     # Input with varying values across all 32 elements (not uniform, not zero)
     var x = zeros(shape, DType.float32)
     for i in range(32):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1 + 0.05
+        x.set(i, Float32(i) * 0.1 + 0.05)
 
     # Parameters: gamma shape [16] (flattened last 3 dims), non-trivial values
     var param_shape = List[Int]()
@@ -1417,7 +1417,7 @@ fn test_layer_norm_backward_gradient_input_4d() raises:
         cycling_values.append(0.8)
         cycling_values.append(1.2)
         cycling_values.append(2.0)
-        gamma._data.bitcast[Float32]()[i] = cycling_values[i % 4]
+        gamma.set(i, Float32(cycling_values[i % 4]))
     var beta = zeros(param_shape, DType.float32)
 
     # Non-uniform grad_output: critical to avoid algebraic cancellation
@@ -1457,7 +1457,7 @@ fn test_layer_norm_backward_gradient_input_4d() raises:
     go_vals.append(0.03)
     go_vals.append(-0.04)
     for i in range(32):
-        grad_output._data.bitcast[Float32]()[i] = go_vals[i]
+        grad_output.set(i, Float32(go_vals[i]))
 
     # Analytical backward pass
     var result = layer_norm_backward(grad_output, x, gamma, epsilon=1e-5)
@@ -1503,7 +1503,7 @@ fn test_batch_norm2d_backward_gamma_beta_nonzero() raises:
     var x = zeros(shape, DType.float32)
     # Fill with varying values to get meaningful gradients
     for i in range(16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(i) * 0.1)
 
     var param_shape = List[Int]()
     param_shape.append(2)
@@ -1552,7 +1552,7 @@ fn test_batch_norm2d_backward_inference_mode() raises:
     shape.append(2)
     var x = zeros(shape, DType.float32)
     for i in range(16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(i) * 0.1)
 
     var param_shape = List[Int]()
     param_shape.append(2)
@@ -1590,24 +1590,24 @@ fn test_batch_norm2d_backward_gradient_gamma_inference_mode() raises:
 
     var x = zeros(shape, DType.float32)
     for i in range(16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(i) * 0.1)
 
     var param_shape = List[Int]()
     param_shape.append(2)
 
     var gamma = ones(param_shape, DType.float32)
-    gamma._data.bitcast[Float32]()[0] = 1.5
-    gamma._data.bitcast[Float32]()[1] = 2.0
+    gamma.set(0, Float32(1.5))
+    gamma.set(1, Float32(2.0))
 
     var beta = zeros(param_shape, DType.float32)
 
     var running_mean = zeros(param_shape, DType.float32)
-    running_mean._data.bitcast[Float32]()[0] = 0.3
-    running_mean._data.bitcast[Float32]()[1] = 0.7
+    running_mean.set(0, Float32(0.3))
+    running_mean.set(1, Float32(0.7))
 
     var running_var = ones(param_shape, DType.float32)
-    running_var._data.bitcast[Float32]()[0] = 0.5
-    running_var._data.bitcast[Float32]()[1] = 1.5
+    running_var.set(0, Float32(0.5))
+    running_var.set(1, Float32(1.5))
 
     # Forward pass in inference mode
     var result_fwd = batch_norm2d(
@@ -1618,7 +1618,7 @@ fn test_batch_norm2d_backward_gradient_gamma_inference_mode() raises:
     # Non-uniform grad_output to exercise per-channel sensitivity
     var grad_output = zeros_like(output)
     for i in range(16):
-        grad_output._data.bitcast[Float32]()[i] = Float32(i + 1) * 0.1
+        grad_output.set(i, Float32(i + 1) * 0.1)
 
     # Analytical gradient in inference mode
     var result_bwd = batch_norm2d_backward(
@@ -1672,26 +1672,26 @@ fn test_batch_norm2d_backward_gradient_beta_inference_mode() raises:
 
     var x = zeros(shape, DType.float32)
     for i in range(16):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        x.set(i, Float32(i) * 0.1)
 
     var param_shape = List[Int]()
     param_shape.append(2)
 
     var gamma = ones(param_shape, DType.float32)
-    gamma._data.bitcast[Float32]()[0] = 1.5
-    gamma._data.bitcast[Float32]()[1] = 2.0
+    gamma.set(0, Float32(1.5))
+    gamma.set(1, Float32(2.0))
 
     var beta = zeros(param_shape, DType.float32)
-    beta._data.bitcast[Float32]()[0] = 0.5
-    beta._data.bitcast[Float32]()[1] = -0.5
+    beta.set(0, Float32(0.5))
+    beta.set(1, Float32(-0.5))
 
     var running_mean = zeros(param_shape, DType.float32)
-    running_mean._data.bitcast[Float32]()[0] = 0.3
-    running_mean._data.bitcast[Float32]()[1] = 0.7
+    running_mean.set(0, Float32(0.3))
+    running_mean.set(1, Float32(0.7))
 
     var running_var = ones(param_shape, DType.float32)
-    running_var._data.bitcast[Float32]()[0] = 0.5
-    running_var._data.bitcast[Float32]()[1] = 1.5
+    running_var.set(0, Float32(0.5))
+    running_var.set(1, Float32(1.5))
 
     # Forward pass in inference mode
     var result_fwd = batch_norm2d(
@@ -1702,7 +1702,7 @@ fn test_batch_norm2d_backward_gradient_beta_inference_mode() raises:
     # Non-uniform grad_output
     var grad_output = zeros_like(output)
     for i in range(16):
-        grad_output._data.bitcast[Float32]()[i] = Float32(i + 1) * 0.1
+        grad_output.set(i, Float32(i + 1) * 0.1)
 
     # Analytical gradient in inference mode
     var result_bwd = batch_norm2d_backward(

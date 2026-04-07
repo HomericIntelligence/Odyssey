@@ -71,11 +71,11 @@ fn test_abs_values() raises:
     shape.append(5)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = -5.0
-    x._data.bitcast[Float32]()[1] = -2.0
-    x._data.bitcast[Float32]()[2] = 0.0
-    x._data.bitcast[Float32]()[3] = 3.0
-    x._data.bitcast[Float32]()[4] = 7.0
+    x.set(0, Float32(-5.0))
+    x.set(1, Float32(-2.0))
+    x.set(2, Float32(0.0))
+    x.set(3, Float32(3.0))
+    x.set(4, Float32(7.0))
 
     var result = abs(x)
 
@@ -103,9 +103,9 @@ fn test_abs_backward() raises:
     var x = zeros(shape, DType.float32)
     var grad_output = ones(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = -2.0
-    x._data.bitcast[Float32]()[1] = 0.0
-    x._data.bitcast[Float32]()[2] = 3.0
+    x.set(0, Float32(-2.0))
+    x.set(1, Float32(0.0))
+    x.set(2, Float32(3.0))
 
     var grad_input = abs_backward(grad_output, x)
 
@@ -128,9 +128,9 @@ fn test_abs_backward_gradient() raises:
     var x = zeros(shape, DType.float32)
 
     # Use non-zero values to avoid discontinuity at x=0
-    x._data.bitcast[Float32]()[0] = -0.5
-    x._data.bitcast[Float32]()[1] = 0.2
-    x._data.bitcast[Float32]()[2] = 1.5
+    x.set(0, Float32(-0.5))
+    x.set(1, Float32(0.2))
+    x.set(2, Float32(1.5))
 
     # Forward function wrapper
     fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
@@ -153,11 +153,11 @@ fn test_sign_values() raises:
     shape.append(5)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = -5.0
-    x._data.bitcast[Float32]()[1] = -0.1
-    x._data.bitcast[Float32]()[2] = 0.0
-    x._data.bitcast[Float32]()[3] = 0.1
-    x._data.bitcast[Float32]()[4] = 7.0
+    x.set(0, Float32(-5.0))
+    x.set(1, Float32(-0.1))
+    x.set(2, Float32(0.0))
+    x.set(3, Float32(0.1))
+    x.set(4, Float32(7.0))
 
     var result = sign(x)
 
@@ -186,10 +186,10 @@ fn test_logical_xor_basic() raises:
     var b = zeros(shape, DType.float32)
 
     # a: [0, 1, 0, 1], b: [0, 0, 1, 1]
-    a._data.bitcast[Float32]()[1] = 1.0
-    a._data.bitcast[Float32]()[3] = 1.0
-    b._data.bitcast[Float32]()[2] = 1.0
-    b._data.bitcast[Float32]()[3] = 1.0
+    a.set(1, Float32(1.0))
+    a.set(3, Float32(1.0))
+    b.set(2, Float32(1.0))
+    b.set(3, Float32(1.0))
 
     var result = logical_xor(a, b)
 
@@ -245,9 +245,9 @@ fn test_exp_values() raises:
     shape.append(3)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 0.0
-    x._data.bitcast[Float32]()[1] = 1.0
-    x._data.bitcast[Float32]()[2] = 2.0
+    x.set(0, Float32(0.0))
+    x.set(1, Float32(1.0))
+    x.set(2, Float32(2.0))
 
     var result = exp(x)
 
@@ -270,8 +270,8 @@ fn test_exp_backward() raises:
     var x = zeros(shape, DType.float32)
     var grad_output = ones(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 0.0
-    x._data.bitcast[Float32]()[1] = 1.0
+    x.set(0, Float32(0.0))
+    x.set(1, Float32(1.0))
 
     var grad_input = exp_backward(grad_output, x)
 
@@ -291,9 +291,9 @@ fn test_exp_backward_gradient() raises:
     var x = zeros(shape, DType.float32)
 
     # Set non-uniform values
-    x._data.bitcast[Float32]()[0] = -0.5
-    x._data.bitcast[Float32]()[1] = 0.0
-    x._data.bitcast[Float32]()[2] = 0.5
+    x.set(0, Float32(-0.5))
+    x.set(1, Float32(0.0))
+    x.set(2, Float32(0.5))
 
     # Forward function wrapper
     fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
@@ -329,9 +329,9 @@ fn test_log_values() raises:
     shape.append(3)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 1.0
-    x._data.bitcast[Float32]()[1] = 2.718
-    x._data.bitcast[Float32]()[2] = 7.389
+    x.set(0, Float32(1.0))
+    x.set(1, Float32(2.718))
+    x.set(2, Float32(7.389))
 
     var result = log(x)
 
@@ -354,8 +354,8 @@ fn test_log_backward() raises:
     var x = zeros(shape, DType.float32)
     var grad_output = ones(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 1.0
-    x._data.bitcast[Float32]()[1] = 2.0
+    x.set(0, Float32(1.0))
+    x.set(1, Float32(2.0))
 
     var grad_input = log_backward(grad_output, x)
 
@@ -375,9 +375,9 @@ fn test_log_backward_gradient() raises:
     var x = zeros(shape, DType.float32)
 
     # Set positive non-uniform values
-    x._data.bitcast[Float32]()[0] = 0.5
-    x._data.bitcast[Float32]()[1] = 1.0
-    x._data.bitcast[Float32]()[2] = 2.0
+    x.set(0, Float32(0.5))
+    x.set(1, Float32(1.0))
+    x.set(2, Float32(2.0))
 
     # Forward function wrapper
     fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
@@ -400,9 +400,9 @@ fn test_log10_values() raises:
     shape.append(3)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 1.0
-    x._data.bitcast[Float32]()[1] = 10.0
-    x._data.bitcast[Float32]()[2] = 100.0
+    x.set(0, Float32(1.0))
+    x.set(1, Float32(10.0))
+    x.set(2, Float32(100.0))
 
     var result = log10(x)
 
@@ -425,9 +425,9 @@ fn test_log10_backward_gradient() raises:
     var x = zeros(shape, DType.float32)
 
     # Set positive non-uniform values
-    x._data.bitcast[Float32]()[0] = 0.5
-    x._data.bitcast[Float32]()[1] = 1.0
-    x._data.bitcast[Float32]()[2] = 2.0
+    x.set(0, Float32(0.5))
+    x.set(1, Float32(1.0))
+    x.set(2, Float32(2.0))
 
     # Forward function wrapper
     fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
@@ -450,9 +450,9 @@ fn test_log2_values() raises:
     shape.append(3)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 1.0
-    x._data.bitcast[Float32]()[1] = 2.0
-    x._data.bitcast[Float32]()[2] = 8.0
+    x.set(0, Float32(1.0))
+    x.set(1, Float32(2.0))
+    x.set(2, Float32(8.0))
 
     var result = log2(x)
 
@@ -475,9 +475,9 @@ fn test_log2_backward_gradient() raises:
     var x = zeros(shape, DType.float32)
 
     # Set positive non-uniform values
-    x._data.bitcast[Float32]()[0] = 0.5
-    x._data.bitcast[Float32]()[1] = 1.0
-    x._data.bitcast[Float32]()[2] = 2.0
+    x.set(0, Float32(0.5))
+    x.set(1, Float32(1.0))
+    x.set(2, Float32(2.0))
 
     # Forward function wrapper
     fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
@@ -513,10 +513,10 @@ fn test_sqrt_values() raises:
     shape.append(4)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 0.0
-    x._data.bitcast[Float32]()[1] = 1.0
-    x._data.bitcast[Float32]()[2] = 4.0
-    x._data.bitcast[Float32]()[3] = 9.0
+    x.set(0, Float32(0.0))
+    x.set(1, Float32(1.0))
+    x.set(2, Float32(4.0))
+    x.set(3, Float32(9.0))
 
     var result = sqrt(x)
 
@@ -541,8 +541,8 @@ fn test_sqrt_backward() raises:
     var x = zeros(shape, DType.float32)
     var grad_output = ones(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 1.0
-    x._data.bitcast[Float32]()[1] = 4.0
+    x.set(0, Float32(1.0))
+    x.set(1, Float32(4.0))
 
     var grad_input = sqrt_backward(grad_output, x)
 
@@ -564,9 +564,9 @@ fn test_sqrt_backward_gradient() raises:
     var x = zeros(shape, DType.float32)
 
     # Set positive non-uniform values
-    x._data.bitcast[Float32]()[0] = 0.5
-    x._data.bitcast[Float32]()[1] = 1.0
-    x._data.bitcast[Float32]()[2] = 2.0
+    x.set(0, Float32(0.5))
+    x.set(1, Float32(1.0))
+    x.set(2, Float32(2.0))
 
     # Forward function wrapper
     fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
@@ -589,9 +589,9 @@ fn test_sin_values() raises:
     shape.append(3)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 0.0
-    x._data.bitcast[Float32]()[1] = Float32(pi / 2.0)
-    x._data.bitcast[Float32]()[2] = Float32(pi)
+    x.set(0, Float32(0.0))
+    x.set(1, Float32(pi / 2.0))
+    x.set(2, Float32(pi))
 
     var result = sin(x)
 
@@ -613,9 +613,9 @@ fn test_cos_values() raises:
     shape.append(3)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 0.0
-    x._data.bitcast[Float32]()[1] = Float32(pi / 2.0)
-    x._data.bitcast[Float32]()[2] = Float32(pi)
+    x.set(0, Float32(0.0))
+    x.set(1, Float32(pi / 2.0))
+    x.set(2, Float32(pi))
 
     var result = cos(x)
 
@@ -638,9 +638,9 @@ fn test_sin_backward() raises:
     var x = zeros(shape, DType.float32)
     var grad_output = ones(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 0.0
-    x._data.bitcast[Float32]()[1] = Float32(pi / 2.0)
-    x._data.bitcast[Float32]()[2] = Float32(pi)
+    x.set(0, Float32(0.0))
+    x.set(1, Float32(pi / 2.0))
+    x.set(2, Float32(pi))
 
     var grad_input = sin_backward(grad_output, x)
 
@@ -664,9 +664,9 @@ fn test_sin_backward_gradient() raises:
     var x = zeros(shape, DType.float32)
 
     # Set non-uniform values
-    x._data.bitcast[Float32]()[0] = -0.5
-    x._data.bitcast[Float32]()[1] = 0.0
-    x._data.bitcast[Float32]()[2] = 0.5
+    x.set(0, Float32(-0.5))
+    x.set(1, Float32(0.0))
+    x.set(2, Float32(0.5))
 
     # Forward function wrapper
     fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
@@ -690,9 +690,9 @@ fn test_cos_backward() raises:
     var x = zeros(shape, DType.float32)
     var grad_output = ones(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 0.0
-    x._data.bitcast[Float32]()[1] = Float32(pi / 2.0)
-    x._data.bitcast[Float32]()[2] = Float32(pi)
+    x.set(0, Float32(0.0))
+    x.set(1, Float32(pi / 2.0))
+    x.set(2, Float32(pi))
 
     var grad_input = cos_backward(grad_output, x)
 
@@ -716,9 +716,9 @@ fn test_cos_backward_gradient() raises:
     var x = zeros(shape, DType.float32)
 
     # Set non-uniform values
-    x._data.bitcast[Float32]()[0] = -0.5
-    x._data.bitcast[Float32]()[1] = 0.0
-    x._data.bitcast[Float32]()[2] = 0.5
+    x.set(0, Float32(-0.5))
+    x.set(1, Float32(0.0))
+    x.set(2, Float32(0.5))
 
     # Forward function wrapper
     fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
@@ -754,11 +754,11 @@ fn test_clip_values() raises:
     shape.append(5)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = -5.0
-    x._data.bitcast[Float32]()[1] = -1.0
-    x._data.bitcast[Float32]()[2] = 0.0
-    x._data.bitcast[Float32]()[3] = 1.0
-    x._data.bitcast[Float32]()[4] = 5.0
+    x.set(0, Float32(-5.0))
+    x.set(1, Float32(-1.0))
+    x.set(2, Float32(0.0))
+    x.set(3, Float32(1.0))
+    x.set(4, Float32(5.0))
 
     var result = clip(x, min_val=-2.0, max_val=2.0)
 
@@ -787,11 +787,11 @@ fn test_clip_backward() raises:
     var x = zeros(shape, DType.float32)
     var grad_output = ones(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = -5.0  # Below min
-    x._data.bitcast[Float32]()[1] = -1.0  # Within range
-    x._data.bitcast[Float32]()[2] = 0.0  # Within range
-    x._data.bitcast[Float32]()[3] = 1.0  # Within range
-    x._data.bitcast[Float32]()[4] = 5.0  # Above max
+    x.set(0, Float32(-5.0  # Below min))
+    x.set(1, Float32(-1.0  # Within range))
+    x.set(2, Float32(0.0  # Within range))
+    x.set(3, Float32(1.0  # Within range))
+    x.set(4, Float32(5.0  # Above max))
 
     var grad_input = clip_backward(grad_output, x, min_val=-2.0, max_val=2.0)
 
@@ -820,9 +820,9 @@ fn test_clip_backward_gradient() raises:
     var x = zeros(shape, DType.float32)
 
     # Set non-uniform values within the clipping range
-    x._data.bitcast[Float32]()[0] = -0.5
-    x._data.bitcast[Float32]()[1] = 0.0
-    x._data.bitcast[Float32]()[2] = 0.5
+    x.set(0, Float32(-0.5))
+    x.set(1, Float32(0.0))
+    x.set(2, Float32(0.5))
 
     # Forward function wrapper
     fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
@@ -845,11 +845,11 @@ fn test_ceil_values() raises:
     shape.append(5)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = -2.5
-    x._data.bitcast[Float32]()[1] = -1.1
-    x._data.bitcast[Float32]()[2] = 0.0
-    x._data.bitcast[Float32]()[3] = 1.1
-    x._data.bitcast[Float32]()[4] = 2.5
+    x.set(0, Float32(-2.5))
+    x.set(1, Float32(-1.1))
+    x.set(2, Float32(0.0))
+    x.set(3, Float32(1.1))
+    x.set(4, Float32(2.5))
 
     var result = ceil(x)
 
@@ -876,11 +876,11 @@ fn test_floor_values() raises:
     shape.append(5)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = -2.5
-    x._data.bitcast[Float32]()[1] = -1.1
-    x._data.bitcast[Float32]()[2] = 0.0
-    x._data.bitcast[Float32]()[3] = 1.1
-    x._data.bitcast[Float32]()[4] = 2.5
+    x.set(0, Float32(-2.5))
+    x.set(1, Float32(-1.1))
+    x.set(2, Float32(0.0))
+    x.set(3, Float32(1.1))
+    x.set(4, Float32(2.5))
 
     var result = floor(x)
 
@@ -907,11 +907,11 @@ fn test_round_values() raises:
     shape.append(5)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = -2.5
-    x._data.bitcast[Float32]()[1] = -1.4
-    x._data.bitcast[Float32]()[2] = 0.0
-    x._data.bitcast[Float32]()[3] = 1.4
-    x._data.bitcast[Float32]()[4] = 2.5
+    x.set(0, Float32(-2.5))
+    x.set(1, Float32(-1.4))
+    x.set(2, Float32(0.0))
+    x.set(3, Float32(1.4))
+    x.set(4, Float32(2.5))
 
     var result = round(x)
 
@@ -941,15 +941,15 @@ fn test_logical_and_values() raises:
     var b = zeros(shape, DType.float32)
 
     # Test all combinations: (0, 0), (0, 1), (1, 0), (1, 1)
-    a._data.bitcast[Float32]()[0] = 0.0
-    a._data.bitcast[Float32]()[1] = 0.0
-    a._data.bitcast[Float32]()[2] = 1.0
-    a._data.bitcast[Float32]()[3] = 1.0
+    a.set(0, Float32(0.0))
+    a.set(1, Float32(0.0))
+    a.set(2, Float32(1.0))
+    a.set(3, Float32(1.0))
 
-    b._data.bitcast[Float32]()[0] = 0.0
-    b._data.bitcast[Float32]()[1] = 1.0
-    b._data.bitcast[Float32]()[2] = 0.0
-    b._data.bitcast[Float32]()[3] = 1.0
+    b.set(0, Float32(0.0))
+    b.set(1, Float32(1.0))
+    b.set(2, Float32(0.0))
+    b.set(3, Float32(1.0))
 
     var result = logical_and(a, b)
 
@@ -975,15 +975,15 @@ fn test_logical_or_values() raises:
     var a = zeros(shape, DType.float32)
     var b = zeros(shape, DType.float32)
 
-    a._data.bitcast[Float32]()[0] = 0.0
-    a._data.bitcast[Float32]()[1] = 0.0
-    a._data.bitcast[Float32]()[2] = 1.0
-    a._data.bitcast[Float32]()[3] = 1.0
+    a.set(0, Float32(0.0))
+    a.set(1, Float32(0.0))
+    a.set(2, Float32(1.0))
+    a.set(3, Float32(1.0))
 
-    b._data.bitcast[Float32]()[0] = 0.0
-    b._data.bitcast[Float32]()[1] = 1.0
-    b._data.bitcast[Float32]()[2] = 0.0
-    b._data.bitcast[Float32]()[3] = 1.0
+    b.set(0, Float32(0.0))
+    b.set(1, Float32(1.0))
+    b.set(2, Float32(0.0))
+    b.set(3, Float32(1.0))
 
     var result = logical_or(a, b)
 
@@ -1008,8 +1008,8 @@ fn test_logical_not_values() raises:
     shape.append(2)
     var x = zeros(shape, DType.float32)
 
-    x._data.bitcast[Float32]()[0] = 0.0
-    x._data.bitcast[Float32]()[1] = 1.0
+    x.set(0, Float32(0.0))
+    x.set(1, Float32(1.0))
 
     var result = logical_not(x)
 
