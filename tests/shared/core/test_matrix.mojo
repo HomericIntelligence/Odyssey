@@ -88,16 +88,16 @@ fn test_matmul_values() raises:
     var b = zeros(shape_b, DType.float32)
 
     # A = [[1, 2], [3, 4]]
-    a._data.bitcast[Float32]()[0] = 1.0
-    a._data.bitcast[Float32]()[1] = 2.0
-    a._data.bitcast[Float32]()[2] = 3.0
-    a._data.bitcast[Float32]()[3] = 4.0
+    a.set(0, Float32(1.0))
+    a.set(1, Float32(2.0))
+    a.set(2, Float32(3.0))
+    a.set(3, Float32(4.0))
 
     # B = [[5, 6], [7, 8]]
-    b._data.bitcast[Float32]()[0] = 5.0
-    b._data.bitcast[Float32]()[1] = 6.0
-    b._data.bitcast[Float32]()[2] = 7.0
-    b._data.bitcast[Float32]()[3] = 8.0
+    b.set(0, Float32(5.0))
+    b.set(1, Float32(6.0))
+    b.set(2, Float32(7.0))
+    b.set(3, Float32(8.0))
 
     var result = matmul(a, b)
 
@@ -128,12 +128,12 @@ fn test_matmul_identity() raises:
 
     # A = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     for i in range(9):
-        a._data.bitcast[Float32]()[i] = Float32(i + 1)
+        a.set(i, Float32(Float32(i + 1)))
 
     # Identity = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-    identity._data.bitcast[Float32]()[0] = 1.0  # (0, 0)
-    identity._data.bitcast[Float32]()[4] = 1.0  # (1, 1)
-    identity._data.bitcast[Float32]()[8] = 1.0  # (2, 2)
+    identity.set(0, Float32(1.0))  # (0, 0)
+    identity.set(4, Float32(1.0))  # (1, 1)
+    identity.set(8, Float32(1.0))  # (2, 2)
 
     var result = matmul(a, identity)
 
@@ -365,7 +365,7 @@ fn test_matmul_backward_gradient_a() raises:
 
     # Initialize A with non-uniform values
     for i in range(batch * m * k):
-        a._data.bitcast[Float32]()[i] = Float32(i) * 0.1 - 1.0
+        a.set(i, Float32(Float32(i) * 0.1 - 1.0))
 
     # Create input B with shape (k, n)
     var shape_b = List[Int]()
@@ -376,7 +376,7 @@ fn test_matmul_backward_gradient_a() raises:
     # Initialize B with non-uniform values that don't sum to zero
     # Using offset 0.1 instead of -0.5 to avoid exact cancellation
     for i in range(k * n):
-        b._data.bitcast[Float32]()[i] = Float32(i) * 0.2 + 0.1
+        b.set(i, Float32(Float32(i) * 0.2 + 0.1))
 
     # Forward function wrapper
     fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
@@ -412,7 +412,7 @@ fn test_matmul_backward_gradient_b() raises:
 
     # Initialize A with non-uniform values
     for i in range(m * k):
-        a._data.bitcast[Float32]()[i] = Float32(i) * 0.1 - 1.0
+        a.set(i, Float32(Float32(i) * 0.1 - 1.0))
 
     # Create input B with shape (k, n)
     var shape_b = List[Int]()
@@ -423,7 +423,7 @@ fn test_matmul_backward_gradient_b() raises:
     # Initialize B with non-uniform values that don't sum to zero
     # Using offset 0.1 instead of -0.5 to avoid exact cancellation
     for i in range(k * n):
-        b._data.bitcast[Float32]()[i] = Float32(i) * 0.2 + 0.1
+        b.set(i, Float32(Float32(i) * 0.2 + 0.1))
 
     # Forward function wrapper
     fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
@@ -617,12 +617,12 @@ fn test_transpose_values() raises:
     var a = zeros(shape, DType.float32)
 
     # A = [[1, 2, 3], [4, 5, 6]]
-    a._data.bitcast[Float32]()[0] = 1.0
-    a._data.bitcast[Float32]()[1] = 2.0
-    a._data.bitcast[Float32]()[2] = 3.0
-    a._data.bitcast[Float32]()[3] = 4.0
-    a._data.bitcast[Float32]()[4] = 5.0
-    a._data.bitcast[Float32]()[5] = 6.0
+    a.set(0, Float32(1.0))
+    a.set(1, Float32(2.0))
+    a.set(2, Float32(3.0))
+    a.set(3, Float32(4.0))
+    a.set(4, Float32(5.0))
+    a.set(5, Float32(6.0))
 
     var result = transpose(a)
 
@@ -657,7 +657,7 @@ fn test_transpose_double() raises:
 
     # Fill with values
     for i in range(12):
-        a._data.bitcast[Float32]()[i] = Float32(i)
+        a.set(i, Float32(Float32(i)))
 
     var result = transpose(transpose(a))
 
@@ -789,7 +789,7 @@ fn test_transpose_backward_gradient() raises:
 
     # Initialize with non-uniform values
     for i in range(m * n):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.15 - 2.0
+        x.set(i, Float32(Float32(i) * 0.15 - 2.0))
 
     # Forward function wrapper
     fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
@@ -877,7 +877,7 @@ fn test_transpose_axes_2d_simple() raises:
 
     # Fill with values: [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]]
     for i in range(12):
-        t._data.bitcast[Float32]()[i] = Float32(i)
+        t.set(i, Float32(Float32(i)))
 
     # Create axes [1, 0] for standard transpose
     var axes = List[Int]()
@@ -944,7 +944,7 @@ fn test_transpose_axes_3d_permutation() raises:
 
     # Fill with sequential values
     for i in range(24):
-        t._data.bitcast[Float32]()[i] = Float32(i)
+        t.set(i, Float32(Float32(i)))
 
     # Permutation [2, 0, 1]: (2, 3, 4) -> (4, 2, 3)
     var axes = List[Int]()
@@ -1131,7 +1131,7 @@ fn test_transpose_axes_backward_3d() raises:
 
     # Initialize with non-uniform values
     for i in range(m * n * p):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1 - 2.0
+        x.set(i, Float32(Float32(i) * 0.1 - 2.0))
 
     # Forward with axes [2, 0, 1]: (2, 3, 4) -> (4, 2, 3)
     var axes = List[Int]()
@@ -1167,7 +1167,7 @@ fn test_transpose_axes_double_permutation() raises:
 
     # Fill with sequential values
     for i in range(24):
-        t._data.bitcast[Float32]()[i] = Float32(i)
+        t.set(i, Float32(Float32(i)))
 
     # Forward permutation [2, 0, 1]
     var axes = List[Int]()
@@ -1223,13 +1223,13 @@ fn test_dot_values() raises:
     var a = zeros(shape, DType.float32)
     var b = zeros(shape, DType.float32)
 
-    a._data.bitcast[Float32]()[0] = 1.0
-    a._data.bitcast[Float32]()[1] = 2.0
-    a._data.bitcast[Float32]()[2] = 3.0
+    a.set(0, Float32(1.0))
+    a.set(1, Float32(2.0))
+    a.set(2, Float32(3.0))
 
-    b._data.bitcast[Float32]()[0] = 4.0
-    b._data.bitcast[Float32]()[1] = 5.0
-    b._data.bitcast[Float32]()[2] = 6.0
+    b.set(0, Float32(4.0))
+    b.set(1, Float32(5.0))
+    b.set(2, Float32(6.0))
 
     var result = dot(a, b)
 
@@ -1248,11 +1248,11 @@ fn test_dot_orthogonal() raises:
     var b = zeros(shape, DType.float32)
 
     # a = [1, 0], b = [0, 1]
-    a._data.bitcast[Float32]()[0] = 1.0
-    a._data.bitcast[Float32]()[1] = 0.0
+    a.set(0, Float32(1.0))
+    a.set(1, Float32(0.0))
 
-    b._data.bitcast[Float32]()[0] = 0.0
-    b._data.bitcast[Float32]()[1] = 1.0
+    b.set(0, Float32(0.0))
+    b.set(1, Float32(1.0))
 
     var result = dot(a, b)
 
@@ -1372,13 +1372,13 @@ fn test_outer_values() raises:
     var b = zeros(shape_b, DType.float32)
 
     # a = [2, 3]
-    a._data.bitcast[Float32]()[0] = 2.0
-    a._data.bitcast[Float32]()[1] = 3.0
+    a.set(0, Float32(2.0))
+    a.set(1, Float32(3.0))
 
     # b = [4, 5, 6]
-    b._data.bitcast[Float32]()[0] = 4.0
-    b._data.bitcast[Float32]()[1] = 5.0
-    b._data.bitcast[Float32]()[2] = 6.0
+    b.set(0, Float32(4.0))
+    b.set(1, Float32(5.0))
+    b.set(2, Float32(6.0))
 
     var result = outer(a, b)
 

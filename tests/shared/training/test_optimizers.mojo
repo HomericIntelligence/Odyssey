@@ -81,15 +81,15 @@ fn test_sgd_basic_update() raises:
     var params = ones(shape, DType.float32)
 
     # Manually set values: [1.0, 2.0, 3.0]
-    params._data.bitcast[Float32]()[0] = 1.0
-    params._data.bitcast[Float32]()[1] = 2.0
-    params._data.bitcast[Float32]()[2] = 3.0
+    params.set(0, Float32(1.0))
+    params.set(1, Float32(2.0))
+    params.set(2, Float32(3.0))
 
     # Gradients: [0.1, 0.2, 0.3]
     var grads = zeros(shape, DType.float32)
-    grads._data.bitcast[Float32]()[0] = 0.1
-    grads._data.bitcast[Float32]()[1] = 0.2
-    grads._data.bitcast[Float32]()[2] = 0.3
+    grads.set(0, Float32(0.1))
+    grads.set(1, Float32(0.2))
+    grads.set(2, Float32(0.3))
 
     # Perform update with lr=0.1
     var new_params = sgd_step_simple(params, grads, learning_rate=0.1)
@@ -122,10 +122,10 @@ fn test_sgd_momentum_accumulation() raises:
     """
     var shape: List[Int] = [1]
     var params = ones(shape, DType.float32)
-    params._data.bitcast[Float32]()[0] = 1.0
+    params.set(0, Float32(1.0))
 
     var grads = zeros(shape, DType.float32)
-    grads._data.bitcast[Float32]()[0] = 0.1
+    grads.set(0, Float32(0.1))
 
     var velocity = zeros(shape, DType.float32)
 
@@ -164,10 +164,10 @@ fn test_sgd_weight_decay() raises:
     """
     var shape: List[Int] = [1]
     var params = ones(shape, DType.float32)
-    params._data.bitcast[Float32]()[0] = 1.0
+    params.set(0, Float32(1.0))
 
     var grads = zeros(shape, DType.float32)
-    grads._data.bitcast[Float32]()[0] = 0.1
+    grads.set(0, Float32(0.1))
 
     var velocity = zeros(shape, DType.float32)
 
@@ -260,10 +260,10 @@ fn test_adam_parameter_update() raises:
     var shape = List[Int]()
     shape.append(1)
     var params = ones(shape, DType.float32)
-    params._data.bitcast[Float32]()[0] = 1.0
+    params.set(0, Float32(1.0))
 
     var grads = zeros(shape, DType.float32)
-    grads._data.bitcast[Float32]()[0] = 0.1
+    grads.set(0, Float32(0.1))
 
     var m = zeros(shape, DType.float32)
     var v = zeros(shape, DType.float32)
@@ -311,10 +311,10 @@ fn test_adam_bias_correction() raises:
     var shape = List[Int]()
     shape.append(1)
     var params = ones(shape, DType.float32)
-    params._data.bitcast[Float32]()[0] = 1.0
+    params.set(0, Float32(1.0))
 
     var grads = zeros(shape, DType.float32)
-    grads._data.bitcast[Float32]()[0] = 0.1
+    grads.set(0, Float32(0.1))
 
     var m = zeros(shape, DType.float32)
     var v = zeros(shape, DType.float32)
@@ -353,10 +353,10 @@ fn test_adamw_weight_decay() raises:
     var shape = List[Int]()
     shape.append(1)
     var params = ones(shape, DType.float32)
-    params._data.bitcast[Float32]()[0] = 1.0
+    params.set(0, Float32(1.0))
 
     var grads = zeros(shape, DType.float32)
-    grads._data.bitcast[Float32]()[0] = 0.1
+    grads.set(0, Float32(0.1))
 
     var m = zeros(shape, DType.float32)
     var v = zeros(shape, DType.float32)
@@ -417,9 +417,9 @@ fn test_rmsprop_parameter_update() raises:
     """
     # TODO(#1538): Implement when RMSprop is available
     # var params = AnyTensor([1], DType.float32)
-    # params._data.bitcast[Float32]()[0] = 1.0
+    params.set(0, Float32(1.0))
     # var grads = AnyTensor([1], DType.float32)
-    # grads._data.bitcast[Float32]()[0] = 0.1
+    grads.set(0, Float32(0.1))
     # #
     # var optimizer = RMSprop(learning_rate=0.01, alpha=0.99, epsilon=1e-8)
     # #
@@ -524,15 +524,15 @@ fn test_sgd_matches_pytorch() raises:
     var shape = List[Int]()
     shape.append(3)
     var params = ones(shape, DType.float32)
-    params._data.bitcast[Float32]()[0] = 1.0
-    params._data.bitcast[Float32]()[1] = 2.0
-    params._data.bitcast[Float32]()[2] = 3.0
+    params.set(0, Float32(1.0))
+    params.set(1, Float32(2.0))
+    params.set(2, Float32(3.0))
 
     # Gradients
     var grads = zeros(shape, DType.float32)
-    grads._data.bitcast[Float32]()[0] = 0.1
-    grads._data.bitcast[Float32]()[1] = 0.2
-    grads._data.bitcast[Float32]()[2] = 0.3
+    grads.set(0, Float32(0.1))
+    grads.set(1, Float32(0.2))
+    grads.set(2, Float32(0.3))
 
     # Velocity buffer
     var velocity = zeros(shape, DType.float32)
@@ -607,15 +607,15 @@ fn test_adam_matches_pytorch() raises:
     var shape = List[Int]()
     shape.append(3)
     var params = ones(shape, DType.float32)
-    params._data.bitcast[Float32]()[0] = 1.0
-    params._data.bitcast[Float32]()[1] = 2.0
-    params._data.bitcast[Float32]()[2] = 3.0
+    params.set(0, Float32(1.0))
+    params.set(1, Float32(2.0))
+    params.set(2, Float32(3.0))
 
     # Gradients
     var grads = zeros(shape, DType.float32)
-    grads._data.bitcast[Float32]()[0] = 0.1
-    grads._data.bitcast[Float32]()[1] = 0.2
-    grads._data.bitcast[Float32]()[2] = 0.3
+    grads.set(0, Float32(0.1))
+    grads.set(1, Float32(0.2))
+    grads.set(2, Float32(0.3))
 
     # Moment buffers
     var m = zeros(shape, DType.float32)
