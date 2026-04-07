@@ -80,12 +80,12 @@ fn test_sum_backward_gradient() raises:
     var x = zeros(shape, DType.float32)
 
     # Set non-uniform values
-    x._data.bitcast[Float32]()[0] = 0.5
-    x._data.bitcast[Float32]()[1] = -0.3
-    x._data.bitcast[Float32]()[2] = 1.2
-    x._data.bitcast[Float32]()[3] = -0.8
-    x._data.bitcast[Float32]()[4] = 0.1
-    x._data.bitcast[Float32]()[5] = 0.7
+    x.set(0, Float32(0.5))
+    x.set(1, Float32(-0.3))
+    x.set(2, Float32(1.2))
+    x.set(3, Float32(-0.8))
+    x.set(4, Float32(0.1))
+    x.set(5, Float32(0.7))
 
     # Forward function wrapper (sum along axis 1)
     fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
@@ -137,12 +137,12 @@ fn test_mean_backward_gradient() raises:
     var x = zeros(shape, DType.float32)
 
     # Set non-uniform values
-    x._data.bitcast[Float32]()[0] = 0.5
-    x._data.bitcast[Float32]()[1] = -0.3
-    x._data.bitcast[Float32]()[2] = 1.2
-    x._data.bitcast[Float32]()[3] = -0.8
-    x._data.bitcast[Float32]()[4] = 0.1
-    x._data.bitcast[Float32]()[5] = 0.7
+    x.set(0, Float32(0.5))
+    x.set(1, Float32(-0.3))
+    x.set(2, Float32(1.2))
+    x.set(3, Float32(-0.8))
+    x.set(4, Float32(0.1))
+    x.set(5, Float32(0.7))
 
     # Forward function wrapper (mean along axis 1)
     fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
@@ -192,12 +192,12 @@ fn test_max_reduce_backward_gradient() raises:
     var x = zeros(shape, DType.float32)
 
     # Set non-uniform values
-    x._data.bitcast[Float32]()[0] = 0.5
-    x._data.bitcast[Float32]()[1] = -0.3
-    x._data.bitcast[Float32]()[2] = 1.2
-    x._data.bitcast[Float32]()[3] = -0.8
-    x._data.bitcast[Float32]()[4] = 0.1
-    x._data.bitcast[Float32]()[5] = 0.7
+    x.set(0, Float32(0.5))
+    x.set(1, Float32(-0.3))
+    x.set(2, Float32(1.2))
+    x.set(3, Float32(-0.8))
+    x.set(4, Float32(0.1))
+    x.set(5, Float32(0.7))
 
     # Forward function wrapper (max along axis 1)
     fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
@@ -247,12 +247,12 @@ fn test_min_reduce_backward_gradient() raises:
     var x = zeros(shape, DType.float32)
 
     # Set non-uniform values
-    x._data.bitcast[Float32]()[0] = 0.5
-    x._data.bitcast[Float32]()[1] = -0.3
-    x._data.bitcast[Float32]()[2] = 1.2
-    x._data.bitcast[Float32]()[3] = -0.8
-    x._data.bitcast[Float32]()[4] = 0.1
-    x._data.bitcast[Float32]()[5] = 0.7
+    x.set(0, Float32(0.5))
+    x.set(1, Float32(-0.3))
+    x.set(2, Float32(1.2))
+    x.set(3, Float32(-0.8))
+    x.set(4, Float32(0.1))
+    x.set(5, Float32(0.7))
 
     # Forward function wrapper (min along axis 1)
     fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
@@ -285,9 +285,9 @@ fn test_var_forward_simple() raises:
     var shape = List[Int]()
     shape.append(3)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = 1.0
-    x._data.bitcast[Float32]()[1] = 2.0
-    x._data.bitcast[Float32]()[2] = 3.0
+    x.set(0, Float32(1.0))
+    x.set(1, Float32(2.0))
+    x.set(2, Float32(3.0))
 
     # Mean = 2.0, var = ((1-2)^2 + (2-2)^2 + (3-2)^2) / 3 = 2/3
     var result = variance(x, axis=-1, ddof=0)
@@ -299,9 +299,9 @@ fn test_var_forward_with_ddof() raises:
     var shape = List[Int]()
     shape.append(3)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = 1.0
-    x._data.bitcast[Float32]()[1] = 2.0
-    x._data.bitcast[Float32]()[2] = 3.0
+    x.set(0, Float32(1.0))
+    x.set(1, Float32(2.0))
+    x.set(2, Float32(3.0))
 
     # Sample variance with ddof=1: var = 2 / 2 = 1.0
     var result = variance(x, axis=-1, ddof=1)
@@ -314,12 +314,12 @@ fn test_var_forward_axis() raises:
     shape.append(2)
     shape.append(3)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = 1.0
-    x._data.bitcast[Float32]()[1] = 2.0
-    x._data.bitcast[Float32]()[2] = 3.0
-    x._data.bitcast[Float32]()[3] = 4.0
-    x._data.bitcast[Float32]()[4] = 5.0
-    x._data.bitcast[Float32]()[5] = 6.0
+    x.set(0, Float32(1.0))
+    x.set(1, Float32(2.0))
+    x.set(2, Float32(3.0))
+    x.set(3, Float32(4.0))
+    x.set(4, Float32(5.0))
+    x.set(5, Float32(6.0))
 
     var result = variance(x, axis=1, ddof=0)
     var result_shape = result.shape()
@@ -333,7 +333,7 @@ fn test_var_backward_shapes() raises:
     shape.append(3)
     var x = zeros(shape, DType.float32)
     for i in range(6):
-        x._data.bitcast[Float32]()[i] = Float32(i) + 1.0
+        x.set(i, Float32(Float32(i) + 1.0))
 
     var result = variance(x, axis=1, ddof=0)
     var grad_output = ones_like(result)
@@ -350,12 +350,12 @@ fn test_var_backward_gradient() raises:
     shape.append(2)
     shape.append(3)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = 0.5
-    x._data.bitcast[Float32]()[1] = -0.3
-    x._data.bitcast[Float32]()[2] = 1.2
-    x._data.bitcast[Float32]()[3] = -0.8
-    x._data.bitcast[Float32]()[4] = 0.1
-    x._data.bitcast[Float32]()[5] = 0.7
+    x.set(0, Float32(0.5))
+    x.set(1, Float32(-0.3))
+    x.set(2, Float32(1.2))
+    x.set(3, Float32(-0.8))
+    x.set(4, Float32(0.1))
+    x.set(5, Float32(0.7))
 
     fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return variance(inp, axis=1, ddof=0)
@@ -374,9 +374,9 @@ fn test_std_forward_simple() raises:
     var shape = List[Int]()
     shape.append(3)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = 1.0
-    x._data.bitcast[Float32]()[1] = 2.0
-    x._data.bitcast[Float32]()[2] = 3.0
+    x.set(0, Float32(1.0))
+    x.set(1, Float32(2.0))
+    x.set(2, Float32(3.0))
 
     # std = sqrt(var) = sqrt(2/3)
     var result = std(x, axis=-1, ddof=0)
@@ -390,12 +390,12 @@ fn test_std_backward_gradient() raises:
     shape.append(2)
     shape.append(3)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = 0.5
-    x._data.bitcast[Float32]()[1] = 0.3
-    x._data.bitcast[Float32]()[2] = 1.2
-    x._data.bitcast[Float32]()[3] = 0.8
-    x._data.bitcast[Float32]()[4] = 0.1
-    x._data.bitcast[Float32]()[5] = 0.7
+    x.set(0, Float32(0.5))
+    x.set(1, Float32(0.3))
+    x.set(2, Float32(1.2))
+    x.set(3, Float32(0.8))
+    x.set(4, Float32(0.1))
+    x.set(5, Float32(0.7))
 
     fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return std(inp, axis=1, ddof=0)
@@ -414,11 +414,11 @@ fn test_median_forward_odd() raises:
     var shape = List[Int]()
     shape.append(5)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = 3.0
-    x._data.bitcast[Float32]()[1] = 1.0
-    x._data.bitcast[Float32]()[2] = 4.0
-    x._data.bitcast[Float32]()[3] = 2.0
-    x._data.bitcast[Float32]()[4] = 5.0
+    x.set(0, Float32(3.0))
+    x.set(1, Float32(1.0))
+    x.set(2, Float32(4.0))
+    x.set(3, Float32(2.0))
+    x.set(4, Float32(5.0))
 
     var result = median(x, axis=-1)
     assert_close_float(result._get_float64(0), 3.0, rtol=1e-5, atol=1e-7)
@@ -429,10 +429,10 @@ fn test_median_forward_even() raises:
     var shape = List[Int]()
     shape.append(4)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = 1.0
-    x._data.bitcast[Float32]()[1] = 2.0
-    x._data.bitcast[Float32]()[2] = 3.0
-    x._data.bitcast[Float32]()[3] = 4.0
+    x.set(0, Float32(1.0))
+    x.set(1, Float32(2.0))
+    x.set(2, Float32(3.0))
+    x.set(3, Float32(4.0))
 
     var result = median(x, axis=-1)
     assert_close_float(result._get_float64(0), 2.5, rtol=1e-5, atol=1e-7)
@@ -445,7 +445,7 @@ fn test_median_backward_shapes() raises:
     shape.append(3)
     var x = zeros(shape, DType.float32)
     for i in range(6):
-        x._data.bitcast[Float32]()[i] = Float32(i) + 1.0
+        x.set(i, Float32(Float32(i) + 1.0))
 
     var result = median(x, axis=1)
     var grad_output = ones_like(result)
@@ -461,11 +461,11 @@ fn test_percentile_forward_p50() raises:
     var shape = List[Int]()
     shape.append(5)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = 1.0
-    x._data.bitcast[Float32]()[1] = 2.0
-    x._data.bitcast[Float32]()[2] = 3.0
-    x._data.bitcast[Float32]()[3] = 4.0
-    x._data.bitcast[Float32]()[4] = 5.0
+    x.set(0, Float32(1.0))
+    x.set(1, Float32(2.0))
+    x.set(2, Float32(3.0))
+    x.set(3, Float32(4.0))
+    x.set(4, Float32(5.0))
 
     var result = percentile(x, 50.0, axis=-1)
     assert_close_float(result._get_float64(0), 3.0, rtol=1e-5, atol=1e-7)
@@ -476,11 +476,11 @@ fn test_percentile_forward_p0_p100() raises:
     var shape = List[Int]()
     shape.append(5)
     var x = zeros(shape, DType.float32)
-    x._data.bitcast[Float32]()[0] = 1.0
-    x._data.bitcast[Float32]()[1] = 2.0
-    x._data.bitcast[Float32]()[2] = 3.0
-    x._data.bitcast[Float32]()[3] = 4.0
-    x._data.bitcast[Float32]()[4] = 5.0
+    x.set(0, Float32(1.0))
+    x.set(1, Float32(2.0))
+    x.set(2, Float32(3.0))
+    x.set(3, Float32(4.0))
+    x.set(4, Float32(5.0))
 
     var p0 = percentile(x, 0.0, axis=-1)
     assert_close_float(p0._get_float64(0), 1.0, rtol=1e-5, atol=1e-7)
@@ -496,7 +496,7 @@ fn test_percentile_backward_shapes() raises:
     shape.append(3)
     var x = zeros(shape, DType.float32)
     for i in range(6):
-        x._data.bitcast[Float32]()[i] = Float32(i) + 1.0
+        x.set(i, Float32(Float32(i) + 1.0))
 
     var result = percentile(x, 50.0, axis=1)
     var grad_output = ones_like(result)

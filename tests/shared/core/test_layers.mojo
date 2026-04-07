@@ -77,7 +77,7 @@ fn test_linear_forward() raises:
     # Fill with 0.1
     for i in range(out_features):
         for j in range(in_features):
-            weights._data.bitcast[Float32]()[i * in_features + j] = 0.1
+            weights.set(i * in_features + j, Float32(0.1))
 
     # Bias: (5,) filled with 0.0
     var bias_shape = List[Int]()
@@ -123,7 +123,7 @@ fn test_linear_no_bias() raises:
     weight_shape.append(in_features)
     var weights = ones(weight_shape, DType.float32)
     for i in range(out_features * in_features):
-        weights._data.bitcast[Float32]()[i] = 0.5
+        weights.set(i, Float32(0.5))
 
     # Input: (1, 10) filled with 1.0
     var input_shape = List[Int]()
@@ -251,11 +251,11 @@ fn test_relu_activation() raises:
     var shape = List[Int]()
     shape.append(5)
     var input = zeros(shape, DType.float32)
-    input._data.bitcast[Float32]()[0] = -2.0
-    input._data.bitcast[Float32]()[1] = -1.0
-    input._data.bitcast[Float32]()[2] = 0.0
-    input._data.bitcast[Float32]()[3] = 1.0
-    input._data.bitcast[Float32]()[4] = 2.0
+    input.set(0, Float32(-2.0))
+    input.set(1, Float32(-1.0))
+    input.set(2, Float32(0.0))
+    input.set(3, Float32(1.0))
+    input.set(4, Float32(2.0))
 
     # Apply ReLU
     var output = relu(input)
@@ -289,11 +289,11 @@ fn test_sigmoid_range() raises:
     var shape = List[Int]()
     shape.append(5)
     var input = zeros(shape, DType.float32)
-    input._data.bitcast[Float32]()[0] = -10.0
-    input._data.bitcast[Float32]()[1] = -1.0
-    input._data.bitcast[Float32]()[2] = 0.0
-    input._data.bitcast[Float32]()[3] = 1.0
-    input._data.bitcast[Float32]()[4] = 10.0
+    input.set(0, Float32(-10.0))
+    input.set(1, Float32(-1.0))
+    input.set(2, Float32(0.0))
+    input.set(3, Float32(1.0))
+    input.set(4, Float32(10.0))
 
     # Apply sigmoid
     var output = sigmoid(input)
@@ -320,11 +320,11 @@ fn test_tanh_range() raises:
     var shape = List[Int]()
     shape.append(5)
     var input = zeros(shape, DType.float32)
-    input._data.bitcast[Float32]()[0] = -10.0
-    input._data.bitcast[Float32]()[1] = -1.0
-    input._data.bitcast[Float32]()[2] = 0.0
-    input._data.bitcast[Float32]()[3] = 1.0
-    input._data.bitcast[Float32]()[4] = 10.0
+    input.set(0, Float32(-10.0))
+    input.set(1, Float32(-1.0))
+    input.set(2, Float32(0.0))
+    input.set(3, Float32(1.0))
+    input.set(4, Float32(10.0))
 
     # Apply tanh
     var output = tanh(input)
@@ -396,7 +396,7 @@ fn test_layer_property_batch_independence() raises:
     weight_shape.append(in_features)
     var weights = ones(weight_shape, DType.float32)
     for i in range(out_features * in_features):
-        weights._data.bitcast[Float32]()[i] = 0.2
+        weights.set(i, Float32(0.2))
 
     var bias_shape = List[Int]()
     bias_shape.append(out_features)
@@ -409,7 +409,7 @@ fn test_layer_property_batch_independence() raises:
     var batch_input = ones(batch_input_shape, DType.float32)
     # Set different values for each batch element
     for i in range(in_features):
-        batch_input._data.bitcast[Float32]()[i] = 1.0  # First batch element
+        batch_input.set(i, Float32(1.0  # First batch element))
         batch_input._data.bitcast[Float32]()[
             in_features + i
         ] = 2.0  # Second batch element
@@ -423,7 +423,7 @@ fn test_layer_property_batch_independence() raises:
     single_input_shape.append(in_features)
     var single_input_1 = ones(single_input_shape, DType.float32)
     for i in range(in_features):
-        single_input_1._data.bitcast[Float32]()[i] = 1.0
+        single_input_1.set(i, Float32(1.0))
 
     var single_output_1 = linear(single_input_1, weights, bias)
 
@@ -452,13 +452,13 @@ fn test_layer_property_deterministic() raises:
     weight_shape.append(in_features)
     var weights = ones(weight_shape, DType.float32)
     for i in range(out_features * in_features):
-        weights._data.bitcast[Float32]()[i] = Float32(i) * 0.01
+        weights.set(i, Float32(Float32(i) * 0.01))
 
     var bias_shape = List[Int]()
     bias_shape.append(out_features)
     var bias = ones(bias_shape, DType.float32)
     for i in range(out_features):
-        bias._data.bitcast[Float32]()[i] = Float32(i) * 0.1
+        bias.set(i, Float32(Float32(i) * 0.1))
 
     # Create input
     var input_shape = List[Int]()
@@ -466,7 +466,7 @@ fn test_layer_property_deterministic() raises:
     input_shape.append(in_features)
     var input = ones(input_shape, DType.float32)
     for i in range(2 * in_features):
-        input._data.bitcast[Float32]()[i] = Float32(i % in_features)
+        input.set(i, Float32(i % in_features))
 
     # Two forward passes with same input
     var output1 = linear(input, weights, bias)
@@ -524,40 +524,40 @@ fn test_linear_matches_pytorch() raises:
     input_shape.append(2)
     input_shape.append(4)
     var input = zeros(input_shape, DType.float32)
-    input._data.bitcast[Float32]()[0] = 1.0
-    input._data.bitcast[Float32]()[1] = 2.0
-    input._data.bitcast[Float32]()[2] = 3.0
-    input._data.bitcast[Float32]()[3] = 4.0
-    input._data.bitcast[Float32]()[4] = 5.0
-    input._data.bitcast[Float32]()[5] = 6.0
-    input._data.bitcast[Float32]()[6] = 7.0
-    input._data.bitcast[Float32]()[7] = 8.0
+    input.set(0, Float32(1.0))
+    input.set(1, Float32(2.0))
+    input.set(2, Float32(3.0))
+    input.set(3, Float32(4.0))
+    input.set(4, Float32(5.0))
+    input.set(5, Float32(6.0))
+    input.set(6, Float32(7.0))
+    input.set(7, Float32(8.0))
 
     # Create weights: (3, 4)
     var weight_shape = List[Int]()
     weight_shape.append(3)
     weight_shape.append(4)
     var weights = zeros(weight_shape, DType.float32)
-    weights._data.bitcast[Float32]()[0] = 0.1
-    weights._data.bitcast[Float32]()[1] = 0.2
-    weights._data.bitcast[Float32]()[2] = 0.3
-    weights._data.bitcast[Float32]()[3] = 0.4
-    weights._data.bitcast[Float32]()[4] = 0.5
-    weights._data.bitcast[Float32]()[5] = 0.6
-    weights._data.bitcast[Float32]()[6] = 0.7
-    weights._data.bitcast[Float32]()[7] = 0.8
-    weights._data.bitcast[Float32]()[8] = 0.9
-    weights._data.bitcast[Float32]()[9] = 1.0
-    weights._data.bitcast[Float32]()[10] = 1.1
-    weights._data.bitcast[Float32]()[11] = 1.2
+    weights.set(0, Float32(0.1))
+    weights.set(1, Float32(0.2))
+    weights.set(2, Float32(0.3))
+    weights.set(3, Float32(0.4))
+    weights.set(4, Float32(0.5))
+    weights.set(5, Float32(0.6))
+    weights.set(6, Float32(0.7))
+    weights.set(7, Float32(0.8))
+    weights.set(8, Float32(0.9))
+    weights.set(9, Float32(1.0))
+    weights.set(10, Float32(1.1))
+    weights.set(11, Float32(1.2))
 
     # Create bias: (3,)
     var bias_shape = List[Int]()
     bias_shape.append(3)
     var bias = zeros(bias_shape, DType.float32)
-    bias._data.bitcast[Float32]()[0] = 1.0
-    bias._data.bitcast[Float32]()[1] = 2.0
-    bias._data.bitcast[Float32]()[2] = 3.0
+    bias.set(0, Float32(1.0))
+    bias.set(1, Float32(2.0))
+    bias.set(2, Float32(3.0))
 
     # Forward pass
     var output = linear(input, weights, bias)
@@ -596,13 +596,13 @@ fn test_relu_matches_pytorch() raises:
     var shape = List[Int]()
     shape.append(7)
     var input = zeros(shape, DType.float32)
-    input._data.bitcast[Float32]()[0] = -3.0
-    input._data.bitcast[Float32]()[1] = -1.5
-    input._data.bitcast[Float32]()[2] = -0.1
-    input._data.bitcast[Float32]()[3] = 0.0
-    input._data.bitcast[Float32]()[4] = 0.1
-    input._data.bitcast[Float32]()[5] = 1.5
-    input._data.bitcast[Float32]()[6] = 3.0
+    input.set(0, Float32(-3.0))
+    input.set(1, Float32(-1.5))
+    input.set(2, Float32(-0.1))
+    input.set(3, Float32(0.0))
+    input.set(4, Float32(0.1))
+    input.set(5, Float32(1.5))
+    input.set(6, Float32(3.0))
 
     var output = relu(input)
 
@@ -635,11 +635,11 @@ fn test_sigmoid_matches_pytorch() raises:
     var shape = List[Int]()
     shape.append(5)
     var input = zeros(shape, DType.float32)
-    input._data.bitcast[Float32]()[0] = -2.0
-    input._data.bitcast[Float32]()[1] = -1.0
-    input._data.bitcast[Float32]()[2] = 0.0
-    input._data.bitcast[Float32]()[3] = 1.0
-    input._data.bitcast[Float32]()[4] = 2.0
+    input.set(0, Float32(-2.0))
+    input.set(1, Float32(-1.0))
+    input.set(2, Float32(0.0))
+    input.set(3, Float32(1.0))
+    input.set(4, Float32(2.0))
 
     var output = sigmoid(input)
 

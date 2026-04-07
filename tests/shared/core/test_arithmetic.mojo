@@ -85,13 +85,13 @@ fn test_add_values() raises:
     var a = zeros(shape, DType.float32)
     var b = zeros(shape, DType.float32)
 
-    a._data.bitcast[Float32]()[0] = 1.0
-    a._data.bitcast[Float32]()[1] = 2.0
-    a._data.bitcast[Float32]()[2] = 3.0
+    a.set(0, Float32(1.0))
+    a.set(1, Float32(2.0))
+    a.set(2, Float32(3.0))
 
-    b._data.bitcast[Float32]()[0] = 4.0
-    b._data.bitcast[Float32]()[1] = 5.0
-    b._data.bitcast[Float32]()[2] = 6.0
+    b.set(0, Float32(4.0))
+    b.set(1, Float32(5.0))
+    b.set(2, Float32(6.0))
 
     var result = add(a, b)
 
@@ -200,13 +200,13 @@ fn test_subtract_values() raises:
     var a = zeros(shape, DType.float32)
     var b = zeros(shape, DType.float32)
 
-    a._data.bitcast[Float32]()[0] = 5.0
-    a._data.bitcast[Float32]()[1] = 7.0
-    a._data.bitcast[Float32]()[2] = 9.0
+    a.set(0, Float32(5.0))
+    a.set(1, Float32(7.0))
+    a.set(2, Float32(9.0))
 
-    b._data.bitcast[Float32]()[0] = 2.0
-    b._data.bitcast[Float32]()[1] = 3.0
-    b._data.bitcast[Float32]()[2] = 4.0
+    b.set(0, Float32(2.0))
+    b.set(1, Float32(3.0))
+    b.set(2, Float32(4.0))
 
     var result = subtract(a, b)
 
@@ -315,13 +315,13 @@ fn test_multiply_values() raises:
     var a = zeros(shape, DType.float32)
     var b = zeros(shape, DType.float32)
 
-    a._data.bitcast[Float32]()[0] = 2.0
-    a._data.bitcast[Float32]()[1] = 3.0
-    a._data.bitcast[Float32]()[2] = 4.0
+    a.set(0, Float32(2.0))
+    a.set(1, Float32(3.0))
+    a.set(2, Float32(4.0))
 
-    b._data.bitcast[Float32]()[0] = 5.0
-    b._data.bitcast[Float32]()[1] = 6.0
-    b._data.bitcast[Float32]()[2] = 7.0
+    b.set(0, Float32(5.0))
+    b.set(1, Float32(6.0))
+    b.set(2, Float32(7.0))
 
     var result = multiply(a, b)
 
@@ -405,10 +405,10 @@ fn test_multiply_backward() raises:
     var b = zeros(shape, DType.float32)
     var grad_output = ones(shape, DType.float32)
 
-    a._data.bitcast[Float32]()[0] = 2.0
-    a._data.bitcast[Float32]()[1] = 3.0
-    b._data.bitcast[Float32]()[0] = 4.0
-    b._data.bitcast[Float32]()[1] = 5.0
+    a.set(0, Float32(2.0))
+    a.set(1, Float32(3.0))
+    b.set(0, Float32(4.0))
+    b.set(1, Float32(5.0))
 
     var grads = multiply_backward(grad_output, a, b)
     var grad_a = grads.grad_a
@@ -450,13 +450,13 @@ fn test_divide_values() raises:
     var a = zeros(shape, DType.float32)
     var b = zeros(shape, DType.float32)
 
-    a._data.bitcast[Float32]()[0] = 10.0
-    a._data.bitcast[Float32]()[1] = 20.0
-    a._data.bitcast[Float32]()[2] = 30.0
+    a.set(0, Float32(10.0))
+    a.set(1, Float32(20.0))
+    a.set(2, Float32(30.0))
 
-    b._data.bitcast[Float32]()[0] = 2.0
-    b._data.bitcast[Float32]()[1] = 4.0
-    b._data.bitcast[Float32]()[2] = 5.0
+    b.set(0, Float32(2.0))
+    b.set(1, Float32(4.0))
+    b.set(2, Float32(5.0))
 
     var result = divide(a, b)
 
@@ -527,10 +527,10 @@ fn test_divide_backward() raises:
     var b = zeros(shape, DType.float32)
     var grad_output = ones(shape, DType.float32)
 
-    a._data.bitcast[Float32]()[0] = 10.0
-    a._data.bitcast[Float32]()[1] = 20.0
-    b._data.bitcast[Float32]()[0] = 2.0
-    b._data.bitcast[Float32]()[1] = 4.0
+    a.set(0, Float32(10.0))
+    a.set(1, Float32(20.0))
+    b.set(0, Float32(2.0))
+    b.set(1, Float32(4.0))
 
     var grads = divide_backward(grad_output, a, b)
     var grad_a = grads.grad_a
@@ -577,13 +577,13 @@ fn test_floor_divide_values() raises:
     var a = zeros(shape, DType.float32)
     var b = zeros(shape, DType.float32)
 
-    a._data.bitcast[Float32]()[0] = 7.0
-    a._data.bitcast[Float32]()[1] = 8.0
-    a._data.bitcast[Float32]()[2] = 9.0
+    a.set(0, Float32(7.0))
+    a.set(1, Float32(8.0))
+    a.set(2, Float32(9.0))
 
-    b._data.bitcast[Float32]()[0] = 2.0
-    b._data.bitcast[Float32]()[1] = 3.0
-    b._data.bitcast[Float32]()[2] = 4.0
+    b.set(0, Float32(2.0))
+    b.set(1, Float32(3.0))
+    b.set(2, Float32(4.0))
 
     var result = floor_divide(a, b)
 
@@ -653,13 +653,13 @@ fn test_modulo_values() raises:
     var a = zeros(shape, DType.float32)
     var b = zeros(shape, DType.float32)
 
-    a._data.bitcast[Float32]()[0] = 7.0
-    a._data.bitcast[Float32]()[1] = 8.0
-    a._data.bitcast[Float32]()[2] = 9.0
+    a.set(0, Float32(7.0))
+    a.set(1, Float32(8.0))
+    a.set(2, Float32(9.0))
 
-    b._data.bitcast[Float32]()[0] = 3.0
-    b._data.bitcast[Float32]()[1] = 5.0
-    b._data.bitcast[Float32]()[2] = 4.0
+    b.set(0, Float32(3.0))
+    b.set(1, Float32(5.0))
+    b.set(2, Float32(4.0))
 
     var result = modulo(a, b)
 
@@ -732,13 +732,13 @@ fn test_power_values() raises:
     var a = zeros(shape, DType.float32)
     var b = zeros(shape, DType.float32)
 
-    a._data.bitcast[Float32]()[0] = 2.0
-    a._data.bitcast[Float32]()[1] = 3.0
-    a._data.bitcast[Float32]()[2] = 4.0
+    a.set(0, Float32(2.0))
+    a.set(1, Float32(3.0))
+    a.set(2, Float32(4.0))
 
-    b._data.bitcast[Float32]()[0] = 3.0
-    b._data.bitcast[Float32]()[1] = 2.0
-    b._data.bitcast[Float32]()[2] = 0.5
+    b.set(0, Float32(3.0))
+    b.set(1, Float32(2.0))
+    b.set(2, Float32(0.5))
 
     var result = power(a, b)
 
