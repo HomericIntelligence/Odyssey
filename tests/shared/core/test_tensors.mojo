@@ -440,29 +440,19 @@ fn test_set_and_get_values() raises:
     shape.append(5)
     var t = zeros(shape, DType.float32)
 
-    # Set values
-    t._data.bitcast[Float32]()[0] = 1.0
-    t._data.bitcast[Float32]()[1] = 2.0
-    t._data.bitcast[Float32]()[2] = 3.0
-    t._data.bitcast[Float32]()[3] = 4.0
-    t._data.bitcast[Float32]()[4] = 5.0
+    # Set values using safe API (avoids ASAP-destruction UAF from bitcast pointer aliasing)
+    t.set(0, Float32(1.0))
+    t.set(1, Float32(2.0))
+    t.set(2, Float32(3.0))
+    t.set(3, Float32(4.0))
+    t.set(4, Float32(5.0))
 
     # Get and check values
-    assert_almost_equal(
-        t._data.bitcast[Float32]()[0], Float32(1.0), tolerance=1e-5
-    )
-    assert_almost_equal(
-        t._data.bitcast[Float32]()[1], Float32(2.0), tolerance=1e-5
-    )
-    assert_almost_equal(
-        t._data.bitcast[Float32]()[2], Float32(3.0), tolerance=1e-5
-    )
-    assert_almost_equal(
-        t._data.bitcast[Float32]()[3], Float32(4.0), tolerance=1e-5
-    )
-    assert_almost_equal(
-        t._data.bitcast[Float32]()[4], Float32(5.0), tolerance=1e-5
-    )
+    assert_almost_equal(t[0], Float32(1.0), tolerance=1e-5)
+    assert_almost_equal(t[1], Float32(2.0), tolerance=1e-5)
+    assert_almost_equal(t[2], Float32(3.0), tolerance=1e-5)
+    assert_almost_equal(t[3], Float32(4.0), tolerance=1e-5)
+    assert_almost_equal(t[4], Float32(5.0), tolerance=1e-5)
 
 
 fn test_2d_indexing() raises:
@@ -473,10 +463,10 @@ fn test_2d_indexing() raises:
     var t = zeros(shape, DType.float32)
 
     # Set value at (1, 2) -> linear index = 1*4 + 2 = 6
-    t._data.bitcast[Float32]()[6] = 42.0
+    t.set(6, Float32(42.0))
 
     # Get value at (1, 2)
-    var val = t._data.bitcast[Float32]()[6]
+    var val = t[6]
     assert_almost_equal(val, Float32(42.0), tolerance=1e-5)
 
 
@@ -489,10 +479,10 @@ fn test_3d_indexing() raises:
     var t = zeros(shape, DType.float32)
 
     # Set value at (1, 2, 3) -> linear index = 1*12 + 2*4 + 3 = 23
-    t._data.bitcast[Float32]()[23] = 99.0
+    t.set(23, Float32(99.0))
 
     # Get value at (1, 2, 3)
-    var val = t._data.bitcast[Float32]()[23]
+    var val = t[23]
     assert_almost_equal(val, Float32(99.0), tolerance=1e-5)
 
 

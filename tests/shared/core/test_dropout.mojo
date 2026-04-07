@@ -217,12 +217,12 @@ fn test_dropout_backward_gradient() raises:
     shape.append(5)
     var x = zeros(shape, DType.float32)
 
-    # Set non-uniform values
-    x._data.bitcast[Float32]()[0] = -0.5
-    x._data.bitcast[Float32]()[1] = 0.0
-    x._data.bitcast[Float32]()[2] = 0.2
-    x._data.bitcast[Float32]()[3] = 0.5
-    x._data.bitcast[Float32]()[4] = 1.0
+    # Set non-uniform values using safe API (avoids ASAP-destruction UAF from bitcast pointer aliasing)
+    x.set(0, Float32(-0.5))
+    x.set(1, Float32(0.0))
+    x.set(2, Float32(0.2))
+    x.set(3, Float32(0.5))
+    x.set(4, Float32(1.0))
 
     # Forward pass to create mask ONCE
     # For gradient checking, we need the function to be deterministic,
@@ -364,9 +364,9 @@ fn test_dropout2d_backward_gradient() raises:
     shape.append(4)
     var x = zeros(shape, DType.float32)
 
-    # Set non-uniform values
+    # Set non-uniform values using safe API (avoids ASAP-destruction UAF from bitcast pointer aliasing)
     for i in range(x.numel()):
-        x._data.bitcast[Float32]()[i] = Float32(i) * 0.1 - 0.8
+        x.set(i, Float32(i) * Float32(0.1) - Float32(0.8))
 
     # Forward pass to create mask ONCE
     # For gradient checking, we need the function to be deterministic,
