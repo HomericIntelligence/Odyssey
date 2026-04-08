@@ -999,9 +999,19 @@ struct AnyTensor(
 
     @always_inline
     fn set(mut self, index: Int, value: UInt16) raises:
-        """Set element at flat index from a UInt16 value."""
+        """Set element at flat index from a UInt16 value.
+
+        For float16 tensors, writes the raw bit pattern (bitcast), preserving
+        NaN payloads and special bit patterns. For integer tensors, numeric cast.
+        """
         var idx = self._resolve_index(index)
-        self._set_int64(idx, Int64(Int(value)))
+        if self._dtype == DType.float16:
+            var dtype_size = self._get_dtype_size()
+            var offset = idx * dtype_size
+            var ptr = (self._data + offset).bitcast[UInt16]()
+            ptr[] = value
+        else:
+            self._set_int64(idx, Int64(Int(value)))
 
     @always_inline
     fn set(mut self, index: Int, value: UInt32) raises:
