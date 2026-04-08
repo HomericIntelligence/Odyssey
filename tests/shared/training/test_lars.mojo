@@ -275,11 +275,11 @@ fn test_lars_weight_decay() raises:
     # Create tensors WITH weight decay test
     # Use orthogonal grad and param vectors so ||grad + wd*params|| != ||grad|| + wd*||params||
     var params_wd = zeros(shape, DType.float32)
-    params_wd.set(0, Float32(1.0  # [1.0, 0.0]))
+    params_wd.set(0, Float32(1.0))  # [1.0, 0.0]
     params_wd.set(1, Float32(0.0))
 
     var grads_wd = zeros(shape, DType.float32)
-    grads_wd.set(0, Float32(0.0  # [0.0, 0.1]))
+    grads_wd.set(0, Float32(0.0))  # [0.0, 0.1]
     grads_wd.set(1, Float32(0.1))
 
     var velocity_wd = zeros(shape, DType.float32)
@@ -300,11 +300,11 @@ fn test_lars_weight_decay() raises:
 
     # Create tensors WITHOUT weight decay
     var params_no_wd = zeros(shape, DType.float32)
-    params_no_wd.set(0, Float32(1.0  # [1.0, 0.0]))
+    params_no_wd.set(0, Float32(1.0))  # [1.0, 0.0]
     params_no_wd.set(1, Float32(0.0))
 
     var grads_no_wd = zeros(shape, DType.float32)
-    grads_no_wd.set(0, Float32(0.0  # [0.0, 0.1]))
+    grads_no_wd.set(0, Float32(0.0))  # [0.0, 0.1]
     grads_no_wd.set(1, Float32(0.1))
 
     var velocity_no_wd = zeros(shape, DType.float32)
@@ -370,11 +370,11 @@ fn test_lars_adaptive_scaling_small_gradients() raises:
     """
     var shape: List[Int] = [1]
     var params = ones(shape, DType.float32)
-    params.set(0, Float32(10.0  # Large parameter))
+    params.set(0, Float32(10.0))  # Large parameter
 
     # Create gradient tensor with small norm
     var grads = zeros(shape, DType.float32)
-    grads.set(0, Float32(0.01  # Small gradient))
+    grads.set(0, Float32(0.01))  # Small gradient
 
     var velocity = zeros(shape, DType.float32)
 
@@ -404,11 +404,11 @@ fn test_lars_adaptive_scaling_large_gradients() raises:
     """
     var shape: List[Int] = [1]
     var params = ones(shape, DType.float32)
-    params.set(0, Float32(1.0  # Small parameter))
+    params.set(0, Float32(1.0))  # Small parameter
 
     # Create gradient tensor with large norm
     var grads = zeros(shape, DType.float32)
-    grads.set(0, Float32(10.0  # Large gradient))
+    grads.set(0, Float32(10.0))  # Large gradient
 
     var velocity = zeros(shape, DType.float32)
 

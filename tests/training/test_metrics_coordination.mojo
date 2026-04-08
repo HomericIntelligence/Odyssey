@@ -149,10 +149,10 @@ fn test_accuracy_metric_interface_compliance() raises:
     labels_shape.append(4)
     var labels = AnyTensor(labels_shape, DType.int32)
 
-    preds.set(0, Int32(0  # ✓))
-    preds.set(1, Int32(1  # ✓))
-    preds.set(2, Int32(2  # ✗))
-    preds.set(3, Int32(0  # ✗))
+    preds.set(0, Int32(0))  # ✓
+    preds.set(1, Int32(1))  # ✓
+    preds.set(2, Int32(2))  # ✗
+    preds.set(3, Int32(0))  # ✗
 
     labels.set(0, Int32(0))
     labels.set(1, Int32(1))

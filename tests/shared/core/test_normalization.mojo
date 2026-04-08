@@ -1255,9 +1255,7 @@ fn test_layer_norm_backward_grad_beta() raises:
     for b in range(3):
         for f in range(4):
             var idx = b * 4 + f
-            grad_output.set(idx, Float32(())
-                Float32(b + 1) * Float32(f + 1) * 0.1
-            )
+            grad_output.set(idx, Float32(b + 1) * Float32(f + 1) * 0.1)
 
     var result15 = layer_norm_backward(grad_output, x, gamma, epsilon=1e-5)
     var grad_beta = result15[2]

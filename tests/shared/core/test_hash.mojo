@@ -257,12 +257,12 @@ fn test_hash_mixed_nan_different_nan_patterns() raises:
 
     # First tensor: element 0 = positive quiet NaN, element 1 = 1.0
     var a = AnyTensor(shape, DType.float32)
-    a.set(0, UInt32(UInt32(0x7FC00000)  # +qNaN))
+    a.set(0, UInt32(UInt32(0x7FC00000)))  # +qNaN
     a.set(1, Float32(Float32(1.0)))
 
     # Second tensor: element 0 = negative quiet NaN, element 1 = 1.0
     var b = AnyTensor(shape, DType.float32)
-    b.set(0, UInt32(UInt32(0xFFC00000)  # -qNaN))
+    b.set(0, UInt32(UInt32(0xFFC00000)))  # -qNaN
     b.set(1, Float32(Float32(1.0)))
 
     assert_equal_int(

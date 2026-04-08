@@ -462,7 +462,7 @@ fn test_rmsprop_batch_update() raises:
     var all_different = True
     for i in range(50):
         if (
-            new_params.set(i, Float32(= params._data.bitcast[Float32]()[i]))
+            new_params._data.bitcast[Float32]()[i] == params._data.bitcast[Float32]()[i]
         ):
             all_different = False
             break

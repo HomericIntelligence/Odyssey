@@ -443,9 +443,9 @@ fn test_sigmoid_basic() raises:
     shape.append(3)
     var x = zeros(shape, DType.float32)
 
-    x.set(0, Float32(-100.0  # Should be ~0))
-    x.set(1, Float32(0.0  # Should be 0.5))
-    x.set(2, Float32(100.0  # Should be ~1))
+    x.set(0, Float32(-100.0))  # Should be ~0
+    x.set(1, Float32(0.0))  # Should be 0.5
+    x.set(2, Float32(100.0))  # Should be ~1
 
     var y = sigmoid(x)
 
@@ -570,9 +570,9 @@ fn test_tanh_basic() raises:
     shape.append(3)
     var x = zeros(shape, DType.float32)
 
-    x.set(0, Float32(-100.0  # Should be ~-1))
-    x.set(1, Float32(0.0  # Should be 0))
-    x.set(2, Float32(100.0  # Should be ~1))
+    x.set(0, Float32(-100.0))  # Should be ~-1
+    x.set(1, Float32(0.0))  # Should be 0
+    x.set(2, Float32(100.0))  # Should be ~1
 
     var y = tanh(x)
 

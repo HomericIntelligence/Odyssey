@@ -787,11 +787,11 @@ fn test_clip_backward() raises:
     var x = zeros(shape, DType.float32)
     var grad_output = ones(shape, DType.float32)
 
-    x.set(0, Float32(-5.0  # Below min))
-    x.set(1, Float32(-1.0  # Within range))
-    x.set(2, Float32(0.0  # Within range))
-    x.set(3, Float32(1.0  # Within range))
-    x.set(4, Float32(5.0  # Above max))
+    x.set(0, Float32(-5.0))  # Below min
+    x.set(1, Float32(-1.0))  # Within range
+    x.set(2, Float32(0.0))  # Within range
+    x.set(3, Float32(1.0))  # Within range
+    x.set(4, Float32(5.0))  # Above max
 
     var grad_input = clip_backward(grad_output, x, min_val=-2.0, max_val=2.0)
 
