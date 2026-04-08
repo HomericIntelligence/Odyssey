@@ -177,9 +177,7 @@ fn test_training_loop_simulation() raises:
             var labels = AnyTensor(labels_shape, DType.int32)
 
             for i in range(batch_size):
-                labels.set(i, Int32(Int32())
-                    (i + batch_idx) % output_dim
-                )
+                labels.set(i, Int32((i + batch_idx) % output_dim))
 
             # Forward pass
             var h1 = matmul(input, w1)

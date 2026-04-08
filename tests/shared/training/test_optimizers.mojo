@@ -417,9 +417,9 @@ fn test_rmsprop_parameter_update() raises:
     """
     # TODO(#1538): Implement when RMSprop is available
     # var params = AnyTensor([1], DType.float32)
-    params.set(0, Float32(1.0))
+    # params.set(0, Float32(1.0))
     # var grads = AnyTensor([1], DType.float32)
-    grads.set(0, Float32(0.1))
+    # grads.set(0, Float32(0.1))
     # #
     # var optimizer = RMSprop(learning_rate=0.01, alpha=0.99, epsilon=1e-8)
     # #

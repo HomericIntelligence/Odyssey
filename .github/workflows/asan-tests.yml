@@ -37,10 +37,10 @@ jobs:
       - name: Install Just
         uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b  # v3
 
-      - name: Run core types under ASAN
+      - name: Run core dtype tests under ASAN
         run: |
-          echo "Running shared/core/types tests under AddressSanitizer..."
-          just test-group-asan "tests/shared/core/types" "test_*.mojo"
+          echo "Running shared/core dtype tests under AddressSanitizer..."
+          just test-group-asan "tests/shared/core" "test_dtype_dispatch.mojo test_dtype_ordinal.mojo"
 
       - name: Run MXFP4 block tests under ASAN
         run: |

@@ -104,9 +104,9 @@ fn test_matmul_baseline_identity() raises:
         a.set(i, Float32(Float32(i + 1)))
 
     # Identity = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
-    identity.set(0, Float32(1.0  # (0, 0)))
-    identity.set(4, Float32(1.0  # (1, 1)))
-    identity.set(8, Float32(1.0  # (2, 2)))
+    identity.set(0, Float32(1.0))  # (0, 0)
+    identity.set(4, Float32(1.0))  # (1, 1)
+    identity.set(8, Float32(1.0))  # (2, 2)
 
     var result = matmul(a, identity)
 

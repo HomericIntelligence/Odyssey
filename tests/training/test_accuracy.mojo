@@ -125,9 +125,9 @@ fn test_top1_accuracy_with_indices() raises:
         labels.set(i, Int32(Int32(i % 4)))
 
         if i < 4:
-            preds.set(i, Int32(Int32(i % 4)  # Correct))
+            preds.set(i, Int32(Int32(i % 4)))  # Correct
         else:
-            preds.set(i, Int32(Int32((i + 1) % 4)  # Incorrect))
+            preds.set(i, Int32(Int32((i + 1) % 4)))  # Incorrect
 
     var acc = top1_accuracy(preds, labels)
 

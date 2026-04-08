@@ -409,7 +409,7 @@ fn test_layer_property_batch_independence() raises:
     var batch_input = ones(batch_input_shape, DType.float32)
     # Set different values for each batch element
     for i in range(in_features):
-        batch_input.set(i, Float32(1.0  # First batch element))
+        batch_input.set(i, Float32(1.0))  # First batch element
         batch_input._data.bitcast[Float32]()[
             in_features + i
         ] = 2.0  # Second batch element

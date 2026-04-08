@@ -62,9 +62,7 @@ fn test_conv2d_backward_grad_input_padding1() raises:
     var output = forward_input(x)
     var grad_output = zeros_like(output)
     for i in range(16):
-        grad_output.set(i, Float32(())
-            Float32(i % 4) * Float32(0.25) - Float32(0.3)
-        )
+        grad_output.set(i, Float32(i % 4) * Float32(0.25) - Float32(0.3))
 
     check_gradient(
         forward_input, backward_input, x, grad_output, rtol=1e-2, atol=1e-2
@@ -116,9 +114,7 @@ fn test_conv2d_backward_grad_weights_padding1() raises:
     var output = forward_weights(kernel)
     var grad_output = zeros_like(output)
     for i in range(16):
-        grad_output.set(i, Float32(())
-            Float32(i % 4) * Float32(0.25) - Float32(0.3)
-        )
+        grad_output.set(i, Float32(i % 4) * Float32(0.25) - Float32(0.3))
 
     check_gradient(
         forward_weights,
@@ -176,9 +172,7 @@ fn test_conv2d_backward_grad_input_padding2() raises:
     var output = forward_input(x)
     var grad_output = zeros_like(output)
     for i in range(49):
-        grad_output.set(i, Float32(())
-            Float32(i % 4) * Float32(0.25) - Float32(0.3)
-        )
+        grad_output.set(i, Float32(i % 4) * Float32(0.25) - Float32(0.3))
 
     check_gradient(
         forward_input, backward_input, x, grad_output, rtol=1e-2, atol=1e-2
@@ -231,9 +225,7 @@ fn test_conv2d_backward_grad_weights_padding2() raises:
     var output = forward_weights(kernel)
     var grad_output = zeros_like(output)
     for i in range(49):
-        grad_output.set(i, Float32(())
-            Float32(i % 4) * Float32(0.25) - Float32(0.3)
-        )
+        grad_output.set(i, Float32(i % 4) * Float32(0.25) - Float32(0.3))
 
     check_gradient(
         forward_weights,
