@@ -161,9 +161,7 @@ fn test_topk_accuracy_k1() raises:
             if c == true_class:
                 logits.set(idx, Float32(10.0))
             else:
-                logits.set(idx, Float32(Float32())
-                    c
-                )  # Lower scores
+                logits.set(idx, Float32(c))  # Lower scores
 
     var acc_top1 = top1_accuracy(logits, labels)
     var acc_topk = topk_accuracy(logits, labels, k=1)

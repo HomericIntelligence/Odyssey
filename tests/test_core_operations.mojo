@@ -355,7 +355,7 @@ fn test_multi_layer_network_integration() raises:
     print("Testing multi-layer network integration...")
 
     # 3-layer network: 784 -> 256 -> 128 -> 10 (MNIST-like)
-    var layer_sizes: List[Int] = [784, 256, 128, 10]
+    var _layer_sizes: List[Int] = [784, 256, 128, 10]
 
     # Initialize all layers with appropriate methods
     var w1 = kaiming_uniform(784, 256, [784, 256], seed_val=1)

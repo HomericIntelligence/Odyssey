@@ -340,7 +340,7 @@ fn test_multi_metric_training_simulation() raises:
 
     # Setup metrics
     var accuracy = AccuracyMetric()
-    var loss_tracker = LossTracker(window_size=10)
+    var _loss_tracker = LossTracker(window_size=10)
     var confusion = ConfusionMatrix(num_classes=3)
 
     # Setup logger
