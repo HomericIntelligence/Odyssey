@@ -1005,15 +1005,35 @@ struct AnyTensor(
 
     @always_inline
     fn set(mut self, index: Int, value: UInt32) raises:
-        """Set element at flat index from a UInt32 value."""
+        """Set element at flat index from a UInt32 value.
+
+        For float32 tensors, writes the raw bit pattern (bitcast), preserving
+        NaN payloads and special bit patterns. For integer tensors, numeric cast.
+        """
         var idx = self._resolve_index(index)
-        self._set_int64(idx, Int64(Int(value)))
+        if self._dtype == DType.float32:
+            var dtype_size = self._get_dtype_size()
+            var offset = idx * dtype_size
+            var ptr = (self._data + offset).bitcast[UInt32]()
+            ptr[] = value
+        else:
+            self._set_int64(idx, Int64(Int(value)))
 
     @always_inline
     fn set(mut self, index: Int, value: UInt64) raises:
-        """Set element at flat index from a UInt64 value."""
+        """Set element at flat index from a UInt64 value.
+
+        For float64 tensors, writes the raw bit pattern (bitcast), preserving
+        NaN payloads and special bit patterns. For integer tensors, numeric cast.
+        """
         var idx = self._resolve_index(index)
-        self._set_int64(idx, Int64(Int(value)))
+        if self._dtype == DType.float64:
+            var dtype_size = self._get_dtype_size()
+            var offset = idx * dtype_size
+            var ptr = (self._data + offset).bitcast[UInt64]()
+            ptr[] = value
+        else:
+            self._set_int64(idx, Int64(Int(value)))
 
     fn __getitem__(self, indices: List[Int]) raises -> Float32:
         """Get element at multi-dimensional index.
