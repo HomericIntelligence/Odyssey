@@ -7,7 +7,7 @@ version = "0.1.0"
 
 [dependencies]
 # Language runtime
-mojo = "==0.26.1"
+mojo = "==26.3.0.dev2026040705"
 
 # Testing
 pytest = ">=8.1.0,<9"

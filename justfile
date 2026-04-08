@@ -759,15 +759,21 @@ _test-group-asan-inner path pattern:
             echo "Running (ASAN): $test_file"
             test_count=$((test_count + 1))
 
-            if output=$(pixi run mojo {{MOJO_ASAN}} {{MOJO_STRICT}} -I "$REPO_ROOT" -I . "$test_file" 2>&1); then
+            BINARY=$(mktemp /tmp/mojo-asan-XXXXXX)
+            output=""
+            output2=""
+            if output=$(pixi run mojo build {{MOJO_ASAN}} {{MOJO_STRICT}} -I "$REPO_ROOT" -I . "$test_file" -o "$BINARY" 2>&1) && output2=$("$BINARY" 2>&1); then
+                echo "$output2"
                 echo "✅ PASSED: $test_file"
                 passed_count=$((passed_count + 1))
             else
                 echo "$output"
+                echo "$output2"
                 echo "❌ FAILED: $test_file"
                 failed_count=$((failed_count + 1))
                 failed_tests="$failed_tests\n  - $test_file"
             fi
+            rm -f "$BINARY"
         fi
     done
 

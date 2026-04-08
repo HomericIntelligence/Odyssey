@@ -115,7 +115,6 @@ gh pr merge --auto --rebase
 - [Git Commit Policy](/.claude/shared/git-commit-policy.md)
 - [Output Style Guidelines](/.claude/shared/output-style-guidelines.md)
 - [Tool Use Optimization](/.claude/shared/tool-use-optimization.md)
-- [ADR-009 Heap Corruption Workaround](docs/adr/ADR-009-heap-corruption-workaround.md)
 
 ### Agent System & Skills
 

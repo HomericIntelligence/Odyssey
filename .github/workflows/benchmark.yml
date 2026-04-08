@@ -79,6 +79,7 @@ jobs:
           SUITE: ${{ matrix.benchmark-suite }}
         run: |
           mkdir -p builds/benchmarks
+          chmod 777 builds/benchmarks
 
           # Check if benchmarks directory exists
           if [ ! -d "benchmarks" ]; then
