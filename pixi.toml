@@ -1,5 +1,5 @@
 [workspace]
-channels = ["https://conda.modular.com/max", "conda-forge"]
+channels = ["https://conda.modular.com/max-nightly", "https://conda.modular.com/max", "conda-forge"]
 name = "ProjectOdyssey"
 platforms = ["linux-64"]
 version = "0.1.0"
@@ -7,7 +7,7 @@ version = "0.1.0"
 
 [dependencies]
 # Language runtime
-mojo = "==26.3.0.dev2026040705"
+mojo = "==0.26.3.0.dev2026040705"
 
 # Testing
 pytest = ">=8.1.0,<9"
