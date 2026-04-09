@@ -9,7 +9,7 @@ Split from test_merging.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
 
-from testing import assert_true, assert_false, assert_equal
+from std.testing import assert_true, assert_false, assert_equal
 from shared.utils.config import Config, load_config, merge_configs
 
 

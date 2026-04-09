@@ -10,7 +10,7 @@ Tests cover:
 - Shape preservation in arithmetic
 """
 
-from testing import assert_true, assert_almost_equal
+from std.testing import assert_true, assert_almost_equal
 from shared.tensor.any_tensor import AnyTensor, zeros as any_zeros, ones as any_ones, full as any_full
 from shared.core.arithmetic import (
     add,

@@ -9,7 +9,7 @@ from shared.training.mixed_precision import (
     convert_to_fp32_master,
     update_model_from_master,
 )
-from testing import assert_equal, assert_true
+from std.testing import assert_equal, assert_true
 
 
 def test_convert_fp16_to_fp32_small() raises:

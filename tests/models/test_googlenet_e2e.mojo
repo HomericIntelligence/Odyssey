@@ -149,7 +149,7 @@ struct InceptionModule:
         self.bn1x1_4_running_mean = zeros([pool_proj], DType.float32)
         self.bn1x1_4_running_var = constant([pool_proj], 1.0)
 
-    def forward(mut self, x: AnyTensor, training: Bool) raises -> AnyTensor:
+    def forward(mut self, x: AnyTensor, training: Bool) raises unified {read} -> AnyTensor:
         """Forward pass through Inception module."""
         # Branch 1: 1x1 conv
         var b1 = conv2d(
@@ -356,7 +356,7 @@ struct GoogLeNetSmall:
         self.fc_weights = xavier_normal(96, num_classes, [num_classes, 96])
         self.fc_bias = zeros([num_classes], DType.float32)
 
-    def forward(mut self, x: AnyTensor, training: Bool = True) raises -> AnyTensor:
+    def forward(mut self, x: AnyTensor, training: Bool = True) raises unified {read} -> AnyTensor:
         """Forward pass through simplified GoogLeNet."""
         # Initial conv
         var out = conv2d(

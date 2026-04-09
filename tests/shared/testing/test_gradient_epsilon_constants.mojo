@@ -4,7 +4,7 @@ Verifies that both constants are importable from the submodule and the package,
 values are consistent between both import paths, and numeric values are correct.
 """
 
-from testing import assert_true, assert_equal
+from std.testing import assert_true, assert_equal
 from shared.testing import (
     GRADIENT_CHECK_EPSILON_FLOAT32,
     GRADIENT_CHECK_EPSILON_OTHER,

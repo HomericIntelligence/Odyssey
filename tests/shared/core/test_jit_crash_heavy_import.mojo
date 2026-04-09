@@ -8,7 +8,7 @@ See docs/dev/mojo-jit-crash-workaround.md for context.
 """
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
 from shared.core import relu, sigmoid, matmul, softmax
-from testing import assert_true
+from std.testing import assert_true
 
 
 def test_basic_tensor_creation() raises:

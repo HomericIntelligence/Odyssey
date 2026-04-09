@@ -5,7 +5,7 @@
 # high test load. Split from test_assertions.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-from testing import assert_true
+from std.testing import assert_true
 from shared.testing.assertions import (
     assert_close_float,
     assert_greater,

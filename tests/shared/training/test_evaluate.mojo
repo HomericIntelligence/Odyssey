@@ -42,7 +42,7 @@ struct MockPredictor:
         """
         self.predictions = predictions^
 
-    def predict(self, sample: AnyTensor) raises -> Int:
+    def predict(self, sample: AnyTensor) raises unified {read} -> Int:
         """Mock predict method that uses stored predictions.
 
         Args:

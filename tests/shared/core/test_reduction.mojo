@@ -34,7 +34,7 @@ from shared.core.reduction import (
 from shared.testing import check_gradient
 from shared.core.reduction import (
     variance,
-    std,
+    std as std_op,
     variance_backward,
     std_backward,
 )
@@ -88,14 +88,14 @@ def test_sum_backward_gradient() raises:
     x.set(5, Float32(0.7))
 
     # Forward function wrapper (sum along axis 1)
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return sum(inp, axis=1)
 
     var y = forward(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         return sum_backward(grad, inp, axis=1)
 
     # Use numerical gradient checking (gold standard)
@@ -145,14 +145,14 @@ def test_mean_backward_gradient() raises:
     x.set(5, Float32(0.7))
 
     # Forward function wrapper (mean along axis 1)
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return mean(inp, axis=1)
 
     var y = forward(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         return mean_backward(grad, inp, axis=1)
 
     # Use numerical gradient checking (gold standard)
@@ -200,14 +200,14 @@ def test_max_reduce_backward_gradient() raises:
     x.set(5, Float32(0.7))
 
     # Forward function wrapper (max along axis 1)
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return max_reduce(inp, axis=1)
 
     var y = forward(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         return max_reduce_backward(grad, inp, axis=1)
 
     # Use numerical gradient checking (gold standard)
@@ -255,14 +255,14 @@ def test_min_reduce_backward_gradient() raises:
     x.set(5, Float32(0.7))
 
     # Forward function wrapper (min along axis 1)
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return min_reduce(inp, axis=1)
 
     var y = forward(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         return min_reduce_backward(grad, inp, axis=1)
 
     # Use numerical gradient checking (gold standard)
@@ -357,13 +357,13 @@ def test_var_backward_gradient() raises:
     x.set(4, Float32(0.1))
     x.set(5, Float32(0.7))
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return variance(inp, axis=1, ddof=0)
 
     var y = forward(x)
     var grad_out = ones_like(y)
 
-    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         return variance_backward(grad, inp, axis=1, ddof=0)
 
     check_gradient(forward, backward, x, grad_out, rtol=2e-3, atol=1e-6)
@@ -379,7 +379,7 @@ def test_std_forward_simple() raises:
     x.set(2, Float32(3.0))
 
     # std = sqrt(var) = sqrt(2/3)
-    var result = std(x, axis=-1, ddof=0)
+    var result = std_op(x, axis=-1, ddof=0)
     var expected = (2.0 / 3.0) ** 0.5
     assert_close_float(result._get_float64(0), expected, rtol=1e-5, atol=1e-7)
 
@@ -397,13 +397,13 @@ def test_std_backward_gradient() raises:
     x.set(4, Float32(0.1))
     x.set(5, Float32(0.7))
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
-        return std(inp, axis=1, ddof=0)
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
+        return std_op(inp, axis=1, ddof=0)
 
     var y = forward(x)
     var grad_out = ones_like(y)
 
-    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         return std_backward(grad, inp, axis=1, ddof=0)
 
     check_gradient(forward, backward, x, grad_out, rtol=2e-3, atol=1e-6)

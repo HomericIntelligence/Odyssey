@@ -6,7 +6,7 @@ Should never crash even after 100+ runs.
 See docs/dev/mojo-jit-crash-workaround.md for context.
 """
 from shared.tensor.any_tensor import AnyTensor, zeros
-from testing import assert_true
+from std.testing import assert_true
 
 
 def test_basic_tensor_creation() raises:

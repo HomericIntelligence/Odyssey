@@ -15,7 +15,7 @@ This test:
 # ADR-009: Kept to <=10 fn test_ functions to avoid heap corruption flake.
 """
 
-from testing import assert_true
+from std.testing import assert_true
 from shared.base.memory_pool import SpinLock
 
 

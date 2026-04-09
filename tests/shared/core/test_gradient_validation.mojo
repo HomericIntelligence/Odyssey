@@ -38,16 +38,16 @@ def test_relu_gradient_positive_values() raises:
         [2, 3], DType.float32, seed=42, low=0.1, high=2.0
     )
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return relu(inp)
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         return relu_backward(grad_out, inp)
 
-    var passed = check_gradients(
-        forward, backward_fn, x, epsilon=1e-5, tolerance=1e-2
+    var passed = check_gradients(forward, backward_fn, 
+        x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "ReLU gradient check failed for positive values")
 
@@ -58,16 +58,16 @@ def test_relu_gradient_negative_values() raises:
         [2, 3], DType.float32, seed=123, low=-2.0, high=-0.1
     )
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return relu(inp)
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         return relu_backward(grad_out, inp)
 
-    var passed = check_gradients(
-        forward, backward_fn, x, epsilon=1e-5, tolerance=1e-2
+    var passed = check_gradients(forward, backward_fn, 
+        x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "ReLU gradient check failed for negative values")
 
@@ -78,16 +78,16 @@ def test_relu_gradient_mixed_values() raises:
         [2, 3], DType.float32, seed=999, low=-1.0, high=1.0
     )
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return relu(inp)
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         return relu_backward(grad_out, inp)
 
-    var passed = check_gradients(
-        forward, backward_fn, x, epsilon=1e-5, tolerance=1e-2
+    var passed = check_gradients(forward, backward_fn, 
+        x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "ReLU gradient check failed for mixed values")
 
@@ -103,16 +103,16 @@ def test_relu_gradient_near_zero() raises:
         [2, 3], DType.float32, seed=555, low=-0.01, high=0.01
     )
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return relu(inp)
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         return relu_backward(grad_out, inp)
 
-    var passed = check_gradients(
-        forward, backward_fn, x, epsilon=1e-5, tolerance=1e-2
+    var passed = check_gradients(forward, backward_fn, 
+        x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "ReLU gradient check failed near zero")
 
@@ -128,17 +128,17 @@ def test_relu_gradient_large_values() raises:
         [2, 3], DType.float32, seed=42, low=10.0, high=20.0
     )
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return relu(inp)
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         return relu_backward(grad_out, inp)
 
     # Use wider tolerance (5%) for large values due to numerical precision
-    var passed = check_gradients(
-        forward, backward_fn, x, epsilon=1e-5, tolerance=0.05
+    var passed = check_gradients(forward, backward_fn, 
+        x, epsilon=1e-5, tolerance=0.05
     )
     assert_true(passed, "ReLU gradient check failed for large values")
 
@@ -157,17 +157,17 @@ def test_sigmoid_gradient_normal_range() raises:
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return sigmoid(inp)
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         var output = sigmoid(inp)  # Compute sigmoid(x) first
         return sigmoid_backward(grad_out, output)
 
-    var passed = check_gradients(
-        forward, backward_fn, x, epsilon=1e-5, tolerance=1e-2
+    var passed = check_gradients(forward, backward_fn, 
+        x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "Sigmoid gradient check failed")
 
@@ -183,18 +183,18 @@ def test_sigmoid_gradient_saturation_positive() raises:
     shape.append(3)
     var x = full(shape, 10.0, DType.float32)
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return sigmoid(inp)
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         var output = sigmoid(inp)  # Compute sigmoid(x) first
         return sigmoid_backward(grad_out, output)
 
     # Use tighter tolerance for near-zero gradients
-    var passed = check_gradients(
-        forward, backward_fn, x, epsilon=1e-4, tolerance=1e-3
+    var passed = check_gradients(forward, backward_fn, 
+        x, epsilon=1e-4, tolerance=1e-3
     )
     assert_true(passed, "Sigmoid gradient check failed in positive saturation")
 
@@ -210,18 +210,18 @@ def test_sigmoid_gradient_saturation_negative() raises:
     shape.append(3)
     var x = full(shape, -10.0, DType.float32)
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return sigmoid(inp)
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         var output = sigmoid(inp)  # Compute sigmoid(x) first
         return sigmoid_backward(grad_out, output)
 
     # Use tighter tolerance for near-zero gradients
-    var passed = check_gradients(
-        forward, backward_fn, x, epsilon=1e-4, tolerance=1e-3
+    var passed = check_gradients(forward, backward_fn, 
+        x, epsilon=1e-4, tolerance=1e-3
     )
     assert_true(passed, "Sigmoid gradient check failed in negative saturation")
 
@@ -240,17 +240,17 @@ def test_tanh_gradient() raises:
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return tanh(inp)
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         var output = tanh(inp)  # Compute tanh(x) first
         return tanh_backward(grad_out, output)
 
-    var passed = check_gradients(
-        forward, backward_fn, x, epsilon=1e-5, tolerance=1e-2
+    var passed = check_gradients(forward, backward_fn, 
+        x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "Tanh gradient check failed")
 
@@ -264,16 +264,16 @@ def test_gelu_gradient() raises:
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return gelu(inp)
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         return gelu_backward(grad_out, inp)
 
-    var passed = check_gradients(
-        forward, backward_fn, x, epsilon=1e-5, tolerance=1e-2
+    var passed = check_gradients(forward, backward_fn, 
+        x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "GELU gradient check failed")
 
@@ -314,18 +314,18 @@ def test_conv2d_gradient_input() raises:
     input_shape.append(8)
     var x = create_seeded_random_tensor(input_shape, DType.float32, seed=42)
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=1)
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         var result = conv2d_backward(grad_out, inp, kernel, stride=1, padding=1)
         return result.grad_input
 
     # Use slightly larger epsilon for conv (more complex operation)
-    var passed = check_gradients(
-        forward, backward_fn, x, epsilon=1e-4, tolerance=1e-2
+    var passed = check_gradients(forward, backward_fn, 
+        x, epsilon=1e-4, tolerance=1e-2
     )
     assert_true(passed, "Conv2D input gradient check failed")
 
@@ -357,18 +357,18 @@ def test_linear_gradient_input() raises:
     input_shape.append(in_features)
     var x = create_seeded_random_tensor(input_shape, DType.float32, seed=42)
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return linear(inp, weights, bias)
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         var result = linear_backward(grad_out, inp, weights)
         return result.grad_input
 
     # Wider tolerance (1.5%) for matrix operations
-    var passed = check_gradients(
-        forward, backward_fn, x, epsilon=1e-5, tolerance=0.015
+    var passed = check_gradients(forward, backward_fn, 
+        x, epsilon=1e-5, tolerance=0.015
     )
     assert_true(passed, "Linear input gradient check failed")
 

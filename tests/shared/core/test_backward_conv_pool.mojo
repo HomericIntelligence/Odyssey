@@ -146,10 +146,10 @@ def test_conv2d_backward_grad_input_numerical() raises:
     """
     var (x, kernel, bias) = _make_test_conv2d_tensors()
 
-    def forward_input(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward_input(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=0)
 
-    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = conv2d_backward(grad_out, inp, kernel, stride=1, padding=0)
         return grads.grad_input
 
@@ -169,10 +169,10 @@ def test_conv2d_backward_grad_weights_numerical() raises:
     var (x, kernel, bias) = _make_test_conv2d_tensors()
 
     # Treat kernel as the variable being perturbed; x is held fixed
-    def forward_weights(k: AnyTensor) raises escaping -> AnyTensor:
+    def forward_weights(k: AnyTensor) raises unified {read} -> AnyTensor:
         return conv2d(x, k, bias, stride=1, padding=0)
 
-    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
+    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = conv2d_backward(grad_out, x, k, stride=1, padding=0)
         return grads.grad_weights
 
@@ -318,10 +318,10 @@ def test_conv2d_backward_gradient() raises:
     bias_shape.append(2)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=0)
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = conv2d_backward(grad_out, inp, kernel, stride=1, padding=0)
         return grads.grad_input
 
@@ -341,10 +341,10 @@ def test_maxpool2d_backward_gradient() raises:
     for i in range(1 * 2 * 4 * 4):
         x.set(i, Float64(Float32(i) * 0.1 - 1.6))
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return maxpool2d(inp, kernel_size=2, stride=2, padding=0)
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         return maxpool2d_backward(
             grad_out, inp, kernel_size=2, stride=2, padding=0
         )
@@ -365,10 +365,10 @@ def test_avgpool2d_backward_gradient() raises:
     for i in range(1 * 2 * 4 * 4):
         x.set(i, Float64(Float32(i) * 0.1 - 1.6))
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return avgpool2d(inp, kernel_size=2, stride=2, padding=0)
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         return avgpool2d_backward(
             grad_out, inp, kernel_size=2, stride=2, padding=0
         )

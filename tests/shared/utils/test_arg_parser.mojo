@@ -7,7 +7,7 @@ Tests basic argument parsing functionality including:
 """
 
 
-from testing import assert_true, assert_equal
+from std.testing import assert_true, assert_equal
 from shared.utils import ArgumentParser, ArgumentSpec, ParsedArgs
 
 

@@ -11,14 +11,14 @@ from shared.training.mixed_precision import (
     convert_to_fp32_master,
     update_model_from_master,
 )
-from testing import assert_equal, assert_true
+from std.testing import assert_equal, assert_true
 from shared.training.mixed_precision import (
     check_gradients_finite,
     clip_gradients_by_norm,
     clip_gradients_by_value,
 )
 from shared.testing.special_values import create_nan_tensor, create_inf_tensor
-from testing import assert_equal, assert_true, assert_false
+from std.testing import assert_equal, assert_true, assert_false
 
 
 def test_gradient_scaler_initialization() raises:

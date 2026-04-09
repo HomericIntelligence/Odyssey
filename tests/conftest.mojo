@@ -168,7 +168,7 @@ struct TestFixtures:
         ```
     """
 
-    def small_tensor(self) raises -> AnyTensor:
+    def small_tensor(self) raises unified {read} -> AnyTensor:
         """Create a small 3x3 tensor with known values.
 
         Returns:
@@ -186,7 +186,7 @@ struct TestFixtures:
             tensor._set_float64(i, Float64(i + 1))
         return tensor
 
-    def random_tensor(self, rows: Int, cols: Int) raises -> AnyTensor:
+    def random_tensor(self, rows: Int, cols: Int) raises unified {read} -> AnyTensor:
         """Create a random tensor with deterministic seed.
 
         Args:

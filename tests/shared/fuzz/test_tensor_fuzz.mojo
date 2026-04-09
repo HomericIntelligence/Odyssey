@@ -23,7 +23,7 @@ Note:
 """
 
 
-from random import seed as random_seed
+from std.random import seed as random_seed
 from std.math import isnan, isinf
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.arithmetic import add, subtract, multiply, divide

@@ -17,7 +17,7 @@ Tests cover:
 - No trainable parameters
 """
 
-from testing import assert_true, assert_almost_equal
+from std.testing import assert_true, assert_almost_equal
 from shared.core.layers.dropout import DropoutLayer
 from shared.tensor.any_tensor import AnyTensor, zeros
 

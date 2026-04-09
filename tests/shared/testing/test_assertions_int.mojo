@@ -8,7 +8,7 @@ Note: Split from test_assertions_float.mojo to satisfy ADR-009 ≤8
 def test_ target per file.
 """
 
-from testing import assert_true
+from std.testing import assert_true
 from shared.testing.assertions import (
     assert_equal_int,
 )

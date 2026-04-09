@@ -11,7 +11,7 @@ Stack trace shows crash at:
 
 from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.core.loss import cross_entropy
-from testing import assert_raises
+from std.testing import assert_raises
 
 
 def test_cross_entropy_small_batch() raises:

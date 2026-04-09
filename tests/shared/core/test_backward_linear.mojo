@@ -147,7 +147,7 @@ def test_linear_backward_gradient() raises:
     weights.set(4, Float64(-0.2))
     weights.set(5, Float64(0.5))
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         var bias_shape = List[Int]()
         bias_shape.append(out_features)
         var bias = zeros(bias_shape, DType.float32)
@@ -155,7 +155,7 @@ def test_linear_backward_gradient() raises:
         bias.set(1, Float64(-0.2))
         return linear(inp, weights, bias)
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = linear_backward(grad_out, inp, weights)
         return grads.grad_input
 

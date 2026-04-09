@@ -476,10 +476,10 @@ def test_add_backward_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.1 - 1.2))
         b.set(i, Float32(Float32(i) * 0.15 - 0.8))
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return add(inp, b)
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = add_backward(grad_out, inp, b)
         return grads.grad_a
 
@@ -503,10 +503,10 @@ def test_subtract_backward_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.1 + 0.5))
         b.set(i, Float32(Float32(i) * 0.2 - 1.5))
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return subtract(inp, b)
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = subtract_backward(grad_out, inp, b)
         return grads.grad_a
 
@@ -531,10 +531,10 @@ def test_multiply_backward_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.1 + 0.1))
         b.set(i, Float32(Float32(i) * 0.15 + 0.2))
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return multiply(inp, b)
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = multiply_backward(grad_out, inp, b)
         return grads.grad_a
 
@@ -559,10 +559,10 @@ def test_divide_backward_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.2 + 0.5))
         b.set(i, Float32(Float32(i) * 0.1 + 1.0))  # Ensure b > 0
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return divide(inp, b)
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = divide_backward(grad_out, inp, b)
         return grads.grad_a
 
@@ -586,10 +586,10 @@ def test_add_backward_b_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.1 - 0.5))
         b.set(i, Float32(Float32(i) * 0.12 + 0.3))
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return add(a, inp)
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = add_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -613,10 +613,10 @@ def test_subtract_backward_b_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.15 + 0.2))
         b.set(i, Float32(Float32(i) * 0.1 - 1.0))
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return subtract(a, inp)
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = subtract_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -640,10 +640,10 @@ def test_multiply_backward_b_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.2 + 0.1))
         b.set(i, Float32(Float32(i) * 0.15 + 0.15))
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return multiply(a, inp)
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = multiply_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -667,10 +667,10 @@ def test_divide_backward_b_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.2 + 0.5))
         b.set(i, Float32(Float32(i) * 0.1 + 1.5))  # b > 0
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return divide(a, inp)
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = divide_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -698,10 +698,10 @@ def test_add_backward_broadcast_gradient() raises:
     for i in range(3):
         b.set(i, Float32(Float32(i) * 0.15 - 0.3))
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return add(a, inp)
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = add_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -729,10 +729,10 @@ def test_multiply_backward_broadcast_gradient() raises:
     for i in range(3):
         b.set(i, Float32(Float32(i) * 0.2 + 0.2))
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return multiply(a, inp)
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = multiply_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -760,10 +760,10 @@ def test_divide_backward_broadcast_gradient() raises:
     for i in range(3):
         b.set(i, Float32(Float32(i) * 0.1 + 1.0))  # b > 0
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return divide(a, inp)
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = divide_backward(grad_out, a, inp)
         return grads.grad_b
 

@@ -12,12 +12,12 @@ Split from test_optimizer_base.mojo to comply with ADR-009 (≤10 fn test_ per f
 """
 
 
-from testing import assert_true
+from std.testing import assert_true
 from tests.shared.conftest import assert_almost_equal
 from shared.tensor.any_tensor import AnyTensor
 from shared.autograd import Variable, GradientTape, SGD, Adam, AdaGrad, RMSprop
 from shared.autograd.optimizer_base import validate_learning_rate
-from testing import assert_true, assert_equal
+from std.testing import assert_true, assert_equal
 from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.autograd.optimizer_base import (
     zero_grad_impl,

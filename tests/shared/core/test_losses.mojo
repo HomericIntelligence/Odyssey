@@ -277,11 +277,11 @@ def test_binary_cross_entropy_backward_gradient() raises:
     targets._set_float64(3, 0.0)
 
     # Forward function wrapper
-    def forward(pred: AnyTensor) raises escaping -> AnyTensor:
+    def forward(pred: AnyTensor) raises unified {read} -> AnyTensor:
         return binary_cross_entropy(pred, targets)
 
     # Backward function wrapper
-    def backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, pred: AnyTensor) raises unified {read} -> AnyTensor:
         return binary_cross_entropy_backward(grad_out, pred, targets)
 
     var loss = forward(predictions)
@@ -318,11 +318,11 @@ def test_mean_squared_error_backward_gradient() raises:
     targets._set_float64(4, 0.8)
 
     # Forward function wrapper
-    def forward(pred: AnyTensor) raises escaping -> AnyTensor:
+    def forward(pred: AnyTensor) raises unified {read} -> AnyTensor:
         return mean_squared_error(pred, targets)
 
     # Backward function wrapper
-    def backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, pred: AnyTensor) raises unified {read} -> AnyTensor:
         return mean_squared_error_backward(grad_out, pred, targets)
 
     var loss = forward(predictions)
@@ -524,11 +524,11 @@ def test_smooth_l1_backward_gradient() raises:
     targets._set_float64(3, 0.5)
 
     # Forward function wrapper
-    def forward(pred: AnyTensor) raises escaping -> AnyTensor:
+    def forward(pred: AnyTensor) raises unified {read} -> AnyTensor:
         return smooth_l1_loss(pred, targets, beta=beta)
 
     # Backward function wrapper
-    def backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, pred: AnyTensor) raises unified {read} -> AnyTensor:
         return smooth_l1_loss_backward(grad_out, pred, targets, beta=beta)
 
     var loss = forward(predictions)
@@ -697,11 +697,11 @@ def test_hinge_loss_backward_gradient() raises:
     targets._set_float64(3, 1.0)
 
     # Forward function wrapper
-    def forward(pred: AnyTensor) raises escaping -> AnyTensor:
+    def forward(pred: AnyTensor) raises unified {read} -> AnyTensor:
         return hinge_loss(pred, targets)
 
     # Backward function wrapper
-    def backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, pred: AnyTensor) raises unified {read} -> AnyTensor:
         return hinge_loss_backward(grad_out, pred, targets)
 
     var loss = forward(predictions)
@@ -822,11 +822,11 @@ def test_focal_loss_backward_gradient() raises:
     targets._set_float64(3, 0.0)
 
     # Forward function wrapper
-    def forward(pred: AnyTensor) raises escaping -> AnyTensor:
+    def forward(pred: AnyTensor) raises unified {read} -> AnyTensor:
         return focal_loss(pred, targets)
 
     # Backward function wrapper
-    def backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, pred: AnyTensor) raises unified {read} -> AnyTensor:
         return focal_loss_backward(grad_out, pred, targets)
 
     var loss = forward(predictions)
@@ -950,13 +950,13 @@ def test_kl_divergence_backward_gradient() raises:
     q._set_float64(3, 0.1)
 
     # Forward function wrapper
-    def forward(q_dist: AnyTensor) raises escaping -> AnyTensor:
+    def forward(q_dist: AnyTensor) raises unified {read} -> AnyTensor:
         return kl_divergence(p, q_dist)
 
     # Backward function wrapper
     def backward(
         grad_out: AnyTensor, q_dist: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         return kl_divergence_backward(grad_out, p, q_dist)
 
     var kl = forward(q)

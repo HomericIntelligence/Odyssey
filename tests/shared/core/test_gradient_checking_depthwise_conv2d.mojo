@@ -49,10 +49,10 @@ def test_depthwise_conv2d_gradient_kernel_basic() raises:
     bias_shape.append(2)  # channels
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward(k: AnyTensor) raises escaping -> AnyTensor:
+    def forward(k: AnyTensor) raises unified {read} -> AnyTensor:
         return depthwise_conv2d(input, k, bias, stride=1, padding=1)
 
-    def backward(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, k: AnyTensor) raises unified {read} -> AnyTensor:
         var result = depthwise_conv2d_backward(grad_out, input, k, stride=1, padding=1)
         return result.grad_weights
 
@@ -85,10 +85,10 @@ def test_depthwise_conv2d_gradient_bias_basic() raises:
     bias_shape.append(2)  # channels
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward(b: AnyTensor) raises escaping -> AnyTensor:
+    def forward(b: AnyTensor) raises unified {read} -> AnyTensor:
         return depthwise_conv2d(input, kernel, b, stride=1, padding=1)
 
-    def backward(grad_out: AnyTensor, b: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, b: AnyTensor) raises unified {read} -> AnyTensor:
         var result = depthwise_conv2d_backward(grad_out, input, kernel, stride=1, padding=1)
         return result.grad_bias
 
@@ -121,10 +121,10 @@ def test_depthwise_conv2d_gradient_input_basic() raises:
     bias_shape.append(2)  # channels
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
         return depthwise_conv2d(x, kernel, bias, stride=1, padding=1)
 
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
         var result = depthwise_conv2d_backward(grad_out, x, kernel, stride=1, padding=1)
         return result.grad_input
 
@@ -157,10 +157,10 @@ def test_depthwise_conv2d_gradient_kernel_strided() raises:
     bias_shape.append(2)  # channels
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward(k: AnyTensor) raises escaping -> AnyTensor:
+    def forward(k: AnyTensor) raises unified {read} -> AnyTensor:
         return depthwise_conv2d(input, k, bias, stride=2, padding=1)
 
-    def backward(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, k: AnyTensor) raises unified {read} -> AnyTensor:
         var result = depthwise_conv2d_backward(grad_out, input, k, stride=2, padding=1)
         return result.grad_weights
 

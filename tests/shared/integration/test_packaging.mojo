@@ -10,7 +10,7 @@ Split from test_packaging.mojo per ADR-009.
 """
 
 
-from testing import assert_true, assert_equal
+from std.testing import assert_true, assert_equal
 
 
 def test_package_version() raises:

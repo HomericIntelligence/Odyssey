@@ -5,7 +5,7 @@ Compares pool vs system malloc for various allocation sizes.
 
 from shared.base.memory_pool import get_global_pool, pooled_alloc, pooled_free
 from std.memory import alloc
-from time import perf_counter_ns
+from std.time import perf_counter_ns
 
 
 def bench_pool_small_allocations() raises:

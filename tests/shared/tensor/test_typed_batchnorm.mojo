@@ -18,7 +18,7 @@ Tests cover:
 - parameters() with float64 dtype (catches CRITICAL-1 bitcast bug)
 """
 
-from testing import assert_true, assert_almost_equal
+from std.testing import assert_true, assert_almost_equal
 from shared.core.layers.batchnorm import BatchNorm2dLayer
 from shared.tensor.tensor import Tensor
 

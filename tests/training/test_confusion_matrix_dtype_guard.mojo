@@ -10,7 +10,7 @@ Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-from testing import assert_true, assert_raises
+from std.testing import assert_true, assert_raises
 from shared.tensor.any_tensor import AnyTensor
 from shared.training.metrics import ConfusionMatrix
 

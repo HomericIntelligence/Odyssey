@@ -10,7 +10,7 @@ Tests cover:
 - Float64 precision preservation
 """
 
-from testing import assert_true, assert_almost_equal
+from std.testing import assert_true, assert_almost_equal
 from shared.tensor.any_tensor import AnyTensor, full as any_full, zeros as any_zeros
 from shared.core.elementwise import (
     exp,

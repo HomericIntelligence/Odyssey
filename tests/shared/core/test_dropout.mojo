@@ -235,7 +235,7 @@ def test_dropout_backward_gradient() raises:
 
     # Forward function wrapper - manually apply the SAME mask
     # This makes the function deterministic for gradient checking
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
         # Apply the same mask that was generated initially
         from shared.core.arithmetic import multiply
         from shared.tensor.any_tensor import full_like
@@ -246,7 +246,7 @@ def test_dropout_backward_gradient() raises:
         return multiply(masked, scale_tensor)
 
     # Backward function wrapper - use the same stored mask
-    def backward(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
         # Use the mask from forward pass to ensure consistency
         return dropout_backward(grad, mask, p=p)
 
@@ -379,7 +379,7 @@ def test_dropout2d_backward_gradient() raises:
 
     # Forward function wrapper - manually apply the SAME mask
     # This makes the function deterministic for gradient checking
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
         # Apply the same mask that was generated initially
         from shared.core.arithmetic import multiply
         from shared.tensor.any_tensor import full_like
@@ -390,7 +390,7 @@ def test_dropout2d_backward_gradient() raises:
         return multiply(masked, scale_tensor)
 
     # Backward function wrapper - use stored mask instead of regenerating
-    def backward(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
         # Use the mask from forward pass to ensure consistency
         return dropout2d_backward(grad, mask, p=p)
 

@@ -21,7 +21,7 @@ Tests cover:
 - ReLU forward pass zeroes negative values via AnyTensor boundary
 """
 
-from testing import assert_true, assert_almost_equal
+from std.testing import assert_true, assert_almost_equal
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.module import Module
 from shared.core.layers.linear import Linear

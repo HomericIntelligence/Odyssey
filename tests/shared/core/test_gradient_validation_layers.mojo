@@ -38,17 +38,17 @@ def test_tanh_gradient() raises:
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return tanh(inp)
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         var output = tanh(inp)  # Compute tanh(x) first
         return tanh_backward(grad_out, output)
 
-    var passed = check_gradients(
-        forward, backward_fn, x, epsilon=1e-5, tolerance=1e-2
+    var passed = check_gradients(forward, backward_fn, 
+        x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "Tanh gradient check failed")
 
@@ -62,16 +62,16 @@ def test_gelu_gradient() raises:
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return gelu(inp)
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         return gelu_backward(grad_out, inp)
 
-    var passed = check_gradients(
-        forward, backward_fn, x, epsilon=1e-5, tolerance=1e-2
+    var passed = check_gradients(forward, backward_fn, 
+        x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "GELU gradient check failed")
 
@@ -107,18 +107,18 @@ def test_conv2d_gradient_input() raises:
     input_shape.append(8)
     var x = create_seeded_random_tensor(input_shape, DType.float32, seed=42)
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=1)
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         var result = conv2d_backward(grad_out, inp, kernel, stride=1, padding=1)
         return result.grad_input
 
     # Use slightly larger epsilon for conv (more complex operation)
-    var passed = check_gradients(
-        forward, backward_fn, x, epsilon=1e-4, tolerance=1e-2
+    var passed = check_gradients(forward, backward_fn, 
+        x, epsilon=1e-4, tolerance=1e-2
     )
     assert_true(passed, "Conv2D input gradient check failed")
 
@@ -150,18 +150,18 @@ def test_linear_gradient_input() raises:
     input_shape.append(in_features)
     var x = create_seeded_random_tensor(input_shape, DType.float32, seed=42)
 
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return linear(inp, weights, bias)
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         var result = linear_backward(grad_out, inp, weights)
         return result.grad_input
 
     # Wider tolerance (1.5%) for matrix operations
-    var passed = check_gradients(
-        forward, backward_fn, x, epsilon=1e-5, tolerance=0.015
+    var passed = check_gradients(forward, backward_fn, 
+        x, epsilon=1e-5, tolerance=0.015
     )
     assert_true(passed, "Linear input gradient check failed")
 

@@ -11,7 +11,7 @@ Tests for:
 """
 
 
-from testing import assert_equal, assert_true
+from std.testing import assert_equal, assert_true
 from shared.data.constants import (
     CIFAR10_CLASS_NAMES,
     EMNIST_BALANCED_CLASSES,

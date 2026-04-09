@@ -7,9 +7,9 @@ Tests the complete integration of configs with model creation and training.
 """
 
 
-from testing import assert_true, assert_false, assert_equal
+from std.testing import assert_true, assert_false, assert_equal
 from shared.utils.config import Config, load_config, merge_configs
-from python import Python
+from std.python import Python
 
 
 def load_experiment_config(paper: String, experiment: String) raises -> Config:

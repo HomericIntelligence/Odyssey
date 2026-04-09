@@ -13,7 +13,7 @@ Tests cover:
 - Conversion round-trip via as_tensor/as_any
 """
 
-from testing import assert_true, assert_almost_equal
+from std.testing import assert_true, assert_almost_equal
 from shared.tensor.tensor import Tensor
 from shared.tensor.factories import ones as typed_ones, full as typed_full
 from shared.tensor.any_tensor import (

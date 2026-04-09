@@ -8,7 +8,7 @@ Tests cover:
 - Shape preservation across forward/backward passes
 """
 
-from testing import assert_true, assert_false, assert_almost_equal
+from std.testing import assert_true, assert_false, assert_almost_equal
 from shared.core.layers import DropoutLayer
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 

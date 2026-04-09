@@ -19,7 +19,7 @@ from tests.shared.conftest import (
     TestFixtures,
 )
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, randn
-from time import perf_counter_ns
+from std.time import perf_counter_ns
 from std.collections import List
 
 

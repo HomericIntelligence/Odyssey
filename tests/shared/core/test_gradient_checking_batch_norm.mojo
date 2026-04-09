@@ -72,11 +72,11 @@ def test_batch_norm_gradient_batch_size_1() raises:
     var running_var = ones(mean_shape, DType.float32)
 
     # Compute forward to get output shape for grad_output
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
         var result = batch_norm2d(x, gamma, beta, running_mean, running_var, training=True)
         return result[0]
 
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
         var result = batch_norm2d_backward(
             grad_out, x, gamma, running_mean, running_var, training=True
         )
@@ -111,11 +111,11 @@ def test_batch_norm_gradient_batch_size_2() raises:
     var running_mean = zeros(mean_shape, DType.float32)
     var running_var = ones(mean_shape, DType.float32)
 
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
         var result = batch_norm2d(x, gamma, beta, running_mean, running_var, training=True)
         return result[0]
 
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
         var result = batch_norm2d_backward(
             grad_out, x, gamma, running_mean, running_var, training=True
         )
@@ -149,11 +149,11 @@ def test_batch_norm_gradient_batch_size_4() raises:
     var running_mean = zeros(mean_shape, DType.float32)
     var running_var = ones(mean_shape, DType.float32)
 
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
         var result = batch_norm2d(x, gamma, beta, running_mean, running_var, training=True)
         return result[0]
 
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
         var result = batch_norm2d_backward(
             grad_out, x, gamma, running_mean, running_var, training=True
         )
@@ -187,11 +187,11 @@ def test_batch_norm_gamma_gradient_batch_size_2() raises:
     var running_mean = zeros(mean_shape, DType.float32)
     var running_var = ones(mean_shape, DType.float32)
 
-    def forward(g: AnyTensor) raises escaping -> AnyTensor:
+    def forward(g: AnyTensor) raises unified {read} -> AnyTensor:
         var result = batch_norm2d(input, g, beta, running_mean, running_var, training=True)
         return result[0]
 
-    def backward(grad_out: AnyTensor, g: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, g: AnyTensor) raises unified {read} -> AnyTensor:
         var result = batch_norm2d_backward(
             grad_out, input, g, running_mean, running_var, training=True
         )

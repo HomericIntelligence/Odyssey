@@ -12,7 +12,7 @@ from shared.utils import (
     save_named_checkpoint,
     load_named_checkpoint,
 )
-from testing import assert_true, assert_equal
+from std.testing import assert_true, assert_equal
 
 
 # ============================================================================

@@ -18,7 +18,7 @@ Tests cover:
 - Backward pass dtype preservation
 """
 
-from testing import assert_true, assert_almost_equal
+from std.testing import assert_true, assert_almost_equal
 from shared.core.layers.conv2d import Conv2dLayer
 from shared.tensor.tensor import Tensor
 

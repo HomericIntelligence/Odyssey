@@ -21,7 +21,7 @@ from tests.shared.conftest import (
 from shared.core.layers.linear import Linear
 from shared.core.activation import relu, sigmoid, tanh
 from shared.tensor.any_tensor import AnyTensor, ones, zeros_like
-from time import perf_counter_ns
+from std.time import perf_counter_ns
 from std.collections import List
 
 

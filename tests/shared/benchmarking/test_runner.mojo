@@ -9,7 +9,7 @@ Tests benchmarking functionality including:
 - Statistical calculations (mean, std dev)
 """
 
-from testing import assert_true, assert_equal
+from std.testing import assert_true, assert_equal
 from shared.benchmarking import (
     BenchmarkResult,
     BenchmarkConfig,

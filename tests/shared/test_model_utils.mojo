@@ -7,7 +7,7 @@ Tests the model weight save/load functionality including:
 - Shape validation for loaded weights
 """
 
-from testing import assert_true, assert_equal
+from std.testing import assert_true, assert_equal
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.training.model_utils import (
     save_model_weights,
@@ -15,7 +15,7 @@ from shared.training.model_utils import (
     get_model_parameter_names,
     validate_shapes,
 )
-from pathlib import Path
+from std.pathlib import Path
 from std.collections import List
 import os
 

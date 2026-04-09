@@ -33,36 +33,31 @@ def migrate_fn_to_def_in_file(filepath: Path) -> tuple[int, list[str]]:
     # Replace 'fn ' at the start of a function definition
     # Pattern: start-of-line (or after indentation) + 'fn ' + identifier
     # Using raw regex to replace 'fn ' with 'def ' only for function definitions
-    new_content = re.sub(
-        r'^(\s*)fn (\w)',
-        r'\1def \2',
-        content,
-        flags=re.MULTILINE
-    )
+    new_content = re.sub(r"^(\s*)fn (\w)", r"\1def \2", content, flags=re.MULTILINE)
 
     if new_content != content:
-        changes.append(f"Replaced 'fn ' → 'def ' in function definitions")
+        changes.append("Replaced 'fn ' → 'def ' in function definitions")
         content = new_content
 
     # Fix implicit stdlib imports
     # from memory import ... → from std.memory import ...
-    if 'from memory import' in content:
+    if "from memory import" in content:
         old_mem = content
-        content = content.replace('from memory import', 'from std.memory import')
+        content = content.replace("from memory import", "from std.memory import")
         if content != old_mem:
             changes.append("Qualified 'from memory import' → 'from std.memory import'")
 
     # from collections import ... → from std.collections import ...
-    if 'from collections import' in content:
+    if "from collections import" in content:
         old_col = content
-        content = content.replace('from collections import', 'from std.collections import')
+        content = content.replace("from collections import", "from std.collections import")
         if content != old_col:
             changes.append("Qualified 'from collections import' → 'from std.collections import'")
 
     # from algorithm import ... → from std.algorithm import ...
-    if 'from algorithm import' in content:
+    if "from algorithm import" in content:
         old_algo = content
-        content = content.replace('from algorithm import', 'from std.algorithm import')
+        content = content.replace("from algorithm import", "from std.algorithm import")
         if content != old_algo:
             changes.append("Qualified 'from algorithm import' → 'from std.algorithm import'")
 
@@ -76,7 +71,7 @@ def migrate_fn_to_def_in_file(filepath: Path) -> tuple[int, list[str]]:
 
 def main():
     """Process all .mojo files in shared/, tests/, and scripts/."""
-    mojo_files = list(Path('/home/mvillmow/ProjectOdyssey').glob('**/*.mojo'))
+    mojo_files = list(Path("/home/mvillmow/ProjectOdyssey").glob("**/*.mojo"))
 
     if not mojo_files:
         print("No .mojo files found")
@@ -87,7 +82,7 @@ def main():
 
     for filepath in sorted(mojo_files):
         # Skip generated files
-        if '__pycache__' in str(filepath):
+        if "__pycache__" in str(filepath):
             continue
 
         num_changes, descriptions = migrate_fn_to_def_in_file(filepath)
@@ -95,15 +90,15 @@ def main():
         if num_changes > 0:
             files_modified += 1
             total_changes += num_changes
-            rel_path = filepath.relative_to('/home/mvillmow/ProjectOdyssey')
+            rel_path = filepath.relative_to("/home/mvillmow/ProjectOdyssey")
             print(f"✓ {rel_path}")
             for desc in descriptions:
                 print(f"  - {desc}")
 
-    print(f"\nSummary:")
+    print("\nSummary:")
     print(f"  Files modified: {files_modified}")
     print(f"  Total changes: {total_changes}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

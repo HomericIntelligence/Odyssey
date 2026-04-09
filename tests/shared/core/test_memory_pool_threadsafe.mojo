@@ -9,7 +9,7 @@ inconsistent statistics.
 """
 
 from std.algorithm import parallelize
-from os.atomic import Atomic
+from std.os.atomic import Atomic
 
 from shared.base.memory_pool import (
     TensorMemoryPool,
