@@ -20,11 +20,99 @@ from shared.core.conv import conv2d, conv2d_backward
 from shared.core.linear import linear, linear_backward
 from shared.tensor.any_tensor import AnyTensor, full, zeros
 from shared.core.initializers import kaiming_uniform
-from shared.testing.gradient_checker import check_gradients
+from shared.testing.gradient_checker import check_gradients, NumericalForward, NumericalBackward
 from shared.testing.special_values import (
     create_seeded_random_tensor,
 )
 from shared.testing.assertions import assert_true
+
+
+# ---- ReLU (no captures) ----
+
+@fieldwise_init
+struct _ReluFwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return relu(inp)
+
+@fieldwise_init
+struct _ReluBwd(NumericalBackward):
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return relu_backward(grad_out, inp)
+
+
+# ---- Sigmoid (no captures) ----
+
+@fieldwise_init
+struct _SigmoidFwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return sigmoid(inp)
+
+@fieldwise_init
+struct _SigmoidBwd(NumericalBackward):
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        var output = sigmoid(inp)  # Compute sigmoid(x) first
+        return sigmoid_backward(grad_out, output)
+
+
+# ---- Tanh (no captures) ----
+
+@fieldwise_init
+struct _TanhFwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return tanh(inp)
+
+@fieldwise_init
+struct _TanhBwd(NumericalBackward):
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        var output = tanh(inp)  # Compute tanh(x) first
+        return tanh_backward(grad_out, output)
+
+
+# ---- GELU (no captures) ----
+
+@fieldwise_init
+struct _GeluFwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return gelu(inp)
+
+@fieldwise_init
+struct _GeluBwd(NumericalBackward):
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return gelu_backward(grad_out, inp)
+
+
+# ---- Conv2D input gradient (captures kernel, bias) ----
+
+@fieldwise_init
+struct _Conv2dInputFwd(NumericalForward):
+    var kernel: AnyTensor
+    var bias: AnyTensor
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return conv2d(inp, self.kernel, self.bias, stride=1, padding=1)
+
+@fieldwise_init
+struct _Conv2dInputBwd(NumericalBackward):
+    var kernel: AnyTensor
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        var result = conv2d_backward(grad_out, inp, self.kernel, stride=1, padding=1)
+        return result.grad_input
+
+
+# ---- Linear input gradient (captures weights, bias) ----
+
+@fieldwise_init
+struct _LinearFwd(NumericalForward):
+    var weights: AnyTensor
+    var bias: AnyTensor
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return linear(inp, self.weights, self.bias)
+
+@fieldwise_init
+struct _LinearBwd(NumericalBackward):
+    var weights: AnyTensor
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        var result = linear_backward(grad_out, inp, self.weights)
+        return result.grad_input
 
 
 # ============================================================================
@@ -38,15 +126,7 @@ def test_relu_gradient_positive_values() raises:
         [2, 3], DType.float32, seed=42, low=0.1, high=2.0
     )
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return relu(inp)
-
-    def backward_fn(
-        grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
-        return relu_backward(grad_out, inp)
-
-    var passed = check_gradients(forward, backward_fn,
+    var passed = check_gradients(_ReluFwd(), _ReluBwd(),
         x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "ReLU gradient check failed for positive values")
@@ -58,15 +138,7 @@ def test_relu_gradient_negative_values() raises:
         [2, 3], DType.float32, seed=123, low=-2.0, high=-0.1
     )
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return relu(inp)
-
-    def backward_fn(
-        grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
-        return relu_backward(grad_out, inp)
-
-    var passed = check_gradients(forward, backward_fn,
+    var passed = check_gradients(_ReluFwd(), _ReluBwd(),
         x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "ReLU gradient check failed for negative values")
@@ -78,15 +150,7 @@ def test_relu_gradient_mixed_values() raises:
         [2, 3], DType.float32, seed=999, low=-1.0, high=1.0
     )
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return relu(inp)
-
-    def backward_fn(
-        grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
-        return relu_backward(grad_out, inp)
-
-    var passed = check_gradients(forward, backward_fn,
+    var passed = check_gradients(_ReluFwd(), _ReluBwd(),
         x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "ReLU gradient check failed for mixed values")
@@ -103,15 +167,7 @@ def test_relu_gradient_near_zero() raises:
         [2, 3], DType.float32, seed=555, low=-0.01, high=0.01
     )
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return relu(inp)
-
-    def backward_fn(
-        grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
-        return relu_backward(grad_out, inp)
-
-    var passed = check_gradients(forward, backward_fn,
+    var passed = check_gradients(_ReluFwd(), _ReluBwd(),
         x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "ReLU gradient check failed near zero")
@@ -128,16 +184,8 @@ def test_relu_gradient_large_values() raises:
         [2, 3], DType.float32, seed=42, low=10.0, high=20.0
     )
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return relu(inp)
-
-    def backward_fn(
-        grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
-        return relu_backward(grad_out, inp)
-
     # Use wider tolerance (5%) for large values due to numerical precision
-    var passed = check_gradients(forward, backward_fn,
+    var passed = check_gradients(_ReluFwd(), _ReluBwd(),
         x, epsilon=1e-5, tolerance=0.05
     )
     assert_true(passed, "ReLU gradient check failed for large values")
@@ -157,16 +205,7 @@ def test_sigmoid_gradient_normal_range() raises:
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return sigmoid(inp)
-
-    def backward_fn(
-        grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
-        var output = sigmoid(inp)  # Compute sigmoid(x) first
-        return sigmoid_backward(grad_out, output)
-
-    var passed = check_gradients(forward, backward_fn,
+    var passed = check_gradients(_SigmoidFwd(), _SigmoidBwd(),
         x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "Sigmoid gradient check failed")
@@ -183,17 +222,8 @@ def test_sigmoid_gradient_saturation_positive() raises:
     shape.append(3)
     var x = full(shape, 10.0, DType.float32)
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return sigmoid(inp)
-
-    def backward_fn(
-        grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
-        var output = sigmoid(inp)  # Compute sigmoid(x) first
-        return sigmoid_backward(grad_out, output)
-
     # Use tighter tolerance for near-zero gradients
-    var passed = check_gradients(forward, backward_fn,
+    var passed = check_gradients(_SigmoidFwd(), _SigmoidBwd(),
         x, epsilon=1e-4, tolerance=1e-3
     )
     assert_true(passed, "Sigmoid gradient check failed in positive saturation")
@@ -210,17 +240,8 @@ def test_sigmoid_gradient_saturation_negative() raises:
     shape.append(3)
     var x = full(shape, -10.0, DType.float32)
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return sigmoid(inp)
-
-    def backward_fn(
-        grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
-        var output = sigmoid(inp)  # Compute sigmoid(x) first
-        return sigmoid_backward(grad_out, output)
-
     # Use tighter tolerance for near-zero gradients
-    var passed = check_gradients(forward, backward_fn,
+    var passed = check_gradients(_SigmoidFwd(), _SigmoidBwd(),
         x, epsilon=1e-4, tolerance=1e-3
     )
     assert_true(passed, "Sigmoid gradient check failed in negative saturation")
@@ -240,16 +261,7 @@ def test_tanh_gradient() raises:
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return tanh(inp)
-
-    def backward_fn(
-        grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
-        var output = tanh(inp)  # Compute tanh(x) first
-        return tanh_backward(grad_out, output)
-
-    var passed = check_gradients(forward, backward_fn,
+    var passed = check_gradients(_TanhFwd(), _TanhBwd(),
         x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "Tanh gradient check failed")
@@ -264,15 +276,7 @@ def test_gelu_gradient() raises:
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return gelu(inp)
-
-    def backward_fn(
-        grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
-        return gelu_backward(grad_out, inp)
-
-    var passed = check_gradients(forward, backward_fn,
+    var passed = check_gradients(_GeluFwd(), _GeluBwd(),
         x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "GELU gradient check failed")
@@ -314,17 +318,8 @@ def test_conv2d_gradient_input() raises:
     input_shape.append(8)
     var x = create_seeded_random_tensor(input_shape, DType.float32, seed=42)
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return conv2d(inp, kernel, bias, stride=1, padding=1)
-
-    def backward_fn(
-        grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
-        var result = conv2d_backward(grad_out, inp, kernel, stride=1, padding=1)
-        return result.grad_input
-
     # Use slightly larger epsilon for conv (more complex operation)
-    var passed = check_gradients(forward, backward_fn,
+    var passed = check_gradients(_Conv2dInputFwd(kernel, bias), _Conv2dInputBwd(kernel),
         x, epsilon=1e-4, tolerance=1e-2
     )
     assert_true(passed, "Conv2D input gradient check failed")
@@ -357,17 +352,8 @@ def test_linear_gradient_input() raises:
     input_shape.append(in_features)
     var x = create_seeded_random_tensor(input_shape, DType.float32, seed=42)
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return linear(inp, weights, bias)
-
-    def backward_fn(
-        grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
-        var result = linear_backward(grad_out, inp, weights)
-        return result.grad_input
-
     # Wider tolerance (1.5%) for matrix operations
-    var passed = check_gradients(forward, backward_fn,
+    var passed = check_gradients(_LinearFwd(weights, bias), _LinearBwd(weights),
         x, epsilon=1e-5, tolerance=0.015
     )
     assert_true(passed, "Linear input gradient check failed")
