@@ -21,6 +21,7 @@ Example:
 
 from std.collections import List
 from std.memory import UnsafePointer, memset_zero, alloc
+from std.io import Writer
 from shared.base.memory_pool import pooled_alloc, pooled_free
 from shared.tensor.tensor_traits import TensorLike
 from .any_tensor import AnyTensor
@@ -558,6 +559,22 @@ struct Tensor[dtype: DType = DType.float32](
                     result += "?"
         result += "], dtype=" + String(Self.dtype) + ")"
         return result
+
+    def write_to[W: Writer](self, mut writer: W):
+        """Write the string representation to a Writer (required for Writable trait).
+
+        This method is called when using `String(tensor)` or `print(tensor)` to convert
+        the tensor to a string representation. It delegates to `__str__()` for the
+        actual formatting logic.
+
+        Parameters:
+            W: The writer type conforming to the Writer trait.
+
+        Args:
+            writer: The writer to write the string representation to.
+        """
+        var s = self.__str__()
+        writer.write(s)
 
     def __repr__(self) -> String:
         """Detailed representation for debugging.

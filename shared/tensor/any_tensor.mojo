@@ -43,6 +43,7 @@ from std.collections import List
 from std.memory import UnsafePointer, memset_zero, alloc, bitcast
 from std.math import ceildiv
 from std.hashlib.hasher import Hasher
+from std.io import Writer
 from shared.base.memory_pool import pooled_alloc, pooled_free
 from .tensor import Tensor
 from .tensor_traits import TensorLike
@@ -3507,6 +3508,22 @@ struct AnyTensor(
                 result += String(self._get_float64(i))
         result += "])"
         return result
+
+    def write_to[W: Writer](self, mut writer: W):
+        """Write the string representation to a Writer (required for Writable trait).
+
+        This method is called when using `String(tensor)` or `print(tensor)` to convert
+        the tensor to a string representation. It delegates to `__str__()` for the
+        actual formatting logic.
+
+        Parameters:
+            W: The writer type conforming to the Writer trait.
+
+        Args:
+            writer: The writer to write the string representation to.
+        """
+        var s = self.__str__()
+        writer.write(s)
 
     def __hash__[H: Hasher](self, mut hasher: H):
         """Compute hash based on shape, dtype, and data.
