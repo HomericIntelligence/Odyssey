@@ -1,5 +1,5 @@
 # ML Odyssey Build System
-# Unified build/test/lint interface for Podman containers and native execution
+# Unified build/test/lint interface for Podman containers
 
 # Default recipe - show help
 default: help
@@ -45,16 +45,14 @@ MOJO_TSAN := "--sanitize thread"
 # Internal Helpers
 # ==============================================================================
 
-# Run command in Podman compose container or natively based on NATIVE env var.
+# Run command in Podman compose container
 # If BUILD_ROOT is outside the repo, mounts it into the container at /ext-build
 # and rewrites paths in cmd accordingly.
 [private]
 _run cmd:
 	#!/usr/bin/env bash
 	set -e
-	if [[ "${NATIVE:-}" == "1" ]]; then
-		eval "{{cmd}}"
-	elif command -v podman &>/dev/null && \
+	if command -v podman &>/dev/null && \
 		podman ps -q --filter "name={{podman_service}}" --filter "status=running" 2>/dev/null \
 		| grep -q .; then
 		BUILD_ROOT="{{BUILD_ROOT}}"
@@ -74,7 +72,6 @@ _run cmd:
 	else
 		echo "Error: Podman compose container '{{podman_service}}' is not running."
 		echo "  Start Podman:     just podman-up"
-		echo "  Or run natively:  NATIVE=1 just <recipe>"
 		exit 1
 	fi
 
@@ -120,9 +117,6 @@ podman-clean:
 # Show Podman container status
 podman-status:
     @podman compose ps
-
-native prefix:
-    @NATIVE=1 just {{prefix}}
 
 # ==============================================================================
 # Container Registry (GHCR)
@@ -380,7 +374,7 @@ package-release: (package "release")
 # Train a model (default: LeNet-5 on EMNIST)
 train model="lenet_emnist" precision="fp32" epochs="10" batch_size="32" lr="0.001":
     @echo "Training {{model}} with precision={{precision}}, epochs={{epochs}}"
-    @NATIVE=1 pixi run mojo run -I . examples/{{model}}/run_train.mojo \
+    @ pixi run mojo run -I . examples/{{model}}/run_train.mojo \
         --epochs {{epochs}} \
         --batch-size {{batch_size}} \
         --lr {{lr}} \
@@ -389,14 +383,14 @@ train model="lenet_emnist" precision="fp32" epochs="10" batch_size="32" lr="0.00
 # Run inference on test set
 infer model="lenet_emnist" checkpoint="lenet5_weights":
     @echo "Running inference for {{model}} with checkpoint={{checkpoint}}"
-    @NATIVE=1 pixi run mojo run -I . examples/{{model}}/run_infer.mojo \
+    @pixi run mojo run -I . examples/{{model}}/run_infer.mojo \
         --checkpoint {{checkpoint}} \
         --test-set
 
 # Run inference on single image
 infer-image checkpoint image_path model="lenet_emnist":
     @echo "Running inference on {{image_path}}"
-    @NATIVE=1 pixi run mojo run -I . examples/{{model}}/run_infer.mojo \
+    @pixi run mojo run -I . examples/{{model}}/run_infer.mojo \
         --checkpoint {{checkpoint}} \
         --image {{image_path}}
 
@@ -859,7 +853,6 @@ help:
     @echo "======================="
     @echo ""
     @echo "Podman mode (default):  just <recipe>"
-    @echo "Native mode:            just native <recipe>"
     @echo ""
     @echo "Training:  train [model] [precision] [epochs], infer [model] [checkpoint]"
     @echo "           list-models, infer-image [model] [checkpoint] [image_path]"
