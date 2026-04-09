@@ -90,7 +90,7 @@ def get_atol(dtype: DType) -> Float64:
 # ============================================================================
 
 
-def measure_time[func: fn () raises -> None]() raises -> Float64:
+def measure_time[func: def () raises -> None]() raises -> Float64:
     """Measure execution time of a function in milliseconds.
 
     Returns:
@@ -118,7 +118,7 @@ def measure_time[func: fn () raises -> None]() raises -> Float64:
 
 
 def measure_throughput[
-    func: fn () raises -> None
+    func: def () raises -> None
 ](n_iterations: Int) raises -> Float64:
     """Measure throughput (operations per second) of a function.
 

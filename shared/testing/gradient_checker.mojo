@@ -64,6 +64,22 @@ trait NumericalForward(Copyable, Movable):
     def __call__(self, x: AnyTensor) raises -> AnyTensor: ...
 
 
+trait NumericalBackward(Copyable, Movable):
+    """Trait for backward functions used in gradient checking.
+
+    Implement this trait on a struct to pass capturing closures to
+    check_gradient and check_gradients. Required because Mojo 0.26.3
+    does not allow non-escaping capturing closures to be passed as
+    runtime function arguments.
+
+    The __call__ signature matches the backward_fn parameter of
+    check_gradient and check_gradients:
+        backward_fn(grad_out: AnyTensor, x: AnyTensor) -> AnyTensor
+    """
+
+    def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor: ...
+
+
 # ============================================================================
 # Gradient Checking Constants
 # ============================================================================
@@ -201,6 +217,59 @@ def _check_gradients_perturb[
         minus_ptr[i] = Scalar[dtype](original_val)
 
 
+def _check_gradients_perturb[
+    dtype: DType,
+    F: NumericalForward,
+](
+    forward_fn: F,
+    input: AnyTensor,
+    input_copy_plus: AnyTensor,
+    input_copy_minus: AnyTensor,
+    numerical_grad: AnyTensor,
+    epsilon: Float64,
+) raises:
+    """Run the finite-difference perturbation loop using typed pointers — trait-parameterized overload.
+
+    Gets data_ptr[dtype]() once per tensor and indexes throughout the loop,
+    keeping all tensors alive and avoiding per-element bitcast (fixes #5104).
+
+    Use this overload when forward_fn is a struct implementing NumericalForward.
+    """
+    var in_ptr = input.data_ptr[dtype]()
+    var plus_ptr = input_copy_plus.data_ptr[dtype]()
+    var minus_ptr = input_copy_minus.data_ptr[dtype]()
+    var grad_ptr = numerical_grad.data_ptr[dtype]()
+
+    for i in range(input.numel()):
+        # Save original value
+        var original_val = Float64(in_ptr[i])
+
+        # f(x + ε)
+        plus_ptr[i] = Scalar[dtype](original_val + epsilon)
+        var output_plus = forward_fn(input_copy_plus)
+
+        # f(x - ε)
+        minus_ptr[i] = Scalar[dtype](original_val - epsilon)
+        var output_minus = forward_fn(input_copy_minus)
+
+        # Compute per-element numerical gradient: sum([f(x+ε) - f(x-ε)] / (2ε))
+        # Use data_ptr[dtype]() once per tensor to keep output_plus/output_minus
+        # alive for the entire loop scope. Per-element _get_float64 performs a
+        # bitcast on each call and can trigger ASAP destruction of the temporary
+        # tensor before all elements are read (modular/modular#6187).
+        var out_plus_ptr = output_plus.data_ptr[dtype]()
+        var out_minus_ptr = output_minus.data_ptr[dtype]()
+        var numerical_sum: Float64 = 0.0
+        for j in range(output_plus.numel()):
+            var diff = Float64(out_plus_ptr[j]) - Float64(out_minus_ptr[j])
+            numerical_sum += diff / (2.0 * epsilon)
+        grad_ptr[i] = Scalar[dtype](numerical_sum)
+
+        # Restore original value for next iteration
+        plus_ptr[i] = Scalar[dtype](original_val)
+        minus_ptr[i] = Scalar[dtype](original_val)
+
+
 def _dispatch_check_gradients_perturb(
     forward_fn: def(AnyTensor) raises -> AnyTensor,
     input: AnyTensor,
@@ -210,6 +279,41 @@ def _dispatch_check_gradients_perturb(
     epsilon: Float64,
 ) raises:
     """Dispatch perturbation loop to dtype-specific implementation."""
+    if input._dtype == DType.float16:
+        _check_gradients_perturb[DType.float16](
+            forward_fn, input, input_copy_plus, input_copy_minus,
+            numerical_grad, epsilon,
+        )
+    elif input._dtype == DType.bfloat16:
+        _check_gradients_perturb[DType.bfloat16](
+            forward_fn, input, input_copy_plus, input_copy_minus,
+            numerical_grad, epsilon,
+        )
+    elif input._dtype == DType.float32:
+        _check_gradients_perturb[DType.float32](
+            forward_fn, input, input_copy_plus, input_copy_minus,
+            numerical_grad, epsilon,
+        )
+    elif input._dtype == DType.float64:
+        _check_gradients_perturb[DType.float64](
+            forward_fn, input, input_copy_plus, input_copy_minus,
+            numerical_grad, epsilon,
+        )
+    else:
+        raise Error(
+            "Unsupported dtype for gradient checking: " + String(input._dtype)
+        )
+
+
+def _dispatch_check_gradients_perturb_trait[F: NumericalForward](
+    forward_fn: F,
+    input: AnyTensor,
+    input_copy_plus: AnyTensor,
+    input_copy_minus: AnyTensor,
+    numerical_grad: AnyTensor,
+    epsilon: Float64,
+) raises:
+    """Dispatch perturbation loop to dtype-specific implementation for trait-parameterized forward."""
     if input._dtype == DType.float16:
         _check_gradients_perturb[DType.float16](
             forward_fn, input, input_copy_plus, input_copy_minus,
@@ -360,6 +464,123 @@ def check_gradients(
     return True
 
 
+def check_gradients[F: NumericalForward, B: NumericalBackward](
+    forward_fn: F,
+    backward_fn: B,
+    input: AnyTensor,
+    epsilon: Float64 = 3e-4,
+    tolerance: Float64 = 1e-2,
+) raises -> Bool:
+    """Check gradients using finite differences — trait-parameterized overload.
+
+    Use this overload when forward_fn and backward_fn are structs implementing
+    NumericalForward and NumericalBackward traits. This allows wrapping
+    capturing closures which cannot be passed directly in Mojo 0.26.3+.
+
+    Args:
+        forward_fn: A struct implementing NumericalForward.
+        backward_fn: A struct implementing NumericalBackward.
+        input: Input tensor to differentiate at.
+        epsilon: Finite difference step size (default: 3e-4).
+        tolerance: Maximum allowed difference (default: 1e-2).
+
+    Returns:
+        True if gradients are correct, False otherwise.
+
+    Raises:
+        Error: If forward/backward functions fail.
+
+    Example:
+        ```mojo
+        @fieldwise_init
+        struct MyForward(NumericalForward):
+            var param: AnyTensor
+
+            def __call__(self, x: AnyTensor) raises -> AnyTensor:
+                return x * self.param
+
+        @fieldwise_init
+        struct MyBackward(NumericalBackward):
+            var param: AnyTensor
+
+            def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+                return grad_out * self.param
+
+        var param = ones([3, 4], DType.float32)
+        var forward = MyForward(param^)
+        var backward = MyBackward(param^)
+        var x = full([3, 4], 2.0, DType.float32)
+        var passed = check_gradients(forward, backward, x)
+        ```
+    """
+    # Step 1: Compute analytical gradient
+    var output = forward_fn(input)
+    var grad_output = zeros_like(output)
+
+    # Set grad_output to ones (∂L/∂output = 1 for all elements)
+    # Use typed pointer fill to avoid per-element bitcast
+    if output._dtype == DType.float16:
+        _fill_ones[DType.float16](grad_output)
+    elif output._dtype == DType.bfloat16:
+        _fill_ones[DType.bfloat16](grad_output)
+    elif output._dtype == DType.float32:
+        _fill_ones[DType.float32](grad_output)
+    elif output._dtype == DType.float64:
+        _fill_ones[DType.float64](grad_output)
+    else:
+        for i in range(output.numel()):
+            grad_output._set_float64(i, 1.0)
+
+    # GOTCHA: Warn if grad_output is uniform (all ones)
+    # For normalization layers (batch norm, layer norm), uniform grad_output creates
+    # a degenerate case where variance becomes zero and gradients are undefined/clamped.
+    # See #3282 for discussion. This warning makes the gotcha self-enforcing rather than
+    # relying solely on documentation.
+    if _is_uniform_tensor(grad_output):
+        print("WARNING: check_gradients() got uniform grad_output (likely ones_like)")
+        print("This is pathological for normalization layers where variance=0 causes undefined gradients.")
+        print("For batch norm, layer norm, etc., use non-uniform grad_output (e.g., randn).")
+        print("See issue #3282 for more details.")
+
+    var analytical_grad = backward_fn(grad_output, input)
+
+    # Step 2: Compute numerical gradient using finite differences
+    # Uses dtype-dispatched perturbation loop with typed pointers (fixes #5104)
+    var numerical_grad = zeros_like(input)
+    var input_copy_plus = input.clone()
+    var input_copy_minus = input.clone()
+
+    _dispatch_check_gradients_perturb_trait(
+        forward_fn, input, input_copy_plus, input_copy_minus,
+        numerical_grad, epsilon,
+    )
+
+    # Step 3: Compare analytical vs numerical gradients
+    var max_diff: Float64 = 0.0
+    var max_diff_idx = 0
+
+    for i in range(input.numel()):
+        var analytical = analytical_grad._get_float64(i)
+        var numerical = numerical_grad._get_float64(i)
+        var diff = abs(analytical - numerical)
+
+        if diff > max_diff:
+            max_diff = diff
+            max_diff_idx = i
+
+    # Print diagnostics if gradients don't match
+    if max_diff >= tolerance:
+        print("Gradient check FAILED:")
+        print("  Max difference:", max_diff)
+        print("  At index:", max_diff_idx)
+        print("  Analytical:", analytical_grad._get_float64(max_diff_idx))
+        print("  Numerical:", numerical_grad._get_float64(max_diff_idx))
+        print("  Tolerance:", tolerance)
+        return False
+
+    return True
+
+
 def check_gradients_verbose(
     forward_fn: def(AnyTensor) raises -> AnyTensor,
     backward_fn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
@@ -427,6 +648,102 @@ def check_gradients_verbose(
         var input_copy_minus = input.clone()
 
         _dispatch_check_gradients_perturb(
+            forward_fn, input, input_copy_plus, input_copy_minus,
+            numerical_grad, epsilon,
+        )
+
+        print("\nGradient Comparisons:")
+        print("Index | Analytical | Numerical | Diff | Status")
+        print("-" * 60)
+
+        for i in range(min(input.numel(), 20)):  # Print first 20
+            var analytical = analytical_grad._get_float64(i)
+            var numerical = numerical_grad._get_float64(i)
+            var diff = abs(analytical - numerical)
+            var status = "PASS" if diff < tolerance else "FAIL"
+
+            if print_all or diff >= tolerance:
+                print(
+                    i,
+                    " | ",
+                    analytical,
+                    " | ",
+                    numerical,
+                    " | ",
+                    diff,
+                    " | ",
+                    status,
+                )
+
+        if input.numel() > 20:
+            print("... (" + String(input.numel() - 20) + " more elements)")
+
+        print("=" * 60)
+
+    return passed
+
+
+def check_gradients_verbose[F: NumericalForward, B: NumericalBackward](
+    forward_fn: F,
+    backward_fn: B,
+    input: AnyTensor,
+    epsilon: Float64 = 3e-4,
+    tolerance: Float64 = 1e-2,
+    print_all: Bool = False,
+) raises -> Bool:
+    """Gradient checking with detailed output — trait-parameterized overload.
+
+    Same as check_gradients but prints all differences, not just maximum.
+    Useful for debugging specific gradient issues. Use this overload when
+    forward_fn and backward_fn are structs implementing NumericalForward
+    and NumericalBackward traits.
+
+    Args:
+        forward_fn: A struct implementing NumericalForward.
+        backward_fn: A struct implementing NumericalBackward.
+        input: Input tensor.
+        epsilon: Finite difference step size.
+        tolerance: Maximum allowed difference.
+        print_all: If True, print all gradients (even passing ones).
+
+    Returns:
+        True if gradients correct, False otherwise.
+
+    Raises:
+        Error: If operation fails.
+    """
+    # Run standard gradient check
+    var passed = check_gradients(
+        forward_fn, backward_fn, input, epsilon, tolerance
+    )
+
+    if print_all or not passed:
+        print("\n=== Gradient Check Details ===")
+        print("Input shape:", String(input.numel()), "elements")
+        print("Epsilon:", epsilon)
+        print("Tolerance:", tolerance)
+
+        # Recompute for printing
+        var output = forward_fn(input)
+        var grad_output = zeros_like(output)
+        if output._dtype == DType.float16:
+            _fill_ones[DType.float16](grad_output)
+        elif output._dtype == DType.bfloat16:
+            _fill_ones[DType.bfloat16](grad_output)
+        elif output._dtype == DType.float32:
+            _fill_ones[DType.float32](grad_output)
+        elif output._dtype == DType.float64:
+            _fill_ones[DType.float64](grad_output)
+        else:
+            for i in range(output.numel()):
+                grad_output._set_float64(i, 1.0)
+        var analytical_grad = backward_fn(grad_output, input)
+
+        var numerical_grad = zeros_like(input)
+        var input_copy_plus = input.clone()
+        var input_copy_minus = input.clone()
+
+        _dispatch_check_gradients_perturb_trait(
             forward_fn, input, input_copy_plus, input_copy_minus,
             numerical_grad, epsilon,
         )
@@ -1147,6 +1464,58 @@ def _check_gradient_perturb[
         grad_ptr[i] = Scalar[dtype](numerical_grad)
 
 
+def _check_gradient_perturb[
+    dtype: DType,
+    F: NumericalForward,
+](
+    forward_fn: F,
+    x: AnyTensor,
+    grad_output: AnyTensor,
+    grad: AnyTensor,
+    eps: Float64,
+) raises:
+    """Perturbation loop for check_gradient using typed pointers — trait-parameterized overload.
+
+    Uses data_ptr[dtype]() for the input tensor to avoid per-element bitcast.
+    Each iteration creates fresh clones (x_plus, x_minus), so we get a typed
+    pointer to x once for reading old_val, and to grad for writing results.
+
+    Use this overload when forward_fn is a struct implementing NumericalForward.
+    """
+    var x_ptr = x.data_ptr[dtype]()
+    var grad_ptr = grad.data_ptr[dtype]()
+
+    for i in range(x.numel()):
+        # Create deep copies to avoid corrupting original x
+        var x_plus = x.clone()
+        var old_val = Float64(x_ptr[i])
+        # Use typed pointer for setting the perturbed value in the clone
+        var plus_ptr = x_plus.data_ptr[dtype]()
+        plus_ptr[i] = Scalar[dtype](old_val + eps)
+        var out_plus = forward_fn(x_plus)
+        # Use data_ptr[dtype]() to keep out_plus alive across the loop (modular/modular#6187)
+        var out_plus_ptr = out_plus.data_ptr[dtype]()
+        var grad_out_ptr = grad_output.data_ptr[dtype]()
+        var loss_plus: Float64 = 0.0
+        for j in range(out_plus.numel()):
+            loss_plus += Float64(out_plus_ptr[j]) * Float64(grad_out_ptr[j])
+
+        # Backward perturbation
+        var x_minus = x.clone()
+        var minus_ptr = x_minus.data_ptr[dtype]()
+        minus_ptr[i] = Scalar[dtype](old_val - eps)
+        var out_minus = forward_fn(x_minus)
+        # Use data_ptr[dtype]() to keep out_minus alive across the loop (modular/modular#6187)
+        var out_minus_ptr = out_minus.data_ptr[dtype]()
+        var loss_minus: Float64 = 0.0
+        for j in range(out_minus.numel()):
+            loss_minus += Float64(out_minus_ptr[j]) * Float64(grad_out_ptr[j])
+
+        # Central difference
+        var numerical_grad = (loss_plus - loss_minus) / (2.0 * eps)
+        grad_ptr[i] = Scalar[dtype](numerical_grad)
+
+
 def check_gradient(
     forward_fn: def(AnyTensor) raises -> AnyTensor,
     backward_fn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
@@ -1188,6 +1557,90 @@ def check_gradient(
                 var grad_out = ones_like(relu(x))
                 check_gradient(forward, backward_wrapper, x, grad_out)
             ```
+    """
+    # Auto-select epsilon and atol based on dtype if not specified
+    var eps = epsilon
+    var auto_atol = atol
+    if eps == 0.0:
+        # Use sqrt(machine_epsilon) for numerical stability
+        # Float32: machine eps ~1.2e-7, sqrt ~3.5e-4, use 1e-4
+        # Float64: machine eps ~2.2e-16, sqrt ~1.5e-8, use 1e-7
+        if x._dtype == DType.float32:
+            eps = 1e-4
+            # For near-zero gradients, numerical error is O(eps), so set atol >= eps
+            if atol < 1e-4:  # If atol is too small for eps=1e-4
+                auto_atol = 1e-4
+        elif x._dtype == DType.float64:
+            eps = 1e-7
+            if atol < 1e-7:  # If atol is too small for eps=1e-7
+                auto_atol = 1e-7
+        else:
+            eps = 1e-5  # Default for other types
+
+    # Compute analytical gradient
+    var analytical = backward_fn(grad_output, x)
+
+    # Compute numerical gradient using typed pointer perturbation (fixes #5104)
+    var grad = zeros_like(x)
+
+    if x._dtype == DType.float16:
+        _check_gradient_perturb[DType.float16](
+            forward_fn, x, grad_output, grad, eps,
+        )
+    elif x._dtype == DType.bfloat16:
+        _check_gradient_perturb[DType.bfloat16](
+            forward_fn, x, grad_output, grad, eps,
+        )
+    elif x._dtype == DType.float32:
+        _check_gradient_perturb[DType.float32](
+            forward_fn, x, grad_output, grad, eps,
+        )
+    elif x._dtype == DType.float64:
+        _check_gradient_perturb[DType.float64](
+            forward_fn, x, grad_output, grad, eps,
+        )
+    else:
+        raise Error(
+            "Unsupported dtype for gradient checking: " + String(x._dtype)
+        )
+
+    # Compare
+    assert_gradients_close(
+        analytical,
+        grad,
+        rtol,
+        auto_atol,
+        "Gradient check failed for " + String(x._dtype),
+    )
+
+
+def check_gradient[F: NumericalForward, B: NumericalBackward](
+    forward_fn: F,
+    backward_fn: B,
+    x: AnyTensor,
+    grad_output: AnyTensor,
+    epsilon: Float64 = 0.0,  # Auto-select based on dtype if 0.0
+    rtol: Float64 = 1e-3,
+    atol: Float64 = 1e-6,
+) raises:
+    """Comprehensive gradient check helper — trait-parameterized overload.
+
+    Combines numerical gradient computation and comparison in one call.
+    This is the recommended way to validate backward passes in tests.
+    Use this overload when forward_fn and backward_fn are structs
+    implementing NumericalForward and NumericalBackward traits.
+
+    Args:
+        forward_fn: A struct implementing NumericalForward.
+        backward_fn: A struct implementing NumericalBackward.
+        x: Input tensor.
+        grad_output: Gradient from upstream (typically ones_like(output)).
+        epsilon: Perturbation size for finite differences (0.0 = auto-select).
+        rtol: Relative tolerance.
+        atol: Absolute tolerance.
+
+    Raises:
+        Error: If gradients don't match within tolerance.
     """
     # Auto-select epsilon and atol based on dtype if not specified
     var eps = epsilon

@@ -23,7 +23,7 @@ struct StubDataset:
     def __len__(self) -> Int:
         return self.size
 
-    def __getitem__(self, index: Int) raises unified {read} -> Tuple[Float32, Int]:
+    def __getitem__(self, index: Int) raises -> Tuple[Float32, Int]:
         if index < 0 or index >= self.size:
             raise Error("Index out of bounds")
         return (Float32(index), index)
@@ -96,7 +96,7 @@ struct StubDataLoader:
         """Return number of batches."""
         return self.num_batches
 
-    def get_batch(self, batch_idx: Int) raises unified {read} -> StubBatch:
+    def get_batch(self, batch_idx: Int) raises -> StubBatch:
         """Get batch at specified index.
 
         Args:

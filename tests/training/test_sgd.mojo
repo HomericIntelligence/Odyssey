@@ -230,7 +230,7 @@ def test_sgd_multi_step_convergence() raises:
     print("  Initial param:", params._get_float64(0))
 
     # Run 20 steps
-    for step in range(20):
+    for _ in range(20):
         # Gradient = 2 * (params - target) (MSE gradient)
         var current = params._get_float64(0)
         var error = current - target

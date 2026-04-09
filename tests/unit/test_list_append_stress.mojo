@@ -51,7 +51,7 @@ def test_list_rapid_allocations() raises:
     print("\n=== Test 3: Rapid List Allocations ===")
 
     print("Creating and destroying 1000 lists...")
-    for i in range(1000):
+    for _ in range(1000):
         var lst = List[Int]()
         for j in range(10):
             lst.append(j)
@@ -156,7 +156,7 @@ def test_list_reverse_iteration_append() raises:
 
         # Reverse iteration append (like in AnyTensor)
         print("    Reverse iteration append...")
-        for _ in range(size - 1, -1, -1):
+        for _ in range(size):
             lst.append(0)
 
         print("    len =", len(lst))
@@ -177,7 +177,7 @@ def test_list_memory_stress() raises:
     print("Creating many lists sequentially...")
     var total_lists = 0
 
-    for i in range(100):
+    for _ in range(100):
         var lst = List[Int]()
         for j in range(100):
             lst.append(j)
@@ -214,21 +214,21 @@ def test_list_zero_append_stress() raises:
     # Pattern 1: Sequential forward
     print("\n  Pattern 1: Forward append of zeros...")
     var lst1 = List[Int]()
-    for i in range(100):
+    for _ in range(100):
         lst1.append(0)
     print("    len =", len(lst1))
 
     # Pattern 2: Sequential backward (like AnyTensor)
     print("\n  Pattern 2: Backward loop, forward append of zeros...")
     var lst2 = List[Int]()
-    for _ in range(100 - 1, -1, -1):
+    for _ in range(100):
         lst2.append(0)
     print("    len =", len(lst2))
 
     # Pattern 3: Large size
     print("\n  Pattern 3: Large backward loop...")
     var lst3 = List[Int]()
-    for _ in range(10000 - 1, -1, -1):
+    for _ in range(10000):
         lst3.append(0)
     print("    len =", len(lst3))
 

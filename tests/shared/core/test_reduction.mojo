@@ -34,7 +34,7 @@ from shared.core.reduction import (
 from shared.testing import check_gradient
 from shared.core.reduction import (
     variance,
-    std as std_op,
+    std as stdev,
     variance_backward,
     std_backward,
 )
@@ -379,7 +379,7 @@ def test_std_forward_simple() raises:
     x.set(2, Float32(3.0))
 
     # std = sqrt(var) = sqrt(2/3)
-    var result = std_op(x, axis=-1, ddof=0)
+    var result = stdev(x, axis=-1, ddof=0)
     var expected = (2.0 / 3.0) ** 0.5
     assert_close_float(result._get_float64(0), expected, rtol=1e-5, atol=1e-7)
 
@@ -398,7 +398,7 @@ def test_std_backward_gradient() raises:
     x.set(5, Float32(0.7))
 
     def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return std_op(inp, axis=1, ddof=0)
+        return stdev(inp, axis=1, ddof=0)
 
     var y = forward(x)
     var grad_out = ones_like(y)

@@ -17,7 +17,7 @@ from shared.training.model_utils import (
 )
 from std.pathlib import Path
 from std.collections import List
-import os
+import std.os as os
 
 
 def test_save_load_model_weights() raises:
@@ -228,9 +228,9 @@ def _file_exists(path: String) -> Bool:
 
 def _cleanup_directory(path: String):
     """Remove directory and all contents."""
-    try:
-        from python import Python
+    from python import Python
 
+    try:
         var shutil = Python.import_module("shutil")
         var _ = shutil.rmtree(path)
     except:

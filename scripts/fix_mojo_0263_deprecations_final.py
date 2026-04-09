@@ -105,7 +105,7 @@ def main():
         print()
 
     total_modified = 0
-    total_changes = {}
+    total_changes: dict[str, int] = {}
 
     for filepath in mojo_files:
         # Skip hidden and cache directories

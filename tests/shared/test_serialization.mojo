@@ -25,7 +25,7 @@ from shared.utils.serialization import (
 )
 from std.pathlib import Path
 from std.collections import List
-import os
+import std.os as os
 
 
 def test_dtype_utilities() raises:
@@ -351,9 +351,9 @@ def _create_temp_dir(prefix: String) -> String:
     Returns:
         Full path to the created temporary directory.
     """
-    try:
-        from python import Python
+    from python import Python
 
+    try:
         var tempfile = Python.import_module("tempfile")
         var builtins = Python.import_module("builtins")
         var py_prefix = builtins.str(prefix + "_")
@@ -369,9 +369,9 @@ def _cleanup_temp_dir(path: String):
     Args:
         path: Full path to the temporary directory to remove.
     """
-    try:
-        from python import Python
+    from python import Python
 
+    try:
         var shutil = Python.import_module("shutil")
         shutil.rmtree(path)
     except:

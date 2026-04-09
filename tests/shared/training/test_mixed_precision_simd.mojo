@@ -92,7 +92,7 @@ def test_convert_fp16_to_fp32_large() raises:
 
     # Fill with incrementing values
     for i in range(1024 * 1024):
-        fp16_ptr[i] = Float16(Float32((i % 100) / 100.0))
+        fp16_ptr[i] = Float16(Float32(Float64(i % 100) / 100.0))
 
     # Convert to FP32
     var fp32_result = convert_to_fp32_master(fp16_params)
@@ -100,7 +100,7 @@ def test_convert_fp16_to_fp32_large() raises:
     # Spot check values
     var fp32_ptr = fp32_result._data.bitcast[Float32]()
     for i in [0, 100, 1000, 10000, 100000, 1000000 - 1]:
-        var expected = Float32((i % 100) / 100.0)
+        var expected = Float32(Float64(i % 100) / 100.0)
         var actual = fp32_ptr[i]
         assert_true(
             abs(actual - expected) < 0.001,
@@ -192,7 +192,7 @@ def test_convert_fp32_to_fp16_large() raises:
 
     # Fill with incrementing values
     for i in range(1024 * 1024):
-        fp32_ptr[i] = Float32((i % 100) / 100.0)
+        fp32_ptr[i] = Float32(Float64(i % 100) / 100.0)
 
     # Create FP16 target
     var fp16_model = AnyTensor([1024, 1024], DType.float16)
@@ -203,7 +203,7 @@ def test_convert_fp32_to_fp16_large() raises:
     # Spot check values
     var fp16_ptr = fp16_model._data.bitcast[Float16]()
     for i in [0, 100, 1000, 10000, 100000, 1000000 - 1]:
-        var expected = Float16(Float32((i % 100) / 100.0))
+        var expected = Float16(Float32(Float64(i % 100) / 100.0))
         var actual = fp16_ptr[i]
         assert_true(
             abs(Float32(actual) - Float32(expected)) < 0.001,
