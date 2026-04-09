@@ -9,7 +9,7 @@ corruption bug that occurs after ~15 cumulative tests. See ADR-009.
 """
 
 from tests.shared.conftest import assert_true
-from shared.testing import check_gradients
+from shared.testing import check_gradients, NumericalForward, NumericalBackward
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.activation import (
     relu,
@@ -27,6 +27,79 @@ from shared.core.arithmetic import (
 )
 
 
+# ---- ReLU (no captures) ----
+
+@fieldwise_init
+struct _ReluFwd(NumericalForward):
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return relu(x)
+
+@fieldwise_init
+struct _ReluBwd(NumericalBackward):
+    def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        return relu_backward(grad_out, x)
+
+
+# ---- Sigmoid (no captures) ----
+
+@fieldwise_init
+struct _SigmoidFwd(NumericalForward):
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return sigmoid(x)
+
+@fieldwise_init
+struct _SigmoidBwd(NumericalBackward):
+    def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        var output = sigmoid(x)
+        return sigmoid_backward(grad_out, output)
+
+
+# ---- Tanh (no captures) ----
+
+@fieldwise_init
+struct _TanhFwd(NumericalForward):
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return tanh(x)
+
+@fieldwise_init
+struct _TanhBwd(NumericalBackward):
+    def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        var output = tanh(x)
+        return tanh_backward(grad_out, output)
+
+
+# ---- Add (captures input_b) ----
+
+@fieldwise_init
+struct _AddFwd(NumericalForward):
+    var input_b: AnyTensor
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return add(x, self.input_b)
+
+@fieldwise_init
+struct _AddBwd(NumericalBackward):
+    var input_b: AnyTensor
+    def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        var grads = add_backward(grad_out, x, self.input_b)
+        return grads.grad_a
+
+
+# ---- Multiply (captures input_b) ----
+
+@fieldwise_init
+struct _MultiplyFwd(NumericalForward):
+    var input_b: AnyTensor
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return multiply(x, self.input_b)
+
+@fieldwise_init
+struct _MultiplyBwd(NumericalBackward):
+    var input_b: AnyTensor
+    def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        var grads = multiply_backward(grad_out, x, self.input_b)
+        return grads.grad_a
+
+
 def test_relu_gradient() raises:
     """Test ReLU backward pass using gradient checking."""
     var shape = List[Int]()
@@ -34,13 +107,7 @@ def test_relu_gradient() raises:
     shape.append(4)
     var input = full(shape, 2.0, DType.float32)
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        return relu(x)
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        return relu_backward(grad_out, x)
-
-    var passed = check_gradients(forward, backward, input)
+    var passed = check_gradients(_ReluFwd(), _ReluBwd(), input)
     assert_true(passed, "ReLU gradient check failed")
 
 
@@ -51,13 +118,7 @@ def test_relu_negative_inputs() raises:
     shape.append(4)
     var input = full(shape, -2.0, DType.float32)
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        return relu(x)
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        return relu_backward(grad_out, x)
-
-    var passed = check_gradients(forward, backward, input)
+    var passed = check_gradients(_ReluFwd(), _ReluBwd(), input)
     assert_true(passed, "ReLU gradient check failed for negative inputs")
 
 
@@ -82,13 +143,7 @@ def test_relu_mixed_inputs() raises:
     input._set_float64(10, 0.1)
     input._set_float64(11, -0.1)
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        return relu(x)
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        return relu_backward(grad_out, x)
-
-    var passed = check_gradients(forward, backward, input)
+    var passed = check_gradients(_ReluFwd(), _ReluBwd(), input)
     assert_true(passed, "ReLU gradient check failed for mixed inputs")
 
 
@@ -99,14 +154,7 @@ def test_sigmoid_gradient() raises:
     shape.append(4)
     var input = full(shape, 0.5, DType.float32)
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        return sigmoid(x)
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        var output = sigmoid(x)
-        return sigmoid_backward(grad_out, output)
-
-    var passed = check_gradients(forward, backward, input)
+    var passed = check_gradients(_SigmoidFwd(), _SigmoidBwd(), input)
     assert_true(passed, "Sigmoid gradient check failed")
 
 
@@ -117,14 +165,7 @@ def test_tanh_gradient() raises:
     shape.append(4)
     var input = full(shape, 0.5, DType.float32)
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        return tanh(x)
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        var output = tanh(x)
-        return tanh_backward(grad_out, output)
-
-    var passed = check_gradients(forward, backward, input)
+    var passed = check_gradients(_TanhFwd(), _TanhBwd(), input)
     assert_true(passed, "Tanh gradient check failed")
 
 
@@ -136,14 +177,7 @@ def test_add_gradient() raises:
     var input_a = ones(shape, DType.float32)
     var input_b = ones(shape, DType.float32)
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        return add(x, input_b)
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        var grads = add_backward(grad_out, x, input_b)
-        return grads.grad_a
-
-    var passed = check_gradients(forward, backward, input_a)
+    var passed = check_gradients(_AddFwd(input_b), _AddBwd(input_b), input_a)
     assert_true(passed, "Add gradient check failed")
 
 
@@ -155,14 +189,7 @@ def test_multiply_gradient() raises:
     var input_a = full(shape, 2.0, DType.float32)
     var input_b = full(shape, 3.0, DType.float32)
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        return multiply(x, input_b)
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        var grads = multiply_backward(grad_out, x, input_b)
-        return grads.grad_a
-
-    var passed = check_gradients(forward, backward, input_a)
+    var passed = check_gradients(_MultiplyFwd(input_b), _MultiplyBwd(input_b), input_a)
     assert_true(passed, "Multiply gradient check failed")
 
 
@@ -173,13 +200,7 @@ def test_gradient_at_zero() raises:
     shape.append(2)
     var input = full(shape, 0.01, DType.float32)
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        return relu(x)
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        return relu_backward(grad_out, x)
-
-    var passed = check_gradients(forward, backward, input)
+    var passed = check_gradients(_ReluFwd(), _ReluBwd(), input)
     assert_true(passed, "Gradient near zero check failed")
 
 
@@ -190,13 +211,7 @@ def test_gradient_small_tensor() raises:
     shape.append(1)
     var input = full(shape, 2.0, DType.float32)
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        return relu(x)
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        return relu_backward(grad_out, x)
-
-    var passed = check_gradients(forward, backward, input)
+    var passed = check_gradients(_ReluFwd(), _ReluBwd(), input)
     assert_true(passed, "Small tensor gradient check failed")
 
 

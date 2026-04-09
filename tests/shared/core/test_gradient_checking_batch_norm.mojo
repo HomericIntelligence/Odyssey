@@ -16,12 +16,60 @@ Note: Split from test_gradient_checking.mojo due to Mojo 0.26.1 heap
 corruption bug that occurs after ~15 cumulative tests. See ADR-009.
 """
 
-from shared.testing.gradient_checker import check_gradient
+from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
 from shared.testing.assertions import assert_true
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.normalization import batch_norm2d, batch_norm2d_backward
 from shared.core.arithmetic import multiply
 from shared.core.reduction import sum as reduce_sum
+
+
+# ---- Batch norm input gradient (captures gamma, beta, running_mean, running_var) ----
+
+@fieldwise_init
+struct _BatchNormInputFwd(NumericalForward):
+    var gamma: AnyTensor
+    var beta: AnyTensor
+    var running_mean: AnyTensor
+    var running_var: AnyTensor
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        var result = batch_norm2d(x, self.gamma, self.beta, self.running_mean, self.running_var, training=True)
+        return result[0]
+
+@fieldwise_init
+struct _BatchNormInputBwd(NumericalBackward):
+    var gamma: AnyTensor
+    var running_mean: AnyTensor
+    var running_var: AnyTensor
+    def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        var result = batch_norm2d_backward(
+            grad_out, x, self.gamma, self.running_mean, self.running_var, training=True
+        )
+        return result[0]
+
+
+# ---- Batch norm gamma gradient (captures input, beta, running_mean, running_var) ----
+
+@fieldwise_init
+struct _BatchNormGammaFwd(NumericalForward):
+    var input: AnyTensor
+    var beta: AnyTensor
+    var running_mean: AnyTensor
+    var running_var: AnyTensor
+    def __call__(self, g: AnyTensor) raises -> AnyTensor:
+        var result = batch_norm2d(self.input, g, self.beta, self.running_mean, self.running_var, training=True)
+        return result[0]
+
+@fieldwise_init
+struct _BatchNormGammaBwd(NumericalBackward):
+    var input: AnyTensor
+    var running_mean: AnyTensor
+    var running_var: AnyTensor
+    def __call__(self, grad_out: AnyTensor, g: AnyTensor) raises -> AnyTensor:
+        var result = batch_norm2d_backward(
+            grad_out, self.input, g, self.running_mean, self.running_var, training=True
+        )
+        return result[1]
 
 
 def _make_non_uniform_grad_output(output: AnyTensor) raises -> AnyTensor:
@@ -72,21 +120,13 @@ def test_batch_norm_gradient_batch_size_1() raises:
     var running_var = ones(mean_shape, DType.float32)
 
     # Compute forward to get output shape for grad_output
-    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
-        var result = batch_norm2d(x, gamma, beta, running_mean, running_var, training=True)
-        return result[0]
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
-        var result = batch_norm2d_backward(
-            grad_out, x, gamma, running_mean, running_var, training=True
-        )
-        return result[0]
-
-    var output = forward(input)
+    var fwd = _BatchNormInputFwd(gamma, beta, running_mean, running_var)
+    var bwd = _BatchNormInputBwd(gamma, running_mean, running_var)
+    var output = fwd(input)
     var grad_output = _make_non_uniform_grad_output(output)
 
     # Use check_gradient which accepts custom grad_output
-    check_gradient(forward, backward, input, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(fwd, bwd, input, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_batch_norm_gradient_batch_size_2() raises:
@@ -111,20 +151,12 @@ def test_batch_norm_gradient_batch_size_2() raises:
     var running_mean = zeros(mean_shape, DType.float32)
     var running_var = ones(mean_shape, DType.float32)
 
-    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
-        var result = batch_norm2d(x, gamma, beta, running_mean, running_var, training=True)
-        return result[0]
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
-        var result = batch_norm2d_backward(
-            grad_out, x, gamma, running_mean, running_var, training=True
-        )
-        return result[0]
-
-    var output = forward(input)
+    var fwd = _BatchNormInputFwd(gamma, beta, running_mean, running_var)
+    var bwd = _BatchNormInputBwd(gamma, running_mean, running_var)
+    var output = fwd(input)
     var grad_output = _make_non_uniform_grad_output(output)
 
-    check_gradient(forward, backward, input, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(fwd, bwd, input, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_batch_norm_gradient_batch_size_4() raises:
@@ -149,20 +181,12 @@ def test_batch_norm_gradient_batch_size_4() raises:
     var running_mean = zeros(mean_shape, DType.float32)
     var running_var = ones(mean_shape, DType.float32)
 
-    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
-        var result = batch_norm2d(x, gamma, beta, running_mean, running_var, training=True)
-        return result[0]
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
-        var result = batch_norm2d_backward(
-            grad_out, x, gamma, running_mean, running_var, training=True
-        )
-        return result[0]
-
-    var output = forward(input)
+    var fwd = _BatchNormInputFwd(gamma, beta, running_mean, running_var)
+    var bwd = _BatchNormInputBwd(gamma, running_mean, running_var)
+    var output = fwd(input)
     var grad_output = _make_non_uniform_grad_output(output)
 
-    check_gradient(forward, backward, input, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(fwd, bwd, input, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_batch_norm_gamma_gradient_batch_size_2() raises:
@@ -187,20 +211,12 @@ def test_batch_norm_gamma_gradient_batch_size_2() raises:
     var running_mean = zeros(mean_shape, DType.float32)
     var running_var = ones(mean_shape, DType.float32)
 
-    def forward(g: AnyTensor) raises unified {read} -> AnyTensor:
-        var result = batch_norm2d(input, g, beta, running_mean, running_var, training=True)
-        return result[0]
-
-    def backward(grad_out: AnyTensor, g: AnyTensor) raises unified {read} -> AnyTensor:
-        var result = batch_norm2d_backward(
-            grad_out, input, g, running_mean, running_var, training=True
-        )
-        return result[1]
-
-    var output = forward(gamma)
+    var fwd = _BatchNormGammaFwd(input, beta, running_mean, running_var)
+    var bwd = _BatchNormGammaBwd(input, running_mean, running_var)
+    var output = fwd(gamma)
     var grad_output = _make_non_uniform_grad_output(output)
 
-    check_gradient(forward, backward, gamma, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(fwd, bwd, gamma, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def main() raises:

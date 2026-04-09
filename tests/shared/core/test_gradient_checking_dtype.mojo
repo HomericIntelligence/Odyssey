@@ -9,7 +9,7 @@ corruption bug that occurs after ~15 cumulative tests. See ADR-009.
 """
 
 from tests.shared.conftest import assert_true
-from shared.testing import check_gradients
+from shared.testing import check_gradients, NumericalForward, NumericalBackward
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.activation import (
     relu,
@@ -24,6 +24,97 @@ from shared.core.loss import cross_entropy, cross_entropy_backward
 from shared.training.precision_config import PrecisionConfig
 
 
+# ---- Composite relu+multiply (captures input_b) ----
+
+@fieldwise_init
+struct _CompositeReluMulFwd(NumericalForward):
+    var input_b: AnyTensor
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        var mul_result = multiply(x, self.input_b)
+        return relu(mul_result)
+
+@fieldwise_init
+struct _CompositeReluMulBwd(NumericalBackward):
+    var input_b: AnyTensor
+    def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        var mul_result = multiply(x, self.input_b)
+        var grad_relu = relu_backward(grad_out, mul_result)
+        var grads = multiply_backward(grad_relu, x, self.input_b)
+        return grads.grad_a
+
+
+# ---- Linear (captures weights, bias) ----
+
+@fieldwise_init
+struct _LinearFwd(NumericalForward):
+    var weights: AnyTensor
+    var bias: AnyTensor
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return linear(x, self.weights, self.bias)
+
+@fieldwise_init
+struct _LinearBwd(NumericalBackward):
+    var weights: AnyTensor
+    def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        var grads = linear_backward(grad_out, x, self.weights)
+        return grads.grad_input
+
+
+# ---- Conv2D FP32 no padding (captures kernel, bias) ----
+
+@fieldwise_init
+struct _Conv2dNoPadFwd(NumericalForward):
+    var kernel: AnyTensor
+    var bias: AnyTensor
+    var stride: Int
+    var padding: Int
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return conv2d(x, self.kernel, self.bias, stride=self.stride, padding=self.padding)
+
+@fieldwise_init
+struct _Conv2dNoPadBwd(NumericalBackward):
+    var kernel: AnyTensor
+    var stride: Int
+    var padding: Int
+    def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        var grads = conv2d_backward(grad_out, x, self.kernel, stride=self.stride, padding=self.padding)
+        return grads.grad_input
+
+
+# ---- Conv2D FP16 forward with move (captures kernel, bias) ----
+
+@fieldwise_init
+struct _Conv2dFp16Fwd(NumericalForward):
+    var kernel: AnyTensor
+    var bias: AnyTensor
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        var result = conv2d(x, self.kernel, self.bias, stride=1, padding=0)
+        # Conv computes in FP32 for numerical stability
+        return result^
+
+@fieldwise_init
+struct _Conv2dFp16Bwd(NumericalBackward):
+    var kernel: AnyTensor
+    def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        var grads = conv2d_backward(grad_out, x, self.kernel, stride=1, padding=0)
+        return grads.grad_input
+
+
+# ---- Cross entropy (captures labels) ----
+
+@fieldwise_init
+struct _CrossEntropyFwd(NumericalForward):
+    var labels: AnyTensor
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return cross_entropy(x, self.labels)
+
+@fieldwise_init
+struct _CrossEntropyBwd(NumericalBackward):
+    var labels: AnyTensor
+    def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        return cross_entropy_backward(grad_out, x, self.labels)
+
+
 def test_composite_relu_multiply() raises:
     """Test gradient through composite operation: multiply -> relu."""
     var shape = List[Int]()
@@ -32,17 +123,7 @@ def test_composite_relu_multiply() raises:
     var input_a = full(shape, 2.0, DType.float32)
     var input_b = full(shape, 3.0, DType.float32)
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        var mul_result = multiply(x, input_b)
-        return relu(mul_result)
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        var mul_result = multiply(x, input_b)
-        var grad_relu = relu_backward(grad_out, mul_result)
-        var grads = multiply_backward(grad_relu, x, input_b)
-        return grads.grad_a
-
-    var passed = check_gradients(forward, backward, input_a)
+    var passed = check_gradients(_CompositeReluMulFwd(input_b), _CompositeReluMulBwd(input_b), input_a)
     assert_true(passed, "Composite gradient check failed")
 
 
@@ -62,14 +143,7 @@ def test_linear_gradient_fp32() raises:
     bias_shape.append(3)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        return linear(x, weights, bias)
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        var grads = linear_backward(grad_out, x, weights)
-        return grads.grad_input
-
-    var passed = check_gradients(forward, backward,
+    var passed = check_gradients(_LinearFwd(weights, bias), _LinearBwd(weights),
         input, epsilon=1e-5, tolerance=3e-3
     )
     assert_true(passed, "Linear FP32 gradient check failed")
@@ -93,14 +167,7 @@ def test_linear_gradient_fp16() raises:
     bias_shape.append(3)
     var bias = config.cast_to_compute(zeros(bias_shape, DType.float32))
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        return linear(x, weights, bias)
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        var grads = linear_backward(grad_out, x, weights)
-        return grads.grad_input
-
-    var passed = check_gradients(forward, backward,
+    var passed = check_gradients(_LinearFwd(weights, bias), _LinearBwd(weights),
         input, epsilon=1e-2, tolerance=2e-1
     )
     assert_true(passed, "Linear FP16 gradient check failed")
@@ -126,14 +193,7 @@ def test_conv2d_gradient_fp32() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        return conv2d(x, kernel, bias, stride=1, padding=0)
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        var grads = conv2d_backward(grad_out, x, kernel, stride=1, padding=0)
-        return grads.grad_input
-
-    var passed = check_gradients(forward, backward,
+    var passed = check_gradients(_Conv2dNoPadFwd(kernel, bias, 1, 0), _Conv2dNoPadBwd(kernel, 1, 0),
         input, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "Conv2D FP32 gradient check failed")
@@ -160,17 +220,10 @@ def test_conv2d_grad_3x3_same_padding() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        return conv2d(x, kernel, bias, stride=1, padding=1)
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        var grads = conv2d_backward(grad_out, x, kernel, stride=1, padding=1)
-        return grads.grad_input
-
     # Looser tolerance for same-padding conv2d: boundary padding introduces
     # additional numerical error in finite-difference gradient estimation.
     # TODO: investigate proper numerical stability fix (see GitHub issue)
-    var passed = check_gradients(forward, backward,
+    var passed = check_gradients(_Conv2dNoPadFwd(kernel, bias, 1, 1), _Conv2dNoPadBwd(kernel, 1, 1),
         input, epsilon=1e-4, tolerance=5e-2
     )
     assert_true(passed, "Conv2D 3x3 same-padding gradient check failed")
@@ -196,14 +249,7 @@ def test_conv2d_grad_3x3_strided() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        return conv2d(x, kernel, bias, stride=2, padding=0)
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        var grads = conv2d_backward(grad_out, x, kernel, stride=2, padding=0)
-        return grads.grad_input
-
-    var passed = check_gradients(forward, backward,
+    var passed = check_gradients(_Conv2dNoPadFwd(kernel, bias, 2, 0), _Conv2dNoPadBwd(kernel, 2, 0),
         input, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "Conv2D 3x3 strided gradient check failed")
@@ -230,16 +276,9 @@ def test_conv2d_grad_multichannel() raises:
     bias_shape.append(3)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        return conv2d(x, kernel, bias, stride=1, padding=0)
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        var grads = conv2d_backward(grad_out, x, kernel, stride=1, padding=0)
-        return grads.grad_input
-
     # Multi-channel conv2d accumulates FP errors across channels.
     # TODO: investigate proper numerical stability fix (see GitHub issue)
-    var passed = check_gradients(forward, backward,
+    var passed = check_gradients(_Conv2dNoPadFwd(kernel, bias, 1, 0), _Conv2dNoPadBwd(kernel, 1, 0),
         input, epsilon=1e-4, tolerance=5e-2
     )
     assert_true(passed, "Conv2D multi-channel gradient check failed")
@@ -262,13 +301,7 @@ def test_cross_entropy_gradient_fp32() raises:
     var labels = zeros(labels_shape, DType.float32)
     labels._set_float64(0, 1.0)
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        return cross_entropy(x, labels)
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        return cross_entropy_backward(grad_out, x, labels)
-
-    var passed = check_gradients(forward, backward,
+    var passed = check_gradients(_CrossEntropyFwd(labels), _CrossEntropyBwd(labels),
         logits, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "CrossEntropy FP32 gradient check failed")
@@ -305,18 +338,9 @@ def test_conv2d_gradient_fp16() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        var result = conv2d(x, kernel, bias, stride=1, padding=0)
-        # Conv computes in FP32 for numerical stability
-        return result^
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        var grads = conv2d_backward(grad_out, x, kernel, stride=1, padding=0)
-        return grads.grad_input
-
     # This tests FP32 compute with the understanding that mixed-precision
     # training keeps conv operations in FP32 for stability
-    var passed = check_gradients(forward, backward,
+    var passed = check_gradients(_Conv2dFp16Fwd(kernel, bias), _Conv2dFp16Bwd(kernel),
         input, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "Conv2D FP16 gradient check failed")
@@ -350,14 +374,8 @@ def test_cross_entropy_gradient_fp16() raises:
     labels_fp32._set_float64(0, 1.0)  # Sample 0: class 0
     var labels = config.cast_to_compute(labels_fp32)
 
-    def forward(x: AnyTensor) raises -> AnyTensor:
-        return cross_entropy(x, labels)
-
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        return cross_entropy_backward(grad_out, x, labels)
-
     # FP16 with relaxed tolerance for exp/log operations
-    var passed = check_gradients(forward, backward,
+    var passed = check_gradients(_CrossEntropyFwd(labels), _CrossEntropyBwd(labels),
         logits, epsilon=1e-2, tolerance=2e-1
     )
     assert_true(passed, "CrossEntropy FP16 gradient check failed")
