@@ -30,7 +30,7 @@ from shared.core.dropout import (
     dropout_backward,
     dropout2d_backward,
 )
-from shared.testing import check_gradient
+from shared.testing import check_gradient, NumericalForward, NumericalBackward
 
 
 def test_dropout_shapes() raises:
@@ -211,6 +211,30 @@ def test_dropout_backward_gradient_flow() raises:
             assert_almost_equal(grad_val, Float32(0.0), tolerance=1e-5)
 
 
+@fieldwise_init
+struct _DropoutFwd(NumericalForward):
+    var mask: AnyTensor
+    var p: Float32
+
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        from shared.core.arithmetic import multiply
+        from shared.tensor.any_tensor import full_like
+
+        var masked = multiply(x, self.mask)
+        var scale = 1.0 / (1.0 - self.p)
+        var scale_tensor = full_like(x, scale)
+        return multiply(masked, scale_tensor)
+
+
+@fieldwise_init
+struct _DropoutBwd(NumericalBackward):
+    var mask: AnyTensor
+    var p: Float32
+
+    def __call__(self, grad: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        return dropout_backward(grad, self.mask, p=self.p)
+
+
 def test_dropout_backward_gradient() raises:
     """Test dropout_backward with numerical gradient checking."""
     var shape = List[Int]()
@@ -233,26 +257,9 @@ def test_dropout_backward_gradient() raises:
     var grad_out = ones_like(output)
     var p = 0.3
 
-    # Forward function wrapper - manually apply the SAME mask
-    # This makes the function deterministic for gradient checking
-    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
-        # Apply the same mask that was generated initially
-        from shared.core.arithmetic import multiply
-        from shared.tensor.any_tensor import full_like
-
-        var masked = multiply(x, mask)
-        var scale = 1.0 / (1.0 - p)
-        var scale_tensor = full_like(x, scale)
-        return multiply(masked, scale_tensor)
-
-    # Backward function wrapper - use the same stored mask
-    def backward(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
-        # Use the mask from forward pass to ensure consistency
-        return dropout_backward(grad, mask, p=p)
-
     # Use numerical gradient checking (gold standard)
     # Note: Using relaxed tolerances due to Float32 precision limits
-    check_gradient(forward, backward, x, grad_out, rtol=2e-3, atol=1e-5)
+    check_gradient(_DropoutFwd(mask, p), _DropoutBwd(mask, p), x, grad_out, rtol=2e-3, atol=1e-5)
 
 
 def test_dropout2d_shapes() raises:
