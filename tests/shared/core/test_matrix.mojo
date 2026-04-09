@@ -51,7 +51,55 @@ from shared.testing import (
     check_gradient,
     compute_numerical_gradient,
     assert_gradients_close,
+    NumericalForward,
+    NumericalBackward,
 )
+
+
+@fieldwise_init
+struct _MatmulAFwd(NumericalForward):
+    var b: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return matmul(inp, self.b)
+
+
+@fieldwise_init
+struct _MatmulABwd(NumericalBackward):
+    var b: AnyTensor
+
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        var grads = matmul_backward(grad_out, inp, self.b)
+        return grads.grad_a
+
+
+@fieldwise_init
+struct _MatmulBFwd(NumericalForward):
+    var a: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return matmul(self.a, inp)
+
+
+@fieldwise_init
+struct _MatmulBBwd(NumericalBackward):
+    var a: AnyTensor
+
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        var grads = matmul_backward(grad_out, self.a, inp)
+        return grads.grad_b
+
+
+@fieldwise_init
+struct _TransposeFwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return transpose(inp)
+
+
+@fieldwise_init
+struct _TransposeBwd(NumericalBackward):
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return transpose_backward(grad_out)
 
 
 def test_matmul_shapes() raises:
@@ -378,21 +426,12 @@ def test_matmul_backward_gradient_a() raises:
     for i in range(k * n):
         b.set(i, Float32(Float32(i) * 0.2 + 0.1))
 
-    # Forward function wrapper
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return matmul(inp, b)
-
-    # Backward function wrapper for grad_a
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = matmul_backward(grad_out, inp, b)
-        return grads.grad_a
-
-    var output = forward(a)
+    var output = _MatmulAFwd(b)(a)
     var grad_output = ones_like(output)
 
     # Numerical gradient checking
     # Note: atol=1e-3 for robustness against numerical noise in small gradients
-    check_gradient(forward, backward, a, grad_output, rtol=1e-3, atol=1e-3)
+    check_gradient(_MatmulAFwd(b), _MatmulABwd(b), a, grad_output, rtol=1e-3, atol=1e-3)
 
 
 def test_matmul_backward_gradient_b() raises:
@@ -425,21 +464,12 @@ def test_matmul_backward_gradient_b() raises:
     for i in range(k * n):
         b.set(i, Float32(Float32(i) * 0.2 + 0.1))
 
-    # Forward function wrapper
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return matmul(a, inp)
-
-    # Backward function wrapper for grad_b
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = matmul_backward(grad_out, a, inp)
-        return grads.grad_b
-
-    var output = forward(b)
+    var output = _MatmulBFwd(a)(b)
     var grad_output = ones_like(output)
 
     # Numerical gradient checking
     # Note: atol=1e-3 for robustness against numerical noise in small gradients
-    check_gradient(forward, backward, b, grad_output, rtol=1e-3, atol=1e-3)
+    check_gradient(_MatmulBFwd(a), _MatmulBBwd(a), b, grad_output, rtol=1e-3, atol=1e-3)
 
 
 def test_matmul_matrix_vector() raises:
@@ -791,19 +821,11 @@ def test_transpose_backward_gradient() raises:
     for i in range(m * n):
         x.set(i, Float32(Float32(i) * 0.15 - 2.0))
 
-    # Forward function wrapper
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return transpose(inp)
-
-    # Backward function wrapper
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return transpose_backward(grad_out)
-
-    var output = forward(x)
+    var output = _TransposeFwd()(x)
     var grad_output = ones_like(output)
 
     # Numerical gradient checking
-    check_gradient(forward, backward, x, grad_output, rtol=1e-3, atol=1e-6)
+    check_gradient(_TransposeFwd(), _TransposeBwd(), x, grad_output, rtol=1e-3, atol=1e-6)
 
 
 def test_transpose_combination_at_b() raises:

@@ -48,8 +48,116 @@ from shared.core.elementwise import (
     sin_backward,
     cos_backward,
 )
-from shared.testing import check_gradient
+from shared.testing import check_gradient, NumericalForward, NumericalBackward
 from std.math import sqrt as math_sqrt, pi
+
+
+@fieldwise_init
+struct _AbsFwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return abs(inp)
+
+
+@fieldwise_init
+struct _AbsBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return abs_backward(grad, inp)
+
+
+@fieldwise_init
+struct _ExpFwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return exp(inp)
+
+
+@fieldwise_init
+struct _ExpBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return exp_backward(grad, inp)
+
+
+@fieldwise_init
+struct _LogFwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return log(inp)
+
+
+@fieldwise_init
+struct _LogBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return log_backward(grad, inp)
+
+
+@fieldwise_init
+struct _Log10Fwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return log10(inp)
+
+
+@fieldwise_init
+struct _Log10Bwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return log10_backward(grad, inp)
+
+
+@fieldwise_init
+struct _Log2Fwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return log2(inp)
+
+
+@fieldwise_init
+struct _Log2Bwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return log2_backward(grad, inp)
+
+
+@fieldwise_init
+struct _SqrtFwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return sqrt(inp)
+
+
+@fieldwise_init
+struct _SqrtBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return sqrt_backward(grad, inp)
+
+
+@fieldwise_init
+struct _SinFwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return sin(inp)
+
+
+@fieldwise_init
+struct _SinBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return sin_backward(grad, inp)
+
+
+@fieldwise_init
+struct _CosFwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return cos(inp)
+
+
+@fieldwise_init
+struct _CosBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return cos_backward(grad, inp)
+
+
+@fieldwise_init
+struct _ClipFwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return clip(inp, min_val=-1.0, max_val=1.0)
+
+
+@fieldwise_init
+struct _ClipBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return clip_backward(grad, inp, min_val=-1.0, max_val=1.0)
 
 
 def test_abs_shapes() raises:
@@ -132,19 +240,11 @@ def test_abs_backward_gradient() raises:
     x.set(1, Float32(0.2))
     x.set(2, Float32(1.5))
 
-    # Forward function wrapper
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return abs(inp)
-
     var y = abs(x)
     var grad_out = ones_like(y)
 
-    # Backward function wrapper
-    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return abs_backward(grad, inp)
-
     # Use numerical gradient checking (gold standard)
-    check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(_AbsFwd(), _AbsBwd(), x, grad_out, rtol=1e-3, atol=1e-6)
 
 
 def test_sign_values() raises:
@@ -295,19 +395,11 @@ def test_exp_backward_gradient() raises:
     x.set(1, Float32(0.0))
     x.set(2, Float32(0.5))
 
-    # Forward function wrapper
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return exp(inp)
-
     var y = exp(x)
     var grad_out = ones_like(y)
 
-    # Backward function wrapper
-    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return exp_backward(grad, inp)
-
     # Use numerical gradient checking (gold standard)
-    check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(_ExpFwd(), _ExpBwd(), x, grad_out, rtol=1e-3, atol=1e-6)
 
 
 def test_log_shapes() raises:
@@ -379,19 +471,11 @@ def test_log_backward_gradient() raises:
     x.set(1, Float32(1.0))
     x.set(2, Float32(2.0))
 
-    # Forward function wrapper
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return log(inp)
-
     var y = log(x)
     var grad_out = ones_like(y)
 
-    # Backward function wrapper
-    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return log_backward(grad, inp)
-
     # Use numerical gradient checking (gold standard)
-    check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(_LogFwd(), _LogBwd(), x, grad_out, rtol=1e-3, atol=1e-6)
 
 
 def test_log10_values() raises:
@@ -429,19 +513,11 @@ def test_log10_backward_gradient() raises:
     x.set(1, Float32(1.0))
     x.set(2, Float32(2.0))
 
-    # Forward function wrapper
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return log10(inp)
-
     var y = log10(x)
     var grad_out = ones_like(y)
 
-    # Backward function wrapper
-    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return log10_backward(grad, inp)
-
     # Use numerical gradient checking (gold standard)
-    check_gradient(forward, backward_fn, x, grad_out, rtol=5e-3, atol=1e-5)
+    check_gradient(_Log10Fwd(), _Log10Bwd(), x, grad_out, rtol=5e-3, atol=1e-5)
 
 
 def test_log2_values() raises:
@@ -479,19 +555,11 @@ def test_log2_backward_gradient() raises:
     x.set(1, Float32(1.0))
     x.set(2, Float32(2.0))
 
-    # Forward function wrapper
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return log2(inp)
-
     var y = log2(x)
     var grad_out = ones_like(y)
 
-    # Backward function wrapper
-    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return log2_backward(grad, inp)
-
     # Use numerical gradient checking (gold standard)
-    check_gradient(forward, backward_fn, x, grad_out, rtol=5e-3, atol=1e-5)
+    check_gradient(_Log2Fwd(), _Log2Bwd(), x, grad_out, rtol=5e-3, atol=1e-5)
 
 
 def test_sqrt_shapes() raises:
@@ -568,19 +636,11 @@ def test_sqrt_backward_gradient() raises:
     x.set(1, Float32(1.0))
     x.set(2, Float32(2.0))
 
-    # Forward function wrapper
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return sqrt(inp)
-
     var y = sqrt(x)
     var grad_out = ones_like(y)
 
-    # Backward function wrapper
-    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return sqrt_backward(grad, inp)
-
     # Use numerical gradient checking (gold standard)
-    check_gradient(forward, backward_fn, x, grad_out, rtol=5e-3, atol=1e-5)
+    check_gradient(_SqrtFwd(), _SqrtBwd(), x, grad_out, rtol=5e-3, atol=1e-5)
 
 
 def test_sin_values() raises:
@@ -668,19 +728,11 @@ def test_sin_backward_gradient() raises:
     x.set(1, Float32(0.0))
     x.set(2, Float32(0.5))
 
-    # Forward function wrapper
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return sin(inp)
-
     var y = sin(x)
     var grad_out = ones_like(y)
 
-    # Backward function wrapper
-    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return sin_backward(grad, inp)
-
     # Use numerical gradient checking (gold standard)
-    check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(_SinFwd(), _SinBwd(), x, grad_out, rtol=1e-3, atol=1e-6)
 
 
 def test_cos_backward() raises:
@@ -720,19 +772,11 @@ def test_cos_backward_gradient() raises:
     x.set(1, Float32(0.0))
     x.set(2, Float32(0.5))
 
-    # Forward function wrapper
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return cos(inp)
-
     var y = cos(x)
     var grad_out = ones_like(y)
 
-    # Backward function wrapper
-    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return cos_backward(grad, inp)
-
     # Use numerical gradient checking (gold standard)
-    check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(_CosFwd(), _CosBwd(), x, grad_out, rtol=1e-3, atol=1e-6)
 
 
 def test_clip_shapes() raises:
@@ -824,19 +868,11 @@ def test_clip_backward_gradient() raises:
     x.set(1, Float32(0.0))
     x.set(2, Float32(0.5))
 
-    # Forward function wrapper
-    def forward(inp: AnyTensor) raises -> AnyTensor:
-        return clip(inp, min_val=-1.0, max_val=1.0)
-
     var y = clip(x, min_val=-1.0, max_val=1.0)
     var grad_out = ones_like(y)
 
-    # Backward function wrapper
-    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return clip_backward(grad, inp, min_val=-1.0, max_val=1.0)
-
     # Use numerical gradient checking (gold standard)
-    check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(_ClipFwd(), _ClipBwd(), x, grad_out, rtol=1e-3, atol=1e-6)
 
 
 def test_ceil_values() raises:

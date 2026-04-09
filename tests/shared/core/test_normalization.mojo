@@ -27,7 +27,104 @@ from tests.shared.conftest import TestFixtures
 from shared.testing import (
     compute_numerical_gradient,
     assert_gradients_close,
+    NumericalForward,
 )
+
+
+@fieldwise_init
+struct _BNormInputFwd(NumericalForward):
+    var training: Bool
+    var gamma: AnyTensor
+    var beta: AnyTensor
+    var running_mean: AnyTensor
+    var running_var: AnyTensor
+    var grad_output: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        var res = batch_norm2d(
+            inp,
+            self.gamma,
+            self.beta,
+            self.running_mean,
+            self.running_var,
+            training=self.training,
+            epsilon=1e-5,
+        )
+        var out = res[0]
+        var weighted = multiply(out, self.grad_output)
+        var result = weighted
+        while result.dim() > 0:
+            result = reduce_sum(result, axis=0, keepdims=False)
+        return result
+
+
+@fieldwise_init
+struct _BNormGammaFwd(NumericalForward):
+    var training: Bool
+    var x: AnyTensor
+    var beta: AnyTensor
+    var running_mean: AnyTensor
+    var running_var: AnyTensor
+    var grad_output: AnyTensor
+
+    def __call__(self, g: AnyTensor) raises -> AnyTensor:
+        var res = batch_norm2d(
+            self.x,
+            g,
+            self.beta,
+            self.running_mean,
+            self.running_var,
+            training=self.training,
+            epsilon=1e-5,
+        )
+        var out = res[0]
+        var weighted = multiply(out, self.grad_output)
+        var result = weighted
+        while result.dim() > 0:
+            result = reduce_sum(result, axis=0, keepdims=False)
+        return result
+
+
+@fieldwise_init
+struct _BNormBetaFwd(NumericalForward):
+    var training: Bool
+    var x: AnyTensor
+    var gamma: AnyTensor
+    var running_mean: AnyTensor
+    var running_var: AnyTensor
+    var grad_output: AnyTensor
+
+    def __call__(self, b: AnyTensor) raises -> AnyTensor:
+        var res = batch_norm2d(
+            self.x,
+            self.gamma,
+            b,
+            self.running_mean,
+            self.running_var,
+            training=self.training,
+            epsilon=1e-5,
+        )
+        var out = res[0]
+        var weighted = multiply(out, self.grad_output)
+        var result = weighted
+        while result.dim() > 0:
+            result = reduce_sum(result, axis=0, keepdims=False)
+        return result
+
+
+@fieldwise_init
+struct _LayerNormInputFwd(NumericalForward):
+    var gamma: AnyTensor
+    var beta: AnyTensor
+    var grad_output: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        var out = layer_norm(inp, self.gamma, self.beta, epsilon=1e-5)
+        var weighted = multiply(out, self.grad_output)
+        var result_inner = weighted
+        while result_inner.dim() > 0:
+            result_inner = reduce_sum(result_inner, axis=0, keepdims=False)
+        return result_inner
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.normalization import (
     batch_norm2d,
@@ -115,25 +212,10 @@ def _check_grad_input_batch_size(batch_size: Int) raises:
             )
     else:
         # Standard gradient check for batch_size=2 and batch_size=4.
-        def forward_for_grad(inp: AnyTensor) raises unified {read} -> AnyTensor:
-            var res = batch_norm2d(
-                inp,
-                gamma,
-                beta,
-                running_mean,
-                running_var,
-                training=True,
-                epsilon=1e-5,
-            )
-            var out = res[0]
-            var weighted = multiply(out, grad_output)
-            var result = weighted
-            while result.dim() > 0:
-                result = reduce_sum(result, axis=0, keepdims=False)
-            return result
-
         var numerical_grad = compute_numerical_gradient(
-            forward_for_grad, x, epsilon=1e-3
+            _BNormInputFwd(True, gamma, beta, running_mean, running_var, grad_output),
+            x,
+            epsilon=1e-3,
         )
 
         assert_gradients_close(
@@ -203,19 +285,10 @@ def _check_grad_gamma_batch_size(batch_size: Int) raises:
             )
     else:
         # Standard gradient check: perturb gamma.
-        def forward_for_gamma(g: AnyTensor) raises unified {read} -> AnyTensor:
-            var res = batch_norm2d(
-                x, g, beta, running_mean, running_var, training=True, epsilon=1e-5
-            )
-            var out = res[0]
-            var weighted = multiply(out, grad_output)
-            var result = weighted
-            while result.dim() > 0:
-                result = reduce_sum(result, axis=0, keepdims=False)
-            return result
-
         var numerical_grad_gamma = compute_numerical_gradient(
-            forward_for_gamma, gamma, epsilon=1e-3
+            _BNormGammaFwd(True, x, beta, running_mean, running_var, grad_output),
+            gamma,
+            epsilon=1e-3,
         )
 
         assert_gradients_close(
@@ -288,19 +361,10 @@ def _check_grad_beta_batch_size(batch_size: Int) raises:
             )
     else:
         # Standard gradient check: perturb beta.
-        def forward_for_beta(b: AnyTensor) raises unified {read} -> AnyTensor:
-            var res = batch_norm2d(
-                x, gamma, b, running_mean, running_var, training=True, epsilon=1e-5
-            )
-            var out = res[0]
-            var weighted = multiply(out, grad_output)
-            var result = weighted
-            while result.dim() > 0:
-                result = reduce_sum(result, axis=0, keepdims=False)
-            return result
-
         var numerical_grad_beta = compute_numerical_gradient(
-            forward_for_beta, beta, epsilon=1e-3
+            _BNormBetaFwd(True, x, gamma, running_mean, running_var, grad_output),
+            beta,
+            epsilon=1e-3,
         )
 
         assert_gradients_close(
@@ -604,29 +668,12 @@ def test_batch_norm2d_backward_gradient_input() raises:
     var grad_input = result7[0]
 
     # Numerical gradient via finite differences.
-    # forward_for_grad computes weighted sum: sum(output * grad_output)
+    # forward computes weighted sum: sum(output * grad_output)
     # so the numerical gradient matches what the backward should compute.
-    def forward_for_grad(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var result_nested = batch_norm2d(
-            inp,
-            gamma,
-            beta,
-            running_mean,
-            running_var,
-            training=True,
-            epsilon=1e-5,
-        )
-        var out = result_nested[0]
-        # Compute weighted sum: sum(output * grad_output)
-        # This matches the backward with our non-uniform grad_output
-        var weighted = multiply(out, grad_output)
-        var result = weighted
-        while result.dim() > 0:
-            result = reduce_sum(result, axis=0, keepdims=False)
-        return result
-
     var numerical_grad = compute_numerical_gradient(
-        forward_for_grad, x, epsilon=1e-3
+        _BNormInputFwd(True, gamma, beta, running_mean, running_var, grad_output),
+        x,
+        epsilon=1e-3,
     )
 
     # Validate analytical gradient matches numerical gradient
@@ -712,27 +759,11 @@ def test_batch_norm2d_backward_gradient_input_inference_mode() raises:
     )
     var grad_input = result_bwd[0]
 
-    # Numerical gradient: closure uses training=False with fixed running stats
-    def forward_for_grad_infer(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var res = batch_norm2d(
-            inp,
-            gamma,
-            beta,
-            running_mean,
-            running_var,
-            training=False,
-            epsilon=1e-5,
-        )
-        var out = res[0]
-        # Weighted sum matching our grad_output=ones backward
-        var weighted = multiply(out, grad_output)
-        var result = weighted
-        while result.dim() > 0:
-            result = reduce_sum(result, axis=0, keepdims=False)
-        return result
-
+    # Numerical gradient: uses training=False with fixed running stats
     var numerical_grad = compute_numerical_gradient(
-        forward_for_grad_infer, x, epsilon=3e-4
+        _BNormInputFwd(False, gamma, beta, running_mean, running_var, grad_output),
+        x,
+        epsilon=3e-4,
     )
 
     # Inference mode gradient is a simple linear rescaling; tolerances can be tight
@@ -801,21 +832,12 @@ def test_batch_norm2d_backward_gradient_gamma() raises:
     var grad_gamma_analytical = result_bwd[1]
 
     # Numerical gradient: perturb gamma
-    # The forward closure computes: sum(batch_norm2d(x, g, ...) * grad_output)
+    # The forward computes: sum(batch_norm2d(x, g, ...) * grad_output)
     # so the numerical gradient matches what batch_norm2d_backward should produce.
-    def forward_for_gamma(g: AnyTensor) raises unified {read} -> AnyTensor:
-        var res = batch_norm2d(
-            x, g, beta, running_mean, running_var, training=True, epsilon=1e-5
-        )
-        var out = res[0]
-        var weighted = multiply(out, grad_output)
-        var result = weighted
-        while result.dim() > 0:
-            result = reduce_sum(result, axis=0, keepdims=False)
-        return result
-
     var numerical_grad_gamma = compute_numerical_gradient(
-        forward_for_gamma, gamma, epsilon=1e-3
+        _BNormGammaFwd(True, x, beta, running_mean, running_var, grad_output),
+        gamma,
+        epsilon=1e-3,
     )
 
     assert_gradients_close(
@@ -882,19 +904,10 @@ def test_batch_norm2d_backward_gradient_beta() raises:
     var grad_beta_analytical = result_bwd[2]
 
     # Numerical gradient: perturb beta
-    def forward_for_beta(b: AnyTensor) raises unified {read} -> AnyTensor:
-        var res = batch_norm2d(
-            x, gamma, b, running_mean, running_var, training=True, epsilon=1e-5
-        )
-        var out = res[0]
-        var weighted = multiply(out, grad_output)
-        var result = weighted
-        while result.dim() > 0:
-            result = reduce_sum(result, axis=0, keepdims=False)
-        return result
-
     var numerical_grad_beta = compute_numerical_gradient(
-        forward_for_beta, beta, epsilon=1e-3
+        _BNormBetaFwd(True, x, gamma, running_mean, running_var, grad_output),
+        beta,
+        epsilon=1e-3,
     )
 
     assert_gradients_close(
@@ -1351,17 +1364,8 @@ def test_layer_norm_backward_gradient_input() raises:
     # Numerical gradient via finite differences.
     # The scalar loss is sum(layer_norm(x) * grad_output), so the numerical
     # gradient matches what layer_norm_backward(grad_output, x, gamma) computes.
-    def forward_for_grad(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var out = layer_norm(inp, gamma, beta, epsilon=1e-5)
-        # Weighted sum: sum(out * grad_output) matches backward with non-uniform grad_output
-        var weighted = multiply(out, grad_output)
-        var result_inner = weighted
-        while result_inner.dim() > 0:
-            result_inner = reduce_sum(result_inner, axis=0, keepdims=False)
-        return result_inner
-
     var numerical_grad = compute_numerical_gradient(
-        forward_for_grad, x, epsilon=1e-4
+        _LayerNormInputFwd(gamma, beta, grad_output), x, epsilon=1e-4
     )
 
     # Validate analytical gradient matches numerical gradient
@@ -1464,17 +1468,8 @@ def test_layer_norm_backward_gradient_input_4d() raises:
     # Numerical gradient via finite differences.
     # The scalar loss is sum(layer_norm(x) * grad_output), so the numerical
     # gradient matches what layer_norm_backward(grad_output, x, gamma) computes.
-    def forward_for_grad_4d(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var out = layer_norm(inp, gamma, beta, epsilon=1e-5)
-        # Weighted sum: sum(out * grad_output) matches backward with non-uniform grad_output
-        var weighted = multiply(out, grad_output)
-        var result_inner = weighted
-        while result_inner.dim() > 0:
-            result_inner = reduce_sum(result_inner, axis=0, keepdims=False)
-        return result_inner
-
     var numerical_grad = compute_numerical_gradient(
-        forward_for_grad_4d, x, epsilon=1e-4
+        _LayerNormInputFwd(gamma, beta, grad_output), x, epsilon=1e-4
     )
 
     # Validate analytical gradient matches numerical gradient
@@ -1631,19 +1626,10 @@ def test_batch_norm2d_backward_gradient_gamma_inference_mode() raises:
     var grad_gamma_analytical = result_bwd[1]
 
     # Numerical gradient: perturb gamma in inference mode
-    def forward_for_gamma_infer(g: AnyTensor) raises unified {read} -> AnyTensor:
-        var res = batch_norm2d(
-            x, g, beta, running_mean, running_var, training=False, epsilon=1e-5
-        )
-        var out = res[0]
-        var weighted = multiply(out, grad_output)
-        var result = weighted
-        while result.dim() > 0:
-            result = reduce_sum(result, axis=0, keepdims=False)
-        return result
-
     var numerical_grad_gamma = compute_numerical_gradient(
-        forward_for_gamma_infer, gamma, epsilon=1e-3
+        _BNormGammaFwd(False, x, beta, running_mean, running_var, grad_output),
+        gamma,
+        epsilon=1e-3,
     )
 
     assert_gradients_close(
@@ -1715,19 +1701,10 @@ def test_batch_norm2d_backward_gradient_beta_inference_mode() raises:
     var grad_beta_analytical = result_bwd[2]
 
     # Numerical gradient: perturb beta in inference mode
-    def forward_for_beta_infer(b: AnyTensor) raises unified {read} -> AnyTensor:
-        var res = batch_norm2d(
-            x, gamma, b, running_mean, running_var, training=False, epsilon=1e-5
-        )
-        var out = res[0]
-        var weighted = multiply(out, grad_output)
-        var result = weighted
-        while result.dim() > 0:
-            result = reduce_sum(result, axis=0, keepdims=False)
-        return result
-
     var numerical_grad_beta = compute_numerical_gradient(
-        forward_for_beta_infer, beta, epsilon=1e-3
+        _BNormBetaFwd(False, x, gamma, running_mean, running_var, grad_output),
+        beta,
+        epsilon=1e-3,
     )
 
     assert_gradients_close(

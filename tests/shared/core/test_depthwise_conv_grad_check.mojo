@@ -12,7 +12,51 @@ from tests.shared.conftest import (
 )
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.conv import depthwise_conv2d, depthwise_conv2d_backward
-from shared.testing import check_gradient
+from shared.testing import check_gradient, NumericalForward, NumericalBackward
+
+
+@fieldwise_init
+struct _DepthwiseInputFwd(NumericalForward):
+    var kernel: AnyTensor
+    var bias: AnyTensor
+    var stride: Int
+    var padding: Int
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return depthwise_conv2d(inp, self.kernel, self.bias, stride=self.stride, padding=self.padding)
+
+
+@fieldwise_init
+struct _DepthwiseInputBwd(NumericalBackward):
+    var kernel: AnyTensor
+    var stride: Int
+    var padding: Int
+
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        var grads = depthwise_conv2d_backward(grad_out, inp, self.kernel, stride=self.stride, padding=self.padding)
+        return grads.grad_input
+
+
+@fieldwise_init
+struct _DepthwiseWeightsFwd(NumericalForward):
+    var x: AnyTensor
+    var bias: AnyTensor
+    var stride: Int
+    var padding: Int
+
+    def __call__(self, k: AnyTensor) raises -> AnyTensor:
+        return depthwise_conv2d(self.x, k, self.bias, stride=self.stride, padding=self.padding)
+
+
+@fieldwise_init
+struct _DepthwiseWeightsBwd(NumericalBackward):
+    var x: AnyTensor
+    var stride: Int
+    var padding: Int
+
+    def __call__(self, grad_out: AnyTensor, k: AnyTensor) raises -> AnyTensor:
+        var grads = depthwise_conv2d_backward(grad_out, self.x, k, stride=self.stride, padding=self.padding)
+        return grads.grad_weights
 
 
 def test_depthwise_conv2d_backward_shapes() raises:
@@ -91,19 +135,12 @@ def test_depthwise_conv2d_backward_stride1_padding0_grad_input() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward_input(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return depthwise_conv2d(inp, kernel, bias, stride=1, padding=0)
-
-    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = depthwise_conv2d_backward(grad_out, inp, kernel, stride=1, padding=0)
-        return grads.grad_input
-
-    var output = forward_input(x)
+    var output = _DepthwiseInputFwd(kernel, bias, 1, 0)(x)
     var grad_output = zeros_like(output)
     for i in range(output.numel()):
         grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
-    check_gradient(forward_input, backward_input, x, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(_DepthwiseInputFwd(kernel, bias, 1, 0), _DepthwiseInputBwd(kernel, 1, 0), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_depthwise_conv2d_backward_stride2_grad_input() raises:
@@ -135,19 +172,12 @@ def test_depthwise_conv2d_backward_stride2_grad_input() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward_input(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return depthwise_conv2d(inp, kernel, bias, stride=2, padding=0)
-
-    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = depthwise_conv2d_backward(grad_out, inp, kernel, stride=2, padding=0)
-        return grads.grad_input
-
-    var output = forward_input(x)
+    var output = _DepthwiseInputFwd(kernel, bias, 2, 0)(x)
     var grad_output = zeros_like(output)
     for i in range(output.numel()):
         grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
-    check_gradient(forward_input, backward_input, x, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(_DepthwiseInputFwd(kernel, bias, 2, 0), _DepthwiseInputBwd(kernel, 2, 0), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_depthwise_conv2d_backward_padding1_grad_input() raises:
@@ -179,19 +209,12 @@ def test_depthwise_conv2d_backward_padding1_grad_input() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward_input(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return depthwise_conv2d(inp, kernel, bias, stride=1, padding=1)
-
-    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = depthwise_conv2d_backward(grad_out, inp, kernel, stride=1, padding=1)
-        return grads.grad_input
-
-    var output = forward_input(x)
+    var output = _DepthwiseInputFwd(kernel, bias, 1, 1)(x)
     var grad_output = zeros_like(output)
     for i in range(output.numel()):
         grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
-    check_gradient(forward_input, backward_input, x, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(_DepthwiseInputFwd(kernel, bias, 1, 1), _DepthwiseInputBwd(kernel, 1, 1), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_depthwise_conv2d_backward_multichannel_grad_input() raises:
@@ -224,19 +247,12 @@ def test_depthwise_conv2d_backward_multichannel_grad_input() raises:
     bias_shape.append(channels)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward_input(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return depthwise_conv2d(inp, kernel, bias, stride=1, padding=0)
-
-    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = depthwise_conv2d_backward(grad_out, inp, kernel, stride=1, padding=0)
-        return grads.grad_input
-
-    var output = forward_input(x)
+    var output = _DepthwiseInputFwd(kernel, bias, 1, 0)(x)
     var grad_output = zeros_like(output)
     for i in range(output.numel()):
         grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
-    check_gradient(forward_input, backward_input, x, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(_DepthwiseInputFwd(kernel, bias, 1, 0), _DepthwiseInputBwd(kernel, 1, 0), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_depthwise_conv2d_backward_grad_weights_numerical() raises:
@@ -269,19 +285,12 @@ def test_depthwise_conv2d_backward_grad_weights_numerical() raises:
     var bias = zeros(bias_shape, DType.float32)
 
     # Perturb kernel, hold x fixed
-    def forward_weights(k: AnyTensor) raises unified {read} -> AnyTensor:
-        return depthwise_conv2d(x, k, bias, stride=1, padding=0)
-
-    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = depthwise_conv2d_backward(grad_out, x, k, stride=1, padding=0)
-        return grads.grad_weights
-
-    var output = forward_weights(kernel)
+    var output = _DepthwiseWeightsFwd(x, bias, 1, 0)(kernel)
     var grad_output = zeros_like(output)
     for i in range(output.numel()):
         grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
-    check_gradient(forward_weights, backward_weights, kernel, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(_DepthwiseWeightsFwd(x, bias, 1, 0), _DepthwiseWeightsBwd(x, 1, 0), kernel, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_depthwise_conv2d_backward_grad_bias_value() raises:
@@ -367,19 +376,12 @@ def test_depthwise_conv2d_backward_grad_weights_multichannel() raises:
     bias_shape.append(channels)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward_weights(k: AnyTensor) raises unified {read} -> AnyTensor:
-        return depthwise_conv2d(x, k, bias, stride=1, padding=0)
-
-    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = depthwise_conv2d_backward(grad_out, x, k, stride=1, padding=0)
-        return grads.grad_weights
-
-    var output = forward_weights(kernel)
+    var output = _DepthwiseWeightsFwd(x, bias, 1, 0)(kernel)
     var grad_output = zeros_like(output)
     for i in range(output.numel()):
         grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
-    check_gradient(forward_weights, backward_weights, kernel, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(_DepthwiseWeightsFwd(x, bias, 1, 0), _DepthwiseWeightsBwd(x, 1, 0), kernel, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_depthwise_conv2d_backward_full_gradient_pipeline() raises:
