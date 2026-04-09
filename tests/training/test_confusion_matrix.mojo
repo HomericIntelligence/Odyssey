@@ -18,7 +18,7 @@ from shared.tensor.any_tensor import AnyTensor
 from shared.training.metrics import ConfusionMatrix
 
 
-fn test_confusion_matrix_basic() raises:
+def test_confusion_matrix_basic() raises:
     """Test basic confusion matrix functionality."""
     print("Testing ConfusionMatrix basic...")
 
@@ -90,7 +90,7 @@ fn test_confusion_matrix_basic() raises:
     print("  ✓ ConfusionMatrix basic test passed")
 
 
-fn test_confusion_matrix_perfect() raises:
+def test_confusion_matrix_perfect() raises:
     """Test confusion matrix with perfect predictions."""
     print("Testing ConfusionMatrix perfect predictions...")
 
@@ -154,7 +154,7 @@ fn test_confusion_matrix_perfect() raises:
     print("  ✓ Perfect predictions test passed")
 
 
-fn test_confusion_matrix_normalize_row() raises:
+def test_confusion_matrix_normalize_row() raises:
     """Test row normalization (recall per class)."""
     print("Testing ConfusionMatrix row normalization...")
 
@@ -202,7 +202,7 @@ fn test_confusion_matrix_normalize_row() raises:
     print("  ✓ Row normalization test passed")
 
 
-fn test_confusion_matrix_normalize_column() raises:
+def test_confusion_matrix_normalize_column() raises:
     """Test column normalization (precision per class)."""
     print("Testing ConfusionMatrix column normalization...")
 
@@ -252,7 +252,7 @@ fn test_confusion_matrix_normalize_column() raises:
     print("  ✓ Column normalization test passed")
 
 
-fn test_confusion_matrix_normalize_total() raises:
+def test_confusion_matrix_normalize_total() raises:
     """Test total normalization (percentages)."""
     print("Testing ConfusionMatrix total normalization...")
 
@@ -292,7 +292,7 @@ fn test_confusion_matrix_normalize_total() raises:
     print("  ✓ Total normalization test passed")
 
 
-fn test_confusion_matrix_precision() raises:
+def test_confusion_matrix_precision() raises:
     """Test precision computation."""
     print("Testing ConfusionMatrix precision...")
 
@@ -343,7 +343,7 @@ fn test_confusion_matrix_precision() raises:
     print("  ✓ Precision test passed")
 
 
-fn test_confusion_matrix_recall() raises:
+def test_confusion_matrix_recall() raises:
     """Test recall computation."""
     print("Testing ConfusionMatrix recall...")
 
@@ -390,7 +390,7 @@ fn test_confusion_matrix_recall() raises:
     print("  ✓ Recall test passed")
 
 
-fn test_confusion_matrix_f1_score() raises:
+def test_confusion_matrix_f1_score() raises:
     """Test F1-score computation."""
     print("Testing ConfusionMatrix F1-score...")
 
@@ -434,7 +434,7 @@ fn test_confusion_matrix_f1_score() raises:
     print("  ✓ F1-score test passed")
 
 
-fn test_confusion_matrix_with_logits() raises:
+def test_confusion_matrix_with_logits() raises:
     """Test confusion matrix with logits (not class indices)."""
     print("Testing ConfusionMatrix with logits...")
 
@@ -494,7 +494,7 @@ fn test_confusion_matrix_with_logits() raises:
     print("  ✓ Logits test passed")
 
 
-fn test_confusion_matrix_reset() raises:
+def test_confusion_matrix_reset() raises:
     """Test resetting confusion matrix."""
     print("Testing ConfusionMatrix reset...")
 
@@ -529,7 +529,7 @@ fn test_confusion_matrix_reset() raises:
     print("  ✓ Reset test passed")
 
 
-fn test_confusion_matrix_empty() raises:
+def test_confusion_matrix_empty() raises:
     """Test confusion matrix with no data."""
     print("Testing ConfusionMatrix empty...")
 
@@ -559,7 +559,7 @@ fn test_confusion_matrix_empty() raises:
     print("  ✓ Empty matrix test passed")
 
 
-fn test_confusion_matrix_single_class() raises:
+def test_confusion_matrix_single_class() raises:
     """Test confusion matrix with all predictions in one class. Closes #3686."""
     print("Testing ConfusionMatrix single class predictions...")
 
@@ -589,7 +589,7 @@ fn test_confusion_matrix_single_class() raises:
     print("  ✓ Single class test passed")
 
 
-fn test_confusion_matrix_misclassification() raises:
+def test_confusion_matrix_misclassification() raises:
     """Test confusion matrix captures misclassifications correctly."""
     print("Testing ConfusionMatrix misclassification...")
 
@@ -638,7 +638,7 @@ fn test_confusion_matrix_misclassification() raises:
     print("  ✓ Misclassification test passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_confusion_matrix tests."""
     print("Running test_confusion_matrix tests...")
 

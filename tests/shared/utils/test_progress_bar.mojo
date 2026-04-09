@@ -17,13 +17,13 @@ from shared.utils.progress_bar import (
 )
 
 
-fn test_progress_bar_creation():
+def test_progress_bar_creation():
     """Test progress bar can be created."""
     var progress = ProgressBar(total=100, description="Test")
     _ = progress
 
 
-fn test_progress_bar_update():
+def test_progress_bar_update():
     """Test progress bar update increments current."""
     var progress = ProgressBar(total=100)
     progress.update()
@@ -32,14 +32,14 @@ fn test_progress_bar_update():
     # Should have incremented without error
 
 
-fn test_progress_bar_overflow():
+def test_progress_bar_overflow():
     """Test progress bar clamps to total."""
     var progress = ProgressBar(total=100)
     progress.update(150)
     # Should clamp to 100, not error
 
 
-fn test_progress_bar_set_total():
+def test_progress_bar_set_total():
     """Test updating total."""
     var progress = ProgressBar(total=100)
     progress.update(50)
@@ -47,7 +47,7 @@ fn test_progress_bar_set_total():
     # Should update without error
 
 
-fn test_progress_bar_reset():
+def test_progress_bar_reset():
     """Test reset clears progress."""
     var progress = ProgressBar(total=100)
     progress.update(50)
@@ -55,13 +55,13 @@ fn test_progress_bar_reset():
     # Should reset without error
 
 
-fn test_progress_bar_with_metrics_creation():
+def test_progress_bar_with_metrics_creation():
     """Test metrics progress bar can be created."""
     var progress = ProgressBarWithMetrics(total=100, description="Epoch 1")
     _ = progress
 
 
-fn test_progress_bar_with_metrics_set_metric():
+def test_progress_bar_with_metrics_set_metric():
     """Test setting a metric."""
     var progress = ProgressBarWithMetrics(total=100)
     progress.set_metric("loss", 0.342)
@@ -69,7 +69,7 @@ fn test_progress_bar_with_metrics_set_metric():
     # Should store metrics without error
 
 
-fn test_progress_bar_with_metrics_update():
+def test_progress_bar_with_metrics_update():
     """Test update with metrics."""
     var progress = ProgressBarWithMetrics(total=100)
     progress.set_metric("loss", 0.5)
@@ -77,7 +77,7 @@ fn test_progress_bar_with_metrics_update():
     # Should update with metrics without error
 
 
-fn test_progress_bar_with_metrics_clear():
+def test_progress_bar_with_metrics_clear():
     """Test clearing metrics."""
     var progress = ProgressBarWithMetrics(total=100)
     progress.set_metric("loss", 0.5)
@@ -85,7 +85,7 @@ fn test_progress_bar_with_metrics_clear():
     # Should clear without error
 
 
-fn test_progress_bar_with_metrics_reset():
+def test_progress_bar_with_metrics_reset():
     """Test reset clears metrics and progress."""
     var progress = ProgressBarWithMetrics(total=100)
     progress.set_metric("loss", 0.5)
@@ -94,13 +94,13 @@ fn test_progress_bar_with_metrics_reset():
     # Should reset without error
 
 
-fn test_progress_bar_with_eta_creation():
+def test_progress_bar_with_eta_creation():
     """Test ETA progress bar can be created."""
     var progress = ProgressBarWithETA(total=100)
     _ = progress
 
 
-fn test_progress_bar_with_eta_update():
+def test_progress_bar_with_eta_update():
     """Test ETA progress bar update."""
     var progress = ProgressBarWithETA(total=100)
     progress.update(25)
@@ -110,7 +110,7 @@ fn test_progress_bar_with_eta_update():
     # Should update without error
 
 
-fn test_progress_bar_with_eta_metrics():
+def test_progress_bar_with_eta_metrics():
     """Test ETA progress bar supports metrics."""
     var progress = ProgressBarWithETA(total=100)
     progress.set_metric("loss", 0.5)
@@ -119,7 +119,7 @@ fn test_progress_bar_with_eta_metrics():
     # Should work with metrics
 
 
-fn test_progress_bar_with_eta_reset():
+def test_progress_bar_with_eta_reset():
     """Test ETA progress bar reset."""
     var progress = ProgressBarWithETA(total=100)
     progress.update(50)
@@ -128,13 +128,13 @@ fn test_progress_bar_with_eta_reset():
     # Should reset without error
 
 
-fn test_factory_create_progress_bar():
+def test_factory_create_progress_bar():
     """Test factory for simple progress bar."""
     var progress = create_progress_bar(total=100, description="Test")
     _ = progress
 
 
-fn test_factory_create_progress_bar_with_metrics():
+def test_factory_create_progress_bar_with_metrics():
     """Test factory for metrics progress bar."""
     var progress = create_progress_bar_with_metrics(
         total=100, description="Test"
@@ -142,25 +142,25 @@ fn test_factory_create_progress_bar_with_metrics():
     _ = progress
 
 
-fn test_factory_create_progress_bar_with_eta():
+def test_factory_create_progress_bar_with_eta():
     """Test factory for ETA progress bar."""
     var progress = create_progress_bar_with_eta(total=100, description="Test")
     _ = progress
 
 
-fn test_format_duration():
+def test_format_duration():
     """Test format_duration produces output."""
     _ = format_duration(45.0)
     # Should produce non-empty string
 
 
-fn test_format_duration_long():
+def test_format_duration_long():
     """Test format_duration with longer duration."""
     _ = format_duration(3665.0)
     # Should produce non-empty string
 
 
-fn test_training_loop_simulation():
+def test_training_loop_simulation():
     """Test progress bar in simulated training loop."""
     var progress = ProgressBarWithMetrics(total=100, description="Training")
 
@@ -173,7 +173,7 @@ fn test_training_loop_simulation():
     # Should complete training loop without error
 
 
-fn test_eta_time_tracking():
+def test_eta_time_tracking():
     """Test ETA progress bar tracks time."""
     var progress = ProgressBarWithETA(total=10)
 
@@ -186,7 +186,7 @@ fn test_eta_time_tracking():
     # Should complete tracking without error
 
 
-fn test_rapid_updates():
+def test_rapid_updates():
     """Test progress bar handles rapid updates."""
     var progress = ProgressBar(total=1000)
 
@@ -198,7 +198,7 @@ fn test_rapid_updates():
     # Should complete rapid updates without error
 
 
-fn main() raises:
+def main() raises:
     """Run all test_progress_bar tests."""
     print("Running test_progress_bar tests...")
 

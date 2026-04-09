@@ -21,7 +21,7 @@ from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 # ============================================================================
 
 
-fn test_fast_path_shape_4d() raises:
+def test_fast_path_shape_4d() raises:
     """Fast-path: data[0:16, :, :, :] on [50, 3, 32, 32] gives shape [16, 3, 32, 32]."""
     var data = zeros([50, 3, 32, 32], DType.float32)
     var batch = data[0:16, :, :, :]
@@ -35,7 +35,7 @@ fn test_fast_path_shape_4d() raises:
     assert_equal(batch.numel(), 16 * 3 * 32 * 32)
 
 
-fn test_fast_path_values_3d() raises:
+def test_fast_path_values_3d() raises:
     """Fast-path: data[2:4, :, :] on [5, 3, 4] copies correct values."""
     # Create 5x3x4 tensor with sequential float32 values: [0, 1, 2, ..., 59]
     var t = arange(0.0, 60.0, 1.0, DType.float32)
@@ -59,7 +59,7 @@ fn test_fast_path_values_3d() raises:
     assert_almost_equal(Float64(data_ptr[23]), 47.0, Float64(1e-5))
 
 
-fn test_fast_path_matches_element_wise() raises:
+def test_fast_path_matches_element_wise() raises:
     """Fast-path result must be byte-for-byte identical to the slow-path result.
 
     Both paths are invoked on identical tensors; fast path uses memcpy, slow
@@ -87,7 +87,7 @@ fn test_fast_path_matches_element_wise() raises:
                 )
 
 
-fn test_slow_path_inner_dim_slice() raises:
+def test_slow_path_inner_dim_slice() raises:
     """Slow-path regression: data[:, 1:3, :] must still produce correct results."""
     # Create 4x4x3 tensor: values 0..47
     var t = arange(0.0, 48.0, 1.0, DType.float32)
@@ -112,7 +112,7 @@ fn test_slow_path_inner_dim_slice() raises:
     assert_almost_equal(Float64(data_ptr[5]), 8.0, Float64(1e-5))
 
 
-fn test_fast_path_dtype_float64() raises:
+def test_fast_path_dtype_float64() raises:
     """Fast-path works with float64 dtype (8-byte elements)."""
     # Create 4x3x2 float64 tensor: values 0.0 .. 23.0
     var t = arange(0.0, 24.0, 1.0, DType.float64)
@@ -132,7 +132,7 @@ fn test_fast_path_dtype_float64() raises:
     assert_almost_equal(Float64(data_ptr[11]), 11.0, Float64(1e-10))
 
 
-fn main() raises:
+def main() raises:
     """Run all fast-path optimization tests."""
     test_fast_path_shape_4d()
     test_fast_path_values_3d()

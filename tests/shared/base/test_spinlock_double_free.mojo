@@ -19,7 +19,7 @@ from testing import assert_true
 from shared.base.memory_pool import SpinLock
 
 
-fn test_spinlock_list_no_double_free() raises:
+def test_spinlock_list_no_double_free() raises:
     """SpinLock List reallocation must not produce double-free.
 
     Appending 5 items to a List forces capacity growth:
@@ -44,7 +44,7 @@ fn test_spinlock_list_no_double_free() raises:
     print("PASS: test_spinlock_list_no_double_free")
 
 
-fn test_spinlock_basic_lock_unlock() raises:
+def test_spinlock_basic_lock_unlock() raises:
     """SpinLock acquired once must be releasable."""
     var lk = SpinLock()
     lk.lock()
@@ -55,7 +55,7 @@ fn test_spinlock_basic_lock_unlock() raises:
     print("PASS: test_spinlock_basic_lock_unlock")
 
 
-fn main() raises:
+def main() raises:
     test_spinlock_list_no_double_free()
     test_spinlock_basic_lock_unlock()
     print("All test_spinlock_double_free tests passed!")

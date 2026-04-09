@@ -24,11 +24,11 @@ from shared.utils.serialization import (
     dtype_to_string,
 )
 from pathlib import Path
-from collections import List
+from std.collections import List
 import os
 
 
-fn test_dtype_utilities() raises:
+def test_dtype_utilities() raises:
     """Test dtype string conversion functions."""
     # Test parse_dtype
     var f32_dtype = parse_dtype("float32")
@@ -58,7 +58,7 @@ fn test_dtype_utilities() raises:
     assert_equal(size_int32, 4, "int32 should be 4 bytes")
 
 
-fn test_hex_encoding() raises:
+def test_hex_encoding() raises:
     """Test hex encoding/decoding."""
     # Test bytes_to_hex and hex_to_bytes roundtrip
     var shape: List[Int] = [4]
@@ -87,7 +87,7 @@ fn test_hex_encoding() raises:
         )
 
 
-fn test_single_tensor_serialization() raises:
+def test_single_tensor_serialization() raises:
     """Test saving and loading single tensor."""
     # Create test tensor
     var shape: List[Int] = [2, 3]
@@ -126,7 +126,7 @@ fn test_single_tensor_serialization() raises:
             os.remove(tmpfile)
 
 
-fn test_tensor_with_name() raises:
+def test_tensor_with_name() raises:
     """Test loading tensor with name preservation."""
     # Create test tensor
     var shape: List[Int] = [2, 2]
@@ -154,7 +154,7 @@ fn test_tensor_with_name() raises:
             os.remove(tmpfile)
 
 
-fn test_named_tensor_collection() raises:
+def test_named_tensor_collection() raises:
     """Test saving and loading NamedTensor collections."""
     # Create directory for test with proper permissions
     var tmpdir = _create_temp_dir("test_named_tensors_dir")
@@ -212,7 +212,7 @@ fn test_named_tensor_collection() raises:
         _cleanup_temp_dir(tmpdir)
 
 
-fn test_load_named_tensors_sorted_ordering() raises:
+def test_load_named_tensors_sorted_ordering() raises:
     """Test that load_named_tensors returns results in sorted order.
 
     Verifies alphabetical sorting is preserved across multiple files
@@ -286,7 +286,7 @@ fn test_load_named_tensors_sorted_ordering() raises:
         _cleanup_temp_dir(tmpdir)
 
 
-fn test_different_dtypes() raises:
+def test_different_dtypes() raises:
     """Test serialization with different data types."""
     # Create temp directory with proper permissions
     var tmpdir = _create_temp_dir("test_dtype_serialization")
@@ -329,7 +329,7 @@ fn test_different_dtypes() raises:
 # ============================================================================
 
 
-fn _file_exists(path: String) -> Bool:
+def _file_exists(path: String) -> Bool:
     """Check if file exists."""
     try:
         with open(path, "r") as f:
@@ -339,7 +339,7 @@ fn _file_exists(path: String) -> Bool:
         return False
 
 
-fn _create_temp_dir(prefix: String) -> String:
+def _create_temp_dir(prefix: String) -> String:
     """Create temporary directory with proper permissions for CI compatibility.
 
     Uses Python's tempfile.mkdtemp() to create a directory with guaranteed
@@ -363,7 +363,7 @@ fn _create_temp_dir(prefix: String) -> String:
         return prefix  # Fallback to original path
 
 
-fn _cleanup_temp_dir(path: String):
+def _cleanup_temp_dir(path: String):
     """Clean up temporary directory and all its contents.
 
     Args:
@@ -378,7 +378,7 @@ fn _cleanup_temp_dir(path: String):
         pass
 
 
-fn main() raises:
+def main() raises:
     """Run all serialization tests."""
     print("Testing dtype utilities...")
     test_dtype_utilities()

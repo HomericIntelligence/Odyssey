@@ -24,7 +24,7 @@ from shared.data.transforms import Compose, Normalize, Reshape
 from shared.tensor.any_tensor import AnyTensor
 
 
-fn test_compose_empty_pipeline() raises:
+def test_compose_empty_pipeline() raises:
     """Test Compose with no transforms returns input unchanged.
 
     Empty pipeline should act as identity function.
@@ -55,7 +55,7 @@ fn test_compose_empty_pipeline() raises:
     assert_equal(len(data.shape()), len(result.shape()))
 
 
-fn test_compose_single_transform() raises:
+def test_compose_single_transform() raises:
     """Test Compose with single transform applies correctly.
 
     Single-transform pipeline should work same as direct transform.
@@ -87,7 +87,7 @@ fn test_compose_single_transform() raises:
     assert_equal(len(data.shape()), len(result.shape()))
 
 
-fn test_compose_multiple_transforms() raises:
+def test_compose_multiple_transforms() raises:
     """Test Compose with multiple transforms applies in order.
 
     Transforms should apply sequentially, each receiving previous output.
@@ -121,7 +121,7 @@ fn test_compose_multiple_transforms() raises:
     assert_equal(len(data.shape()), len(result1.shape()))
 
 
-fn test_compose_determinism() raises:
+def test_compose_determinism() raises:
     """Test Compose produces consistent results with same input.
 
     Applying same transform pipeline to same data should yield same output.
@@ -154,7 +154,7 @@ fn test_compose_determinism() raises:
     assert_equal(len(result1.shape()), len(result2.shape()))
 
 
-fn test_normalize_transform() raises:
+def test_normalize_transform() raises:
     """Test Normalize transform applies (x - mean) / std correctly.
 
     Normalize should standardize input to zero mean and unit variance.
@@ -184,7 +184,7 @@ fn test_normalize_transform() raises:
     assert_equal(len(data.shape()), len(result.shape()))
 
 
-fn test_reshape_transform() raises:
+def test_reshape_transform() raises:
     """Test Reshape transform changes tensor shape.
 
     Reshape should change dimensions while preserving element count.
@@ -218,7 +218,7 @@ fn test_reshape_transform() raises:
     assert_equal(result.num_elements(), 10)
 
 
-fn test_transform_stateless() raises:
+def test_transform_stateless() raises:
     """Test transforms are stateless and don't maintain state between calls.
 
     Same input to same transform should always produce same output.
@@ -251,7 +251,7 @@ fn test_transform_stateless() raises:
     assert_equal(len(result2.shape()), len(result3.shape()))
 
 
-fn test_transform_no_mutation() raises:
+def test_transform_no_mutation() raises:
     """Test transforms don't modify original input data.
 
     Transform should return new tensor, not modify input in-place.
@@ -282,7 +282,7 @@ fn test_transform_no_mutation() raises:
     assert_equal(len(original_shape), len(current_shape))
 
 
-fn test_transform_on_dataset_sample() raises:
+def test_transform_on_dataset_sample() raises:
     """Test applying transform to dataset sample works correctly.
 
     Transforms should work on samples retrieved from datasets.
@@ -326,7 +326,7 @@ fn test_transform_on_dataset_sample() raises:
     assert_equal(transformed.num_elements(), sample_data.num_elements())
 
 
-fn test_transform_batch_consistency() raises:
+def test_transform_batch_consistency() raises:
     """Test transform produces consistent results across multiple samples.
 
     Applying same transform to different samples should each succeed.
@@ -368,7 +368,7 @@ fn test_transform_batch_consistency() raises:
         assert_equal(result.num_elements(), sample_data.num_elements())
 
 
-fn test_transform_on_small_tensor() raises:
+def test_transform_on_small_tensor() raises:
     """Test transform on minimal tensor (1 element).
 
     Transforms should handle edge case of single-element tensors.
@@ -395,7 +395,7 @@ fn test_transform_on_small_tensor() raises:
     assert_equal(result.num_elements(), 1)
 
 
-fn test_transform_on_large_tensor() raises:
+def test_transform_on_large_tensor() raises:
     """Test transform on larger tensor (1000+ elements).
 
     Transforms should scale to larger datasets without issues.
@@ -423,7 +423,7 @@ fn test_transform_on_large_tensor() raises:
     assert_equal(result.num_elements(), 1000)
 
 
-fn test_transform_zero_value_handling() raises:
+def test_transform_zero_value_handling() raises:
     """Test transform handles tensors with zero values.
 
     Tensors containing zeros should be transformable (test numerics).
@@ -452,7 +452,7 @@ fn test_transform_zero_value_handling() raises:
     assert_equal(result.num_elements(), 10)
 
 
-fn test_transform_negative_values() raises:
+def test_transform_negative_values() raises:
     """Test transform handles negative values correctly.
 
     Transforms should work with negative input values.
@@ -480,7 +480,7 @@ fn test_transform_negative_values() raises:
     assert_equal(result.num_elements(), 10)
 
 
-fn test_transform_repeated_application() raises:
+def test_transform_repeated_application() raises:
     """Test applying same transform repeatedly on same tensor.
 
     Multiple applications should each succeed independently.
@@ -511,7 +511,7 @@ fn test_transform_repeated_application() raises:
         assert_equal(result.num_elements(), 20)
 
 
-fn test_transform_preserves_element_count() raises:
+def test_transform_preserves_element_count() raises:
     """Test transforms preserve total number of elements.
 
     num_elements() should be unchanged after transform.
@@ -541,7 +541,7 @@ fn test_transform_preserves_element_count() raises:
     assert_equal(original_count, result_count)
 
 
-fn test_normalize_output_range() raises:
+def test_normalize_output_range() raises:
     """Test Normalize produces reasonable output range.
 
     Normalized values should be relatively small (typically in [-1, 1] range).
@@ -570,7 +570,7 @@ fn test_normalize_output_range() raises:
     assert_equal(result.num_elements(), 20)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_transforms tests."""
     print("Running test_transforms tests...")
 

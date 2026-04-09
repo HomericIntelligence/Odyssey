@@ -10,26 +10,26 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from tests.shared.conftest import assert_true, assert_equal_int
 
 
-fn _copy_and_check_refcount(tensor1: AnyTensor) -> Int:
+def _copy_and_check_refcount(tensor1: AnyTensor) -> Int:
     """Helper: copy tensor in inner scope and return inner refcount."""
     var tensor2 = tensor1
     return tensor1._refcount[]
 
 
-fn _modify_through_copy(tensor1: AnyTensor) raises:
+def _modify_through_copy(tensor1: AnyTensor) raises:
     """Helper: copy tensor in inner scope and modify shared data."""
     var tensor2 = tensor1
     assert_true(tensor1._data == tensor2._data, "Should share data")
     tensor2.set(0, Float32(99.0))
 
 
-fn _alloc_and_use_tensor() raises:
+def _alloc_and_use_tensor() raises:
     """Helper: allocate tensor in inner scope and use it."""
     var tensor = zeros([100, 100], DType.float32)
     _ = tensor.numel()
 
 
-fn _check_shared_deallocation() raises:
+def _check_shared_deallocation() raises:
     """Helper: verify refcount during nested sharing in inner scope."""
     var tensor1 = zeros([10, 10], DType.float32)
     var initial_refcount = tensor1._refcount[]
@@ -44,7 +44,7 @@ fn _check_shared_deallocation() raises:
     )
 
 
-fn _create_and_drop_view(original: AnyTensor) raises:
+def _create_and_drop_view(original: AnyTensor) raises:
     """Helper: create view in inner scope (dropped on return)."""
     var shape = List[Int]()
     shape.append(3)
@@ -53,7 +53,7 @@ fn _create_and_drop_view(original: AnyTensor) raises:
     assert_true(view._is_view, "Should be marked as view")
 
 
-fn _check_view_refcount(original: AnyTensor, initial_refcount: Int) raises -> Int:
+def _check_view_refcount(original: AnyTensor, initial_refcount: Int) raises -> Int:
     """Helper: create view in inner scope, check refcount, return inner value."""
     var shape = List[Int]()
     shape.append(3)
@@ -70,7 +70,7 @@ fn _check_view_refcount(original: AnyTensor, initial_refcount: Int) raises -> In
     return inner_refcount
 
 
-fn test_single_tensor_refcount() raises:
+def test_single_tensor_refcount() raises:
     """Test single tensor starts with refcount = 1."""
     var tensor = zeros([10, 10], DType.float32)
     assert_equal_int(
@@ -78,7 +78,7 @@ fn test_single_tensor_refcount() raises:
     )
 
 
-fn test_copy_increments_refcount() raises:
+def test_copy_increments_refcount() raises:
     """Test copying tensor increments reference count."""
     var tensor1 = zeros([10, 10], DType.float32)
     var initial_refcount = tensor1._refcount[]
@@ -91,7 +91,7 @@ fn test_copy_increments_refcount() raises:
     )
 
 
-fn test_multiple_copies_refcount() raises:
+def test_multiple_copies_refcount() raises:
     """Test multiple copies increment refcount correctly."""
     var tensor1 = zeros([5, 5], DType.float32)
     var tensor2 = tensor1
@@ -102,7 +102,7 @@ fn test_multiple_copies_refcount() raises:
     )
 
 
-fn test_scope_exit_decrements_refcount() raises:
+def test_scope_exit_decrements_refcount() raises:
     """Test refcount decrements when copy goes out of scope."""
     var tensor1 = zeros([10, 10], DType.float32)
     var initial_refcount = tensor1._refcount[]
@@ -115,7 +115,7 @@ fn test_scope_exit_decrements_refcount() raises:
     assert_equal_int(outer_refcount, 1, "Refcount should be 1 after scope exit")
 
 
-fn test_original_survives_copy_destruction() raises:
+def test_original_survives_copy_destruction() raises:
     """Test original tensor survives when copy is destroyed."""
     var tensor1 = zeros([10, 10], DType.float32)
     # Write a known value through data pointer
@@ -128,13 +128,13 @@ fn test_original_survives_copy_destruction() raises:
     assert_true(value == 99.0, "Original should reflect modification")
 
 
-fn test_tensor_deallocation_single() raises:
+def test_tensor_deallocation_single() raises:
     """Test single tensor deallocates memory when destroyed."""
     _alloc_and_use_tensor()
     assert_true(True, "Single tensor deallocation completed without crash")
 
 
-fn test_tensor_deallocation_loop() raises:
+def test_tensor_deallocation_loop() raises:
     """Test repeated tensor creation/destruction in loop."""
     for i in range(1000):
         var tensor = zeros([50, 50], DType.float32)
@@ -143,13 +143,13 @@ fn test_tensor_deallocation_loop() raises:
     assert_true(True, "Loop deallocation completed without crash")
 
 
-fn test_shared_tensor_deallocation() raises:
+def test_shared_tensor_deallocation() raises:
     """Test shared tensor deallocates only when last reference destroyed."""
     _check_shared_deallocation()
     assert_true(True, "Shared tensor deallocation completed")
 
 
-fn test_no_memory_leak_in_creation_loop() raises:
+def test_no_memory_leak_in_creation_loop() raises:
     """Verify no memory leaks in repeated tensor creation."""
     comptime NUM_ITERATIONS = 10000
     comptime TENSOR_SIZE = 100
@@ -159,7 +159,7 @@ fn test_no_memory_leak_in_creation_loop() raises:
     assert_true(True, "Created 10000 tensors without OOM")
 
 
-fn test_no_memory_leak_in_operation_loop() raises:
+def test_no_memory_leak_in_operation_loop() raises:
     """Verify no memory leaks in repeated tensor operations."""
     comptime NUM_ITERATIONS = 5000
     for _ in range(NUM_ITERATIONS):
@@ -170,7 +170,7 @@ fn test_no_memory_leak_in_operation_loop() raises:
     assert_true(True, "Completed 5000 operations without OOM")
 
 
-fn test_no_memory_leak_with_copies() raises:
+def test_no_memory_leak_with_copies() raises:
     """Verify no memory leaks with shared copies."""
     comptime NUM_ITERATIONS = 1000
     for _ in range(NUM_ITERATIONS):
@@ -183,7 +183,7 @@ fn test_no_memory_leak_with_copies() raises:
     assert_true(True, "Copy stress test completed without OOM")
 
 
-fn test_large_tensor_lifecycle() raises:
+def test_large_tensor_lifecycle() raises:
     """Test large tensor allocation and deallocation."""
     comptime NUM_ITERATIONS = 50
     comptime LARGE_SIZE = 1000
@@ -194,7 +194,7 @@ fn test_large_tensor_lifecycle() raises:
     assert_true(True, "Large tensor lifecycle test completed")
 
 
-fn test_view_flag_on_reshape() raises:
+def test_view_flag_on_reshape() raises:
     """Test reshape creates a view with _is_view flag set."""
     var tensor = zeros([12], DType.float32)
     var shape = List[Int]()
@@ -205,7 +205,7 @@ fn test_view_flag_on_reshape() raises:
     assert_true(tensor._data == reshaped._data, "View should share data")
 
 
-fn test_view_does_not_free_data() raises:
+def test_view_does_not_free_data() raises:
     """Test view destruction doesn't free shared data."""
     var original = zeros([12], DType.float32)
     original.set(0, Float32(42.0))
@@ -216,7 +216,7 @@ fn test_view_does_not_free_data() raises:
     assert_true(value == 42.0, "Original data should be intact")
 
 
-fn test_view_modification_affects_original() raises:
+def test_view_modification_affects_original() raises:
     """Test modifying view affects original tensor."""
     var original = zeros([12], DType.float32)
     var shape = List[Int]()
@@ -230,7 +230,7 @@ fn test_view_modification_affects_original() raises:
     )
 
 
-fn test_empty_tensor_lifecycle() raises:
+def test_empty_tensor_lifecycle() raises:
     """Test empty tensor (0 elements) creation and destruction."""
     for _ in range(1000):
         var empty = zeros(List[Int](), DType.float32)
@@ -241,7 +241,7 @@ fn test_empty_tensor_lifecycle() raises:
     assert_true(True, "Empty tensor lifecycle test completed")
 
 
-fn test_1d_tensor_lifecycle() raises:
+def test_1d_tensor_lifecycle() raises:
     """Test 1D tensor lifecycle."""
     for _ in range(1000):
         var shape = List[Int]()
@@ -252,7 +252,7 @@ fn test_1d_tensor_lifecycle() raises:
     assert_true(True, "1D tensor lifecycle test completed")
 
 
-fn test_different_dtypes_lifecycle() raises:
+def test_different_dtypes_lifecycle() raises:
     """Test tensor lifecycle with different dtypes."""
     var dtypes = List[DType]()
     dtypes.append(DType.float32)
@@ -271,7 +271,7 @@ fn test_different_dtypes_lifecycle() raises:
     assert_true(True, "Different dtypes lifecycle test completed")
 
 
-fn test_destructor_with_valid_refcount() raises:
+def test_destructor_with_valid_refcount() raises:
     """Test destructor handles normal case correctly."""
     var tensor = zeros([10], DType.float32)
     # Verify refcount pointer is valid (non-null)
@@ -280,7 +280,7 @@ fn test_destructor_with_valid_refcount() raises:
     assert_true(True, "Destructor edge case test completed")
 
 
-fn test_view_destructor_does_not_decrement_refcount() raises:
+def test_view_destructor_does_not_decrement_refcount() raises:
     """Test view destructor doesn't decrement refcount incorrectly."""
     var original = zeros([12], DType.float32)
     var initial_refcount = original._refcount[]
@@ -296,7 +296,7 @@ fn test_view_destructor_does_not_decrement_refcount() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all test_memory_leaks tests."""
     print("Running test_memory_leaks tests...")
 

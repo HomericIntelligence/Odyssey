@@ -14,7 +14,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.autograd import Variable, GradientTape, SGD
 
 
-fn test_sgd_basic() raises:
+def test_sgd_basic() raises:
     """Test basic SGD without momentum."""
     # Create a simple 1D parameter
     var shape: List[Int] = [1]
@@ -51,7 +51,7 @@ fn test_sgd_basic() raises:
     assert_almost_equal(actual, expected, tolerance=1e-6)
 
 
-fn test_sgd_momentum_init() raises:
+def test_sgd_momentum_init() raises:
     """Test that velocity buffers are initialized to zeros."""
     # Create parameter
     var shape: List[Int] = [2]
@@ -89,7 +89,7 @@ fn test_sgd_momentum_init() raises:
     )
 
 
-fn test_sgd_momentum_accumulation() raises:
+def test_sgd_momentum_accumulation() raises:
     """Test momentum accumulation across multiple steps."""
     # Create parameter
     var shape: List[Int] = [1]
@@ -144,7 +144,7 @@ fn test_sgd_momentum_accumulation() raises:
     assert_almost_equal(param_after_step3, 0.439, tolerance=1e-5)
 
 
-fn test_sgd_momentum_vs_vanilla() raises:
+def test_sgd_momentum_vs_vanilla() raises:
     """Test that momentum converges faster than vanilla SGD."""
     # Both optimizers should converge to same point, but momentum faster
     var shape: List[Int] = [1]
@@ -201,7 +201,7 @@ fn test_sgd_momentum_vs_vanilla() raises:
     )
 
 
-fn test_sgd_zero_momentum() raises:
+def test_sgd_zero_momentum() raises:
     """Test that momentum=0 behaves like standard SGD."""
     var shape: List[Int] = [1]
 
@@ -230,7 +230,7 @@ fn test_sgd_zero_momentum() raises:
     assert_almost_equal(result, 4.8, tolerance=1e-6)
 
 
-fn test_sgd_multiple_parameters() raises:
+def test_sgd_multiple_parameters() raises:
     """Test momentum with multiple parameters."""
     var shape: List[Int] = [2]
 
@@ -282,7 +282,7 @@ fn test_sgd_multiple_parameters() raises:
     assert_almost_equal(p2_val, 2.9, tolerance=1e-6)
 
 
-fn main() raises:
+def main() raises:
     """Run all SGD momentum tests."""
     print("Running SGD momentum tests...")
     test_sgd_basic()

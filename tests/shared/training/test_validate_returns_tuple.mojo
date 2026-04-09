@@ -21,17 +21,17 @@ from shared.tensor.any_tensor import ones, zeros
 # ============================================================================
 
 
-fn simple_forward(data: AnyTensor) raises -> AnyTensor:
+def simple_forward(data: AnyTensor) raises -> AnyTensor:
     """Simple forward: returns ones matching data shape."""
     return ones(data.shape(), data.dtype())
 
 
-fn simple_loss(pred: AnyTensor, labels: AnyTensor) raises -> AnyTensor:
+def simple_loss(pred: AnyTensor, labels: AnyTensor) raises -> AnyTensor:
     """Simple loss: returns scalar ones tensor."""
     return ones([1], DType.float32)
 
 
-fn create_loader(n_batches: Int = 3) raises -> DataLoader:
+def create_loader(n_batches: Int = 3) raises -> DataLoader:
     """Create a DataLoader with n_batches * 4 samples, batch_size=4."""
     var n_samples = n_batches * 4
     var data = ones([n_samples, 10], DType.float32)
@@ -44,7 +44,7 @@ fn create_loader(n_batches: Int = 3) raises -> DataLoader:
 # ============================================================================
 
 
-fn test_validate_returns_float64() raises:
+def test_validate_returns_float64() raises:
     """Test validate() returns a Float64 average loss value."""
     var loader = create_loader(n_batches=3)
     var result = validate(simple_forward, simple_loss, loader)
@@ -52,7 +52,7 @@ fn test_validate_returns_float64() raises:
     print("  test_validate_returns_float64: PASSED")
 
 
-fn test_validate_loss_value_correct() raises:
+def test_validate_loss_value_correct() raises:
     """Test validate() loss equals the expected average loss."""
     var loader = create_loader(n_batches=3)
     # simple_loss returns 1.0 per batch -> average loss = 1.0
@@ -61,7 +61,7 @@ fn test_validate_loss_value_correct() raises:
     print("  test_validate_loss_value_correct: PASSED")
 
 
-fn test_validate_loss_nonnegative() raises:
+def test_validate_loss_nonnegative() raises:
     """Test validate() returns a non-negative loss value."""
     var loader = create_loader(n_batches=3)
     var avg_loss = validate(simple_forward, simple_loss, loader)
@@ -70,7 +70,7 @@ fn test_validate_loss_nonnegative() raises:
     print("  test_validate_loss_nonnegative: PASSED")
 
 
-fn test_validate_with_accuracy_enabled() raises:
+def test_validate_with_accuracy_enabled() raises:
     """Test validate() with compute_accuracy=True still returns Float64 loss."""
     var loader = create_loader(n_batches=3)
     var avg_loss = validate(
@@ -80,7 +80,7 @@ fn test_validate_with_accuracy_enabled() raises:
     print("  test_validate_with_accuracy_enabled: PASSED")
 
 
-fn test_validate_with_accuracy_disabled() raises:
+def test_validate_with_accuracy_disabled() raises:
     """Test validate() with compute_accuracy=False still returns Float64 loss."""
     var loader = create_loader(n_batches=3)
     var avg_loss = validate(
@@ -90,7 +90,7 @@ fn test_validate_with_accuracy_disabled() raises:
     print("  test_validate_with_accuracy_disabled: PASSED")
 
 
-fn test_validate_different_batch_counts() raises:
+def test_validate_different_batch_counts() raises:
     """Test validate() returns correct loss with different batch counts."""
     var loader = create_loader(n_batches=2)
     var avg_loss = validate(simple_forward, simple_loss, loader)
@@ -103,7 +103,7 @@ fn test_validate_different_batch_counts() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all validate() return value tests."""
     print("Running validate() return value tests...")
     test_validate_returns_float64()

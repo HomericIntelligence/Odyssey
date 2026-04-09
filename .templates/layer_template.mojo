@@ -24,7 +24,7 @@ struct {{name}}(Module):
     # var weight: AnyTensor
     # var bias: AnyTensor
 
-    fn __init__(out self{{init_params}}):
+    def __init__(out self{{init_params}}):
         """Initialize {{name}}.
 
         Args:
@@ -33,7 +33,7 @@ struct {{name}}(Module):
 {{member_inits}}
         # TEMPLATE: Initialize trainable parameters (filled in during code generation)
 
-    fn forward(self, {{forward_args}}) -> AnyTensor:
+    def forward(self, {{forward_args}}) -> AnyTensor:
         """Forward pass through the layer.
 
         Args:
@@ -47,7 +47,7 @@ struct {{name}}(Module):
 
         return x
 
-    fn parameters(self) -> List[AnyTensor]:
+    def parameters(self) -> List[AnyTensor]:
         """Get trainable parameters.
 
         Returns:

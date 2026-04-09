@@ -1,13 +1,13 @@
 struct TestConfig:
     var value: Int
 
-    fn __init__(
+    def __init__(
         out self,
         val: Int = 10,
     ):
         self.value = val
 
 
-fn main():
+def main():
     var config = TestConfig(5)
     print("Value:", config.value)

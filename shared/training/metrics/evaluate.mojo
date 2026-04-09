@@ -22,10 +22,10 @@ Features:
 """
 
 from shared.tensor.any_tensor import AnyTensor
-from collections import List
+from std.collections import List
 
 
-fn evaluate_with_predict(
+def evaluate_with_predict(
     predictions: List[Int], labels: AnyTensor
 ) raises -> Float32:
     """Evaluate model using pre-computed predictions.
@@ -68,7 +68,7 @@ fn evaluate_with_predict(
     return Float32(correct) / Float32(len(predictions))
 
 
-fn evaluate_logits_batch(logits: AnyTensor, labels: AnyTensor) raises -> Float32:
+def evaluate_logits_batch(logits: AnyTensor, labels: AnyTensor) raises -> Float32:
     """Evaluate using logits (2D) by computing argmax per sample.
 
         Evaluates a batch of logits by computing argmax for each sample
@@ -124,7 +124,7 @@ fn evaluate_logits_batch(logits: AnyTensor, labels: AnyTensor) raises -> Float32
     return Float32(correct) / Float32(batch_size)
 
 
-fn compute_accuracy_on_batch(
+def compute_accuracy_on_batch(
     predictions: AnyTensor, labels: AnyTensor
 ) raises -> Float32:
     """Compute accuracy for a single batch (simple utility).

@@ -12,7 +12,7 @@ Features:
 
 """
 
-from collections import List
+from std.collections import List
 from shared.tensor.any_tensor import AnyTensor
 
 
@@ -21,7 +21,7 @@ from shared.tensor.any_tensor import AnyTensor
 # ============================================================================
 
 
-fn print_training_progress(
+def print_training_progress(
     epoch: Int,
     total_epochs: Int,
     batch: Int,
@@ -67,7 +67,7 @@ fn print_training_progress(
 # ============================================================================
 
 
-fn print_evaluation_summary(
+def print_evaluation_summary(
     epoch: Int,
     total_epochs: Int,
     train_loss: Float32,
@@ -128,7 +128,7 @@ fn print_evaluation_summary(
 # ============================================================================
 
 
-fn print_per_class_accuracy(per_class_accuracies: AnyTensor) raises:
+def print_per_class_accuracy(per_class_accuracies: AnyTensor) raises:
     """Print per-class accuracy metrics with default numeric class labels.
 
         Displays accuracy for each class in a table format using numeric indices
@@ -165,7 +165,7 @@ fn print_per_class_accuracy(per_class_accuracies: AnyTensor) raises:
     print_per_class_accuracy(per_class_accuracies, default_names)
 
 
-fn print_per_class_accuracy(
+def print_per_class_accuracy(
     per_class_accuracies: AnyTensor,
     class_names: List[String],
     column_width: Int = 15,
@@ -250,7 +250,7 @@ fn print_per_class_accuracy(
 # ============================================================================
 
 
-fn print_confusion_matrix(matrix: AnyTensor) raises:
+def print_confusion_matrix(matrix: AnyTensor) raises:
     """Print confusion matrix with default numeric class labels.
 
         Displays confusion matrix with proper alignment using numeric indices
@@ -295,7 +295,7 @@ fn print_confusion_matrix(matrix: AnyTensor) raises:
     print_confusion_matrix(matrix, default_names)
 
 
-fn print_confusion_matrix(
+def print_confusion_matrix(
     matrix: AnyTensor,
     class_names: List[String],
     normalized: Bool = False,
@@ -429,7 +429,7 @@ fn print_confusion_matrix(
 # ============================================================================
 
 
-fn print_training_summary(
+def print_training_summary(
     total_epochs: Int,
     best_train_loss: Float32,
     best_test_loss: Float32,

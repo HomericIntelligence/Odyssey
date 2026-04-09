@@ -14,7 +14,7 @@ Design principles:
 - Memory efficiency (no gradient storage)
 """
 
-from collections import List
+from std.collections import List
 from shared.tensor.any_tensor import AnyTensor
 from shared.training.metrics import AccuracyMetric, LossTracker, ConfusionMatrix
 from shared.training.trainer_interface import (
@@ -24,9 +24,9 @@ from shared.training.trainer_interface import (
 )
 
 
-fn validation_step(
-    model_forward: fn (AnyTensor) raises -> AnyTensor,
-    compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
+def validation_step(
+    model_forward: def (AnyTensor) raises -> AnyTensor,
+    compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
     data: AnyTensor,
     labels: AnyTensor,
 ) raises -> Float64:
@@ -56,9 +56,9 @@ fn validation_step(
     return loss_value
 
 
-fn validate(
-    model_forward: fn (AnyTensor) raises -> AnyTensor,
-    compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
+def validate(
+    model_forward: def (AnyTensor) raises -> AnyTensor,
+    compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
     mut val_loader: DataLoader,
     compute_accuracy: Bool = True,
     compute_confusion: Bool = False,
@@ -92,9 +92,9 @@ fn validate(
     )
 
 
-fn _validate_impl(
-    model_forward: fn (AnyTensor) raises -> AnyTensor,
-    compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
+def _validate_impl(
+    model_forward: def (AnyTensor) raises -> AnyTensor,
+    compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
     mut val_loader: DataLoader,
     mut confusion_matrix: ConfusionMatrix,
     compute_accuracy: Bool = True,
@@ -204,7 +204,7 @@ struct ValidationLoop:
     var confusion_matrix: ConfusionMatrix
     """Confusion matrix populated during run() when compute_confusion=True."""
 
-    fn __init__(
+    def __init__(
         out self,
         compute_accuracy: Bool = True,
         compute_confusion: Bool = False,
@@ -225,10 +225,10 @@ struct ValidationLoop:
         self.num_classes = num_classes
         self.confusion_matrix = ConfusionMatrix(num_classes=num_classes)
 
-    fn run(
+    def run(
         mut self,
-        model_forward: fn (AnyTensor) raises -> AnyTensor,
-        compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
+        model_forward: def (AnyTensor) raises -> AnyTensor,
+        compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
         mut val_loader: DataLoader,
         mut metrics: TrainingMetrics,
     ) raises -> Float64:
@@ -278,10 +278,10 @@ struct ValidationLoop:
 
         return val_loss
 
-    fn run_subset(
+    def run_subset(
         self,
-        model_forward: fn (AnyTensor) raises -> AnyTensor,
-        compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
+        model_forward: def (AnyTensor) raises -> AnyTensor,
+        compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
         mut val_loader: DataLoader,
         max_batches: Int,
         mut metrics: TrainingMetrics,

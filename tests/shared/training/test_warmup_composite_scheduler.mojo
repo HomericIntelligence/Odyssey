@@ -23,7 +23,7 @@ from shared.training.schedulers import WarmupCosineAnnealingLR, WarmupStepLR
 # ============================================================================
 
 
-fn test_warmup_cosine_annealing_initialization() raises:
+def test_warmup_cosine_annealing_initialization() raises:
     """Test WarmupCosineAnnealingLR scheduler initialization."""
     var scheduler = WarmupCosineAnnealingLR(
         base_lr=0.1, warmup_epochs=10, T_max=100, eta_min=0.0
@@ -35,7 +35,7 @@ fn test_warmup_cosine_annealing_initialization() raises:
     assert_almost_equal(scheduler.eta_min, 0.0)
 
 
-fn test_warmup_cosine_annealing_warmup_phase() raises:
+def test_warmup_cosine_annealing_warmup_phase() raises:
     """Test WarmupCosineAnnealingLR during warmup phase.
 
     During warmup (0 to warmup_epochs), LR should increase linearly.
@@ -57,7 +57,7 @@ fn test_warmup_cosine_annealing_warmup_phase() raises:
     assert_almost_equal(lr_9, 0.09, tolerance=1e-6)
 
 
-fn test_warmup_cosine_annealing_after_warmup() raises:
+def test_warmup_cosine_annealing_after_warmup() raises:
     """Test WarmupCosineAnnealingLR after warmup phase.
 
     After warmup, LR should follow cosine annealing curve.
@@ -79,7 +79,7 @@ fn test_warmup_cosine_annealing_after_warmup() raises:
     assert_almost_equal(lr_100, 0.0, tolerance=1e-6)
 
 
-fn test_warmup_cosine_annealing_monotonic_after_warmup() raises:
+def test_warmup_cosine_annealing_monotonic_after_warmup() raises:
     """Test WarmupCosineAnnealingLR decreases monotonically after warmup."""
     var scheduler = WarmupCosineAnnealingLR(
         base_lr=0.1, warmup_epochs=10, T_max=100, eta_min=0.0
@@ -97,7 +97,7 @@ fn test_warmup_cosine_annealing_monotonic_after_warmup() raises:
 # ============================================================================
 
 
-fn test_warmup_step_lr_initialization() raises:
+def test_warmup_step_lr_initialization() raises:
     """Test WarmupStepLR scheduler initialization."""
     var scheduler = WarmupStepLR(
         base_lr=0.1, warmup_epochs=10, step_size=30, gamma=0.1
@@ -109,7 +109,7 @@ fn test_warmup_step_lr_initialization() raises:
     assert_almost_equal(scheduler.gamma, 0.1)
 
 
-fn test_warmup_step_lr_warmup_phase() raises:
+def test_warmup_step_lr_warmup_phase() raises:
     """Test WarmupStepLR during warmup phase.
 
     During warmup (0 to warmup_epochs), LR should increase linearly.
@@ -131,7 +131,7 @@ fn test_warmup_step_lr_warmup_phase() raises:
     assert_almost_equal(lr_9, 0.09, tolerance=1e-6)
 
 
-fn test_warmup_step_lr_step_decay_phase() raises:
+def test_warmup_step_lr_step_decay_phase() raises:
     """Test WarmupStepLR during step decay phase.
 
     After warmup, LR should follow step decay schedule.
@@ -157,7 +157,7 @@ fn test_warmup_step_lr_step_decay_phase() raises:
     assert_almost_equal(lr_70, 0.001, tolerance=1e-6)
 
 
-fn test_warmup_step_lr_step_interval() raises:
+def test_warmup_step_lr_step_interval() raises:
     """Test WarmupStepLR step decay intervals."""
     var scheduler = WarmupStepLR(
         base_lr=0.1, warmup_epochs=10, step_size=30, gamma=0.1
@@ -179,7 +179,7 @@ fn test_warmup_step_lr_step_interval() raises:
         assert_almost_equal(lr, 0.001, tolerance=1e-6)
 
 
-fn main() raises:
+def main() raises:
     """Run all composite warmup scheduler tests."""
     print("Running WarmupCosineAnnealingLR tests...")
     test_warmup_cosine_annealing_initialization()

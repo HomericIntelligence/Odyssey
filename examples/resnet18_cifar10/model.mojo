@@ -73,7 +73,7 @@ from shared.training.model_utils import (
     get_model_parameter_names,
 )
 from shared.utils.serialization import save_tensor, load_tensor
-from collections import List
+from std.collections import List
 
 
 struct ResNet18(Movable):
@@ -255,7 +255,7 @@ struct ResNet18(Movable):
     var fc_weights: AnyTensor
     var fc_bias: AnyTensor
 
-    fn __init__(out self, num_classes: Int = 10) raises:
+    def __init__(out self, num_classes: Int = 10) raises:
         """Initialize ResNet-18 model with random weights.
 
         Args:
@@ -524,7 +524,7 @@ struct ResNet18(Movable):
         fc_bias_shape.append(num_classes)
         self.fc_bias = zeros(fc_bias_shape, DType.float32)
 
-    fn forward(
+    def forward(
         mut self, input: AnyTensor, training: Bool = True
     ) raises -> AnyTensor:
         """Forward pass through ResNet-18.
@@ -984,7 +984,7 @@ struct ResNet18(Movable):
 
         return logits
 
-    fn predict(mut self, input: AnyTensor) raises -> Int:
+    def predict(mut self, input: AnyTensor) raises -> Int:
         """Predict class for a single input.
 
         Args:
@@ -1007,7 +1007,7 @@ struct ResNet18(Movable):
 
         return max_idx
 
-    fn save_weights(self, weights_dir: String) raises:
+    def save_weights(self, weights_dir: String) raises:
         """Save model weights to directory.
 
         Args:
@@ -1431,7 +1431,7 @@ struct ResNet18(Movable):
         )
         save_tensor(self.fc_bias, weights_dir + "/fc_bias.weights", "fc_bias")
 
-    fn load_weights(mut self, weights_dir: String) raises:
+    def load_weights(mut self, weights_dir: String) raises:
         """Load model weights from directory.
 
         Args:

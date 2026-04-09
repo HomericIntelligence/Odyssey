@@ -19,7 +19,7 @@ from shared.benchmarking import (
 )
 
 
-fn test_benchmark_config_creation() raises:
+def test_benchmark_config_creation() raises:
     """Test creating benchmark configurations."""
     var config = BenchmarkConfig(
         warmup_iters=5,
@@ -34,7 +34,7 @@ fn test_benchmark_config_creation() raises:
     print("PASS: test_benchmark_config_creation")
 
 
-fn test_create_benchmark_config() raises:
+def test_create_benchmark_config() raises:
     """Test helper function to create config."""
     var config = create_benchmark_config(warmup_iters=10, measure_iters=100)
     assert_equal(config.warmup_iters, 10)
@@ -44,7 +44,7 @@ fn test_create_benchmark_config() raises:
     print("PASS: test_create_benchmark_config")
 
 
-fn test_create_benchmark_config_defaults() raises:
+def test_create_benchmark_config_defaults() raises:
     """Test default values in config creation."""
     var config = create_benchmark_config()
     assert_equal(config.warmup_iters, 10)
@@ -54,7 +54,7 @@ fn test_create_benchmark_config_defaults() raises:
     print("PASS: test_create_benchmark_config_defaults")
 
 
-fn test_benchmark_result_creation() raises:
+def test_benchmark_result_creation() raises:
     """Test creating benchmark result."""
     var result = BenchmarkResult(
         mean_latency_ms=10.5,
@@ -82,10 +82,10 @@ fn test_benchmark_result_creation() raises:
     print("PASS: test_benchmark_result_creation")
 
 
-fn test_benchmark_simple_operation() raises:
+def test_benchmark_simple_operation() raises:
     """Test benchmarking a simple operation."""
 
-    fn simple_operation() raises:
+    def simple_operation() raises:
         # Just do some basic computation
         var x = 0
         for i in range(100):
@@ -106,10 +106,10 @@ fn test_benchmark_simple_operation() raises:
     print("PASS: test_benchmark_simple_operation")
 
 
-fn test_benchmark_with_percentiles() raises:
+def test_benchmark_with_percentiles() raises:
     """Test benchmarking with percentile computation."""
 
-    fn simple_operation() raises:
+    def simple_operation() raises:
         var x = 0
         for i in range(50):
             x += i
@@ -130,7 +130,7 @@ fn test_benchmark_with_percentiles() raises:
     print("PASS: test_benchmark_with_percentiles")
 
 
-fn test_print_benchmark_report() raises:
+def test_print_benchmark_report() raises:
     """Test printing benchmark report."""
     var result = BenchmarkResult(
         mean_latency_ms=10.5,
@@ -150,7 +150,7 @@ fn test_print_benchmark_report() raises:
     print("PASS: test_print_benchmark_report")
 
 
-fn test_benchmark_config_custom_values() raises:
+def test_benchmark_config_custom_values() raises:
     """Test creating config with custom values."""
     var config = BenchmarkConfig(
         warmup_iters=20,
@@ -165,7 +165,7 @@ fn test_benchmark_config_custom_values() raises:
     print("PASS: test_benchmark_config_custom_values")
 
 
-fn test_benchmark_result_statistics() raises:
+def test_benchmark_result_statistics() raises:
     """Test that benchmark results contain reasonable statistics."""
     # Create a result with realistic values
     var result = BenchmarkResult(
@@ -190,10 +190,10 @@ fn test_benchmark_result_statistics() raises:
     print("PASS: test_benchmark_result_statistics")
 
 
-fn test_benchmark_multiple_iterations() raises:
+def test_benchmark_multiple_iterations() raises:
     """Test benchmarking with different iteration counts."""
 
-    fn operation() raises:
+    def operation() raises:
         var sum = 0
         for i in range(10):
             sum += i
@@ -211,7 +211,7 @@ fn test_benchmark_multiple_iterations() raises:
     print("PASS: test_benchmark_multiple_iterations")
 
 
-fn main() raises:
+def main() raises:
     """Run all benchmark tests."""
     print("")
     print("=" * 70)

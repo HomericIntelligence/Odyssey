@@ -8,12 +8,12 @@ Usage:
 See documentation: docs/core/mojo-patterns.md
 """
 
-from algorithm import vectorize
+from std.algorithm import vectorize
 from sys.info import simd_width_of
 from shared.tensor.any_tensor import AnyTensor
 
 
-fn simple_simd_add(tensor1: AnyTensor, tensor2: AnyTensor) raises -> AnyTensor:
+def simple_simd_add(tensor1: AnyTensor, tensor2: AnyTensor) raises -> AnyTensor:
     """Demonstrate SIMD addition using vectorize.
 
     Args:
@@ -36,7 +36,7 @@ fn simple_simd_add(tensor1: AnyTensor, tensor2: AnyTensor) raises -> AnyTensor:
         var out_ptr = result._data.bitcast[Float32]()
 
         @parameter
-        fn vectorized_add[width: Int](idx: Int) unified {mut}:
+        def vectorized_add[width: Int](idx: Int) unified {mut}:
             var a = ptr1.load[width=width](idx)
             var b = ptr2.load[width=width](idx)
             out_ptr.store[width=width](idx, a + b)
@@ -46,7 +46,7 @@ fn simple_simd_add(tensor1: AnyTensor, tensor2: AnyTensor) raises -> AnyTensor:
     return result^
 
 
-fn main() raises:
+def main() raises:
     """Demonstrate SIMD optimization."""
     print("SIMD Optimization Examples")
     print("=" * 50)

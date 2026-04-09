@@ -52,14 +52,14 @@ struct ReLULayer(Differentiable):
 
     var last_input: AnyTensor  # Cached for backward pass
 
-    fn __init__(out self) raises:
+    def __init__(out self) raises:
         """Initialize ReLU layer."""
         # Start with empty tensor (will be filled during first forward)
         var shape = List[Int]()
         shape.append(1)
         self.last_input = zeros(shape, DType.float32)
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: ReLU(x) = max(0, x).
 
         Args:
@@ -82,7 +82,7 @@ struct ReLULayer(Differentiable):
 
         return output^
 
-    fn backward(self, grad_output: AnyTensor) raises -> AnyTensor:
+    def backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Backward pass: ∂ReLU/∂x = 1 if x > 0 else 0.
 
         Args:
@@ -139,7 +139,7 @@ struct FullyConnectedLayer(Differentiable, Parameterized):
     var last_input: AnyTensor
     var last_output: AnyTensor
 
-    fn __init__(out self, in_features: Int, out_features: Int) raises:
+    def __init__(out self, in_features: Int, out_features: Int) raises:
         """Initialize fully connected layer.
 
         Args:
@@ -164,7 +164,7 @@ struct FullyConnectedLayer(Differentiable, Parameterized):
         self.last_input = zeros(cache_shape, DType.float32)
         self.last_output = zeros(cache_shape, DType.float32)
 
-    fn init_xavier(mut self) raises:
+    def init_xavier(mut self) raises:
         """Initialize weights using Xavier initialization."""
         # Xavier: weights ~ U(-sqrt(6/(in+out)), sqrt(6/(in+out)))
         var in_features = self.weights.shape()[1]
@@ -179,7 +179,7 @@ struct FullyConnectedLayer(Differentiable, Parameterized):
         self.bias._fill_value_float(0.0)
 
     # Differentiable trait implementation
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: y = xW^T + b.
 
         Args:
@@ -193,7 +193,7 @@ struct FullyConnectedLayer(Differentiable, Parameterized):
         self.last_output = linear(input, self.weights, self.bias)
         return self.last_output
 
-    fn backward(self, grad_output: AnyTensor) raises -> AnyTensor:
+    def backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Backward pass: Compute gradients w.r.t. input and parameters.
 
         Args:
@@ -219,7 +219,7 @@ struct FullyConnectedLayer(Differentiable, Parameterized):
         return result.grad_input
 
     # Parameterized trait implementation
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Get all learnable parameters.
 
         Returns:
@@ -230,7 +230,7 @@ struct FullyConnectedLayer(Differentiable, Parameterized):
         params.append(self.bias)
         return params^
 
-    fn gradients(self) raises -> List[AnyTensor]:
+    def gradients(self) raises -> List[AnyTensor]:
         """Get gradients for all parameters.
 
         Returns:
@@ -241,7 +241,7 @@ struct FullyConnectedLayer(Differentiable, Parameterized):
         grads.append(self.grad_bias)
         return grads^
 
-    fn zero_grad(mut self) raises:
+    def zero_grad(mut self) raises:
         """Reset all gradients to zero."""
         self.grad_weights._fill_value_float(0.0)
         self.grad_bias._fill_value_float(0.0)
@@ -298,7 +298,7 @@ struct BatchNormLayer(Differentiable, Parameterized, Serializable, Trainable):
     var momentum: Float64
     var epsilon: Float64
 
-    fn __init__(out self, num_features: Int) raises:
+    def __init__(out self, num_features: Int) raises:
         """Initialize batch normalization layer.
 
         Args:
@@ -333,7 +333,7 @@ struct BatchNormLayer(Differentiable, Parameterized, Serializable, Trainable):
         self.epsilon = 1e-5
 
     # Differentiable trait
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: Normalize, scale, and shift.
 
         Note:
@@ -346,7 +346,7 @@ struct BatchNormLayer(Differentiable, Parameterized, Serializable, Trainable):
         # Placeholder: Use shared/core/normalization.batch_norm2d() for production
         return input
 
-    fn backward(self, grad_output: AnyTensor) raises -> AnyTensor:
+    def backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Backward pass: Compute gradients.
 
         Note:
@@ -357,27 +357,27 @@ struct BatchNormLayer(Differentiable, Parameterized, Serializable, Trainable):
         return grad_output
 
     # Parameterized trait
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Get learnable parameters (gamma, beta)."""
         var params: List[AnyTensor] = []
         params.append(self.gamma)
         params.append(self.beta)
         return params^
 
-    fn gradients(self) raises -> List[AnyTensor]:
+    def gradients(self) raises -> List[AnyTensor]:
         """Get parameter gradients."""
         var grads: List[AnyTensor] = []
         grads.append(self.grad_gamma)
         grads.append(self.grad_beta)
         return grads^
 
-    fn zero_grad(mut self) raises:
+    def zero_grad(mut self) raises:
         """Reset gradients."""
         self.grad_gamma._fill_value_float(0.0)
         self.grad_beta._fill_value_float(0.0)
 
     # Serializable trait
-    fn save(self, path: String) raises:
+    def save(self, path: String) raises:
         """Save layer state to file.
 
         Persists all learnable and non-learnable parameters:
@@ -407,7 +407,7 @@ struct BatchNormLayer(Differentiable, Parameterized, Serializable, Trainable):
         tensors.append(NamedTensor("running_var", self.running_var))
         save_named_tensors(tensors, path)
 
-    fn load(mut self, path: String) raises:
+    def load(mut self, path: String) raises:
         """Load layer state from file.
 
         Restores all learnable and non-learnable parameters from disk.
@@ -441,15 +441,15 @@ struct BatchNormLayer(Differentiable, Parameterized, Serializable, Trainable):
                 self.running_var = tensors[i].tensor
 
     # Trainable trait
-    fn train(mut self):
+    def train(mut self):
         """Set layer to training mode."""
         self.training_mode = True
 
-    fn eval(mut self):
+    def eval(mut self):
         """Set layer to evaluation mode."""
         self.training_mode = False
 
-    fn is_training(self) -> Bool:
+    def is_training(self) -> Bool:
         """Check if layer is in training mode."""
         return self.training_mode
 
@@ -459,7 +459,7 @@ struct BatchNormLayer(Differentiable, Parameterized, Serializable, Trainable):
 # ============================================================================
 
 
-fn demonstrate_trait_usage() raises:
+def demonstrate_trait_usage() raises:
     """Demonstrate trait-based layer usage."""
     print("\n" + "=" * 80)
     print("Trait-Based Layer Demonstration")
@@ -512,7 +512,7 @@ fn demonstrate_trait_usage() raises:
     print("\n" + "=" * 80 + "\n")
 
 
-fn main() raises:
+def main() raises:
     """Run trait-based layer demonstrations."""
     demonstrate_trait_usage()
 

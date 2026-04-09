@@ -11,7 +11,7 @@ Key components:
 """
 
 from shared.tensor.any_tensor import AnyTensor, zeros_like, full
-from random import random_float64
+from std.random import random_float64
 
 
 struct DropoutLayer(Copyable, Movable):
@@ -48,7 +48,7 @@ struct DropoutLayer(Copyable, Movable):
     var training: Bool
     var last_mask: AnyTensor  # Store mask for backward pass
 
-    fn __init__(out self, dropout_rate: Float32 = 0.5) raises:
+    def __init__(out self, dropout_rate: Float32 = 0.5) raises:
         """Initialize dropout layer.
 
         Args:
@@ -75,7 +75,7 @@ struct DropoutLayer(Copyable, Movable):
         # Initialize with a dummy mask (will be replaced in forward pass)
         self.last_mask = zeros_like(AnyTensor([1], DType.float32))
 
-    fn set_training(mut self, training: Bool):
+    def set_training(mut self, training: Bool):
         """Set training mode.
 
         Args:
@@ -93,7 +93,7 @@ struct DropoutLayer(Copyable, Movable):
         """
         self.training = training
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: apply dropout during training, pass through otherwise.
 
         During training (training=True):
@@ -179,7 +179,7 @@ struct DropoutLayer(Copyable, Movable):
 
         return result
 
-    fn backward(
+    def backward(
         self, grad_output: AnyTensor, mask: AnyTensor
     ) raises -> AnyTensor:
         """Backward pass: apply same mask as forward pass.
@@ -235,7 +235,7 @@ struct DropoutLayer(Copyable, Movable):
 
         return result
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Get list of trainable parameters.
 
         Returns:

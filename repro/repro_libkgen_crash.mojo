@@ -45,7 +45,7 @@ from shared.core.conv import conv2d
 from shared.core.activation import relu
 
 
-fn step_a() raises:
+def step_a() raises:
     """Heavy tensor alloc/free churn via conv2d.
 
     Two conv2d+relu operations create many intermediate tensors.
@@ -84,7 +84,7 @@ fn step_a() raises:
     # ~20+ tensors freed here
 
 
-fn step_b() raises:
+def step_b() raises:
     """Bitcast write on small tensor, then conv2d -> CRASH.
 
     The bitcast write is the trigger. Commenting out the 3 lines marked
@@ -119,7 +119,7 @@ fn step_b() raises:
     _ = relu(x)
 
 
-fn main() raises:
+def main() raises:
     print("Step A: conv2d heap churn...", end="")
     step_a()
     print(" OK")

@@ -35,7 +35,7 @@ from shared.core.matrix import matmul, matmul_backward
 from shared.training.optimizers import sgd_step_simple
 
 
-fn create_synthetic_data() raises -> Tuple[AnyTensor, AnyTensor]:
+def create_synthetic_data() raises -> Tuple[AnyTensor, AnyTensor]:
     """Create synthetic XOR-like binary classification data.
 
     Returns:
@@ -79,7 +79,7 @@ fn create_synthetic_data() raises -> Tuple[AnyTensor, AnyTensor]:
     return (inputs, targets)
 
 
-fn train_mlp() raises:
+def train_mlp() raises:
     """Train a 2-layer MLP on synthetic data.
 
     Network architecture:
@@ -278,6 +278,6 @@ fn train_mlp() raises:
     print("=" * 60)
 
 
-fn main() raises:
+def main() raises:
     """Entry point for the MLP training example."""
     train_mlp()

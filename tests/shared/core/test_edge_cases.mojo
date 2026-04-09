@@ -4,7 +4,7 @@ Split from test_edge_cases.mojo per ADR-009 (≤10 fn test_ functions per file).
 """
 
 
-from math import isnan, isinf
+from std.math import isnan, isinf
 from shared.tensor.any_tensor import (
     AnyTensor,
     zeros,
@@ -45,7 +45,7 @@ from shared.core.arithmetic import add, subtract, multiply, divide, floor_divide
 from shared.core.comparison import equal, not_equal, less, less_equal, greater, greater_equal
 
 
-fn test_empty_tensor_creation() raises:
+def test_empty_tensor_creation() raises:
     """Test creating empty tensor with 0 elements."""
     var shape = List[Int]()
     shape.append(0)
@@ -55,7 +55,7 @@ fn test_empty_tensor_creation() raises:
     assert_dim(t, 1, "Empty tensor should have 1 dimension")
 
 
-fn test_empty_tensor_operations() raises:
+def test_empty_tensor_operations() raises:
     """Test operations on empty tensors."""
     var shape = List[Int]()
     shape.append(0)
@@ -66,7 +66,7 @@ fn test_empty_tensor_operations() raises:
     assert_numel(c, 0, "Operations on empty tensors should give empty tensor")
 
 
-fn test_empty_tensor_2d() raises:
+def test_empty_tensor_2d() raises:
     """Test 2D empty tensor (0 rows or 0 cols)."""
     var shape = List[Int]()
     shape.append(3)
@@ -77,7 +77,7 @@ fn test_empty_tensor_2d() raises:
     assert_dim(t, 2, "Should preserve 2D structure")
 
 
-fn test_scalar_tensor_creation() raises:
+def test_scalar_tensor_creation() raises:
     """Test creating 0D scalar tensor."""
     var shape = List[Int]()
     var t = full(shape, 42.0, DType.float32)
@@ -87,7 +87,7 @@ fn test_scalar_tensor_creation() raises:
     assert_value_at(t, 0, 42.0, 1e-6, "Scalar value should be 42.0")
 
 
-fn test_scalar_tensor_operations() raises:
+def test_scalar_tensor_operations() raises:
     """Test operations on 0D scalar tensors."""
     var shape = List[Int]()
     var a = full(shape, 3.0, DType.float32)
@@ -99,7 +99,7 @@ fn test_scalar_tensor_operations() raises:
     assert_value_at(c, 0, 5.0, 1e-6, "3 + 2 should be 5")
 
 
-fn test_scalar_to_vector_broadcast() raises:
+def test_scalar_to_vector_broadcast() raises:
     """Test broadcasting scalar to vector."""
     var shape_scalar = List[Int]()
     var shape_vec = List[Int]()
@@ -113,7 +113,7 @@ fn test_scalar_to_vector_broadcast() raises:
     assert_all_values(c, 20.0, 1e-6, "10 * 2 broadcast to [20, 20, 20, 20, 20]")
 
 
-fn test_large_1d_tensor() raises:
+def test_large_1d_tensor() raises:
     """Test creating and operating on large 1D tensor."""
     var shape = List[Int]()
     shape.append(10000000)  # 10 million elements
@@ -125,7 +125,7 @@ fn test_large_1d_tensor() raises:
     assert_value_at(t, 9999999, 0.0, 1e-8, "Last element should be 0")
 
 
-fn test_large_dimension_count() raises:
+def test_large_dimension_count() raises:
     """Test tensor with many dimensions (10D)."""
     var shape = List[Int](length=10, fill=2)
     var t = zeros(shape, DType.float32)
@@ -134,7 +134,7 @@ fn test_large_dimension_count() raises:
     assert_numel(t, 1024, "2^10 = 1024 elements")
 
 
-fn test_nan_propagation_add() raises:
+def test_nan_propagation_add() raises:
     """Test that NaN propagates through addition."""
     var shape = List[Int]()
     shape.append(3)
@@ -148,7 +148,7 @@ fn test_nan_propagation_add() raises:
         assert_true(isnan(val), "NaN should propagate through addition")
 
 
-fn test_nan_propagation_multiply() raises:
+def test_nan_propagation_multiply() raises:
     """Test that NaN propagates through multiplication."""
     var shape = List[Int]()
     shape.append(3)
@@ -162,7 +162,7 @@ fn test_nan_propagation_multiply() raises:
         assert_true(isnan(val), "NaN * 0 should be NaN")
 
 
-fn test_nan_equality() raises:
+def test_nan_equality() raises:
     """Test NaN equality (NaN != NaN per IEEE 754)."""
     var shape = List[Int]()
     shape.append(1)
@@ -174,7 +174,7 @@ fn test_nan_equality() raises:
     assert_value_at(c, 0, 0.0, 1e-8, "NaN != NaN should be False")
 
 
-fn test_inf_arithmetic() raises:
+def test_inf_arithmetic() raises:
     """Test arithmetic with infinity."""
     var shape = List[Int]()
     shape.append(3)
@@ -189,7 +189,7 @@ fn test_inf_arithmetic() raises:
             raise Error("inf + 1 should be inf")
 
 
-fn test_inf_multiplication() raises:
+def test_inf_multiplication() raises:
     """Test infinity multiplication."""
     var shape = List[Int]()
     shape.append(3)
@@ -204,7 +204,7 @@ fn test_inf_multiplication() raises:
             raise Error("inf * 2 should be inf")
 
 
-fn test_inf_times_zero() raises:
+def test_inf_times_zero() raises:
     """Test infinity times zero (should give NaN)."""
     var shape = List[Int]()
     shape.append(3)
@@ -219,7 +219,7 @@ fn test_inf_times_zero() raises:
             raise Error("inf * 0 should be NaN")
 
 
-fn test_negative_inf() raises:
+def test_negative_inf() raises:
     """Test negative infinity."""
     var shape = List[Int]()
     shape.append(3)
@@ -234,7 +234,7 @@ fn test_negative_inf() raises:
             raise Error("-inf + 1 should be -inf")
 
 
-fn test_inf_comparison() raises:
+def test_inf_comparison() raises:
     """Test comparison with infinity."""
     var shape = List[Int]()
     shape.append(1)
@@ -246,7 +246,7 @@ fn test_inf_comparison() raises:
     assert_value_at(c, 0, 1.0, 1e-8, "inf > 1000 should be True")
 
 
-fn test_overflow_float32() raises:
+def test_overflow_float32() raises:
     """Test overflow behavior for float32."""
     var shape = List[Int]()
     shape.append(2)
@@ -261,7 +261,7 @@ fn test_overflow_float32() raises:
             raise Error("Overflow should produce inf")
 
 
-fn test_overflow_int32() raises:
+def test_overflow_int32() raises:
     """Test overflow behavior for int32."""
     var shape = List[Int]()
     shape.append(2)
@@ -275,7 +275,7 @@ fn test_overflow_int32() raises:
     assert_dim(c, 1, "INT32_MAX + 1 should produce result")
 
 
-fn test_underflow_float64() raises:
+def test_underflow_float64() raises:
     """Test underflow behavior for float64."""
     var shape = List[Int]()
     shape.append(2)
@@ -288,7 +288,7 @@ fn test_underflow_float64() raises:
     assert_all_values(c, 0.0, 1e-320, "Underflow should give 0")
 
 
-fn test_divide_by_zero_float() raises:
+def test_divide_by_zero_float() raises:
     """Test division by zero for floating point."""
     # Skip this test - may cause undefined behavior
     # var shape = List[Int]()
@@ -300,7 +300,7 @@ fn test_divide_by_zero_float() raises:
     pass
 
 
-fn test_divide_by_zero_int() raises:
+def test_divide_by_zero_int() raises:
     """Test division by zero for integers."""
     # Skip - may cause undefined behavior
     pass
@@ -311,7 +311,7 @@ fn test_divide_by_zero_int() raises:
     # var c = divide(a, b)
 
 
-fn test_divide_zero_by_zero() raises:
+def test_divide_zero_by_zero() raises:
     """Test 0/0 (should give NaN for floats)."""
     # Skip - may cause undefined behavior
     pass
@@ -322,7 +322,7 @@ fn test_divide_zero_by_zero() raises:
     # var c = divide(a, b)
 
 
-fn test_divide_negative_by_zero() raises:
+def test_divide_negative_by_zero() raises:
     """Test -1/0 (should give -inf for floats)."""
     # Skip - may cause undefined behavior
     pass
@@ -333,7 +333,7 @@ fn test_divide_negative_by_zero() raises:
     # var c = divide(a, b)
 
 
-fn test_modulo_by_zero() raises:
+def test_modulo_by_zero() raises:
     """Test modulo by zero (should give NaN for floats)."""
     var shape = List[Int]()
     shape.append(3)
@@ -348,7 +348,7 @@ fn test_modulo_by_zero() raises:
             raise Error("x % 0 should be NaN")
 
 
-fn test_modulo_with_negative_divisor() raises:
+def test_modulo_with_negative_divisor() raises:
     """Test modulo with negative divisor."""
     var shape = List[Int]()
     shape.append(1)
@@ -360,7 +360,7 @@ fn test_modulo_with_negative_divisor() raises:
     assert_value_at(c, 0, -2.0, 1e-6, "7 % -3 should be -2 (Python semantics)")
 
 
-fn test_modulo_both_negative() raises:
+def test_modulo_both_negative() raises:
     """Test modulo with both negative values."""
     var shape = List[Int]()
     shape.append(1)
@@ -372,7 +372,7 @@ fn test_modulo_both_negative() raises:
     assert_value_at(c, 0, -1.0, 1e-6, "-7 % -3 should be -1 (Python semantics)")
 
 
-fn test_power_zero_to_zero() raises:
+def test_power_zero_to_zero() raises:
     """Test 0^0 (mathematically undefined, conventionally 1)."""
     var shape = List[Int]()
     shape.append(3)
@@ -384,7 +384,7 @@ fn test_power_zero_to_zero() raises:
     assert_all_values(c, 1.0, 1e-6, "0^0 should be 1 by convention")
 
 
-fn test_power_negative_base_even() raises:
+def test_power_negative_base_even() raises:
     """Test negative base with even exponent."""
     var shape = List[Int]()
     shape.append(1)
@@ -396,7 +396,7 @@ fn test_power_negative_base_even() raises:
     assert_value_at(c, 0, 4.0, 1e-6, "(-2)^2 should be 4")
 
 
-fn test_power_negative_base_odd() raises:
+def test_power_negative_base_odd() raises:
     """Test negative base with odd exponent."""
     var shape = List[Int]()
     shape.append(1)
@@ -408,7 +408,7 @@ fn test_power_negative_base_odd() raises:
     assert_value_at(c, 0, -8.0, 1e-6, "(-2)^3 should be -8")
 
 
-fn test_power_zero_base_positive_exp() raises:
+def test_power_zero_base_positive_exp() raises:
     """Test 0^n for positive n."""
     var shape = List[Int]()
     shape.append(3)
@@ -420,7 +420,7 @@ fn test_power_zero_base_positive_exp() raises:
     assert_all_values(c, 0.0, 1e-6, "0^n should be 0 for positive n")
 
 
-fn test_floor_divide_by_zero() raises:
+def test_floor_divide_by_zero() raises:
     """Test floor division by zero."""
     var shape = List[Int]()
     shape.append(3)
@@ -435,7 +435,7 @@ fn test_floor_divide_by_zero() raises:
             raise Error("x // 0 should be inf")
 
 
-fn test_floor_divide_with_remainder() raises:
+def test_floor_divide_with_remainder() raises:
     """Test floor division with remainder."""
     var shape = List[Int]()
     shape.append(1)
@@ -447,7 +447,7 @@ fn test_floor_divide_with_remainder() raises:
     assert_value_at(c, 0, 2.0, 1e-6, "7 // 3 should be 2")
 
 
-fn test_floor_divide_negative_result() raises:
+def test_floor_divide_negative_result() raises:
     """Test floor division with negative result."""
     var shape = List[Int]()
     shape.append(1)
@@ -461,7 +461,7 @@ fn test_floor_divide_negative_result() raises:
     )
 
 
-fn test_comparison_with_zero() raises:
+def test_comparison_with_zero() raises:
     """Test comparison operations with zero."""
     var shape = List[Int]()
     shape.append(3)
@@ -482,7 +482,7 @@ fn test_comparison_with_zero() raises:
     assert_all_values(neg_lt_zero, 1.0, 1e-6, "-1.0 < 0 should be True")
 
 
-fn test_comparison_equal_values() raises:
+def test_comparison_equal_values() raises:
     """Test equality comparison with same values."""
     var shape = List[Int]()
     shape.append(5)
@@ -494,7 +494,7 @@ fn test_comparison_equal_values() raises:
     assert_all_values(c, 1.0, 1e-10, "Equal values should be equal")
 
 
-fn test_comparison_very_close_values() raises:
+def test_comparison_very_close_values() raises:
     """Test comparison with very close but not equal values."""
     var shape = List[Int]()
     shape.append(1)
@@ -511,7 +511,7 @@ fn test_comparison_very_close_values() raises:
     assert_dtype(ne, DType.bool, "not_equal() should return bool")
 
 
-fn test_subnormal_numbers() raises:
+def test_subnormal_numbers() raises:
     """Test handling of subnormal (denormalized) numbers."""
     var shape = List[Int]()
     shape.append(2)
@@ -525,7 +525,7 @@ fn test_subnormal_numbers() raises:
     assert_all_close(c, expected, 1e-6, "1e-40 + 1 ≈ 1")
 
 
-fn test_catastrophic_cancellation() raises:
+def test_catastrophic_cancellation() raises:
     """Test catastrophic cancellation in subtraction."""
     var shape = List[Int]()
     shape.append(2)
@@ -543,7 +543,7 @@ fn test_catastrophic_cancellation() raises:
             pass
 
 
-fn test_associativity_loss() raises:
+def test_associativity_loss() raises:
     """Test loss of associativity in floating point."""
     var shape = List[Int]()
     shape.append(3)
@@ -561,7 +561,7 @@ fn test_associativity_loss() raises:
     assert_dim(result2, 1, "a + (b + c) should produce result")
 
 
-fn test_bool_dtype_operations() raises:
+def test_bool_dtype_operations() raises:
     """Test operations on bool dtype tensors."""
     var shape = List[Int]()
     shape.append(5)
@@ -576,7 +576,7 @@ fn test_bool_dtype_operations() raises:
     assert_all_values(d, 0.0, 1e-8, "True == False should be False")
 
 
-fn test_int8_range() raises:
+def test_int8_range() raises:
     """Test int8 range limits."""
     var shape = List[Int]()
     shape.append(2)
@@ -589,7 +589,7 @@ fn test_int8_range() raises:
     assert_value_at(b, 0, -128.0, 1e-6, "INT8_MIN should be -128")
 
 
-fn test_uint8_range() raises:
+def test_uint8_range() raises:
     """Test uint8 range limits."""
     var shape = List[Int]()
     shape.append(2)
@@ -602,7 +602,7 @@ fn test_uint8_range() raises:
     assert_value_at(b, 0, 0.0, 1e-6, "UINT8_MIN should be 0")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_edge_cases tests."""
     print("Running test_edge_cases tests...")
 

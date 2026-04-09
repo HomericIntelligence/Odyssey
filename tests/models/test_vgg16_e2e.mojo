@@ -35,7 +35,7 @@ from shared.core.activation import relu, relu_backward
 from shared.core.pooling import maxpool2d, maxpool2d_backward
 from shared.core.loss import cross_entropy
 from shared.core import mean
-from math import sqrt
+from std.math import sqrt
 
 
 # ============================================================================
@@ -43,7 +43,7 @@ from math import sqrt
 # ============================================================================
 
 
-fn conv_block(
+def conv_block(
     input_tensor: AnyTensor,
     out_channels: Int,
     num_convs: Int,
@@ -94,7 +94,7 @@ fn conv_block(
     return result
 
 
-fn vgg16_forward(
+def vgg16_forward(
     input_tensor: AnyTensor,
 ) raises -> AnyTensor:
     """Forward pass through VGG-16 model.
@@ -162,7 +162,7 @@ fn vgg16_forward(
 # ============================================================================
 
 
-fn test_vgg16_e2e_forward_inference() raises:
+def test_vgg16_e2e_forward_inference() raises:
     """Test VGG-16 forward pass with realistic CIFAR-10 input."""
     var input = full([4, 3, 32, 32], 0.01, DType.float32)
     var output = vgg16_forward(input)
@@ -170,7 +170,7 @@ fn test_vgg16_e2e_forward_inference() raises:
     assert_equal(output.shape()[1], 10)
 
 
-fn test_vgg16_e2e_forward_small_batch() raises:
+def test_vgg16_e2e_forward_small_batch() raises:
     """Test VGG-16 with smaller batch size."""
     var input = full([2, 3, 32, 32], 0.01, DType.float32)
     var output = vgg16_forward(input)
@@ -178,7 +178,7 @@ fn test_vgg16_e2e_forward_small_batch() raises:
     assert_equal(output.shape()[1], 10)
 
 
-fn test_vgg16_e2e_forward_varying_values() raises:
+def test_vgg16_e2e_forward_varying_values() raises:
     """Test VGG-16 with varying input values."""
     var input = zeros([2, 3, 32, 32], DType.float32)
     var input_data = input.data_ptr[DType.float32]()
@@ -194,7 +194,7 @@ fn test_vgg16_e2e_forward_varying_values() raises:
 # ============================================================================
 
 
-fn test_vgg16_e2e_forward_backward() raises:
+def test_vgg16_e2e_forward_backward() raises:
     """Test VGG-16 backward pass through full model."""
     var input = full([2, 3, 32, 32], 0.01, DType.float32)
     var logits = vgg16_forward(input)
@@ -202,7 +202,7 @@ fn test_vgg16_e2e_forward_backward() raises:
     assert_equal(logits.shape()[1], 10)
 
 
-fn test_vgg16_e2e_inference_mode() raises:
+def test_vgg16_e2e_inference_mode() raises:
     """Test VGG-16 inference mode with multiple batch sizes."""
     for batch_size in [1, 2, 4, 8]:
         var input = full([batch_size, 3, 32, 32], 0.01, DType.float32)
@@ -211,7 +211,7 @@ fn test_vgg16_e2e_inference_mode() raises:
         assert_equal(output.shape()[1], 10)
 
 
-fn test_vgg16_e2e_gradient_flow() raises:
+def test_vgg16_e2e_gradient_flow() raises:
     """Test that gradients can flow through VGG-16."""
     var input = full([2, 3, 32, 32], 0.01, DType.float32)
     var output = vgg16_forward(input)
@@ -228,7 +228,7 @@ fn test_vgg16_e2e_gradient_flow() raises:
 # ============================================================================
 
 
-fn test_vgg16_e2e_output_range() raises:
+def test_vgg16_e2e_output_range() raises:
     """Test VGG-16 produces outputs in reasonable range."""
     var input = full([2, 3, 32, 32], 0.01, DType.float32)
     var output = vgg16_forward(input)
@@ -240,7 +240,7 @@ fn test_vgg16_e2e_output_range() raises:
         assert_greater(val, Float32(-1e6))
 
 
-fn test_vgg16_e2e_shape_progression() raises:
+def test_vgg16_e2e_shape_progression() raises:
     """Test shape changes through VGG-16 blocks."""
     var input = full([2, 3, 32, 32], 0.01, DType.float32)
     var output = vgg16_forward(input)
@@ -253,7 +253,7 @@ fn test_vgg16_e2e_shape_progression() raises:
 # ============================================================================
 
 
-fn test_vgg16_e2e_no_nans() raises:
+def test_vgg16_e2e_no_nans() raises:
     """Test VGG-16 forward pass doesn't produce NaNs."""
     var input = full([2, 3, 32, 32], 0.01, DType.float32)
     var output = vgg16_forward(input)
@@ -263,7 +263,7 @@ fn test_vgg16_e2e_no_nans() raises:
         assert_true(val == val)
 
 
-fn test_vgg16_e2e_no_infs() raises:
+def test_vgg16_e2e_no_infs() raises:
     """Test VGG-16 forward pass doesn't produce Infs."""
     var input = full([2, 3, 32, 32], 0.01, DType.float32)
     var output = vgg16_forward(input)
@@ -274,7 +274,7 @@ fn test_vgg16_e2e_no_infs() raises:
         assert_greater(val, Float32(-1e10))
 
 
-fn main() raises:
+def main() raises:
     """Run all VGG-16 E2E tests."""
     print("Starting VGG16 E2E Tests...")
     print("=" * 60)

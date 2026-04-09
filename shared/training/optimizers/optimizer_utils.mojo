@@ -16,12 +16,12 @@ Design Philosophy:
     both pure functional and in-place mutation styles
 """
 
-from math import sqrt
+from std.math import sqrt
 from shared.tensor.any_tensor import AnyTensor, zeros_like, full_like
 from shared.core.arithmetic_simd import multiply_simd
 
 
-fn initialize_optimizer_state(
+def initialize_optimizer_state(
     param_shapes: List[List[Int]], num_states: Int, dtype: DType = DType.float32
 ) raises -> List[List[AnyTensor]]:
     """Initialize multiple state buffers for optimizer (e.g., momentum, moments).
@@ -77,7 +77,7 @@ fn initialize_optimizer_state(
     return all_states^
 
 
-fn initialize_optimizer_state_from_params(
+def initialize_optimizer_state_from_params(
     params: List[AnyTensor], num_states: Int
 ) raises -> List[List[AnyTensor]]:
     """Initialize multiple state buffers for optimizer from existing parameters.
@@ -123,7 +123,7 @@ fn initialize_optimizer_state_from_params(
     return all_states^
 
 
-fn compute_weight_decay_term(
+def compute_weight_decay_term(
     params: AnyTensor, weight_decay: Float64
 ) raises -> AnyTensor:
     """Compute L2 regularization term: weight_decay * params.
@@ -157,7 +157,7 @@ fn compute_weight_decay_term(
     return multiply_simd(wd_tensor, params)
 
 
-fn apply_weight_decay(mut params: AnyTensor, weight_decay: Float64) raises:
+def apply_weight_decay(mut params: AnyTensor, weight_decay: Float64) raises:
     """Apply L2 regularization directly to parameters (in-place).
 
         This performs decoupled weight decay: params = params * (1 - weight_decay).
@@ -198,7 +198,7 @@ fn apply_weight_decay(mut params: AnyTensor, weight_decay: Float64) raises:
         params._set_float64(i, decayed._get_float64(i))
 
 
-fn scale_tensor(tensor: AnyTensor, scale: Float64) raises -> AnyTensor:
+def scale_tensor(tensor: AnyTensor, scale: Float64) raises -> AnyTensor:
     """Multiply tensor by scalar value.
 
         Returns a new tensor containing tensor * scale.
@@ -224,7 +224,7 @@ fn scale_tensor(tensor: AnyTensor, scale: Float64) raises -> AnyTensor:
     return multiply_simd(scale_tensor, tensor)
 
 
-fn scale_tensor_inplace(mut tensor: AnyTensor, scale: Float64) raises:
+def scale_tensor_inplace(mut tensor: AnyTensor, scale: Float64) raises:
     """Multiply tensor by scalar value (in-place).
 
         Modifies the tensor in-place by multiplying all elements by scale.
@@ -248,7 +248,7 @@ fn scale_tensor_inplace(mut tensor: AnyTensor, scale: Float64) raises:
         tensor._set_float64(i, val * scale)
 
 
-fn compute_tensor_norm(tensor: AnyTensor) raises -> Float64:
+def compute_tensor_norm(tensor: AnyTensor) raises -> Float64:
     """Compute L2 norm (Euclidean norm) of a tensor.
 
         Returns sqrt(sum(tensor^2)).
@@ -281,7 +281,7 @@ fn compute_tensor_norm(tensor: AnyTensor) raises -> Float64:
     return sqrt(norm_squared)
 
 
-fn compute_global_norm(tensors: List[AnyTensor]) raises -> Float64:
+def compute_global_norm(tensors: List[AnyTensor]) raises -> Float64:
     """Compute global L2 norm across multiple tensors.
 
         Returns sqrt(sum over all tensors of sum(tensor^2)).
@@ -324,7 +324,7 @@ fn compute_global_norm(tensors: List[AnyTensor]) raises -> Float64:
     return sqrt(total_norm_squared)
 
 
-fn normalize_tensor_to_unit_norm(mut tensor: AnyTensor) raises:
+def normalize_tensor_to_unit_norm(mut tensor: AnyTensor) raises:
     """Normalize tensor to unit L2 norm (in-place).
 
         Modifies the tensor in-place so that its L2 norm becomes 1.0.
@@ -353,7 +353,7 @@ fn normalize_tensor_to_unit_norm(mut tensor: AnyTensor) raises:
         scale_tensor_inplace(tensor, scale)
 
 
-fn clip_tensor_norm(mut tensor: AnyTensor, max_norm: Float64) raises -> Float64:
+def clip_tensor_norm(mut tensor: AnyTensor, max_norm: Float64) raises -> Float64:
     """Clip tensor norm if it exceeds max_norm (in-place).
 
         If the L2 norm of the tensor exceeds max_norm, scales all elements
@@ -393,7 +393,7 @@ fn clip_tensor_norm(mut tensor: AnyTensor, max_norm: Float64) raises -> Float64:
     return norm
 
 
-fn clip_global_norm(
+def clip_global_norm(
     mut tensors: List[AnyTensor], max_norm: Float64
 ) raises -> Float64:
     """Clip global L2 norm across all tensors (in-place).
@@ -441,7 +441,7 @@ fn clip_global_norm(
     return global_norm
 
 
-fn apply_bias_correction(
+def apply_bias_correction(
     estimate: AnyTensor, decay: Float64, timestep: Int
 ) raises -> AnyTensor:
     """Apply bias correction to exponential moving average.
@@ -500,7 +500,7 @@ fn apply_bias_correction(
     return corrected
 
 
-fn validate_optimizer_state(
+def validate_optimizer_state(
     params: List[AnyTensor], states: List[List[AnyTensor]]
 ) raises:
     """Validate that optimizer state matches parameter shapes.

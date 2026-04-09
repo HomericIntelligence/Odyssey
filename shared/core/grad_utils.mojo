@@ -28,11 +28,11 @@ References:
       https://arxiv.org/abs/1211.1541
 """
 
-from math import sqrt
+from std.math import sqrt
 from shared.tensor.any_tensor import AnyTensor
 
 
-fn clip_grad_value_(mut grad: AnyTensor, max_value: Float64) raises:
+def clip_grad_value_(mut grad: AnyTensor, max_value: Float64) raises:
     """Clip each gradient element to [-max_value, max_value].
 
         This is the simplest form of gradient clipping. Each element is
@@ -69,7 +69,7 @@ fn clip_grad_value_(mut grad: AnyTensor, max_value: Float64) raises:
             grad._set_float64(i, -max_value)
 
 
-fn clip_grad_norm_(mut grad: AnyTensor, max_norm: Float64) raises -> Float64:
+def clip_grad_norm_(mut grad: AnyTensor, max_norm: Float64) raises -> Float64:
     """Clip gradient if its L2 norm exceeds max_norm.
 
         Computes the L2 norm of the gradient: norm = sqrt(sum(grad^2))
@@ -125,7 +125,7 @@ fn clip_grad_norm_(mut grad: AnyTensor, max_norm: Float64) raises -> Float64:
     return norm
 
 
-fn clip_grad_global_norm_(
+def clip_grad_global_norm_(
     mut grads: List[AnyTensor], max_norm: Float64
 ) raises -> Float64:
     """Clip gradients based on their global L2 norm across all parameters.

@@ -28,7 +28,7 @@ from shared.core.matrix import matmul
 from shared.core.reduction import sum
 
 
-fn test_anytensor_add_dispatch() raises:
+def test_anytensor_add_dispatch() raises:
     """AnyTensor add dispatches correctly and produces correct results."""
     var a = any_full([3, 4], 0.5, DType.float32)
     var b = any_ones([3, 4], DType.float32)
@@ -44,7 +44,7 @@ fn test_anytensor_add_dispatch() raises:
     print("PASS: test_anytensor_add_dispatch")
 
 
-fn test_anytensor_subtract_multiply_dispatch() raises:
+def test_anytensor_subtract_multiply_dispatch() raises:
     """AnyTensor subtract and multiply dispatch correctly."""
     var a = any_full([4], 1.5, DType.float32)
     var b = any_full([4], 0.5, DType.float32)
@@ -69,7 +69,7 @@ fn test_anytensor_subtract_multiply_dispatch() raises:
     print("PASS: test_anytensor_subtract_multiply_dispatch")
 
 
-fn test_anytensor_exp_log_dispatch() raises:
+def test_anytensor_exp_log_dispatch() raises:
     """AnyTensor exp and log dispatch correctly."""
     var t = any_full([4], 1.0, DType.float32)
     var exp_result = exp(t)
@@ -93,7 +93,7 @@ fn test_anytensor_exp_log_dispatch() raises:
     print("PASS: test_anytensor_exp_log_dispatch")
 
 
-fn test_anytensor_matmul_dispatch() raises:
+def test_anytensor_matmul_dispatch() raises:
     """AnyTensor matmul dispatch produces correct shape and values."""
     var a = any_ones([2, 3], DType.float32)
     var b = any_ones([3, 4], DType.float32)
@@ -111,7 +111,7 @@ fn test_anytensor_matmul_dispatch() raises:
     print("PASS: test_anytensor_matmul_dispatch")
 
 
-fn test_anytensor_float64_dispatch() raises:
+def test_anytensor_float64_dispatch() raises:
     """AnyTensor operations dispatch correctly with float64 dtype."""
     var a = any_full([3], 1.0, DType.float64)
     var b = any_full([3], 0.5, DType.float64)
@@ -130,7 +130,7 @@ fn test_anytensor_float64_dispatch() raises:
     print("PASS: test_anytensor_float64_dispatch")
 
 
-fn test_anytensor_dtype_mismatch_raises() raises:
+def test_anytensor_dtype_mismatch_raises() raises:
     """AnyTensor add with mismatched dtypes raises error."""
     var a = any_full([3], 1.0, DType.float32)
     var b = any_full([3], 1.0, DType.float64)
@@ -144,7 +144,7 @@ fn test_anytensor_dtype_mismatch_raises() raises:
     print("PASS: test_anytensor_dtype_mismatch_raises")
 
 
-fn test_conversion_roundtrip_preserves_values() raises:
+def test_conversion_roundtrip_preserves_values() raises:
     """Tensor -> AnyTensor -> Tensor round-trip preserves data."""
     var t1 = Tensor[DType.float32]([4])
     t1._data[0] = Scalar[DType.float32](1.5)
@@ -166,7 +166,7 @@ fn test_conversion_roundtrip_preserves_values() raises:
     print("PASS: test_conversion_roundtrip_preserves_values")
 
 
-fn test_conversion_roundtrip_preserves_shape() raises:
+def test_conversion_roundtrip_preserves_shape() raises:
     """Tensor -> AnyTensor -> Tensor round-trip preserves shape."""
     var t = typed_ones[DType.float32]([2, 3, 4])
     var any_t = t.as_any()
@@ -179,7 +179,7 @@ fn test_conversion_roundtrip_preserves_shape() raises:
     print("PASS: test_conversion_roundtrip_preserves_shape")
 
 
-fn test_anytensor_sum_dispatch() raises:
+def test_anytensor_sum_dispatch() raises:
     """AnyTensor sum dispatch produces correct results."""
     var t = any_full([2, 3], 0.5, DType.float32)
     var result = sum(t)
@@ -193,7 +193,7 @@ fn test_anytensor_sum_dispatch() raises:
     print("PASS: test_anytensor_sum_dispatch")
 
 
-fn main() raises:
+def main() raises:
     test_anytensor_add_dispatch()
     test_anytensor_subtract_multiply_dispatch()
     test_anytensor_exp_log_dispatch()

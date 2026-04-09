@@ -8,7 +8,7 @@ from shared.data.random_transform_base import RandomTransformBase
 from shared.testing import assert_true, assert_false, assert_equal
 
 
-fn test_random_transform_base_creation() raises:
+def test_random_transform_base_creation() raises:
     """Test RandomTransformBase initialization."""
     var base = RandomTransformBase(0.5)
     assert_equal(base.p, 0.5, "Probability should be 0.5")
@@ -20,7 +20,7 @@ fn test_random_transform_base_creation() raises:
     assert_equal(base_low.p, 0.1, "Probability should be 0.1")
 
 
-fn test_random_transform_base_should_apply():
+def test_random_transform_base_should_apply():
     """Test should_apply method returns Bool."""
     var base = RandomTransformBase(0.5)
 
@@ -31,7 +31,7 @@ fn test_random_transform_base_should_apply():
         _ = result
 
 
-fn test_random_transform_base_extreme_probabilities() raises:
+def test_random_transform_base_extreme_probabilities() raises:
     """Test RandomTransformBase with extreme probability values."""
     # Test p=0.0 (should rarely apply)
     var base_zero = RandomTransformBase(0.0)
@@ -46,13 +46,13 @@ fn test_random_transform_base_extreme_probabilities() raises:
     assert_equal(base_one.p, 1.0, "Unit probability should be 1.0")
 
 
-fn test_random_transform_base_default() raises:
+def test_random_transform_base_default() raises:
     """Test RandomTransformBase default probability."""
     var base = RandomTransformBase()
     assert_equal(base.p, 0.5, "Default probability should be 0.5")
 
 
-fn main() raises:
+def main() raises:
     """Run all tests."""
     print("Running RandomTransformBase tests...")
 

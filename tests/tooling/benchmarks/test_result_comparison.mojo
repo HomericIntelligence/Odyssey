@@ -30,7 +30,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_percentage_change_calculation() raises:
+def test_percentage_change_calculation() raises:
     """Test calculation of percentage change between baseline and current.
 
     Verifies:
@@ -62,7 +62,7 @@ fn test_percentage_change_calculation() raises:
     )
 
 
-fn test_improvement_detection() raises:
+def test_improvement_detection() raises:
     """Test detection of performance improvements.
 
     Verifies:
@@ -96,7 +96,7 @@ fn test_improvement_detection() raises:
     )
 
 
-fn test_regression_detection() raises:
+def test_regression_detection() raises:
     """Test detection of performance regressions.
 
     Verifies:
@@ -133,7 +133,7 @@ fn test_regression_detection() raises:
     )
 
 
-fn test_normal_variance_tolerance() raises:
+def test_normal_variance_tolerance() raises:
     """Test normal variance tolerance (~5%).
 
     Verifies:
@@ -162,7 +162,7 @@ fn test_normal_variance_tolerance() raises:
     )
 
 
-fn test_regression_threshold() raises:
+def test_regression_threshold() raises:
     """Test regression alert threshold (>10%).
 
     Verifies:
@@ -195,7 +195,7 @@ fn test_regression_threshold() raises:
     )
 
 
-fn test_multiple_metric_comparison() raises:
+def test_multiple_metric_comparison() raises:
     """Test comparison of multiple metrics (duration, throughput, memory).
 
     Verifies:
@@ -245,7 +245,7 @@ fn test_multiple_metric_comparison() raises:
     )
 
 
-fn test_missing_baseline_benchmark() raises:
+def test_missing_baseline_benchmark() raises:
     """Test handling of benchmark missing in baseline.
 
     Verifies:
@@ -278,7 +278,7 @@ fn test_missing_baseline_benchmark() raises:
     assert_true(missing_found, "Should detect benchmark missing in baseline")
 
 
-fn test_zero_baseline_handling() raises:
+def test_zero_baseline_handling() raises:
     """Test handling of zero values in baseline.
 
     Verifies:
@@ -301,7 +301,7 @@ fn test_zero_baseline_handling() raises:
     assert_true(baseline_invalid, "Should detect zero baseline as invalid")
 
 
-fn test_comparison_report_generation() raises:
+def test_comparison_report_generation() raises:
     """Test generation of comparison report.
 
     Verifies:
@@ -329,7 +329,7 @@ fn test_comparison_report_generation() raises:
     assert_true(len(report[1]) > 0, "Report should include total count")
 
 
-fn main() raises:
+def main() raises:
     """Run all result comparison tests."""
     print("\n=== Result Comparison Tests ===\n")
 

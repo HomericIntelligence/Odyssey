@@ -18,7 +18,7 @@ struct StubSequentialSampler:
 
     var size: Int
 
-    fn __init__(out self, size: Int):
+    def __init__(out self, size: Int):
         """Create sequential sampler.
 
         Args:
@@ -26,11 +26,11 @@ struct StubSequentialSampler:
         """
         self.size = size
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return number of indices."""
         return self.size
 
-    fn get_index(self, position: Int) -> Int:
+    def get_index(self, position: Int) -> Int:
         """Get index at position.
 
         Args:
@@ -42,7 +42,7 @@ struct StubSequentialSampler:
         return position
 
 
-fn test_sequential_sampler_creation() raises:
+def test_sequential_sampler_creation() raises:
     """Test creating SequentialSampler with dataset size.
 
     Should create sampler that will yield indices 0 to n-1 in order,
@@ -52,7 +52,7 @@ fn test_sequential_sampler_creation() raises:
     assert_equal(sampler.__len__(), 100)
 
 
-fn test_sequential_sampler_empty() raises:
+def test_sequential_sampler_empty() raises:
     """Test creating SequentialSampler with size 0.
 
     Should create valid sampler that yields no indices,
@@ -62,7 +62,7 @@ fn test_sequential_sampler_empty() raises:
     assert_equal(sampler.__len__(), 0)
 
 
-fn test_sequential_sampler_yields_all_indices() raises:
+def test_sequential_sampler_yields_all_indices() raises:
     """Test that sampler yields all indices exactly once.
 
     Should produce indices [0, 1, 2, ..., n-1] without
@@ -81,7 +81,7 @@ fn test_sequential_sampler_yields_all_indices() raises:
         assert_equal(indices[i], i)
 
 
-fn test_sequential_sampler_order() raises:
+def test_sequential_sampler_order() raises:
     """Test that indices are yielded in sequential order.
 
     Should yield [0, 1, 2, 3, ...], not shuffled or reversed.
@@ -98,7 +98,7 @@ fn test_sequential_sampler_order() raises:
         assert_equal(indices[i], i)
 
 
-fn test_sequential_sampler_deterministic() raises:
+def test_sequential_sampler_deterministic() raises:
     """Test that sampler produces same sequence every time.
 
     Multiple iterations should yield identical index sequences,
@@ -121,7 +121,7 @@ fn test_sequential_sampler_deterministic() raises:
         assert_equal(indices1[i], indices2[i])
 
 
-fn test_sequential_sampler_start_index() raises:
+def test_sequential_sampler_start_index() raises:
     """Test indices start from 0.
 
     First yielded index should always be 0,
@@ -132,7 +132,7 @@ fn test_sequential_sampler_start_index() raises:
     assert_equal(indices[0], 0)
 
 
-fn test_sequential_sampler_end_index() raises:
+def test_sequential_sampler_end_index() raises:
     """Test indices end at size-1.
 
     Last yielded index should be size-1,
@@ -145,7 +145,7 @@ fn test_sequential_sampler_end_index() raises:
     assert_equal(last_idx, 99)
 
 
-fn test_sequential_sampler_no_negative_indices() raises:
+def test_sequential_sampler_no_negative_indices() raises:
     """Test that sampler never yields negative indices.
 
     All indices should be >= 0,
@@ -158,7 +158,7 @@ fn test_sequential_sampler_no_negative_indices() raises:
         assert_true(indices[i] >= 0)
 
 
-fn test_sequential_sampler_with_dataloader() raises:
+def test_sequential_sampler_with_dataloader() raises:
     """Test using SequentialSampler standalone.
 
     SequentialSampler should produce indices in deterministic order
@@ -172,7 +172,7 @@ fn test_sequential_sampler_with_dataloader() raises:
         assert_equal(indices[i], i)
 
 
-fn test_sequential_sampler_reusable() raises:
+def test_sequential_sampler_reusable() raises:
     """Test that sampler can be reused across multiple epochs.
 
     Same sampler instance should work for multiple epochs,
@@ -192,7 +192,7 @@ fn test_sequential_sampler_reusable() raises:
         assert_equal(epoch1_indices[i], epoch2_indices[i])
 
 
-fn test_sequential_sampler_iteration_speed() raises:
+def test_sequential_sampler_iteration_speed() raises:
     """Test that iteration is fast.
 
     Should iterate through indices with minimal overhead,
@@ -207,7 +207,7 @@ fn test_sequential_sampler_iteration_speed() raises:
     assert_equal(count, 100000)
 
 
-fn test_sequential_sampler_memory_efficiency() raises:
+def test_sequential_sampler_memory_efficiency() raises:
     """Test that sampler can handle large datasets.
 
     Creating sampler for large dataset should work,
@@ -218,7 +218,7 @@ fn test_sequential_sampler_memory_efficiency() raises:
     assert_equal(sampler.__len__(), 1000000)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_sequential tests."""
     print("Running test_sequential tests...")
 

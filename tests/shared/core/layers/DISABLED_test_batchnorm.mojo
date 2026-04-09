@@ -25,7 +25,7 @@ from shared.core.layers.batchnorm import BatchNorm2dLayer
 # ============================================================================
 
 
-fn test_batchnorm_initialization() raises:
+def test_batchnorm_initialization() raises:
     """Test BatchNorm2dLayer parameter creation with correct shapes.
 
     Verifies that gamma, beta, and running statistics are initialized correctly.
@@ -55,7 +55,7 @@ fn test_batchnorm_initialization() raises:
     assert_equal(running_var_shape[0], num_channels)
 
 
-fn test_batchnorm_gamma_initialized_to_one() raises:
+def test_batchnorm_gamma_initialized_to_one() raises:
     """Test that gamma (scale) is initialized to 1.0 for each channel.
 
     Gamma = 1.0 means identity scaling initially.
@@ -67,7 +67,7 @@ fn test_batchnorm_gamma_initialized_to_one() raises:
         assert_almost_equal(gamma_data[i], 1.0, tolerance=1e-6)
 
 
-fn test_batchnorm_beta_initialized_to_zero() raises:
+def test_batchnorm_beta_initialized_to_zero() raises:
     """Test that beta (shift) is initialized to 0.0 for each channel.
 
     Beta = 0.0 means no shift initially.
@@ -79,7 +79,7 @@ fn test_batchnorm_beta_initialized_to_zero() raises:
         assert_almost_equal(beta_data[i], 0.0, tolerance=1e-6)
 
 
-fn test_batchnorm_running_mean_initialized_to_zero() raises:
+def test_batchnorm_running_mean_initialized_to_zero() raises:
     """Test that running_mean is initialized to 0.0."""
     var layer = BatchNorm2dLayer(16)
 
@@ -88,7 +88,7 @@ fn test_batchnorm_running_mean_initialized_to_zero() raises:
         assert_almost_equal(mean_data[i], 0.0, tolerance=1e-6)
 
 
-fn test_batchnorm_running_var_initialized_to_one() raises:
+def test_batchnorm_running_var_initialized_to_one() raises:
     """Test that running_var is initialized to 1.0."""
     var layer = BatchNorm2dLayer(16)
 
@@ -97,7 +97,7 @@ fn test_batchnorm_running_var_initialized_to_one() raises:
         assert_almost_equal(var_data[i], 1.0, tolerance=1e-6)
 
 
-fn test_batchnorm_initialization_with_momentum_eps() raises:
+def test_batchnorm_initialization_with_momentum_eps() raises:
     """Test BatchNorm2dLayer initialization with custom momentum and epsilon.
 
     Verifies that momentum and eps parameters are stored correctly.
@@ -118,7 +118,7 @@ fn test_batchnorm_initialization_with_momentum_eps() raises:
 # ============================================================================
 
 
-fn test_batchnorm_forward_output_shape() raises:
+def test_batchnorm_forward_output_shape() raises:
     """Test BatchNorm2dLayer forward pass preserves input shape.
 
     BatchNorm should not change spatial dimensions.
@@ -143,7 +143,7 @@ fn test_batchnorm_forward_output_shape() raises:
     assert_equal(output_shape[3], 32)
 
 
-fn test_batchnorm_forward_training_mode() raises:
+def test_batchnorm_forward_training_mode() raises:
     """Test BatchNorm2dLayer forward pass in training mode.
 
     Training mode should:
@@ -190,7 +190,7 @@ fn test_batchnorm_forward_training_mode() raises:
     assert_true(mean_changed > 0.5, "Running mean not updated in training mode")
 
 
-fn test_batchnorm_forward_inference_mode() raises:
+def test_batchnorm_forward_inference_mode() raises:
     """Test BatchNorm2dLayer forward pass in inference mode.
 
     Inference mode should:
@@ -226,7 +226,7 @@ fn test_batchnorm_forward_inference_mode() raises:
         assert_almost_equal(var_data[i], 2.0, tolerance=1e-6)
 
 
-fn test_batchnorm_forward_without_gamma_beta() raises:
+def test_batchnorm_forward_without_gamma_beta() raises:
     """Test BatchNorm2dLayer forward pass with gamma=1, beta=0 (identity).
 
     With gamma=1 and beta=0, output should be normalized input.
@@ -267,7 +267,7 @@ fn test_batchnorm_forward_without_gamma_beta() raises:
 # ============================================================================
 
 
-fn test_batchnorm_parameters_list() raises:
+def test_batchnorm_parameters_list() raises:
     """Test BatchNorm2dLayer.parameters() returns gamma and beta tensors."""
     var layer = BatchNorm2dLayer(16)
 
@@ -292,7 +292,7 @@ fn test_batchnorm_parameters_list() raises:
 # ============================================================================
 
 
-fn test_batchnorm_get_running_stats() raises:
+def test_batchnorm_get_running_stats() raises:
     """Test BatchNorm2dLayer.get_running_stats() returns current statistics."""
     var layer = BatchNorm2dLayer(16)
 
@@ -316,7 +316,7 @@ fn test_batchnorm_get_running_stats() raises:
         assert_almost_equal(variance_data[i], 1.0, tolerance=1e-6)
 
 
-fn test_batchnorm_set_running_stats() raises:
+def test_batchnorm_set_running_stats() raises:
     """Test BatchNorm2dLayer.set_running_stats() updates statistics."""
     var layer = BatchNorm2dLayer(16)
 
@@ -343,7 +343,7 @@ fn test_batchnorm_set_running_stats() raises:
         assert_almost_equal(var_data[i], 2.0, tolerance=1e-6)
 
 
-fn test_batchnorm_running_stats_update_over_batches() raises:
+def test_batchnorm_running_stats_update_over_batches() raises:
     """Test BatchNorm2dLayer running statistics accumulate over multiple batches.
 
     With momentum=0.1, running_stat = 0.9 * old + 0.1 * batch_stat.
@@ -393,7 +393,7 @@ fn test_batchnorm_running_stats_update_over_batches() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all BatchNorm2dLayer tests."""
     print("Running BatchNorm2dLayer initialization tests...")
     test_batchnorm_initialization()

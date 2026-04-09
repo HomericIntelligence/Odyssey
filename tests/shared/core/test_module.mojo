@@ -20,7 +20,7 @@ struct DummyModule:
     var output_size: Int
     var is_training: Bool
 
-    fn __init__(out self, output_size: Int) raises:
+    def __init__(out self, output_size: Int) raises:
         """Initialize dummy module.
 
         Args:
@@ -29,7 +29,7 @@ struct DummyModule:
         self.output_size = output_size
         self.is_training = True
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass returns zeros of specified size.
 
         Args:
@@ -41,7 +41,7 @@ struct DummyModule:
         var shape: List[Int] = [1, self.output_size]
         return zeros(shape, DType.float32)
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Return empty parameter list.
 
         Returns:
@@ -49,16 +49,16 @@ struct DummyModule:
         """
         return List[AnyTensor]()
 
-    fn train(mut self):
+    def train(mut self):
         """Set to training mode."""
         self.is_training = True
 
-    fn eval(mut self):
+    def eval(mut self):
         """Set to evaluation mode."""
         self.is_training = False
 
 
-fn test_module_interface() raises:
+def test_module_interface() raises:
     """Test Module trait can be implemented and used."""
     var module = DummyModule(10)
 
@@ -81,7 +81,7 @@ fn test_module_interface() raises:
     assert_true(not module.is_training, "Should be in eval mode")
 
 
-fn main() raises:
+def main() raises:
     """Run all tests."""
     test_module_interface()
     print("All tests passed!")

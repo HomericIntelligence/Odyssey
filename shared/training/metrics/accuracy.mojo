@@ -16,7 +16,7 @@ Issues covered:
 """
 
 from shared.tensor.any_tensor import AnyTensor
-from collections import List
+from std.collections import List
 from shared.training.metrics.base import Metric
 
 
@@ -25,7 +25,7 @@ from shared.training.metrics.base import Metric
 # ============================================================================
 
 
-fn top1_accuracy(predictions: AnyTensor, labels: AnyTensor) raises -> Float64:
+def top1_accuracy(predictions: AnyTensor, labels: AnyTensor) raises -> Float64:
     """Compute top-1 accuracy for a single batch.
 
         Top-1 accuracy is the fraction of samples where the predicted class
@@ -97,7 +97,7 @@ fn top1_accuracy(predictions: AnyTensor, labels: AnyTensor) raises -> Float64:
     return Float64(correct) / Float64(pred_classes._numel)
 
 
-fn argmax(var tensor: AnyTensor, axis: Int) raises -> AnyTensor:
+def argmax(var tensor: AnyTensor, axis: Int) raises -> AnyTensor:
     """Compute argmax along specified axis.
 
     Args:
@@ -162,7 +162,7 @@ fn argmax(var tensor: AnyTensor, axis: Int) raises -> AnyTensor:
 # ============================================================================
 
 
-fn topk_accuracy(
+def topk_accuracy(
     predictions: AnyTensor, labels: AnyTensor, k: Int = 5
 ) raises -> Float64:
     """Compute top-k accuracy for a single batch.
@@ -231,7 +231,7 @@ fn topk_accuracy(
     return Float64(correct) / Float64(batch_size)
 
 
-fn get_topk_indices(
+def get_topk_indices(
     predictions: AnyTensor, batch_idx: Int, k: Int
 ) raises -> List[Int]:
     """Get indices of top-k predictions for a single sample.
@@ -296,7 +296,7 @@ fn get_topk_indices(
 # ============================================================================
 
 
-fn per_class_accuracy(
+def per_class_accuracy(
     predictions: AnyTensor, labels: AnyTensor, num_classes: Int
 ) raises -> AnyTensor:
     """Compute accuracy for each class separately.
@@ -401,12 +401,12 @@ struct AccuracyMetric(Metric):
     var correct_count: Int
     var total_count: Int
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize with zero counts."""
         self.correct_count = 0
         self.total_count = 0
 
-    fn update(mut self, predictions: AnyTensor, labels: AnyTensor) raises:
+    def update(mut self, predictions: AnyTensor, labels: AnyTensor) raises:
         """Update metric with a new batch of predictions.
 
         Args:
@@ -447,7 +447,7 @@ struct AccuracyMetric(Metric):
 
             self.total_count += 1
 
-    fn compute(self) -> Float64:
+    def compute(self) -> Float64:
         """Compute final accuracy from accumulated counts.
 
         Returns:
@@ -457,7 +457,7 @@ struct AccuracyMetric(Metric):
             return 0.0
         return Float64(self.correct_count) / Float64(self.total_count)
 
-    fn reset(mut self):
+    def reset(mut self):
         """Reset counts to zero for next epoch."""
         self.correct_count = 0
         self.total_count = 0

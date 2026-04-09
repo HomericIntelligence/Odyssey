@@ -41,7 +41,7 @@ struct PrefetchBuffer(Copyable, Movable):
     var capacity: Int
     """Maximum number of batches to buffer."""
 
-    fn __init__(out self, capacity: Int = 2) raises:
+    def __init__(out self, capacity: Int = 2) raises:
         """Create a prefetch buffer.
 
         Args:
@@ -58,7 +58,7 @@ struct PrefetchBuffer(Copyable, Movable):
         self.batches = List[Batch]()
         self.capacity = capacity
 
-    fn is_full(self) -> Bool:
+    def is_full(self) -> Bool:
         """Check if buffer has reached capacity.
 
         Returns:
@@ -66,7 +66,7 @@ struct PrefetchBuffer(Copyable, Movable):
         """
         return self.batches.__len__() >= self.capacity
 
-    fn is_empty(self) -> Bool:
+    def is_empty(self) -> Bool:
         """Check if buffer is empty.
 
         Returns:
@@ -74,7 +74,7 @@ struct PrefetchBuffer(Copyable, Movable):
         """
         return self.batches.__len__() == 0
 
-    fn append(mut self, var batch: Batch) raises:
+    def append(mut self, var batch: Batch) raises:
         """Add a batch to the buffer.
 
         Args:
@@ -92,7 +92,7 @@ struct PrefetchBuffer(Copyable, Movable):
 
         self.batches.append(batch^)
 
-    fn pop(mut self) raises -> Batch:
+    def pop(mut self) raises -> Batch:
         """Remove and return the first batch in buffer.
 
         Returns:
@@ -106,7 +106,7 @@ struct PrefetchBuffer(Copyable, Movable):
 
         return self.batches.pop(0)
 
-    fn clear(mut self):
+    def clear(mut self):
         """Clear all batches from buffer."""
         self.batches = List[Batch]()
 
@@ -146,7 +146,7 @@ struct PrefetchDataLoader[
     var prefetch_factor: Int
     """Number of batches to pre-compute."""
 
-    fn __init__(
+    def __init__(
         out self,
         var loader: BatchLoader[Self.D, Self.S],
         prefetch_factor: Int = 2,
@@ -169,7 +169,7 @@ struct PrefetchDataLoader[
         self.base_loader = loader^
         self.prefetch_factor = prefetch_factor
 
-    fn __iter__(mut self) raises -> List[Batch]:
+    def __iter__(mut self) raises -> List[Batch]:
         """Pre-compute and return all batches for this epoch.
 
         Returns:
@@ -182,7 +182,7 @@ struct PrefetchDataLoader[
         # Since Mojo lacks lazy iterators, we must get all batches upfront
         return self.base_loader.__iter__()
 
-    fn _prefetch_batches(
+    def _prefetch_batches(
         mut self, var batches: List[Batch], prefetch_factor: Int
     ) raises -> List[Batch]:
         """Process batches with prefetch awareness.

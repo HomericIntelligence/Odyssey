@@ -11,13 +11,13 @@ Run with: `mojo test_data_integrity_part1.mojo`
 """
 
 
-from collections import List
-from memory import UnsafePointer
+from std.collections import List
+from std.memory import UnsafePointer
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from tests.shared.conftest import assert_equal_int, assert_true
 
 
-fn test_mxfp4_aligned_roundtrip() raises:
+def test_mxfp4_aligned_roundtrip() raises:
     """Test MXFP4 round-trip with aligned size (32 elements = 1 block)."""
     print("Test: MXFP4 aligned round-trip...")
 
@@ -35,7 +35,7 @@ fn test_mxfp4_aligned_roundtrip() raises:
     print("  ✓ Aligned MXFP4 round-trip: 32 → 32 elements")
 
 
-fn test_mxfp4_unaligned_roundtrip() raises:
+def test_mxfp4_unaligned_roundtrip() raises:
     """Test MXFP4 round-trip with unaligned size (33 elements).
 
     This is the critical test for DATA-001 (padding data loss fix).
@@ -67,7 +67,7 @@ fn test_mxfp4_unaligned_roundtrip() raises:
     print("  ✓ Unaligned MXFP4 round-trip: 33 → 33 elements (FIX VERIFIED!)")
 
 
-fn test_mxfp4_various_unaligned_sizes() raises:
+def test_mxfp4_various_unaligned_sizes() raises:
     """Test MXFP4 with various non-aligned sizes."""
     print("Test: MXFP4 various unaligned sizes...")
 
@@ -102,7 +102,7 @@ fn test_mxfp4_various_unaligned_sizes() raises:
         )
 
 
-fn test_nvfp4_unaligned_roundtrip() raises:
+def test_nvfp4_unaligned_roundtrip() raises:
     """Test NVFP4 round-trip with unaligned size (17 elements).
 
     Similar to DATA-001 but for NVFP4 which uses 16-element blocks.
@@ -130,7 +130,7 @@ fn test_nvfp4_unaligned_roundtrip() raises:
     print("  ✓ Unaligned NVFP4 round-trip: 17 → 17 elements (FIX VERIFIED!)")
 
 
-fn test_fp8_bounds_checking() raises:
+def test_fp8_bounds_checking() raises:
     """Test FP8 conversion with bounds checking (DATA-004).
 
     Verify that bounds checking prevents out-of-bounds access.
@@ -149,7 +149,7 @@ fn test_fp8_bounds_checking() raises:
     print("  ✓ FP8 bounds checking prevents out-of-bounds access")
 
 
-fn test_dtype_validation_fp8() raises:
+def test_dtype_validation_fp8() raises:
     """Test FP8 conversion with dtype validation (DATA-003).
 
     Verify that invalid dtype is caught.
@@ -168,7 +168,7 @@ fn test_dtype_validation_fp8() raises:
         print("  ✓ FP8 dtype validation catches invalid dtype (int32)")
 
 
-fn test_dtype_validation_mxfp4() raises:
+def test_dtype_validation_mxfp4() raises:
     """Test MXFP4 conversion with dtype validation (DATA-003).
 
     Verify that invalid dtype is caught.
@@ -187,7 +187,7 @@ fn test_dtype_validation_mxfp4() raises:
         print("  ✓ MXFP4 dtype validation catches invalid dtype (int32)")
 
 
-fn test_fp16_conversion_behavior() raises:
+def test_fp16_conversion_behavior() raises:
     """Test FP16 conversion behavior (DATA-005).
 
     FP16 inputs should be converted to FP32 before quantization.
@@ -216,7 +216,7 @@ fn test_fp16_conversion_behavior() raises:
     print("  ✓ FP16 conversion: FP16 → FP32 (internal) → MXFP4 → Float32")
 
 
-fn test_int_conversion_bounds() raises:
+def test_int_conversion_bounds() raises:
     """Test integer conversion with bounds checking."""
     print("Test: Integer conversion bounds checking...")
 
@@ -245,7 +245,7 @@ fn test_int_conversion_bounds() raises:
     print("  ✓ Integer conversion bounds checking works")
 
 
-fn test_metadata_preservation() raises:
+def test_metadata_preservation() raises:
     """Test that quantization metadata is properly set and used."""
     print("Test: Quantization metadata preservation...")
 
@@ -275,7 +275,7 @@ fn test_metadata_preservation() raises:
     print("  ✓ Quantization metadata preserved and used correctly")
 
 
-fn test_backwards_compatibility() raises:
+def test_backwards_compatibility() raises:
     """Test backwards compatibility for non-quantized tensors."""
     print("Test: Backwards compatibility...")
 
@@ -295,7 +295,7 @@ fn test_backwards_compatibility() raises:
     print("  ✓ Backwards compatibility maintained")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_data_integrity tests."""
     print("Running test_data_integrity tests...")
 

@@ -17,9 +17,9 @@ Example:
     ```
 """
 
-import time as mojo_time
-from time import perf_counter_ns
-from math import sqrt
+from std import time as mojo_time
+from std.time import perf_counter_ns
+from std.math import sqrt
 
 
 # ============================================================================
@@ -34,7 +34,7 @@ struct TimingRecord(Copyable, Movable):
     var elapsed_ms: Float32
     var call_count: Int
 
-    fn __init__(out self, name: String, elapsed_ms: Float32):
+    def __init__(out self, name: String, elapsed_ms: Float32):
         """Create timing record.
 
         Args:
@@ -57,7 +57,7 @@ struct TimingStats(Copyable, Movable):
     var max_ms: Float32
     var std_dev: Float32
 
-    fn __init__(out self):
+    def __init__(out self):
         """Create empty timing stats."""
         self.name = ""
         self.total_ms = 0.0
@@ -80,21 +80,21 @@ struct MemoryStats(Copyable, Movable):
     var peak_bytes: Int
     var available_bytes: Int
 
-    fn __init__(out self):
+    def __init__(out self):
         """Create empty memory stats."""
         self.allocated_bytes = 0
         self.peak_bytes = 0
         self.available_bytes = 0
 
-    fn allocated_mb(self) -> Float32:
+    def allocated_mb(self) -> Float32:
         """Get allocated memory in MB."""
         return Float32(self.allocated_bytes) / Float32(1_000_000)
 
-    fn peak_mb(self) -> Float32:
+    def peak_mb(self) -> Float32:
         """Get peak memory in MB."""
         return Float32(self.peak_bytes) / Float32(1_000_000)
 
-    fn available_mb(self) -> Float32:
+    def available_mb(self) -> Float32:
         """Get available memory in MB."""
         return Float32(self.available_bytes) / Float32(1_000_000)
 
@@ -112,14 +112,14 @@ struct ProfilingReport(Copyable, Movable):
     var memory_end: MemoryStats
     var total_time_ms: Float32
 
-    fn __init__(out self):
+    def __init__(out self):
         """Create empty profiling report."""
         self.timing_stats = Dict[String, TimingStats]()
         self.memory_start = MemoryStats()
         self.memory_end = MemoryStats()
         self.total_time_ms = 0.0
 
-    fn add_timing(mut self, name: String, stats: TimingStats):
+    def add_timing(mut self, name: String, stats: TimingStats):
         """Add timing statistics to report.
 
         Args:
@@ -137,7 +137,7 @@ struct ProfilingReport(Copyable, Movable):
         stats_copy.std_dev = stats.std_dev
         self.timing_stats[name] = stats_copy^
 
-    fn to_string(self) raises -> String:
+    def to_string(self) raises -> String:
         """Format report as human-readable string.
 
         Returns:
@@ -197,7 +197,7 @@ struct ProfilingReport(Copyable, Movable):
 
         return result
 
-    fn to_json(self) raises -> String:
+    def to_json(self) raises -> String:
         """Format report as JSON.
 
         Returns:
@@ -301,7 +301,7 @@ struct Timer(Copyable, Movable):
     var start_ns: Int
     var end_ns: Int
 
-    fn __init__(out self, name: String = ""):
+    def __init__(out self, name: String = ""):
         """Create timer with optional name.
 
         Args:
@@ -311,20 +311,20 @@ struct Timer(Copyable, Movable):
         self.start_ns = 0
         self.end_ns = 0
 
-    fn __enter__(mut self):
+    def __enter__(mut self):
         """Start timing on entering context."""
         self.start_ns = self._get_time_ns()
 
-    fn __exit__(mut self):
+    def __exit__(mut self):
         """Stop timing on exiting context and print result."""
         self.end_ns = self._get_time_ns()
-        var elapsed_ms = (self.end_ns - self.start_ns) / 1_000_000.0
+        var elapsed_ms = Float64(self.end_ns - self.start_ns) / 1_000_000.0
         if self.name:
             print(self.name + ": " + String(elapsed_ms) + "ms")
         else:
             print("Elapsed: " + String(elapsed_ms) + "ms")
 
-    fn _get_time_ns(self) -> Int:
+    def _get_time_ns(self) -> Int:
         """Get current time in nanoseconds.
 
         Returns:
@@ -332,7 +332,7 @@ struct Timer(Copyable, Movable):
         """
         return Int(perf_counter_ns())
 
-    fn elapsed_ms(self) -> Float32:
+    def elapsed_ms(self) -> Float32:
         """Get elapsed time in milliseconds.
 
         Returns:
@@ -344,7 +344,7 @@ struct Timer(Copyable, Movable):
             end = self._get_time_ns()
         return Float32(end - self.start_ns) / Float32(1_000_000)
 
-    fn elapsed_us(self) -> Float32:
+    def elapsed_us(self) -> Float32:
         """Get elapsed time in microseconds.
 
         Returns:
@@ -355,7 +355,7 @@ struct Timer(Copyable, Movable):
             end = self._get_time_ns()
         return Float32(end - self.start_ns) / Float32(1_000)
 
-    fn reset(mut self):
+    def reset(mut self):
         """Reset timer for reuse."""
         self.start_ns = 0
         self.end_ns = 0
@@ -366,7 +366,7 @@ struct Timer(Copyable, Movable):
 # ============================================================================
 
 
-fn memory_usage() -> MemoryStats:
+def memory_usage() -> MemoryStats:
     """Get current memory usage statistics.
 
     Returns information about allocated, peak, and available memory.
@@ -391,7 +391,7 @@ fn memory_usage() -> MemoryStats:
     return stats^
 
 
-fn memory_at_checkpoint() -> MemoryStats:
+def memory_at_checkpoint() -> MemoryStats:
     """Record memory usage at a checkpoint.
 
     Returns:
@@ -400,7 +400,7 @@ fn memory_at_checkpoint() -> MemoryStats:
     return memory_usage()
 
 
-fn get_memory_delta(before: MemoryStats, after: MemoryStats) -> Int:
+def get_memory_delta(before: MemoryStats, after: MemoryStats) -> Int:
     """Compute memory change between two points.
 
     Args:
@@ -418,8 +418,8 @@ fn get_memory_delta(before: MemoryStats, after: MemoryStats) -> Int:
 # ============================================================================
 
 
-fn profile_function(
-    name: String, func_ptr: fn () raises -> None
+def profile_function(
+    name: String, func_ptr: def () raises -> None
 ) raises -> TimingStats:
     """Profile a function for execution time.
 
@@ -448,8 +448,8 @@ fn profile_function(
     return stats^
 
 
-fn benchmark_function(
-    name: String, func_ptr: fn () raises -> None, iterations: Int = 10
+def benchmark_function(
+    name: String, func_ptr: def () raises -> None, iterations: Int = 10
 ) raises -> TimingStats:
     """Benchmark function over multiple iterations.
 
@@ -519,7 +519,7 @@ struct CallStackEntry(Copyable, Movable):
     var elapsed_ms: Float32
     var memory_delta_bytes: Int
 
-    fn __init__(out self, name: String):
+    def __init__(out self, name: String):
         """Create call stack entry.
 
         Args:
@@ -537,13 +537,13 @@ struct CallStack(Copyable, Movable):
     var entries: List[CallStackEntry]
     var depth: Int
 
-    fn __init__(out self):
+    def __init__(out self):
         """Create empty call stack."""
         self.root = CallStackEntry("root")
         self.entries = []
         self.depth = 0
 
-    fn push(mut self, name: String):
+    def push(mut self, name: String):
         """Push function onto call stack.
 
         Args:
@@ -552,11 +552,11 @@ struct CallStack(Copyable, Movable):
         self.depth += 1
         self.entries.append(CallStackEntry(name))
 
-    fn pop(mut self):
+    def pop(mut self):
         """Pop function from call stack."""
         self.depth -= 1
 
-    fn depth_level(self) -> Int:
+    def depth_level(self) -> Int:
         """Get current nesting depth.
 
         Returns:
@@ -570,7 +570,7 @@ struct CallStack(Copyable, Movable):
 # ============================================================================
 
 
-fn generate_timing_report(
+def generate_timing_report(
     timings: Dict[String, TimingStats]
 ) raises -> ProfilingReport:
     """Generate profiling report from timing data.
@@ -604,7 +604,7 @@ fn generate_timing_report(
     return report^
 
 
-fn print_timing_report(report: ProfilingReport) raises:
+def print_timing_report(report: ProfilingReport) raises:
     """Print profiling report to console.
 
     Args:
@@ -613,7 +613,7 @@ fn print_timing_report(report: ProfilingReport) raises:
     print(report.to_string())
 
 
-fn export_profiling_report(
+def export_profiling_report(
     report: ProfilingReport, filepath: String, format: String = "json"
 ) raises -> Bool:
     """Export profiling report to file.
@@ -651,7 +651,7 @@ fn export_profiling_report(
 # ============================================================================
 
 
-fn measure_profiling_overhead(num_measurements: Int = 100) raises -> Float32:
+def measure_profiling_overhead(num_measurements: Int = 100) raises -> Float32:
     """Measure overhead of profiling operations themselves.
 
     This is important to ensure profiling doesn't significantly skew results.
@@ -701,7 +701,7 @@ struct BaselineMetrics(Copyable, Movable):
     var peak_memory_mb: Float32
     var threshold_percent: Float32  # Warn if slower than this
 
-    fn __init__(out self):
+    def __init__(out self):
         """Create empty baseline."""
         self.name = ""
         self.avg_time_ms = 0.0
@@ -709,7 +709,7 @@ struct BaselineMetrics(Copyable, Movable):
         self.threshold_percent = 10.0  # Default: warn if 10% slower
 
 
-fn compare_to_baseline(
+def compare_to_baseline(
     current: TimingStats, baseline: BaselineMetrics
 ) -> Tuple[Bool, Float32]:
     """Check if current performance is within baseline tolerance.
@@ -732,7 +732,7 @@ fn compare_to_baseline(
     return (is_regression, percent_slower)
 
 
-fn detect_performance_regression(
+def detect_performance_regression(
     current_metrics: Dict[String, TimingStats],
     baseline_metrics: Dict[String, BaselineMetrics],
 ) raises -> List[String]:

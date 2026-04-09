@@ -39,8 +39,8 @@ Functions:
     assert_matrices_equal: Assert two matrices are element-wise equal with rtol/atol tolerance (parametric dtype)
 """
 
-from math import isnan, isinf
-from collections.optional import Optional
+from std.math import isnan, isinf
+from std.collections.optional import Optional
 from shared.tensor.any_tensor import AnyTensor
 from shared.testing.tolerance_constants import (
     TOLERANCE_DEFAULT,
@@ -59,7 +59,7 @@ from shared.testing.tolerance_constants import (
 # ============================================================================
 
 
-fn assert_true(condition: Bool, message: String = "Assertion failed") raises:
+def assert_true(condition: Bool, message: String = "Assertion failed") raises:
     """Assert that condition is true.
 
     Args:
@@ -73,7 +73,7 @@ fn assert_true(condition: Bool, message: String = "Assertion failed") raises:
         raise Error(message)
 
 
-fn assert_false(condition: Bool, message: String = "Assertion failed") raises:
+def assert_false(condition: Bool, message: String = "Assertion failed") raises:
     """Assert that condition is false.
 
     Args:
@@ -92,7 +92,7 @@ fn assert_false(condition: Bool, message: String = "Assertion failed") raises:
 # ============================================================================
 
 
-fn assert_equal[T: Comparable](a: T, b: T, message: String = "") raises:
+def assert_equal[T: Comparable](a: T, b: T, message: String = "") raises:
     """Assert exact equality of two values.
 
     Args:
@@ -108,7 +108,7 @@ fn assert_equal[T: Comparable](a: T, b: T, message: String = "") raises:
         raise Error(error_msg)
 
 
-fn assert_not_equal[T: Comparable](a: T, b: T, message: String = "") raises:
+def assert_not_equal[T: Comparable](a: T, b: T, message: String = "") raises:
     """Assert inequality of two values.
 
     Args:
@@ -126,7 +126,7 @@ fn assert_not_equal[T: Comparable](a: T, b: T, message: String = "") raises:
         raise Error(error_msg)
 
 
-fn assert_not_none[
+def assert_not_none[
     T: Copyable & Movable
 ](value: Optional[T], message: String = "") raises:
     """Assert that an Optional value is not None.
@@ -150,7 +150,7 @@ fn assert_not_none[
 # ============================================================================
 
 
-fn assert_almost_equal(
+def assert_almost_equal(
     a: Float32,
     b: Float32,
     tolerance: Float32 = Float32(TOLERANCE_DEFAULT),
@@ -175,7 +175,7 @@ fn assert_almost_equal(
         raise Error(error_msg)
 
 
-fn assert_almost_equal(
+def assert_almost_equal(
     a: Float64,
     b: Float64,
     tolerance: Float64 = TOLERANCE_DEFAULT,
@@ -200,7 +200,7 @@ fn assert_almost_equal(
         raise Error(error_msg)
 
 
-fn assert_dtype_equal(a: DType, b: DType, message: String = "") raises:
+def assert_dtype_equal(a: DType, b: DType, message: String = "") raises:
     """Assert exact equality of DType values.
 
     Args:
@@ -216,7 +216,7 @@ fn assert_dtype_equal(a: DType, b: DType, message: String = "") raises:
         raise Error(error_msg)
 
 
-fn assert_equal_int(a: Int, b: Int, message: String = "") raises:
+def assert_equal_int(a: Int, b: Int, message: String = "") raises:
     """Assert two integers are equal.
 
     Args:
@@ -234,7 +234,7 @@ fn assert_equal_int(a: Int, b: Int, message: String = "") raises:
         raise Error(error_msg)
 
 
-fn assert_equal_float(a: Float32, b: Float32, message: String = "") raises:
+def assert_equal_float(a: Float32, b: Float32, message: String = "") raises:
     """Assert exact equality of two Float32 values.
 
     Args:
@@ -252,7 +252,7 @@ fn assert_equal_float(a: Float32, b: Float32, message: String = "") raises:
         raise Error(error_msg)
 
 
-fn assert_close_float(
+def assert_close_float(
     a: Float64,
     b: Float64,
     rtol: Float64 = 1e-5,
@@ -320,7 +320,7 @@ fn assert_close_float(
 # ============================================================================
 
 
-fn assert_greater[
+def assert_greater[
     T: Comparable & Writable
 ](a: T, b: T, message: String = "") raises:
     """Assert a > b using parametric type constraints.
@@ -341,7 +341,7 @@ fn assert_greater[
         raise Error(error_msg)
 
 
-fn assert_less[
+def assert_less[
     T: Comparable & Writable
 ](a: T, b: T, message: String = "") raises:
     """Assert a < b using parametric type constraints.
@@ -362,7 +362,7 @@ fn assert_less[
         raise Error(error_msg)
 
 
-fn assert_greater_or_equal[
+def assert_greater_or_equal[
     T: Comparable & Writable
 ](a: T, b: T, message: String = "") raises:
     """Assert a >= b using parametric type constraints.
@@ -383,7 +383,7 @@ fn assert_greater_or_equal[
         raise Error(error_msg)
 
 
-fn assert_less_or_equal[
+def assert_less_or_equal[
     T: Comparable & Writable
 ](a: T, b: T, message: String = "") raises:
     """Assert a <= b using parametric type constraints.
@@ -409,7 +409,7 @@ fn assert_less_or_equal[
 # ============================================================================
 
 
-fn assert_shape_equal(
+def assert_shape_equal(
     shape1: List[Int], shape2: List[Int], message: String = ""
 ) raises:
     """Assert two shapes are equal.
@@ -449,7 +449,7 @@ fn assert_shape_equal(
 # ============================================================================
 
 
-fn assert_not_equal_tensor(
+def assert_not_equal_tensor(
     a: AnyTensor, b: AnyTensor, message: String = ""
 ) raises:
     """Assert two tensors are not equal element-wise.
@@ -495,7 +495,7 @@ fn assert_not_equal_tensor(
         raise Error(error_msg)
 
 
-fn assert_tensor_equal(a: AnyTensor, b: AnyTensor, message: String = "") raises:
+def assert_tensor_equal(a: AnyTensor, b: AnyTensor, message: String = "") raises:
     """Assert two AnyTensors are equal (shape and all elements).
 
     Args:
@@ -542,7 +542,7 @@ fn assert_tensor_equal(a: AnyTensor, b: AnyTensor, message: String = "") raises:
             raise Error(message + ": " + msg if message else msg)
 
 
-fn assert_shape(
+def assert_shape(
     tensor: AnyTensor, expected: List[Int], message: String = ""
 ) raises:
     """Assert tensor has expected shape.
@@ -582,7 +582,7 @@ fn assert_shape(
             raise Error(error_msg)
 
 
-fn assert_dtype(tensor: AnyTensor, expected: DType, message: String = "") raises:
+def assert_dtype(tensor: AnyTensor, expected: DType, message: String = "") raises:
     """Assert tensor has expected dtype.
 
     Args:
@@ -601,7 +601,7 @@ fn assert_dtype(tensor: AnyTensor, expected: DType, message: String = "") raises
         raise Error(error_msg)
 
 
-fn assert_numel(tensor: AnyTensor, expected: Int, message: String = "") raises:
+def assert_numel(tensor: AnyTensor, expected: Int, message: String = "") raises:
     """Assert tensor has expected number of elements.
 
     Args:
@@ -620,7 +620,7 @@ fn assert_numel(tensor: AnyTensor, expected: Int, message: String = "") raises:
         raise Error(error_msg)
 
 
-fn assert_dim(tensor: AnyTensor, expected: Int, message: String = "") raises:
+def assert_dim(tensor: AnyTensor, expected: Int, message: String = "") raises:
     """Assert tensor has expected number of dimensions.
 
     Args:
@@ -647,7 +647,7 @@ fn assert_dim(tensor: AnyTensor, expected: Int, message: String = "") raises:
 # ============================================================================
 
 
-fn assert_value_at(
+def assert_value_at(
     tensor: AnyTensor,
     index: Int,
     expected: Float64,
@@ -687,7 +687,7 @@ fn assert_value_at(
         raise Error(error_msg)
 
 
-fn assert_all_values(
+def assert_all_values(
     tensor: AnyTensor,
     expected: Float64,
     tolerance: Float64 = TOLERANCE_DEFAULT,
@@ -723,7 +723,7 @@ fn assert_all_values(
             raise Error(error_msg)
 
 
-fn assert_all_close(
+def assert_all_close(
     a: AnyTensor,
     b: AnyTensor,
     tolerance: Float64 = TOLERANCE_DEFAULT,
@@ -790,7 +790,7 @@ fn assert_all_close(
 # ============================================================================
 
 
-fn assert_type[T: AnyType](value: T, expected_type: String) raises:
+def assert_type[T: AnyType](value: T, expected_type: String) raises:
     """Assert value is of expected type (for documentation purposes).
 
     Note: Type checking in Mojo happens at compile time, so this function
@@ -812,7 +812,7 @@ fn assert_type[T: AnyType](value: T, expected_type: String) raises:
     pass
 
 
-fn assert_contiguous(tensor: AnyTensor, message: String = "") raises:
+def assert_contiguous(tensor: AnyTensor, message: String = "") raises:
     """Assert tensor has contiguous memory layout.
 
     Args:
@@ -832,7 +832,7 @@ fn assert_contiguous(tensor: AnyTensor, message: String = "") raises:
 # ============================================================================
 
 
-fn assert_matrices_equal[
+def assert_matrices_equal[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor, rtol: Float64 = 1e-5, atol: Float64 = 1e-8) raises:
     """Compare two matrices element-wise with relative and absolute tolerance.
@@ -882,9 +882,7 @@ fn assert_matrices_equal[
     for i in range(numel):
         var a_val: Float64
         var b_val: Float64
-
-        @parameter
-        if dtype == DType.float32:
+        comptime if dtype == DType.float32:
             a_val = Float64(a._data.bitcast[Float32]()[i])
             b_val = Float64(b._data.bitcast[Float32]()[i])
         elif dtype == DType.float64:

@@ -20,7 +20,7 @@ from shared.testing.assertions import (
 )
 
 
-fn test_default_config() raises:
+def test_default_config() raises:
     """Test creating a default TrainingConfig."""
     print("test_default_config...")
 
@@ -58,7 +58,7 @@ fn test_default_config() raises:
     print("  PASSED")
 
 
-fn test_custom_config() raises:
+def test_custom_config() raises:
     """Test creating a custom TrainingConfig with all parameters."""
     print("test_custom_config...")
 
@@ -107,7 +107,7 @@ fn test_custom_config() raises:
     print("  PASSED")
 
 
-fn test_for_lenet5() raises:
+def test_for_lenet5() raises:
     """Test factory method for LeNet-5/EMNIST configuration."""
     print("test_for_lenet5...")
 
@@ -144,7 +144,7 @@ fn test_for_lenet5() raises:
     print("  PASSED")
 
 
-fn test_for_cifar10() raises:
+def test_for_cifar10() raises:
     """Test factory method for CIFAR-10 configuration."""
     print("test_for_cifar10...")
 
@@ -190,7 +190,7 @@ fn test_for_cifar10() raises:
     print("  PASSED")
 
 
-fn test_should_validate() raises:
+def test_should_validate() raises:
     """Test should_validate method for validation frequency."""
     print("test_should_validate...")
 
@@ -257,7 +257,7 @@ fn test_should_validate() raises:
     print("  PASSED")
 
 
-fn test_should_checkpoint() raises:
+def test_should_checkpoint() raises:
     """Test should_checkpoint method for checkpoint frequency."""
     print("test_should_checkpoint...")
 
@@ -332,7 +332,7 @@ fn test_should_checkpoint() raises:
     print("  PASSED")
 
 
-fn test_to_string() raises:
+def test_to_string() raises:
     """Test string representation of TrainingConfig."""
     print("test_to_string...")
 
@@ -388,7 +388,7 @@ fn test_to_string() raises:
     print("  PASSED")
 
 
-fn test_learning_rate_schedules() raises:
+def test_learning_rate_schedules() raises:
     """Test different learning rate schedule types."""
     print("test_learning_rate_schedules...")
 
@@ -432,7 +432,7 @@ fn test_learning_rate_schedules() raises:
     print("  PASSED")
 
 
-fn test_weight_decay_values() raises:
+def test_weight_decay_values() raises:
     """Test weight decay configuration for regularization."""
     print("test_weight_decay_values...")
 
@@ -467,7 +467,7 @@ fn test_weight_decay_values() raises:
     print("  PASSED")
 
 
-fn main() raises:
+def main() raises:
     """Run all TrainingConfig tests."""
     print("=" * 60)
     print("TrainingConfig Test Suite")

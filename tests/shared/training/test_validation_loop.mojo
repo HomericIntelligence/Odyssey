@@ -42,17 +42,17 @@ from shared.tensor.any_tensor import ones, zeros, randn
 # ============================================================================
 
 
-fn simple_forward(data: AnyTensor) raises -> AnyTensor:
+def simple_forward(data: AnyTensor) raises -> AnyTensor:
     """Simple forward: returns ones matching data shape."""
     return ones(data.shape(), data.dtype())
 
 
-fn simple_loss(pred: AnyTensor, labels: AnyTensor) raises -> AnyTensor:
+def simple_loss(pred: AnyTensor, labels: AnyTensor) raises -> AnyTensor:
     """Simple loss: returns scalar ones tensor."""
     return ones([1], DType.float32)
 
 
-fn create_val_loader(n_batches: Int = 3) raises -> DataLoader:
+def create_val_loader(n_batches: Int = 3) raises -> DataLoader:
     """Create a DataLoader with n_batches * 4 samples, batch_size=4, feature_dim=10.
     """
     var n_samples = n_batches * 4
@@ -66,7 +66,7 @@ fn create_val_loader(n_batches: Int = 3) raises -> DataLoader:
 # ============================================================================
 
 
-fn test_validation_loop_init_defaults() raises:
+def test_validation_loop_init_defaults() raises:
     """Test ValidationLoop constructor defaults."""
     var vloop = ValidationLoop()
     assert_true(vloop.compute_accuracy)
@@ -75,7 +75,7 @@ fn test_validation_loop_init_defaults() raises:
     print("  test_validation_loop_init_defaults: PASSED")
 
 
-fn test_validation_loop_init_custom() raises:
+def test_validation_loop_init_custom() raises:
     """Test ValidationLoop constructor stores custom values."""
     var vloop = ValidationLoop(
         compute_accuracy=False, compute_confusion=True, num_classes=5
@@ -91,7 +91,7 @@ fn test_validation_loop_init_custom() raises:
 # ============================================================================
 
 
-fn test_validation_step_returns_float() raises:
+def test_validation_step_returns_float() raises:
     """Test validation_step returns a Float64 loss value."""
     var data = ones([4, 10], DType.float32)
     var labels = zeros([4, 1], DType.float32)
@@ -101,7 +101,7 @@ fn test_validation_step_returns_float() raises:
     print("  test_validation_step_returns_float: PASSED")
 
 
-fn test_validation_step_no_grad() raises:
+def test_validation_step_no_grad() raises:
     """Test validation_step completes without error (forward-only, no backward).
     """
     var data = randn([4, 10], DType.float32, seed=42)
@@ -116,7 +116,7 @@ fn test_validation_step_no_grad() raises:
 # ============================================================================
 
 
-fn test_validate_runs_full_loader() raises:
+def test_validate_runs_full_loader() raises:
     """Test validate() iterates all batches and returns average loss."""
     var loader = create_val_loader(n_batches=3)
     var avg_loss = validate(simple_forward, simple_loss, loader)
@@ -125,7 +125,7 @@ fn test_validate_runs_full_loader() raises:
     print("  test_validate_runs_full_loader: PASSED")
 
 
-fn test_validate_returns_positive_loss() raises:
+def test_validate_returns_positive_loss() raises:
     """Test validate() returns non-negative loss."""
     var loader = create_val_loader(n_batches=2)
     var avg_loss = validate(simple_forward, simple_loss, loader)
@@ -138,7 +138,7 @@ fn test_validate_returns_positive_loss() raises:
 # ============================================================================
 
 
-fn test_validation_loop_run_basic() raises:
+def test_validation_loop_run_basic() raises:
     """Test ValidationLoop.run() returns valid loss."""
     var vloop = ValidationLoop()
     var loader = create_val_loader(n_batches=3)
@@ -148,7 +148,7 @@ fn test_validation_loop_run_basic() raises:
     print("  test_validation_loop_run_basic: PASSED")
 
 
-fn test_validation_loop_run_updates_metrics() raises:
+def test_validation_loop_run_updates_metrics() raises:
     """Test ValidationLoop.run() updates TrainingMetrics.val_loss."""
     var vloop = ValidationLoop()
     var loader = create_val_loader(n_batches=3)
@@ -158,7 +158,7 @@ fn test_validation_loop_run_updates_metrics() raises:
     print("  test_validation_loop_run_updates_metrics: PASSED")
 
 
-fn test_validation_loop_run_resets_loader() raises:
+def test_validation_loop_run_resets_loader() raises:
     """Test run() resets a partially-consumed DataLoader before iterating.
 
     Strategy: Create a loader with exactly 2 batches, then exhaust it by
@@ -184,7 +184,7 @@ fn test_validation_loop_run_resets_loader() raises:
     print("  test_validation_loop_run_resets_loader: PASSED")
 
 
-fn test_validation_loop_run_compute_accuracy_false() raises:
+def test_validation_loop_run_compute_accuracy_false() raises:
     """Test ValidationLoop.run() with compute_accuracy=False skips accuracy.
 
     When compute_accuracy=False, run() should not compute accuracy and
@@ -201,7 +201,7 @@ fn test_validation_loop_run_compute_accuracy_false() raises:
     print("  test_validation_loop_run_compute_accuracy_false: PASSED")
 
 
-fn test_validation_loop_run_accuracy_tracked() raises:
+def test_validation_loop_run_accuracy_tracked() raises:
     """Test ValidationLoop.run() stores computed accuracy in TrainingMetrics.val_accuracy.
 
     When compute_accuracy=True (default), run() must pass the actual computed
@@ -226,7 +226,7 @@ fn test_validation_loop_run_accuracy_tracked() raises:
 # ============================================================================
 
 
-fn test_validation_loop_run_subset_limited() raises:
+def test_validation_loop_run_subset_limited() raises:
     """Test run_subset(max_batches=2) with 5-batch loader processes only 2 batches.
     """
     var vloop = ValidationLoop()
@@ -240,7 +240,7 @@ fn test_validation_loop_run_subset_limited() raises:
     print("  test_validation_loop_run_subset_limited: PASSED")
 
 
-fn test_validation_loop_run_subset_loss_valid() raises:
+def test_validation_loop_run_subset_loss_valid() raises:
     """Test run_subset returns valid Float64 loss."""
     var vloop = ValidationLoop()
     var loader = create_val_loader(n_batches=3)
@@ -253,7 +253,7 @@ fn test_validation_loop_run_subset_loss_valid() raises:
     print("  test_validation_loop_run_subset_loss_valid: PASSED")
 
 
-fn test_validation_loop_run_subset_resets_loader() raises:
+def test_validation_loop_run_subset_resets_loader() raises:
     """Test run_subset() resets a partially-consumed DataLoader before iterating.
 
     Strategy: Create a loader with exactly 2 batches, then exhaust it by
@@ -281,7 +281,7 @@ fn test_validation_loop_run_subset_resets_loader() raises:
     print("  test_validation_loop_run_subset_resets_loader: PASSED")
 
 
-fn test_validation_loop_run_subset_updates_val_accuracy() raises:
+def test_validation_loop_run_subset_updates_val_accuracy() raises:
     """Test run_subset() computes and updates val_accuracy (not hardcoded 0.0).
 
     Creates a ValidationLoop with compute_accuracy=True, runs run_subset() on
@@ -307,7 +307,7 @@ fn test_validation_loop_run_subset_updates_val_accuracy() raises:
 # ============================================================================
 
 
-fn test_validation_loop_no_weight_updates() raises:
+def test_validation_loop_no_weight_updates() raises:
     """Validate that validation runs forward-only without optimizer step.
 
     Since ValidationLoop has no optimizer, calling run() multiple times
@@ -333,7 +333,7 @@ fn test_validation_loop_no_weight_updates() raises:
 # ============================================================================
 
 
-fn test_validation_loop_confusion_matrix_basic() raises:
+def test_validation_loop_confusion_matrix_basic() raises:
     """Test ValidationLoop(compute_confusion=True, num_classes=2) runs without error.
 
     Constructs a 2-class ValidationLoop with confusion matrix enabled, runs
@@ -377,7 +377,7 @@ fn test_validation_loop_confusion_matrix_basic() raises:
     print("  test_validation_loop_confusion_matrix_basic: PASSED")
 
 
-fn test_confusion_matrix_binary_counts() raises:
+def test_confusion_matrix_binary_counts() raises:
     """Test ConfusionMatrix cell counts with known binary predictions.
 
     Fixture: y_true=[0,1,0,1], y_pred=[0,1,1,0]
@@ -416,7 +416,7 @@ fn test_confusion_matrix_binary_counts() raises:
     print("  test_confusion_matrix_binary_counts: PASSED")
 
 
-fn test_confusion_matrix_all_correct() raises:
+def test_confusion_matrix_all_correct() raises:
     """Test ConfusionMatrix with all-correct predictions yields pure diagonal.
 
     Fixture: y_true=[0,0,1,1], y_pred=[0,0,1,1]
@@ -450,7 +450,7 @@ fn test_confusion_matrix_all_correct() raises:
     print("  test_confusion_matrix_all_correct: PASSED")
 
 
-fn test_confusion_matrix_all_wrong() raises:
+def test_confusion_matrix_all_wrong() raises:
     """Test ConfusionMatrix with all-wrong predictions yields zero diagonal.
 
     Fixture: y_true=[0,0,1,1], y_pred=[1,1,0,0]
@@ -489,7 +489,7 @@ fn test_confusion_matrix_all_wrong() raises:
 # ============================================================================
 
 
-fn identity_forward(data: AnyTensor) raises -> AnyTensor:
+def identity_forward(data: AnyTensor) raises -> AnyTensor:
     """Identity forward: returns the input data unchanged.
 
     Used to control predictions via crafted input logits.
@@ -502,7 +502,7 @@ fn identity_forward(data: AnyTensor) raises -> AnyTensor:
 # ============================================================================
 
 
-fn test_validation_loop_confusion_matrix_integration() raises:
+def test_validation_loop_confusion_matrix_integration() raises:
     """Integration test: ValidationLoop populates confusion matrix with correct counts.
 
     Constructs ValidationLoop(compute_confusion=True, num_classes=2), runs
@@ -573,7 +573,7 @@ fn test_validation_loop_confusion_matrix_integration() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all validation loop tests."""
     print("Running ValidationLoop initialization tests...")
     test_validation_loop_init_defaults()

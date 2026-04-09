@@ -7,7 +7,7 @@ from shared.training.precision_config import PrecisionConfig, PrecisionMode
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 
 
-fn test_precision_mode_values() raises:
+def test_precision_mode_values() raises:
     """Test PrecisionMode enumeration values."""
     print("Testing PrecisionMode values...")
 
@@ -24,7 +24,7 @@ fn test_precision_mode_values() raises:
     print("✓ PrecisionMode values test passed")
 
 
-fn test_precision_mode_equality() raises:
+def test_precision_mode_equality() raises:
     """Test PrecisionMode equality comparison."""
     print("Testing PrecisionMode equality...")
 
@@ -42,7 +42,7 @@ fn test_precision_mode_equality() raises:
     print("✓ PrecisionMode equality test passed")
 
 
-fn test_precision_mode_string() raises:
+def test_precision_mode_string() raises:
     """Test PrecisionMode string conversion."""
     print("Testing PrecisionMode string conversion...")
 
@@ -58,7 +58,7 @@ fn test_precision_mode_string() raises:
     print("✓ PrecisionMode string test passed")
 
 
-fn test_fp32_config() raises:
+def test_fp32_config() raises:
     """Test FP32 PrecisionConfig."""
     print("Testing FP32 config...")
 
@@ -78,7 +78,7 @@ fn test_fp32_config() raises:
     print("✓ FP32 config test passed")
 
 
-fn test_fp16_config() raises:
+def test_fp16_config() raises:
     """Test FP16 PrecisionConfig."""
     print("Testing FP16 config...")
 
@@ -100,7 +100,7 @@ fn test_fp16_config() raises:
     print("✓ FP16 config test passed")
 
 
-fn test_from_string() raises:
+def test_from_string() raises:
     """Test PrecisionConfig.from_string factory."""
     print("Testing from_string factory...")
 
@@ -123,7 +123,7 @@ fn test_from_string() raises:
     print("✓ from_string factory test passed")
 
 
-fn test_from_string_invalid() raises:
+def test_from_string_invalid() raises:
     """Test from_string with invalid precision name."""
     print("Testing from_string with invalid input...")
 
@@ -139,7 +139,7 @@ fn test_from_string_invalid() raises:
     print("✓ from_string invalid input test passed")
 
 
-fn test_cast_to_compute() raises:
+def test_cast_to_compute() raises:
     """Test tensor casting to compute dtype."""
     print("Testing cast_to_compute...")
 
@@ -163,7 +163,7 @@ fn test_cast_to_compute() raises:
     print("✓ cast_to_compute test passed")
 
 
-fn test_scale_unscale() raises:
+def test_scale_unscale() raises:
     """Test loss scaling and gradient unscaling."""
     print("Testing scale/unscale operations...")
 
@@ -198,7 +198,7 @@ fn test_scale_unscale() raises:
     print("✓ scale/unscale test passed")
 
 
-fn test_gradient_checking() raises:
+def test_gradient_checking() raises:
     """Test gradient validity checking."""
     print("Testing gradient checking...")
 
@@ -214,7 +214,7 @@ fn test_gradient_checking() raises:
     print("✓ gradient checking test passed")
 
 
-fn test_step_tracking() raises:
+def test_step_tracking() raises:
     """Test step and overflow tracking."""
     print("Testing step tracking...")
 
@@ -243,7 +243,7 @@ fn test_step_tracking() raises:
     print("✓ step tracking test passed")
 
 
-fn test_needs_master_weights() raises:
+def test_needs_master_weights() raises:
     """Test needs_master_weights check."""
     print("Testing needs_master_weights...")
 
@@ -262,7 +262,7 @@ fn test_needs_master_weights() raises:
     print("✓ needs_master_weights test passed")
 
 
-fn test_bf16_config() raises:
+def test_bf16_config() raises:
     """Test BF16 PrecisionConfig."""
     print("Testing BF16 config...")
 
@@ -284,7 +284,7 @@ fn test_bf16_config() raises:
     print("✓ BF16 config test passed")
 
 
-fn test_bf16_warning_documented() raises:
+def test_bf16_warning_documented() raises:
     """Test that BF16 config returns the correct mode.
 
     Note: The Apple Silicon runtime warning is emitted via print() inside
@@ -305,7 +305,7 @@ fn test_bf16_warning_documented() raises:
     print("✓ BF16 warning documented test passed")
 
 
-fn test_gradient_clipping() raises:
+def test_gradient_clipping() raises:
     """Test gradient clipping."""
     print("Testing gradient clipping...")
 
@@ -337,7 +337,7 @@ fn test_gradient_clipping() raises:
     print("✓ gradient clipping test passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_precision_config tests."""
     print("Running test_precision_config tests...")
 

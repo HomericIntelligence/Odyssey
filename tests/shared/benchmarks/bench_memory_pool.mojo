@@ -4,11 +4,11 @@ Compares pool vs system malloc for various allocation sizes.
 """
 
 from shared.base.memory_pool import get_global_pool, pooled_alloc, pooled_free
-from memory import alloc
+from std.memory import alloc
 from time import perf_counter_ns
 
 
-fn bench_pool_small_allocations() raises:
+def bench_pool_small_allocations() raises:
     """Benchmark pool vs malloc for small allocations (64-1024 bytes)."""
     print("Benchmark: Small allocations (64-1024 bytes)")
 
@@ -42,7 +42,7 @@ fn bench_pool_small_allocations() raises:
         )
 
 
-fn bench_pool_medium_allocations() raises:
+def bench_pool_medium_allocations() raises:
     """Benchmark pool for medium allocations (2KB-16KB)."""
     print("")
     print("Benchmark: Medium allocations (2KB-16KB)")
@@ -77,7 +77,7 @@ fn bench_pool_medium_allocations() raises:
         )
 
 
-fn bench_statistics() raises:
+def bench_statistics() raises:
     """Print pool statistics."""
     print("")
     print("Pool Statistics:")
@@ -100,7 +100,7 @@ fn bench_statistics() raises:
         print("  Overall hit rate:", overall_hit_rate, "%")
 
 
-fn main() raises:
+def main() raises:
     """Run all benchmarks."""
     print("Memory Pool Benchmarks")
     print("======================")

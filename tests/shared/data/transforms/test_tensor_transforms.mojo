@@ -12,7 +12,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_reshape_basic():
+def test_reshape_basic():
     """Test reshaping tensor to new shape.
 
     Should change tensor shape without changing data order,
@@ -28,7 +28,7 @@ fn test_reshape_basic():
     pass
 
 
-fn test_reshape_flatten():
+def test_reshape_flatten():
     """Test flattening multi-dimensional tensor.
 
     Should convert any shape to 1D vector,
@@ -43,7 +43,7 @@ fn test_reshape_flatten():
     pass
 
 
-fn test_reshape_add_dimension():
+def test_reshape_add_dimension():
     """Test adding channel dimension.
 
     Should add dimension of size 1, e.g., (28, 28) → (28, 28, 1),
@@ -58,7 +58,7 @@ fn test_reshape_add_dimension():
     pass
 
 
-fn test_reshape_remove_dimension():
+def test_reshape_remove_dimension():
     """Test removing dimension of size 1.
 
     Should remove singleton dimensions, e.g., (28, 28, 1) → (28, 28),
@@ -74,7 +74,7 @@ fn test_reshape_remove_dimension():
     pass
 
 
-fn test_to_float32():
+def test_to_float32():
     """Test converting tensor to Float32 dtype.
 
     Should convert from any numeric type to Float32,
@@ -89,7 +89,7 @@ fn test_to_float32():
     pass
 
 
-fn test_to_int32():
+def test_to_int32():
     """Test converting tensor to Int32 dtype.
 
     Should convert from float to int, truncating decimals,
@@ -105,7 +105,7 @@ fn test_to_int32():
     pass
 
 
-fn test_scale_uint8_to_float():
+def test_scale_uint8_to_float():
     """Test scaling uint8 [0, 255] to float [0, 1].
 
     Common preprocessing for image data loaded from files,
@@ -121,7 +121,7 @@ fn test_scale_uint8_to_float():
     pass
 
 
-fn test_scale_float_to_uint8():
+def test_scale_float_to_uint8():
     """Test scaling float [0, 1] to uint8 [0, 255].
 
     Useful for saving processed images back to disk
@@ -138,7 +138,7 @@ fn test_scale_float_to_uint8():
     pass
 
 
-fn test_transpose_2d():
+def test_transpose_2d():
     """Test transposing 2D tensor.
 
     Should swap dimensions: (H, W) → (W, H),
@@ -155,7 +155,7 @@ fn test_transpose_2d():
     pass
 
 
-fn test_permute_dimensions():
+def test_permute_dimensions():
     """Test permuting dimensions with custom order.
 
     Should reorder dimensions: (H, W, C) → (C, H, W),
@@ -171,7 +171,7 @@ fn test_permute_dimensions():
     pass
 
 
-fn test_channel_first_to_last():
+def test_channel_first_to_last():
     """Test converting CHW to HWC format.
 
     PyTorch uses CHW, TensorFlow uses HWC,
@@ -187,7 +187,7 @@ fn test_channel_first_to_last():
     pass
 
 
-fn test_lambda_basic():
+def test_lambda_basic():
     """Test applying custom function as transform.
 
     Should allow arbitrary function to be used as transform,
@@ -206,7 +206,7 @@ fn test_lambda_basic():
     pass
 
 
-fn test_lambda_with_closure():
+def test_lambda_with_closure():
     """Test Lambda with captured variables.
 
     Should support closures for parameterized custom transforms,
@@ -225,7 +225,7 @@ fn test_lambda_with_closure():
     pass
 
 
-fn test_clamp_range():
+def test_clamp_range():
     """Test clamping values to valid range.
 
     Should clip values outside [min, max] range,
@@ -241,7 +241,7 @@ fn test_clamp_range():
     pass
 
 
-fn main() raises:
+def main() raises:
     """Run all test_tensor_transforms tests."""
     print("Running test_tensor_transforms tests...")
 

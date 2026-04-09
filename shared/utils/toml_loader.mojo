@@ -13,11 +13,11 @@ Example:
     ```
 """
 
-from python import Python, PythonObject
+from std.python import Python, PythonObject
 from shared.utils.config import Config, ConfigValue, merge_configs
 
 
-fn load_toml_file(filepath: String) raises -> PythonObject:
+def load_toml_file(filepath: String) raises -> PythonObject:
     """Load TOML file using Python's tomli library.
 
     Args:
@@ -40,7 +40,7 @@ fn load_toml_file(filepath: String) raises -> PythonObject:
     return toml_dict
 
 
-fn python_dict_to_config(
+def python_dict_to_config(
     py_dict: PythonObject, prefix: String = ""
 ) raises -> Config:
     """Convert Python dict to Config object recursively.
@@ -117,7 +117,7 @@ fn python_dict_to_config(
     return config
 
 
-fn load_toml_config(filepath: String) raises -> Config:
+def load_toml_config(filepath: String) raises -> Config:
     """Load TOML configuration file into Config object.
 
     Args:

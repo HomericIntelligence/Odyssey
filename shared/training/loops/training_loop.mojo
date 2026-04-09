@@ -23,7 +23,7 @@ Design principles:
 - Support for custom batch processing functions
 """
 
-from collections import List
+from std.collections import List
 from shared.tensor.any_tensor import AnyTensor
 from shared.training.metrics import AccuracyMetric, LossTracker
 from shared.training.trainer_interface import (
@@ -33,11 +33,11 @@ from shared.training.trainer_interface import (
 )
 
 
-fn training_step(
-    model_forward: fn (AnyTensor) raises -> AnyTensor,
-    compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
-    optimizer_step: fn () raises -> None,
-    zero_gradients: fn () raises -> None,
+def training_step(
+    model_forward: def (AnyTensor) raises -> AnyTensor,
+    compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
+    optimizer_step: def () raises -> None,
+    zero_gradients: def () raises -> None,
     data: AnyTensor,
     labels: AnyTensor,
 ) raises -> Float64:
@@ -81,11 +81,11 @@ fn training_step(
     return loss_value
 
 
-fn train_one_epoch(
-    model_forward: fn (AnyTensor) raises -> AnyTensor,
-    compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
-    optimizer_step: fn () raises -> None,
-    zero_gradients: fn () raises -> None,
+def train_one_epoch(
+    model_forward: def (AnyTensor) raises -> AnyTensor,
+    compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
+    optimizer_step: def () raises -> None,
+    zero_gradients: def () raises -> None,
     mut train_loader: DataLoader,
     mut metrics: TrainingMetrics,
     log_interval: Int = 10,
@@ -188,7 +188,7 @@ struct TrainingLoop:
     var clip_gradients: Bool
     var max_grad_norm: Float64
 
-    fn __init__(
+    def __init__(
         out self,
         log_interval: Int = 10,
         clip_gradients: Bool = False,
@@ -205,12 +205,12 @@ struct TrainingLoop:
         self.clip_gradients = clip_gradients
         self.max_grad_norm = max_grad_norm
 
-    fn run_epoch_manual(
+    def run_epoch_manual(
         self,
         train_data: AnyTensor,
         train_labels: AnyTensor,
         batch_size: Int,
-        compute_batch_loss: fn (AnyTensor, AnyTensor) raises -> Float32,
+        compute_batch_loss: def (AnyTensor, AnyTensor) raises -> Float32,
         epoch: Int,
         total_epochs: Int,
     ) raises -> Float32:
@@ -224,7 +224,7 @@ struct TrainingLoop:
             train_labels: Training labels.
             batch_size: Mini-batch size.
             compute_batch_loss: Function to process one batch and return loss.
-                               Signature: fn(batch_data: AnyTensor, batch_labels: AnyTensor) -> Float32.
+                               Signature: def(batch_data: AnyTensor, batch_labels: AnyTensor) -> Float32.
             epoch: Current epoch number (1-indexed).
             total_epochs: Total number of epochs.
 
@@ -269,12 +269,12 @@ struct TrainingLoop:
 
         return avg_loss
 
-    fn run_epoch(
+    def run_epoch(
         self,
-        model_forward: fn (AnyTensor) raises -> AnyTensor,
-        compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
-        optimizer_step: fn () raises -> None,
-        zero_gradients: fn () raises -> None,
+        model_forward: def (AnyTensor) raises -> AnyTensor,
+        compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
+        optimizer_step: def () raises -> None,
+        zero_gradients: def () raises -> None,
         mut train_loader: DataLoader,
         mut metrics: TrainingMetrics,
     ) raises:
@@ -301,12 +301,12 @@ struct TrainingLoop:
             self.log_interval,
         )
 
-    fn run(
+    def run(
         self,
-        model_forward: fn (AnyTensor) raises -> AnyTensor,
-        compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
-        optimizer_step: fn () raises -> None,
-        zero_gradients: fn () raises -> None,
+        model_forward: def (AnyTensor) raises -> AnyTensor,
+        compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
+        optimizer_step: def () raises -> None,
+        zero_gradients: def () raises -> None,
         mut train_loader: DataLoader,
         num_epochs: Int,
         mut metrics: TrainingMetrics,

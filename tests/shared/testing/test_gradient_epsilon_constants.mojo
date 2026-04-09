@@ -20,7 +20,7 @@ from shared.testing.tolerance_constants import (
 # ============================================================================
 
 
-fn test_gradient_check_epsilon_float32_value() raises:
+def test_gradient_check_epsilon_float32_value() raises:
     """Test that GRADIENT_CHECK_EPSILON_FLOAT32 has the correct value (3e-4)."""
     print("Testing GRADIENT_CHECK_EPSILON_FLOAT32 value...")
     assert_true(
@@ -30,7 +30,7 @@ fn test_gradient_check_epsilon_float32_value() raises:
     print("  GRADIENT_CHECK_EPSILON_FLOAT32 == 3e-4 correct")
 
 
-fn test_gradient_check_epsilon_other_value() raises:
+def test_gradient_check_epsilon_other_value() raises:
     """Test that GRADIENT_CHECK_EPSILON_OTHER has the correct value (1e-3)."""
     print("Testing GRADIENT_CHECK_EPSILON_OTHER value...")
     assert_true(
@@ -45,7 +45,7 @@ fn test_gradient_check_epsilon_other_value() raises:
 # ============================================================================
 
 
-fn test_epsilon_float32_package_equals_submodule() raises:
+def test_epsilon_float32_package_equals_submodule() raises:
     """Test that package import and submodule import give identical values."""
     print("Testing GRADIENT_CHECK_EPSILON_FLOAT32 package == submodule...")
     assert_true(
@@ -58,7 +58,7 @@ fn test_epsilon_float32_package_equals_submodule() raises:
     print("  Package and submodule values match")
 
 
-fn test_epsilon_other_package_equals_submodule() raises:
+def test_epsilon_other_package_equals_submodule() raises:
     """Test that package import and submodule import give identical values."""
     print("Testing GRADIENT_CHECK_EPSILON_OTHER package == submodule...")
     assert_true(
@@ -76,7 +76,7 @@ fn test_epsilon_other_package_equals_submodule() raises:
 # ============================================================================
 
 
-fn test_epsilon_float32_larger_than_generic() raises:
+def test_epsilon_float32_larger_than_generic() raises:
     """Test that GRADIENT_CHECK_EPSILON_FLOAT32 > GRADIENT_CHECK_EPSILON.
 
     Float32 matmul precision loss requires a larger epsilon than the generic 1e-5.
@@ -94,7 +94,7 @@ fn test_epsilon_float32_larger_than_generic() raises:
     print("  GRADIENT_CHECK_EPSILON_FLOAT32 > GRADIENT_CHECK_EPSILON correct")
 
 
-fn test_epsilon_other_larger_than_float32() raises:
+def test_epsilon_other_larger_than_float32() raises:
     """Test that GRADIENT_CHECK_EPSILON_OTHER > GRADIENT_CHECK_EPSILON_FLOAT32.
     """
     print(
@@ -119,7 +119,7 @@ fn test_epsilon_other_larger_than_float32() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all gradient epsilon constant tests."""
     print("=" * 60)
     print("GRADIENT EPSILON CONSTANTS TESTS")

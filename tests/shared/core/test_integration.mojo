@@ -21,7 +21,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_chained_add_operations() raises:
+def test_chained_add_operations() raises:
     """Test chaining multiple add operations."""
     var shape = List[Int]()
     shape.append(5)
@@ -34,7 +34,7 @@ fn test_chained_add_operations() raises:
     assert_all_values(result, 6.0, 1e-6, "Chained additions should work")
 
 
-fn test_mixed_arithmetic_operations() raises:
+def test_mixed_arithmetic_operations() raises:
     """Test mixing different arithmetic operations."""
     var shape = List[Int]()
     shape.append(5)
@@ -49,7 +49,7 @@ fn test_mixed_arithmetic_operations() raises:
     assert_all_values(result, 20.0, 1e-6, "Mixed operations should work")
 
 
-fn test_arithmetic_with_operator_overloading() raises:
+def test_arithmetic_with_operator_overloading() raises:
     """Test using operator overloading for complex expressions."""
     var shape = List[Int]()
     shape.append(5)
@@ -63,7 +63,7 @@ fn test_arithmetic_with_operator_overloading() raises:
     assert_all_values(result, 7.0, 1e-6, "Operator precedence should work")
 
 
-fn test_complex_expression() raises:
+def test_complex_expression() raises:
     """Test complex arithmetic expression."""
     var shape = List[Int]()
     shape.append(2)
@@ -79,7 +79,7 @@ fn test_complex_expression() raises:
     assert_all_values(result, 5.0, 1e-6, "Complex expressions should work")
 
 
-fn test_identity_matrix_operations() raises:
+def test_identity_matrix_operations() raises:
     """Test operations with identity matrix."""
     var I = eye(3, 3, 0, DType.float32)
     var A = full(List[Int](), 2.0, DType.float32)  # Will need reshaping
@@ -101,7 +101,7 @@ fn test_identity_matrix_operations() raises:
     assert_value_at(result, 3, 2.0, 1e-6, "Off-diagonal [1,0]")
 
 
-fn test_arange_arithmetic() raises:
+def test_arange_arithmetic() raises:
     """Test arithmetic with arange-created tensors."""
     var a = arange(0.0, 5.0, 1.0, DType.float32)  # [0, 1, 2, 3, 4]
     var shape = List[Int]()
@@ -115,7 +115,7 @@ fn test_arange_arithmetic() raises:
     assert_value_at(result, 4, 5.0, 1e-6, "4 + 1 = 5")
 
 
-fn test_linspace_operations() raises:
+def test_linspace_operations() raises:
     """Test operations with linspace-created tensors."""
     var a = linspace(0.0, 4.0, 5, DType.float32)  # [0, 1, 2, 3, 4]
     var b = linspace(5.0, 9.0, 5, DType.float32)  # [5, 6, 7, 8, 9]
@@ -127,7 +127,7 @@ fn test_linspace_operations() raises:
     assert_value_at(result, 4, 13.0, 1e-6, "4 + 9 = 13")
 
 
-fn test_same_dtype_consistency() raises:
+def test_same_dtype_consistency() raises:
     """Test that operations preserve dtype consistently."""
     var shape = List[Int]()
     shape.append(5)
@@ -143,7 +143,7 @@ fn test_same_dtype_consistency() raises:
     assert_dtype(result64, DType.float64, "float64 + float64 should be float64")
 
 
-fn test_int_dtype_operations() raises:
+def test_int_dtype_operations() raises:
     """Test operations with integer dtypes."""
     var shape = List[Int]()
     shape.append(5)
@@ -156,7 +156,7 @@ fn test_int_dtype_operations() raises:
     assert_all_values(result, 5.0, 1e-6, "3 + 2 = 5")
 
 
-fn test_2d_elementwise_operations() raises:
+def test_2d_elementwise_operations() raises:
     """Test element-wise operations on 2D tensors."""
     var shape = List[Int]()
     shape.append(3)
@@ -170,7 +170,7 @@ fn test_2d_elementwise_operations() raises:
     assert_all_values(result, 2.0, 1e-6, "5 - 3 = 2 for all elements")
 
 
-fn test_3d_operations() raises:
+def test_3d_operations() raises:
     """Test operations on 3D tensors."""
     var shape = List[Int]()
     shape.append(2)
@@ -185,7 +185,7 @@ fn test_3d_operations() raises:
     assert_all_values(result, 0.5, 1e-6, "1 * 0.5 = 0.5 for all elements")
 
 
-fn test_linear_transformation_pattern() raises:
+def test_linear_transformation_pattern() raises:
     """Test pattern similar to linear layer: W*x + b."""
     var shape = List[Int]()
     shape.append(5)
@@ -202,7 +202,7 @@ fn test_linear_transformation_pattern() raises:
     assert_all_values(result, 2.5, 1e-6, "Linear transformation result")
 
 
-fn test_gradient_descent_update_pattern() raises:
+def test_gradient_descent_update_pattern() raises:
     """Test pattern similar to gradient descent: w - lr * grad."""
     var shape = List[Int]()
     shape.append(5)
@@ -218,7 +218,7 @@ fn test_gradient_descent_update_pattern() raises:
     assert_all_values(new_w, 0.98, 1e-6, "Weight update pattern")
 
 
-fn test_batch_normalization_pattern() raises:
+def test_batch_normalization_pattern() raises:
     """Test pattern similar to batch normalization: (x - mean) * scale."""
     var shape = List[Int]()
     shape.append(5)
@@ -234,7 +234,7 @@ fn test_batch_normalization_pattern() raises:
     assert_all_values(result, 4.0, 1e-6, "Batch norm pattern")
 
 
-fn test_additive_identity() raises:
+def test_additive_identity() raises:
     """Test that adding zero doesn't change values."""
     var shape = List[Int]()
     shape.append(3)
@@ -247,7 +247,7 @@ fn test_additive_identity() raises:
     assert_all_values(result, 7.5, 1e-6, "x + 0 = x")
 
 
-fn test_multiplicative_identity() raises:
+def test_multiplicative_identity() raises:
     """Test that multiplying by one doesn't change values."""
     var shape = List[Int]()
     shape.append(3)
@@ -260,7 +260,7 @@ fn test_multiplicative_identity() raises:
     assert_all_values(result, 7.5, 1e-6, "x * 1 = x")
 
 
-fn test_multiplicative_zero() raises:
+def test_multiplicative_zero() raises:
     """Test that multiplying by zero gives zero."""
     var shape = List[Int]()
     shape.append(3)
@@ -273,7 +273,7 @@ fn test_multiplicative_zero() raises:
     assert_all_values(result, 0.0, 1e-8, "x * 0 = 0")
 
 
-fn test_scalar_operations() raises:
+def test_scalar_operations() raises:
     """Test operations with scalar tensors."""
     var shape_scalar = List[Int]()
     var a = full(shape_scalar, 5.0, DType.float32)
@@ -285,7 +285,7 @@ fn test_scalar_operations() raises:
     assert_value_at(result, 0, 8.0, 1e-6, "5 + 3 = 8")
 
 
-fn test_large_tensor_operations() raises:
+def test_large_tensor_operations() raises:
     """Test operations on large tensors."""
     var shape = List[Int]()
     shape.append(10000)
@@ -301,7 +301,7 @@ fn test_large_tensor_operations() raises:
     assert_value_at(result, 9999, 2.0, 1e-6, "Last element")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_integration tests."""
     print("Running test_integration tests...")
 

@@ -15,12 +15,12 @@ from shared.testing.assertions import (
 )
 
 
-fn test_assert_close_float_passes() raises:
+def test_assert_close_float_passes() raises:
     """Test assert_close_float with numerically close values."""
     assert_close_float(1.0, 1.00001, rtol=1e-3, atol=1e-3)
 
 
-fn test_assert_close_float_fails() raises:
+def test_assert_close_float_fails() raises:
     """Test assert_close_float with distant values."""
     var failed = False
     try:
@@ -32,12 +32,12 @@ fn test_assert_close_float_fails() raises:
     )
 
 
-fn test_assert_greater_float32_passes() raises:
+def test_assert_greater_float32_passes() raises:
     """Test assert_greater with a > b (Float32)."""
     assert_greater(Float32(2.0), Float32(1.0))
 
 
-fn test_assert_greater_float32_fails() raises:
+def test_assert_greater_float32_fails() raises:
     """Test assert_greater with a <= b (Float32)."""
     var failed = False
     try:
@@ -47,12 +47,12 @@ fn test_assert_greater_float32_fails() raises:
     assert_true(failed, "assert_greater should raise error when a <= b")
 
 
-fn test_assert_greater_int_passes() raises:
+def test_assert_greater_int_passes() raises:
     """Test assert_greater with a > b (Int)."""
     assert_greater(2, 1)
 
 
-fn test_assert_greater_int_fails() raises:
+def test_assert_greater_int_fails() raises:
     """Test assert_greater with a <= b (Int)."""
     var failed = False
     try:
@@ -62,12 +62,12 @@ fn test_assert_greater_int_fails() raises:
     assert_true(failed, "assert_greater should raise error when a <= b")
 
 
-fn test_assert_less_float32_passes() raises:
+def test_assert_less_float32_passes() raises:
     """Test assert_less with a < b (Float32)."""
     assert_less(Float32(1.0), Float32(2.0))
 
 
-fn test_assert_less_float32_fails() raises:
+def test_assert_less_float32_fails() raises:
     """Test assert_less with a >= b (Float32)."""
     var failed = False
     try:
@@ -77,7 +77,7 @@ fn test_assert_less_float32_fails() raises:
     assert_true(failed, "assert_less should raise error when a >= b")
 
 
-fn main() raises:
+def main() raises:
     """Run comparison assertion tests."""
     test_assert_close_float_passes()
     test_assert_close_float_fails()

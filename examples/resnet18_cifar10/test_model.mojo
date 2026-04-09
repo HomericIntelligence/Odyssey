@@ -11,10 +11,10 @@ from model import ResNet18
 from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.utils.serialization import save_tensor, load_tensor
 from shared.data import DatasetInfo
-from collections import List
+from std.collections import List
 
 
-fn main() raises:
+def main() raises:
     print("Testing ResNet-18 Model")
     print("=" * 60)
 

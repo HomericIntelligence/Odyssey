@@ -41,12 +41,12 @@ from shared.training.trainer_interface import (
 from shared.training.trainer import BaseTrainer
 
 
-fn mock_model_forward(input: AnyTensor) raises -> AnyTensor:
+def mock_model_forward(input: AnyTensor) raises -> AnyTensor:
     """Mock model forward pass - returns input unchanged."""
     return input
 
 
-fn mock_compute_loss(
+def mock_compute_loss(
     predictions: AnyTensor, labels: AnyTensor
 ) raises -> AnyTensor:
     """Mock loss computation - returns constant loss."""
@@ -55,17 +55,17 @@ fn mock_compute_loss(
     return loss
 
 
-fn mock_optimizer_step() raises -> None:
+def mock_optimizer_step() raises -> None:
     """Mock optimizer step - does nothing."""
     pass
 
 
-fn mock_zero_gradients() raises -> None:
+def mock_zero_gradients() raises -> None:
     """Mock gradient zeroing - does nothing."""
     pass
 
 
-fn test_trainer_config_defaults() raises:
+def test_trainer_config_defaults() raises:
     """Test TrainerConfig default values."""
     print("Testing TrainerConfig defaults...")
 
@@ -82,7 +82,7 @@ fn test_trainer_config_defaults() raises:
     print("  ✓ TrainerConfig defaults are correct")
 
 
-fn test_trainer_config_custom() raises:
+def test_trainer_config_custom() raises:
     """Test TrainerConfig custom values."""
     print("Testing TrainerConfig custom values...")
 
@@ -107,7 +107,7 @@ fn test_trainer_config_custom() raises:
     print("  ✓ TrainerConfig custom values work correctly")
 
 
-fn test_training_metrics_initialization() raises:
+def test_training_metrics_initialization() raises:
     """Test TrainingMetrics initialization."""
     print("Testing TrainingMetrics initialization...")
 
@@ -124,7 +124,7 @@ fn test_training_metrics_initialization() raises:
     print("  ✓ TrainingMetrics initialization correct")
 
 
-fn test_training_metrics_update() raises:
+def test_training_metrics_update() raises:
     """Test TrainingMetrics update methods."""
     print("Testing TrainingMetrics update...")
 
@@ -150,7 +150,7 @@ fn test_training_metrics_update() raises:
     print("  ✓ TrainingMetrics update methods work correctly")
 
 
-fn test_training_metrics_reset() raises:
+def test_training_metrics_reset() raises:
     """Test TrainingMetrics reset method."""
     print("Testing TrainingMetrics reset...")
 
@@ -170,7 +170,7 @@ fn test_training_metrics_reset() raises:
     print("  ✓ TrainingMetrics reset works correctly")
 
 
-fn test_dataloader_basic() raises:
+def test_dataloader_basic() raises:
     """Test DataLoader basic functionality."""
     print("Testing DataLoader basic...")
 
@@ -190,7 +190,7 @@ fn test_dataloader_basic() raises:
     print("  ✓ DataLoader basic functionality works")
 
 
-fn test_dataloader_iteration() raises:
+def test_dataloader_iteration() raises:
     """Test DataLoader iteration."""
     print("Testing DataLoader iteration...")
 
@@ -222,7 +222,7 @@ fn test_dataloader_iteration() raises:
     print("  ✓ DataLoader iteration works correctly")
 
 
-fn test_training_loop_initialization() raises:
+def test_training_loop_initialization() raises:
     """Test TrainingLoop initialization."""
     print("Testing TrainingLoop initialization...")
 
@@ -237,7 +237,7 @@ fn test_training_loop_initialization() raises:
     print("  ✓ TrainingLoop initialization correct")
 
 
-fn test_validation_loop_initialization() raises:
+def test_validation_loop_initialization() raises:
     """Test ValidationLoop initialization."""
     print("Testing ValidationLoop initialization...")
 
@@ -252,7 +252,7 @@ fn test_validation_loop_initialization() raises:
     print("  ✓ ValidationLoop initialization correct")
 
 
-fn test_validation_loop_init_defaults() raises:
+def test_validation_loop_init_defaults() raises:
     """Test ValidationLoop default initialization."""
     print("Testing ValidationLoop default initialization...")
 
@@ -265,7 +265,7 @@ fn test_validation_loop_init_defaults() raises:
     print("  ✓ ValidationLoop default initialization correct")
 
 
-fn test_validation_loop_run_updates_val_accuracy() raises:
+def test_validation_loop_run_updates_val_accuracy() raises:
     """Test that ValidationLoop.run() updates metrics.val_accuracy when compute_accuracy=True.
 
     Uses deterministic data where all labels are class 0 and the mock model
@@ -304,7 +304,7 @@ fn test_validation_loop_run_updates_val_accuracy() raises:
     print("  ✓ ValidationLoop.run() updates val_accuracy correctly")
 
 
-fn test_base_trainer_initialization() raises:
+def test_base_trainer_initialization() raises:
     """Test BaseTrainer initialization."""
     print("Testing BaseTrainer initialization...")
 
@@ -318,7 +318,7 @@ fn test_base_trainer_initialization() raises:
     print("  ✓ BaseTrainer initialization correct")
 
 
-fn test_create_trainer_factory() raises:
+def test_create_trainer_factory() raises:
     """Test create_trainer factory function."""
     print("Testing create_trainer factory...")
 
@@ -330,7 +330,7 @@ fn test_create_trainer_factory() raises:
     print("  ✓ create_trainer factory works")
 
 
-fn test_create_default_trainer() raises:
+def test_create_default_trainer() raises:
     """Test create_default_trainer factory."""
     print("Testing create_default_trainer factory...")
 
@@ -343,7 +343,7 @@ fn test_create_default_trainer() raises:
     print("  ✓ create_default_trainer factory works")
 
 
-fn test_base_trainer_get_metrics() raises:
+def test_base_trainer_get_metrics() raises:
     """Test BaseTrainer get_metrics method."""
     print("Testing BaseTrainer get_metrics...")
 
@@ -357,7 +357,7 @@ fn test_base_trainer_get_metrics() raises:
     print("  ✓ BaseTrainer get_metrics works")
 
 
-fn test_base_trainer_get_best_checkpoint() raises:
+def test_base_trainer_get_best_checkpoint() raises:
     """Test BaseTrainer get_best_checkpoint_epoch method."""
     print("Testing BaseTrainer get_best_checkpoint_epoch...")
 
@@ -376,7 +376,7 @@ fn test_base_trainer_get_best_checkpoint() raises:
     print("  ✓ BaseTrainer get_best_checkpoint_epoch works")
 
 
-fn test_base_trainer_reset() raises:
+def test_base_trainer_reset() raises:
     """Test BaseTrainer reset method."""
     print("Testing BaseTrainer reset...")
 
@@ -396,7 +396,7 @@ fn test_base_trainer_reset() raises:
     print("  ✓ BaseTrainer reset works")
 
 
-fn test_databatch_creation() raises:
+def test_databatch_creation() raises:
     """Test DataBatch creation."""
     print("Testing DataBatch creation...")
 
@@ -414,7 +414,7 @@ fn test_databatch_creation() raises:
     print("  ✓ DataBatch creation works")
 
 
-fn test_trainer_config_to_base_trainer_integration() raises:
+def test_trainer_config_to_base_trainer_integration() raises:
     """Test integration of TrainerConfig with BaseTrainer."""
     print("Testing TrainerConfig to BaseTrainer integration...")
 
@@ -434,7 +434,7 @@ fn test_trainer_config_to_base_trainer_integration() raises:
     print("  ✓ TrainerConfig integrates with BaseTrainer")
 
 
-fn test_metrics_flow_through_trainer() raises:
+def test_metrics_flow_through_trainer() raises:
     """Test that metrics flow correctly through trainer."""
     print("Testing metrics flow through trainer...")
 
@@ -456,7 +456,7 @@ fn test_metrics_flow_through_trainer() raises:
     print("  ✓ Metrics flow correctly through trainer")
 
 
-fn test_validation_loop_init_custom() raises:
+def test_validation_loop_init_custom() raises:
     """Test ValidationLoop with custom parameters. Closes #3682."""
     print("Testing ValidationLoop init custom...")
 
@@ -475,7 +475,7 @@ fn test_validation_loop_init_custom() raises:
     print("  ✓ ValidationLoop custom init test passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_training_infrastructure tests."""
     print("Running test_training_infrastructure tests...")
 

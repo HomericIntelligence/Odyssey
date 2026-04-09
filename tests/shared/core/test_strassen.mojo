@@ -29,7 +29,7 @@ from shared.core.matmul import matmul_tiled
 # ============================================================================
 
 
-fn test_next_power_of_2() raises:
+def test_next_power_of_2() raises:
     """Test next_power_of_2 helper function."""
     assert_equal_int(next_power_of_2(0), 1)
     assert_equal_int(next_power_of_2(1), 1)
@@ -51,7 +51,7 @@ fn test_next_power_of_2() raises:
 # ============================================================================
 
 
-fn test_strassen_2x2_float32() raises:
+def test_strassen_2x2_float32() raises:
     """Test Strassen with smallest 2x2 matrix in Float32."""
     var A = zeros([2, 2], DType.float32)
     var B = zeros([2, 2], DType.float32)
@@ -87,7 +87,7 @@ fn test_strassen_2x2_float32() raises:
     assert_almost_equal(c11, Float32(50.0), Float32(1e-4))
 
 
-fn test_strassen_4x4_float32() raises:
+def test_strassen_4x4_float32() raises:
     """Test Strassen with 4x4 matrix in Float32."""
     var A = zeros([4, 4], DType.float32)
     var B = zeros([4, 4], DType.float32)
@@ -116,7 +116,7 @@ fn test_strassen_4x4_float32() raises:
         assert_almost_equal(s_val, r_val, Float32(1e-4))
 
 
-fn test_strassen_8x8_float64() raises:
+def test_strassen_8x8_float64() raises:
     """Test Strassen with 8x8 matrix in Float64."""
     var A = zeros([8, 8], DType.float64)
     var B = zeros([8, 8], DType.float64)
@@ -150,7 +150,7 @@ fn test_strassen_8x8_float64() raises:
 # ============================================================================
 
 
-fn test_strassen_zero_matrix() raises:
+def test_strassen_zero_matrix() raises:
     """Test Strassen with zero matrices."""
     var A = zeros([4, 4], DType.float32)
     var B = zeros([4, 4], DType.float32)
@@ -164,7 +164,7 @@ fn test_strassen_zero_matrix() raises:
         assert_almost_equal(c_ptr.load(i), Float32(0.0), Float32(1e-4))
 
 
-fn test_strassen_identity_matrix() raises:
+def test_strassen_identity_matrix() raises:
     """Test Strassen with identity matrices."""
     var size = 4
     var A = zeros([size, size], DType.float32)
@@ -191,7 +191,7 @@ fn test_strassen_identity_matrix() raises:
         assert_almost_equal(c_val, b_val, Float32(1e-4))
 
 
-fn test_strassen_power_of_2_sizes() raises:
+def test_strassen_power_of_2_sizes() raises:
     """Test Strassen with various power-of-2 sizes."""
     var sizes = List[Int]()
     sizes.append(2)
@@ -233,7 +233,7 @@ fn test_strassen_power_of_2_sizes() raises:
 # ============================================================================
 
 
-fn test_strassen_below_threshold() raises:
+def test_strassen_below_threshold() raises:
     """Test that Strassen falls back to matmul_tiled for small matrices."""
     var A = zeros([64, 64], DType.float32)
     var B = zeros([64, 64], DType.float32)
@@ -267,7 +267,7 @@ fn test_strassen_below_threshold() raises:
 # ============================================================================
 
 
-fn test_strassen_non_power_of_2_square() raises:
+def test_strassen_non_power_of_2_square() raises:
     """Test Strassen with non-power-of-2 square matrices."""
     var A = zeros([100, 100], DType.float32)
     var B = zeros([100, 100], DType.float32)
@@ -301,7 +301,7 @@ fn test_strassen_non_power_of_2_square() raises:
 # ============================================================================
 
 
-fn test_strassen_rectangular_matrices() raises:
+def test_strassen_rectangular_matrices() raises:
     """Test that Strassen falls back to matmul_tiled for rectangular matrices.
     """
     var A = zeros([32, 64], DType.float32)
@@ -338,7 +338,7 @@ fn test_strassen_rectangular_matrices() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all Strassen algorithm tests."""
     print("Testing Strassen's Algorithm Implementation")
     print("=" * 50)

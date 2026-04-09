@@ -12,12 +12,12 @@ from shared.testing.assertions import (
 )
 
 
-fn test_assert_true_passes() raises:
+def test_assert_true_passes() raises:
     """Test assert_true with true condition."""
     custom_assert_true(True)
 
 
-fn test_assert_true_fails() raises:
+def test_assert_true_fails() raises:
     """Test assert_true with false condition."""
     var failed = False
     try:
@@ -27,7 +27,7 @@ fn test_assert_true_fails() raises:
     assert_true(failed, "assert_true should raise error on false condition")
 
 
-fn test_assert_true_custom_message() raises:
+def test_assert_true_custom_message() raises:
     """Test assert_true with custom error message."""
     var failed = False
     var caught_message = False
@@ -41,12 +41,12 @@ fn test_assert_true_custom_message() raises:
     assert_true(caught_message, "Error message should contain custom text")
 
 
-fn test_assert_false_passes() raises:
+def test_assert_false_passes() raises:
     """Test assert_false with false condition."""
     assert_false(False)
 
 
-fn test_assert_false_fails() raises:
+def test_assert_false_fails() raises:
     """Test assert_false with true condition."""
     var failed = False
     try:
@@ -56,7 +56,7 @@ fn test_assert_false_fails() raises:
     assert_true(failed, "assert_false should raise error on true condition")
 
 
-fn main() raises:
+def main() raises:
     """Run boolean assertion tests."""
     test_assert_true_passes()
     test_assert_true_fails()

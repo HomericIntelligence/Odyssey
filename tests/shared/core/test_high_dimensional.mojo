@@ -17,7 +17,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_5d_tensor_creation() raises:
+def test_5d_tensor_creation() raises:
     """Create and verify 5D tensor."""
     var shape = List[Int]()
     shape.append(2)
@@ -31,7 +31,7 @@ fn test_5d_tensor_creation() raises:
     assert_numel(t, 32, "2^5 = 32 elements")
 
 
-fn test_5d_tensor_arithmetic() raises:
+def test_5d_tensor_arithmetic() raises:
     """Arithmetic operations on 5D tensors."""
     var shape = List[Int]()
     shape.append(2)
@@ -47,7 +47,7 @@ fn test_5d_tensor_arithmetic() raises:
     assert_all_values(result, 3.0, 1e-5, "1 + 2 = 3 for all elements")
 
 
-fn test_5d_tensor_multiply() raises:
+def test_5d_tensor_multiply() raises:
     """Multiplication on 5D tensors."""
     var shape = List[Int]()
     shape.append(2)
@@ -62,7 +62,7 @@ fn test_5d_tensor_multiply() raises:
     assert_all_values(result, 12.0, 1e-5, "3 * 4 = 12 for all elements")
 
 
-fn test_5d_tensor_subtract() raises:
+def test_5d_tensor_subtract() raises:
     """Subtraction on 5D tensors."""
     var shape = List[Int]()
     shape.append(2)
@@ -77,7 +77,7 @@ fn test_5d_tensor_subtract() raises:
     assert_all_values(result, 7.0, 1e-5, "10 - 3 = 7 for all elements")
 
 
-fn test_5d_tensor_reduction() raises:
+def test_5d_tensor_reduction() raises:
     """Reduction of 5D tensor."""
     var shape = List[Int]()
     shape.append(2)
@@ -92,7 +92,7 @@ fn test_5d_tensor_reduction() raises:
     assert_value_at(result, 0, 32.0, 1e-5, "Sum of 32 ones = 32")
 
 
-fn test_5d_tensor_mean() raises:
+def test_5d_tensor_mean() raises:
     """Mean of 5D tensor."""
     var shape = List[Int]()
     shape.append(2)
@@ -107,7 +107,7 @@ fn test_5d_tensor_mean() raises:
     assert_value_at(result, 0, 5.0, 1e-5, "Mean of constant tensor")
 
 
-fn test_5d_float64() raises:
+def test_5d_float64() raises:
     """5D tensor with float64."""
     var shape = List[Int]()
     shape.append(2)
@@ -122,7 +122,7 @@ fn test_5d_float64() raises:
     assert_value_at(result, 0, 32.0, 1e-10, "Float64 precision maintained")
 
 
-fn test_5d_int32() raises:
+def test_5d_int32() raises:
     """5D tensor with int32."""
     var shape = List[Int]()
     shape.append(2)
@@ -137,7 +137,7 @@ fn test_5d_int32() raises:
     assert_value_at(result, 0, 160.0, 1e-6, "Int32 arithmetic correct")
 
 
-fn test_6d_tensor_creation() raises:
+def test_6d_tensor_creation() raises:
     """Create and verify 6D tensor."""
     var shape = List[Int]()
     shape.append(2)
@@ -152,7 +152,7 @@ fn test_6d_tensor_creation() raises:
     assert_numel(t, 64, "2^6 = 64 elements")
 
 
-fn test_6d_tensor_arithmetic() raises:
+def test_6d_tensor_arithmetic() raises:
     """Arithmetic on 6D tensor."""
     var shape = List[Int]()
     shape.append(2)
@@ -169,7 +169,7 @@ fn test_6d_tensor_arithmetic() raises:
     assert_all_values(result, 2.0, 1e-5, "1 + 1 = 2 for all elements")
 
 
-fn test_6d_tensor_reduction() raises:
+def test_6d_tensor_reduction() raises:
     """Reduction of 6D tensor."""
     var shape = List[Int]()
     shape.append(2)
@@ -184,7 +184,7 @@ fn test_6d_tensor_reduction() raises:
     assert_value_at(result, 0, 64.0, 1e-5, "Sum of 64 ones = 64")
 
 
-fn test_7d_tensor_creation() raises:
+def test_7d_tensor_creation() raises:
     """Create and verify 7D tensor."""
     var shape = List[Int]()
     shape.append(2)
@@ -200,7 +200,7 @@ fn test_7d_tensor_creation() raises:
     assert_numel(t, 128, "2^7 = 128 elements")
 
 
-fn test_7d_tensor_sum() raises:
+def test_7d_tensor_sum() raises:
     """Sum of 7D tensor."""
     var shape = List[Int]()
     shape.append(2)
@@ -216,7 +216,7 @@ fn test_7d_tensor_sum() raises:
     assert_value_at(result, 0, 128.0, 1e-5, "Sum of 128 ones = 128")
 
 
-fn test_5d_broadcasting_scalar() raises:
+def test_5d_broadcasting_scalar() raises:
     """Broadcasting scalar to 5D tensor."""
     var shape_scalar = List[Int]()
     var shape_5d = List[Int]()
@@ -234,7 +234,7 @@ fn test_5d_broadcasting_scalar() raises:
     assert_all_values(result, 10.0, 1e-5, "Broadcast scalar correctly")
 
 
-fn test_6d_broadcasting_1d() raises:
+def test_6d_broadcasting_1d() raises:
     """Broadcasting 1D to 6D tensor."""
     var shape_1d = List[Int]()
     shape_1d.append(2)
@@ -254,7 +254,7 @@ fn test_6d_broadcasting_1d() raises:
     assert_all_values(result, 2.0, 1e-5, "Broadcast 1D to 6D correctly")
 
 
-fn test_large_1d_tensor() raises:
+def test_large_1d_tensor() raises:
     """Create and operate on large 1D tensor (50 million elements)."""
     var shape = List[Int]()
     shape.append(50000000)
@@ -263,7 +263,7 @@ fn test_large_1d_tensor() raises:
     assert_numel(t, 50000000, "Should create 50M element tensor")
 
 
-fn test_large_multidimensional() raises:
+def test_large_multidimensional() raises:
     """Large multidimensional tensor [100, 100, 100, 100]."""
     var shape = List[Int]()
     shape.append(100)
@@ -276,7 +276,7 @@ fn test_large_multidimensional() raises:
     assert_numel(t, 100000000, "100^4 = 100M elements")
 
 
-fn test_5d_sum_precision() raises:
+def test_5d_sum_precision() raises:
     """High-dimensional sum should maintain precision."""
     var shape = List[Int]()
     shape.append(3)
@@ -291,7 +291,7 @@ fn test_5d_sum_precision() raises:
     assert_value_at(result, 0, 243.0, 1e-3, "Sum preserves precision")
 
 
-fn test_5d_mean_precision() raises:
+def test_5d_mean_precision() raises:
     """High-dimensional mean should maintain precision."""
     var shape = List[Int]()
     shape.append(2)
@@ -305,7 +305,7 @@ fn test_5d_mean_precision() raises:
     assert_value_at(result, 0, 7.5, 1e-5, "Mean of constant tensor")
 
 
-fn test_6d_max_reduce() raises:
+def test_6d_max_reduce() raises:
     """Max reduction on 6D tensor."""
     var shape = List[Int]()
     shape.append(2)
@@ -320,7 +320,7 @@ fn test_6d_max_reduce() raises:
     assert_value_at(result, 0, 5.0, 1e-6, "Max of constant tensor")
 
 
-fn test_6d_min_reduce() raises:
+def test_6d_min_reduce() raises:
     """Min reduction on 6D tensor."""
     var shape = List[Int]()
     shape.append(2)
@@ -335,7 +335,7 @@ fn test_6d_min_reduce() raises:
     assert_value_at(result, 0, 5.0, 1e-6, "Min of constant tensor")
 
 
-fn test_5d_accumulation() raises:
+def test_5d_accumulation() raises:
     """Accumulation in 5D tensor."""
     var shape = List[Int]()
     shape.append(2)
@@ -351,7 +351,7 @@ fn test_5d_accumulation() raises:
     assert_value_at(result, 0, 32.0, 1e-4, "Accumulation preserves precision")
 
 
-fn test_6d_mixed_arithmetic() raises:
+def test_6d_mixed_arithmetic() raises:
     """Mixed arithmetic operations on 6D tensors."""
     var shape = List[Int]()
     shape.append(2)
@@ -371,7 +371,7 @@ fn test_6d_mixed_arithmetic() raises:
     assert_all_values(result2, 6.0, 1e-5, "Mixed arithmetic correct")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_high_dimensional tests."""
     print("Running test_high_dimensional tests...")
 

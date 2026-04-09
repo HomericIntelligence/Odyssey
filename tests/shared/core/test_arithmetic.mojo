@@ -64,7 +64,7 @@ from tests.shared.conftest import (
 from shared.tensor.any_tensor import AnyTensor, ones
 
 
-fn test_add_shapes() raises:
+def test_add_shapes() raises:
     """Test that add returns correct output shape."""
     var shape = List[Int]()
     shape.append(4)
@@ -78,7 +78,7 @@ fn test_add_shapes() raises:
     assert_equal_int(result.shape()[1], 10)
 
 
-fn test_add_values() raises:
+def test_add_values() raises:
     """Test that add computes correct values."""
     var shape = List[Int]()
     shape.append(3)
@@ -106,7 +106,7 @@ fn test_add_values() raises:
     )
 
 
-fn test_add_same_shape_1d() raises:
+def test_add_same_shape_1d() raises:
     """Test adding two 1D tensors with same shape."""
     var shape = List[Int]()
     shape.append(5)
@@ -119,7 +119,7 @@ fn test_add_same_shape_1d() raises:
     assert_all_values(c, 5.0, 1e-6, "2.0 + 3.0 should be 5.0")
 
 
-fn test_add_same_shape_2d() raises:
+def test_add_same_shape_2d() raises:
     """Test adding two 2D tensors with same shape."""
     var shape = List[Int]()
     shape.append(3)
@@ -133,7 +133,7 @@ fn test_add_same_shape_2d() raises:
     assert_all_values(c, 3.5, 1e-8, "1.0 + 2.5 should be 3.5")
 
 
-fn test_add_zeros() raises:
+def test_add_zeros() raises:
     """Test adding zeros (should not change values)."""
     var shape = List[Int]()
     shape.append(2)
@@ -145,7 +145,7 @@ fn test_add_zeros() raises:
     assert_all_values(c, 7.0, 1e-6, "x + 0 should equal x")
 
 
-fn test_add_negative_values() raises:
+def test_add_negative_values() raises:
     """Test adding negative values."""
     var shape = List[Int]()
     shape.append(10)
@@ -156,7 +156,7 @@ fn test_add_negative_values() raises:
     assert_all_values(c, -2.0, 1e-6, "-5.0 + 3.0 should be -2.0")
 
 
-fn test_add_backward() raises:
+def test_add_backward() raises:
     """Test add backward pass."""
     var shape = List[Int]()
     shape.append(2)
@@ -179,7 +179,7 @@ fn test_add_backward() raises:
         )
 
 
-fn test_subtract_shapes() raises:
+def test_subtract_shapes() raises:
     """Test that subtract returns correct output shape."""
     var shape = List[Int]()
     shape.append(4)
@@ -193,7 +193,7 @@ fn test_subtract_shapes() raises:
     assert_equal_int(result.shape()[1], 10)
 
 
-fn test_subtract_values() raises:
+def test_subtract_values() raises:
     """Test that subtract computes correct values."""
     var shape = List[Int]()
     shape.append(3)
@@ -221,7 +221,7 @@ fn test_subtract_values() raises:
     )
 
 
-fn test_subtract_same_shape_1d() raises:
+def test_subtract_same_shape_1d() raises:
     """Test subtracting two 1D tensors with same shape."""
     var shape = List[Int]()
     shape.append(5)
@@ -234,7 +234,7 @@ fn test_subtract_same_shape_1d() raises:
     assert_all_values(c, 4.0, 1e-6, "7.0 - 3.0 should be 4.0")
 
 
-fn test_subtract_same_shape_2d() raises:
+def test_subtract_same_shape_2d() raises:
     """Test subtracting two 2D tensors with same shape."""
     var shape = List[Int]()
     shape.append(3)
@@ -248,7 +248,7 @@ fn test_subtract_same_shape_2d() raises:
     assert_all_values(c, 7.5, 1e-8, "10.0 - 2.5 should be 7.5")
 
 
-fn test_subtract_zeros() raises:
+def test_subtract_zeros() raises:
     """Test subtracting zeros (should not change values)."""
     var shape = List[Int]()
     shape.append(2)
@@ -260,7 +260,7 @@ fn test_subtract_zeros() raises:
     assert_all_values(c, 9.0, 1e-6, "x - 0 should equal x")
 
 
-fn test_subtract_negative_result() raises:
+def test_subtract_negative_result() raises:
     """Test subtraction resulting in negative values."""
     var shape = List[Int]()
     shape.append(10)
@@ -271,7 +271,7 @@ fn test_subtract_negative_result() raises:
     assert_all_values(c, -2.0, 1e-6, "3.0 - 5.0 should be -2.0")
 
 
-fn test_subtract_backward() raises:
+def test_subtract_backward() raises:
     """Test subtract backward pass."""
     var shape = List[Int]()
     shape.append(2)
@@ -294,7 +294,7 @@ fn test_subtract_backward() raises:
         )
 
 
-fn test_multiply_shapes() raises:
+def test_multiply_shapes() raises:
     """Test that multiply returns correct output shape."""
     var shape = List[Int]()
     shape.append(4)
@@ -308,7 +308,7 @@ fn test_multiply_shapes() raises:
     assert_equal_int(result.shape()[1], 10)
 
 
-fn test_multiply_values() raises:
+def test_multiply_values() raises:
     """Test that multiply computes correct values."""
     var shape = List[Int]()
     shape.append(3)
@@ -336,7 +336,7 @@ fn test_multiply_values() raises:
     )
 
 
-fn test_multiply_same_shape_1d() raises:
+def test_multiply_same_shape_1d() raises:
     """Test multiplying two 1D tensors with same shape."""
     var shape = List[Int]()
     shape.append(5)
@@ -349,7 +349,7 @@ fn test_multiply_same_shape_1d() raises:
     assert_all_values(c, 10.0, 1e-6, "4.0 * 2.5 should be 10.0")
 
 
-fn test_multiply_same_shape_2d() raises:
+def test_multiply_same_shape_2d() raises:
     """Test multiplying two 2D tensors with same shape."""
     var shape = List[Int]()
     shape.append(3)
@@ -363,7 +363,7 @@ fn test_multiply_same_shape_2d() raises:
     assert_all_values(c, 4.5, 1e-8, "3.0 * 1.5 should be 4.5")
 
 
-fn test_multiply_by_zero() raises:
+def test_multiply_by_zero() raises:
     """Test multiplying by zero (should give all zeros)."""
     var shape = List[Int]()
     shape.append(2)
@@ -375,7 +375,7 @@ fn test_multiply_by_zero() raises:
     assert_all_values(c, 0.0, 1e-8, "x * 0 should equal 0")
 
 
-fn test_multiply_by_one() raises:
+def test_multiply_by_one() raises:
     """Test multiplying by one (should not change values)."""
     var shape = List[Int]()
     shape.append(10)
@@ -386,7 +386,7 @@ fn test_multiply_by_one() raises:
     assert_all_values(c, 7.5, 1e-6, "x * 1 should equal x")
 
 
-fn test_multiply_negative() raises:
+def test_multiply_negative() raises:
     """Test multiplying with negative values."""
     var shape = List[Int]()
     shape.append(5)
@@ -397,7 +397,7 @@ fn test_multiply_negative() raises:
     assert_all_values(c, -6.0, 1e-6, "-3.0 * 2.0 should be -6.0")
 
 
-fn test_multiply_backward() raises:
+def test_multiply_backward() raises:
     """Test multiply backward pass."""
     var shape = List[Int]()
     shape.append(2)
@@ -429,7 +429,7 @@ fn test_multiply_backward() raises:
     )
 
 
-fn test_divide_shapes() raises:
+def test_divide_shapes() raises:
     """Test that divide returns correct output shape."""
     var shape = List[Int]()
     shape.append(4)
@@ -443,7 +443,7 @@ fn test_divide_shapes() raises:
     assert_equal_int(result.shape()[1], 10)
 
 
-fn test_divide_values() raises:
+def test_divide_values() raises:
     """Test that divide computes correct values."""
     var shape = List[Int]()
     shape.append(3)
@@ -471,7 +471,7 @@ fn test_divide_values() raises:
     )
 
 
-fn test_divide_same_shape() raises:
+def test_divide_same_shape() raises:
     """Test dividing two tensors with same shape."""
     var shape = List[Int]()
     shape.append(5)
@@ -484,7 +484,7 @@ fn test_divide_same_shape() raises:
     assert_all_values(c, 3.0, 1e-6, "6.0 / 2.0 should be 3.0")
 
 
-fn test_divide_by_one() raises:
+def test_divide_by_one() raises:
     """Test dividing by one (identity)."""
     var shape = List[Int]()
     shape.append(3)
@@ -496,7 +496,7 @@ fn test_divide_by_one() raises:
     assert_all_values(c, 7.5, 1e-6, "x / 1 should be x")
 
 
-fn test_divide_by_two() raises:
+def test_divide_by_two() raises:
     """Test dividing by two."""
     var shape = List[Int]()
     shape.append(5)
@@ -508,7 +508,7 @@ fn test_divide_by_two() raises:
     assert_all_values(c, 5.0, 1e-8, "10.0 / 2.0 should be 5.0")
 
 
-fn test_divide_negative() raises:
+def test_divide_negative() raises:
     """Test dividing negative values."""
     var shape = List[Int]()
     shape.append(5)
@@ -519,7 +519,7 @@ fn test_divide_negative() raises:
     assert_all_values(c, -3.0, 1e-6, "-6.0 / 2.0 should be -3.0")
 
 
-fn test_divide_backward() raises:
+def test_divide_backward() raises:
     """Test divide backward pass."""
     var shape = List[Int]()
     shape.append(2)
@@ -556,7 +556,7 @@ fn test_divide_backward() raises:
     )
 
 
-fn test_floor_divide_shapes() raises:
+def test_floor_divide_shapes() raises:
     """Test that floor_divide returns correct output shape."""
     var shape = List[Int]()
     shape.append(4)
@@ -570,7 +570,7 @@ fn test_floor_divide_shapes() raises:
     assert_equal_int(result.shape()[1], 10)
 
 
-fn test_floor_divide_values() raises:
+def test_floor_divide_values() raises:
     """Test that floor_divide computes correct values."""
     var shape = List[Int]()
     shape.append(3)
@@ -599,7 +599,7 @@ fn test_floor_divide_values() raises:
     )
 
 
-fn test_floor_divide_same_shape() raises:
+def test_floor_divide_same_shape() raises:
     """Test floor division with same shape."""
     var shape = List[Int]()
     shape.append(5)
@@ -610,7 +610,7 @@ fn test_floor_divide_same_shape() raises:
     assert_all_values(c, 3.0, 1e-6, "7.0 // 2.0 should be 3.0")
 
 
-fn test_floor_divide_positive() raises:
+def test_floor_divide_positive() raises:
     """Test floor division with positive values."""
     var shape = List[Int]()
     shape.append(5)
@@ -621,7 +621,7 @@ fn test_floor_divide_positive() raises:
     assert_all_values(c, 2.0, 1e-6, "9.0 // 4.0 should be 2.0")
 
 
-fn test_floor_divide_negative() raises:
+def test_floor_divide_negative() raises:
     """Test floor division with negative dividend."""
     var shape = List[Int]()
     shape.append(5)
@@ -632,7 +632,7 @@ fn test_floor_divide_negative() raises:
     assert_all_values(c, -4.0, 1e-6, "-7.0 // 2.0 should be -4.0")
 
 
-fn test_modulo_shapes() raises:
+def test_modulo_shapes() raises:
     """Test that modulo returns correct output shape."""
     var shape = List[Int]()
     shape.append(4)
@@ -646,7 +646,7 @@ fn test_modulo_shapes() raises:
     assert_equal_int(result.shape()[1], 10)
 
 
-fn test_modulo_values() raises:
+def test_modulo_values() raises:
     """Test that modulo computes correct values."""
     var shape = List[Int]()
     shape.append(3)
@@ -675,7 +675,7 @@ fn test_modulo_values() raises:
     )
 
 
-fn test_modulo_positive() raises:
+def test_modulo_positive() raises:
     """Test modulo with positive values."""
     var shape = List[Int]()
     shape.append(5)
@@ -686,7 +686,7 @@ fn test_modulo_positive() raises:
     assert_all_values(c, 1.0, 1e-6, "7.0 % 3.0 should be 1.0")
 
 
-fn test_modulo_negative_dividend() raises:
+def test_modulo_negative_dividend() raises:
     """Test modulo with negative dividend."""
     var shape = List[Int]()
     shape.append(5)
@@ -700,7 +700,7 @@ fn test_modulo_negative_dividend() raises:
     )
 
 
-fn test_modulo_fractional() raises:
+def test_modulo_fractional() raises:
     """Test modulo with fractional values."""
     var shape = List[Int]()
     shape.append(5)
@@ -711,7 +711,7 @@ fn test_modulo_fractional() raises:
     assert_all_values(c, 0.0, 1e-6, "7.5 % 2.5 should be 0.0")
 
 
-fn test_power_shapes() raises:
+def test_power_shapes() raises:
     """Test that power returns correct output shape."""
     var shape = List[Int]()
     shape.append(4)
@@ -725,7 +725,7 @@ fn test_power_shapes() raises:
     assert_equal_int(result.shape()[1], 10)
 
 
-fn test_power_values() raises:
+def test_power_values() raises:
     """Test that power computes correct values."""
     var shape = List[Int]()
     shape.append(3)
@@ -754,7 +754,7 @@ fn test_power_values() raises:
     )
 
 
-fn test_power_integer_exponent() raises:
+def test_power_integer_exponent() raises:
     """Test power with small integer exponent."""
     var shape = List[Int]()
     shape.append(5)
@@ -765,7 +765,7 @@ fn test_power_integer_exponent() raises:
     assert_all_values(c, 8.0, 1e-6, "2.0 ** 3.0 should be 8.0")
 
 
-fn test_power_zero_exponent() raises:
+def test_power_zero_exponent() raises:
     """Test power with zero exponent."""
     var shape = List[Int]()
     shape.append(5)
@@ -776,7 +776,7 @@ fn test_power_zero_exponent() raises:
     assert_all_values(c, 1.0, 1e-6, "x ** 0 should be 1.0")
 
 
-fn test_power_one_exponent() raises:
+def test_power_one_exponent() raises:
     """Test power with exponent of one."""
     var shape = List[Int]()
     shape.append(5)
@@ -787,7 +787,7 @@ fn test_power_one_exponent() raises:
     assert_all_values(c, 7.5, 1e-6, "x ** 1 should be x")
 
 
-fn test_power_negative_base() raises:
+def test_power_negative_base() raises:
     """Test power with negative base."""
     var shape = List[Int]()
     shape.append(5)
@@ -798,7 +798,7 @@ fn test_power_negative_base() raises:
     assert_all_values(c, 4.0, 1e-6, "(-2.0) ** 2.0 should be 4.0")
 
 
-fn test_dunder_add() raises:
+def test_dunder_add() raises:
     """Test __add__ operator overloading (a + b)."""
     var shape = List[Int]()
     shape.append(5)
@@ -809,7 +809,7 @@ fn test_dunder_add() raises:
     assert_all_values(c, 5.0, 1e-6, "a + b should work via __add__")
 
 
-fn test_dunder_sub() raises:
+def test_dunder_sub() raises:
     """Test __sub__ operator overloading (a - b)."""
     var shape = List[Int]()
     shape.append(5)
@@ -820,7 +820,7 @@ fn test_dunder_sub() raises:
     assert_all_values(c, 4.0, 1e-6, "a - b should work via __sub__")
 
 
-fn test_dunder_mul() raises:
+def test_dunder_mul() raises:
     """Test __mul__ operator overloading (a * b)."""
     var shape = List[Int]()
     shape.append(5)
@@ -831,7 +831,7 @@ fn test_dunder_mul() raises:
     assert_all_values(c, 8.0, 1e-6, "a * b should work via __mul__")
 
 
-fn test_chained_operations() raises:
+def test_chained_operations() raises:
     """Test chained operations with multiple operators."""
     var shape = List[Int]()
     shape.append(5)
@@ -844,7 +844,7 @@ fn test_chained_operations() raises:
     assert_all_values(result, 5.0, 1e-6, "(2 + 3) * 1 should be 5")
 
 
-fn test_complex_expression() raises:
+def test_complex_expression() raises:
     """Test complex expression with multiple operations."""
     var shape = List[Int]()
     shape.append(2)
@@ -858,7 +858,7 @@ fn test_complex_expression() raises:
     assert_all_values(result, 7.0, 1e-6, "1 + 2 * 3 should be 7")
 
 
-fn test_add_preserves_dtype_float32() raises:
+def test_add_preserves_dtype_float32() raises:
     """Test that add preserves float32 dtype."""
     var shape = List[Int]()
     shape.append(5)
@@ -869,7 +869,7 @@ fn test_add_preserves_dtype_float32() raises:
     assert_dtype(c, DType.float32, "Result should preserve float32 dtype")
 
 
-fn test_add_preserves_dtype_float64() raises:
+def test_add_preserves_dtype_float64() raises:
     """Test that add preserves float64 dtype."""
     var shape = List[Int]()
     shape.append(5)
@@ -880,7 +880,7 @@ fn test_add_preserves_dtype_float64() raises:
     assert_dtype(c, DType.float64, "Result should preserve float64 dtype")
 
 
-fn test_multiply_preserves_dtype_int32() raises:
+def test_multiply_preserves_dtype_int32() raises:
     """Test that multiply preserves int32 dtype."""
     var shape = List[Int]()
     shape.append(5)
@@ -891,7 +891,7 @@ fn test_multiply_preserves_dtype_int32() raises:
     assert_dtype(c, DType.int32, "Result should preserve int32 dtype")
 
 
-fn test_add_preserves_shape_1d() raises:
+def test_add_preserves_shape_1d() raises:
     """Test that add preserves 1D shape."""
     var shape = List[Int]()
     shape.append(10)
@@ -903,7 +903,7 @@ fn test_add_preserves_shape_1d() raises:
     assert_numel(c, 10, "Result should have 10 elements")
 
 
-fn test_add_preserves_shape_3d() raises:
+def test_add_preserves_shape_3d() raises:
     """Test that add preserves 3D shape."""
     var shape = List[Int]()
     shape.append(2)
@@ -917,7 +917,7 @@ fn test_add_preserves_shape_3d() raises:
     assert_numel(c, 24, "Result should have 24 elements")
 
 
-fn test_add_mismatched_shapes_raises_error() raises:
+def test_add_mismatched_shapes_raises_error() raises:
     """Test that add with mismatched shapes raises error."""
     var shape_a = List[Int]()
     shape_a.append(5)
@@ -949,7 +949,7 @@ fn test_add_mismatched_shapes_raises_error() raises:
         )
 
 
-fn test_multiply_mismatched_shapes_raises_error() raises:
+def test_multiply_mismatched_shapes_raises_error() raises:
     """Test that multiply with mismatched shapes raises error."""
     var shape_a = List[Int]()
     shape_a.append(3)
@@ -984,7 +984,7 @@ fn test_multiply_mismatched_shapes_raises_error() raises:
         )
 
 
-fn test_add_mismatched_dtypes_raises_error() raises:
+def test_add_mismatched_dtypes_raises_error() raises:
     """Test that add with mismatched dtypes raises error."""
     var shape = List[Int]()
     shape.append(5)
@@ -1007,7 +1007,7 @@ fn test_add_mismatched_dtypes_raises_error() raises:
         raise Error("add with mismatched dtypes should raise error")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_arithmetic tests."""
     print("Running test_arithmetic tests...")
 

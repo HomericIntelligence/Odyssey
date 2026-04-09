@@ -23,7 +23,7 @@ from shared.autograd.variable import (
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 
 
-fn simple_linear_regression() raises:
+def simple_linear_regression() raises:
     """Train a simple linear model using manual gradients.
 
     Model: y = w * x + b
@@ -155,6 +155,6 @@ fn simple_linear_regression() raises:
     print()
 
 
-fn main() raises:
+def main() raises:
     """Run autograd examples."""
     simple_linear_regression()

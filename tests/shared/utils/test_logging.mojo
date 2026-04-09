@@ -29,7 +29,7 @@ from shared.utils import (
 )
 
 
-fn test_log_level_hierarchy() raises:
+def test_log_level_hierarchy() raises:
     """Test log levels are ordered correctly (DEBUG < INFO < WARNING < ERROR).
     """
     assert_true(LogLevel.DEBUG < LogLevel.INFO)
@@ -43,7 +43,7 @@ fn test_log_level_hierarchy() raises:
     assert_equal(LogLevel.CRITICAL, 50)
 
 
-fn test_log_level_filtering() raises:
+def test_log_level_filtering() raises:
     """Test logger filters messages below configured level."""
     # Create logger with INFO level
     var logger = Logger("test_filter", LogLevel.INFO)
@@ -60,7 +60,7 @@ fn test_log_level_filtering() raises:
     assert_false(logger.level <= LogLevel.DEBUG)  # Should NOT log at DEBUG
 
 
-fn test_set_global_log_level() raises:
+def test_set_global_log_level() raises:
     """Test changing global log level affects all loggers."""
     var logger1 = get_logger("test_global_1", LogLevel.DEBUG)
     var logger2 = get_logger("test_global_2", LogLevel.DEBUG)
@@ -77,7 +77,7 @@ fn test_set_global_log_level() raises:
     assert_equal(logger1.level, LogLevel.DEBUG)  # Unchanged without registry
 
 
-fn test_simple_formatter() raises:
+def test_simple_formatter() raises:
     """Test simple formatter creates readable log messages."""
     var formatter = SimpleFormatter()
     var record = LogRecord("training", LogLevel.INFO, "Training started")
@@ -96,7 +96,7 @@ fn test_simple_formatter() raises:
     assert_equal(error_formatted, "[ERROR] Error occurred")
 
 
-fn test_timestamp_formatter() raises:
+def test_timestamp_formatter() raises:
     """Test formatter includes timestamp in log message."""
     var formatter = TimestampFormatter()
     var record = LogRecord(
@@ -115,7 +115,7 @@ fn test_timestamp_formatter() raises:
     assert_equal(no_ts_formatted, " [WARNING] Warning message")
 
 
-fn test_detailed_formatter() raises:
+def test_detailed_formatter() raises:
     """Test detailed formatter includes logger name."""
     var formatter = DetailedFormatter()
     var record = LogRecord("trainer", LogLevel.ERROR, "Loss is NaN")
@@ -130,7 +130,7 @@ fn test_detailed_formatter() raises:
     assert_equal(data_formatted, "[INFO] data_loader - Loaded batch")
 
 
-fn test_colored_output() raises:
+def test_colored_output() raises:
     """Test colored formatter uses ANSI codes for terminal output."""
     var formatter = ColoredFormatter()
 
@@ -156,7 +156,7 @@ fn test_colored_output() raises:
     assert_true(debug_formatted.find(ColoredFormatter.BLUE) != -1)
 
 
-fn test_console_handler() raises:
+def test_console_handler() raises:
     """Test console handler writes to stdout."""
     var logger = Logger("console_test", LogLevel.INFO)
     var handler = StreamHandler()
@@ -170,7 +170,7 @@ fn test_console_handler() raises:
     logger.warning("Console warning")
 
 
-fn test_file_handler() raises:
+def test_file_handler() raises:
     """Test file handler writes to log file."""
     # Note: This test writes to a temporary file and verifies creation
     var temp_file = "/tmp/test_logging_output.log"
@@ -188,7 +188,7 @@ fn test_file_handler() raises:
     # Clean up would happen after test (in real test framework)
 
 
-fn test_multiple_handlers() raises:
+def test_multiple_handlers() raises:
     """Test logger can have multiple handlers (console + file)."""
     var logger = Logger("multi_handler_test", LogLevel.INFO)
 
@@ -207,7 +207,7 @@ fn test_multiple_handlers() raises:
     logger.info("Message to multiple handlers")
 
 
-fn test_log_training_start() raises:
+def test_log_training_start() raises:
     """Test logging training start with configuration details."""
     var logger = get_logger("training", LogLevel.INFO)
     var handler = StreamHandler()
@@ -219,7 +219,7 @@ fn test_log_training_start() raises:
     logger.info("Batch size: 32")
 
 
-fn test_log_epoch_metrics() raises:
+def test_log_epoch_metrics() raises:
     """Test logging epoch completion with metrics."""
     var logger = get_logger("trainer_metrics", LogLevel.INFO)
     var handler = StreamHandler()
@@ -236,7 +236,7 @@ fn test_log_epoch_metrics() raises:
     )
 
 
-fn test_log_batch_progress() raises:
+def test_log_batch_progress() raises:
     """Test logging batch progress within epoch."""
     var logger = get_logger("batch_progress", LogLevel.DEBUG)
     var handler = StreamHandler()
@@ -249,7 +249,7 @@ fn test_log_batch_progress() raises:
     logger.debug("Batch 500/500 (100%): loss=0.40")
 
 
-fn test_log_checkpoint_saved() raises:
+def test_log_checkpoint_saved() raises:
     """Test logging checkpoint save events."""
     var logger = get_logger("checkpointing", LogLevel.INFO)
     var handler = StreamHandler()
@@ -261,7 +261,7 @@ fn test_log_checkpoint_saved() raises:
     logger.info("Checkpoint saved to checkpoints/epoch_5.mojo (epoch 5)")
 
 
-fn test_log_early_stopping() raises:
+def test_log_early_stopping() raises:
     """Test logging early stopping trigger."""
     var logger = get_logger("early_stopping", LogLevel.INFO)
     var handler = StreamHandler()
@@ -273,7 +273,7 @@ fn test_log_early_stopping() raises:
     logger.warning("Early stopping triggered at epoch 27")
 
 
-fn test_create_default_logger() raises:
+def test_create_default_logger() raises:
     """Test creating logger with default configuration."""
     var logger = Logger("default_test")
 
@@ -283,7 +283,7 @@ fn test_create_default_logger() raises:
     assert_equal(len(logger.handlers), 0)  # No handlers by default
 
 
-fn test_create_logger_with_name() raises:
+def test_create_logger_with_name() raises:
     """Test creating named logger for different modules."""
     var training_logger = get_logger("training")
     var data_logger = get_logger("data")
@@ -299,7 +299,7 @@ fn test_create_logger_with_name() raises:
     data_logger.add_handler(handler2)
 
 
-fn test_logger_singleton() raises:
+def test_logger_singleton() raises:
     """Test getting same logger instance by name."""
     var logger1 = get_logger("singleton_test")
     var handler1 = StreamHandler()
@@ -313,7 +313,7 @@ fn test_logger_singleton() raises:
     assert_equal(logger2.name, "singleton_test")
 
 
-fn test_configure_logger_from_dict() raises:
+def test_configure_logger_from_dict() raises:
     """Test configuring logger from configuration dictionary."""
     # Create and configure a logger
     var logger = Logger("configured_logger", LogLevel.DEBUG)
@@ -329,7 +329,7 @@ fn test_configure_logger_from_dict() raises:
     assert_equal(len(logger.handlers), 2)
 
 
-fn test_log_with_invalid_level() raises:
+def test_log_with_invalid_level() raises:
     """Test logging with invalid level number."""
     var _ = Logger("error_test", LogLevel.INFO)
 
@@ -342,7 +342,7 @@ fn test_log_with_invalid_level() raises:
     assert_equal(level_name, "UNKNOWN")
 
 
-fn test_file_handler_permission_error() raises:
+def test_file_handler_permission_error() raises:
     """Test file handler handles write permission errors gracefully."""
     # Create file handler with a potentially problematic path
     # In reality, /dev/null is writable, so we use a path that doesn't exist
@@ -354,7 +354,7 @@ fn test_file_handler_permission_error() raises:
     logger.info("This should handle the error gracefully")
 
 
-fn test_logger_integration_training() raises:
+def test_logger_integration_training() raises:
     """Test logger integrates with training patterns."""
     var logger = get_logger("training_integration", LogLevel.INFO)
     var console_handler = StreamHandler()
@@ -374,7 +374,7 @@ fn test_logger_integration_training() raises:
     logger.info("Training completed successfully")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_logging tests."""
     print("Running test_logging tests...")
 

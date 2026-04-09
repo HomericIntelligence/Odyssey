@@ -4,7 +4,7 @@ This module provides pure functional implementations of normalization operations
 All operations are stateless - caller manages running statistics and parameters.
 """
 
-from algorithm import parallelize
+from std.algorithm import parallelize
 
 from shared.tensor.any_tensor import (
     AnyTensor,
@@ -32,7 +32,7 @@ from .scalar_ops import (
 
 
 @always_inline
-fn _idx4d(b: Int, c: Int, h: Int, w: Int, channels: Int, height: Int, width: Int) -> Int:
+def _idx4d(b: Int, c: Int, h: Int, w: Int, channels: Int, height: Int, width: Int) -> Int:
     return b * (channels * height * width) + c * (height * width) + h * width + w
 
 
@@ -42,13 +42,13 @@ fn _idx4d(b: Int, c: Int, h: Int, w: Int, channels: Int, height: Int, width: Int
 
 
 @always_inline
-fn _sqrt_typed[dtype: DType](x: Scalar[dtype]) -> Scalar[dtype]:
+def _sqrt_typed[dtype: DType](x: Scalar[dtype]) -> Scalar[dtype]:
     """Compute square root for any float dtype using Scalar[dtype]."""
     return x ** 0.5
 
 
 @always_inline
-fn _pow_typed[dtype: DType](x: Scalar[dtype], y: Scalar[dtype]) -> Scalar[dtype]:
+def _pow_typed[dtype: DType](x: Scalar[dtype], y: Scalar[dtype]) -> Scalar[dtype]:
     """Compute x^y for any float dtype using Scalar[dtype]."""
     return x ** y
 
@@ -58,7 +58,7 @@ fn _pow_typed[dtype: DType](x: Scalar[dtype], y: Scalar[dtype]) -> Scalar[dtype]
 # ============================================================================
 
 
-fn _batch_norm2d_compute_stats[
+def _batch_norm2d_compute_stats[
     dtype: DType
 ](
     x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
@@ -97,7 +97,7 @@ fn _batch_norm2d_compute_stats[
         var_ptr[c] = sum_sq_diff / N
 
 
-fn _batch_norm2d_normalize[
+def _batch_norm2d_normalize[
     dtype: DType
 ](
     x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
@@ -124,7 +124,7 @@ fn _batch_norm2d_normalize[
     if should_parallelize(batch):
 
         @parameter
-        fn normalize_batch(b: Int) capturing:
+        def normalize_batch(b: Int) capturing:
             for c in range(channels):
                 var mean_val = mean_ptr[c]
                 var std = _sqrt_typed[dtype](var_ptr[c] + eps)
@@ -151,7 +151,7 @@ fn _batch_norm2d_normalize[
                         out_ptr[idx] = gamma_val * x_norm + beta_val
 
 
-fn _batch_norm2d_update_running_stats[
+def _batch_norm2d_update_running_stats[
     dtype: DType
 ](
     running_mean: AnyTensor,
@@ -178,7 +178,7 @@ fn _batch_norm2d_update_running_stats[
         nrv_ptr[c] = one_minus_mom * rv_ptr[c] + mom * bv_ptr[c]
 
 
-fn batch_norm2d(
+def batch_norm2d(
     x: AnyTensor,
     gamma: AnyTensor,
     beta: AnyTensor,
@@ -348,7 +348,7 @@ fn batch_norm2d(
 # ============================================================================
 
 
-fn _batch_norm2d_backward_training[
+def _batch_norm2d_backward_training[
     dtype: DType
 ](
     grad_output_ptr: UnsafePointer[UInt8, MutAnyOrigin],
@@ -430,7 +430,7 @@ fn _batch_norm2d_backward_training[
                     gi_ptr[idx] = (grad_out - k / N - x_norm * dotp / N) * gamma_val * invstd
 
 
-fn _batch_norm2d_backward_inference[
+def _batch_norm2d_backward_inference[
     dtype: DType
 ](
     grad_output_ptr: UnsafePointer[UInt8, MutAnyOrigin],
@@ -489,7 +489,7 @@ fn _batch_norm2d_backward_inference[
                     gi_ptr[idx] = go[idx] * gamma_val / std
 
 
-fn batch_norm2d_backward(
+def batch_norm2d_backward(
     grad_output: AnyTensor,
     x: AnyTensor,
     gamma: AnyTensor,
@@ -648,7 +648,7 @@ fn batch_norm2d_backward(
 # ============================================================================
 
 
-fn _layer_norm_2d[
+def _layer_norm_2d[
     dtype: DType
 ](
     x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
@@ -685,7 +685,7 @@ fn _layer_norm_2d[
             out[idx] = gp[f] * x_norm + bp[f]
 
 
-fn _layer_norm_4d[
+def _layer_norm_4d[
     dtype: DType
 ](
     x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
@@ -732,7 +732,7 @@ fn _layer_norm_4d[
                     out[idx] = gp[gamma_idx] * x_norm + bp[gamma_idx]
 
 
-fn layer_norm(
+def layer_norm(
     x: AnyTensor, gamma: AnyTensor, beta: AnyTensor, epsilon: Float64 = 1e-5
 ) raises -> AnyTensor:
     """Functional layer normalization.
@@ -828,7 +828,7 @@ fn layer_norm(
 # ============================================================================
 
 
-fn _layer_norm_backward_2d[
+def _layer_norm_backward_2d[
     dtype: DType
 ](
     grad_output_ptr: UnsafePointer[UInt8, MutAnyOrigin],
@@ -906,7 +906,7 @@ fn _layer_norm_backward_2d[
             gi_ptr[idx] = term1 + term2 + term3
 
 
-fn _layer_norm_backward_4d[
+def _layer_norm_backward_4d[
     dtype: DType
 ](
     grad_output_ptr: UnsafePointer[UInt8, MutAnyOrigin],
@@ -1003,7 +1003,7 @@ fn _layer_norm_backward_4d[
                     gi_ptr[idx] = term1 + term2 + term3
 
 
-fn layer_norm_backward(
+def layer_norm_backward(
     grad_output: AnyTensor, x: AnyTensor, gamma: AnyTensor, epsilon: Float64 = 1e-5
 ) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
     """Backward pass for layer normalization.
@@ -1134,7 +1134,7 @@ fn layer_norm_backward(
 # ============================================================================
 
 
-fn _group_norm_impl[
+def _group_norm_impl[
     dtype: DType
 ](
     x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
@@ -1188,7 +1188,7 @@ fn _group_norm_impl[
                         out[idx] = gamma_val * x_norm + beta_val
 
 
-fn group_norm(
+def group_norm(
     x: AnyTensor,
     num_groups: Int,
     gamma: AnyTensor,
@@ -1276,7 +1276,7 @@ fn group_norm(
 # ============================================================================
 
 
-fn _group_norm_backward_impl[
+def _group_norm_backward_impl[
     dtype: DType
 ](
     grad_output_ptr: UnsafePointer[UInt8, MutAnyOrigin],
@@ -1382,7 +1382,7 @@ fn _group_norm_backward_impl[
                         gi_ptr[idx] = term1 + term2 + term3
 
 
-fn group_norm_backward(
+def group_norm_backward(
     grad_output: AnyTensor,
     x: AnyTensor,
     num_groups: Int,
@@ -1476,7 +1476,7 @@ fn group_norm_backward(
 # ============================================================================
 
 
-fn _instance_norm_impl[
+def _instance_norm_impl[
     dtype: DType
 ](
     x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
@@ -1521,7 +1521,7 @@ fn _instance_norm_impl[
                     out[idx] = gamma_val * x_norm + beta_val
 
 
-fn instance_norm(
+def instance_norm(
     x: AnyTensor,
     gamma: AnyTensor,
     beta: AnyTensor,
@@ -1598,7 +1598,7 @@ fn instance_norm(
 # ============================================================================
 
 
-fn _instance_norm_backward_impl[
+def _instance_norm_backward_impl[
     dtype: DType
 ](
     grad_output_ptr: UnsafePointer[UInt8, MutAnyOrigin],
@@ -1688,7 +1688,7 @@ fn _instance_norm_backward_impl[
                     gi_ptr[idx] = term1 + term2 + term3
 
 
-fn instance_norm_backward(
+def instance_norm_backward(
     grad_output: AnyTensor,
     x: AnyTensor,
     gamma: AnyTensor,

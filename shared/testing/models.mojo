@@ -19,7 +19,7 @@ All models use simple operations and predictable behavior for testing:
 Example:
     from shared.testing import SimpleCNN, LinearModel, SimpleMLP
 
-    fn test_model_forward():
+    def test_model_forward():
         # Test CNN forward pass
         var cnn_model = SimpleCNN(1, 8, 10)
         var input = ones([32, 1, 28, 28], DType.float32)
@@ -73,7 +73,7 @@ struct SimpleCNN(Copyable, Movable):
     var num_classes: Int
     """Number of output classes."""
 
-    fn __init__(
+    def __init__(
         out self,
         in_channels: Int = 1,
         out_channels: Int = 8,
@@ -96,7 +96,7 @@ struct SimpleCNN(Copyable, Movable):
         self.out_channels = out_channels
         self.num_classes = num_classes
 
-    fn get_output_shape(self, batch_size: Int) -> List[Int]:
+    def get_output_shape(self, batch_size: Int) -> List[Int]:
         """Get output shape for given batch size.
 
         Args:
@@ -110,7 +110,7 @@ struct SimpleCNN(Copyable, Movable):
         shape.append(self.num_classes)
         return shape^
 
-    fn forward(self, input: AnyTensor) raises -> AnyTensor:
+    def forward(self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass (simplified for testing).
 
         Creates output tensor with correct shape filled with dummy values.
@@ -168,7 +168,7 @@ struct LinearModel(Copyable, Movable):
     var out_features: Int
     """Output feature dimension."""
 
-    fn __init__(out self, in_features: Int, out_features: Int):
+    def __init__(out self, in_features: Int, out_features: Int):
         """Initialize linear model.
 
         Args:
@@ -184,7 +184,7 @@ struct LinearModel(Copyable, Movable):
         self.in_features = in_features
         self.out_features = out_features
 
-    fn get_output_shape(self, batch_size: Int) -> List[Int]:
+    def get_output_shape(self, batch_size: Int) -> List[Int]:
         """Get output shape for given batch size.
 
         Args:
@@ -198,7 +198,7 @@ struct LinearModel(Copyable, Movable):
         shape.append(self.out_features)
         return shape^
 
-    fn forward(self, input: AnyTensor) raises -> AnyTensor:
+    def forward(self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass.
 
         Creates output tensor with correct shape filled with zeros.
@@ -249,7 +249,7 @@ struct MockLayer:
     var scale: Float32
     """Scale factor applied to inputs."""
 
-    fn __init__(
+    def __init__(
         out self, input_dim: Int, output_dim: Int, scale: Float32 = 1.0
     ):
         """Initialize mock layer.
@@ -272,7 +272,7 @@ struct MockLayer:
         self.output_dim = output_dim
         self.scale = scale
 
-    fn forward(self, input: List[Float32]) -> List[Float32]:
+    def forward(self, input: List[Float32]) -> List[Float32]:
         """Forward pass through mock layer.
 
         Args:
@@ -310,7 +310,7 @@ struct MockLayer:
 
         return output^
 
-    fn num_parameters(self) -> Int:
+    def num_parameters(self) -> Int:
         """Get number of trainable parameters.
 
         Returns:
@@ -358,7 +358,7 @@ struct SimpleLinearModel:
     var use_bias: Bool
     """Whether to use bias."""
 
-    fn __init__(
+    def __init__(
         out self,
         input_dim: Int,
         output_dim: Int,
@@ -403,7 +403,7 @@ struct SimpleLinearModel:
             for _ in range(output_dim):
                 self.bias.append(init_value)
 
-    fn forward(self, input: List[Float32]) -> List[Float32]:
+    def forward(self, input: List[Float32]) -> List[Float32]:
         """Forward pass: output = weights @ input + bias.
 
         Args:
@@ -441,7 +441,7 @@ struct SimpleLinearModel:
 
         return output^
 
-    fn num_parameters(self) -> Int:
+    def num_parameters(self) -> Int:
         """Get total number of parameters.
 
         Returns:
@@ -480,7 +480,7 @@ struct Parameter(Copyable, Movable):
     var grad: AnyTensor
     """The gradient tensor for backpropagation."""
 
-    fn __init__(out self, data: AnyTensor) raises:
+    def __init__(out self, data: AnyTensor) raises:
         """Initialize parameter with data tensor and zero gradient.
 
         Args:
@@ -498,7 +498,7 @@ struct Parameter(Copyable, Movable):
         self.data = data
         self.grad = zeros_like(data)
 
-    fn shape(self) -> List[Int]:
+    def shape(self) -> List[Int]:
         """Get the shape of the parameter.
 
         Returns:
@@ -564,7 +564,7 @@ struct SimpleMLP(Copyable, Model, Movable):
     var layer3_bias: List[Float32]
     """Third layer bias (only if num_hidden_layers=2)."""
 
-    fn __init__(
+    def __init__(
         out self,
         input_dim: Int,
         hidden_dim: Int,
@@ -647,7 +647,7 @@ struct SimpleMLP(Copyable, Model, Movable):
             for _ in range(output_dim):
                 self.layer3_bias.append(init_value)
 
-    fn forward(self, input: List[Float32]) -> List[Float32]:
+    def forward(self, input: List[Float32]) -> List[Float32]:
         """Forward pass through MLP.
 
         Args:
@@ -709,7 +709,7 @@ struct SimpleMLP(Copyable, Model, Movable):
             )
             return output^
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass through MLP with AnyTensor input.
 
         Args:
@@ -749,7 +749,7 @@ struct SimpleMLP(Copyable, Model, Movable):
 
         return output^
 
-    fn _linear_forward(
+    def _linear_forward(
         self,
         input: List[Float32],
         weights: List[Float32],
@@ -781,7 +781,7 @@ struct SimpleMLP(Copyable, Model, Movable):
 
         return output^
 
-    fn _relu(self, input: List[Float32]) -> List[Float32]:
+    def _relu(self, input: List[Float32]) -> List[Float32]:
         """ReLU activation: max(0, x).
 
         Args:
@@ -796,7 +796,7 @@ struct SimpleMLP(Copyable, Model, Movable):
             output.append(max(Float32(0.0), val))
         return output^
 
-    fn num_parameters(self) -> Int:
+    def num_parameters(self) -> Int:
         """Get total number of parameters.
 
         Returns:
@@ -808,7 +808,7 @@ struct SimpleMLP(Copyable, Model, Movable):
             total += len(self.layer3_weights) + len(self.layer3_bias)
         return total
 
-    fn get_weights(self) raises -> AnyTensor:
+    def get_weights(self) raises -> AnyTensor:
         """Get flattened weights as AnyTensor.
 
         Returns:
@@ -848,7 +848,7 @@ struct SimpleMLP(Copyable, Model, Movable):
 
         return tensor
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Get list of parameter tensors.
 
         Returns:
@@ -915,7 +915,7 @@ struct SimpleMLP(Copyable, Model, Movable):
 
         return param_list^
 
-    fn zero_grad(mut self) raises:
+    def zero_grad(mut self) raises:
         """Zero all gradients.
 
         Example:
@@ -931,7 +931,7 @@ struct SimpleMLP(Copyable, Model, Movable):
         # on Parameter objects during backpropagation
         pass
 
-    fn state_dict(self) raises -> Dict[String, AnyTensor]:
+    def state_dict(self) raises -> Dict[String, AnyTensor]:
         """Export weights as state dictionary.
 
         Returns:
@@ -999,7 +999,7 @@ struct SimpleMLP(Copyable, Model, Movable):
 
         return state^
 
-    fn load_state_dict(mut self, state: Dict[String, AnyTensor]):
+    def load_state_dict(mut self, state: Dict[String, AnyTensor]):
         """Load weights from state dictionary.
 
         Args:
@@ -1053,7 +1053,7 @@ struct SimpleMLP2(Copyable, Model, Movable):
     var output_dim: Int
     """Output dimension."""
 
-    fn __init__(
+    def __init__(
         out self,
         input_dim: Int,
         hidden_dim: Int,
@@ -1078,7 +1078,7 @@ struct SimpleMLP2(Copyable, Model, Movable):
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass using manual layer composition.
 
         This demonstrates the data flow through sequential layers without
@@ -1112,7 +1112,7 @@ struct SimpleMLP2(Copyable, Model, Movable):
 
         return output^
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Get all trainable parameters.
 
         Returns:
@@ -1132,15 +1132,15 @@ struct SimpleMLP2(Copyable, Model, Movable):
         params.append(zeros([self.output_dim], DType.float32))
         return params^
 
-    fn train(mut self):
+    def train(mut self):
         """Set model to training mode (no-op placeholder)."""
         pass
 
-    fn set_inference_mode(mut self):
+    def set_inference_mode(mut self):
         """Set model to inference mode (no-op placeholder)."""
         pass
 
-    fn zero_grad(mut self) raises:
+    def zero_grad(mut self) raises:
         """Placeholder for gradient reset (no gradient state in this fixture).
 
         Raises:

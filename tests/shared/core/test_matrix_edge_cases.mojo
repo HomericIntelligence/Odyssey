@@ -23,7 +23,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_matmul_1x1() raises:
+def test_matmul_1x1() raises:
     """Test 1x1 matrix multiplication."""
     var shape = List[Int]()
     shape.append(1)
@@ -37,7 +37,7 @@ fn test_matmul_1x1() raises:
     assert_value_at(c, 0, 15.0, 1e-5, "5 * 3 = 15")
 
 
-fn test_matmul_2x2() raises:
+def test_matmul_2x2() raises:
     """Test 2x2 matrix multiplication."""
     var shape = List[Int]()
     shape.append(2)
@@ -53,7 +53,7 @@ fn test_matmul_2x2() raises:
     assert_all_values(c, 2.0, 1e-5, "1x1+1x1 = 2 for each element")
 
 
-fn test_matmul_3x3() raises:
+def test_matmul_3x3() raises:
     """Test 3x3 matrix multiplication."""
     var shape = List[Int]()
     shape.append(3)
@@ -69,7 +69,7 @@ fn test_matmul_3x3() raises:
     assert_all_values(c, 3.0, 1e-5, "Sum of 3 ones = 3")
 
 
-fn test_matmul_2x3_3x2() raises:
+def test_matmul_2x3_3x2() raises:
     """Test [2,3] @ [3,2] matrix multiplication."""
     var shape_a = List[Int]()
     shape_a.append(2)
@@ -93,7 +93,7 @@ fn test_matmul_2x3_3x2() raises:
     assert_all_values(c, 3.0, 1e-5, "1x1+1x1+1x1 = 3 for each element")
 
 
-fn test_matmul_non_square() raises:
+def test_matmul_non_square() raises:
     """Test [4,3] @ [3,5] matrix multiplication."""
     var shape_a = List[Int]()
     shape_a.append(4)
@@ -117,7 +117,7 @@ fn test_matmul_non_square() raises:
     assert_all_values(c, 6.0, 1e-5, "1x2 summed 3 times = 6")
 
 
-fn test_matmul_identity() raises:
+def test_matmul_identity() raises:
     """Test A @ I = A with identity matrix."""
     var shape = List[Int]()
     shape.append(3)
@@ -132,7 +132,7 @@ fn test_matmul_identity() raises:
     assert_all_close(c, a, 1e-5, "A @ I = A")
 
 
-fn test_matmul_with_zeros() raises:
+def test_matmul_with_zeros() raises:
     """Test matrix multiplication with zero matrix."""
     var shape = List[Int]()
     shape.append(2)
@@ -147,7 +147,7 @@ fn test_matmul_with_zeros() raises:
     assert_all_values(c, 0.0, 1e-6, "A @ 0 = 0")
 
 
-fn test_matmul_with_ones() raises:
+def test_matmul_with_ones() raises:
     """Test matrix multiplication with ones matrix."""
     var shape = List[Int]()
     shape.append(2)
@@ -162,7 +162,7 @@ fn test_matmul_with_ones() raises:
     assert_all_values(c, 6.0, 1e-5, "3*1+3*1 = 6")
 
 
-fn test_matmul_small_values() raises:
+def test_matmul_small_values() raises:
     """Test matmul with very small values."""
     var shape = List[Int]()
     shape.append(2)
@@ -175,7 +175,7 @@ fn test_matmul_small_values() raises:
     assert_dim(c, 2, "Result should be 2D")
 
 
-fn test_matmul_large_values() raises:
+def test_matmul_large_values() raises:
     """Test matmul with large values."""
     var shape = List[Int]()
     shape.append(2)
@@ -188,7 +188,7 @@ fn test_matmul_large_values() raises:
     assert_dim(c, 2, "Result should be 2D")
 
 
-fn test_matmul_mixed_signs() raises:
+def test_matmul_mixed_signs() raises:
     """Test matmul with mixed positive/negative values."""
     var shape = List[Int]()
     shape.append(2)
@@ -203,7 +203,7 @@ fn test_matmul_mixed_signs() raises:
     assert_all_values(c, -4.0, 1e-5, "Mixed sign matmul")
 
 
-fn test_matmul_float64() raises:
+def test_matmul_float64() raises:
     """Test matmul with float64 dtype."""
     var shape = List[Int]()
     shape.append(2)
@@ -217,7 +217,7 @@ fn test_matmul_float64() raises:
     assert_all_values(c, 2.0, 1e-10, "Float64 matmul")
 
 
-fn test_matmul_float32() raises:
+def test_matmul_float32() raises:
     """Test matmul with float32 dtype."""
     var shape = List[Int]()
     shape.append(2)
@@ -231,7 +231,7 @@ fn test_matmul_float32() raises:
     assert_all_values(c, 2.0, 1e-5, "Float32 matmul")
 
 
-fn test_matmul_known_result() raises:
+def test_matmul_known_result() raises:
     """Test matmul with known result values."""
     # [1, 2] @ [3, 4] = 1*3 + 2*4 = 11
     var shape_a = List[Int]()
@@ -255,7 +255,7 @@ fn test_matmul_known_result() raises:
     assert_value_at(c, 0, 11.0, 1e-5, "[1,2]@[3,4]^T = 11")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_matrix_edge_cases tests."""
     print("Running test_matrix_edge_cases tests...")
 

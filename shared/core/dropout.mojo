@@ -15,10 +15,10 @@ from shared.tensor.any_tensor import (
     full_like,
 )
 from .arithmetic import multiply, divide
-import random
+from std import random
 
 
-fn dropout(
+def dropout(
     x: AnyTensor, p: Float64, training: Bool, seed: Int = 0
 ) raises -> Tuple[AnyTensor, AnyTensor]:
     """Functional dropout with mask return.
@@ -105,7 +105,7 @@ fn dropout(
     return (output, mask)
 
 
-fn dropout2d(
+def dropout2d(
     x: AnyTensor, p: Float64, training: Bool, seed: Int = 0
 ) raises -> Tuple[AnyTensor, AnyTensor]:
     """Functional 2D dropout (spatial dropout) for CNNs.
@@ -251,7 +251,7 @@ fn dropout2d(
     return (output, full_mask)
 
 
-fn dropout_backward(
+def dropout_backward(
     grad_output: AnyTensor, mask: AnyTensor, p: Float64
 ) raises -> AnyTensor:
     """Backward pass for dropout.
@@ -291,7 +291,7 @@ fn dropout_backward(
     return multiply(masked_grad, scale_tensor)
 
 
-fn dropout2d_backward(
+def dropout2d_backward(
     grad_output: AnyTensor, mask: AnyTensor, p: Float64
 ) raises -> AnyTensor:
     """Backward pass for 2D dropout (spatial dropout).

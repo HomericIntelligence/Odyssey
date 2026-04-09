@@ -39,7 +39,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_lars_initialization() raises:
+def test_lars_initialization() raises:
     """Test LARS optimizer initialization with hyperparameters.
 
     Functional API Note:
@@ -69,7 +69,7 @@ fn test_lars_initialization() raises:
     assert_shape(result[0], shape, "LARS initialization result shape matches input")
 
 
-fn test_lars_parameter_norm_computation() raises:
+def test_lars_parameter_norm_computation() raises:
     """Test LARS correctly computes parameter norm.
 
     LARS uses L2 norm: ||params|| = sqrt(sum(params^2)).
@@ -87,7 +87,7 @@ fn test_lars_parameter_norm_computation() raises:
     assert_almost_equal(param_norm, 5.0, tolerance=1e-6)
 
 
-fn test_lars_gradient_norm_computation() raises:
+def test_lars_gradient_norm_computation() raises:
     """Test LARS correctly computes gradient norm.
 
     LARS uses L2 norm: ||grads|| = sqrt(sum(grads^2)).
@@ -105,7 +105,7 @@ fn test_lars_gradient_norm_computation() raises:
     assert_almost_equal(grad_norm, 1.0, tolerance=1e-6)
 
 
-fn test_lars_trust_ratio_scaling() raises:
+def test_lars_trust_ratio_scaling() raises:
     """Test LARS computes trust ratio correctly.
 
     Formula:
@@ -157,7 +157,7 @@ fn test_lars_trust_ratio_scaling() raises:
     )
 
 
-fn test_lars_basic_update() raises:
+def test_lars_basic_update() raises:
     """Test LARS performs basic parameter update with adaptive scaling.
 
     LARS scales the learning rate based on parameter and gradient norms,
@@ -195,7 +195,7 @@ fn test_lars_basic_update() raises:
     assert_almost_equal(param_val, 0.999, tolerance=1e-3)
 
 
-fn test_lars_momentum_accumulation() raises:
+def test_lars_momentum_accumulation() raises:
     """Test LARS accumulates momentum correctly over multiple steps.
 
     Functional API:
@@ -256,7 +256,7 @@ fn test_lars_momentum_accumulation() raises:
     assert_less(param_val2, param_val1)
 
 
-fn test_lars_weight_decay() raises:
+def test_lars_weight_decay() raises:
     """Test LARS applies weight decay (L2 regularization).
 
     Functional API:
@@ -334,7 +334,7 @@ fn test_lars_weight_decay() raises:
     assert_less(val_with_wd_0, val_without_wd_0)
 
 
-fn test_lars_step_simple() raises:
+def test_lars_step_simple() raises:
     """Test LARS simplified step function with default hyperparameters.
 
     Simplified API uses sensible defaults:
@@ -362,7 +362,7 @@ fn test_lars_step_simple() raises:
     assert_not_equal(new_val, 1.0)
 
 
-fn test_lars_adaptive_scaling_small_gradients() raises:
+def test_lars_adaptive_scaling_small_gradients() raises:
     """Test LARS scales learning rate up when gradients are small.
 
     When grad_norm is small relative to param_norm, LARS increases
@@ -396,7 +396,7 @@ fn test_lars_adaptive_scaling_small_gradients() raises:
     assert_not_equal(Float64(new_params._data.bitcast[Float32]()[0]), 10.0)
 
 
-fn test_lars_adaptive_scaling_large_gradients() raises:
+def test_lars_adaptive_scaling_large_gradients() raises:
     """Test LARS scales learning rate down when gradients are large.
 
     When grad_norm is large relative to param_norm, LARS decreases
@@ -431,7 +431,7 @@ fn test_lars_adaptive_scaling_large_gradients() raises:
     assert_greater(param_val, 0.99)  # Should not change drastically
 
 
-fn test_lars_shape_mismatch() raises:
+def test_lars_shape_mismatch() raises:
     """Test LARS raises error on shape mismatch.
 
     Parameters and gradients must have the same shape.
@@ -454,7 +454,7 @@ fn test_lars_shape_mismatch() raises:
         assert_true(True)
 
 
-fn test_lars_dtype_mismatch() raises:
+def test_lars_dtype_mismatch() raises:
     """Test LARS raises error on dtype mismatch.
 
     Parameters and gradients must have the same dtype.
@@ -474,7 +474,7 @@ fn test_lars_dtype_mismatch() raises:
         assert_true(True)
 
 
-fn test_lars_empty_velocity_buffer() raises:
+def test_lars_empty_velocity_buffer() raises:
     """Test LARS raises error when velocity buffer is not initialized.
 
     Velocity buffer must be pre-allocated (use zeros_like).
@@ -494,7 +494,7 @@ fn test_lars_empty_velocity_buffer() raises:
         assert_true(True)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_lars tests."""
     print("Running test_lars tests...")
 

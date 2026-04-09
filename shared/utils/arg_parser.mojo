@@ -22,8 +22,8 @@ Example:
     ```
 """
 
-from sys import argv
-from collections import Dict
+from std.sys import argv
+from std.collections import Dict
 
 
 # ============================================================================
@@ -62,11 +62,11 @@ struct ParsedArgs(Copyable, Movable):
 
     var values: Dict[String, String]
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize empty parsed arguments."""
         self.values = Dict[String, String]()
 
-    fn set(mut self, name: String, value: String):
+    def set(mut self, name: String, value: String):
         """Set an argument value.
 
         Args:
@@ -75,7 +75,7 @@ struct ParsedArgs(Copyable, Movable):
         """
         self.values[name] = value
 
-    fn has(self, name: String) -> Bool:
+    def has(self, name: String) -> Bool:
         """Check if an argument was provided.
 
         Args:
@@ -86,7 +86,7 @@ struct ParsedArgs(Copyable, Movable):
         """
         return name in self.values
 
-    fn get_string(self, name: String, default: String = "") raises -> String:
+    def get_string(self, name: String, default: String = "") raises -> String:
         """Get argument value as string.
 
         Args:
@@ -103,7 +103,7 @@ struct ParsedArgs(Copyable, Movable):
             return self.values[name]
         return default
 
-    fn get_int(self, name: String, default: Int = 0) raises -> Int:
+    def get_int(self, name: String, default: Int = 0) raises -> Int:
         """Get argument value as integer.
 
         Args:
@@ -130,7 +130,7 @@ struct ParsedArgs(Copyable, Movable):
                 + "'"
             )
 
-    fn get_float(self, name: String, default: Float64 = 0.0) raises -> Float64:
+    def get_float(self, name: String, default: Float64 = 0.0) raises -> Float64:
         """Get argument value as float.
 
         Args:
@@ -157,7 +157,7 @@ struct ParsedArgs(Copyable, Movable):
                 + "'"
             )
 
-    fn get_bool(self, name: String) -> Bool:
+    def get_bool(self, name: String) -> Bool:
         """Get boolean flag status.
 
         Args:
@@ -194,11 +194,11 @@ struct ArgumentParser(Copyable, Movable):
 
     var arguments: Dict[String, ArgumentSpec]
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize empty argument parser."""
         self.arguments = Dict[String, ArgumentSpec]()
 
-    fn add_argument(
+    def add_argument(
         mut self,
         name: String,
         arg_type: String,
@@ -228,7 +228,7 @@ struct ArgumentParser(Copyable, Movable):
         )
         self.arguments[name] = spec^
 
-    fn add_flag(mut self, name: String):
+    def add_flag(mut self, name: String):
         """Add a boolean flag argument.
 
         Flags are provided as --name without a value.
@@ -241,7 +241,7 @@ struct ArgumentParser(Copyable, Movable):
         )
         self.arguments[name] = spec^
 
-    fn parse(self) raises -> ParsedArgs:
+    def parse(self) raises -> ParsedArgs:
         """Parse command-line arguments from sys.argv.
 
         Uses early returns to minimize nesting depth (simplified from
@@ -303,7 +303,7 @@ struct ArgumentParser(Copyable, Movable):
 # ============================================================================
 
 
-fn create_parser() raises -> ArgumentParser:
+def create_parser() raises -> ArgumentParser:
     """Create a new argument parser.
 
     Returns:
@@ -320,7 +320,7 @@ fn create_parser() raises -> ArgumentParser:
 # ============================================================================
 
 
-fn create_training_parser() raises -> ArgumentParser:
+def create_training_parser() raises -> ArgumentParser:
     """Create argument parser with common ML training arguments.
 
         Provides predefined arguments for:
@@ -374,7 +374,7 @@ fn create_training_parser() raises -> ArgumentParser:
     return parser^
 
 
-fn validate_positive_int(value: Int, name: String) raises:
+def validate_positive_int(value: Int, name: String) raises:
     """Validate that an integer argument is positive.
 
     Args:
@@ -388,7 +388,7 @@ fn validate_positive_int(value: Int, name: String) raises:
         raise Error(name + " must be positive, got: " + String(value))
 
 
-fn validate_positive_float(value: Float64, name: String) raises:
+def validate_positive_float(value: Float64, name: String) raises:
     """Validate that a float argument is positive.
 
     Args:
@@ -402,7 +402,7 @@ fn validate_positive_float(value: Float64, name: String) raises:
         raise Error(name + " must be positive, got: " + String(value))
 
 
-fn validate_range_float(
+def validate_range_float(
     value: Float64, min_val: Float64, max_val: Float64, name: String
 ) raises:
     """Validate that a float argument is within a range.

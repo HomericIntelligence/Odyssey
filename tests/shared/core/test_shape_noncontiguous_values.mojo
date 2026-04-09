@@ -44,7 +44,7 @@ from tests.shared.conftest import (
 # ============================================================================
 
 
-fn make_noncontiguous_4x3() raises -> AnyTensor:
+def make_noncontiguous_4x3() raises -> AnyTensor:
     """Return a (4,3) non-contiguous tensor via transpose_view of arange(12) reshaped (3,4).
 
     Flat memory order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
@@ -65,7 +65,7 @@ fn make_noncontiguous_4x3() raises -> AnyTensor:
 # ============================================================================
 
 
-fn test_reshape_noncontiguous_values() raises:
+def test_reshape_noncontiguous_values() raises:
     """Verify reshape() on non-contiguous (4,3) input produces correct flat 1D values.
 
     Expected: row-major read of logical (4,3) = [0,4,8, 1,5,9, 2,6,10, 3,7,11]
@@ -83,7 +83,7 @@ fn test_reshape_noncontiguous_values() raises:
         assert_value_at(result, i, expected[i])
 
 
-fn test_flatten_noncontiguous_values() raises:
+def test_flatten_noncontiguous_values() raises:
     """Verify flatten() on non-contiguous (4,3) input produces correct 1D values.
 
     Expected: same as reshape to 1D = [0,4,8, 1,5,9, 2,6,10, 3,7,11]
@@ -99,7 +99,7 @@ fn test_flatten_noncontiguous_values() raises:
         assert_value_at(result, i, expected[i])
 
 
-fn test_permute_noncontiguous_values() raises:
+def test_permute_noncontiguous_values() raises:
     """Verify permute([1,0]) on non-contiguous (4,3) input gives correct (3,4) values.
 
     Permute [1,0] on logical (4,3) transposes back to (3,4).
@@ -126,7 +126,7 @@ fn test_permute_noncontiguous_values() raises:
         assert_value_at(result, i, Float64(i))
 
 
-fn test_concatenate_noncontiguous_values() raises:
+def test_concatenate_noncontiguous_values() raises:
     """Verify concatenate() of two non-contiguous (4,3) tensors along axis=0 gives correct (8,3) values.
 
     Each block should be the row-major read of logical (4,3):
@@ -155,7 +155,7 @@ fn test_concatenate_noncontiguous_values() raises:
             assert_value_at(result, half * 12 + i, expected_half[i])
 
 
-fn test_broadcast_to_noncontiguous_values() raises:
+def test_broadcast_to_noncontiguous_values() raises:
     """Verify broadcast_to() on non-contiguous (3,1) column tensor gives correct (3,4) values.
 
     Setup: arange(3) reshaped (1,3) -> transpose_view -> (3,1), strides [1,3]
@@ -189,7 +189,7 @@ fn test_broadcast_to_noncontiguous_values() raises:
             assert_value_at(result, flat_idx, Float64(row_idx))
 
 
-fn test_tile_noncontiguous_values() raises:
+def test_tile_noncontiguous_values() raises:
     """Verify tile() on non-contiguous (2,3) input tiled [1,2] gives correct (2,6) values.
 
     Setup: arange(6) reshaped (3,2) -> transpose_view -> (2,3), strides [1,2]
@@ -224,7 +224,7 @@ fn test_tile_noncontiguous_values() raises:
         assert_value_at(result, i, expected[i])
 
 
-fn test_repeat_noncontiguous_values() raises:
+def test_repeat_noncontiguous_values() raises:
     """Verify repeat() on non-contiguous (2,3) input repeated 2x along axis=0 gives correct (4,3) values.
 
     Same non-contiguous (2,3) as tile test (strides [1,2]):
@@ -262,7 +262,7 @@ fn test_repeat_noncontiguous_values() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run value-correctness tests for shape ops on non-contiguous inputs."""
     print("Running shape op value-correctness tests on non-contiguous inputs...")
 

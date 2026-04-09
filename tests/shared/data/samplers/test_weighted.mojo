@@ -19,7 +19,7 @@ from tests.shared.conftest import (
 from shared.data.samplers import WeightedSampler
 
 
-fn test_weighted_sampler_creation() raises:
+def test_weighted_sampler_creation() raises:
     """Test creating WeightedSampler with weights.
 
     Should accept list of weights (one per sample) and sample
@@ -34,7 +34,7 @@ fn test_weighted_sampler_creation() raises:
     assert_equal(sampler.__len__(), 100)
 
 
-fn test_weighted_sampler_uniform_weights() raises:
+def test_weighted_sampler_uniform_weights() raises:
     """Test that uniform weights produce uniform sampling.
 
     When all weights are equal, should behave like RandomSampler,
@@ -62,7 +62,7 @@ fn test_weighted_sampler_uniform_weights() raises:
         assert_true(counts[i] > 200 and counts[i] < 300)
 
 
-fn test_weighted_sampler_zero_weight() raises:
+def test_weighted_sampler_zero_weight() raises:
     """Test that zero-weight samples are (almost) never sampled.
 
     Indices with weight=0 should (theoretically) never be yielded,
@@ -91,7 +91,7 @@ fn test_weighted_sampler_zero_weight() raises:
     assert_true(counts[2] > 40)
 
 
-fn test_weighted_sampler_weights_normalization() raises:
+def test_weighted_sampler_weights_normalization() raises:
     """Test that weights are automatically normalized.
 
     Weights [1, 2, 3] should behave same as [10, 20, 30],
@@ -116,7 +116,7 @@ fn test_weighted_sampler_weights_normalization() raises:
         assert_equal(indices1[i], indices2[i])
 
 
-fn test_weighted_sampler_proportional_sampling() raises:
+def test_weighted_sampler_proportional_sampling() raises:
     """Test that sampling is proportional to weights.
 
     With weights [1, 2, 3], index 2 should appear 3x more often
@@ -144,7 +144,7 @@ fn test_weighted_sampler_proportional_sampling() raises:
     assert_true(counts[2] > 2800 and counts[2] < 3200)  # ~3000
 
 
-fn test_weighted_sampler_extreme_weights() raises:
+def test_weighted_sampler_extreme_weights() raises:
     """Test handling of extreme weight ratios.
 
     With weights [0.001, 0.999], second index should dominate
@@ -165,7 +165,7 @@ fn test_weighted_sampler_extreme_weights() raises:
     assert_true(count_idx1 > 990)
 
 
-fn test_weighted_sampler_with_replacement() raises:
+def test_weighted_sampler_with_replacement() raises:
     """Test that weighted sampling uses replacement by default.
 
     Should allow same index to be sampled multiple times,
@@ -183,7 +183,7 @@ fn test_weighted_sampler_with_replacement() raises:
     assert_equal(len(indices), 100)
 
 
-fn test_weighted_sampler_num_samples() raises:
+def test_weighted_sampler_num_samples() raises:
     """Test that num_samples controls total samples yielded.
 
     Should yield exactly num_samples indices,
@@ -199,7 +199,7 @@ fn test_weighted_sampler_num_samples() raises:
     assert_equal(len(indices), 1000)
 
 
-fn test_weighted_sampler_class_balancing() raises:
+def test_weighted_sampler_class_balancing() raises:
     """Test using WeightedSampler for class balancing.
 
     For imbalanced dataset (90 class A, 10 class B),
@@ -228,7 +228,7 @@ fn test_weighted_sampler_class_balancing() raises:
     assert_true(count_class1 > 450 and count_class1 < 550)
 
 
-fn test_weighted_sampler_inverse_frequency() raises:
+def test_weighted_sampler_inverse_frequency() raises:
     """Test inverse frequency weighting for balancing.
 
     Weight = 1/class_frequency is common pattern for balancing,
@@ -265,7 +265,7 @@ fn test_weighted_sampler_inverse_frequency() raises:
         assert_true(counts[i] > 450 and counts[i] < 550)
 
 
-fn test_weighted_sampler_deterministic_with_seed() raises:
+def test_weighted_sampler_deterministic_with_seed() raises:
     """Test that weighted sampling is deterministic with seed.
 
     Same seed should produce same sequence of indices,
@@ -290,7 +290,7 @@ fn test_weighted_sampler_deterministic_with_seed() raises:
         assert_equal(indices1[i], indices2[i])
 
 
-fn test_weighted_sampler_multiple_iterations() raises:
+def test_weighted_sampler_multiple_iterations() raises:
     """Verify WeightedSampler can be iterated multiple times.
 
     When called multiple times, should produce valid samples each time,
@@ -312,7 +312,7 @@ fn test_weighted_sampler_multiple_iterations() raises:
     assert_equal(len(indices2), 4)
 
 
-fn test_weighted_sampler_negative_weight_error() raises:
+def test_weighted_sampler_negative_weight_error() raises:
     """Test that negative weights raise error.
 
     Weights must be non-negative (>=0),
@@ -332,7 +332,7 @@ fn test_weighted_sampler_negative_weight_error() raises:
     assert_true(error_raised, "Should have raised error for negative weight")
 
 
-fn test_weighted_sampler_all_zero_weights_error() raises:
+def test_weighted_sampler_all_zero_weights_error() raises:
     """Test that all-zero weights raise error.
 
     If all weights are zero, cannot sample anything,
@@ -352,7 +352,7 @@ fn test_weighted_sampler_all_zero_weights_error() raises:
     assert_true(error_raised, "Should have raised error for all-zero weights")
 
 
-fn test_weighted_sampler_empty_weights_error() raises:
+def test_weighted_sampler_empty_weights_error() raises:
     """Test that empty weights list raises error.
 
     Cannot create sampler with no weights,
@@ -369,7 +369,7 @@ fn test_weighted_sampler_empty_weights_error() raises:
     assert_true(error_raised, "Should have raised error for empty weights")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_weighted tests."""
     print("Running test_weighted tests...")
 

@@ -32,7 +32,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.conv import conv2d_backward, conv2d_no_bias_backward
 
 
-fn _make_nc_nchw_symmetric() raises -> AnyTensor:
+def _make_nc_nchw_symmetric() raises -> AnyTensor:
     """Create a non-contiguous (1,1,6,4) tensor by transposing (1,1,4,6).
 
     The input (1,1,4,6) has all ones. Transposing H (dim2) and W (dim3)
@@ -46,7 +46,7 @@ fn _make_nc_nchw_symmetric() raises -> AnyTensor:
     return nc^
 
 
-fn _make_nc_grad_output() raises -> AnyTensor:
+def _make_nc_grad_output() raises -> AnyTensor:
     """Non-contiguous grad_output of logical shape (1,1,4,2).
 
     Base (1,1,2,4) all-ones transposed to (1,1,4,2): strides [8,8,1,4]
@@ -59,7 +59,7 @@ fn _make_nc_grad_output() raises -> AnyTensor:
     return nc^
 
 
-fn _make_nc_input() raises -> AnyTensor:
+def _make_nc_input() raises -> AnyTensor:
     """Non-contiguous input of logical shape (1,1,6,4) with all ones.
 
     Base (1,1,4,6) transposed to (1,1,6,4): strides [24,24,1,6]
@@ -71,7 +71,7 @@ fn _make_nc_input() raises -> AnyTensor:
     return nc^
 
 
-fn test_conv2d_noncontiguous_input_ones() raises:
+def test_conv2d_noncontiguous_input_ones() raises:
     """Conv2d with non-contiguous all-ones input matches contiguous baseline."""
     # Both contiguous (1,1,6,4) and non-contiguous (1,1,6,4) have all-ones
     var x_cont = ones([1, 1, 6, 4], DType.float32)
@@ -89,7 +89,7 @@ fn test_conv2d_noncontiguous_input_ones() raises:
         assert_almost_equal(rp[i], bp[i], tolerance=1e-4)
 
 
-fn test_conv2d_noncontiguous_kernel() raises:
+def test_conv2d_noncontiguous_kernel() raises:
     """Conv2d with non-contiguous kernel matches contiguous baseline."""
     # Kernel (1,1,3,4) transposed to (1,1,4,3) — non-contiguous, all ones
     var kernel_cont = ones([1, 1, 3, 4], DType.float32)
@@ -110,7 +110,7 @@ fn test_conv2d_noncontiguous_kernel() raises:
         assert_almost_equal(rp[i], bp[i], tolerance=1e-4)
 
 
-fn test_conv2d_result_shape_correct() raises:
+def test_conv2d_result_shape_correct() raises:
     """Conv2d on non-contiguous input should return the correct output shape."""
     var nc_x = _make_nc_nchw_symmetric()  # logical (1,1,6,4)
     var kernel = ones([1, 1, 3, 3], DType.float32)
@@ -126,7 +126,7 @@ fn test_conv2d_result_shape_correct() raises:
     assert_equal_int(result.shape()[3], baseline.shape()[3])
 
 
-fn test_conv2d_result_is_contiguous() raises:
+def test_conv2d_result_is_contiguous() raises:
     """Conv2d output should always be contiguous regardless of input."""
     var nc_x = _make_nc_nchw_symmetric()
     var kernel = ones([1, 1, 3, 3], DType.float32)
@@ -137,7 +137,7 @@ fn test_conv2d_result_is_contiguous() raises:
     assert_true(result.is_contiguous(), "conv2d output should be contiguous")
 
 
-fn test_conv2d_noncontiguous_both_input_and_kernel() raises:
+def test_conv2d_noncontiguous_both_input_and_kernel() raises:
     """Conv2d with both non-contiguous input and kernel matches contiguous baseline."""
     var nc_x = _make_nc_nchw_symmetric()  # logical (1,1,6,4) all-ones
 
@@ -158,7 +158,7 @@ fn test_conv2d_noncontiguous_both_input_and_kernel() raises:
         assert_almost_equal(rp[i], bp[i], tolerance=1e-4)
 
 
-fn test_conv2d_no_bias_noncontiguous_input() raises:
+def test_conv2d_no_bias_noncontiguous_input() raises:
     """Conv2d_no_bias with non-contiguous input matches contiguous baseline."""
     var nc_x = _make_nc_nchw_symmetric()  # logical (1,1,6,4) all-ones
     var x_cont = ones([1, 1, 6, 4], DType.float32)
@@ -173,7 +173,7 @@ fn test_conv2d_no_bias_noncontiguous_input() raises:
         assert_almost_equal(rp[i], bp[i], tolerance=1e-4)
 
 
-fn test_conv2d_noncontiguous_with_stride() raises:
+def test_conv2d_noncontiguous_with_stride() raises:
     """Conv2d with non-contiguous input and stride > 1 matches contiguous baseline."""
     # Use (1,1,8,6) → transpose(2,3) → logical (1,1,6,8), stride=2
     var x_cont_base = ones([1, 1, 8, 6], DType.float32)
@@ -193,7 +193,7 @@ fn test_conv2d_noncontiguous_with_stride() raises:
         assert_almost_equal(rp[i], bp[i], tolerance=1e-4)
 
 
-fn test_conv2d_noncontiguous_with_padding() raises:
+def test_conv2d_noncontiguous_with_padding() raises:
     """Conv2d with non-contiguous input and padding matches contiguous baseline."""
     var nc_x = _make_nc_nchw_symmetric()  # logical (1,1,6,4)
     var x_ref = ones([1, 1, 6, 4], DType.float32)
@@ -209,7 +209,7 @@ fn test_conv2d_noncontiguous_with_padding() raises:
         assert_almost_equal(rp[i], bp[i], tolerance=1e-4)
 
 
-fn test_conv2d_nc_output_shape_with_multichannel() raises:
+def test_conv2d_nc_output_shape_with_multichannel() raises:
     """Conv2d on non-contiguous input with multiple channels has correct output shape."""
     # (2,3,8,6) → transpose(2,3) → logical (2,3,6,8) non-contiguous
     var x_cont_base = ones([2, 3, 8, 6], DType.float32)
@@ -229,7 +229,7 @@ fn test_conv2d_nc_output_shape_with_multichannel() raises:
     assert_equal_int(result.shape()[3], baseline.shape()[3])
 
 
-fn test_conv2d_backward_noncontiguous_grad_output() raises:
+def test_conv2d_backward_noncontiguous_grad_output() raises:
     """Conv2d_backward with non-contiguous grad_output matches contiguous baseline.
 
     Input (1,1,6,4), kernel (1,1,3,3) → output shape (1,1,4,2).
@@ -258,7 +258,7 @@ fn test_conv2d_backward_noncontiguous_grad_output() raises:
         assert_almost_equal(rip[i], bip[i], tolerance=1e-4)
 
 
-fn test_conv2d_backward_noncontiguous_input() raises:
+def test_conv2d_backward_noncontiguous_input() raises:
     """Conv2d_backward with non-contiguous x matches contiguous baseline."""
     var x_cont = ones([1, 1, 6, 4], DType.float32)
     var kernel = ones([1, 1, 3, 3], DType.float32)
@@ -277,7 +277,7 @@ fn test_conv2d_backward_noncontiguous_input() raises:
         assert_almost_equal(rkp[i], bkp[i], tolerance=1e-4)
 
 
-fn test_conv2d_backward_noncontiguous_kernel() raises:
+def test_conv2d_backward_noncontiguous_kernel() raises:
     """Conv2d_backward with non-contiguous kernel matches contiguous baseline."""
     var x = ones([1, 1, 6, 4], DType.float32)
     var kernel_cont = ones([1, 1, 3, 4], DType.float32)
@@ -302,7 +302,7 @@ fn test_conv2d_backward_noncontiguous_kernel() raises:
     assert_equal_int(bi.shape()[2], ri.shape()[2])
 
 
-fn test_conv2d_backward_grad_input_is_contiguous() raises:
+def test_conv2d_backward_grad_input_is_contiguous() raises:
     """Conv2d_backward grad_input output should be contiguous."""
     var x = ones([1, 1, 6, 4], DType.float32)
     var kernel = ones([1, 1, 3, 3], DType.float32)
@@ -324,7 +324,7 @@ fn test_conv2d_backward_grad_input_is_contiguous() raises:
     )
 
 
-fn test_conv2d_backward_grad_bias_noncontiguous() raises:
+def test_conv2d_backward_grad_bias_noncontiguous() raises:
     """Conv2d_backward grad_bias sum correct with non-contiguous grad_output.
 
     All-ones grad_output (1,1,4,2) → grad_bias[0] = 4*2 = 8.
@@ -345,7 +345,7 @@ fn test_conv2d_backward_grad_bias_noncontiguous() raises:
         assert_almost_equal(rbp[i], bbp[i], tolerance=1e-4)
 
 
-fn test_conv2d_no_bias_backward_noncontiguous() raises:
+def test_conv2d_no_bias_backward_noncontiguous() raises:
     """Conv2d_no_bias_backward with non-contiguous grad_output matches baseline."""
     var x = ones([1, 1, 6, 4], DType.float32)
     var kernel = ones([1, 1, 3, 3], DType.float32)
@@ -368,7 +368,7 @@ fn test_conv2d_no_bias_backward_noncontiguous() raises:
         assert_almost_equal(rip[i], bip[i], tolerance=1e-4)
 
 
-fn test_conv2d_backward_all_noncontiguous() raises:
+def test_conv2d_backward_all_noncontiguous() raises:
     """Conv2d_backward with all non-contiguous inputs matches contiguous baseline."""
     var x_cont = ones([1, 1, 6, 4], DType.float32)
     var kernel_cont = ones([1, 1, 3, 3], DType.float32)
@@ -389,7 +389,7 @@ fn test_conv2d_backward_all_noncontiguous() raises:
         assert_almost_equal(rip[i], bip[i], tolerance=1e-4)
 
 
-fn test_conv2d_backward_grad_weights_shape() raises:
+def test_conv2d_backward_grad_weights_shape() raises:
     """Conv2d_backward grad_weights has the correct shape with non-contiguous inputs."""
     var x = ones([1, 1, 6, 4], DType.float32)
     var kernel = ones([1, 1, 3, 3], DType.float32)
@@ -405,7 +405,7 @@ fn test_conv2d_backward_grad_weights_shape() raises:
     assert_equal_int(result.grad_weights.shape()[3], 3)  # kW
 
 
-fn main() raises:
+def main() raises:
     """Run all test_conv_noncontiguous tests."""
     print("Running test_conv_noncontiguous tests...")
 

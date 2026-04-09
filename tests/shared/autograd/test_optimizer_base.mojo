@@ -29,7 +29,7 @@ from shared.autograd.optimizer_base import (
 )
 
 
-fn test_sgd_get_set_lr() raises:
+def test_sgd_get_set_lr() raises:
     """Test SGD learning rate get/set methods."""
     var optimizer = SGD(learning_rate=0.01)
 
@@ -43,7 +43,7 @@ fn test_sgd_get_set_lr() raises:
     assert_almost_equal(lr, 0.001, tolerance=1e-10)
 
 
-fn test_adam_get_set_lr() raises:
+def test_adam_get_set_lr() raises:
     """Test Adam learning rate get/set methods."""
     var optimizer = Adam(learning_rate=0.001)
 
@@ -57,7 +57,7 @@ fn test_adam_get_set_lr() raises:
     assert_almost_equal(lr, 0.0001, tolerance=1e-10)
 
 
-fn test_adagrad_get_set_lr() raises:
+def test_adagrad_get_set_lr() raises:
     """Test AdaGrad learning rate get/set methods."""
     var optimizer = AdaGrad(learning_rate=0.01)
 
@@ -71,7 +71,7 @@ fn test_adagrad_get_set_lr() raises:
     assert_almost_equal(lr, 0.005, tolerance=1e-10)
 
 
-fn test_rmsprop_get_set_lr() raises:
+def test_rmsprop_get_set_lr() raises:
     """Test RMSprop learning rate get/set methods."""
     var optimizer = RMSprop(learning_rate=0.01)
 
@@ -85,7 +85,7 @@ fn test_rmsprop_get_set_lr() raises:
     assert_almost_equal(lr, 0.02, tolerance=1e-10)
 
 
-fn test_set_lr_validation() raises:
+def test_set_lr_validation() raises:
     """Test that set_lr validates learning rate is positive."""
     var optimizer = SGD(learning_rate=0.01)
 
@@ -103,7 +103,7 @@ fn test_set_lr_validation() raises:
         assert_true(True, "Correctly raised error for negative lr")
 
 
-fn test_validate_learning_rate_function() raises:
+def test_validate_learning_rate_function() raises:
     """Test the validate_learning_rate utility function."""
     # Should not raise for positive values
     validate_learning_rate(0.01)
@@ -124,7 +124,7 @@ fn test_validate_learning_rate_function() raises:
         assert_true(True, "Correctly raised error for negative lr")
 
 
-fn test_zero_grad_implementation() raises:
+def test_zero_grad_implementation() raises:
     """Test that zero_grad clears the gradient tape."""
     var tape = GradientTape()
 
@@ -153,7 +153,7 @@ fn test_zero_grad_implementation() raises:
     )
 
 
-fn test_sgd_zero_grad() raises:
+def test_sgd_zero_grad() raises:
     """Test SGD zero_grad method clears tape."""
     var optimizer = SGD(learning_rate=0.01)
     var tape = GradientTape()
@@ -178,7 +178,7 @@ fn test_sgd_zero_grad() raises:
     )
 
 
-fn test_adam_zero_grad() raises:
+def test_adam_zero_grad() raises:
     """Test Adam zero_grad method clears tape."""
     var optimizer = Adam()
     var tape = GradientTape()
@@ -203,7 +203,7 @@ fn test_adam_zero_grad() raises:
     )
 
 
-fn test_zero_grad_preserves_optimizer_state() raises:
+def test_zero_grad_preserves_optimizer_state() raises:
     """Test zero_grad clears tape but preserves optimizer internal state."""
     var optimizer = Adam()
     var tape = GradientTape()
@@ -241,7 +241,7 @@ fn test_zero_grad_preserves_optimizer_state() raises:
     assert_equal(len(optimizer.v_buffers), 1, "v_buffers should be preserved")
 
 
-fn test_clip_gradients_no_clipping_needed() raises:
+def test_clip_gradients_no_clipping_needed() raises:
     """Test gradient clipping when norm is below threshold."""
     var tape = GradientTape()
     tape.enable()
@@ -277,7 +277,7 @@ fn test_clip_gradients_no_clipping_needed() raises:
     assert_almost_equal(clipped_grad._get_float64(2), 0.1, tolerance=1e-6)
 
 
-fn test_clip_gradients_with_clipping() raises:
+def test_clip_gradients_with_clipping() raises:
     """Test gradient clipping when norm exceeds threshold."""
     var tape = GradientTape()
     tape.enable()
@@ -326,7 +326,7 @@ fn test_clip_gradients_with_clipping() raises:
     assert_almost_equal(new_norm, 1.0, tolerance=1e-6)
 
 
-fn test_clip_gradients_multiple_parameters() raises:
+def test_clip_gradients_multiple_parameters() raises:
     """Test global norm clipping across multiple parameters."""
     var tape = GradientTape()
     tape.enable()
@@ -377,7 +377,7 @@ fn test_clip_gradients_multiple_parameters() raises:
     )  # 4.0 * 0.2
 
 
-fn test_clip_gradients_validation() raises:
+def test_clip_gradients_validation() raises:
     """Test gradient clipping validates max_norm is non-negative."""
     var tape = GradientTape()
     var parameters: List[Variable] = []
@@ -390,7 +390,7 @@ fn test_clip_gradients_validation() raises:
         assert_true(True, "Correctly raised error for negative max_norm")
 
 
-fn test_count_parameters_with_gradients() raises:
+def test_count_parameters_with_gradients() raises:
     """Test counting parameters that have gradients."""
     var tape = GradientTape()
     tape.enable()
@@ -425,7 +425,7 @@ fn test_count_parameters_with_gradients() raises:
     assert_equal(count, 2, "Should count 2 parameters with gradients")
 
 
-fn test_count_parameters_with_no_gradients() raises:
+def test_count_parameters_with_no_gradients() raises:
     """Test counting when no parameters have gradients."""
     var tape = GradientTape()
     tape.enable()
@@ -442,7 +442,7 @@ fn test_count_parameters_with_no_gradients() raises:
     assert_equal(count, 0, "Should count 0 parameters with gradients")
 
 
-fn test_optimizer_integration_with_gradient_clipping() raises:
+def test_optimizer_integration_with_gradient_clipping() raises:
     """Test optimizer integration with gradient clipping."""
     var optimizer = SGD(learning_rate=0.1)
     var tape = GradientTape()
@@ -478,7 +478,7 @@ fn test_optimizer_integration_with_gradient_clipping() raises:
     assert_almost_equal(updated_data._get_float64(1), 2.0, tolerance=1e-6)
 
 
-fn test_lr_scheduling_workflow() raises:
+def test_lr_scheduling_workflow() raises:
     """Test learning rate scheduling workflow."""
     var optimizer = Adam()
 
@@ -501,7 +501,7 @@ fn test_lr_scheduling_workflow() raises:
     assert_almost_equal(lr, 0.0001, tolerance=1e-10)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_optimizer_base tests."""
     print("Running test_optimizer_base tests...")
 

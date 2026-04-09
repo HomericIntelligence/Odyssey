@@ -31,7 +31,7 @@ from shared.training.metrics import (
 )
 
 
-fn test_metric_result_scalar() raises:
+def test_metric_result_scalar() raises:
     """Test MetricResult with scalar values."""
     print("Testing MetricResult scalar...")
 
@@ -56,7 +56,7 @@ fn test_metric_result_scalar() raises:
     print("  ✓ MetricResult scalar works correctly")
 
 
-fn test_metric_result_tensor() raises:
+def test_metric_result_tensor() raises:
     """Test MetricResult with tensor values."""
     print("Testing MetricResult tensor...")
 
@@ -90,7 +90,7 @@ fn test_metric_result_tensor() raises:
     print("  ✓ MetricResult tensor works correctly")
 
 
-fn test_metric_collection_basic() raises:
+def test_metric_collection_basic() raises:
     """Test basic MetricCollection operations."""
     print("Testing MetricCollection basic...")
 
@@ -119,7 +119,7 @@ fn test_metric_collection_basic() raises:
     print("  ✓ MetricCollection basic operations work")
 
 
-fn test_metric_collection_duplicate_handling() raises:
+def test_metric_collection_duplicate_handling() raises:
     """Test MetricCollection handles duplicate names."""
     print("Testing MetricCollection duplicate handling...")
 
@@ -135,7 +135,7 @@ fn test_metric_collection_duplicate_handling() raises:
     print("  ✓ MetricCollection handles duplicates correctly")
 
 
-fn test_accuracy_metric_interface_compliance() raises:
+def test_accuracy_metric_interface_compliance() raises:
     """Test AccuracyMetric implements Metric trait correctly."""
     print("Testing AccuracyMetric interface compliance...")
 
@@ -173,7 +173,7 @@ fn test_accuracy_metric_interface_compliance() raises:
     print("  ✓ AccuracyMetric implements Metric trait correctly")
 
 
-fn test_confusion_matrix_integration() raises:
+def test_confusion_matrix_integration() raises:
     """Test ConfusionMatrix works with metric coordination."""
     print("Testing ConfusionMatrix integration...")
 
@@ -217,7 +217,7 @@ fn test_confusion_matrix_integration() raises:
     print("  ✓ ConfusionMatrix integrates correctly")
 
 
-fn test_metric_logger_basic() raises:
+def test_metric_logger_basic() raises:
     """Test basic MetricLogger functionality."""
     print("Testing MetricLogger basic...")
 
@@ -245,7 +245,7 @@ fn test_metric_logger_basic() raises:
     print("  ✓ MetricLogger basic operations work")
 
 
-fn test_metric_logger_history() raises:
+def test_metric_logger_history() raises:
     """Test MetricLogger history retrieval."""
     print("Testing MetricLogger history...")
 
@@ -281,7 +281,7 @@ fn test_metric_logger_history() raises:
     print("  ✓ MetricLogger history retrieval works")
 
 
-fn test_metric_logger_best() raises:
+def test_metric_logger_best() raises:
     """Test MetricLogger best value retrieval."""
     print("Testing MetricLogger best value...")
 
@@ -313,7 +313,7 @@ fn test_metric_logger_best() raises:
     print("  ✓ MetricLogger best value retrieval works")
 
 
-fn test_create_metric_summary() raises:
+def test_create_metric_summary() raises:
     """Test create_metric_summary formatting."""
     print("Testing create_metric_summary...")
 
@@ -334,7 +334,7 @@ fn test_create_metric_summary() raises:
     print("  ✓ create_metric_summary produces output")
 
 
-fn test_multi_metric_training_simulation() raises:
+def test_multi_metric_training_simulation() raises:
     """Simulate a training loop with multiple metrics."""
     print("Testing multi-metric training simulation...")
 
@@ -392,7 +392,7 @@ fn test_multi_metric_training_simulation() raises:
     print("  ✓ Multi-metric training simulation works")
 
 
-fn test_metric_interface_consistency() raises:
+def test_metric_interface_consistency() raises:
     """Test that all metrics have consistent interface patterns."""
     print("Testing metric interface consistency...")
 
@@ -433,7 +433,7 @@ fn test_metric_interface_consistency() raises:
     print("  ✓ All metrics have consistent interface")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_metrics_coordination tests."""
     print("Running test_metrics_coordination tests...")
 

@@ -20,7 +20,7 @@ from tests.shared.conftest import (
 from shared.training.schedulers import StepLR
 
 
-fn test_step_scheduler_initialization() raises:
+def test_step_scheduler_initialization() raises:
     """Test StepLR scheduler initialization with hyperparameters."""
     var scheduler = StepLR(base_lr=0.1, step_size=10, gamma=0.1)
 
@@ -30,7 +30,7 @@ fn test_step_scheduler_initialization() raises:
     assert_almost_equal(scheduler.base_lr, 0.1)
 
 
-fn test_step_scheduler_reduces_lr_at_step() raises:
+def test_step_scheduler_reduces_lr_at_step() raises:
     """Test StepLR reduces learning rate at specified step.
 
     At epoch = step_size, LR *= gamma
@@ -52,7 +52,7 @@ fn test_step_scheduler_reduces_lr_at_step() raises:
     assert_almost_equal(lr5, 0.1)
 
 
-fn test_step_scheduler_multiple_steps() raises:
+def test_step_scheduler_multiple_steps() raises:
     """Test StepLR continues reducing LR at each step interval.
 
     LR reduction continues every step_size epochs:
@@ -75,7 +75,7 @@ fn test_step_scheduler_multiple_steps() raises:
     assert_almost_equal(lr10, 0.01)
 
 
-fn test_step_scheduler_different_gamma_values() raises:
+def test_step_scheduler_different_gamma_values() raises:
     """Test StepLR with different gamma (reduction factor) values.
 
     gamma determines how much LR is reduced:
@@ -94,7 +94,7 @@ fn test_step_scheduler_different_gamma_values() raises:
     assert_almost_equal(scheduler2.get_lr(2), 0.81)
 
 
-fn test_step_scheduler_gamma_one() raises:
+def test_step_scheduler_gamma_one() raises:
     """Test StepLR with gamma=1.0 (no reduction).
 
     gamma=1.0 should result in no LR change.
@@ -106,7 +106,7 @@ fn test_step_scheduler_gamma_one() raises:
         assert_almost_equal(scheduler.get_lr(epoch), 1.0)
 
 
-fn test_step_scheduler_different_step_sizes() raises:
+def test_step_scheduler_different_step_sizes() raises:
     """Test StepLR with different step_size values.
 
     step_size determines frequency of LR reduction:
@@ -130,7 +130,7 @@ fn test_step_scheduler_different_step_sizes() raises:
     assert_almost_equal(scheduler2.get_lr(10), 0.5)
 
 
-fn test_step_scheduler_zero_step_size() raises:
+def test_step_scheduler_zero_step_size() raises:
     """Test StepLR with step_size=0 returns base_lr.
 
     The implementation handles this gracefully by returning base_lr.
@@ -142,7 +142,7 @@ fn test_step_scheduler_zero_step_size() raises:
     assert_almost_equal(scheduler.get_lr(10), 1.0)
 
 
-fn test_step_scheduler_negative_gamma() raises:
+def test_step_scheduler_negative_gamma() raises:
     """Test StepLR with negative gamma.
 
     While mathematically valid, negative gamma would make LR oscillate.
@@ -155,7 +155,7 @@ fn test_step_scheduler_negative_gamma() raises:
     assert_almost_equal(lr1, -0.5)
 
 
-fn test_step_scheduler_very_small_lr() raises:
+def test_step_scheduler_very_small_lr() raises:
     """Test StepLR continues to reduce LR even when very small.
 
     LR can become arbitrarily small (no minimum threshold).
@@ -167,7 +167,7 @@ fn test_step_scheduler_very_small_lr() raises:
     assert_almost_equal(lr10, 1e-10, tolerance=1e-15)
 
 
-fn test_step_scheduler_property_monotonic_decrease() raises:
+def test_step_scheduler_property_monotonic_decrease() raises:
     """Property: Learning rate should never increase (for 0 < gamma < 1).
 
     StepLR should only decrease or maintain LR, never increase it.
@@ -183,7 +183,7 @@ fn test_step_scheduler_property_monotonic_decrease() raises:
         previous_lr = current_lr
 
 
-fn test_step_scheduler_formula_accuracy() raises:
+def test_step_scheduler_formula_accuracy() raises:
     """Test StepLR matches the mathematical formula exactly.
 
     Formula: lr = base_lr * gamma^(epoch // step_size).
@@ -203,7 +203,7 @@ fn test_step_scheduler_formula_accuracy() raises:
     assert_almost_equal(scheduler.get_lr(60), 0.001)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_step_scheduler tests."""
     print("Running test_step_scheduler tests...")
 

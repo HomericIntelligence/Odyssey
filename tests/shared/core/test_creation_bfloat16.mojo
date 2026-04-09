@@ -29,7 +29,7 @@ from tests.shared.conftest import (
 # ============================================================================
 
 
-fn test_arange_bfloat16_dtype() raises:
+def test_arange_bfloat16_dtype() raises:
     """Test arange() preserves bfloat16 dtype."""
     var t = arange(0.0, 5.0, 1.0, DType.bfloat16)
 
@@ -38,7 +38,7 @@ fn test_arange_bfloat16_dtype() raises:
     assert_dim(t, 1, "arange bfloat16 should be 1D")
 
 
-fn test_arange_bfloat16_values() raises:
+def test_arange_bfloat16_values() raises:
     """Test arange() with bfloat16 stores float values (not silently truncated to int)."""
     # bfloat16 has ~2 decimal digits of precision; use integer-valued sequence
     var t = arange(0.0, 4.0, 1.0, DType.bfloat16)
@@ -57,7 +57,7 @@ fn test_arange_bfloat16_values() raises:
 # ============================================================================
 
 
-fn test_eye_bfloat16_dtype() raises:
+def test_eye_bfloat16_dtype() raises:
     """Test eye() preserves bfloat16 dtype."""
     var t = eye(3, 3, 0, DType.bfloat16)
 
@@ -65,7 +65,7 @@ fn test_eye_bfloat16_dtype() raises:
     assert_numel(t, 9, "eye(3,3) bfloat16 should have 9 elements")
 
 
-fn test_eye_bfloat16_values() raises:
+def test_eye_bfloat16_values() raises:
     """Test eye() with bfloat16 stores float values on diagonal."""
     var t = eye(3, 3, 0, DType.bfloat16)
 
@@ -89,7 +89,7 @@ fn test_eye_bfloat16_values() raises:
 # ============================================================================
 
 
-fn test_linspace_bfloat16_dtype() raises:
+def test_linspace_bfloat16_dtype() raises:
     """Test linspace() preserves bfloat16 dtype."""
     var t = linspace(0.0, 4.0, 5, DType.bfloat16)
 
@@ -98,7 +98,7 @@ fn test_linspace_bfloat16_dtype() raises:
     assert_dim(t, 1, "linspace bfloat16 should be 1D")
 
 
-fn test_linspace_bfloat16_values() raises:
+def test_linspace_bfloat16_values() raises:
     """Test linspace() with bfloat16 stores float values (not silently truncated to int)."""
     var t = linspace(0.0, 4.0, 5, DType.bfloat16)
 
@@ -115,7 +115,7 @@ fn test_linspace_bfloat16_values() raises:
 # ============================================================================
 
 
-fn test_randn_bfloat16_dtype() raises:
+def test_randn_bfloat16_dtype() raises:
     """Test randn() preserves bfloat16 dtype."""
     var t = randn([3, 4], DType.bfloat16)
 
@@ -123,7 +123,7 @@ fn test_randn_bfloat16_dtype() raises:
     assert_numel(t, 12, "randn([3,4]) bfloat16 should have 12 elements")
 
 
-fn test_randn_bfloat16_nonzero() raises:
+def test_randn_bfloat16_nonzero() raises:
     """Test randn() with bfloat16 stores float values (not silently zeroed via int path)."""
     # Use a larger tensor for statistical confidence.
     # If routed to _set_int64, Box-Muller float values would be truncated to 0.
@@ -147,7 +147,7 @@ fn test_randn_bfloat16_nonzero() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run bfloat16 dtype guard tests for factory functions."""
     print(
         "Running AnyTensor bfloat16 dtype guard tests (issue #3906)..."

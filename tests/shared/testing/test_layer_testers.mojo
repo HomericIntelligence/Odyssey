@@ -10,7 +10,7 @@ See test_layer_testers_part2.mojo for remaining tests.
 """
 
 
-from math import isnan, isinf
+from std.math import isnan, isinf
 from shared.testing import LayerTester
 from shared.testing.special_values import (
     create_ones_tensor,
@@ -22,7 +22,7 @@ from shared.testing.tensor_factory import zeros_tensor
 from shared.tensor.any_tensor import AnyTensor
 
 
-fn test_layer_dtype_consistency_passes() raises:
+def test_layer_dtype_consistency_passes() raises:
     """Test that dtype consistency check passes when dtypes match."""
     var input = create_ones_tensor([1, 3, 32, 32], DType.float32)
     var output = create_ones_tensor([1, 64, 30, 30], DType.float32)
@@ -31,7 +31,7 @@ fn test_layer_dtype_consistency_passes() raises:
     LayerTester.test_layer_dtype_consistency(input, output, "TestLayer")
 
 
-fn test_layer_dtype_consistency_different_shapes() raises:
+def test_layer_dtype_consistency_different_shapes() raises:
     """Test that dtype consistency works with different shapes."""
     var input = create_ones_tensor([1, 3], DType.float16)
     var output = create_ones_tensor([1, 10], DType.float16)
@@ -40,7 +40,7 @@ fn test_layer_dtype_consistency_different_shapes() raises:
     LayerTester.test_layer_dtype_consistency(input, output, "TestFC")
 
 
-fn test_layer_no_invalid_values_passes() raises:
+def test_layer_no_invalid_values_passes() raises:
     """Test that invalid value check passes when no NaN/Inf."""
     var output = create_ones_tensor([2, 3, 4, 5], DType.float32)
 
@@ -48,7 +48,7 @@ fn test_layer_no_invalid_values_passes() raises:
     LayerTester.test_layer_no_invalid_values(output, "TestLayer")
 
 
-fn test_layer_no_invalid_values_with_zeros() raises:
+def test_layer_no_invalid_values_with_zeros() raises:
     """Test that invalid value check passes with zero values."""
     var output = create_special_value_tensor([3, 3], DType.float32, 0.0)
 
@@ -56,7 +56,7 @@ fn test_layer_no_invalid_values_with_zeros() raises:
     LayerTester.test_layer_no_invalid_values(output, "TestLayer")
 
 
-fn test_layer_no_invalid_values_with_halves() raises:
+def test_layer_no_invalid_values_with_halves() raises:
     """Test that invalid value check passes with 0.5 values."""
     var output = create_special_value_tensor([2, 2], DType.float32, 0.5)
 
@@ -64,7 +64,7 @@ fn test_layer_no_invalid_values_with_halves() raises:
     LayerTester.test_layer_no_invalid_values(output, "TestLayer")
 
 
-fn test_layer_tester_utility_functions() raises:
+def test_layer_tester_utility_functions() raises:
     """Test that LayerTester utility functions are accessible."""
     # This test verifies that we can call the static methods without errors
 
@@ -78,7 +78,7 @@ fn test_layer_tester_utility_functions() raises:
     LayerTester.test_layer_no_invalid_values(output, "Conv1")
 
 
-fn test_activation_layer_backward_relu() raises:
+def test_activation_layer_backward_relu() raises:
     """Test ReLU activation backward pass with gradient checking."""
     # Use small shape to avoid timeout
     LayerTester.test_activation_layer_backward(
@@ -86,7 +86,7 @@ fn test_activation_layer_backward_relu() raises:
     )
 
 
-fn test_activation_layer_backward_sigmoid() raises:
+def test_activation_layer_backward_sigmoid() raises:
     """Test Sigmoid activation backward pass with gradient checking."""
     # Use small shape to avoid timeout
     LayerTester.test_activation_layer_backward(
@@ -94,7 +94,7 @@ fn test_activation_layer_backward_sigmoid() raises:
     )
 
 
-fn test_activation_layer_backward_tanh() raises:
+def test_activation_layer_backward_tanh() raises:
     """Test Tanh activation backward pass with gradient checking."""
     # Use small shape to avoid timeout
     LayerTester.test_activation_layer_backward(
@@ -102,7 +102,7 @@ fn test_activation_layer_backward_tanh() raises:
     )
 
 
-fn test_linear_layer_backward_fp32() raises:
+def test_linear_layer_backward_fp32() raises:
     """Test linear layer backward pass with FP32 gradient checking."""
     # Create small weight and bias tensors
     var weights = create_ones_tensor([10, 8], DType.float32)
@@ -118,7 +118,7 @@ fn test_linear_layer_backward_fp32() raises:
     )
 
 
-fn test_conv_layer_backward_fp32() raises:
+def test_conv_layer_backward_fp32() raises:
     """Test conv layer backward pass with FP32 gradient checking."""
     # Create small kernel and bias tensors (small spatial dimensions to avoid timeout)
     var weights = create_ones_tensor(
@@ -141,7 +141,7 @@ fn test_conv_layer_backward_fp32() raises:
     )
 
 
-fn test_batchnorm_layer_training_mode() raises:
+def test_batchnorm_layer_training_mode() raises:
     """Test BatchNorm layer in training mode."""
     var num_features = 16
     var input_shape = List[Int]()
@@ -168,7 +168,7 @@ fn test_batchnorm_layer_training_mode() raises:
     )
 
 
-fn test_batchnorm_layer_inference_mode() raises:
+def test_batchnorm_layer_inference_mode() raises:
     """Test BatchNorm layer in inference mode."""
     var num_features = 16
     var input_shape = List[Int]()
@@ -195,7 +195,7 @@ fn test_batchnorm_layer_inference_mode() raises:
     )
 
 
-fn test_batchnorm_layer_backward_fp32() raises:
+def test_batchnorm_layer_backward_fp32() raises:
     """Test BatchNorm backward pass with FP32."""
     var num_features = 16
     var input_shape = List[Int]()
@@ -221,7 +221,7 @@ fn test_batchnorm_layer_backward_fp32() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all test_layer_testers tests."""
     print("Running test_layer_testers tests...")
 

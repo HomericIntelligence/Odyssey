@@ -3,7 +3,7 @@
 Internal module -- not part of the public API.
 """
 
-from collections import List, Optional
+from std.collections import List, Optional
 from shared.tensor.tensor import Tensor
 from shared.tensor.any_tensor import AnyTensor
 from shared.base.broadcasting import (
@@ -31,7 +31,7 @@ from shared.base.dtype_ordinal import (
 # ============================================================================
 
 
-fn _as_contiguous_typed[
+def _as_contiguous_typed[
     dtype: DType
 ](tensor: Tensor[dtype]) raises -> Tensor[dtype]:
     """Convert tensor to contiguous memory layout (native Tensor[dtype] core).
@@ -77,7 +77,7 @@ fn _as_contiguous_typed[
 # ============================================================================
 
 
-fn _as_contiguous_dispatch[
+def _as_contiguous_dispatch[
     dtype: DType
 ](tensor: AnyTensor) raises -> AnyTensor:
     """Dispatch as_contiguous to typed core."""
@@ -91,7 +91,7 @@ fn _as_contiguous_dispatch[
 # ============================================================================
 
 
-fn _reshape_typed[
+def _reshape_typed[
     dtype: DType
 ](tensor: Tensor[dtype], new_shape: List[Int]) raises -> Tensor[dtype]:
     """Reshape tensor to new shape (native Tensor[dtype] core).
@@ -150,7 +150,7 @@ fn _reshape_typed[
 # ============================================================================
 
 
-fn _reshape_dispatch[
+def _reshape_dispatch[
     dtype: DType
 ](tensor: AnyTensor, new_shape: List[Int]) raises -> AnyTensor:
     """Dispatch reshape to typed core."""
@@ -164,7 +164,7 @@ fn _reshape_dispatch[
 # ============================================================================
 
 
-fn _broadcast_to_typed[
+def _broadcast_to_typed[
     dtype: DType
 ](tensor: Tensor[dtype], target_shape: List[Int]) raises -> Tensor[dtype]:
     """Broadcast tensor to target shape (native Tensor[dtype] core).
@@ -223,7 +223,7 @@ fn _broadcast_to_typed[
 # ============================================================================
 
 
-fn _broadcast_to_dispatch[
+def _broadcast_to_dispatch[
     dtype: DType
 ](tensor: AnyTensor, target_shape: List[Int]) raises -> AnyTensor:
     """Dispatch broadcast_to to typed core."""
@@ -237,7 +237,7 @@ fn _broadcast_to_dispatch[
 # ============================================================================
 
 
-fn _validate_permute_dims(dims: List[Int], ndim: Int) raises:
+def _validate_permute_dims(dims: List[Int], ndim: Int) raises:
     """Validate dims is a valid permutation of [0..ndim-1].
 
     Args:
@@ -276,7 +276,7 @@ fn _validate_permute_dims(dims: List[Int], ndim: Int) raises:
         seen[d] = True
 
 
-fn _permute_typed[
+def _permute_typed[
     dtype: DType
 ](tensor: Tensor[dtype], dims: List[Int]) raises -> Tensor[dtype]:
     """Permute tensor dimensions (native Tensor[dtype] core).
@@ -350,7 +350,7 @@ fn _permute_typed[
 # ============================================================================
 
 
-fn _permute_dispatch[
+def _permute_dispatch[
     dtype: DType
 ](tensor: AnyTensor, dims: List[Int]) raises -> AnyTensor:
     """Dispatch permute to typed core."""

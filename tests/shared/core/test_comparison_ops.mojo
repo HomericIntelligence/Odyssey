@@ -22,7 +22,7 @@ from shared.core.comparison import less, less_equal
 from shared.core.comparison import greater, greater_equal, less
 
 
-fn test_equal_same_values() raises:
+def test_equal_same_values() raises:
     """Test equal with identical values."""
     var shape = List[Int]()
     shape.append(5)
@@ -37,7 +37,7 @@ fn test_equal_same_values() raises:
         assert_value_at(c, i, 1.0, 1e-6, "Equal values should return True")
 
 
-fn test_equal_different_values() raises:
+def test_equal_different_values() raises:
     """Test equal with different values."""
     var shape = List[Int]()
     shape.append(5)
@@ -51,7 +51,7 @@ fn test_equal_different_values() raises:
         assert_value_at(c, i, 0.0, 1e-6, "Different values should return False")
 
 
-fn test_equal_with_dunder() raises:
+def test_equal_with_dunder() raises:
     """Test equal using == operator."""
     var shape = List[Int]()
     shape.append(5)
@@ -64,7 +64,7 @@ fn test_equal_with_dunder() raises:
         assert_value_at(c, i, 1.0, 1e-6, "a == b should work via __eq__")
 
 
-fn test_not_equal_same_values() raises:
+def test_not_equal_same_values() raises:
     """Test not_equal with identical values."""
     var shape = List[Int]()
     shape.append(5)
@@ -80,7 +80,7 @@ fn test_not_equal_same_values() raises:
         )
 
 
-fn test_not_equal_different_values() raises:
+def test_not_equal_different_values() raises:
     """Test not_equal with different values."""
     var shape = List[Int]()
     shape.append(5)
@@ -96,7 +96,7 @@ fn test_not_equal_different_values() raises:
         )
 
 
-fn test_not_equal_with_dunder() raises:
+def test_not_equal_with_dunder() raises:
     """Test not_equal using != operator."""
     var shape = List[Int]()
     shape.append(5)
@@ -109,7 +109,7 @@ fn test_not_equal_with_dunder() raises:
         assert_value_at(c, i, 1.0, 1e-6, "a != b should work via __ne__")
 
 
-fn test_less_true() raises:
+def test_less_true() raises:
     """Test less when first tensor has smaller values."""
     var shape = List[Int]()
     shape.append(5)
@@ -123,7 +123,7 @@ fn test_less_true() raises:
         assert_value_at(c, i, 1.0, 1e-6, "2.0 < 3.0 should be True")
 
 
-fn test_less_false() raises:
+def test_less_false() raises:
     """Test less when first tensor has larger values."""
     var shape = List[Int]()
     shape.append(5)
@@ -137,7 +137,7 @@ fn test_less_false() raises:
         assert_value_at(c, i, 0.0, 1e-6, "5.0 < 3.0 should be False")
 
 
-fn test_less_with_dunder() raises:
+def test_less_with_dunder() raises:
     """Test less using < operator."""
     var shape = List[Int]()
     shape.append(5)
@@ -150,7 +150,7 @@ fn test_less_with_dunder() raises:
         assert_value_at(c, i, 1.0, 1e-6, "a < b should work via __lt__")
 
 
-fn test_less_equal_true_less() raises:
+def test_less_equal_true_less() raises:
     """Test less_equal when values are less."""
     var shape = List[Int]()
     shape.append(5)
@@ -163,7 +163,7 @@ fn test_less_equal_true_less() raises:
         assert_value_at(c, i, 1.0, 1e-6, "2.0 <= 3.0 should be True")
 
 
-fn test_less_equal_true_equal() raises:
+def test_less_equal_true_equal() raises:
     """Test less_equal when values are equal."""
     var shape = List[Int]()
     shape.append(5)
@@ -176,7 +176,7 @@ fn test_less_equal_true_equal() raises:
         assert_value_at(c, i, 1.0, 1e-6, "3.0 <= 3.0 should be True")
 
 
-fn test_less_equal_with_dunder() raises:
+def test_less_equal_with_dunder() raises:
     """Test less_equal using <= operator."""
     var shape = List[Int]()
     shape.append(5)
@@ -189,7 +189,7 @@ fn test_less_equal_with_dunder() raises:
         assert_value_at(c, i, 1.0, 1e-6, "a <= b should work via __le__")
 
 
-fn test_greater_true() raises:
+def test_greater_true() raises:
     """Test greater when first tensor has larger values."""
     var shape = List[Int]()
     shape.append(5)
@@ -202,7 +202,7 @@ fn test_greater_true() raises:
         assert_value_at(c, i, 1.0, 1e-6, "5.0 > 3.0 should be True")
 
 
-fn test_greater_false() raises:
+def test_greater_false() raises:
     """Test greater when first tensor has smaller values."""
     var shape = List[Int]()
     shape.append(5)
@@ -215,7 +215,7 @@ fn test_greater_false() raises:
         assert_value_at(c, i, 0.0, 1e-6, "2.0 > 3.0 should be False")
 
 
-fn test_greater_with_dunder() raises:
+def test_greater_with_dunder() raises:
     """Test greater using > operator."""
     var shape = List[Int]()
     shape.append(5)
@@ -228,7 +228,7 @@ fn test_greater_with_dunder() raises:
         assert_value_at(c, i, 1.0, 1e-6, "a > b should work via __gt__")
 
 
-fn test_greater_equal_true_greater() raises:
+def test_greater_equal_true_greater() raises:
     """Test greater_equal when values are greater."""
     var shape = List[Int]()
     shape.append(5)
@@ -241,7 +241,7 @@ fn test_greater_equal_true_greater() raises:
         assert_value_at(c, i, 1.0, 1e-6, "5.0 >= 3.0 should be True")
 
 
-fn test_greater_equal_true_equal() raises:
+def test_greater_equal_true_equal() raises:
     """Test greater_equal when values are equal."""
     var shape = List[Int]()
     shape.append(5)
@@ -254,7 +254,7 @@ fn test_greater_equal_true_equal() raises:
         assert_value_at(c, i, 1.0, 1e-6, "3.0 >= 3.0 should be True")
 
 
-fn test_greater_equal_with_dunder() raises:
+def test_greater_equal_with_dunder() raises:
     """Test greater_equal using >= operator."""
     var shape = List[Int]()
     shape.append(5)
@@ -267,7 +267,7 @@ fn test_greater_equal_with_dunder() raises:
         assert_value_at(c, i, 1.0, 1e-6, "a >= b should work via __ge__")
 
 
-fn test_comparison_with_negatives() raises:
+def test_comparison_with_negatives() raises:
     """Test comparisons with negative values."""
     var shape = List[Int]()
     shape.append(5)
@@ -286,7 +286,7 @@ fn test_comparison_with_negatives() raises:
         assert_value_at(c_less, i, 0.0, 1e-6, "-2.0 < -5.0 should be False")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_comparison_ops tests."""
     print("Running test_comparison_ops tests...")
 

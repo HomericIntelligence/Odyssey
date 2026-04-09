@@ -16,13 +16,13 @@ from shared.testing.assertions import (
 from shared.tensor.any_tensor import ones
 
 
-fn test_assert_dtype_tensor_passes() raises:
+def test_assert_dtype_tensor_passes() raises:
     """Test assert_dtype with matching dtype."""
     var tensor = ones([3, 4], DType.float32)
     assert_dtype(tensor, DType.float32)
 
 
-fn test_assert_dtype_tensor_fails() raises:
+def test_assert_dtype_tensor_fails() raises:
     """Test assert_dtype with mismatched dtype."""
     var tensor = ones([3, 4], DType.float32)
     var failed = False
@@ -33,13 +33,13 @@ fn test_assert_dtype_tensor_fails() raises:
     assert_true(failed, "assert_dtype should raise error on dtype mismatch")
 
 
-fn test_assert_numel_tensor_passes() raises:
+def test_assert_numel_tensor_passes() raises:
     """Test assert_numel with matching element count."""
     var tensor = ones([3, 4], DType.float32)
     assert_numel(tensor, 12)
 
 
-fn test_assert_numel_tensor_fails() raises:
+def test_assert_numel_tensor_fails() raises:
     """Test assert_numel with mismatched element count."""
     var tensor = ones([3, 4], DType.float32)
     var failed = False
@@ -50,13 +50,13 @@ fn test_assert_numel_tensor_fails() raises:
     assert_true(failed, "assert_numel should raise error on numel mismatch")
 
 
-fn test_assert_dim_tensor_passes() raises:
+def test_assert_dim_tensor_passes() raises:
     """Test assert_dim with matching dimension count."""
     var tensor = ones([3, 4, 5], DType.float32)
     assert_dim(tensor, 3)
 
 
-fn test_assert_dim_tensor_fails() raises:
+def test_assert_dim_tensor_fails() raises:
     """Test assert_dim with mismatched dimension count."""
     var tensor = ones([3, 4], DType.float32)
     var failed = False
@@ -67,13 +67,13 @@ fn test_assert_dim_tensor_fails() raises:
     assert_true(failed, "assert_dim should raise error on dimension mismatch")
 
 
-fn test_assert_value_at_passes() raises:
+def test_assert_value_at_passes() raises:
     """Test assert_value_at with matching value."""
     var tensor = ones([3, 4], DType.float32)
     assert_value_at(tensor, 0, 1.0, tolerance=1e-6)
 
 
-fn test_assert_value_at_fails() raises:
+def test_assert_value_at_fails() raises:
     """Test assert_value_at with non-matching value."""
     var tensor = ones([3, 4], DType.float32)
     var failed = False
@@ -84,7 +84,7 @@ fn test_assert_value_at_fails() raises:
     assert_true(failed, "assert_value_at should raise error on value mismatch")
 
 
-fn main() raises:
+def main() raises:
     """Run tensor property assertion tests."""
     test_assert_dtype_tensor_passes()
     test_assert_dtype_tensor_fails()

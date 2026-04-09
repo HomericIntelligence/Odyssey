@@ -29,14 +29,14 @@ from shared.core.utils import (
 )
 
 
-fn test_argmax_scalar_simple() raises:
+def test_argmax_scalar_simple() raises:
     """Test argmax on a simple 1D tensor."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
     var idx = argmax(t)
     assert_equal_int(idx, 9)
 
 
-fn test_argmax_scalar_negative_values() raises:
+def test_argmax_scalar_negative_values() raises:
     """Test argmax with negative values."""
     var shape = List[Int]()
     shape.append(5)
@@ -50,7 +50,7 @@ fn test_argmax_scalar_negative_values() raises:
     assert_equal_int(idx, 3)
 
 
-fn test_argmax_scalar_multi_dimensional() raises:
+def test_argmax_scalar_multi_dimensional() raises:
     """Test argmax on multi-dimensional tensor flattens correctly."""
     var shape = List[Int]()
     shape.append(3)
@@ -62,7 +62,7 @@ fn test_argmax_scalar_multi_dimensional() raises:
     assert_equal_int(idx, 5)
 
 
-fn test_argmax_axis_1d() raises:
+def test_argmax_axis_1d() raises:
     """Test argmax along axis on 1D tensor."""
     var t = arange(0.0, 5.0, 1.0, DType.float32)
     var result = argmax(t, axis=0)
@@ -70,7 +70,7 @@ fn test_argmax_axis_1d() raises:
     assert_equal_int(Int(result._get_int64(0)), 4)
 
 
-fn test_argmax_axis_2d_axis0() raises:
+def test_argmax_axis_2d_axis0() raises:
     """Test argmax along axis 0 on 2D tensor."""
     var shape = List[Int]()
     shape.append(3)
@@ -91,7 +91,7 @@ fn test_argmax_axis_2d_axis0() raises:
         assert_equal_int(Int(result._get_int64(i)), 2)
 
 
-fn test_argmax_axis_2d_axis1() raises:
+def test_argmax_axis_2d_axis1() raises:
     """Test argmax along axis 1 on 2D tensor."""
     var shape = List[Int]()
     shape.append(3)
@@ -112,7 +112,7 @@ fn test_argmax_axis_2d_axis1() raises:
     assert_equal_int(Int(result._get_int64(2)), 3)
 
 
-fn test_argmax_axis_3d() raises:
+def test_argmax_axis_3d() raises:
     """Test argmax on 3D tensor along axis."""
     var shape = List[Int]()
     shape.append(2)
@@ -126,7 +126,7 @@ fn test_argmax_axis_3d() raises:
     assert_shape(result, [2, 3])
 
 
-fn test_top_k_indices_simple() raises:
+def test_top_k_indices_simple() raises:
     """Test top_k_indices on a simple tensor."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
     var indices = top_k_indices(t, 3)
@@ -135,14 +135,14 @@ fn test_top_k_indices_simple() raises:
     assert_equal_int(indices[2], 7)
 
 
-fn test_top_k_indices_single_element() raises:
+def test_top_k_indices_single_element() raises:
     """Test top_k_indices with k=1."""
     var t = arange(0.0, 5.0, 1.0, DType.float32)
     var indices = top_k_indices(t, 1)
     assert_equal_int(indices[0], 4)
 
 
-fn test_top_k_indices_all_elements() raises:
+def test_top_k_indices_all_elements() raises:
     """Test top_k_indices with k=numel."""
     var t = arange(0.0, 5.0, 1.0, DType.float32)
     var indices = top_k_indices(t, 5)
@@ -153,7 +153,7 @@ fn test_top_k_indices_all_elements() raises:
     assert_equal_int(indices[4], 0)
 
 
-fn test_top_k_indices_with_duplicates() raises:
+def test_top_k_indices_with_duplicates() raises:
     """Test top_k_indices with duplicate values."""
     var shape = List[Int]()
     shape.append(6)
@@ -171,7 +171,7 @@ fn test_top_k_indices_with_duplicates() raises:
     assert_equal_int(len(indices), 3)
 
 
-fn test_top_k_values_and_indices() raises:
+def test_top_k_values_and_indices() raises:
     """Test top_k function returns both values and indices."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
     var result = top_k(t, 3)
@@ -191,7 +191,7 @@ fn test_top_k_values_and_indices() raises:
     assert_equal_int(result[1][2], 7)
 
 
-fn test_top_k_multidimensional() raises:
+def test_top_k_multidimensional() raises:
     """Test top_k on multi-dimensional tensor."""
     var t = arange(0.0, 12.0, 1.0, DType.float32)
     var result = top_k(t, 2)
@@ -202,7 +202,7 @@ fn test_top_k_multidimensional() raises:
     assert_close_float(values._get_float64(1), 10.0)
 
 
-fn test_argsort_ascending() raises:
+def test_argsort_ascending() raises:
     """Test argsort in ascending order."""
     var shape = List[Int]()
     shape.append(5)
@@ -221,7 +221,7 @@ fn test_argsort_ascending() raises:
     assert_equal_int(indices[4], 4)  # value 9
 
 
-fn test_argsort_descending() raises:
+def test_argsort_descending() raises:
     """Test argsort in descending order."""
     var shape = List[Int]()
     shape.append(5)
@@ -240,14 +240,14 @@ fn test_argsort_descending() raises:
     assert_equal_int(indices[4], 3)  # value 1
 
 
-fn test_argsort_single_element() raises:
+def test_argsort_single_element() raises:
     """Test argsort with single element."""
     var t = arange(0.0, 1.0, 1.0, DType.float32)
     var indices = argsort(t, descending=False)
     assert_equal_int(indices[0], 0)
 
 
-fn test_argsort_sorted_array() raises:
+def test_argsort_sorted_array() raises:
     """Test argsort on already sorted array."""
     var t = arange(0.0, 5.0, 1.0, DType.float32)
     var indices = argsort(t, descending=False)
@@ -258,7 +258,7 @@ fn test_argsort_sorted_array() raises:
     assert_equal_int(indices[4], 4)
 
 
-fn test_argsort_reverse_sorted() raises:
+def test_argsort_reverse_sorted() raises:
     """Test argsort on reverse sorted array."""
     var shape = List[Int]()
     shape.append(5)
@@ -277,7 +277,7 @@ fn test_argsort_reverse_sorted() raises:
     assert_equal_int(indices[4], 0)
 
 
-fn test_argsort_negative_values() raises:
+def test_argsort_negative_values() raises:
     """Test argsort with negative values."""
     var shape = List[Int]()
     shape.append(5)
@@ -296,7 +296,7 @@ fn test_argsort_negative_values() raises:
     assert_equal_int(indices[4], 4)  # 3
 
 
-fn test_argsort_multidimensional() raises:
+def test_argsort_multidimensional() raises:
     """Test argsort on multi-dimensional tensor (flattens)."""
     var shape = List[Int]()
     shape.append(2)
@@ -318,7 +318,7 @@ fn test_argsort_multidimensional() raises:
     assert_equal_int(indices[5], 0)  # 5
 
 
-fn main() raises:
+def main() raises:
     """Run all test_utils tests."""
     print("Running test_utils tests...")
 

@@ -18,7 +18,7 @@ from .comparison import less, greater
 from .dtype_cast import cast_tensor
 
 
-fn clip_predictions(
+def clip_predictions(
     predictions: AnyTensor, epsilon: Float64 = 1e-7
 ) raises -> AnyTensor:
     """Clip predictions to prevent log(0) and numerical instability.
@@ -49,7 +49,7 @@ fn clip_predictions(
     return clip(predictions, epsilon, 1.0 - epsilon)
 
 
-fn create_epsilon_tensor(
+def create_epsilon_tensor(
     template: AnyTensor, epsilon: Float64 = 1e-7
 ) raises -> AnyTensor:
     """Create an epsilon tensor with same shape as template.
@@ -74,7 +74,7 @@ fn create_epsilon_tensor(
     return full_like(template, epsilon)
 
 
-fn validate_tensor_shapes(
+def validate_tensor_shapes(
     tensor1: AnyTensor, tensor2: AnyTensor, operation: String
 ) raises:
     """Validate that two tensors have compatible shapes.
@@ -96,7 +96,7 @@ fn validate_tensor_shapes(
         raise Error(operation + ": Input tensors must have the same shape")
 
 
-fn validate_tensor_dtypes(
+def validate_tensor_dtypes(
     tensor1: AnyTensor, tensor2: AnyTensor, operation: String
 ) raises:
     """Validate that two tensors have compatible dtypes.
@@ -118,7 +118,7 @@ fn validate_tensor_dtypes(
         raise Error(operation + ": Input tensors must have the same dtype")
 
 
-fn compute_one_minus_tensor(tensor: AnyTensor) raises -> AnyTensor:
+def compute_one_minus_tensor(tensor: AnyTensor) raises -> AnyTensor:
     """Compute 1.0 - tensor efficiently.
 
         This is a common operation in loss functions (e.g., 1 - predictions).
@@ -141,7 +141,7 @@ fn compute_one_minus_tensor(tensor: AnyTensor) raises -> AnyTensor:
     return subtract(one, tensor)
 
 
-fn compute_sign_tensor(tensor: AnyTensor) raises -> AnyTensor:
+def compute_sign_tensor(tensor: AnyTensor) raises -> AnyTensor:
     """Compute sign of tensor: +1 if x > 0, -1 if x < 0, 0 if x == 0.
 
         This is used in loss functions like smooth L1 for gradient computation.
@@ -177,7 +177,7 @@ fn compute_sign_tensor(tensor: AnyTensor) raises -> AnyTensor:
     return add(multiply(is_positive, one), multiply(is_negative, neg_one))
 
 
-fn blend_tensors(
+def blend_tensors(
     tensor1: AnyTensor, tensor2: AnyTensor, mask: AnyTensor
 ) raises -> AnyTensor:
     """Blend two tensors based on a binary mask.
@@ -217,7 +217,7 @@ fn blend_tensors(
     return add(term1, term2)
 
 
-fn compute_max_stable(tensor: AnyTensor) raises -> AnyTensor:
+def compute_max_stable(tensor: AnyTensor) raises -> AnyTensor:
     """Find maximum value in tensor for numerical stability (log-sum-exp trick).
 
         This is used in cross-entropy to find the max logit for numerical stability.
@@ -239,7 +239,7 @@ fn compute_max_stable(tensor: AnyTensor) raises -> AnyTensor:
     return tensor
 
 
-fn compute_difference(tensor1: AnyTensor, tensor2: AnyTensor) raises -> AnyTensor:
+def compute_difference(tensor1: AnyTensor, tensor2: AnyTensor) raises -> AnyTensor:
     """Compute tensor1 - tensor2 with error checking.
 
     Args:
@@ -258,7 +258,7 @@ fn compute_difference(tensor1: AnyTensor, tensor2: AnyTensor) raises -> AnyTenso
     return subtract(tensor1, tensor2)
 
 
-fn compute_product(tensor1: AnyTensor, tensor2: AnyTensor) raises -> AnyTensor:
+def compute_product(tensor1: AnyTensor, tensor2: AnyTensor) raises -> AnyTensor:
     """Compute element-wise product of two tensors with error checking.
 
     Args:
@@ -277,7 +277,7 @@ fn compute_product(tensor1: AnyTensor, tensor2: AnyTensor) raises -> AnyTensor:
     return multiply(tensor1, tensor2)
 
 
-fn compute_ratio(
+def compute_ratio(
     tensor1: AnyTensor, tensor2: AnyTensor, epsilon: Float64 = 1e-7
 ) raises -> AnyTensor:
     """Compute element-wise ratio tensor1 / tensor2 with numerical stability.
@@ -313,7 +313,7 @@ fn compute_ratio(
     return divide(tensor1, stable_denominator)
 
 
-fn negate_tensor(tensor: AnyTensor) raises -> AnyTensor:
+def negate_tensor(tensor: AnyTensor) raises -> AnyTensor:
     """Negate all elements of a tensor (multiply by -1).
 
     Args:

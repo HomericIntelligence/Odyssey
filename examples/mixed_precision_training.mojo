@@ -29,12 +29,12 @@ from shared.training.mixed_precision import (
 from shared.training.trainer_interface import TrainerConfig
 
 
-fn simulate_forward_pass(params: AnyTensor, input: AnyTensor) raises -> AnyTensor:
+def simulate_forward_pass(params: AnyTensor, input: AnyTensor) raises -> AnyTensor:
     """Simulate a simple forward pass: output = params * input."""
     return params * input
 
 
-fn simulate_backward_pass(
+def simulate_backward_pass(
     output: AnyTensor, target: AnyTensor
 ) raises -> AnyTensor:
     """Simulate backward pass: compute gradients."""
@@ -43,7 +43,7 @@ fn simulate_backward_pass(
     return output - target
 
 
-fn simple_optimizer_step(
+def simple_optimizer_step(
     mut master_params: AnyTensor, gradients: AnyTensor, learning_rate: Float64
 ) raises:
     """Simple SGD update: params = params - lr * grads."""
@@ -54,7 +54,7 @@ fn simple_optimizer_step(
     master_params = master_params - update
 
 
-fn main() raises:
+def main() raises:
     print("\n" + "=" * 70)
     print("MIXED PRECISION TRAINING EXAMPLE")
     print("=" * 70)

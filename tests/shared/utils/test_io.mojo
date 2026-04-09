@@ -15,7 +15,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_save_checkpoint():
+def test_save_checkpoint():
     """Test saving model checkpoint to file."""
     # TODO(#44): Implement when save_checkpoint exists
     # Create model with known parameters
@@ -25,7 +25,7 @@ fn test_save_checkpoint():
     pass
 
 
-fn test_load_checkpoint():
+def test_load_checkpoint():
     """Test loading model checkpoint from file."""
     # TODO(#44): Implement when load_checkpoint exists
     # Create checkpoint file with known parameters
@@ -35,7 +35,7 @@ fn test_load_checkpoint():
     pass
 
 
-fn test_checkpoint_roundtrip():
+def test_checkpoint_roundtrip():
     """Test saving and loading checkpoint preserves values."""
     # TODO(#44): Implement when checkpoint save/load exist
     # Create model with random parameters
@@ -45,7 +45,7 @@ fn test_checkpoint_roundtrip():
     pass
 
 
-fn test_checkpoint_serialization_with_model_state() raises:
+def test_checkpoint_serialization_with_model_state() raises:
     """Test checkpoint serialization includes model_state dict (Issue #2585)."""
     from shared.utils.file_io import Checkpoint, _serialize_checkpoint
 
@@ -70,7 +70,7 @@ fn test_checkpoint_serialization_with_model_state() raises:
     print("PASS: test_checkpoint_serialization_with_model_state")
 
 
-fn test_checkpoint_serialization_with_optimizer_state() raises:
+def test_checkpoint_serialization_with_optimizer_state() raises:
     """Test checkpoint serialization includes optimizer_state dict (Issue #2585).
     """
     from shared.utils.file_io import Checkpoint, _serialize_checkpoint
@@ -96,7 +96,7 @@ fn test_checkpoint_serialization_with_optimizer_state() raises:
     print("PASS: test_checkpoint_serialization_with_optimizer_state")
 
 
-fn test_checkpoint_serialization_with_metadata() raises:
+def test_checkpoint_serialization_with_metadata() raises:
     """Test checkpoint serialization includes metadata dict (Issue #2585)."""
     from shared.utils.file_io import Checkpoint, _serialize_checkpoint
 
@@ -121,7 +121,7 @@ fn test_checkpoint_serialization_with_metadata() raises:
     print("PASS: test_checkpoint_serialization_with_metadata")
 
 
-fn test_save_checkpoint_with_metadata():
+def test_save_checkpoint_with_metadata():
     """Test saving checkpoint with training metadata."""
     # TODO(#44): Implement when checkpoint format supports metadata
     # Save checkpoint with:
@@ -134,7 +134,7 @@ fn test_save_checkpoint_with_metadata():
     pass
 
 
-fn test_save_checkpoint_atomic():
+def test_save_checkpoint_atomic():
     """Test checkpoint save is atomic (no partial writes)."""
     # TODO(#44): Implement when atomic save exists
     # Start saving large checkpoint
@@ -144,7 +144,7 @@ fn test_save_checkpoint_atomic():
     pass
 
 
-fn test_serialize_tensor():
+def test_serialize_tensor():
     """Test serializing tensor to bytes."""
     # TODO(#44): Implement when Tensor.serialize exists
     # Create tensor with known values
@@ -153,7 +153,7 @@ fn test_serialize_tensor():
     pass
 
 
-fn test_deserialize_tensor():
+def test_deserialize_tensor():
     """Test deserializing tensor from bytes."""
     # TODO(#44): Implement when Tensor.deserialize exists
     # Create serialized tensor bytes
@@ -162,7 +162,7 @@ fn test_deserialize_tensor():
     pass
 
 
-fn test_tensor_roundtrip():
+def test_tensor_roundtrip():
     """Test serializing and deserializing tensor preserves values."""
     # TODO(#44): Implement when Tensor serialization exists
     # Create random tensor
@@ -172,7 +172,7 @@ fn test_tensor_roundtrip():
     pass
 
 
-fn test_serialize_large_tensor():
+def test_serialize_large_tensor():
     """Test serializing large tensor (> 1GB)."""
     # TODO(#44): Implement when Tensor serialization exists
     # Create large tensor (e.g., 256M Float32 = 1GB)
@@ -182,7 +182,7 @@ fn test_serialize_large_tensor():
     pass
 
 
-fn test_serialize_tensor_formats():
+def test_serialize_tensor_formats():
     """Test serializing tensors with different dtypes."""
     # TODO(#44): Implement when Tensor serialization exists
     # Test serialization for:
@@ -193,7 +193,7 @@ fn test_serialize_tensor_formats():
     pass
 
 
-fn test_atomic_write():
+def test_atomic_write():
     """Test atomic file write (write to temp, then rename)."""
     # TODO(#44): Implement when atomic_write exists
     # Write data to file atomically
@@ -203,7 +203,7 @@ fn test_atomic_write():
     pass
 
 
-fn test_write_with_backup():
+def test_write_with_backup():
     """Test writing file creates backup of existing file."""
     # TODO(#44): Implement when write_with_backup exists
     # Create file with content "old"
@@ -214,7 +214,7 @@ fn test_write_with_backup():
     pass
 
 
-fn test_safe_remove() raises:
+def test_safe_remove() raises:
     """Test remove_safely() actually deletes the file.
 
     Uses a unique path with timestamp to avoid stale test files from
@@ -247,7 +247,7 @@ fn test_safe_remove() raises:
         _ = remove_safely(test_path)
 
 
-fn test_create_directory_safe():
+def test_create_directory_safe():
     """Test creating directory safely (no error if exists)."""
     # TODO(#44): Implement when mkdir_safe exists
     # Create directory
@@ -257,7 +257,7 @@ fn test_create_directory_safe():
     pass
 
 
-fn test_file_exists_check():
+def test_file_exists_check():
     """Test checking if file exists."""
     # TODO(#44): Implement when file_exists helper exists
     # Create temp file
@@ -267,7 +267,7 @@ fn test_file_exists_check():
     pass
 
 
-fn test_write_binary_file():
+def test_write_binary_file():
     """Test writing binary data to file."""
     # TODO(#44): Implement when write_binary exists
     # Create byte array with known values
@@ -277,7 +277,7 @@ fn test_write_binary_file():
     pass
 
 
-fn test_read_binary_file():
+def test_read_binary_file():
     """Test reading binary data from file."""
     # TODO(#44): Implement when read_binary exists
     # Create temp file with binary data
@@ -287,7 +287,7 @@ fn test_read_binary_file():
     pass
 
 
-fn test_binary_file_roundtrip():
+def test_binary_file_roundtrip():
     """Test writing and reading binary file preserves data."""
     # TODO(#44): Implement when binary I/O exists
     # Create random binary data
@@ -297,7 +297,7 @@ fn test_binary_file_roundtrip():
     pass
 
 
-fn test_read_binary_in_chunks():
+def test_read_binary_in_chunks():
     """Test reading large binary file in chunks."""
     # TODO(#44): Implement when chunked read exists
     # Create large binary file (e.g., 100MB)
@@ -307,7 +307,7 @@ fn test_read_binary_in_chunks():
     pass
 
 
-fn test_write_text_file():
+def test_write_text_file():
     """Test writing text to file."""
     # TODO(#44): Implement when write_text exists
     # Create text string
@@ -317,7 +317,7 @@ fn test_write_text_file():
     pass
 
 
-fn test_read_text_file():
+def test_read_text_file():
     """Test reading text from file."""
     # TODO(#44): Implement when read_text exists
     # Create temp file with text
@@ -327,7 +327,7 @@ fn test_read_text_file():
     pass
 
 
-fn test_read_text_lines():
+def test_read_text_lines():
     """Test reading text file line by line."""
     # TODO(#44): Implement when read_lines exists
     # Create file with multiple lines
@@ -336,7 +336,7 @@ fn test_read_text_lines():
     pass
 
 
-fn test_append_to_text_file():
+def test_append_to_text_file():
     """Test appending text to existing file."""
     # TODO(#44): Implement when append_text exists
     # Create file with "line 1\n"
@@ -346,7 +346,7 @@ fn test_append_to_text_file():
     pass
 
 
-fn test_resolve_path():
+def test_resolve_path():
     """Test resolving relative paths to absolute paths."""
     # TODO(#44): Implement when resolve_path exists
     # Resolve "./data/file.csv"
@@ -356,7 +356,7 @@ fn test_resolve_path():
     pass
 
 
-fn test_join_paths():
+def test_join_paths():
     """Test joining path components."""
     # TODO(#44): Implement when join_path exists
     # Join ["data", "train", "images.csv"]
@@ -364,7 +364,7 @@ fn test_join_paths():
     pass
 
 
-fn test_split_path():
+def test_split_path():
     """Test splitting path into directory and filename."""
     # TODO(#44): Implement when split_path exists
     # Split "data/train/images.csv"
@@ -372,7 +372,7 @@ fn test_split_path():
     pass
 
 
-fn test_get_file_extension():
+def test_get_file_extension():
     """Test extracting file extension."""
     # TODO(#44): Implement when get_extension exists
     # Extension of "model.mojo" -> ".mojo"
@@ -381,7 +381,7 @@ fn test_get_file_extension():
     pass
 
 
-fn test_list_directory():
+def test_list_directory():
     """Test listing files in directory."""
     # TODO(#44): Implement when list_dir exists
     # Create temp directory with files: a.txt, b.txt, c.csv
@@ -391,7 +391,7 @@ fn test_list_directory():
     pass
 
 
-fn test_load_nonexistent_file():
+def test_load_nonexistent_file():
     """Test loading nonexistent file raises error."""
     # TODO(#44): Implement when load_checkpoint exists
     # Try to load "nonexistent.checkpoint"
@@ -399,7 +399,7 @@ fn test_load_nonexistent_file():
     pass
 
 
-fn test_save_to_readonly_directory():
+def test_save_to_readonly_directory():
     """Test saving to read-only directory raises error."""
     # TODO(#44): Implement when save_checkpoint exists
     # Try to save to "/read_only_dir/model.checkpoint"
@@ -407,7 +407,7 @@ fn test_save_to_readonly_directory():
     pass
 
 
-fn test_load_corrupted_checkpoint():
+def test_load_corrupted_checkpoint():
     """Test loading corrupted checkpoint raises error."""
     # TODO(#44): Implement when load_checkpoint exists
     # Create checkpoint file with invalid/corrupted data
@@ -416,7 +416,7 @@ fn test_load_corrupted_checkpoint():
     pass
 
 
-fn test_disk_full_error():
+def test_disk_full_error():
     """Test handling disk full error during save."""
     # TODO(#44): Implement when save handles disk errors
     # Simulate disk full condition
@@ -426,7 +426,7 @@ fn test_disk_full_error():
     pass
 
 
-fn test_save_compressed_checkpoint():
+def test_save_compressed_checkpoint():
     """Test saving compressed checkpoint."""
     # TODO(#44): Implement when compression support exists
     # Create model checkpoint
@@ -437,7 +437,7 @@ fn test_save_compressed_checkpoint():
     pass
 
 
-fn test_compression_formats():
+def test_compression_formats():
     """Test different compression formats (gzip, zstd, etc.)."""
     # TODO(#44): Implement when multiple compression formats exist
     # Save checkpoint with gzip compression
@@ -447,7 +447,7 @@ fn test_compression_formats():
     pass
 
 
-fn test_checkpoint_integration_training():
+def test_checkpoint_integration_training():
     """Test checkpoint save/load integrates with training loop."""
     # TODO(#44): Implement when full training workflow exists
     # Train model for 5 epochs
@@ -458,7 +458,7 @@ fn test_checkpoint_integration_training():
     pass
 
 
-fn test_resume_training_from_checkpoint():
+def test_resume_training_from_checkpoint():
     """Test resuming training from saved checkpoint."""
     # TODO(#44): Implement when checkpoint includes optimizer state
     # Train for 5 epochs
@@ -470,7 +470,7 @@ fn test_resume_training_from_checkpoint():
     pass
 
 
-fn main() raises:
+def main() raises:
     """Run all test_io tests."""
     print("Running test_io tests...")
 

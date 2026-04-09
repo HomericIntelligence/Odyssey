@@ -28,7 +28,7 @@ from .dtype_dispatch import dispatch_binary, dispatch_scalar
 from .dtype_cast import cast_tensor
 
 
-fn binary_cross_entropy(
+def binary_cross_entropy(
     predictions: AnyTensor, targets: AnyTensor, epsilon: Float64 = 1e-7
 ) raises -> AnyTensor:
     """Binary cross-entropy loss for binary classification.
@@ -92,7 +92,7 @@ fn binary_cross_entropy(
     return subtract(zero, sum_terms)
 
 
-fn binary_cross_entropy_backward(
+def binary_cross_entropy_backward(
     grad_output: AnyTensor,
     predictions: AnyTensor,
     targets: AnyTensor,
@@ -162,7 +162,7 @@ fn binary_cross_entropy_backward(
     return multiply(grad_output, grad)
 
 
-fn mean_squared_error(
+def mean_squared_error(
     predictions: AnyTensor, targets: AnyTensor
 ) raises -> AnyTensor:
     """Mean squared error loss for regression.
@@ -202,7 +202,7 @@ fn mean_squared_error(
     return multiply(diff, diff)
 
 
-fn mean_squared_error_backward(
+def mean_squared_error_backward(
     grad_output: AnyTensor, predictions: AnyTensor, targets: AnyTensor
 ) raises -> AnyTensor:
     """Backward pass for mean squared error loss.
@@ -247,7 +247,7 @@ fn mean_squared_error_backward(
     return multiply(grad_output, grad)
 
 
-fn cross_entropy(
+def cross_entropy(
     logits: AnyTensor, targets: AnyTensor, axis: Int = -1, epsilon: Float64 = 1e-7
 ) raises -> AnyTensor:
     """Cross-entropy loss for multi-class classification.
@@ -335,7 +335,7 @@ fn cross_entropy(
     return mean(ce, axis=0, keepdims=False)
 
 
-fn cross_entropy_backward(
+def cross_entropy_backward(
     grad_output: AnyTensor,
     logits: AnyTensor,
     targets: AnyTensor,
@@ -396,7 +396,7 @@ fn cross_entropy_backward(
     return multiply(grad_scaled, grad_output)
 
 
-fn smooth_l1_loss(
+def smooth_l1_loss(
     predictions: AnyTensor, targets: AnyTensor, beta: Float32 = 1.0
 ) raises -> AnyTensor:
     """Smooth L1 loss (Huber loss) for robust regression.
@@ -475,7 +475,7 @@ fn smooth_l1_loss(
     return result
 
 
-fn smooth_l1_loss_backward(
+def smooth_l1_loss_backward(
     grad_output: AnyTensor,
     predictions: AnyTensor,
     targets: AnyTensor,
@@ -566,7 +566,7 @@ fn smooth_l1_loss_backward(
     return multiply(grad_output, blended_grad)
 
 
-fn hinge_loss(predictions: AnyTensor, targets: AnyTensor) raises -> AnyTensor:
+def hinge_loss(predictions: AnyTensor, targets: AnyTensor) raises -> AnyTensor:
     """Hinge loss for Support Vector Machines (SVMs).
 
         Formula:
@@ -628,7 +628,7 @@ fn hinge_loss(predictions: AnyTensor, targets: AnyTensor) raises -> AnyTensor:
     return multiply(margin, is_positive)
 
 
-fn hinge_loss_backward(
+def hinge_loss_backward(
     grad_output: AnyTensor, predictions: AnyTensor, targets: AnyTensor
 ) raises -> AnyTensor:
     """Backward pass for hinge loss.
@@ -698,7 +698,7 @@ fn hinge_loss_backward(
     return multiply(grad_output, hinge_grad)
 
 
-fn focal_loss(
+def focal_loss(
     predictions: AnyTensor,
     targets: AnyTensor,
     alpha: Float32 = 0.25,
@@ -792,7 +792,7 @@ fn focal_loss(
     return subtract(zero, sum_terms)
 
 
-fn focal_loss_backward(
+def focal_loss_backward(
     grad_output: AnyTensor,
     predictions: AnyTensor,
     targets: AnyTensor,
@@ -908,7 +908,7 @@ fn focal_loss_backward(
     return multiply(grad_output, grad)
 
 
-fn kl_divergence(
+def kl_divergence(
     p: AnyTensor, q: AnyTensor, epsilon: Float64 = 1e-7
 ) raises -> AnyTensor:
     """Kullback-Leibler divergence loss for distribution matching.
@@ -974,7 +974,7 @@ fn kl_divergence(
     return multiply(p, log_ratio)
 
 
-fn kl_divergence_backward(
+def kl_divergence_backward(
     grad_output: AnyTensor, p: AnyTensor, q: AnyTensor, epsilon: Float64 = 1e-7
 ) raises -> AnyTensor:
     """Backward pass for KL divergence loss.

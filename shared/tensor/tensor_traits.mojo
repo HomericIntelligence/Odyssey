@@ -1,6 +1,6 @@
 """TensorLike trait — shared interface for Tensor[dtype] and AnyTensor."""
 
-from collections import List
+from std.collections import List
 
 
 trait TensorLike(Copyable, Movable):
@@ -10,18 +10,18 @@ trait TensorLike(Copyable, Movable):
     conform to this trait, enabling generic code that works with either.
     """
 
-    fn numel(self) -> Int:
+    def numel(self) -> Int:
         """Return total number of elements."""
         ...
 
-    fn shape(self) -> List[Int]:
+    def shape(self) -> List[Int]:
         """Return shape as list of dimension sizes."""
         ...
 
-    fn get_dtype(self) -> DType:
+    def get_dtype(self) -> DType:
         """Return the element data type."""
         ...
 
-    fn ndim(self) -> Int:
+    def ndim(self) -> Int:
         """Return the number of dimensions (rank)."""
         ...

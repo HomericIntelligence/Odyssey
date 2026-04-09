@@ -20,7 +20,7 @@ from shared.training.callbacks import LoggingCallback
 from shared.training.base import TrainingState
 
 
-fn test_logging_callback_initialization() raises:
+def test_logging_callback_initialization() raises:
     """Test LoggingCallback initialization with parameters."""
     var logger = LoggingCallback(log_interval=1)
 
@@ -29,7 +29,7 @@ fn test_logging_callback_initialization() raises:
     assert_equal(logger.log_count, 0)
 
 
-fn test_logging_callback_logs_at_epoch_end() raises:
+def test_logging_callback_logs_at_epoch_end() raises:
     """Test LoggingCallback increments log count at epoch end."""
     var logger = LoggingCallback(log_interval=1)
     var state = TrainingState(epoch=1, learning_rate=0.1)
@@ -43,7 +43,7 @@ fn test_logging_callback_logs_at_epoch_end() raises:
     assert_equal(logger.log_count, 1)
 
 
-fn test_logging_callback_log_interval() raises:
+def test_logging_callback_log_interval() raises:
     """Test LoggingCallback respects log_interval parameter."""
     var logger = LoggingCallback(log_interval=2)
     var state = TrainingState(epoch=0, learning_rate=0.1)
@@ -74,7 +74,7 @@ fn test_logging_callback_log_interval() raises:
     assert_equal(logger.log_count, 3)
 
 
-fn test_logging_callback_log_every_epoch() raises:
+def test_logging_callback_log_every_epoch() raises:
     """Test LoggingCallback with log_interval=1 logs every epoch."""
     var logger = LoggingCallback(log_interval=1)
     var state = TrainingState(epoch=0, learning_rate=0.1)
@@ -88,7 +88,7 @@ fn test_logging_callback_log_every_epoch() raises:
     assert_equal(logger.log_count, 10)
 
 
-fn test_logging_callback_log_every_5_epochs() raises:
+def test_logging_callback_log_every_5_epochs() raises:
     """Test LoggingCallback with log_interval=5."""
     var logger = LoggingCallback(log_interval=5)
     var state = TrainingState(epoch=0, learning_rate=0.1)
@@ -102,7 +102,7 @@ fn test_logging_callback_log_every_5_epochs() raises:
     assert_equal(logger.log_count, 5)
 
 
-fn test_logging_callback_get_log_count() raises:
+def test_logging_callback_get_log_count() raises:
     """Test get_log_count returns correct count."""
     var logger = LoggingCallback(log_interval=1)
     var state = TrainingState(epoch=1, learning_rate=0.1)
@@ -126,7 +126,7 @@ fn test_logging_callback_get_log_count() raises:
     assert_equal(logger.get_log_count(), 3)
 
 
-fn test_logging_callback_tracks_count_correctly() raises:
+def test_logging_callback_tracks_count_correctly() raises:
     """Test log count increments only when logging occurs."""
     var logger = LoggingCallback(log_interval=3)
     var state = TrainingState(epoch=0, learning_rate=0.1)
@@ -150,7 +150,7 @@ fn test_logging_callback_tracks_count_correctly() raises:
     assert_equal(logger.log_count, 2)  # Logged
 
 
-fn test_logging_callback_on_train_begin() raises:
+def test_logging_callback_on_train_begin() raises:
     """Test on_train_begin does not affect log count."""
     var logger = LoggingCallback(log_interval=1)
     var state = TrainingState(epoch=0, learning_rate=0.1)
@@ -162,7 +162,7 @@ fn test_logging_callback_on_train_begin() raises:
     assert_equal(logger.log_count, 0)
 
 
-fn test_logging_callback_on_train_end() raises:
+def test_logging_callback_on_train_end() raises:
     """Test on_train_end does not affect log count."""
     var logger = LoggingCallback(log_interval=1)
     var state = TrainingState(epoch=10, learning_rate=0.1)
@@ -181,7 +181,7 @@ fn test_logging_callback_on_train_end() raises:
     assert_equal(logger.log_count, count_before)
 
 
-fn test_logging_callback_zero_interval() raises:
+def test_logging_callback_zero_interval() raises:
     """Test LoggingCallback with log_interval=0 (undefined behavior)."""
     # Note: Division by zero may occur in modulo operation
     # This test just verifies the callback can be created
@@ -189,7 +189,7 @@ fn test_logging_callback_zero_interval() raises:
     assert_equal(logger.log_interval, 0)
 
 
-fn test_logging_callback_large_interval() raises:
+def test_logging_callback_large_interval() raises:
     """Test LoggingCallback with very large log_interval."""
     var logger = LoggingCallback(log_interval=1000)
     var state = TrainingState(epoch=0, learning_rate=0.1)
@@ -208,7 +208,7 @@ fn test_logging_callback_large_interval() raises:
     assert_equal(logger.log_count, 2)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_logging_callback tests."""
     print("Running test_logging_callback tests...")
 

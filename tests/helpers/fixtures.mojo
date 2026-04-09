@@ -14,7 +14,7 @@ from shared.testing.data_generators import random_tensor as shared_random_tensor
 from shared.testing.data_generators import random_uniform
 
 
-fn random_tensor(
+def random_tensor(
     shape: List[Int], dtype: DType = DType.float32
 ) raises -> AnyTensor:
     """Create a tensor with random values from uniform distribution [0, 1).
@@ -38,7 +38,7 @@ fn random_tensor(
     return shared_random_tensor(shape, dtype)
 
 
-fn sequential_tensor(
+def sequential_tensor(
     shape: List[Int], dtype: DType = DType.float32
 ) raises -> AnyTensor:
     """Create tensor with sequential values 0, 1, 2, 3, ...
@@ -76,7 +76,7 @@ fn sequential_tensor(
     return tensor
 
 
-fn nan_tensor(shape: List[Int]) raises -> AnyTensor:
+def nan_tensor(shape: List[Int]) raises -> AnyTensor:
     """Create tensor filled with NaN values.
 
     Args:
@@ -102,7 +102,7 @@ fn nan_tensor(shape: List[Int]) raises -> AnyTensor:
     return shared_nan_tensor(shape, DType.float32)
 
 
-fn inf_tensor(shape: List[Int]) raises -> AnyTensor:
+def inf_tensor(shape: List[Int]) raises -> AnyTensor:
     """Create tensor filled with infinity values.
 
     Args:
@@ -128,7 +128,7 @@ fn inf_tensor(shape: List[Int]) raises -> AnyTensor:
     return shared_inf_tensor(shape, DType.float32)
 
 
-fn ones_like(tensor: AnyTensor) raises -> AnyTensor:
+def ones_like(tensor: AnyTensor) raises -> AnyTensor:
     """Create tensor of ones matching input shape and dtype.
 
     Args:
@@ -150,7 +150,7 @@ fn ones_like(tensor: AnyTensor) raises -> AnyTensor:
     return ones(tensor.shape(), tensor.dtype())
 
 
-fn zeros_like(tensor: AnyTensor) raises -> AnyTensor:
+def zeros_like(tensor: AnyTensor) raises -> AnyTensor:
     """Create tensor of zeros matching input shape and dtype.
 
     Args:

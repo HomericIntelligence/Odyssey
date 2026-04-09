@@ -45,7 +45,7 @@ struct SimpleNN(Copyable, Movable):
     var output_size: Int
 
 
-fn forward_pass(network: SimpleNN, input_data: AnyTensor) raises -> AnyTensor:
+def forward_pass(network: SimpleNN, input_data: AnyTensor) raises -> AnyTensor:
     """Perform a forward pass through the network.
 
     Args:
@@ -65,7 +65,7 @@ fn forward_pass(network: SimpleNN, input_data: AnyTensor) raises -> AnyTensor:
     return output
 
 
-fn training_step(
+def training_step(
     network: SimpleNN, input_data: AnyTensor, targets: AnyTensor
 ) raises -> Float32:
     """Perform a training step.
@@ -100,7 +100,7 @@ fn training_step(
 # ============================================================================
 
 
-fn benchmark_forward_batch32() raises -> None:
+def benchmark_forward_batch32() raises -> None:
     """Benchmark forward pass with batch size 32."""
     var network = SimpleNN(784, 256, 10)
     var input_shape = List[Int]()
@@ -111,7 +111,7 @@ fn benchmark_forward_batch32() raises -> None:
     _ = forward_pass(network, input_data)
 
 
-fn benchmark_forward_batch64() raises -> None:
+def benchmark_forward_batch64() raises -> None:
     """Benchmark forward pass with batch size 64."""
     var network = SimpleNN(784, 256, 10)
     var input_shape = List[Int]()
@@ -122,7 +122,7 @@ fn benchmark_forward_batch64() raises -> None:
     _ = forward_pass(network, input_data)
 
 
-fn benchmark_forward_batch128() raises -> None:
+def benchmark_forward_batch128() raises -> None:
     """Benchmark forward pass with batch size 128."""
     var network = SimpleNN(784, 256, 10)
     var input_shape = List[Int]()
@@ -133,7 +133,7 @@ fn benchmark_forward_batch128() raises -> None:
     _ = forward_pass(network, input_data)
 
 
-fn benchmark_training_step() raises -> None:
+def benchmark_training_step() raises -> None:
     """Benchmark a full training step."""
     var network = SimpleNN(784, 256, 10)
     var input_shape = List[Int]()
@@ -153,7 +153,7 @@ fn benchmark_training_step() raises -> None:
 # ============================================================================
 
 
-fn analyze_batch_scaling(
+def analyze_batch_scaling(
     batch32_result: BenchmarkResult,
     batch64_result: BenchmarkResult,
     batch128_result: BenchmarkResult,
@@ -203,7 +203,7 @@ fn analyze_batch_scaling(
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Benchmark neural network training components."""
     print("")
     print("=" * 70)

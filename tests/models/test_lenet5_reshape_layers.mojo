@@ -19,7 +19,7 @@ from shared.testing.special_values import (
     create_special_value_tensor,
     SPECIAL_VALUE_ONE,
 )
-from math import isnan, isinf
+from std.math import isnan, isinf
 
 
 # ============================================================================
@@ -27,7 +27,7 @@ from math import isnan, isinf
 # ============================================================================
 
 
-fn test_flatten_operation_float32() raises:
+def test_flatten_operation_float32() raises:
     """Test reshape/flatten operation (16, 5, 5) -> (400,)."""
     var dtype = DType.float32
 
@@ -53,7 +53,7 @@ fn test_flatten_operation_float32() raises:
         assert_false(isinf(val), "Flatten produced Inf")
 
 
-fn test_flatten_operation_float16() raises:
+def test_flatten_operation_float16() raises:
     """Test flatten with float16."""
     var dtype = DType.float16
 
@@ -66,7 +66,7 @@ fn test_flatten_operation_float16() raises:
     assert_dtype(flattened, dtype, "Flatten dtype mismatch (float16)")
 
 
-fn main() raises:
+def main() raises:
     """Run all reshape/flatten layer tests."""
     print("LeNet-5 Reshape/Flatten Layer Tests")
     print("=" * 50)

@@ -24,7 +24,7 @@ from shared.tensor.any_tensor import full_like
 from shared.core.numerical_safety import compute_tensor_l2_norm
 
 
-fn lars_step(
+def lars_step(
     params: AnyTensor,
     gradients: AnyTensor,
     velocity: AnyTensor,
@@ -144,7 +144,7 @@ fn lars_step(
     return (new_params, new_velocity)
 
 
-fn lars_step_simple(
+def lars_step_simple(
     params: AnyTensor,
     gradients: AnyTensor,
     velocity: AnyTensor,

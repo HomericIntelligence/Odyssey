@@ -13,7 +13,7 @@ TODO: Re-enable tests once multi-dimensional __setitem__ is implemented.
 """
 
 
-fn main() raises:
+def main() raises:
     print(
         "SKIPPED: AnyTensor multi-dimensional __setitem__ tests -"
         " multi-index __setitem__ not yet implemented on AnyTensor"

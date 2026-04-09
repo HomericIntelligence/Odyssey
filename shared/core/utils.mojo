@@ -9,11 +9,11 @@ This module provides common utility functions for tensor manipulation including:
 All functions work with AnyTensor and follow the pure functional design pattern
 """
 
-from collections import List
+from std.collections import List
 from shared.tensor.any_tensor import AnyTensor
 
 
-fn argmax(tensor: AnyTensor) raises -> Int:
+def argmax(tensor: AnyTensor) raises -> Int:
     """Find the index of the maximum value in a flattened tensor.
 
     Args:
@@ -46,7 +46,7 @@ fn argmax(tensor: AnyTensor) raises -> Int:
     return max_idx
 
 
-fn argmax(tensor: AnyTensor, axis: Int) raises -> AnyTensor:
+def argmax(tensor: AnyTensor, axis: Int) raises -> AnyTensor:
     """Find indices of maximum values along an axis.
 
     Args:
@@ -147,7 +147,7 @@ fn argmax(tensor: AnyTensor, axis: Int) raises -> AnyTensor:
     return result^
 
 
-fn top_k_indices(tensor: AnyTensor, k: Int) raises -> List[Int]:
+def top_k_indices(tensor: AnyTensor, k: Int) raises -> List[Int]:
     """Find indices of the k largest values in a flattened tensor.
 
     Args:
@@ -210,7 +210,7 @@ fn top_k_indices(tensor: AnyTensor, k: Int) raises -> List[Int]:
     return result^
 
 
-fn top_k(tensor: AnyTensor, k: Int) raises -> Tuple[AnyTensor, List[Int]]:
+def top_k(tensor: AnyTensor, k: Int) raises -> Tuple[AnyTensor, List[Int]]:
     """Find the k largest values and their indices in a flattened tensor.
 
     Args:
@@ -246,7 +246,7 @@ fn top_k(tensor: AnyTensor, k: Int) raises -> Tuple[AnyTensor, List[Int]]:
     return (values, indices^)
 
 
-fn argsort(tensor: AnyTensor, descending: Bool = False) raises -> List[Int]:
+def argsort(tensor: AnyTensor, descending: Bool = False) raises -> List[Int]:
     """Return indices that would sort the tensor.
 
     Args:

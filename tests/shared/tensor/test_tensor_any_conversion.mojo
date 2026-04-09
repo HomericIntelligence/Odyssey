@@ -20,21 +20,21 @@ from shared.tensor.tensor import Tensor
 from shared.tensor.any_tensor import AnyTensor, zeros
 
 
-fn test_anytensor_alias_works() raises:
+def test_anytensor_alias_works() raises:
     """AnyTensor alias still works for backward compatibility."""
     var t: AnyTensor = zeros([3, 4], DType.float32)
     assert_true(t.numel() == 12, "AnyTensor alias should work")
     print("PASS: test_anytensor_alias_works")
 
 
-fn test_anytensor_creation() raises:
+def test_anytensor_creation() raises:
     """AnyTensor can be created directly."""
     var t: AnyTensor = zeros([2, 3], DType.float32)
     assert_true(t.numel() == 6, "AnyTensor creation")
     print("PASS: test_anytensor_creation")
 
 
-fn test_as_any_basic() raises:
+def test_as_any_basic() raises:
     """Tensor[dtype].as_any() returns an AnyTensor."""
     var t = Tensor[DType.float32]([3])
     var any_t = t.as_any()
@@ -43,7 +43,7 @@ fn test_as_any_basic() raises:
     print("PASS: test_as_any_basic")
 
 
-fn test_as_any_preserves_shape() raises:
+def test_as_any_preserves_shape() raises:
     """As_any preserves full shape."""
     var t = Tensor[DType.float64]([2, 3, 4])
     var any_t = t.as_any()
@@ -55,7 +55,7 @@ fn test_as_any_preserves_shape() raises:
     print("PASS: test_as_any_preserves_shape")
 
 
-fn test_as_tensor_basic() raises:
+def test_as_tensor_basic() raises:
     """AnyTensor.as_tensor[dtype]() returns a Tensor[dtype]."""
     var any_t = zeros([4], DType.float32)
     var t = any_t.as_tensor[DType.float32]()
@@ -64,7 +64,7 @@ fn test_as_tensor_basic() raises:
     print("PASS: test_as_tensor_basic")
 
 
-fn test_as_tensor_dtype_mismatch() raises:
+def test_as_tensor_dtype_mismatch() raises:
     """As_tensor with wrong dtype should raise."""
     var any_t = zeros([4], DType.float32)
     var raised = False
@@ -77,7 +77,7 @@ fn test_as_tensor_dtype_mismatch() raises:
     print("PASS: test_as_tensor_dtype_mismatch")
 
 
-fn test_roundtrip_tensor_any_tensor() raises:
+def test_roundtrip_tensor_any_tensor() raises:
     """Tensor -> AnyTensor -> Tensor roundtrip preserves data."""
     var t1 = Tensor[DType.float32]([4])
     # Set a value via the data pointer (since we don't have set() yet)
@@ -93,7 +93,7 @@ fn test_roundtrip_tensor_any_tensor() raises:
     print("PASS: test_roundtrip_tensor_any_tensor")
 
 
-fn test_tensor_import_from_package() raises:
+def test_tensor_import_from_package() raises:
     """Verify import from shared.tensor works."""
     from shared.tensor.tensor import Tensor as T
     var t = T[DType.float32]([2])
@@ -101,7 +101,7 @@ fn test_tensor_import_from_package() raises:
     print("PASS: test_tensor_import_from_package")
 
 
-fn main() raises:
+def main() raises:
     test_anytensor_alias_works()
     test_anytensor_creation()
     test_as_any_basic()

@@ -69,7 +69,7 @@ struct CachedDataset[D: Dataset & Copyable & Movable](
     var cache_misses: Int
     """Number of cache misses for statistics."""
 
-    fn __init__(
+    def __init__(
         out self,
         var dataset: Self.D,
         max_cache_size: Int = -1,
@@ -89,7 +89,7 @@ struct CachedDataset[D: Dataset & Copyable & Movable](
         self.cache_hits = 0
         self.cache_misses = 0
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return the number of samples in the dataset.
 
         Returns:
@@ -97,7 +97,7 @@ struct CachedDataset[D: Dataset & Copyable & Movable](
         """
         return self.dataset.__len__()
 
-    fn __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
+    def __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get a sample, using cache if available.
 
         Attempts to retrieve from cache first. If not cached, loads from
@@ -120,7 +120,7 @@ struct CachedDataset[D: Dataset & Copyable & Movable](
         # Cache miss - load from base dataset
         return self.dataset.__getitem__(index)
 
-    fn _get_and_cache(mut self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
+    def _get_and_cache(mut self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get a sample with mutable access, enabling cache updates.
 
         Unlike __getitem__, this method can update cache and statistics.
@@ -155,7 +155,7 @@ struct CachedDataset[D: Dataset & Copyable & Movable](
 
         return (data, label)
 
-    fn _preload_cache(mut self) raises:
+    def _preload_cache(mut self) raises:
         """Pre-populate cache with samples.
 
         Loads samples from the dataset up to max_cache_size.
@@ -179,22 +179,22 @@ struct CachedDataset[D: Dataset & Copyable & Movable](
             # Use _get_and_cache to actually populate the cache
             _ = self._get_and_cache(i)
 
-    fn clear_cache(mut self):
+    def clear_cache(mut self):
         """Clear all cached samples."""
         self.cache = Dict[Int, Tuple[AnyTensor, AnyTensor]]()
         self.cache_hits = 0
         self.cache_misses = 0
 
-    fn disable_cache(mut self):
+    def disable_cache(mut self):
         """Disable caching and clear cache."""
         self.cache_enabled = False
         self.clear_cache()
 
-    fn enable_cache(mut self):
+    def enable_cache(mut self):
         """Enable caching."""
         self.cache_enabled = True
 
-    fn get_cache_stats(self) -> Tuple[Int, Int, Int]:
+    def get_cache_stats(self) -> Tuple[Int, Int, Int]:
         """Get cache statistics.
 
         Returns:
@@ -202,7 +202,7 @@ struct CachedDataset[D: Dataset & Copyable & Movable](
         """
         return (self.cache.__len__(), self.cache_hits, self.cache_misses)
 
-    fn get_hit_rate(self) -> Float32:
+    def get_hit_rate(self) -> Float32:
         """Get cache hit rate.
 
         Returns:

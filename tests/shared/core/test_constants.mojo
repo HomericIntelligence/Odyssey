@@ -59,7 +59,7 @@ from shared.testing.tolerance_constants import (
 )
 
 
-fn test_epsilon_values() raises:
+def test_epsilon_values() raises:
     """Verify epsilon constants are positive and appropriately small."""
     if not (EPSILON_DIV > 0.0 and EPSILON_DIV < 1e-5):
         raise Error("EPSILON_DIV validation failed")
@@ -86,7 +86,7 @@ fn test_epsilon_values() raises:
         raise Error("EPSILON_RELATIVE_ERROR validation failed")
 
 
-fn test_gradient_thresholds() raises:
+def test_gradient_thresholds() raises:
     """Verify gradient safety thresholds are in reasonable ranges."""
     if GRADIENT_MAX_NORM != 1000.0:
         raise Error("GRADIENT_MAX_NORM validation failed")
@@ -95,7 +95,7 @@ fn test_gradient_thresholds() raises:
         raise Error("GRADIENT_MIN_NORM validation failed")
 
 
-fn test_activation_bounds() raises:
+def test_activation_bounds() raises:
     """Verify activation function constants match documented values."""
     if RELU6_UPPER_BOUND != 6.0:
         raise Error("RELU6_UPPER_BOUND should be 6.0")
@@ -116,7 +116,7 @@ fn test_activation_bounds() raises:
         raise Error("HARD_TANH_UPPER_BOUND should be 1.0")
 
 
-fn test_optimizer_defaults() raises:
+def test_optimizer_defaults() raises:
     """Verify optimizer defaults are within reasonable ranges."""
     if not (0.0 < DEFAULT_LEARNING_RATE_SGD < 1.0):
         raise Error("DEFAULT_LEARNING_RATE_SGD out of range")
@@ -149,7 +149,7 @@ fn test_optimizer_defaults() raises:
         raise Error("DEFAULT_RMSPROP_ALPHA out of range")
 
 
-fn test_fp_type_constants() raises:
+def test_fp_type_constants() raises:
     """Verify FP type constants match IEEE/vendor specifications."""
     if FP8_E4M3_MAX_NORMAL != 448.0:
         raise Error("FP8_E4M3_MAX_NORMAL should be 448.0")
@@ -173,7 +173,7 @@ fn test_fp_type_constants() raises:
         raise Error("STOCHASTIC_ROUNDING_SCALE should be 2^24")
 
 
-fn test_tolerance_constants() raises:
+def test_tolerance_constants() raises:
     """Verify testing tolerance constants are positive and appropriately small.
     """
     if not (TOLERANCE_DEFAULT > 0.0):
@@ -213,7 +213,7 @@ fn test_tolerance_constants() raises:
         raise Error("TOLERANCE_CROSS_ENTROPY must be positive")
 
 
-fn main():
+def main():
     """Main test runner."""
     try:
         test_epsilon_values()

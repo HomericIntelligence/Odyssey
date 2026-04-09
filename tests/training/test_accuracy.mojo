@@ -22,7 +22,7 @@ from shared.training.metrics import (
 )
 
 
-fn test_top1_accuracy_perfect() raises:
+def test_top1_accuracy_perfect() raises:
     """Test top-1 accuracy with perfect predictions."""
     print("Testing top-1 accuracy (perfect)...")
 
@@ -59,7 +59,7 @@ fn test_top1_accuracy_perfect() raises:
     print("  ✓ Top-1 accuracy (perfect) test passed")
 
 
-fn test_top1_accuracy_half_correct() raises:
+def test_top1_accuracy_half_correct() raises:
     """Test top-1 accuracy with 50% correct predictions."""
     print("Testing top-1 accuracy (50% correct)...")
 
@@ -104,7 +104,7 @@ fn test_top1_accuracy_half_correct() raises:
     print("  ✓ Top-1 accuracy (50% correct) test passed")
 
 
-fn test_top1_accuracy_with_indices() raises:
+def test_top1_accuracy_with_indices() raises:
     """Test top-1 accuracy with predicted class indices (not logits)."""
     print("Testing top-1 accuracy with class indices...")
 
@@ -137,7 +137,7 @@ fn test_top1_accuracy_with_indices() raises:
     print("  ✓ Top-1 accuracy with indices test passed")
 
 
-fn test_topk_accuracy_k1() raises:
+def test_topk_accuracy_k1() raises:
     """Test top-k accuracy with k=1 (should match top-1)."""
     print("Testing top-k accuracy (k=1)...")
 
@@ -174,7 +174,7 @@ fn test_topk_accuracy_k1() raises:
     print("  ✓ Top-k accuracy (k=1) test passed")
 
 
-fn test_topk_accuracy_k3() raises:
+def test_topk_accuracy_k3() raises:
     """Test top-k accuracy with k=3."""
     print("Testing top-k accuracy (k=3)...")
 
@@ -253,7 +253,7 @@ fn test_topk_accuracy_k3() raises:
     print("  ✓ Top-k accuracy (k=3) test passed")
 
 
-fn test_per_class_accuracy() raises:
+def test_per_class_accuracy() raises:
     """Test per-class accuracy computation."""
     print("Testing per-class accuracy...")
 
@@ -328,7 +328,7 @@ fn test_per_class_accuracy() raises:
     print("  ✓ Per-class accuracy test passed")
 
 
-fn test_accuracy_metric_incremental() raises:
+def test_accuracy_metric_incremental() raises:
     """Test AccuracyMetric incremental accumulation."""
     print("Testing AccuracyMetric incremental...")
 
@@ -403,7 +403,7 @@ fn test_accuracy_metric_incremental() raises:
     print("  ✓ AccuracyMetric incremental test passed")
 
 
-fn test_accuracy_metric_empty() raises:
+def test_accuracy_metric_empty() raises:
     """Test AccuracyMetric with no data."""
     print("Testing AccuracyMetric empty...")
 
@@ -415,7 +415,7 @@ fn test_accuracy_metric_empty() raises:
     print("  ✓ AccuracyMetric empty test passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all accuracy metric tests."""
     print("\n" + "=" * 70)
     print("ACCURACY METRICS TEST SUITE")

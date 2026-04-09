@@ -23,7 +23,7 @@ from shared.data.text_transforms import (
 )
 
 
-fn test_split_words_basic() raises:
+def test_split_words_basic() raises:
     """Test basic word splitting on spaces."""
     var text = String("the quick brown fox")
     var words = split_words(text)
@@ -35,7 +35,7 @@ fn test_split_words_basic() raises:
     assert_equal(words[3], "fox")
 
 
-fn test_split_words_empty() raises:
+def test_split_words_empty() raises:
     """Test splitting empty string returns empty list."""
     var text = String("")
     var words = split_words(text)
@@ -43,7 +43,7 @@ fn test_split_words_empty() raises:
     assert_equal(len(words), 0)
 
 
-fn test_split_words_single() raises:
+def test_split_words_single() raises:
     """Test splitting single word."""
     var text = String("hello")
     var words = split_words(text)
@@ -52,7 +52,7 @@ fn test_split_words_single() raises:
     assert_equal(words[0], "hello")
 
 
-fn test_join_words_basic() raises:
+def test_join_words_basic() raises:
     """Test basic word joining with spaces."""
     var words = List[String]()
     words.append("the")
@@ -64,7 +64,7 @@ fn test_join_words_basic() raises:
     assert_equal(text, "the quick brown fox")
 
 
-fn test_join_words_empty() raises:
+def test_join_words_empty() raises:
     """Test joining empty list returns empty string."""
     var words = List[String]()
     var text = join_words(words)
@@ -72,7 +72,7 @@ fn test_join_words_empty() raises:
     assert_equal(text, "")
 
 
-fn test_join_words_single() raises:
+def test_join_words_single() raises:
     """Test joining single word."""
     var words = List[String]()
     words.append("hello")
@@ -81,7 +81,7 @@ fn test_join_words_single() raises:
     assert_equal(text, "hello")
 
 
-fn test_random_swap_basic() raises:
+def test_random_swap_basic() raises:
     """Test RandomSwap swaps word positions."""
     var text = String("the quick brown fox")
 
@@ -96,7 +96,7 @@ fn test_random_swap_basic() raises:
     assert_equal(len(words), 4)
 
 
-fn test_random_swap_probability() raises:
+def test_random_swap_probability() raises:
     """Test RandomSwap respects probability."""
     var text = String("the quick brown fox")
 
@@ -107,7 +107,7 @@ fn test_random_swap_probability() raises:
     assert_equal(result, text)
 
 
-fn test_random_swap_empty_text() raises:
+def test_random_swap_empty_text() raises:
     """Test RandomSwap handles empty text."""
     var text = String("")
     var swap = RandomSwap(1.0, 1)
@@ -116,7 +116,7 @@ fn test_random_swap_empty_text() raises:
     assert_equal(result, "")
 
 
-fn test_random_swap_single_word() raises:
+def test_random_swap_single_word() raises:
     """Test RandomSwap handles single word."""
     var text = String("hello")
     var swap = RandomSwap(1.0, 1)
@@ -125,7 +125,7 @@ fn test_random_swap_single_word() raises:
     assert_equal(result, "hello")
 
 
-fn test_random_swap_deterministic() raises:
+def test_random_swap_deterministic() raises:
     """Test RandomSwap is deterministic with seed."""
     var text = String("the quick brown fox jumps")
 
@@ -140,7 +140,7 @@ fn test_random_swap_deterministic() raises:
     assert_equal(result1, result2)
 
 
-fn test_random_deletion_basic() raises:
+def test_random_deletion_basic() raises:
     """Test RandomDeletion deletes some words."""
     var text = String("the quick brown fox jumps over lazy dog")
 
@@ -158,7 +158,7 @@ fn test_random_deletion_basic() raises:
     assert_true(len(result_words) >= 1)  # At least one word remains
 
 
-fn test_random_deletion_probability_never() raises:
+def test_random_deletion_probability_never() raises:
     """Test RandomDeletion with p=0.0 never deletes."""
     var text = String("the quick brown fox")
 
@@ -168,7 +168,7 @@ fn test_random_deletion_probability_never() raises:
     assert_equal(result, text)
 
 
-fn test_random_deletion_preserves_one_word() raises:
+def test_random_deletion_preserves_one_word() raises:
     """Test RandomDeletion always keeps at least one word."""
     var text = String("the quick brown fox")
 
@@ -180,7 +180,7 @@ fn test_random_deletion_preserves_one_word() raises:
     assert_true(len(words) >= 1)
 
 
-fn test_random_deletion_empty_text() raises:
+def test_random_deletion_empty_text() raises:
     """Test RandomDeletion handles empty text."""
     var text = String("")
     var delete = RandomDeletion(0.5)
@@ -189,7 +189,7 @@ fn test_random_deletion_empty_text() raises:
     assert_equal(result, "")
 
 
-fn test_random_deletion_single_word() raises:
+def test_random_deletion_single_word() raises:
     """Test RandomDeletion preserves single word."""
     var text = String("hello")
     var delete = RandomDeletion(1.0)
@@ -198,7 +198,7 @@ fn test_random_deletion_single_word() raises:
     assert_equal(result, "hello")
 
 
-fn test_random_deletion_deterministic() raises:
+def test_random_deletion_deterministic() raises:
     """Test RandomDeletion is deterministic with seed."""
     var text = String("the quick brown fox jumps")
 
@@ -213,7 +213,7 @@ fn test_random_deletion_deterministic() raises:
     assert_equal(result1, result2)
 
 
-fn test_random_insertion_basic() raises:
+def test_random_insertion_basic() raises:
     """Test RandomInsertion inserts words from vocabulary."""
     var text = String("the brown fox")
 
@@ -235,7 +235,7 @@ fn test_random_insertion_basic() raises:
     assert_true(len(result_words) >= len(original_words))
 
 
-fn test_random_insertion_probability() raises:
+def test_random_insertion_probability() raises:
     """Test RandomInsertion respects probability."""
     var text = String("the brown fox")
 
@@ -249,7 +249,7 @@ fn test_random_insertion_probability() raises:
     assert_equal(result, text)
 
 
-fn test_random_insertion_empty_text() raises:
+def test_random_insertion_empty_text() raises:
     """Test RandomInsertion handles empty text."""
     var text = String("")
 
@@ -262,7 +262,7 @@ fn test_random_insertion_empty_text() raises:
     assert_equal(result, "")
 
 
-fn test_random_insertion_empty_vocabulary() raises:
+def test_random_insertion_empty_vocabulary() raises:
     """Test RandomInsertion handles empty vocabulary."""
     var text = String("the brown fox")
 
@@ -274,7 +274,7 @@ fn test_random_insertion_empty_vocabulary() raises:
     assert_equal(result, text)
 
 
-fn test_random_insertion_deterministic() raises:
+def test_random_insertion_deterministic() raises:
     """Test RandomInsertion is deterministic with seed."""
     var text = String("the brown fox")
 
@@ -296,7 +296,7 @@ fn test_random_insertion_deterministic() raises:
     assert_equal(result1, result2)
 
 
-fn test_random_synonym_replacement_basic() raises:
+def test_random_synonym_replacement_basic() raises:
     """Test RandomSynonymReplacement replaces with synonyms."""
     var text = String("the quick fox")
 
@@ -322,7 +322,7 @@ fn test_random_synonym_replacement_basic() raises:
     assert_equal(len(words), len(original_words))
 
 
-fn test_random_synonym_replacement_probability() raises:
+def test_random_synonym_replacement_probability() raises:
     """Test RandomSynonymReplacement respects probability."""
     var text = String("the quick fox")
 
@@ -338,7 +338,7 @@ fn test_random_synonym_replacement_probability() raises:
     assert_equal(result, text)
 
 
-fn test_random_synonym_replacement_no_synonyms() raises:
+def test_random_synonym_replacement_no_synonyms() raises:
     """Test RandomSynonymReplacement with no matching synonyms."""
     var text = String("the quick fox")
 
@@ -354,7 +354,7 @@ fn test_random_synonym_replacement_no_synonyms() raises:
     assert_equal(result, text)
 
 
-fn test_random_synonym_replacement_empty_text() raises:
+def test_random_synonym_replacement_empty_text() raises:
     """Test RandomSynonymReplacement handles empty text."""
     var text = String("")
 
@@ -369,7 +369,7 @@ fn test_random_synonym_replacement_empty_text() raises:
     assert_equal(result, "")
 
 
-fn test_random_synonym_replacement_deterministic() raises:
+def test_random_synonym_replacement_deterministic() raises:
     """Test RandomSynonymReplacement is deterministic with seed."""
     var text = String("the quick brown fox")
 
@@ -406,7 +406,7 @@ fn test_random_synonym_replacement_deterministic() raises:
     assert_equal(result1, result2)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_text_augmentations tests."""
     print("Running test_text_augmentations tests...")
 

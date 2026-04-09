@@ -53,7 +53,7 @@ comptime CLASS_NAMES = [
 ]
 
 
-fn evaluate_model(
+def evaluate_model(
     mut model: ResNet18,
     images: AnyTensor,
     labels: AnyTensor,
@@ -161,7 +161,7 @@ fn evaluate_model(
     return (overall_accuracy, correct_per_class^, total_per_class^)
 
 
-fn print_detailed_results(
+def print_detailed_results(
     accuracy: Float32, correct_per_class: List[Int], total_per_class: List[Int]
 ):
     """Print detailed evaluation results.
@@ -237,7 +237,7 @@ fn print_detailed_results(
     print()
 
 
-fn main() raises:
+def main() raises:
     """Main inference entry point.
 
     Integrates command-line argument parsing via shared.utils.arg_parser.

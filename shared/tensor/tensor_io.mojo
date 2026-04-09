@@ -21,8 +21,8 @@ File format (hex-encoded text):
     Line 3: hex-encoded raw bytes
 """
 
-from memory import UnsafePointer
-from collections import List
+from std.memory import UnsafePointer
+from std.collections import List
 from .any_tensor import AnyTensor
 from .tensor_creation import zeros
 
@@ -32,7 +32,7 @@ from .tensor_creation import zeros
 # ============================================================================
 
 
-fn save_tensor(tensor: AnyTensor, filepath: String, name: String = "") raises:
+def save_tensor(tensor: AnyTensor, filepath: String, name: String = "") raises:
     """Save tensor to file in hex format.
 
     Args:
@@ -66,7 +66,7 @@ fn save_tensor(tensor: AnyTensor, filepath: String, name: String = "") raises:
         _ = f.write(hex_data + "\n")
 
 
-fn load_tensor(filepath: String) raises -> AnyTensor:
+def load_tensor(filepath: String) raises -> AnyTensor:
     """Load tensor from file.
 
     Args:
@@ -107,7 +107,7 @@ fn load_tensor(filepath: String) raises -> AnyTensor:
     return tensor^
 
 
-fn load_tensor_with_name(filepath: String) raises -> Tuple[String, AnyTensor]:
+def load_tensor_with_name(filepath: String) raises -> Tuple[String, AnyTensor]:
     """Load tensor with its associated name.
 
     Args:
@@ -153,7 +153,7 @@ fn load_tensor_with_name(filepath: String) raises -> Tuple[String, AnyTensor]:
 # ============================================================================
 
 
-fn bytes_to_hex(data: UnsafePointer[UInt8, MutAnyOrigin], num_bytes: Int) -> String:
+def bytes_to_hex(data: UnsafePointer[UInt8, MutAnyOrigin], num_bytes: Int) -> String:
     """Convert bytes to hexadecimal string.
 
     Args:
@@ -179,7 +179,7 @@ fn bytes_to_hex(data: UnsafePointer[UInt8, MutAnyOrigin], num_bytes: Int) -> Str
     return result
 
 
-fn hex_to_bytes(hex_str: String, tensor: AnyTensor) raises:
+def hex_to_bytes(hex_str: String, tensor: AnyTensor) raises:
     """Convert hexadecimal string to bytes and store in tensor.
 
     Args:
@@ -201,7 +201,7 @@ fn hex_to_bytes(hex_str: String, tensor: AnyTensor) raises:
         output[offset] = UInt8((high << 4) | low)
 
 
-fn _hex_char_to_int(c: String) raises -> Int:
+def _hex_char_to_int(c: String) raises -> Int:
     """Convert single hex character to integer (0-15).
 
     Args:
@@ -228,7 +228,7 @@ fn _hex_char_to_int(c: String) raises -> Int:
 # ============================================================================
 
 
-fn get_dtype_size(dtype: DType) -> Int:
+def get_dtype_size(dtype: DType) -> Int:
     """Get size in bytes for a dtype.
 
     Args:
@@ -255,7 +255,7 @@ fn get_dtype_size(dtype: DType) -> Int:
         return 4
 
 
-fn parse_dtype(dtype_str: String) raises -> DType:
+def parse_dtype(dtype_str: String) raises -> DType:
     """Parse dtype string to DType enum.
 
     Args:
@@ -293,7 +293,7 @@ fn parse_dtype(dtype_str: String) raises -> DType:
         raise Error("Unknown dtype: " + dtype_str)
 
 
-fn dtype_to_string(dtype: DType) -> String:
+def dtype_to_string(dtype: DType) -> String:
     """Convert dtype enum to string representation.
 
     Args:

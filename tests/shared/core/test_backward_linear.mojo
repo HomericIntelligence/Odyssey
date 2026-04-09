@@ -15,7 +15,7 @@ from shared.testing import (
 )
 
 
-fn test_linear_backward_shapes() raises:
+def test_linear_backward_shapes() raises:
     """Test that linear_backward returns correct gradient shapes."""
     var batch = 2
     var in_features = 10
@@ -50,7 +50,7 @@ fn test_linear_backward_shapes() raises:
     assert_equal(gb_shape[0], out_features)
 
 
-fn test_linear_backward_numerical() raises:
+def test_linear_backward_numerical() raises:
     """Test linear_backward with numerical gradient checking."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -91,7 +91,7 @@ fn test_linear_backward_numerical() raises:
     )
 
 
-fn test_linear_backward_batch() raises:
+def test_linear_backward_batch() raises:
     """Test linear_backward with batch size > 1."""
     var batch = 3
     var in_features = 4
@@ -119,7 +119,7 @@ fn test_linear_backward_batch() raises:
     assert_equal(grads.grad_bias.shape()[0], out_features)
 
 
-fn test_linear_backward_gradient() raises:
+def test_linear_backward_gradient() raises:
     """Test linear backward with numerical gradient checking."""
     var batch = 2
     var in_features = 3
@@ -147,7 +147,7 @@ fn test_linear_backward_gradient() raises:
     weights.set(4, Float64(-0.2))
     weights.set(5, Float64(0.5))
 
-    fn forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         var bias_shape = List[Int]()
         bias_shape.append(out_features)
         var bias = zeros(bias_shape, DType.float32)
@@ -155,7 +155,7 @@ fn test_linear_backward_gradient() raises:
         bias.set(1, Float64(-0.2))
         return linear(inp, weights, bias)
 
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = linear_backward(grad_out, inp, weights)
         return grads.grad_input
 
@@ -164,7 +164,7 @@ fn test_linear_backward_gradient() raises:
     check_gradient(forward, backward, x, grad_output, rtol=1e-3, atol=5e-4)
 
 
-fn main() raises:
+def main() raises:
     """Run linear backward tests."""
     print("Running linear backward tests...")
     test_linear_backward_shapes()

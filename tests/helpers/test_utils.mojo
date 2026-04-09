@@ -12,7 +12,7 @@ from tests.helpers.utils import (
 from tests.helpers.fixtures import random_tensor, sequential_tensor
 
 
-fn test_print_tensor() raises:
+def test_print_tensor() raises:
     """Test print_tensor output format."""
     var tensor = sequential_tensor([2, 3], DType.float32)
     var output = print_tensor(tensor)
@@ -26,7 +26,7 @@ fn test_print_tensor() raises:
         raise Error("print_tensor should contain 'dtype=' in output")
 
 
-fn test_tensor_summary() raises:
+def test_tensor_summary() raises:
     """Test tensor_summary statistics calculation."""
     var tensor = sequential_tensor([3, 3], DType.float32)
     var output = tensor_summary(tensor)
@@ -44,7 +44,7 @@ fn test_tensor_summary() raises:
         raise Error("tensor_summary should contain 'Std:'")
 
 
-fn test_compare_tensors_identical() raises:
+def test_compare_tensors_identical() raises:
     """Test compare_tensors with identical tensors."""
     var t1 = sequential_tensor([3, 3], DType.float32)
     var t2 = sequential_tensor([3, 3], DType.float32)
@@ -58,7 +58,7 @@ fn test_compare_tensors_identical() raises:
         raise Error("compare_tensors should report matching dtypes")
 
 
-fn test_compare_tensors_different_shapes() raises:
+def test_compare_tensors_different_shapes() raises:
     """Test compare_tensors with different shapes."""
     var t1 = sequential_tensor([2, 3], DType.float32)
     var t2 = sequential_tensor([3, 2], DType.float32)
@@ -70,10 +70,10 @@ fn test_compare_tensors_different_shapes() raises:
         raise Error("compare_tensors should detect shape mismatch")
 
 
-fn test_benchmark_function() raises:
+def test_benchmark_function() raises:
     """Test benchmark function execution."""
 
-    fn dummy_test() raises:
+    def dummy_test() raises:
         pass
 
     # Just verify benchmark doesn't crash
@@ -83,7 +83,7 @@ fn test_benchmark_function() raises:
         raise Error("benchmark should return non-negative time")
 
 
-fn main() raises:
+def main() raises:
     """Run all utility tests."""
     test_print_tensor()
     print("✓ test_print_tensor passed")

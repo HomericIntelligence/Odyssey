@@ -29,7 +29,7 @@ struct Batch(Copyable, Movable):
     var indices: List[Int]
     """Original indices of samples in the batch."""
 
-    fn __init__(
+    def __init__(
         out self,
         var data: AnyTensor,
         var labels: AnyTensor,
@@ -74,7 +74,7 @@ struct BaseLoader[D: Dataset & Copyable & Movable](Copyable, Movable):
     var _len: Int
     """Cached number of batches."""
 
-    fn __init__(
+    def __init__(
         out self,
         var dataset: Self.D,
         batch_size: Int = 1,
@@ -106,7 +106,7 @@ struct BaseLoader[D: Dataset & Copyable & Movable](Copyable, Movable):
         else:
             self._len = (dataset_len + batch_size - 1) // batch_size
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return number of batches."""
         return self._len
 
@@ -141,7 +141,7 @@ struct BatchLoader[
     var shuffle: Bool
     """Whether to shuffle the data."""
 
-    fn __init__(
+    def __init__(
         out self,
         var dataset: Self.D,
         var sampler: Self.S,
@@ -184,11 +184,11 @@ struct BatchLoader[
         # Set up sampler
         self.sampler = sampler^
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return number of batches."""
         return self._len
 
-    fn __iter__(mut self) raises -> List[Batch]:
+    def __iter__(mut self) raises -> List[Batch]:
         """Iterate over batches.
 
         Returns:
@@ -231,7 +231,7 @@ struct BatchLoader[
 
         return batches^
 
-    fn _stack_tensors(self, tensors: List[AnyTensor]) raises -> AnyTensor:
+    def _stack_tensors(self, tensors: List[AnyTensor]) raises -> AnyTensor:
         """Stack list of tensors into a batch tensor.
 
         Creates a new tensor with shape [batch_size, *tensor_shape] by

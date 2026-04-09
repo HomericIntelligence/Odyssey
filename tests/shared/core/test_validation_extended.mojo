@@ -37,13 +37,13 @@ from shared.core.validation import (
 # ============================================================================
 
 
-fn test_validate_1d_input_correct() raises:
+def test_validate_1d_input_correct() raises:
     """Test validate_1d_input with correct 1D tensor."""
     var x = zeros([10], DType.float32)
     validate_1d_input(x, "x")
 
 
-fn test_validate_1d_input_2d() raises:
+def test_validate_1d_input_2d() raises:
     """Test validate_1d_input with 2D tensor."""
     var x = zeros([3, 4], DType.float32)
     var error_raised = False
@@ -61,7 +61,7 @@ fn test_validate_1d_input_2d() raises:
     assert_true(error_raised, "Error should be raised for non-1D tensor")
 
 
-fn main() raises:
+def main() raises:
     """Run all extended validation tests."""
     print("Running extended validation tests...")
 

@@ -36,7 +36,7 @@ struct Linear[dtype: DType = DType.float32](Copyable, Module, Movable):
     var in_features: Int
     var out_features: Int
 
-    fn __init__(out self, in_features: Int, out_features: Int) raises:
+    def __init__(out self, in_features: Int, out_features: Int) raises:
         """Initialize linear layer with random weights and zero bias.
 
         Uses Xavier-style initialization for weights. Bias is initialized to zero.
@@ -62,7 +62,7 @@ struct Linear[dtype: DType = DType.float32](Copyable, Module, Movable):
         # Initialize bias to zeros
         self.bias = zeros([out_features], Self.dtype)
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: y = xW + b.
 
         Computes the linear transformation: output = input @ weight + bias.
@@ -97,7 +97,7 @@ struct Linear[dtype: DType = DType.float32](Copyable, Module, Movable):
 
         return output
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Get list of trainable parameters.
 
         Returns:
@@ -118,10 +118,10 @@ struct Linear[dtype: DType = DType.float32](Copyable, Module, Movable):
         params.append(self.bias)
         return params^
 
-    fn train(mut self):
+    def train(mut self):
         """Switch to training mode (no-op for Linear layer)."""
         pass
 
-    fn eval(mut self):
+    def eval(mut self):
         """Switch to inference mode (no-op for Linear layer)."""
         pass

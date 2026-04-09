@@ -11,7 +11,7 @@ from .reduction import sum
 from .gradient_types import GradientPair, GradientTriple
 
 
-fn linear(x: AnyTensor, weights: AnyTensor, bias: AnyTensor) raises -> AnyTensor:
+def linear(x: AnyTensor, weights: AnyTensor, bias: AnyTensor) raises -> AnyTensor:
     """Functional linear transformation: y = xW^T + b.
 
         Pure function - caller manages weights and bias. No internal state
@@ -46,7 +46,7 @@ fn linear(x: AnyTensor, weights: AnyTensor, bias: AnyTensor) raises -> AnyTensor
     return add(out, bias)
 
 
-fn linear_no_bias(x: AnyTensor, weights: AnyTensor) raises -> AnyTensor:
+def linear_no_bias(x: AnyTensor, weights: AnyTensor) raises -> AnyTensor:
     """Functional linear transformation without bias: y = xW^T.
 
         Pure function for linear transformation with no bias term.
@@ -64,7 +64,7 @@ fn linear_no_bias(x: AnyTensor, weights: AnyTensor) raises -> AnyTensor:
     return matmul(x, transpose(weights))
 
 
-fn linear_backward(
+def linear_backward(
     grad_output: AnyTensor, x: AnyTensor, weights: AnyTensor
 ) raises -> GradientTriple:
     """Backward pass for linear transformation.
@@ -123,7 +123,7 @@ fn linear_backward(
     return GradientTriple(grad_input^, grad_kernel^, grad_bias^)
 
 
-fn linear_no_bias_backward(
+def linear_no_bias_backward(
     grad_output: AnyTensor, x: AnyTensor, weights: AnyTensor
 ) raises -> GradientPair:
     """Backward pass for linear transformation without bias.

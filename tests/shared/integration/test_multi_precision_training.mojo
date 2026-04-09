@@ -30,10 +30,10 @@ from shared.training.dtype_utils import (
     bfloat16_dtype,
     is_reduced_precision,
 )
-from collections import List
+from std.collections import List
 
 
-fn test_fp32_training_loss_decreases() raises:
+def test_fp32_training_loss_decreases() raises:
     """Test FP32 baseline training with loss decrease.
 
     This is the reference implementation - all other precisions
@@ -66,7 +66,7 @@ fn test_fp32_training_loss_decreases() raises:
     )
 
 
-fn test_fp16_training_loss_decreases() raises:
+def test_fp16_training_loss_decreases() raises:
     """Test FP16 training with gradient scaling.
 
     FP16 training requires:
@@ -93,7 +93,7 @@ fn test_fp16_training_loss_decreases() raises:
     assert_dtype(fp16_input, DType.float16, "Input should be cast to float16")
 
 
-fn test_bf16_training_loss_decreases() raises:
+def test_bf16_training_loss_decreases() raises:
     """Test BF16 training mode.
 
     BF16 has wider exponent range than FP16, reducing overflow risk.
@@ -112,7 +112,7 @@ fn test_bf16_training_loss_decreases() raises:
     )
 
 
-fn test_fp8_training_loss_decreases() raises:
+def test_fp8_training_loss_decreases() raises:
     """Test FP8 training with aggressive scaling.
 
     FP8 has very limited range:
@@ -134,7 +134,7 @@ fn test_fp8_training_loss_decreases() raises:
     )
 
 
-fn test_fp16_gradient_overflow_recovery() raises:
+def test_fp16_gradient_overflow_recovery() raises:
     """Test gradient scaler recovers from overflow.
 
     When gradients contain NaN/Inf:
@@ -172,7 +172,7 @@ fn test_fp16_gradient_overflow_recovery() raises:
     )
 
 
-fn test_precision_config_from_string() raises:
+def test_precision_config_from_string() raises:
     """Test PrecisionConfig creation from string names."""
     # Test all valid precision strings
     var fp32_config = PrecisionConfig.from_string("fp32")
@@ -200,7 +200,7 @@ fn test_precision_config_from_string() raises:
     )
 
 
-fn test_precision_config_invalid_string() raises:
+def test_precision_config_invalid_string() raises:
     """Test that invalid precision string raises error."""
     var raised_error = False
     try:
@@ -211,7 +211,7 @@ fn test_precision_config_invalid_string() raises:
     assert_true(raised_error, "Invalid precision string should raise error")
 
 
-fn test_gradient_scaler_dynamic_scaling() raises:
+def test_gradient_scaler_dynamic_scaling() raises:
     """Test gradient scaler adjusts scale over iterations.
 
     The scaler should:
@@ -243,7 +243,7 @@ fn test_gradient_scaler_dynamic_scaling() raises:
     )
 
 
-fn test_master_weights_fp32() raises:
+def test_master_weights_fp32() raises:
     """Test master weights are maintained in FP32.
 
     For reduced precision training:
@@ -280,7 +280,7 @@ fn test_master_weights_fp32() raises:
     )
 
 
-fn test_fp16_vs_fp32_accuracy() raises:
+def test_fp16_vs_fp32_accuracy() raises:
     """Test FP16 maintains accuracy within tolerance of FP32.
 
     FP16 should achieve similar results to FP32:
@@ -313,7 +313,7 @@ fn test_fp16_vs_fp32_accuracy() raises:
     )
 
 
-fn test_bf16_vs_fp32_accuracy() raises:
+def test_bf16_vs_fp32_accuracy() raises:
     """Test BF16 maintains accuracy within tolerance of FP32.
 
     BF16 has less precision than FP16 but wider range:
@@ -329,7 +329,7 @@ fn test_bf16_vs_fp32_accuracy() raises:
     )
 
 
-fn test_mixed_precision_memory_savings() raises:
+def test_mixed_precision_memory_savings() raises:
     """Test that FP16 uses less memory than FP32.
 
     Note: This is a conceptual test since we can't easily measure
@@ -361,7 +361,7 @@ fn test_mixed_precision_memory_savings() raises:
     )
 
 
-fn test_training_with_toml_config() raises:
+def test_training_with_toml_config() raises:
     """Test loading training configuration from TOML file.
 
     Verifies that TOML config files can be loaded and parsed correctly.
@@ -439,7 +439,7 @@ fn test_training_with_toml_config() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all test_multi_precision_training tests."""
     print("Running test_multi_precision_training tests...")
 

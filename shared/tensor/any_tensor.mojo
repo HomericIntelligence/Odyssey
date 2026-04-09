@@ -39,10 +39,10 @@ Slicing Design:
 Reference: https://data-apis.org/array-api/latest/API_specification/index.html
 """
 
-from collections import List
-from memory import UnsafePointer, memset_zero, alloc, bitcast
-from math import ceildiv
-from hashlib.hasher import Hasher
+from std.collections import List
+from std.memory import UnsafePointer, memset_zero, alloc, bitcast
+from std.math import ceildiv
+from std.hashlib.hasher import Hasher
 from shared.base.memory_pool import pooled_alloc, pooled_free
 from .tensor import Tensor
 from .tensor_traits import TensorLike
@@ -128,7 +128,7 @@ struct AnyTensor(
     var _allocated_size: Int
     """Actual allocated size (may differ from requested due to pool bucketing)."""
 
-    fn __init__(out self, shape: List[Int], dtype: DType) raises:
+    def __init__(out self, shape: List[Int], dtype: DType) raises:
         """Initialize a new AnyTensor with given shape and dtype.
 
         Args:
@@ -197,7 +197,7 @@ struct AnyTensor(
         self._refcount = alloc[Int](1)
         self._refcount[] = 1  # Start with 1 reference
 
-    fn __init__(out self, value: IntLiteral) raises:
+    def __init__(out self, value: IntLiteral) raises:
         """Create a scalar AnyTensor from an integer literal.
 
         Enables implicit conversion from integer literals to AnyTensor.
@@ -229,7 +229,7 @@ struct AnyTensor(
         self._refcount[] = 1
         self._set_int64(0, Int64(value))
 
-    fn __init__(out self, value: FloatLiteral) raises:
+    def __init__(out self, value: FloatLiteral) raises:
         """Create a scalar AnyTensor from a float literal.
 
         Enables implicit conversion from float literals to AnyTensor.
@@ -261,7 +261,7 @@ struct AnyTensor(
         self._refcount[] = 1
         self._set_float64(0, Float64(value))
 
-    fn __init__(out self, value: Int) raises:
+    def __init__(out self, value: Int) raises:
         """Create a scalar AnyTensor from an Int.
 
         Enables implicit conversion from Int to AnyTensor.
@@ -287,7 +287,7 @@ struct AnyTensor(
         self._refcount[] = 1
         self._set_int64(0, Int64(value))
 
-    fn __init__(out self, value: Float64) raises:
+    def __init__(out self, value: Float64) raises:
         """Create a scalar AnyTensor from a Float64.
 
         Enables implicit conversion from Float64 to AnyTensor.
@@ -318,7 +318,7 @@ struct AnyTensor(
         self._refcount[] = 1
         self._set_float64(0, value)
 
-    fn __init__(out self, var data: List[Float32]) raises:
+    def __init__(out self, var data: List[Float32]) raises:
         """Create 1D tensor from List[Float32].
 
         Args:
@@ -373,7 +373,7 @@ struct AnyTensor(
         for i in range(len(data)):
             self._set_float32(i, data[i])
 
-    fn __init__(out self, var data: List[Int]) raises:
+    def __init__(out self, var data: List[Int]) raises:
         """Create 1D tensor from List[Int].
 
         Args:
@@ -430,7 +430,7 @@ struct AnyTensor(
 
 
 
-    fn __init__(out self, *, copy: Self):
+    def __init__(out self, *, copy: Self):
         """Copy constructor - creates a shared-ownership copy with reference counting.
 
         Copies all fields and increments the reference count to track shared ownership.
@@ -449,7 +449,7 @@ struct AnyTensor(
         if self._refcount:
             self._refcount[] += 1
 
-    fn __init__(out self, *, deinit take: Self):
+    def __init__(out self, *, deinit take: Self):
         """Move constructor - transfers ownership without refcount change."""
         self._data = take._data
         self._shape = take._shape^
@@ -461,7 +461,7 @@ struct AnyTensor(
         self._original_numel_quantized = take._original_numel_quantized
         self._allocated_size = take._allocated_size
 
-    fn __del__(deinit self):
+    def __del__(deinit self):
         """Destructor - decrements ref count, frees if last reference.
 
         Uses reference counting to safely manage shared ownership.
@@ -482,14 +482,14 @@ struct AnyTensor(
                     pooled_free(self._data, self._allocated_size)
                 self._refcount.free()
 
-    fn copy(self) -> Self:
+    def copy(self) -> Self:
         """Create a shared-ownership copy with reference counting.
 
         Creates a new reference to the same underlying data.
         Increments the reference count to track shared ownership.
         This prevents double-free and enables safe view semantics.
         """
-        from memory import alloc as mem_alloc
+        from std.memory import alloc as mem_alloc
         var ptr = mem_alloc[AnyTensor](1)
         ptr[0]._data = self._data
         ptr[0]._shape = self._shape.copy()
@@ -505,12 +505,12 @@ struct AnyTensor(
             self._refcount[] += 1
         return ptr.take_pointee()
 
-    fn _get_dtype_size(self) -> Int:
+    def _get_dtype_size(self) -> Int:
         """Get size in bytes for the tensor's dtype."""
         return AnyTensor._get_dtype_size_static(self._dtype)
 
     @staticmethod
-    fn _get_dtype_size_static(dtype: DType) -> Int:
+    def _get_dtype_size_static(dtype: DType) -> Int:
         """Get size in bytes for a given dtype (static version for use in __init__).
         """
         if dtype == DType.float16:
@@ -532,7 +532,7 @@ struct AnyTensor(
         else:
             return 4  # Default fallback
 
-    fn shape(self) -> List[Int]:
+    def shape(self) -> List[Int]:
         """Return the shape of the tensor.
 
         Returns:
@@ -548,7 +548,7 @@ struct AnyTensor(
             result.append(self._shape[i])
         return result^
 
-    fn dtype(self) -> DType:
+    def dtype(self) -> DType:
         """Return the data type of the tensor.
 
         Returns:
@@ -556,7 +556,7 @@ struct AnyTensor(
         """
         return self._dtype
 
-    fn get_dtype(self) -> DType:
+    def get_dtype(self) -> DType:
         """Return the element data type (TensorLike conformance).
 
         Returns:
@@ -564,7 +564,7 @@ struct AnyTensor(
         """
         return self._dtype
 
-    fn numel(self) -> Int:
+    def numel(self) -> Int:
         """Return the total number of elements in the tensor.
 
         Returns:
@@ -576,7 +576,7 @@ struct AnyTensor(
         """
         return self._numel
 
-    fn num_elements(self) -> Int:
+    def num_elements(self) -> Int:
         """Return the total number of elements in the tensor.
 
         This is an comptime for numel() for API compatibility.
@@ -590,7 +590,7 @@ struct AnyTensor(
         """
         return self._numel
 
-    fn dim(self) -> Int:
+    def dim(self) -> Int:
         """Return the number of dimensions (rank) of the tensor.
 
         Returns:
@@ -603,7 +603,7 @@ struct AnyTensor(
         """
         return len(self._shape)
 
-    fn ndim(self) -> Int:
+    def ndim(self) -> Int:
         """Return the number of dimensions (rank).
 
         Alias for `dim()`, provided for future TensorLike trait conformance.
@@ -613,7 +613,7 @@ struct AnyTensor(
         """
         return len(self._shape)
 
-    fn is_contiguous(self) -> Bool:
+    def is_contiguous(self) -> Bool:
         """Check if the tensor has a contiguous memory layout.
 
         Returns:
@@ -630,7 +630,7 @@ struct AnyTensor(
             expected_stride *= self._shape[i]
         return True
 
-    fn reshape(self, new_shape: List[Int]) raises -> AnyTensor:
+    def reshape(self, new_shape: List[Int]) raises -> AnyTensor:
         """Reshape tensor to new shape (must have same total elements).
 
         Returns a zero-copy view (shallow pointer copy) sharing data with the
@@ -688,7 +688,7 @@ struct AnyTensor(
 
         return result^
 
-    fn slice(self, start: Int, end: Int, axis: Int = 0) raises -> AnyTensor:
+    def slice(self, start: Int, end: Int, axis: Int = 0) raises -> AnyTensor:
         """Extract a slice along the specified axis, returning a view into the original data.
 
         Creates a shallow copy of the tensor struct whose `_data` pointer is offset
@@ -776,7 +776,7 @@ struct AnyTensor(
 
         return result^
 
-    fn transpose(self, dim0: Int, dim1: Int) raises -> AnyTensor:
+    def transpose(self, dim0: Int, dim1: Int) raises -> AnyTensor:
         """Return a non-contiguous view with dim0 and dim1 swapped.
 
         Creates a stride-based view sharing the same underlying data — no
@@ -830,7 +830,7 @@ struct AnyTensor(
 
         return result^
 
-    fn __getitem__(self, index: Int) raises -> Float32:
+    def __getitem__(self, index: Int) raises -> Float32:
         """Get element at flat index.
 
         For contiguous tensors, the flat index maps directly to a memory offset.
@@ -875,7 +875,7 @@ struct AnyTensor(
         # Return value based on dtype
         return self._get_float32(index)
 
-    fn _resolve_index(self, index: Int) raises -> Int:
+    def _resolve_index(self, index: Int) raises -> Int:
         """Resolve flat index to memory offset, with bounds check.
 
         For non-contiguous tensors, converts flat index to memory offset
@@ -905,7 +905,7 @@ struct AnyTensor(
             return mem_offset
         return index
 
-    fn __setitem__(mut self, index: Int, value: Float64) raises:
+    def __setitem__(mut self, index: Int, value: Float64) raises:
         """Set element at flat index.
 
         Note: Mojo does not dispatch `obj[i] = val` to __setitem__ — it
@@ -931,12 +931,12 @@ struct AnyTensor(
         else:
             self._set_int64(idx, Int64(value))
 
-    fn __setitem__(mut self, index: Int, value: Int64) raises:
+    def __setitem__(mut self, index: Int, value: Int64) raises:
         """Set element at flat index using an integer value."""
         var idx = self._resolve_index(index)
         self._set_int64(idx, value)
 
-    fn __setitem__(mut self, index: Int, value: Float32) raises:
+    def __setitem__(mut self, index: Int, value: Float32) raises:
         """Set element at flat index using a Float32 value."""
         var idx = self._resolve_index(index)
         self._set_float32(idx, value)
@@ -959,61 +959,61 @@ struct AnyTensor(
     # ===----------------------------------------------------------------------===#
 
     @always_inline
-    fn set(mut self, index: Int, value: Float64) raises:
+    def set(mut self, index: Int, value: Float64) raises:
         """Set element at flat index from a Float64 value."""
         var idx = self._resolve_index(index)
         self._set_float64(idx, value)
 
     @always_inline
-    fn set(mut self, index: Int, value: Float32) raises:
+    def set(mut self, index: Int, value: Float32) raises:
         """Set element at flat index from a Float32 value."""
         var idx = self._resolve_index(index)
         self._set_float32(idx, value)
 
     @always_inline
-    fn set(mut self, index: Int, value: Float16) raises:
+    def set(mut self, index: Int, value: Float16) raises:
         """Set element at flat index from a Float16 value."""
         var idx = self._resolve_index(index)
         self._set_float32(idx, Float32(value))
 
     @always_inline
-    fn set(mut self, index: Int, value: Int) raises:
+    def set(mut self, index: Int, value: Int) raises:
         """Set element at flat index from an Int value."""
         var idx = self._resolve_index(index)
         self._set_int64(idx, Int64(value))
 
     @always_inline
-    fn set(mut self, index: Int, value: Int64) raises:
+    def set(mut self, index: Int, value: Int64) raises:
         """Set element at flat index from an Int64 value."""
         var idx = self._resolve_index(index)
         self._set_int64(idx, value)
 
     @always_inline
-    fn set(mut self, index: Int, value: Int32) raises:
+    def set(mut self, index: Int, value: Int32) raises:
         """Set element at flat index from an Int32 value."""
         var idx = self._resolve_index(index)
         self._set_int64(idx, Int64(Int(value)))
 
     @always_inline
-    fn set(mut self, index: Int, value: Int16) raises:
+    def set(mut self, index: Int, value: Int16) raises:
         """Set element at flat index from an Int16 value."""
         var idx = self._resolve_index(index)
         self._set_int64(idx, Int64(Int(value)))
 
     @always_inline
-    fn set(mut self, index: Int, value: Int8) raises:
+    def set(mut self, index: Int, value: Int8) raises:
         """Set element at flat index from an Int8 value."""
         var idx = self._resolve_index(index)
         self._set_int64(idx, Int64(Int(value)))
 
     @always_inline
-    fn set(mut self, index: Int, value: UInt8) raises:
+    def set(mut self, index: Int, value: UInt8) raises:
         """Set element at flat index from a UInt8 value."""
         var idx = self._resolve_index(index)
         self._set_int64(idx, Int64(Int(value)))
 
     @always_inline
-    fn set(mut self, index: Int, value: UInt16) raises:
+    def set(mut self, index: Int, value: UInt16) raises:
         """Set element at flat index from a UInt16 value.
 
         For float16 tensors, writes the raw bit pattern (bitcast), preserving
@@ -1029,7 +1029,7 @@ struct AnyTensor(
             self._set_int64(idx, Int64(Int(value)))
 
     @always_inline
-    fn set(mut self, index: Int, value: UInt32) raises:
+    def set(mut self, index: Int, value: UInt32) raises:
         """Set element at flat index from a UInt32 value.
 
         For float32 tensors, writes the raw bit pattern (bitcast), preserving
@@ -1045,7 +1045,7 @@ struct AnyTensor(
             self._set_int64(idx, Int64(Int(value)))
 
     @always_inline
-    fn set(mut self, index: Int, value: UInt64) raises:
+    def set(mut self, index: Int, value: UInt64) raises:
         """Set element at flat index from a UInt64 value.
 
         For float64 tensors, writes the raw bit pattern (bitcast), preserving
@@ -1060,7 +1060,7 @@ struct AnyTensor(
         else:
             self._set_int64(idx, Int64(Int(value)))
 
-    fn __getitem__(self, indices: List[Int]) raises -> Float32:
+    def __getitem__(self, indices: List[Int]) raises -> Float32:
         """Get element at multi-dimensional index.
 
         Args:
@@ -1094,7 +1094,7 @@ struct AnyTensor(
             mem_offset += indices[i] * self._strides[i]
         return self._get_float32(mem_offset)
 
-    fn __setitem__(mut self, indices: List[Int], value: Float64) raises:
+    def __setitem__(mut self, indices: List[Int], value: Float64) raises:
         """Set element at multi-dimensional index.
 
         Args:
@@ -1136,7 +1136,7 @@ struct AnyTensor(
         else:
             self._set_int64(mem_offset, Int64(value))
 
-    fn __setitem__(mut self, indices: List[Int], value: Float32) raises:
+    def __setitem__(mut self, indices: List[Int], value: Float32) raises:
         """Set element at multi-dimensional index using Float32 value.
 
         Args:
@@ -1155,7 +1155,7 @@ struct AnyTensor(
         """
         self.__setitem__(indices, Float64(value))
 
-    fn _normalize_slice_indices(
+    def _normalize_slice_indices(
         self, start: Int, end: Int, step: Int, size: Int
     ) -> Tuple[Int, Int, Int, Int]:
         """Normalize slice indices to valid ranges.
@@ -1199,7 +1199,7 @@ struct AnyTensor(
 
         return (norm_start, norm_end, norm_step, result_size)
 
-    fn __getitem__(self, slice: Slice) raises -> Self:
+    def __getitem__(self, slice: Slice) raises -> Self:
         """Get slice of 1D tensor [start:end] or [start:end:step].
 
         Args:
@@ -1308,7 +1308,7 @@ struct AnyTensor(
 
         return result^
 
-    fn __getitem__(self, *slices: Slice) raises -> Self:
+    def __getitem__(self, *slices: Slice) raises -> Self:
         """Get multi-dimensional slice (e.g., tensor[a:b, c:d, :]).
 
         Args:
@@ -1451,7 +1451,7 @@ struct AnyTensor(
 
         return result^
 
-    fn _get_float64(self, index: Int) -> Float64:
+    def _get_float64(self, index: Int) -> Float64:
         """Internal: Get value at index as Float64 (assumes float-compatible dtype).
 
         Args:
@@ -1485,7 +1485,7 @@ struct AnyTensor(
             # For integer types, cast to float64
             return Float64(self._get_int64(index))
 
-    fn _set_float64(self, index: Int, value: Float64):
+    def _set_float64(self, index: Int, value: Float64):
         """Internal: Set value at index (assumes float-compatible dtype).
 
         Args:
@@ -1511,7 +1511,7 @@ struct AnyTensor(
             # For integer types, truncate Float64 to Int64 and delegate
             self._set_int64(index, Int64(value))
 
-    fn _get_float32(self, index: Int) -> Float32:
+    def _get_float32(self, index: Int) -> Float32:
         """Internal: Get value at index as Float32 (assumes float-compatible dtype).
 
         Args:
@@ -1543,7 +1543,7 @@ struct AnyTensor(
             # For integer types, cast to float32
             return Float32(self._get_int64(index))
 
-    fn _set_float32(self, index: Int, value: Float32):
+    def _set_float32(self, index: Int, value: Float32):
         """Internal: Set value at index as Float32 (assumes float-compatible dtype).
 
         Args:
@@ -1574,7 +1574,7 @@ struct AnyTensor(
             # For integer types, truncate Float32 to Int64 and delegate
             self._set_int64(index, Int64(value))
 
-    fn _get_int64(self, index: Int) -> Int64:
+    def _get_int64(self, index: Int) -> Int64:
         """Internal: Get value at index as Int64 (assumes integer-compatible dtype).
 
         Args:
@@ -1612,11 +1612,11 @@ struct AnyTensor(
             return ptr[].cast[DType.int64]()
         elif self._dtype == DType.bool:
             var ptr = (self._data + offset).bitcast[Scalar[DType.bool]]()
-            return 1 if ptr[].__bool__() else 0
+            return Int64(1) if ptr[].__bool__() else Int64(0)
         else:
             return 0  # Default fallback
 
-    fn _set_int64(self, index: Int, value: Int64):
+    def _set_int64(self, index: Int, value: Int64):
         """Internal: Set value at index (assumes integer-compatible dtype).
 
         Args:
@@ -1654,7 +1654,7 @@ struct AnyTensor(
             var ptr = (self._data + offset).bitcast[Scalar[DType.bool]]()
             ptr[] = Scalar[DType.bool](value != 0)
 
-    fn _set_int32(self, index: Int, value: Int32):
+    def _set_int32(self, index: Int, value: Int32):
         """Internal: Set value at index as Int32 (assumes integer-compatible dtype).
 
         Args:
@@ -1679,7 +1679,7 @@ struct AnyTensor(
     # ===----------------------------------------------------------------------===#
 
     @always_inline
-    fn load[dtype: DType](self, index: Int) -> Scalar[dtype]:
+    def load[dtype: DType](self, index: Int) -> Scalar[dtype]:
         """Load element at flat index as Scalar[dtype]. No bounds check.
 
         The caller must ensure dtype matches self._dtype and index is in
@@ -1698,7 +1698,7 @@ struct AnyTensor(
         return self._data.bitcast[Scalar[dtype]]()[index]
 
     @always_inline
-    fn store[dtype: DType](self, index: Int, value: Scalar[dtype]):
+    def store[dtype: DType](self, index: Int, value: Scalar[dtype]):
         """Store element at flat index. No bounds check.
 
         The caller must ensure dtype matches self._dtype and index is in
@@ -1714,7 +1714,7 @@ struct AnyTensor(
         self._data.bitcast[Scalar[dtype]]()[index] = value
 
     @always_inline
-    fn data_ptr[dtype: DType](
+    def data_ptr[dtype: DType](
         self,
     ) -> UnsafePointer[Scalar[dtype], origin=MutAnyOrigin]:
         """Get typed pointer to underlying data for bulk operations.
@@ -1731,13 +1731,13 @@ struct AnyTensor(
         """
         return self._data.bitcast[Scalar[dtype]]()
 
-    fn _fill_zero(mut self):
+    def _fill_zero(mut self):
         """Internal: Fill tensor with zeros (works for all dtypes)."""
         var dtype_size = self._get_dtype_size()
         var total_bytes = self._numel * dtype_size
         memset_zero(self._data, total_bytes)
 
-    fn _fill_value_float(mut self, value: Float64):
+    def _fill_value_float(mut self, value: Float64):
         """Internal: Fill tensor with float value.
 
         Args:
@@ -1746,7 +1746,7 @@ struct AnyTensor(
         for i in range(self._numel):
             self._set_float64(i, value)
 
-    fn _fill_value_int(mut self, value: Int64):
+    def _fill_value_int(mut self, value: Int64):
         """Internal: Fill tensor with integer value.
 
         Args:
@@ -1759,7 +1759,7 @@ struct AnyTensor(
     # Dunder Methods (Operator Overloading)
     # ========================================================================
 
-    fn __add__(self, other: AnyTensor) raises -> AnyTensor:
+    def __add__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise addition: a + b.
 
         Args:
@@ -1773,12 +1773,12 @@ struct AnyTensor(
         """
 
         @always_inline
-        fn _add[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+        def _add[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
             return x + y
 
         return _anytensor_binary_op[_add](self, other)
 
-    fn __sub__(self, other: AnyTensor) raises -> AnyTensor:
+    def __sub__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise subtraction: a - b.
 
         Args:
@@ -1792,12 +1792,12 @@ struct AnyTensor(
         """
 
         @always_inline
-        fn _sub[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+        def _sub[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
             return x - y
 
         return _anytensor_binary_op[_sub](self, other)
 
-    fn __mul__(self, other: AnyTensor) raises -> AnyTensor:
+    def __mul__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise multiplication: a * b.
 
         Args:
@@ -1811,12 +1811,12 @@ struct AnyTensor(
         """
 
         @always_inline
-        fn _mul[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+        def _mul[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
             return x * y
 
         return _anytensor_binary_op[_mul](self, other)
 
-    fn __truediv__(self, other: AnyTensor) raises -> AnyTensor:
+    def __truediv__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise division: a / b.
 
         Args:
@@ -1831,12 +1831,12 @@ struct AnyTensor(
         """
 
         @always_inline
-        fn _div[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+        def _div[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
             return x / y
 
         return _anytensor_binary_op[_div](self, other)
 
-    fn __floordiv__(self, other: AnyTensor) raises -> AnyTensor:
+    def __floordiv__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise floor division: a // b.
 
         Args:
@@ -1850,12 +1850,12 @@ struct AnyTensor(
         """
 
         @always_inline
-        fn _floordiv[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+        def _floordiv[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
             return x // y
 
         return _anytensor_binary_op[_floordiv](self, other)
 
-    fn __mod__(self, other: AnyTensor) raises -> AnyTensor:
+    def __mod__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise modulo: a % b.
 
         Args:
@@ -1869,12 +1869,12 @@ struct AnyTensor(
         """
 
         @always_inline
-        fn _mod[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+        def _mod[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
             return x % y
 
         return _anytensor_binary_op[_mod](self, other)
 
-    fn __pow__(self, other: AnyTensor) raises -> AnyTensor:
+    def __pow__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise power: a ** b.
 
         Args:
@@ -1888,12 +1888,12 @@ struct AnyTensor(
         """
 
         @always_inline
-        fn _pow[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+        def _pow[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
             return x ** y
 
         return _anytensor_binary_op[_pow](self, other)
 
-    fn __matmul__(self, other: AnyTensor) raises -> AnyTensor:
+    def __matmul__(self, other: AnyTensor) raises -> AnyTensor:
         """Matrix multiplication: a @ b.
 
         Args:
@@ -1911,7 +1911,7 @@ struct AnyTensor(
         """
         return _anytensor_matmul(self, other)
 
-    fn __eq__(self, other: AnyTensor) raises -> AnyTensor:
+    def __eq__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise equality: a == b.
 
         Note: NaN comparison follows IEEE 754 semantics — NaN is never equal to
@@ -1929,12 +1929,12 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes.
         """
         @always_inline
-        fn _eq[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
+        def _eq[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
             return x == y
 
         return _anytensor_compare_op[_eq](self, other)
 
-    fn __ne__(self, other: AnyTensor) raises -> AnyTensor:
+    def __ne__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise inequality: a != b.
 
         Args:
@@ -1947,12 +1947,12 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes.
         """
         @always_inline
-        fn _ne[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
+        def _ne[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
             return x != y
 
         return _anytensor_compare_op[_ne](self, other)
 
-    fn __lt__(self, other: AnyTensor) raises -> AnyTensor:
+    def __lt__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise less than: a < b.
 
         Args:
@@ -1965,12 +1965,12 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes.
         """
         @always_inline
-        fn _lt[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
+        def _lt[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
             return x < y
 
         return _anytensor_compare_op[_lt](self, other)
 
-    fn __le__(self, other: AnyTensor) raises -> AnyTensor:
+    def __le__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise less or equal: a <= b.
 
         Args:
@@ -1983,12 +1983,12 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes.
         """
         @always_inline
-        fn _le[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
+        def _le[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
             return x <= y
 
         return _anytensor_compare_op[_le](self, other)
 
-    fn __gt__(self, other: AnyTensor) raises -> AnyTensor:
+    def __gt__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise greater than: a > b.
 
         Args:
@@ -2001,12 +2001,12 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes.
         """
         @always_inline
-        fn _gt[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
+        def _gt[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
             return x > y
 
         return _anytensor_compare_op[_gt](self, other)
 
-    fn __ge__(self, other: AnyTensor) raises -> AnyTensor:
+    def __ge__(self, other: AnyTensor) raises -> AnyTensor:
         """Element-wise greater or equal: a >= b.
 
         Args:
@@ -2019,7 +2019,7 @@ struct AnyTensor(
             Error: If tensors have incompatible shapes.
         """
         @always_inline
-        fn _ge[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
+        def _ge[T: DType](x: Scalar[T], y: Scalar[T]) -> Bool:
             return x >= y
 
         return _anytensor_compare_op[_ge](self, other)
@@ -2028,7 +2028,7 @@ struct AnyTensor(
     # FP8 Conversion Methods
     # ========================================================================
 
-    fn to_fp8(self) raises -> AnyTensor:
+    def to_fp8(self) raises -> AnyTensor:
         """Convert tensor values to FP8 E4M3 format.
 
         This method converts a tensor of any floating-point dtype to FP8 format,
@@ -2052,7 +2052,7 @@ struct AnyTensor(
             FP16 inputs are converted to FP32 before quantization.
         """
         from shared.core.types.dtype_aliases import FP8
-        from memory import bitcast
+        from std.memory import bitcast
 
         # Verify source is floating point
         if not (
@@ -2093,7 +2093,7 @@ struct AnyTensor(
 
         return result^
 
-    fn from_fp8(self) raises -> AnyTensor:
+    def from_fp8(self) raises -> AnyTensor:
         """Convert FP8-encoded tensor (uint8) back to Float32.
 
         This method interprets a uint8 tensor as FP8 E4M3 encoded values and
@@ -2114,7 +2114,7 @@ struct AnyTensor(
             Use this to decode tensors created by to_fp8().
         """
         from shared.core.types.dtype_aliases import FP8
-        from memory import bitcast
+        from std.memory import bitcast
 
         # Verify source is uint8
         if self._dtype != DType.uint8:
@@ -2137,7 +2137,7 @@ struct AnyTensor(
     # Integer Type Conversions
     # ===----------------------------------------------------------------------===#
 
-    fn to_int8(self) raises -> AnyTensor:
+    def to_int8(self) raises -> AnyTensor:
         """Convert tensor values to Int8 format.
 
         Converts a tensor of any dtype to Int8 format, clamping values to the
@@ -2206,7 +2206,7 @@ struct AnyTensor(
 
         return result^
 
-    fn to_int16(self) raises -> AnyTensor:
+    def to_int16(self) raises -> AnyTensor:
         """Convert tensor values to Int16 format.
 
         Converts a tensor of any dtype to Int16 format, clamping values to the
@@ -2262,7 +2262,7 @@ struct AnyTensor(
 
         return result^
 
-    fn to_int32(self) raises -> AnyTensor:
+    def to_int32(self) raises -> AnyTensor:
         """Convert tensor values to Int32 format.
 
         Converts a tensor of any dtype to Int32 format, clamping values to the
@@ -2314,7 +2314,7 @@ struct AnyTensor(
 
         return result^
 
-    fn to_int64(self) raises -> AnyTensor:
+    def to_int64(self) raises -> AnyTensor:
         """Convert tensor values to Int64 format.
 
         Converts a tensor of any dtype to Int64 format.
@@ -2364,7 +2364,7 @@ struct AnyTensor(
 
         return result^
 
-    fn to_uint8(self) raises -> AnyTensor:
+    def to_uint8(self) raises -> AnyTensor:
         """Convert tensor values to UInt8 format.
 
         Converts a tensor of any dtype to UInt8 format, clamping values to the
@@ -2420,7 +2420,7 @@ struct AnyTensor(
 
         return result^
 
-    fn to_uint16(self) raises -> AnyTensor:
+    def to_uint16(self) raises -> AnyTensor:
         """Convert tensor values to UInt16 format.
 
         Converts a tensor of any dtype to UInt16 format, clamping values to the
@@ -2472,7 +2472,7 @@ struct AnyTensor(
 
         return result^
 
-    fn to_uint32(self) raises -> AnyTensor:
+    def to_uint32(self) raises -> AnyTensor:
         """Convert tensor values to UInt32 format.
 
         Converts a tensor of any dtype to UInt32 format, clamping values to the
@@ -2524,7 +2524,7 @@ struct AnyTensor(
 
         return result^
 
-    fn to_uint64(self) raises -> AnyTensor:
+    def to_uint64(self) raises -> AnyTensor:
         """Convert tensor values to UInt64 format.
 
         Converts a tensor of any dtype to UInt64 format, clamping negative values to 0.
@@ -2579,7 +2579,7 @@ struct AnyTensor(
     # BF8 Conversion Methods
     # ========================================================================
 
-    fn to_bf8(self) raises -> AnyTensor:
+    def to_bf8(self) raises -> AnyTensor:
         """Convert tensor values to BF8 E5M2 format.
 
         This method converts a tensor of any floating-point dtype to BF8 format,
@@ -2604,7 +2604,7 @@ struct AnyTensor(
             FP16 inputs are converted to FP32 before quantization.
         """
         from shared.core.types.dtype_aliases import BF8
-        from memory import bitcast
+        from std.memory import bitcast
 
         # Verify source is floating point
         if not (
@@ -2641,7 +2641,7 @@ struct AnyTensor(
 
         return result^
 
-    fn from_bf8(self) raises -> AnyTensor:
+    def from_bf8(self) raises -> AnyTensor:
         """Convert BF8-encoded tensor (uint8) back to Float32.
 
         This method interprets a uint8 tensor as BF8 E5M2 encoded values and
@@ -2662,7 +2662,7 @@ struct AnyTensor(
             Use this to decode tensors created by to_bf8().
         """
         from shared.core.types.dtype_aliases import BF8
-        from memory import bitcast
+        from std.memory import bitcast
 
         # Verify source is uint8
         if self._dtype != DType.uint8:
@@ -2685,7 +2685,7 @@ struct AnyTensor(
     # FP4 Blocked Type Conversions
     # ===----------------------------------------------------------------------===#
 
-    fn to_mxfp4(self) raises -> AnyTensor:
+    def to_mxfp4(self) raises -> AnyTensor:
         """Convert tensor values to MXFP4 blocked format.
 
         This method converts a tensor of any floating-point dtype to MXFP4 format,
@@ -2718,12 +2718,12 @@ struct AnyTensor(
             var quantized_weights = weights.to_mxfp4()  # 256 blocks × 17 bytes = 4352 bytes
 
             # ML workflow: quantize model weights for memory efficiency
-            fn quantize_model_weights(weights: AnyTensor) raises -> AnyTensor:
+            def quantize_model_weights(weights: AnyTensor) raises -> AnyTensor:
                 # Convert FP32 weights to MXFP4 (16:1 compression)
                 return weights.to_mxfp4()
 
             # ML workflow: quantize gradients during training
-            fn quantize_gradients(gradients: AnyTensor) raises -> AnyTensor:
+            def quantize_gradients(gradients: AnyTensor) raises -> AnyTensor:
                 # MXFP4 works for both positive and negative values
                 var quantized = gradients.to_mxfp4()
                 # Dequantize before optimizer update
@@ -2816,7 +2816,7 @@ struct AnyTensor(
 
         return result^
 
-    fn from_mxfp4(self) raises -> AnyTensor:
+    def from_mxfp4(self) raises -> AnyTensor:
         """Convert MXFP4-encoded tensor (uint8 blocks) back to Float32.
 
         This method interprets a uint8 tensor as MXFP4 blocks and converts them
@@ -2893,7 +2893,7 @@ struct AnyTensor(
 
         return result^
 
-    fn to_nvfp4(self) raises -> AnyTensor:
+    def to_nvfp4(self) raises -> AnyTensor:
         """Convert tensor values to NVFP4 blocked format.
 
         This method converts a tensor of any floating-point dtype to NVFP4 format,
@@ -2927,18 +2927,18 @@ struct AnyTensor(
                 var quantized_activations = activations.to_nvfp4()  # 2048 blocks × 9 bytes = 18432 bytes
 
                 # ML workflow: quantize activations with better accuracy than MXFP4
-                fn quantize_activations(activations: AnyTensor) raises -> AnyTensor:
+                def quantize_activations(activations: AnyTensor) raises -> AnyTensor:
                     # NVFP4 provides better accuracy (smaller blocks = better scale granularity)
                     return activations.to_nvfp4()
 
                 # ML workflow: quantize gradients with E4M3 scale (recommended by paper)
-                fn quantize_gradients_nvfp4(gradients: AnyTensor) raises -> AnyTensor:
+                def quantize_gradients_nvfp4(gradients: AnyTensor) raises -> AnyTensor:
                     # E4M3 achieves best results according to Dettmers et al. 2023
                     var quantized = gradients.to_nvfp4()
                     return quantized.from_nvfp4()
 
                 # Compare accuracy: NVFP4 vs MXFP4
-                fn compare_quantization_accuracy(data: AnyTensor) raises:
+                def compare_quantization_accuracy(data: AnyTensor) raises:
                     var mxfp4_quantized = data.to_mxfp4().from_mxfp4()
                     var nvfp4_quantized = data.to_nvfp4().from_nvfp4()
                     # NVFP4 typically has lower error due to smaller blocks (16 vs 32)
@@ -3031,7 +3031,7 @@ struct AnyTensor(
 
         return result^
 
-    fn from_nvfp4(self) raises -> AnyTensor:
+    def from_nvfp4(self) raises -> AnyTensor:
         """Convert NVFP4-encoded tensor (uint8 blocks) back to Float32.
 
         This method interprets a uint8 tensor as NVFP4 blocks and converts them
@@ -3112,7 +3112,7 @@ struct AnyTensor(
 
     # Reflected operators - enable reversed operand order (e.g., 2 + tensor)
     # These are called when the left operand doesn't support the operation
-    fn __radd__(self, other: AnyTensor) raises -> AnyTensor:
+    def __radd__(self, other: AnyTensor) raises -> AnyTensor:
         """Reflected addition: `other + self` (commutative, so same as __add__).
 
         Raises:
@@ -3121,7 +3121,7 @@ struct AnyTensor(
         """
         return self.__add__(other)
 
-    fn __rsub__(self, other: AnyTensor) raises -> AnyTensor:
+    def __rsub__(self, other: AnyTensor) raises -> AnyTensor:
         """Reflected subtraction: `other - self` (order matters: returns other - self).
 
         Raises:
@@ -3130,7 +3130,7 @@ struct AnyTensor(
         """
         return other - self
 
-    fn __rmul__(self, other: AnyTensor) raises -> AnyTensor:
+    def __rmul__(self, other: AnyTensor) raises -> AnyTensor:
         """Reflected multiplication: other * self (commutative, so same as __mul__).
 
         Raises:
@@ -3139,7 +3139,7 @@ struct AnyTensor(
         """
         return self.__mul__(other)
 
-    fn __rtruediv__(self, other: AnyTensor) raises -> AnyTensor:
+    def __rtruediv__(self, other: AnyTensor) raises -> AnyTensor:
         """Reflected division: other / self (order matters: returns other / self).
 
         Raises:
@@ -3149,7 +3149,7 @@ struct AnyTensor(
         return other / self
 
     # In-place operators - mutate self instead of creating new tensor
-    fn __iadd__(mut self, other: AnyTensor) raises:
+    def __iadd__(mut self, other: AnyTensor) raises:
         """In-place addition: `self += other`.
 
         Raises:
@@ -3158,7 +3158,7 @@ struct AnyTensor(
         """
         self = self + other
 
-    fn __isub__(mut self, other: AnyTensor) raises:
+    def __isub__(mut self, other: AnyTensor) raises:
         """In-place subtraction: `self -= other`.
 
         Raises:
@@ -3167,7 +3167,7 @@ struct AnyTensor(
         """
         self = self - other
 
-    fn __imul__(mut self, other: AnyTensor) raises:
+    def __imul__(mut self, other: AnyTensor) raises:
         """In-place multiplication: `self *= other`.
 
         Raises:
@@ -3176,7 +3176,7 @@ struct AnyTensor(
         """
         self = self * other
 
-    fn __itruediv__(mut self, other: AnyTensor) raises:
+    def __itruediv__(mut self, other: AnyTensor) raises:
         """In-place division: `self /= other`.
 
         Raises:
@@ -3186,7 +3186,7 @@ struct AnyTensor(
         self = self / other
 
     # Unary operators - operate on single tensor
-    fn __neg__(self) raises -> AnyTensor:
+    def __neg__(self) raises -> AnyTensor:
         """Negation: `-self`.
 
         Raises:
@@ -3195,12 +3195,12 @@ struct AnyTensor(
         """
 
         @always_inline
-        fn _neg[T: DType](x: Scalar[T]) -> Scalar[T]:
+        def _neg[T: DType](x: Scalar[T]) -> Scalar[T]:
             return -x
 
         return _anytensor_unary_op[_neg](self)
 
-    fn __pos__(self) raises -> AnyTensor:
+    def __pos__(self) raises -> AnyTensor:
         """Positive: +self (returns a copy).
 
         Raises:
@@ -3211,7 +3211,7 @@ struct AnyTensor(
         var copy = self
         return copy^
 
-    fn __abs__(self) raises -> AnyTensor:
+    def __abs__(self) raises -> AnyTensor:
         """Absolute value: abs(self).
 
         Raises:
@@ -3220,14 +3220,14 @@ struct AnyTensor(
         """
 
         @always_inline
-        fn _abs[T: DType](x: Scalar[T]) -> Scalar[T]:
+        def _abs[T: DType](x: Scalar[T]) -> Scalar[T]:
             if x < Scalar[T](0):
                 return -x
             return x
 
         return _anytensor_unary_op[_abs](self)
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return the size of the first dimension.
 
         This follows NumPy/PyTorch convention where len() returns the
@@ -3246,7 +3246,7 @@ struct AnyTensor(
             return 0
         return self._shape[0]
 
-    fn __bool__(self) raises -> Bool:
+    def __bool__(self) raises -> Bool:
         """Return the boolean value of a single-element tensor.
 
         Follows PyTorch/NumPy convention: a single-element tensor can be
@@ -3267,7 +3267,7 @@ struct AnyTensor(
         """
         return self.item() != 0.0
 
-    fn __int__(self) raises -> Int:
+    def __int__(self) raises -> Int:
         """Convert single-element tensor to Int.
 
         Returns:
@@ -3284,7 +3284,7 @@ struct AnyTensor(
         """
         return Int(self.item())
 
-    fn __float__(self) raises -> Float64:
+    def __float__(self) raises -> Float64:
         """Convert single-element tensor to Float64.
 
         Returns:
@@ -3301,7 +3301,7 @@ struct AnyTensor(
         """
         return self.item()
 
-    fn __str__(self) -> String:
+    def __str__(self) -> String:
         """Human-readable string representation with NumPy-style truncation.
 
         For tensors with more than 1000 elements, shows only the first 3 and
@@ -3391,7 +3391,7 @@ struct AnyTensor(
         result += "], dtype=" + String(self._dtype) + ")"
         return result
 
-    fn _format_element(self, flat_idx: Int) -> String:
+    def _format_element(self, flat_idx: Int) -> String:
         """Format a single element based on dtype.
 
         Handles unsigned integers natively to avoid sign corruption when
@@ -3427,7 +3427,7 @@ struct AnyTensor(
             # Float types
             return String(self._get_float64(flat_idx))
 
-    fn _format_nd_slice(
+    def _format_nd_slice(
         self, dim: Int, base_offset: Int
     ) -> String:
         """Format a slice of the N-dimensional tensor with nested brackets.
@@ -3472,7 +3472,7 @@ struct AnyTensor(
         result += "]"
         return result
 
-    fn __repr__(self) -> String:
+    def __repr__(self) -> String:
         """Detailed representation for debugging.
 
         Returns:
@@ -3508,7 +3508,7 @@ struct AnyTensor(
         result += "])"
         return result
 
-    fn __hash__[H: Hasher](self, mut hasher: H):
+    def __hash__[H: Hasher](self, mut hasher: H):
         """Compute hash based on shape, dtype, and data.
 
         AnyTensor implements the `Hashable` trait, allowing tensors to be used as
@@ -3547,7 +3547,7 @@ struct AnyTensor(
         # Hash dtype ordinal
         hasher.update(dtype_to_ordinal(self._dtype))
         # Hash data — canonicalize NaN so all NaN bit patterns hash equally
-        from math import isnan
+        from std.math import isnan
 
         for i in range(self._numel):
             var val = self._get_float64(i)
@@ -3560,7 +3560,7 @@ struct AnyTensor(
                 ]()[]
                 hasher.update(int_bits)
 
-    fn contiguous(self) raises -> AnyTensor:
+    def contiguous(self) raises -> AnyTensor:
         """Return a contiguous copy of the tensor.
 
         If the tensor is already contiguous, returns a clone.
@@ -3580,7 +3580,7 @@ struct AnyTensor(
         """
         return self.clone()
 
-    fn as_tensor[dtype: DType](self) raises -> Tensor[dtype]:
+    def as_tensor[dtype: DType](self) raises -> Tensor[dtype]:
         """Zero-copy conversion to compile-time typed Tensor[dtype].
 
         Creates a Tensor[dtype] that shares the same data buffer and refcount.
@@ -3620,7 +3620,7 @@ struct AnyTensor(
     # Utility Methods
     # ============================================================================
 
-    fn clone(self) raises -> AnyTensor:
+    def clone(self) raises -> AnyTensor:
         """Create a clone of the tensor.
 
         Creates a new tensor with the same shape, dtype, and values but with
@@ -3647,7 +3647,7 @@ struct AnyTensor(
         # Iterate through all elements using multi-dimensional indexing
         # to correctly handle non-contiguous source tensors with stride-aware access
         var nd_idx = List[Int]()
-        for i in range(len(self._shape)):
+        for _ in range(len(self._shape)):
             nd_idx.append(0)
 
         var dtype_size = self._get_dtype_size()
@@ -3717,7 +3717,7 @@ struct AnyTensor(
 
         return result^
 
-    fn item(self) raises -> Float64:
+    def item(self) raises -> Float64:
         """Extract the value from a single-element tensor.
 
         Returns:
@@ -3740,7 +3740,7 @@ struct AnyTensor(
             )
         return self._get_float64(0)
 
-    fn tolist(self) raises -> List[Float64]:
+    def tolist(self) raises -> List[Float64]:
         """Convert tensor to a flat list of Float64 values.
 
         Returns:
@@ -3757,7 +3757,7 @@ struct AnyTensor(
             result.append(self._get_float64(i))
         return result^
 
-    fn diff(self, n: Int = 1) raises -> AnyTensor:
+    def diff(self, n: Int = 1) raises -> AnyTensor:
         """Calculate consecutive differences.
 
         Computes the n-th order discrete difference along the first axis.
@@ -3802,7 +3802,7 @@ struct AnyTensor(
 
         return current^
 
-    fn save(self, path: String, name: String = "") raises:
+    def save(self, path: String, name: String = "") raises:
         """Save tensor to file in hex-encoded binary format.
 
         Persists tensor with metadata (dtype, shape) and hex-encoded byte data.
@@ -3826,7 +3826,7 @@ struct AnyTensor(
         save_tensor(self, path, name)
 
     @staticmethod
-    fn load(path: String) raises -> AnyTensor:
+    def load(path: String) raises -> AnyTensor:
         """Load tensor from file.
 
         Reads hex-encoded tensor data and metadata, reconstructs
@@ -3850,7 +3850,7 @@ struct AnyTensor(
 
         return load_tensor(path)
 
-    fn split(self, num_splits: Int, axis: Int = 0) raises -> List[AnyTensor]:
+    def split(self, num_splits: Int, axis: Int = 0) raises -> List[AnyTensor]:
         """Split tensor into equal-sized parts along an axis.
 
         Method wrapper for the module-level `split()` function, providing
@@ -3898,7 +3898,7 @@ struct AnyTensor(
             parts.append(part^)
         return parts^
 
-    fn split_with_indices(
+    def split_with_indices(
         self, split_indices: List[Int], axis: Int = 0
     ) raises -> List[AnyTensor]:
         """Split tensor at specified indices along an axis.
@@ -3953,7 +3953,7 @@ struct AnyTensor(
             parts.append(part^)
         return parts^
 
-    fn broadcast_to(self, target_shape: List[Int]) raises -> AnyTensor:
+    def broadcast_to(self, target_shape: List[Int]) raises -> AnyTensor:
         """Broadcast tensor to target shape.
 
         Provides convenient object syntax: `tensor.broadcast_to([4, 3])`.
@@ -4006,8 +4006,8 @@ struct AnyTensor(
 # See Issue #4513.
 
 
-fn _anytensor_binary_op[
-    op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+def _anytensor_binary_op[
+    op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Apply a compile-time-typed binary arithmetic op with broadcasting."""
     if a._dtype != b._dtype:
@@ -4025,7 +4025,7 @@ fn _anytensor_binary_op[
     var ordinal = dtype_to_ordinal(a._dtype)
 
     @parameter
-    fn _apply[dtype: DType]():
+    def _apply[dtype: DType]():
         var a_ptr = a._data.bitcast[Scalar[dtype]]()
         var b_ptr = b._data.bitcast[Scalar[dtype]]()
         var r_ptr = result._data.bitcast[Scalar[dtype]]()
@@ -4074,8 +4074,8 @@ fn _anytensor_binary_op[
     return result^
 
 
-fn _anytensor_unary_op[
-    op: fn[T: DType] (Scalar[T]) -> Scalar[T]
+def _anytensor_unary_op[
+    op: def[T: DType] (Scalar[T]) -> Scalar[T]
 ](tensor: AnyTensor) raises -> AnyTensor:
     """Apply a compile-time-typed unary op element-wise."""
     var shape = tensor.shape()
@@ -4083,7 +4083,7 @@ fn _anytensor_unary_op[
     var ordinal = dtype_to_ordinal(tensor._dtype)
 
     @parameter
-    fn _apply[dtype: DType]():
+    def _apply[dtype: DType]():
         var src_ptr = tensor._data.bitcast[Scalar[dtype]]()
         var dst_ptr = result._data.bitcast[Scalar[dtype]]()
         for i in range(tensor._numel):
@@ -4115,8 +4115,8 @@ fn _anytensor_unary_op[
     return result^
 
 
-fn _anytensor_compare_op[
-    op: fn[T: DType] (Scalar[T], Scalar[T]) -> Bool
+def _anytensor_compare_op[
+    op: def[T: DType] (Scalar[T], Scalar[T]) -> Bool
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Apply a compile-time-typed binary comparison op with broadcasting."""
     if a._dtype != b._dtype:
@@ -4134,7 +4134,7 @@ fn _anytensor_compare_op[
     var ordinal = dtype_to_ordinal(a._dtype)
 
     @parameter
-    fn _apply[dtype: DType]():
+    def _apply[dtype: DType]():
         var a_ptr = a._data.bitcast[Scalar[dtype]]()
         var b_ptr = b._data.bitcast[Scalar[dtype]]()
         var r_ptr = result._data.bitcast[Scalar[DType.bool]]()
@@ -4183,7 +4183,7 @@ fn _anytensor_compare_op[
     return result^
 
 
-fn _anytensor_matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def _anytensor_matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Basic matrix multiplication (2D x 2D) for AnyTensor.__matmul__.
 
     Note: For full matmul with batching and contiguity handling, use
@@ -4211,7 +4211,7 @@ fn _anytensor_matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         var ordinal = dtype_to_ordinal(a._dtype)
 
         @parameter
-        fn _mm[dtype: DType]():
+        def _mm[dtype: DType]():
             var a_ptr = a._data.bitcast[Scalar[dtype]]()
             var b_ptr = b._data.bitcast[Scalar[dtype]]()
             var r_ptr = result._data.bitcast[Scalar[dtype]]()

@@ -20,7 +20,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_concat_contiguous_axis0() raises:
+def test_concat_contiguous_axis0() raises:
     """Baseline: concatenating contiguous tensors along axis=0 still works.
 
     Creates two 2x3 float32 tensors filled with 0.5 and 1.0 respectively,
@@ -56,7 +56,7 @@ fn test_concat_contiguous_axis0() raises:
         assert_value_at(result, 6 + i, 1.0, 1e-6, "Second half should be 1.0")
 
 
-fn test_concat_noncontiguous_axis0() raises:
+def test_concat_noncontiguous_axis0() raises:
     """Regression: concatenating a non-contiguous tensor along axis=0.
 
     Creates a 2x3 float32 tensor with values [0.0, 0.5, 1.0, -0.5, -1.0, 1.5],
@@ -118,7 +118,7 @@ fn test_concat_noncontiguous_axis0() raises:
         assert_value_at(result, 6 + i, 0.0, 1e-6, "Pad half should be 0.0")
 
 
-fn test_concat_incompatible_shapes_raises() raises:
+def test_concat_incompatible_shapes_raises() raises:
     """Error path: concatenating tensors with incompatible shapes raises Error."""
     var shape_a = List[Int]()
     shape_a.append(2)
@@ -143,7 +143,7 @@ fn test_concat_incompatible_shapes_raises() raises:
     assert_true(raised, "Should raise Error for incompatible shapes")
 
 
-fn main() raises:
+def main() raises:
     """Run all concatenate non-contiguous regression tests."""
     print("Running concatenate non-contiguous regression tests...")
 

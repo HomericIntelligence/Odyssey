@@ -4,7 +4,7 @@ from model import GoogLeNet
 from shared.tensor.any_tensor import AnyTensor, zeros
 
 
-fn main() raises:
+def main() raises:
     print("Testing GoogLeNet (Inception-v1) Model")
     print("=" * 60)
 

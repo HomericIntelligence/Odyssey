@@ -26,16 +26,16 @@ from shared.testing.special_values import create_seeded_random_tensor
 from shared.testing.assertions import assert_true
 
 
-fn test_relu_gradient_positive_values() raises:
+def test_relu_gradient_positive_values() raises:
     """Test ReLU gradient with positive inputs (gradient should be 1)."""
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=42, low=0.1, high=2.0
     )
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return relu(inp)
 
-    fn backward_fn(
+    def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
     ) raises escaping -> AnyTensor:
         return relu_backward(grad_out, inp)
@@ -46,16 +46,16 @@ fn test_relu_gradient_positive_values() raises:
     assert_true(passed, "ReLU gradient check failed for positive values")
 
 
-fn test_relu_gradient_negative_values() raises:
+def test_relu_gradient_negative_values() raises:
     """Test ReLU gradient with negative inputs (gradient should be 0)."""
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=123, low=-2.0, high=-0.1
     )
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return relu(inp)
 
-    fn backward_fn(
+    def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
     ) raises escaping -> AnyTensor:
         return relu_backward(grad_out, inp)
@@ -66,16 +66,16 @@ fn test_relu_gradient_negative_values() raises:
     assert_true(passed, "ReLU gradient check failed for negative values")
 
 
-fn test_relu_gradient_mixed_values() raises:
+def test_relu_gradient_mixed_values() raises:
     """Test ReLU gradient with mixed positive/negative inputs."""
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=999, low=-1.0, high=1.0
     )
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return relu(inp)
 
-    fn backward_fn(
+    def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
     ) raises escaping -> AnyTensor:
         return relu_backward(grad_out, inp)
@@ -86,7 +86,7 @@ fn test_relu_gradient_mixed_values() raises:
     assert_true(passed, "ReLU gradient check failed for mixed values")
 
 
-fn test_relu_gradient_near_zero() raises:
+def test_relu_gradient_near_zero() raises:
     """Test ReLU gradient near zero (boundary region).
 
     Note: ReLU is not differentiable exactly at x=0 (corner point).
@@ -97,10 +97,10 @@ fn test_relu_gradient_near_zero() raises:
         [2, 3], DType.float32, seed=555, low=-0.01, high=0.01
     )
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return relu(inp)
 
-    fn backward_fn(
+    def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
     ) raises escaping -> AnyTensor:
         return relu_backward(grad_out, inp)
@@ -111,7 +111,7 @@ fn test_relu_gradient_near_zero() raises:
     assert_true(passed, "ReLU gradient check failed near zero")
 
 
-fn test_relu_gradient_large_values() raises:
+def test_relu_gradient_large_values() raises:
     """Test ReLU gradient with moderately large positive values.
 
     Gradient should still be 1.0 (ReLU is linear for x > 0).
@@ -122,10 +122,10 @@ fn test_relu_gradient_large_values() raises:
         [2, 3], DType.float32, seed=42, low=10.0, high=20.0
     )
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return relu(inp)
 
-    fn backward_fn(
+    def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
     ) raises escaping -> AnyTensor:
         return relu_backward(grad_out, inp)
@@ -137,7 +137,7 @@ fn test_relu_gradient_large_values() raises:
     assert_true(passed, "ReLU gradient check failed for large values")
 
 
-fn test_sigmoid_gradient_normal_range() raises:
+def test_sigmoid_gradient_normal_range() raises:
     """Test Sigmoid gradient in normal range (-2 to 2).
 
     Note: sigmoid_backward takes output (sigmoid(x)), not input x.
@@ -146,10 +146,10 @@ fn test_sigmoid_gradient_normal_range() raises:
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return sigmoid(inp)
 
-    fn backward_fn(
+    def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
     ) raises escaping -> AnyTensor:
         var output = sigmoid(inp)  # Compute sigmoid(x) first
@@ -161,7 +161,7 @@ fn test_sigmoid_gradient_normal_range() raises:
     assert_true(passed, "Sigmoid gradient check failed")
 
 
-fn test_sigmoid_gradient_saturation_positive() raises:
+def test_sigmoid_gradient_saturation_positive() raises:
     """Test sigmoid gradient in saturation region (x >> 0).
 
     At x = 10.0, sigmoid(x) ≈ 1.0, gradient ≈ 0.0.
@@ -172,10 +172,10 @@ fn test_sigmoid_gradient_saturation_positive() raises:
     shape.append(3)
     var x = full(shape, 10.0, DType.float32)
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return sigmoid(inp)
 
-    fn backward_fn(
+    def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
     ) raises escaping -> AnyTensor:
         var output = sigmoid(inp)  # Compute sigmoid(x) first
@@ -188,7 +188,7 @@ fn test_sigmoid_gradient_saturation_positive() raises:
     assert_true(passed, "Sigmoid gradient check failed in positive saturation")
 
 
-fn test_sigmoid_gradient_saturation_negative() raises:
+def test_sigmoid_gradient_saturation_negative() raises:
     """Test sigmoid gradient in saturation region (x << 0).
 
     At x = -10.0, sigmoid(x) ≈ 0.0, gradient ≈ 0.0.
@@ -199,10 +199,10 @@ fn test_sigmoid_gradient_saturation_negative() raises:
     shape.append(3)
     var x = full(shape, -10.0, DType.float32)
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return sigmoid(inp)
 
-    fn backward_fn(
+    def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
     ) raises escaping -> AnyTensor:
         var output = sigmoid(inp)  # Compute sigmoid(x) first
@@ -215,7 +215,7 @@ fn test_sigmoid_gradient_saturation_negative() raises:
     assert_true(passed, "Sigmoid gradient check failed in negative saturation")
 
 
-fn main() raises:
+def main() raises:
     """Run ReLU and Sigmoid gradient validation tests."""
     print("Running ReLU Gradient Validation Tests...")
 

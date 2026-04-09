@@ -4,8 +4,8 @@ This module provides pure functional implementations of pooling operations.
 All operations are stateless - caller provides all inputs.
 """
 
-from algorithm import parallelize
-from collections import List
+from std.algorithm import parallelize
+from std.collections import List
 
 from shared.tensor.any_tensor import AnyTensor, zeros
 from .shape import pool_output_shape
@@ -14,7 +14,7 @@ from .parallel_utils import should_parallelize
 # max and min are now builtins in Mojo - no import needed
 
 
-fn maxpool2d(
+def maxpool2d(
     x: AnyTensor,
     kernel_size: Int,
     stride: Int = 0,  # 0 means use kernel_size
@@ -117,7 +117,7 @@ fn maxpool2d(
     if should_parallelize(batch):
         # Parallel maxpool over batch dimension
         @parameter
-        fn maxpool_batch(b: Int) capturing:
+        def maxpool_batch(b: Int) capturing:
             for c in range(channels):
                 for oh in range(out_height):
                     for ow in range(out_width):
@@ -215,7 +215,7 @@ fn maxpool2d(
     return output^
 
 
-fn _maxpool2d_optimized(
+def _maxpool2d_optimized(
     x: AnyTensor,
     mut output: AnyTensor,
     batch: Int,
@@ -292,7 +292,7 @@ fn _maxpool2d_optimized(
                     output._set_float64(out_idx, max_val)
 
 
-fn avgpool2d(
+def avgpool2d(
     x: AnyTensor,
     kernel_size: Int,
     stride: Int = 0,  # 0 means use kernel_size
@@ -413,7 +413,7 @@ fn avgpool2d(
     return output^
 
 
-fn global_avgpool2d(x: AnyTensor, method: String = "direct") raises -> AnyTensor:
+def global_avgpool2d(x: AnyTensor, method: String = "direct") raises -> AnyTensor:
     """Functional global average pooling with selectable implementation.
 
         Pure function that reduces spatial dimensions (H, W) to (1, 1) by
@@ -492,7 +492,7 @@ fn global_avgpool2d(x: AnyTensor, method: String = "direct") raises -> AnyTensor
     return output^
 
 
-fn maxpool2d_backward(
+def maxpool2d_backward(
     grad_output: AnyTensor,
     x: AnyTensor,
     kernel_size: Int,
@@ -624,7 +624,7 @@ fn maxpool2d_backward(
     return grad_input^
 
 
-fn avgpool2d_backward(
+def avgpool2d_backward(
     grad_output: AnyTensor,
     x: AnyTensor,
     kernel_size: Int,
@@ -753,7 +753,7 @@ fn avgpool2d_backward(
     return grad_input^
 
 
-fn global_avgpool2d_backward(
+def global_avgpool2d_backward(
     grad_output: AnyTensor, x: AnyTensor, method: String = "direct"
 ) raises -> AnyTensor:
     """Backward pass for global average pooling.

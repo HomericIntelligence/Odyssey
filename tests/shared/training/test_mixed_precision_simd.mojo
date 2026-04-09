@@ -12,7 +12,7 @@ from shared.training.mixed_precision import (
 from testing import assert_equal, assert_true
 
 
-fn test_convert_fp16_to_fp32_small() raises:
+def test_convert_fp16_to_fp32_small() raises:
     """Test FP16→FP32 conversion with small tensor."""
     print("Testing FP16→FP32 conversion (small)...")
 
@@ -44,7 +44,7 @@ fn test_convert_fp16_to_fp32_small() raises:
     print("✓ FP16→FP32 conversion (small) test passed")
 
 
-fn test_convert_fp16_to_fp32_medium() raises:
+def test_convert_fp16_to_fp32_medium() raises:
     """Test FP16→FP32 conversion with medium tensor."""
     print("Testing FP16→FP32 conversion (medium)...")
 
@@ -82,7 +82,7 @@ fn test_convert_fp16_to_fp32_medium() raises:
     print("✓ FP16→FP32 conversion (medium) test passed")
 
 
-fn test_convert_fp16_to_fp32_large() raises:
+def test_convert_fp16_to_fp32_large() raises:
     """Test FP16→FP32 conversion with large tensor."""
     print("Testing FP16→FP32 conversion (large)...")
 
@@ -110,7 +110,7 @@ fn test_convert_fp16_to_fp32_large() raises:
     print("✓ FP16→FP32 conversion (large) test passed")
 
 
-fn test_convert_fp32_to_fp16_small() raises:
+def test_convert_fp32_to_fp16_small() raises:
     """Test FP32→FP16 conversion with small tensor."""
     print("Testing FP32→FP16 conversion (small)...")
 
@@ -141,7 +141,7 @@ fn test_convert_fp32_to_fp16_small() raises:
     print("✓ FP32→FP16 conversion (small) test passed")
 
 
-fn test_convert_fp32_to_fp16_medium() raises:
+def test_convert_fp32_to_fp16_medium() raises:
     """Test FP32→FP16 conversion with medium tensor."""
     print("Testing FP32→FP16 conversion (medium)...")
 
@@ -182,7 +182,7 @@ fn test_convert_fp32_to_fp16_medium() raises:
     print("✓ FP32→FP16 conversion (medium) test passed")
 
 
-fn test_convert_fp32_to_fp16_large() raises:
+def test_convert_fp32_to_fp16_large() raises:
     """Test FP32→FP16 conversion with large tensor."""
     print("Testing FP32→FP16 conversion (large)...")
 
@@ -213,7 +213,7 @@ fn test_convert_fp32_to_fp16_large() raises:
     print("✓ FP32→FP16 conversion (large) test passed")
 
 
-fn test_roundtrip_fp16_fp32_fp16() raises:
+def test_roundtrip_fp16_fp32_fp16() raises:
     """Test roundtrip conversion FP16→FP32→FP16."""
     print("Testing roundtrip FP16→FP32→FP16...")
 
@@ -244,7 +244,7 @@ fn test_roundtrip_fp16_fp32_fp16() raises:
     print("✓ Roundtrip FP16→FP32→FP16 test passed")
 
 
-fn test_convert_fp32_to_fp32() raises:
+def test_convert_fp32_to_fp32() raises:
     """Test that FP32→FP32 conversion still works (SIMD path)."""
     print("Testing FP32→FP32 conversion (SIMD path)...")
 
@@ -274,7 +274,7 @@ fn test_convert_fp32_to_fp32() raises:
     print("✓ FP32→FP32 conversion (SIMD path) test passed")
 
 
-fn test_non_power_of_2_sizes() raises:
+def test_non_power_of_2_sizes() raises:
     """Test conversions with non-power-of-2 tensor sizes."""
     print("Testing non-power-of-2 tensor sizes...")
 
@@ -322,7 +322,7 @@ fn test_non_power_of_2_sizes() raises:
     print("✓ Non-power-of-2 tensor sizes test passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all SIMD mixed precision tests."""
     print("\n=== SIMD Mixed Precision Tests ===\n")
 

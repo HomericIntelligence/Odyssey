@@ -18,7 +18,7 @@ struct StubData:
 
     var value: Float32
 
-    fn __init__(out self, value: Float32):
+    def __init__(out self, value: Float32):
         self.value = value
 
 
@@ -27,21 +27,21 @@ struct StubPipeline:
 
     var num_transforms: Int
 
-    fn __init__(out self, num_transforms: Int):
+    def __init__(out self, num_transforms: Int):
         self.num_transforms = num_transforms
 
-    fn apply(self, data: StubData) -> StubData:
+    def apply(self, data: StubData) -> StubData:
         """Apply all transforms sequentially."""
         # Stub implementation: add 10 for each transform
         var result = data.value + Float32(self.num_transforms * 10)
         return StubData(result)
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return number of transforms in pipeline."""
         return self.num_transforms
 
 
-fn test_pipeline_creation() raises:
+def test_pipeline_creation() raises:
     """Test creating Pipeline from list of transforms.
 
     Should accept list of transform objects and apply them sequentially
@@ -51,7 +51,7 @@ fn test_pipeline_creation() raises:
     assert_equal(pipeline.__len__(), 2)
 
 
-fn test_pipeline_empty() raises:
+def test_pipeline_empty() raises:
     """Test creating empty Pipeline.
 
     Empty pipeline should be valid and return data unchanged,
@@ -63,7 +63,7 @@ fn test_pipeline_empty() raises:
     assert_equal(result.value, data.value)
 
 
-fn test_pipeline_single_transform() raises:
+def test_pipeline_single_transform() raises:
     """Test Pipeline with single transform.
 
     Should work correctly even with just one transform,
@@ -76,7 +76,7 @@ fn test_pipeline_single_transform() raises:
     assert_equal(result.value, Float32(15.0))  # 5.0 + 1*10
 
 
-fn test_pipeline_sequential_application() raises:
+def test_pipeline_sequential_application() raises:
     """Test that transforms are applied in order.
 
     Transform order matters: Transform(+10)→Transform(+5) should produce
@@ -93,7 +93,7 @@ fn test_pipeline_sequential_application() raises:
     assert_equal(result.value, Float32(20.0))
 
 
-fn test_pipeline_output_feeds_next() raises:
+def test_pipeline_output_feeds_next() raises:
     """Test that each transform receives output of previous.
 
     Output value from transform N should be input to transform N+1,
@@ -109,7 +109,7 @@ fn test_pipeline_output_feeds_next() raises:
     assert_equal(result.value, Float32(32.0))
 
 
-fn test_pipeline_preserves_intermediate_values() raises:
+def test_pipeline_preserves_intermediate_values() raises:
     """Test that pipeline doesn't modify original data.
 
     Original input data should remain unchanged after pipeline application.
@@ -128,7 +128,7 @@ fn test_pipeline_preserves_intermediate_values() raises:
     assert_equal(result.value, Float32(110.0))
 
 
-fn test_pipeline_multiple_calls() raises:
+def test_pipeline_multiple_calls() raises:
     """Test that Pipeline can be called multiple times.
 
     Should be stateless and produce same output for same input,
@@ -143,7 +143,7 @@ fn test_pipeline_multiple_calls() raises:
     assert_equal(result1.value, result2.value)
 
 
-fn test_pipeline_composition():
+def test_pipeline_composition():
     """Test composing pipelines together.
 
     Should support Pipeline(pipeline1 + pipeline2) to create
@@ -161,7 +161,7 @@ fn test_pipeline_composition():
     pass
 
 
-fn test_pipeline_append():
+def test_pipeline_append():
     """Test appending transforms to existing pipeline.
 
     Should support adding transforms after pipeline creation
@@ -177,7 +177,7 @@ fn test_pipeline_append():
     pass
 
 
-fn test_pipeline_transform_error_propagation():
+def test_pipeline_transform_error_propagation():
     """Test that errors in transforms are properly propagated.
 
     If a transform raises error, pipeline should propagate it
@@ -199,7 +199,7 @@ fn test_pipeline_transform_error_propagation():
     pass
 
 
-fn test_pipeline_shape_mismatch():
+def test_pipeline_shape_mismatch():
     """Test handling of shape mismatches between transforms.
 
     If transform N outputs shape incompatible with transform N+1,
@@ -220,7 +220,7 @@ fn test_pipeline_shape_mismatch():
     pass
 
 
-fn test_pipeline_str_representation():
+def test_pipeline_str_representation():
     """Test string representation of Pipeline.
 
     Should show list of transforms for debugging,
@@ -235,7 +235,7 @@ fn test_pipeline_str_representation():
     pass
 
 
-fn test_pipeline_len():
+def test_pipeline_len():
     """Test getting number of transforms in pipeline.
 
     len(pipeline) should return number of transforms,
@@ -246,7 +246,7 @@ fn test_pipeline_len():
     pass
 
 
-fn main() raises:
+def main() raises:
     """Run all test_pipeline tests."""
     print("Running test_pipeline tests...")
 

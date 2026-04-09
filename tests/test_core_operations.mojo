@@ -41,7 +41,7 @@ from shared.training.metrics import (
 from shared.training.metrics.base import MetricResult
 
 
-fn test_initializers_with_activations() raises:
+def test_initializers_with_activations() raises:
     """Test that initializers work correctly with activation functions."""
     print("Testing initializers with activations...")
 
@@ -79,7 +79,7 @@ fn test_initializers_with_activations() raises:
     print("  ✓ Initializers work correctly with activations")
 
 
-fn test_forward_pass_with_metrics() raises:
+def test_forward_pass_with_metrics() raises:
     """Test forward pass using initialized weights and metric computation."""
     print("Testing forward pass with metrics...")
 
@@ -127,7 +127,7 @@ fn test_forward_pass_with_metrics() raises:
     print("  ✓ Forward pass with metrics works")
 
 
-fn test_training_loop_simulation() raises:
+def test_training_loop_simulation() raises:
     """Simulate a complete training loop with all core operations."""
     print("Testing training loop simulation...")
 
@@ -222,7 +222,7 @@ fn test_training_loop_simulation() raises:
     print("  ✓ Training loop simulation works")
 
 
-fn test_dtype_consistency_across_components() raises:
+def test_dtype_consistency_across_components() raises:
     """Test that all components handle multiple dtypes consistently."""
     print("Testing dtype consistency across components...")
 
@@ -245,7 +245,7 @@ fn test_dtype_consistency_across_components() raises:
     print("  ✓ All components handle dtypes consistently")
 
 
-fn test_seed_reproducibility_across_components() raises:
+def test_seed_reproducibility_across_components() raises:
     """Test that seeding works consistently across all components."""
     print("Testing seed reproducibility across components...")
 
@@ -285,7 +285,7 @@ fn test_seed_reproducibility_across_components() raises:
     print("  ✓ Seeding works consistently across components")
 
 
-fn test_batch_processing_pipeline() raises:
+def test_batch_processing_pipeline() raises:
     """Test processing multiple batches through the full pipeline."""
     print("Testing batch processing pipeline...")
 
@@ -350,7 +350,7 @@ fn test_batch_processing_pipeline() raises:
     print("  ✓ Batch processing pipeline works")
 
 
-fn test_multi_layer_network_integration() raises:
+def test_multi_layer_network_integration() raises:
     """Test multi-layer network with all components integrated."""
     print("Testing multi-layer network integration...")
 
@@ -411,7 +411,7 @@ fn test_multi_layer_network_integration() raises:
     print("  ✓ Multi-layer network integration works")
 
 
-fn test_error_handling_across_components() raises:
+def test_error_handling_across_components() raises:
     """Test that components handle errors gracefully."""
     print("Testing error handling across components...")
 
@@ -434,7 +434,7 @@ fn test_error_handling_across_components() raises:
     print("  ✓ Components handle errors gracefully")
 
 
-fn main() raises:
+def main() raises:
     """Run all core operations coordination tests."""
     print("\n" + "=" * 70)
     print("CORE OPERATIONS COORDINATION TEST SUITE")

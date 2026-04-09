@@ -44,10 +44,10 @@ from shared.testing.special_values import (
     SPECIAL_VALUE_NEG_ONE,
 )
 from shared.testing.layer_testers import LayerTester
-from math import isnan, isinf
+from std.math import isnan, isinf
 
 
-fn create_conv1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
+def create_conv1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv1 layer parameters (3→64, 11x11 kernel)."""
     var in_channels = 3
     var out_channels = 64
@@ -70,7 +70,7 @@ fn create_conv1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     return kernel, bias
 
 
-fn create_conv2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
+def create_conv2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv2 layer parameters (64→192, 5x5 kernel)."""
     var in_channels = 64
     var out_channels = 192
@@ -93,7 +93,7 @@ fn create_conv2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     return kernel, bias
 
 
-fn create_conv3_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
+def create_conv3_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv3 layer parameters (192→384, 3x3 kernel)."""
     var in_channels = 192
     var out_channels = 384
@@ -116,7 +116,7 @@ fn create_conv3_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     return kernel, bias
 
 
-fn create_conv4_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
+def create_conv4_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv4 layer parameters (384→384, 3x3 kernel)."""
     var in_channels = 384
     var out_channels = 384
@@ -139,7 +139,7 @@ fn create_conv4_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     return kernel, bias
 
 
-fn create_conv5_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
+def create_conv5_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv5 layer parameters (384→256, 3x3 kernel)."""
     var in_channels = 384
     var out_channels = 256
@@ -162,7 +162,7 @@ fn create_conv5_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     return kernel, bias
 
 
-fn create_fc1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
+def create_fc1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create FC1 layer parameters (9216→4096)."""
     var in_features = 9216  # 256 * 6 * 6
     var out_features = 4096
@@ -179,7 +179,7 @@ fn create_fc1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     return weights, bias
 
 
-fn create_fc2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
+def create_fc2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create FC2 layer parameters (4096→4096)."""
     var in_features = 4096
     var out_features = 4096
@@ -196,7 +196,7 @@ fn create_fc2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     return weights, bias
 
 
-fn create_fc3_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
+def create_fc3_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create FC3 layer parameters (4096→1000)."""
     var in_features = 4096
     var out_features = 1000
@@ -213,7 +213,7 @@ fn create_fc3_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     return weights, bias
 
 
-fn test_conv1_forward_float32() raises:
+def test_conv1_forward_float32() raises:
     """Test Conv1 forward pass (3→64 channels, 11x11 kernel) with float32."""
     var dtype = DType.float32
     var _result = create_conv1_parameters(dtype)
@@ -236,7 +236,7 @@ fn test_conv1_forward_float32() raises:
     )
 
 
-fn test_conv1_forward_float16() raises:
+def test_conv1_forward_float16() raises:
     """Test Conv1 forward pass with float16."""
     var dtype = DType.float16
     var _result = create_conv1_parameters(dtype)
@@ -259,7 +259,7 @@ fn test_conv1_forward_float16() raises:
     )
 
 
-fn test_conv1_backward_float32() raises:
+def test_conv1_backward_float32() raises:
     """Test Conv1 backward pass with gradient checking (small tensor: 8x8)."""
     var dtype = DType.float32
     var _result = create_conv1_parameters(dtype)
@@ -282,7 +282,7 @@ fn test_conv1_backward_float32() raises:
     )
 
 
-fn test_conv2_forward_float32() raises:
+def test_conv2_forward_float32() raises:
     """Test Conv2 forward pass (64→192 channels, 5x5 kernel) with float32."""
     var dtype = DType.float32
     var _result = create_conv2_parameters(dtype)
@@ -306,7 +306,7 @@ fn test_conv2_forward_float32() raises:
     )
 
 
-fn test_conv2_forward_float16() raises:
+def test_conv2_forward_float16() raises:
     """Test Conv2 forward pass with float16."""
     var dtype = DType.float16
     var _result = create_conv2_parameters(dtype)
@@ -329,7 +329,7 @@ fn test_conv2_forward_float16() raises:
     )
 
 
-fn test_conv2_backward_float32() raises:
+def test_conv2_backward_float32() raises:
     """Test Conv2 backward pass with sampled gradient checking.
 
     Uses sampled gradient checking (100 samples) instead of exhaustive checking
@@ -359,7 +359,7 @@ fn test_conv2_backward_float32() raises:
     )
 
 
-fn test_conv3_forward_float32() raises:
+def test_conv3_forward_float32() raises:
     """Test Conv3 forward pass (192→384 channels, 3x3 kernel) with float32."""
     var dtype = DType.float32
     var _result = create_conv3_parameters(dtype)
@@ -382,7 +382,7 @@ fn test_conv3_forward_float32() raises:
     )
 
 
-fn test_conv3_forward_float16() raises:
+def test_conv3_forward_float16() raises:
     """Test Conv3 forward pass with float16."""
     var dtype = DType.float16
     var _result = create_conv3_parameters(dtype)
@@ -405,7 +405,7 @@ fn test_conv3_forward_float16() raises:
     )
 
 
-fn test_conv3_backward_float32() raises:
+def test_conv3_backward_float32() raises:
     """Test Conv3 backward pass with sampled gradient checking.
 
     Uses sampled gradient checking (100 samples) to avoid timeout.
@@ -434,7 +434,7 @@ fn test_conv3_backward_float32() raises:
     )
 
 
-fn test_conv4_forward_float32() raises:
+def test_conv4_forward_float32() raises:
     """Test Conv4 forward pass (384→384 channels, 3x3 kernel) with float32."""
     var dtype = DType.float32
     var _result = create_conv4_parameters(dtype)
@@ -457,7 +457,7 @@ fn test_conv4_forward_float32() raises:
     )
 
 
-fn test_conv4_backward_float32() raises:
+def test_conv4_backward_float32() raises:
     """Test Conv4 backward pass with sampled gradient checking.
 
     Uses sampled gradient checking (100 samples) to avoid timeout.
@@ -486,7 +486,7 @@ fn test_conv4_backward_float32() raises:
     )
 
 
-fn test_conv5_forward_float32() raises:
+def test_conv5_forward_float32() raises:
     """Test Conv5 forward pass (384→256 channels, 3x3 kernel) with float32."""
     var dtype = DType.float32
     var _result = create_conv5_parameters(dtype)
@@ -509,7 +509,7 @@ fn test_conv5_forward_float32() raises:
     )
 
 
-fn test_conv5_backward_float32() raises:
+def test_conv5_backward_float32() raises:
     """Test Conv5 backward pass with sampled gradient checking.
 
     Uses sampled gradient checking (100 samples) to avoid timeout.
@@ -538,7 +538,7 @@ fn test_conv5_backward_float32() raises:
     )
 
 
-fn test_relu_forward_float32() raises:
+def test_relu_forward_float32() raises:
     """Test ReLU activation forward pass with float32."""
     var dtype = DType.float32
     var shape: List[Int] = [2, 256, 8, 8]
@@ -546,7 +546,7 @@ fn test_relu_forward_float32() raises:
     LayerTester.test_activation_layer(shape, dtype, activation="relu")
 
 
-fn test_relu_forward_float16() raises:
+def test_relu_forward_float16() raises:
     """Test ReLU activation forward pass with float16."""
     var dtype = DType.float16
     var shape: List[Int] = [2, 256, 8, 8]
@@ -554,7 +554,7 @@ fn test_relu_forward_float16() raises:
     LayerTester.test_activation_layer(shape, dtype, activation="relu")
 
 
-fn test_relu_backward_float32() raises:
+def test_relu_backward_float32() raises:
     """Test ReLU backward pass with gradient checking."""
     var dtype = DType.float32
     var shape: List[Int] = [2, 256, 4, 4]
@@ -562,7 +562,7 @@ fn test_relu_backward_float32() raises:
     LayerTester.test_activation_layer_backward(shape, dtype, activation="relu")
 
 
-fn test_maxpool1_forward_float32() raises:
+def test_maxpool1_forward_float32() raises:
     """Test MaxPool1 (3x3, stride 2) forward pass with float32."""
     var dtype = DType.float32
 
@@ -578,7 +578,7 @@ fn test_maxpool1_forward_float32() raises:
     )
 
 
-fn test_maxpool1_forward_float16() raises:
+def test_maxpool1_forward_float16() raises:
     """Test MaxPool1 forward pass with float16."""
     var dtype = DType.float16
 
@@ -594,7 +594,7 @@ fn test_maxpool1_forward_float16() raises:
     )
 
 
-fn test_maxpool2_forward_float32() raises:
+def test_maxpool2_forward_float32() raises:
     """Test MaxPool2 (3x3, stride 2) forward pass with float32."""
     var dtype = DType.float32
 
@@ -610,7 +610,7 @@ fn test_maxpool2_forward_float32() raises:
     )
 
 
-fn test_maxpool2_forward_float16() raises:
+def test_maxpool2_forward_float16() raises:
     """Test MaxPool2 forward pass with float16."""
     var dtype = DType.float16
 
@@ -626,7 +626,7 @@ fn test_maxpool2_forward_float16() raises:
     )
 
 
-fn test_maxpool3_forward_float32() raises:
+def test_maxpool3_forward_float32() raises:
     """Test MaxPool3 (3x3, stride 2) forward pass with float32."""
     var dtype = DType.float32
 
@@ -642,7 +642,7 @@ fn test_maxpool3_forward_float32() raises:
     )
 
 
-fn test_maxpool3_forward_float16() raises:
+def test_maxpool3_forward_float16() raises:
     """Test MaxPool3 forward pass with float16."""
     var dtype = DType.float16
 
@@ -658,7 +658,7 @@ fn test_maxpool3_forward_float16() raises:
     )
 
 
-fn test_fc1_forward_float32() raises:
+def test_fc1_forward_float32() raises:
     """Test FC1 (9216→4096) forward pass with float32."""
     var dtype = DType.float32
     var _result = create_fc1_parameters(dtype)
@@ -676,7 +676,7 @@ fn test_fc1_forward_float32() raises:
     )
 
 
-fn test_fc1_forward_float16() raises:
+def test_fc1_forward_float16() raises:
     """Test FC1 forward pass with float16."""
     var dtype = DType.float16
     var _result = create_fc1_parameters(dtype)
@@ -694,7 +694,7 @@ fn test_fc1_forward_float16() raises:
     )
 
 
-fn test_fc2_forward_float32() raises:
+def test_fc2_forward_float32() raises:
     """Test FC2 (4096→4096) forward pass with float32."""
     var dtype = DType.float32
     var _result = create_fc2_parameters(dtype)
@@ -712,7 +712,7 @@ fn test_fc2_forward_float32() raises:
     )
 
 
-fn test_fc2_forward_float16() raises:
+def test_fc2_forward_float16() raises:
     """Test FC2 forward pass with float16."""
     var dtype = DType.float16
     var _result = create_fc2_parameters(dtype)
@@ -730,7 +730,7 @@ fn test_fc2_forward_float16() raises:
     )
 
 
-fn test_fc1_backward_float32() raises:
+def test_fc1_backward_float32() raises:
     """Test FC1 backward pass with sampled gradient checking.
 
     Uses sampled gradient checking (30 samples) to avoid timeout.
@@ -755,7 +755,7 @@ fn test_fc1_backward_float32() raises:
     )
 
 
-fn test_fc2_backward_float32() raises:
+def test_fc2_backward_float32() raises:
     """Test FC2 backward pass with sampled gradient checking.
 
     Uses sampled gradient checking (30 samples) to avoid timeout.
@@ -780,7 +780,7 @@ fn test_fc2_backward_float32() raises:
     )
 
 
-fn test_fc3_forward_float32() raises:
+def test_fc3_forward_float32() raises:
     """Test FC3 (4096→1000) forward pass with float32."""
     var dtype = DType.float32
     var _result = create_fc3_parameters(dtype)
@@ -798,7 +798,7 @@ fn test_fc3_forward_float32() raises:
     )
 
 
-fn test_fc3_forward_float16() raises:
+def test_fc3_forward_float16() raises:
     """Test FC3 forward pass with float16."""
     var dtype = DType.float16
     var _result = create_fc3_parameters(dtype)
@@ -816,7 +816,7 @@ fn test_fc3_forward_float16() raises:
     )
 
 
-fn test_fc3_backward_float32() raises:
+def test_fc3_backward_float32() raises:
     """Test FC3 backward pass with sampled gradient checking.
 
     Uses sampled gradient checking (30 samples) to avoid timeout.
@@ -841,7 +841,7 @@ fn test_fc3_backward_float32() raises:
     )
 
 
-fn test_flatten_operation_float32() raises:
+def test_flatten_operation_float32() raises:
     """Test reshape/flatten operation (256, 6, 6) -> (9216,)."""
     var dtype = DType.float32
 
@@ -866,7 +866,7 @@ fn test_flatten_operation_float32() raises:
         assert_false(isinf(val), "Flatten produced Inf")
 
 
-fn test_flatten_operation_float16() raises:
+def test_flatten_operation_float16() raises:
     """Test flatten with float16."""
     var dtype = DType.float16
 
@@ -879,7 +879,7 @@ fn test_flatten_operation_float16() raises:
     assert_dtype(flattened, dtype, "Flatten dtype mismatch (float16)")
 
 
-fn test_all_layers_sequence_float32() raises:
+def test_all_layers_sequence_float32() raises:
     """Test data flow through all layers in sequence (forward pass only).
 
     Verifies shapes at each layer match expected values.
@@ -1015,7 +1015,7 @@ fn test_all_layers_sequence_float32() raises:
         assert_false(isinf(val), "Output contains Inf")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_alexnet_layers tests."""
     print("Running test_alexnet_layers tests...")
 

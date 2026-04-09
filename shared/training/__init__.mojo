@@ -129,7 +129,7 @@ struct SGD(Movable, Optimizer):
     var learning_rate: Float32
     """Learning rate for gradient descent."""
 
-    fn __init__(out self, learning_rate: Float32):
+    def __init__(out self, learning_rate: Float32):
         """Initialize SGD optimizer.
 
         Args:
@@ -137,7 +137,7 @@ struct SGD(Movable, Optimizer):
         """
         self.learning_rate = learning_rate
 
-    fn step(mut self, params: List[AnyTensor]) raises:
+    def step(mut self, params: List[AnyTensor]) raises:
         """Update parameters using gradients.
 
         Implements: param = param - learning_rate * grad.
@@ -158,7 +158,7 @@ struct SGD(Movable, Optimizer):
         # This stub is kept for trait interface compatibility.
         pass
 
-    fn zero_grad(mut self) raises:
+    def zero_grad(mut self) raises:
         """Reset optimizer state.
 
         Raises:
@@ -170,7 +170,7 @@ struct SGD(Movable, Optimizer):
         """
         pass
 
-    fn get_learning_rate(self) -> Float64:
+    def get_learning_rate(self) -> Float64:
         """Get the current learning rate.
 
         Returns:
@@ -189,7 +189,7 @@ struct MSELoss(Loss, Movable):
     var reduction: String
     """Type of reduction ('mean' or 'sum')."""
 
-    fn __init__(out self, reduction: String = "mean"):
+    def __init__(out self, reduction: String = "mean"):
         """Initialize MSE loss.
 
         Args:
@@ -197,7 +197,7 @@ struct MSELoss(Loss, Movable):
         """
         self.reduction = reduction
 
-    fn compute(self, pred: AnyTensor, target: AnyTensor) raises -> AnyTensor:
+    def compute(self, pred: AnyTensor, target: AnyTensor) raises -> AnyTensor:
         """Compute MSE loss between predictions and targets.
 
         Implements the Loss trait interface.
@@ -232,7 +232,7 @@ struct MSELoss(Loss, Movable):
             # Default to no reduction ("none")
             return squared
 
-    fn forward(self, output: AnyTensor, target: AnyTensor) raises -> Float32:
+    def forward(self, output: AnyTensor, target: AnyTensor) raises -> Float32:
         """Compute MSE loss (legacy interface for backward compatibility).
 
         Args:
@@ -247,7 +247,7 @@ struct MSELoss(Loss, Movable):
         """
         return Float32(0.0)
 
-    fn backward(self, grad_output: AnyTensor) raises -> AnyTensor:
+    def backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Compute gradient of loss.
 
         Args:
@@ -295,7 +295,7 @@ struct TrainingLoop[
     var tape: GradientTape
     """Gradient tape for automatic differentiation."""
 
-    fn __init__(
+    def __init__(
         out self, var model: Self.M, var optimizer: Self.O, var loss_fn: Self.L
     ):
         """Initialize training loop with generic components.
@@ -312,7 +312,7 @@ struct TrainingLoop[
         self.loss_fn = loss_fn^
         self.tape = GradientTape()
 
-    fn step(mut self, inputs: AnyTensor, targets: AnyTensor) raises -> AnyTensor:
+    def step(mut self, inputs: AnyTensor, targets: AnyTensor) raises -> AnyTensor:
         """Perform single training step.
 
         Implements the training loop cycle using trait methods:
@@ -381,7 +381,7 @@ struct TrainingLoop[
 
         return loss_var.detach()
 
-    fn forward(mut self, inputs: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, inputs: AnyTensor) raises -> AnyTensor:
         """Execute forward pass via Model trait.
 
         Args:
@@ -396,7 +396,7 @@ struct TrainingLoop[
         # Call model.forward() via Model trait
         return self.model.forward(inputs)
 
-    fn compute_loss(
+    def compute_loss(
         self, outputs: AnyTensor, targets: AnyTensor
     ) raises -> AnyTensor:
         """Compute loss via Loss trait.
@@ -414,7 +414,7 @@ struct TrainingLoop[
         # Call loss_fn.compute() via Loss trait
         return self.loss_fn.compute(outputs, targets)
 
-    fn run_epoch(
+    def run_epoch(
         mut self, mut data_loader: DataLoader
     ) raises -> Float32:
         """Run single epoch over dataset.
@@ -498,7 +498,7 @@ struct CrossEntropyLoss(Loss, Movable):
     var reduction: String
     """Type of reduction ('mean' or 'sum')."""
 
-    fn __init__(out self, reduction: String = "mean"):
+    def __init__(out self, reduction: String = "mean"):
         """Initialize cross entropy loss.
 
         Args:
@@ -506,7 +506,7 @@ struct CrossEntropyLoss(Loss, Movable):
         """
         self.reduction = reduction
 
-    fn compute(self, pred: AnyTensor, target: AnyTensor) raises -> AnyTensor:
+    def compute(self, pred: AnyTensor, target: AnyTensor) raises -> AnyTensor:
         """Compute cross entropy loss between predictions and targets.
 
         Args:

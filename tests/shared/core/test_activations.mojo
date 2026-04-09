@@ -61,7 +61,7 @@ from shared.core.activation import (
     sigmoid_backward,
     tanh_backward,
 )
-from math import tanh as math_tanh
+from std.math import tanh as math_tanh
 from shared.tensor.any_tensor import (
     AnyTensor,
     zeros,
@@ -92,7 +92,7 @@ from shared.core.activation import (
 )
 
 
-fn test_relu_basic() raises:
+def test_relu_basic() raises:
     """Test ReLU with known values."""
     var shape = List[Int]()
     shape.append(5)
@@ -125,7 +125,7 @@ fn test_relu_basic() raises:
     )
 
 
-fn test_relu_non_negativity() raises:
+def test_relu_non_negativity() raises:
     """Test ReLU always produces non-negative outputs."""
     var shape = List[Int]()
     shape.append(100)
@@ -143,7 +143,7 @@ fn test_relu_non_negativity() raises:
         assert_true(val >= 0.0)
 
 
-fn test_relu_backward() raises:
+def test_relu_backward() raises:
     """Test ReLU gradient with numerical validation."""
     var shape = List[Int]()
     shape.append(4)
@@ -156,14 +156,14 @@ fn test_relu_backward() raises:
     x.set(3, Float32(2.0))
 
     # Forward function wrapper
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         return relu(x)
 
     var y = relu(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward_wrapper(
+    def backward_wrapper(
         grad: AnyTensor, x: AnyTensor
     ) raises escaping -> AnyTensor:
         return relu_backward(grad, x)
@@ -173,7 +173,7 @@ fn test_relu_backward() raises:
     check_gradient(forward, backward_wrapper, x, grad_out, rtol=1e-3, atol=1e-6)
 
 
-fn test_relu_shape() raises:
+def test_relu_shape() raises:
     """Test ReLU preserves shape."""
     var shape = List[Int]()
     shape.append(2)
@@ -188,7 +188,7 @@ fn test_relu_shape() raises:
     assert_equal(y.shape()[2], 4)
 
 
-fn test_relu_integer_types() raises:
+def test_relu_integer_types() raises:
     """Test ReLU with integer types."""
     # Test int32
     var shape = List[Int]()
@@ -226,7 +226,7 @@ fn test_relu_integer_types() raises:
     assert_equal(y_uint8._data.bitcast[UInt8]()[3], 255)
 
 
-fn test_relu_float64() raises:
+def test_relu_float64() raises:
     """Test ReLU with float64 dtype."""
     var shape = List[Int]()
     shape.append(2)
@@ -241,7 +241,7 @@ fn test_relu_float64() raises:
     assert_almost_equal(y._data.bitcast[Float64]()[1], 1.0, tolerance=1e-10)
 
 
-fn test_leaky_relu_basic() raises:
+def test_leaky_relu_basic() raises:
     """Test Leaky ReLU with known values."""
     var shape = List[Int]()
     shape.append(3)
@@ -265,7 +265,7 @@ fn test_leaky_relu_basic() raises:
     )
 
 
-fn test_leaky_relu_custom_alpha() raises:
+def test_leaky_relu_custom_alpha() raises:
     """Test Leaky ReLU with custom alpha value."""
     var shape = List[Int]()
     shape.append(3)
@@ -288,7 +288,7 @@ fn test_leaky_relu_custom_alpha() raises:
     )
 
 
-fn test_leaky_relu_backward() raises:
+def test_leaky_relu_backward() raises:
     """Test Leaky ReLU gradient with numerical validation."""
     var shape = List[Int]()
     shape.append(2)
@@ -298,14 +298,14 @@ fn test_leaky_relu_backward() raises:
     x.set(1, Float32(1.0))
 
     # Forward function wrapper
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         return leaky_relu(x, alpha=0.1)
 
     var y = leaky_relu(x, alpha=0.1)
     var grad_out = ones_like(y)
 
     # Use numerical gradient checking (gold standard)
-    fn backward_wrapper(
+    def backward_wrapper(
         grad: AnyTensor, x: AnyTensor
     ) raises escaping -> AnyTensor:
         return leaky_relu_backward(grad, x, alpha=0.1)
@@ -314,7 +314,7 @@ fn test_leaky_relu_backward() raises:
     check_gradient(forward, backward_wrapper, x, grad_out, rtol=1e-3, atol=1e-6)
 
 
-fn test_prelu_basic() raises:
+def test_prelu_basic() raises:
     """Test PReLU with known values."""
     var shape = List[Int]()
     shape.append(3)
@@ -343,7 +343,7 @@ fn test_prelu_basic() raises:
     )
 
 
-fn test_prelu_scalar_alpha() raises:
+def test_prelu_scalar_alpha() raises:
     """Test PReLU with scalar alpha parameter."""
     var shape = List[Int]()
     shape.append(5)
@@ -379,7 +379,7 @@ fn test_prelu_scalar_alpha() raises:
     )
 
 
-fn test_prelu_elementwise_alpha() raises:
+def test_prelu_elementwise_alpha() raises:
     """Test PReLU with element-wise alpha parameters."""
     var shape = List[Int]()
     shape.append(3)
@@ -408,7 +408,7 @@ fn test_prelu_elementwise_alpha() raises:
     )
 
 
-fn test_prelu_backward() raises:
+def test_prelu_backward() raises:
     """Test PReLU gradient with numerical validation."""
     var shape = List[Int]()
     shape.append(2)
@@ -422,14 +422,14 @@ fn test_prelu_backward() raises:
     alpha.set(1, Float32(0.5))
 
     # Forward function wrapper
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         return prelu(x, alpha)
 
     var y = prelu(x, alpha)
     var grad_out = ones_like(y)
 
     # Validate gradient w.r.t. input using numerical checking
-    fn backward_input(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward_input(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = prelu_backward(grad, x, alpha)
         return result.grad_a
 
@@ -437,7 +437,7 @@ fn test_prelu_backward() raises:
     check_gradient(forward, backward_input, x, grad_out, rtol=1e-3, atol=1e-6)
 
 
-fn test_sigmoid_basic() raises:
+def test_sigmoid_basic() raises:
     """Test sigmoid with known values."""
     var shape = List[Int]()
     shape.append(3)
@@ -460,7 +460,7 @@ fn test_sigmoid_basic() raises:
     )
 
 
-fn test_sigmoid_backward() raises:
+def test_sigmoid_backward() raises:
     """Test sigmoid gradient with numerical validation."""
     var shape = List[Int]()
     shape.append(3)
@@ -472,14 +472,14 @@ fn test_sigmoid_backward() raises:
     x.set(2, Float32(1.0))
 
     # Forward function wrapper
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         return sigmoid(x)
 
     var y = sigmoid(x)
     var grad_out = ones_like(y)
 
     # Note: sigmoid_backward takes output y, not input x
-    fn backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var out = sigmoid(x)  # Recompute output inside wrapper
         return sigmoid_backward(grad, out)
 
@@ -488,7 +488,7 @@ fn test_sigmoid_backward() raises:
     check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
 
 
-fn test_sigmoid_range() raises:
+def test_sigmoid_range() raises:
     """Test sigmoid output is in (0, 1)."""
     var shape = List[Int]()
     shape.append(5)
@@ -509,7 +509,7 @@ fn test_sigmoid_range() raises:
         assert_true(val < 1.0)
 
 
-fn test_sigmoid_numerical_stability() raises:
+def test_sigmoid_numerical_stability() raises:
     """Test sigmoid with extreme values."""
     var shape = List[Int]()
     shape.append(4)
@@ -530,7 +530,7 @@ fn test_sigmoid_numerical_stability() raises:
     assert_true(y._data.bitcast[Float32]()[3] > 0.999999)
 
 
-fn test_sigmoid_float16() raises:
+def test_sigmoid_float16() raises:
     """Test sigmoid with float16."""
     var shape = List[Int]()
     shape.append(3)
@@ -551,7 +551,7 @@ fn test_sigmoid_float16() raises:
         assert_true(val > 0.0 and val < 1.0)
 
 
-fn test_sigmoid_float64() raises:
+def test_sigmoid_float64() raises:
     """Test sigmoid with float64 dtype."""
     var shape = List[Int]()
     shape.append(1)
@@ -564,7 +564,7 @@ fn test_sigmoid_float64() raises:
     assert_almost_equal(y._data.bitcast[Float64]()[0], 0.5, tolerance=1e-10)
 
 
-fn test_tanh_basic() raises:
+def test_tanh_basic() raises:
     """Test tanh with known values."""
     var shape = List[Int]()
     shape.append(3)
@@ -587,7 +587,7 @@ fn test_tanh_basic() raises:
     )
 
 
-fn test_tanh_values() raises:
+def test_tanh_values() raises:
     """Test tanh against known values."""
     var shape = List[Int]()
     shape.append(3)
@@ -613,7 +613,7 @@ fn test_tanh_values() raises:
     )
 
 
-fn test_tanh_backward() raises:
+def test_tanh_backward() raises:
     """Test tanh gradient with numerical validation."""
     var shape = List[Int]()
     shape.append(3)
@@ -625,14 +625,14 @@ fn test_tanh_backward() raises:
     x.set(2, Float32(1.0))
 
     # Forward function wrapper
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         return tanh(x)
 
     var y = tanh(x)
     var grad_out = ones_like(y)
 
     # Note: tanh_backward takes output y, not input x
-    fn backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var out = tanh(x)  # Recompute output inside wrapper
         return tanh_backward(grad, out)
 
@@ -641,7 +641,7 @@ fn test_tanh_backward() raises:
     check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
 
 
-fn test_tanh_range() raises:
+def test_tanh_range() raises:
     """Test tanh output is in (-1, 1)."""
     var shape = List[Int]()
     shape.append(5)
@@ -662,7 +662,7 @@ fn test_tanh_range() raises:
         assert_true(val <= 1.0, "tanh output should be <= 1.0")
 
 
-fn test_softmax_basic_2d() raises:
+def test_softmax_basic_2d() raises:
     """Test softmax 2D normalization."""
     var shape = List[Int]()
     shape.append(1)
@@ -692,7 +692,7 @@ fn test_softmax_basic_2d() raises:
     )
 
 
-fn test_softmax_one_hot() raises:
+def test_softmax_one_hot() raises:
     """Test softmax with large difference (one-hot-like)."""
     var shape = List[Int]()
     shape.append(1)
@@ -717,7 +717,7 @@ fn test_softmax_one_hot() raises:
     )
 
 
-fn test_softmax_sum_to_one() raises:
+def test_softmax_sum_to_one() raises:
     """Test softmax probabilities sum to 1."""
     var shape = List[Int]()
     shape.append(2)
@@ -741,7 +741,7 @@ fn test_softmax_sum_to_one() raises:
     assert_almost_equal(sum_row1, Float32(1.0), tolerance=1e-5)
 
 
-fn test_softmax_numerical_stability() raises:
+def test_softmax_numerical_stability() raises:
     """Test softmax with large values (numerical stability)."""
     var shape = List[Int]()
     shape.append(3)
@@ -764,7 +764,7 @@ fn test_softmax_numerical_stability() raises:
     assert_true(y._data.bitcast[Float32]()[1] > y._data.bitcast[Float32]()[0])
 
 
-fn test_softmax_backward() raises:
+def test_softmax_backward() raises:
     """Test softmax gradient with numerical validation."""
     var shape = List[Int]()
     shape.append(2)
@@ -780,14 +780,14 @@ fn test_softmax_backward() raises:
     x.set(5, Float32(1.5))
 
     # Forward function wrapper
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         return softmax(x, axis=1)
 
     var y = softmax(x, axis=1)
     var grad_out = ones_like(y)
 
     # Note: softmax_backward takes output y, not input x
-    fn backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var out = softmax(x, axis=1)  # Recompute output inside wrapper
         return softmax_backward(grad, out, axis=1)
 
@@ -798,7 +798,7 @@ fn test_softmax_backward() raises:
     check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=5e-4)
 
 
-fn test_gelu_basic() raises:
+def test_gelu_basic() raises:
     """Test GELU with known value at x=0."""
     var shape = List[Int]()
     shape.append(1)
@@ -814,7 +814,7 @@ fn test_gelu_basic() raises:
     )
 
 
-fn test_gelu_positive() raises:
+def test_gelu_positive() raises:
     """Test GELU with positive values."""
     var shape = List[Int]()
     shape.append(2)
@@ -833,7 +833,7 @@ fn test_gelu_positive() raises:
     assert_true(y._data.bitcast[Float32]()[1] < 2.0)
 
 
-fn test_gelu_shape() raises:
+def test_gelu_shape() raises:
     """Test GELU preserves shape."""
     var shape = List[Int]()
     shape.append(3)
@@ -846,7 +846,7 @@ fn test_gelu_shape() raises:
     assert_equal(y.shape()[1], 4)
 
 
-fn test_gelu_approximate() raises:
+def test_gelu_approximate() raises:
     """Test GELU with tanh approximation."""
     var shape = List[Int]()
     shape.append(5)
@@ -876,7 +876,7 @@ fn test_gelu_approximate() raises:
     assert_true(abs(val_neg2) < 0.1, "GELU(-2.0) should be close to 0")
 
 
-fn test_gelu_exact() raises:
+def test_gelu_exact() raises:
     """Test GELU with exact erf implementation."""
     var shape = List[Int]()
     shape.append(5)
@@ -901,7 +901,7 @@ fn test_gelu_exact() raises:
     assert_true(abs(y._data.bitcast[Float32]()[0]) < 0.1)
 
 
-fn test_gelu_comparison() raises:
+def test_gelu_comparison() raises:
     """Compare approximate and exact GELU implementations."""
     var shape = List[Int]()
     shape.append(5)
@@ -927,7 +927,7 @@ fn test_gelu_comparison() raises:
             assert_true(rel_error < 0.01)
 
 
-fn test_gelu_float16() raises:
+def test_gelu_float16() raises:
     """Test GELU with float16."""
     var shape = List[Int]()
     shape.append(3)
@@ -943,7 +943,7 @@ fn test_gelu_float16() raises:
     assert_almost_equal(val_0, Float32(0.0), tolerance=0.01)
 
 
-fn test_gelu_backward_gradient() raises:
+def test_gelu_backward_gradient() raises:
     """Test GELU backward with numerical gradient checking."""
     var shape = List[Int]()
     shape.append(3)
@@ -955,21 +955,21 @@ fn test_gelu_backward_gradient() raises:
     x.set(2, Float32(0.5))
 
     # Forward function wrapper
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         return gelu(x, approximate=False)
 
     var y = gelu(x, approximate=False)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return gelu_backward(grad, x, approximate=False)
 
     # Use numerical gradient checking (gold standard)
     check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
 
 
-fn test_swish_basic() raises:
+def test_swish_basic() raises:
     """Test swish with known values."""
     var shape = List[Int]()
     shape.append(1)
@@ -985,7 +985,7 @@ fn test_swish_basic() raises:
     )
 
 
-fn test_swish_positive() raises:
+def test_swish_positive() raises:
     """Test swish with large positive value."""
     var shape = List[Int]()
     shape.append(1)
@@ -1001,7 +1001,7 @@ fn test_swish_positive() raises:
     )
 
 
-fn test_swish_backward_gradient() raises:
+def test_swish_backward_gradient() raises:
     """Test Swish backward with numerical gradient checking."""
     var shape = List[Int]()
     shape.append(3)
@@ -1013,21 +1013,21 @@ fn test_swish_backward_gradient() raises:
     x.set(2, Float32(0.5))
 
     # Forward function wrapper
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         return swish(x)
 
     var y = swish(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return swish_backward(grad, x)
 
     # Use numerical gradient checking (gold standard)
     check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
 
 
-fn test_mish_basic() raises:
+def test_mish_basic() raises:
     """Test mish with known values."""
     var shape = List[Int]()
     shape.append(1)
@@ -1043,7 +1043,7 @@ fn test_mish_basic() raises:
     )
 
 
-fn test_mish_shape() raises:
+def test_mish_shape() raises:
     """Test mish preserves shape."""
     var shape = List[Int]()
     shape.append(2)
@@ -1058,7 +1058,7 @@ fn test_mish_shape() raises:
     assert_equal(y.shape()[2], 4)
 
 
-fn test_mish_backward_gradient() raises:
+def test_mish_backward_gradient() raises:
     """Test Mish backward with numerical gradient checking."""
     var shape = List[Int]()
     shape.append(3)
@@ -1070,21 +1070,21 @@ fn test_mish_backward_gradient() raises:
     x.set(2, Float32(0.5))
 
     # Forward function wrapper
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         return mish(x)
 
     var y = mish(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return mish_backward(grad, x)
 
     # Use numerical gradient checking (gold standard)
     check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
 
 
-fn test_elu_basic() raises:
+def test_elu_basic() raises:
     """Test ELU with known values."""
     var shape = List[Int]()
     shape.append(3)
@@ -1110,7 +1110,7 @@ fn test_elu_basic() raises:
     )
 
 
-fn test_elu_backward() raises:
+def test_elu_backward() raises:
     """Test ELU gradient with numerical validation."""
     var shape = List[Int]()
     shape.append(3)
@@ -1121,14 +1121,14 @@ fn test_elu_backward() raises:
     x.set(2, Float32(1.0))
 
     # Forward function wrapper
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         return elu(x, alpha=1.0)
 
     var y = elu(x, alpha=1.0)
     var grad_out = ones_like(y)
 
     # Note: elu_backward takes x, y, and alpha
-    fn backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return elu_backward(grad, x, alpha=1.0)
 
     # Use numerical gradient checking (gold standard)
@@ -1136,7 +1136,7 @@ fn test_elu_backward() raises:
     check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
 
 
-fn test_integration_forward_backward() raises:
+def test_integration_forward_backward() raises:
     """Integration test: Complete forward and backward pass through activations.
 
     Simulates a simple neural network layer with:
@@ -1191,7 +1191,7 @@ fn test_integration_forward_backward() raises:
     assert_true(grad_x._data.bitcast[Float32]()[2] > 0.0)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_activations tests."""
     print("Running test_activations tests...")
 

@@ -7,12 +7,12 @@ has_nan/has_inf use manual SIMD loops with early exit.
 count_nan/count_inf use vectorize[] with lane reduction.
 """
 
-from math import isnan, isinf, sqrt, nan
-from sys import simd_width_of
-from algorithm import vectorize
+from std.math import isnan, isinf, sqrt, nan
+from std.sys import simd_width_of
+from std.algorithm import vectorize
 from shared.tensor.tensor import Tensor
 
-fn _has_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
+def _has_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
     """Check if typed tensor contains any NaN values (SIMD-vectorized).
 
     Uses manual SIMD loop with early exit for maximum throughput.
@@ -28,8 +28,7 @@ fn _has_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
         True if any element is NaN, False otherwise.
     """
     # Integer/unsigned types cannot have NaN
-    @parameter
-    if dtype == DType.int8 or dtype == DType.int16 or dtype == DType.int32 or dtype == DType.int64 or dtype == DType.uint8 or dtype == DType.uint16 or dtype == DType.uint32 or dtype == DType.uint64 or dtype == DType.bool:
+    comptime if dtype == DType.int8 or dtype == DType.int16 or dtype == DType.int32 or dtype == DType.int64 or dtype == DType.uint8 or dtype == DType.uint16 or dtype == DType.uint32 or dtype == DType.uint64 or dtype == DType.bool:
         return False
 
     var size = tensor.numel()
@@ -53,7 +52,7 @@ fn _has_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
 
 
 
-fn _has_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
+def _has_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
     """Check if typed tensor contains any Inf values (SIMD-vectorized).
 
     Uses manual SIMD loop with early exit for maximum throughput.
@@ -68,8 +67,7 @@ fn _has_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
     Returns:
         True if any element is Inf or -Inf, False otherwise.
     """
-    @parameter
-    if dtype == DType.int8 or dtype == DType.int16 or dtype == DType.int32 or dtype == DType.int64 or dtype == DType.uint8 or dtype == DType.uint16 or dtype == DType.uint32 or dtype == DType.uint64 or dtype == DType.bool:
+    comptime if dtype == DType.int8 or dtype == DType.int16 or dtype == DType.int32 or dtype == DType.int64 or dtype == DType.uint8 or dtype == DType.uint16 or dtype == DType.uint32 or dtype == DType.uint64 or dtype == DType.bool:
         return False
 
     var size = tensor.numel()
@@ -93,7 +91,7 @@ fn _has_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
 
 
 
-fn _count_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
+def _count_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
     """Count NaN values in typed tensor (SIMD-vectorized).
 
     Uses vectorize[] with SIMD lane reduction for parallel counting.
@@ -107,8 +105,7 @@ fn _count_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
     Returns:
         Number of NaN elements.
     """
-    @parameter
-    if dtype == DType.int8 or dtype == DType.int16 or dtype == DType.int32 or dtype == DType.int64 or dtype == DType.uint8 or dtype == DType.uint16 or dtype == DType.uint32 or dtype == DType.uint64 or dtype == DType.bool:
+    comptime if dtype == DType.int8 or dtype == DType.int16 or dtype == DType.int32 or dtype == DType.int64 or dtype == DType.uint8 or dtype == DType.uint16 or dtype == DType.uint32 or dtype == DType.uint64 or dtype == DType.bool:
         return 0
 
     var size = tensor.numel()
@@ -117,7 +114,7 @@ fn _count_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
     comptime simd_w = simd_width_of[dtype]()
 
     @parameter
-    fn _count[width: Int](idx: Int) unified {mut}:
+    def _count[width: Int](idx: Int) unified {mut}:
         var vec = ptr.load[width=width](idx)
         count += Int(isnan(vec).cast[DType.uint8]().reduce_add())
 
@@ -126,7 +123,7 @@ fn _count_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
 
 
 
-fn _count_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
+def _count_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
     """Count Inf values in typed tensor (SIMD-vectorized).
 
     Uses vectorize[] with SIMD lane reduction for parallel counting.
@@ -140,8 +137,7 @@ fn _count_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
     Returns:
         Number of Inf/-Inf elements.
     """
-    @parameter
-    if dtype == DType.int8 or dtype == DType.int16 or dtype == DType.int32 or dtype == DType.int64 or dtype == DType.uint8 or dtype == DType.uint16 or dtype == DType.uint32 or dtype == DType.uint64 or dtype == DType.bool:
+    comptime if dtype == DType.int8 or dtype == DType.int16 or dtype == DType.int32 or dtype == DType.int64 or dtype == DType.uint8 or dtype == DType.uint16 or dtype == DType.uint32 or dtype == DType.uint64 or dtype == DType.bool:
         return 0
 
     var size = tensor.numel()
@@ -150,7 +146,7 @@ fn _count_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
     comptime simd_w = simd_width_of[dtype]()
 
     @parameter
-    fn _count[width: Int](idx: Int) unified {mut}:
+    def _count[width: Int](idx: Int) unified {mut}:
         var vec = ptr.load[width=width](idx)
         count += Int(isinf(vec).cast[DType.uint8]().reduce_add())
 
@@ -159,7 +155,7 @@ fn _count_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
 
 
 
-fn _tensor_min_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
+def _tensor_min_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
     """Find minimum value in typed tensor (core implementation).
 
     Parameters:
@@ -185,7 +181,7 @@ fn _tensor_min_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
 
 
 
-fn _tensor_max_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
+def _tensor_max_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
     """Find maximum value in typed tensor (core implementation).
 
     Parameters:
@@ -211,7 +207,7 @@ fn _tensor_max_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
 
 
 
-fn _compute_l2_norm_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
+def _compute_l2_norm_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
     """Compute L2 norm of typed tensor (core implementation).
 
     Parameters:

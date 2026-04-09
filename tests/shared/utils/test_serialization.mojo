@@ -20,7 +20,7 @@ from testing import assert_true, assert_equal
 # ============================================================================
 
 
-fn create_test_dir(base: String) raises -> String:
+def create_test_dir(base: String) raises -> String:
     """Create a unique test directory."""
     from python import Python
 
@@ -30,7 +30,7 @@ fn create_test_dir(base: String) raises -> String:
     return test_dir
 
 
-fn cleanup_test_dir(dir_path: String) -> Bool:
+def cleanup_test_dir(dir_path: String) -> Bool:
     """Clean up test directory after testing."""
     try:
         from python import Python
@@ -47,7 +47,7 @@ fn cleanup_test_dir(dir_path: String) -> Bool:
 # ============================================================================
 
 
-fn test_named_tensor_creation() raises:
+def test_named_tensor_creation() raises:
     """Test creating a NamedTensor."""
     var shape = List[Int]()
     shape.append(3)
@@ -61,7 +61,7 @@ fn test_named_tensor_creation() raises:
     assert_equal(named.tensor.shape()[1], 4, "Shape should match")
 
 
-fn test_named_tensor_multiple_dtypes() raises:
+def test_named_tensor_multiple_dtypes() raises:
     """Test NamedTensor with different dtypes."""
     # Float32 tensor
     var shape_f32 = List[Int]()
@@ -83,7 +83,7 @@ fn test_named_tensor_multiple_dtypes() raises:
 # ============================================================================
 
 
-fn test_save_load_single_named_tensor() raises:
+def test_save_load_single_named_tensor() raises:
     """Test saving and loading a single named tensor."""
     var test_dir = create_test_dir("/tmp")
 
@@ -119,7 +119,7 @@ fn test_save_load_single_named_tensor() raises:
         _ = cleanup_test_dir(test_dir)
 
 
-fn test_save_load_multiple_named_tensors() raises:
+def test_save_load_multiple_named_tensors() raises:
     """Test saving and loading multiple named tensors."""
     var test_dir = create_test_dir("/tmp")
 
@@ -168,7 +168,7 @@ fn test_save_load_multiple_named_tensors() raises:
 # ============================================================================
 
 
-fn test_save_named_checkpoint_without_metadata() raises:
+def test_save_named_checkpoint_without_metadata() raises:
     """Test saving checkpoint without metadata."""
     var test_dir = create_test_dir("/tmp")
 
@@ -192,7 +192,7 @@ fn test_save_named_checkpoint_without_metadata() raises:
         _ = cleanup_test_dir(test_dir)
 
 
-fn test_save_named_checkpoint_with_metadata() raises:
+def test_save_named_checkpoint_with_metadata() raises:
     """Test saving checkpoint with metadata."""
     var test_dir = create_test_dir("/tmp")
 
@@ -221,7 +221,7 @@ fn test_save_named_checkpoint_with_metadata() raises:
         _ = cleanup_test_dir(test_dir)
 
 
-fn test_load_named_checkpoint_with_metadata() raises:
+def test_load_named_checkpoint_with_metadata() raises:
     """Test loading checkpoint with metadata."""
     var test_dir = create_test_dir("/tmp")
 
@@ -259,7 +259,7 @@ fn test_load_named_checkpoint_with_metadata() raises:
         _ = cleanup_test_dir(test_dir)
 
 
-fn test_load_named_checkpoint_without_metadata_file() raises:
+def test_load_named_checkpoint_without_metadata_file() raises:
     """Test loading checkpoint when metadata file doesn't exist."""
     var test_dir = create_test_dir("/tmp")
 
@@ -288,7 +288,7 @@ fn test_load_named_checkpoint_without_metadata_file() raises:
         _ = cleanup_test_dir(test_dir)
 
 
-fn test_checkpoint_round_trip() raises:
+def test_checkpoint_round_trip() raises:
     """Test full checkpoint save/load round trip."""
     var test_dir = create_test_dir("/tmp")
 
@@ -347,7 +347,7 @@ fn test_checkpoint_round_trip() raises:
         _ = cleanup_test_dir(test_dir)
 
 
-fn test_checkpoint_with_many_tensors() raises:
+def test_checkpoint_with_many_tensors() raises:
     """Test checkpoint with many tensors."""
     var test_dir = create_test_dir("/tmp")
 
@@ -394,7 +394,7 @@ fn test_checkpoint_with_many_tensors() raises:
 # ============================================================================
 
 
-fn test_save_named_tensors_trailing_slash() raises:
+def test_save_named_tensors_trailing_slash() raises:
     """Test that save_named_tensors handles trailing slash in dirpath."""
     var test_dir = create_test_dir("/tmp")
 
@@ -422,7 +422,7 @@ fn test_save_named_tensors_trailing_slash() raises:
         _ = cleanup_test_dir(test_dir)
 
 
-fn test_load_named_tensors_trailing_slash() raises:
+def test_load_named_tensors_trailing_slash() raises:
     """Test that load_named_tensors handles trailing slash in dirpath."""
     var test_dir = create_test_dir("/tmp")
 
@@ -448,7 +448,7 @@ fn test_load_named_tensors_trailing_slash() raises:
         _ = cleanup_test_dir(test_dir)
 
 
-fn test_save_load_trailing_slash_round_trip() raises:
+def test_save_load_trailing_slash_round_trip() raises:
     """Test save with trailing slash and load with trailing slash both work."""
     var test_dir = create_test_dir("/tmp")
 
@@ -474,7 +474,7 @@ fn test_save_load_trailing_slash_round_trip() raises:
         _ = cleanup_test_dir(test_dir)
 
 
-fn main() raises:
+def main() raises:
     """Run all serialization tests."""
     print("Running serialization tests...")
 

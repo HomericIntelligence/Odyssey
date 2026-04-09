@@ -21,7 +21,7 @@ Usage:
 See examples/mixed_precision_training.mojo for complete usage
 """
 
-from sys import is_defined
+from std.sys import is_defined
 
 from shared.tensor.any_tensor import AnyTensor, full, zeros
 from shared.core.dtype_cast import cast_tensor
@@ -43,7 +43,7 @@ from shared.training.dtype_utils import (
 )
 
 
-fn _check_bf16_platform_support(is_apple: Bool) raises:
+def _check_bf16_platform_support(is_apple: Bool) raises:
     """Check whether BF16 is supported on the current platform.
 
     Raises an error on Apple Silicon where BF16 is unsupported.
@@ -82,13 +82,13 @@ struct PrecisionMode(Copyable, ImplicitlyCopyable, Movable, Writable):
     comptime BF16 = PrecisionMode(value=2)
     comptime FP8 = PrecisionMode(value=3)
 
-    fn __eq__(self, other: Self) -> Bool:
+    def __eq__(self, other: Self) -> Bool:
         return self.value == other.value
 
-    fn __ne__(self, other: Self) -> Bool:
+    def __ne__(self, other: Self) -> Bool:
         return self.value != other.value
 
-    fn __str__(self) -> String:
+    def __str__(self) -> String:
         if self.value == 0:
             return "fp32"
         elif self.value == 1:
@@ -156,7 +156,7 @@ struct PrecisionConfig(Copyable, Movable):
     var _step_count: Int
     """Total number of training steps."""
 
-    fn __init__(
+    def __init__(
         out self,
         mode: PrecisionMode,
         compute_dtype: DType,
@@ -183,7 +183,7 @@ struct PrecisionConfig(Copyable, Movable):
         self._step_count = 0
 
     @staticmethod
-    fn fp32() -> PrecisionConfig:
+    def fp32() -> PrecisionConfig:
         """Create FP32 (full precision) configuration.
 
         No gradient scaling needed for FP32 training.
@@ -199,7 +199,7 @@ struct PrecisionConfig(Copyable, Movable):
         )
 
     @staticmethod
-    fn fp16(initial_scale: Float32 = 65536.0) -> PrecisionConfig:
+    def fp16(initial_scale: Float32 = 65536.0) -> PrecisionConfig:
         """Create FP16 (half precision) configuration.
 
         Uses gradient scaling to prevent underflow in FP16.
@@ -219,7 +219,7 @@ struct PrecisionConfig(Copyable, Movable):
         )
 
     @staticmethod
-    fn bf16(initial_scale: Float32 = 65536.0) raises -> PrecisionConfig:
+    def bf16(initial_scale: Float32 = 65536.0) raises -> PrecisionConfig:
         """Create BF16 (brain float) configuration.
 
         BF16 has wider exponent range than FP16, reducing overflow risk.
@@ -253,7 +253,7 @@ struct PrecisionConfig(Copyable, Movable):
         )
 
     @staticmethod
-    fn fp8(initial_scale: Float32 = 65536.0) -> PrecisionConfig:
+    def fp8(initial_scale: Float32 = 65536.0) -> PrecisionConfig:
         """Create FP8 (quarter precision) configuration.
 
         FP8 has very limited range, requires aggressive scaling and monitoring.
@@ -298,7 +298,7 @@ struct PrecisionConfig(Copyable, Movable):
         )
 
     @staticmethod
-    fn from_string(precision_str: String) raises -> PrecisionConfig:
+    def from_string(precision_str: String) raises -> PrecisionConfig:
         """Create PrecisionConfig from string name.
 
         Args:
@@ -325,7 +325,7 @@ struct PrecisionConfig(Copyable, Movable):
                 + ". Use fp32, fp16, bf16, or fp8."
             )
 
-    fn cast_to_compute(self, tensor: AnyTensor) raises -> AnyTensor:
+    def cast_to_compute(self, tensor: AnyTensor) raises -> AnyTensor:
         """Cast tensor to compute precision.
 
         Args:
@@ -341,7 +341,7 @@ struct PrecisionConfig(Copyable, Movable):
             return tensor
         return cast_tensor(tensor, self.compute_dtype)
 
-    fn cast_to_storage(self, tensor: AnyTensor) raises -> AnyTensor:
+    def cast_to_storage(self, tensor: AnyTensor) raises -> AnyTensor:
         """Cast tensor to storage precision.
 
         Args:
@@ -357,7 +357,7 @@ struct PrecisionConfig(Copyable, Movable):
             return tensor
         return cast_tensor(tensor, self.storage_dtype)
 
-    fn cast_to_master(self, tensor: AnyTensor) raises -> AnyTensor:
+    def cast_to_master(self, tensor: AnyTensor) raises -> AnyTensor:
         """Cast tensor to master (FP32) precision.
 
         Args:
@@ -371,7 +371,7 @@ struct PrecisionConfig(Copyable, Movable):
         """
         return convert_to_fp32_master(tensor)
 
-    fn scale_loss(self, loss: AnyTensor) raises -> AnyTensor:
+    def scale_loss(self, loss: AnyTensor) raises -> AnyTensor:
         """Scale loss for mixed precision training.
 
         For FP32, returns loss unchanged.
@@ -390,7 +390,7 @@ struct PrecisionConfig(Copyable, Movable):
             return loss
         return self.scaler.scale_loss(loss)
 
-    fn unscale_gradients(self, gradients: AnyTensor) raises -> AnyTensor:
+    def unscale_gradients(self, gradients: AnyTensor) raises -> AnyTensor:
         """Unscale gradients after backward pass.
 
         For FP32, returns gradients unchanged.
@@ -409,7 +409,7 @@ struct PrecisionConfig(Copyable, Movable):
             return gradients
         return self.scaler.unscale_gradients(gradients)
 
-    fn check_gradients(self, gradients: AnyTensor) raises -> Bool:
+    def check_gradients(self, gradients: AnyTensor) raises -> Bool:
         """Check if gradients are valid (no NaN/Inf).
 
         Args:
@@ -423,7 +423,7 @@ struct PrecisionConfig(Copyable, Movable):
         """
         return check_gradients_finite(gradients)
 
-    fn step(mut self, grads_valid: Bool):
+    def step(mut self, grads_valid: Bool):
         """Update scaler state after training step.
 
         Call after each training step to update gradient scaler.
@@ -443,7 +443,7 @@ struct PrecisionConfig(Copyable, Movable):
             self.scaler.backoff()
             self._overflow_count += 1
 
-    fn get_scale(self) -> Float32:
+    def get_scale(self) -> Float32:
         """Get current gradient scale factor.
 
         Returns:
@@ -451,7 +451,7 @@ struct PrecisionConfig(Copyable, Movable):
         """
         return self.scaler.get_scale()
 
-    fn get_overflow_count(self) -> Int:
+    def get_overflow_count(self) -> Int:
         """Get number of gradient overflows detected.
 
         Returns:
@@ -459,7 +459,7 @@ struct PrecisionConfig(Copyable, Movable):
         """
         return self._overflow_count
 
-    fn get_step_count(self) -> Int:
+    def get_step_count(self) -> Int:
         """Get total number of training steps.
 
         Returns:
@@ -467,7 +467,7 @@ struct PrecisionConfig(Copyable, Movable):
         """
         return self._step_count
 
-    fn needs_master_weights(self) -> Bool:
+    def needs_master_weights(self) -> Bool:
         """Check if master weights are needed.
 
         Returns True for reduced precision training where
@@ -478,7 +478,7 @@ struct PrecisionConfig(Copyable, Movable):
         """
         return self.mode != PrecisionMode.FP32
 
-    fn clip_gradients(
+    def clip_gradients(
         self, gradients: AnyTensor, max_norm: Float32
     ) raises -> AnyTensor:
         """Clip gradients by global norm.
@@ -497,7 +497,7 @@ struct PrecisionConfig(Copyable, Movable):
         """
         return clip_gradients_by_norm(gradients, max_norm)
 
-    fn print_config(self):
+    def print_config(self):
         """Print precision configuration summary to stdout.
 
         Displays the current precision settings including mode, compute/storage/master
@@ -529,7 +529,7 @@ struct PrecisionConfig(Copyable, Movable):
         if self.use_gradient_scaler:
             print("  Current scale: " + String(self.get_scale()))
 
-    fn print_stats(self):
+    def print_stats(self):
         """Print training statistics to stdout.
 
         Displays step count, overflow count, overflow rate, and current gradient scale

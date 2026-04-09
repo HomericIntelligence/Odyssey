@@ -12,7 +12,7 @@ Output:
     - Individual benchmark results (duration, throughput, memory)
 """
 
-from sys import argv
+from std.sys import argv
 from time import perf_counter_ns
 from python import Python
 
@@ -22,7 +22,7 @@ from python import Python
 # ============================================================================
 
 
-fn tensor_add_small_impl() raises:
+def tensor_add_small_impl() raises:
     """Element-wise addition of 100x100 tensors."""
     var a = List[List[Float32]](capacity=100)
     var b = List[List[Float32]](capacity=100)
@@ -47,7 +47,7 @@ fn tensor_add_small_impl() raises:
             c[i][j] = a[i][j] + b[i][j]
 
 
-fn tensor_add_large_impl() raises:
+def tensor_add_large_impl() raises:
     """Element-wise addition of 1000x1000 tensors."""
     var a = List[List[Float32]](capacity=1000)
     var b = List[List[Float32]](capacity=1000)
@@ -72,7 +72,7 @@ fn tensor_add_large_impl() raises:
             c[i][j] = a[i][j] + b[i][j]
 
 
-fn matmul_small_impl() raises:
+def matmul_small_impl() raises:
     """Matrix multiplication of 100x100 matrices."""
     var a = List[List[Float32]](capacity=100)
     var b = List[List[Float32]](capacity=100)
@@ -100,7 +100,7 @@ fn matmul_small_impl() raises:
             c[i][j] = sum
 
 
-fn matmul_large_impl() raises:
+def matmul_large_impl() raises:
     """Matrix multiplication of 1000x1000 matrices."""
     var a = List[List[Float32]](capacity=1000)
     var b = List[List[Float32]](capacity=1000)
@@ -148,7 +148,7 @@ struct BenchmarkMetrics(Copyable):
     var min_duration_ms: Float64
     var max_duration_ms: Float64
 
-    fn __init__(
+    def __init__(
         out self,
         name: String,
         description: String,
@@ -169,7 +169,7 @@ struct BenchmarkMetrics(Copyable):
         self.max_duration_ms = max_duration_ms
 
 
-fn measure_benchmark[
+def measure_benchmark[
     func: fn () raises -> None
 ](
     name: String,
@@ -253,7 +253,7 @@ fn measure_benchmark[
 # ============================================================================
 
 
-fn format_timestamp() -> String:
+def format_timestamp() -> String:
     """Format current time as ISO 8601 timestamp.
 
     Returns:
@@ -313,7 +313,7 @@ fn format_timestamp() -> String:
     return result
 
 
-fn generate_json_output(benchmarks: List[BenchmarkMetrics]) raises -> String:
+def generate_json_output(benchmarks: List[BenchmarkMetrics]) raises -> String:
     """Generate JSON output for benchmark results.
 
     Args:
@@ -359,7 +359,7 @@ fn generate_json_output(benchmarks: List[BenchmarkMetrics]) raises -> String:
     return json
 
 
-fn write_results_file(results: String, filepath: String) raises:
+def write_results_file(results: String, filepath: String) raises:
     """Write results to JSON file.
 
     Args:
@@ -399,7 +399,7 @@ fn write_results_file(results: String, filepath: String) raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all benchmarks and save results.
 
     The implementation:

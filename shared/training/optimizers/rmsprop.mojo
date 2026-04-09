@@ -27,7 +27,7 @@ from shared.core.arithmetic import subtract, multiply, add, divide, power
 from shared.core.elementwise import sqrt
 
 
-fn rmsprop_step(
+def rmsprop_step(
     params: AnyTensor,
     gradients: AnyTensor,
     square_avg: AnyTensor,
@@ -168,7 +168,7 @@ fn rmsprop_step(
     return (new_params, new_square_avg, new_buf)
 
 
-fn rmsprop_step_simple(
+def rmsprop_step_simple(
     params: AnyTensor,
     gradients: AnyTensor,
     square_avg: AnyTensor,

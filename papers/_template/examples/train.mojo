@@ -58,7 +58,7 @@ struct ModelConfig(Copyable, Movable):
 # ============================================================================
 
 
-fn parse_arguments() raises -> Tuple[String, String]:
+def parse_arguments() raises -> Tuple[String, String]:
     """Parse command-line arguments for training.
 
     Uses the shared argument parser infrastructure with added --paper and
@@ -92,7 +92,7 @@ fn parse_arguments() raises -> Tuple[String, String]:
 # ============================================================================
 
 
-fn create_model_config(config: Config) raises -> ModelConfig:
+def create_model_config(config: Config) raises -> ModelConfig:
     """Extract model configuration from experiment config.
 
     Reads model parameters from the configuration object and creates
@@ -156,7 +156,7 @@ fn create_model_config(config: Config) raises -> ModelConfig:
     )
 
 
-fn create_model(config: Config) raises -> ModelConfig:
+def create_model(config: Config) raises -> ModelConfig:
     """Create model from configuration.
 
     Extracts model configuration and prints summary information.
@@ -199,7 +199,7 @@ fn create_model(config: Config) raises -> ModelConfig:
 # ============================================================================
 
 
-fn create_trainer_config(config: Config) raises -> TrainerConfig:
+def create_trainer_config(config: Config) raises -> TrainerConfig:
     """Extract trainer configuration from experiment config.
 
     Creates a TrainerConfig struct from the configuration object,
@@ -279,7 +279,7 @@ fn create_trainer_config(config: Config) raises -> TrainerConfig:
     )
 
 
-fn create_trainer(config: Config) raises -> TrainerConfig:
+def create_trainer(config: Config) raises -> TrainerConfig:
     """Create trainer from configuration.
 
     Extracts training configuration and prints summary information.
@@ -324,7 +324,7 @@ fn create_trainer(config: Config) raises -> TrainerConfig:
 # ============================================================================
 
 
-fn run_training(
+def run_training(
     config: Config,
     model_config: ModelConfig,
     trainer_config: TrainerConfig,
@@ -426,7 +426,7 @@ fn run_training(
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Main entry point for training script.
 
     Orchestrates the complete training workflow:

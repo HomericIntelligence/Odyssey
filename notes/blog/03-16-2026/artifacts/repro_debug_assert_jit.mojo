@@ -30,23 +30,23 @@ from inlining parametric methods with debug_assert across 100+ call sites in the
 training module pushes the JIT compiler past its buffer overflow threshold (same
 root cause as Day 53 / modular#6187).
 """
-from memory import UnsafePointer, alloc, memset_zero
+from std.memory import UnsafePointer, alloc, memset_zero
 
 
 struct Foo:
     var _data: UnsafePointer[UInt8, origin=MutAnyOrigin]
     var _dtype: DType
 
-    fn __init__(out self):
+    def __init__(out self):
         self._data = alloc[UInt8](16)
         memset_zero(self._data, 16)
         self._dtype = DType.float32
 
-    fn __del__(deinit self):
+    def __del__(deinit self):
         self._data.free()
 
     @always_inline
-    fn load[dtype: DType](self, index: Int) -> Scalar[dtype]:
+    def load[dtype: DType](self, index: Int) -> Scalar[dtype]:
         debug_assert(
             self._dtype == dtype,
             "dtype mismatch",
@@ -54,7 +54,7 @@ struct Foo:
         return self._data.bitcast[Scalar[dtype]]()[index]
 
     @always_inline
-    fn store[dtype: DType](self, index: Int, value: Scalar[dtype]):
+    def store[dtype: DType](self, index: Int, value: Scalar[dtype]):
         debug_assert(
             self._dtype == dtype,
             "dtype mismatch",
@@ -62,7 +62,7 @@ struct Foo:
         (self._data + index * sizeof[Scalar[dtype]]()).bitcast[Scalar[dtype]]()[] = value
 
 
-fn main():
+def main():
     var f = Foo()
 
     # Store and load

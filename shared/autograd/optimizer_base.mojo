@@ -18,7 +18,7 @@ Design Note:
 
 from shared.autograd.tape import GradientTape
 from shared.autograd.variable import Variable
-from math import sqrt
+from std.math import sqrt
 
 
 trait Optimizer:
@@ -29,7 +29,7 @@ trait Optimizer:
     update logic (momentum, adaptive rates, etc.).
     """
 
-    fn step(
+    def step(
         mut self, mut parameters: List[Variable], mut tape: GradientTape
     ) raises:
         """Update parameters using their gradients.
@@ -46,7 +46,7 @@ trait Optimizer:
         """
         ...
 
-    fn zero_grad(self, mut tape: GradientTape):
+    def zero_grad(self, mut tape: GradientTape):
         """Reset all gradients in the tape.
 
         Should be called after each optimizer step to clear gradients before
@@ -57,7 +57,7 @@ trait Optimizer:
         """
         ...
 
-    fn get_lr(self) -> Float64:
+    def get_lr(self) -> Float64:
         """Get the current learning rate.
 
         Returns:
@@ -65,7 +65,7 @@ trait Optimizer:
         """
         ...
 
-    fn set_lr(mut self, lr: Float64) raises:
+    def set_lr(mut self, lr: Float64) raises:
         """Set the learning rate.
 
         Args:
@@ -77,7 +77,7 @@ trait Optimizer:
         ...
 
 
-fn zero_grad_impl(mut tape: GradientTape):
+def zero_grad_impl(mut tape: GradientTape):
     """Shared implementation of gradient zeroing.
 
     Clears all gradients in the tape's registry. This is the same logic
@@ -89,14 +89,14 @@ fn zero_grad_impl(mut tape: GradientTape):
     Example:
         ```mojo
         # In optimizer's zero_grad method:
-        fn zero_grad(self, mut tape: GradientTape):
+        def zero_grad(self, mut tape: GradientTape):
             zero_grad_impl(tape)
         ```
     """
     tape.registry.clear()
 
 
-fn validate_learning_rate(lr: Float64) raises:
+def validate_learning_rate(lr: Float64) raises:
     """Validate that learning rate is positive.
 
     Args:
@@ -107,7 +107,7 @@ fn validate_learning_rate(lr: Float64) raises:
 
     Example:
         ```mojo
-        fn set_lr(mut self, lr: Float64) raises:
+        def set_lr(mut self, lr: Float64) raises:
             validate_learning_rate(lr)
             self.learning_rate = lr
         ```
@@ -116,7 +116,7 @@ fn validate_learning_rate(lr: Float64) raises:
         raise Error("Learning rate must be positive, got: " + String(lr))
 
 
-fn clip_gradients_by_global_norm(
+def clip_gradients_by_global_norm(
     mut parameters: List[Variable],
     mut tape: GradientTape,
     max_norm: Float64,
@@ -214,7 +214,7 @@ fn clip_gradients_by_global_norm(
     return global_norm
 
 
-fn count_parameters_with_gradients(
+def count_parameters_with_gradients(
     parameters: List[Variable], tape: GradientTape
 ) -> Int:
     """Count how many parameters have gradients in the tape.

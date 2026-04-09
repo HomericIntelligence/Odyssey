@@ -30,14 +30,14 @@ from shared.autograd.tape import GradientTape
 # ============================================================================
 
 
-fn create_shape_1d(size: Int) -> List[Int]:
+def create_shape_1d(size: Int) -> List[Int]:
     """Create a 1D shape list."""
     var shape = List[Int]()
     shape.append(size)
     return shape^
 
 
-fn create_shape_2d(rows: Int, cols: Int) -> List[Int]:
+def create_shape_2d(rows: Int, cols: Int) -> List[Int]:
     """Create a 2D shape list."""
     var shape = List[Int]()
     shape.append(rows)
@@ -50,7 +50,7 @@ fn create_shape_2d(rows: Int, cols: Int) -> List[Int]:
 # ============================================================================
 
 
-fn test_variable_backward_scalar_loss() raises:
+def test_variable_backward_scalar_loss() raises:
     """Test backward() on a scalar loss."""
     # Create tape and enable recording
     var tape = GradientTape()
@@ -79,7 +79,7 @@ fn test_variable_backward_scalar_loss() raises:
     assert_almost_equal(grad_val, 4.0, tolerance=1e-5)
 
 
-fn test_variable_backward_multiple_variables() raises:
+def test_variable_backward_multiple_variables() raises:
     """Test gradient flow to multiple input variables."""
     # Create tape and enable recording
     var tape = GradientTape()
@@ -120,7 +120,7 @@ fn test_variable_backward_multiple_variables() raises:
     assert_almost_equal(grad_y_0, 1.0, tolerance=1e-5)
 
 
-fn test_variable_backward_chain_rule() raises:
+def test_variable_backward_chain_rule() raises:
     """Test gradient computation via chain rule."""
     # Create tape and enable recording
     var tape = GradientTape()
@@ -150,7 +150,7 @@ fn test_variable_backward_chain_rule() raises:
     assert_almost_equal(grad_val, 108.0, tolerance=1e-3)
 
 
-fn test_variable_backward_independent_tapes() raises:
+def test_variable_backward_independent_tapes() raises:
     """Test that independent tapes produce consistent results."""
     # Test case 1: first tape
     var tape1 = GradientTape()
@@ -196,7 +196,7 @@ fn test_variable_backward_independent_tapes() raises:
     assert_almost_equal(grad1_0, grad2_0, tolerance=1e-5)
 
 
-fn test_variable_backward_no_gradients_required() raises:
+def test_variable_backward_no_gradients_required() raises:
     """Test backward pass with some variables not requiring gradients."""
     # Create tape and enable recording
     var tape = GradientTape()
@@ -235,7 +235,7 @@ fn test_variable_backward_no_gradients_required() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all Variable backward tests."""
     print("Running Variable backward tests...")
     print("")

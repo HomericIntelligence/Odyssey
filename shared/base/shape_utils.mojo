@@ -4,10 +4,10 @@ Pure helper functions for shape manipulation that can be imported
 by any package without creating circular dependencies.
 """
 
-from collections import List
+from std.collections import List
 
 
-fn _resolve_shape(
+def _resolve_shape(
     new_shape: List[Int], total_elements: Int
 ) raises -> List[Int]:
     """Resolve -1 dimension and validate shape.

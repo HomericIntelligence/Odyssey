@@ -28,7 +28,7 @@ from shared.tensor.any_tensor import AnyTensor
 from shared.core.types.dtype_aliases import BF16
 
 
-fn accumulate_gradient_inplace(
+def accumulate_gradient_inplace(
     mut accumulated: AnyTensor, new_grad: AnyTensor
 ) raises:
     """Accumulate gradient in-place without creating intermediate tensors.
@@ -83,7 +83,7 @@ fn accumulate_gradient_inplace(
         _accumulate_fallback(accumulated, new_grad, size)
 
 
-fn _accumulate_float32(
+def _accumulate_float32(
     mut accumulated: AnyTensor, new_grad: AnyTensor, size: Int
 ) raises:
     """Direct float32 accumulation using load/store operations."""
@@ -95,7 +95,7 @@ fn _accumulate_float32(
         )
 
 
-fn _accumulate_float16(
+def _accumulate_float16(
     mut accumulated: AnyTensor, new_grad: AnyTensor, size: Int
 ) raises:
     """Direct float16 accumulation using load/store operations."""
@@ -107,7 +107,7 @@ fn _accumulate_float16(
         )
 
 
-fn _accumulate_bfloat16(
+def _accumulate_bfloat16(
     mut accumulated: AnyTensor, new_grad: AnyTensor, size: Int
 ) raises:
     """Direct bfloat16 accumulation using load/store operations."""
@@ -119,7 +119,7 @@ fn _accumulate_bfloat16(
         )
 
 
-fn _accumulate_fallback(
+def _accumulate_fallback(
     mut accumulated: AnyTensor, new_grad: AnyTensor, size: Int
 ) raises:
     """Fallback accumulation for unsupported dtypes."""
@@ -129,7 +129,7 @@ fn _accumulate_fallback(
         accumulated._set_float64(i, acc_val + grad_val)
 
 
-fn scale_gradient_inplace(mut gradient: AnyTensor, scale: Float32) raises:
+def scale_gradient_inplace(mut gradient: AnyTensor, scale: Float32) raises:
     """Scale gradient in-place without creating intermediate tensors.
 
     Performs `gradient *= scale` by directly modifying the gradient
@@ -168,7 +168,7 @@ fn scale_gradient_inplace(mut gradient: AnyTensor, scale: Float32) raises:
         _scale_fallback(gradient, Float64(scale), size)
 
 
-fn _scale_float32(mut gradient: AnyTensor, scale: Float32, size: Int) raises:
+def _scale_float32(mut gradient: AnyTensor, scale: Float32, size: Int) raises:
     """Direct float32 scaling using load/store operations."""
     for i in range(size):
         gradient.store[DType.float32](
@@ -176,7 +176,7 @@ fn _scale_float32(mut gradient: AnyTensor, scale: Float32, size: Int) raises:
         )
 
 
-fn _scale_float16(mut gradient: AnyTensor, scale: Float16, size: Int) raises:
+def _scale_float16(mut gradient: AnyTensor, scale: Float16, size: Int) raises:
     """Direct float16 scaling using load/store operations."""
     for i in range(size):
         gradient.store[DType.float16](
@@ -184,7 +184,7 @@ fn _scale_float16(mut gradient: AnyTensor, scale: Float16, size: Int) raises:
         )
 
 
-fn _scale_bfloat16(
+def _scale_bfloat16(
     mut gradient: AnyTensor, scale: Scalar[BF16], size: Int
 ) raises:
     """Direct bfloat16 scaling using load/store operations."""
@@ -194,14 +194,14 @@ fn _scale_bfloat16(
         )
 
 
-fn _scale_fallback(mut gradient: AnyTensor, scale: Float64, size: Int) raises:
+def _scale_fallback(mut gradient: AnyTensor, scale: Float64, size: Int) raises:
     """Fallback scaling for unsupported dtypes."""
     for i in range(size):
         var grad_val = gradient._get_float64(i)
         gradient._set_float64(i, grad_val * scale)
 
 
-fn zero_gradient_inplace(mut gradient: AnyTensor) raises:
+def zero_gradient_inplace(mut gradient: AnyTensor) raises:
     """Zero gradient in-place without creating intermediate tensors.
 
     Performs `gradient[:] = 0` by directly modifying the gradient
@@ -239,25 +239,25 @@ fn zero_gradient_inplace(mut gradient: AnyTensor) raises:
         _zero_fallback(gradient, size)
 
 
-fn _zero_float32(mut gradient: AnyTensor, size: Int) raises:
+def _zero_float32(mut gradient: AnyTensor, size: Int) raises:
     """Direct float32 zeroing using load/store operations."""
     for i in range(size):
         gradient.store[DType.float32](i, Float32(0.0))
 
 
-fn _zero_float16(mut gradient: AnyTensor, size: Int) raises:
+def _zero_float16(mut gradient: AnyTensor, size: Int) raises:
     """Direct float16 zeroing using load/store operations."""
     for i in range(size):
         gradient.store[DType.float16](i, Float16(0.0))
 
 
-fn _zero_bfloat16(mut gradient: AnyTensor, size: Int) raises:
+def _zero_bfloat16(mut gradient: AnyTensor, size: Int) raises:
     """Direct bfloat16 zeroing using load/store operations."""
     for i in range(size):
         gradient.store[DType.bfloat16](i, Scalar[BF16](0.0))
 
 
-fn _zero_fallback(mut gradient: AnyTensor, size: Int) raises:
+def _zero_fallback(mut gradient: AnyTensor, size: Int) raises:
     """Fallback zeroing for unsupported dtypes."""
     for i in range(size):
         gradient._set_float64(i, 0.0)

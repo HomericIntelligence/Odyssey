@@ -27,7 +27,7 @@ from shared.testing.assertions import (
     assert_almost_equal,
     assert_true as custom_assert_true,
 )
-from math import sqrt
+from std.math import sqrt
 from shared.testing.tensor_factory import (
     zeros_tensor,
     ones_tensor,
@@ -44,7 +44,7 @@ from shared.testing.tensor_factory import (
 )
 
 
-fn test_zeros_tensor_float32() raises:
+def test_zeros_tensor_float32() raises:
     """Test zeros_tensor creates float32 tensor with all zeros."""
     var shape = [10, 5]
     var tensor = zeros_tensor(shape, DType.float32)
@@ -61,7 +61,7 @@ fn test_zeros_tensor_float32() raises:
         assert_almost_equal(val, 0.0, tolerance=1e-6)
 
 
-fn test_zeros_tensor_int32() raises:
+def test_zeros_tensor_int32() raises:
     """Test zeros_tensor creates int32 tensor with all zeros."""
     var shape = [5, 4]
     var tensor = zeros_tensor(shape, DType.int32)
@@ -78,21 +78,21 @@ fn test_zeros_tensor_int32() raises:
         assert_almost_equal(val, 0.0, tolerance=1e-6)
 
 
-fn test_zeros_tensor_1d() raises:
+def test_zeros_tensor_1d() raises:
     """Test zeros_tensor with 1D shape."""
     var shape = [10]
     var tensor = zeros_tensor(shape, DType.float32)
     assert_shape_equal(tensor.shape(), shape)
 
 
-fn test_zeros_tensor_3d() raises:
+def test_zeros_tensor_3d() raises:
     """Test zeros_tensor with 3D shape."""
     var shape = [2, 3, 4]
     var tensor = zeros_tensor(shape, DType.float32)
     assert_shape_equal(tensor.shape(), shape)
 
 
-fn test_ones_tensor_float32() raises:
+def test_ones_tensor_float32() raises:
     """Test ones_tensor creates float32 tensor with all ones."""
     var shape = [10, 5]
     var tensor = ones_tensor(shape, DType.float32)
@@ -109,7 +109,7 @@ fn test_ones_tensor_float32() raises:
         assert_almost_equal(val, 1.0, tolerance=1e-6)
 
 
-fn test_ones_tensor_int32() raises:
+def test_ones_tensor_int32() raises:
     """Test ones_tensor creates int32 tensor with all ones."""
     var shape = [5, 4]
     var tensor = ones_tensor(shape, DType.int32)
@@ -126,21 +126,21 @@ fn test_ones_tensor_int32() raises:
         assert_almost_equal(val, 1.0, tolerance=1e-6)
 
 
-fn test_ones_tensor_1d() raises:
+def test_ones_tensor_1d() raises:
     """Test ones_tensor with 1D shape."""
     var shape = [10]
     var tensor = ones_tensor(shape, DType.float32)
     assert_shape_equal(tensor.shape(), shape)
 
 
-fn test_ones_tensor_3d() raises:
+def test_ones_tensor_3d() raises:
     """Test ones_tensor with 3D shape."""
     var shape = [2, 3, 4]
     var tensor = ones_tensor(shape, DType.float32)
     assert_shape_equal(tensor.shape(), shape)
 
 
-fn test_full_tensor_float32_positive() raises:
+def test_full_tensor_float32_positive() raises:
     """Test full_tensor creates float32 tensor with specified positive value."""
     var shape = [10, 5]
     var fill_value = 3.14
@@ -158,7 +158,7 @@ fn test_full_tensor_float32_positive() raises:
         assert_almost_equal(val, fill_value, tolerance=1e-4)
 
 
-fn test_full_tensor_float32_negative() raises:
+def test_full_tensor_float32_negative() raises:
     """Test full_tensor creates float32 tensor with specified negative value."""
     var shape = [5, 4]
     var fill_value = -2.71
@@ -170,7 +170,7 @@ fn test_full_tensor_float32_negative() raises:
         assert_almost_equal(val, fill_value, tolerance=1e-4)
 
 
-fn test_full_tensor_int32() raises:
+def test_full_tensor_int32() raises:
     """Test full_tensor creates int32 tensor with specified value."""
     var shape = [5, 4]
     var fill_value = 42.0
@@ -185,7 +185,7 @@ fn test_full_tensor_int32() raises:
         assert_almost_equal(val, 42.0, tolerance=1e-6)
 
 
-fn test_random_tensor_uniform_bounds_float32() raises:
+def test_random_tensor_uniform_bounds_float32() raises:
     """Test random_tensor generates values within specified bounds."""
     var shape = [100, 50]
     var low = -1.0
@@ -203,7 +203,7 @@ fn test_random_tensor_uniform_bounds_float32() raises:
         custom_assert_true(val < high, "Value at or above high bound")
 
 
-fn test_random_tensor_default_bounds() raises:
+def test_random_tensor_default_bounds() raises:
     """Test random_tensor with default bounds [0, 1)."""
     var shape = [50, 50]
     var tensor = random_tensor(shape)
@@ -215,7 +215,7 @@ fn test_random_tensor_default_bounds() raises:
         custom_assert_true(val < 1.0, "Value at or above 1")
 
 
-fn test_random_tensor_int32() raises:
+def test_random_tensor_int32() raises:
     """Test random_tensor with int32 dtype."""
     var shape = [100]
     var low = 0.0
@@ -233,21 +233,21 @@ fn test_random_tensor_int32() raises:
         custom_assert_true(int_val < 10, "Int value at or above high")
 
 
-fn test_random_tensor_1d() raises:
+def test_random_tensor_1d() raises:
     """Test random_tensor with 1D shape."""
     var shape = [100]
     var tensor = random_tensor(shape, DType.float32, 0.0, 1.0)
     assert_shape_equal(tensor.shape(), shape)
 
 
-fn test_random_tensor_3d() raises:
+def test_random_tensor_3d() raises:
     """Test random_tensor with 3D shape."""
     var shape = [10, 10, 10]
     var tensor = random_tensor(shape, DType.float32, 0.0, 1.0)
     assert_shape_equal(tensor.shape(), shape)
 
 
-fn test_random_normal_tensor_default_params() raises:
+def test_random_normal_tensor_default_params() raises:
     """Test random_normal_tensor with default mean=0, std=1."""
     var shape = [1000]
     var tensor = random_normal_tensor(shape, DType.float32)
@@ -275,7 +275,7 @@ fn test_random_normal_tensor_default_params() raises:
     assert_almost_equal(empirical_std, 1.0, tolerance=0.3)
 
 
-fn test_random_normal_tensor_custom_mean_std() raises:
+def test_random_normal_tensor_custom_mean_std() raises:
     """Test random_normal_tensor with custom mean and std."""
     var shape = [500]
     var mean = 5.0
@@ -305,7 +305,7 @@ fn test_random_normal_tensor_custom_mean_std() raises:
     assert_almost_equal(empirical_std, std, tolerance=0.5)
 
 
-fn test_random_normal_tensor_int32() raises:
+def test_random_normal_tensor_int32() raises:
     """Test random_normal_tensor with int32 dtype."""
     var shape = [100]
     var tensor = random_normal_tensor(shape, DType.int32, mean=0.0, std=1.0)
@@ -328,21 +328,21 @@ fn test_random_normal_tensor_int32() raises:
     )
 
 
-fn test_random_normal_tensor_1d() raises:
+def test_random_normal_tensor_1d() raises:
     """Test random_normal_tensor with 1D shape."""
     var shape = [100]
     var tensor = random_normal_tensor(shape, DType.float32)
     assert_shape_equal(tensor.shape(), shape)
 
 
-fn test_random_normal_tensor_3d() raises:
+def test_random_normal_tensor_3d() raises:
     """Test random_normal_tensor with 3D shape."""
     var shape = [5, 5, 5]
     var tensor = random_normal_tensor(shape, DType.float32)
     assert_shape_equal(tensor.shape(), shape)
 
 
-fn test_set_tensor_value_float32() raises:
+def test_set_tensor_value_float32() raises:
     """Test set_tensor_value with float32 dtype."""
     var shape = [10, 5]
     var tensor = zeros_tensor(shape, DType.float32)
@@ -362,7 +362,7 @@ fn test_set_tensor_value_float32() raises:
     assert_almost_equal(val49, 3.14, tolerance=1e-4)
 
 
-fn test_set_tensor_value_int32() raises:
+def test_set_tensor_value_int32() raises:
     """Test set_tensor_value with int32 dtype."""
     var shape = [10]
     var tensor = zeros_tensor(shape, DType.int32)
@@ -382,7 +382,7 @@ fn test_set_tensor_value_int32() raises:
     assert_almost_equal(val9, 99.0, tolerance=1e-6)
 
 
-fn test_set_tensor_value_overwrite() raises:
+def test_set_tensor_value_overwrite() raises:
     """Test set_tensor_value overwrites previous values."""
     var shape = [5]
     var tensor = ones_tensor(shape, DType.float32)
@@ -403,7 +403,7 @@ fn test_set_tensor_value_overwrite() raises:
     assert_almost_equal(other_val, 1.0, tolerance=1e-6)
 
 
-fn test_set_tensor_value_float64() raises:
+def test_set_tensor_value_float64() raises:
     """Test set_tensor_value with float64 dtype."""
     var shape = [5]
     var tensor = zeros_tensor(shape, DType.float64)
@@ -414,7 +414,7 @@ fn test_set_tensor_value_float64() raises:
     assert_almost_equal(val, 6.28, tolerance=1e-10)
 
 
-fn test_set_tensor_value_multiple_indices() raises:
+def test_set_tensor_value_multiple_indices() raises:
     """Test setting multiple values in same tensor."""
     var shape = [10]
     var tensor = zeros_tensor(shape, DType.float32)
@@ -430,7 +430,7 @@ fn test_set_tensor_value_multiple_indices() raises:
         assert_almost_equal(val, expected, tolerance=1e-4)
 
 
-fn test_tensor_factory_workflow() raises:
+def test_tensor_factory_workflow() raises:
     """Test typical workflow using multiple factory functions."""
     # Create tensors for a simple test scenario
     var shape = [10, 10]
@@ -457,7 +457,7 @@ fn test_tensor_factory_workflow() raises:
     assert_dtype_equal(normal.dtype(), DType.float32)
 
 
-fn test_tensor_factory_all_dtypes() raises:
+def test_tensor_factory_all_dtypes() raises:
     """Test tensor factories work with multiple dtypes."""
     var shape = [5]
     var dtypes = List[DType]()
@@ -477,7 +477,7 @@ fn test_tensor_factory_all_dtypes() raises:
         assert_dtype_equal(full.dtype(), dtype)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_tensor_factory tests."""
     print("Running test_tensor_factory tests...")
 

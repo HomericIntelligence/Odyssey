@@ -7,7 +7,7 @@ from tests.shared.conftest import assert_almost_equal, assert_true
 from shared.core.activation_ops import exp_scalar_f32, exp_scalar_f64
 
 
-fn test_exp_scalar_f32() raises:
+def test_exp_scalar_f32() raises:
     """Test exp_scalar_f32 for various inputs."""
     # Test zero: exp(0) = 1
     var result = exp_scalar_f32(0.0)
@@ -31,7 +31,7 @@ fn test_exp_scalar_f32() raises:
     assert_almost_equal(result, 7.389, tolerance=1e-2)
 
 
-fn test_exp_scalar_f64() raises:
+def test_exp_scalar_f64() raises:
     """Test exp_scalar_f64 for various inputs."""
     # Test zero: exp(0) = 1
     var result = exp_scalar_f64(0.0)
@@ -55,7 +55,7 @@ fn test_exp_scalar_f64() raises:
     assert_almost_equal(Float32(result), 7.389, tolerance=1e-2)
 
 
-fn test_exp_scalar_f32_monotonicity() raises:
+def test_exp_scalar_f32_monotonicity() raises:
     """Test that exp is monotonically increasing."""
     # exp(a) < exp(b) for a < b
     var exp_neg_1 = exp_scalar_f32(-1.0)
@@ -66,7 +66,7 @@ fn test_exp_scalar_f32_monotonicity() raises:
     assert_true(exp_0 < exp_1, "exp(0) should be less than exp(1)")
 
 
-fn test_exp_scalar_f64_monotonicity() raises:
+def test_exp_scalar_f64_monotonicity() raises:
     """Test that exp is monotonically increasing for float64."""
     var exp_neg_1 = exp_scalar_f64(-1.0)
     var exp_0 = exp_scalar_f64(0.0)
@@ -76,7 +76,7 @@ fn test_exp_scalar_f64_monotonicity() raises:
     assert_true(exp_0 < exp_1, "exp(0) should be less than exp(1)")
 
 
-fn main() raises:
+def main() raises:
     """Run all tests."""
     test_exp_scalar_f32()
     test_exp_scalar_f64()

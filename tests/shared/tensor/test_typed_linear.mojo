@@ -23,7 +23,7 @@ from shared.core.layers.linear import Linear
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 
 
-fn test_linear_default_dtype() raises:
+def test_linear_default_dtype() raises:
     """Linear defaults to float32 weights."""
     var layer = Linear(4, 2)
     # Weight dtype should be float32 by default
@@ -33,7 +33,7 @@ fn test_linear_default_dtype() raises:
     print("PASS: test_linear_default_dtype")
 
 
-fn test_linear_float64() raises:
+def test_linear_float64() raises:
     """Linear[DType.float64] uses float64 weights."""
     var layer = Linear[DType.float64](4, 2)
     var params = layer.parameters()
@@ -42,7 +42,7 @@ fn test_linear_float64() raises:
     print("PASS: test_linear_float64")
 
 
-fn test_linear_parameters_as_anytensor() raises:
+def test_linear_parameters_as_anytensor() raises:
     """Parameters() returns List[AnyTensor] (Module trait compliance)."""
     var layer = Linear(4, 2)
     var params = layer.parameters()
@@ -57,7 +57,7 @@ fn test_linear_parameters_as_anytensor() raises:
     print("PASS: test_linear_parameters_as_anytensor")
 
 
-fn test_linear_forward_anytensor_boundary() raises:
+def test_linear_forward_anytensor_boundary() raises:
     """Forward() accepts AnyTensor, returns AnyTensor (H7 boundary)."""
     var layer = Linear(4, 2)
     var input: AnyTensor = zeros([1, 4], DType.float32)
@@ -69,7 +69,7 @@ fn test_linear_forward_anytensor_boundary() raises:
     print("PASS: test_linear_forward_anytensor_boundary")
 
 
-fn test_linear_identity_weight_correctness() raises:
+def test_linear_identity_weight_correctness() raises:
     """Linear With Identity Weights and Known Bias Produces Correct Output.
 
     Input: [1.0, 0.5] (1x2)
@@ -105,7 +105,7 @@ fn test_linear_identity_weight_correctness() raises:
     print("PASS: test_linear_identity_weight_correctness")
 
 
-fn test_linear_zero_bias() raises:
+def test_linear_zero_bias() raises:
     """Linear with zero bias produces matmul-only output."""
     var layer = Linear(3, 2)
 
@@ -138,7 +138,7 @@ fn test_linear_zero_bias() raises:
     print("PASS: test_linear_zero_bias")
 
 
-fn main() raises:
+def main() raises:
     test_linear_default_dtype()
     test_linear_float64()
     test_linear_parameters_as_anytensor()

@@ -17,7 +17,7 @@ from shared.tensor.any_tensor import (
 )
 
 
-fn test_ones_like_shape() raises:
+def test_ones_like_shape() raises:
     """Test that ones_like creates tensor with correct shape."""
     print("Testing ones_like shape...")
 
@@ -56,7 +56,7 @@ fn test_ones_like_shape() raises:
     print("  ✓ ones_like shape test passed")
 
 
-fn test_ones_like_values() raises:
+def test_ones_like_values() raises:
     """Test that ones_like fills tensor with ones."""
     print("Testing ones_like values...")
 
@@ -77,7 +77,7 @@ fn test_ones_like_values() raises:
     print("  ✓ ones_like values test passed")
 
 
-fn test_ones_like_dtype() raises:
+def test_ones_like_dtype() raises:
     """Test that ones_like preserves dtype."""
     print("Testing ones_like dtype...")
 
@@ -104,7 +104,7 @@ fn test_ones_like_dtype() raises:
     print("  ✓ ones_like dtype test passed")
 
 
-fn test_zeros_like_values() raises:
+def test_zeros_like_values() raises:
     """Test that zeros_like fills tensor with zeros."""
     print("Testing zeros_like values...")
 
@@ -125,7 +125,7 @@ fn test_zeros_like_values() raises:
     print("  ✓ zeros_like values test passed")
 
 
-fn test_full_like_custom_value() raises:
+def test_full_like_custom_value() raises:
     """Test that full_like fills with custom value."""
     print("Testing full_like with custom value...")
 
@@ -149,7 +149,7 @@ fn test_full_like_custom_value() raises:
     print("  ✓ full_like test passed")
 
 
-fn test_utility_with_different_shapes() raises:
+def test_utility_with_different_shapes() raises:
     """Test utilities with various tensor shapes."""
     print("Testing utilities with various shapes...")
 
@@ -194,7 +194,7 @@ fn test_utility_with_different_shapes() raises:
     print("  ✓ Various shapes test passed")
 
 
-fn run_all_tests() raises:
+def run_all_tests() raises:
     """Run all utility function tests."""
     print("=" * 60)
     print("Utility Functions Test Suite")
@@ -212,6 +212,6 @@ fn run_all_tests() raises:
     print("=" * 60)
 
 
-fn main() raises:
+def main() raises:
     """Entry point for utility tests."""
     run_all_tests()

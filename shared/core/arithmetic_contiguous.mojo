@@ -24,8 +24,8 @@ Usage:
         result = add(a, b)  # Uses stride-aware broadcast
 """
 
-from algorithm import vectorize
-from sys.info import simd_width_of
+from std.algorithm import vectorize
+from std.sys.info import simd_width_of
 from shared.tensor.any_tensor import AnyTensor
 
 
@@ -34,7 +34,7 @@ from shared.tensor.any_tensor import AnyTensor
 # ============================================================================
 
 
-fn shapes_match(a: AnyTensor, b: AnyTensor) -> Bool:
+def shapes_match(a: AnyTensor, b: AnyTensor) -> Bool:
     """Check if two tensors have identical shapes.
 
     Args:
@@ -54,7 +54,7 @@ fn shapes_match(a: AnyTensor, b: AnyTensor) -> Bool:
     return True
 
 
-fn can_use_fast_path(a: AnyTensor, b: AnyTensor) -> Bool:
+def can_use_fast_path(a: AnyTensor, b: AnyTensor) -> Bool:
     """Check if tensors are eligible for contiguous fast path.
 
     The fast path applies when:
@@ -95,7 +95,7 @@ fn can_use_fast_path(a: AnyTensor, b: AnyTensor) -> Bool:
 # ============================================================================
 
 
-fn _add_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def _add_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Dispatch to typed contiguous addition.
 
     Args:
@@ -151,7 +151,7 @@ fn _add_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         raise Error("Unsupported dtype for contiguous addition")
 
 
-fn _subtract_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def _subtract_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Dispatch to typed contiguous subtraction.
 
     Args:
@@ -207,7 +207,7 @@ fn _subtract_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor
         raise Error("Unsupported dtype for contiguous subtraction")
 
 
-fn _multiply_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def _multiply_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Dispatch to typed contiguous multiplication.
 
     Args:
@@ -263,7 +263,7 @@ fn _multiply_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor
         raise Error("Unsupported dtype for contiguous multiplication")
 
 
-fn _divide_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def _divide_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Dispatch to typed contiguous division.
 
     Args:
@@ -325,7 +325,7 @@ fn _divide_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
 
 @always_inline
-fn _add_contiguous[dtype: DType](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def _add_contiguous[dtype: DType](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """AnyTensor contiguous addition -- delegates to typed core."""
     from shared.tensor.typed.arithmetic_contiguous import _add_contiguous_typed
 
@@ -335,7 +335,7 @@ fn _add_contiguous[dtype: DType](a: AnyTensor, b: AnyTensor) raises -> AnyTensor
 
 
 @always_inline
-fn _subtract_contiguous[
+def _subtract_contiguous[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """AnyTensor contiguous subtraction -- delegates to typed core."""
@@ -347,7 +347,7 @@ fn _subtract_contiguous[
 
 
 @always_inline
-fn _multiply_contiguous[
+def _multiply_contiguous[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """AnyTensor contiguous multiplication -- delegates to typed core."""
@@ -359,7 +359,7 @@ fn _multiply_contiguous[
 
 
 @always_inline
-fn _divide_contiguous[
+def _divide_contiguous[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """AnyTensor contiguous division -- delegates to typed core."""

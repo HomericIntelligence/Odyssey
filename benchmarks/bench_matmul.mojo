@@ -34,7 +34,7 @@ Output:
 from shared.utils.arg_parser import ArgumentParser
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from time import perf_counter_ns
-from collections import List
+from std.collections import List
 
 from shared.core.matmul import (
     matmul_typed as _matmul_typed_impl,
@@ -48,7 +48,7 @@ from shared.core.matmul import (
 # ============================================================================
 
 
-fn matmul_naive[
+def matmul_naive[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
     """Stage 0: Baseline naive implementation (Float64 conversion).
@@ -71,7 +71,7 @@ fn matmul_naive[
             result._set_float64(i * b_cols + j, sum_val)
 
 
-fn matmul_typed[
+def matmul_typed[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
     """Stage 1: Dtype-specific kernel (eliminates Float64 conversion).
@@ -82,7 +82,7 @@ fn matmul_typed[
     _matmul_typed_impl(a, b, result)
 
 
-fn matmul_simd[
+def matmul_simd[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
     """Stage 2: SIMD vectorization (vectorize J-loop).
@@ -93,7 +93,7 @@ fn matmul_simd[
     _matmul_simd_impl(a, b, result)
 
 
-fn matmul_tiled[
+def matmul_tiled[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor, mut result: AnyTensor) raises:
     """Stage 3: Cache-aware blocking/tiling (production kernel).
@@ -110,7 +110,7 @@ fn matmul_tiled[
 # ============================================================================
 
 
-fn verify_stage[
+def verify_stage[
     dtype: DType
 ](
     stage_id: Int,
@@ -180,7 +180,7 @@ fn verify_stage[
                 )
 
 
-fn verify_all_stages[dtype: DType](size: Int) raises:
+def verify_all_stages[dtype: DType](size: Int) raises:
     """Verify all optimization stages produce identical results.
 
     Args:
@@ -213,7 +213,7 @@ fn verify_all_stages[dtype: DType](size: Int) raises:
 # ============================================================================
 
 
-fn bench_stage[
+def bench_stage[
     dtype: DType
 ](stage_id: Int, size: Int, iterations: Int) raises -> Float64:
     """Benchmark a single optimization stage.
@@ -267,7 +267,7 @@ fn bench_stage[
     return Float64(total_ns) / Float64(iterations) / 1_000_000.0
 
 
-fn calculate_gflops(size: Int, time_ms: Float64) -> Float64:
+def calculate_gflops(size: Int, time_ms: Float64) -> Float64:
     """Calculate GFLOPS (billion floating-point operations per second).
 
     Matrix multiplication requires 2*M*N*K FLOPs for C = A @ B
@@ -291,7 +291,7 @@ fn calculate_gflops(size: Int, time_ms: Float64) -> Float64:
 # ============================================================================
 
 
-fn print_help(prog_name: String):
+def print_help(prog_name: String):
     """Print help message and usage information.
 
     Args:
@@ -366,7 +366,7 @@ EXPECTED SPEEDUPS:
     )
 
 
-fn parse_sizes(sizes_str: String) raises -> List[Int]:
+def parse_sizes(sizes_str: String) raises -> List[Int]:
     """Parse comma-separated sizes string into list of integers.
 
     Args:
@@ -394,7 +394,7 @@ fn parse_sizes(sizes_str: String) raises -> List[Int]:
     return sizes^
 
 
-fn parse_args() raises -> Tuple[Int, List[Int], DType, Int, Bool]:
+def parse_args() raises -> Tuple[Int, List[Int], DType, Int, Bool]:
     """Parse command-line arguments.
 
     Returns:
@@ -459,7 +459,7 @@ fn parse_args() raises -> Tuple[Int, List[Int], DType, Int, Bool]:
 # ============================================================================
 
 
-fn format_time(time_ms: Float64) -> String:
+def format_time(time_ms: Float64) -> String:
     """Format time in milliseconds with appropriate precision.
 
     Args:
@@ -478,7 +478,7 @@ fn format_time(time_ms: Float64) -> String:
         return String(time_ms / 1000.0).substr(0, 6) + "s"
 
 
-fn format_gflops(gflops: Float64) -> String:
+def format_gflops(gflops: Float64) -> String:
     """Format GFLOPS with appropriate precision.
 
     Args:
@@ -497,7 +497,7 @@ fn format_gflops(gflops: Float64) -> String:
         return String(gflops).substr(0, 6)
 
 
-fn format_speedup(speedup: Float64) -> String:
+def format_speedup(speedup: Float64) -> String:
     """Format speedup with appropriate precision.
 
     Args:
@@ -516,7 +516,7 @@ fn format_speedup(speedup: Float64) -> String:
         return String(speedup).substr(0, 6) + "x"
 
 
-fn run_benchmarks[
+def run_benchmarks[
     dtype: DType
 ](stage: Int, sizes: List[Int], iterations: Int) raises:
     """Run benchmarks for specified stages and sizes.
@@ -604,7 +604,7 @@ fn run_benchmarks[
     print("")
 
 
-fn main() raises:
+def main() raises:
     """Main benchmark driver."""
     # Check for help flags
     from sys import argv

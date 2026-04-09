@@ -3,7 +3,7 @@
 Internal module -- not part of the public API.
 """
 
-from collections import List
+from std.collections import List
 from shared.tensor.tensor import Tensor
 from shared.tensor.any_tensor import AnyTensor
 from shared.base.broadcasting import broadcast_shapes, compute_broadcast_strides
@@ -28,8 +28,8 @@ from shared.base.dtype_ordinal import (
 # ============================================================================
 
 
-fn _broadcast_binary_typed[
-    dtype: DType, op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+def _broadcast_binary_typed[
+    dtype: DType, op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
 ](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[dtype]:
     """Apply binary operation with broadcasting on native Tensor[dtype].
 
@@ -118,8 +118,8 @@ fn _broadcast_binary_typed[
 # ============================================================================
 
 
-fn _broadcast_binary[
-    dtype: DType, op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+def _broadcast_binary[
+    dtype: DType, op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Apply binary operation with broadcasting via typed core.
 
@@ -147,8 +147,8 @@ fn _broadcast_binary[
 # ============================================================================
 
 
-fn _dispatch_broadcast_binary[
-    op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+def _dispatch_broadcast_binary[
+    op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch to compile-time specialized Tensor[dtype] implementation.
 
@@ -202,7 +202,7 @@ fn _dispatch_broadcast_binary[
         raise Error("Unsupported dtype for binary operation")
 
 
-fn _multiply_scalar_typed[
+def _multiply_scalar_typed[
     dt: DType
 ](tensor: Tensor[dt], scalar: Float32) raises -> Tensor[dt]:
     """Native typed scalar multiplication (Layer 3 core).
@@ -237,7 +237,7 @@ fn _multiply_scalar_typed[
     return result^
 
 
-fn _dispatch_multiply_scalar(
+def _dispatch_multiply_scalar(
     tensor: AnyTensor, scalar: Float32
 ) raises -> AnyTensor:
     """Runtime dispatch for scalar multiplication."""

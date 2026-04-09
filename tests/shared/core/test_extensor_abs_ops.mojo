@@ -7,7 +7,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 
-fn test_abs_positive_values() raises:
+def test_abs_positive_values() raises:
     """Test __abs__: absolute value of positive numbers."""
     var a = full([2, 3], 3.5, DType.float32)
     var result = a.__abs__()
@@ -17,7 +17,7 @@ fn test_abs_positive_values() raises:
         )
 
 
-fn test_abs_negative_values() raises:
+def test_abs_negative_values() raises:
     """Test __abs__: absolute value of negative numbers."""
     var a = full([2, 3], -3.5, DType.float32)
     var result = a.__abs__()
@@ -27,7 +27,7 @@ fn test_abs_negative_values() raises:
         )
 
 
-fn test_abs_mixed_values() raises:
+def test_abs_mixed_values() raises:
     """Test __abs__: absolute value with mixed positive/negative."""
     var a = zeros([4], DType.float32)
     a._set_float32(0, Float32(2.0))
@@ -41,7 +41,7 @@ fn test_abs_mixed_values() raises:
     assert_almost_equal(Float64(result._get_float32(3)), 1.5, tolerance=1e-6)
 
 
-fn test_abs_zeros() raises:
+def test_abs_zeros() raises:
     """Test __abs__: absolute value of zeros."""
     var a = zeros([2, 3], DType.float32)
     var result = a.__abs__()
@@ -51,7 +51,7 @@ fn test_abs_zeros() raises:
         )
 
 
-fn test_combined_unary_binary_ops() raises:
+def test_combined_unary_binary_ops() raises:
     """Test combining unary and binary operators."""
     var a = full([2, 2], 2.0, DType.float32)
     var b = full([2, 2], -3.0, DType.float32)
@@ -64,7 +64,7 @@ fn test_combined_unary_binary_ops() raises:
         )
 
 
-fn test_double_negation() raises:
+def test_double_negation() raises:
     """Test double negation: -(-a) == a."""
     var a = full([2, 2], 3.0, DType.float32)
     var result = -(-a)
@@ -74,7 +74,7 @@ fn test_double_negation() raises:
         )
 
 
-fn test_operators_preserve_shape() raises:
+def test_operators_preserve_shape() raises:
     """Test that all operators preserve tensor shape."""
     var shape: List[Int] = [3, 4, 2]
     var a = zeros(shape, DType.float32)
@@ -92,7 +92,7 @@ fn test_operators_preserve_shape() raises:
     assert_equal(len(abs_result.shape()), 3)
 
 
-fn main() raises:
+def main() raises:
     """Run all __abs__ and combined operator tests."""
     test_abs_positive_values()
     test_abs_negative_values()

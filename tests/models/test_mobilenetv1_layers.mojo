@@ -36,7 +36,7 @@ from shared.core.layers.batchnorm import BatchNorm2dLayer
 from shared.core.pooling import global_avgpool2d, global_avgpool2d_backward
 
 
-fn test_depthwise_conv2d_initialization() raises:
+def test_depthwise_conv2d_initialization() raises:
     """Test that depthwise conv2d parameters can be created with correct shapes.
 
     Depthwise kernel shape: (channels, 1, kH, kW) - one filter per input channel
@@ -83,7 +83,7 @@ fn test_depthwise_conv2d_initialization() raises:
     assert_equal(bias_s[0], channels)
 
 
-fn test_depthwise_conv2d_forward_shape() raises:
+def test_depthwise_conv2d_forward_shape() raises:
     """Test depthwise conv2d output shape computation.
 
     Depthwise conv: channels stay the same, only spatial dims change
@@ -131,7 +131,7 @@ fn test_depthwise_conv2d_forward_shape() raises:
     assert_equal(out_shape[3], 8)  # (8 + 2*1 - 3) // 1 + 1 = 8
 
 
-fn test_depthwise_conv2d_stride2() raises:
+def test_depthwise_conv2d_stride2() raises:
     """Test depthwise conv2d with stride 2 (downsampling).
 
     MobileNetV1 uses stride=2 in several blocks for downsampling.
@@ -177,7 +177,7 @@ fn test_depthwise_conv2d_stride2() raises:
     assert_equal(out_shape[3], 7)
 
 
-fn test_depthwise_conv2d_backward() raises:
+def test_depthwise_conv2d_backward() raises:
     """Test depthwise conv2d backward pass (gradient computation).
 
     Verifies that gradients are computed correctly for:
@@ -242,7 +242,7 @@ fn test_depthwise_conv2d_backward() raises:
     assert_equal(grad_bias_shape[0], channels)
 
 
-fn test_pointwise_conv2d_1x1_initialization() raises:
+def test_pointwise_conv2d_1x1_initialization() raises:
     """Test that pointwise (1x1) convolution parameters are created correctly.
 
     Pointwise convolution is a standard 1x1 convolution used for:
@@ -284,7 +284,7 @@ fn test_pointwise_conv2d_1x1_initialization() raises:
     assert_equal(kernel_s[3], 1)
 
 
-fn test_pointwise_conv2d_forward() raises:
+def test_pointwise_conv2d_forward() raises:
     """Test pointwise (1x1) convolution forward pass.
 
     1x1 convolution should preserve spatial dimensions while transforming channels.
@@ -331,7 +331,7 @@ fn test_pointwise_conv2d_forward() raises:
     assert_almost_equal(output_data[0], Float32(in_channels), tolerance=1e-5)
 
 
-fn test_pointwise_conv2d_backward() raises:
+def test_pointwise_conv2d_backward() raises:
     """Test pointwise (1x1) convolution backward pass.
 
     Verify gradient computation for channel projection.
@@ -387,7 +387,7 @@ fn test_pointwise_conv2d_backward() raises:
     assert_equal(grad_kernel_shape[1], in_channels)
 
 
-fn test_depthwise_separable_block_basic() raises:
+def test_depthwise_separable_block_basic() raises:
     """Test depthwise separable block: complete forward pass.
 
     Block structure:
@@ -456,7 +456,7 @@ fn test_depthwise_separable_block_basic() raises:
     assert_equal(out_shape[3], width)
 
 
-fn test_depthwise_separable_block_with_stride() raises:
+def test_depthwise_separable_block_with_stride() raises:
     """Test depthwise separable block with stride 2 for downsampling.
 
     MobileNetV1 uses stride=2 in blocks 2, 4, and 6 for spatial reduction.
@@ -521,7 +521,7 @@ fn test_depthwise_separable_block_with_stride() raises:
     assert_equal(out_shape[3], 7)
 
 
-fn test_batchnorm2d_initialization() raises:
+def test_batchnorm2d_initialization() raises:
     """Test BatchNorm2D layer initialization.
 
     Gamma (scale) should be initialized to 1.0
@@ -553,7 +553,7 @@ fn test_batchnorm2d_initialization() raises:
     assert_almost_equal(beta_data[0], 0.0, tolerance=1e-5)
 
 
-fn test_batchnorm2d_forward_training() raises:
+def test_batchnorm2d_forward_training() raises:
     """Test BatchNorm2D forward pass in training mode.
 
     In training mode:
@@ -587,7 +587,7 @@ fn test_batchnorm2d_forward_training() raises:
     assert_equal(out_shape[3], width)
 
 
-fn test_batchnorm2d_forward_inference() raises:
+def test_batchnorm2d_forward_inference() raises:
     """Test BatchNorm2D forward pass in inference mode.
 
     In inference mode:
@@ -619,7 +619,7 @@ fn test_batchnorm2d_forward_inference() raises:
     assert_equal(out_shape[1], num_channels)
 
 
-fn test_relu_activation_basic() raises:
+def test_relu_activation_basic() raises:
     """Test ReLU activation: clamps negative values to 0.
 
     ReLU(x) = max(0, x)
@@ -661,7 +661,7 @@ fn test_relu_activation_basic() raises:
     assert_almost_equal(output_data[3], 2.0, tolerance=1e-5)  # 2.0 -> 2.0
 
 
-fn test_relu_multiple_applications() raises:
+def test_relu_multiple_applications() raises:
     """Test ReLU applied multiple times in a forward pass sequence.
 
     Verifies that ReLU can be applied repeatedly without issues.
@@ -706,7 +706,7 @@ fn test_relu_multiple_applications() raises:
     assert_almost_equal(out_data[3], 0.0, tolerance=1e-5)  # -0.5 -> 0.0
 
 
-fn test_global_avgpool2d_forward() raises:
+def test_global_avgpool2d_forward() raises:
     """Test global average pooling forward pass.
 
     Reduces spatial dimensions to 1x1 by averaging all spatial positions per channel.
@@ -743,7 +743,7 @@ fn test_global_avgpool2d_forward() raises:
     assert_almost_equal(output_data[0], 1.0, tolerance=1e-5)
 
 
-fn test_global_avgpool2d_backward() raises:
+def test_global_avgpool2d_backward() raises:
     """Test global average pooling backward pass.
 
     Distributes gradients equally to all spatial positions.
@@ -783,7 +783,7 @@ fn test_global_avgpool2d_backward() raises:
     assert_almost_equal(grad_data[0], expected_grad, tolerance=1e-5)
 
 
-fn test_mobilenetv1_block1_32to64() raises:
+def test_mobilenetv1_block1_32to64() raises:
     """Test MobileNetV1 Block 1: 32->64 channels, stride=1."""
     var batch_size = 1
     var in_channels = 32
@@ -831,7 +831,7 @@ fn test_mobilenetv1_block1_32to64() raises:
     assert_equal(out_shape[3], width)
 
 
-fn test_mobilenetv1_block2_64to128_stride2() raises:
+def test_mobilenetv1_block2_64to128_stride2() raises:
     """Test MobileNetV1 Block 2: 64->128 channels, stride=2 (downsampling)."""
     var batch_size = 1
     var in_channels = 64
@@ -884,7 +884,7 @@ fn test_mobilenetv1_block2_64to128_stride2() raises:
     assert_equal(out_shape[3], 14)
 
 
-fn test_mobilenetv1_block5_512_repeat() raises:
+def test_mobilenetv1_block5_512_repeat() raises:
     """Test MobileNetV1 Block 5: 512->512 channels repeated 5x with stride=1.
 
     This block is repeated 5 times without changing dimensions.
@@ -934,7 +934,7 @@ fn test_mobilenetv1_block5_512_repeat() raises:
     assert_equal(out_shape[3], width)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_mobilenetv1_layers tests."""
     print("Running test_mobilenetv1_layers tests...")
 

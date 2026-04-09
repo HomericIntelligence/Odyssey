@@ -12,7 +12,7 @@ Design principles:
 - Type-safe metric collection.
 """
 
-from collections import List
+from std.collections import List
 from shared.tensor.any_tensor import AnyTensor
 
 
@@ -27,7 +27,7 @@ trait Metric:
     This ensures consistent API across accuracy, loss, confusion matrix, etc.
     """
 
-    fn update(mut self, predictions: AnyTensor, labels: AnyTensor) raises:
+    def update(mut self, predictions: AnyTensor, labels: AnyTensor) raises:
         """Update metric state with a batch of predictions and labels.
 
         Args:
@@ -39,7 +39,7 @@ trait Metric:
         """
         ...
 
-    fn reset(mut self):
+    def reset(mut self):
         """Reset metric state for a new epoch or evaluation run.
 
         Clears all accumulated statistics to start fresh.
@@ -63,7 +63,7 @@ struct MetricResult(Copyable, Movable):
     var tensor_value: AnyTensor
     """Tensor metric value (if is_scalar=False)."""
 
-    fn __init__(out self, name: String, value: Float64) raises:
+    def __init__(out self, name: String, value: Float64) raises:
         """Create scalar metric result.
 
         Args:
@@ -78,7 +78,7 @@ struct MetricResult(Copyable, Movable):
         self.scalar_value = value
         self.tensor_value = AnyTensor(List[Int](), DType.float32)  # Placeholder
 
-    fn __init__(out self, name: String, var value: AnyTensor):
+    def __init__(out self, name: String, var value: AnyTensor):
         """Create tensor metric result (ownership transferred).
 
         Args:
@@ -90,7 +90,7 @@ struct MetricResult(Copyable, Movable):
         self.scalar_value = 0.0
         self.tensor_value = value^
 
-    fn get_scalar(self) raises -> Float64:
+    def get_scalar(self) raises -> Float64:
         """Get scalar value.
 
         Returns:
@@ -103,7 +103,7 @@ struct MetricResult(Copyable, Movable):
             raise Error("Metric '" + self.name + "' is not scalar")
         return self.scalar_value
 
-    fn get_tensor(self) raises -> AnyTensor:
+    def get_tensor(self) raises -> AnyTensor:
         """Get tensor value.
 
         Returns:
@@ -150,12 +150,12 @@ struct MetricCollection(Sized):
     var num_metrics: Int
     """Number of metrics in this collection."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize empty metric collection."""
         self.metric_names = List[String]()
         self.num_metrics = 0
 
-    fn add[T: Metric](mut self, name: String, metric: T):
+    def add[T: Metric](mut self, name: String, metric: T):
         """Add a metric to the collection.
 
         Args:
@@ -173,7 +173,7 @@ struct MetricCollection(Sized):
         self.metric_names.append(name)
         self.num_metrics += 1
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Get number of metrics in collection (Sized trait).
 
         Returns:
@@ -181,7 +181,7 @@ struct MetricCollection(Sized):
         """
         return self.num_metrics
 
-    fn size(self) -> Int:
+    def size(self) -> Int:
         """Get number of metrics in collection.
 
         Returns:
@@ -189,7 +189,7 @@ struct MetricCollection(Sized):
         """
         return self.num_metrics
 
-    fn get_names(self) -> List[String]:
+    def get_names(self) -> List[String]:
         """Get names of all metrics.
 
         Returns:
@@ -197,7 +197,7 @@ struct MetricCollection(Sized):
         """
         return List[String](self.metric_names)
 
-    fn contains(self, name: String) -> Bool:
+    def contains(self, name: String) -> Bool:
         """Check if metric exists in collection.
 
         Args:
@@ -212,7 +212,7 @@ struct MetricCollection(Sized):
         return False
 
 
-fn create_metric_summary(results: List[MetricResult]) -> String:
+def create_metric_summary(results: List[MetricResult]) -> String:
     """Create human-readable summary of metric results.
 
     Args:
@@ -264,14 +264,14 @@ struct MetricLogger:
     var num_epochs: Int
     """Number of epochs logged."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize empty metric logger."""
         self.metric_names = List[String]()
         self.metric_history = List[List[Float64]]()
         self.num_metrics = 0
         self.num_epochs = 0
 
-    fn log_epoch(mut self, epoch: Int, metrics: List[MetricResult]):
+    def log_epoch(mut self, epoch: Int, metrics: List[MetricResult]):
         """Log metrics for an epoch.
 
         Args:
@@ -296,7 +296,7 @@ struct MetricLogger:
 
         self.num_epochs += 1
 
-    fn get_history(self, metric_name: String) raises -> List[Float64]:
+    def get_history(self, metric_name: String) raises -> List[Float64]:
         """Get history for a specific metric.
 
         Args:
@@ -315,7 +315,7 @@ struct MetricLogger:
 
         raise Error("Metric '" + metric_name + "' not found in logger")
 
-    fn get_latest(self, metric_name: String) raises -> Float64:
+    def get_latest(self, metric_name: String) raises -> Float64:
         """Get latest value for a metric.
 
         Args:
@@ -332,7 +332,7 @@ struct MetricLogger:
             raise Error("No history for metric '" + metric_name + "'")
         return history[len(history) - 1]
 
-    fn get_best(
+    def get_best(
         self, metric_name: String, maximize: Bool = True
     ) raises -> Float64:
         """Get best value for a metric.
@@ -362,7 +362,7 @@ struct MetricLogger:
 
         return best
 
-    fn print_summary(self):
+    def print_summary(self):
         """Print summary of all metrics."""
         print("\nMetric History Summary:")
         print("-" * 50)

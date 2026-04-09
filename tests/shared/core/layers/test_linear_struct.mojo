@@ -18,7 +18,7 @@ from shared.tensor.any_tensor import AnyTensor, ones, zeros, zeros_like
 from shared.core.layers.linear import Linear
 
 
-fn test_linear_struct_initialization() raises:
+def test_linear_struct_initialization() raises:
     """Test Linear struct initialization.
 
     Verify that weights and bias are created with correct shapes.
@@ -42,7 +42,7 @@ fn test_linear_struct_initialization() raises:
     assert_equal(layer.out_features, out_features)
 
 
-fn test_linear_struct_forward_batched() raises:
+def test_linear_struct_forward_batched() raises:
     """Test Linear forward pass with batched input.
 
     Input: (batch_size=4, in_features=10)
@@ -65,7 +65,7 @@ fn test_linear_struct_forward_batched() raises:
     assert_equal(output_shape[1], 5)
 
 
-fn test_linear_struct_forward_single_sample() raises:
+def test_linear_struct_forward_single_sample() raises:
     """Test Linear forward pass with single sample.
 
     Input: (in_features=3,)
@@ -119,7 +119,7 @@ fn test_linear_struct_forward_single_sample() raises:
     assert_almost_equal(output_data[1], 2.0, tolerance=1e-5)
 
 
-fn test_linear_struct_with_bias() raises:
+def test_linear_struct_with_bias() raises:
     """Test Linear forward pass correctly adds bias.
 
     Input: (1, 2) = [1, 1]
@@ -153,7 +153,7 @@ fn test_linear_struct_with_bias() raises:
     assert_almost_equal(output_data[1], 11.0, tolerance=1e-5)
 
 
-fn test_linear_struct_parameters() raises:
+def test_linear_struct_parameters() raises:
     """Test Linear.parameters() returns copies of weights and bias.
 
     Verify that the parameters method returns a list with [weight, bias].
@@ -175,7 +175,7 @@ fn test_linear_struct_parameters() raises:
     assert_equal(bias_shape[0], 3)
 
 
-fn test_linear_struct_large_batch() raises:
+def test_linear_struct_large_batch() raises:
     """Test Linear with larger batch size and dimensions.
 
     Verify it works with realistic neural network sizes.
@@ -194,7 +194,7 @@ fn test_linear_struct_large_batch() raises:
     assert_equal(output_shape[1], 128)
 
 
-fn main() raises:
+def main() raises:
     """Run all Linear struct tests."""
     print("Running Linear struct tests...")
 

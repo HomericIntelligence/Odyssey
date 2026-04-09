@@ -30,7 +30,7 @@ struct MultiHeadAttention(Module):
     var v_proj: Linear  # Value projection
     var out_proj: Linear  # Output projection
 
-    fn __init__(out self, embed_dim: Int, num_heads: Int) raises:
+    def __init__(out self, embed_dim: Int, num_heads: Int) raises:
         """Initialize multi-head attention.
 
         Args:
@@ -47,7 +47,7 @@ struct MultiHeadAttention(Module):
         self.v_proj = Linear(embed_dim, embed_dim)
         self.out_proj = Linear(embed_dim, embed_dim)
 
-    fn forward(mut self, x: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, x: AnyTensor) raises -> AnyTensor:
         """Compute multi-head attention.
 
         Args:
@@ -101,7 +101,7 @@ struct MultiHeadAttention(Module):
         # Output projection
         return self.out_proj.forward(attn_output)
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         var params = List[AnyTensor]()
         params.extend(self.q_proj.parameters())
         params.extend(self.k_proj.parameters())
@@ -109,16 +109,16 @@ struct MultiHeadAttention(Module):
         params.extend(self.out_proj.parameters())
         return params^
 
-    fn train(mut self):
+    def train(mut self):
         """Switch to training mode (no-op for this layer)."""
         pass
 
-    fn eval(mut self):
+    def eval(mut self):
         """Switch to evaluation mode (no-op for this layer)."""
         pass
 
 
-fn main() raises:
+def main() raises:
     """Demonstrate multi-head attention."""
 
     # Create attention layer

@@ -8,7 +8,7 @@ Tests cover:
 """
 
 
-fn test_uint8_construction() raises:
+def test_uint8_construction() raises:
     """Test UInt8 construction from literals and zero value."""
     var zero: UInt8 = 0
     var one: UInt8 = 1
@@ -22,7 +22,7 @@ fn test_uint8_construction() raises:
         raise Error("UInt8 max value construction failed")
 
 
-fn test_uint16_construction() raises:
+def test_uint16_construction() raises:
     """Test UInt16 construction from literals and boundary values."""
     var zero: UInt16 = 0
     var one: UInt16 = 1
@@ -36,7 +36,7 @@ fn test_uint16_construction() raises:
         raise Error("UInt16 max value construction failed")
 
 
-fn test_uint32_construction() raises:
+def test_uint32_construction() raises:
     """Test UInt32 construction from literals and boundary values."""
     var zero: UInt32 = 0
     var one: UInt32 = 1
@@ -50,7 +50,7 @@ fn test_uint32_construction() raises:
         raise Error("UInt32 max value construction failed")
 
 
-fn test_uint64_construction() raises:
+def test_uint64_construction() raises:
     """Test UInt64 construction from literals and boundary values."""
     var zero: UInt64 = 0
     var one: UInt64 = 1
@@ -64,7 +64,7 @@ fn test_uint64_construction() raises:
         raise Error("UInt64 max value construction failed")
 
 
-fn test_uint8_arithmetic() raises:
+def test_uint8_arithmetic() raises:
     """Test UInt8 addition, subtraction, multiplication, and division."""
     var a: UInt8 = 10
     var b: UInt8 = 3
@@ -81,7 +81,7 @@ fn test_uint8_arithmetic() raises:
         raise Error("UInt8 modulo failed")
 
 
-fn test_uint16_arithmetic() raises:
+def test_uint16_arithmetic() raises:
     """Test UInt16 arithmetic operations."""
     var a: UInt16 = 1000
     var b: UInt16 = 7
@@ -98,7 +98,7 @@ fn test_uint16_arithmetic() raises:
         raise Error("UInt16 modulo failed")
 
 
-fn test_uint32_arithmetic() raises:
+def test_uint32_arithmetic() raises:
     """Test UInt32 arithmetic operations."""
     var a: UInt32 = 100000
     var b: UInt32 = 3
@@ -115,7 +115,7 @@ fn test_uint32_arithmetic() raises:
         raise Error("UInt32 modulo failed")
 
 
-fn test_uint64_arithmetic() raises:
+def test_uint64_arithmetic() raises:
     """Test UInt64 arithmetic operations with large values."""
     var a: UInt64 = 10000000000
     var b: UInt64 = 3
@@ -132,7 +132,7 @@ fn test_uint64_arithmetic() raises:
         raise Error("UInt64 modulo failed")
 
 
-fn test_uint8_bitwise() raises:
+def test_uint8_bitwise() raises:
     """Test UInt8 bitwise operations."""
     var a: UInt8 = 0b10110100  # 180
     var b: UInt8 = 0b01101100  # 108
@@ -149,7 +149,7 @@ fn test_uint8_bitwise() raises:
         raise Error("UInt8 right shift failed")
 
 
-fn test_uint16_bitwise() raises:
+def test_uint16_bitwise() raises:
     """Test UInt16 bitwise operations."""
     var a: UInt16 = 0xAA00  # 43776
     var b: UInt16 = 0x00FF  # 255
@@ -166,7 +166,7 @@ fn test_uint16_bitwise() raises:
         raise Error("UInt16 left shift by 8 failed")
 
 
-fn test_uint32_bitwise() raises:
+def test_uint32_bitwise() raises:
     """Test UInt32 bitwise operations."""
     var a: UInt32 = 0xFF00FF00
     var b: UInt32 = 0x00FF00FF
@@ -183,7 +183,7 @@ fn test_uint32_bitwise() raises:
         raise Error("UInt32 left shift by 8 failed")
 
 
-fn test_uint64_bitwise() raises:
+def test_uint64_bitwise() raises:
     """Test UInt64 bitwise operations."""
     var a: UInt64 = 0xFF00FF00FF00FF00
     var b: UInt64 = 0x00FF00FF00FF00FF
@@ -200,7 +200,7 @@ fn test_uint64_bitwise() raises:
         raise Error("UInt64 left shift by 8 failed")
 
 
-fn test_uint8_comparisons() raises:
+def test_uint8_comparisons() raises:
     """Test UInt8 comparison operators."""
     var a: UInt8 = 10
     var b: UInt8 = 20
@@ -226,7 +226,7 @@ fn test_uint8_comparisons() raises:
         raise Error("UInt8 >= failed (equal)")
 
 
-fn test_uint32_comparisons() raises:
+def test_uint32_comparisons() raises:
     """Test UInt32 comparison operators with larger values."""
     var small: UInt32 = 0
     var large: UInt32 = 4294967295
@@ -241,7 +241,7 @@ fn test_uint32_comparisons() raises:
         raise Error("UInt32 max equality failed")
 
 
-fn test_uint_widening_conversion() raises:
+def test_uint_widening_conversion() raises:
     """Test widening conversions between unsigned integer types."""
     var u8: UInt8 = 200
     var u16: UInt16 = u8.cast[DType.uint16]()
@@ -256,7 +256,7 @@ fn test_uint_widening_conversion() raises:
         raise Error("UInt32 -> UInt64 widening conversion failed")
 
 
-fn test_uint_to_int_conversion() raises:
+def test_uint_to_int_conversion() raises:
     """Test conversion between unsigned integers and Int."""
     var u8: UInt8 = 255
     var u32: UInt32 = 1000
@@ -274,7 +274,7 @@ fn test_uint_to_int_conversion() raises:
         raise Error("UInt64 -> Int conversion failed")
 
 
-fn test_uint_from_int_conversion() raises:
+def test_uint_from_int_conversion() raises:
     """Test constructing unsigned integers from Int values."""
     var i: Int = 42
     var u8: UInt8 = i
@@ -292,7 +292,7 @@ fn test_uint_from_int_conversion() raises:
         raise Error("Int -> UInt64 conversion failed")
 
 
-fn test_uint8_zero_operations() raises:
+def test_uint8_zero_operations() raises:
     """Test UInt8 operations involving zero."""
     var zero: UInt8 = 0
     var val: UInt8 = 42
@@ -311,7 +311,7 @@ fn test_uint8_zero_operations() raises:
         raise Error("UInt8 zero XOR failed")
 
 
-fn test_uint64_large_values() raises:
+def test_uint64_large_values() raises:
     """Test UInt64 operations with large values."""
     var billion: UInt64 = 1000000000
     var trillion: UInt64 = billion * billion
@@ -324,7 +324,7 @@ fn test_uint64_large_values() raises:
         raise Error("UInt64 large division failed")
 
 
-fn test_uint_type_min_max_operations() raises:
+def test_uint_type_min_max_operations() raises:
     """Test arithmetic at boundary values."""
     # UInt8 max - 1 operations
     var u8_near_max: UInt8 = 254
@@ -342,7 +342,7 @@ fn test_uint_type_min_max_operations() raises:
         raise Error("UInt32 max - 1 failed")
 
 
-fn test_uint_narrowing_conversion() raises:
+def test_uint_narrowing_conversion() raises:
     """Test narrowing conversions that truncate via modulo 2^N semantics.
 
     When casting a UInt64 value > 255 to UInt8, the result is the low 8 bits
@@ -383,7 +383,7 @@ fn test_uint_narrowing_conversion() raises:
         raise Error("UInt64(0).cast[DType.uint8]() should be 0")
 
 
-fn test_uint8_overflow_wrap() raises:
+def test_uint8_overflow_wrap() raises:
     """Test UInt8 addition wraps from 255 to 0.
 
     This wrapping behavior is the same modular arithmetic as narrowing casts
@@ -396,7 +396,7 @@ fn test_uint8_overflow_wrap() raises:
         )
 
 
-fn test_uint8_underflow_wrap() raises:
+def test_uint8_underflow_wrap() raises:
     """Test UInt8 subtraction wraps from 0 to 255."""
     var result: UInt8 = UInt8(0) - UInt8(1)
     if result != 255:
@@ -405,7 +405,7 @@ fn test_uint8_underflow_wrap() raises:
         )
 
 
-fn test_uint16_overflow_wrap() raises:
+def test_uint16_overflow_wrap() raises:
     """Test UInt16 addition wraps from 65535 to 0."""
     var result: UInt16 = UInt16(65535) + UInt16(1)
     if result != 0:
@@ -414,7 +414,7 @@ fn test_uint16_overflow_wrap() raises:
         )
 
 
-fn test_uint16_underflow_wrap() raises:
+def test_uint16_underflow_wrap() raises:
     """Test UInt16 subtraction wraps from 0 to 65535."""
     var result: UInt16 = UInt16(0) - UInt16(1)
     if result != 65535:
@@ -424,7 +424,7 @@ fn test_uint16_underflow_wrap() raises:
         )
 
 
-fn test_uint32_overflow_wrap() raises:
+def test_uint32_overflow_wrap() raises:
     """Test UInt32 addition wraps from 4294967295 to 0."""
     var result: UInt32 = UInt32(4294967295) + UInt32(1)
     if result != 0:
@@ -433,7 +433,7 @@ fn test_uint32_overflow_wrap() raises:
         )
 
 
-fn test_uint32_underflow_wrap() raises:
+def test_uint32_underflow_wrap() raises:
     """Test UInt32 subtraction wraps from 0 to 4294967295."""
     var result: UInt32 = UInt32(0) - UInt32(1)
     if result != 4294967295:
@@ -443,7 +443,7 @@ fn test_uint32_underflow_wrap() raises:
         )
 
 
-fn test_uint64_overflow_wrap() raises:
+def test_uint64_overflow_wrap() raises:
     """Test UInt64 addition wraps from max to 0."""
     var result: UInt64 = UInt64(18446744073709551615) + UInt64(1)
     if result != 0:
@@ -452,7 +452,7 @@ fn test_uint64_overflow_wrap() raises:
         )
 
 
-fn test_uint64_underflow_wrap() raises:
+def test_uint64_underflow_wrap() raises:
     """Test UInt64 subtraction wraps from 0 to max."""
     var result: UInt64 = UInt64(0) - UInt64(1)
     if result != 18446744073709551615:
@@ -462,7 +462,7 @@ fn test_uint64_underflow_wrap() raises:
         )
 
 
-fn test_uint8_overflow_wrap_add_chain() raises:
+def test_uint8_overflow_wrap_add_chain() raises:
     """Test UInt8 overflow wraps mid-range: 250 + 10 == 4."""
     var result: UInt8 = UInt8(250) + UInt8(10)
     if result != 4:
@@ -472,7 +472,7 @@ fn test_uint8_overflow_wrap_add_chain() raises:
         )
 
 
-fn test_uint16_overflow_wrap_add_chain() raises:
+def test_uint16_overflow_wrap_add_chain() raises:
     """Test UInt16 overflow wraps mid-range: 65530 + 10 == 4."""
     var result: UInt16 = UInt16(65530) + UInt16(10)
     if result != 4:
@@ -482,7 +482,7 @@ fn test_uint16_overflow_wrap_add_chain() raises:
         )
 
 
-fn test_uint32_overflow_wrap_add_chain() raises:
+def test_uint32_overflow_wrap_add_chain() raises:
     """Test UInt32 overflow wraps mid-range: 4294967290 + 10 == 4."""
     var result: UInt32 = UInt32(4294967290) + UInt32(10)
     if result != 4:
@@ -492,7 +492,7 @@ fn test_uint32_overflow_wrap_add_chain() raises:
         )
 
 
-fn test_uint64_overflow_wrap_add_chain() raises:
+def test_uint64_overflow_wrap_add_chain() raises:
     """Test UInt64 overflow wraps mid-range: max-5 + 10 == 4."""
     var result: UInt64 = UInt64(18446744073709551610) + UInt64(10)
     if result != 4:
@@ -502,7 +502,7 @@ fn test_uint64_overflow_wrap_add_chain() raises:
         )
 
 
-fn test_uint8_overflow_wrap_multiply() raises:
+def test_uint8_overflow_wrap_multiply() raises:
     """Test UInt8 multiplication overflow wraps: 128 * 2 == 0 (2^8 mod 256)."""
     var result: UInt8 = UInt8(128) * UInt8(2)
     if result != 0:
@@ -512,7 +512,7 @@ fn test_uint8_overflow_wrap_multiply() raises:
         )
 
 
-fn test_uint8_accumulated_overflow() raises:
+def test_uint8_accumulated_overflow() raises:
     """Test multi-step accumulated overflow: wrapped result is used as input to next operation.
 
     Starting from UInt8(200), add 100 twice:
@@ -528,7 +528,7 @@ fn test_uint8_accumulated_overflow() raises:
         raise Error("Second accumulated: expected 144, got " + String(result))
 
 
-fn test_uint16_accumulated_overflow() raises:
+def test_uint16_accumulated_overflow() raises:
     """Test multi-step accumulated overflow for UInt16.
 
     Starting from UInt16(60000), add 10000 twice:
@@ -544,7 +544,7 @@ fn test_uint16_accumulated_overflow() raises:
         raise Error("Second accumulated: expected 14464, got " + String(result))
 
 
-fn test_uint32_accumulated_overflow() raises:
+def test_uint32_accumulated_overflow() raises:
     """Test multi-step accumulated overflow for UInt32.
 
     Starting from UInt32(4000000000), add 500000000 twice:
@@ -560,7 +560,7 @@ fn test_uint32_accumulated_overflow() raises:
         raise Error("Second accumulated: expected 705032704, got " + String(result))
 
 
-fn test_uint64_accumulated_overflow() raises:
+def test_uint64_accumulated_overflow() raises:
     """Test multi-step accumulated overflow for UInt64.
 
     Starting from large value, add 1000000000000000000 twice.
@@ -580,7 +580,7 @@ fn test_uint64_accumulated_overflow() raises:
         )
 
 
-fn test_uint_narrowing_to_uint16() raises:
+def test_uint_narrowing_to_uint16() raises:
     """Test narrowing conversions to UInt16 via modulo 2^16 semantics.
 
     When casting a UInt64 value > 65535 to UInt16, the result is the low 16 bits
@@ -617,7 +617,7 @@ fn test_uint_narrowing_to_uint16() raises:
         raise Error("UInt64(0).cast[DType.uint16]() should be 0")
 
 
-fn test_uint_narrowing_to_uint32() raises:
+def test_uint_narrowing_to_uint32() raises:
     """Test narrowing conversions to UInt32 via modulo 2^32 semantics.
 
     When casting a UInt64 value > 2^32 to UInt32, the result is the low 32 bits
@@ -654,7 +654,7 @@ fn test_uint_narrowing_to_uint32() raises:
         raise Error("UInt64(0).cast[DType.uint32]() should be 0")
 
 
-fn test_uint16_multiply_overflow() raises:
+def test_uint16_multiply_overflow() raises:
     """Test UInt16 multiplication overflow wraps. Closes #3673."""
     # 256 * 256 = 65536 = 0 mod 2^16
     var result: UInt16 = UInt16(256) * UInt16(256)
@@ -671,7 +671,7 @@ fn test_uint16_multiply_overflow() raises:
         )
 
 
-fn test_uint32_multiply_overflow() raises:
+def test_uint32_multiply_overflow() raises:
     """Test UInt32 multiplication overflow wraps. Closes #3673."""
     # 65536 * 65536 = 2^32 = 0 mod 2^32
     var result: UInt32 = UInt32(65536) * UInt32(65536)
@@ -681,7 +681,7 @@ fn test_uint32_multiply_overflow() raises:
         )
 
 
-fn test_uint64_multiply_overflow() raises:
+def test_uint64_multiply_overflow() raises:
     """Test UInt64 multiplication overflow wraps. Closes #3673."""
     # 2^32 * 2^32 = 2^64 = 0 mod 2^64
     var result: UInt64 = UInt64(4294967296) * UInt64(4294967296)
@@ -691,7 +691,7 @@ fn test_uint64_multiply_overflow() raises:
         )
 
 
-fn test_uint16_subtract_underflow() raises:
+def test_uint16_subtract_underflow() raises:
     """Test UInt16 subtraction underflow wrapping. Closes #3673."""
     # 5 - 10 = 65531 (wraps)
     var result: UInt16 = UInt16(5) - UInt16(10)
@@ -701,7 +701,7 @@ fn test_uint16_subtract_underflow() raises:
         )
 
 
-fn test_uint32_subtract_underflow() raises:
+def test_uint32_subtract_underflow() raises:
     """Test UInt32 subtraction underflow wrapping. Closes #3673."""
     var result: UInt32 = UInt32(5) - UInt32(10)
     if result != 4294967291:
@@ -711,7 +711,7 @@ fn test_uint32_subtract_underflow() raises:
         )
 
 
-fn test_uint64_subtract_underflow() raises:
+def test_uint64_subtract_underflow() raises:
     """Test UInt64 subtraction underflow wrapping. Closes #3673."""
     var result: UInt64 = UInt64(5) - UInt64(10)
     if result != 18446744073709551611:
@@ -721,7 +721,7 @@ fn test_uint64_subtract_underflow() raises:
         )
 
 
-fn test_narrowing_to_uint16() raises:
+def test_narrowing_to_uint16() raises:
     """Test narrowing conversion truncates to UInt16. Closes #3675."""
     # 65536 -> 0 (truncate to 16 bits)
     var val: UInt16 = UInt16(UInt32(65536))
@@ -736,7 +736,7 @@ fn test_narrowing_to_uint16() raises:
         )
 
 
-fn test_narrowing_to_uint32() raises:
+def test_narrowing_to_uint32() raises:
     """Test narrowing conversion truncates to UInt32. Closes #3675."""
     # 2^32 -> 0
     var val: UInt32 = UInt32(UInt64(4294967296))
@@ -751,7 +751,7 @@ fn test_narrowing_to_uint32() raises:
         )
 
 
-fn test_uint8_boundary_arithmetic() raises:
+def test_uint8_boundary_arithmetic() raises:
     """Test UInt8 arithmetic at boundary values. Closes #3676."""
     # 255 + 1 == 0
     var r1: UInt8 = UInt8(255) + UInt8(1)
@@ -769,7 +769,7 @@ fn test_uint8_boundary_arithmetic() raises:
         raise Error("UInt8 255*255: expected 1, got " + String(r3))
 
 
-fn test_uint16_bitwise_and() raises:
+def test_uint16_bitwise_and() raises:
     """Test UInt16 bitwise AND. Closes #3892."""
     var a: UInt16 = 0xFF0F
     var b: UInt16 = 0xF0FF
@@ -778,7 +778,7 @@ fn test_uint16_bitwise_and() raises:
         raise Error("UInt16 AND: expected 0xF00F, got " + String(result))
 
 
-fn test_uint16_bitwise_or_xor() raises:
+def test_uint16_bitwise_or_xor() raises:
     """Test UInt16 bitwise OR and XOR. Closes #3892."""
     var a: UInt16 = 0xFF00
     var b: UInt16 = 0x00FF
@@ -797,7 +797,7 @@ fn test_uint16_bitwise_or_xor() raises:
         raise Error("UInt16 XOR self: expected 0, got " + String(xor_same))
 
 
-fn test_uint64_bitwise_and() raises:
+def test_uint64_bitwise_and() raises:
     """Test UInt64 bitwise AND. Closes #3893."""
     var a: UInt64 = 0xFFFFFFFF00000000
     var b: UInt64 = 0x00000000FFFFFFFF
@@ -806,7 +806,7 @@ fn test_uint64_bitwise_and() raises:
         raise Error("UInt64 AND: expected 0, got " + String(result))
 
 
-fn test_uint64_bitwise_or_xor() raises:
+def test_uint64_bitwise_or_xor() raises:
     """Test UInt64 bitwise OR and XOR. Closes #3893."""
     var a: UInt64 = 0xFFFFFFFF00000000
     var b: UInt64 = 0x00000000FFFFFFFF
@@ -819,7 +819,7 @@ fn test_uint64_bitwise_or_xor() raises:
         raise Error("UInt64 XOR: expected max, got " + String(xor_result))
 
 
-fn test_uint16_shift_operations() raises:
+def test_uint16_shift_operations() raises:
     """Test UInt16 shift left/right. Closes #3892."""
     var val: UInt16 = 1
     var shifted_left = val << 15
@@ -835,7 +835,7 @@ fn test_uint16_shift_operations() raises:
         )
 
 
-fn test_uint16_overflow_boundary() raises:
+def test_uint16_overflow_boundary() raises:
     """Test UInt16 overflow at exact boundary. Closes #3894."""
     # 65535 + 1 = 0
     var r1: UInt16 = UInt16(65535) + UInt16(1)
@@ -848,7 +848,7 @@ fn test_uint16_overflow_boundary() raises:
         raise Error("UInt16 65534+2: expected 0, got " + String(r2))
 
 
-fn test_uint32_overflow_boundary() raises:
+def test_uint32_overflow_boundary() raises:
     """Test UInt32 overflow at exact boundary. Closes #3895."""
     var r1: UInt32 = UInt32(4294967295) + UInt32(1)
     if r1 != 0:
@@ -859,14 +859,14 @@ fn test_uint32_overflow_boundary() raises:
         raise Error("UInt32 max-1+2: expected 0, got " + String(r2))
 
 
-fn test_uint64_overflow_boundary() raises:
+def test_uint64_overflow_boundary() raises:
     """Test UInt64 overflow at exact boundary. Closes #3896."""
     var r1: UInt64 = UInt64(18446744073709551615) + UInt64(1)
     if r1 != 0:
         raise Error("UInt64 max+1: expected 0, got " + String(r1))
 
 
-fn test_uint_not_operations() raises:
+def test_uint_not_operations() raises:
     """Test bitwise NOT for various unsigned types. Closes #3892, #3893."""
     var u8: UInt8 = ~UInt8(0)
     if u8 != 255:
@@ -881,7 +881,7 @@ fn test_uint_not_operations() raises:
         raise Error("NOT UInt64(0): expected max, got " + String(u64))
 
 
-fn main() raises:
+def main() raises:
     """Run all test_unsigned tests."""
     print("Running test_unsigned tests...")
 

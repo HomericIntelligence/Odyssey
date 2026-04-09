@@ -22,7 +22,7 @@ from shared.core.layers.linear import Linear
 from shared.core.activation import relu, sigmoid, tanh
 from shared.tensor.any_tensor import AnyTensor, ones, zeros_like
 from time import perf_counter_ns
-from collections import List
+from std.collections import List
 
 
 # ============================================================================
@@ -30,7 +30,7 @@ from collections import List
 # ============================================================================
 
 
-fn bench_linear_forward() raises -> List[BenchmarkResult]:
+def bench_linear_forward() raises -> List[BenchmarkResult]:
     """Benchmark Linear layer forward pass throughput.
 
     Measures:
@@ -89,7 +89,7 @@ fn bench_linear_forward() raises -> List[BenchmarkResult]:
     return results^
 
 
-fn bench_linear_backward() raises -> BenchmarkResult:
+def bench_linear_backward() raises -> BenchmarkResult:
     """Benchmark Linear layer backward pass performance.
 
     Measures:
@@ -148,7 +148,7 @@ fn bench_linear_backward() raises -> BenchmarkResult:
 # ============================================================================
 
 
-fn bench_activation_functions() raises -> List[BenchmarkResult]:
+def bench_activation_functions() raises -> List[BenchmarkResult]:
     """Benchmark activation function performance.
 
     Measures:
@@ -234,7 +234,7 @@ fn bench_activation_functions() raises -> List[BenchmarkResult]:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all layer benchmarks and print results."""
     print("\n=== Layer Performance Benchmarks ===\n")
 

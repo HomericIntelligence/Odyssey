@@ -29,7 +29,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_li
 # ============================================================================
 
 
-fn test_dropout_backward_exported() raises:
+def test_dropout_backward_exported() raises:
     """Test that dropout_backward is accessible from shared.core.dropout."""
     # This test simply verifies the function is accessible
     var shape = List[Int]()
@@ -51,7 +51,7 @@ fn test_dropout_backward_exported() raises:
     assert_equal(grad_input.shape()[1], 3)
 
 
-fn test_dropout_backward_p_zero() raises:
+def test_dropout_backward_p_zero() raises:
     """Test dropout_backward when p=0 (no dropout).
 
     When p=0, all elements are kept (mask is all 1s).
@@ -78,7 +78,7 @@ fn test_dropout_backward_p_zero() raises:
         )
 
 
-fn test_dropout_backward_p_high() raises:
+def test_dropout_backward_p_high() raises:
     """Test dropout_backward with high dropout probability.
 
     When p is high (e.g., 0.9), most elements are dropped.
@@ -113,7 +113,7 @@ fn test_dropout_backward_p_high() raises:
             assert_almost_equal(grad_val, Float32(0.0), tolerance=1e-5)
 
 
-fn test_dropout_backward_mask_application() raises:
+def test_dropout_backward_mask_application() raises:
     """Test that dropout_backward correctly applies the mask.
 
     The mask is binary (1.0 for kept, 0.0 for dropped).
@@ -153,7 +153,7 @@ fn test_dropout_backward_mask_application() raises:
             assert_almost_equal(grad_val, Float32(0.0), tolerance=1e-5)
 
 
-fn test_dropout_backward_consistency() raises:
+def test_dropout_backward_consistency() raises:
     """Test that dropout_backward is consistent across multiple calls.
 
     Using the same mask, multiple backward passes should give identical results.
@@ -188,7 +188,7 @@ fn test_dropout_backward_consistency() raises:
 # ============================================================================
 
 
-fn test_dropout2d_backward_exported() raises:
+def test_dropout2d_backward_exported() raises:
     """Test that dropout2d_backward is accessible from shared.core.dropout."""
     var shape = List[Int]()
     shape.append(2)
@@ -213,7 +213,7 @@ fn test_dropout2d_backward_exported() raises:
     assert_equal(grad_input.shape()[3], 4)
 
 
-fn test_dropout2d_backward_scaling() raises:
+def test_dropout2d_backward_scaling() raises:
     """Test dropout2d_backward applies correct scaling factor.
 
     Since dropout2d uses same formula as dropout, scaling should be 1/(1-p).
@@ -253,7 +253,7 @@ fn test_dropout2d_backward_scaling() raises:
             assert_almost_equal(grad_val, Float32(0.0), tolerance=1e-5)
 
 
-fn test_dropout2d_backward_channel_consistency() raises:
+def test_dropout2d_backward_channel_consistency() raises:
     """Test that dropout2d_backward zeros entire channels consistently.
 
     Where dropout2d masks out a channel, all spatial positions should be zero.
@@ -303,7 +303,7 @@ fn test_dropout2d_backward_channel_consistency() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all dropout backward tests."""
     print("Running dropout_backward tests...")
 

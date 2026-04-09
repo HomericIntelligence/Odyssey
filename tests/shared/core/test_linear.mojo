@@ -35,7 +35,7 @@ from shared.core.linear import (
 from shared.core.matrix import transpose
 
 
-fn test_linear_initialization() raises:
+def test_linear_initialization() raises:
     """Test that linear layer parameters can be created with correct shapes.
 
     Functional API Note:
@@ -74,7 +74,7 @@ fn test_linear_initialization() raises:
     assert_equal(bias_s[0], out_features)
 
 
-fn test_linear_output_shape() raises:
+def test_linear_output_shape() raises:
     """Test linear layer output shape computation.
 
     Formula: output_shape = (batch_size, out_features)
@@ -112,7 +112,7 @@ fn test_linear_output_shape() raises:
     assert_equal(out_shape[1], out_features)
 
 
-fn test_linear_single_sample() raises:
+def test_linear_single_sample() raises:
     """Test linear layer with single sample.
 
     Single sample: (1, 3) @ (2, 3)^T + (2,) = (1, 2)
@@ -162,7 +162,7 @@ fn test_linear_single_sample() raises:
     assert_almost_equal(output_data[1], 2.0, tolerance=1e-5)
 
 
-fn test_linear_with_bias() raises:
+def test_linear_with_bias() raises:
     """Test linear layer correctly adds bias.
 
     Single sample: [1, 1] @ [[1, 0], [0, 1]]^T + [5, 10] = [6, 11]
@@ -199,7 +199,7 @@ fn test_linear_with_bias() raises:
     assert_almost_equal(output_data[1], 11.0, tolerance=1e-5)
 
 
-fn test_linear_no_bias_output_shape() raises:
+def test_linear_no_bias_output_shape() raises:
     """Test linear_no_bias output shape computation.
 
     Formula: output_shape = (batch_size, out_features)
@@ -232,7 +232,7 @@ fn test_linear_no_bias_output_shape() raises:
     assert_equal(out_shape[1], out_features)
 
 
-fn test_linear_no_bias_single_sample() raises:
+def test_linear_no_bias_single_sample() raises:
     """Test linear_no_bias with single sample.
 
     Single sample: (1, 3) @ (2, 3)^T = (1, 2)
@@ -276,7 +276,7 @@ fn test_linear_no_bias_single_sample() raises:
     assert_almost_equal(output_data[1], 2.0, tolerance=1e-5)
 
 
-fn test_linear_backward_output_shape() raises:
+def test_linear_backward_output_shape() raises:
     """Test linear_backward produces correct gradient shapes.
 
     Given:
@@ -326,7 +326,7 @@ fn test_linear_backward_output_shape() raises:
     assert_equal(grad_bias_shape[0], out_features)
 
 
-fn test_linear_backward_single_sample() raises:
+def test_linear_backward_single_sample() raises:
     """Test linear_backward with single sample.
 
     Simple case with small tensors to verify math.
@@ -387,7 +387,7 @@ fn test_linear_backward_single_sample() raises:
     assert_almost_equal(grad_bias_data[1], 1.0, tolerance=1e-5)
 
 
-fn test_linear_backward_multiple_samples() raises:
+def test_linear_backward_multiple_samples() raises:
     """Test linear_backward accumulates gradients across batch.
 
     With batch_size=2:
@@ -433,7 +433,7 @@ fn test_linear_backward_multiple_samples() raises:
     assert_almost_equal(grad_bias_data[1], 3.0, tolerance=1e-5)
 
 
-fn test_linear_no_bias_backward_output_shape() raises:
+def test_linear_no_bias_backward_output_shape() raises:
     """Test linear_no_bias_backward produces correct gradient shapes.
 
     Given:
@@ -480,7 +480,7 @@ fn test_linear_no_bias_backward_output_shape() raises:
     assert_equal(grad_weights_shape[1], in_features)
 
 
-fn test_linear_no_bias_backward_single_sample() raises:
+def test_linear_no_bias_backward_single_sample() raises:
     """Test linear_no_bias_backward with single sample.
 
     Forward: y = xW^T (no bias)
@@ -532,7 +532,7 @@ fn test_linear_no_bias_backward_single_sample() raises:
     assert_almost_equal(grad_weights_data[3], 2.0, tolerance=1e-5)  # [1, 1]
 
 
-fn test_linear_batch_processing() raises:
+def test_linear_batch_processing() raises:
     """Test linear layer processes batches correctly.
 
     Multiple samples with different values should be processed independently
@@ -582,7 +582,7 @@ fn test_linear_batch_processing() raises:
     assert_almost_equal(output_data[2], 16.0, tolerance=1e-5)
 
 
-fn test_linear_forward_backward_consistency() raises:
+def test_linear_forward_backward_consistency() raises:
     """Test that forward and backward passes are mathematically consistent.
 
     Verify that gradient shapes match corresponding forward activations.
@@ -627,7 +627,7 @@ fn test_linear_forward_backward_consistency() raises:
     assert_equal(result.grad_bias.shape()[0], bias.shape()[0])
 
 
-fn test_linear_large_dimensions() raises:
+def test_linear_large_dimensions() raises:
     """Test linear layer with larger realistic dimensions.
 
     This ensures the layer works with typical neural network sizes.
@@ -679,7 +679,7 @@ fn test_linear_large_dimensions() raises:
     assert_equal(grad_bias_shape[0], out_features)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_linear tests."""
     print("Running test_linear tests...")
 

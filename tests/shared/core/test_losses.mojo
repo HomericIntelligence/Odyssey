@@ -25,7 +25,7 @@ from shared.core.loss import focal_loss, focal_loss_backward
 from shared.core.loss import kl_divergence, kl_divergence_backward
 
 
-fn test_binary_cross_entropy_perfect_prediction() raises:
+def test_binary_cross_entropy_perfect_prediction() raises:
     """Test BCE with perfect predictions (should be near zero)."""
     print("Testing BCE with perfect predictions...")
 
@@ -53,7 +53,7 @@ fn test_binary_cross_entropy_perfect_prediction() raises:
     print("  ✓ BCE perfect prediction test passed")
 
 
-fn test_binary_cross_entropy_worst_prediction() raises:
+def test_binary_cross_entropy_worst_prediction() raises:
     """Test BCE with worst predictions (should be high)."""
     print("Testing BCE with worst predictions...")
 
@@ -82,7 +82,7 @@ fn test_binary_cross_entropy_worst_prediction() raises:
     print("  ✓ BCE worst prediction test passed")
 
 
-fn test_binary_cross_entropy_gradient_shape() raises:
+def test_binary_cross_entropy_gradient_shape() raises:
     """Test that BCE backward produces correct gradient shape."""
     print("Testing BCE gradient shape...")
 
@@ -113,7 +113,7 @@ fn test_binary_cross_entropy_gradient_shape() raises:
     print("  ✓ BCE gradient shape test passed")
 
 
-fn test_mean_squared_error_zero_loss() raises:
+def test_mean_squared_error_zero_loss() raises:
     """Test MSE with identical predictions and targets."""
     print("Testing MSE with zero loss...")
 
@@ -141,7 +141,7 @@ fn test_mean_squared_error_zero_loss() raises:
     print("  ✓ MSE zero loss test passed")
 
 
-fn test_mean_squared_error_known_values() raises:
+def test_mean_squared_error_known_values() raises:
     """Test MSE with known error values."""
     print("Testing MSE with known values...")
 
@@ -179,7 +179,7 @@ fn test_mean_squared_error_known_values() raises:
     print("  ✓ MSE known values test passed")
 
 
-fn test_mean_squared_error_gradient() raises:
+def test_mean_squared_error_gradient() raises:
     """Test MSE gradient computation."""
     print("Testing MSE gradient...")
 
@@ -227,7 +227,7 @@ fn test_mean_squared_error_gradient() raises:
     print("  ✓ MSE gradient test passed")
 
 
-fn test_loss_numerical_stability() raises:
+def test_loss_numerical_stability() raises:
     """Test that loss functions handle extreme values gracefully."""
     print("Testing loss function numerical stability...")
 
@@ -256,7 +256,7 @@ fn test_loss_numerical_stability() raises:
     print("  ✓ Numerical stability test passed")
 
 
-fn test_binary_cross_entropy_backward_gradient() raises:
+def test_binary_cross_entropy_backward_gradient() raises:
     """Test BCE backward with numerical gradient checking."""
     print("Testing BCE backward gradient checking...")
 
@@ -277,11 +277,11 @@ fn test_binary_cross_entropy_backward_gradient() raises:
     targets._set_float64(3, 0.0)
 
     # Forward function wrapper
-    fn forward(pred: AnyTensor) raises escaping -> AnyTensor:
+    def forward(pred: AnyTensor) raises escaping -> AnyTensor:
         return binary_cross_entropy(pred, targets)
 
     # Backward function wrapper
-    fn backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
         return binary_cross_entropy_backward(grad_out, pred, targets)
 
     var loss = forward(predictions)
@@ -295,7 +295,7 @@ fn test_binary_cross_entropy_backward_gradient() raises:
     print("  ✓ BCE backward gradient check passed")
 
 
-fn test_mean_squared_error_backward_gradient() raises:
+def test_mean_squared_error_backward_gradient() raises:
     """Test MSE backward with numerical gradient checking."""
     print("Testing MSE backward gradient checking...")
 
@@ -318,11 +318,11 @@ fn test_mean_squared_error_backward_gradient() raises:
     targets._set_float64(4, 0.8)
 
     # Forward function wrapper
-    fn forward(pred: AnyTensor) raises escaping -> AnyTensor:
+    def forward(pred: AnyTensor) raises escaping -> AnyTensor:
         return mean_squared_error(pred, targets)
 
     # Backward function wrapper
-    fn backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
         return mean_squared_error_backward(grad_out, pred, targets)
 
     var loss = forward(predictions)
@@ -336,7 +336,7 @@ fn test_mean_squared_error_backward_gradient() raises:
     print("  ✓ MSE backward gradient check passed")
 
 
-fn test_smooth_l1_zero_beta_boundary() raises:
+def test_smooth_l1_zero_beta_boundary() raises:
     """Test Smooth L1 loss at beta boundary."""
     print("Testing Smooth L1 loss at beta boundary...")
 
@@ -373,7 +373,7 @@ fn test_smooth_l1_zero_beta_boundary() raises:
     print("  ✓ Smooth L1 boundary test passed")
 
 
-fn test_smooth_l1_quadratic_region() raises:
+def test_smooth_l1_quadratic_region() raises:
     """Test Smooth L1 in quadratic region (|x| < beta)."""
     print("Testing Smooth L1 loss in quadratic region...")
 
@@ -403,7 +403,7 @@ fn test_smooth_l1_quadratic_region() raises:
     print("  ✓ Smooth L1 quadratic region test passed")
 
 
-fn test_smooth_l1_linear_region() raises:
+def test_smooth_l1_linear_region() raises:
     """Test Smooth L1 in linear region (|x| >= beta)."""
     print("Testing Smooth L1 loss in linear region...")
 
@@ -433,7 +433,7 @@ fn test_smooth_l1_linear_region() raises:
     print("  ✓ Smooth L1 linear region test passed")
 
 
-fn test_smooth_l1_backward_quadratic() raises:
+def test_smooth_l1_backward_quadratic() raises:
     """Test Smooth L1 backward in quadratic region."""
     print("Testing Smooth L1 backward in quadratic region...")
 
@@ -468,7 +468,7 @@ fn test_smooth_l1_backward_quadratic() raises:
     print("  ✓ Smooth L1 backward quadratic test passed")
 
 
-fn test_smooth_l1_backward_linear() raises:
+def test_smooth_l1_backward_linear() raises:
     """Test Smooth L1 backward in linear region."""
     print("Testing Smooth L1 backward in linear region...")
 
@@ -501,7 +501,7 @@ fn test_smooth_l1_backward_linear() raises:
     print("  ✓ Smooth L1 backward linear test passed")
 
 
-fn test_smooth_l1_backward_gradient() raises:
+def test_smooth_l1_backward_gradient() raises:
     """Test Smooth L1 backward with numerical gradient checking."""
     print("Testing Smooth L1 backward gradient checking...")
 
@@ -524,11 +524,11 @@ fn test_smooth_l1_backward_gradient() raises:
     targets._set_float64(3, 0.5)
 
     # Forward function wrapper
-    fn forward(pred: AnyTensor) raises escaping -> AnyTensor:
+    def forward(pred: AnyTensor) raises escaping -> AnyTensor:
         return smooth_l1_loss(pred, targets, beta=beta)
 
     # Backward function wrapper
-    fn backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
         return smooth_l1_loss_backward(grad_out, pred, targets, beta=beta)
 
     var loss = forward(predictions)
@@ -542,7 +542,7 @@ fn test_smooth_l1_backward_gradient() raises:
     print("  ✓ Smooth L1 backward gradient check passed")
 
 
-fn test_hinge_loss_correct_prediction() raises:
+def test_hinge_loss_correct_prediction() raises:
     """Test hinge loss with correct predictions."""
     print("Testing hinge loss with correct predictions...")
 
@@ -571,7 +571,7 @@ fn test_hinge_loss_correct_prediction() raises:
     print("  ✓ Hinge correct prediction test passed")
 
 
-fn test_hinge_loss_wrong_prediction() raises:
+def test_hinge_loss_wrong_prediction() raises:
     """Test hinge loss with wrong predictions."""
     print("Testing hinge loss with wrong predictions...")
 
@@ -603,7 +603,7 @@ fn test_hinge_loss_wrong_prediction() raises:
     print("  ✓ Hinge wrong prediction test passed")
 
 
-fn test_hinge_loss_at_margin() raises:
+def test_hinge_loss_at_margin() raises:
     """Test hinge loss exactly at margin (y*pred = 1)."""
     print("Testing hinge loss at margin...")
 
@@ -632,7 +632,7 @@ fn test_hinge_loss_at_margin() raises:
     print("  ✓ Hinge margin test passed")
 
 
-fn test_hinge_loss_backward() raises:
+def test_hinge_loss_backward() raises:
     """Test hinge loss backward pass."""
     print("Testing hinge loss backward...")
 
@@ -676,7 +676,7 @@ fn test_hinge_loss_backward() raises:
     print("  ✓ Hinge backward test passed")
 
 
-fn test_hinge_loss_backward_gradient() raises:
+def test_hinge_loss_backward_gradient() raises:
     """Test hinge loss backward with gradient checking."""
     print("Testing hinge loss backward gradient checking...")
 
@@ -697,11 +697,11 @@ fn test_hinge_loss_backward_gradient() raises:
     targets._set_float64(3, 1.0)
 
     # Forward function wrapper
-    fn forward(pred: AnyTensor) raises escaping -> AnyTensor:
+    def forward(pred: AnyTensor) raises escaping -> AnyTensor:
         return hinge_loss(pred, targets)
 
     # Backward function wrapper
-    fn backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
         return hinge_loss_backward(grad_out, pred, targets)
 
     var loss = forward(predictions)
@@ -715,7 +715,7 @@ fn test_hinge_loss_backward_gradient() raises:
     print("  ✓ Hinge backward gradient check passed")
 
 
-fn test_focal_loss_perfect_prediction() raises:
+def test_focal_loss_perfect_prediction() raises:
     """Test focal loss with perfect predictions (should be near zero)."""
     print("Testing focal loss with perfect predictions...")
 
@@ -743,7 +743,7 @@ fn test_focal_loss_perfect_prediction() raises:
     print("  ✓ Focal loss perfect prediction test passed")
 
 
-fn test_focal_loss_hard_examples() raises:
+def test_focal_loss_hard_examples() raises:
     """Test focal loss focuses on hard examples."""
     print("Testing focal loss on hard examples...")
 
@@ -777,7 +777,7 @@ fn test_focal_loss_hard_examples() raises:
     print("  ✓ Focal loss hard examples test passed")
 
 
-fn test_focal_loss_backward_shape() raises:
+def test_focal_loss_backward_shape() raises:
     """Test focal loss backward produces correct gradient shape."""
     print("Testing focal loss backward shape...")
 
@@ -801,7 +801,7 @@ fn test_focal_loss_backward_shape() raises:
     print("  ✓ Focal loss backward shape test passed")
 
 
-fn test_focal_loss_backward_gradient() raises:
+def test_focal_loss_backward_gradient() raises:
     """Test focal loss backward with numerical gradient checking."""
     print("Testing focal loss backward gradient checking...")
 
@@ -822,11 +822,11 @@ fn test_focal_loss_backward_gradient() raises:
     targets._set_float64(3, 0.0)
 
     # Forward function wrapper
-    fn forward(pred: AnyTensor) raises escaping -> AnyTensor:
+    def forward(pred: AnyTensor) raises escaping -> AnyTensor:
         return focal_loss(pred, targets)
 
     # Backward function wrapper
-    fn backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, pred: AnyTensor) raises escaping -> AnyTensor:
         return focal_loss_backward(grad_out, pred, targets)
 
     var loss = forward(predictions)
@@ -840,7 +840,7 @@ fn test_focal_loss_backward_gradient() raises:
     print("  ✓ Focal loss backward gradient check passed")
 
 
-fn test_kl_divergence_same_distribution() raises:
+def test_kl_divergence_same_distribution() raises:
     """Test KL divergence with identical distributions (should be near zero)."""
     print("Testing KL divergence with same distribution...")
 
@@ -870,7 +870,7 @@ fn test_kl_divergence_same_distribution() raises:
     print("  ✓ KL divergence same distribution test passed")
 
 
-fn test_kl_divergence_different_distributions() raises:
+def test_kl_divergence_different_distributions() raises:
     """Test KL divergence with different distributions (should be positive)."""
     print("Testing KL divergence with different distributions...")
 
@@ -904,7 +904,7 @@ fn test_kl_divergence_different_distributions() raises:
     print("  ✓ KL divergence different distributions test passed")
 
 
-fn test_kl_divergence_backward_shape() raises:
+def test_kl_divergence_backward_shape() raises:
     """Test KL divergence backward produces correct gradient shape."""
     print("Testing KL divergence backward shape...")
 
@@ -929,7 +929,7 @@ fn test_kl_divergence_backward_shape() raises:
     print("  ✓ KL divergence backward shape test passed")
 
 
-fn test_kl_divergence_backward_gradient() raises:
+def test_kl_divergence_backward_gradient() raises:
     """Test KL divergence backward with numerical gradient checking."""
     print("Testing KL divergence backward gradient checking...")
 
@@ -950,11 +950,11 @@ fn test_kl_divergence_backward_gradient() raises:
     q._set_float64(3, 0.1)
 
     # Forward function wrapper
-    fn forward(q_dist: AnyTensor) raises escaping -> AnyTensor:
+    def forward(q_dist: AnyTensor) raises escaping -> AnyTensor:
         return kl_divergence(p, q_dist)
 
     # Backward function wrapper
-    fn backward(
+    def backward(
         grad_out: AnyTensor, q_dist: AnyTensor
     ) raises escaping -> AnyTensor:
         return kl_divergence_backward(grad_out, p, q_dist)
@@ -968,7 +968,7 @@ fn test_kl_divergence_backward_gradient() raises:
     print("  ✓ KL divergence backward gradient check passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_losses tests."""
     print("Running test_losses tests...")
 

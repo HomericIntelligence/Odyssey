@@ -31,7 +31,7 @@ from shared.core.activation import softmax
 # ============================================================================
 
 
-fn test_model_training_to_evaluation() raises:
+def test_model_training_to_evaluation() raises:
     """Test complete model training and evaluation workflow.
 
     Integration Points:
@@ -118,7 +118,7 @@ fn test_model_training_to_evaluation() raises:
     print("  ✓ test_model_training_to_evaluation passed")
 
 
-fn test_model_inference() raises:
+def test_model_inference() raises:
     """Test model inference on new data.
 
     Integration Points:
@@ -191,7 +191,7 @@ fn test_model_inference() raises:
     print("  ✓ test_model_inference passed")
 
 
-fn test_model_prediction_confidence() raises:
+def test_model_prediction_confidence() raises:
     """Test prediction confidence and probability scores.
 
     Integration Points:
@@ -273,7 +273,7 @@ fn test_model_prediction_confidence() raises:
 # ============================================================================
 
 
-fn test_model_checkpoint_save_load() raises:
+def test_model_checkpoint_save_load() raises:
     """Test model checkpoint saving and loading.
 
     Integration Points:
@@ -376,7 +376,7 @@ fn test_model_checkpoint_save_load() raises:
     print("  ✓ test_model_checkpoint_save_load passed")
 
 
-fn test_model_best_checkpoint_selection() raises:
+def test_model_best_checkpoint_selection() raises:
     """Test best model checkpoint selection during training.
 
     Integration Points:
@@ -451,7 +451,7 @@ fn test_model_best_checkpoint_selection() raises:
 # ============================================================================
 
 
-fn test_full_pipeline_integration() raises:
+def test_full_pipeline_integration() raises:
     """Test full end-to-end pipeline integration.
 
     Integration Points:
@@ -545,7 +545,7 @@ fn test_full_pipeline_integration() raises:
     print("  ✓ test_full_pipeline_integration passed")
 
 
-fn test_multiple_models_comparison() raises:
+def test_multiple_models_comparison() raises:
     """Test training multiple models for comparison.
 
     Integration Points:
@@ -667,7 +667,7 @@ fn test_multiple_models_comparison() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all end-to-end integration tests."""
     print("Running model training and evaluation tests...")
     test_model_training_to_evaluation()

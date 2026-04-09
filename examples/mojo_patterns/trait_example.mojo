@@ -8,7 +8,7 @@ Usage:
 See documentation: docs/core/mojo-patterns.md
 """
 
-from memory import UnsafePointer, alloc
+from std.memory import UnsafePointer, alloc
 
 # Note: This is a conceptual example demonstrating trait patterns.
 # It uses a simplified Tensor stub for illustration purposes.
@@ -27,77 +27,77 @@ struct Tensor(Copyable, ImplicitlyCopyable):
         Int, origin=MutAnyOrigin
     ]  # Points to grad size
 
-    fn __init__(out self, size: Int):
+    def __init__(out self, size: Int):
         """Create tensor with given size."""
         self.size = size
         # Allocate space for gradient size
         self._grad_ptr = alloc[Int](1)
         self._grad_ptr[] = size
 
-    fn __copyinit__(out self, existing: Self):
+    def __copyinit__(out self, existing: Self):
         """Copy constructor."""
         self.size = existing.size
         self._grad_ptr = alloc[Int](1)
         self._grad_ptr[] = existing._grad_ptr[]
 
-    fn __del__(deinit self):
+    def __del__(deinit self):
         """Destructor to free gradient pointer."""
         if self._grad_ptr:
             self._grad_ptr.free()
 
-    fn get_grad(self) -> Tensor:
+    def get_grad(self) -> Tensor:
         """Get gradient as a Tensor (stub - returns zero tensor of same size).
         """
         return Tensor(self._grad_ptr[])
 
-    fn set_grad(mut self, value: Tensor):
+    def set_grad(mut self, value: Tensor):
         """Set gradient (stub - just updates size)."""
         self._grad_ptr[] = value.size
 
-    fn __mul__(self, scalar: Float64) -> Tensor:
+    def __mul__(self, scalar: Float64) -> Tensor:
         """Multiply tensor by scalar (stub)."""
         return Tensor(self.size)
 
-    fn __rmul__(self, scalar: Float64) -> Tensor:
+    def __rmul__(self, scalar: Float64) -> Tensor:
         """Right multiply: scalar * tensor (stub)."""
         return Tensor(self.size)
 
     @staticmethod
-    fn randn(rows: Int, cols: Int) -> Tensor:
+    def randn(rows: Int, cols: Int) -> Tensor:
         """Create tensor with random values (stub)."""
         return Tensor(rows * cols)
 
     @staticmethod
-    fn zeros(size: Int, dtype: DType) -> Tensor:
+    def zeros(size: Int, dtype: DType) -> Tensor:
         """Create tensor filled with zeros (stub)."""
         return Tensor(size)
 
     @staticmethod
-    fn zeros_like(other: Tensor) -> Tensor:
+    def zeros_like(other: Tensor) -> Tensor:
         """Create tensor of zeros with same shape (stub)."""
         return Tensor(other.size)
 
-    fn __matmul__(self, other: Tensor) -> Tensor:
+    def __matmul__(self, other: Tensor) -> Tensor:
         """Matrix multiplication stub."""
         return Tensor(self.size)
 
-    fn __add__(self, other: Tensor) -> Tensor:
+    def __add__(self, other: Tensor) -> Tensor:
         """Addition stub."""
         return Tensor(self.size)
 
-    fn __sub__(self, other: Float64) -> Tensor:
+    def __sub__(self, other: Float64) -> Tensor:
         """Subtraction stub."""
         return Tensor(self.size)
 
-    fn __isub__(mut self, other: Tensor):
+    def __isub__(mut self, other: Tensor):
         """In-place subtraction stub."""
         pass
 
-    fn transpose(self) -> Tensor:
+    def transpose(self) -> Tensor:
         """Transpose stub (accessed as .T property in example)."""
         return Tensor(self.size)
 
-    fn shape(self) -> List[Int]:
+    def shape(self) -> List[Int]:
         """Return shape stub."""
         var result = List[Int]()
         result.append(self.size)
@@ -107,11 +107,11 @@ struct Tensor(Copyable, ImplicitlyCopyable):
 trait Module:
     """Base trait for neural network modules."""
 
-    fn forward(mut self, input: Tensor) -> Tensor:
+    def forward(mut self, input: Tensor) -> Tensor:
         """Forward pass."""
         ...
 
-    fn parameters(mut self) -> List[Tensor]:
+    def parameters(mut self) -> List[Tensor]:
         """Get trainable parameters."""
         ...
 
@@ -119,11 +119,11 @@ trait Module:
 trait Optimizer:
     """Base trait for optimizers."""
 
-    fn step(self, mut parameters: List[Tensor]):
+    def step(self, mut parameters: List[Tensor]):
         """Update parameters."""
         ...
 
-    fn zero_grad(self, mut parameters: List[Tensor]):
+    def zero_grad(self, mut parameters: List[Tensor]):
         """Zero gradients."""
         for i in range(len(parameters)):
             parameters[i].set_grad(Tensor.zeros_like(parameters[i]))
@@ -135,14 +135,14 @@ struct Linear(Module):
     var weight: Tensor
     var bias: Tensor
 
-    fn __init__(out self, input_size: Int, output_size: Int):
+    def __init__(out self, input_size: Int, output_size: Int):
         self.weight = Tensor.randn(output_size, input_size)
         self.bias = Tensor.zeros(output_size, DType.float32)
 
-    fn forward(mut self, input: Tensor) -> Tensor:
+    def forward(mut self, input: Tensor) -> Tensor:
         return input @ self.weight.transpose() + self.bias
 
-    fn parameters(mut self) -> List[Tensor]:
+    def parameters(mut self) -> List[Tensor]:
         return [self.weight, self.bias]
 
 
@@ -153,7 +153,7 @@ struct Adam(Optimizer):
     var beta1: Float64
     var beta2: Float64
 
-    fn __init__(
+    def __init__(
         out self,
         lr: Float64 = 0.001,
         beta1: Float64 = 0.9,
@@ -163,7 +163,7 @@ struct Adam(Optimizer):
         self.beta1 = beta1
         self.beta2 = beta2
 
-    fn step(self, mut parameters: List[Tensor]):
+    def step(self, mut parameters: List[Tensor]):
         # Adam update logic
         for i in range(len(parameters)):
             # Update with momentum and adaptive learning rate
@@ -171,7 +171,7 @@ struct Adam(Optimizer):
             parameters[i] -= self.lr * grad
 
 
-fn main() raises:
+def main() raises:
     """Demonstrate trait-based design."""
     var layer = Linear(784, 128)
     var optimizer = Adam(lr=0.001)

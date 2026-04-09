@@ -51,11 +51,11 @@ from shared.tensor.tensor_io import (
     parse_dtype,
     dtype_to_string,
 )
-from memory import UnsafePointer
-from collections import List, Dict
-from collections.optional import Optional
+from std.memory import UnsafePointer
+from std.collections import List, Dict
+from std.collections.optional import Optional
 from shared.utils.file_io import create_directory
-import os
+from std import os
 
 
 # ============================================================================
@@ -73,7 +73,7 @@ struct NamedTensor(Copyable, Movable):
     var name: String
     var tensor: AnyTensor
 
-    fn __init__(out self, name: String, tensor: AnyTensor):
+    def __init__(out self, name: String, tensor: AnyTensor):
         """Create named tensor.
 
         Args:
@@ -83,7 +83,7 @@ struct NamedTensor(Copyable, Movable):
         self.name = name
         self.tensor = tensor
 
-    fn __init__(out self, *, copy: Self):
+    def __init__(out self, *, copy: Self):
         """Copy constructor."""
         self.name = copy.name
         self.tensor = copy.tensor
@@ -94,7 +94,7 @@ struct NamedTensor(Copyable, Movable):
 # ============================================================================
 
 
-fn save_named_tensors(tensors: List[NamedTensor], dirpath: String) raises:
+def save_named_tensors(tensors: List[NamedTensor], dirpath: String) raises:
     """Save collection of named tensors to directory.
 
         Creates a directory with one .weights file per tensor
@@ -133,7 +133,7 @@ fn save_named_tensors(tensors: List[NamedTensor], dirpath: String) raises:
         save_tensor(tensors[i].tensor, filepath, tensors[i].name)
 
 
-fn load_named_tensors(dirpath: String) raises -> List[NamedTensor]:
+def load_named_tensors(dirpath: String) raises -> List[NamedTensor]:
     """Load collection of named tensors from directory.
 
         Reads all .weights files from directory and reconstructs
@@ -200,7 +200,7 @@ fn load_named_tensors(dirpath: String) raises -> List[NamedTensor]:
 # ============================================================================
 
 
-fn save_named_checkpoint(
+def save_named_checkpoint(
     tensors: List[NamedTensor],
     path: String,
     metadata: Optional[Dict[String, String]] = None,
@@ -249,7 +249,7 @@ fn save_named_checkpoint(
             _ = f.write(meta_content)
 
 
-fn load_named_checkpoint(
+def load_named_checkpoint(
     path: String,
 ) raises -> Tuple[List[NamedTensor], Dict[String, String]]:
     """Load model checkpoint with named tensors and metadata.
@@ -299,7 +299,7 @@ fn load_named_checkpoint(
     return Tuple[List[NamedTensor], Dict[String, String]](tensors^, metadata^)
 
 
-fn _serialize_metadata(metadata: Dict[String, String]) raises -> String:
+def _serialize_metadata(metadata: Dict[String, String]) raises -> String:
     """Serialize metadata dictionary to text format.
 
         Format: one key=value pair per line
@@ -327,7 +327,7 @@ fn _serialize_metadata(metadata: Dict[String, String]) raises -> String:
     return result
 
 
-fn _deserialize_metadata(content: String) raises -> Dict[String, String]:
+def _deserialize_metadata(content: String) raises -> Dict[String, String]:
     """Deserialize metadata from text format.
 
     Args:

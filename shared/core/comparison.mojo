@@ -5,7 +5,7 @@ Typed Tensor[dtype] implementations live in shared/tensor/typed/comparison.mojo.
 This file provides the AnyTensor public API only.
 """
 
-from collections import List
+from std.collections import List
 from shared.tensor.any_tensor import AnyTensor
 from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
@@ -28,7 +28,7 @@ from shared.base.dtype_ordinal import (
 # ============================================================================
 
 
-fn equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise equality comparison with broadcasting.
 
     Args:
@@ -78,7 +78,7 @@ fn equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         raise Error("equal: unsupported dtype")
 
 
-fn not_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def not_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise inequality comparison with broadcasting.
 
     Args:
@@ -127,7 +127,7 @@ fn not_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         raise Error("not_equal: unsupported dtype")
 
 
-fn less(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def less(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise less-than comparison with broadcasting.
 
     Args:
@@ -176,7 +176,7 @@ fn less(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         raise Error("less: unsupported dtype")
 
 
-fn less_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def less_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise less-than-or-equal comparison with broadcasting.
 
     Args:
@@ -225,7 +225,7 @@ fn less_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         raise Error("less_equal: unsupported dtype")
 
 
-fn greater(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def greater(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise greater-than comparison with broadcasting.
 
     Args:
@@ -274,7 +274,7 @@ fn greater(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         raise Error("greater: unsupported dtype")
 
 
-fn greater_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def greater_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise greater-than-or-equal comparison with broadcasting.
 
     Args:

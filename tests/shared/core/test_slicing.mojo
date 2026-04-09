@@ -15,7 +15,7 @@ from tests.shared.conftest import assert_equal, assert_almost_equal
 from shared.data import extract_batch, extract_batch_pair
 
 
-fn test_slice_basic_1d() raises:
+def test_slice_basic_1d() raises:
     """Test basic slicing on 1D tensor."""
     # Create 1D tensor: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     var tensor = zeros([10], DType.float32)
@@ -42,7 +42,7 @@ fn test_slice_basic_1d() raises:
     print("PASS: test_slice_basic_1d")
 
 
-fn test_slice_2d_axis0() raises:
+def test_slice_2d_axis0() raises:
     """Test slicing 2D tensor along axis 0 (rows)."""
     # Create 2D tensor with shape (4, 3)
     var tensor = zeros([4, 3], DType.float32)
@@ -72,7 +72,7 @@ fn test_slice_2d_axis0() raises:
     print("PASS: test_slice_2d_axis0")
 
 
-fn test_slice_4d_batch() raises:
+def test_slice_4d_batch() raises:
     """Test slicing 4D tensor (typical CNN batch: batch_size, channels, height, width).
     """
     # Create 4D tensor with shape (8, 3, 4, 4) representing 8 images
@@ -105,7 +105,7 @@ fn test_slice_4d_batch() raises:
     print("PASS: test_slice_4d_batch")
 
 
-fn test_slice_full_range() raises:
+def test_slice_full_range() raises:
     """Test slicing the full range returns same data."""
     var tensor = zeros([5], DType.float32)
     for i in range(5):
@@ -126,7 +126,7 @@ fn test_slice_full_range() raises:
     print("PASS: test_slice_full_range")
 
 
-fn test_slice_is_marked_as_view() raises:
+def test_slice_is_marked_as_view() raises:
     """Verify that sliced tensors are marked with _is_view = True."""
     var tensor = zeros([5], DType.float32)
 
@@ -142,7 +142,7 @@ fn test_slice_is_marked_as_view() raises:
     print("PASS: test_slice_is_marked_as_view")
 
 
-fn test_slice_refcount_increments() raises:
+def test_slice_refcount_increments() raises:
     """Verify that creating a slice increments the reference count."""
     var tensor = zeros([5], DType.float32)
 
@@ -161,7 +161,7 @@ fn test_slice_refcount_increments() raises:
     print("PASS: test_slice_refcount_increments")
 
 
-fn test_multiple_slices_share_refcount() raises:
+def test_multiple_slices_share_refcount() raises:
     """Verify that multiple slices share the same refcount pointer."""
     var tensor = zeros([5], DType.float32)
     for i in range(5):
@@ -183,7 +183,7 @@ fn test_multiple_slices_share_refcount() raises:
     print("PASS: test_multiple_slices_share_refcount")
 
 
-fn test_slice_mutation_visible_in_original() raises:
+def test_slice_mutation_visible_in_original() raises:
     """Verify that mutating a slice element is visible in the original tensor.
 
     Asserts true view semantics: slice shares memory with original, so
@@ -205,7 +205,7 @@ fn test_slice_mutation_visible_in_original() raises:
     print("PASS: test_slice_mutation_visible_in_original")
 
 
-fn test_slice_empty_range() raises:
+def test_slice_empty_range() raises:
     """Test slicing with start == end (empty slice)."""
     var tensor = zeros([5], DType.float32)
 
@@ -218,7 +218,7 @@ fn test_slice_empty_range() raises:
     print("PASS: test_slice_empty_range")
 
 
-fn test_slice_single_element() raises:
+def test_slice_single_element() raises:
     """Test slicing a single element."""
     var tensor = zeros([5], DType.float32)
     for i in range(5):
@@ -236,7 +236,7 @@ fn test_slice_single_element() raises:
     print("PASS: test_slice_single_element")
 
 
-fn test_slice_out_of_bounds_start() raises:
+def test_slice_out_of_bounds_start() raises:
     """Test that out-of-bounds start index raises error."""
     var tensor = zeros([5], DType.float32)
 
@@ -248,7 +248,7 @@ fn test_slice_out_of_bounds_start() raises:
         print("PASS: test_slice_out_of_bounds_start")
 
 
-fn test_slice_out_of_bounds_end() raises:
+def test_slice_out_of_bounds_end() raises:
     """Test that out-of-bounds end index raises error."""
     var tensor = zeros([5], DType.float32)
 
@@ -260,7 +260,7 @@ fn test_slice_out_of_bounds_end() raises:
         print("PASS: test_slice_out_of_bounds_end")
 
 
-fn test_slice_invalid_axis() raises:
+def test_slice_invalid_axis() raises:
     """Test that invalid axis raises error."""
     var tensor = zeros([5, 3], DType.float32)
 
@@ -272,7 +272,7 @@ fn test_slice_invalid_axis() raises:
         print("PASS: test_slice_invalid_axis")
 
 
-fn test_batch_extraction_uses_view() raises:
+def test_batch_extraction_uses_view() raises:
     """Verify that batch extraction creates views, not copies."""
     # Create dataset with 10 samples of shape (3, 2)
     var dataset = zeros([10, 3, 2], DType.float32)
@@ -304,7 +304,7 @@ fn test_batch_extraction_uses_view() raises:
     print("PASS: test_batch_extraction_uses_view")
 
 
-fn test_batch_extraction_pair() raises:
+def test_batch_extraction_pair() raises:
     """Verify that batch pair extraction creates views for both data and labels.
     """
     # Create paired dataset and labels
@@ -342,7 +342,7 @@ fn test_batch_extraction_pair() raises:
     print("PASS: test_batch_extraction_pair")
 
 
-fn test_slice_view_mutation_visible() raises:
+def test_slice_view_mutation_visible() raises:
     """Test that mutating a view slice is visible in original. Closes #3900."""
     var t = zeros([10], DType.float32)
     for i in range(10):
@@ -360,7 +360,7 @@ fn test_slice_view_mutation_visible() raises:
     print("PASS: test_slice_view_mutation_visible")
 
 
-fn test_chained_slice_shares_memory() raises:
+def test_chained_slice_shares_memory() raises:
     """Test slice-of-slice shares memory with root tensor. Closes #3901."""
     var t = zeros([10], DType.float32)
     for i in range(10):
@@ -381,7 +381,7 @@ fn test_chained_slice_shares_memory() raises:
     print("PASS: test_chained_slice_shares_memory")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_slicing tests."""
     print("Running test_slicing tests...")
 

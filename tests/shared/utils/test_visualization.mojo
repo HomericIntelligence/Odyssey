@@ -51,7 +51,7 @@ from shared.utils.visualization import (
 )
 
 
-fn test_plot_data_default_init() raises:
+def test_plot_data_default_init() raises:
     """Test PlotData default initialization."""
     var plot = PlotData()
     assert_equal(plot.title, "")
@@ -62,7 +62,7 @@ fn test_plot_data_default_init() raises:
     assert_equal(plot.label, "")
 
 
-fn test_plot_data_set_attributes() raises:
+def test_plot_data_set_attributes() raises:
     """Test setting PlotData attributes."""
     var plot = PlotData()
     plot.title = "Training Loss"
@@ -82,7 +82,7 @@ fn test_plot_data_set_attributes() raises:
     assert_equal(len(plot.y_data), 2)
 
 
-fn test_plot_series_default_init() raises:
+def test_plot_series_default_init() raises:
     """Test PlotSeries default initialization."""
     var series = PlotSeries()
     assert_equal(series.title, "")
@@ -91,7 +91,7 @@ fn test_plot_series_default_init() raises:
     assert_equal(len(series.series_data), 0)
 
 
-fn test_plot_series_add_series() raises:
+def test_plot_series_add_series() raises:
     """Test adding series to PlotSeries."""
     var plot_series = PlotSeries()
     plot_series.title = "Training Curves"
@@ -112,7 +112,7 @@ fn test_plot_series_add_series() raises:
     assert_equal(len(plot_series.series_data), 2)
 
 
-fn test_confusion_matrix_data_default_init() raises:
+def test_confusion_matrix_data_default_init() raises:
     """Test ConfusionMatrixData default initialization."""
     var cm = ConfusionMatrixData()
     assert_equal(len(cm.class_names), 0)
@@ -122,7 +122,7 @@ fn test_confusion_matrix_data_default_init() raises:
     assert_equal(cm.recall, 0.0)
 
 
-fn test_plot_training_loss() raises:
+def test_plot_training_loss() raises:
     """Test plotting training loss over epochs."""
     var train_losses = List[Float32]()
     train_losses.append(0.5)
@@ -142,7 +142,7 @@ fn test_plot_training_loss() raises:
     assert_true(result)
 
 
-fn test_plot_training_and_validation_loss() raises:
+def test_plot_training_and_validation_loss() raises:
     """Test plotting both training and validation loss."""
     var train_losses = List[Float32]()
     train_losses.append(0.5)
@@ -158,7 +158,7 @@ fn test_plot_training_and_validation_loss() raises:
     assert_true(result)
 
 
-fn test_plot_accuracy_curves() raises:
+def test_plot_accuracy_curves() raises:
     """Test plotting accuracy curves over epochs."""
     var train_losses = List[Float32]()
     train_losses.append(0.5)
@@ -182,7 +182,7 @@ fn test_plot_accuracy_curves() raises:
     assert_true(result)
 
 
-fn test_plot_loss_only_single_series() raises:
+def test_plot_loss_only_single_series() raises:
     """Test plotting single loss series."""
     var losses = List[Float32]()
     losses.append(0.5)
@@ -193,7 +193,7 @@ fn test_plot_loss_only_single_series() raises:
     assert_true(result)
 
 
-fn test_plot_accuracy_only_single_series() raises:
+def test_plot_accuracy_only_single_series() raises:
     """Test plotting single accuracy series."""
     var accuracies = List[Float32]()
     accuracies.append(0.6)
@@ -204,7 +204,7 @@ fn test_plot_accuracy_only_single_series() raises:
     assert_true(result)
 
 
-fn test_plot_with_save_path() raises:
+def test_plot_with_save_path() raises:
     """Test plotting with save path specified."""
     var losses = List[Float32]()
     losses.append(0.5)
@@ -214,7 +214,7 @@ fn test_plot_with_save_path() raises:
     assert_true(result)
 
 
-fn test_create_confusion_matrix() raises:
+def test_create_confusion_matrix() raises:
     """Test creating confusion matrix from predictions."""
     var y_true = List[Int]()
     y_true.append(0)
@@ -244,7 +244,7 @@ fn test_create_confusion_matrix() raises:
     assert_equal(matrix[2][2], 1)  # Class 2: 1 correct
 
 
-fn test_confusion_matrix_with_num_classes() raises:
+def test_confusion_matrix_with_num_classes() raises:
     """Test confusion matrix with specified number of classes."""
     var y_true = List[Int]()
     y_true.append(0)
@@ -261,7 +261,7 @@ fn test_confusion_matrix_with_num_classes() raises:
     assert_equal(len(matrix[0]), 4)
 
 
-fn test_plot_confusion_matrix() raises:
+def test_plot_confusion_matrix() raises:
     """Test plotting confusion matrix as heatmap."""
     var y_true = List[Int]()
     y_true.append(0)
@@ -283,7 +283,7 @@ fn test_plot_confusion_matrix() raises:
     assert_true(result)
 
 
-fn test_confusion_matrix_with_class_names() raises:
+def test_confusion_matrix_with_class_names() raises:
     """Test confusion matrix with custom class names."""
     var y_true = List[Int]()
     y_true.append(0)
@@ -304,7 +304,7 @@ fn test_confusion_matrix_with_class_names() raises:
     assert_true(result)
 
 
-fn test_empty_confusion_matrix() raises:
+def test_empty_confusion_matrix() raises:
     """Test confusion matrix with empty inputs."""
     var y_true = List[Int]()
     var y_pred = List[Int]()
@@ -314,7 +314,7 @@ fn test_empty_confusion_matrix() raises:
     assert_equal(len(matrix), 0)
 
 
-fn test_confusion_matrix_normalization() raises:
+def test_confusion_matrix_normalization() raises:
     """Test normalizing confusion matrix by row (true labels)."""
     var matrix = List[List[Int]]()
     var row0 = List[Int]()
@@ -338,7 +338,7 @@ fn test_confusion_matrix_normalization() raises:
     assert_true(normalized[1][1] > 0.89 and normalized[1][1] < 0.91)
 
 
-fn test_confusion_matrix_accuracy() raises:
+def test_confusion_matrix_accuracy() raises:
     """Test computing accuracy from confusion matrix."""
     var matrix = List[List[Int]]()
 
@@ -368,7 +368,7 @@ fn test_confusion_matrix_accuracy() raises:
     assert_true(accuracy > 0.82 and accuracy < 0.84)
 
 
-fn test_single_class_confusion_matrix() raises:
+def test_single_class_confusion_matrix() raises:
     """Test confusion matrix with single class."""
     var y_true = List[Int]()
     y_true.append(0)
@@ -385,7 +385,7 @@ fn test_single_class_confusion_matrix() raises:
     assert_equal(matrix[0][0], 3)
 
 
-fn test_visualize_simple_model() raises:
+def test_visualize_simple_model() raises:
     """Test visualizing simple neural network architecture."""
     var layers = List[String]()
     layers.append("Input: (batch, 784)")
@@ -397,7 +397,7 @@ fn test_visualize_simple_model() raises:
     assert_true(result)
 
 
-fn test_visualize_conv_model() raises:
+def test_visualize_conv_model() raises:
     """Test visualizing convolutional neural network."""
     var layers = List[String]()
     layers.append("Input: (batch, 1, 28, 28)")
@@ -411,7 +411,7 @@ fn test_visualize_conv_model() raises:
     assert_true(result)
 
 
-fn test_visualize_model_with_shapes() raises:
+def test_visualize_model_with_shapes() raises:
     """Test visualizing model with tensor shapes at each layer."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -439,7 +439,7 @@ fn test_visualize_model_with_shapes() raises:
     assert_true(result)
 
 
-fn test_save_architecture_diagram() raises:
+def test_save_architecture_diagram() raises:
     """Test saving architecture diagram to file."""
     var layers = List[String]()
     layers.append("Input: (batch, 784)")
@@ -449,7 +449,7 @@ fn test_save_architecture_diagram() raises:
     assert_true(result)
 
 
-fn test_visualize_gradient_magnitudes() raises:
+def test_visualize_gradient_magnitudes() raises:
     """Test visualizing gradient magnitudes by layer."""
     var gradients = List[Float32]()
     gradients.append(0.01)
@@ -467,7 +467,7 @@ fn test_visualize_gradient_magnitudes() raises:
     assert_true(result)
 
 
-fn test_detect_vanishing_gradients() raises:
+def test_detect_vanishing_gradients() raises:
     """Test detecting vanishing gradient problem."""
     var gradients = List[Float32]()
     gradients.append(0.01)
@@ -482,7 +482,7 @@ fn test_detect_vanishing_gradients() raises:
     assert_false(has_exploding)
 
 
-fn test_detect_exploding_gradients() raises:
+def test_detect_exploding_gradients() raises:
     """Test detecting exploding gradient problem."""
     var gradients = List[Float32]()
     gradients.append(0.01)
@@ -497,7 +497,7 @@ fn test_detect_exploding_gradients() raises:
     assert_true(has_exploding)
 
 
-fn test_detect_both_gradient_issues() raises:
+def test_detect_both_gradient_issues() raises:
     """Test detecting both vanishing and exploding gradients."""
     var gradients = List[Float32]()
     gradients.append(1e-10)  # Vanishing
@@ -512,7 +512,7 @@ fn test_detect_both_gradient_issues() raises:
     assert_true(has_exploding)
 
 
-fn test_no_gradient_issues() raises:
+def test_no_gradient_issues() raises:
     """Test normal gradients without issues."""
     var gradients = List[Float32]()
     gradients.append(0.01)
@@ -527,7 +527,7 @@ fn test_no_gradient_issues() raises:
     assert_false(has_exploding)
 
 
-fn test_plot_gradient_flow() raises:
+def test_plot_gradient_flow() raises:
     """Test plotting gradient flow through network."""
     var gradients = List[Float32]()
     gradients.append(0.01)
@@ -543,7 +543,7 @@ fn test_plot_gradient_flow() raises:
     assert_true(result)
 
 
-fn test_empty_gradients() raises:
+def test_empty_gradients() raises:
     """Test gradient detection with empty list."""
     var gradients = List[Float32]()
 
@@ -555,7 +555,7 @@ fn test_empty_gradients() raises:
     assert_false(has_exploding)
 
 
-fn test_visualize_image_batch() raises:
+def test_visualize_image_batch() raises:
     """Test visualizing batch of images in grid."""
     var images = List[String]()
     for i in range(16):
@@ -567,7 +567,7 @@ fn test_visualize_image_batch() raises:
     assert_true(result)
 
 
-fn test_visualize_images_with_labels() raises:
+def test_visualize_images_with_labels() raises:
     """Test visualizing images with labels."""
     var images = List[String]()
     images.append("img1.png")
@@ -583,7 +583,7 @@ fn test_visualize_images_with_labels() raises:
     assert_true(result)
 
 
-fn test_visualize_augmented_images() raises:
+def test_visualize_augmented_images() raises:
     """Test visualizing original and augmented images side by side."""
     var original = List[String]()
     original.append("orig1.png")
@@ -597,7 +597,7 @@ fn test_visualize_augmented_images() raises:
     assert_true(result)
 
 
-fn test_visualize_feature_maps() raises:
+def test_visualize_feature_maps() raises:
     """Test visualizing convolutional feature maps."""
     var feature_maps = List[String]()
     feature_maps.append("fmap_0")
@@ -609,7 +609,7 @@ fn test_visualize_feature_maps() raises:
     assert_true(result)
 
 
-fn test_visualize_feature_maps_no_layer_name() raises:
+def test_visualize_feature_maps_no_layer_name() raises:
     """Test visualizing feature maps without layer name."""
     var feature_maps = List[String]()
     feature_maps.append("fmap_0")
@@ -618,37 +618,37 @@ fn test_visualize_feature_maps_no_layer_name() raises:
     assert_true(result)
 
 
-fn test_save_figure_png() raises:
+def test_save_figure_png() raises:
     """Test saving figure as PNG."""
     var result = save_figure("output.png", "png")
     assert_true(result)
 
 
-fn test_save_figure_svg() raises:
+def test_save_figure_svg() raises:
     """Test saving figure as SVG."""
     var result = save_figure("output.svg", "svg")
     assert_true(result)
 
 
-fn test_save_figure_pdf() raises:
+def test_save_figure_pdf() raises:
     """Test saving figure as PDF."""
     var result = save_figure("output.pdf", "pdf")
     assert_true(result)
 
 
-fn test_clear_figure() raises:
+def test_clear_figure() raises:
     """Test clearing figure."""
     var result = clear_figure()
     assert_true(result)
 
 
-fn test_show_figure() raises:
+def test_show_figure() raises:
     """Test showing figure."""
     var result = show_figure()
     assert_true(result)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_visualization tests."""
     print("Running test_visualization tests...")
 

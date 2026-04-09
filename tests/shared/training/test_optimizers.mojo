@@ -38,7 +38,7 @@ from tests.shared.conftest import (
 from shared.training.optimizers.adamw import adamw_step
 
 
-fn test_sgd_initialization() raises:
+def test_sgd_initialization() raises:
     """Test SGD optimizer initialization with hyperparameters.
 
     Functional API Note:
@@ -66,7 +66,7 @@ fn test_sgd_initialization() raises:
     assert_shape(result[0], shape, "SGD step result shape matches input")
 
 
-fn test_sgd_basic_update() raises:
+def test_sgd_basic_update() raises:
     """Test SGD performs basic parameter update without momentum.
 
     Functional API:
@@ -108,7 +108,7 @@ fn test_sgd_basic_update() raises:
     )
 
 
-fn test_sgd_momentum_accumulation() raises:
+def test_sgd_momentum_accumulation() raises:
     """Test SGD accumulates momentum correctly over multiple steps.
 
     Functional API:
@@ -154,7 +154,7 @@ fn test_sgd_momentum_accumulation() raises:
     )
 
 
-fn test_sgd_weight_decay() raises:
+def test_sgd_weight_decay() raises:
     """Test SGD applies weight decay (L2 regularization).
 
     Functional API:
@@ -184,7 +184,7 @@ fn test_sgd_weight_decay() raises:
     )
 
 
-fn test_sgd_nesterov_momentum() raises:
+def test_sgd_nesterov_momentum() raises:
     """Test SGD with Nesterov momentum (lookahead).
 
     Not applicable to pure functional design - Nesterov momentum requires
@@ -197,7 +197,7 @@ fn test_sgd_nesterov_momentum() raises:
     pass  # Deferred - not applicable to pure functional design
 
 
-fn test_sgd_zero_grad() raises:
+def test_sgd_zero_grad() raises:
     """Test SGD clears optimizer state (if needed).
 
     Not applicable to pure functional design - there is no internal state
@@ -207,7 +207,7 @@ fn test_sgd_zero_grad() raises:
     pass  # Not applicable - no internal state in functional design
 
 
-fn test_adam_initialization() raises:
+def test_adam_initialization() raises:
     """Test Adam optimizer initialization.
 
     Functional API Note:
@@ -240,7 +240,7 @@ fn test_adam_initialization() raises:
     assert_shape(result[0], shape, "Adam initialization result shape matches input")
 
 
-fn test_adam_parameter_update() raises:
+def test_adam_parameter_update() raises:
     """Test Adam performs correct parameter update.
 
     Functional API:
@@ -297,7 +297,7 @@ fn test_adam_parameter_update() raises:
     )
 
 
-fn test_adam_bias_correction() raises:
+def test_adam_bias_correction() raises:
     """Test Adam applies bias correction in early steps.
 
     Functional API:
@@ -335,7 +335,7 @@ fn test_adam_bias_correction() raises:
         prev_param = params._data.bitcast[Float32]()[0]
 
 
-fn test_adamw_weight_decay() raises:
+def test_adamw_weight_decay() raises:
     """Test AdamW applies decoupled weight decay.
 
     API Contract:
@@ -384,7 +384,7 @@ fn test_adamw_weight_decay() raises:
     assert_less(param_val, 0.999)  # Weight decay should make it smaller than Adam alone
 
 
-fn test_rmsprop_initialization() raises:
+def test_rmsprop_initialization() raises:
     """Test RMSprop optimizer initialization.
 
     API Contract:
@@ -407,7 +407,7 @@ fn test_rmsprop_initialization() raises:
     pass
 
 
-fn test_rmsprop_parameter_update() raises:
+def test_rmsprop_parameter_update() raises:
     """Test RMSprop performs correct parameter update.
 
     API Contract:
@@ -433,7 +433,7 @@ fn test_rmsprop_parameter_update() raises:
     pass
 
 
-fn test_optimizer_property_decreasing_loss() raises:
+def test_optimizer_property_decreasing_loss() raises:
     """Property: Optimizer should decrease loss on convex function.
 
     Test that all optimizers can minimize a simple quadratic function.
@@ -470,7 +470,7 @@ fn test_optimizer_property_decreasing_loss() raises:
     pass
 
 
-fn test_optimizer_property_gradient_shape() raises:
+def test_optimizer_property_gradient_shape() raises:
     """Property: Optimizer should handle gradients of same shape as parameters.
 
     All optimizers should work with multi-dimensional parameter tensors.
@@ -491,7 +491,7 @@ fn test_optimizer_property_gradient_shape() raises:
     pass
 
 
-fn test_sgd_matches_pytorch() raises:
+def test_sgd_matches_pytorch() raises:
     """Test SGD matches PyTorch implementation exactly.
 
     This CRITICAL test validates numerical correctness against PyTorch.
@@ -572,7 +572,7 @@ fn test_sgd_matches_pytorch() raises:
     )
 
 
-fn test_adam_matches_pytorch() raises:
+def test_adam_matches_pytorch() raises:
     """Test Adam matches PyTorch implementation exactly.
 
     This CRITICAL test validates Adam's complex update rules.
@@ -676,7 +676,7 @@ fn test_adam_matches_pytorch() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all test_optimizers tests."""
     print("Running test_optimizers tests...")
 

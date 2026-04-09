@@ -11,7 +11,7 @@ Architecture:
     - Broadcasting index computation integrated into evaluation
 """
 
-from collections import List
+from std.collections import List
 from shared.tensor.any_tensor import AnyTensor, full
 from .lazy_expression import (
     TensorExpr,
@@ -48,7 +48,7 @@ from shared.base.dtype_ordinal import (
 # ============================================================================
 
 
-fn _flat_to_coords(flat_idx: Int, shape: List[Int]) -> List[Int]:
+def _flat_to_coords(flat_idx: Int, shape: List[Int]) -> List[Int]:
     """Convert flat index to multi-dimensional coordinates.
 
     Args:
@@ -74,7 +74,7 @@ fn _flat_to_coords(flat_idx: Int, shape: List[Int]) -> List[Int]:
     return result^
 
 
-fn _coords_to_index(coords: List[Int], strides: List[Int]) -> Int:
+def _coords_to_index(coords: List[Int], strides: List[Int]) -> Int:
     """Convert multi-dimensional coordinates to flat index.
 
     Args:
@@ -90,7 +90,7 @@ fn _coords_to_index(coords: List[Int], strides: List[Int]) -> Int:
     return idx
 
 
-fn _compute_source_idx(
+def _compute_source_idx(
     flat_idx: Int,
     result_shape: List[Int],
     source_shape: List[Int],
@@ -137,7 +137,7 @@ fn _compute_source_idx(
 # ============================================================================
 
 
-fn _evaluate_at_index[
+def _evaluate_at_index[
     dtype: DType
 ](
     expr: TensorExpr,
@@ -271,7 +271,7 @@ fn _evaluate_at_index[
 # ============================================================================
 
 
-fn _dispatch_evaluate(expr: TensorExpr) raises -> AnyTensor:
+def _dispatch_evaluate(expr: TensorExpr) raises -> AnyTensor:
     """Runtime dispatch to compile-time specialized evaluation.
 
     Performs dtype dispatch and calls specialized kernel.
@@ -318,7 +318,7 @@ fn _dispatch_evaluate(expr: TensorExpr) raises -> AnyTensor:
 # ============================================================================
 
 
-fn _evaluate_typed[dtype: DType](expr: TensorExpr) raises -> AnyTensor:
+def _evaluate_typed[dtype: DType](expr: TensorExpr) raises -> AnyTensor:
     """Compile-time specialized evaluation kernel.
 
     Args:
@@ -358,7 +358,7 @@ fn _evaluate_typed[dtype: DType](expr: TensorExpr) raises -> AnyTensor:
 # ============================================================================
 
 
-fn evaluate(expr: TensorExpr) raises -> AnyTensor:
+def evaluate(expr: TensorExpr) raises -> AnyTensor:
     """Evaluate lazy expression to produce result tensor.
 
     Performs fused evaluation of the entire expression tree, producing a

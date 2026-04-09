@@ -47,7 +47,7 @@ struct SimpleNetwork(Copyable, Movable):
     var output_size: Int
 
 
-fn simple_forward(
+def simple_forward(
     mut network: SimpleNetwork, input_data: AnyTensor
 ) raises -> AnyTensor:
     """Perform a simple forward pass.
@@ -75,7 +75,7 @@ fn simple_forward(
 # ============================================================================
 
 
-fn benchmark_inference_small() raises -> None:
+def benchmark_inference_small() raises -> None:
     """Benchmark forward pass with small input."""
     var network = SimpleNetwork(784, 128, 10)
     var input_shape = List[Int]()
@@ -87,7 +87,7 @@ fn benchmark_inference_small() raises -> None:
     _ = simple_forward(network, input_data)
 
 
-fn benchmark_inference_medium() raises -> None:
+def benchmark_inference_medium() raises -> None:
     """Benchmark forward pass with medium input."""
     var network = SimpleNetwork(3072, 512, 10)
     var input_shape = List[Int]()
@@ -99,7 +99,7 @@ fn benchmark_inference_medium() raises -> None:
     _ = simple_forward(network, input_data)
 
 
-fn benchmark_inference_large() raises -> None:
+def benchmark_inference_large() raises -> None:
     """Benchmark forward pass with large input."""
     var network = SimpleNetwork(25088, 4096, 1000)
     var input_shape = List[Int]()
@@ -116,7 +116,7 @@ fn benchmark_inference_large() raises -> None:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Benchmark different neural network configurations."""
     print("")
     print("=" * 70)

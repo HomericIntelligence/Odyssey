@@ -29,7 +29,7 @@ struct StubTensorDataset:
     var labels: List[Int]
     var size: Int
 
-    fn __init__(out self, data: List[Float32], labels: List[Int]) raises:
+    def __init__(out self, data: List[Float32], labels: List[Int]) raises:
         """Create tensor dataset from data and labels.
 
         Args:
@@ -46,11 +46,11 @@ struct StubTensorDataset:
         self.labels = labels.copy()
         self.size = len(data)
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return number of samples."""
         return self.size
 
-    fn __getitem__(self, index: Int) raises -> Tuple[Float32, Int]:
+    def __getitem__(self, index: Int) raises -> Tuple[Float32, Int]:
         """Get sample at index.
 
         Args:
@@ -73,7 +73,7 @@ struct StubTensorDataset:
 # ============================================================================
 
 
-fn test_tensor_dataset_creation() raises:
+def test_tensor_dataset_creation() raises:
     """Test creating TensorDataset from tensors.
 
     TensorDataset should accept data and labels tensors and store them
@@ -85,7 +85,7 @@ fn test_tensor_dataset_creation() raises:
     assert_equal(dataset.__len__(), 3)
 
 
-fn test_tensor_dataset_with_matching_sizes() raises:
+def test_tensor_dataset_with_matching_sizes() raises:
     """Test that data and labels must have matching first dimension.
 
     The number of samples in data must match the number of labels,
@@ -101,7 +101,7 @@ fn test_tensor_dataset_with_matching_sizes() raises:
     assert_equal(dataset.__len__(), 100)
 
 
-fn test_tensor_dataset_size_mismatch_error() raises:
+def test_tensor_dataset_size_mismatch_error() raises:
     """Test that mismatched data/label sizes raise error.
 
     Creating dataset with 100 data samples and 50 labels should fail
@@ -124,7 +124,7 @@ fn test_tensor_dataset_size_mismatch_error() raises:
     assert_true(error_raised, "Should have raised error for size mismatch")
 
 
-fn test_tensor_dataset_empty() raises:
+def test_tensor_dataset_empty() raises:
     """Test creating empty TensorDataset.
 
     Empty dataset should be valid (length 0) and not crash when queried.
@@ -136,7 +136,7 @@ fn test_tensor_dataset_empty() raises:
     assert_equal(dataset.__len__(), 0)
 
 
-fn test_tensor_dataset_getitem() raises:
+def test_tensor_dataset_getitem() raises:
     """Test getting individual samples from TensorDataset.
 
     Should return (data, label) tuple for requested index.
@@ -150,7 +150,7 @@ fn test_tensor_dataset_getitem() raises:
     assert_equal(sample[1], 1)
 
 
-fn test_tensor_dataset_negative_indexing() raises:
+def test_tensor_dataset_negative_indexing() raises:
     """Test negative indexing works correctly.
 
     dataset[-1] should return the last sample,
@@ -171,7 +171,7 @@ fn test_tensor_dataset_negative_indexing() raises:
     assert_equal(second_last_sample[1][0], 1)
 
 
-fn test_tensor_dataset_out_of_bounds() raises:
+def test_tensor_dataset_out_of_bounds() raises:
     """Test that out-of-bounds access raises error.
 
     Accessing index >= len(dataset) or index < -len(dataset)
@@ -200,7 +200,7 @@ fn test_tensor_dataset_out_of_bounds() raises:
     assert_true(error_raised, "Should have raised error for index -10")
 
 
-fn test_tensor_dataset_iteration_consistency() raises:
+def test_tensor_dataset_iteration_consistency() raises:
     """Test that repeated access returns same data.
 
     Multiple calls to dataset[i] should return identical tensors,
@@ -227,7 +227,7 @@ fn test_tensor_dataset_iteration_consistency() raises:
 # ============================================================================
 
 
-fn test_tensor_dataset_no_copy_on_access() raises:
+def test_tensor_dataset_no_copy_on_access() raises:
     """Test that __getitem__ returns views, not copies.
 
     For efficiency, dataset should return views into the original tensor
@@ -252,7 +252,7 @@ fn test_tensor_dataset_no_copy_on_access() raises:
     assert_equal(sample2[1][0], 1)
 
 
-fn test_tensor_dataset_memory_efficiency() raises:
+def test_tensor_dataset_memory_efficiency() raises:
     """Test that TensorDataset doesn't duplicate data in memory.
 
     Creating dataset should not copy the input tensors,
@@ -292,7 +292,7 @@ fn test_tensor_dataset_memory_efficiency() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all tensor dataset tests."""
     print("Running tensor dataset tests...")
 

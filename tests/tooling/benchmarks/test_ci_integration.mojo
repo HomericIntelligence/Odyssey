@@ -28,7 +28,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_pr_benchmark_execution() raises:
+def test_pr_benchmark_execution() raises:
     """Test benchmark execution on pull requests.
 
     Verifies:
@@ -48,7 +48,7 @@ fn test_pr_benchmark_execution() raises:
     assert_true(report_generated, "Comparison report should be generated")
 
 
-fn test_baseline_update_on_merge() raises:
+def test_baseline_update_on_merge() raises:
     """Test baseline update when PR merges to main.
 
     Verifies:
@@ -68,7 +68,7 @@ fn test_baseline_update_on_merge() raises:
     assert_true(history_preserved, "Historical baseline should be preserved")
 
 
-fn test_scheduled_benchmark_runs() raises:
+def test_scheduled_benchmark_runs() raises:
     """Test scheduled benchmark execution (e.g., nightly).
 
     Verifies:
@@ -90,7 +90,7 @@ fn test_scheduled_benchmark_runs() raises:
     assert_true(trends_trackable, "Historical trends should be trackable")
 
 
-fn test_ci_exit_code_handling() raises:
+def test_ci_exit_code_handling() raises:
     """Test exit code handling in CI context.
 
     Verifies:
@@ -112,7 +112,7 @@ fn test_ci_exit_code_handling() raises:
     assert_true(exit_code_enforced, "CI should enforce exit codes")
 
 
-fn test_benchmark_result_artifacts() raises:
+def test_benchmark_result_artifacts() raises:
     """Test storage of benchmark results as CI artifacts.
 
     Verifies:
@@ -134,7 +134,7 @@ fn test_benchmark_result_artifacts() raises:
     assert_true(retained, "Artifacts should be retained for tracking")
 
 
-fn test_github_actions_annotations() raises:
+def test_github_actions_annotations() raises:
     """Test GitHub Actions annotations for regressions.
 
     Verifies:
@@ -164,7 +164,7 @@ fn test_github_actions_annotations() raises:
     )
 
 
-fn test_benchmark_timeout_in_ci() raises:
+def test_benchmark_timeout_in_ci() raises:
     """Test benchmark timeout enforcement in CI.
 
     Verifies:
@@ -195,7 +195,7 @@ fn test_benchmark_timeout_in_ci() raises:
     )
 
 
-fn test_historical_tracking() raises:
+def test_historical_tracking() raises:
     """Test historical performance tracking.
 
     Verifies:
@@ -224,7 +224,7 @@ fn test_historical_tracking() raises:
     assert_true(trends_calculable, "Trends should be calculable from data")
 
 
-fn test_ci_environment_consistency() raises:
+def test_ci_environment_consistency() raises:
     """Test consistency of CI environment for benchmarks.
 
     Verifies:
@@ -249,7 +249,7 @@ fn test_ci_environment_consistency() raises:
     assert_equal(env_1_os, env_2_os, "OS should be consistent across runs")
 
 
-fn test_manual_benchmark_trigger() raises:
+def test_manual_benchmark_trigger() raises:
     """Test manual triggering of benchmarks in CI.
 
     Verifies:
@@ -277,7 +277,7 @@ fn test_manual_benchmark_trigger() raises:
     assert_true(len(trigger_options[0]) > 0, "Options should be non-empty")
 
 
-fn main() raises:
+def main() raises:
     """Run all CI integration tests."""
     print("\n=== CI Integration Tests ===\n")
 

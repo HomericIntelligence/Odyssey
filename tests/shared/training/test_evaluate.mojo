@@ -21,7 +21,7 @@ from shared.training.metrics import (
     evaluate_logits_batch,
     compute_accuracy_on_batch,
 )
-from collections import List
+from std.collections import List
 
 
 # ============================================================================
@@ -34,7 +34,7 @@ struct MockPredictor:
 
     var predictions: AnyTensor
 
-    fn __init__(out self, var predictions: AnyTensor):
+    def __init__(out self, var predictions: AnyTensor):
         """Initialize with fixed predictions.
 
         Args:
@@ -42,7 +42,7 @@ struct MockPredictor:
         """
         self.predictions = predictions^
 
-    fn predict(self, sample: AnyTensor) raises -> Int:
+    def predict(self, sample: AnyTensor) raises -> Int:
         """Mock predict method that uses stored predictions.
 
         Args:
@@ -60,7 +60,7 @@ struct MockPredictor:
 # ============================================================================
 
 
-fn test_compute_accuracy_on_batch_perfect() raises:
+def test_compute_accuracy_on_batch_perfect() raises:
     """Test compute_accuracy_on_batch with perfect predictions."""
     print("Testing compute_accuracy_on_batch with perfect predictions...")
 
@@ -113,7 +113,7 @@ fn test_compute_accuracy_on_batch_perfect() raises:
     print("   Perfect accuracy test passed")
 
 
-fn test_compute_accuracy_on_batch_partial() raises:
+def test_compute_accuracy_on_batch_partial() raises:
     """Test compute_accuracy_on_batch with partial correct predictions."""
     print("Testing compute_accuracy_on_batch with partial predictions...")
 
@@ -163,7 +163,7 @@ fn test_compute_accuracy_on_batch_partial() raises:
     print("   Partial accuracy test passed")
 
 
-fn test_compute_accuracy_on_batch_with_indices() raises:
+def test_compute_accuracy_on_batch_with_indices() raises:
     """Test compute_accuracy_on_batch with class indices (not logits)."""
     print("Testing compute_accuracy_on_batch with class indices...")
 
@@ -195,7 +195,7 @@ fn test_compute_accuracy_on_batch_with_indices() raises:
     print("   Class indices test passed")
 
 
-fn test_compute_accuracy_on_batch_zero() raises:
+def test_compute_accuracy_on_batch_zero() raises:
     """Test compute_accuracy_on_batch with zero correct predictions."""
     print("Testing compute_accuracy_on_batch with zero correct predictions...")
 
@@ -247,7 +247,7 @@ fn test_compute_accuracy_on_batch_zero() raises:
     print("   Zero accuracy test passed")
 
 
-fn test_compute_accuracy_on_batch_single_sample() raises:
+def test_compute_accuracy_on_batch_single_sample() raises:
     """Test compute_accuracy_on_batch with single sample."""
     print("Testing compute_accuracy_on_batch with single sample...")
 
@@ -275,7 +275,7 @@ fn test_compute_accuracy_on_batch_single_sample() raises:
     print("   Single sample test passed")
 
 
-fn test_evaluate_logits_batch_perfect() raises:
+def test_evaluate_logits_batch_perfect() raises:
     """Test evaluate_logits_batch with perfect predictions."""
     print("Testing evaluate_logits_batch with perfect predictions...")
 
@@ -328,7 +328,7 @@ fn test_evaluate_logits_batch_perfect() raises:
     print("   evaluate_logits_batch perfect test passed")
 
 
-fn test_evaluate_with_predict() raises:
+def test_evaluate_with_predict() raises:
     """Test evaluate_with_predict with predictions list."""
     print("Testing evaluate_with_predict...")
 
@@ -365,7 +365,7 @@ fn test_evaluate_with_predict() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all evaluate tests."""
     print("\n" + "=" * 60)
     print("Testing Evaluation Utilities (Issue #2291)")

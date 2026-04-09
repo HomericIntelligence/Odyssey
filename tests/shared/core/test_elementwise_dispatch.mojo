@@ -43,34 +43,34 @@ from shared.core.elementwise_dispatch import (
 struct DoubleOp(ElementwiseUnaryOp):
     """Custom operation: 2 * x."""
 
-    fn __init__(out self):
+    def __init__(out self):
         pass
 
-    fn apply(self, value: Float64) -> Float64:
+    def apply(self, value: Float64) -> Float64:
         return value * 2.0
 
 
 struct IncrementOp(ElementwiseUnaryOp):
     """Custom operation: x + 1."""
 
-    fn __init__(out self):
+    def __init__(out self):
         pass
 
-    fn apply(self, value: Float64) -> Float64:
+    def apply(self, value: Float64) -> Float64:
         return value + 1.0
 
 
 struct AverageOp(ElementwiseBinaryOp):
     """Custom operation: (a + b) / 2."""
 
-    fn __init__(out self):
+    def __init__(out self):
         pass
 
-    fn apply(self, a: Float64, b: Float64) -> Float64:
+    def apply(self, a: Float64, b: Float64) -> Float64:
         return (a + b) / 2.0
 
 
-fn test_apply_unary_exp_zeros() raises:
+def test_apply_unary_exp_zeros() raises:
     """Test exp(0) = 1."""
     var shape = List[Int]()
     shape.append(3)
@@ -83,7 +83,7 @@ fn test_apply_unary_exp_zeros() raises:
         assert_almost_equal(result._get_float64(i), 1.0, tolerance=1e-6)
 
 
-fn test_apply_unary_exp_ones() raises:
+def test_apply_unary_exp_ones() raises:
     """Test exp(1) ≈ 2.71828."""
     var shape = List[Int]()
     shape.append(3)
@@ -96,7 +96,7 @@ fn test_apply_unary_exp_ones() raises:
         assert_almost_equal(result._get_float64(i), 2.71828, tolerance=1e-4)
 
 
-fn test_apply_unary_log_ones() raises:
+def test_apply_unary_log_ones() raises:
     """Test log(1) = 0."""
     var shape = List[Int]()
     shape.append(3)
@@ -109,7 +109,7 @@ fn test_apply_unary_log_ones() raises:
         assert_almost_equal(result._get_float64(i), 0.0, tolerance=1e-6)
 
 
-fn test_apply_unary_log_error_negative() raises:
+def test_apply_unary_log_error_negative() raises:
     """Test log of negative number raises error."""
     var shape = List[Int]()
     shape.append(1)
@@ -122,7 +122,7 @@ fn test_apply_unary_log_error_negative() raises:
         assert_true(True, "Correctly raised error")
 
 
-fn test_apply_unary_sqrt_four() raises:
+def test_apply_unary_sqrt_four() raises:
     """Test sqrt(4) = 2."""
     var shape = List[Int]()
     shape.append(3)
@@ -135,7 +135,7 @@ fn test_apply_unary_sqrt_four() raises:
         assert_almost_equal(result._get_float64(i), 2.0, tolerance=1e-6)
 
 
-fn test_apply_unary_sqrt_zero() raises:
+def test_apply_unary_sqrt_zero() raises:
     """Test sqrt(0) = 0."""
     var shape = List[Int]()
     shape.append(3)
@@ -148,7 +148,7 @@ fn test_apply_unary_sqrt_zero() raises:
         assert_almost_equal(result._get_float64(i), 0.0, tolerance=1e-6)
 
 
-fn test_apply_unary_sin_zero() raises:
+def test_apply_unary_sin_zero() raises:
     """Test sin(0) = 0."""
     var shape = List[Int]()
     shape.append(3)
@@ -161,7 +161,7 @@ fn test_apply_unary_sin_zero() raises:
         assert_almost_equal(result._get_float64(i), 0.0, tolerance=1e-6)
 
 
-fn test_apply_unary_cos_zero() raises:
+def test_apply_unary_cos_zero() raises:
     """Test cos(0) = 1."""
     var shape = List[Int]()
     shape.append(3)
@@ -174,7 +174,7 @@ fn test_apply_unary_cos_zero() raises:
         assert_almost_equal(result._get_float64(i), 1.0, tolerance=1e-6)
 
 
-fn test_apply_unary_tanh_zero() raises:
+def test_apply_unary_tanh_zero() raises:
     """Test tanh(0) = 0."""
     var shape = List[Int]()
     shape.append(3)
@@ -187,7 +187,7 @@ fn test_apply_unary_tanh_zero() raises:
         assert_almost_equal(result._get_float64(i), 0.0, tolerance=1e-6)
 
 
-fn test_apply_unary_abs_negative() raises:
+def test_apply_unary_abs_negative() raises:
     """Test abs(-5) = 5."""
     var shape = List[Int]()
     shape.append(3)
@@ -200,7 +200,7 @@ fn test_apply_unary_abs_negative() raises:
         assert_almost_equal(result._get_float64(i), 5.0, tolerance=1e-6)
 
 
-fn test_apply_unary_abs_positive() raises:
+def test_apply_unary_abs_positive() raises:
     """Test abs(5) = 5."""
     var shape = List[Int]()
     shape.append(3)
@@ -213,7 +213,7 @@ fn test_apply_unary_abs_positive() raises:
         assert_almost_equal(result._get_float64(i), 5.0, tolerance=1e-6)
 
 
-fn test_apply_unary_negate() raises:
+def test_apply_unary_negate() raises:
     """Test negate operation."""
     var shape = List[Int]()
     shape.append(3)
@@ -226,7 +226,7 @@ fn test_apply_unary_negate() raises:
         assert_almost_equal(result._get_float64(i), -5.0, tolerance=1e-6)
 
 
-fn test_apply_unary_square() raises:
+def test_apply_unary_square() raises:
     """Test square operation: x^2."""
     var shape = List[Int]()
     shape.append(3)
@@ -239,7 +239,7 @@ fn test_apply_unary_square() raises:
         assert_almost_equal(result._get_float64(i), 9.0, tolerance=1e-6)
 
 
-fn test_apply_unary_sign_positive() raises:
+def test_apply_unary_sign_positive() raises:
     """Test sign of positive number."""
     var shape = List[Int]()
     shape.append(1)
@@ -250,7 +250,7 @@ fn test_apply_unary_sign_positive() raises:
     assert_almost_equal(result._get_float64(0), 1.0, tolerance=1e-6)
 
 
-fn test_apply_unary_sign_negative() raises:
+def test_apply_unary_sign_negative() raises:
     """Test sign of negative number."""
     var shape = List[Int]()
     shape.append(1)
@@ -261,7 +261,7 @@ fn test_apply_unary_sign_negative() raises:
     assert_almost_equal(result._get_float64(0), -1.0, tolerance=1e-6)
 
 
-fn test_apply_unary_sign_zero() raises:
+def test_apply_unary_sign_zero() raises:
     """Test sign of zero."""
     var shape = List[Int]()
     shape.append(1)
@@ -272,7 +272,7 @@ fn test_apply_unary_sign_zero() raises:
     assert_almost_equal(result._get_float64(0), 0.0, tolerance=1e-6)
 
 
-fn test_apply_unary_custom_double() raises:
+def test_apply_unary_custom_double() raises:
     """Test custom double operation."""
     var shape = List[Int]()
     shape.append(3)
@@ -285,7 +285,7 @@ fn test_apply_unary_custom_double() raises:
         assert_almost_equal(result._get_float64(i), 10.0, tolerance=1e-6)
 
 
-fn test_apply_unary_custom_increment() raises:
+def test_apply_unary_custom_increment() raises:
     """Test custom increment operation."""
     var shape = List[Int]()
     shape.append(3)
@@ -298,7 +298,7 @@ fn test_apply_unary_custom_increment() raises:
         assert_almost_equal(result._get_float64(i), 6.0, tolerance=1e-6)
 
 
-fn test_apply_binary_add() raises:
+def test_apply_binary_add() raises:
     """Test addition operation."""
     var shape = List[Int]()
     shape.append(3)
@@ -312,7 +312,7 @@ fn test_apply_binary_add() raises:
         assert_almost_equal(result._get_float64(i), 5.0, tolerance=1e-6)
 
 
-fn test_apply_binary_subtract() raises:
+def test_apply_binary_subtract() raises:
     """Test subtraction operation."""
     var shape = List[Int]()
     shape.append(3)
@@ -326,7 +326,7 @@ fn test_apply_binary_subtract() raises:
         assert_almost_equal(result._get_float64(i), 3.0, tolerance=1e-6)
 
 
-fn test_apply_binary_multiply() raises:
+def test_apply_binary_multiply() raises:
     """Test multiplication operation."""
     var shape = List[Int]()
     shape.append(3)
@@ -340,7 +340,7 @@ fn test_apply_binary_multiply() raises:
         assert_almost_equal(result._get_float64(i), 6.0, tolerance=1e-6)
 
 
-fn test_apply_binary_divide() raises:
+def test_apply_binary_divide() raises:
     """Test division operation."""
     var shape = List[Int]()
     shape.append(3)
@@ -354,7 +354,7 @@ fn test_apply_binary_divide() raises:
         assert_almost_equal(result._get_float64(i), 3.0, tolerance=1e-6)
 
 
-fn test_apply_binary_divide_by_zero_error() raises:
+def test_apply_binary_divide_by_zero_error() raises:
     """Test division by zero raises error."""
     var shape = List[Int]()
     shape.append(1)
@@ -368,7 +368,7 @@ fn test_apply_binary_divide_by_zero_error() raises:
         assert_true(True, "Correctly raised error")
 
 
-fn test_apply_binary_power_base_2() raises:
+def test_apply_binary_power_base_2() raises:
     """Test power operation: 2^3 = 8."""
     var shape = List[Int]()
     shape.append(1)
@@ -380,7 +380,7 @@ fn test_apply_binary_power_base_2() raises:
     assert_almost_equal(result._get_float64(0), 8.0, tolerance=1e-4)
 
 
-fn test_apply_binary_power_square() raises:
+def test_apply_binary_power_square() raises:
     """Test power operation: 5^2 = 25."""
     var shape = List[Int]()
     shape.append(1)
@@ -392,7 +392,7 @@ fn test_apply_binary_power_square() raises:
     assert_almost_equal(result._get_float64(0), 25.0, tolerance=1e-4)
 
 
-fn test_apply_binary_max_a_greater() raises:
+def test_apply_binary_max_a_greater() raises:
     """Test max operation where a > b."""
     var shape = List[Int]()
     shape.append(3)
@@ -406,7 +406,7 @@ fn test_apply_binary_max_a_greater() raises:
         assert_almost_equal(result._get_float64(i), 5.0, tolerance=1e-6)
 
 
-fn test_apply_binary_max_b_greater() raises:
+def test_apply_binary_max_b_greater() raises:
     """Test max operation where b > a."""
     var shape = List[Int]()
     shape.append(3)
@@ -420,7 +420,7 @@ fn test_apply_binary_max_b_greater() raises:
         assert_almost_equal(result._get_float64(i), 5.0, tolerance=1e-6)
 
 
-fn test_apply_binary_min_a_less() raises:
+def test_apply_binary_min_a_less() raises:
     """Test min operation where a < b."""
     var shape = List[Int]()
     shape.append(3)
@@ -434,7 +434,7 @@ fn test_apply_binary_min_a_less() raises:
         assert_almost_equal(result._get_float64(i), 2.0, tolerance=1e-6)
 
 
-fn test_apply_binary_equal_true() raises:
+def test_apply_binary_equal_true() raises:
     """Test equality when values are equal."""
     var shape = List[Int]()
     shape.append(3)
@@ -448,7 +448,7 @@ fn test_apply_binary_equal_true() raises:
         assert_almost_equal(result._get_float64(i), 1.0, tolerance=1e-6)
 
 
-fn test_apply_binary_equal_false() raises:
+def test_apply_binary_equal_false() raises:
     """Test equality when values are not equal."""
     var shape = List[Int]()
     shape.append(3)
@@ -462,7 +462,7 @@ fn test_apply_binary_equal_false() raises:
         assert_almost_equal(result._get_float64(i), 0.0, tolerance=1e-6)
 
 
-fn test_apply_binary_greater_true() raises:
+def test_apply_binary_greater_true() raises:
     """Test greater than when true."""
     var shape = List[Int]()
     shape.append(3)
@@ -476,7 +476,7 @@ fn test_apply_binary_greater_true() raises:
         assert_almost_equal(result._get_float64(i), 1.0, tolerance=1e-6)
 
 
-fn test_apply_binary_greater_false() raises:
+def test_apply_binary_greater_false() raises:
     """Test greater than when false."""
     var shape = List[Int]()
     shape.append(3)
@@ -490,7 +490,7 @@ fn test_apply_binary_greater_false() raises:
         assert_almost_equal(result._get_float64(i), 0.0, tolerance=1e-6)
 
 
-fn test_apply_binary_less_true() raises:
+def test_apply_binary_less_true() raises:
     """Test less than when true."""
     var shape = List[Int]()
     shape.append(3)
@@ -504,7 +504,7 @@ fn test_apply_binary_less_true() raises:
         assert_almost_equal(result._get_float64(i), 1.0, tolerance=1e-6)
 
 
-fn test_apply_binary_logical_and_both_true() raises:
+def test_apply_binary_logical_and_both_true() raises:
     """Test logical AND when both are non-zero."""
     var shape = List[Int]()
     shape.append(3)
@@ -518,7 +518,7 @@ fn test_apply_binary_logical_and_both_true() raises:
         assert_almost_equal(result._get_float64(i), 1.0, tolerance=1e-6)
 
 
-fn test_apply_binary_logical_and_one_false() raises:
+def test_apply_binary_logical_and_one_false() raises:
     """Test logical AND when one is zero."""
     var shape = List[Int]()
     shape.append(3)
@@ -532,7 +532,7 @@ fn test_apply_binary_logical_and_one_false() raises:
         assert_almost_equal(result._get_float64(i), 0.0, tolerance=1e-6)
 
 
-fn test_apply_binary_logical_or_both_true() raises:
+def test_apply_binary_logical_or_both_true() raises:
     """Test logical OR when both are non-zero."""
     var shape = List[Int]()
     shape.append(3)
@@ -546,7 +546,7 @@ fn test_apply_binary_logical_or_both_true() raises:
         assert_almost_equal(result._get_float64(i), 1.0, tolerance=1e-6)
 
 
-fn test_apply_binary_logical_or_one_true() raises:
+def test_apply_binary_logical_or_one_true() raises:
     """Test logical OR when only one is non-zero."""
     var shape = List[Int]()
     shape.append(3)
@@ -560,7 +560,7 @@ fn test_apply_binary_logical_or_one_true() raises:
         assert_almost_equal(result._get_float64(i), 1.0, tolerance=1e-6)
 
 
-fn test_apply_binary_custom_average() raises:
+def test_apply_binary_custom_average() raises:
     """Test custom average operation."""
     var shape = List[Int]()
     shape.append(3)
@@ -574,7 +574,7 @@ fn test_apply_binary_custom_average() raises:
         assert_almost_equal(result._get_float64(i), 3.0, tolerance=1e-6)
 
 
-fn test_apply_unary_preserves_dtype_float32() raises:
+def test_apply_unary_preserves_dtype_float32() raises:
     """Test that unary operations preserve float32 dtype."""
     var shape = List[Int]()
     shape.append(3)
@@ -587,7 +587,7 @@ fn test_apply_unary_preserves_dtype_float32() raises:
     )
 
 
-fn test_apply_unary_preserves_dtype_float64() raises:
+def test_apply_unary_preserves_dtype_float64() raises:
     """Test that unary operations preserve float64 dtype."""
     var shape = List[Int]()
     shape.append(3)
@@ -600,7 +600,7 @@ fn test_apply_unary_preserves_dtype_float64() raises:
     )
 
 
-fn test_apply_binary_preserves_dtype() raises:
+def test_apply_binary_preserves_dtype() raises:
     """Test that binary operations preserve dtype."""
     var shape = List[Int]()
     shape.append(3)
@@ -614,7 +614,7 @@ fn test_apply_binary_preserves_dtype() raises:
     )
 
 
-fn test_apply_binary_shape_mismatch_error() raises:
+def test_apply_binary_shape_mismatch_error() raises:
     """Test error when binary operands have different shapes."""
     var shape1 = List[Int]()
     shape1.append(3)
@@ -630,7 +630,7 @@ fn test_apply_binary_shape_mismatch_error() raises:
         assert_true(True, "Correctly raised error")
 
 
-fn test_apply_binary_dtype_mismatch_error() raises:
+def test_apply_binary_dtype_mismatch_error() raises:
     """Test error when binary operands have different dtypes."""
     var shape = List[Int]()
     shape.append(3)
@@ -644,7 +644,7 @@ fn test_apply_binary_dtype_mismatch_error() raises:
         assert_true(True, "Correctly raised error")
 
 
-fn test_apply_unary_2d_tensor() raises:
+def test_apply_unary_2d_tensor() raises:
     """Test unary operation on 2D tensor."""
     var shape = List[Int]()
     shape.append(2)
@@ -658,7 +658,7 @@ fn test_apply_unary_2d_tensor() raises:
         assert_almost_equal(result._get_float64(i), 2.0, tolerance=1e-6)
 
 
-fn test_apply_binary_2d_tensor() raises:
+def test_apply_binary_2d_tensor() raises:
     """Test binary operation on 2D tensors."""
     var shape = List[Int]()
     shape.append(2)
@@ -673,7 +673,7 @@ fn test_apply_binary_2d_tensor() raises:
         assert_almost_equal(result._get_float64(i), 5.0, tolerance=1e-6)
 
 
-fn test_apply_unary_reciprocal() raises:
+def test_apply_unary_reciprocal() raises:
     """Test reciprocal operation."""
     var shape = List[Int]()
     shape.append(3)
@@ -686,7 +686,7 @@ fn test_apply_unary_reciprocal() raises:
         assert_almost_equal(result._get_float64(i), 0.5, tolerance=1e-6)
 
 
-fn test_apply_unary_reciprocal_zero_error() raises:
+def test_apply_unary_reciprocal_zero_error() raises:
     """Test reciprocal of zero raises error."""
     var shape = List[Int]()
     shape.append(1)
@@ -699,7 +699,7 @@ fn test_apply_unary_reciprocal_zero_error() raises:
         assert_true(True, "Correctly raised error")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_elementwise_dispatch tests."""
     print("Running test_elementwise_dispatch tests...")
 

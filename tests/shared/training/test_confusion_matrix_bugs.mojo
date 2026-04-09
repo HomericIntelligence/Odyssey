@@ -20,7 +20,7 @@ from shared.training.metrics.confusion_matrix import ConfusionMatrix
 # ============================================================================
 
 
-fn test_confusion_matrix_update_with_logits() raises:
+def test_confusion_matrix_update_with_logits() raises:
     """Test ConfusionMatrix.update with logits (triggers argmax bug at line 323).
 
     Bug: Line 323 uses List[Int]() then indexes at line 350.
@@ -47,7 +47,7 @@ fn test_confusion_matrix_update_with_logits() raises:
     print("    ✓ ConfusionMatrix updated successfully")
 
 
-fn test_confusion_matrix_small_batch() raises:
+def test_confusion_matrix_small_batch() raises:
     """Test ConfusionMatrix with small batch (triggers argmax bug).
 
     Bug: Line 323 uses List[Int]() then indexes.
@@ -74,7 +74,7 @@ fn test_confusion_matrix_small_batch() raises:
     print("    ✓ ConfusionMatrix small batch updated")
 
 
-fn test_confusion_matrix_large_batch() raises:
+def test_confusion_matrix_large_batch() raises:
     """Test ConfusionMatrix with large batch (triggers argmax bug).
 
     Bug: Line 323 uses List[Int]() then indexes.
@@ -101,7 +101,7 @@ fn test_confusion_matrix_large_batch() raises:
     print("    ✓ ConfusionMatrix large batch updated")
 
 
-fn test_confusion_matrix_multiple_updates() raises:
+def test_confusion_matrix_multiple_updates() raises:
     """Test ConfusionMatrix with multiple update calls (triggers bug repeatedly).
 
     Bug: Each call to update() with logits triggers the argmax bug.
@@ -129,7 +129,7 @@ fn test_confusion_matrix_multiple_updates() raises:
     print("    ✓ ConfusionMatrix multiple updates completed")
 
 
-fn test_confusion_matrix_binary_classification() raises:
+def test_confusion_matrix_binary_classification() raises:
     """Test ConfusionMatrix for binary classification (triggers bug).
 
     Bug: Even with just 2 classes, the bug still crashes.
@@ -160,7 +160,7 @@ fn test_confusion_matrix_binary_classification() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all confusion_matrix.mojo bug tests.
 
     These tests demonstrate the List[Int] constructor bug in confusion_matrix.mojo.

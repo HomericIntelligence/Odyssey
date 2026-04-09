@@ -41,10 +41,10 @@ from shared.utils.arg_parser import create_training_parser
 from shared.training.trainer_interface import TrainerConfig
 from shared.training.metrics import evaluate_with_predict
 from shared.data import DatasetInfo
-from collections import List
+from std.collections import List
 
 
-fn parse_args() raises -> TrainerConfig:
+def parse_args() raises -> TrainerConfig:
     """Parse command line arguments and create TrainerConfig.
 
     Returns:
@@ -69,7 +69,7 @@ fn parse_args() raises -> TrainerConfig:
     )
 
 
-fn initialize_velocities(model: AlexNet) raises -> List[AnyTensor]:
+def initialize_velocities(model: AlexNet) raises -> List[AnyTensor]:
     """Initialize momentum velocities for all parameters (16 tensors).
 
     Args:
@@ -101,7 +101,7 @@ fn initialize_velocities(model: AlexNet) raises -> List[AnyTensor]:
     return velocities^
 
 
-fn compute_gradients(
+def compute_gradients(
     mut model: AlexNet,
     input: AnyTensor,
     labels: AnyTensor,
@@ -370,7 +370,7 @@ fn compute_gradients(
     return loss
 
 
-fn main() raises:
+def main() raises:
     """Main training loop with manual gradient computation."""
     print("=" * 60)
     print("AlexNet Training on CIFAR-10 Dataset")

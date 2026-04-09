@@ -26,7 +26,7 @@ from shared.core.layers.conv2d import Conv2dLayer
 # ============================================================================
 
 
-fn test_conv2d_initialization() raises:
+def test_conv2d_initialization() raises:
     """Test Conv2dLayer parameter creation with correct shapes.
 
     Verifies that weights and biases are initialized with correct dimensions.
@@ -52,7 +52,7 @@ fn test_conv2d_initialization() raises:
     assert_equal(bias_shape[0], out_channels)
 
 
-fn test_conv2d_initialization_with_stride_padding() raises:
+def test_conv2d_initialization_with_stride_padding() raises:
     """Test Conv2dLayer initialization with stride and padding parameters.
 
     Verifies that stride and padding are stored correctly.
@@ -82,7 +82,7 @@ fn test_conv2d_initialization_with_stride_padding() raises:
     assert_equal(layer.padding, padding)
 
 
-fn test_conv2d_weight_initialization_scale() raises:
+def test_conv2d_weight_initialization_scale() raises:
     """Test that weights are initialized with reasonable scale.
 
     He initialization should scale weights by sqrt(2 / (in_channels * kH * kW))
@@ -116,7 +116,7 @@ fn test_conv2d_weight_initialization_scale() raises:
     assert_true(mean_abs < Float32(1.0), "Weights too large - bad scaling")
 
 
-fn test_conv2d_bias_initialized_to_zero() raises:
+def test_conv2d_bias_initialized_to_zero() raises:
     """Test that bias is initialized to zero."""
     var layer = Conv2dLayer(3, 16, 3, 3)
 
@@ -130,7 +130,7 @@ fn test_conv2d_bias_initialized_to_zero() raises:
 # ============================================================================
 
 
-fn test_conv2d_forward_output_shape() raises:
+def test_conv2d_forward_output_shape() raises:
     """Test Conv2dLayer forward pass produces correct output shape.
 
     Formula: out_size = (in_size + 2*padding - kernel_size) / stride + 1
@@ -171,7 +171,7 @@ fn test_conv2d_forward_output_shape() raises:
     assert_equal(output_shape[3], 32)  # width
 
 
-fn test_conv2d_forward_with_stride() raises:
+def test_conv2d_forward_with_stride() raises:
     """Test Conv2dLayer forward pass with stride > 1.
 
     Stride downsamples spatial dimensions by stride factor.
@@ -205,7 +205,7 @@ fn test_conv2d_forward_with_stride() raises:
     assert_equal(output_shape[3], 15)
 
 
-fn test_conv2d_forward_no_padding() raises:
+def test_conv2d_forward_no_padding() raises:
     """Test Conv2dLayer forward pass with no padding (valid convolution).
 
     No padding reduces spatial dimensions by (kernel_size - 1).
@@ -241,7 +241,7 @@ fn test_conv2d_forward_no_padding() raises:
     assert_equal(output_shape[3], 28)
 
 
-fn test_conv2d_forward_batch_independence() raises:
+def test_conv2d_forward_batch_independence() raises:
     """Property: Conv2dLayer processes batch elements independently.
 
     Processing a batch should give same results as processing individually.
@@ -293,7 +293,7 @@ fn test_conv2d_forward_batch_independence() raises:
 # ============================================================================
 
 
-fn test_conv2d_backward_gradient_shapes() raises:
+def test_conv2d_backward_gradient_shapes() raises:
     """Test Conv2dLayer backward pass returns gradients with correct shapes.
 
     Backward should return (grad_input, grad_weight, grad_bias) with matching
@@ -348,7 +348,7 @@ fn test_conv2d_backward_gradient_shapes() raises:
 # ============================================================================
 
 
-fn test_conv2d_parameters_list() raises:
+def test_conv2d_parameters_list() raises:
     """Test Conv2dLayer.parameters() returns weight and bias tensors."""
     var layer = Conv2dLayer(3, 16, 3, 3)
 
@@ -376,7 +376,7 @@ fn test_conv2d_parameters_list() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all Conv2dLayer tests."""
     print("Running Conv2dLayer initialization tests...")
     test_conv2d_initialization()

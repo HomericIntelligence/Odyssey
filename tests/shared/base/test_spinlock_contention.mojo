@@ -39,10 +39,10 @@ fix preserves.
 from testing import assert_true, assert_equal
 from shared.base.memory_pool import SpinLock
 from os.atomic import Atomic
-from memory import UnsafePointer, alloc
+from std.memory import UnsafePointer, alloc
 
 
-fn test_lock_sets_counter_to_one() raises:
+def test_lock_sets_counter_to_one() raises:
     """After lock(), the backing counter must be exactly 1 (locked state)."""
     var lk = SpinLock()
     lk.lock()
@@ -53,7 +53,7 @@ fn test_lock_sets_counter_to_one() raises:
     print("PASS: test_lock_sets_counter_to_one")
 
 
-fn test_unlock_resets_counter_to_zero() raises:
+def test_unlock_resets_counter_to_zero() raises:
     """After unlock(), the backing counter must return to 0."""
     var lk = SpinLock()
     lk.lock()
@@ -63,7 +63,7 @@ fn test_unlock_resets_counter_to_zero() raises:
     print("PASS: test_unlock_resets_counter_to_zero")
 
 
-fn test_double_lock_unlock_cycle() raises:
+def test_double_lock_unlock_cycle() raises:
     """Two consecutive lock/unlock cycles must leave the counter at 0."""
     var lk = SpinLock()
     lk.lock()
@@ -75,7 +75,7 @@ fn test_double_lock_unlock_cycle() raises:
     print("PASS: test_double_lock_unlock_cycle")
 
 
-fn test_failed_fetch_add_does_not_corrupt_counter() raises:
+def test_failed_fetch_add_does_not_corrupt_counter() raises:
     """Simulates a contender backing off: counter must not go negative.
 
     This reproduces the core of the broken algorithm.  With the old code:
@@ -108,7 +108,7 @@ fn test_failed_fetch_add_does_not_corrupt_counter() raises:
     print("PASS: test_failed_fetch_add_does_not_corrupt_counter")
 
 
-fn main() raises:
+def main() raises:
     test_lock_sets_counter_to_one()
     test_unlock_resets_counter_to_zero()
     test_double_lock_unlock_cycle()

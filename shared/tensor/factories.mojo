@@ -12,7 +12,7 @@ Factory functions:
 - nan_tensor, inf_tensor, neg_inf_tensor: Special value tensors
 """
 
-from collections import List
+from std.collections import List
 from .tensor import Tensor
 from .tensor_creation import (
     zeros as _zeros,
@@ -32,7 +32,7 @@ from .tensor_creation import (
 )
 
 
-fn zeros[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
+def zeros[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
     """Create a zero-filled Tensor[dtype].
 
     Args:
@@ -44,7 +44,7 @@ fn zeros[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
     return _zeros(shape, dtype).as_tensor[dtype]()
 
 
-fn ones[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
+def ones[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
     """Create a one-filled Tensor[dtype].
 
     Args:
@@ -56,7 +56,7 @@ fn ones[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
     return _ones(shape, dtype).as_tensor[dtype]()
 
 
-fn full[dtype: DType](
+def full[dtype: DType](
     shape: List[Int], fill_value: Float64
 ) raises -> Tensor[dtype]:
     """Create a Tensor[dtype] filled with a constant value.
@@ -71,7 +71,7 @@ fn full[dtype: DType](
     return _full(shape, fill_value, dtype).as_tensor[dtype]()
 
 
-fn empty[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
+def empty[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
     """Create an uninitialized Tensor[dtype].
 
     Warning: The tensor contains uninitialized memory. Values are undefined
@@ -86,7 +86,7 @@ fn empty[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
     return _empty(shape, dtype).as_tensor[dtype]()
 
 
-fn arange[dtype: DType](
+def arange[dtype: DType](
     start: Float64, stop: Float64, step: Float64
 ) raises -> Tensor[dtype]:
     """Create a 1D Tensor[dtype] with evenly spaced values.
@@ -102,7 +102,7 @@ fn arange[dtype: DType](
     return _arange(start, stop, step, dtype).as_tensor[dtype]()
 
 
-fn eye[dtype: DType](n: Int, m: Int, k: Int = 0) raises -> Tensor[dtype]:
+def eye[dtype: DType](n: Int, m: Int, k: Int = 0) raises -> Tensor[dtype]:
     """Create a 2D Tensor[dtype] with ones on the diagonal.
 
     Args:
@@ -116,7 +116,7 @@ fn eye[dtype: DType](n: Int, m: Int, k: Int = 0) raises -> Tensor[dtype]:
     return _eye(n, m, k, dtype).as_tensor[dtype]()
 
 
-fn linspace[dtype: DType](
+def linspace[dtype: DType](
     start: Float64, stop: Float64, num: Int
 ) raises -> Tensor[dtype]:
     """Create a 1D Tensor[dtype] with evenly spaced values (inclusive).
@@ -132,7 +132,7 @@ fn linspace[dtype: DType](
     return _linspace(start, stop, num, dtype).as_tensor[dtype]()
 
 
-fn randn[dtype: DType](
+def randn[dtype: DType](
     shape: List[Int], seed: Int = 0
 ) raises -> Tensor[dtype]:
     """Create a Tensor[dtype] filled with random normal values.
@@ -150,7 +150,7 @@ fn randn[dtype: DType](
     return _randn(shape, dtype, seed).as_tensor[dtype]()
 
 
-fn zeros_like[dtype: DType](tensor: Tensor[dtype]) raises -> Tensor[dtype]:
+def zeros_like[dtype: DType](tensor: Tensor[dtype]) raises -> Tensor[dtype]:
     """Create a zero-filled tensor with the same shape as the input.
 
     Args:
@@ -162,7 +162,7 @@ fn zeros_like[dtype: DType](tensor: Tensor[dtype]) raises -> Tensor[dtype]:
     return _zeros_like(tensor.as_any()).as_tensor[dtype]()
 
 
-fn ones_like[dtype: DType](tensor: Tensor[dtype]) raises -> Tensor[dtype]:
+def ones_like[dtype: DType](tensor: Tensor[dtype]) raises -> Tensor[dtype]:
     """Create a one-filled tensor with the same shape as the input.
 
     Args:
@@ -174,7 +174,7 @@ fn ones_like[dtype: DType](tensor: Tensor[dtype]) raises -> Tensor[dtype]:
     return _ones_like(tensor.as_any()).as_tensor[dtype]()
 
 
-fn full_like[dtype: DType](
+def full_like[dtype: DType](
     tensor: Tensor[dtype], fill_value: Float64
 ) raises -> Tensor[dtype]:
     """Create a constant-filled tensor with the same shape as the input.
@@ -189,7 +189,7 @@ fn full_like[dtype: DType](
     return _full_like(tensor.as_any(), fill_value).as_tensor[dtype]()
 
 
-fn nan_tensor[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
+def nan_tensor[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
     """Create a Tensor[dtype] filled with NaN values.
 
     Args:
@@ -204,7 +204,7 @@ fn nan_tensor[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
     return _nan_tensor(shape, dtype).as_tensor[dtype]()
 
 
-fn inf_tensor[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
+def inf_tensor[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
     """Create a Tensor[dtype] filled with positive infinity.
 
     Args:
@@ -219,7 +219,7 @@ fn inf_tensor[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
     return _inf_tensor(shape, dtype).as_tensor[dtype]()
 
 
-fn neg_inf_tensor[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
+def neg_inf_tensor[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
     """Create a Tensor[dtype] filled with negative infinity.
 
     Args:

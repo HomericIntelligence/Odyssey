@@ -17,7 +17,7 @@ from shared.core.matrix import matmul, transpose
 from shared.core.reduction import sum, mean
 
 
-fn test_matmul() raises:
+def test_matmul() raises:
     """Matmul computes correct matrix product."""
     # [2, 3] @ [3, 2] = [2, 2]
     var a = any_ones([2, 3], DType.float32)
@@ -35,7 +35,7 @@ fn test_matmul() raises:
     print("PASS: test_matmul")
 
 
-fn test_matmul_identity() raises:
+def test_matmul_identity() raises:
     """Matmul with identity-like matrix preserves values."""
     var a = any_full([2, 2], 0.5, DType.float32)
     var eye = any_zeros([2, 2], DType.float32)
@@ -49,7 +49,7 @@ fn test_matmul_identity() raises:
     print("PASS: test_matmul_identity")
 
 
-fn test_transpose() raises:
+def test_transpose() raises:
     """Transpose swaps dimensions and preserves dtype."""
     var t = any_zeros([2, 3], DType.float32)
     for i in range(6):
@@ -62,7 +62,7 @@ fn test_transpose() raises:
     print("PASS: test_transpose")
 
 
-fn test_sum_all() raises:
+def test_sum_all() raises:
     """Sum over all elements computes correct total."""
     var t = any_full([2, 3], 0.5, DType.float32)
     var s = sum(t)
@@ -74,7 +74,7 @@ fn test_sum_all() raises:
     print("PASS: test_sum_all")
 
 
-fn test_sum_axis() raises:
+def test_sum_axis() raises:
     """Sum along axis computes correct result."""
     var t = any_ones([2, 3], DType.float32)
     var s = sum(t, axis=1)
@@ -88,7 +88,7 @@ fn test_sum_axis() raises:
     print("PASS: test_sum_axis")
 
 
-fn test_mean_all() raises:
+def test_mean_all() raises:
     """Mean over all elements computes correct average."""
     var t = any_full([2, 3], 1.5, DType.float32)
     var m = mean(t)
@@ -100,7 +100,7 @@ fn test_mean_all() raises:
     print("PASS: test_mean_all")
 
 
-fn test_mean_axis() raises:
+def test_mean_axis() raises:
     """Mean along axis computes correct result."""
     var t = any_zeros([2, 2], DType.float32)
     t[0] = 1.0
@@ -117,7 +117,7 @@ fn test_mean_axis() raises:
     print("PASS: test_mean_axis")
 
 
-fn test_sum_float64() raises:
+def test_sum_float64() raises:
     """Sum works with float64 dtype."""
     var t = any_full([3], 1.0, DType.float64)
     var s = sum(t)
@@ -128,7 +128,7 @@ fn test_sum_float64() raises:
     print("PASS: test_sum_float64")
 
 
-fn main() raises:
+def main() raises:
     test_matmul()
     test_matmul_identity()
     test_transpose()

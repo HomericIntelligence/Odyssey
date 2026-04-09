@@ -23,7 +23,7 @@ from shared.training.schedulers import MultiStepLR
 # ============================================================================
 
 
-fn test_multistep_lr_initialization() raises:
+def test_multistep_lr_initialization() raises:
     """Test MultiStepLR scheduler initialization."""
     var milestones = List[Int]()
     milestones.append(30)
@@ -36,7 +36,7 @@ fn test_multistep_lr_initialization() raises:
     assert_almost_equal(scheduler.gamma, 0.1)
 
 
-fn test_multistep_lr_before_first_milestone() raises:
+def test_multistep_lr_before_first_milestone() raises:
     """Test MultiStepLR before first milestone.
 
     Before any milestone, LR should equal base_lr.
@@ -52,7 +52,7 @@ fn test_multistep_lr_before_first_milestone() raises:
         assert_almost_equal(lr, 0.1, tolerance=1e-6)
 
 
-fn test_multistep_lr_at_first_milestone() raises:
+def test_multistep_lr_at_first_milestone() raises:
     """Test MultiStepLR at first milestone.
 
     At first milestone, LR should be multiplied by gamma once.
@@ -68,7 +68,7 @@ fn test_multistep_lr_at_first_milestone() raises:
     assert_almost_equal(lr_at_milestone, 0.01, tolerance=1e-6)
 
 
-fn test_multistep_lr_between_milestones() raises:
+def test_multistep_lr_between_milestones() raises:
     """Test MultiStepLR between milestones.
 
     Between milestones, LR should remain constant.
@@ -88,7 +88,7 @@ fn test_multistep_lr_between_milestones() raises:
     assert_almost_equal(lr_59, 0.01, tolerance=1e-6)
 
 
-fn test_multistep_lr_at_second_milestone() raises:
+def test_multistep_lr_at_second_milestone() raises:
     """Test MultiStepLR at second milestone.
 
     At second milestone, LR should be multiplied by gamma twice.
@@ -104,7 +104,7 @@ fn test_multistep_lr_at_second_milestone() raises:
     assert_almost_equal(lr_at_milestone, 0.001, tolerance=1e-6)
 
 
-fn test_multistep_lr_after_last_milestone() raises:
+def test_multistep_lr_after_last_milestone() raises:
     """Test MultiStepLR after last milestone.
 
     After all milestones, LR should remain constant at reduced value.
@@ -122,7 +122,7 @@ fn test_multistep_lr_after_last_milestone() raises:
     assert_almost_equal(lr_100, 0.001, tolerance=1e-6)
 
 
-fn main() raises:
+def main() raises:
     """Run all MultiStepLR tests."""
     print("Running MultiStepLR tests...")
     test_multistep_lr_initialization()

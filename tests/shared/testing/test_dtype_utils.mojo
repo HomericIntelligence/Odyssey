@@ -27,13 +27,13 @@ from shared.testing.dtype_utils import (
 )
 
 
-fn test_get_test_dtypes_not_empty() raises:
+def test_get_test_dtypes_not_empty() raises:
     """Test that get_test_dtypes returns a non-empty list."""
     var dtypes = get_test_dtypes()
     assert_equal_int(dtypes.__len__(), 4, "Should have 4 dtypes")
 
 
-fn test_get_test_dtypes_contains_float32() raises:
+def test_get_test_dtypes_contains_float32() raises:
     """Test that get_test_dtypes includes float32."""
     var dtypes = get_test_dtypes()
     var found = False
@@ -44,7 +44,7 @@ fn test_get_test_dtypes_contains_float32() raises:
     assert_true(found, "Should contain float32")
 
 
-fn test_get_test_dtypes_contains_float16() raises:
+def test_get_test_dtypes_contains_float16() raises:
     """Test that get_test_dtypes includes float16."""
     var dtypes = get_test_dtypes()
     var found = False
@@ -55,7 +55,7 @@ fn test_get_test_dtypes_contains_float16() raises:
     assert_true(found, "Should contain float16")
 
 
-fn test_get_test_dtypes_contains_bfloat16() raises:
+def test_get_test_dtypes_contains_bfloat16() raises:
     """Test that get_test_dtypes includes bfloat16."""
     var dtypes = get_test_dtypes()
     var found = False
@@ -66,7 +66,7 @@ fn test_get_test_dtypes_contains_bfloat16() raises:
     assert_true(found, "Should contain bfloat16")
 
 
-fn test_get_test_dtypes_contains_int8() raises:
+def test_get_test_dtypes_contains_int8() raises:
     """Test that get_test_dtypes includes int8."""
     var dtypes = get_test_dtypes()
     var found = False
@@ -77,13 +77,13 @@ fn test_get_test_dtypes_contains_int8() raises:
     assert_true(found, "Should contain int8")
 
 
-fn test_get_float_dtypes_count() raises:
+def test_get_float_dtypes_count() raises:
     """Test that get_float_dtypes returns 3 items (no int8)."""
     var dtypes = get_float_dtypes()
     assert_equal_int(dtypes.__len__(), 3, "Should have 3 float dtypes")
 
 
-fn test_get_float_dtypes_no_int8() raises:
+def test_get_float_dtypes_no_int8() raises:
     """Test that get_float_dtypes excludes int8."""
     var dtypes = get_float_dtypes()
     for dtype in dtypes:
@@ -92,49 +92,49 @@ fn test_get_float_dtypes_no_int8() raises:
         )
 
 
-fn test_get_precision_dtypes_count() raises:
+def test_get_precision_dtypes_count() raises:
     """Test that get_precision_dtypes returns 4 items."""
     var dtypes = get_precision_dtypes()
     assert_equal_int(dtypes.__len__(), 4, "Should have 4 precision dtypes")
 
 
-fn test_get_float32_only_single_dtype() raises:
+def test_get_float32_only_single_dtype() raises:
     """Test that get_float32_only returns exactly one dtype."""
     var dtypes = get_float32_only()
     assert_equal_int(dtypes.__len__(), 1, "Should have exactly 1 dtype")
 
 
-fn test_get_float32_only_is_float32() raises:
+def test_get_float32_only_is_float32() raises:
     """Test that get_float32_only returns float32."""
     var dtypes = get_float32_only()
     assert_true(dtypes[0] == DType.float32, "Should be float32")
 
 
-fn test_dtype_to_string_float16() raises:
+def test_dtype_to_string_float16() raises:
     """Test dtype_to_string converts float16 correctly."""
     var result = dtype_to_string(DType.float16)
     assert_true(result == "float16", "Should convert to 'float16'")
 
 
-fn test_dtype_to_string_float32() raises:
+def test_dtype_to_string_float32() raises:
     """Test dtype_to_string converts float32 correctly."""
     var result = dtype_to_string(DType.float32)
     assert_true(result == "float32", "Should convert to 'float32'")
 
 
-fn test_dtype_to_string_bfloat16() raises:
+def test_dtype_to_string_bfloat16() raises:
     """Test dtype_to_string converts bfloat16 correctly."""
     var result = dtype_to_string(DType.bfloat16)
     assert_true(result == "bfloat16", "Should convert to 'bfloat16'")
 
 
-fn test_dtype_to_string_int8() raises:
+def test_dtype_to_string_int8() raises:
     """Test dtype_to_string converts int8 correctly."""
     var result = dtype_to_string(DType.int8)
     assert_true(result == "int8", "Should convert to 'int8'")
 
 
-fn test_dtype_lists_are_independent() raises:
+def test_dtype_lists_are_independent() raises:
     """Test that returned lists are independent."""
     var dtypes1 = get_test_dtypes()
     var dtypes2 = get_test_dtypes()
@@ -157,7 +157,7 @@ fn test_dtype_lists_are_independent() raises:
     assert_true(found1 and found2, "Both lists should contain float32")
 
 
-fn test_iterate_all_dtypes() raises:
+def test_iterate_all_dtypes() raises:
     """Test that we can iterate over all dtypes without errors."""
     var dtypes = get_test_dtypes()
     var count = 0
@@ -169,7 +169,7 @@ fn test_iterate_all_dtypes() raises:
     assert_equal_int(count, 4, "Should iterate through 4 dtypes")
 
 
-fn test_iterate_float_dtypes_only() raises:
+def test_iterate_float_dtypes_only() raises:
     """Test that we can iterate over float dtypes."""
     var dtypes = get_float_dtypes()
     var count = 0
@@ -180,7 +180,7 @@ fn test_iterate_float_dtypes_only() raises:
     assert_equal_int(count, 3, "Should iterate through 3 float dtypes")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_dtype_utils tests."""
     print("Running test_dtype_utils tests...")
 

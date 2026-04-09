@@ -23,7 +23,7 @@ from shared.base.dtype_ordinal import (
 )
 
 
-fn test_dtype_to_ordinal_all_supported() raises:
+def test_dtype_to_ordinal_all_supported() raises:
     """Test that all supported dtypes map to correct ordinals."""
     assert_equal(dtype_to_ordinal(DType.float16), DTYPE_FLOAT16)
     assert_equal(dtype_to_ordinal(DType.float32), DTYPE_FLOAT32)
@@ -39,14 +39,14 @@ fn test_dtype_to_ordinal_all_supported() raises:
     print("✓ All supported dtypes map to correct ordinals")
 
 
-fn test_dtype_to_ordinal_unsupported() raises:
+def test_dtype_to_ordinal_unsupported() raises:
     """Test that unsupported dtypes return DTYPE_UNSUPPORTED."""
     # Test bfloat16 (not currently supported)
     assert_equal(dtype_to_ordinal(DType.bfloat16), DTYPE_UNSUPPORTED)
     print("✓ Unsupported dtypes return DTYPE_UNSUPPORTED")
 
 
-fn test_ordinal_uniqueness() raises:
+def test_ordinal_uniqueness() raises:
     """Test that all ordinals are unique (no collisions)."""
     var ordinals = List[Int]()
     ordinals.append(DTYPE_FLOAT16)
@@ -70,13 +70,13 @@ fn test_ordinal_uniqueness() raises:
     print("✓ All ordinals are unique")
 
 
-fn test_ordinal_count() raises:
+def test_ordinal_count() raises:
     """Test that SUPPORTED_DTYPE_COUNT matches actual count."""
     assert_equal(SUPPORTED_DTYPE_COUNT, 11)
     print("✓ SUPPORTED_DTYPE_COUNT is correct")
 
 
-fn test_format_dtype_name_all_supported() raises:
+def test_format_dtype_name_all_supported() raises:
     """Test that all supported dtypes have correct names."""
     assert_equal(format_dtype_name(DType.float16), "float16")
     assert_equal(format_dtype_name(DType.float32), "float32")
@@ -92,13 +92,13 @@ fn test_format_dtype_name_all_supported() raises:
     print("✓ All supported dtypes format correctly")
 
 
-fn test_format_dtype_name_unsupported() raises:
+def test_format_dtype_name_unsupported() raises:
     """Test that unsupported dtypes return 'unknown'."""
     assert_equal(format_dtype_name(DType.bfloat16), "unknown")
     print("✓ Unsupported dtypes format as 'unknown'")
 
 
-fn test_ordinal_values_sequential() raises:
+def test_ordinal_values_sequential() raises:
     """Test that ordinal values are sequential from 0."""
     assert_equal(DTYPE_FLOAT16, 0)
     assert_equal(DTYPE_FLOAT32, 1)
@@ -115,7 +115,7 @@ fn test_ordinal_values_sequential() raises:
     print("✓ Ordinal values are sequential")
 
 
-fn main() raises:
+def main() raises:
     """Run all dtype_ordinal tests."""
     print("Running dtype_ordinal tests...")
     print()

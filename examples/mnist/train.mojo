@@ -46,7 +46,7 @@ from shared.training.loops import TrainingLoop
 from shared.training.optimizers import sgd_step_simple
 from shared.training.metrics import top1_accuracy, AccuracyMetric, LossTracker
 from shared.training.evaluation import evaluate_model_simple
-from collections import List
+from std.collections import List
 
 # Default number of classes for MNIST dataset
 comptime DEFAULT_NUM_CLASSES = 10
@@ -61,7 +61,7 @@ struct TrainConfig:
     var data_dir: String
     var weights_dir: String
 
-    fn __init__(
+    def __init__(
         out self,
         epochs: Int,
         batch_size: Int,
@@ -76,7 +76,7 @@ struct TrainConfig:
         self.weights_dir = weights_dir
 
 
-fn parse_args() raises -> TrainConfig:
+def parse_args() raises -> TrainConfig:
     """Parse command line arguments using enhanced argument parser.
 
     Note: Early stopping arguments are parsed but not used in this example.
@@ -105,7 +105,7 @@ fn parse_args() raises -> TrainConfig:
     return TrainConfig(epochs, batch_size, learning_rate, data_dir, weights_dir)
 
 
-fn compute_gradients(
+def compute_gradients(
     mut model: SimpleCNN,
     input: AnyTensor,
     labels: AnyTensor,
@@ -256,7 +256,7 @@ fn compute_gradients(
     return loss
 
 
-fn train_epoch(
+def train_epoch(
     mut model: SimpleCNN,
     train_images: AnyTensor,
     train_labels: AnyTensor,
@@ -370,7 +370,7 @@ fn train_epoch(
     return total_loss / Float32(num_batches)
 
 
-fn main() raises:
+def main() raises:
     """Main training loop."""
     print("=" * 60)
     print("Simple CNN Training on MNIST Dataset")

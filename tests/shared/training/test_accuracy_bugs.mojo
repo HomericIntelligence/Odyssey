@@ -21,7 +21,7 @@ from shared.training.metrics.accuracy import top1_accuracy, per_class_accuracy
 # ============================================================================
 
 
-fn test_top1_accuracy_with_logits() raises:
+def test_top1_accuracy_with_logits() raises:
     """Test top1_accuracy with logits (triggers argmax bug at line 118).
 
     Bug: Line 118 uses List[Int]() then indexes at line 146.
@@ -49,7 +49,7 @@ fn test_top1_accuracy_with_logits() raises:
     print("    Accuracy:", acc)
 
 
-fn test_top1_accuracy_small_batch() raises:
+def test_top1_accuracy_small_batch() raises:
     """Test top1_accuracy with small batch (triggers argmax bug).
 
     Bug: Line 118 uses List[Int]() then indexes.
@@ -73,7 +73,7 @@ fn test_top1_accuracy_small_batch() raises:
     print("    Accuracy:", acc)
 
 
-fn test_top1_accuracy_large_batch() raises:
+def test_top1_accuracy_large_batch() raises:
     """Test top1_accuracy with larger batch (triggers argmax bug).
 
     Bug: Line 118 uses List[Int]() then indexes.
@@ -102,7 +102,7 @@ fn test_top1_accuracy_large_batch() raises:
 # ============================================================================
 
 
-fn test_per_class_accuracy_basic() raises:
+def test_per_class_accuracy_basic() raises:
     """Test per_class_accuracy (triggers bug at line 348).
 
     Bug: Line 348 uses List[Int]() then indexes at line 358.
@@ -126,7 +126,7 @@ fn test_per_class_accuracy_basic() raises:
     print("    Got per-class accuracy tensor")
 
 
-fn test_per_class_accuracy_many_classes() raises:
+def test_per_class_accuracy_many_classes() raises:
     """Test per_class_accuracy with many classes (triggers bug at line 348).
 
     Bug: Line 348 uses List[Int]() then indexes.
@@ -150,7 +150,7 @@ fn test_per_class_accuracy_many_classes() raises:
     print("    Got per-class accuracy tensor for 20 classes")
 
 
-fn test_per_class_accuracy_few_classes() raises:
+def test_per_class_accuracy_few_classes() raises:
     """Test per_class_accuracy with few classes (triggers bug at line 348).
 
     Bug: Even with num_classes=2, the bug still crashes.
@@ -178,7 +178,7 @@ fn test_per_class_accuracy_few_classes() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all accuracy.mojo bug tests.
 
     These tests demonstrate the List[Int] constructor bugs in accuracy.mojo.

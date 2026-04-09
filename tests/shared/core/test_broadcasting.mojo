@@ -23,7 +23,7 @@ from tests.shared.conftest import (
 from shared.base.broadcasting import are_shapes_broadcastable
 
 
-fn test_broadcast_scalar_to_1d() raises:
+def test_broadcast_scalar_to_1d() raises:
     """Test broadcasting scalar to 1D tensor."""
     var shape_vec = List[Int]()
     shape_vec.append(5)
@@ -37,7 +37,7 @@ fn test_broadcast_scalar_to_1d() raises:
     assert_all_values(c, 5.0, 1e-6, "3 + 2 should broadcast to [5, 5, 5, 5, 5]")
 
 
-fn test_broadcast_scalar_to_2d() raises:
+def test_broadcast_scalar_to_2d() raises:
     """Test broadcasting scalar to 2D tensor."""
     var shape_mat = List[Int]()
     shape_mat.append(3)
@@ -52,7 +52,7 @@ fn test_broadcast_scalar_to_2d() raises:
     assert_all_values(c, 5.0, 1e-6, "1 * 5 should broadcast to all 5s")
 
 
-fn test_broadcast_scalar_to_3d() raises:
+def test_broadcast_scalar_to_3d() raises:
     """Test broadcasting scalar to 3D tensor."""
     var shape_3d = List[Int]()
     shape_3d.append(2)
@@ -68,7 +68,7 @@ fn test_broadcast_scalar_to_3d() raises:
     assert_all_values(c, 5.0, 1e-6, "2 + 3 should broadcast to all 5s")
 
 
-fn test_broadcast_vector_to_matrix_row() raises:
+def test_broadcast_vector_to_matrix_row() raises:
     """Test broadcasting row vector to matrix."""
     var shape_mat = List[Int]()
     shape_mat.append(3)
@@ -85,7 +85,7 @@ fn test_broadcast_vector_to_matrix_row() raises:
     assert_all_values(c, 3.0, 1e-6, "Broadcasting 1x4 vector to 3x4 matrix")
 
 
-fn test_broadcast_vector_to_matrix_column() raises:
+def test_broadcast_vector_to_matrix_column() raises:
     """Test broadcasting column vector to matrix."""
     var shape_mat = List[Int]()
     shape_mat.append(3)
@@ -102,7 +102,7 @@ fn test_broadcast_vector_to_matrix_column() raises:
     assert_all_values(c, 2.0, 1e-6, "Broadcasting 3x1 vector to 3x4 matrix")
 
 
-fn test_broadcast_1d_to_2d() raises:
+def test_broadcast_1d_to_2d() raises:
     """Test broadcasting 1D vector to 2D matrix."""
     var shape_mat = List[Int]()
     shape_mat.append(3)
@@ -118,7 +118,7 @@ fn test_broadcast_1d_to_2d() raises:
     assert_all_values(c, 4.0, 1e-6, "Broadcasting 1D(4) to 2D(3,4)")
 
 
-fn test_broadcast_size_one_dim_leading() raises:
+def test_broadcast_size_one_dim_leading() raises:
     """Test broadcasting with leading dimension of size 1."""
     var shape_a = List[Int]()
     shape_a.append(1)
@@ -137,7 +137,7 @@ fn test_broadcast_size_one_dim_leading() raises:
     assert_all_values(c, 3.0, 1e-6, "Broadcasting 1x3x4 to 2x3x4")
 
 
-fn test_broadcast_size_one_dim_middle() raises:
+def test_broadcast_size_one_dim_middle() raises:
     """Test broadcasting with middle dimension of size 1."""
     var shape_a = List[Int]()
     shape_a.append(2)
@@ -156,7 +156,7 @@ fn test_broadcast_size_one_dim_middle() raises:
     assert_all_values(c, 5.0, 1e-6, "Broadcasting 2x1x4 to 2x3x4")
 
 
-fn test_broadcast_size_one_dim_trailing() raises:
+def test_broadcast_size_one_dim_trailing() raises:
     """Test broadcasting with trailing dimension of size 1."""
     var shape_a = List[Int]()
     shape_a.append(2)
@@ -175,7 +175,7 @@ fn test_broadcast_size_one_dim_trailing() raises:
     assert_all_values(c, 5.0, 1e-6, "Broadcasting 2x3x1 to 2x3x4")
 
 
-fn test_broadcast_missing_leading_dims() raises:
+def test_broadcast_missing_leading_dims() raises:
     """Test broadcasting when tensor has fewer dimensions (aligned to right)."""
     var shape_3d = List[Int]()
     shape_3d.append(2)
@@ -194,7 +194,7 @@ fn test_broadcast_missing_leading_dims() raises:
     assert_all_values(c, 2.0, 1e-6, "Broadcasting (4,) to (2,3,4)")
 
 
-fn test_broadcast_2d_to_3d() raises:
+def test_broadcast_2d_to_3d() raises:
     """Test broadcasting 2D to 3D."""
     var shape_3d = List[Int]()
     shape_3d.append(2)
@@ -214,7 +214,7 @@ fn test_broadcast_2d_to_3d() raises:
     assert_all_values(c, 4.0, 1e-6, "Broadcasting (3,4) to (2,3,4)")
 
 
-fn test_broadcast_3d_complex() raises:
+def test_broadcast_3d_complex() raises:
     """Test complex 3D broadcasting with multiple size-1 dimensions."""
     var shape_a = List[Int]()
     shape_a.append(2)
@@ -233,7 +233,7 @@ fn test_broadcast_3d_complex() raises:
     assert_all_values(c, 5.0, 1e-6, "Broadcasting (2,1,4) + (1,3,4) to (2,3,4)")
 
 
-fn test_broadcast_4d() raises:
+def test_broadcast_4d() raises:
     """Test 4D broadcasting."""
     var shape_a = List[Int]()
     shape_a.append(2)
@@ -256,7 +256,7 @@ fn test_broadcast_4d() raises:
     )
 
 
-fn test_broadcast_incompatible_shapes_different_sizes() raises:
+def test_broadcast_incompatible_shapes_different_sizes() raises:
     """Test that incompatible shapes raise error."""
     var shape_a = List[Int]()
     shape_a.append(3)
@@ -282,7 +282,7 @@ fn test_broadcast_incompatible_shapes_different_sizes() raises:
         )
 
 
-fn test_broadcast_incompatible_inner_dims() raises:
+def test_broadcast_incompatible_inner_dims() raises:
     """Test that incompatible inner dimensions raise error."""
     var shape_a = List[Int]()
     shape_a.append(2)
@@ -310,7 +310,7 @@ fn test_broadcast_incompatible_inner_dims() raises:
         )
 
 
-fn test_broadcast_output_shape_scalar_1d() raises:
+def test_broadcast_output_shape_scalar_1d() raises:
     """Test broadcast output shape for scalar + 1D."""
     var shape_vec = List[Int]()
     shape_vec.append(5)
@@ -324,7 +324,7 @@ fn test_broadcast_output_shape_scalar_1d() raises:
     assert_numel(c, 5, "Output should have 5 elements")
 
 
-fn test_broadcast_output_shape_1d_2d() raises:
+def test_broadcast_output_shape_1d_2d() raises:
     """Test broadcast output shape for 1D + 2D."""
     var shape_2d = List[Int]()
     shape_2d.append(3)
@@ -340,7 +340,7 @@ fn test_broadcast_output_shape_1d_2d() raises:
     assert_numel(c, 12, "Output should have 12 elements")
 
 
-fn test_broadcast_output_shape_3d_complex() raises:
+def test_broadcast_output_shape_3d_complex() raises:
     """Test broadcast output shape for complex 3D case."""
     var shape_a = List[Int]()
     shape_a.append(2)
@@ -359,7 +359,7 @@ fn test_broadcast_output_shape_3d_complex() raises:
     assert_numel(c, 24, "Output should have 24 elements (2*3*4)")
 
 
-fn test_broadcast_preserves_dtype() raises:
+def test_broadcast_preserves_dtype() raises:
     """Test that broadcasting preserves dtype."""
     var shape_a = List[Int]()
     shape_a.append(3)
@@ -374,7 +374,7 @@ fn test_broadcast_preserves_dtype() raises:
     assert_dtype(c, DType.float64, "Broadcast should preserve float64 dtype")
 
 
-fn test_broadcast_with_comparison_scalar() raises:
+def test_broadcast_with_comparison_scalar() raises:
     """Test broadcasting scalar with comparison operations."""
     var shape_vec = List[Int]()
     shape_vec.append(5)
@@ -390,7 +390,7 @@ fn test_broadcast_with_comparison_scalar() raises:
         assert_value_at(c, i, 1.0, 1e-6, "3 > 2 should be True")
 
 
-fn test_broadcast_with_comparison_vector_matrix() raises:
+def test_broadcast_with_comparison_vector_matrix() raises:
     """Test broadcasting vector to matrix with comparison."""
     var shape_mat = List[Int]()
     shape_mat.append(3)
@@ -408,7 +408,7 @@ fn test_broadcast_with_comparison_vector_matrix() raises:
         assert_value_at(c, i, 1.0, 1e-6, "1 <= 2 should be True")
 
 
-fn test_broadcast_chained_operations() raises:
+def test_broadcast_chained_operations() raises:
     """Test chained operations with broadcasting."""
     var shape_mat = List[Int]()
     shape_mat.append(2)
@@ -426,7 +426,7 @@ fn test_broadcast_chained_operations() raises:
     assert_all_values(result, 21.0, 1e-6, "(5 + 2) * 3 should be 21")
 
 
-fn test_broadcast_with_subtract() raises:
+def test_broadcast_with_subtract() raises:
     """Test broadcasting with subtraction."""
     var shape_2d = List[Int]()
     shape_2d.append(3)
@@ -442,7 +442,7 @@ fn test_broadcast_with_subtract() raises:
     assert_all_values(c, 7.0, 1e-6, "10 - 3 should broadcast to all 7s")
 
 
-fn test_broadcast_with_divide() raises:
+def test_broadcast_with_divide() raises:
     """Test broadcasting with division."""
     var shape_mat = List[Int]()
     shape_mat.append(2)
@@ -457,7 +457,7 @@ fn test_broadcast_with_divide() raises:
     assert_all_values(c, 5.0, 1e-6, "20 / 4 should broadcast to all 5s")
 
 
-fn test_broadcast_complex_3d_with_multiply() raises:
+def test_broadcast_complex_3d_with_multiply() raises:
     """Test complex 3D broadcasting with multiply."""
     var shape_a = List[Int]()
     shape_a.append(2)
@@ -476,7 +476,7 @@ fn test_broadcast_complex_3d_with_multiply() raises:
     assert_all_values(c, 12.0, 1e-6, "3 * 4 should broadcast to all 12s")
 
 
-fn test_broadcast_iterator_1d() raises:
+def test_broadcast_iterator_1d() raises:
     """Test BroadcastIterator with 1D tensors."""
     from shared.base.broadcasting import BroadcastIterator
 
@@ -510,7 +510,7 @@ fn test_broadcast_iterator_1d() raises:
     assert_true(count == 3, "Should iterate exactly 3 times")
 
 
-fn test_broadcast_iterator_2d_no_broadcast() raises:
+def test_broadcast_iterator_2d_no_broadcast() raises:
     """Test BroadcastIterator with 2D tensors (no broadcasting)."""
     from shared.base.broadcasting import BroadcastIterator
 
@@ -563,7 +563,7 @@ fn test_broadcast_iterator_2d_no_broadcast() raises:
     assert_true(count == 6, "Should iterate 6 times")
 
 
-fn test_broadcast_iterator_2d_broadcast_second() raises:
+def test_broadcast_iterator_2d_broadcast_second() raises:
     """Test BroadcastIterator with 2D broadcast (second tensor is [1,3])."""
     from shared.base.broadcasting import BroadcastIterator
 
@@ -615,7 +615,7 @@ fn test_broadcast_iterator_2d_broadcast_second() raises:
     assert_true(count == 6, "Should iterate 6 times")
 
 
-fn test_broadcast_iterator_3d_complex() raises:
+def test_broadcast_iterator_3d_complex() raises:
     """Test BroadcastIterator with complex 3D case."""
     from shared.base.broadcasting import BroadcastIterator
 
@@ -652,7 +652,7 @@ fn test_broadcast_iterator_3d_complex() raises:
     assert_true(count == 24, "Should iterate 24 times for 2x3x4")
 
 
-fn test_broadcast_iterator_scalar_broadcast() raises:
+def test_broadcast_iterator_scalar_broadcast() raises:
     """Test BroadcastIterator broadcasting scalar to 1D."""
     from shared.base.broadcasting import BroadcastIterator
 
@@ -683,7 +683,7 @@ fn test_broadcast_iterator_scalar_broadcast() raises:
     assert_true(count == 5, "Should iterate 5 times")
 
 
-fn test_broadcast_iterator_exhaustion() raises:
+def test_broadcast_iterator_exhaustion() raises:
     """Test that BroadcastIterator properly signals exhaustion."""
     from shared.base.broadcasting import BroadcastIterator
 
@@ -712,7 +712,7 @@ fn test_broadcast_iterator_exhaustion() raises:
     assert_true(error_raised, "Iterator should raise error when exhausted")
 
 
-fn test_are_shapes_broadcastable_ndim_reduction_returns_false() raises:
+def test_are_shapes_broadcastable_ndim_reduction_returns_false() raises:
     """Verify are_shapes_broadcastable([3,4,5], [4,5]) returns False (ndim reduction)."""
     var shape1 = List[Int]()
     shape1.append(3)
@@ -727,7 +727,7 @@ fn test_are_shapes_broadcastable_ndim_reduction_returns_false() raises:
     )
 
 
-fn test_are_shapes_broadcastable_1d_vs_2d_reduction() raises:
+def test_are_shapes_broadcastable_1d_vs_2d_reduction() raises:
     """Verify are_shapes_broadcastable([3,4], [4]) returns False (ndim reduction)."""
     var shape1 = List[Int]()
     shape1.append(3)
@@ -740,7 +740,7 @@ fn test_are_shapes_broadcastable_1d_vs_2d_reduction() raises:
     )
 
 
-fn test_are_shapes_broadcastable_empty_target_returns_false() raises:
+def test_are_shapes_broadcastable_empty_target_returns_false() raises:
     """Verify are_shapes_broadcastable([3], []) returns False (empty target)."""
     var shape1 = List[Int]()
     shape1.append(3)
@@ -751,7 +751,7 @@ fn test_are_shapes_broadcastable_empty_target_returns_false() raises:
     )
 
 
-fn test_are_shapes_broadcastable_expanding_ndim_ok() raises:
+def test_are_shapes_broadcastable_expanding_ndim_ok() raises:
     """Verify are_shapes_broadcastable([4,5], [3,4,5]) returns True (expanding dims)."""
     var shape1 = List[Int]()
     shape1.append(4)
@@ -766,7 +766,7 @@ fn test_are_shapes_broadcastable_expanding_ndim_ok() raises:
     )
 
 
-fn test_are_shapes_broadcastable_same_ndim_compatible() raises:
+def test_are_shapes_broadcastable_same_ndim_compatible() raises:
     """Verify are_shapes_broadcastable([3,4], [3,4]) returns True (same shape)."""
     var shape1 = List[Int]()
     shape1.append(3)
@@ -780,7 +780,7 @@ fn test_are_shapes_broadcastable_same_ndim_compatible() raises:
     )
 
 
-fn test_are_shapes_broadcastable_broadcast_1_dim_ok() raises:
+def test_are_shapes_broadcastable_broadcast_1_dim_ok() raises:
     """Verify are_shapes_broadcastable([1,4], [3,4]) returns True (dim-1 broadcast)."""
     var shape1 = List[Int]()
     shape1.append(1)
@@ -794,7 +794,7 @@ fn test_are_shapes_broadcastable_broadcast_1_dim_ok() raises:
     )
 
 
-fn test_are_shapes_broadcastable_incompatible_dims_unchanged() raises:
+def test_are_shapes_broadcastable_incompatible_dims_unchanged() raises:
     """Verify are_shapes_broadcastable([3,4], [5,4]) returns False (incompatible dims)."""
     var shape1 = List[Int]()
     shape1.append(3)
@@ -808,7 +808,7 @@ fn test_are_shapes_broadcastable_incompatible_dims_unchanged() raises:
     )
 
 
-fn test_are_shapes_broadcastable_scalar_source_empty_target() raises:
+def test_are_shapes_broadcastable_scalar_source_empty_target() raises:
     """Verify are_shapes_broadcastable([], []) returns True (both empty/scalar)."""
     var shape1 = List[Int]()
     var shape2 = List[Int]()
@@ -818,7 +818,7 @@ fn test_are_shapes_broadcastable_scalar_source_empty_target() raises:
     )
 
 
-fn test_are_shapes_broadcastable_scalar_source_to_1d() raises:
+def test_are_shapes_broadcastable_scalar_source_to_1d() raises:
     """Verify are_shapes_broadcastable([], [3]) returns True (scalar to 1D)."""
     var shape1 = List[Int]()
     var shape2 = List[Int]()
@@ -829,7 +829,7 @@ fn test_are_shapes_broadcastable_scalar_source_to_1d() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all test_broadcasting tests."""
     print("Running test_broadcasting tests...")
 

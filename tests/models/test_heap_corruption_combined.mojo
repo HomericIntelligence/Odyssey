@@ -27,10 +27,10 @@ from shared.testing.special_values import (
     create_special_value_tensor,
     SPECIAL_VALUE_ONE,
 )
-from math import isnan, isinf
+from std.math import isnan, isinf
 
 
-fn create_conv1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
+def create_conv1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv1 layer parameters (1→6, 5x5 kernel)."""
     var fixture = ConvFixture(
         in_channels=1, out_channels=6, kernel_size=5, dtype=dtype
@@ -38,7 +38,7 @@ fn create_conv1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     return fixture.kernel, fixture.bias
 
 
-fn create_conv2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
+def create_conv2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv2 layer parameters (6→16, 5x5 kernel)."""
     var fixture = ConvFixture(
         in_channels=6, out_channels=16, kernel_size=5, dtype=dtype
@@ -46,25 +46,25 @@ fn create_conv2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     return fixture.kernel, fixture.bias
 
 
-fn create_fc1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
+def create_fc1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create FC1 layer parameters (400→120)."""
     var fixture = LinearFixture(in_features=400, out_features=120, dtype=dtype)
     return fixture.weights, fixture.bias
 
 
-fn create_fc2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
+def create_fc2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create FC2 layer parameters (120→84)."""
     var fixture = LinearFixture(in_features=120, out_features=84, dtype=dtype)
     return fixture.weights, fixture.bias
 
 
-fn create_fc3_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
+def create_fc3_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create FC3 layer parameters (84→10)."""
     var fixture = LinearFixture(in_features=84, out_features=10, dtype=dtype)
     return fixture.weights, fixture.bias
 
 
-fn test_conv1_forward_float32() raises:
+def test_conv1_forward_float32() raises:
     """Test Conv1 forward pass float32."""
     var dtype = DType.float32
     var _result = create_conv1_parameters(dtype)
@@ -82,7 +82,7 @@ fn test_conv1_forward_float32() raises:
     )
 
 
-fn test_conv1_forward_float16() raises:
+def test_conv1_forward_float16() raises:
     """Test Conv1 forward pass float16."""
     var dtype = DType.float16
     var _result = create_conv1_parameters(dtype)
@@ -100,7 +100,7 @@ fn test_conv1_forward_float16() raises:
     )
 
 
-fn test_conv1_backward_float32() raises:
+def test_conv1_backward_float32() raises:
     """Test Conv1 backward pass."""
     var dtype = DType.float32
     var _result = create_conv1_parameters(dtype)
@@ -118,7 +118,7 @@ fn test_conv1_backward_float32() raises:
     )
 
 
-fn test_conv2_forward_float32() raises:
+def test_conv2_forward_float32() raises:
     """Test Conv2 forward pass float32."""
     var dtype = DType.float32
     var _result = create_conv2_parameters(dtype)
@@ -136,7 +136,7 @@ fn test_conv2_forward_float32() raises:
     )
 
 
-fn test_conv2_forward_float16() raises:
+def test_conv2_forward_float16() raises:
     """Test Conv2 forward pass float16."""
     var dtype = DType.float16
     var _result = create_conv2_parameters(dtype)
@@ -154,7 +154,7 @@ fn test_conv2_forward_float16() raises:
     )
 
 
-fn test_conv2_backward_float32() raises:
+def test_conv2_backward_float32() raises:
     """Test Conv2 backward pass."""
     var dtype = DType.float32
     var _result = create_conv2_parameters(dtype)
@@ -172,19 +172,19 @@ fn test_conv2_backward_float32() raises:
     )
 
 
-fn test_relu_forward_float32() raises:
+def test_relu_forward_float32() raises:
     """Test ReLU forward pass float32."""
     var shape: List[Int] = [1, 6, 24, 24]
     LayerTester.test_activation_layer(shape, DType.float32, activation="relu")
 
 
-fn test_relu_forward_float16() raises:
+def test_relu_forward_float16() raises:
     """Test ReLU forward pass float16."""
     var shape: List[Int] = [1, 6, 24, 24]
     LayerTester.test_activation_layer(shape, DType.float16, activation="relu")
 
 
-fn test_relu_backward_float32() raises:
+def test_relu_backward_float32() raises:
     """Test ReLU backward pass."""
     var shape: List[Int] = [1, 6, 8, 8]
     LayerTester.test_activation_layer_backward(
@@ -192,7 +192,7 @@ fn test_relu_backward_float32() raises:
     )
 
 
-fn test_maxpool1_forward_float32() raises:
+def test_maxpool1_forward_float32() raises:
     """Test MaxPool1 forward pass float32."""
     LayerTester.test_pooling_layer(
         channels=6,
@@ -206,7 +206,7 @@ fn test_maxpool1_forward_float32() raises:
     )
 
 
-fn test_maxpool1_forward_float16() raises:
+def test_maxpool1_forward_float16() raises:
     """Test MaxPool1 forward pass float16."""
     LayerTester.test_pooling_layer(
         channels=6,
@@ -220,7 +220,7 @@ fn test_maxpool1_forward_float16() raises:
     )
 
 
-fn test_maxpool2_forward_float32() raises:
+def test_maxpool2_forward_float32() raises:
     """Test MaxPool2 forward pass float32."""
     LayerTester.test_pooling_layer(
         channels=16,
@@ -234,7 +234,7 @@ fn test_maxpool2_forward_float32() raises:
     )
 
 
-fn test_maxpool2_forward_float16() raises:
+def test_maxpool2_forward_float16() raises:
     """Test MaxPool2 forward pass float16."""
     LayerTester.test_pooling_layer(
         channels=16,
@@ -248,7 +248,7 @@ fn test_maxpool2_forward_float16() raises:
     )
 
 
-fn test_fc1_forward_float32() raises:
+def test_fc1_forward_float32() raises:
     """Test FC1 forward pass float32."""
     var dtype = DType.float32
     var _result = create_fc1_parameters(dtype)
@@ -263,7 +263,7 @@ fn test_fc1_forward_float32() raises:
     )
 
 
-fn test_fc1_forward_float16() raises:
+def test_fc1_forward_float16() raises:
     """Test FC1 forward pass float16."""
     var dtype = DType.float16
     var _result = create_fc1_parameters(dtype)
@@ -278,7 +278,7 @@ fn test_fc1_forward_float16() raises:
     )
 
 
-fn test_fc1_backward_float32() raises:
+def test_fc1_backward_float32() raises:
     """Test FC1 backward pass."""
     var dtype = DType.float32
     var _result = create_fc1_parameters(dtype)
@@ -293,7 +293,7 @@ fn test_fc1_backward_float32() raises:
     )
 
 
-fn test_fc2_forward_float32() raises:
+def test_fc2_forward_float32() raises:
     """Test FC2 forward pass float32."""
     var dtype = DType.float32
     var _result = create_fc2_parameters(dtype)
@@ -308,7 +308,7 @@ fn test_fc2_forward_float32() raises:
     )
 
 
-fn test_fc2_forward_float16() raises:
+def test_fc2_forward_float16() raises:
     """Test FC2 forward pass float16."""
     var dtype = DType.float16
     var _result = create_fc2_parameters(dtype)
@@ -323,7 +323,7 @@ fn test_fc2_forward_float16() raises:
     )
 
 
-fn test_fc2_backward_float32() raises:
+def test_fc2_backward_float32() raises:
     """Test FC2 backward pass."""
     var dtype = DType.float32
     var _result = create_fc2_parameters(dtype)
@@ -338,7 +338,7 @@ fn test_fc2_backward_float32() raises:
     )
 
 
-fn test_fc3_forward_float32() raises:
+def test_fc3_forward_float32() raises:
     """Test FC3 forward pass float32."""
     var dtype = DType.float32
     var _result = create_fc3_parameters(dtype)
@@ -349,7 +349,7 @@ fn test_fc3_forward_float32() raises:
     )
 
 
-fn test_fc3_forward_float16() raises:
+def test_fc3_forward_float16() raises:
     """Test FC3 forward pass float16."""
     var dtype = DType.float16
     var _result = create_fc3_parameters(dtype)
@@ -360,7 +360,7 @@ fn test_fc3_forward_float16() raises:
     )
 
 
-fn test_fc3_backward_float32() raises:
+def test_fc3_backward_float32() raises:
     """Test FC3 backward pass."""
     var dtype = DType.float32
     var _result = create_fc3_parameters(dtype)
@@ -371,7 +371,7 @@ fn test_fc3_backward_float32() raises:
     )
 
 
-fn test_flatten_operation_float32() raises:
+def test_flatten_operation_float32() raises:
     """Test reshape/flatten operation (16, 5, 5) -> (400,)."""
     var dtype = DType.float32
     var input = create_special_value_tensor(
@@ -386,7 +386,7 @@ fn test_flatten_operation_float32() raises:
         assert_false(isinf(val), "Flatten produced Inf")
 
 
-fn test_flatten_operation_float16() raises:
+def test_flatten_operation_float16() raises:
     """Test flatten with float16."""
     var dtype = DType.float16
     var input = create_special_value_tensor(
@@ -397,7 +397,7 @@ fn test_flatten_operation_float16() raises:
     assert_dtype(flattened, dtype, "Flatten dtype mismatch (float16)")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_heap_corruption_combined tests."""
     print("Running test_heap_corruption_combined tests...")
 

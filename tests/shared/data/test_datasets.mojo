@@ -23,7 +23,7 @@ from shared.data.samplers import SequentialSampler
 from shared.tensor.any_tensor import AnyTensor
 
 
-fn test_dataset_length_consistency() raises:
+def test_dataset_length_consistency() raises:
     """Test AnyTensorDataset reports correct length.
 
     __len__() should match actual number of samples in first dimension.
@@ -54,7 +54,7 @@ fn test_dataset_length_consistency() raises:
     assert_equal(dataset.__len__(), 100)
 
 
-fn test_dataset_sequential_access() raises:
+def test_dataset_sequential_access() raises:
     """Test AnyTensorDataset supports sequential __getitem__ access.
 
     Should be able to retrieve samples by index in order.
@@ -94,7 +94,7 @@ fn test_dataset_sequential_access() raises:
     assert_equal(dataset.__len__(), 10)
 
 
-fn test_dataset_negative_indexing() raises:
+def test_dataset_negative_indexing() raises:
     """Test AnyTensorDataset supports negative indexing.
 
     Negative indices count from end: -1 is last, -2 is second-to-last, etc.
@@ -130,7 +130,7 @@ fn test_dataset_negative_indexing() raises:
     assert_equal(dataset.__len__(), 20)
 
 
-fn test_dataset_bounds_checking() raises:
+def test_dataset_bounds_checking() raises:
     """Test AnyTensorDataset handles out-of-bounds access properly.
 
     Accessing index >= len() should raise error.
@@ -165,7 +165,7 @@ fn test_dataset_bounds_checking() raises:
     # Out-of-bounds access would be tested separately if error propagation works
 
 
-fn test_dataset_with_loader() raises:
+def test_dataset_with_loader() raises:
     """Test AnyTensorDataset works seamlessly with BatchLoader.
 
     Dataset should integrate with loader for batching.
@@ -202,7 +202,7 @@ fn test_dataset_with_loader() raises:
     assert_equal(loader.__len__(), 4)  # 100 / 25 = 4 batches
 
 
-fn test_tensor_dataset_batching_shapes() raises:
+def test_tensor_dataset_batching_shapes() raises:
     """Test AnyTensorDataset produces correct shapes when batched.
 
     When batches are created from 1D input, batch shape should be [batch_size].
@@ -234,7 +234,7 @@ fn test_tensor_dataset_batching_shapes() raises:
     assert_equal(dataset_len, 50)
 
 
-fn test_dataset_random_access() raises:
+def test_dataset_random_access() raises:
     """Test AnyTensorDataset supports random access via samplers.
 
     Can access arbitrary indices via __getitem__ in any order.
@@ -272,7 +272,7 @@ fn test_dataset_random_access() raises:
     assert_equal(dataset.__len__(), 20)
 
 
-fn test_dataset_interface_protocol() raises:
+def test_dataset_interface_protocol() raises:
     """Test AnyTensorDataset conforms to Dataset trait protocol.
 
     Must implement __len__() and __getitem__() correctly.
@@ -309,7 +309,7 @@ fn test_dataset_interface_protocol() raises:
     var sample = dataset.__getitem__(0)
 
 
-fn test_dataset_small_size() raises:
+def test_dataset_small_size() raises:
     """Test AnyTensorDataset with very small number of samples.
 
     Should handle minimal datasets (2-5 samples) correctly.
@@ -339,7 +339,7 @@ fn test_dataset_small_size() raises:
     assert_equal(dataset.__len__(), 2)
 
 
-fn test_dataset_single_sample() raises:
+def test_dataset_single_sample() raises:
     """Test AnyTensorDataset with single sample (minimal edge case).
 
     Should handle 1-sample datasets correctly.
@@ -371,7 +371,7 @@ fn test_dataset_single_sample() raises:
     var s_neg = dataset.__getitem__(-1)
 
 
-fn test_dataset_large_size() raises:
+def test_dataset_large_size() raises:
     """Test AnyTensorDataset with larger number of samples.
 
     Should scale to thousands of samples without issues.
@@ -402,7 +402,7 @@ fn test_dataset_large_size() raises:
     assert_equal(dataset.__len__(), 1000)
 
 
-fn test_dataset_repeated_access() raises:
+def test_dataset_repeated_access() raises:
     """Test AnyTensorDataset handles repeated access to same sample.
 
     Accessing the same index multiple times should always return same sample.
@@ -439,7 +439,7 @@ fn test_dataset_repeated_access() raises:
     assert_equal(dataset.__len__(), 10)
 
 
-fn test_dataset_with_different_batch_sizes() raises:
+def test_dataset_with_different_batch_sizes() raises:
     """Test AnyTensorDataset works with various batch sizes in loader.
 
     Should integrate with loaders using different batch_size values.
@@ -477,7 +477,7 @@ fn test_dataset_with_different_batch_sizes() raises:
     # batch_size=32: ceil(100/32) = 4
 
 
-fn main() raises:
+def main() raises:
     """Run all test_datasets tests."""
     print("Running test_datasets tests...")
 

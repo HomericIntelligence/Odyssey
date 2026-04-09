@@ -13,8 +13,8 @@ Issues covered:
 - #283-287: Loss tracking implementation
 """
 
-from collections import List
-from math import sqrt
+from std.collections import List
+from std.math import sqrt
 from shared.training.metrics.base import Metric
 from shared.tensor.any_tensor import AnyTensor
 
@@ -44,7 +44,7 @@ struct Statistics(Copyable, Movable):
     var count: Int
     """Total number of values tracked."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize with zero values."""
         self.mean = 0.0
         self.std = 0.0
@@ -52,7 +52,7 @@ struct Statistics(Copyable, Movable):
         self.max = 0.0
         self.count = 0
 
-    fn __init__(
+    def __init__(
         out self,
         mean: Float32,
         std: Float32,
@@ -114,7 +114,7 @@ struct ComponentTracker(Copyable, Movable):
     var last_value: Float32
     """Most recent value."""
 
-    fn __init__(out self, window_size: Int):
+    def __init__(out self, window_size: Int):
         """Initialize tracker with specified window size.
 
         Args:
@@ -136,7 +136,7 @@ struct ComponentTracker(Copyable, Movable):
         self.max_value = Float32(-1e9)  # Start with small value
         self.last_value = 0.0
 
-    fn update(mut self, value: Float32):
+    def update(mut self, value: Float32):
         """Add new loss value and update statistics.
 
         Uses Welford's algorithm for numerically stable online variance computation.
@@ -170,7 +170,7 @@ struct ComponentTracker(Copyable, Movable):
         if value > self.max_value:
             self.max_value = value
 
-    fn get_current(self) -> Float32:
+    def get_current(self) -> Float32:
         """Get most recent loss value.
 
         Returns:
@@ -178,7 +178,7 @@ struct ComponentTracker(Copyable, Movable):
         """
         return self.last_value
 
-    fn get_average(self) -> Float32:
+    def get_average(self) -> Float32:
         """Get moving average over window.
 
         Returns:
@@ -195,7 +195,7 @@ struct ComponentTracker(Copyable, Movable):
 
         return sum / Float32(n)
 
-    fn get_statistics(self) -> Statistics:
+    def get_statistics(self) -> Statistics:
         """Get statistical summary (mean, std, min, max, count).
 
         Returns:
@@ -220,7 +220,7 @@ struct ComponentTracker(Copyable, Movable):
 
         return stats^
 
-    fn reset(mut self):
+    def reset(mut self):
         """Reset all statistics and buffer."""
         for i in range(self.window_size):
             self.buffer[i] = 0.0
@@ -275,7 +275,7 @@ struct LossTracker(Metric):
     var trackers: List[ComponentTracker]
     """Tracker for each component."""
 
-    fn __init__(out self, window_size: Int = 100):
+    def __init__(out self, window_size: Int = 100):
         """Initialize loss tracker.
 
         Args:
@@ -285,7 +285,7 @@ struct LossTracker(Metric):
         self.components = List[String]()
         self.trackers = []
 
-    fn _get_or_create_component(mut self, component: String) -> Int:
+    def _get_or_create_component(mut self, component: String) -> Int:
         """Get index of component tracker, creating if needed.
 
         Args:
@@ -304,7 +304,7 @@ struct LossTracker(Metric):
         self.trackers.append(ComponentTracker(self.window_size))
         return len(self.components) - 1
 
-    fn update(mut self, loss: Float32, component: String = "total") raises:
+    def update(mut self, loss: Float32, component: String = "total") raises:
         """Add new loss value for specified component.
 
         Args:
@@ -317,7 +317,7 @@ struct LossTracker(Metric):
         var idx = self._get_or_create_component(component)
         self.trackers[idx].update(loss)
 
-    fn get_current(self, component: String = "total") raises -> Float32:
+    def get_current(self, component: String = "total") raises -> Float32:
         """Get most recent loss value for component.
 
         Args:
@@ -335,7 +335,7 @@ struct LossTracker(Metric):
 
         return 0.0
 
-    fn get_average(self, component: String = "total") raises -> Float32:
+    def get_average(self, component: String = "total") raises -> Float32:
         """Get moving average for component.
 
         Args:
@@ -353,7 +353,7 @@ struct LossTracker(Metric):
 
         return 0.0
 
-    fn get_statistics(self, component: String = "total") raises -> Statistics:
+    def get_statistics(self, component: String = "total") raises -> Statistics:
         """Get statistical summary for component.
 
         Args:
@@ -371,7 +371,7 @@ struct LossTracker(Metric):
 
         return Statistics()
 
-    fn reset(mut self, component: String = ""):
+    def reset(mut self, component: String = ""):
         """Reset statistics for component(s).
 
         Args:
@@ -388,7 +388,7 @@ struct LossTracker(Metric):
                     self.trackers[i].reset()
                     return
 
-    fn list_components(self) -> List[String]:
+    def list_components(self) -> List[String]:
         """Get list of all tracked components.
 
         Returns:
@@ -398,7 +398,7 @@ struct LossTracker(Metric):
         return List[String](self.components)
 
     # Metric trait implementation (for coordination interface)
-    fn update(mut self, predictions: AnyTensor, labels: AnyTensor) raises:
+    def update(mut self, predictions: AnyTensor, labels: AnyTensor) raises:
         """Update metric with predictions and labels (Metric trait).
 
         Note: LossTracker doesn't use predictions/labels directly.
@@ -417,7 +417,7 @@ struct LossTracker(Metric):
             " update(loss, component) instead"
         )
 
-    fn reset(mut self):
+    def reset(mut self):
         """Reset all components (Metric trait version).
 
         Resets statistics for all tracked components.

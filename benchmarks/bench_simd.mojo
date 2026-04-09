@@ -27,7 +27,7 @@ from shared.core.arithmetic_simd import (
 from time import perf_counter_ns
 
 
-fn benchmark_operation(
+def benchmark_operation(
     name: String,
     size: Int,
     scalar_fn: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
@@ -88,7 +88,7 @@ fn benchmark_operation(
     )
 
 
-fn verify_correctness() raises -> Bool:
+def verify_correctness() raises -> Bool:
     """Verify SIMD produces same results as scalar (within tolerance).
 
     Returns:
@@ -178,7 +178,7 @@ fn verify_correctness() raises -> Bool:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run SIMD benchmarks."""
     print("\n" + "=" * 80)
     print("SIMD Arithmetic Benchmarks")

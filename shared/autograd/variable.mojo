@@ -88,7 +88,7 @@ struct Variable(Copyable, Movable):
     var id: Int
     var requires_grad: Bool
 
-    fn __init__(
+    def __init__(
         out self,
         var data: AnyTensor,
         requires_grad: Bool,
@@ -114,7 +114,7 @@ struct Variable(Copyable, Movable):
 
 
 
-    fn __init__(
+    def __init__(
         out self,
         var data: AnyTensor,
         requires_grad: Bool,
@@ -135,7 +135,7 @@ struct Variable(Copyable, Movable):
         self.requires_grad = requires_grad
         self.id = id
 
-    fn backward(self, mut tape: GradientTape) raises:
+    def backward(self, mut tape: GradientTape) raises:
         """Compute gradients via automatic differentiation.
 
         Triggers backward pass through the computation graph, computing gradients
@@ -164,7 +164,7 @@ struct Variable(Copyable, Movable):
         var grad = ones_like(self.data)
         tape.backward(self.id, grad^)
 
-    fn detach(self) -> AnyTensor:
+    def detach(self) -> AnyTensor:
         """Get the underlying tensor without gradient tracking.
 
         Useful for breaking the computation graph when you want to use values
@@ -179,7 +179,7 @@ struct Variable(Copyable, Movable):
         """
         return self.data
 
-    fn shape(self) -> List[Int]:
+    def shape(self) -> List[Int]:
         """Get the shape of the underlying tensor.
 
         Returns:
@@ -187,7 +187,7 @@ struct Variable(Copyable, Movable):
         """
         return self.data.shape()
 
-    fn numel(self) -> Int:
+    def numel(self) -> Int:
         """Get the number of elements in the tensor.
 
         Returns:
@@ -195,7 +195,7 @@ struct Variable(Copyable, Movable):
         """
         return self.data.numel()
 
-    fn dtype(self) -> DType:
+    def dtype(self) -> DType:
         """Get the data type of the underlying tensor.
 
         Returns:
@@ -211,7 +211,7 @@ struct Variable(Copyable, Movable):
 # They follow the functional API pattern - each operation creates a new Variable.
 
 
-fn variable_add(
+def variable_add(
     a: Variable,
     b: Variable,
     mut tape: GradientTape,
@@ -247,7 +247,7 @@ fn variable_add(
     return Variable(result_data^, a.requires_grad or b.requires_grad, result_id)
 
 
-fn variable_subtract(
+def variable_subtract(
     a: Variable,
     b: Variable,
     mut tape: GradientTape,
@@ -282,7 +282,7 @@ fn variable_subtract(
     return Variable(result_data^, a.requires_grad or b.requires_grad, result_id)
 
 
-fn variable_multiply(
+def variable_multiply(
     a: Variable,
     b: Variable,
     mut tape: GradientTape,
@@ -317,7 +317,7 @@ fn variable_multiply(
     return Variable(result_data^, a.requires_grad or b.requires_grad, result_id)
 
 
-fn variable_divide(
+def variable_divide(
     a: Variable,
     b: Variable,
     mut tape: GradientTape,
@@ -352,7 +352,7 @@ fn variable_divide(
     return Variable(result_data^, a.requires_grad or b.requires_grad, result_id)
 
 
-fn variable_matmul(
+def variable_matmul(
     a: Variable,
     b: Variable,
     mut tape: GradientTape,
@@ -387,7 +387,7 @@ fn variable_matmul(
     return Variable(result_data^, a.requires_grad or b.requires_grad, result_id)
 
 
-fn variable_sum(
+def variable_sum(
     x: Variable,
     mut tape: GradientTape,
     axis: Int = -1,
@@ -421,7 +421,7 @@ fn variable_sum(
     return Variable(result_data^, x.requires_grad, result_id)
 
 
-fn variable_mean(
+def variable_mean(
     x: Variable,
     mut tape: GradientTape,
     axis: Int = -1,
@@ -455,7 +455,7 @@ fn variable_mean(
     return Variable(result_data^, x.requires_grad, result_id)
 
 
-fn variable_relu(
+def variable_relu(
     x: Variable,
     mut tape: GradientTape,
 ) raises -> Variable:
@@ -486,7 +486,7 @@ fn variable_relu(
     return Variable(result_data^, x.requires_grad, result_id)
 
 
-fn variable_sigmoid(
+def variable_sigmoid(
     x: Variable,
     mut tape: GradientTape,
 ) raises -> Variable:
@@ -517,7 +517,7 @@ fn variable_sigmoid(
     return Variable(result_data^, x.requires_grad, result_id)
 
 
-fn variable_tanh(
+def variable_tanh(
     x: Variable,
     mut tape: GradientTape,
 ) raises -> Variable:
@@ -548,7 +548,7 @@ fn variable_tanh(
     return Variable(result_data^, x.requires_grad, result_id)
 
 
-fn variable_neg(
+def variable_neg(
     x: Variable,
     mut tape: GradientTape,
 ) raises -> Variable:

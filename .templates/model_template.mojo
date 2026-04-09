@@ -17,7 +17,7 @@ struct {{name}}(Module):
 
 {{layer_declarations}}
 
-    fn __init__(out self, num_classes: Int = {{num_classes}}):
+    def __init__(out self, num_classes: Int = {{num_classes}}):
         """Initialize {{name}}.
 
         Args:
@@ -25,7 +25,7 @@ struct {{name}}(Module):
         """
 {{layer_initializations}}
 
-    fn forward(self, input: AnyTensor) -> AnyTensor:
+    def forward(self, input: AnyTensor) -> AnyTensor:
         """Forward pass through the network.
 
         Args:
@@ -40,7 +40,7 @@ struct {{name}}(Module):
 
         return x
 
-    fn parameters(self) -> List[AnyTensor]:
+    def parameters(self) -> List[AnyTensor]:
         """Get all trainable parameters.
 
         Returns:

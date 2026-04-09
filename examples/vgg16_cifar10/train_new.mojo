@@ -47,7 +47,7 @@ from shared.data import (
 from shared.utils.training_args import parse_training_args_with_defaults
 from shared.training.metrics.evaluate import evaluate_with_predict
 from shared.training.optimizers import sgd_momentum_update_inplace
-from collections import List
+from std.collections import List
 
 
 struct TrainingArgs:
@@ -60,7 +60,7 @@ struct TrainingArgs:
     var data_dir: String
     var weights_dir: String
 
-    fn __init__(
+    def __init__(
         out self,
         epochs: Int,
         batch_size: Int,
@@ -78,7 +78,7 @@ struct TrainingArgs:
         self.weights_dir = weights_dir
 
 
-fn parse_args() raises -> TrainingArgs:
+def parse_args() raises -> TrainingArgs:
     """Parse command line arguments.
 
     Returns:
@@ -105,7 +105,7 @@ fn parse_args() raises -> TrainingArgs:
     )
 
 
-fn initialize_velocities(model: VGG16) raises -> List[AnyTensor]:
+def initialize_velocities(model: VGG16) raises -> List[AnyTensor]:
     """Initialize momentum velocities for all parameters (32 tensors).
 
     Args:
@@ -164,7 +164,7 @@ fn initialize_velocities(model: VGG16) raises -> List[AnyTensor]:
     return velocities^
 
 
-fn compute_gradients(
+def compute_gradients(
     mut model: VGG16,
     input: AnyTensor,
     labels: AnyTensor,
@@ -802,7 +802,7 @@ fn compute_gradients(
     return loss
 
 
-fn evaluate(
+def evaluate(
     mut model: VGG16, test_images: AnyTensor, test_labels: AnyTensor
 ) raises -> Float32:
     """Evaluate model on test set.
@@ -849,7 +849,7 @@ fn evaluate(
     return accuracy * 100.0  # Return as percentage
 
 
-fn main() raises:
+def main() raises:
     """Main training loop."""
     print("=" * 60)
     print("VGG-16 Training on CIFAR-10 Dataset")

@@ -32,7 +32,7 @@ Features:
 Example - High-level quick benchmarking:
     from shared.benchmarking import benchmark_function, print_benchmark_report
 
-    fn expensive_operation():
+    def expensive_operation():
         # Your operation here
         pass
 

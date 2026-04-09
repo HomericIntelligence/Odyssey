@@ -26,7 +26,7 @@ from shared.training.callbacks import EarlyStopping
 from shared.training.base import TrainingState
 
 
-fn test_early_stopping_initialization() raises:
+def test_early_stopping_initialization() raises:
     """Test EarlyStopping callback initialization with parameters."""
     var early_stop = EarlyStopping(
         monitor="val_loss", patience=5, min_delta=0.001, mode="min"
@@ -39,7 +39,7 @@ fn test_early_stopping_initialization() raises:
     assert_equal(early_stop.mode, "min")
 
 
-fn test_early_stopping_triggers_after_patience() raises:
+def test_early_stopping_triggers_after_patience() raises:
     """Test EarlyStopping stops training after patience epochs without improvement.
     """
     var early_stop = EarlyStopping(monitor="val_loss", patience=3, mode="min")
@@ -69,7 +69,7 @@ fn test_early_stopping_triggers_after_patience() raises:
     assert_true(early_stop.should_stop())  # Patience exhausted
 
 
-fn test_early_stopping_resets_patience_on_improvement() raises:
+def test_early_stopping_resets_patience_on_improvement() raises:
     """Test EarlyStopping resets patience counter when metric improves."""
     var early_stop = EarlyStopping(monitor="val_loss", patience=3, mode="min")
     var state = TrainingState(epoch=1, learning_rate=0.1)
@@ -95,7 +95,7 @@ fn test_early_stopping_resets_patience_on_improvement() raises:
     assert_equal(early_stop.wait_count, 0)
 
 
-fn test_early_stopping_min_delta() raises:
+def test_early_stopping_min_delta() raises:
     """Test EarlyStopping min_delta for improvement threshold.
 
     Small improvements below threshold don't reset patience.
@@ -122,7 +122,7 @@ fn test_early_stopping_min_delta() raises:
     assert_true(early_stop.should_stop())  # wait_count=2 >= patience=2
 
 
-fn test_early_stopping_min_delta_large_improvement() raises:
+def test_early_stopping_min_delta_large_improvement() raises:
     """Test EarlyStopping counts large improvements above min_delta."""
     var early_stop = EarlyStopping(
         monitor="val_loss", patience=2, min_delta=0.01, mode="min"
@@ -153,7 +153,7 @@ fn test_early_stopping_min_delta_large_improvement() raises:
     assert_true(early_stop.should_stop())  # wait_count=2 >= patience=2
 
 
-fn test_early_stopping_monitor_accuracy() raises:
+def test_early_stopping_monitor_accuracy() raises:
     """Test EarlyStopping monitoring accuracy (higher is better) with mode='max'.
     """
     var early_stop = EarlyStopping(
@@ -188,7 +188,7 @@ fn test_early_stopping_monitor_accuracy() raises:
     assert_true(early_stop.should_stop())  # wait_count=3 >= patience=3
 
 
-fn test_early_stopping_mode_min() raises:
+def test_early_stopping_mode_min() raises:
     """Test EarlyStopping with mode='min' for loss minimization."""
     var early_stop = EarlyStopping(
         monitor="val_loss", patience=2, min_delta=0.0, mode="min"
@@ -213,7 +213,7 @@ fn test_early_stopping_mode_min() raises:
     assert_false(early_stop.should_stop())
 
 
-fn test_early_stopping_mode_max() raises:
+def test_early_stopping_mode_max() raises:
     """Test EarlyStopping with mode='max' for accuracy maximization."""
     var early_stop = EarlyStopping(
         monitor="val_accuracy", patience=2, min_delta=0.0, mode="max"
@@ -238,7 +238,7 @@ fn test_early_stopping_mode_max() raises:
     assert_false(early_stop.should_stop())
 
 
-fn test_early_stopping_zero_patience() raises:
+def test_early_stopping_zero_patience() raises:
     """Test EarlyStopping with patience=0 stops after first non-improvement."""
     var early_stop = EarlyStopping(monitor="val_loss", patience=0, mode="min")
     var state = TrainingState(epoch=1, learning_rate=0.1)
@@ -254,7 +254,7 @@ fn test_early_stopping_zero_patience() raises:
     assert_true(early_stop.should_stop())
 
 
-fn test_early_stopping_missing_monitored_metric() raises:
+def test_early_stopping_missing_monitored_metric() raises:
     """Test EarlyStopping handles missing monitored metric gracefully."""
     var early_stop = EarlyStopping(monitor="val_loss", patience=3, mode="min")
     var state = TrainingState(epoch=1, learning_rate=0.1)
@@ -267,7 +267,7 @@ fn test_early_stopping_missing_monitored_metric() raises:
     assert_false(early_stop.should_stop())
 
 
-fn test_early_stopping_on_train_begin_resets() raises:
+def test_early_stopping_on_train_begin_resets() raises:
     """Test on_train_begin resets all state."""
     var early_stop = EarlyStopping(monitor="val_loss", patience=2, mode="min")
     var state = TrainingState(epoch=1, learning_rate=0.1)
@@ -290,7 +290,7 @@ fn test_early_stopping_on_train_begin_resets() raises:
     )  # Reset to initial for min mode
 
 
-fn test_early_stopping_tracks_best_value() raises:
+def test_early_stopping_tracks_best_value() raises:
     """Test EarlyStopping correctly tracks best value seen."""
     var early_stop = EarlyStopping(monitor="val_loss", patience=3, mode="min")
     var state = TrainingState(epoch=1, learning_rate=0.1)
@@ -313,7 +313,7 @@ fn test_early_stopping_tracks_best_value() raises:
     assert_almost_equal(early_stop.best_value, 0.3)
 
 
-fn test_early_stopping_get_best_epoch() raises:
+def test_early_stopping_get_best_epoch() raises:
     """Test EarlyStopping get_best_epoch() returns correct epoch number."""
     var early_stop = EarlyStopping(monitor="val_loss", patience=3, mode="min")
     var state = TrainingState(epoch=0, learning_rate=0.1)
@@ -342,7 +342,7 @@ fn test_early_stopping_get_best_epoch() raises:
     assert_equal(early_stop.get_best_epoch(), 2)
 
 
-fn test_early_stopping_best_epoch_updates_on_improvement() raises:
+def test_early_stopping_best_epoch_updates_on_improvement() raises:
     """Test EarlyStopping best_epoch updates when metric improves."""
     var early_stop = EarlyStopping(
         monitor="val_accuracy", patience=3, mode="max"
@@ -373,7 +373,7 @@ fn test_early_stopping_best_epoch_updates_on_improvement() raises:
     assert_equal(early_stop.best_epoch, 2)
 
 
-fn test_early_stopping_verbose_mode() raises:
+def test_early_stopping_verbose_mode() raises:
     """Test EarlyStopping with verbose=True (prints progress messages)."""
     var early_stop = EarlyStopping(
         monitor="val_loss", patience=2, mode="min", verbose=True
@@ -392,7 +392,7 @@ fn test_early_stopping_verbose_mode() raises:
     assert_false(early_stop.should_stop())
 
 
-fn test_early_stopping_silent_mode() raises:
+def test_early_stopping_silent_mode() raises:
     """Test EarlyStopping with verbose=False (suppresses output)."""
     var early_stop = EarlyStopping(
         monitor="val_loss", patience=2, mode="min", verbose=False
@@ -415,7 +415,7 @@ fn test_early_stopping_silent_mode() raises:
     assert_true(early_stop.should_stop())
 
 
-fn main() raises:
+def main() raises:
     """Run all test_early_stopping tests."""
     print("Running test_early_stopping tests...")
 

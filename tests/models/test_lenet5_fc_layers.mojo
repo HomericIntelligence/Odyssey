@@ -30,19 +30,19 @@ from shared.testing.layer_testers import LayerTester
 # ============================================================================
 
 
-fn create_fc1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
+def create_fc1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create FC1 layer parameters (400→120)."""
     var fixture = LinearFixture(in_features=400, out_features=120, dtype=dtype)
     return fixture.weights, fixture.bias
 
 
-fn create_fc2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
+def create_fc2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create FC2 layer parameters (120→84)."""
     var fixture = LinearFixture(in_features=120, out_features=84, dtype=dtype)
     return fixture.weights, fixture.bias
 
 
-fn create_fc3_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
+def create_fc3_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create FC3 layer parameters (84→10)."""
     var fixture = LinearFixture(in_features=84, out_features=10, dtype=dtype)
     return fixture.weights, fixture.bias
@@ -53,7 +53,7 @@ fn create_fc3_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
 # ============================================================================
 
 
-fn test_fc1_forward_float32() raises:
+def test_fc1_forward_float32() raises:
     """Test FC1 (400→120) forward pass with float32."""
     var dtype = DType.float32
     var _result = create_fc1_parameters(dtype)
@@ -71,7 +71,7 @@ fn test_fc1_forward_float32() raises:
     )
 
 
-fn test_fc1_forward_float16() raises:
+def test_fc1_forward_float16() raises:
     """Test FC1 forward pass with float16."""
     var dtype = DType.float16
     var _result = create_fc1_parameters(dtype)
@@ -89,7 +89,7 @@ fn test_fc1_forward_float16() raises:
     )
 
 
-fn test_fc1_backward_float32() raises:
+def test_fc1_backward_float32() raises:
     """Test FC1 backward pass with gradient checking."""
     var dtype = DType.float32
     var _result = create_fc1_parameters(dtype)
@@ -112,7 +112,7 @@ fn test_fc1_backward_float32() raises:
 # ============================================================================
 
 
-fn test_fc2_forward_float32() raises:
+def test_fc2_forward_float32() raises:
     """Test FC2 (120→84) forward pass with float32."""
     var dtype = DType.float32
     var _result = create_fc2_parameters(dtype)
@@ -130,7 +130,7 @@ fn test_fc2_forward_float32() raises:
     )
 
 
-fn test_fc2_forward_float16() raises:
+def test_fc2_forward_float16() raises:
     """Test FC2 forward pass with float16."""
     var dtype = DType.float16
     var _result = create_fc2_parameters(dtype)
@@ -148,7 +148,7 @@ fn test_fc2_forward_float16() raises:
     )
 
 
-fn test_fc2_backward_float32() raises:
+def test_fc2_backward_float32() raises:
     """Test FC2 backward pass with gradient checking."""
     var dtype = DType.float32
     var _result = create_fc2_parameters(dtype)
@@ -171,7 +171,7 @@ fn test_fc2_backward_float32() raises:
 # ============================================================================
 
 
-fn test_fc3_forward_float32() raises:
+def test_fc3_forward_float32() raises:
     """Test FC3 (84→10) forward pass with float32."""
     var dtype = DType.float32
     var _result = create_fc3_parameters(dtype)
@@ -189,7 +189,7 @@ fn test_fc3_forward_float32() raises:
     )
 
 
-fn test_fc3_forward_float16() raises:
+def test_fc3_forward_float16() raises:
     """Test FC3 (84→10) forward pass with float16.
 
     NOTE: This test may be sensitive to float16 precision limitations.
@@ -213,7 +213,7 @@ fn test_fc3_forward_float16() raises:
     )
 
 
-fn test_fc3_backward_float32() raises:
+def test_fc3_backward_float32() raises:
     """Test FC3 backward pass with gradient checking."""
     var dtype = DType.float32
     var _result = create_fc3_parameters(dtype)
@@ -231,7 +231,7 @@ fn test_fc3_backward_float32() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all fully connected layer tests."""
     print("LeNet-5 Fully Connected Layer Tests")
     print("=" * 50)

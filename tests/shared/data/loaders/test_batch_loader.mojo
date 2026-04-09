@@ -15,7 +15,7 @@ from shared.data.samplers import SequentialSampler, RandomSampler
 from shared.tensor.any_tensor import AnyTensor
 
 
-fn test_batch_loader_fixed_batch_size() raises:
+def test_batch_loader_fixed_batch_size() raises:
     """Test creating batches of fixed size.
 
     Should group consecutive samples into batches of batch_size,
@@ -38,7 +38,7 @@ fn test_batch_loader_fixed_batch_size() raises:
     assert_equal(loader.__len__(), 4)  # 100 / 32 = 3.125 -> 4 batches
 
 
-fn test_batch_loader_perfect_division() raises:
+def test_batch_loader_perfect_division() raises:
     """Test dataset size perfectly divisible by batch_size.
 
     With 96 samples and batch_size=32, should create exactly 3 batches
@@ -60,7 +60,7 @@ fn test_batch_loader_perfect_division() raises:
     assert_equal(loader.__len__(), 3)  # 96 / 32 = 3 exactly
 
 
-fn test_batch_loader_partial_last_batch() raises:
+def test_batch_loader_partial_last_batch() raises:
     """Test handling of partial last batch.
 
     With 100 samples and batch_size=32, last batch should have only 4 samples
@@ -122,7 +122,7 @@ fn test_batch_loader_partial_last_batch() raises:
     assert_equal(loader2.__len__(), 3)  # Drops partial batch
 
 
-fn test_batch_loader_tensor_stacking() raises:
+def test_batch_loader_tensor_stacking() raises:
     """Test that BatchLoader API structure exists.
 
     Note: _stack_tensors may not be fully implemented,
@@ -155,7 +155,7 @@ fn test_batch_loader_tensor_stacking() raises:
     assert_equal(loader.__len__(), 4)
 
 
-fn test_batch_loader_no_shuffle() raises:
+def test_batch_loader_no_shuffle() raises:
     """Test that shuffle=False preserves dataset order.
 
     Batches should contain samples in dataset order: batch 0 has indices [0-31],
@@ -186,7 +186,7 @@ fn test_batch_loader_no_shuffle() raises:
     assert_equal(loader.__len__(), 4)
 
 
-fn test_batch_loader_shuffle() raises:
+def test_batch_loader_shuffle() raises:
     """Test that shuffle=True randomizes sample order.
 
     Consecutive batches should not contain consecutive dataset indices,
@@ -217,7 +217,7 @@ fn test_batch_loader_shuffle() raises:
     assert_equal(loader.__len__(), 4)
 
 
-fn test_batch_loader_shuffle_deterministic() raises:
+def test_batch_loader_shuffle_deterministic() raises:
     """Test that BatchLoader configuration can be deterministic.
 
     Loader creation with shuffle parameter should work,
@@ -246,7 +246,7 @@ fn test_batch_loader_shuffle_deterministic() raises:
     assert_equal(loader.__len__(), 4)
 
 
-fn test_batch_loader_shuffle_per_epoch() raises:
+def test_batch_loader_shuffle_per_epoch() raises:
     """Test that loader can handle multiple epochs.
 
     Loader API should support iteration multiple times,
@@ -281,7 +281,7 @@ fn test_batch_loader_shuffle_per_epoch() raises:
     assert_equal(len(batches1), len(batches2))
 
 
-fn test_batch_loader_1d_data() raises:
+def test_batch_loader_1d_data() raises:
     """Test BatchLoader with 1D feature vector data (regression case).
 
     The original 2D hardcoding bug used flat indexing instead of stride-based
@@ -322,7 +322,7 @@ fn test_batch_loader_1d_data() raises:
         )
 
 
-fn test_batch_loader_all_samples_per_epoch() raises:
+def test_batch_loader_all_samples_per_epoch() raises:
     """Test that loader produces correct number of batches.
 
     Each epoch should yield correct number of batches
@@ -354,7 +354,7 @@ fn test_batch_loader_all_samples_per_epoch() raises:
     assert_equal(len(batches), 4)
 
 
-fn test_batch_loader_efficient_batching() raises:
+def test_batch_loader_efficient_batching() raises:
     """Test that batching API structure is efficient.
 
     BatchLoader should efficiently manage batches,
@@ -385,7 +385,7 @@ fn test_batch_loader_efficient_batching() raises:
     assert_equal(loader.__len__(), 32)  # ceil(1000/32) = 32
 
 
-fn test_batch_loader_iteration_speed() raises:
+def test_batch_loader_iteration_speed() raises:
     """Test that loader creates correct number of batches.
 
     Should calculate batch count correctly for efficient iteration,
@@ -416,7 +416,7 @@ fn test_batch_loader_iteration_speed() raises:
     assert_equal(loader.__len__(), 100)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_batch_loader tests."""
     print("Running test_batch_loader tests...")
 

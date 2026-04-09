@@ -16,8 +16,8 @@ Includes:
 - dot() and outer() functions: Vector operations
 """
 
-from collections import List
-from memory import memcpy
+from std.collections import List
+from std.memory import memcpy
 from shared.tensor.any_tensor import AnyTensor
 from .gradient_types import GradientPair
 from .shape import as_contiguous
@@ -44,7 +44,7 @@ from shared.base.dtype_ordinal import (
 
 
 @always_inline
-fn _matmul_2d_1d_impl[
+def _matmul_2d_1d_impl[
     dtype: DType
 ](result: AnyTensor, a: AnyTensor, b: AnyTensor, m: Int, k: Int):
     """Dtype-specialized 2D @ 1D matmul.
@@ -53,9 +53,7 @@ fn _matmul_2d_1d_impl[
     This matches NVIDIA TensorCores, PyTorch, and TensorFlow behavior.
     See GitHub issue #3009 for rationale.
     """
-
-    @parameter
-    if dtype == DType.float16:
+    comptime if dtype == DType.float16:
         var a_ptr = a._data.bitcast[Scalar[DType.float16]]()
         var b_ptr = b._data.bitcast[Scalar[DType.float16]]()
         var out_ptr = result._data.bitcast[Scalar[DType.float16]]()
@@ -77,7 +75,7 @@ fn _matmul_2d_1d_impl[
             out_ptr[i] = sum_val
 
 
-fn _dispatch_matmul_2d_1d(
+def _dispatch_matmul_2d_1d(
     result: AnyTensor, a: AnyTensor, b: AnyTensor, m: Int, k: Int
 ) raises:
     """Runtime dispatch for 2D @ 1D matmul using ordinal-based dispatch."""
@@ -113,7 +111,7 @@ fn _dispatch_matmul_2d_1d(
 
 
 @always_inline
-fn _matmul_1d_2d_impl[
+def _matmul_1d_2d_impl[
     dtype: DType
 ](result: AnyTensor, a: AnyTensor, b: AnyTensor, m: Int, n: Int):
     """Dtype-specialized 1D @ 2D matmul.
@@ -122,9 +120,7 @@ fn _matmul_1d_2d_impl[
     This matches NVIDIA TensorCores, PyTorch, and TensorFlow behavior.
     See GitHub issue #3009 for rationale.
     """
-
-    @parameter
-    if dtype == DType.float16:
+    comptime if dtype == DType.float16:
         var a_ptr = a._data.bitcast[Scalar[DType.float16]]()
         var b_ptr = b._data.bitcast[Scalar[DType.float16]]()
         var out_ptr = result._data.bitcast[Scalar[DType.float16]]()
@@ -146,7 +142,7 @@ fn _matmul_1d_2d_impl[
             out_ptr[j] = sum_val
 
 
-fn _dispatch_matmul_1d_2d(
+def _dispatch_matmul_1d_2d(
     result: AnyTensor, a: AnyTensor, b: AnyTensor, m: Int, n: Int
 ) raises:
     """Runtime dispatch for 1D @ 2D matmul using ordinal-based dispatch."""
@@ -182,7 +178,7 @@ fn _dispatch_matmul_1d_2d(
 
 
 @always_inline
-fn _matmul_2d_2d_impl[
+def _matmul_2d_2d_impl[
     dtype: DType
 ](
     result: AnyTensor,
@@ -198,9 +194,7 @@ fn _matmul_2d_2d_impl[
     This matches NVIDIA TensorCores, PyTorch, and TensorFlow behavior.
     See GitHub issue #3009 for rationale.
     """
-
-    @parameter
-    if dtype == DType.float16:
+    comptime if dtype == DType.float16:
         var a_ptr = a._data.bitcast[Scalar[DType.float16]]()
         var b_ptr = b._data.bitcast[Scalar[DType.float16]]()
         var out_ptr = result._data.bitcast[Scalar[DType.float16]]()
@@ -226,7 +220,7 @@ fn _matmul_2d_2d_impl[
                 out_ptr[i * b_cols + j] = sum_val
 
 
-fn _dispatch_matmul_2d_2d(
+def _dispatch_matmul_2d_2d(
     result: AnyTensor,
     a: AnyTensor,
     b: AnyTensor,
@@ -267,7 +261,7 @@ fn _dispatch_matmul_2d_2d(
 
 
 @always_inline
-fn _matmul_batched_impl[
+def _matmul_batched_impl[
     dtype: DType
 ](
     result: AnyTensor,
@@ -287,9 +281,7 @@ fn _matmul_batched_impl[
     This matches NVIDIA TensorCores, PyTorch, and TensorFlow behavior.
     See GitHub issue #3009 for rationale.
     """
-
-    @parameter
-    if dtype == DType.float16:
+    comptime if dtype == DType.float16:
         var a_ptr = a._data.bitcast[Scalar[DType.float16]]()
         var b_ptr = b._data.bitcast[Scalar[DType.float16]]()
         var out_ptr = result._data.bitcast[Scalar[DType.float16]]()
@@ -329,7 +321,7 @@ fn _matmul_batched_impl[
                     out_ptr[result_idx] = sum_val
 
 
-fn _dispatch_matmul_batched(
+def _dispatch_matmul_batched(
     result: AnyTensor,
     a: AnyTensor,
     b: AnyTensor,
@@ -407,7 +399,7 @@ fn _dispatch_matmul_batched(
 
 
 @always_inline
-fn _transpose_copy_impl[
+def _transpose_copy_impl[
     dtype: DType
 ](
     result: AnyTensor,
@@ -437,7 +429,7 @@ fn _transpose_copy_impl[
         out_ptr[result_idx] = in_ptr[input_idx]
 
 
-fn _dispatch_transpose_copy(
+def _dispatch_transpose_copy(
     result: AnyTensor,
     tensor: AnyTensor,
     ndim: Int,
@@ -506,7 +498,7 @@ fn _dispatch_transpose_copy(
 
 
 @always_inline
-fn _dot_impl[
+def _dot_impl[
     dtype: DType
 ](result: AnyTensor, a: AnyTensor, b: AnyTensor, length: Int):
     """Dtype-specialized dot product."""
@@ -520,7 +512,7 @@ fn _dot_impl[
     out_ptr[0] = sum_val
 
 
-fn _dispatch_dot(
+def _dispatch_dot(
     result: AnyTensor, a: AnyTensor, b: AnyTensor, length: Int
 ) raises:
     """Runtime dispatch for dot product using ordinal-based dispatch."""
@@ -554,7 +546,7 @@ fn _dispatch_dot(
 
 
 @always_inline
-fn _outer_impl[
+def _outer_impl[
     dtype: DType
 ](result: AnyTensor, a: AnyTensor, b: AnyTensor, len_a: Int, len_b: Int):
     """Dtype-specialized outer product."""
@@ -568,7 +560,7 @@ fn _outer_impl[
             out_ptr[i * len_b + j] = a_val * b_ptr[j]
 
 
-fn _dispatch_outer(
+def _dispatch_outer(
     result: AnyTensor, a: AnyTensor, b: AnyTensor, len_a: Int, len_b: Int
 ) raises:
     """Runtime dispatch for outer product using ordinal-based dispatch."""
@@ -602,7 +594,7 @@ fn _dispatch_outer(
 
 
 @always_inline
-fn _matmul_backward_2d_1d_impl[
+def _matmul_backward_2d_1d_impl[
     dtype: DType
 ](grad_a: AnyTensor, grad_output: AnyTensor, b: AnyTensor, m: Int, k: Int):
     """Dtype-specialized grad_a for 2D @ 1D backward."""
@@ -616,7 +608,7 @@ fn _matmul_backward_2d_1d_impl[
             out_ptr[i * k + j] = grad_val * b_ptr[j]
 
 
-fn _dispatch_matmul_backward_2d_1d(
+def _dispatch_matmul_backward_2d_1d(
     grad_a: AnyTensor, grad_output: AnyTensor, b: AnyTensor, m: Int, k: Int
 ) raises:
     """Runtime dispatch for 2D @ 1D backward using ordinal-based dispatch."""
@@ -652,7 +644,7 @@ fn _dispatch_matmul_backward_2d_1d(
 
 
 @always_inline
-fn _matmul_backward_1d_2d_impl[
+def _matmul_backward_1d_2d_impl[
     dtype: DType
 ](grad_b: AnyTensor, a: AnyTensor, grad_output: AnyTensor, k: Int, n: Int):
     """Dtype-specialized grad_b for 1D @ 2D backward."""
@@ -666,7 +658,7 @@ fn _matmul_backward_1d_2d_impl[
             out_ptr[i * n + j] = a_val * grad_ptr[j]
 
 
-fn _dispatch_matmul_backward_1d_2d(
+def _dispatch_matmul_backward_1d_2d(
     grad_b: AnyTensor, a: AnyTensor, grad_output: AnyTensor, k: Int, n: Int
 ) raises:
     """Runtime dispatch for 1D @ 2D backward using ordinal-based dispatch."""
@@ -701,7 +693,7 @@ fn _dispatch_matmul_backward_1d_2d(
         )
 
 
-fn matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Matrix multiplication.
 
     Args:
@@ -880,7 +872,7 @@ fn matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     return result^
 
 
-fn transpose(
+def transpose(
     tensor: AnyTensor, axes: Optional[List[Int]] = None
 ) raises -> AnyTensor:
     """Transpose tensor dimensions with optional axis permutation.
@@ -1005,7 +997,7 @@ fn transpose(
     return result^
 
 
-fn transpose_view(
+def transpose_view(
     tensor: AnyTensor, axes: Optional[List[Int]] = None
 ) raises -> AnyTensor:
     """Return a transposed tensor with permuted strides (test utility only).
@@ -1114,7 +1106,7 @@ fn transpose_view(
     return result^
 
 
-fn dot(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def dot(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Dot product of tensors.
 
     Args:
@@ -1156,7 +1148,7 @@ fn dot(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         return matmul(a, b)
 
 
-fn outer(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def outer(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Outer product of two vectors.
 
     Args:
@@ -1197,7 +1189,7 @@ fn outer(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     return result^
 
 
-fn inner(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def inner(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Generalized inner product of two tensors.
 
     For 1D tensors: equivalent to dot product (returns scalar).
@@ -1288,7 +1280,7 @@ fn inner(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     )
 
 
-fn tensordot(a: AnyTensor, b: AnyTensor, axes: Int) raises -> AnyTensor:
+def tensordot(a: AnyTensor, b: AnyTensor, axes: Int) raises -> AnyTensor:
     """Tensor dot product along specified axes.
 
     Contracts the last `axes` dimensions of `a` with the first `axes` dimensions of `b`.
@@ -1439,7 +1431,7 @@ fn tensordot(a: AnyTensor, b: AnyTensor, axes: Int) raises -> AnyTensor:
 # ============================================================================
 
 
-fn _matmul_2d_2d_grad_a_impl[
+def _matmul_2d_2d_grad_a_impl[
     dtype: DType
 ](
     grad_a: AnyTensor,
@@ -1480,7 +1472,7 @@ fn _matmul_2d_2d_grad_a_impl[
             out_ptr[i * b_rows + j] = sum_val
 
 
-fn _matmul_2d_2d_grad_b_impl[
+def _matmul_2d_2d_grad_b_impl[
     dtype: DType
 ](
     grad_b: AnyTensor,
@@ -1519,7 +1511,7 @@ fn _matmul_2d_2d_grad_b_impl[
             out_ptr[j * grad_out_cols + n] = sum_val
 
 
-fn _dispatch_matmul_2d_2d_grad_a(
+def _dispatch_matmul_2d_2d_grad_a(
     grad_a: AnyTensor,
     grad_output: AnyTensor,
     b: AnyTensor,
@@ -1582,7 +1574,7 @@ fn _dispatch_matmul_2d_2d_grad_a(
         )
 
 
-fn _dispatch_matmul_2d_2d_grad_b(
+def _dispatch_matmul_2d_2d_grad_b(
     grad_b: AnyTensor,
     a: AnyTensor,
     grad_output: AnyTensor,
@@ -1645,7 +1637,7 @@ fn _dispatch_matmul_2d_2d_grad_b(
         )
 
 
-fn matmul_backward(
+def matmul_backward(
     grad_output: AnyTensor, a: AnyTensor, b: AnyTensor
 ) raises -> GradientPair:
     """Compute gradients for matrix multiplication.
@@ -1753,7 +1745,7 @@ fn matmul_backward(
     return GradientPair(grad_a, grad_b)
 
 
-fn transpose_backward(
+def transpose_backward(
     grad_output: AnyTensor, axes: Optional[List[Int]] = None
 ) raises -> AnyTensor:
     """Compute gradient for transpose operation.

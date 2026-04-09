@@ -20,7 +20,7 @@ from shared.testing.layer_testers import LayerTester
 # ============================================================================
 
 
-fn create_conv1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
+def create_conv1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv1 layer parameters (1→6, 5x5 kernel)."""
     var fixture = ConvFixture(
         in_channels=1, out_channels=6, kernel_size=5, dtype=dtype
@@ -28,7 +28,7 @@ fn create_conv1_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     return fixture.kernel, fixture.bias
 
 
-fn create_conv2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
+def create_conv2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create Conv2 layer parameters (6→16, 5x5 kernel)."""
     var fixture = ConvFixture(
         in_channels=6, out_channels=16, kernel_size=5, dtype=dtype
@@ -41,7 +41,7 @@ fn create_conv2_parameters(dtype: DType) raises -> Tuple[AnyTensor, AnyTensor]:
 # ============================================================================
 
 
-fn test_conv1_forward_float32() raises:
+def test_conv1_forward_float32() raises:
     """Test Conv1 forward pass (1→6 channels, 5x5 kernel) with float32."""
     var dtype = DType.float32
     var _result = create_conv1_parameters(dtype)
@@ -64,7 +64,7 @@ fn test_conv1_forward_float32() raises:
     )
 
 
-fn test_conv1_forward_float16() raises:
+def test_conv1_forward_float16() raises:
     """Test Conv1 forward pass with float16."""
     var dtype = DType.float16
     var _result = create_conv1_parameters(dtype)
@@ -87,7 +87,7 @@ fn test_conv1_forward_float16() raises:
     )
 
 
-fn test_conv1_backward_float32() raises:
+def test_conv1_backward_float32() raises:
     """Test Conv1 backward pass with gradient checking (small tensor: 8x8)."""
     var dtype = DType.float32
     var _result = create_conv1_parameters(dtype)
@@ -115,7 +115,7 @@ fn test_conv1_backward_float32() raises:
 # ============================================================================
 
 
-fn test_conv2_forward_float32() raises:
+def test_conv2_forward_float32() raises:
     """Test Conv2 forward pass (6→16 channels, 5x5 kernel) with float32."""
     var dtype = DType.float32
     var _result = create_conv2_parameters(dtype)
@@ -139,7 +139,7 @@ fn test_conv2_forward_float32() raises:
     )
 
 
-fn test_conv2_forward_float16() raises:
+def test_conv2_forward_float16() raises:
     """Test Conv2 forward pass with float16."""
     var dtype = DType.float16
     var _result = create_conv2_parameters(dtype)
@@ -162,7 +162,7 @@ fn test_conv2_forward_float16() raises:
     )
 
 
-fn test_conv2_backward_float32() raises:
+def test_conv2_backward_float32() raises:
     """Test Conv2 backward pass with gradient checking (small tensor: 8x8)."""
     var dtype = DType.float32
     var _result = create_conv2_parameters(dtype)
@@ -185,7 +185,7 @@ fn test_conv2_backward_float32() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all convolutional layer tests."""
     print("LeNet-5 Convolutional Layer Tests")
     print("=" * 50)

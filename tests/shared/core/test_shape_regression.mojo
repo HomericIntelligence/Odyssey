@@ -32,7 +32,7 @@ from tests.shared.conftest import (
 # ============================================================================
 
 
-fn test_reshape_with_inferred_dimension() raises:
+def test_reshape_with_inferred_dimension() raises:
     """Test reshape with -1 dimension (triggers List constructor bug at line 48).
 
     Bug: Line 48-59 uses List[Int]() then indexes it.
@@ -54,7 +54,7 @@ fn test_reshape_with_inferred_dimension() raises:
     assert_numel(b, 12, "Result should have 12 elements")
 
 
-fn test_reshape_explicit_shape() raises:
+def test_reshape_explicit_shape() raises:
     """Test reshape with explicit dimensions (triggers List constructor bug at line 48).
 
     Bug: Line 62-65 uses List[Int]() then indexes it.
@@ -81,7 +81,7 @@ fn test_reshape_explicit_shape() raises:
 # ============================================================================
 
 
-fn test_squeeze_specific_dimension() raises:
+def test_squeeze_specific_dimension() raises:
     """Test squeeze with specific dimension (triggers bug at line 121).
 
     Bug: Line 121 uses List[Int](ndim - 1) then indexes at line 125.
@@ -104,7 +104,7 @@ fn test_squeeze_specific_dimension() raises:
     assert_numel(b, 12, "Result should have 12 elements")
 
 
-fn test_squeeze_all_dimensions() raises:
+def test_squeeze_all_dimensions() raises:
     """Test squeeze all size-1 dimensions (triggers bug at line 141).
 
     Bug: Line 141 uses List[Int]() then indexes at line 145.
@@ -132,7 +132,7 @@ fn test_squeeze_all_dimensions() raises:
 # ============================================================================
 
 
-fn test_unsqueeze_add_dimension() raises:
+def test_unsqueeze_add_dimension() raises:
     """Test unsqueeze to add dimension (triggers bug at line 177).
 
     Bug: Line 177 uses List[Int]() then indexes at line 181/183.
@@ -153,7 +153,7 @@ fn test_unsqueeze_add_dimension() raises:
     assert_numel(b, 12, "Result should have 12 elements")
 
 
-fn test_unsqueeze_negative_index() raises:
+def test_unsqueeze_negative_index() raises:
     """Test unsqueeze with negative index (triggers bug at line 177).
 
     Bug: Line 177 uses List[Int]() then indexes at line 181/183.
@@ -179,7 +179,7 @@ fn test_unsqueeze_negative_index() raises:
 # ============================================================================
 
 
-fn test_concatenate_along_axis() raises:
+def test_concatenate_along_axis() raises:
     """Test concatenate tensors (triggers bug at line 296).
 
     Bug: Line 296 uses List[Int]() then indexes at line 299/301.
@@ -214,7 +214,7 @@ fn test_concatenate_along_axis() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all shape.mojo bug tests.
 
     These tests demonstrate the List[Int] constructor bugs in shape.mojo.

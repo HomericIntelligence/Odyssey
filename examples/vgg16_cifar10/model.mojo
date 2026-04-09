@@ -68,7 +68,7 @@ from shared.training.model_utils import (
     load_model_weights,
     get_model_parameter_names,
 )
-from collections import List
+from std.collections import List
 
 
 # ============================================================================
@@ -113,7 +113,7 @@ comptime FC1_OUT_FEATURES = 512
 comptime FC2_OUT_FEATURES = 512
 
 
-fn compute_flattened_size() -> Int:
+def compute_flattened_size() -> Int:
     """Compute the flattened feature size after all conv/pool layers.
 
     VGG-16 uses 5 pooling layers, each halving spatial dimensions:
@@ -227,7 +227,7 @@ struct VGG16:
     var fc3_weights: AnyTensor
     var fc3_bias: AnyTensor
 
-    fn __init__(
+    def __init__(
         out self, num_classes: Int = 10, dropout_rate: Float32 = 0.5
     ) raises:
         """Initialize VGG-16 model with random weights.
@@ -400,7 +400,7 @@ struct VGG16:
         )
         self.fc3_bias = zeros([num_classes], DType.float32)
 
-    fn forward(
+    def forward(
         mut self, input: AnyTensor, training: Bool = True
     ) raises -> AnyTensor:
         """Forward pass through VGG-16.
@@ -587,7 +587,7 @@ struct VGG16:
 
         return output
 
-    fn predict(mut self, input: AnyTensor) raises -> Int:
+    def predict(mut self, input: AnyTensor) raises -> Int:
         """Predict class for a single input.
 
         Args:
@@ -610,7 +610,7 @@ struct VGG16:
 
         return max_idx
 
-    fn save_weights(self, weights_dir: String) raises:
+    def save_weights(self, weights_dir: String) raises:
         """Save model weights to directory.
 
         Args:
@@ -661,7 +661,7 @@ struct VGG16:
         # Save using shared utility
         save_model_weights(parameters, weights_dir, param_names)
 
-    fn load_weights(mut self, weights_dir: String) raises:
+    def load_weights(mut self, weights_dir: String) raises:
         """Load model weights from directory.
 
         Args:
@@ -714,7 +714,7 @@ struct VGG16:
         self.fc3_bias = loaded_params[31]
 
 
-fn main() raises:
+def main() raises:
     """Entry point for build validation.
 
     This function exists solely to allow `mojo build` to compile the module.

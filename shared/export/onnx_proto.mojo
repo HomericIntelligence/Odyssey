@@ -32,7 +32,7 @@ comptime ONNX_COMPLEX128: Int = 15
 comptime ONNX_BFLOAT16: Int = 16
 
 
-fn dtype_to_onnx(dtype: String) -> Int:
+def dtype_to_onnx(dtype: String) -> Int:
     """Convert dtype string to ONNX data type.
 
     Args:
@@ -89,7 +89,7 @@ struct AttributeProto(Copyable, Movable):
     var floats: List[Float32]  # repeated float
     var ints: List[Int64]  # repeated int
 
-    fn __init__(out self, name: String):
+    def __init__(out self, name: String):
         """Initialize attribute with name."""
         self.name = name
         self.attr_type = ATTR_UNDEFINED
@@ -99,7 +99,7 @@ struct AttributeProto(Copyable, Movable):
         self.floats = List[Float32]()
         self.ints = List[Int64]()
 
-    fn copy(self) -> Self:
+    def copy(self) -> Self:
         """Create a copy of this attribute."""
         var result = AttributeProto(self.name)
         result.attr_type = self.attr_type
@@ -114,32 +114,32 @@ struct AttributeProto(Copyable, Movable):
 
 
 
-    fn set_float(mut self, value: Float32):
+    def set_float(mut self, value: Float32):
         """Set float value."""
         self.attr_type = ATTR_FLOAT
         self.f = value
 
-    fn set_int(mut self, value: Int64):
+    def set_int(mut self, value: Int64):
         """Set int value."""
         self.attr_type = ATTR_INT
         self.i = value
 
-    fn set_string(mut self, value: String):
+    def set_string(mut self, value: String):
         """Set string value."""
         self.attr_type = ATTR_STRING
         self.s = value
 
-    fn set_floats(mut self, var values: List[Float32]):
+    def set_floats(mut self, var values: List[Float32]):
         """Set repeated float values."""
         self.attr_type = ATTR_FLOATS
         self.floats = values^
 
-    fn set_ints(mut self, var values: List[Int64]):
+    def set_ints(mut self, var values: List[Int64]):
         """Set repeated int values."""
         self.attr_type = ATTR_INTS
         self.ints = values^
 
-    fn encode(self) -> ProtoBuffer:
+    def encode(self) -> ProtoBuffer:
         """Encode to protobuf bytes."""
         var buf = ProtoBuffer()
         buf.write_string(1, self.name)
@@ -165,23 +165,23 @@ struct TensorShapeProto(Copyable, Movable):
     var dims: List[Int64]
     var dim_params: List[String]
 
-    fn __init__(out self):
+    def __init__(out self):
         self.dims = List[Int64]()
         self.dim_params = List[String]()
 
 
 
-    fn add_dim(mut self, size: Int64):
+    def add_dim(mut self, size: Int64):
         """Add a dimension with fixed size."""
         self.dims.append(size)
         self.dim_params.append(String(""))
 
-    fn add_dim_param(mut self, name: String):
+    def add_dim_param(mut self, name: String):
         """Add a dimension with symbolic name (dynamic)."""
         self.dims.append(-1)
         self.dim_params.append(name)
 
-    fn encode(self) -> ProtoBuffer:
+    def encode(self) -> ProtoBuffer:
         """Encode to protobuf bytes."""
         var buf = ProtoBuffer()
         for i in range(len(self.dims)):
@@ -200,13 +200,13 @@ struct TypeProto(Copyable, Movable):
     var elem_type: Int
     var shape: TensorShapeProto
 
-    fn __init__(out self, elem_type: Int = ONNX_FLOAT):
+    def __init__(out self, elem_type: Int = ONNX_FLOAT):
         self.elem_type = elem_type
         self.shape = TensorShapeProto()
 
 
 
-    fn encode(self) -> ProtoBuffer:
+    def encode(self) -> ProtoBuffer:
         """Encode to protobuf bytes."""
         var tensor_buf = ProtoBuffer()
         tensor_buf.write_int32(1, Int32(self.elem_type))
@@ -225,22 +225,22 @@ struct ValueInfoProto(Copyable, Movable):
     var type_proto: TypeProto
     var doc_string: String
 
-    fn __init__(out self, name: String, elem_type: Int = ONNX_FLOAT):
+    def __init__(out self, name: String, elem_type: Int = ONNX_FLOAT):
         self.name = name
         self.type_proto = TypeProto(elem_type)
         self.doc_string = String("")
 
 
 
-    fn add_dim(mut self, size: Int64):
+    def add_dim(mut self, size: Int64):
         """Add a dimension to the shape."""
         self.type_proto.shape.add_dim(size)
 
-    fn add_dim_param(mut self, name: String):
+    def add_dim_param(mut self, name: String):
         """Add a dynamic dimension."""
         self.type_proto.shape.add_dim_param(name)
 
-    fn encode(self) -> ProtoBuffer:
+    def encode(self) -> ProtoBuffer:
         """Encode to protobuf bytes."""
         var buf = ProtoBuffer()
         buf.write_string(1, self.name)
@@ -261,7 +261,7 @@ struct TensorProto(Copyable, Movable):
     var int64_data: List[Int64]
     var raw_data: List[UInt8]
 
-    fn __init__(out self, name: String, data_type: Int = ONNX_FLOAT):
+    def __init__(out self, name: String, data_type: Int = ONNX_FLOAT):
         self.name = name
         self.data_type = data_type
         self.dims = List[Int64]()
@@ -271,19 +271,19 @@ struct TensorProto(Copyable, Movable):
 
 
 
-    fn set_dims(mut self, var dims: List[Int64]):
+    def set_dims(mut self, var dims: List[Int64]):
         """Set tensor dimensions."""
         self.dims = dims^
 
-    fn set_float_data(mut self, var data: List[Float32]):
+    def set_float_data(mut self, var data: List[Float32]):
         """Set float data."""
         self.float_data = data^
 
-    fn set_raw_data(mut self, var data: List[UInt8]):
+    def set_raw_data(mut self, var data: List[UInt8]):
         """Set raw binary data."""
         self.raw_data = data^
 
-    fn encode(self) -> ProtoBuffer:
+    def encode(self) -> ProtoBuffer:
         """Encode to protobuf bytes."""
         var buf = ProtoBuffer()
         if len(self.dims) > 0:
@@ -312,7 +312,7 @@ struct NodeProto(Copyable, Movable):
     var domain: String
     var doc_string: String
 
-    fn __init__(out self, name: String, op_type: String):
+    def __init__(out self, name: String, op_type: String):
         self.name = name
         self.op_type = op_type
         self.inputs = List[String]()
@@ -323,37 +323,37 @@ struct NodeProto(Copyable, Movable):
 
 
 
-    fn add_input(mut self, name: String):
+    def add_input(mut self, name: String):
         """Add an input tensor name."""
         self.inputs.append(name)
 
-    fn add_output(mut self, name: String):
+    def add_output(mut self, name: String):
         """Add an output tensor name."""
         self.outputs.append(name)
 
-    fn add_attribute(mut self, var attr: AttributeProto):
+    def add_attribute(mut self, var attr: AttributeProto):
         """Add an attribute."""
         self.attributes.append(attr^)
 
-    fn add_int_attr(mut self, name: String, value: Int64):
+    def add_int_attr(mut self, name: String, value: Int64):
         """Add an integer attribute."""
         var attr = AttributeProto(name)
         attr.set_int(value)
         self.attributes.append(attr^)
 
-    fn add_float_attr(mut self, name: String, value: Float32):
+    def add_float_attr(mut self, name: String, value: Float32):
         """Add a float attribute."""
         var attr = AttributeProto(name)
         attr.set_float(value)
         self.attributes.append(attr^)
 
-    fn add_ints_attr(mut self, name: String, var values: List[Int64]):
+    def add_ints_attr(mut self, name: String, var values: List[Int64]):
         """Add an integer list attribute."""
         var attr = AttributeProto(name)
         attr.set_ints(values^)
         self.attributes.append(attr^)
 
-    fn encode(self) -> ProtoBuffer:
+    def encode(self) -> ProtoBuffer:
         """Encode to protobuf bytes."""
         var buf = ProtoBuffer()
 
@@ -383,13 +383,13 @@ struct OperatorSetIdProto(Copyable, Movable):
     var domain: String
     var version: Int64
 
-    fn __init__(out self, domain: String = "", version: Int64 = 14):
+    def __init__(out self, domain: String = "", version: Int64 = 14):
         self.domain = domain
         self.version = version
 
 
 
-    fn encode(self) -> ProtoBuffer:
+    def encode(self) -> ProtoBuffer:
         """Encode to protobuf bytes."""
         var buf = ProtoBuffer()
         if len(self.domain) > 0:
@@ -408,7 +408,7 @@ struct GraphProto(Copyable, Movable):
     var initializers: List[TensorProto]
     var doc_string: String
 
-    fn __init__(out self, name: String = "graph"):
+    def __init__(out self, name: String = "graph"):
         self.name = name
         self.nodes = List[NodeProto]()
         self.inputs = List[ValueInfoProto]()
@@ -418,23 +418,23 @@ struct GraphProto(Copyable, Movable):
 
 
 
-    fn add_node(mut self, var node: NodeProto):
+    def add_node(mut self, var node: NodeProto):
         """Add a node to the graph."""
         self.nodes.append(node^)
 
-    fn add_input(mut self, var input: ValueInfoProto):
+    def add_input(mut self, var input: ValueInfoProto):
         """Add an input specification."""
         self.inputs.append(input^)
 
-    fn add_output(mut self, var output: ValueInfoProto):
+    def add_output(mut self, var output: ValueInfoProto):
         """Add an output specification."""
         self.outputs.append(output^)
 
-    fn add_initializer(mut self, var tensor: TensorProto):
+    def add_initializer(mut self, var tensor: TensorProto):
         """Add an initializer (weight/bias)."""
         self.initializers.append(tensor^)
 
-    fn encode(self) -> ProtoBuffer:
+    def encode(self) -> ProtoBuffer:
         """Encode to protobuf bytes."""
         var buf = ProtoBuffer()
 
@@ -474,7 +474,7 @@ struct ModelProto(Copyable, Movable):
     var graph: GraphProto
     var opset_imports: List[OperatorSetIdProto]
 
-    fn __init__(out self, ir_version: Int64 = 9):
+    def __init__(out self, ir_version: Int64 = 9):
         """Initialize model with IR version.
 
         Args:
@@ -491,7 +491,7 @@ struct ModelProto(Copyable, Movable):
 
 
 
-    fn set_opset(mut self, version: Int64, domain: String = ""):
+    def set_opset(mut self, version: Int64, domain: String = ""):
         """Set the opset version.
 
         Args:
@@ -500,7 +500,7 @@ struct ModelProto(Copyable, Movable):
         """
         self.opset_imports.append(OperatorSetIdProto(domain, version))
 
-    fn encode(self) -> ProtoBuffer:
+    def encode(self) -> ProtoBuffer:
         """Encode to protobuf bytes."""
         var buf = ProtoBuffer()
 

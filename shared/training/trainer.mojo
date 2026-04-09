@@ -16,7 +16,7 @@ Design principles:
 - Integration with all components
 """
 
-from collections import List
+from std.collections import List
 from shared.tensor.any_tensor import AnyTensor
 from shared.training.trainer_interface import (
     Trainer,
@@ -69,7 +69,7 @@ struct BaseTrainer(Trainer):
     var validation_loop: ValidationLoop
     var is_training: Bool
 
-    fn __init__(out self, config: TrainerConfig) raises:
+    def __init__(out self, config: TrainerConfig) raises:
         """Initialize base trainer.
 
         Args:
@@ -85,7 +85,7 @@ struct BaseTrainer(Trainer):
         self.validation_loop = ValidationLoop(compute_accuracy=True)
         self.is_training = False
 
-    fn train(mut self, num_epochs: Int) raises:
+    def train(mut self, num_epochs: Int) raises:
         """Execute training loop for specified number of epochs.
 
         This is a simplified interface. Use fit() for full training
@@ -101,7 +101,7 @@ struct BaseTrainer(Trainer):
             "Use fit() method instead of train() for complete training workflow"
         )
 
-    fn validate(mut self) raises -> Float64:
+    def validate(mut self) raises -> Float64:
         """Execute validation loop.
 
         This is a simplified interface. Use fit() for integrated
@@ -115,12 +115,12 @@ struct BaseTrainer(Trainer):
         """
         raise Error("Use fit() method for integrated training with validation")
 
-    fn fit(
+    def fit(
         mut self,
-        model_forward: fn (AnyTensor) raises -> AnyTensor,
-        compute_loss: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
-        optimizer_step: fn () raises -> None,
-        zero_gradients: fn () raises -> None,
+        model_forward: def (AnyTensor) raises -> AnyTensor,
+        compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
+        optimizer_step: def () raises -> None,
+        zero_gradients: def () raises -> None,
         mut train_loader: DataLoader,
         mut val_loader: DataLoader,
         mut early_stopping: Optional[EarlyStopping],
@@ -296,7 +296,7 @@ struct BaseTrainer(Trainer):
         self.metrics.print_summary()
         self.metric_logger.print_summary()
 
-    fn fit(mut self, num_epochs: Int, validate_every: Int = 1) raises:
+    def fit(mut self, num_epochs: Int, validate_every: Int = 1) raises:
         """Convenience method matching Trainer trait.
 
         Use the full fit() method with model/optimizer functions.
@@ -313,7 +313,7 @@ struct BaseTrainer(Trainer):
             " data loaders"
         )
 
-    fn get_metrics(self) -> TrainingMetrics:
+    def get_metrics(self) -> TrainingMetrics:
         """Get current training metrics.
 
         Returns:
@@ -321,7 +321,7 @@ struct BaseTrainer(Trainer):
         """
         return self.metrics.copy()
 
-    fn get_best_checkpoint_epoch(self) -> Int:
+    def get_best_checkpoint_epoch(self) -> Int:
         """Get epoch with best validation loss.
 
         Returns:
@@ -329,7 +329,7 @@ struct BaseTrainer(Trainer):
         """
         return self.metrics.best_epoch
 
-    fn save_checkpoint(self, epoch: Int, path: String) raises:
+    def save_checkpoint(self, epoch: Int, path: String) raises:
         """Save checkpoint for current epoch.
 
         Saves training metrics and state using the named checkpoint format.
@@ -358,7 +358,7 @@ struct BaseTrainer(Trainer):
             See issue #2726 for complete checkpoint system.
         """
         from shared.utils.serialization import save_named_checkpoint
-        from collections import Dict
+        from std.collections import Dict
 
         # Create metadata dictionary with training state
         var metadata = Dict[String, String]()
@@ -381,7 +381,7 @@ struct BaseTrainer(Trainer):
             + ")"
         )
 
-    fn load_checkpoint(mut self, path: String) raises:
+    def load_checkpoint(mut self, path: String) raises:
         """Load checkpoint from path.
 
         Restores training metrics and state from a saved checkpoint.
@@ -420,14 +420,14 @@ struct BaseTrainer(Trainer):
             # In a full implementation, would parse and restore metrics
             print("Loaded checkpoint with best_val_loss: " + best_loss_str)
 
-    fn reset(mut self):
+    def reset(mut self):
         """Reset trainer state for new training run."""
         self.metrics = TrainingMetrics()
         self.metric_logger = MetricLogger()
         self.is_training = False
 
 
-fn create_trainer(config: TrainerConfig) raises -> BaseTrainer:
+def create_trainer(config: TrainerConfig) raises -> BaseTrainer:
     """Create a base trainer with given configuration.
 
     Args:
@@ -442,7 +442,7 @@ fn create_trainer(config: TrainerConfig) raises -> BaseTrainer:
     return BaseTrainer(config)
 
 
-fn create_default_trainer() raises -> BaseTrainer:
+def create_default_trainer() raises -> BaseTrainer:
     """Create a trainer with default configuration.
 
     Returns:

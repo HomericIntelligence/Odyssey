@@ -25,7 +25,7 @@ from shared.core.layers.relu import ReLULayer
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 
 
-fn test_sequential2_forward_linear_relu() raises:
+def test_sequential2_forward_linear_relu() raises:
     """Sequential2 chains Linear + ReLU via AnyTensor boundary."""
     var model = Sequential2[Linear[DType.float32], ReLULayer](
         Linear(4, 2),
@@ -41,7 +41,7 @@ fn test_sequential2_forward_linear_relu() raises:
     print("PASS: test_sequential2_forward_linear_relu")
 
 
-fn test_sequential2_parameters_collected() raises:
+def test_sequential2_parameters_collected() raises:
     """Sequential2 collects parameters from all layers."""
     var model = Sequential2[Linear[DType.float32], ReLULayer](
         Linear(4, 2),
@@ -57,7 +57,7 @@ fn test_sequential2_parameters_collected() raises:
     print("PASS: test_sequential2_parameters_collected")
 
 
-fn test_sequential2_train_propagation() raises:
+def test_sequential2_train_propagation() raises:
     """Sequential2 propagates train mode to sub-layers."""
     var model = Sequential2[Linear[DType.float32], ReLULayer](
         Linear(4, 2),
@@ -72,7 +72,7 @@ fn test_sequential2_train_propagation() raises:
     print("PASS: test_sequential2_train_propagation")
 
 
-fn test_sequential2_output_dtype_preserved() raises:
+def test_sequential2_output_dtype_preserved() raises:
     """Sequential2 output preserves dtype through AnyTensor chain."""
     var model = Sequential2[Linear[DType.float32], ReLULayer](
         Linear(4, 2),
@@ -86,7 +86,7 @@ fn test_sequential2_output_dtype_preserved() raises:
     print("PASS: test_sequential2_output_dtype_preserved")
 
 
-fn test_sequential2_relu_clips_negatives() raises:
+def test_sequential2_relu_clips_negatives() raises:
     """Sequential2[Linear, ReLU] produces non-negative outputs.
 
     After ReLU, all output values must be >= 0.
@@ -109,7 +109,7 @@ fn test_sequential2_relu_clips_negatives() raises:
     print("PASS: test_sequential2_relu_clips_negatives")
 
 
-fn test_sequential3_forward_chain() raises:
+def test_sequential3_forward_chain() raises:
     """Sequential3 chains Linear + ReLU + Linear via AnyTensor."""
     var model = Sequential3[Linear[DType.float32], ReLULayer, Linear[DType.float32]](
         Linear(4, 3),
@@ -124,7 +124,7 @@ fn test_sequential3_forward_chain() raises:
     print("PASS: test_sequential3_forward_chain")
 
 
-fn test_sequential3_parameters_combined() raises:
+def test_sequential3_parameters_combined() raises:
     """Sequential3 collects parameters from all sub-layers."""
     var model = Sequential3[Linear[DType.float32], ReLULayer, Linear[DType.float32]](
         Linear(4, 3),
@@ -137,7 +137,7 @@ fn test_sequential3_parameters_combined() raises:
     print("PASS: test_sequential3_parameters_combined")
 
 
-fn main() raises:
+def main() raises:
     test_sequential2_forward_linear_relu()
     test_sequential2_parameters_collected()
     test_sequential2_train_propagation()

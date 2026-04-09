@@ -14,10 +14,10 @@ Example:
 """
 
 from shared.utils.config import Config, load_config, merge_configs
-from python import Python
+from std.python import Python
 
 
-fn load_default_config(config_type: String) raises -> Config:
+def load_default_config(config_type: String) raises -> Config:
     """Load a default configuration file.
 
     Args:
@@ -39,7 +39,7 @@ fn load_default_config(config_type: String) raises -> Config:
     return load_config(filepath)
 
 
-fn load_paper_config(
+def load_paper_config(
     paper_name: String, config_type: String = "training"
 ) raises -> Config:
     """Load paper configuration with defaults merged in.
@@ -82,7 +82,7 @@ fn load_paper_config(
     return result
 
 
-fn load_experiment_config(
+def load_experiment_config(
     paper_name: String, experiment_name: String
 ) raises -> Config:
     """Load complete configuration for an experiment.
@@ -157,7 +157,7 @@ fn load_experiment_config(
     return config
 
 
-fn load_config_with_validation(
+def load_config_with_validation(
     filepath: String, required_keys: List[String]
 ) raises -> Config:
     """Load configuration with validation of required keys.
@@ -189,7 +189,7 @@ fn load_config_with_validation(
     return config
 
 
-fn create_experiment_config(
+def create_experiment_config(
     paper_name: String, experiment_name: String, overrides: Config
 ) raises:
     """Create a new experiment configuration with overrides.
@@ -225,7 +225,7 @@ fn create_experiment_config(
     exp_config.to_yaml(exp_filepath)
 
 
-fn validate_experiment_config(config: Config) raises:
+def validate_experiment_config(config: Config) raises:
     """Validate that an experiment configuration has all required fields.
 
         Checks for common required fields across training, model, and data configs.

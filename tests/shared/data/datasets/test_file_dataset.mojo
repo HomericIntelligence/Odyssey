@@ -10,7 +10,7 @@ from tests.shared.conftest import assert_true, assert_equal, TestFixtures
 from shared.data.datasets import FileDataset
 
 
-fn test_file_dataset_from_directory() raises:
+def test_file_dataset_from_directory() raises:
     """Test creating FileDataset from list of file paths.
 
     FileDataset should accept file paths and labels,
@@ -30,7 +30,7 @@ fn test_file_dataset_from_directory() raises:
     assert_equal(dataset.__len__(), 3)
 
 
-fn test_file_dataset_with_file_pattern() raises:
+def test_file_dataset_with_file_pattern() raises:
     """Test creating FileDataset with specific file types.
 
     FileDataset should work with filtered file lists,
@@ -49,7 +49,7 @@ fn test_file_dataset_with_file_pattern() raises:
     assert_equal(dataset.__len__(), 2)
 
 
-fn test_file_dataset_nonexistent_directory() raises:
+def test_file_dataset_nonexistent_directory() raises:
     """Test that mismatched file paths and labels raise error.
 
     Should fail immediately with clear error rather than
@@ -70,7 +70,7 @@ fn test_file_dataset_nonexistent_directory() raises:
     assert_true(error_raised, "Should raise error for mismatched lengths")
 
 
-fn test_file_dataset_empty_directory() raises:
+def test_file_dataset_empty_directory() raises:
     """Test handling of empty file list.
 
     Should create valid dataset with length 0, not crash.
@@ -82,7 +82,7 @@ fn test_file_dataset_empty_directory() raises:
     assert_equal(dataset.__len__(), 0)
 
 
-fn test_file_dataset_lazy_loading() raises:
+def test_file_dataset_lazy_loading() raises:
     """Test that dataset creation is fast (doesn't load files).
 
     Creating FileDataset should be fast (just store file paths),
@@ -100,7 +100,7 @@ fn test_file_dataset_lazy_loading() raises:
     assert_equal(dataset.__len__(), 10000)
 
 
-fn test_file_dataset_getitem_loads_file() raises:
+def test_file_dataset_getitem_loads_file() raises:
     """Test that __getitem__ API exists and would load files.
 
     Note: Actual file loading not implemented yet (_load_file raises error),
@@ -111,7 +111,7 @@ fn test_file_dataset_getitem_loads_file() raises:
     return
 
 
-fn test_file_dataset_caching() raises:
+def test_file_dataset_caching() raises:
     """Test that caching flag can be set.
 
     FileDataset API supports caching parameter to control
@@ -137,7 +137,7 @@ fn test_file_dataset_caching() raises:
     assert_equal(dataset_no_cache.__len__(), 1)
 
 
-fn test_file_dataset_memory_efficiency() raises:
+def test_file_dataset_memory_efficiency() raises:
     """Test that FileDataset doesn't load all files during creation.
 
     Memory usage should remain low even for large datasets,
@@ -157,7 +157,7 @@ fn test_file_dataset_memory_efficiency() raises:
     assert_equal(dataset.__len__(), 10000)
 
 
-fn test_file_dataset_labels_from_filename() raises:
+def test_file_dataset_labels_from_filename() raises:
     """Test that labels are provided explicitly with file paths.
 
     FileDataset stores labels provided at creation,
@@ -175,7 +175,7 @@ fn test_file_dataset_labels_from_filename() raises:
     assert_equal(dataset.__len__(), 2)
 
 
-fn test_file_dataset_labels_from_directory() raises:
+def test_file_dataset_labels_from_directory() raises:
     """Test that labels can represent directory-based organization.
 
     FileDataset supports labels that could come from directory structure,
@@ -194,7 +194,7 @@ fn test_file_dataset_labels_from_directory() raises:
     assert_equal(dataset.__len__(), 2)
 
 
-fn test_file_dataset_labels_from_file() raises:
+def test_file_dataset_labels_from_file() raises:
     """Test that labels can be loaded from external source.
 
     FileDataset accepts any label list, which could come from
@@ -213,7 +213,7 @@ fn test_file_dataset_labels_from_file() raises:
     assert_equal(dataset.__len__(), 2)
 
 
-fn test_file_dataset_corrupted_file() raises:
+def test_file_dataset_corrupted_file() raises:
     """Test error handling for file loading failures.
 
     When file loading fails, should raise informative error.
@@ -224,7 +224,7 @@ fn test_file_dataset_corrupted_file() raises:
     return
 
 
-fn test_file_dataset_missing_file() raises:
+def test_file_dataset_missing_file() raises:
     """Test bounds checking for dataset access.
 
     Accessing invalid index should raise error,
@@ -248,7 +248,7 @@ fn test_file_dataset_missing_file() raises:
     assert_true(error_raised, "Should raise error for out of bounds access")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_file_dataset tests."""
     print("Running test_file_dataset tests...")
 

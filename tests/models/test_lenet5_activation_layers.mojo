@@ -17,7 +17,7 @@ from shared.testing.layer_testers import LayerTester
 # ============================================================================
 
 
-fn test_relu_forward_float32() raises:
+def test_relu_forward_float32() raises:
     """Test ReLU activation forward pass with float32."""
     var dtype = DType.float32
     var shape: List[Int] = [2, 16, 8, 8]
@@ -25,7 +25,7 @@ fn test_relu_forward_float32() raises:
     LayerTester.test_activation_layer(shape, dtype, activation="relu")
 
 
-fn test_relu_forward_float16() raises:
+def test_relu_forward_float16() raises:
     """Test ReLU activation forward pass with float16."""
     var dtype = DType.float16
     var shape: List[Int] = [2, 16, 8, 8]
@@ -33,7 +33,7 @@ fn test_relu_forward_float16() raises:
     LayerTester.test_activation_layer(shape, dtype, activation="relu")
 
 
-fn test_relu_backward_float32() raises:
+def test_relu_backward_float32() raises:
     """Test ReLU backward pass with gradient checking."""
     var dtype = DType.float32
     var shape: List[Int] = [2, 8, 4, 4]
@@ -41,7 +41,7 @@ fn test_relu_backward_float32() raises:
     LayerTester.test_activation_layer_backward(shape, dtype, activation="relu")
 
 
-fn main() raises:
+def main() raises:
     """Run all activation layer tests."""
     print("LeNet-5 Activation Layer Tests")
     print("=" * 50)

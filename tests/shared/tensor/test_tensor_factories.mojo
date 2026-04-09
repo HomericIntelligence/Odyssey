@@ -25,7 +25,7 @@ from shared.tensor.factories import (
     eye,
     linspace,
 )
-from math import isnan, isinf
+from std.math import isnan, isinf
 from shared.tensor.factories import (
     randn,
     nan_tensor,
@@ -38,7 +38,7 @@ from shared.tensor.factories import (
 )
 
 
-fn test_zeros() raises:
+def test_zeros() raises:
     """Zeros[DType.float32] creates a zero-filled tensor."""
     var t = zeros[DType.float32]([3, 4])
     assert_true(t.numel() == 12, "numel should be 12")
@@ -50,7 +50,7 @@ fn test_zeros() raises:
     print("PASS: test_zeros")
 
 
-fn test_ones() raises:
+def test_ones() raises:
     """Ones[DType.float32] creates a one-filled tensor."""
     var t = ones[DType.float32]([2, 3])
     assert_true(t.numel() == 6, "numel should be 6")
@@ -61,7 +61,7 @@ fn test_ones() raises:
     print("PASS: test_ones")
 
 
-fn test_full() raises:
+def test_full() raises:
     """Full[DType.float32] creates a constant-filled tensor."""
     var t = full[DType.float32]([2, 2], 0.5)
     assert_true(t.numel() == 4, "numel should be 4")
@@ -72,7 +72,7 @@ fn test_full() raises:
     print("PASS: test_full")
 
 
-fn test_zeros_like() raises:
+def test_zeros_like() raises:
     """Zeros_like creates a zero tensor with same shape."""
     var original = ones[DType.float32]([3, 2])
     var z = zeros_like(original)
@@ -85,7 +85,7 @@ fn test_zeros_like() raises:
     print("PASS: test_zeros_like")
 
 
-fn test_arange() raises:
+def test_arange() raises:
     """Arange[DType.float32] creates a 1D sequence tensor."""
     var t = arange[DType.float32](0.0, 4.0, 1.0)
     assert_true(t.numel() == 4, "numel should be 4")
@@ -99,7 +99,7 @@ fn test_arange() raises:
     print("PASS: test_arange")
 
 
-fn test_eye() raises:
+def test_eye() raises:
     """Eye[DType.float32] creates a 2D identity-like tensor."""
     var t = eye[DType.float32](3, 3)
     assert_true(t.numel() == 9, "numel should be 9")
@@ -115,7 +115,7 @@ fn test_eye() raises:
     print("PASS: test_eye")
 
 
-fn test_linspace() raises:
+def test_linspace() raises:
     """Linspace[DType.float32] creates evenly spaced values."""
     var t = linspace[DType.float32](0.0, 1.0, 5)
     assert_true(t.numel() == 5, "numel should be 5")
@@ -127,7 +127,7 @@ fn test_linspace() raises:
     print("PASS: test_linspace")
 
 
-fn test_factory_float64() raises:
+def test_factory_float64() raises:
     """Factory functions work with float64 dtype."""
     var t = zeros[DType.float64]([2, 2])
     assert_true(t.get_dtype() == DType.float64, "dtype should be float64")
@@ -139,7 +139,7 @@ fn test_factory_float64() raises:
     print("PASS: test_factory_float64")
 
 
-fn test_randn() raises:
+def test_randn() raises:
     """Randn[DType.float32] creates a tensor with random values."""
     var t = randn[DType.float32]([10], seed=42)
     assert_true(t.numel() == 10, "numel should be 10")
@@ -148,7 +148,7 @@ fn test_randn() raises:
     print("PASS: test_randn")
 
 
-fn test_nan_tensor() raises:
+def test_nan_tensor() raises:
     """Nan_tensor[DType.float32] creates a NaN-filled tensor."""
     var t = nan_tensor[DType.float32]([2, 2])
     assert_true(t.numel() == 4, "numel should be 4")
@@ -159,7 +159,7 @@ fn test_nan_tensor() raises:
     print("PASS: test_nan_tensor")
 
 
-fn test_inf_tensor() raises:
+def test_inf_tensor() raises:
     """Inf_tensor[DType.float32] creates a +inf tensor."""
     var t = inf_tensor[DType.float32]([2, 2])
     assert_true(t.numel() == 4, "numel should be 4")
@@ -173,7 +173,7 @@ fn test_inf_tensor() raises:
     print("PASS: test_inf_tensor")
 
 
-fn test_neg_inf_tensor() raises:
+def test_neg_inf_tensor() raises:
     """Neg_inf_tensor[DType.float32] creates a -inf tensor."""
     var t = neg_inf_tensor[DType.float32]([2, 2])
     assert_true(t.numel() == 4, "numel should be 4")
@@ -187,7 +187,7 @@ fn test_neg_inf_tensor() raises:
     print("PASS: test_neg_inf_tensor")
 
 
-fn test_empty() raises:
+def test_empty() raises:
     """Empty[DType.float32] creates a tensor (values uninitialized)."""
     var t = empty[DType.float32]([3, 4])
     assert_true(t.numel() == 12, "numel should be 12")
@@ -198,7 +198,7 @@ fn test_empty() raises:
     print("PASS: test_empty")
 
 
-fn test_ones_like() raises:
+def test_ones_like() raises:
     """Ones_like creates a one-filled tensor with same shape."""
     var original = ones[DType.float32]([2, 3])
     var o = ones_like(original)
@@ -210,7 +210,7 @@ fn test_ones_like() raises:
     print("PASS: test_ones_like")
 
 
-fn test_full_like() raises:
+def test_full_like() raises:
     """Full_like creates a constant-filled tensor with same shape."""
     var original = ones[DType.float32]([2, 2])
     var f = full_like(original, 0.25)
@@ -222,7 +222,7 @@ fn test_full_like() raises:
     print("PASS: test_full_like")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_tensor_factories tests."""
     print("Running test_tensor_factories tests...")
 

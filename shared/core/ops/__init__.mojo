@@ -15,7 +15,7 @@ Example:
     from shared.core.ops import matmul, transpose
     from shared.core.types import Tensor
 
-    fn forward(x: Tensor, w: Tensor) -> Tensor:
+    def forward(x: Tensor, w: Tensor) -> Tensor:
         # Efficient matrix multiplication
         return matmul(x, transpose(w))
     ```

@@ -43,7 +43,7 @@ struct DatasetSplit(Copyable, Movable):
     var test_labels: AnyTensor
     var num_classes: Int
 
-    fn __init__(
+    def __init__(
         out self,
         var train_images: AnyTensor,
         var train_labels: AnyTensor,
@@ -66,7 +66,7 @@ struct DatasetSplit(Copyable, Movable):
         self.test_labels = test_labels^
         self.num_classes = num_classes
 
-    fn train_size(self) -> Int:
+    def train_size(self) -> Int:
         """Get number of training samples.
 
         Returns:
@@ -74,7 +74,7 @@ struct DatasetSplit(Copyable, Movable):
         """
         return self.train_images.shape()[0]
 
-    fn test_size(self) -> Int:
+    def test_size(self) -> Int:
         """Get number of test samples.
 
         Returns:
@@ -83,7 +83,7 @@ struct DatasetSplit(Copyable, Movable):
         return self.test_images.shape()[0]
 
 
-fn load_emnist_dataset(path: String) raises -> DatasetSplit:
+def load_emnist_dataset(path: String) raises -> DatasetSplit:
     """Load EMNIST dataset from path.
 
     Creates a DatasetSplit with EMNIST dimensions:
@@ -131,7 +131,7 @@ fn load_emnist_dataset(path: String) raises -> DatasetSplit:
     )
 
 
-fn load_cifar10_dataset(path: String) raises -> DatasetSplit:
+def load_cifar10_dataset(path: String) raises -> DatasetSplit:
     """Load CIFAR-10 dataset from path.
 
     Creates a DatasetSplit with CIFAR-10 dimensions:
@@ -180,7 +180,7 @@ fn load_cifar10_dataset(path: String) raises -> DatasetSplit:
     )
 
 
-fn print_dataset_summary(split: DatasetSplit, name: String):
+def print_dataset_summary(split: DatasetSplit, name: String):
     """Print dataset summary statistics.
 
     Displays formatted information about the dataset split.

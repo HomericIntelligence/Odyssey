@@ -10,21 +10,21 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
 from tests.shared.conftest import assert_true, assert_equal
 
 
-fn test_str_empty_tensor() raises:
+def test_str_empty_tensor() raises:
     """Test __str__ for empty tensor (numel=0)."""
     var t = zeros([0], DType.float32)
     var s = String(t)
     assert_equal(s, "AnyTensor([], dtype=float32)")
 
 
-fn test_str_single_element() raises:
+def test_str_single_element() raises:
     """Test __str__ for scalar / 1-element tensor."""
     var t = full([1], 3.0, DType.float32)
     var s = String(t)
     assert_equal(s, "AnyTensor([3.0], dtype=float32)")
 
 
-fn test_str_small_tensor_no_truncation() raises:
+def test_str_small_tensor_no_truncation() raises:
     """Test __str__ for tensor with numel <= 1000 shows all elements."""
     var t = arange(0.0, 5.0, 1.0, DType.float32)
     var s = String(t)
@@ -36,7 +36,7 @@ fn test_str_small_tensor_no_truncation() raises:
     assert_true("..." not in s)
 
 
-fn test_str_exactly_threshold_no_truncation() raises:
+def test_str_exactly_threshold_no_truncation() raises:
     """Test __str__ for tensor with exactly 1000 elements shows all (no truncation).
     """
     var t = arange(0.0, 1000.0, 1.0, DType.float32)
@@ -47,7 +47,7 @@ fn test_str_exactly_threshold_no_truncation() raises:
     assert_true("999.0" in s)
 
 
-fn test_str_large_tensor_truncation() raises:
+def test_str_large_tensor_truncation() raises:
     """Test __str__ for tensor with numel > 1000 shows truncated form."""
     var t = arange(0.0, 1001.0, 1.0, DType.float32)
     var s = String(t)
@@ -60,7 +60,7 @@ fn test_str_large_tensor_truncation() raises:
     assert_true("998.0" in s)
 
 
-fn test_str_large_tensor_format() raises:
+def test_str_large_tensor_format() raises:
     """Test __str__ produces correct format for large tensor."""
     var t = arange(0.0, 2000.0, 1.0, DType.float32)
     var s = String(t)
@@ -72,7 +72,7 @@ fn test_str_large_tensor_format() raises:
     assert_true("1997.0" in s)
 
 
-fn test_str_dtype_preserved() raises:
+def test_str_dtype_preserved() raises:
     """Test __str__ correctly reports dtype for large tensor."""
     var tf16 = arange(0.0, 1001.0, 1.0, DType.float16)
     var sf16 = String(tf16)
@@ -85,7 +85,7 @@ fn test_str_dtype_preserved() raises:
     assert_true("..." in sf64)
 
 
-fn test_str_no_truncation_for_6_elements() raises:
+def test_str_no_truncation_for_6_elements() raises:
     """Test that a 6-element tensor is shown in full (edge case near SHOW_ELEMENTS*2).
     """
     var t = arange(0.0, 6.0, 1.0, DType.float32)
@@ -94,7 +94,7 @@ fn test_str_no_truncation_for_6_elements() raises:
     assert_true("5.0" in s)
 
 
-fn test_str_empty_tensor_int32() raises:
+def test_str_empty_tensor_int32() raises:
     """Test __str__ for empty tensor with int32 dtype (non-float).
 
     This is an edge case: _format_element should never be called on an empty
@@ -106,28 +106,28 @@ fn test_str_empty_tensor_int32() raises:
     assert_equal(s, "AnyTensor([], dtype=int32)")
 
 
-fn test_str_empty_tensor_int64() raises:
+def test_str_empty_tensor_int64() raises:
     """Test __str__ for empty tensor with int64 dtype."""
     var t = zeros([0], DType.int64)
     var s = String(t)
     assert_equal(s, "AnyTensor([], dtype=int64)")
 
 
-fn test_str_empty_tensor_uint32() raises:
+def test_str_empty_tensor_uint32() raises:
     """Test __str__ for empty tensor with uint32 dtype."""
     var t = zeros([0], DType.uint32)
     var s = String(t)
     assert_equal(s, "AnyTensor([], dtype=uint32)")
 
 
-fn test_str_empty_tensor_float16() raises:
+def test_str_empty_tensor_float16() raises:
     """Test __str__ for empty tensor with float16 dtype (floating-point variant)."""
     var t = zeros([0], DType.float16)
     var s = String(t)
     assert_equal(s, "AnyTensor([], dtype=float16)")
 
 
-fn test_str_empty_multidim_tensor_int32() raises:
+def test_str_empty_multidim_tensor_int32() raises:
     """Test __str__ for empty multidimensional tensor (e.g., shape=[2, 0])."""
     var t = zeros([2, 0], DType.int32)
     var s = String(t)
@@ -135,7 +135,7 @@ fn test_str_empty_multidim_tensor_int32() raises:
     assert_equal(s, "AnyTensor([], dtype=int32)")
 
 
-fn main() raises:
+def main() raises:
     """Run __str__ truncation tests."""
     print("Running AnyTensor __str__ truncation tests...")
 

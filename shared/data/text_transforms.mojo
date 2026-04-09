@@ -14,7 +14,7 @@ Limitations:
 - No advanced NLP features
 """
 
-from random import random_si64
+from std.random import random_si64
 from shared.data.random_transform_base import RandomTransformBase, random_float
 
 
@@ -30,7 +30,7 @@ trait TextTransform:
     Unlike the Transform trait which works with AnyTensor, this works with String.
     """
 
-    fn __call__(self, text: String) raises -> String:
+    def __call__(self, text: String) raises -> String:
         """Apply the transform to text.
 
         Args:
@@ -50,7 +50,7 @@ trait TextTransform:
 # ============================================================================
 
 
-fn split_words(text: String) raises -> List[String]:
+def split_words(text: String) raises -> List[String]:
     """Split text into words by spaces.
 
     Simple space-based tokenization. Does not handle punctuation specially.
@@ -76,7 +76,7 @@ fn split_words(text: String) raises -> List[String]:
     return words^
 
 
-fn join_words(words: List[String]) raises -> String:
+def join_words(words: List[String]) raises -> String:
     """Join words into text with spaces.
 
     Args:
@@ -122,7 +122,7 @@ struct RandomSwap(Copyable, Movable, TextTransform):
     var n: Int
     """Number of swap operations to attempt."""
 
-    fn __init__(out self, p: Float64 = 0.15, n: Int = 2):
+    def __init__(out self, p: Float64 = 0.15, n: Int = 2):
         """Create random swap transform.
 
         Args:
@@ -132,7 +132,7 @@ struct RandomSwap(Copyable, Movable, TextTransform):
         self.base = RandomTransformBase(p)
         self.n = n
 
-    fn __call__(self, text: String) raises -> String:
+    def __call__(self, text: String) raises -> String:
         """Randomly swap word pairs in text.
 
         Args:
@@ -159,8 +159,8 @@ struct RandomSwap(Copyable, Movable, TextTransform):
                 continue
 
             # Pick two random positions
-            var idx1 = Int(random_si64(0, len(words) - 1))
-            var idx2 = Int(random_si64(0, len(words) - 1))
+            var idx1 = Int(random_si64(Int64(0), Int64(len(words) - 1)))
+            var idx2 = Int(random_si64(Int64(0), Int64(len(words) - 1)))
 
             # Ensure different positions
             if idx1 != idx2:
@@ -189,7 +189,7 @@ struct RandomDeletion(Copyable, Movable, TextTransform):
     var base: RandomTransformBase
     """Random transform base for probability handling."""
 
-    fn __init__(out self, p: Float64 = 0.1):
+    def __init__(out self, p: Float64 = 0.1):
         """Create random deletion transform.
 
         Args:
@@ -197,7 +197,7 @@ struct RandomDeletion(Copyable, Movable, TextTransform):
         """
         self.base = RandomTransformBase(p)
 
-    fn __call__(self, text: String) raises -> String:
+    def __call__(self, text: String) raises -> String:
         """Randomly delete words from text.
 
         Ensures at least one word remains even if all would be deleted.
@@ -233,7 +233,7 @@ struct RandomDeletion(Copyable, Movable, TextTransform):
         # Ensure at least one word remains
         if len(kept_words) == 0:
             # Keep a random word
-            var idx = Int(random_si64(0, len(words) - 1))
+            var idx = Int(random_si64(Int64(0), Int64(len(words) - 1)))
             kept_words.append(words[idx])
 
         return join_words(kept_words)
@@ -260,7 +260,7 @@ struct RandomInsertion(Copyable, Movable, TextTransform):
     var vocabulary: List[String]
     """List of words to choose from for insertion."""
 
-    fn __init__(
+    def __init__(
         out self, var vocabulary: List[String], p: Float64 = 0.1, n: Int = 1
     ):
         """Create random insertion transform.
@@ -274,7 +274,7 @@ struct RandomInsertion(Copyable, Movable, TextTransform):
         self.vocabulary = vocabulary^
         self.n = n
 
-    fn __call__(self, text: String) raises -> String:
+    def __call__(self, text: String) raises -> String:
         """Insert random words from vocabulary into text.
 
         Args:
@@ -301,11 +301,11 @@ struct RandomInsertion(Copyable, Movable, TextTransform):
                 continue
 
             # Pick random word from vocabulary
-            var vocab_idx = Int(random_si64(0, len(self.vocabulary) - 1))
+            var vocab_idx = Int(random_si64(Int64(0), Int64(len(self.vocabulary) - 1)))
             var word_to_insert = self.vocabulary[vocab_idx]
 
             # Pick random position to insert (0 to len(words) inclusive)
-            var insert_pos = Int(random_si64(0, len(words) + 1))
+            var insert_pos = Int(random_si64(Int64(0), Int64(len(words) + 1)))
 
             # Insert word at position
             var new_words = List[String]()
@@ -342,7 +342,7 @@ struct RandomSynonymReplacement(Copyable, Movable, TextTransform):
     var synonyms: Dict[String, List[String]]
     """Dictionary mapping words to lists of synonyms."""
 
-    fn __init__(
+    def __init__(
         out self, var synonyms: Dict[String, List[String]], p: Float64 = 0.2
     ):
         """Create random synonym replacement transform.
@@ -354,7 +354,7 @@ struct RandomSynonymReplacement(Copyable, Movable, TextTransform):
         self.base = RandomTransformBase(p)
         self.synonyms = synonyms^
 
-    fn __call__(self, text: String) raises -> String:
+    def __call__(self, text: String) raises -> String:
         """Replace random words with synonyms.
 
         Args:
@@ -385,7 +385,7 @@ struct RandomSynonymReplacement(Copyable, Movable, TextTransform):
                 var syns = self.synonyms[word].copy()
                 if len(syns) > 0:
                     # Pick random synonym
-                    var syn_idx = Int(random_si64(0, len(syns) - 1))
+                    var syn_idx = Int(random_si64(Int64(0), Int64(len(syns) - 1)))
                     result_words.append(syns[syn_idx])
                 else:
                     # No synonyms available, keep original

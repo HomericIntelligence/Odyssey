@@ -24,7 +24,7 @@ from model import GoogLeNet
 
 
 # CIFAR-10 class names (runtime list)
-fn get_class_names() -> List[String]:
+def get_class_names() -> List[String]:
     """Get CIFAR-10 class names."""
     var classes: List[String] = []
     classes.append("airplane")
@@ -40,7 +40,7 @@ fn get_class_names() -> List[String]:
     return classes^
 
 
-fn evaluate_model(
+def evaluate_model(
     mut model: GoogLeNet,
     images: AnyTensor,
     labels: AnyTensor,
@@ -148,7 +148,7 @@ fn evaluate_model(
     return (overall_accuracy, correct_per_class^, total_per_class^)
 
 
-fn print_detailed_results(
+def print_detailed_results(
     accuracy: Float32, correct_per_class: List[Int], total_per_class: List[Int]
 ):
     """Print detailed evaluation results.
@@ -203,7 +203,7 @@ fn print_detailed_results(
     print()
 
 
-fn main() raises:
+def main() raises:
     """Main inference entry point."""
     print("=" * 60)
     print("GoogLeNet Inference on CIFAR-10")

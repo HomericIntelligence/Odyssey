@@ -6,11 +6,11 @@ These were extracted from any_tensor.mojo to improve SRP compliance.
 Each function delegates to the corresponding AnyTensor method.
 """
 
-from collections import List
+from std.collections import List
 from .any_tensor import AnyTensor
 
 
-fn calculate_max_batch_size(
+def calculate_max_batch_size(
     sample_shape: List[Int],
     dtype: DType,
     max_memory_bytes: Int = 500_000_000,  # 500 MB default
@@ -68,7 +68,7 @@ fn calculate_max_batch_size(
 # ============================================================================
 
 
-fn copy(tensor: AnyTensor) raises -> AnyTensor:
+def copy(tensor: AnyTensor) raises -> AnyTensor:
     """Create an independent deep copy of the tensor.
 
     This is a convenience wrapper around the AnyTensor.clone() method,
@@ -93,7 +93,7 @@ fn copy(tensor: AnyTensor) raises -> AnyTensor:
     return tensor.clone()
 
 
-fn clone(tensor: AnyTensor) raises -> AnyTensor:
+def clone(tensor: AnyTensor) raises -> AnyTensor:
     """Create a clone of the tensor.
 
     This is a convenience wrapper around the AnyTensor.clone() method.
@@ -116,7 +116,7 @@ fn clone(tensor: AnyTensor) raises -> AnyTensor:
     return tensor.clone()
 
 
-fn item(tensor: AnyTensor) raises -> Float64:
+def item(tensor: AnyTensor) raises -> Float64:
     """Extract the value from a single-element tensor.
 
     This is a convenience wrapper around the AnyTensor.item() method.
@@ -139,7 +139,7 @@ fn item(tensor: AnyTensor) raises -> Float64:
     return tensor.item()
 
 
-fn diff(tensor: AnyTensor, n: Int = 1) raises -> AnyTensor:
+def diff(tensor: AnyTensor, n: Int = 1) raises -> AnyTensor:
     """Calculate consecutive differences along an axis.
 
     This is a convenience wrapper around the AnyTensor.diff() method.

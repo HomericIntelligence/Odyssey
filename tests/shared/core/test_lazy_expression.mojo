@@ -1,13 +1,13 @@
 """Basic tests for lazy expression evaluation."""
 
-from collections import List
+from std.collections import List
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.lazy_expression import expr, TensorExpr
 from shared.core.lazy_eval import evaluate
 from shared.core.arithmetic import add, subtract, multiply, divide
 
 
-fn test_lazy_single_tensor() raises -> None:
+def test_lazy_single_tensor() raises -> None:
     """Test lazy evaluation of single tensor (leaf node)."""
     var tensor = full([2, 3], 5.0, DType.float32)
     var expression = expr(tensor)
@@ -18,7 +18,7 @@ fn test_lazy_single_tensor() raises -> None:
         raise Error("numel mismatch")
 
 
-fn test_lazy_add() raises -> None:
+def test_lazy_add() raises -> None:
     """Test lazy evaluation of addition."""
     var a = full([2, 3], 2.0, DType.float32)
     var b = full([2, 3], 3.0, DType.float32)
@@ -31,7 +31,7 @@ fn test_lazy_add() raises -> None:
         raise Error("Result size mismatch")
 
 
-fn test_lazy_chain_2ops() raises -> None:
+def test_lazy_chain_2ops() raises -> None:
     """Test lazy evaluation of 2 chained operations."""
     var a = full([2, 3], 1.0, DType.float32)
     var b = full([2, 3], 2.0, DType.float32)
@@ -47,7 +47,7 @@ fn test_lazy_chain_2ops() raises -> None:
         raise Error("Result size mismatch")
 
 
-fn test_lazy_scalar_multiply() raises -> None:
+def test_lazy_scalar_multiply() raises -> None:
     """Test lazy evaluation of scalar multiplication."""
     var a = full([2, 3], 3.0, DType.float32)
     var expr_lazy = expr(a) * 2.0
@@ -57,7 +57,7 @@ fn test_lazy_scalar_multiply() raises -> None:
         raise Error("Result size mismatch")
 
 
-fn test_lazy_negate() raises -> None:
+def test_lazy_negate() raises -> None:
     """Test lazy evaluation of negation."""
     var a = full([2, 3], 5.0, DType.float32)
     var expr_lazy = -expr(a)
@@ -67,7 +67,7 @@ fn test_lazy_negate() raises -> None:
         raise Error("Result size mismatch")
 
 
-fn test_expr_properties() raises -> None:
+def test_expr_properties() raises -> None:
     """Test expression property accessors."""
     var tensor = full([2, 3, 4], 1.0, DType.float32)
     var expression = expr(tensor)
@@ -80,7 +80,7 @@ fn test_expr_properties() raises -> None:
         raise Error("dtype mismatch")
 
 
-fn main() raises -> None:
+def main() raises -> None:
     """Run all lazy expression tests."""
     print("Testing lazy expression evaluation...")
 

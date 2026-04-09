@@ -22,10 +22,10 @@ from shared.training.metrics import (
     create_metric_summary,
     MetricLogger,
 )
-from collections import List
+from std.collections import List
 
 
-fn test_component_tracker_initialization() raises:
+def test_component_tracker_initialization() raises:
     """Test ComponentTracker initializes correctly."""
     print("Testing ComponentTracker initialization...")
 
@@ -40,7 +40,7 @@ fn test_component_tracker_initialization() raises:
     print("   ComponentTracker initialization test passed")
 
 
-fn test_component_tracker_single_update() raises:
+def test_component_tracker_single_update() raises:
     """Test ComponentTracker with single value."""
     print("Testing ComponentTracker single update...")
 
@@ -63,7 +63,7 @@ fn test_component_tracker_single_update() raises:
     print("   ComponentTracker single update test passed")
 
 
-fn test_component_tracker_moving_average() raises:
+def test_component_tracker_moving_average() raises:
     """Test ComponentTracker moving average computation."""
     print("Testing ComponentTracker moving average...")
 
@@ -88,7 +88,7 @@ fn test_component_tracker_moving_average() raises:
     print("   ComponentTracker moving average test passed")
 
 
-fn test_component_tracker_statistics() raises:
+def test_component_tracker_statistics() raises:
     """Test ComponentTracker statistics computation."""
     print("Testing ComponentTracker statistics...")
 
@@ -116,7 +116,7 @@ fn test_component_tracker_statistics() raises:
     print("   ComponentTracker statistics test passed")
 
 
-fn test_component_tracker_reset() raises:
+def test_component_tracker_reset() raises:
     """Test ComponentTracker reset."""
     print("Testing ComponentTracker reset...")
 
@@ -137,7 +137,7 @@ fn test_component_tracker_reset() raises:
     print("   ComponentTracker reset test passed")
 
 
-fn test_loss_tracker_single_component() raises:
+def test_loss_tracker_single_component() raises:
     """Test LossTracker with single component."""
     print("Testing LossTracker single component...")
 
@@ -162,7 +162,7 @@ fn test_loss_tracker_single_component() raises:
     print("   LossTracker single component test passed")
 
 
-fn test_loss_tracker_multi_component() raises:
+def test_loss_tracker_multi_component() raises:
     """Test LossTracker with multiple components."""
     print("Testing LossTracker multi-component...")
 
@@ -193,7 +193,7 @@ fn test_loss_tracker_multi_component() raises:
     print("   LossTracker multi-component test passed")
 
 
-fn test_loss_tracker_statistics() raises:
+def test_loss_tracker_statistics() raises:
     """Test LossTracker statistics."""
     print("Testing LossTracker statistics...")
 
@@ -214,7 +214,7 @@ fn test_loss_tracker_statistics() raises:
     print("   LossTracker statistics test passed")
 
 
-fn test_loss_tracker_reset_all() raises:
+def test_loss_tracker_reset_all() raises:
     """Test LossTracker reset all components."""
     print("Testing LossTracker reset all...")
 
@@ -237,7 +237,7 @@ fn test_loss_tracker_reset_all() raises:
     print("   LossTracker reset all test passed")
 
 
-fn test_metric_result_scalar() raises:
+def test_metric_result_scalar() raises:
     """Test MetricResult with scalar value."""
     print("Testing MetricResult scalar...")
 
@@ -252,7 +252,7 @@ fn test_metric_result_scalar() raises:
     print("   MetricResult scalar test passed")
 
 
-fn test_metric_result_tensor() raises:
+def test_metric_result_tensor() raises:
     """Test MetricResult with tensor value."""
     print("Testing MetricResult tensor...")
 
@@ -270,7 +270,7 @@ fn test_metric_result_tensor() raises:
     print("   MetricResult tensor test passed")
 
 
-fn test_create_metric_summary() raises:
+def test_create_metric_summary() raises:
     """Test create_metric_summary utility."""
     print("Testing create_metric_summary...")
 
@@ -287,7 +287,7 @@ fn test_create_metric_summary() raises:
     print("   create_metric_summary test passed")
 
 
-fn test_metric_logger_single_epoch() raises:
+def test_metric_logger_single_epoch() raises:
     """Test MetricLogger with single epoch."""
     print("Testing MetricLogger single epoch...")
 
@@ -311,7 +311,7 @@ fn test_metric_logger_single_epoch() raises:
     print("   MetricLogger single epoch test passed")
 
 
-fn test_metric_logger_multiple_epochs() raises:
+def test_metric_logger_multiple_epochs() raises:
     """Test MetricLogger with multiple epochs."""
     print("Testing MetricLogger multiple epochs...")
 
@@ -341,7 +341,7 @@ fn test_metric_logger_multiple_epochs() raises:
     print("   MetricLogger multiple epochs test passed")
 
 
-fn test_metric_logger_get_latest() raises:
+def test_metric_logger_get_latest() raises:
     """Test MetricLogger get_latest."""
     print("Testing MetricLogger get_latest...")
 
@@ -362,7 +362,7 @@ fn test_metric_logger_get_latest() raises:
     print("   MetricLogger get_latest test passed")
 
 
-fn test_metric_logger_get_best() raises:
+def test_metric_logger_get_best() raises:
     """Test MetricLogger get_best."""
     print("Testing MetricLogger get_best...")
 
@@ -388,7 +388,7 @@ fn test_metric_logger_get_best() raises:
     print("   MetricLogger get_best test passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_metrics tests."""
     print("Running test_metrics tests...")
 

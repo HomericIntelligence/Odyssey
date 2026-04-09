@@ -20,7 +20,7 @@ from shared.core.matrix import (
 )
 
 
-fn test_matmul_correctness() raises:
+def test_matmul_correctness() raises:
     """AnyTensor matmul produces correct results."""
     var a = any_ones([2, 3], DType.float32)
     var b = any_ones([3, 4], DType.float32)
@@ -42,7 +42,7 @@ fn test_matmul_correctness() raises:
     print("PASS: test_matmul_correctness")
 
 
-fn test_matmul_shape_validation() raises:
+def test_matmul_shape_validation() raises:
     """AnyTensor matmul [2,3] x [3,4] = [2,4]."""
     var a = any_ones([2, 3], DType.float32)
     var b = any_ones([3, 4], DType.float32)
@@ -53,7 +53,7 @@ fn test_matmul_shape_validation() raises:
     print("PASS: test_matmul_shape_validation")
 
 
-fn test_matmul_identity() raises:
+def test_matmul_identity() raises:
     """AnyTensor matmul with identity matrix preserves values."""
     var a = any_full([2, 2], 0.5, DType.float32)
     var eye = any_zeros([2, 2], DType.float32)
@@ -67,7 +67,7 @@ fn test_matmul_identity() raises:
     print("PASS: test_matmul_identity")
 
 
-fn test_transpose_correctness() raises:
+def test_transpose_correctness() raises:
     """AnyTensor transpose produces correct results."""
     var a = any_zeros([2, 3], DType.float32)
     for i in range(6):
@@ -88,7 +88,7 @@ fn test_transpose_correctness() raises:
     print("PASS: test_transpose_correctness")
 
 
-fn test_dot_correctness() raises:
+def test_dot_correctness() raises:
     """AnyTensor dot product produces correct results."""
     var a = any_full([4], 0.5, DType.float32)
     var b = any_full([4], 1.5, DType.float32)
@@ -104,7 +104,7 @@ fn test_dot_correctness() raises:
     print("PASS: test_dot_correctness")
 
 
-fn test_matmul_float64() raises:
+def test_matmul_float64() raises:
     """Float64 matmul preserves precision."""
     var a = any_zeros([2, 2], DType.float64)
     a[0] = 1.0
@@ -139,7 +139,7 @@ fn test_matmul_float64() raises:
     print("PASS: test_matmul_float64")
 
 
-fn test_transpose_preserves_dtype() raises:
+def test_transpose_preserves_dtype() raises:
     """Transpose preserves the dtype."""
     var t = any_ones([3, 2], DType.float64)
     var r = transpose(t)
@@ -153,7 +153,7 @@ fn test_transpose_preserves_dtype() raises:
     print("PASS: test_transpose_preserves_dtype")
 
 
-fn test_dot_known_values() raises:
+def test_dot_known_values() raises:
     """Dot product with known values."""
     var a = any_zeros([3], DType.float32)
     a[0] = 1.0
@@ -173,7 +173,7 @@ fn test_dot_known_values() raises:
     print("PASS: test_dot_known_values")
 
 
-fn main() raises:
+def main() raises:
     test_matmul_correctness()
     test_matmul_shape_validation()
     test_matmul_identity()

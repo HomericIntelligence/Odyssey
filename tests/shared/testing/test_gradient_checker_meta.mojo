@@ -43,7 +43,7 @@ from shared.testing import (
 )
 
 
-fn square_forward(input: AnyTensor) raises escaping -> AnyTensor:
+def square_forward(input: AnyTensor) raises escaping -> AnyTensor:
     """Forward pass: f(x) = x^2.
 
     Args:
@@ -59,7 +59,7 @@ fn square_forward(input: AnyTensor) raises escaping -> AnyTensor:
     return result^
 
 
-fn square_backward_correct(
+def square_backward_correct(
     grad_out: AnyTensor, input: AnyTensor
 ) raises escaping -> AnyTensor:
     """Correct backward pass for f(x) = x^2: df/dx = 2x."""
@@ -72,7 +72,7 @@ fn square_backward_correct(
     return grad_in^
 
 
-fn square_backward_wrong_linear(
+def square_backward_wrong_linear(
     grad_out: AnyTensor, input: AnyTensor
 ) raises escaping -> AnyTensor:
     """Wrong backward pass for f(x) = x^2: Using df/dx = x (incorrect!)."""
@@ -85,7 +85,7 @@ fn square_backward_wrong_linear(
     return grad_in^
 
 
-fn square_backward_wrong_triple(
+def square_backward_wrong_triple(
     grad_out: AnyTensor, input: AnyTensor
 ) raises escaping -> AnyTensor:
     """Wrong backward pass for f(x) = x^2: Using df/dx = 3x (incorrect!)."""
@@ -98,7 +98,7 @@ fn square_backward_wrong_triple(
     return grad_in^
 
 
-fn test_gradient_checker_accepts_correct_gradient() raises:
+def test_gradient_checker_accepts_correct_gradient() raises:
     """Meta-test: Gradient checker should PASS for correct gradient.
 
     For f(x) = x^2, the gradient df/dx = 2x is correct.
@@ -112,10 +112,10 @@ fn test_gradient_checker_accepts_correct_gradient() raises:
 
     var x = full([1], 1.0, DType.float32)
 
-    fn forward(t: AnyTensor) raises escaping -> AnyTensor:
+    def forward(t: AnyTensor) raises escaping -> AnyTensor:
         return square_forward(t)
 
-    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return square_backward_correct(grad, inp)
 
     var passed = check_gradients(
@@ -130,7 +130,7 @@ fn test_gradient_checker_accepts_correct_gradient() raises:
     print("  OK: Gradient checker correctly accepts gradient df/dx = 2x")
 
 
-fn test_gradient_checker_correct_gradient_multiple_values() raises:
+def test_gradient_checker_correct_gradient_multiple_values() raises:
     """Meta-test: Correct gradient passes for multiple input values.
 
     For f(x) = x^2, the gradient df/dx = 2x should work for all values.
@@ -148,10 +148,10 @@ fn test_gradient_checker_correct_gradient_multiple_values() raises:
         var test_val = test_values[i]
         var x = full([1], test_val, DType.float32)
 
-        fn forward(t: AnyTensor) raises escaping -> AnyTensor:
+        def forward(t: AnyTensor) raises escaping -> AnyTensor:
             return square_forward(t)
 
-        fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+        def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
             return square_backward_correct(grad, inp)
 
         var passed = check_gradients(
@@ -167,7 +167,7 @@ fn test_gradient_checker_correct_gradient_multiple_values() raises:
     print("  OK: Gradient checker passes for all input values")
 
 
-fn test_gradient_checker_correct_gradient_multidimensional() raises:
+def test_gradient_checker_correct_gradient_multidimensional() raises:
     """Meta-test: Correct gradient passes for multidimensional inputs.
 
     The gradient checker should work with tensors of any shape.
@@ -177,10 +177,10 @@ fn test_gradient_checker_correct_gradient_multidimensional() raises:
 
     var x = full([2, 3], 1.5, DType.float32)
 
-    fn forward(t: AnyTensor) raises escaping -> AnyTensor:
+    def forward(t: AnyTensor) raises escaping -> AnyTensor:
         return square_forward(t)
 
-    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return square_backward_correct(grad, inp)
 
     var passed = check_gradients(
@@ -198,7 +198,7 @@ fn test_gradient_checker_correct_gradient_multidimensional() raises:
     print("  OK: Gradient checker correctly accepts 2x3 tensor")
 
 
-fn test_gradient_checker_rejects_wrong_gradient_linear() raises:
+def test_gradient_checker_rejects_wrong_gradient_linear() raises:
     """Meta-test: Gradient checker should FAIL for incorrect gradient.
 
     For f(x) = x^2, using df/dx = x (instead of correct df/dx = 2x)
@@ -208,10 +208,10 @@ fn test_gradient_checker_rejects_wrong_gradient_linear() raises:
 
     var x = full([1], 1.0, DType.float32)
 
-    fn forward(t: AnyTensor) raises escaping -> AnyTensor:
+    def forward(t: AnyTensor) raises escaping -> AnyTensor:
         return square_forward(t)
 
-    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return square_backward_wrong_linear(grad, inp)
 
     var passed = check_gradients(
@@ -226,7 +226,7 @@ fn test_gradient_checker_rejects_wrong_gradient_linear() raises:
     print("  OK: Gradient checker correctly rejects df/dx = x")
 
 
-fn test_gradient_checker_rejects_wrong_gradient_triple() raises:
+def test_gradient_checker_rejects_wrong_gradient_triple() raises:
     """Meta-test: Gradient checker should FAIL for coefficient error.
 
     For f(x) = x^2, using df/dx = 3x (instead of correct df/dx = 2x)
@@ -236,10 +236,10 @@ fn test_gradient_checker_rejects_wrong_gradient_triple() raises:
 
     var x = full([1], 1.0, DType.float32)
 
-    fn forward(t: AnyTensor) raises escaping -> AnyTensor:
+    def forward(t: AnyTensor) raises escaping -> AnyTensor:
         return square_forward(t)
 
-    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return square_backward_wrong_triple(grad, inp)
 
     var passed = check_gradients(
@@ -254,7 +254,7 @@ fn test_gradient_checker_rejects_wrong_gradient_triple() raises:
     print("  OK: Gradient checker correctly rejects df/dx = 3x")
 
 
-fn test_gradient_checker_wrong_gradient_multiple_values() raises:
+def test_gradient_checker_wrong_gradient_multiple_values() raises:
     """Meta-test: Wrong gradient fails for all input values.
 
     Even with different input values, wrong gradient should fail.
@@ -271,10 +271,10 @@ fn test_gradient_checker_wrong_gradient_multiple_values() raises:
         var test_val = test_values[i]
         var x = full([1], test_val, DType.float32)
 
-        fn forward(t: AnyTensor) raises escaping -> AnyTensor:
+        def forward(t: AnyTensor) raises escaping -> AnyTensor:
             return square_forward(t)
 
-        fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+        def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
             return square_backward_wrong_linear(grad, inp)
 
         var passed = check_gradients(
@@ -293,7 +293,7 @@ fn test_gradient_checker_wrong_gradient_multiple_values() raises:
     print("  OK: Wrong gradient consistently fails")
 
 
-fn test_compute_numerical_gradient_matches_analytical() raises:
+def test_compute_numerical_gradient_matches_analytical() raises:
     """Meta-test: Numerical and analytical gradients should match.
 
     Using compute_numerical_gradient directly, the numerical gradient
@@ -303,7 +303,7 @@ fn test_compute_numerical_gradient_matches_analytical() raises:
 
     var x = full([1], 2.0, DType.float32)
 
-    fn forward(t: AnyTensor) raises escaping -> AnyTensor:
+    def forward(t: AnyTensor) raises escaping -> AnyTensor:
         return square_forward(t)
 
     var numerical_grad = compute_numerical_gradient(forward, x, epsilon=1e-5)
@@ -320,7 +320,7 @@ fn test_compute_numerical_gradient_matches_analytical() raises:
     print("  OK: Numerical gradient computation correct")
 
 
-fn test_relative_error_sensitivity() raises:
+def test_relative_error_sensitivity() raises:
     """Meta-test: Relative error should distinguish correct vs wrong gradients.
 
     The relative error between correct and wrong gradients should be
@@ -338,7 +338,7 @@ fn test_relative_error_sensitivity() raises:
     print("  OK: Relative error correctly identifies mismatch")
 
 
-fn test_gradient_checker_zero_input() raises:
+def test_gradient_checker_zero_input() raises:
     """Meta-test: Gradient checker should handle zero input correctly.
 
     For x = 0:
@@ -351,10 +351,10 @@ fn test_gradient_checker_zero_input() raises:
 
     var x = full([1], 0.0, DType.float32)
 
-    fn forward(t: AnyTensor) raises escaping -> AnyTensor:
+    def forward(t: AnyTensor) raises escaping -> AnyTensor:
         return square_forward(t)
 
-    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return square_backward_correct(grad, inp)
 
     var passed = check_gradients(
@@ -369,7 +369,7 @@ fn test_gradient_checker_zero_input() raises:
     print("  OK: Gradient checker handles zero input")
 
 
-fn test_gradient_checker_negative_input() raises:
+def test_gradient_checker_negative_input() raises:
     """Meta-test: Gradient checker handles negative inputs.
 
     For x = -2.0:
@@ -382,10 +382,10 @@ fn test_gradient_checker_negative_input() raises:
 
     var x = full([1], -2.0, DType.float32)
 
-    fn forward(t: AnyTensor) raises escaping -> AnyTensor:
+    def forward(t: AnyTensor) raises escaping -> AnyTensor:
         return square_forward(t)
 
-    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return square_backward_correct(grad, inp)
 
     var passed = check_gradients(
@@ -400,7 +400,7 @@ fn test_gradient_checker_negative_input() raises:
     print("  OK: Gradient checker handles negative input")
 
 
-fn test_gradient_checker_large_input() raises:
+def test_gradient_checker_large_input() raises:
     """Meta-test: Gradient checker works for moderate input values.
 
     For x = 5.0:
@@ -414,10 +414,10 @@ fn test_gradient_checker_large_input() raises:
 
     var x = full([1], 5.0, DType.float32)
 
-    fn forward(t: AnyTensor) raises escaping -> AnyTensor:
+    def forward(t: AnyTensor) raises escaping -> AnyTensor:
         return square_forward(t)
 
-    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return square_backward_correct(grad, inp)
 
     # Moderate inputs still need larger tolerance for float32 precision
@@ -433,7 +433,7 @@ fn test_gradient_checker_large_input() raises:
     print("  OK: Gradient checker handles moderate input values")
 
 
-fn test_gradient_checker_small_epsilon() raises:
+def test_gradient_checker_small_epsilon() raises:
     """Meta-test: Gradient checker works with reasonable small epsilon.
 
     Smaller epsilon (1e-4) provides better numerical accuracy.
@@ -443,10 +443,10 @@ fn test_gradient_checker_small_epsilon() raises:
 
     var x = full([1], 1.0, DType.float32)
 
-    fn forward(t: AnyTensor) raises escaping -> AnyTensor:
+    def forward(t: AnyTensor) raises escaping -> AnyTensor:
         return square_forward(t)
 
-    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return square_backward_correct(grad, inp)
 
     var passed = check_gradients(
@@ -461,7 +461,7 @@ fn test_gradient_checker_small_epsilon() raises:
     print("  OK: Gradient checker stable with smaller epsilon")
 
 
-fn test_gradient_checker_large_epsilon() raises:
+def test_gradient_checker_large_epsilon() raises:
     """Meta-test: Gradient checker works with larger epsilon.
 
     Larger epsilon (1e-3) should still pass with correct gradient.
@@ -471,10 +471,10 @@ fn test_gradient_checker_large_epsilon() raises:
 
     var x = full([1], 1.0, DType.float32)
 
-    fn forward(t: AnyTensor) raises escaping -> AnyTensor:
+    def forward(t: AnyTensor) raises escaping -> AnyTensor:
         return square_forward(t)
 
-    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return square_backward_correct(grad, inp)
 
     var passed = check_gradients(
@@ -489,7 +489,7 @@ fn test_gradient_checker_large_epsilon() raises:
     print("  OK: Gradient checker stable with large epsilon")
 
 
-fn test_check_gradients_does_not_mutate_input() raises:
+def test_check_gradients_does_not_mutate_input() raises:
     """Regression test: check_gradients must not mutate the original input tensor.
 
     Verifies that the deep-copy fix for the shallow-copy memory hazard is in
@@ -507,10 +507,10 @@ fn test_check_gradients_does_not_mutate_input() raises:
     for i in range(x.numel()):
         before.append(x._get_float64(i))
 
-    fn forward(t: AnyTensor) raises escaping -> AnyTensor:
+    def forward(t: AnyTensor) raises escaping -> AnyTensor:
         return square_forward(t)
 
-    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return square_backward_correct(grad, inp)
 
     _ = check_gradients(forward, backward, x, epsilon=1e-5, tolerance=1e-2)
@@ -527,7 +527,7 @@ fn test_check_gradients_does_not_mutate_input() raises:
     print("  OK: check_gradients does not mutate the original input tensor")
 
 
-fn test_check_gradients_verbose_does_not_mutate_input() raises:
+def test_check_gradients_verbose_does_not_mutate_input() raises:
     """Regression test: check_gradients_verbose must not mutate the original
     input tensor.
 
@@ -547,10 +547,10 @@ fn test_check_gradients_verbose_does_not_mutate_input() raises:
     for i in range(x.numel()):
         before.append(x._get_float64(i))
 
-    fn forward(t: AnyTensor) raises escaping -> AnyTensor:
+    def forward(t: AnyTensor) raises escaping -> AnyTensor:
         return square_forward(t)
 
-    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return square_backward_correct(grad, inp)
 
     _ = check_gradients_verbose(
@@ -572,7 +572,7 @@ fn test_check_gradients_verbose_does_not_mutate_input() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all test_gradient_checker_meta tests."""
     print("Running test_gradient_checker_meta tests...")
 

@@ -47,7 +47,7 @@ from shared.utils.training_args import parse_training_args_with_defaults
 from model import ResNet18
 
 
-fn compute_accuracy(
+def compute_accuracy(
     mut model: ResNet18, images: AnyTensor, labels: AnyTensor
 ) raises -> Float32:
     """Compute classification accuracy on a dataset.
@@ -106,7 +106,7 @@ fn compute_accuracy(
     return Float32(correct) / Float32(num_samples) * 100.0
 
 
-fn compute_batch_gradients(
+def compute_batch_gradients(
     mut model: ResNet18,
     batch_images: AnyTensor,
     batch_labels: AnyTensor,
@@ -153,7 +153,7 @@ fn compute_batch_gradients(
     return loss_value._data.bitcast[Float32]()[0]
 
 
-fn train_epoch(
+def train_epoch(
     mut model: ResNet18,
     train_images: AnyTensor,
     train_labels: AnyTensor,
@@ -226,7 +226,7 @@ fn train_epoch(
     return avg_loss
 
 
-fn main() raises:
+def main() raises:
     """Main training loop for ResNet-18 on CIFAR-10."""
     print("=" * 60)
     print("ResNet-18 Training on CIFAR-10")

@@ -28,7 +28,7 @@ from shared.testing.special_values import (
     create_seeded_random_tensor,
     SPECIAL_VALUE_ONE,
 )
-from math import isnan, isinf
+from std.math import isnan, isinf
 
 
 # ============================================================================
@@ -36,7 +36,7 @@ from math import isnan, isinf
 # ============================================================================
 
 
-fn create_alexnet_parameters(
+def create_alexnet_parameters(
     dtype: DType,
 ) raises -> Tuple[
     AnyTensor,
@@ -120,7 +120,7 @@ fn create_alexnet_parameters(
     )
 
 
-fn alexnet_forward(
+def alexnet_forward(
     x: AnyTensor,
     c1_k: AnyTensor,
     c1_b: AnyTensor,
@@ -190,7 +190,7 @@ fn alexnet_forward(
 # ============================================================================
 
 
-fn test_forward_output_shape_224x224() raises:
+def test_forward_output_shape_224x224() raises:
     """Test forward pass produces correct output shape (batch, 1000) with 224x224 input.
     """
     var dtype = DType.float32
@@ -252,7 +252,7 @@ fn test_forward_output_shape_224x224() raises:
         assert_false(isinf(val), "AlexNet output contains Inf at " + String(i))
 
 
-fn test_forward_single_sample_224x224() raises:
+def test_forward_single_sample_224x224() raises:
     """Test forward pass with single sample (1, 3, 224, 224)."""
     var dtype = DType.float32
 
@@ -306,7 +306,7 @@ fn test_forward_single_sample_224x224() raises:
     assert_dtype(output, dtype, "Single sample output dtype mismatch")
 
 
-fn test_forward_batch_sizes() raises:
+def test_forward_batch_sizes() raises:
     """Test forward pass with different batch sizes."""
     var dtype = DType.float32
 
@@ -376,7 +376,7 @@ fn test_forward_batch_sizes() raises:
     assert_shape(output4, [4, 1000], "Batch size 4 output shape")
 
 
-fn test_forward_deterministic() raises:
+def test_forward_deterministic() raises:
     """Test that forward pass is deterministic with same input."""
     var dtype = DType.float32
 
@@ -460,7 +460,7 @@ fn test_forward_deterministic() raises:
 # ============================================================================
 
 
-fn test_shape_propagation_through_conv_layers() raises:
+def test_shape_propagation_through_conv_layers() raises:
     """Test that shapes propagate correctly through conv and pool layers."""
     var dtype = DType.float32
 
@@ -534,7 +534,7 @@ fn test_shape_propagation_through_conv_layers() raises:
     assert_equal(s[3], 13)
 
 
-fn test_shape_propagation_through_fc_layers() raises:
+def test_shape_propagation_through_fc_layers() raises:
     """Test that shapes propagate correctly through FC layers."""
     var dtype = DType.float32
 
@@ -594,7 +594,7 @@ fn test_shape_propagation_through_fc_layers() raises:
 # ============================================================================
 
 
-fn test_parameters_initialization() raises:
+def test_parameters_initialization() raises:
     """Test that model parameters initialize correctly."""
     var dtype = DType.float32
 
@@ -641,7 +641,7 @@ fn test_parameters_initialization() raises:
         assert_close_float(val, 0.0, atol=1e-10, message="Conv1 bias not zero")
 
 
-fn test_multiple_dtypes() raises:
+def test_multiple_dtypes() raises:
     """Test forward pass with multiple dtypes."""
     var batch_size = 1
     var input_shape = List[Int]()
@@ -744,7 +744,7 @@ fn test_multiple_dtypes() raises:
 # ============================================================================
 
 
-fn assert_equal(a: Int, b: Int) raises:
+def assert_equal(a: Int, b: Int) raises:
     """Assert two integers are equal."""
     if a != b:
         raise Error("Assertion failed: " + String(a) + " != " + String(b))
@@ -755,7 +755,7 @@ fn assert_equal(a: Int, b: Int) raises:
 # ============================================================================
 
 
-fn test_full_forward_pipeline() raises:
+def test_full_forward_pipeline() raises:
     """Test complete forward pass: input -> output through all 16 operations."""
     var dtype = DType.float32
 
@@ -831,7 +831,7 @@ fn test_full_forward_pipeline() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     print("Starting AlexNet E2E Tests...")
 
     print("  test_forward_output_shape_224x224...", end="")

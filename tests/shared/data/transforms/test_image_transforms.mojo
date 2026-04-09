@@ -17,7 +17,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_resize_basic():
+def test_resize_basic():
     """Test resizing image to target dimensions.
 
     Should resize input tensor from any size to specified (height, width),
@@ -33,7 +33,7 @@ fn test_resize_basic():
     pass
 
 
-fn test_resize_upscaling():
+def test_resize_upscaling():
     """Test resizing smaller image to larger size.
 
     Should handle upscaling (interpolation) correctly,
@@ -48,7 +48,7 @@ fn test_resize_upscaling():
     pass
 
 
-fn test_resize_aspect_ratio():
+def test_resize_aspect_ratio():
     """Test resizing with different aspect ratio.
 
     Should allow non-square targets, e.g., 224x320,
@@ -63,7 +63,7 @@ fn test_resize_aspect_ratio():
     pass
 
 
-fn test_resize_interpolation_methods():
+def test_resize_interpolation_methods():
     """Test different interpolation methods.
 
     Should support bilinear, nearest-neighbor, and bicubic
@@ -82,7 +82,7 @@ fn test_resize_interpolation_methods():
     pass
 
 
-fn test_center_crop():
+def test_center_crop():
     """Test center cropping to smaller size.
 
     Should extract center region of specified size,
@@ -101,7 +101,7 @@ fn test_center_crop():
     pass
 
 
-fn test_random_crop():
+def test_random_crop():
     """Test random cropping with deterministic seed.
 
     Should crop random region of specified size,
@@ -122,7 +122,7 @@ fn test_random_crop():
     pass
 
 
-fn test_random_crop_padding():
+def test_random_crop_padding():
     """Test random crop with padding for small images.
 
     If crop size > image size, should pad image first
@@ -137,7 +137,7 @@ fn test_random_crop_padding():
     pass
 
 
-fn test_normalize_basic():
+def test_normalize_basic():
     """Test normalization with mean and std.
 
     Should apply (x - mean) / std normalization,
@@ -152,7 +152,7 @@ fn test_normalize_basic():
     pass
 
 
-fn test_normalize_per_channel():
+def test_normalize_per_channel():
     """Test per-channel normalization for RGB images.
 
     Should support different mean/std for each channel,
@@ -170,7 +170,7 @@ fn test_normalize_per_channel():
     pass
 
 
-fn test_normalize_range():
+def test_normalize_range():
     """Test normalization to specific range.
 
     Common patterns: [0, 1] → [-1, 1] for tanh,
@@ -185,7 +185,7 @@ fn test_normalize_range():
     pass
 
 
-fn test_color_jitter_brightness():
+def test_color_jitter_brightness():
     """Test random brightness adjustment.
 
     Should randomly adjust image brightness within specified range,
@@ -204,7 +204,7 @@ fn test_color_jitter_brightness():
     pass
 
 
-fn test_color_jitter_all_params():
+def test_color_jitter_all_params():
     """Test ColorJitter with brightness, contrast, saturation.
 
     Should apply all adjustments when specified,
@@ -222,7 +222,7 @@ fn test_color_jitter_all_params():
     pass
 
 
-fn test_horizontal_flip():
+def test_horizontal_flip():
     """Test horizontal (left-right) flip.
 
     Should mirror image along vertical axis,
@@ -238,7 +238,7 @@ fn test_horizontal_flip():
     pass
 
 
-fn test_vertical_flip():
+def test_vertical_flip():
     """Test vertical (up-down) flip.
 
     Should mirror image along horizontal axis,
@@ -254,7 +254,7 @@ fn test_vertical_flip():
     pass
 
 
-fn test_random_flip():
+def test_random_flip():
     """Test random horizontal flip.
 
     Should flip with 50% probability (deterministic with seed),
@@ -277,7 +277,7 @@ fn test_random_flip():
     pass
 
 
-fn main() raises:
+def main() raises:
     """Run all test_image_transforms tests."""
     print("Running test_image_transforms tests...")
 

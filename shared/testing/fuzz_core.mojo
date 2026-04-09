@@ -47,8 +47,8 @@ Example:
     ```
 """
 
-from random import random_float64, seed as random_seed
-from math import isnan, isinf
+from std.random import random_float64, seed as random_seed
+from std.math import isnan, isinf
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 
 
@@ -94,7 +94,7 @@ struct FuzzConfig(Copyable, Movable):
     var max_value: Float64
     var verbose: Bool
 
-    fn __init__(
+    def __init__(
         out self,
         seed: Int = 42,
         iterations: Int = 100,
@@ -163,7 +163,7 @@ struct FuzzResult(Copyable, Movable):
     var failure_details: List[String]
     var failure_seeds: List[Int]
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize empty fuzz result."""
         self.total_runs = 0
         self.successes = 0
@@ -172,12 +172,12 @@ struct FuzzResult(Copyable, Movable):
         self.failure_details = List[String]()
         self.failure_seeds = List[Int]()
 
-    fn add_success(mut self):
+    def add_success(mut self):
         """Record a successful iteration."""
         self.total_runs += 1
         self.successes += 1
 
-    fn add_failure(mut self, detail: String, iteration_seed: Int):
+    def add_failure(mut self, detail: String, iteration_seed: Int):
         """Record a failed iteration.
 
         Args:
@@ -189,12 +189,12 @@ struct FuzzResult(Copyable, Movable):
         self.failure_details.append(detail)
         self.failure_seeds.append(iteration_seed)
 
-    fn add_expected_error(mut self):
+    def add_expected_error(mut self):
         """Record an expected/handled error (not a failure)."""
         self.total_runs += 1
         self.expected_errors += 1
 
-    fn is_success(self) -> Bool:
+    def is_success(self) -> Bool:
         """Check if fuzzing run was successful (no failures).
 
         Returns:
@@ -202,7 +202,7 @@ struct FuzzResult(Copyable, Movable):
         """
         return self.failures == 0
 
-    fn print_summary(self):
+    def print_summary(self):
         """Print summary of fuzzing results."""
         print("=== Fuzzing Results ===")
         print("  Total runs:", self.total_runs)
@@ -245,7 +245,7 @@ struct SeededRNG(Copyable, Movable):
     var seed: Int
     var iteration: Int
 
-    fn __init__(out self, seed: Int = 42):
+    def __init__(out self, seed: Int = 42):
         """Initialize RNG with seed.
 
         Args:
@@ -255,7 +255,7 @@ struct SeededRNG(Copyable, Movable):
         self.iteration = 0
         random_seed(seed)
 
-    fn reseed(mut self, new_seed: Int):
+    def reseed(mut self, new_seed: Int):
         """Reset RNG with new seed.
 
         Args:
@@ -265,12 +265,12 @@ struct SeededRNG(Copyable, Movable):
         self.iteration = 0
         random_seed(new_seed)
 
-    fn next_iteration(mut self):
+    def next_iteration(mut self):
         """Advance to next iteration with new seed."""
         self.iteration += 1
         random_seed(self.seed + self.iteration)
 
-    fn random_float(self, low: Float64 = 0.0, high: Float64 = 1.0) -> Float64:
+    def random_float(self, low: Float64 = 0.0, high: Float64 = 1.0) -> Float64:
         """Generate random float in range [low, high).
 
         Args:
@@ -283,7 +283,7 @@ struct SeededRNG(Copyable, Movable):
         var rand = random_float64()
         return low + rand * (high - low)
 
-    fn random_int(self, low: Int, high: Int) -> Int:
+    def random_int(self, low: Int, high: Int) -> Int:
         """Generate random integer in range [low, high).
 
         Args:
@@ -299,7 +299,7 @@ struct SeededRNG(Copyable, Movable):
         var range_size = high - low
         return low + Int(rand * Float64(range_size))
 
-    fn random_bool(self) -> Bool:
+    def random_bool(self) -> Bool:
         """Generate random boolean.
 
         Returns:
@@ -307,7 +307,7 @@ struct SeededRNG(Copyable, Movable):
         """
         return random_float64() < 0.5
 
-    fn get_current_seed(self) -> Int:
+    def get_current_seed(self) -> Int:
         """Get seed for current iteration (for reproduction).
 
         Returns:
@@ -321,7 +321,7 @@ struct SeededRNG(Copyable, Movable):
 # ============================================================================
 
 
-fn create_random_tensor(
+def create_random_tensor(
     rng: SeededRNG,
     shape: List[Int],
     dtype: DType,
@@ -367,7 +367,7 @@ fn create_random_tensor(
     return tensor^
 
 
-fn create_edge_case_tensor(
+def create_edge_case_tensor(
     shape: List[Int], dtype: DType, edge_type: String
 ) raises -> AnyTensor:
     """Create tensor filled with edge case values.
@@ -469,7 +469,7 @@ fn create_edge_case_tensor(
 # ============================================================================
 
 
-fn has_nan(tensor: AnyTensor) -> Bool:
+def has_nan(tensor: AnyTensor) -> Bool:
     """Check if tensor contains any NaN values.
 
     Args:
@@ -491,7 +491,7 @@ fn has_nan(tensor: AnyTensor) -> Bool:
     return False
 
 
-fn has_inf(tensor: AnyTensor) -> Bool:
+def has_inf(tensor: AnyTensor) -> Bool:
     """Check if tensor contains any infinity values.
 
     Args:
@@ -513,7 +513,7 @@ fn has_inf(tensor: AnyTensor) -> Bool:
     return False
 
 
-fn is_finite(tensor: AnyTensor) -> Bool:
+def is_finite(tensor: AnyTensor) -> Bool:
     """Check if all tensor values are finite (not NaN or Inf).
 
     Args:
@@ -535,7 +535,7 @@ fn is_finite(tensor: AnyTensor) -> Bool:
     return True
 
 
-fn all_values_in_range(tensor: AnyTensor, low: Float64, high: Float64) -> Bool:
+def all_values_in_range(tensor: AnyTensor, low: Float64, high: Float64) -> Bool:
     """Check if all tensor values are within specified range.
 
     Args:
@@ -588,7 +588,7 @@ struct NumericInvariants(Copyable, Movable):
     var max_value: Float64
     var is_valid: Bool
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize with default values."""
         self.has_nan = False
         self.has_inf = False
@@ -598,7 +598,7 @@ struct NumericInvariants(Copyable, Movable):
         self.is_valid = True
 
 
-fn check_numeric_invariants(
+def check_numeric_invariants(
     tensor: AnyTensor, allow_nan: Bool = False, allow_inf: Bool = False
 ) -> NumericInvariants:
     """Check numeric invariants on a tensor.
@@ -660,7 +660,7 @@ fn check_numeric_invariants(
 # ============================================================================
 
 
-fn verify_shape_preserved(original: AnyTensor, result: AnyTensor) -> Bool:
+def verify_shape_preserved(original: AnyTensor, result: AnyTensor) -> Bool:
     """Verify that operation preserved tensor shape.
 
     Args:
@@ -690,7 +690,7 @@ fn verify_shape_preserved(original: AnyTensor, result: AnyTensor) -> Bool:
     return True
 
 
-fn verify_dtype_preserved(original: AnyTensor, result: AnyTensor) -> Bool:
+def verify_dtype_preserved(original: AnyTensor, result: AnyTensor) -> Bool:
     """Verify that operation preserved tensor dtype.
 
     Args:
@@ -710,7 +710,7 @@ fn verify_dtype_preserved(original: AnyTensor, result: AnyTensor) -> Bool:
     return original.dtype() == result.dtype()
 
 
-fn verify_numel_preserved(original: AnyTensor, result: AnyTensor) -> Bool:
+def verify_numel_preserved(original: AnyTensor, result: AnyTensor) -> Bool:
     """Verify that operation preserved number of elements.
 
     Args:
@@ -735,7 +735,7 @@ fn verify_numel_preserved(original: AnyTensor, result: AnyTensor) -> Bool:
 # ============================================================================
 
 
-fn format_failure_message(
+def format_failure_message(
     operation: String,
     iteration: Int,
     seed: Int,

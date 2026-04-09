@@ -26,7 +26,7 @@ from shared.training.callbacks import ModelCheckpoint
 from shared.training.base import TrainingState
 
 
-fn test_checkpointing_initialization() raises:
+def test_checkpointing_initialization() raises:
     """Test ModelCheckpoint callback initialization with parameters."""
     var checkpoint = ModelCheckpoint(
         filepath="checkpoints/model.pt",
@@ -44,7 +44,7 @@ fn test_checkpointing_initialization() raises:
     assert_equal(checkpoint.mode, "min")
 
 
-fn test_checkpointing_saves_at_epoch_end() raises:
+def test_checkpointing_saves_at_epoch_end() raises:
     """Test ModelCheckpoint saves at the end of each epoch (by frequency)."""
     var checkpoint = ModelCheckpoint(filepath="/tmp/model.pt", save_frequency=1)
     var state = TrainingState(epoch=1, learning_rate=0.1)
@@ -58,7 +58,7 @@ fn test_checkpointing_saves_at_epoch_end() raises:
     assert_equal(checkpoint.save_count, 1)
 
 
-fn test_checkpointing_save_frequency() raises:
+def test_checkpointing_save_frequency() raises:
     """Test ModelCheckpoint respects save_frequency parameter."""
     var checkpoint = ModelCheckpoint(filepath="/tmp/model.pt", save_frequency=3)
     var state = TrainingState(epoch=1, learning_rate=0.1)
@@ -92,7 +92,7 @@ fn test_checkpointing_save_frequency() raises:
     assert_equal(checkpoint.save_count, 2)
 
 
-fn test_checkpointing_save_best_only_min_mode() raises:
+def test_checkpointing_save_best_only_min_mode() raises:
     """Test ModelCheckpoint with save_best_only=True in min mode."""
     var checkpoint = ModelCheckpoint(
         filepath="/tmp/best_model.pt",
@@ -122,7 +122,7 @@ fn test_checkpointing_save_best_only_min_mode() raises:
     assert_equal(checkpoint.save_count, 2)  # No change
 
 
-fn test_checkpointing_save_best_only_max_mode() raises:
+def test_checkpointing_save_best_only_max_mode() raises:
     """Test ModelCheckpoint with save_best_only=True in max mode."""
     var checkpoint = ModelCheckpoint(
         filepath="/tmp/best_model.pt",
@@ -152,7 +152,7 @@ fn test_checkpointing_save_best_only_max_mode() raises:
     assert_equal(checkpoint.save_count, 2)  # No change
 
 
-fn test_checkpointing_save_best_only_no_improvement() raises:
+def test_checkpointing_save_best_only_no_improvement() raises:
     """Test save_best_only doesn't save when no improvement."""
     var checkpoint = ModelCheckpoint(
         filepath="/tmp/best_model.pt",
@@ -177,7 +177,7 @@ fn test_checkpointing_save_best_only_no_improvement() raises:
     assert_equal(checkpoint.save_count, 1)
 
 
-fn test_checkpointing_tracks_best_value_min() raises:
+def test_checkpointing_tracks_best_value_min() raises:
     """Test ModelCheckpoint correctly tracks best value in min mode."""
     var checkpoint = ModelCheckpoint(
         filepath="/tmp/model.pt",
@@ -208,7 +208,7 @@ fn test_checkpointing_tracks_best_value_min() raises:
     assert_almost_equal(checkpoint.best_value, 0.3)
 
 
-fn test_checkpointing_tracks_best_value_max() raises:
+def test_checkpointing_tracks_best_value_max() raises:
     """Test ModelCheckpoint correctly tracks best value in max mode."""
     var checkpoint = ModelCheckpoint(
         filepath="/tmp/model.pt",
@@ -239,7 +239,7 @@ fn test_checkpointing_tracks_best_value_max() raises:
     assert_almost_equal(checkpoint.best_value, 0.8)
 
 
-fn test_checkpointing_mode_min() raises:
+def test_checkpointing_mode_min() raises:
     """Test ModelCheckpoint with mode='min' for loss minimization."""
     var checkpoint = ModelCheckpoint(
         filepath="/tmp/model.pt",
@@ -262,7 +262,7 @@ fn test_checkpointing_mode_min() raises:
     assert_greater(count2, count1)  # Should have saved
 
 
-fn test_checkpointing_mode_max() raises:
+def test_checkpointing_mode_max() raises:
     """Test ModelCheckpoint with mode='max' for accuracy maximization."""
     var checkpoint = ModelCheckpoint(
         filepath="/tmp/model.pt",
@@ -285,7 +285,7 @@ fn test_checkpointing_mode_max() raises:
     assert_greater(count2, count1)  # Should have saved
 
 
-fn test_checkpointing_missing_monitored_metric() raises:
+def test_checkpointing_missing_monitored_metric() raises:
     """Test ModelCheckpoint handles missing monitored metric gracefully."""
     var checkpoint = ModelCheckpoint(
         filepath="/tmp/model.pt",
@@ -303,7 +303,7 @@ fn test_checkpointing_missing_monitored_metric() raises:
     assert_equal(checkpoint.save_count, 0)
 
 
-fn test_checkpointing_error_count_tracking() raises:
+def test_checkpointing_error_count_tracking() raises:
     """Test ModelCheckpoint tracks error count."""
     var checkpoint = ModelCheckpoint(filepath="/tmp/model.pt")
 
@@ -314,7 +314,7 @@ fn test_checkpointing_error_count_tracking() raises:
     # This test just verifies the attribute exists and is accessible
 
 
-fn test_checkpointing_get_save_count() raises:
+def test_checkpointing_get_save_count() raises:
     """Test get_save_count returns correct count."""
     var checkpoint = ModelCheckpoint(filepath="/tmp/model.pt", save_frequency=1)
     var state = TrainingState(epoch=1, learning_rate=0.1)
@@ -332,7 +332,7 @@ fn test_checkpointing_get_save_count() raises:
     assert_equal(checkpoint.get_save_count(), 2)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_checkpointing tests."""
     print("Running test_checkpointing tests...")
 

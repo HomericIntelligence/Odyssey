@@ -16,11 +16,11 @@ from shared.training.model_utils import (
     validate_shapes,
 )
 from pathlib import Path
-from collections import List
+from std.collections import List
 import os
 
 
-fn test_save_load_model_weights() raises:
+def test_save_load_model_weights() raises:
     """Test saving and loading model weights."""
     # Create test parameters
     var params: List[AnyTensor] = []
@@ -84,7 +84,7 @@ fn test_save_load_model_weights() raises:
         _cleanup_directory(tmpdir)
 
 
-fn test_get_lenet5_parameter_names() raises:
+def test_get_lenet5_parameter_names() raises:
     """Test parameter naming for LeNet-5."""
     var names = get_model_parameter_names("lenet5")
 
@@ -97,7 +97,7 @@ fn test_get_lenet5_parameter_names() raises:
     assert_equal(names[9], "fc3_bias", "Tenth param should be fc3_bias")
 
 
-fn test_get_alexnet_parameter_names() raises:
+def test_get_alexnet_parameter_names() raises:
     """Test parameter naming for AlexNet."""
     var names = get_model_parameter_names("alexnet")
 
@@ -112,7 +112,7 @@ fn test_get_alexnet_parameter_names() raises:
     assert_equal(names[15], "fc3_bias", "Last param should be fc3_bias")
 
 
-fn test_get_vgg16_parameter_names() raises:
+def test_get_vgg16_parameter_names() raises:
     """Test parameter naming for VGG-16."""
     var names = get_model_parameter_names("vgg16")
 
@@ -131,7 +131,7 @@ fn test_get_vgg16_parameter_names() raises:
     assert_equal(names[31], "fc3_bias", "Last param should be fc3_bias")
 
 
-fn test_validate_shapes_matching() raises:
+def test_validate_shapes_matching() raises:
     """Test shape validation with matching tensors."""
     # Create matching tensors
     var expected: List[AnyTensor] = []
@@ -150,7 +150,7 @@ fn test_validate_shapes_matching() raises:
     validate_shapes(loaded, expected)
 
 
-fn test_validate_shapes_rank_mismatch() raises:
+def test_validate_shapes_rank_mismatch() raises:
     """Test shape validation with rank mismatch."""
     var expected: List[AnyTensor] = []
     var loaded: List[AnyTensor] = []
@@ -170,7 +170,7 @@ fn test_validate_shapes_rank_mismatch() raises:
         pass
 
 
-fn test_validate_shapes_dimension_mismatch() raises:
+def test_validate_shapes_dimension_mismatch() raises:
     """Test shape validation with dimension mismatch."""
     var expected: List[AnyTensor] = []
     var loaded: List[AnyTensor] = []
@@ -190,7 +190,7 @@ fn test_validate_shapes_dimension_mismatch() raises:
         pass
 
 
-fn test_validate_shapes_count_mismatch() raises:
+def test_validate_shapes_count_mismatch() raises:
     """Test shape validation with parameter count mismatch."""
     var expected: List[AnyTensor] = []
     var loaded: List[AnyTensor] = []
@@ -217,7 +217,7 @@ fn test_validate_shapes_count_mismatch() raises:
 # ============================================================================
 
 
-fn _file_exists(path: String) -> Bool:
+def _file_exists(path: String) -> Bool:
     """Check if file exists."""
     try:
         with open(path, "r"):
@@ -226,7 +226,7 @@ fn _file_exists(path: String) -> Bool:
         return False
 
 
-fn _cleanup_directory(path: String):
+def _cleanup_directory(path: String):
     """Remove directory and all contents."""
     try:
         from python import Python
@@ -238,7 +238,7 @@ fn _cleanup_directory(path: String):
         pass
 
 
-fn main() raises:
+def main() raises:
     """Run all model utils tests."""
     test_save_load_model_weights()
     test_get_lenet5_parameter_names()

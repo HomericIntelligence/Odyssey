@@ -13,8 +13,8 @@ Future versions may support arbitrary image dimensions.
 """
 
 from shared.tensor.any_tensor import AnyTensor, zeros
-from math import sqrt, floor, ceil, sin, cos
-from random import random_si64
+from std.math import sqrt, floor, ceil, sin, cos
+from std.random import random_si64
 from shared.data.random_transform_base import RandomTransformBase, random_float
 
 
@@ -23,7 +23,7 @@ from shared.data.random_transform_base import RandomTransformBase, random_float
 # ============================================================================
 
 
-fn infer_image_dimensions(
+def infer_image_dimensions(
     data: AnyTensor, channels: Int = 3
 ) raises -> Tuple[Int, Int, Int]:
     """Infer image dimensions from flattened tensor.
@@ -73,7 +73,7 @@ trait Transform(Copyable, Movable, ImplicitlyDestructible):
     Transforms modify data in-place or return transformed copies.
     """
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Apply the transform to data.
 
         Args:
@@ -105,11 +105,11 @@ struct Compose[T: Transform & Copyable & Movable](Copyable, Movable, Transform):
     var transforms: List[Self.T]
     """List of transforms to apply in order."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Create empty composition of transforms."""
         self.transforms = List[Self.T]()
 
-    fn __init__(out self, var transforms: List[Self.T]):
+    def __init__(out self, var transforms: List[Self.T]):
         """Create composition of transforms.
 
         Args:
@@ -117,7 +117,7 @@ struct Compose[T: Transform & Copyable & Movable](Copyable, Movable, Transform):
         """
         self.transforms = transforms^
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Apply all transforms sequentially.
 
         Args:
@@ -134,11 +134,11 @@ struct Compose[T: Transform & Copyable & Movable](Copyable, Movable, Transform):
             result = self.transforms[i](result)
         return result
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return number of transforms."""
         return len(self.transforms)
 
-    fn append(mut self, var transform: Self.T):
+    def append(mut self, var transform: Self.T):
         """Add a transform to the pipeline.
 
         Args:
@@ -162,11 +162,11 @@ struct ToAnyTensor(Copyable, Movable, Transform):
     Ensures data is in tensor format with appropriate dtype.
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         """Create ToAnyTensor converter."""
         pass
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Convert to tensor.
 
         Args:
@@ -193,7 +193,7 @@ struct Normalize(Copyable, Movable, Transform):
     var std: Float64
     """Standard deviation to divide all elements by."""
 
-    fn __init__(out self, mean: Float64 = 0.0, std: Float64 = 1.0):
+    def __init__(out self, mean: Float64 = 0.0, std: Float64 = 1.0):
         """Create normalize transform.
 
         Args:
@@ -203,7 +203,7 @@ struct Normalize(Copyable, Movable, Transform):
         self.mean = mean
         self.std = std
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Normalize tensor by subtracting mean and dividing by std.
 
         Applies the formula: (data - mean) / std to all elements.
@@ -242,7 +242,7 @@ struct Reshape(Copyable, Movable, Transform):
     var target_shape: List[Int]
     """Target shape dimensions for the tensor."""
 
-    fn __init__(out self, var target_shape: List[Int]):
+    def __init__(out self, var target_shape: List[Int]):
         """Create reshape transform.
 
         Args:
@@ -250,7 +250,7 @@ struct Reshape(Copyable, Movable, Transform):
         """
         self.target_shape = target_shape^
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Reshape tensor to target shape.
 
         Validates that the total number of elements remains the same.
@@ -308,7 +308,7 @@ struct Resize(Copyable, Movable, Transform):
     var interpolation: String
     """Interpolation method to use."""
 
-    fn __init__(
+    def __init__(
         out self, size: Tuple[Int, Int], interpolation: String = "bilinear"
     ):
         """Create resize transform.
@@ -320,7 +320,7 @@ struct Resize(Copyable, Movable, Transform):
         self.size = size
         self.interpolation = interpolation
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Resize image tensor using bilinear interpolation.
 
         Resizes spatial dimensions (H, W) while preserving channels (C).
@@ -421,7 +421,7 @@ struct CenterCrop(Copyable, Movable, Transform):
     var size: Tuple[Int, Int]
     """Target (height, width) dimensions of the crop region."""
 
-    fn __init__(out self, size: Tuple[Int, Int]):
+    def __init__(out self, size: Tuple[Int, Int]):
         """Create center crop transform.
 
         Args:
@@ -429,7 +429,7 @@ struct CenterCrop(Copyable, Movable, Transform):
         """
         self.size = size
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Center crop image to target size.
 
         Extracts a center rectangle from a 2D image tensor.
@@ -488,7 +488,7 @@ struct RandomCrop(Copyable, Movable, Transform):
     var padding: Optional[Int]
     """Optional padding to apply before cropping."""
 
-    fn __init__(out self, size: Tuple[Int, Int], padding: Optional[Int] = None):
+    def __init__(out self, size: Tuple[Int, Int], padding: Optional[Int] = None):
         """Create random crop transform.
 
         Args:
@@ -498,7 +498,7 @@ struct RandomCrop(Copyable, Movable, Transform):
         self.size = size
         self.padding = padding
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Random crop image to target size.
 
         Extracts a random rectangle from a 2D image tensor.
@@ -539,8 +539,8 @@ struct RandomCrop(Copyable, Movable, Transform):
         # Random top-left position within valid range
         var max_h = padded_height - crop_h
         var max_w = padded_width - crop_w
-        var top = Int(random_si64(0, max_h + 1))
-        var left = Int(random_si64(0, max_w + 1))
+        var top = Int(random_si64(Int64(0), Int64(max_h + 1)))
+        var left = Int(random_si64(Int64(0), Int64(max_w + 1)))
 
         # Adjust for padding offset
         var actual_top = top
@@ -588,7 +588,7 @@ struct RandomHorizontalFlip(Copyable, Movable, Transform):
     var base: RandomTransformBase
     """Random transform base for probability handling."""
 
-    fn __init__(out self, p: Float64 = 0.5):
+    def __init__(out self, p: Float64 = 0.5):
         """Create random horizontal flip transform.
 
         Args:
@@ -596,7 +596,7 @@ struct RandomHorizontalFlip(Copyable, Movable, Transform):
         """
         self.base = RandomTransformBase(p)
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Randomly flip image horizontally with probability p.
 
         Flips the image along the width dimension (reverses each row).
@@ -649,7 +649,7 @@ struct RandomVerticalFlip(Copyable, Movable, Transform):
     var base: RandomTransformBase
     """Random transform base for probability handling."""
 
-    fn __init__(out self, p: Float64 = 0.5):
+    def __init__(out self, p: Float64 = 0.5):
         """Create random vertical flip transform.
 
         Args:
@@ -657,7 +657,7 @@ struct RandomVerticalFlip(Copyable, Movable, Transform):
         """
         self.base = RandomTransformBase(p)
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Randomly flip image vertically with probability p.
 
         Flips the image along the height dimension (reverses rows).
@@ -712,7 +712,7 @@ struct RandomRotation(Copyable, Movable, Transform):
     var fill_value: Float64
     """Value to fill empty pixels after rotation."""
 
-    fn __init__(
+    def __init__(
         out self, degrees: Tuple[Float64, Float64], fill_value: Float64 = 0.0
     ):
         """Create random rotation transform.
@@ -724,7 +724,7 @@ struct RandomRotation(Copyable, Movable, Transform):
         self.degrees = degrees
         self.fill_value = fill_value
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Randomly rotate image within specified degree range.
 
         Performs rotation around image center using nearest-neighbor sampling.
@@ -825,7 +825,7 @@ struct RandomErasing(Copyable, Movable, Transform):
     var value: Float64
     """Pixel value to fill erased region with."""
 
-    fn __init__(
+    def __init__(
         out self,
         p: Float64 = 0.5,
         scale: Tuple[Float64, Float64] = (0.02, 0.33),
@@ -845,7 +845,7 @@ struct RandomErasing(Copyable, Movable, Transform):
         self.ratio = ratio
         self.value = value
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Apply random erasing with probability p.
 
         Randomly erases a rectangular region from the image by:
@@ -915,8 +915,8 @@ struct RandomErasing(Copyable, Movable, Transform):
         if max_top < 0 or max_left < 0:
             return data
 
-        var top = Int(random_si64(0, max_top + 1))
-        var left = Int(random_si64(0, max_left + 1))
+        var top = Int(random_si64(Int64(0), Int64(max_top + 1)))
+        var left = Int(random_si64(Int64(0), Int64(max_left + 1)))
 
         # Step 5: Erase the rectangle
         # Copy original data and mark erased regions

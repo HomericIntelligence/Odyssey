@@ -83,7 +83,7 @@ trait Module(ImplicitlyDestructible):
         - No generic parameters - all modules work with AnyTensor
     """
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute forward pass of the module.
 
         Args:
@@ -101,7 +101,7 @@ trait Module(ImplicitlyDestructible):
         """
         ...
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Get list of trainable parameters.
 
         Returns a list of all learnable parameters (weights, biases, etc.)
@@ -123,7 +123,7 @@ trait Module(ImplicitlyDestructible):
         """
         ...
 
-    fn train(mut self):
+    def train(mut self):
         """Switch module to training mode.
 
         Sets the module to training mode, enabling features like:
@@ -145,7 +145,7 @@ trait Module(ImplicitlyDestructible):
         """
         ...
 
-    fn eval(mut self):
+    def eval(mut self):
         """Switch module to evaluation mode.
 
         Sets the module to evaluation (inference) mode, disabling features like:

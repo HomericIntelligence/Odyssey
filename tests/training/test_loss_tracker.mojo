@@ -14,11 +14,11 @@ Testing strategy:
 """
 
 from testing import assert_true, assert_false, assert_equal, assert_almost_equal
-from math import sqrt
+from std.math import sqrt
 from shared.training.metrics import LossTracker, Statistics
 
 
-fn test_loss_tracker_basic() raises:
+def test_loss_tracker_basic() raises:
     """Test basic loss tracking functionality."""
     print("Testing LossTracker basic...")
 
@@ -41,7 +41,7 @@ fn test_loss_tracker_basic() raises:
     print("  ✓ LossTracker basic test passed")
 
 
-fn test_loss_tracker_moving_average() raises:
+def test_loss_tracker_moving_average() raises:
     """Test moving average with window size."""
     print("Testing LossTracker moving average...")
 
@@ -65,7 +65,7 @@ fn test_loss_tracker_moving_average() raises:
     print("  ✓ LossTracker moving average test passed")
 
 
-fn test_loss_tracker_statistics() raises:
+def test_loss_tracker_statistics() raises:
     """Test statistical summary computation."""
     print("Testing LossTracker statistics...")
 
@@ -104,7 +104,7 @@ fn test_loss_tracker_statistics() raises:
     print("  ✓ LossTracker statistics test passed")
 
 
-fn test_loss_tracker_welford_stability() raises:
+def test_loss_tracker_welford_stability() raises:
     """Test Welford's algorithm numerical stability with large sequences."""
     print("Testing LossTracker Welford's algorithm stability...")
 
@@ -133,7 +133,7 @@ fn test_loss_tracker_welford_stability() raises:
     print("  ✓ Welford's algorithm stability test passed")
 
 
-fn test_loss_tracker_multi_component() raises:
+def test_loss_tracker_multi_component() raises:
     """Test multi-component loss tracking."""
     print("Testing LossTracker multi-component...")
 
@@ -167,7 +167,7 @@ fn test_loss_tracker_multi_component() raises:
     print("  ✓ Multi-component test passed")
 
 
-fn test_loss_tracker_reset() raises:
+def test_loss_tracker_reset() raises:
     """Test resetting tracker statistics."""
     print("Testing LossTracker reset...")
 
@@ -195,7 +195,7 @@ fn test_loss_tracker_reset() raises:
     print("  ✓ Reset test passed")
 
 
-fn test_loss_tracker_reset_all() raises:
+def test_loss_tracker_reset_all() raises:
     """Test resetting all components."""
     print("Testing LossTracker reset all...")
 
@@ -220,7 +220,7 @@ fn test_loss_tracker_reset_all() raises:
     print("  ✓ Reset all test passed")
 
 
-fn test_loss_tracker_empty() raises:
+def test_loss_tracker_empty() raises:
     """Test tracker with no data."""
     print("Testing LossTracker empty...")
 
@@ -237,7 +237,7 @@ fn test_loss_tracker_empty() raises:
     print("  ✓ Empty tracker test passed")
 
 
-fn test_loss_tracker_min_max() raises:
+def test_loss_tracker_min_max() raises:
     """Test min/max tracking."""
     print("Testing LossTracker min/max...")
 
@@ -261,7 +261,7 @@ fn test_loss_tracker_min_max() raises:
     print("  ✓ Min/max test passed")
 
 
-fn test_loss_tracker_single_value() raises:
+def test_loss_tracker_single_value() raises:
     """Test tracker with single value (edge case for std)."""
     print("Testing LossTracker single value...")
 
@@ -282,7 +282,7 @@ fn test_loss_tracker_single_value() raises:
     print("  ✓ Single value test passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all loss tracker tests."""
     print("\n" + "=" * 70)
     print("LOSS TRACKER TEST SUITE")

@@ -23,7 +23,7 @@ from tests.shared.conftest import (
 from shared.training.schedulers import WarmupLR
 
 
-fn test_warmup_scheduler_initialization() raises:
+def test_warmup_scheduler_initialization() raises:
     """Test WarmupLR scheduler initialization with hyperparameters."""
     var scheduler = WarmupLR(base_lr=0.1, warmup_epochs=5)
 
@@ -32,7 +32,7 @@ fn test_warmup_scheduler_initialization() raises:
     assert_almost_equal(scheduler.base_lr, 0.1)
 
 
-fn test_warmup_scheduler_linear_increase() raises:
+def test_warmup_scheduler_linear_increase() raises:
     """Test WarmupLR increases LR linearly over warmup period.
 
     Formula: lr = base_lr * (epoch / warmup_epochs) for epoch < warmup_epochs
@@ -63,7 +63,7 @@ fn test_warmup_scheduler_linear_increase() raises:
     assert_almost_equal(lr11, 1.0)
 
 
-fn test_warmup_scheduler_reaches_target() raises:
+def test_warmup_scheduler_reaches_target() raises:
     """Test WarmupLR reaches and maintains target LR after warmup.
 
     After warmup_epochs:
@@ -81,7 +81,7 @@ fn test_warmup_scheduler_reaches_target() raises:
     assert_almost_equal(lr_later, 0.1)
 
 
-fn test_warmup_scheduler_different_warmup_periods() raises:
+def test_warmup_scheduler_different_warmup_periods() raises:
     """Test WarmupLR with different warmup_epochs values.
 
     warmup_epochs determines warmup speed:
@@ -107,7 +107,7 @@ fn test_warmup_scheduler_different_warmup_periods() raises:
     assert_almost_equal(lr2_early, 0.01)
 
 
-fn test_warmup_scheduler_single_epoch_warmup() raises:
+def test_warmup_scheduler_single_epoch_warmup() raises:
     """Test WarmupLR with warmup_epochs=1.
 
     Minimal warmup case:
@@ -125,7 +125,7 @@ fn test_warmup_scheduler_single_epoch_warmup() raises:
     assert_almost_equal(lr1, 1.0)
 
 
-fn test_warmup_scheduler_matches_formula() raises:
+def test_warmup_scheduler_matches_formula() raises:
     """Test WarmupLR matches linear formula exactly.
 
     Formula: lr = base_lr * (epoch / warmup_epochs) for epoch < warmup_epochs
@@ -151,7 +151,7 @@ fn test_warmup_scheduler_matches_formula() raises:
         assert_almost_equal(actual_lr, expected_lr, tolerance=1e-10)
 
 
-fn test_warmup_scheduler_quarter_points() raises:
+def test_warmup_scheduler_quarter_points() raises:
     """Test WarmupLR at quarter-progress points for precision.
 
     Verifies linear progression at 0%, 25%, 50%, 75%, 100% of warmup.
@@ -174,7 +174,7 @@ fn test_warmup_scheduler_quarter_points() raises:
     assert_almost_equal(scheduler.get_lr(100), 1.0)
 
 
-fn test_warmup_scheduler_zero_warmup_epochs() raises:
+def test_warmup_scheduler_zero_warmup_epochs() raises:
     """Test WarmupLR with warmup_epochs=0.
 
     Implementation handles this gracefully by returning base_lr.
@@ -186,7 +186,7 @@ fn test_warmup_scheduler_zero_warmup_epochs() raises:
     assert_almost_equal(scheduler.get_lr(10), 1.0)
 
 
-fn test_warmup_scheduler_negative_warmup_epochs() raises:
+def test_warmup_scheduler_negative_warmup_epochs() raises:
     """Test WarmupLR with negative warmup_epochs.
 
     Implementation returns base_lr (defensive behavior).
@@ -198,7 +198,7 @@ fn test_warmup_scheduler_negative_warmup_epochs() raises:
     assert_almost_equal(scheduler.get_lr(10), 1.0)
 
 
-fn test_warmup_scheduler_very_large_warmup() raises:
+def test_warmup_scheduler_very_large_warmup() raises:
     """Test WarmupLR with very large warmup_epochs.
 
     Should handle large periods without numerical issues.
@@ -218,7 +218,7 @@ fn test_warmup_scheduler_very_large_warmup() raises:
     assert_almost_equal(lr_end, 1.0)
 
 
-fn test_warmup_scheduler_property_monotonic_increase() raises:
+def test_warmup_scheduler_property_monotonic_increase() raises:
     """Property: LR should monotonically increase during warmup.
 
     During warmup period (epoch < warmup_epochs), LR should never decrease.
@@ -234,7 +234,7 @@ fn test_warmup_scheduler_property_monotonic_increase() raises:
         previous_lr = current_lr
 
 
-fn test_warmup_scheduler_property_linear() raises:
+def test_warmup_scheduler_property_linear() raises:
     """Property: LR increase should be perfectly linear.
 
     Equal epoch increments should produce equal LR increments.
@@ -256,7 +256,7 @@ fn test_warmup_scheduler_property_linear() raises:
     assert_almost_equal(increment2, increment3, tolerance=1e-10)
 
 
-fn test_warmup_scheduler_property_bounded() raises:
+def test_warmup_scheduler_property_bounded() raises:
     """Property: LR is always bounded by [0, base_lr].
 
     For all epochs: 0 <= LR <= base_lr.
@@ -272,7 +272,7 @@ fn test_warmup_scheduler_property_bounded() raises:
         assert_less_or_equal(lr, base_lr)
 
 
-fn test_warmup_scheduler_property_starts_from_zero() raises:
+def test_warmup_scheduler_property_starts_from_zero() raises:
     """Property: WarmupLR always starts from 0.0 at epoch 0.
 
     Implementation starts from 0.0 (not configurable start_lr).
@@ -288,7 +288,7 @@ fn test_warmup_scheduler_property_starts_from_zero() raises:
     assert_almost_equal(scheduler3.get_lr(0), 0.0)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_warmup_scheduler tests."""
     print("Running test_warmup_scheduler tests...")
 

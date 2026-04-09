@@ -83,7 +83,7 @@ struct GradientPair(Copyable, Movable):
     var grad_b: AnyTensor
     """Gradient with respect to second input."""
 
-    fn __init__(out self, var grad_a: AnyTensor, var grad_b: AnyTensor):
+    def __init__(out self, var grad_a: AnyTensor, var grad_b: AnyTensor):
         """Initialize gradient pair.
 
         Args:
@@ -121,7 +121,7 @@ struct GradientTriple(Copyable, Movable):
     var grad_bias: AnyTensor
     """Gradient with respect to bias."""
 
-    fn __init__(
+    def __init__(
         out self,
         var grad_input: AnyTensor,
         var grad_weights: AnyTensor,
@@ -170,7 +170,7 @@ struct GradientQuad(Copyable, Movable):
     var grad_d: AnyTensor
     """Gradient with respect to fourth input."""
 
-    fn __init__(
+    def __init__(
         out self,
         var grad_a: AnyTensor,
         var grad_b: AnyTensor,
@@ -214,7 +214,7 @@ struct Conv2dNoBiasGradient(Copyable, Movable):
     var grad_weights: AnyTensor
     """Gradient with respect to convolution kernel."""
 
-    fn __init__(out self, var grad_input: AnyTensor, var grad_weights: AnyTensor):
+    def __init__(out self, var grad_input: AnyTensor, var grad_weights: AnyTensor):
         """Initialize conv2d no-bias gradient.
 
         Args:
@@ -248,7 +248,7 @@ struct DepthwiseConv2dNoBiasGradient(Copyable, Movable):
     var grad_weights: AnyTensor
     """Gradient with respect to depthwise convolution kernel."""
 
-    fn __init__(out self, var grad_input: AnyTensor, var grad_weights: AnyTensor):
+    def __init__(out self, var grad_input: AnyTensor, var grad_weights: AnyTensor):
         """Initialize depthwise conv2d no-bias gradient.
 
         Args:
@@ -293,7 +293,7 @@ struct DepthwiseSeparableConv2dGradient(Copyable, Movable):
     var grad_bias: AnyTensor
     """Gradient with respect to bias."""
 
-    fn __init__(
+    def __init__(
         out self,
         var grad_input: AnyTensor,
         var grad_depthwise_kernel: AnyTensor,

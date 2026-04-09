@@ -54,7 +54,7 @@ from shared.autograd.tape_types import TapeNode, VariableRegistry
 # ============================================================================
 
 
-fn backward_add(
+def backward_add(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
@@ -83,7 +83,7 @@ fn backward_add(
         registry.set_grad(nodes[idx].input_ids[1], result.grad_b)
 
 
-fn backward_subtract(
+def backward_subtract(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
@@ -112,7 +112,7 @@ fn backward_subtract(
         registry.set_grad(nodes[idx].input_ids[1], result.grad_b)
 
 
-fn backward_multiply(
+def backward_multiply(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
@@ -141,7 +141,7 @@ fn backward_multiply(
         registry.set_grad(nodes[idx].input_ids[1], result.grad_b)
 
 
-fn backward_divide(
+def backward_divide(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
@@ -175,7 +175,7 @@ fn backward_divide(
 # ============================================================================
 
 
-fn backward_sum(
+def backward_sum(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
@@ -204,7 +204,7 @@ fn backward_sum(
         registry.set_grad(nodes[idx].input_ids[0], grad_input)
 
 
-fn backward_mean(
+def backward_mean(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
@@ -238,7 +238,7 @@ fn backward_mean(
 # ============================================================================
 
 
-fn backward_matmul(
+def backward_matmul(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
@@ -272,7 +272,7 @@ fn backward_matmul(
 # ============================================================================
 
 
-fn backward_relu(
+def backward_relu(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
@@ -298,7 +298,7 @@ fn backward_relu(
         registry.set_grad(nodes[idx].input_ids[0], grad_input)
 
 
-fn backward_sigmoid(
+def backward_sigmoid(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,
@@ -327,7 +327,7 @@ fn backward_sigmoid(
         registry.set_grad(nodes[idx].input_ids[0], grad_input)
 
 
-fn backward_tanh(
+def backward_tanh(
     nodes: List[TapeNode],
     mut registry: VariableRegistry,
     idx: Int,

@@ -13,7 +13,7 @@ from tests.helpers.fixtures import (
 )
 
 
-fn test_random_tensor_shape() raises:
+def test_random_tensor_shape() raises:
     """Test random_tensor creates correct shape."""
     var shape = List[Int]()
     shape.append(3)
@@ -33,7 +33,7 @@ fn test_random_tensor_shape() raises:
         raise Error("random_tensor dtype mismatch")
 
 
-fn test_random_tensor_values() raises:
+def test_random_tensor_values() raises:
     """Test random_tensor produces values in [0, 1)."""
     var shape = List[Int]()
     shape.append(10)
@@ -55,7 +55,7 @@ fn test_random_tensor_values() raises:
         raise Error("random_tensor values should be in [0, 1)")
 
 
-fn test_sequential_tensor() raises:
+def test_sequential_tensor() raises:
     """Test sequential_tensor produces correct values."""
     var shape = List[Int]()
     shape.append(2)
@@ -74,7 +74,7 @@ fn test_sequential_tensor() raises:
             )
 
 
-fn test_nan_tensor() raises:
+def test_nan_tensor() raises:
     """Test nan_tensor creates NaN values."""
     var shape = List[Int]()
     shape.append(2)
@@ -92,7 +92,7 @@ fn test_nan_tensor() raises:
         raise Error("nan_tensor numel mismatch")
 
 
-fn test_inf_tensor() raises:
+def test_inf_tensor() raises:
     """Test inf_tensor creates infinity values."""
     var shape = List[Int]()
     shape.append(2)
@@ -110,7 +110,7 @@ fn test_inf_tensor() raises:
         raise Error("inf_tensor numel mismatch")
 
 
-fn test_ones_like() raises:
+def test_ones_like() raises:
     """Test ones_like creates tensor of ones."""
     var shape = List[Int]()
     shape.append(3)
@@ -135,7 +135,7 @@ fn test_ones_like() raises:
             raise Error("ones_like should contain all 1.0 values")
 
 
-fn test_zeros_like() raises:
+def test_zeros_like() raises:
     """Test zeros_like creates tensor of zeros."""
     var shape = List[Int]()
     shape.append(3)
@@ -160,7 +160,7 @@ fn test_zeros_like() raises:
             raise Error("zeros_like should contain all 0.0 values")
 
 
-fn main() raises:
+def main() raises:
     """Run all fixture tests."""
     test_random_tensor_shape()
     print("✓ test_random_tensor_shape passed")

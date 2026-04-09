@@ -28,19 +28,19 @@ Example usage:
 
     # Define custom reduction operation
     struct ProductOp(ReduceOp):
-        fn __init__(out self): pass
-        fn init_value(self) -> Float64: return 1.0
-        fn apply(self, acc: Float64, val: Float64) -> Float64: return acc * val
-        fn finalize(self, acc: Float64, count: Int) -> Float64: return acc
-        fn is_extremum(self) -> Bool: return False
-        fn compare(self, val: Float64, best: Float64) -> Bool: return False
+        def __init__(out self): pass
+        def init_value(self) -> Float64: return 1.0
+        def apply(self, acc: Float64, val: Float64) -> Float64: return acc * val
+        def finalize(self, acc: Float64, count: Int) -> Float64: return acc
+        def is_extremum(self) -> Bool: return False
+        def compare(self, val: Float64, best: Float64) -> Bool: return False
 
     var product_result = reduce_all[ProductOp](tensor)
 
 See docs/dev/reduction-template-design.md for complete design.
 """
 
-from collections import List
+from std.collections import List
 
 
 # ============================================================================
@@ -77,21 +77,21 @@ trait ReduceOp(ImplicitlyDestructible):
     Example:
         struct SumOp(ReduceOp):
             '''Sum all elements.'''
-            fn __init__(out self): pass
-            fn init_value(self) -> Float64: return 0.0
-            fn apply(self, acc: Float64, val: Float64) -> Float64: return acc + val
-            fn finalize(self, acc: Float64, count: Int) -> Float64: return acc
-            fn is_extremum(self) -> Bool: return False
-            fn compare(self, val: Float64, best: Float64) -> Bool: return False
+            def __init__(out self): pass
+            def init_value(self) -> Float64: return 0.0
+            def apply(self, acc: Float64, val: Float64) -> Float64: return acc + val
+            def finalize(self, acc: Float64, count: Int) -> Float64: return acc
+            def is_extremum(self) -> Bool: return False
+            def compare(self, val: Float64, best: Float64) -> Bool: return False
 
         var sum_result = reduce_all[SumOp](tensor)
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         """Default constructor required for generic instantiation."""
         ...
 
-    fn init_value(self) -> Float64:
+    def init_value(self) -> Float64:
         """Return the identity element for this reduction.
 
         The identity element should be a value such that:
@@ -108,7 +108,7 @@ trait ReduceOp(ImplicitlyDestructible):
         """
         ...
 
-    fn apply(self, acc: Float64, val: Float64) -> Float64:
+    def apply(self, acc: Float64, val: Float64) -> Float64:
         """Apply reduction operation to accumulate values.
 
         This function must be associative and commutative:
@@ -124,7 +124,7 @@ trait ReduceOp(ImplicitlyDestructible):
         """
         ...
 
-    fn finalize(self, acc: Float64, count: Int) -> Float64:
+    def finalize(self, acc: Float64, count: Int) -> Float64:
         """Finalize accumulated result after all values processed.
 
         This function may transform the accumulated value (e.g., divide by
@@ -141,7 +141,7 @@ trait ReduceOp(ImplicitlyDestructible):
         """
         ...
 
-    fn is_extremum(self) -> Bool:
+    def is_extremum(self) -> Bool:
         """Return True if this is a max/min operation.
 
         Extremum operations (max, min) require special handling during
@@ -152,7 +152,7 @@ trait ReduceOp(ImplicitlyDestructible):
         """
         ...
 
-    fn compare(self, val: Float64, current_best: Float64) -> Bool:
+    def compare(self, val: Float64, current_best: Float64) -> Bool:
         """
         For extremum ops: returns True if val should replace current_best.
 
@@ -203,8 +203,8 @@ trait ReduceBackwardOp(ImplicitlyDestructible):
     ```
         struct SumBackwardOp(ReduceBackwardOp):
             '''Backward for sum: gradient flows equally to all inputs.'''
-            fn __init__(out self): pass
-            fn compute_gradient(self, grad_output_val: Float64, input_val: Float64,
+            def __init__(out self): pass
+            def compute_gradient(self, grad_output_val: Float64, input_val: Float64,
                                axis_values: List[Float64], count: Int) -> Float64:
                 return grad_output_val  # Gradient unchanged
 
@@ -212,11 +212,11 @@ trait ReduceBackwardOp(ImplicitlyDestructible):
     ```
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         """Default constructor required for generic instantiation."""
         ...
 
-    fn compute_gradient(
+    def compute_gradient(
         self,
         grad_output_val: Float64,
         input_val: Float64,
@@ -268,22 +268,22 @@ struct SumOp(ReduceOp):
     Associative: Yes (a + b + c = (a + b) + c = a + (b + c))
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         pass
 
-    fn init_value(self) -> Float64:
+    def init_value(self) -> Float64:
         return 0.0
 
-    fn apply(self, acc: Float64, val: Float64) -> Float64:
+    def apply(self, acc: Float64, val: Float64) -> Float64:
         return acc + val
 
-    fn finalize(self, acc: Float64, count: Int) -> Float64:
+    def finalize(self, acc: Float64, count: Int) -> Float64:
         return acc
 
-    fn is_extremum(self) -> Bool:
+    def is_extremum(self) -> Bool:
         return False
 
-    fn compare(self, val: Float64, current_best: Float64) -> Bool:
+    def compare(self, val: Float64, current_best: Float64) -> Bool:
         return False
 
 
@@ -297,22 +297,22 @@ struct MeanOp(ReduceOp):
     Associative: Yes (for accumulation phase)
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         pass
 
-    fn init_value(self) -> Float64:
+    def init_value(self) -> Float64:
         return 0.0
 
-    fn apply(self, acc: Float64, val: Float64) -> Float64:
+    def apply(self, acc: Float64, val: Float64) -> Float64:
         return acc + val
 
-    fn finalize(self, acc: Float64, count: Int) -> Float64:
+    def finalize(self, acc: Float64, count: Int) -> Float64:
         return acc / Float64(count)
 
-    fn is_extremum(self) -> Bool:
+    def is_extremum(self) -> Bool:
         return False
 
-    fn compare(self, val: Float64, current_best: Float64) -> Bool:
+    def compare(self, val: Float64, current_best: Float64) -> Bool:
         return False
 
 
@@ -326,24 +326,24 @@ struct MaxOp(ReduceOp):
     Associative: Yes (max(max(a, b), c) = max(a, max(b, c)))
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         pass
 
-    fn init_value(self) -> Float64:
+    def init_value(self) -> Float64:
         return -1e308  # -Float64.MAX
 
-    fn apply(self, acc: Float64, val: Float64) -> Float64:
+    def apply(self, acc: Float64, val: Float64) -> Float64:
         if val > acc:
             return val
         return acc
 
-    fn finalize(self, acc: Float64, count: Int) -> Float64:
+    def finalize(self, acc: Float64, count: Int) -> Float64:
         return acc
 
-    fn is_extremum(self) -> Bool:
+    def is_extremum(self) -> Bool:
         return True
 
-    fn compare(self, val: Float64, current_best: Float64) -> Bool:
+    def compare(self, val: Float64, current_best: Float64) -> Bool:
         return val > current_best
 
 
@@ -357,24 +357,24 @@ struct MinOp(ReduceOp):
     Associative: Yes (min(min(a, b), c) = min(a, min(b, c)))
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         pass
 
-    fn init_value(self) -> Float64:
+    def init_value(self) -> Float64:
         return 1e308  # Float64.MAX
 
-    fn apply(self, acc: Float64, val: Float64) -> Float64:
+    def apply(self, acc: Float64, val: Float64) -> Float64:
         if val < acc:
             return val
         return acc
 
-    fn finalize(self, acc: Float64, count: Int) -> Float64:
+    def finalize(self, acc: Float64, count: Int) -> Float64:
         return acc
 
-    fn is_extremum(self) -> Bool:
+    def is_extremum(self) -> Bool:
         return True
 
-    fn compare(self, val: Float64, current_best: Float64) -> Bool:
+    def compare(self, val: Float64, current_best: Float64) -> Bool:
         return val < current_best
 
 
@@ -393,10 +393,10 @@ struct SumBackwardOp(ReduceBackwardOp):
     upstream gradient (unchanged).
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         pass
 
-    fn compute_gradient(
+    def compute_gradient(
         self,
         grad_output_val: Float64,
         input_val: Float64,
@@ -416,10 +416,10 @@ struct MeanBackwardOp(ReduceBackwardOp):
     by 1/count.
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         pass
 
-    fn compute_gradient(
+    def compute_gradient(
         self,
         grad_output_val: Float64,
         input_val: Float64,
@@ -440,10 +440,10 @@ struct MaxBackwardOp(ReduceBackwardOp):
     case where multiple elements have the same maximum value.
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         pass
 
-    fn compute_gradient(
+    def compute_gradient(
         self,
         grad_output_val: Float64,
         input_val: Float64,
@@ -479,10 +479,10 @@ struct MinBackwardOp(ReduceBackwardOp):
     case where multiple elements have the same minimum value.
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         pass
 
-    fn compute_gradient(
+    def compute_gradient(
         self,
         grad_output_val: Float64,
         input_val: Float64,

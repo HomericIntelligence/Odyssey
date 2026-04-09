@@ -12,7 +12,7 @@ from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 # ============================================================================
 
 
-fn test_slice_1d_basic() raises:
+def test_slice_1d_basic() raises:
     """Test basic 1D slicing [start:end]."""
     # Create tensor [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     var t = arange(0.0, 10.0, 1.0, DType.float32)
@@ -28,7 +28,7 @@ fn test_slice_1d_basic() raises:
     assert_almost_equal(Float64(sliced[4]), 6.0, tolerance=1e-6)
 
 
-fn test_slice_1d_from_start() raises:
+def test_slice_1d_from_start() raises:
     """Test slicing from start [:end]."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
@@ -40,7 +40,7 @@ fn test_slice_1d_from_start() raises:
         assert_almost_equal(Float64(sliced[i]), Float64(i), tolerance=1e-6)
 
 
-fn test_slice_1d_to_end() raises:
+def test_slice_1d_to_end() raises:
     """Test slicing to end [start:]."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
@@ -53,7 +53,7 @@ fn test_slice_1d_to_end() raises:
     assert_almost_equal(Float64(sliced[2]), 9.0, tolerance=1e-6)
 
 
-fn test_slice_1d_full() raises:
+def test_slice_1d_full() raises:
     """Test full slice [:]."""
     var t = arange(0.0, 5.0, 1.0, DType.float32)
 
@@ -65,7 +65,7 @@ fn test_slice_1d_full() raises:
         assert_almost_equal(Float64(sliced[i]), Float64(i), tolerance=1e-6)
 
 
-fn test_slice_1d_negative_indices() raises:
+def test_slice_1d_negative_indices() raises:
     """Test slicing with negative indices."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
@@ -83,7 +83,7 @@ fn test_slice_1d_negative_indices() raises:
 # ============================================================================
 
 
-fn test_slice_1d_strided() raises:
+def test_slice_1d_strided() raises:
     """Test strided slicing [start:end:step]."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
@@ -98,7 +98,7 @@ fn test_slice_1d_strided() raises:
     assert_almost_equal(Float64(sliced[4]), 8.0, tolerance=1e-6)
 
 
-fn test_slice_1d_strided_step3() raises:
+def test_slice_1d_strided_step3() raises:
     """Test strided slicing with step=3."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
@@ -112,7 +112,7 @@ fn test_slice_1d_strided_step3() raises:
     assert_almost_equal(Float64(sliced[3]), 9.0, tolerance=1e-6)
 
 
-fn test_slice_1d_reverse() raises:
+def test_slice_1d_reverse() raises:
     """Test reverse slicing with negative step [::-1]."""
     var t = arange(0.0, 5.0, 1.0, DType.float32)
 
@@ -127,7 +127,7 @@ fn test_slice_1d_reverse() raises:
     assert_almost_equal(Float64(sliced[4]), 0.0, tolerance=1e-6)
 
 
-fn test_slice_1d_reverse_parametric() raises:
+def test_slice_1d_reverse_parametric() raises:
     """Test reverse slicing with explicit bounds and steps.
 
     Parametric test covering multiple reverse slicing patterns:
@@ -160,7 +160,7 @@ fn test_slice_1d_reverse_parametric() raises:
     assert_almost_equal(Float64(sliced3[2]), 0.0, tolerance=1e-6)
 
 
-fn main() raises:
+def main() raises:
     """Run all 1D slicing tests."""
     test_slice_1d_basic()
     test_slice_1d_from_start()

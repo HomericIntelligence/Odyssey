@@ -14,7 +14,7 @@ from shared.core.loss import cross_entropy
 from testing import assert_raises
 
 
-fn test_cross_entropy_small_batch() raises:
+def test_cross_entropy_small_batch() raises:
     """Test cross-entropy with small batch (2 samples, 47 classes)."""
     print("\n=== Test 1: Cross-Entropy with Small Batch ===")
     print("Creating logits shape (2, 47) and one-hot targets...")
@@ -60,7 +60,7 @@ fn test_cross_entropy_small_batch() raises:
         raise e^
 
 
-fn test_cross_entropy_varying_sizes() raises:
+def test_cross_entropy_varying_sizes() raises:
     """Test cross-entropy with various batch and class sizes."""
     print("\n=== Test 2: Cross-Entropy with Varying Sizes ===")
 
@@ -98,7 +98,7 @@ fn test_cross_entropy_varying_sizes() raises:
             raise e^
 
 
-fn test_cross_entropy_edge_cases() raises:
+def test_cross_entropy_edge_cases() raises:
     """Test cross-entropy with edge cases that might trigger memory issues."""
     print("\n=== Test 3: Cross-Entropy Edge Cases ===")
 
@@ -137,7 +137,7 @@ fn test_cross_entropy_edge_cases() raises:
         raise e^
 
 
-fn main() raises:
+def main() raises:
     """Run all crash reproduction tests."""
     print("=" * 60)
     print("CRASH REPRODUCTION TESTS - Cross-Entropy")

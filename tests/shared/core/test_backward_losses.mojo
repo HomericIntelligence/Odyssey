@@ -20,7 +20,7 @@ from shared.core.loss import (
 from shared.testing import check_gradient
 
 
-fn test_cross_entropy_backward_shapes() raises:
+def test_cross_entropy_backward_shapes() raises:
     """Test that cross_entropy_backward returns correct gradient shape."""
     var batch = 4
     var num_classes = 10
@@ -46,7 +46,7 @@ fn test_cross_entropy_backward_shapes() raises:
     assert_equal(gl_shape[1], num_classes)
 
 
-fn test_binary_cross_entropy_backward_shapes() raises:
+def test_binary_cross_entropy_backward_shapes() raises:
     """Test that binary_cross_entropy_backward returns correct gradient shape.
     """
     var batch = 32
@@ -75,7 +75,7 @@ fn test_binary_cross_entropy_backward_shapes() raises:
     assert_equal(gp_shape[1], features)
 
 
-fn test_binary_cross_entropy_backward_edge_cases() raises:
+def test_binary_cross_entropy_backward_edge_cases() raises:
     """Test BCE backward with edge case values near 0 and 1."""
     var pred_shape = List[Int]()
     pred_shape.append(4)
@@ -103,7 +103,7 @@ fn test_binary_cross_entropy_backward_edge_cases() raises:
         assert_true(grad > -1e10 and grad < 1e10, "Gradient should not be Inf")
 
 
-fn test_mean_squared_error_backward_shapes() raises:
+def test_mean_squared_error_backward_shapes() raises:
     """Test that mean_squared_error_backward returns correct gradient shape."""
     var batch = 16
     var features = 10
@@ -128,7 +128,7 @@ fn test_mean_squared_error_backward_shapes() raises:
     assert_equal(gp_shape[1], features)
 
 
-fn test_mean_squared_error_backward_zero_diff() raises:
+def test_mean_squared_error_backward_zero_diff() raises:
     """Test MSE backward when predictions equal targets (zero gradient)."""
     var pred_shape = List[Int]()
     pred_shape.append(5)
@@ -152,7 +152,7 @@ fn test_mean_squared_error_backward_zero_diff() raises:
         )
 
 
-fn test_cross_entropy_backward_gradient() raises:
+def test_cross_entropy_backward_gradient() raises:
     """Test cross-entropy backward with numerical gradient checking."""
     var batch = 2
     var num_classes = 3
@@ -175,10 +175,10 @@ fn test_cross_entropy_backward_gradient() raises:
     targets.set(0, Float64(1.0))
     targets.set(4, Float64(1.0))
 
-    fn forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return cross_entropy(inp, targets)
 
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return cross_entropy_backward(grad_out, inp, targets)
 
     var loss = forward(logits)
@@ -186,7 +186,7 @@ fn test_cross_entropy_backward_gradient() raises:
     check_gradient(forward, backward, logits, grad_output, rtol=1e-3, atol=1e-3)
 
 
-fn test_binary_cross_entropy_backward_gradient() raises:
+def test_binary_cross_entropy_backward_gradient() raises:
     """Test binary cross-entropy backward with numerical gradient checking."""
     var batch = 8
 
@@ -212,10 +212,10 @@ fn test_binary_cross_entropy_backward_gradient() raises:
     targets.set(6, Float64(0.0))
     targets.set(7, Float64(1.0))
 
-    fn forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return binary_cross_entropy(inp, targets)
 
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return binary_cross_entropy_backward(grad_out, inp, targets)
 
     var loss = forward(predictions)
@@ -225,7 +225,7 @@ fn test_binary_cross_entropy_backward_gradient() raises:
     )
 
 
-fn test_mean_squared_error_backward_gradient() raises:
+def test_mean_squared_error_backward_gradient() raises:
     """Test mean squared error backward with numerical gradient checking."""
     var batch = 4
     var features = 3
@@ -261,10 +261,10 @@ fn test_mean_squared_error_backward_gradient() raises:
     targets.set(10, Float64(0.0))
     targets.set(11, Float64(0.6))
 
-    fn forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return mean_squared_error(inp, targets)
 
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return mean_squared_error_backward(grad_out, inp, targets)
 
     var loss = forward(predictions)
@@ -274,7 +274,7 @@ fn test_mean_squared_error_backward_gradient() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run loss backward tests."""
     print("Running loss backward tests...")
     test_cross_entropy_backward_shapes()

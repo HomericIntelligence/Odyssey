@@ -5,13 +5,13 @@ Typed Tensor[dtype] implementations live in shared/tensor/typed/arithmetic.mojo.
 This file provides the AnyTensor public API only.
 """
 
-from collections import List
-from math import nan
+from std.collections import List
+from std.math import nan
 from shared.tensor.any_tensor import AnyTensor, full
 from .gradient_types import GradientPair
 
 
-fn add(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def add(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise addition with broadcasting.
 
     Args:
@@ -40,14 +40,14 @@ fn add(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
     # Define add operation
     @always_inline
-    fn _add_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+    def _add_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
         return x + y
 
     # Use generic broadcasting dispatcher (eliminates 60 lines and conversion overhead!)
     return _dispatch_broadcast_binary[_add_op](a, b)
 
 
-fn subtract(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def subtract(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise subtraction with broadcasting.
 
     Args:
@@ -76,13 +76,13 @@ fn subtract(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
     # Define subtract operation
     @always_inline
-    fn _sub_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+    def _sub_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
         return x - y
 
     return _dispatch_broadcast_binary[_sub_op](a, b)
 
 
-fn multiply(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def multiply(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise multiplication with broadcasting.
 
     Args:
@@ -110,13 +110,13 @@ fn multiply(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     from shared.tensor.typed.arithmetic import _dispatch_broadcast_binary
 
     @always_inline
-    fn _mul_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+    def _mul_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
         return x * y
 
     return _dispatch_broadcast_binary[_mul_op](a, b)
 
 
-fn divide(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def divide(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise division with broadcasting.
 
     Args:
@@ -156,13 +156,13 @@ fn divide(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     from shared.tensor.typed.arithmetic import _dispatch_broadcast_binary
 
     @always_inline
-    fn _div_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+    def _div_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
         return x / y
 
     return _dispatch_broadcast_binary[_div_op](a, b)
 
 
-fn multiply_scalar(tensor: AnyTensor, scalar: Float32) raises -> AnyTensor:
+def multiply_scalar(tensor: AnyTensor, scalar: Float32) raises -> AnyTensor:
     """Multiply tensor by a scalar value efficiently.
 
     Dispatches to native Tensor[dtype] implementation via ordinal-based table.
@@ -193,7 +193,7 @@ fn multiply_scalar(tensor: AnyTensor, scalar: Float32) raises -> AnyTensor:
     return _dispatch_multiply_scalar(tensor, scalar)
 
 
-fn floor_divide(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def floor_divide(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise floor division with broadcasting.
 
     Args:
@@ -227,10 +227,9 @@ fn floor_divide(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     from shared.tensor.typed.arithmetic import _dispatch_broadcast_binary
 
     @always_inline
-    fn _floor_div_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+    def _floor_div_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
         # Check for division by zero - return inf per IEEE 754 (for floating-point types)
-        @parameter
-        if T.is_floating_point():
+        comptime if T.is_floating_point():
             if y == Scalar[T](0):
                 # For floating point, follow IEEE 754: x / 0 = inf or -inf based on sign
                 return x / y  # Let hardware handle the division by zero
@@ -247,7 +246,7 @@ fn floor_divide(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     return _dispatch_broadcast_binary[_floor_div_op](a, b)
 
 
-fn modulo(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def modulo(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise modulo with broadcasting.
 
     Args:
@@ -275,10 +274,9 @@ fn modulo(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     from shared.tensor.typed.arithmetic import _dispatch_broadcast_binary
 
     @always_inline
-    fn _mod_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+    def _mod_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
         # Check for modulo by zero - return NaN per IEEE 754 (for floating-point types)
-        @parameter
-        if T.is_floating_point():
+        comptime if T.is_floating_point():
             if y == Scalar[T](0):
                 return Scalar[T](nan[T]())
 
@@ -293,7 +291,7 @@ fn modulo(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     return _dispatch_broadcast_binary[_mod_op](a, b)
 
 
-fn power(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def power(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Element-wise exponentiation with broadcasting.
 
     Args:
@@ -326,7 +324,7 @@ fn power(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     from shared.tensor.typed.arithmetic import _dispatch_broadcast_binary
 
     @always_inline
-    fn _pow_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+    def _pow_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
         # Use Mojo's built-in ** operator (handles all cases correctly)
         return x**y
 
@@ -338,7 +336,7 @@ fn power(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 # ==============================================================================
 
 
-fn _reduce_broadcast_dims(
+def _reduce_broadcast_dims(
     grad: AnyTensor, original_shape: List[Int]
 ) raises -> AnyTensor:
     """Reduce gradient from broadcast shape back to original shape.
@@ -396,7 +394,7 @@ fn _reduce_broadcast_dims(
     return result
 
 
-fn add_backward(
+def add_backward(
     grad_output: AnyTensor, a: AnyTensor, b: AnyTensor
 ) raises -> GradientPair:
     """Compute gradients for element-wise addition.
@@ -423,7 +421,7 @@ fn add_backward(
     return GradientPair(grad_a^, grad_b^)
 
 
-fn subtract_backward(
+def subtract_backward(
     grad_output: AnyTensor, a: AnyTensor, b: AnyTensor
 ) raises -> GradientPair:
     """Compute gradients for element-wise subtraction.
@@ -454,7 +452,7 @@ fn subtract_backward(
     return GradientPair(grad_a^, grad_b^)
 
 
-fn multiply_backward(
+def multiply_backward(
     grad_output: AnyTensor, a: AnyTensor, b: AnyTensor
 ) raises -> GradientPair:
     """Compute gradients for element-wise multiplication.
@@ -482,7 +480,7 @@ fn multiply_backward(
     return GradientPair(grad_a^, grad_b^)
 
 
-fn divide_backward(
+def divide_backward(
     grad_output: AnyTensor, a: AnyTensor, b: AnyTensor
 ) raises -> GradientPair:
     """Compute gradients for element-wise division.

@@ -41,10 +41,10 @@ from shared.utils.file_io import (
     safe_write_file,
     safe_read_file,
 )
-from collections import List
+from std.collections import List
 
 
-fn str_slice(s: String, start: Int, end: Int) -> String:
+def str_slice(s: String, start: Int, end: Int) -> String:
     """Extract a slice of a string by byte positions [start:end]."""
     var result = String("")
     var bytes = s.as_bytes()
@@ -75,7 +75,7 @@ struct CheckpointManager:
     var best_metric_name: String
     var minimize_metric: Bool
 
-    fn __init__(
+    def __init__(
         out self,
         checkpoint_dir: String,
         max_to_keep: Int = 5,
@@ -114,7 +114,7 @@ struct CheckpointManager:
                 "Failed to create checkpoint directory: " + checkpoint_dir
             )
 
-    fn save_checkpoint(
+    def save_checkpoint(
         self,
         parameters: List[AnyTensor],
         param_names: List[String],
@@ -166,7 +166,7 @@ struct CheckpointManager:
         if self.max_to_keep > 0:
             self._cleanup_old_checkpoints()
 
-    fn save_best(
+    def save_best(
         mut self,
         mut parameters: List[AnyTensor],
         param_names: List[String],
@@ -217,7 +217,7 @@ struct CheckpointManager:
                 + String(metric_value)
             )
 
-    fn load_latest(
+    def load_latest(
         mut self,
         mut parameters: List[AnyTensor],
         param_names: List[String],
@@ -255,7 +255,7 @@ struct CheckpointManager:
 
         return latest_epoch
 
-    fn load_best(
+    def load_best(
         mut self, mut parameters: List[AnyTensor], param_names: List[String]
     ) raises:
         """Load the best model checkpoint.
@@ -281,7 +281,7 @@ struct CheckpointManager:
         # Load metadata
         self._load_metadata(metadata_path)
 
-    fn _find_latest_epoch(self) raises -> Int:
+    def _find_latest_epoch(self) raises -> Int:
         """Find the most recent epoch number from checkpoint tracking file.
 
         Returns:
@@ -307,7 +307,7 @@ struct CheckpointManager:
         except e:
             return -1
 
-    fn _cleanup_old_checkpoints(self) raises:
+    def _cleanup_old_checkpoints(self) raises:
         """Remove old checkpoints, keeping only max_to_keep most recent.
 
         Note: This is a simplified implementation that tracks checkpoint epochs
@@ -322,7 +322,7 @@ struct CheckpointManager:
         # which needs Python subprocess or Mojo system calls
         pass
 
-    fn _save_metadata(
+    def _save_metadata(
         self,
         filepath: String,
         epoch: Int,
@@ -355,7 +355,7 @@ struct CheckpointManager:
         if not safe_write_file(filepath, content):
             raise Error("Failed to write metadata file: " + filepath)
 
-    fn _load_metadata(mut self, filepath: String) raises:
+    def _load_metadata(mut self, filepath: String) raises:
         """Load checkpoint metadata from text file."""
         var content = safe_read_file(filepath)
 

@@ -7,7 +7,7 @@ for training and evaluation.
 from shared.tensor.any_tensor import AnyTensor, zeros
 
 
-fn extract_batch(
+def extract_batch(
     data: AnyTensor, start_idx: Int, batch_size: Int
 ) raises -> AnyTensor:
     """Extract a mini-batch from a dataset tensor using zero-copy slicing.
@@ -72,7 +72,7 @@ fn extract_batch(
     return data.slice(start_idx, end_idx, axis=0)
 
 
-fn extract_batch_pair(
+def extract_batch_pair(
     data: AnyTensor, labels: AnyTensor, start_idx: Int, batch_size: Int
 ) raises -> Tuple[AnyTensor, AnyTensor]:
     """Extract matching mini-batches of data and labels using zero-copy slicing.
@@ -140,7 +140,7 @@ fn extract_batch_pair(
     return (batch_data, batch_labels)
 
 
-fn compute_num_batches(num_samples: Int, batch_size: Int) -> Int:
+def compute_num_batches(num_samples: Int, batch_size: Int) -> Int:
     """Compute the number of batches needed to process all samples.
 
     Args:
@@ -165,7 +165,7 @@ fn compute_num_batches(num_samples: Int, batch_size: Int) -> Int:
     return (num_samples + batch_size - 1) // batch_size
 
 
-fn get_batch_indices(
+def get_batch_indices(
     batch_idx: Int, batch_size: Int, num_samples: Int
 ) -> Tuple[Int, Int, Int]:
     """Compute start index, end index, and actual size for a batch.

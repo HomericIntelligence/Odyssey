@@ -35,7 +35,7 @@ Typical test patterns:
 # ============================================================================
 
 
-fn get_test_dtypes() -> List[DType]:
+def get_test_dtypes() -> List[DType]:
     """Return all dtypes to test for comprehensive coverage.
 
     Returns a list of DType values suitable for testing neural network
@@ -72,7 +72,7 @@ fn get_test_dtypes() -> List[DType]:
     return dtypes^
 
 
-fn get_float_dtypes() -> List[DType]:
+def get_float_dtypes() -> List[DType]:
     """Return only floating-point dtypes for testing.
 
     Excludes integer types (Int8) which may not be suitable for all
@@ -97,7 +97,7 @@ fn get_float_dtypes() -> List[DType]:
     return dtypes^
 
 
-fn get_precision_dtypes() -> List[DType]:
+def get_precision_dtypes() -> List[DType]:
     """Return dtypes in order of increasing precision.
 
     Useful for testing behavior as precision increases from lower to higher.
@@ -122,7 +122,7 @@ fn get_precision_dtypes() -> List[DType]:
     return dtypes^
 
 
-fn get_float32_only() -> List[DType]:
+def get_float32_only() -> List[DType]:
     """Return only FP32 for quick testing.
 
     Useful for:
@@ -146,7 +146,7 @@ fn get_float32_only() -> List[DType]:
     return dtypes^
 
 
-fn dtype_to_string(dtype: DType) -> String:
+def dtype_to_string(dtype: DType) -> String:
     """Convert DType to human-readable string.
 
     Args:

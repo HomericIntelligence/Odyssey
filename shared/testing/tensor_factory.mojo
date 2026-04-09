@@ -25,8 +25,8 @@ Example:
     tensor_factory.set_tensor_value(random, 0, 42.0, DType.float32)
 """
 
-from random import random_float64
-from math import sqrt, log, cos, sin, pi
+from std.random import random_float64
+from std.math import sqrt, log, cos, sin, pi
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 
 
@@ -35,7 +35,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 # ============================================================================
 
 
-fn zeros_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
+def zeros_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create a tensor filled with zeros.
 
     Args:
@@ -57,7 +57,7 @@ fn zeros_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     return zeros(shape, dtype)
 
 
-fn ones_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
+def ones_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create a tensor filled with ones.
 
     Args:
@@ -79,7 +79,7 @@ fn ones_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     return ones(shape, dtype)
 
 
-fn full_tensor(
+def full_tensor(
     shape: List[Int], fill_value: Float64, dtype: DType
 ) raises -> AnyTensor:
     """Create a tensor filled with a specific value.
@@ -104,7 +104,7 @@ fn full_tensor(
     return full(shape, fill_value, dtype)
 
 
-fn random_tensor(
+def random_tensor(
     shape: List[Int],
     dtype: DType = DType.float32,
     low: Float64 = 0.0,
@@ -166,19 +166,19 @@ fn random_tensor(
             or dtype == DType.int32
             or dtype == DType.int64
         ):
-            tensor._set_int64(i, Int(scaled_val))
+            tensor._set_int64(i, Int64(scaled_val))
         elif (
             dtype == DType.uint8
             or dtype == DType.uint16
             or dtype == DType.uint32
             or dtype == DType.uint64
         ):
-            tensor._set_int64(i, Int(scaled_val))
+            tensor._set_int64(i, Int64(scaled_val))
 
     return tensor^
 
 
-fn random_normal_tensor(
+def random_normal_tensor(
     shape: List[Int],
     dtype: DType = DType.float32,
     mean: Float64 = 0.0,
@@ -255,12 +255,12 @@ fn random_normal_tensor(
         else:
             # For integer dtypes, still use Box-Muller but truncate
             var z1 = r * cos(theta)
-            tensor._set_int64(i, Int(mean + z1 * std))
+            tensor._set_int64(i, Int64(mean + z1 * std))
             i += 1
 
             if i < numel:
                 var z2 = r * sin(theta)
-                tensor._set_int64(i, Int(mean + z2 * std))
+                tensor._set_int64(i, Int64(mean + z2 * std))
                 i += 1
 
     return tensor^
@@ -271,7 +271,7 @@ fn random_normal_tensor(
 # ============================================================================
 
 
-fn set_tensor_value(
+def set_tensor_value(
     mut tensor: AnyTensor, index: Int, value: Float64, dtype: DType
 ) raises:
     """Set a single tensor element with automatic dtype conversion.
@@ -310,11 +310,11 @@ fn set_tensor_value(
         or dtype == DType.int32
         or dtype == DType.int64
     ):
-        tensor._set_int64(index, Int(value))
+        tensor._set_int64(index, Int64(value))
     elif (
         dtype == DType.uint8
         or dtype == DType.uint16
         or dtype == DType.uint32
         or dtype == DType.uint64
     ):
-        tensor._set_int64(index, Int(value))
+        tensor._set_int64(index, Int64(value))

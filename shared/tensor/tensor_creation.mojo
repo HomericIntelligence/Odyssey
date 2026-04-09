@@ -7,15 +7,15 @@ These were extracted from any_tensor.mojo to improve SRP compliance.
 All functions create and return new AnyTensor instances.
 """
 
-from collections import List
-from math import sqrt, log, cos, sin
-from utils.numerics import inf as numeric_inf, neg_inf as numeric_neg_inf
-from random import random_float64, seed as random_seed
+from std.collections import List
+from std.math import sqrt, log, cos, sin
+from std.utils.numerics import inf as numeric_inf, neg_inf as numeric_neg_inf
+from std.random import random_float64, seed as random_seed
 from .any_tensor import AnyTensor
 from .tensor_constants import MAX_TENSOR_BYTES
 
 
-fn zeros(shape: List[Int], dtype: DType) raises -> AnyTensor:
+def zeros(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create a tensor filled with zeros.
 
     Args:
@@ -42,7 +42,7 @@ fn zeros(shape: List[Int], dtype: DType) raises -> AnyTensor:
     return tensor^
 
 
-fn ones(shape: List[Int], dtype: DType) raises -> AnyTensor:
+def ones(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create a tensor filled with ones.
 
     Args:
@@ -77,7 +77,7 @@ fn ones(shape: List[Int], dtype: DType) raises -> AnyTensor:
     return tensor^
 
 
-fn full(shape: List[Int], fill_value: Float64, dtype: DType) raises -> AnyTensor:
+def full(shape: List[Int], fill_value: Float64, dtype: DType) raises -> AnyTensor:
     """Create a tensor filled with a specific value.
 
     Args:
@@ -107,12 +107,12 @@ fn full(shape: List[Int], fill_value: Float64, dtype: DType) raises -> AnyTensor
     ):
         tensor._fill_value_float(fill_value)
     else:
-        tensor._fill_value_int(Int(fill_value))
+        tensor._fill_value_int(Int64(fill_value))
 
     return tensor^
 
 
-fn empty(shape: List[Int], dtype: DType) raises -> AnyTensor:
+def empty(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create an uninitialized tensor (fast allocation).
 
     Args:
@@ -140,7 +140,7 @@ fn empty(shape: List[Int], dtype: DType) raises -> AnyTensor:
     return tensor^
 
 
-fn arange(
+def arange(
     start: Float64, stop: Float64, step: Float64, dtype: DType
 ) raises -> AnyTensor:
     """Create 1D tensor with evenly spaced values.
@@ -184,13 +184,13 @@ fn arange(
         ):
             tensor._set_float64(i, value)
         else:
-            tensor._set_int64(i, Int(value))
+            tensor._set_int64(i, Int64(value))
         value += step
 
     return tensor^
 
 
-fn eye(n: Int, m: Int, k: Int, dtype: DType) raises -> AnyTensor:
+def eye(n: Int, m: Int, k: Int, dtype: DType) raises -> AnyTensor:
     """Create 2D tensor with ones on diagonal.
 
     Args:
@@ -239,7 +239,7 @@ fn eye(n: Int, m: Int, k: Int, dtype: DType) raises -> AnyTensor:
     return tensor^
 
 
-fn linspace(
+def linspace(
     start: Float64, stop: Float64, num: Int, dtype: DType
 ) raises -> AnyTensor:
     """Create 1D tensor with evenly spaced values (inclusive).
@@ -279,14 +279,14 @@ fn linspace(
         ):
             tensor._set_float64(0, start)
         else:
-            tensor._set_int64(0, Int(start))
+            tensor._set_int64(0, Int64(start))
     else:
         # Calculate step size
-        var step = (stop - start) / (num - 1)
+        var step = (stop - start) / Float64(num - 1)
 
         # Fill with sequence
         for i in range(num):
-            var value = start + step * i
+            var value = start + step * Float64(i)
             if (
                 dtype == DType.float16
                 or dtype == DType.float32
@@ -295,12 +295,12 @@ fn linspace(
             ):
                 tensor._set_float64(i, value)
             else:
-                tensor._set_int64(i, Int(value))
+                tensor._set_int64(i, Int64(value))
 
     return tensor^
 
 
-fn ones_like(tensor: AnyTensor) raises -> AnyTensor:
+def ones_like(tensor: AnyTensor) raises -> AnyTensor:
     """Create tensor of ones with same shape and dtype as input.
 
     Args:
@@ -323,7 +323,7 @@ fn ones_like(tensor: AnyTensor) raises -> AnyTensor:
     return ones(shape, dtype)
 
 
-fn zeros_like(tensor: AnyTensor) raises -> AnyTensor:
+def zeros_like(tensor: AnyTensor) raises -> AnyTensor:
     """Create tensor of zeros with same shape and dtype as input.
 
     Args:
@@ -346,7 +346,7 @@ fn zeros_like(tensor: AnyTensor) raises -> AnyTensor:
     return zeros(shape, dtype)
 
 
-fn full_like(tensor: AnyTensor, fill_value: Float64) raises -> AnyTensor:
+def full_like(tensor: AnyTensor, fill_value: Float64) raises -> AnyTensor:
     """Create tensor filled with a value, same shape and dtype as input.
 
     Args:
@@ -370,7 +370,7 @@ fn full_like(tensor: AnyTensor, fill_value: Float64) raises -> AnyTensor:
     return full(shape, fill_value, dtype)
 
 
-fn nan_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
+def nan_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create a tensor filled with NaN values.
 
     Args:
@@ -409,7 +409,7 @@ fn nan_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     return tensor^
 
 
-fn inf_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
+def inf_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create a tensor filled with positive infinity values.
 
     Args:
@@ -447,7 +447,7 @@ fn inf_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     return tensor^
 
 
-fn neg_inf_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
+def neg_inf_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create a tensor filled with negative infinity values.
 
     Args:
@@ -485,7 +485,7 @@ fn neg_inf_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     return tensor^
 
 
-fn _dtype_to_string(dtype: DType) -> String:
+def _dtype_to_string(dtype: DType) -> String:
     """Convert a DType to a readable string representation.
 
     Args:
@@ -522,7 +522,7 @@ fn _dtype_to_string(dtype: DType) -> String:
         return "unknown"
 
 
-fn randn(shape: List[Int], dtype: DType, seed: Int = 0) raises -> AnyTensor:
+def randn(shape: List[Int], dtype: DType, seed: Int = 0) raises -> AnyTensor:
     """Create tensor filled with random values from standard normal distribution.
 
         Uses Box-Muller transform to generate normally distributed random values
@@ -597,7 +597,7 @@ fn randn(shape: List[Int], dtype: DType, seed: Int = 0) raises -> AnyTensor:
         ):
             tensor._set_float64(i, z0)
         else:
-            tensor._set_int64(i, Int(z0))
+            tensor._set_int64(i, Int64(z0))
 
         i += 1
 
@@ -611,7 +611,7 @@ fn randn(shape: List[Int], dtype: DType, seed: Int = 0) raises -> AnyTensor:
             ):
                 tensor._set_float64(i, z1)
             else:
-                tensor._set_int64(i, Int(z1))
+                tensor._set_int64(i, Int64(z1))
             i += 1
 
     return tensor^

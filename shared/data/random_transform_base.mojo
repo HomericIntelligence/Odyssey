@@ -21,7 +21,7 @@ Example:
     ```
 """
 
-from random import random_si64
+from std.random import random_si64
 
 
 # ============================================================================
@@ -29,7 +29,7 @@ from random import random_si64
 # ============================================================================
 
 
-fn random_float() -> Float64:
+def random_float() -> Float64:
     """Generate random float in [0, 1) with high precision.
 
         Uses 1 billion possible values for better probability distribution.
@@ -65,7 +65,7 @@ struct RandomTransformBase(Copyable, Movable):
 
     var p: Float64
 
-    fn __init__(out self, p: Float64 = 0.5):
+    def __init__(out self, p: Float64 = 0.5):
         """Create probabilistic transform base.
 
         Args:
@@ -73,7 +73,7 @@ struct RandomTransformBase(Copyable, Movable):
         """
         self.p = p
 
-    fn should_apply(self) -> Bool:
+    def should_apply(self) -> Bool:
         """Determine if transform should be applied based on probability.
 
         Generates a random value in [0, 1) and compares against the

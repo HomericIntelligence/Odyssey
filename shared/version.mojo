@@ -6,7 +6,7 @@ Provides centralized version information for all Mojo modules
 Usage:
     from shared.version import VERSION, get_version
 
-    fn main():
+    def main():
         print("ML Odyssey version:", VERSION)
         var v = get_version()
         print("Version string:", v)
@@ -21,7 +21,7 @@ comptime AUTHOR = "ML Odyssey Team"
 comptime LICENSE = "BSD"
 
 
-fn get_version() -> String:
+def get_version() -> String:
     """
         Get the version string.
 
@@ -31,7 +31,7 @@ fn get_version() -> String:
     return VERSION
 
 
-fn get_version_tuple() -> Tuple[Int, Int, Int]:
+def get_version_tuple() -> Tuple[Int, Int, Int]:
     """
         Get the version as a tuple of integers.
 
@@ -41,7 +41,7 @@ fn get_version_tuple() -> Tuple[Int, Int, Int]:
     return (VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH)
 
 
-fn version_info() -> String:
+def version_info() -> String:
     """
         Get detailed version information.
 

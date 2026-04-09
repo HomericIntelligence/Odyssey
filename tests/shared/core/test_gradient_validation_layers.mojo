@@ -29,7 +29,7 @@ from shared.testing.special_values import create_seeded_random_tensor
 from shared.testing.assertions import assert_true
 
 
-fn test_tanh_gradient() raises:
+def test_tanh_gradient() raises:
     """Test Tanh gradient.
 
     Note: tanh_backward takes output (tanh(x)), not input x.
@@ -38,10 +38,10 @@ fn test_tanh_gradient() raises:
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return tanh(inp)
 
-    fn backward_fn(
+    def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
     ) raises escaping -> AnyTensor:
         var output = tanh(inp)  # Compute tanh(x) first
@@ -53,7 +53,7 @@ fn test_tanh_gradient() raises:
     assert_true(passed, "Tanh gradient check failed")
 
 
-fn test_gelu_gradient() raises:
+def test_gelu_gradient() raises:
     """Test GELU gradient.
 
     Note: gelu_backward takes input x (not output).
@@ -62,10 +62,10 @@ fn test_gelu_gradient() raises:
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return gelu(inp)
 
-    fn backward_fn(
+    def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
     ) raises escaping -> AnyTensor:
         return gelu_backward(grad_out, inp)
@@ -76,7 +76,7 @@ fn test_gelu_gradient() raises:
     assert_true(passed, "GELU gradient check failed")
 
 
-fn test_conv2d_gradient_input() raises:
+def test_conv2d_gradient_input() raises:
     """Test Conv2D gradient w.r.t. input."""
     # Create small conv layer: 3 input channels, 8 output channels, 3x3 kernel
     var in_channels = 3
@@ -107,10 +107,10 @@ fn test_conv2d_gradient_input() raises:
     input_shape.append(8)
     var x = create_seeded_random_tensor(input_shape, DType.float32, seed=42)
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=1)
 
-    fn backward_fn(
+    def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
     ) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, inp, kernel, stride=1, padding=1)
@@ -123,7 +123,7 @@ fn test_conv2d_gradient_input() raises:
     assert_true(passed, "Conv2D input gradient check failed")
 
 
-fn test_linear_gradient_input() raises:
+def test_linear_gradient_input() raises:
     """Test Linear gradient w.r.t. input.
 
     Note: Slightly wider tolerance due to accumulated numerical errors in matrix operations.
@@ -150,10 +150,10 @@ fn test_linear_gradient_input() raises:
     input_shape.append(in_features)
     var x = create_seeded_random_tensor(input_shape, DType.float32, seed=42)
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return linear(inp, weights, bias)
 
-    fn backward_fn(
+    def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
     ) raises escaping -> AnyTensor:
         var result = linear_backward(grad_out, inp, weights)
@@ -166,7 +166,7 @@ fn test_linear_gradient_input() raises:
     assert_true(passed, "Linear input gradient check failed")
 
 
-fn main() raises:
+def main() raises:
     """Run Tanh, GELU, Conv2D, and Linear gradient validation tests."""
     print("Running Layer Gradient Validation Tests...")
     print("=" * 60)

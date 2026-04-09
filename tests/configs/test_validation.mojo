@@ -14,7 +14,7 @@ from testing import assert_true, assert_false, assert_equal
 from shared.utils.config import Config, load_config, create_validator
 
 
-fn test_validate_required_keys() raises:
+def test_validate_required_keys() raises:
     """Test validation of required configuration keys.
 
     Verifies that validation catches missing required fields.
@@ -33,7 +33,7 @@ fn test_validate_required_keys() raises:
     print("✓ test_validate_required_keys passed")
 
 
-fn test_validate_missing_required_key() raises:
+def test_validate_missing_required_key() raises:
     """Test validation fails when required key is missing.
 
     Verifies that missing required fields are detected.
@@ -57,7 +57,7 @@ fn test_validate_missing_required_key() raises:
     print("✓ test_validate_missing_required_key passed")
 
 
-fn test_validate_training_config_required_fields() raises:
+def test_validate_training_config_required_fields() raises:
     """Test training configuration has all required fields.
 
     Verifies default training config meets requirements.
@@ -74,7 +74,7 @@ fn test_validate_training_config_required_fields() raises:
     print("✓ test_validate_training_config_required_fields passed")
 
 
-fn test_validate_type_string() raises:
+def test_validate_type_string() raises:
     """Test string type validation.
 
     Verifies type checking for string values.
@@ -88,7 +88,7 @@ fn test_validate_type_string() raises:
     print("✓ test_validate_type_string passed")
 
 
-fn test_validate_type_int() raises:
+def test_validate_type_int() raises:
     """Test integer type validation.
 
     Verifies type checking for integer values.
@@ -102,7 +102,7 @@ fn test_validate_type_int() raises:
     print("✓ test_validate_type_int passed")
 
 
-fn test_validate_type_float() raises:
+def test_validate_type_float() raises:
     """Test float type validation.
 
     Verifies type checking for float values.
@@ -116,7 +116,7 @@ fn test_validate_type_float() raises:
     print("✓ test_validate_type_float passed")
 
 
-fn test_validate_type_bool() raises:
+def test_validate_type_bool() raises:
     """Test boolean type validation.
 
     Verifies type checking for boolean values.
@@ -130,7 +130,7 @@ fn test_validate_type_bool() raises:
     print("✓ test_validate_type_bool passed")
 
 
-fn test_validate_type_mismatch() raises:
+def test_validate_type_mismatch() raises:
     """Test type validation catches type mismatches.
 
     Verifies that wrong types are detected.
@@ -149,7 +149,7 @@ fn test_validate_type_mismatch() raises:
     print("✓ test_validate_type_mismatch passed")
 
 
-fn test_validate_range_valid() raises:
+def test_validate_range_valid() raises:
     """Test range validation with valid values.
 
     Verifies values within range pass validation.
@@ -163,7 +163,7 @@ fn test_validate_range_valid() raises:
     print("✓ test_validate_range_valid passed")
 
 
-fn test_validate_range_out_of_bounds() raises:
+def test_validate_range_out_of_bounds() raises:
     """Test range validation catches out-of-range values.
 
     Verifies values outside range are rejected.
@@ -182,7 +182,7 @@ fn test_validate_range_out_of_bounds() raises:
     print("✓ test_validate_range_out_of_bounds passed")
 
 
-fn test_validate_range_boundary_values() raises:
+def test_validate_range_boundary_values() raises:
     """Test range validation with boundary values.
 
     Verifies that boundary values are accepted.
@@ -200,7 +200,7 @@ fn test_validate_range_boundary_values() raises:
     print("✓ test_validate_range_boundary_values passed")
 
 
-fn test_validate_range_int_values() raises:
+def test_validate_range_int_values() raises:
     """Test range validation with integer values.
 
     Verifies range checking works for integers.
@@ -214,7 +214,7 @@ fn test_validate_range_int_values() raises:
     print("✓ test_validate_range_int_values passed")
 
 
-fn test_validate_enum_valid_value() raises:
+def test_validate_enum_valid_value() raises:
     """Test enum validation with valid values.
 
     Verifies allowed values pass validation.
@@ -232,7 +232,7 @@ fn test_validate_enum_valid_value() raises:
     print("✓ test_validate_enum_valid_value passed")
 
 
-fn test_validate_enum_invalid_value() raises:
+def test_validate_enum_invalid_value() raises:
     """Test enum validation catches invalid values.
 
     Verifies disallowed values are rejected.
@@ -256,7 +256,7 @@ fn test_validate_enum_invalid_value() raises:
     print("✓ test_validate_enum_invalid_value passed")
 
 
-fn test_validate_activation_function() raises:
+def test_validate_activation_function() raises:
     """Test validation of activation function choices.
 
     Verifies activation function enum validation.
@@ -275,7 +275,7 @@ fn test_validate_activation_function() raises:
     print("✓ test_validate_activation_function passed")
 
 
-fn test_validate_exclusive_none_set() raises:
+def test_validate_exclusive_none_set() raises:
     """Test exclusive validation when no keys are set.
 
     Verifies that having none of the exclusive keys is valid.
@@ -293,7 +293,7 @@ fn test_validate_exclusive_none_set() raises:
     print("✓ test_validate_exclusive_none_set passed")
 
 
-fn test_validate_exclusive_one_set() raises:
+def test_validate_exclusive_one_set() raises:
     """Test exclusive validation when one key is set.
 
     Verifies that having exactly one exclusive key is valid.
@@ -311,7 +311,7 @@ fn test_validate_exclusive_one_set() raises:
     print("✓ test_validate_exclusive_one_set passed")
 
 
-fn test_validate_exclusive_multiple_set() raises:
+def test_validate_exclusive_multiple_set() raises:
     """Test exclusive validation catches multiple exclusive keys.
 
     Verifies that having multiple exclusive keys is rejected.
@@ -335,7 +335,7 @@ fn test_validate_exclusive_multiple_set() raises:
     print("✓ test_validate_exclusive_multiple_set passed")
 
 
-fn test_validate_complete_training_config() raises:
+def test_validate_complete_training_config() raises:
     """Test comprehensive validation of training configuration.
 
     Verifies all training config requirements are met.
@@ -370,7 +370,7 @@ fn test_validate_complete_training_config() raises:
     print("✓ test_validate_complete_training_config passed")
 
 
-fn test_validate_invalid_training_config() raises:
+def test_validate_invalid_training_config() raises:
     """Test validation rejects invalid training configuration.
 
     Verifies that invalid configs are caught.
@@ -394,7 +394,7 @@ fn test_validate_invalid_training_config() raises:
     print("✓ test_validate_invalid_training_config passed")
 
 
-fn test_validate_model_config() raises:
+def test_validate_model_config() raises:
     """Test validation of model configuration.
 
     Verifies model config meets requirements.
@@ -414,7 +414,7 @@ fn test_validate_model_config() raises:
     print("✓ test_validate_model_config passed")
 
 
-fn test_create_validator() raises:
+def test_create_validator() raises:
     """Test creating validator with builder pattern.
 
     Verifies validator construction and usage.
@@ -431,7 +431,7 @@ fn test_create_validator() raises:
     print("✓ test_create_validator passed")
 
 
-fn test_validator_with_requirements() raises:
+def test_validator_with_requirements() raises:
     """Test validator with required fields.
 
     Verifies validator correctly checks requirements.
@@ -457,7 +457,7 @@ fn test_validator_with_requirements() raises:
     print("✓ test_validator_with_requirements passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_validation tests."""
     print("Running test_validation tests...")
 

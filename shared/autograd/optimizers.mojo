@@ -104,7 +104,7 @@ struct SGD(Copyable, Movable, Optimizer):
     var _initialized: Bool
     """Flag indicating whether velocity buffers have been initialized."""
 
-    fn __init__(out self, learning_rate: Float64, momentum: Float64 = 0.0):
+    def __init__(out self, learning_rate: Float64, momentum: Float64 = 0.0):
         """Initialize SGD optimizer.
 
         Args:
@@ -123,7 +123,7 @@ struct SGD(Copyable, Movable, Optimizer):
         self.velocities = List[AnyTensor]()
         self._initialized = False
 
-    fn step(
+    def step(
         mut self, mut parameters: List[Variable], mut tape: GradientTape
     ) raises:
         """Update parameters using their gradients from the tape.
@@ -202,7 +202,7 @@ struct SGD(Copyable, Movable, Optimizer):
                 var new_data = subtract(parameters[i].data, scaled_grad)
                 parameters[i].data = new_data^
 
-    fn zero_grad(self, mut tape: GradientTape):
+    def zero_grad(self, mut tape: GradientTape):
         """Reset all gradients in the tape.
 
         Should be called after each optimizer step to clear gradients before
@@ -217,7 +217,7 @@ struct SGD(Copyable, Movable, Optimizer):
         """
         zero_grad_impl(tape)
 
-    fn get_lr(self) -> Float64:
+    def get_lr(self) -> Float64:
         """Get the current learning rate.
 
         Returns:
@@ -229,7 +229,7 @@ struct SGD(Copyable, Movable, Optimizer):
         """
         return self.learning_rate
 
-    fn set_lr(mut self, lr: Float64) raises:
+    def set_lr(mut self, lr: Float64) raises:
         """Set the learning rate.
 
         Args:
@@ -314,7 +314,7 @@ struct Adam(Copyable, Movable, Optimizer):
     var has_buffer: List[Bool]
     """Flags indicating whether moment buffers exist for each parameter ID."""
 
-    fn __init__(
+    def __init__(
         out self,
         learning_rate: Float64 = 0.001,
         beta1: Float64 = 0.9,
@@ -506,7 +506,7 @@ struct Adam(Copyable, Movable, Optimizer):
             var new_data = subtract(parameters[i].data, param_update)
             parameters[i].data = new_data^
 
-    fn zero_grad(self, mut tape: GradientTape):
+    def zero_grad(self, mut tape: GradientTape):
         """Reset all gradients in the tape.
 
         Should be called after each optimizer step to clear gradients before
@@ -525,7 +525,7 @@ struct Adam(Copyable, Movable, Optimizer):
         """
         zero_grad_impl(tape)
 
-    fn get_lr(self) -> Float64:
+    def get_lr(self) -> Float64:
         """Get the current learning rate.
 
         Returns:
@@ -537,7 +537,7 @@ struct Adam(Copyable, Movable, Optimizer):
         """
         return self.learning_rate
 
-    fn set_lr(mut self, lr: Float64) raises:
+    def set_lr(mut self, lr: Float64) raises:
         """Set the learning rate.
 
         Args:
@@ -623,7 +623,7 @@ struct AdamW(Copyable, Movable, Optimizer):
     var has_buffer: List[Bool]
     """Flags indicating whether moment buffers exist for each parameter ID."""
 
-    fn __init__(
+    def __init__(
         out self,
         learning_rate: Float64 = 0.001,
         beta1: Float64 = 0.9,
@@ -807,7 +807,7 @@ struct AdamW(Copyable, Movable, Optimizer):
                 new_data._set_float64(j, param_val - update_val - decay_val)
             parameters[i].data = new_data^
 
-    fn zero_grad(self, mut tape: GradientTape):
+    def zero_grad(self, mut tape: GradientTape):
         """Reset all gradients in the tape.
 
         Should be called after each optimizer step to clear gradients before
@@ -826,7 +826,7 @@ struct AdamW(Copyable, Movable, Optimizer):
         """
         zero_grad_impl(tape)
 
-    fn get_lr(self) -> Float64:
+    def get_lr(self) -> Float64:
         """Get the current learning rate.
 
         Returns:
@@ -838,7 +838,7 @@ struct AdamW(Copyable, Movable, Optimizer):
         """
         return self.learning_rate
 
-    fn set_lr(mut self, lr: Float64) raises:
+    def set_lr(mut self, lr: Float64) raises:
         """Set the learning rate.
 
         Args:
@@ -897,7 +897,7 @@ struct AdaGrad(Copyable, Movable, Optimizer):
     var G_buffers: Dict[Int, AnyTensor]
     """Accumulated squared gradients for each parameter ID."""
 
-    fn __init__(
+    def __init__(
         out self,
         learning_rate: Float64,
         epsilon: Float64 = 1e-10,
@@ -927,7 +927,7 @@ struct AdaGrad(Copyable, Movable, Optimizer):
         self.weight_decay = weight_decay
         self.G_buffers = Dict[Int, AnyTensor]()
 
-    fn step(
+    def step(
         mut self, mut parameters: List[Variable], mut tape: GradientTape
     ) raises:
         """Update parameters using AdaGrad adaptive learning rates.
@@ -1013,7 +1013,7 @@ struct AdaGrad(Copyable, Movable, Optimizer):
             # Update the parameter's data
             parameters[i].data = new_data^
 
-    fn zero_grad(self, mut tape: GradientTape):
+    def zero_grad(self, mut tape: GradientTape):
         """Reset all gradients in the tape.
 
         Should be called after each optimizer step to clear gradients before
@@ -1032,7 +1032,7 @@ struct AdaGrad(Copyable, Movable, Optimizer):
         """
         zero_grad_impl(tape)
 
-    fn get_lr(self) -> Float64:
+    def get_lr(self) -> Float64:
         """Get the current learning rate.
 
         Returns:
@@ -1044,7 +1044,7 @@ struct AdaGrad(Copyable, Movable, Optimizer):
         """
         return self.learning_rate
 
-    fn set_lr(mut self, lr: Float64) raises:
+    def set_lr(mut self, lr: Float64) raises:
         """Set the learning rate.
 
         Args:
@@ -1060,7 +1060,7 @@ struct AdaGrad(Copyable, Movable, Optimizer):
         validate_learning_rate(lr)
         self.learning_rate = lr
 
-    fn reset_accumulators(mut self):
+    def reset_accumulators(mut self):
         """Reset accumulated squared gradient buffers.
 
         Call this to clear the accumulated gradients if needed (e.g., when
@@ -1130,7 +1130,7 @@ struct RMSprop(Copyable, Movable, Optimizer):
     var has_buffer: List[Bool]
     """Flags indicating initialized buffers for each parameter ID."""
 
-    fn __init__(
+    def __init__(
         out self,
         learning_rate: Float64 = 0.01,
         alpha: Float64 = 0.99,
@@ -1275,7 +1275,7 @@ struct RMSprop(Copyable, Movable, Optimizer):
             var new_data = subtract(parameters[i].data, update)
             parameters[i].data = new_data^
 
-    fn zero_grad(self, mut tape: GradientTape):
+    def zero_grad(self, mut tape: GradientTape):
         """Reset all gradients in the tape.
 
         Should be called after each optimizer step to clear gradients before
@@ -1290,7 +1290,7 @@ struct RMSprop(Copyable, Movable, Optimizer):
         """
         zero_grad_impl(tape)
 
-    fn get_lr(self) -> Float64:
+    def get_lr(self) -> Float64:
         """Get the current learning rate.
 
         Returns:
@@ -1302,7 +1302,7 @@ struct RMSprop(Copyable, Movable, Optimizer):
         """
         return self.learning_rate
 
-    fn set_lr(mut self, lr: Float64) raises:
+    def set_lr(mut self, lr: Float64) raises:
         """Set the learning rate.
 
         Args:

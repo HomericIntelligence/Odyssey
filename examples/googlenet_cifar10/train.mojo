@@ -62,7 +62,7 @@ from shared.utils.training_args import parse_training_args_with_defaults
 from model import GoogLeNet, InceptionModule
 
 
-fn train_epoch(
+def train_epoch(
     mut model: GoogLeNet,
     train_images: AnyTensor,
     train_labels: AnyTensor,
@@ -324,7 +324,7 @@ fn train_epoch(
     return avg_loss
 
 
-fn validate(
+def validate(
     mut model: GoogLeNet,
     val_images: AnyTensor,
     val_labels: AnyTensor,
@@ -376,7 +376,7 @@ fn validate(
     return accuracy
 
 
-fn main() raises:
+def main() raises:
     """Main training entry point."""
     print("=" * 60)
     print("GoogLeNet Training on CIFAR-10")

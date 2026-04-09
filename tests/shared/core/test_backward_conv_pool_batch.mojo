@@ -16,7 +16,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.conv import conv2d, conv2d_backward
 
 
-fn test_conv2d_backward_batched_grad_bias() raises:
+def test_conv2d_backward_batched_grad_bias() raises:
     """Verify grad_bias accumulates correctly over batch dimension.
 
     Config: batch=2, in_channels=3, out_channels=8, spatial=3x3, kernel=3x3
@@ -67,7 +67,7 @@ fn test_conv2d_backward_batched_grad_bias() raises:
         )
 
 
-fn test_conv2d_backward_batched_grad_weights() raises:
+def test_conv2d_backward_batched_grad_weights() raises:
     """Verify grad_weights accumulates correctly over batch dimension.
 
     Config: batch=2, in_channels=3, out_channels=8, spatial=3x3, kernel=3x3
@@ -133,7 +133,7 @@ fn test_conv2d_backward_batched_grad_weights() raises:
         )
 
 
-fn main() raises:
+def main() raises:
     """Run batched conv2d backward tests."""
     print("Running batched conv2d backward tests (batch>1)...")
     test_conv2d_backward_batched_grad_bias()

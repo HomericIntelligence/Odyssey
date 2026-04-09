@@ -7,14 +7,14 @@ from shared.tensor.any_tensor import AnyTensor, zeros
 from tests.shared.conftest import assert_equal
 
 
-fn _make_1d(size: Int) raises -> AnyTensor:
+def _make_1d(size: Int) raises -> AnyTensor:
     """Create a 1D tensor of the given size."""
     var shape = List[Int]()
     shape.append(size)
     return AnyTensor(shape, DType.float32)
 
 
-fn test_normalize_forward_full() raises:
+def test_normalize_forward_full() raises:
     """[0:5:1] on size=5 → start=0, end=5, step=1, result_size=5."""
     var t = _make_1d(5)
     var norm = t._normalize_slice_indices(0, 5, 1, 5)
@@ -24,7 +24,7 @@ fn test_normalize_forward_full() raises:
     assert_equal(norm[3], 5)
 
 
-fn test_normalize_forward_basic() raises:
+def test_normalize_forward_basic() raises:
     """[2:7:1] on size=10 → start=2, end=7, step=1, result_size=5."""
     var t = _make_1d(10)
     var norm = t._normalize_slice_indices(2, 7, 1, 10)
@@ -34,7 +34,7 @@ fn test_normalize_forward_basic() raises:
     assert_equal(norm[3], 5)
 
 
-fn test_normalize_empty_slice() raises:
+def test_normalize_empty_slice() raises:
     """[3:3:1] on size=5 → result_size=0."""
     var t = _make_1d(5)
     var norm = t._normalize_slice_indices(3, 3, 1, 5)
@@ -44,7 +44,7 @@ fn test_normalize_empty_slice() raises:
     assert_equal(norm[3], 0)
 
 
-fn test_normalize_negative_start() raises:
+def test_normalize_negative_start() raises:
     """[-3:10:1] on size=10 → start=7, end=10, result_size=3."""
     var t = _make_1d(10)
     var norm = t._normalize_slice_indices(-3, 10, 1, 10)
@@ -54,7 +54,7 @@ fn test_normalize_negative_start() raises:
     assert_equal(norm[3], 3)
 
 
-fn test_normalize_negative_end() raises:
+def test_normalize_negative_end() raises:
     """[0:-2:1] on size=10 → start=0, end=8, result_size=8."""
     var t = _make_1d(10)
     var norm = t._normalize_slice_indices(0, -2, 1, 10)
@@ -64,7 +64,7 @@ fn test_normalize_negative_end() raises:
     assert_equal(norm[3], 8)
 
 
-fn test_normalize_strided_step2() raises:
+def test_normalize_strided_step2() raises:
     """[0:10:2] on size=10 → result_size=5."""
     var t = _make_1d(10)
     var norm = t._normalize_slice_indices(0, 10, 2, 10)
@@ -74,7 +74,7 @@ fn test_normalize_strided_step2() raises:
     assert_equal(norm[3], 5)
 
 
-fn test_normalize_reverse_full() raises:
+def test_normalize_reverse_full() raises:
     """[4:-1:-1] on size=5 → start=4, end=-1, result_size=5."""
     var t = _make_1d(5)
     var norm = t._normalize_slice_indices(4, -1, -1, 5)
@@ -84,7 +84,7 @@ fn test_normalize_reverse_full() raises:
     assert_equal(norm[3], 5)
 
 
-fn test_normalize_reverse_partial() raises:
+def test_normalize_reverse_partial() raises:
     """[3:1:-1] on size=5 → start=3, end=1, result_size=2."""
     var t = _make_1d(5)
     var norm = t._normalize_slice_indices(3, 1, -1, 5)
@@ -94,7 +94,7 @@ fn test_normalize_reverse_partial() raises:
     assert_equal(norm[3], 2)
 
 
-fn test_normalize_oob_clamp_forward() raises:
+def test_normalize_oob_clamp_forward() raises:
     """[8:20:1] on size=10 → end clamped to 10, result_size=2."""
     var t = _make_1d(10)
     var norm = t._normalize_slice_indices(8, 20, 1, 10)
@@ -104,7 +104,7 @@ fn test_normalize_oob_clamp_forward() raises:
     assert_equal(norm[3], 2)
 
 
-fn test_normalize_oob_clamp_reverse() raises:
+def test_normalize_oob_clamp_reverse() raises:
     """[20:-1:-1] on size=10 → start clamped to 9, result_size=10."""
     var t = _make_1d(10)
     var norm = t._normalize_slice_indices(20, -1, -1, 10)
@@ -114,7 +114,7 @@ fn test_normalize_oob_clamp_reverse() raises:
     assert_equal(norm[3], 10)
 
 
-fn main() raises:
+def main() raises:
     """Run all _normalize_slice_indices tests."""
     test_normalize_forward_full()
     test_normalize_forward_basic()

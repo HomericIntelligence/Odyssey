@@ -30,7 +30,7 @@ References:
 from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.core.shape import concatenate
 from shared.data.formats import load_cifar10_batch
-from collections import List
+from std.collections import List
 
 
 # ============================================================================
@@ -38,7 +38,7 @@ from collections import List
 # ============================================================================
 
 
-fn _get_cifar10_classes() -> List[String]:
+def _get_cifar10_classes() -> List[String]:
     """Get CIFAR-10 class names."""
     var classes: List[String] = []
     classes.append("airplane")
@@ -55,7 +55,7 @@ fn _get_cifar10_classes() -> List[String]:
 
 
 # CIFAR10 class names - created at runtime when needed
-fn get_cifar10_classes() -> List[String]:
+def get_cifar10_classes() -> List[String]:
     """Get CIFAR-10 class names."""
     return _get_cifar10_classes()
 
@@ -102,7 +102,7 @@ struct CIFAR10Dataset(Copyable, Movable):
     var _train_loaded: Bool
     var _test_loaded: Bool
 
-    fn __init__(out self, data_dir: String) raises:
+    def __init__(out self, data_dir: String) raises:
         """Initialize CIFAR10Dataset.
 
         Args:
@@ -125,7 +125,7 @@ struct CIFAR10Dataset(Copyable, Movable):
         self._train_loaded = False
         self._test_loaded = False
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return total number of training samples.
 
         Returns:
@@ -133,7 +133,7 @@ struct CIFAR10Dataset(Copyable, Movable):
         """
         return 50000
 
-    fn __getitem__(mut self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
+    def __getitem__(mut self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get a sample from the training set.
 
         Args:
@@ -166,7 +166,7 @@ struct CIFAR10Dataset(Copyable, Movable):
 
         return (image_slice, label_slice)
 
-    fn _load_train_data(mut self) raises:
+    def _load_train_data(mut self) raises:
         """Load all training data from CIFAR-10 batch files.
 
         Loads 5 batches (10,000 images each) from files:
@@ -194,7 +194,7 @@ struct CIFAR10Dataset(Copyable, Movable):
         self._train_labels = self._concatenate_tensors(all_labels)
         self._train_loaded = True
 
-    fn get_train_data(mut self) raises -> Tuple[AnyTensor, AnyTensor]:
+    def get_train_data(mut self) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get all training data.
 
         Returns:
@@ -214,7 +214,7 @@ struct CIFAR10Dataset(Copyable, Movable):
 
         return (self._train_data, self._train_labels)
 
-    fn _load_test_data(mut self) raises:
+    def _load_test_data(mut self) raises:
         """Load test data from CIFAR-10 test batch file.
 
         Loads test set (10,000 images) from files:
@@ -231,7 +231,7 @@ struct CIFAR10Dataset(Copyable, Movable):
         self._test_labels = labels
         self._test_loaded = True
 
-    fn get_test_data(mut self) raises -> Tuple[AnyTensor, AnyTensor]:
+    def get_test_data(mut self) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get all test data.
 
         Returns:
@@ -251,7 +251,7 @@ struct CIFAR10Dataset(Copyable, Movable):
 
         return (self._test_data, self._test_labels)
 
-    fn _concatenate_tensors(self, tensors: List[AnyTensor]) raises -> AnyTensor:
+    def _concatenate_tensors(self, tensors: List[AnyTensor]) raises -> AnyTensor:
         """Concatenate a list of tensors along the first (batch) dimension.
 
         Args:
@@ -272,7 +272,7 @@ struct CIFAR10Dataset(Copyable, Movable):
         # Use concatenate function to join all tensors along axis 0
         return concatenate(tensors, axis=0)
 
-    fn get_class_name(self, class_idx: Int) raises -> String:
+    def get_class_name(self, class_idx: Int) raises -> String:
         """Get human-readable class name from class index.
 
         Args:
@@ -292,7 +292,7 @@ struct CIFAR10Dataset(Copyable, Movable):
         var classes = get_cifar10_classes()
         return classes[class_idx]
 
-    fn num_classes(self) -> Int:
+    def num_classes(self) -> Int:
         """Get number of classes in CIFAR-10.
 
         Returns:
@@ -300,7 +300,7 @@ struct CIFAR10Dataset(Copyable, Movable):
         """
         return 10
 
-    fn num_train_samples(self) -> Int:
+    def num_train_samples(self) -> Int:
         """Get number of training samples.
 
         Returns:
@@ -308,7 +308,7 @@ struct CIFAR10Dataset(Copyable, Movable):
         """
         return 50000
 
-    fn num_test_samples(self) -> Int:
+    def num_test_samples(self) -> Int:
         """Get number of test samples.
 
         Returns:
@@ -316,7 +316,7 @@ struct CIFAR10Dataset(Copyable, Movable):
         """
         return 10000
 
-    fn image_shape(self) -> List[Int]:
+    def image_shape(self) -> List[Int]:
         """Get shape of individual images.
 
         Returns:

@@ -25,8 +25,8 @@ from shared.training.metrics import (
     top1_accuracy,
     AccuracyMetric,
 )
-from collections import List
-from math import exp
+from std.collections import List
+from std.math import exp
 
 # Default number of classes for EMNIST Balanced dataset
 comptime DEFAULT_NUM_CLASSES = 47
@@ -90,7 +90,7 @@ struct InferenceConfig:
     var weights_dir: String
     var data_dir: String
 
-    fn __init__(out self, weights_dir: String, data_dir: String):
+    def __init__(out self, weights_dir: String, data_dir: String):
         self.weights_dir = weights_dir
         self.data_dir = data_dir
 
@@ -101,7 +101,7 @@ struct PredictionResult:
     var predicted_class: Int
     var confidence: Float32
 
-    fn __init__(out self, predicted_class: Int, confidence: Float32):
+    def __init__(out self, predicted_class: Int, confidence: Float32):
         self.predicted_class = predicted_class
         self.confidence = confidence
 
@@ -113,13 +113,13 @@ struct EvaluationResult:
     var num_correct: Int
     var num_total: Int
 
-    fn __init__(out self, accuracy: Float32, num_correct: Int, num_total: Int):
+    def __init__(out self, accuracy: Float32, num_correct: Int, num_total: Int):
         self.accuracy = accuracy
         self.num_correct = num_correct
         self.num_total = num_total
 
 
-fn parse_args() raises -> InferenceConfig:
+def parse_args() raises -> InferenceConfig:
     """Parse command line arguments using enhanced argument parser.
 
     Returns:
@@ -137,7 +137,7 @@ fn parse_args() raises -> InferenceConfig:
     return InferenceConfig(weights_dir, data_dir)
 
 
-fn infer_single(mut model: LeNet5, image: AnyTensor) raises -> PredictionResult:
+def infer_single(mut model: LeNet5, image: AnyTensor) raises -> PredictionResult:
     """Run inference on a single image.
 
     Args:
@@ -171,7 +171,7 @@ fn infer_single(mut model: LeNet5, image: AnyTensor) raises -> PredictionResult:
     return PredictionResult(max_idx, confidence)
 
 
-fn evaluate_test_set(
+def evaluate_test_set(
     mut model: LeNet5, images: AnyTensor, labels: AnyTensor
 ) raises -> EvaluationResult:
     """Evaluate model on entire test set.
@@ -207,7 +207,7 @@ fn evaluate_test_set(
     return EvaluationResult(accuracy, num_correct, num_samples)
 
 
-fn main() raises:
+def main() raises:
     """Main inference entry point."""
     print("=" * 60)
     print("LeNet-5 Inference on EMNIST Dataset")

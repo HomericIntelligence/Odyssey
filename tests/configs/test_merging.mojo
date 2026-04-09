@@ -13,7 +13,7 @@ from testing import assert_true, assert_false, assert_equal
 from shared.utils.config import Config, load_config, merge_configs
 
 
-fn test_merge_two_configs() raises:
+def test_merge_two_configs() raises:
     """Test basic two-config merge operation.
 
     Verifies that merging two configs combines values correctly
@@ -48,7 +48,7 @@ fn test_merge_two_configs() raises:
     print("✓ test_merge_two_configs passed")
 
 
-fn test_merge_empty_configs() raises:
+def test_merge_empty_configs() raises:
     """Test merging with empty configurations.
 
     Verifies that merging handles empty configs gracefully.
@@ -69,7 +69,7 @@ fn test_merge_empty_configs() raises:
     print("✓ test_merge_empty_configs passed")
 
 
-fn test_merge_default_and_paper() raises:
+def test_merge_default_and_paper() raises:
     """Test merging default and paper configurations.
 
     Verifies 2-level merge: defaults → paper-specific config.
@@ -95,7 +95,7 @@ fn test_merge_default_and_paper() raises:
     print("✓ test_merge_default_and_paper passed")
 
 
-fn test_merge_preserves_default_values() raises:
+def test_merge_preserves_default_values() raises:
     """Test that merge preserves default values not in override.
 
     Verifies defaults are retained when not overridden by paper config.
@@ -128,7 +128,7 @@ fn test_merge_preserves_default_values() raises:
     print("✓ test_merge_preserves_default_values passed")
 
 
-fn test_three_level_merge() raises:
+def test_three_level_merge() raises:
     """Test three-level configuration merge.
 
     Verifies full hierarchy: defaults → paper → experiment.
@@ -149,7 +149,7 @@ fn test_three_level_merge() raises:
     print("✓ test_three_level_merge passed")
 
 
-fn test_experiment_overrides_all() raises:
+def test_experiment_overrides_all() raises:
     """Test that experiment config overrides both defaults and paper.
 
     Verifies that experiment-level settings have highest precedence.
@@ -178,7 +178,7 @@ fn test_experiment_overrides_all() raises:
     print("✓ test_experiment_overrides_all passed")
 
 
-fn test_three_level_merge_baseline_experiment() raises:
+def test_three_level_merge_baseline_experiment() raises:
     """Test three-level merge with baseline experiment.
 
     Verifies merge works with baseline experiment (minimal overrides).
@@ -195,7 +195,7 @@ fn test_three_level_merge_baseline_experiment() raises:
     print("✓ test_three_level_merge_baseline_experiment passed")
 
 
-fn test_merge_nested_structures() raises:
+def test_merge_nested_structures() raises:
     """Test merging configurations with nested structures.
 
     Note: Current implementation may have limitations with deep nesting.
@@ -225,7 +225,7 @@ fn test_merge_nested_structures() raises:
     print("✓ test_merge_nested_structures passed")
 
 
-fn test_merge_with_dotted_keys() raises:
+def test_merge_with_dotted_keys() raises:
     """Test merging configs using dotted key notation.
 
     Verifies that dot-notation keys are handled correctly.
@@ -248,7 +248,7 @@ fn test_merge_with_dotted_keys() raises:
     print("✓ test_merge_with_dotted_keys passed")
 
 
-fn test_merge_type_conflicts() raises:
+def test_merge_type_conflicts() raises:
     """Test merging when same key has different types.
 
     Verifies that override type takes precedence.
@@ -268,7 +268,7 @@ fn test_merge_type_conflicts() raises:
     print("✓ test_merge_type_conflicts passed")
 
 
-fn test_merge_multiple_times() raises:
+def test_merge_multiple_times() raises:
     """Test merging same config multiple times.
 
     Verifies that repeated merges produce consistent results.
@@ -304,7 +304,7 @@ fn test_merge_multiple_times() raises:
     print("✓ test_merge_multiple_times passed")
 
 
-fn test_merge_associativity() raises:
+def test_merge_associativity() raises:
     """Test that merge operation is associative.
 
     Verifies: (A merge B) merge C == A merge (B merge C)
@@ -336,7 +336,7 @@ fn test_merge_associativity() raises:
     print("✓ test_merge_associativity passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_merging tests."""
     print("Running test_merging tests...")
 

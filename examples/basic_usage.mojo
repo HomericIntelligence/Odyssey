@@ -6,7 +6,7 @@ Demonstrates creation operations and basic tensor manipulation.
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange, eye, linspace
 
 
-fn main() raises:
+def main() raises:
     """Run basic AnyTensor examples."""
     print("AnyTensor Basic Usage Examples")
     print("=" * 50)

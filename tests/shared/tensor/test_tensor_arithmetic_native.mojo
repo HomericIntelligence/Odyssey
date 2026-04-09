@@ -20,7 +20,7 @@ from shared.core.arithmetic import (
 )
 
 
-fn test_add_correctness() raises:
+def test_add_correctness() raises:
     """AnyTensor add produces correct element-wise results."""
     var a = any_full([3, 4], 0.5, DType.float32)
     var b = any_full([3, 4], 1.0, DType.float32)
@@ -37,7 +37,7 @@ fn test_add_correctness() raises:
     print("PASS: test_add_correctness")
 
 
-fn test_subtract_correctness() raises:
+def test_subtract_correctness() raises:
     """AnyTensor subtract produces correct element-wise results."""
     var a = any_full([2, 3], 1.5, DType.float32)
     var b = any_full([2, 3], 0.5, DType.float32)
@@ -53,7 +53,7 @@ fn test_subtract_correctness() raises:
     print("PASS: test_subtract_correctness")
 
 
-fn test_multiply_correctness() raises:
+def test_multiply_correctness() raises:
     """AnyTensor multiply produces correct element-wise results."""
     var a = any_full([2, 3], 0.5, DType.float32)
     var b = any_full([2, 3], 1.5, DType.float32)
@@ -69,7 +69,7 @@ fn test_multiply_correctness() raises:
     print("PASS: test_multiply_correctness")
 
 
-fn test_divide_correctness() raises:
+def test_divide_correctness() raises:
     """AnyTensor divide produces correct element-wise results."""
     var a = any_full([2, 3], 1.5, DType.float32)
     var b = any_full([2, 3], 0.5, DType.float32)
@@ -85,7 +85,7 @@ fn test_divide_correctness() raises:
     print("PASS: test_divide_correctness")
 
 
-fn test_add_float64_precision() raises:
+def test_add_float64_precision() raises:
     """Float64 add preserves full precision."""
     var a = any_full([2], 3.141592653589793, DType.float64)
     var b = any_full([2], 1.0e-15, DType.float64)
@@ -99,7 +99,7 @@ fn test_add_float64_precision() raises:
     print("PASS: test_add_float64_precision")
 
 
-fn test_subtract_float64_precision() raises:
+def test_subtract_float64_precision() raises:
     """Float64 subtract preserves full precision."""
     var a = any_full([2], 3.141592653589793, DType.float64)
     var b = any_full([2], 1.0e-15, DType.float64)
@@ -113,7 +113,7 @@ fn test_subtract_float64_precision() raises:
     print("PASS: test_subtract_float64_precision")
 
 
-fn test_multiply_divide_inverse() raises:
+def test_multiply_divide_inverse() raises:
     """Multiply then divide returns original values."""
     var a = any_full([4], 1.5, DType.float32)
     var b = any_full([4], 0.5, DType.float32)
@@ -129,7 +129,7 @@ fn test_multiply_divide_inverse() raises:
     print("PASS: test_multiply_divide_inverse")
 
 
-fn test_add_negative_values() raises:
+def test_add_negative_values() raises:
     """Add handles negative values correctly."""
     var a = any_full([3], -1.0, DType.float32)
     var b = any_full([3], -0.5, DType.float32)
@@ -144,7 +144,7 @@ fn test_add_negative_values() raises:
     print("PASS: test_add_negative_values")
 
 
-fn test_arithmetic_preserves_shape() raises:
+def test_arithmetic_preserves_shape() raises:
     """Arithmetic preserves tensor shape."""
     var a = any_ones([2, 3, 4], DType.float32)
     var b = any_ones([2, 3, 4], DType.float32)
@@ -157,7 +157,7 @@ fn test_arithmetic_preserves_shape() raises:
     print("PASS: test_arithmetic_preserves_shape")
 
 
-fn main() raises:
+def main() raises:
     test_add_correctness()
     test_subtract_correctness()
     test_multiply_correctness()

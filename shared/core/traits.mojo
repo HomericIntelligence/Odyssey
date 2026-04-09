@@ -19,13 +19,13 @@ Trait Categories:
 
 Example:
     struct MyLayer(Differentiable, Parameterized):
-        fn forward(self, input: AnyTensor) -> AnyTensor:
+        def forward(self, input: AnyTensor) -> AnyTensor:
             # ... implementation.
 
-        fn backward(self, grad_output: AnyTensor) -> AnyTensor:
+        def backward(self, grad_output: AnyTensor) -> AnyTensor:
             # ... implementation.
 
-        fn parameters(self) -> List[AnyTensor]:
+        def parameters(self) -> List[AnyTensor]:
             return [self.weights, self.bias]
     ```
 """
@@ -53,16 +53,16 @@ trait Differentiable(ImplicitlyDestructible):
         struct ReLULayer(Differentiable):
             var last_input: AnyTensor  # Cache for backward pass
 
-            fn forward(mut self, input: AnyTensor) -> AnyTensor:
+            def forward(mut self, input: AnyTensor) -> AnyTensor:
                 self.last_input = input.copy()
                 return relu(input)
 
-            fn backward(self, grad_output: AnyTensor) -> AnyTensor:
+            def backward(self, grad_output: AnyTensor) -> AnyTensor:
                 return relu_backward(grad_output, self.last_input)
         ```
     """
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute forward pass.
 
         Args:
@@ -79,7 +79,7 @@ trait Differentiable(ImplicitlyDestructible):
         """
         ...
 
-    fn backward(self, grad_output: AnyTensor) raises -> AnyTensor:
+    def backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Compute backward pass (input gradient).
 
         Args:
@@ -121,19 +121,19 @@ trait Parameterized:
             var grad_weights: AnyTensor
             var grad_bias: AnyTensor
 
-            fn parameters(self) -> List[AnyTensor]:
+            def parameters(self) -> List[AnyTensor]:
                 return [self.weights, self.bias]
 
-            fn gradients(self) -> List[AnyTensor]:
+            def gradients(self) -> List[AnyTensor]:
                 return [self.grad_weights, self.grad_bias]
 
-            fn zero_grad(mut self):
+            def zero_grad(mut self):
                 self.grad_weights.fill(0.0)
                 self.grad_bias.fill(0.0)
         ```
     """
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Get all learnable parameters.
 
         Returns:
@@ -148,7 +148,7 @@ trait Parameterized:
         """
         ...
 
-    fn gradients(self) raises -> List[AnyTensor]:
+    def gradients(self) raises -> List[AnyTensor]:
         """Get gradients for all parameters.
 
         Returns:
@@ -163,7 +163,7 @@ trait Parameterized:
         """
         ...
 
-    fn zero_grad(mut self) raises:
+    def zero_grad(mut self) raises:
         """Reset all gradients to zero.
 
         Called at the beginning of each mini-batch to clear
@@ -205,19 +205,19 @@ trait Serializable:
             var weights: AnyTensor
             var bias: AnyTensor
 
-            fn save(self, path: String) raises:
+            def save(self, path: String) raises:
                 # Save weights and bias to file
                 write_tensor(path + "/weights.bin", self.weights)
                 write_tensor(path + "/bias.bin", self.bias)
 
-            fn load(mut self, path: String) raises:
+            def load(mut self, path: String) raises:
                 # Load weights and bias from file
                 self.weights = read_tensor(path + "/weights.bin")
                 self.bias = read_tensor(path + "/bias.bin")
         ```
     """
 
-    fn save(self, path: String) raises:
+    def save(self, path: String) raises:
         """Save component state to file.
 
         Args:
@@ -232,7 +232,7 @@ trait Serializable:
         """
         ...
 
-    fn load(mut self, path: String) raises:
+    def load(mut self, path: String) raises:
         """Load component state from file.
 
         Args:
@@ -267,7 +267,7 @@ trait Composable(Differentiable):
         struct Sequential(Composable):
             var layers: List[Composable]
 
-            fn compose[T: Composable](self, other: T) -> ComposedOp[Self, T]:
+            def compose[T: Composable](self, other: T) -> ComposedOp[Self, T]:
                 return ComposedOp[Self, T](self, other)
 
         # Usage:
@@ -275,7 +275,7 @@ trait Composable(Differentiable):
         ```
     """
 
-    fn compose[T: Differentiable & Copyable & Movable](self, other: T) raises:
+    def compose[T: Differentiable & Copyable & Movable](self, other: T) raises:
         """Compose this component with another.
 
         NOTE: The compose method signature is intentionally incomplete because Mojo's
@@ -360,7 +360,7 @@ struct ComposedOp[
     var _intermediate: AnyTensor
     """Cached intermediate tensor (output of first operation, input to second)."""
 
-    fn __init__(out self, first: Self.F, second: Self.S) raises:
+    def __init__(out self, first: Self.F, second: Self.S) raises:
         """Initialize composed operation with first and second components.
 
         Args:
@@ -375,7 +375,7 @@ struct ComposedOp[
         # Initialize with empty tensor - will be set during forward pass
         self._intermediate = AnyTensor(List[Int](), DType.float32)
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute forward pass by chaining operations.
 
         Applies first operation, then second operation:
@@ -408,7 +408,7 @@ struct ComposedOp[
 
         return output
 
-    fn backward(self, grad_output: AnyTensor) raises -> AnyTensor:
+    def backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Compute backward pass by applying chain rule.
 
         Applies operations in reverse order with chain rule:
@@ -456,16 +456,16 @@ trait Trainable:
             var training: Bool
             var p: Float64
 
-            fn train(mut self):
+            def train(mut self):
                 self.training = True
 
-            fn eval(mut self):
+            def eval(mut self):
                 self.training = False
 
-            fn is_training(self) -> Bool:
+            def is_training(self) -> Bool:
                 return self.training
 
-            fn forward(self, input: AnyTensor) -> AnyTensor:
+            def forward(self, input: AnyTensor) -> AnyTensor:
                 if self.training:
                     # Apply dropout
                 else:
@@ -473,21 +473,21 @@ trait Trainable:
         ```
     """
 
-    fn train(mut self):
+    def train(mut self):
         """Set component to training mode.
 
         Enables training-specific behavior (dropout, batch norm updates, etc.).
         """
         ...
 
-    fn eval(mut self):
+    def eval(mut self):
         """Set component to evaluation mode.
 
         Disables training-specific behavior for inference.
         """
         ...
 
-    fn is_training(self) -> Bool:
+    def is_training(self) -> Bool:
         """Check if component is in training mode.
 
         Returns:
@@ -515,19 +515,19 @@ trait Model(ImplicitlyDestructible):
     Example:
         ```mojo
         struct SimpleMLP(Model):
-            fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+            def forward(mut self, input: AnyTensor) raises -> AnyTensor:
                 # ... layer computations ...
                 return output^
 
-            fn parameters(self) raises -> List[AnyTensor]:
+            def parameters(self) raises -> List[AnyTensor]:
                 return [self.layer1_weights, self.layer1_bias, ...]^
 
-            fn zero_grad(mut self) raises:
+            def zero_grad(mut self) raises:
                 # Reset all gradient accumulators
         ```
     """
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Execute forward pass through the model.
 
         Args:
@@ -541,7 +541,7 @@ trait Model(ImplicitlyDestructible):
         """
         ...
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Return list of all trainable parameters.
 
         Returns:
@@ -555,7 +555,7 @@ trait Model(ImplicitlyDestructible):
         """
         ...
 
-    fn zero_grad(mut self) raises:
+    def zero_grad(mut self) raises:
         """Reset all parameter gradients to zero.
 
         Raises:
@@ -578,13 +578,13 @@ trait Loss(ImplicitlyDestructible):
     Example:
         ```mojo
         struct MSELoss(Loss):
-            fn compute(self, pred: AnyTensor, target: AnyTensor) raises -> AnyTensor:
+            def compute(self, pred: AnyTensor, target: AnyTensor) raises -> AnyTensor:
                 var diff = subtract(pred, target)
                 return mean(multiply(diff, diff))
         ```
     """
 
-    fn compute(self, pred: AnyTensor, target: AnyTensor) raises -> AnyTensor:
+    def compute(self, pred: AnyTensor, target: AnyTensor) raises -> AnyTensor:
         """Compute loss between predictions and targets.
 
         Args:
@@ -614,16 +614,16 @@ trait Optimizer(ImplicitlyDestructible):
         struct SGD(Optimizer):
             var learning_rate: Float32
 
-            fn step(mut self, params: List[AnyTensor]) raises:
+            def step(mut self, params: List[AnyTensor]) raises:
                 for param in params:
                     param -= self.learning_rate * param.grad
 
-            fn zero_grad(mut self) raises:
+            def zero_grad(mut self) raises:
                 # Clear any optimizer-specific state
         ```
     """
 
-    fn step(mut self, params: List[AnyTensor]) raises:
+    def step(mut self, params: List[AnyTensor]) raises:
         """Update parameters using computed gradients.
 
         Args:
@@ -637,7 +637,7 @@ trait Optimizer(ImplicitlyDestructible):
         """
         ...
 
-    fn zero_grad(mut self) raises:
+    def zero_grad(mut self) raises:
         """Reset optimizer state.
 
         Raises:
@@ -648,7 +648,7 @@ trait Optimizer(ImplicitlyDestructible):
         """
         ...
 
-    fn get_learning_rate(self) -> Float64:
+    def get_learning_rate(self) -> Float64:
         """Get the current learning rate.
 
         Returns:

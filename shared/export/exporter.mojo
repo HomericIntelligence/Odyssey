@@ -35,7 +35,7 @@ struct ExportConfig(Copyable, Movable):
     var model_name: String
     var doc_string: String
 
-    fn __init__(
+    def __init__(
         out self,
         opset_version: Int64 = 14,
         model_name: String = "model",
@@ -63,7 +63,7 @@ struct ONNXExporter(Movable):
     var model: ModelProto
     var verbose: Bool
 
-    fn __init__(out self, opset_version: Int64 = 14, verbose: Bool = False):
+    def __init__(out self, opset_version: Int64 = 14, verbose: Bool = False):
         """Initialize ONNX exporter.
 
         Args:
@@ -76,15 +76,15 @@ struct ONNXExporter(Movable):
         self.verbose = verbose
 
 
-    fn set_model_name(mut self, name: String):
+    def set_model_name(mut self, name: String):
         """Set the model name."""
         self.model.graph.name = name
 
-    fn set_doc_string(mut self, doc: String):
+    def set_doc_string(mut self, doc: String):
         """Set model documentation string."""
         self.model.doc_string = doc
 
-    fn add_input(
+    def add_input(
         mut self,
         name: String,
         var shape: List[Int64],
@@ -99,7 +99,7 @@ struct ONNXExporter(Movable):
         if self.verbose:
             print("Added input:", name)
 
-    fn add_input_dynamic(
+    def add_input_dynamic(
         mut self,
         name: String,
         var shape: List[Int64],
@@ -126,7 +126,7 @@ struct ONNXExporter(Movable):
 
         self.model.graph.add_input(input^)
 
-    fn add_output(
+    def add_output(
         mut self,
         name: String,
         var shape: List[Int64],
@@ -141,7 +141,7 @@ struct ONNXExporter(Movable):
         if self.verbose:
             print("Added output:", name)
 
-    fn add_initializer(
+    def add_initializer(
         mut self,
         name: String,
         var shape: List[Int64],
@@ -156,7 +156,7 @@ struct ONNXExporter(Movable):
         if self.verbose:
             print("Added initializer:", name)
 
-    fn add_conv(
+    def add_conv(
         mut self,
         name: String,
         input_name: String,
@@ -185,7 +185,7 @@ struct ONNXExporter(Movable):
 
         self.model.graph.add_node(node^)
 
-    fn add_gemm(
+    def add_gemm(
         mut self,
         name: String,
         input_name: String,
@@ -211,7 +211,7 @@ struct ONNXExporter(Movable):
 
         self.model.graph.add_node(node^)
 
-    fn add_batchnorm(
+    def add_batchnorm(
         mut self,
         name: String,
         input_name: String,
@@ -237,7 +237,7 @@ struct ONNXExporter(Movable):
 
         self.model.graph.add_node(node^)
 
-    fn add_relu(
+    def add_relu(
         mut self,
         name: String,
         input_name: String,
@@ -249,7 +249,7 @@ struct ONNXExporter(Movable):
         node.add_output(output_name)
         self.model.graph.add_node(node^)
 
-    fn add_sigmoid(
+    def add_sigmoid(
         mut self,
         name: String,
         input_name: String,
@@ -261,7 +261,7 @@ struct ONNXExporter(Movable):
         node.add_output(output_name)
         self.model.graph.add_node(node^)
 
-    fn add_tanh(
+    def add_tanh(
         mut self,
         name: String,
         input_name: String,
@@ -273,7 +273,7 @@ struct ONNXExporter(Movable):
         node.add_output(output_name)
         self.model.graph.add_node(node^)
 
-    fn add_softmax(
+    def add_softmax(
         mut self,
         name: String,
         input_name: String,
@@ -287,7 +287,7 @@ struct ONNXExporter(Movable):
         node.add_int_attr(String("axis"), axis)
         self.model.graph.add_node(node^)
 
-    fn add_maxpool(
+    def add_maxpool(
         mut self,
         name: String,
         input_name: String,
@@ -307,7 +307,7 @@ struct ONNXExporter(Movable):
 
         self.model.graph.add_node(node^)
 
-    fn add_avgpool(
+    def add_avgpool(
         mut self,
         name: String,
         input_name: String,
@@ -327,7 +327,7 @@ struct ONNXExporter(Movable):
 
         self.model.graph.add_node(node^)
 
-    fn add_global_avgpool(
+    def add_global_avgpool(
         mut self,
         name: String,
         input_name: String,
@@ -339,7 +339,7 @@ struct ONNXExporter(Movable):
         node.add_output(output_name)
         self.model.graph.add_node(node^)
 
-    fn add_flatten(
+    def add_flatten(
         mut self,
         name: String,
         input_name: String,
@@ -353,7 +353,7 @@ struct ONNXExporter(Movable):
         node.add_int_attr(String("axis"), axis)
         self.model.graph.add_node(node^)
 
-    fn add_dropout(
+    def add_dropout(
         mut self,
         name: String,
         input_name: String,
@@ -367,7 +367,7 @@ struct ONNXExporter(Movable):
         node.add_float_attr(String("ratio"), ratio)
         self.model.graph.add_node(node^)
 
-    fn add_add(
+    def add_add(
         mut self,
         name: String,
         input_a: String,
@@ -381,7 +381,7 @@ struct ONNXExporter(Movable):
         node.add_output(output_name)
         self.model.graph.add_node(node^)
 
-    fn add_concat(
+    def add_concat(
         mut self,
         name: String,
         var inputs: List[String],
@@ -396,7 +396,7 @@ struct ONNXExporter(Movable):
         node.add_int_attr(String("axis"), axis)
         self.model.graph.add_node(node^)
 
-    fn add_reshape(
+    def add_reshape(
         mut self,
         name: String,
         input_name: String,
@@ -410,7 +410,7 @@ struct ONNXExporter(Movable):
         node.add_output(output_name)
         self.model.graph.add_node(node^)
 
-    fn add_transpose(
+    def add_transpose(
         mut self,
         name: String,
         input_name: String,
@@ -424,7 +424,7 @@ struct ONNXExporter(Movable):
         node.add_ints_attr(String("perm"), perm^)
         self.model.graph.add_node(node^)
 
-    fn add_matmul(
+    def add_matmul(
         mut self,
         name: String,
         input_a: String,
@@ -438,15 +438,15 @@ struct ONNXExporter(Movable):
         node.add_output(output_name)
         self.model.graph.add_node(node^)
 
-    fn num_nodes(self) -> Int:
+    def num_nodes(self) -> Int:
         """Get the number of nodes in the graph."""
         return len(self.model.graph.nodes)
 
-    fn num_initializers(self) -> Int:
+    def num_initializers(self) -> Int:
         """Get the number of initializers."""
         return len(self.model.graph.initializers)
 
-    fn save(self, path: String) raises:
+    def save(self, path: String) raises:
         """Save the model to an ONNX file.
 
         Args:
@@ -478,7 +478,7 @@ struct ONNXExporter(Movable):
             print("  File size:", len(bytes), "bytes")
 
 
-fn create_lenet5_onnx() -> ONNXExporter:
+def create_lenet5_onnx() -> ONNXExporter:
     """Create a LeNet-5 ONNX model for demonstration.
 
     Returns:

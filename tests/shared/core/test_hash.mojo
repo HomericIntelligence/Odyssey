@@ -5,7 +5,7 @@ different NaN payloads) all produce the same hash, ensuring deterministic hash
 behavior for tensors containing NaN values.
 """
 
-from memory import UnsafePointer
+from std.memory import UnsafePointer
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange, nan_tensor
 from tests.shared.conftest import (
     assert_equal_int,
@@ -17,7 +17,7 @@ from tests.shared.conftest import (
 # ============================================================================
 
 
-fn make_f32_nan_tensor(bits: UInt32) raises -> AnyTensor:
+def make_f32_nan_tensor(bits: UInt32) raises -> AnyTensor:
     """Create a scalar float32 tensor whose single element has the given raw bits.
 
     Args:
@@ -32,7 +32,7 @@ fn make_f32_nan_tensor(bits: UInt32) raises -> AnyTensor:
     return t^
 
 
-fn make_f64_nan_tensor(bits: UInt64) raises -> AnyTensor:
+def make_f64_nan_tensor(bits: UInt64) raises -> AnyTensor:
     """Create a scalar float64 tensor whose single element has the given raw bits.
 
     Args:
@@ -47,7 +47,7 @@ fn make_f64_nan_tensor(bits: UInt64) raises -> AnyTensor:
     return t^
 
 
-fn make_f16_nan_tensor(bits: UInt16) raises -> AnyTensor:
+def make_f16_nan_tensor(bits: UInt16) raises -> AnyTensor:
     """Create a scalar float16 tensor whose single element has the given raw bits.
 
     Args:
@@ -67,7 +67,7 @@ fn make_f16_nan_tensor(bits: UInt16) raises -> AnyTensor:
 # ============================================================================
 
 
-fn test_hash_normal_values() raises:
+def test_hash_normal_values() raises:
     """Equal tensors yield equal hashes."""
     var a = arange(0.0, 4.0, 1.0, DType.float32)
     var b = arange(0.0, 4.0, 1.0, DType.float32)
@@ -76,7 +76,7 @@ fn test_hash_normal_values() raises:
     )
 
 
-fn test_hash_different_values() raises:
+def test_hash_different_values() raises:
     """Different-valued tensors should produce different hashes (probabilistic).
     """
     var shape = List[Int]()
@@ -92,7 +92,7 @@ fn test_hash_different_values() raises:
 # ============================================================================
 
 
-fn test_hash_f32_quiet_nan_equals_negative_nan() raises:
+def test_hash_f32_quiet_nan_equals_negative_nan() raises:
     """Positive and negative quiet NaN (float32) hash identically.
 
     Positive quiet NaN:  0x7FC00000
@@ -109,7 +109,7 @@ fn test_hash_f32_quiet_nan_equals_negative_nan() raises:
     )
 
 
-fn test_hash_f32_nan_payload_irrelevant() raises:
+def test_hash_f32_nan_payload_irrelevant() raises:
     """Two float32 NaNs with different mantissa payloads hash identically.
 
     NaN with payload 1:  0x7FC00001
@@ -124,7 +124,7 @@ fn test_hash_f32_nan_payload_irrelevant() raises:
     )
 
 
-fn test_hash_f32_signaling_nan_equals_quiet_nan() raises:
+def test_hash_f32_signaling_nan_equals_quiet_nan() raises:
     """Signaling NaN (f32) hashes the same as quiet NaN.
 
     Quiet NaN:     0x7FC00000  (MSB of mantissa = 1)
@@ -144,7 +144,7 @@ fn test_hash_f32_signaling_nan_equals_quiet_nan() raises:
 # ============================================================================
 
 
-fn test_hash_f64_nan_sign_irrelevant() raises:
+def test_hash_f64_nan_sign_irrelevant() raises:
     """Positive and negative quiet NaN (float64) hash identically.
 
     Positive quiet NaN:  0x7FF8000000000000
@@ -159,7 +159,7 @@ fn test_hash_f64_nan_sign_irrelevant() raises:
     )
 
 
-fn test_hash_f64_nan_payload_irrelevant() raises:
+def test_hash_f64_nan_payload_irrelevant() raises:
     """Two float64 NaNs with different payloads hash identically.
 
     NaN with payload 1:  0x7FF8000000000001
@@ -174,7 +174,7 @@ fn test_hash_f64_nan_payload_irrelevant() raises:
     )
 
 
-fn test_hash_f64_signaling_nan_equals_quiet_nan() raises:
+def test_hash_f64_signaling_nan_equals_quiet_nan() raises:
     """Signaling NaN (f64) hashes the same as quiet NaN.
 
     Quiet NaN:     0x7FF8000000000000
@@ -194,7 +194,7 @@ fn test_hash_f64_signaling_nan_equals_quiet_nan() raises:
 # ============================================================================
 
 
-fn test_hash_f16_nan_sign_irrelevant() raises:
+def test_hash_f16_nan_sign_irrelevant() raises:
     """Positive and negative quiet NaN (float16) hash identically.
 
     Positive quiet NaN (f16):  0x7E00
@@ -209,7 +209,7 @@ fn test_hash_f16_nan_sign_irrelevant() raises:
     )
 
 
-fn test_hash_f16_nan_payload_irrelevant() raises:
+def test_hash_f16_nan_payload_irrelevant() raises:
     """Two float16 NaNs with different payloads hash identically.
 
     NaN with payload 1:  0x7E01
@@ -229,7 +229,7 @@ fn test_hash_f16_nan_payload_irrelevant() raises:
 # ============================================================================
 
 
-fn test_hash_mixed_nan_normal_deterministic() raises:
+def test_hash_mixed_nan_normal_deterministic() raises:
     """A tensor mixing NaN and normal values hashes the same across calls."""
     var shape = List[Int]()
     shape.append(3)
@@ -249,7 +249,7 @@ fn test_hash_mixed_nan_normal_deterministic() raises:
     )
 
 
-fn test_hash_mixed_nan_different_nan_patterns() raises:
+def test_hash_mixed_nan_different_nan_patterns() raises:
     """Tensors with same logical content but different NaN bit patterns hash equal.
     """
     var shape = List[Int]()
@@ -277,7 +277,7 @@ fn test_hash_mixed_nan_different_nan_patterns() raises:
 # ============================================================================
 
 
-fn test_hash_shape_sensitivity() raises:
+def test_hash_shape_sensitivity() raises:
     """Tensors with different shapes hash differently."""
     var shape_a = List[Int]()
     shape_a.append(2)
@@ -289,7 +289,7 @@ fn test_hash_shape_sensitivity() raises:
         raise Error("Tensors with different shapes should not collide on hash")
 
 
-fn test_hash_dtype_sensitivity() raises:
+def test_hash_dtype_sensitivity() raises:
     """Tensors with same shape/values but different dtypes hash differently."""
     var shape = List[Int]()
     shape.append(1)
@@ -299,7 +299,7 @@ fn test_hash_dtype_sensitivity() raises:
         raise Error("Tensors with different dtypes should not collide on hash")
 
 
-fn test_hash_int_vs_float_same_numeric_value() raises:
+def test_hash_int_vs_float_same_numeric_value() raises:
     """Tensors with same numeric value but different dtype/kind hash differently.
 
     Tests cross-kind collision: int32(1) vs float32(1.0) must hash differently,
@@ -321,7 +321,7 @@ fn test_hash_int_vs_float_same_numeric_value() raises:
 # ============================================================================
 
 
-fn test_hash_integer_types_consistent() raises:
+def test_hash_integer_types_consistent() raises:
     """Integer tensors hash consistently (no NaN issue for integer dtypes)."""
     var shape = List[Int]()
     shape.append(4)
@@ -332,7 +332,7 @@ fn test_hash_integer_types_consistent() raises:
     )
 
 
-fn test_hash_integer_dtype_distinct() raises:
+def test_hash_integer_dtype_distinct() raises:
     """Integer tensors with different values should produce different hashes.
 
     Verifies that two int32 tensors with different numeric values produce
@@ -352,7 +352,7 @@ fn test_hash_integer_dtype_distinct() raises:
 # ============================================================================
 
 
-fn test_hash_empty_tensor_base() raises:
+def test_hash_empty_tensor_base() raises:
     """Empty tensor with single 0-dimension hashes consistently."""
     var shape = List[Int]()
     shape.append(0)
@@ -363,7 +363,7 @@ fn test_hash_empty_tensor_base() raises:
     )
 
 
-fn test_hash_empty_tensor_different_shapes() raises:
+def test_hash_empty_tensor_different_shapes() raises:
     """Empty tensors with different shapes produce different hashes. Closes #4067."""
     var shape1 = List[Int]()
     shape1.append(0)
@@ -378,7 +378,7 @@ fn test_hash_empty_tensor_different_shapes() raises:
         raise Error("Empty tensors with different shapes should not collide on hash")
 
 
-fn test_hash_empty_tensor_different_dtypes() raises:
+def test_hash_empty_tensor_different_dtypes() raises:
     """Empty tensors with different dtypes produce different hashes. Closes #4068."""
     var shape = List[Int]()
     shape.append(0)
@@ -389,7 +389,7 @@ fn test_hash_empty_tensor_different_dtypes() raises:
         raise Error("Empty tensors with different dtypes should not collide on hash")
 
 
-fn test_hash_empty_tensor_stability() raises:
+def test_hash_empty_tensor_stability() raises:
     """Empty tensor hash is stable across repeated calls. Closes #4069."""
     var shape = List[Int]()
     shape.append(0)
@@ -412,7 +412,7 @@ fn test_hash_empty_tensor_stability() raises:
 # ============================================================================
 
 
-fn test_hash_same_dtype_different_shapes() raises:
+def test_hash_same_dtype_different_shapes() raises:
     """Tensors with same dtype/values but different shapes hash differently."""
     var shape1 = List[Int]()
     shape1.append(4)
@@ -434,7 +434,7 @@ fn test_hash_same_dtype_different_shapes() raises:
 # ============================================================================
 
 
-fn test_hash_nan_canonicalization_scalar() raises:
+def test_hash_nan_canonicalization_scalar() raises:
     """0-D scalar NaN tensors hash the same regardless of bit pattern.
 
     0-D tensors (scalars) should still canonicalize NaN properly.
@@ -460,7 +460,7 @@ fn test_hash_nan_canonicalization_scalar() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     print("Running NaN hash stability tests (issue #3382)...")
 
     print("  test_hash_normal_values...")

@@ -33,7 +33,7 @@ from shared.core.elementwise import sqrt
 from shared.tensor.any_tensor import full_like, ones_like
 
 
-fn adam_step(
+def adam_step(
     params: AnyTensor,
     gradients: AnyTensor,
     m: AnyTensor,
@@ -160,7 +160,7 @@ fn adam_step(
     return (new_params, new_m, new_v)
 
 
-fn adam_step_simple(
+def adam_step_simple(
     params: AnyTensor,
     gradients: AnyTensor,
     m: AnyTensor,

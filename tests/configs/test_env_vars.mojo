@@ -12,7 +12,7 @@ from shared.utils.config import Config, load_config
 from python import Python
 
 
-fn test_substitute_simple_env_var() raises:
+def test_substitute_simple_env_var() raises:
     """Test basic environment variable substitution.
 
     Verifies ${VAR} is replaced with environment value.
@@ -32,7 +32,7 @@ fn test_substitute_simple_env_var() raises:
     print("✓ test_substitute_simple_env_var passed")
 
 
-fn test_substitute_multiple_env_vars() raises:
+def test_substitute_multiple_env_vars() raises:
     """Test substitution of multiple environment variables.
 
     Verifies multiple ${VAR} patterns are replaced.
@@ -56,7 +56,7 @@ fn test_substitute_multiple_env_vars() raises:
     print("✓ test_substitute_multiple_env_vars passed")
 
 
-fn test_substitute_env_var_in_middle() raises:
+def test_substitute_env_var_in_middle() raises:
     """Test substitution with variable in middle of string.
 
     Verifies ${VAR} can appear anywhere in value.
@@ -79,7 +79,7 @@ fn test_substitute_env_var_in_middle() raises:
     print("✓ test_substitute_env_var_in_middle passed")
 
 
-fn test_substitute_with_default_value() raises:
+def test_substitute_with_default_value() raises:
     """Test ${VAR:-default} syntax for missing variables.
 
     Verifies default value is used when variable not set.
@@ -97,7 +97,7 @@ fn test_substitute_with_default_value() raises:
     print("✓ test_substitute_with_default_value passed")
 
 
-fn test_substitute_with_default_when_var_exists() raises:
+def test_substitute_with_default_when_var_exists() raises:
     """Test ${VAR:-default} when variable exists.
 
     Verifies actual value is used when variable is set.
@@ -118,7 +118,7 @@ fn test_substitute_with_default_when_var_exists() raises:
     print("✓ test_substitute_with_default_when_var_exists passed")
 
 
-fn test_substitute_empty_default_value() raises:
+def test_substitute_empty_default_value() raises:
     """Test ${VAR:-} syntax with empty default.
 
     Verifies empty string default is supported.
@@ -134,7 +134,7 @@ fn test_substitute_empty_default_value() raises:
     print("✓ test_substitute_empty_default_value passed")
 
 
-fn test_substitute_complex_default_value() raises:
+def test_substitute_complex_default_value() raises:
     """Test ${VAR:-default} with complex default value.
 
     Verifies default can contain special characters.
@@ -154,7 +154,7 @@ fn test_substitute_complex_default_value() raises:
     print("✓ test_substitute_complex_default_value passed")
 
 
-fn test_substitute_from_file() raises:
+def test_substitute_from_file() raises:
     """Test substitution from configuration file.
 
     Verifies environment variables in YAML files are substituted.
@@ -180,7 +180,7 @@ fn test_substitute_from_file() raises:
     print("✓ test_substitute_from_file passed")
 
 
-fn test_substitute_preserves_non_string_values() raises:
+def test_substitute_preserves_non_string_values() raises:
     """Test that substitution preserves non-string values.
 
     Verifies only string values are processed for substitution.
@@ -213,7 +213,7 @@ fn test_substitute_preserves_non_string_values() raises:
     print("✓ test_substitute_preserves_non_string_values passed")
 
 
-fn test_substitute_no_variables() raises:
+def test_substitute_no_variables() raises:
     """Test substitution when no variables present.
 
     Verifies config without ${} patterns is unchanged.
@@ -231,7 +231,7 @@ fn test_substitute_no_variables() raises:
     print("✓ test_substitute_no_variables passed")
 
 
-fn test_substitute_malformed_pattern() raises:
+def test_substitute_malformed_pattern() raises:
     """Test substitution with malformed ${} pattern.
 
     Verifies malformed patterns are left unchanged.
@@ -248,7 +248,7 @@ fn test_substitute_malformed_pattern() raises:
     print("✓ test_substitute_malformed_pattern passed")
 
 
-fn test_substitute_nested_variables() raises:
+def test_substitute_nested_variables() raises:
     """Test substitution with nested ${} patterns.
 
     Verifies behavior with nested variable syntax.
@@ -264,7 +264,7 @@ fn test_substitute_nested_variables() raises:
     print("✓ test_substitute_nested_variables passed")
 
 
-fn test_substitute_dollar_sign_escape() raises:
+def test_substitute_dollar_sign_escape() raises:
     """Test handling of literal dollar signs.
 
     Verifies how literal $ characters are handled.
@@ -280,7 +280,7 @@ fn test_substitute_dollar_sign_escape() raises:
     print("✓ test_substitute_dollar_sign_escape passed")
 
 
-fn test_load_and_substitute_training_config() raises:
+def test_load_and_substitute_training_config() raises:
     """Test loading and substituting training configuration.
 
     Verifies end-to-end workflow with environment variables.
@@ -313,7 +313,7 @@ fn test_load_and_substitute_training_config() raises:
     print("✓ test_load_and_substitute_training_config passed")
 
 
-fn test_substitute_with_merge() raises:
+def test_substitute_with_merge() raises:
     """Test environment variable substitution with config merging.
 
     Verifies substitution works correctly after merging configs.
@@ -340,7 +340,7 @@ fn test_substitute_with_merge() raises:
     print("✓ test_substitute_with_merge passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_env_vars tests."""
     print("Running test_env_vars tests...")
 

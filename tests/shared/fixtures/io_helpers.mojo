@@ -14,7 +14,7 @@ All functions are designed for use in test setup/teardown.
 """
 
 from pathlib import Path
-from sys import argv
+from std.sys import argv
 from python import Python, PythonObject
 
 
@@ -23,7 +23,7 @@ from python import Python, PythonObject
 # ============================================================================
 
 
-fn create_temp_dir(prefix: String = "ml_odyssey_test_") raises -> String:
+def create_temp_dir(prefix: String = "ml_odyssey_test_") raises -> String:
     """Create temporary directory for testing.
 
     Creates a unique temporary directory in the system temp location
@@ -55,7 +55,7 @@ fn create_temp_dir(prefix: String = "ml_odyssey_test_") raises -> String:
     return String(temp_path)
 
 
-fn cleanup_temp_dir(path: String) raises:
+def cleanup_temp_dir(path: String) raises:
     """Remove temporary directory and all contents.
 
     Recursively removes directory and all files/subdirectories.
@@ -104,7 +104,7 @@ fn cleanup_temp_dir(path: String) raises:
     shutil.rmtree(path)
 
 
-fn temp_file_path(directory: String, filename: String) -> String:
+def temp_file_path(directory: String, filename: String) -> String:
     """Construct path to temporary file.
 
     Args:
@@ -132,7 +132,7 @@ fn temp_file_path(directory: String, filename: String) -> String:
 # ============================================================================
 
 
-fn create_mock_config(path: String, content: String) raises:
+def create_mock_config(path: String, content: String) raises:
     """Create mock configuration file.
 
     Writes a configuration file (YAML or JSON) to the specified path.
@@ -176,7 +176,7 @@ fn create_mock_config(path: String, content: String) raises:
         f.write(content)
 
 
-fn create_mock_checkpoint(
+def create_mock_checkpoint(
     path: String, num_params: Int = 100, random_seed: Int = 42
 ) raises:
     """Create mock model checkpoint file.
@@ -220,7 +220,7 @@ fn create_mock_checkpoint(
         f.write(content)
 
 
-fn create_mock_text_file(path: String, num_lines: Int = 10) raises:
+def create_mock_text_file(path: String, num_lines: Int = 10) raises:
     """Create mock text file with sample lines.
 
     Args:
@@ -260,7 +260,7 @@ fn create_mock_text_file(path: String, num_lines: Int = 10) raises:
 # ============================================================================
 
 
-fn get_test_data_path(filename: String) -> String:
+def get_test_data_path(filename: String) -> String:
     """Resolve path to test data file.
 
     Returns absolute path to a file in the test data directory.
@@ -288,7 +288,7 @@ fn get_test_data_path(filename: String) -> String:
     return fixtures_dir + filename
 
 
-fn get_fixtures_dir() -> String:
+def get_fixtures_dir() -> String:
     """Get path to fixtures directory.
 
     Returns:
@@ -308,7 +308,7 @@ fn get_fixtures_dir() -> String:
 # ============================================================================
 
 
-fn file_exists(path: String) -> Bool:
+def file_exists(path: String) -> Bool:
     """Check if file exists at path.
 
     Args:
@@ -338,7 +338,7 @@ fn file_exists(path: String) -> Bool:
         return False
 
 
-fn dir_exists(path: String) -> Bool:
+def dir_exists(path: String) -> Bool:
     """Check if directory exists at path.
 
     Args:
@@ -364,7 +364,7 @@ fn dir_exists(path: String) -> Bool:
 # ============================================================================
 
 
-fn join_paths(parts: List[String]) -> String:
+def join_paths(parts: List[String]) -> String:
     """Join path components with proper separators.
 
     Args:
@@ -402,7 +402,7 @@ fn join_paths(parts: List[String]) -> String:
     return result
 
 
-fn get_filename(path: String) -> String:
+def get_filename(path: String) -> String:
     """Extract filename from path.
 
     Args:
@@ -431,7 +431,7 @@ fn get_filename(path: String) -> String:
         return path.substr(last_slash + 1, len(path) - (last_slash + 1))
 
 
-fn get_extension(path: String) -> String:
+def get_extension(path: String) -> String:
     """Extract file extension from path.
 
     Args:
@@ -468,27 +468,27 @@ fn get_extension(path: String) -> String:
 # ============================================================================
 
 
-fn get_images_dir() -> String:
+def get_images_dir() -> String:
     """Get path to test images directory."""
     return get_fixtures_dir() + "images/"
 
 
-fn get_tensors_dir() -> String:
+def get_tensors_dir() -> String:
     """Get path to test tensors directory."""
     return get_fixtures_dir() + "tensors/"
 
 
-fn get_models_dir() -> String:
+def get_models_dir() -> String:
     """Get path to test models directory."""
     return get_fixtures_dir() + "models/"
 
 
-fn get_reference_dir() -> String:
+def get_reference_dir() -> String:
     """Get path to reference outputs directory."""
     return get_fixtures_dir() + "reference/"
 
 
-fn main() raises:
+def main() raises:
     print("io_helpers.mojo - This is a HELPER MODULE, not a test file")
     print("It provides utilities for file I/O in tests")
     print("No tests are executed from this file")

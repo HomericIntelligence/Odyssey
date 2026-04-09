@@ -35,7 +35,7 @@ from shared.training.model_utils import (
     load_model_weights,
     get_model_parameter_names,
 )
-from collections import List
+from std.collections import List
 
 
 # ============================================================================
@@ -99,7 +99,7 @@ comptime FC1_OUT_FEATURES = 4096
 comptime FC2_OUT_FEATURES = 4096
 
 
-fn compute_flattened_size() -> Int:
+def compute_flattened_size() -> Int:
     """Compute the flattened feature size after all conv/pool layers.
 
     This derives the FC1 input dimension from the architecture hyperparameters.
@@ -222,7 +222,7 @@ struct AlexNet:
     var fc3_weights: AnyTensor
     var fc3_bias: AnyTensor
 
-    fn __init__(
+    def __init__(
         out self, num_classes: Int = 10, dropout_rate: Float32 = 0.5
     ) raises:
         """Initialize AlexNet model with random weights.
@@ -310,7 +310,7 @@ struct AlexNet:
         var fc3_bias_shape: List[Int] = [num_classes]
         self.fc3_bias = zeros(fc3_bias_shape, DType.float32)
 
-    fn forward(
+    def forward(
         mut self, input: AnyTensor, training: Bool = True
     ) raises -> AnyTensor:
         """Forward pass through AlexNet.
@@ -421,7 +421,7 @@ struct AlexNet:
 
         return output
 
-    fn predict(mut self, input: AnyTensor) raises -> Int:
+    def predict(mut self, input: AnyTensor) raises -> Int:
         """Predict class for a single input.
 
         Args:
@@ -444,7 +444,7 @@ struct AlexNet:
 
         return max_idx
 
-    fn save_weights(self, weights_dir: String) raises:
+    def save_weights(self, weights_dir: String) raises:
         """Save model weights to directory.
 
         Args:
@@ -479,7 +479,7 @@ struct AlexNet:
         # Save using shared utility
         save_model_weights(parameters, weights_dir, param_names)
 
-    fn load_weights(mut self, weights_dir: String) raises:
+    def load_weights(mut self, weights_dir: String) raises:
         """Load model weights from directory.
 
         Args:
@@ -515,7 +515,7 @@ struct AlexNet:
         self.fc3_weights = loaded_params[14]
         self.fc3_bias = loaded_params[15]
 
-    fn update_parameters(
+    def update_parameters(
         mut self,
         learning_rate: Float32,
         momentum: Float32,
@@ -644,7 +644,7 @@ struct AlexNet:
         )
 
 
-fn main() raises:
+def main() raises:
     """Entry point for build validation.
 
     This function exists solely to allow `mojo build` to compile the module.

@@ -17,7 +17,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_split_method_equal() raises:
+def test_split_method_equal() raises:
     """Test split() method splits into equal parts matching free function."""
     var a = arange(0.0, 12.0, 1.0, DType.float32)
 
@@ -55,7 +55,7 @@ fn test_split_method_equal() raises:
     )
 
 
-fn test_split_method_axis() raises:
+def test_split_method_axis() raises:
     """Test split() method on 2D tensor along axis=1."""
     var shape = List[Int]()
     shape.append(4)
@@ -72,7 +72,7 @@ fn test_split_method_axis() raises:
         assert_numel(parts[i], 8, "Each part should have 8 elements (4x2)")
 
 
-fn test_split_with_indices_method_basic() raises:
+def test_split_with_indices_method_basic() raises:
     """Test split_with_indices() method on 1D tensor at [3, 7]."""
     var a = arange(0.0, 10.0, 1.0, DType.float32)
     var indices = List[Int]()
@@ -97,7 +97,7 @@ fn test_split_with_indices_method_basic() raises:
     assert_value_at(parts[2], 2, 9.0, message="Part 2, index 2 should be 9.0")
 
 
-fn test_split_with_indices_method_2d() raises:
+def test_split_with_indices_method_2d() raises:
     """Test split_with_indices() method on 2D tensor along axis=0."""
     var shape = List[Int]()
     shape.append(10)
@@ -123,7 +123,7 @@ fn test_split_with_indices_method_2d() raises:
     )
 
 
-fn test_split_with_indices_method_vs_free_fn() raises:
+def test_split_with_indices_method_vs_free_fn() raises:
     """Test that method result matches free function result (symmetry test)."""
     var a = arange(0.0, 10.0, 1.0, DType.float32)
     var indices = List[Int]()
@@ -151,7 +151,7 @@ fn test_split_with_indices_method_vs_free_fn() raises:
     assert_value_at(free_parts[2], 2, 9.0, message="Free fn part 2[2] == 9.0")
 
 
-fn main() raises:
+def main() raises:
     """Run AnyTensor method API tests for split and split_with_indices."""
     print("Testing AnyTensor method API: split and split_with_indices...")
 

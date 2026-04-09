@@ -42,7 +42,7 @@ from shared.testing.special_values import (
     create_seeded_random_tensor,
     SPECIAL_VALUE_ONE,
 )
-from math import isnan, isinf
+from std.math import isnan, isinf
 import os
 
 
@@ -62,7 +62,7 @@ struct LeNet5:
     var fc3_weights: AnyTensor
     var fc3_bias: AnyTensor
 
-    fn __init__(out self, num_classes: Int = 47) raises:
+    def __init__(out self, num_classes: Int = 47) raises:
         """Initialize LeNet-5 model with random weights."""
         self.num_classes = num_classes
 
@@ -103,7 +103,7 @@ struct LeNet5:
         )
         self.fc3_bias = zeros([num_classes], DType.float32)
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass through LeNet-5."""
         # Conv1 + ReLU + MaxPool
         var conv1_out = conv2d(
@@ -139,7 +139,7 @@ struct LeNet5:
 
         return output^
 
-    fn predict(mut self, input: AnyTensor) raises -> Int:
+    def predict(mut self, input: AnyTensor) raises -> Int:
         """Predict class for a single input."""
         var logits = self.forward(input)
 
@@ -154,7 +154,7 @@ struct LeNet5:
 
         return max_idx
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Return all trainable parameters."""
         var params: List[AnyTensor] = []
         params.append(self.conv1_kernel)
@@ -169,11 +169,11 @@ struct LeNet5:
         params.append(self.fc3_bias)
         return params^
 
-    fn zero_grad(mut self) raises:
+    def zero_grad(mut self) raises:
         """Reset all parameter gradients to zero (no-op for LeNet5)."""
         pass
 
-    fn update_parameters(
+    def update_parameters(
         mut self,
         learning_rate: Float32,
         grad_conv1_kernel: AnyTensor,
@@ -200,7 +200,7 @@ struct LeNet5:
         _sgd_update(self.fc3_bias, grad_fc3_bias, learning_rate)
 
 
-fn _sgd_update(mut param: AnyTensor, grad: AnyTensor, lr: Float32) raises:
+def _sgd_update(mut param: AnyTensor, grad: AnyTensor, lr: Float32) raises:
     """SGD parameter update: param = param - lr * grad"""
     var numel = param.numel()
     var param_data = param._data.bitcast[Float32]()
@@ -210,7 +210,7 @@ fn _sgd_update(mut param: AnyTensor, grad: AnyTensor, lr: Float32) raises:
         param_data[i] -= lr * grad_data[i]
 
 
-fn compute_flattened_size() -> Int:
+def compute_flattened_size() -> Int:
     """Compute flattened size after all conv/pool layers.
 
     Returns 256 (16 * 4 * 4) for standard LeNet-5 dimensions.
@@ -218,7 +218,7 @@ fn compute_flattened_size() -> Int:
     return 256
 
 
-fn test_forward_output_shape() raises:
+def test_forward_output_shape() raises:
     """Test forward pass produces correct output shape (batch, 10)."""
     var model = LeNet5(num_classes=10)
 
@@ -243,7 +243,7 @@ fn test_forward_output_shape() raises:
         assert_false(isinf(val), "LeNet5 output contains Inf")
 
 
-fn test_forward_single_sample() raises:
+def test_forward_single_sample() raises:
     """Test forward pass with single sample (1, 1, 28, 28)."""
     var model = LeNet5(num_classes=47)
 
@@ -262,7 +262,7 @@ fn test_forward_single_sample() raises:
     assert_dtype(output, DType.float32, "Single sample output dtype mismatch")
 
 
-fn test_forward_batch_sizes() raises:
+def test_forward_batch_sizes() raises:
     """Test forward pass with different batch sizes."""
     var model = LeNet5(num_classes=10)
 
@@ -288,7 +288,7 @@ fn test_forward_batch_sizes() raises:
     assert_shape(output32, [32, 10], "Batch size 32 output shape")
 
 
-fn test_forward_deterministic() raises:
+def test_forward_deterministic() raises:
     """Test that forward pass is deterministic with same input."""
     var model = LeNet5(num_classes=10)
 
@@ -310,7 +310,7 @@ fn test_forward_deterministic() raises:
         )
 
 
-fn test_predict_single_sample() raises:
+def test_predict_single_sample() raises:
     """Test predict method returns valid class index (0-9)."""
     var model = LeNet5(num_classes=10)
 
@@ -327,7 +327,7 @@ fn test_predict_single_sample() raises:
     assert_true(pred_class < 10, "Prediction class >= 10")
 
 
-fn test_predict_output_class_range() raises:
+def test_predict_output_class_range() raises:
     """Test predict for EMNIST (47 classes)."""
     var model = LeNet5(num_classes=47)
 
@@ -341,7 +341,7 @@ fn test_predict_output_class_range() raises:
     assert_true(pred_class < 47, "Prediction class (47) >= 47")
 
 
-fn test_parameters_exist() raises:
+def test_parameters_exist() raises:
     """Test that model has correct number of parameters."""
     var model = LeNet5(num_classes=10)
 
@@ -360,7 +360,7 @@ fn test_parameters_exist() raises:
         assert_true(numel > 0, "Parameter " + String(i) + " has zero elements")
 
 
-fn test_parameter_shapes() raises:
+def test_parameter_shapes() raises:
     """Test that all parameters have correct shapes."""
     var model = LeNet5(num_classes=10)
 
@@ -389,7 +389,7 @@ fn test_parameter_shapes() raises:
     assert_true(model.fc3_bias.numel() > 0, "FC3 bias empty")
 
 
-fn test_zero_grad() raises:
+def test_zero_grad() raises:
     """Test zero_grad method (no-op for LeNet5)."""
     var model = LeNet5(num_classes=10)
 
@@ -402,7 +402,7 @@ fn test_zero_grad() raises:
     assert_true(len(params) == 10, "Parameters lost after zero_grad")
 
 
-fn test_update_parameters() raises:
+def test_update_parameters() raises:
     """Test parameter update method (SGD)."""
     var model = LeNet5(num_classes=10)
 
@@ -444,7 +444,7 @@ fn test_update_parameters() raises:
     )
 
 
-fn test_flattened_size_computation() raises:
+def test_flattened_size_computation() raises:
     """Test that flattened size is computed correctly.
 
     After Conv1 + ReLU + Pool1 + Conv2 + ReLU + Pool2:
@@ -461,7 +461,7 @@ fn test_flattened_size_computation() raises:
     assert_true(flattened_size == 256, "Flattened size mismatch")
 
 
-fn test_num_classes_customizable() raises:
+def test_num_classes_customizable() raises:
     """Test that num_classes parameter works correctly."""
     # Test EMNIST (47 classes)
     var model_emnist = LeNet5(num_classes=47)
@@ -483,7 +483,7 @@ fn test_num_classes_customizable() raises:
     assert_shape(output_mnist, [1, 10], "MNIST output shape")
 
 
-fn test_full_forward_pipeline() raises:
+def test_full_forward_pipeline() raises:
     """Test complete forward pass: input -> output through all 12 layers."""
     var model = LeNet5(num_classes=10)
 
@@ -523,7 +523,7 @@ fn test_full_forward_pipeline() raises:
             max_val = val
 
 
-fn test_model_initialization() raises:
+def test_model_initialization() raises:
     """Test model initializes with valid random weights."""
     var model = LeNet5(num_classes=10)
 
@@ -544,7 +544,7 @@ fn test_model_initialization() raises:
         assert_close_float(val, 0.0, 1e-10, 1e-10, "Conv2 bias not zero")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_lenet5_e2e tests."""
     print("Running test_lenet5_e2e tests...")
 

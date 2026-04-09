@@ -45,7 +45,7 @@ Example:
     ```
 """
 
-from random import random_float64, seed as random_seed
+from std.random import random_float64, seed as random_seed
 from shared.testing.fuzz_core import SeededRNG
 
 
@@ -79,7 +79,7 @@ struct ShapeFuzzer(Copyable, Movable):
     var max_ndim: Int
     var max_numel: Int
 
-    fn __init__(
+    def __init__(
         out self,
         seed: Int = 42,
         max_dim: Int = 100,
@@ -99,11 +99,11 @@ struct ShapeFuzzer(Copyable, Movable):
         self.max_ndim = max_ndim
         self.max_numel = max_numel
 
-    fn next_iteration(mut self):
+    def next_iteration(mut self):
         """Advance to next iteration for fresh randomness."""
         self.rng.next_iteration()
 
-    fn random_shape(
+    def random_shape(
         mut self,
         min_ndim: Int = 0,
         max_ndim: Int = -1,
@@ -149,7 +149,7 @@ struct ShapeFuzzer(Copyable, Movable):
 
         return shape^
 
-    fn scalar_shape(self) -> List[Int]:
+    def scalar_shape(self) -> List[Int]:
         """Generate a 0D scalar shape.
 
         Returns:
@@ -162,7 +162,7 @@ struct ShapeFuzzer(Copyable, Movable):
         """
         return List[Int]()
 
-    fn empty_shape_1d(mut self) -> List[Int]:
+    def empty_shape_1d(mut self) -> List[Int]:
         """Generate a 1D empty shape [0].
 
         Returns:
@@ -177,7 +177,7 @@ struct ShapeFuzzer(Copyable, Movable):
         shape.append(0)
         return shape^
 
-    fn empty_shape_nd(mut self, ndim: Int = -1) -> List[Int]:
+    def empty_shape_nd(mut self, ndim: Int = -1) -> List[Int]:
         """Generate an N-D shape with one zero dimension.
 
         Args:
@@ -206,7 +206,7 @@ struct ShapeFuzzer(Copyable, Movable):
 
         return shape^
 
-    fn single_element_shape(mut self, ndim: Int = -1) -> List[Int]:
+    def single_element_shape(mut self, ndim: Int = -1) -> List[Int]:
         """Generate a shape with only one element.
 
         Args:
@@ -229,7 +229,7 @@ struct ShapeFuzzer(Copyable, Movable):
             shape.append(1)
         return shape^
 
-    fn large_1d_shape(
+    def large_1d_shape(
         mut self, min_size: Int = 10000, max_size: Int = 100000
     ) -> List[Int]:
         """Generate a large 1D shape.
@@ -253,7 +253,7 @@ struct ShapeFuzzer(Copyable, Movable):
         shape.append(size)
         return shape^
 
-    fn high_dimensional_shape(
+    def high_dimensional_shape(
         mut self, min_ndim: Int = 5, max_ndim: Int = 10, dim_size: Int = 2
     ) -> List[Int]:
         """Generate a high-dimensional shape with small dimensions.
@@ -289,7 +289,7 @@ struct ShapeFuzzer(Copyable, Movable):
             shape.append(dim_size)
         return shape^
 
-    fn edge_case_shapes(mut self) -> List[List[Int]]:
+    def edge_case_shapes(mut self) -> List[List[Int]]:
         """Generate a collection of edge case shapes.
 
         Returns:
@@ -368,7 +368,7 @@ struct ShapeFuzzer(Copyable, Movable):
 # ============================================================================
 
 
-fn generate_broadcast_shapes(
+def generate_broadcast_shapes(
     mut fuzzer: ShapeFuzzer,
 ) -> Tuple[List[Int], List[Int]]:
     """Generate a pair of broadcast-compatible shapes.
@@ -429,7 +429,7 @@ fn generate_broadcast_shapes(
     return (base_shape^, compat_shape^)
 
 
-fn generate_matmul_shapes(
+def generate_matmul_shapes(
     mut fuzzer: ShapeFuzzer,
 ) -> Tuple[List[Int], List[Int]]:
     """Generate a pair of shapes compatible for matrix multiplication.
@@ -466,7 +466,7 @@ fn generate_matmul_shapes(
     return (shape_a^, shape_b^)
 
 
-fn generate_same_shape_pair(
+def generate_same_shape_pair(
     mut fuzzer: ShapeFuzzer,
 ) -> Tuple[List[Int], List[Int]]:
     """Generate a pair of identical shapes.
@@ -498,7 +498,7 @@ fn generate_same_shape_pair(
 # ============================================================================
 
 
-fn is_valid_shape(shape: List[Int]) -> Bool:
+def is_valid_shape(shape: List[Int]) -> Bool:
     """Check if a shape is valid (all dimensions non-negative).
 
     Args:
@@ -519,7 +519,7 @@ fn is_valid_shape(shape: List[Int]) -> Bool:
     return True
 
 
-fn is_empty_shape(shape: List[Int]) -> Bool:
+def is_empty_shape(shape: List[Int]) -> Bool:
     """Check if a shape represents an empty tensor (0 elements).
 
     Args:
@@ -540,7 +540,7 @@ fn is_empty_shape(shape: List[Int]) -> Bool:
     return False
 
 
-fn is_scalar_shape(shape: List[Int]) -> Bool:
+def is_scalar_shape(shape: List[Int]) -> Bool:
     """Check if a shape represents a scalar (0D tensor).
 
     Args:
@@ -558,7 +558,7 @@ fn is_scalar_shape(shape: List[Int]) -> Bool:
     return len(shape) == 0
 
 
-fn compute_numel(shape: List[Int]) -> Int:
+def compute_numel(shape: List[Int]) -> Int:
     """Compute total number of elements from shape.
 
     Args:
@@ -578,7 +578,7 @@ fn compute_numel(shape: List[Int]) -> Int:
     return numel
 
 
-fn shapes_equal(shape_a: List[Int], shape_b: List[Int]) -> Bool:
+def shapes_equal(shape_a: List[Int], shape_b: List[Int]) -> Bool:
     """Check if two shapes are equal.
 
     Args:
@@ -604,7 +604,7 @@ fn shapes_equal(shape_a: List[Int], shape_b: List[Int]) -> Bool:
     return True
 
 
-fn are_broadcast_compatible(shape_a: List[Int], shape_b: List[Int]) -> Bool:
+def are_broadcast_compatible(shape_a: List[Int], shape_b: List[Int]) -> Bool:
     """Check if two shapes are broadcast-compatible.
 
     Args:
@@ -641,7 +641,7 @@ fn are_broadcast_compatible(shape_a: List[Int], shape_b: List[Int]) -> Bool:
     return True
 
 
-fn compute_broadcast_shape(
+def compute_broadcast_shape(
     shape_a: List[Int], shape_b: List[Int]
 ) raises -> List[Int]:
     """Compute the result shape of broadcasting two shapes.
@@ -692,7 +692,7 @@ fn compute_broadcast_shape(
     return reversed_result^
 
 
-fn shape_to_string(shape: List[Int]) -> String:
+def shape_to_string(shape: List[Int]) -> String:
     """Convert shape to string representation.
 
     Args:

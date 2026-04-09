@@ -25,7 +25,7 @@ from shared.core.shape import as_contiguous
 from shared.core.arithmetic import add, subtract, multiply
 
 
-fn _make_noncontiguous_2x3() raises -> AnyTensor:
+def _make_noncontiguous_2x3() raises -> AnyTensor:
     """Create a non-contiguous 3×2 tensor by transposing a 2×3.
 
     The logical values (row-major for 3×2) are:
@@ -42,7 +42,7 @@ fn _make_noncontiguous_2x3() raises -> AnyTensor:
     return nc^
 
 
-fn _make_nc_2x3() raises -> AnyTensor:
+def _make_nc_2x3() raises -> AnyTensor:
     """Non-contiguous 3×2 tensor (logical values: 0,3,1,4,2,5)."""
     var base = arange(0.0, 6.0, 1.0, DType.float32)
     var shaped = base.reshape([2, 3])
@@ -51,7 +51,7 @@ fn _make_nc_2x3() raises -> AnyTensor:
     return nc^
 
 
-fn test_add_noncontiguous_lhs() raises:
+def test_add_noncontiguous_lhs() raises:
     """Non-contiguous lhs + contiguous rhs should produce correct values."""
     var nc = _make_noncontiguous_2x3()       # shape (3, 2), non-contiguous
     var rhs = full([3, 2], 10.0, DType.float32)  # contiguous
@@ -68,7 +68,7 @@ fn test_add_noncontiguous_lhs() raises:
     assert_almost_equal(ptr[5], Float32(15.0), tolerance=1e-5)
 
 
-fn test_add_noncontiguous_rhs() raises:
+def test_add_noncontiguous_rhs() raises:
     """Contiguous lhs + non-contiguous rhs should produce correct values."""
     var lhs = full([3, 2], 10.0, DType.float32)
     var nc = _make_noncontiguous_2x3()
@@ -84,7 +84,7 @@ fn test_add_noncontiguous_rhs() raises:
     assert_almost_equal(ptr[5], Float32(15.0), tolerance=1e-5)
 
 
-fn test_add_both_noncontiguous() raises:
+def test_add_both_noncontiguous() raises:
     """Both inputs non-contiguous should produce correct values."""
     var nc_a = _make_noncontiguous_2x3()  # logical values: 0,3,1,4,2,5
     var nc_b = _make_noncontiguous_2x3()  # same
@@ -101,7 +101,7 @@ fn test_add_both_noncontiguous() raises:
     assert_almost_equal(ptr[5], Float32(10.0), tolerance=1e-5)
 
 
-fn test_subtract_noncontiguous_lhs() raises:
+def test_subtract_noncontiguous_lhs() raises:
     """Non-contiguous lhs - contiguous rhs should produce correct values."""
     var nc = _make_noncontiguous_2x3()
     var rhs = ones([3, 2], DType.float32)
@@ -117,7 +117,7 @@ fn test_subtract_noncontiguous_lhs() raises:
     assert_almost_equal(ptr[5], Float32(4.0), tolerance=1e-5)
 
 
-fn test_subtract_noncontiguous_rhs() raises:
+def test_subtract_noncontiguous_rhs() raises:
     """Contiguous lhs - non-contiguous rhs should produce correct values."""
     var lhs = ones([3, 2], DType.float32)
     var nc = _make_noncontiguous_2x3()
@@ -133,7 +133,7 @@ fn test_subtract_noncontiguous_rhs() raises:
     assert_almost_equal(ptr[5], Float32(-4.0), tolerance=1e-5)
 
 
-fn test_multiply_noncontiguous_lhs() raises:
+def test_multiply_noncontiguous_lhs() raises:
     """Non-contiguous lhs * contiguous rhs should produce correct values."""
     var nc = _make_noncontiguous_2x3()
     var rhs = full([3, 2], 2.0, DType.float32)
@@ -149,7 +149,7 @@ fn test_multiply_noncontiguous_lhs() raises:
     assert_almost_equal(ptr[5], Float32(10.0), tolerance=1e-5)
 
 
-fn test_multiply_noncontiguous_rhs() raises:
+def test_multiply_noncontiguous_rhs() raises:
     """Contiguous lhs * non-contiguous rhs should produce correct values."""
     var lhs = full([3, 2], 2.0, DType.float32)
     var nc = _make_noncontiguous_2x3()
@@ -165,7 +165,7 @@ fn test_multiply_noncontiguous_rhs() raises:
     assert_almost_equal(ptr[5], Float32(10.0), tolerance=1e-5)
 
 
-fn test_divide_noncontiguous_lhs() raises:
+def test_divide_noncontiguous_lhs() raises:
     """Non-contiguous lhs / contiguous rhs should produce correct values."""
     var nc = _make_noncontiguous_2x3()  # logical values: 0,3,1,4,2,5
     # Use values starting from 1 to avoid division by zero
@@ -183,7 +183,7 @@ fn test_divide_noncontiguous_lhs() raises:
     assert_almost_equal(ptr[5], Float32(2.5), tolerance=1e-5)
 
 
-fn test_divide_noncontiguous_rhs() raises:
+def test_divide_noncontiguous_rhs() raises:
     """Contiguous lhs / non-contiguous rhs should produce correct values."""
     # Avoid division by zero: use lhs values aligned with nc logical layout
     # nc logical flat: 0,3,1,4,2,5  - index 0 would be div-by-zero
@@ -205,7 +205,7 @@ fn test_divide_noncontiguous_rhs() raises:
     assert_almost_equal(ptr[5], Float32(2.0), tolerance=1e-4)   # 12/6
 
 
-fn test_result_is_contiguous() raises:
+def test_result_is_contiguous() raises:
     """Result of ops on non-contiguous inputs should be contiguous."""
     var nc = _make_noncontiguous_2x3()
     var rhs = ones([3, 2], DType.float32)
@@ -215,7 +215,7 @@ fn test_result_is_contiguous() raises:
     assert_true(result.is_contiguous(), "result should always be contiguous")
 
 
-fn test_add_noncontiguous_shape_match() raises:
+def test_add_noncontiguous_shape_match() raises:
     """Non-contiguous tensors with matching shapes should add correctly."""
     var nc_a = _make_nc_2x3()
     var nc_b = _make_nc_2x3()
@@ -232,7 +232,7 @@ fn test_add_noncontiguous_shape_match() raises:
     assert_almost_equal(ptr[5], Float32(10.0), tolerance=1e-5)
 
 
-fn test_subtract_noncontiguous_shape_match() raises:
+def test_subtract_noncontiguous_shape_match() raises:
     """Non-contiguous tensors with matching shapes should subtract correctly."""
     var nc_a = _make_nc_2x3()
     var nc_b = _make_nc_2x3()
@@ -245,7 +245,7 @@ fn test_subtract_noncontiguous_shape_match() raises:
         assert_almost_equal(ptr[i], Float32(0.0), tolerance=1e-5)
 
 
-fn test_multiply_noncontiguous_shape_match() raises:
+def test_multiply_noncontiguous_shape_match() raises:
     """Non-contiguous tensors with matching shapes should multiply correctly."""
     var nc_a = _make_nc_2x3()
     var nc_b = _make_nc_2x3()
@@ -262,7 +262,7 @@ fn test_multiply_noncontiguous_shape_match() raises:
     assert_almost_equal(ptr[5], Float32(25.0), tolerance=1e-5)
 
 
-fn test_add_broadcast_noncontiguous_1d() raises:
+def test_add_broadcast_noncontiguous_1d() raises:
     """Non-contiguous 2D + contiguous 1D broadcast should work correctly."""
     # nc shape: (3, 2), contiguous 1D shape: (2,) → broadcasts to (3, 2)
     var nc = _make_nc_2x3()  # logical flat: 0,3,1,4,2,5
@@ -280,7 +280,7 @@ fn test_add_broadcast_noncontiguous_1d() raises:
     assert_almost_equal(ptr[5], Float32(6.0), tolerance=1e-5)   # 5+1
 
 
-fn test_add_broadcast_contiguous_to_noncontiguous() raises:
+def test_add_broadcast_contiguous_to_noncontiguous() raises:
     """Contiguous 1D + non-contiguous 2D broadcast should work correctly."""
     var b = full([2], 1.0, DType.float32)
     var nc = _make_nc_2x3()
@@ -296,7 +296,7 @@ fn test_add_broadcast_contiguous_to_noncontiguous() raises:
     assert_almost_equal(ptr[5], Float32(6.0), tolerance=1e-5)
 
 
-fn test_result_shape_preserved() raises:
+def test_result_shape_preserved() raises:
     """Result of non-contiguous op should have correct shape."""
     var nc = _make_nc_2x3()  # shape (3, 2)
     var rhs = ones([3, 2], DType.float32)
@@ -307,7 +307,7 @@ fn test_result_shape_preserved() raises:
     assert_equal_int(result.shape()[1], 2)
 
 
-fn test_noncontiguous_add_matches_contiguous_baseline() raises:
+def test_noncontiguous_add_matches_contiguous_baseline() raises:
     """Non-contiguous result must match contiguous baseline computation."""
     # Build contiguous equivalent of the logical 3x2 transposed tensor
     var logical = zeros([3, 2], DType.float32)
@@ -332,7 +332,7 @@ fn test_noncontiguous_add_matches_contiguous_baseline() raises:
         assert_almost_equal(rp[i], bp[i], tolerance=1e-5)
 
 
-fn test_multiply_broadcast_noncontiguous_lhs() raises:
+def test_multiply_broadcast_noncontiguous_lhs() raises:
     """Non-contiguous 2D * contiguous 1D broadcast should work."""
     var nc = _make_nc_2x3()  # logical flat: 0,3,1,4,2,5
     var b = full([2], 2.0, DType.float32)
@@ -348,7 +348,7 @@ fn test_multiply_broadcast_noncontiguous_lhs() raises:
     assert_almost_equal(ptr[5], Float32(10.0), tolerance=1e-5)   # 5*2
 
 
-fn test_noncontiguous_result_is_always_contiguous() raises:
+def test_noncontiguous_result_is_always_contiguous() raises:
     """Results of all binary ops on non-contiguous inputs should be contiguous."""
     var nc = _make_nc_2x3()
     var rhs = ones([3, 2], DType.float32)
@@ -362,7 +362,7 @@ fn test_noncontiguous_result_is_always_contiguous() raises:
     assert_true(r_mul.is_contiguous(), "multiply result should be contiguous")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_arithmetic_noncontiguous tests."""
     print("Running test_arithmetic_noncontiguous tests...")
 

@@ -12,7 +12,7 @@ from shared.utils.config import Config, load_config, merge_configs
 from python import Python
 
 
-fn load_experiment_config(paper: String, experiment: String) raises -> Config:
+def load_experiment_config(paper: String, experiment: String) raises -> Config:
     """Helper function to load complete experiment configuration.
 
     Loads and merges: defaults → paper → experiment configs.
@@ -42,7 +42,7 @@ fn load_experiment_config(paper: String, experiment: String) raises -> Config:
     return merged
 
 
-fn test_load_complete_experiment_config() raises:
+def test_load_complete_experiment_config() raises:
     """Test loading complete experiment configuration.
 
     Verifies end-to-end workflow: defaults → paper → experiment.
@@ -72,7 +72,7 @@ fn test_load_complete_experiment_config() raises:
     print("✓ test_load_complete_experiment_config passed")
 
 
-fn test_load_experiment_with_helper_function() raises:
+def test_load_experiment_with_helper_function() raises:
     """Test loading experiment config using helper function.
 
     Verifies convenience function for experiment config loading.
@@ -90,7 +90,7 @@ fn test_load_experiment_with_helper_function() raises:
     print("✓ test_load_experiment_with_helper_function passed")
 
 
-fn test_model_creation_from_config() raises:
+def test_model_creation_from_config() raises:
     """Test creating model from configuration.
 
     Verifies model config can be used for model instantiation.
@@ -116,7 +116,7 @@ fn test_model_creation_from_config() raises:
     print("✓ test_model_creation_from_config passed")
 
 
-fn test_model_with_architecture_config() raises:
+def test_model_with_architecture_config() raises:
     """Test model creation with architecture details.
 
     Verifies architecture parameters can be extracted from config.
@@ -132,7 +132,7 @@ fn test_model_with_architecture_config() raises:
     print("✓ test_model_with_architecture_config passed")
 
 
-fn test_training_loop_from_config() raises:
+def test_training_loop_from_config() raises:
     """Test extracting training parameters from config.
 
     Verifies training config can be used in training loop.
@@ -157,7 +157,7 @@ fn test_training_loop_from_config() raises:
     print("✓ test_training_loop_from_config passed")
 
 
-fn test_optimizer_creation_from_config() raises:
+def test_optimizer_creation_from_config() raises:
     """Test creating optimizer from configuration.
 
     Verifies optimizer config can be used for optimizer creation.
@@ -186,7 +186,7 @@ fn test_optimizer_creation_from_config() raises:
     print("✓ test_optimizer_creation_from_config passed")
 
 
-fn test_data_pipeline_from_config() raises:
+def test_data_pipeline_from_config() raises:
     """Test creating data pipeline from configuration.
 
     Verifies data config can be used for data loading.
@@ -205,7 +205,7 @@ fn test_data_pipeline_from_config() raises:
     print("✓ test_data_pipeline_from_config passed")
 
 
-fn test_data_augmentation_from_config() raises:
+def test_data_augmentation_from_config() raises:
     """Test data augmentation configuration.
 
     Verifies augmentation settings can be extracted.
@@ -219,7 +219,7 @@ fn test_data_augmentation_from_config() raises:
     print("✓ test_data_augmentation_from_config passed")
 
 
-fn test_config_with_environment_variables() raises:
+def test_config_with_environment_variables() raises:
     """Test configuration with environment variable substitution.
 
     Verifies end-to-end workflow with environment variables.
@@ -250,7 +250,7 @@ fn test_config_with_environment_variables() raises:
     print("✓ test_config_with_environment_variables passed")
 
 
-fn test_multiple_experiments_from_same_paper() raises:
+def test_multiple_experiments_from_same_paper() raises:
     """Test loading multiple experiments for same paper.
 
     Verifies different experiments can coexist.
@@ -267,7 +267,7 @@ fn test_multiple_experiments_from_same_paper() raises:
     print("✓ test_multiple_experiments_from_same_paper passed")
 
 
-fn test_config_save_and_reload() raises:
+def test_config_save_and_reload() raises:
     """Test saving and reloading configuration.
 
     Verifies config persistence works correctly.
@@ -289,7 +289,7 @@ fn test_config_save_and_reload() raises:
     print("✓ test_config_save_and_reload passed")
 
 
-fn test_experiment_reproducibility() raises:
+def test_experiment_reproducibility() raises:
     """Test that config enables experiment reproducibility.
 
     Verifies loading same config produces same results.
@@ -307,7 +307,7 @@ fn test_experiment_reproducibility() raises:
     print("✓ test_experiment_reproducibility passed")
 
 
-fn test_config_versioning() raises:
+def test_config_versioning() raises:
     """Test configuration can be versioned.
 
     Verifies configs can include version information.
@@ -321,7 +321,7 @@ fn test_config_versioning() raises:
     print("✓ test_config_versioning passed")
 
 
-fn test_config_loading_with_fallbacks() raises:
+def test_config_loading_with_fallbacks() raises:
     """Test config loading with fallback values.
 
     Verifies graceful degradation when optional configs missing.
@@ -339,7 +339,7 @@ fn test_config_loading_with_fallbacks() raises:
     print("✓ test_config_loading_with_fallbacks passed")
 
 
-fn test_partial_config_merge() raises:
+def test_partial_config_merge() raises:
     """Test merging when configs have different keys.
 
     Verifies partial configs merge correctly.
@@ -364,7 +364,7 @@ fn test_partial_config_merge() raises:
     print("✓ test_partial_config_merge passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_integration tests."""
     print("Running test_integration tests...")
 

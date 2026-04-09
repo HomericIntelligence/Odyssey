@@ -22,7 +22,7 @@ Features:
 from shared.tensor.any_tensor import AnyTensor
 from shared.core.traits import Model
 from shared.data.batch_utils import extract_batch_pair, compute_num_batches
-from collections import List
+from std.collections import List
 
 
 # ============================================================================
@@ -56,7 +56,7 @@ struct EvaluationResult(Copyable, Movable):
     var total_per_class: List[Int]
     """Per-class total sample counts."""
 
-    fn __init__(
+    def __init__(
         out self,
         accuracy: Float32,
         num_correct: Int,
@@ -85,7 +85,7 @@ struct EvaluationResult(Copyable, Movable):
 # ============================================================================
 
 
-fn evaluate_model[
+def evaluate_model[
     M: Model
 ](
     mut model: M,
@@ -224,7 +224,7 @@ fn evaluate_model[
     )
 
 
-fn evaluate_model_simple[
+def evaluate_model_simple[
     M: Model
 ](
     mut model: M,
@@ -322,7 +322,7 @@ fn evaluate_model_simple[
     return overall_accuracy
 
 
-fn evaluate_topk[
+def evaluate_topk[
     M: Model
 ](
     mut model: M,

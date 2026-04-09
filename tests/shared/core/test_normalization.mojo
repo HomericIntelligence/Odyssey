@@ -49,7 +49,7 @@ from shared.core.normalization import (
 from shared.core.arithmetic import multiply
 
 
-fn _check_grad_input_batch_size(batch_size: Int) raises:
+def _check_grad_input_batch_size(batch_size: Int) raises:
     """Run grad_input gradient check for the given batch_size.
 
     batch_size=1: variance=0 degenerate case — asserts finite and non-NaN only.
@@ -115,7 +115,7 @@ fn _check_grad_input_batch_size(batch_size: Int) raises:
             )
     else:
         # Standard gradient check for batch_size=2 and batch_size=4.
-        fn forward_for_grad(inp: AnyTensor) raises -> AnyTensor:
+        def forward_for_grad(inp: AnyTensor) raises -> AnyTensor:
             var res = batch_norm2d(
                 inp,
                 gamma,
@@ -145,7 +145,7 @@ fn _check_grad_input_batch_size(batch_size: Int) raises:
         )
 
 
-fn _check_grad_gamma_batch_size(batch_size: Int) raises:
+def _check_grad_gamma_batch_size(batch_size: Int) raises:
     """Run grad_gamma gradient check for the given batch_size.
 
     batch_size=1: asserts finiteness only (variance=0 degenerate case).
@@ -203,7 +203,7 @@ fn _check_grad_gamma_batch_size(batch_size: Int) raises:
             )
     else:
         # Standard gradient check: perturb gamma.
-        fn forward_for_gamma(g: AnyTensor) raises -> AnyTensor:
+        def forward_for_gamma(g: AnyTensor) raises -> AnyTensor:
             var res = batch_norm2d(
                 x, g, beta, running_mean, running_var, training=True, epsilon=1e-5
             )
@@ -227,7 +227,7 @@ fn _check_grad_gamma_batch_size(batch_size: Int) raises:
         )
 
 
-fn _check_grad_beta_batch_size(batch_size: Int) raises:
+def _check_grad_beta_batch_size(batch_size: Int) raises:
     """Run grad_beta gradient check for the given batch_size.
 
     batch_size=1: asserts finiteness only (variance=0 degenerate case).
@@ -288,7 +288,7 @@ fn _check_grad_beta_batch_size(batch_size: Int) raises:
             )
     else:
         # Standard gradient check: perturb beta.
-        fn forward_for_beta(b: AnyTensor) raises -> AnyTensor:
+        def forward_for_beta(b: AnyTensor) raises -> AnyTensor:
             var res = batch_norm2d(
                 x, gamma, b, running_mean, running_var, training=True, epsilon=1e-5
             )
@@ -312,7 +312,7 @@ fn _check_grad_beta_batch_size(batch_size: Int) raises:
         )
 
 
-fn test_batch_norm2d_shapes() raises:
+def test_batch_norm2d_shapes() raises:
     """Test that batch_norm2d returns correct output shape."""
     var shape = List[Int]()
     shape.append(2)  # batch
@@ -355,7 +355,7 @@ fn test_batch_norm2d_shapes() raises:
     assert_equal(new_var.shape()[0], 3)
 
 
-fn test_batch_norm2d_training_mode() raises:
+def test_batch_norm2d_training_mode() raises:
     """Test that batch_norm2d computes batch statistics in training mode."""
     var shape = List[Int]()
     shape.append(2)  # batch
@@ -398,7 +398,7 @@ fn test_batch_norm2d_training_mode() raises:
     )
 
 
-fn test_batch_norm2d_inference_mode() raises:
+def test_batch_norm2d_inference_mode() raises:
     """Test that batch_norm2d uses running statistics in inference mode."""
     var shape = List[Int]()
     shape.append(2)  # batch
@@ -452,7 +452,7 @@ fn test_batch_norm2d_inference_mode() raises:
         )
 
 
-fn test_batch_norm2d_scale_shift() raises:
+def test_batch_norm2d_scale_shift() raises:
     """Test that batch_norm2d applies gamma and beta correctly."""
     var shape = List[Int]()
     shape.append(1)  # batch
@@ -507,7 +507,7 @@ fn test_batch_norm2d_scale_shift() raises:
         )
 
 
-fn test_batch_norm2d_zero_variance() raises:
+def test_batch_norm2d_zero_variance() raises:
     """Test that batch_norm2d handles zero variance with epsilon."""
     var shape = List[Int]()
     shape.append(2)  # batch
@@ -543,7 +543,7 @@ fn test_batch_norm2d_zero_variance() raises:
         assert_true(val > -1e10 and val < 1e10)  # Not infinite
 
 
-fn test_batch_norm2d_backward_gradient_input() raises:
+def test_batch_norm2d_backward_gradient_input() raises:
     """Test batch_norm2d_backward gradient w.r.t. input using numerical validation.
 
     CRITICAL TEST: Validates mathematical correctness of batch norm backpropagation.
@@ -606,7 +606,7 @@ fn test_batch_norm2d_backward_gradient_input() raises:
     # Numerical gradient via finite differences.
     # forward_for_grad computes weighted sum: sum(output * grad_output)
     # so the numerical gradient matches what the backward should compute.
-    fn forward_for_grad(inp: AnyTensor) raises -> AnyTensor:
+    def forward_for_grad(inp: AnyTensor) raises -> AnyTensor:
         var result_nested = batch_norm2d(
             inp,
             gamma,
@@ -647,7 +647,7 @@ fn test_batch_norm2d_backward_gradient_input() raises:
     print("✓ Batch norm backward gradient (input) validated numerically")
 
 
-fn test_batch_norm2d_backward_gradient_input_inference_mode() raises:
+def test_batch_norm2d_backward_gradient_input_inference_mode() raises:
     """Numerical gradient validation for batch_norm2d_backward in inference mode.
 
     Inference mode uses fixed running_mean/running_var, giving a simpler
@@ -713,7 +713,7 @@ fn test_batch_norm2d_backward_gradient_input_inference_mode() raises:
     var grad_input = result_bwd[0]
 
     # Numerical gradient: closure uses training=False with fixed running stats
-    fn forward_for_grad_infer(inp: AnyTensor) raises -> AnyTensor:
+    def forward_for_grad_infer(inp: AnyTensor) raises -> AnyTensor:
         var res = batch_norm2d(
             inp,
             gamma,
@@ -750,7 +750,7 @@ fn test_batch_norm2d_backward_gradient_input_inference_mode() raises:
     )
 
 
-fn test_batch_norm2d_backward_gradient_gamma() raises:
+def test_batch_norm2d_backward_gradient_gamma() raises:
     """Test batch_norm2d_backward gradient w.r.t. gamma using numerical validation.
 
     Perturbs gamma using finite differences and compares against analytical grad_gamma.
@@ -803,7 +803,7 @@ fn test_batch_norm2d_backward_gradient_gamma() raises:
     # Numerical gradient: perturb gamma
     # The forward closure computes: sum(batch_norm2d(x, g, ...) * grad_output)
     # so the numerical gradient matches what batch_norm2d_backward should produce.
-    fn forward_for_gamma(g: AnyTensor) raises -> AnyTensor:
+    def forward_for_gamma(g: AnyTensor) raises -> AnyTensor:
         var res = batch_norm2d(
             x, g, beta, running_mean, running_var, training=True, epsilon=1e-5
         )
@@ -828,7 +828,7 @@ fn test_batch_norm2d_backward_gradient_gamma() raises:
     print("✓ Batch norm backward gradient (gamma) validated numerically")
 
 
-fn test_batch_norm2d_backward_gradient_beta() raises:
+def test_batch_norm2d_backward_gradient_beta() raises:
     """Test batch_norm2d_backward gradient w.r.t. beta using numerical validation.
 
     Perturbs beta using finite differences and compares against analytical grad_beta.
@@ -882,7 +882,7 @@ fn test_batch_norm2d_backward_gradient_beta() raises:
     var grad_beta_analytical = result_bwd[2]
 
     # Numerical gradient: perturb beta
-    fn forward_for_beta(b: AnyTensor) raises -> AnyTensor:
+    def forward_for_beta(b: AnyTensor) raises -> AnyTensor:
         var res = batch_norm2d(
             x, gamma, b, running_mean, running_var, training=True, epsilon=1e-5
         )
@@ -907,7 +907,7 @@ fn test_batch_norm2d_backward_gradient_beta() raises:
     print("✓ Batch norm backward gradient (beta) validated numerically")
 
 
-fn test_batch_norm2d_backward_training_vs_inference() raises:
+def test_batch_norm2d_backward_training_vs_inference() raises:
     """Test that batch_norm2d_backward behaves differently in training vs inference.
 
     Training mode: Gradients flow through batch statistics
@@ -969,7 +969,7 @@ fn test_batch_norm2d_backward_training_vs_inference() raises:
     print("✓ Batch norm backward: training vs inference modes differ correctly")
 
 
-fn test_batch_norm2d_backward_shapes() raises:
+def test_batch_norm2d_backward_shapes() raises:
     """Test that batch_norm2d_backward returns correct gradient shapes."""
     var shape = List[Int]()
     shape.append(3)  # batch
@@ -1011,7 +1011,7 @@ fn test_batch_norm2d_backward_shapes() raises:
     assert_equal(grad_beta.shape()[0], 4, "beta channels")
 
 
-fn test_layer_norm_shapes_2d() raises:
+def test_layer_norm_shapes_2d() raises:
     """Test that layer_norm returns correct shape for 2D input."""
     var shape = List[Int]()
     shape.append(4)  # batch
@@ -1030,7 +1030,7 @@ fn test_layer_norm_shapes_2d() raises:
     assert_equal(output.shape()[1], 10)
 
 
-fn test_layer_norm_shapes_4d() raises:
+def test_layer_norm_shapes_4d() raises:
     """Test that layer_norm returns correct shape for 4D input."""
     var shape = List[Int]()
     shape.append(2)  # batch
@@ -1055,7 +1055,7 @@ fn test_layer_norm_shapes_4d() raises:
     assert_equal(output.shape()[3], 4)
 
 
-fn test_layer_norm_normalization_2d() raises:
+def test_layer_norm_normalization_2d() raises:
     """Test that layer_norm normalizes each sample independently."""
     var shape = List[Int]()
     shape.append(2)  # batch
@@ -1106,7 +1106,7 @@ fn test_layer_norm_normalization_2d() raises:
     assert_almost_equal(mean2, Float32(0.0), tolerance=1e-5)
 
 
-fn test_layer_norm_scale_shift() raises:
+def test_layer_norm_scale_shift() raises:
     """Test that layer_norm applies gamma and beta correctly."""
     var shape = List[Int]()
     shape.append(1)  # batch
@@ -1142,7 +1142,7 @@ fn test_layer_norm_scale_shift() raises:
     )
 
 
-fn test_layer_norm_zero_variance() raises:
+def test_layer_norm_zero_variance() raises:
     """Test that layer_norm handles zero variance with epsilon."""
     var shape = List[Int]()
     shape.append(2)  # batch
@@ -1164,7 +1164,7 @@ fn test_layer_norm_zero_variance() raises:
         assert_true(val > -1e10 and val < 1e10)  # Not infinite
 
 
-fn test_layer_norm_backward_shapes_2d() raises:
+def test_layer_norm_backward_shapes_2d() raises:
     """Test that layer_norm_backward returns correct gradient shapes for 2D input.
     """
     var shape = List[Int]()
@@ -1200,7 +1200,7 @@ fn test_layer_norm_backward_shapes_2d() raises:
     assert_equal(grad_beta.shape()[0], 10, "beta features")
 
 
-fn test_layer_norm_backward_shapes_4d() raises:
+def test_layer_norm_backward_shapes_4d() raises:
     """Test that layer_norm_backward returns correct gradient shapes for 4D input.
     """
     var shape = List[Int]()
@@ -1234,7 +1234,7 @@ fn test_layer_norm_backward_shapes_4d() raises:
     )
 
 
-fn test_layer_norm_backward_grad_beta() raises:
+def test_layer_norm_backward_grad_beta() raises:
     """Test that layer_norm_backward grad_beta equals sum of grad_output over batch.
     """
     var shape = List[Int]()
@@ -1271,7 +1271,7 @@ fn test_layer_norm_backward_grad_beta() raises:
         )
 
 
-fn test_layer_norm_backward_zero_input() raises:
+def test_layer_norm_backward_zero_input() raises:
     """Test layer_norm_backward with zero input (edge case)."""
     var shape = List[Int]()
     shape.append(2)  # batch
@@ -1302,7 +1302,7 @@ fn test_layer_norm_backward_zero_input() raises:
         assert_true(val_beta == val_beta, "grad_beta should not be NaN")
 
 
-fn test_layer_norm_backward_gradient_input() raises:
+def test_layer_norm_backward_gradient_input() raises:
     """Test layer_norm_backward gradient w.r.t. input using numerical validation.
 
     CRITICAL TEST: Validates mathematical correctness of layer norm backpropagation.
@@ -1351,7 +1351,7 @@ fn test_layer_norm_backward_gradient_input() raises:
     # Numerical gradient via finite differences.
     # The scalar loss is sum(layer_norm(x) * grad_output), so the numerical
     # gradient matches what layer_norm_backward(grad_output, x, gamma) computes.
-    fn forward_for_grad(inp: AnyTensor) raises -> AnyTensor:
+    def forward_for_grad(inp: AnyTensor) raises -> AnyTensor:
         var out = layer_norm(inp, gamma, beta, epsilon=1e-5)
         # Weighted sum: sum(out * grad_output) matches backward with non-uniform grad_output
         var weighted = multiply(out, grad_output)
@@ -1376,7 +1376,7 @@ fn test_layer_norm_backward_gradient_input() raises:
     print("✓ Layer norm backward gradient (input) validated numerically")
 
 
-fn test_layer_norm_backward_gradient_input_4d() raises:
+def test_layer_norm_backward_gradient_input_4d() raises:
     """Test layer_norm_backward gradient w.r.t. input on 4D inputs using numerical validation.
 
     CRITICAL TEST: Validates mathematical correctness of layer norm backpropagation for
@@ -1464,7 +1464,7 @@ fn test_layer_norm_backward_gradient_input_4d() raises:
     # Numerical gradient via finite differences.
     # The scalar loss is sum(layer_norm(x) * grad_output), so the numerical
     # gradient matches what layer_norm_backward(grad_output, x, gamma) computes.
-    fn forward_for_grad_4d(inp: AnyTensor) raises -> AnyTensor:
+    def forward_for_grad_4d(inp: AnyTensor) raises -> AnyTensor:
         var out = layer_norm(inp, gamma, beta, epsilon=1e-5)
         # Weighted sum: sum(out * grad_output) matches backward with non-uniform grad_output
         var weighted = multiply(out, grad_output)
@@ -1489,7 +1489,7 @@ fn test_layer_norm_backward_gradient_input_4d() raises:
     print("✓ Layer norm backward 4D gradient (input) validated numerically")
 
 
-fn test_batch_norm2d_backward_gamma_beta_nonzero() raises:
+def test_batch_norm2d_backward_gamma_beta_nonzero() raises:
     """Test batch_norm2d_backward produces non-zero gamma/beta gradients. Closes #3664.
     """
     # NCHW: batch=2, channels=2, height=2, width=2
@@ -1541,7 +1541,7 @@ fn test_batch_norm2d_backward_gamma_beta_nonzero() raises:
     print("✓ batch_norm2d_backward gamma/beta gradient test passed")
 
 
-fn test_batch_norm2d_backward_inference_mode() raises:
+def test_batch_norm2d_backward_inference_mode() raises:
     """Test batch_norm2d_backward in inference mode. Closes #3665."""
     var shape = List[Int]()
     shape.append(2)
@@ -1574,7 +1574,7 @@ fn test_batch_norm2d_backward_inference_mode() raises:
     print("✓ batch_norm2d_backward inference mode test passed")
 
 
-fn test_batch_norm2d_backward_gradient_gamma_inference_mode() raises:
+def test_batch_norm2d_backward_gradient_gamma_inference_mode() raises:
     """Test batch_norm2d_backward gradient w.r.t. gamma in inference mode.
 
     Mirrors test_batch_norm2d_backward_gradient_gamma but with training=False.
@@ -1631,7 +1631,7 @@ fn test_batch_norm2d_backward_gradient_gamma_inference_mode() raises:
     var grad_gamma_analytical = result_bwd[1]
 
     # Numerical gradient: perturb gamma in inference mode
-    fn forward_for_gamma_infer(g: AnyTensor) raises -> AnyTensor:
+    def forward_for_gamma_infer(g: AnyTensor) raises -> AnyTensor:
         var res = batch_norm2d(
             x, g, beta, running_mean, running_var, training=False, epsilon=1e-5
         )
@@ -1656,7 +1656,7 @@ fn test_batch_norm2d_backward_gradient_gamma_inference_mode() raises:
     print("✓ Batch norm backward gradient (gamma) inference mode validated numerically")
 
 
-fn test_batch_norm2d_backward_gradient_beta_inference_mode() raises:
+def test_batch_norm2d_backward_gradient_beta_inference_mode() raises:
     """Test batch_norm2d_backward gradient w.r.t. beta in inference mode.
 
     Mirrors test_batch_norm2d_backward_gradient_beta but with training=False.
@@ -1715,7 +1715,7 @@ fn test_batch_norm2d_backward_gradient_beta_inference_mode() raises:
     var grad_beta_analytical = result_bwd[2]
 
     # Numerical gradient: perturb beta in inference mode
-    fn forward_for_beta_infer(b: AnyTensor) raises -> AnyTensor:
+    def forward_for_beta_infer(b: AnyTensor) raises -> AnyTensor:
         var res = batch_norm2d(
             x, gamma, b, running_mean, running_var, training=False, epsilon=1e-5
         )
@@ -1740,7 +1740,7 @@ fn test_batch_norm2d_backward_gradient_beta_inference_mode() raises:
     print("✓ Batch norm backward gradient (beta) inference mode validated numerically")
 
 
-fn test_batch_norm2d_backward_grad_input_batch_sizes() raises:
+def test_batch_norm2d_backward_grad_input_batch_sizes() raises:
     """Parametrized gradient check for grad_input over batch_sizes [1, 2, 4].
 
     batch_size=1 is a degenerate case (variance=0); only finiteness is checked.
@@ -1754,7 +1754,7 @@ fn test_batch_norm2d_backward_grad_input_batch_sizes() raises:
     )
 
 
-fn test_batch_norm2d_backward_grad_gamma_batch_sizes() raises:
+def test_batch_norm2d_backward_grad_gamma_batch_sizes() raises:
     """Parametrized gradient check for grad_gamma over batch_sizes [1, 2, 4].
 
     batch_size=1 is a degenerate case (variance=0); only finiteness is checked.
@@ -1768,7 +1768,7 @@ fn test_batch_norm2d_backward_grad_gamma_batch_sizes() raises:
     )
 
 
-fn test_batch_norm2d_backward_grad_beta_batch_sizes() raises:
+def test_batch_norm2d_backward_grad_beta_batch_sizes() raises:
     """Parametrized gradient check for grad_beta over batch_sizes [1, 2, 4].
 
     batch_size=1 is a degenerate case (variance=0); only finiteness is checked.
@@ -1782,7 +1782,7 @@ fn test_batch_norm2d_backward_grad_beta_batch_sizes() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all test_normalization tests."""
     print("Running test_normalization tests...")
 

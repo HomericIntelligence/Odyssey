@@ -15,7 +15,7 @@ Design principles:
 - Clear separation of concerns (train, validate, test)
 """
 
-from collections import List
+from std.collections import List
 from shared.tensor.any_tensor import AnyTensor
 
 
@@ -82,7 +82,7 @@ struct TrainerConfig(Copyable, Movable):
     var gradient_clip_norm: Float32
     """Clip gradients by norm (0 = no clipping)."""
 
-    fn __init__(
+    def __init__(
         out self,
         num_epochs: Int = 10,
         batch_size: Int = 32,
@@ -157,7 +157,7 @@ struct TrainingMetrics(Copyable, Movable):
     var best_epoch: Int
     """Epoch with best validation loss."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize training metrics with defaults."""
         self.current_epoch = 0
         self.current_batch = 0
@@ -170,7 +170,7 @@ struct TrainingMetrics(Copyable, Movable):
         self.best_val_accuracy = 0.0
         self.best_epoch = 0
 
-    fn update_train_metrics(mut self, loss: Float64, accuracy: Float64):
+    def update_train_metrics(mut self, loss: Float64, accuracy: Float64):
         """Update training metrics for current batch.
 
         Args:
@@ -180,7 +180,7 @@ struct TrainingMetrics(Copyable, Movable):
         self.train_loss = loss
         self.train_accuracy = accuracy
 
-    fn update_val_metrics(mut self, loss: Float64, accuracy: Float64):
+    def update_val_metrics(mut self, loss: Float64, accuracy: Float64):
         """Update validation metrics and track best results.
 
         Args:
@@ -196,13 +196,13 @@ struct TrainingMetrics(Copyable, Movable):
             self.best_val_accuracy = accuracy
             self.best_epoch = self.current_epoch
 
-    fn reset_epoch(mut self):
+    def reset_epoch(mut self):
         """Reset epoch-level metrics."""
         self.current_batch = 0
         self.train_loss = 0.0
         self.train_accuracy = 0.0
 
-    fn print_summary(self):
+    def print_summary(self):
         """Print training metrics summary."""
         print("\nTraining Metrics Summary:")
         print("-" * 50)
@@ -251,7 +251,7 @@ trait Trainer:
     - on_validation_end()
     """
 
-    fn train(mut self, num_epochs: Int) raises:
+    def train(mut self, num_epochs: Int) raises:
         """Execute training loop for specified number of epochs.
 
         Args:
@@ -262,7 +262,7 @@ trait Trainer:
         """
         ...
 
-    fn validate(mut self) raises -> Float64:
+    def validate(mut self) raises -> Float64:
         """Evaluate model on validation set.
 
         Returns:
@@ -273,7 +273,7 @@ trait Trainer:
         """
         ...
 
-    fn fit(mut self, num_epochs: Int, validate_every: Int = 1) raises:
+    def fit(mut self, num_epochs: Int, validate_every: Int = 1) raises:
         """Train model with periodic validation.
 
         Args:
@@ -299,7 +299,7 @@ struct DataBatch(Copyable, Movable):
     var batch_size: Int
     """Batch size."""
 
-    fn __init__(out self, var data: AnyTensor, var labels: AnyTensor):
+    def __init__(out self, var data: AnyTensor, var labels: AnyTensor):
         """Initialize data batch.
 
         Args:
@@ -332,7 +332,7 @@ struct DataLoader(Copyable, Movable):
     var current_batch: Int
     """Current batch index."""
 
-    fn __init__(
+    def __init__(
         out self, var data: AnyTensor, var labels: AnyTensor, batch_size: Int
     ):
         """Initialize data loader.
@@ -349,11 +349,11 @@ struct DataLoader(Copyable, Movable):
         self.num_batches = (self.num_samples + batch_size - 1) // batch_size
         self.current_batch = 0
 
-    fn reset(mut self):
+    def reset(mut self):
         """Reset loader to beginning."""
         self.current_batch = 0
 
-    fn has_next(self) -> Bool:
+    def has_next(self) -> Bool:
         """Check if more batches available.
 
         Returns:
@@ -361,7 +361,7 @@ struct DataLoader(Copyable, Movable):
         """
         return self.current_batch < self.num_batches
 
-    fn next(mut self) raises -> DataBatch:
+    def next(mut self) raises -> DataBatch:
         """Get next batch.
 
         Returns:
@@ -390,7 +390,7 @@ struct DataLoader(Copyable, Movable):
         return DataBatch(batch_data, batch_labels)
 
 
-fn create_simple_dataloader(
+def create_simple_dataloader(
     var data: AnyTensor, var labels: AnyTensor, batch_size: Int
 ) raises -> DataLoader:
     """Create a simple dataloader for training.

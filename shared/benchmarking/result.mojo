@@ -37,7 +37,7 @@ Example:
     ```
 """
 
-from math import sqrt
+from std.math import sqrt
 
 
 struct BenchmarkResult(Copyable, Movable):
@@ -77,7 +77,7 @@ struct BenchmarkResult(Copyable, Movable):
     var _M2: Float64
     """Second moment accumulator for variance (Welford's algorithm)."""
 
-    fn __init__(out self, name: String, iterations: Int):
+    def __init__(out self, name: String, iterations: Int):
         """Initialize a benchmark result tracker.
 
         Args:
@@ -98,7 +98,7 @@ struct BenchmarkResult(Copyable, Movable):
         self._mean = 0.0
         self._M2 = 0.0
 
-    fn record(mut self, time_ns: Int):
+    def record(mut self, time_ns: Int):
         """Record a single iteration's execution time in nanoseconds.
 
         Uses Welford's online algorithm to compute mean and variance
@@ -137,7 +137,7 @@ struct BenchmarkResult(Copyable, Movable):
         # M2 = M2 + delta * delta2
         self._M2 = self._M2 + delta * delta2
 
-    fn mean(self) -> Float64:
+    def mean(self) -> Float64:
         """Compute mean (average) iteration time in nanoseconds.
 
         Returns:
@@ -152,7 +152,7 @@ struct BenchmarkResult(Copyable, Movable):
             return 0.0
         return self._mean
 
-    fn std(self) -> Float64:
+    def std(self) -> Float64:
         """Compute standard deviation of iteration times.
 
         Uses sample variance (N-1 denominator) for unbiased estimation,
@@ -173,7 +173,7 @@ struct BenchmarkResult(Copyable, Movable):
         var variance = self._M2 / Float64(self.iterations - 1)
         return sqrt(variance)
 
-    fn min_time(self) -> Float64:
+    def min_time(self) -> Float64:
         """Get minimum iteration time in nanoseconds.
 
         Returns:
@@ -188,7 +188,7 @@ struct BenchmarkResult(Copyable, Movable):
             return 0.0
         return Float64(self.min_time_ns)
 
-    fn max_time(self) -> Float64:
+    def max_time(self) -> Float64:
         """Get maximum iteration time in nanoseconds.
 
         Returns:
@@ -203,7 +203,7 @@ struct BenchmarkResult(Copyable, Movable):
             return 0.0
         return Float64(self.max_time_ns)
 
-    fn __str__(self) -> String:
+    def __str__(self) -> String:
         """Format benchmark results as a human-readable string.
 
         Returns:

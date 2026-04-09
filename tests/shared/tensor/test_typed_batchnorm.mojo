@@ -23,7 +23,7 @@ from shared.core.layers.batchnorm import BatchNorm2dLayer
 from shared.tensor.tensor import Tensor
 
 
-fn test_batchnorm_default_dtype() raises:
+def test_batchnorm_default_dtype() raises:
     """BatchNorm2dLayer defaults to float32 weights."""
     var bn = BatchNorm2dLayer(num_channels=4)
     # gamma and beta should have float32 dtype
@@ -32,7 +32,7 @@ fn test_batchnorm_default_dtype() raises:
     print("PASS: test_batchnorm_default_dtype")
 
 
-fn test_batchnorm_float64() raises:
+def test_batchnorm_float64() raises:
     """BatchNorm2dLayer[DType.float64] uses float64 tensors."""
     var bn = BatchNorm2dLayer[DType.float64](num_channels=4)
     assert_true(bn.gamma.get_dtype() == DType.float64, "gamma dtype should be float64")
@@ -40,7 +40,7 @@ fn test_batchnorm_float64() raises:
     print("PASS: test_batchnorm_float64")
 
 
-fn test_batchnorm_gamma_shape() raises:
+def test_batchnorm_gamma_shape() raises:
     """Gamma has shape (num_channels,) and is initialized to ones."""
     var bn = BatchNorm2dLayer(num_channels=8)
     assert_true(bn.gamma.numel() == 8, "gamma should have 8 elements")
@@ -50,7 +50,7 @@ fn test_batchnorm_gamma_shape() raises:
     print("PASS: test_batchnorm_gamma_shape")
 
 
-fn test_batchnorm_beta_shape() raises:
+def test_batchnorm_beta_shape() raises:
     """Beta has shape (num_channels,) and is initialized to zeros."""
     var bn = BatchNorm2dLayer(num_channels=8)
     assert_true(bn.beta.numel() == 8, "beta should have 8 elements")
@@ -60,7 +60,7 @@ fn test_batchnorm_beta_shape() raises:
     print("PASS: test_batchnorm_beta_shape")
 
 
-fn test_batchnorm_running_stats_shape() raises:
+def test_batchnorm_running_stats_shape() raises:
     """Running mean/var have shape (num_channels,) with correct init."""
     var bn = BatchNorm2dLayer(num_channels=4)
     assert_true(bn.running_mean.numel() == 4, "running_mean should have 4 elements")
@@ -71,7 +71,7 @@ fn test_batchnorm_running_stats_shape() raises:
     print("PASS: test_batchnorm_running_stats_shape")
 
 
-fn test_batchnorm_running_stats_float64() raises:
+def test_batchnorm_running_stats_float64() raises:
     """Running stats use the parameterized dtype."""
     var bn = BatchNorm2dLayer[DType.float64](num_channels=4)
     assert_true(
@@ -85,7 +85,7 @@ fn test_batchnorm_running_stats_float64() raises:
     print("PASS: test_batchnorm_running_stats_float64")
 
 
-fn test_batchnorm_forward_typed() raises:
+def test_batchnorm_forward_typed() raises:
     """Forward pass accepts and returns Tensor[dtype]."""
     var bn = BatchNorm2dLayer[DType.float32](num_channels=2)
     var input = Tensor[DType.float32]([1, 2, 3, 3])  # NCHW
@@ -105,7 +105,7 @@ fn test_batchnorm_forward_typed() raises:
     print("PASS: test_batchnorm_forward_typed")
 
 
-fn test_batchnorm_forward_inference() raises:
+def test_batchnorm_forward_inference() raises:
     """Forward with training=False uses running stats, not batch stats."""
     var bn = BatchNorm2dLayer(num_channels=2)
     var input = Tensor[DType.float32]([1, 2, 3, 3])
@@ -121,7 +121,7 @@ fn test_batchnorm_forward_inference() raises:
     print("PASS: test_batchnorm_forward_inference")
 
 
-fn test_batchnorm_parameters_typed() raises:
+def test_batchnorm_parameters_typed() raises:
     """Parameters() returns List[AnyTensor] with gamma and beta."""
     var bn = BatchNorm2dLayer(num_channels=4)
     var params = bn.parameters()
@@ -131,7 +131,7 @@ fn test_batchnorm_parameters_typed() raises:
     print("PASS: test_batchnorm_parameters_typed")
 
 
-fn test_batchnorm_parameters_float64() raises:
+def test_batchnorm_parameters_float64() raises:
     """Parameters() preserves float64 dtype (catches CRITICAL-1 bitcast bug)."""
     var bn = BatchNorm2dLayer[DType.float64](num_channels=4)
     var params = bn.parameters()
@@ -141,7 +141,7 @@ fn test_batchnorm_parameters_float64() raises:
     print("PASS: test_batchnorm_parameters_float64")
 
 
-fn main() raises:
+def main() raises:
     test_batchnorm_default_dtype()
     test_batchnorm_float64()
     test_batchnorm_gamma_shape()

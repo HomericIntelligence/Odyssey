@@ -16,7 +16,7 @@ from shared.training.dtype_utils import (
 from testing import assert_equal, assert_true, assert_false
 
 
-fn test_dtype_aliases() raises:
+def test_dtype_aliases() raises:
     """Test that dtype aliases point to correct types."""
     print("Testing dtype aliases...")
 
@@ -40,7 +40,7 @@ fn test_dtype_aliases() raises:
     print("✓ DType aliases test passed")
 
 
-fn test_is_reduced_precision() raises:
+def test_is_reduced_precision() raises:
     """Test reduced precision detection."""
     print("Testing is_reduced_precision...")
 
@@ -63,7 +63,7 @@ fn test_is_reduced_precision() raises:
     print("✓ Reduced precision detection test passed")
 
 
-fn test_is_floating_point() raises:
+def test_is_floating_point() raises:
     """Test floating point type detection."""
     print("Testing is_floating_point...")
 
@@ -86,7 +86,7 @@ fn test_is_floating_point() raises:
     print("✓ Floating point detection test passed")
 
 
-fn test_get_dtype_precision_bits() raises:
+def test_get_dtype_precision_bits() raises:
     """Test precision bits retrieval."""
     print("Testing get_dtype_precision_bits...")
 
@@ -114,7 +114,7 @@ fn test_get_dtype_precision_bits() raises:
     print("✓ Precision bits test passed")
 
 
-fn test_get_dtype_exponent_bits() raises:
+def test_get_dtype_exponent_bits() raises:
     """Test exponent bits retrieval."""
     print("Testing get_dtype_exponent_bits...")
 
@@ -142,7 +142,7 @@ fn test_get_dtype_exponent_bits() raises:
     print("✓ Exponent bits test passed")
 
 
-fn test_dtype_to_string() raises:
+def test_dtype_to_string() raises:
     """Test dtype string conversion."""
     print("Testing dtype_to_string...")
 
@@ -165,7 +165,7 @@ fn test_dtype_to_string() raises:
     print("✓ DType to string test passed")
 
 
-fn test_recommend_precision_dtype() raises:
+def test_recommend_precision_dtype() raises:
     """Test precision recommendation logic."""
     print("Testing recommend_precision_dtype...")
 
@@ -208,7 +208,7 @@ fn test_recommend_precision_dtype() raises:
     print("✓ Precision recommendation test passed")
 
 
-fn test_detect_hardware_bf16_support() raises:
+def test_detect_hardware_bf16_support() raises:
     """Test that detect_hardware_bf16_support returns a Bool.
 
     On Linux/x86 CI hardware, BF16 is supported so this returns True.
@@ -224,7 +224,7 @@ fn test_detect_hardware_bf16_support() raises:
     print("✓ detect_hardware_bf16_support returns True on CI hardware")
 
 
-fn test_recommend_precision_dtype_auto_detect() raises:
+def test_recommend_precision_dtype_auto_detect() raises:
     """Test recommend_precision_dtype auto-detects BF16 support on CI."""
     print("Testing recommend_precision_dtype with auto-detection...")
 
@@ -248,7 +248,7 @@ fn test_recommend_precision_dtype_auto_detect() raises:
     print("✓ Auto-detecting recommend_precision_dtype works correctly on CI")
 
 
-fn test_bfloat16_alias_behavior() raises:
+def test_bfloat16_alias_behavior() raises:
     """Test that bfloat16 uses native DType.bfloat16."""
     print("Testing bfloat16 native dtype behavior...")
 
@@ -265,7 +265,7 @@ fn test_bfloat16_alias_behavior() raises:
     print("✓ BFloat16 native dtype behavior test passed")
 
 
-fn main() raises:
+def main() raises:
     print("\n" + "=" * 70)
     print("DTYPE UTILITIES TESTS")
     print("=" * 70)

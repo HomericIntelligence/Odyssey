@@ -11,8 +11,8 @@ Example:
     )
 
     # Test reshape preserves element count
-    fn test_reshape_numel() raises:
-        fn property_fn() raises -> Bool:
+    def test_reshape_numel() raises:
+        def property_fn() raises -> Bool:
             var shape = random_shape(max_dims=4, max_size=10)
             var tensor = random_tensor(shape, DType.float32)
             var new_shape = random_compatible_shape(tensor.numel())
@@ -28,8 +28,8 @@ Features:
 - Seed-based reproducibility for debugging
 """
 
-from random import random_float64, seed
-from math import sqrt
+from std.random import random_float64, seed
+from std.math import sqrt
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.shape import reshape
 from shared.testing.data_generators import random_tensor
@@ -40,7 +40,7 @@ from shared.testing.data_generators import random_tensor
 # ============================================================================
 
 
-fn random_shape(
+def random_shape(
     max_dims: Int = 4,
     max_size: Int = 100,
     min_dims: Int = 1,
@@ -63,7 +63,7 @@ fn random_shape(
     """
     # Random number of dimensions
     var dim_range = max_dims - min_dims + 1
-    var num_dims = min_dims + Int(random_float64() * dim_range) % dim_range
+    var num_dims = min_dims + Int(random_float64() * Float64(dim_range)) % dim_range
     if num_dims > max_dims:
         num_dims = max_dims
     if num_dims < min_dims:
@@ -74,7 +74,7 @@ fn random_shape(
     var size_range = max_size - min_size + 1
     for _ in range(num_dims):
         var dim_size = (
-            min_size + Int(random_float64() * size_range) % size_range
+            min_size + Int(random_float64() * Float64(size_range)) % size_range
         )
         if dim_size > max_size:
             dim_size = max_size
@@ -85,7 +85,7 @@ fn random_shape(
     return shape^
 
 
-fn random_compatible_shape(numel: Int, max_dims: Int = 4) raises -> List[Int]:
+def random_compatible_shape(numel: Int, max_dims: Int = 4) raises -> List[Int]:
     """Generate a random shape with given total number of elements.
 
     Useful for testing reshape operations where output shape must
@@ -124,7 +124,7 @@ fn random_compatible_shape(numel: Int, max_dims: Int = 4) raises -> List[Int]:
         return shape^
 
     # Randomly combine factors into dimensions
-    var num_dims = 1 + Int(random_float64() * min(max_dims, len(factors)))
+    var num_dims = 1 + Int(random_float64() * Float64(min(max_dims, len(factors))))
     if num_dims > max_dims:
         num_dims = max_dims
     if num_dims < 1:
@@ -136,13 +136,13 @@ fn random_compatible_shape(numel: Int, max_dims: Int = 4) raises -> List[Int]:
 
     # Distribute factors across dimensions
     for i in range(len(factors)):
-        var dim_idx = Int(random_float64() * num_dims) % num_dims
+        var dim_idx = Int(random_float64() * Float64(num_dims)) % num_dims
         shape[dim_idx] = shape[dim_idx] * factors[i]
 
     return shape^
 
 
-fn random_broadcastable_shapes(
+def random_broadcastable_shapes(
     max_dims: Int = 4, max_size: Int = 10
 ) raises -> Tuple[List[Int], List[Int]]:
     """Generate two broadcastable shapes.
@@ -164,7 +164,7 @@ fn random_broadcastable_shapes(
     var shape2 = List[Int]()
 
     # Make shape2 broadcastable with shape1
-    var start_dim = Int(random_float64() * len(shape1))
+    var start_dim = Int(random_float64() * Float64(len(shape1)))
     for i in range(start_dim, len(shape1)):
         # Either match the dimension or use 1
         if random_float64() > 0.3:
@@ -183,8 +183,8 @@ fn random_broadcastable_shapes(
 # ============================================================================
 
 
-fn run_property_test(
-    property_fn: fn () raises -> Bool,
+def run_property_test(
+    property_fn: def () raises -> Bool,
     num_tests: Int = 100,
     test_name: String = "property",
 ) raises:
@@ -202,7 +202,7 @@ fn run_property_test(
 
     Example:
         ```mojo
-        fn property_fn() raises -> Bool:
+        def property_fn() raises -> Bool:
             var a = random_tensor(random_shape(), DType.float32)
             var b = random_tensor(a.shape(), DType.float32)
             var sum1 = add(a, b)
@@ -245,8 +245,8 @@ fn run_property_test(
         )
 
 
-fn run_property_test_with_seed(
-    property_fn: fn () raises -> Bool,
+def run_property_test_with_seed(
+    property_fn: def () raises -> Bool,
     num_tests: Int = 100,
     test_seed: Int = 42,
     test_name: String = "property",
@@ -275,7 +275,7 @@ fn run_property_test_with_seed(
 # ============================================================================
 
 
-fn assert_tensors_close(
+def assert_tensors_close(
     a: AnyTensor, b: AnyTensor, atol: Float64 = 1e-6, rtol: Float64 = 1e-5
 ) raises:
     """Assert two tensors are element-wise close.
@@ -322,7 +322,7 @@ fn assert_tensors_close(
             )
 
 
-fn tensors_equal(a: AnyTensor, b: AnyTensor, atol: Float64 = 1e-6) raises -> Bool:
+def tensors_equal(a: AnyTensor, b: AnyTensor, atol: Float64 = 1e-6) raises -> Bool:
     """Check if two tensors are element-wise equal within tolerance.
 
     Args:
@@ -354,10 +354,10 @@ fn tensors_equal(a: AnyTensor, b: AnyTensor, atol: Float64 = 1e-6) raises -> Boo
 # ============================================================================
 
 
-fn test_reshape_preserves_numel() raises:
+def test_reshape_preserves_numel() raises:
     """Property: Reshape preserves element count."""
 
-    fn property_fn() raises -> Bool:
+    def property_fn() raises -> Bool:
         var shape = random_shape(max_dims=3, max_size=10)
         var tensor = random_tensor(shape, DType.float32)
         var new_shape = random_compatible_shape(tensor.numel(), max_dims=3)
@@ -369,11 +369,11 @@ fn test_reshape_preserves_numel() raises:
     )
 
 
-fn test_addition_commutative() raises:
+def test_addition_commutative() raises:
     """Property: Addition is commutative (a + b == b + a)."""
     from shared.core.arithmetic import add
 
-    fn property_fn() raises -> Bool:
+    def property_fn() raises -> Bool:
         var shape = random_shape(max_dims=2, max_size=5)
         var a = random_tensor(shape, DType.float32)
         var b = random_tensor(shape, DType.float32)
@@ -388,11 +388,11 @@ fn test_addition_commutative() raises:
     )
 
 
-fn test_multiplication_commutative() raises:
+def test_multiplication_commutative() raises:
     """Property: Multiplication is commutative (a * b == b * a)."""
     from shared.core.arithmetic import multiply
 
-    fn property_fn() raises -> Bool:
+    def property_fn() raises -> Bool:
         var shape = random_shape(max_dims=2, max_size=5)
         var a = random_tensor(shape, DType.float32)
         var b = random_tensor(shape, DType.float32)
@@ -407,11 +407,11 @@ fn test_multiplication_commutative() raises:
     )
 
 
-fn test_addition_identity() raises:
+def test_addition_identity() raises:
     """Property: Adding zero is identity (a + 0 == a)."""
     from shared.core.arithmetic import add
 
-    fn property_fn() raises -> Bool:
+    def property_fn() raises -> Bool:
         var shape = random_shape(max_dims=2, max_size=5)
         var a = random_tensor(shape, DType.float32)
         var zero = zeros(shape, DType.float32)
@@ -423,11 +423,11 @@ fn test_addition_identity() raises:
     run_property_test(property_fn, num_tests=50, test_name="addition_identity")
 
 
-fn test_multiplication_identity() raises:
+def test_multiplication_identity() raises:
     """Property: Multiplying by one is identity (a * 1 == a)."""
     from shared.core.arithmetic import multiply
 
-    fn property_fn() raises -> Bool:
+    def property_fn() raises -> Bool:
         var shape = random_shape(max_dims=2, max_size=5)
         var a = random_tensor(shape, DType.float32)
         var one = ones(shape, DType.float32)

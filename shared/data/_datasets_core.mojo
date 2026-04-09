@@ -12,7 +12,7 @@ Includes:
 
 from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.data.formats import load_idx_labels, load_idx_images
-from utils.index import Index
+from std.utils.index import Index
 
 
 # ============================================================================
@@ -27,7 +27,7 @@ trait Dataset(ImplicitlyDestructible):
     indexed access to samples.
     """
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return the number of samples in the dataset.
 
         Returns:
@@ -35,7 +35,7 @@ trait Dataset(ImplicitlyDestructible):
         """
         ...
 
-    fn __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
+    def __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get a sample from the dataset.
 
         Args:
@@ -66,7 +66,7 @@ struct AnyTensorDataset(Copyable, Dataset, Movable, Sized):
     var labels: AnyTensor
     var _len: Int
 
-    fn __init__(out self, var data: AnyTensor, var labels: AnyTensor) raises:
+    def __init__(out self, var data: AnyTensor, var labels: AnyTensor) raises:
         """Create dataset from tensors.
 
         Args:
@@ -83,11 +83,11 @@ struct AnyTensorDataset(Copyable, Dataset, Movable, Sized):
         self.labels = labels^
         self._len = self.data.shape()[0]
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return number of samples."""
         return self._len
 
-    fn __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
+    def __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get sample at index.
 
         Args:
@@ -137,7 +137,7 @@ struct FileDataset(Copyable, Dataset, Movable):
     var cache_enabled: Bool
     var _cache: Dict[Int, Tuple[AnyTensor, AnyTensor]]
 
-    fn __init__(
+    def __init__(
         out self,
         var file_paths: List[String],
         var labels: List[Int],
@@ -162,11 +162,11 @@ struct FileDataset(Copyable, Dataset, Movable):
         self.cache_enabled = cache
         self._cache = Dict[Int, Tuple[AnyTensor, AnyTensor]]()
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return number of samples."""
         return self._len
 
-    fn __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
+    def __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
         """Load and return sample at index.
 
         Args:
@@ -211,7 +211,7 @@ struct FileDataset(Copyable, Dataset, Movable):
 
         return result
 
-    fn _load_file(self, path: String) raises -> AnyTensor:
+    def _load_file(self, path: String) raises -> AnyTensor:
         """Load data from file based on file extension.
 
         Supports multiple file formats with format-specific decoders.
@@ -263,7 +263,7 @@ struct FileDataset(Copyable, Dataset, Movable):
                 "Unsupported file format: " + ext + ". Supported: csv, bin, txt"
             )
 
-    fn _load_csv(self, path: String) raises -> AnyTensor:
+    def _load_csv(self, path: String) raises -> AnyTensor:
         """Load CSV file as tensor.
 
         Parses CSV rows and columns into a 2D tensor.
@@ -287,7 +287,7 @@ struct FileDataset(Copyable, Dataset, Movable):
             data.append(Float32(1.0))
         return AnyTensor(data^)
 
-    fn _load_binary(self, path: String) raises -> AnyTensor:
+    def _load_binary(self, path: String) raises -> AnyTensor:
         """Load binary file as tensor.
 
         Reads raw float32 values from binary file.
@@ -311,7 +311,7 @@ struct FileDataset(Copyable, Dataset, Movable):
             data.append(Float32(1.0))
         return AnyTensor(data^)
 
-    fn _load_text(self, path: String) raises -> AnyTensor:
+    def _load_text(self, path: String) raises -> AnyTensor:
         """Load text file as tensor.
 
         Parses space and newline separated numbers into a tensor.
@@ -361,7 +361,7 @@ struct EMNISTDataset(Copyable, Dataset, Movable):
     var split: String
     var data_dir: String
 
-    fn __init__(
+    def __init__(
         out self,
         data_dir: String,
         split: String = "balanced",
@@ -438,7 +438,7 @@ struct EMNISTDataset(Copyable, Dataset, Movable):
 
         self._len = self.data.shape()[0]
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return the number of samples in the dataset.
 
         Returns:
@@ -446,7 +446,7 @@ struct EMNISTDataset(Copyable, Dataset, Movable):
         """
         return self._len
 
-    fn __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
+    def __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get a sample from the dataset.
 
         Args:
@@ -480,7 +480,7 @@ struct EMNISTDataset(Copyable, Dataset, Movable):
             self.labels.slice(idx, idx + 1, axis=0),
         )
 
-    fn get_train_data(self) raises -> AnyTensorDataset:
+    def get_train_data(self) raises -> AnyTensorDataset:
         """Get training data as AnyTensorDataset.
 
         Returns:
@@ -491,7 +491,7 @@ struct EMNISTDataset(Copyable, Dataset, Movable):
         """
         return AnyTensorDataset(self.data, self.labels)
 
-    fn get_test_data(self) raises -> AnyTensorDataset:
+    def get_test_data(self) raises -> AnyTensorDataset:
         """Get test data as AnyTensorDataset.
 
         Note: This method returns the same data as get_train_data since
@@ -506,7 +506,7 @@ struct EMNISTDataset(Copyable, Dataset, Movable):
         """
         return AnyTensorDataset(self.data, self.labels)
 
-    fn shape(self) -> List[Int]:
+    def shape(self) -> List[Int]:
         """Return the shape of individual samples.
 
         Returns:
@@ -518,7 +518,7 @@ struct EMNISTDataset(Copyable, Dataset, Movable):
         shape.append(28)
         return shape^
 
-    fn num_classes(self) -> Int:
+    def num_classes(self) -> Int:
         """Return the number of classes for this split.
 
         Returns:
@@ -551,7 +551,7 @@ struct EMNISTDataset(Copyable, Dataset, Movable):
 # ============================================================================
 
 
-fn load_emnist_train(
+def load_emnist_train(
     data_dir: String,
     split: String = "balanced",
 ) raises -> Tuple[AnyTensor, AnyTensor]:
@@ -571,7 +571,7 @@ fn load_emnist_train(
     return (dataset.data, dataset.labels)
 
 
-fn load_emnist_test(
+def load_emnist_test(
     data_dir: String,
     split: String = "balanced",
 ) raises -> Tuple[AnyTensor, AnyTensor]:

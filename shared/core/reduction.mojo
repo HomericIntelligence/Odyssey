@@ -9,7 +9,7 @@ Layer 2: dtype dispatch table (ordinal-based)
 Layer 3 (core): Tensor[dtype] native implementation via parametric kernels
 """
 
-from collections import List
+from std.collections import List
 from shared.tensor.any_tensor import AnyTensor
 from .shape import as_contiguous
 from shared.base.dtype_ordinal import (
@@ -48,7 +48,7 @@ from .reduction_ops import (
 # ============================================================================
 
 
-fn _reduce_all_impl[
+def _reduce_all_impl[
     dtype: DType, Op: ReduceOp
 ](result: AnyTensor, tensor: AnyTensor, numel: Int):
     """Generic dtype-specialized reduction over all elements."""
@@ -65,7 +65,7 @@ fn _reduce_all_impl[
     out_ptr[0] = Scalar[dtype](final_val)
 
 
-fn _dispatch_reduce_all[
+def _dispatch_reduce_all[
     Op: ReduceOp
 ](result: AnyTensor, tensor: AnyTensor, numel: Int) raises:
     """Generic runtime dispatch for reduction over all elements."""
@@ -86,7 +86,7 @@ fn _dispatch_reduce_all[
         raise Error("reduce_all: unsupported dtype")
 
 
-fn _reduce_axis_impl[
+def _reduce_axis_impl[
     dtype: DType, Op: ReduceOp
 ](
     result: AnyTensor,
@@ -116,7 +116,7 @@ fn _reduce_axis_impl[
             out_ptr[result_idx] = Scalar[dtype](final_val)
 
 
-fn _dispatch_reduce_axis[
+def _dispatch_reduce_axis[
     Op: ReduceOp
 ](
     result: AnyTensor,
@@ -153,7 +153,7 @@ fn _dispatch_reduce_axis[
         raise Error("reduce_axis: unsupported dtype")
 
 
-fn sum(
+def sum(
     tensor: AnyTensor, axis: Int = -1, keepdims: Bool = False
 ) raises -> AnyTensor:
     """Sum tensor elements along an axis.
@@ -210,7 +210,7 @@ fn sum(
         return result^
 
 
-fn mean(
+def mean(
     tensor: AnyTensor, axis: Int = -1, keepdims: Bool = False
 ) raises -> AnyTensor:
     """Compute mean of tensor elements along an axis.
@@ -265,7 +265,7 @@ fn mean(
         return result^
 
 
-fn max_reduce(
+def max_reduce(
     tensor: AnyTensor, axis: Int = -1, keepdims: Bool = False
 ) raises -> AnyTensor:
     """Find maximum of tensor elements along an axis.
@@ -320,7 +320,7 @@ fn max_reduce(
         return result^
 
 
-fn min_reduce(
+def min_reduce(
     tensor: AnyTensor, axis: Int = -1, keepdims: Bool = False
 ) raises -> AnyTensor:
     """Find minimum of tensor elements along an axis.
@@ -380,7 +380,7 @@ fn min_reduce(
 # ============================================================================
 
 
-fn reduce_backward[
+def reduce_backward[
     Op: ReduceBackwardOp
 ](grad_output: AnyTensor, x: AnyTensor, axis: Int = -1) raises -> AnyTensor:
     """Generic backward pass for reduction operations.
@@ -475,7 +475,7 @@ fn reduce_backward[
 # ============================================================================
 
 
-fn sum_backward(
+def sum_backward(
     grad_output: AnyTensor, x: AnyTensor, axis: Int = -1
 ) raises -> AnyTensor:
     """Compute gradient for sum reduction.
@@ -512,7 +512,7 @@ fn sum_backward(
     return reduce_backward[SumBackwardOp](grad_output, x, axis)
 
 
-fn mean_backward(
+def mean_backward(
     grad_output: AnyTensor, x: AnyTensor, axis: Int = -1
 ) raises -> AnyTensor:
     """Compute gradient for mean reduction.
@@ -545,7 +545,7 @@ fn mean_backward(
     return reduce_backward[MeanBackwardOp](grad_output, x, axis)
 
 
-fn max_reduce_backward(
+def max_reduce_backward(
     grad_output: AnyTensor, x: AnyTensor, axis: Int = -1
 ) raises -> AnyTensor:
     """Compute gradient for max reduction.
@@ -584,7 +584,7 @@ fn max_reduce_backward(
     return reduce_backward[MaxBackwardOp](grad_output, x, axis)
 
 
-fn min_reduce_backward(
+def min_reduce_backward(
     grad_output: AnyTensor, x: AnyTensor, axis: Int = -1
 ) raises -> AnyTensor:
     """Compute gradient for min reduction.
@@ -620,7 +620,7 @@ fn min_reduce_backward(
 # ============================================================================
 
 
-fn variance(tensor: AnyTensor, axis: Int = -1, ddof: Int = 0) raises -> AnyTensor:
+def variance(tensor: AnyTensor, axis: Int = -1, ddof: Int = 0) raises -> AnyTensor:
     """Compute variance of tensor elements along an axis.
 
     Variance measures how spread out values are from the mean.
@@ -700,7 +700,7 @@ fn variance(tensor: AnyTensor, axis: Int = -1, ddof: Int = 0) raises -> AnyTenso
         return result^
 
 
-fn variance_backward(
+def variance_backward(
     grad_output: AnyTensor, x: AnyTensor, axis: Int = -1, ddof: Int = 0
 ) raises -> AnyTensor:
     """Compute gradient for variance reduction.
@@ -759,7 +759,7 @@ fn variance_backward(
     return result^
 
 
-fn std_reduce(tensor: AnyTensor, axis: Int = -1, ddof: Int = 0) raises -> AnyTensor:
+def std_reduce(tensor: AnyTensor, axis: Int = -1, ddof: Int = 0) raises -> AnyTensor:
     """Compute standard deviation of tensor elements along an axis.
 
     Standard deviation is the square root of variance.
@@ -779,7 +779,7 @@ fn std_reduce(tensor: AnyTensor, axis: Int = -1, ddof: Int = 0) raises -> AnyTen
             var s = std_reduce(t, axis=-1, ddof=0)  # sqrt(2/3) ≈ 0.8165
         ```
     """
-    from math import sqrt
+    from std.math import sqrt
 
     var var_result = variance(tensor, axis, ddof)
 
@@ -792,7 +792,7 @@ fn std_reduce(tensor: AnyTensor, axis: Int = -1, ddof: Int = 0) raises -> AnyTen
     return var_result^
 
 
-fn std_backward(
+def std_backward(
     grad_output: AnyTensor, x: AnyTensor, axis: Int = -1, ddof: Int = 0
 ) raises -> AnyTensor:
     """Compute gradient for std reduction.
@@ -852,7 +852,7 @@ fn std_backward(
     return result^
 
 
-fn median(tensor: AnyTensor, axis: Int = -1) raises -> AnyTensor:
+def median(tensor: AnyTensor, axis: Int = -1) raises -> AnyTensor:
     """Compute median of tensor elements along an axis.
 
     For odd count: returns the middle value after sorting.
@@ -949,7 +949,7 @@ fn median(tensor: AnyTensor, axis: Int = -1) raises -> AnyTensor:
         return result^
 
 
-fn median_backward(
+def median_backward(
     grad_output: AnyTensor, x: AnyTensor, axis: Int = -1
 ) raises -> AnyTensor:
     """Compute gradient for median (subgradient).
@@ -1046,7 +1046,7 @@ fn median_backward(
     return result^
 
 
-fn percentile(tensor: AnyTensor, q: Float64, axis: Int = -1) raises -> AnyTensor:
+def percentile(tensor: AnyTensor, q: Float64, axis: Int = -1) raises -> AnyTensor:
     """Compute percentile of tensor elements along an axis.
 
     Uses linear interpolation between adjacent ranked values.
@@ -1153,7 +1153,7 @@ fn percentile(tensor: AnyTensor, q: Float64, axis: Int = -1) raises -> AnyTensor
         return result^
 
 
-fn percentile_backward(
+def percentile_backward(
     grad_output: AnyTensor, x: AnyTensor, q: Float64, axis: Int = -1
 ) raises -> AnyTensor:
     """Compute gradient for percentile.

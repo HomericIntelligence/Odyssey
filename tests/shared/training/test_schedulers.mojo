@@ -19,7 +19,7 @@ from shared.training.schedulers import CosineAnnealingLR, ReduceLROnPlateau
 from shared.training.schedulers.lr_schedulers import MODE_MIN, MODE_MAX
 
 
-fn test_cosine_annealing_initialization() raises:
+def test_cosine_annealing_initialization() raises:
     """Test CosineAnnealingLR scheduler initialization."""
     var scheduler = CosineAnnealingLR(base_lr=0.1, T_max=100, eta_min=0.0)
 
@@ -29,7 +29,7 @@ fn test_cosine_annealing_initialization() raises:
     assert_almost_equal(scheduler.eta_min, 0.0)
 
 
-fn test_cosine_annealing_epoch_zero() raises:
+def test_cosine_annealing_epoch_zero() raises:
     """Test CosineAnnealingLR at epoch 0 (maximum learning rate).
 
     At epoch 0, LR should equal base_lr.
@@ -43,7 +43,7 @@ fn test_cosine_annealing_epoch_zero() raises:
     assert_almost_equal(lr0, 0.1)
 
 
-fn test_cosine_annealing_epoch_max() raises:
+def test_cosine_annealing_epoch_max() raises:
     """Test CosineAnnealingLR at epoch T_max (minimum learning rate).
 
     At epoch T_max, LR should equal eta_min.
@@ -57,7 +57,7 @@ fn test_cosine_annealing_epoch_max() raises:
     assert_almost_equal(lr_max, 0.01, tolerance=1e-6)
 
 
-fn test_cosine_annealing_midpoint() raises:
+def test_cosine_annealing_midpoint() raises:
     """Test CosineAnnealingLR at midpoint epoch.
 
     At epoch = T_max / 2, cosine factor should be 0.
@@ -71,7 +71,7 @@ fn test_cosine_annealing_midpoint() raises:
     assert_almost_equal(lr_mid, 0.5, tolerance=1e-6)
 
 
-fn test_cosine_annealing_smooth_decay() raises:
+def test_cosine_annealing_smooth_decay() raises:
     """Test CosineAnnealingLR decays smoothly over epochs.
 
     Learning rate should decrease monotonically (for eta_min < base_lr).
@@ -87,7 +87,7 @@ fn test_cosine_annealing_smooth_decay() raises:
         previous_lr = current_lr
 
 
-fn test_cosine_annealing_with_eta_min() raises:
+def test_cosine_annealing_with_eta_min() raises:
     """Test CosineAnnealingLR respects eta_min floor.
 
     LR should never go below eta_min.
@@ -101,7 +101,7 @@ fn test_cosine_annealing_with_eta_min() raises:
         assert_greater(lr, 0.09)  # Small tolerance for floating point
 
 
-fn test_cosine_annealing_different_t_max() raises:
+def test_cosine_annealing_different_t_max() raises:
     """Test CosineAnnealingLR with different T_max values.
 
     Larger T_max should result in slower decay.
@@ -118,7 +118,7 @@ fn test_cosine_annealing_different_t_max() raises:
     assert_less_or_equal(lr1_50, lr2_50)
 
 
-fn test_cosine_annealing_beyond_t_max() raises:
+def test_cosine_annealing_beyond_t_max() raises:
     """Test CosineAnnealingLR beyond T_max (clamped to T_max).
 
     Epochs beyond T_max should clamp to T_max.
@@ -132,7 +132,7 @@ fn test_cosine_annealing_beyond_t_max() raises:
     assert_almost_equal(lr_100, lr_200)
 
 
-fn test_reduce_lr_on_plateau_initialization_min_mode() raises:
+def test_reduce_lr_on_plateau_initialization_min_mode() raises:
     """Test ReduceLROnPlateau initialization in 'min' mode."""
     var scheduler = ReduceLROnPlateau(
         base_lr=0.1, mode="min", factor=0.1, patience=10
@@ -149,7 +149,7 @@ fn test_reduce_lr_on_plateau_initialization_min_mode() raises:
     assert_almost_equal(lr, 0.1)
 
 
-fn test_reduce_lr_on_plateau_initialization_max_mode() raises:
+def test_reduce_lr_on_plateau_initialization_max_mode() raises:
     """Test ReduceLROnPlateau initialization in 'max' mode."""
     var scheduler = ReduceLROnPlateau(
         base_lr=0.1, mode="max", factor=0.1, patience=5
@@ -159,7 +159,7 @@ fn test_reduce_lr_on_plateau_initialization_max_mode() raises:
     assert_equal(scheduler.patience, 5)
 
 
-fn test_reduce_lr_on_plateau_min_mode_improvement() raises:
+def test_reduce_lr_on_plateau_min_mode_improvement() raises:
     """Test ReduceLROnPlateau detects improvement in 'min' mode.
 
     In 'min' mode, improvement means metric decreased.
@@ -179,7 +179,7 @@ fn test_reduce_lr_on_plateau_min_mode_improvement() raises:
     assert_equal(scheduler.epochs_without_improvement, 0)
 
 
-fn test_reduce_lr_on_plateau_min_mode_no_improvement() raises:
+def test_reduce_lr_on_plateau_min_mode_no_improvement() raises:
     """Test ReduceLROnPlateau detects no improvement in 'min' mode.
 
     In 'min' mode, no improvement means metric increased or stayed same.
@@ -203,7 +203,7 @@ fn test_reduce_lr_on_plateau_min_mode_no_improvement() raises:
     assert_equal(scheduler.epochs_without_improvement, 0)  # Counter reset
 
 
-fn test_reduce_lr_on_plateau_max_mode_improvement() raises:
+def test_reduce_lr_on_plateau_max_mode_improvement() raises:
     """Test ReduceLROnPlateau detects improvement in 'max' mode.
 
     In 'max' mode, improvement means metric increased.
@@ -223,7 +223,7 @@ fn test_reduce_lr_on_plateau_max_mode_improvement() raises:
     assert_equal(scheduler.epochs_without_improvement, 0)
 
 
-fn test_reduce_lr_on_plateau_max_mode_no_improvement() raises:
+def test_reduce_lr_on_plateau_max_mode_no_improvement() raises:
     """Test ReduceLROnPlateau detects no improvement in 'max' mode.
 
     In 'max' mode, no improvement means metric decreased or stayed same.
@@ -247,7 +247,7 @@ fn test_reduce_lr_on_plateau_max_mode_no_improvement() raises:
     assert_equal(scheduler.epochs_without_improvement, 0)
 
 
-fn test_reduce_lr_on_plateau_multiple_reductions() raises:
+def test_reduce_lr_on_plateau_multiple_reductions() raises:
     """Test ReduceLROnPlateau continues reducing LR on multiple plateaus."""
     var scheduler = ReduceLROnPlateau(
         base_lr=1.0, mode="min", factor=0.5, patience=2
@@ -265,7 +265,7 @@ fn test_reduce_lr_on_plateau_multiple_reductions() raises:
     assert_almost_equal(lr5, 0.25)
 
 
-fn test_reduce_lr_on_plateau_improvement_resets_counter() raises:
+def test_reduce_lr_on_plateau_improvement_resets_counter() raises:
     """Test that improvement resets the no-improvement counter.
 
     After reaching patience and reducing LR, an improvement should reset counter.
@@ -285,7 +285,7 @@ fn test_reduce_lr_on_plateau_improvement_resets_counter() raises:
     assert_equal(scheduler.epochs_without_improvement, 0)
 
 
-fn test_cosine_annealing_zero_t_max() raises:
+def test_cosine_annealing_zero_t_max() raises:
     """Test CosineAnnealingLR with T_max=0 (edge case).
 
     T_max <= 0 should return base_lr.
@@ -296,7 +296,7 @@ fn test_cosine_annealing_zero_t_max() raises:
     assert_almost_equal(lr, 1.0)
 
 
-fn test_cosine_annealing_formula_accuracy() raises:
+def test_cosine_annealing_formula_accuracy() raises:
     """Test CosineAnnealingLR matches mathematical formula exactly.
 
     Formula: lr = eta_min + (base_lr - eta_min) * (1 + cos(π * epoch / T_max)) / 2
@@ -310,7 +310,7 @@ fn test_cosine_annealing_formula_accuracy() raises:
     assert_almost_equal(lr0, 0.1, tolerance=1e-6)
 
 
-fn test_reduce_lr_on_plateau_factor_one() raises:
+def test_reduce_lr_on_plateau_factor_one() raises:
     """Test ReduceLROnPlateau with factor=1.0 (no reduction).
 
     factor=1.0 means LR is multiplied by 1.0, so no change.
@@ -325,7 +325,7 @@ fn test_reduce_lr_on_plateau_factor_one() raises:
     assert_almost_equal(lr, 1.0)  # No change
 
 
-fn test_reduce_lr_on_plateau_zero_patience() raises:
+def test_reduce_lr_on_plateau_zero_patience() raises:
     """Test ReduceLROnPlateau with patience=0 (reduce every epoch without improvement).
 
     patience=0 means reduce immediately on first no-improvement epoch.
@@ -339,7 +339,7 @@ fn test_reduce_lr_on_plateau_zero_patience() raises:
     assert_almost_equal(lr2, 0.5)
 
 
-fn test_reduce_lr_on_plateau_very_small_lr() raises:
+def test_reduce_lr_on_plateau_very_small_lr() raises:
     """Test ReduceLROnPlateau can reduce LR to very small values.
 
     Multiple reductions can make LR arbitrarily small.
@@ -357,7 +357,7 @@ fn test_reduce_lr_on_plateau_very_small_lr() raises:
     assert_almost_equal(lr, 0.001, tolerance=1e-6)
 
 
-fn test_reduce_lr_on_plateau_get_lr_interface() raises:
+def test_reduce_lr_on_plateau_get_lr_interface() raises:
     """Test ReduceLROnPlateau implements LRScheduler.get_lr() interface.
 
     get_lr() should return current_lr regardless of epoch/batch.
@@ -380,7 +380,7 @@ fn test_reduce_lr_on_plateau_get_lr_interface() raises:
     assert_almost_equal(lr100, 0.5)
 
 
-fn test_reduce_lr_on_plateau_realistic_training_scenario() raises:
+def test_reduce_lr_on_plateau_realistic_training_scenario() raises:
     """Test ReduceLROnPlateau in realistic training scenario.
 
     Simulates validation loss over multiple epochs with improvement plateau.
@@ -411,7 +411,7 @@ fn test_reduce_lr_on_plateau_realistic_training_scenario() raises:
     assert_almost_equal(scheduler.get_lr(0), 0.0025, tolerance=1e-6)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_schedulers tests."""
     print("Running test_schedulers tests...")
 

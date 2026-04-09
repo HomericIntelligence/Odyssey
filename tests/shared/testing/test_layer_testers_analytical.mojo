@@ -12,7 +12,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.core.initializers import kaiming_uniform
 
 
-fn test_conv_backward_with_analytical_validation() raises:
+def test_conv_backward_with_analytical_validation() raises:
     """Test conv layer backward with analytical gradient validation enabled."""
     # Create small conv layer parameters: 3→8 channels, 3x3 kernel
     var in_channels = 3
@@ -51,7 +51,7 @@ fn test_conv_backward_with_analytical_validation() raises:
     )
 
 
-fn test_linear_backward_with_analytical_validation() raises:
+def test_linear_backward_with_analytical_validation() raises:
     """Test linear layer backward with analytical gradient validation enabled.
     """
     # Create small linear layer: 16→10
@@ -83,7 +83,7 @@ fn test_linear_backward_with_analytical_validation() raises:
     )
 
 
-fn test_relu_backward_with_analytical_validation() raises:
+def test_relu_backward_with_analytical_validation() raises:
     """Test ReLU activation backward with analytical gradient validation."""
     var shape = List[Int]()
     shape.append(2)
@@ -101,7 +101,7 @@ fn test_relu_backward_with_analytical_validation() raises:
     )
 
 
-fn test_sigmoid_backward_with_analytical_validation() raises:
+def test_sigmoid_backward_with_analytical_validation() raises:
     """Test Sigmoid activation backward with analytical gradient validation."""
     var shape = List[Int]()
     shape.append(2)
@@ -119,7 +119,7 @@ fn test_sigmoid_backward_with_analytical_validation() raises:
     )
 
 
-fn test_tanh_backward_with_analytical_validation() raises:
+def test_tanh_backward_with_analytical_validation() raises:
     """Test Tanh activation backward with analytical gradient validation."""
     var shape = List[Int]()
     shape.append(2)
@@ -137,7 +137,7 @@ fn test_tanh_backward_with_analytical_validation() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all analytical gradient validation tests."""
     print("Testing Layer Testers with Analytical Gradient Validation...")
     print("=" * 70)
