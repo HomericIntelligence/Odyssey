@@ -150,8 +150,8 @@ fn _deserialize_checkpoint(content: String) raises -> Checkpoint:
         if colon_pos == -1:
             continue  # Skip malformed lines.
 
-        var prefix = line.substr(0, colon_pos)
-        var data = line.substr(colon_pos + 1, len(line) - colon_pos - 1)
+        var prefix = String(line[byte=0:colon_pos])
+        var data = String(line[byte=colon_pos + 1:len(line)])
 
         if prefix == "EPOCH":
             checkpoint.epoch = Int(data)
@@ -163,22 +163,22 @@ fn _deserialize_checkpoint(content: String) raises -> Checkpoint:
             # Parse key=value
             var eq_pos = data.find("=")
             if eq_pos != -1:
-                var key = data.substr(0, eq_pos)
-                var value = data.substr(eq_pos + 1, len(data) - eq_pos - 1)
+                var key = String(data[byte=0:eq_pos])
+                var value = String(data[byte=eq_pos + 1:len(data)])
                 checkpoint.model_state[key] = value
         elif prefix == "OPTIMIZER":
             # Parse key=value
             var eq_pos = data.find("=")
             if eq_pos != -1:
-                var key = data.substr(0, eq_pos)
-                var value = data.substr(eq_pos + 1, len(data) - eq_pos - 1)
+                var key = String(data[byte=0:eq_pos])
+                var value = String(data[byte=eq_pos + 1:len(data)])
                 checkpoint.optimizer_state[key] = value
         elif prefix == "META":
             # Parse key=value
             var eq_pos = data.find("=")
             if eq_pos != -1:
-                var key = data.substr(0, eq_pos)
-                var value = data.substr(eq_pos + 1, len(data) - eq_pos - 1)
+                var key = String(data[byte=0:eq_pos])
+                var value = String(data[byte=eq_pos + 1:len(data)])
                 checkpoint.metadata[key] = value
 
     return checkpoint^
@@ -715,7 +715,7 @@ fn join_path(base: String, path: String) raises -> String:
     # Strip trailing separator from base
     var clean_base = base
     if clean_base.endswith("/"):
-        clean_base = clean_base.substr(0, len(clean_base) - 1)
+        clean_base = String(clean_base[byte=0:len(clean_base)-1])
 
     # Strip leading separator from path (should not happen after validation)
     var clean_path = path
@@ -756,11 +756,11 @@ fn split_path(filepath: String) -> Tuple[String, String]:
         return (".", filepath)
     elif last_sep == 0:
         # Root directory
-        return ("/", filepath.substr(1, len(filepath) - 1))
+        return ("/", String(filepath[byte=1:len(filepath)]))
     else:
         # Split at last separator
-        var directory = filepath.substr(0, last_sep)
-        var filename = filepath.substr(last_sep + 1, len(filepath) - last_sep - 1)
+        var directory = String(filepath[byte=0:last_sep])
+        var filename = String(filepath[byte=last_sep + 1:len(filepath)])
         return (directory, filename)
 
 
