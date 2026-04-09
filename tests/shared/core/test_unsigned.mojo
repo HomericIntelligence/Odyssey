@@ -277,10 +277,10 @@ def test_uint_to_int_conversion() raises:
 def test_uint_from_int_conversion() raises:
     """Test constructing unsigned integers from Int values."""
     var i: Int = 42
-    var u8: UInt8 = i
-    var u16: UInt16 = i
-    var u32: UInt32 = i
-    var u64: UInt64 = i
+    var u8: UInt8 = UInt8(i)
+    var u16: UInt16 = UInt16(i)
+    var u32: UInt32 = UInt32(i)
+    var u64: UInt64 = UInt64(i)
 
     if u8 != 42:
         raise Error("Int -> UInt8 conversion failed")

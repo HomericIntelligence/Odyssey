@@ -117,7 +117,7 @@ struct InceptionModule:
         )
         self.conv1x1_4_bias = zeros([pool_proj], DType.float32)
 
-    def forward(self, x: AnyTensor) raises unified {read} -> AnyTensor:
+    def forward(self, x: AnyTensor) raises -> AnyTensor:
         """Forward pass through all 4 branches with concatenation.
 
         Returns:

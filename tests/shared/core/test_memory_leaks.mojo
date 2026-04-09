@@ -136,7 +136,7 @@ def test_tensor_deallocation_single() raises:
 
 def test_tensor_deallocation_loop() raises:
     """Test repeated tensor creation/destruction in loop."""
-    for i in range(1000):
+    for _ in range(1000):
         var tensor = zeros([50, 50], DType.float32)
         _ = tensor.numel()
 

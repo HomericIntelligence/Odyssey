@@ -69,7 +69,7 @@ def test_linear_gradient_fp32() raises:
         var grads = linear_backward(grad_out, x, weights)
         return grads.grad_input
 
-    var passed = check_gradients(forward, backward, 
+    var passed = check_gradients(forward, backward,
         input, epsilon=1e-5, tolerance=3e-3
     )
     assert_true(passed, "Linear FP32 gradient check failed")
@@ -100,7 +100,7 @@ def test_linear_gradient_fp16() raises:
         var grads = linear_backward(grad_out, x, weights)
         return grads.grad_input
 
-    var passed = check_gradients(forward, backward, 
+    var passed = check_gradients(forward, backward,
         input, epsilon=1e-2, tolerance=2e-1
     )
     assert_true(passed, "Linear FP16 gradient check failed")
@@ -133,7 +133,7 @@ def test_conv2d_gradient_fp32() raises:
         var grads = conv2d_backward(grad_out, x, kernel, stride=1, padding=0)
         return grads.grad_input
 
-    var passed = check_gradients(forward, backward, 
+    var passed = check_gradients(forward, backward,
         input, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "Conv2D FP32 gradient check failed")
@@ -170,7 +170,7 @@ def test_conv2d_grad_3x3_same_padding() raises:
     # Looser tolerance for same-padding conv2d: boundary padding introduces
     # additional numerical error in finite-difference gradient estimation.
     # TODO: investigate proper numerical stability fix (see GitHub issue)
-    var passed = check_gradients(forward, backward, 
+    var passed = check_gradients(forward, backward,
         input, epsilon=1e-4, tolerance=5e-2
     )
     assert_true(passed, "Conv2D 3x3 same-padding gradient check failed")
@@ -203,7 +203,7 @@ def test_conv2d_grad_3x3_strided() raises:
         var grads = conv2d_backward(grad_out, x, kernel, stride=2, padding=0)
         return grads.grad_input
 
-    var passed = check_gradients(forward, backward, 
+    var passed = check_gradients(forward, backward,
         input, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "Conv2D 3x3 strided gradient check failed")
@@ -239,7 +239,7 @@ def test_conv2d_grad_multichannel() raises:
 
     # Multi-channel conv2d accumulates FP errors across channels.
     # TODO: investigate proper numerical stability fix (see GitHub issue)
-    var passed = check_gradients(forward, backward, 
+    var passed = check_gradients(forward, backward,
         input, epsilon=1e-4, tolerance=5e-2
     )
     assert_true(passed, "Conv2D multi-channel gradient check failed")
@@ -268,7 +268,7 @@ def test_cross_entropy_gradient_fp32() raises:
     def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
         return cross_entropy_backward(grad_out, x, labels)
 
-    var passed = check_gradients(forward, backward, 
+    var passed = check_gradients(forward, backward,
         logits, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "CrossEntropy FP32 gradient check failed")
@@ -316,7 +316,7 @@ def test_conv2d_gradient_fp16() raises:
 
     # This tests FP32 compute with the understanding that mixed-precision
     # training keeps conv operations in FP32 for stability
-    var passed = check_gradients(forward, backward, 
+    var passed = check_gradients(forward, backward,
         input, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "Conv2D FP16 gradient check failed")
@@ -357,7 +357,7 @@ def test_cross_entropy_gradient_fp16() raises:
         return cross_entropy_backward(grad_out, x, labels)
 
     # FP16 with relaxed tolerance for exp/log operations
-    var passed = check_gradients(forward, backward, 
+    var passed = check_gradients(forward, backward,
         logits, epsilon=1e-2, tolerance=2e-1
     )
     assert_true(passed, "CrossEntropy FP16 gradient check failed")
