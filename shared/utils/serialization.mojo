@@ -119,7 +119,7 @@ fn save_named_tensors(tensors: List[NamedTensor], dirpath: String) raises:
     # Normalize dirpath: remove trailing slash if present
     var normalized_dirpath = dirpath
     if dirpath.endswith("/"):
-        normalized_dirpath = dirpath.substr(0, len(dirpath) - 1)
+        normalized_dirpath = String(dirpath[byte=0:len(dirpath)-1])
 
     # Create directory if needed
     if not create_directory(normalized_dirpath):
@@ -162,7 +162,7 @@ fn load_named_tensors(dirpath: String) raises -> List[NamedTensor]:
         # Normalize dirpath: remove trailing slash if present
         var normalized_dirpath = dirpath
         if dirpath.endswith("/"):
-            normalized_dirpath = dirpath.substr(0, len(dirpath) - 1)
+            normalized_dirpath = String(dirpath[byte=0:len(dirpath)-1])
 
         # List directory contents using Mojo native os.listdir
         var entries = os.listdir(normalized_dirpath)
@@ -232,7 +232,7 @@ fn save_named_checkpoint(
     # Normalize path: remove trailing slash if present
     var normalized_path = path
     if path.endswith("/"):
-        normalized_path = path.substr(0, len(path) - 1)
+        normalized_path = String(path[byte=0:len(path)-1])
 
     # Create checkpoint directory
     if not create_directory(normalized_path):
@@ -278,7 +278,7 @@ fn load_named_checkpoint(
     # Normalize path: remove trailing slash if present
     var normalized_path = path
     if path.endswith("/"):
-        normalized_path = path.substr(0, len(path) - 1)
+        normalized_path = String(path[byte=0:len(path)-1])
 
     # Load all named tensors
     var tensors = load_named_tensors(normalized_path)
@@ -352,8 +352,8 @@ fn _deserialize_metadata(content: String) raises -> Dict[String, String]:
         if eq_pos == -1:
             continue  # Skip malformed lines.
 
-        var key = line.substr(0, eq_pos)
-        var value = line.substr(eq_pos + 1, len(line) - eq_pos - 1)
+        var key = String(line[byte=0:eq_pos])
+        var value = String(line[byte=eq_pos + 1:len(line)])
         metadata[key] = value
 
     return metadata^
