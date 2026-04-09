@@ -30,17 +30,14 @@ References:
 
 from std.testing import assert_true, assert_equal
 from shared.testing import (
+    NumericalForward,
+    NumericalBackward,
     check_gradients,
     compute_numerical_gradient,
     relative_error,
+    check_gradients_verbose,
 )
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, zeros_like
-from shared.testing import (
-    check_gradients,
-    check_gradients_verbose,
-    compute_numerical_gradient,
-    relative_error,
-)
 
 
 def square_forward(input: AnyTensor) raises -> AnyTensor:
@@ -98,6 +95,48 @@ def square_backward_wrong_triple(
     return grad_in^
 
 
+# ============================================================================
+# NumericalForward/NumericalBackward struct wrappers
+#
+# Mojo 0.26.3 makes all inner `def` closures nonescaping, so they cannot be
+# passed to functions expecting bare function pointer types. These structs
+# wrap the top-level square_forward/backward_* functions via @fieldwise_init
+# to satisfy the NumericalForward and NumericalBackward traits.
+# ============================================================================
+
+
+@fieldwise_init
+struct _SquareFwd(NumericalForward):
+    """Forward pass wrapper: f(x) = x^2."""
+
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return square_forward(x)
+
+
+@fieldwise_init
+struct _SquareBwdCorrect(NumericalBackward):
+    """Correct backward wrapper: df/dx = 2x."""
+
+    def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        return square_backward_correct(grad_out, x)
+
+
+@fieldwise_init
+struct _SquareBwdWrongLinear(NumericalBackward):
+    """Wrong backward wrapper: df/dx = x (incorrect)."""
+
+    def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        return square_backward_wrong_linear(grad_out, x)
+
+
+@fieldwise_init
+struct _SquareBwdWrongTriple(NumericalBackward):
+    """Wrong backward wrapper: df/dx = 3x (incorrect)."""
+
+    def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        return square_backward_wrong_triple(grad_out, x)
+
+
 def test_gradient_checker_accepts_correct_gradient() raises:
     """Meta-test: Gradient checker should PASS for correct gradient.
 
@@ -112,13 +151,7 @@ def test_gradient_checker_accepts_correct_gradient() raises:
 
     var x = full([1], 1.0, DType.float32)
 
-    def forward(t: AnyTensor) raises -> AnyTensor:
-        return square_forward(t)
-
-    def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return square_backward_correct(grad, inp)
-
-    var passed = check_gradients(forward, backward,
+    var passed = check_gradients(_SquareFwd(), _SquareBwdCorrect(),
         x,
         epsilon=1e-5,
         tolerance=1e-2,
@@ -146,13 +179,7 @@ def test_gradient_checker_correct_gradient_multiple_values() raises:
         var test_val = test_values[i]
         var x = full([1], test_val, DType.float32)
 
-        def forward(t: AnyTensor) raises -> AnyTensor:
-            return square_forward(t)
-
-        def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-            return square_backward_correct(grad, inp)
-
-        var passed = check_gradients(forward, backward,
+        var passed = check_gradients(_SquareFwd(), _SquareBwdCorrect(),
         x,
             epsilon=1e-5,
             tolerance=1e-2,
@@ -173,13 +200,7 @@ def test_gradient_checker_correct_gradient_multidimensional() raises:
 
     var x = full([2, 3], 1.5, DType.float32)
 
-    def forward(t: AnyTensor) raises -> AnyTensor:
-        return square_forward(t)
-
-    def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return square_backward_correct(grad, inp)
-
-    var passed = check_gradients(forward, backward,
+    var passed = check_gradients(_SquareFwd(), _SquareBwdCorrect(),
         x,
         epsilon=1e-5,
         tolerance=1e-2,
@@ -202,13 +223,7 @@ def test_gradient_checker_rejects_wrong_gradient_linear() raises:
 
     var x = full([1], 1.0, DType.float32)
 
-    def forward(t: AnyTensor) raises -> AnyTensor:
-        return square_forward(t)
-
-    def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return square_backward_wrong_linear(grad, inp)
-
-    var passed = check_gradients(forward, backward,
+    var passed = check_gradients(_SquareFwd(), _SquareBwdWrongLinear(),
         x,
         epsilon=1e-5,
         tolerance=1e-2,
@@ -228,13 +243,7 @@ def test_gradient_checker_rejects_wrong_gradient_triple() raises:
 
     var x = full([1], 1.0, DType.float32)
 
-    def forward(t: AnyTensor) raises -> AnyTensor:
-        return square_forward(t)
-
-    def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return square_backward_wrong_triple(grad, inp)
-
-    var passed = check_gradients(forward, backward,
+    var passed = check_gradients(_SquareFwd(), _SquareBwdWrongTriple(),
         x,
         epsilon=1e-5,
         tolerance=1e-2,
@@ -261,13 +270,7 @@ def test_gradient_checker_wrong_gradient_multiple_values() raises:
         var test_val = test_values[i]
         var x = full([1], test_val, DType.float32)
 
-        def forward(t: AnyTensor) raises -> AnyTensor:
-            return square_forward(t)
-
-        def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-            return square_backward_wrong_linear(grad, inp)
-
-        var passed = check_gradients(forward, backward,
+        var passed = check_gradients(_SquareFwd(), _SquareBwdWrongLinear(),
         x,
             epsilon=1e-5,
             tolerance=1e-2,
@@ -291,10 +294,7 @@ def test_compute_numerical_gradient_matches_analytical() raises:
 
     var x = full([1], 2.0, DType.float32)
 
-    def forward(t: AnyTensor) raises -> AnyTensor:
-        return square_forward(t)
-
-    var numerical_grad = compute_numerical_gradient(forward, x, epsilon=1e-5)
+    var numerical_grad = compute_numerical_gradient(_SquareFwd(), x, epsilon=1e-5)
 
     # Expected: df/dx = 2x = 2*2.0 = 4.0
     var expected = 4.0
@@ -339,13 +339,7 @@ def test_gradient_checker_zero_input() raises:
 
     var x = full([1], 0.0, DType.float32)
 
-    def forward(t: AnyTensor) raises -> AnyTensor:
-        return square_forward(t)
-
-    def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return square_backward_correct(grad, inp)
-
-    var passed = check_gradients(forward, backward,
+    var passed = check_gradients(_SquareFwd(), _SquareBwdCorrect(),
         x,
         epsilon=1e-5,
         tolerance=1e-2,
@@ -368,13 +362,7 @@ def test_gradient_checker_negative_input() raises:
 
     var x = full([1], -2.0, DType.float32)
 
-    def forward(t: AnyTensor) raises -> AnyTensor:
-        return square_forward(t)
-
-    def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return square_backward_correct(grad, inp)
-
-    var passed = check_gradients(forward, backward,
+    var passed = check_gradients(_SquareFwd(), _SquareBwdCorrect(),
         x,
         epsilon=1e-5,
         tolerance=1e-2,
@@ -398,14 +386,8 @@ def test_gradient_checker_large_input() raises:
 
     var x = full([1], 5.0, DType.float32)
 
-    def forward(t: AnyTensor) raises -> AnyTensor:
-        return square_forward(t)
-
-    def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return square_backward_correct(grad, inp)
-
     # Moderate inputs still need larger tolerance for float32 precision
-    var passed = check_gradients(forward, backward,
+    var passed = check_gradients(_SquareFwd(), _SquareBwdCorrect(),
         x,
         epsilon=1e-5,
         tolerance=0.05,
@@ -425,13 +407,7 @@ def test_gradient_checker_small_epsilon() raises:
 
     var x = full([1], 1.0, DType.float32)
 
-    def forward(t: AnyTensor) raises -> AnyTensor:
-        return square_forward(t)
-
-    def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return square_backward_correct(grad, inp)
-
-    var passed = check_gradients(forward, backward,
+    var passed = check_gradients(_SquareFwd(), _SquareBwdCorrect(),
         x,
         epsilon=1e-4,
         tolerance=1e-2,
@@ -451,13 +427,7 @@ def test_gradient_checker_large_epsilon() raises:
 
     var x = full([1], 1.0, DType.float32)
 
-    def forward(t: AnyTensor) raises -> AnyTensor:
-        return square_forward(t)
-
-    def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return square_backward_correct(grad, inp)
-
-    var passed = check_gradients(forward, backward,
+    var passed = check_gradients(_SquareFwd(), _SquareBwdCorrect(),
         x,
         epsilon=1e-3,
         tolerance=1e-2,
@@ -485,13 +455,7 @@ def test_check_gradients_does_not_mutate_input() raises:
     for i in range(x.numel()):
         before.append(x._get_float64(i))
 
-    def forward(t: AnyTensor) raises -> AnyTensor:
-        return square_forward(t)
-
-    def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return square_backward_correct(grad, inp)
-
-    _ = check_gradients(forward, backward, x, epsilon=1e-5, tolerance=1e-2)
+    _ = check_gradients(_SquareFwd(), _SquareBwdCorrect(), x, epsilon=1e-5, tolerance=1e-2)
 
     # Assert every element is unchanged
     for i in range(x.numel()):
@@ -525,14 +489,8 @@ def test_check_gradients_verbose_does_not_mutate_input() raises:
     for i in range(x.numel()):
         before.append(x._get_float64(i))
 
-    def forward(t: AnyTensor) raises -> AnyTensor:
-        return square_forward(t)
-
-    def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return square_backward_correct(grad, inp)
-
     _ = check_gradients_verbose(
-        forward, backward, x, epsilon=1e-5, tolerance=1e-2
+        _SquareFwd(), _SquareBwdCorrect(), x, epsilon=1e-5, tolerance=1e-2
     )
 
     # Assert every element is unchanged
