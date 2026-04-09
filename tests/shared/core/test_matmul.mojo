@@ -48,7 +48,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_matmul_baseline_2x2() raises:
+def test_matmul_baseline_2x2() raises:
     """Test baseline matmul with simple 2x2 matrices (reference test)."""
     var shape_a = List[Int]()
     shape_a.append(2)
@@ -90,7 +90,7 @@ fn test_matmul_baseline_2x2() raises:
     )
 
 
-fn test_matmul_baseline_identity() raises:
+def test_matmul_baseline_identity() raises:
     """Test baseline matmul with identity matrix."""
     var shape = List[Int]()
     shape.append(3)
@@ -119,7 +119,7 @@ fn test_matmul_baseline_identity() raises:
         )
 
 
-fn test_matmul_baseline_zero_matrix() raises:
+def test_matmul_baseline_zero_matrix() raises:
     """Test baseline matmul with zero matrix."""
     var shape = List[Int]()
     shape.append(3)
@@ -134,7 +134,7 @@ fn test_matmul_baseline_zero_matrix() raises:
     assert_all_values(c, 0.0, 1e-6, "Zero matrix @ anything = zero matrix")
 
 
-fn test_matmul_trivial_1x1() raises:
+def test_matmul_trivial_1x1() raises:
     """Test 1x1 matrix multiplication (trivial case)."""
     var shape = List[Int]()
     shape.append(1)
@@ -149,7 +149,7 @@ fn test_matmul_trivial_1x1() raises:
     assert_value_at(c, 0, 12.0, 1e-6, "1x1 @ 1x1 = 3*4")
 
 
-fn test_matmul_vector_matrix_1x64x1() raises:
+def test_matmul_vector_matrix_1x64x1() raises:
     """Test vector-matrix multiplication (1x64) @ (64x1)."""
     var shape_a = List[Int]()
     shape_a.append(1)
@@ -169,7 +169,7 @@ fn test_matmul_vector_matrix_1x64x1() raises:
     assert_value_at(c, 0, 128.0, 1e-5, "Sum of 64 products of 1*2")
 
 
-fn test_matmul_matrix_vector_64x1x64() raises:
+def test_matmul_matrix_vector_64x1x64() raises:
     """Test matrix-vector multiplication (64x1) @ (1x64)."""
     var shape_a = List[Int]()
     shape_a.append(64)
@@ -189,7 +189,7 @@ fn test_matmul_matrix_vector_64x1x64() raises:
     assert_all_values(c, 2.0, 1e-6, "All elements should be 2.0")
 
 
-fn test_matmul_smaller_than_simd_7x7x7() raises:
+def test_matmul_smaller_than_simd_7x7x7() raises:
     """Test matrices smaller than SIMD width (7x7)."""
     var shape = List[Int]()
     shape.append(7)
@@ -205,7 +205,7 @@ fn test_matmul_smaller_than_simd_7x7x7() raises:
     assert_all_values(c, 14.0, 1e-5, "Each element should be 14")
 
 
-fn test_matmul_non_power_of_2() raises:
+def test_matmul_non_power_of_2() raises:
     """Test non-power-of-2 sizes (63x65) @ (65x67)."""
     var shape_a = List[Int]()
     shape_a.append(63)
@@ -230,7 +230,7 @@ fn test_matmul_non_power_of_2() raises:
     assert_value_at(c, 4220, 32.5, 1e-4, "Last element should be 32.5")
 
 
-fn test_matmul_exact_block_size_64x64x64() raises:
+def test_matmul_exact_block_size_64x64x64() raises:
     """Test matrices matching typical cache block size (64x64)."""
     var shape = List[Int]()
     shape.append(64)
@@ -246,7 +246,7 @@ fn test_matmul_exact_block_size_64x64x64() raises:
     assert_all_values(c, 128.0, 1e-4, "Each element should be 128")
 
 
-fn test_matmul_large_rectangular() raises:
+def test_matmul_large_rectangular() raises:
     """Test large rectangular matrices (1024x512) @ (512x2048)."""
     var shape_a = List[Int]()
     shape_a.append(1024)
@@ -271,7 +271,7 @@ fn test_matmul_large_rectangular() raises:
     # Note: Using lower tolerance for accumulated floating-point errors
 
 
-fn test_matmul_dtype_float32() raises:
+def test_matmul_dtype_float32() raises:
     """Test matmul with Float32 dtype."""
     var shape = List[Int]()
     shape.append(4)
@@ -285,7 +285,7 @@ fn test_matmul_dtype_float32() raises:
     assert_all_values(c, 8.0, 1e-5, "Each element should be 8.0")
 
 
-fn test_matmul_dtype_float64() raises:
+def test_matmul_dtype_float64() raises:
     """Test matmul with Float64 dtype."""
     var shape = List[Int]()
     shape.append(4)
@@ -299,7 +299,7 @@ fn test_matmul_dtype_float64() raises:
     assert_all_values(c, 8.0, 1e-8, "Each element should be 8.0")
 
 
-fn test_matmul_dtype_float16() raises:
+def test_matmul_dtype_float16() raises:
     """Test matmul with Float16 dtype."""
     var shape = List[Int]()
     shape.append(4)
@@ -314,7 +314,7 @@ fn test_matmul_dtype_float16() raises:
     assert_all_values(c, 8.0, 1e-2, "Each element should be ~8.0")
 
 
-fn test_matmul_dtype_preserves_type() raises:
+def test_matmul_dtype_preserves_type() raises:
     """Test that matmul preserves input dtype across all types."""
     var shape = List[Int]()
     shape.append(3)
@@ -339,7 +339,7 @@ fn test_matmul_dtype_preserves_type() raises:
     assert_dtype(c16, DType.float16, "Float16 should be preserved")
 
 
-fn test_matmul_dtype_mismatch_error() raises:
+def test_matmul_dtype_mismatch_error() raises:
     """Test that dtype mismatch raises error."""
     var shape = List[Int]()
     shape.append(2)
@@ -358,7 +358,7 @@ fn test_matmul_dtype_mismatch_error() raises:
         raise Error("Should have raised error for dtype mismatch in matmul")
 
 
-fn test_matmul_incompatible_shapes() raises:
+def test_matmul_incompatible_shapes() raises:
     """Test that incompatible shapes raise error."""
     var shape_a = List[Int]()
     shape_a.append(3)
@@ -384,7 +384,7 @@ fn test_matmul_incompatible_shapes() raises:
         )
 
 
-fn test_matmul_1d_error() raises:
+def test_matmul_1d_error() raises:
     """Test that 1D inputs raise error."""
     var shape = List[Int]()
     shape.append(5)
@@ -402,7 +402,7 @@ fn test_matmul_1d_error() raises:
         raise Error("Should have raised error for 1D inputs to matmul")
 
 
-fn test_matmul_additional_rectangular_sizes() raises:
+def test_matmul_additional_rectangular_sizes() raises:
     """Test rectangular matrices with various dimensions."""
     # Test case 1: Wide matrix (M < K < N)
     var shape_a = List[Int]()
@@ -423,7 +423,7 @@ fn test_matmul_additional_rectangular_sizes() raises:
     assert_all_values(c, 16.0, 1e-5, "Each element should be 8*2 = 16")
 
 
-fn test_matmul_accumulation_precision_float32() raises:
+def test_matmul_accumulation_precision_float32() raises:
     """Test accumulation precision with many terms (float32)."""
     # Test with 128 terms to check accumulation precision
     var shape_a = List[Int]()
@@ -441,7 +441,7 @@ fn test_matmul_accumulation_precision_float32() raises:
     assert_value_at(c, 0, 1.28, 1e-5, "Accumulated result should match")
 
 
-fn test_matmul_accumulation_precision_float64() raises:
+def test_matmul_accumulation_precision_float64() raises:
     """Test accumulation precision with many terms (float64)."""
     # Test with 256 terms for float64
     var shape_a = List[Int]()
@@ -459,7 +459,7 @@ fn test_matmul_accumulation_precision_float64() raises:
     assert_value_at(c, 0, 2.56, 1e-8, "Float64 accumulation should be precise")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_matmul tests."""
     print("Running test_matmul tests...")
 

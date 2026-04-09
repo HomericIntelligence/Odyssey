@@ -21,7 +21,7 @@ Example:
     ```
 """
 
-from collections import List
+from std.collections import List
 from shared.tensor.any_tensor import AnyTensor
 from shared.base.broadcasting import broadcast_shapes, compute_broadcast_strides
 
@@ -66,7 +66,7 @@ struct ExprNode(Copyable, ImplicitlyCopyable, Movable):
     var tensor_idx: Int
     var scalar_idx: Int
 
-    fn __init__(out self, op: OpType):
+    def __init__(out self, op: OpType):
         """Create a new expression node.
 
         Args:
@@ -113,7 +113,7 @@ struct TensorExpr(Movable):
     var _result_shape: List[Int]
     var _dtype: DType
 
-    fn __init__(out self, tensor: AnyTensor) raises:
+    def __init__(out self, tensor: AnyTensor) raises:
         """Create expression from a single tensor (entry point).
 
         Args:
@@ -142,7 +142,7 @@ struct TensorExpr(Movable):
 
         self._dtype = tensor.dtype()
 
-    fn shape(self) -> List[Int]:
+    def shape(self) -> List[Int]:
         """Get the shape of the expression result.
 
         Returns:
@@ -153,7 +153,7 @@ struct TensorExpr(Movable):
             result.append(self._result_shape[i])
         return result^
 
-    fn dtype(self) -> DType:
+    def dtype(self) -> DType:
         """Get the data type of the expression result.
 
         Returns:
@@ -161,7 +161,7 @@ struct TensorExpr(Movable):
         """
         return self._dtype
 
-    fn numel(self) -> Int:
+    def numel(self) -> Int:
         """Get total number of elements in result.
 
         Returns:
@@ -172,7 +172,7 @@ struct TensorExpr(Movable):
             total *= self._result_shape[i]
         return total
 
-    fn num_ops(self) -> Int:
+    def num_ops(self) -> Int:
         """Count number of operations in expression tree.
 
         Returns:
@@ -184,7 +184,7 @@ struct TensorExpr(Movable):
                 count += 1
         return count
 
-    fn _add_leaf_node(mut self, tensor: AnyTensor) raises -> Int:
+    def _add_leaf_node(mut self, tensor: AnyTensor) raises -> Int:
         """Internal: Add a leaf node for a tensor.
 
         Args:
@@ -209,7 +209,7 @@ struct TensorExpr(Movable):
 
         return node_idx
 
-    fn _add_binary_op(
+    def _add_binary_op(
         mut self, op: OpType, left_idx: Int, right_idx: Int
     ) -> Int:
         """Internal: Add a binary operation node.
@@ -229,7 +229,7 @@ struct TensorExpr(Movable):
         self._nodes.append(node)
         return node_idx
 
-    fn _add_unary_op(mut self, op: OpType, operand_idx: Int) -> Int:
+    def _add_unary_op(mut self, op: OpType, operand_idx: Int) -> Int:
         """Internal: Add a unary operation node.
 
         Args:
@@ -246,7 +246,7 @@ struct TensorExpr(Movable):
         self._nodes.append(node)
         return node_idx
 
-    fn _add_scalar_op(
+    def _add_scalar_op(
         mut self, op: OpType, tensor_idx: Int, scalar: Float64
     ) -> Int:
         """Internal: Add a scalar operation node.
@@ -267,7 +267,7 @@ struct TensorExpr(Movable):
         self._scalars.append(scalar)
         return node_idx
 
-    fn __add__(var self, other: TensorExpr) raises -> TensorExpr:
+    def __add__(var self, other: TensorExpr) raises -> TensorExpr:
         """Add two lazy expressions element-wise."""
         # Compute new broadcast shape
         var new_shape = broadcast_shapes(
@@ -307,7 +307,7 @@ struct TensorExpr(Movable):
 
         return self^
 
-    fn __sub__(var self, other: TensorExpr) raises -> TensorExpr:
+    def __sub__(var self, other: TensorExpr) raises -> TensorExpr:
         """Subtract two lazy expressions element-wise."""
         var new_shape = broadcast_shapes(
             self._result_shape, other._result_shape
@@ -343,7 +343,7 @@ struct TensorExpr(Movable):
 
         return self^
 
-    fn __mul__(var self, other: TensorExpr) raises -> TensorExpr:
+    def __mul__(var self, other: TensorExpr) raises -> TensorExpr:
         """Multiply two lazy expressions element-wise."""
         var new_shape = broadcast_shapes(
             self._result_shape, other._result_shape
@@ -379,7 +379,7 @@ struct TensorExpr(Movable):
 
         return self^
 
-    fn __mul__(var self, scalar: Float64) -> TensorExpr:
+    def __mul__(var self, scalar: Float64) -> TensorExpr:
         """Multiply lazy expression by scalar."""
         var scalar_mul_node = ExprNode(OP_SCALAR_MUL)
         scalar_mul_node.left_idx = self._root_idx
@@ -389,7 +389,7 @@ struct TensorExpr(Movable):
         self._scalars.append(scalar)
         return self^
 
-    fn __truediv__(var self, other: TensorExpr) raises -> TensorExpr:
+    def __truediv__(var self, other: TensorExpr) raises -> TensorExpr:
         """Divide two lazy expressions element-wise."""
         var new_shape = broadcast_shapes(
             self._result_shape, other._result_shape
@@ -425,7 +425,7 @@ struct TensorExpr(Movable):
 
         return self^
 
-    fn __truediv__(var self, scalar: Float64) -> TensorExpr:
+    def __truediv__(var self, scalar: Float64) -> TensorExpr:
         """Divide lazy expression by scalar."""
         var scalar_div_node = ExprNode(OP_SCALAR_DIV)
         scalar_div_node.left_idx = self._root_idx
@@ -435,7 +435,7 @@ struct TensorExpr(Movable):
         self._scalars.append(scalar)
         return self^
 
-    fn __neg__(var self) -> TensorExpr:
+    def __neg__(var self) -> TensorExpr:
         """Negate a lazy expression element-wise."""
         var neg_node = ExprNode(OP_NEG)
         neg_node.left_idx = self._root_idx
@@ -449,7 +449,7 @@ struct TensorExpr(Movable):
 # ============================================================================
 
 
-fn expr(tensor: AnyTensor) raises -> TensorExpr:
+def expr(tensor: AnyTensor) raises -> TensorExpr:
     """Create a lazy expression from a tensor (entry point).
 
     This is the main entry point for building lazy expressions. It wraps

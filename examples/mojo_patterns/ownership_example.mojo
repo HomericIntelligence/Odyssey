@@ -13,7 +13,7 @@ from shared.core import sum, mean, multiply
 
 
 # Borrowed: read-only access (no ownership transfer)
-fn compute_loss(predictions: AnyTensor, targets: AnyTensor) raises -> Float64:
+def compute_loss(predictions: AnyTensor, targets: AnyTensor) raises -> Float64:
     """Compute loss without taking ownership."""
     var diff = predictions - targets
     var squared = multiply(diff, diff)
@@ -22,7 +22,7 @@ fn compute_loss(predictions: AnyTensor, targets: AnyTensor) raises -> Float64:
 
 
 # Owned: take ownership (move semantics)
-fn consume_tensor(var tensor: AnyTensor) raises -> Float64:
+def consume_tensor(var tensor: AnyTensor) raises -> Float64:
     """Take ownership and consume tensor."""
     var sum_tensor = sum(tensor)
     var result = item(sum_tensor)
@@ -31,7 +31,7 @@ fn consume_tensor(var tensor: AnyTensor) raises -> Float64:
 
 
 # Inout: mutable reference (modify in place)
-fn update_weights(
+def update_weights(
     mut weights: AnyTensor, gradients: AnyTensor, lr: Float64
 ) raises:
     """Update weights in place."""
@@ -40,7 +40,7 @@ fn update_weights(
     weights -= update  # Modifies original
 
 
-fn main() raises:
+def main() raises:
     """Demonstrate ownership patterns."""
 
     # Example 1: Borrowed parameters (read-only)

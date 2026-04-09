@@ -12,7 +12,7 @@ from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 # ============================================================================
 
 
-fn test_slice_2d_single_dim() raises:
+def test_slice_2d_single_dim() raises:
     """Test slicing along single dimension in 2D tensor."""
     # Create 5x4 tensor with sequential values
     var t = arange(0.0, 20.0, 1.0, DType.float32)
@@ -39,7 +39,7 @@ fn test_slice_2d_single_dim() raises:
     assert_almost_equal(Float64(data_ptr[5]), Float64(9.0), Float64(1e-5))
 
 
-fn test_slice_2d_both_dims() raises:
+def test_slice_2d_both_dims() raises:
     """Test slicing along both dimensions in 2D tensor."""
     # Create 5x4 tensor
     var t = arange(0.0, 20.0, 1.0, DType.float32)
@@ -67,7 +67,7 @@ fn test_slice_2d_both_dims() raises:
     assert_almost_equal(Float64(data_ptr[5]), Float64(14.0), Float64(1e-5))
 
 
-fn test_slice_3d_partial() raises:
+def test_slice_3d_partial() raises:
     """Test slicing in 3D tensor."""
     # Create 4x3x2 tensor
     var t = arange(0.0, 24.0, 1.0, DType.float32)
@@ -100,7 +100,7 @@ fn test_slice_3d_partial() raises:
 # ============================================================================
 
 
-fn test_batch_extraction_basic() raises:
+def test_batch_extraction_basic() raises:
     """Test extracting a batch from dataset (critical for training)."""
     # Simulate dataset: 100 samples, each 3x32x32 (like CIFAR-10)
     var batch_size = 16
@@ -120,7 +120,7 @@ fn test_batch_extraction_basic() raises:
     assert_equal(shape[3], 32)
 
 
-fn test_batch_extraction_offset() raises:
+def test_batch_extraction_offset() raises:
     """Test extracting batch at offset (second batch)."""
     var batch_size = 16
     var num_samples = 100
@@ -134,7 +134,7 @@ fn test_batch_extraction_offset() raises:
     assert_equal(shape[0], batch_size)
 
 
-fn test_batch_extraction_last_partial() raises:
+def test_batch_extraction_last_partial() raises:
     """Test extracting last partial batch."""
     var batch_size = 16
     var num_samples = 50  # Not evenly divisible
@@ -154,7 +154,7 @@ fn test_batch_extraction_last_partial() raises:
 # ============================================================================
 
 
-fn test_slice_2d_negative_start() raises:
+def test_slice_2d_negative_start() raises:
     """Test slicing with negative start index in 2D tensor."""
     # Create 5x4 tensor with sequential values
     var t = arange(0.0, 20.0, 1.0, DType.float32)
@@ -178,7 +178,7 @@ fn test_slice_2d_negative_start() raises:
     assert_almost_equal(Float64(data_ptr[3]), Float64(15.0), Float64(1e-5))
 
 
-fn test_slice_2d_negative_end() raises:
+def test_slice_2d_negative_end() raises:
     """Test slicing with negative end index in 2D tensor."""
     # Create 5x4 tensor with sequential values
     var t = arange(0.0, 20.0, 1.0, DType.float32)
@@ -199,7 +199,7 @@ fn test_slice_2d_negative_end() raises:
     assert_almost_equal(Float64(data_ptr[1]), Float64(3.0), Float64(1e-5))
 
 
-fn test_slice_2d_negative_both_dims() raises:
+def test_slice_2d_negative_both_dims() raises:
     """Test slicing with negative indices in both dimensions."""
     # Create 5x4 tensor with sequential values
     var t = arange(0.0, 20.0, 1.0, DType.float32)
@@ -224,7 +224,7 @@ fn test_slice_2d_negative_both_dims() raises:
     assert_almost_equal(Float64(data_ptr[3]), Float64(19.0), Float64(1e-5))
 
 
-fn main() raises:
+def main() raises:
     """Run all multi-dimensional slicing and batch extraction tests."""
     test_slice_2d_single_dim()
     test_slice_2d_both_dims()

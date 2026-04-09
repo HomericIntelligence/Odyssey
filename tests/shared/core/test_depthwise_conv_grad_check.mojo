@@ -15,7 +15,7 @@ from shared.core.conv import depthwise_conv2d, depthwise_conv2d_backward
 from shared.testing import check_gradient
 
 
-fn test_depthwise_conv2d_backward_shapes() raises:
+def test_depthwise_conv2d_backward_shapes() raises:
     """Test that depthwise_conv2d_backward returns correct gradient shapes."""
     var channels = 2
     var in_h = 6
@@ -61,7 +61,7 @@ fn test_depthwise_conv2d_backward_shapes() raises:
     assert_equal(gb_shape[0], channels)
 
 
-fn test_depthwise_conv2d_backward_stride1_padding0_grad_input() raises:
+def test_depthwise_conv2d_backward_stride1_padding0_grad_input() raises:
     """Test grad_input via numerical gradient check: stride=1, padding=0.
 
     Input (1,1,4,4), kernel (1,1,3,3). Uses non-uniform input and
@@ -91,10 +91,10 @@ fn test_depthwise_conv2d_backward_stride1_padding0_grad_input() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward_input(inp: AnyTensor) raises -> AnyTensor:
+    def forward_input(inp: AnyTensor) raises -> AnyTensor:
         return depthwise_conv2d(inp, kernel, bias, stride=1, padding=0)
 
-    fn backward_input(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = depthwise_conv2d_backward(grad_out, inp, kernel, stride=1, padding=0)
         return grads.grad_input
 
@@ -106,7 +106,7 @@ fn test_depthwise_conv2d_backward_stride1_padding0_grad_input() raises:
     check_gradient(forward_input, backward_input, x, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn test_depthwise_conv2d_backward_stride2_grad_input() raises:
+def test_depthwise_conv2d_backward_stride2_grad_input() raises:
     """Test grad_input via numerical gradient check: stride=2, padding=0.
 
     Input (1,1,8,8), kernel (1,1,3,3).
@@ -135,10 +135,10 @@ fn test_depthwise_conv2d_backward_stride2_grad_input() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward_input(inp: AnyTensor) raises -> AnyTensor:
+    def forward_input(inp: AnyTensor) raises -> AnyTensor:
         return depthwise_conv2d(inp, kernel, bias, stride=2, padding=0)
 
-    fn backward_input(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = depthwise_conv2d_backward(grad_out, inp, kernel, stride=2, padding=0)
         return grads.grad_input
 
@@ -150,7 +150,7 @@ fn test_depthwise_conv2d_backward_stride2_grad_input() raises:
     check_gradient(forward_input, backward_input, x, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn test_depthwise_conv2d_backward_padding1_grad_input() raises:
+def test_depthwise_conv2d_backward_padding1_grad_input() raises:
     """Test grad_input via numerical gradient check: stride=1, padding=1.
 
     Input (1,1,4,4), kernel (1,1,3,3).
@@ -179,10 +179,10 @@ fn test_depthwise_conv2d_backward_padding1_grad_input() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward_input(inp: AnyTensor) raises -> AnyTensor:
+    def forward_input(inp: AnyTensor) raises -> AnyTensor:
         return depthwise_conv2d(inp, kernel, bias, stride=1, padding=1)
 
-    fn backward_input(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = depthwise_conv2d_backward(grad_out, inp, kernel, stride=1, padding=1)
         return grads.grad_input
 
@@ -194,7 +194,7 @@ fn test_depthwise_conv2d_backward_padding1_grad_input() raises:
     check_gradient(forward_input, backward_input, x, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn test_depthwise_conv2d_backward_multichannel_grad_input() raises:
+def test_depthwise_conv2d_backward_multichannel_grad_input() raises:
     """Test grad_input via numerical gradient check: 3 channels.
 
     Input (1,3,4,4), kernel (3,1,3,3). Each channel processed independently.
@@ -224,10 +224,10 @@ fn test_depthwise_conv2d_backward_multichannel_grad_input() raises:
     bias_shape.append(channels)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward_input(inp: AnyTensor) raises -> AnyTensor:
+    def forward_input(inp: AnyTensor) raises -> AnyTensor:
         return depthwise_conv2d(inp, kernel, bias, stride=1, padding=0)
 
-    fn backward_input(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = depthwise_conv2d_backward(grad_out, inp, kernel, stride=1, padding=0)
         return grads.grad_input
 
@@ -239,7 +239,7 @@ fn test_depthwise_conv2d_backward_multichannel_grad_input() raises:
     check_gradient(forward_input, backward_input, x, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn test_depthwise_conv2d_backward_grad_weights_numerical() raises:
+def test_depthwise_conv2d_backward_grad_weights_numerical() raises:
     """Test grad_weights via numerical gradient check: stride=1, padding=0.
 
     Perturbs kernel with x held fixed. Input (1,1,4,4), kernel (1,1,3,3).
@@ -269,10 +269,10 @@ fn test_depthwise_conv2d_backward_grad_weights_numerical() raises:
     var bias = zeros(bias_shape, DType.float32)
 
     # Perturb kernel, hold x fixed
-    fn forward_weights(k: AnyTensor) raises -> AnyTensor:
+    def forward_weights(k: AnyTensor) raises -> AnyTensor:
         return depthwise_conv2d(x, k, bias, stride=1, padding=0)
 
-    fn backward_weights(grad_out: AnyTensor, k: AnyTensor) raises -> AnyTensor:
+    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises -> AnyTensor:
         var grads = depthwise_conv2d_backward(grad_out, x, k, stride=1, padding=0)
         return grads.grad_weights
 
@@ -284,7 +284,7 @@ fn test_depthwise_conv2d_backward_grad_weights_numerical() raises:
     check_gradient(forward_weights, backward_weights, kernel, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn test_depthwise_conv2d_backward_grad_bias_value() raises:
+def test_depthwise_conv2d_backward_grad_bias_value() raises:
     """Test grad_bias = sum(grad_output, dims=[batch, H, W]) per channel.
 
     Uses a 1x2x2x2 case where the analytical value is easily verified.
@@ -337,7 +337,7 @@ fn test_depthwise_conv2d_backward_grad_bias_value() raises:
     )
 
 
-fn test_depthwise_conv2d_backward_grad_weights_multichannel() raises:
+def test_depthwise_conv2d_backward_grad_weights_multichannel() raises:
     """Test grad_weights via numerical gradient check: 2 channels, kernel 2x2.
 
     Input (1,2,4,4), kernel (2,1,2,2). Verifies per-channel kernel gradients.
@@ -367,10 +367,10 @@ fn test_depthwise_conv2d_backward_grad_weights_multichannel() raises:
     bias_shape.append(channels)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward_weights(k: AnyTensor) raises -> AnyTensor:
+    def forward_weights(k: AnyTensor) raises -> AnyTensor:
         return depthwise_conv2d(x, k, bias, stride=1, padding=0)
 
-    fn backward_weights(grad_out: AnyTensor, k: AnyTensor) raises -> AnyTensor:
+    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises -> AnyTensor:
         var grads = depthwise_conv2d_backward(grad_out, x, k, stride=1, padding=0)
         return grads.grad_weights
 
@@ -382,7 +382,7 @@ fn test_depthwise_conv2d_backward_grad_weights_multichannel() raises:
     check_gradient(forward_weights, backward_weights, kernel, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn test_depthwise_conv2d_backward_full_gradient_pipeline() raises:
+def test_depthwise_conv2d_backward_full_gradient_pipeline() raises:
     """Test full forward + backward pipeline: all three gradient fields non-zero.
 
     Runs depthwise_conv2d forward then depthwise_conv2d_backward and verifies
@@ -467,7 +467,7 @@ fn test_depthwise_conv2d_backward_full_gradient_pipeline() raises:
     assert_equal(gb_nonzero, True)
 
 
-fn main() raises:
+def main() raises:
     """Run all depthwise conv gradient checking tests."""
     print("Running Depthwise Conv Gradient Checking Tests...")
     print("=" * 60)

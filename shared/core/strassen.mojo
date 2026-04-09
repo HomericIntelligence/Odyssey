@@ -28,7 +28,7 @@ comptime STRASSEN_ENABLED: Bool = True
 comptime STRASSEN_THRESHOLD: Int = 512
 
 
-fn next_power_of_2(n: Int) -> Int:
+def next_power_of_2(n: Int) -> Int:
     """Find the next power of 2 >= n."""
     if n == 0:
         return 1
@@ -38,7 +38,7 @@ fn next_power_of_2(n: Int) -> Int:
     return power
 
 
-fn _strassen_recursive(A: AnyTensor, B: AnyTensor) raises -> AnyTensor:
+def _strassen_recursive(A: AnyTensor, B: AnyTensor) raises -> AnyTensor:
     """Recursive core of Strassen's algorithm using 7 products."""
     from shared.tensor.typed.strassen import (
         _extract_quadrants_typed,
@@ -166,7 +166,7 @@ fn _strassen_recursive(A: AnyTensor, B: AnyTensor) raises -> AnyTensor:
         raise Error("strassen: only float32/float64 supported")
 
 
-fn matmul_strassen(A: AnyTensor, B: AnyTensor, mut C: AnyTensor) raises:
+def matmul_strassen(A: AnyTensor, B: AnyTensor, mut C: AnyTensor) raises:
     """Matrix multiplication using Strassen's algorithm."""
     from shared.tensor.typed.strassen import _matmul_strassen_copy_result
 

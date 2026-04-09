@@ -36,9 +36,9 @@ See mixed precision training examples in examples/mixed_precision/
 
 from shared.tensor.any_tensor import AnyTensor, full
 from shared.core.numerical_safety import has_nan, has_inf
-from math import log2
-from algorithm import vectorize
-from sys.info import simd_width_of
+from std.math import log2
+from std.algorithm import vectorize
+from std.sys.info import simd_width_of
 
 
 struct GradientScaler(Copyable, Movable):
@@ -92,7 +92,7 @@ struct GradientScaler(Copyable, Movable):
     var max_scale: Float32
     """Maximum allowed scale factor."""
 
-    fn __init__(
+    def __init__(
         out self,
         initial_scale: Float32 = 65536.0,
         growth_factor: Float32 = 2.0,
@@ -120,7 +120,7 @@ struct GradientScaler(Copyable, Movable):
         self.min_scale = min_scale
         self.max_scale = max_scale
 
-    fn scale_loss(self, loss: AnyTensor) raises -> AnyTensor:
+    def scale_loss(self, loss: AnyTensor) raises -> AnyTensor:
         """Scale loss by current scale factor.
 
         Args:
@@ -150,7 +150,7 @@ struct GradientScaler(Copyable, Movable):
         var scale_tensor = full(loss.shape(), Float64(self.scale), loss.dtype())
         return loss * scale_tensor
 
-    fn unscale_gradients(self, gradients: AnyTensor) raises -> AnyTensor:
+    def unscale_gradients(self, gradients: AnyTensor) raises -> AnyTensor:
         """Unscale gradients by dividing by scale factor.
 
         Args:
@@ -180,7 +180,7 @@ struct GradientScaler(Copyable, Movable):
         )
         return gradients / scale_tensor
 
-    fn step(mut self):
+    def step(mut self):
         """Update scale factor after successful optimizer step.
 
         Increases scale if no overflow occurred for growth_interval steps.
@@ -203,7 +203,7 @@ struct GradientScaler(Copyable, Movable):
                 self.scale = new_scale
             self._steps_since_growth = 0
 
-    fn backoff(mut self):
+    def backoff(mut self):
         """Reduce scale factor after gradient overflow.
 
         Called when NaN or Inf detected in gradients.
@@ -219,7 +219,7 @@ struct GradientScaler(Copyable, Movable):
             self.scale = new_scale
         self._steps_since_growth = 0
 
-    fn get_scale(self) -> Float32:
+    def get_scale(self) -> Float32:
         """Get current scale factor.
 
         Returns:
@@ -227,7 +227,7 @@ struct GradientScaler(Copyable, Movable):
         """
         return self.scale
 
-    fn get_num_steps(self) -> Int:
+    def get_num_steps(self) -> Int:
         """Get total number of steps taken.
 
         Returns:
@@ -236,7 +236,7 @@ struct GradientScaler(Copyable, Movable):
         return self._num_steps
 
 
-fn convert_to_fp32_master(params: AnyTensor) raises -> AnyTensor:
+def convert_to_fp32_master(params: AnyTensor) raises -> AnyTensor:
     """Convert model parameters to FP32 master weights with SIMD optimization.
 
     Creates FP32 copy of parameters for optimizer state management.
@@ -297,7 +297,7 @@ fn convert_to_fp32_master(params: AnyTensor) raises -> AnyTensor:
     return result
 
 
-fn update_model_from_master(
+def update_model_from_master(
     mut model_params: AnyTensor, master_params: AnyTensor
 ) raises:
     """Update model parameters from FP32 master weights with SIMD optimization.
@@ -355,7 +355,7 @@ fn update_model_from_master(
         model_params._set_float64(i, val)
 
 
-fn check_gradients_finite(gradients: AnyTensor) raises -> Bool:
+def check_gradients_finite(gradients: AnyTensor) raises -> Bool:
     """Check if gradients contain only finite values.
 
     Returns True if gradients are all finite (no NaN or Inf).
@@ -382,7 +382,7 @@ fn check_gradients_finite(gradients: AnyTensor) raises -> Bool:
     return not (has_nan(gradients) or has_inf(gradients))
 
 
-fn clip_gradients_by_norm(
+def clip_gradients_by_norm(
     gradients: AnyTensor, max_norm: Float32
 ) raises -> AnyTensor:
     """Clip gradients by global norm.
@@ -413,7 +413,7 @@ fn clip_gradients_by_norm(
         return gradients  # No clipping needed for empty tensor
 
     from shared.core.reduction import sum as tensor_sum
-    from math import sqrt as math_sqrt
+    from std.math import sqrt as math_sqrt
 
     # Compute L2 norm: sqrt(sum(grad^2))
     var grad_squared = gradients * gradients
@@ -434,7 +434,7 @@ fn clip_gradients_by_norm(
         return gradients
 
 
-fn clip_gradients_by_value(
+def clip_gradients_by_value(
     gradients: AnyTensor, min_value: Float32, max_value: Float32
 ) raises -> AnyTensor:
     """Clip gradients by value range with SIMD optimization.
@@ -508,7 +508,7 @@ fn clip_gradients_by_value(
 
 
 @always_inline
-fn _convert_fp32_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
+def _convert_fp32_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD copy for FP32 to FP32 conversion.
 
     Uses vectorized load/store for maximum throughput.
@@ -521,7 +521,7 @@ fn _convert_fp32_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     var dst_ptr = dst.data_ptr[DType.float32]()
 
     @parameter
-    fn vectorized_copy[width: Int](idx: Int) unified {mut}:
+    def vectorized_copy[width: Int](idx: Int) unified {mut}:
         var vec = src_ptr.load[width=width](idx)
         dst_ptr.store[width=width](idx, vec)
 
@@ -529,7 +529,7 @@ fn _convert_fp32_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
 
 
 @always_inline
-fn _update_fp32_from_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
+def _update_fp32_from_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD copy from FP32 master to FP32 model params.
 
     Uses vectorized load/store for maximum throughput.
@@ -542,7 +542,7 @@ fn _update_fp32_from_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     var dst_ptr = dst.data_ptr[DType.float32]()
 
     @parameter
-    fn vectorized_copy[width: Int](idx: Int) unified {mut}:
+    def vectorized_copy[width: Int](idx: Int) unified {mut}:
         var vec = src_ptr.load[width=width](idx)
         dst_ptr.store[width=width](idx, vec)
 
@@ -550,7 +550,7 @@ fn _update_fp32_from_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
 
 
 @always_inline
-fn _clip_by_value_simd_float32(
+def _clip_by_value_simd_float32(
     src: AnyTensor, mut dst: AnyTensor, min_val: Float32, max_val: Float32
 ):
     """SIMD clamp for Float32 gradients.
@@ -565,7 +565,7 @@ fn _clip_by_value_simd_float32(
     var dst_ptr = dst.data_ptr[DType.float32]()
 
     @parameter
-    fn vectorized_clamp[width: Int](idx: Int) unified {mut}:
+    def vectorized_clamp[width: Int](idx: Int) unified {mut}:
         var vec = src_ptr.load[width=width](idx)
         var min_vec = SIMD[DType.float32, width](min_val)
         var max_vec = SIMD[DType.float32, width](max_val)
@@ -576,7 +576,7 @@ fn _clip_by_value_simd_float32(
 
 
 @always_inline
-fn _clip_by_value_simd_float64(
+def _clip_by_value_simd_float64(
     src: AnyTensor, mut dst: AnyTensor, min_val: Float32, max_val: Float32
 ):
     """SIMD clamp for Float64 gradients.
@@ -593,7 +593,7 @@ fn _clip_by_value_simd_float64(
     var max_f64 = Float64(max_val)
 
     @parameter
-    fn vectorized_clamp[width: Int](idx: Int) unified {mut}:
+    def vectorized_clamp[width: Int](idx: Int) unified {mut}:
         var vec = src_ptr.load[width=width](idx)
         var min_vec = SIMD[DType.float64, width](min_f64)
         var max_vec = SIMD[DType.float64, width](max_f64)
@@ -604,7 +604,7 @@ fn _clip_by_value_simd_float64(
 
 
 @always_inline
-fn _convert_fp16_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
+def _convert_fp16_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD conversion from FP16 to FP32 with vectorization.
 
     Uses SIMD casting to vectorize FP16→FP32 conversion.
@@ -622,7 +622,7 @@ fn _convert_fp16_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     var dst_ptr = dst.data_ptr[DType.float32]()
 
     @parameter
-    fn vectorized_convert[width: Int](idx: Int) unified {mut}:
+    def vectorized_convert[width: Int](idx: Int) unified {mut}:
         # Load FP16 elements and convert to FP32 using SIMD
         var fp32_vec = SIMD[DType.float32, width]()
 
@@ -636,7 +636,7 @@ fn _convert_fp16_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
 
 
 @always_inline
-fn _convert_fp32_to_fp16_simd(src: AnyTensor, mut dst: AnyTensor) raises:
+def _convert_fp32_to_fp16_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD conversion from FP32 to FP16 with vectorization.
 
     Uses SIMD casting to vectorize FP32→FP16 conversion.
@@ -654,7 +654,7 @@ fn _convert_fp32_to_fp16_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     var dst_ptr = dst.data_ptr[DType.float16]()
 
     @parameter
-    fn vectorized_convert[width: Int](idx: Int) unified {mut}:
+    def vectorized_convert[width: Int](idx: Int) unified {mut}:
         # Load FP32 vector
         var fp32_vec = src_ptr.load[width=width](idx)
 

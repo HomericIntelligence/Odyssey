@@ -48,7 +48,7 @@ from shared.utils.training_args import parse_training_args_with_defaults
 from model import MobileNetV1
 
 
-fn train_epoch(
+def train_epoch(
     mut model: MobileNetV1,
     train_images: AnyTensor,
     train_labels: AnyTensor,
@@ -126,7 +126,7 @@ fn train_epoch(
     return avg_loss
 
 
-fn validate(
+def validate(
     mut model: MobileNetV1,
     val_images: AnyTensor,
     val_labels: AnyTensor,
@@ -165,7 +165,7 @@ fn validate(
     return accuracy
 
 
-fn main() raises:
+def main() raises:
     """Main training entry point."""
     print("=" * 60)
     print("MobileNetV1 Training on CIFAR-10")

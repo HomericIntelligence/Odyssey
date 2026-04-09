@@ -25,7 +25,7 @@ Functions:
 from shared.tensor.any_tensor import AnyTensor
 
 
-fn validate_tensor_shape(
+def validate_tensor_shape(
     tensor: AnyTensor, expected_shape: List[Int], name: String
 ) raises:
     """Validate that a tensor has the expected shape.
@@ -74,7 +74,7 @@ fn validate_tensor_shape(
             )
 
 
-fn validate_tensor_dtype(
+def validate_tensor_dtype(
     tensor: AnyTensor, expected_dtype: DType, name: String
 ) raises:
     """Validate that a tensor has the expected data type.
@@ -108,7 +108,7 @@ fn validate_tensor_dtype(
         )
 
 
-fn validate_matching_tensors(
+def validate_matching_tensors(
     a: AnyTensor, b: AnyTensor, a_name: String, b_name: String
 ) raises:
     """Validate that two tensors have matching shape and dtype.
@@ -178,7 +178,7 @@ fn validate_matching_tensors(
             )
 
 
-fn validate_2d_input(tensor: AnyTensor, name: String) raises:
+def validate_2d_input(tensor: AnyTensor, name: String) raises:
     """Validate that a tensor is exactly 2-dimensional.
 
     Args:
@@ -211,7 +211,7 @@ fn validate_2d_input(tensor: AnyTensor, name: String) raises:
         )
 
 
-fn validate_4d_input(tensor: AnyTensor, name: String) raises:
+def validate_4d_input(tensor: AnyTensor, name: String) raises:
     """Validate that a tensor is exactly 4-dimensional.
 
     Args:
@@ -244,7 +244,7 @@ fn validate_4d_input(tensor: AnyTensor, name: String) raises:
         )
 
 
-fn validate_1d_input(tensor: AnyTensor, name: String) raises:
+def validate_1d_input(tensor: AnyTensor, name: String) raises:
     """Validate that a tensor is exactly 1-dimensional.
 
     Args:
@@ -277,7 +277,7 @@ fn validate_1d_input(tensor: AnyTensor, name: String) raises:
         )
 
 
-fn validate_3d_input(tensor: AnyTensor, name: String) raises:
+def validate_3d_input(tensor: AnyTensor, name: String) raises:
     """Validate that a tensor is exactly 3-dimensional.
 
     Args:
@@ -310,7 +310,7 @@ fn validate_3d_input(tensor: AnyTensor, name: String) raises:
         )
 
 
-fn validate_axis(tensor: AnyTensor, axis: Int, name: String) raises:
+def validate_axis(tensor: AnyTensor, axis: Int, name: String) raises:
     """Validate that axis is within valid range for tensor dimensions.
 
     Supports both positive and negative indexing (e.g., -1 for last axis).
@@ -350,7 +350,7 @@ fn validate_axis(tensor: AnyTensor, axis: Int, name: String) raises:
         )
 
 
-fn validate_slice_range(
+def validate_slice_range(
     tensor: AnyTensor, axis: Int, start: Int, end: Int, name: String
 ) raises:
     """Validate that slice range is within bounds for the given axis.
@@ -407,7 +407,7 @@ fn validate_slice_range(
         )
 
 
-fn validate_float_dtype(tensor: AnyTensor, name: String) raises:
+def validate_float_dtype(tensor: AnyTensor, name: String) raises:
     """Validate that tensor has a floating-point dtype.
 
     Args:
@@ -441,7 +441,7 @@ fn validate_float_dtype(tensor: AnyTensor, name: String) raises:
         )
 
 
-fn validate_positive_shape(shape: List[Int], name: String) raises:
+def validate_positive_shape(shape: List[Int], name: String) raises:
     """Validate that all dimensions in shape are positive.
 
     Args:
@@ -471,7 +471,7 @@ fn validate_positive_shape(shape: List[Int], name: String) raises:
             )
 
 
-fn validate_matmul_dims(
+def validate_matmul_dims(
     a: AnyTensor, b: AnyTensor, a_name: String, b_name: String
 ) raises:
     """Validate that two tensors have compatible dimensions for matmul.
@@ -529,7 +529,7 @@ fn validate_matmul_dims(
         )
 
 
-fn validate_broadcast_compatible(
+def validate_broadcast_compatible(
     a: AnyTensor, b: AnyTensor, a_name: String, b_name: String
 ) raises:
     """Validate that two tensors have broadcast-compatible shapes.
@@ -597,7 +597,7 @@ fn validate_broadcast_compatible(
             )
 
 
-fn validate_non_empty(tensor: AnyTensor, name: String) raises:
+def validate_non_empty(tensor: AnyTensor, name: String) raises:
     """Validate that tensor is not empty (has at least one element).
 
     Args:
@@ -629,7 +629,7 @@ fn validate_non_empty(tensor: AnyTensor, name: String) raises:
             )
 
 
-fn validate_matching_dtype(
+def validate_matching_dtype(
     a: AnyTensor, b: AnyTensor, a_name: String, b_name: String
 ) raises:
     """Validate that two tensors have matching dtypes.
@@ -673,7 +673,7 @@ fn validate_matching_dtype(
 # ============================================================================
 
 
-fn _shape_to_string(shape: List[Int]) -> String:
+def _shape_to_string(shape: List[Int]) -> String:
     """Convert a shape list to a string representation.
 
     Args:
@@ -692,7 +692,7 @@ fn _shape_to_string(shape: List[Int]) -> String:
     return result
 
 
-fn _dtype_to_string(dtype: DType) -> String:
+def _dtype_to_string(dtype: DType) -> String:
     """Convert a DType to a readable string representation.
 
     Args:

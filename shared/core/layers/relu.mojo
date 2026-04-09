@@ -36,7 +36,7 @@ struct ReLULayer(Copyable, Module, Movable):
         ```
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize ReLU layer.
 
         ReLU has no learnable parameters or state
@@ -48,7 +48,7 @@ struct ReLULayer(Copyable, Module, Movable):
         """
         pass
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: y = max(0, x).
 
         Applies ReLU activation element-wise to the input tensor.
@@ -71,7 +71,7 @@ struct ReLULayer(Copyable, Module, Movable):
         """
         return relu(input)
 
-    fn backward(
+    def backward(
         mut self, grad_output: AnyTensor, input: AnyTensor
     ) raises -> AnyTensor:
         """Backward pass: compute gradient w.r.t. input.
@@ -106,7 +106,7 @@ struct ReLULayer(Copyable, Module, Movable):
         """
         return relu_backward(grad_output, input)
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Get list of trainable parameters.
 
         Returns:
@@ -125,10 +125,10 @@ struct ReLULayer(Copyable, Module, Movable):
         var params: List[AnyTensor] = []
         return params^
 
-    fn train(mut self):
+    def train(mut self):
         """Switch to training mode (no-op for ReLULayer)."""
         pass
 
-    fn eval(mut self):
+    def eval(mut self):
         """Switch to inference mode (no-op for ReLULayer)."""
         pass

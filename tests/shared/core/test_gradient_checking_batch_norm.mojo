@@ -24,7 +24,7 @@ from shared.core.arithmetic import multiply
 from shared.core.reduction import sum as reduce_sum
 
 
-fn _make_non_uniform_grad_output(output: AnyTensor) raises -> AnyTensor:
+def _make_non_uniform_grad_output(output: AnyTensor) raises -> AnyTensor:
     """Create non-uniform grad_output that avoids batch norm cancellation.
 
     Pattern: Float32(i % 4) * 0.25 - 0.3 gives [-0.3, -0.05, 0.2, 0.45, ...]
@@ -37,7 +37,7 @@ fn _make_non_uniform_grad_output(output: AnyTensor) raises -> AnyTensor:
     return grad_output^
 
 
-fn _make_non_uniform_input(shape: List[Int]) raises -> AnyTensor:
+def _make_non_uniform_input(shape: List[Int]) raises -> AnyTensor:
     """Create non-uniform input to avoid zero-variance degenerate case."""
     var input = zeros(shape, DType.float32)
     for i in range(input.numel()):
@@ -45,7 +45,7 @@ fn _make_non_uniform_input(shape: List[Int]) raises -> AnyTensor:
     return input^
 
 
-fn test_batch_norm_gradient_batch_size_1() raises:
+def test_batch_norm_gradient_batch_size_1() raises:
     """Test batch_norm2d gradient checking with batch_size=1 (degenerate case).
 
     batch_size=1 is degenerate for batch norm (zero variance). With non-uniform
@@ -72,11 +72,11 @@ fn test_batch_norm_gradient_batch_size_1() raises:
     var running_var = ones(mean_shape, DType.float32)
 
     # Compute forward to get output shape for grad_output
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         var result = batch_norm2d(x, gamma, beta, running_mean, running_var, training=True)
         return result[0]
 
-    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = batch_norm2d_backward(
             grad_out, x, gamma, running_mean, running_var, training=True
         )
@@ -89,7 +89,7 @@ fn test_batch_norm_gradient_batch_size_1() raises:
     check_gradient(forward, backward, input, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn test_batch_norm_gradient_batch_size_2() raises:
+def test_batch_norm_gradient_batch_size_2() raises:
     """Test batch_norm2d gradient checking with batch_size=2."""
     var shape = List[Int]()
     shape.append(2)  # batch_size=2 (normal case)
@@ -111,11 +111,11 @@ fn test_batch_norm_gradient_batch_size_2() raises:
     var running_mean = zeros(mean_shape, DType.float32)
     var running_var = ones(mean_shape, DType.float32)
 
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         var result = batch_norm2d(x, gamma, beta, running_mean, running_var, training=True)
         return result[0]
 
-    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = batch_norm2d_backward(
             grad_out, x, gamma, running_mean, running_var, training=True
         )
@@ -127,7 +127,7 @@ fn test_batch_norm_gradient_batch_size_2() raises:
     check_gradient(forward, backward, input, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn test_batch_norm_gradient_batch_size_4() raises:
+def test_batch_norm_gradient_batch_size_4() raises:
     """Test batch_norm2d gradient checking with batch_size=4."""
     var shape = List[Int]()
     shape.append(4)  # batch_size=4 (larger batch)
@@ -149,11 +149,11 @@ fn test_batch_norm_gradient_batch_size_4() raises:
     var running_mean = zeros(mean_shape, DType.float32)
     var running_var = ones(mean_shape, DType.float32)
 
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         var result = batch_norm2d(x, gamma, beta, running_mean, running_var, training=True)
         return result[0]
 
-    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = batch_norm2d_backward(
             grad_out, x, gamma, running_mean, running_var, training=True
         )
@@ -165,7 +165,7 @@ fn test_batch_norm_gradient_batch_size_4() raises:
     check_gradient(forward, backward, input, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn test_batch_norm_gamma_gradient_batch_size_2() raises:
+def test_batch_norm_gamma_gradient_batch_size_2() raises:
     """Test batch_norm2d gamma gradient with batch_size=2."""
     var shape = List[Int]()
     shape.append(2)  # batch_size=2
@@ -187,11 +187,11 @@ fn test_batch_norm_gamma_gradient_batch_size_2() raises:
     var running_mean = zeros(mean_shape, DType.float32)
     var running_var = ones(mean_shape, DType.float32)
 
-    fn forward(g: AnyTensor) raises escaping -> AnyTensor:
+    def forward(g: AnyTensor) raises escaping -> AnyTensor:
         var result = batch_norm2d(input, g, beta, running_mean, running_var, training=True)
         return result[0]
 
-    fn backward(grad_out: AnyTensor, g: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, g: AnyTensor) raises escaping -> AnyTensor:
         var result = batch_norm2d_backward(
             grad_out, input, g, running_mean, running_var, training=True
         )
@@ -203,7 +203,7 @@ fn test_batch_norm_gamma_gradient_batch_size_2() raises:
     check_gradient(forward, backward, gamma, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn main() raises:
+def main() raises:
     print("Running batch norm gradient checking tests...")
     test_batch_norm_gradient_batch_size_1()
     test_batch_norm_gradient_batch_size_2()

@@ -46,7 +46,7 @@ from shared.core.reduction import (
 )
 
 
-fn test_sum_backward_shapes() raises:
+def test_sum_backward_shapes() raises:
     """Test that sum_backward returns correct gradient shape."""
     var shape = List[Int]()
     shape.append(2)
@@ -71,7 +71,7 @@ fn test_sum_backward_shapes() raises:
     assert_equal(gi_shape[2], 4)
 
 
-fn test_sum_backward_gradient() raises:
+def test_sum_backward_gradient() raises:
     """Test sum_backward with numerical gradient checking."""
     var shape = List[Int]()
     shape.append(2)
@@ -88,14 +88,14 @@ fn test_sum_backward_gradient() raises:
     x.set(5, Float32(0.7))
 
     # Forward function wrapper (sum along axis 1)
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return sum(inp, axis=1)
 
     var y = forward(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return sum_backward(grad, inp, axis=1)
 
     # Use numerical gradient checking (gold standard)
@@ -103,7 +103,7 @@ fn test_sum_backward_gradient() raises:
     check_gradient(forward, backward, x, grad_out, rtol=2e-3, atol=1e-6)
 
 
-fn test_mean_backward_shapes() raises:
+def test_mean_backward_shapes() raises:
     """Test that mean_backward returns correct gradient shape."""
     var shape = List[Int]()
     shape.append(2)
@@ -128,7 +128,7 @@ fn test_mean_backward_shapes() raises:
     assert_equal(gi_shape[2], 4)
 
 
-fn test_mean_backward_gradient() raises:
+def test_mean_backward_gradient() raises:
     """Test mean_backward with numerical gradient checking."""
     var shape = List[Int]()
     shape.append(2)
@@ -145,14 +145,14 @@ fn test_mean_backward_gradient() raises:
     x.set(5, Float32(0.7))
 
     # Forward function wrapper (mean along axis 1)
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return mean(inp, axis=1)
 
     var y = forward(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return mean_backward(grad, inp, axis=1)
 
     # Use numerical gradient checking (gold standard)
@@ -160,7 +160,7 @@ fn test_mean_backward_gradient() raises:
     check_gradient(forward, backward, x, grad_out, rtol=2e-3, atol=1e-6)
 
 
-fn test_max_reduce_backward_shapes() raises:
+def test_max_reduce_backward_shapes() raises:
     """Test that max_reduce_backward returns correct gradient shape."""
     var shape = List[Int]()
     shape.append(3)
@@ -183,7 +183,7 @@ fn test_max_reduce_backward_shapes() raises:
     assert_equal(gi_shape[1], 4)
 
 
-fn test_max_reduce_backward_gradient() raises:
+def test_max_reduce_backward_gradient() raises:
     """Test max_reduce_backward with numerical gradient checking."""
     var shape = List[Int]()
     shape.append(2)
@@ -200,14 +200,14 @@ fn test_max_reduce_backward_gradient() raises:
     x.set(5, Float32(0.7))
 
     # Forward function wrapper (max along axis 1)
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return max_reduce(inp, axis=1)
 
     var y = forward(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return max_reduce_backward(grad, inp, axis=1)
 
     # Use numerical gradient checking (gold standard)
@@ -215,7 +215,7 @@ fn test_max_reduce_backward_gradient() raises:
     check_gradient(forward, backward, x, grad_out, rtol=2e-3, atol=1e-6)
 
 
-fn test_min_reduce_backward_shapes() raises:
+def test_min_reduce_backward_shapes() raises:
     """Test that min_reduce_backward returns correct gradient shape."""
     var shape = List[Int]()
     shape.append(3)
@@ -238,7 +238,7 @@ fn test_min_reduce_backward_shapes() raises:
     assert_equal(gi_shape[1], 4)
 
 
-fn test_min_reduce_backward_gradient() raises:
+def test_min_reduce_backward_gradient() raises:
     """Test min_reduce_backward with numerical gradient checking."""
     var shape = List[Int]()
     shape.append(2)
@@ -255,14 +255,14 @@ fn test_min_reduce_backward_gradient() raises:
     x.set(5, Float32(0.7))
 
     # Forward function wrapper (min along axis 1)
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return min_reduce(inp, axis=1)
 
     var y = forward(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return min_reduce_backward(grad, inp, axis=1)
 
     # Use numerical gradient checking (gold standard)
@@ -270,7 +270,7 @@ fn test_min_reduce_backward_gradient() raises:
     check_gradient(forward, backward, x, grad_out, rtol=2e-3, atol=1e-6)
 
 
-fn test_var_forward_uniform() raises:
+def test_var_forward_uniform() raises:
     """Test variance of uniform values (should be 0)."""
     var shape = List[Int]()
     shape.append(5)
@@ -280,7 +280,7 @@ fn test_var_forward_uniform() raises:
     assert_close_float(result._get_float64(0), 0.0, rtol=1e-5, atol=1e-7)
 
 
-fn test_var_forward_simple() raises:
+def test_var_forward_simple() raises:
     """Test variance with known result."""
     var shape = List[Int]()
     shape.append(3)
@@ -294,7 +294,7 @@ fn test_var_forward_simple() raises:
     assert_close_float(result._get_float64(0), 2.0 / 3.0, rtol=1e-5, atol=1e-7)
 
 
-fn test_var_forward_with_ddof() raises:
+def test_var_forward_with_ddof() raises:
     """Test sample variance with ddof=1."""
     var shape = List[Int]()
     shape.append(3)
@@ -308,7 +308,7 @@ fn test_var_forward_with_ddof() raises:
     assert_close_float(result._get_float64(0), 1.0, rtol=1e-5, atol=1e-7)
 
 
-fn test_var_forward_axis() raises:
+def test_var_forward_axis() raises:
     """Test variance along specific axis."""
     var shape = List[Int]()
     shape.append(2)
@@ -326,7 +326,7 @@ fn test_var_forward_axis() raises:
     assert_equal(result_shape[0], 2)
 
 
-fn test_var_backward_shapes() raises:
+def test_var_backward_shapes() raises:
     """Test that var_backward returns correct gradient shape."""
     var shape = List[Int]()
     shape.append(2)
@@ -344,7 +344,7 @@ fn test_var_backward_shapes() raises:
     assert_equal(gi_shape[1], 3)
 
 
-fn test_var_backward_gradient() raises:
+def test_var_backward_gradient() raises:
     """Test var_backward with numerical gradient checking."""
     var shape = List[Int]()
     shape.append(2)
@@ -357,19 +357,19 @@ fn test_var_backward_gradient() raises:
     x.set(4, Float32(0.1))
     x.set(5, Float32(0.7))
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return variance(inp, axis=1, ddof=0)
 
     var y = forward(x)
     var grad_out = ones_like(y)
 
-    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return variance_backward(grad, inp, axis=1, ddof=0)
 
     check_gradient(forward, backward, x, grad_out, rtol=2e-3, atol=1e-6)
 
 
-fn test_std_forward_simple() raises:
+def test_std_forward_simple() raises:
     """Test standard deviation with known result."""
     var shape = List[Int]()
     shape.append(3)
@@ -384,7 +384,7 @@ fn test_std_forward_simple() raises:
     assert_close_float(result._get_float64(0), expected, rtol=1e-5, atol=1e-7)
 
 
-fn test_std_backward_gradient() raises:
+def test_std_backward_gradient() raises:
     """Test std_backward with numerical gradient checking."""
     var shape = List[Int]()
     shape.append(2)
@@ -397,19 +397,19 @@ fn test_std_backward_gradient() raises:
     x.set(4, Float32(0.1))
     x.set(5, Float32(0.7))
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return std(inp, axis=1, ddof=0)
 
     var y = forward(x)
     var grad_out = ones_like(y)
 
-    fn backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return std_backward(grad, inp, axis=1, ddof=0)
 
     check_gradient(forward, backward, x, grad_out, rtol=2e-3, atol=1e-6)
 
 
-fn test_median_forward_odd() raises:
+def test_median_forward_odd() raises:
     """Test median with odd count."""
     var shape = List[Int]()
     shape.append(5)
@@ -424,7 +424,7 @@ fn test_median_forward_odd() raises:
     assert_close_float(result._get_float64(0), 3.0, rtol=1e-5, atol=1e-7)
 
 
-fn test_median_forward_even() raises:
+def test_median_forward_even() raises:
     """Test median with even count (average of two middle values)."""
     var shape = List[Int]()
     shape.append(4)
@@ -438,7 +438,7 @@ fn test_median_forward_even() raises:
     assert_close_float(result._get_float64(0), 2.5, rtol=1e-5, atol=1e-7)
 
 
-fn test_median_backward_shapes() raises:
+def test_median_backward_shapes() raises:
     """Test that median_backward returns correct gradient shape."""
     var shape = List[Int]()
     shape.append(2)
@@ -456,7 +456,7 @@ fn test_median_backward_shapes() raises:
     assert_equal(gi_shape[1], 3)
 
 
-fn test_percentile_forward_p50() raises:
+def test_percentile_forward_p50() raises:
     """Test that 50th percentile equals median."""
     var shape = List[Int]()
     shape.append(5)
@@ -471,7 +471,7 @@ fn test_percentile_forward_p50() raises:
     assert_close_float(result._get_float64(0), 3.0, rtol=1e-5, atol=1e-7)
 
 
-fn test_percentile_forward_p0_p100() raises:
+def test_percentile_forward_p0_p100() raises:
     """Test that 0th and 100th percentiles equal min and max."""
     var shape = List[Int]()
     shape.append(5)
@@ -489,7 +489,7 @@ fn test_percentile_forward_p0_p100() raises:
     assert_close_float(p100._get_float64(0), 5.0, rtol=1e-5, atol=1e-7)
 
 
-fn test_percentile_backward_shapes() raises:
+def test_percentile_backward_shapes() raises:
     """Test that percentile_backward returns correct gradient shape."""
     var shape = List[Int]()
     shape.append(2)
@@ -507,7 +507,7 @@ fn test_percentile_backward_shapes() raises:
     assert_equal(gi_shape[1], 3)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_reduction tests."""
     print("Running test_reduction tests...")
 

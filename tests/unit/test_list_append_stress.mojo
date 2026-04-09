@@ -5,11 +5,11 @@ This test stresses List operations to identify if there's a memory issue with
 List itself or with the specific pattern used in AnyTensor.
 """
 
-from collections import List
+from std.collections import List
 from testing import assert_equal
 
 
-fn test_list_basic_append() raises:
+def test_list_basic_append() raises:
     """Test basic List append operations."""
     print("\n=== Test 1: Basic List Append ===")
 
@@ -24,7 +24,7 @@ fn test_list_basic_append() raises:
     print("SUCCESS: All elements appended")
 
 
-fn test_list_large_append() raises:
+def test_list_large_append() raises:
     """Test List with many append operations."""
     print("\n=== Test 2: Large List Append ===")
 
@@ -46,7 +46,7 @@ fn test_list_large_append() raises:
         assert_equal(len(lst), size)
 
 
-fn test_list_rapid_allocations() raises:
+def test_list_rapid_allocations() raises:
     """Test rapid List allocations and deallocations."""
     print("\n=== Test 3: Rapid List Allocations ===")
 
@@ -60,7 +60,7 @@ fn test_list_rapid_allocations() raises:
     print("SUCCESS: 1000 lists created and destroyed")
 
 
-fn test_list_append_pattern_from_anytensor() raises:
+def test_list_append_pattern_from_anytensor() raises:
     """Test the exact append pattern used in AnyTensor.__init__.
 
     This reproduces the pattern from lines 104-110:
@@ -103,7 +103,7 @@ fn test_list_append_pattern_from_anytensor() raises:
     test_stride_pattern(shape4)
 
 
-fn test_stride_pattern(shape: List[Int]) raises:
+def test_stride_pattern(shape: List[Int]) raises:
     """Helper function to test stride pattern for a given shape."""
     print("  Testing pattern with shape of", len(shape), "dimensions...")
 
@@ -134,7 +134,7 @@ fn test_stride_pattern(shape: List[Int]) raises:
     print("  SUCCESS")
 
 
-fn test_list_reverse_iteration_append() raises:
+def test_list_reverse_iteration_append() raises:
     """Test List append during reverse iteration (specific to crash pattern)."""
     print("\n=== Test 5: Reverse Iteration Append ===")
 
@@ -170,7 +170,7 @@ fn test_list_reverse_iteration_append() raises:
         print("    SUCCESS")
 
 
-fn test_list_memory_stress() raises:
+def test_list_memory_stress() raises:
     """Stress test List memory allocation."""
     print("\n=== Test 6: List Memory Stress ===")
 
@@ -189,7 +189,7 @@ fn test_list_memory_stress() raises:
     print("SUCCESS")
 
 
-fn test_list_growth_pattern() raises:
+def test_list_growth_pattern() raises:
     """Test List growth patterns to identify reallocation issues."""
     print("\n=== Test 7: List Growth Pattern ===")
 
@@ -205,7 +205,7 @@ fn test_list_growth_pattern() raises:
     print("SUCCESS")
 
 
-fn test_list_zero_append_stress() raises:
+def test_list_zero_append_stress() raises:
     """Stress test specifically appending zeros (exact crash pattern)."""
     print("\n=== Test 8: Zero Append Stress ===")
 
@@ -235,7 +235,7 @@ fn test_list_zero_append_stress() raises:
     print("SUCCESS: All patterns completed")
 
 
-fn main() raises:
+def main() raises:
     """Run all List stress tests."""
     print("=" * 60)
     print("LIST APPEND STRESS TESTS")

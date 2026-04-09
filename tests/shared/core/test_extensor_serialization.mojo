@@ -13,7 +13,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones, arange
 from shared.utils.serialization import save_tensor, load_tensor
 
 
-fn test_save_load_float32() raises:
+def test_save_load_float32() raises:
     """Test save/load round-trip with float32 tensor."""
     print("\n" + "=" * 80)
     print("Test: Save/Load Float32 Tensor")
@@ -61,7 +61,7 @@ fn test_save_load_float32() raises:
     print()
 
 
-fn test_save_load_float64() raises:
+def test_save_load_float64() raises:
     """Test save/load round-trip with float64 tensor."""
     print("Test: Save/Load Float64 Tensor")
     print("-" * 40)
@@ -97,7 +97,7 @@ fn test_save_load_float64() raises:
     print()
 
 
-fn test_save_load_int64() raises:
+def test_save_load_int64() raises:
     """Test save/load round-trip with int64 tensor."""
     print("Test: Save/Load Int64 Tensor")
     print("-" * 40)
@@ -125,7 +125,7 @@ fn test_save_load_int64() raises:
     print()
 
 
-fn test_save_load_different_shapes() raises:
+def test_save_load_different_shapes() raises:
     """Test save/load with various tensor shapes."""
     print("Test: Save/Load Different Shapes")
     print("-" * 40)
@@ -169,7 +169,7 @@ fn test_save_load_different_shapes() raises:
     print()
 
 
-fn test_named_tensor_save() raises:
+def test_named_tensor_save() raises:
     """Test saving tensor with custom name."""
     print("Test: Save Tensor with Custom Name")
     print("-" * 40)
@@ -190,7 +190,7 @@ fn test_named_tensor_save() raises:
     print()
 
 
-fn test_large_tensor_serialization() raises:
+def test_large_tensor_serialization() raises:
     """Test serialization of larger tensor to verify efficiency."""
     print("Test: Large Tensor Serialization")
     print("-" * 40)
@@ -231,7 +231,7 @@ fn test_large_tensor_serialization() raises:
     print()
 
 
-fn main() raises:
+def main() raises:
     """Run all serialization tests."""
     print("\n" + "#" * 80)
     print("# AnyTensor Serialization Tests")

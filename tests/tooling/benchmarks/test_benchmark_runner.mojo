@@ -33,7 +33,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_benchmark_execution_timing() raises:
+def test_benchmark_execution_timing() raises:
     """Test that benchmark execution measures time correctly.
 
     Verifies:
@@ -67,7 +67,7 @@ fn test_benchmark_execution_timing() raises:
     )
 
 
-fn test_multiple_iterations() raises:
+def test_multiple_iterations() raises:
     """Test benchmark execution with multiple iterations.
 
     Verifies:
@@ -96,7 +96,7 @@ fn test_multiple_iterations() raises:
     )
 
 
-fn test_throughput_calculation() raises:
+def test_throughput_calculation() raises:
     """Test throughput calculation (operations per second).
 
     Verifies:
@@ -133,7 +133,7 @@ fn test_throughput_calculation() raises:
     )
 
 
-fn test_deterministic_execution() raises:
+def test_deterministic_execution() raises:
     """Test that benchmarks are deterministic with fixed seed.
 
     Verifies:
@@ -167,7 +167,7 @@ fn test_deterministic_execution() raises:
         )
 
 
-fn test_result_collection() raises:
+def test_result_collection() raises:
     """Test that benchmark results are collected correctly.
 
     Verifies:
@@ -191,7 +191,7 @@ fn test_result_collection() raises:
     assert_equal(result.memory_mb, memory_mb, "Memory should be stored")
 
 
-fn test_benchmark_isolation() raises:
+def test_benchmark_isolation() raises:
     """Test that benchmarks are isolated from each other.
 
     Verifies:
@@ -229,7 +229,7 @@ fn test_benchmark_isolation() raises:
     )
 
 
-fn test_benchmark_timeout() raises:
+def test_benchmark_timeout() raises:
     """Test that long-running benchmarks can be timed out.
 
     Verifies:
@@ -258,7 +258,7 @@ fn test_benchmark_timeout() raises:
     )
 
 
-fn test_json_output_format() raises:
+def test_json_output_format() raises:
     """Test that benchmark results are formatted as valid JSON.
 
     Verifies:
@@ -292,7 +292,7 @@ fn test_json_output_format() raises:
         )
 
 
-fn main() raises:
+def main() raises:
     """Run all benchmark runner tests."""
     print("\n=== Benchmark Runner Tests ===\n")
 

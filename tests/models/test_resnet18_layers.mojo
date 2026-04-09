@@ -34,7 +34,7 @@ from shared.core.normalization import batch_norm2d
 from shared.core.arithmetic import add
 
 
-fn create_basic_block(
+def create_basic_block(
     x: AnyTensor,
     conv1_weight: AnyTensor,
     conv1_bias: AnyTensor,
@@ -88,7 +88,7 @@ fn create_basic_block(
     return output
 
 
-fn test_residual_block_64_channels_forward() raises:
+def test_residual_block_64_channels_forward() raises:
     """Test residual block with 64 channels (no projection).
 
     This block is used in ResNet-18's first residual layer.
@@ -173,7 +173,7 @@ fn test_residual_block_64_channels_forward() raises:
     assert_true(non_zero_count > 0, "Output should have non-zero values")
 
 
-fn test_residual_block_64_channels_training_mode() raises:
+def test_residual_block_64_channels_training_mode() raises:
     """Test residual block in training mode with BatchNorm statistics.
 
     Training mode should compute batch statistics for BatchNorm.
@@ -240,7 +240,7 @@ fn test_residual_block_64_channels_training_mode() raises:
     assert_equal(out_shape[1], out_channels)
 
 
-fn test_residual_block_64_channels_inference_mode() raises:
+def test_residual_block_64_channels_inference_mode() raises:
     """Test residual block in inference mode using running statistics.
 
     Inference mode should use running mean/var from BatchNorm.
@@ -307,7 +307,7 @@ fn test_residual_block_64_channels_inference_mode() raises:
     assert_equal(out_shape[1], out_channels)
 
 
-fn test_residual_block_128_channels_projection() raises:
+def test_residual_block_128_channels_projection() raises:
     """Test residual block with 64->128 channels (with projection shortcut).
 
     When stride > 1 or channels change, projection shortcut is needed.
@@ -419,7 +419,7 @@ fn test_residual_block_128_channels_projection() raises:
     assert_equal(out_shape[3], width // 2)
 
 
-fn test_skip_connection_addition() raises:
+def test_skip_connection_addition() raises:
     """Test that skip connection (addition) works correctly.
 
     Skip connection is element-wise addition of two tensors.
@@ -456,7 +456,7 @@ fn test_skip_connection_addition() raises:
         assert_almost_equal(result_data[i], 2.0, tolerance=1e-5)
 
 
-fn test_skip_connection_identity() raises:
+def test_skip_connection_identity() raises:
     """Test identity skip connection (no change to input).
 
     When input goes directly through skip without transformation.
@@ -491,7 +491,7 @@ fn test_skip_connection_identity() raises:
         assert_almost_equal(result_data[i], original_values[i], tolerance=1e-5)
 
 
-fn test_batchnorm2d_training_mode() raises:
+def test_batchnorm2d_training_mode() raises:
     """Test BatchNorm2d in training mode.
 
     Training mode computes batch statistics (mean and variance).
@@ -543,7 +543,7 @@ fn test_batchnorm2d_training_mode() raises:
     assert_equal(new_var_shape[0], channels)
 
 
-fn test_batchnorm2d_inference_mode() raises:
+def test_batchnorm2d_inference_mode() raises:
     """Test BatchNorm2d in inference mode.
 
     Inference mode uses running statistics (mean and variance).
@@ -602,7 +602,7 @@ fn test_batchnorm2d_inference_mode() raises:
         )
 
 
-fn test_batchnorm2d_gamma_beta_effects() raises:
+def test_batchnorm2d_gamma_beta_effects() raises:
     """Test that gamma (scale) and beta (shift) parameters work correctly.
 
     gamma = 2.0 should double the normalized values.
@@ -645,7 +645,7 @@ fn test_batchnorm2d_gamma_beta_effects() raises:
         assert_almost_equal(out_data[i], 3.0, tolerance=1e-4)
 
 
-fn test_relu_in_residual_block() raises:
+def test_relu_in_residual_block() raises:
     """Test ReLU activation within residual block context.
 
     ReLU should zero out negative values.
@@ -681,7 +681,7 @@ fn test_relu_in_residual_block() raises:
         )
 
 
-fn test_block_forward_backward_consistency() raises:
+def test_block_forward_backward_consistency() raises:
     """Test that block forward and backward shapes are consistent.
 
     Backward pass should produce gradients with same shapes as forward inputs.
@@ -744,7 +744,7 @@ fn test_block_forward_backward_consistency() raises:
     assert_equal(out_shape[3], width)
 
 
-fn test_multiple_blocks_sequential() raises:
+def test_multiple_blocks_sequential() raises:
     """Test multiple residual blocks in sequence.
 
     Tests that output of one block can serve as input to next block.
@@ -823,7 +823,7 @@ fn test_multiple_blocks_sequential() raises:
     assert_equal(out_shape[3], width)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_resnet18_layers tests."""
     print("Running test_resnet18_layers tests...")
 

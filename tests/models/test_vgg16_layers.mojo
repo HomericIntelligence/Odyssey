@@ -59,7 +59,7 @@ from shared.core.pooling import (
 )
 
 
-fn test_vgg16_conv64_forward() raises:
+def test_vgg16_conv64_forward() raises:
     """Test Conv2D forward pass with 64 output channels (VGG layer 1).
 
     Configuration:
@@ -112,7 +112,7 @@ fn test_vgg16_conv64_forward() raises:
     assert_equal(output_shape[3], width)
 
 
-fn test_vgg16_conv64_backward() raises:
+def test_vgg16_conv64_backward() raises:
     """Test Conv2D backward pass with 64 output channels.
 
     Verifies gradient computation w.r.t. input, kernel, and bias.
@@ -163,7 +163,7 @@ fn test_vgg16_conv64_backward() raises:
     assert_shape(grad_input, input.shape())
 
 
-fn test_vgg16_conv128_forward() raises:
+def test_vgg16_conv128_forward() raises:
     """Test Conv2D forward pass with 128 output channels (VGG layer 2).
 
     Configuration:
@@ -215,7 +215,7 @@ fn test_vgg16_conv128_forward() raises:
     assert_equal(output_shape[3], width)
 
 
-fn test_vgg16_conv128_backward() raises:
+def test_vgg16_conv128_backward() raises:
     """Test Conv2D backward pass with 128 output channels."""
     var batch_size = 2
     var in_channels = 64
@@ -263,7 +263,7 @@ fn test_vgg16_conv128_backward() raises:
     assert_shape(grad_input, input.shape())
 
 
-fn test_vgg16_conv256_forward() raises:
+def test_vgg16_conv256_forward() raises:
     """Test Conv2D forward pass with 256 output channels (VGG layer 3).
 
     Configuration:
@@ -316,7 +316,7 @@ fn test_vgg16_conv256_forward() raises:
     assert_equal(output_shape[3], width)
 
 
-fn test_vgg16_conv256_backward() raises:
+def test_vgg16_conv256_backward() raises:
     """Test Conv2D backward pass with 256 output channels."""
     var batch_size = 2
     var in_channels = 128
@@ -364,7 +364,7 @@ fn test_vgg16_conv256_backward() raises:
     assert_shape(grad_input, input.shape())
 
 
-fn test_vgg16_conv512_forward() raises:
+def test_vgg16_conv512_forward() raises:
     """Test Conv2D forward pass with 512 output channels (VGG layers 4-5).
 
     Configuration:
@@ -417,7 +417,7 @@ fn test_vgg16_conv512_forward() raises:
     assert_equal(output_shape[3], width)
 
 
-fn test_vgg16_conv512_backward() raises:
+def test_vgg16_conv512_backward() raises:
     """Test Conv2D backward pass with 512 output channels."""
     var batch_size = 2
     var in_channels = 256
@@ -465,7 +465,7 @@ fn test_vgg16_conv512_backward() raises:
     assert_shape(grad_input, input.shape())
 
 
-fn test_vgg16_maxpool_forward() raises:
+def test_vgg16_maxpool_forward() raises:
     """Test MaxPool2D forward pass (2x2 kernel, stride 2).
 
     VGG-16 has 5 MaxPool layers between conv groups.
@@ -503,7 +503,7 @@ fn test_vgg16_maxpool_forward() raises:
     assert_equal(output_shape[3], width // stride)
 
 
-fn test_vgg16_maxpool_backward() raises:
+def test_vgg16_maxpool_backward() raises:
     """Test MaxPool2D backward pass."""
     var batch_size = 2
     var channels = 64
@@ -537,7 +537,7 @@ fn test_vgg16_maxpool_backward() raises:
     assert_shape(grad_input, input.shape())
 
 
-fn test_vgg16_relu_forward() raises:
+def test_vgg16_relu_forward() raises:
     """Test ReLU forward pass.
 
     VGG-16 applies ReLU after all conv and FC layers.
@@ -572,7 +572,7 @@ fn test_vgg16_relu_forward() raises:
             assert_almost_equal(output[i], 0.0, tolerance=1e-5)
 
 
-fn test_vgg16_relu_backward() raises:
+def test_vgg16_relu_backward() raises:
     """Test ReLU backward pass.
 
     Gradient only flows for positive input values.
@@ -604,7 +604,7 @@ fn test_vgg16_relu_backward() raises:
     assert_shape(grad_input, input.shape())
 
 
-fn test_vgg16_fc_forward() raises:
+def test_vgg16_fc_forward() raises:
     """Test fully connected layer forward pass.
 
     VGG-16 has 3 FC layers with ReLU between them (except final).
@@ -640,7 +640,7 @@ fn test_vgg16_fc_forward() raises:
     assert_equal(output_shape[1], out_features)
 
 
-fn test_vgg16_fc_backward() raises:
+def test_vgg16_fc_backward() raises:
     """Test fully connected layer backward pass."""
     var batch_size = 2
     var in_features = 4096
@@ -676,7 +676,7 @@ fn test_vgg16_fc_backward() raises:
     assert_shape(backward_result.grad_input, input.shape())
 
 
-fn test_vgg16_output_layer_forward() raises:
+def test_vgg16_output_layer_forward() raises:
     """Test output layer forward pass (4096 -> 10 classes).
 
     This is the final fully connected layer producing logits.
@@ -711,7 +711,7 @@ fn test_vgg16_output_layer_forward() raises:
     assert_equal(output_shape[1], 10)
 
 
-fn test_vgg16_output_layer_backward() raises:
+def test_vgg16_output_layer_backward() raises:
     """Test output layer backward pass."""
     var batch_size = 2
     var in_features = 4096
@@ -747,7 +747,7 @@ fn test_vgg16_output_layer_backward() raises:
     assert_shape(backward_result.grad_input, input.shape())
 
 
-fn main() raises:
+def main() raises:
     """Run all test_vgg16_layers tests."""
     print("Running test_vgg16_layers tests...")
 

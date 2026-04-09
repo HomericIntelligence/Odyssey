@@ -26,7 +26,7 @@ Features:
 - Automatic integration via Callback trait
 """
 
-from collections import Dict, List
+from std.collections import Dict, List
 from shared.training.base import (
     Callback,
     CallbackSignal,
@@ -53,7 +53,7 @@ struct CSVMetricsLogger(Callback, Copyable, Movable):
     var epoch_counter: Int
     var initialized: Bool
 
-    fn __init__(out self, log_dir: String):
+    def __init__(out self, log_dir: String):
         """Initialize metrics logger with output directory.
 
         Args:
@@ -65,7 +65,7 @@ struct CSVMetricsLogger(Callback, Copyable, Movable):
         self.epoch_counter = 0
         self.initialized = False
 
-    fn log_scalar(mut self, name: String, value: Float64) raises:
+    def log_scalar(mut self, name: String, value: Float64) raises:
         """Log a single scalar metric value.
 
         Args:
@@ -79,7 +79,7 @@ struct CSVMetricsLogger(Callback, Copyable, Movable):
             self.metrics[name] = List[Float64]()
         self.metrics[name].append(value)
 
-    fn log_from_state(mut self, state: TrainingState) raises:
+    def log_from_state(mut self, state: TrainingState) raises:
         """Log all metrics from TrainingState.
 
         Args:
@@ -91,11 +91,11 @@ struct CSVMetricsLogger(Callback, Copyable, Movable):
         for ref item in state.metrics.items():
             self.log_scalar(item.key, item.value)
 
-    fn step(mut self):
+    def step(mut self):
         """Increment step counter."""
         self.step_counter += 1
 
-    fn save(self) -> Bool:
+    def save(self) -> Bool:
         """Save all metrics to CSV files.
 
         Returns:
@@ -115,7 +115,7 @@ struct CSVMetricsLogger(Callback, Copyable, Movable):
 
         return all_success
 
-    fn _build_csv(self, name: String, values: List[Float64]) -> String:
+    def _build_csv(self, name: String, values: List[Float64]) -> String:
         """Build CSV content string for a metric.
 
         Args:
@@ -131,21 +131,21 @@ struct CSVMetricsLogger(Callback, Copyable, Movable):
         return result
 
     # Callback trait implementation
-    fn on_train_begin(mut self, mut state: TrainingState) -> CallbackSignal:
+    def on_train_begin(mut self, mut state: TrainingState) -> CallbackSignal:
         """Initialize logger at training start."""
         self.initialized = create_directory(self.log_dir)
         return CONTINUE
 
-    fn on_train_end(mut self, mut state: TrainingState) -> CallbackSignal:
+    def on_train_end(mut self, mut state: TrainingState) -> CallbackSignal:
         """Save all metrics at training end."""
         _ = self.save()
         return CONTINUE
 
-    fn on_epoch_begin(mut self, mut state: TrainingState) -> CallbackSignal:
+    def on_epoch_begin(mut self, mut state: TrainingState) -> CallbackSignal:
         """No-op at epoch begin."""
         return CONTINUE
 
-    fn on_epoch_end(
+    def on_epoch_end(
         mut self, mut state: TrainingState
     ) raises -> CallbackSignal:
         """Log metrics at epoch end and save."""
@@ -154,11 +154,11 @@ struct CSVMetricsLogger(Callback, Copyable, Movable):
         _ = self.save()  # Incremental save
         return CONTINUE
 
-    fn on_batch_begin(mut self, mut state: TrainingState) -> CallbackSignal:
+    def on_batch_begin(mut self, mut state: TrainingState) -> CallbackSignal:
         """No-op at batch begin."""
         return CONTINUE
 
-    fn on_batch_end(mut self, mut state: TrainingState) -> CallbackSignal:
+    def on_batch_end(mut self, mut state: TrainingState) -> CallbackSignal:
         """Optionally log batch-level metrics."""
         self.step_counter += 1
         return CONTINUE

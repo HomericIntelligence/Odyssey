@@ -23,7 +23,7 @@ from shared.core import matrix
 # Non-Contiguous Tensor Tests
 # ============================================================================
 
-fn test_gradient_check_transposed_input() raises:
+def test_gradient_check_transposed_input() raises:
     """Test gradient checking on transposed (non-contiguous) input.
 
     Creates a 2D tensor and transposes it, creating a non-contiguous view.
@@ -31,14 +31,14 @@ fn test_gradient_check_transposed_input() raises:
     """
     print("Testing gradient checking with transposed input...")
 
-    fn simple_square(x: AnyTensor) raises escaping -> AnyTensor:
+    def simple_square(x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var val = x._get_float64(i)
             result._set_float64(i, val * val)
         return result^
 
-    fn simple_square_backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def simple_square_backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var grad = grad_out._get_float64(i)
@@ -65,7 +65,7 @@ fn test_gradient_check_transposed_input() raises:
     print("  ✓ Gradient check passes on transposed input")
 
 
-fn test_gradient_check_transposed_relu() raises:
+def test_gradient_check_transposed_relu() raises:
     """Test ReLU gradient checking on non-contiguous input.
 
     ReLU is piecewise linear, so numerical gradients should match analytical
@@ -73,14 +73,14 @@ fn test_gradient_check_transposed_relu() raises:
     """
     print("Testing ReLU gradient checking with transposed input...")
 
-    fn relu_forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def relu_forward(x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var val = x._get_float64(i)
             result._set_float64(i, max(val, 0.0))
         return result^
 
-    fn relu_backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def relu_backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var grad = grad_out._get_float64(i)
@@ -110,7 +110,7 @@ fn test_gradient_check_transposed_relu() raises:
     print("  ✓ ReLU gradient check passes on transposed input")
 
 
-fn test_gradient_check_partial_transpose() raises:
+def test_gradient_check_partial_transpose() raises:
     """Test gradient checking with partial axis permutation.
 
     Creates a 3D tensor and permutes axes to create a non-contiguous layout,
@@ -118,14 +118,14 @@ fn test_gradient_check_partial_transpose() raises:
     """
     print("Testing gradient checking with partial axis permutation...")
 
-    fn simple_square(x: AnyTensor) raises escaping -> AnyTensor:
+    def simple_square(x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var val = x._get_float64(i)
             result._set_float64(i, val * val)
         return result^
 
-    fn simple_square_backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def simple_square_backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var grad = grad_out._get_float64(i)
@@ -155,7 +155,7 @@ fn test_gradient_check_partial_transpose() raises:
     print("  ✓ Gradient check passes on permuted 3D tensor")
 
 
-fn test_gradient_check_contiguous_copy() raises:
+def test_gradient_check_contiguous_copy() raises:
     """Test that as_contiguous() works correctly before gradient checking.
 
     Verifies that converting a non-contiguous tensor to contiguous layout
@@ -163,14 +163,14 @@ fn test_gradient_check_contiguous_copy() raises:
     """
     print("Testing gradient check after as_contiguous() conversion...")
 
-    fn simple_square(x: AnyTensor) raises escaping -> AnyTensor:
+    def simple_square(x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var val = x._get_float64(i)
             result._set_float64(i, val * val)
         return result^
 
-    fn simple_square_backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def simple_square_backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var grad = grad_out._get_float64(i)
@@ -198,7 +198,7 @@ fn test_gradient_check_contiguous_copy() raises:
     print("  ✓ Gradient check passes after as_contiguous() conversion")
 
 
-fn test_numerical_gradient_noncont() raises:
+def test_numerical_gradient_noncont() raises:
     """Test compute_numerical_gradient on non-contiguous input.
 
     Validates that numerical gradient computation correctly handles
@@ -206,7 +206,7 @@ fn test_numerical_gradient_noncont() raises:
     """
     print("Testing numerical gradient computation on non-contiguous tensor...")
 
-    fn simple_square(x: AnyTensor) raises escaping -> AnyTensor:
+    def simple_square(x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var val = x._get_float64(i)
@@ -239,7 +239,7 @@ fn test_numerical_gradient_noncont() raises:
     print("  ✓ Numerical gradient computed correctly on non-contiguous tensor")
 
 
-fn test_gradient_check_verbose_noncont() raises:
+def test_gradient_check_verbose_noncont() raises:
     """Test verbose gradient checking on non-contiguous input.
 
     Validates that the verbose output works correctly with
@@ -247,14 +247,14 @@ fn test_gradient_check_verbose_noncont() raises:
     """
     print("Testing verbose gradient checking with non-contiguous tensor...")
 
-    fn simple_square(x: AnyTensor) raises escaping -> AnyTensor:
+    def simple_square(x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var val = x._get_float64(i)
             result._set_float64(i, val * val)
         return result^
 
-    fn simple_square_backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def simple_square_backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var result = zeros(x.shape(), x.dtype())
         for i in range(x.numel()):
             var grad = grad_out._get_float64(i)
@@ -286,7 +286,7 @@ fn test_gradient_check_verbose_noncont() raises:
 # Main Test Entry Point
 # ============================================================================
 
-fn main() raises:
+def main() raises:
     """Run all non-contiguous tensor gradient checking tests."""
     print("\n" + "=" * 70)
     print("Testing Gradient Checking with Non-Contiguous Tensors (#3801)")

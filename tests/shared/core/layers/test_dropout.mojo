@@ -13,7 +13,7 @@ from shared.core.layers import DropoutLayer
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 
 
-fn test_dropout_init_valid() raises:
+def test_dropout_init_valid() raises:
     """Test dropout layer initialization with valid dropout rates."""
     # Valid dropout rates: 0.0 to 0.99
     var layer1 = DropoutLayer(0.0)
@@ -34,7 +34,7 @@ fn test_dropout_init_valid() raises:
     print("✓ test_dropout_init_valid passed")
 
 
-fn test_dropout_init_invalid() raises:
+def test_dropout_init_invalid() raises:
     """Test dropout layer initialization with invalid dropout rates."""
     # Test invalid rates
     var error_caught = False
@@ -73,7 +73,7 @@ fn test_dropout_init_invalid() raises:
     print("✓ test_dropout_init_invalid passed")
 
 
-fn test_dropout_training_mode() raises:
+def test_dropout_training_mode() raises:
     """Test setting training mode."""
     var layer = DropoutLayer(0.5)
 
@@ -91,7 +91,7 @@ fn test_dropout_training_mode() raises:
     print("✓ test_dropout_training_mode passed")
 
 
-fn test_dropout_forward_inference_mode() raises:
+def test_dropout_forward_inference_mode() raises:
     """Test dropout forward pass in inference mode (training=False)."""
     var layer = DropoutLayer(0.5)
     layer.set_training(False)
@@ -115,7 +115,7 @@ fn test_dropout_forward_inference_mode() raises:
     print("✓ test_dropout_forward_inference_mode passed")
 
 
-fn test_dropout_forward_training_mode_shape() raises:
+def test_dropout_forward_training_mode_shape() raises:
     """Test dropout forward pass preserves shape during training."""
     var layer = DropoutLayer(0.5)
     layer.set_training(True)
@@ -146,7 +146,7 @@ fn test_dropout_forward_training_mode_shape() raises:
     print("✓ test_dropout_forward_training_mode_shape passed")
 
 
-fn test_dropout_forward_training_mode_zeros() raises:
+def test_dropout_forward_training_mode_zeros() raises:
     """Test dropout forward pass zeros some elements during training."""
     var layer = DropoutLayer(0.5)
     layer.set_training(True)
@@ -175,7 +175,7 @@ fn test_dropout_forward_training_mode_zeros() raises:
     print("✓ test_dropout_forward_training_mode_zeros passed")
 
 
-fn test_dropout_forward_training_mode_scale() raises:
+def test_dropout_forward_training_mode_scale() raises:
     """Test dropout forward pass scales kept elements."""
     var layer = DropoutLayer(0.5)
     layer.set_training(True)
@@ -199,7 +199,7 @@ fn test_dropout_forward_training_mode_scale() raises:
     print("✓ test_dropout_forward_training_mode_scale passed")
 
 
-fn test_dropout_backward_shape() raises:
+def test_dropout_backward_shape() raises:
     """Test dropout backward pass preserves shape."""
     var layer = DropoutLayer(0.5)
     layer.set_training(True)
@@ -228,7 +228,7 @@ fn test_dropout_backward_shape() raises:
     print("✓ test_dropout_backward_shape passed")
 
 
-fn test_dropout_backward_scaling() raises:
+def test_dropout_backward_scaling() raises:
     """Test dropout backward pass applies mask and scaling."""
     var layer = DropoutLayer(0.5)
     layer.set_training(True)
@@ -265,7 +265,7 @@ fn test_dropout_backward_scaling() raises:
     print("✓ test_dropout_backward_scaling passed")
 
 
-fn test_dropout_parameters() raises:
+def test_dropout_parameters() raises:
     """Test that dropout has no learnable parameters."""
     var layer = DropoutLayer(0.5)
     var params = layer.parameters()
@@ -274,7 +274,7 @@ fn test_dropout_parameters() raises:
     print("✓ test_dropout_parameters passed")
 
 
-fn test_dropout_forward_float64() raises:
+def test_dropout_forward_float64() raises:
     """Test dropout forward pass with float64 dtype."""
     var layer = DropoutLayer(0.5)
     layer.set_training(True)
@@ -301,7 +301,7 @@ fn test_dropout_forward_float64() raises:
     print("✓ test_dropout_forward_float64 passed")
 
 
-fn test_dropout_zero_dropout_rate() raises:
+def test_dropout_zero_dropout_rate() raises:
     """Test dropout with dropout_rate=0 (no dropout)."""
     var layer = DropoutLayer(0.0)
     layer.set_training(True)
@@ -323,7 +323,7 @@ fn test_dropout_zero_dropout_rate() raises:
     print("✓ test_dropout_zero_dropout_rate passed")
 
 
-fn test_dropout_high_dropout_rate() raises:
+def test_dropout_high_dropout_rate() raises:
     """Test dropout with high dropout_rate."""
     var layer = DropoutLayer(0.9)
     layer.set_training(True)
@@ -362,7 +362,7 @@ fn test_dropout_high_dropout_rate() raises:
     print("✓ test_dropout_high_dropout_rate passed")
 
 
-fn main():
+def main():
     """Run all Dropout tests."""
     print("Running DropoutLayer tests...")
     try:

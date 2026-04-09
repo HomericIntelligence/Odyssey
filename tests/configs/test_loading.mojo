@@ -15,7 +15,7 @@ from testing import assert_true, assert_false, assert_equal
 from shared.utils.config import Config, load_config
 
 
-fn test_load_default_training_config() raises:
+def test_load_default_training_config() raises:
     """Test loading default training configuration.
 
     Verifies that the default training config loads successfully and
@@ -39,7 +39,7 @@ fn test_load_default_training_config() raises:
     print("✓ test_load_default_training_config passed")
 
 
-fn test_load_default_model_config() raises:
+def test_load_default_model_config() raises:
     """Test loading default model configuration.
 
     Verifies that default model settings load correctly.
@@ -53,7 +53,7 @@ fn test_load_default_model_config() raises:
     print("✓ test_load_default_model_config passed")
 
 
-fn test_load_default_data_config() raises:
+def test_load_default_data_config() raises:
     """Test loading default data configuration.
 
     Verifies that default data processing settings load correctly.
@@ -65,7 +65,7 @@ fn test_load_default_data_config() raises:
     print("✓ test_load_default_data_config passed")
 
 
-fn test_load_lenet5_model_config() raises:
+def test_load_lenet5_model_config() raises:
     """Test loading LeNet-5 model configuration.
 
     Verifies that paper-specific model config loads with correct architecture.
@@ -87,7 +87,7 @@ fn test_load_lenet5_model_config() raises:
     print("✓ test_load_lenet5_model_config passed")
 
 
-fn test_load_lenet5_training_config() raises:
+def test_load_lenet5_training_config() raises:
     """Test loading LeNet-5 training configuration.
 
     Verifies that paper-specific training config loads correctly.
@@ -106,7 +106,7 @@ fn test_load_lenet5_training_config() raises:
     print("✓ test_load_lenet5_training_config passed")
 
 
-fn test_load_experiment_baseline_config() raises:
+def test_load_experiment_baseline_config() raises:
     """Test loading baseline experiment configuration.
 
     Verifies that experiment configs can reference base configs.
@@ -120,7 +120,7 @@ fn test_load_experiment_baseline_config() raises:
     print("✓ test_load_experiment_baseline_config passed")
 
 
-fn test_load_experiment_augmented_config() raises:
+def test_load_experiment_augmented_config() raises:
     """Test loading augmented experiment configuration.
 
     Verifies experiment config with data augmentation settings.
@@ -132,7 +132,7 @@ fn test_load_experiment_augmented_config() raises:
     print("✓ test_load_experiment_augmented_config passed")
 
 
-fn test_load_yaml_config() raises:
+def test_load_yaml_config() raises:
     """Test loading YAML configuration file.
 
     Verifies YAML parsing works correctly.
@@ -151,7 +151,7 @@ fn test_load_yaml_config() raises:
     print("✓ test_load_yaml_config passed")
 
 
-fn test_load_json_config() raises:
+def test_load_json_config() raises:
     """Test loading JSON configuration file.
 
     Verifies JSON parsing works correctly.
@@ -171,7 +171,7 @@ fn test_load_json_config() raises:
     print("✓ test_load_json_config passed")
 
 
-fn test_load_missing_file() raises:
+def test_load_missing_file() raises:
     """Test loading non-existent configuration file.
 
     Verifies proper error handling for missing files.
@@ -188,7 +188,7 @@ fn test_load_missing_file() raises:
     print("✓ test_load_missing_file passed")
 
 
-fn test_load_empty_file() raises:
+def test_load_empty_file() raises:
     """Test loading empty configuration file.
 
     Verifies proper error handling for empty files.
@@ -208,7 +208,7 @@ fn test_load_empty_file() raises:
     print("✓ test_load_empty_file passed")
 
 
-fn test_load_invalid_format() raises:
+def test_load_invalid_format() raises:
     """Test loading file with invalid format.
 
     Verifies proper error handling for unsupported formats.
@@ -225,7 +225,7 @@ fn test_load_invalid_format() raises:
     print("✓ test_load_invalid_format passed")
 
 
-fn test_load_complex_nested_config() raises:
+def test_load_complex_nested_config() raises:
     """Test loading complex nested configuration.
 
     Verifies that nested structures are properly parsed.
@@ -240,7 +240,7 @@ fn test_load_complex_nested_config() raises:
     print("✓ test_load_complex_nested_config passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_loading tests."""
     print("Running test_loading tests...")
 

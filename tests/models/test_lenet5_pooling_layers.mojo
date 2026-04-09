@@ -18,7 +18,7 @@ from shared.testing.layer_testers import LayerTester
 # ============================================================================
 
 
-fn test_maxpool1_forward_float32() raises:
+def test_maxpool1_forward_float32() raises:
     """Test MaxPool1 (2x2, stride 2) forward pass with float32."""
     var dtype = DType.float32
 
@@ -34,7 +34,7 @@ fn test_maxpool1_forward_float32() raises:
     )
 
 
-fn test_maxpool1_forward_float16() raises:
+def test_maxpool1_forward_float16() raises:
     """Test MaxPool1 forward pass with float16."""
     var dtype = DType.float16
 
@@ -50,7 +50,7 @@ fn test_maxpool1_forward_float16() raises:
     )
 
 
-fn test_maxpool2_forward_float32() raises:
+def test_maxpool2_forward_float32() raises:
     """Test MaxPool2 (2x2, stride 2) forward pass with float32."""
     var dtype = DType.float32
 
@@ -66,7 +66,7 @@ fn test_maxpool2_forward_float32() raises:
     )
 
 
-fn test_maxpool2_forward_float16() raises:
+def test_maxpool2_forward_float16() raises:
     """Test MaxPool2 forward pass with float16."""
     var dtype = DType.float16
 
@@ -82,7 +82,7 @@ fn test_maxpool2_forward_float16() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all pooling layer tests."""
     print("LeNet-5 Pooling Layer Tests")
     print("=" * 50)

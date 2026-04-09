@@ -55,7 +55,7 @@ Usage:
 
 from shared.tensor.any_tensor import AnyTensor
 from shared.testing.tensor_factory import zeros
-from random import seed as random_seed, random_float64
+from std.random import seed as random_seed, random_float64
 
 
 # ============================================================================
@@ -75,7 +75,7 @@ comptime SPECIAL_VALUE_NEG_ONE: Float64 = -1.0
 # ============================================================================
 
 
-fn create_special_value_tensor(
+def create_special_value_tensor(
     shape: List[Int], dtype: DType, value: Float64 = SPECIAL_VALUE_ONE
 ) raises -> AnyTensor:
     """Create tensor filled with a special value.
@@ -140,7 +140,7 @@ fn create_special_value_tensor(
     return tensor^
 
 
-fn create_alternating_pattern_tensor(
+def create_alternating_pattern_tensor(
     shape: List[Int], dtype: DType
 ) raises -> AnyTensor:
     """Create tensor with alternating special values pattern.
@@ -193,7 +193,7 @@ fn create_alternating_pattern_tensor(
     return tensor^
 
 
-fn verify_special_value_invariants(
+def verify_special_value_invariants(
     tensor: AnyTensor, expected_value: Float64
 ) raises:
     """Verify all elements match expected special value.
@@ -251,7 +251,7 @@ fn verify_special_value_invariants(
             )
 
 
-fn create_seeded_random_tensor(
+def create_seeded_random_tensor(
     shape: List[Int],
     dtype: DType,
     seed: Int = 42,
@@ -324,7 +324,7 @@ fn create_seeded_random_tensor(
     return tensor^
 
 
-fn create_zeros_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
+def create_zeros_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create tensor filled with zeros (special value).
 
     Convenience wrapper around create_special_value_tensor for zero initialization.
@@ -348,7 +348,7 @@ fn create_zeros_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     return create_special_value_tensor(shape, dtype, SPECIAL_VALUE_ZERO)
 
 
-fn create_ones_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
+def create_ones_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create tensor filled with ones (special value).
 
     Convenience wrapper around create_special_value_tensor for one initialization.
@@ -372,7 +372,7 @@ fn create_ones_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     return create_special_value_tensor(shape, dtype, SPECIAL_VALUE_ONE)
 
 
-fn create_halves_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
+def create_halves_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create tensor filled with 0.5 values (special value).
 
     Convenience wrapper around create_special_value_tensor for half initialization.
@@ -396,7 +396,7 @@ fn create_halves_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     return create_special_value_tensor(shape, dtype, SPECIAL_VALUE_HALF)
 
 
-fn create_one_and_half_tensor(
+def create_one_and_half_tensor(
     shape: List[Int], dtype: DType
 ) raises -> AnyTensor:
     """Create tensor filled with 1.5 values (special value).
@@ -427,7 +427,7 @@ fn create_one_and_half_tensor(
 # ============================================================================
 
 
-fn create_nan_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
+def create_nan_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     """Create tensor filled with NaN (Not a Number) values.
 
     Creates NaN values by dividing zero by zero (0.0 / 0.0).
@@ -460,7 +460,7 @@ fn create_nan_tensor(shape: List[Int], dtype: DType) raises -> AnyTensor:
     return result
 
 
-fn create_inf_tensor(
+def create_inf_tensor(
     shape: List[Int], dtype: DType, positive: Bool = True
 ) raises -> AnyTensor:
     """Create tensor filled with Infinity values.

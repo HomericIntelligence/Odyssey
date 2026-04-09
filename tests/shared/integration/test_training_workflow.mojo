@@ -22,7 +22,7 @@ from tests.shared.conftest import (
 # ============================================================================
 
 
-fn test_basic_training_loop() raises:
+def test_basic_training_loop() raises:
     """Test complete training loop with validation.
 
     Integration Points:
@@ -93,7 +93,7 @@ fn test_basic_training_loop() raises:
     pass
 
 
-fn test_training_with_validation() raises:
+def test_training_with_validation() raises:
     """Test training loop that includes validation after each epoch.
 
     Integration Points:
@@ -137,7 +137,7 @@ fn test_training_with_validation() raises:
 # ============================================================================
 
 
-fn test_training_with_early_stopping() raises:
+def test_training_with_early_stopping() raises:
     """Test training loop with early stopping callback.
 
     Integration Points:
@@ -181,7 +181,7 @@ fn test_training_with_early_stopping() raises:
     pass
 
 
-fn test_training_with_checkpoint() raises:
+def test_training_with_checkpoint() raises:
     """Test training loop with model checkpointing.
 
     Integration Points:
@@ -236,7 +236,7 @@ fn test_training_with_checkpoint() raises:
 # ============================================================================
 
 
-fn test_multi_epoch_convergence() raises:
+def test_multi_epoch_convergence() raises:
     """Test that multi-epoch training converges on simple problem.
 
     Integration Points:
@@ -297,7 +297,7 @@ fn test_multi_epoch_convergence() raises:
 # ============================================================================
 
 
-fn test_gradient_flow_through_layers() raises:
+def test_gradient_flow_through_layers() raises:
     """Test that gradients flow correctly through stacked layers.
 
     Integration Points:
@@ -347,7 +347,7 @@ fn test_gradient_flow_through_layers() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all training workflow integration tests."""
     print("Running basic training loop tests...")
     test_basic_training_loop()

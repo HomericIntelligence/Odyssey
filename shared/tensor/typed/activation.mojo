@@ -3,7 +3,7 @@
 Internal module -- not part of the public API.
 """
 
-from math import exp, erf, sqrt, tanh as math_tanh, log as math_log
+from std.math import exp, erf, sqrt, tanh as math_tanh, log as math_log
 from shared.tensor.tensor import Tensor
 from shared.tensor.any_tensor import AnyTensor
 from shared.core.activation_constants import (
@@ -30,7 +30,7 @@ from shared.base.dtype_ordinal import (
 # ============================================================================
 
 
-fn _relu_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
+def _relu_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     """Native typed ReLU -- zero dtype branches.
 
     Tensor[dt]._data is already typed as UnsafePointer[Scalar[dt], MutAnyOrigin].
@@ -48,7 +48,7 @@ fn _relu_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     return result^
 
 
-fn _relu6_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
+def _relu6_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     """Native typed ReLU6 -- zero dtype branches.
 
     Args:
@@ -64,7 +64,7 @@ fn _relu6_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     return result^
 
 
-fn _sigmoid_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
+def _sigmoid_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     """Native typed sigmoid -- zero dtype branches.
 
     Uses numerically stable implementation with input clipping.
@@ -88,7 +88,7 @@ fn _sigmoid_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     return result^
 
 
-fn _leaky_relu_typed[dt: DType](
+def _leaky_relu_typed[dt: DType](
     input: Tensor[dt], alpha: Float64
 ) raises -> Tensor[dt]:
     """Native typed leaky ReLU -- zero dtype branches.
@@ -109,7 +109,7 @@ fn _leaky_relu_typed[dt: DType](
     return result^
 
 
-fn _elu_typed[dt: DType](
+def _elu_typed[dt: DType](
     input: Tensor[dt], alpha: Float64
 ) raises -> Tensor[dt]:
     """Native typed ELU -- zero dtype branches.
@@ -134,7 +134,7 @@ fn _elu_typed[dt: DType](
     return result^
 
 
-fn _selu_typed[dt: DType](
+def _selu_typed[dt: DType](
     input: Tensor[dt], alpha: Float64, lambda_: Float64
 ) raises -> Tensor[dt]:
     """Native typed SELU -- zero dtype branches.
@@ -166,7 +166,7 @@ fn _selu_typed[dt: DType](
 # ============================================================================
 
 
-fn _dispatch_relu(tensor: AnyTensor) raises -> AnyTensor:
+def _dispatch_relu(tensor: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch to Tensor[dtype] typed ReLU core (all dtypes)."""
     var ordinal = dtype_to_ordinal(tensor._dtype)
     if ordinal == DTYPE_FLOAT16:
@@ -195,7 +195,7 @@ fn _dispatch_relu(tensor: AnyTensor) raises -> AnyTensor:
         raise Error("relu: unsupported dtype")
 
 
-fn _dispatch_relu6(tensor: AnyTensor) raises -> AnyTensor:
+def _dispatch_relu6(tensor: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch to Tensor[dtype] typed ReLU6 core."""
     var ordinal = dtype_to_ordinal(tensor._dtype)
     if ordinal == DTYPE_FLOAT16:
@@ -216,7 +216,7 @@ fn _dispatch_relu6(tensor: AnyTensor) raises -> AnyTensor:
         raise Error("relu6: unsupported dtype")
 
 
-fn _dispatch_sigmoid(tensor: AnyTensor) raises -> AnyTensor:
+def _dispatch_sigmoid(tensor: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch to Tensor[dtype] typed sigmoid core (float only)."""
     var ordinal = dtype_to_ordinal(tensor._dtype)
     if ordinal == DTYPE_FLOAT16:
@@ -232,7 +232,7 @@ fn _dispatch_sigmoid(tensor: AnyTensor) raises -> AnyTensor:
         )
 
 
-fn _dispatch_leaky_relu(
+def _dispatch_leaky_relu(
     tensor: AnyTensor, alpha: Float64
 ) raises -> AnyTensor:
     """Runtime dispatch to Tensor[dtype] typed leaky ReLU core."""
@@ -257,7 +257,7 @@ fn _dispatch_leaky_relu(
         )
 
 
-fn _dispatch_elu(
+def _dispatch_elu(
     tensor: AnyTensor, alpha: Float64
 ) raises -> AnyTensor:
     """Runtime dispatch to Tensor[dtype] typed ELU core (float only)."""
@@ -272,7 +272,7 @@ fn _dispatch_elu(
         raise Error("elu: only float16/32/64 dtypes supported")
 
 
-fn _dispatch_selu(
+def _dispatch_selu(
     tensor: AnyTensor, alpha: Float64, lambda_: Float64
 ) raises -> AnyTensor:
     """Runtime dispatch to Tensor[dtype] typed SELU core (float only)."""
@@ -293,7 +293,7 @@ fn _dispatch_selu(
 
 
 @always_inline
-fn _relu_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+def _relu_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """ReLU operation: max(0, x).
 
     Parameters:
@@ -309,7 +309,7 @@ fn _relu_op[T: DType](x: Scalar[T]) -> Scalar[T]:
 
 
 
-fn _tanh_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+def _tanh_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Tanh operation for float dtypes.
 
     Parameters:
@@ -321,9 +321,7 @@ fn _tanh_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     Returns:
         tanh(x), computed using the math library function.
     """
-
-    @parameter
-    if T == DType.float16 or T == DType.float32:
+    comptime if T == DType.float16 or T == DType.float32:
         return Scalar[T](math_tanh(Float32(x)))
     else:  # float64
         return Scalar[T](math_tanh(Float64(x)))
@@ -331,7 +329,7 @@ fn _tanh_op[T: DType](x: Scalar[T]) -> Scalar[T]:
 
 
 
-fn _tanh_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
+def _tanh_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     """Native typed tanh -- zero dtype branches.
 
     Args:

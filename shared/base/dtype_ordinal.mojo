@@ -51,7 +51,7 @@ comptime DTYPE_UNSUPPORTED: Int = -1
 comptime SUPPORTED_DTYPE_COUNT: Int = 11
 
 
-fn dtype_to_ordinal(dtype: DType) -> Int:
+def dtype_to_ordinal(dtype: DType) -> Int:
     """Convert DType to integer ordinal for dispatch lookup.
 
     Returns DTYPE_UNSUPPORTED (-1) for unknown dtypes.
@@ -101,7 +101,7 @@ fn dtype_to_ordinal(dtype: DType) -> Int:
         return DTYPE_UNSUPPORTED
 
 
-fn format_dtype_name(dtype: DType) -> String:
+def format_dtype_name(dtype: DType) -> String:
     """Format DType for error messages.
 
     Args:

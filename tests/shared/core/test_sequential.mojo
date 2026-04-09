@@ -36,11 +36,11 @@ struct IdentityModule(Module, Movable):
 
     var is_training: Bool
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize identity module."""
         self.is_training = True
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Return input unchanged.
 
         Args:
@@ -51,7 +51,7 @@ struct IdentityModule(Module, Movable):
         """
         return input
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Return empty parameter list.
 
         Returns:
@@ -59,11 +59,11 @@ struct IdentityModule(Module, Movable):
         """
         return List[AnyTensor]()
 
-    fn train(mut self):
+    def train(mut self):
         """Set to training mode."""
         self.is_training = True
 
-    fn eval(mut self):
+    def eval(mut self):
         """Set to evaluation mode."""
         self.is_training = False
 
@@ -78,7 +78,7 @@ struct ScaleModule(Module, Movable):
     var scale: Float32
     var is_training: Bool
 
-    fn __init__(out self, scale: Float32):
+    def __init__(out self, scale: Float32):
         """Initialize scale module.
 
         Args:
@@ -87,7 +87,7 @@ struct ScaleModule(Module, Movable):
         self.scale = scale
         self.is_training = True
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Scale all elements by self.scale.
 
         Args:
@@ -103,7 +103,7 @@ struct ScaleModule(Module, Movable):
             result.set(i, input[i] * self.scale)
         return result
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Return empty parameter list.
 
         Returns:
@@ -111,11 +111,11 @@ struct ScaleModule(Module, Movable):
         """
         return List[AnyTensor]()
 
-    fn train(mut self):
+    def train(mut self):
         """Set to training mode."""
         self.is_training = True
 
-    fn eval(mut self):
+    def eval(mut self):
         """Set to evaluation mode."""
         self.is_training = False
 
@@ -130,12 +130,12 @@ struct CountingModule:
     var call_count: Int
     var is_training: Bool
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize counting module with zero call count."""
         self.call_count = 0
         self.is_training = True
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Increment call count and return input unchanged.
 
         Args:
@@ -147,7 +147,7 @@ struct CountingModule:
         self.call_count += 1
         return input
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Return empty parameter list.
 
         Returns:
@@ -155,11 +155,11 @@ struct CountingModule:
         """
         return List[AnyTensor]()
 
-    fn train(mut self):
+    def train(mut self):
         """Set to training mode."""
         self.is_training = True
 
-    fn eval(mut self):
+    def eval(mut self):
         """Set to evaluation mode."""
         self.is_training = False
 
@@ -173,7 +173,7 @@ struct DummyModuleWithParams(Module, Movable):
     var num_params: Int
     var is_training: Bool
 
-    fn __init__(out self, num_params: Int) raises:
+    def __init__(out self, num_params: Int) raises:
         """Initialize module with specified number of parameters.
 
         Args:
@@ -182,7 +182,7 @@ struct DummyModuleWithParams(Module, Movable):
         self.num_params = num_params
         self.is_training = True
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Return input unchanged.
 
         Args:
@@ -193,7 +193,7 @@ struct DummyModuleWithParams(Module, Movable):
         """
         return input
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Return dummy parameter list of specified size.
 
         Returns:
@@ -205,11 +205,11 @@ struct DummyModuleWithParams(Module, Movable):
             params.append(zeros(shape, DType.float32))
         return params^
 
-    fn train(mut self):
+    def train(mut self):
         """Set to training mode."""
         self.is_training = True
 
-    fn eval(mut self):
+    def eval(mut self):
         """Set to evaluation mode."""
         self.is_training = False
 
@@ -219,7 +219,7 @@ struct DummyModuleWithParams(Module, Movable):
 # ============================================================================
 
 
-fn test_sequential2_forward_identity_chain() raises:
+def test_sequential2_forward_identity_chain() raises:
     """Test Sequential2 forward pass with two identity layers.
 
     Input should pass through both layers without modification.
@@ -248,7 +248,7 @@ fn test_sequential2_forward_identity_chain() raises:
         )
 
 
-fn test_sequential2_forward_values() raises:
+def test_sequential2_forward_values() raises:
     """Test Sequential2 numerical correctness with two scale layers.
 
     Uses FP-representable values (0.5 * 0.5 = 0.25) to verify that
@@ -271,7 +271,7 @@ fn test_sequential2_forward_values() raises:
         )
 
 
-fn test_sequential2_forward_order() raises:
+def test_sequential2_forward_order() raises:
     """Test that Sequential2 applies layers in order (layer0 then layer1).
 
     Scale by 2.0 then by 0.5 should give net 1.0.
@@ -297,7 +297,7 @@ fn test_sequential2_forward_order() raises:
         )
 
 
-fn test_sequential2_parameters_combined() raises:
+def test_sequential2_parameters_combined() raises:
     """Test Sequential2 parameter collection combines both layers.
 
     A module with 3 params followed by a module with 2 params should
@@ -310,7 +310,7 @@ fn test_sequential2_parameters_combined() raises:
     assert_equal_int(len(params), 5, "Combined parameters should be 3 + 2 = 5")
 
 
-fn test_sequential2_parameters_empty() raises:
+def test_sequential2_parameters_empty() raises:
     """Test Sequential2 parameter collection with no-param layers.
 
     Both identity layers have no parameters, so combined list is empty.
@@ -322,7 +322,7 @@ fn test_sequential2_parameters_empty() raises:
     assert_equal_int(len(params), 0, "Both identity layers have no parameters")
 
 
-fn test_sequential2_train_eval_mode() raises:
+def test_sequential2_train_eval_mode() raises:
     """Test Sequential2 propagates train/eval mode to both sub-layers.
 
     After calling train(), both layers must be in training mode.
@@ -347,7 +347,7 @@ fn test_sequential2_train_eval_mode() raises:
     assert_true(seq.layer1.is_training, "layer1 should be back in train mode")
 
 
-fn test_sequential2_zero_input() raises:
+def test_sequential2_zero_input() raises:
     """Test Sequential2 with zero input through identity chain.
 
     Input of all zeros should remain all zeros through identity layers.
@@ -374,7 +374,7 @@ fn test_sequential2_zero_input() raises:
 # ============================================================================
 
 
-fn test_sequential3_forward_chain() raises:
+def test_sequential3_forward_chain() raises:
     """Test Sequential3 chains three layers correctly.
 
     Scale by 0.5 three times: 1.0 * 0.5^3 = 0.125.
@@ -395,7 +395,7 @@ fn test_sequential3_forward_chain() raises:
         )
 
 
-fn test_sequential3_parameters_combined() raises:
+def test_sequential3_parameters_combined() raises:
     """Test Sequential3 parameter collection combines all three layers.
 
     Layers with 1, 2, and 3 params should yield 6 total parameters.
@@ -413,7 +413,7 @@ fn test_sequential3_parameters_combined() raises:
     )
 
 
-fn test_sequential3_train_eval_mode() raises:
+def test_sequential3_train_eval_mode() raises:
     """Test Sequential3 propagates train/eval mode to all three sub-layers."""
     var seq = Sequential3[IdentityModule, IdentityModule, IdentityModule](
         IdentityModule(), IdentityModule(), IdentityModule()
@@ -437,7 +437,7 @@ fn test_sequential3_train_eval_mode() raises:
     assert_true(seq.layer2.is_training, "layer2 should be back in train mode")
 
 
-fn test_sequential3_shape_preserved() raises:
+def test_sequential3_shape_preserved() raises:
     """Test Sequential3 preserves tensor shape through three identity layers."""
     var seq = Sequential3[IdentityModule, IdentityModule, IdentityModule](
         IdentityModule(), IdentityModule(), IdentityModule()
@@ -457,7 +457,7 @@ fn test_sequential3_shape_preserved() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all Sequential module tests."""
     test_sequential2_forward_identity_chain()
     test_sequential2_forward_values()

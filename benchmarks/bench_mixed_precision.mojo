@@ -11,7 +11,7 @@ from shared.training.mixed_precision import (
 )
 
 
-fn benchmark_fp16_to_fp32_64() raises:
+def benchmark_fp16_to_fp32_64() raises:
     """Benchmark FP16→FP32 with 64 elements."""
     print("  Benchmarking FP16→FP32 (64 elements)...")
     var tensor = AnyTensor([64], DType.float16)
@@ -20,7 +20,7 @@ fn benchmark_fp16_to_fp32_64() raises:
     print("    ✓ Completed 100 iterations")
 
 
-fn benchmark_fp16_to_fp32_4096() raises:
+def benchmark_fp16_to_fp32_4096() raises:
     """Benchmark FP16→FP32 with 4096 elements."""
     print("  Benchmarking FP16→FP32 (4096 elements)...")
     var tensor = AnyTensor([4096], DType.float16)
@@ -29,7 +29,7 @@ fn benchmark_fp16_to_fp32_4096() raises:
     print("    ✓ Completed 20 iterations")
 
 
-fn benchmark_fp16_to_fp32_65536() raises:
+def benchmark_fp16_to_fp32_65536() raises:
     """Benchmark FP16→FP32 with 65536 elements."""
     print("  Benchmarking FP16→FP32 (65536 elements)...")
     var tensor = AnyTensor([65536], DType.float16)
@@ -38,7 +38,7 @@ fn benchmark_fp16_to_fp32_65536() raises:
     print("    ✓ Completed 5 iterations")
 
 
-fn benchmark_fp32_to_fp16_64() raises:
+def benchmark_fp32_to_fp16_64() raises:
     """Benchmark FP32→FP16 with 64 elements."""
     print("  Benchmarking FP32→FP16 (64 elements)...")
     var master = AnyTensor([64], DType.float32)
@@ -48,7 +48,7 @@ fn benchmark_fp32_to_fp16_64() raises:
     print("    ✓ Completed 100 iterations")
 
 
-fn benchmark_fp32_to_fp16_4096() raises:
+def benchmark_fp32_to_fp16_4096() raises:
     """Benchmark FP32→FP16 with 4096 elements."""
     print("  Benchmarking FP32→FP16 (4096 elements)...")
     var master = AnyTensor([4096], DType.float32)
@@ -58,7 +58,7 @@ fn benchmark_fp32_to_fp16_4096() raises:
     print("    ✓ Completed 20 iterations")
 
 
-fn benchmark_fp32_to_fp16_65536() raises:
+def benchmark_fp32_to_fp16_65536() raises:
     """Benchmark FP32→FP16 with 65536 elements."""
     print("  Benchmarking FP32→FP16 (65536 elements)...")
     var master = AnyTensor([65536], DType.float32)
@@ -68,7 +68,7 @@ fn benchmark_fp32_to_fp16_65536() raises:
     print("    ✓ Completed 5 iterations")
 
 
-fn benchmark_fp32_to_fp32_65536() raises:
+def benchmark_fp32_to_fp32_65536() raises:
     """Benchmark FP32→FP32 with 65536 elements (reference)."""
     print("  Benchmarking FP32→FP32 (65536 elements, reference)...")
     var tensor = AnyTensor([65536], DType.float32)
@@ -77,7 +77,7 @@ fn benchmark_fp32_to_fp32_65536() raises:
     print("    ✓ Completed 5 iterations")
 
 
-fn main() raises:
+def main() raises:
     """Run all mixed precision benchmarks."""
     print("\n" + "=" * 50)
     print("SIMD Mixed Precision Benchmarks")

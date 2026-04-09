@@ -10,7 +10,7 @@ This example shows:
 from shared.tensor.any_tensor import AnyTensor, zeros
 
 
-fn main() raises:
+def main() raises:
     print("\n=== FP8 Data Type Example ===\n")
     print(
         "NOTE: FP8 support is not yet implemented in the shared library."

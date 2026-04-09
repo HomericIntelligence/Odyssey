@@ -21,7 +21,7 @@ from shared.core.reduction import (
 )
 
 
-fn test_sum_correctness() raises:
+def test_sum_correctness() raises:
     """AnyTensor sum produces correct results."""
     var a = any_full([2, 3], 0.5, DType.float32)
     var result = sum(a)
@@ -36,7 +36,7 @@ fn test_sum_correctness() raises:
     print("PASS: test_sum_correctness")
 
 
-fn test_mean_correctness() raises:
+def test_mean_correctness() raises:
     """AnyTensor mean produces correct results."""
     var a = any_full([2, 3], 1.5, DType.float32)
     var result = mean(a)
@@ -51,7 +51,7 @@ fn test_mean_correctness() raises:
     print("PASS: test_mean_correctness")
 
 
-fn test_sum_known_values() raises:
+def test_sum_known_values() raises:
     """Sum([1,2,3]) = 6."""
     var t = any_zeros([3], DType.float32)
     t[0] = 1.0
@@ -67,7 +67,7 @@ fn test_sum_known_values() raises:
     print("PASS: test_sum_known_values")
 
 
-fn test_mean_known_values() raises:
+def test_mean_known_values() raises:
     """Mean([2,4,6]) = 4."""
     var t = any_zeros([3], DType.float32)
     t[0] = 2.0
@@ -83,7 +83,7 @@ fn test_mean_known_values() raises:
     print("PASS: test_mean_known_values")
 
 
-fn test_sum_axis() raises:
+def test_sum_axis() raises:
     """Sum along axis 1 for a [2, 3] tensor."""
     var t = any_ones([2, 3], DType.float32)
     var result = sum(t, axis=1)
@@ -99,7 +99,7 @@ fn test_sum_axis() raises:
     print("PASS: test_sum_axis")
 
 
-fn test_mean_axis() raises:
+def test_mean_axis() raises:
     """Mean along axis 1 for known values."""
     var t = any_zeros([2, 2], DType.float32)
     t[0] = 1.0
@@ -119,7 +119,7 @@ fn test_mean_axis() raises:
     print("PASS: test_mean_axis")
 
 
-fn test_max_reduce() raises:
+def test_max_reduce() raises:
     """Max_reduce returns maximum element."""
     var t = any_zeros([4], DType.float32)
     t[0] = -1.0
@@ -136,7 +136,7 @@ fn test_max_reduce() raises:
     print("PASS: test_max_reduce")
 
 
-fn test_min_reduce() raises:
+def test_min_reduce() raises:
     """Min_reduce returns minimum element."""
     var t = any_zeros([4], DType.float32)
     t[0] = -1.0
@@ -153,7 +153,7 @@ fn test_min_reduce() raises:
     print("PASS: test_min_reduce")
 
 
-fn test_sum_float64_precision() raises:
+def test_sum_float64_precision() raises:
     """Float64 sum preserves full precision."""
     var t = any_zeros([3], DType.float64)
     t[0] = 3.141592653589793
@@ -170,7 +170,7 @@ fn test_sum_float64_precision() raises:
     print("PASS: test_sum_float64_precision")
 
 
-fn main() raises:
+def main() raises:
     test_sum_correctness()
     test_mean_correctness()
     test_sum_known_values()

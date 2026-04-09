@@ -40,7 +40,7 @@ from shared.data import (
 )
 from shared.data.transforms import Normalize, Compose
 from shared.tensor.any_tensor import AnyTensor, ones, zeros
-from collections import List
+from std.collections import List
 
 
 # ============================================================================
@@ -48,7 +48,7 @@ from collections import List
 # ============================================================================
 
 
-fn create_demo_dataset(
+def create_demo_dataset(
     num_samples: Int = 32, num_classes: Int = 10
 ) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create synthetic training data for demonstration.
@@ -87,7 +87,7 @@ fn create_demo_dataset(
 # ============================================================================
 
 
-fn demo_basic_pipeline() raises:
+def demo_basic_pipeline() raises:
     """Demonstrate basic data loading without transforms or caching."""
     print("\n" + "=" * 70)
     print("Phase 1: Basic Data Pipeline (BatchLoader)")
@@ -135,7 +135,7 @@ fn demo_basic_pipeline() raises:
 # ============================================================================
 
 
-fn demo_transform_pipeline() raises:
+def demo_transform_pipeline() raises:
     """Demonstrate pipeline with data augmentation transforms."""
     print("\n" + "=" * 70)
     print("Phase 2: Data Pipeline with Transforms")
@@ -181,7 +181,7 @@ fn demo_transform_pipeline() raises:
 # ============================================================================
 
 
-fn demo_shuffling_pipeline() raises:
+def demo_shuffling_pipeline() raises:
     """Demonstrate pipeline with random sampling and shuffling."""
     print("\n" + "=" * 70)
     print("Phase 3: Data Pipeline with Shuffling")
@@ -218,7 +218,7 @@ fn demo_shuffling_pipeline() raises:
 # ============================================================================
 
 
-fn demo_complete_pipeline() raises:
+def demo_complete_pipeline() raises:
     """Demonstrate complete pipeline with all components combined."""
     print("\n" + "=" * 70)
     print("Phase 4: Complete Pipeline (All Components)")
@@ -264,7 +264,7 @@ fn demo_complete_pipeline() raises:
 # ============================================================================
 
 
-fn demo_performance_comparison() raises:
+def demo_performance_comparison() raises:
     """Demonstrate performance characteristics of different configurations."""
     print("\n" + "=" * 70)
     print("Phase 5: Performance Characteristics")
@@ -322,7 +322,7 @@ fn demo_performance_comparison() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all pipeline demonstrations."""
     print("=" * 70)
     print("ML Data Pipeline Architecture Demonstration")

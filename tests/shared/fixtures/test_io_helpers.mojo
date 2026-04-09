@@ -42,7 +42,7 @@ from tests.shared.fixtures.io_helpers import (
 comptime _TMP_PREFIX = "/tmp/ml_odyssey_test_io_"
 
 
-fn _make_tmp_dir(suffix: String) raises -> String:
+def _make_tmp_dir(suffix: String) raises -> String:
     """Create a unique temp directory under /tmp/ using Mojo builtins."""
     var path = _TMP_PREFIX + suffix
     from os import mkdir
@@ -55,7 +55,7 @@ fn _make_tmp_dir(suffix: String) raises -> String:
     return path
 
 
-fn _cleanup_tmp_dir(path: String) raises:
+def _cleanup_tmp_dir(path: String) raises:
     """Remove a temp directory under /tmp/ using Python shutil (safe)."""
     # Only clean paths under /tmp/ for safety
     if not path.startswith("/tmp/"):
@@ -69,7 +69,7 @@ fn _cleanup_tmp_dir(path: String) raises:
         pass  # Ignore cleanup errors
 
 
-fn test_file_exists_positive() raises:
+def test_file_exists_positive() raises:
     """Test file_exists returns True for existing file."""
     print("TEST: test_file_exists_positive")
 
@@ -90,7 +90,7 @@ fn test_file_exists_positive() raises:
     print("PASS: file_exists returns True for existing file")
 
 
-fn test_file_exists_negative() raises:
+def test_file_exists_negative() raises:
     """Test file_exists returns False for non-existent file."""
     print("TEST: test_file_exists_negative")
 
@@ -104,7 +104,7 @@ fn test_file_exists_negative() raises:
     print("PASS: file_exists returns False for non-existent file")
 
 
-fn test_dir_exists_positive() raises:
+def test_dir_exists_positive() raises:
     """Test dir_exists returns True for existing directory."""
     print("TEST: test_dir_exists_positive")
 
@@ -120,7 +120,7 @@ fn test_dir_exists_positive() raises:
     print("PASS: dir_exists returns True for existing directory")
 
 
-fn test_dir_exists_negative() raises:
+def test_dir_exists_negative() raises:
     """Test dir_exists returns False for non-existent directory."""
     print("TEST: test_dir_exists_negative")
 
@@ -134,7 +134,7 @@ fn test_dir_exists_negative() raises:
     print("PASS: dir_exists returns False for non-existent directory")
 
 
-fn test_create_temp_dir() raises:
+def test_create_temp_dir() raises:
     """Test create_temp_dir creates a directory."""
     print("TEST: test_create_temp_dir")
 
@@ -154,7 +154,7 @@ fn test_create_temp_dir() raises:
     print("PASS: create_temp_dir creates directory in /tmp/")
 
 
-fn test_create_temp_dir_unique() raises:
+def test_create_temp_dir_unique() raises:
     """Test create_temp_dir creates unique directories."""
     print("TEST: test_create_temp_dir_unique")
 
@@ -173,7 +173,7 @@ fn test_create_temp_dir_unique() raises:
     print("PASS: create_temp_dir creates unique directories")
 
 
-fn test_create_mock_config_creates_file() raises:
+def test_create_mock_config_creates_file() raises:
     """Test create_mock_config creates a file."""
     print("TEST: test_create_mock_config_creates_file")
 
@@ -194,7 +194,7 @@ fn test_create_mock_config_creates_file() raises:
     print("PASS: create_mock_config creates file")
 
 
-fn test_create_mock_text_file_creates_file() raises:
+def test_create_mock_text_file_creates_file() raises:
     """Test create_mock_text_file creates a file."""
     print("TEST: test_create_mock_text_file_creates_file")
 
@@ -214,7 +214,7 @@ fn test_create_mock_text_file_creates_file() raises:
     print("PASS: create_mock_text_file creates file")
 
 
-fn test_create_mock_config_writes_content() raises:
+def test_create_mock_config_writes_content() raises:
     """Test create_mock_config writes correct content."""
     print("TEST: test_create_mock_config_writes_content")
 
@@ -239,7 +239,7 @@ fn test_create_mock_config_writes_content() raises:
     print("PASS: create_mock_config writes correct content")
 
 
-fn test_create_mock_text_file_correct_format() raises:
+def test_create_mock_text_file_correct_format() raises:
     """Test create_mock_text_file writes correct line format."""
     print("TEST: test_create_mock_text_file_correct_format")
 
@@ -266,7 +266,7 @@ fn test_create_mock_text_file_correct_format() raises:
     print("PASS: create_mock_text_file writes correct format")
 
 
-fn test_create_mock_checkpoint_creates_file() raises:
+def test_create_mock_checkpoint_creates_file() raises:
     """Test create_mock_checkpoint creates a file."""
     print("TEST: test_create_mock_checkpoint_creates_file")
 
@@ -286,7 +286,7 @@ fn test_create_mock_checkpoint_creates_file() raises:
     print("PASS: create_mock_checkpoint creates file")
 
 
-fn test_create_mock_checkpoint_correct_format() raises:
+def test_create_mock_checkpoint_correct_format() raises:
     """Test create_mock_checkpoint writes correct format."""
     print("TEST: test_create_mock_checkpoint_correct_format")
 
@@ -318,7 +318,7 @@ fn test_create_mock_checkpoint_correct_format() raises:
     print("PASS: create_mock_checkpoint writes correct format")
 
 
-fn test_get_test_data_path() raises:
+def test_get_test_data_path() raises:
     """Test get_test_data_path returns correct path."""
     print("TEST: test_get_test_data_path")
 
@@ -337,7 +337,7 @@ fn test_get_test_data_path() raises:
     print("PASS: get_test_data_path returns correct path")
 
 
-fn test_cleanup_temp_dir() raises:
+def test_cleanup_temp_dir() raises:
     """Test cleanup_temp_dir removes directory."""
     print("TEST: test_cleanup_temp_dir")
 
@@ -360,7 +360,7 @@ fn test_cleanup_temp_dir() raises:
     print("PASS: cleanup_temp_dir removes directory")
 
 
-fn test_cleanup_temp_dir_safety_check() raises:
+def test_cleanup_temp_dir_safety_check() raises:
     """Test cleanup_temp_dir rejects non-tmp paths."""
     print("TEST: test_cleanup_temp_dir_safety_check")
 
@@ -379,7 +379,7 @@ fn test_cleanup_temp_dir_safety_check() raises:
     print("PASS: cleanup_temp_dir enforces /tmp safety check")
 
 
-fn test_full_lifecycle() raises:
+def test_full_lifecycle() raises:
     """Test complete create → write → cleanup workflow."""
     print("TEST: test_full_lifecycle")
 
@@ -412,7 +412,7 @@ fn test_full_lifecycle() raises:
     print("PASS: Full lifecycle works correctly")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_io_helpers tests."""
     print("Running test_io_helpers tests...")
 

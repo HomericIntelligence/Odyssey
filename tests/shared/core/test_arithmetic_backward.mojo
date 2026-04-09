@@ -39,7 +39,7 @@ from shared.testing import (
 )
 
 
-fn create_shape_vec(*dims: Int) -> List[Int]:
+def create_shape_vec(*dims: Int) -> List[Int]:
     """Create a List[Int] from variadic arguments.
 
     Args:
@@ -54,7 +54,7 @@ fn create_shape_vec(*dims: Int) -> List[Int]:
     return shape^
 
 
-fn fill_tensor_sequential(mut tensor: AnyTensor, start_val: Float32 = 1.0) raises -> None:
+def fill_tensor_sequential(mut tensor: AnyTensor, start_val: Float32 = 1.0) raises -> None:
     """Fill tensor with sequential values starting from start_val.
 
     Args:
@@ -65,7 +65,7 @@ fn fill_tensor_sequential(mut tensor: AnyTensor, start_val: Float32 = 1.0) raise
         tensor.set(i, Float32(start_val + Float32(i)))
 
 
-fn test_add_backward() raises:
+def test_add_backward() raises:
     """Test add_backward with same-shaped tensors.
 
     Tests that ∂L/∂A and ∂L/∂B equal 1.0 for C = A + B when upstream
@@ -91,7 +91,7 @@ fn test_add_backward() raises:
         )
 
 
-fn test_add_scalar_backward() raises:
+def test_add_scalar_backward() raises:
     """Test add_backward with scalar (broadcast) addition.
 
     Tests gradient computation when one operand broadcasts to the other.
@@ -126,7 +126,7 @@ fn test_add_scalar_backward() raises:
     )
 
 
-fn test_subtract_backward() raises:
+def test_subtract_backward() raises:
     """Test subtract_backward with same-shaped tensors.
 
     Tests that ∂L/∂A = 1.0 and ∂L/∂B = -1.0 for C = A - B when upstream
@@ -154,7 +154,7 @@ fn test_subtract_backward() raises:
         )
 
 
-fn test_subtract_scalar_backward() raises:
+def test_subtract_scalar_backward() raises:
     """Test subtract_backward with scalar (broadcast) subtraction.
 
     Broadcasting case: [2, 3] - [1] -> [2, 3]
@@ -183,7 +183,7 @@ fn test_subtract_scalar_backward() raises:
     )
 
 
-fn test_multiply_backward() raises:
+def test_multiply_backward() raises:
     """Test multiply_backward with same-shaped tensors.
 
     Tests that ∂L/∂A = ∂L/∂C * B and ∂L/∂B = ∂L/∂C * A for C = A * B.
@@ -216,7 +216,7 @@ fn test_multiply_backward() raises:
         )
 
 
-fn test_multiply_scalar_backward() raises:
+def test_multiply_scalar_backward() raises:
     """Test multiply_backward with scalar (broadcast) multiplication.
 
     Broadcasting case: [2, 3] * [1] -> [2, 3]
@@ -252,7 +252,7 @@ fn test_multiply_scalar_backward() raises:
     )
 
 
-fn test_divide_backward() raises:
+def test_divide_backward() raises:
     """Test divide_backward with same-shaped tensors.
 
     Tests that ∂L/∂A = ∂L/∂C / B and ∂L/∂B = -∂L/∂C * A / B² for C = A / B.
@@ -286,7 +286,7 @@ fn test_divide_backward() raises:
         )
 
 
-fn test_divide_scalar_backward() raises:
+def test_divide_scalar_backward() raises:
     """Test divide_backward with scalar (broadcast) division.
 
     Broadcasting case: [2, 3] / [1] -> [2, 3]
@@ -325,7 +325,7 @@ fn test_divide_scalar_backward() raises:
     )
 
 
-fn test_add_broadcast() raises:
+def test_add_broadcast() raises:
     """Test add_backward with broadcasting.
 
     Broadcasting case: [2, 3] + [3] -> [2, 3]
@@ -358,7 +358,7 @@ fn test_add_broadcast() raises:
         )
 
 
-fn test_subtract_broadcast() raises:
+def test_subtract_broadcast() raises:
     """Test subtract_backward with broadcasting.
 
     Broadcasting case: [2, 3] - [3] -> [2, 3]
@@ -388,7 +388,7 @@ fn test_subtract_broadcast() raises:
         )
 
 
-fn test_multiply_broadcast() raises:
+def test_multiply_broadcast() raises:
     """Test multiply_backward with broadcasting.
 
     Broadcasting case: [2, 3] * [3] -> [2, 3]
@@ -422,7 +422,7 @@ fn test_multiply_broadcast() raises:
         )
 
 
-fn test_divide_broadcast() raises:
+def test_divide_broadcast() raises:
     """Test divide_backward with broadcasting.
 
     Broadcasting case: [2, 3] / [3] -> [2, 3]
@@ -460,7 +460,7 @@ fn test_divide_broadcast() raises:
         )
 
 
-fn test_add_backward_gradient() raises:
+def test_add_backward_gradient() raises:
     """Test add_backward with numerical gradient checking.
 
     Validates that analytical gradients match numerical gradients computed
@@ -476,10 +476,10 @@ fn test_add_backward_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.1 - 1.2))
         b.set(i, Float32(Float32(i) * 0.15 - 0.8))
 
-    fn forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return add(inp, b)
 
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = add_backward(grad_out, inp, b)
         return grads.grad_a
 
@@ -489,7 +489,7 @@ fn test_add_backward_gradient() raises:
     check_gradient(forward, backward, a, grad_output, rtol=5e-3, atol=1e-5)
 
 
-fn test_subtract_backward_gradient() raises:
+def test_subtract_backward_gradient() raises:
     """Test subtract_backward with numerical gradient checking.
 
     Validates analytical vs numerical gradients for subtraction operation.
@@ -503,10 +503,10 @@ fn test_subtract_backward_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.1 + 0.5))
         b.set(i, Float32(Float32(i) * 0.2 - 1.5))
 
-    fn forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return subtract(inp, b)
 
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = subtract_backward(grad_out, inp, b)
         return grads.grad_a
 
@@ -516,7 +516,7 @@ fn test_subtract_backward_gradient() raises:
     check_gradient(forward, backward, a, grad_output, rtol=5e-3, atol=1e-5)
 
 
-fn test_multiply_backward_gradient() raises:
+def test_multiply_backward_gradient() raises:
     """Test multiply_backward with numerical gradient checking.
 
     Validates analytical vs numerical gradients for multiplication operation.
@@ -531,10 +531,10 @@ fn test_multiply_backward_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.1 + 0.1))
         b.set(i, Float32(Float32(i) * 0.15 + 0.2))
 
-    fn forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return multiply(inp, b)
 
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = multiply_backward(grad_out, inp, b)
         return grads.grad_a
 
@@ -544,7 +544,7 @@ fn test_multiply_backward_gradient() raises:
     check_gradient(forward, backward, a, grad_output, rtol=5e-3, atol=1e-5)
 
 
-fn test_divide_backward_gradient() raises:
+def test_divide_backward_gradient() raises:
     """Test divide_backward with numerical gradient checking.
 
     Validates analytical vs numerical gradients for division operation.
@@ -559,10 +559,10 @@ fn test_divide_backward_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.2 + 0.5))
         b.set(i, Float32(Float32(i) * 0.1 + 1.0))  # Ensure b > 0
 
-    fn forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return divide(inp, b)
 
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = divide_backward(grad_out, inp, b)
         return grads.grad_a
 
@@ -572,7 +572,7 @@ fn test_divide_backward_gradient() raises:
     check_gradient(forward, backward, a, grad_output, rtol=1e-2, atol=1e-5)
 
 
-fn test_add_backward_b_gradient() raises:
+def test_add_backward_b_gradient() raises:
     """Test add_backward gradient w.r.t. second operand (B).
 
     Validates gradient computation for the second input of addition.
@@ -586,10 +586,10 @@ fn test_add_backward_b_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.1 - 0.5))
         b.set(i, Float32(Float32(i) * 0.12 + 0.3))
 
-    fn forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return add(a, inp)
 
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = add_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -599,7 +599,7 @@ fn test_add_backward_b_gradient() raises:
     check_gradient(forward, backward, b, grad_output, rtol=5e-3, atol=1e-5)
 
 
-fn test_subtract_backward_b_gradient() raises:
+def test_subtract_backward_b_gradient() raises:
     """Test subtract_backward gradient w.r.t. second operand (B).
 
     Validates that gradient for B is negated: ∂(A-B)/∂B = -1
@@ -613,10 +613,10 @@ fn test_subtract_backward_b_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.15 + 0.2))
         b.set(i, Float32(Float32(i) * 0.1 - 1.0))
 
-    fn forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return subtract(a, inp)
 
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = subtract_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -626,7 +626,7 @@ fn test_subtract_backward_b_gradient() raises:
     check_gradient(forward, backward, b, grad_output, rtol=5e-3, atol=1e-5)
 
 
-fn test_multiply_backward_b_gradient() raises:
+def test_multiply_backward_b_gradient() raises:
     """Test multiply_backward gradient w.r.t. second operand (B).
 
     Validates product rule for second operand: ∂(A*B)/∂B = A.
@@ -640,10 +640,10 @@ fn test_multiply_backward_b_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.2 + 0.1))
         b.set(i, Float32(Float32(i) * 0.15 + 0.15))
 
-    fn forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return multiply(a, inp)
 
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = multiply_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -653,7 +653,7 @@ fn test_multiply_backward_b_gradient() raises:
     check_gradient(forward, backward, b, grad_output, rtol=1e-2, atol=1e-5)
 
 
-fn test_divide_backward_b_gradient() raises:
+def test_divide_backward_b_gradient() raises:
     """Test divide_backward gradient w.r.t. second operand (B).
 
     Validates quotient rule for denominator: ∂(A/B)/∂B = -A/B²
@@ -667,10 +667,10 @@ fn test_divide_backward_b_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.2 + 0.5))
         b.set(i, Float32(Float32(i) * 0.1 + 1.5))  # b > 0
 
-    fn forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return divide(a, inp)
 
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = divide_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -680,7 +680,7 @@ fn test_divide_backward_b_gradient() raises:
     check_gradient(forward, backward, b, grad_output, rtol=1e-2, atol=1e-5)
 
 
-fn test_add_backward_broadcast_gradient() raises:
+def test_add_backward_broadcast_gradient() raises:
     """Test add_backward with broadcasting and numerical gradient checking.
 
     Validates gradient computation when one operand broadcasts.
@@ -698,10 +698,10 @@ fn test_add_backward_broadcast_gradient() raises:
     for i in range(3):
         b.set(i, Float32(Float32(i) * 0.15 - 0.3))
 
-    fn forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return add(a, inp)
 
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = add_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -711,7 +711,7 @@ fn test_add_backward_broadcast_gradient() raises:
     check_gradient(forward, backward, b, grad_output, rtol=5e-3, atol=1e-5)
 
 
-fn test_multiply_backward_broadcast_gradient() raises:
+def test_multiply_backward_broadcast_gradient() raises:
     """Test multiply_backward with broadcasting and numerical gradient checking.
 
     Validates product rule when one operand broadcasts.
@@ -729,10 +729,10 @@ fn test_multiply_backward_broadcast_gradient() raises:
     for i in range(3):
         b.set(i, Float32(Float32(i) * 0.2 + 0.2))
 
-    fn forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return multiply(a, inp)
 
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = multiply_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -742,7 +742,7 @@ fn test_multiply_backward_broadcast_gradient() raises:
     check_gradient(forward, backward, b, grad_output, rtol=5e-3, atol=1e-5)
 
 
-fn test_divide_backward_broadcast_gradient() raises:
+def test_divide_backward_broadcast_gradient() raises:
     """Test divide_backward with broadcasting and numerical gradient checking.
 
     Validates quotient rule when denominator broadcasts.
@@ -760,10 +760,10 @@ fn test_divide_backward_broadcast_gradient() raises:
     for i in range(3):
         b.set(i, Float32(Float32(i) * 0.1 + 1.0))  # b > 0
 
-    fn forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return divide(a, inp)
 
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = divide_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -773,7 +773,7 @@ fn test_divide_backward_broadcast_gradient() raises:
     check_gradient(forward, backward, b, grad_output, rtol=5e-3, atol=1e-5)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_arithmetic_backward tests."""
     print("Running test_arithmetic_backward tests...")
 

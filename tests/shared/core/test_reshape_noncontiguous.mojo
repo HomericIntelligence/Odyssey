@@ -16,7 +16,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_reshape_noncontiguous_column_major() raises:
+def test_reshape_noncontiguous_column_major() raises:
     """Regression test: reshape on transposed (non-contiguous) tensor produces correct order.
 
     Simulates transpose_view(arange(12).reshape(3,4)) by setting strides to
@@ -53,7 +53,7 @@ fn test_reshape_noncontiguous_column_major() raises:
         )
 
 
-fn test_reshape_contiguous_unchanged() raises:
+def test_reshape_contiguous_unchanged() raises:
     """Contiguous tensors still produce correct order after the fix."""
     var t = arange(0.0, 12.0, 1.0, DType.float64)
     var t2 = reshape(t, [3, 4])
@@ -70,7 +70,7 @@ fn test_reshape_contiguous_unchanged() raises:
         )
 
 
-fn test_reshape_noncontiguous_2d_to_2d() raises:
+def test_reshape_noncontiguous_2d_to_2d() raises:
     """Non-contiguous (4,3) transposed view -> (2,6) reshape produces correct values."""
     var t = arange(0.0, 12.0, 1.0, DType.float64)
     var t2 = reshape(t, [3, 4])
@@ -97,7 +97,7 @@ fn test_reshape_noncontiguous_2d_to_2d() raises:
         )
 
 
-fn test_reshape_noncontiguous_preserves_dtype() raises:
+def test_reshape_noncontiguous_preserves_dtype() raises:
     """Non-contiguous path preserves the source dtype."""
     var t = arange(0.0, 6.0, 1.0, DType.float32)
     var t2 = reshape(t, [2, 3])
@@ -114,7 +114,7 @@ fn test_reshape_noncontiguous_preserves_dtype() raises:
     assert_numel(result, 6, "result should have 6 elements")
 
 
-fn main() raises:
+def main() raises:
     print("Testing reshape() non-contiguous fix (Issue #4084)...")
 
     print("  test_reshape_noncontiguous_column_major...")

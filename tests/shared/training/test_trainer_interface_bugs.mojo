@@ -20,7 +20,7 @@ from shared.training.trainer_interface import DataLoader
 # ============================================================================
 
 
-fn test_dataloader_next_normal_batch() raises:
+def test_dataloader_next_normal_batch() raises:
     """Test DataLoader.next() with normal batch (triggers bug at line 270).
 
     Bug: Line 270 uses List[Int]() then is passed to AnyTensor.
@@ -46,7 +46,7 @@ fn test_dataloader_next_normal_batch() raises:
     print("    ✓ Got first batch successfully")
 
 
-fn test_dataloader_next_small_batch() raises:
+def test_dataloader_next_small_batch() raises:
     """Test DataLoader.next() with small batch (triggers bug at line 270).
 
     Bug: Even with batch_size=1, the bug still crashes.
@@ -71,7 +71,7 @@ fn test_dataloader_next_small_batch() raises:
     print("    ✓ Got small batch successfully")
 
 
-fn test_dataloader_next_large_batch() raises:
+def test_dataloader_next_large_batch() raises:
     """Test DataLoader.next() with large batch (triggers bug at line 270).
 
     Bug: Larger batch size makes the bug more likely to manifest.
@@ -96,7 +96,7 @@ fn test_dataloader_next_large_batch() raises:
     print("    ✓ Got large batch successfully")
 
 
-fn test_dataloader_next_partial_last_batch() raises:
+def test_dataloader_next_partial_last_batch() raises:
     """Test DataLoader.next() with partial last batch (triggers bug).
 
     Bug: The last batch has actual_batch_size < batch_size, which still
@@ -125,7 +125,7 @@ fn test_dataloader_next_partial_last_batch() raises:
     print("    ✓ Got partial last batch")
 
 
-fn test_dataloader_multiple_iterations() raises:
+def test_dataloader_multiple_iterations() raises:
     """Test DataLoader with multiple next() calls (triggers bug repeatedly).
 
     Bug: Each call to next() triggers the List[Int] constructor bug.
@@ -158,7 +158,7 @@ fn test_dataloader_multiple_iterations() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all trainer_interface.mojo bug tests.
 
     These tests demonstrate the List[Int] constructor bug in trainer_interface.mojo.

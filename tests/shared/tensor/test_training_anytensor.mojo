@@ -23,7 +23,7 @@ from shared.autograd import Variable, GradientTape
 from shared.autograd.variable import variable_add, variable_sum
 
 
-fn test_variable_data_is_anytensor() raises:
+def test_variable_data_is_anytensor() raises:
     """Variable.data stores AnyTensor correctly."""
     var data: AnyTensor = zeros([4, 3], DType.float32)
     var tape = GradientTape()
@@ -34,7 +34,7 @@ fn test_variable_data_is_anytensor() raises:
     print("PASS: test_variable_data_is_anytensor")
 
 
-fn test_variable_shape_from_anytensor() raises:
+def test_variable_shape_from_anytensor() raises:
     """Variable.shape() returns shape from underlying AnyTensor."""
     var data: AnyTensor = zeros([2, 3, 4], DType.float32)
     var tape = GradientTape()
@@ -48,7 +48,7 @@ fn test_variable_shape_from_anytensor() raises:
     print("PASS: test_variable_shape_from_anytensor")
 
 
-fn test_variable_detach_returns_anytensor() raises:
+def test_variable_detach_returns_anytensor() raises:
     """Variable.detach() returns the underlying AnyTensor."""
     var data: AnyTensor = zeros([3], DType.float32)
     data._set_float64(0, 1.0)
@@ -68,7 +68,7 @@ fn test_variable_detach_returns_anytensor() raises:
     print("PASS: test_variable_detach_returns_anytensor")
 
 
-fn test_variable_backward_with_anytensor() raises:
+def test_variable_backward_with_anytensor() raises:
     """Variable backward computes gradients with AnyTensor data."""
     var tape = GradientTape()
     tape.enable()
@@ -101,7 +101,7 @@ fn test_variable_backward_with_anytensor() raises:
     print("PASS: test_variable_backward_with_anytensor")
 
 
-fn test_multiple_variables_anytensor() raises:
+def test_multiple_variables_anytensor() raises:
     """Multiple Variables with AnyTensor data in same tape."""
     var tape = GradientTape()
     tape.enable()
@@ -126,7 +126,7 @@ fn test_multiple_variables_anytensor() raises:
     print("PASS: test_multiple_variables_anytensor")
 
 
-fn test_variable_numel_dtype_from_anytensor() raises:
+def test_variable_numel_dtype_from_anytensor() raises:
     """Variable.numel() and Variable.dtype() delegate to AnyTensor."""
     var data: AnyTensor = zeros([5, 3], DType.float32)
     var tape = GradientTape()
@@ -137,7 +137,7 @@ fn test_variable_numel_dtype_from_anytensor() raises:
     print("PASS: test_variable_numel_dtype_from_anytensor")
 
 
-fn main() raises:
+def main() raises:
     test_variable_data_is_anytensor()
     test_variable_shape_from_anytensor()
     test_variable_detach_returns_anytensor()

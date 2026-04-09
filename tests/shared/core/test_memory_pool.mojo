@@ -18,7 +18,7 @@ from shared.base.memory_pool import (
 from shared.tensor.any_tensor import AnyTensor, zeros
 
 
-fn test_pool_default_init() raises:
+def test_pool_default_init() raises:
     """Test default pool initialization."""
     var pool = TensorMemoryPool()
     var stats = pool.get_stats()
@@ -35,7 +35,7 @@ fn test_pool_default_init() raises:
     print("✓ test_pool_default_init passed")
 
 
-fn test_pool_custom_config() raises:
+def test_pool_custom_config() raises:
     """Test pool with custom configuration."""
     var config = PoolConfig()
     config.small_block_count = 32
@@ -46,7 +46,7 @@ fn test_pool_custom_config() raises:
     print("✓ test_pool_custom_config passed")
 
 
-fn test_small_allocation_miss() raises:
+def test_small_allocation_miss() raises:
     """Test allocation from pool hits pre-allocated block."""
     var pool = TensorMemoryPool()
     var ptr = pool.allocate(64)
@@ -65,7 +65,7 @@ fn test_small_allocation_miss() raises:
     print("✓ test_small_allocation_miss passed")
 
 
-fn test_small_allocation_hit() raises:
+def test_small_allocation_hit() raises:
     """Test allocation from populated pool (hit)."""
     var pool = TensorMemoryPool()
 
@@ -89,7 +89,7 @@ fn test_small_allocation_hit() raises:
     print("✓ test_small_allocation_hit passed")
 
 
-fn test_medium_allocation() raises:
+def test_medium_allocation() raises:
     """Test allocation from medium buckets."""
     var pool = TensorMemoryPool()
 
@@ -106,7 +106,7 @@ fn test_medium_allocation() raises:
     print("✓ test_medium_allocation passed")
 
 
-fn test_large_allocation_bypass() raises:
+def test_large_allocation_bypass() raises:
     """Test large allocations work correctly."""
     var pool = TensorMemoryPool()
     pool.reset_stats()
@@ -132,7 +132,7 @@ fn test_large_allocation_bypass() raises:
     print("✓ test_large_allocation_bypass passed")
 
 
-fn test_bucket_selection_small() raises:
+def test_bucket_selection_small() raises:
     """Test correct bucket selection for small sizes."""
     var pool = TensorMemoryPool()
 
@@ -160,7 +160,7 @@ fn test_bucket_selection_small() raises:
     print("✓ test_bucket_selection_small passed")
 
 
-fn test_statistics_tracking() raises:
+def test_statistics_tracking() raises:
     """Test statistics accuracy."""
     var pool = TensorMemoryPool()
 
@@ -178,7 +178,7 @@ fn test_statistics_tracking() raises:
     print("✓ test_statistics_tracking passed")
 
 
-fn test_trim_releases_memory() raises:
+def test_trim_releases_memory() raises:
     """Test trim() method exists (placeholder for future optimization)."""
     var pool = TensorMemoryPool()
 
@@ -202,7 +202,7 @@ fn test_trim_releases_memory() raises:
     print("✓ test_trim_releases_memory passed")
 
 
-fn test_clear_releases_all() raises:
+def test_clear_releases_all() raises:
     """Test clear() releases all pooled memory."""
     var pool = TensorMemoryPool()
 
@@ -232,7 +232,7 @@ fn test_clear_releases_all() raises:
     print("✓ test_clear_releases_all passed")
 
 
-fn test_anytensor_uses_pool() raises:
+def test_anytensor_uses_pool() raises:
     """Verify AnyTensor allocations work correctly."""
     # Create a tensor - it will use pooled_alloc internally
     var shape = List[Int]()
@@ -252,7 +252,7 @@ fn test_anytensor_uses_pool() raises:
     print("✓ test_anytensor_uses_pool passed")
 
 
-fn test_reference_counting_with_pool() raises:
+def test_reference_counting_with_pool() raises:
     """Verify reference counting works with pooled memory."""
     # Create tensors to test reference counting
     var shape = List[Int]()
@@ -266,7 +266,7 @@ fn test_reference_counting_with_pool() raises:
     print("✓ test_reference_counting_with_pool passed")
 
 
-fn test_pooled_alloc_deallocate() raises:
+def test_pooled_alloc_deallocate() raises:
     """Test pooled_alloc and pooled_free functions."""
     var ptr = pooled_alloc(256)
     if not ptr:
@@ -277,7 +277,7 @@ fn test_pooled_alloc_deallocate() raises:
     print("✓ test_pooled_alloc_deallocate passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_memory_pool tests."""
     print("Running test_memory_pool tests...")
 

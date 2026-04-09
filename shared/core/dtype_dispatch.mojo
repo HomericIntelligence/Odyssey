@@ -41,7 +41,7 @@ See notes/issues/dtype-refactoring-plan.md for complete design documentation
 """
 
 from shared.tensor.any_tensor import AnyTensor
-from collections import List
+from std.collections import List
 from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     format_dtype_name,
@@ -64,7 +64,7 @@ from shared.base.dtype_ordinal import (
 # ============================================================================
 
 
-fn _format_dtype_name(dtype: DType) -> String:
+def _format_dtype_name(dtype: DType) -> String:
     """Format a DType into a readable string name.
 
     Args:
@@ -83,8 +83,8 @@ fn _format_dtype_name(dtype: DType) -> String:
 # ============================================================================
 
 
-fn elementwise_unary[
-    dtype: DType, op: fn[T: DType] (Scalar[T]) -> Scalar[T]
+def elementwise_unary[
+    dtype: DType, op: def[T: DType] (Scalar[T]) -> Scalar[T]
 ](tensor: AnyTensor) raises -> AnyTensor:
     """Apply unary operation with compile-time dtype specialization.
 
@@ -107,7 +107,7 @@ fn elementwise_unary[
     Example:
         ```mojo
         # Define operation
-        fn my_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+        def my_op[T: DType](x: Scalar[T]) -> Scalar[T]:
             return max(Scalar[T](0), x)
 
         # Apply with compile-time dtype
@@ -126,8 +126,8 @@ fn elementwise_unary[
     return result^
 
 
-fn dispatch_unary[
-    op: fn[T: DType] (Scalar[T]) -> Scalar[T]
+def dispatch_unary[
+    op: def[T: DType] (Scalar[T]) -> Scalar[T]
 ](tensor: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch to compile-time specialized unary operation.
 
@@ -152,7 +152,7 @@ fn dispatch_unary[
 
         Example:
             ```mojo
-           fn relu_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+           def relu_op[T: DType](x: Scalar[T]) -> Scalar[T]:
                 return max(Scalar[T](0), x)
 
             var result = dispatch_unary[relu_op](tensor)  # Works for any dtype
@@ -203,8 +203,8 @@ fn dispatch_unary[
 # ============================================================================
 
 
-fn elementwise_binary[
-    dtype: DType, op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+def elementwise_binary[
+    dtype: DType, op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
 ](lhs: AnyTensor, rhs: AnyTensor) raises -> AnyTensor:
     """Apply binary operation with compile-time dtype specialization.
 
@@ -225,7 +225,7 @@ fn elementwise_binary[
 
         Example:
             ```mojo
-            fn add_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+            def add_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
                 return x + y
 
             var result = elementwise_binary[DType.float32, add_op](a, b)
@@ -250,8 +250,8 @@ fn elementwise_binary[
     return result^
 
 
-fn dispatch_binary[
-    op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+def dispatch_binary[
+    op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
 ](lhs: AnyTensor, rhs: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch to compile-time specialized binary operation.
 
@@ -275,7 +275,7 @@ fn dispatch_binary[
 
         Example:
             ```mojo
-           fn mul_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+           def mul_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
                 return x * y
 
             var result = dispatch_binary[mul_op](a, b)
@@ -338,8 +338,8 @@ fn dispatch_binary[
 # ============================================================================
 
 
-fn elementwise_scalar[
-    dtype: DType, op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+def elementwise_scalar[
+    dtype: DType, op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
 ](tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     """Apply scalar binary operation with compile-time dtype specialization.
 
@@ -361,7 +361,7 @@ fn elementwise_scalar[
 
         Example:
             ```mojo
-           fn mul_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+           def mul_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
                 return x * y
 
         var result = elementwise_scalar[DType.float32, mul_op](tensor, 2.5)
@@ -380,8 +380,8 @@ fn elementwise_scalar[
     return result^
 
 
-fn dispatch_scalar[
-    op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+def dispatch_scalar[
+    op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
 ](tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     """Runtime dispatch to compile-time specialized scalar operation.
 
@@ -406,7 +406,7 @@ fn dispatch_scalar[
 
         Example:
             ```mojo
-           fn add_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+           def add_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
                 return x + y
 
            var result = dispatch_scalar[add_op](tensor, 1.0)
@@ -458,8 +458,8 @@ fn dispatch_scalar[
 # ============================================================================
 
 
-fn dispatch_float_unary[
-    op: fn[T: DType] (Scalar[T]) -> Scalar[T]
+def dispatch_float_unary[
+    op: def[T: DType] (Scalar[T]) -> Scalar[T]
 ](tensor: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch for floating-point only unary operations.
 
@@ -484,7 +484,7 @@ fn dispatch_float_unary[
 
         Example:
             ```mojo
-           fn sigmoid_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+           def sigmoid_op[T: DType](x: Scalar[T]) -> Scalar[T]:
                 # Assuming T is float
                 return Scalar[T](1.0) / (Scalar[T](1.0) + exp(-x))
 
@@ -513,8 +513,8 @@ fn dispatch_float_unary[
         )
 
 
-fn dispatch_float_binary[
-    op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+def dispatch_float_binary[
+    op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
 ](lhs: AnyTensor, rhs: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch for floating-point only binary operations.
 
@@ -570,8 +570,8 @@ fn dispatch_float_binary[
         )
 
 
-fn dispatch_float_scalar[
-    op: fn[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+def dispatch_float_scalar[
+    op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
 ](tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     """Runtime dispatch for floating-point only scalar operations.
 
@@ -620,7 +620,7 @@ fn dispatch_float_scalar[
 # ============================================================================
 
 
-fn _softmax_impl[
+def _softmax_impl[
     dtype: DType
 ](
     result: AnyTensor,
@@ -643,14 +643,13 @@ fn _softmax_impl[
         axis_size: Size of the softmax axis.
         axis_stride: Product of dimensions after the softmax axis.
     """
-    from math import exp
+    from std.math import exp
 
     var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
     var out_ptr = result._data.bitcast[Scalar[dtype]]()
 
     # For float16, use float32 intermediate precision
-    @parameter
-    if dtype == DType.float16:
+    comptime if dtype == DType.float16:
         for outer_idx in range(outer_size):
             for inner_idx in range(axis_stride):
                 # Find max along axis
@@ -722,7 +721,7 @@ fn _softmax_impl[
                     out_ptr[idx] = Scalar[dtype](current / sum_exp)
 
 
-fn dispatch_softmax(
+def dispatch_softmax(
     tensor: AnyTensor, outer_size: Int, axis_size: Int, axis_stride: Int
 ) raises -> AnyTensor:
     """Runtime dispatch for softmax operation.
@@ -762,7 +761,7 @@ fn dispatch_softmax(
     return result^
 
 
-fn _softmax_backward_impl[
+def _softmax_backward_impl[
     dtype: DType
 ](
     result: AnyTensor,
@@ -789,9 +788,7 @@ fn _softmax_backward_impl[
     var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
     var out_ptr = output._data.bitcast[Scalar[dtype]]()
     var result_ptr = result._data.bitcast[Scalar[dtype]]()
-
-    @parameter
-    if dtype == DType.float16:
+    comptime if dtype == DType.float16:
         for outer in range(outer_size):
             for inner in range(axis_stride):
                 # Compute dot product sum(grad * output) along axis
@@ -825,7 +822,7 @@ fn _softmax_backward_impl[
                     result_ptr[idx] = out_ptr[idx] * (grad_ptr[idx] - dot_sum)
 
 
-fn dispatch_softmax_backward(
+def dispatch_softmax_backward(
     grad_output: AnyTensor,
     output: AnyTensor,
     outer_size: Int,
@@ -871,7 +868,7 @@ fn dispatch_softmax_backward(
     return result^
 
 
-fn _gelu_impl[
+def _gelu_impl[
     dtype: DType
 ](result: AnyTensor, tensor: AnyTensor, approximate: Bool) raises:
     """Compile-time specialized GELU implementation.
@@ -887,7 +884,7 @@ fn _gelu_impl[
         tensor: Input tensor.
         approximate: Use tanh approximation if True.
     """
-    from math import exp, erf, tanh as math_tanh
+    from std.math import exp, erf, tanh as math_tanh
 
     comptime SQRT_2_OVER_PI = 0.7978845608028654
     comptime GELU_COEFF = 0.044715
@@ -895,9 +892,7 @@ fn _gelu_impl[
 
     var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
     var out_ptr = result._data.bitcast[Scalar[dtype]]()
-
-    @parameter
-    if dtype == DType.float16:
+    comptime if dtype == DType.float16:
         if approximate:
             for i in range(tensor._numel):
                 var x = Float32(in_ptr[i])
@@ -944,7 +939,7 @@ fn _gelu_impl[
                 out_ptr[i] = Scalar[dtype](x * 0.5 * (1.0 + erf_val))
 
 
-fn dispatch_gelu(tensor: AnyTensor, approximate: Bool) raises -> AnyTensor:
+def dispatch_gelu(tensor: AnyTensor, approximate: Bool) raises -> AnyTensor:
     """Runtime dispatch for GELU activation.
 
     Args:
@@ -974,7 +969,7 @@ fn dispatch_gelu(tensor: AnyTensor, approximate: Bool) raises -> AnyTensor:
     return result^
 
 
-fn _gelu_backward_impl[
+def _gelu_backward_impl[
     dtype: DType
 ](
     result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, approximate: Bool
@@ -989,7 +984,7 @@ fn _gelu_backward_impl[
         x: Input from forward pass.
         approximate: Use tanh approximation derivative if True.
     """
-    from math import exp, erf, tanh as math_tanh
+    from std.math import exp, erf, tanh as math_tanh
 
     comptime SQRT_2 = 1.4142135623730951
     comptime SQRT_2_OVER_PI = 0.7978845608028654
@@ -999,9 +994,7 @@ fn _gelu_backward_impl[
     var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
     var x_ptr = x._data.bitcast[Scalar[dtype]]()
     var result_ptr = result._data.bitcast[Scalar[dtype]]()
-
-    @parameter
-    if dtype == DType.float16:
+    comptime if dtype == DType.float16:
         if approximate:
             for i in range(x._numel):
                 var x_val = Float32(x_ptr[i])
@@ -1075,7 +1068,7 @@ fn _gelu_backward_impl[
                 result_ptr[i] = Scalar[dtype](grad * dgelu)
 
 
-fn dispatch_gelu_backward(
+def dispatch_gelu_backward(
     grad_output: AnyTensor, x: AnyTensor, approximate: Bool
 ) raises -> AnyTensor:
     """Runtime dispatch for GELU backward operation.
@@ -1109,7 +1102,7 @@ fn dispatch_gelu_backward(
     return result^
 
 
-fn _hard_sigmoid_impl[dtype: DType](result: AnyTensor, tensor: AnyTensor) raises:
+def _hard_sigmoid_impl[dtype: DType](result: AnyTensor, tensor: AnyTensor) raises:
     """Compile-time specialized hard_sigmoid implementation.
 
     hard_sigmoid(x) = clip((x + 3) / 6, 0, 1).
@@ -1122,9 +1115,7 @@ fn _hard_sigmoid_impl[dtype: DType](result: AnyTensor, tensor: AnyTensor) raises
     """
     var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
     var out_ptr = result._data.bitcast[Scalar[dtype]]()
-
-    @parameter
-    if dtype == DType.float16:
+    comptime if dtype == DType.float16:
         for i in range(tensor._numel):
             var x = Float32(in_ptr[i])
             var val = (x + 3.0) / 6.0
@@ -1141,7 +1132,7 @@ fn _hard_sigmoid_impl[dtype: DType](result: AnyTensor, tensor: AnyTensor) raises
             out_ptr[i] = max(zero, min(one, val))
 
 
-fn dispatch_hard_sigmoid(tensor: AnyTensor) raises -> AnyTensor:
+def dispatch_hard_sigmoid(tensor: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch for hard_sigmoid activation.
 
     Args:
@@ -1171,7 +1162,7 @@ fn dispatch_hard_sigmoid(tensor: AnyTensor) raises -> AnyTensor:
     return result^
 
 
-fn _hard_sigmoid_backward_impl[
+def _hard_sigmoid_backward_impl[
     dtype: DType
 ](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor) raises:
     """Compile-time specialized hard_sigmoid backward implementation.
@@ -1188,9 +1179,7 @@ fn _hard_sigmoid_backward_impl[
     var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
     var x_ptr = x._data.bitcast[Scalar[dtype]]()
     var result_ptr = result._data.bitcast[Scalar[dtype]]()
-
-    @parameter
-    if dtype == DType.float16:
+    comptime if dtype == DType.float16:
         for i in range(x._numel):
             var x_val = Float32(x_ptr[i])
             var grad = Float32(grad_ptr[i])
@@ -1212,7 +1201,7 @@ fn _hard_sigmoid_backward_impl[
                 result_ptr[i] = zero
 
 
-fn dispatch_hard_sigmoid_backward(
+def dispatch_hard_sigmoid_backward(
     grad_output: AnyTensor, x: AnyTensor
 ) raises -> AnyTensor:
     """Runtime dispatch for hard_sigmoid backward operation.
@@ -1245,7 +1234,7 @@ fn dispatch_hard_sigmoid_backward(
     return result^
 
 
-fn _hard_swish_impl[dtype: DType](result: AnyTensor, tensor: AnyTensor) raises:
+def _hard_swish_impl[dtype: DType](result: AnyTensor, tensor: AnyTensor) raises:
     """Compile-time specialized hard_swish implementation.
 
     hard_swish(x) = x * hard_sigmoid(x) = x * clip((x + 3) / 6, 0, 1).
@@ -1261,9 +1250,7 @@ fn _hard_swish_impl[dtype: DType](result: AnyTensor, tensor: AnyTensor) raises:
     """
     var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
     var out_ptr = result._data.bitcast[Scalar[dtype]]()
-
-    @parameter
-    if dtype == DType.float16:
+    comptime if dtype == DType.float16:
         for i in range(tensor._numel):
             var x = Float32(in_ptr[i])
             if x <= -3.0:
@@ -1287,7 +1274,7 @@ fn _hard_swish_impl[dtype: DType](result: AnyTensor, tensor: AnyTensor) raises:
                 out_ptr[i] = x * (x + three) / six
 
 
-fn dispatch_hard_swish(tensor: AnyTensor) raises -> AnyTensor:
+def dispatch_hard_swish(tensor: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch for hard_swish activation.
 
     Args:
@@ -1317,7 +1304,7 @@ fn dispatch_hard_swish(tensor: AnyTensor) raises -> AnyTensor:
     return result^
 
 
-fn _hard_swish_backward_impl[
+def _hard_swish_backward_impl[
     dtype: DType
 ](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor) raises:
     """Compile-time specialized hard_swish backward implementation.
@@ -1334,9 +1321,7 @@ fn _hard_swish_backward_impl[
     var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
     var x_ptr = x._data.bitcast[Scalar[dtype]]()
     var result_ptr = result._data.bitcast[Scalar[dtype]]()
-
-    @parameter
-    if dtype == DType.float16:
+    comptime if dtype == DType.float16:
         for i in range(x._numel):
             var x_val = Float32(x_ptr[i])
             var grad = Float32(grad_ptr[i])
@@ -1363,7 +1348,7 @@ fn _hard_swish_backward_impl[
                 result_ptr[i] = grad * (two * x_val + three) / six
 
 
-fn dispatch_hard_swish_backward(
+def dispatch_hard_swish_backward(
     grad_output: AnyTensor, x: AnyTensor
 ) raises -> AnyTensor:
     """Runtime dispatch for hard_swish backward operation.
@@ -1396,7 +1381,7 @@ fn dispatch_hard_swish_backward(
     return result^
 
 
-fn _hard_tanh_impl[
+def _hard_tanh_impl[
     dtype: DType
 ](
     result: AnyTensor, tensor: AnyTensor, min_val: Float64, max_val: Float64
@@ -1423,7 +1408,7 @@ fn _hard_tanh_impl[
         out_ptr[i] = max(min_typed, min(max_typed, x))
 
 
-fn dispatch_hard_tanh(
+def dispatch_hard_tanh(
     tensor: AnyTensor, min_val: Float64, max_val: Float64
 ) raises -> AnyTensor:
     """Runtime dispatch for hard_tanh activation.
@@ -1456,7 +1441,7 @@ fn dispatch_hard_tanh(
     return result^
 
 
-fn _hard_tanh_backward_impl[
+def _hard_tanh_backward_impl[
     dtype: DType
 ](
     result: AnyTensor,
@@ -1494,7 +1479,7 @@ fn _hard_tanh_backward_impl[
             result_ptr[i] = zero
 
 
-fn dispatch_hard_tanh_backward(
+def dispatch_hard_tanh_backward(
     grad_output: AnyTensor, x: AnyTensor, min_val: Float64, max_val: Float64
 ) raises -> AnyTensor:
     """Runtime dispatch for hard_tanh backward operation.

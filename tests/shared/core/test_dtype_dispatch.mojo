@@ -34,27 +34,27 @@ from shared.core.dtype_dispatch import (
 )
 
 
-fn identity_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+def identity_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Identity operation for unary dispatch testing."""
     return x
 
 
-fn double_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+def double_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Double operation for unary dispatch testing."""
     return x + x
 
 
-fn add_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+def add_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
     """Add operation for binary dispatch testing."""
     return x + y
 
 
-fn mul_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
+def mul_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
     """Multiply operation for binary dispatch testing."""
     return x * y
 
 
-fn test_dispatch_unary_float32_identity() raises:
+def test_dispatch_unary_float32_identity() raises:
     """Test dispatch_unary with float32 and identity operation."""
     var shape = List[Int]()
     shape.append(3)
@@ -74,7 +74,7 @@ fn test_dispatch_unary_float32_identity() raises:
     )
 
 
-fn test_dispatch_unary_float32_double() raises:
+def test_dispatch_unary_float32_double() raises:
     """Test dispatch_unary with float32 and double operation."""
     var shape = List[Int]()
     shape.append(3)
@@ -94,7 +94,7 @@ fn test_dispatch_unary_float32_double() raises:
     )
 
 
-fn test_dispatch_unary_float64() raises:
+def test_dispatch_unary_float64() raises:
     """Test dispatch_unary with float64."""
     var shape = List[Int]()
     shape.append(2)
@@ -108,7 +108,7 @@ fn test_dispatch_unary_float64() raises:
     )
 
 
-fn test_dispatch_unary_int32() raises:
+def test_dispatch_unary_int32() raises:
     """Test dispatch_unary with int32."""
     var shape = List[Int]()
     shape.append(3)
@@ -126,7 +126,7 @@ fn test_dispatch_unary_int32() raises:
     assert_equal_int(Int(result._data.bitcast[Int32]()[2]), 3)
 
 
-fn test_dispatch_unary_uint8() raises:
+def test_dispatch_unary_uint8() raises:
     """Test dispatch_unary with uint8."""
     var shape = List[Int]()
     shape.append(2)
@@ -142,7 +142,7 @@ fn test_dispatch_unary_uint8() raises:
     assert_equal_int(Int(result._data.bitcast[UInt8]()[1]), 84)
 
 
-fn test_dispatch_binary_float32_add() raises:
+def test_dispatch_binary_float32_add() raises:
     """Test dispatch_binary with float32 and add operation."""
     var shape = List[Int]()
     shape.append(3)
@@ -163,7 +163,7 @@ fn test_dispatch_binary_float32_add() raises:
     )
 
 
-fn test_dispatch_binary_float32_mul() raises:
+def test_dispatch_binary_float32_mul() raises:
     """Test dispatch_binary with float32 and multiply operation."""
     var shape = List[Int]()
     shape.append(2)
@@ -181,7 +181,7 @@ fn test_dispatch_binary_float32_mul() raises:
     )
 
 
-fn test_dispatch_binary_float64() raises:
+def test_dispatch_binary_float64() raises:
     """Test dispatch_binary with float64."""
     var shape = List[Int]()
     shape.append(2)
@@ -196,7 +196,7 @@ fn test_dispatch_binary_float64() raises:
     )
 
 
-fn test_dispatch_binary_int32() raises:
+def test_dispatch_binary_int32() raises:
     """Test dispatch_binary with int32."""
     var shape = List[Int]()
     shape.append(2)
@@ -215,7 +215,7 @@ fn test_dispatch_binary_int32() raises:
     assert_equal_int(Int(result._data.bitcast[Int32]()[1]), 30)
 
 
-fn test_dispatch_binary_dtype_mismatch() raises:
+def test_dispatch_binary_dtype_mismatch() raises:
     """Test dispatch_binary error when dtypes don't match."""
     var shape = List[Int]()
     shape.append(2)
@@ -231,7 +231,7 @@ fn test_dispatch_binary_dtype_mismatch() raises:
     assert_true(error_caught, "Expected error for dtype mismatch")
 
 
-fn test_dispatch_scalar_float32_add() raises:
+def test_dispatch_scalar_float32_add() raises:
     """Test dispatch_scalar with float32 and add operation."""
     var shape = List[Int]()
     shape.append(3)
@@ -251,7 +251,7 @@ fn test_dispatch_scalar_float32_add() raises:
     )
 
 
-fn test_dispatch_scalar_float32_mul() raises:
+def test_dispatch_scalar_float32_mul() raises:
     """Test dispatch_scalar with float32 and multiply operation."""
     var shape = List[Int]()
     shape.append(2)
@@ -268,7 +268,7 @@ fn test_dispatch_scalar_float32_mul() raises:
     )
 
 
-fn test_dispatch_scalar_int32() raises:
+def test_dispatch_scalar_int32() raises:
     """Test dispatch_scalar with int32."""
     var shape = List[Int]()
     shape.append(2)
@@ -284,7 +284,7 @@ fn test_dispatch_scalar_int32() raises:
     assert_equal_int(Int(result._data.bitcast[Int32]()[1]), 13)
 
 
-fn test_dispatch_float_unary_float32() raises:
+def test_dispatch_float_unary_float32() raises:
     """Test dispatch_float_unary with float32."""
     var shape = List[Int]()
     shape.append(2)
@@ -298,7 +298,7 @@ fn test_dispatch_float_unary_float32() raises:
     )
 
 
-fn test_dispatch_float_unary_float64() raises:
+def test_dispatch_float_unary_float64() raises:
     """Test dispatch_float_unary with float64."""
     var shape = List[Int]()
     shape.append(2)
@@ -312,7 +312,7 @@ fn test_dispatch_float_unary_float64() raises:
     )
 
 
-fn test_dispatch_float_unary_rejects_int32() raises:
+def test_dispatch_float_unary_rejects_int32() raises:
     """Test dispatch_float_unary rejects int32."""
     var shape = List[Int]()
     shape.append(2)
@@ -327,7 +327,7 @@ fn test_dispatch_float_unary_rejects_int32() raises:
     assert_true(error_caught, "Expected error for non-float dtype")
 
 
-fn test_dispatch_float_binary_float32() raises:
+def test_dispatch_float_binary_float32() raises:
     """Test dispatch_float_binary with float32."""
     var shape = List[Int]()
     shape.append(2)
@@ -342,7 +342,7 @@ fn test_dispatch_float_binary_float32() raises:
     )
 
 
-fn test_dispatch_float_binary_rejects_int32() raises:
+def test_dispatch_float_binary_rejects_int32() raises:
     """Test dispatch_float_binary rejects int32."""
     var shape = List[Int]()
     shape.append(2)
@@ -358,7 +358,7 @@ fn test_dispatch_float_binary_rejects_int32() raises:
     assert_true(error_caught, "Expected error for non-float dtype")
 
 
-fn test_dispatch_float_scalar_float32() raises:
+def test_dispatch_float_scalar_float32() raises:
     """Test dispatch_float_scalar with float32."""
     var shape = List[Int]()
     shape.append(2)
@@ -372,7 +372,7 @@ fn test_dispatch_float_scalar_float32() raises:
     )
 
 
-fn test_dispatch_float_scalar_rejects_int32() raises:
+def test_dispatch_float_scalar_rejects_int32() raises:
     """Test dispatch_float_scalar rejects int32."""
     var shape = List[Int]()
     shape.append(2)
@@ -387,7 +387,7 @@ fn test_dispatch_float_scalar_rejects_int32() raises:
     assert_true(error_caught, "Expected error for non-float dtype")
 
 
-fn test_dispatch_unary_2d_tensor() raises:
+def test_dispatch_unary_2d_tensor() raises:
     """Test dispatch_unary with 2D tensor."""
     var shape = List[Int]()
     shape.append(2)
@@ -405,7 +405,7 @@ fn test_dispatch_unary_2d_tensor() raises:
     )
 
 
-fn test_dispatch_binary_2d_tensor() raises:
+def test_dispatch_binary_2d_tensor() raises:
     """Test dispatch_binary with 2D tensors."""
     var shape = List[Int]()
     shape.append(2)
@@ -424,7 +424,7 @@ fn test_dispatch_binary_2d_tensor() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all test_dtype_dispatch tests."""
     print("Running test_dtype_dispatch tests...")
 

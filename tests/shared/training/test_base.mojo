@@ -22,11 +22,11 @@ from shared.training.base import (
     is_valid_loss,
     clip_gradients,
 )
-from math import nan, inf, sqrt
-from collections import List
+from std.math import nan, inf, sqrt
+from std.collections import List
 
 
-fn test_has_nan_or_inf_no_issues() raises:
+def test_has_nan_or_inf_no_issues() raises:
     """Test has_nan_or_inf returns False for normal values."""
     print("Testing has_nan_or_inf with normal values...")
 
@@ -43,7 +43,7 @@ fn test_has_nan_or_inf_no_issues() raises:
     print("  ✓ has_nan_or_inf correctly returns False for normal values")
 
 
-fn test_has_nan_or_inf_with_nan() raises:
+def test_has_nan_or_inf_with_nan() raises:
     """Test has_nan_or_inf detects NaN values."""
     print("Testing has_nan_or_inf with NaN...")
 
@@ -65,7 +65,7 @@ fn test_has_nan_or_inf_with_nan() raises:
     print("  ✓ has_nan_or_inf correctly detects NaN values")
 
 
-fn test_has_nan_or_inf_with_inf() raises:
+def test_has_nan_or_inf_with_inf() raises:
     """Test has_nan_or_inf detects Inf values."""
     print("Testing has_nan_or_inf with Inf...")
 
@@ -87,7 +87,7 @@ fn test_has_nan_or_inf_with_inf() raises:
     print("  ✓ has_nan_or_inf correctly detects Inf values")
 
 
-fn test_compute_gradient_norm_l2() raises:
+def test_compute_gradient_norm_l2() raises:
     """Test compute_gradient_norm with L2 norm (default)."""
     print("Testing compute_gradient_norm L2 norm...")
 
@@ -113,7 +113,7 @@ fn test_compute_gradient_norm_l2() raises:
     print("  ✓ L2 norm computation correct")
 
 
-fn test_compute_gradient_norm_l1() raises:
+def test_compute_gradient_norm_l1() raises:
     """Test compute_gradient_norm with L1 norm."""
     print("Testing compute_gradient_norm L1 norm...")
 
@@ -140,7 +140,7 @@ fn test_compute_gradient_norm_l1() raises:
     print("  ✓ L1 norm computation correct")
 
 
-fn test_compute_gradient_norm_multiple_tensors() raises:
+def test_compute_gradient_norm_multiple_tensors() raises:
     """Test compute_gradient_norm with multiple tensors."""
     print("Testing compute_gradient_norm with multiple tensors...")
 
@@ -172,7 +172,7 @@ fn test_compute_gradient_norm_multiple_tensors() raises:
     print("  ✓ Multiple tensor norm computation correct")
 
 
-fn test_is_valid_loss_valid() raises:
+def test_is_valid_loss_valid() raises:
     """Test is_valid_loss with valid loss values."""
     print("Testing is_valid_loss with valid values...")
 
@@ -184,7 +184,7 @@ fn test_is_valid_loss_valid() raises:
     print("  ✓ is_valid_loss correctly validates normal loss")
 
 
-fn test_is_valid_loss_nan() raises:
+def test_is_valid_loss_nan() raises:
     """Test is_valid_loss with NaN."""
     print("Testing is_valid_loss with NaN...")
 
@@ -196,7 +196,7 @@ fn test_is_valid_loss_nan() raises:
     print("  ✓ is_valid_loss correctly rejects NaN")
 
 
-fn test_is_valid_loss_inf() raises:
+def test_is_valid_loss_inf() raises:
     """Test is_valid_loss with Inf."""
     print("Testing is_valid_loss with Inf...")
 
@@ -208,7 +208,7 @@ fn test_is_valid_loss_inf() raises:
     print("  ✓ is_valid_loss correctly rejects Inf")
 
 
-fn test_clip_gradients_no_clipping_needed() raises:
+def test_clip_gradients_no_clipping_needed() raises:
     """Test clip_gradients when norm is below threshold."""
     print("Testing clip_gradients with norm below threshold...")
 
@@ -232,7 +232,7 @@ fn test_clip_gradients_no_clipping_needed() raises:
     print("  ✓ Gradients correctly unchanged when no clipping needed")
 
 
-fn test_clip_gradients_clipping_needed() raises:
+def test_clip_gradients_clipping_needed() raises:
     """Test clip_gradients scales gradients when norm exceeds threshold."""
     print("Testing clip_gradients with norm above threshold...")
 
@@ -255,7 +255,7 @@ fn test_clip_gradients_clipping_needed() raises:
     print("  ✓ Gradients correctly clipped to max_norm")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_base tests."""
     print("Running test_base tests...")
 

@@ -14,7 +14,7 @@ from shared.data.datasets import AnyTensorDataset, Dataset
 from shared.tensor.any_tensor import AnyTensor
 
 
-fn create_mock_idx_files(temp_dir: String) raises:
+def create_mock_idx_files(temp_dir: String) raises:
     """Create mock IDX files for testing.
 
     Creates minimal valid IDX format files with test data.
@@ -25,7 +25,7 @@ fn create_mock_idx_files(temp_dir: String) raises:
     pass
 
 
-fn test_emnist_init_balanced() raises:
+def test_emnist_init_balanced() raises:
     """Test EMNISTDataset initialization with balanced split.
 
     Verifies that the dataset can be initialized and properties are set.
@@ -43,7 +43,7 @@ fn test_emnist_init_balanced() raises:
         print("Test data not available - skipping initialization test")
 
 
-fn test_emnist_init_byclass() raises:
+def test_emnist_init_byclass() raises:
     """Test EMNISTDataset initialization with byclass split.
 
     Verifies that different split types are accepted.
@@ -55,7 +55,7 @@ fn test_emnist_init_byclass() raises:
         print("Test data not available - skipping byclass test")
 
 
-fn test_emnist_init_digits() raises:
+def test_emnist_init_digits() raises:
     """Test EMNISTDataset initialization with digits split (MNIST equivalent).
 
     Verifies that digits-only split loads correctly.
@@ -67,7 +67,7 @@ fn test_emnist_init_digits() raises:
         print("Test data not available - skipping digits test")
 
 
-fn test_emnist_init_letters() raises:
+def test_emnist_init_letters() raises:
     """Test EMNISTDataset initialization with letters split.
 
     Verifies that letters-only split loads correctly.
@@ -79,7 +79,7 @@ fn test_emnist_init_letters() raises:
         print("Test data not available - skipping letters test")
 
 
-fn test_emnist_init_invalid_split() raises:
+def test_emnist_init_invalid_split() raises:
     """Test EMNISTDataset with invalid split parameter.
 
     Verifies that invalid splits are rejected with appropriate error.
@@ -98,7 +98,7 @@ fn test_emnist_init_invalid_split() raises:
     assert_true(error_raised, "Invalid split should raise error")
 
 
-fn test_emnist_len() raises:
+def test_emnist_len() raises:
     """Test __len__ returns correct dataset size.
 
     Verifies that the length reflects the actual number of samples.
@@ -111,7 +111,7 @@ fn test_emnist_len() raises:
         print("Test data not available - skipping length test")
 
 
-fn test_emnist_getitem_index() raises:
+def test_emnist_getitem_index() raises:
     """Test __getitem__ with positive index.
 
     Verifies that samples can be retrieved by index.
@@ -133,7 +133,7 @@ fn test_emnist_getitem_index() raises:
         print("Test data not available - skipping getitem test")
 
 
-fn test_emnist_getitem_negative_index() raises:
+def test_emnist_getitem_negative_index() raises:
     """Test __getitem__ with negative indexing.
 
     Verifies that negative indices work (last element).
@@ -152,7 +152,7 @@ fn test_emnist_getitem_negative_index() raises:
         print("Test data not available - skipping negative index test")
 
 
-fn test_emnist_getitem_out_of_bounds() raises:
+def test_emnist_getitem_out_of_bounds() raises:
     """Test __getitem__ with out-of-bounds index.
 
     Verifies that accessing invalid indices raises appropriate error.
@@ -178,7 +178,7 @@ fn test_emnist_getitem_out_of_bounds() raises:
         print("Test data not available - skipping bounds test")
 
 
-fn test_emnist_shape() raises:
+def test_emnist_shape() raises:
     """Test shape() method returns correct dimensions.
 
     Verifies that individual sample shape is (1, 28, 28).
@@ -195,7 +195,7 @@ fn test_emnist_shape() raises:
         print("Test data not available - skipping shape test")
 
 
-fn test_emnist_num_classes_balanced() raises:
+def test_emnist_num_classes_balanced() raises:
     """Test num_classes() for balanced split.
 
     Verifies correct class count for balanced variant.
@@ -209,7 +209,7 @@ fn test_emnist_num_classes_balanced() raises:
         print("Test data not available - skipping class count test")
 
 
-fn test_emnist_num_classes_byclass() raises:
+def test_emnist_num_classes_byclass() raises:
     """Test num_classes() for byclass split.
 
     Verifies correct class count for byclass variant.
@@ -223,7 +223,7 @@ fn test_emnist_num_classes_byclass() raises:
         print("Test data not available - skipping byclass class count test")
 
 
-fn test_emnist_num_classes_digits() raises:
+def test_emnist_num_classes_digits() raises:
     """Test num_classes() for digits split.
 
     Verifies that digits split has 10 classes (same as MNIST).
@@ -237,7 +237,7 @@ fn test_emnist_num_classes_digits() raises:
         print("Test data not available - skipping digits class count test")
 
 
-fn test_emnist_num_classes_letters() raises:
+def test_emnist_num_classes_letters() raises:
     """Test num_classes() for letters split.
 
     Verifies that letters split has 26 classes (A-Z).
@@ -251,7 +251,7 @@ fn test_emnist_num_classes_letters() raises:
         print("Test data not available - skipping letters class count test")
 
 
-fn test_emnist_num_classes_mnist() raises:
+def test_emnist_num_classes_mnist() raises:
     """Test num_classes() for mnist split.
 
     Verifies that MNIST equivalent has 10 classes.
@@ -265,7 +265,7 @@ fn test_emnist_num_classes_mnist() raises:
         print("Test data not available - skipping mnist class count test")
 
 
-fn test_emnist_get_train_data() raises:
+def test_emnist_get_train_data() raises:
     """Test get_train_data() returns AnyTensorDataset.
 
     Verifies that the method wraps data in AnyTensorDataset correctly.
@@ -281,7 +281,7 @@ fn test_emnist_get_train_data() raises:
         print("Test data not available - skipping get_train_data test")
 
 
-fn test_emnist_get_test_data() raises:
+def test_emnist_get_test_data() raises:
     """Test get_test_data() returns AnyTensorDataset.
 
     Verifies that the method wraps data in AnyTensorDataset correctly.
@@ -299,7 +299,7 @@ fn test_emnist_get_test_data() raises:
         print("Test data not available - skipping get_test_data test")
 
 
-fn test_emnist_train_vs_test_sizes() raises:
+def test_emnist_train_vs_test_sizes() raises:
     """Test that train and test splits have different sizes.
 
     Verifies that training and test datasets contain expected sample counts.
@@ -322,7 +322,7 @@ fn test_emnist_train_vs_test_sizes() raises:
         print("Test data not available - skipping train/test split test")
 
 
-fn test_emnist_data_label_consistency() raises:
+def test_emnist_data_label_consistency() raises:
     """Test that data and labels have matching first dimensions.
 
     Verifies that the dataset maintains consistency between data and labels.
@@ -342,7 +342,7 @@ fn test_emnist_data_label_consistency() raises:
         print("Test data not available - skipping consistency test")
 
 
-fn test_emnist_all_valid_splits() raises:
+def test_emnist_all_valid_splits() raises:
     """Test that all documented splits are accepted.
 
     Verifies that balanced, byclass, bymerge, digits, letters, mnist are all valid.
@@ -372,7 +372,7 @@ fn test_emnist_all_valid_splits() raises:
         # Note: File I/O errors are expected if data doesn't exist
 
 
-fn test_emnist_performance_random_access() raises:
+def test_emnist_performance_random_access() raises:
     """Test performance of random index access.
 
     Verifies that accessing different indices works correctly.
@@ -398,7 +398,7 @@ fn test_emnist_performance_random_access() raises:
         print("Test data not available - skipping performance test")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_emnist tests."""
     print("Running test_emnist tests...")
 

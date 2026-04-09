@@ -23,28 +23,28 @@ from shared.core.validation import (
 )
 
 
-fn test_validate_tensor_shape_1d_correct() raises:
+def test_validate_tensor_shape_1d_correct() raises:
     """Test validate_tensor_shape with correct 1D shape."""
     var x = zeros([10], DType.float32)
     var expected_shape: List[Int] = [10]
     validate_tensor_shape(x, expected_shape, "x")
 
 
-fn test_validate_tensor_shape_2d_correct() raises:
+def test_validate_tensor_shape_2d_correct() raises:
     """Test validate_tensor_shape with correct 2D shape."""
     var x = zeros([3, 4], DType.float32)
     var expected_shape: List[Int] = [3, 4]
     validate_tensor_shape(x, expected_shape, "x")
 
 
-fn test_validate_tensor_shape_3d_correct() raises:
+def test_validate_tensor_shape_3d_correct() raises:
     """Test validate_tensor_shape with correct 3D shape."""
     var x = zeros([2, 3, 4], DType.float32)
     var expected_shape: List[Int] = [2, 3, 4]
     validate_tensor_shape(x, expected_shape, "x")
 
 
-fn test_validate_tensor_shape_wrong_dimension_count() raises:
+def test_validate_tensor_shape_wrong_dimension_count() raises:
     """Test validate_tensor_shape with wrong number of dimensions."""
     var x = zeros([3, 4], DType.float32)
     var expected_shape: List[Int] = [3, 4, 5]
@@ -63,7 +63,7 @@ fn test_validate_tensor_shape_wrong_dimension_count() raises:
     assert_true(error_raised, "Error should be raised for dimension mismatch")
 
 
-fn test_validate_tensor_shape_wrong_dimension_value() raises:
+def test_validate_tensor_shape_wrong_dimension_value() raises:
     """Test validate_tensor_shape with wrong dimension value."""
     var x = zeros([3, 4], DType.float32)
     var expected_shape: List[Int] = [3, 5]
@@ -82,25 +82,25 @@ fn test_validate_tensor_shape_wrong_dimension_value() raises:
     assert_true(error_raised, "Error should be raised for shape mismatch")
 
 
-fn test_validate_tensor_dtype_float32_correct() raises:
+def test_validate_tensor_dtype_float32_correct() raises:
     """Test validate_tensor_dtype with correct float32 dtype."""
     var x = zeros([3, 4], DType.float32)
     validate_tensor_dtype(x, DType.float32, "x")
 
 
-fn test_validate_tensor_dtype_float64_correct() raises:
+def test_validate_tensor_dtype_float64_correct() raises:
     """Test validate_tensor_dtype with correct float64 dtype."""
     var x = zeros([3, 4], DType.float64)
     validate_tensor_dtype(x, DType.float64, "x")
 
 
-fn test_validate_tensor_dtype_int32_correct() raises:
+def test_validate_tensor_dtype_int32_correct() raises:
     """Test validate_tensor_dtype with correct int32 dtype."""
     var x = zeros([3, 4], DType.int32)
     validate_tensor_dtype(x, DType.int32, "x")
 
 
-fn test_validate_tensor_dtype_mismatch() raises:
+def test_validate_tensor_dtype_mismatch() raises:
     """Test validate_tensor_dtype with mismatched dtype."""
     var x = zeros([3, 4], DType.float32)
     var error_raised = False
@@ -118,14 +118,14 @@ fn test_validate_tensor_dtype_mismatch() raises:
     assert_true(error_raised, "Error should be raised for dtype mismatch")
 
 
-fn test_validate_matching_tensors_same_shape_dtype() raises:
+def test_validate_matching_tensors_same_shape_dtype() raises:
     """Test validate_matching_tensors with matching tensors."""
     var x = zeros([3, 4], DType.float32)
     var y = ones([3, 4], DType.float32)
     validate_matching_tensors(x, y, "x", "y")
 
 
-fn test_validate_matching_tensors_different_dtype() raises:
+def test_validate_matching_tensors_different_dtype() raises:
     """Test validate_matching_tensors with different dtypes."""
     var x = zeros([3, 4], DType.float32)
     var y = ones([3, 4], DType.float64)
@@ -144,7 +144,7 @@ fn test_validate_matching_tensors_different_dtype() raises:
     assert_true(error_raised, "Error should be raised for dtype mismatch")
 
 
-fn test_validate_matching_tensors_different_shape() raises:
+def test_validate_matching_tensors_different_shape() raises:
     """Test validate_matching_tensors with different shapes."""
     var x = zeros([3, 4], DType.float32)
     var y = ones([4, 5], DType.float32)
@@ -163,7 +163,7 @@ fn test_validate_matching_tensors_different_shape() raises:
     assert_true(error_raised, "Error should be raised for shape mismatch")
 
 
-fn test_validate_matching_tensors_different_ndim() raises:
+def test_validate_matching_tensors_different_ndim() raises:
     """Test validate_matching_tensors with different number of dimensions."""
     var x = zeros([3, 4], DType.float32)
     var y = ones([3, 4, 5], DType.float32)
@@ -182,13 +182,13 @@ fn test_validate_matching_tensors_different_ndim() raises:
     assert_true(error_raised, "Error should be raised for ndim mismatch")
 
 
-fn test_validate_2d_input_correct() raises:
+def test_validate_2d_input_correct() raises:
     """Test validate_2d_input with correct 2D tensor."""
     var x = zeros([3, 4], DType.float32)
     validate_2d_input(x, "x")
 
 
-fn test_validate_2d_input_1d() raises:
+def test_validate_2d_input_1d() raises:
     """Test validate_2d_input with 1D tensor."""
     var x = zeros([10], DType.float32)
     var error_raised = False
@@ -206,7 +206,7 @@ fn test_validate_2d_input_1d() raises:
     assert_true(error_raised, "Error should be raised for non-2D tensor")
 
 
-fn test_validate_2d_input_3d() raises:
+def test_validate_2d_input_3d() raises:
     """Test validate_2d_input with 3D tensor."""
     var x = zeros([2, 3, 4], DType.float32)
     var error_raised = False
@@ -224,7 +224,7 @@ fn test_validate_2d_input_3d() raises:
     assert_true(error_raised, "Error should be raised for non-2D tensor")
 
 
-fn test_validate_2d_input_4d() raises:
+def test_validate_2d_input_4d() raises:
     """Test validate_2d_input with 4D tensor."""
     var x = zeros([2, 3, 4, 5], DType.float32)
     var error_raised = False
@@ -242,13 +242,13 @@ fn test_validate_2d_input_4d() raises:
     assert_true(error_raised, "Error should be raised for non-2D tensor")
 
 
-fn test_validate_4d_input_correct() raises:
+def test_validate_4d_input_correct() raises:
     """Test validate_4d_input with correct 4D tensor."""
     var x = zeros([2, 3, 4, 5], DType.float32)
     validate_4d_input(x, "x")
 
 
-fn test_validate_4d_input_2d() raises:
+def test_validate_4d_input_2d() raises:
     """Test validate_4d_input with 2D tensor."""
     var x = zeros([3, 4], DType.float32)
     var error_raised = False
@@ -266,7 +266,7 @@ fn test_validate_4d_input_2d() raises:
     assert_true(error_raised, "Error should be raised for non-4D tensor")
 
 
-fn test_validate_4d_input_3d() raises:
+def test_validate_4d_input_3d() raises:
     """Test validate_4d_input with 3D tensor."""
     var x = zeros([2, 3, 4], DType.float32)
     var error_raised = False
@@ -284,7 +284,7 @@ fn test_validate_4d_input_3d() raises:
     assert_true(error_raised, "Error should be raised for non-4D tensor")
 
 
-fn test_validate_4d_input_5d() raises:
+def test_validate_4d_input_5d() raises:
     """Test validate_4d_input with 5D tensor."""
     var x = zeros([2, 3, 4, 5, 6], DType.float32)
     var error_raised = False
@@ -302,7 +302,7 @@ fn test_validate_4d_input_5d() raises:
     assert_true(error_raised, "Error should be raised for non-4D tensor")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_validation tests."""
     print("Running test_validation tests...")
 

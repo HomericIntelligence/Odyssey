@@ -13,7 +13,7 @@ All tests use the real CSVMetricsLogger implementation.
 from shared.training.metrics.csv_metrics_logger import CSVMetricsLogger
 from shared.training.base import TrainingState, CONTINUE
 from shared.utils.file_io import file_exists, safe_read_file, create_directory
-from collections import List, Dict
+from std.collections import List, Dict
 
 
 # ============================================================================
@@ -21,7 +21,7 @@ from collections import List, Dict
 # ============================================================================
 
 
-fn test_csv_metrics_logger_initialization() raises:
+def test_csv_metrics_logger_initialization() raises:
     """Test CSVMetricsLogger initialization with parameters."""
     print("Testing CSVMetricsLogger initialization...")
 
@@ -40,7 +40,7 @@ fn test_csv_metrics_logger_initialization() raises:
     print("  ✓ CSVMetricsLogger initialization successful")
 
 
-fn test_csv_metrics_logger_log_scalar() raises:
+def test_csv_metrics_logger_log_scalar() raises:
     """Test logging scalar metrics."""
     print("Testing log_scalar...")
 
@@ -60,7 +60,7 @@ fn test_csv_metrics_logger_log_scalar() raises:
     print("  ✓ log_scalar correctly stores metrics")
 
 
-fn test_csv_metrics_logger_log_multiple_metrics() raises:
+def test_csv_metrics_logger_log_multiple_metrics() raises:
     """Test logging multiple different metrics."""
     print("Testing multiple metrics logging...")
 
@@ -86,7 +86,7 @@ fn test_csv_metrics_logger_log_multiple_metrics() raises:
 # ============================================================================
 
 
-fn test_csv_metrics_logger_on_epoch_end() raises:
+def test_csv_metrics_logger_on_epoch_end() raises:
     """Test metrics logging at epoch end."""
     print("Testing on_epoch_end callback...")
 
@@ -113,7 +113,7 @@ fn test_csv_metrics_logger_on_epoch_end() raises:
     print("  ✓ on_epoch_end correctly logs metrics")
 
 
-fn test_csv_metrics_logger_step_counter() raises:
+def test_csv_metrics_logger_step_counter() raises:
     """Test step counter increments correctly."""
     print("Testing step counter...")
 
@@ -134,7 +134,7 @@ fn test_csv_metrics_logger_step_counter() raises:
     print("  ✓ Step counter increments correctly")
 
 
-fn test_csv_metrics_logger_on_train_begin() raises:
+def test_csv_metrics_logger_on_train_begin() raises:
     """Test on_train_begin initializes directory."""
     print("Testing on_train_begin...")
 
@@ -157,7 +157,7 @@ fn test_csv_metrics_logger_on_train_begin() raises:
 # ============================================================================
 
 
-fn test_csv_metrics_logger_build_csv() raises:
+def test_csv_metrics_logger_build_csv() raises:
     """Test CSV content generation."""
     print("Testing CSV content generation...")
 
@@ -183,7 +183,7 @@ fn test_csv_metrics_logger_build_csv() raises:
     print("  ✓ CSV content generated correctly")
 
 
-fn test_csv_metrics_logger_log_from_state() raises:
+def test_csv_metrics_logger_log_from_state() raises:
     """Test logging all metrics from TrainingState."""
     print("Testing log_from_state...")
 
@@ -218,7 +218,7 @@ fn test_csv_metrics_logger_log_from_state() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all CSV metrics logger tests."""
     print("\n" + "=" * 60)
     print("Running CSV Metrics Logger Tests")

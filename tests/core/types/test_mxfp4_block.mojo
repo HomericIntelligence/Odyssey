@@ -15,10 +15,10 @@ from tests.shared.conftest import (
     assert_equal,
     assert_almost_equal,
 )
-from math import isinf, isnan
+from std.math import isinf, isnan
 
 
-fn test_mxfp4_block_creation_zeros() raises:
+def test_mxfp4_block_creation_zeros() raises:
     """Test MXFP4Block creation with all zeros."""
     var values = List[Float32]()
     for i in range(32):
@@ -32,7 +32,7 @@ fn test_mxfp4_block_creation_zeros() raises:
         assert_almost_equal(decoded[i], Float32(0.0), tolerance=1e-4)
 
 
-fn test_mxfp4_block_creation_ones() raises:
+def test_mxfp4_block_creation_ones() raises:
     """Test MXFP4Block creation with all ones."""
     var values = List[Float32]()
     for i in range(32):
@@ -47,7 +47,7 @@ fn test_mxfp4_block_creation_ones() raises:
         assert_almost_equal(decoded[i], Float32(1.0), tolerance=0.5)
 
 
-fn test_mxfp4_block_creation_range() raises:
+def test_mxfp4_block_creation_range() raises:
     """Test MXFP4Block creation with sequential values."""
     var values = List[Float32]()
     for i in range(32):
@@ -64,7 +64,7 @@ fn test_mxfp4_block_creation_range() raises:
         assert_true(error < 0.5, "Value " + String(i) + " error too large")
 
 
-fn test_mxfp4_block_size_validation() raises:
+def test_mxfp4_block_size_validation() raises:
     """Test MXFP4Block requires exactly 32 values."""
     var values = List[Float32]()
     for i in range(16):  # Only 16 values
@@ -78,7 +78,7 @@ fn test_mxfp4_block_size_validation() raises:
         pass
 
 
-fn test_mxfp4_block_roundtrip_small() raises:
+def test_mxfp4_block_roundtrip_small() raises:
     """Test round-trip conversion for small values."""
     var values = List[Float32]()
     for i in range(32):
@@ -95,7 +95,7 @@ fn test_mxfp4_block_roundtrip_small() raises:
         assert_true(error < 2.0, "Round-trip error too large")
 
 
-fn test_mxfp4_block_roundtrip_large() raises:
+def test_mxfp4_block_roundtrip_large() raises:
     """Test round-trip conversion for large values."""
     var values = List[Float32]()
     for i in range(32):
@@ -116,7 +116,7 @@ fn test_mxfp4_block_roundtrip_large() raises:
         assert_true(error < expected * 1.0, "Round-trip error too large")
 
 
-fn test_mxfp4_block_roundtrip_mixed_signs() raises:
+def test_mxfp4_block_roundtrip_mixed_signs() raises:
     """Test round-trip conversion with mixed signs."""
     var values = List[Float32]()
     for i in range(32):
@@ -152,7 +152,7 @@ fn test_mxfp4_block_roundtrip_mixed_signs() raises:
             )
 
 
-fn test_mxfp4_block_scale_computation() raises:
+def test_mxfp4_block_scale_computation() raises:
     """Test scale computation for different value ranges."""
     # Test 1: All values in [0, 1]
     var values1 = List[Float32]()
@@ -175,7 +175,7 @@ fn test_mxfp4_block_scale_computation() raises:
     assert_true(scale2 > scale1, "Scale 2 should be larger")
 
 
-fn test_mxfp4_block_bit_packing() raises:
+def test_mxfp4_block_bit_packing() raises:
     """Test bit packing stores 2 values per byte."""
     var values = List[Float32]()
     # Create distinct values
@@ -190,7 +190,7 @@ fn test_mxfp4_block_bit_packing() raises:
     assert_equal(len(decoded), 32)
 
 
-fn test_mxfp4_block_get() raises:
+def test_mxfp4_block_get() raises:
     """Test get() method retrieves individual values."""
     var values = List[Float32]()
     for i in range(32):
@@ -209,7 +209,7 @@ fn test_mxfp4_block_get() raises:
     assert_true(abs(val31.to_float32() - 3.1) < 0.5)
 
 
-fn test_mxfp4_block_get_bounds_checking() raises:
+def test_mxfp4_block_get_bounds_checking() raises:
     """Test get() bounds checking."""
     var values = List[Float32]()
     for i in range(32):
@@ -231,7 +231,7 @@ fn test_mxfp4_block_get_bounds_checking() raises:
         pass
 
 
-fn test_mxfp4_block_set() raises:
+def test_mxfp4_block_set() raises:
     """Test set() method updates individual values."""
     var values = List[Float32]()
     for i in range(32):
@@ -257,7 +257,7 @@ fn test_mxfp4_block_set() raises:
     )
 
 
-fn test_mxfp4_block_set_bounds_checking() raises:
+def test_mxfp4_block_set_bounds_checking() raises:
     """Test set() bounds checking."""
     var values = List[Float32]()
     for i in range(32):
@@ -280,7 +280,7 @@ fn test_mxfp4_block_set_bounds_checking() raises:
         pass
 
 
-fn test_mxfp4_block_all_negative_same() raises:
+def test_mxfp4_block_all_negative_same() raises:
     """Test block with all same negative values (TEST-001)."""
     var values = List[Float32]()
     for i in range(32):
@@ -296,7 +296,7 @@ fn test_mxfp4_block_all_negative_same() raises:
         assert_almost_equal(decoded[i], Float32(-1.0), tolerance=0.5)
 
 
-fn test_mxfp4_block_all_negative_range() raises:
+def test_mxfp4_block_all_negative_range() raises:
     """Test block with range of negative values (TEST-001)."""
     var values = List[Float32]()
     for i in range(32):
@@ -310,7 +310,7 @@ fn test_mxfp4_block_all_negative_range() raises:
         assert_true(decoded[i] < 0, "Value should be negative")
 
 
-fn test_mxfp4_block_negative_scale_computation() raises:
+def test_mxfp4_block_negative_scale_computation() raises:
     """Test scale computation uses abs() for negative values (TEST-001)."""
     var values = List[Float32]()
     for i in range(32):
@@ -328,7 +328,7 @@ fn test_mxfp4_block_negative_scale_computation() raises:
         assert_true(decoded[i] < 0, "Sign should be preserved")
 
 
-fn test_mxfp4_block_all_zeros() raises:
+def test_mxfp4_block_all_zeros() raises:
     """Test block with all zeros triggers scale=1.0 fallback (TEST-002)."""
     var values = List[Float32]()
     for i in range(32):
@@ -346,7 +346,7 @@ fn test_mxfp4_block_all_zeros() raises:
         assert_almost_equal(decoded[i], Float32(0.0), tolerance=1e-5)
 
 
-fn test_mxfp4_block_near_zero() raises:
+def test_mxfp4_block_near_zero() raises:
     """Test block with near-zero values triggers fallback (TEST-002)."""
     var values = List[Float32]()
     for i in range(32):
@@ -359,7 +359,7 @@ fn test_mxfp4_block_near_zero() raises:
     assert_true(scale_val > 0.5, "Scale should fallback to 1.0")
 
 
-fn test_mxfp4_block_zero_roundtrip() raises:
+def test_mxfp4_block_zero_roundtrip() raises:
     """Test lossless zero encoding (TEST-002)."""
     var values = List[Float32]()
     for i in range(32):
@@ -373,7 +373,7 @@ fn test_mxfp4_block_zero_roundtrip() raises:
         assert_almost_equal(decoded[i], Float32(0.0), tolerance=1e-4)
 
 
-fn test_mxfp4_block_nan_values() raises:
+def test_mxfp4_block_nan_values() raises:
     """Test block with NaN values (TEST-003)."""
     var values = List[Float32]()
     var nan_val = Float32(0.0) / Float32(0.0)  # Create NaN
@@ -391,7 +391,7 @@ fn test_mxfp4_block_nan_values() raises:
         )
 
 
-fn test_mxfp4_block_infinity_values() raises:
+def test_mxfp4_block_infinity_values() raises:
     """Test block with Infinity values (TEST-003)."""
     var pos_inf = Float32(1.0) / Float32(0.0)
     var neg_inf = Float32(-1.0) / Float32(0.0)
@@ -412,7 +412,7 @@ fn test_mxfp4_block_infinity_values() raises:
         assert_true(decoded[i] < 0, "Negative infinity should decode negative")
 
 
-fn test_mxfp4_block_mixed_special() raises:
+def test_mxfp4_block_mixed_special() raises:
     """Test block with mixed NaN, Infinity, and normal values (TEST-003)."""
     var nan_val = Float32(0.0) / Float32(0.0)
     var pos_inf = Float32(1.0) / Float32(0.0)
@@ -437,7 +437,7 @@ fn test_mxfp4_block_mixed_special() raises:
         assert_true(not isnan(decoded[i]), "Decoded value should not be NaN")
 
 
-fn test_mxfp4_block_all_same_value() raises:
+def test_mxfp4_block_all_same_value() raises:
     """Test block with all same values."""
     var values = List[Float32]()
     for i in range(32):
@@ -453,7 +453,7 @@ fn test_mxfp4_block_all_same_value() raises:
         assert_almost_equal(decoded[i], first, tolerance=0.5)
 
 
-fn test_mxfp4_block_extreme_range() raises:
+def test_mxfp4_block_extreme_range() raises:
     """Test block with very different magnitude values."""
     var values = List[Float32]()
     # Mix very small and very large values
@@ -475,7 +475,7 @@ fn test_mxfp4_block_extreme_range() raises:
     assert_true(large_vals_ok, "Large values not preserved")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_mxfp4_block tests."""
     print("Running test_mxfp4_block tests...")
 

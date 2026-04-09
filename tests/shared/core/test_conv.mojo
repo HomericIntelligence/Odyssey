@@ -33,7 +33,7 @@ from shared.core.reduction import sum as reduce_sum
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 
 
-fn test_conv2d_initialization() raises:
+def test_conv2d_initialization() raises:
     """Test that conv2d layer parameters can be created with correct shapes.
 
     Functional API Note:
@@ -84,7 +84,7 @@ fn test_conv2d_initialization() raises:
     assert_equal(bias_s[0], out_channels)
 
 
-fn test_conv2d_output_shape_no_padding() raises:
+def test_conv2d_output_shape_no_padding() raises:
     """Test conv2d output shape with no padding.
 
     Formula: out_height = (height - kH) // stride + 1
@@ -135,7 +135,7 @@ fn test_conv2d_output_shape_no_padding() raises:
     assert_equal(out_shape[3], 2)  # (4 - 3) // 1 + 1 = 2
 
 
-fn test_conv2d_output_shape_with_padding() raises:
+def test_conv2d_output_shape_with_padding() raises:
     """Test conv2d output shape with padding.
 
     Formula: out_height = (height + 2*padding - kH) // stride + 1
@@ -186,7 +186,7 @@ fn test_conv2d_output_shape_with_padding() raises:
     assert_equal(out_shape[3], 4)  # (4 + 2*1 - 3) // 1 + 1 = 4
 
 
-fn test_conv2d_output_shape_with_stride() raises:
+def test_conv2d_output_shape_with_stride() raises:
     """Test conv2d output shape with stride > 1.
 
     Test case: batch=1, in_channels=1, height=8, width=8, kH=3, kW=3, stride=2, padding=1
@@ -234,7 +234,7 @@ fn test_conv2d_output_shape_with_stride() raises:
     assert_equal(out_shape[3], 4)  # (8 + 2*1 - 3) // 2 + 1 = 4
 
 
-fn test_conv2d_1x1_kernel() raises:
+def test_conv2d_1x1_kernel() raises:
     """Test conv2d with 1x1 kernel (special case).
 
     1x1 kernels are commonly used in modern architectures (e.g., ResNets).
@@ -287,7 +287,7 @@ fn test_conv2d_1x1_kernel() raises:
     assert_almost_equal(output_data[0], 2.0, tolerance=1e-5)
 
 
-fn test_conv2d_single_sample_simple() raises:
+def test_conv2d_single_sample_simple() raises:
     """Test conv2d with single sample and simple known values.
 
     Test a 3x3 input with 3x3 kernel to verify correct computation.
@@ -337,7 +337,7 @@ fn test_conv2d_single_sample_simple() raises:
     assert_almost_equal(output_data[0], 9.0, tolerance=1e-5)
 
 
-fn test_conv2d_with_bias() raises:
+def test_conv2d_with_bias() raises:
     """Test conv2d correctly adds bias term.
 
     Verify that bias is properly added to the convolution output.
@@ -381,7 +381,7 @@ fn test_conv2d_with_bias() raises:
     assert_almost_equal(output_data[0], 14.0, tolerance=1e-5)
 
 
-fn test_conv2d_multichannel() raises:
+def test_conv2d_multichannel() raises:
     """Test conv2d with multiple input and output channels.
 
     Verify that the function correctly handles multi-channel convolution.
@@ -428,7 +428,7 @@ fn test_conv2d_multichannel() raises:
     assert_equal(out_shape[3], in_width)
 
 
-fn test_conv2d_numerical_correctness() raises:
+def test_conv2d_numerical_correctness() raises:
     """Test conv2d produces correct numerical output.
 
     Simple case:
@@ -468,7 +468,7 @@ fn test_conv2d_numerical_correctness() raises:
     assert_almost_equal(result, Float32(2.5), tolerance=1e-5)
 
 
-fn test_conv2d_multi_channel() raises:
+def test_conv2d_multi_channel() raises:
     """Test conv2d with multiple input and output channels.
 
     Input: (1, 2, 3, 3) - 2 input channels
@@ -513,7 +513,7 @@ fn test_conv2d_multi_channel() raises:
     assert_equal(out_shape[3], 2)
 
 
-fn test_conv2d_no_bias() raises:
+def test_conv2d_no_bias() raises:
     """Test conv2d_no_bias produces correct output without bias.
 
     Should be equivalent to conv2d with zero bias.
@@ -549,7 +549,7 @@ fn test_conv2d_no_bias() raises:
     assert_almost_equal(result, Float32(4.0), tolerance=1e-5)
 
 
-fn test_conv2d_batched() raises:
+def test_conv2d_batched() raises:
     """Test conv2d with batch size > 1.
 
     Verify that convolution is applied independently to each batch element.
@@ -590,7 +590,7 @@ fn test_conv2d_batched() raises:
     assert_equal(out_shape[3], 3)
 
 
-fn test_conv2d_backward_shapes() raises:
+def test_conv2d_backward_shapes() raises:
     """Test that conv2d_backward returns correct gradient shapes."""
     var batch = 1
     var in_channels = 1
@@ -648,7 +648,7 @@ fn test_conv2d_backward_shapes() raises:
     assert_equal(grad_bias.shape()[0], out_channels)
 
 
-fn test_conv2d_backward_bias_gradient() raises:
+def test_conv2d_backward_bias_gradient() raises:
     """Test that conv2d_backward computes correct gradient w.r.t. bias.
 
     grad_bias[oc] = sum of grad_output over all (batch, height, width) positions
@@ -709,7 +709,7 @@ fn test_conv2d_backward_bias_gradient() raises:
         )
 
 
-fn test_conv2d_no_bias_backward_shapes() raises:
+def test_conv2d_no_bias_backward_shapes() raises:
     """Test that conv2d_no_bias_backward returns correct gradient shapes."""
     var batch = 1
     var in_channels = 2
@@ -757,7 +757,7 @@ fn test_conv2d_no_bias_backward_shapes() raises:
     assert_equal(grad_kernel.shape()[3], kW)
 
 
-fn test_conv2d_backward_multichannel_shapes() raises:
+def test_conv2d_backward_multichannel_shapes() raises:
     """Test conv2d_backward returns correct gradient shapes for multi-channel config.
 
     Tests in_channels=3, out_channels=8 — typical first conv layer configuration.
@@ -818,7 +818,7 @@ fn test_conv2d_backward_multichannel_shapes() raises:
     assert_equal(grad_bias.shape()[0], out_channels)
 
 
-fn test_conv2d_backward_multichannel_values() raises:
+def test_conv2d_backward_multichannel_values() raises:
     """Test conv2d_backward computes correct gradients for multi-channel config.
 
     Uses analytically tractable configuration (all ones, single spatial output)
@@ -910,7 +910,7 @@ fn test_conv2d_backward_multichannel_values() raises:
         )
 
 
-fn test_conv2d_backward_multichannel_batch_gt_1() raises:
+def test_conv2d_backward_multichannel_batch_gt_1() raises:
     """Test conv2d_backward with batch > 1 verifies grad accumulation across batch dimension.
 
     When batch > 1, grad_bias and grad_weights must accumulate over all batch items.
@@ -999,7 +999,7 @@ fn test_conv2d_backward_multichannel_batch_gt_1() raises:
         )
 
 
-fn test_conv2d_backward_gradient_input() raises:
+def test_conv2d_backward_gradient_input() raises:
     """Numerical gradient check for grad_input computed by conv2d_backward.
 
     Compares analytical gradient w.r.t. input against finite differences.
@@ -1040,7 +1040,7 @@ fn test_conv2d_backward_gradient_input() raises:
     var analytical_grad = result.grad_input
 
     # Numerical gradient: forward_fn sums conv output (equivalent to ones grad_output)
-    fn forward_for_input(inp: AnyTensor) raises -> AnyTensor:
+    def forward_for_input(inp: AnyTensor) raises -> AnyTensor:
         var out = conv2d_no_bias(inp, kernel, stride, padding)
         var reduced = out
         while reduced.dim() > 0:
@@ -1060,7 +1060,7 @@ fn test_conv2d_backward_gradient_input() raises:
     )
 
 
-fn test_conv2d_backward_gradient_kernel() raises:
+def test_conv2d_backward_gradient_kernel() raises:
     """Numerical gradient check for grad_weights computed by conv2d_backward.
 
     Compares analytical gradient w.r.t. kernel against finite differences.
@@ -1100,7 +1100,7 @@ fn test_conv2d_backward_gradient_kernel() raises:
     var analytical_grad = result.grad_weights
 
     # Numerical gradient: forward_fn sums conv output (equivalent to ones grad_output)
-    fn forward_for_kernel(k: AnyTensor) raises -> AnyTensor:
+    def forward_for_kernel(k: AnyTensor) raises -> AnyTensor:
         var out = conv2d_no_bias(x, k, stride, padding)
         var reduced = out
         while reduced.dim() > 0:
@@ -1120,7 +1120,7 @@ fn test_conv2d_backward_gradient_kernel() raises:
     )
 
 
-fn test_conv2d_backward_gradient_input_with_padding() raises:
+def test_conv2d_backward_gradient_input_with_padding() raises:
     """Numerical gradient check for grad_input with padding > 0.
 
     Tests the transposed convolution path in conv2d_backward with boundary
@@ -1166,7 +1166,7 @@ fn test_conv2d_backward_gradient_input_with_padding() raises:
     var result = conv2d_backward(grad_output, x, kernel, stride, padding)
     var analytical_grad = result.grad_input
 
-    fn forward_for_input_p1(inp: AnyTensor) raises -> AnyTensor:
+    def forward_for_input_p1(inp: AnyTensor) raises -> AnyTensor:
         var out = conv2d_no_bias(inp, kernel, stride, padding)
         var reduced = out
         while reduced.dim() > 0:
@@ -1192,7 +1192,7 @@ fn test_conv2d_backward_gradient_input_with_padding() raises:
     result = conv2d_backward(grad_output, x, kernel, stride, padding)
     analytical_grad = result.grad_input
 
-    fn forward_for_input_p2(inp: AnyTensor) raises -> AnyTensor:
+    def forward_for_input_p2(inp: AnyTensor) raises -> AnyTensor:
         var out = conv2d_no_bias(inp, kernel, stride, padding)
         var reduced = out
         while reduced.dim() > 0:
@@ -1212,7 +1212,7 @@ fn test_conv2d_backward_gradient_input_with_padding() raises:
     )
 
 
-fn test_conv2d_backward_gradient_kernel_with_padding() raises:
+def test_conv2d_backward_gradient_kernel_with_padding() raises:
     """Numerical gradient check for grad_weights with padding > 0.
 
     Ensures kernel gradient computation is correct when input padding is used.
@@ -1253,7 +1253,7 @@ fn test_conv2d_backward_gradient_kernel_with_padding() raises:
     var result = conv2d_backward(grad_output, x, kernel, stride, padding)
     var analytical_grad = result.grad_weights
 
-    fn forward_for_kernel_p1(k: AnyTensor) raises -> AnyTensor:
+    def forward_for_kernel_p1(k: AnyTensor) raises -> AnyTensor:
         var out = conv2d_no_bias(x, k, stride, padding)
         var reduced = out
         while reduced.dim() > 0:
@@ -1279,7 +1279,7 @@ fn test_conv2d_backward_gradient_kernel_with_padding() raises:
     result = conv2d_backward(grad_output, x, kernel, stride, padding)
     analytical_grad = result.grad_weights
 
-    fn forward_for_kernel_p2(k: AnyTensor) raises -> AnyTensor:
+    def forward_for_kernel_p2(k: AnyTensor) raises -> AnyTensor:
         var out = conv2d_no_bias(x, k, stride, padding)
         var reduced = out
         while reduced.dim() > 0:
@@ -1299,7 +1299,7 @@ fn test_conv2d_backward_gradient_kernel_with_padding() raises:
     )
 
 
-fn test_conv2d_forward_backward_consistency() raises:
+def test_conv2d_forward_backward_consistency() raises:
     """Test that forward pass works correctly with various configurations.
 
     Verifies forward pass produces correct output shapes for batch processing.
@@ -1347,7 +1347,7 @@ fn test_conv2d_forward_backward_consistency() raises:
     assert_equal(output_shape[3], out_width)
 
 
-fn test_conv2d_batch_processing() raises:
+def test_conv2d_batch_processing() raises:
     """Test conv2d processes batches correctly.
 
     Multiple samples should be processed independently but combined in output.
@@ -1392,7 +1392,7 @@ fn test_conv2d_batch_processing() raises:
     assert_equal(out_shape[3], in_width)
 
 
-fn test_conv2d_5x5_kernel() raises:
+def test_conv2d_5x5_kernel() raises:
     """Test conv2d with larger 5x5 kernel.
 
     Ensures the function works with different kernel sizes.
@@ -1439,7 +1439,7 @@ fn test_conv2d_5x5_kernel() raises:
     assert_equal(out_shape[3], in_width)
 
 
-fn test_conv2d_backward_multichannel_padding1_values() raises:
+def test_conv2d_backward_multichannel_padding1_values() raises:
     """Test conv2d_backward computes correct gradient values with padding=1.
 
     Verifies that border pixels receive fewer gradient contributions than interior
@@ -1549,7 +1549,7 @@ fn test_conv2d_backward_multichannel_padding1_values() raises:
     assert_true(edge_val < interior_val)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_conv tests."""
     print("Running test_conv tests...")
 

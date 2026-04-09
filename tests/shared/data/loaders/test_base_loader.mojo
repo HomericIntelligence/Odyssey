@@ -17,13 +17,13 @@ struct StubDataset:
 
     var size: Int
 
-    fn __init__(out self, size: Int):
+    def __init__(out self, size: Int):
         self.size = size
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         return self.size
 
-    fn __getitem__(self, index: Int) raises -> Tuple[Float32, Int]:
+    def __getitem__(self, index: Int) raises -> Tuple[Float32, Int]:
         if index < 0 or index >= self.size:
             raise Error("Index out of bounds")
         return (Float32(index), index)
@@ -34,18 +34,18 @@ struct StubBatch(Copyable, Movable, Sized):
 
     var batch_size: Int
 
-    fn __init__(out self, capacity: Int):
+    def __init__(out self, capacity: Int):
         self.batch_size = capacity
 
-    fn __moveinit__(out self, deinit existing: Self):
+    def __moveinit__(out self, deinit existing: Self):
         """Move initializer."""
         self.batch_size = existing.batch_size
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return batch size for len() builtin."""
         return self.batch_size
 
-    fn size(self) -> Int:
+    def size(self) -> Int:
         return self.batch_size
 
 
@@ -60,7 +60,7 @@ struct StubDataLoader:
     var drop_last: Bool
     var num_batches: Int
 
-    fn __init__(
+    def __init__(
         out self,
         dataset: StubDataset,
         batch_size: Int,
@@ -92,11 +92,11 @@ struct StubDataLoader:
         else:
             self.num_batches = (n_samples + batch_size - 1) // batch_size
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return number of batches."""
         return self.num_batches
 
-    fn get_batch(self, batch_idx: Int) raises -> StubBatch:
+    def get_batch(self, batch_idx: Int) raises -> StubBatch:
         """Get batch at specified index.
 
         Args:
@@ -121,7 +121,7 @@ struct StubDataLoader:
 # ============================================================================
 
 
-fn test_loader_has_len_method() raises:
+def test_loader_has_len_method() raises:
     """Test that DataLoader interface requires __len__ method.
 
     Should return the number of batches (not samples),
@@ -132,7 +132,7 @@ fn test_loader_has_len_method() raises:
     assert_equal(loader.__len__(), 4)  # ceil(100/32) = 4 batches
 
 
-fn test_loader_batch_size_consistency() raises:
+def test_loader_batch_size_consistency() raises:
     """Test that batches have consistent size (except possibly last).
 
     All batches should have batch_size samples except the last batch
@@ -156,7 +156,7 @@ fn test_loader_batch_size_consistency() raises:
     assert_equal(len(batch3), 4)
 
 
-fn test_loader_empty_dataset() raises:
+def test_loader_empty_dataset() raises:
     """Test loader behavior with empty dataset.
 
     Should create valid loader that yields zero batches,
@@ -167,7 +167,7 @@ fn test_loader_empty_dataset() raises:
     assert_equal(loader.__len__(), 0)
 
 
-fn test_loader_single_sample() raises:
+def test_loader_single_sample() raises:
     """Test loader with single sample dataset.
 
     Should create one batch containing the single sample,
@@ -187,7 +187,7 @@ fn test_loader_single_sample() raises:
 # ============================================================================
 
 
-fn test_loader_batch_size_validation() raises:
+def test_loader_batch_size_validation() raises:
     """Test that batch_size must be positive.
 
     Creating loader with batch_size <= 0 should raise ValueError,
@@ -202,7 +202,7 @@ fn test_loader_batch_size_validation() raises:
     assert_true(error_raised, "Should have raised error for batch_size <= 0")
 
 
-fn test_loader_drop_last_option() raises:
+def test_loader_drop_last_option() raises:
     """Test drop_last parameter.
 
     When drop_last=True, should discard final partial batch,
@@ -225,7 +225,7 @@ fn test_loader_drop_last_option() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all base loader tests."""
     print("Running base loader tests...")
 

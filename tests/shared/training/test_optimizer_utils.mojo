@@ -38,7 +38,7 @@ from shared.training.optimizers import (
 )
 
 
-fn test_initialize_optimizer_state() raises:
+def test_initialize_optimizer_state() raises:
     """Test basic optimizer state initialization."""
     # Create shapes for 2 parameters
     var shapes = List[List[Int]]()
@@ -59,7 +59,7 @@ fn test_initialize_optimizer_state() raises:
     assert_true(states[1][0].shape()[0] == 4)
 
 
-fn test_initialize_optimizer_state_from_params() raises:
+def test_initialize_optimizer_state_from_params() raises:
     """Test optimizer state initialization from parameters."""
     var params: List[AnyTensor] = []
     params.append(ones([2, 3], DType.float32))
@@ -77,7 +77,7 @@ fn test_initialize_optimizer_state_from_params() raises:
     assert_true(states[1][0].shape() == params[1].shape())
 
 
-fn test_scale_tensor() raises:
+def test_scale_tensor() raises:
     """Test tensor scaling."""
     var tensor = full([3], 2.0, DType.float32)
     var scaled = scale_tensor(tensor, scale=0.5)
@@ -89,7 +89,7 @@ fn test_scale_tensor() raises:
         assert_almost_equal(actual, expected, tolerance=1e-6)
 
 
-fn test_scale_tensor_inplace() raises:
+def test_scale_tensor_inplace() raises:
     """Test in-place tensor scaling."""
     var tensor = full([2], 4.0, DType.float32)
     scale_tensor_inplace(tensor, scale=0.25)
@@ -101,7 +101,7 @@ fn test_scale_tensor_inplace() raises:
         assert_almost_equal(actual, expected, tolerance=1e-6)
 
 
-fn test_compute_tensor_norm() raises:
+def test_compute_tensor_norm() raises:
     """Test L2 norm computation."""
     var tensor = full([4], 3.0, DType.float32)
 
@@ -110,14 +110,14 @@ fn test_compute_tensor_norm() raises:
     assert_almost_equal(norm, 6.0, tolerance=1e-6)
 
 
-fn test_compute_tensor_norm_zero() raises:
+def test_compute_tensor_norm_zero() raises:
     """Test L2 norm of zero tensor."""
     var tensor = zeros([3], DType.float32)
     var norm = compute_tensor_norm(tensor)
     assert_almost_equal(norm, 0.0, tolerance=1e-6)
 
 
-fn test_compute_global_norm() raises:
+def test_compute_global_norm() raises:
     """Test global L2 norm computation."""
     var t1 = full([3], 1.0, DType.float32)
     var t2 = full([4], 2.0, DType.float32)
@@ -132,7 +132,7 @@ fn test_compute_global_norm() raises:
     assert_almost_equal(global_norm, expected, tolerance=1e-5)
 
 
-fn test_clip_tensor_norm() raises:
+def test_clip_tensor_norm() raises:
     """Test single tensor norm clipping."""
     var tensor = full([9], 1.0, DType.float32)
     # L2 norm = sqrt(9) = 3.0
@@ -147,7 +147,7 @@ fn test_clip_tensor_norm() raises:
     assert_almost_equal(new_norm, 1.5, tolerance=1e-6)
 
 
-fn test_main() raises:
+def test_main() raises:
     """Run all tests."""
     test_initialize_optimizer_state()
     test_initialize_optimizer_state_from_params()
@@ -159,7 +159,7 @@ fn test_main() raises:
     test_clip_tensor_norm()
 
 
-fn test_clip_tensor_norm_no_clip() raises:
+def test_clip_tensor_norm_no_clip() raises:
     """Test that clipping doesn't occur when norm is below max."""
     var tensor = full([2], 0.5, DType.float32)
     # L2 norm = sqrt(0.5) ≈ 0.707
@@ -171,7 +171,7 @@ fn test_clip_tensor_norm_no_clip() raises:
     assert_almost_equal(new_norm, original_norm, tolerance=1e-6)
 
 
-fn test_clip_global_norm() raises:
+def test_clip_global_norm() raises:
     """Test global norm clipping."""
     var t1 = full([3], 1.0, DType.float32)
     var t2 = full([4], 2.0, DType.float32)
@@ -189,7 +189,7 @@ fn test_clip_global_norm() raises:
     assert_almost_equal(new_global_norm, 1.0, tolerance=1e-6)
 
 
-fn test_apply_weight_decay() raises:
+def test_apply_weight_decay() raises:
     """Test in-place weight decay application."""
     var params = full([2], 10.0, DType.float32)
 
@@ -203,7 +203,7 @@ fn test_apply_weight_decay() raises:
         assert_almost_equal(actual, expected, tolerance=1e-6)
 
 
-fn test_compute_weight_decay_term() raises:
+def test_compute_weight_decay_term() raises:
     """Test weight decay term computation."""
     var params = full([2], 5.0, DType.float32)
 
@@ -216,7 +216,7 @@ fn test_compute_weight_decay_term() raises:
         assert_almost_equal(actual, expected, tolerance=1e-6)
 
 
-fn test_normalize_tensor_to_unit_norm() raises:
+def test_normalize_tensor_to_unit_norm() raises:
     """Test tensor normalization to unit norm."""
     var tensor = full([4], 2.0, DType.float32)
 
@@ -226,7 +226,7 @@ fn test_normalize_tensor_to_unit_norm() raises:
     assert_almost_equal(norm, 1.0, tolerance=1e-6)
 
 
-fn test_apply_bias_correction() raises:
+def test_apply_bias_correction() raises:
     """Test bias correction for exponential moving average."""
     # Create a simple estimate
     var estimate = ones([2], DType.float32)
@@ -241,7 +241,7 @@ fn test_apply_bias_correction() raises:
         assert_almost_equal(actual, expected_value, tolerance=1e-6)
 
 
-fn test_validate_optimizer_state_valid() raises:
+def test_validate_optimizer_state_valid() raises:
     """Test validation of valid optimizer state."""
     var params: List[AnyTensor] = []
     var shape1 = List[Int]()
@@ -266,7 +266,7 @@ fn test_validate_optimizer_state_valid() raises:
     assert_true(True)  # Mark as passed
 
 
-fn main() raises:
+def main() raises:
     """Run all test_optimizer_utils tests."""
     print("Running test_optimizer_utils tests...")
 

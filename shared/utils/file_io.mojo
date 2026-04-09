@@ -23,8 +23,8 @@
 # - file_exists() - Checks if file exists
 # - dir_exists() - Checks if directory exists
 
-from python import Python, PythonObject
-from memory import UnsafePointer
+from std.python import Python, PythonObject
+from std.memory import UnsafePointer
 from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.utils.serialization import dtype_to_string
 
@@ -48,7 +48,7 @@ struct Checkpoint(Copyable, Movable):
     var accuracy: Float32
     var metadata: Dict[String, String]
 
-    fn __init__(out self):
+    def __init__(out self):
         """Create empty checkpoint."""
         self.model_state = Dict[String, String]()
         self.optimizer_state = Dict[String, String]()
@@ -57,19 +57,19 @@ struct Checkpoint(Copyable, Movable):
         self.accuracy = 0.0
         self.metadata = Dict[String, String]()
 
-    fn set_epoch(mut self, epoch: Int):
+    def set_epoch(mut self, epoch: Int):
         """Set checkpoint epoch."""
         self.epoch = epoch
 
-    fn set_loss(mut self, loss: Float32):
+    def set_loss(mut self, loss: Float32):
         """Set loss value."""
         self.loss = loss
 
-    fn set_accuracy(mut self, accuracy: Float32):
+    def set_accuracy(mut self, accuracy: Float32):
         """Set accuracy value."""
         self.accuracy = accuracy
 
-    fn set_metadata(mut self, key: String, value: String):
+    def set_metadata(mut self, key: String, value: String):
         """Set arbitrary metadata."""
         self.metadata[key] = value
 
@@ -79,7 +79,7 @@ struct Checkpoint(Copyable, Movable):
 # ============================================================================
 
 
-fn _serialize_checkpoint(checkpoint: Checkpoint) -> String:
+def _serialize_checkpoint(checkpoint: Checkpoint) -> String:
     """Serialize checkpoint to string format.
 
         Simple line-based format:
@@ -125,7 +125,7 @@ fn _serialize_checkpoint(checkpoint: Checkpoint) -> String:
     return result
 
 
-fn _deserialize_checkpoint(content: String) raises -> Checkpoint:
+def _deserialize_checkpoint(content: String) raises -> Checkpoint:
     """Deserialize checkpoint from string format.
 
     Args:
@@ -189,7 +189,7 @@ fn _deserialize_checkpoint(content: String) raises -> Checkpoint:
 # ============================================================================
 
 
-fn save_checkpoint(
+def save_checkpoint(
     filepath: String, checkpoint: Checkpoint, backup: Bool = True
 ) -> Bool:
     """Save model checkpoint to file with optional backup.
@@ -226,7 +226,7 @@ fn save_checkpoint(
     return safe_write_file(filepath, content)
 
 
-fn load_checkpoint(filepath: String) raises -> Checkpoint:
+def load_checkpoint(filepath: String) raises -> Checkpoint:
     """Load checkpoint from file.
 
     Args:
@@ -258,7 +258,7 @@ fn load_checkpoint(filepath: String) raises -> Checkpoint:
 # ============================================================================
 
 
-fn save_tensor_to_checkpoint(
+def save_tensor_to_checkpoint(
     tensor: AnyTensor, name: String, checkpoint_dir: String
 ) -> Bool:
     """Save AnyTensor to checkpoint directory using hex format.
@@ -317,7 +317,7 @@ fn save_tensor_to_checkpoint(
         return False
 
 
-fn load_tensor_from_checkpoint(
+def load_tensor_from_checkpoint(
     name: String, checkpoint_dir: String
 ) raises -> AnyTensor:
     """Load AnyTensor from checkpoint directory.
@@ -371,7 +371,7 @@ fn load_tensor_from_checkpoint(
     return tensor^
 
 
-fn _get_tensor_dtype_size(dtype: DType) -> Int:
+def _get_tensor_dtype_size(dtype: DType) -> Int:
     """Get size in bytes for a dtype."""
     if dtype == DType.float16:
         return 2
@@ -391,7 +391,7 @@ fn _get_tensor_dtype_size(dtype: DType) -> Int:
         return 4
 
 
-fn _parse_tensor_dtype(dtype_str: String) raises -> DType:
+def _parse_tensor_dtype(dtype_str: String) raises -> DType:
     """Parse dtype string to DType."""
     if dtype_str == "float16":
         return DType.float16
@@ -419,7 +419,7 @@ fn _parse_tensor_dtype(dtype_str: String) raises -> DType:
         raise Error("Unknown dtype: " + dtype_str)
 
 
-fn _bytes_to_hex(data: UnsafePointer[UInt8, _], num_bytes: Int) -> String:
+def _bytes_to_hex(data: UnsafePointer[UInt8, _], num_bytes: Int) -> String:
     """Convert bytes to hexadecimal string."""
     var hex_chars = "0123456789abcdef"
     var result = String("")
@@ -434,7 +434,7 @@ fn _bytes_to_hex(data: UnsafePointer[UInt8, _], num_bytes: Int) -> String:
     return result
 
 
-fn _hex_to_bytes(hex_str: String, output: UnsafePointer[UInt8, _]) raises:
+def _hex_to_bytes(hex_str: String, output: UnsafePointer[UInt8, _]) raises:
     """Convert hexadecimal string to bytes.
 
         Note: This function validates input but does not write to output.
@@ -466,7 +466,7 @@ fn _hex_to_bytes(hex_str: String, output: UnsafePointer[UInt8, _]) raises:
     _ = output
 
 
-fn _hex_char_to_int(c: String) raises -> Int:
+def _hex_char_to_int(c: String) raises -> Int:
     """Convert single hex character to integer."""
     if c >= "0" and c <= "9":
         return ord(c) - ord("0")
@@ -490,7 +490,7 @@ struct TensorMetadata(Copyable, Movable):
     var shape: List[Int]
     var size_bytes: Int
 
-    fn __init__(out self):
+    def __init__(out self):
         """Create empty metadata."""
         self.dtype = ""
         self.shape = List[Int]()
@@ -503,13 +503,13 @@ struct SerializedTensor(Copyable, Movable):
     var metadata: TensorMetadata
     var data: List[String]  # Simplified: list of string representations
 
-    fn __init__(out self):
+    def __init__(out self):
         """Create empty serialized tensor."""
         self.metadata = TensorMetadata()
         self.data = List[String]()
 
 
-fn serialize_tensor(name: String, data: List[String]) -> SerializedTensor:
+def serialize_tensor(name: String, data: List[String]) -> SerializedTensor:
     """Serialize tensor to bytes with metadata.
 
     Args:
@@ -541,7 +541,7 @@ fn serialize_tensor(name: String, data: List[String]) -> SerializedTensor:
     return serialized^
 
 
-fn deserialize_tensor(serialized: SerializedTensor) -> List[String]:
+def deserialize_tensor(serialized: SerializedTensor) -> List[String]:
     """Deserialize tensor from bytes.
 
     Args:
@@ -568,7 +568,7 @@ fn deserialize_tensor(serialized: SerializedTensor) -> List[String]:
 # ============================================================================
 
 
-fn safe_write_file(filepath: String, content: String) -> Bool:
+def safe_write_file(filepath: String, content: String) -> Bool:
     """Write file safely with atomic write semantics.
 
         Writes to temporary file first, then atomically renames to destination.
@@ -606,7 +606,7 @@ fn safe_write_file(filepath: String, content: String) -> Bool:
         return False
 
 
-fn safe_read_file(filepath: String) raises -> String:
+def safe_read_file(filepath: String) raises -> String:
     """Read file safely.
 
     Args:
@@ -625,7 +625,7 @@ fn safe_read_file(filepath: String) raises -> String:
         raise Error("File not found: " + filepath)
 
 
-fn create_backup(filepath: String) -> Bool:
+def create_backup(filepath: String) -> Bool:
     """Create backup of existing file.
 
         Creates a backup with .bak extension. If backup already exists,
@@ -659,7 +659,7 @@ fn create_backup(filepath: String) -> Bool:
         return False
 
 
-fn remove_safely(filepath: String) -> Bool:
+def remove_safely(filepath: String) -> Bool:
     """Remove file using Python os.remove() interop.
 
     Args:
@@ -684,7 +684,7 @@ fn remove_safely(filepath: String) -> Bool:
 # ============================================================================
 
 
-fn join_path(base: String, path: String) raises -> String:
+def join_path(base: String, path: String) raises -> String:
     """Join path components safely with path traversal protection.
 
         Validates path components to prevent directory traversal attacks
@@ -729,7 +729,7 @@ fn join_path(base: String, path: String) raises -> String:
         return clean_base + "/" + clean_path
 
 
-fn split_path(filepath: String) -> Tuple[String, String]:
+def split_path(filepath: String) -> Tuple[String, String]:
     """Split path into directory and filename.
 
     Args:
@@ -764,7 +764,7 @@ fn split_path(filepath: String) -> Tuple[String, String]:
         return (directory, filename)
 
 
-fn get_filename(filepath: String) -> String:
+def get_filename(filepath: String) -> String:
     """Get filename from path.
 
     Args:
@@ -782,7 +782,7 @@ fn get_filename(filepath: String) -> String:
     return filename
 
 
-fn expand_path(filepath: String) -> String:
+def expand_path(filepath: String) -> String:
     """Expand ~ to home directory and resolve relative paths.
 
     Args:
@@ -806,7 +806,7 @@ fn expand_path(filepath: String) -> String:
 # ============================================================================
 
 
-fn file_exists(filepath: String) -> Bool:
+def file_exists(filepath: String) -> Bool:
     """Check if file exists.
 
     Args:
@@ -824,7 +824,7 @@ fn file_exists(filepath: String) -> Bool:
         return False
 
 
-fn directory_exists(dirpath: String) -> Bool:
+def directory_exists(dirpath: String) -> Bool:
     """Check if directory exists.
 
     Args:
@@ -843,7 +843,7 @@ fn directory_exists(dirpath: String) -> Bool:
         return False
 
 
-fn create_directory(dirpath: String) -> Bool:
+def create_directory(dirpath: String) -> Bool:
     """Create directory if it doesn't exist.
 
         Creates parent directories as needed (equivalent to mkdir -p).
@@ -864,7 +864,7 @@ fn create_directory(dirpath: String) -> Bool:
         return False
 
 
-fn get_file_size(filepath: String) -> Int:
+def get_file_size(filepath: String) -> Int:
     """Get file size in bytes.
 
     Args:

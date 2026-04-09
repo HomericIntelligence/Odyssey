@@ -8,10 +8,10 @@ This module defines the core traits and types for the training subsystem:
 These contracts establish clear APIs for gradient utilities (#2393) and training callbacks (#2392)
 """
 
-from collections import Dict, List
+from std.collections import Dict, List
 from shared.tensor.any_tensor import AnyTensor
 from shared.core.numerical_safety import has_nan, has_inf
-from math import sqrt
+from std.math import sqrt
 
 
 # ============================================================================
@@ -30,7 +30,7 @@ struct CallbackSignal(Copyable, ImplicitlyCopyable, Movable):
     var value: Int
     """Signal value (0=CONTINUE, 1=STOP)."""
 
-    fn __init__(out self, value: Int):
+    def __init__(out self, value: Int):
         """Initialize callback signal.
 
         Args:
@@ -79,7 +79,7 @@ struct TrainingState(Copyable, Movable):
     var should_stop: Bool
     """Flag set by callbacks to request training stop."""
 
-    fn __init__(
+    def __init__(
         out self,
         epoch: Int = 0,
         batch: Int = 0,
@@ -129,13 +129,13 @@ trait Callback:
     Example:
         ```mojo
         truct MyCallback(Callback):
-            fn on_epoch_end(mut self, mut state: TrainingState) raises -> CallbackSignal:
+            def on_epoch_end(mut self, mut state: TrainingState) raises -> CallbackSignal:
                 print("Epoch", state.epoch, "loss:", state.metrics["train_loss"])
                 return CONTINUE
         ```
     """
 
-    fn on_train_begin(mut self, mut state: TrainingState) -> CallbackSignal:
+    def on_train_begin(mut self, mut state: TrainingState) -> CallbackSignal:
         """Called once at the start of training.
 
         Args:
@@ -146,7 +146,7 @@ trait Callback:
         """
         ...
 
-    fn on_train_end(mut self, mut state: TrainingState) -> CallbackSignal:
+    def on_train_end(mut self, mut state: TrainingState) -> CallbackSignal:
         """Called once at the end of training.
 
         Args:
@@ -157,7 +157,7 @@ trait Callback:
         """
         ...
 
-    fn on_epoch_begin(mut self, mut state: TrainingState) -> CallbackSignal:
+    def on_epoch_begin(mut self, mut state: TrainingState) -> CallbackSignal:
         """Called at the start of each epoch.
 
         Args:
@@ -168,7 +168,7 @@ trait Callback:
         """
         ...
 
-    fn on_epoch_end(
+    def on_epoch_end(
         mut self, mut state: TrainingState
     ) raises -> CallbackSignal:
         """Called at the end of each epoch (after validation).
@@ -184,7 +184,7 @@ trait Callback:
         """
         ...
 
-    fn on_batch_begin(mut self, mut state: TrainingState) -> CallbackSignal:
+    def on_batch_begin(mut self, mut state: TrainingState) -> CallbackSignal:
         """Called at the start of each batch.
 
         Args:
@@ -195,7 +195,7 @@ trait Callback:
         """
         ...
 
-    fn on_batch_end(mut self, mut state: TrainingState) -> CallbackSignal:
+    def on_batch_end(mut self, mut state: TrainingState) -> CallbackSignal:
         """Called at the end of each batch (after optimizer step).
 
         Args:
@@ -236,13 +236,13 @@ trait LRScheduler:
             var step_size: Int
             var gamma: Float64
 
-            fn get_lr(self, epoch: Int, batch: Int) -> Float64:
+            def get_lr(self, epoch: Int, batch: Int) -> Float64:
                 var steps = epoch // self.step_size
                 return self.base_lr * (self.gamma ** steps)
         ```
     """
 
-    fn get_lr(self, epoch: Int, batch: Int = 0) -> Float64:
+    def get_lr(self, epoch: Int, batch: Int = 0) -> Float64:
         """Compute learning rate for given epoch and batch.
 
         Args:
@@ -265,7 +265,7 @@ trait LRScheduler:
 # ============================================================================
 
 
-fn has_nan_or_inf(tensor: AnyTensor) -> Bool:
+def has_nan_or_inf(tensor: AnyTensor) -> Bool:
     """Check if tensor contains NaN or Inf values (numerical instability detection).
 
     Detects numerical instability in gradients during training by checking for:
@@ -292,7 +292,7 @@ fn has_nan_or_inf(tensor: AnyTensor) -> Bool:
     return has_nan(tensor) or has_inf(tensor)
 
 
-fn is_valid_loss(loss: Float64) raises -> Bool:
+def is_valid_loss(loss: Float64) raises -> Bool:
     """Check if loss value is valid (not NaN or inf).
 
     Args:
@@ -324,7 +324,7 @@ fn is_valid_loss(loss: Float64) raises -> Bool:
     return not has_nan_or_inf(loss_tensor)
 
 
-fn compute_gradient_norm(
+def compute_gradient_norm(
     parameters: List[AnyTensor], norm_type: String = "L2"
 ) -> Float64:
     """Compute gradient norm for training diagnostics and exploding gradient detection.
@@ -399,7 +399,7 @@ fn compute_gradient_norm(
         return sqrt(total_norm_sq)
 
 
-fn clip_gradients(
+def clip_gradients(
     var gradients: List[Float64], max_norm: Float64
 ) -> List[Float64]:
     """Clip gradients by global norm to prevent exploding gradients.

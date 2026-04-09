@@ -9,8 +9,8 @@ Tensor[dtype] typed wrappers provide type-safe access.
 AnyTensor versions dispatch to typed implementations via ordinal-based table.
 """
 
-from algorithm import parallelize
-from collections import List
+from std.algorithm import parallelize
+from std.collections import List
 
 from shared.tensor.any_tensor import AnyTensor, zeros
 from .arithmetic import add
@@ -34,7 +34,7 @@ from shared.base.dtype_ordinal import (
 # max is now a builtin in Mojo - no import needed
 
 
-fn _conv2d_kernel[
+def _conv2d_kernel[
     dtype: DType
 ](
     x: AnyTensor,
@@ -73,15 +73,14 @@ fn _conv2d_kernel[
     if should_parallelize(batch):
         # Parallel convolution over batch dimension
         @parameter
-        fn conv_batch(b: Int) capturing:
+        def conv_batch(b: Int) capturing:
             # For each output channel
             for oc in range(out_channels):
                 # For each output position
                 for oh in range(out_height):
                     for ow in range(out_width):
                         # Use FP32 accumulation for FP16, native dtype for others
-                        @parameter
-                        if dtype == DType.float16:
+                        comptime if dtype == DType.float16:
                             var sum_val = Float32(0.0)
 
                             # Compute input position
@@ -218,8 +217,7 @@ fn _conv2d_kernel[
                 for oh in range(out_height):
                     for ow in range(out_width):
                         # Use FP32 accumulation for FP16, native dtype for others
-                        @parameter
-                        if dtype == DType.float16:
+                        comptime if dtype == DType.float16:
                             var sum_val = Float32(0.0)
 
                             # Compute input position
@@ -349,7 +347,7 @@ fn _conv2d_kernel[
     return output^
 
 
-fn conv2d(
+def conv2d(
     x: AnyTensor,
     kernel: AnyTensor,
     bias: AnyTensor,
@@ -496,7 +494,7 @@ fn conv2d(
         )
 
 
-fn conv2d_no_bias(
+def conv2d_no_bias(
     x: AnyTensor, kernel: AnyTensor, stride: Int = 1, padding: Int = 0
 ) raises -> AnyTensor:
     """Functional 2D convolution without bias: y = conv2d(x, kernel).
@@ -529,7 +527,7 @@ fn conv2d_no_bias(
     return conv2d(x, kernel, bias, stride, padding)
 
 
-fn _conv2d_backward_kernel[
+def _conv2d_backward_kernel[
     dtype: DType
 ](
     grad_output: AnyTensor,
@@ -717,7 +715,7 @@ fn _conv2d_backward_kernel[
     return GradientTriple(grad_input^, grad_kernel^, grad_bias^)
 
 
-fn conv2d_backward(
+def conv2d_backward(
     grad_output: AnyTensor,
     x: AnyTensor,
     kernel: AnyTensor,
@@ -850,7 +848,7 @@ fn conv2d_backward(
         )
 
 
-fn conv2d_no_bias_backward(
+def conv2d_no_bias_backward(
     grad_output: AnyTensor,
     x: AnyTensor,
     kernel: AnyTensor,
@@ -879,7 +877,7 @@ fn conv2d_no_bias_backward(
     return Conv2dNoBiasGradient(grad_input_copy^, grad_kernel_copy^)
 
 
-fn depthwise_conv2d(
+def depthwise_conv2d(
     x: AnyTensor,
     kernel: AnyTensor,
     bias: AnyTensor,
@@ -1030,7 +1028,7 @@ fn depthwise_conv2d(
     return output^
 
 
-fn depthwise_conv2d_no_bias(
+def depthwise_conv2d_no_bias(
     x: AnyTensor, kernel: AnyTensor, stride: Int = 1, padding: Int = 0
 ) raises -> AnyTensor:
     """Functional depthwise 2D convolution without bias.
@@ -1059,7 +1057,7 @@ fn depthwise_conv2d_no_bias(
     return depthwise_conv2d(x, kernel, bias, stride, padding)
 
 
-fn depthwise_conv2d_backward(
+def depthwise_conv2d_backward(
     grad_output: AnyTensor,
     x: AnyTensor,
     kernel: AnyTensor,
@@ -1245,7 +1243,7 @@ fn depthwise_conv2d_backward(
     return GradientTriple(grad_input^, grad_kernel^, grad_bias^)
 
 
-fn depthwise_conv2d_no_bias_backward(
+def depthwise_conv2d_no_bias_backward(
     grad_output: AnyTensor,
     x: AnyTensor,
     kernel: AnyTensor,
@@ -1281,7 +1279,7 @@ fn depthwise_conv2d_no_bias_backward(
 # ============================================================================
 
 
-fn depthwise_separable_conv2d(
+def depthwise_separable_conv2d(
     x: AnyTensor,
     depthwise_kernel: AnyTensor,
     pointwise_kernel: AnyTensor,
@@ -1349,7 +1347,7 @@ fn depthwise_separable_conv2d(
     return output
 
 
-fn depthwise_separable_conv2d_no_bias(
+def depthwise_separable_conv2d_no_bias(
     x: AnyTensor,
     depthwise_kernel: AnyTensor,
     pointwise_kernel: AnyTensor,
@@ -1384,7 +1382,7 @@ fn depthwise_separable_conv2d_no_bias(
     return output
 
 
-fn depthwise_separable_conv2d_backward(
+def depthwise_separable_conv2d_backward(
     grad_output: AnyTensor,
     x: AnyTensor,
     depthwise_kernel: AnyTensor,
@@ -1442,7 +1440,7 @@ fn depthwise_separable_conv2d_backward(
     )
 
 
-fn depthwise_separable_conv2d_no_bias_backward(
+def depthwise_separable_conv2d_no_bias_backward(
     grad_output: AnyTensor,
     x: AnyTensor,
     depthwise_kernel: AnyTensor,

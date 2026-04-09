@@ -136,13 +136,13 @@ struct GradientTape:
     var registry: VariableRegistry
     """Registry mapping variable IDs to gradient tensors."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize an empty gradient tape."""
         self.nodes = []
         self.enabled = False
         self.registry = VariableRegistry()
 
-    fn enable(mut self):
+    def enable(mut self):
         """Enable recording of operations.
 
         After calling enable(), all operations on Variables with requires_grad=True
@@ -155,7 +155,7 @@ struct GradientTape:
         """
         self.enabled = True
 
-    fn disable(mut self):
+    def disable(mut self):
         """Disable recording of operations.
 
         After calling disable(), operations will not be recorded. This is useful
@@ -167,7 +167,7 @@ struct GradientTape:
         """
         self.enabled = False
 
-    fn clear(mut self):
+    def clear(mut self):
         """Clear all recorded operations.
 
         Resets the tape to an empty state. Should be called after backward()
@@ -180,7 +180,7 @@ struct GradientTape:
         self.nodes = []
         self.registry.clear()
 
-    fn register_variable(mut self, requires_grad: Bool) raises -> Int:
+    def register_variable(mut self, requires_grad: Bool) raises -> Int:
         """Register a new variable in the tape's registry.
 
         Args:
@@ -194,7 +194,7 @@ struct GradientTape:
         """
         return self.registry.register(requires_grad)
 
-    fn record(
+    def record(
         mut self,
         op_type: String,
         input_ids: List[Int],
@@ -226,7 +226,7 @@ struct GradientTape:
         var node = TapeNode(op_type, input_ids, output_id, saved^)
         self.nodes.append(node^)
 
-    fn _dispatch_backward_op(
+    def _dispatch_backward_op(
         mut self, op_type: String, node_idx: Int, grad_output: AnyTensor
     ) raises:
         """Dispatch backward pass computation for the given operation type.
@@ -268,7 +268,7 @@ struct GradientTape:
                 "Unsupported operation type for backward pass: " + op_type
             )
 
-    fn backward(mut self, output_id: Int, output_grad: AnyTensor) raises:
+    def backward(mut self, output_id: Int, output_grad: AnyTensor) raises:
         """Compute gradients by traversing tape in reverse.
 
         Applies the chain rule in reverse topological order:
@@ -313,7 +313,7 @@ struct GradientTape:
             # Dispatch to appropriate backward function
             self._dispatch_backward_op(op_type, node_idx, grad_output)
 
-    fn get_grad(self, var_id: Int) raises -> AnyTensor:
+    def get_grad(self, var_id: Int) raises -> AnyTensor:
         """Get the computed gradient for a variable.
 
         Args:
@@ -361,11 +361,11 @@ struct NoGradContext(Copyable, Movable):
     var _previous_enabled: Bool
     """Store the previous enabled state to restore on exit."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize no-grad context with default state."""
         self._previous_enabled = False
 
-    fn enter(mut self, mut tape: GradientTape):
+    def enter(mut self, mut tape: GradientTape):
         """Enter no-grad context by disabling gradient tracking.
 
         Args:
@@ -377,7 +377,7 @@ struct NoGradContext(Copyable, Movable):
         self._previous_enabled = tape.enabled
         tape.disable()
 
-    fn exit(mut self, mut tape: GradientTape):
+    def exit(mut self, mut tape: GradientTape):
         """Exit no-grad context by restoring previous tracking state.
 
         Args:
@@ -392,7 +392,7 @@ struct NoGradContext(Copyable, Movable):
             tape.disable()
 
 
-fn disable_gradient_tracking(mut tape: GradientTape) -> Bool:
+def disable_gradient_tracking(mut tape: GradientTape) -> Bool:
     """Disable gradient tracking and return the previous state.
 
     This is a convenience function that wraps NoGradContext.enter().
@@ -422,7 +422,7 @@ fn disable_gradient_tracking(mut tape: GradientTape) -> Bool:
     return previous_enabled
 
 
-fn restore_gradient_tracking(mut tape: GradientTape, was_enabled: Bool):
+def restore_gradient_tracking(mut tape: GradientTape, was_enabled: Bool):
     """Restore gradient tracking to a previous state.
 
     This is a convenience function that pairs with disable_gradient_tracking().

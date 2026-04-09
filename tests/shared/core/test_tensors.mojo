@@ -31,7 +31,7 @@ from shared.tensor.any_tensor import (
 )
 
 
-fn test_zeros_creation() raises:
+def test_zeros_creation() raises:
     """Test zeros tensor creation."""
     var shape = List[Int]()
     shape.append(3)
@@ -49,7 +49,7 @@ fn test_zeros_creation() raises:
         )
 
 
-fn test_ones_creation() raises:
+def test_ones_creation() raises:
     """Test ones tensor creation."""
     var shape = List[Int]()
     shape.append(2)
@@ -67,7 +67,7 @@ fn test_ones_creation() raises:
         )
 
 
-fn test_full_creation() raises:
+def test_full_creation() raises:
     """Test full tensor creation with specified value."""
     var shape = List[Int]()
     shape.append(2)
@@ -85,7 +85,7 @@ fn test_full_creation() raises:
         )
 
 
-fn test_empty_creation() raises:
+def test_empty_creation() raises:
     """Test empty tensor creation (uninitialized memory)."""
     var shape = List[Int]()
     shape.append(3)
@@ -98,7 +98,7 @@ fn test_empty_creation() raises:
     assert_equal(t.numel(), 9)
 
 
-fn test_arange_creation() raises:
+def test_arange_creation() raises:
     """Test arange tensor creation (sequential values)."""
     var t = arange(0, 10, 1, DType.float32)
 
@@ -110,7 +110,7 @@ fn test_arange_creation() raises:
         )
 
 
-fn test_arange_with_step() raises:
+def test_arange_with_step() raises:
     """Test arange with non-unit step."""
     var t = arange(0, 10, 2, DType.float32)
 
@@ -133,7 +133,7 @@ fn test_arange_with_step() raises:
     )
 
 
-fn test_eye_creation() raises:
+def test_eye_creation() raises:
     """Test identity matrix creation."""
     var t = eye(3, 3, 0, DType.float32)
 
@@ -152,7 +152,7 @@ fn test_eye_creation() raises:
                 assert_almost_equal(val, Float32(0.0), tolerance=1e-5)
 
 
-fn test_linspace_creation() raises:
+def test_linspace_creation() raises:
     """Test linspace tensor creation (evenly spaced values)."""
     var t = linspace(0.0, 1.0, 5, DType.float32)
 
@@ -175,7 +175,7 @@ fn test_linspace_creation() raises:
     )
 
 
-fn test_zeros_like() raises:
+def test_zeros_like() raises:
     """Test zeros_like creates tensor with same shape and dtype."""
     var shape = List[Int]()
     shape.append(2)
@@ -197,7 +197,7 @@ fn test_zeros_like() raises:
         )
 
 
-fn test_ones_like() raises:
+def test_ones_like() raises:
     """Test ones_like creates tensor with same shape and dtype."""
     var shape = List[Int]()
     shape.append(2)
@@ -219,7 +219,7 @@ fn test_ones_like() raises:
         assert_almost_equal(y._data.bitcast[Float64]()[i], 1.0, tolerance=1e-10)
 
 
-fn test_full_like() raises:
+def test_full_like() raises:
     """Test full_like creates tensor with same shape and dtype."""
     var shape = List[Int]()
     shape.append(3)
@@ -241,7 +241,7 @@ fn test_full_like() raises:
         )
 
 
-fn test_tensor_shape() raises:
+def test_tensor_shape() raises:
     """Test tensor shape property."""
     var shape = List[Int]()
     shape.append(2)
@@ -256,7 +256,7 @@ fn test_tensor_shape() raises:
     assert_equal(t_shape[2], 4)
 
 
-fn test_tensor_dtype() raises:
+def test_tensor_dtype() raises:
     """Test tensor dtype property."""
     var shape = List[Int]()
     shape.append(5)
@@ -271,7 +271,7 @@ fn test_tensor_dtype() raises:
     assert_dtype_equal(t_i32.dtype(), DType.int32)
 
 
-fn test_tensor_numel() raises:
+def test_tensor_numel() raises:
     """Test tensor numel (number of elements)."""
     var shape1 = List[Int]()
     shape1.append(10)
@@ -292,7 +292,7 @@ fn test_tensor_numel() raises:
     assert_equal(t3.numel(), 24)
 
 
-fn test_tensor_dim() raises:
+def test_tensor_dim() raises:
     """Test tensor dim (number of dimensions)."""
     var shape1 = List[Int]()
     shape1.append(10)
@@ -314,7 +314,7 @@ fn test_tensor_dim() raises:
     assert_equal(t3.dim(), 4)
 
 
-fn test_float_dtypes() raises:
+def test_float_dtypes() raises:
     """Test tensor creation with different float dtypes."""
     var shape = List[Int]()
     shape.append(3)
@@ -335,7 +335,7 @@ fn test_float_dtypes() raises:
     assert_equal(t_f64.numel(), 3)
 
 
-fn test_int_dtypes() raises:
+def test_int_dtypes() raises:
     """Test tensor creation with different integer dtypes."""
     var shape = List[Int]()
     shape.append(3)
@@ -361,7 +361,7 @@ fn test_int_dtypes() raises:
     assert_equal(t_i64.numel(), 3)
 
 
-fn test_uint_dtypes() raises:
+def test_uint_dtypes() raises:
     """Test tensor creation with different unsigned integer dtypes."""
     var shape = List[Int]()
     shape.append(3)
@@ -387,7 +387,7 @@ fn test_uint_dtypes() raises:
     assert_equal(t_u64.numel(), 3)
 
 
-fn test_scalar_tensor() raises:
+def test_scalar_tensor() raises:
     """Test scalar tensor (0 dimensions, single element)."""
     var shape = List[Int]()
     shape.append(1)
@@ -400,7 +400,7 @@ fn test_scalar_tensor() raises:
     )
 
 
-fn test_large_tensor() raises:
+def test_large_tensor() raises:
     """Test large tensor creation."""
     var shape = List[Int]()
     shape.append(10)
@@ -415,7 +415,7 @@ fn test_large_tensor() raises:
     assert_equal(t.dim(), 3)
 
 
-fn test_high_dimensional_tensor() raises:
+def test_high_dimensional_tensor() raises:
     """Test high-dimensional tensor (4D, 5D, 6D)."""
     # 4D tensor
     var shape4 = List[Int]()
@@ -434,7 +434,7 @@ fn test_high_dimensional_tensor() raises:
     assert_equal(t5.numel(), 32)
 
 
-fn test_set_and_get_values() raises:
+def test_set_and_get_values() raises:
     """Test setting and getting individual values."""
     var shape = List[Int]()
     shape.append(5)
@@ -455,7 +455,7 @@ fn test_set_and_get_values() raises:
     assert_almost_equal(t[4], Float32(5.0), tolerance=1e-5)
 
 
-fn test_2d_indexing() raises:
+def test_2d_indexing() raises:
     """Test 2D tensor indexing."""
     var shape = List[Int]()
     shape.append(3)
@@ -470,7 +470,7 @@ fn test_2d_indexing() raises:
     assert_almost_equal(val, Float32(42.0), tolerance=1e-5)
 
 
-fn test_3d_indexing() raises:
+def test_3d_indexing() raises:
     """Test 3D tensor indexing."""
     var shape = List[Int]()
     shape.append(2)
@@ -486,7 +486,7 @@ fn test_3d_indexing() raises:
     assert_almost_equal(val, Float32(99.0), tolerance=1e-5)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_tensors tests."""
     print("Running test_tensors tests...")
 

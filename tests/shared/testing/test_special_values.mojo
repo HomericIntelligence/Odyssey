@@ -45,7 +45,7 @@ from shared.testing.assertions import (
 )
 
 
-fn test_special_value_constants() raises:
+def test_special_value_constants() raises:
     """Test that special value constants have correct values."""
     assert_equal_float(
         Float32(SPECIAL_VALUE_ZERO), 0.0, "SPECIAL_VALUE_ZERO should be 0.0"
@@ -73,7 +73,7 @@ fn test_special_value_constants() raises:
     )
 
 
-fn test_create_special_value_tensor_zeros() raises:
+def test_create_special_value_tensor_zeros() raises:
     """Test creating tensor filled with zeros."""
     var tensor = create_special_value_tensor([3, 3], DType.float32, 0.0)
     assert_shape(tensor, [3, 3], "Shape should be [3, 3]")
@@ -83,7 +83,7 @@ fn test_create_special_value_tensor_zeros() raises:
     verify_special_value_invariants(tensor, 0.0)
 
 
-fn test_create_special_value_tensor_ones() raises:
+def test_create_special_value_tensor_ones() raises:
     """Test creating tensor filled with ones."""
     var tensor = create_special_value_tensor([2, 4], DType.float16, 1.0)
     assert_shape(tensor, [2, 4], "Shape should be [2, 4]")
@@ -93,7 +93,7 @@ fn test_create_special_value_tensor_ones() raises:
     verify_special_value_invariants(tensor, 1.0)
 
 
-fn test_create_special_value_tensor_halves() raises:
+def test_create_special_value_tensor_halves() raises:
     """Test creating tensor filled with 0.5."""
     var tensor = create_special_value_tensor([4, 2], DType.float32, 0.5)
     assert_shape(tensor, [4, 2], "Shape should be [4, 2]")
@@ -102,7 +102,7 @@ fn test_create_special_value_tensor_halves() raises:
     verify_special_value_invariants(tensor, 0.5)
 
 
-fn test_create_special_value_tensor_one_and_half() raises:
+def test_create_special_value_tensor_one_and_half() raises:
     """Test creating tensor filled with 1.5."""
     var tensor = create_special_value_tensor([2, 2], DType.float64, 1.5)
     assert_shape(tensor, [2, 2], "Shape should be [2, 2]")
@@ -111,7 +111,7 @@ fn test_create_special_value_tensor_one_and_half() raises:
     verify_special_value_invariants(tensor, 1.5)
 
 
-fn test_create_special_value_tensor_neg_one() raises:
+def test_create_special_value_tensor_neg_one() raises:
     """Test creating tensor filled with -1.0 (for ReLU gradient testing)."""
     var tensor = create_special_value_tensor([3, 3], DType.float32, -1.0)
     assert_shape(tensor, [3, 3], "Shape should be [3, 3]")
@@ -121,7 +121,7 @@ fn test_create_special_value_tensor_neg_one() raises:
     verify_special_value_invariants(tensor, -1.0)
 
 
-fn test_create_special_value_tensor_neg_half() raises:
+def test_create_special_value_tensor_neg_half() raises:
     """Test creating tensor filled with -0.5 (for ReLU gradient testing)."""
     var tensor = create_special_value_tensor([2, 3], DType.float16, -0.5)
     assert_shape(tensor, [2, 3], "Shape should be [2, 3]")
@@ -130,7 +130,7 @@ fn test_create_special_value_tensor_neg_half() raises:
     verify_special_value_invariants(tensor, -0.5)
 
 
-fn test_create_alternating_pattern_tensor() raises:
+def test_create_alternating_pattern_tensor() raises:
     """Test creating tensor with alternating special values (6-value pattern).
     """
     var tensor = create_alternating_pattern_tensor([2, 3], DType.float32)
@@ -153,7 +153,7 @@ fn test_create_alternating_pattern_tensor() raises:
     assert_equal_float(Float32(val5), 1.5, "Element 5 should be 1.5")
 
 
-fn test_create_alternating_pattern_repeats() raises:
+def test_create_alternating_pattern_repeats() raises:
     """Test that alternating pattern repeats after 6 values."""
     var tensor = create_alternating_pattern_tensor([2, 6], DType.float32)
 
@@ -198,7 +198,7 @@ fn test_create_alternating_pattern_repeats() raises:
     )
 
 
-fn test_verify_special_value_invariants_passes() raises:
+def test_verify_special_value_invariants_passes() raises:
     """Test that verify_special_value_invariants passes for correct tensor."""
     var tensor = create_special_value_tensor([3, 3], DType.float32, 1.0)
 
@@ -206,7 +206,7 @@ fn test_verify_special_value_invariants_passes() raises:
     verify_special_value_invariants(tensor, 1.0)
 
 
-fn test_convenience_functions() raises:
+def test_convenience_functions() raises:
     """Test convenience functions for creating special value tensors."""
     # Test create_zeros_tensor
     var zeros = create_zeros_tensor([2, 2], DType.float32)
@@ -225,28 +225,28 @@ fn test_convenience_functions() raises:
     verify_special_value_invariants(one_and_half, 1.5)
 
 
-fn test_dtypes_float32() raises:
+def test_dtypes_float32() raises:
     """Test special values work with float32."""
     var tensor = create_special_value_tensor([2, 2], DType.float32, 1.0)
     assert_dtype(tensor, DType.float32, "Should be float32")
     verify_special_value_invariants(tensor, 1.0)
 
 
-fn test_dtypes_float64() raises:
+def test_dtypes_float64() raises:
     """Test special values work with float64."""
     var tensor = create_special_value_tensor([2, 2], DType.float64, 0.5)
     assert_dtype(tensor, DType.float64, "Should be float64")
     verify_special_value_invariants(tensor, 0.5)
 
 
-fn test_dtypes_float16() raises:
+def test_dtypes_float16() raises:
     """Test special values work with float16."""
     var tensor = create_special_value_tensor([2, 2], DType.float16, 1.5)
     assert_dtype(tensor, DType.float16, "Should be float16")
     verify_special_value_invariants(tensor, 1.5)
 
 
-fn test_dtypes_bfloat16() raises:
+def test_dtypes_bfloat16() raises:
     """Test special values work with bfloat16.
 
     Verifies DType.bfloat16 is fully supported in Mojo's DType enum
@@ -262,7 +262,7 @@ fn test_dtypes_bfloat16() raises:
     verify_special_value_invariants(tensor, 1.0)
 
 
-fn test_create_seeded_random_tensor_reproducibility() raises:
+def test_create_seeded_random_tensor_reproducibility() raises:
     """Test that seeded random tensors are reproducible."""
     # Create two tensors with same seed
     var tensor1 = create_seeded_random_tensor(
@@ -284,7 +284,7 @@ fn test_create_seeded_random_tensor_reproducibility() raises:
         )
 
 
-fn test_create_seeded_random_tensor_different_seeds() raises:
+def test_create_seeded_random_tensor_different_seeds() raises:
     """Test that different seeds produce different tensors."""
     # Create tensors with different seeds
     var tensor1 = create_seeded_random_tensor(
@@ -311,7 +311,7 @@ fn test_create_seeded_random_tensor_different_seeds() raises:
         )
 
 
-fn test_create_seeded_random_tensor_range() raises:
+def test_create_seeded_random_tensor_range() raises:
     """Test that seeded random values fall within specified range."""
     var tensor = create_seeded_random_tensor(
         [5, 5], DType.float32, 42, -1.0, 1.0
@@ -331,7 +331,7 @@ fn test_create_seeded_random_tensor_range() raises:
             )
 
 
-fn test_create_seeded_random_tensor_custom_range() raises:
+def test_create_seeded_random_tensor_custom_range() raises:
     """Test seeded random tensor with custom range."""
     # For gradient checking, we might want small random values
     var tensor = create_seeded_random_tensor(
@@ -352,7 +352,7 @@ fn test_create_seeded_random_tensor_custom_range() raises:
             )
 
 
-fn test_create_seeded_random_tensor_shape() raises:
+def test_create_seeded_random_tensor_shape() raises:
     """Test that seeded random tensor has correct shape and dtype."""
     var tensor = create_seeded_random_tensor(
         [4, 5], DType.float16, 42, -1.0, 1.0
@@ -361,7 +361,7 @@ fn test_create_seeded_random_tensor_shape() raises:
     assert_dtype(tensor, DType.float16, "Dtype should be float16")
 
 
-fn test_create_nan_tensor() raises:
+def test_create_nan_tensor() raises:
     """Test creation of NaN-filled tensors."""
     # Test Float32 NaN tensor
     var nan_f32 = create_nan_tensor([3, 3], DType.float32)
@@ -382,7 +382,7 @@ fn test_create_nan_tensor() raises:
         raise Error("Float64 NaN tensor should contain NaN values")
 
 
-fn test_create_inf_tensor() raises:
+def test_create_inf_tensor() raises:
     """Test creation of Infinity-filled tensors."""
     # Test positive infinity (Float32)
     var pos_inf_f32 = create_inf_tensor([3, 3], DType.float32, positive=True)
@@ -421,7 +421,7 @@ fn test_create_inf_tensor() raises:
         raise Error("Float64 -Inf tensor should contain Inf values")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_special_values tests."""
     print("Running test_special_values tests...")
 

@@ -26,10 +26,10 @@ from shared.training.evaluation import (
     evaluate_topk,
 )
 from shared.testing import SimpleMLP
-from collections import List
+from std.collections import List
 
 
-fn test_evaluation_result_initialization() raises:
+def test_evaluation_result_initialization() raises:
     """Test EvaluationResult initializes correctly."""
     print("Testing EvaluationResult initialization...")
 
@@ -48,7 +48,7 @@ fn test_evaluation_result_initialization() raises:
     print("   EvaluationResult initialization test passed")
 
 
-fn test_evaluation_result_with_per_class_stats() raises:
+def test_evaluation_result_with_per_class_stats() raises:
     """Test EvaluationResult with per-class statistics."""
     print("Testing EvaluationResult with per-class stats...")
 
@@ -73,7 +73,7 @@ fn test_evaluation_result_with_per_class_stats() raises:
     print("   EvaluationResult with per-class stats test passed")
 
 
-fn test_evaluate_model_perfect_predictions() raises:
+def test_evaluate_model_perfect_predictions() raises:
     """Test evaluate_model with perfect predictions.
 
     Creates synthetic logits where predictions match ground truth,
@@ -111,7 +111,7 @@ fn test_evaluate_model_perfect_predictions() raises:
     print("   evaluate_model with perfect predictions test passed")
 
 
-fn test_evaluate_model_batch_sizes() raises:
+def test_evaluate_model_batch_sizes() raises:
     """Test evaluate_model with different batch sizes."""
     print("Testing evaluate_model with different batch sizes...")
 
@@ -147,7 +147,7 @@ fn test_evaluate_model_batch_sizes() raises:
     print("   evaluate_model with different batch sizes test passed")
 
 
-fn test_evaluate_model_per_class_statistics() raises:
+def test_evaluate_model_per_class_statistics() raises:
     """Test evaluate_model computes per-class statistics correctly.
 
     With controlled predictions, verify per-class accuracy computation.
@@ -189,7 +189,7 @@ fn test_evaluate_model_per_class_statistics() raises:
     print("   evaluate_model per-class statistics test passed")
 
 
-fn test_evaluate_model_simple_basic() raises:
+def test_evaluate_model_simple_basic() raises:
     """Test simplified evaluation function."""
     print("Testing evaluate_model_simple...")
 
@@ -216,7 +216,7 @@ fn test_evaluate_model_simple_basic() raises:
     print("   evaluate_model_simple test passed")
 
 
-fn test_evaluate_model_simple_batch_processing() raises:
+def test_evaluate_model_simple_batch_processing() raises:
     """Test evaluate_model_simple handles batches correctly."""
     print("Testing evaluate_model_simple batch processing...")
 
@@ -243,7 +243,7 @@ fn test_evaluate_model_simple_batch_processing() raises:
     print("   evaluate_model_simple batch processing test passed")
 
 
-fn test_evaluate_topk_basic() raises:
+def test_evaluate_topk_basic() raises:
     """Test top-k evaluation basic functionality."""
     print("Testing evaluate_topk basic...")
 
@@ -280,7 +280,7 @@ fn test_evaluate_topk_basic() raises:
     print("   evaluate_topk basic test passed")
 
 
-fn test_evaluate_topk_k_greater_than_classes() raises:
+def test_evaluate_topk_k_greater_than_classes() raises:
     """Test that evaluate_topk rejects k > num_classes."""
     print("Testing evaluate_topk with invalid k...")
 
@@ -310,7 +310,7 @@ fn test_evaluate_topk_k_greater_than_classes() raises:
     print("   evaluate_topk with invalid k test passed")
 
 
-fn test_evaluate_topk_edge_case_k_equals_num_classes() raises:
+def test_evaluate_topk_edge_case_k_equals_num_classes() raises:
     """Test evaluate_topk with k == num_classes (should give 100% accuracy)."""
     print("Testing evaluate_topk with k == num_classes...")
 
@@ -341,7 +341,7 @@ fn test_evaluate_topk_edge_case_k_equals_num_classes() raises:
     print("   evaluate_topk with k == num_classes test passed")
 
 
-fn test_evaluation_consistency() raises:
+def test_evaluation_consistency() raises:
     """Test that evaluate_model_simple and evaluate_model give consistent results.
     """
     print("Testing evaluation consistency...")
@@ -379,7 +379,7 @@ fn test_evaluation_consistency() raises:
     print("   Evaluation consistency test passed")
 
 
-fn test_single_sample_evaluation() raises:
+def test_single_sample_evaluation() raises:
     """Test evaluation with single sample."""
     print("Testing single sample evaluation...")
 
@@ -408,7 +408,7 @@ fn test_single_sample_evaluation() raises:
     print("   Single sample evaluation test passed")
 
 
-fn test_evaluation_matches_sample_counts() raises:
+def test_evaluation_matches_sample_counts() raises:
     """Test that per-class sample counts match actual data."""
     print("Testing evaluation sample count matching...")
 
@@ -451,7 +451,7 @@ fn test_evaluation_matches_sample_counts() raises:
     print("   Evaluation sample count matching test passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_evaluation tests."""
     print("Running test_evaluation tests...")
 

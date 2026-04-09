@@ -30,7 +30,7 @@ struct SavedTensors(Copyable, Movable):
     var scalars: List[Float64]
     """Saved scalar values for backward computation."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize empty saved tensors."""
         self.tensors = List[AnyTensor]()
         self.shapes = List[List[Int]]()
@@ -38,7 +38,7 @@ struct SavedTensors(Copyable, Movable):
 
 
 
-    fn add_tensor(mut self, tensor: AnyTensor) raises:
+    def add_tensor(mut self, tensor: AnyTensor) raises:
         """Save a tensor for backward pass.
 
         Modifies self in-place by appending tensor to internal storage.
@@ -53,14 +53,14 @@ struct SavedTensors(Copyable, Movable):
             copy.set(i, Float64(tensor._data.bitcast[Float32]()[i]))
         self.tensors.append(copy^)
 
-    fn add_shape(mut self, shape: List[Int]):
+    def add_shape(mut self, shape: List[Int]):
         """Save a shape for backward pass."""
         var shape_copy = List[Int]()
         for i in range(len(shape)):
             shape_copy.append(shape[i])
         self.shapes.append(shape_copy^)
 
-    fn add_scalar(mut self, value: Float64):
+    def add_scalar(mut self, value: Float64):
         """Save a scalar for backward pass."""
         self.scalars.append(value)
 
@@ -93,7 +93,7 @@ struct TapeNode(Copyable, Movable):
     var saved: SavedTensors
     """Tensors saved during forward pass for backward computation."""
 
-    fn __init__(
+    def __init__(
         out self, op_type: String, input_ids: List[Int], output_id: Int
     ):
         """Initialize a tape node.
@@ -108,7 +108,7 @@ struct TapeNode(Copyable, Movable):
         self.output_id = output_id
         self.saved = SavedTensors()
 
-    fn __init__(
+    def __init__(
         out self,
         op_type: String,
         input_ids: List[Int],
@@ -147,14 +147,14 @@ struct VariableRegistry:
     var next_id: Int
     """Counter for assigning unique IDs to variables."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize empty registry."""
         self.grads = []
         self.has_grad = []
         self.requires_grad = []
         self.next_id = 0
 
-    fn register(mut self, requires_grad: Bool) raises -> Int:
+    def register(mut self, requires_grad: Bool) raises -> Int:
         """Register a new variable and return its ID.
 
         Args:
@@ -180,7 +180,7 @@ struct VariableRegistry:
 
         return id
 
-    fn set_grad(mut self, id: Int, grad: AnyTensor) raises:
+    def set_grad(mut self, id: Int, grad: AnyTensor) raises:
         """Set or accumulate gradient for a variable.
 
         Args:
@@ -210,7 +210,7 @@ struct VariableRegistry:
             self.grads[id] = grad_copy^
             self.has_grad[id] = True
 
-    fn get_grad(self, id: Int) raises -> AnyTensor:
+    def get_grad(self, id: Int) raises -> AnyTensor:
         """Get gradient for a variable.
 
         Args:
@@ -229,7 +229,7 @@ struct VariableRegistry:
         placeholder_shape.append(1)
         return AnyTensor(placeholder_shape, DType.float32)
 
-    fn has_gradient(self, id: Int) -> Bool:
+    def has_gradient(self, id: Int) -> Bool:
         """Check if a variable has a computed gradient.
 
         Args:
@@ -242,7 +242,7 @@ struct VariableRegistry:
             return self.has_grad[id]
         return False
 
-    fn clear(mut self):
+    def clear(mut self):
         """Clear all gradients but keep variable registrations."""
         for i in range(len(self.has_grad)):
             self.has_grad[i] = False

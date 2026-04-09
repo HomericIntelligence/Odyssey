@@ -34,7 +34,7 @@ from shared.core.loss import cross_entropy, cross_entropy_backward
 from shared.training.precision_config import PrecisionConfig, PrecisionMode
 from shared.training.evaluation import evaluate_model_simple
 from shared.utils.arg_parser import create_training_parser
-from collections import List
+from std.collections import List
 
 
 struct TrainConfig(Movable):
@@ -47,7 +47,7 @@ struct TrainConfig(Movable):
     var data_dir: String
     var weights_dir: String
 
-    fn __init__(out self):
+    def __init__(out self):
         self.epochs = 10
         self.batch_size = 32
         self.learning_rate = Float32(0.001)
@@ -55,7 +55,7 @@ struct TrainConfig(Movable):
         self.data_dir = "datasets/emnist"
         self.weights_dir = "lenet5_weights"
 
-    fn __moveinit__(out self, deinit existing: Self):
+    def __moveinit__(out self, deinit existing: Self):
         self.epochs = existing.epochs
         self.batch_size = existing.batch_size
         self.learning_rate = existing.learning_rate
@@ -64,7 +64,7 @@ struct TrainConfig(Movable):
         self.weights_dir = existing.weights_dir^
 
 
-fn parse_args() raises -> TrainConfig:
+def parse_args() raises -> TrainConfig:
     """Parse command line arguments using enhanced argument parser.
 
     Returns:
@@ -88,7 +88,7 @@ fn parse_args() raises -> TrainConfig:
     return config^
 
 
-fn compute_gradients(
+def compute_gradients(
     mut model: LeNet5,
     input: AnyTensor,
     labels: AnyTensor,
@@ -305,7 +305,7 @@ fn compute_gradients(
     return Tuple[Float32, Bool](loss, grads_valid)
 
 
-fn train_epoch(
+def train_epoch(
     mut model: LeNet5,
     train_images: AnyTensor,
     train_labels: AnyTensor,
@@ -391,7 +391,7 @@ fn train_epoch(
     return avg_loss
 
 
-fn main() raises:
+def main() raises:
     """Main training entry point."""
     print("=" * 60)
     print("LeNet-5 Training on EMNIST Dataset")

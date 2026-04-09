@@ -16,7 +16,7 @@ from shared.tensor.any_tensor import AnyTensor, ones as any_ones, full as any_fu
 from shared.core.arithmetic import add, subtract, multiply, divide
 
 
-fn test_add() raises:
+def test_add() raises:
     """Add preserves dtype and computes correct values."""
     var a = any_full([2, 2], 0.5, DType.float32)
     var b = any_full([2, 2], 1.0, DType.float32)
@@ -30,7 +30,7 @@ fn test_add() raises:
     print("PASS: test_add")
 
 
-fn test_add_zeros() raises:
+def test_add_zeros() raises:
     """Add with zeros is identity."""
     var a = any_full([3], 1.5, DType.float32)
     var b = any_full([3], 0.0, DType.float32)
@@ -42,7 +42,7 @@ fn test_add_zeros() raises:
     print("PASS: test_add_zeros")
 
 
-fn test_subtract() raises:
+def test_subtract() raises:
     """Subtract computes correct values."""
     var a = any_full([2, 2], 1.5, DType.float32)
     var b = any_full([2, 2], 0.5, DType.float32)
@@ -55,7 +55,7 @@ fn test_subtract() raises:
     print("PASS: test_subtract")
 
 
-fn test_multiply() raises:
+def test_multiply() raises:
     """Multiply computes correct values."""
     var a = any_full([2, 2], 0.5, DType.float32)
     var b = any_full([2, 2], 1.5, DType.float32)
@@ -68,7 +68,7 @@ fn test_multiply() raises:
     print("PASS: test_multiply")
 
 
-fn test_multiply_ones() raises:
+def test_multiply_ones() raises:
     """Multiply with ones is identity."""
     var a = any_full([3], 0.25, DType.float32)
     var b = any_ones([3], DType.float32)
@@ -80,7 +80,7 @@ fn test_multiply_ones() raises:
     print("PASS: test_multiply_ones")
 
 
-fn test_divide() raises:
+def test_divide() raises:
     """Divide computes correct values."""
     var a = any_full([2, 2], 1.5, DType.float32)
     var b = any_full([2, 2], 0.5, DType.float32)
@@ -93,7 +93,7 @@ fn test_divide() raises:
     print("PASS: test_divide")
 
 
-fn test_divide_by_ones() raises:
+def test_divide_by_ones() raises:
     """Divide by ones is identity."""
     var a = any_full([3], 0.25, DType.float32)
     var b = any_ones([3], DType.float32)
@@ -105,7 +105,7 @@ fn test_divide_by_ones() raises:
     print("PASS: test_divide_by_ones")
 
 
-fn test_arithmetic_float64() raises:
+def test_arithmetic_float64() raises:
     """Arithmetic operations work with float64 dtype."""
     var a = any_full([2], 1.0, DType.float64)
     var b = any_full([2], 0.5, DType.float64)
@@ -118,7 +118,7 @@ fn test_arithmetic_float64() raises:
     print("PASS: test_arithmetic_float64")
 
 
-fn main() raises:
+def main() raises:
     test_add()
     test_add_zeros()
     test_subtract()

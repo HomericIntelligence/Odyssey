@@ -21,7 +21,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_load_yaml_config():
+def test_load_yaml_config():
     """Test loading configuration from YAML file."""
     # TODO(#44): Implement when Config.from_yaml exists
     # Create temp YAML file with:
@@ -34,7 +34,7 @@ fn test_load_yaml_config():
     pass
 
 
-fn test_load_json_config():
+def test_load_json_config():
     """Test loading configuration from JSON file."""
     # TODO(#44): Implement when Config.from_json exists
     # Create temp JSON file with:
@@ -45,7 +45,7 @@ fn test_load_json_config():
     pass
 
 
-fn test_load_nested_config():
+def test_load_nested_config():
     """Test loading configuration with nested sections."""
     # TODO(#44): Implement when Config supports nested dicts
     # YAML:
@@ -59,7 +59,7 @@ fn test_load_nested_config():
     pass
 
 
-fn test_load_config_with_lists():
+def test_load_config_with_lists():
     """Test loading configuration with list values."""
     # TODO(#44): Implement when Config supports lists
     # YAML:
@@ -69,7 +69,7 @@ fn test_load_config_with_lists():
     pass
 
 
-fn test_load_nonexistent_file():
+def test_load_nonexistent_file():
     """Test loading nonexistent config file raises error."""
     # TODO(#44): Implement when Config.from_file exists
     # Try to load "nonexistent.yaml"
@@ -77,7 +77,7 @@ fn test_load_nonexistent_file():
     pass
 
 
-fn test_load_malformed_yaml():
+def test_load_malformed_yaml():
     """Test loading malformed YAML raises parse error."""
     # TODO(#44): Implement when Config.from_yaml exists
     # Create temp YAML with invalid syntax:
@@ -87,7 +87,7 @@ fn test_load_malformed_yaml():
     pass
 
 
-fn test_validate_required_fields():
+def test_validate_required_fields():
     """Test validation ensures required fields are present."""
     # TODO(#44): Implement when Config.validate exists
     # Create config missing required field "learning_rate"
@@ -96,7 +96,7 @@ fn test_validate_required_fields():
     pass
 
 
-fn test_validate_field_types():
+def test_validate_field_types():
     """Test validation checks field types."""
     # TODO(#44): Implement when Config.validate exists
     # Create config with:
@@ -106,7 +106,7 @@ fn test_validate_field_types():
     pass
 
 
-fn test_validate_numeric_ranges():
+def test_validate_numeric_ranges():
     """Test validation checks numeric values are in valid ranges."""
     # TODO(#44): Implement when Config.validate exists
     # Create config with:
@@ -117,7 +117,7 @@ fn test_validate_numeric_ranges():
     pass
 
 
-fn test_validate_enum_values():
+def test_validate_enum_values():
     """Test validation checks enum fields have valid values."""
     # TODO(#44): Implement when Config.validate exists
     # Create config with:
@@ -127,7 +127,7 @@ fn test_validate_enum_values():
     pass
 
 
-fn test_validate_mutually_exclusive_fields():
+def test_validate_mutually_exclusive_fields():
     """Test validation checks mutually exclusive fields."""
     # TODO(#44): Implement when Config.validate exists
     # Create config with both:
@@ -138,7 +138,7 @@ fn test_validate_mutually_exclusive_fields():
     pass
 
 
-fn test_merge_with_defaults():
+def test_merge_with_defaults():
     """Test merging user config with default values."""
     # TODO(#44): Implement when Config.merge exists
     # Defaults:
@@ -154,7 +154,7 @@ fn test_merge_with_defaults():
     pass
 
 
-fn test_merge_nested_configs():
+def test_merge_nested_configs():
     """Test merging nested configuration sections."""
     # TODO(#44): Implement when Config.merge supports nested dicts
     # Defaults:
@@ -171,7 +171,7 @@ fn test_merge_nested_configs():
     pass
 
 
-fn test_merge_preserves_types():
+def test_merge_preserves_types():
     """Test merging preserves field types."""
     # TODO(#44): Implement when Config.merge exists
     # Defaults: learning_rate: Float32(0.001)
@@ -180,7 +180,7 @@ fn test_merge_preserves_types():
     pass
 
 
-fn test_merge_multiple_sources():
+def test_merge_multiple_sources():
     """Test merging from multiple configuration sources."""
     # TODO(#44): Implement when Config.merge supports multiple sources
     # Priority: CLI args > User config > Defaults
@@ -191,7 +191,7 @@ fn test_merge_multiple_sources():
     pass
 
 
-fn test_substitute_env_vars():
+def test_substitute_env_vars():
     """Test substituting environment variables in config."""
     # TODO(#44): Implement when Config supports env var substitution
     # Set environment variable: DATA_DIR=/path/to/data
@@ -202,7 +202,7 @@ fn test_substitute_env_vars():
     pass
 
 
-fn test_substitute_with_defaults():
+def test_substitute_with_defaults():
     """Test env var substitution with default values."""
     # TODO(#44): Implement when Config supports env var defaults
     # Config:
@@ -212,7 +212,7 @@ fn test_substitute_with_defaults():
     pass
 
 
-fn test_substitute_missing_env_var():
+def test_substitute_missing_env_var():
     """Test substitution of missing env var without default raises error."""
     # TODO(#44): Implement when Config supports env var substitution
     # Config: data_path: "${MISSING_VAR}/file.csv"
@@ -221,7 +221,7 @@ fn test_substitute_missing_env_var():
     pass
 
 
-fn test_substitute_multiple_env_vars():
+def test_substitute_multiple_env_vars():
     """Test substituting multiple environment variables."""
     # TODO(#44): Implement when Config supports env var substitution
     # Set: BASE_DIR=/base, DATA_SUBDIR=data
@@ -230,7 +230,7 @@ fn test_substitute_multiple_env_vars():
     pass
 
 
-fn test_access_config_fields():
+def test_access_config_fields():
     """Test accessing configuration fields by name."""
     # TODO(#44): Implement when Config class exists
     # Create config with: learning_rate=0.001, batch_size=32
@@ -239,7 +239,7 @@ fn test_access_config_fields():
     pass
 
 
-fn test_access_nested_fields():
+def test_access_nested_fields():
     """Test accessing nested configuration fields."""
     # TODO(#44): Implement when Config supports nested access
     # Config: model.layers = [64, 32]
@@ -248,7 +248,7 @@ fn test_access_nested_fields():
     pass
 
 
-fn test_access_missing_field():
+def test_access_missing_field():
     """Test accessing missing field returns None or raises error."""
     # TODO(#44): Implement when Config class exists
     # Create config without "missing_field"
@@ -257,7 +257,7 @@ fn test_access_missing_field():
     pass
 
 
-fn test_get_with_default():
+def test_get_with_default():
     """Test getting field with default value."""
     # TODO(#44): Implement when Config.get exists
     # Create config without "dropout_rate"
@@ -266,7 +266,7 @@ fn test_get_with_default():
     pass
 
 
-fn test_set_config_field():
+def test_set_config_field():
     """Test setting configuration field."""
     # TODO(#44): Implement when Config supports mutation
     # Create config with learning_rate=0.001
@@ -275,7 +275,7 @@ fn test_set_config_field():
     pass
 
 
-fn test_save_config_to_yaml():
+def test_save_config_to_yaml():
     """Test saving configuration to YAML file."""
     # TODO(#44): Implement when Config.to_yaml exists
     # Create config with various fields
@@ -285,7 +285,7 @@ fn test_save_config_to_yaml():
     pass
 
 
-fn test_save_config_to_json():
+def test_save_config_to_json():
     """Test saving configuration to JSON file."""
     # TODO(#44): Implement when Config.to_json exists
     # Create config with various fields
@@ -295,7 +295,7 @@ fn test_save_config_to_json():
     pass
 
 
-fn test_roundtrip_yaml():
+def test_roundtrip_yaml():
     """Test loading and saving YAML preserves values."""
     # TODO(#44): Implement when Config serialization exists
     # Create YAML file
@@ -306,7 +306,7 @@ fn test_roundtrip_yaml():
     pass
 
 
-fn test_serialize_nested_config():
+def test_serialize_nested_config():
     """Test serialization preserves nested structure."""
     # TODO(#44): Implement when Config serialization supports nested dicts
     # Create config with nested sections
@@ -315,7 +315,7 @@ fn test_serialize_nested_config():
     pass
 
 
-fn test_load_training_config_template():
+def test_load_training_config_template():
     """Test loading predefined training configuration template."""
     # TODO(#44): Implement when Config.from_template exists
     # Load "training_default" template
@@ -325,7 +325,7 @@ fn test_load_training_config_template():
     pass
 
 
-fn test_load_model_config_template():
+def test_load_model_config_template():
     """Test loading predefined model configuration template."""
     # TODO(#44): Implement when Config.from_template exists
     # Load "lenet5" template
@@ -334,7 +334,7 @@ fn test_load_model_config_template():
     pass
 
 
-fn test_override_template_values():
+def test_override_template_values():
     """Test overriding template values with user config."""
     # TODO(#44): Implement when Config.from_template exists
     # Load "training_default" template
@@ -343,7 +343,7 @@ fn test_override_template_values():
     pass
 
 
-fn test_config_integration_training():
+def test_config_integration_training():
     """Test configuration integrates with training workflow."""
     # TODO(#44): Implement when full training workflow exists
     # Create training config
@@ -355,7 +355,7 @@ fn test_config_integration_training():
     pass
 
 
-fn test_config_from_cli_args():
+def test_config_from_cli_args():
     """Test creating configuration from command-line arguments."""
     # TODO(#44): Implement when CLI parser exists
     # Parse CLI args: --lr 0.01 --batch-size 64 --epochs 20
@@ -364,7 +364,7 @@ fn test_config_from_cli_args():
     pass
 
 
-fn main() raises:
+def main() raises:
     """Run all test_config tests."""
     print("Running test_config tests...")
 

@@ -28,7 +28,7 @@ from shared.core.layers.linear import Linear
 from shared.core.layers.relu import ReLULayer
 
 
-fn test_module_forward_accepts_anytensor() raises:
+def test_module_forward_accepts_anytensor() raises:
     """Module.forward accepts AnyTensor input and returns AnyTensor."""
     var layer = Linear(4, 2)
     var input: AnyTensor = zeros([1, 4], DType.float32)
@@ -37,7 +37,7 @@ fn test_module_forward_accepts_anytensor() raises:
     print("PASS: test_module_forward_accepts_anytensor")
 
 
-fn test_module_forward_returns_anytensor() raises:
+def test_module_forward_returns_anytensor() raises:
     """Module.forward return type is AnyTensor (H7 boundary)."""
     var layer = Linear(4, 2)
     var input = zeros([1, 4], DType.float32)
@@ -48,7 +48,7 @@ fn test_module_forward_returns_anytensor() raises:
     print("PASS: test_module_forward_returns_anytensor")
 
 
-fn test_module_parameters_returns_anytensor_list() raises:
+def test_module_parameters_returns_anytensor_list() raises:
     """Module.parameters() returns List[AnyTensor]."""
     var layer = Linear(4, 2)
     var params = layer.parameters()
@@ -59,7 +59,7 @@ fn test_module_parameters_returns_anytensor_list() raises:
     print("PASS: test_module_parameters_returns_anytensor_list")
 
 
-fn test_module_train_mode() raises:
+def test_module_train_mode() raises:
     """Module train mode switching works without error."""
     var layer = Linear(4, 2)
     layer.train()
@@ -70,7 +70,7 @@ fn test_module_train_mode() raises:
     print("PASS: test_module_train_mode")
 
 
-fn test_linear_forward_shape_batched() raises:
+def test_linear_forward_shape_batched() raises:
     """Linear(4, 2) produces correct output shape [3, 2] for batch=3."""
     var layer = Linear(4, 2)
     var input = zeros([3, 4], DType.float32)
@@ -81,7 +81,7 @@ fn test_linear_forward_shape_batched() raises:
     print("PASS: test_linear_forward_shape_batched")
 
 
-fn test_relu_forward_zeroes_negatives() raises:
+def test_relu_forward_zeroes_negatives() raises:
     """ReLU forward pass zeroes negative values via AnyTensor boundary."""
     var layer = ReLULayer()
     var input = zeros([4], DType.float32)
@@ -100,7 +100,7 @@ fn test_relu_forward_zeroes_negatives() raises:
     print("PASS: test_relu_forward_zeroes_negatives")
 
 
-fn test_relu_parameters_empty() raises:
+def test_relu_parameters_empty() raises:
     """ReLU has no trainable parameters."""
     var layer = ReLULayer()
     var params = layer.parameters()
@@ -108,7 +108,7 @@ fn test_relu_parameters_empty() raises:
     print("PASS: test_relu_parameters_empty")
 
 
-fn main() raises:
+def main() raises:
     test_module_forward_accepts_anytensor()
     test_module_forward_returns_anytensor()
     test_module_parameters_returns_anytensor_list()

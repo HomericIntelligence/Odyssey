@@ -39,7 +39,7 @@ from shared.tensor.any_tensor import AnyTensor, ones, zeros, arange
 from shared.core.shape import flatten_to_2d, concatenate, as_contiguous
 
 
-fn test_reshape_valid() raises:
+def test_reshape_valid() raises:
     """Test reshaping to compatible size."""
     var shape_orig = List[Int]()
     shape_orig.append(12)
@@ -57,7 +57,7 @@ fn test_reshape_valid() raises:
         )
 
 
-fn test_reshape_invalid_size() raises:
+def test_reshape_invalid_size() raises:
     """Test that reshape with incompatible size raises error."""
     var a = arange(0.0, 12.0, 1.0, DType.float32)  # 12 elements
     var new_shape = List[Int]()
@@ -84,7 +84,7 @@ fn test_reshape_invalid_size() raises:
         raise Error("reshape with incompatible size should raise error")
 
 
-fn test_reshape_infer_dimension() raises:
+def test_reshape_infer_dimension() raises:
     """Test reshape with inferred dimension (-1)."""
     var shape = List[Int]()
     shape.append(12)
@@ -105,7 +105,7 @@ fn test_reshape_infer_dimension() raises:
         )
 
 
-fn test_squeeze_all_dims() raises:
+def test_squeeze_all_dims() raises:
     """Test removing all size-1 dimensions."""
     var shape = List[Int]()
     shape.append(1)
@@ -121,7 +121,7 @@ fn test_squeeze_all_dims() raises:
     assert_all_values(b, 1.0, message="squeeze_all_dims should preserve values")
 
 
-fn test_squeeze_specific_dim() raises:
+def test_squeeze_specific_dim() raises:
     """Test removing specific size-1 dimension."""
     var shape = List[Int]()
     shape.append(1)
@@ -138,7 +138,7 @@ fn test_squeeze_specific_dim() raises:
     )
 
 
-fn test_unsqueeze_add_dim() raises:
+def test_unsqueeze_add_dim() raises:
     """Test adding a size-1 dimension."""
     var shape = List[Int]()
     shape.append(3)
@@ -152,7 +152,7 @@ fn test_unsqueeze_add_dim() raises:
     assert_all_values(b, 1.0, message="unsqueeze should preserve values")
 
 
-fn test_expand_dims_at_end() raises:
+def test_expand_dims_at_end() raises:
     """Test adding dimension at end."""
     var shape = List[Int]()
     shape.append(3)
@@ -165,7 +165,7 @@ fn test_expand_dims_at_end() raises:
     assert_all_values(b, 1.0, message="expand_dims should preserve values")
 
 
-fn test_flatten_c_order() raises:
+def test_flatten_c_order() raises:
     """Test flattening tensor to 1D (C order)."""
     var shape = List[Int]()
     shape.append(3)
@@ -181,7 +181,7 @@ fn test_flatten_c_order() raises:
         )
 
 
-fn test_ravel_view() raises:
+def test_ravel_view() raises:
     """Test ravel (should return view if possible)."""
     var shape = List[Int]()
     shape.append(3)
@@ -194,7 +194,7 @@ fn test_ravel_view() raises:
     assert_all_values(b, 1.0, message="ravel should preserve values")
 
 
-fn test_concatenate_axis_0() raises:
+def test_concatenate_axis_0() raises:
     """Test concatenating along axis 0."""
     var shape_a = List[Int]()
     shape_a.append(2)
@@ -225,7 +225,7 @@ fn test_concatenate_axis_0() raises:
         )
 
 
-fn test_concatenate_axis_1() raises:
+def test_concatenate_axis_1() raises:
     """Test concatenating along axis 1."""
     var shape_a = List[Int]()
     shape_a.append(3)
@@ -251,7 +251,7 @@ fn test_concatenate_axis_1() raises:
     assert_value_at(c, 5, 2.0, message="concat_axis_1 row0 col5 should be 2.0")
 
 
-fn test_stack_new_axis() raises:
+def test_stack_new_axis() raises:
     """Test stacking tensors along new axis."""
     var shape = List[Int]()
     shape.append(2)
@@ -282,7 +282,7 @@ fn test_stack_new_axis() raises:
         )
 
 
-fn test_stack_axis_1() raises:
+def test_stack_axis_1() raises:
     """Test stacking along axis 1."""
     var shape = List[Int]()
     shape.append(2)
@@ -308,7 +308,7 @@ fn test_stack_axis_1() raises:
     )
 
 
-fn test_split_equal() raises:
+def test_split_equal() raises:
     """Test splitting into equal parts."""
     from shared.core.shape import split
 
@@ -322,7 +322,7 @@ fn test_split_equal() raises:
         assert_numel(parts[i], 4, "Each part should have 4 elements")
 
 
-fn test_split_unequal() raises:
+def test_split_unequal() raises:
     """Test splitting into unequal parts."""
     from shared.core.shape import split_with_indices
 
@@ -340,7 +340,7 @@ fn test_split_unequal() raises:
     assert_numel(parts[2], 3, "Third part should have 3 elements")
 
 
-fn test_tile_1d() raises:
+def test_tile_1d() raises:
     """Test tiling 1D tensor."""
     from shared.core.shape import tile
 
@@ -353,7 +353,7 @@ fn test_tile_1d() raises:
     assert_numel(b, 9, "Tiled tensor should have 9 elements")
 
 
-fn test_tile_multidim() raises:
+def test_tile_multidim() raises:
     """Test tiling with multi-dimensional repetitions."""
     from shared.core.shape import tile
 
@@ -370,7 +370,7 @@ fn test_tile_multidim() raises:
     assert_numel(b, 36, "Should have 36 elements (4*9)")
 
 
-fn test_tile_multidim_values() raises:
+def test_tile_multidim_values() raises:
     """Test tiling 2D source with non-uniform values verifies correct layout.
 
     Tiles a (2, 3) source created from arange(0..6) by [2, 2] to produce a
@@ -438,7 +438,7 @@ fn test_tile_multidim_values() raises:
     assert_value_at(b, 23, 5.0, message="tile row3 col5 (repeat)")
 
 
-fn test_repeat_elements() raises:
+def test_repeat_elements() raises:
     """Test repeating each element."""
     from shared.core.shape import repeat
 
@@ -449,7 +449,7 @@ fn test_repeat_elements() raises:
     assert_numel(b, 6, "Repeated tensor should have 6 elements")
 
 
-fn test_repeat_axis() raises:
+def test_repeat_axis() raises:
     """Test repeating along specific axis."""
     from shared.core.shape import repeat
 
@@ -463,7 +463,7 @@ fn test_repeat_axis() raises:
     assert_numel(b, 12, "Should have 12 elements (4*3)")
 
 
-fn test_broadcast_to_compatible() raises:
+def test_broadcast_to_compatible() raises:
     """Test broadcasting to compatible shape."""
     var a = arange(0.0, 3.0, 1.0, DType.float32)  # Shape (3,)
     var target_shape = List[Int]()
@@ -476,7 +476,7 @@ fn test_broadcast_to_compatible() raises:
     assert_numel(b, 12, "Should have 12 elements")
 
 
-fn test_broadcast_to_incompatible() raises:
+def test_broadcast_to_incompatible() raises:
     """Test that broadcasting to incompatible shape raises error."""
     var shape_orig = List[Int]()
     shape_orig.append(3)
@@ -502,7 +502,7 @@ fn test_broadcast_to_incompatible() raises:
         raise Error("broadcast_to with incompatible shape should raise error")
 
 
-fn test_permute_axes() raises:
+def test_permute_axes() raises:
     """Test permuting axes (similar to transpose with axes)."""
     from shared.core.shape import permute
 
@@ -522,7 +522,7 @@ fn test_permute_axes() raises:
     assert_numel(b, 24, "Should have same elements")
 
 
-fn test_reshape_preserves_dtype() raises:
+def test_reshape_preserves_dtype() raises:
     """Test that reshape preserves dtype."""
     var a = arange(0.0, 12.0, 1.0, DType.float64)
     var new_shape = List[Int]()
@@ -533,7 +533,7 @@ fn test_reshape_preserves_dtype() raises:
     assert_dtype(b, DType.float64, "Reshape should preserve dtype")
 
 
-fn test_flatten_to_2d_basic() raises:
+def test_flatten_to_2d_basic() raises:
     """Test basic flatten_to_2d functionality."""
     # Create 4D tensor: (batch=2, channels=3, height=4, width=4)
     var shape: List[Int] = [2, 3, 4, 4]
@@ -560,7 +560,7 @@ fn test_flatten_to_2d_basic() raises:
         )
 
 
-fn test_flatten_to_2d_single_batch() raises:
+def test_flatten_to_2d_single_batch() raises:
     """Test flatten_to_2d with batch size 1."""
     var shape: List[Int] = [1, 64, 7, 7]
     var a = ones(shape, DType.float32)
@@ -580,7 +580,7 @@ fn test_flatten_to_2d_single_batch() raises:
     )
 
 
-fn test_flatten_to_2d_preserves_dtype() raises:
+def test_flatten_to_2d_preserves_dtype() raises:
     """Test that flatten_to_2d preserves dtype."""
     var shape: List[Int] = [2, 3, 4, 4]
     var a = ones(shape, DType.float64)
@@ -591,7 +591,7 @@ fn test_flatten_to_2d_preserves_dtype() raises:
         raise Error("flatten_to_2d should preserve dtype")
 
 
-fn test_broadcast_to_size1_nonleading() raises:
+def test_broadcast_to_size1_nonleading() raises:
     """Test broadcasting with size-1 dimension in non-leading position.
 
     Tests the case (3,1)->(3,4) where the source has a size-1 dimension
@@ -629,7 +629,7 @@ fn test_broadcast_to_size1_nonleading() raises:
     assert_value_at(b, 11, 2.0, message="Element [2,3] should be 2")
 
 
-fn test_concatenate_axis_1_per_row_values() raises:
+def test_concatenate_axis_1_per_row_values() raises:
     """Test concatenate axis=1 has correct per-row values. Closes #3798."""
     # Create 3x2 tensors with known values
     var shape: List[Int] = [3, 2]
@@ -664,7 +664,7 @@ fn test_concatenate_axis_1_per_row_values() raises:
     print("PASS: test_concatenate_axis_1_per_row_values")
 
 
-fn test_as_contiguous_3d_non_contiguous() raises:
+def test_as_contiguous_3d_non_contiguous() raises:
     """Test as_contiguous produces correct values for 3D tensor. Closes #4090.
     """
     # Create [2,3,4] tensor with sequential values
@@ -686,7 +686,7 @@ fn test_as_contiguous_3d_non_contiguous() raises:
     print("PASS: test_as_contiguous_3d_non_contiguous")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_shape tests."""
     print("Running test_shape tests...")
 

@@ -7,7 +7,7 @@ exporting to JSON format for CI/CD tracking and historical analysis.
 from shared.benchmarking import LegacyBenchmarkResult
 
 
-fn format_throughput(value: Float64) -> String:
+def format_throughput(value: Float64) -> String:
     """Format throughput value with appropriate units.
 
     Args:
@@ -26,7 +26,7 @@ fn format_throughput(value: Float64) -> String:
         return String(value / 1_000_000_000.0) + " Gops/s"
 
 
-fn format_time(value_us: Float64) -> String:
+def format_time(value_us: Float64) -> String:
     """Format time value with appropriate units.
 
     Args:
@@ -43,7 +43,7 @@ fn format_time(value_us: Float64) -> String:
         return String(value_us / 1_000_000.0) + " s"
 
 
-fn print_table(results: List[LegacyBenchmarkResult]):
+def print_table(results: List[LegacyBenchmarkResult]):
     """Print benchmark results as formatted table.
 
     Args:
@@ -97,7 +97,7 @@ fn print_table(results: List[LegacyBenchmarkResult]):
     )
 
 
-fn export_json_simple(
+def export_json_simple(
     results: List[LegacyBenchmarkResult], filename: String
 ) raises:
     """Export results to JSON file.
@@ -156,7 +156,7 @@ fn export_json_simple(
         raise Error("Export failed")
 
 
-fn print_summary(results: List[LegacyBenchmarkResult]):
+def print_summary(results: List[LegacyBenchmarkResult]):
     """Print summary statistics.
 
     Args:

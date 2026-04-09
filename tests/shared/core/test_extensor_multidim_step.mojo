@@ -17,7 +17,7 @@ from tests.shared.conftest import assert_true, assert_equal
 # ============================================================================
 
 
-fn test_multidim_step2_first_dim() raises:
+def test_multidim_step2_first_dim() raises:
     """Step=2 on first dimension selects every other row."""
     var t = arange(0.0, 20.0, 1.0, DType.float32)
     var t2d = t.reshape([5, 4])
@@ -41,7 +41,7 @@ fn test_multidim_step2_first_dim() raises:
     print("PASS: test_multidim_step2_first_dim")
 
 
-fn test_multidim_step2_second_dim() raises:
+def test_multidim_step2_second_dim() raises:
     """Step=2 on second dimension selects every other column."""
     var t = arange(0.0, 20.0, 1.0, DType.float32)
     var t2d = t.reshape([5, 4])
@@ -61,7 +61,7 @@ fn test_multidim_step2_second_dim() raises:
     print("PASS: test_multidim_step2_second_dim")
 
 
-fn test_multidim_negative_step() raises:
+def test_multidim_negative_step() raises:
     """Negative step on first dimension reverses row order."""
     var t = arange(0.0, 20.0, 1.0, DType.float32)
     var t2d = t.reshape([5, 4])
@@ -82,7 +82,7 @@ fn test_multidim_negative_step() raises:
     print("PASS: test_multidim_negative_step")
 
 
-fn test_multidim_step3_3d() raises:
+def test_multidim_step3_3d() raises:
     """Step=3 in 3D tensor selects every 3rd element along first dim."""
     var t = arange(0.0, 24.0, 1.0, DType.float32)
     var t3d = t.reshape([4, 3, 2])
@@ -97,7 +97,7 @@ fn test_multidim_step3_3d() raises:
     print("PASS: test_multidim_step3_3d")
 
 
-fn test_multidim_step1_does_not_raise() raises:
+def test_multidim_step1_does_not_raise() raises:
     """Explicit step=1 on all dimensions must NOT raise Error."""
     var t = arange(0.0, 20.0, 1.0, DType.float32)
     var t2d = t.reshape([5, 4])
@@ -111,7 +111,7 @@ fn test_multidim_step1_does_not_raise() raises:
     print("PASS: test_multidim_step1_does_not_raise")
 
 
-fn test_multidim_no_step_does_not_raise() raises:
+def test_multidim_no_step_does_not_raise() raises:
     """Omitted step (defaults to 1) must NOT raise Error."""
     var t = arange(0.0, 20.0, 1.0, DType.float32)
     var t2d = t.reshape([5, 4])
@@ -125,7 +125,7 @@ fn test_multidim_no_step_does_not_raise() raises:
     print("PASS: test_multidim_no_step_does_not_raise")
 
 
-fn test_multidim_step0_raises() raises:
+def test_multidim_step0_raises() raises:
     """Step=0 must raise Error (invalid step)."""
     var t = arange(0.0, 20.0, 1.0, DType.float32)
     var t2d = t.reshape([5, 4])
@@ -140,7 +140,7 @@ fn test_multidim_step0_raises() raises:
     print("PASS: test_multidim_step0_raises")
 
 
-fn main() raises:
+def main() raises:
     """Run all multi-dim step validation tests."""
     test_multidim_step2_first_dim()
     test_multidim_step2_second_dim()

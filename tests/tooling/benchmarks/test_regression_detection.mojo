@@ -28,7 +28,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_single_regression_detection() raises:
+def test_single_regression_detection() raises:
     """Test detection of a single regression.
 
     Verifies:
@@ -59,7 +59,7 @@ fn test_single_regression_detection() raises:
         assert_equal(exit_code_success, 0, "Should exit with code 0 on success")
 
 
-fn test_multiple_regressions_detection() raises:
+def test_multiple_regressions_detection() raises:
     """Test detection of multiple regressions.
 
     Verifies:
@@ -88,7 +88,7 @@ fn test_multiple_regressions_detection() raises:
     )
 
 
-fn test_no_false_positives() raises:
+def test_no_false_positives() raises:
     """Test that normal variance doesn't trigger false positives.
 
     Verifies:
@@ -116,7 +116,7 @@ fn test_no_false_positives() raises:
     )
 
 
-fn test_exit_code_success() raises:
+def test_exit_code_success() raises:
     """Test exit code 0 when no regressions detected.
 
     Verifies:
@@ -143,7 +143,7 @@ fn test_exit_code_success() raises:
     assert_equal(has_regression, False, "Exit code should be 0 (success)")
 
 
-fn test_exit_code_failure() raises:
+def test_exit_code_failure() raises:
     """Test exit code 1 when regressions detected.
 
     Verifies:
@@ -169,7 +169,7 @@ fn test_exit_code_failure() raises:
     assert_equal(has_regression, True, "Exit code should be 1 (failure)")
 
 
-fn test_regression_report_format() raises:
+def test_regression_report_format() raises:
     """Test format of regression report.
 
     Verifies:
@@ -201,7 +201,7 @@ fn test_regression_report_format() raises:
     )
 
 
-fn test_regression_severity_levels() raises:
+def test_regression_severity_levels() raises:
     """Test categorization of regression severity.
 
     Verifies:
@@ -235,7 +235,7 @@ fn test_regression_severity_levels() raises:
     )
 
 
-fn test_improvement_reporting() raises:
+def test_improvement_reporting() raises:
     """Test reporting of improvements alongside regressions.
 
     Verifies:
@@ -263,7 +263,7 @@ fn test_improvement_reporting() raises:
     assert_true(len(improvements) > 0, "Should have improvements to report")
 
 
-fn test_ci_integration_output() raises:
+def test_ci_integration_output() raises:
     """Test output format for CI/CD integration.
 
     Verifies:
@@ -291,7 +291,7 @@ fn test_ci_integration_output() raises:
     assert_true(len(ci_output[0]) > 0, "Should have result line")
 
 
-fn main() raises:
+def main() raises:
     """Run all regression detection tests."""
     print("\n=== Regression Detection Tests ===\n")
 

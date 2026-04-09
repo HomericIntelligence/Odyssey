@@ -15,14 +15,14 @@ from shared.tensor.any_tensor import AnyTensor, ones, zeros
 from shared.core.traits import Differentiable, Composable, ComposedOp
 
 
-fn make_tensor_with_shape(numel: Int) raises -> AnyTensor:
+def make_tensor_with_shape(numel: Int) raises -> AnyTensor:
     """Create a tensor with given number of elements."""
     var shape_list = List[Int]()
     shape_list.append(numel)
     return ones(shape_list^, DType.float32)
 
 
-fn make_shape_list(numel: Int) -> List[Int]:
+def make_shape_list(numel: Int) -> List[Int]:
     """Create a shape list with given number of elements."""
     var shape_list = List[Int]()
     shape_list.append(numel)
@@ -40,12 +40,12 @@ struct ScaleMul(Copyable, Differentiable, Movable):
     var scale: Float64
     var last_input: AnyTensor
 
-    fn __init__(out self, scale: Float64) raises:
+    def __init__(out self, scale: Float64) raises:
         """Initialize with scale factor."""
         self.scale = scale
         self.last_input = make_tensor_with_shape(1)
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: multiply by scale."""
         self.last_input = input.copy()
         var output = input.copy()
@@ -54,7 +54,7 @@ struct ScaleMul(Copyable, Differentiable, Movable):
             output._set_float64(i, input._get_float64(i) * self.scale)
         return output
 
-    fn backward(self, grad_output: AnyTensor) raises -> AnyTensor:
+    def backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Backward pass: multiply gradient by scale."""
         # Use clone() for deep copy - copy() creates a shallow view that shares data
         var grad_input = grad_output.clone()
@@ -75,12 +75,12 @@ struct ScaleAdd(Copyable, Differentiable, Movable):
     var offset: Float64
     var last_input: AnyTensor
 
-    fn __init__(out self, offset: Float64) raises:
+    def __init__(out self, offset: Float64) raises:
         """Initialize with offset value."""
         self.offset = offset
         self.last_input = make_tensor_with_shape(1)
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: add offset."""
         self.last_input = input.copy()
         var output = input.copy()
@@ -89,13 +89,13 @@ struct ScaleAdd(Copyable, Differentiable, Movable):
             output._set_float64(i, input._get_float64(i) + self.offset)
         return output
 
-    fn backward(self, grad_output: AnyTensor) raises -> AnyTensor:
+    def backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Backward pass: gradient passes through unchanged."""
         # Use clone() for deep copy - copy() creates a shallow view that shares data
         return grad_output.clone()
 
 
-fn test_composed_op_initialization() raises:
+def test_composed_op_initialization() raises:
     """Test that ComposedOp initializes with first and second operations."""
     var first = ScaleMul(2.0)
     var second = ScaleAdd(3.0)
@@ -107,7 +107,7 @@ fn test_composed_op_initialization() raises:
     assert_almost_equal(composed.second.offset, 3.0, tolerance=1e-10)
 
 
-fn test_composed_op_implements_differentiable() raises:
+def test_composed_op_implements_differentiable() raises:
     """Test that ComposedOp implements Differentiable trait."""
     var first = ScaleMul(2.0)
     var second = ScaleAdd(3.0)
@@ -120,7 +120,7 @@ fn test_composed_op_implements_differentiable() raises:
     assert_true(True, "forward() should compile and execute")
 
 
-fn test_composed_op_implements_composable() raises:
+def test_composed_op_implements_composable() raises:
     """Test that ComposedOp implements Composable trait."""
     var first = ScaleMul(2.0)
     var second = ScaleAdd(3.0)
@@ -131,7 +131,7 @@ fn test_composed_op_implements_composable() raises:
     assert_true(True, "ComposedOp should implement Composable trait")
 
 
-fn test_composed_op_forward_chains_operations() raises:
+def test_composed_op_forward_chains_operations() raises:
     """Test that forward pass chains first.forward() -> second.forward()."""
     var first = ScaleMul(2.0)
     var second = ScaleAdd(3.0)
@@ -149,7 +149,7 @@ fn test_composed_op_forward_chains_operations() raises:
     assert_almost_equal(output._get_float64(0), 13.0, tolerance=1e-6)
 
 
-fn test_composed_op_forward_caches_intermediate() raises:
+def test_composed_op_forward_caches_intermediate() raises:
     """Test that forward pass caches intermediate tensor."""
     var first = ScaleMul(2.0)
     var second = ScaleAdd(3.0)
@@ -167,7 +167,7 @@ fn test_composed_op_forward_caches_intermediate() raises:
     )
 
 
-fn test_composed_op_forward_shape_preservation() raises:
+def test_composed_op_forward_shape_preservation() raises:
     """Test that forward pass preserves tensor shape."""
     var first = ScaleMul(2.0)
     var second = ScaleAdd(3.0)
@@ -180,7 +180,7 @@ fn test_composed_op_forward_shape_preservation() raises:
     assert_equal(output.numel(), 5, "Output should have 5 elements")
 
 
-fn test_composed_op_with_different_scales() raises:
+def test_composed_op_with_different_scales() raises:
     """Test composition with different scale factors."""
     var first = ScaleMul(0.5)
     var second = ScaleMul(4.0)
@@ -200,7 +200,7 @@ fn test_composed_op_with_different_scales() raises:
     assert_almost_equal(grad_input._get_float64(0), 2.0, tolerance=1e-6)
 
 
-fn test_composed_op_backward_applies_chain_rule() raises:
+def test_composed_op_backward_applies_chain_rule() raises:
     """Test that backward pass applies chain rule correctly.
 
     For composition F ∘ G:
@@ -227,7 +227,7 @@ fn test_composed_op_backward_applies_chain_rule() raises:
     assert_almost_equal(grad_input._get_float64(0), 2.0, tolerance=1e-6)
 
 
-fn test_composed_op_backward_shape_preservation() raises:
+def test_composed_op_backward_shape_preservation() raises:
     """Test that backward pass preserves gradient shape."""
     var first = ScaleMul(2.0)
     var second = ScaleAdd(3.0)
@@ -243,7 +243,7 @@ fn test_composed_op_backward_shape_preservation() raises:
     assert_equal(grad_input.numel(), 5, "Gradient should have 5 elements")
 
 
-fn test_composed_op_backward_multiple_passes() raises:
+def test_composed_op_backward_multiple_passes() raises:
     """Test that backward can be called multiple times."""
     var first = ScaleMul(2.0)
     var second = ScaleAdd(3.0)
@@ -266,7 +266,7 @@ fn test_composed_op_backward_multiple_passes() raises:
     assert_almost_equal(grad_input2._get_float64(0), 2.0, tolerance=1e-6)
 
 
-fn test_composed_op_forward_backward_roundtrip() raises:
+def test_composed_op_forward_backward_roundtrip() raises:
     """Test complete forward-backward pass roundtrip.
 
     Verify that forward and backward passes work together correctly.
@@ -289,7 +289,7 @@ fn test_composed_op_forward_backward_roundtrip() raises:
     assert_almost_equal(grad_input._get_float64(0), 6.0, tolerance=1e-6)
 
 
-fn test_composed_op_identity_composition() raises:
+def test_composed_op_identity_composition() raises:
     """Test composition with identity-like operations (scale by 1.0)."""
     var first = ScaleMul(1.0)
     var second = ScaleAdd(0.0)
@@ -309,7 +309,7 @@ fn test_composed_op_identity_composition() raises:
     assert_almost_equal(grad_input._get_float64(0), 1.0, tolerance=1e-6)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_composed_op tests."""
     print("Running test_composed_op tests...")
 

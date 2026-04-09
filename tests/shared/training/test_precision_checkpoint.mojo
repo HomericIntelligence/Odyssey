@@ -19,7 +19,7 @@ from tests.shared.conftest import (
 )
 from shared.training.precision_config import PrecisionConfig, PrecisionMode
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
-from collections import List
+from std.collections import List
 
 
 # ============================================================================
@@ -27,7 +27,7 @@ from collections import List
 # ============================================================================
 
 
-fn test_checkpoint_saves_precision_mode() raises:
+def test_checkpoint_saves_precision_mode() raises:
     """Test that precision mode can be serialized to string.
 
     When saving checkpoints, we need to store the precision mode
@@ -76,7 +76,7 @@ fn test_checkpoint_saves_precision_mode() raises:
 # ============================================================================
 
 
-fn test_checkpoint_loads_matching_precision() raises:
+def test_checkpoint_loads_matching_precision() raises:
     """Test that loaded precision config matches original.
 
     When resuming training, we need to ensure the precision
@@ -112,7 +112,7 @@ fn test_checkpoint_loads_matching_precision() raises:
 # ============================================================================
 
 
-fn test_checkpoint_fp16_to_fp32_promotion() raises:
+def test_checkpoint_fp16_to_fp32_promotion() raises:
     """Test weight promotion from FP16 to FP32 precision.
 
     When loading an FP16 checkpoint into FP32 training,
@@ -153,7 +153,7 @@ fn test_checkpoint_fp16_to_fp32_promotion() raises:
 # ============================================================================
 
 
-fn test_checkpoint_fp32_to_fp16_demotion() raises:
+def test_checkpoint_fp32_to_fp16_demotion() raises:
     """Test weight demotion from FP32 to FP16 precision.
 
     When loading an FP32 checkpoint into FP16 training,
@@ -195,7 +195,7 @@ fn test_checkpoint_fp32_to_fp16_demotion() raises:
 # ============================================================================
 
 
-fn test_checkpoint_gradient_scaler_state() raises:
+def test_checkpoint_gradient_scaler_state() raises:
     """Test that gradient scaler state can be saved and restored.
 
     When resuming training, the gradient scaler's scale factor
@@ -227,7 +227,7 @@ fn test_checkpoint_gradient_scaler_state() raises:
 # ============================================================================
 
 
-fn test_checkpoint_master_weights_precision() raises:
+def test_checkpoint_master_weights_precision() raises:
     """Test that master weights maintain FP32 precision.
 
     In mixed-precision training, master weights must stay in FP32
@@ -261,7 +261,7 @@ fn test_checkpoint_master_weights_precision() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all precision checkpoint tests."""
     print("=" * 60)
     print("Precision Checkpoint Tests")

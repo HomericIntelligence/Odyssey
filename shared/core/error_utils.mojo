@@ -5,7 +5,7 @@ operation context, actual vs expected values, and actionable fix suggestions.
 """
 
 
-fn format_shape(shape: List[Int]) -> String:
+def format_shape(shape: List[Int]) -> String:
     """Convert a shape list to a bracketed string representation."""
     if len(shape) == 0:
         return "[]"
@@ -19,7 +19,7 @@ fn format_shape(shape: List[Int]) -> String:
     return result
 
 
-fn format_dtype(dtype: DType) -> String:
+def format_dtype(dtype: DType) -> String:
     """Convert a DType to a readable string representation."""
     if dtype == DType.float32:
         return "float32"
@@ -51,7 +51,7 @@ fn format_dtype(dtype: DType) -> String:
         return "unknown"
 
 
-fn format_matmul_error(a_shape: List[Int], b_shape: List[Int]) -> String:
+def format_matmul_error(a_shape: List[Int], b_shape: List[Int]) -> String:
     """Create descriptive error for matmul dimension mismatches."""
     if len(a_shape) != 2 or len(b_shape) != 2:
         return (

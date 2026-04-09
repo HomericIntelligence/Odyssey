@@ -36,7 +36,7 @@ from shared.core.activation import relu
 from shared.core.pooling import maxpool2d
 
 
-fn conv_block(
+def conv_block(
     input_tensor: AnyTensor,
     out_channels: Int,
     num_convs: Int,
@@ -60,7 +60,7 @@ fn conv_block(
     return result
 
 
-fn vgg16_forward(input_tensor: AnyTensor) raises -> AnyTensor:
+def vgg16_forward(input_tensor: AnyTensor) raises -> AnyTensor:
     """Full VGG-16 forward pass: 13 conv layers + 3 FC layers."""
     var x = input_tensor
     x = conv_block(x, 64, 2)
@@ -102,7 +102,7 @@ fn vgg16_forward(input_tensor: AnyTensor) raises -> AnyTensor:
     return x
 
 
-fn make_input(batch_size: Int) raises -> AnyTensor:
+def make_input(batch_size: Int) raises -> AnyTensor:
     var s = List[Int]()
     s.append(batch_size)
     s.append(3)
@@ -111,7 +111,7 @@ fn make_input(batch_size: Int) raises -> AnyTensor:
     return ones(s, DType.float32)
 
 
-fn test_inference(batch_size: Int) raises:
+def test_inference(batch_size: Int) raises:
     """Inference test: forward pass + shape check."""
     var output = vgg16_forward(make_input(batch_size))
     var s = output.shape()
@@ -119,7 +119,7 @@ fn test_inference(batch_size: Int) raises:
         raise "bad shape"
 
 
-fn test_training_step() raises:
+def test_training_step() raises:
     """Training step: create targets with bitcast, then forward pass.
 
     This function triggers the crash because it:
@@ -143,7 +143,7 @@ fn test_training_step() raises:
         raise "bad shape"
 
 
-fn main() raises:
+def main() raises:
     # These inference tests pass fine
     print("Inference batch=4...", end="")
     test_inference(4)

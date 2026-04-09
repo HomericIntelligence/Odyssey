@@ -53,7 +53,7 @@ from shared.testing import (
 )
 
 
-fn test_simple_cnn_initialization() raises:
+def test_simple_cnn_initialization() raises:
     """Test SimpleCNN initialization with default and custom parameters."""
     # Default initialization
     var cnn_default = SimpleCNN()
@@ -68,7 +68,7 @@ fn test_simple_cnn_initialization() raises:
     assert_equal(cnn_custom.num_classes, 100)
 
 
-fn test_simple_cnn_output_shape() raises:
+def test_simple_cnn_output_shape() raises:
     """Test SimpleCNN.get_output_shape() method."""
     var cnn = SimpleCNN(1, 8, 10)
 
@@ -82,7 +82,7 @@ fn test_simple_cnn_output_shape() raises:
     assert_equal(shape_64[1], 10)
 
 
-fn test_simple_cnn_forward_pass() raises:
+def test_simple_cnn_forward_pass() raises:
     """Test SimpleCNN forward pass shape and dtype."""
     var cnn = SimpleCNN(1, 8, 10)
     var input_shape = [32, 1, 28, 28]
@@ -109,7 +109,7 @@ fn test_simple_cnn_forward_pass() raises:
     assert_true(has_nonzero, "CNN should produce non-zero output")
 
 
-fn test_simple_cnn_batch_sizes() raises:
+def test_simple_cnn_batch_sizes() raises:
     """Test SimpleCNN with different batch sizes."""
     var cnn = SimpleCNN(1, 8, 10)
 
@@ -126,7 +126,7 @@ fn test_simple_cnn_batch_sizes() raises:
         assert_equal(output._shape[1], 10)
 
 
-fn test_linear_model_initialization() raises:
+def test_linear_model_initialization() raises:
     """Test LinearModel initialization."""
     var linear = LinearModel(784, 10)
     assert_equal(linear.in_features, 784)
@@ -137,7 +137,7 @@ fn test_linear_model_initialization() raises:
     assert_equal(custom_linear.out_features, 1024)
 
 
-fn test_linear_model_output_shape() raises:
+def test_linear_model_output_shape() raises:
     """Test LinearModel.get_output_shape() method."""
     var linear = LinearModel(784, 10)
 
@@ -151,7 +151,7 @@ fn test_linear_model_output_shape() raises:
     assert_equal(shape_128[1], 10)
 
 
-fn test_linear_model_forward_pass() raises:
+def test_linear_model_forward_pass() raises:
     """Test LinearModel forward pass."""
     var linear = LinearModel(784, 10)
     var input_shape = [32, 784]
@@ -174,7 +174,7 @@ fn test_linear_model_forward_pass() raises:
         assert_equal(output._get_float64(i), 0.0)
 
 
-fn test_linear_model_batch_processing() raises:
+def test_linear_model_batch_processing() raises:
     """Test LinearModel with different batch sizes."""
     var linear = LinearModel(100, 50)
 
@@ -189,7 +189,7 @@ fn test_linear_model_batch_processing() raises:
         assert_equal(output._shape[1], 50)
 
 
-fn test_simple_mlp_initialization_1_hidden() raises:
+def test_simple_mlp_initialization_1_hidden() raises:
     """Test SimpleMLP with 1 hidden layer."""
     var mlp = SimpleMLP(10, 20, 5, num_hidden_layers=1)
     assert_equal(mlp.input_dim, 10)
@@ -206,7 +206,7 @@ fn test_simple_mlp_initialization_1_hidden() raises:
     assert_equal(len(mlp.layer3_bias), 0)
 
 
-fn test_simple_mlp_initialization_2_hidden() raises:
+def test_simple_mlp_initialization_2_hidden() raises:
     """Test SimpleMLP with 2 hidden layers."""
     var mlp = SimpleMLP(10, 20, 5, num_hidden_layers=2)
     assert_equal(mlp.input_dim, 10)
@@ -223,7 +223,7 @@ fn test_simple_mlp_initialization_2_hidden() raises:
     assert_equal(len(mlp.layer3_bias), 5)
 
 
-fn test_simple_mlp_forward_1_hidden() raises:
+def test_simple_mlp_forward_1_hidden() raises:
     """Test SimpleMLP forward pass with 1 hidden layer."""
     var mlp = SimpleMLP(10, 20, 5, num_hidden_layers=1)
 
@@ -236,7 +236,7 @@ fn test_simple_mlp_forward_1_hidden() raises:
     assert_equal(len(output), 5)
 
 
-fn test_simple_mlp_forward_2_hidden() raises:
+def test_simple_mlp_forward_2_hidden() raises:
     """Test SimpleMLP forward pass with 2 hidden layers."""
     var mlp = SimpleMLP(10, 20, 5, num_hidden_layers=2)
 
@@ -248,7 +248,7 @@ fn test_simple_mlp_forward_2_hidden() raises:
     assert_equal(len(output), 5)
 
 
-fn test_simple_mlp_forward_anytensor_1_hidden() raises:
+def test_simple_mlp_forward_anytensor_1_hidden() raises:
     """Test SimpleMLP AnyTensor forward pass with 1 hidden layer."""
     var mlp = SimpleMLP(10, 20, 5, num_hidden_layers=1)
     var input_shape = [10]
@@ -266,7 +266,7 @@ fn test_simple_mlp_forward_anytensor_1_hidden() raises:
     )
 
 
-fn test_simple_mlp_forward_anytensor_2_hidden() raises:
+def test_simple_mlp_forward_anytensor_2_hidden() raises:
     """Test SimpleMLP AnyTensor forward pass with 2 hidden layers."""
     var mlp = SimpleMLP(10, 20, 5, num_hidden_layers=2)
     var input_shape = [10]
@@ -279,7 +279,7 @@ fn test_simple_mlp_forward_anytensor_2_hidden() raises:
     assert_equal(output._shape[0], 5)
 
 
-fn test_simple_mlp_num_parameters_1_hidden() raises:
+def test_simple_mlp_num_parameters_1_hidden() raises:
     """Test SimpleMLP parameter count with 1 hidden layer."""
     var mlp = SimpleMLP(10, 20, 5, num_hidden_layers=1)
     # Layer1: 10*20 weights + 20 bias = 220
@@ -288,7 +288,7 @@ fn test_simple_mlp_num_parameters_1_hidden() raises:
     assert_equal(mlp.num_parameters(), 325)
 
 
-fn test_simple_mlp_num_parameters_2_hidden() raises:
+def test_simple_mlp_num_parameters_2_hidden() raises:
     """Test SimpleMLP parameter count with 2 hidden layers."""
     var mlp = SimpleMLP(10, 20, 5, num_hidden_layers=2)
     # Layer1: 10*20 weights + 20 bias = 220
@@ -298,7 +298,7 @@ fn test_simple_mlp_num_parameters_2_hidden() raises:
     assert_equal(mlp.num_parameters(), 745)
 
 
-fn test_simple_mlp_get_weights() raises:
+def test_simple_mlp_get_weights() raises:
     """Test SimpleMLP.get_weights() method."""
     var mlp = SimpleMLP(10, 20, 5, num_hidden_layers=1)
     var weights = mlp.get_weights()
@@ -308,7 +308,7 @@ fn test_simple_mlp_get_weights() raises:
     assert_equal(weights.numel(), expected_size)
 
 
-fn test_simple_mlp_parameters() raises:
+def test_simple_mlp_parameters() raises:
     """Test SimpleMLP.parameters() method."""
     var mlp = SimpleMLP(10, 20, 5, num_hidden_layers=1)
     var params = mlp.parameters()
@@ -323,7 +323,7 @@ fn test_simple_mlp_parameters() raises:
     assert_equal(params[3].numel(), 5)  # b2
 
 
-fn test_simple_mlp_state_dict_1_hidden() raises:
+def test_simple_mlp_state_dict_1_hidden() raises:
     """Test SimpleMLP.state_dict() with 1 hidden layer."""
     var mlp = SimpleMLP(10, 20, 5, num_hidden_layers=1)
     var state = mlp.state_dict()
@@ -332,7 +332,7 @@ fn test_simple_mlp_state_dict_1_hidden() raises:
     assert_equal(len(state), 4)
 
 
-fn test_simple_mlp_state_dict_2_hidden() raises:
+def test_simple_mlp_state_dict_2_hidden() raises:
     """Test SimpleMLP.state_dict() with 2 hidden layers."""
     var mlp = SimpleMLP(10, 20, 5, num_hidden_layers=2)
     var state = mlp.state_dict()
@@ -341,14 +341,14 @@ fn test_simple_mlp_state_dict_2_hidden() raises:
     assert_equal(len(state), 6)
 
 
-fn test_simple_mlp_zero_grad() raises:
+def test_simple_mlp_zero_grad() raises:
     """Test SimpleMLP.zero_grad() method."""
     var mlp = SimpleMLP(10, 20, 5)
     # This should not raise
     mlp.zero_grad()
 
 
-fn test_mock_layer_initialization() raises:
+def test_mock_layer_initialization() raises:
     """Test MockLayer initialization."""
     var layer = MockLayer(10, 5)
     assert_equal(layer.input_dim, 10)
@@ -359,7 +359,7 @@ fn test_mock_layer_initialization() raises:
     assert_equal(scaled_layer.scale, 2.0)
 
 
-fn test_mock_layer_forward_truncate() raises:
+def test_mock_layer_forward_truncate() raises:
     """Test MockLayer forward pass with truncation."""
     var layer = MockLayer(10, 5, scale=1.0)
 
@@ -374,7 +374,7 @@ fn test_mock_layer_forward_truncate() raises:
         assert_equal(output[i], Float32(i))
 
 
-fn test_mock_layer_forward_pad() raises:
+def test_mock_layer_forward_pad() raises:
     """Test MockLayer forward pass with padding."""
     var layer = MockLayer(5, 10, scale=1.0)
 
@@ -393,7 +393,7 @@ fn test_mock_layer_forward_pad() raises:
         assert_equal(output[i], 0.0)
 
 
-fn test_mock_layer_forward_scale() raises:
+def test_mock_layer_forward_scale() raises:
     """Test MockLayer forward pass with scaling."""
     var layer = MockLayer(5, 5, scale=2.0)
 
@@ -408,7 +408,7 @@ fn test_mock_layer_forward_scale() raises:
         assert_equal(output[i], 2.0)
 
 
-fn test_mock_layer_num_parameters() raises:
+def test_mock_layer_num_parameters() raises:
     """Test MockLayer.num_parameters() method."""
     var layer = MockLayer(10, 5)
     assert_equal(layer.num_parameters(), 50)
@@ -417,7 +417,7 @@ fn test_mock_layer_num_parameters() raises:
     assert_equal(layer2.num_parameters(), 300)
 
 
-fn test_simple_linear_model_initialization() raises:
+def test_simple_linear_model_initialization() raises:
     """Test SimpleLinearModel initialization."""
     var model = SimpleLinearModel(10, 5)
     assert_equal(model.input_dim, 10)
@@ -431,7 +431,7 @@ fn test_simple_linear_model_initialization() raises:
     assert_equal(len(model_no_bias.bias), 0)
 
 
-fn test_simple_linear_model_custom_init_value() raises:
+def test_simple_linear_model_custom_init_value() raises:
     """Test SimpleLinearModel with custom init value."""
     var model = SimpleLinearModel(10, 5, use_bias=True, init_value=0.5)
 
@@ -442,7 +442,7 @@ fn test_simple_linear_model_custom_init_value() raises:
         assert_equal(model.bias[i], 0.5)
 
 
-fn test_simple_linear_model_forward() raises:
+def test_simple_linear_model_forward() raises:
     """Test SimpleLinearModel forward pass."""
     var model = SimpleLinearModel(10, 5, init_value=0.1)
 
@@ -461,7 +461,7 @@ fn test_simple_linear_model_forward() raises:
         assert_close_float(Float64(output[i]), expected)
 
 
-fn test_simple_linear_model_no_bias() raises:
+def test_simple_linear_model_no_bias() raises:
     """Test SimpleLinearModel without bias."""
     var model = SimpleLinearModel(10, 5, use_bias=False, init_value=0.1)
 
@@ -479,7 +479,7 @@ fn test_simple_linear_model_no_bias() raises:
         assert_close_float(Float64(output[i]), expected)
 
 
-fn test_simple_linear_model_num_parameters() raises:
+def test_simple_linear_model_num_parameters() raises:
     """Test SimpleLinearModel parameter counting."""
     var model_with_bias = SimpleLinearModel(10, 5, use_bias=True)
     assert_equal(model_with_bias.num_parameters(), 55)  # 50 + 5
@@ -488,7 +488,7 @@ fn test_simple_linear_model_num_parameters() raises:
     assert_equal(model_no_bias.num_parameters(), 50)  # 50 only
 
 
-fn test_parameter_initialization() raises:
+def test_parameter_initialization() raises:
     """Test Parameter initialization."""
     var shape = [10, 5]
 
@@ -506,7 +506,7 @@ fn test_parameter_initialization() raises:
         assert_equal(param.grad._get_float64(i), 0.0)
 
 
-fn test_parameter_shape() raises:
+def test_parameter_shape() raises:
     """Test Parameter.shape() method."""
     var shape = [20, 15]
 
@@ -519,7 +519,7 @@ fn test_parameter_shape() raises:
     assert_equal(param_shape[1], 15)
 
 
-fn test_create_test_cnn() raises:
+def test_create_test_cnn() raises:
     """Test create_test_cnn factory function."""
     # Default parameters
     var cnn1 = create_test_cnn()
@@ -534,7 +534,7 @@ fn test_create_test_cnn() raises:
     assert_equal(cnn2.num_classes, 100)
 
 
-fn test_create_linear_model() raises:
+def test_create_linear_model() raises:
     """Test create_linear_model factory function."""
     # Default parameters
     var linear1 = create_linear_model()
@@ -547,7 +547,7 @@ fn test_create_linear_model() raises:
     assert_equal(linear2.out_features, 1024)
 
 
-fn test_multiple_models_forward() raises:
+def test_multiple_models_forward() raises:
     """Test multiple models in sequence."""
     # Create models
     var cnn = create_test_cnn(1, 8, 10)
@@ -571,7 +571,7 @@ fn test_multiple_models_forward() raises:
     assert_equal(linear_output._shape[1], 10)
 
 
-fn test_mlp_with_different_configs() raises:
+def test_mlp_with_different_configs() raises:
     """Test MLP with various configurations."""
     # Small MLP
     var mlp_small = SimpleMLP(5, 10, 2, num_hidden_layers=1)
@@ -587,7 +587,7 @@ fn test_mlp_with_different_configs() raises:
     assert_equal(mlp_minimal.num_parameters(), 1 * 1 + 1 + 1 * 1 + 1)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_test_models tests."""
     print("Running test_test_models tests...")
 

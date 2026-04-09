@@ -11,7 +11,7 @@ from shared.core.layers import ReLULayer
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 
 
-fn test_relu_forward_basic() raises:
+def test_relu_forward_basic() raises:
     """Test ReLU forward pass with basic inputs."""
     var layer = ReLULayer()
 
@@ -34,7 +34,7 @@ fn test_relu_forward_basic() raises:
     print("✓ test_relu_forward_basic passed")
 
 
-fn test_relu_forward_all_negative() raises:
+def test_relu_forward_all_negative() raises:
     """Test ReLU forward pass with all negative inputs."""
     var layer = ReLULayer()
 
@@ -53,7 +53,7 @@ fn test_relu_forward_all_negative() raises:
     print("✓ test_relu_forward_all_negative passed")
 
 
-fn test_relu_forward_all_positive() raises:
+def test_relu_forward_all_positive() raises:
     """Test ReLU forward pass with all positive inputs."""
     var layer = ReLULayer()
 
@@ -74,7 +74,7 @@ fn test_relu_forward_all_positive() raises:
     print("✓ test_relu_forward_all_positive passed")
 
 
-fn test_relu_forward_batch() raises:
+def test_relu_forward_batch() raises:
     """Test ReLU forward pass with 2D batch input."""
     var layer = ReLULayer()
 
@@ -94,7 +94,7 @@ fn test_relu_forward_batch() raises:
     print("✓ test_relu_forward_batch passed")
 
 
-fn test_relu_backward_basic() raises:
+def test_relu_backward_basic() raises:
     """Test ReLU backward pass with basic inputs."""
     var layer = ReLULayer()
 
@@ -124,7 +124,7 @@ fn test_relu_backward_basic() raises:
     print("✓ test_relu_backward_basic passed")
 
 
-fn test_relu_backward_all_positive() raises:
+def test_relu_backward_all_positive() raises:
     """Test ReLU backward pass with all positive inputs."""
     var layer = ReLULayer()
 
@@ -151,7 +151,7 @@ fn test_relu_backward_all_positive() raises:
     print("✓ test_relu_backward_all_positive passed")
 
 
-fn test_relu_backward_all_negative() raises:
+def test_relu_backward_all_negative() raises:
     """Test ReLU backward pass with all negative inputs."""
     var layer = ReLULayer()
 
@@ -175,7 +175,7 @@ fn test_relu_backward_all_negative() raises:
     print("✓ test_relu_backward_all_negative passed")
 
 
-fn test_relu_parameters() raises:
+def test_relu_parameters() raises:
     """Test that ReLU has no learnable parameters."""
     var layer = ReLULayer()
     var params = layer.parameters()
@@ -184,7 +184,7 @@ fn test_relu_parameters() raises:
     print("✓ test_relu_parameters passed")
 
 
-fn test_relu_forward_float64() raises:
+def test_relu_forward_float64() raises:
     """Test ReLU forward pass with float64 dtype."""
     var layer = ReLULayer()
 
@@ -206,7 +206,7 @@ fn test_relu_forward_float64() raises:
     print("✓ test_relu_forward_float64 passed")
 
 
-fn test_relu_backward_float64() raises:
+def test_relu_backward_float64() raises:
     """Test ReLU backward pass with float64 dtype."""
     var layer = ReLULayer()
 
@@ -233,7 +233,7 @@ fn test_relu_backward_float64() raises:
     print("✓ test_relu_backward_float64 passed")
 
 
-fn main():
+def main():
     """Run all ReLU tests."""
     print("Running ReLULayer tests...")
     try:

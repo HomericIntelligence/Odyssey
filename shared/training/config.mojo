@@ -93,7 +93,7 @@ struct TrainingConfig:
     var log_interval: Int
     """Log progress every N batches."""
 
-    fn __init__(
+    def __init__(
         out self,
         epochs: Int,
         batch_size: Int,
@@ -135,7 +135,7 @@ struct TrainingConfig:
         self.log_interval = log_interval
 
     @staticmethod
-    fn for_lenet5() -> TrainingConfig:
+    def for_lenet5() -> TrainingConfig:
         """Create configuration for LeNet-5 on EMNIST.
 
         LeNet-5 on EMNIST dataset configuration:
@@ -163,7 +163,7 @@ struct TrainingConfig:
         )
 
     @staticmethod
-    fn for_cifar10() -> TrainingConfig:
+    def for_cifar10() -> TrainingConfig:
         """Create configuration for CIFAR-10 models.
 
         Standard CIFAR-10 training configuration (used for AlexNet, VGG-16, etc.):
@@ -192,7 +192,7 @@ struct TrainingConfig:
             log_interval=100,
         )
 
-    fn should_validate(self, epoch: Int) -> Bool:
+    def should_validate(self, epoch: Int) -> Bool:
         """Check if validation should run this epoch.
 
         Args:
@@ -203,7 +203,7 @@ struct TrainingConfig:
         """
         return (epoch + 1) % self.validate_every == 0
 
-    fn should_checkpoint(self, epoch: Int) -> Bool:
+    def should_checkpoint(self, epoch: Int) -> Bool:
         """Check if checkpoint should be saved this epoch.
 
         Args:
@@ -217,7 +217,7 @@ struct TrainingConfig:
             return False
         return (epoch + 1) % self.checkpoint_every == 0
 
-    fn to_string(self) -> String:
+    def to_string(self) -> String:
         """Format configuration as human-readable string.
 
         Returns:

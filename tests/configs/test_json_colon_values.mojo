@@ -14,7 +14,7 @@ from shared.utils.config import Config, load_config
 # ============================================================================
 
 
-fn test_json_with_url_values() raises:
+def test_json_with_url_values() raises:
     """Test loading JSON with URL values containing colons.
 
     Verifies that URLs like "http://example.com" are parsed correctly
@@ -39,7 +39,7 @@ fn test_json_with_url_values() raises:
     print("✓ test_json_with_url_values passed")
 
 
-fn test_json_with_database_url() raises:
+def test_json_with_database_url() raises:
     """Test loading JSON with database connection URL.
 
     Verifies that PostgreSQL URLs with multiple colons are parsed correctly.
@@ -56,7 +56,7 @@ fn test_json_with_database_url() raises:
     print("✓ test_json_with_database_url passed")
 
 
-fn test_json_with_time_values() raises:
+def test_json_with_time_values() raises:
     """Test loading JSON with time values containing colons.
 
     Verifies that time strings like "12:30:45" are preserved.
@@ -69,7 +69,7 @@ fn test_json_with_time_values() raises:
     print("✓ test_json_with_time_values passed")
 
 
-fn test_json_numeric_values_still_work() raises:
+def test_json_numeric_values_still_work() raises:
     """Test that numeric values are still correctly parsed.
 
     Verifies that the fix doesn't break number parsing.
@@ -90,7 +90,7 @@ fn test_json_numeric_values_still_work() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all JSON colon-value tests."""
     print("\n" + "=" * 70)
     print("Running JSON Colon-Value Tests (Issue #2128)")

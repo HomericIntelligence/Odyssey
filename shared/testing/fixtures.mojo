@@ -16,14 +16,14 @@ Example:
     from shared.testing.fixtures import create_test_cnn, create_linear_model
     from shared.core import zeros, ones
 
-    fn test_forward_pass():
+    def test_forward_pass():
         var model = create_test_cnn(1, 8, 10)
         var batch_size = 32
         var input_shape : List[Int] = [batch_size, 1, 28, 28]
         var input = ones(input_shape, DType.float32)
         # Test forward pass...
 
-    fn test_linear_output_shape():
+    def test_linear_output_shape():
         var model = create_linear_model(784, 10)
         assert_equal(model.in_features, 784)
         assert_equal(model.out_features, 10)
@@ -34,7 +34,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, zeros_like
 from shared.testing.models import SimpleCNN, LinearModel
 
 
-fn create_test_cnn(
+def create_test_cnn(
     in_channels: Int = 1, out_channels: Int = 8, num_classes: Int = 10
 ) -> SimpleCNN:
     """Factory function to create test CNN models.
@@ -62,7 +62,7 @@ fn create_test_cnn(
     return SimpleCNN(in_channels, out_channels, num_classes)
 
 
-fn create_linear_model(
+def create_linear_model(
     in_features: Int = 784, out_features: Int = 10
 ) -> LinearModel:
     """Create a simple linear test model.
@@ -89,7 +89,7 @@ fn create_linear_model(
     return LinearModel(in_features, out_features)
 
 
-fn create_test_input(
+def create_test_input(
     batch_size: Int, in_features: Int, dtype: DType = DType.float32
 ) raises -> AnyTensor:
     """Create a test input tensor for linear models.
@@ -120,7 +120,7 @@ fn create_test_input(
     return ones(shape, dtype)
 
 
-fn create_test_targets(
+def create_test_targets(
     batch_size: Int, num_classes: Int, dtype: DType = DType.int32
 ) raises -> AnyTensor:
     """Create a test target tensor for classification.
@@ -149,7 +149,7 @@ fn create_test_targets(
     return zeros(shape, dtype)
 
 
-fn assert_tensor_shape(tensor: AnyTensor, expected_shape: List[Int]) -> Bool:
+def assert_tensor_shape(tensor: AnyTensor, expected_shape: List[Int]) -> Bool:
     """Validate tensor has expected shape.
 
     Args:
@@ -175,7 +175,7 @@ fn assert_tensor_shape(tensor: AnyTensor, expected_shape: List[Int]) -> Bool:
     return True
 
 
-fn assert_tensor_dtype(tensor: AnyTensor, expected_dtype: DType) -> Bool:
+def assert_tensor_dtype(tensor: AnyTensor, expected_dtype: DType) -> Bool:
     """Validate tensor has expected data type.
 
     Args:
@@ -194,7 +194,7 @@ fn assert_tensor_dtype(tensor: AnyTensor, expected_dtype: DType) -> Bool:
     return tensor._dtype == expected_dtype
 
 
-fn assert_tensor_all_finite(tensor: AnyTensor) -> Bool:
+def assert_tensor_all_finite(tensor: AnyTensor) -> Bool:
     """Check if all tensor values are finite (no NaN or Inf).
 
     Args:
@@ -221,7 +221,7 @@ fn assert_tensor_all_finite(tensor: AnyTensor) -> Bool:
     return True
 
 
-fn assert_tensor_not_all_zeros(tensor: AnyTensor) -> Bool:
+def assert_tensor_not_all_zeros(tensor: AnyTensor) -> Bool:
     """Check if tensor contains at least one non-zero value.
 
         Useful for verifying weights are initialized and gradients are flowing.

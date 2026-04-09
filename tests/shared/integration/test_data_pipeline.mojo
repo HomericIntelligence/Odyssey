@@ -22,7 +22,7 @@ from tests.shared.conftest import (
 # ============================================================================
 
 
-fn test_data_loading_basic() raises:
+def test_data_loading_basic() raises:
     """Test basic data loading functionality.
 
     Integration Points:
@@ -39,7 +39,7 @@ fn test_data_loading_basic() raises:
     pass
 
 
-fn test_data_transformation_pipeline() raises:
+def test_data_transformation_pipeline() raises:
     """Test data transformation pipeline.
 
     Integration Points:
@@ -56,7 +56,7 @@ fn test_data_transformation_pipeline() raises:
     pass
 
 
-fn test_data_batching_and_shuffling() raises:
+def test_data_batching_and_shuffling() raises:
     """Test data batching with shuffling.
 
     Integration Points:
@@ -73,7 +73,7 @@ fn test_data_batching_and_shuffling() raises:
     pass
 
 
-fn test_data_pipeline_memory_efficiency() raises:
+def test_data_pipeline_memory_efficiency() raises:
     """Test memory efficiency of data pipeline.
 
     Integration Points:
@@ -95,7 +95,7 @@ fn test_data_pipeline_memory_efficiency() raises:
 # ============================================================================
 
 
-fn test_dataset_creation() raises:
+def test_dataset_creation() raises:
     """Test dataset creation from various sources.
 
     Integration Points:
@@ -112,7 +112,7 @@ fn test_dataset_creation() raises:
     pass
 
 
-fn test_dataset_splits() raises:
+def test_dataset_splits() raises:
     """Test train/val/test dataset splitting.
 
     Integration Points:
@@ -134,7 +134,7 @@ fn test_dataset_splits() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all data pipeline integration tests."""
     print("Running data loading tests...")
     test_data_loading_basic()

@@ -28,7 +28,7 @@ from shared.training.model_utils import (
     load_model_weights,
     get_model_parameter_names,
 )
-from collections import List
+from std.collections import List
 
 
 # ============================================================================
@@ -68,7 +68,7 @@ comptime POOL2_PADDING = 0
 comptime FC1_OUT_FEATURES = 120
 
 
-fn compute_flattened_size() -> Int:
+def compute_flattened_size() -> Int:
     """Compute the flattened feature size after all conv/pool layers.
 
     This derives the FC1 input dimension from the architecture hyperparameters.
@@ -137,7 +137,7 @@ struct SimpleCNN(Model, Movable):
     var fc2_weights: AnyTensor
     var fc2_bias: AnyTensor
 
-    fn __init__(out self) raises:
+    def __init__(out self) raises:
         """Initialize Simple CNN model with random weights."""
         # Compute derived dimensions
         var flattened_size = compute_flattened_size()
@@ -196,7 +196,7 @@ struct SimpleCNN(Model, Movable):
         var fc2_bias_shape: List[Int] = [10]
         self.fc2_bias = zeros(fc2_bias_shape, DType.float32)
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass through Simple CNN.
 
         Args:
@@ -254,7 +254,7 @@ struct SimpleCNN(Model, Movable):
 
         return output^
 
-    fn predict(mut self, input: AnyTensor) raises -> Int:
+    def predict(mut self, input: AnyTensor) raises -> Int:
         """Predict class for a single input.
 
         Args:
@@ -277,7 +277,7 @@ struct SimpleCNN(Model, Movable):
 
         return max_idx
 
-    fn save_weights(self, weights_dir: String) raises:
+    def save_weights(self, weights_dir: String) raises:
         """Save model weights to directory.
 
         Args:
@@ -306,7 +306,7 @@ struct SimpleCNN(Model, Movable):
         # Save using shared utility
         save_model_weights(parameters, weights_dir, param_names)
 
-    fn load_weights(mut self, weights_dir: String) raises:
+    def load_weights(mut self, weights_dir: String) raises:
         """Load model weights from directory.
 
         Args:
@@ -334,7 +334,7 @@ struct SimpleCNN(Model, Movable):
         self.fc2_weights = loaded_params[6]
         self.fc2_bias = loaded_params[7]
 
-    fn update_parameters(
+    def update_parameters(
         mut self,
         learning_rate: Float32,
         grad_conv1_kernel: AnyTensor,
@@ -369,7 +369,7 @@ struct SimpleCNN(Model, Movable):
         _sgd_update(self.fc2_weights, grad_fc2_weights, learning_rate)
         _sgd_update(self.fc2_bias, grad_fc2_bias, learning_rate)
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Return all trainable parameters.
 
         Returns:
@@ -390,7 +390,7 @@ struct SimpleCNN(Model, Movable):
         params.append(self.fc2_bias)
         return params^
 
-    fn zero_grad(mut self) raises:
+    def zero_grad(mut self) raises:
         """Reset all parameter gradients to zero.
 
         Note:
@@ -403,7 +403,7 @@ struct SimpleCNN(Model, Movable):
         pass
 
 
-fn _sgd_update(mut param: AnyTensor, grad: AnyTensor, lr: Float32) raises:
+def _sgd_update(mut param: AnyTensor, grad: AnyTensor, lr: Float32) raises:
     """SGD parameter update: param = param - lr * grad"""
     var numel = param.numel()
     var param_data = param._data.bitcast[Float32]()

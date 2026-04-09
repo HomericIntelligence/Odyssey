@@ -3,12 +3,12 @@
 Internal module -- not part of the public API.
 """
 
-from collections import List
+from std.collections import List
 from shared.tensor.tensor import Tensor
 from shared.tensor.any_tensor import AnyTensor
 
 
-fn _extract_quadrants_typed[
+def _extract_quadrants_typed[
     dtype: DType
 ](
     src: Tensor[dtype], n: Int, n_half: Int
@@ -47,7 +47,7 @@ fn _extract_quadrants_typed[
     return (q11^, q12^, q21^, q22^)
 
 
-fn _combine_quadrants_typed[
+def _combine_quadrants_typed[
     dtype: DType
 ](
     c11: Tensor[dtype],
@@ -86,7 +86,7 @@ fn _combine_quadrants_typed[
     return result^
 
 
-fn _matmul_strassen_copy_result[
+def _matmul_strassen_copy_result[
     dtype: DType
 ](src: AnyTensor, mut dst: AnyTensor, m: Int, n: Int) raises:
     """Copy Strassen result using typed pointers (zero bitcasts)."""

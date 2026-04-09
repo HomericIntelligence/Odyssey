@@ -23,7 +23,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.training.optimizers.rmsprop import rmsprop_step, rmsprop_step_simple
 
 
-fn test_rmsprop_step_shapes() raises:
+def test_rmsprop_step_shapes() raises:
     """Test that rmsprop_step returns correct shapes."""
     var shape = List[Int]()
     shape.append(4)
@@ -57,7 +57,7 @@ fn test_rmsprop_step_shapes() raises:
     assert_equal(new_square_avg.shape()[1], 10)
 
 
-fn test_rmsprop_simple_shapes() raises:
+def test_rmsprop_simple_shapes() raises:
     """Test that rmsprop_step_simple returns correct shapes."""
     var shape = List[Int]()
     shape.append(4)
@@ -85,7 +85,7 @@ fn test_rmsprop_simple_shapes() raises:
     assert_equal(new_square_avg.shape()[1], 10)
 
 
-fn test_rmsprop_step_parameter_update() raises:
+def test_rmsprop_step_parameter_update() raises:
     """Test that rmsprop_step updates parameters correctly."""
     var shape = List[Int]()
     shape.append(1)
@@ -134,7 +134,7 @@ fn test_rmsprop_step_parameter_update() raises:
     )
 
 
-fn test_rmsprop_simple_parameter_update() raises:
+def test_rmsprop_simple_parameter_update() raises:
     """Test that rmsprop_step_simple updates parameters correctly."""
     var shape = List[Int]()
     shape.append(1)
@@ -165,7 +165,7 @@ fn test_rmsprop_simple_parameter_update() raises:
     )
 
 
-fn test_rmsprop_square_avg_accumulation() raises:
+def test_rmsprop_square_avg_accumulation() raises:
     """Test that square_avg accumulates correctly over multiple steps."""
     var shape = List[Int]()
     shape.append(1)
@@ -226,7 +226,7 @@ fn test_rmsprop_square_avg_accumulation() raises:
     )
 
 
-fn test_rmsprop_with_momentum() raises:
+def test_rmsprop_with_momentum() raises:
     """Test rmsprop with momentum."""
     var shape = List[Int]()
     shape.append(1)
@@ -283,7 +283,7 @@ fn test_rmsprop_with_momentum() raises:
     )
 
 
-fn test_rmsprop_with_weight_decay() raises:
+def test_rmsprop_with_weight_decay() raises:
     """Test rmsprop with weight decay."""
     var shape = List[Int]()
     shape.append(1)
@@ -314,7 +314,7 @@ fn test_rmsprop_with_weight_decay() raises:
     assert_true(new_params._data.bitcast[Float32]()[0] < 1.0)
 
 
-fn test_rmsprop_zero_gradient() raises:
+def test_rmsprop_zero_gradient() raises:
     """Test that rmsprop handles zero gradients correctly."""
     var shape = List[Int]()
     shape.append(1)
@@ -345,7 +345,7 @@ fn test_rmsprop_zero_gradient() raises:
     )
 
 
-fn test_rmsprop_alpha_parameter() raises:
+def test_rmsprop_alpha_parameter() raises:
     """Test that alpha parameter controls averaging."""
     var shape = List[Int]()
     shape.append(1)
@@ -396,7 +396,7 @@ fn test_rmsprop_alpha_parameter() raises:
     )
 
 
-fn test_rmsprop_epsilon_prevents_division_by_zero() raises:
+def test_rmsprop_epsilon_prevents_division_by_zero() raises:
     """Test that epsilon prevents division by zero."""
     var shape = List[Int]()
     shape.append(1)
@@ -427,7 +427,7 @@ fn test_rmsprop_epsilon_prevents_division_by_zero() raises:
     assert_true(val > -1e10 and val < 1e10)  # Not infinite
 
 
-fn test_rmsprop_batch_update() raises:
+def test_rmsprop_batch_update() raises:
     """Test rmsprop with batch of parameters."""
     var shape = List[Int]()
     shape.append(10)
@@ -470,7 +470,7 @@ fn test_rmsprop_batch_update() raises:
     assert_true(all_different)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_rmsprop tests."""
     print("Running test_rmsprop tests...")
 

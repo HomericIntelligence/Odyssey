@@ -8,7 +8,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 
-fn test_iadd_basic() raises:
+def test_iadd_basic() raises:
     """Test __iadd__: in-place addition tensor += other."""
     var a = full([2, 3], 2.0, DType.float32)
     var b = full([2, 3], 3.0, DType.float32)
@@ -17,7 +17,7 @@ fn test_iadd_basic() raises:
         assert_almost_equal(Float64(a._get_float32(i)), 5.0, tolerance=1e-6)
 
 
-fn test_isub_basic() raises:
+def test_isub_basic() raises:
     """Test __isub__: in-place subtraction tensor -= other."""
     var a = full([2, 3], 5.0, DType.float32)
     var b = full([2, 3], 2.0, DType.float32)
@@ -26,7 +26,7 @@ fn test_isub_basic() raises:
         assert_almost_equal(Float64(a._get_float32(i)), 3.0, tolerance=1e-6)
 
 
-fn test_imul_basic() raises:
+def test_imul_basic() raises:
     """Test __imul__: in-place multiplication tensor *= other."""
     var a = full([2, 3], 2.0, DType.float32)
     var b = full([2, 3], 3.0, DType.float32)
@@ -35,7 +35,7 @@ fn test_imul_basic() raises:
         assert_almost_equal(Float64(a._get_float32(i)), 6.0, tolerance=1e-6)
 
 
-fn test_itruediv_basic() raises:
+def test_itruediv_basic() raises:
     """Test __itruediv__: in-place division tensor /= other."""
     var a = full([2, 3], 8.0, DType.float32)
     var b = full([2, 3], 2.0, DType.float32)
@@ -44,7 +44,7 @@ fn test_itruediv_basic() raises:
         assert_almost_equal(Float64(a._get_float32(i)), 4.0, tolerance=1e-6)
 
 
-fn test_inplace_operators_chain() raises:
+def test_inplace_operators_chain() raises:
     """Test chaining multiple in-place operators."""
     var a = full([2, 2], 10.0, DType.float32)
     var b = full([2, 2], 2.0, DType.float32)
@@ -55,7 +55,7 @@ fn test_inplace_operators_chain() raises:
         assert_almost_equal(Float64(a._get_float32(i)), 15.0, tolerance=1e-6)
 
 
-fn main() raises:
+def main() raises:
     """Run in-place operator tests."""
     test_iadd_basic()
     test_isub_basic()

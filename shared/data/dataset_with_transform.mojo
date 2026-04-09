@@ -47,7 +47,7 @@ struct TransformedDataset[
     var transform: Self.T
     """Transform to apply to data."""
 
-    fn __init__(out self, var dataset: Self.D, var transform: Self.T):
+    def __init__(out self, var dataset: Self.D, var transform: Self.T):
         """Create a transformed dataset.
 
         Args:
@@ -57,7 +57,7 @@ struct TransformedDataset[
         self.dataset = dataset^
         self.transform = transform^
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return the number of samples in the dataset.
 
         Returns:
@@ -65,7 +65,7 @@ struct TransformedDataset[
         """
         return self.dataset.__len__()
 
-    fn __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
+    def __getitem__(self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get a sample with transform applied.
 
         The transform is applied to the data but not the labels.

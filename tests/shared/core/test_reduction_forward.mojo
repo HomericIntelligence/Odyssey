@@ -19,7 +19,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_sum_all_ones() raises:
+def test_sum_all_ones() raises:
     """Test sum of all ones."""
     var shape = List[Int]()
     shape.append(10)
@@ -31,7 +31,7 @@ fn test_sum_all_ones() raises:
     assert_value_at(b, 0, 10.0, 1e-6, "Sum of 10 ones should be 10.0")
 
 
-fn test_sum_2d_tensor() raises:
+def test_sum_2d_tensor() raises:
     """Test sum of 2D tensor."""
     var shape = List[Int]()
     shape.append(3)
@@ -43,7 +43,7 @@ fn test_sum_2d_tensor() raises:
     assert_value_at(b, 0, 24.0, 1e-6, "Sum of 12 twos should be 24.0")
 
 
-fn test_sum_arange() raises:
+def test_sum_arange() raises:
     """Test sum of range [0, 1, 2, 3, 4]."""
     var a = arange(0.0, 5.0, 1.0, DType.float32)
     var b = sum(a)
@@ -52,7 +52,7 @@ fn test_sum_arange() raises:
     assert_value_at(b, 0, 10.0, 1e-6, "Sum of [0,1,2,3,4] should be 10.0")
 
 
-fn test_sum_with_keepdims() raises:
+def test_sum_with_keepdims() raises:
     """Test sum with keepdims=True."""
     var shape = List[Int]()
     shape.append(3)
@@ -65,7 +65,7 @@ fn test_sum_with_keepdims() raises:
     assert_value_at(b, 0, 12.0, 1e-6, "Sum should still be 12.0")
 
 
-fn test_sum_preserves_dtype() raises:
+def test_sum_preserves_dtype() raises:
     """Test that sum preserves dtype."""
     var shape = List[Int]()
     shape.append(5)
@@ -76,7 +76,7 @@ fn test_sum_preserves_dtype() raises:
     assert_value_at(b, 0, 5.0, 1e-10, "Sum of 5 ones should be 5.0")
 
 
-fn test_mean_all_ones() raises:
+def test_mean_all_ones() raises:
     """Test mean of all ones."""
     var shape = List[Int]()
     shape.append(10)
@@ -87,7 +87,7 @@ fn test_mean_all_ones() raises:
     assert_value_at(b, 0, 1.0, 1e-6, "Mean of ones should be 1.0")
 
 
-fn test_mean_2d_tensor() raises:
+def test_mean_2d_tensor() raises:
     """Test mean of 2D tensor."""
     var shape = List[Int]()
     shape.append(3)
@@ -99,7 +99,7 @@ fn test_mean_2d_tensor() raises:
     assert_value_at(b, 0, 5.0, 1e-6, "Mean of all 5s should be 5.0")
 
 
-fn test_mean_arange() raises:
+def test_mean_arange() raises:
     """Test mean of range [0, 1, 2, 3, 4]."""
     var a = arange(0.0, 5.0, 1.0, DType.float32)
     var b = mean(a)
@@ -108,7 +108,7 @@ fn test_mean_arange() raises:
     assert_value_at(b, 0, 2.0, 1e-6, "Mean of [0,1,2,3,4] should be 2.0")
 
 
-fn test_mean_with_keepdims() raises:
+def test_mean_with_keepdims() raises:
     """Test mean with keepdims=True."""
     var shape = List[Int]()
     shape.append(2)
@@ -121,7 +121,7 @@ fn test_mean_with_keepdims() raises:
     assert_value_at(b, 0, 6.0, 1e-6, "Mean should be 6.0")
 
 
-fn test_mean_preserves_dtype() raises:
+def test_mean_preserves_dtype() raises:
     """Test that mean preserves dtype."""
     var shape = List[Int]()
     shape.append(4)
@@ -132,7 +132,7 @@ fn test_mean_preserves_dtype() raises:
     assert_value_at(b, 0, 8.0, 1e-10, "Mean of all 8s should be 8.0")
 
 
-fn test_max_all_same() raises:
+def test_max_all_same() raises:
     """Test max of all same values."""
     var shape = List[Int]()
     shape.append(10)
@@ -143,7 +143,7 @@ fn test_max_all_same() raises:
     assert_value_at(b, 0, 7.0, 1e-6, "Max of all 7s should be 7.0")
 
 
-fn test_max_arange() raises:
+def test_max_arange() raises:
     """Test max of range [0, 1, 2, 3, 4]."""
     var a = arange(0.0, 5.0, 1.0, DType.float32)
     var b = max_reduce(a)
@@ -151,7 +151,7 @@ fn test_max_arange() raises:
     assert_value_at(b, 0, 4.0, 1e-6, "Max of [0,1,2,3,4] should be 4.0")
 
 
-fn test_max_negative_values() raises:
+def test_max_negative_values() raises:
     """Test max with negative values."""
     var shape = List[Int]()
     shape.append(5)
@@ -161,7 +161,7 @@ fn test_max_negative_values() raises:
     assert_value_at(b, 0, -3.0, 1e-6, "Max of all -3s should be -3.0")
 
 
-fn test_max_with_keepdims() raises:
+def test_max_with_keepdims() raises:
     """Test max with keepdims=True."""
     var shape2d = List[Int]()
     shape2d.append(3)
@@ -173,7 +173,7 @@ fn test_max_with_keepdims() raises:
     assert_value_at(b, 0, 9.0, 1e-6, "Max should be 9.0")
 
 
-fn test_max_preserves_dtype() raises:
+def test_max_preserves_dtype() raises:
     """Test that max preserves dtype."""
     var shape = List[Int]()
     shape.append(5)
@@ -184,7 +184,7 @@ fn test_max_preserves_dtype() raises:
     assert_value_at(b, 0, 4.0, 1e-10, "Max should be 4.0")
 
 
-fn test_min_all_same() raises:
+def test_min_all_same() raises:
     """Test min of all same values."""
     var shape = List[Int]()
     shape.append(10)
@@ -195,7 +195,7 @@ fn test_min_all_same() raises:
     assert_value_at(b, 0, 3.0, 1e-6, "Min of all 3s should be 3.0")
 
 
-fn test_min_arange() raises:
+def test_min_arange() raises:
     """Test min of range [0, 1, 2, 3, 4]."""
     var a = arange(0.0, 5.0, 1.0, DType.float32)
     var b = min_reduce(a)
@@ -203,7 +203,7 @@ fn test_min_arange() raises:
     assert_value_at(b, 0, 0.0, 1e-6, "Min of [0,1,2,3,4] should be 0.0")
 
 
-fn test_min_negative_values() raises:
+def test_min_negative_values() raises:
     """Test min with negative values."""
     var shape = List[Int]()
     shape.append(5)
@@ -213,7 +213,7 @@ fn test_min_negative_values() raises:
     assert_value_at(b, 0, -7.0, 1e-6, "Min of all -7s should be -7.0")
 
 
-fn test_min_with_keepdims() raises:
+def test_min_with_keepdims() raises:
     """Test min with keepdims=True."""
     var shape = List[Int]()
     shape.append(3)
@@ -225,7 +225,7 @@ fn test_min_with_keepdims() raises:
     assert_value_at(b, 0, 2.5, 1e-6, "Min should be 2.5")
 
 
-fn test_min_preserves_dtype() raises:
+def test_min_preserves_dtype() raises:
     """Test that min preserves dtype."""
     var shape = List[Int]()
     shape.append(5)
@@ -236,7 +236,7 @@ fn test_min_preserves_dtype() raises:
     assert_value_at(b, 0, 1.0, 1e-10, "Min should be 1.0")
 
 
-fn test_sum_axis_0() raises:
+def test_sum_axis_0() raises:
     """Test sum along axis 0."""
     var shape = List[Int]()
     shape.append(3)
@@ -253,7 +253,7 @@ fn test_sum_axis_0() raises:
     assert_value_at(b, 3, 6.0, 1e-6, "Each column sum should be 6.0")
 
 
-fn test_sum_axis_1() raises:
+def test_sum_axis_1() raises:
     """Test sum along axis 1."""
     var shape = List[Int]()
     shape.append(3)
@@ -269,7 +269,7 @@ fn test_sum_axis_1() raises:
     assert_value_at(b, 2, 8.0, 1e-6, "Each row sum should be 8.0")
 
 
-fn test_sum_axis_keepdims() raises:
+def test_sum_axis_keepdims() raises:
     """Test sum with axis and keepdims=True."""
     var shape = List[Int]()
     shape.append(3)
@@ -282,7 +282,7 @@ fn test_sum_axis_keepdims() raises:
     assert_numel(b, 4, "Should have 4 elements")
 
 
-fn test_mean_axis_0() raises:
+def test_mean_axis_0() raises:
     """Test mean along axis 0."""
     var shape = List[Int]()
     shape.append(3)
@@ -297,7 +297,7 @@ fn test_mean_axis_0() raises:
     assert_value_at(b, 1, 6.0, 1e-6, "Each column mean should be 6.0")
 
 
-fn test_mean_axis_1() raises:
+def test_mean_axis_1() raises:
     """Test mean along axis 1."""
     var shape = List[Int]()
     shape.append(2)
@@ -312,7 +312,7 @@ fn test_mean_axis_1() raises:
     assert_value_at(b, 1, 10.0, 1e-6, "Each row mean should be 10.0")
 
 
-fn test_max_axis_0() raises:
+def test_max_axis_0() raises:
     """Test max along axis 0."""
     var shape = List[Int]()
     shape.append(3)
@@ -326,7 +326,7 @@ fn test_max_axis_0() raises:
     assert_value_at(b, 0, 7.0, 1e-6, "Max should be 7.0")
 
 
-fn test_max_axis_1() raises:
+def test_max_axis_1() raises:
     """Test max along axis 1."""
     var shape = List[Int]()
     shape.append(2)
@@ -341,7 +341,7 @@ fn test_max_axis_1() raises:
     assert_value_at(b, 1, 9.0, 1e-6, "Max should be 9.0")
 
 
-fn test_min_axis_0() raises:
+def test_min_axis_0() raises:
     """Test min along axis 0."""
     var shape = List[Int]()
     shape.append(3)
@@ -355,7 +355,7 @@ fn test_min_axis_0() raises:
     assert_value_at(b, 0, 3.5, 1e-6, "Min should be 3.5")
 
 
-fn test_min_axis_1() raises:
+def test_min_axis_1() raises:
     """Test min along axis 1."""
     var shape = List[Int]()
     shape.append(2)
@@ -370,7 +370,7 @@ fn test_min_axis_1() raises:
     assert_value_at(b, 1, 2.5, 1e-6, "Min should be 2.5")
 
 
-fn test_reductions_consistent() raises:
+def test_reductions_consistent() raises:
     """Test that reductions are consistent with each other."""
     var shape = List[Int]()
     shape.append(10)
@@ -392,7 +392,7 @@ fn test_reductions_consistent() raises:
     assert_value_at(min_result, 0, 5.0, 1e-6, "Min should be 5")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_reduction_forward tests."""
     print("Running test_reduction_forward tests...")
 

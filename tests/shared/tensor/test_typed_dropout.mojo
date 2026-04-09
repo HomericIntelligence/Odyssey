@@ -22,7 +22,7 @@ from shared.core.layers.dropout import DropoutLayer
 from shared.tensor.any_tensor import AnyTensor, zeros
 
 
-fn test_dropout_forward_preserves_dtype_f32() raises:
+def test_dropout_forward_preserves_dtype_f32() raises:
     """Forward pass preserves float32 dtype."""
     var layer = DropoutLayer(dropout_rate=0.5)
     layer.set_training(False)
@@ -36,7 +36,7 @@ fn test_dropout_forward_preserves_dtype_f32() raises:
     print("PASS: test_dropout_forward_preserves_dtype_f32")
 
 
-fn test_dropout_forward_preserves_dtype_f64() raises:
+def test_dropout_forward_preserves_dtype_f64() raises:
     """Forward pass preserves float64 dtype."""
     var layer = DropoutLayer(dropout_rate=0.5)
     layer.set_training(False)
@@ -48,7 +48,7 @@ fn test_dropout_forward_preserves_dtype_f64() raises:
     print("PASS: test_dropout_forward_preserves_dtype_f64")
 
 
-fn test_dropout_inference_passthrough() raises:
+def test_dropout_inference_passthrough() raises:
     """In inference mode (training=False), output equals input exactly."""
     var layer = DropoutLayer(dropout_rate=0.5)
     layer.set_training(False)
@@ -67,7 +67,7 @@ fn test_dropout_inference_passthrough() raises:
     print("PASS: test_dropout_inference_passthrough")
 
 
-fn test_dropout_training_zeros_elements() raises:
+def test_dropout_training_zeros_elements() raises:
     """In training mode, some elements are zeroed (stochastic)."""
     var layer = DropoutLayer(dropout_rate=0.5)
     layer.set_training(True)
@@ -92,7 +92,7 @@ fn test_dropout_training_zeros_elements() raises:
     print("PASS: test_dropout_training_zeros_elements")
 
 
-fn test_dropout_training_scale_factor() raises:
+def test_dropout_training_scale_factor() raises:
     """Kept elements are scaled by 1/(1-p) to preserve expected value."""
     var layer = DropoutLayer(dropout_rate=0.5)
     layer.set_training(True)
@@ -111,7 +111,7 @@ fn test_dropout_training_scale_factor() raises:
     print("PASS: test_dropout_training_scale_factor")
 
 
-fn test_dropout_zero_rate() raises:
+def test_dropout_zero_rate() raises:
     """Dropout with rate=0.0 keeps all elements (no dropout)."""
     var layer = DropoutLayer(dropout_rate=0.0)
     layer.set_training(True)
@@ -131,7 +131,7 @@ fn test_dropout_zero_rate() raises:
     print("PASS: test_dropout_zero_rate")
 
 
-fn test_dropout_backward_typed() raises:
+def test_dropout_backward_typed() raises:
     """Backward pass applies mask and returns AnyTensor."""
     var layer = DropoutLayer(dropout_rate=0.5)
     layer.set_training(True)
@@ -151,7 +151,7 @@ fn test_dropout_backward_typed() raises:
     print("PASS: test_dropout_backward_typed")
 
 
-fn test_dropout_no_parameters() raises:
+def test_dropout_no_parameters() raises:
     """Dropout has no trainable parameters."""
     var layer = DropoutLayer(dropout_rate=0.5)
     var params = layer.parameters()
@@ -159,7 +159,7 @@ fn test_dropout_no_parameters() raises:
     print("PASS: test_dropout_no_parameters")
 
 
-fn main() raises:
+def main() raises:
     test_dropout_forward_preserves_dtype_f32()
     test_dropout_forward_preserves_dtype_f64()
     test_dropout_inference_passthrough()

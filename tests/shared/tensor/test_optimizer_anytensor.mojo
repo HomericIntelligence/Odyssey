@@ -22,7 +22,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.autograd import Variable, GradientTape, SGD, Adam
 
 
-fn test_sgd_step_with_anytensor_data() raises:
+def test_sgd_step_with_anytensor_data() raises:
     """SGD step updates Variable whose data is AnyTensor."""
     var shape: List[Int] = [4]
     var param_data: AnyTensor = zeros(shape, DType.float32)
@@ -59,7 +59,7 @@ fn test_sgd_step_with_anytensor_data() raises:
     print("PASS: test_sgd_step_with_anytensor_data")
 
 
-fn test_sgd_momentum_anytensor_velocities() raises:
+def test_sgd_momentum_anytensor_velocities() raises:
     """SGD with momentum stores velocity buffers as AnyTensor."""
     var shape: List[Int] = [2]
     var param_data: AnyTensor = zeros(shape, DType.float32)
@@ -89,7 +89,7 @@ fn test_sgd_momentum_anytensor_velocities() raises:
     print("PASS: test_sgd_momentum_anytensor_velocities")
 
 
-fn test_adam_step_with_anytensor_data() raises:
+def test_adam_step_with_anytensor_data() raises:
     """Adam step updates Variable whose data is AnyTensor."""
     var shape: List[Int] = [2]
     var param_data: AnyTensor = zeros(shape, DType.float32)
@@ -118,7 +118,7 @@ fn test_adam_step_with_anytensor_data() raises:
     print("PASS: test_adam_step_with_anytensor_data")
 
 
-fn test_optimizer_preserves_shape_dtype() raises:
+def test_optimizer_preserves_shape_dtype() raises:
     """Optimizer step preserves AnyTensor shape and dtype."""
     var shape: List[Int] = [3, 2]
     var param_data: AnyTensor = zeros(shape, DType.float32)
@@ -146,7 +146,7 @@ fn test_optimizer_preserves_shape_dtype() raises:
     print("PASS: test_optimizer_preserves_shape_dtype")
 
 
-fn test_sgd_no_grad_param_skipped() raises:
+def test_sgd_no_grad_param_skipped() raises:
     """SGD skips parameters with requires_grad=False."""
     var shape: List[Int] = [2]
     var param_data: AnyTensor = zeros(shape, DType.float32)
@@ -174,7 +174,7 @@ fn test_sgd_no_grad_param_skipped() raises:
     print("PASS: test_sgd_no_grad_param_skipped")
 
 
-fn main() raises:
+def main() raises:
     test_sgd_step_with_anytensor_data()
     test_sgd_momentum_anytensor_velocities()
     test_adam_step_with_anytensor_data()

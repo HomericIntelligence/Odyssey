@@ -44,8 +44,8 @@ Reference:
     improvements over the wider-range E8M0 format.
 """
 
-from math import isnan, isinf
-from memory import bitcast
+from std.math import isnan, isinf
+from std.memory import bitcast
 from .dtype_aliases import FP4, FP8
 
 
@@ -54,7 +54,7 @@ from .dtype_aliases import FP4, FP8
 # ============================================================================
 
 
-fn _e4m3_from_float32(scale: Float32) -> Scalar[FP8]:
+def _e4m3_from_float32(scale: Float32) -> Scalar[FP8]:
     """Convert Float32 scale to E4M3 format using native FP8 type.
 
     Args:
@@ -81,7 +81,7 @@ fn _e4m3_from_float32(scale: Float32) -> Scalar[FP8]:
     return Scalar[FP8](abs_scale)
 
 
-fn _e4m3_to_float32(e4m3_val: Scalar[FP8]) -> Float32:
+def _e4m3_to_float32(e4m3_val: Scalar[FP8]) -> Float32:
     """Convert E4M3 (FP8) to Float32 using native type.
 
     Args:
@@ -93,7 +93,7 @@ fn _e4m3_to_float32(e4m3_val: Scalar[FP8]) -> Float32:
     return Float32(e4m3_val)
 
 
-fn _e4m3_get_bits(e4m3_val: Scalar[FP8]) -> UInt8:
+def _e4m3_get_bits(e4m3_val: Scalar[FP8]) -> UInt8:
     """Get raw bits from E4M3 (FP8) value.
 
     Args:
@@ -105,7 +105,7 @@ fn _e4m3_get_bits(e4m3_val: Scalar[FP8]) -> UInt8:
     return bitcast[DType.uint8, 1](e4m3_val)[0]
 
 
-fn _e4m3_from_bits(bits: UInt8) -> Scalar[FP8]:
+def _e4m3_from_bits(bits: UInt8) -> Scalar[FP8]:
     """Create E4M3 (FP8) from raw bits.
 
     Args:
@@ -122,7 +122,7 @@ fn _e4m3_from_bits(bits: UInt8) -> Scalar[FP8]:
 # ============================================================================
 
 
-fn _fp4_from_float32(x: Float32, scale: Float32) -> UInt8:
+def _fp4_from_float32(x: Float32, scale: Float32) -> UInt8:
     """Convert Float32 to FP4 E2M1 format with given scale.
 
     Args:
@@ -205,7 +205,7 @@ fn _fp4_from_float32(x: Float32, scale: Float32) -> UInt8:
     return (sign << 3) | (exp << 1) | mantissa
 
 
-fn _fp4_to_float32(fp4_bits: UInt8, scale: Float32) -> Float32:
+def _fp4_to_float32(fp4_bits: UInt8, scale: Float32) -> Float32:
     """Convert FP4 E2M1 bits to Float32 with given scale.
 
     Args:
@@ -267,7 +267,7 @@ struct NVFP4(Copyable, Movable, Writable):
     var scale: Scalar[FP8]
     """E4M3 (FP8) scale factor using native type."""
 
-    fn __init__(
+    def __init__(
         out self,
         value: UInt8 = 0,
         scale: Scalar[FP8] = bitcast[FP8, 1](SIMD[DType.uint8, 1](0x3C))[0],
@@ -282,7 +282,7 @@ struct NVFP4(Copyable, Movable, Writable):
         self.scale = scale
 
     @staticmethod
-    fn from_float32(x: Float32) -> Self:
+    def from_float32(x: Float32) -> Self:
         """Convert Float32 to NVFP4.
 
         Computes optimal scale for the single value and encodes.
@@ -325,7 +325,7 @@ struct NVFP4(Copyable, Movable, Writable):
         return NVFP4(fp4_bits, scale)
 
     @staticmethod
-    fn from_float32_stochastic(x: Float32, seed: UInt64) -> Self:
+    def from_float32_stochastic(x: Float32, seed: UInt64) -> Self:
         """Convert Float32 to NVFP4 with stochastic rounding.
 
         Uses stochastic rounding which is recommended for gradient quantization.
@@ -380,7 +380,7 @@ struct NVFP4(Copyable, Movable, Writable):
         return NVFP4(fp4_bits, scale)
 
     @staticmethod
-    fn _fp4_stochastic_round(x: Float32, scale: Float32, seed: UInt64) -> UInt8:
+    def _fp4_stochastic_round(x: Float32, scale: Float32, seed: UInt64) -> UInt8:
         """Internal: Stochastic rounding helper using simple LCG.
 
         Args:
@@ -465,7 +465,7 @@ struct NVFP4(Copyable, Movable, Writable):
 
         return (sign << 3) | result_bits
 
-    fn to_float32(self) -> Float32:
+    def to_float32(self) -> Float32:
         """Convert NVFP4 to Float32.
 
         Returns:
@@ -474,7 +474,7 @@ struct NVFP4(Copyable, Movable, Writable):
         var scale_f32 = _e4m3_to_float32(self.scale)
         return _fp4_to_float32(self.value, scale_f32)
 
-    fn __add__(self, other: NVFP4) -> NVFP4:
+    def __add__(self, other: NVFP4) -> NVFP4:
         """Add two NVFP4 values (via Float32).
 
         Args:
@@ -485,7 +485,7 @@ struct NVFP4(Copyable, Movable, Writable):
         """
         return NVFP4.from_float32(self.to_float32() + other.to_float32())
 
-    fn __sub__(self, other: NVFP4) -> NVFP4:
+    def __sub__(self, other: NVFP4) -> NVFP4:
         """Subtract two NVFP4 values (via Float32).
 
         Args:
@@ -496,7 +496,7 @@ struct NVFP4(Copyable, Movable, Writable):
         """
         return NVFP4.from_float32(self.to_float32() - other.to_float32())
 
-    fn __mul__(self, other: NVFP4) -> NVFP4:
+    def __mul__(self, other: NVFP4) -> NVFP4:
         """Multiply two NVFP4 values (via Float32).
 
         Args:
@@ -507,7 +507,7 @@ struct NVFP4(Copyable, Movable, Writable):
         """
         return NVFP4.from_float32(self.to_float32() * other.to_float32())
 
-    fn __truediv__(self, other: NVFP4) -> NVFP4:
+    def __truediv__(self, other: NVFP4) -> NVFP4:
         """Divide two NVFP4 values (via Float32).
 
         Args:
@@ -518,7 +518,7 @@ struct NVFP4(Copyable, Movable, Writable):
         """
         return NVFP4.from_float32(self.to_float32() / other.to_float32())
 
-    fn __neg__(self) -> NVFP4:
+    def __neg__(self) -> NVFP4:
         """Negate NVFP4 value.
 
         Returns:
@@ -528,7 +528,7 @@ struct NVFP4(Copyable, Movable, Writable):
         var neg_value = self.value ^ 0b1000
         return NVFP4(neg_value, self.scale)
 
-    fn __eq__(self, other: NVFP4) -> Bool:
+    def __eq__(self, other: NVFP4) -> Bool:
         """Check equality.
 
         Args:
@@ -542,7 +542,7 @@ struct NVFP4(Copyable, Movable, Writable):
         var other_scale_bits = _e4m3_get_bits(other.scale)
         return self.value == other.value and self_scale_bits == other_scale_bits
 
-    fn __ne__(self, other: NVFP4) -> Bool:
+    def __ne__(self, other: NVFP4) -> Bool:
         """Check inequality.
 
         Args:
@@ -553,7 +553,7 @@ struct NVFP4(Copyable, Movable, Writable):
         """
         return not (self == other)
 
-    fn __lt__(self, other: NVFP4) -> Bool:
+    def __lt__(self, other: NVFP4) -> Bool:
         """Check less than.
 
         Args:
@@ -564,7 +564,7 @@ struct NVFP4(Copyable, Movable, Writable):
         """
         return self.to_float32() < other.to_float32()
 
-    fn __le__(self, other: NVFP4) -> Bool:
+    def __le__(self, other: NVFP4) -> Bool:
         """Check less than or equal.
 
         Args:
@@ -575,7 +575,7 @@ struct NVFP4(Copyable, Movable, Writable):
         """
         return self.to_float32() <= other.to_float32()
 
-    fn __gt__(self, other: NVFP4) -> Bool:
+    def __gt__(self, other: NVFP4) -> Bool:
         """Check greater than.
 
         Args:
@@ -586,7 +586,7 @@ struct NVFP4(Copyable, Movable, Writable):
         """
         return self.to_float32() > other.to_float32()
 
-    fn __ge__(self, other: NVFP4) -> Bool:
+    def __ge__(self, other: NVFP4) -> Bool:
         """Check greater than or equal.
 
         Args:
@@ -597,7 +597,7 @@ struct NVFP4(Copyable, Movable, Writable):
         """
         return self.to_float32() >= other.to_float32()
 
-    fn __str__(self) -> String:
+    def __str__(self) -> String:
         """Convert to string.
 
         Returns:
@@ -605,7 +605,7 @@ struct NVFP4(Copyable, Movable, Writable):
         """
         return "NVFP4(" + String(self.to_float32()) + ")"
 
-    fn __repr__(self) -> String:
+    def __repr__(self) -> String:
         """Get representation string.
 
         Returns:
@@ -620,7 +620,7 @@ struct NVFP4(Copyable, Movable, Writable):
         )
 
 
-fn hex(val: Int) -> String:
+def hex(val: Int) -> String:
     """Convert integer to hex string (simple implementation)."""
     if val == 0:
         return "0"
@@ -667,12 +667,12 @@ struct NVFP4Block(Copyable, Movable, Writable):
     var scale: Scalar[FP8]
     """Shared E4M3 (FP8) scale factor for all 16 values."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize NVFP4Block with zeros."""
         self.data = SIMD[DType.uint8, 8](0)
         self.scale = bitcast[FP8, 1](SIMD[DType.uint8, 1](0x3C))[0]  # Scale = 1.0
 
-    fn __init__(out self, data: SIMD[DType.uint8, 8], scale: Scalar[FP8]):
+    def __init__(out self, data: SIMD[DType.uint8, 8], scale: Scalar[FP8]):
         """Initialize NVFP4Block from packed data and scale.
 
         Args:
@@ -683,7 +683,7 @@ struct NVFP4Block(Copyable, Movable, Writable):
         self.scale = scale
 
     @staticmethod
-    fn from_float32_array(values: List[Float32]) raises -> Self:
+    def from_float32_array(values: List[Float32]) raises -> Self:
         """Convert 16 Float32 values to NVFP4Block.
 
         Args:
@@ -733,7 +733,7 @@ struct NVFP4Block(Copyable, Movable, Writable):
 
         return NVFP4Block(data, scale)
 
-    fn to_float32_array(self) -> List[Float32]:
+    def to_float32_array(self) -> List[Float32]:
         """Decode NVFP4Block to 16 Float32 values.
 
         Returns:
@@ -757,7 +757,7 @@ struct NVFP4Block(Copyable, Movable, Writable):
 
         return result^
 
-    fn get(self, index: Int) raises -> NVFP4:
+    def get(self, index: Int) raises -> NVFP4:
         """Get NVFP4 value at index (0-15).
 
         Args:
@@ -784,7 +784,7 @@ struct NVFP4Block(Copyable, Movable, Writable):
 
         return NVFP4(fp4_bits, self.scale)
 
-    fn set(mut self, index: Int, value: NVFP4) raises -> None:
+    def set(mut self, index: Int, value: NVFP4) raises -> None:
         """Set NVFP4 value at index (0-15).
 
         Args:
@@ -819,7 +819,7 @@ struct NVFP4Block(Copyable, Movable, Writable):
 
         self.data[byte_idx] = byte
 
-    fn __str__(self) -> String:
+    def __str__(self) -> String:
         """String representation showing scale and value count.
 
         Returns:
@@ -831,7 +831,7 @@ struct NVFP4Block(Copyable, Movable, Writable):
             + ")"
         )
 
-    fn __repr__(self) -> String:
+    def __repr__(self) -> String:
         """Detailed representation.
 
         Returns:

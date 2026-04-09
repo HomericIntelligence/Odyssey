@@ -13,7 +13,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 
-fn test_slice_1d_basic() raises:
+def test_slice_1d_basic() raises:
     """Test basic 1D slicing [start:end]."""
     # Create tensor [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     var t = arange(0.0, 10.0, 1.0, DType.float32)
@@ -29,7 +29,7 @@ fn test_slice_1d_basic() raises:
     assert_almost_equal(Float64(sliced[4]), 6.0, tolerance=1e-6)
 
 
-fn test_slice_1d_from_start() raises:
+def test_slice_1d_from_start() raises:
     """Test slicing from start [:end]."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
@@ -41,7 +41,7 @@ fn test_slice_1d_from_start() raises:
         assert_almost_equal(Float64(sliced[i]), Float64(i), tolerance=1e-6)
 
 
-fn test_slice_1d_to_end() raises:
+def test_slice_1d_to_end() raises:
     """Test slicing to end [start:]."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
@@ -54,7 +54,7 @@ fn test_slice_1d_to_end() raises:
     assert_almost_equal(Float64(sliced[2]), 9.0, tolerance=1e-6)
 
 
-fn test_slice_1d_full() raises:
+def test_slice_1d_full() raises:
     """Test full slice [:]."""
     var t = arange(0.0, 5.0, 1.0, DType.float32)
 
@@ -66,7 +66,7 @@ fn test_slice_1d_full() raises:
         assert_almost_equal(Float64(sliced[i]), Float64(i), tolerance=1e-6)
 
 
-fn test_slice_1d_negative_indices() raises:
+def test_slice_1d_negative_indices() raises:
     """Test slicing with negative indices."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
@@ -79,7 +79,7 @@ fn test_slice_1d_negative_indices() raises:
     assert_almost_equal(Float64(sliced[2]), 9.0, tolerance=1e-6)
 
 
-fn test_slice_1d_strided() raises:
+def test_slice_1d_strided() raises:
     """Test strided slicing [start:end:step]."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
@@ -94,7 +94,7 @@ fn test_slice_1d_strided() raises:
     assert_almost_equal(Float64(sliced[4]), 8.0, tolerance=1e-6)
 
 
-fn test_slice_1d_strided_step3() raises:
+def test_slice_1d_strided_step3() raises:
     """Test strided slicing with step=3."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
@@ -108,7 +108,7 @@ fn test_slice_1d_strided_step3() raises:
     assert_almost_equal(Float64(sliced[3]), 9.0, tolerance=1e-6)
 
 
-fn test_slice_1d_reverse() raises:
+def test_slice_1d_reverse() raises:
     """Test reverse slicing with negative step [::-1]."""
     var t = arange(0.0, 5.0, 1.0, DType.float32)
 
@@ -123,7 +123,7 @@ fn test_slice_1d_reverse() raises:
     assert_almost_equal(Float64(sliced[4]), 0.0, tolerance=1e-6)
 
 
-fn test_slice_2d_single_dim() raises:
+def test_slice_2d_single_dim() raises:
     """Test slicing along single dimension in 2D tensor."""
     # Create 5x4 tensor with sequential values
     var t = arange(0.0, 20.0, 1.0, DType.float32)
@@ -138,7 +138,7 @@ fn test_slice_2d_single_dim() raises:
     assert_equal(shape[1], 4)
 
 
-fn test_slice_2d_both_dims() raises:
+def test_slice_2d_both_dims() raises:
     """Test slicing along both dimensions in 2D tensor."""
     # Create 5x4 tensor
     var t = arange(0.0, 20.0, 1.0, DType.float32)
@@ -153,7 +153,7 @@ fn test_slice_2d_both_dims() raises:
     assert_equal(shape[1], 2)
 
 
-fn test_slice_3d_partial() raises:
+def test_slice_3d_partial() raises:
     """Test slicing in 3D tensor."""
     # Create 4x3x2 tensor
     var t = arange(0.0, 24.0, 1.0, DType.float32)
@@ -169,7 +169,7 @@ fn test_slice_3d_partial() raises:
     assert_equal(shape[2], 2)
 
 
-fn test_batch_extraction_basic() raises:
+def test_batch_extraction_basic() raises:
     """Test extracting a batch from dataset (critical for training)."""
     # Simulate dataset: 100 samples, each 3x32x32 (like CIFAR-10)
     var batch_size = 16
@@ -189,7 +189,7 @@ fn test_batch_extraction_basic() raises:
     assert_equal(shape[3], 32)
 
 
-fn test_batch_extraction_offset() raises:
+def test_batch_extraction_offset() raises:
     """Test extracting batch at offset (second batch)."""
     var batch_size = 16
     var num_samples = 100
@@ -203,7 +203,7 @@ fn test_batch_extraction_offset() raises:
     assert_equal(shape[0], batch_size)
 
 
-fn test_batch_extraction_last_partial() raises:
+def test_batch_extraction_last_partial() raises:
     """Test extracting last partial batch."""
     var batch_size = 16
     var num_samples = 50  # Not evenly divisible
@@ -218,7 +218,7 @@ fn test_batch_extraction_last_partial() raises:
     assert_equal(shape[0], 2)  # Only 2 samples in last batch
 
 
-fn test_slice_empty() raises:
+def test_slice_empty() raises:
     """Test empty slice [5:5]."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
@@ -227,7 +227,7 @@ fn test_slice_empty() raises:
     assert_equal(sliced.numel(), 0)
 
 
-fn test_slice_single_element() raises:
+def test_slice_single_element() raises:
     """Test single element slice [3:4]."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
@@ -237,7 +237,7 @@ fn test_slice_single_element() raises:
     assert_almost_equal(Float64(sliced[0]), 3.0, tolerance=1e-6)
 
 
-fn test_slice_empty_negative_step() raises:
+def test_slice_empty_negative_step() raises:
     """Test empty-result slices with negative step.
 
     Edge cases where negative-step slicing yields 0 elements:
@@ -258,7 +258,7 @@ fn test_slice_empty_negative_step() raises:
     assert_equal(sliced2.numel(), 0)
 
 
-fn test_slice_out_of_bounds_clamped() raises:
+def test_slice_out_of_bounds_clamped() raises:
     """Test slice with out-of-bounds indices (should be clamped)."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
@@ -270,7 +270,7 @@ fn test_slice_out_of_bounds_clamped() raises:
     assert_almost_equal(Float64(sliced[1]), 9.0, tolerance=1e-6)
 
 
-fn test_slice_creates_copy() raises:
+def test_slice_creates_copy() raises:
     """Test that __getitem__(Slice) creates a copy, not a view.
 
     This is the designed behavior: `t[start:end:step]` always allocates a new
@@ -285,7 +285,7 @@ fn test_slice_creates_copy() raises:
     assert_true(not sliced._is_view)
 
 
-fn test_slice_modification_doesnt_affect_original() raises:
+def test_slice_modification_doesnt_affect_original() raises:
     """Test that modifying a slice doesn't affect the original tensor.
 
     Because `__getitem__(Slice)` returns a copy, mutations to the result
@@ -303,7 +303,7 @@ fn test_slice_modification_doesnt_affect_original() raises:
     assert_almost_equal(Float64(t[2]), 0.0, tolerance=1e-6)
 
 
-fn test_slice_2d_value_correctness() raises:
+def test_slice_2d_value_correctness() raises:
     """Test 2D slice returns correct element values. Closes #3693."""
     # Create a 5x4 tensor with arange values: [[0,1,2,3],[4,5,6,7],...]
     var t = arange(0.0, 20.0, 1.0, DType.float32)
@@ -327,7 +327,7 @@ fn test_slice_2d_value_correctness() raises:
     print("PASS: test_slice_2d_value_correctness")
 
 
-fn test_negative_step_empty_result() raises:
+def test_negative_step_empty_result() raises:
     """Test negative step with invalid range produces empty result. Closes #3699.
     """
     var t = arange(0.0, 10.0, 1.0, DType.float32)
@@ -339,7 +339,7 @@ fn test_negative_step_empty_result() raises:
     print("PASS: test_negative_step_empty_result")
 
 
-fn test_slice_step_value_correctness() raises:
+def test_slice_step_value_correctness() raises:
     """Test slice with step returns correct values. Closes #3693."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
@@ -355,7 +355,7 @@ fn test_slice_step_value_correctness() raises:
     print("PASS: test_slice_step_value_correctness")
 
 
-fn test_slice_method_returns_zero_copy_view() raises:
+def test_slice_method_returns_zero_copy_view() raises:
     """Test that slice() method returns a zero-copy view that shares memory.
 
     Mutating the slice should affect the original tensor.
@@ -382,7 +382,7 @@ fn test_slice_method_returns_zero_copy_view() raises:
     print("PASS: test_slice_method_returns_zero_copy_view")
 
 
-fn test_getitem_slice_is_copy_not_view() raises:
+def test_getitem_slice_is_copy_not_view() raises:
     """Test that __getitem__(Slice) creates a copy, not a zero-copy view.
 
     Mutating a slice obtained via [start:end] syntax should NOT affect original.
@@ -405,7 +405,7 @@ fn test_getitem_slice_is_copy_not_view() raises:
     print("PASS: test_getitem_slice_is_copy_not_view")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_extensor_slicing tests."""
     print("Running test_extensor_slicing tests...")
 

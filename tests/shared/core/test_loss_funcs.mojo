@@ -28,7 +28,7 @@ from shared.core.loss import (
 from shared.core.reduction import mean
 
 
-fn test_cross_entropy_output_shape() raises:
+def test_cross_entropy_output_shape() raises:
     """Test cross_entropy returns loss tensor."""
     var logits_shape = List[Int]()
     logits_shape.append(4)
@@ -46,7 +46,7 @@ fn test_cross_entropy_output_shape() raises:
     assert_true(loss.numel() >= 1, "Loss should have at least 1 element")
 
 
-fn test_cross_entropy_basic() raises:
+def test_cross_entropy_basic() raises:
     """Test cross_entropy on simple one-hot example."""
     var logits_shape = List[Int]()
     logits_shape.append(1)
@@ -72,7 +72,7 @@ fn test_cross_entropy_basic() raises:
     assert_greater_or_equal(loss_data[0], 0.0, "Loss should be non-negative")
 
 
-fn test_cross_entropy_correct_prediction() raises:
+def test_cross_entropy_correct_prediction() raises:
     """Test cross_entropy when model predicts correctly."""
     var logits_shape = List[Int]()
     logits_shape.append(1)
@@ -100,7 +100,7 @@ fn test_cross_entropy_correct_prediction() raises:
     assert_greater_or_equal(loss_data[0], 0.0, "Loss should be non-negative")
 
 
-fn test_cross_entropy_backward_shape() raises:
+def test_cross_entropy_backward_shape() raises:
     """Test cross_entropy_backward produces correct gradient shape."""
     var logits_shape = List[Int]()
     logits_shape.append(4)
@@ -123,7 +123,7 @@ fn test_cross_entropy_backward_shape() raises:
     assert_equal(grad_shape[1], 3, "Class dimension preserved")
 
 
-fn test_mean_squared_error_zero_error() raises:
+def test_mean_squared_error_zero_error() raises:
     """Test MSE when predictions match targets (error = 0)."""
     var pred_shape = List[Int]()
     pred_shape.append(4)
@@ -140,7 +140,7 @@ fn test_mean_squared_error_zero_error() raises:
         assert_almost_equal(loss_data[i], 0.0, tolerance=1e-5)
 
 
-fn test_mean_squared_error_simple() raises:
+def test_mean_squared_error_simple() raises:
     """Test MSE on simple prediction error."""
     var pred_shape = List[Int]()
     pred_shape.append(4)
@@ -171,7 +171,7 @@ fn test_mean_squared_error_simple() raises:
     assert_almost_equal(loss_data[3], 16.0, tolerance=1e-5)  # (4-0)^2 = 16
 
 
-fn test_mean_squared_error_output_shape() raises:
+def test_mean_squared_error_output_shape() raises:
     """Test MSE preserves input shape."""
     var pred_shape = List[Int]()
     pred_shape.append(2)
@@ -190,7 +190,7 @@ fn test_mean_squared_error_output_shape() raises:
     assert_equal(loss_shape[1], 3, "Feature dimension preserved")
 
 
-fn test_mean_squared_error_backward() raises:
+def test_mean_squared_error_backward() raises:
     """Test MSE backward pass computes correct gradients."""
     var pred_shape = List[Int]()
     pred_shape.append(2)
@@ -224,7 +224,7 @@ fn test_mean_squared_error_backward() raises:
     assert_almost_equal(grad_data[1], 4.0, tolerance=1e-5)
 
 
-fn test_mean_squared_error_backward_shape() raises:
+def test_mean_squared_error_backward_shape() raises:
     """Test MSE backward produces gradients with same shape as input."""
     var pred_shape = List[Int]()
     pred_shape.append(4)
@@ -250,7 +250,7 @@ fn test_mean_squared_error_backward_shape() raises:
     assert_equal(grad_shape[1], 3, "Feature dimension preserved")
 
 
-fn test_binary_cross_entropy_output_shape() raises:
+def test_binary_cross_entropy_output_shape() raises:
     """Test BCE output shape matches input shape."""
     var pred_shape = List[Int]()
     pred_shape.append(4)
@@ -266,7 +266,7 @@ fn test_binary_cross_entropy_output_shape() raises:
     assert_equal(loss_shape[0], 4, "Output shape matches input")
 
 
-fn test_binary_cross_entropy_basic() raises:
+def test_binary_cross_entropy_basic() raises:
     """Test BCE on simple binary classification."""
     var pred_shape = List[Int]()
     pred_shape.append(2)
@@ -291,7 +291,7 @@ fn test_binary_cross_entropy_basic() raises:
         assert_greater_or_equal(loss_data[i], 0.0, "BCE loss non-negative")
 
 
-fn test_binary_cross_entropy_perfect_prediction() raises:
+def test_binary_cross_entropy_perfect_prediction() raises:
     """Test BCE when prediction is perfect (loss approaches 0)."""
     var pred_shape = List[Int]()
     pred_shape.append(1)
@@ -310,7 +310,7 @@ fn test_binary_cross_entropy_perfect_prediction() raises:
     assert_less_or_equal(loss_data[0], 0.1, "Small loss for good prediction")
 
 
-fn test_binary_cross_entropy_backward() raises:
+def test_binary_cross_entropy_backward() raises:
     """Test BCE backward pass computes correct gradients."""
     var pred_shape = List[Int]()
     pred_shape.append(2)
@@ -340,7 +340,7 @@ fn test_binary_cross_entropy_backward() raises:
     assert_equal(grad_shape[0], 2, "Gradient shape matches input")
 
 
-fn test_loss_non_negative() raises:
+def test_loss_non_negative() raises:
     """Test that all loss functions produce non-negative values."""
     var pred_shape = List[Int]()
     pred_shape.append(4)
@@ -361,7 +361,7 @@ fn test_loss_non_negative() raises:
         assert_greater_or_equal(bce_data[i], 0.0, "BCE non-negative")
 
 
-fn test_loss_gradient_shape_consistency() raises:
+def test_loss_gradient_shape_consistency() raises:
     """Test that backward passes produce gradients matching input shape."""
     var pred_shape = List[Int]()
     pred_shape.append(3)
@@ -387,7 +387,7 @@ fn test_loss_gradient_shape_consistency() raises:
     assert_equal(grad_shape[1], 4, "Gradient feature dimension matches")
 
 
-fn test_mse_symmetric() raises:
+def test_mse_symmetric() raises:
     """Test that MSE is symmetric in predictions and targets order."""
     var shape = List[Int]()
     shape.append(3)
@@ -411,7 +411,7 @@ fn test_mse_symmetric() raises:
         assert_almost_equal(loss_ab_data[i], loss_ba_data[i], tolerance=1e-5)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_loss_funcs tests."""
     print("Running test_loss_funcs tests...")
 

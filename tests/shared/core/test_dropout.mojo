@@ -33,7 +33,7 @@ from shared.core.dropout import (
 from shared.testing import check_gradient
 
 
-fn test_dropout_shapes() raises:
+def test_dropout_shapes() raises:
     """Test that dropout returns correct output and mask shapes."""
     var shape = List[Int]()
     shape.append(4)
@@ -52,7 +52,7 @@ fn test_dropout_shapes() raises:
     assert_equal(mask.shape()[1], 10)
 
 
-fn test_dropout_inference_mode() raises:
+def test_dropout_inference_mode() raises:
     """Test that dropout passes input unchanged in inference mode."""
     var shape = List[Int]()
     shape.append(3)
@@ -80,7 +80,7 @@ fn test_dropout_inference_mode() raises:
         )
 
 
-fn test_dropout_probability() raises:
+def test_dropout_probability() raises:
     """Test that dropout approximately drops p% of elements."""
     var shape = List[Int]()
     shape.append(100)
@@ -109,7 +109,7 @@ fn test_dropout_probability() raises:
     assert_true(drop_rate < expected + tolerance)
 
 
-fn test_dropout_scaling() raises:
+def test_dropout_scaling() raises:
     """Test that kept elements are scaled by 1/(1-p)."""
     var shape = List[Int]()
     shape.append(10)
@@ -136,7 +136,7 @@ fn test_dropout_scaling() raises:
             assert_almost_equal(out_val, Float32(0.0), tolerance=1e-5)
 
 
-fn test_dropout_reproducibility() raises:
+def test_dropout_reproducibility() raises:
     """Test that dropout with same seed produces same mask."""
     var shape = List[Int]()
     shape.append(5)
@@ -160,7 +160,7 @@ fn test_dropout_reproducibility() raises:
         )
 
 
-fn test_dropout_backward_shapes() raises:
+def test_dropout_backward_shapes() raises:
     """Test that dropout_backward returns correct gradient shape."""
     var shape = List[Int]()
     shape.append(4)
@@ -180,7 +180,7 @@ fn test_dropout_backward_shapes() raises:
     assert_equal(grad_input.shape()[1], 8)
 
 
-fn test_dropout_backward_gradient_flow() raises:
+def test_dropout_backward_gradient_flow() raises:
     """Test that dropout_backward only passes gradients through non-dropped elements.
     """
     var shape = List[Int]()
@@ -211,7 +211,7 @@ fn test_dropout_backward_gradient_flow() raises:
             assert_almost_equal(grad_val, Float32(0.0), tolerance=1e-5)
 
 
-fn test_dropout_backward_gradient() raises:
+def test_dropout_backward_gradient() raises:
     """Test dropout_backward with numerical gradient checking."""
     var shape = List[Int]()
     shape.append(5)
@@ -235,7 +235,7 @@ fn test_dropout_backward_gradient() raises:
 
     # Forward function wrapper - manually apply the SAME mask
     # This makes the function deterministic for gradient checking
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         # Apply the same mask that was generated initially
         from shared.core.arithmetic import multiply
         from shared.tensor.any_tensor import full_like
@@ -246,7 +246,7 @@ fn test_dropout_backward_gradient() raises:
         return multiply(masked, scale_tensor)
 
     # Backward function wrapper - use the same stored mask
-    fn backward(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         # Use the mask from forward pass to ensure consistency
         return dropout_backward(grad, mask, p=p)
 
@@ -255,7 +255,7 @@ fn test_dropout_backward_gradient() raises:
     check_gradient(forward, backward, x, grad_out, rtol=2e-3, atol=1e-5)
 
 
-fn test_dropout2d_shapes() raises:
+def test_dropout2d_shapes() raises:
     """Test that dropout2d returns correct output and mask shapes."""
     var shape = List[Int]()
     shape.append(2)  # batch
@@ -275,7 +275,7 @@ fn test_dropout2d_shapes() raises:
     assert_equal(output.shape()[3], 4)
 
 
-fn test_dropout2d_channel_level() raises:
+def test_dropout2d_channel_level() raises:
     """Test that dropout2d drops entire channels (all spatial positions)."""
     var shape = List[Int]()
     shape.append(1)  # batch
@@ -307,7 +307,7 @@ fn test_dropout2d_channel_level() raises:
                 assert_almost_equal(val, first_val, tolerance=1e-5)
 
 
-fn test_dropout2d_inference_mode() raises:
+def test_dropout2d_inference_mode() raises:
     """Test that dropout2d passes input unchanged in inference mode."""
     var shape = List[Int]()
     shape.append(2)
@@ -331,7 +331,7 @@ fn test_dropout2d_inference_mode() raises:
         )
 
 
-fn test_dropout2d_backward_shapes() raises:
+def test_dropout2d_backward_shapes() raises:
     """Test that dropout2d_backward returns correct gradient shape."""
     var shape = List[Int]()
     shape.append(2)
@@ -355,7 +355,7 @@ fn test_dropout2d_backward_shapes() raises:
     assert_equal(grad_input.shape()[3], 8)
 
 
-fn test_dropout2d_backward_gradient() raises:
+def test_dropout2d_backward_gradient() raises:
     """Test dropout2d_backward with numerical gradient checking."""
     var shape = List[Int]()
     shape.append(1)
@@ -379,7 +379,7 @@ fn test_dropout2d_backward_gradient() raises:
 
     # Forward function wrapper - manually apply the SAME mask
     # This makes the function deterministic for gradient checking
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         # Apply the same mask that was generated initially
         from shared.core.arithmetic import multiply
         from shared.tensor.any_tensor import full_like
@@ -390,7 +390,7 @@ fn test_dropout2d_backward_gradient() raises:
         return multiply(masked, scale_tensor)
 
     # Backward function wrapper - use stored mask instead of regenerating
-    fn backward(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         # Use the mask from forward pass to ensure consistency
         return dropout2d_backward(grad, mask, p=p)
 
@@ -400,7 +400,7 @@ fn test_dropout2d_backward_gradient() raises:
     check_gradient(forward, backward, x, grad_out, rtol=1e-2, atol=1e-3)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_dropout tests."""
     print("Running test_dropout tests...")
 

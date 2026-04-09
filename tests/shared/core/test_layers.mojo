@@ -22,7 +22,7 @@ from shared.core.linear import linear, linear_no_bias
 from shared.core.activation import relu, sigmoid, tanh, softmax
 
 
-fn test_linear_initialization() raises:
+def test_linear_initialization() raises:
     """Test Linear layer parameter creation.
 
     Functional API Note:
@@ -53,7 +53,7 @@ fn test_linear_initialization() raises:
     assert_equal(b_shape[0], out_features)
 
 
-fn test_linear_forward() raises:
+def test_linear_forward() raises:
     """Test Linear layer forward pass computation.
 
     Functional API:
@@ -105,7 +105,7 @@ fn test_linear_forward() raises:
     )
 
 
-fn test_linear_no_bias() raises:
+def test_linear_no_bias() raises:
     """Test Linear layer without bias term.
 
     Functional API:
@@ -146,7 +146,7 @@ fn test_linear_no_bias() raises:
     )
 
 
-fn test_linear_backward() raises:
+def test_linear_backward() raises:
     """Test Linear layer backward pass (gradient computation).
 
     Deferred - backward pass implementations are not yet available.
@@ -155,7 +155,7 @@ fn test_linear_backward() raises:
     pass  # Deferred - backward pass not yet implemented
 
 
-fn test_conv2d_initialization() raises:
+def test_conv2d_initialization() raises:
     """Test Conv2D layer initialization.
 
     API Contract:
@@ -182,7 +182,7 @@ fn test_conv2d_initialization() raises:
     pass
 
 
-fn test_conv2d_output_shape() raises:
+def test_conv2d_output_shape() raises:
     """Test Conv2D computes correct output shape.
 
     Formula: output_size = (input_size + 2*padding - kernel_size) / stride + 1
@@ -204,7 +204,7 @@ fn test_conv2d_output_shape() raises:
     pass
 
 
-fn test_conv2d_stride() raises:
+def test_conv2d_stride() raises:
     """Test Conv2D with stride > 1 downsamples correctly.
 
     API Contract:
@@ -222,7 +222,7 @@ fn test_conv2d_stride() raises:
     pass
 
 
-fn test_conv2d_valid_padding() raises:
+def test_conv2d_valid_padding() raises:
     """Test Conv2D with no padding (valid convolution).
 
     API Contract:
@@ -240,7 +240,7 @@ fn test_conv2d_valid_padding() raises:
     pass
 
 
-fn test_relu_activation() raises:
+def test_relu_activation() raises:
     """Test ReLU zeros negative values and preserves positive values.
 
     Functional API:
@@ -268,7 +268,7 @@ fn test_relu_activation() raises:
     assert_almost_equal(output._data.bitcast[Float32]()[4], 2.0, tolerance=1e-6)
 
 
-fn test_relu_in_place() raises:
+def test_relu_in_place() raises:
     """Test ReLU can modify input in-place for memory efficiency.
 
     Not applicable to pure functional design - functional operations
@@ -277,7 +277,7 @@ fn test_relu_in_place() raises:
     pass  # Not applicable - pure functional design
 
 
-fn test_sigmoid_range() raises:
+def test_sigmoid_range() raises:
     """Test Sigmoid outputs values in range [0, 1].
 
     Functional API:
@@ -308,7 +308,7 @@ fn test_sigmoid_range() raises:
     assert_almost_equal(output._data.bitcast[Float32]()[2], 0.5, tolerance=1e-6)
 
 
-fn test_tanh_range() raises:
+def test_tanh_range() raises:
     """Test Tanh outputs values in range [-1, 1].
 
     Functional API:
@@ -339,7 +339,7 @@ fn test_tanh_range() raises:
     assert_almost_equal(output._data.bitcast[Float32]()[2], 0.0, tolerance=1e-6)
 
 
-fn test_maxpool2d_downsampling() raises:
+def test_maxpool2d_downsampling() raises:
     """Test MaxPool2D downsamples spatial dimensions.
 
     API Contract:
@@ -358,7 +358,7 @@ fn test_maxpool2d_downsampling() raises:
     pass
 
 
-fn test_maxpool2d_max_selection() raises:
+def test_maxpool2d_max_selection() raises:
     """Test MaxPool2D selects maximum value in each window.
 
     API Contract:
@@ -379,7 +379,7 @@ fn test_maxpool2d_max_selection() raises:
     pass
 
 
-fn test_layer_property_batch_independence() raises:
+def test_layer_property_batch_independence() raises:
     """Property: Layer output for batch should equal individual outputs.
 
     Functional API:
@@ -436,7 +436,7 @@ fn test_layer_property_batch_independence() raises:
         )
 
 
-fn test_layer_property_deterministic() raises:
+def test_layer_property_deterministic() raises:
     """Property: Layer forward pass is deterministic.
 
     Functional API:
@@ -482,7 +482,7 @@ fn test_layer_property_deterministic() raises:
         )
 
 
-fn test_linear_matches_pytorch() raises:
+def test_linear_matches_pytorch() raises:
     """Test Linear matches PyTorch implementation numerically.
 
     This test validates numerical correctness against PyTorch reference values.
@@ -578,7 +578,7 @@ fn test_linear_matches_pytorch() raises:
     )
 
 
-fn test_relu_matches_pytorch() raises:
+def test_relu_matches_pytorch() raises:
     """Test ReLU matches PyTorch implementation numerically.
 
     PyTorch reference code:
@@ -616,7 +616,7 @@ fn test_relu_matches_pytorch() raises:
     assert_almost_equal(output._data.bitcast[Float32]()[6], 3.0, tolerance=1e-6)
 
 
-fn test_sigmoid_matches_pytorch() raises:
+def test_sigmoid_matches_pytorch() raises:
     """Test Sigmoid matches PyTorch implementation numerically.
 
     PyTorch reference code:
@@ -661,7 +661,7 @@ fn test_sigmoid_matches_pytorch() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all test_layers tests."""
     print("Running test_layers tests...")
 

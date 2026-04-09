@@ -36,7 +36,7 @@ via refcount decrement).
 from shared.tensor.any_tensor import AnyTensor, ones
 
 
-fn main() raises:
+def main() raises:
     # Create a 4D tensor: 8 samples x 2 channels x 4 height x 4 width
     # Total: 256 float32 elements = 1024 bytes
     var data = ones([8, 2, 4, 4], DType.float32)

@@ -17,10 +17,10 @@ Benefits:
 Usage:
     from shared.testing.gradient_checker import check_gradients
 
-    fn forward(x: AnyTensor) -> AnyTensor:
+    def forward(x: AnyTensor) -> AnyTensor:
         return relu(x)
 
-    fn backward(grad_out: AnyTensor, x: AnyTensor) -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) -> AnyTensor:
         return relu_backward(grad_out, x)
 
     var input = randn([3, 4], DType.float32)
@@ -82,26 +82,26 @@ struct IndexGradientPair(Copyable, Movable):
 # ============================================================================
 
 
-fn _get_val_as_f64[dtype: DType](tensor: AnyTensor, index: Int) -> Float64:
+def _get_val_as_f64[dtype: DType](tensor: AnyTensor, index: Int) -> Float64:
     """Read tensor element at flat index as Float64 using typed pointer."""
     var ptr = tensor.data_ptr[dtype]()
     return Float64(ptr[index])
 
 
-fn _set_val_from_f64[dtype: DType](tensor: AnyTensor, index: Int, value: Float64):
+def _set_val_from_f64[dtype: DType](tensor: AnyTensor, index: Int, value: Float64):
     """Write Float64 value to tensor element at flat index using typed pointer."""
     var ptr = tensor.data_ptr[dtype]()
     ptr[index] = Scalar[dtype](value)
 
 
-fn _fill_ones[dtype: DType](tensor: AnyTensor):
+def _fill_ones[dtype: DType](tensor: AnyTensor):
     """Fill tensor with 1.0 using typed pointer."""
     var ptr = tensor.data_ptr[dtype]()
     for i in range(tensor.numel()):
         ptr[i] = Scalar[dtype](1.0)
 
 
-fn _is_uniform_tensor(tensor: AnyTensor) -> Bool:
+def _is_uniform_tensor(tensor: AnyTensor) -> Bool:
     """Check if all elements in a tensor have the same value (uniform tensor).
 
     Args:
@@ -135,9 +135,9 @@ fn _is_uniform_tensor(tensor: AnyTensor) -> Bool:
 # ============================================================================
 
 
-fn _check_gradients_perturb[
+def _check_gradients_perturb[
     dtype: DType,
-    forward_fn: fn (AnyTensor) capturing raises -> AnyTensor,
+    forward_fn: def (AnyTensor) capturing raises -> AnyTensor,
 ](
     input: AnyTensor,
     input_copy_plus: AnyTensor,
@@ -185,8 +185,8 @@ fn _check_gradients_perturb[
         minus_ptr[i] = Scalar[dtype](original_val)
 
 
-fn _dispatch_check_gradients_perturb[
-    forward_fn: fn (AnyTensor) capturing raises -> AnyTensor,
+def _dispatch_check_gradients_perturb[
+    forward_fn: def (AnyTensor) capturing raises -> AnyTensor,
 ](
     input: AnyTensor,
     input_copy_plus: AnyTensor,
@@ -221,9 +221,9 @@ fn _dispatch_check_gradients_perturb[
         )
 
 
-fn check_gradients[
-    forward_fn: fn (AnyTensor) capturing raises -> AnyTensor,
-    backward_fn: fn (AnyTensor, AnyTensor) capturing raises -> AnyTensor,
+def check_gradients[
+    forward_fn: def (AnyTensor) capturing raises -> AnyTensor,
+    backward_fn: def (AnyTensor, AnyTensor) capturing raises -> AnyTensor,
 ](
     input: AnyTensor,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
@@ -236,8 +236,6 @@ fn check_gradients[
         gradients match within tolerance.
 
     Args:
-            forward_fn: Forward pass function: input -> output.
-            backward_fn: Backward pass function: (grad_output, input) -> grad_input.
             input: Input tensor for testing.
             epsilon: Step size for finite differences (default: 1e-5).
             tolerance: Maximum allowed difference (default: 1e-2).
@@ -260,10 +258,10 @@ fn check_gradients[
 
         Example:
             ```mojo
-            fn my_forward(x: AnyTensor) -> AnyTensor:
+            def my_forward(x: AnyTensor) -> AnyTensor:
                 return x * x  # f(x) = x²
 
-            fn my_backward(grad_out: AnyTensor, x: AnyTensor) -> AnyTensor:
+            def my_backward(grad_out: AnyTensor, x: AnyTensor) -> AnyTensor:
                 return multiply(grad_out, multiply(x, full_like(x, 2.0)))  # f'(x) = 2x
 
             var x = full([3, 4], 2.0, DType.float32)
@@ -346,9 +344,9 @@ fn check_gradients[
     return True
 
 
-fn check_gradients_verbose[
-    forward_fn: fn (AnyTensor) capturing raises -> AnyTensor,
-    backward_fn: fn (AnyTensor, AnyTensor) capturing raises -> AnyTensor,
+def check_gradients_verbose[
+    forward_fn: def (AnyTensor) capturing raises -> AnyTensor,
+    backward_fn: def (AnyTensor, AnyTensor) capturing raises -> AnyTensor,
 ](
     input: AnyTensor,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
@@ -361,8 +359,6 @@ fn check_gradients_verbose[
         Useful for debugging specific gradient issues.
 
     Args:
-            forward_fn: Forward pass function.
-            backward_fn: Backward pass function.
             input: Input tensor.
             epsilon: Finite difference step size.
             tolerance: Maximum allowed difference.
@@ -449,7 +445,7 @@ fn check_gradients_verbose[
     return passed
 
 
-fn relative_error(analytical: Float64, numerical: Float64) -> Float64:
+def relative_error(analytical: Float64, numerical: Float64) -> Float64:
     """Compute relative error between analytical and numerical gradients.
 
         Uses formula: |a - n| / max(|a|, |n|, 1e-8).
@@ -477,9 +473,9 @@ fn relative_error(analytical: Float64, numerical: Float64) -> Float64:
 # ============================================================================
 
 
-fn _compute_numerical_grad_perturb[
+def _compute_numerical_grad_perturb[
     dtype: DType,
-    forward_fn: fn (AnyTensor) capturing raises -> AnyTensor,
+    forward_fn: def (AnyTensor) capturing raises -> AnyTensor,
 ](
     x: AnyTensor,
     grad: AnyTensor,
@@ -524,8 +520,8 @@ fn _compute_numerical_grad_perturb[
         grad_ptr[i] = Scalar[dtype](grad_val)
 
 
-fn compute_numerical_gradient[
-    forward_fn: fn (AnyTensor) capturing raises -> AnyTensor,
+def compute_numerical_gradient[
+    forward_fn: def (AnyTensor) capturing raises -> AnyTensor,
 ](
     x: AnyTensor,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
@@ -539,7 +535,6 @@ fn compute_numerical_gradient[
         differences, making it much more accurate.
 
     Args:
-            forward_fn: Function that computes forward pass (takes AnyTensor, returns AnyTensor).
             x: Input tensor at which to compute gradient.
             epsilon: Small perturbation for finite differences (default: 1e-5).
 
@@ -564,7 +559,7 @@ fn compute_numerical_gradient[
         Example:
             ```mojo
              Validate ReLU gradient
-            fn relu_forward(x: AnyTensor) raises -> AnyTensor:
+            def relu_forward(x: AnyTensor) raises -> AnyTensor:
                 return relu(x)
 
             var x = AnyTensor(List[Int](), DType.float32)
@@ -606,9 +601,9 @@ fn compute_numerical_gradient[
 # ============================================================================
 
 
-fn _compute_sampled_grad_perturb[
+def _compute_sampled_grad_perturb[
     dtype: DType,
-    forward_fn: fn (AnyTensor) capturing raises -> AnyTensor,
+    forward_fn: def (AnyTensor) capturing raises -> AnyTensor,
 ](
     x: AnyTensor,
     indices: List[Int],
@@ -647,8 +642,8 @@ fn _compute_sampled_grad_perturb[
         gradients.append(IndexGradientPair(idx, grad))
 
 
-fn compute_sampled_numerical_gradient[
-    forward_fn: fn (AnyTensor) capturing raises -> AnyTensor,
+def compute_sampled_numerical_gradient[
+    forward_fn: def (AnyTensor) capturing raises -> AnyTensor,
 ](
     x: AnyTensor,
     num_samples: Int = 100,
@@ -665,7 +660,6 @@ fn compute_sampled_numerical_gradient[
     statistical confidence with 100+ samples from large tensors.
 
     Args:
-        forward_fn: Function that computes forward pass (x -> output).
         x: Input tensor.
         num_samples: Number of elements to sample (default: 100).
         epsilon: Perturbation for finite differences (default: 1e-5).
@@ -685,7 +679,7 @@ fn compute_sampled_numerical_gradient[
 
     Example:
         ```mojo
-        fn forward(x: AnyTensor) raises -> AnyTensor:
+        def forward(x: AnyTensor) raises -> AnyTensor:
             return relu(x)
 
         var x = AnyTensor([100, 100], DType.float32)
@@ -743,7 +737,7 @@ fn compute_sampled_numerical_gradient[
     return gradients^
 
 
-fn assert_sampled_gradients_close(
+def assert_sampled_gradients_close(
     analytical_grad: AnyTensor,
     sampled_numerical: List[IndexGradientPair],
     rtol: Float64 = 1e-2,
@@ -830,7 +824,7 @@ fn assert_sampled_gradients_close(
         raise Error(msg)
 
 
-fn assert_gradients_close(
+def assert_gradients_close(
     analytical: AnyTensor,
     numerical: AnyTensor,
     rtol: Float64 = 1e-3,
@@ -928,9 +922,9 @@ fn assert_gradients_close(
 # ============================================================================
 
 
-fn _check_gradient_perturb[
+def _check_gradient_perturb[
     dtype: DType,
-    forward_fn: fn (AnyTensor) capturing raises -> AnyTensor,
+    forward_fn: def (AnyTensor) capturing raises -> AnyTensor,
 ](
     x: AnyTensor,
     grad_output: AnyTensor,
@@ -977,9 +971,9 @@ fn _check_gradient_perturb[
         grad_ptr[i] = Scalar[dtype](numerical_grad)
 
 
-fn check_gradient[
-    forward_fn: fn (AnyTensor) capturing raises -> AnyTensor,
-    backward_fn: fn (AnyTensor, AnyTensor) capturing raises -> AnyTensor,
+def check_gradient[
+    forward_fn: def (AnyTensor) capturing raises -> AnyTensor,
+    backward_fn: def (AnyTensor, AnyTensor) capturing raises -> AnyTensor,
 ](
     x: AnyTensor,
     grad_output: AnyTensor,
@@ -993,8 +987,6 @@ fn check_gradient[
         This is the recommended way to validate backward passes in tests.
 
     Args:
-            forward_fn: Forward pass function.
-            backward_fn: Backward pass function (takes grad_output and x).
             x: Input tensor.
             grad_output: Gradient from upstream (typically ones_like(output)).
             epsilon: Perturbation size for finite differences (0.0 = auto-select).
@@ -1006,14 +998,14 @@ fn check_gradient[
 
         Example:
             ```mojo
-            fn test_relu_gradient() raises:
+            def test_relu_gradient() raises:
                 var x = AnyTensor(List[Int](), DType.float32)
                 # ... initialize x with test values ...
 
-                fn forward(inp: AnyTensor) raises -> AnyTensor:
+                def forward(inp: AnyTensor) raises -> AnyTensor:
                     return relu(inp)
 
-                fn backward_wrapper(grad: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+                def backward_wrapper(grad: AnyTensor, x: AnyTensor) raises -> AnyTensor:
                     return relu_backward(grad, x)
 
                 var grad_out = ones_like(relu(x))

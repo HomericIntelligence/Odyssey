@@ -26,7 +26,7 @@ from shared.data.transforms import (
 from shared.tensor.any_tensor import AnyTensor
 
 
-fn test_random_augmentation_deterministic() raises:
+def test_random_augmentation_deterministic() raises:
     """Test that augmentations are deterministic with fixed seed.
 
     Setting random seed should produce identical augmentations,
@@ -56,7 +56,7 @@ fn test_random_augmentation_deterministic() raises:
     assert_equal(result1.num_elements(), result2.num_elements())
 
 
-fn test_random_augmentation_varies() raises:
+def test_random_augmentation_varies() raises:
     """Test that augmentations vary without fixed seed.
 
     Multiple calls should produce different augmentations,
@@ -89,7 +89,7 @@ fn test_random_augmentation_varies() raises:
     assert_true(all_same_size)
 
 
-fn test_random_rotation_range() raises:
+def test_random_rotation_range() raises:
     """Test random rotation within degree range.
 
     Should rotate image by random angle in [-degrees, +degrees],
@@ -112,7 +112,7 @@ fn test_random_rotation_range() raises:
     assert_equal(result.num_elements(), data.num_elements())
 
 
-fn test_random_rotation_no_change() raises:
+def test_random_rotation_no_change() raises:
     """Test that rotation with degrees=0 doesn't change image.
 
     Edge case where rotation range is zero should return
@@ -140,7 +140,7 @@ fn test_random_rotation_no_change() raises:
     assert_true(all_ones)
 
 
-fn test_random_rotation_fill_value() raises:
+def test_random_rotation_fill_value() raises:
     """Test rotation with custom fill value for empty regions.
 
     Rotating creates empty corners; should fill with specified value
@@ -163,7 +163,7 @@ fn test_random_rotation_fill_value() raises:
     assert_equal(result.num_elements(), data.num_elements())
 
 
-fn test_random_crop_varies_location() raises:
+def test_random_crop_varies_location() raises:
     """Test that RandomCrop samples different locations.
 
     Multiple crops should not all be from same location,
@@ -190,7 +190,7 @@ fn test_random_crop_varies_location() raises:
         assert_equal(crops[i].num_elements(), 50 * 50 * 1)
 
 
-fn test_random_crop_with_padding() raises:
+def test_random_crop_with_padding() raises:
     """Test RandomCrop with padding for edge handling.
 
     Padding allows crops that extend beyond image boundaries,
@@ -213,7 +213,7 @@ fn test_random_crop_with_padding() raises:
     assert_equal(result.num_elements(), 32 * 32 * 1)
 
 
-fn test_random_horizontal_flip_probability() raises:
+def test_random_horizontal_flip_probability() raises:
     """Test RandomHorizontalFlip respects probability.
 
     With p=0.5, should flip approximately 50% of the time
@@ -248,7 +248,7 @@ fn test_random_horizontal_flip_probability() raises:
     assert_true(flipped_count > 400 and flipped_count < 600)
 
 
-fn test_random_flip_always() raises:
+def test_random_flip_always() raises:
     """Test RandomHorizontalFlip with p=1.0 always flips.
 
     Should flip every time when probability is 1.0,
@@ -273,7 +273,7 @@ fn test_random_flip_always() raises:
         assert_true(result[0] > 1.0)
 
 
-fn test_random_flip_never() raises:
+def test_random_flip_never() raises:
     """Test RandomHorizontalFlip with p=0.0 never flips.
 
     Should never flip when probability is 0.0,
@@ -297,7 +297,7 @@ fn test_random_flip_never() raises:
         assert_equal(result[0], 1.0)
 
 
-fn test_random_erasing_basic() raises:
+def test_random_erasing_basic() raises:
     """Test random erasing (cutout) augmentation.
 
     Should randomly mask rectangular region with zeros or random noise,
@@ -326,7 +326,7 @@ fn test_random_erasing_basic() raises:
     assert_true(has_erased)
 
 
-fn test_random_erasing_scale() raises:
+def test_random_erasing_scale() raises:
     """Test random erasing with scale parameter.
 
     Scale controls size of erased region as fraction of image,
@@ -358,7 +358,7 @@ fn test_random_erasing_scale() raises:
     assert_true(erased_count > 800 and erased_count < 6500)
 
 
-fn test_compose_random_augmentations() raises:
+def test_compose_random_augmentations() raises:
     """Test composing multiple random augmentations.
 
     Should apply all augmentations in sequence,
@@ -389,7 +389,7 @@ fn test_compose_random_augmentations() raises:
     assert_equal(result.num_elements(), 24 * 24 * 3)
 
 
-fn test_augmentation_determinism_in_pipeline() raises:
+def test_augmentation_determinism_in_pipeline() raises:
     """Test that augmentation pipeline is deterministic with seed.
 
     Entire pipeline should produce same result with same seed,
@@ -428,7 +428,7 @@ fn test_augmentation_determinism_in_pipeline() raises:
     assert_equal(result1.num_elements(), result2.num_elements())
 
 
-fn main() raises:
+def main() raises:
     """Run all test_augmentations tests."""
     print("Running test_augmentations tests...")
 

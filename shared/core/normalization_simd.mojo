@@ -34,8 +34,8 @@ Related:
 - Issue #2589: Add SIMD vectorization to element-wise operations
 """
 
-from algorithm import vectorize
-from sys.info import simd_width_of
+from std.algorithm import vectorize
+from std.sys.info import simd_width_of
 from shared.tensor.any_tensor import (
     AnyTensor,
     zeros,
@@ -51,7 +51,7 @@ from .scalar_ops import sqrt_scalar_f32, sqrt_scalar_f64
 # ============================================================================
 
 
-fn batch_norm2d_fused_inference(
+def batch_norm2d_fused_inference(
     x: AnyTensor,
     gamma: AnyTensor,
     beta: AnyTensor,
@@ -122,7 +122,7 @@ fn batch_norm2d_fused_inference(
 
 
 @always_inline
-fn _batch_norm2d_fused_inference_float32(
+def _batch_norm2d_fused_inference_float32(
     x: AnyTensor,
     gamma: AnyTensor,
     beta: AnyTensor,
@@ -170,7 +170,7 @@ fn _batch_norm2d_fused_inference_float32(
 
             # Single SIMD pass: output = x * scale + bias
             @parameter
-            fn normalize_kernel[width: Int](idx: Int) unified {mut}:
+            def normalize_kernel[width: Int](idx: Int) unified {mut}:
                 var x_vec = x_ptr.load[width=width](base_offset + idx)
                 var scale_vec = SIMD[DType.float32, width](scale)
                 var bias_vec = SIMD[DType.float32, width](bias)
@@ -181,7 +181,7 @@ fn _batch_norm2d_fused_inference_float32(
 
 
 @always_inline
-fn _batch_norm2d_fused_inference_float64(
+def _batch_norm2d_fused_inference_float64(
     x: AnyTensor,
     gamma: AnyTensor,
     beta: AnyTensor,
@@ -220,7 +220,7 @@ fn _batch_norm2d_fused_inference_float64(
             var base_offset = b * (channels * spatial_size) + c * spatial_size
 
             @parameter
-            fn normalize_kernel[width: Int](idx: Int) unified {mut}:
+            def normalize_kernel[width: Int](idx: Int) unified {mut}:
                 var x_vec = x_ptr.load[width=width](base_offset + idx)
                 var scale_vec = SIMD[DType.float64, width](scale)
                 var bias_vec = SIMD[DType.float64, width](bias)
@@ -235,7 +235,7 @@ fn _batch_norm2d_fused_inference_float64(
 # ============================================================================
 
 
-fn batch_norm2d_fused(
+def batch_norm2d_fused(
     x: AnyTensor,
     gamma: AnyTensor,
     beta: AnyTensor,
@@ -330,7 +330,7 @@ fn batch_norm2d_fused(
 
 
 @always_inline
-fn _batch_norm2d_fused_training_float32(
+def _batch_norm2d_fused_training_float32(
     x: AnyTensor,
     gamma: AnyTensor,
     beta: AnyTensor,
@@ -423,7 +423,7 @@ fn _batch_norm2d_fused_training_float32(
             var base_offset = b * (channels * spatial_size) + c * spatial_size
 
             @parameter
-            fn normalize_kernel[width: Int](idx: Int) unified {mut}:
+            def normalize_kernel[width: Int](idx: Int) unified {mut}:
                 var x_vec = x_ptr.load[width=width](base_offset + idx)
                 var scale_vec = SIMD[DType.float32, width](scale)
                 var bias_vec = SIMD[DType.float32, width](bias)
@@ -452,7 +452,7 @@ fn _batch_norm2d_fused_training_float32(
 
 
 @always_inline
-fn _batch_norm2d_fused_training_float64(
+def _batch_norm2d_fused_training_float64(
     x: AnyTensor,
     gamma: AnyTensor,
     beta: AnyTensor,
@@ -535,7 +535,7 @@ fn _batch_norm2d_fused_training_float64(
             var base_offset = b * (channels * spatial_size) + c * spatial_size
 
             @parameter
-            fn normalize_kernel[width: Int](idx: Int) unified {mut}:
+            def normalize_kernel[width: Int](idx: Int) unified {mut}:
                 var x_vec = x_ptr.load[width=width](base_offset + idx)
                 var scale_vec = SIMD[DType.float64, width](scale)
                 var bias_vec = SIMD[DType.float64, width](bias)

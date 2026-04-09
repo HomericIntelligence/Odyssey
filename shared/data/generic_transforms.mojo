@@ -52,11 +52,11 @@ struct IdentityTransform(Copyable, Movable, Transform):
         ```
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         """Create identity transform."""
         pass
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Apply identity transform (passthrough).
 
         Args:
@@ -96,10 +96,10 @@ struct LambdaTransform(Copyable, Movable, Transform):
         ```
     """
 
-    var func: fn (Float32) -> Float32
+    var func: def (Float32) -> Float32
     """Function to apply element-wise to tensor values."""
 
-    fn __init__(out self, func: fn (Float32) -> Float32):
+    def __init__(out self, func: def (Float32) -> Float32):
         """Create lambda transform.
 
         Args:
@@ -107,7 +107,7 @@ struct LambdaTransform(Copyable, Movable, Transform):
         """
         self.func = func
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Apply function to each element.
 
         Args:
@@ -155,14 +155,14 @@ struct ConditionalTransform[T: Transform & Copyable & Movable](
         ```
     """
 
-    var predicate: fn (AnyTensor) raises -> Bool
+    var predicate: def (AnyTensor) raises -> Bool
     """Predicate function to evaluate on tensor."""
     var transform: Self.T
     """Transform to apply if predicate is true."""
 
-    fn __init__(
+    def __init__(
         out self,
-        predicate: fn (AnyTensor) raises -> Bool,
+        predicate: def (AnyTensor) raises -> Bool,
         var transform: Self.T,
     ):
         """Create conditional transform.
@@ -174,7 +174,7 @@ struct ConditionalTransform[T: Transform & Copyable & Movable](
         self.predicate = predicate
         self.transform = transform^
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Apply transform if predicate is true.
 
         Args:
@@ -218,7 +218,7 @@ struct ClampTransform(Copyable, Movable, Transform):
     var max_val: Float32
     """Maximum allowed value for clamping."""
 
-    fn __init__(out self, min_val: Float32, max_val: Float32) raises:
+    def __init__(out self, min_val: Float32, max_val: Float32) raises:
         """Create clamp transform.
 
         Args:
@@ -234,7 +234,7 @@ struct ClampTransform(Copyable, Movable, Transform):
         self.min_val = min_val
         self.max_val = max_val
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Clamp all values to [min_val, max_val].
 
         Args:
@@ -287,7 +287,7 @@ struct DebugTransform(Copyable, Movable, Transform):
     var name: String
     """Name to display in debug output."""
 
-    fn __init__(out self, name: String):
+    def __init__(out self, name: String):
         """Create debug transform.
 
         Args:
@@ -295,7 +295,7 @@ struct DebugTransform(Copyable, Movable, Transform):
         """
         self.name = name
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Print tensor info and return unchanged.
 
         Args:
@@ -362,7 +362,7 @@ struct AnyTransform(Copyable, Movable, Transform):
     var _sequential: Optional[SequentialTransform]
     """Wrapped SequentialTransform if set."""
 
-    fn __init__(out self, var transform: LambdaTransform):
+    def __init__(out self, var transform: LambdaTransform):
         """Create from LambdaTransform.
 
         Args:
@@ -376,7 +376,7 @@ struct AnyTransform(Copyable, Movable, Transform):
         self._to_int32 = None
         self._sequential = None
 
-    fn __init__(out self, var transform: ClampTransform) raises:
+    def __init__(out self, var transform: ClampTransform) raises:
         """Create from ClampTransform.
 
         Args:
@@ -393,7 +393,7 @@ struct AnyTransform(Copyable, Movable, Transform):
         self._to_int32 = None
         self._sequential = None
 
-    fn __init__(out self, var transform: IdentityTransform):
+    def __init__(out self, var transform: IdentityTransform):
         """Create from IdentityTransform.
 
         Args:
@@ -407,7 +407,7 @@ struct AnyTransform(Copyable, Movable, Transform):
         self._to_int32 = None
         self._sequential = None
 
-    fn __init__(out self, var transform: DebugTransform):
+    def __init__(out self, var transform: DebugTransform):
         """Create from DebugTransform.
 
         Args:
@@ -421,7 +421,7 @@ struct AnyTransform(Copyable, Movable, Transform):
         self._to_int32 = None
         self._sequential = None
 
-    fn __init__(out self, var transform: ToFloat32):
+    def __init__(out self, var transform: ToFloat32):
         """Create from ToFloat32.
 
         Args:
@@ -435,7 +435,7 @@ struct AnyTransform(Copyable, Movable, Transform):
         self._to_int32 = None
         self._sequential = None
 
-    fn __init__(out self, var transform: ToInt32):
+    def __init__(out self, var transform: ToInt32):
         """Create from ToInt32.
 
         Args:
@@ -449,7 +449,7 @@ struct AnyTransform(Copyable, Movable, Transform):
         self._to_int32 = transform^
         self._sequential = None
 
-    fn __init__(out self, var transform: SequentialTransform):
+    def __init__(out self, var transform: SequentialTransform):
         """Create from SequentialTransform.
 
         Args:
@@ -463,7 +463,7 @@ struct AnyTransform(Copyable, Movable, Transform):
         self._to_int32 = None
         self._sequential = transform^
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Apply the wrapped transform.
 
         Args:
@@ -520,11 +520,11 @@ struct SequentialTransform(Copyable, Movable, Transform):
     var transforms: List[AnyTransform]
     """List of transforms to apply in sequence."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Create empty sequential transform."""
         self.transforms = List[AnyTransform]()
 
-    fn __init__(out self, var transforms: List[AnyTransform]):
+    def __init__(out self, var transforms: List[AnyTransform]):
         """Create sequential composition.
 
         Args:
@@ -532,7 +532,7 @@ struct SequentialTransform(Copyable, Movable, Transform):
         """
         self.transforms = transforms^
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Apply all transforms sequentially.
 
         Args:
@@ -552,7 +552,7 @@ struct SequentialTransform(Copyable, Movable, Transform):
 
         return result
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return number of transforms in sequence.
 
         Returns:
@@ -560,7 +560,7 @@ struct SequentialTransform(Copyable, Movable, Transform):
         """
         return len(self.transforms)
 
-    fn append(mut self, var transform: AnyTransform):
+    def append(mut self, var transform: AnyTransform):
         """Add a transform to the pipeline.
 
         Args:
@@ -596,7 +596,7 @@ struct BatchTransform(Copyable, Movable):
     var transform: AnyTransform
     """Transform to apply to each tensor in the batch."""
 
-    fn __init__(out self, var transform: AnyTransform):
+    def __init__(out self, var transform: AnyTransform):
         """Create batch transform.
 
         Args:
@@ -604,7 +604,7 @@ struct BatchTransform(Copyable, Movable):
         """
         self.transform = transform^
 
-    fn __call__(self, batch: List[AnyTensor]) raises -> List[AnyTensor]:
+    def __call__(self, batch: List[AnyTensor]) raises -> List[AnyTensor]:
         """Apply transform to each tensor in batch.
 
         Args:
@@ -624,7 +624,7 @@ struct BatchTransform(Copyable, Movable):
 
         return results^
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return number of tensors in batch.
 
         Returns:
@@ -654,11 +654,11 @@ struct ToFloat32(Copyable, Movable, Transform):
         ```
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         """Create ToFloat32 converter."""
         pass
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Convert to Float32.
 
         Args:
@@ -697,11 +697,11 @@ struct ToInt32(Copyable, Movable, Transform):
         ```
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         """Create ToInt32 converter."""
         pass
 
-    fn __call__(self, data: AnyTensor) raises -> AnyTensor:
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Convert to Int32 (truncate).
 
         Args:
@@ -732,8 +732,8 @@ struct ToInt32(Copyable, Movable, Transform):
 # ============================================================================
 
 
-fn apply_to_tensor(
-    data: AnyTensor, func: fn (Float32) -> Float32
+def apply_to_tensor(
+    data: AnyTensor, func: def (Float32) -> Float32
 ) raises -> AnyTensor:
     """Apply function element-wise to tensor.
 
@@ -762,7 +762,7 @@ fn apply_to_tensor(
     return transform(data)
 
 
-fn compose_transforms(
+def compose_transforms(
     var transforms: List[AnyTransform],
 ) raises -> SequentialTransform:
     """Create sequential composition of transforms.

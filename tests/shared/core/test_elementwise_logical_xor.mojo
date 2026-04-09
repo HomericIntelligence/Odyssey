@@ -27,7 +27,7 @@ from shared.core.elementwise import logical_xor
 # ============================================================================
 
 
-fn test_logical_xor_values() raises:
+def test_logical_xor_values() raises:
     """Truth table: (F,F)→F, (F,T)→T, (T,F)→T, (T,T)→F."""
     var shape = List[Int]()
     shape.append(4)
@@ -61,7 +61,7 @@ fn test_logical_xor_values() raises:
     )
 
 
-fn test_logical_xor_shape_preserved() raises:
+def test_logical_xor_shape_preserved() raises:
     """Output shape matches input shape."""
     var shape = List[Int]()
     shape.append(3)
@@ -72,7 +72,7 @@ fn test_logical_xor_shape_preserved() raises:
     assert_equal(result.shape()[0], 3)
 
 
-fn test_logical_xor_all_false() raises:
+def test_logical_xor_all_false() raises:
     """Zeros XOR zeros → all zeros."""
     var shape = List[Int]()
     shape.append(3)
@@ -85,7 +85,7 @@ fn test_logical_xor_all_false() raises:
         )
 
 
-fn test_logical_xor_all_true() raises:
+def test_logical_xor_all_true() raises:
     """Ones XOR ones → all zeros (T XOR T = F)."""
     var shape = List[Int]()
     shape.append(3)
@@ -101,7 +101,7 @@ fn test_logical_xor_all_true() raises:
         )
 
 
-fn test_logical_xor_identity() raises:
+def test_logical_xor_identity() raises:
     """Tensor XOR zeros → bool(tensor) (XOR with False is identity)."""
     var shape = List[Int]()
     shape.append(3)
@@ -127,7 +127,7 @@ fn test_logical_xor_identity() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run logical_xor elementwise operation tests."""
     print("Running logical_xor elementwise operation tests...")
 

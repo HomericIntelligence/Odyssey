@@ -43,7 +43,7 @@ Example:
     ```
 """
 
-from random import random_float64, seed as random_seed
+from std.random import random_float64, seed as random_seed
 from shared.testing.fuzz_core import SeededRNG
 
 
@@ -71,7 +71,7 @@ struct DTypeFuzzer(Copyable, Movable):
 
     var rng: SeededRNG
 
-    fn __init__(out self, seed: Int = 42):
+    def __init__(out self, seed: Int = 42):
         """Initialize dtype fuzzer.
 
         Args:
@@ -79,11 +79,11 @@ struct DTypeFuzzer(Copyable, Movable):
         """
         self.rng = SeededRNG(seed)
 
-    fn next_iteration(mut self):
+    def next_iteration(mut self):
         """Advance to next iteration for fresh randomness."""
         self.rng.next_iteration()
 
-    fn random_dtype(mut self) -> DType:
+    def random_dtype(mut self) -> DType:
         """Select a random data type from all supported types.
 
         Returns:
@@ -99,7 +99,7 @@ struct DTypeFuzzer(Copyable, Movable):
         var idx = self.rng.random_int(0, len(dtypes))
         return dtypes[idx]
 
-    fn random_float_dtype(mut self) -> DType:
+    def random_float_dtype(mut self) -> DType:
         """Select a random floating-point data type.
 
         Returns:
@@ -115,7 +115,7 @@ struct DTypeFuzzer(Copyable, Movable):
         var idx = self.rng.random_int(0, len(dtypes))
         return dtypes[idx]
 
-    fn random_int_dtype(mut self) -> DType:
+    def random_int_dtype(mut self) -> DType:
         """Select a random signed integer data type.
 
         Returns:
@@ -131,7 +131,7 @@ struct DTypeFuzzer(Copyable, Movable):
         var idx = self.rng.random_int(0, len(dtypes))
         return dtypes[idx]
 
-    fn random_uint_dtype(mut self) -> DType:
+    def random_uint_dtype(mut self) -> DType:
         """Select a random unsigned integer data type.
 
         Returns:
@@ -147,7 +147,7 @@ struct DTypeFuzzer(Copyable, Movable):
         var idx = self.rng.random_int(0, len(dtypes))
         return dtypes[idx]
 
-    fn random_numeric_dtype(mut self) -> DType:
+    def random_numeric_dtype(mut self) -> DType:
         """Select a random numeric (non-bool) data type.
 
         Returns:
@@ -163,7 +163,7 @@ struct DTypeFuzzer(Copyable, Movable):
         var idx = self.rng.random_int(0, len(dtypes))
         return dtypes[idx]
 
-    fn random_value(mut self, dtype: DType) -> Float64:
+    def random_value(mut self, dtype: DType) -> Float64:
         """Generate a random value appropriate for the given dtype.
 
         Args:
@@ -183,7 +183,7 @@ struct DTypeFuzzer(Copyable, Movable):
         var high = range_tuple[1]
         return self.rng.random_float(low, high)
 
-    fn random_edge_value(mut self, dtype: DType) -> Float64:
+    def random_edge_value(mut self, dtype: DType) -> Float64:
         """Select a random edge case value for the given dtype.
 
         Args:
@@ -208,7 +208,7 @@ struct DTypeFuzzer(Copyable, Movable):
 # ============================================================================
 
 
-fn get_all_dtypes() -> List[DType]:
+def get_all_dtypes() -> List[DType]:
     """Get list of all supported data types.
 
     Returns:
@@ -242,7 +242,7 @@ fn get_all_dtypes() -> List[DType]:
     return dtypes^
 
 
-fn get_float_dtypes() -> List[DType]:
+def get_float_dtypes() -> List[DType]:
     """Get list of floating-point data types.
 
     Returns:
@@ -262,7 +262,7 @@ fn get_float_dtypes() -> List[DType]:
     return dtypes^
 
 
-fn get_int_dtypes() -> List[DType]:
+def get_int_dtypes() -> List[DType]:
     """Get list of signed integer data types.
 
     Returns:
@@ -282,7 +282,7 @@ fn get_int_dtypes() -> List[DType]:
     return dtypes^
 
 
-fn get_uint_dtypes() -> List[DType]:
+def get_uint_dtypes() -> List[DType]:
     """Get list of unsigned integer data types.
 
     Returns:
@@ -302,7 +302,7 @@ fn get_uint_dtypes() -> List[DType]:
     return dtypes^
 
 
-fn get_numeric_dtypes() -> List[DType]:
+def get_numeric_dtypes() -> List[DType]:
     """Get list of all numeric (non-bool) data types.
 
     Returns:
@@ -333,7 +333,7 @@ fn get_numeric_dtypes() -> List[DType]:
     return dtypes^
 
 
-fn get_common_ml_dtypes() -> List[DType]:
+def get_common_ml_dtypes() -> List[DType]:
     """Get list of data types commonly used in ML.
 
     Returns:
@@ -357,7 +357,7 @@ fn get_common_ml_dtypes() -> List[DType]:
 # ============================================================================
 
 
-fn get_dtype_range(dtype: DType) -> Tuple[Float64, Float64]:
+def get_dtype_range(dtype: DType) -> Tuple[Float64, Float64]:
     """Get the valid value range for a data type.
 
     Args:
@@ -403,7 +403,7 @@ fn get_dtype_range(dtype: DType) -> Tuple[Float64, Float64]:
         return (-3.4e38, 3.4e38)
 
 
-fn get_dtype_safe_range(dtype: DType) -> Tuple[Float64, Float64]:
+def get_dtype_safe_range(dtype: DType) -> Tuple[Float64, Float64]:
     """Get a safe value range for a data type (avoiding overflow).
 
     Returns a conservative range that avoids potential overflow/underflow
@@ -456,7 +456,7 @@ fn get_dtype_safe_range(dtype: DType) -> Tuple[Float64, Float64]:
 # ============================================================================
 
 
-fn get_edge_values(dtype: DType) -> List[Float64]:
+def get_edge_values(dtype: DType) -> List[Float64]:
     """Get list of edge case values for a data type.
 
     Returns values that are commonly problematic or boundary cases.
@@ -539,7 +539,7 @@ fn get_edge_values(dtype: DType) -> List[Float64]:
     return values^
 
 
-fn get_special_float_values() -> List[Float64]:
+def get_special_float_values() -> List[Float64]:
     """Get list of special floating-point values.
 
     Returns:
@@ -567,7 +567,7 @@ fn get_special_float_values() -> List[Float64]:
 # ============================================================================
 
 
-fn is_float_dtype(dtype: DType) -> Bool:
+def is_float_dtype(dtype: DType) -> Bool:
     """Check if dtype is a floating-point type.
 
     Args:
@@ -590,7 +590,7 @@ fn is_float_dtype(dtype: DType) -> Bool:
     )
 
 
-fn is_signed_int_dtype(dtype: DType) -> Bool:
+def is_signed_int_dtype(dtype: DType) -> Bool:
     """Check if dtype is a signed integer type.
 
     Args:
@@ -612,7 +612,7 @@ fn is_signed_int_dtype(dtype: DType) -> Bool:
     )
 
 
-fn is_unsigned_int_dtype(dtype: DType) -> Bool:
+def is_unsigned_int_dtype(dtype: DType) -> Bool:
     """Check if dtype is an unsigned integer type.
 
     Args:
@@ -634,7 +634,7 @@ fn is_unsigned_int_dtype(dtype: DType) -> Bool:
     )
 
 
-fn is_integer_dtype(dtype: DType) -> Bool:
+def is_integer_dtype(dtype: DType) -> Bool:
     """Check if dtype is any integer type (signed or unsigned).
 
     Args:
@@ -652,7 +652,7 @@ fn is_integer_dtype(dtype: DType) -> Bool:
     return is_signed_int_dtype(dtype) or is_unsigned_int_dtype(dtype)
 
 
-fn is_numeric_dtype(dtype: DType) -> Bool:
+def is_numeric_dtype(dtype: DType) -> Bool:
     """Check if dtype is numeric (not bool).
 
     Args:
@@ -670,7 +670,7 @@ fn is_numeric_dtype(dtype: DType) -> Bool:
     return is_float_dtype(dtype) or is_integer_dtype(dtype)
 
 
-fn supports_negative(dtype: DType) -> Bool:
+def supports_negative(dtype: DType) -> Bool:
     """Check if dtype supports negative values.
 
     Args:
@@ -688,7 +688,7 @@ fn supports_negative(dtype: DType) -> Bool:
     return is_float_dtype(dtype) or is_signed_int_dtype(dtype)
 
 
-fn supports_nan_inf(dtype: DType) -> Bool:
+def supports_nan_inf(dtype: DType) -> Bool:
     """Check if dtype supports NaN and Inf values.
 
     Args:
@@ -711,7 +711,7 @@ fn supports_nan_inf(dtype: DType) -> Bool:
 # ============================================================================
 
 
-fn get_dtype_size_bytes(dtype: DType) -> Int:
+def get_dtype_size_bytes(dtype: DType) -> Int:
     """Get the size of a dtype in bytes.
 
     Args:
@@ -745,7 +745,7 @@ fn get_dtype_size_bytes(dtype: DType) -> Int:
         return 4  # Default
 
 
-fn get_dtype_precision_bits(dtype: DType) -> Int:
+def get_dtype_precision_bits(dtype: DType) -> Int:
     """Get the precision (mantissa bits) for floating-point dtypes.
 
     Args:
@@ -771,7 +771,7 @@ fn get_dtype_precision_bits(dtype: DType) -> Int:
         return 0
 
 
-fn dtype_to_string(dtype: DType) -> String:
+def dtype_to_string(dtype: DType) -> String:
     """Convert dtype to human-readable string.
 
     Args:

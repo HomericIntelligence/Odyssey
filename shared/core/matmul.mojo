@@ -32,9 +32,9 @@ References:
     - Mojo SIMD documentation
 """
 
-from algorithm import vectorize
-from sys.info import simd_width_of
-from memory import memset_zero
+from std.algorithm import vectorize
+from std.sys.info import simd_width_of
+from std.memory import memset_zero
 from shared.tensor.any_tensor import AnyTensor, zeros
 from .error_utils import format_dtype, format_matmul_error
 from .strassen import (
@@ -66,7 +66,7 @@ comptime TRANSPOSE_THRESHOLD: Int = 64
 # ============================================================================
 
 
-fn matmul_typed(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
+def matmul_typed(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
     """Dtype-specific matrix multiplication kernel.
 
     Eliminates Float64 conversion overhead by using direct typed memory access.
@@ -121,7 +121,7 @@ fn matmul_typed(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
 
 
 @always_inline
-fn _matmul_typed_float32(
+def _matmul_typed_float32(
     a: AnyTensor, b: AnyTensor, mut c: AnyTensor, M: Int, K: Int, N: Int
 ) raises:
     """Float32-specific matmul implementation.
@@ -142,7 +142,7 @@ fn _matmul_typed_float32(
 
 
 @always_inline
-fn _matmul_typed_float64(
+def _matmul_typed_float64(
     a: AnyTensor, b: AnyTensor, mut c: AnyTensor, M: Int, K: Int, N: Int
 ) raises:
     """Float64-specific matmul implementation.
@@ -167,7 +167,7 @@ fn _matmul_typed_float64(
 # ============================================================================
 
 
-fn matmul_simd(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
+def matmul_simd(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
     """SIMD-vectorized matrix multiplication kernel.
 
     Vectorizes the J-loop (columns of C and B) for contiguous memory access.
@@ -218,7 +218,7 @@ fn matmul_simd(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
 
 
 @always_inline
-fn _matmul_simd_float32(
+def _matmul_simd_float32(
     a: AnyTensor, b: AnyTensor, mut c: AnyTensor, M: Int, K: Int, N: Int
 ) raises:
     """Float32-specific SIMD matmul implementation."""
@@ -233,7 +233,7 @@ fn _matmul_simd_float32(
         var row_i = i
 
         @parameter
-        fn vec_j[width: Int](j: Int) unified {mut}:
+        def vec_j[width: Int](j: Int) unified {mut}:
             var c_vec = SIMD[DType.float32, width](0)
             for k in range(K):
                 var a_scalar = a_ptr.load(row_i * K + k)
@@ -245,7 +245,7 @@ fn _matmul_simd_float32(
 
 
 @always_inline
-fn _matmul_simd_float64(
+def _matmul_simd_float64(
     a: AnyTensor, b: AnyTensor, mut c: AnyTensor, M: Int, K: Int, N: Int
 ) raises:
     """Float64-specific SIMD matmul implementation."""
@@ -260,7 +260,7 @@ fn _matmul_simd_float64(
         var row_i = i
 
         @parameter
-        fn vec_j[width: Int](j: Int) unified {mut}:
+        def vec_j[width: Int](j: Int) unified {mut}:
             var c_vec = SIMD[DType.float64, width](0)
             for k in range(K):
                 var a_scalar = a_ptr.load(row_i * K + k)
@@ -276,7 +276,7 @@ fn _matmul_simd_float64(
 # ============================================================================
 
 
-fn matmul_tiled(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
+def matmul_tiled(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
     """Cache-blocked matrix multiplication with SIMD.
 
     Implements 2D tiling to improve cache locality. Block sizes are tuned
@@ -330,13 +330,13 @@ fn matmul_tiled(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
 
 
 @always_inline
-fn _zero_matrix(mut c: AnyTensor, size: Int):
+def _zero_matrix(mut c: AnyTensor, size: Int):
     """Zero out the matrix using memset."""
     memset_zero(c._data, size * c._get_dtype_size())
 
 
 @always_inline
-fn _matmul_tiled_float32(
+def _matmul_tiled_float32(
     a: AnyTensor, b: AnyTensor, mut c: AnyTensor, M: Int, K: Int, N: Int
 ) raises:
     """Float32-specific cache-blocked SIMD matmul implementation."""
@@ -362,7 +362,7 @@ fn _matmul_tiled_float32(
                     var row_i = i
 
                     @parameter
-                    fn vec_inner[width: Int](j_off: Int) unified {mut}:
+                    def vec_inner[width: Int](j_off: Int) unified {mut}:
                         var j = j0 + j_off
                         var c_vec = c_ptr.load[width=width](row_i * N + j)
                         for k in range(k0, k1):
@@ -375,7 +375,7 @@ fn _matmul_tiled_float32(
 
 
 @always_inline
-fn _matmul_tiled_float64(
+def _matmul_tiled_float64(
     a: AnyTensor, b: AnyTensor, mut c: AnyTensor, M: Int, K: Int, N: Int
 ) raises:
     """Float64-specific cache-blocked SIMD matmul implementation."""
@@ -401,7 +401,7 @@ fn _matmul_tiled_float64(
                     var row_i = i
 
                     @parameter
-                    fn vec_inner[width: Int](j_off: Int) unified {mut}:
+                    def vec_inner[width: Int](j_off: Int) unified {mut}:
                         var j = j0 + j_off
                         var c_vec = c_ptr.load[width=width](row_i * N + j)
                         for k in range(k0, k1):
@@ -418,7 +418,7 @@ fn _matmul_tiled_float64(
 # ============================================================================
 
 
-fn matmul_transpose(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
+def matmul_transpose(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
     """Fully optimized GEMM with transpose and register blocking.
 
     Combines all optimizations for maximum performance:
@@ -490,7 +490,7 @@ fn matmul_transpose(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
 
 
 @always_inline
-fn _transpose_matrix_float32(b: AnyTensor, K: Int, N: Int) raises -> AnyTensor:
+def _transpose_matrix_float32(b: AnyTensor, K: Int, N: Int) raises -> AnyTensor:
     """Transpose B matrix (K x N) to B^T (N x K) for contiguous access."""
     var b_t_shape = List[Int]()
     b_t_shape.append(N)
@@ -514,7 +514,7 @@ fn _transpose_matrix_float32(b: AnyTensor, K: Int, N: Int) raises -> AnyTensor:
 
 
 @always_inline
-fn _transpose_matrix_float64(b: AnyTensor, K: Int, N: Int) raises -> AnyTensor:
+def _transpose_matrix_float64(b: AnyTensor, K: Int, N: Int) raises -> AnyTensor:
     """Transpose B matrix (K x N) to B^T (N x K) for contiguous access."""
     var b_t_shape = List[Int]()
     b_t_shape.append(N)
@@ -538,7 +538,7 @@ fn _transpose_matrix_float64(b: AnyTensor, K: Int, N: Int) raises -> AnyTensor:
 
 
 @always_inline
-fn _matmul_float32(
+def _matmul_float32(
     a: AnyTensor, b: AnyTensor, mut c: AnyTensor, M: Int, K: Int, N: Int
 ) raises:
     """Float32-specific fully optimized GEMM with transpose and register blocking.
@@ -575,7 +575,7 @@ fn _matmul_float32(
                     # SIMD dot product using transposed B
                     # A[i, :] dot B^T[j, :] = A[i, :] dot B[:, j]
                     @parameter
-                    fn vec_k[width: Int](k: Int) unified {mut}:
+                    def vec_k[width: Int](k: Int) unified {mut}:
                         var bt_vec = bt_ptr.load[width=width](col_j * K + k)
 
                         var a0_vec = a_ptr.load[width=width]((i + 0) * K + k)
@@ -613,7 +613,7 @@ fn _matmul_float32(
                     var c_val: Float32 = 0.0
 
                     @parameter
-                    fn vec_k_rem[width: Int](k: Int) unified {mut}:
+                    def vec_k_rem[width: Int](k: Int) unified {mut}:
                         var a_vec = a_ptr.load[width=width](i * K + k)
                         var bt_vec = bt_ptr.load[width=width](col_j * K + k)
                         c_val += (a_vec * bt_vec).reduce_add()
@@ -625,7 +625,7 @@ fn _matmul_float32(
 
 
 @always_inline
-fn _matmul_float64(
+def _matmul_float64(
     a: AnyTensor, b: AnyTensor, mut c: AnyTensor, M: Int, K: Int, N: Int
 ) raises:
     """Float64-specific fully optimized GEMM with transpose and register blocking.
@@ -658,7 +658,7 @@ fn _matmul_float64(
                     var c3: Float64 = 0.0
 
                     @parameter
-                    fn vec_k[width: Int](k: Int) unified {mut}:
+                    def vec_k[width: Int](k: Int) unified {mut}:
                         var bt_vec = bt_ptr.load[width=width](col_j * K + k)
 
                         var a0_vec = a_ptr.load[width=width]((i + 0) * K + k)
@@ -695,7 +695,7 @@ fn _matmul_float64(
                     var c_val: Float64 = 0.0
 
                     @parameter
-                    fn vec_k_rem[width: Int](k: Int) unified {mut}:
+                    def vec_k_rem[width: Int](k: Int) unified {mut}:
                         var a_vec = a_ptr.load[width=width](i * K + k)
                         var bt_vec = bt_ptr.load[width=width](col_j * K + k)
                         c_val += (a_vec * bt_vec).reduce_add()
@@ -711,7 +711,7 @@ fn _matmul_float64(
 # ============================================================================
 
 
-fn matmul(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
+def matmul(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
     """Production matrix multiplication - uses best performing kernel.
 
     This is the main production function that users should call.
@@ -728,7 +728,7 @@ fn matmul(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
     matmul_tiled(a, b, c)
 
 
-fn matmul_optimized(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
+def matmul_optimized(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
     """Dispatch to the most optimized matmul kernel.
 
     Selects the optimized matmul kernel for large matrices, falling back to simpler
@@ -751,8 +751,7 @@ fn matmul_optimized(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
     """
 
     # Check if we should use Strassen for large square matrices
-    @parameter
-    if STRASSEN_ENABLED:
+    comptime if STRASSEN_ENABLED:
         var a_shape = a.shape()
         var b_shape = b.shape()
 
@@ -775,7 +774,7 @@ fn matmul_optimized(a: AnyTensor, b: AnyTensor, mut c: AnyTensor) raises:
 # ============================================================================
 
 
-fn assert_matrices_equal(
+def assert_matrices_equal(
     a: AnyTensor, b: AnyTensor, rtol: Float64 = 1e-5, atol: Float64 = 1e-8
 ) raises:
     """Compare two matrices element-wise with tolerance.
@@ -843,7 +842,7 @@ fn assert_matrices_equal(
             )
 
 
-fn verify_matmul_correctness(M: Int, K: Int, N: Int) raises -> Bool:
+def verify_matmul_correctness(M: Int, K: Int, N: Int) raises -> Bool:
     """Verify that all matmul stages produce identical results.
 
     Creates random matrices and verifies that v1, v2, v3, and v4

@@ -13,7 +13,7 @@ Split from test_packaging.mojo per ADR-009.
 from testing import assert_true, assert_equal
 
 
-fn test_package_version() raises:
+def test_package_version() raises:
     """Test package version is accessible and correct."""
     from shared import VERSION, AUTHOR, LICENSE
 
@@ -34,7 +34,7 @@ fn test_package_version() raises:
     print("✓ Package version test passed")
 
 
-fn test_subpackage_accessibility() raises:
+def test_subpackage_accessibility() raises:
     """Test all subpackages can be imported and have expected exports."""
     from shared import core, training, data, utils
 
@@ -59,7 +59,7 @@ fn test_subpackage_accessibility() raises:
     print("✓ Subpackage accessibility test passed")
 
 
-fn test_root_level_imports() raises:
+def test_root_level_imports() raises:
     """Test most commonly used components are available at root level."""
     # Root package doesn't re-export all components directly
     from shared.tensor.any_tensor import AnyTensor
@@ -69,7 +69,7 @@ fn test_root_level_imports() raises:
     print("✓ Root level imports test passed")
 
 
-fn test_layer_root_level_imports() raises:
+def test_layer_root_level_imports() raises:
     """Test that layer symbols activated in shared/__init__.mojo are importable directly.
 
     Verifies Issue #3759: confirmed-ready layer exports are accessible via
@@ -120,7 +120,7 @@ fn test_layer_root_level_imports() raises:
     print("✓ Layer root-level imports test passed")
 
 
-fn test_module_level_imports() raises:
+def test_module_level_imports() raises:
     """Test importing from specific modules."""
     from shared.tensor.any_tensor import AnyTensor
     from shared.core import relu, linear
@@ -130,7 +130,7 @@ fn test_module_level_imports() raises:
     print("✓ Module level imports test passed")
 
 
-fn test_nested_imports() raises:
+def test_nested_imports() raises:
     """Test importing from nested submodules."""
     from shared.core import linear, conv2d
     from shared.training import SGD
@@ -139,7 +139,7 @@ fn test_nested_imports() raises:
     print("✓ Nested imports test passed")
 
 
-fn test_core_training_integration() raises:
+def test_core_training_integration() raises:
     """Test integration between core and training modules."""
     from shared.tensor.any_tensor import AnyTensor, zeros
     from shared.training import SGD, MSELoss
@@ -164,7 +164,7 @@ fn test_core_training_integration() raises:
     print("✓ Core-training integration test passed")
 
 
-fn test_core_data_integration() raises:
+def test_core_data_integration() raises:
     """Test integration between core and data modules."""
     from shared.tensor.any_tensor import AnyTensor, zeros, ones
     from shared.data import AnyTensorDataset
@@ -188,7 +188,7 @@ fn test_core_data_integration() raises:
     print("✓ Core-data integration test passed")
 
 
-fn test_training_data_integration() raises:
+def test_training_data_integration() raises:
     """Test integration between training and data modules."""
     from shared.training import SGD
     from shared.data import AnyTensorDataset
@@ -216,7 +216,7 @@ fn test_training_data_integration() raises:
     print("✓ Training-data integration test passed")
 
 
-fn test_complete_training_workflow() raises:
+def test_complete_training_workflow() raises:
     """Test complete training workflow using all modules."""
     from shared.tensor.any_tensor import zeros, ones
     from shared.core import relu
@@ -259,7 +259,7 @@ fn test_complete_training_workflow() raises:
     print("✓ Complete workflow test passed")
 
 
-fn test_paper_implementation_pattern() raises:
+def test_paper_implementation_pattern() raises:
     """Test typical usage pattern from paper implementation."""
     # Simulates how a paper implementation would use the shared library
 
@@ -300,7 +300,7 @@ fn test_paper_implementation_pattern() raises:
     print("✓ Paper implementation pattern test passed")
 
 
-fn test_no_private_exports() raises:
+def test_no_private_exports() raises:
     """Test that private modules are not exported at root level."""
     # Test that private modules are not accessible through public imports
     # Mojo v0.26.1 doesn't support __all__, so we verify by checking
@@ -320,7 +320,7 @@ fn test_no_private_exports() raises:
     print("✓ No private exports test passed - public API properly isolated")
 
 
-fn test_normalize_compose_from_shared_data() raises:
+def test_normalize_compose_from_shared_data() raises:
     """Test that Normalize and Compose are accessible via shared.data."""
     from shared.data import Normalize, Compose
 
@@ -330,7 +330,7 @@ fn test_normalize_compose_from_shared_data() raises:
     print("✓ Normalize and Compose importable from shared.data")
 
 
-fn test_losstracker_from_shared() raises:
+def test_losstracker_from_shared() raises:
     """Test that LossTracker is accessible at shared package level."""
     from shared import LossTracker
 
@@ -340,7 +340,7 @@ fn test_losstracker_from_shared() raises:
     print("✓ LossTracker importable from shared")
 
 
-fn test_accuracymetric_from_shared() raises:
+def test_accuracymetric_from_shared() raises:
     """Test that AccuracyMetric is accessible at shared package level."""
     from shared import AccuracyMetric
 
@@ -350,7 +350,7 @@ fn test_accuracymetric_from_shared() raises:
     print("✓ AccuracyMetric importable from shared")
 
 
-fn test_accuracy_alias_from_shared() raises:
+def test_accuracy_alias_from_shared() raises:
     """Test that Accuracy alias resolves and is identical to AccuracyMetric."""
     from shared import Accuracy, AccuracyMetric
 
@@ -362,7 +362,7 @@ fn test_accuracy_alias_from_shared() raises:
     print("✓ Accuracy alias importable from shared and matches AccuracyMetric")
 
 
-fn test_losstracker_from_shared_training() raises:
+def test_losstracker_from_shared_training() raises:
     """Test that LossTracker is accessible via shared.training."""
     from shared.training import LossTracker
 
@@ -372,7 +372,7 @@ fn test_losstracker_from_shared_training() raises:
     print("✓ LossTracker importable from shared.training")
 
 
-fn test_accuracymetric_from_shared_training() raises:
+def test_accuracymetric_from_shared_training() raises:
     """Test that AccuracyMetric is accessible via shared.training."""
     from shared.training import AccuracyMetric
 
@@ -382,7 +382,7 @@ fn test_accuracymetric_from_shared_training() raises:
     print("✓ AccuracyMetric importable from shared.training")
 
 
-fn test_deprecated_imports() raises:
+def test_deprecated_imports() raises:
     """Test that deprecated imports still work with warnings."""
     # Currently no deprecated APIs exist in this codebase
     # When deprecated APIs are added, this test should:
@@ -409,7 +409,7 @@ fn test_deprecated_imports() raises:
     )
 
 
-fn test_api_version_compatibility() raises:
+def test_api_version_compatibility() raises:
     """Test API version compatibility."""
     from shared import VERSION
 
@@ -448,7 +448,7 @@ fn test_api_version_compatibility() raises:
     print("✓ API version compatibility test passed")
 
 
-fn test_cross_module_computation() raises:
+def test_cross_module_computation() raises:
     """Test that components actually work together in real computations."""
     from shared.tensor.any_tensor import zeros, ones
     from shared.core import relu
@@ -496,7 +496,7 @@ fn test_cross_module_computation() raises:
     print("✓ Cross-module computation test passed")
 
 
-fn test_tensor_operations_safety() raises:
+def test_tensor_operations_safety() raises:
     """Test that tensor operations handle edge cases safely."""
     from shared.tensor.any_tensor import zeros, ones, full
 
@@ -545,7 +545,7 @@ fn test_tensor_operations_safety() raises:
     print("✓ Tensor operations safety test passed")
 
 
-fn test_error_propagation() raises:
+def test_error_propagation() raises:
     """Test that errors propagate correctly between modules."""
     from shared.tensor.any_tensor import zeros
     from shared.training import SGD
@@ -575,7 +575,7 @@ fn test_error_propagation() raises:
     print("✓ Error propagation test passed")
 
 
-fn test_integration_stress() raises:
+def test_integration_stress() raises:
     """Stress test with realistic deep learning workload."""
     from shared.tensor.any_tensor import zeros, ones
     from shared.core import relu
@@ -644,7 +644,7 @@ fn test_integration_stress() raises:
     print("✓ Integration stress test passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_packaging tests."""
     print("Running test_packaging tests...")
 

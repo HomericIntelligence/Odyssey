@@ -4,7 +4,7 @@ from model import MobileNetV1
 from shared.tensor.any_tensor import AnyTensor, zeros
 
 
-fn main() raises:
+def main() raises:
     print("Testing MobileNetV1 Model")
     print("=" * 60)
 

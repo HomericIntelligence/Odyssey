@@ -43,7 +43,7 @@ Example:
 
 from shared.tensor.any_tensor import AnyTensor
 from shared.utils.serialization import save_tensor, load_tensor
-from collections import List
+from std.collections import List
 
 
 # ============================================================================
@@ -51,7 +51,7 @@ from collections import List
 # ============================================================================
 
 
-fn save_model_weights(
+def save_model_weights(
     parameters: List[AnyTensor], directory: String, param_names: List[String]
 ) raises:
     """Save model weights to directory.
@@ -96,7 +96,7 @@ fn save_model_weights(
         save_tensor(parameters[i], filepath, param_names[i])
 
 
-fn load_model_weights(
+def load_model_weights(
     mut parameters: List[AnyTensor], directory: String, param_names: List[String]
 ) raises:
     """Load model weights from directory.
@@ -135,7 +135,7 @@ fn load_model_weights(
         parameters.append(tensor)
 
 
-fn get_model_parameter_names(model_type: String) raises -> List[String]:
+def get_model_parameter_names(model_type: String) raises -> List[String]:
     """Get standard parameter names for a model architecture.
 
         Returns the canonical parameter names for supported architectures.
@@ -275,7 +275,7 @@ fn get_model_parameter_names(model_type: String) raises -> List[String]:
         raise Error("Unknown model type: " + model_type)
 
 
-fn validate_shapes(loaded: List[AnyTensor], expected: List[AnyTensor]) raises:
+def validate_shapes(loaded: List[AnyTensor], expected: List[AnyTensor]) raises:
     """Validate that loaded tensors match expected shapes.
 
     Useful for checking that checkpoint weights are compatible with

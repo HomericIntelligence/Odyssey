@@ -12,7 +12,7 @@ UInt32, and UInt64 built-in types, including:
 from shared.tensor.any_tensor import AnyTensor, zeros
 
 
-fn example_basic_signed_integers() raises:
+def example_basic_signed_integers() raises:
     """Demonstrate basic signed integer operations."""
     print("\n=== Basic Signed Integer Operations ===\n")
 
@@ -32,7 +32,7 @@ fn example_basic_signed_integers() raises:
         print("42 > -100: True")
 
 
-fn example_basic_unsigned_integers() raises:
+def example_basic_unsigned_integers() raises:
     """Demonstrate basic unsigned integer operations."""
     print("\n=== Basic Unsigned Integer Operations ===\n")
 
@@ -47,7 +47,7 @@ fn example_basic_unsigned_integers() raises:
     print("UInt8 arithmetic: 100+50=", sum, " 255-100=", diff)
 
 
-fn example_type_conversions() raises:
+def example_type_conversions() raises:
     """Demonstrate conversions between integer types."""
     print("\n=== Type Conversions ===\n")
 
@@ -70,7 +70,7 @@ fn example_type_conversions() raises:
     print("Float32(42.7) -> Int8:", from_float, " -> Float32:", to_float)
 
 
-fn example_tensor_conversions() raises:
+def example_tensor_conversions() raises:
     """Demonstrate tensor conversions with integer types."""
     print("\n=== Tensor Conversions ===\n")
 
@@ -115,7 +115,7 @@ fn example_tensor_conversions() raises:
     )
 
 
-fn example_16bit_integers() raises:
+def example_16bit_integers() raises:
     """Demonstrate 16-bit integer operations."""
     print("\n=== 16-bit Integer Operations ===\n")
 
@@ -135,7 +135,7 @@ fn example_16bit_integers() raises:
     print("Int16 sum:", i16_sum, " UInt16 sum:", u16_sum)
 
 
-fn example_32bit_integers() raises:
+def example_32bit_integers() raises:
     """Demonstrate 32-bit integer operations."""
     print("\n=== 32-bit Integer Operations ===\n")
 
@@ -154,7 +154,7 @@ fn example_32bit_integers() raises:
     print("UInt32 from UInt16(1000):", u32_from_u16)
 
 
-fn example_64bit_integers() raises:
+def example_64bit_integers() raises:
     """Demonstrate 64-bit integer operations."""
     print("\n=== 64-bit Integer Operations ===\n")
 
@@ -173,7 +173,7 @@ fn example_64bit_integers() raises:
     print("UInt64 from UInt32:", u64_from_u32)
 
 
-fn example_practical_use_case() raises:
+def example_practical_use_case() raises:
     """Demonstrate a practical use case: quantization."""
     print("\n=== Practical Use Case: Simple Quantization ===\n")
 
@@ -234,7 +234,7 @@ fn example_practical_use_case() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all integer type examples."""
     print("=" * 60)
     print("Mojo Built-in Integer Types - Usage Examples")

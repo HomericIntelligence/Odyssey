@@ -11,7 +11,7 @@ Tests cover:
 
 
 from testing import assert_true, assert_equal
-from collections import Dict
+from std.collections import Dict
 from shared.training.base import (
     Callback,
     CallbackSignal,
@@ -26,7 +26,7 @@ from shared.training.callbacks import (
 )
 
 
-fn test_early_stopping_min_mode_improves() raises:
+def test_early_stopping_min_mode_improves() raises:
     """Test early stopping in min mode when loss improves."""
     var early_stop = EarlyStopping(
         monitor="val_loss", patience=3, min_delta=0.001, mode="min"
@@ -54,7 +54,7 @@ fn test_early_stopping_min_mode_improves() raises:
     assert_equal(early_stop.wait_count, 0, "Wait count should reset to 0")
 
 
-fn test_early_stopping_min_mode_no_improvement() raises:
+def test_early_stopping_min_mode_no_improvement() raises:
     """Test early stopping in min mode when loss doesn't improve enough."""
     var early_stop = EarlyStopping(
         monitor="val_loss", patience=2, min_delta=0.001, mode="min"
@@ -82,7 +82,7 @@ fn test_early_stopping_min_mode_no_improvement() raises:
     assert_true(early_stop.stopped, "Stopped flag should be True")
 
 
-fn test_early_stopping_max_mode_improves() raises:
+def test_early_stopping_max_mode_improves() raises:
     """Test early stopping in max mode (accuracy) when metric improves."""
     var early_stop = EarlyStopping(
         monitor="val_accuracy", patience=2, min_delta=0.001, mode="max"
@@ -105,7 +105,7 @@ fn test_early_stopping_max_mode_improves() raises:
     assert_equal(early_stop.wait_count, 0, "Wait count should reset")
 
 
-fn test_early_stopping_max_mode_no_improvement() raises:
+def test_early_stopping_max_mode_no_improvement() raises:
     """Test early stopping in max mode when accuracy doesn't improve."""
     var early_stop = EarlyStopping(
         monitor="val_accuracy", patience=1, min_delta=0.001, mode="max"
@@ -126,7 +126,7 @@ fn test_early_stopping_max_mode_no_improvement() raises:
     assert_true(early_stop.stopped, "Stopped flag should be True")
 
 
-fn test_early_stopping_missing_metric() raises:
+def test_early_stopping_missing_metric() raises:
     """Test early stopping when monitored metric is missing."""
     var early_stop = EarlyStopping(
         monitor="val_loss", patience=2, min_delta=0.001, mode="min"
@@ -142,7 +142,7 @@ fn test_early_stopping_missing_metric() raises:
     assert_equal(early_stop.wait_count, 0, "Wait count should not change")
 
 
-fn test_early_stopping_should_stop_method() raises:
+def test_early_stopping_should_stop_method() raises:
     """Test should_stop method."""
     var early_stop = EarlyStopping(monitor="val_loss", patience=1, mode="min")
 
@@ -168,7 +168,7 @@ fn test_early_stopping_should_stop_method() raises:
     )
 
 
-fn test_model_checkpoint_save_frequency() raises:
+def test_model_checkpoint_save_frequency() raises:
     """Test checkpoint saving at specified frequency."""
     var checkpoint = ModelCheckpoint(
         filepath="checkpoint_{epoch}.pt", save_frequency=2
@@ -193,7 +193,7 @@ fn test_model_checkpoint_save_frequency() raises:
     assert_equal(checkpoint.get_save_count(), 2, "Should have saved at epoch 2")
 
 
-fn test_model_checkpoint_save_best_only_min_mode() raises:
+def test_model_checkpoint_save_best_only_min_mode() raises:
     """Test checkpoint saving only when best metric improves (min mode)."""
     var checkpoint = ModelCheckpoint(
         filepath="best_model.pt",
@@ -225,7 +225,7 @@ fn test_model_checkpoint_save_best_only_min_mode() raises:
     )
 
 
-fn test_model_checkpoint_save_best_only_max_mode() raises:
+def test_model_checkpoint_save_best_only_max_mode() raises:
     """Test checkpoint saving only when best metric improves (max mode)."""
     var checkpoint = ModelCheckpoint(
         filepath="best_model.pt",
@@ -257,7 +257,7 @@ fn test_model_checkpoint_save_best_only_max_mode() raises:
     )
 
 
-fn test_model_checkpoint_epoch_placeholder() raises:
+def test_model_checkpoint_epoch_placeholder() raises:
     """Test checkpoint path with {epoch} placeholder."""
     var checkpoint = ModelCheckpoint(
         filepath="checkpoints/model_epoch_{epoch}.pt", save_frequency=1
@@ -270,7 +270,7 @@ fn test_model_checkpoint_epoch_placeholder() raises:
     assert_equal(checkpoint.get_save_count(), 1, "Should have saved checkpoint")
 
 
-fn test_model_checkpoint_error_count() raises:
+def test_model_checkpoint_error_count() raises:
     """Test error tracking in checkpoint saving."""
     var checkpoint = ModelCheckpoint(filepath="checkpoint.pt", save_frequency=1)
 
@@ -288,7 +288,7 @@ fn test_model_checkpoint_error_count() raises:
     )
 
 
-fn test_model_checkpoint_always_returns_continue() raises:
+def test_model_checkpoint_always_returns_continue() raises:
     """Test that checkpoint always returns CONTINUE signal."""
     var checkpoint = ModelCheckpoint(filepath="checkpoint.pt", save_frequency=1)
 
@@ -301,7 +301,7 @@ fn test_model_checkpoint_always_returns_continue() raises:
     )
 
 
-fn test_logging_callback_logs_at_interval() raises:
+def test_logging_callback_logs_at_interval() raises:
     """Test logging callback logs at specified interval."""
     var logger = LoggingCallback(log_interval=1)
 
@@ -319,7 +319,7 @@ fn test_logging_callback_logs_at_interval() raises:
     assert_equal(logger.get_log_count(), 2, "Should have logged at epoch 1")
 
 
-fn test_logging_callback_skips_non_intervals() raises:
+def test_logging_callback_skips_non_intervals() raises:
     """Test logging callback skips non-interval epochs."""
     var logger = LoggingCallback(log_interval=2)
 
@@ -341,7 +341,7 @@ fn test_logging_callback_skips_non_intervals() raises:
     assert_equal(logger.get_log_count(), 2, "Should have logged at epoch 2")
 
 
-fn test_logging_callback_with_metrics() raises:
+def test_logging_callback_with_metrics() raises:
     """Test logging callback handles multiple metrics."""
     var logger = LoggingCallback(log_interval=1)
 
@@ -354,7 +354,7 @@ fn test_logging_callback_with_metrics() raises:
     assert_equal(logger.get_log_count(), 1, "Should have logged metrics")
 
 
-fn test_logging_callback_with_learning_rate() raises:
+def test_logging_callback_with_learning_rate() raises:
     """Test logging callback includes learning rate."""
     var logger = LoggingCallback(log_interval=1)
 
@@ -367,7 +367,7 @@ fn test_logging_callback_with_learning_rate() raises:
     )
 
 
-fn test_logging_callback_empty_metrics() raises:
+def test_logging_callback_empty_metrics() raises:
     """Test logging callback with no metrics."""
     var logger = LoggingCallback(log_interval=1)
 
@@ -378,7 +378,7 @@ fn test_logging_callback_empty_metrics() raises:
     assert_equal(logger.get_log_count(), 1, "Should log even with no metrics")
 
 
-fn test_logging_callback_returns_continue() raises:
+def test_logging_callback_returns_continue() raises:
     """Test logging callback always returns CONTINUE."""
     var logger = LoggingCallback(log_interval=1)
 
@@ -387,7 +387,7 @@ fn test_logging_callback_returns_continue() raises:
     assert_equal(signal.value, 0, "Should always return CONTINUE")
 
 
-fn test_multiple_callbacks_together() raises:
+def test_multiple_callbacks_together() raises:
     """Test multiple callbacks working together."""
     var early_stop = EarlyStopping(monitor="val_loss", patience=2, mode="min")
     var checkpoint = ModelCheckpoint(
@@ -412,7 +412,7 @@ fn test_multiple_callbacks_together() raises:
     assert_equal(logger.get_log_count(), 1, "Logger logged")
 
 
-fn test_early_stopping_sets_should_stop_flag() raises:
+def test_early_stopping_sets_should_stop_flag() raises:
     """Test that early stopping sets the should_stop flag."""
     var early_stop = EarlyStopping(monitor="val_loss", patience=1, mode="min")
 
@@ -433,7 +433,7 @@ fn test_early_stopping_sets_should_stop_flag() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all test_callbacks tests."""
     print("Running test_callbacks tests...")
 

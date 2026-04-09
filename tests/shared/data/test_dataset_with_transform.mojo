@@ -13,7 +13,7 @@ from shared.data.datasets import AnyTensorDataset
 from shared.data.dataset_with_transform import TransformedDataset
 from shared.data.transforms import Normalize
 from shared.tensor.any_tensor import AnyTensor, ones, zeros
-from collections import List
+from std.collections import List
 
 
 # ============================================================================
@@ -21,7 +21,7 @@ from collections import List
 # ============================================================================
 
 
-fn test_transformed_dataset_creation() raises:
+def test_transformed_dataset_creation() raises:
     """Test creating TransformedDataset.
 
     TransformedDataset should wrap a base dataset and a transform.
@@ -39,7 +39,7 @@ fn test_transformed_dataset_creation() raises:
     assert_equal(transformed.__len__(), 10)
 
 
-fn test_transformed_dataset_length() raises:
+def test_transformed_dataset_length() raises:
     """Test that TransformedDataset.__len__ matches base dataset.
 
     The length should reflect the number of samples in the base dataset.
@@ -57,7 +57,7 @@ fn test_transformed_dataset_length() raises:
     assert_equal(transformed.__len__(), 42)
 
 
-fn test_transformed_dataset_applies_transform() raises:
+def test_transformed_dataset_applies_transform() raises:
     """Test that transform is applied to data.
 
     The transform should modify the data tensor but not the labels.
@@ -85,7 +85,7 @@ fn test_transformed_dataset_applies_transform() raises:
     assert_true(transformed_first < 1.1)
 
 
-fn test_transformed_dataset_preserves_labels() raises:
+def test_transformed_dataset_preserves_labels() raises:
     """Test that labels are not transformed.
 
     The transform should only affect data, labels should pass through unchanged.
@@ -109,7 +109,7 @@ fn test_transformed_dataset_preserves_labels() raises:
     assert_equal(trans_first, Float32(0.0))
 
 
-fn test_transformed_dataset_all_samples() raises:
+def test_transformed_dataset_all_samples() raises:
     """Test that transform is applied to all samples consistently.
 
     Each sample should have the transform applied when accessed.
@@ -134,7 +134,7 @@ fn test_transformed_dataset_all_samples() raises:
         assert_true(trans_first < 1.1)
 
 
-fn main() raises:
+def main() raises:
     """Run all tests."""
     print("Testing TransformedDataset...")
     test_transformed_dataset_creation()

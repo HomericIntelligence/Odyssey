@@ -17,7 +17,7 @@ from shared.core.conv import conv2d, conv2d_backward
 from shared.testing import check_gradient
 
 
-fn test_conv2d_backward_grad_input_padding1() raises:
+def test_conv2d_backward_grad_input_padding1() raises:
     """Numerical gradient check for grad_input with padding=1.
 
     padding=1 with a (1,1,3,3) kernel produces same-size output (1,1,4,4).
@@ -51,10 +51,10 @@ fn test_conv2d_backward_grad_input_padding1() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward_input(inp: AnyTensor) raises -> AnyTensor:
+    def forward_input(inp: AnyTensor) raises -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=1)
 
-    fn backward_input(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = conv2d_backward(grad_out, inp, kernel, stride=1, padding=1)
         return grads.grad_input
 
@@ -69,7 +69,7 @@ fn test_conv2d_backward_grad_input_padding1() raises:
     )
 
 
-fn test_conv2d_backward_grad_weights_padding1() raises:
+def test_conv2d_backward_grad_weights_padding1() raises:
     """Numerical gradient check for grad_weights with padding=1.
 
     Treats the kernel as the variable being perturbed; x is held fixed.
@@ -103,10 +103,10 @@ fn test_conv2d_backward_grad_weights_padding1() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward_weights(k: AnyTensor) raises -> AnyTensor:
+    def forward_weights(k: AnyTensor) raises -> AnyTensor:
         return conv2d(x, k, bias, stride=1, padding=1)
 
-    fn backward_weights(grad_out: AnyTensor, k: AnyTensor) raises -> AnyTensor:
+    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises -> AnyTensor:
         var grads = conv2d_backward(grad_out, x, k, stride=1, padding=1)
         return grads.grad_weights
 
@@ -126,7 +126,7 @@ fn test_conv2d_backward_grad_weights_padding1() raises:
     )
 
 
-fn test_conv2d_backward_grad_input_padding2() raises:
+def test_conv2d_backward_grad_input_padding2() raises:
     """Numerical gradient check for grad_input with padding=2.
 
     padding=2 with a (1,1,3,3) kernel and input (1,1,5,5) produces (1,1,7,7)
@@ -161,10 +161,10 @@ fn test_conv2d_backward_grad_input_padding2() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward_input(inp: AnyTensor) raises -> AnyTensor:
+    def forward_input(inp: AnyTensor) raises -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=2)
 
-    fn backward_input(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var grads = conv2d_backward(grad_out, inp, kernel, stride=1, padding=2)
         return grads.grad_input
 
@@ -179,7 +179,7 @@ fn test_conv2d_backward_grad_input_padding2() raises:
     )
 
 
-fn test_conv2d_backward_grad_weights_padding2() raises:
+def test_conv2d_backward_grad_weights_padding2() raises:
     """Numerical gradient check for grad_weights with padding=2.
 
     Treats the kernel as the variable being perturbed; x is held fixed.
@@ -214,10 +214,10 @@ fn test_conv2d_backward_grad_weights_padding2() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward_weights(k: AnyTensor) raises -> AnyTensor:
+    def forward_weights(k: AnyTensor) raises -> AnyTensor:
         return conv2d(x, k, bias, stride=1, padding=2)
 
-    fn backward_weights(grad_out: AnyTensor, k: AnyTensor) raises -> AnyTensor:
+    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises -> AnyTensor:
         var grads = conv2d_backward(grad_out, x, k, stride=1, padding=2)
         return grads.grad_weights
 
@@ -237,7 +237,7 @@ fn test_conv2d_backward_grad_weights_padding2() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run numerical gradient tests for conv2d_backward with padding > 0."""
     print("Running conv2d_backward numerical gradient tests with padding > 0...")
     test_conv2d_backward_grad_input_padding1()

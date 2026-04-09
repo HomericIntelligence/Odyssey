@@ -13,7 +13,7 @@ Example:
     ```
 """
 
-from python import Python, PythonObject
+from std.python import Python, PythonObject
 
 
 # ============================================================================
@@ -41,7 +41,7 @@ struct ConfigValue(Copyable, Movable):
     var list_val: List[String]
     """List value if type is 'list'."""
 
-    fn __init__(out self, value: Int):
+    def __init__(out self, value: Int):
         """Create ConfigValue from Int.
 
         Args:
@@ -57,7 +57,7 @@ struct ConfigValue(Copyable, Movable):
         self.bool_val = False
         self.list_val = List[String]()
 
-    fn __init__(out self, value: Float64):
+    def __init__(out self, value: Float64):
         """Create ConfigValue from Float64.
 
         Args:
@@ -73,7 +73,7 @@ struct ConfigValue(Copyable, Movable):
         self.bool_val = False
         self.list_val = List[String]()
 
-    fn __init__(out self, value: String):
+    def __init__(out self, value: String):
         """Create ConfigValue from String.
 
         Args:
@@ -89,7 +89,7 @@ struct ConfigValue(Copyable, Movable):
         self.bool_val = False
         self.list_val = List[String]()
 
-    fn __init__(out self, value: Bool):
+    def __init__(out self, value: Bool):
         """Create ConfigValue from Bool.
 
         Args:
@@ -105,7 +105,7 @@ struct ConfigValue(Copyable, Movable):
         self.bool_val = value
         self.list_val = List[String]()
 
-    fn __init__(out self, var value: List[String]):
+    def __init__(out self, var value: List[String]):
         """Create ConfigValue from List[String].
 
         Args:
@@ -121,7 +121,7 @@ struct ConfigValue(Copyable, Movable):
         self.bool_val = False
         self.list_val = value^
 
-    fn __init__(out self, value: List[Int]):
+    def __init__(out self, value: List[Int]):
         """Create ConfigValue from List[Int].
 
         Args:
@@ -140,7 +140,7 @@ struct ConfigValue(Copyable, Movable):
         for i in range(len(value)):
             self.list_val.append(String(value[i]))
 
-    fn copy_value(self) -> ConfigValue:
+    def copy_value(self) -> ConfigValue:
         """Explicit copy of ConfigValue."""
         var cv: ConfigValue
         cv = ConfigValue(0)
@@ -168,7 +168,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
     var data: Dict[String, ConfigValue]
     """Dictionary storing configuration key-value pairs."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Create empty configuration.
 
         Returns:
@@ -176,17 +176,17 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         """
         self.data = Dict[String, ConfigValue]()
 
-    fn __init__(out self, *, copy: Self):
+    def __init__(out self, *, copy: Self):
         """Copy constructor for ImplicitlyCopyable conformance."""
         self.data = copy.data.copy()
 
-    fn copy_config(self) -> Config:
+    def copy_config(self) -> Config:
         """Explicit copy of Config."""
         var c = Config()
         c.data = self.data.copy()
         return c^
 
-    fn set(mut self, key: String, value: Int):
+    def set(mut self, key: String, value: Int):
         """Set integer configuration value.
 
         Args:
@@ -195,7 +195,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         """
         self.data[key] = ConfigValue(value)
 
-    fn set(mut self, key: String, value: Float64):
+    def set(mut self, key: String, value: Float64):
         """Set float configuration value.
 
         Args:
@@ -204,7 +204,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         """
         self.data[key] = ConfigValue(value)
 
-    fn set(mut self, key: String, value: String):
+    def set(mut self, key: String, value: String):
         """Set string configuration value.
 
         Args:
@@ -213,7 +213,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         """
         self.data[key] = ConfigValue(value)
 
-    fn set(mut self, key: String, value: Bool):
+    def set(mut self, key: String, value: Bool):
         """Set boolean configuration value.
 
         Args:
@@ -222,7 +222,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         """
         self.data[key] = ConfigValue(value)
 
-    fn set(mut self, key: String, var value: List[Int]):
+    def set(mut self, key: String, var value: List[Int]):
         """Set list of integers configuration value.
 
         Args:
@@ -231,7 +231,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         """
         self.data[key] = ConfigValue(value)
 
-    fn set(mut self, key: String, var value: List[String]):
+    def set(mut self, key: String, var value: List[String]):
         """Set list of strings configuration value.
 
         Args:
@@ -240,7 +240,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         """
         self.data[key] = ConfigValue(value^)
 
-    fn set(mut self, key: String, value: StringSlice) raises:
+    def set(mut self, key: String, value: StringSlice) raises:
         """Set configuration value from StringSlice.
 
         Args:
@@ -252,7 +252,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         """
         self.set(key, String(value))
 
-    fn has(self, key: String) -> Bool:
+    def has(self, key: String) -> Bool:
         """Check if configuration key exists.
 
         Args:
@@ -263,7 +263,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         """
         return key in self.data
 
-    fn has_key(self, key: String) -> Bool:
+    def has_key(self, key: String) -> Bool:
         """Check if configuration key exists (comptime for has).
 
         Args:
@@ -274,7 +274,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         """
         return self.has(key)
 
-    fn get_string(self, key: String, default: String = "") raises -> String:
+    def get_string(self, key: String, default: String = "") raises -> String:
         """Get string value with optional default.
 
         Args:
@@ -300,7 +300,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             )
         return val.str_val
 
-    fn get_int(self, key: String, default: Int = 0) raises -> Int:
+    def get_int(self, key: String, default: Int = 0) raises -> Int:
         """Get integer value with optional default.
 
         Args:
@@ -326,7 +326,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             )
         return val.int_val
 
-    fn get_float(self, key: String, default: Float64 = 0.0) raises -> Float64:
+    def get_float(self, key: String, default: Float64 = 0.0) raises -> Float64:
         """Get float value with optional default.
 
         Args:
@@ -352,7 +352,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             )
         return val.float_val
 
-    fn get_bool(self, key: String, default: Bool = False) raises -> Bool:
+    def get_bool(self, key: String, default: Bool = False) raises -> Bool:
         """Get boolean value with optional default.
 
         Args:
@@ -378,7 +378,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             )
         return val.bool_val
 
-    fn get_list(self, key: String) raises -> List[String]:
+    def get_list(self, key: String) raises -> List[String]:
         """Get list value.
 
         Args:
@@ -407,7 +407,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             list_copy.append(val.list_val[i])
         return list_copy^
 
-    fn get(self, key: String) raises -> ConfigValue:
+    def get(self, key: String) raises -> ConfigValue:
         """Get raw configuration value by key.
 
         Args:
@@ -423,7 +423,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             return self.data[key].copy_value()
         return ConfigValue("")  # Default to empty string
 
-    fn get_int_with_default(self, key: String, default: Int) -> Int:
+    def get_int_with_default(self, key: String, default: Int) -> Int:
         """Get integer configuration value with default.
 
         Args:
@@ -440,7 +440,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         except e:
             return default
 
-    fn get_float_with_default(self, key: String, default: Float64) -> Float64:
+    def get_float_with_default(self, key: String, default: Float64) -> Float64:
         """Get float configuration value with default.
 
         Args:
@@ -457,7 +457,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         except e:
             return default
 
-    fn get_string_with_default(self, key: String, default: String) -> String:
+    def get_string_with_default(self, key: String, default: String) -> String:
         """Get string configuration value with default.
 
         Args:
@@ -474,7 +474,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         except e:
             return default
 
-    fn get_bool_with_default(self, key: String, default: Bool) -> Bool:
+    def get_bool_with_default(self, key: String, default: Bool) -> Bool:
         """Get boolean configuration value with default.
 
         Args:
@@ -491,7 +491,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         except e:
             return default
 
-    fn merge(self, other: Config) -> Config:
+    def merge(self, other: Config) -> Config:
         """Merge with another config, other takes precedence.
 
         Args:
@@ -512,7 +512,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
 
         return result^
 
-    fn validate(self, required_keys: List[String]) raises:
+    def validate(self, required_keys: List[String]) raises:
         """Validate that all required keys are present.
 
         Args:
@@ -526,7 +526,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             if not self.has(key):
                 raise Error("Missing required configuration key: " + key)
 
-    fn validate_type(self, key: String, type_name: String) raises:
+    def validate_type(self, key: String, type_name: String) raises:
         """Validate that a key has the expected type.
 
         Args:
@@ -550,7 +550,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
                 + val.value_type
             )
 
-    fn validate_range(
+    def validate_range(
         self, key: String, min_val: Float64, max_val: Float64
     ) raises:
         """Validate that a numeric value is in range.
@@ -587,7 +587,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
                 + "]"
             )
 
-    fn validate_enum(self, key: String, valid_values: List[String]) raises:
+    def validate_enum(self, key: String, valid_values: List[String]) raises:
         """Validate that a value is one of allowed enum values.
 
         Args:
@@ -610,7 +610,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         if not found:
             raise Error("Invalid value for key '" + key + "': " + val)
 
-    fn validate_exclusive(self, keys: List[String]) raises:
+    def validate_exclusive(self, keys: List[String]) raises:
         """Validate that at most one of the mutually exclusive keys is set.
 
         Args:
@@ -628,7 +628,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             raise Error("Mutually exclusive keys found - only one allowed")
 
     @staticmethod
-    fn from_yaml(filepath: String) raises -> Config:
+    def from_yaml(filepath: String) raises -> Config:
         """Load configuration from YAML file with validation.
 
         Uses Python's PyYAML library to parse nested YAML structures and
@@ -682,7 +682,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         return config^
 
     @staticmethod
-    fn _flatten_dict(
+    def _flatten_dict(
         mut config: Config, py_obj: PythonObject, prefix: String
     ) raises:
         """Recursively flatten a Python dict into dot-notation keys.
@@ -746,7 +746,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             raise Error("Failed to flatten dict: " + String(e))
 
     @staticmethod
-    fn from_json(filepath: String) raises -> Config:
+    def from_json(filepath: String) raises -> Config:
         """Load configuration from JSON file with validation.
 
         Current implementation only supports flat key-value pairs.
@@ -809,7 +809,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
 
         return config^
 
-    fn to_yaml(self, filepath: String) raises:
+    def to_yaml(self, filepath: String) raises:
         """Save configuration to YAML file.
 
         Args:
@@ -842,7 +842,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         except e:
             raise Error("Failed to save YAML file: " + String(e))
 
-    fn to_json(self, filepath: String) raises:
+    def to_json(self, filepath: String) raises:
         """Save configuration to JSON file.
 
         Args:
@@ -890,7 +890,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         except e:
             raise Error("Failed to save JSON file: " + String(e))
 
-    fn substitute_env_vars(self) -> Config:
+    def substitute_env_vars(self) -> Config:
         """Substitute environment variables in config values.
 
         Replaces ${VAR_NAME} with environment variable values.
@@ -914,7 +914,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
 
         return result^
 
-    fn _substitute_env_in_string(self, value: String) -> String:
+    def _substitute_env_in_string(self, value: String) -> String:
         """Helper to substitute environment variables in a string.
 
         Replaces ${VAR} or ${VAR:-default} patterns with environment values.
@@ -971,7 +971,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         return result^
 
     @staticmethod
-    fn load_template(name: String) -> Config:
+    def load_template(name: String) -> Config:
         """Load a predefined configuration template.
 
         Args:
@@ -1001,7 +1001,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
 
 
 
-fn str_slice(s: String, start: Int, end: Int) -> String:
+def str_slice(s: String, start: Int, end: Int) -> String:
     """Extract a slice of a string by byte positions [start:end]."""
     var result = String("")
     var bytes = s.as_bytes()
@@ -1011,7 +1011,7 @@ fn str_slice(s: String, start: Int, end: Int) -> String:
     return result^
 
 
-fn load_config(filepath: String) raises -> Config:
+def load_config(filepath: String) raises -> Config:
     """Load configuration from YAML or JSON file.
 
     Automatically detects file format based on extension (.yaml/.yml
@@ -1040,7 +1040,7 @@ fn load_config(filepath: String) raises -> Config:
         raise Error("Unknown file format - use .yaml, .yml, or .json")
 
 
-fn save_config(config: Config, filepath: String) raises:
+def save_config(config: Config, filepath: String) raises:
     """Save configuration to YAML or JSON file.
 
     Automatically determines output format from file extension.
@@ -1072,7 +1072,7 @@ fn save_config(config: Config, filepath: String) raises:
 # ============================================================================
 
 
-fn merge_configs(base: Config, override: Config) -> Config:
+def merge_configs(base: Config, override: Config) -> Config:
     """Merge two configurations with override taking precedence.
 
     Creates a new configuration that combines both inputs, with values
@@ -1109,7 +1109,7 @@ struct ConfigValidator(Copyable, Movable):
     var allowed_keys: Dict[String, String]
     """Dictionary mapping keys to their expected type names."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Create empty validator.
 
         Returns:
@@ -1119,7 +1119,7 @@ struct ConfigValidator(Copyable, Movable):
         self.allowed_keys = Dict[String, String]()
 
 
-    fn require(mut self, key: String) -> Self:
+    def require(mut self, key: String) -> Self:
         """Mark key as required.
 
         Args:
@@ -1131,7 +1131,7 @@ struct ConfigValidator(Copyable, Movable):
         self.required_keys.append(key)
         return self.copy()
 
-    fn allow(mut self, key: String, type_name: String) -> Self:
+    def allow(mut self, key: String, type_name: String) -> Self:
         """Mark key as allowed with specific type.
 
         Args:
@@ -1144,7 +1144,7 @@ struct ConfigValidator(Copyable, Movable):
         self.allowed_keys[key] = type_name
         return self.copy()
 
-    fn validate(self, config: Config) -> Bool:
+    def validate(self, config: Config) -> Bool:
         """Validate configuration against rules.
 
         Args:
@@ -1161,7 +1161,7 @@ struct ConfigValidator(Copyable, Movable):
         return True
 
 
-fn create_validator() -> ConfigValidator:
+def create_validator() -> ConfigValidator:
     """Create new configuration validator.
 
     Returns:

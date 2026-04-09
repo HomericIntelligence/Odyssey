@@ -23,10 +23,10 @@ Example:
     ```
 """
 
-from collections import List
+from std.collections import List
 
 
-fn compute_strides(shape: List[Int]) -> List[Int]:
+def compute_strides(shape: List[Int]) -> List[Int]:
     """Compute memory strides from tensor shape.
 
     Strides represent the number of elements to skip to move one position along each axis.
@@ -60,7 +60,7 @@ fn compute_strides(shape: List[Int]) -> List[Int]:
     return strides^
 
 
-fn linear_to_coords(linear_idx: Int, shape: List[Int]) -> List[Int]:
+def linear_to_coords(linear_idx: Int, shape: List[Int]) -> List[Int]:
     """Convert linear index to multi-dimensional coordinates.
 
     Given a flat index into a row-major (C-contiguous) tensor, computes the
@@ -93,7 +93,7 @@ fn linear_to_coords(linear_idx: Int, shape: List[Int]) -> List[Int]:
     return coords^
 
 
-fn coords_to_linear(coords: List[Int], strides: List[Int]) -> Int:
+def coords_to_linear(coords: List[Int], strides: List[Int]) -> Int:
     """Convert multi-dimensional coordinates to linear index.
 
     Converts multi-dimensional coordinates to a flat index using pre-computed strides.
@@ -118,7 +118,7 @@ fn coords_to_linear(coords: List[Int], strides: List[Int]) -> Int:
     return linear_idx
 
 
-fn map_result_to_input_coords(
+def map_result_to_input_coords(
     result_coords: List[Int], axis: Int, ndim: Int
 ) -> List[Int]:
     """Map output coordinates to input coordinates accounting for reduction axis.
@@ -156,7 +156,7 @@ fn map_result_to_input_coords(
     return input_coords^
 
 
-fn create_result_coords(result_idx: Int, shape: List[Int]) -> List[Int]:
+def create_result_coords(result_idx: Int, shape: List[Int]) -> List[Int]:
     """Create and initialize coordinates from linear index using shape.
 
     Args:
@@ -179,7 +179,7 @@ fn create_result_coords(result_idx: Int, shape: List[Int]) -> List[Int]:
     return coords^
 
 
-fn compute_axis_strides(
+def compute_axis_strides(
     input_shape: List[Int], axis: Int
 ) -> Tuple[Int, Int, Int]:
     """Compute strides for direct axis reduction indexing (O(1) per element).
@@ -223,7 +223,7 @@ fn compute_axis_strides(
     return (outer_size, input_shape[axis], inner_size)
 
 
-fn build_reduced_shape(
+def build_reduced_shape(
     input_shape: List[Int], axis: Int, keepdims: Bool
 ) -> List[Int]:
     """Build output shape for axis reduction.

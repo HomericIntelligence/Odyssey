@@ -10,7 +10,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, full
 from tests.shared.conftest import assert_true
 
 
-fn test_str_int32_2d_tensor() raises:
+def test_str_int32_2d_tensor() raises:
     """Test __str__ for 2D int32 tensor includes correct shape."""
     var t = full([2, 3], Float64(42), DType.int32)
     var s = String(t)
@@ -20,7 +20,7 @@ fn test_str_int32_2d_tensor() raises:
     assert_true("dtype=int32" in s)
 
 
-fn test_str_int32_3d_tensor() raises:
+def test_str_int32_3d_tensor() raises:
     """Test __str__ for 3D int32 tensor includes correct shape."""
     var t = full([2, 2, 2], Float64(99), DType.int32)
     var s = String(t)
@@ -29,7 +29,7 @@ fn test_str_int32_3d_tensor() raises:
     assert_true("dtype=int32" in s)
 
 
-fn test_str_int64_2d_tensor() raises:
+def test_str_int64_2d_tensor() raises:
     """Test __str__ for 2D int64 tensor includes correct shape."""
     var t = full([3, 4], Float64(123456), DType.int64)
     var s = String(t)
@@ -38,7 +38,7 @@ fn test_str_int64_2d_tensor() raises:
     assert_true("dtype=int64" in s)
 
 
-fn test_str_uint32_2d_tensor() raises:
+def test_str_uint32_2d_tensor() raises:
     """Test __str__ for 2D uint32 tensor includes correct shape."""
     var t = full([2, 5], Float64(1000000), DType.uint32)
     var s = String(t)
@@ -47,7 +47,7 @@ fn test_str_uint32_2d_tensor() raises:
     assert_true("dtype=uint32" in s)
 
 
-fn test_str_bool_2d_true() raises:
+def test_str_bool_2d_true() raises:
     """Test __str__ for 2D bool tensor with true values."""
     var t = full([2, 3], Float64(1), DType.bool)
     var s = String(t)
@@ -56,7 +56,7 @@ fn test_str_bool_2d_true() raises:
     assert_true("dtype=bool" in s)
 
 
-fn test_str_bool_2d_false() raises:
+def test_str_bool_2d_false() raises:
     """Test __str__ for 2D bool tensor with false values."""
     var t = full([2, 3], Float64(0), DType.bool)
     var s = String(t)
@@ -65,7 +65,7 @@ fn test_str_bool_2d_false() raises:
     assert_true("dtype=bool" in s)
 
 
-fn test_str_bool_3d_mixed() raises:
+def test_str_bool_3d_mixed() raises:
     """Test __str__ for 3D bool tensor."""
     # Create a 3D bool tensor - shape [2, 2, 2]
     var t = full([2, 2, 2], Float64(1), DType.bool)
@@ -75,7 +75,7 @@ fn test_str_bool_3d_mixed() raises:
     assert_true("dtype=bool" in s)
 
 
-fn test_str_int16_2d_tensor() raises:
+def test_str_int16_2d_tensor() raises:
     """Test __str__ for 2D int16 tensor includes correct shape."""
     var t = full([4, 5], Float64(500), DType.int16)
     var s = String(t)
@@ -84,7 +84,7 @@ fn test_str_int16_2d_tensor() raises:
     assert_true("dtype=int16" in s)
 
 
-fn test_str_uint16_2d_tensor() raises:
+def test_str_uint16_2d_tensor() raises:
     """Test __str__ for 2D uint16 tensor includes correct shape."""
     var t = full([3, 3], Float64(30000), DType.uint16)
     var s = String(t)
@@ -93,7 +93,7 @@ fn test_str_uint16_2d_tensor() raises:
     assert_true("dtype=uint16" in s)
 
 
-fn main() raises:
+def main() raises:
     """Run multi-dimensional int/bool __str__ tests."""
     print("Running AnyTensor __str__ multi-dimensional integer tests...")
 

@@ -4,10 +4,10 @@ Provides functions for computing mean, standard deviation, percentiles,
 min/max values from benchmark timing data.
 """
 
-from math import sqrt
+from std.math import sqrt
 
 
-fn compute_mean(values: List[Float64]) -> Float64:
+def compute_mean(values: List[Float64]) -> Float64:
     """Compute arithmetic mean of values.
 
     Args:
@@ -26,7 +26,7 @@ fn compute_mean(values: List[Float64]) -> Float64:
     return sum / Float64(len(values))
 
 
-fn compute_std_dev(values: List[Float64], mean: Float64) -> Float64:
+def compute_std_dev(values: List[Float64], mean: Float64) -> Float64:
     """Compute standard deviation.
 
     Computes sample standard deviation (n-1 divisor for unbiased estimate).
@@ -49,7 +49,7 @@ fn compute_std_dev(values: List[Float64], mean: Float64) -> Float64:
     return sqrt(sum_sq_diff / Float64(len(values) - 1))
 
 
-fn compute_min(values: List[Float64]) -> Float64:
+def compute_min(values: List[Float64]) -> Float64:
     """Compute minimum value.
 
     Args:
@@ -69,7 +69,7 @@ fn compute_min(values: List[Float64]) -> Float64:
     return min_val
 
 
-fn compute_max(values: List[Float64]) -> Float64:
+def compute_max(values: List[Float64]) -> Float64:
     """Compute maximum value.
 
     Args:
@@ -89,7 +89,7 @@ fn compute_max(values: List[Float64]) -> Float64:
     return max_val
 
 
-fn _bubble_sort(mut values: List[Float64]):
+def _bubble_sort(mut values: List[Float64]):
     """Simple bubble sort for small arrays.
 
     Args:
@@ -104,7 +104,7 @@ fn _bubble_sort(mut values: List[Float64]):
                 values[j + 1] = temp
 
 
-fn compute_percentile(values: List[Float64], percentile: Int) -> Float64:
+def compute_percentile(values: List[Float64], percentile: Int) -> Float64:
     """Compute percentile value.
 
     Uses linear interpolation between values for percentiles that don't

@@ -50,7 +50,7 @@ struct BatchNorm2dLayer[dtype: DType = DType.float32](Copyable, Movable):
     var eps: Float32
     """Small constant for numerical stability."""
 
-    fn __init__(
+    def __init__(
         out self,
         num_channels: Int,
         momentum: Float32 = 0.1,
@@ -101,7 +101,7 @@ struct BatchNorm2dLayer[dtype: DType = DType.float32](Copyable, Movable):
         running_var_shape.append(num_channels)
         self.running_var = ones(running_var_shape, Self.dtype)
 
-    fn forward(
+    def forward(
         mut self, input: AnyTensor, training: Bool = True
     ) raises -> AnyTensor:
         """Forward pass with batch normalization.
@@ -145,7 +145,7 @@ struct BatchNorm2dLayer[dtype: DType = DType.float32](Copyable, Movable):
 
         return output^
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Get list of trainable parameters.
 
         Returns gamma and beta as copies. No bitcast needed since fields
@@ -170,7 +170,7 @@ struct BatchNorm2dLayer[dtype: DType = DType.float32](Copyable, Movable):
         params.append(self.beta)
         return params^
 
-    fn get_running_stats(self) raises -> Tuple[AnyTensor, AnyTensor]:
+    def get_running_stats(self) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get current running statistics.
 
         Returns:
@@ -190,7 +190,7 @@ struct BatchNorm2dLayer[dtype: DType = DType.float32](Copyable, Movable):
             self.running_mean, self.running_var
         )
 
-    fn set_running_stats(
+    def set_running_stats(
         mut self, running_mean: AnyTensor, running_var: AnyTensor
     ) raises:
         """Set running statistics (for loading from checkpoint).

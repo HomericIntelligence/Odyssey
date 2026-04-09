@@ -22,7 +22,7 @@ from random import seed, randn
 # ============================================================================
 
 
-fn create_random_tensor(
+def create_random_tensor(
     shape: List[Int], random_seed: Int = 42
 ) -> List[Float32]:
     """Create random tensor with deterministic seed.
@@ -66,7 +66,7 @@ fn create_random_tensor(
     return data
 
 
-fn create_zeros_tensor(shape: List[Int]) -> List[Float32]:
+def create_zeros_tensor(shape: List[Int]) -> List[Float32]:
     """Create zero-filled tensor.
 
     Args:
@@ -92,7 +92,7 @@ fn create_zeros_tensor(shape: List[Int]) -> List[Float32]:
     return data
 
 
-fn create_ones_tensor(shape: List[Int]) -> List[Float32]:
+def create_ones_tensor(shape: List[Int]) -> List[Float32]:
     """Create one-filled tensor.
 
     Args:
@@ -118,7 +118,7 @@ fn create_ones_tensor(shape: List[Int]) -> List[Float32]:
     return data
 
 
-fn create_sequential_tensor(
+def create_sequential_tensor(
     shape: List[Int], start: Float32 = 0.0
 ) -> List[Float32]:
     """Create tensor with sequential values [start, start+1, start+2, ...].
@@ -151,7 +151,7 @@ fn create_sequential_tensor(
     return data
 
 
-fn create_constant_tensor(shape: List[Int], value: Float32) -> List[Float32]:
+def create_constant_tensor(shape: List[Int], value: Float32) -> List[Float32]:
     """Create tensor filled with constant value.
 
     Args:
@@ -183,7 +183,7 @@ fn create_constant_tensor(shape: List[Int], value: Float32) -> List[Float32]:
 # ============================================================================
 
 
-fn assert_tensors_equal(
+def assert_tensors_equal(
     a: List[Float32],
     b: List[Float32],
     epsilon: Float64 = 1e-6,
@@ -246,7 +246,7 @@ fn assert_tensors_equal(
             raise Error(error_msg)
 
 
-fn assert_shape_equal(
+def assert_shape_equal(
     actual_shape: List[Int], expected_shape: List[Int], message: String = ""
 ) raises:
     """Assert tensor shape matches expected shape.
@@ -296,7 +296,7 @@ fn assert_shape_equal(
             raise Error(error_msg)
 
 
-fn calculate_tensor_size(shape: List[Int]) -> Int:
+def calculate_tensor_size(shape: List[Int]) -> Int:
     """Calculate total tensor size from shape.
 
     Args:
@@ -322,7 +322,7 @@ fn calculate_tensor_size(shape: List[Int]) -> Int:
 # ============================================================================
 
 
-fn tensor_mean(data: List[Float32]) -> Float32:
+def tensor_mean(data: List[Float32]) -> Float32:
     """Calculate tensor mean.
 
     Args:
@@ -347,7 +347,7 @@ fn tensor_mean(data: List[Float32]) -> Float32:
     return sum / Float32(len(data))
 
 
-fn tensor_min(data: List[Float32]) -> Float32:
+def tensor_min(data: List[Float32]) -> Float32:
     """Find minimum tensor value.
 
     Args:
@@ -373,7 +373,7 @@ fn tensor_min(data: List[Float32]) -> Float32:
     return min_val
 
 
-fn tensor_max(data: List[Float32]) -> Float32:
+def tensor_max(data: List[Float32]) -> Float32:
     """Find maximum tensor value.
 
     Args:

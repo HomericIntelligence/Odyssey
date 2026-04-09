@@ -23,7 +23,7 @@ struct {{name}}(Dataset):
     var targets: List[AnyTensor]
     var data_dir: String
 
-    fn __init__(out self, data_dir: String, train: Bool = True):
+    def __init__(out self, data_dir: String, train: Bool = True):
         """Initialize dataset.
 
         Args:
@@ -37,7 +37,7 @@ struct {{name}}(Dataset):
         var split = "train" if train else "test"
         self._load_data(split)
 
-    fn _load_data(mut self, split: String):
+    def _load_data(mut self, split: String):
         """Load data from source.
 
         Args:
@@ -46,7 +46,7 @@ struct {{name}}(Dataset):
         # TEMPLATE: Implement data loading (filled in during code generation)
         raise Error("Not implemented: _load_data")
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Get dataset size.
 
         Returns:
@@ -54,7 +54,7 @@ struct {{name}}(Dataset):
         """
         return len(self.data)
 
-    fn __getitem__(self, idx: Int) -> Tuple[AnyTensor, AnyTensor]:
+    def __getitem__(self, idx: Int) -> Tuple[AnyTensor, AnyTensor]:
         """Get item by index.
 
         Args:
@@ -65,7 +65,7 @@ struct {{name}}(Dataset):
         """
         return (self.data[idx], self.targets[idx])
 
-    fn get_batch(self, indices: List[Int]) -> Tuple[AnyTensor, AnyTensor]:
+    def get_batch(self, indices: List[Int]) -> Tuple[AnyTensor, AnyTensor]:
         """Get a batch of samples.
 
         Args:

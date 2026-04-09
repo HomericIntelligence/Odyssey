@@ -23,7 +23,7 @@ from shared.training.schedulers import ExponentialLR
 # ============================================================================
 
 
-fn test_exponential_lr_initialization() raises:
+def test_exponential_lr_initialization() raises:
     """Test ExponentialLR scheduler initialization."""
     var scheduler = ExponentialLR(base_lr=0.1, gamma=0.95)
 
@@ -31,7 +31,7 @@ fn test_exponential_lr_initialization() raises:
     assert_almost_equal(scheduler.gamma, 0.95)
 
 
-fn test_exponential_lr_epoch_zero() raises:
+def test_exponential_lr_epoch_zero() raises:
     """Test ExponentialLR at epoch 0 (initial learning rate).
 
     At epoch 0, LR should equal base_lr.
@@ -43,7 +43,7 @@ fn test_exponential_lr_epoch_zero() raises:
     assert_almost_equal(lr0, 0.1)
 
 
-fn test_exponential_lr_epoch_one() raises:
+def test_exponential_lr_epoch_one() raises:
     """Test ExponentialLR at epoch 1.
 
     At epoch 1, LR should equal base_lr * gamma.
@@ -55,7 +55,7 @@ fn test_exponential_lr_epoch_one() raises:
     assert_almost_equal(lr1, 0.095, tolerance=1e-6)
 
 
-fn test_exponential_lr_exponential_decay() raises:
+def test_exponential_lr_exponential_decay() raises:
     """Test ExponentialLR decays exponentially over epochs."""
     var scheduler = ExponentialLR(base_lr=0.1, gamma=0.95)
 
@@ -68,7 +68,7 @@ fn test_exponential_lr_exponential_decay() raises:
         previous_lr = current_lr
 
 
-fn test_exponential_lr_different_gamma() raises:
+def test_exponential_lr_different_gamma() raises:
     """Test ExponentialLR with different gamma values."""
     var scheduler_aggressive = ExponentialLR(base_lr=0.1, gamma=0.9)
     var scheduler_gradual = ExponentialLR(base_lr=0.1, gamma=0.99)
@@ -80,7 +80,7 @@ fn test_exponential_lr_different_gamma() raises:
     assert_less_or_equal(lr_agg_10, lr_grad_10)
 
 
-fn main() raises:
+def main() raises:
     """Run all ExponentialLR tests."""
     print("Running ExponentialLR tests...")
     test_exponential_lr_initialization()

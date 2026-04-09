@@ -12,10 +12,10 @@ from tests.shared.conftest import (
 from shared.data.datasets import AnyTensorDataset
 from shared.data.cache import CachedDataset
 from shared.tensor.any_tensor import AnyTensor, ones, zeros
-from collections import List
+from std.collections import List
 
 
-fn test_cached_dataset_creation() raises:
+def test_cached_dataset_creation() raises:
     """Test creating CachedDataset.
 
     CachedDataset should wrap a base dataset.
@@ -33,7 +33,7 @@ fn test_cached_dataset_creation() raises:
     assert_true(cached.cache_enabled)
 
 
-fn test_cached_dataset_length() raises:
+def test_cached_dataset_length() raises:
     """Test that CachedDataset.__len__ matches base dataset.
 
     The length should reflect the number of samples.
@@ -50,7 +50,7 @@ fn test_cached_dataset_length() raises:
     assert_equal(cached.__len__(), 42)
 
 
-fn test_cached_dataset_stores_samples() raises:
+def test_cached_dataset_stores_samples() raises:
     """Test that CachedDataset stores samples in cache.
 
     Accessing a sample via _get_and_cache should add it to the cache.
@@ -71,7 +71,7 @@ fn test_cached_dataset_stores_samples() raises:
     assert_equal(cached.cache.__len__(), 1)
 
 
-fn test_cached_dataset_cache_hit() raises:
+def test_cached_dataset_cache_hit() raises:
     """Test that cache hits are tracked.
 
     Multiple accesses to same sample should count as cache hits.
@@ -96,7 +96,7 @@ fn test_cached_dataset_cache_hit() raises:
     assert_equal(cached.cache_misses, 1)
 
 
-fn test_cached_dataset_max_cache_size() raises:
+def test_cached_dataset_max_cache_size() raises:
     """Test that max_cache_size limits number of cached samples.
 
     When cache size reaches limit, new samples shouldn't be added.
@@ -118,7 +118,7 @@ fn test_cached_dataset_max_cache_size() raises:
     assert_equal(cached.cache.__len__(), 3)
 
 
-fn test_cached_dataset_disabled_cache() raises:
+def test_cached_dataset_disabled_cache() raises:
     """Test that caching can be disabled.
 
     When cache_enabled=False, nothing should be cached.
@@ -140,7 +140,7 @@ fn test_cached_dataset_disabled_cache() raises:
     assert_true(cached.cache.__len__() == 0)
 
 
-fn test_cached_dataset_preload_cache() raises:
+def test_cached_dataset_preload_cache() raises:
     """Test preloading entire cache.
 
     _preload_cache should populate cache with all samples.
@@ -160,7 +160,7 @@ fn test_cached_dataset_preload_cache() raises:
     assert_equal(cached.cache.__len__(), 5)
 
 
-fn test_cached_dataset_clear_cache() raises:
+def test_cached_dataset_clear_cache() raises:
     """Test clearing the cache.
 
     clear_cache should remove all cached samples.
@@ -183,7 +183,7 @@ fn test_cached_dataset_clear_cache() raises:
     assert_equal(cached.cache.__len__(), 0)
 
 
-fn test_cached_dataset_enable_disable() raises:
+def test_cached_dataset_enable_disable() raises:
     """Test enabling and disabling cache.
 
     Should be able to toggle caching on/off.
@@ -209,7 +209,7 @@ fn test_cached_dataset_enable_disable() raises:
     assert_true(cached.cache_enabled)
 
 
-fn test_cached_dataset_hit_rate() raises:
+def test_cached_dataset_hit_rate() raises:
     """Test cache hit rate calculation.
 
     Hit rate should be hits / (hits + misses).
@@ -234,7 +234,7 @@ fn test_cached_dataset_hit_rate() raises:
     assert_almost_equal(hit_rate, Float32(0.5), Float32(0.01))
 
 
-fn test_cached_dataset_get_stats() raises:
+def test_cached_dataset_get_stats() raises:
     """Test cache statistics.
 
     get_cache_stats should return (cache_size, hits, misses).
@@ -258,7 +258,7 @@ fn test_cached_dataset_get_stats() raises:
     assert_equal(misses, 1)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_cache tests."""
     print("Running test_cache tests...")
 

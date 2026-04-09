@@ -16,7 +16,7 @@ from shared.utils.serialization import (
 )
 
 
-fn test_simple_named_tensor_roundtrip() raises:
+def test_simple_named_tensor_roundtrip() raises:
     """Test simple save/load of a single named tensor."""
     print("\n" + "=" * 80)
     print("Test: Simple Named Tensor Roundtrip")
@@ -70,7 +70,7 @@ fn test_simple_named_tensor_roundtrip() raises:
     print()
 
 
-fn test_multiple_named_tensors_roundtrip() raises:
+def test_multiple_named_tensors_roundtrip() raises:
     """Test saving and loading multiple named tensors."""
     print("Test: Multiple Named Tensors Roundtrip")
     print("-" * 40)
@@ -136,7 +136,7 @@ fn test_multiple_named_tensors_roundtrip() raises:
     print()
 
 
-fn test_different_shapes_roundtrip() raises:
+def test_different_shapes_roundtrip() raises:
     """Test saving/loading tensors with different shapes."""
     print("Test: Different Shapes Roundtrip")
     print("-" * 40)
@@ -192,7 +192,7 @@ fn test_different_shapes_roundtrip() raises:
     print()
 
 
-fn main() raises:
+def main() raises:
     """Run all named tensor serialization tests."""
     print("\n" + "#" * 80)
     print("# Named Tensor Serialization Tests")

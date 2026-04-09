@@ -20,8 +20,8 @@ Stack trace:
   #4 libAsyncRTRuntimeGlobals.so +0x416ba  (allocator - crash origin)
 """
 
-from memory import UnsafePointer, memset_zero, alloc, memcpy
-from collections import List
+from std.memory import UnsafePointer, memset_zero, alloc, memcpy
+from std.collections import List
 
 
 # ============================================================================
@@ -36,7 +36,7 @@ struct Tensor(Movable, Copyable):
     var _refcount: UnsafePointer[Int, origin=MutAnyOrigin]
     var _alloc_size: Int
 
-    fn __init__(out self, shape: List[Int]) raises:
+    def __init__(out self, shape: List[Int]) raises:
         self._shape = List[Int]()
         self._numel = 1
         for i in range(len(shape)):
@@ -48,7 +48,7 @@ struct Tensor(Movable, Copyable):
         self._refcount = alloc[Int](1)
         self._refcount[] = 1
 
-    fn __copyinit__(out self, existing: Self):
+    def __copyinit__(out self, existing: Self):
         self._data = existing._data
         self._shape = existing._shape.copy()
         self._numel = existing._numel
@@ -57,29 +57,29 @@ struct Tensor(Movable, Copyable):
         if self._refcount:
             self._refcount[] += 1
 
-    fn __moveinit__(out self, deinit existing: Self):
+    def __moveinit__(out self, deinit existing: Self):
         self._data = existing._data
         self._shape = existing._shape.copy()
         self._numel = existing._numel
         self._refcount = existing._refcount
         self._alloc_size = existing._alloc_size
 
-    fn __del__(deinit self):
+    def __del__(deinit self):
         if self._refcount:
             self._refcount[] -= 1
             if self._refcount[] == 0:
                 self._data.free()
                 self._refcount.free()
 
-    fn fp(self) -> UnsafePointer[Float32, origin=MutAnyOrigin]:
+    def fp(self) -> UnsafePointer[Float32, origin=MutAnyOrigin]:
         return self._data.bitcast[Float32]()
 
 
-fn zeros(shape: List[Int]) raises -> Tensor:
+def zeros(shape: List[Int]) raises -> Tensor:
     return Tensor(shape)
 
 
-fn ones(shape: List[Int]) raises -> Tensor:
+def ones(shape: List[Int]) raises -> Tensor:
     var t = Tensor(shape)
     var p = t.fp()
     for i in range(t._numel):
@@ -87,7 +87,7 @@ fn ones(shape: List[Int]) raises -> Tensor:
     return t^
 
 
-fn shape4(a: Int, b: Int, c: Int, d: Int) -> List[Int]:
+def shape4(a: Int, b: Int, c: Int, d: Int) -> List[Int]:
     var s = List[Int]()
     s.append(a)
     s.append(b)
@@ -96,7 +96,7 @@ fn shape4(a: Int, b: Int, c: Int, d: Int) -> List[Int]:
     return s^
 
 
-fn shape1(a: Int) -> List[Int]:
+def shape1(a: Int) -> List[Int]:
     var s = List[Int]()
     s.append(a)
     return s^
@@ -107,7 +107,7 @@ fn shape1(a: Int) -> List[Int]:
 # ============================================================================
 
 
-fn conv2d(
+def conv2d(
     x: Tensor,
     kernel: Tensor,
     bias: Tensor,
@@ -176,7 +176,7 @@ fn conv2d(
 # ============================================================================
 
 
-fn relu(t: Tensor) raises -> Tensor:
+def relu(t: Tensor) raises -> Tensor:
     var out = Tensor(t._shape)
     var ip = t.fp()
     var op = out.fp()
@@ -190,7 +190,7 @@ fn relu(t: Tensor) raises -> Tensor:
 # ============================================================================
 
 
-fn step_a() raises:
+def step_a() raises:
     """Heavy alloc/free via 2x conv+relu. ~20 tensors freed on return."""
     var x = ones(shape4(2, 3, 32, 32))
     # Conv 1: 3->16
@@ -201,7 +201,7 @@ fn step_a() raises:
     _ = relu(x)
 
 
-fn step_b() raises:
+def step_b() raises:
     """Bitcast write then conv2d -> CRASH."""
     var target = zeros(shape1(2))
     # === TRIGGER: comment these 3 lines to prevent crash ===
@@ -214,7 +214,7 @@ fn step_b() raises:
     _ = relu(x)
 
 
-fn main() raises:
+def main() raises:
     print("Step A: conv2d heap churn...", end="")
     step_a()
     print(" OK")

@@ -26,8 +26,8 @@ Example:
 """
 
 from shared.tensor.any_tensor import AnyTensor
-from math import isnan, isinf, sqrt
-from collections import List
+from std.math import isnan, isinf, sqrt
+from std.collections import List
 from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
@@ -57,7 +57,7 @@ from shared.base.dtype_ordinal import (
 # for consistency (integer types return False/0 via compile-time guard).
 
 
-fn has_nan(tensor: AnyTensor) -> Bool:
+def has_nan(tensor: AnyTensor) -> Bool:
     """Check if tensor contains any NaN values.
 
     Args:
@@ -98,7 +98,7 @@ fn has_nan(tensor: AnyTensor) -> Bool:
     return False
 
 
-fn has_inf(tensor: AnyTensor) -> Bool:
+def has_inf(tensor: AnyTensor) -> Bool:
     """Check if tensor contains any Inf values (positive or negative).
 
     Args:
@@ -137,7 +137,7 @@ fn has_inf(tensor: AnyTensor) -> Bool:
     return False
 
 
-fn count_nan(tensor: AnyTensor) -> Int:
+def count_nan(tensor: AnyTensor) -> Int:
     """Count number of NaN values in tensor.
 
     Args:
@@ -173,7 +173,7 @@ fn count_nan(tensor: AnyTensor) -> Int:
     return 0
 
 
-fn count_inf(tensor: AnyTensor) -> Int:
+def count_inf(tensor: AnyTensor) -> Int:
     """Count number of Inf values in tensor.
 
     Args:
@@ -210,7 +210,7 @@ fn count_inf(tensor: AnyTensor) -> Int:
 
 
 @parameter
-fn check_tensor_safety[
+def check_tensor_safety[
     enable: Bool = False
 ](tensor: AnyTensor, name: String = "tensor") raises:
     """Check tensor for NaN/Inf values with compile-time optional behavior.
@@ -238,9 +238,7 @@ fn check_tensor_safety[
     Note:
             Use @parameter to enable/disable at compile time for zero runtime cost.
     """
-
-    @parameter
-    if enable:
+    comptime if enable:
         if has_nan(tensor):
             var count = count_nan(tensor)
             raise Error(name + " contains " + String(count) + " NaN values")
@@ -250,7 +248,7 @@ fn check_tensor_safety[
     # If enable=False, this entire function body is eliminated at compile time
 
 
-fn tensor_min(tensor: AnyTensor) -> Float64:
+def tensor_min(tensor: AnyTensor) -> Float64:
     """Find minimum value in tensor.
 
     Args:
@@ -286,7 +284,7 @@ fn tensor_min(tensor: AnyTensor) -> Float64:
     return 0.0
 
 
-fn tensor_max(tensor: AnyTensor) -> Float64:
+def tensor_max(tensor: AnyTensor) -> Float64:
     """Find maximum value in tensor.
 
     Args:
@@ -322,7 +320,7 @@ fn tensor_max(tensor: AnyTensor) -> Float64:
     return 0.0
 
 
-fn check_tensor_range(
+def check_tensor_range(
     tensor: AnyTensor,
     min_val: Float64,
     max_val: Float64,
@@ -364,7 +362,7 @@ fn check_tensor_range(
         )
 
 
-fn compute_tensor_l2_norm(tensor: AnyTensor) -> Float64:
+def compute_tensor_l2_norm(tensor: AnyTensor) -> Float64:
     """Compute L2 norm of tensor: sqrt(sum(x^2)).
 
     Args:
@@ -400,7 +398,7 @@ fn compute_tensor_l2_norm(tensor: AnyTensor) -> Float64:
     return 0.0
 
 
-fn check_gradient_norm(
+def check_gradient_norm(
     gradient: AnyTensor, max_norm: Float64 = 1000.0, name: String = "gradient"
 ) raises:
     """Check if gradient L2 norm exceeds threshold (gradient explosion detection).
@@ -437,7 +435,7 @@ fn check_gradient_norm(
         )
 
 
-fn check_gradient_vanishing(
+def check_gradient_vanishing(
     gradient: AnyTensor, min_norm: Float64 = 1e-7, name: String = "gradient"
 ) raises:
     """Check if gradient L2 norm is too small (gradient vanishing detection).
@@ -475,7 +473,7 @@ fn check_gradient_vanishing(
 
 
 @parameter
-fn check_gradient_safety[
+def check_gradient_safety[
     enable: Bool = False
 ](
     gradient: AnyTensor,
@@ -509,9 +507,7 @@ fn check_gradient_safety[
             check_gradient_safety(grad)  # Compiles to nothing
             ```
     """
-
-    @parameter
-    if enable:
+    comptime if enable:
         # Check NaN/Inf
         check_tensor_safety[enable=True](gradient, name)
 
@@ -530,7 +526,7 @@ fn check_gradient_safety[
 # `mojo package shared` from compiling. (Issue #4513)
 
 
-fn clip_grad_value_(mut grad: AnyTensor, max_value: Float64) raises:
+def clip_grad_value_(mut grad: AnyTensor, max_value: Float64) raises:
     """Clip each gradient element to [-max_value, max_value].
 
     This is the simplest form of gradient clipping. Each element is
@@ -555,7 +551,7 @@ fn clip_grad_value_(mut grad: AnyTensor, max_value: Float64) raises:
             grad._set_float64(i, -max_value)
 
 
-fn clip_grad_norm_(mut grad: AnyTensor, max_norm: Float64) raises -> Float64:
+def clip_grad_norm_(mut grad: AnyTensor, max_norm: Float64) raises -> Float64:
     """Clip gradient if its L2 norm exceeds max_norm.
 
     Computes the L2 norm of the gradient: norm = sqrt(sum(grad^2)).
@@ -591,7 +587,7 @@ fn clip_grad_norm_(mut grad: AnyTensor, max_norm: Float64) raises -> Float64:
     return norm
 
 
-fn clip_grad_global_norm_(
+def clip_grad_global_norm_(
     mut grads: List[AnyTensor], max_norm: Float64
 ) raises -> Float64:
     """Clip gradients based on their global L2 norm across all parameters.

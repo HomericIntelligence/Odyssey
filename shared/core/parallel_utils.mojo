@@ -5,7 +5,7 @@ avoiding thread overhead for small batches while enabling parallelism
 for large batches.
 """
 
-from algorithm import parallelize
+from std.algorithm import parallelize
 
 # Minimum batch size to warrant parallelization
 comptime PARALLEL_BATCH_THRESHOLD: Int = 4
@@ -14,7 +14,7 @@ comptime PARALLEL_BATCH_THRESHOLD: Int = 4
 comptime DEFAULT_NUM_WORKERS: Int = 0
 
 
-fn should_parallelize(
+def should_parallelize(
     batch_size: Int, threshold: Int = PARALLEL_BATCH_THRESHOLD
 ) -> Bool:
     """Determine if batch size warrants parallel execution.
@@ -29,8 +29,8 @@ fn should_parallelize(
     return batch_size >= threshold
 
 
-fn parallel_for_batch[
-    func: fn (Int) capturing -> None
+def parallel_for_batch[
+    func: def (Int) capturing -> None
 ](batch_size: Int, num_workers: Int = DEFAULT_NUM_WORKERS):
     """Execute function across batch indices in parallel.
 

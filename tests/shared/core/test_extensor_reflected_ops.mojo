@@ -8,7 +8,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 
-fn test_radd_tensors() raises:
+def test_radd_tensors() raises:
     """Test __radd__: reflected addition a + b = b + a (commutative)."""
     var a = full([2, 3], 2.0, DType.float32)
     var b = full([2, 3], 3.0, DType.float32)
@@ -25,7 +25,7 @@ fn test_radd_tensors() raises:
         )
 
 
-fn test_rsub_tensors() raises:
+def test_rsub_tensors() raises:
     """Test __rsub__: reflected subtraction (order matters)."""
     var a = full([2, 3], 2.0, DType.float32)
     var b = full([2, 3], 5.0, DType.float32)
@@ -40,7 +40,7 @@ fn test_rsub_tensors() raises:
         )
 
 
-fn test_rmul_tensors() raises:
+def test_rmul_tensors() raises:
     """Test __rmul__: reflected multiplication (commutative)."""
     var a = full([3, 2], 2.0, DType.float32)
     var b = full([3, 2], 3.0, DType.float32)
@@ -55,7 +55,7 @@ fn test_rmul_tensors() raises:
         )
 
 
-fn test_rtruediv_tensors() raises:
+def test_rtruediv_tensors() raises:
     """Test __rtruediv__: reflected division (order matters)."""
     var a = full([2, 2], 2.0, DType.float32)
     var b = full([2, 2], 8.0, DType.float32)
@@ -70,7 +70,7 @@ fn test_rtruediv_tensors() raises:
         )
 
 
-fn main() raises:
+def main() raises:
     """Run reflected operator tests."""
     test_radd_tensors()
     test_rsub_tensors()

@@ -17,7 +17,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 
-fn test_multislice_2d_axis0_basic() raises:
+def test_multislice_2d_axis0_basic() raises:
     """Test t[1:3, :] on a 2D tensor slices along axis 0."""
     # 4x5 tensor with sequential values 0..19
     var t = arange(0.0, 20.0, 1.0, DType.float32)
@@ -38,7 +38,7 @@ fn test_multislice_2d_axis0_basic() raises:
     assert_almost_equal(Float64(sliced[9]), 14.0, tolerance=1e-6)
 
 
-fn test_multislice_2d_axis0_full() raises:
+def test_multislice_2d_axis0_full() raises:
     """Test t[:, :] on a 2D tensor returns a full copy."""
     var t = arange(0.0, 12.0, 1.0, DType.float32)
     var t2d = t.reshape([3, 4])
@@ -55,7 +55,7 @@ fn test_multislice_2d_axis0_full() raises:
         assert_almost_equal(Float64(sliced[i]), Float64(i), tolerance=1e-6)
 
 
-fn test_multislice_3d_axis0_basic() raises:
+def test_multislice_3d_axis0_basic() raises:
     """Test t[1:3, :, :] on a 3D tensor slices along axis 0."""
     # 4x3x2 tensor with sequential values 0..23
     var t = arange(0.0, 24.0, 1.0, DType.float32)
@@ -77,7 +77,7 @@ fn test_multislice_3d_axis0_basic() raises:
     assert_almost_equal(Float64(sliced[11]), 17.0, tolerance=1e-6)
 
 
-fn test_multislice_2d_is_copy_not_view() raises:
+def test_multislice_2d_is_copy_not_view() raises:
     """Test that __getitem__(*slices) result is a copy -- mutating does not affect original."""
     var t = arange(0.0, 20.0, 1.0, DType.float32)
     var t2d = t.reshape([4, 5])
@@ -91,7 +91,7 @@ fn test_multislice_2d_is_copy_not_view() raises:
     assert_almost_equal(Float64(t2d[5]), 5.0, tolerance=1e-6)
 
 
-fn test_multislice_2d_negative_start() raises:
+def test_multislice_2d_negative_start() raises:
     """Test t[-2:, :] on a 2D tensor selects the last two rows."""
     var t = arange(0.0, 20.0, 1.0, DType.float32)
     var t2d = t.reshape([4, 5])
@@ -109,7 +109,7 @@ fn test_multislice_2d_negative_start() raises:
     assert_almost_equal(Float64(sliced[5]), 15.0, tolerance=1e-6)
 
 
-fn test_multislice_2d_empty_result() raises:
+def test_multislice_2d_empty_result() raises:
     """Test t[3:1, :] on a 2D tensor returns an empty tensor with shape (0, cols)."""
     var t = arange(0.0, 20.0, 1.0, DType.float32)
     var t2d = t.reshape([4, 5])
@@ -122,7 +122,7 @@ fn test_multislice_2d_empty_result() raises:
     assert_equal(sliced.numel(), 0)
 
 
-fn test_slice_method_2d_axis0() raises:
+def test_slice_method_2d_axis0() raises:
     """Test slice(start, end, axis=0) on a 2D tensor for axis-0 extraction."""
     # 6x3 tensor with sequential values 0..17
     var t = arange(0.0, 18.0, 1.0, DType.float32)
@@ -145,7 +145,7 @@ fn test_slice_method_2d_axis0() raises:
     assert_almost_equal(Float64(sliced[6]), 9.0, tolerance=1e-6)
 
 
-fn test_multislice_2d_inner_dim() raises:
+def test_multislice_2d_inner_dim() raises:
     """Test t[:, 1:3] on a 2D tensor slices along axis 1 (columns)."""
     # 3x5 tensor with sequential values 0..14
     var t = arange(0.0, 15.0, 1.0, DType.float32)
@@ -168,7 +168,7 @@ fn test_multislice_2d_inner_dim() raises:
     assert_almost_equal(Float64(sliced[5]), 12.0, tolerance=1e-6)
 
 
-fn test_slice_1d_regression() raises:
+def test_slice_1d_regression() raises:
     """Regression: __getitem__(Slice) on 1D tensors still works correctly."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
@@ -188,7 +188,7 @@ fn test_slice_1d_regression() raises:
     assert_almost_equal(Float64(strided[4]), 8.0, tolerance=1e-6)
 
 
-fn main() raises:
+def main() raises:
     """Run all multi-dimensional slicing tests."""
     test_multislice_2d_axis0_basic()
     test_multislice_2d_axis0_full()

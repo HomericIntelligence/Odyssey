@@ -44,7 +44,7 @@ from shared.core.activation import (
 )
 
 
-fn test_relu_positive_values() raises:
+def test_relu_positive_values() raises:
     """Test ReLU preserves positive values."""
     var input_shape = List[Int]()
     input_shape.append(5)
@@ -57,7 +57,7 @@ fn test_relu_positive_values() raises:
         assert_almost_equal(output_data[i], 1.0, tolerance=1e-5)
 
 
-fn test_relu_negative_values() raises:
+def test_relu_negative_values() raises:
     """Test ReLU zeros out negative values."""
     var input_shape = List[Int]()
     input_shape.append(5)
@@ -74,7 +74,7 @@ fn test_relu_negative_values() raises:
         assert_almost_equal(output_data[i], 0.0, tolerance=1e-5)
 
 
-fn test_relu_mixed_values() raises:
+def test_relu_mixed_values() raises:
     """Test ReLU on mixed positive and negative values."""
     var input_shape = List[Int]()
     input_shape.append(5)
@@ -97,7 +97,7 @@ fn test_relu_mixed_values() raises:
     assert_almost_equal(output_data[4], 2.0, tolerance=1e-5)
 
 
-fn test_relu_backward() raises:
+def test_relu_backward() raises:
     """Test ReLU backward pass computes correct gradients."""
     var input_shape = List[Int]()
     input_shape.append(5)
@@ -126,7 +126,7 @@ fn test_relu_backward() raises:
     assert_almost_equal(grad_data[4], 1.0, tolerance=1e-5)
 
 
-fn test_leaky_relu_forward() raises:
+def test_leaky_relu_forward() raises:
     """Test Leaky ReLU preserves negative values with slope."""
     var input_shape = List[Int]()
     input_shape.append(5)
@@ -149,7 +149,7 @@ fn test_leaky_relu_forward() raises:
     assert_almost_equal(output_data[4], 2.0, tolerance=1e-5)
 
 
-fn test_sigmoid_range() raises:
+def test_sigmoid_range() raises:
     """Test sigmoid output is in [0, 1] range."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -172,7 +172,7 @@ fn test_sigmoid_range() raises:
         assert_less_or_equal(output_data[i], 1.0, "Sigmoid upper bound")
 
 
-fn test_sigmoid_at_zero() raises:
+def test_sigmoid_at_zero() raises:
     """Test sigmoid(0) = 0.5."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -184,7 +184,7 @@ fn test_sigmoid_at_zero() raises:
     assert_almost_equal(output_data[0], 0.5, tolerance=1e-4)
 
 
-fn test_sigmoid_symmetry() raises:
+def test_sigmoid_symmetry() raises:
     """Test sigmoid(-x) + sigmoid(x) = 1."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -206,7 +206,7 @@ fn test_sigmoid_symmetry() raises:
     assert_almost_equal(sum_val, 1.0, tolerance=1e-4)
 
 
-fn test_sigmoid_backward() raises:
+def test_sigmoid_backward() raises:
     """Test sigmoid backward pass computes correct gradients."""
     var output_shape = List[Int]()
     output_shape.append(1)
@@ -223,7 +223,7 @@ fn test_sigmoid_backward() raises:
     assert_almost_equal(grad_data[0], 0.25, tolerance=1e-4)
 
 
-fn test_tanh_range() raises:
+def test_tanh_range() raises:
     """Test tanh output is in [-1, 1] range."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -246,7 +246,7 @@ fn test_tanh_range() raises:
         assert_less_or_equal(output_data[i], 1.0, "Tanh upper bound")
 
 
-fn test_tanh_at_zero() raises:
+def test_tanh_at_zero() raises:
     """Test tanh(0) = 0."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -258,7 +258,7 @@ fn test_tanh_at_zero() raises:
     assert_almost_equal(output_data[0], 0.0, tolerance=1e-5)
 
 
-fn test_tanh_antisymmetry() raises:
+def test_tanh_antisymmetry() raises:
     """Test tanh(-x) = -tanh(x)."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -279,7 +279,7 @@ fn test_tanh_antisymmetry() raises:
     assert_almost_equal(tanh_x_data[0], -tanh_neg_x_data[0], tolerance=1e-4)
 
 
-fn test_tanh_backward() raises:
+def test_tanh_backward() raises:
     """Test tanh backward pass computes correct gradients."""
     var output_shape = List[Int]()
     output_shape.append(1)
@@ -298,7 +298,7 @@ fn test_tanh_backward() raises:
     assert_almost_equal(grad_data[0], 0.75, tolerance=1e-4)
 
 
-fn test_softmax_output_sum() raises:
+def test_softmax_output_sum() raises:
     """Test softmax outputs sum to 1 along last axis."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -317,7 +317,7 @@ fn test_softmax_output_sum() raises:
     assert_almost_equal(sum_val, 1.0, tolerance=1e-5)
 
 
-fn test_softmax_positive_outputs() raises:
+def test_softmax_positive_outputs() raises:
     """Test softmax outputs are all positive."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -336,7 +336,7 @@ fn test_softmax_positive_outputs() raises:
         assert_greater_or_equal(output_data[i], 0.0, "Softmax positive")
 
 
-fn test_softmax_uniform() raises:
+def test_softmax_uniform() raises:
     """Test softmax on uniform input gives uniform output."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -354,7 +354,7 @@ fn test_softmax_uniform() raises:
         assert_almost_equal(output_data[i], 0.25, tolerance=1e-5)
 
 
-fn test_softmax_backward() raises:
+def test_softmax_backward() raises:
     """Test softmax backward pass."""
     var output_shape = List[Int]()
     output_shape.append(1)
@@ -378,7 +378,7 @@ fn test_softmax_backward() raises:
     assert_equal(grad_shape[1], 3)
 
 
-fn test_softmax_axis_0() raises:
+def test_softmax_axis_0() raises:
     """Test softmax along first axis (axis=0)."""
     var input_shape = List[Int]()
     input_shape.append(3)
@@ -409,7 +409,7 @@ fn test_softmax_axis_0() raises:
     assert_almost_equal(col1_sum, 1.0, tolerance=1e-5)
 
 
-fn test_softmax_axis_1() raises:
+def test_softmax_axis_1() raises:
     """Test softmax along second axis (axis=1)."""
     var input_shape = List[Int]()
     input_shape.append(2)
@@ -437,7 +437,7 @@ fn test_softmax_axis_1() raises:
     assert_almost_equal(row1_sum, 1.0, tolerance=1e-5)
 
 
-fn test_softmax_axis_negative_indexing() raises:
+def test_softmax_axis_negative_indexing() raises:
     """Test softmax with negative axis indexing."""
     var input_shape = List[Int]()
     input_shape.append(2)
@@ -473,7 +473,7 @@ fn test_softmax_axis_negative_indexing() raises:
         assert_almost_equal(sum_val, 1.0, tolerance=1e-5)
 
 
-fn test_softmax_3d_axis_middle() raises:
+def test_softmax_3d_axis_middle() raises:
     """Test softmax on 3D tensor along middle axis."""
     var input_shape = List[Int]()
     input_shape.append(2)
@@ -500,7 +500,7 @@ fn test_softmax_3d_axis_middle() raises:
             assert_almost_equal(sum_val, 1.0, tolerance=1e-5)
 
 
-fn test_activation_output_shape_preservation() raises:
+def test_activation_output_shape_preservation() raises:
     """Test that activations preserve input shape."""
     var input_shape = List[Int]()
     input_shape.append(2)
@@ -523,7 +523,7 @@ fn test_activation_output_shape_preservation() raises:
     assert_equal(tanh_shape[1], 3)
 
 
-fn test_activation_dtype_preservation() raises:
+def test_activation_dtype_preservation() raises:
     """Test that activations preserve input dtype."""
     var input_shape = List[Int]()
     input_shape.append(5)
@@ -536,7 +536,7 @@ fn test_activation_dtype_preservation() raises:
     assert_true(sig_out.dtype() == DType.float32)
 
 
-fn test_relu_gradient_mask() raises:
+def test_relu_gradient_mask() raises:
     """Test that ReLU gradient acts as a mask for positive values."""
     var input_shape = List[Int]()
     input_shape.append(4)
@@ -561,7 +561,7 @@ fn test_relu_gradient_mask() raises:
     assert_almost_equal(grad_data[3], 1.0, tolerance=1e-5)  # Passed through
 
 
-fn main() raises:
+def main() raises:
     """Run all test_activation_funcs tests."""
     print("Running test_activation_funcs tests...")
 

@@ -10,21 +10,21 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
 from tests.shared.conftest import assert_true, assert_equal
 
 
-fn test_repr_empty_tensor() raises:
+def test_repr_empty_tensor() raises:
     """Test __repr__ for empty tensor (numel=0)."""
     var t = zeros([0], DType.float32)
     var s = repr(t)
     assert_equal(s, "AnyTensor(shape=[0], dtype=float32, numel=0, data=[])")
 
 
-fn test_repr_single_element() raises:
+def test_repr_single_element() raises:
     """Test __repr__ for scalar / 1-element tensor."""
     var t = full([1], 3.0, DType.float32)
     var s = repr(t)
     assert_equal(s, "AnyTensor(shape=[1], dtype=float32, numel=1, data=[3.0])")
 
 
-fn test_repr_small_tensor_no_truncation() raises:
+def test_repr_small_tensor_no_truncation() raises:
     """Test __repr__ for tensor with numel <= 1000 shows all elements."""
     var t = arange(0.0, 5.0, 1.0, DType.float32)
     var s = repr(t)
@@ -36,7 +36,7 @@ fn test_repr_small_tensor_no_truncation() raises:
     assert_true("..." not in s)
 
 
-fn test_repr_exactly_threshold_no_truncation() raises:
+def test_repr_exactly_threshold_no_truncation() raises:
     """Test __repr__ for tensor with exactly 1000 elements shows all (no truncation).
     """
     var t = arange(0.0, 1000.0, 1.0, DType.float32)
@@ -47,7 +47,7 @@ fn test_repr_exactly_threshold_no_truncation() raises:
     assert_true("999.0" in s)
 
 
-fn test_repr_large_tensor_truncation() raises:
+def test_repr_large_tensor_truncation() raises:
     """Test __repr__ for tensor with numel > 1000 shows truncated form."""
     var t = arange(0.0, 1001.0, 1.0, DType.float32)
     var s = repr(t)
@@ -60,7 +60,7 @@ fn test_repr_large_tensor_truncation() raises:
     assert_true("998.0" in s)
 
 
-fn test_repr_large_tensor_format() raises:
+def test_repr_large_tensor_format() raises:
     """Test __repr__ produces correct format for large tensor."""
     var t = arange(0.0, 2000.0, 1.0, DType.float32)
     var s = repr(t)
@@ -72,7 +72,7 @@ fn test_repr_large_tensor_format() raises:
     assert_true("1997.0" in s)
 
 
-fn test_repr_dtype_preserved() raises:
+def test_repr_dtype_preserved() raises:
     """Test __repr__ correctly reports dtype for large tensor."""
     var tf16 = arange(0.0, 1001.0, 1.0, DType.float16)
     var sf16 = repr(tf16)
@@ -85,7 +85,7 @@ fn test_repr_dtype_preserved() raises:
     assert_true("..." in sf64)
 
 
-fn test_repr_shape_preserved() raises:
+def test_repr_shape_preserved() raises:
     """Test __repr__ correctly shows shape for large 2D tensor."""
     var t = zeros([50, 30], DType.float32)  # numel=1500 > threshold
     var s = repr(t)
@@ -94,7 +94,7 @@ fn test_repr_shape_preserved() raises:
     assert_true("..." in s)
 
 
-fn test_repr_no_truncation_for_6_elements() raises:
+def test_repr_no_truncation_for_6_elements() raises:
     """Test that a 6-element tensor is shown in full (edge case near SHOW_ELEMENTS*2).
     """
     var t = arange(0.0, 6.0, 1.0, DType.float32)
@@ -103,21 +103,21 @@ fn test_repr_no_truncation_for_6_elements() raises:
     assert_true("5.0" in s)
 
 
-fn test_repr_empty_tensor_int32() raises:
+def test_repr_empty_tensor_int32() raises:
     """Test __repr__ for empty tensor with int32 dtype."""
     var t = zeros([0], DType.int32)
     var s = repr(t)
     assert_equal(s, "AnyTensor(shape=[0], dtype=int32, numel=0, data=[])")
 
 
-fn test_repr_empty_tensor_float16() raises:
+def test_repr_empty_tensor_float16() raises:
     """Test __repr__ for empty tensor with float16 dtype."""
     var t = zeros([0], DType.float16)
     var s = repr(t)
     assert_equal(s, "AnyTensor(shape=[0], dtype=float16, numel=0, data=[])")
 
 
-fn main() raises:
+def main() raises:
     """Run __repr__ truncation tests."""
     print("Running AnyTensor __repr__ truncation tests...")
 

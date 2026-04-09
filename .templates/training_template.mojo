@@ -20,7 +20,7 @@ comptime LEARNING_RATE = {{learning_rate}}
 comptime NUM_CLASSES = {{num_classes}}
 
 
-fn train_epoch(
+def train_epoch(
     model: {{model}},
     dataset: {{dataset}}Dataset,
     optimizer: {{optimizer}},
@@ -53,7 +53,7 @@ fn train_epoch(
     return total_loss / Float64(num_batches)
 
 
-fn validate(
+def validate(
     model: {{model}},
     dataset: {{dataset}}Dataset,
     criterion: {{loss}},
@@ -87,7 +87,7 @@ fn validate(
     return (total_loss / Float64(num_batches), Float64(correct) / Float64(total) * 100.0)
 
 
-fn main():
+def main():
     """Main training function."""
     print("Training {{model}} on {{dataset}}")
 

@@ -30,7 +30,7 @@ from shared.core import relu
 # ============================================================================
 
 
-fn benchmark_relu_activation_small() raises -> None:
+def benchmark_relu_activation_small() raises -> None:
     """Benchmark ReLU activation on small tensor."""
     var input_shape = List[Int]()
     input_shape.append(32)
@@ -40,7 +40,7 @@ fn benchmark_relu_activation_small() raises -> None:
     _ = relu(input_tensor)
 
 
-fn benchmark_relu_activation_medium() raises -> None:
+def benchmark_relu_activation_medium() raises -> None:
     """Benchmark ReLU activation on medium tensor."""
     var input_shape = List[Int]()
     input_shape.append(64)
@@ -50,7 +50,7 @@ fn benchmark_relu_activation_medium() raises -> None:
     _ = relu(input_tensor)
 
 
-fn benchmark_relu_activation_large() raises -> None:
+def benchmark_relu_activation_large() raises -> None:
     """Benchmark ReLU activation on large tensor."""
     var input_shape = List[Int]()
     input_shape.append(128)
@@ -60,7 +60,7 @@ fn benchmark_relu_activation_large() raises -> None:
     _ = relu(input_tensor)
 
 
-fn benchmark_tensor_zeros_small() raises -> None:
+def benchmark_tensor_zeros_small() raises -> None:
     """Benchmark tensor creation (small)."""
     var shape = List[Int]()
     shape.append(32)
@@ -68,7 +68,7 @@ fn benchmark_tensor_zeros_small() raises -> None:
     _ = zeros(shape, DType.float32)
 
 
-fn benchmark_tensor_zeros_medium() raises -> None:
+def benchmark_tensor_zeros_medium() raises -> None:
     """Benchmark tensor creation (medium)."""
     var shape = List[Int]()
     shape.append(64)
@@ -76,7 +76,7 @@ fn benchmark_tensor_zeros_medium() raises -> None:
     _ = zeros(shape, DType.float32)
 
 
-fn benchmark_tensor_zeros_large() raises -> None:
+def benchmark_tensor_zeros_large() raises -> None:
     """Benchmark tensor creation (large)."""
     var shape = List[Int]()
     shape.append(128)
@@ -84,7 +84,7 @@ fn benchmark_tensor_zeros_large() raises -> None:
     _ = zeros(shape, DType.float32)
 
 
-fn benchmark_tensor_ones_small() raises -> None:
+def benchmark_tensor_ones_small() raises -> None:
     """Benchmark tensor creation with ones (small)."""
     var shape = List[Int]()
     shape.append(32)
@@ -92,7 +92,7 @@ fn benchmark_tensor_ones_small() raises -> None:
     _ = ones(shape, DType.float32)
 
 
-fn benchmark_tensor_ones_medium() raises -> None:
+def benchmark_tensor_ones_medium() raises -> None:
     """Benchmark tensor creation with ones (medium)."""
     var shape = List[Int]()
     shape.append(64)
@@ -100,7 +100,7 @@ fn benchmark_tensor_ones_medium() raises -> None:
     _ = ones(shape, DType.float32)
 
 
-fn benchmark_tensor_ones_large() raises -> None:
+def benchmark_tensor_ones_large() raises -> None:
     """Benchmark tensor creation with ones (large)."""
     var shape = List[Int]()
     shape.append(128)
@@ -113,7 +113,7 @@ fn benchmark_tensor_ones_large() raises -> None:
 # ============================================================================
 
 
-fn print_operation_comparison(
+def print_operation_comparison(
     operation_name: String,
     small_result: BenchmarkResult,
     medium_result: BenchmarkResult,
@@ -152,7 +152,7 @@ fn print_operation_comparison(
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Benchmark ML operations with various tensor sizes."""
     print("")
     print("=" * 70)

@@ -26,8 +26,8 @@ Usage:
     var c = add_simd(a, b)  # 4x faster than scalar add
 """
 
-from algorithm import vectorize
-from sys.info import simd_width_of
+from std.algorithm import vectorize
+from std.sys.info import simd_width_of
 from shared.tensor.any_tensor import AnyTensor
 
 
@@ -36,7 +36,7 @@ from shared.tensor.any_tensor import AnyTensor
 # ============================================================================
 
 
-fn add_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def add_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """SIMD-optimized element-wise addition for same-shape tensors.
 
         Uses vectorized operations when possible, falls back to broadcasting
@@ -95,7 +95,7 @@ fn add_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         return add(a, b)
 
 
-fn subtract_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def subtract_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """SIMD-optimized element-wise subtraction for same-shape tensors.
 
     Args:
@@ -129,7 +129,7 @@ fn subtract_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         return subtract(a, b)
 
 
-fn multiply_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def multiply_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """SIMD-optimized element-wise multiplication for same-shape tensors.
 
     Args:
@@ -163,7 +163,7 @@ fn multiply_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         return multiply(a, b)
 
 
-fn divide_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def divide_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """SIMD-optimized element-wise division for same-shape tensors.
 
     Args:

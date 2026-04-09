@@ -24,7 +24,7 @@ from shared.core.loss import cross_entropy, cross_entropy_backward
 from shared.training.precision_config import PrecisionConfig
 
 
-fn test_composite_relu_multiply() raises:
+def test_composite_relu_multiply() raises:
     """Test gradient through composite operation: multiply -> relu."""
     var shape = List[Int]()
     shape.append(3)
@@ -32,11 +32,11 @@ fn test_composite_relu_multiply() raises:
     var input_a = full(shape, 2.0, DType.float32)
     var input_b = full(shape, 3.0, DType.float32)
 
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         var mul_result = multiply(x, input_b)
         return relu(mul_result)
 
-    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var mul_result = multiply(x, input_b)
         var grad_relu = relu_backward(grad_out, mul_result)
         var grads = multiply_backward(grad_relu, x, input_b)
@@ -46,7 +46,7 @@ fn test_composite_relu_multiply() raises:
     assert_true(passed, "Composite gradient check failed")
 
 
-fn test_linear_gradient_fp32() raises:
+def test_linear_gradient_fp32() raises:
     """Test linear layer gradient in FP32 precision."""
     var input_shape = List[Int]()
     input_shape.append(2)
@@ -62,10 +62,10 @@ fn test_linear_gradient_fp32() raises:
     bias_shape.append(3)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         return linear(x, weights, bias)
 
-    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var grads = linear_backward(grad_out, x, weights)
         return grads.grad_input
 
@@ -75,7 +75,7 @@ fn test_linear_gradient_fp32() raises:
     assert_true(passed, "Linear FP32 gradient check failed")
 
 
-fn test_linear_gradient_fp16() raises:
+def test_linear_gradient_fp16() raises:
     """Test linear layer gradient in FP16 precision."""
     var config = PrecisionConfig.fp16()
 
@@ -93,10 +93,10 @@ fn test_linear_gradient_fp16() raises:
     bias_shape.append(3)
     var bias = config.cast_to_compute(zeros(bias_shape, DType.float32))
 
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         return linear(x, weights, bias)
 
-    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var grads = linear_backward(grad_out, x, weights)
         return grads.grad_input
 
@@ -106,7 +106,7 @@ fn test_linear_gradient_fp16() raises:
     assert_true(passed, "Linear FP16 gradient check failed")
 
 
-fn test_conv2d_gradient_fp32() raises:
+def test_conv2d_gradient_fp32() raises:
     """Test Conv2D gradient in FP32 precision."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -126,10 +126,10 @@ fn test_conv2d_gradient_fp32() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, kernel, bias, stride=1, padding=0)
 
-    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var grads = conv2d_backward(grad_out, x, kernel, stride=1, padding=0)
         return grads.grad_input
 
@@ -139,7 +139,7 @@ fn test_conv2d_gradient_fp32() raises:
     assert_true(passed, "Conv2D FP32 gradient check failed")
 
 
-fn test_conv2d_grad_3x3_same_padding() raises:
+def test_conv2d_grad_3x3_same_padding() raises:
     """Test Conv2D gradient with 3x3 kernel, stride=1, padding=1 (same padding).
     """
     var input_shape = List[Int]()
@@ -160,10 +160,10 @@ fn test_conv2d_grad_3x3_same_padding() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, kernel, bias, stride=1, padding=1)
 
-    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var grads = conv2d_backward(grad_out, x, kernel, stride=1, padding=1)
         return grads.grad_input
 
@@ -176,7 +176,7 @@ fn test_conv2d_grad_3x3_same_padding() raises:
     assert_true(passed, "Conv2D 3x3 same-padding gradient check failed")
 
 
-fn test_conv2d_grad_3x3_strided() raises:
+def test_conv2d_grad_3x3_strided() raises:
     """Test Conv2D gradient with 3x3 kernel, stride=2, padding=0 (strided)."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -196,10 +196,10 @@ fn test_conv2d_grad_3x3_strided() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, kernel, bias, stride=2, padding=0)
 
-    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var grads = conv2d_backward(grad_out, x, kernel, stride=2, padding=0)
         return grads.grad_input
 
@@ -209,7 +209,7 @@ fn test_conv2d_grad_3x3_strided() raises:
     assert_true(passed, "Conv2D 3x3 strided gradient check failed")
 
 
-fn test_conv2d_grad_multichannel() raises:
+def test_conv2d_grad_multichannel() raises:
     """Test Conv2D gradient with multi-channel: in_channels=2, out_channels=3.
     """
     var input_shape = List[Int]()
@@ -230,10 +230,10 @@ fn test_conv2d_grad_multichannel() raises:
     bias_shape.append(3)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, kernel, bias, stride=1, padding=0)
 
-    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var grads = conv2d_backward(grad_out, x, kernel, stride=1, padding=0)
         return grads.grad_input
 
@@ -245,7 +245,7 @@ fn test_conv2d_grad_multichannel() raises:
     assert_true(passed, "Conv2D multi-channel gradient check failed")
 
 
-fn test_cross_entropy_gradient_fp32() raises:
+def test_cross_entropy_gradient_fp32() raises:
     """Test cross-entropy loss gradient in FP32 precision."""
     var logits_shape = List[Int]()
     logits_shape.append(1)
@@ -262,10 +262,10 @@ fn test_cross_entropy_gradient_fp32() raises:
     var labels = zeros(labels_shape, DType.float32)
     labels._set_float64(0, 1.0)
 
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         return cross_entropy(x, labels)
 
-    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return cross_entropy_backward(grad_out, x, labels)
 
     var passed = check_gradients(
@@ -274,7 +274,7 @@ fn test_cross_entropy_gradient_fp32() raises:
     assert_true(passed, "CrossEntropy FP32 gradient check failed")
 
 
-fn test_conv2d_gradient_fp16() raises:
+def test_conv2d_gradient_fp16() raises:
     """Test Conv2D gradient in FP16 precision.
 
     NOTE: Conv2D operations in FP16 are numerically unstable in the current
@@ -305,12 +305,12 @@ fn test_conv2d_gradient_fp16() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d(x, kernel, bias, stride=1, padding=0)
         # Conv computes in FP32 for numerical stability
         return result^
 
-    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         var grads = conv2d_backward(grad_out, x, kernel, stride=1, padding=0)
         return grads.grad_input
 
@@ -322,7 +322,7 @@ fn test_conv2d_gradient_fp16() raises:
     assert_true(passed, "Conv2D FP16 gradient check failed")
 
 
-fn test_cross_entropy_gradient_fp16() raises:
+def test_cross_entropy_gradient_fp16() raises:
     """Test cross-entropy loss gradient in FP16 precision.
 
     Cross-entropy involves exp/log operations which can be sensitive
@@ -350,10 +350,10 @@ fn test_cross_entropy_gradient_fp16() raises:
     labels_fp32._set_float64(0, 1.0)  # Sample 0: class 0
     var labels = config.cast_to_compute(labels_fp32)
 
-    fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises escaping -> AnyTensor:
         return cross_entropy(x, labels)
 
-    fn backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
         return cross_entropy_backward(grad_out, x, labels)
 
     # FP16 with relaxed tolerance for exp/log operations
@@ -363,7 +363,7 @@ fn test_cross_entropy_gradient_fp16() raises:
     assert_true(passed, "CrossEntropy FP16 gradient check failed")
 
 
-fn main() raises:
+def main() raises:
     """Run dtype-specific gradient checking tests.
 
     NOTE(#3776, ADR-009): This file contains 10/10 test functions.

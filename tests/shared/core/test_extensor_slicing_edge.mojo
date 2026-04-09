@@ -12,7 +12,7 @@ from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 # ============================================================================
 
 
-fn test_slice_empty() raises:
+def test_slice_empty() raises:
     """Test empty slice [5:5]."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
@@ -21,7 +21,7 @@ fn test_slice_empty() raises:
     assert_equal(sliced.numel(), 0)
 
 
-fn test_slice_single_element() raises:
+def test_slice_single_element() raises:
     """Test single element slice [3:4]."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
@@ -31,7 +31,7 @@ fn test_slice_single_element() raises:
     assert_almost_equal(Float64(sliced[0]), 3.0, tolerance=1e-6)
 
 
-fn test_slice_out_of_bounds_clamped() raises:
+def test_slice_out_of_bounds_clamped() raises:
     """Test slice with out-of-bounds indices (should be clamped)."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
 
@@ -48,7 +48,7 @@ fn test_slice_out_of_bounds_clamped() raises:
 # ============================================================================
 
 
-fn test_slice_creates_copy() raises:
+def test_slice_creates_copy() raises:
     """Test that __getitem__(Slice) creates a copy, not a view.
 
     This is the designed behavior: `t[start:end:step]` always allocates a new
@@ -63,7 +63,7 @@ fn test_slice_creates_copy() raises:
     assert_true(not sliced._is_view)
 
 
-fn test_slice_modification_doesnt_affect_original() raises:
+def test_slice_modification_doesnt_affect_original() raises:
     """Test that modifying a slice doesn't affect the original tensor.
 
     Because `__getitem__(Slice)` returns a copy, mutations to the result
@@ -81,7 +81,7 @@ fn test_slice_modification_doesnt_affect_original() raises:
     assert_almost_equal(Float64(t[2]), 0.0, tolerance=1e-6)
 
 
-fn main() raises:
+def main() raises:
     """Run all slice edge case and copy semantics tests."""
     test_slice_empty()
     test_slice_single_element()

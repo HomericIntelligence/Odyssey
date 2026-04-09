@@ -10,7 +10,7 @@ These tests verify both import functionality and basic component behavior.
 from testing import assert_true
 
 
-fn test_core_imports() raises:
+def test_core_imports() raises:
     """Test core package imports work correctly."""
     from shared.tensor.any_tensor import AnyTensor, zeros, ones, randn
     from shared.core import relu, sigmoid, tanh, softmax, gelu
@@ -33,7 +33,7 @@ fn test_core_imports() raises:
     print("✓ Core imports test passed")
 
 
-fn test_core_layers_imports() raises:
+def test_core_layers_imports() raises:
     """Test core layer operations imports."""
     from shared.core import linear, conv2d, flatten
     from shared.core import maxpool2d, avgpool2d
@@ -41,7 +41,7 @@ fn test_core_layers_imports() raises:
     print("✓ Core layer operations imports test passed")
 
 
-fn test_core_activations_imports() raises:
+def test_core_activations_imports() raises:
     """Test core activation function imports."""
     from shared.core import (
         relu,
@@ -59,7 +59,7 @@ fn test_core_activations_imports() raises:
     print("✓ Core activation functions imports test passed")
 
 
-fn test_core_types_imports() raises:
+def test_core_types_imports() raises:
     """Test core types imports."""
     from shared.tensor.any_tensor import AnyTensor
     from shared.core import FP8, BF8
@@ -67,7 +67,7 @@ fn test_core_types_imports() raises:
     print("✓ Core types imports test passed")
 
 
-fn test_core_activations_direct_imports() raises:
+def test_core_activations_direct_imports() raises:
     """Test activations are importable directly from shared.core.activation sub-module.
     """
     from shared.core.activation import relu, sigmoid, tanh, gelu
@@ -75,7 +75,7 @@ fn test_core_activations_direct_imports() raises:
     print("✓ Core activations direct imports test passed")
 
 
-fn test_core_layers_direct_imports() raises:
+def test_core_layers_direct_imports() raises:
     """Test layers are importable directly from their shared.core sub-modules.
 
     Note: linear, conv2d, flatten are pure functions in shared.core (not in
@@ -88,7 +88,7 @@ fn test_core_layers_direct_imports() raises:
     print("✓ Core layers direct imports test passed")
 
 
-fn test_core_types_direct_imports() raises:
+def test_core_types_direct_imports() raises:
     """Test types are importable directly from their shared.core sub-modules.
 
     Note: AnyTensor lives in shared.core.any_tensor (not shared.core.types which
@@ -100,7 +100,7 @@ fn test_core_types_direct_imports() raises:
     print("✓ Core types direct imports test passed")
 
 
-fn test_training_imports() raises:
+def test_training_imports() raises:
     """Test training package imports work correctly."""
     from shared.training import SGD, MSELoss
     from shared.training import StepLR, CosineAnnealingLR, ExponentialLR
@@ -109,14 +109,14 @@ fn test_training_imports() raises:
     print("✓ Training imports test passed")
 
 
-fn test_training_optimizers_imports() raises:
+def test_training_optimizers_imports() raises:
     """Test training optimizers imports."""
     from shared.training import SGD
 
     print("✓ Training optimizers imports test passed")
 
 
-fn test_shared_optimizer_imports() raises:
+def test_shared_optimizer_imports() raises:
     """Test that SGD, Adam, AdamW, AdaGrad, RMSprop are importable from shared package.
 
     Covers Issue #3745: AdaGrad and RMSprop exposed as top-level shared imports.
@@ -126,7 +126,7 @@ fn test_shared_optimizer_imports() raises:
     print("✓ Shared optimizer imports test passed")
 
 
-fn test_training_schedulers_imports() raises:
+def test_training_schedulers_imports() raises:
     """Test training schedulers imports."""
     from shared.training import (
         StepLR,
@@ -140,7 +140,7 @@ fn test_training_schedulers_imports() raises:
     print("✓ Training schedulers imports test passed")
 
 
-fn test_training_metrics_imports() raises:
+def test_training_metrics_imports() raises:
     """Test training metrics imports."""
     # Metrics are in shared.training for now
     from shared.training import base
@@ -148,7 +148,7 @@ fn test_training_metrics_imports() raises:
     print("✓ Training metrics imports test passed")
 
 
-fn test_training_callbacks_imports() raises:
+def test_training_callbacks_imports() raises:
     """Test training callbacks imports."""
     from shared.training import (
         EarlyStopping,
@@ -159,7 +159,7 @@ fn test_training_callbacks_imports() raises:
     print("✓ Training callbacks imports test passed")
 
 
-fn test_training_optimizers_direct_imports() raises:
+def test_training_optimizers_direct_imports() raises:
     """Test optimizers are importable directly from shared.training.optimizers sub-module.
 
     Validates the canonical import path for optimizers sub-module.
@@ -173,7 +173,7 @@ fn test_training_optimizers_direct_imports() raises:
     print("✓ Training optimizers direct imports test passed")
 
 
-fn test_training_schedulers_direct_imports() raises:
+def test_training_schedulers_direct_imports() raises:
     """Test schedulers are importable directly from shared.training.schedulers sub-module.
 
     Validates the canonical import path for schedulers sub-module.
@@ -187,7 +187,7 @@ fn test_training_schedulers_direct_imports() raises:
     print("✓ Training schedulers direct imports test passed")
 
 
-fn test_training_base_direct_imports() raises:
+def test_training_base_direct_imports() raises:
     """Test base classes are importable directly from shared.training.base sub-module.
 
     Validates the canonical import path for base sub-module.
@@ -197,7 +197,7 @@ fn test_training_base_direct_imports() raises:
     print("✓ Training base direct imports test passed")
 
 
-fn test_training_loops_direct_imports() raises:
+def test_training_loops_direct_imports() raises:
     """Test loops and base components are importable from their direct sub-modules.
 
     Validates the canonical import paths for loops and base sub-modules.
@@ -211,7 +211,7 @@ fn test_training_loops_direct_imports() raises:
     print("✓ Training loops direct imports test passed")
 
 
-fn test_training_callbacks_direct_imports() raises:
+def test_training_callbacks_direct_imports() raises:
     """Test callbacks are importable directly from shared.training.callbacks sub-module.
 
     This validates the canonical import path documented in Issue #3211:
@@ -266,14 +266,14 @@ fn test_training_callbacks_direct_imports() raises:
     print("✓ Training callbacks direct imports test passed")
 
 
-fn test_training_loops_imports() raises:
+def test_training_loops_imports() raises:
     """Test training loops imports."""
     from shared.training import TrainingState, Callback
 
     print("✓ Training loops imports test passed")
 
 
-fn test_data_imports() raises:
+def test_data_imports() raises:
     """Test data package imports work correctly."""
     from shared.data import (
         Dataset,
@@ -285,21 +285,21 @@ fn test_data_imports() raises:
     print("✓ Data imports test passed")
 
 
-fn test_data_datasets_imports() raises:
+def test_data_datasets_imports() raises:
     """Test data datasets imports."""
     from shared.data import Dataset, AnyTensorDataset, FileDataset
 
     print("✓ Data datasets imports test passed")
 
 
-fn test_data_loaders_imports() raises:
+def test_data_loaders_imports() raises:
     """Test data loaders imports."""
     from shared.data import Batch
 
     print("✓ Data loaders imports test passed")
 
 
-fn test_data_transforms_imports() raises:
+def test_data_transforms_imports() raises:
     """Test data transforms imports."""
     # Data transforms are provided as utility functions, not classes
     from shared.data import normalize_images, one_hot_encode
@@ -307,7 +307,7 @@ fn test_data_transforms_imports() raises:
     print("✓ Data transforms imports test passed")
 
 
-fn test_data_datasets_direct_imports() raises:
+def test_data_datasets_direct_imports() raises:
     """Test datasets are importable directly from shared.data.datasets sub-module.
     """
     from shared.data.datasets import Dataset, AnyTensorDataset
@@ -315,7 +315,7 @@ fn test_data_datasets_direct_imports() raises:
     print("✓ Data datasets direct imports test passed")
 
 
-fn test_data_loaders_direct_imports() raises:
+def test_data_loaders_direct_imports() raises:
     """Test loaders are importable directly from shared.data.loaders sub-module.
     """
     from shared.data.loaders import Batch
@@ -323,7 +323,7 @@ fn test_data_loaders_direct_imports() raises:
     print("✓ Data loaders direct imports test passed")
 
 
-fn test_utils_imports() raises:
+def test_utils_imports() raises:
     """Test utils package imports work correctly."""
     from shared.utils import Logger, LogLevel, get_logger
     from shared.utils import load_config, save_config, Config
@@ -331,7 +331,7 @@ fn test_utils_imports() raises:
     print("✓ Utils imports test passed")
 
 
-fn test_utils_logging_imports() raises:
+def test_utils_logging_imports() raises:
     """Test utils logging imports."""
     from shared.utils import (
         Logger,
@@ -344,7 +344,7 @@ fn test_utils_logging_imports() raises:
     print("✓ Utils logging imports test passed")
 
 
-fn test_utils_visualization_imports() raises:
+def test_utils_visualization_imports() raises:
     """Test utils visualization imports."""
     # Visualization functions require Python interop
     # For now, just verify utils imports work
@@ -353,14 +353,14 @@ fn test_utils_visualization_imports() raises:
     print("✓ Utils visualization imports test passed")
 
 
-fn test_utils_config_imports() raises:
+def test_utils_config_imports() raises:
     """Test utils config imports."""
     from shared.utils import Config, load_config, save_config, ConfigValidator
 
     print("✓ Utils config imports test passed")
 
 
-fn test_root_imports() raises:
+def test_root_imports() raises:
     """Test root package convenience imports work."""
     # Root package doesn't re-export all components
     # Users should import from subpackages
@@ -371,28 +371,28 @@ fn test_root_imports() raises:
     print("✓ Root imports test passed")
 
 
-fn test_subpackage_imports() raises:
+def test_subpackage_imports() raises:
     """Test importing subpackages themselves."""
     from shared import core, training, data, utils
 
     print("✓ Subpackage imports test passed")
 
 
-fn test_nested_optimizer_imports() raises:
+def test_nested_optimizer_imports() raises:
     """Test nested imports from optimizer subpackages."""
     from shared.training import SGD
 
     print("✓ Nested optimizer imports test passed")
 
 
-fn test_nested_scheduler_imports() raises:
+def test_nested_scheduler_imports() raises:
     """Test nested imports from scheduler subpackages."""
     from shared.training import StepLR, CosineAnnealingLR
 
     print("✓ Nested scheduler imports test passed")
 
 
-fn test_nested_metric_imports() raises:
+def test_nested_metric_imports() raises:
     """Test nested imports from metrics subpackages."""
     # Metrics are in shared.training
     from shared.training import Callback
@@ -400,7 +400,7 @@ fn test_nested_metric_imports() raises:
     print("✓ Nested metric imports test passed")
 
 
-fn test_version_info() raises:
+def test_version_info() raises:
     """Test version info is accessible and has proper format."""
     from shared import VERSION, AUTHOR, LICENSE
 
@@ -440,7 +440,7 @@ fn test_version_info() raises:
     print("✓ Version info test passed")
 
 
-fn test_training_dataloader_imports() raises:
+def test_training_dataloader_imports() raises:
     """Test DataLoader and DataBatch are importable from trainer_interface.
 
     Verifies Issue #3851: DataLoader and DataBatch defined in
@@ -451,7 +451,7 @@ fn test_training_dataloader_imports() raises:
     print("✓ Training DataLoader/DataBatch package imports test passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_imports tests."""
     print("Running test_imports tests...")
 

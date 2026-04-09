@@ -19,7 +19,7 @@ from shared.training.metrics import evaluate_logits_batch
 from model import MobileNetV1
 
 
-fn evaluate_model(
+def evaluate_model(
     mut model: MobileNetV1,
     images: AnyTensor,
     labels: AnyTensor,
@@ -103,7 +103,7 @@ fn evaluate_model(
     return Tuple(overall_accuracy, correct_per_class^, total_per_class^)
 
 
-fn print_detailed_results(
+def print_detailed_results(
     accuracy: Float32, correct_per_class: List[Int], total_per_class: List[Int]
 ):
     """Print detailed evaluation results."""
@@ -150,7 +150,7 @@ fn print_detailed_results(
     print()
 
 
-fn main() raises:
+def main() raises:
     """Main inference entry point."""
     print("=" * 60)
     print("MobileNetV1 Inference on CIFAR-10")

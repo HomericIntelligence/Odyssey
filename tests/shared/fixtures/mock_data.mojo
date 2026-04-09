@@ -43,7 +43,7 @@ struct MockDataset:
     var output_dim: Int
     var random_seed: Int
 
-    fn __init__(
+    def __init__(
         mut self,
         num_samples: Int = 100,
         input_dim: Int = 10,
@@ -72,7 +72,7 @@ struct MockDataset:
         self.output_dim = output_dim
         self.random_seed = random_seed
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Get number of samples in dataset.
 
         Returns:
@@ -80,7 +80,7 @@ struct MockDataset:
         """
         return self.num_samples
 
-    fn get_item(self, index: Int) -> Tuple[List[Float32], List[Float32]]:
+    def get_item(self, index: Int) -> Tuple[List[Float32], List[Float32]]:
         """Get a single sample by index.
 
         Args:
@@ -136,7 +136,7 @@ struct MockClassificationDataset:
     var num_classes: Int
     var random_seed: Int
 
-    fn __init__(
+    def __init__(
         mut self,
         num_samples: Int = 100,
         input_dim: Int = 10,
@@ -165,11 +165,11 @@ struct MockClassificationDataset:
         self.num_classes = num_classes
         self.random_seed = random_seed
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Get dataset size."""
         return self.num_samples
 
-    fn get_item(self, index: Int) -> Tuple[List[Float32], Int]:
+    def get_item(self, index: Int) -> Tuple[List[Float32], Int]:
         """Get classification sample.
 
         Args:
@@ -223,7 +223,7 @@ struct MockRegressionDataset:
     var random_seed: Int
     var noise_scale: Float32
 
-    fn __init__(
+    def __init__(
         mut self,
         num_samples: Int = 100,
         input_dim: Int = 10,
@@ -256,11 +256,11 @@ struct MockRegressionDataset:
         self.random_seed = random_seed
         self.noise_scale = noise_scale
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Get dataset size."""
         return self.num_samples
 
-    fn get_item(self, index: Int) -> Tuple[List[Float32], List[Float32]]:
+    def get_item(self, index: Int) -> Tuple[List[Float32], List[Float32]]:
         """Get regression sample.
 
         Args:
@@ -326,7 +326,7 @@ struct MockDataLoader:
     var shuffle: Bool
     var num_batches: Int
 
-    fn __init__(
+    def __init__(
         mut self, num_samples: Int, batch_size: Int, shuffle: Bool = False
     ):
         """Initialize data loader.
@@ -356,7 +356,7 @@ struct MockDataLoader:
         # Calculate number of batches (ceiling division)
         self.num_batches = (num_samples + batch_size - 1) // batch_size
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Get number of batches.
 
         Returns:
@@ -364,7 +364,7 @@ struct MockDataLoader:
         """
         return self.num_batches
 
-    fn get_batch_size(self, batch_index: Int) -> Int:
+    def get_batch_size(self, batch_index: Int) -> Int:
         """Get size of specific batch.
 
         Args:
@@ -385,7 +385,7 @@ struct MockDataLoader:
         var end_idx = min(start_idx + self.batch_size, self.num_samples)
         return end_idx - start_idx
 
-    fn get_batch_indices(self, batch_index: Int) -> List[Int]:
+    def get_batch_indices(self, batch_index: Int) -> List[Int]:
         """Get sample indices for a batch.
 
         Args:
@@ -416,7 +416,7 @@ struct MockDataLoader:
 # ============================================================================
 
 
-fn create_mock_batch(
+def create_mock_batch(
     batch_size: Int, input_dim: Int, output_dim: Int = 1, random_seed: Int = 42
 ) -> Tuple[List[List[Float32]], List[List[Float32]]]:
     """Create a mock batch of data.
@@ -462,7 +462,7 @@ fn create_mock_batch(
     return (inputs, outputs)
 
 
-fn create_mock_classification_batch(
+def create_mock_classification_batch(
     batch_size: Int, input_dim: Int, num_classes: Int = 5, random_seed: Int = 42
 ) -> Tuple[List[List[Float32]], List[Int]]:
     """Create a mock classification batch.

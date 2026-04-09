@@ -17,8 +17,8 @@ Optimizations:
 - Automatic contiguity detection and conversion
 """
 
-from collections import List
-from memory import memcpy, UnsafePointer
+from std.collections import List
+from std.memory import memcpy, UnsafePointer
 from shared.tensor.any_tensor import AnyTensor
 from shared.base.shape_utils import _resolve_shape
 from shared.base.dtype_ordinal import (
@@ -42,7 +42,7 @@ from shared.base.dtype_ordinal import (
 # ============================================================================
 
 
-fn is_contiguous(tensor: AnyTensor) -> Bool:
+def is_contiguous(tensor: AnyTensor) -> Bool:
     """Check if tensor data is contiguous in memory (row-major C order).
 
         A tensor is contiguous if elements are laid out sequentially in memory
@@ -63,7 +63,7 @@ fn is_contiguous(tensor: AnyTensor) -> Bool:
     return tensor.is_contiguous()
 
 
-fn as_contiguous(tensor: AnyTensor) raises -> AnyTensor:
+def as_contiguous(tensor: AnyTensor) raises -> AnyTensor:
     """Convert tensor to contiguous memory layout if needed.
 
         If the tensor is already contiguous, returns a copy. If it's a view with
@@ -112,7 +112,7 @@ fn as_contiguous(tensor: AnyTensor) raises -> AnyTensor:
         raise Error("as_contiguous: unsupported dtype")
 
 
-fn view(tensor: AnyTensor, new_shape: List[Int]) raises -> AnyTensor:
+def view(tensor: AnyTensor, new_shape: List[Int]) raises -> AnyTensor:
     """Create a zero-copy view of tensor with new shape (if compatible).
 
         Attempts to create a view with different shape while preserving the
@@ -162,7 +162,7 @@ fn view(tensor: AnyTensor, new_shape: List[Int]) raises -> AnyTensor:
     return tensor.reshape(new_shape)
 
 
-fn reshape(tensor: AnyTensor, new_shape: List[Int]) raises -> AnyTensor:
+def reshape(tensor: AnyTensor, new_shape: List[Int]) raises -> AnyTensor:
     """Reshape tensor to new shape.
 
     Args:
@@ -214,7 +214,7 @@ fn reshape(tensor: AnyTensor, new_shape: List[Int]) raises -> AnyTensor:
     else:
         raise Error("reshape: unsupported dtype")
 
-fn squeeze(tensor: AnyTensor, axis: Int = -999) raises -> AnyTensor:
+def squeeze(tensor: AnyTensor, axis: Int = -999) raises -> AnyTensor:
     """Remove size-1 dimensions.
 
     Args:
@@ -277,7 +277,7 @@ fn squeeze(tensor: AnyTensor, axis: Int = -999) raises -> AnyTensor:
         return reshape(tensor, new_shape)
 
 
-fn unsqueeze(tensor: AnyTensor, axis: Int) raises -> AnyTensor:
+def unsqueeze(tensor: AnyTensor, axis: Int) raises -> AnyTensor:
     """Add a size-1 dimension at specified position.
 
     Args:
@@ -321,7 +321,7 @@ fn unsqueeze(tensor: AnyTensor, axis: Int) raises -> AnyTensor:
 
 
 @always_inline
-fn expand_dims(tensor: AnyTensor, axis: Int) raises -> AnyTensor:
+def expand_dims(tensor: AnyTensor, axis: Int) raises -> AnyTensor:
     """Alias for unsqueeze(). Add a size-1 dimension at specified position.
 
     Args:
@@ -337,7 +337,7 @@ fn expand_dims(tensor: AnyTensor, axis: Int) raises -> AnyTensor:
     return unsqueeze(tensor, axis)
 
 
-fn flatten(tensor: AnyTensor) raises -> AnyTensor:
+def flatten(tensor: AnyTensor) raises -> AnyTensor:
     """Flatten tensor to 1D.
 
     Args:
@@ -363,7 +363,7 @@ fn flatten(tensor: AnyTensor) raises -> AnyTensor:
 
 
 @always_inline
-fn ravel(tensor: AnyTensor) raises -> AnyTensor:
+def ravel(tensor: AnyTensor) raises -> AnyTensor:
     """Flatten tensor to 1D (comptime for flatten).
 
         Note: Our implementation now uses zero-copy views for contiguous tensors.
@@ -394,7 +394,7 @@ fn ravel(tensor: AnyTensor) raises -> AnyTensor:
         return flatten(tensor)
 
 
-fn concatenate(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor:
+def concatenate(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor:
     """Concatenate tensors along an existing axis.
 
     Args:
@@ -547,7 +547,7 @@ fn concatenate(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor:
     return result^
 
 
-fn stack(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor:
+def stack(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor:
     """Stack tensors along a new axis.
 
     Args:
@@ -614,7 +614,7 @@ fn stack(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor:
 # ============================================================================
 
 
-fn split(
+def split(
     tensor: AnyTensor, num_splits: Int, axis: Int = 0
 ) raises -> List[AnyTensor]:
     """Split tensor into equal parts along an axis.
@@ -681,7 +681,7 @@ fn split(
     return results^
 
 
-fn split_with_indices(
+def split_with_indices(
     tensor: AnyTensor, split_indices: List[Int], axis: Int = 0
 ) raises -> List[AnyTensor]:
     """Split tensor at specified indices along an axis.
@@ -768,7 +768,7 @@ fn split_with_indices(
 # ============================================================================
 
 
-fn conv2d_output_shape(
+def conv2d_output_shape(
     input_h: Int,
     input_w: Int,
     kernel_h: Int,
@@ -819,7 +819,7 @@ fn conv2d_output_shape(
     return Tuple[Int, Int](out_h, out_w)
 
 
-fn pool_output_shape(
+def pool_output_shape(
     input_h: Int, input_w: Int, kernel_size: Int, stride: Int, padding: Int
 ) -> Tuple[Int, Int]:
     """Compute output dimensions for 2D pooling.
@@ -855,7 +855,7 @@ fn pool_output_shape(
     return Tuple[Int, Int](out_h, out_w)
 
 
-fn flatten_size(height: Int, width: Int, channels: Int) -> Int:
+def flatten_size(height: Int, width: Int, channels: Int) -> Int:
     """Compute flattened size for fully connected layer input.
 
         Calculates the total number of elements in a flattened tensor from
@@ -883,7 +883,7 @@ fn flatten_size(height: Int, width: Int, channels: Int) -> Int:
     return height * width * channels
 
 
-fn flatten_to_2d(tensor: AnyTensor) raises -> AnyTensor:
+def flatten_to_2d(tensor: AnyTensor) raises -> AnyTensor:
     """Flatten a 4D tensor to 2D, preserving the batch dimension.
 
         Commonly used before fully connected layers in CNNs to reshape
@@ -934,7 +934,7 @@ fn flatten_to_2d(tensor: AnyTensor) raises -> AnyTensor:
     return reshape(tensor, new_shape)
 
 
-fn transposed_conv2d_output_shape(
+def transposed_conv2d_output_shape(
     input_h: Int,
     input_w: Int,
     kernel_h: Int,
@@ -979,7 +979,7 @@ fn transposed_conv2d_output_shape(
     return Tuple[Int, Int](out_h, out_w)
 
 
-fn global_avgpool_output_shape(
+def global_avgpool_output_shape(
     batch: Int, channels: Int
 ) -> Tuple[Int, Int, Int, Int]:
     """Compute output shape for global average pooling.
@@ -1006,7 +1006,7 @@ fn global_avgpool_output_shape(
     return Tuple[Int, Int, Int, Int](batch, channels, 1, 1)
 
 
-fn linear_output_shape(batch_size: Int, out_features: Int) -> Tuple[Int, Int]:
+def linear_output_shape(batch_size: Int, out_features: Int) -> Tuple[Int, Int]:
     """Compute output shape for linear/dense layer.
 
         Linear layers transform input features to output features. The output
@@ -1031,7 +1031,7 @@ fn linear_output_shape(batch_size: Int, out_features: Int) -> Tuple[Int, Int]:
     return Tuple[Int, Int](batch_size, out_features)
 
 
-fn tile(tensor: AnyTensor, reps: List[Int]) raises -> AnyTensor:
+def tile(tensor: AnyTensor, reps: List[Int]) raises -> AnyTensor:
     """Tile tensor by repeating along each dimension.
 
     Args:
@@ -1130,7 +1130,7 @@ fn tile(tensor: AnyTensor, reps: List[Int]) raises -> AnyTensor:
     return result^
 
 
-fn repeat(tensor: AnyTensor, n: Int, axis: Int = -1) raises -> AnyTensor:
+def repeat(tensor: AnyTensor, n: Int, axis: Int = -1) raises -> AnyTensor:
     """Repeat each element n times along axis.
 
     Args:
@@ -1225,7 +1225,7 @@ fn repeat(tensor: AnyTensor, n: Int, axis: Int = -1) raises -> AnyTensor:
         return result^
 
 
-fn broadcast_to(tensor: AnyTensor, target_shape: List[Int]) raises -> AnyTensor:
+def broadcast_to(tensor: AnyTensor, target_shape: List[Int]) raises -> AnyTensor:
     """Broadcast tensor to target shape.
 
     Args:
@@ -1279,7 +1279,7 @@ fn broadcast_to(tensor: AnyTensor, target_shape: List[Int]) raises -> AnyTensor:
     else:
         raise Error("broadcast_to: unsupported dtype")
 
-fn _validate_permute_dims(dims: List[Int], ndim: Int) raises:
+def _validate_permute_dims(dims: List[Int], ndim: Int) raises:
     """Validate dims is a valid permutation of [0..ndim-1].
 
     Args:
@@ -1318,7 +1318,7 @@ fn _validate_permute_dims(dims: List[Int], ndim: Int) raises:
         seen[d] = True
 
 
-fn permute(tensor: AnyTensor, dims: List[Int]) raises -> AnyTensor:
+def permute(tensor: AnyTensor, dims: List[Int]) raises -> AnyTensor:
     """Permute tensor dimensions (generalized transpose).
 
     Args:

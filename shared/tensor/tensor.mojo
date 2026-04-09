@@ -19,8 +19,8 @@ Example:
     ```
 """
 
-from collections import List
-from memory import UnsafePointer, memset_zero, alloc
+from std.collections import List
+from std.memory import UnsafePointer, memset_zero, alloc
 from shared.base.memory_pool import pooled_alloc, pooled_free
 from shared.tensor.tensor_traits import TensorLike
 from .any_tensor import AnyTensor
@@ -89,7 +89,7 @@ struct Tensor[dtype: DType = DType.float32](
     # Constructors
     # ------------------------------------------------------------------
 
-    fn __init__(out self, shape: List[Int]) raises:
+    def __init__(out self, shape: List[Int]) raises:
         """Initialize a new Tensor with given shape.
 
         Allocates memory via the pooled allocator and initializes all
@@ -152,7 +152,7 @@ struct Tensor[dtype: DType = DType.float32](
         self._refcount = alloc[Int](1)
         self._refcount[] = 1
 
-    fn __init__(
+    def __init__(
         out self,
         data: UnsafePointer[Scalar[Self.dtype], origin=MutAnyOrigin],
         shape: List[Int],
@@ -197,7 +197,7 @@ struct Tensor[dtype: DType = DType.float32](
     # Lifecycle
     # ------------------------------------------------------------------
 
-    fn __init__(out self, *, copy: Self):
+    def __init__(out self, *, copy: Self):
         """Copy constructor - creates a shared-ownership copy with reference counting."""
         self._data = copy._data
         self._shape = copy._shape.copy()
@@ -210,7 +210,7 @@ struct Tensor[dtype: DType = DType.float32](
         if self._refcount:
             self._refcount[] += 1
 
-    fn __init__(out self, *, deinit take: Self):
+    def __init__(out self, *, deinit take: Self):
         """Move constructor - transfers ownership without refcount change."""
         self._data = take._data
         self._shape = take._shape^
@@ -221,13 +221,13 @@ struct Tensor[dtype: DType = DType.float32](
         self._original_numel_quantized = take._original_numel_quantized
         self._allocated_size = take._allocated_size
 
-    fn copy(self) -> Self:
+    def copy(self) -> Self:
         """Copy constructor — shared ownership with reference counting.
 
         Creates a new reference to the same underlying data. Increments
         the reference count to track shared ownership.
         """
-        from memory import alloc as mem_alloc
+        from std.memory import alloc as mem_alloc
         var ptr = mem_alloc[Tensor[Self.dtype]](1)
         ptr[0]._data = self._data
         ptr[0]._shape = self._shape.copy()
@@ -241,7 +241,7 @@ struct Tensor[dtype: DType = DType.float32](
             self._refcount[] += 1
         return ptr.take_pointee()
 
-    fn __del__(deinit self):
+    def __del__(deinit self):
         """Destructor — decrements refcount, frees if last reference.
 
         Uses reference counting to safely manage shared ownership. Only
@@ -263,7 +263,7 @@ struct Tensor[dtype: DType = DType.float32](
     # Element access
     # ------------------------------------------------------------------
 
-    fn __getitem__(self, index: Int) raises -> Scalar[Self.dtype]:
+    def __getitem__(self, index: Int) raises -> Scalar[Self.dtype]:
         """Get element at flat index — returns typed Scalar[Self.dtype].
 
         For contiguous tensors, the flat index maps directly to a memory
@@ -304,7 +304,7 @@ struct Tensor[dtype: DType = DType.float32](
         # Contiguous — direct indexed access (auto-scales, no * dtype_size)
         return self._data[index]
 
-    fn __setitem__(mut self, index: Int, value: Scalar[Self.dtype]) raises:
+    def __setitem__(mut self, index: Int, value: Scalar[Self.dtype]) raises:
         """Set element at flat index — accepts typed Scalar[Self.dtype].
 
         Args:
@@ -336,19 +336,19 @@ struct Tensor[dtype: DType = DType.float32](
     # TensorLike conformance
     # ------------------------------------------------------------------
 
-    fn numel(self) -> Int:
+    def numel(self) -> Int:
         """Return total number of elements."""
         return self._numel
 
-    fn shape(self) -> List[Int]:
+    def shape(self) -> List[Int]:
         """Return shape as list of dimension sizes (returns a copy)."""
         return self._shape.copy()
 
-    fn get_dtype(self) -> DType:
+    def get_dtype(self) -> DType:
         """Return the element data type (compile-time constant)."""
         return Self.dtype
 
-    fn ndim(self) -> Int:
+    def ndim(self) -> Int:
         """Return the number of dimensions (rank)."""
         return len(self._shape)
 
@@ -356,7 +356,7 @@ struct Tensor[dtype: DType = DType.float32](
     # Sized conformance
     # ------------------------------------------------------------------
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return the size of the first dimension.
 
         Follows NumPy/PyTorch convention where len() returns the size
@@ -373,7 +373,7 @@ struct Tensor[dtype: DType = DType.float32](
     # Scalar extraction
     # ------------------------------------------------------------------
 
-    fn item(self) raises -> Scalar[Self.dtype]:
+    def item(self) raises -> Scalar[Self.dtype]:
         """Extract the value from a single-element tensor.
 
         Returns:
@@ -397,7 +397,7 @@ struct Tensor[dtype: DType = DType.float32](
             )
         return self._data[0]
 
-    fn __bool__(self) raises -> Bool:
+    def __bool__(self) raises -> Bool:
         """Return the boolean value of a single-element tensor.
 
         Follows PyTorch/NumPy convention: a single-element tensor can be
@@ -423,7 +423,7 @@ struct Tensor[dtype: DType = DType.float32](
     # Query methods
     # ------------------------------------------------------------------
 
-    fn is_contiguous(self) -> Bool:
+    def is_contiguous(self) -> Bool:
         """Check if the tensor has a contiguous memory layout.
 
         Returns:
@@ -436,7 +436,7 @@ struct Tensor[dtype: DType = DType.float32](
             expected_stride *= self._shape[i]
         return True
 
-    fn is_view(self) -> Bool:
+    def is_view(self) -> Bool:
         """Return whether this tensor is a view (shares data).
 
         Returns:
@@ -444,7 +444,7 @@ struct Tensor[dtype: DType = DType.float32](
         """
         return self._is_view
 
-    fn dim(self) -> Int:
+    def dim(self) -> Int:
         """Return the number of dimensions (alias for ndim).
 
         Returns:
@@ -456,7 +456,7 @@ struct Tensor[dtype: DType = DType.float32](
     # Conversion
     # ------------------------------------------------------------------
 
-    fn as_any(self) raises -> AnyTensor:
+    def as_any(self) raises -> AnyTensor:
         """Zero-copy conversion to runtime-typed AnyTensor (future AnyTensor).
 
         Creates an AnyTensor sharing the same underlying data via a shared
@@ -518,7 +518,7 @@ struct Tensor[dtype: DType = DType.float32](
     # String representation (H4 fix: typed access, no _get_float64)
     # ------------------------------------------------------------------
 
-    fn __str__(self) -> String:
+    def __str__(self) -> String:
         """Human-readable string representation with NumPy-style truncation.
 
         For tensors with more than 1000 elements, shows only the first 3 and
@@ -559,7 +559,7 @@ struct Tensor[dtype: DType = DType.float32](
         result += "], dtype=" + String(Self.dtype) + ")"
         return result
 
-    fn __repr__(self) -> String:
+    def __repr__(self) -> String:
         """Detailed representation for debugging.
 
         Uses stride-aware element access via `self[i]` so non-contiguous
@@ -611,7 +611,7 @@ struct Tensor[dtype: DType = DType.float32](
     # ------------------------------------------------------------------
 
     @staticmethod
-    fn _element_size() -> Int:
+    def _element_size() -> Int:
         """Return the size in bytes of a single element.
 
         Uses compile-time dtype knowledge — no runtime branching needed.
@@ -619,8 +619,7 @@ struct Tensor[dtype: DType = DType.float32](
         """
         # DType size lookup — same logic as AnyTensor but resolved at
         # compile time since Self.dtype is a parameter.
-        @parameter
-        if Self.dtype == DType.float16 or Self.dtype == DType.bfloat16:
+        comptime if Self.dtype == DType.float16 or Self.dtype == DType.bfloat16:
             return 2
         elif Self.dtype == DType.float32:
             return 4

@@ -77,7 +77,7 @@ struct StepLR:
     var gamma: Float64
     """Multiplicative decay factor."""
 
-    fn __init__(
+    def __init__(
         out self,
         base_lr: Float64,
         step_size: Int,
@@ -108,7 +108,7 @@ struct StepLR:
         self.last_epoch = -1
         self.current_lr = base_lr
 
-    fn step(mut self, epoch: Int) -> Float64:
+    def step(mut self, epoch: Int) -> Float64:
         """Update learning rate for the given epoch and return it.
 
         Computes: `lr = base_lr * gamma^(epoch // step_size)`
@@ -132,7 +132,7 @@ struct StepLR:
         self.current_lr = self.base_lr * decay_factor
         return self.current_lr
 
-    fn get_lr(self) -> Float64:
+    def get_lr(self) -> Float64:
         """Get the current learning rate without updating state.
 
         Returns:
@@ -192,7 +192,7 @@ struct ExponentialLR:
     var gamma: Float64
     """Multiplicative decay per epoch."""
 
-    fn __init__(out self, base_lr: Float64, gamma: Float64):
+    def __init__(out self, base_lr: Float64, gamma: Float64):
         """Initialize ExponentialLR scheduler.
 
         Args:
@@ -217,7 +217,7 @@ struct ExponentialLR:
         self.last_epoch = -1
         self.current_lr = base_lr
 
-    fn step(mut self, epoch: Int) -> Float64:
+    def step(mut self, epoch: Int) -> Float64:
         """Update learning rate for the given epoch and return it.
 
         Computes: `lr = base_lr * gamma^epoch`
@@ -241,7 +241,7 @@ struct ExponentialLR:
         self.current_lr = self.base_lr * decay_factor
         return self.current_lr
 
-    fn get_lr(self) -> Float64:
+    def get_lr(self) -> Float64:
         """Get the current learning rate without updating state.
 
         Returns:

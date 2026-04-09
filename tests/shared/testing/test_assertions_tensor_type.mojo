@@ -5,7 +5,7 @@
 # high test load. Split from test_assertions.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Note: Split from test_assertions_tensor_values.mojo to satisfy ADR-009 ≤8
-fn test_ target per file.
+def test_ target per file.
 """
 
 from testing import assert_true
@@ -16,19 +16,19 @@ from shared.testing.assertions import (
 from shared.tensor.any_tensor import ones, full
 
 
-fn test_assert_type_int() raises:
+def test_assert_type_int() raises:
     """Test assert_type with int value."""
     var value: Int = 42
     assert_type[Int](value, "Int")
 
 
-fn test_assert_type_float() raises:
+def test_assert_type_float() raises:
     """Test assert_type with float value."""
     var value: Float32 = 3.14
     assert_type[Float32](value, "Float32")
 
 
-fn test_assert_not_equal_tensor_fails() raises:
+def test_assert_not_equal_tensor_fails() raises:
     """Test assert_not_equal_tensor with equal tensors."""
     var tensor1 = ones([3, 4], DType.float32)
     var tensor2 = ones([3, 4], DType.float32)
@@ -42,7 +42,7 @@ fn test_assert_not_equal_tensor_fails() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run type assertion tests."""
     test_assert_type_int()
     test_assert_type_float()

@@ -19,10 +19,10 @@ References:
 """
 
 from shared.tensor.any_tensor import AnyTensor, zeros
-from memory import UnsafePointer
+from std.memory import UnsafePointer
 
 
-fn read_uint32_be[origin: Origin](data: UnsafePointer[UInt8, origin], offset: Int) -> Int:
+def read_uint32_be[origin: Origin](data: UnsafePointer[UInt8, origin], offset: Int) -> Int:
     """Read 32-bit unsigned integer in big-endian format.
 
     Args:
@@ -40,7 +40,7 @@ fn read_uint32_be[origin: Origin](data: UnsafePointer[UInt8, origin], offset: In
     return (b0 << 24) | (b1 << 16) | (b2 << 8) | b3
 
 
-fn load_idx_labels(filepath: String) raises -> AnyTensor:
+def load_idx_labels(filepath: String) raises -> AnyTensor:
     """Load labels from IDX file format.
 
     Args:
@@ -87,7 +87,7 @@ fn load_idx_labels(filepath: String) raises -> AnyTensor:
     return labels^
 
 
-fn load_idx_images(filepath: String) raises -> AnyTensor:
+def load_idx_images(filepath: String) raises -> AnyTensor:
     """Load grayscale images from IDX file format.
 
     Args:
@@ -144,7 +144,7 @@ fn load_idx_images(filepath: String) raises -> AnyTensor:
     return images^
 
 
-fn load_idx_images_rgb(filepath: String) raises -> AnyTensor:
+def load_idx_images_rgb(filepath: String) raises -> AnyTensor:
     """Load RGB images from IDX file format.
 
     Args:
@@ -206,7 +206,7 @@ fn load_idx_images_rgb(filepath: String) raises -> AnyTensor:
     return images^
 
 
-fn normalize_images(mut images: AnyTensor) raises -> AnyTensor:
+def normalize_images(mut images: AnyTensor) raises -> AnyTensor:
     """Normalize uint8 images to float32 in range [0, 1].
 
     Args:
@@ -234,7 +234,7 @@ fn normalize_images(mut images: AnyTensor) raises -> AnyTensor:
     return normalized^
 
 
-fn one_hot_encode(labels: AnyTensor, num_classes: Int) raises -> AnyTensor:
+def one_hot_encode(labels: AnyTensor, num_classes: Int) raises -> AnyTensor:
     """Convert integer labels to one-hot encoded float32 tensor.
 
     Args:
@@ -281,7 +281,7 @@ fn one_hot_encode(labels: AnyTensor, num_classes: Int) raises -> AnyTensor:
     return one_hot^
 
 
-fn normalize_images_rgb(mut images: AnyTensor) raises -> AnyTensor:
+def normalize_images_rgb(mut images: AnyTensor) raises -> AnyTensor:
     """Normalize uint8 RGB images to float32 with ImageNet normalization.
 
     Args:
@@ -344,7 +344,7 @@ fn normalize_images_rgb(mut images: AnyTensor) raises -> AnyTensor:
     return normalized^
 
 
-fn load_cifar10_batch(
+def load_cifar10_batch(
     batch_dir: String, batch_name: String
 ) raises -> Tuple[AnyTensor, AnyTensor]:
     """Load a single CIFAR-10 batch (images and labels) from IDX format.

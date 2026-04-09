@@ -23,7 +23,7 @@ from shared.utils.arg_parser import ArgumentParser
 from shared.training.metrics import evaluate_with_predict
 
 
-fn parse_args() raises -> Tuple[String, String]:
+def parse_args() raises -> Tuple[String, String]:
     """Parse command line arguments using enhanced argument parser.
 
     Returns:
@@ -41,7 +41,7 @@ fn parse_args() raises -> Tuple[String, String]:
     return Tuple[String, String](weights_dir, data_dir)
 
 
-fn evaluate_model(
+def evaluate_model(
     mut model: AlexNet, test_images: AnyTensor, test_labels: AnyTensor
 ) raises -> Tuple[Float32, Float32]:
     """Evaluate model on test set with Top-1 and Top-5 accuracy.
@@ -123,7 +123,7 @@ fn evaluate_model(
     return (top1_accuracy_fraction, top5_accuracy)
 
 
-fn _argmax(tensor: AnyTensor) raises -> Int:
+def _argmax(tensor: AnyTensor) raises -> Int:
     """Find index of maximum value in 1D tensor.
 
     Args:
@@ -144,7 +144,7 @@ fn _argmax(tensor: AnyTensor) raises -> Int:
     return max_idx
 
 
-fn _top_k_indices(tensor: AnyTensor, k: Int) raises -> List[Int]:
+def _top_k_indices(tensor: AnyTensor, k: Int) raises -> List[Int]:
     """Find indices of top-k maximum values in 1D tensor.
 
     Args:
@@ -183,7 +183,7 @@ fn _top_k_indices(tensor: AnyTensor, k: Int) raises -> List[Int]:
     return indices^
 
 
-fn print_class_names():
+def print_class_names():
     """Print CIFAR-10 class names for reference."""
     print("\nCIFAR-10 Classes:")
     print("  0: airplane")
@@ -199,7 +199,7 @@ fn print_class_names():
     print()
 
 
-fn main() raises:
+def main() raises:
     """Main inference routine."""
     print("=" * 60)
     print("AlexNet Inference on CIFAR-10 Dataset")

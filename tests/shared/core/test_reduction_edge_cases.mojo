@@ -24,7 +24,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_sum_empty_tensor() raises:
+def test_sum_empty_tensor() raises:
     """Sum of empty tensor should return 0 (identity element)."""
     var shape = List[Int]()
     shape.append(0)
@@ -35,7 +35,7 @@ fn test_sum_empty_tensor() raises:
     assert_value_at(result, 0, 0.0, 1e-6, "Sum of empty should be 0")
 
 
-fn test_mean_empty_tensor() raises:
+def test_mean_empty_tensor() raises:
     """Mean of empty tensor should handle division by 0."""
     var shape = List[Int]()
     shape.append(0)
@@ -47,7 +47,7 @@ fn test_mean_empty_tensor() raises:
     assert_dim(result, 0, "Mean of empty should return scalar")
 
 
-fn test_sum_scalar_tensor() raises:
+def test_sum_scalar_tensor() raises:
     """Sum of 0D scalar tensor should return the scalar itself."""
     var shape = List[Int]()
     var t = full(shape, 42.0, DType.float32)
@@ -59,7 +59,7 @@ fn test_sum_scalar_tensor() raises:
     )
 
 
-fn test_mean_scalar_tensor() raises:
+def test_mean_scalar_tensor() raises:
     """Mean of 0D scalar tensor should return the scalar itself."""
     var shape = List[Int]()
     var t = full(shape, 42.0, DType.float32)
@@ -71,7 +71,7 @@ fn test_mean_scalar_tensor() raises:
     )
 
 
-fn test_sum_single_element() raises:
+def test_sum_single_element() raises:
     """Sum of [x] should equal x."""
     var shape = List[Int]()
     shape.append(1)
@@ -81,7 +81,7 @@ fn test_sum_single_element() raises:
     assert_value_at(result, 0, 7.5, 1e-6, "Sum of [7.5] should be 7.5")
 
 
-fn test_mean_single_element() raises:
+def test_mean_single_element() raises:
     """Mean of [x] should equal x."""
     var shape = List[Int]()
     shape.append(1)
@@ -91,7 +91,7 @@ fn test_mean_single_element() raises:
     assert_value_at(result, 0, 7.5, 1e-6, "Mean of [7.5] should be 7.5")
 
 
-fn test_sum_all_ones() raises:
+def test_sum_all_ones() raises:
     """Sum of tensor with all ones."""
     var shape = List[Int]()
     shape.append(10)
@@ -101,7 +101,7 @@ fn test_sum_all_ones() raises:
     assert_value_at(result, 0, 10.0, 1e-5, "Sum of 10 ones should be 10")
 
 
-fn test_mean_all_zeros() raises:
+def test_mean_all_zeros() raises:
     """Mean of all zeros should be 0."""
     var shape = List[Int]()
     shape.append(5)
@@ -111,7 +111,7 @@ fn test_mean_all_zeros() raises:
     assert_value_at(result, 0, 0.0, 1e-8, "Mean of zeros should be 0")
 
 
-fn test_mean_all_same() raises:
+def test_mean_all_same() raises:
     """Mean of tensor with all same values."""
     var shape = List[Int]()
     shape.append(10)
@@ -121,7 +121,7 @@ fn test_mean_all_same() raises:
     assert_value_at(result, 0, 3.14159, 1e-5, "Mean of constant tensor")
 
 
-fn test_sum_2d() raises:
+def test_sum_2d() raises:
     """Sum of 2D tensor."""
     var shape = List[Int]()
     shape.append(3)
@@ -133,7 +133,7 @@ fn test_sum_2d() raises:
     assert_value_at(result, 0, 24.0, 1e-5, "Sum of 3x4 tensor of 2.0")
 
 
-fn test_mean_2d() raises:
+def test_mean_2d() raises:
     """Mean of 2D tensor."""
     var shape = List[Int]()
     shape.append(3)
@@ -145,7 +145,7 @@ fn test_mean_2d() raises:
     assert_value_at(result, 0, 8.0, 1e-5, "Mean of constant 2D tensor")
 
 
-fn test_sum_3d_tensor() raises:
+def test_sum_3d_tensor() raises:
     """Sum reduction on 3D tensor."""
     var shape = List[Int]()
     shape.append(2)
@@ -158,7 +158,7 @@ fn test_sum_3d_tensor() raises:
     assert_value_at(result, 0, 24.0, 1e-5, "Sum of 3D ones")
 
 
-fn test_mean_3d_tensor() raises:
+def test_mean_3d_tensor() raises:
     """Mean reduction on 3D tensor."""
     var shape = List[Int]()
     shape.append(2)
@@ -171,7 +171,7 @@ fn test_mean_3d_tensor() raises:
     assert_value_at(result, 0, 5.0, 1e-5, "Mean of 3D constant tensor")
 
 
-fn test_sum_4d_tensor() raises:
+def test_sum_4d_tensor() raises:
     """Sum reduction on 4D tensor."""
     var shape = List[Int]()
     shape.append(2)
@@ -185,7 +185,7 @@ fn test_sum_4d_tensor() raises:
     assert_value_at(result, 0, 16.0, 1e-5, "Sum of 4D ones")
 
 
-fn test_sum_5d_tensor() raises:
+def test_sum_5d_tensor() raises:
     """Sum reduction on 5D tensor."""
     var shape = List[Int]()
     shape.append(2)
@@ -200,7 +200,7 @@ fn test_sum_5d_tensor() raises:
     assert_value_at(result, 0, 32.0, 1e-5, "Sum of 5D ones")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_reduction_edge_cases tests."""
     print("Running test_reduction_edge_cases tests...")
 

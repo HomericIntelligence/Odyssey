@@ -26,7 +26,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros
 # ============================================================================
 
 
-fn normalize_rgb(
+def normalize_rgb(
     images: AnyTensor,
     mean: Tuple[Float32, Float32, Float32],
     std: Tuple[Float32, Float32, Float32],

@@ -6,10 +6,10 @@ for common conversions (FP32 <-> FP16, FP32 <-> BF16).
 
 from shared.tensor.any_tensor import AnyTensor
 from shared.core.types.dtype_aliases import BF16
-from memory import bitcast
+from std.memory import bitcast
 
 
-fn cast_tensor(tensor: AnyTensor, target_dtype: DType) raises -> AnyTensor:
+def cast_tensor(tensor: AnyTensor, target_dtype: DType) raises -> AnyTensor:
     """Cast tensor to different dtype with optimized conversion paths.
 
     Provides fast conversion between common dtypes used in mixed precision
@@ -89,7 +89,7 @@ fn cast_tensor(tensor: AnyTensor, target_dtype: DType) raises -> AnyTensor:
     return result
 
 
-fn cast_to_bfloat16(tensor: AnyTensor) raises -> AnyTensor:
+def cast_to_bfloat16(tensor: AnyTensor) raises -> AnyTensor:
     """Convert tensor to BF16 storage (stored as uint16).
 
     Creates new tensor with BF16 values stored as uint16.
@@ -129,7 +129,7 @@ fn cast_to_bfloat16(tensor: AnyTensor) raises -> AnyTensor:
     return result
 
 
-fn cast_from_bfloat16(
+def cast_from_bfloat16(
     tensor: AnyTensor, target_dtype: DType = DType.float32
 ) raises -> AnyTensor:
     """Convert tensor from BF16 storage to floating point.
@@ -185,7 +185,7 @@ fn cast_from_bfloat16(
     return result
 
 
-fn get_dtype_size(dtype: DType) -> Int:
+def get_dtype_size(dtype: DType) -> Int:
     """Get size in bytes for a dtype.
 
     Args:
@@ -217,7 +217,7 @@ fn get_dtype_size(dtype: DType) -> Int:
         return 4  # Default
 
 
-fn is_floating_dtype(dtype: DType) -> Bool:
+def is_floating_dtype(dtype: DType) -> Bool:
     """Check if dtype is floating point.
 
     Args:
@@ -241,7 +241,7 @@ fn is_floating_dtype(dtype: DType) -> Bool:
     )
 
 
-fn is_integer_dtype(dtype: DType) -> Bool:
+def is_integer_dtype(dtype: DType) -> Bool:
     """Check if dtype is integer (signed or unsigned).
 
     Args:

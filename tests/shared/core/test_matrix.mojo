@@ -54,7 +54,7 @@ from shared.testing import (
 )
 
 
-fn test_matmul_shapes() raises:
+def test_matmul_shapes() raises:
     """Test that matmul returns correct output shape."""
     var shape_a = List[Int]()
     shape_a.append(4)
@@ -74,7 +74,7 @@ fn test_matmul_shapes() raises:
     assert_equal(result.shape()[1], 5)
 
 
-fn test_matmul_values() raises:
+def test_matmul_values() raises:
     """Test that matmul computes correct values."""
     var shape_a = List[Int]()
     shape_a.append(2)
@@ -117,7 +117,7 @@ fn test_matmul_values() raises:
     )
 
 
-fn test_matmul_identity() raises:
+def test_matmul_identity() raises:
     """Test matmul with identity matrix."""
     var shape = List[Int]()
     shape.append(3)
@@ -146,7 +146,7 @@ fn test_matmul_identity() raises:
         )
 
 
-fn test_matmul_2d_square() raises:
+def test_matmul_2d_square() raises:
     """Test 2D matrix multiplication with square matrices."""
     var shape_3x3 = List[Int]()
     shape_3x3.append(3)
@@ -162,7 +162,7 @@ fn test_matmul_2d_square() raises:
     assert_all_values(c, 2.0, 1e-6, "Identity @ B should equal B")
 
 
-fn test_matmul_2d_rectangular() raises:
+def test_matmul_2d_rectangular() raises:
     """Test 2D matrix multiplication with rectangular matrices."""
     var shape_a = List[Int]()
     shape_a.append(3)
@@ -181,7 +181,7 @@ fn test_matmul_2d_rectangular() raises:
     assert_all_values(c, 8.0, 1e-6, "Each element should be 8")
 
 
-fn test_matmul_with_zeros() raises:
+def test_matmul_with_zeros() raises:
     """Test matmul with zero matrices."""
     var shape = List[Int]()
     shape.append(3)
@@ -195,7 +195,7 @@ fn test_matmul_with_zeros() raises:
     assert_all_values(c, 0.0, 1e-6, "Zero matrix @ anything = zero matrix")
 
 
-fn test_matmul_batched_3d() raises:
+def test_matmul_batched_3d() raises:
     """Test batched matrix multiplication (3D)."""
     var shape_a = List[Int]()
     shape_a.append(2)  # batch size
@@ -217,7 +217,7 @@ fn test_matmul_batched_3d() raises:
     assert_all_values(c, 2.0, 1e-6, "Each element should be 2")
 
 
-fn test_matmul_batched_4d() raises:
+def test_matmul_batched_4d() raises:
     """Test batched matrix multiplication (4D)."""
     var shape_a = List[Int]()
     shape_a.append(2)  # batch dim 1
@@ -241,7 +241,7 @@ fn test_matmul_batched_4d() raises:
     assert_all_values(c, 5.0, 1e-6, "Each element should be 5")
 
 
-fn test_matmul_incompatible_shapes() raises:
+def test_matmul_incompatible_shapes() raises:
     """Test that incompatible shapes raise error."""
     var shape_a = List[Int]()
     shape_a.append(3)
@@ -267,7 +267,7 @@ fn test_matmul_incompatible_shapes() raises:
         )
 
 
-fn test_matmul_dtype_mismatch() raises:
+def test_matmul_dtype_mismatch() raises:
     """Test that dtype mismatch raises error."""
     var shape = List[Int]()
     shape.append(2)
@@ -285,7 +285,7 @@ fn test_matmul_dtype_mismatch() raises:
         raise Error("Should have raised error for dtype mismatch in matmul")
 
 
-fn test_matmul_1d_error() raises:
+def test_matmul_1d_error() raises:
     """Test that 1D inputs raise error."""
     var shape = List[Int]()
     shape.append(5)
@@ -302,7 +302,7 @@ fn test_matmul_1d_error() raises:
         raise Error("Should have raised error for 1D inputs to matmul")
 
 
-fn test_matmul_preserves_dtype() raises:
+def test_matmul_preserves_dtype() raises:
     """Test that matmul preserves dtype."""
     var shape = List[Int]()
     shape.append(3)
@@ -314,7 +314,7 @@ fn test_matmul_preserves_dtype() raises:
     assert_dtype(c, DType.float64, "matmul should preserve float64")
 
 
-fn test_matmul_backward_shapes() raises:
+def test_matmul_backward_shapes() raises:
     """Test that matmul_backward returns correct gradient shapes."""
     var shape_a = List[Int]()
     shape_a.append(4)
@@ -347,7 +347,7 @@ fn test_matmul_backward_shapes() raises:
     assert_equal(grad_b.shape()[1], 5)
 
 
-fn test_matmul_backward_gradient_a() raises:
+def test_matmul_backward_gradient_a() raises:
     """Test matmul_backward gradient w.r.t. input A with numerical checking.
 
     Validates that gradient w.r.t. A matches finite differences.
@@ -379,11 +379,11 @@ fn test_matmul_backward_gradient_a() raises:
         b.set(i, Float32(Float32(i) * 0.2 + 0.1))
 
     # Forward function wrapper
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return matmul(inp, b)
 
     # Backward function wrapper for grad_a
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         var grads = matmul_backward(grad_out, inp, b)
         return grads.grad_a
 
@@ -395,7 +395,7 @@ fn test_matmul_backward_gradient_a() raises:
     check_gradient(forward, backward, a, grad_output, rtol=1e-3, atol=1e-3)
 
 
-fn test_matmul_backward_gradient_b() raises:
+def test_matmul_backward_gradient_b() raises:
     """Test matmul_backward gradient w.r.t. input B with numerical checking.
 
     Validates that gradient w.r.t. B matches finite differences.
@@ -426,11 +426,11 @@ fn test_matmul_backward_gradient_b() raises:
         b.set(i, Float32(Float32(i) * 0.2 + 0.1))
 
     # Forward function wrapper
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return matmul(a, inp)
 
     # Backward function wrapper for grad_b
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         var grads = matmul_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -442,7 +442,7 @@ fn test_matmul_backward_gradient_b() raises:
     check_gradient(forward, backward, b, grad_output, rtol=1e-3, atol=1e-3)
 
 
-fn test_matmul_matrix_vector() raises:
+def test_matmul_matrix_vector() raises:
     """Test matrix @ vector multiplication (essential for linear layers)."""
     var shape_w = List[Int]()
     shape_w.append(3)  # out_features
@@ -462,7 +462,7 @@ fn test_matmul_matrix_vector() raises:
     assert_value_at(y, 2, 8.0, 1e-6, "y[2] should be 8.0")
 
 
-fn test_matmul_vector_matrix() raises:
+def test_matmul_vector_matrix() raises:
     """Test vector @ matrix multiplication."""
     var shape_x = List[Int]()
     shape_x.append(3)
@@ -480,7 +480,7 @@ fn test_matmul_vector_matrix() raises:
     assert_all_values(y, 6.0, 1e-6, "All elements should be 6.0")
 
 
-fn test_matmul_linear_layer_pattern() raises:
+def test_matmul_linear_layer_pattern() raises:
     """Test typical linear layer pattern: weight @ input."""
     # Simulate: Linear(in=5, out=10) processing single input
     var shape_w = List[Int]()
@@ -499,7 +499,7 @@ fn test_matmul_linear_layer_pattern() raises:
     assert_all_values(output, 2.5, 1e-6, "Linear output computation")
 
 
-fn test_matmul_matrix_vector_error() raises:
+def test_matmul_matrix_vector_error() raises:
     """Test matrix @ vector dimension mismatch error."""
     var shape_w = List[Int]()
     shape_w.append(3)
@@ -522,7 +522,7 @@ fn test_matmul_matrix_vector_error() raises:
         )
 
 
-fn test_matmul_thin_matrices() raises:
+def test_matmul_thin_matrices() raises:
     """Test thin matrices (many rows, few columns)."""
     var shape_a = List[Int]()
     shape_a.append(100)  # Many rows
@@ -542,7 +542,7 @@ fn test_matmul_thin_matrices() raises:
     assert_value_at(c, 1999, 5.0, 1e-6, "Check last element")
 
 
-fn test_matmul_wide_matrices() raises:
+def test_matmul_wide_matrices() raises:
     """Test wide matrices (few rows, many columns)."""
     var shape_a = List[Int]()
     shape_a.append(5)  # Few rows
@@ -561,7 +561,7 @@ fn test_matmul_wide_matrices() raises:
     assert_value_at(c, 0, 50.0, 1e-5, "Wide matrix multiplication")
 
 
-fn test_matmul_tiny_matrices() raises:
+def test_matmul_tiny_matrices() raises:
     """Test very small matrices (1x1, 2x1, 1x2)."""
     # Test 1x1 @ 1x1
     var shape_1x1 = List[Int]()
@@ -577,7 +577,7 @@ fn test_matmul_tiny_matrices() raises:
     assert_value_at(c, 0, 12.0, 1e-6, "1x1 @ 1x1 = 3*4")
 
 
-fn test_matmul_large_square() raises:
+def test_matmul_large_square() raises:
     """Test larger square matrix (stress test)."""
     var shape = List[Int]()
     shape.append(50)
@@ -594,7 +594,7 @@ fn test_matmul_large_square() raises:
     assert_value_at(c, 2499, 50.0, 1e-5, "Check last element")
 
 
-fn test_transpose_shapes() raises:
+def test_transpose_shapes() raises:
     """Test that transpose returns correct output shape."""
     var shape = List[Int]()
     shape.append(4)
@@ -608,7 +608,7 @@ fn test_transpose_shapes() raises:
     assert_equal(result.shape()[1], 4)
 
 
-fn test_transpose_values() raises:
+def test_transpose_values() raises:
     """Test that transpose computes correct values."""
     var shape = List[Int]()
     shape.append(2)
@@ -647,7 +647,7 @@ fn test_transpose_values() raises:
     )
 
 
-fn test_transpose_double() raises:
+def test_transpose_double() raises:
     """Test that transpose(transpose(A)) = A."""
     var shape = List[Int]()
     shape.append(3)
@@ -670,7 +670,7 @@ fn test_transpose_double() raises:
         )
 
 
-fn test_transpose_2d() raises:
+def test_transpose_2d() raises:
     """Test transpose of 2D matrix."""
     var shape = List[Int]()
     shape.append(3)
@@ -683,7 +683,7 @@ fn test_transpose_2d() raises:
     assert_numel(b, 12, "Transpose should have same number of elements")
 
 
-fn test_transpose_identity() raises:
+def test_transpose_identity() raises:
     """Test transpose of identity matrix."""
     var a = eye(4, 4, 0, DType.float32)
     var b = transpose(a)
@@ -693,7 +693,7 @@ fn test_transpose_identity() raises:
     assert_numel(b, 16, "Transpose should preserve elements")
 
 
-fn test_transpose_twice() raises:
+def test_transpose_twice() raises:
     """Test that transpose(transpose(x)) == x."""
     var shape = List[Int]()
     shape.append(3)
@@ -707,7 +707,7 @@ fn test_transpose_twice() raises:
     assert_numel(c, 15, "Double transpose should preserve elements")
 
 
-fn test_transpose_preserves_dtype() raises:
+def test_transpose_preserves_dtype() raises:
     """Test that transpose preserves dtype."""
     var shape = List[Int]()
     shape.append(2)
@@ -718,7 +718,7 @@ fn test_transpose_preserves_dtype() raises:
     assert_dtype(b, DType.float64, "Transpose should preserve float64")
 
 
-fn test_transpose_3d_default() raises:
+def test_transpose_3d_default() raises:
     """Test transpose of 3D tensor (default permutation)."""
     var shape = List[Int]()
     shape.append(2)
@@ -732,7 +732,7 @@ fn test_transpose_3d_default() raises:
     assert_numel(b, 24, "Transpose should have same number of elements")
 
 
-fn test_transpose_3d_correctness() raises:
+def test_transpose_3d_correctness() raises:
     """Test that 3D transpose actually transposes correctly (not just copies).
     """
     var shape = List[Int]()
@@ -751,7 +751,7 @@ fn test_transpose_3d_correctness() raises:
     assert_dim(t_T, 3, "Transpose should be 3D")
 
 
-fn test_transpose_backward_shapes() raises:
+def test_transpose_backward_shapes() raises:
     """Test that transpose_backward returns correct gradient shape."""
     var shape = List[Int]()
     shape.append(4)
@@ -772,7 +772,7 @@ fn test_transpose_backward_shapes() raises:
     assert_equal(grad_input.shape()[1], 10)
 
 
-fn test_transpose_backward_gradient() raises:
+def test_transpose_backward_gradient() raises:
     """Test transpose_backward with numerical gradient checking.
 
     Validates that gradient matches finite differences. Since transpose is
@@ -792,11 +792,11 @@ fn test_transpose_backward_gradient() raises:
         x.set(i, Float32(Float32(i) * 0.15 - 2.0))
 
     # Forward function wrapper
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return transpose(inp)
 
     # Backward function wrapper
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return transpose_backward(grad_out)
 
     var output = forward(x)
@@ -806,7 +806,7 @@ fn test_transpose_backward_gradient() raises:
     check_gradient(forward, backward, x, grad_output, rtol=1e-3, atol=1e-6)
 
 
-fn test_transpose_combination_at_b() raises:
+def test_transpose_combination_at_b() raises:
     """Test A.T @ B (common in backprop: weight.T @ gradient)."""
     var shape_a = List[Int]()
     shape_a.append(3)
@@ -826,7 +826,7 @@ fn test_transpose_combination_at_b() raises:
     assert_all_values(c, 6.0, 1e-6, "A.T @ B computation")
 
 
-fn test_transpose_combination_a_bt() raises:
+def test_transpose_combination_a_bt() raises:
     """Test A @ B.T (common in attention: Q @ K.T)."""
     var shape_a = List[Int]()
     shape_a.append(2)
@@ -846,7 +846,7 @@ fn test_transpose_combination_a_bt() raises:
     assert_all_values(c, 6.0, 1e-6, "A @ B.T computation")
 
 
-fn test_transpose_combination_at_bt() raises:
+def test_transpose_combination_at_bt() raises:
     """Test A.T @ B.T (double transpose pattern)."""
     var shape_a = List[Int]()
     shape_a.append(4)
@@ -867,7 +867,7 @@ fn test_transpose_combination_at_bt() raises:
     assert_all_values(c, 8.0, 1e-6, "A.T @ B.T computation")
 
 
-fn test_transpose_axes_2d_simple() raises:
+def test_transpose_axes_2d_simple() raises:
     """Test 2D transpose with axes [1, 0] (standard transpose)."""
     var shape = List[Int]()
     shape.append(3)
@@ -904,7 +904,7 @@ fn test_transpose_axes_2d_simple() raises:
     )
 
 
-fn test_transpose_axes_3d_identity() raises:
+def test_transpose_axes_3d_identity() raises:
     """Test 3D transpose with identity permutation [0, 1, 2]."""
     var shape = List[Int]()
     shape.append(2)
@@ -933,7 +933,7 @@ fn test_transpose_axes_3d_identity() raises:
     )
 
 
-fn test_transpose_axes_3d_permutation() raises:
+def test_transpose_axes_3d_permutation() raises:
     """Test 3D transpose with permutation [2, 0, 1]."""
     var shape = List[Int]()
     shape.append(2)
@@ -964,7 +964,7 @@ fn test_transpose_axes_3d_permutation() raises:
     assert_numel(result, 24, "Result should have 24 elements")
 
 
-fn test_transpose_axes_3d_reverse() raises:
+def test_transpose_axes_3d_reverse() raises:
     """Test 3D transpose with reverse permutation [2, 1, 0]."""
     var shape = List[Int]()
     shape.append(2)
@@ -993,7 +993,7 @@ fn test_transpose_axes_3d_reverse() raises:
     )
 
 
-fn test_transpose_axes_default_none() raises:
+def test_transpose_axes_default_none() raises:
     """Test transpose with axes=None uses default (reverse all)."""
     var shape = List[Int]()
     shape.append(2)
@@ -1012,7 +1012,7 @@ fn test_transpose_axes_default_none() raises:
     assert_equal(result.shape()[2], 2, "Third dimension should be 2")
 
 
-fn test_transpose_axes_4d_permutation() raises:
+def test_transpose_axes_4d_permutation() raises:
     """Test 4D transpose with custom permutation [3, 1, 2, 0]."""
     var shape = List[Int]()
     shape.append(2)
@@ -1042,7 +1042,7 @@ fn test_transpose_axes_4d_permutation() raises:
     assert_numel(result, 120, "Result should have 120 elements")
 
 
-fn test_transpose_axes_invalid_duplicate() raises:
+def test_transpose_axes_invalid_duplicate() raises:
     """Test that duplicate axes raise error."""
     var shape = List[Int]()
     shape.append(2)
@@ -1067,7 +1067,7 @@ fn test_transpose_axes_invalid_duplicate() raises:
         raise Error("Should have raised error for duplicate axes")
 
 
-fn test_transpose_axes_invalid_out_of_bounds() raises:
+def test_transpose_axes_invalid_out_of_bounds() raises:
     """Test that out-of-bounds axes raise error."""
     var shape = List[Int]()
     shape.append(2)
@@ -1092,7 +1092,7 @@ fn test_transpose_axes_invalid_out_of_bounds() raises:
         raise Error("Should have raised error for out-of-bounds axis")
 
 
-fn test_transpose_axes_invalid_length() raises:
+def test_transpose_axes_invalid_length() raises:
     """Test that wrong-length axes raise error."""
     var shape = List[Int]()
     shape.append(2)
@@ -1116,7 +1116,7 @@ fn test_transpose_axes_invalid_length() raises:
         raise Error("Should have raised error for wrong-length axes")
 
 
-fn test_transpose_axes_backward_3d() raises:
+def test_transpose_axes_backward_3d() raises:
     """Test transpose_backward with custom axes."""
     var m = 2
     var n = 3
@@ -1155,7 +1155,7 @@ fn test_transpose_axes_backward_3d() raises:
     assert_equal(grad_input.shape()[2], p, "Gradient dim 2 should match input")
 
 
-fn test_transpose_axes_double_permutation() raises:
+def test_transpose_axes_double_permutation() raises:
     """Test that transpose(transpose(x, axes), inverse_axes) recovers original.
     """
     var shape = List[Int]()
@@ -1200,7 +1200,7 @@ fn test_transpose_axes_double_permutation() raises:
         )
 
 
-fn test_dot_shapes() raises:
+def test_dot_shapes() raises:
     """Test that dot returns scalar output."""
     var shape = List[Int]()
     shape.append(5)
@@ -1215,7 +1215,7 @@ fn test_dot_shapes() raises:
     assert_numel(result, 1, "Dot product should have 1 element")
 
 
-fn test_dot_values() raises:
+def test_dot_values() raises:
     """Test that dot computes correct values."""
     var shape = List[Int]()
     shape.append(3)
@@ -1239,7 +1239,7 @@ fn test_dot_values() raises:
     )
 
 
-fn test_dot_orthogonal() raises:
+def test_dot_orthogonal() raises:
     """Test dot product of orthogonal vectors."""
     var shape = List[Int]()
     shape.append(2)
@@ -1262,7 +1262,7 @@ fn test_dot_orthogonal() raises:
     )
 
 
-fn test_dot_1d() raises:
+def test_dot_1d() raises:
     """Test dot product of two 1D vectors."""
     var a = arange(1.0, 6.0, 1.0, DType.float32)  # [1, 2, 3, 4, 5]
     var b = arange(1.0, 6.0, 1.0, DType.float32)  # [1, 2, 3, 4, 5]
@@ -1274,7 +1274,7 @@ fn test_dot_1d() raises:
     assert_value_at(c, 0, 55.0, 1e-4, "Dot product result")
 
 
-fn test_dot_2d() raises:
+def test_dot_2d() raises:
     """Test dot product (equivalent to matmul for 2D)."""
     var shape = List[Int]()
     shape.append(2)
@@ -1292,7 +1292,7 @@ fn test_dot_2d() raises:
     assert_all_values(c, 3.0, 1e-6, "Each element should be 3")
 
 
-fn test_dot_incompatible_shapes() raises:
+def test_dot_incompatible_shapes() raises:
     """Test that incompatible 1D shapes raise error."""
     var shape_a = List[Int]()
     shape_a.append(5)
@@ -1314,7 +1314,7 @@ fn test_dot_incompatible_shapes() raises:
         )
 
 
-fn test_dot_dtype_mismatch() raises:
+def test_dot_dtype_mismatch() raises:
     """Test that dtype mismatch raises error."""
     var shape = List[Int]()
     shape.append(5)
@@ -1331,7 +1331,7 @@ fn test_dot_dtype_mismatch() raises:
         raise Error("Should have raised error for dtype mismatch in dot")
 
 
-fn test_dot_preserves_dtype() raises:
+def test_dot_preserves_dtype() raises:
     """Test that dot preserves dtype."""
     var shape = List[Int]()
     shape.append(5)
@@ -1342,7 +1342,7 @@ fn test_dot_preserves_dtype() raises:
     assert_dtype(c, DType.float64, "dot should preserve float64")
 
 
-fn test_outer_shapes() raises:
+def test_outer_shapes() raises:
     """Test that outer returns correct output shape."""
     var shape_a = List[Int]()
     shape_a.append(3)
@@ -1360,7 +1360,7 @@ fn test_outer_shapes() raises:
     assert_equal(result.shape()[1], 4)
 
 
-fn test_outer_values() raises:
+def test_outer_values() raises:
     """Test that outer computes correct values."""
     var shape_a = List[Int]()
     shape_a.append(2)
@@ -1404,7 +1404,7 @@ fn test_outer_values() raises:
     )
 
 
-fn test_outer_vectors() raises:
+def test_outer_vectors() raises:
     """Test outer product of two vectors."""
     var a = arange(1.0, 4.0, 1.0, DType.float32)  # [1, 2, 3]
     var b = arange(1.0, 3.0, 1.0, DType.float32)  # [1, 2]
@@ -1424,7 +1424,7 @@ fn test_outer_vectors() raises:
     assert_value_at(c, 5, 6.0, 1e-6, "c[2,1] = 3*2 = 6")
 
 
-fn test_outer_not_1d_error() raises:
+def test_outer_not_1d_error() raises:
     """Test that non-1D inputs raise error."""
     var shape_2d = List[Int]()
     shape_2d.append(2)
@@ -1445,7 +1445,7 @@ fn test_outer_not_1d_error() raises:
         raise Error("Should have raised error for non-1D input to outer")
 
 
-fn test_outer_dtype_mismatch() raises:
+def test_outer_dtype_mismatch() raises:
     """Test that dtype mismatch raises error."""
     var shape = List[Int]()
     shape.append(3)
@@ -1462,7 +1462,7 @@ fn test_outer_dtype_mismatch() raises:
         raise Error("Should have raised error for dtype mismatch in outer")
 
 
-fn test_outer_with_zeros() raises:
+def test_outer_with_zeros() raises:
     """Test outer product with zero vector."""
     var shape_a = List[Int]()
     shape_a.append(3)
@@ -1480,7 +1480,7 @@ fn test_outer_with_zeros() raises:
     )
 
 
-fn test_outer_preserves_dtype() raises:
+def test_outer_preserves_dtype() raises:
     """Test that outer preserves dtype."""
     var shape_a = List[Int]()
     shape_a.append(2)
@@ -1494,7 +1494,7 @@ fn test_outer_preserves_dtype() raises:
     assert_dtype(c, DType.float64, "outer should preserve float64")
 
 
-fn test_dunder_matmul() raises:
+def test_dunder_matmul() raises:
     """Test __matmul__ operator overloading (a @ b)."""
     var shape = List[Int]()
     shape.append(2)
@@ -1509,7 +1509,7 @@ fn test_dunder_matmul() raises:
     assert_all_values(c, 4.0, 1e-6, "a @ b should work via __matmul__")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_matrix tests."""
     print("Running test_matrix tests...")
 

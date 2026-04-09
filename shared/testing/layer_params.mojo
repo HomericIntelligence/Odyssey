@@ -54,7 +54,7 @@ struct ConvFixture:
     var out_channels: Int
     var kernel_size: Int
 
-    fn __init__(
+    def __init__(
         out self,
         in_channels: Int,
         out_channels: Int,
@@ -120,7 +120,7 @@ struct LinearFixture:
     var in_features: Int
     var out_features: Int
 
-    fn __init__(
+    def __init__(
         out self,
         in_features: Int,
         out_features: Int,

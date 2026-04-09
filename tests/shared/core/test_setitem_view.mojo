@@ -19,7 +19,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_setitem_view_has_correct_setup() raises:
+def test_setitem_view_has_correct_setup() raises:
     """Verify that sliced tensors are views with non-identity strides.
 
     This test confirms the test infrastructure is correct before testing
@@ -41,7 +41,7 @@ fn test_setitem_view_has_correct_setup() raises:
     assert_value_at(view, 5, 7.0, tolerance=1e-6, message="view[5] should be 7.0")
 
 
-fn test_setitem_view_1d_writes_correctly() raises:
+def test_setitem_view_1d_writes_correctly() raises:
     """Test that __setitem__ on a 1D view writes to correct parent position.
 
     When we write to a sliced tensor, the write should affect the correct
@@ -63,7 +63,7 @@ fn test_setitem_view_1d_writes_correctly() raises:
     assert_value_at(original, 5, 0.0, tolerance=1e-6, message="original[5] should be 0.0 (after slice)")
 
 
-fn test_setitem_view_multidim_writes_correctly() raises:
+def test_setitem_view_multidim_writes_correctly() raises:
     """Test __setitem__ on a multi-dimensional sliced tensor.
 
     Slice a 2D tensor and verify writes go to the correct parent positions.
@@ -112,7 +112,7 @@ fn test_setitem_view_multidim_writes_correctly() raises:
         raise Error("original[2,2] expected 22.0, got " + String(val_22))
 
 
-fn test_setitem_view_does_not_corrupt_adjacent_elements() raises:
+def test_setitem_view_does_not_corrupt_adjacent_elements() raises:
     """Verify that writing to a view doesn't corrupt adjacent memory.
 
     Write to a sliced tensor and verify that elements outside the slice
@@ -137,7 +137,7 @@ fn test_setitem_view_does_not_corrupt_adjacent_elements() raises:
         assert_value_at(original, i, 99.0, tolerance=1e-6, message="original[" + String(i) + "] should be 99.0")
 
 
-fn test_transpose_creates_noncontiguous_view() raises:
+def test_transpose_creates_noncontiguous_view() raises:
     """Verify that transpose() produces _is_view=True with non-identity strides."""
     var t = zeros([3, 4], DType.float32)
     var v = t.transpose(0, 1)
@@ -150,14 +150,14 @@ fn test_transpose_creates_noncontiguous_view() raises:
     assert_equal(v._strides[1], 4, "transposed stride[1] should be 4")
 
 
-fn test_slice_creates_view() raises:
+def test_slice_creates_view() raises:
     """Verify that slice() produces _is_view=True."""
     var t = zeros([6], DType.float32)
     var v = t.slice(2, 5, axis=0)
     assert_true(v._is_view, "slice() should produce _is_view=True")
 
 
-fn test_setitem_view_int32_dtype() raises:
+def test_setitem_view_int32_dtype() raises:
     """__setitem__ flat index on a transposed int32 view writes correct element."""
     var mat = zeros([2, 3], DType.int32)
     var v = mat.transpose(0, 1)  # shape (3, 2), strides [1, 3]
@@ -168,7 +168,7 @@ fn test_setitem_view_int32_dtype() raises:
     assert_almost_equal(Float64(mat[3]), 88.0, tolerance=1e-6)
 
 
-fn test_getitem_flat_on_transposed_view() raises:
+def test_getitem_flat_on_transposed_view() raises:
     """__getitem__ with flat index on a transposed view returns correct value.
 
     Original (2,3) tensor with values 0..5:
@@ -196,7 +196,7 @@ fn test_getitem_flat_on_transposed_view() raises:
     assert_almost_equal(Float64(v[5]), 5.0, tolerance=1e-6)
 
 
-fn test_getitem_flat_on_transposed_3x4_view() raises:
+def test_getitem_flat_on_transposed_3x4_view() raises:
     """__getitem__ on a (3,4) -> transpose -> (4,3) view returns correct values.
 
     Original (3,4) with values 0..11, strides [4,1].
@@ -225,7 +225,7 @@ fn test_getitem_flat_on_transposed_3x4_view() raises:
     assert_almost_equal(Float64(v[11]), 11.0, tolerance=1e-6)
 
 
-fn test_setitem_flat_on_transposed_view_writes_correct_element() raises:
+def test_setitem_flat_on_transposed_view_writes_correct_element() raises:
     """Flat __setitem__ on a transposed view writes the correct element.
 
     Original (2,3) tensor, shape [2,3], strides [3,1].
@@ -250,7 +250,7 @@ fn test_setitem_flat_on_transposed_view_writes_correct_element() raises:
     assert_almost_equal(Float64(mat[4]), 77.0, tolerance=1e-6)
 
 
-fn test_setitem_flat_view_all_elements() raises:
+def test_setitem_flat_view_all_elements() raises:
     """Write to each flat index of transposed view and verify correct buffer update.
 
     Uses (2,3) -> transpose -> (3,2).  Strides [1,3].
@@ -291,7 +291,7 @@ fn test_setitem_flat_view_all_elements() raises:
     assert_almost_equal(Float64(mat[5]), 50.0, tolerance=1e-6)
 
 
-fn test_setitem_flat_view_does_not_corrupt_neighbors() raises:
+def test_setitem_flat_view_does_not_corrupt_neighbors() raises:
     """Writing one flat-index element on a view leaves other elements unchanged."""
     var t = arange(0.0, 6.0, 1.0, DType.float32)
     var mat = t.reshape([2, 3])
@@ -309,7 +309,7 @@ fn test_setitem_flat_view_does_not_corrupt_neighbors() raises:
     assert_almost_equal(Float64(v[5]), 5.0, tolerance=1e-6)  # v[2,1] = mat[1,2]
 
 
-fn test_setitem_on_transposed_view_updates_original() raises:
+def test_setitem_on_transposed_view_updates_original() raises:
     """Writes via transposed view are visible through the original tensor."""
     var mat = zeros([3, 4], DType.float32)
     var v = mat.transpose(0, 1)  # shape (4, 3), strides [1, 4]
@@ -327,7 +327,7 @@ fn test_setitem_on_transposed_view_updates_original() raises:
     assert_almost_equal(Float64(mat[11]), 300.0, tolerance=1e-6)
 
 
-fn test_setitem_on_slice_view_writes_to_parent() raises:
+def test_setitem_on_slice_view_writes_to_parent() raises:
     """Writing to a slice() view propagates to the correct positions in the original."""
     var t = zeros([6], DType.float32)
     var v = t.slice(2, 5, axis=0)  # view of t[2:5], _is_view=True
@@ -345,7 +345,7 @@ fn test_setitem_on_slice_view_writes_to_parent() raises:
     assert_almost_equal(Float64(t[5]), 0.0, tolerance=1e-6)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_setitem_view tests."""
     print("Running test_setitem_view tests...")
 

@@ -22,7 +22,7 @@ from shared.core.elementwise import (
 )
 
 
-fn test_exp_correctness() raises:
+def test_exp_correctness() raises:
     """AnyTensor exp produces correct results."""
     var a = any_full([6], 0.5, DType.float32)
     var result = exp(a)
@@ -37,7 +37,7 @@ fn test_exp_correctness() raises:
     print("PASS: test_exp_correctness")
 
 
-fn test_log_correctness() raises:
+def test_log_correctness() raises:
     """AnyTensor log produces correct results."""
     var a = any_full([6], 1.5, DType.float32)
     var result = log(a)
@@ -52,7 +52,7 @@ fn test_log_correctness() raises:
     print("PASS: test_log_correctness")
 
 
-fn test_sqrt_abs_correctness() raises:
+def test_sqrt_abs_correctness() raises:
     """AnyTensor sqrt and abs produce correct results."""
     # sqrt
     var s = any_full([4], 0.25, DType.float32)
@@ -78,7 +78,7 @@ fn test_sqrt_abs_correctness() raises:
     print("PASS: test_sqrt_abs_correctness")
 
 
-fn test_sin_cos_correctness() raises:
+def test_sin_cos_correctness() raises:
     """AnyTensor sin and cos produce correct results."""
     var a = any_full([4], 0.5, DType.float32)
     var sin_r = sin(a)
@@ -100,7 +100,7 @@ fn test_sin_cos_correctness() raises:
     print("PASS: test_sin_cos_correctness")
 
 
-fn test_exp_edge_cases() raises:
+def test_exp_edge_cases() raises:
     """Exp(0)=1 and exp(1)~2.71828."""
     var t = any_zeros([2], DType.float32)
     t[0] = 0.0
@@ -115,7 +115,7 @@ fn test_exp_edge_cases() raises:
     print("PASS: test_exp_edge_cases")
 
 
-fn test_log_sqrt_edge_cases() raises:
+def test_log_sqrt_edge_cases() raises:
     """Log(1)=0 and sqrt(4)=2."""
     # log(1) = 0
     var t1 = any_full([2], 1.0, DType.float32)
@@ -135,7 +135,7 @@ fn test_log_sqrt_edge_cases() raises:
     print("PASS: test_log_sqrt_edge_cases")
 
 
-fn test_abs_edge_cases() raises:
+def test_abs_edge_cases() raises:
     """Abs(-3)=3, abs(0)=0, abs(1.5)=1.5."""
     var t = any_zeros([3], DType.float32)
     t[0] = -3.0
@@ -154,7 +154,7 @@ fn test_abs_edge_cases() raises:
     print("PASS: test_abs_edge_cases")
 
 
-fn test_exp_float64_precision() raises:
+def test_exp_float64_precision() raises:
     """Float64 exp preserves full precision."""
     var t = any_zeros([2], DType.float64)
     t[0] = 1.0
@@ -175,7 +175,7 @@ fn test_exp_float64_precision() raises:
     print("PASS: test_exp_float64_precision")
 
 
-fn test_log_float64_precision() raises:
+def test_log_float64_precision() raises:
     """Float64 log preserves full precision."""
     var t = any_full([1], 2.718281828459045, DType.float64)
     var r = log(t)
@@ -188,7 +188,7 @@ fn test_log_float64_precision() raises:
     print("PASS: test_log_float64_precision")
 
 
-fn main() raises:
+def main() raises:
     test_exp_correctness()
     test_log_correctness()
     test_sqrt_abs_correctness()

@@ -18,10 +18,10 @@ from shared.testing.assertions import (
     assert_equal_int,
     assert_close_float,
 )
-from collections import List
+from std.collections import List
 
 
-fn create_test_params() raises -> List[AnyTensor]:
+def create_test_params() raises -> List[AnyTensor]:
     """Create simple test parameters."""
     var params = List[AnyTensor]()
     params.append(ones([10, 10], DType.float32))  # param1
@@ -29,7 +29,7 @@ fn create_test_params() raises -> List[AnyTensor]:
     return params^
 
 
-fn create_param_names() -> List[String]:
+def create_param_names() -> List[String]:
     """Create parameter names for test."""
     var names = List[String]()
     names.append("param1")
@@ -37,7 +37,7 @@ fn create_param_names() -> List[String]:
     return names^
 
 
-fn test_save_and_load_checkpoint() raises:
+def test_save_and_load_checkpoint() raises:
     """Test basic checkpoint save and load."""
     # Create checkpoint manager
     var ckpt_dir = "/tmp/test_checkpoint_basic"
@@ -68,7 +68,7 @@ fn test_save_and_load_checkpoint() raises:
     assert_equal_int(len(loaded_params), 2, "Should load 2 parameters")
 
 
-fn test_load_latest_no_checkpoint() raises:
+def test_load_latest_no_checkpoint() raises:
     """Test loading when no checkpoint exists."""
     var ckpt_dir = "/tmp/test_checkpoint_no_exist"
     var ckpt_mgr = CheckpointManager(ckpt_dir, max_to_keep=3)
@@ -83,7 +83,7 @@ fn test_load_latest_no_checkpoint() raises:
     )
 
 
-fn test_save_best_model() raises:
+def test_save_best_model() raises:
     """Test best model tracking and saving."""
     var ckpt_dir = "/tmp/test_checkpoint_best"
     var ckpt_mgr = CheckpointManager(
@@ -124,7 +124,7 @@ fn test_save_best_model() raises:
     )
 
 
-fn test_resume_training() raises:
+def test_resume_training() raises:
     """Test resuming training from latest checkpoint."""
     var ckpt_dir = "/tmp/test_checkpoint_resume"
     var ckpt_mgr = CheckpointManager(ckpt_dir, max_to_keep=3)
@@ -156,7 +156,7 @@ fn test_resume_training() raises:
     assert_equal_int(len(resumed_params), 2, "Should load 2 parameters")
 
 
-fn test_multiple_checkpoints() raises:
+def test_multiple_checkpoints() raises:
     """Test saving multiple checkpoints."""
     var ckpt_dir = "/tmp/test_checkpoint_multiple"
     var ckpt_mgr = CheckpointManager(ckpt_dir, max_to_keep=5)
@@ -177,7 +177,7 @@ fn test_multiple_checkpoints() raises:
     assert_equal_int(latest_epoch, 10, "Latest epoch should be 10")
 
 
-fn test_best_model_maximize_metric() raises:
+def test_best_model_maximize_metric() raises:
     """Test best model tracking with maximization metric (accuracy)."""
     var ckpt_dir = "/tmp/test_checkpoint_maximize"
     var ckpt_mgr = CheckpointManager(
@@ -211,7 +211,7 @@ fn test_best_model_maximize_metric() raises:
     assert_equal_int(len(best_params), 2, "Should load best model parameters")
 
 
-fn main() raises:
+def main() raises:
     """Run all checkpoint tests."""
     print("Testing Checkpoint Manager...")
     print("=" * 70)

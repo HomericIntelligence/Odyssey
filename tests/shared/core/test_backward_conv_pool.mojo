@@ -23,7 +23,7 @@ from shared.testing import check_gradient
 # ============================================================================
 
 
-fn _make_test_conv2d_tensors() raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
+def _make_test_conv2d_tensors() raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
     """Create and initialize test tensors for conv2d backward tests.
 
     Returns:
@@ -59,7 +59,7 @@ fn _make_test_conv2d_tensors() raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
     return (x, kernel, bias)
 
 
-fn test_conv2d_backward_shapes() raises:
+def test_conv2d_backward_shapes() raises:
     """Test that conv2d_backward returns correct gradient shapes."""
     var batch = 2
     var in_channels = 3
@@ -107,7 +107,7 @@ fn test_conv2d_backward_shapes() raises:
     assert_equal(gb_shape[0], out_channels)
 
 
-fn test_conv2d_backward_with_stride() raises:
+def test_conv2d_backward_with_stride() raises:
     """Test conv2d_backward with stride > 1."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -138,7 +138,7 @@ fn test_conv2d_backward_with_stride() raises:
     assert_equal(gi_shape[3], 8)
 
 
-fn test_conv2d_backward_grad_input_numerical() raises:
+def test_conv2d_backward_grad_input_numerical() raises:
     """Test conv2d_backward grad_input values via numerical gradient checking.
 
     Uses small input (1,1,4,4) with kernel (1,1,3,3) as specified in issue #3281.
@@ -146,10 +146,10 @@ fn test_conv2d_backward_grad_input_numerical() raises:
     """
     var (x, kernel, bias) = _make_test_conv2d_tensors()
 
-    fn forward_input(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward_input(inp: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=0)
 
-    fn backward_input(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         var grads = conv2d_backward(grad_out, inp, kernel, stride=1, padding=0)
         return grads.grad_input
 
@@ -160,7 +160,7 @@ fn test_conv2d_backward_grad_input_numerical() raises:
     )
 
 
-fn test_conv2d_backward_grad_weights_numerical() raises:
+def test_conv2d_backward_grad_weights_numerical() raises:
     """Test conv2d_backward grad_weights values via numerical gradient checking.
 
     Uses small input (1,1,4,4) with kernel (1,1,3,3) as specified in issue #3281.
@@ -169,10 +169,10 @@ fn test_conv2d_backward_grad_weights_numerical() raises:
     var (x, kernel, bias) = _make_test_conv2d_tensors()
 
     # Treat kernel as the variable being perturbed; x is held fixed
-    fn forward_weights(k: AnyTensor) raises escaping -> AnyTensor:
+    def forward_weights(k: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, k, bias, stride=1, padding=0)
 
-    fn backward_weights(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
+    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
         var grads = conv2d_backward(grad_out, x, k, stride=1, padding=0)
         return grads.grad_weights
 
@@ -188,7 +188,7 @@ fn test_conv2d_backward_grad_weights_numerical() raises:
     )
 
 
-fn test_maxpool2d_backward_shapes() raises:
+def test_maxpool2d_backward_shapes() raises:
     """Test that maxpool2d_backward returns correct gradient shape."""
     var input_shape = List[Int]()
     input_shape.append(2)
@@ -210,7 +210,7 @@ fn test_maxpool2d_backward_shapes() raises:
     assert_equal(gi_shape[3], 8)
 
 
-fn test_maxpool2d_backward_gradient_routing() raises:
+def test_maxpool2d_backward_gradient_routing() raises:
     """Test that maxpool2d_backward routes gradients only to max positions."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -243,7 +243,7 @@ fn test_maxpool2d_backward_gradient_routing() raises:
     )
 
 
-fn test_avgpool2d_backward_shapes() raises:
+def test_avgpool2d_backward_shapes() raises:
     """Test that avgpool2d_backward returns correct gradient shape."""
     var input_shape = List[Int]()
     input_shape.append(2)
@@ -265,7 +265,7 @@ fn test_avgpool2d_backward_shapes() raises:
     assert_equal(gi_shape[3], 8)
 
 
-fn test_avgpool2d_backward_gradient_distribution() raises:
+def test_avgpool2d_backward_gradient_distribution() raises:
     """Test that avgpool2d_backward distributes gradients equally."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -294,7 +294,7 @@ fn test_avgpool2d_backward_gradient_distribution() raises:
     )
 
 
-fn test_conv2d_backward_gradient() raises:
+def test_conv2d_backward_gradient() raises:
     """Test conv2d backward with numerical gradient checking."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -318,10 +318,10 @@ fn test_conv2d_backward_gradient() raises:
     bias_shape.append(2)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=0)
 
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         var grads = conv2d_backward(grad_out, inp, kernel, stride=1, padding=0)
         return grads.grad_input
 
@@ -330,7 +330,7 @@ fn test_conv2d_backward_gradient() raises:
     check_gradient(forward, backward, x, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn test_maxpool2d_backward_gradient() raises:
+def test_maxpool2d_backward_gradient() raises:
     """Test maxpool2d backward with numerical gradient checking."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -341,10 +341,10 @@ fn test_maxpool2d_backward_gradient() raises:
     for i in range(1 * 2 * 4 * 4):
         x.set(i, Float64(Float32(i) * 0.1 - 1.6))
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return maxpool2d(inp, kernel_size=2, stride=2, padding=0)
 
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return maxpool2d_backward(
             grad_out, inp, kernel_size=2, stride=2, padding=0
         )
@@ -354,7 +354,7 @@ fn test_maxpool2d_backward_gradient() raises:
     check_gradient(forward, backward, x, grad_output, rtol=1e-3, atol=5e-4)
 
 
-fn test_avgpool2d_backward_gradient() raises:
+def test_avgpool2d_backward_gradient() raises:
     """Test avgpool2d backward with numerical gradient checking."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -365,10 +365,10 @@ fn test_avgpool2d_backward_gradient() raises:
     for i in range(1 * 2 * 4 * 4):
         x.set(i, Float64(Float32(i) * 0.1 - 1.6))
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return avgpool2d(inp, kernel_size=2, stride=2, padding=0)
 
-    fn backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         return avgpool2d_backward(
             grad_out, inp, kernel_size=2, stride=2, padding=0
         )
@@ -378,7 +378,7 @@ fn test_avgpool2d_backward_gradient() raises:
     check_gradient(forward, backward, x, grad_output, rtol=1e-3, atol=5e-4)
 
 
-fn main() raises:
+def main() raises:
     """Run conv2d and pooling backward tests."""
     print("Running conv2d and pooling backward tests...")
     test_conv2d_backward_shapes()

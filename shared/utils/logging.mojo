@@ -17,7 +17,7 @@ Example:
     ```
 """
 
-from os.env import getenv
+from std.os.env import getenv
 
 
 # ============================================================================
@@ -57,7 +57,7 @@ struct LogRecord(Copyable, Movable):
     var message: String
     var timestamp: String
 
-    fn __init__(
+    def __init__(
         out self,
         logger_name: String,
         level: Int,
@@ -78,7 +78,7 @@ struct LogRecord(Copyable, Movable):
         # Use provided timestamp or empty string (Mojo lacks stdlib time support)
         self.timestamp = timestamp if timestamp else ""
 
-    fn level_name(self) -> String:
+    def level_name(self) -> String:
         """Get human-readable level name."""
         if self.level == LogLevel.DEBUG:
             return "DEBUG"
@@ -102,7 +102,7 @@ struct LogRecord(Copyable, Movable):
 trait Formatter:
     """Base formatter interface for log messages."""
 
-    fn format(self, record: LogRecord) -> String:
+    def format(self, record: LogRecord) -> String:
         """Format a log record into a string."""
         ...
 
@@ -111,7 +111,7 @@ trait Formatter:
 struct SimpleFormatter(Copyable, Formatter, ImplicitlyCopyable, Movable):
     """Simple formatter: [LEVEL] message."""
 
-    fn format(self, record: LogRecord) -> String:
+    def format(self, record: LogRecord) -> String:
         """Format log record as: [LEVEL] message."""
         return "[" + record.level_name() + "] " + record.message
 
@@ -120,7 +120,7 @@ struct SimpleFormatter(Copyable, Formatter, ImplicitlyCopyable, Movable):
 struct TimestampFormatter(Copyable, Formatter, ImplicitlyCopyable, Movable):
     """Timestamp formatter: YYYY-MM-DD HH:MM:SS [LEVEL] message."""
 
-    fn format(self, record: LogRecord) -> String:
+    def format(self, record: LogRecord) -> String:
         """Format log record with timestamp."""
         return (
             record.timestamp
@@ -135,7 +135,7 @@ struct TimestampFormatter(Copyable, Formatter, ImplicitlyCopyable, Movable):
 struct DetailedFormatter(Copyable, Formatter, ImplicitlyCopyable, Movable):
     """Detailed formatter: [LEVEL] logger_name - message."""
 
-    fn format(self, record: LogRecord) -> String:
+    def format(self, record: LogRecord) -> String:
         """Format log record with logger name."""
         return (
             "["
@@ -158,7 +158,7 @@ struct ColoredFormatter(Copyable, Formatter, ImplicitlyCopyable, Movable):
     comptime BLUE = "\033[94m"
     comptime RESET = "\033[0m"
 
-    fn format(self, record: LogRecord) -> String:
+    def format(self, record: LogRecord) -> String:
         """Format log record with ANSI color codes."""
         var color = self._get_color(record.level)
         return (
@@ -171,7 +171,7 @@ struct ColoredFormatter(Copyable, Formatter, ImplicitlyCopyable, Movable):
             + record.message
         )
 
-    fn _get_color(self, level: Int) -> String:
+    def _get_color(self, level: Int) -> String:
         """Get ANSI color for level."""
         if level == LogLevel.ERROR or level == LogLevel.CRITICAL:
             return self.RED
@@ -207,7 +207,7 @@ struct HandlerWrapper(Copyable, Movable):
     var stream_handler: StreamHandler
     var file_handler: FileHandler
 
-    fn __init__(out self, handler: StreamHandler):
+    def __init__(out self, handler: StreamHandler):
         """Create wrapper for StreamHandler.
 
         Args:
@@ -217,7 +217,7 @@ struct HandlerWrapper(Copyable, Movable):
         self.stream_handler = handler
         self.file_handler = FileHandler("")
 
-    fn __init__(out self, handler: FileHandler):
+    def __init__(out self, handler: FileHandler):
         """Create wrapper for FileHandler.
 
         Args:
@@ -227,7 +227,7 @@ struct HandlerWrapper(Copyable, Movable):
         self.stream_handler = StreamHandler()
         self.file_handler = handler
 
-    fn emit(self, record: LogRecord):
+    def emit(self, record: LogRecord):
         """Dispatch emit to appropriate handler."""
         if self.handler_type == HandlerType.STREAM:
             self.stream_handler.emit(record)
@@ -243,7 +243,7 @@ struct HandlerWrapper(Copyable, Movable):
 trait Handler:
     """Base handler interface for log output."""
 
-    fn emit(self, record: LogRecord):
+    def emit(self, record: LogRecord):
         """Output a log record."""
         ...
 
@@ -253,11 +253,11 @@ struct StreamHandler(Copyable, Handler, ImplicitlyCopyable, Movable):
 
     var formatter: SimpleFormatter
 
-    fn __init__(out self):
+    def __init__(out self):
         """Create stream handler with default formatter."""
         self.formatter = SimpleFormatter()
 
-    fn emit(self, record: LogRecord):
+    def emit(self, record: LogRecord):
         """Write formatted log record to stdout."""
         var formatted = self.formatter.format(record)
         print(formatted)
@@ -269,7 +269,7 @@ struct FileHandler(Copyable, Handler, ImplicitlyCopyable, Movable):
     var filepath: String
     var formatter: TimestampFormatter
 
-    fn __init__(out self, filepath: String):
+    def __init__(out self, filepath: String):
         """Create file handler that writes to given file.
 
         Args:
@@ -278,12 +278,12 @@ struct FileHandler(Copyable, Handler, ImplicitlyCopyable, Movable):
         self.filepath = filepath
         self.formatter = TimestampFormatter()
 
-    fn emit(self, record: LogRecord):
+    def emit(self, record: LogRecord):
         """Write formatted log record to file."""
         var formatted = self.formatter.format(record)
         self._write_to_file(formatted)
 
-    fn _write_to_file(self, message: String):
+    def _write_to_file(self, message: String):
         """Write message to log file (append mode)
 
         Opens file in append mode, writes the message with newline,
@@ -320,7 +320,7 @@ struct Logger:
     var level: Int
     var handlers: List[HandlerWrapper]
 
-    fn __init__(out self, name: String, level: Int = LogLevel.INFO):
+    def __init__(out self, name: String, level: Int = LogLevel.INFO):
         """Create logger with name and optional level.
 
         Args:
@@ -331,7 +331,7 @@ struct Logger:
         self.level = level
         self.handlers = []
 
-    fn add_handler(mut self, handler: StreamHandler):
+    def add_handler(mut self, handler: StreamHandler):
         """Add a stream handler to this logger.
 
         Handlers receive all log records that pass the level filter.
@@ -341,7 +341,7 @@ struct Logger:
         """
         self.handlers.append(HandlerWrapper(handler))
 
-    fn add_handler(mut self, handler: FileHandler):
+    def add_handler(mut self, handler: FileHandler):
         """Add a file handler to this logger.
 
         Handlers receive all log records that pass the level filter.
@@ -351,7 +351,7 @@ struct Logger:
         """
         self.handlers.append(HandlerWrapper(handler))
 
-    fn debug(self, message: String):
+    def debug(self, message: String):
         """Log a debug message (lowest priority).
 
         Args:
@@ -360,7 +360,7 @@ struct Logger:
         if self.level <= LogLevel.DEBUG:
             self._log(LogLevel.DEBUG, message)
 
-    fn info(self, message: String):
+    def info(self, message: String):
         """Log an info message (normal priority).
 
         Args:
@@ -369,7 +369,7 @@ struct Logger:
         if self.level <= LogLevel.INFO:
             self._log(LogLevel.INFO, message)
 
-    fn warning(self, message: String):
+    def warning(self, message: String):
         """Log a warning message (medium priority).
 
         Args:
@@ -378,7 +378,7 @@ struct Logger:
         if self.level <= LogLevel.WARNING:
             self._log(LogLevel.WARNING, message)
 
-    fn error(self, message: String):
+    def error(self, message: String):
         """Log an error message (high priority).
 
         Args:
@@ -387,7 +387,7 @@ struct Logger:
         if self.level <= LogLevel.ERROR:
             self._log(LogLevel.ERROR, message)
 
-    fn critical(self, message: String):
+    def critical(self, message: String):
         """Log a critical message (highest priority).
 
         Args:
@@ -396,7 +396,7 @@ struct Logger:
         if self.level <= LogLevel.CRITICAL:
             self._log(LogLevel.CRITICAL, message)
 
-    fn _log(self, level: Int, message: String):
+    def _log(self, level: Int, message: String):
         """Internal method to create and emit log record.
 
         Args:
@@ -407,7 +407,7 @@ struct Logger:
         for handler in self.handlers:
             handler.emit(record)
 
-    fn set_level(mut self, level: Int):
+    def set_level(mut self, level: Int):
         """Change the log level for this logger.
 
         Args:
@@ -421,7 +421,7 @@ struct Logger:
 # ============================================================================
 
 
-fn get_log_level_from_env() -> Int:
+def get_log_level_from_env() -> Int:
     """Get log level from ML_ODYSSEY_LOG_LEVEL environment variable.
 
     Parses the ML_ODYSSEY_LOG_LEVEL environment variable to determine
@@ -466,7 +466,7 @@ fn get_log_level_from_env() -> Int:
         return LogLevel.INFO
 
 
-fn get_logger(name: String, level: Int = LogLevel.INFO) -> Logger:
+def get_logger(name: String, level: Int = LogLevel.INFO) -> Logger:
     """Get or create a named logger.
 
     Creates a new logger with the specified name and level.
@@ -491,7 +491,7 @@ fn get_logger(name: String, level: Int = LogLevel.INFO) -> Logger:
     return Logger(name, level)
 
 
-fn set_global_log_level(level: Int):
+def set_global_log_level(level: Int):
     """Set global log level for all registered loggers.
 
     Note: This function is a placeholder. In the current implementation

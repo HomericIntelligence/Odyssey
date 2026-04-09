@@ -10,7 +10,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros
 from testing import assert_equal, assert_true
 
 
-fn test_anytensor_init_simple() raises:
+def test_anytensor_init_simple() raises:
     """Test basic AnyTensor initialization."""
     print("\n=== Test 1: Basic AnyTensor Initialization ===")
 
@@ -30,7 +30,7 @@ fn test_anytensor_init_simple() raises:
     assert_equal(strides[1], 1)
 
 
-fn test_anytensor_init_large_shapes() raises:
+def test_anytensor_init_large_shapes() raises:
     """Test AnyTensor with progressively larger shapes."""
     print("\n=== Test 2: Large Shape Initialization ===")
 
@@ -63,7 +63,7 @@ fn test_anytensor_init_large_shapes() raises:
     test_shape_creation(shape4)
 
 
-fn test_shape_creation(shape: List[Int]) raises:
+def test_shape_creation(shape: List[Int]) raises:
     """Helper to test tensor creation for a shape."""
     var numel = 1
     for j in range(len(shape)):
@@ -94,7 +94,7 @@ fn test_shape_creation(shape: List[Int]) raises:
         raise e^
 
 
-fn test_anytensor_init_multidimensional() raises:
+def test_anytensor_init_multidimensional() raises:
     """Test AnyTensor with various dimensionalities."""
     print("\n=== Test 3: Multi-Dimensional Tensors ===")
 
@@ -141,7 +141,7 @@ fn test_anytensor_init_multidimensional() raises:
     )
 
 
-fn test_anytensor_stride_preallocate() raises:
+def test_anytensor_stride_preallocate() raises:
     """Test the exact stride preallocation pattern that crashes.
 
     This directly tests lines 104-110 in any_tensor.mojo:
@@ -211,7 +211,7 @@ fn test_anytensor_stride_preallocate() raises:
         print("  SUCCESS")
 
 
-fn test_memory_limits() raises:
+def test_memory_limits() raises:
     """Test tensors near memory limits."""
     print("\n=== Test 5: Memory Limit Validation ===")
 
@@ -256,7 +256,7 @@ fn test_memory_limits() raises:
         print("  SUCCESS: Caught expected error:", e)
 
 
-fn main() raises:
+def main() raises:
     """Run all AnyTensor initialization tests."""
     print("=" * 60)
     print("ANYTENSOR INITIALIZATION TESTS")

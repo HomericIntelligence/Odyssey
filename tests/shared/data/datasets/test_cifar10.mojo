@@ -14,7 +14,7 @@ from testing import assert_true, assert_equal
 from shared.data.datasets import CIFAR10Dataset
 
 
-fn test_cifar10_initialization() raises:
+def test_cifar10_initialization() raises:
     """Test CIFAR10Dataset initialization with valid directory."""
     var dataset = CIFAR10Dataset("/tmp/cifar10")
     assert_equal(
@@ -24,7 +24,7 @@ fn test_cifar10_initialization() raises:
     )
 
 
-fn test_cifar10_initialization_empty_path() raises:
+def test_cifar10_initialization_empty_path() raises:
     """Test CIFAR10Dataset raises error for empty path."""
     try:
         var dataset = CIFAR10Dataset("")
@@ -34,7 +34,7 @@ fn test_cifar10_initialization_empty_path() raises:
         pass
 
 
-fn test_cifar10_num_samples() raises:
+def test_cifar10_num_samples() raises:
     """Test CIFAR10Dataset returns correct number of training samples."""
     var dataset = CIFAR10Dataset("/tmp/cifar10")
     var n_train = dataset.num_train_samples()
@@ -44,21 +44,21 @@ fn test_cifar10_num_samples() raises:
     assert_equal(n_test, 10000, "Test set should have 10,000 samples")
 
 
-fn test_cifar10_len() raises:
+def test_cifar10_len() raises:
     """Test CIFAR10Dataset __len__ returns training set size."""
     var dataset = CIFAR10Dataset("/tmp/cifar10")
     var length = dataset.__len__()
     assert_equal(length, 50000, "__len__ should return 50,000 for training set")
 
 
-fn test_cifar10_num_classes() raises:
+def test_cifar10_num_classes() raises:
     """Test CIFAR10Dataset returns correct number of classes."""
     var dataset = CIFAR10Dataset("/tmp/cifar10")
     var n_classes = dataset.num_classes()
     assert_equal(n_classes, 10, "CIFAR-10 should have 10 classes")
 
 
-fn test_cifar10_image_shape() raises:
+def test_cifar10_image_shape() raises:
     """Test CIFAR10Dataset returns correct image shape."""
     var dataset = CIFAR10Dataset("/tmp/cifar10")
     var shape = dataset.image_shape()
@@ -69,7 +69,7 @@ fn test_cifar10_image_shape() raises:
     assert_equal(shape[2], 32, "Third dimension should be 32 (width)")
 
 
-fn test_cifar10_class_names() raises:
+def test_cifar10_class_names() raises:
     """Test CIFAR10Dataset class name retrieval."""
     var dataset = CIFAR10Dataset("/tmp/cifar10")
 
@@ -84,7 +84,7 @@ fn test_cifar10_class_names() raises:
     assert_equal(truck, "truck", "Class 9 should be 'truck'")
 
 
-fn test_cifar10_class_name_invalid_index() raises:
+def test_cifar10_class_name_invalid_index() raises:
     """Test CIFAR10Dataset raises error for invalid class index."""
     var dataset = CIFAR10Dataset("/tmp/cifar10")
 
@@ -103,7 +103,7 @@ fn test_cifar10_class_name_invalid_index() raises:
         pass
 
 
-fn test_cifar10_getitem_out_of_bounds() raises:
+def test_cifar10_getitem_out_of_bounds() raises:
     """Test CIFAR10Dataset __getitem__ raises error for invalid indices.
 
     Note: This test does not load actual data, so it tests the index
@@ -126,7 +126,7 @@ fn test_cifar10_getitem_out_of_bounds() raises:
         pass
 
 
-fn test_cifar10_get_class_name_all_classes() raises:
+def test_cifar10_get_class_name_all_classes() raises:
     """Test CIFAR10Dataset returns correct names for all 10 classes."""
     var dataset = CIFAR10Dataset("/tmp/cifar10")
 
@@ -149,7 +149,7 @@ fn test_cifar10_get_class_name_all_classes() raises:
         )
 
 
-fn main() raises:
+def main() raises:
     """Run all CIFAR-10 dataset tests."""
     test_cifar10_initialization()
     test_cifar10_initialization_empty_path()

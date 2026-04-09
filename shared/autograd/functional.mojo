@@ -49,7 +49,7 @@ from shared.core.loss import (
 # ============================================================================
 
 
-fn multiply_scalar(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
+def multiply_scalar(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     """Multiply tensor by a scalar value.
 
         More efficient than creating a full tensor filled with the scalar value.
@@ -71,7 +71,7 @@ fn multiply_scalar(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     return result
 
 
-fn add_scalar(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
+def add_scalar(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     """Add a scalar value to all elements of a tensor.
 
     Args:
@@ -91,7 +91,7 @@ fn add_scalar(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     return result
 
 
-fn subtract_scalar(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
+def subtract_scalar(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     """Subtract a scalar value from all elements of a tensor.
 
     Args:
@@ -111,7 +111,7 @@ fn subtract_scalar(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     return result
 
 
-fn divide_scalar(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
+def divide_scalar(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     """Divide all elements of a tensor by a scalar value.
 
     Args:
@@ -139,7 +139,7 @@ fn divide_scalar(tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
 # ============================================================================
 
 
-fn apply_gradient(
+def apply_gradient(
     parameter: AnyTensor, gradient: AnyTensor, learning_rate: Float64
 ) raises -> AnyTensor:
     """Apply a gradient to a parameter with given learning rate.
@@ -165,7 +165,7 @@ fn apply_gradient(
     return subtract(parameter, update)
 
 
-fn apply_gradients(
+def apply_gradients(
     mut parameters: List[AnyTensor],
     gradients: List[AnyTensor],
     learning_rate: Float64,
@@ -209,7 +209,7 @@ struct LossAndGrad:
     var loss: AnyTensor
     var grad: AnyTensor
 
-    fn __init__(out self, var loss: AnyTensor, var grad: AnyTensor):
+    def __init__(out self, var loss: AnyTensor, var grad: AnyTensor):
         """Initialize loss and gradient pair.
 
         Args:
@@ -220,7 +220,7 @@ struct LossAndGrad:
         self.grad = grad^
 
 
-fn mse_loss_and_grad(
+def mse_loss_and_grad(
     predictions: AnyTensor, targets: AnyTensor
 ) raises -> LossAndGrad:
     """Compute MSE loss and gradient in one pass.
@@ -255,7 +255,7 @@ fn mse_loss_and_grad(
     return LossAndGrad(loss, grad_predictions)
 
 
-fn bce_loss_and_grad(
+def bce_loss_and_grad(
     predictions: AnyTensor, targets: AnyTensor, epsilon: Float64 = 1e-7
 ) raises -> LossAndGrad:
     """Compute binary cross-entropy loss and gradient.
@@ -291,7 +291,7 @@ fn bce_loss_and_grad(
     return LossAndGrad(loss, grad_predictions)
 
 
-fn ce_loss_and_grad(
+def ce_loss_and_grad(
     logits: AnyTensor, targets: AnyTensor, epsilon: Float64 = 1e-7
 ) raises -> LossAndGrad:
     """Compute cross-entropy loss and gradient.
@@ -329,7 +329,7 @@ fn ce_loss_and_grad(
 
 
 # Helper function for manual gradient computation patterns
-fn compute_gradient(
+def compute_gradient(
     predictions: AnyTensor, targets: AnyTensor, loss_type: String = "mse"
 ) raises -> AnyTensor:
     """Compute gradient for common loss functions.

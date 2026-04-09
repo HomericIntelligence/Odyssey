@@ -10,7 +10,7 @@ from shared.core.arithmetic import subtract, multiply
 from shared.training.optimizers import sgd_step_simple, sgd_step
 
 
-fn test_sgd_step_simple_basic() raises:
+def test_sgd_step_simple_basic() raises:
     """Test basic SGD parameter update."""
     print("Testing basic SGD step...")
 
@@ -57,7 +57,7 @@ fn test_sgd_step_simple_basic() raises:
     print("  ✓ Basic SGD step test passed")
 
 
-fn test_sgd_step_zero_gradients() raises:
+def test_sgd_step_zero_gradients() raises:
     """Test SGD with zero gradients (params should not change)."""
     print("Testing SGD with zero gradients...")
 
@@ -95,7 +95,7 @@ fn test_sgd_step_zero_gradients() raises:
     print("  ✓ Zero gradients test passed")
 
 
-fn test_sgd_step_large_learning_rate() raises:
+def test_sgd_step_large_learning_rate() raises:
     """Test SGD with large learning rate."""
     print("Testing SGD with large learning rate...")
 
@@ -131,7 +131,7 @@ fn test_sgd_step_large_learning_rate() raises:
     print("  ✓ Large learning rate test passed")
 
 
-fn test_sgd_step_negative_gradients() raises:
+def test_sgd_step_negative_gradients() raises:
     """Test SGD with negative gradients (params should increase)."""
     print("Testing SGD with negative gradients...")
 
@@ -168,7 +168,7 @@ fn test_sgd_step_negative_gradients() raises:
     print("  ✓ Negative gradients test passed")
 
 
-fn test_sgd_step_with_weight_decay() raises:
+def test_sgd_step_with_weight_decay() raises:
     """Test SGD with L2 weight decay."""
     print("Testing SGD with weight decay...")
 
@@ -214,7 +214,7 @@ fn test_sgd_step_with_weight_decay() raises:
     print("  ✓ Weight decay test passed")
 
 
-fn test_sgd_multi_step_convergence() raises:
+def test_sgd_multi_step_convergence() raises:
     """Test multiple SGD steps converge towards target."""
     print("Testing multi-step SGD convergence...")
 
@@ -256,7 +256,7 @@ fn test_sgd_multi_step_convergence() raises:
     print("  ✓ Multi-step convergence test passed")
 
 
-fn run_all_tests() raises:
+def run_all_tests() raises:
     """Run all SGD optimizer tests."""
     print("=" * 60)
     print("SGD Optimizer Test Suite")
@@ -274,6 +274,6 @@ fn run_all_tests() raises:
     print("=" * 60)
 
 
-fn main() raises:
+def main() raises:
     """Entry point for SGD tests."""
     run_all_tests()

@@ -23,8 +23,8 @@ Example:
     ```
 """
 
-from random import random_float64
-from math import sqrt, log, cos, sin, pi
+from std.random import random_float64
+from std.math import sqrt, log, cos, sin, pi
 from shared.tensor.any_tensor import AnyTensor, zeros
 
 
@@ -33,7 +33,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros
 # ============================================================================
 
 
-fn random_tensor(
+def random_tensor(
     shape: List[Int], dtype: DType = DType.float32
 ) raises -> AnyTensor:
     """Generate tensor with random values from uniform distribution [0, 1).
@@ -83,19 +83,19 @@ fn random_tensor(
             or dtype == DType.int32
             or dtype == DType.int64
         ):
-            tensor._set_int64(i, Int(rand_val))
+            tensor._set_int64(i, Int64(rand_val))
         elif (
             dtype == DType.uint8
             or dtype == DType.uint16
             or dtype == DType.uint32
             or dtype == DType.uint64
         ):
-            tensor._set_int64(i, Int(rand_val))
+            tensor._set_int64(i, Int64(rand_val))
 
     return tensor^
 
 
-fn random_uniform(
+def random_uniform(
     shape: List[Int],
     low: Float64 = 0.0,
     high: Float64 = 1.0,
@@ -154,19 +154,19 @@ fn random_uniform(
             or dtype == DType.int32
             or dtype == DType.int64
         ):
-            tensor._set_int64(i, Int(scaled_val))
+            tensor._set_int64(i, Int64(scaled_val))
         elif (
             dtype == DType.uint8
             or dtype == DType.uint16
             or dtype == DType.uint32
             or dtype == DType.uint64
         ):
-            tensor._set_int64(i, Int(scaled_val))
+            tensor._set_int64(i, Int64(scaled_val))
 
     return tensor^
 
 
-fn random_normal(
+def random_normal(
     shape: List[Int],
     mean: Float64 = 0.0,
     std: Float64 = 1.0,
@@ -240,12 +240,12 @@ fn random_normal(
         else:
             # For integer dtypes, still use Box-Muller but truncate
             var z1 = r * cos(theta)
-            tensor._set_int64(i, Int(mean + z1 * std))
+            tensor._set_int64(i, Int64(mean + z1 * std))
             i += 1
 
             if i < numel:
                 var z2 = r * sin(theta)
-                tensor._set_int64(i, Int(mean + z2 * std))
+                tensor._set_int64(i, Int64(mean + z2 * std))
                 i += 1
 
     return tensor^
@@ -256,7 +256,7 @@ fn random_normal(
 # ============================================================================
 
 
-fn synthetic_classification_data(
+def synthetic_classification_data(
     num_samples: Int,
     num_features: Int,
     num_classes: Int,
@@ -323,7 +323,7 @@ fn synthetic_classification_data(
             class_idx = num_classes - 1
 
         # Set label
-        labels._set_int64(sample_idx, class_idx)
+        labels._set_int64(sample_idx, Int64(class_idx))
 
         # Copy center for this class and add noise
         for feat_idx in range(num_features):

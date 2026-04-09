@@ -24,12 +24,12 @@ from shared.data import (
 from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.utils.arg_parser import ArgumentParser
 from shared.training.metrics import top1_accuracy, AccuracyMetric
-from collections import List
+from std.collections import List
 
 
 # EMNIST Balanced class labels (47 classes)
 # 0-9: digits, 10-35: uppercase letters, 36-46: lowercase letters (excluding ambiguous)
-fn get_class_label(class_idx: Int) -> String:
+def get_class_label(class_idx: Int) -> String:
     """Convert class index to human-readable label.
 
     Args:
@@ -66,14 +66,14 @@ struct InferConfig(Movable):
     var data_dir: String
     var top_k: Int
 
-    fn __init__(out self):
+    def __init__(out self):
         self.checkpoint_dir = ""
         self.image_path = ""
         self.run_test_set = False
         self.data_dir = "datasets/emnist"
         self.top_k = 5
 
-    fn __moveinit__(out self, deinit other: Self):
+    def __moveinit__(out self, deinit other: Self):
         self.checkpoint_dir = other.checkpoint_dir^
         self.image_path = other.image_path^
         self.run_test_set = other.run_test_set
@@ -81,7 +81,7 @@ struct InferConfig(Movable):
         self.top_k = other.top_k
 
 
-fn parse_args() raises -> InferConfig:
+def parse_args() raises -> InferConfig:
     """Parse command line arguments using enhanced argument parser."""
     var parser = ArgumentParser()
     parser.add_argument("checkpoint", "string", "")
@@ -102,7 +102,7 @@ fn parse_args() raises -> InferConfig:
     return config^
 
 
-fn load_image(filepath: String) raises -> AnyTensor:
+def load_image(filepath: String) raises -> AnyTensor:
     """Load image from file and normalize for model inference.
 
     Currently supports IDX format (.idx3-ubyte for images). PNG support
@@ -163,7 +163,7 @@ fn load_image(filepath: String) raises -> AnyTensor:
     return empty_tensor
 
 
-fn get_top_k_predictions(
+def get_top_k_predictions(
     logits: AnyTensor, k: Int
 ) raises -> List[Tuple[Int, Float32]]:
     """Get top-k predictions from logits.
@@ -202,7 +202,7 @@ fn get_top_k_predictions(
     return result^
 
 
-fn evaluate_test_set(
+def evaluate_test_set(
     mut model: LeNet5, test_images: AnyTensor, test_labels: AnyTensor
 ) raises -> Float32:
     """Evaluate model on full test set.
@@ -253,7 +253,7 @@ fn evaluate_test_set(
     return accuracy
 
 
-fn main() raises:
+def main() raises:
     """Main inference entry point."""
     print("=" * 60)
     print("LeNet-5 Inference on EMNIST")

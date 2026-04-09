@@ -16,7 +16,7 @@ from shared.core.arithmetic import add, multiply
 from shared.core.reduction import sum as tensor_sum
 
 
-fn linear_regression_functional() raises:
+def linear_regression_functional() raises:
     """Train a simple linear model using functional autograd helpers.
 
     This demonstrates the recommended approach: use loss_and_grad helpers
@@ -110,6 +110,6 @@ fn linear_regression_functional() raises:
         print("  X =", x_val, "  Y_true =", y_true, "  Y_pred =", y_pred)
 
 
-fn main() raises:
+def main() raises:
     """Run autograd examples."""
     linear_regression_functional()

@@ -33,7 +33,7 @@ from shared.core.linear import linear
 from shared.core.shape import conv2d_output_shape
 
 
-fn depthwise_conv2d(
+def depthwise_conv2d(
     x: AnyTensor,
     weights: AnyTensor,
     bias: AnyTensor,
@@ -161,7 +161,7 @@ struct DepthwiseSeparableBlock:
     var pw_bn_running_mean: AnyTensor
     var pw_bn_running_var: AnyTensor
 
-    fn __init__(
+    def __init__(
         out self, in_channels: Int, out_channels: Int, stride: Int = 1
     ) raises:
         """Initialize depthwise separable block.
@@ -197,7 +197,7 @@ struct DepthwiseSeparableBlock:
         self.pw_bn_running_mean = zeros(pw_bias_shape, DType.float32)
         self.pw_bn_running_var = constant(pw_bias_shape, 1.0)
 
-    fn forward(
+    def forward(
         mut self, x: AnyTensor, stride: Int, training: Bool
     ) raises -> AnyTensor:
         """Forward pass through depthwise separable block.
@@ -280,7 +280,7 @@ struct MobileNetV1:
     var fc_weights: AnyTensor
     var fc_bias: AnyTensor
 
-    fn __init__(out self, num_classes: Int = 10) raises:
+    def __init__(out self, num_classes: Int = 10) raises:
         """Initialize MobileNetV1 model.
 
         Args:
@@ -326,7 +326,7 @@ struct MobileNetV1:
         var fc_bias_shape: List[Int] = [num_classes]
         self.fc_bias = zeros(fc_bias_shape, DType.float32)
 
-    fn forward(mut self, x: AnyTensor, training: Bool = True) raises -> AnyTensor:
+    def forward(mut self, x: AnyTensor, training: Bool = True) raises -> AnyTensor:
         """Forward pass through MobileNetV1.
 
         Args:
@@ -411,7 +411,7 @@ struct MobileNetV1:
 
         return logits
 
-    fn load_weights(mut self, weights_dir: String) raises:
+    def load_weights(mut self, weights_dir: String) raises:
         """Load model weights from directory.
 
         Args:
@@ -815,7 +815,7 @@ struct MobileNetV1:
         self.fc_bias = loaded_params[idx]
         idx += 1
 
-    fn save_weights(self, weights_dir: String) raises:
+    def save_weights(self, weights_dir: String) raises:
         """Save model weights to directory.
 
         Args:

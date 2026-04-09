@@ -18,10 +18,10 @@ from .matrix import matmul, transpose
 from .activation import softmax
 from .arithmetic import multiply, divide, add
 from .gradient_types import GradientTriple, GradientQuad
-from math import sqrt
+from std.math import sqrt
 
 
-fn scaled_dot_product_attention(
+def scaled_dot_product_attention(
     query: AnyTensor,
     key: AnyTensor,
     value: AnyTensor,
@@ -41,7 +41,7 @@ fn scaled_dot_product_attention(
     )
 
 
-fn scaled_dot_product_attention_masked(
+def scaled_dot_product_attention_masked(
     query: AnyTensor,
     key: AnyTensor,
     value: AnyTensor,
@@ -153,7 +153,7 @@ fn scaled_dot_product_attention_masked(
 comptime ScaledDotProductAttentionBackwardResult = GradientTriple
 
 
-fn scaled_dot_product_attention_backward(
+def scaled_dot_product_attention_backward(
     grad_output: AnyTensor,
     query: AnyTensor,
     key: AnyTensor,
@@ -172,7 +172,7 @@ fn scaled_dot_product_attention_backward(
     )
 
 
-fn scaled_dot_product_attention_backward_masked(
+def scaled_dot_product_attention_backward_masked(
     grad_output: AnyTensor,
     query: AnyTensor,
     key: AnyTensor,
@@ -268,7 +268,7 @@ fn scaled_dot_product_attention_backward_masked(
     return GradientTriple(grad_query, grad_key, grad_value)
 
 
-fn _softmax_backward(
+def _softmax_backward(
     grad_output: AnyTensor, softmax_output: AnyTensor
 ) raises -> AnyTensor:
     """Internal helper for softmax backward pass.
@@ -331,7 +331,7 @@ fn _softmax_backward(
     return result
 
 
-fn create_causal_mask(
+def create_causal_mask(
     seq_len: Int, dtype: DType = DType.float32
 ) raises -> AnyTensor:
     """Create a causal (lower-triangular) attention mask.
@@ -412,7 +412,7 @@ struct MultiHeadAttentionWeights(Movable):
     var wo: AnyTensor
     """Output projection weight matrix of shape (d_model, d_model)."""
 
-    fn __init__(
+    def __init__(
         out self,
         wq: AnyTensor,
         wk: AnyTensor,
@@ -437,13 +437,13 @@ struct MultiHeadAttentionResult(Movable):
     var attention_weights: AnyTensor
     """Attention weights for visualization and analysis."""
 
-    fn __init__(out self, output: AnyTensor, attention_weights: AnyTensor):
+    def __init__(out self, output: AnyTensor, attention_weights: AnyTensor):
         self.output = output
         self.attention_weights = attention_weights
 
 
 
-fn multi_head_attention(
+def multi_head_attention(
     query: AnyTensor,
     key: AnyTensor,
     value: AnyTensor,
@@ -464,7 +464,7 @@ fn multi_head_attention(
     )
 
 
-fn multi_head_attention_masked(
+def multi_head_attention_masked(
     query: AnyTensor,
     key: AnyTensor,
     value: AnyTensor,
@@ -584,7 +584,7 @@ fn multi_head_attention_masked(
     return MultiHeadAttentionResult(output, attention_weights)
 
 
-fn _reshape_for_heads(
+def _reshape_for_heads(
     x: AnyTensor, batch: Int, seq_len: Int, num_heads: Int, d_k: Int
 ) raises -> AnyTensor:
     """Reshape from (batch, seq, d_model) to (batch, num_heads, seq, d_k).
@@ -648,7 +648,7 @@ fn _reshape_for_heads(
     return result
 
 
-fn _reshape_from_heads(
+def _reshape_from_heads(
     x: AnyTensor, batch: Int, seq_len: Int, num_heads: Int, d_k: Int
 ) raises -> AnyTensor:
     """Reshape from (batch, num_heads, seq, d_k) to (batch, seq, d_model).
@@ -732,7 +732,7 @@ struct MultiHeadAttentionBackwardResult(Movable):
     var grad_wo: AnyTensor
     """Gradient with respect to output projection weight matrix."""
 
-    fn __init__(
+    def __init__(
         out self,
         grad_query: AnyTensor,
         grad_key: AnyTensor,
@@ -752,7 +752,7 @@ struct MultiHeadAttentionBackwardResult(Movable):
 
 
 
-fn multi_head_attention_backward(
+def multi_head_attention_backward(
     grad_output: AnyTensor,
     query: AnyTensor,
     key: AnyTensor,

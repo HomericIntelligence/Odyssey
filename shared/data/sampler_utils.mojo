@@ -4,7 +4,7 @@ Provides common patterns for index generation, random operations, and
 weight-based sampling across different sampler types.
 """
 
-from random import random_si64, seed
+from std.random import random_si64, seed
 
 
 # ============================================================================
@@ -12,7 +12,7 @@ from random import random_si64, seed
 # ============================================================================
 
 
-fn validate_range(
+def validate_range(
     start_index: Int, end_index: Int, data_source_len: Int
 ) -> Tuple[Int, Int]:
     """Validate and normalize range parameters for index generation.
@@ -36,7 +36,7 @@ fn validate_range(
     return Tuple[Int, Int](normalized_start, normalized_end)
 
 
-fn create_sequential_indices(capacity: Int, start_index: Int = 0) -> List[Int]:
+def create_sequential_indices(capacity: Int, start_index: Int = 0) -> List[Int]:
     """Create sequential indices for range iteration.
 
     Args:
@@ -52,7 +52,7 @@ fn create_sequential_indices(capacity: Int, start_index: Int = 0) -> List[Int]:
     return indices^
 
 
-fn create_range_indices(start_index: Int, end_index: Int) -> List[Int]:
+def create_range_indices(start_index: Int, end_index: Int) -> List[Int]:
     """Create sequential indices for a range.
 
     Args:
@@ -74,7 +74,7 @@ fn create_range_indices(start_index: Int, end_index: Int) -> List[Int]:
 # ============================================================================
 
 
-fn set_random_seed(seed_value: Int):
+def set_random_seed(seed_value: Int):
     """Set random seed if provided.
 
     Args:
@@ -89,7 +89,7 @@ fn set_random_seed(seed_value: Int):
 # ============================================================================
 
 
-fn shuffle_indices(var indices: List[Int]) -> List[Int]:
+def shuffle_indices(var indices: List[Int]) -> List[Int]:
     """Shuffle indices using Fisher-Yates algorithm.
 
     Args:
@@ -104,7 +104,7 @@ fn shuffle_indices(var indices: List[Int]) -> List[Int]:
 
     # Fisher-Yates shuffle: iterate from end to beginning
     for i in range(size - 1, 0, -1):
-        var j = Int(random_si64(0, i))
+        var j = Int(random_si64(Int64(0), Int64(i)))
         var temp = indices[i]
         indices[i] = indices[j]
         indices[j] = temp
@@ -117,7 +117,7 @@ fn shuffle_indices(var indices: List[Int]) -> List[Int]:
 # ============================================================================
 
 
-fn sample_with_replacement(data_source_len: Int, num_samples: Int) -> List[Int]:
+def sample_with_replacement(data_source_len: Int, num_samples: Int) -> List[Int]:
     """Generate indices by sampling with replacement.
 
     Args:
@@ -129,11 +129,11 @@ fn sample_with_replacement(data_source_len: Int, num_samples: Int) -> List[Int]:
     """
     var indices = List[Int](capacity=num_samples)
     for _ in range(num_samples):
-        indices.append(Int(random_si64(0, data_source_len - 1)))
+        indices.append(Int(random_si64(Int64(0), Int64(data_source_len - 1))))
     return indices^
 
 
-fn sample_without_replacement(
+def sample_without_replacement(
     data_source_len: Int, num_samples: Int
 ) -> List[Int]:
     """Generate indices by sampling without replacement.
@@ -166,7 +166,7 @@ fn sample_without_replacement(
 # ============================================================================
 
 
-fn build_cumulative_weights(weights: List[Float64]) -> List[Float64]:
+def build_cumulative_weights(weights: List[Float64]) -> List[Float64]:
     """Build cumulative distribution from weights.
 
     Args:
@@ -183,7 +183,7 @@ fn build_cumulative_weights(weights: List[Float64]) -> List[Float64]:
     return cumsum^
 
 
-fn sample_index_from_distribution(
+def sample_index_from_distribution(
     cumsum: List[Float64], random_value: Float64
 ) -> Int:
     """Find index corresponding to random value in cumulative distribution.
@@ -205,7 +205,7 @@ fn sample_index_from_distribution(
     return idx
 
 
-fn renormalize_weights(var weights: List[Float64]) -> List[Float64]:
+def renormalize_weights(var weights: List[Float64]) -> List[Float64]:
     """Renormalize weights to sum to 1.0.
 
         Used after removing sampled elements in weighted sampling without replacement.
@@ -235,7 +235,7 @@ fn renormalize_weights(var weights: List[Float64]) -> List[Float64]:
 # ============================================================================
 
 
-fn generate_random_float(max_value: Int = 1000000) -> Float64:
+def generate_random_float(max_value: Int = 1000000) -> Float64:
     """Generate a random float in [0, 1) range.
 
     Args:
@@ -244,4 +244,4 @@ fn generate_random_float(max_value: Int = 1000000) -> Float64:
     Returns:
             Random float value in [0, 1).
     """
-    return Float64(random_si64(0, max_value - 1)) / Float64(max_value)
+    return Float64(random_si64(Int64(0), Int64(max_value - 1))) / Float64(max_value)

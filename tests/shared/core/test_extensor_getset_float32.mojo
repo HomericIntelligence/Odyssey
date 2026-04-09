@@ -8,7 +8,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 
-fn test_get_float32_basic() raises:
+def test_get_float32_basic() raises:
     """Test _get_float32() returns correct values for Float32 tensor."""
     var tensor = zeros([3, 4], DType.float32)
     tensor._set_float64(0, 1.5)
@@ -22,7 +22,7 @@ fn test_get_float32_basic() raises:
     assert_almost_equal(Float64(val11), 3.9, tolerance=1e-6)
 
 
-fn test_get_float32_dtype_conversions() raises:
+def test_get_float32_dtype_conversions() raises:
     """Test _get_float32() handles different dtypes correctly."""
     var tensor_f16 = zeros([5], DType.float16)
     tensor_f16._set_float64(2, 1.5)
@@ -35,7 +35,7 @@ fn test_get_float32_dtype_conversions() raises:
     assert_almost_equal(Float64(val_f64), 1.5, tolerance=1e-6)
 
 
-fn test_get_float32_bfloat16() raises:
+def test_get_float32_bfloat16() raises:
     """Test _get_float32() on a bfloat16 tensor returns correct value.
 
     Regression test for issue #3910: _get_float32 previously had no bfloat16
@@ -53,7 +53,7 @@ fn test_get_float32_bfloat16() raises:
     assert_almost_equal(Float64(got), 1.5, tolerance=1e-2)
 
 
-fn test_get_float32_bfloat16_roundtrip() raises:
+def test_get_float32_bfloat16_roundtrip() raises:
     """Test _set_float32 -> _get_float32 roundtrip on a bfloat16 tensor.
 
     Regression test for issue #3910: both set and get must have bfloat16
@@ -70,7 +70,7 @@ fn test_get_float32_bfloat16_roundtrip() raises:
     assert_almost_equal(Float64(t._get_float32(3)), -1.0, tolerance=1e-2)
 
 
-fn test_set_float32_basic() raises:
+def test_set_float32_basic() raises:
     """Test _set_float32() stores values correctly in Float32 tensor."""
     var tensor = zeros([3, 4], DType.float32)
     tensor._set_float32(0, Float32(1.5))
@@ -81,7 +81,7 @@ fn test_set_float32_basic() raises:
     assert_almost_equal(tensor._get_float64(11), 3.9, tolerance=1e-6)
 
 
-fn test_set_float32_all_elements() raises:
+def test_set_float32_all_elements() raises:
     """Test _set_float32() works for all elements in tensor."""
     var tensor = zeros([10], DType.float32)
     for i in range(10):
@@ -92,7 +92,7 @@ fn test_set_float32_all_elements() raises:
         assert_almost_equal(Float64(actual), Float64(expected), tolerance=1e-6)
 
 
-fn test_set_float32_dtype_conversions() raises:
+def test_set_float32_dtype_conversions() raises:
     """Test _set_float32() handles different dtypes correctly."""
     var tensor_f16 = zeros([5], DType.float16)
     tensor_f16._set_float32(2, Float32(1.5))
@@ -105,7 +105,7 @@ fn test_set_float32_dtype_conversions() raises:
     assert_almost_equal(val_f64, 1.5, tolerance=1e-6)
 
 
-fn test_set_float32_bfloat16() raises:
+def test_set_float32_bfloat16() raises:
     """Test _set_float32() on a bfloat16 tensor stores value correctly.
 
     Regression test for issue #3910: _set_float32 previously had no bfloat16
@@ -122,7 +122,7 @@ fn test_set_float32_bfloat16() raises:
     assert_almost_equal(got, 1.5, tolerance=1e-2)
 
 
-fn test_set_get_float32_roundtrip() raises:
+def test_set_get_float32_roundtrip() raises:
     """Test _set_float32() -> _get_float32() roundtrip preserves values."""
     var tensor = zeros([20], DType.float32)
     for i in range(20):
@@ -133,7 +133,7 @@ fn test_set_get_float32_roundtrip() raises:
         assert_almost_equal(Float64(actual), Float64(expected), tolerance=1e-6)
 
 
-fn main() raises:
+def main() raises:
     """Run _get_float32 and _set_float32 tests."""
     print("Running _get_float32 tests...")
     test_get_float32_basic()

@@ -16,7 +16,7 @@ from shared.core.elementwise import exp, log, sqrt, abs, sin, cos
 from shared.core.activation import relu, sigmoid
 
 
-fn test_exp() raises:
+def test_exp() raises:
     """Exp preserves dtype and computes correct values."""
     var t = any_zeros([4], DType.float32)
     var r = exp(t)
@@ -29,7 +29,7 @@ fn test_exp() raises:
     print("PASS: test_exp")
 
 
-fn test_exp_one() raises:
+def test_exp_one() raises:
     """Exp(1.0) computes e."""
     var t = any_full([2], 1.0, DType.float32)
     var r = exp(t)
@@ -43,7 +43,7 @@ fn test_exp_one() raises:
     print("PASS: test_exp_one")
 
 
-fn test_log() raises:
+def test_log() raises:
     """Log computes correct values."""
     var t = any_full([3], 1.0, DType.float32)
     var r = log(t)
@@ -56,7 +56,7 @@ fn test_log() raises:
     print("PASS: test_log")
 
 
-fn test_sqrt() raises:
+def test_sqrt() raises:
     """Sqrt computes correct values."""
     var t = any_full([3], 0.25, DType.float32)
     var r = sqrt(t)
@@ -68,7 +68,7 @@ fn test_sqrt() raises:
     print("PASS: test_sqrt")
 
 
-fn test_abs() raises:
+def test_abs() raises:
     """Abs computes correct values for negative inputs."""
     var t = any_full([3], -1.5, DType.float32)
     var r = abs(t)
@@ -79,7 +79,7 @@ fn test_abs() raises:
     print("PASS: test_abs")
 
 
-fn test_relu() raises:
+def test_relu() raises:
     """Relu zeros out negatives and preserves positives."""
     var t = any_zeros([4], DType.float32)
     t[0] = -1.0
@@ -103,7 +103,7 @@ fn test_relu() raises:
     print("PASS: test_relu")
 
 
-fn test_sigmoid() raises:
+def test_sigmoid() raises:
     """Sigmoid maps 0 to 0.5."""
     var t = any_zeros([3], DType.float32)
     var r = sigmoid(t)
@@ -116,7 +116,7 @@ fn test_sigmoid() raises:
     print("PASS: test_sigmoid")
 
 
-fn test_sin_cos() raises:
+def test_sin_cos() raises:
     """Sin and cos compute correct values."""
     var t = any_zeros([2], DType.float32)
     var s = sin(t)
@@ -132,7 +132,7 @@ fn test_sin_cos() raises:
     print("PASS: test_sin_cos")
 
 
-fn main() raises:
+def main() raises:
     test_exp()
     test_exp_one()
     test_log()

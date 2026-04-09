@@ -27,7 +27,7 @@ from shared.core.linear import linear, linear_backward
 from shared.core.activation import relu, relu_backward
 from shared.core.loss import cross_entropy, cross_entropy_backward
 from shared.training.precision_config import PrecisionConfig, PrecisionMode
-from collections import List
+from std.collections import List
 
 
 # ============================================================================
@@ -46,7 +46,7 @@ struct SimpleMLP:
     var fc2_weights: AnyTensor
     var fc2_bias: AnyTensor
 
-    fn __init__(out self) raises:
+    def __init__(out self) raises:
         """Initialize with small random weights."""
         # FC1: 10 -> 20 (weights shape: out_features, in_features)
         var fc1_w_shape = List[Int]()
@@ -68,14 +68,14 @@ struct SimpleMLP:
         fc2_b_shape.append(5)
         self.fc2_bias = zeros(fc2_b_shape, DType.float32)
 
-    fn forward(self, input: AnyTensor) raises -> AnyTensor:
+    def forward(self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: fc1 -> relu -> fc2."""
         var fc1_out = linear(input, self.fc1_weights, self.fc1_bias)
         var relu_out = relu(fc1_out)
         var fc2_out = linear(relu_out, self.fc2_weights, self.fc2_bias)
         return fc2_out^
 
-    fn train_step(
+    def train_step(
         mut self, input: AnyTensor, labels: AnyTensor, learning_rate: Float32
     ) raises -> Float32:
         """Execute one training step with manual backprop.
@@ -117,7 +117,7 @@ struct SimpleMLP:
         return loss
 
 
-fn _sgd_update(mut param: AnyTensor, grad: AnyTensor, lr: Float32) raises:
+def _sgd_update(mut param: AnyTensor, grad: AnyTensor, lr: Float32) raises:
     """Update parameter: param = param - lr * grad."""
     var numel = param.numel()
     for i in range(numel):
@@ -126,7 +126,7 @@ fn _sgd_update(mut param: AnyTensor, grad: AnyTensor, lr: Float32) raises:
         param._set_float32(i, p - lr * g)
 
 
-fn create_dummy_batch(
+def create_dummy_batch(
     batch_size: Int, input_dim: Int, num_classes: Int
 ) raises -> Tuple[AnyTensor, AnyTensor]:
     """Create dummy batch for testing.
@@ -157,7 +157,7 @@ fn create_dummy_batch(
 # ============================================================================
 
 
-fn test_e2e_training_loop_completes() raises:
+def test_e2e_training_loop_completes() raises:
     """Test that full training loop runs without crash.
 
     Verifies:
@@ -184,7 +184,7 @@ fn test_e2e_training_loop_completes() raises:
 # ============================================================================
 
 
-fn test_e2e_loss_decreases() raises:
+def test_e2e_loss_decreases() raises:
     """Test that loss decreases over multiple training steps.
 
     Training with reasonable learning rate should show
@@ -216,7 +216,7 @@ fn test_e2e_loss_decreases() raises:
 # ============================================================================
 
 
-fn test_e2e_loss_decreases_significantly() raises:
+def test_e2e_loss_decreases_significantly() raises:
     """Test that loss drops by at least 50% over 50 iterations.
 
     For a simple network on constant data, this should be achievable.
@@ -246,7 +246,7 @@ fn test_e2e_loss_decreases_significantly() raises:
 # ============================================================================
 
 
-fn test_e2e_batch_size_1() raises:
+def test_e2e_batch_size_1() raises:
     """Test training with batch size 1 (SGD)."""
     var model = SimpleMLP()
     var batch = create_dummy_batch(batch_size=1, input_dim=10, num_classes=5)
@@ -264,7 +264,7 @@ fn test_e2e_batch_size_1() raises:
     )
 
 
-fn test_e2e_batch_size_16() raises:
+def test_e2e_batch_size_16() raises:
     """Test training with batch size 16."""
     var model = SimpleMLP()
     var batch = create_dummy_batch(batch_size=16, input_dim=10, num_classes=5)
@@ -281,7 +281,7 @@ fn test_e2e_batch_size_16() raises:
     )
 
 
-fn test_e2e_batch_size_32() raises:
+def test_e2e_batch_size_32() raises:
     """Test training with batch size 32."""
     var model = SimpleMLP()
     var batch = create_dummy_batch(batch_size=32, input_dim=10, num_classes=5)
@@ -303,7 +303,7 @@ fn test_e2e_batch_size_32() raises:
 # ============================================================================
 
 
-fn test_e2e_lr_affects_convergence() raises:
+def test_e2e_lr_affects_convergence() raises:
     """Test that learning rate affects convergence speed.
 
     Higher learning rate should converge faster (up to a point).
@@ -337,7 +337,7 @@ fn test_e2e_lr_affects_convergence() raises:
 # ============================================================================
 
 
-fn test_e2e_weights_change() raises:
+def test_e2e_weights_change() raises:
     """Test that weights actually change during training."""
     var model = SimpleMLP()
 
@@ -368,7 +368,7 @@ fn test_e2e_weights_change() raises:
 # ============================================================================
 
 
-fn test_e2e_reproducibility() raises:
+def test_e2e_reproducibility() raises:
     """Test that identical initialization produces identical results.
 
     Since we use fixed values (full() with constant), results should match.
@@ -401,7 +401,7 @@ fn test_e2e_reproducibility() raises:
 # ============================================================================
 
 
-fn test_e2e_training_with_precision_config() raises:
+def test_e2e_training_with_precision_config() raises:
     """Test that training works with PrecisionConfig integration.
 
     This verifies the precision config can be used alongside training.
@@ -430,7 +430,7 @@ fn test_e2e_training_with_precision_config() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all end-to-end training tests."""
     print("=" * 60)
     print("End-to-End Training Integration Tests")

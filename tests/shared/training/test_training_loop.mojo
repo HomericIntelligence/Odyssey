@@ -43,7 +43,7 @@ from tests.shared.conftest import (
 from shared.tensor.any_tensor import AnyTensor, ones, zeros
 
 
-fn test_training_loop_single_batch() raises:
+def test_training_loop_single_batch() raises:
     """Test training loop processes a single batch correctly.
 
     API Contract:
@@ -80,11 +80,11 @@ fn test_training_loop_single_batch() raises:
     print("  test_training_loop_single_batch: PASSED")
 
 
-fn test_training_loop_full_epoch() raises:
+def test_training_loop_full_epoch() raises:
     """Test training loop completes a full epoch over dataset.
 
     API Contract:
-        fn run_epoch(mut self, mut data_loader: DataLoader) -> Float32
+        def run_epoch(mut self, mut data_loader: DataLoader) -> Float32
         - Iterates through all batches in data loader
         - Performs training step on each batch
         - Returns average loss for the epoch.
@@ -124,7 +124,7 @@ fn test_training_loop_full_epoch() raises:
     print("  test_training_loop_full_epoch: PASSED")
 
 
-fn test_training_loop_multiple_epochs() raises:
+def test_training_loop_multiple_epochs() raises:
     """Test training loop runs multiple training steps and loss can decrease.
 
     API Contract:
@@ -168,7 +168,7 @@ fn test_training_loop_multiple_epochs() raises:
     print("  test_training_loop_multiple_epochs: PASSED")
 
 
-fn test_training_loop_forward_pass() raises:
+def test_training_loop_forward_pass() raises:
     """Test training loop executes forward pass correctly.
 
     API Contract:
@@ -197,7 +197,7 @@ fn test_training_loop_forward_pass() raises:
     print("  test_training_loop_forward_pass: PASSED")
 
 
-fn test_training_loop_forward_batches_independently() raises:
+def test_training_loop_forward_batches_independently() raises:
     """Test forward pass produces consistent results.
 
     API Contract:
@@ -231,11 +231,11 @@ fn test_training_loop_forward_batches_independently() raises:
     print("  test_training_loop_forward_batches_independently: PASSED")
 
 
-fn test_training_loop_computes_loss() raises:
+def test_training_loop_computes_loss() raises:
     """Test training loop computes loss correctly.
 
     API Contract:
-        fn compute_loss(self, outputs: Tensor, targets: Tensor) -> AnyTensor
+        def compute_loss(self, outputs: Tensor, targets: Tensor) -> AnyTensor
         - Calls loss_fn.compute(outputs, targets)
         - Returns loss value as AnyTensor.
     """
@@ -268,7 +268,7 @@ fn test_training_loop_computes_loss() raises:
     print("  test_training_loop_computes_loss: PASSED")
 
 
-fn test_training_loop_loss_scalar() raises:
+def test_training_loop_loss_scalar() raises:
     """Test training loop returns loss as AnyTensor.
 
     API Contract:
@@ -300,7 +300,7 @@ fn test_training_loop_loss_scalar() raises:
     print("  test_training_loop_loss_scalar: PASSED")
 
 
-fn test_training_loop_backward_pass() raises:
+def test_training_loop_backward_pass() raises:
     """Test training loop executes backward pass.
 
     API Contract:
@@ -334,7 +334,7 @@ fn test_training_loop_backward_pass() raises:
     print("  test_training_loop_backward_pass: PASSED")
 
 
-fn test_training_loop_gradient_accumulation() raises:
+def test_training_loop_gradient_accumulation() raises:
     """Test training loop can run multiple steps.
 
     API Contract:
@@ -372,7 +372,7 @@ fn test_training_loop_gradient_accumulation() raises:
     print("  test_training_loop_gradient_accumulation: PASSED")
 
 
-fn test_training_loop_updates_weights() raises:
+def test_training_loop_updates_weights() raises:
     """Test training loop updates model weights.
 
     API Contract:
@@ -408,7 +408,7 @@ fn test_training_loop_updates_weights() raises:
     print("  test_training_loop_updates_weights: PASSED")
 
 
-fn test_training_loop_respects_learning_rate() raises:
+def test_training_loop_respects_learning_rate() raises:
     """Test training loop weight updates scale with learning rate.
 
     API Contract:
@@ -455,7 +455,7 @@ fn test_training_loop_respects_learning_rate() raises:
     print("  test_training_loop_respects_learning_rate: PASSED")
 
 
-fn test_training_loop_processes_variable_batch_sizes() raises:
+def test_training_loop_processes_variable_batch_sizes() raises:
     """Test training loop handles different input sizes.
 
     API Contract:
@@ -486,7 +486,7 @@ fn test_training_loop_processes_variable_batch_sizes() raises:
     print("  test_training_loop_processes_variable_batch_sizes: PASSED")
 
 
-fn test_training_loop_averages_loss_over_batch() raises:
+def test_training_loop_averages_loss_over_batch() raises:
     """Test training loop computes average loss over batch.
 
     API Contract:
@@ -520,7 +520,7 @@ fn test_training_loop_averages_loss_over_batch() raises:
     print("  test_training_loop_averages_loss_over_batch: PASSED")
 
 
-fn test_training_loop_property_loss_decreases_on_simple_problem() raises:
+def test_training_loop_property_loss_decreases_on_simple_problem() raises:
     """Property: Training should decrease loss on simple convex problem.
 
     Test that training loop can process a basic regression problem.
@@ -557,7 +557,7 @@ fn test_training_loop_property_loss_decreases_on_simple_problem() raises:
     )
 
 
-fn test_dataloader_4d_batch_slicing() raises:
+def test_dataloader_4d_batch_slicing() raises:
     """Test DataLoader correctly slices 4D tensors (N, C, H, W).
 
     Verifies that DataLoader.next() returns batches with all trailing
@@ -587,7 +587,7 @@ fn test_dataloader_4d_batch_slicing() raises:
     print("  test_dataloader_4d_batch_slicing: PASSED")
 
 
-fn test_dataloader_4d_partial_last_batch() raises:
+def test_dataloader_4d_partial_last_batch() raises:
     """Test DataLoader handles partial last batch for 4D tensors.
 
     With N=6 and batch_size=4, the second batch should have 2 samples
@@ -616,7 +616,7 @@ fn test_dataloader_4d_partial_last_batch() raises:
     print("  test_dataloader_4d_partial_last_batch: PASSED")
 
 
-fn test_dataloader_3d_batch_slicing() raises:
+def test_dataloader_3d_batch_slicing() raises:
     """Test DataLoader correctly slices 3D tensors (N, seq_len, features).
 
     Verifies that DataLoader.next() works for sequence data where each
@@ -635,7 +635,7 @@ fn test_dataloader_3d_batch_slicing() raises:
     print("  test_dataloader_3d_batch_slicing: PASSED")
 
 
-fn test_dataloader_nd_shape_preserved() raises:
+def test_dataloader_nd_shape_preserved() raises:
     """Test that trailing dimensions are identical across all batches.
 
     Iterates all batches of a (9, 3, 8, 8) tensor with batch_size=4
@@ -655,7 +655,7 @@ fn test_dataloader_nd_shape_preserved() raises:
     print("  test_dataloader_nd_shape_preserved: PASSED")
 
 
-fn test_run_epoch_with_batches() raises:
+def test_run_epoch_with_batches() raises:
     """Test run_epoch_with_batches() with real DataLoader and callbacks.
 
     Verifies:
@@ -684,7 +684,7 @@ fn test_run_epoch_with_batches() raises:
     # Define step function that computes loss from batch
     # For each batch: loss = sum(batch_data) - batch_labels
     # With ones input and zeros labels, each batch should have positive loss
-    fn step_fn(batch_data: AnyTensor, batch_labels: AnyTensor) raises -> AnyTensor:
+    def step_fn(batch_data: AnyTensor, batch_labels: AnyTensor) raises -> AnyTensor:
         # Simple loss: sum squared differences
         # Since batch_data=ones and batch_labels=zeros, loss will be > 0
         var diff = subtract(batch_data, batch_labels)
@@ -702,7 +702,7 @@ fn test_run_epoch_with_batches() raises:
     print("  test_run_epoch_with_batches: PASSED")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_training_loop tests."""
     print("Running test_training_loop tests...")
 

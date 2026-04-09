@@ -21,7 +21,7 @@ Example:
     ```
 """
 
-from collections import List
+from std.collections import List
 
 
 # ============================================================================
@@ -50,7 +50,7 @@ comptime CIFAR100_NUM_CLASSES_COARSE: Int = 20
 # ============================================================================
 
 
-fn CIFAR10_CLASS_NAMES() -> List[String]:
+def CIFAR10_CLASS_NAMES() -> List[String]:
     """Get CIFAR-10 class names.
 
         CIFAR-10 contains 10 object classes commonly used for image classification
@@ -81,7 +81,7 @@ fn CIFAR10_CLASS_NAMES() -> List[String]:
 # ============================================================================
 
 
-fn EMNIST_BALANCED_CLASSES() -> List[String]:
+def EMNIST_BALANCED_CLASSES() -> List[String]:
     """Get EMNIST Balanced class names.
 
         EMNIST Balanced contains 47 classes: 10 digits (0-9) and 37 letters
@@ -119,7 +119,7 @@ fn EMNIST_BALANCED_CLASSES() -> List[String]:
 # ============================================================================
 
 
-fn EMNIST_BYCLASS_CLASSES() -> List[String]:
+def EMNIST_BYCLASS_CLASSES() -> List[String]:
     """Get EMNIST By Class class names.
 
         EMNIST By Class contains 62 classes: 10 digits (0-9) and 52 letters (A-Z, a-z)
@@ -156,7 +156,7 @@ fn EMNIST_BYCLASS_CLASSES() -> List[String]:
 # ============================================================================
 
 
-fn EMNIST_BYMERGE_CLASSES() -> List[String]:
+def EMNIST_BYMERGE_CLASSES() -> List[String]:
     """Get EMNIST By Merge class names.
 
         EMNIST By Merge contains 36 classes where uppercase and lowercase letters
@@ -188,7 +188,7 @@ fn EMNIST_BYMERGE_CLASSES() -> List[String]:
 # ============================================================================
 
 
-fn EMNIST_DIGITS_CLASSES() -> List[String]:
+def EMNIST_DIGITS_CLASSES() -> List[String]:
     """Get EMNIST Digits class names.
 
         EMNIST Digits contains only the 10 digit classes (0-9)
@@ -211,7 +211,7 @@ fn EMNIST_DIGITS_CLASSES() -> List[String]:
 # ============================================================================
 
 
-fn EMNIST_LETTERS_CLASSES() -> List[String]:
+def EMNIST_LETTERS_CLASSES() -> List[String]:
     """Get EMNIST Letters class names.
 
         EMNIST Letters contains only letter characters with uppercase and lowercase
@@ -272,7 +272,7 @@ struct DatasetInfo(Copyable, Movable):
 
     var dataset_name: String
 
-    fn __init__(out self, dataset_name: String) raises:
+    def __init__(out self, dataset_name: String) raises:
         """Initialize DatasetInfo.
 
         Args:
@@ -302,7 +302,7 @@ struct DatasetInfo(Copyable, Movable):
                 " emnist_bymerge, emnist_digits, emnist_letters"
             )
 
-    fn _is_valid_dataset(self, name: String) -> Bool:
+    def _is_valid_dataset(self, name: String) -> Bool:
         """Check if dataset name is valid.
 
         Args:
@@ -324,7 +324,7 @@ struct DatasetInfo(Copyable, Movable):
                 return True
         return False
 
-    fn num_classes(self) -> Int:
+    def num_classes(self) -> Int:
         """Get number of classes in the dataset.
 
         Returns:
@@ -353,7 +353,7 @@ struct DatasetInfo(Copyable, Movable):
             # This shouldn't happen due to validation in __init__
             return -1
 
-    fn image_shape(self) -> List[Int]:
+    def image_shape(self) -> List[Int]:
         """Get shape of individual images in the dataset.
 
         Returns:
@@ -378,7 +378,7 @@ struct DatasetInfo(Copyable, Movable):
             shape.append(28)  # Width
             return shape^
 
-    fn class_names(self) -> List[String]:
+    def class_names(self) -> List[String]:
         """Get list of all class names for the dataset.
 
         Returns:
@@ -401,7 +401,7 @@ struct DatasetInfo(Copyable, Movable):
             # This shouldn't happen, but return empty list as fallback
             return List[String]()
 
-    fn class_name(self, class_idx: Int) raises -> String:
+    def class_name(self, class_idx: Int) raises -> String:
         """Get name of a specific class by index.
 
         Args:
@@ -425,7 +425,7 @@ struct DatasetInfo(Copyable, Movable):
         var classes = self.class_names()
         return classes[class_idx]
 
-    fn num_train_samples(self) -> Int:
+    def num_train_samples(self) -> Int:
         """Get number of training samples in the dataset.
 
         Returns:
@@ -455,7 +455,7 @@ struct DatasetInfo(Copyable, Movable):
         else:
             return -1
 
-    fn num_test_samples(self) -> Int:
+    def num_test_samples(self) -> Int:
         """Get number of test samples in the dataset.
 
         Returns:
@@ -485,7 +485,7 @@ struct DatasetInfo(Copyable, Movable):
         else:
             return -1
 
-    fn description(self) -> String:
+    def description(self) -> String:
         """Get human-readable description of the dataset.
 
         Returns:

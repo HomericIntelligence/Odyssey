@@ -21,9 +21,9 @@ Issues covered:
 - #268-272: Uniform/Normal basic distributions
 """
 
-from random import random_float64, random_si64, seed as random_seed
-from math import sqrt, log, cos, sin
-from collections import List
+from std.random import random_float64, random_si64, seed as random_seed
+from std.math import sqrt, log, cos, sin
+from std.collections import List
 from shared.tensor.any_tensor import AnyTensor
 
 
@@ -33,7 +33,7 @@ from shared.tensor.any_tensor import AnyTensor
 
 
 @always_inline
-fn _fill_uniform_scaled[
+def _fill_uniform_scaled[
     dtype: DType
 ](result: AnyTensor, scale: Float64, offset: Float64) raises:
     """Fill tensor with scaled uniform random values: offset + random() * scale.
@@ -56,7 +56,7 @@ fn _fill_uniform_scaled[
 
 
 @always_inline
-fn _fill_normal_boxmuller[
+def _fill_normal_boxmuller[
     dtype: DType
 ](result: AnyTensor, mean: Float64, std: Float64) raises:
     """Fill tensor with normal random values using Box-Muller transform.
@@ -98,7 +98,7 @@ fn _fill_normal_boxmuller[
 
 
 @always_inline
-fn _fill_constant[dtype: DType](result: AnyTensor, value: Float64) raises:
+def _fill_constant[dtype: DType](result: AnyTensor, value: Float64) raises:
     """Fill tensor with constant value.
 
         This is a dtype-generic helper that eliminates dtype branching.
@@ -121,7 +121,7 @@ fn _fill_constant[dtype: DType](result: AnyTensor, value: Float64) raises:
 # ============================================================================
 
 
-fn _dispatch_fill_uniform_scaled(
+def _dispatch_fill_uniform_scaled(
     result: AnyTensor, scale: Float64, offset: Float64
 ) raises:
     """Dispatch uniform fill based on tensor dtype.
@@ -151,7 +151,7 @@ fn _dispatch_fill_uniform_scaled(
         )
 
 
-fn _dispatch_fill_normal_boxmuller(
+def _dispatch_fill_normal_boxmuller(
     result: AnyTensor, mean: Float64, std: Float64
 ) raises:
     """Dispatch normal fill based on tensor dtype.
@@ -181,7 +181,7 @@ fn _dispatch_fill_normal_boxmuller(
         )
 
 
-fn _dispatch_fill_constant(result: AnyTensor, value: Float64) raises:
+def _dispatch_fill_constant(result: AnyTensor, value: Float64) raises:
     """Dispatch constant fill based on tensor dtype.
 
     Centralizes dtype branching for _fill_constant to avoid
@@ -213,7 +213,7 @@ fn _dispatch_fill_constant(result: AnyTensor, value: Float64) raises:
 # ============================================================================
 
 
-fn xavier_uniform(
+def xavier_uniform(
     fan_in: Int,
     fan_out: Int,
     shape: List[Int],
@@ -279,7 +279,7 @@ fn xavier_uniform(
     return result^
 
 
-fn xavier_normal(
+def xavier_normal(
     fan_in: Int,
     fan_out: Int,
     shape: List[Int],
@@ -353,7 +353,7 @@ fn xavier_normal(
 # ============================================================================
 
 
-fn kaiming_uniform(
+def kaiming_uniform(
     fan_in: Int,
     fan_out: Int,
     shape: List[Int],
@@ -436,7 +436,7 @@ fn kaiming_uniform(
     return result^
 
 
-fn kaiming_normal(
+def kaiming_normal(
     fan_in: Int,
     fan_out: Int,
     shape: List[Int],
@@ -523,7 +523,7 @@ fn kaiming_normal(
 # ============================================================================
 
 
-fn uniform(
+def uniform(
     shape: List[Int],
     low: Float64 = -0.1,
     high: Float64 = 0.1,
@@ -577,7 +577,7 @@ fn uniform(
     return result^
 
 
-fn normal(
+def normal(
     shape: List[Int],
     mean: Float64 = 0.0,
     std: Float64 = 0.01,
@@ -632,7 +632,7 @@ fn normal(
     return result^
 
 
-fn constant(
+def constant(
     shape: List[Int], value: Float64, dtype: DType = DType.float32
 ) raises -> AnyTensor:
     """Initialize tensor with constant value.
@@ -673,7 +673,7 @@ fn constant(
 # ============================================================================
 
 
-fn he_uniform(
+def he_uniform(
     fan_in: Int,
     fan_out: Int,
     shape: List[Int],
@@ -694,7 +694,7 @@ fn he_uniform(
     return kaiming_uniform(fan_in, fan_out, shape, fan_mode, dtype, seed_val)
 
 
-fn he_normal(
+def he_normal(
     fan_in: Int,
     fan_out: Int,
     shape: List[Int],
@@ -720,7 +720,7 @@ fn he_normal(
 # ============================================================================
 
 
-fn _compute_fan_from_shape(shape: List[Int]) raises -> Tuple[Int, Int]:
+def _compute_fan_from_shape(shape: List[Int]) raises -> Tuple[Int, Int]:
     """Compute (fan_in, fan_out) from tensor shape for weight initialization.
 
     Args:
@@ -749,7 +749,7 @@ fn _compute_fan_from_shape(shape: List[Int]) raises -> Tuple[Int, Int]:
         )
 
 
-fn he_uniform(
+def he_uniform(
     shape: List[Int], dtype: DType = DType.float32
 ) raises -> AnyTensor:
     """Convenience overload that computes fan_in/fan_out from shape.
@@ -779,7 +779,7 @@ fn he_uniform(
     return kaiming_uniform(fan_in, fan_out, shape, "fan_in", dtype, -1)
 
 
-fn xavier_uniform(
+def xavier_uniform(
     shape: List[Int], dtype: DType = DType.float32
 ) raises -> AnyTensor:
     """Convenience overload that computes fan_in/fan_out from shape.

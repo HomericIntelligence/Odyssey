@@ -12,7 +12,7 @@ Exit codes:
 """
 
 
-fn main():
+def main():
     """Run installation verification checks."""
     var errors: Int = 0
 

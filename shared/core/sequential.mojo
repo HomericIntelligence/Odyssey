@@ -66,7 +66,7 @@ struct Sequential2[T0: Module & Movable, T1: Module & Movable](Movable, Implicit
     var layer0: Self.T0
     var layer1: Self.T1
 
-    fn __init__(out self, var layer0: Self.T0, var layer1: Self.T1):
+    def __init__(out self, var layer0: Self.T0, var layer1: Self.T1):
         """Initialize with two layers.
 
         Args:
@@ -77,7 +77,7 @@ struct Sequential2[T0: Module & Movable, T1: Module & Movable](Movable, Implicit
         self.layer1 = layer1^
 
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute chained forward pass through both layers.
 
         Args:
@@ -92,7 +92,7 @@ struct Sequential2[T0: Module & Movable, T1: Module & Movable](Movable, Implicit
         var out0 = self.layer0.forward(input)
         return self.layer1.forward(out0)
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Collect trainable parameters from both layers.
 
         Returns:
@@ -110,12 +110,12 @@ struct Sequential2[T0: Module & Movable, T1: Module & Movable](Movable, Implicit
             params.append(p1[i])
         return params^
 
-    fn train(mut self):
+    def train(mut self):
         """Switch both layers to training mode."""
         self.layer0.train()
         self.layer1.train()
 
-    fn eval(mut self):
+    def eval(mut self):
         """Switch both layers to evaluation mode."""
         self.layer0.eval()
         self.layer1.eval()
@@ -153,7 +153,7 @@ struct Sequential3[
     var layer1: Self.T1
     var layer2: Self.T2
 
-    fn __init__(
+    def __init__(
         out self,
         var layer0: Self.T0,
         var layer1: Self.T1,
@@ -171,7 +171,7 @@ struct Sequential3[
         self.layer2 = layer2^
 
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute chained forward pass through all three layers.
 
         Args:
@@ -187,7 +187,7 @@ struct Sequential3[
         var out1 = self.layer1.forward(out0)
         return self.layer2.forward(out1)
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Collect trainable parameters from all three layers.
 
         Returns:
@@ -208,13 +208,13 @@ struct Sequential3[
             params.append(p2[i])
         return params^
 
-    fn train(mut self):
+    def train(mut self):
         """Switch all three layers to training mode."""
         self.layer0.train()
         self.layer1.train()
         self.layer2.train()
 
-    fn eval(mut self):
+    def eval(mut self):
         """Switch all three layers to evaluation mode."""
         self.layer0.eval()
         self.layer1.eval()
@@ -259,7 +259,7 @@ struct Sequential4[
     var layer2: Self.T2
     var layer3: Self.T3
 
-    fn __init__(
+    def __init__(
         out self,
         var layer0: Self.T0,
         var layer1: Self.T1,
@@ -280,7 +280,7 @@ struct Sequential4[
         self.layer3 = layer3^
 
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute chained forward pass through all four layers.
 
         Args:
@@ -297,7 +297,7 @@ struct Sequential4[
         var out2 = self.layer2.forward(out1)
         return self.layer3.forward(out2)
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Collect trainable parameters from all four layers.
 
         Returns:
@@ -321,14 +321,14 @@ struct Sequential4[
             params.append(p3[i])
         return params^
 
-    fn train(mut self):
+    def train(mut self):
         """Switch all four layers to training mode."""
         self.layer0.train()
         self.layer1.train()
         self.layer2.train()
         self.layer3.train()
 
-    fn eval(mut self):
+    def eval(mut self):
         """Switch all four layers to evaluation mode."""
         self.layer0.eval()
         self.layer1.eval()
@@ -378,7 +378,7 @@ struct Sequential5[
     var layer3: Self.T3
     var layer4: Self.T4
 
-    fn __init__(
+    def __init__(
         out self,
         var layer0: Self.T0,
         var layer1: Self.T1,
@@ -402,7 +402,7 @@ struct Sequential5[
         self.layer4 = layer4^
 
 
-    fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute chained forward pass through all five layers.
 
         Args:
@@ -420,7 +420,7 @@ struct Sequential5[
         var out3 = self.layer3.forward(out2)
         return self.layer4.forward(out3)
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Collect trainable parameters from all five layers.
 
         Returns:
@@ -447,7 +447,7 @@ struct Sequential5[
             params.append(p4[i])
         return params^
 
-    fn train(mut self):
+    def train(mut self):
         """Switch all five layers to training mode."""
         self.layer0.train()
         self.layer1.train()
@@ -455,7 +455,7 @@ struct Sequential5[
         self.layer3.train()
         self.layer4.train()
 
-    fn eval(mut self):
+    def eval(mut self):
         """Switch all five layers to evaluation mode."""
         self.layer0.eval()
         self.layer1.eval()

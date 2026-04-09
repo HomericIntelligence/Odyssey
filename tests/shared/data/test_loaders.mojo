@@ -28,7 +28,7 @@ from shared.tensor.any_tensor import AnyTensor
 # ============================================================================
 
 
-fn test_loader_dataset_sampler_integration() raises:
+def test_loader_dataset_sampler_integration() raises:
     """Test BatchLoader works end-to-end with TensorDataset and SequentialSampler.
 
     Integration Points:
@@ -67,7 +67,7 @@ fn test_loader_dataset_sampler_integration() raises:
     assert_equal(loader.__len__(), 4)  # 100 / 32 = 3.125 -> 4 batches
 
 
-fn test_loader_perfect_batch_division() raises:
+def test_loader_perfect_batch_division() raises:
     """Test BatchLoader with dataset perfectly divisible by batch_size.
 
     With 96 samples and batch_size=32, should create exactly 3 batches.
@@ -102,7 +102,7 @@ fn test_loader_perfect_batch_division() raises:
     assert_equal(loader.__len__(), 3)  # 96 / 32 = 3 exactly
 
 
-fn test_loader_drop_last_enabled() raises:
+def test_loader_drop_last_enabled() raises:
     """Test BatchLoader with drop_last=True removes incomplete final batch.
 
     With 100 samples, batch_size=32, and drop_last=True:
@@ -136,7 +136,7 @@ fn test_loader_drop_last_enabled() raises:
     assert_equal(loader.__len__(), 3)
 
 
-fn test_loader_batch_size_larger_than_dataset() raises:
+def test_loader_batch_size_larger_than_dataset() raises:
     """Test BatchLoader when batch_size > dataset size.
 
     With 10 samples and batch_size=32:
@@ -172,7 +172,7 @@ fn test_loader_batch_size_larger_than_dataset() raises:
     assert_equal(loader.__len__(), 1)
 
 
-fn test_loader_single_sample_dataset() raises:
+def test_loader_single_sample_dataset() raises:
     """Test BatchLoader with single-sample dataset (edge case).
 
     With 1 sample and batch_size=32:
@@ -210,7 +210,7 @@ fn test_loader_single_sample_dataset() raises:
 # ============================================================================
 
 
-fn test_loader_reproducibility_with_seed() raises:
+def test_loader_reproducibility_with_seed() raises:
     """Test RandomSampler with seed produces reproducible batch orderings.
 
     Setting the same seed should produce identical index sequences.
@@ -241,7 +241,7 @@ fn test_loader_reproducibility_with_seed() raises:
     assert_equal(len1, 100)
 
 
-fn test_loader_different_seeds_different_order() raises:
+def test_loader_different_seeds_different_order() raises:
     """Test RandomSampler with different seeds produces different orderings.
 
     Different seeds should produce different shuffled index sequences,
@@ -277,7 +277,7 @@ fn test_loader_different_seeds_different_order() raises:
 # ============================================================================
 
 
-fn test_loader_sequential_coverage() raises:
+def test_loader_sequential_coverage() raises:
     """Test SequentialSampler covers all dataset indices in one epoch.
 
     Sequential sampling should iterate through all samples exactly once
@@ -299,7 +299,7 @@ fn test_loader_sequential_coverage() raises:
     assert_equal(sampler.__len__(), dataset_len)
 
 
-fn test_loader_small_batch_size() raises:
+def test_loader_small_batch_size() raises:
     """Test BatchLoader with very small batch_size=1.
 
     With batch_size=1, each batch contains a single sample.
@@ -332,7 +332,7 @@ fn test_loader_small_batch_size() raises:
     assert_equal(loader.__len__(), 10)
 
 
-fn test_loader_large_batch_size() raises:
+def test_loader_large_batch_size() raises:
     """Test BatchLoader with large batch_size relative to dataset.
 
     With batch_size=128 and 100 samples, should create 1 batch.
@@ -370,7 +370,7 @@ fn test_loader_large_batch_size() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all loader integration tests."""
     print("Running loader integration tests...")
 

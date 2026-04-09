@@ -7,7 +7,7 @@ Example:
     from shared.utils.inference_utils import InferenceConfig, parse_inference_args
     from shared.utils.inference_utils import evaluate_accuracy
 
-    fn main() raises:
+    def main() raises:
         var config = parse_inference_args()
         print("Weights dir:", config.weights_dir)
         print("Data dir:", config.data_dir)
@@ -18,7 +18,7 @@ Example:
     ```
 """
 
-from sys import argv
+from std.sys import argv
 
 from shared.tensor.any_tensor import AnyTensor
 
@@ -44,7 +44,7 @@ struct InferenceConfig(Copyable, Movable):
     var batch_size: Int
     var verbose: Bool
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize with default inference configuration."""
         self.weights_dir = "weights"
         self.data_dir = "datasets"
@@ -57,7 +57,7 @@ struct InferenceConfig(Copyable, Movable):
 # ============================================================================
 
 
-fn parse_inference_args() raises -> InferenceConfig:
+def parse_inference_args() raises -> InferenceConfig:
     """Parse common inference arguments from command line.
 
         Supported arguments:
@@ -105,7 +105,7 @@ fn parse_inference_args() raises -> InferenceConfig:
     return result^
 
 
-fn parse_inference_args_with_defaults(
+def parse_inference_args_with_defaults(
     default_weights_dir: String = "weights",
     default_data_dir: String = "datasets",
     default_batch_size: Int = 32,
@@ -170,7 +170,7 @@ fn parse_inference_args_with_defaults(
 # ============================================================================
 
 
-fn evaluate_accuracy(predictions: AnyTensor, labels: AnyTensor) raises -> Float32:
+def evaluate_accuracy(predictions: AnyTensor, labels: AnyTensor) raises -> Float32:
     """Calculate classification accuracy from predictions and labels.
 
         Computes the percentage of predictions that match the ground truth labels
@@ -255,7 +255,7 @@ fn evaluate_accuracy(predictions: AnyTensor, labels: AnyTensor) raises -> Float3
     return Float32(correct) / Float32(n)
 
 
-fn count_correct(predictions: AnyTensor, labels: AnyTensor) raises -> Int:
+def count_correct(predictions: AnyTensor, labels: AnyTensor) raises -> Int:
     """Count the number of correct predictions.
 
         Lower-level function for computing accuracy incrementally over batches.

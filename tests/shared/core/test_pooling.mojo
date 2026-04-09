@@ -27,7 +27,7 @@ from shared.core.pooling import (
 )
 
 
-fn test_maxpool2d_output_shape() raises:
+def test_maxpool2d_output_shape() raises:
     """Test maxpool2d output shape computation.
 
     Formula: out_height = (in_height - kernel_size) / stride + 1
@@ -51,7 +51,7 @@ fn test_maxpool2d_output_shape() raises:
     assert_equal(out_shape[3], 2, "Output width should be 2")
 
 
-fn test_maxpool2d_basic_4x4() raises:
+def test_maxpool2d_basic_4x4() raises:
     """Test basic max pooling 2x2 kernel on 4x4 input."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -73,7 +73,7 @@ fn test_maxpool2d_basic_4x4() raises:
     assert_almost_equal(output_data[3], 16.0, tolerance=1e-5)
 
 
-fn test_maxpool2d_stride_1() raises:
+def test_maxpool2d_stride_1() raises:
     """Test maxpool2d with stride=1 (overlapping windows)."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -99,7 +99,7 @@ fn test_maxpool2d_stride_1() raises:
     assert_almost_equal(output_data[3], 9.0, tolerance=1e-5)
 
 
-fn test_maxpool2d_batch_processing() raises:
+def test_maxpool2d_batch_processing() raises:
     """Test maxpool2d processes multiple samples in batch correctly."""
     var input_shape = List[Int]()
     input_shape.append(2)  # batch_size
@@ -127,7 +127,7 @@ fn test_maxpool2d_batch_processing() raises:
     assert_almost_equal(output_data[4], 2.0, tolerance=1e-5)
 
 
-fn test_maxpool2d_backward_output_shape() raises:
+def test_maxpool2d_backward_output_shape() raises:
     """Test maxpool2d_backward produces correct gradient shape."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -156,7 +156,7 @@ fn test_maxpool2d_backward_output_shape() raises:
     assert_equal(grad_shape[3], 4, "Gradient width mismatch")
 
 
-fn test_avgpool2d_output_shape() raises:
+def test_avgpool2d_output_shape() raises:
     """Test avgpool2d output shape computation."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -174,7 +174,7 @@ fn test_avgpool2d_output_shape() raises:
     assert_equal(out_shape[3], 2)
 
 
-fn test_avgpool2d_basic_4x4() raises:
+def test_avgpool2d_basic_4x4() raises:
     """Test basic average pooling 2x2 kernel on 4x4 input."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -196,7 +196,7 @@ fn test_avgpool2d_basic_4x4() raises:
     assert_almost_equal(output_data[3], 13.5, tolerance=1e-5)
 
 
-fn test_avgpool2d_all_ones() raises:
+def test_avgpool2d_all_ones() raises:
     """Test avgpool2d with all-ones input."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -212,7 +212,7 @@ fn test_avgpool2d_all_ones() raises:
         assert_almost_equal(output_data[i], 1.0, tolerance=1e-5)
 
 
-fn test_avgpool2d_stride_1() raises:
+def test_avgpool2d_stride_1() raises:
     """Test avgpool2d with stride=1 (overlapping windows)."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -238,7 +238,7 @@ fn test_avgpool2d_stride_1() raises:
     assert_almost_equal(output_data[3], 7.0, tolerance=1e-5)
 
 
-fn test_avgpool2d_batch_processing() raises:
+def test_avgpool2d_batch_processing() raises:
     """Test avgpool2d processes batches correctly."""
     var input_shape = List[Int]()
     input_shape.append(2)
@@ -264,7 +264,7 @@ fn test_avgpool2d_batch_processing() raises:
     assert_almost_equal(output_data[4], 4.0, tolerance=1e-5)
 
 
-fn test_global_avgpool2d_basic() raises:
+def test_global_avgpool2d_basic() raises:
     """Test global average pooling reduces spatial dimensions to 1x1."""
     var input_shape = List[Int]()
     input_shape.append(2)
@@ -282,7 +282,7 @@ fn test_global_avgpool2d_basic() raises:
     assert_equal(out_shape[3], 1, "Width reduced to 1")
 
 
-fn test_pooling_dtype_preservation() raises:
+def test_pooling_dtype_preservation() raises:
     """Test that pooling preserves input dtype."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -298,7 +298,7 @@ fn test_pooling_dtype_preservation() raises:
     assert_true(output_avg.dtype() == DType.float32, "AvgPool dtype preserved")
 
 
-fn test_global_avgpool2d_backward_output_shape() raises:
+def test_global_avgpool2d_backward_output_shape() raises:
     """Test global_avgpool2d_backward produces correct gradient shape.
 
     Forward: (B, C, H, W) -> (B, C, 1, 1)
@@ -325,7 +325,7 @@ fn test_global_avgpool2d_backward_output_shape() raises:
     assert_equal(grad_shape[3], 4, "Gradient width mismatch")
 
 
-fn test_global_avgpool2d_backward_uniform_distribution() raises:
+def test_global_avgpool2d_backward_uniform_distribution() raises:
     """Test global_avgpool2d_backward distributes gradient uniformly.
 
     For input of shape (1, 1, 4, 4) and grad_output of 1.0,
@@ -352,7 +352,7 @@ fn test_global_avgpool2d_backward_uniform_distribution() raises:
         assert_almost_equal(grad_data[i], expected_value, Float32(1e-6))
 
 
-fn test_global_avgpool2d_backward_batch_independence() raises:
+def test_global_avgpool2d_backward_batch_independence() raises:
     """Test that gradients for different batch samples are independent.
 
     Two batch samples with grad_output values [2.0, 3.0] should produce
@@ -392,7 +392,7 @@ fn test_global_avgpool2d_backward_batch_independence() raises:
         assert_almost_equal(grad_data[i], expected_batch1, tolerance=1e-6)
 
 
-fn test_global_avgpool2d_backward_channel_independence() raises:
+def test_global_avgpool2d_backward_channel_independence() raises:
     """Test that gradients for different channels are independent.
 
     Multiple channels should each receive their own gradients distributed
@@ -432,7 +432,7 @@ fn test_global_avgpool2d_backward_channel_independence() raises:
         assert_almost_equal(grad_data[i], expected_ch1, tolerance=1e-6)
 
 
-fn test_global_avgpool2d_backward_zero_gradient() raises:
+def test_global_avgpool2d_backward_zero_gradient() raises:
     """Test that zero gradient produces zero output."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -455,7 +455,7 @@ fn test_global_avgpool2d_backward_zero_gradient() raises:
         assert_almost_equal(grad_data[i], 0.0, tolerance=1e-6)
 
 
-fn test_global_avgpool2d_backward_forward_backward_consistency() raises:
+def test_global_avgpool2d_backward_forward_backward_consistency() raises:
     """Test consistency between forward and backward passes.
 
     Forward: x -> global_avgpool2d -> y
@@ -487,7 +487,7 @@ fn test_global_avgpool2d_backward_forward_backward_consistency() raises:
         assert_almost_equal(grad_data[i], expected_per_position, Float32(1e-6))
 
 
-fn test_avgpool2d_backward_output_shape() raises:
+def test_avgpool2d_backward_output_shape() raises:
     """Test avgpool2d_backward produces correct gradient shape."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -512,7 +512,7 @@ fn test_avgpool2d_backward_output_shape() raises:
     assert_equal(grad_shape[3], 4, "Gradient width mismatch")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_pooling tests."""
     print("Running test_pooling tests...")
 

@@ -22,7 +22,7 @@ from shared.tensor.any_tensor import AnyTensor, randn, zeros_like
 from shared.training.optimizers.sgd import sgd_step, sgd_step_simple
 from shared.training.optimizers.adam import adam_step, adam_step_simple
 from time import perf_counter_ns
-from collections import List
+from std.collections import List
 
 
 # ============================================================================
@@ -30,7 +30,7 @@ from collections import List
 # ============================================================================
 
 
-fn bench_sgd_update_speed() raises -> List[BenchmarkResult]:
+def bench_sgd_update_speed() raises -> List[BenchmarkResult]:
     """Benchmark SGD parameter update throughput.
 
     Measures:
@@ -87,7 +87,7 @@ fn bench_sgd_update_speed() raises -> List[BenchmarkResult]:
     return results^
 
 
-fn bench_sgd_momentum_overhead() raises -> BenchmarkResult:
+def bench_sgd_momentum_overhead() raises -> BenchmarkResult:
     """Benchmark overhead of momentum in SGD.
 
     Measures:
@@ -147,7 +147,7 @@ fn bench_sgd_momentum_overhead() raises -> BenchmarkResult:
 # ============================================================================
 
 
-fn bench_adam_update_speed() raises -> List[BenchmarkResult]:
+def bench_adam_update_speed() raises -> List[BenchmarkResult]:
     """Benchmark Adam parameter update throughput.
 
     Measures:
@@ -210,7 +210,7 @@ fn bench_adam_update_speed() raises -> List[BenchmarkResult]:
     return results^
 
 
-fn bench_adam_memory_usage() raises -> BenchmarkResult:
+def bench_adam_memory_usage() raises -> BenchmarkResult:
     """Benchmark Adam optimizer memory footprint.
 
     Measures:
@@ -244,7 +244,7 @@ fn bench_adam_memory_usage() raises -> BenchmarkResult:
 # ============================================================================
 
 
-fn bench_optimizer_comparison() raises -> List[BenchmarkResult]:
+def bench_optimizer_comparison() raises -> List[BenchmarkResult]:
     """Compare performance of all optimizer implementations.
 
     Measures:
@@ -349,7 +349,7 @@ fn bench_optimizer_comparison() raises -> List[BenchmarkResult]:
 # ============================================================================
 
 
-fn bench_simd_vectorization() raises -> BenchmarkResult:
+def bench_simd_vectorization() raises -> BenchmarkResult:
     """Benchmark SIMD vectorization in optimizer updates.
 
     Measures:
@@ -399,7 +399,7 @@ fn bench_simd_vectorization() raises -> BenchmarkResult:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all optimizer benchmarks and print results."""
     print("\n=== Optimizer Performance Benchmarks ===\n")
 

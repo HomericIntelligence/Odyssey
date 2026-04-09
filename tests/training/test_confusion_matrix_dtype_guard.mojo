@@ -15,7 +15,7 @@ from shared.tensor.any_tensor import AnyTensor
 from shared.training.metrics import ConfusionMatrix
 
 
-fn test_float32_labels_raises() raises:
+def test_float32_labels_raises() raises:
     """Float32 labels must raise a descriptive error."""
     print("Testing float32 labels raise...")
 
@@ -48,7 +48,7 @@ fn test_float32_labels_raises() raises:
     print("PASS")
 
 
-fn test_float64_labels_raises() raises:
+def test_float64_labels_raises() raises:
     """Float64 labels must raise a descriptive error."""
     print("Testing float64 labels raise...")
 
@@ -81,7 +81,7 @@ fn test_float64_labels_raises() raises:
     print("PASS")
 
 
-fn test_float32_predictions_1d_raises() raises:
+def test_float32_predictions_1d_raises() raises:
     """1D float32 predictions must raise a descriptive error."""
     print("Testing 1D float32 predictions raise...")
 
@@ -114,7 +114,7 @@ fn test_float32_predictions_1d_raises() raises:
     print("PASS")
 
 
-fn test_int32_labels_accepted() raises:
+def test_int32_labels_accepted() raises:
     """Int32 labels must be accepted without error."""
     print("Testing int32 labels accepted...")
 
@@ -139,7 +139,7 @@ fn test_int32_labels_accepted() raises:
     print("PASS")
 
 
-fn test_int64_labels_accepted() raises:
+def test_int64_labels_accepted() raises:
     """Int64 labels must be accepted without error."""
     print("Testing int64 labels accepted...")
 
@@ -164,7 +164,7 @@ fn test_int64_labels_accepted() raises:
     print("PASS")
 
 
-fn test_float32_logits_2d_accepted() raises:
+def test_float32_logits_2d_accepted() raises:
     """2D float32 logits (2D predictions) must be accepted (argmax path)."""
     print("Testing 2D float32 logits accepted...")
 
@@ -195,7 +195,7 @@ fn test_float32_logits_2d_accepted() raises:
     print("PASS")
 
 
-fn main() raises:
+def main() raises:
     test_float32_labels_raises()
     test_float64_labels_raises()
     test_float32_predictions_1d_raises()

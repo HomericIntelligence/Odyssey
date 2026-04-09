@@ -17,7 +17,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 # ============================================================================
 
 
-fn test_relative_error_identical() raises:
+def test_relative_error_identical() raises:
     """Test relative_error with identical values.
 
     Expected: relative_error(x, x) = 0.0
@@ -28,7 +28,7 @@ fn test_relative_error_identical() raises:
     print("  ✓ Relative error identical values correct")
 
 
-fn test_relative_error_small_difference() raises:
+def test_relative_error_small_difference() raises:
     """Test relative_error with small difference.
 
     Expected: relative_error(1.0, 1.001) ≈ 0.001
@@ -39,7 +39,7 @@ fn test_relative_error_small_difference() raises:
     print("  ✓ Relative error small difference correct")
 
 
-fn test_relative_error_near_zero() raises:
+def test_relative_error_near_zero() raises:
     """Test relative_error with values near zero.
 
     Formula: |a - n| / max(|a|, |n|, 1e-8)
@@ -53,7 +53,7 @@ fn test_relative_error_near_zero() raises:
     print("  ✓ Relative error near-zero handling correct")
 
 
-fn test_relative_error_large_difference() raises:
+def test_relative_error_large_difference() raises:
     """Test relative_error with large difference."""
     print("Testing relative_error with large difference...")
     var err = relative_error(1.0, 2.0)
@@ -67,7 +67,7 @@ fn test_relative_error_large_difference() raises:
 # ============================================================================
 
 
-fn test_assert_gradients_close_identical() raises:
+def test_assert_gradients_close_identical() raises:
     """Test assert_gradients_close with identical gradients."""
     print("Testing assert_gradients_close with identical gradients...")
     var shape = [3, 4]
@@ -79,7 +79,7 @@ fn test_assert_gradients_close_identical() raises:
     print("  ✓ assert_gradients_close identical gradients passes")
 
 
-fn test_assert_gradients_close_within_tolerance() raises:
+def test_assert_gradients_close_within_tolerance() raises:
     """Test assert_gradients_close with close gradients."""
     print("Testing assert_gradients_close within tolerance...")
     var shape = [3, 4]
@@ -91,7 +91,7 @@ fn test_assert_gradients_close_within_tolerance() raises:
     print("  ✓ assert_gradients_close within tolerance passes")
 
 
-fn test_assert_gradients_close_mismatched_shape() raises:
+def test_assert_gradients_close_mismatched_shape() raises:
     """Test assert_gradients_close with mismatched shapes."""
     print("Testing assert_gradients_close with mismatched shapes...")
     var shape1 = [3, 4]
@@ -109,7 +109,7 @@ fn test_assert_gradients_close_mismatched_shape() raises:
     print("  ✓ assert_gradients_close shape mismatch detection works")
 
 
-fn test_assert_gradients_close_mismatched_dtype() raises:
+def test_assert_gradients_close_mismatched_dtype() raises:
     """Test assert_gradients_close with mismatched dtypes."""
     print("Testing assert_gradients_close with mismatched dtypes...")
     var shape = [3, 4]
@@ -126,7 +126,7 @@ fn test_assert_gradients_close_mismatched_dtype() raises:
     print("  ✓ assert_gradients_close dtype mismatch detection works")
 
 
-fn test_assert_gradients_close_zero_gradients() raises:
+def test_assert_gradients_close_zero_gradients() raises:
     """Test assert_gradients_close with zero gradients."""
     print("Testing assert_gradients_close with zero gradients...")
     var shape = [2, 3]
@@ -143,7 +143,7 @@ fn test_assert_gradients_close_zero_gradients() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all gradient checking tests."""
     print("=" * 60)
     print("GRADIENT CHECKING UTILITY TESTS")

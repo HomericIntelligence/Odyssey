@@ -17,11 +17,11 @@ from tests.shared.conftest import (
 )
 
 
-fn test_time_function() raises:
+def test_time_function() raises:
     """Test timing a function execution."""
     from shared.utils.profiling import profile_function
 
-    fn simple_work() raises:
+    def simple_work() raises:
         var x = 0
         for i in range(1000):
             x += i
@@ -32,7 +32,7 @@ fn test_time_function() raises:
     assert_greater(stats.total_ms, 0.0, "Total time should be positive")
 
 
-fn test_timing_decorator():
+def test_timing_decorator():
     """Test function timing decorator."""
     # TODO(#44): Implement when @timed decorator exists
     # @timed
@@ -44,11 +44,11 @@ fn test_timing_decorator():
     pass
 
 
-fn test_timing_multiple_calls() raises:
+def test_timing_multiple_calls() raises:
     """Test timing function called multiple times."""
     from shared.utils.profiling import benchmark_function
 
-    fn simple_work() raises:
+    def simple_work() raises:
         var x = 0
         for i in range(100):
             x += i
@@ -61,7 +61,7 @@ fn test_timing_multiple_calls() raises:
     assert_greater(stats.avg_ms, 0.0, "Average time should be positive")
 
 
-fn test_timing_precision():
+def test_timing_precision():
     """Test timing has sufficient precision for fast operations."""
     # TODO(#44): Implement when time_function exists
     # Time very fast operation (e.g., 1ms)
@@ -70,7 +70,7 @@ fn test_timing_precision():
     pass
 
 
-fn test_timing_context_manager() raises:
+def test_timing_context_manager() raises:
     """Test timing using context manager."""
     from shared.utils.profiling import Timer
 
@@ -88,7 +88,7 @@ fn test_timing_context_manager() raises:
     assert_greater(elapsed, 0.0, "Elapsed time should be positive")
 
 
-fn test_measure_memory_usage() raises:
+def test_measure_memory_usage() raises:
     """Test measuring memory usage of function."""
     # Basic test that memory_usage function works
     from shared.utils.profiling import memory_usage
@@ -98,7 +98,7 @@ fn test_measure_memory_usage() raises:
     assert_true(True, "memory_usage() executed successfully")
 
 
-fn test_track_peak_memory():
+def test_track_peak_memory():
     """Test tracking peak memory usage during execution."""
     # TODO(#44): Implement when track_memory exists
     # Allocate memory in stages:
@@ -110,7 +110,7 @@ fn test_track_peak_memory():
     pass
 
 
-fn test_memory_profiler_decorator():
+def test_memory_profiler_decorator():
     """Test memory profiling decorator."""
     # TODO(#44): Implement when @profile_memory decorator exists
     # @profile_memory
@@ -122,7 +122,7 @@ fn test_memory_profiler_decorator():
     pass
 
 
-fn test_memory_leak_detection():
+def test_memory_leak_detection():
     """Test detecting memory leaks."""
     # TODO(#44): Implement when memory tracking exists
     # Run function 100 times
@@ -132,7 +132,7 @@ fn test_memory_leak_detection():
     pass
 
 
-fn test_profiling_overhead_timing() raises:
+def test_profiling_overhead_timing() raises:
     """Test profiling overhead for timing is < 5%."""
     from shared.utils.profiling import measure_profiling_overhead
 
@@ -143,7 +143,7 @@ fn test_profiling_overhead_timing() raises:
     )
 
 
-fn test_profiling_overhead_memory():
+def test_profiling_overhead_memory():
     """Test profiling overhead for memory tracking is minimal."""
     # TODO(#44): Implement when memory profiling exists
     # Allocate 1GB tensor without profiling: m1
@@ -153,7 +153,7 @@ fn test_profiling_overhead_memory():
     pass
 
 
-fn test_disable_profiling():
+def test_disable_profiling():
     """Test disabling profiling removes overhead."""
     # TODO(#44): Implement when profiling can be disabled
     # Enable profiling
@@ -164,7 +164,7 @@ fn test_disable_profiling():
     pass
 
 
-fn test_generate_timing_report() raises:
+def test_generate_timing_report() raises:
     """Test generating timing report for multiple functions."""
     from shared.utils.profiling import (
         generate_timing_report,
@@ -197,7 +197,7 @@ fn test_generate_timing_report() raises:
     )
 
 
-fn test_generate_memory_report():
+def test_generate_memory_report():
     """Test generating memory usage report."""
     # TODO(#44): Implement when memory report exists
     # Profile multiple operations
@@ -207,7 +207,7 @@ fn test_generate_memory_report():
     pass
 
 
-fn test_save_report_to_file():
+def test_save_report_to_file():
     """Test saving performance report to file."""
     # TODO(#44): Implement when report save exists
     # Profile operations
@@ -219,7 +219,7 @@ fn test_save_report_to_file():
     pass
 
 
-fn test_report_format_text():
+def test_report_format_text():
     """Test report output in text format."""
     # TODO(#44): Implement when report formatting exists
     # Generate report in text format
@@ -231,7 +231,7 @@ fn test_report_format_text():
     pass
 
 
-fn test_report_format_json() raises:
+def test_report_format_json() raises:
     """Test report output in JSON format."""
     from shared.utils.profiling import (
         ProfilingReport,
@@ -253,7 +253,7 @@ fn test_report_format_json() raises:
     assert_true(len(json_output) > 0, "JSON output should not be empty")
 
 
-fn test_profile_nested_functions():
+def test_profile_nested_functions():
     """Test profiling nested function calls."""
     # TODO(#44): Implement when nested profiling exists
     # function_a calls function_b calls function_c
@@ -263,7 +263,7 @@ fn test_profile_nested_functions():
     pass
 
 
-fn test_profile_call_stack():
+def test_profile_call_stack():
     """Test capturing call stack in profile."""
     # TODO(#44): Implement when call stack profiling exists
     # Profile function with nested calls
@@ -275,7 +275,7 @@ fn test_profile_call_stack():
     pass
 
 
-fn test_profile_recursive_functions():
+def test_profile_recursive_functions():
     """Test profiling recursive function calls."""
     # TODO(#44): Implement when profiling exists
     # Define recursive function (e.g., factorial)
@@ -285,7 +285,7 @@ fn test_profile_recursive_functions():
     pass
 
 
-fn test_line_profiler():
+def test_line_profiler():
     """Test profiling execution time per line."""
     # TODO(#44): Implement when line profiler exists
     # @profile_lines
@@ -298,7 +298,7 @@ fn test_line_profiler():
     pass
 
 
-fn test_find_bottleneck_lines():
+def test_find_bottleneck_lines():
     """Test identifying bottleneck lines in function."""
     # TODO(#44): Implement when line profiler exists
     # Profile function with one slow line
@@ -307,7 +307,7 @@ fn test_find_bottleneck_lines():
     pass
 
 
-fn test_profile_cpu_operations():
+def test_profile_cpu_operations():
     """Test profiling CPU-bound operations."""
     # TODO(#44): Implement when CPU profiling exists
     # Profile matrix multiplication on CPU
@@ -316,7 +316,7 @@ fn test_profile_cpu_operations():
     pass
 
 
-fn test_profile_gpu_operations():
+def test_profile_gpu_operations():
     """Test profiling GPU-bound operations (future)."""
     # TODO(#44): Implement when GPU support exists
     # Profile matrix multiplication on GPU
@@ -325,7 +325,7 @@ fn test_profile_gpu_operations():
     pass
 
 
-fn test_profile_data_transfer():
+def test_profile_data_transfer():
     """Test profiling CPU-GPU data transfer (future)."""
     # TODO(#44): Implement when GPU support exists
     # Profile data transfer: CPU -> GPU -> CPU
@@ -334,7 +334,7 @@ fn test_profile_data_transfer():
     pass
 
 
-fn test_profile_training_epoch():
+def test_profile_training_epoch():
     """Test profiling complete training epoch."""
     # TODO(#44): Implement when training profiling exists
     # Profile training epoch
@@ -347,7 +347,7 @@ fn test_profile_training_epoch():
     pass
 
 
-fn test_profile_batch_processing():
+def test_profile_batch_processing():
     """Test profiling batch processing."""
     # TODO(#44): Implement when batch profiling exists
     # Profile processing 100 batches
@@ -356,7 +356,7 @@ fn test_profile_batch_processing():
     pass
 
 
-fn test_profile_data_augmentation():
+def test_profile_data_augmentation():
     """Test profiling data augmentation overhead."""
     # TODO(#44): Implement when augmentation profiling exists
     # Profile data loading with/without augmentation
@@ -365,7 +365,7 @@ fn test_profile_data_augmentation():
     pass
 
 
-fn test_compare_implementations():
+def test_compare_implementations():
     """Test comparing performance of different implementations."""
     # TODO(#44): Implement when comparative profiling exists
     # Implement matrix multiply two ways:
@@ -377,7 +377,7 @@ fn test_compare_implementations():
     pass
 
 
-fn test_regression_detection() raises:
+def test_regression_detection() raises:
     """Test detecting performance regressions."""
     from shared.utils.profiling import (
         detect_performance_regression,
@@ -409,7 +409,7 @@ fn test_regression_detection() raises:
     )
 
 
-fn test_save_baseline_profile():
+def test_save_baseline_profile():
     """Test saving baseline profile for future comparison."""
     # TODO(#44): Implement when baseline save exists
     # Profile current implementation
@@ -419,7 +419,7 @@ fn test_save_baseline_profile():
     pass
 
 
-fn test_compute_mean_execution_time():
+def test_compute_mean_execution_time():
     """Test computing mean execution time over multiple runs."""
     # TODO(#44): Implement when statistics exist
     # Run function 10 times
@@ -428,7 +428,7 @@ fn test_compute_mean_execution_time():
     pass
 
 
-fn test_compute_std_deviation():
+def test_compute_std_deviation():
     """Test computing standard deviation of execution times."""
     # TODO(#44): Implement when statistics exist
     # Run function 10 times
@@ -437,7 +437,7 @@ fn test_compute_std_deviation():
     pass
 
 
-fn test_compute_percentiles():
+def test_compute_percentiles():
     """Test computing percentiles (p50, p90, p99) of execution times."""
     # TODO(#44): Implement when percentile stats exist
     # Run function 100 times
@@ -447,7 +447,7 @@ fn test_compute_percentiles():
     pass
 
 
-fn test_identify_outliers():
+def test_identify_outliers():
     """Test identifying outlier executions."""
     # TODO(#44): Implement when outlier detection exists
     # Run function 100 times
@@ -458,7 +458,7 @@ fn test_identify_outliers():
     pass
 
 
-fn test_configure_profiler():
+def test_configure_profiler():
     """Test configuring profiler settings."""
     # TODO(#44): Implement when profiler configuration exists
     # Configure:
@@ -470,7 +470,7 @@ fn test_configure_profiler():
     pass
 
 
-fn test_sampling_rate():
+def test_sampling_rate():
     """Test setting profiler sampling rate."""
     # TODO(#44): Implement when sampling configuration exists
     # Set sampling rate to 10% (profile 1 in 10 calls)
@@ -480,7 +480,7 @@ fn test_sampling_rate():
     pass
 
 
-fn test_profile_full_training():
+def test_profile_full_training():
     """Test profiling complete training workflow."""
     # TODO(#44): Implement when full training workflow exists
     # Enable profiling
@@ -494,7 +494,7 @@ fn test_profile_full_training():
     pass
 
 
-fn test_profile_optimization_impact():
+def test_profile_optimization_impact():
     """Test profiling shows impact of optimizations."""
     # TODO(#44): Implement when profiling exists
     # Profile unoptimized implementation
@@ -505,7 +505,7 @@ fn test_profile_optimization_impact():
     pass
 
 
-fn main() raises:
+def main() raises:
     """Run all test_profiling tests."""
     print("Running test_profiling tests...")
 

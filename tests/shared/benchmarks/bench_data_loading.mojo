@@ -20,7 +20,7 @@ from tests.shared.conftest import (
 )
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, randn
 from time import perf_counter_ns
-from collections import List
+from std.collections import List
 
 
 # ============================================================================
@@ -28,7 +28,7 @@ from collections import List
 # ============================================================================
 
 
-fn bench_batch_loading_speed() raises -> List[BenchmarkResult]:
+def bench_batch_loading_speed() raises -> List[BenchmarkResult]:
     """Benchmark batch loading throughput.
 
     Measures:
@@ -87,7 +87,7 @@ fn bench_batch_loading_speed() raises -> List[BenchmarkResult]:
     return results^
 
 
-fn bench_data_preprocessing() raises -> BenchmarkResult:
+def bench_data_preprocessing() raises -> BenchmarkResult:
     """Benchmark data preprocessing performance.
 
     Measures:
@@ -138,7 +138,7 @@ fn bench_data_preprocessing() raises -> BenchmarkResult:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all data loading benchmarks and print results."""
     print("\n=== Data Loading Performance Benchmarks ===\n")
 

@@ -31,7 +31,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_load_valid_baseline() raises:
+def test_load_valid_baseline() raises:
     """Test loading a valid baseline JSON file.
 
     Verifies:
@@ -58,7 +58,7 @@ fn test_load_valid_baseline() raises:
         )
 
 
-fn test_parse_benchmark_entry() raises:
+def test_parse_benchmark_entry() raises:
     """Test parsing individual benchmark entries.
 
     Verifies:
@@ -89,7 +89,7 @@ fn test_parse_benchmark_entry() raises:
     assert_greater(entry_iterations, 0, "Iterations should be positive")
 
 
-fn test_missing_baseline_file() raises:
+def test_missing_baseline_file() raises:
     """Test handling of missing baseline file.
 
     Verifies:
@@ -112,7 +112,7 @@ fn test_missing_baseline_file() raises:
     )
 
 
-fn test_malformed_json() raises:
+def test_malformed_json() raises:
     """Test handling of malformed JSON in baseline file.
 
     Verifies:
@@ -133,7 +133,7 @@ fn test_malformed_json() raises:
     )
 
 
-fn test_missing_required_fields() raises:
+def test_missing_required_fields() raises:
     """Test handling of missing required fields in baseline.
 
     Verifies:
@@ -161,7 +161,7 @@ fn test_missing_required_fields() raises:
     )
 
 
-fn test_baseline_version_compatibility() raises:
+def test_baseline_version_compatibility() raises:
     """Test version compatibility checking.
 
     Verifies:
@@ -188,7 +188,7 @@ fn test_baseline_version_compatibility() raises:
     )
 
 
-fn test_environment_metadata() raises:
+def test_environment_metadata() raises:
     """Test extraction of environment metadata from baseline.
 
     Verifies:
@@ -213,7 +213,7 @@ fn test_environment_metadata() raises:
     assert_true(len(metadata_git_commit) > 0, "Git commit should be present")
 
 
-fn test_baseline_lookup_by_name() raises:
+def test_baseline_lookup_by_name() raises:
     """Test looking up benchmarks in baseline by name.
 
     Verifies:
@@ -242,7 +242,7 @@ fn test_baseline_lookup_by_name() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all baseline loader tests."""
     print("\n=== Baseline Loader Tests ===\n")
 

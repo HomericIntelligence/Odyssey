@@ -19,10 +19,10 @@ from shared.training.metrics import (
     print_training_progress,
     print_training_summary,
 )
-from collections import List
+from std.collections import List
 
 
-fn test_print_training_progress_basic() raises:
+def test_print_training_progress_basic() raises:
     """Test basic training progress output."""
     print("Testing print_training_progress basic...")
 
@@ -39,7 +39,7 @@ fn test_print_training_progress_basic() raises:
     print("   Training progress basic test passed")
 
 
-fn test_print_training_progress_early_epoch() raises:
+def test_print_training_progress_early_epoch() raises:
     """Test training progress in early epoch."""
     print("Testing print_training_progress early epoch...")
 
@@ -56,7 +56,7 @@ fn test_print_training_progress_early_epoch() raises:
     print("   Training progress early epoch test passed")
 
 
-fn test_print_training_progress_late_epoch() raises:
+def test_print_training_progress_late_epoch() raises:
     """Test training progress in late epoch."""
     print("Testing print_training_progress late epoch...")
 
@@ -73,7 +73,7 @@ fn test_print_training_progress_late_epoch() raises:
     print("   Training progress late epoch test passed")
 
 
-fn test_print_training_progress_very_small_loss() raises:
+def test_print_training_progress_very_small_loss() raises:
     """Test training progress with very small loss values."""
     print("Testing print_training_progress with very small loss...")
 
@@ -89,7 +89,7 @@ fn test_print_training_progress_very_small_loss() raises:
     print("   Training progress very small loss test passed")
 
 
-fn test_print_training_progress_large_loss() raises:
+def test_print_training_progress_large_loss() raises:
     """Test training progress with large loss values."""
     print("Testing print_training_progress with large loss...")
 
@@ -105,7 +105,7 @@ fn test_print_training_progress_large_loss() raises:
     print("   Training progress large loss test passed")
 
 
-fn test_print_evaluation_summary_basic() raises:
+def test_print_evaluation_summary_basic() raises:
     """Test basic evaluation summary output."""
     print("Testing print_evaluation_summary basic...")
 
@@ -121,7 +121,7 @@ fn test_print_evaluation_summary_basic() raises:
     print("   Evaluation summary basic test passed")
 
 
-fn test_print_evaluation_summary_perfect_accuracy() raises:
+def test_print_evaluation_summary_perfect_accuracy() raises:
     """Test evaluation summary with perfect accuracy."""
     print("Testing print_evaluation_summary perfect accuracy...")
 
@@ -137,7 +137,7 @@ fn test_print_evaluation_summary_perfect_accuracy() raises:
     print("   Evaluation summary perfect accuracy test passed")
 
 
-fn test_print_evaluation_summary_zero_accuracy() raises:
+def test_print_evaluation_summary_zero_accuracy() raises:
     """Test evaluation summary with zero accuracy."""
     print("Testing print_evaluation_summary zero accuracy...")
 
@@ -153,7 +153,7 @@ fn test_print_evaluation_summary_zero_accuracy() raises:
     print("   Evaluation summary zero accuracy test passed")
 
 
-fn test_print_evaluation_summary_last_epoch() raises:
+def test_print_evaluation_summary_last_epoch() raises:
     """Test evaluation summary on final epoch."""
     print("Testing print_evaluation_summary last epoch...")
 
@@ -169,7 +169,7 @@ fn test_print_evaluation_summary_last_epoch() raises:
     print("   Evaluation summary last epoch test passed")
 
 
-fn test_print_per_class_accuracy_basic() raises:
+def test_print_per_class_accuracy_basic() raises:
     """Test basic per-class accuracy output."""
     print("Testing print_per_class_accuracy basic...")
 
@@ -182,7 +182,7 @@ fn test_print_per_class_accuracy_basic() raises:
     print("   Per-class accuracy basic test passed")
 
 
-fn test_print_per_class_accuracy_with_class_names() raises:
+def test_print_per_class_accuracy_with_class_names() raises:
     """Test per-class accuracy with class names."""
     print("Testing print_per_class_accuracy with class names...")
 
@@ -204,7 +204,7 @@ fn test_print_per_class_accuracy_with_class_names() raises:
     print("   Per-class accuracy with class names test passed")
 
 
-fn test_print_per_class_accuracy_varied_values() raises:
+def test_print_per_class_accuracy_varied_values() raises:
     """Test per-class accuracy with varied accuracy values."""
     print("Testing print_per_class_accuracy varied values...")
 
@@ -222,7 +222,7 @@ fn test_print_per_class_accuracy_varied_values() raises:
     print("   Per-class accuracy varied values test passed")
 
 
-fn test_print_per_class_accuracy_single_class() raises:
+def test_print_per_class_accuracy_single_class() raises:
     """Test per-class accuracy with single class."""
     print("Testing print_per_class_accuracy single class...")
 
@@ -234,7 +234,7 @@ fn test_print_per_class_accuracy_single_class() raises:
     print("   Per-class accuracy single class test passed")
 
 
-fn test_print_per_class_accuracy_many_classes() raises:
+def test_print_per_class_accuracy_many_classes() raises:
     """Test per-class accuracy with many classes."""
     print("Testing print_per_class_accuracy many classes...")
 
@@ -246,7 +246,7 @@ fn test_print_per_class_accuracy_many_classes() raises:
     print("   Per-class accuracy many classes test passed")
 
 
-fn test_print_confusion_matrix_basic() raises:
+def test_print_confusion_matrix_basic() raises:
     """Test basic confusion matrix output."""
     print("Testing print_confusion_matrix basic...")
 
@@ -268,7 +268,7 @@ fn test_print_confusion_matrix_basic() raises:
     print("   Confusion matrix basic test passed")
 
 
-fn test_print_confusion_matrix_with_class_names() raises:
+def test_print_confusion_matrix_with_class_names() raises:
     """Test confusion matrix with class names."""
     print("Testing print_confusion_matrix with class names...")
 
@@ -297,7 +297,7 @@ fn test_print_confusion_matrix_with_class_names() raises:
     print("   Confusion matrix with class names test passed")
 
 
-fn test_print_confusion_matrix_binary() raises:
+def test_print_confusion_matrix_binary() raises:
     """Test confusion matrix for binary classification."""
     print("Testing print_confusion_matrix binary...")
 
@@ -319,7 +319,7 @@ fn test_print_confusion_matrix_binary() raises:
     print("   Confusion matrix binary test passed")
 
 
-fn test_print_confusion_matrix_normalized() raises:
+def test_print_confusion_matrix_normalized() raises:
     """Test confusion matrix with normalized values."""
     print("Testing print_confusion_matrix normalized...")
 
@@ -337,7 +337,7 @@ fn test_print_confusion_matrix_normalized() raises:
     print("   Confusion matrix normalized test passed")
 
 
-fn test_print_confusion_matrix_large() raises:
+def test_print_confusion_matrix_large() raises:
     """Test confusion matrix with larger number of classes."""
     print("Testing print_confusion_matrix large...")
 
@@ -359,7 +359,7 @@ fn test_print_confusion_matrix_large() raises:
     print("   Confusion matrix large test passed")
 
 
-fn test_print_training_summary_basic() raises:
+def test_print_training_summary_basic() raises:
     """Test basic training summary output."""
     print("Testing print_training_summary basic...")
 
@@ -374,7 +374,7 @@ fn test_print_training_summary_basic() raises:
     print("   Training summary basic test passed")
 
 
-fn test_print_training_summary_perfect_training() raises:
+def test_print_training_summary_perfect_training() raises:
     """Test training summary with perfect metrics."""
     print("Testing print_training_summary perfect...")
 
@@ -389,7 +389,7 @@ fn test_print_training_summary_perfect_training() raises:
     print("   Training summary perfect test passed")
 
 
-fn test_print_training_summary_early_stopping() raises:
+def test_print_training_summary_early_stopping() raises:
     """Test training summary with early stopping."""
     print("Testing print_training_summary early stopping...")
 
@@ -404,7 +404,7 @@ fn test_print_training_summary_early_stopping() raises:
     print("   Training summary early stopping test passed")
 
 
-fn test_print_training_summary_large_epochs() raises:
+def test_print_training_summary_large_epochs() raises:
     """Test training summary with many epochs."""
     print("Testing print_training_summary large epochs...")
 
@@ -419,7 +419,7 @@ fn test_print_training_summary_large_epochs() raises:
     print("   Training summary large epochs test passed")
 
 
-fn test_full_training_workflow_output() raises:
+def test_full_training_workflow_output() raises:
     """Test complete training workflow output."""
     print("Testing full training workflow output...")
 
@@ -498,7 +498,7 @@ fn test_full_training_workflow_output() raises:
     print("   Full training workflow test passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_results_printer tests."""
     print("Running test_results_printer tests...")
 

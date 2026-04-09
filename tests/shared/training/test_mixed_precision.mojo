@@ -21,7 +21,7 @@ from shared.testing.special_values import create_nan_tensor, create_inf_tensor
 from testing import assert_equal, assert_true, assert_false
 
 
-fn test_gradient_scaler_initialization() raises:
+def test_gradient_scaler_initialization() raises:
     """Test GradientScaler initializes with correct default values."""
     print("Testing GradientScaler initialization...")
 
@@ -42,7 +42,7 @@ fn test_gradient_scaler_initialization() raises:
     print("✓ GradientScaler initialization test passed")
 
 
-fn test_loss_scaling() raises:
+def test_loss_scaling() raises:
     """Test loss scaling multiplies by scale factor."""
     print("Testing loss scaling...")
 
@@ -61,7 +61,7 @@ fn test_loss_scaling() raises:
     print("✓ Loss scaling test passed")
 
 
-fn test_gradient_unscaling() raises:
+def test_gradient_unscaling() raises:
     """Test gradient unscaling divides by scale factor."""
     print("Testing gradient unscaling...")
 
@@ -80,7 +80,7 @@ fn test_gradient_unscaling() raises:
     print("✓ Gradient unscaling test passed")
 
 
-fn test_scaler_step_updates() raises:
+def test_scaler_step_updates() raises:
     """Test scaler step increases scale after growth interval."""
     print("Testing scaler step updates...")
 
@@ -108,7 +108,7 @@ fn test_scaler_step_updates() raises:
     print("✓ Scaler step updates test passed")
 
 
-fn test_scaler_backoff() raises:
+def test_scaler_backoff() raises:
     """Test scaler backoff reduces scale factor."""
     print("Testing scaler backoff...")
 
@@ -124,7 +124,7 @@ fn test_scaler_backoff() raises:
     print("✓ Scaler backoff test passed")
 
 
-fn test_scaler_min_max_limits() raises:
+def test_scaler_min_max_limits() raises:
     """Test scaler respects min and max scale limits."""
     print("Testing scaler min/max limits...")
 
@@ -160,7 +160,7 @@ fn test_scaler_min_max_limits() raises:
     print("✓ Scaler min/max limits test passed")
 
 
-fn test_fp32_master_conversion() raises:
+def test_fp32_master_conversion() raises:
     """Test converting FP16 parameters to FP32 master weights."""
     print("Testing FP32 master conversion...")
 
@@ -183,7 +183,7 @@ fn test_fp32_master_conversion() raises:
     print("✓ FP32 master conversion test passed")
 
 
-fn test_update_model_from_master() raises:
+def test_update_model_from_master() raises:
     """Test updating FP16 model params from FP32 master weights."""
     print("Testing model update from master...")
 
@@ -201,7 +201,7 @@ fn test_update_model_from_master() raises:
     print("✓ Update model from master test passed")
 
 
-fn test_check_gradients_finite() raises:
+def test_check_gradients_finite() raises:
     """Test checking for finite gradients."""
     print("Testing gradient finite check...")
 
@@ -236,7 +236,7 @@ fn test_check_gradients_finite() raises:
     print("✓ Gradient finite check test passed")
 
 
-fn test_check_gradients_finite_mixed_precision() raises:
+def test_check_gradients_finite_mixed_precision() raises:
     """Test checking for finite gradients in mixed precision (FP16).
 
     Validates that NaN/Inf detection works correctly for lower precision types.
@@ -280,7 +280,7 @@ fn test_check_gradients_finite_mixed_precision() raises:
     print("✓ Mixed precision gradient finite check test passed")
 
 
-fn test_clip_gradients_by_value() raises:
+def test_clip_gradients_by_value() raises:
     """Test clipping gradients by value range."""
     print("Testing gradient clipping by value...")
 
@@ -308,7 +308,7 @@ fn test_clip_gradients_by_value() raises:
     print("✓ Gradient clipping by value test passed")
 
 
-fn test_clip_gradients_by_norm() raises:
+def test_clip_gradients_by_norm() raises:
     """Test clipping gradients by global norm."""
     print("Testing gradient clipping by norm...")
 
@@ -336,7 +336,7 @@ fn test_clip_gradients_by_norm() raises:
     print("✓ Gradient clipping by norm test passed")
 
 
-fn test_fp16_operations() raises:
+def test_fp16_operations() raises:
     """Test basic FP16 tensor operations."""
     print("Testing FP16 operations...")
 
@@ -366,7 +366,7 @@ fn test_fp16_operations() raises:
     print("✓ FP16 operations test passed")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_mixed_precision tests."""
     print("Running test_mixed_precision tests...")
 

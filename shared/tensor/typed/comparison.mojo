@@ -3,7 +3,7 @@
 Internal module -- not part of the public API.
 """
 
-from collections import List
+from std.collections import List
 from shared.tensor.tensor import Tensor
 from shared.tensor.any_tensor import AnyTensor
 from shared.base.broadcasting import broadcast_shapes, compute_broadcast_strides
@@ -28,7 +28,7 @@ from shared.base.dtype_ordinal import (
 # ============================================================================
 
 
-fn _equal_typed[
+def _equal_typed[
     dtype: DType
 ](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[DType.bool]:
     """Element-wise equality on native Tensor[dtype] (core)."""
@@ -63,7 +63,7 @@ fn _equal_typed[
     return result^
 
 
-fn _not_equal_typed[
+def _not_equal_typed[
     dtype: DType
 ](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[DType.bool]:
     """Element-wise inequality on native Tensor[dtype] (core)."""
@@ -98,7 +98,7 @@ fn _not_equal_typed[
     return result^
 
 
-fn _less_typed[
+def _less_typed[
     dtype: DType
 ](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[DType.bool]:
     """Element-wise less-than on native Tensor[dtype] (core)."""
@@ -133,7 +133,7 @@ fn _less_typed[
     return result^
 
 
-fn _less_equal_typed[
+def _less_equal_typed[
     dtype: DType
 ](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[DType.bool]:
     """Element-wise less-equal on native Tensor[dtype] (core)."""
@@ -168,7 +168,7 @@ fn _less_equal_typed[
     return result^
 
 
-fn _greater_typed[
+def _greater_typed[
     dtype: DType
 ](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[DType.bool]:
     """Element-wise greater-than on native Tensor[dtype] (core)."""
@@ -203,7 +203,7 @@ fn _greater_typed[
     return result^
 
 
-fn _greater_equal_typed[
+def _greater_equal_typed[
     dtype: DType
 ](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[DType.bool]:
     """Element-wise greater-equal on native Tensor[dtype] (core)."""
@@ -243,7 +243,7 @@ fn _greater_equal_typed[
 # ============================================================================
 
 
-fn _equal_dispatch[
+def _equal_dispatch[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     return _equal_typed[dtype](
@@ -251,7 +251,7 @@ fn _equal_dispatch[
     ).as_any()
 
 
-fn _not_equal_dispatch[
+def _not_equal_dispatch[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     return _not_equal_typed[dtype](
@@ -259,7 +259,7 @@ fn _not_equal_dispatch[
     ).as_any()
 
 
-fn _less_dispatch[
+def _less_dispatch[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     return _less_typed[dtype](
@@ -267,7 +267,7 @@ fn _less_dispatch[
     ).as_any()
 
 
-fn _less_equal_dispatch[
+def _less_equal_dispatch[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     return _less_equal_typed[dtype](
@@ -275,7 +275,7 @@ fn _less_equal_dispatch[
     ).as_any()
 
 
-fn _greater_dispatch[
+def _greater_dispatch[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     return _greater_typed[dtype](
@@ -283,7 +283,7 @@ fn _greater_dispatch[
     ).as_any()
 
 
-fn _greater_equal_dispatch[
+def _greater_equal_dispatch[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     return _greater_equal_typed[dtype](

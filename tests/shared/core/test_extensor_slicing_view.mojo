@@ -17,14 +17,14 @@ from tests.shared.conftest import assert_true, assert_false, assert_almost_equal
 # ============================================================================
 
 
-fn test_slice_returns_view() raises:
+def test_slice_returns_view() raises:
     """The slice() method returns a tensor with _is_view == True."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
     var s = t.slice(0, 5)
     assert_true(s._is_view)
 
 
-fn test_slice_view_correct_values() raises:
+def test_slice_view_correct_values() raises:
     """A slice() view has correct element values."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)
     var s = t.slice(3, 7)
@@ -36,7 +36,7 @@ fn test_slice_view_correct_values() raises:
     assert_almost_equal(Float64(s[3]), 6.0, tolerance=1e-5)
 
 
-fn test_slice_view_mutates_original() raises:
+def test_slice_view_mutates_original() raises:
     """Writing to a slice view affects the original tensor."""
     var t = zeros([6], DType.float32)
     var s = t.slice(2, 5)
@@ -51,7 +51,7 @@ fn test_slice_view_mutates_original() raises:
     assert_almost_equal(Float64(t[4]), 77.0, tolerance=1e-5)
 
 
-fn test_slice_view_axis1() raises:
+def test_slice_view_axis1() raises:
     """The slice() method along axis=1 on a 2D tensor returns correct shape and values."""
     # 4x6 tensor with sequential values [0..23]
     var t = arange(0.0, 24.0, 1.0, DType.float32)
@@ -69,7 +69,7 @@ fn test_slice_view_axis1() raises:
     assert_almost_equal(Float64(s[1]), 2.0, tolerance=1e-5)
 
 
-fn test_slice_view_axis_bounds_error() raises:
+def test_slice_view_axis_bounds_error() raises:
     """The slice() method raises on invalid axis."""
     var t = arange(0.0, 6.0, 1.0, DType.float32)
     var t2d = t.reshape([2, 3])
@@ -81,7 +81,7 @@ fn test_slice_view_axis_bounds_error() raises:
     assert_true(raised)
 
 
-fn test_slice_view_index_bounds_error() raises:
+def test_slice_view_index_bounds_error() raises:
     """The slice() method raises when end index exceeds dimension size."""
     var t = arange(0.0, 6.0, 1.0, DType.float32)
     var raised = False
@@ -92,7 +92,7 @@ fn test_slice_view_index_bounds_error() raises:
     assert_true(raised)
 
 
-fn test_slice_on_transposed_view() raises:
+def test_slice_on_transposed_view() raises:
     """Applying slice() on a transposed view returns correct values via _nd_index_to_flat_offset."""
     # 3x4 tensor: values 0..11
     var t = arange(0.0, 12.0, 1.0, DType.float32)
@@ -119,7 +119,7 @@ fn test_slice_on_transposed_view() raises:
     assert_almost_equal(Float64(s[3]), 2.0, tolerance=1e-5)
 
 
-fn main() raises:
+def main() raises:
     """Run all slice() view semantics tests."""
     test_slice_returns_view()
     test_slice_view_correct_values()

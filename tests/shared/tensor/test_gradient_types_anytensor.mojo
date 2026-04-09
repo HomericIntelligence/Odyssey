@@ -21,7 +21,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.gradient_types import GradientPair, GradientTriple, GradientQuad
 
 
-fn test_gradient_pair_stores_anytensor() raises:
+def test_gradient_pair_stores_anytensor() raises:
     """GradientPair stores two AnyTensor gradient fields."""
     var g_a: AnyTensor = zeros([4, 3], DType.float32)
     var g_b: AnyTensor = ones([4, 3], DType.float32)
@@ -33,7 +33,7 @@ fn test_gradient_pair_stores_anytensor() raises:
     print("PASS: test_gradient_pair_stores_anytensor")
 
 
-fn test_gradient_pair_preserves_values() raises:
+def test_gradient_pair_preserves_values() raises:
     """GradientPair preserves tensor values through construction."""
     var g_a: AnyTensor = zeros([2], DType.float32)
     g_a._set_float64(0, 0.5)
@@ -57,7 +57,7 @@ fn test_gradient_pair_preserves_values() raises:
     print("PASS: test_gradient_pair_preserves_values")
 
 
-fn test_gradient_pair_different_shapes() raises:
+def test_gradient_pair_different_shapes() raises:
     """GradientPair holds AnyTensors of different shapes."""
     var g_a: AnyTensor = zeros([3], DType.float32)
     var g_b: AnyTensor = zeros([2, 4], DType.float32)
@@ -70,7 +70,7 @@ fn test_gradient_pair_different_shapes() raises:
     print("PASS: test_gradient_pair_different_shapes")
 
 
-fn test_gradient_triple_stores_anytensor() raises:
+def test_gradient_triple_stores_anytensor() raises:
     """GradientTriple stores three AnyTensor gradient fields."""
     var g_input: AnyTensor = zeros([4, 3], DType.float32)
     var g_weights: AnyTensor = ones([3, 2], DType.float32)
@@ -82,7 +82,7 @@ fn test_gradient_triple_stores_anytensor() raises:
     print("PASS: test_gradient_triple_stores_anytensor")
 
 
-fn test_gradient_triple_preserves_values() raises:
+def test_gradient_triple_preserves_values() raises:
     """GradientTriple preserves tensor values through construction."""
     var g_input: AnyTensor = zeros([2], DType.float32)
     g_input._set_float64(0, 1.0)
@@ -112,7 +112,7 @@ fn test_gradient_triple_preserves_values() raises:
     print("PASS: test_gradient_triple_preserves_values")
 
 
-fn test_gradient_quad_stores_anytensor() raises:
+def test_gradient_quad_stores_anytensor() raises:
     """GradientQuad stores four AnyTensor gradient fields."""
     var g_a: AnyTensor = zeros([3], DType.float32)
     var g_b: AnyTensor = zeros([3], DType.float32)
@@ -126,7 +126,7 @@ fn test_gradient_quad_stores_anytensor() raises:
     print("PASS: test_gradient_quad_stores_anytensor")
 
 
-fn test_gradient_quad_preserves_dtype() raises:
+def test_gradient_quad_preserves_dtype() raises:
     """GradientQuad preserves dtype of each AnyTensor field."""
     var g_a: AnyTensor = zeros([2], DType.float32)
     var g_b: AnyTensor = zeros([2], DType.float32)
@@ -140,7 +140,7 @@ fn test_gradient_quad_preserves_dtype() raises:
     print("PASS: test_gradient_quad_preserves_dtype")
 
 
-fn main() raises:
+def main() raises:
     test_gradient_pair_stores_anytensor()
     test_gradient_pair_preserves_values()
     test_gradient_pair_different_shapes()

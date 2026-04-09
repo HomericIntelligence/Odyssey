@@ -6,7 +6,7 @@ Provides utility functions for test setup, debugging, and validation.
 from shared.tensor.any_tensor import AnyTensor
 
 
-fn print_tensor(tensor: AnyTensor) -> String:
+def print_tensor(tensor: AnyTensor) -> String:
     """Pretty-print tensor with shape, dtype, and values.
 
     Args:
@@ -63,7 +63,7 @@ fn print_tensor(tensor: AnyTensor) -> String:
     return result
 
 
-fn tensor_summary(tensor: AnyTensor) -> String:
+def tensor_summary(tensor: AnyTensor) -> String:
     """Print tensor statistics: shape, dtype, min, max, mean, std.
 
     Args:
@@ -126,7 +126,7 @@ fn tensor_summary(tensor: AnyTensor) -> String:
     return result
 
 
-fn compare_tensors(a: AnyTensor, b: AnyTensor) -> String:
+def compare_tensors(a: AnyTensor, b: AnyTensor) -> String:
     """Detailed comparison of two tensors for debugging test failures.
 
     Args:
@@ -204,7 +204,7 @@ fn compare_tensors(a: AnyTensor, b: AnyTensor) -> String:
     return result
 
 
-fn benchmark[func: fn () raises -> None](iterations: Int) -> Float64:
+def benchmark[func: fn () raises -> None](iterations: Int) -> Float64:
     """Simple performance testing helper.
 
     Args:
@@ -215,7 +215,7 @@ fn benchmark[func: fn () raises -> None](iterations: Int) -> Float64:
 
     Example:
         ```mojo
-        fn test_op() raises:
+        def test_op() raises:
             var t = random_tensor([1000, 1000], DType.float32)
             _ = t + t
 

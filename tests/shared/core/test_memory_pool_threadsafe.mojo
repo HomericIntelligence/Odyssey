@@ -8,7 +8,7 @@ access via `parallelize`, with no data corruption, crashes, or
 inconsistent statistics.
 """
 
-from algorithm import parallelize
+from std.algorithm import parallelize
 from os.atomic import Atomic
 
 from shared.base.memory_pool import (
@@ -18,7 +18,7 @@ from shared.base.memory_pool import (
 )
 
 
-fn test_concurrent_alloc_dealloc_small() raises:
+def test_concurrent_alloc_dealloc_small() raises:
     """Stress test: concurrent alloc/dealloc on small buckets.
 
     Multiple threads each perform alloc+dealloc cycles on 256B blocks.
@@ -32,7 +32,7 @@ fn test_concurrent_alloc_dealloc_small() raises:
     var ITERS_PER_THREAD =200
 
     @parameter
-    fn worker(tid: Int) capturing:
+    def worker(tid: Int) capturing:
         for _ in range(ITERS_PER_THREAD):
             var ptr = pool.allocate(256)
             pool.deallocate(ptr, 256)
@@ -64,7 +64,7 @@ fn test_concurrent_alloc_dealloc_small() raises:
     print("✓ test_concurrent_alloc_dealloc_small passed")
 
 
-fn test_concurrent_alloc_dealloc_medium() raises:
+def test_concurrent_alloc_dealloc_medium() raises:
     """Stress test: concurrent alloc/dealloc on medium buckets (2KB)."""
     var pool = TensorMemoryPool()
     pool.reset_stats()
@@ -72,7 +72,7 @@ fn test_concurrent_alloc_dealloc_medium() raises:
     var ITERS_PER_THREAD =100
 
     @parameter
-    fn worker(tid: Int) capturing:
+    def worker(tid: Int) capturing:
         for _ in range(ITERS_PER_THREAD):
             var ptr = pool.allocate(2048)
             pool.deallocate(ptr, 2048)
@@ -99,7 +99,7 @@ fn test_concurrent_alloc_dealloc_medium() raises:
     print("✓ test_concurrent_alloc_dealloc_medium passed")
 
 
-fn test_concurrent_same_bucket_contention() raises:
+def test_concurrent_same_bucket_contention() raises:
     """All threads hit the same 64B bucket to maximize contention.
 
     Verifies free list integrity under maximum contention on a single lock.
@@ -110,7 +110,7 @@ fn test_concurrent_same_bucket_contention() raises:
     var ITERS_PER_THREAD =300
 
     @parameter
-    fn worker(tid: Int) capturing:
+    def worker(tid: Int) capturing:
         for _ in range(ITERS_PER_THREAD):
             var ptr = pool.allocate(64)
             pool.deallocate(ptr, 64)
@@ -135,7 +135,7 @@ fn test_concurrent_same_bucket_contention() raises:
     print("✓ test_concurrent_same_bucket_contention passed")
 
 
-fn test_concurrent_mixed_sizes() raises:
+def test_concurrent_mixed_sizes() raises:
     """Threads allocate different sizes to test cross-bucket concurrency.
 
     Each thread uses a different size class to verify independent locking.
@@ -146,7 +146,7 @@ fn test_concurrent_mixed_sizes() raises:
     var ITERS_PER_THREAD =100
 
     @parameter
-    fn worker(tid: Int) capturing:
+    def worker(tid: Int) capturing:
         # Each thread uses a different bucket based on tid
         var sizes = List[Int]()
         sizes.append(64)
@@ -189,7 +189,7 @@ fn test_concurrent_mixed_sizes() raises:
     print("✓ test_concurrent_mixed_sizes passed")
 
 
-fn test_concurrent_large_bypass() raises:
+def test_concurrent_large_bypass() raises:
     """Threads allocate large sizes that bypass the pool entirely.
 
     Large allocations (>16KB) go directly to system malloc, which is
@@ -201,7 +201,7 @@ fn test_concurrent_large_bypass() raises:
     var ITERS_PER_THREAD =50
 
     @parameter
-    fn worker(tid: Int) capturing:
+    def worker(tid: Int) capturing:
         for _ in range(ITERS_PER_THREAD):
             var ptr = pool.allocate(32768)
             pool.deallocate(ptr, 32768)
@@ -226,7 +226,7 @@ fn test_concurrent_large_bypass() raises:
     print("✓ test_concurrent_large_bypass passed")
 
 
-fn test_stats_consistency_after_concurrent_work() raises:
+def test_stats_consistency_after_concurrent_work() raises:
     """Verify pool_hits + pool_misses == allocations after concurrent use."""
     var pool = TensorMemoryPool()
     pool.reset_stats()
@@ -234,7 +234,7 @@ fn test_stats_consistency_after_concurrent_work() raises:
     var ITERS_PER_THREAD =150
 
     @parameter
-    fn worker(tid: Int) capturing:
+    def worker(tid: Int) capturing:
         for _ in range(ITERS_PER_THREAD):
             var ptr = pool.allocate(256)
             pool.deallocate(ptr, 256)
@@ -256,7 +256,7 @@ fn test_stats_consistency_after_concurrent_work() raises:
     print("✓ test_stats_consistency_after_concurrent_work passed")
 
 
-fn main() raises:
+def main() raises:
     """Run thread-safety stress tests for memory pool."""
     print("Running memory pool thread-safety tests...")
     print("")

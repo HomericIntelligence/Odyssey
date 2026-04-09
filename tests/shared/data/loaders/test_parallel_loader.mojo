@@ -13,7 +13,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_parallel_loader_creation():
+def test_parallel_loader_creation():
     """Test creating ParallelLoader with multiple workers.
 
     Should accept num_workers parameter and create worker threads
@@ -25,7 +25,7 @@ fn test_parallel_loader_creation():
     pass
 
 
-fn test_parallel_loader_num_workers_validation():
+def test_parallel_loader_num_workers_validation():
     """Test that num_workers must be non-negative.
 
     num_workers=0 should fall back to single-threaded mode,
@@ -46,7 +46,7 @@ fn test_parallel_loader_num_workers_validation():
     pass
 
 
-fn test_parallel_loader_with_file_dataset():
+def test_parallel_loader_with_file_dataset():
     """Test ParallelLoader with I/O-bound FileDataset.
 
     This is the primary use case: parallel workers loading files
@@ -63,7 +63,7 @@ fn test_parallel_loader_with_file_dataset():
     pass
 
 
-fn test_parallel_loader_all_samples():
+def test_parallel_loader_all_samples():
     """Test that parallel loading yields all samples.
 
     Despite parallel execution, should not lose, duplicate,
@@ -83,7 +83,7 @@ fn test_parallel_loader_all_samples():
     pass
 
 
-fn test_parallel_loader_deterministic_order():
+def test_parallel_loader_deterministic_order():
     """Test that results are deterministic with shuffle=False.
 
     Even with parallel workers, same input should produce
@@ -114,7 +114,7 @@ fn test_parallel_loader_deterministic_order():
     pass
 
 
-fn test_parallel_loader_with_shuffle():
+def test_parallel_loader_with_shuffle():
     """Test parallel loading with shuffling enabled.
 
     Shuffling should work correctly even with multiple workers,
@@ -139,7 +139,7 @@ fn test_parallel_loader_with_shuffle():
     pass
 
 
-fn test_parallel_loader_faster_than_sequential():
+def test_parallel_loader_faster_than_sequential():
     """Test that parallel loading is faster for I/O-bound datasets.
 
     With multiple workers, should load data faster than sequential loader,
@@ -166,7 +166,7 @@ fn test_parallel_loader_faster_than_sequential():
     pass
 
 
-fn test_parallel_loader_prefetching():
+def test_parallel_loader_prefetching():
     """Test that loader prefetches batches ahead of consumption.
 
     Workers should load next batch while GPU processes current batch,
@@ -188,7 +188,7 @@ fn test_parallel_loader_prefetching():
     pass
 
 
-fn test_parallel_loader_worker_utilization():
+def test_parallel_loader_worker_utilization():
     """Test that all workers are utilized during loading.
 
     With 4 workers and sufficient batch queue, all 4 should be
@@ -207,7 +207,7 @@ fn test_parallel_loader_worker_utilization():
     pass
 
 
-fn test_parallel_loader_cleanup():
+def test_parallel_loader_cleanup():
     """Test that workers are properly cleaned up after iteration.
 
     Worker threads should be terminated when loader is done,
@@ -225,7 +225,7 @@ fn test_parallel_loader_cleanup():
     pass
 
 
-fn test_parallel_loader_early_stop():
+def test_parallel_loader_early_stop():
     """Test cleanup when iteration stops early.
 
     If training loop breaks early, workers should still be cleaned up
@@ -246,7 +246,7 @@ fn test_parallel_loader_early_stop():
     pass
 
 
-fn test_parallel_loader_memory_limit():
+def test_parallel_loader_memory_limit():
     """Test that prefetch queue doesn't use unbounded memory.
 
     With prefetch_factor=2 and 4 workers, should not prefetch
@@ -267,7 +267,7 @@ fn test_parallel_loader_memory_limit():
     pass
 
 
-fn main() raises:
+def main() raises:
     """Run all test_parallel_loader tests."""
     print("Running test_parallel_loader tests...")
 

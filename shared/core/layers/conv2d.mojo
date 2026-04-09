@@ -51,7 +51,7 @@ struct Conv2dLayer[dtype: DType = DType.float32](Copyable, Movable):
     var padding: Int
     """Zero-padding added to input."""
 
-    fn __init__(
+    def __init__(
         out self,
         in_channels: Int,
         out_channels: Int,
@@ -105,7 +105,7 @@ struct Conv2dLayer[dtype: DType = DType.float32](Copyable, Movable):
         bias_shape.append(out_channels)
         self.bias = zeros(bias_shape, Self.dtype)
 
-    fn forward(self, input: AnyTensor) raises -> AnyTensor:
+    def forward(self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: y = conv2d(x, weight, bias, stride, padding).
 
         Applies the learned convolutional filters to the input.
@@ -130,7 +130,7 @@ struct Conv2dLayer[dtype: DType = DType.float32](Copyable, Movable):
             input, self.weight, self.bias, self.stride, self.padding
         )
 
-    fn backward(
+    def backward(
         self, grad_output: AnyTensor, input: AnyTensor
     ) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
         """Backward pass: compute gradients w.r.t. input, weight, and bias.
@@ -165,7 +165,7 @@ struct Conv2dLayer[dtype: DType = DType.float32](Copyable, Movable):
         )
         return (result.grad_input, result.grad_weights, result.grad_bias)
 
-    fn parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Get list of trainable parameters.
 
         Returns weight and bias directly. No byte-level copy needed since

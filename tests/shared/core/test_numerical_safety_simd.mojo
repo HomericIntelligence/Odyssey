@@ -22,18 +22,18 @@ from shared.core.numerical_safety import (
     count_nan,
     count_inf,
 )
-from math import nan, inf
-from collections import List
+from std.math import nan, inf
+from std.collections import List
 
 
-fn _shape1(n: Int) -> List[Int]:
+def _shape1(n: Int) -> List[Int]:
     """Create a 1D shape list."""
     var s = List[Int]()
     s.append(n)
     return s^
 
 
-fn _shape2(r: Int, c: Int) -> List[Int]:
+def _shape2(r: Int, c: Int) -> List[Int]:
     """Create a 2D shape list."""
     var s = List[Int]()
     s.append(r)
@@ -41,7 +41,7 @@ fn _shape2(r: Int, c: Int) -> List[Int]:
     return s^
 
 
-fn test_has_nan_all_normal() raises:
+def test_has_nan_all_normal() raises:
     """Verify has_nan returns False for tensor with all normal values."""
     print("Testing has_nan with all normal values...")
     var tensor = full(_shape2(2, 8), 1.5, DType.float32)
@@ -50,7 +50,7 @@ fn test_has_nan_all_normal() raises:
     print("  PASS")
 
 
-fn test_has_nan_first_element() raises:
+def test_has_nan_first_element() raises:
     """Detect NaN at index 0 (first SIMD chunk, early exit)."""
     print("Testing has_nan with NaN at first element...")
     var tensor = full(_shape1(32), 1.0, DType.float32)
@@ -61,7 +61,7 @@ fn test_has_nan_first_element() raises:
     print("  PASS")
 
 
-fn test_has_nan_tail_element() raises:
+def test_has_nan_tail_element() raises:
     """Detect NaN in scalar tail (last element, size not divisible by SIMD width)."""
     print("Testing has_nan with NaN in scalar tail...")
     # Size 19: with SIMD width 8, tail is elements 16..18
@@ -73,7 +73,7 @@ fn test_has_nan_tail_element() raises:
     print("  PASS")
 
 
-fn test_has_nan_small_tensor() raises:
+def test_has_nan_small_tensor() raises:
     """Detect NaN in tensor smaller than SIMD width (pure scalar path)."""
     print("Testing has_nan with small tensor (< SIMD width)...")
     var tensor = full(_shape1(3), 0.5, DType.float32)
@@ -84,7 +84,7 @@ fn test_has_nan_small_tensor() raises:
     print("  PASS")
 
 
-fn test_has_inf_positive_and_negative() raises:
+def test_has_inf_positive_and_negative() raises:
     """Detect both positive and negative infinity."""
     print("Testing has_inf with +Inf and -Inf...")
 
@@ -109,7 +109,7 @@ fn test_has_inf_positive_and_negative() raises:
     print("  PASS")
 
 
-fn test_count_nan_mixed() raises:
+def test_count_nan_mixed() raises:
     """Count NaNs scattered across SIMD chunks and scalar tail."""
     print("Testing count_nan with scattered NaNs...")
     var tensor = full(_shape1(20), 1.0, DType.float32)
@@ -125,7 +125,7 @@ fn test_count_nan_mixed() raises:
     print("  PASS")
 
 
-fn test_count_inf_mixed() raises:
+def test_count_inf_mixed() raises:
     """Count both +Inf and -Inf correctly."""
     print("Testing count_inf with mixed Inf values...")
     var tensor = full(_shape1(20), 0.5, DType.float32)
@@ -139,7 +139,7 @@ fn test_count_inf_mixed() raises:
     print("  PASS")
 
 
-fn test_has_nan_float64() raises:
+def test_has_nan_float64() raises:
     """Verify NaN detection works with float64 dtype."""
     print("Testing has_nan with float64...")
     var tensor = full(_shape1(10), 1.0, DType.float64)
@@ -155,7 +155,7 @@ fn test_has_nan_float64() raises:
     print("  PASS")
 
 
-fn test_count_nan_large_tensor() raises:
+def test_count_nan_large_tensor() raises:
     """Validate count_nan on large tensor exercising full SIMD path."""
     print("Testing count_nan with large tensor (1024 elements)...")
     var tensor = full(_shape1(1024), 1.0, DType.float32)
@@ -172,7 +172,7 @@ fn test_count_nan_large_tensor() raises:
     print("  PASS")
 
 
-fn main() raises:
+def main() raises:
     test_has_nan_all_normal()
     test_has_nan_first_element()
     test_has_nan_tail_element()

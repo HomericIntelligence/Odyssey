@@ -99,7 +99,7 @@ struct InceptionModule:
     var bn1x1_4_running_mean: AnyTensor
     var bn1x1_4_running_var: AnyTensor
 
-    fn __init__(
+    def __init__(
         out self,
         in_channels: Int,
         out_1x1: Int,
@@ -196,7 +196,7 @@ struct InceptionModule:
         self.bn1x1_4_running_mean = zeros(conv1x1_4_bias_shape, DType.float32)
         self.bn1x1_4_running_var = constant(conv1x1_4_bias_shape, 1.0)
 
-    fn forward(mut self, x: AnyTensor, training: Bool) raises -> AnyTensor:
+    def forward(mut self, x: AnyTensor, training: Bool) raises -> AnyTensor:
         """Forward pass through Inception module.
 
         Args:
@@ -291,7 +291,7 @@ struct InceptionModule:
         # Concatenate all branches depth-wise
         return concatenate_depthwise(b1, b2, b3, b4)
 
-    fn save_weights(self, weights_dir: String, prefix: String) raises:
+    def save_weights(self, weights_dir: String, prefix: String) raises:
         """Save all Inception module weights to directory.
 
         Args:
@@ -430,7 +430,7 @@ struct InceptionModule:
             prefix + "_b4_bn_beta",
         )
 
-    fn load_weights(mut self, weights_dir: String, prefix: String) raises:
+    def load_weights(mut self, weights_dir: String, prefix: String) raises:
         """Load all Inception module weights from directory.
 
         Args:
@@ -518,7 +518,7 @@ struct InceptionModule:
         )
 
 
-fn concatenate_depthwise(
+def concatenate_depthwise(
     t1: AnyTensor, t2: AnyTensor, t3: AnyTensor, t4: AnyTensor
 ) raises -> AnyTensor:
     """Concatenate 4 tensors along the channel dimension (axis=1).
@@ -624,7 +624,7 @@ struct GoogLeNet:
     var fc_weights: AnyTensor
     var fc_bias: AnyTensor
 
-    fn __init__(out self, num_classes: Int = 10) raises:
+    def __init__(out self, num_classes: Int = 10) raises:
         """Initialize GoogLeNet model.
 
         Args:
@@ -753,7 +753,7 @@ struct GoogLeNet:
         var fc_bias_shape: List[Int] = [num_classes]
         self.fc_bias = zeros(fc_bias_shape, DType.float32)
 
-    fn forward(mut self, x: AnyTensor, training: Bool = True) raises -> AnyTensor:
+    def forward(mut self, x: AnyTensor, training: Bool = True) raises -> AnyTensor:
         """Forward pass through GoogLeNet.
 
         Args:
@@ -858,7 +858,7 @@ struct GoogLeNet:
 
         return logits
 
-    fn load_weights(mut self, weights_dir: String) raises:
+    def load_weights(mut self, weights_dir: String) raises:
         """Load model weights from directory.
 
         Args:
@@ -891,7 +891,7 @@ struct GoogLeNet:
         self.fc_weights = load_tensor(weights_dir + "/fc_weights.bin")
         self.fc_bias = load_tensor(weights_dir + "/fc_bias.bin")
 
-    fn save_weights(self, weights_dir: String) raises:
+    def save_weights(self, weights_dir: String) raises:
         """Save model weights to directory.
 
         Args:
@@ -941,6 +941,6 @@ struct GoogLeNet:
         save_tensor(self.fc_bias, weights_dir + "/fc_bias.bin", "fc_bias")
 
 
-fn main():
+def main():
     """Main function for build verification only."""
     print("GoogLeNet model module - import this module, do not run directly")

@@ -38,8 +38,8 @@ Reference:
     across 32-element blocks for maximum efficiency.
 """
 
-from math import isnan, isinf
-from memory import bitcast
+from std.math import isnan, isinf
+from std.memory import bitcast
 from .dtype_aliases import FP4, E8M0
 
 
@@ -48,7 +48,7 @@ from .dtype_aliases import FP4, E8M0
 # ============================================================================
 
 
-fn _e8m0_from_float32(scale: Float32) -> Scalar[E8M0]:
+def _e8m0_from_float32(scale: Float32) -> Scalar[E8M0]:
     """Convert Float32 scale to E8M0 format using manual exponent extraction.
 
     Args:
@@ -84,7 +84,7 @@ fn _e8m0_from_float32(scale: Float32) -> Scalar[E8M0]:
     return bitcast[E8M0, 1](SIMD[DType.uint8, 1](float_exp))
 
 
-fn _e8m0_to_float32(e8m0_val: Scalar[E8M0]) -> Float32:
+def _e8m0_to_float32(e8m0_val: Scalar[E8M0]) -> Float32:
     """Convert E8M0 to Float32 using manual exponent reconstruction.
 
     Args:
@@ -112,7 +112,7 @@ fn _e8m0_to_float32(e8m0_val: Scalar[E8M0]) -> Float32:
     return bitcast[DType.float32, 1](SIMD[DType.uint32, 1](float_bits))[0]
 
 
-fn _e8m0_get_exponent(e8m0_val: Scalar[E8M0]) -> UInt8:
+def _e8m0_get_exponent(e8m0_val: Scalar[E8M0]) -> UInt8:
     """Get raw exponent bits from E8M0 value.
 
     Args:
@@ -124,7 +124,7 @@ fn _e8m0_get_exponent(e8m0_val: Scalar[E8M0]) -> UInt8:
     return bitcast[DType.uint8, 1](e8m0_val)[0]
 
 
-fn _e8m0_from_exponent(exponent: UInt8) -> Scalar[E8M0]:
+def _e8m0_from_exponent(exponent: UInt8) -> Scalar[E8M0]:
     """Create E8M0 from raw exponent bits.
 
     Args:
@@ -141,7 +141,7 @@ fn _e8m0_from_exponent(exponent: UInt8) -> Scalar[E8M0]:
 # ============================================================================
 
 
-fn _fp4_from_float32(x: Float32, scale: Float32) -> UInt8:
+def _fp4_from_float32(x: Float32, scale: Float32) -> UInt8:
     """Convert Float32 to FP4 E2M1 format with given scale.
 
     Args:
@@ -224,7 +224,7 @@ fn _fp4_from_float32(x: Float32, scale: Float32) -> UInt8:
     return (sign << 3) | (exp << 1) | mantissa
 
 
-fn _fp4_to_float32(fp4_bits: UInt8, scale: Float32) -> Float32:
+def _fp4_to_float32(fp4_bits: UInt8, scale: Float32) -> Float32:
     """Convert FP4 E2M1 bits to Float32 with given scale.
 
     Args:
@@ -286,7 +286,7 @@ struct MXFP4(Copyable, Movable, Writable):
     var scale: Scalar[E8M0]
     """8-bit E8M0 scale factor."""
 
-    fn __init__(
+    def __init__(
         out self, value: UInt8 = 0, scale: Scalar[E8M0] = _e8m0_from_exponent(127)
     ):
         """Initialize MXFP4 from E2M1 value and E8M0 scale.
@@ -299,7 +299,7 @@ struct MXFP4(Copyable, Movable, Writable):
         self.scale = scale
 
     @staticmethod
-    fn from_float32(x: Float32) -> Self:
+    def from_float32(x: Float32) -> Self:
         """Convert Float32 to MXFP4.
 
         Computes optimal scale for the single value and encodes.
@@ -340,7 +340,7 @@ struct MXFP4(Copyable, Movable, Writable):
         return MXFP4(value, scale)
 
     @staticmethod
-    fn from_float32_stochastic(x: Float32, seed: UInt64) -> Self:
+    def from_float32_stochastic(x: Float32, seed: UInt64) -> Self:
         """Convert Float32 to MXFP4 with stochastic rounding.
 
         Uses stochastic rounding which is recommended for gradient quantization.
@@ -394,7 +394,7 @@ struct MXFP4(Copyable, Movable, Writable):
         return MXFP4(value, scale)
 
     @staticmethod
-    fn _fp4_stochastic_round(x: Float32, scale: Float32, seed: UInt64) -> UInt8:
+    def _fp4_stochastic_round(x: Float32, scale: Float32, seed: UInt64) -> UInt8:
         """Internal: Stochastic rounding helper using simple LCG.
 
         Args:
@@ -479,7 +479,7 @@ struct MXFP4(Copyable, Movable, Writable):
 
         return (sign << 3) | result_bits
 
-    fn to_float32(self) -> Float32:
+    def to_float32(self) -> Float32:
         """Convert MXFP4 to Float32.
 
         Returns:
@@ -487,7 +487,7 @@ struct MXFP4(Copyable, Movable, Writable):
         """
         return _fp4_to_float32(self.value, _e8m0_to_float32(self.scale))
 
-    fn __add__(self, other: MXFP4) -> MXFP4:
+    def __add__(self, other: MXFP4) -> MXFP4:
         """Add two MXFP4 values (via Float32).
 
         Args:
@@ -498,7 +498,7 @@ struct MXFP4(Copyable, Movable, Writable):
         """
         return MXFP4.from_float32(self.to_float32() + other.to_float32())
 
-    fn __sub__(self, other: MXFP4) -> MXFP4:
+    def __sub__(self, other: MXFP4) -> MXFP4:
         """Subtract two MXFP4 values (via Float32).
 
         Args:
@@ -509,7 +509,7 @@ struct MXFP4(Copyable, Movable, Writable):
         """
         return MXFP4.from_float32(self.to_float32() - other.to_float32())
 
-    fn __mul__(self, other: MXFP4) -> MXFP4:
+    def __mul__(self, other: MXFP4) -> MXFP4:
         """Multiply two MXFP4 values (via Float32).
 
         Args:
@@ -520,7 +520,7 @@ struct MXFP4(Copyable, Movable, Writable):
         """
         return MXFP4.from_float32(self.to_float32() * other.to_float32())
 
-    fn __truediv__(self, other: MXFP4) -> MXFP4:
+    def __truediv__(self, other: MXFP4) -> MXFP4:
         """Divide two MXFP4 values (via Float32).
 
         Args:
@@ -531,7 +531,7 @@ struct MXFP4(Copyable, Movable, Writable):
         """
         return MXFP4.from_float32(self.to_float32() / other.to_float32())
 
-    fn __neg__(self) -> MXFP4:
+    def __neg__(self) -> MXFP4:
         """Negate MXFP4 value.
 
         Returns:
@@ -541,7 +541,7 @@ struct MXFP4(Copyable, Movable, Writable):
         var neg_value = self.value ^ 0b1000
         return MXFP4(neg_value, self.scale)
 
-    fn __eq__(self, other: MXFP4) -> Bool:
+    def __eq__(self, other: MXFP4) -> Bool:
         """Check equality.
 
         Args:
@@ -554,7 +554,7 @@ struct MXFP4(Copyable, Movable, Writable):
             self.scale
         ) == _e8m0_get_exponent(other.scale)
 
-    fn __ne__(self, other: MXFP4) -> Bool:
+    def __ne__(self, other: MXFP4) -> Bool:
         """Check inequality.
 
         Args:
@@ -565,7 +565,7 @@ struct MXFP4(Copyable, Movable, Writable):
         """
         return not (self == other)
 
-    fn __lt__(self, other: MXFP4) -> Bool:
+    def __lt__(self, other: MXFP4) -> Bool:
         """Check less than.
 
         Args:
@@ -576,7 +576,7 @@ struct MXFP4(Copyable, Movable, Writable):
         """
         return self.to_float32() < other.to_float32()
 
-    fn __le__(self, other: MXFP4) -> Bool:
+    def __le__(self, other: MXFP4) -> Bool:
         """Check less than or equal.
 
         Args:
@@ -587,7 +587,7 @@ struct MXFP4(Copyable, Movable, Writable):
         """
         return self.to_float32() <= other.to_float32()
 
-    fn __gt__(self, other: MXFP4) -> Bool:
+    def __gt__(self, other: MXFP4) -> Bool:
         """Check greater than.
 
         Args:
@@ -598,7 +598,7 @@ struct MXFP4(Copyable, Movable, Writable):
         """
         return self.to_float32() > other.to_float32()
 
-    fn __ge__(self, other: MXFP4) -> Bool:
+    def __ge__(self, other: MXFP4) -> Bool:
         """Check greater than or equal.
 
         Args:
@@ -609,7 +609,7 @@ struct MXFP4(Copyable, Movable, Writable):
         """
         return self.to_float32() >= other.to_float32()
 
-    fn __str__(self) -> String:
+    def __str__(self) -> String:
         """Convert to string.
 
         Returns:
@@ -617,7 +617,7 @@ struct MXFP4(Copyable, Movable, Writable):
         """
         return "MXFP4(" + String(self.to_float32()) + ")"
 
-    fn __repr__(self) -> String:
+    def __repr__(self) -> String:
         """Get representation string.
 
         Returns:
@@ -665,12 +665,12 @@ struct MXFP4Block(Copyable, Movable, Writable):
     var scale: Scalar[E8M0]
     """Shared E8M0 scale factor for all 32 values."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize MXFP4Block with zeros."""
         self.data = SIMD[DType.uint8, 16](0)
         self.scale = _e8m0_from_exponent(127)  # Scale = 1.0
 
-    fn __init__(out self, data: SIMD[DType.uint8, 16], scale: Scalar[E8M0]):
+    def __init__(out self, data: SIMD[DType.uint8, 16], scale: Scalar[E8M0]):
         """Initialize MXFP4Block from packed data and scale.
 
         Args:
@@ -681,7 +681,7 @@ struct MXFP4Block(Copyable, Movable, Writable):
         self.scale = scale
 
     @staticmethod
-    fn from_float32_array(values: List[Float32]) raises -> Self:
+    def from_float32_array(values: List[Float32]) raises -> Self:
         """Convert 32 Float32 values to MXFP4Block.
 
         Args:
@@ -734,7 +734,7 @@ struct MXFP4Block(Copyable, Movable, Writable):
 
         return MXFP4Block(data, scale)
 
-    fn to_float32_array(self) -> List[Float32]:
+    def to_float32_array(self) -> List[Float32]:
         """Decode MXFP4Block to 32 Float32 values.
 
         Returns:
@@ -758,7 +758,7 @@ struct MXFP4Block(Copyable, Movable, Writable):
 
         return result^
 
-    fn get(self, index: Int) raises -> MXFP4:
+    def get(self, index: Int) raises -> MXFP4:
         """Get MXFP4 value at index (0-31).
 
         Args:
@@ -785,7 +785,7 @@ struct MXFP4Block(Copyable, Movable, Writable):
 
         return MXFP4(fp4_bits, self.scale)
 
-    fn set(mut self, index: Int, value: MXFP4) raises -> None:
+    def set(mut self, index: Int, value: MXFP4) raises -> None:
         """Set MXFP4 value at index (0-31).
 
         Args:
@@ -821,7 +821,7 @@ struct MXFP4Block(Copyable, Movable, Writable):
 
         self.data[byte_idx] = byte
 
-    fn __str__(self) -> String:
+    def __str__(self) -> String:
         """String representation showing scale and value count.
 
         Returns:
@@ -833,7 +833,7 @@ struct MXFP4Block(Copyable, Movable, Writable):
             + ")"
         )
 
-    fn __repr__(self) -> String:
+    def __repr__(self) -> String:
         """Detailed representation.
 
         Returns:

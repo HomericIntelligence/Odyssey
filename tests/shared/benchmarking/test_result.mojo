@@ -14,7 +14,7 @@ from testing import assert_true, assert_almost_equal
 from shared.benchmarking.result import BenchmarkResult
 
 
-fn test_initialization() raises:
+def test_initialization() raises:
     """Test BenchmarkResult initialization."""
     var result = BenchmarkResult("test_op", iterations=0)
 
@@ -25,7 +25,7 @@ fn test_initialization() raises:
     assert_true(result.max_time_ns == 0, "Max time should start at 0")
 
 
-fn test_record_single_iteration() raises:
+def test_record_single_iteration() raises:
     """Test recording a single iteration."""
     var result = BenchmarkResult("single_test", iterations=0)
     result.record(5000)
@@ -37,7 +37,7 @@ fn test_record_single_iteration() raises:
     assert_almost_equal(Float64(result.mean()), 5000.0, atol=1e-6)
 
 
-fn test_record_multiple_iterations() raises:
+def test_record_multiple_iterations() raises:
     """Test recording multiple iterations with constant times."""
     var result = BenchmarkResult("constant_test", iterations=0)
 
@@ -53,7 +53,7 @@ fn test_record_multiple_iterations() raises:
     assert_almost_equal(Float64(result.std()), 0.0, atol=1e-6)
 
 
-fn test_mean_calculation() raises:
+def test_mean_calculation() raises:
     """Test mean calculation with varying times."""
     var result = BenchmarkResult("mean_test", iterations=0)
 
@@ -67,7 +67,7 @@ fn test_mean_calculation() raises:
     assert_almost_equal(Float64(result.mean()), 2000.0, atol=1e-6)
 
 
-fn test_std_dev_calculation() raises:
+def test_std_dev_calculation() raises:
     """Test standard deviation with known variance.
 
     Data: 1000, 2000, 3000
@@ -88,20 +88,20 @@ fn test_std_dev_calculation() raises:
     assert_almost_equal(std, 1000.0, atol=1e-5)
 
 
-fn test_std_dev_zero_iterations() raises:
+def test_std_dev_zero_iterations() raises:
     """Test std dev returns 0 with no iterations."""
     var result = BenchmarkResult("empty_test", iterations=0)
     assert_almost_equal(Float64(result.std()), 0.0, atol=1e-6)
 
 
-fn test_std_dev_single_iteration() raises:
+def test_std_dev_single_iteration() raises:
     """Test std dev returns 0 with single iteration."""
     var result = BenchmarkResult("single_iter_test", iterations=0)
     result.record(5000)
     assert_almost_equal(Float64(result.std()), 0.0, atol=1e-6)
 
 
-fn test_min_max_tracking() raises:
+def test_min_max_tracking() raises:
     """Test min and max time tracking."""
     var result = BenchmarkResult("minmax_test", iterations=0)
 
@@ -116,7 +116,7 @@ fn test_min_max_tracking() raises:
     assert_almost_equal(Float64(result.max_time()), 8000.0, atol=1e-6)
 
 
-fn test_large_iteration_count() raises:
+def test_large_iteration_count() raises:
     """Test with many iterations (stress test for numerical stability)."""
     var result = BenchmarkResult("large_test", iterations=0)
 
@@ -136,7 +136,7 @@ fn test_large_iteration_count() raises:
     assert_true(result.max_time_ns == 10099, "Max should be 10099")
 
 
-fn test_string_representation() raises:
+def test_string_representation() raises:
     """Test string formatting of results."""
     var result = BenchmarkResult("format_test", iterations=0)
 
@@ -159,7 +159,7 @@ fn test_string_representation() raises:
     assert_true("Max:" in result_str, "String should contain max label")
 
 
-fn test_zero_times() raises:
+def test_zero_times() raises:
     """Test recording zero nanosecond times."""
     var result = BenchmarkResult("zero_test", iterations=0)
 
@@ -172,7 +172,7 @@ fn test_zero_times() raises:
     assert_true(result.max_time() == 0.0, "Max should be 0")
 
 
-fn test_welford_numerical_stability() raises:
+def test_welford_numerical_stability() raises:
     """Test Welford's algorithm numerical stability with different magnitude changes.
 
     This tests that the algorithm maintains precision even when adding
@@ -199,7 +199,7 @@ fn test_welford_numerical_stability() raises:
     assert_almost_equal(actual_mean, expected_mean, atol=0.1)
 
 
-fn test_sequential_recording() raises:
+def test_sequential_recording() raises:
     """Test that sequential recording produces correct statistics."""
     var result = BenchmarkResult("sequential_test", iterations=0)
 
@@ -222,25 +222,25 @@ fn test_sequential_recording() raises:
     assert_almost_equal(actual_std, expected_std, atol=50.0)
 
 
-fn test_mean_getter_with_no_records() raises:
+def test_mean_getter_with_no_records() raises:
     """Test mean() returns 0 when no iterations recorded."""
     var result = BenchmarkResult("empty_mean_test", iterations=0)
     assert_almost_equal(Float64(result.mean()), 0.0, atol=1e-6)
 
 
-fn test_min_getter_with_no_records() raises:
+def test_min_getter_with_no_records() raises:
     """Test min_time() returns 0 when no iterations recorded."""
     var result = BenchmarkResult("empty_min_test", iterations=0)
     assert_almost_equal(Float64(result.min_time()), 0.0, atol=1e-6)
 
 
-fn test_max_getter_with_no_records() raises:
+def test_max_getter_with_no_records() raises:
     """Test max_time() returns 0 when no iterations recorded."""
     var result = BenchmarkResult("empty_max_test", iterations=0)
     assert_almost_equal(Float64(result.max_time()), 0.0, atol=1e-6)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_result tests."""
     print("Running test_result tests...")
 

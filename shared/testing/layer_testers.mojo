@@ -49,7 +49,7 @@ Usage:
     )
 """
 
-from math import isnan, isinf
+from std.math import isnan, isinf
 from shared.tensor.any_tensor import AnyTensor, zeros_like, ones_like
 from shared.core.conv import conv2d, conv2d_output_shape, conv2d_backward
 from shared.core.linear import linear, linear_backward
@@ -103,7 +103,7 @@ struct LayerTester:
     """
 
     @staticmethod
-    fn test_conv_layer(
+    def test_conv_layer(
         in_channels: Int,
         out_channels: Int,
         kernel_size: Int,
@@ -189,7 +189,7 @@ struct LayerTester:
         assert_false(has_invalid, "Conv2D output contains NaN or Inf")
 
     @staticmethod
-    fn test_linear_layer(
+    def test_linear_layer(
         in_features: Int,
         out_features: Int,
         weights: AnyTensor,
@@ -251,7 +251,7 @@ struct LayerTester:
         assert_false(has_invalid, "Linear output contains NaN or Inf")
 
     @staticmethod
-    fn test_pooling_layer(
+    def test_pooling_layer(
         channels: Int,
         input_h: Int,
         input_w: Int,
@@ -339,7 +339,7 @@ struct LayerTester:
         )
 
     @staticmethod
-    fn test_activation_layer(
+    def test_activation_layer(
         shape: List[Int], dtype: DType, activation: String = "relu"
     ) raises:
         """Test activation layer with special values.
@@ -427,7 +427,7 @@ struct LayerTester:
                 )
 
     @staticmethod
-    fn test_layer_dtype_consistency(
+    def test_layer_dtype_consistency(
         input: AnyTensor, output: AnyTensor, layer_name: String = "Layer"
     ) raises:
         """Test that layer preserves dtype from input to output.
@@ -455,7 +455,7 @@ struct LayerTester:
         )
 
     @staticmethod
-    fn test_layer_no_invalid_values(
+    def test_layer_no_invalid_values(
         output: AnyTensor, layer_name: String = "Layer"
     ) raises:
         """Test that layer output contains no NaN or Inf values.
@@ -493,7 +493,7 @@ struct LayerTester:
     # ========================================================================
 
     @staticmethod
-    fn test_conv_layer_backward(
+    def test_conv_layer_backward(
         in_channels: Int,
         out_channels: Int,
         kernel_size: Int,
@@ -609,7 +609,7 @@ struct LayerTester:
         var tolerance = 1e-1  # 10% tolerance for all dtypes
 
         # Define forward function for gradient checking
-        fn forward(x: AnyTensor) capturing raises -> AnyTensor:
+        def forward(x: AnyTensor) capturing raises -> AnyTensor:
             return conv2d(x, weights, bias, stride=stride, padding=padding)
 
         # Use sampled or exhaustive gradient checking based on num_gradient_samples
@@ -688,7 +688,7 @@ struct LayerTester:
                 )
 
     @staticmethod
-    fn test_linear_layer_backward(
+    def test_linear_layer_backward(
         in_features: Int,
         out_features: Int,
         weights: AnyTensor,
@@ -770,7 +770,7 @@ struct LayerTester:
         )
 
         # Define forward function for gradient checking
-        fn forward(x: AnyTensor) capturing raises -> AnyTensor:
+        def forward(x: AnyTensor) capturing raises -> AnyTensor:
             return linear(x, weights, bias)
 
         # Use sampled or exhaustive gradient checking based on num_gradient_samples
@@ -860,7 +860,7 @@ struct LayerTester:
                 )
 
     @staticmethod
-    fn test_activation_layer_backward(
+    def test_activation_layer_backward(
         shape: List[Int],
         dtype: DType,
         activation: String = "relu",
@@ -936,7 +936,7 @@ struct LayerTester:
         var tolerance = 1e-2 if dtype == DType.float32 else 1e-1
 
         # Define forward function for gradient checking
-        fn forward(x: AnyTensor) capturing raises -> AnyTensor:
+        def forward(x: AnyTensor) capturing raises -> AnyTensor:
             if activation == "relu":
                 return relu(x)
             elif activation == "sigmoid":
@@ -992,7 +992,7 @@ struct LayerTester:
             )
 
     @staticmethod
-    fn test_batchnorm_layer(
+    def test_batchnorm_layer(
         num_features: Int,
         input_shape: List[Int],
         gamma: AnyTensor,
@@ -1073,7 +1073,7 @@ struct LayerTester:
             assert_false(isinf(val), "BatchNorm: Inf in input")
 
     @staticmethod
-    fn test_batchnorm_layer_backward(
+    def test_batchnorm_layer_backward(
         num_features: Int,
         input_shape: List[Int],
         gamma: AnyTensor,
@@ -1177,7 +1177,7 @@ struct LayerTester:
         # Define forward function for gradient checking.
         # Loss = sum(output * grad_output) so that the numerical gradient matches
         # the analytical gradient from batch_norm2d_backward(grad_output, ...).
-        fn forward_for_grad(x: AnyTensor) capturing raises -> AnyTensor:
+        def forward_for_grad(x: AnyTensor) capturing raises -> AnyTensor:
             var (bn_out, _, _) = batch_norm2d(
                 x, gamma, beta, running_mean, running_var, training=True
             )

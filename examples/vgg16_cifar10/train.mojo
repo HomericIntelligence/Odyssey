@@ -37,7 +37,7 @@ from shared.utils.training_args import parse_training_args_with_defaults
 from shared.training.metrics.evaluate import evaluate_with_predict
 
 
-fn compute_gradients(
+def compute_gradients(
     mut model: VGG16,
     input: AnyTensor,
     labels: AnyTensor,
@@ -684,7 +684,7 @@ fn compute_gradients(
     return loss
 
 
-fn evaluate(
+def evaluate(
     mut model: VGG16, test_images: AnyTensor, test_labels: AnyTensor
 ) raises -> Float32:
     """Evaluate model on test set using shared metrics utilities.
@@ -734,7 +734,7 @@ fn evaluate(
     return accuracy
 
 
-fn initialize_velocities(model: VGG16) raises -> List[AnyTensor]:
+def initialize_velocities(model: VGG16) raises -> List[AnyTensor]:
     """Initialize momentum velocities for all parameters (32 tensors).
 
     Args:
@@ -793,7 +793,7 @@ fn initialize_velocities(model: VGG16) raises -> List[AnyTensor]:
     return velocities^
 
 
-fn main() raises:
+def main() raises:
     """Main training loop."""
     print("=" * 60)
     print("VGG-16 Training on CIFAR-10 Dataset")

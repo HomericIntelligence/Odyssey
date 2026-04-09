@@ -13,10 +13,10 @@ from shared.data import extract_batch_pair, DatasetInfo
 from shared.training.metrics import evaluate_with_predict
 from model import VGG16
 from shared.utils.arg_parser import ArgumentParser
-from collections import List
+from std.collections import List
 
 
-fn parse_args() raises -> Tuple[String, String]:
+def parse_args() raises -> Tuple[String, String]:
     """Parse command line arguments using enhanced argument parser.
 
     Returns:
@@ -34,7 +34,7 @@ fn parse_args() raises -> Tuple[String, String]:
     return Tuple[String, String](weights_dir, data_dir)
 
 
-fn compute_test_accuracy(
+def compute_test_accuracy(
     mut model: VGG16, test_images: AnyTensor, test_labels: AnyTensor
 ) raises -> Float32:
     """Compute accuracy on test set using shared metrics utilities.
@@ -79,7 +79,7 @@ fn compute_test_accuracy(
     return accuracy
 
 
-fn main() raises:
+def main() raises:
     """Main inference function."""
     print("=== VGG-16 Inference on CIFAR-10 ===")
     print()

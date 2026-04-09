@@ -10,7 +10,7 @@ Tests for cross-module workflows and component interactions:
 - test_packaging.mojo          - Package and distribution tests
 """
 
-from collections import List
+from std.collections import List
 
 
 struct TestResult(Copyable):
@@ -28,7 +28,7 @@ struct TestResult(Copyable):
     var duration_ms: Float64
     var error_message: String
 
-    fn __init__(
+    def __init__(
         out self,
         name: String,
         passed: Bool,
@@ -49,7 +49,7 @@ struct TestResult(Copyable):
         self.error_message = error_message
 
 
-fn run_test_safely[func: fn () raises -> None](name: String) -> TestResult:
+def run_test_safely[func: fn () raises -> None](name: String) -> TestResult:
     """Run a test function safely, catching any errors.
 
     Args:
@@ -60,7 +60,7 @@ fn run_test_safely[func: fn () raises -> None](name: String) -> TestResult:
 
     Example:
         ```mojo
-        fn test_something() raises:
+        def test_something() raises:
             var x = 1 + 1
             if x != 2:
                 raise Error("Math is broken")
@@ -76,7 +76,7 @@ fn run_test_safely[func: fn () raises -> None](name: String) -> TestResult:
         return TestResult(name, False, 0.0, String(e))
 
 
-fn run_integration_tests() -> Int:
+def run_integration_tests() -> Int:
     """Run all integration tests and report results.
 
     Returns:
@@ -96,7 +96,7 @@ fn run_integration_tests() -> Int:
     return failed_count
 
 
-fn main() raises:
+def main() raises:
     """Test suite initialization for integration tests.
 
     This serves as the entry point for running integration tests.

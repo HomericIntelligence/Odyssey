@@ -20,7 +20,7 @@ from shared import AdaGrad, RMSprop, SGD, Adam, AdamW
 # ============================================================================
 
 
-fn test_adagrad_top_level_import() raises:
+def test_adagrad_top_level_import() raises:
     """Test AdaGrad is importable from top-level shared package."""
     var opt = AdaGrad(learning_rate=0.01)
     assert_almost_equal(opt.get_lr(), 0.01, tolerance=1e-10)
@@ -31,7 +31,7 @@ fn test_adagrad_top_level_import() raises:
     print("✓ AdaGrad top-level import test passed")
 
 
-fn test_rmsprop_top_level_import() raises:
+def test_rmsprop_top_level_import() raises:
     """Test RMSprop is importable from top-level shared package."""
     var opt = RMSprop(learning_rate=0.001)
     assert_almost_equal(opt.get_lr(), 0.001, tolerance=1e-10)
@@ -42,7 +42,7 @@ fn test_rmsprop_top_level_import() raises:
     print("✓ RMSprop top-level import test passed")
 
 
-fn test_sgd_top_level_import() raises:
+def test_sgd_top_level_import() raises:
     """Test SGD is importable from top-level shared package (regression)."""
     var opt = SGD(learning_rate=0.01)
     assert_almost_equal(opt.get_lr(), 0.01, tolerance=1e-10)
@@ -50,7 +50,7 @@ fn test_sgd_top_level_import() raises:
     print("✓ SGD top-level import test passed")
 
 
-fn test_adam_top_level_import() raises:
+def test_adam_top_level_import() raises:
     """Test Adam is importable from top-level shared package (regression)."""
     var opt = Adam(learning_rate=0.001)
     assert_almost_equal(opt.get_lr(), 0.001, tolerance=1e-10)
@@ -58,7 +58,7 @@ fn test_adam_top_level_import() raises:
     print("✓ Adam top-level import test passed")
 
 
-fn test_adamw_top_level_import() raises:
+def test_adamw_top_level_import() raises:
     """Test AdamW is importable from top-level shared package (regression)."""
     var opt = AdamW(learning_rate=0.001)
     assert_almost_equal(opt.get_lr(), 0.001, tolerance=1e-10)
@@ -71,7 +71,7 @@ fn test_adamw_top_level_import() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run top-level optimizer import tests."""
     print("Running top-level optimizer import tests (Issue #3745)...")
 

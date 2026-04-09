@@ -20,7 +20,7 @@ from shared.core.arithmetic_simd import subtract_simd, multiply_simd, add_simd
 from shared.tensor.any_tensor import full_like
 
 
-fn sgd_step(
+def sgd_step(
     params: AnyTensor,
     gradients: AnyTensor,
     velocity: AnyTensor,
@@ -117,7 +117,7 @@ fn sgd_step(
     return (new_params, new_velocity)
 
 
-fn sgd_step_simple(
+def sgd_step_simple(
     params: AnyTensor, gradients: AnyTensor, learning_rate: Float64
 ) raises -> AnyTensor:
     """Simplified SGD step without momentum or weight decay.
@@ -158,7 +158,7 @@ fn sgd_step_simple(
     return subtract_simd(params, update)
 
 
-fn sgd_momentum_update_inplace(
+def sgd_momentum_update_inplace(
     mut param: AnyTensor,
     grad: AnyTensor,
     mut velocity: AnyTensor,
@@ -254,7 +254,7 @@ fn sgd_momentum_update_inplace(
 # ============================================================================
 
 
-fn initialize_velocities(
+def initialize_velocities(
     param_shapes: List[List[Int]], dtype: DType = DType.float32
 ) raises -> List[AnyTensor]:
     """Create zero-initialized velocity tensors for SGD with momentum.
@@ -307,7 +307,7 @@ fn initialize_velocities(
     return velocities^
 
 
-fn initialize_velocities_from_params(
+def initialize_velocities_from_params(
     params: List[AnyTensor],
 ) raises -> List[AnyTensor]:
     """Create zero-initialized velocity tensors matching a list of parameters.

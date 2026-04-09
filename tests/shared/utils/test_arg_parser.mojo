@@ -11,7 +11,7 @@ from testing import assert_true, assert_equal
 from shared.utils import ArgumentParser, ArgumentSpec, ParsedArgs
 
 
-fn test_argument_spec_creation() raises:
+def test_argument_spec_creation() raises:
     """Test creating argument specifications."""
     var spec = ArgumentSpec(
         name="epochs", arg_type="int", default_value="100", is_flag=False
@@ -23,7 +23,7 @@ fn test_argument_spec_creation() raises:
     print("PASS: test_argument_spec_creation")
 
 
-fn test_parsed_args_string() raises:
+def test_parsed_args_string() raises:
     """Test ParsedArgs string getter."""
     var args = ParsedArgs()
     args.set("output", "model.weights")
@@ -32,7 +32,7 @@ fn test_parsed_args_string() raises:
     print("PASS: test_parsed_args_string")
 
 
-fn test_parsed_args_int() raises:
+def test_parsed_args_int() raises:
     """Test ParsedArgs integer getter."""
     var args = ParsedArgs()
     args.set("epochs", "100")
@@ -41,7 +41,7 @@ fn test_parsed_args_int() raises:
     print("PASS: test_parsed_args_int")
 
 
-fn test_parsed_args_float() raises:
+def test_parsed_args_float() raises:
     """Test ParsedArgs float getter."""
     var args = ParsedArgs()
     args.set("lr", "0.001")
@@ -52,7 +52,7 @@ fn test_parsed_args_float() raises:
     print("PASS: test_parsed_args_float")
 
 
-fn test_parsed_args_bool() raises:
+def test_parsed_args_bool() raises:
     """Test ParsedArgs boolean flag getter."""
     var args = ParsedArgs()
     args.set("verbose", "true")
@@ -61,7 +61,7 @@ fn test_parsed_args_bool() raises:
     print("PASS: test_parsed_args_bool")
 
 
-fn test_parsed_args_has() raises:
+def test_parsed_args_has() raises:
     """Test ParsedArgs has() method."""
     var args = ParsedArgs()
     args.set("epochs", "100")
@@ -70,7 +70,7 @@ fn test_parsed_args_has() raises:
     print("PASS: test_parsed_args_has")
 
 
-fn test_argument_parser_creation() raises:
+def test_argument_parser_creation() raises:
     """Test creating an argument parser."""
     var parser = ArgumentParser()
     parser.add_argument("epochs", "int", "100")
@@ -78,7 +78,7 @@ fn test_argument_parser_creation() raises:
     print("PASS: test_argument_parser_creation")
 
 
-fn test_argument_parser_add_arguments() raises:
+def test_argument_parser_add_arguments() raises:
     """Test adding typed arguments."""
     var parser = ArgumentParser()
     parser.add_argument("epochs", "int", "100")
@@ -94,7 +94,7 @@ fn test_argument_parser_add_arguments() raises:
     print("PASS: test_argument_parser_add_arguments")
 
 
-fn test_argument_parser_add_flag() raises:
+def test_argument_parser_add_flag() raises:
     """Test adding boolean flags."""
     var parser = ArgumentParser()
     parser.add_flag("verbose")
@@ -108,7 +108,7 @@ fn test_argument_parser_add_flag() raises:
     print("PASS: test_argument_parser_add_flag")
 
 
-fn test_argument_parser_invalid_type() raises:
+def test_argument_parser_invalid_type() raises:
     """Test that invalid argument types are rejected."""
     var parser = ArgumentParser()
     try:
@@ -120,7 +120,7 @@ fn test_argument_parser_invalid_type() raises:
         print("PASS: test_argument_parser_invalid_type")
 
 
-fn test_argument_defaults() raises:
+def test_argument_defaults() raises:
     """Test that defaults are applied."""
     var parser = ArgumentParser()
     parser.add_argument("epochs", "int", "100")
@@ -135,7 +135,7 @@ fn test_argument_defaults() raises:
     print("PASS: test_argument_defaults")
 
 
-fn test_parsed_args_multiple_values() raises:
+def test_parsed_args_multiple_values() raises:
     """Test handling multiple argument values."""
     var args = ParsedArgs()
     args.set("epochs", "100")
@@ -151,7 +151,7 @@ fn test_parsed_args_multiple_values() raises:
     print("PASS: test_parsed_args_multiple_values")
 
 
-fn test_parser_populates_defaults() raises:
+def test_parser_populates_defaults() raises:
     """Test that parser.parse() populates defaults from argument specs (Issue #2585).
     """
     var parser = ArgumentParser()
@@ -176,7 +176,7 @@ fn test_parser_populates_defaults() raises:
     print("PASS: test_parser_populates_defaults")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_arg_parser tests."""
     print("Running test_arg_parser tests...")
 

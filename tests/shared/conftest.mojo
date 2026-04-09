@@ -56,7 +56,7 @@ struct TestFixtures:
     """
 
     @staticmethod
-    fn deterministic_seed() -> Int:
+    def deterministic_seed() -> Int:
         """Get deterministic random seed for reproducible tests.
 
         Returns:
@@ -65,12 +65,12 @@ struct TestFixtures:
         return 42
 
     @staticmethod
-    fn set_seed():
+    def set_seed():
         """Set random seed for deterministic test execution."""
         seed(Self.deterministic_seed())
 
     @staticmethod
-    fn small_tensor() raises -> AnyTensor:
+    def small_tensor() raises -> AnyTensor:
         """Create small 3x3 tensor for unit tests.
 
         Returns:
@@ -84,7 +84,7 @@ struct TestFixtures:
         return full(shape, Float64(0.1), DType.float32)
 
     @staticmethod
-    fn medium_tensor() raises -> AnyTensor:
+    def medium_tensor() raises -> AnyTensor:
         """Create medium 10x10 tensor for unit tests.
 
         Returns:
@@ -98,7 +98,7 @@ struct TestFixtures:
         return zeros(shape, DType.float32)
 
     @staticmethod
-    fn simple_weights() raises -> AnyTensor:
+    def simple_weights() raises -> AnyTensor:
         """Create simple weight tensor for linear layer tests.
 
         Returns:
@@ -112,7 +112,7 @@ struct TestFixtures:
         return full(shape, Float64(0.01), DType.float32)
 
     @staticmethod
-    fn simple_bias() raises -> AnyTensor:
+    def simple_bias() raises -> AnyTensor:
         """Create simple bias tensor for linear layer tests.
 
         Returns:
@@ -125,7 +125,7 @@ struct TestFixtures:
         return zeros(shape, DType.float32)
 
     @staticmethod
-    fn synthetic_data(
+    def synthetic_data(
         n_samples: Int = 100, n_features: Int = 10
     ) raises -> AnyTensor:
         """Create synthetic data tensor for testing.
@@ -145,7 +145,7 @@ struct TestFixtures:
         return randn(shape, DType.float32)
 
     @staticmethod
-    fn synthetic_labels(n_samples: Int = 100) raises -> AnyTensor:
+    def synthetic_labels(n_samples: Int = 100) raises -> AnyTensor:
         """Create synthetic label tensor for testing.
 
         Args:
@@ -181,7 +181,7 @@ struct BenchmarkResult(Copyable, Movable):
     var throughput: Float64
     var memory_mb: Float64
 
-    fn __init__(
+    def __init__(
         out self,
         name: String,
         duration_ms: Float64,
@@ -201,7 +201,7 @@ struct BenchmarkResult(Copyable, Movable):
         self.throughput = throughput
         self.memory_mb = memory_mb
 
-    fn print_result(self):
+    def print_result(self):
         """Print benchmark result in readable format."""
         print("Benchmark:", self.name)
         print("  Duration:", self.duration_ms, "ms")
@@ -215,7 +215,7 @@ struct BenchmarkResult(Copyable, Movable):
 comptime BenchmarkStatistics = BenchmarkResult
 
 
-fn print_benchmark_results(results: List[BenchmarkResult]):
+def print_benchmark_results(results: List[BenchmarkResult]):
     """Print all benchmark results.
 
     Args:
@@ -232,7 +232,7 @@ fn print_benchmark_results(results: List[BenchmarkResult]):
 # ============================================================================
 
 
-fn measure_time[func: fn () raises -> None]() raises -> Float64:
+def measure_time[func: fn () raises -> None]() raises -> Float64:
     """Measure execution time of a function.
 
     Parameters:
@@ -250,7 +250,7 @@ fn measure_time[func: fn () raises -> None]() raises -> Float64:
     return Float64(end - start) / 1_000_000.0
 
 
-fn measure_throughput[
+def measure_throughput[
     func: fn () raises -> None
 ](n_iterations: Int) raises -> Float64:
     """Measure throughput of a function.
@@ -283,7 +283,7 @@ fn measure_throughput[
 # ============================================================================
 
 
-fn create_test_vector(size: Int, value: Float32 = 1.0) -> List[Float32]:
+def create_test_vector(size: Int, value: Float32 = 1.0) -> List[Float32]:
     """Create test vector filled with specific value.
 
     Args:
@@ -299,7 +299,7 @@ fn create_test_vector(size: Int, value: Float32 = 1.0) -> List[Float32]:
     return vec^
 
 
-fn create_test_matrix(
+def create_test_matrix(
     rows: Int, cols: Int, value: Float32 = 1.0
 ) -> List[List[Float32]]:
     """Create test matrix filled with specific value.
@@ -318,7 +318,7 @@ fn create_test_matrix(
     return matrix^
 
 
-fn create_sequential_vector(size: Int, start: Float32 = 0.0) -> List[Float32]:
+def create_sequential_vector(size: Int, start: Float32 = 0.0) -> List[Float32]:
     """Create vector with sequential values [start, start+1, ...].
 
     Args:
@@ -339,7 +339,7 @@ fn create_sequential_vector(size: Int, start: Float32 = 0.0) -> List[Float32]:
 # ============================================================================
 
 
-fn create_simple_model() -> SimpleMLP:
+def create_simple_model() -> SimpleMLP:
     """Create a simple 2-layer neural network for testing training loops.
 
     Returns a mock neural network with:
@@ -370,7 +370,7 @@ fn create_simple_model() -> SimpleMLP:
     return model^
 
 
-fn create_simple_dataset(
+def create_simple_dataset(
     n_samples: Int = 100,
     input_dim: Int = 10,
     output_dim: Int = 1,
@@ -445,7 +445,7 @@ struct MockDataLoader(Copyable, Movable):
     var batch_size: Int
     var shuffle: Bool
 
-    fn __init__(
+    def __init__(
         out self,
         var samples: List[Tuple[List[Float32], List[Float32]]],
         batch_size: Int = 32,
@@ -462,13 +462,13 @@ struct MockDataLoader(Copyable, Movable):
         self.batch_size = batch_size
         self.shuffle = shuffle
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Get number of batches."""
         var n_samples = len(self.samples)
         return (n_samples + self.batch_size - 1) // self.batch_size
 
 
-fn create_mock_dataloader(
+def create_mock_dataloader(
     n_batches: Int = 10,
     batch_size: Int = 32,
     n_samples: Int = 320,

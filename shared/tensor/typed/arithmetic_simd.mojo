@@ -3,14 +3,14 @@
 Internal module -- not part of the public API.
 """
 
-from algorithm import vectorize
-from sys.info import simd_width_of
+from std.algorithm import vectorize
+from std.sys.info import simd_width_of
 from shared.tensor.tensor import Tensor
 from shared.tensor.any_tensor import AnyTensor
 
 
 @always_inline
-fn _add_simd_typed[
+def _add_simd_typed[
     dtype: DType
 ](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[dtype]:
     """SIMD addition for typed Tensor[dtype]. Zero bitcasts."""
@@ -19,13 +19,11 @@ fn _add_simd_typed[
     var a_ptr = a._data
     var b_ptr = b._data
     var result_ptr = result._data
-
-    @parameter
-    if dtype == DType.float32 or dtype == DType.float64:
+    comptime if dtype == DType.float32 or dtype == DType.float64:
         comptime simd_width = simd_width_of[dtype]()
 
         @parameter
-        fn vectorized_add[width: Int](idx: Int) unified {mut}:
+        def vectorized_add[width: Int](idx: Int) unified {mut}:
             var a_vec = a_ptr.load[width=width](idx)
             var b_vec = b_ptr.load[width=width](idx)
             result_ptr.store[width=width](idx, a_vec + b_vec)
@@ -39,7 +37,7 @@ fn _add_simd_typed[
 
 
 @always_inline
-fn _subtract_simd_typed[
+def _subtract_simd_typed[
     dtype: DType
 ](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[dtype]:
     """SIMD subtraction for typed Tensor[dtype]. Zero bitcasts."""
@@ -48,13 +46,11 @@ fn _subtract_simd_typed[
     var a_ptr = a._data
     var b_ptr = b._data
     var result_ptr = result._data
-
-    @parameter
-    if dtype == DType.float32 or dtype == DType.float64:
+    comptime if dtype == DType.float32 or dtype == DType.float64:
         comptime simd_width = simd_width_of[dtype]()
 
         @parameter
-        fn vectorized_subtract[width: Int](idx: Int) unified {mut}:
+        def vectorized_subtract[width: Int](idx: Int) unified {mut}:
             var a_vec = a_ptr.load[width=width](idx)
             var b_vec = b_ptr.load[width=width](idx)
             result_ptr.store[width=width](idx, a_vec - b_vec)
@@ -68,7 +64,7 @@ fn _subtract_simd_typed[
 
 
 @always_inline
-fn _multiply_simd_typed[
+def _multiply_simd_typed[
     dtype: DType
 ](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[dtype]:
     """SIMD multiplication for typed Tensor[dtype]. Zero bitcasts."""
@@ -77,13 +73,11 @@ fn _multiply_simd_typed[
     var a_ptr = a._data
     var b_ptr = b._data
     var result_ptr = result._data
-
-    @parameter
-    if dtype == DType.float32 or dtype == DType.float64:
+    comptime if dtype == DType.float32 or dtype == DType.float64:
         comptime simd_width = simd_width_of[dtype]()
 
         @parameter
-        fn vectorized_multiply[width: Int](idx: Int) unified {mut}:
+        def vectorized_multiply[width: Int](idx: Int) unified {mut}:
             var a_vec = a_ptr.load[width=width](idx)
             var b_vec = b_ptr.load[width=width](idx)
             result_ptr.store[width=width](idx, a_vec * b_vec)
@@ -97,7 +91,7 @@ fn _multiply_simd_typed[
 
 
 @always_inline
-fn _divide_simd_typed[
+def _divide_simd_typed[
     dtype: DType
 ](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[dtype]:
     """SIMD division for typed Tensor[dtype]. Zero bitcasts."""
@@ -106,13 +100,11 @@ fn _divide_simd_typed[
     var a_ptr = a._data
     var b_ptr = b._data
     var result_ptr = result._data
-
-    @parameter
-    if dtype == DType.float32 or dtype == DType.float64:
+    comptime if dtype == DType.float32 or dtype == DType.float64:
         comptime simd_width = simd_width_of[dtype]()
 
         @parameter
-        fn vectorized_divide[width: Int](idx: Int) unified {mut}:
+        def vectorized_divide[width: Int](idx: Int) unified {mut}:
             var a_vec = a_ptr.load[width=width](idx)
             var b_vec = b_ptr.load[width=width](idx)
             result_ptr.store[width=width](idx, a_vec / b_vec)

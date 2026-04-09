@@ -28,7 +28,7 @@ Example usage:
 
     # Define custom operation
     struct CustomOp(ElementwiseUnaryOp):
-        fn apply(self, value: Float64) -> Float64:
+        def apply(self, value: Float64) -> Float64:
             return value * value + 1.0
 
     var custom_result = apply_unary[CustomOp](tensor)
@@ -36,10 +36,10 @@ Example usage:
 See notes/issues/elementwise-dispatch-design.md for complete design.
 """
 
-from collections import List
+from std.collections import List
 from shared.tensor.any_tensor import AnyTensor
-from math import sqrt as math_sqrt, exp as math_exp, log as math_log
-from math import sin as math_sin, cos as math_cos, tanh as math_tanh
+from std.math import sqrt as math_sqrt, exp as math_exp, log as math_log
+from std.math import sin as math_sin, cos as math_cos, tanh as math_tanh
 
 
 # ============================================================================
@@ -67,20 +67,20 @@ trait ElementwiseUnaryOp(ImplicitlyDestructible):
     Example:
         struct SquareOp(ElementwiseUnaryOp):
             '''Square each element.'''
-            fn __init__(out self):
+            def __init__(out self):
                 pass
 
-            fn apply(self, value: Float64) -> Float64:
+            def apply(self, value: Float64) -> Float64:
                 return value * value
 
         var squared = apply_unary[SquareOp](tensor)
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         """Default constructor required for generic instantiation."""
         ...
 
-    fn apply(self, value: Float64) -> Float64:
+    def apply(self, value: Float64) -> Float64:
         """Apply operation to a single value.
 
         Args:
@@ -121,10 +121,10 @@ trait ElementwiseBinaryOp(ImplicitlyDestructible):
     Example:
         struct MaxOp(ElementwiseBinaryOp):
             '''Element-wise maximum.'''
-            fn __init__(out self):
+            def __init__(out self):
                 pass
 
-            fn apply(self, a: Float64, b: Float64) -> Float64:
+            def apply(self, a: Float64, b: Float64) -> Float64:
                 if a > b:
                     return a
                 else:
@@ -133,11 +133,11 @@ trait ElementwiseBinaryOp(ImplicitlyDestructible):
         var max_result = apply_binary[MaxOp](tensor_a, tensor_b)
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         """Default constructor required for generic instantiation."""
         ...
 
-    fn apply(self, a: Float64, b: Float64) -> Float64:
+    def apply(self, a: Float64, b: Float64) -> Float64:
         """Apply operation to two values.
 
         Args:
@@ -158,7 +158,7 @@ trait ElementwiseBinaryOp(ImplicitlyDestructible):
 # ============================================================================
 
 
-fn apply_unary[Op: ElementwiseUnaryOp](input: AnyTensor) raises -> AnyTensor:
+def apply_unary[Op: ElementwiseUnaryOp](input: AnyTensor) raises -> AnyTensor:
     """Apply unary operation to all elements in tensor.
 
     Applies the operation defined by Op to each element of the input tensor,
@@ -183,7 +183,7 @@ fn apply_unary[Op: ElementwiseUnaryOp](input: AnyTensor) raises -> AnyTensor:
 
         # Apply custom operation
         struct MyOp(ElementwiseUnaryOp):
-            fn apply(self, value: Float64) -> Float64:
+            def apply(self, value: Float64) -> Float64:
                 return value + 1.0
 
         var result = apply_unary[MyOp](tensor)
@@ -211,7 +211,7 @@ fn apply_unary[Op: ElementwiseUnaryOp](input: AnyTensor) raises -> AnyTensor:
 # ============================================================================
 
 
-fn apply_binary[
+def apply_binary[
     Op: ElementwiseBinaryOp
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Apply binary operation to all element pairs in two tensors.
@@ -243,7 +243,7 @@ fn apply_binary[
 
         # Custom operation
         struct DiffOp(ElementwiseBinaryOp):
-            fn apply(self, a: Float64, b: Float64) -> Float64:
+            def apply(self, a: Float64, b: Float64) -> Float64:
                 return a - b
 
         var difference = apply_binary[DiffOp](tensor_a, tensor_b)
@@ -287,11 +287,11 @@ fn apply_binary[
 struct ExpOp(ElementwiseUnaryOp):
     """Exponential operation: e^x."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize ExpOp."""
         pass
 
-    fn apply(self, value: Float64) -> Float64:
+    def apply(self, value: Float64) -> Float64:
         """Compute e^x.
 
         Args:
@@ -309,11 +309,11 @@ struct LogOp(ElementwiseUnaryOp):
     Note: Returns -inf for zero, NaN for negative values.
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize LogOp."""
         pass
 
-    fn apply(self, value: Float64) -> Float64:
+    def apply(self, value: Float64) -> Float64:
         """Compute ln(x). Returns -inf for 0, NaN for negative.
 
         Args:
@@ -332,11 +332,11 @@ struct SqrtOp(ElementwiseUnaryOp):
     Note: Returns NaN for negative values (IEEE 754 behavior).
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, value: Float64) -> Float64:
+    def apply(self, value: Float64) -> Float64:
         """Compute sqrt(x). Returns NaN for negative values.
 
         Args:
@@ -352,11 +352,11 @@ struct SqrtOp(ElementwiseUnaryOp):
 struct SinOp(ElementwiseUnaryOp):
     """Sine operation: sin(x)."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, value: Float64) -> Float64:
+    def apply(self, value: Float64) -> Float64:
         """Compute sin(x).
 
         Args:
@@ -371,11 +371,11 @@ struct SinOp(ElementwiseUnaryOp):
 struct CosOp(ElementwiseUnaryOp):
     """Cosine operation: cos(x)."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, value: Float64) -> Float64:
+    def apply(self, value: Float64) -> Float64:
         """Compute cos(x).
 
         Args:
@@ -390,11 +390,11 @@ struct CosOp(ElementwiseUnaryOp):
 struct TanhOp(ElementwiseUnaryOp):
     """Hyperbolic tangent operation: tanh(x)."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, value: Float64) -> Float64:
+    def apply(self, value: Float64) -> Float64:
         """Compute tanh(x).
 
         Args:
@@ -409,11 +409,11 @@ struct TanhOp(ElementwiseUnaryOp):
 struct AbsOp(ElementwiseUnaryOp):
     """Absolute value operation: |x|."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, value: Float64) -> Float64:
+    def apply(self, value: Float64) -> Float64:
         """Compute |x|.
 
         Args:
@@ -431,11 +431,11 @@ struct AbsOp(ElementwiseUnaryOp):
 struct NegateOp(ElementwiseUnaryOp):
     """Negation operation: -x."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, value: Float64) -> Float64:
+    def apply(self, value: Float64) -> Float64:
         """Compute -x.
 
         Args:
@@ -453,11 +453,11 @@ struct ReciprocalOp(ElementwiseUnaryOp):
     Note: Returns inf for zero (IEEE 754 behavior).
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, value: Float64) -> Float64:
+    def apply(self, value: Float64) -> Float64:
         """Compute 1/x. Returns inf for zero.
 
         Args:
@@ -473,11 +473,11 @@ struct ReciprocalOp(ElementwiseUnaryOp):
 struct SquareOp(ElementwiseUnaryOp):
     """Square operation: x^2."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, value: Float64) -> Float64:
+    def apply(self, value: Float64) -> Float64:
         """Compute x^2.
 
         Args:
@@ -492,11 +492,11 @@ struct SquareOp(ElementwiseUnaryOp):
 struct SignOp(ElementwiseUnaryOp):
     """Sign operation: -1, 0, or 1."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, value: Float64) -> Float64:
+    def apply(self, value: Float64) -> Float64:
         """Compute sign(x).
 
         Args:
@@ -521,11 +521,11 @@ struct SignOp(ElementwiseUnaryOp):
 struct AddOp(ElementwiseBinaryOp):
     """Addition operation: a + b."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, a: Float64, b: Float64) -> Float64:
+    def apply(self, a: Float64, b: Float64) -> Float64:
         """Compute a + b.
 
         Args:
@@ -541,11 +541,11 @@ struct AddOp(ElementwiseBinaryOp):
 struct SubtractOp(ElementwiseBinaryOp):
     """Subtraction operation: a - b."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, a: Float64, b: Float64) -> Float64:
+    def apply(self, a: Float64, b: Float64) -> Float64:
         """Compute a - b.
 
         Args:
@@ -561,11 +561,11 @@ struct SubtractOp(ElementwiseBinaryOp):
 struct MultiplyOp(ElementwiseBinaryOp):
     """Multiplication operation: a * b."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, a: Float64, b: Float64) -> Float64:
+    def apply(self, a: Float64, b: Float64) -> Float64:
         """Compute a * b.
 
         Args:
@@ -584,11 +584,11 @@ struct DivideOp(ElementwiseBinaryOp):
     Note: Returns inf for division by zero (IEEE 754 behavior).
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, a: Float64, b: Float64) -> Float64:
+    def apply(self, a: Float64, b: Float64) -> Float64:
         """Compute a / b. Returns inf for division by zero.
 
         Args:
@@ -608,11 +608,11 @@ struct PowerOp(ElementwiseBinaryOp):
     Note: Returns inf for 0^negative, NaN for negative base with non-integer exponent.
     """
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, a: Float64, b: Float64) -> Float64:
+    def apply(self, a: Float64, b: Float64) -> Float64:
         """Compute a ^ b (a to the power of b).
 
         Args:
@@ -647,11 +647,11 @@ struct PowerOp(ElementwiseBinaryOp):
 struct MaxOp(ElementwiseBinaryOp):
     """Maximum operation: max(a, b)."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, a: Float64, b: Float64) -> Float64:
+    def apply(self, a: Float64, b: Float64) -> Float64:
         """Compute max(a, b).
 
         Args:
@@ -670,11 +670,11 @@ struct MaxOp(ElementwiseBinaryOp):
 struct MinOp(ElementwiseBinaryOp):
     """Minimum operation: min(a, b)."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, a: Float64, b: Float64) -> Float64:
+    def apply(self, a: Float64, b: Float64) -> Float64:
         """Compute min(a, b).
 
         Args:
@@ -693,11 +693,11 @@ struct MinOp(ElementwiseBinaryOp):
 struct EqualOp(ElementwiseBinaryOp):
     """Equality comparison: (a == b) as 1.0 or 0.0."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, a: Float64, b: Float64) -> Float64:
+    def apply(self, a: Float64, b: Float64) -> Float64:
         """Return 1.0 if a == b, else 0.0.
 
         Args:
@@ -716,11 +716,11 @@ struct EqualOp(ElementwiseBinaryOp):
 struct GreaterOp(ElementwiseBinaryOp):
     """Greater than comparison: (a > b) as 1.0 or 0.0."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, a: Float64, b: Float64) -> Float64:
+    def apply(self, a: Float64, b: Float64) -> Float64:
         """Return 1.0 if a > b, else 0.0.
 
         Args:
@@ -739,11 +739,11 @@ struct GreaterOp(ElementwiseBinaryOp):
 struct GreaterEqualOp(ElementwiseBinaryOp):
     """Greater than or equal comparison: (a >= b) as 1.0 or 0.0."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, a: Float64, b: Float64) -> Float64:
+    def apply(self, a: Float64, b: Float64) -> Float64:
         """Return 1.0 if a >= b, else 0.0.
 
         Args:
@@ -762,11 +762,11 @@ struct GreaterEqualOp(ElementwiseBinaryOp):
 struct LessOp(ElementwiseBinaryOp):
     """Less than comparison: (a < b) as 1.0 or 0.0."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, a: Float64, b: Float64) -> Float64:
+    def apply(self, a: Float64, b: Float64) -> Float64:
         """Return 1.0 if a < b, else 0.0.
 
         Args:
@@ -785,11 +785,11 @@ struct LessOp(ElementwiseBinaryOp):
 struct LessEqualOp(ElementwiseBinaryOp):
     """Less than or equal comparison: (a <= b) as 1.0 or 0.0."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, a: Float64, b: Float64) -> Float64:
+    def apply(self, a: Float64, b: Float64) -> Float64:
         """Return 1.0 if a <= b, else 0.0.
 
         Args:
@@ -808,11 +808,11 @@ struct LessEqualOp(ElementwiseBinaryOp):
 struct LogicalAndOp(ElementwiseBinaryOp):
     """Logical AND: (a != 0 && b != 0) as 1.0 or 0.0."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, a: Float64, b: Float64) -> Float64:
+    def apply(self, a: Float64, b: Float64) -> Float64:
         """Return 1.0 if both non-zero, else 0.0.
 
         Args:
@@ -831,11 +831,11 @@ struct LogicalAndOp(ElementwiseBinaryOp):
 struct LogicalOrOp(ElementwiseBinaryOp):
     """Logical OR: (a != 0 || b != 0) as 1.0 or 0.0."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize operation."""
         pass
 
-    fn apply(self, a: Float64, b: Float64) -> Float64:
+    def apply(self, a: Float64, b: Float64) -> Float64:
         """Return 1.0 if either non-zero, else 0.0.
 
         Args:

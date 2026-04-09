@@ -24,7 +24,7 @@ from shared.testing.assertions import (
 )
 
 
-fn test_accumulate_gradient_float32() raises:
+def test_accumulate_gradient_float32() raises:
     """Test gradient accumulation with float32."""
     # Create tensors
     var accumulated = zeros([100], DType.float32)
@@ -43,7 +43,7 @@ fn test_accumulate_gradient_float32() raises:
         )
 
 
-fn test_accumulate_gradient_float16() raises:
+def test_accumulate_gradient_float16() raises:
     """Test gradient accumulation with float16."""
     # Create tensors
     var accumulated = zeros([50], DType.float16)
@@ -62,7 +62,7 @@ fn test_accumulate_gradient_float16() raises:
         )
 
 
-fn test_accumulate_gradient_large_tensor() raises:
+def test_accumulate_gradient_large_tensor() raises:
     """Test gradient accumulation with larger tensor (vectorization test)."""
     # Create large tensors to exercise vectorized path
     var accumulated = zeros([1000], DType.float32)
@@ -83,7 +83,7 @@ fn test_accumulate_gradient_large_tensor() raises:
         )
 
 
-fn test_accumulate_gradient_mismatched_shapes_fails() raises:
+def test_accumulate_gradient_mismatched_shapes_fails() raises:
     """Test that mismatched shapes raise an error."""
     var accumulated = zeros([100], DType.float32)
     var grad = ones([50], DType.float32)
@@ -99,7 +99,7 @@ fn test_accumulate_gradient_mismatched_shapes_fails() raises:
     )
 
 
-fn test_accumulate_gradient_mismatched_dtypes_fails() raises:
+def test_accumulate_gradient_mismatched_dtypes_fails() raises:
     """Test that mismatched dtypes raise an error."""
     var accumulated = zeros([100], DType.float32)
     var grad = ones([100], DType.float16)
@@ -115,7 +115,7 @@ fn test_accumulate_gradient_mismatched_dtypes_fails() raises:
     )
 
 
-fn test_scale_gradient_float32() raises:
+def test_scale_gradient_float32() raises:
     """Test gradient scaling with float32."""
     # Create tensor with value 10.0
     var grad = full([100], 10.0, DType.float32)
@@ -131,7 +131,7 @@ fn test_scale_gradient_float32() raises:
         )
 
 
-fn test_scale_gradient_averaging() raises:
+def test_scale_gradient_averaging() raises:
     """Test gradient scaling for mini-batch averaging."""
     # Simulate accumulated gradient from 4 mini-batches
     var grad = full([50], 4.0, DType.float32)
@@ -150,7 +150,7 @@ fn test_scale_gradient_averaging() raises:
         )
 
 
-fn test_scale_gradient_large_tensor() raises:
+def test_scale_gradient_large_tensor() raises:
     """Test gradient scaling with larger tensor (vectorization test)."""
     # Create large tensor
     var grad = full([1000], 100.0, DType.float32)
@@ -166,7 +166,7 @@ fn test_scale_gradient_large_tensor() raises:
         )
 
 
-fn test_zero_gradient_float32() raises:
+def test_zero_gradient_float32() raises:
     """Test gradient zeroing with float32."""
     # Create tensor with non-zero values
     var grad = full([100], 42.0, DType.float32)
@@ -182,7 +182,7 @@ fn test_zero_gradient_float32() raises:
         )
 
 
-fn test_zero_gradient_float16() raises:
+def test_zero_gradient_float16() raises:
     """Test gradient zeroing with float16."""
     # Create tensor with non-zero values
     var grad = full([50], 3.14, DType.float16)
@@ -198,7 +198,7 @@ fn test_zero_gradient_float16() raises:
         )
 
 
-fn test_zero_gradient_large_tensor() raises:
+def test_zero_gradient_large_tensor() raises:
     """Test gradient zeroing with larger tensor (vectorization test)."""
     # Create large tensor with non-zero values
     var grad = full([1000], 123.456, DType.float32)
@@ -214,7 +214,7 @@ fn test_zero_gradient_large_tensor() raises:
         )
 
 
-fn test_gradient_ops_workflow() raises:
+def test_gradient_ops_workflow() raises:
     """Test complete gradient accumulation workflow."""
     # Simulate gradient accumulation over 4 mini-batches
     var batch_size = 4
@@ -251,7 +251,7 @@ fn test_gradient_ops_workflow() raises:
         )
 
 
-fn main() raises:
+def main() raises:
     """Run all test_gradient_ops tests."""
     print("Running test_gradient_ops tests...")
 

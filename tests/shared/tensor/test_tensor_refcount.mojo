@@ -18,7 +18,7 @@ from shared.tensor.tensor import Tensor
 from shared.tensor.any_tensor import AnyTensor, zeros
 
 
-fn test_refcount_shared_on_as_any() raises:
+def test_refcount_shared_on_as_any() raises:
     """As_any() shares refcount -- both tensors access same data."""
     var t = Tensor[DType.float32]([4])
     t._data[0] = Scalar[DType.float32](1.5)
@@ -31,7 +31,7 @@ fn test_refcount_shared_on_as_any() raises:
     print("PASS: test_refcount_shared_on_as_any")
 
 
-fn test_refcount_shared_on_as_tensor() raises:
+def test_refcount_shared_on_as_tensor() raises:
     """As_tensor() shares refcount -- both tensors access same data."""
     var any_t = zeros([4], DType.float32)
     any_t._set_float32(0, Float32(0.25))
@@ -42,7 +42,7 @@ fn test_refcount_shared_on_as_tensor() raises:
     print("PASS: test_refcount_shared_on_as_tensor")
 
 
-fn _make_tensor_from_anytensor() raises -> Tensor[DType.float32]:
+def _make_tensor_from_anytensor() raises -> Tensor[DType.float32]:
     """Helper: create AnyTensor, convert to Tensor, return Tensor (AnyTensor destroyed on return)."""
     var any_t = zeros([4], DType.float32)
     any_t._set_float32(0, Float32(1.5))
@@ -51,7 +51,7 @@ fn _make_tensor_from_anytensor() raises -> Tensor[DType.float32]:
     # any_t is destroyed here — ASAP destruction
 
 
-fn test_refcount_survives_source_destruction() raises:
+def test_refcount_survives_source_destruction() raises:
     """B4 regression: AnyTensor destroyed, Tensor[dtype] still valid."""
     var t = _make_tensor_from_anytensor()
     # any_t is definitively gone
@@ -60,7 +60,7 @@ fn test_refcount_survives_source_destruction() raises:
     print("PASS: test_refcount_survives_source_destruction")
 
 
-fn _make_anytensor_from_tensor() raises -> AnyTensor:
+def _make_anytensor_from_tensor() raises -> AnyTensor:
     """Helper: create Tensor, convert to AnyTensor, return AnyTensor (Tensor destroyed on return)."""
     var t = Tensor[DType.float32]([4])
     t._data[0] = Scalar[DType.float32](0.125)
@@ -68,14 +68,14 @@ fn _make_anytensor_from_tensor() raises -> AnyTensor:
     # t is destroyed here — ASAP destruction
 
 
-fn test_refcount_survives_tensor_destruction() raises:
+def test_refcount_survives_tensor_destruction() raises:
     """Reverse B4: Tensor[dtype] destroyed, AnyTensor still valid."""
     var any_t = _make_anytensor_from_tensor()
     assert_almost_equal(any_t._get_float32(0), Float32(0.125), atol=1e-6)
     print("PASS: test_refcount_survives_tensor_destruction")
 
 
-fn test_tensor_copy_increments_refcount() raises:
+def test_tensor_copy_increments_refcount() raises:
     """Copying a Tensor[dtype] increments shared refcount."""
     var t1 = Tensor[DType.float32]([4])
     t1._data[0] = Scalar[DType.float32](1.0)
@@ -86,7 +86,7 @@ fn test_tensor_copy_increments_refcount() raises:
     print("PASS: test_tensor_copy_increments_refcount")
 
 
-fn test_tensor_multiple_conversions() raises:
+def test_tensor_multiple_conversions() raises:
     """Multiple conversions from same source all share refcount."""
     var any_t = zeros([4], DType.float32)
     any_t._set_float32(0, Float32(0.5))
@@ -99,7 +99,7 @@ fn test_tensor_multiple_conversions() raises:
     print("PASS: test_tensor_multiple_conversions")
 
 
-fn main() raises:
+def main() raises:
     test_refcount_shared_on_as_any()
     test_refcount_shared_on_as_tensor()
     test_refcount_survives_source_destruction()

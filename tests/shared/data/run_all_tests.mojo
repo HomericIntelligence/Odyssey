@@ -69,7 +69,7 @@ from tests.shared.data.samplers.test_sequential import (
 )
 
 
-fn main() raises:
+def main() raises:
     """Run all data utilities tests.
 
     Executes all test suites and reports results.

@@ -19,7 +19,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.arithmetic import add, subtract, multiply, divide
 
 
-fn test_shapes_match_identical_1d() raises:
+def test_shapes_match_identical_1d() raises:
     """Test shapes_match helper with identical 1D shapes."""
     from shared.core.arithmetic_contiguous import shapes_match
 
@@ -29,7 +29,7 @@ fn test_shapes_match_identical_1d() raises:
     assert_true(shapes_match(a, b), "Identical 1D shapes should match")
 
 
-fn test_shapes_match_identical_2d() raises:
+def test_shapes_match_identical_2d() raises:
     """Test shapes_match helper with identical 2D shapes."""
     from shared.core.arithmetic_contiguous import shapes_match
 
@@ -39,7 +39,7 @@ fn test_shapes_match_identical_2d() raises:
     assert_true(shapes_match(a, b), "Identical 2D shapes should match")
 
 
-fn test_shapes_match_different_shapes() raises:
+def test_shapes_match_different_shapes() raises:
     """Test shapes_match helper with different shapes."""
     from shared.core.arithmetic_contiguous import shapes_match
 
@@ -49,7 +49,7 @@ fn test_shapes_match_different_shapes() raises:
     assert_false(shapes_match(a, b), "Different shapes should not match")
 
 
-fn test_shapes_match_different_dims() raises:
+def test_shapes_match_different_dims() raises:
     """Test shapes_match helper with different number of dimensions."""
     from shared.core.arithmetic_contiguous import shapes_match
 
@@ -61,7 +61,7 @@ fn test_shapes_match_different_dims() raises:
     )
 
 
-fn test_can_use_fast_path_contiguous_same_shape() raises:
+def test_can_use_fast_path_contiguous_same_shape() raises:
     """Test can_use_fast_path with contiguous same-shape tensors."""
     from shared.core.arithmetic_contiguous import can_use_fast_path
 
@@ -77,7 +77,7 @@ fn test_can_use_fast_path_contiguous_same_shape() raises:
     )
 
 
-fn test_can_use_fast_path_different_shapes() raises:
+def test_can_use_fast_path_different_shapes() raises:
     """Test can_use_fast_path rejects different shapes."""
     from shared.core.arithmetic_contiguous import can_use_fast_path
 
@@ -90,7 +90,7 @@ fn test_can_use_fast_path_different_shapes() raises:
     )
 
 
-fn test_can_use_fast_path_different_dtypes() raises:
+def test_can_use_fast_path_different_dtypes() raises:
     """Test can_use_fast_path rejects different dtypes."""
     from shared.core.arithmetic_contiguous import can_use_fast_path
 
@@ -103,7 +103,7 @@ fn test_can_use_fast_path_different_dtypes() raises:
     )
 
 
-fn test_add_contiguous_same_shape_float32() raises:
+def test_add_contiguous_same_shape_float32() raises:
     """Test contiguous fast path for float32 addition."""
     var a = full([2, 3], 2.0, DType.float32)
     var b = full([2, 3], 3.0, DType.float32)
@@ -125,7 +125,7 @@ fn test_add_contiguous_same_shape_float32() raises:
         assert_almost_equal(result_ptr[i], 5.0, tolerance=1e-6)
 
 
-fn test_add_contiguous_same_shape_float64() raises:
+def test_add_contiguous_same_shape_float64() raises:
     """Test contiguous fast path for float64 addition."""
     var a = full([2, 3], 2.0, DType.float64)
     var b = full([2, 3], 3.0, DType.float64)
@@ -147,7 +147,7 @@ fn test_add_contiguous_same_shape_float64() raises:
         assert_almost_equal(result_ptr[i], 5.0, tolerance=1e-6)
 
 
-fn test_add_contiguous_large_tensor() raises:
+def test_add_contiguous_large_tensor() raises:
     """Test contiguous fast path with large tensor (1024x1024)."""
     var a = full([1024, 1024], 2.0, DType.float32)
     var b = full([1024, 1024], 3.0, DType.float32)
@@ -165,7 +165,7 @@ fn test_add_contiguous_large_tensor() raises:
     assert_almost_equal(result_ptr[1000000], 5.0, tolerance=1e-6)
 
 
-fn test_add_contiguous_small_tensor() raises:
+def test_add_contiguous_small_tensor() raises:
     """Test contiguous fast path with small tensor."""
     var a = full([2], 2.0, DType.float32)
     var b = full([2], 3.0, DType.float32)
@@ -182,7 +182,7 @@ fn test_add_contiguous_small_tensor() raises:
     assert_almost_equal(result_ptr[1], 5.0, tolerance=1e-6)
 
 
-fn test_subtract_contiguous_same_shape_float32() raises:
+def test_subtract_contiguous_same_shape_float32() raises:
     """Test contiguous fast path for float32 subtraction."""
     var a = full([2, 3], 5.0, DType.float32)
     var b = full([2, 3], 2.0, DType.float32)
@@ -199,7 +199,7 @@ fn test_subtract_contiguous_same_shape_float32() raises:
         assert_almost_equal(result_ptr[i], 3.0, tolerance=1e-6)
 
 
-fn test_subtract_contiguous_same_shape_float64() raises:
+def test_subtract_contiguous_same_shape_float64() raises:
     """Test contiguous fast path for float64 subtraction."""
     var a = full([2, 3], 5.0, DType.float64)
     var b = full([2, 3], 2.0, DType.float64)
@@ -212,7 +212,7 @@ fn test_subtract_contiguous_same_shape_float64() raises:
         assert_almost_equal(result_ptr[i], 3.0, tolerance=1e-6)
 
 
-fn test_multiply_contiguous_same_shape_float32() raises:
+def test_multiply_contiguous_same_shape_float32() raises:
     """Test contiguous fast path for float32 multiplication."""
     var a = full([2, 3], 2.0, DType.float32)
     var b = full([2, 3], 3.0, DType.float32)
@@ -225,7 +225,7 @@ fn test_multiply_contiguous_same_shape_float32() raises:
         assert_almost_equal(result_ptr[i], 6.0, tolerance=1e-6)
 
 
-fn test_multiply_contiguous_same_shape_float64() raises:
+def test_multiply_contiguous_same_shape_float64() raises:
     """Test contiguous fast path for float64 multiplication."""
     var a = full([2, 3], 2.0, DType.float64)
     var b = full([2, 3], 3.0, DType.float64)
@@ -238,7 +238,7 @@ fn test_multiply_contiguous_same_shape_float64() raises:
         assert_almost_equal(result_ptr[i], 6.0, tolerance=1e-6)
 
 
-fn test_divide_contiguous_same_shape_float32() raises:
+def test_divide_contiguous_same_shape_float32() raises:
     """Test contiguous fast path for float32 division."""
     var a = full([2, 3], 6.0, DType.float32)
     var b = full([2, 3], 2.0, DType.float32)
@@ -251,7 +251,7 @@ fn test_divide_contiguous_same_shape_float32() raises:
         assert_almost_equal(result_ptr[i], 3.0, tolerance=1e-6)
 
 
-fn test_divide_contiguous_same_shape_float64() raises:
+def test_divide_contiguous_same_shape_float64() raises:
     """Test contiguous fast path for float64 division."""
     var a = full([2, 3], 6.0, DType.float64)
     var b = full([2, 3], 2.0, DType.float64)
@@ -264,7 +264,7 @@ fn test_divide_contiguous_same_shape_float64() raises:
         assert_almost_equal(result_ptr[i], 3.0, tolerance=1e-6)
 
 
-fn test_add_noncontiguous_fallback() raises:
+def test_add_noncontiguous_fallback() raises:
     """Test that non-contiguous tensors fall back correctly.
 
     Creates a non-contiguous view by transposing and verifies
@@ -283,7 +283,7 @@ fn test_add_noncontiguous_fallback() raises:
         assert_almost_equal(result_ptr[i], 5.0, tolerance=1e-6)
 
 
-fn test_multiply_noncontiguous_fallback() raises:
+def test_multiply_noncontiguous_fallback() raises:
     """Test multiplication with non-contiguous fallback."""
     var a = full([3, 4], 2.0, DType.float32)
     var b = full([3, 4], 3.0, DType.float32)
@@ -296,7 +296,7 @@ fn test_multiply_noncontiguous_fallback() raises:
         assert_almost_equal(result_ptr[i], 6.0, tolerance=1e-6)
 
 
-fn test_add_contiguous_matches_slow_path() raises:
+def test_add_contiguous_matches_slow_path() raises:
     """Verify contiguous fast path produces same results as slow path."""
     var a = full([16, 16], 1.5, DType.float32)
     var b = full([16, 16], 2.5, DType.float32)
@@ -309,7 +309,7 @@ fn test_add_contiguous_matches_slow_path() raises:
         assert_almost_equal(result_ptr[i], 4.0, tolerance=1e-6)
 
 
-fn test_subtract_contiguous_matches_slow_path() raises:
+def test_subtract_contiguous_matches_slow_path() raises:
     """Verify subtraction fast path produces correct results."""
     var a = full([16, 16], 5.5, DType.float32)
     var b = full([16, 16], 2.5, DType.float32)
@@ -322,7 +322,7 @@ fn test_subtract_contiguous_matches_slow_path() raises:
         assert_almost_equal(result_ptr[i], 3.0, tolerance=1e-6)
 
 
-fn test_multiply_contiguous_matches_slow_path() raises:
+def test_multiply_contiguous_matches_slow_path() raises:
     """Verify multiplication fast path produces correct results."""
     var a = full([16, 16], 1.5, DType.float32)
     var b = full([16, 16], 2.0, DType.float32)
@@ -335,7 +335,7 @@ fn test_multiply_contiguous_matches_slow_path() raises:
         assert_almost_equal(result_ptr[i], 3.0, tolerance=1e-6)
 
 
-fn test_divide_contiguous_matches_slow_path() raises:
+def test_divide_contiguous_matches_slow_path() raises:
     """Verify division fast path produces correct results."""
     var a = full([16, 16], 6.0, DType.float32)
     var b = full([16, 16], 2.0, DType.float32)
@@ -348,7 +348,7 @@ fn test_divide_contiguous_matches_slow_path() raises:
         assert_almost_equal(result_ptr[i], 3.0, tolerance=1e-6)
 
 
-fn test_add_contiguous_int32() raises:
+def test_add_contiguous_int32() raises:
     """Test contiguous fast path with int32 (scalar fallback)."""
     var a = full([4, 4], 5, DType.int32)
     var b = full([4, 4], 3, DType.int32)
@@ -360,7 +360,7 @@ fn test_add_contiguous_int32() raises:
         assert_equal_int(Int(result_ptr[i]), 8)
 
 
-fn test_multiply_contiguous_int64() raises:
+def test_multiply_contiguous_int64() raises:
     """Test contiguous fast path with int64 (scalar fallback)."""
     var a = full([4, 4], 3, DType.int64)
     var b = full([4, 4], 4, DType.int64)
@@ -372,7 +372,7 @@ fn test_multiply_contiguous_int64() raises:
         assert_equal_int(Int(result_ptr[i]), 12)
 
 
-fn test_add_mixed_contiguous_noncontiguous() raises:
+def test_add_mixed_contiguous_noncontiguous() raises:
     """Test addition with one contiguous and one non-contiguous tensor.
 
     Should fall back to broadcasting path when shapes match
@@ -389,7 +389,7 @@ fn test_add_mixed_contiguous_noncontiguous() raises:
         assert_almost_equal(result_ptr[i], 5.0, tolerance=1e-6)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_arithmetic_contiguous tests."""
     print("Running test_arithmetic_contiguous tests...")
 

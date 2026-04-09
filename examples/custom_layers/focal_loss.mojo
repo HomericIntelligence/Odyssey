@@ -26,11 +26,11 @@ struct FocalLoss:
     var alpha: Float64  # Weighting factor
     var gamma: Float64  # Focusing parameter
 
-    fn __init__(out self, alpha: Float64 = 0.25, gamma: Float64 = 2.0):
+    def __init__(out self, alpha: Float64 = 0.25, gamma: Float64 = 2.0):
         self.alpha = alpha
         self.gamma = gamma
 
-    fn __call__(
+    def __call__(
         self, predictions: AnyTensor, targets: AnyTensor
     ) raises -> AnyTensor:
         """Compute focal loss for binary classification.
@@ -86,7 +86,7 @@ struct FocalLoss:
         return mean(loss_per_sample, axis=-1, keepdims=False)
 
 
-fn main() raises:
+def main() raises:
     """Demonstrate focal loss."""
 
     # Create focal loss

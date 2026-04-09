@@ -26,7 +26,7 @@ from shared.training.precision_config import (
 )
 
 
-fn test_check_bf16_platform_support_raises_on_apple() raises:
+def test_check_bf16_platform_support_raises_on_apple() raises:
     """Test that _check_bf16_platform_support raises when is_apple=True."""
     print("Testing _check_bf16_platform_support raises on Apple Silicon...")
 
@@ -51,7 +51,7 @@ fn test_check_bf16_platform_support_raises_on_apple() raises:
     print("✓ _check_bf16_platform_support raises on simulated Apple Silicon")
 
 
-fn test_check_bf16_platform_support_no_raise_on_non_apple() raises:
+def test_check_bf16_platform_support_no_raise_on_non_apple() raises:
     """Test that _check_bf16_platform_support does not raise when is_apple=False.
     """
     print("Testing _check_bf16_platform_support passes on non-Apple Silicon...")
@@ -61,7 +61,7 @@ fn test_check_bf16_platform_support_no_raise_on_non_apple() raises:
     print("✓ _check_bf16_platform_support does not raise on non-Apple Silicon")
 
 
-fn test_bf16_succeeds_on_non_apple_silicon() raises:
+def test_bf16_succeeds_on_non_apple_silicon() raises:
     """Test that PrecisionConfig.bf16() succeeds on Linux CI (non-Apple Silicon).
     """
     print("Testing PrecisionConfig.bf16() succeeds on non-Apple Silicon...")
@@ -77,7 +77,7 @@ fn test_bf16_succeeds_on_non_apple_silicon() raises:
     print("✓ PrecisionConfig.bf16() succeeds on non-Apple Silicon")
 
 
-fn test_bf16_error_message_content() raises:
+def test_bf16_error_message_content() raises:
     """Test the exact content of the Apple Silicon error message."""
     print("Testing Apple Silicon error message content...")
 
@@ -109,7 +109,7 @@ fn test_bf16_error_message_content() raises:
     print("✓ Error message has correct content")
 
 
-fn main() raises:
+def main() raises:
     """Run all Apple Silicon guard tests."""
     print("=" * 60)
     print("BF16 APPLE SILICON GUARD TESTS")

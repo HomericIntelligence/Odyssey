@@ -53,7 +53,7 @@ from shared.core.loss import cross_entropy
 from shared.core.linear import linear
 
 
-fn test_mobilenetv1_initial_conv() raises:
+def test_mobilenetv1_initial_conv() raises:
     """Test MobileNetV1 initial convolution layer.
 
     First layer: Conv 3x3, stride 2, padding 1
@@ -95,7 +95,7 @@ fn test_mobilenetv1_initial_conv() raises:
     assert_equal(out_shape[3], 16)
 
 
-fn test_mobilenetv1_block_sequence() raises:
+def test_mobilenetv1_block_sequence() raises:
     """Test sequence of depthwise separable blocks.
 
     Tests blocks with different channel/stride configurations.
@@ -172,7 +172,7 @@ fn test_mobilenetv1_block_sequence() raises:
     assert_equal(shape2[3], 4)
 
 
-fn test_mobilenetv1_classifier_head() raises:
+def test_mobilenetv1_classifier_head() raises:
     """Test MobileNetV1 classifier head.
 
     After all blocks:
@@ -207,7 +207,7 @@ fn test_mobilenetv1_classifier_head() raises:
     # For testing, we just verify the operations work
 
 
-fn test_mobilenetv1_forward_small_image() raises:
+def test_mobilenetv1_forward_small_image() raises:
     """Test forward pass through simplified MobileNetV1 with small image.
 
     Architecture:
@@ -292,7 +292,7 @@ fn test_mobilenetv1_forward_small_image() raises:
     assert_equal(final_shape[3], 1)
 
 
-fn test_mobilenetv1_forward_with_batchnorm() raises:
+def test_mobilenetv1_forward_with_batchnorm() raises:
     """Test forward pass with BatchNorm in depthwise separable blocks.
 
     Realistic block structure:
@@ -358,7 +358,7 @@ fn test_mobilenetv1_forward_with_batchnorm() raises:
     assert_equal(out_shape[3], width)
 
 
-fn test_mobilenetv1_backward_conv_only() raises:
+def test_mobilenetv1_backward_conv_only() raises:
     """Test backward pass through convolution layers only.
 
     Verifies that gradients flow correctly through:
@@ -432,7 +432,7 @@ fn test_mobilenetv1_backward_conv_only() raises:
     assert_equal(grad_dw_input_shape[1], in_channels)
 
 
-fn test_mobilenetv1_forward_for_classification() raises:
+def test_mobilenetv1_forward_for_classification() raises:
     """Test forward pass producing logits for classification.
 
     Verifies the full pipeline from input to logits.
@@ -478,7 +478,7 @@ fn test_mobilenetv1_forward_for_classification() raises:
     assert_equal(out_shape[1], num_classes)
 
 
-fn test_mobilenetv1_training_step_simulation() raises:
+def test_mobilenetv1_training_step_simulation() raises:
     """Simulate a training step: forward, loss, backward.
 
     Creates small batches and verifies the complete training loop works.
@@ -522,7 +522,7 @@ fn test_mobilenetv1_training_step_simulation() raises:
     assert_equal(logits_shape[1], num_classes)
 
 
-fn test_mobilenetv1_inference_mode() raises:
+def test_mobilenetv1_inference_mode() raises:
     """Test inference mode with BatchNorm in eval mode.
 
     In inference mode, BatchNorm uses running statistics instead of batch stats.
@@ -552,7 +552,7 @@ fn test_mobilenetv1_inference_mode() raises:
     assert_equal(out_shape[3], width)
 
 
-fn test_mobilenetv1_different_batch_sizes() raises:
+def test_mobilenetv1_different_batch_sizes() raises:
     """Test forward pass with different batch sizes.
 
     Batch sizes: 1, 2, 4
@@ -588,7 +588,7 @@ fn test_mobilenetv1_different_batch_sizes() raises:
         assert_equal(out_shape[0], batch_size)
 
 
-fn test_mobilenetv1_gradient_flow_through_convs() raises:
+def test_mobilenetv1_gradient_flow_through_convs() raises:
     """Test that gradients flow correctly through conv operations.
 
     Verifies gradient propagation through depthwise -> pointwise convolutions.
@@ -654,7 +654,7 @@ fn test_mobilenetv1_gradient_flow_through_convs() raises:
     assert_equal(grad_dw_in_shape[1], channels)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_mobilenetv1_e2e tests."""
     print("Running test_mobilenetv1_e2e tests...")
 

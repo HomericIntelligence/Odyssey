@@ -29,10 +29,10 @@ from shared.training.schedulers import step_lr
 from shared.utils.arg_parser import create_training_parser
 from shared.training.metrics import evaluate_with_predict
 from shared.data import DatasetInfo
-from collections import List
+from std.collections import List
 
 
-fn parse_args() raises -> Tuple[Int, Int, Float32, Float32, String, String]:
+def parse_args() raises -> Tuple[Int, Int, Float32, Float32, String, String]:
     """Parse command line arguments using enhanced argument parser.
 
     Returns:
@@ -53,7 +53,7 @@ fn parse_args() raises -> Tuple[Int, Int, Float32, Float32, String, String]:
     return (epochs, batch_size, learning_rate, momentum, data_dir, weights_dir)
 
 
-fn compute_gradients(
+def compute_gradients(
     mut model: AlexNet,
     input: AnyTensor,
     labels: AnyTensor,
@@ -339,7 +339,7 @@ fn compute_gradients(
     return loss
 
 
-fn train_epoch(
+def train_epoch(
     mut model: AlexNet,
     train_images: AnyTensor,
     train_labels: AnyTensor,
@@ -413,7 +413,7 @@ fn train_epoch(
     return avg_loss
 
 
-fn evaluate(
+def evaluate(
     mut model: AlexNet, test_images: AnyTensor, test_labels: AnyTensor
 ) raises -> Float32:
     """Evaluate model on test set.
@@ -457,7 +457,7 @@ fn evaluate(
     return accuracy
 
 
-fn initialize_velocities(model: AlexNet) raises -> List[AnyTensor]:
+def initialize_velocities(model: AlexNet) raises -> List[AnyTensor]:
     """Initialize momentum velocities for all parameters (16 tensors).
 
     Args:
@@ -489,7 +489,7 @@ fn initialize_velocities(model: AlexNet) raises -> List[AnyTensor]:
     return velocities^
 
 
-fn main() raises:
+def main() raises:
     """Main training loop."""
     print("=" * 60)
     print("AlexNet Training on CIFAR-10 Dataset")

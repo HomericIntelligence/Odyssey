@@ -7,7 +7,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 
-fn test_neg_basic() raises:
+def test_neg_basic() raises:
     """Test __neg__: negation -tensor."""
     var a = full([2, 3], 3.0, DType.float32)
     var result = -a
@@ -17,7 +17,7 @@ fn test_neg_basic() raises:
         )
 
 
-fn test_neg_negative_values() raises:
+def test_neg_negative_values() raises:
     """Test __neg__: negation of negative values."""
     var a = full([2, 3], -5.0, DType.float32)
     var result = -a
@@ -27,7 +27,7 @@ fn test_neg_negative_values() raises:
         )
 
 
-fn test_neg_zeros() raises:
+def test_neg_zeros() raises:
     """Test __neg__: negation of zeros."""
     var a = zeros([2, 3], DType.float32)
     var result = -a
@@ -37,7 +37,7 @@ fn test_neg_zeros() raises:
         )
 
 
-fn test_pos_basic() raises:
+def test_pos_basic() raises:
     """Test __pos__: positive +tensor (returns copy)."""
     var a = full([2, 3], 3.0, DType.float32)
     var result = +a
@@ -48,7 +48,7 @@ fn test_pos_basic() raises:
     assert_equal(result.numel(), a.numel())
 
 
-fn test_pos_preserves_values() raises:
+def test_pos_preserves_values() raises:
     """Test __pos__: positive preserves values including negative."""
     var a = full([3, 2], -2.5, DType.float32)
     var result = +a
@@ -58,7 +58,7 @@ fn test_pos_preserves_values() raises:
         )
 
 
-fn test_unary_ops_preserve_shape() raises:
+def test_unary_ops_preserve_shape() raises:
     """Test that unary operators preserve tensor shape."""
     var shape: List[Int] = [3, 4, 2]
     var a = zeros(shape, DType.float32)
@@ -68,7 +68,7 @@ fn test_unary_ops_preserve_shape() raises:
     assert_equal(len(pos_result.shape()), 3)
 
 
-fn main() raises:
+def main() raises:
     """Run all __neg__ and __pos__ operator tests."""
     test_neg_basic()
     test_neg_negative_values()

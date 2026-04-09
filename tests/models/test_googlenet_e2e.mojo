@@ -78,7 +78,7 @@ struct InceptionModule:
     var bn1x1_4_running_mean: AnyTensor
     var bn1x1_4_running_var: AnyTensor
 
-    fn __init__(
+    def __init__(
         out self,
         in_channels: Int,
         out_1x1: Int,
@@ -149,7 +149,7 @@ struct InceptionModule:
         self.bn1x1_4_running_mean = zeros([pool_proj], DType.float32)
         self.bn1x1_4_running_var = constant([pool_proj], 1.0)
 
-    fn forward(mut self, x: AnyTensor, training: Bool) raises -> AnyTensor:
+    def forward(mut self, x: AnyTensor, training: Bool) raises -> AnyTensor:
         """Forward pass through Inception module."""
         # Branch 1: 1x1 conv
         var b1 = conv2d(
@@ -236,7 +236,7 @@ struct InceptionModule:
         return concatenate_depthwise(b1, b2, b3, b4)
 
 
-fn concatenate_depthwise(
+def concatenate_depthwise(
     t1: AnyTensor, t2: AnyTensor, t3: AnyTensor, t4: AnyTensor
 ) raises -> AnyTensor:
     """Concatenate 4 tensors along channel dimension."""
@@ -309,7 +309,7 @@ struct GoogLeNetSmall:
     var fc_weights: AnyTensor
     var fc_bias: AnyTensor
 
-    fn __init__(out self, num_classes: Int = 10) raises:
+    def __init__(out self, num_classes: Int = 10) raises:
         """Initialize simplified GoogLeNet for testing."""
         # Initial conv: 3->64, 3x3 kernel
         self.initial_conv_weights = kaiming_normal(
@@ -356,7 +356,7 @@ struct GoogLeNetSmall:
         self.fc_weights = xavier_normal(96, num_classes, [num_classes, 96])
         self.fc_bias = zeros([num_classes], DType.float32)
 
-    fn forward(mut self, x: AnyTensor, training: Bool = True) raises -> AnyTensor:
+    def forward(mut self, x: AnyTensor, training: Bool = True) raises -> AnyTensor:
         """Forward pass through simplified GoogLeNet."""
         # Initial conv
         var out = conv2d(
@@ -406,7 +406,7 @@ struct GoogLeNetSmall:
 # ============================================================================
 
 
-fn test_googlenet_initialization() raises:
+def test_googlenet_initialization() raises:
     """Test that GoogLeNet model can be initialized with correct shapes."""
     var model = GoogLeNetSmall(num_classes=10)
 
@@ -419,7 +419,7 @@ fn test_googlenet_initialization() raises:
     assert_shape(model.fc_bias, [10])
 
 
-fn test_googlenet_forward_batch_size_1() raises:
+def test_googlenet_forward_batch_size_1() raises:
     """Test forward pass with batch size 1.
 
     Input: (batch=1, channels=3, height=8, width=8)
@@ -440,7 +440,7 @@ fn test_googlenet_forward_batch_size_1() raises:
     assert_equal(len(output.shape()), 2)
 
 
-fn test_googlenet_forward_batch_size_2() raises:
+def test_googlenet_forward_batch_size_2() raises:
     """Test forward pass with batch size 2.
 
     Input: (batch=2, channels=3, height=8, width=8)
@@ -460,7 +460,7 @@ fn test_googlenet_forward_batch_size_2() raises:
     assert_equal(output.shape()[1], 10)
 
 
-fn test_googlenet_forward_batch_size_4() raises:
+def test_googlenet_forward_batch_size_4() raises:
     """Test forward pass with batch size 4.
 
     Input: (batch=4, channels=3, height=8, width=8)
@@ -480,7 +480,7 @@ fn test_googlenet_forward_batch_size_4() raises:
     assert_equal(output.shape()[1], 10)
 
 
-fn test_googlenet_training_mode() raises:
+def test_googlenet_training_mode() raises:
     """Test forward pass in training mode (batch norm affects output).
 
     Training mode should use mini-batch statistics.
@@ -499,7 +499,7 @@ fn test_googlenet_training_mode() raises:
     assert_equal(output_train.shape()[1], 10)
 
 
-fn test_googlenet_inference_mode() raises:
+def test_googlenet_inference_mode() raises:
     """Test forward pass in inference mode (batch norm uses running stats).
 
     Inference mode should use running mean/variance.
@@ -518,7 +518,7 @@ fn test_googlenet_inference_mode() raises:
     assert_equal(output_infer.shape()[1], 10)
 
 
-fn test_googlenet_different_class_counts() raises:
+def test_googlenet_different_class_counts() raises:
     """Test GoogLeNet with different output class counts.
 
     CIFAR-10: 10 classes
@@ -539,7 +539,7 @@ fn test_googlenet_different_class_counts() raises:
     assert_equal(output_100.shape()[1], 100)
 
 
-fn test_googlenet_no_nan_output() raises:
+def test_googlenet_no_nan_output() raises:
     """Test that forward pass produces no NaN values.
 
     NaN can indicate numerical instability (e.g., log(negative)).
@@ -564,7 +564,7 @@ fn test_googlenet_no_nan_output() raises:
         assert_true(val == val, "Output contains NaN")
 
 
-fn test_googlenet_no_inf_output() raises:
+def test_googlenet_no_inf_output() raises:
     """Test that forward pass produces no infinite values.
 
     Infinity can indicate overflow or division issues.
@@ -588,7 +588,7 @@ fn test_googlenet_no_inf_output() raises:
         assert_true(val < 1e10, "Output contains +Inf")
 
 
-fn test_googlenet_different_input_values() raises:
+def test_googlenet_different_input_values() raises:
     """Test forward pass with different input value ranges.
 
     Should handle various input scales without numerical issues.
@@ -612,7 +612,7 @@ fn test_googlenet_different_input_values() raises:
     assert_equal(output_large.shape()[0], batch_size)
 
 
-fn test_googlenet_reproducible_output() raises:
+def test_googlenet_reproducible_output() raises:
     """Test that same input produces same output in inference mode.
 
     Inference mode should be deterministic (no stochastic operations).
@@ -637,7 +637,7 @@ fn test_googlenet_reproducible_output() raises:
     assert_equal(output1.shape()[1], output2.shape()[1])
 
 
-fn test_googlenet_multiple_forward_passes() raises:
+def test_googlenet_multiple_forward_passes() raises:
     """Test multiple forward passes through same model instance.
 
     Verifies that model state is handled correctly across multiple calls.
@@ -660,7 +660,7 @@ fn test_googlenet_multiple_forward_passes() raises:
     assert_equal(output2.shape()[1], 10)
 
 
-fn test_googlenet_inception_module_contribution() raises:
+def test_googlenet_inception_module_contribution() raises:
     """Test that each Inception module is contributing to the computation.
 
     Verifies that all modules are in the forward pass.
@@ -689,7 +689,7 @@ fn test_googlenet_inception_module_contribution() raises:
     )
 
 
-fn test_googlenet_batch_independence() raises:
+def test_googlenet_batch_independence() raises:
     """Test that batch samples are processed independently.
 
     Processing a batch of size 2 should be equivalent to processing 2 separate samples.
@@ -718,7 +718,7 @@ fn test_googlenet_batch_independence() raises:
     assert_equal(batch_output.shape()[1], sample_output_2.shape()[1])
 
 
-fn test_googlenet_output_is_tensor() raises:
+def test_googlenet_output_is_tensor() raises:
     """Test that output is a properly formed tensor.
 
     Verifies shape(), numel(), dtype() methods work on output.
@@ -745,7 +745,7 @@ fn test_googlenet_output_is_tensor() raises:
     assert_true(dtype == DType.float32, "dtype should be float32")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_googlenet_e2e tests."""
     print("Running test_googlenet_e2e tests...")
 

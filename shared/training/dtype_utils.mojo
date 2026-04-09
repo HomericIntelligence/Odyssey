@@ -37,7 +37,7 @@ Usage:
 """
 
 
-from sys import is_defined
+from std.sys import is_defined
 
 
 # ============================================================================
@@ -92,7 +92,7 @@ Note:
 # ============================================================================
 
 
-fn is_reduced_precision(dtype: DType) -> Bool:
+def is_reduced_precision(dtype: DType) -> Bool:
     """Check if dtype uses reduced precision (FP16 or BF16).
 
         Returns True for any dtype using less than 32-bit floating point.
@@ -114,7 +114,7 @@ fn is_reduced_precision(dtype: DType) -> Bool:
     return dtype == DType.float16 or dtype == DType.bfloat16
 
 
-fn is_floating_point(dtype: DType) -> Bool:
+def is_floating_point(dtype: DType) -> Bool:
     """Check if dtype is a floating point type.
 
     Args:
@@ -138,7 +138,7 @@ fn is_floating_point(dtype: DType) -> Bool:
     )
 
 
-fn get_dtype_precision_bits(dtype: DType) -> Int:
+def get_dtype_precision_bits(dtype: DType) -> Int:
     """Get the number of mantissa bits for a floating point dtype.
 
         Returns the precision (mantissa bits) for floating point dtypes.
@@ -169,7 +169,7 @@ fn get_dtype_precision_bits(dtype: DType) -> Int:
         return 0  # Not a floating point type
 
 
-fn get_dtype_exponent_bits(dtype: DType) -> Int:
+def get_dtype_exponent_bits(dtype: DType) -> Int:
     """Get the number of exponent bits for a floating point dtype.
 
         Returns the exponent bits for floating point dtypes.
@@ -200,7 +200,7 @@ fn get_dtype_exponent_bits(dtype: DType) -> Int:
         return 0  # Not a floating point type
 
 
-fn dtype_to_string(dtype: DType) -> String:
+def dtype_to_string(dtype: DType) -> String:
     """Convert DType to human-readable string.
 
     Args:
@@ -245,7 +245,7 @@ fn dtype_to_string(dtype: DType) -> String:
         return "unknown"
 
 
-fn detect_hardware_bf16_support() -> Bool:
+def detect_hardware_bf16_support() -> Bool:
     """Detect at compile time whether this hardware supports BF16 acceleration.
 
     Returns False on Apple Silicon (M1/M2/M3) where BF16 is unsupported,
@@ -265,7 +265,7 @@ fn detect_hardware_bf16_support() -> Bool:
     return not is_defined["APPLE"]()
 
 
-fn recommend_precision_dtype(model_size_mb: Float64) -> DType:
+def recommend_precision_dtype(model_size_mb: Float64) -> DType:
     """Recommend optimal precision dtype based on model size, auto-detecting BF16 support.
 
     Automatically detects BF16 hardware support at compile time.
@@ -291,7 +291,7 @@ fn recommend_precision_dtype(model_size_mb: Float64) -> DType:
     )
 
 
-fn recommend_precision_dtype(
+def recommend_precision_dtype(
     model_size_mb: Float64,
     hardware_has_fp16: Bool,
     hardware_has_bf16: Bool,
@@ -341,7 +341,7 @@ fn recommend_precision_dtype(
             return DType.float16
 
 
-fn print_dtype_info(dtype: DType):
+def print_dtype_info(dtype: DType):
     """Print detailed information about a DType.
 
         Displays precision, range, and memory usage for the given dtype.

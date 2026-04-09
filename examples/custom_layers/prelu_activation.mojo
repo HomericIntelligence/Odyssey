@@ -15,7 +15,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.core import clip
 
 
-fn prelu_simple(input: AnyTensor, alpha: Float32) raises -> AnyTensor:
+def prelu_simple(input: AnyTensor, alpha: Float32) raises -> AnyTensor:
     """Apply PReLU activation element-wise.
 
     Args:
@@ -43,7 +43,7 @@ fn prelu_simple(input: AnyTensor, alpha: Float32) raises -> AnyTensor:
     return result^
 
 
-fn main() raises:
+def main() raises:
     """Demonstrate PReLU activation."""
 
     print("\n=== PReLU Activation Example ===\n")

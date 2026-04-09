@@ -9,7 +9,7 @@ Layer 2: dtype dispatch table (ordinal-based)
 Layer 3 (core): Tensor[dtype] native implementation (_exp_typed, etc.)
 """
 
-from collections import List
+from std.collections import List
 from shared.tensor.any_tensor import AnyTensor
 from .dtype_dispatch import (
     dispatch_unary,
@@ -32,20 +32,20 @@ from shared.base.dtype_ordinal import (
     DTYPE_UINT64,
 )
 from shared.base.broadcasting import broadcast_shapes, compute_broadcast_strides
-from math import sqrt as math_sqrt
-from math import exp as math_exp
-from math import log as math_log
-from math import sin as math_sin
-from math import cos as math_cos
-from math import tanh as math_tanh
-from math import ceil as math_ceil
-from math import floor as math_floor
-from math import trunc as math_trunc
-from memory import UnsafePointer
+from std.math import sqrt as math_sqrt
+from std.math import exp as math_exp
+from std.math import log as math_log
+from std.math import sin as math_sin
+from std.math import cos as math_cos
+from std.math import tanh as math_tanh
+from std.math import ceil as math_ceil
+from std.math import floor as math_floor
+from std.math import trunc as math_trunc
+from std.memory import UnsafePointer
 
 
 @always_inline
-fn math_round[T: DType](x: Scalar[T]) -> Scalar[T]:
+def math_round[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Round to nearest integer (banker's rounding - round half to even).
 
     Examples:
@@ -88,12 +88,12 @@ fn math_round[T: DType](x: Scalar[T]) -> Scalar[T]:
 
 
 @always_inline
-fn _neg_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+def _neg_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Negation operation."""
     return -x
 
 
-fn negate(tensor: AnyTensor) raises -> AnyTensor:
+def negate(tensor: AnyTensor) raises -> AnyTensor:
     """Negate all elements element-wise (-x).
 
     Args:
@@ -112,7 +112,7 @@ fn negate(tensor: AnyTensor) raises -> AnyTensor:
 
 
 @always_inline
-fn _abs_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+def _abs_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Absolute value operation."""
     if x >= Scalar[T](0):
         return x
@@ -120,7 +120,7 @@ fn _abs_op[T: DType](x: Scalar[T]) -> Scalar[T]:
         return -x
 
 
-fn abs(tensor: AnyTensor) raises -> AnyTensor:
+def abs(tensor: AnyTensor) raises -> AnyTensor:
     """Absolute value element-wise.
 
     Args:
@@ -141,7 +141,7 @@ fn abs(tensor: AnyTensor) raises -> AnyTensor:
 
 
 @always_inline
-fn _sign_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+def _sign_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Sign operation: -1, 0, or 1."""
     if x > Scalar[T](0):
         return Scalar[T](1)
@@ -151,7 +151,7 @@ fn _sign_op[T: DType](x: Scalar[T]) -> Scalar[T]:
         return Scalar[T](0)
 
 
-fn sign(tensor: AnyTensor) raises -> AnyTensor:
+def sign(tensor: AnyTensor) raises -> AnyTensor:
     """Sign function element-wise (-1, 0, or 1).
 
     Args:
@@ -172,17 +172,15 @@ fn sign(tensor: AnyTensor) raises -> AnyTensor:
 
 
 @always_inline
-fn _exp_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+def _exp_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Exponential operation."""
-
-    @parameter
-    if T == DType.float16 or T == DType.float32:
+    comptime if T == DType.float16 or T == DType.float32:
         return Scalar[T](math_exp(Float32(x)))
     else:
         return Scalar[T](math_exp(Float64(x)))
 
 
-fn exp(tensor: AnyTensor) raises -> AnyTensor:
+def exp(tensor: AnyTensor) raises -> AnyTensor:
     """Exponential function element-wise (e^x).
 
     Args:
@@ -203,17 +201,15 @@ fn exp(tensor: AnyTensor) raises -> AnyTensor:
 
 
 @always_inline
-fn _log_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+def _log_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Natural logarithm operation."""
-
-    @parameter
-    if T == DType.float16 or T == DType.float32:
+    comptime if T == DType.float16 or T == DType.float32:
         return Scalar[T](math_log(Float32(x)))
     else:
         return Scalar[T](math_log(Float64(x)))
 
 
-fn log(tensor: AnyTensor) raises -> AnyTensor:
+def log(tensor: AnyTensor) raises -> AnyTensor:
     """Natural logarithm element-wise (ln(x)).
 
     Args:
@@ -237,17 +233,15 @@ fn log(tensor: AnyTensor) raises -> AnyTensor:
 
 
 @always_inline
-fn _sqrt_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+def _sqrt_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Square root operation."""
-
-    @parameter
-    if T == DType.float16 or T == DType.float32:
+    comptime if T == DType.float16 or T == DType.float32:
         return Scalar[T](math_sqrt(Float32(x)))
     else:
         return Scalar[T](math_sqrt(Float64(x)))
 
 
-fn sqrt(tensor: AnyTensor) raises -> AnyTensor:
+def sqrt(tensor: AnyTensor) raises -> AnyTensor:
     """Square root element-wise.
 
     Args:
@@ -271,17 +265,15 @@ fn sqrt(tensor: AnyTensor) raises -> AnyTensor:
 
 
 @always_inline
-fn _sin_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+def _sin_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Sine operation."""
-
-    @parameter
-    if T == DType.float16 or T == DType.float32:
+    comptime if T == DType.float16 or T == DType.float32:
         return Scalar[T](math_sin(Float32(x)))
     else:
         return Scalar[T](math_sin(Float64(x)))
 
 
-fn sin(tensor: AnyTensor) raises -> AnyTensor:
+def sin(tensor: AnyTensor) raises -> AnyTensor:
     """Sine function element-wise.
 
     Args:
@@ -302,17 +294,15 @@ fn sin(tensor: AnyTensor) raises -> AnyTensor:
 
 
 @always_inline
-fn _cos_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+def _cos_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Cosine operation."""
-
-    @parameter
-    if T == DType.float16 or T == DType.float32:
+    comptime if T == DType.float16 or T == DType.float32:
         return Scalar[T](math_cos(Float32(x)))
     else:
         return Scalar[T](math_cos(Float64(x)))
 
 
-fn cos(tensor: AnyTensor) raises -> AnyTensor:
+def cos(tensor: AnyTensor) raises -> AnyTensor:
     """Cosine function element-wise.
 
     Args:
@@ -333,17 +323,15 @@ fn cos(tensor: AnyTensor) raises -> AnyTensor:
 
 
 @always_inline
-fn _tanh_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+def _tanh_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Hyperbolic tangent operation."""
-
-    @parameter
-    if T == DType.float16 or T == DType.float32:
+    comptime if T == DType.float16 or T == DType.float32:
         return Scalar[T](math_tanh(Float32(x)))
     else:
         return Scalar[T](math_tanh(Float64(x)))
 
 
-fn tanh(tensor: AnyTensor) raises -> AnyTensor:
+def tanh(tensor: AnyTensor) raises -> AnyTensor:
     """Hyperbolic tangent function element-wise.
 
     Args:
@@ -369,7 +357,7 @@ fn tanh(tensor: AnyTensor) raises -> AnyTensor:
 
 
 @always_inline
-fn _clip_forward_impl[
+def _clip_forward_impl[
     dtype: DType
 ](result: AnyTensor, tensor: AnyTensor, min_val: Float64, max_val: Float64):
     """Dtype-specialized clip forward: clamp values to [min, max]."""
@@ -387,7 +375,7 @@ fn _clip_forward_impl[
             out_ptr[i] = val
 
 
-fn _dispatch_clip_forward(
+def _dispatch_clip_forward(
     result: AnyTensor, tensor: AnyTensor, min_val: Float64, max_val: Float64
 ) raises:
     """Runtime dispatch for clip forward pass."""
@@ -411,7 +399,7 @@ fn _dispatch_clip_forward(
 
 
 @always_inline
-fn _log10_forward_impl[
+def _log10_forward_impl[
     dtype: DType
 ](result: AnyTensor, tensor: AnyTensor, numel: Int) raises:
     """Dtype-specialized log10 forward: log(x) / log(10)."""
@@ -422,15 +410,13 @@ fn _log10_forward_impl[
         var val = in_ptr[i]
         if val <= Scalar[dtype](0):
             raise Error("log10 requires positive values")
-
-        @parameter
-        if dtype == DType.float16 or dtype == DType.float32:
+        comptime if dtype == DType.float16 or dtype == DType.float32:
             out_ptr[i] = Scalar[dtype](math_log(Float32(val))) / ln10
         else:
             out_ptr[i] = Scalar[dtype](math_log(Float64(val))) / ln10
 
 
-fn _dispatch_log10_forward(
+def _dispatch_log10_forward(
     result: AnyTensor, tensor: AnyTensor, numel: Int
 ) raises:
     """Runtime dispatch for log10 forward pass."""
@@ -446,7 +432,7 @@ fn _dispatch_log10_forward(
 
 
 @always_inline
-fn _log2_forward_impl[
+def _log2_forward_impl[
     dtype: DType
 ](result: AnyTensor, tensor: AnyTensor, numel: Int) raises:
     """Dtype-specialized log2 forward: log(x) / log(2)."""
@@ -457,15 +443,13 @@ fn _log2_forward_impl[
         var val = in_ptr[i]
         if val <= Scalar[dtype](0):
             raise Error("log2 requires positive values")
-
-        @parameter
-        if dtype == DType.float16 or dtype == DType.float32:
+        comptime if dtype == DType.float16 or dtype == DType.float32:
             out_ptr[i] = Scalar[dtype](math_log(Float32(val))) / ln2
         else:
             out_ptr[i] = Scalar[dtype](math_log(Float64(val))) / ln2
 
 
-fn _dispatch_log2_forward(
+def _dispatch_log2_forward(
     result: AnyTensor, tensor: AnyTensor, numel: Int
 ) raises:
     """Runtime dispatch for log2 forward pass."""
@@ -480,7 +464,7 @@ fn _dispatch_log2_forward(
         raise Error("log2: unsupported dtype (requires float type)")
 
 
-fn _logical_and_impl[
+def _logical_and_impl[
     dtype: DType
 ](
     result: AnyTensor,
@@ -515,7 +499,7 @@ fn _logical_and_impl[
         out_ptr[result_idx] = one if bool_result else zero
 
 
-fn _dispatch_logical_and(
+def _dispatch_logical_and(
     result: AnyTensor,
     a: AnyTensor,
     b: AnyTensor,
@@ -558,7 +542,7 @@ fn _dispatch_logical_and(
         raise Error("logical_and: unsupported dtype")
 
 
-fn _logical_or_impl[
+def _logical_or_impl[
     dtype: DType
 ](
     result: AnyTensor,
@@ -592,7 +576,7 @@ fn _logical_or_impl[
         out_ptr[result_idx] = one if bool_result else zero
 
 
-fn _dispatch_logical_or(
+def _dispatch_logical_or(
     result: AnyTensor,
     a: AnyTensor,
     b: AnyTensor,
@@ -636,7 +620,7 @@ fn _dispatch_logical_or(
 
 
 @always_inline
-fn _logical_not_impl[
+def _logical_not_impl[
     dtype: DType
 ](result: AnyTensor, tensor: AnyTensor, numel: Int):
     """Dtype-specialized logical NOT."""
@@ -649,7 +633,7 @@ fn _logical_not_impl[
         out_ptr[i] = one if bool_result else zero
 
 
-fn _dispatch_logical_not(result: AnyTensor, tensor: AnyTensor, numel: Int) raises:
+def _dispatch_logical_not(result: AnyTensor, tensor: AnyTensor, numel: Int) raises:
     """Runtime dispatch for logical NOT."""
     var dtype = tensor.dtype()
     if dtype == DType.float16:
@@ -670,7 +654,7 @@ fn _dispatch_logical_not(result: AnyTensor, tensor: AnyTensor, numel: Int) raise
         raise Error("logical_not: unsupported dtype")
 
 
-fn _logical_xor_impl[
+def _logical_xor_impl[
     dtype: DType
 ](
     result: AnyTensor,
@@ -707,7 +691,7 @@ fn _logical_xor_impl[
         out_ptr[result_idx] = one if bool_result else zero
 
 
-fn _dispatch_logical_xor(
+def _dispatch_logical_xor(
     result: AnyTensor,
     a: AnyTensor,
     b: AnyTensor,
@@ -750,7 +734,7 @@ fn _dispatch_logical_xor(
         raise Error("logical_xor: unsupported dtype")
 
 
-fn clip(
+def clip(
     tensor: AnyTensor, min_val: Float64, max_val: Float64
 ) raises -> AnyTensor:
     """Clip (clamp) values to a range element-wise.
@@ -786,17 +770,15 @@ fn clip(
 
 
 @always_inline
-fn _ceil_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+def _ceil_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Ceiling operation."""
-
-    @parameter
-    if T == DType.float16 or T == DType.float32:
+    comptime if T == DType.float16 or T == DType.float32:
         return Scalar[T](math_ceil(Float32(x)))
     else:
         return Scalar[T](math_ceil(Float64(x)))
 
 
-fn ceil(tensor: AnyTensor) raises -> AnyTensor:
+def ceil(tensor: AnyTensor) raises -> AnyTensor:
     """Ceiling function element-wise (round up to nearest integer).
 
     Args:
@@ -817,17 +799,15 @@ fn ceil(tensor: AnyTensor) raises -> AnyTensor:
 
 
 @always_inline
-fn _floor_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+def _floor_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Floor operation."""
-
-    @parameter
-    if T == DType.float16 or T == DType.float32:
+    comptime if T == DType.float16 or T == DType.float32:
         return Scalar[T](math_floor(Float32(x)))
     else:
         return Scalar[T](math_floor(Float64(x)))
 
 
-fn floor(tensor: AnyTensor) raises -> AnyTensor:
+def floor(tensor: AnyTensor) raises -> AnyTensor:
     """Floor function element-wise (round down to nearest integer).
 
     Args:
@@ -848,17 +828,15 @@ fn floor(tensor: AnyTensor) raises -> AnyTensor:
 
 
 @always_inline
-fn _round_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+def _round_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Round operation."""
-
-    @parameter
-    if T == DType.float16 or T == DType.float32:
+    comptime if T == DType.float16 or T == DType.float32:
         return Scalar[T](math_round(Float32(x)))
     else:
         return Scalar[T](math_round(Float64(x)))
 
 
-fn round(tensor: AnyTensor) raises -> AnyTensor:
+def round(tensor: AnyTensor) raises -> AnyTensor:
     """Round to nearest integer element-wise.
 
     Args:
@@ -879,17 +857,15 @@ fn round(tensor: AnyTensor) raises -> AnyTensor:
 
 
 @always_inline
-fn _trunc_op[T: DType](x: Scalar[T]) -> Scalar[T]:
+def _trunc_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Truncate operation."""
-
-    @parameter
-    if T == DType.float16 or T == DType.float32:
+    comptime if T == DType.float16 or T == DType.float32:
         return Scalar[T](math_trunc(Float32(x)))
     else:
         return Scalar[T](math_trunc(Float64(x)))
 
 
-fn trunc(tensor: AnyTensor) raises -> AnyTensor:
+def trunc(tensor: AnyTensor) raises -> AnyTensor:
     """Truncate to integer element-wise (round toward zero).
 
     Args:
@@ -914,7 +890,7 @@ fn trunc(tensor: AnyTensor) raises -> AnyTensor:
 # ============================================================================
 
 
-fn logical_and(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def logical_and(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Logical AND element-wise with broadcasting.
 
     Args:
@@ -965,7 +941,7 @@ fn logical_and(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     return result^
 
 
-fn logical_or(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def logical_or(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Logical OR element-wise with broadcasting.
 
     Args:
@@ -1016,7 +992,7 @@ fn logical_or(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     return result^
 
 
-fn logical_not(tensor: AnyTensor) raises -> AnyTensor:
+def logical_not(tensor: AnyTensor) raises -> AnyTensor:
     """Logical NOT element-wise.
 
     Args:
@@ -1036,7 +1012,7 @@ fn logical_not(tensor: AnyTensor) raises -> AnyTensor:
     return result^
 
 
-fn logical_xor(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def logical_xor(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Logical XOR element-wise with broadcasting.
 
     Args:
@@ -1092,7 +1068,7 @@ fn logical_xor(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 # ============================================================================
 
 
-fn log10(tensor: AnyTensor) raises -> AnyTensor:
+def log10(tensor: AnyTensor) raises -> AnyTensor:
     """Base-10 logarithm element-wise.
 
     Args:
@@ -1115,7 +1091,7 @@ fn log10(tensor: AnyTensor) raises -> AnyTensor:
     return result^
 
 
-fn log2(tensor: AnyTensor) raises -> AnyTensor:
+def log2(tensor: AnyTensor) raises -> AnyTensor:
     """Base-2 logarithm element-wise.
 
     Args:
@@ -1148,7 +1124,7 @@ fn log2(tensor: AnyTensor) raises -> AnyTensor:
 
 
 @always_inline
-fn _exp_backward_impl[
+def _exp_backward_impl[
     dtype: DType
 ](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int) raises:
     """Dtype-specialized exp backward: grad * exp(x)."""
@@ -1159,7 +1135,7 @@ fn _exp_backward_impl[
         out_ptr[i] = grad_ptr[i] * Scalar[dtype](math_exp(Float32(x_ptr[i])))
 
 
-fn _dispatch_exp_backward(
+def _dispatch_exp_backward(
     result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int
 ) raises:
     """Runtime dispatch for exp backward pass."""
@@ -1175,7 +1151,7 @@ fn _dispatch_exp_backward(
 
 
 @always_inline
-fn _log_backward_impl[
+def _log_backward_impl[
     dtype: DType
 ](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int):
     """Dtype-specialized log backward: grad / (x + epsilon)."""
@@ -1187,7 +1163,7 @@ fn _log_backward_impl[
         out_ptr[i] = grad_ptr[i] / (x_ptr[i] + epsilon)
 
 
-fn _dispatch_log_backward(
+def _dispatch_log_backward(
     result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int
 ) raises:
     """Runtime dispatch for log backward pass."""
@@ -1203,7 +1179,7 @@ fn _dispatch_log_backward(
 
 
 @always_inline
-fn _sqrt_backward_impl[
+def _sqrt_backward_impl[
     dtype: DType
 ](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int):
     """Dtype-specialized sqrt backward: grad / (2 * sqrt(x) + epsilon)."""
@@ -1216,7 +1192,7 @@ fn _sqrt_backward_impl[
         out_ptr[i] = grad_ptr[i] / (two * math_sqrt(x_ptr[i]) + epsilon)
 
 
-fn _dispatch_sqrt_backward(
+def _dispatch_sqrt_backward(
     result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int
 ) raises:
     """Runtime dispatch for sqrt backward pass."""
@@ -1231,7 +1207,7 @@ fn _dispatch_sqrt_backward(
         raise Error("sqrt_backward: unsupported dtype")
 
 
-fn _sin_backward_impl[
+def _sin_backward_impl[
     dtype: DType
 ](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int) raises:
     """Dtype-specialized sin backward: grad * cos(x)."""
@@ -1242,7 +1218,7 @@ fn _sin_backward_impl[
         out_ptr[i] = grad_ptr[i] * Scalar[dtype](math_cos(Float32(x_ptr[i])))
 
 
-fn _dispatch_sin_backward(
+def _dispatch_sin_backward(
     result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int
 ) raises:
     """Runtime dispatch for sin backward pass."""
@@ -1257,7 +1233,7 @@ fn _dispatch_sin_backward(
         raise Error("sin_backward: unsupported dtype")
 
 
-fn _cos_backward_impl[
+def _cos_backward_impl[
     dtype: DType
 ](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int) raises:
     """Dtype-specialized cos backward: grad * (-sin(x))."""
@@ -1268,7 +1244,7 @@ fn _cos_backward_impl[
         out_ptr[i] = grad_ptr[i] * Scalar[dtype](-math_sin(Float32(x_ptr[i])))
 
 
-fn _dispatch_cos_backward(
+def _dispatch_cos_backward(
     result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int
 ) raises:
     """Runtime dispatch for cos backward pass."""
@@ -1284,7 +1260,7 @@ fn _dispatch_cos_backward(
 
 
 @always_inline
-fn _abs_backward_impl[
+def _abs_backward_impl[
     dtype: DType
 ](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int):
     """Dtype-specialized abs backward: grad * sign(x)."""
@@ -1304,7 +1280,7 @@ fn _abs_backward_impl[
         out_ptr[i] = grad_ptr[i] * sign_x
 
 
-fn _dispatch_abs_backward(
+def _dispatch_abs_backward(
     result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int
 ) raises:
     """Runtime dispatch for abs backward pass."""
@@ -1328,7 +1304,7 @@ fn _dispatch_abs_backward(
 
 
 @always_inline
-fn _clip_backward_impl[
+def _clip_backward_impl[
     dtype: DType
 ](
     result: AnyTensor,
@@ -1353,7 +1329,7 @@ fn _clip_backward_impl[
             out_ptr[i] = zero
 
 
-fn _dispatch_clip_backward(
+def _dispatch_clip_backward(
     result: AnyTensor,
     grad_output: AnyTensor,
     x: AnyTensor,
@@ -1380,7 +1356,7 @@ fn _dispatch_clip_backward(
 
 
 @always_inline
-fn _log10_backward_impl[
+def _log10_backward_impl[
     dtype: DType
 ](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int):
     """Dtype-specialized log10 backward: grad / (x * ln(10) + epsilon)."""
@@ -1393,7 +1369,7 @@ fn _log10_backward_impl[
         out_ptr[i] = grad_ptr[i] / (x_ptr[i] * ln10 + epsilon)
 
 
-fn _dispatch_log10_backward(
+def _dispatch_log10_backward(
     result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int
 ) raises:
     """Runtime dispatch for log10 backward pass."""
@@ -1409,7 +1385,7 @@ fn _dispatch_log10_backward(
 
 
 @always_inline
-fn _log2_backward_impl[
+def _log2_backward_impl[
     dtype: DType
 ](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int):
     """Dtype-specialized log2 backward: grad / (x * ln(2) + epsilon)."""
@@ -1422,7 +1398,7 @@ fn _log2_backward_impl[
         out_ptr[i] = grad_ptr[i] / (x_ptr[i] * ln2 + epsilon)
 
 
-fn _dispatch_log2_backward(
+def _dispatch_log2_backward(
     result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int
 ) raises:
     """Runtime dispatch for log2 backward pass."""
@@ -1437,7 +1413,7 @@ fn _dispatch_log2_backward(
         raise Error("log2_backward: unsupported dtype")
 
 
-fn exp_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+def exp_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     """Compute gradient for exponential function.
 
         For Y = exp(X), given ∂L/∂Y, computes:
@@ -1462,7 +1438,7 @@ fn exp_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     return result
 
 
-fn log_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+def log_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     """Compute gradient for natural logarithm.
 
         For Y = log(X), given ∂L/∂Y, computes:
@@ -1491,7 +1467,7 @@ fn log_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     return result
 
 
-fn sqrt_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+def sqrt_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     """Compute gradient for square root.
 
         For Y = sqrt(X), given ∂L/∂Y, computes:
@@ -1517,7 +1493,7 @@ fn sqrt_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     return result
 
 
-fn sin_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+def sin_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     """Compute gradient for sine function.
 
         For Y = sin(X), given ∂L/∂Y, computes:
@@ -1542,7 +1518,7 @@ fn sin_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     return result
 
 
-fn cos_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+def cos_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     """Compute gradient for cosine function.
 
         For Y = cos(X), given ∂L/∂Y, computes:
@@ -1567,7 +1543,7 @@ fn cos_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     return result
 
 
-fn abs_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+def abs_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     """Compute gradient for absolute value.
 
         For Y = |X|, given ∂L/∂Y, computes:
@@ -1597,7 +1573,7 @@ fn abs_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     return result
 
 
-fn clip_backward(
+def clip_backward(
     grad_output: AnyTensor, x: AnyTensor, min_val: Float64, max_val: Float64
 ) raises -> AnyTensor:
     """Compute gradient for clip (clamp) operation.
@@ -1632,7 +1608,7 @@ fn clip_backward(
     return result
 
 
-fn log10_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+def log10_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     """Compute gradient for base-10 logarithm.
 
         For Y = log10(X), given ∂L/∂Y, computes:
@@ -1653,7 +1629,7 @@ fn log10_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     return result
 
 
-fn log2_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+def log2_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     """Compute gradient for base-2 logarithm.
 
         For Y = log2(X), given ∂L/∂Y, computes:

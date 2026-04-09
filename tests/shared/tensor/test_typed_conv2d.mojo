@@ -23,7 +23,7 @@ from shared.core.layers.conv2d import Conv2dLayer
 from shared.tensor.tensor import Tensor
 
 
-fn test_conv2d_default_dtype() raises:
+def test_conv2d_default_dtype() raises:
     """Conv2dLayer defaults to float32 weights."""
     var layer = Conv2dLayer(
         in_channels=1, out_channels=2, kernel_h=3, kernel_w=3
@@ -33,7 +33,7 @@ fn test_conv2d_default_dtype() raises:
     print("PASS: test_conv2d_default_dtype")
 
 
-fn test_conv2d_float64() raises:
+def test_conv2d_float64() raises:
     """Conv2dLayer[DType.float64] uses float64 tensors."""
     var layer = Conv2dLayer[DType.float64](
         in_channels=1, out_channels=2, kernel_h=3, kernel_w=3
@@ -43,7 +43,7 @@ fn test_conv2d_float64() raises:
     print("PASS: test_conv2d_float64")
 
 
-fn test_conv2d_weight_shape() raises:
+def test_conv2d_weight_shape() raises:
     """Weight has shape (out_channels, in_channels, kernel_h, kernel_w)."""
     var layer = Conv2dLayer(
         in_channels=3, out_channels=16, kernel_h=5, kernel_w=5
@@ -58,7 +58,7 @@ fn test_conv2d_weight_shape() raises:
     print("PASS: test_conv2d_weight_shape")
 
 
-fn test_conv2d_bias_shape() raises:
+def test_conv2d_bias_shape() raises:
     """Bias has shape (out_channels,) and is initialized to zeros."""
     var layer = Conv2dLayer(
         in_channels=3, out_channels=16, kernel_h=3, kernel_w=3
@@ -70,7 +70,7 @@ fn test_conv2d_bias_shape() raises:
     print("PASS: test_conv2d_bias_shape")
 
 
-fn test_conv2d_forward_typed() raises:
+def test_conv2d_forward_typed() raises:
     """Forward pass accepts and returns Tensor[dtype]."""
     var layer = Conv2dLayer[DType.float32](
         in_channels=1, out_channels=2, kernel_h=3, kernel_w=3, padding=1
@@ -91,7 +91,7 @@ fn test_conv2d_forward_typed() raises:
     print("PASS: test_conv2d_forward_typed")
 
 
-fn test_conv2d_forward_output_shape_no_padding() raises:
+def test_conv2d_forward_output_shape_no_padding() raises:
     """Forward pass computes correct output shape without padding."""
     var layer = Conv2dLayer(
         in_channels=1, out_channels=4, kernel_h=3, kernel_w=3
@@ -108,7 +108,7 @@ fn test_conv2d_forward_output_shape_no_padding() raises:
     print("PASS: test_conv2d_forward_output_shape_no_padding")
 
 
-fn test_conv2d_parameters_typed() raises:
+def test_conv2d_parameters_typed() raises:
     """Parameters() returns List with weight and bias."""
     var layer = Conv2dLayer(
         in_channels=1, out_channels=2, kernel_h=3, kernel_w=3
@@ -120,7 +120,7 @@ fn test_conv2d_parameters_typed() raises:
     print("PASS: test_conv2d_parameters_typed")
 
 
-fn test_conv2d_backward_typed() raises:
+def test_conv2d_backward_typed() raises:
     """Backward pass returns gradient tensors."""
     var layer = Conv2dLayer[DType.float32](
         in_channels=1, out_channels=2, kernel_h=3, kernel_w=3, padding=1
@@ -150,7 +150,7 @@ fn test_conv2d_backward_typed() raises:
     print("PASS: test_conv2d_backward_typed")
 
 
-fn test_conv2d_stride() raises:
+def test_conv2d_stride() raises:
     """Conv2d with stride=2 halves spatial dimensions."""
     var layer = Conv2dLayer(
         in_channels=1, out_channels=2, kernel_h=3, kernel_w=3, stride=2
@@ -165,7 +165,7 @@ fn test_conv2d_stride() raises:
     print("PASS: test_conv2d_stride")
 
 
-fn main() raises:
+def main() raises:
     test_conv2d_default_dtype()
     test_conv2d_float64()
     test_conv2d_weight_shape()

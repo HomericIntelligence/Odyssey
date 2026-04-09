@@ -16,7 +16,7 @@ Run individual examples directly:
 """
 
 
-fn main() raises:
+def main() raises:
     """Examples package entry point.
 
     This serves as a placeholder entry point for the examples package.

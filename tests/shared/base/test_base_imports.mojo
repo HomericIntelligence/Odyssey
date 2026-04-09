@@ -17,7 +17,7 @@ Tests cover:
 from testing import assert_true
 
 
-fn test_memory_pool_imports() raises:
+def test_memory_pool_imports() raises:
     """Verify memory_pool module imports work."""
     from shared.base.memory_pool import pooled_alloc, pooled_free
 
@@ -26,7 +26,7 @@ fn test_memory_pool_imports() raises:
     print("PASS: test_memory_pool_imports")
 
 
-fn test_broadcasting_imports() raises:
+def test_broadcasting_imports() raises:
     """Verify broadcasting module imports and basic function work."""
     from shared.base.broadcasting import broadcast_shapes, are_shapes_broadcastable
 
@@ -44,7 +44,7 @@ fn test_broadcasting_imports() raises:
     print("PASS: test_broadcasting_imports")
 
 
-fn test_dtype_ordinal_imports() raises:
+def test_dtype_ordinal_imports() raises:
     """Verify dtype_ordinal module imports and constants."""
     from shared.base.dtype_ordinal import (
         dtype_to_ordinal,
@@ -78,7 +78,7 @@ fn test_dtype_ordinal_imports() raises:
     print("PASS: test_dtype_ordinal_imports")
 
 
-fn test_defaults_imports() raises:
+def test_defaults_imports() raises:
     """Verify defaults module imports and constant values."""
     from shared.base.defaults import (
         DEFAULT_DROPOUT_RATE,
@@ -99,7 +99,7 @@ fn test_defaults_imports() raises:
     print("PASS: test_defaults_imports")
 
 
-fn test_math_constants_imports() raises:
+def test_math_constants_imports() raises:
     """Verify math_constants module imports and values."""
     from shared.base.math_constants import PI, SQRT_2, LN2
 
@@ -110,7 +110,7 @@ fn test_math_constants_imports() raises:
     print("PASS: test_math_constants_imports")
 
 
-fn test_numerical_constants_imports() raises:
+def test_numerical_constants_imports() raises:
     """Verify numerical_constants module imports and values."""
     from shared.base.numerical_constants import (
         EPSILON_DIV,
@@ -130,7 +130,7 @@ fn test_numerical_constants_imports() raises:
     print("PASS: test_numerical_constants_imports")
 
 
-fn test_package_level_reexports() raises:
+def test_package_level_reexports() raises:
     """Verify shared.base package re-exports symbols."""
     from shared.base import (
         pooled_alloc,
@@ -149,7 +149,7 @@ fn test_package_level_reexports() raises:
     print("PASS: test_package_level_reexports")
 
 
-fn main() raises:
+def main() raises:
     test_memory_pool_imports()
     test_broadcasting_imports()
     test_dtype_ordinal_imports()

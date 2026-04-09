@@ -18,7 +18,7 @@ Use these fixtures to test config loading without managing test files.
 # ============================================================================
 
 
-fn valid_yaml_config() -> String:
+def valid_yaml_config() -> String:
     """Get valid YAML configuration for testing.
 
     Returns:
@@ -70,7 +70,7 @@ logging:
 """
 
 
-fn valid_json_config() -> String:
+def valid_json_config() -> String:
     """Get valid JSON configuration for testing.
 
     Returns:
@@ -117,7 +117,7 @@ fn valid_json_config() -> String:
 }"""
 
 
-fn minimal_valid_config() -> String:
+def minimal_valid_config() -> String:
     """Get minimal valid configuration.
 
     Returns:
@@ -148,7 +148,7 @@ training:
 # ============================================================================
 
 
-fn invalid_config_missing_fields() -> String:
+def invalid_config_missing_fields() -> String:
     """Get configuration with missing required fields.
 
     Returns:
@@ -176,7 +176,7 @@ training:
 """
 
 
-fn invalid_config_wrong_types() -> String:
+def invalid_config_wrong_types() -> String:
     """Get configuration with wrong field types.
 
     Returns:
@@ -200,7 +200,7 @@ training:
 """
 
 
-fn invalid_config_negative_values() -> String:
+def invalid_config_negative_values() -> String:
     """Get configuration with invalid negative values.
 
     Returns:
@@ -224,7 +224,7 @@ training:
 """
 
 
-fn invalid_config_out_of_range() -> String:
+def invalid_config_out_of_range() -> String:
     """Get configuration with out-of-range values.
 
     Returns:
@@ -249,7 +249,7 @@ training:
 """
 
 
-fn invalid_yaml_syntax() -> String:
+def invalid_yaml_syntax() -> String:
     """Get string with invalid YAML syntax.
 
     Returns:
@@ -276,7 +276,7 @@ epochs: 10
 """
 
 
-fn invalid_json_syntax() -> String:
+def invalid_json_syntax() -> String:
     """Get string with invalid JSON syntax.
 
     Returns:
@@ -311,7 +311,7 @@ fn invalid_json_syntax() -> String:
 # ============================================================================
 
 
-fn config_template_classification() -> String:
+def config_template_classification() -> String:
     """Get configuration template for classification task.
 
     Returns:
@@ -346,7 +346,7 @@ data:
 """
 
 
-fn config_template_regression() -> String:
+def config_template_regression() -> String:
     """Get configuration template for regression task.
 
     Returns:
@@ -385,7 +385,7 @@ data:
 # ============================================================================
 
 
-fn has_required_fields(config_str: String) -> Bool:
+def has_required_fields(config_str: String) -> Bool:
     """Check if configuration string has required fields.
 
     Args:
@@ -426,7 +426,7 @@ fn has_required_fields(config_str: String) -> Bool:
     return has_batch_size and has_epochs
 
 
-fn is_valid_yaml_syntax(config_str: String) -> Bool:
+def is_valid_yaml_syntax(config_str: String) -> Bool:
     """Quick check if string looks like valid YAML.
 
     Args:
@@ -467,7 +467,7 @@ fn is_valid_yaml_syntax(config_str: String) -> Bool:
     return True
 
 
-fn is_valid_json_syntax(config_str: String) -> Bool:
+def is_valid_json_syntax(config_str: String) -> Bool:
     """Quick check if string looks like valid JSON.
 
     Args:

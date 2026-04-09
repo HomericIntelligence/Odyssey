@@ -17,7 +17,7 @@ Output:
     - Regression report if regressions found
 """
 
-from sys import argv
+from std.sys import argv
 from python import Python
 
 
@@ -35,7 +35,7 @@ struct BenchmarkData(Copyable, Movable):
     var memory_mb: Float64
     var iterations: Int
 
-    fn __init__(
+    def __init__(
         out self,
         name: String,
         duration_ms: Float64,
@@ -60,7 +60,7 @@ struct ComparisonResult(Copyable, Movable):
     var is_regression: Bool
     var severity: String  # "none", "minor", "moderate", "severe"
 
-    fn __init__(
+    def __init__(
         out self,
         name: String,
         baseline_duration: Float64,
@@ -82,7 +82,7 @@ struct ComparisonResult(Copyable, Movable):
 # ============================================================================
 
 
-fn parse_benchmark_name(line: String) raises -> String:
+def parse_benchmark_name(line: String) raises -> String:
     """Extract benchmark name from JSON line.
 
     Args:
@@ -103,7 +103,7 @@ fn parse_benchmark_name(line: String) raises -> String:
     return line.substr(start, end - start)
 
 
-fn atof(s: String) -> Float64:
+def atof(s: String) -> Float64:
     """Convert string to float64 with scientific notation support.
 
     Supports formats:
@@ -168,7 +168,7 @@ fn atof(s: String) -> Float64:
     return result * sign
 
 
-fn parse_float_value(line: String, field_name: String) raises -> Float64:
+def parse_float_value(line: String, field_name: String) raises -> Float64:
     """Extract float value from JSON line.
 
     Args:
@@ -199,7 +199,7 @@ fn parse_float_value(line: String, field_name: String) raises -> Float64:
     return atof(value_str)
 
 
-fn parse_int_value(line: String, field_name: String) raises -> Int:
+def parse_int_value(line: String, field_name: String) raises -> Int:
     """Extract int value from JSON line.
 
     Args:
@@ -237,7 +237,7 @@ fn parse_int_value(line: String, field_name: String) raises -> Int:
     return result
 
 
-fn load_benchmark_results(filepath: String) raises -> List[BenchmarkData]:
+def load_benchmark_results(filepath: String) raises -> List[BenchmarkData]:
     """Load benchmark results from JSON file.
 
     Args:
@@ -312,7 +312,7 @@ fn load_benchmark_results(filepath: String) raises -> List[BenchmarkData]:
     return results^
 
 
-fn atoi(s: String) -> Int:
+def atoi(s: String) -> Int:
     """Convert string to integer.
 
     Args:
@@ -345,7 +345,7 @@ fn atoi(s: String) -> Int:
 # ============================================================================
 
 
-fn calculate_percentage_change(
+def calculate_percentage_change(
     baseline: Float64, current: Float64
 ) raises -> Float64:
     """Calculate percentage change from baseline to current.
@@ -368,7 +368,7 @@ fn calculate_percentage_change(
     return ((current - baseline) / baseline) * 100.0
 
 
-fn determine_severity(percentage_change: Float64) -> String:
+def determine_severity(percentage_change: Float64) -> String:
     """Determine severity level of regression.
 
     Args:
@@ -387,7 +387,7 @@ fn determine_severity(percentage_change: Float64) -> String:
         return "severe"
 
 
-fn is_regression(percentage_change: Float64) -> Bool:
+def is_regression(percentage_change: Float64) -> Bool:
     """Check if change is a regression.
 
     Regression threshold: >10% slowdown (exclusive)
@@ -403,7 +403,7 @@ fn is_regression(percentage_change: Float64) -> Bool:
     return percentage_change > 10.0
 
 
-fn compare_benchmarks(
+def compare_benchmarks(
     baseline_results: List[BenchmarkData], current_results: List[BenchmarkData]
 ) raises -> List[ComparisonResult]:
     """Compare baseline and current results.
@@ -484,7 +484,7 @@ fn compare_benchmarks(
 # ============================================================================
 
 
-fn generate_comparison_report(
+def generate_comparison_report(
     comparisons: List[ComparisonResult],
 ) raises -> String:
     """Generate comparison report.
@@ -538,7 +538,7 @@ fn generate_comparison_report(
     return report
 
 
-fn generate_regression_report(
+def generate_regression_report(
     comparisons: List[ComparisonResult],
 ) raises -> String:
     """Generate report focused on regressions.
@@ -573,7 +573,7 @@ fn generate_regression_report(
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Compare benchmark results and detect regressions.
 
     The implementation:

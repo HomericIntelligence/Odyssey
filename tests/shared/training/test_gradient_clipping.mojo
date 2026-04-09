@@ -23,11 +23,11 @@ from shared.testing.assertions import (
     assert_close_float,
     assert_equal_int,
 )
-from collections import List
-from math import sqrt
+from std.collections import List
+from std.math import sqrt
 
 
-fn create_test_gradients() raises -> List[AnyTensor]:
+def create_test_gradients() raises -> List[AnyTensor]:
     """Create test gradients with known norms."""
     var grads = List[AnyTensor]()
 
@@ -40,7 +40,7 @@ fn create_test_gradients() raises -> List[AnyTensor]:
     return grads^
 
 
-fn test_compute_gradient_norm() raises:
+def test_compute_gradient_norm() raises:
     """Test global gradient norm computation."""
     var grads = create_test_gradients()
 
@@ -59,7 +59,7 @@ fn test_compute_gradient_norm() raises:
     )
 
 
-fn test_clip_by_global_norm_no_clipping() raises:
+def test_clip_by_global_norm_no_clipping() raises:
     """Test gradient clipping when norm is below threshold."""
     var grads = create_test_gradients()
 
@@ -85,7 +85,7 @@ fn test_clip_by_global_norm_no_clipping() raises:
         )
 
 
-fn test_clip_by_global_norm_with_clipping() raises:
+def test_clip_by_global_norm_with_clipping() raises:
     """Test gradient clipping when norm exceeds threshold."""
     var grads = create_test_gradients()
 
@@ -122,7 +122,7 @@ fn test_clip_by_global_norm_with_clipping() raises:
         )
 
 
-fn test_clip_per_param() raises:
+def test_clip_per_param() raises:
     """Test per-parameter gradient clipping."""
     var grads = List[AnyTensor]()
 
@@ -159,7 +159,7 @@ fn test_clip_per_param() raises:
         )
 
 
-fn test_clip_by_value() raises:
+def test_clip_by_value() raises:
     """Test gradient clipping by value range."""
     var grads = List[AnyTensor]()
 
@@ -180,7 +180,7 @@ fn test_clip_by_value() raises:
         )
 
 
-fn test_clip_by_value_negative() raises:
+def test_clip_by_value_negative() raises:
     """Test gradient clipping with negative values."""
     var grads = List[AnyTensor]()
 
@@ -201,7 +201,7 @@ fn test_clip_by_value_negative() raises:
         )
 
 
-fn test_gradient_statistics() raises:
+def test_gradient_statistics() raises:
     """Test gradient statistics computation."""
     var grads = List[AnyTensor]()
 
@@ -243,7 +243,7 @@ fn test_gradient_statistics() raises:
     assert_true(stats.is_healthy(), "Gradients should be healthy")
 
 
-fn test_gradient_statistics_empty() raises:
+def test_gradient_statistics_empty() raises:
     """Test gradient statistics with empty list."""
     var grads = List[AnyTensor]()
 
@@ -258,7 +258,7 @@ fn test_gradient_statistics_empty() raises:
     )
 
 
-fn test_clip_zero_gradients() raises:
+def test_clip_zero_gradients() raises:
     """Test clipping with zero gradients."""
     var grads = List[AnyTensor]()
     grads.append(zeros([100], DType.float32))
@@ -276,7 +276,7 @@ fn test_clip_zero_gradients() raises:
 # ============================================================================
 
 
-fn test_norm_simd_non_aligned_sizes() raises:
+def test_norm_simd_non_aligned_sizes() raises:
     """Test norm computation with tensor sizes that are NOT multiples of SIMD width.
 
     SIMD width is typically 8 for float32 (AVX2) or 16 (AVX-512).
@@ -330,7 +330,7 @@ fn test_norm_simd_non_aligned_sizes() raises:
     )
 
 
-fn test_clip_large_tensor() raises:
+def test_clip_large_tensor() raises:
     """Test SIMD clipping with a large tensor (10000+ elements)."""
     var grads = List[AnyTensor]()
     grads.append(full([10000], 2.0, DType.float32))
@@ -364,7 +364,7 @@ fn test_clip_large_tensor() raises:
     )
 
 
-fn test_value_clip_mixed_signs() raises:
+def test_value_clip_mixed_signs() raises:
     """Test SIMD value clipping with mixed positive/negative values."""
     var grads = List[AnyTensor]()
 
@@ -399,7 +399,7 @@ fn test_value_clip_mixed_signs() raises:
             )
 
 
-fn test_clip_per_param_non_aligned() raises:
+def test_clip_per_param_non_aligned() raises:
     """Test per-param clipping with non-SIMD-aligned tensor sizes."""
     var grads = List[AnyTensor]()
 
@@ -435,7 +435,7 @@ fn test_clip_per_param_non_aligned() raises:
         )
 
 
-fn main() raises:
+def main() raises:
     """Run all gradient clipping tests."""
     print("Testing Gradient Clipping...")
     print("=" * 70)

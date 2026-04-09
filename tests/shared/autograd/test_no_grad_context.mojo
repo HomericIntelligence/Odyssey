@@ -18,7 +18,7 @@ from shared.autograd import (
 from testing import assert_true, assert_equal
 
 
-fn test_no_grad_context_enter_disables_tracking() raises:
+def test_no_grad_context_enter_disables_tracking() raises:
     """Test that NoGradContext.enter() disables tape recording."""
     var tape = GradientTape()
     tape.enable()
@@ -29,7 +29,7 @@ fn test_no_grad_context_enter_disables_tracking() raises:
     assert_true(not tape.enabled, "Tape should be disabled after enter()")
 
 
-fn test_no_grad_context_exit_restores_enabled() raises:
+def test_no_grad_context_exit_restores_enabled() raises:
     """Test that NoGradContext.exit() restores enabled state."""
     var tape = GradientTape()
     tape.enable()
@@ -43,7 +43,7 @@ fn test_no_grad_context_exit_restores_enabled() raises:
     assert_true(tape.enabled, "Tape should be re-enabled after exit()")
 
 
-fn test_no_grad_context_exit_restores_disabled() raises:
+def test_no_grad_context_exit_restores_disabled() raises:
     """Test that NoGradContext.exit() preserves disabled state if it was disabled.
     """
     var tape = GradientTape()
@@ -58,7 +58,7 @@ fn test_no_grad_context_exit_restores_disabled() raises:
     assert_true(not tape.enabled, "Tape should remain disabled after exit()")
 
 
-fn test_no_grad_context_nested_contexts() raises:
+def test_no_grad_context_nested_contexts() raises:
     """Test that nested NoGradContext contexts preserve state correctly."""
     var tape = GradientTape()
     tape.enable()
@@ -88,7 +88,7 @@ fn test_no_grad_context_nested_contexts() raises:
     )
 
 
-fn test_disable_gradient_tracking_returns_previous_state_enabled() raises:
+def test_disable_gradient_tracking_returns_previous_state_enabled() raises:
     """Test disable_gradient_tracking returns True when tape was enabled."""
     var tape = GradientTape()
     tape.enable()
@@ -98,7 +98,7 @@ fn test_disable_gradient_tracking_returns_previous_state_enabled() raises:
     assert_true(not tape.enabled, "Tape should be disabled")
 
 
-fn test_disable_gradient_tracking_returns_previous_state_disabled() raises:
+def test_disable_gradient_tracking_returns_previous_state_disabled() raises:
     """Test disable_gradient_tracking returns False when tape was disabled."""
     var tape = GradientTape()
     tape.disable()
@@ -108,7 +108,7 @@ fn test_disable_gradient_tracking_returns_previous_state_disabled() raises:
     assert_true(not tape.enabled, "Tape should remain disabled")
 
 
-fn test_restore_gradient_tracking_enables() raises:
+def test_restore_gradient_tracking_enables() raises:
     """Test restore_gradient_tracking can re-enable tape."""
     var tape = GradientTape()
     tape.disable()
@@ -117,7 +117,7 @@ fn test_restore_gradient_tracking_enables() raises:
     assert_true(tape.enabled, "Tape should be enabled after restore with True")
 
 
-fn test_restore_gradient_tracking_keeps_disabled() raises:
+def test_restore_gradient_tracking_keeps_disabled() raises:
     """Test restore_gradient_tracking keeps tape disabled if True is False."""
     var tape = GradientTape()
     tape.enable()
@@ -128,7 +128,7 @@ fn test_restore_gradient_tracking_keeps_disabled() raises:
     )
 
 
-fn test_disable_restore_roundtrip() raises:
+def test_disable_restore_roundtrip() raises:
     """Test that disable/restore roundtrip works correctly."""
     var tape = GradientTape()
     tape.enable()
@@ -144,7 +144,7 @@ fn test_disable_restore_roundtrip() raises:
     assert_true(tape.enabled, "Tape should be re-enabled after restore")
 
 
-fn test_disable_restore_roundtrip_from_disabled() raises:
+def test_disable_restore_roundtrip_from_disabled() raises:
     """Test disable/restore roundtrip when starting from disabled state."""
     var tape = GradientTape()
     tape.disable()
@@ -160,7 +160,7 @@ fn test_disable_restore_roundtrip_from_disabled() raises:
     assert_true(not tape.enabled, "Tape should remain disabled after restore")
 
 
-fn test_operations_not_recorded_when_disabled() raises:
+def test_operations_not_recorded_when_disabled() raises:
     """Test that operations are not recorded when tape is disabled.
 
     This is an integration test that verifies the tape doesn't record
@@ -179,7 +179,7 @@ fn test_operations_not_recorded_when_disabled() raises:
     )
 
 
-fn test_operations_recorded_when_enabled() raises:
+def test_operations_recorded_when_enabled() raises:
     """Test that tape is in correct state to record when enabled.
 
     This verifies the tape is ready to record by checking the enabled flag.
@@ -190,7 +190,7 @@ fn test_operations_recorded_when_enabled() raises:
     assert_true(tape.enabled, "Tape should be enabled and ready to record")
 
 
-fn test_clear_tape_between_operations() raises:
+def test_clear_tape_between_operations() raises:
     """Test clearing tape between different no-grad contexts."""
     var tape = GradientTape()
     tape.enable()
@@ -214,7 +214,7 @@ fn test_clear_tape_between_operations() raises:
     assert_true(tape.enabled, "Tape should be re-enabled after second context")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_no_grad_context tests."""
     print("Running test_no_grad_context tests...")
 

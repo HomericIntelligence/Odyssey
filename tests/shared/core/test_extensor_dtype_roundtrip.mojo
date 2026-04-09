@@ -20,7 +20,7 @@ from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 # ============================================================================
 
 
-fn test_float16_set_get_float64_roundtrip() raises:
+def test_float16_set_get_float64_roundtrip() raises:
     """Float16: _set_float64(1.5) -> _get_float64 should return ~1.5."""
     var t = zeros([1], DType.float16)
     t._set_float64(0, 1.5)
@@ -32,7 +32,7 @@ fn test_float16_set_get_float64_roundtrip() raises:
     assert_almost_equal(got, 1.5, tolerance=1e-3)
 
 
-fn test_float16_nonzero_after_set() raises:
+def test_float16_nonzero_after_set() raises:
     """Float16: writing a non-zero value must not silently produce zero."""
     var t = zeros([3], DType.float16)
     t._set_float64(1, 2.0)
@@ -45,7 +45,7 @@ fn test_float16_nonzero_after_set() raises:
 # ============================================================================
 
 
-fn test_float32_set_get_float64_roundtrip() raises:
+def test_float32_set_get_float64_roundtrip() raises:
     """Float32: _set_float64(1.5) -> _get_float64 should return ~1.5."""
     var t = zeros([1], DType.float32)
     t._set_float64(0, 1.5)
@@ -56,7 +56,7 @@ fn test_float32_set_get_float64_roundtrip() raises:
     assert_almost_equal(got, 1.5, tolerance=1e-6)
 
 
-fn test_float32_nonzero_after_set() raises:
+def test_float32_nonzero_after_set() raises:
     """Float32: writing a non-zero value must not silently produce zero."""
     var t = zeros([3], DType.float32)
     t._set_float64(1, 2.0)
@@ -69,7 +69,7 @@ fn test_float32_nonzero_after_set() raises:
 # ============================================================================
 
 
-fn test_float64_set_get_float64_roundtrip() raises:
+def test_float64_set_get_float64_roundtrip() raises:
     """Float64: _set_float64(1.5) -> _get_float64 should return 1.5 exactly."""
     var t = zeros([1], DType.float64)
     t._set_float64(0, 1.5)
@@ -80,7 +80,7 @@ fn test_float64_set_get_float64_roundtrip() raises:
     assert_almost_equal(got, 1.5, tolerance=1e-9)
 
 
-fn test_float64_nonzero_after_set() raises:
+def test_float64_nonzero_after_set() raises:
     """Float64: writing a non-zero value must not silently produce zero."""
     var t = zeros([3], DType.float64)
     t._set_float64(1, 2.0)
@@ -95,7 +95,7 @@ fn test_float64_nonzero_after_set() raises:
 # ============================================================================
 
 
-fn test_bfloat16_set_get_float64_roundtrip() raises:
+def test_bfloat16_set_get_float64_roundtrip() raises:
     """Bfloat16: _set_float64(1.5) -> _get_float64 should return ~1.5.
 
     Before fix (#3301): _set_float64 had no bfloat16 branch, so writes were
@@ -117,7 +117,7 @@ fn test_bfloat16_set_get_float64_roundtrip() raises:
     assert_almost_equal(got, 1.5, tolerance=1e-2)
 
 
-fn test_bfloat16_nonzero_after_set() raises:
+def test_bfloat16_nonzero_after_set() raises:
     """Bfloat16: writing a non-zero value must not silently produce zero."""
     var t = zeros([3], DType.bfloat16)
     t._set_float64(1, 2.0)
@@ -128,7 +128,7 @@ fn test_bfloat16_nonzero_after_set() raises:
     )
 
 
-fn test_bfloat16_dtype_size_is_2_bytes() raises:
+def test_bfloat16_dtype_size_is_2_bytes() raises:
     """Bfloat16 tensor should allocate 2 bytes per element (not 4).
 
     Before fix (#3301): _get_dtype_size_static had no bfloat16 branch, falling
@@ -155,7 +155,7 @@ fn test_bfloat16_dtype_size_is_2_bytes() raises:
 # ============================================================================
 
 
-fn test_int8_get_float64_via_int64_path() raises:
+def test_int8_get_float64_via_int64_path() raises:
     """Int8: _get_float64 correctly reads integer values via the _get_int64 fallback.
 
     The int8 path in _get_float64 falls through to _get_int64(), which correctly
@@ -173,7 +173,7 @@ fn test_int8_get_float64_via_int64_path() raises:
     assert_almost_equal(t._get_float64(2), 0.0, tolerance=1e-9)
 
 
-fn test_int8_set_float64_truncates_to_int8() raises:
+def test_int8_set_float64_truncates_to_int8() raises:
     """Int8: _set_float64 truncates Float64 to Int8 via cast.
 
     Verifies that _set_float64 now correctly writes to int8 tensors by
@@ -191,7 +191,7 @@ fn test_int8_set_float64_truncates_to_int8() raises:
     assert_almost_equal(t._get_float64(3), 127.0, tolerance=1e-9)
 
 
-fn test_int8_set_float32_truncates_to_int8() raises:
+def test_int8_set_float32_truncates_to_int8() raises:
     """Int8: _set_float32 truncates Float32 to Int8 via cast.
 
     Verifies that _set_float32 correctly writes to int8 tensors by
@@ -209,7 +209,7 @@ fn test_int8_set_float32_truncates_to_int8() raises:
     assert_almost_equal(t._get_float64(3), 127.0, tolerance=1e-9)
 
 
-fn test_dtype_sizes() raises:
+def test_dtype_sizes() raises:
     """Audit _get_dtype_size_static returns correct byte sizes for each dtype.
 
     This test catches dtype size bugs (like bfloat16 returning 4 instead of 2)
@@ -277,7 +277,7 @@ fn test_dtype_sizes() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all dtype round-trip tests for _set_float64/_get_float64."""
     print("Running dtype size tests...")
     test_dtype_sizes()

@@ -19,7 +19,7 @@ from tests.shared.conftest import assert_true, assert_false, assert_almost_equal
 # ============================================================================
 
 
-fn test_transpose_is_view() raises:
+def test_transpose_is_view() raises:
     """Transpose() returns a tensor marked as a view."""
     var t = arange(0.0, 6.0, 1.0, DType.float32)
     var t2d = t.reshape([2, 3])
@@ -28,7 +28,7 @@ fn test_transpose_is_view() raises:
     assert_true(tx._is_view)
 
 
-fn test_transpose_shape_strides() raises:
+def test_transpose_shape_strides() raises:
     """Transpose() permutes shape and strides correctly."""
     var t = arange(0.0, 12.0, 1.0, DType.float32)
     var t2d = t.reshape([3, 4])  # strides [4, 1]
@@ -41,7 +41,7 @@ fn test_transpose_shape_strides() raises:
     assert_equal(tx._strides[1], 4)
 
 
-fn test_reshape_preserves_numel() raises:
+def test_reshape_preserves_numel() raises:
     """Reshape() preserves numel across shape changes."""
     var t = arange(0.0, 24.0, 1.0, DType.float32)
     var t3d = t.reshape([2, 3, 4])
@@ -54,7 +54,7 @@ fn test_reshape_preserves_numel() raises:
     assert_equal(shape[2], 4)
 
 
-fn test_transpose_shares_data() raises:
+def test_transpose_shares_data() raises:
     """Transpose() shares underlying data pointer with original."""
     var t = arange(0.0, 6.0, 1.0, DType.float32)
     var t2d = t.reshape([2, 3])
@@ -70,7 +70,7 @@ fn test_transpose_shares_data() raises:
 # ============================================================================
 
 
-fn test_contiguous_element_access() raises:
+def test_contiguous_element_access() raises:
     """Contiguous tensor element access via multi-dim indices is correct."""
     var t = arange(0.0, 12.0, 1.0, DType.float32)
     var t2d = t.reshape([3, 4])
@@ -85,7 +85,7 @@ fn test_contiguous_element_access() raises:
             assert_almost_equal(Float64(t2d[idx]), Float64(expected), tolerance=1e-5)
 
 
-fn test_transposed_element_access() raises:
+def test_transposed_element_access() raises:
     """Transposed tensor element access via multi-dim indices uses permuted strides."""
     # 2x3 tensor: row 0 = [0,1,2], row 1 = [3,4,5]
     var t = arange(0.0, 6.0, 1.0, DType.float32)
@@ -117,7 +117,7 @@ fn test_transposed_element_access() raises:
     assert_almost_equal(Float64(tx[idx21]), 5.0, tolerance=1e-5)
 
 
-fn test_view_creates_zero_copy() raises:
+def test_view_creates_zero_copy() raises:
     """View() from shape.mojo creates a zero-copy tensor with new shape."""
     var t = ones([2, 3], DType.float32)
     var v = view(t, [6])
@@ -132,7 +132,7 @@ fn test_view_creates_zero_copy() raises:
         assert_almost_equal(Float64(v[i]), 1.0, tolerance=1e-5)
 
 
-fn main() raises:
+def main() raises:
     """Run all view/stride tests."""
     test_transpose_is_view()
     test_transpose_shape_strides()

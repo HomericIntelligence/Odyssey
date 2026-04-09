@@ -48,7 +48,7 @@ from shared.core.loss import cross_entropy
 # ============================================================================
 
 
-fn resnet18_forward_simplified(
+def resnet18_forward_simplified(
     x: AnyTensor,
     training: Bool = True,
 ) raises -> AnyTensor:
@@ -209,7 +209,7 @@ fn resnet18_forward_simplified(
     return logits
 
 
-fn _forward_basic_block(
+def _forward_basic_block(
     x: AnyTensor,
     in_channels: Int,
     out_channels: Int,
@@ -340,7 +340,7 @@ fn _forward_basic_block(
 # ============================================================================
 
 
-fn test_resnet18_forward_training() raises:
+def test_resnet18_forward_training() raises:
     """Test ResNet-18 forward pass in training mode.
 
     Verifies:
@@ -375,7 +375,7 @@ fn test_resnet18_forward_training() raises:
     )
 
 
-fn test_resnet18_forward_inference() raises:
+def test_resnet18_forward_inference() raises:
     """Test ResNet-18 forward pass in inference mode.
 
     Verifies:
@@ -404,7 +404,7 @@ fn test_resnet18_forward_inference() raises:
     assert_equal(logits_shape[1], 10)
 
 
-fn test_resnet18_batch_processing() raises:
+def test_resnet18_batch_processing() raises:
     """Test ResNet-18 with batch size > 1.
 
     Verifies:
@@ -432,7 +432,7 @@ fn test_resnet18_batch_processing() raises:
     assert_equal(logits_shape[1], 10)
 
 
-fn test_resnet18_spatial_resolution_reduction() raises:
+def test_resnet18_spatial_resolution_reduction() raises:
     """Test that ResNet-18 correctly reduces spatial dimensions.
 
     ResNet-18 reduces spatial dims by factor of 32 (2^5):
@@ -465,7 +465,7 @@ fn test_resnet18_spatial_resolution_reduction() raises:
     assert_equal(logits_shape[1], 10)
 
 
-fn test_resnet18_with_different_input_sizes() raises:
+def test_resnet18_with_different_input_sizes() raises:
     """Test ResNet-18 with different input spatial sizes.
 
     ResNet should handle various input sizes (square images).
@@ -505,7 +505,7 @@ fn test_resnet18_with_different_input_sizes() raises:
 # ============================================================================
 
 
-fn test_resnet18_loss_computation() raises:
+def test_resnet18_loss_computation() raises:
     """Test loss computation with ResNet-18 output.
 
     Verifies:
@@ -539,7 +539,7 @@ fn test_resnet18_loss_computation() raises:
     assert_equal(logits_shape[1], num_classes)
 
 
-fn test_resnet18_training_vs_inference_consistency() raises:
+def test_resnet18_training_vs_inference_consistency() raises:
     """Test that training and inference modes produce valid outputs.
 
     Both modes should:
@@ -577,7 +577,7 @@ fn test_resnet18_training_vs_inference_consistency() raises:
 # ============================================================================
 
 
-fn test_resnet18_layer_stack() raises:
+def test_resnet18_layer_stack() raises:
     """Test that all layers can be stacked in sequence.
 
     Verifies:
@@ -605,7 +605,7 @@ fn test_resnet18_layer_stack() raises:
     assert_equal(logits_shape[1], 10)
 
 
-fn test_resnet18_gradient_flow() raises:
+def test_resnet18_gradient_flow() raises:
     """Test that gradients can flow through ResNet-18.
 
     Simplified test verifying:
@@ -644,7 +644,7 @@ fn test_resnet18_gradient_flow() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all ResNet-18 E2E tests."""
     print("Running ResNet-18 E2E tests...")
 

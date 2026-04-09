@@ -27,11 +27,11 @@ trait Sampler(ImplicitlyDestructible):
     Samplers determine the order in which samples are accessed from a dataset.
     """
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return the number of samples."""
         ...
 
-    fn __iter__(mut self) -> List[Int]:
+    def __iter__(mut self) -> List[Int]:
         """Return an iterator over sample indices.
 
         Returns:
@@ -58,7 +58,7 @@ struct SequentialSampler(Copyable, Movable, Sampler):
     var end_index: Int
     """Ending index (exclusive)."""
 
-    fn __init__(
+    def __init__(
         out self,
         data_source_len: Int,
         start_index: Int = 0,
@@ -76,11 +76,11 @@ struct SequentialSampler(Copyable, Movable, Sampler):
         self.start_index = normalized[0]
         self.end_index = normalized[1]
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return number of samples."""
         return self.end_index - self.start_index
 
-    fn __iter__(mut self) -> List[Int]:
+    def __iter__(mut self) -> List[Int]:
         """Return sequential indices.
 
         Returns:
@@ -109,7 +109,7 @@ struct RandomSampler(Copyable, Movable, Sampler):
     var seed_value: Int
     """Random seed for reproducibility (-1 = no seed)."""
 
-    fn __init__(
+    def __init__(
         out self,
         data_source_len: Int,
         replacement: Bool = False,
@@ -133,11 +133,11 @@ struct RandomSampler(Copyable, Movable, Sampler):
         else:
             self.num_samples = data_source_len
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return number of samples."""
         return self.num_samples
 
-    fn __iter__(mut self) -> List[Int]:
+    def __iter__(mut self) -> List[Int]:
         """Return random indices.
 
         Returns:
@@ -175,7 +175,7 @@ struct WeightedSampler(Copyable, Movable, Sampler):
     var seed_value: Int
     """Random seed for reproducibility (-1 = no seed)."""
 
-    fn __init__(
+    def __init__(
         out self,
         var weights: List[Float64],
         num_samples: Int,
@@ -212,11 +212,11 @@ struct WeightedSampler(Copyable, Movable, Sampler):
         self.replacement = replacement
         self.seed_value = seed_value
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return number of samples."""
         return self.num_samples
 
-    fn __iter__(mut self) -> List[Int]:
+    def __iter__(mut self) -> List[Int]:
         """Return weighted random indices.
 
         Returns:

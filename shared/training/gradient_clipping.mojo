@@ -30,11 +30,11 @@ Example:
         print("Warning: Large gradient norm detected:", total_norm)
 """
 
-from algorithm import vectorize
-from sys.info import simd_width_of
+from std.algorithm import vectorize
+from std.sys.info import simd_width_of
 from shared.tensor.any_tensor import AnyTensor
-from collections import List
-from math import sqrt
+from std.collections import List
+from std.math import sqrt
 
 # Re-export single-tensor clipping functions
 from shared.training.mixed_precision import (
@@ -49,7 +49,7 @@ from shared.training.mixed_precision import (
 
 
 @always_inline
-fn _norm_sq_simd_f32(tensor: AnyTensor) -> Float64:
+def _norm_sq_simd_f32(tensor: AnyTensor) -> Float64:
     """Compute squared L2 norm using SIMD for float32 tensors."""
     comptime simd_width = simd_width_of[DType.float32]()
     var size = tensor._numel
@@ -57,7 +57,7 @@ fn _norm_sq_simd_f32(tensor: AnyTensor) -> Float64:
     var acc = Float64(0.0)
 
     @parameter
-    fn vectorized_norm[width: Int](idx: Int) unified {mut}:
+    def vectorized_norm[width: Int](idx: Int) unified {mut}:
         var vec = ptr.load[width=width](idx)
         var sq = vec * vec
         acc += sq.reduce_add().cast[DType.float64]()
@@ -67,7 +67,7 @@ fn _norm_sq_simd_f32(tensor: AnyTensor) -> Float64:
 
 
 @always_inline
-fn _norm_sq_simd_f64(tensor: AnyTensor) -> Float64:
+def _norm_sq_simd_f64(tensor: AnyTensor) -> Float64:
     """Compute squared L2 norm using SIMD for float64 tensors."""
     comptime simd_width = simd_width_of[DType.float64]()
     var size = tensor._numel
@@ -75,7 +75,7 @@ fn _norm_sq_simd_f64(tensor: AnyTensor) -> Float64:
     var acc = Float64(0.0)
 
     @parameter
-    fn vectorized_norm[width: Int](idx: Int) unified {mut}:
+    def vectorized_norm[width: Int](idx: Int) unified {mut}:
         var vec = ptr.load[width=width](idx)
         var sq = vec * vec
         acc += sq.reduce_add()
@@ -85,14 +85,14 @@ fn _norm_sq_simd_f64(tensor: AnyTensor) -> Float64:
 
 
 @always_inline
-fn _scale_simd_f32(tensor: AnyTensor, scale: Float32):
+def _scale_simd_f32(tensor: AnyTensor, scale: Float32):
     """Scale all elements in-place using SIMD for float32 tensors."""
     comptime simd_width = simd_width_of[DType.float32]()
     var size = tensor._numel
     var ptr = tensor._data.bitcast[Float32]()
 
     @parameter
-    fn vectorized_scale[width: Int](idx: Int) unified {mut}:
+    def vectorized_scale[width: Int](idx: Int) unified {mut}:
         var vec = ptr.load[width=width](idx)
         var scale_vec = SIMD[DType.float32, width](scale)
         ptr.store[width=width](idx, vec * scale_vec)
@@ -101,14 +101,14 @@ fn _scale_simd_f32(tensor: AnyTensor, scale: Float32):
 
 
 @always_inline
-fn _scale_simd_f64(tensor: AnyTensor, scale: Float64):
+def _scale_simd_f64(tensor: AnyTensor, scale: Float64):
     """Scale all elements in-place using SIMD for float64 tensors."""
     comptime simd_width = simd_width_of[DType.float64]()
     var size = tensor._numel
     var ptr = tensor._data.bitcast[Float64]()
 
     @parameter
-    fn vectorized_scale[width: Int](idx: Int) unified {mut}:
+    def vectorized_scale[width: Int](idx: Int) unified {mut}:
         var vec = ptr.load[width=width](idx)
         var scale_vec = SIMD[DType.float64, width](scale)
         ptr.store[width=width](idx, vec * scale_vec)
@@ -117,7 +117,7 @@ fn _scale_simd_f64(tensor: AnyTensor, scale: Float64):
 
 
 @always_inline
-fn _clamp_simd_f32(
+def _clamp_simd_f32(
     tensor: AnyTensor, min_val: Float32, max_val: Float32
 ):
     """Clamp all elements in-place using SIMD for float32 tensors."""
@@ -126,7 +126,7 @@ fn _clamp_simd_f32(
     var ptr = tensor._data.bitcast[Float32]()
 
     @parameter
-    fn vectorized_clamp[width: Int](idx: Int) unified {mut}:
+    def vectorized_clamp[width: Int](idx: Int) unified {mut}:
         var vec = ptr.load[width=width](idx)
         var min_vec = SIMD[DType.float32, width](min_val)
         var max_vec = SIMD[DType.float32, width](max_val)
@@ -136,7 +136,7 @@ fn _clamp_simd_f32(
 
 
 @always_inline
-fn _clamp_simd_f64(
+def _clamp_simd_f64(
     tensor: AnyTensor, min_val: Float64, max_val: Float64
 ):
     """Clamp all elements in-place using SIMD for float64 tensors."""
@@ -145,7 +145,7 @@ fn _clamp_simd_f64(
     var ptr = tensor._data.bitcast[Float64]()
 
     @parameter
-    fn vectorized_clamp[width: Int](idx: Int) unified {mut}:
+    def vectorized_clamp[width: Int](idx: Int) unified {mut}:
         var vec = ptr.load[width=width](idx)
         var min_vec = SIMD[DType.float64, width](min_val)
         var max_vec = SIMD[DType.float64, width](max_val)
@@ -154,7 +154,7 @@ fn _clamp_simd_f64(
     vectorize[simd_width](size, vectorized_clamp)
 
 
-fn compute_gradient_norm_list(gradients: List[AnyTensor]) raises -> Float32:
+def compute_gradient_norm_list(gradients: List[AnyTensor]) raises -> Float32:
     """Compute global L2 norm across all gradient tensors.
 
     Uses SIMD vectorization for float32/float64 tensors with scalar
@@ -194,7 +194,7 @@ fn compute_gradient_norm_list(gradients: List[AnyTensor]) raises -> Float32:
     return Float32(sqrt(total_norm_sq))
 
 
-fn clip_gradients_by_global_norm(
+def clip_gradients_by_global_norm(
     mut gradients: List[AnyTensor], max_norm: Float32
 ) raises -> Float32:
     """Clip gradients by global norm across all parameters.
@@ -252,7 +252,7 @@ fn clip_gradients_by_global_norm(
     return total_norm
 
 
-fn clip_gradients_per_param(
+def clip_gradients_per_param(
     mut gradients: List[AnyTensor], max_norm: Float32
 ) raises:
     """Clip each parameter's gradients independently by their local norm.
@@ -314,7 +314,7 @@ fn clip_gradients_per_param(
                     grad._set_float64(j, val * clip_coef)
 
 
-fn clip_gradients_by_value_list(
+def clip_gradients_by_value_list(
     mut gradients: List[AnyTensor], min_value: Float32, max_value: Float32
 ) raises:
     """Clip all gradients by value range.
@@ -388,7 +388,7 @@ struct GradientStatistics:
     var num_nan: Int
     var num_inf: Int
 
-    fn __init__(
+    def __init__(
         out self,
         global_norm: Float32,
         max_value: Float32,
@@ -417,7 +417,7 @@ struct GradientStatistics:
         self.num_nan = num_nan
         self.num_inf = num_inf
 
-    fn is_healthy(self) -> Bool:
+    def is_healthy(self) -> Bool:
         """Check if gradients are healthy (no NaN/Inf).
 
         Returns:
@@ -425,7 +425,7 @@ struct GradientStatistics:
         """
         return self.num_nan == 0 and self.num_inf == 0
 
-    fn print_summary(self):
+    def print_summary(self):
         """Print gradient statistics summary."""
         print("Gradient Statistics:")
         print("  Global norm:    " + String(self.global_norm))
@@ -437,7 +437,7 @@ struct GradientStatistics:
         print("  Inf count:      " + String(self.num_inf))
 
 
-fn compute_gradient_statistics(
+def compute_gradient_statistics(
     gradients: List[AnyTensor],
 ) raises -> GradientStatistics:
     """Compute comprehensive gradient statistics for monitoring.
@@ -465,7 +465,7 @@ fn compute_gradient_statistics(
             print("Warning: Large gradient norm detected!")
         ```
     """
-    from math import isnan, isinf
+    from std.math import isnan, isinf
 
     var total_norm_sq = Float64(0.0)
     var max_val = Float32(-1e9)

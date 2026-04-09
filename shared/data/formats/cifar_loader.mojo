@@ -24,8 +24,8 @@ References:
     - Binary format details: https://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz.
 """
 
-from collections import List
-from memory import UnsafePointer
+from std.collections import List
+from std.memory import UnsafePointer
 from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.data import (
     CIFAR10_IMAGE_SIZE,
@@ -70,7 +70,7 @@ struct CIFARLoader(Copyable, Movable):
     var bytes_per_image: Int
     """Total bytes per image including label(s)."""
 
-    fn __init__(out self, cifar_version: Int) raises:
+    def __init__(out self, cifar_version: Int) raises:
         """Initialize CIFAR loader with specified version.
 
         Args:
@@ -93,7 +93,7 @@ struct CIFARLoader(Copyable, Movable):
         else:
             self.bytes_per_image = CIFAR100_BYTES_PER_IMAGE
 
-    fn _validate_file_size(self, file_size: Int) raises:
+    def _validate_file_size(self, file_size: Int) raises:
         """Validate that file size is consistent with CIFAR format.
 
         Args:
@@ -110,7 +110,7 @@ struct CIFARLoader(Copyable, Movable):
                 + String(self.bytes_per_image)
             )
 
-    fn _calculate_num_images(self, file_size: Int) -> Int:
+    def _calculate_num_images(self, file_size: Int) -> Int:
         """Calculate number of images in file based on file size.
 
         Args:
@@ -121,7 +121,7 @@ struct CIFARLoader(Copyable, Movable):
         """
         return file_size // self.bytes_per_image
 
-    fn load_labels(self, filepath: String) raises -> AnyTensor:
+    def load_labels(self, filepath: String) raises -> AnyTensor:
         """Load labels from CIFAR binary format file.
 
         For CIFAR-10, returns shape (num_images,) with single label per image.
@@ -175,7 +175,7 @@ struct CIFARLoader(Copyable, Movable):
 
             return labels^
 
-    fn load_images(self, filepath: String) raises -> AnyTensor:
+    def load_images(self, filepath: String) raises -> AnyTensor:
         """Load images from CIFAR binary format file.
 
         Returns shape (num_images, channels, image_size, image_size) with uint8 pixel values.
@@ -227,7 +227,7 @@ struct CIFARLoader(Copyable, Movable):
 
         return images^
 
-    fn load_batch(self, filepath: String) raises -> Tuple[AnyTensor, AnyTensor]:
+    def load_batch(self, filepath: String) raises -> Tuple[AnyTensor, AnyTensor]:
         """Load a complete batch of images and labels from CIFAR file.
 
         Convenience function that loads both images and labels in a single call.

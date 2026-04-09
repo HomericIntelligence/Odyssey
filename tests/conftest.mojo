@@ -33,7 +33,7 @@ comptime ATOL_FP8 = 1e-2
 # ============================================================================
 
 
-fn get_test_dtypes() -> List[DType]:
+def get_test_dtypes() -> List[DType]:
     """Get list of data types to test across.
 
     Returns:
@@ -45,7 +45,7 @@ fn get_test_dtypes() -> List[DType]:
     return dtypes^
 
 
-fn get_rtol(dtype: DType) -> Float64:
+def get_rtol(dtype: DType) -> Float64:
     """Get relative tolerance for a given data type.
 
     Args:
@@ -65,7 +65,7 @@ fn get_rtol(dtype: DType) -> Float64:
         return RTOL_FP8
 
 
-fn get_atol(dtype: DType) -> Float64:
+def get_atol(dtype: DType) -> Float64:
     """Get absolute tolerance for a given data type.
 
     Args:
@@ -90,7 +90,7 @@ fn get_atol(dtype: DType) -> Float64:
 # ============================================================================
 
 
-fn measure_time[func: fn () raises -> None]() raises -> Float64:
+def measure_time[func: fn () raises -> None]() raises -> Float64:
     """Measure execution time of a function in milliseconds.
 
     Returns:
@@ -98,7 +98,7 @@ fn measure_time[func: fn () raises -> None]() raises -> Float64:
 
     Example:
         ```mojo
-        fn my_test() raises:
+        def my_test() raises:
             var t = random_tensor([1000, 1000], DType.float32)
             _ = t + t
 
@@ -117,7 +117,7 @@ fn measure_time[func: fn () raises -> None]() raises -> Float64:
     return 0.0
 
 
-fn measure_throughput[
+def measure_throughput[
     func: fn () raises -> None
 ](n_iterations: Int) raises -> Float64:
     """Measure throughput (operations per second) of a function.
@@ -130,7 +130,7 @@ fn measure_throughput[
 
     Example:
         ```mojo
-        fn my_op() raises:
+        def my_op() raises:
             var t = random_tensor([100, 100], DType.float32)
             _ = t + t
 
@@ -168,7 +168,7 @@ struct TestFixtures:
         ```
     """
 
-    fn small_tensor(self) raises -> AnyTensor:
+    def small_tensor(self) raises -> AnyTensor:
         """Create a small 3x3 tensor with known values.
 
         Returns:
@@ -186,7 +186,7 @@ struct TestFixtures:
             tensor._set_float64(i, Float64(i + 1))
         return tensor
 
-    fn random_tensor(self, rows: Int, cols: Int) raises -> AnyTensor:
+    def random_tensor(self, rows: Int, cols: Int) raises -> AnyTensor:
         """Create a random tensor with deterministic seed.
 
         Args:

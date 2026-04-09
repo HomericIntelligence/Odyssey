@@ -8,7 +8,7 @@ Example:
    ```mojo
     from shared.benchmarking import benchmark_function, print_benchmark_report
 
-    fn compute_operation():
+    def compute_operation():
         var result = expensive_operation()
 
     var config = BenchmarkConfig(warmup_iters=10, measure_iters=100)
@@ -17,9 +17,9 @@ Example:
     ```
 """
 
-from time import perf_counter_ns
-from math import sqrt
-from collections import List
+from std.time import perf_counter_ns
+from std.math import sqrt
+from std.collections import List
 from shared.benchmarking.result import (
     BenchmarkResult as LowLevelBenchmarkResult,
 )
@@ -106,7 +106,7 @@ struct BenchmarkStatistics(Copyable, ImplicitlyCopyable, Movable):
 # ============================================================================
 
 
-fn _compute_percentile(data: List[Float64], percentile: Float64) -> Float64:
+def _compute_percentile(data: List[Float64], percentile: Float64) -> Float64:
     """Compute percentile from sorted data.
 
     Args:
@@ -137,7 +137,7 @@ fn _compute_percentile(data: List[Float64], percentile: Float64) -> Float64:
     return lower + frac * (upper - lower)
 
 
-fn _sort_ascending(mut data: List[Float64]):
+def _sort_ascending(mut data: List[Float64]):
     """Simple bubble sort for small lists.
 
     Args:
@@ -153,7 +153,7 @@ fn _sort_ascending(mut data: List[Float64]):
                 data[j + 1] = temp
 
 
-fn _get_time_ns() -> Int:
+def _get_time_ns() -> Int:
     """Get current time in nanoseconds using platform-specific timer.
 
         Uses high-resolution timer from Mojo's time module:
@@ -167,7 +167,7 @@ fn _get_time_ns() -> Int:
     return Int(perf_counter_ns())
 
 
-fn _ns_to_ms(ns: Int) -> Float64:
+def _ns_to_ms(ns: Int) -> Float64:
     """Convert nanoseconds to milliseconds.
 
     Args:
@@ -184,8 +184,8 @@ fn _ns_to_ms(ns: Int) -> Float64:
 # ============================================================================
 
 
-fn benchmark_function(
-    func: fn () raises -> None,
+def benchmark_function(
+    func: def () raises -> None,
     warmup_iters: Int = 10,
     measure_iters: Int = 100,
     compute_percentiles: Bool = True,
@@ -211,7 +211,7 @@ fn benchmark_function(
 
         Example:
            ```mojo
-            fn expensive_op():
+            def expensive_op():
                 _ = compute_something()
 
             var result = benchmark_function(expensive_op, warmup_iters=10, measure_iters=100)
@@ -325,7 +325,7 @@ struct BenchmarkRunner(Movable):
     var result: LowLevelBenchmarkResult
     """Low-level result tracker for timing data."""
 
-    fn __init__(out self, name: String, warmup_iters: Int = 10):
+    def __init__(out self, name: String, warmup_iters: Int = 10):
         """Initialize a benchmark runner.
 
         Args:
@@ -336,7 +336,7 @@ struct BenchmarkRunner(Movable):
         self.warmup_iters = warmup_iters
         self.result = LowLevelBenchmarkResult(name, iterations=0)
 
-    fn run_warmup(mut self, func: fn () raises -> None) raises:
+    def run_warmup(mut self, func: def () raises -> None) raises:
         """Run warmup iterations.
 
         Args:
@@ -348,7 +348,7 @@ struct BenchmarkRunner(Movable):
         for _ in range(self.warmup_iters):
             func()
 
-    fn record_iteration(mut self, time_ns: Int):
+    def record_iteration(mut self, time_ns: Int):
         """Record a single iteration's execution time.
 
         Args:
@@ -356,7 +356,7 @@ struct BenchmarkRunner(Movable):
         """
         self.result.record(time_ns)
 
-    fn get_mean_ms(self) -> Float64:
+    def get_mean_ms(self) -> Float64:
         """Get mean execution time in milliseconds.
 
         Returns:
@@ -364,7 +364,7 @@ struct BenchmarkRunner(Movable):
         """
         return self.result.mean() / 1_000_000.0
 
-    fn get_std_ms(self) -> Float64:
+    def get_std_ms(self) -> Float64:
         """Get standard deviation of execution times in milliseconds.
 
         Returns:
@@ -372,7 +372,7 @@ struct BenchmarkRunner(Movable):
         """
         return self.result.std() / 1_000_000.0
 
-    fn get_min_ms(self) -> Float64:
+    def get_min_ms(self) -> Float64:
         """Get minimum execution time in milliseconds.
 
         Returns:
@@ -380,7 +380,7 @@ struct BenchmarkRunner(Movable):
         """
         return self.result.min_time() / 1_000_000.0
 
-    fn get_max_ms(self) -> Float64:
+    def get_max_ms(self) -> Float64:
         """Get maximum execution time in milliseconds.
 
         Returns:
@@ -388,7 +388,7 @@ struct BenchmarkRunner(Movable):
         """
         return self.result.max_time() / 1_000_000.0
 
-    fn get_iterations(self) -> Int:
+    def get_iterations(self) -> Int:
         """Get total number of iterations recorded.
 
         Returns:
@@ -402,7 +402,7 @@ struct BenchmarkRunner(Movable):
 # ============================================================================
 
 
-fn print_benchmark_report(
+def print_benchmark_report(
     result: BenchmarkStatistics, name: String = "Benchmark"
 ):
     """Print formatted benchmark report.
@@ -443,7 +443,7 @@ fn print_benchmark_report(
     print("")
 
 
-fn print_benchmark_summary(
+def print_benchmark_summary(
     results: List[BenchmarkStatistics], names: List[String] = List[String]()
 ):
     """Print summary table of multiple benchmark results.
@@ -461,7 +461,7 @@ fn print_benchmark_summary(
     print("")
 
     # Helper function for manual ljust replacement
-    fn _pad(s: String, width: Int) -> String:
+    def _pad(s: String, width: Int) -> String:
         var result = s
         var padding = width - len(s)
         if padding > 0:
@@ -510,7 +510,7 @@ fn print_benchmark_summary(
 # ============================================================================
 
 
-fn create_benchmark_config(
+def create_benchmark_config(
     warmup_iters: Int = 10,
     measure_iters: Int = 100,
     compute_percentiles: Bool = True,
@@ -561,7 +561,7 @@ struct LegacyBenchmarkConfig(Copyable, Movable):
     var measure_iterations: Int
     """Number of measurement iterations."""
 
-    fn __init__(
+    def __init__(
         out self,
         warmup: Int = 100,
         iterations: Int = 1000,
@@ -607,7 +607,7 @@ struct LegacyBenchmarkResult(Copyable, Movable):
     var dtype: String
     """Data type description (optional)."""
 
-    fn __init__(
+    def __init__(
         out self,
         name: String,
         mean_time_us: Float64,
@@ -637,9 +637,9 @@ struct LegacyBenchmarkResult(Copyable, Movable):
         self.dtype = dtype
 
 
-fn benchmark_operation(
+def benchmark_operation(
     name: String,
-    operation: fn () raises -> None,
+    operation: def () raises -> None,
     config: LegacyBenchmarkConfig = LegacyBenchmarkConfig(
         warmup=100, iterations=1000
     ),

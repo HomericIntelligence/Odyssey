@@ -8,7 +8,7 @@ Tests edge cases for sqrt operations including:
 """
 
 
-from math import isnan, isinf, sqrt
+from std.math import isnan, isinf, sqrt
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.elementwise import (
     sqrt as sqrt_op,
@@ -22,19 +22,19 @@ from tests.shared.conftest import (
     assert_all_close,
     assert_true,
 )
-from math import isnan, isinf, log
+from std.math import isnan, isinf, log
 from shared.core.elementwise import (
     log as log_op,
 )
-from math import isnan, isinf, exp
+from std.math import isnan, isinf, exp
 from shared.core.elementwise import (
     exp as exp_op,
 )
-from math import isnan, isinf, sin, cos, tanh
+from std.math import isnan, isinf, sin, cos, tanh
 from shared.core.activation import tanh as tanh_op
 
 
-fn test_sqrt_of_zero() raises:
+def test_sqrt_of_zero() raises:
     """Ssqrt(0) should be 0."""
     var shape = List[Int]()
     shape.append(1)
@@ -44,7 +44,7 @@ fn test_sqrt_of_zero() raises:
     assert_value_at(result, 0, 0.0, 1e-6, "sqrt(0) should be 0")
 
 
-fn test_sqrt_of_one() raises:
+def test_sqrt_of_one() raises:
     """Ssqrt(1) should be 1."""
     var shape = List[Int]()
     shape.append(1)
@@ -54,7 +54,7 @@ fn test_sqrt_of_one() raises:
     assert_value_at(result, 0, 1.0, 1e-6, "sqrt(1) should be 1")
 
 
-fn test_sqrt_of_negative() raises:
+def test_sqrt_of_negative() raises:
     """Ssqrt(-1) should return NaN (IEEE 754 behavior)."""
     var shape = List[Int]()
     shape.append(3)
@@ -67,7 +67,7 @@ fn test_sqrt_of_negative() raises:
         assert_true(isnan(val), "sqrt(-1) should be NaN")
 
 
-fn test_sqrt_of_small_positive() raises:
+def test_sqrt_of_small_positive() raises:
     """Ssqrt of small positive numbers."""
     var shape = List[Int]()
     shape.append(1)
@@ -77,7 +77,7 @@ fn test_sqrt_of_small_positive() raises:
     assert_value_at(result, 0, 0.5, 1e-5, "sqrt(0.25) should be 0.5")
 
 
-fn test_sqrt_of_large_positive() raises:
+def test_sqrt_of_large_positive() raises:
     """Ssqrt of large positive numbers."""
     var shape = List[Int]()
     shape.append(1)
@@ -87,7 +87,7 @@ fn test_sqrt_of_large_positive() raises:
     assert_value_at(result, 0, 100.0, 1e-3, "sqrt(10000) should be 100")
 
 
-fn test_sqrt_numerical_stability() raises:
+def test_sqrt_numerical_stability() raises:
     """Test sqrt numerical stability with typical values."""
     var shape = List[Int]()
     shape.append(5)
@@ -99,7 +99,7 @@ fn test_sqrt_numerical_stability() raises:
     assert_all_close(result, expected, 1e-4, "sqrt(2) numerical stability")
 
 
-fn test_sqrt_float64() raises:
+def test_sqrt_float64() raises:
     """Test sqrt with float64 dtype."""
     var shape = List[Int]()
     shape.append(1)
@@ -109,7 +109,7 @@ fn test_sqrt_float64() raises:
     assert_value_at(result, 0, 2.0, 1e-10, "sqrt(4.0) in float64")
 
 
-fn test_sqrt_vector() raises:
+def test_sqrt_vector() raises:
     """Test sqrt on vector of values."""
     var shape = List[Int]()
     shape.append(4)
@@ -131,7 +131,7 @@ fn test_sqrt_vector() raises:
     assert_value_at(result, 3, 4.0, 1e-5, "sqrt(16) = 4")
 
 
-fn test_log_of_zero() raises:
+def test_log_of_zero() raises:
     """Llog(0) should be -inf."""
     var shape = List[Int]()
     shape.append(3)
@@ -145,7 +145,7 @@ fn test_log_of_zero() raises:
             raise Error("log(0) should be -inf")
 
 
-fn test_log_of_one() raises:
+def test_log_of_one() raises:
     """Llog(1) should be 0."""
     var shape = List[Int]()
     shape.append(1)
@@ -155,7 +155,7 @@ fn test_log_of_one() raises:
     assert_value_at(result, 0, 0.0, 1e-6, "log(1) should be 0")
 
 
-fn test_log_of_negative() raises:
+def test_log_of_negative() raises:
     """Llog(-1) should be NaN (IEEE 754)."""
     var shape = List[Int]()
     shape.append(3)
@@ -168,7 +168,7 @@ fn test_log_of_negative() raises:
         assert_true(isnan(val), "log(-1) should be NaN")
 
 
-fn test_log_of_small_positive() raises:
+def test_log_of_small_positive() raises:
     """Llog of very small positive numbers."""
     var shape = List[Int]()
     shape.append(1)
@@ -181,7 +181,7 @@ fn test_log_of_small_positive() raises:
         raise Error("log(1e-10) should be large negative")
 
 
-fn test_log_of_e() raises:
+def test_log_of_e() raises:
     """Llog(e) should be 1 (natural logarithm)."""
     var shape = List[Int]()
     shape.append(1)
@@ -191,7 +191,7 @@ fn test_log_of_e() raises:
     assert_value_at(result, 0, 1.0, 1e-6, "log(e) should be 1")
 
 
-fn test_exp_of_zero() raises:
+def test_exp_of_zero() raises:
     """Eexp(0) should be 1."""
     var shape = List[Int]()
     shape.append(1)
@@ -201,7 +201,7 @@ fn test_exp_of_zero() raises:
     assert_value_at(result, 0, 1.0, 1e-6, "exp(0) should be 1")
 
 
-fn test_exp_of_one() raises:
+def test_exp_of_one() raises:
     """Eexp(1) should be e."""
     var shape = List[Int]()
     shape.append(1)
@@ -211,7 +211,7 @@ fn test_exp_of_one() raises:
     assert_value_at(result, 0, 2.718281828, 1e-5, "exp(1) should be e")
 
 
-fn test_exp_of_negative() raises:
+def test_exp_of_negative() raises:
     """Eexp(-1) should be 1/e."""
     var shape = List[Int]()
     shape.append(1)
@@ -221,7 +221,7 @@ fn test_exp_of_negative() raises:
     assert_value_at(result, 0, 0.367879441, 1e-5, "exp(-1) should be 1/e")
 
 
-fn test_exp_of_large_positive() raises:
+def test_exp_of_large_positive() raises:
     """Eexp(large) should overflow to inf."""
     var shape = List[Int]()
     shape.append(1)
@@ -233,7 +233,7 @@ fn test_exp_of_large_positive() raises:
         raise Error("exp(1000) should overflow to inf")
 
 
-fn test_exp_of_large_negative() raises:
+def test_exp_of_large_negative() raises:
     """Eexp(-large) should underflow to 0."""
     var shape = List[Int]()
     shape.append(1)
@@ -243,7 +243,7 @@ fn test_exp_of_large_negative() raises:
     assert_value_at(result, 0, 0.0, 1e-10, "exp(-1000) should underflow to 0")
 
 
-fn test_exp_float64() raises:
+def test_exp_float64() raises:
     """Test exp with float64 dtype."""
     var shape = List[Int]()
     shape.append(1)
@@ -253,7 +253,7 @@ fn test_exp_float64() raises:
     assert_value_at(result, 0, 1.0, 1e-15, "exp(0) in float64")
 
 
-fn test_log_exp_inverse() raises:
+def test_log_exp_inverse() raises:
     """Test that log and exp are approximate inverses."""
     var shape = List[Int]()
     shape.append(1)
@@ -265,7 +265,7 @@ fn test_log_exp_inverse() raises:
     assert_value_at(result, 0, 20.086, 1e-2, "exp(3) ≈ 20.086")
 
 
-fn test_exp_vector() raises:
+def test_exp_vector() raises:
     """Test exp on vector of values."""
     var shape = List[Int]()
     shape.append(3)
@@ -276,7 +276,7 @@ fn test_exp_vector() raises:
     assert_all_values(result, 1.0, 1e-6, "exp(0) = 1 for all elements")
 
 
-fn test_sin_of_zero() raises:
+def test_sin_of_zero() raises:
     """Ssin(0) should be 0."""
     var shape = List[Int]()
     shape.append(1)
@@ -287,7 +287,7 @@ fn test_sin_of_zero() raises:
     assert_value_at(result, 0, 0.0, 1e-6, "sin(0) should be 0")
 
 
-fn test_cos_of_zero() raises:
+def test_cos_of_zero() raises:
     """Ccos(0) should be 1."""
     var shape = List[Int]()
     shape.append(1)
@@ -298,7 +298,7 @@ fn test_cos_of_zero() raises:
     assert_value_at(result, 0, 1.0, 1e-6, "cos(0) should be 1")
 
 
-fn test_tanh_of_zero() raises:
+def test_tanh_of_zero() raises:
     """Ttanh(0) should be 0."""
     var shape = List[Int]()
     shape.append(1)
@@ -308,7 +308,7 @@ fn test_tanh_of_zero() raises:
     assert_value_at(result, 0, 0.0, 1e-6, "tanh(0) should be 0")
 
 
-fn test_tanh_of_positive() raises:
+def test_tanh_of_positive() raises:
     """Ttanh of positive values should be between 0 and 1."""
     var shape = List[Int]()
     shape.append(3)
@@ -321,7 +321,7 @@ fn test_tanh_of_positive() raises:
             raise Error("tanh(1) should be between 0 and 1")
 
 
-fn test_tanh_of_negative() raises:
+def test_tanh_of_negative() raises:
     """Ttanh of negative values should be between -1 and 0."""
     var shape = List[Int]()
     shape.append(3)
@@ -334,7 +334,7 @@ fn test_tanh_of_negative() raises:
             raise Error("tanh(-1) should be between -1 and 0")
 
 
-fn test_tanh_saturation_large_positive() raises:
+def test_tanh_saturation_large_positive() raises:
     """Ttanh(large) should saturate to 1."""
     var shape = List[Int]()
     shape.append(1)
@@ -347,7 +347,7 @@ fn test_tanh_saturation_large_positive() raises:
         raise Error("tanh(100) should saturate to ~1")
 
 
-fn test_tanh_saturation_large_negative() raises:
+def test_tanh_saturation_large_negative() raises:
     """Ttanh(-large) should saturate to -1."""
     var shape = List[Int]()
     shape.append(1)
@@ -360,7 +360,7 @@ fn test_tanh_saturation_large_negative() raises:
         raise Error("tanh(-100) should saturate to ~-1")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_elementwise_edge_cases tests."""
     print("Running test_elementwise_edge_cases tests...")
 

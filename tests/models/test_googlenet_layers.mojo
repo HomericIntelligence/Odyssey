@@ -58,7 +58,7 @@ struct InceptionModule:
     var conv1x1_4_weights: AnyTensor
     var conv1x1_4_bias: AnyTensor
 
-    fn __init__(
+    def __init__(
         out self,
         in_channels: Int,
         out_1x1: Int,
@@ -117,7 +117,7 @@ struct InceptionModule:
         )
         self.conv1x1_4_bias = zeros([pool_proj], DType.float32)
 
-    fn forward(self, x: AnyTensor) raises -> AnyTensor:
+    def forward(self, x: AnyTensor) raises -> AnyTensor:
         """Forward pass through all 4 branches with concatenation.
 
         Returns:
@@ -160,7 +160,7 @@ struct InceptionModule:
         return concatenate_depthwise(b1, b2, b3, b4)
 
 
-fn concatenate_depthwise(
+def concatenate_depthwise(
     t1: AnyTensor, t2: AnyTensor, t3: AnyTensor, t4: AnyTensor
 ) raises -> AnyTensor:
     """Concatenate 4 tensors along the channel dimension (axis=1).
@@ -228,7 +228,7 @@ fn concatenate_depthwise(
     return result
 
 
-fn test_inception_module_initialization() raises:
+def test_inception_module_initialization() raises:
     """Test that Inception module parameters are created with correct shapes."""
     var in_channels = 64
     var out_1x1 = 32
@@ -264,7 +264,7 @@ fn test_inception_module_initialization() raises:
     assert_shape(inception.conv1x1_4_weights, [pool_proj, in_channels, 1, 1])
 
 
-fn test_inception_module_forward_shape() raises:
+def test_inception_module_forward_shape() raises:
     """Test Inception module output shape with all 4 branches concatenated.
 
     Input: (batch=2, channels=64, height=8, width=8)
@@ -303,7 +303,7 @@ fn test_inception_module_forward_shape() raises:
     assert_equal(outShape[3], in_width)
 
 
-fn test_inception_module_forward_values() raises:
+def test_inception_module_forward_values() raises:
     """Test Inception module produces non-zero output values.
 
     Verifies that:
@@ -354,7 +354,7 @@ fn test_inception_module_forward_values() raises:
     assert_true(sum_val > 0.0, "Output should contain non-zero values")
 
 
-fn test_inception_branch_1x1_convolution() raises:
+def test_inception_branch_1x1_convolution() raises:
     """Test 1×1 convolution branch (Branch 1) independently.
 
     1×1 convolution is dimensionality reduction without spatial change.
@@ -385,7 +385,7 @@ fn test_inception_branch_1x1_convolution() raises:
     assert_equal(output.shape()[3], width)
 
 
-fn test_inception_branch_3x3_convolution() raises:
+def test_inception_branch_3x3_convolution() raises:
     """Test 3×3 convolution branch with 1×1 reduction (Branch 2).
 
     Tests the pattern: 1×1 reduce → 3×3 conv.
@@ -427,7 +427,7 @@ fn test_inception_branch_3x3_convolution() raises:
     assert_equal(output.shape()[3], width)
 
 
-fn test_inception_branch_5x5_convolution() raises:
+def test_inception_branch_5x5_convolution() raises:
     """Test 5×5 convolution branch with 1×1 reduction (Branch 3).
 
     Tests the pattern: 1×1 reduce → 5×5 conv.
@@ -472,7 +472,7 @@ fn test_inception_branch_5x5_convolution() raises:
     assert_equal(output.shape()[3], width)
 
 
-fn test_inception_branch_maxpool() raises:
+def test_inception_branch_maxpool() raises:
     """Test MaxPool branch with 1×1 projection (Branch 4).
 
     Tests the pattern: MaxPool (3×3, stride=1, padding=1) → 1×1 projection.
@@ -504,7 +504,7 @@ fn test_inception_branch_maxpool() raises:
     assert_equal(output.shape()[3], width)
 
 
-fn test_concatenate_depthwise_4_tensors() raises:
+def test_concatenate_depthwise_4_tensors() raises:
     """Test concatenation of 4 tensors along channel dimension.
 
     Input:
@@ -554,7 +554,7 @@ fn test_concatenate_depthwise_4_tensors() raises:
     assert_equal(result.numel(), expected_numel)
 
 
-fn test_concatenate_depthwise_values() raises:
+def test_concatenate_depthwise_values() raises:
     """Test that concatenation preserves values in correct order.
 
     Concatenation should preserve values from each tensor in channel dimension.
@@ -601,7 +601,7 @@ fn test_concatenate_depthwise_values() raises:
     assert_close_float(Float64(result_data[idx_t4]), 4.0)
 
 
-fn test_initial_conv_block() raises:
+def test_initial_conv_block() raises:
     """Test initial convolution block (before Inception modules).
 
     Structure: Conv2d (3×3) → ReLU
@@ -635,7 +635,7 @@ fn test_initial_conv_block() raises:
     assert_equal(output.shape()[3], width)
 
 
-fn test_global_avgpool() raises:
+def test_global_avgpool() raises:
     """Test global average pooling layer.
 
     Reduces spatial dimensions to 1×1 by averaging.
@@ -667,7 +667,7 @@ fn test_global_avgpool() raises:
         assert_close_float(Float64(output_data[i]), 2.0)
 
 
-fn test_global_avgpool_larger_spatial() raises:
+def test_global_avgpool_larger_spatial() raises:
     """Test global average pooling with larger spatial dimensions.
 
     Input: (batch=2, channels=512, height=4, width=4)
@@ -694,7 +694,7 @@ fn test_global_avgpool_larger_spatial() raises:
         assert_close_float(Float64(output_data[i]), 4.0)
 
 
-fn test_fc_layer() raises:
+def test_fc_layer() raises:
     """Test final fully connected layer.
 
     Linear transformation from feature vector to class logits.
@@ -723,7 +723,7 @@ fn test_fc_layer() raises:
     assert_equal(output.shape()[1], num_classes)
 
 
-fn test_fc_layer_different_sizes() raises:
+def test_fc_layer_different_sizes() raises:
     """Test FC layer with different feature and class sizes.
 
     Input: (batch=4, features=512)
@@ -750,7 +750,7 @@ fn test_fc_layer_different_sizes() raises:
     assert_equal(output.shape()[1], num_classes)
 
 
-fn test_inception_branch_1x1_backward() raises:
+def test_inception_branch_1x1_backward() raises:
     """Test backward pass through 1×1 convolution branch.
 
     Verifies gradient computation for weight updates.
@@ -788,7 +788,7 @@ fn test_inception_branch_1x1_backward() raises:
     assert_shape(grad_bias, bias.shape())
 
 
-fn test_inception_branch_3x3_backward() raises:
+def test_inception_branch_3x3_backward() raises:
     """Test backward pass through 3×3 convolution branch.
 
     Tests gradient computation with padding=1.
@@ -826,7 +826,7 @@ fn test_inception_branch_3x3_backward() raises:
     assert_shape(grad_bias, bias.shape())
 
 
-fn test_inception_branch_5x5_backward() raises:
+def test_inception_branch_5x5_backward() raises:
     """Test backward pass through 5×5 convolution branch.
 
     Tests gradient computation with padding=2.
@@ -864,7 +864,7 @@ fn test_inception_branch_5x5_backward() raises:
     assert_shape(grad_bias, bias.shape())
 
 
-fn test_concatenate_gradient_preservation() raises:
+def test_concatenate_gradient_preservation() raises:
     """Test that concatenation preserves gradients correctly.
 
     Gradient flows backward through concatenation to each input tensor.
@@ -892,7 +892,7 @@ fn test_concatenate_gradient_preservation() raises:
     assert_equal(grad_result.shape()[3], width)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_googlenet_layers tests."""
     print("Running test_googlenet_layers tests...")
 

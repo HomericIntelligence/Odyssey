@@ -15,7 +15,7 @@ Example:
     )
     from shared.tensor.any_tensor import AnyTensor
 
-    fn step(x: AnyTensor, y: AnyTensor) raises -> AnyTensor:
+    def step(x: AnyTensor, y: AnyTensor) raises -> AnyTensor:
         return x  # replace with real forward+loss
 
     var loader = create_simple_dataloader(
@@ -46,7 +46,7 @@ struct TrainingCallbacks(Copyable, Movable):
     var verbose: Bool
     var print_frequency: Int
 
-    fn __init__(out self, verbose: Bool = True, print_frequency: Int = 10):
+    def __init__(out self, verbose: Bool = True, print_frequency: Int = 10):
         """Initialize training callbacks.
 
         Args:
@@ -56,7 +56,7 @@ struct TrainingCallbacks(Copyable, Movable):
         self.verbose = verbose
         self.print_frequency = print_frequency
 
-    fn on_epoch_start(self, epoch: Int):
+    def on_epoch_start(self, epoch: Int):
         """Called at the start of each epoch.
 
         Args:
@@ -65,7 +65,7 @@ struct TrainingCallbacks(Copyable, Movable):
         if self.verbose:
             print("Epoch", epoch + 1, "starting...")
 
-    fn on_epoch_end(self, epoch: Int, loss: Float32):
+    def on_epoch_end(self, epoch: Int, loss: Float32):
         """Called at the end of each epoch.
 
         Args:
@@ -75,7 +75,7 @@ struct TrainingCallbacks(Copyable, Movable):
         if self.verbose:
             print("Epoch", epoch + 1, "completed. Loss:", loss)
 
-    fn on_batch_end(self, epoch: Int, batch: Int, loss: Float32):
+    def on_batch_end(self, epoch: Int, batch: Int, loss: Float32):
         """Called at the end of each batch.
 
         Args:
@@ -87,10 +87,10 @@ struct TrainingCallbacks(Copyable, Movable):
             print("  Batch", batch, "loss:", loss)
 
 
-fn run_epoch_with_batches(
+def run_epoch_with_batches(
     mut loader: DataLoader,
     callbacks: TrainingCallbacks,
-    step_fn: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
+    step_fn: def (AnyTensor, AnyTensor) raises -> AnyTensor,
 ) raises -> Float32:
     """Run one training epoch with batch processing.
 
@@ -119,7 +119,7 @@ fn run_epoch_with_batches(
     return Float32(0.0)
 
 
-fn print_training_header(
+def print_training_header(
     model_name: String,
     num_epochs: Int,
     batch_size: Int,
@@ -145,7 +145,7 @@ fn print_training_header(
     print("=" * 60)
 
 
-fn print_dataset_info(
+def print_dataset_info(
     dataset_name: String,
     train_size: Int,
     test_size: Int,

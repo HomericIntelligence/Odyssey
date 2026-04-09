@@ -10,8 +10,8 @@ Test Coverage:
 """
 
 
-from collections import List
-from memory import UnsafePointer
+from std.collections import List
+from std.memory import UnsafePointer
 from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.data.formats import (
     CIFARLoader,
@@ -21,7 +21,7 @@ from shared.data.formats import (
 from tests.shared.conftest import assert_true, assert_equal
 
 
-fn create_cifar10_test_file(num_images: Int) -> String:
+def create_cifar10_test_file(num_images: Int) -> String:
     """Create synthetic CIFAR-10 binary format data.
 
     Args:
@@ -48,7 +48,7 @@ fn create_cifar10_test_file(num_images: Int) -> String:
     return result
 
 
-fn create_cifar100_test_file(num_images: Int) -> String:
+def create_cifar100_test_file(num_images: Int) -> String:
     """Create synthetic CIFAR-100 binary format data.
 
     Args:
@@ -79,7 +79,7 @@ fn create_cifar100_test_file(num_images: Int) -> String:
     return result
 
 
-fn test_cifar_loader_init_cifar10() raises:
+def test_cifar_loader_init_cifar10() raises:
     """Test CIFARLoader initialization with CIFAR-10."""
     print("Test: CIFARLoader init CIFAR-10...")
 
@@ -94,7 +94,7 @@ fn test_cifar_loader_init_cifar10() raises:
     print("  ✓ CIFAR-10 loader initialized correctly")
 
 
-fn test_cifar_loader_init_cifar100() raises:
+def test_cifar_loader_init_cifar100() raises:
     """Test CIFARLoader initialization with CIFAR-100."""
     print("Test: CIFARLoader init CIFAR-100...")
 
@@ -109,7 +109,7 @@ fn test_cifar_loader_init_cifar100() raises:
     print("  ✓ CIFAR-100 loader initialized correctly")
 
 
-fn test_cifar_loader_init_invalid_version() raises:
+def test_cifar_loader_init_invalid_version() raises:
     """Test CIFARLoader rejects invalid CIFAR version."""
     print("Test: CIFARLoader init invalid version...")
 
@@ -123,7 +123,7 @@ fn test_cifar_loader_init_invalid_version() raises:
     print("  ✓ Invalid version correctly rejected")
 
 
-fn test_load_cifar10_labels_single_image() raises:
+def test_load_cifar10_labels_single_image() raises:
     """Test loading labels from single-image CIFAR-10 file."""
     print("Test: Load CIFAR-10 labels (1 image)...")
 
@@ -143,7 +143,7 @@ fn test_load_cifar10_labels_single_image() raises:
     print("  ✓ Single-image CIFAR-10 file created successfully")
 
 
-fn test_load_cifar10_labels_multiple_images() raises:
+def test_load_cifar10_labels_multiple_images() raises:
     """Test loading labels from multi-image CIFAR-10 file."""
     print("Test: Load CIFAR-10 labels (10 images)...")
 
@@ -167,7 +167,7 @@ fn test_load_cifar10_labels_multiple_images() raises:
     print("  ✓ Multi-image CIFAR-10 file created successfully")
 
 
-fn test_load_cifar100_labels_structure() raises:
+def test_load_cifar100_labels_structure() raises:
     """Test CIFAR-100 label structure (coarse + fine)."""
     print("Test: CIFAR-100 label structure...")
 
@@ -193,7 +193,7 @@ fn test_load_cifar100_labels_structure() raises:
     print("  ✓ CIFAR-100 label structure correct")
 
 
-fn test_image_shape_cifar10() raises:
+def test_image_shape_cifar10() raises:
     """Test that loaded CIFAR-10 images have correct shape."""
     print("Test: CIFAR-10 image shape...")
 
@@ -216,7 +216,7 @@ fn test_image_shape_cifar10() raises:
     print("  ✓ CIFAR-10 image shape correct")
 
 
-fn test_image_dtype_is_uint8() raises:
+def test_image_dtype_is_uint8() raises:
     """Test that loaded images are uint8 data type."""
     print("Test: Image dtype is uint8...")
 
@@ -234,7 +234,7 @@ fn test_image_dtype_is_uint8() raises:
     print("  ✓ Image dtype is uint8")
 
 
-fn test_label_shape_cifar10() raises:
+def test_label_shape_cifar10() raises:
     """Test that CIFAR-10 labels have correct shape (1D array)."""
     print("Test: CIFAR-10 label shape...")
 
@@ -249,7 +249,7 @@ fn test_label_shape_cifar10() raises:
     print("  ✓ CIFAR-10 label shape correct")
 
 
-fn test_label_shape_cifar100() raises:
+def test_label_shape_cifar100() raises:
     """Test that CIFAR-100 labels have correct shape (2D array)."""
     print("Test: CIFAR-100 label shape...")
 
@@ -266,7 +266,7 @@ fn test_label_shape_cifar100() raises:
     print("  ✓ CIFAR-100 label shape correct")
 
 
-fn test_validate_cifar10_file_size() raises:
+def test_validate_cifar10_file_size() raises:
     """Test file size validation for CIFAR-10."""
     print("Test: CIFAR-10 file size validation...")
 
@@ -294,7 +294,7 @@ fn test_validate_cifar10_file_size() raises:
     print("  ✓ Invalid CIFAR-10 sizes rejected")
 
 
-fn test_validate_cifar100_file_size() raises:
+def test_validate_cifar100_file_size() raises:
     """Test file size validation for CIFAR-100."""
     print("Test: CIFAR-100 file size validation...")
 
@@ -322,7 +322,7 @@ fn test_validate_cifar100_file_size() raises:
     print("  ✓ Invalid CIFAR-100 sizes rejected")
 
 
-fn test_calculate_num_images_cifar10() raises:
+def test_calculate_num_images_cifar10() raises:
     """Test calculating number of images from file size (CIFAR-10)."""
     print("Test: Calculate num images (CIFAR-10)...")
 
@@ -343,7 +343,7 @@ fn test_calculate_num_images_cifar10() raises:
     print("  ✓ Image count calculation correct (CIFAR-10)")
 
 
-fn test_calculate_num_images_cifar100() raises:
+def test_calculate_num_images_cifar100() raises:
     """Test calculating number of images from file size (CIFAR-100)."""
     print("Test: Calculate num images (CIFAR-100)...")
 
@@ -364,7 +364,7 @@ fn test_calculate_num_images_cifar100() raises:
     print("  ✓ Image count calculation correct (CIFAR-100)")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_cifar_loader tests."""
     print("Running test_cifar_loader tests...")
 

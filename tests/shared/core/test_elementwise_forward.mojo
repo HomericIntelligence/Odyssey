@@ -34,7 +34,7 @@ from tests.shared.conftest import (
 )
 
 
-fn test_abs_positive() raises:
+def test_abs_positive() raises:
     """Test abs with positive values."""
     var shape = List[Int]()
     shape.append(5)
@@ -49,7 +49,7 @@ fn test_abs_positive() raises:
     assert_value_at(b, 4, 5.0, 1e-6, "abs(5) = 5")
 
 
-fn test_abs_negative() raises:
+def test_abs_negative() raises:
     """Test abs with negative values."""
     var shape = List[Int]()
     shape.append(5)
@@ -60,7 +60,7 @@ fn test_abs_negative() raises:
     assert_all_values(b, 3.0, 1e-6, "abs(negative) = positive")
 
 
-fn test_abs_mixed() raises:
+def test_abs_mixed() raises:
     """Test abs with mixed positive/negative values."""
     # Create array: [-2, -1, 0, 1, 2]
     var a = arange(-2.0, 3.0, 1.0, DType.float32)
@@ -74,7 +74,7 @@ fn test_abs_mixed() raises:
     assert_value_at(b, 4, 2.0, 1e-6, "abs(2) = 2")
 
 
-fn test_abs_preserves_dtype() raises:
+def test_abs_preserves_dtype() raises:
     """Test that abs preserves dtype."""
     var shape = List[Int]()
     shape.append(5)
@@ -84,7 +84,7 @@ fn test_abs_preserves_dtype() raises:
     assert_dtype(b, DType.float64, "abs should preserve float64")
 
 
-fn test_sign_positive() raises:
+def test_sign_positive() raises:
     """Test sign with positive values."""
     var shape = List[Int]()
     shape.append(3)
@@ -95,7 +95,7 @@ fn test_sign_positive() raises:
     assert_all_values(b, 1.0, 1e-6, "sign(positive) = 1")
 
 
-fn test_sign_negative() raises:
+def test_sign_negative() raises:
     """Test sign with negative values."""
     var shape = List[Int]()
     shape.append(3)
@@ -106,7 +106,7 @@ fn test_sign_negative() raises:
     assert_all_values(b, -1.0, 1e-6, "sign(negative) = -1")
 
 
-fn test_sign_zero() raises:
+def test_sign_zero() raises:
     """Test sign with zero values."""
     var shape = List[Int]()
     shape.append(3)
@@ -117,7 +117,7 @@ fn test_sign_zero() raises:
     assert_all_values(b, 0.0, 1e-6, "sign(0) = 0")
 
 
-fn test_sign_mixed() raises:
+def test_sign_mixed() raises:
     """Test sign with mixed values."""
     # Create array: [-2, -1, 0, 1, 2]
     var a = arange(-2.0, 3.0, 1.0, DType.float32)
@@ -131,7 +131,7 @@ fn test_sign_mixed() raises:
     assert_value_at(b, 4, 1.0, 1e-6, "sign(2) = 1")
 
 
-fn test_exp_zeros() raises:
+def test_exp_zeros() raises:
     """Test exp(0) = 1."""
     var shape = List[Int]()
     shape.append(5)
@@ -142,7 +142,7 @@ fn test_exp_zeros() raises:
     assert_all_values(b, 1.0, 1e-6, "exp(0) should be 1")
 
 
-fn test_exp_ones() raises:
+def test_exp_ones() raises:
     """Test exp(1) ≈ 2.71828."""
     var shape = List[Int]()
     shape.append(3)
@@ -153,7 +153,7 @@ fn test_exp_ones() raises:
     assert_all_values(b, 2.71828, 1e-5, "exp(1) should be approximately e")
 
 
-fn test_exp_small_values() raises:
+def test_exp_small_values() raises:
     """Test exp with small values."""
     var shape = List[Int]()
     shape.append(1)
@@ -164,7 +164,7 @@ fn test_exp_small_values() raises:
     assert_value_at(b, 0, 1.64872, 1e-4, "exp(0.5) should be ~1.649")
 
 
-fn test_exp_negative() raises:
+def test_exp_negative() raises:
     """Test exp with negative values."""
     var shape = List[Int]()
     shape.append(1)
@@ -175,7 +175,7 @@ fn test_exp_negative() raises:
     assert_value_at(b, 0, 0.36788, 1e-4, "exp(-1) should be ~0.368")
 
 
-fn test_log_one() raises:
+def test_log_one() raises:
     """Test log(1) = 0."""
     var shape = List[Int]()
     shape.append(5)
@@ -186,7 +186,7 @@ fn test_log_one() raises:
     assert_all_values(b, 0.0, 1e-6, "log(1) should be 0")
 
 
-fn test_log_e() raises:
+def test_log_e() raises:
     """Test log(e) = 1."""
     var shape = List[Int]()
     shape.append(1)
@@ -197,7 +197,7 @@ fn test_log_e() raises:
     assert_value_at(b, 0, 1.0, 1e-4, "log(e) should be 1")
 
 
-fn test_log_powers_of_2() raises:
+def test_log_powers_of_2() raises:
     """Test log with powers of 2."""
     var shape = List[Int]()
     shape.append(1)
@@ -208,7 +208,7 @@ fn test_log_powers_of_2() raises:
     assert_value_at(b, 0, 0.69315, 1e-4, "log(2) should be ~0.693")
 
 
-fn test_sqrt_perfect_squares() raises:
+def test_sqrt_perfect_squares() raises:
     """Test sqrt with perfect squares."""
     # Create array: [1, 4, 9, 16, 25]
     var shape = List[Int]()
@@ -229,7 +229,7 @@ fn test_sqrt_perfect_squares() raises:
     assert_value_at(b, 4, 5.0, 1e-6, "sqrt(25) = 5")
 
 
-fn test_sqrt_zero() raises:
+def test_sqrt_zero() raises:
     """Test sqrt(0) = 0."""
     var shape = List[Int]()
     shape.append(3)
@@ -240,7 +240,7 @@ fn test_sqrt_zero() raises:
     assert_all_values(b, 0.0, 1e-6, "sqrt(0) should be 0")
 
 
-fn test_sqrt_one() raises:
+def test_sqrt_one() raises:
     """Test sqrt(1) = 1."""
     var shape = List[Int]()
     shape.append(3)
@@ -251,7 +251,7 @@ fn test_sqrt_one() raises:
     assert_all_values(b, 1.0, 1e-6, "sqrt(1) should be 1")
 
 
-fn test_sqrt_two() raises:
+def test_sqrt_two() raises:
     """Test sqrt(2) ≈ 1.41421."""
     var shape = List[Int]()
     shape.append(1)
@@ -262,7 +262,7 @@ fn test_sqrt_two() raises:
     assert_value_at(b, 0, 1.41421, 1e-4, "sqrt(2) should be ~1.414")
 
 
-fn test_sin_zero() raises:
+def test_sin_zero() raises:
     """Test sin(0) = 0."""
     var shape = List[Int]()
     shape.append(3)
@@ -273,7 +273,7 @@ fn test_sin_zero() raises:
     assert_all_values(b, 0.0, 1e-6, "sin(0) should be 0")
 
 
-fn test_sin_pi_over_2() raises:
+def test_sin_pi_over_2() raises:
     """Test sin(π/2) = 1."""
     var shape = List[Int]()
     shape.append(1)
@@ -284,7 +284,7 @@ fn test_sin_pi_over_2() raises:
     assert_value_at(b, 0, 1.0, 1e-4, "sin(π/2) should be 1")
 
 
-fn test_sin_pi() raises:
+def test_sin_pi() raises:
     """Test sin(π) ≈ 0."""
     var shape = List[Int]()
     shape.append(1)
@@ -295,7 +295,7 @@ fn test_sin_pi() raises:
     assert_value_at(b, 0, 0.0, 1e-5, "sin(π) should be ~0")
 
 
-fn test_cos_zero() raises:
+def test_cos_zero() raises:
     """Test cos(0) = 1."""
     var shape = List[Int]()
     shape.append(3)
@@ -306,7 +306,7 @@ fn test_cos_zero() raises:
     assert_all_values(b, 1.0, 1e-6, "cos(0) should be 1")
 
 
-fn test_cos_pi_over_2() raises:
+def test_cos_pi_over_2() raises:
     """Test cos(π/2) ≈ 0."""
     var shape = List[Int]()
     shape.append(1)
@@ -317,7 +317,7 @@ fn test_cos_pi_over_2() raises:
     assert_value_at(b, 0, 0.0, 1e-4, "cos(π/2) should be ~0")
 
 
-fn test_cos_pi() raises:
+def test_cos_pi() raises:
     """Test cos(π) = -1."""
     var shape = List[Int]()
     shape.append(1)
@@ -328,7 +328,7 @@ fn test_cos_pi() raises:
     assert_value_at(b, 0, -1.0, 1e-4, "cos(π) should be ~-1")
 
 
-fn test_tanh_zero() raises:
+def test_tanh_zero() raises:
     """Test tanh(0) = 0."""
     var shape = List[Int]()
     shape.append(3)
@@ -339,7 +339,7 @@ fn test_tanh_zero() raises:
     assert_all_values(b, 0.0, 1e-6, "tanh(0) should be 0")
 
 
-fn test_tanh_large_positive() raises:
+def test_tanh_large_positive() raises:
     """Test tanh(large) ≈ 1."""
     var shape = List[Int]()
     shape.append(1)
@@ -350,7 +350,7 @@ fn test_tanh_large_positive() raises:
     assert_value_at(b, 0, 1.0, 1e-5, "tanh(large) should be ~1")
 
 
-fn test_tanh_large_negative() raises:
+def test_tanh_large_negative() raises:
     """Test tanh(-large) ≈ -1."""
     var shape = List[Int]()
     shape.append(1)
@@ -361,7 +361,7 @@ fn test_tanh_large_negative() raises:
     assert_value_at(b, 0, -1.0, 1e-5, "tanh(-large) should be ~-1")
 
 
-fn test_tanh_small_values() raises:
+def test_tanh_small_values() raises:
     """Test tanh with small values."""
     var shape = List[Int]()
     shape.append(1)
@@ -372,7 +372,7 @@ fn test_tanh_small_values() raises:
     assert_value_at(b, 0, 0.46212, 1e-4, "tanh(0.5) should be ~0.462")
 
 
-fn test_clip_basic() raises:
+def test_clip_basic() raises:
     """Test clip with basic range."""
     # Create array: [1, 2, 3, 4, 5]
     var a = arange(1.0, 6.0, 1.0, DType.float32)
@@ -386,7 +386,7 @@ fn test_clip_basic() raises:
     assert_value_at(b, 4, 4.0, 1e-6, "clip(5, 2, 4) = 4")
 
 
-fn test_clip_all_below() raises:
+def test_clip_all_below() raises:
     """Test clip when all values below min."""
     var shape = List[Int]()
     shape.append(3)
@@ -397,7 +397,7 @@ fn test_clip_all_below() raises:
     assert_all_values(b, 5.0, 1e-6, "clip(1, 5, 10) should be 5")
 
 
-fn test_clip_all_above() raises:
+def test_clip_all_above() raises:
     """Test clip when all values above max."""
     var shape = List[Int]()
     shape.append(3)
@@ -408,7 +408,7 @@ fn test_clip_all_above() raises:
     assert_all_values(b, 10.0, 1e-6, "clip(20, 5, 10) should be 10")
 
 
-fn test_operations_preserve_dtype() raises:
+def test_operations_preserve_dtype() raises:
     """Test that all operations preserve dtype."""
     var shape = List[Int]()
     shape.append(3)
@@ -431,7 +431,7 @@ fn test_operations_preserve_dtype() raises:
     assert_dtype(b_sqrt, DType.float64, "sqrt should preserve dtype")
 
 
-fn main() raises:
+def main() raises:
     """Run all test_elementwise_forward tests."""
     print("Running test_elementwise_forward tests...")
 

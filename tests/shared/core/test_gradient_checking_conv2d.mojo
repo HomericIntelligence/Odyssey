@@ -28,7 +28,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, zeros_like
 from shared.testing.gradient_checker import check_gradient
 
 
-fn _make_ones_grad_output(output: AnyTensor) raises -> AnyTensor:
+def _make_ones_grad_output(output: AnyTensor) raises -> AnyTensor:
     """Create ones grad_output matching output shape."""
     var grad_output = zeros_like(output)
     for i in range(output.numel()):
@@ -36,7 +36,7 @@ fn _make_ones_grad_output(output: AnyTensor) raises -> AnyTensor:
     return grad_output^
 
 
-fn test_conv2d_same_padding_grad_input() raises:
+def test_conv2d_same_padding_grad_input() raises:
     """Test conv2d grad_input with same-padding (stride=1, padding=1)."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -60,10 +60,10 @@ fn test_conv2d_same_padding_grad_input() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=1)
 
-    fn backward_fn(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, inp, kernel, stride=1, padding=1)
         return result.grad_input
 
@@ -72,7 +72,7 @@ fn test_conv2d_same_padding_grad_input() raises:
     check_gradient(forward, backward_fn, x, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn test_conv2d_same_padding_grad_weights() raises:
+def test_conv2d_same_padding_grad_weights() raises:
     """Test conv2d grad_weights with same-padding (stride=1, padding=1)."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -96,10 +96,10 @@ fn test_conv2d_same_padding_grad_weights() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(k: AnyTensor) raises escaping -> AnyTensor:
+    def forward(k: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, k, bias, stride=1, padding=1)
 
-    fn backward_fn(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, x, k, stride=1, padding=1)
         return result.grad_weights
 
@@ -108,7 +108,7 @@ fn test_conv2d_same_padding_grad_weights() raises:
     check_gradient(forward, backward_fn, kernel, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn test_conv2d_same_padding_grad_bias() raises:
+def test_conv2d_same_padding_grad_bias() raises:
     """Test conv2d grad_bias with same-padding (stride=1, padding=1)."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -132,10 +132,10 @@ fn test_conv2d_same_padding_grad_bias() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(b: AnyTensor) raises escaping -> AnyTensor:
+    def forward(b: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, kernel, b, stride=1, padding=1)
 
-    fn backward_fn(grad_out: AnyTensor, b: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad_out: AnyTensor, b: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, x, kernel, stride=1, padding=1)
         return result.grad_bias
 
@@ -144,7 +144,7 @@ fn test_conv2d_same_padding_grad_bias() raises:
     check_gradient(forward, backward_fn, bias, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn test_conv2d_strided_grad_input() raises:
+def test_conv2d_strided_grad_input() raises:
     """Test conv2d grad_input with stride=2, padding=0, input (1,1,7,7)."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -168,10 +168,10 @@ fn test_conv2d_strided_grad_input() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=2, padding=0)
 
-    fn backward_fn(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, inp, kernel, stride=2, padding=0)
         return result.grad_input
 
@@ -180,7 +180,7 @@ fn test_conv2d_strided_grad_input() raises:
     check_gradient(forward, backward_fn, x, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn test_conv2d_strided_grad_weights() raises:
+def test_conv2d_strided_grad_weights() raises:
     """Test conv2d grad_weights with stride=2, padding=0, input (1,1,7,7)."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -204,10 +204,10 @@ fn test_conv2d_strided_grad_weights() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(k: AnyTensor) raises escaping -> AnyTensor:
+    def forward(k: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, k, bias, stride=2, padding=0)
 
-    fn backward_fn(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, x, k, stride=2, padding=0)
         return result.grad_weights
 
@@ -216,7 +216,7 @@ fn test_conv2d_strided_grad_weights() raises:
     check_gradient(forward, backward_fn, kernel, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn test_conv2d_strided_grad_bias() raises:
+def test_conv2d_strided_grad_bias() raises:
     """Test conv2d grad_bias with stride=2, padding=0, input (1,1,7,7)."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -240,10 +240,10 @@ fn test_conv2d_strided_grad_bias() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(b: AnyTensor) raises escaping -> AnyTensor:
+    def forward(b: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, kernel, b, stride=2, padding=0)
 
-    fn backward_fn(grad_out: AnyTensor, b: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad_out: AnyTensor, b: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, x, kernel, stride=2, padding=0)
         return result.grad_bias
 
@@ -252,7 +252,7 @@ fn test_conv2d_strided_grad_bias() raises:
     check_gradient(forward, backward_fn, bias, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn test_conv2d_multichannel_grad_input() raises:
+def test_conv2d_multichannel_grad_input() raises:
     """Test conv2d grad_input with in_channels=2, out_channels=3, input (1,2,5,5)."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -276,10 +276,10 @@ fn test_conv2d_multichannel_grad_input() raises:
     bias_shape.append(3)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=1)
 
-    fn backward_fn(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, inp, kernel, stride=1, padding=1)
         return result.grad_input
 
@@ -288,7 +288,7 @@ fn test_conv2d_multichannel_grad_input() raises:
     check_gradient(forward, backward_fn, x, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn test_conv2d_multichannel_grad_weights() raises:
+def test_conv2d_multichannel_grad_weights() raises:
     """Test conv2d grad_weights with in_channels=2, out_channels=3, kernel (3,2,3,3)."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -312,10 +312,10 @@ fn test_conv2d_multichannel_grad_weights() raises:
     bias_shape.append(3)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(k: AnyTensor) raises escaping -> AnyTensor:
+    def forward(k: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, k, bias, stride=1, padding=1)
 
-    fn backward_fn(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad_out: AnyTensor, k: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, x, k, stride=1, padding=1)
         return result.grad_weights
 
@@ -324,7 +324,7 @@ fn test_conv2d_multichannel_grad_weights() raises:
     check_gradient(forward, backward_fn, kernel, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn test_conv2d_multichannel_grad_bias() raises:
+def test_conv2d_multichannel_grad_bias() raises:
     """Test conv2d grad_bias with out_channels=3, bias shape (3,)."""
     var input_shape = List[Int]()
     input_shape.append(1)
@@ -348,10 +348,10 @@ fn test_conv2d_multichannel_grad_bias() raises:
     bias_shape.append(3)
     var bias = zeros(bias_shape, DType.float32)
 
-    fn forward(b: AnyTensor) raises escaping -> AnyTensor:
+    def forward(b: AnyTensor) raises escaping -> AnyTensor:
         return conv2d(x, kernel, b, stride=1, padding=1)
 
-    fn backward_fn(grad_out: AnyTensor, b: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad_out: AnyTensor, b: AnyTensor) raises escaping -> AnyTensor:
         var result = conv2d_backward(grad_out, x, kernel, stride=1, padding=1)
         return result.grad_bias
 
@@ -360,7 +360,7 @@ fn test_conv2d_multichannel_grad_bias() raises:
     check_gradient(forward, backward_fn, bias, grad_output, rtol=1e-2, atol=1e-2)
 
 
-fn main() raises:
+def main() raises:
     """Run all 9 conv2d gradient checking tests."""
     print("Running Conv2D Gradient Checking Tests...")
     print("=" * 60)

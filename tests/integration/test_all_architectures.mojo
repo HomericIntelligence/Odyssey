@@ -21,7 +21,7 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones
 import sys
 
 
-fn test_model_forward(
+def test_model_forward(
     model_name: String,
     forward_fn: fn (AnyTensor, Bool) raises -> AnyTensor,
     batch_size: Int = 4,
@@ -172,7 +172,7 @@ fn test_model_forward(
         return False
 
 
-fn main() raises:
+def main() raises:
     """Run all integration tests."""
     print("\n" + "=" * 60)
     print("INTEGRATION TESTS FOR ALL CNN ARCHITECTURES")

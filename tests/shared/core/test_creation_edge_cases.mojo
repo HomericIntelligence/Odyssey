@@ -23,7 +23,7 @@ from tests.shared.conftest import (
 # ============================================================================
 
 
-fn test_creation_0d_scalar() raises:
+def test_creation_0d_scalar() raises:
     """Test creating 0D scalar tensor."""
     var shape = List[Int]()
     var t = zeros(shape, DType.float32)
@@ -33,7 +33,7 @@ fn test_creation_0d_scalar() raises:
     assert_value_at(t, 0, 0.0, 1e-8, "0D tensor value")
 
 
-fn test_creation_very_large_1d() raises:
+def test_creation_very_large_1d() raises:
     """Test creating very large 1D tensor."""
     var shape = List[Int]()
     shape.append(1000000)
@@ -45,7 +45,7 @@ fn test_creation_very_large_1d() raises:
     assert_value_at(t, 999999, 0.0, 1e-8, "Large tensor last element")
 
 
-fn test_creation_high_dimensional() raises:
+def test_creation_high_dimensional() raises:
     """Test creating tensor with many dimensions (e.g., 8D)."""
     var shape = List[Int](length=8, fill=2)
     var t = zeros(shape, DType.float32)
@@ -59,7 +59,7 @@ fn test_creation_high_dimensional() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run creation edge case tests."""
     print("Running AnyTensor creation tests - Edge cases...")
 

@@ -13,7 +13,7 @@ Features:
 Example:
     from shared.utils import TrainingArgs, parse_training_args
 
-    fn main() raises:
+    def main() raises:
         var args = parse_training_args()
         print("Epochs:", args.epochs)
         print("Batch size:", args.batch_size)
@@ -61,7 +61,7 @@ struct TrainingArgs(Copyable, Movable):
     var lr_decay_epochs: Int
     var lr_decay_factor: Float64
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initialize with default training arguments."""
         self.epochs = 10
         self.batch_size = 32
@@ -79,7 +79,7 @@ struct TrainingArgs(Copyable, Movable):
 # ============================================================================
 
 
-fn parse_training_args() raises -> TrainingArgs:
+def parse_training_args() raises -> TrainingArgs:
     """Parse common training arguments from command line with defaults.
 
         Supported arguments:
@@ -118,7 +118,7 @@ fn parse_training_args() raises -> TrainingArgs:
     )
 
 
-fn parse_training_args_with_defaults(
+def parse_training_args_with_defaults(
     default_epochs: Int = 10,
     default_batch_size: Int = 32,
     default_lr: Float64 = 0.01,

@@ -18,7 +18,7 @@ from tests.shared.conftest import (
 from shared.data.samplers import RandomSampler
 
 
-fn test_random_sampler_creation() raises:
+def test_random_sampler_creation() raises:
     """Test creating RandomSampler with dataset size.
 
     Should create sampler that yields all indices in random order,
@@ -28,7 +28,7 @@ fn test_random_sampler_creation() raises:
     assert_equal(sampler.__len__(), 100)
 
 
-fn test_random_sampler_with_seed() raises:
+def test_random_sampler_with_seed() raises:
     """Test creating RandomSampler with explicit seed.
 
     Should accept seed parameter for deterministic shuffling,
@@ -38,7 +38,7 @@ fn test_random_sampler_with_seed() raises:
     assert_equal(sampler.__len__(), 100)
 
 
-fn test_random_sampler_empty() raises:
+def test_random_sampler_empty() raises:
     """Test creating RandomSampler with size 0.
 
     Should create valid sampler that yields no indices,
@@ -51,7 +51,7 @@ fn test_random_sampler_empty() raises:
     assert_equal(len(indices), 0)
 
 
-fn test_random_sampler_shuffles_indices() raises:
+def test_random_sampler_shuffles_indices() raises:
     """Test that indices are shuffled, not sequential.
 
     Should produce different order than [0, 1, 2, ...],
@@ -70,7 +70,7 @@ fn test_random_sampler_shuffles_indices() raises:
     assert_true(not is_sequential, "Indices should be shuffled")
 
 
-fn test_random_sampler_deterministic_with_seed() raises:
+def test_random_sampler_deterministic_with_seed() raises:
     """Test that same seed produces same shuffle.
 
     Setting seed should make shuffling deterministic,
@@ -87,7 +87,7 @@ fn test_random_sampler_deterministic_with_seed() raises:
         assert_equal(indices1[i], indices2[i])
 
 
-fn test_random_sampler_varies_without_seed() raises:
+def test_random_sampler_varies_without_seed() raises:
     """Test that shuffle changes between epochs without fixed seed.
 
     Each epoch should use different random permutation,
@@ -112,7 +112,7 @@ fn test_random_sampler_varies_without_seed() raises:
     assert_true(not all_same, "Shuffles should differ between iterations")
 
 
-fn test_random_sampler_yields_all_indices() raises:
+def test_random_sampler_yields_all_indices() raises:
     """Test that all indices are yielded exactly once per epoch.
 
     Despite randomization, should yield each index [0, n-1]
@@ -144,7 +144,7 @@ fn test_random_sampler_yields_all_indices() raises:
         assert_equal(sorted_indices[i], i)
 
 
-fn test_random_sampler_no_duplicates() raises:
+def test_random_sampler_no_duplicates() raises:
     """Test that sampler doesn't yield duplicate indices.
 
     Each epoch should be a permutation, not sampling with replacement,
@@ -166,7 +166,7 @@ fn test_random_sampler_no_duplicates() raises:
     assert_equal(len(indices), 50)
 
 
-fn test_random_sampler_valid_range() raises:
+def test_random_sampler_valid_range() raises:
     """Test that all yielded indices are in valid range [0, size-1].
 
     Should never yield negative indices or indices >= size,
@@ -180,7 +180,7 @@ fn test_random_sampler_valid_range() raises:
         assert_true(indices[i] < 100)
 
 
-fn test_random_sampler_with_replacement() raises:
+def test_random_sampler_with_replacement() raises:
     """Test random sampling with replacement.
 
     When replacement=True, should allow duplicate indices,
@@ -200,7 +200,7 @@ fn test_random_sampler_with_replacement() raises:
         assert_true(indices[i] < 10)
 
 
-fn test_random_sampler_replacement_oversampling() raises:
+def test_random_sampler_replacement_oversampling() raises:
     """Test oversampling with replacement.
 
     Can sample more than dataset size when replacement=True,
@@ -218,7 +218,7 @@ fn test_random_sampler_replacement_oversampling() raises:
         assert_true(indices[i] >= 0 and indices[i] < 10)
 
 
-fn test_random_sampler_with_dataloader() raises:
+def test_random_sampler_with_dataloader() raises:
     """Test using RandomSampler standalone for DataLoader-style usage.
 
     RandomSampler should produce randomly ordered indices
@@ -237,7 +237,7 @@ fn test_random_sampler_with_dataloader() raises:
     assert_true(not is_sequential, "Indices should be shuffled")
 
 
-fn test_random_sampler_shuffle_speed() raises:
+def test_random_sampler_shuffle_speed() raises:
     """Test that shuffling is fast even for large datasets.
 
     Creating sampler and generating permutation should be
@@ -252,7 +252,7 @@ fn test_random_sampler_shuffle_speed() raises:
     # In production, indices are generated lazily during iteration
 
 
-fn main() raises:
+def main() raises:
     """Run all test_random tests."""
     print("Running test_random tests...")
 

@@ -14,7 +14,7 @@ from shared.data.dataset_with_transform import TransformedDataset
 from shared.data.prefetch import PrefetchBuffer, PrefetchDataLoader
 from shared.data.loaders import Batch
 from shared.tensor.any_tensor import AnyTensor, ones, zeros
-from collections import List
+from std.collections import List
 
 
 # ============================================================================
@@ -22,14 +22,14 @@ from collections import List
 # ============================================================================
 
 
-fn test_prefetch_buffer_creation() raises:
+def test_prefetch_buffer_creation() raises:
     """Test creating a PrefetchBuffer."""
     var buffer = PrefetchBuffer(capacity=2)
     assert_equal(buffer.capacity, 2)
     assert_true(buffer.is_empty())
 
 
-fn test_prefetch_buffer_capacity_validation() raises:
+def test_prefetch_buffer_capacity_validation() raises:
     """Test that PrefetchBuffer validates capacity.
 
     Negative or zero capacity should raise an error.
@@ -41,7 +41,7 @@ fn test_prefetch_buffer_capacity_validation() raises:
         pass
 
 
-fn test_prefetch_buffer_append_and_pop() raises:
+def test_prefetch_buffer_append_and_pop() raises:
     """Test appending and popping batches.
 
     Should follow FIFO order.
@@ -64,7 +64,7 @@ fn test_prefetch_buffer_append_and_pop() raises:
     assert_true(buffer.is_empty())
 
 
-fn test_prefetch_buffer_capacity_limit() raises:
+def test_prefetch_buffer_capacity_limit() raises:
     """Test that PrefetchBuffer respects capacity limit.
 
     Should raise error when trying to append beyond capacity.
@@ -93,7 +93,7 @@ fn test_prefetch_buffer_capacity_limit() raises:
         pass
 
 
-fn test_prefetch_buffer_clear() raises:
+def test_prefetch_buffer_clear() raises:
     """Test clearing the buffer.
 
     Clear should remove all batches.
@@ -118,7 +118,7 @@ fn test_prefetch_buffer_clear() raises:
 # ============================================================================
 
 
-fn test_prefetch_data_loader_creation() raises:
+def test_prefetch_data_loader_creation() raises:
     """Test creating PrefetchDataLoader.
 
     Should wrap a BatchLoader with specified prefetch factor.
@@ -137,7 +137,7 @@ fn test_prefetch_data_loader_creation() raises:
     assert_equal(prefetch.prefetch_factor, 2)
 
 
-fn test_prefetch_data_loader_invalid_prefetch_factor() raises:
+def test_prefetch_data_loader_invalid_prefetch_factor() raises:
     """Test that PrefetchDataLoader validates prefetch_factor.
 
     Negative or zero prefetch_factor should raise an error.
@@ -159,7 +159,7 @@ fn test_prefetch_data_loader_invalid_prefetch_factor() raises:
         pass
 
 
-fn test_prefetch_data_loader_iteration() raises:
+def test_prefetch_data_loader_iteration() raises:
     """Test that PrefetchDataLoader can iterate over batches.
 
     Should return batches similar to base loader.
@@ -183,7 +183,7 @@ fn test_prefetch_data_loader_iteration() raises:
     assert_equal(batches.__len__(), 5)
 
 
-fn main() raises:
+def main() raises:
     """Run all tests."""
     print("Testing PrefetchBuffer...")
     test_prefetch_buffer_creation()

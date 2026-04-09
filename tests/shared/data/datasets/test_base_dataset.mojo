@@ -22,7 +22,7 @@ struct StubDataset:
     var size: Int
     var data: List[Float32]
 
-    fn __init__(out self, size: Int):
+    def __init__(out self, size: Int):
         """Create stub dataset with specified size.
 
         Args:
@@ -33,11 +33,11 @@ struct StubDataset:
         for i in range(size):
             self.data.append(Float32(i))
 
-    fn __len__(self) -> Int:
+    def __len__(self) -> Int:
         """Return number of samples in dataset."""
         return self.size
 
-    fn __getitem__(self, index: Int) raises -> Tuple[Float32, Int]:
+    def __getitem__(self, index: Int) raises -> Tuple[Float32, Int]:
         """Get sample at index.
 
         Args:
@@ -64,7 +64,7 @@ struct StubDataset:
 # ============================================================================
 
 
-fn test_dataset_has_len_method() raises:
+def test_dataset_has_len_method() raises:
     """Test that Dataset interface requires __len__ method.
 
     The Dataset trait must provide a way to query the total number of samples.
@@ -74,7 +74,7 @@ fn test_dataset_has_len_method() raises:
     assert_equal(dataset.__len__(), 100)
 
 
-fn test_dataset_has_getitem_method() raises:
+def test_dataset_has_getitem_method() raises:
     """Test that Dataset interface requires __getitem__ method.
 
     The Dataset trait must provide indexed access to samples.
@@ -86,7 +86,7 @@ fn test_dataset_has_getitem_method() raises:
     assert_equal(sample[1], 0)
 
 
-fn test_dataset_getitem_returns_tuple() raises:
+def test_dataset_getitem_returns_tuple() raises:
     """Test that __getitem__ returns (data, label) tuple.
 
     Standard convention is to return both data and label together,
@@ -100,7 +100,7 @@ fn test_dataset_getitem_returns_tuple() raises:
     assert_equal(label, 0)
 
 
-fn test_dataset_getitem_index_validation() raises:
+def test_dataset_getitem_index_validation() raises:
     """Test that __getitem__ validates index bounds.
 
     Should raise error for out-of-bounds indices to prevent
@@ -117,7 +117,7 @@ fn test_dataset_getitem_index_validation() raises:
     )
 
 
-fn test_dataset_supports_negative_indexing() raises:
+def test_dataset_supports_negative_indexing() raises:
     """Test that Dataset supports Python-style negative indexing.
 
     Negative indices should count from the end: dataset[-1] == dataset[len-1].
@@ -130,7 +130,7 @@ fn test_dataset_supports_negative_indexing() raises:
     assert_equal(last_sample[1], explicit_last[1])
 
 
-fn test_dataset_length_immutable() raises:
+def test_dataset_length_immutable() raises:
     """Test that dataset length remains constant after creation.
 
     The __len__ method should return the same value across multiple calls,
@@ -142,7 +142,7 @@ fn test_dataset_length_immutable() raises:
     assert_equal(len1, len2)
 
 
-fn test_dataset_iteration_consistency() raises:
+def test_dataset_iteration_consistency() raises:
     """Test that repeated __getitem__ calls return consistent data.
 
     Calling dataset[i] multiple times should return the same data,
@@ -160,7 +160,7 @@ fn test_dataset_iteration_consistency() raises:
 # ============================================================================
 
 
-fn main() raises:
+def main() raises:
     """Run all base dataset tests."""
     print("Running base dataset tests...")
 

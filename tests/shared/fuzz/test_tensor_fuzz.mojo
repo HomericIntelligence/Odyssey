@@ -24,7 +24,7 @@ Note:
 
 
 from random import seed as random_seed
-from math import isnan, isinf
+from std.math import isnan, isinf
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.arithmetic import add, subtract, multiply, divide
 comptime DEFAULT_SEED: Int = 42
@@ -64,7 +64,7 @@ from shared.testing.fuzz_dtypes import (
 from tests.shared.conftest import assert_true, assert_equal_int
 
 
-fn test_fuzz_tensor_creation_random_shapes() raises:
+def test_fuzz_tensor_creation_random_shapes() raises:
     """Fuzz test: tensor creation with random shapes should not crash.
 
     Verifies that creating tensors with various random shapes:
@@ -149,7 +149,7 @@ fn test_fuzz_tensor_creation_random_shapes() raises:
     )
 
 
-fn test_fuzz_tensor_creation_edge_shapes() raises:
+def test_fuzz_tensor_creation_edge_shapes() raises:
     """Fuzz test: tensor creation with edge case shapes.
 
     Tests edge case shapes:
@@ -208,7 +208,7 @@ fn test_fuzz_tensor_creation_edge_shapes() raises:
     )
 
 
-fn test_fuzz_tensor_creation_all_dtypes() raises:
+def test_fuzz_tensor_creation_all_dtypes() raises:
     """Fuzz test: tensor creation works for all data types.
 
     Verifies that tensors can be created with all supported dtypes:
@@ -280,7 +280,7 @@ fn test_fuzz_tensor_creation_all_dtypes() raises:
     )
 
 
-fn test_fuzz_add_same_shape() raises:
+def test_fuzz_add_same_shape() raises:
     """Fuzz test: addition with same shape tensors.
 
     Verifies that adding tensors of the same shape:
@@ -357,7 +357,7 @@ fn test_fuzz_add_same_shape() raises:
     )
 
 
-fn test_fuzz_subtract_same_shape() raises:
+def test_fuzz_subtract_same_shape() raises:
     """Fuzz test: subtraction with same shape tensors."""
     print("  test_fuzz_subtract_same_shape...")
 
@@ -413,7 +413,7 @@ fn test_fuzz_subtract_same_shape() raises:
     )
 
 
-fn test_fuzz_multiply_same_shape() raises:
+def test_fuzz_multiply_same_shape() raises:
     """Fuzz test: multiplication with same shape tensors."""
     print("  test_fuzz_multiply_same_shape...")
 
@@ -470,7 +470,7 @@ fn test_fuzz_multiply_same_shape() raises:
     )
 
 
-fn test_fuzz_divide_same_shape() raises:
+def test_fuzz_divide_same_shape() raises:
     """Fuzz test: division with same shape tensors.
 
     Note: Division by zero produces Inf/NaN which is expected.
@@ -531,7 +531,7 @@ fn test_fuzz_divide_same_shape() raises:
     )
 
 
-fn test_fuzz_operations_on_empty_tensors() raises:
+def test_fuzz_operations_on_empty_tensors() raises:
     """Fuzz test: operations on empty tensors should not crash."""
     print("  test_fuzz_operations_on_empty_tensors...")
 
@@ -579,7 +579,7 @@ fn test_fuzz_operations_on_empty_tensors() raises:
     )
 
 
-fn test_fuzz_operations_on_scalars() raises:
+def test_fuzz_operations_on_scalars() raises:
     """Fuzz test: operations on 0D scalar tensors should work correctly."""
     print("  test_fuzz_operations_on_scalars...")
 
@@ -640,7 +640,7 @@ fn test_fuzz_operations_on_scalars() raises:
     )
 
 
-fn test_fuzz_nan_propagation() raises:
+def test_fuzz_nan_propagation() raises:
     """Fuzz test: NaN should propagate through arithmetic operations."""
     print("  test_fuzz_nan_propagation...")
 
@@ -697,7 +697,7 @@ fn test_fuzz_nan_propagation() raises:
     )
 
 
-fn test_fuzz_inf_propagation() raises:
+def test_fuzz_inf_propagation() raises:
     """Fuzz test: Infinity should propagate correctly through operations."""
     print("  test_fuzz_inf_propagation...")
 
@@ -740,7 +740,7 @@ fn test_fuzz_inf_propagation() raises:
     )
 
 
-fn test_fuzz_division_by_zero() raises:
+def test_fuzz_division_by_zero() raises:
     """Fuzz test: division by zero should produce Inf, not crash."""
     print("  test_fuzz_division_by_zero...")
 
@@ -779,7 +779,7 @@ fn test_fuzz_division_by_zero() raises:
     )
 
 
-fn test_fuzz_large_values() raises:
+def test_fuzz_large_values() raises:
     """Fuzz test: operations with large values should handle overflow gracefully.
     """
     print("  test_fuzz_large_values...")
@@ -819,7 +819,7 @@ fn test_fuzz_large_values() raises:
     )
 
 
-fn test_fuzz_subnormal_values() raises:
+def test_fuzz_subnormal_values() raises:
     """Fuzz test: operations with very small (subnormal) values."""
     print("  test_fuzz_subnormal_values...")
 
@@ -855,7 +855,7 @@ fn test_fuzz_subnormal_values() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all test_tensor_fuzz tests."""
     print("Running test_tensor_fuzz tests...")
 

@@ -23,12 +23,12 @@ from tests.shared.conftest import (
     assert_false,
     assert_true,
 )
-from math import sqrt
+from std.math import sqrt
 from shared.tensor.any_tensor import AnyTensor
 from shared.core.initializers import xavier_uniform, xavier_normal, kaiming_uniform, kaiming_normal, uniform, normal, constant
 
 
-fn compute_mean(tensor: AnyTensor) -> Float64:
+def compute_mean(tensor: AnyTensor) -> Float64:
     """Compute mean of tensor values."""
     var sum = Float64(0.0)
     var size = tensor.numel()
@@ -46,7 +46,7 @@ fn compute_mean(tensor: AnyTensor) -> Float64:
     return sum / Float64(size)
 
 
-fn compute_variance(tensor: AnyTensor, mean: Float64) -> Float64:
+def compute_variance(tensor: AnyTensor, mean: Float64) -> Float64:
     """Compute variance of tensor values."""
     var sum_sq = Float64(0.0)
     var size = tensor.numel()
@@ -70,7 +70,7 @@ fn compute_variance(tensor: AnyTensor, mean: Float64) -> Float64:
     return sum_sq / Float64(size)
 
 
-fn test_all_initializers_produce_tensors() raises:
+def test_all_initializers_produce_tensors() raises:
     """Validate that all initializers produce valid AnyTensor objects."""
     print("Testing all initializers produce valid tensors...")
 
@@ -103,7 +103,7 @@ fn test_all_initializers_produce_tensors() raises:
     print("  ✓ All initializers produce valid tensors")
 
 
-fn test_all_initializers_respect_seed() raises:
+def test_all_initializers_respect_seed() raises:
     """Validate that all initializers are reproducible with seeds."""
     print("Testing all initializers respect seeds...")
 
@@ -177,7 +177,7 @@ fn test_all_initializers_respect_seed() raises:
     print("  ✓ All initializers respect seeds for reproducibility")
 
 
-fn test_xavier_statistical_properties() raises:
+def test_xavier_statistical_properties() raises:
     """Validate Xavier initializers have correct statistical properties."""
     print("Testing Xavier statistical properties...")
 
@@ -232,7 +232,7 @@ fn test_xavier_statistical_properties() raises:
     print("  ✓ Xavier initializers have correct variance")
 
 
-fn test_kaiming_statistical_properties() raises:
+def test_kaiming_statistical_properties() raises:
     """Validate Kaiming initializers have correct statistical properties."""
     print("Testing Kaiming statistical properties...")
 
@@ -318,7 +318,7 @@ fn test_kaiming_statistical_properties() raises:
     print("  ✓ Kaiming initializers have correct variance for both fan modes")
 
 
-fn test_basic_distributions_statistical_properties() raises:
+def test_basic_distributions_statistical_properties() raises:
     """Validate basic distributions have correct statistical properties."""
     print("Testing basic distribution statistical properties...")
 
@@ -394,7 +394,7 @@ fn test_basic_distributions_statistical_properties() raises:
     print("  ✓ Basic distributions have correct statistical properties")
 
 
-fn test_all_initializers_support_dtypes() raises:
+def test_all_initializers_support_dtypes() raises:
     """Validate that all initializers support multiple dtypes."""
     print("Testing all initializers support multiple dtypes...")
 
@@ -429,7 +429,7 @@ fn test_all_initializers_support_dtypes() raises:
     print("  ✓ All initializers support float16, float32, float64")
 
 
-fn test_initializers_api_consistency() raises:
+def test_initializers_api_consistency() raises:
     """Validate that all initializers follow consistent API patterns."""
     print("Testing initializers API consistency...")
 
@@ -464,7 +464,7 @@ fn test_initializers_api_consistency() raises:
     print("  ✓ All initializers follow consistent API patterns")
 
 
-fn test_initializers_integration() raises:
+def test_initializers_integration() raises:
     """Test that all initializers work together in realistic scenarios."""
     print("Testing initializers integration...")
 
@@ -508,7 +508,7 @@ fn test_initializers_integration() raises:
     )
 
 
-fn main() raises:
+def main() raises:
     """Run all cross-initializer validation tests."""
     print("\n" + "=" * 70)
     print("INITIALIZERS COORDINATION TEST SUITE")

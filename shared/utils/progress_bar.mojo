@@ -26,8 +26,8 @@ Example:
     ```
 """
 
-from collections import Dict
-from time import perf_counter_ns
+from std.collections import Dict
+from std.time import perf_counter_ns
 
 
 # ============================================================================
@@ -45,7 +45,7 @@ comptime RESET = "\033[0m"
 # ============================================================================
 
 
-fn format_duration(seconds: Float64) -> String:
+def format_duration(seconds: Float64) -> String:
     """Format seconds as human-readable duration string.
 
     Args:
@@ -68,7 +68,7 @@ fn format_duration(seconds: Float64) -> String:
         result = result + String(secs) + "s"
 
     # Remove trailing whitespace
-    while len(result) > 0 and result.as_bytes()[-1] == ord(" "):
+    while len(result) > 0 and result.as_bytes()[-1] == UInt8(ord(" ")):
         result = String(result[byte=0:len(result)-1])
 
     return result
@@ -93,7 +93,7 @@ struct ProgressBar(Copyable, Movable):
     var description: String
     var start_time_ns: Int
 
-    fn __init__(
+    def __init__(
         out self,
         total: Int,
         description: String = "",
@@ -112,7 +112,7 @@ struct ProgressBar(Copyable, Movable):
         self.description = description
         self.start_time_ns = Int(perf_counter_ns())
 
-    fn update(mut self, amount: Int = 1):
+    def update(mut self, amount: Int = 1):
         """Update progress by given amount and render.
 
         Args:
@@ -123,7 +123,7 @@ struct ProgressBar(Copyable, Movable):
             self.current = self.total
         self._render()
 
-    fn set_total(mut self, total: Int):
+    def set_total(mut self, total: Int):
         """Update total items and re-render.
 
         Args:
@@ -132,17 +132,17 @@ struct ProgressBar(Copyable, Movable):
         self.total = total
         self._render()
 
-    fn reset(mut self):
+    def reset(mut self):
         """Reset progress bar to initial state."""
         self.current = 0
         self.start_time_ns = Int(perf_counter_ns())
 
-    fn _render(self):
+    def _render(self):
         """Render progress bar to stdout with carriage return."""
         var output = CURSOR_HOME + self._format_bar()
         print(output, end="")
 
-    fn _format_bar(self) -> String:
+    def _format_bar(self) -> String:
         """Format the complete progress bar string."""
         var bar = self._format_bar_visual()
         var percent = self._format_percent()
@@ -155,7 +155,7 @@ struct ProgressBar(Copyable, Movable):
         line = line + bar + " " + percent + " " + progress
         return line
 
-    fn _format_bar_visual(self) -> String:
+    def _format_bar_visual(self) -> String:
         """Create visual bar like [=====>     ]."""
         if self.total == 0:
             return "[]"
@@ -180,7 +180,7 @@ struct ProgressBar(Copyable, Movable):
         bar = bar + "]"
         return bar
 
-    fn _format_percent(self) -> String:
+    def _format_percent(self) -> String:
         """Format percentage string."""
         if self.total == 0:
             return "0%"
@@ -188,7 +188,7 @@ struct ProgressBar(Copyable, Movable):
         var percent = (self.current * 100) // self.total
         return String(percent) + "%"
 
-    fn _format_progress(self) -> String:
+    def _format_progress(self) -> String:
         """Format progress counter string."""
         return String(self.current) + "/" + String(self.total)
 
@@ -209,7 +209,7 @@ struct ProgressBarWithMetrics(Copyable, Movable):
     var progress: ProgressBar
     var metrics: Dict[String, Float32]
 
-    fn __init__(
+    def __init__(
         out self,
         total: Int,
         description: String = "",
@@ -225,7 +225,7 @@ struct ProgressBarWithMetrics(Copyable, Movable):
         self.progress = ProgressBar(total, description, width)
         self.metrics = Dict[String, Float32]()
 
-    fn set_metric(mut self, name: String, value: Float32):
+    def set_metric(mut self, name: String, value: Float32):
         """Set or update a metric value.
 
         Args:
@@ -234,11 +234,11 @@ struct ProgressBarWithMetrics(Copyable, Movable):
         """
         self.metrics[name] = value
 
-    fn clear_metrics(mut self):
+    def clear_metrics(mut self):
         """Clear all stored metrics."""
         self.metrics = Dict[String, Float32]()
 
-    fn update(mut self, amount: Int = 1):
+    def update(mut self, amount: Int = 1):
         """Update progress and re-render with metrics.
 
         Args:
@@ -247,12 +247,12 @@ struct ProgressBarWithMetrics(Copyable, Movable):
         self.progress.update(amount)
         self._render()
 
-    fn reset(mut self):
+    def reset(mut self):
         """Reset progress bar and clear metrics."""
         self.progress.reset()
         self.clear_metrics()
 
-    fn set_total(mut self, total: Int):
+    def set_total(mut self, total: Int):
         """Update total items.
 
         Args:
@@ -260,12 +260,12 @@ struct ProgressBarWithMetrics(Copyable, Movable):
         """
         self.progress.set_total(total)
 
-    fn _render(self):
+    def _render(self):
         """Render progress bar with metrics."""
         var output = CURSOR_HOME + self._format_bar()
         print(output, end="")
 
-    fn _format_bar(self) -> String:
+    def _format_bar(self) -> String:
         """Format progress bar with metrics appended."""
         var bar = self.progress._format_bar()
 
@@ -286,7 +286,7 @@ struct ProgressBarWithMetrics(Copyable, Movable):
 
         return bar
 
-    fn _format_metric_value(self, value: Float32) -> String:
+    def _format_metric_value(self, value: Float32) -> String:
         """Format metric value with 3 decimal places."""
         # Simple formatting: convert to Int for basic display
         var scaled = Int(value * 1000)
@@ -316,7 +316,7 @@ struct ProgressBarWithETA(Copyable, Movable):
 
     var progress_with_metrics: ProgressBarWithMetrics
 
-    fn __init__(
+    def __init__(
         out self,
         total: Int,
         description: String = "",
@@ -333,7 +333,7 @@ struct ProgressBarWithETA(Copyable, Movable):
             total, description, width
         )
 
-    fn set_metric(mut self, name: String, value: Float32):
+    def set_metric(mut self, name: String, value: Float32):
         """Set or update a metric value.
 
         Args:
@@ -342,11 +342,11 @@ struct ProgressBarWithETA(Copyable, Movable):
         """
         self.progress_with_metrics.set_metric(name, value)
 
-    fn clear_metrics(mut self):
+    def clear_metrics(mut self):
         """Clear all stored metrics."""
         self.progress_with_metrics.clear_metrics()
 
-    fn update(mut self, amount: Int = 1):
+    def update(mut self, amount: Int = 1):
         """Update progress and re-render with ETA.
 
         Args:
@@ -355,11 +355,11 @@ struct ProgressBarWithETA(Copyable, Movable):
         self.progress_with_metrics.update(amount)
         self._render()
 
-    fn reset(mut self):
+    def reset(mut self):
         """Reset progress bar, clear metrics, and reset timer."""
         self.progress_with_metrics.reset()
 
-    fn set_total(mut self, total: Int):
+    def set_total(mut self, total: Int):
         """Update total items.
 
         Args:
@@ -367,12 +367,12 @@ struct ProgressBarWithETA(Copyable, Movable):
         """
         self.progress_with_metrics.set_total(total)
 
-    fn _render(self):
+    def _render(self):
         """Render progress bar with metrics and ETA."""
         var output = CURSOR_HOME + self._format_bar()
         print(output, end="")
 
-    fn _format_bar(self) -> String:
+    def _format_bar(self) -> String:
         """Format progress bar with metrics and ETA."""
         var base_bar = self.progress_with_metrics._format_bar()
 
@@ -389,7 +389,7 @@ struct ProgressBarWithETA(Copyable, Movable):
 
         return base_bar
 
-    fn _format_elapsed(self) -> String:
+    def _format_elapsed(self) -> String:
         """Format elapsed time since start."""
         var current_time_ns = Int(perf_counter_ns())
         var elapsed_ns = (
@@ -402,7 +402,7 @@ struct ProgressBarWithETA(Copyable, Movable):
 
         return format_duration(elapsed_secs)
 
-    fn _format_eta(self) -> String:
+    def _format_eta(self) -> String:
         """Format estimated time to completion."""
         var current = self.progress_with_metrics.progress.current
         var total = self.progress_with_metrics.progress.total
@@ -430,7 +430,7 @@ struct ProgressBarWithETA(Copyable, Movable):
 # ============================================================================
 
 
-fn create_progress_bar(total: Int, description: String = "") -> ProgressBar:
+def create_progress_bar(total: Int, description: String = "") -> ProgressBar:
     """Create a simple progress bar.
 
     Args:
@@ -443,7 +443,7 @@ fn create_progress_bar(total: Int, description: String = "") -> ProgressBar:
     return ProgressBar(total, description)
 
 
-fn create_progress_bar_with_metrics(
+def create_progress_bar_with_metrics(
     total: Int, description: String = ""
 ) -> ProgressBarWithMetrics:
     """Create a progress bar with metrics support.
@@ -458,7 +458,7 @@ fn create_progress_bar_with_metrics(
     return ProgressBarWithMetrics(total, description)
 
 
-fn create_progress_bar_with_eta(
+def create_progress_bar_with_eta(
     total: Int, description: String = ""
 ) -> ProgressBarWithETA:
     """Create a progress bar with metrics and ETA.

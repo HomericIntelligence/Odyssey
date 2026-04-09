@@ -4,7 +4,7 @@ Implements NumPy-style broadcasting rules for tensor operations
 """
 
 
-fn broadcast_shapes(shape1: List[Int], shape2: List[Int]) raises -> List[Int]:
+def broadcast_shapes(shape1: List[Int], shape2: List[Int]) raises -> List[Int]:
     """Compute the broadcast shape of two tensor shapes.
 
     Args:
@@ -68,7 +68,7 @@ fn broadcast_shapes(shape1: List[Int], shape2: List[Int]) raises -> List[Int]:
     return final_shape^
 
 
-fn are_shapes_broadcastable(shape1: List[Int], shape2: List[Int]) -> Bool:
+def are_shapes_broadcastable(shape1: List[Int], shape2: List[Int]) -> Bool:
     """Check if two shapes are broadcast-compatible.
 
     Args:
@@ -111,7 +111,7 @@ fn are_shapes_broadcastable(shape1: List[Int], shape2: List[Int]) -> Bool:
     return True
 
 
-fn compute_broadcast_strides(
+def compute_broadcast_strides(
     original_shape: List[Int],
     broadcast_shape: List[Int],
 ) -> List[Int]:
@@ -179,7 +179,7 @@ struct BroadcastIterator:
     var size: Int
     var position: Int
 
-    fn __init__(
+    def __init__(
         out self,
         var shape: List[Int],
         var strides1: List[Int],
@@ -212,7 +212,7 @@ struct BroadcastIterator:
     #       var (idx1, idx2) = iterator.__next__()
     #       # Use idx1 and idx2 to access elements
 
-    fn __next__(mut self) raises -> Tuple[Int, Int]:
+    def __next__(mut self) raises -> Tuple[Int, Int]:
         """Get next pair of indices for the two tensors.
 
         Returns:
@@ -260,6 +260,6 @@ struct BroadcastIterator:
         self.position += 1
         return (idx1, idx2)
 
-    fn has_next(self) -> Bool:
+    def has_next(self) -> Bool:
         """Check if more elements remain."""
         return self.position < self.size

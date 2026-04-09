@@ -14,54 +14,54 @@ from {{module_path}} import *
 from shared.tensor.any_tensor import AnyTensor
 
 
-fn create_test_data() -> AnyTensor:
+def create_test_data() -> AnyTensor:
     """Create test data with reproducible FP-representable values."""
     return AnyTensor.from_list([0.0, 0.5, 1.0, 1.5, -0.5, -1.0])
 
 
-fn test_initialization():
+def test_initialization():
     """Test basic initialization."""
     # TEMPLATE: Test object creation (filled in during code generation)
     pass
 
 
-fn test_basic_operation():
+def test_basic_operation():
     """Test basic operations."""
     # TEMPLATE: Test core functionality (filled in during code generation)
     pass
 
 
-fn test_empty_input():
+def test_empty_input():
     """Test behavior with empty inputs."""
     # TEMPLATE: Test empty case handling (filled in during code generation)
     pass
 
 
-fn test_single_element():
+def test_single_element():
     """Test behavior with single element."""
     # TEMPLATE: Test single element case (filled in during code generation)
     pass
 
 
-fn test_large_input():
+def test_large_input():
     """Test behavior with large inputs."""
     # TEMPLATE: Test scalability (filled in during code generation)
     pass
 
 
-fn test_invalid_input():
+def test_invalid_input():
     """Test error handling for invalid inputs."""
     # TEMPLATE: Test error cases (filled in during code generation)
     pass
 
 
-fn test_integration():
+def test_integration():
     """Test integration with other components."""
     # TEMPLATE: Test component interactions (filled in during code generation)
     pass
 
 
-fn main():
+def main():
     """Run all tests."""
     print("Running tests for {{module_path}}")
     print("=" * 60)

@@ -8,7 +8,7 @@ This module provides implementations of common learning rate scheduling strategi
 All schedulers implement the LRScheduler trait from base.mojo.
 """
 
-from math import pi, cos
+from std.math import pi, cos
 from shared.training.base import LRScheduler
 
 
@@ -49,7 +49,7 @@ struct StepLR(LRScheduler, TrivialRegisterPassable):
     var gamma: Float64
     """Multiplicative factor for LR reduction."""
 
-    fn __init__(out self, base_lr: Float64, step_size: Int, gamma: Float64):
+    def __init__(out self, base_lr: Float64, step_size: Int, gamma: Float64):
         """Initialize StepLR scheduler.
 
         Args:
@@ -61,7 +61,7 @@ struct StepLR(LRScheduler, TrivialRegisterPassable):
         self.step_size = step_size
         self.gamma = gamma
 
-    fn get_lr(self, epoch: Int, batch: Int = 0) -> Float64:
+    def get_lr(self, epoch: Int, batch: Int = 0) -> Float64:
         """Compute learning rate using step decay formula.
 
         Args:
@@ -118,7 +118,7 @@ struct CosineAnnealingLR(LRScheduler, TrivialRegisterPassable):
     var eta_min: Float64
     """Minimum learning rate."""
 
-    fn __init__(out self, base_lr: Float64, T_max: Int, eta_min: Float64 = 0.0):
+    def __init__(out self, base_lr: Float64, T_max: Int, eta_min: Float64 = 0.0):
         """Initialize Cosine Annealing scheduler.
 
         Args:
@@ -130,7 +130,7 @@ struct CosineAnnealingLR(LRScheduler, TrivialRegisterPassable):
         self.T_max = T_max
         self.eta_min = eta_min
 
-    fn get_lr(self, epoch: Int, batch: Int = 0) -> Float64:
+    def get_lr(self, epoch: Int, batch: Int = 0) -> Float64:
         """Compute learning rate using cosine annealing formula.
 
         Args:
@@ -189,7 +189,7 @@ struct WarmupLR(LRScheduler, TrivialRegisterPassable):
     var warmup_epochs: Int
     """Number of epochs for warmup phase."""
 
-    fn __init__(out self, base_lr: Float64, warmup_epochs: Int):
+    def __init__(out self, base_lr: Float64, warmup_epochs: Int):
         """Initialize Warmup scheduler.
 
         Args:
@@ -199,7 +199,7 @@ struct WarmupLR(LRScheduler, TrivialRegisterPassable):
         self.base_lr = base_lr
         self.warmup_epochs = warmup_epochs
 
-    fn get_lr(self, epoch: Int, batch: Int = 0) -> Float64:
+    def get_lr(self, epoch: Int, batch: Int = 0) -> Float64:
         """Compute learning rate with linear warmup.
 
         Args:
@@ -272,7 +272,7 @@ struct ReduceLROnPlateau(LRScheduler, TrivialRegisterPassable):
     var current_lr: Float64
     """Current learning rate (updated by step())."""
 
-    fn __init__(
+    def __init__(
         out self,
         base_lr: Float64,
         mode: String = "min",
@@ -301,7 +301,7 @@ struct ReduceLROnPlateau(LRScheduler, TrivialRegisterPassable):
             self.mode = MODE_MAX
             self.best_metric = Float64(-1e10)
 
-    fn step(mut self, metric: Float64) -> Float64:
+    def step(mut self, metric: Float64) -> Float64:
         """Update scheduler based on metric value.
 
         Args:
@@ -335,7 +335,7 @@ struct ReduceLROnPlateau(LRScheduler, TrivialRegisterPassable):
 
         return self.current_lr
 
-    fn get_lr(self, epoch: Int, batch: Int = 0) -> Float64:
+    def get_lr(self, epoch: Int, batch: Int = 0) -> Float64:
         """Get current learning rate.
 
         Args:
@@ -382,7 +382,7 @@ struct ExponentialLR(Copyable, LRScheduler, Movable):
     var gamma: Float64
     """Multiplicative decay factor per epoch."""
 
-    fn __init__(out self, base_lr: Float64, gamma: Float64):
+    def __init__(out self, base_lr: Float64, gamma: Float64):
         """Initialize ExponentialLR scheduler.
 
         Args:
@@ -393,7 +393,7 @@ struct ExponentialLR(Copyable, LRScheduler, Movable):
         self.base_lr = base_lr
         self.gamma = gamma
 
-    fn get_lr(self, epoch: Int, batch: Int = 0) -> Float64:
+    def get_lr(self, epoch: Int, batch: Int = 0) -> Float64:
         """Compute learning rate using exponential decay formula.
 
         Args:
@@ -453,7 +453,7 @@ struct MultiStepLR(Copyable, LRScheduler, Movable):
     var gamma: Float64
     """Multiplicative factor for LR reduction."""
 
-    fn __init__(
+    def __init__(
         out self, base_lr: Float64, milestones: List[Int], gamma: Float64
     ):
         """Initialize MultiStepLR scheduler.
@@ -467,7 +467,7 @@ struct MultiStepLR(Copyable, LRScheduler, Movable):
         self.milestones = milestones.copy()
         self.gamma = gamma
 
-    fn get_lr(self, epoch: Int, batch: Int = 0) -> Float64:
+    def get_lr(self, epoch: Int, batch: Int = 0) -> Float64:
         """Compute learning rate based on milestone crossings.
 
         Args:
@@ -527,7 +527,7 @@ struct WarmupCosineAnnealingLR(Copyable, LRScheduler, Movable):
     var eta_min: Float64
     """Minimum learning rate."""
 
-    fn __init__(
+    def __init__(
         out self,
         base_lr: Float64,
         warmup_epochs: Int,
@@ -547,7 +547,7 @@ struct WarmupCosineAnnealingLR(Copyable, LRScheduler, Movable):
         self.T_max = T_max
         self.eta_min = eta_min
 
-    fn get_lr(self, epoch: Int, batch: Int = 0) -> Float64:
+    def get_lr(self, epoch: Int, batch: Int = 0) -> Float64:
         """Compute learning rate with warmup then cosine annealing.
 
         Args:
@@ -615,7 +615,7 @@ struct WarmupStepLR(Copyable, LRScheduler, Movable):
     var gamma: Float64
     """Multiplicative factor for LR reduction."""
 
-    fn __init__(
+    def __init__(
         out self,
         base_lr: Float64,
         warmup_epochs: Int,
@@ -635,7 +635,7 @@ struct WarmupStepLR(Copyable, LRScheduler, Movable):
         self.step_size = step_size
         self.gamma = gamma
 
-    fn get_lr(self, epoch: Int, batch: Int = 0) -> Float64:
+    def get_lr(self, epoch: Int, batch: Int = 0) -> Float64:
         """Compute learning rate with warmup then step decay.
 
         Args:

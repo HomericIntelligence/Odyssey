@@ -22,7 +22,7 @@ from shared.core.initializers import (
     xavier_uniform,
     xavier_normal,
 )
-from math import sqrt
+from std.math import sqrt
 from shared.core.initializers import (
     xavier_uniform,
     xavier_normal,
@@ -52,7 +52,7 @@ from shared.core.initializers import (
 )
 
 
-fn compute_mean(tensor: AnyTensor) -> Float64:
+def compute_mean(tensor: AnyTensor) -> Float64:
     """Compute mean of tensor values."""
     var sum = Float64(0.0)
     var size = tensor.numel()
@@ -73,7 +73,7 @@ fn compute_mean(tensor: AnyTensor) -> Float64:
     return sum / Float64(size)
 
 
-fn compute_variance(tensor: AnyTensor, mean: Float64) -> Float64:
+def compute_variance(tensor: AnyTensor, mean: Float64) -> Float64:
     """Compute variance of tensor values."""
     var sum_sq_diff = Float64(0.0)
     var size = tensor.numel()
@@ -97,12 +97,12 @@ fn compute_variance(tensor: AnyTensor, mean: Float64) -> Float64:
     return sum_sq_diff / Float64(size)
 
 
-fn compute_std(tensor: AnyTensor, mean: Float64) -> Float64:
+def compute_std(tensor: AnyTensor, mean: Float64) -> Float64:
     """Compute standard deviation of tensor values."""
     return sqrt(compute_variance(tensor, mean))
 
 
-fn compute_min_max(tensor: AnyTensor) -> Tuple[Float64, Float64]:
+def compute_min_max(tensor: AnyTensor) -> Tuple[Float64, Float64]:
     """Compute min and max values in tensor."""
     var size = tensor.numel()
     var min_val = Float64(1e308)
@@ -136,7 +136,7 @@ fn compute_min_max(tensor: AnyTensor) -> Tuple[Float64, Float64]:
     return (min_val, max_val)
 
 
-fn test_xavier_uniform_shape() raises:
+def test_xavier_uniform_shape() raises:
     """Test Xavier uniform initialization preserves shape."""
     var fan_in = 100
     var fan_out = 50
@@ -148,7 +148,7 @@ fn test_xavier_uniform_shape() raises:
     assert_equal(W.numel(), fan_in * fan_out)
 
 
-fn test_xavier_uniform_range() raises:
+def test_xavier_uniform_range() raises:
     """Test Xavier uniform values are within expected range."""
     var fan_in = 1000
     var fan_out = 500
@@ -168,7 +168,7 @@ fn test_xavier_uniform_range() raises:
     assert_true(max_val <= limit + 0.01)
 
 
-fn test_xavier_uniform_mean() raises:
+def test_xavier_uniform_mean() raises:
     """Test Xavier uniform has approximately zero mean."""
     var fan_in = 1000
     var fan_out = 1000
@@ -181,7 +181,7 @@ fn test_xavier_uniform_mean() raises:
     assert_almost_equal(Float32(mean), Float32(0.0), tolerance=0.01)
 
 
-fn test_xavier_uniform_variance() raises:
+def test_xavier_uniform_variance() raises:
     """Test Xavier uniform has approximately correct variance."""
     var fan_in = 2000
     var fan_out = 2000
@@ -205,7 +205,7 @@ fn test_xavier_uniform_variance() raises:
     )
 
 
-fn test_xavier_uniform_reproducibility() raises:
+def test_xavier_uniform_reproducibility() raises:
     """Test Xavier uniform with fixed seed is reproducible."""
     var fan_in = 50
     var fan_out = 100
@@ -222,7 +222,7 @@ fn test_xavier_uniform_reproducibility() raises:
         assert_equal(val1, val2)
 
 
-fn test_xavier_uniform_different_seeds() raises:
+def test_xavier_uniform_different_seeds() raises:
     """Test Xavier uniform with different seeds produces different results."""
     var fan_in = 50
     var fan_out = 100
@@ -244,7 +244,7 @@ fn test_xavier_uniform_different_seeds() raises:
     assert_true(differences > w1.numel() // 2)
 
 
-fn test_xavier_normal_shape() raises:
+def test_xavier_normal_shape() raises:
     """Test Xavier normal initialization preserves shape."""
     var fan_in = 100
     var fan_out = 50
@@ -255,7 +255,7 @@ fn test_xavier_normal_shape() raises:
     assert_equal(W.shape()[1], fan_out)
 
 
-fn test_xavier_normal_mean() raises:
+def test_xavier_normal_mean() raises:
     """Test Xavier normal has approximately zero mean."""
     var fan_in = 1000
     var fan_out = 1000
@@ -267,7 +267,7 @@ fn test_xavier_normal_mean() raises:
     assert_almost_equal(Float32(mean), Float32(0.0), tolerance=0.01)
 
 
-fn test_xavier_normal_std() raises:
+def test_xavier_normal_std() raises:
     """Test Xavier normal has approximately correct standard deviation."""
     var fan_in = 2000
     var fan_out = 2000
@@ -288,7 +288,7 @@ fn test_xavier_normal_std() raises:
     )
 
 
-fn test_xavier_normal_reproducibility() raises:
+def test_xavier_normal_reproducibility() raises:
     """Test Xavier normal with fixed seed is reproducible."""
     var fan_in = 50
     var fan_out = 100
@@ -305,7 +305,7 @@ fn test_xavier_normal_reproducibility() raises:
         assert_equal(val1, val2)
 
 
-fn test_xavier_configurations() raises:
+def test_xavier_configurations() raises:
     """Test Xavier initialization with various fan configurations."""
     # Test several configurations
     var configs = List[Tuple[Int, Int]]()
@@ -345,7 +345,7 @@ fn test_xavier_configurations() raises:
         assert_true(diff < tolerance)
 
 
-fn test_kaiming_uniform_shape() raises:
+def test_kaiming_uniform_shape() raises:
     """Test Kaiming uniform initialization preserves shape."""
     var fan_in = 100
     var fan_out = 50
@@ -356,7 +356,7 @@ fn test_kaiming_uniform_shape() raises:
     assert_equal(W.shape()[1], fan_out)
 
 
-fn test_kaiming_uniform_range() raises:
+def test_kaiming_uniform_range() raises:
     """Test Kaiming uniform values are within expected range."""
     var fan_in = 1000
     var fan_out = 500
@@ -375,7 +375,7 @@ fn test_kaiming_uniform_range() raises:
     assert_true(max_val <= limit + 0.01)
 
 
-fn test_kaiming_uniform_mean() raises:
+def test_kaiming_uniform_mean() raises:
     """Test Kaiming uniform has approximately zero mean."""
     var fan_in = 1000
     var fan_out = 1000
@@ -387,7 +387,7 @@ fn test_kaiming_uniform_mean() raises:
     assert_almost_equal(Float32(mean), Float32(0.0), tolerance=0.01)
 
 
-fn test_kaiming_uniform_variance_fan_in() raises:
+def test_kaiming_uniform_variance_fan_in() raises:
     """Test Kaiming uniform has correct variance with fan_in mode."""
     var fan_in = 2000
     var fan_out = 2000
@@ -408,7 +408,7 @@ fn test_kaiming_uniform_variance_fan_in() raises:
     )
 
 
-fn test_kaiming_uniform_variance_fan_out() raises:
+def test_kaiming_uniform_variance_fan_out() raises:
     """Test Kaiming uniform has correct variance with fan_out mode."""
     var fan_in = 100
     var fan_out = 50
@@ -428,7 +428,7 @@ fn test_kaiming_uniform_variance_fan_out() raises:
     assert_true(diff < tolerance)
 
 
-fn test_kaiming_uniform_reproducibility() raises:
+def test_kaiming_uniform_reproducibility() raises:
     """Test Kaiming uniform with fixed seed is reproducible."""
     var fan_in = 50
     var fan_out = 100
@@ -449,7 +449,7 @@ fn test_kaiming_uniform_reproducibility() raises:
         assert_equal(val1, val2)
 
 
-fn test_kaiming_normal_shape() raises:
+def test_kaiming_normal_shape() raises:
     """Test Kaiming normal initialization preserves shape."""
     var fan_in = 100
     var fan_out = 50
@@ -460,7 +460,7 @@ fn test_kaiming_normal_shape() raises:
     assert_equal(W.shape()[1], fan_out)
 
 
-fn test_kaiming_normal_mean() raises:
+def test_kaiming_normal_mean() raises:
     """Test Kaiming normal has approximately zero mean."""
     var fan_in = 1000
     var fan_out = 1000
@@ -472,7 +472,7 @@ fn test_kaiming_normal_mean() raises:
     assert_almost_equal(Float32(mean), Float32(0.0), tolerance=0.01)
 
 
-fn test_kaiming_normal_std() raises:
+def test_kaiming_normal_std() raises:
     """Test Kaiming normal has approximately correct standard deviation."""
     var fan_in = 2000
     var fan_out = 2000
@@ -493,7 +493,7 @@ fn test_kaiming_normal_std() raises:
     )
 
 
-fn test_kaiming_normal_reproducibility() raises:
+def test_kaiming_normal_reproducibility() raises:
     """Test Kaiming normal with fixed seed is reproducible."""
     var fan_in = 50
     var fan_out = 100
@@ -514,7 +514,7 @@ fn test_kaiming_normal_reproducibility() raises:
         assert_equal(val1, val2)
 
 
-fn test_uniform_shape() raises:
+def test_uniform_shape() raises:
     """Test uniform initialization with custom range."""
     var shape = List[Int]()
     shape.append(50)
@@ -525,7 +525,7 @@ fn test_uniform_shape() raises:
     assert_equal(W.shape()[1], 30)
 
 
-fn test_uniform_range() raises:
+def test_uniform_range() raises:
     """Test uniform values are within specified range."""
     var shape = List[Int]()
     shape.append(100)
@@ -543,7 +543,7 @@ fn test_uniform_range() raises:
     assert_true(max_val <= high + 1e-5)
 
 
-fn test_uniform_mean() raises:
+def test_uniform_mean() raises:
     """Test uniform distribution has approximately correct mean."""
     var shape = List[Int]()
     shape.append(200)
@@ -559,7 +559,7 @@ fn test_uniform_mean() raises:
     assert_almost_equal(Float32(mean), Float32(expected_mean), tolerance=0.05)
 
 
-fn test_uniform_reproducibility() raises:
+def test_uniform_reproducibility() raises:
     """Test uniform with fixed seed is reproducible."""
     var shape: List[Int] = [50, 50]
 
@@ -574,7 +574,7 @@ fn test_uniform_reproducibility() raises:
         assert_equal(val1, val2)
 
 
-fn test_normal_shape() raises:
+def test_normal_shape() raises:
     """Test normal initialization with custom parameters."""
     var shape = List[Int]()
     shape.append(50)
@@ -585,7 +585,7 @@ fn test_normal_shape() raises:
     assert_equal(W.shape()[1], 30)
 
 
-fn test_normal_mean() raises:
+def test_normal_mean() raises:
     """Test normal distribution has approximately correct mean."""
     var shape = List[Int]()
     shape.append(200)
@@ -602,7 +602,7 @@ fn test_normal_mean() raises:
     )
 
 
-fn test_normal_std() raises:
+def test_normal_std() raises:
     """Test normal distribution has approximately correct standard deviation."""
     var shape = List[Int]()
     shape.append(300)
@@ -622,7 +622,7 @@ fn test_normal_std() raises:
     )
 
 
-fn test_normal_reproducibility() raises:
+def test_normal_reproducibility() raises:
     """Test normal with fixed seed is reproducible."""
     var shape: List[Int] = [50, 50]
 
@@ -637,7 +637,7 @@ fn test_normal_reproducibility() raises:
         assert_equal(val1, val2)
 
 
-fn test_constant_shape() raises:
+def test_constant_shape() raises:
     """Test constant initialization preserves shape."""
     var shape = List[Int]()
     shape.append(50)
@@ -648,7 +648,7 @@ fn test_constant_shape() raises:
     assert_equal(W.shape()[1], 30)
 
 
-fn test_constant_value() raises:
+def test_constant_value() raises:
     """Test constant initialization sets all values correctly."""
     var shape = List[Int]()
     shape.append(10)
@@ -663,7 +663,7 @@ fn test_constant_value() raises:
         )
 
 
-fn test_constant_zero() raises:
+def test_constant_zero() raises:
     """Test constant initialization with zero."""
     var shape = List[Int]()
     shape.append(5)
@@ -676,7 +676,7 @@ fn test_constant_zero() raises:
         )
 
 
-fn test_constant_negative() raises:
+def test_constant_negative() raises:
     """Test constant initialization with negative value."""
     var shape = List[Int]()
     shape.append(5)
@@ -690,7 +690,7 @@ fn test_constant_negative() raises:
         )
 
 
-fn test_constant_ones_and_zeros() raises:
+def test_constant_ones_and_zeros() raises:
     """Test constant can create ones and zeros."""
     var shape: List[Int] = [5, 5]
 
@@ -707,7 +707,7 @@ fn test_constant_ones_and_zeros() raises:
         assert_equal(val, 0.0)
 
 
-fn test_xavier_uniform_float64() raises:
+def test_xavier_uniform_float64() raises:
     """Test Xavier uniform with float64 dtype."""
     var fan_in = 100
     var fan_out = 50
@@ -728,7 +728,7 @@ fn test_xavier_uniform_float64() raises:
     assert_true(abs(actual_var - expected_var) < tolerance)
 
 
-fn test_xavier_normal_float16() raises:
+def test_xavier_normal_float16() raises:
     """Test Xavier normal with float16 dtype."""
     var fan_in = 100
     var fan_out = 50
@@ -747,7 +747,7 @@ fn test_xavier_normal_float16() raises:
     assert_true(abs(actual_var - expected_var) < tolerance)
 
 
-fn test_kaiming_normal_float64() raises:
+def test_kaiming_normal_float64() raises:
     """Test Kaiming normal with float64 dtype."""
     var fan_in = 100
     var fan_out = 50
@@ -768,7 +768,7 @@ fn test_kaiming_normal_float64() raises:
     assert_true(abs(actual_var - expected_var) < tolerance)
 
 
-fn test_uniform_float64() raises:
+def test_uniform_float64() raises:
     """Test uniform with float64 dtype."""
     var shape: List[Int] = [50, 50]
     var weights = uniform(shape, -1.0, 1.0, DType.float64, seed_val=42)
@@ -783,7 +783,7 @@ fn test_uniform_float64() raises:
         assert_true(val >= -1.0 and val <= 1.0)
 
 
-fn test_normal_float64() raises:
+def test_normal_float64() raises:
     """Test normal with float64 dtype."""
     var shape: List[Int] = [50, 50]
     var weights = normal(shape, 0.0, 0.1, DType.float64, seed_val=42)
@@ -793,7 +793,7 @@ fn test_normal_float64() raises:
     )
 
 
-fn test_constant_float64() raises:
+def test_constant_float64() raises:
     """Test constant initialization with float64 dtype."""
     var shape = List[Int]()
     shape.append(10)
@@ -808,7 +808,7 @@ fn test_constant_float64() raises:
         )
 
 
-fn test_small_dimensions() raises:
+def test_small_dimensions() raises:
     """Test initialization with small dimensions."""
     # Xavier with fan_in=1, fan_out=1
     var shape1: List[Int] = [1, 1]
@@ -822,7 +822,7 @@ fn test_small_dimensions() raises:
     assert_equal(W2.shape()[1], 3)
 
 
-fn test_rectangular_matrices() raises:
+def test_rectangular_matrices() raises:
     """Test initialization with non-square matrices."""
     # Tall matrix (more rows than columns)
     var shape_tall: List[Int] = [1000, 10]
@@ -837,7 +837,7 @@ fn test_rectangular_matrices() raises:
     assert_equal(W_wide.shape()[1], 1000)
 
 
-fn test_large_initialization() raises:
+def test_large_initialization() raises:
     """Test initialization with large dimensions."""
     # Large matrix
     var fan_in = 5000
@@ -854,7 +854,7 @@ fn test_large_initialization() raises:
     assert_almost_equal(Float32(mean), Float32(0.0), tolerance=0.01)
 
 
-fn main() raises:
+def main() raises:
     """Run all test_initializers tests."""
     print("Running test_initializers tests...")
 
