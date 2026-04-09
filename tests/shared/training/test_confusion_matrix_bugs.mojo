@@ -110,7 +110,7 @@ def test_confusion_matrix_multiple_updates() raises:
     var cm = ConfusionMatrix(num_classes=4)
 
     # Update with multiple batches
-    for batch in range(3):
+    for _ in range(3):
         # Create logits tensor [batch_size=16, num_classes=4]
         var logits_shape = List[Int]()
         logits_shape.append(16)

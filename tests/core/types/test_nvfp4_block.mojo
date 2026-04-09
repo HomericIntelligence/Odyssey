@@ -25,7 +25,7 @@ from std.math import isinf, isnan
 def test_nvfp4_block_creation_zeros() raises:
     """Test NVFP4Block creation with all zeros."""
     var values = List[Float32]()
-    for i in range(16):
+    for _ in range(16):
         values.append(Float32(0.0))
 
     var block = NVFP4Block.from_float32_array(values)
@@ -39,7 +39,7 @@ def test_nvfp4_block_creation_zeros() raises:
 def test_nvfp4_block_creation_ones() raises:
     """Test NVFP4Block creation with all ones."""
     var values = List[Float32]()
-    for i in range(16):
+    for _ in range(16):
         values.append(Float32(1.0))
 
     var block = NVFP4Block.from_float32_array(values)
@@ -193,7 +193,7 @@ def test_nvfp4_better_accuracy_than_mxfp4() raises:
     var values32 = List[Float32]()
     for i in range(16):
         values32.append(Float32(1.0) + Float32(i) * 0.05)
-    for i in range(16):
+    for _ in range(16):
         values32.append(Float32(0.0))  # Padding
 
     var mxfp4_block = MXFP4Block.from_float32_array(values32)
@@ -273,7 +273,7 @@ def test_nvfp4_block_get_bounds_checking() raises:
 def test_nvfp4_block_set() raises:
     """Test set() method updates individual values."""
     var values = List[Float32]()
-    for i in range(16):
+    for _ in range(16):
         values.append(Float32(1.0))
 
     var block = NVFP4Block.from_float32_array(values)
@@ -322,7 +322,7 @@ def test_nvfp4_block_set_bounds_checking() raises:
 def test_nvfp4_block_all_negative_same() raises:
     """Test block with all same negative values (TEST-001)."""
     var values = List[Float32]()
-    for i in range(16):
+    for _ in range(16):
         values.append(Float32(-1.0))
 
     var block = NVFP4Block.from_float32_array(values)
@@ -352,7 +352,7 @@ def test_nvfp4_block_all_negative_range() raises:
 def test_nvfp4_block_negative_scale_computation() raises:
     """Test scale computation uses abs() for negative values (TEST-001)."""
     var values = List[Float32]()
-    for i in range(16):
+    for _ in range(16):
         values.append(Float32(-10.0))
 
     var block = NVFP4Block.from_float32_array(values)
@@ -371,7 +371,7 @@ def test_nvfp4_block_nan_values() raises:
     """Test block with NaN values (TEST-003)."""
     var values = List[Float32]()
     var nan_val = Float32(0.0) / Float32(0.0)  # Create NaN
-    for i in range(16):
+    for _ in range(16):
         values.append(nan_val)
 
     var block = NVFP4Block.from_float32_array(values)
@@ -391,9 +391,9 @@ def test_nvfp4_block_infinity_values() raises:
     var neg_inf = Float32(-1.0) / Float32(0.0)
 
     var values = List[Float32]()
-    for i in range(8):
+    for _ in range(8):
         values.append(pos_inf)
-    for i in range(8):
+    for _ in range(8):
         values.append(neg_inf)
 
     var block = NVFP4Block.from_float32_array(values)
@@ -413,13 +413,13 @@ def test_nvfp4_block_mixed_special() raises:
     var neg_inf = Float32(-1.0) / Float32(0.0)
 
     var values = List[Float32]()
-    for i in range(4):
+    for _ in range(4):
         values.append(nan_val)
-    for i in range(4):
+    for _ in range(4):
         values.append(pos_inf)
-    for i in range(4):
+    for _ in range(4):
         values.append(neg_inf)
-    for i in range(4):
+    for _ in range(4):
         values.append(Float32(1.0))
 
     var block = NVFP4Block.from_float32_array(values)
@@ -434,7 +434,7 @@ def test_nvfp4_block_mixed_special() raises:
 def test_nvfp4_block_all_same_value() raises:
     """Test block with all same values."""
     var values = List[Float32]()
-    for i in range(16):
+    for _ in range(16):
         values.append(Float32(3.14))
 
     var block = NVFP4Block.from_float32_array(values)
@@ -451,9 +451,9 @@ def test_nvfp4_block_extreme_range() raises:
     """Test block with very different magnitude values."""
     var values = List[Float32]()
     # Mix very small and very large values
-    for i in range(8):
+    for _ in range(8):
         values.append(Float32(0.001))
-    for i in range(8):
+    for _ in range(8):
         values.append(Float32(100.0))
 
     var block = NVFP4Block.from_float32_array(values)

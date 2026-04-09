@@ -89,7 +89,7 @@ def test_scaler_step_updates() raises:
     )
 
     # Take 99 steps (not enough to trigger growth)
-    for i in range(99):
+    for _ in range(99):
         scaler.step()
 
     assert_equal(

@@ -45,7 +45,7 @@ comptime _TMP_PREFIX = "/tmp/ml_odyssey_test_io_"
 def _make_tmp_dir(suffix: String) raises -> String:
     """Create a unique temp directory under /tmp/ using Mojo builtins."""
     var path = _TMP_PREFIX + suffix
-    from os import mkdir
+    from std.os import mkdir
 
     try:
         mkdir(path)

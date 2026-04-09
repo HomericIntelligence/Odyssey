@@ -76,6 +76,8 @@ from shared.testing.assertions import (
 )
 
 from shared.testing.gradient_checker import (
+    NumericalForward,
+    NumericalBackward,
     check_gradients,
     check_gradients_verbose,
     relative_error,
