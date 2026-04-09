@@ -31,7 +31,7 @@ from shared.core.reduction import (
     max_reduce_backward,
     min_reduce_backward,
 )
-from shared.testing import check_gradient
+from shared.testing import check_gradient, NumericalForward, NumericalBackward
 from shared.core.reduction import (
     variance,
     std as stdev,
@@ -44,6 +44,78 @@ from shared.core.reduction import (
     median_backward,
     percentile_backward,
 )
+
+
+@fieldwise_init
+struct _SumFwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return sum(inp, axis=1)
+
+
+@fieldwise_init
+struct _SumBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return sum_backward(grad, inp, axis=1)
+
+
+@fieldwise_init
+struct _MeanFwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return mean(inp, axis=1)
+
+
+@fieldwise_init
+struct _MeanBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return mean_backward(grad, inp, axis=1)
+
+
+@fieldwise_init
+struct _MaxReduceFwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return max_reduce(inp, axis=1)
+
+
+@fieldwise_init
+struct _MaxReduceBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return max_reduce_backward(grad, inp, axis=1)
+
+
+@fieldwise_init
+struct _MinReduceFwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return min_reduce(inp, axis=1)
+
+
+@fieldwise_init
+struct _MinReduceBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return min_reduce_backward(grad, inp, axis=1)
+
+
+@fieldwise_init
+struct _VarianceFwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return variance(inp, axis=1, ddof=0)
+
+
+@fieldwise_init
+struct _VarianceBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return variance_backward(grad, inp, axis=1, ddof=0)
+
+
+@fieldwise_init
+struct _StdFwd(NumericalForward):
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return stdev(inp, axis=1, ddof=0)
+
+
+@fieldwise_init
+struct _StdBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return std_backward(grad, inp, axis=1, ddof=0)
 
 
 def test_sum_backward_shapes() raises:
@@ -87,20 +159,12 @@ def test_sum_backward_gradient() raises:
     x.set(4, Float32(0.1))
     x.set(5, Float32(0.7))
 
-    # Forward function wrapper (sum along axis 1)
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return sum(inp, axis=1)
-
-    var y = forward(x)
+    var y = _SumFwd()(x)
     var grad_out = ones_like(y)
-
-    # Backward function wrapper
-    def backward(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return sum_backward(grad, inp, axis=1)
 
     # Use numerical gradient checking (gold standard)
     # Note: rtol=2e-3 accounts for Float32 precision in sum accumulation
-    check_gradient(forward, backward, x, grad_out, rtol=2e-3, atol=1e-6)
+    check_gradient(_SumFwd(), _SumBwd(), x, grad_out, rtol=2e-3, atol=1e-6)
 
 
 def test_mean_backward_shapes() raises:
@@ -144,20 +208,12 @@ def test_mean_backward_gradient() raises:
     x.set(4, Float32(0.1))
     x.set(5, Float32(0.7))
 
-    # Forward function wrapper (mean along axis 1)
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return mean(inp, axis=1)
-
-    var y = forward(x)
+    var y = _MeanFwd()(x)
     var grad_out = ones_like(y)
-
-    # Backward function wrapper
-    def backward(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return mean_backward(grad, inp, axis=1)
 
     # Use numerical gradient checking (gold standard)
     # Note: rtol=2e-3 accounts for Float32 precision in division
-    check_gradient(forward, backward, x, grad_out, rtol=2e-3, atol=1e-6)
+    check_gradient(_MeanFwd(), _MeanBwd(), x, grad_out, rtol=2e-3, atol=1e-6)
 
 
 def test_max_reduce_backward_shapes() raises:
@@ -199,20 +255,12 @@ def test_max_reduce_backward_gradient() raises:
     x.set(4, Float32(0.1))
     x.set(5, Float32(0.7))
 
-    # Forward function wrapper (max along axis 1)
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return max_reduce(inp, axis=1)
-
-    var y = forward(x)
+    var y = _MaxReduceFwd()(x)
     var grad_out = ones_like(y)
-
-    # Backward function wrapper
-    def backward(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return max_reduce_backward(grad, inp, axis=1)
 
     # Use numerical gradient checking (gold standard)
     # Note: rtol=2e-3 accounts for Float32 precision
-    check_gradient(forward, backward, x, grad_out, rtol=2e-3, atol=1e-6)
+    check_gradient(_MaxReduceFwd(), _MaxReduceBwd(), x, grad_out, rtol=2e-3, atol=1e-6)
 
 
 def test_min_reduce_backward_shapes() raises:
@@ -254,20 +302,12 @@ def test_min_reduce_backward_gradient() raises:
     x.set(4, Float32(0.1))
     x.set(5, Float32(0.7))
 
-    # Forward function wrapper (min along axis 1)
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return min_reduce(inp, axis=1)
-
-    var y = forward(x)
+    var y = _MinReduceFwd()(x)
     var grad_out = ones_like(y)
-
-    # Backward function wrapper
-    def backward(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return min_reduce_backward(grad, inp, axis=1)
 
     # Use numerical gradient checking (gold standard)
     # Note: rtol=2e-3 accounts for Float32 precision
-    check_gradient(forward, backward, x, grad_out, rtol=2e-3, atol=1e-6)
+    check_gradient(_MinReduceFwd(), _MinReduceBwd(), x, grad_out, rtol=2e-3, atol=1e-6)
 
 
 def test_var_forward_uniform() raises:
@@ -357,16 +397,10 @@ def test_var_backward_gradient() raises:
     x.set(4, Float32(0.1))
     x.set(5, Float32(0.7))
 
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return variance(inp, axis=1, ddof=0)
-
-    var y = forward(x)
+    var y = _VarianceFwd()(x)
     var grad_out = ones_like(y)
 
-    def backward(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return variance_backward(grad, inp, axis=1, ddof=0)
-
-    check_gradient(forward, backward, x, grad_out, rtol=2e-3, atol=1e-6)
+    check_gradient(_VarianceFwd(), _VarianceBwd(), x, grad_out, rtol=2e-3, atol=1e-6)
 
 
 def test_std_forward_simple() raises:
@@ -397,16 +431,10 @@ def test_std_backward_gradient() raises:
     x.set(4, Float32(0.1))
     x.set(5, Float32(0.7))
 
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return stdev(inp, axis=1, ddof=0)
-
-    var y = forward(x)
+    var y = _StdFwd()(x)
     var grad_out = ones_like(y)
 
-    def backward(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return std_backward(grad, inp, axis=1, ddof=0)
-
-    check_gradient(forward, backward, x, grad_out, rtol=2e-3, atol=1e-6)
+    check_gradient(_StdFwd(), _StdBwd(), x, grad_out, rtol=2e-3, atol=1e-6)
 
 
 def test_median_forward_odd() raises:
