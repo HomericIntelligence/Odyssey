@@ -36,6 +36,8 @@ from shared.core.arithmetic import (
 from shared.testing import (
     check_gradient,
     compute_numerical_gradient,
+    NumericalForward,
+    NumericalBackward,
 )
 
 
@@ -460,6 +462,23 @@ def test_divide_broadcast() raises:
         )
 
 
+@fieldwise_init
+struct _AddFwd(NumericalForward):
+    var b: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return add(inp, self.b)
+
+
+@fieldwise_init
+struct _AddBwd(NumericalBackward):
+    var b: AnyTensor
+
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        var grads = add_backward(grad_out, inp, self.b)
+        return grads.grad_a
+
+
 def test_add_backward_gradient() raises:
     """Test add_backward with numerical gradient checking.
 
@@ -476,17 +495,27 @@ def test_add_backward_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.1 - 1.2))
         b.set(i, Float32(Float32(i) * 0.15 - 0.8))
 
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return add(inp, b)
-
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = add_backward(grad_out, inp, b)
-        return grads.grad_a
-
-    var output = forward(a)
+    var output = add(a, b)
     var grad_output = ones_like(output)
 
-    check_gradient(forward, backward, a, grad_output, rtol=5e-3, atol=1e-5)
+    check_gradient(_AddFwd(b), _AddBwd(b), a, grad_output, rtol=5e-3, atol=1e-5)
+
+
+@fieldwise_init
+struct _SubtractFwd(NumericalForward):
+    var b: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return subtract(inp, self.b)
+
+
+@fieldwise_init
+struct _SubtractBwd(NumericalBackward):
+    var b: AnyTensor
+
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        var grads = subtract_backward(grad_out, inp, self.b)
+        return grads.grad_a
 
 
 def test_subtract_backward_gradient() raises:
@@ -503,17 +532,27 @@ def test_subtract_backward_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.1 + 0.5))
         b.set(i, Float32(Float32(i) * 0.2 - 1.5))
 
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return subtract(inp, b)
-
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = subtract_backward(grad_out, inp, b)
-        return grads.grad_a
-
-    var output = forward(a)
+    var output = subtract(a, b)
     var grad_output = ones_like(output)
 
-    check_gradient(forward, backward, a, grad_output, rtol=5e-3, atol=1e-5)
+    check_gradient(_SubtractFwd(b), _SubtractBwd(b), a, grad_output, rtol=5e-3, atol=1e-5)
+
+
+@fieldwise_init
+struct _MultiplyFwd(NumericalForward):
+    var b: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return multiply(inp, self.b)
+
+
+@fieldwise_init
+struct _MultiplyBwd(NumericalBackward):
+    var b: AnyTensor
+
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        var grads = multiply_backward(grad_out, inp, self.b)
+        return grads.grad_a
 
 
 def test_multiply_backward_gradient() raises:
@@ -531,17 +570,27 @@ def test_multiply_backward_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.1 + 0.1))
         b.set(i, Float32(Float32(i) * 0.15 + 0.2))
 
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return multiply(inp, b)
-
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = multiply_backward(grad_out, inp, b)
-        return grads.grad_a
-
-    var output = forward(a)
+    var output = multiply(a, b)
     var grad_output = ones_like(output)
 
-    check_gradient(forward, backward, a, grad_output, rtol=5e-3, atol=1e-5)
+    check_gradient(_MultiplyFwd(b), _MultiplyBwd(b), a, grad_output, rtol=5e-3, atol=1e-5)
+
+
+@fieldwise_init
+struct _DivideFwd(NumericalForward):
+    var b: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return divide(inp, self.b)
+
+
+@fieldwise_init
+struct _DivideBwd(NumericalBackward):
+    var b: AnyTensor
+
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        var grads = divide_backward(grad_out, inp, self.b)
+        return grads.grad_a
 
 
 def test_divide_backward_gradient() raises:
@@ -559,17 +608,27 @@ def test_divide_backward_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.2 + 0.5))
         b.set(i, Float32(Float32(i) * 0.1 + 1.0))  # Ensure b > 0
 
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return divide(inp, b)
-
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = divide_backward(grad_out, inp, b)
-        return grads.grad_a
-
-    var output = forward(a)
+    var output = divide(a, b)
     var grad_output = ones_like(output)
 
-    check_gradient(forward, backward, a, grad_output, rtol=1e-2, atol=1e-5)
+    check_gradient(_DivideFwd(b), _DivideBwd(b), a, grad_output, rtol=1e-2, atol=1e-5)
+
+
+@fieldwise_init
+struct _AddFwdB(NumericalForward):
+    var a: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return add(self.a, inp)
+
+
+@fieldwise_init
+struct _AddBwdB(NumericalBackward):
+    var a: AnyTensor
+
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        var grads = add_backward(grad_out, self.a, inp)
+        return grads.grad_b
 
 
 def test_add_backward_b_gradient() raises:
@@ -586,17 +645,27 @@ def test_add_backward_b_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.1 - 0.5))
         b.set(i, Float32(Float32(i) * 0.12 + 0.3))
 
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return add(a, inp)
-
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = add_backward(grad_out, a, inp)
-        return grads.grad_b
-
-    var output = forward(b)
+    var output = add(a, b)
     var grad_output = ones_like(output)
 
-    check_gradient(forward, backward, b, grad_output, rtol=5e-3, atol=1e-5)
+    check_gradient(_AddFwdB(a), _AddBwdB(a), b, grad_output, rtol=5e-3, atol=1e-5)
+
+
+@fieldwise_init
+struct _SubtractFwdB(NumericalForward):
+    var a: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return subtract(self.a, inp)
+
+
+@fieldwise_init
+struct _SubtractBwdB(NumericalBackward):
+    var a: AnyTensor
+
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        var grads = subtract_backward(grad_out, self.a, inp)
+        return grads.grad_b
 
 
 def test_subtract_backward_b_gradient() raises:
@@ -613,17 +682,27 @@ def test_subtract_backward_b_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.15 + 0.2))
         b.set(i, Float32(Float32(i) * 0.1 - 1.0))
 
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return subtract(a, inp)
-
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = subtract_backward(grad_out, a, inp)
-        return grads.grad_b
-
-    var output = forward(b)
+    var output = subtract(a, b)
     var grad_output = ones_like(output)
 
-    check_gradient(forward, backward, b, grad_output, rtol=5e-3, atol=1e-5)
+    check_gradient(_SubtractFwdB(a), _SubtractBwdB(a), b, grad_output, rtol=5e-3, atol=1e-5)
+
+
+@fieldwise_init
+struct _MultiplyFwdB(NumericalForward):
+    var a: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return multiply(self.a, inp)
+
+
+@fieldwise_init
+struct _MultiplyBwdB(NumericalBackward):
+    var a: AnyTensor
+
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        var grads = multiply_backward(grad_out, self.a, inp)
+        return grads.grad_b
 
 
 def test_multiply_backward_b_gradient() raises:
@@ -640,17 +719,27 @@ def test_multiply_backward_b_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.2 + 0.1))
         b.set(i, Float32(Float32(i) * 0.15 + 0.15))
 
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return multiply(a, inp)
-
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = multiply_backward(grad_out, a, inp)
-        return grads.grad_b
-
-    var output = forward(b)
+    var output = multiply(a, b)
     var grad_output = ones_like(output)
 
-    check_gradient(forward, backward, b, grad_output, rtol=1e-2, atol=1e-5)
+    check_gradient(_MultiplyFwdB(a), _MultiplyBwdB(a), b, grad_output, rtol=1e-2, atol=1e-5)
+
+
+@fieldwise_init
+struct _DivideFwdB(NumericalForward):
+    var a: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return divide(self.a, inp)
+
+
+@fieldwise_init
+struct _DivideBwdB(NumericalBackward):
+    var a: AnyTensor
+
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        var grads = divide_backward(grad_out, self.a, inp)
+        return grads.grad_b
 
 
 def test_divide_backward_b_gradient() raises:
@@ -667,17 +756,10 @@ def test_divide_backward_b_gradient() raises:
         a.set(i, Float32(Float32(i) * 0.2 + 0.5))
         b.set(i, Float32(Float32(i) * 0.1 + 1.5))  # b > 0
 
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return divide(a, inp)
-
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = divide_backward(grad_out, a, inp)
-        return grads.grad_b
-
-    var output = forward(b)
+    var output = divide(a, b)
     var grad_output = ones_like(output)
 
-    check_gradient(forward, backward, b, grad_output, rtol=1e-2, atol=1e-5)
+    check_gradient(_DivideFwdB(a), _DivideBwdB(a), b, grad_output, rtol=1e-2, atol=1e-5)
 
 
 def test_add_backward_broadcast_gradient() raises:

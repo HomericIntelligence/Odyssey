@@ -14,7 +14,25 @@ from tests.shared.conftest import (
 )
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.conv import conv2d, conv2d_backward
-from shared.testing import check_gradient
+from shared.testing import check_gradient, NumericalForward, NumericalBackward
+
+
+@fieldwise_init
+struct _Conv2dInpPad1Fwd(NumericalForward):
+    var kernel: AnyTensor
+    var bias: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return conv2d(inp, self.kernel, self.bias, stride=1, padding=1)
+
+
+@fieldwise_init
+struct _Conv2dInpPad1Bwd(NumericalBackward):
+    var kernel: AnyTensor
+
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        var grads = conv2d_backward(grad_out, inp, self.kernel, stride=1, padding=1)
+        return grads.grad_input
 
 
 def test_conv2d_backward_grad_input_padding1() raises:
@@ -51,22 +69,33 @@ def test_conv2d_backward_grad_input_padding1() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward_input(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return conv2d(inp, kernel, bias, stride=1, padding=1)
-
-    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = conv2d_backward(grad_out, inp, kernel, stride=1, padding=1)
-        return grads.grad_input
-
     # Non-uniform grad_output: avoids pathological cancellation at boundaries
-    var output = forward_input(x)
+    var output = conv2d(x, kernel, bias, stride=1, padding=1)
     var grad_output = zeros_like(output)
     for i in range(16):
         grad_output.set(i, Float32(i % 4) * Float32(0.25) - Float32(0.3))
 
     check_gradient(
-        forward_input, backward_input, x, grad_output, rtol=1e-2, atol=1e-2
+        _Conv2dInpPad1Fwd(kernel, bias), _Conv2dInpPad1Bwd(kernel), x, grad_output, rtol=1e-2, atol=1e-2
     )
+
+
+@fieldwise_init
+struct _Conv2dWgtPad1Fwd(NumericalForward):
+    var x: AnyTensor
+    var bias: AnyTensor
+
+    def __call__(self, k: AnyTensor) raises -> AnyTensor:
+        return conv2d(self.x, k, self.bias, stride=1, padding=1)
+
+
+@fieldwise_init
+struct _Conv2dWgtPad1Bwd(NumericalBackward):
+    var x: AnyTensor
+
+    def __call__(self, grad_out: AnyTensor, k: AnyTensor) raises -> AnyTensor:
+        var grads = conv2d_backward(grad_out, self.x, k, stride=1, padding=1)
+        return grads.grad_weights
 
 
 def test_conv2d_backward_grad_weights_padding1() raises:
@@ -103,27 +132,38 @@ def test_conv2d_backward_grad_weights_padding1() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward_weights(k: AnyTensor) raises unified {read} -> AnyTensor:
-        return conv2d(x, k, bias, stride=1, padding=1)
-
-    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = conv2d_backward(grad_out, x, k, stride=1, padding=1)
-        return grads.grad_weights
-
     # Non-uniform grad_output
-    var output = forward_weights(kernel)
+    var output = conv2d(x, kernel, bias, stride=1, padding=1)
     var grad_output = zeros_like(output)
     for i in range(16):
         grad_output.set(i, Float32(i % 4) * Float32(0.25) - Float32(0.3))
 
     check_gradient(
-        forward_weights,
-        backward_weights,
+        _Conv2dWgtPad1Fwd(x, bias),
+        _Conv2dWgtPad1Bwd(x),
         kernel,
         grad_output,
         rtol=1e-2,
         atol=1e-2,
     )
+
+
+@fieldwise_init
+struct _Conv2dInpPad2Fwd(NumericalForward):
+    var kernel: AnyTensor
+    var bias: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return conv2d(inp, self.kernel, self.bias, stride=1, padding=2)
+
+
+@fieldwise_init
+struct _Conv2dInpPad2Bwd(NumericalBackward):
+    var kernel: AnyTensor
+
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        var grads = conv2d_backward(grad_out, inp, self.kernel, stride=1, padding=2)
+        return grads.grad_input
 
 
 def test_conv2d_backward_grad_input_padding2() raises:
@@ -161,22 +201,33 @@ def test_conv2d_backward_grad_input_padding2() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward_input(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return conv2d(inp, kernel, bias, stride=1, padding=2)
-
-    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = conv2d_backward(grad_out, inp, kernel, stride=1, padding=2)
-        return grads.grad_input
-
     # Non-uniform grad_output over (1,1,7,7) = 49 elements
-    var output = forward_input(x)
+    var output = conv2d(x, kernel, bias, stride=1, padding=2)
     var grad_output = zeros_like(output)
     for i in range(49):
         grad_output.set(i, Float32(i % 4) * Float32(0.25) - Float32(0.3))
 
     check_gradient(
-        forward_input, backward_input, x, grad_output, rtol=1e-2, atol=1e-2
+        _Conv2dInpPad2Fwd(kernel, bias), _Conv2dInpPad2Bwd(kernel), x, grad_output, rtol=1e-2, atol=1e-2
     )
+
+
+@fieldwise_init
+struct _Conv2dWgtPad2Fwd(NumericalForward):
+    var x: AnyTensor
+    var bias: AnyTensor
+
+    def __call__(self, k: AnyTensor) raises -> AnyTensor:
+        return conv2d(self.x, k, self.bias, stride=1, padding=2)
+
+
+@fieldwise_init
+struct _Conv2dWgtPad2Bwd(NumericalBackward):
+    var x: AnyTensor
+
+    def __call__(self, grad_out: AnyTensor, k: AnyTensor) raises -> AnyTensor:
+        var grads = conv2d_backward(grad_out, self.x, k, stride=1, padding=2)
+        return grads.grad_weights
 
 
 def test_conv2d_backward_grad_weights_padding2() raises:
@@ -214,22 +265,15 @@ def test_conv2d_backward_grad_weights_padding2() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward_weights(k: AnyTensor) raises unified {read} -> AnyTensor:
-        return conv2d(x, k, bias, stride=1, padding=2)
-
-    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = conv2d_backward(grad_out, x, k, stride=1, padding=2)
-        return grads.grad_weights
-
     # Non-uniform grad_output over (1,1,7,7) = 49 elements
-    var output = forward_weights(kernel)
+    var output = conv2d(x, kernel, bias, stride=1, padding=2)
     var grad_output = zeros_like(output)
     for i in range(49):
         grad_output.set(i, Float32(i % 4) * Float32(0.25) - Float32(0.3))
 
     check_gradient(
-        forward_weights,
-        backward_weights,
+        _Conv2dWgtPad2Fwd(x, bias),
+        _Conv2dWgtPad2Bwd(x),
         kernel,
         grad_output,
         rtol=1e-2,

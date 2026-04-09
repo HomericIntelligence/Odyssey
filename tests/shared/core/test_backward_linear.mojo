@@ -12,6 +12,8 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones, ones_like
 from shared.core.linear import linear, linear_backward
 from shared.testing import (
     check_gradient,
+    NumericalForward,
+    NumericalBackward,
 )
 
 
@@ -119,6 +121,24 @@ def test_linear_backward_batch() raises:
     assert_equal(grads.grad_bias.shape()[0], out_features)
 
 
+@fieldwise_init
+struct _LinearFwd(NumericalForward):
+    var weights: AnyTensor
+    var bias: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return linear(inp, self.weights, self.bias)
+
+
+@fieldwise_init
+struct _LinearBwd(NumericalBackward):
+    var weights: AnyTensor
+
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        var grads = linear_backward(grad_out, inp, self.weights)
+        return grads.grad_input
+
+
 def test_linear_backward_gradient() raises:
     """Test linear backward with numerical gradient checking."""
     var batch = 2
@@ -147,21 +167,15 @@ def test_linear_backward_gradient() raises:
     weights.set(4, Float64(-0.2))
     weights.set(5, Float64(0.5))
 
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var bias_shape = List[Int]()
-        bias_shape.append(out_features)
-        var bias = zeros(bias_shape, DType.float32)
-        bias.set(0, Float64(0.3))
-        bias.set(1, Float64(-0.2))
-        return linear(inp, weights, bias)
+    var bias_shape = List[Int]()
+    bias_shape.append(out_features)
+    var bias = zeros(bias_shape, DType.float32)
+    bias.set(0, Float64(0.3))
+    bias.set(1, Float64(-0.2))
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        var grads = linear_backward(grad_out, inp, weights)
-        return grads.grad_input
-
-    var output = forward(x)
+    var output = linear(x, weights, bias)
     var grad_output = ones_like(output)
-    check_gradient(forward, backward, x, grad_output, rtol=1e-3, atol=5e-4)
+    check_gradient(_LinearFwd(weights, bias), _LinearBwd(weights), x, grad_output, rtol=1e-3, atol=5e-4)
 
 
 def main() raises:

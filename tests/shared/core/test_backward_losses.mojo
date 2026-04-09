@@ -17,7 +17,7 @@ from shared.core.loss import (
     mean_squared_error,
     mean_squared_error_backward,
 )
-from shared.testing import check_gradient
+from shared.testing import check_gradient, NumericalForward, NumericalBackward
 
 
 def test_cross_entropy_backward_shapes() raises:
@@ -152,6 +152,22 @@ def test_mean_squared_error_backward_zero_diff() raises:
         )
 
 
+@fieldwise_init
+struct _CEFwd(NumericalForward):
+    var targets: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return cross_entropy(inp, self.targets)
+
+
+@fieldwise_init
+struct _CEBwd(NumericalBackward):
+    var targets: AnyTensor
+
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return cross_entropy_backward(grad_out, inp, self.targets)
+
+
 def test_cross_entropy_backward_gradient() raises:
     """Test cross-entropy backward with numerical gradient checking."""
     var batch = 2
@@ -175,15 +191,25 @@ def test_cross_entropy_backward_gradient() raises:
     targets.set(0, Float64(1.0))
     targets.set(4, Float64(1.0))
 
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return cross_entropy(inp, targets)
-
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return cross_entropy_backward(grad_out, inp, targets)
-
-    var loss = forward(logits)
+    var loss = cross_entropy(logits, targets)
     var grad_output = ones_like(loss)
-    check_gradient(forward, backward, logits, grad_output, rtol=1e-3, atol=1e-3)
+    check_gradient(_CEFwd(targets), _CEBwd(targets), logits, grad_output, rtol=1e-3, atol=1e-3)
+
+
+@fieldwise_init
+struct _BCEBLFwd(NumericalForward):
+    var targets: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return binary_cross_entropy(inp, self.targets)
+
+
+@fieldwise_init
+struct _BCEBLBwd(NumericalBackward):
+    var targets: AnyTensor
+
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return binary_cross_entropy_backward(grad_out, inp, self.targets)
 
 
 def test_binary_cross_entropy_backward_gradient() raises:
@@ -212,17 +238,27 @@ def test_binary_cross_entropy_backward_gradient() raises:
     targets.set(6, Float64(0.0))
     targets.set(7, Float64(1.0))
 
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return binary_cross_entropy(inp, targets)
-
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return binary_cross_entropy_backward(grad_out, inp, targets)
-
-    var loss = forward(predictions)
+    var loss = binary_cross_entropy(predictions, targets)
     var grad_output = ones_like(loss)
     check_gradient(
-        forward, backward, predictions, grad_output, rtol=1e-3, atol=1e-6
+        _BCEBLFwd(targets), _BCEBLBwd(targets), predictions, grad_output, rtol=1e-3, atol=1e-6
     )
+
+
+@fieldwise_init
+struct _MSEBLFwd(NumericalForward):
+    var targets: AnyTensor
+
+    def __call__(self, inp: AnyTensor) raises -> AnyTensor:
+        return mean_squared_error(inp, self.targets)
+
+
+@fieldwise_init
+struct _MSEBLBwd(NumericalBackward):
+    var targets: AnyTensor
+
+    def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+        return mean_squared_error_backward(grad_out, inp, self.targets)
 
 
 def test_mean_squared_error_backward_gradient() raises:
@@ -261,16 +297,10 @@ def test_mean_squared_error_backward_gradient() raises:
     targets.set(10, Float64(0.0))
     targets.set(11, Float64(0.6))
 
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return mean_squared_error(inp, targets)
-
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
-        return mean_squared_error_backward(grad_out, inp, targets)
-
-    var loss = forward(predictions)
+    var loss = mean_squared_error(predictions, targets)
     var grad_output = ones_like(loss)
     check_gradient(
-        forward, backward, predictions, grad_output, rtol=1e-3, atol=1e-6
+        _MSEBLFwd(targets), _MSEBLBwd(targets), predictions, grad_output, rtol=1e-3, atol=1e-6
     )
 
 

@@ -30,6 +30,8 @@ from shared.core.activation import (
 )
 from shared.testing import (
     check_gradient,
+    NumericalForward,
+    NumericalBackward,
 )
 from tests.shared.conftest import (
     assert_almost_equal,
@@ -143,6 +145,18 @@ def test_relu_non_negativity() raises:
         assert_true(val >= 0.0)
 
 
+@fieldwise_init
+struct _ReluFwd(NumericalForward):
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return relu(x)
+
+
+@fieldwise_init
+struct _ReluBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        return relu_backward(grad, x)
+
+
 def test_relu_backward() raises:
     """Test ReLU gradient with numerical validation."""
     var shape = List[Int]()
@@ -155,22 +169,12 @@ def test_relu_backward() raises:
     x.set(2, Float32(0.5))
     x.set(3, Float32(2.0))
 
-    # Forward function wrapper
-    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
-        return relu(x)
-
     var y = relu(x)
     var grad_out = ones_like(y)
 
-    # Backward function wrapper
-    def backward_wrapper(
-        grad: AnyTensor, x: AnyTensor
-    ) raises unified {read} -> AnyTensor:
-        return relu_backward(grad, x)
-
     # Use numerical gradient checking (gold standard)
     # Note: rtol=1e-3 is appropriate for float32 finite differences
-    check_gradient(forward, backward_wrapper, x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(_ReluFwd(), _ReluBwd(), x, grad_out, rtol=1e-3, atol=1e-6)
 
 
 def test_relu_shape() raises:
@@ -288,6 +292,18 @@ def test_leaky_relu_custom_alpha() raises:
     )
 
 
+@fieldwise_init
+struct _LeakyReluFwd(NumericalForward):
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return leaky_relu(x, alpha=0.1)
+
+
+@fieldwise_init
+struct _LeakyReluBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        return leaky_relu_backward(grad, x, alpha=0.1)
+
+
 def test_leaky_relu_backward() raises:
     """Test Leaky ReLU gradient with numerical validation."""
     var shape = List[Int]()
@@ -297,21 +313,11 @@ def test_leaky_relu_backward() raises:
     x.set(0, Float32(-1.0))
     x.set(1, Float32(1.0))
 
-    # Forward function wrapper
-    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
-        return leaky_relu(x, alpha=0.1)
-
     var y = leaky_relu(x, alpha=0.1)
     var grad_out = ones_like(y)
 
-    # Use numerical gradient checking (gold standard)
-    def backward_wrapper(
-        grad: AnyTensor, x: AnyTensor
-    ) raises unified {read} -> AnyTensor:
-        return leaky_relu_backward(grad, x, alpha=0.1)
-
     # Note: rtol=1e-3 is appropriate for float32 finite differences
-    check_gradient(forward, backward_wrapper, x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(_LeakyReluFwd(), _LeakyReluBwd(), x, grad_out, rtol=1e-3, atol=1e-6)
 
 
 def test_prelu_basic() raises:
@@ -408,6 +414,23 @@ def test_prelu_elementwise_alpha() raises:
     )
 
 
+@fieldwise_init
+struct _PreluFwd(NumericalForward):
+    var alpha: AnyTensor
+
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return prelu(x, self.alpha)
+
+
+@fieldwise_init
+struct _PreluBwd(NumericalBackward):
+    var alpha: AnyTensor
+
+    def __call__(self, grad: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        var result = prelu_backward(grad, x, self.alpha)
+        return result.grad_a
+
+
 def test_prelu_backward() raises:
     """Test PReLU gradient with numerical validation."""
     var shape = List[Int]()
@@ -421,20 +444,11 @@ def test_prelu_backward() raises:
     alpha.set(0, Float32(0.5))
     alpha.set(1, Float32(0.5))
 
-    # Forward function wrapper
-    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
-        return prelu(x, alpha)
-
     var y = prelu(x, alpha)
     var grad_out = ones_like(y)
 
-    # Validate gradient w.r.t. input using numerical checking
-    def backward_input(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
-        var result = prelu_backward(grad, x, alpha)
-        return result.grad_a
-
     # Note: rtol=1e-3 is appropriate for float32 finite differences
-    check_gradient(forward, backward_input, x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(_PreluFwd(alpha), _PreluBwd(alpha), x, grad_out, rtol=1e-3, atol=1e-6)
 
 
 def test_sigmoid_basic() raises:
@@ -460,6 +474,19 @@ def test_sigmoid_basic() raises:
     )
 
 
+@fieldwise_init
+struct _SigmoidFwd(NumericalForward):
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return sigmoid(x)
+
+
+@fieldwise_init
+struct _SigmoidBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        var out = sigmoid(x)
+        return sigmoid_backward(grad, out)
+
+
 def test_sigmoid_backward() raises:
     """Test sigmoid gradient with numerical validation."""
     var shape = List[Int]()
@@ -471,21 +498,12 @@ def test_sigmoid_backward() raises:
     x.set(1, Float32(0.0))
     x.set(2, Float32(1.0))
 
-    # Forward function wrapper
-    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
-        return sigmoid(x)
-
     var y = sigmoid(x)
     var grad_out = ones_like(y)
 
-    # Note: sigmoid_backward takes output y, not input x
-    def backward_fn(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
-        var out = sigmoid(x)  # Recompute output inside wrapper
-        return sigmoid_backward(grad, out)
-
     # Use numerical gradient checking (gold standard)
     # Note: rtol=1e-3 is appropriate for float32 finite differences
-    check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(_SigmoidFwd(), _SigmoidBwd(), x, grad_out, rtol=1e-3, atol=1e-6)
 
 
 def test_sigmoid_range() raises:
@@ -613,6 +631,19 @@ def test_tanh_values() raises:
     )
 
 
+@fieldwise_init
+struct _TanhFwd(NumericalForward):
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return tanh(x)
+
+
+@fieldwise_init
+struct _TanhBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        var out = tanh(x)
+        return tanh_backward(grad, out)
+
+
 def test_tanh_backward() raises:
     """Test tanh gradient with numerical validation."""
     var shape = List[Int]()
@@ -624,21 +655,12 @@ def test_tanh_backward() raises:
     x.set(1, Float32(0.0))
     x.set(2, Float32(1.0))
 
-    # Forward function wrapper
-    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
-        return tanh(x)
-
     var y = tanh(x)
     var grad_out = ones_like(y)
 
-    # Note: tanh_backward takes output y, not input x
-    def backward_fn(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
-        var out = tanh(x)  # Recompute output inside wrapper
-        return tanh_backward(grad, out)
-
     # Use numerical gradient checking (gold standard)
     # Note: rtol=1e-3 is appropriate for float32 finite differences
-    check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(_TanhFwd(), _TanhBwd(), x, grad_out, rtol=1e-3, atol=1e-6)
 
 
 def test_tanh_range() raises:
@@ -764,6 +786,19 @@ def test_softmax_numerical_stability() raises:
     assert_true(y._data.bitcast[Float32]()[1] > y._data.bitcast[Float32]()[0])
 
 
+@fieldwise_init
+struct _SoftmaxFwd(NumericalForward):
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return softmax(x, axis=1)
+
+
+@fieldwise_init
+struct _SoftmaxBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        var out = softmax(x, axis=1)
+        return softmax_backward(grad, out, axis=1)
+
+
 def test_softmax_backward() raises:
     """Test softmax gradient with numerical validation."""
     var shape = List[Int]()
@@ -779,23 +814,14 @@ def test_softmax_backward() raises:
     x.set(4, Float32(0.5))
     x.set(5, Float32(1.5))
 
-    # Forward function wrapper
-    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
-        return softmax(x, axis=1)
-
     var y = softmax(x, axis=1)
     var grad_out = ones_like(y)
-
-    # Note: softmax_backward takes output y, not input x
-    def backward_fn(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
-        var out = softmax(x, axis=1)  # Recompute output inside wrapper
-        return softmax_backward(grad, out, axis=1)
 
     # Use numerical gradient checking (gold standard)
     # Note: rtol=1e-3, atol=5e-4 is needed for float32 softmax gradients
     # Softmax involves exp() and division which amplify numerical errors,
     # especially at the edges of the distribution
-    check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=5e-4)
+    check_gradient(_SoftmaxFwd(), _SoftmaxBwd(), x, grad_out, rtol=1e-3, atol=5e-4)
 
 
 def test_gelu_basic() raises:
@@ -943,6 +969,18 @@ def test_gelu_float16() raises:
     assert_almost_equal(val_0, Float32(0.0), tolerance=0.01)
 
 
+@fieldwise_init
+struct _GeluFwd(NumericalForward):
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return gelu(x, approximate=False)
+
+
+@fieldwise_init
+struct _GeluBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        return gelu_backward(grad, x, approximate=False)
+
+
 def test_gelu_backward_gradient() raises:
     """Test GELU backward with numerical gradient checking."""
     var shape = List[Int]()
@@ -954,19 +992,11 @@ def test_gelu_backward_gradient() raises:
     x.set(1, Float32(0.0))
     x.set(2, Float32(0.5))
 
-    # Forward function wrapper
-    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
-        return gelu(x, approximate=False)
-
     var y = gelu(x, approximate=False)
     var grad_out = ones_like(y)
 
-    # Backward function wrapper
-    def backward_fn(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
-        return gelu_backward(grad, x, approximate=False)
-
     # Use numerical gradient checking (gold standard)
-    check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(_GeluFwd(), _GeluBwd(), x, grad_out, rtol=1e-3, atol=1e-6)
 
 
 def test_swish_basic() raises:
@@ -1001,6 +1031,18 @@ def test_swish_positive() raises:
     )
 
 
+@fieldwise_init
+struct _SwishFwd(NumericalForward):
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return swish(x)
+
+
+@fieldwise_init
+struct _SwishBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        return swish_backward(grad, x)
+
+
 def test_swish_backward_gradient() raises:
     """Test Swish backward with numerical gradient checking."""
     var shape = List[Int]()
@@ -1012,19 +1054,11 @@ def test_swish_backward_gradient() raises:
     x.set(1, Float32(0.0))
     x.set(2, Float32(0.5))
 
-    # Forward function wrapper
-    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
-        return swish(x)
-
     var y = swish(x)
     var grad_out = ones_like(y)
 
-    # Backward function wrapper
-    def backward_fn(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
-        return swish_backward(grad, x)
-
     # Use numerical gradient checking (gold standard)
-    check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(_SwishFwd(), _SwishBwd(), x, grad_out, rtol=1e-3, atol=1e-6)
 
 
 def test_mish_basic() raises:
@@ -1058,6 +1092,18 @@ def test_mish_shape() raises:
     assert_equal(y.shape()[2], 4)
 
 
+@fieldwise_init
+struct _MishFwd(NumericalForward):
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return mish(x)
+
+
+@fieldwise_init
+struct _MishBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        return mish_backward(grad, x)
+
+
 def test_mish_backward_gradient() raises:
     """Test Mish backward with numerical gradient checking."""
     var shape = List[Int]()
@@ -1069,19 +1115,11 @@ def test_mish_backward_gradient() raises:
     x.set(1, Float32(0.0))
     x.set(2, Float32(0.5))
 
-    # Forward function wrapper
-    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
-        return mish(x)
-
     var y = mish(x)
     var grad_out = ones_like(y)
 
-    # Backward function wrapper
-    def backward_fn(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
-        return mish_backward(grad, x)
-
     # Use numerical gradient checking (gold standard)
-    check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(_MishFwd(), _MishBwd(), x, grad_out, rtol=1e-3, atol=1e-6)
 
 
 def test_elu_basic() raises:
@@ -1110,6 +1148,18 @@ def test_elu_basic() raises:
     )
 
 
+@fieldwise_init
+struct _EluFwd(NumericalForward):
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return elu(x, alpha=1.0)
+
+
+@fieldwise_init
+struct _EluBwd(NumericalBackward):
+    def __call__(self, grad: AnyTensor, x: AnyTensor) raises -> AnyTensor:
+        return elu_backward(grad, x, alpha=1.0)
+
+
 def test_elu_backward() raises:
     """Test ELU gradient with numerical validation."""
     var shape = List[Int]()
@@ -1120,20 +1170,12 @@ def test_elu_backward() raises:
     x.set(1, Float32(0.0))
     x.set(2, Float32(1.0))
 
-    # Forward function wrapper
-    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
-        return elu(x, alpha=1.0)
-
     var y = elu(x, alpha=1.0)
     var grad_out = ones_like(y)
 
-    # Note: elu_backward takes x, y, and alpha
-    def backward_fn(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
-        return elu_backward(grad, x, alpha=1.0)
-
     # Use numerical gradient checking (gold standard)
     # Note: rtol=1e-3 is appropriate for float32 finite differences
-    check_gradient(forward, backward_fn, x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(_EluFwd(), _EluBwd(), x, grad_out, rtol=1e-3, atol=1e-6)
 
 
 def test_integration_forward_backward() raises:
