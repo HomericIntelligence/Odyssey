@@ -20,7 +20,7 @@ from utils.index import Index
 # ============================================================================
 
 
-trait Dataset:
+trait Dataset(ImplicitlyDestructible):
     """Base interface for all datasets.
 
     All datasets must implement __len__ and __getitem__ to provide

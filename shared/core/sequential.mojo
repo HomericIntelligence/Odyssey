@@ -41,7 +41,7 @@ from shared.tensor.any_tensor import AnyTensor
 from .module import Module
 
 
-struct Sequential2[T0: Module & Movable, T1: Module & Movable](Movable):
+struct Sequential2[T0: Module & Movable, T1: Module & Movable](Movable, ImplicitlyDestructible):
     """Two-layer sequential module container.
 
     Chains two Module-conforming layers: output of layer 0 becomes input
@@ -123,7 +123,7 @@ struct Sequential2[T0: Module & Movable, T1: Module & Movable](Movable):
 
 struct Sequential3[
     T0: Module & Movable, T1: Module & Movable, T2: Module & Movable
-](Movable):
+](Movable, ImplicitlyDestructible):
     """Three-layer sequential module container.
 
     Chains three Module-conforming layers in order: 0 -> 1 -> 2.
@@ -226,7 +226,7 @@ struct Sequential4[
     T1: Module & Movable,
     T2: Module & Movable,
     T3: Module & Movable,
-](Movable):
+](Movable, ImplicitlyDestructible):
     """Four-layer sequential module container.
 
     Chains four Module-conforming layers in order: 0 -> 1 -> 2 -> 3.
@@ -342,7 +342,7 @@ struct Sequential5[
     T2: Module & Movable,
     T3: Module & Movable,
     T4: Module & Movable,
-](Movable):
+](Movable, ImplicitlyDestructible):
     """Five-layer sequential module container.
 
     Chains five Module-conforming layers in order: 0 -> 1 -> 2 -> 3 -> 4.

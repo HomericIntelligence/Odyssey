@@ -33,7 +33,7 @@ Example:
 from shared.tensor.any_tensor import AnyTensor
 
 
-trait Differentiable:
+trait Differentiable(ImplicitlyDestructible):
     """Components that support automatic differentiation.
 
     Implement this trait for all neural network layers and operations
@@ -501,7 +501,7 @@ trait Trainable:
 # ============================================================================
 
 
-trait Model:
+trait Model(ImplicitlyDestructible):
     """Neural network model interface for generic TrainingLoop.
 
     Defines the contract for models that can be trained using TrainingLoop.
@@ -567,7 +567,7 @@ trait Model:
         ...
 
 
-trait Loss:
+trait Loss(ImplicitlyDestructible):
     """Loss function interface for generic TrainingLoop.
 
     Defines the contract for loss functions that measure prediction error.
@@ -600,7 +600,7 @@ trait Loss:
         ...
 
 
-trait Optimizer:
+trait Optimizer(ImplicitlyDestructible):
     """Optimizer interface for generic TrainingLoop.
 
     Defines the contract for optimization algorithms that update parameters.
