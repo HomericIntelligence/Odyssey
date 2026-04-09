@@ -1181,7 +1181,7 @@ struct LayerTester:
             var (out, _, _) = batch_norm2d(
                 x, gamma, beta, running_mean, running_var, training=True
             )
-            return tensor_sum(out * grad_output)
+            return tensor_sum(bn_out * grad_output)
 
         # Compute numerical gradient (exhaustive finite differences)
         var numerical_grad = compute_numerical_gradient(

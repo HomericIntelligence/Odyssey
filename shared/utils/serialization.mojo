@@ -88,10 +88,10 @@ struct NamedTensor(Copyable, Movable):
         self.name = other.name^
         self.tensor = other.tensor^
 
-    fn __copyinit__(out self, existing: Self):
+    fn __init__(out self, *, copy: Self):
         """Copy constructor."""
-        self.name = existing.name
-        self.tensor = existing.tensor
+        self.name = copy.name
+        self.tensor = copy.tensor
 
 
 # ============================================================================
