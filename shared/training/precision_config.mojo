@@ -22,6 +22,7 @@ See examples/mixed_precision_training.mojo for complete usage
 """
 
 from std.sys import is_defined
+from std.io import Writer
 
 from shared.tensor.any_tensor import AnyTensor, full, zeros
 from shared.core.dtype_cast import cast_tensor
@@ -99,6 +100,22 @@ struct PrecisionMode(Copyable, ImplicitlyCopyable, Movable, Writable):
             return "fp8"
         else:
             return "unknown"
+
+    def write_to[W: Writer](self, mut writer: W):
+        """Write the string representation to a Writer (required for Writable trait).
+
+        This method is called when using `String(mode)` or `print(mode)` to convert
+        the precision mode to a string representation. It delegates to `__str__()` for
+        the actual formatting logic.
+
+        Parameters:
+            W: The writer type conforming to the Writer trait.
+
+        Args:
+            writer: The writer to write the string representation to.
+        """
+        var s = self.__str__()
+        writer.write(s)
 
 
 struct PrecisionConfig(Copyable, Movable):
