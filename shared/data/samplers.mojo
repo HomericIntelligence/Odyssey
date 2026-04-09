@@ -21,7 +21,7 @@ from shared.data.sampler_utils import (
 # ============================================================================
 
 
-trait Sampler:
+trait Sampler(ImplicitlyDestructible):
     """Base interface for all samplers.
 
     Samplers determine the order in which samples are accessed from a dataset.

@@ -83,11 +83,6 @@ struct NamedTensor(Copyable, Movable):
         self.name = name
         self.tensor = tensor
 
-    fn __moveinit__(out self, deinit other: Self):
-        """Move constructor for ownership transfer."""
-        self.name = other.name^
-        self.tensor = other.tensor^
-
     fn __init__(out self, *, copy: Self):
         """Copy constructor."""
         self.name = copy.name

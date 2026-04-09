@@ -66,7 +66,7 @@ See Also:
 from shared.tensor.any_tensor import AnyTensor
 
 
-trait Module:
+trait Module(ImplicitlyDestructible):
     """Standard interface for neural network modules and layers.
 
     A Module is any component in a neural network that can be composed

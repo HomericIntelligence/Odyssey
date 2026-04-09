@@ -67,7 +67,7 @@ fn infer_image_dimensions(
 # ============================================================================
 
 
-trait Transform(Copyable, Movable):
+trait Transform(Copyable, Movable, ImplicitlyDestructible):
     """Base interface for all transforms.
 
     Transforms modify data in-place or return transformed copies.

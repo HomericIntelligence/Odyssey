@@ -419,7 +419,7 @@ fn _parse_tensor_dtype(dtype_str: String) raises -> DType:
         raise Error("Unknown dtype: " + dtype_str)
 
 
-fn _bytes_to_hex(data: UnsafePointer[UInt8], num_bytes: Int) -> String:
+fn _bytes_to_hex(data: UnsafePointer[UInt8, _], num_bytes: Int) -> String:
     """Convert bytes to hexadecimal string."""
     var hex_chars = "0123456789abcdef"
     var result = String("")
@@ -434,7 +434,7 @@ fn _bytes_to_hex(data: UnsafePointer[UInt8], num_bytes: Int) -> String:
     return result
 
 
-fn _hex_to_bytes(hex_str: String, output: UnsafePointer[UInt8]) raises:
+fn _hex_to_bytes(hex_str: String, output: UnsafePointer[UInt8, _]) raises:
     """Convert hexadecimal string to bytes.
 
         Note: This function validates input but does not write to output.
