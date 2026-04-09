@@ -283,7 +283,7 @@ struct LossTracker(Metric):
         """
         self.window_size = window_size
         self.components = List[String]()
-        self.trackers: List[ComponentTracker] = []
+        self.trackers = []
 
     fn _get_or_create_component(mut self, component: String) -> Int:
         """Get index of component tracker, creating if needed.

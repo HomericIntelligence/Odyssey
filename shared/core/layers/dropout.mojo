@@ -155,7 +155,7 @@ struct DropoutLayer(Copyable, Movable):
 
         # Apply mask and scale: output = mask * input / (1 - dropout_rate)
         var scale = Float32(1.0) / (Float32(1.0) - self.dropout_rate)
-        var result = AnyTensor(input._shape, input._dtype)
+        var result = AnyTensor(input.shape(), input._dtype)
 
         if input._dtype == DType.float32:
             for i in range(input._numel):
@@ -209,7 +209,7 @@ struct DropoutLayer(Copyable, Movable):
             ```
         """
         var scale = Float32(1.0) / (Float32(1.0) - self.dropout_rate)
-        var result = AnyTensor(grad_output._shape, grad_output._dtype)
+        var result = AnyTensor(grad_output.shape(), grad_output._dtype)
 
         if grad_output._dtype == DType.float32:
             for i in range(grad_output._numel):

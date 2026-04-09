@@ -557,7 +557,7 @@ from shared.core.reduction import (
     max_reduce,
     min_reduce,
     variance,
-    std,
+    std_reduce,
     median,
     percentile,
     sum_backward,

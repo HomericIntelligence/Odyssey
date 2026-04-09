@@ -17,8 +17,7 @@ from shared.training.base import LRScheduler
 # ============================================================================
 
 
-@register_passable("trivial")
-struct StepLR(LRScheduler):
+struct StepLR(LRScheduler, TrivialRegisterPassable):
     """Step decay: reduce learning rate at fixed intervals.
 
     Reduces the learning rate by a factor of gamma every step_size epochs.
@@ -85,8 +84,7 @@ struct StepLR(LRScheduler):
 # ============================================================================
 
 
-@register_passable("trivial")
-struct CosineAnnealingLR(LRScheduler):
+struct CosineAnnealingLR(LRScheduler, TrivialRegisterPassable):
     """Cosine annealing: smooth cosine decay from base_lr to eta_min.
 
     The learning rate follows a cosine curve, starting at base_lr and
@@ -161,8 +159,7 @@ struct CosineAnnealingLR(LRScheduler):
 # ============================================================================
 
 
-@register_passable("trivial")
-struct WarmupLR(LRScheduler):
+struct WarmupLR(LRScheduler, TrivialRegisterPassable):
     """Linear warmup: gradually increase learning rate during initial epochs.
 
     The learning rate increases linearly from 0 to base_lr over warmup_epochs,
@@ -232,8 +229,7 @@ comptime MODE_MIN: Int = 0  # Minimize metric (for loss)
 comptime MODE_MAX: Int = 1  # Maximize metric (for accuracy)
 
 
-@register_passable("trivial")
-struct ReduceLROnPlateau(LRScheduler):
+struct ReduceLROnPlateau(LRScheduler, TrivialRegisterPassable):
     """Reduce learning rate when metric stops improving.
 
     Monitors a metric (e.g., validation loss) and reduces the learning rate

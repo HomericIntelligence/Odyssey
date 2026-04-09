@@ -21,10 +21,10 @@ Functions:
     assert_equal_int: Assert integers are equal
     assert_equal_float: Assert floats are exactly equal
     assert_close_float: Assert floats are numerically close with relative/absolute tolerance
-    assert_greater: Assert a > b (parametric - Comparable & Stringable)
-    assert_less: Assert a < b (parametric - Comparable & Stringable)
-    assert_greater_or_equal: Assert a >= b (parametric - Comparable & Stringable)
-    assert_less_or_equal: Assert a <= b (parametric - Comparable & Stringable)
+    assert_greater: Assert a > b (parametric - Comparable & Writable)
+    assert_less: Assert a < b (parametric - Comparable & Writable)
+    assert_greater_or_equal: Assert a >= b (parametric - Comparable & Writable)
+    assert_less_or_equal: Assert a <= b (parametric - Comparable & Writable)
     assert_shape_equal: Assert two shapes are equal
     assert_not_equal_tensor: Assert two tensors are not equal element-wise
     assert_tensor_equal: Assert two tensors are equal (shape and elements)
@@ -321,11 +321,11 @@ fn assert_close_float(
 
 
 fn assert_greater[
-    T: Comparable & Stringable
+    T: Comparable & Writable
 ](a: T, b: T, message: String = "") raises:
     """Assert a > b using parametric type constraints.
 
-    Works with any type supporting Comparable and Stringable traits
+    Works with any type supporting Comparable and Writable traits
     (Float32, Float64, Int, etc.).
 
     Args:
@@ -342,11 +342,11 @@ fn assert_greater[
 
 
 fn assert_less[
-    T: Comparable & Stringable
+    T: Comparable & Writable
 ](a: T, b: T, message: String = "") raises:
     """Assert a < b using parametric type constraints.
 
-    Works with any type supporting Comparable and Stringable traits
+    Works with any type supporting Comparable and Writable traits
     (Float32, Float64, Int, etc.).
 
     Args:
@@ -363,11 +363,11 @@ fn assert_less[
 
 
 fn assert_greater_or_equal[
-    T: Comparable & Stringable
+    T: Comparable & Writable
 ](a: T, b: T, message: String = "") raises:
     """Assert a >= b using parametric type constraints.
 
-    Works with any type supporting Comparable and Stringable traits
+    Works with any type supporting Comparable and Writable traits
     (Float32, Float64, Int, etc.).
 
     Args:
@@ -384,11 +384,11 @@ fn assert_greater_or_equal[
 
 
 fn assert_less_or_equal[
-    T: Comparable & Stringable
+    T: Comparable & Writable
 ](a: T, b: T, message: String = "") raises:
     """Assert a <= b using parametric type constraints.
 
-    Works with any type supporting Comparable and Stringable traits
+    Works with any type supporting Comparable and Writable traits
     (Float32, Float64, Int, etc.).
 
     Args:

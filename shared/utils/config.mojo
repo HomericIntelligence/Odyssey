@@ -21,7 +21,7 @@ from python import Python, PythonObject
 # ============================================================================
 
 
-struct ConfigValue(Copyable, ImplicitlyCopyable, Movable):
+struct ConfigValue(Copyable, Movable):
     """Union type to hold different configuration value types.
 
     Supports common types needed for ML configurations: integers, floats,
@@ -140,21 +140,17 @@ struct ConfigValue(Copyable, ImplicitlyCopyable, Movable):
         for i in range(len(value)):
             self.list_val.append(String(value[i]))
 
-    fn __copyinit__(out self, existing: Self):
-        """Copy constructor for ConfigValue.
-
-        Args:
-            existing: Existing ConfigValue to copy from.
-
-        Returns:
-            None.
-        """
-        self.value_type = existing.value_type
-        self.int_val = existing.int_val
-        self.float_val = existing.float_val
-        self.str_val = existing.str_val
-        self.bool_val = existing.bool_val
-        self.list_val = existing.list_val.copy()
+    fn copy_value(self) -> ConfigValue:
+        """Explicit copy of ConfigValue."""
+        var cv: ConfigValue
+        cv = ConfigValue(0)
+        cv.value_type = self.value_type
+        cv.int_val = self.int_val
+        cv.float_val = self.float_val
+        cv.str_val = self.str_val
+        cv.bool_val = self.bool_val
+        cv.list_val = self.list_val.copy()
+        return cv^
 
 
 # ============================================================================
@@ -180,16 +176,15 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         """
         self.data = Dict[String, ConfigValue]()
 
-    fn __copyinit__(out self, existing: Self):
-        """Copy constructor for Config.
+    fn __init__(out self, *, copy: Self):
+        """Copy constructor for ImplicitlyCopyable conformance."""
+        self.data = copy.data.copy()
 
-        Args:
-            existing: Existing Config to copy from.
-
-        Returns:
-            None.
-        """
-        self.data = existing.data.copy()
+    fn copy_config(self) -> Config:
+        """Explicit copy of Config."""
+        var c = Config()
+        c.data = self.data.copy()
+        return c^
 
     fn set(mut self, key: String, value: Int):
         """Set integer configuration value.
@@ -295,7 +290,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         if key not in self.data:
             return default
 
-        var val = self.data[key]
+        ref val = self.data[key]
         if val.value_type != "string":
             raise Error(
                 "Type mismatch for key '"
@@ -321,7 +316,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         if key not in self.data:
             return default
 
-        var val = self.data[key]
+        ref val = self.data[key]
         if val.value_type != "int":
             raise Error(
                 "Type mismatch for key '"
@@ -347,7 +342,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         if key not in self.data:
             return default
 
-        var val = self.data[key]
+        ref val = self.data[key]
         if val.value_type != "float":
             raise Error(
                 "Type mismatch for key '"
@@ -373,7 +368,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         if key not in self.data:
             return default
 
-        var val = self.data[key]
+        ref val = self.data[key]
         if val.value_type != "bool":
             raise Error(
                 "Type mismatch for key '"
@@ -398,7 +393,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         if key not in self.data:
             return []
 
-        var val = self.data[key]
+        ref val = self.data[key]
         if val.value_type != "list":
             raise Error(
                 "Type mismatch for key '"
@@ -425,7 +420,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             Error: If key access fails.
         """
         if key in self.data:
-            return self.data[key]
+            return self.data[key].copy_value()
         return ConfigValue("")  # Default to empty string
 
     fn get_int_with_default(self, key: String, default: Int) -> Int:
@@ -509,13 +504,13 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
 
         # Copy all from self
         for ref item in self.data.items():
-            result.data[item.key] = item.value
+            result.data[item.key] = item.value.copy_value()
 
         # Override with other
         for ref item in other.data.items():
-            result.data[item.key] = item.value
+            result.data[item.key] = item.value.copy_value()
 
-        return result
+        return result^
 
     fn validate(self, required_keys: List[String]) raises:
         """Validate that all required keys are present.
@@ -544,7 +539,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         if not self.has(key):
             raise Error("Key not found: " + key)
 
-        var val = self.data[key]
+        ref val = self.data[key]
         if val.value_type != type_name:
             raise Error(
                 "Type mismatch for key '"
@@ -571,7 +566,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         if not self.has(key):
             raise Error("Key not found: " + key)
 
-        var val = self.data[key]
+        ref val = self.data[key]
         var num_val: Float64
 
         if val.value_type == "float":
@@ -684,7 +679,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         except e:
             raise Error("Failed to load YAML file: " + String(e))
 
-        return config
+        return config^
 
     @staticmethod
     fn _flatten_dict(
@@ -744,7 +739,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
                 var str_val = String(py_obj)
                 # Remove quotes if present
                 if str_val.startswith('"') and str_val.endswith('"'):
-                    str_val = String(str_val[1:-1])
+                    str_val = str_slice(str_val, 1, len(str_val) - 1)
                 config.set(prefix, str_val)
 
         except e:
@@ -788,15 +783,13 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
                 var pairs = clean.split(",")
 
                 for i in range(len(pairs)):
-                    var pair = pairs[i].strip()
+                    var pair = String(pairs[i].strip())
                     if ":" in pair:
                         # Split only on the FIRST colon to handle values with colons
                         var colon_idx = pair.find(":")
                         if colon_idx != -1:
-                            var key = String(pair[:colon_idx].strip())
-                            var value_str = String(
-                                pair[colon_idx + 1 :].strip()
-                            )
+                            var key = String(str_slice(pair, 0, colon_idx).strip())
+                            var value_str = str_slice(pair, colon_idx + 1, len(pair)).strip()
 
                             # Try to parse as number
                             if "." in value_str:
@@ -814,7 +807,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
         except e:
             raise Error("Failed to load JSON file: " + String(e))
 
-        return config
+        return config^
 
     fn to_yaml(self, filepath: String) raises:
         """Save configuration to YAML file.
@@ -829,7 +822,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             with open(filepath, "w") as f:
                 for ref item in self.data.items():
                     var key = item.key
-                    var val = item.value
+                    ref val = item.value
 
                     if val.value_type == "int":
                         _ = f.write(key + ": " + String(val.int_val) + "\n")
@@ -867,7 +860,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
 
                 for ref item in self.data.items():
                     var key = item.key
-                    var val = item.value
+                    ref val = item.value
 
                     _ = f.write('  "' + key + '": ')
 
@@ -910,16 +903,16 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
 
         for ref item in self.data.items():
             var key = item.key
-            var val = item.value
+            ref val = item.value
 
             if val.value_type == "string":
                 var str_val = val.str_val
                 var new_val = self._substitute_env_in_string(str_val)
                 result.set(key, new_val)
             else:
-                result.data[key] = val
+                result.data[key] = val.copy_value()
 
-        return result
+        return result^
 
     fn _substitute_env_in_string(self, value: String) -> String:
         """Helper to substitute environment variables in a string.
@@ -947,15 +940,15 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
                 break  # Malformed pattern, skip.
 
             # Extract variable spec: VAR or VAR:-default
-            var var_spec = result[dollar_pos + 2 : close_pos]
+            var var_spec = str_slice(result, dollar_pos + 2, close_pos)
 
             # Check for default value syntax: VAR:-default
             var default_value = ""
             var var_name = var_spec
             var colon_pos = var_spec.find(":-")
             if colon_pos != -1:
-                var_name = var_spec[:colon_pos]
-                default_value = String(var_spec[colon_pos + 2 :])
+                var_name = str_slice(var_spec, 0, colon_pos)
+                default_value = str_slice(var_spec, colon_pos + 2, len(var_spec))
 
             # Get environment variable value using Python
             var env_value = default_value
@@ -968,14 +961,14 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
                 pass
 
             # Replace ${...} with environment value
-            var before = result[:dollar_pos]
-            var after = result[close_pos + 1 :]
+            var before = str_slice(result, 0, dollar_pos)
+            var after = str_slice(result, close_pos + 1, len(result))
             result = before + env_value + after
 
             # Move start position past the replaced value
             start_pos = len(before) + len(env_value)
 
-        return result
+        return result^
 
     @staticmethod
     fn load_template(name: String) -> Config:
@@ -999,12 +992,23 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             config.set("activation", "relu")
             config.set("input_shape", 28)
 
-        return config
+        return config^
 
 
 # ============================================================================
 # Configuration Loading (Legacy Functions)
 # ============================================================================
+
+
+
+fn str_slice(s: String, start: Int, end: Int) -> String:
+    """Extract a slice of a string by byte positions [start:end]."""
+    var result = String("")
+    var bytes = s.as_bytes()
+    var real_end = min(end, len(s))
+    for i in range(start, real_end):
+        result += chr(Int(bytes[i]))
+    return result^
 
 
 fn load_config(filepath: String) raises -> Config:
@@ -1097,7 +1101,7 @@ fn merge_configs(base: Config, override: Config) -> Config:
 # ============================================================================
 
 
-struct ConfigValidator(Copyable, ImplicitlyCopyable, Movable):
+struct ConfigValidator(Copyable, Movable):
     """Validator for configuration values."""
 
     var required_keys: List[String]
@@ -1114,17 +1118,6 @@ struct ConfigValidator(Copyable, ImplicitlyCopyable, Movable):
         self.required_keys = List[String]()
         self.allowed_keys = Dict[String, String]()
 
-    fn __copyinit__(out self, existing: Self):
-        """Copy constructor for ConfigValidator.
-
-        Args:
-            existing: Existing ConfigValidator to copy from.
-
-        Returns:
-            None.
-        """
-        self.required_keys = existing.required_keys.copy()
-        self.allowed_keys = existing.allowed_keys.copy()
 
     fn require(mut self, key: String) -> Self:
         """Mark key as required.

@@ -759,7 +759,7 @@ fn variance_backward(
     return result^
 
 
-fn std(tensor: AnyTensor, axis: Int = -1, ddof: Int = 0) raises -> AnyTensor:
+fn std_reduce(tensor: AnyTensor, axis: Int = -1, ddof: Int = 0) raises -> AnyTensor:
     """Compute standard deviation of tensor elements along an axis.
 
     Standard deviation is the square root of variance.
@@ -776,7 +776,7 @@ fn std(tensor: AnyTensor, axis: Int = -1, ddof: Int = 0) raises -> AnyTensor:
     Examples:
         ```
             var t = tensor([1.0, 2.0, 3.0])
-            var s = std(t, axis=-1, ddof=0)  # sqrt(2/3) ≈ 0.8165
+            var s = std_reduce(t, axis=-1, ddof=0)  # sqrt(2/3) ≈ 0.8165
         ```
     """
     from math import sqrt
@@ -812,7 +812,7 @@ fn std_backward(
     var input_shape = x.shape()
     var result = AnyTensor(input_shape, grad_output.dtype())
     var mu = mean(x, axis)
-    var sigma = std(x, axis, ddof)
+    var sigma = std_reduce(x, axis, ddof)
 
     comptime EPSILON = 1e-8  # Prevent division by zero
 

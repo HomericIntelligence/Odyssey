@@ -110,23 +110,7 @@ struct SpinLock(Copyable, Movable):
         for i in range(8):
             self._state[i] = 0
 
-    fn __copyinit__(out self, existing: Self):
-        """Deep copy – allocates new backing storage initialised to unlocked.
 
-        Each copy gets its own independent lock state rather than sharing
-        the same allocation, preventing double-free on destruction.
-        """
-        self._state = alloc[UInt8](8)
-        memcpy(dest=self._state, src=existing._state, count=8)
-
-    fn __moveinit__(out self, deinit existing: Self):
-        """Move – transfers pointer ownership without any allocation.
-
-        After the move, `existing` no longer owns the pointer and will not
-        free it.  This is what List uses when it grows its backing array,
-        so no double-free occurs during reallocation.
-        """
-        self._state = existing._state
 
     fn _as_atomic(
         self,
@@ -189,14 +173,7 @@ struct AtomicStats(Copyable, Movable):
         for i in range(_ASTATS_SIZE):
             self._data[i] = 0
 
-    fn __copyinit__(out self, existing: Self):
-        """Deep copy – allocates new backing storage with copied counter values."""
-        self._data = alloc[UInt8](_ASTATS_SIZE)
-        memcpy(dest=self._data, src=existing._data, count=_ASTATS_SIZE)
 
-    fn __moveinit__(out self, deinit existing: Self):
-        """Move – transfers pointer ownership without any allocation."""
-        self._data = existing._data
 
     fn _counter(
         self, offset: Int

@@ -1150,13 +1150,13 @@ fn log2(tensor: AnyTensor) raises -> AnyTensor:
 @always_inline
 fn _exp_backward_impl[
     dtype: DType
-](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int):
+](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int) raises:
     """Dtype-specialized exp backward: grad * exp(x)."""
     var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
     var x_ptr = x._data.bitcast[Scalar[dtype]]()
     var out_ptr = result._data.bitcast[Scalar[dtype]]()
     for i in range(numel):
-        out_ptr[i] = grad_ptr[i] * math_exp(x_ptr[i])
+        out_ptr[i] = grad_ptr[i] * Scalar[dtype](math_exp(Float32(x_ptr[i])))
 
 
 fn _dispatch_exp_backward(
@@ -1233,13 +1233,13 @@ fn _dispatch_sqrt_backward(
 
 fn _sin_backward_impl[
     dtype: DType
-](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int):
+](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int) raises:
     """Dtype-specialized sin backward: grad * cos(x)."""
     var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
     var x_ptr = x._data.bitcast[Scalar[dtype]]()
     var out_ptr = result._data.bitcast[Scalar[dtype]]()
     for i in range(numel):
-        out_ptr[i] = grad_ptr[i] * math_cos(x_ptr[i])
+        out_ptr[i] = grad_ptr[i] * Scalar[dtype](math_cos(Float32(x_ptr[i])))
 
 
 fn _dispatch_sin_backward(
@@ -1259,13 +1259,13 @@ fn _dispatch_sin_backward(
 
 fn _cos_backward_impl[
     dtype: DType
-](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int):
+](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, numel: Int) raises:
     """Dtype-specialized cos backward: grad * (-sin(x))."""
     var grad_ptr = grad_output._data.bitcast[Scalar[dtype]]()
     var x_ptr = x._data.bitcast[Scalar[dtype]]()
     var out_ptr = result._data.bitcast[Scalar[dtype]]()
     for i in range(numel):
-        out_ptr[i] = grad_ptr[i] * (-math_sin(x_ptr[i]))
+        out_ptr[i] = grad_ptr[i] * Scalar[dtype](-math_sin(Float32(x_ptr[i])))
 
 
 fn _dispatch_cos_backward(

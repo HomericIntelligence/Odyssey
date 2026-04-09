@@ -329,7 +329,7 @@ struct Logger:
         """
         self.name = name
         self.level = level
-        self.handlers: List[HandlerWrapper] = []
+        self.handlers = []
 
     fn add_handler(mut self, handler: StreamHandler):
         """Add a stream handler to this logger.

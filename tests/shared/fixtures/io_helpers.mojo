@@ -428,7 +428,7 @@ fn get_filename(path: String) -> String:
     if last_slash == -1:
         return path
     else:
-        return String(path[last_slash + 1 :])
+        return path.substr(last_slash + 1, len(path) - (last_slash + 1))
 
 
 fn get_extension(path: String) -> String:
@@ -460,7 +460,7 @@ fn get_extension(path: String) -> String:
     if last_dot == -1:
         return ""
     else:
-        return String(path[last_dot:])
+        return path.substr(last_dot, len(path) - last_dot)
 
 
 # ============================================================================

@@ -138,7 +138,7 @@ struct GradientTape:
 
     fn __init__(out self):
         """Initialize an empty gradient tape."""
-        self.nodes: List[TapeNode] = []
+        self.nodes = []
         self.enabled = False
         self.registry = VariableRegistry()
 
@@ -177,7 +177,7 @@ struct GradientTape:
             tape.backward(loss)
             tape.clear()  # Free memory.
         """
-        self.nodes: List[TapeNode] = []
+        self.nodes = []
         self.registry.clear()
 
     fn register_variable(mut self, requires_grad: Bool) raises -> Int:

@@ -241,7 +241,7 @@ fn prelu(tensor: AnyTensor, alpha: AnyTensor) raises -> AnyTensor:
     if tensor._dtype != alpha._dtype:
         raise Error("prelu: tensor and alpha must have same dtype")
 
-    var result = AnyTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor.shape(), tensor._dtype)
     var is_scalar = alpha._numel == 1
 
     if tensor._dtype == DType.float16:
@@ -290,7 +290,9 @@ fn _sigmoid_op[T: DType](x: Scalar[T]) -> Scalar[T]:
             var result_f32 = Float32(1.0) / (Float32(1.0) + exp(-x_f32))
             return Scalar[T](result_f32)
         else:
-            return Scalar[T](1.0) / (Scalar[T](1.0) + exp(-x))
+            var x_f64 = Float64(x)
+            var result_f64 = Float64(1.0) / (Float64(1.0) + exp(-x_f64))
+            return Scalar[T](result_f64)
 
 
 fn sigmoid(tensor: AnyTensor) raises -> AnyTensor:
@@ -493,7 +495,7 @@ fn _relu_backward_op[T: DType](grad: Scalar[T], x: Scalar[T]) -> Scalar[T]:
 
 fn relu_backward(
     grad_output: AnyTensor, x: AnyTensor
-) raises escaping -> AnyTensor:
+) raises -> AnyTensor:
     """Compute gradient of ReLU activation.
 
         ReLU gradient: `dL/dx = dL/dy * (x > 0)`
@@ -542,7 +544,7 @@ fn _leaky_relu_backward_impl[
 
 fn leaky_relu_backward(
     grad_output: AnyTensor, x: AnyTensor, alpha: Float64 = 0.01
-) raises escaping -> AnyTensor:
+) raises -> AnyTensor:
     """Compute gradient of Leaky ReLU activation.
 
         Leaky ReLU gradient: `dL/dx = dL/dy * (1 if x > 0 else alpha)`.
@@ -567,7 +569,7 @@ fn leaky_relu_backward(
             "leaky_relu_backward: grad_output and x must have same shape"
         )
 
-    var result = AnyTensor(x._shape, x._dtype)
+    var result = AnyTensor(x.shape(), x._dtype)
 
     if x._dtype == DType.float16:
         _leaky_relu_backward_impl[DType.float16](result, grad_output, x, alpha)
@@ -620,7 +622,7 @@ fn _prelu_backward_impl[
 
 fn prelu_backward(
     grad_output: AnyTensor, x: AnyTensor, alpha: AnyTensor
-) raises escaping -> GradientPair:
+) raises -> GradientPair:
     """Compute gradients of PReLU activation.
 
         PReLU gradients:
@@ -643,8 +645,8 @@ fn prelu_backward(
     if grad_output._numel != x._numel:
         raise Error("prelu_backward: grad_output and x must have same shape")
 
-    var grad_input = AnyTensor(x._shape, x._dtype)
-    var grad_alpha = AnyTensor(alpha._shape, alpha._dtype)
+    var grad_input = AnyTensor(x.shape(), x._dtype)
+    var grad_alpha = AnyTensor(alpha.shape(), alpha._dtype)
     var is_scalar = alpha._numel == 1
 
     if x._dtype == DType.float16:
@@ -684,7 +686,7 @@ fn _sigmoid_backward_op[T: DType](grad: Scalar[T], y: Scalar[T]) -> Scalar[T]:
 
 fn sigmoid_backward(
     grad_output: AnyTensor, output: AnyTensor
-) raises escaping -> AnyTensor:
+) raises -> AnyTensor:
     """Compute gradient of sigmoid activation.
 
         Sigmoid gradient: `dL/dx = dL/dy * y * (1 - y)`
@@ -734,7 +736,7 @@ fn _tanh_backward_op[T: DType](grad: Scalar[T], y: Scalar[T]) -> Scalar[T]:
 
 fn tanh_backward(
     grad_output: AnyTensor, output: AnyTensor
-) raises escaping -> AnyTensor:
+) raises -> AnyTensor:
     """Compute gradient of tanh activation.
 
         Tanh gradient: `dL/dx = dL/dy * (1 - y^2)`
@@ -767,7 +769,7 @@ fn tanh_backward(
 
 fn gelu_backward(
     grad_output: AnyTensor, x: AnyTensor, approximate: Bool = False
-) raises escaping -> AnyTensor:
+) raises -> AnyTensor:
     """Compute gradient of GELU activation.
 
         GELU gradient (exact): `dL/dx = dL/dy * [Phi(x) + x*phi(x)]`
@@ -796,7 +798,7 @@ fn gelu_backward(
 
 fn softmax_backward(
     grad_output: AnyTensor, output: AnyTensor, axis: Int = -1
-) raises escaping -> AnyTensor:
+) raises -> AnyTensor:
     """Compute gradient of softmax activation.
 
         Softmax gradient (along axis):
@@ -1042,7 +1044,7 @@ fn selu_backward(
     x: AnyTensor,
     alpha: Float64 = 1.6732632423543772848170429916717,
     lambda_: Float64 = 1.0507009873554804934193349852946,
-) raises escaping -> AnyTensor:
+) raises -> AnyTensor:
     """Backward pass for SELU activation.
 
     The derivative is:
@@ -1116,7 +1118,7 @@ fn selu_backward(
 
 fn swish_backward(
     grad_output: AnyTensor, x: AnyTensor
-) raises escaping -> AnyTensor:
+) raises -> AnyTensor:
     """Backward pass for Swish activation.
 
         The derivative of swish is:
@@ -1137,9 +1139,9 @@ fn swish_backward(
     var sig = sigmoid(x)
 
     # Derivative: sigmoid(x) * (1 + x * (1 - sigmoid(x)))
-    var one_minus_sig = subtract(full(sig._shape, 1.0, sig._dtype), sig)
+    var one_minus_sig = subtract(full(sig.shape(), 1.0, sig._dtype), sig)
     var x_term = multiply(x, one_minus_sig)
-    var one_plus_x_term = add(full(x_term._shape, 1.0, x_term._dtype), x_term)
+    var one_plus_x_term = add(full(x_term.shape(), 1.0, x_term._dtype), x_term)
     var derivative = multiply(sig, one_plus_x_term)
 
     # Apply chain rule
@@ -1148,7 +1150,7 @@ fn swish_backward(
 
 fn mish_backward(
     grad_output: AnyTensor, x: AnyTensor
-) raises escaping -> AnyTensor:
+) raises -> AnyTensor:
     """Backward pass for Mish activation.
 
         The derivative involves the derivative of tanh(softplus(x)).
@@ -1176,7 +1178,7 @@ fn mish_backward(
     # = tanh(softplus(x)) + x * sech^2(softplus(x)) * sigmoid(x)
     # where sech^2(y) = 1 - tanh^2(y)
     var tanh_sq = multiply(tanh_sp, tanh_sp)
-    var sech_sq = subtract(full(tanh_sq._shape, 1.0, tanh_sq._dtype), tanh_sq)
+    var sech_sq = subtract(full(tanh_sq.shape(), 1.0, tanh_sq._dtype), tanh_sq)
     var x_sech_sig = multiply(multiply(x, sech_sq), sig)
     var derivative = add(tanh_sp, x_sech_sig)
 
@@ -1186,7 +1188,7 @@ fn mish_backward(
 
 fn elu_backward(
     grad_output: AnyTensor, x: AnyTensor, alpha: Float64 = 1.0
-) raises escaping -> AnyTensor:
+) raises -> AnyTensor:
     """Backward pass for ELU activation.
 
         The derivative is:
@@ -1355,7 +1357,7 @@ fn hard_tanh(
 
 fn hard_sigmoid_backward(
     grad_output: AnyTensor, x: AnyTensor
-) raises escaping -> AnyTensor:
+) raises -> AnyTensor:
     """Backward pass for Hard Sigmoid activation.
 
         The derivative is:
@@ -1386,7 +1388,7 @@ fn hard_sigmoid_backward(
 
 fn hard_swish_backward(
     grad_output: AnyTensor, x: AnyTensor
-) raises escaping -> AnyTensor:
+) raises -> AnyTensor:
     """Backward pass for Hard Swish activation.
 
         The derivative is:
@@ -1423,7 +1425,7 @@ fn hard_tanh_backward(
     x: AnyTensor,
     min_val: Float64 = -1.0,
     max_val: Float64 = 1.0,
-) raises escaping -> AnyTensor:
+) raises -> AnyTensor:
     """Backward pass for Hard Tanh activation.
 
         The derivative is:

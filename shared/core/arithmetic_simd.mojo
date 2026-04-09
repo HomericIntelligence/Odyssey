@@ -70,19 +70,18 @@ fn add_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
             var z = add_simd(x, y)  # Scalar broadcasting
             ```
     """
+    from .arithmetic import add
+    from shared.tensor.typed.arithmetic_simd import _add_simd_typed
+
     if a.dtype() != b.dtype():
         raise Error("Cannot add tensors with different dtypes")
 
     # Check if we can use SIMD (same shape, contiguous)
     if a.shape() != b.shape():
         # Fall back to broadcasting
-        from .arithmetic import add
-
         return add(a, b)
 
     # Dispatch to typed SIMD core
-    from shared.tensor.typed.arithmetic_simd import _add_simd_typed
-
     if a.dtype() == DType.float32:
         return _add_simd_typed[DType.float32](
             a.as_tensor[DType.float32](), b.as_tensor[DType.float32]()
@@ -93,8 +92,6 @@ fn add_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         ).as_any()
     else:
         # Fall back to scalar for other dtypes
-        from .arithmetic import add
-
         return add(a, b)
 
 
@@ -111,15 +108,14 @@ fn subtract_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Raises:
             Error if dtypes don't match.
     """
+    from .arithmetic import subtract
+    from shared.tensor.typed.arithmetic_simd import _subtract_simd_typed
+
     if a.dtype() != b.dtype():
         raise Error("Cannot subtract tensors with different dtypes")
 
     if a.shape() != b.shape():
-        from .arithmetic import subtract
-
         return subtract(a, b)
-
-    from shared.tensor.typed.arithmetic_simd import _subtract_simd_typed
 
     if a.dtype() == DType.float32:
         return _subtract_simd_typed[DType.float32](
@@ -130,8 +126,6 @@ fn subtract_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
             a.as_tensor[DType.float64](), b.as_tensor[DType.float64]()
         ).as_any()
     else:
-        from .arithmetic import subtract
-
         return subtract(a, b)
 
 
@@ -148,15 +142,14 @@ fn multiply_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Raises:
             Error if dtypes don't match.
     """
+    from .arithmetic import multiply
+    from shared.tensor.typed.arithmetic_simd import _multiply_simd_typed
+
     if a.dtype() != b.dtype():
         raise Error("Cannot multiply tensors with different dtypes")
 
     if a.shape() != b.shape():
-        from .arithmetic import multiply
-
         return multiply(a, b)
-
-    from shared.tensor.typed.arithmetic_simd import _multiply_simd_typed
 
     if a.dtype() == DType.float32:
         return _multiply_simd_typed[DType.float32](
@@ -167,8 +160,6 @@ fn multiply_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
             a.as_tensor[DType.float64](), b.as_tensor[DType.float64]()
         ).as_any()
     else:
-        from .arithmetic import multiply
-
         return multiply(a, b)
 
 
@@ -185,15 +176,14 @@ fn divide_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Raises:
             Error if dtypes don't match or division by zero.
     """
+    from .arithmetic import divide
+    from shared.tensor.typed.arithmetic_simd import _divide_simd_typed
+
     if a.dtype() != b.dtype():
         raise Error("Cannot divide tensors with different dtypes")
 
     if a.shape() != b.shape():
-        from .arithmetic import divide
-
         return divide(a, b)
-
-    from shared.tensor.typed.arithmetic_simd import _divide_simd_typed
 
     if a.dtype() == DType.float32:
         return _divide_simd_typed[DType.float32](
@@ -204,6 +194,4 @@ fn divide_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
             a.as_tensor[DType.float64](), b.as_tensor[DType.float64]()
         ).as_any()
     else:
-        from .arithmetic import divide
-
         return divide(a, b)

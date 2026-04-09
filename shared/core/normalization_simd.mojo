@@ -99,7 +99,9 @@ fn batch_norm2d_fused_inference(
         )
         ```
     """
-    var result = AnyTensor(x._shape, x._dtype)
+    from .normalization import batch_norm2d
+
+    var result = AnyTensor(x.shape(), x._dtype)
 
     if x._dtype == DType.float32:
         _batch_norm2d_fused_inference_float32(
@@ -111,8 +113,6 @@ fn batch_norm2d_fused_inference(
         )
     else:
         # Fall back to scalar for other dtypes
-        from .normalization import batch_norm2d
-
         var (scalar_result, _, _) = batch_norm2d(
             x, gamma, beta, running_mean, running_var, False, 0.0, epsilon
         )
@@ -294,6 +294,8 @@ fn batch_norm2d_fused(
         )
         ```
     """
+    from .normalization import batch_norm2d
+
     if not training:
         # Use single-pass fused inference
         var output = batch_norm2d_fused_inference(
@@ -315,8 +317,6 @@ fn batch_norm2d_fused(
         )
     else:
         # Fall back to scalar implementation for unsupported dtypes
-        from .normalization import batch_norm2d
-
         return batch_norm2d(
             x,
             gamma,
@@ -360,7 +360,7 @@ fn _batch_norm2d_fused_training_float32(
     var running_mean_ptr = running_mean._data.bitcast[Float32]()
     var running_var_ptr = running_var._data.bitcast[Float32]()
 
-    var output = AnyTensor(x._shape, x._dtype)
+    var output = AnyTensor(x.shape(), x._dtype)
     var out_ptr = output._data.bitcast[Float32]()
 
     var new_running_mean = zeros_like(running_mean)
@@ -477,7 +477,7 @@ fn _batch_norm2d_fused_training_float64(
     var running_mean_ptr = running_mean._data.bitcast[Float64]()
     var running_var_ptr = running_var._data.bitcast[Float64]()
 
-    var output = AnyTensor(x._shape, x._dtype)
+    var output = AnyTensor(x.shape(), x._dtype)
     var out_ptr = output._data.bitcast[Float64]()
 
     var new_running_mean = zeros_like(running_mean)

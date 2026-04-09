@@ -153,7 +153,7 @@ fn load_tensor_with_name(filepath: String) raises -> Tuple[String, AnyTensor]:
 # ============================================================================
 
 
-fn bytes_to_hex(data: UnsafePointer[UInt8], num_bytes: Int) -> String:
+fn bytes_to_hex(data: UnsafePointer[UInt8, MutAnyOrigin], num_bytes: Int) -> String:
     """Convert bytes to hexadecimal string.
 
     Args:

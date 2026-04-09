@@ -53,21 +53,7 @@ struct ExportConfig(Copyable, Movable):
         self.model_name = model_name
         self.doc_string = String("")
 
-    fn __copyinit__(out self, read other: Self):
-        self.opset_version = other.opset_version
-        self.ir_version = other.ir_version
-        self.producer_name = other.producer_name
-        self.producer_version = other.producer_version
-        self.model_name = other.model_name
-        self.doc_string = other.doc_string
 
-    fn __moveinit__(out self, deinit other: Self):
-        self.opset_version = other.opset_version
-        self.ir_version = other.ir_version
-        self.producer_name = other.producer_name^
-        self.producer_version = other.producer_version^
-        self.model_name = other.model_name^
-        self.doc_string = other.doc_string^
 
 
 struct ONNXExporter(Movable):
@@ -89,10 +75,6 @@ struct ONNXExporter(Movable):
         self.model.set_opset(opset_version)
         self.verbose = verbose
 
-    fn __moveinit__(out self, deinit other: Self):
-        self.config = other.config^
-        self.model = other.model^
-        self.verbose = other.verbose
 
     fn set_model_name(mut self, name: String):
         """Set the model name."""

@@ -540,7 +540,7 @@ struct CallStack(Copyable, Movable):
     fn __init__(out self):
         """Create empty call stack."""
         self.root = CallStackEntry("root")
-        self.entries: List[CallStackEntry] = []
+        self.entries = []
         self.depth = 0
 
     fn push(mut self, name: String):

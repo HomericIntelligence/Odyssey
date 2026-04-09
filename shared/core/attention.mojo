@@ -424,11 +424,6 @@ struct MultiHeadAttentionWeights(Movable):
         self.wv = wv
         self.wo = wo
 
-    fn __moveinit__(out self, deinit existing: Self):
-        self.wq = existing.wq^
-        self.wk = existing.wk^
-        self.wv = existing.wv^
-        self.wo = existing.wo^
 
 
 struct MultiHeadAttentionResult(Movable):
@@ -446,9 +441,6 @@ struct MultiHeadAttentionResult(Movable):
         self.output = output
         self.attention_weights = attention_weights
 
-    fn __moveinit__(out self, deinit existing: Self):
-        self.output = existing.output^
-        self.attention_weights = existing.attention_weights^
 
 
 fn multi_head_attention(
@@ -758,14 +750,6 @@ struct MultiHeadAttentionBackwardResult(Movable):
         self.grad_wv = grad_wv
         self.grad_wo = grad_wo
 
-    fn __moveinit__(out self, deinit existing: Self):
-        self.grad_query = existing.grad_query^
-        self.grad_key = existing.grad_key^
-        self.grad_value = existing.grad_value^
-        self.grad_wq = existing.grad_wq^
-        self.grad_wk = existing.grad_wk^
-        self.grad_wv = existing.grad_wv^
-        self.grad_wo = existing.grad_wo^
 
 
 fn multi_head_attention_backward(

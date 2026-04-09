@@ -158,6 +158,8 @@ fn clip_gradients_by_global_norm(
         This is particularly useful for training RNNs and prevents
         exploding gradients. It's recommended to clip before calling step().
     """
+    from shared.tensor.any_tensor import AnyTensor
+
     if max_norm < 0.0:
         raise Error("max_norm must be non-negative, got: " + String(max_norm))
 
@@ -197,8 +199,6 @@ fn clip_gradients_by_global_norm(
             var grad = tape.registry.get_grad(param_id)
 
             # Create scaled gradient
-            from shared.tensor.any_tensor import AnyTensor
-
             var scaled_grad = AnyTensor(grad.shape(), grad.dtype())
 
             for j in range(grad.numel()):

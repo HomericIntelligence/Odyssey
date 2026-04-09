@@ -97,7 +97,7 @@ fn _reshape_typed[
     """Reshape tensor to new shape (native Tensor[dtype] core).
 
     This is the core implementation -- zero dtype branches, zero bitcasts.
-    Tensor[dtype]._data is already typed as UnsafePointer[Scalar[dtype]].
+    Tensor[dtype]._data is already typed as UnsafePointer[Scalar[dtype], MutAnyOrigin].
 
     Parameters:
         dtype: Compile-time dtype parameter.

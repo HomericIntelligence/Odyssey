@@ -276,7 +276,7 @@ struct ArgumentParser(Copyable, Movable):
             if not arg.startswith("--"):
                 raise Error("Invalid argument format: " + arg)
 
-            var arg_name = String(arg[2:])
+            var arg_name = String(arg[byte=2:len(arg)])
 
             # Early error for unknown argument
             if arg_name not in self.arguments:

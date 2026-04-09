@@ -88,10 +88,6 @@ from shared.testing.gradient_checker import (
     GRADIENT_CHECK_EPSILON_FLOAT32,
     GRADIENT_CHECK_EPSILON_OTHER,
 )
-from shared.testing.tolerance_constants import (
-    GRADIENT_CHECK_EPSILON_FLOAT32,
-    GRADIENT_CHECK_EPSILON_OTHER,
-)
 
 
 # ============================================================================
@@ -613,7 +609,7 @@ struct LayerTester:
         var tolerance = 1e-1  # 10% tolerance for all dtypes
 
         # Define forward function for gradient checking
-        fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+        fn forward(x: AnyTensor) raises unified {} -> AnyTensor:
             return conv2d(x, weights, bias, stride=stride, padding=padding)
 
         # Use sampled or exhaustive gradient checking based on num_gradient_samples
@@ -774,7 +770,7 @@ struct LayerTester:
         )
 
         # Define forward function for gradient checking
-        fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+        fn forward(x: AnyTensor) raises unified {} -> AnyTensor:
             return linear(x, weights, bias)
 
         # Use sampled or exhaustive gradient checking based on num_gradient_samples
@@ -940,7 +936,7 @@ struct LayerTester:
         var tolerance = 1e-2 if dtype == DType.float32 else 1e-1
 
         # Define forward function for gradient checking
-        fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+        fn forward(x: AnyTensor) raises unified {} -> AnyTensor:
             if activation == "relu":
                 return relu(x)
             elif activation == "sigmoid":
@@ -1181,7 +1177,7 @@ struct LayerTester:
         # Define forward function for gradient checking.
         # Loss = sum(output * grad_output) so that the numerical gradient matches
         # the analytical gradient from batch_norm2d_backward(grad_output, ...).
-        fn forward_for_grad(x: AnyTensor) raises escaping -> AnyTensor:
+        fn forward_for_grad(x: AnyTensor) raises unified {} -> AnyTensor:
             var (out, _, _) = batch_norm2d(
                 x, gamma, beta, running_mean, running_var, training=True
             )

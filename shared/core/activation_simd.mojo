@@ -69,7 +69,9 @@ fn relu_simd(tensor: AnyTensor) raises -> AnyTensor:
         var y = relu_simd(x)  # SIMD accelerated
         ```
     """
-    var result = AnyTensor(tensor._shape, tensor._dtype)
+    from .activation import relu
+
+    var result = AnyTensor(tensor.shape(), tensor._dtype)
 
     if tensor._dtype == DType.float32:
         _relu_simd_float32(tensor, result)
@@ -77,8 +79,6 @@ fn relu_simd(tensor: AnyTensor) raises -> AnyTensor:
         _relu_simd_float64(tensor, result)
     else:
         # Fall back to scalar for other dtypes
-        from .activation import relu
-
         return relu(tensor)
 
     return result^
@@ -149,7 +149,9 @@ fn leaky_relu_simd(tensor: AnyTensor, alpha: Float64 = 0.01) raises -> AnyTensor
         var y = leaky_relu_simd(x, 0.01)  # SIMD accelerated
         ```
     """
-    var result = AnyTensor(tensor._shape, tensor._dtype)
+    from .activation import leaky_relu
+
+    var result = AnyTensor(tensor.shape(), tensor._dtype)
 
     if tensor._dtype == DType.float32:
         _leaky_relu_simd_float32(tensor, result, Float32(alpha))
@@ -157,8 +159,6 @@ fn leaky_relu_simd(tensor: AnyTensor, alpha: Float64 = 0.01) raises -> AnyTensor
         _leaky_relu_simd_float64(tensor, result, alpha)
     else:
         # Fall back to scalar for other dtypes
-        from .activation import leaky_relu
-
         return leaky_relu(tensor, alpha)
 
     return result^
@@ -233,7 +233,9 @@ fn relu6_simd(tensor: AnyTensor) raises -> AnyTensor:
         var y = relu6_simd(x)  # Values clamped to [0, 6]
         ```
     """
-    var result = AnyTensor(tensor._shape, tensor._dtype)
+    from .activation import relu6
+
+    var result = AnyTensor(tensor.shape(), tensor._dtype)
 
     if tensor._dtype == DType.float32:
         _relu6_simd_float32(tensor, result)
@@ -241,8 +243,6 @@ fn relu6_simd(tensor: AnyTensor) raises -> AnyTensor:
         _relu6_simd_float64(tensor, result)
     else:
         # Fall back to scalar
-        from .activation import relu6
-
         return relu6(tensor)
 
     return result^
@@ -316,7 +316,9 @@ fn elu_simd(tensor: AnyTensor, alpha: Float64 = 1.0) raises -> AnyTensor:
         var y = elu_simd(x, 1.0)  # SIMD accelerated
         ```
     """
-    var result = AnyTensor(tensor._shape, tensor._dtype)
+    from .activation import elu
+
+    var result = AnyTensor(tensor.shape(), tensor._dtype)
 
     if tensor._dtype == DType.float32:
         _elu_simd_float32(tensor, result, Float32(alpha))
@@ -324,8 +326,6 @@ fn elu_simd(tensor: AnyTensor, alpha: Float64 = 1.0) raises -> AnyTensor:
         _elu_simd_float64(tensor, result, alpha)
     else:
         # Fall back to scalar for other dtypes
-        from .activation import elu
-
         return elu(tensor, alpha)
 
     return result^
@@ -431,7 +431,9 @@ fn selu_simd(
         var y = selu_simd(x)  # SIMD accelerated
         ```
     """
-    var result = AnyTensor(tensor._shape, tensor._dtype)
+    from .activation import selu
+
+    var result = AnyTensor(tensor.shape(), tensor._dtype)
 
     if tensor._dtype == DType.float32:
         _selu_simd_float32(tensor, result, Float32(alpha), Float32(lambda_))
@@ -439,8 +441,6 @@ fn selu_simd(
         _selu_simd_float64(tensor, result, alpha, lambda_)
     else:
         # Fall back to scalar for other dtypes
-        from .activation import selu
-
         return selu(tensor, alpha, lambda_)
 
     return result^
@@ -535,7 +535,9 @@ fn swish_simd(tensor: AnyTensor) raises -> AnyTensor:
         var y = swish_simd(x)  # SIMD accelerated
         ```
     """
-    var result = AnyTensor(tensor._shape, tensor._dtype)
+    from .activation import swish
+
+    var result = AnyTensor(tensor.shape(), tensor._dtype)
 
     if tensor._dtype == DType.float32:
         _swish_simd_float32(tensor, result)
@@ -543,8 +545,6 @@ fn swish_simd(tensor: AnyTensor) raises -> AnyTensor:
         _swish_simd_float64(tensor, result)
     else:
         # Fall back to scalar for other dtypes
-        from .activation import swish
-
         return swish(tensor)
 
     return result^

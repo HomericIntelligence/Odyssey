@@ -351,7 +351,7 @@ struct Adam(Copyable, Movable, Optimizer):
         self.v_buffers = List[AnyTensor]()
         self.has_buffer = List[Bool]()
 
-    fn step(
+    def step(
         mut self, mut parameters: List[Variable], mut tape: GradientTape
     ) raises:
         """Update parameters using Adam algorithm.
@@ -660,7 +660,7 @@ struct AdamW(Copyable, Movable, Optimizer):
         self.v_buffers = List[AnyTensor]()
         self.has_buffer = List[Bool]()
 
-    fn step(
+    def step(
         mut self, mut parameters: List[Variable], mut tape: GradientTape
     ) raises:
         """Update parameters using AdamW algorithm.
@@ -1163,7 +1163,7 @@ struct RMSprop(Copyable, Movable, Optimizer):
         self.m_buffers = List[AnyTensor]()
         self.has_buffer = List[Bool]()
 
-    fn step(
+    def step(
         mut self, mut parameters: List[Variable], mut tape: GradientTape
     ) raises:
         """Update parameters using RMSprop algorithm.

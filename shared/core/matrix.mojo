@@ -921,17 +921,19 @@ fn transpose(
     var input_shape = tensor.shape()
 
     # Handle default case (None or default): reverse all axes
-    var perm = axes
-    if perm is None:
+    var perm: List[Int]
+    if axes is None:
         perm = List[Int](capacity=ndim)
         for i in range(ndim - 1, -1, -1):
-            perm.value().append(i)
+            perm.append(i)
+    else:
+        perm = axes.value().copy()
 
     # Validate axes parameter
-    if len(perm.value()) != ndim:
+    if len(perm) != ndim:
         raise Error(
             "axes length ("
-            + String(len(perm.value()))
+            + String(len(perm))
             + ") does not match tensor dimensions ("
             + String(ndim)
             + ")"
@@ -940,7 +942,7 @@ fn transpose(
     # Check for duplicates and valid range
     var seen = List[Bool](length=ndim, fill=False)
 
-    for axis in perm.value():
+    for axis in perm:
         if axis < 0 or axis >= ndim:
             raise Error(
                 "axis "
@@ -955,7 +957,7 @@ fn transpose(
 
     # Build result shape by permuting input dimensions
     var result_shape = List[Int](capacity=ndim)
-    for axis in perm.value():
+    for axis in perm:
         result_shape.append(input_shape[axis])
 
     # Compute input strides (C-order) for multi-index arithmetic
@@ -987,7 +989,7 @@ fn transpose(
         var dst_flat = 0
         var dst_stride = 1
         for d in range(ndim - 1, -1, -1):
-            dst_flat += src_indices[perm.value()[d]] * dst_stride
+            dst_flat += src_indices[perm[d]] * dst_stride
             dst_stride *= result_shape[d]
 
         # Copy element
@@ -1045,24 +1047,26 @@ fn transpose_view(
     var input_shape = tensor.shape()
 
     # Build default permutation (reverse all axes)
-    var perm = axes
-    if perm is None:
+    var perm: List[Int]
+    if axes is None:
         perm = List[Int](capacity=ndim)
         for i in range(ndim - 1, -1, -1):
-            perm.value().append(i)
+            perm.append(i)
+    else:
+        perm = axes.value().copy()
 
     # Validate axes
-    if len(perm.value()) != ndim:
+    if len(perm) != ndim:
         raise Error(
             "axes length ("
-            + String(len(perm.value()))
+            + String(len(perm))
             + ") does not match tensor dimensions ("
             + String(ndim)
             + ")"
         )
 
     var seen = List[Bool](length=ndim, fill=False)
-    for axis in perm.value():
+    for axis in perm:
         if axis < 0 or axis >= ndim:
             raise Error(
                 "axis "
@@ -1077,7 +1081,7 @@ fn transpose_view(
 
     # Build permuted shape
     var result_shape = List[Int](capacity=ndim)
-    for axis in perm.value():
+    for axis in perm:
         result_shape.append(input_shape[axis])
 
     # Compute C-order strides for the *input* layout
@@ -1092,7 +1096,7 @@ fn transpose_view(
 
     # Permuted strides: result_strides[i] = input_strides[perm[i]]
     var result_strides = List[Int](capacity=ndim)
-    for axis in perm.value():
+    for axis in perm:
         result_strides.append(ordered_strides[axis])
 
     # Allocate result with the permuted shape (gets default C-order strides)
@@ -1796,11 +1800,13 @@ fn transpose_backward(
     var ndim = grad_output.dim()
 
     # Handle default case (None): reverse all axes
-    var perm = axes
-    if perm is None:
+    var perm: List[Int]
+    if axes is None:
         perm = List[Int](capacity=ndim)
         for i in range(ndim - 1, -1, -1):
-            perm.value().append(i)
+            perm.append(i)
+    else:
+        perm = axes.value().copy()
 
     # Compute inverse permutation
     # If forward permutation is [a1, a2, ..., an], inverse satisfies:
@@ -1810,7 +1816,7 @@ fn transpose_backward(
         inverse_perm.append(0)
 
     for i in range(ndim):
-        inverse_perm[perm.value()[i]] = i
+        inverse_perm[perm[i]] = i
 
     # Apply inverse permutation to gradient
     return transpose(grad_output, inverse_perm^)

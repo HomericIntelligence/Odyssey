@@ -230,14 +230,16 @@ fn _matmul_simd_float32(
 
     for i in range(M):
         # Vectorize J loop for contiguous access in C and B
+        var row_i = i
+
         @parameter
         fn vec_j[width: Int](j: Int) unified {mut}:
             var c_vec = SIMD[DType.float32, width](0)
             for k in range(K):
-                var a_scalar = a_ptr.load(i * K + k)
+                var a_scalar = a_ptr.load(row_i * K + k)
                 var b_vec = b_ptr.load[width=width](k * N + j)
                 c_vec += a_scalar * b_vec
-            c_ptr.store[width=width](i * N + j, c_vec)
+            c_ptr.store[width=width](row_i * N + j, c_vec)
 
         vectorize[simd_width](N, vec_j)
 
@@ -255,14 +257,16 @@ fn _matmul_simd_float64(
 
     for i in range(M):
         # Vectorize J loop for contiguous access in C and B
+        var row_i = i
+
         @parameter
         fn vec_j[width: Int](j: Int) unified {mut}:
             var c_vec = SIMD[DType.float64, width](0)
             for k in range(K):
-                var a_scalar = a_ptr.load(i * K + k)
+                var a_scalar = a_ptr.load(row_i * K + k)
                 var b_vec = b_ptr.load[width=width](k * N + j)
                 c_vec += a_scalar * b_vec
-            c_ptr.store[width=width](i * N + j, c_vec)
+            c_ptr.store[width=width](row_i * N + j, c_vec)
 
         vectorize[simd_width](N, vec_j)
 
@@ -355,16 +359,17 @@ fn _matmul_tiled_float32(
 
                 # Micro-kernel with SIMD within block
                 for i in range(i0, i1):
+                    var row_i = i
 
                     @parameter
                     fn vec_inner[width: Int](j_off: Int) unified {mut}:
                         var j = j0 + j_off
-                        var c_vec = c_ptr.load[width=width](i * N + j)
+                        var c_vec = c_ptr.load[width=width](row_i * N + j)
                         for k in range(k0, k1):
-                            var a_val = a_ptr.load(i * K + k)
+                            var a_val = a_ptr.load(row_i * K + k)
                             var b_vec = b_ptr.load[width=width](k * N + j)
                             c_vec += a_val * b_vec
-                        c_ptr.store[width=width](i * N + j, c_vec)
+                        c_ptr.store[width=width](row_i * N + j, c_vec)
 
                     vectorize[simd_width](block_n, vec_inner)
 
@@ -393,16 +398,17 @@ fn _matmul_tiled_float64(
 
                 # Micro-kernel with SIMD within block
                 for i in range(i0, i1):
+                    var row_i = i
 
                     @parameter
                     fn vec_inner[width: Int](j_off: Int) unified {mut}:
                         var j = j0 + j_off
-                        var c_vec = c_ptr.load[width=width](i * N + j)
+                        var c_vec = c_ptr.load[width=width](row_i * N + j)
                         for k in range(k0, k1):
-                            var a_val = a_ptr.load(i * K + k)
+                            var a_val = a_ptr.load(row_i * K + k)
                             var b_vec = b_ptr.load[width=width](k * N + j)
                             c_vec += a_val * b_vec
-                        c_ptr.store[width=width](i * N + j, c_vec)
+                        c_ptr.store[width=width](row_i * N + j, c_vec)
 
                     vectorize[simd_width](block_n, vec_inner)
 
@@ -559,6 +565,7 @@ fn _matmul_float32(
             while i + MICRO_M <= i1:
                 # Process MICRO_M rows together for register reuse
                 for j in range(j0, j1):
+                    var col_j = j
                     # Accumulate dot products for MICRO_M rows
                     var c0: Float32 = 0.0
                     var c1: Float32 = 0.0
@@ -569,7 +576,7 @@ fn _matmul_float32(
                     # A[i, :] dot B^T[j, :] = A[i, :] dot B[:, j]
                     @parameter
                     fn vec_k[width: Int](k: Int) unified {mut}:
-                        var bt_vec = bt_ptr.load[width=width](j * K + k)
+                        var bt_vec = bt_ptr.load[width=width](col_j * K + k)
 
                         var a0_vec = a_ptr.load[width=width]((i + 0) * K + k)
                         var a1_vec = a_ptr.load[width=width]((i + 1) * K + k)
@@ -585,16 +592,16 @@ fn _matmul_float32(
 
                     # Store accumulated results
                     c_ptr.store(
-                        (i + 0) * N + j, c_ptr.load((i + 0) * N + j) + c0
+                        (i + 0) * N + col_j, c_ptr.load((i + 0) * N + col_j) + c0
                     )
                     c_ptr.store(
-                        (i + 1) * N + j, c_ptr.load((i + 1) * N + j) + c1
+                        (i + 1) * N + col_j, c_ptr.load((i + 1) * N + col_j) + c1
                     )
                     c_ptr.store(
-                        (i + 2) * N + j, c_ptr.load((i + 2) * N + j) + c2
+                        (i + 2) * N + col_j, c_ptr.load((i + 2) * N + col_j) + c2
                     )
                     c_ptr.store(
-                        (i + 3) * N + j, c_ptr.load((i + 3) * N + j) + c3
+                        (i + 3) * N + col_j, c_ptr.load((i + 3) * N + col_j) + c3
                     )
 
                 i += MICRO_M
@@ -602,16 +609,17 @@ fn _matmul_float32(
             # Handle remaining rows (< MICRO_M)
             while i < i1:
                 for j in range(j0, j1):
+                    var col_j = j
                     var c_val: Float32 = 0.0
 
                     @parameter
                     fn vec_k_rem[width: Int](k: Int) unified {mut}:
                         var a_vec = a_ptr.load[width=width](i * K + k)
-                        var bt_vec = bt_ptr.load[width=width](j * K + k)
+                        var bt_vec = bt_ptr.load[width=width](col_j * K + k)
                         c_val += (a_vec * bt_vec).reduce_add()
 
                     vectorize[simd_width](K, vec_k_rem)
-                    c_ptr.store(i * N + j, c_ptr.load(i * N + j) + c_val)
+                    c_ptr.store(i * N + col_j, c_ptr.load(i * N + col_j) + c_val)
 
                 i += 1
 
@@ -642,6 +650,7 @@ fn _matmul_float64(
             var i = i0
             while i + MICRO_M <= i1:
                 for j in range(j0, j1):
+                    var col_j = j
                     # Accumulate dot products for MICRO_M rows
                     var c0: Float64 = 0.0
                     var c1: Float64 = 0.0
@@ -650,7 +659,7 @@ fn _matmul_float64(
 
                     @parameter
                     fn vec_k[width: Int](k: Int) unified {mut}:
-                        var bt_vec = bt_ptr.load[width=width](j * K + k)
+                        var bt_vec = bt_ptr.load[width=width](col_j * K + k)
 
                         var a0_vec = a_ptr.load[width=width]((i + 0) * K + k)
                         var a1_vec = a_ptr.load[width=width]((i + 1) * K + k)
@@ -665,16 +674,16 @@ fn _matmul_float64(
                     vectorize[simd_width](K, vec_k)
 
                     c_ptr.store(
-                        (i + 0) * N + j, c_ptr.load((i + 0) * N + j) + c0
+                        (i + 0) * N + col_j, c_ptr.load((i + 0) * N + col_j) + c0
                     )
                     c_ptr.store(
-                        (i + 1) * N + j, c_ptr.load((i + 1) * N + j) + c1
+                        (i + 1) * N + col_j, c_ptr.load((i + 1) * N + col_j) + c1
                     )
                     c_ptr.store(
-                        (i + 2) * N + j, c_ptr.load((i + 2) * N + j) + c2
+                        (i + 2) * N + col_j, c_ptr.load((i + 2) * N + col_j) + c2
                     )
                     c_ptr.store(
-                        (i + 3) * N + j, c_ptr.load((i + 3) * N + j) + c3
+                        (i + 3) * N + col_j, c_ptr.load((i + 3) * N + col_j) + c3
                     )
 
                 i += MICRO_M
@@ -682,16 +691,17 @@ fn _matmul_float64(
             # Handle remaining rows
             while i < i1:
                 for j in range(j0, j1):
+                    var col_j = j
                     var c_val: Float64 = 0.0
 
                     @parameter
                     fn vec_k_rem[width: Int](k: Int) unified {mut}:
                         var a_vec = a_ptr.load[width=width](i * K + k)
-                        var bt_vec = bt_ptr.load[width=width](j * K + k)
+                        var bt_vec = bt_ptr.load[width=width](col_j * K + k)
                         c_val += (a_vec * bt_vec).reduce_add()
 
                     vectorize[simd_width](K, vec_k_rem)
-                    c_ptr.store(i * N + j, c_ptr.load(i * N + j) + c_val)
+                    c_ptr.store(i * N + col_j, c_ptr.load(i * N + col_j) + c_val)
 
                 i += 1
 
