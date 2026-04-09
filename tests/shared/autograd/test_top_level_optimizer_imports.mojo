@@ -10,7 +10,7 @@ Run with: mojo test tests/shared/autograd/test_top_level_optimizer_imports.mojo
 # high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
-from testing import assert_true
+from std.testing import assert_true
 from tests.shared.conftest import assert_almost_equal
 from shared import AdaGrad, RMSprop, SGD, Adam, AdamW
 

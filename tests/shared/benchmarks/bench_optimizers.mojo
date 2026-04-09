@@ -21,7 +21,7 @@ from tests.shared.conftest import (
 from shared.tensor.any_tensor import AnyTensor, randn, zeros_like
 from shared.training.optimizers.sgd import sgd_step, sgd_step_simple
 from shared.training.optimizers.adam import adam_step, adam_step_simple
-from time import perf_counter_ns
+from std.time import perf_counter_ns
 from std.collections import List
 
 

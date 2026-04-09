@@ -26,7 +26,7 @@ def fix_file(filepath: Path) -> tuple[bool, list[str]]:
         Tuple of (was_modified, list of changes made)
     """
     try:
-        content = filepath.read_text(encoding='utf-8')
+        content = filepath.read_text(encoding="utf-8")
     except Exception as e:
         print(f"ERROR: Failed to read {filepath}: {e}", file=sys.stderr)
         return False, []
@@ -37,12 +37,7 @@ def fix_file(filepath: Path) -> tuple[bool, list[str]]:
     # 1. Replace 'fn ' with 'def ' at function definitions
     # Pattern: optional whitespace + 'fn ' + word character
     # This avoids matching 'fn' in strings or type signatures like fn(...)
-    new_content = re.sub(
-        r'^(\s*)fn ([a-zA-Z_])',
-        r'\1def \2',
-        content,
-        flags=re.MULTILINE
-    )
+    new_content = re.sub(r"^(\s*)fn ([a-zA-Z_])", r"\1def \2", content, flags=re.MULTILINE)
     if new_content != content:
         changes.append("fn → def")
         content = new_content
@@ -51,25 +46,25 @@ def fix_file(filepath: Path) -> tuple[bool, list[str]]:
     old_len = len(content)
 
     # from memory import ... → from std.memory import ...
-    content = content.replace('from memory import', 'from std.memory import')
+    content = content.replace("from memory import", "from std.memory import")
     if len(content) != old_len:
         changes.append("memory → std.memory")
         old_len = len(content)
 
     # from collections import ... → from std.collections import ...
-    content = content.replace('from collections import', 'from std.collections import')
+    content = content.replace("from collections import", "from std.collections import")
     if len(content) != old_len:
         changes.append("collections → std.collections")
         old_len = len(content)
 
     # from algorithm import ... → from std.algorithm import ...
-    content = content.replace('from algorithm import', 'from std.algorithm import')
+    content = content.replace("from algorithm import", "from std.algorithm import")
     if len(content) != old_len:
         changes.append("algorithm → std.algorithm")
         old_len = len(content)
 
     # from itertools import ... → from std.itertools import ...
-    content = content.replace('from itertools import', 'from std.itertools import')
+    content = content.replace("from itertools import", "from std.itertools import")
     if len(content) != old_len:
         changes.append("itertools → std.itertools")
         old_len = len(content)
@@ -77,7 +72,7 @@ def fix_file(filepath: Path) -> tuple[bool, list[str]]:
     # Write back if changed
     if content != original:
         try:
-            filepath.write_text(content, encoding='utf-8')
+            filepath.write_text(content, encoding="utf-8")
             return True, changes
         except Exception as e:
             print(f"ERROR: Failed to write {filepath}: {e}", file=sys.stderr)
@@ -88,14 +83,14 @@ def fix_file(filepath: Path) -> tuple[bool, list[str]]:
 
 def main():
     """Process all .mojo files."""
-    base = Path('/home/mvillmow/ProjectOdyssey')
+    base = Path("/home/mvillmow/ProjectOdyssey")
 
     if not base.exists():
         print(f"ERROR: Directory {base} does not exist", file=sys.stderr)
         sys.exit(1)
 
     # Find all .mojo files
-    mojo_files = sorted(base.rglob('*.mojo'))
+    mojo_files = sorted(base.rglob("*.mojo"))
     print(f"Found {len(mojo_files)} .mojo files")
     print()
 
@@ -104,7 +99,7 @@ def main():
 
     for filepath in mojo_files:
         # Skip hidden and cache directories
-        if '__pycache__' in str(filepath) or '/.git' in str(filepath):
+        if "__pycache__" in str(filepath) or "/.git" in str(filepath):
             continue
 
         was_modified, changes = fix_file(filepath)
@@ -132,5 +127,5 @@ def main():
     print()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

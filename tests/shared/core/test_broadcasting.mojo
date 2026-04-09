@@ -11,7 +11,7 @@ Tests NumPy-style broadcasting rules for scalar and vector-to-matrix cases.
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.arithmetic import add, multiply, subtract, divide
 from shared.core.comparison import greater, less_equal
-from testing import assert_true
+from std.testing import assert_true
 from tests.shared.conftest import (
     assert_dtype,
     assert_numel,

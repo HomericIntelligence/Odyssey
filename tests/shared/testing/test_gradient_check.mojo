@@ -4,7 +4,7 @@ Tests relative_error and assert_gradients_close functions.
 Gradient checking with check_gradients is tested in test_gradient_checking.mojo.
 """
 
-from testing import assert_true, assert_equal
+from std.testing import assert_true, assert_equal
 from shared.testing import (
     assert_gradients_close,
     relative_error,

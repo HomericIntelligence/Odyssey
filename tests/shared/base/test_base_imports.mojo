@@ -14,7 +14,7 @@ Tests cover:
 - Package-level re-exports via shared.base
 """
 
-from testing import assert_true
+from std.testing import assert_true
 
 
 def test_memory_pool_imports() raises:

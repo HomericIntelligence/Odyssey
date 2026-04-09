@@ -16,7 +16,7 @@ Tests cover:
 - split axis=1: Split along non-default axis
 """
 
-from testing import assert_true, assert_almost_equal
+from std.testing import assert_true, assert_almost_equal
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.shape import concatenate, stack, split
 

@@ -684,7 +684,7 @@ def test_run_epoch_with_batches() raises:
     # Define step function that computes loss from batch
     # For each batch: loss = sum(batch_data) - batch_labels
     # With ones input and zeros labels, each batch should have positive loss
-    def step_fn(batch_data: AnyTensor, batch_labels: AnyTensor) raises -> AnyTensor:
+    def step_fn(batch_data: AnyTensor, batch_labels: AnyTensor) raises unified {read} -> AnyTensor:
         # Simple loss: sum squared differences
         # Since batch_data=ones and batch_labels=zeros, loss will be > 0
         var diff = subtract(batch_data, batch_labels)

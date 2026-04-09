@@ -157,7 +157,7 @@ def test_conditional_always_apply() raises:
     values.append(3.0)
     var data = AnyTensor(values^)
 
-    def always_true(tensor: AnyTensor) raises -> Bool:
+    def always_true(tensor: AnyTensor) raises unified {read} -> Bool:
         return True
 
     def double_fn(value: Float32) -> Float32:
@@ -184,7 +184,7 @@ def test_conditional_never_apply() raises:
     values.append(3.0)
     var data = AnyTensor(values^)
 
-    def always_false(tensor: AnyTensor) raises -> Bool:
+    def always_false(tensor: AnyTensor) raises unified {read} -> Bool:
         return False
 
     def double_fn(value: Float32) -> Float32:
@@ -216,7 +216,7 @@ def test_conditional_based_on_size() raises:
     large_values.append(4.0)
     var large_data = AnyTensor(large_values^)
 
-    def is_large(tensor: AnyTensor) raises -> Bool:
+    def is_large(tensor: AnyTensor) raises unified {read} -> Bool:
         return tensor.num_elements() > 3
 
     def double_fn(value: Float32) -> Float32:
@@ -252,7 +252,7 @@ def test_conditional_based_on_values() raises:
     mixed_values.append(3.0)
     var mixed_data = AnyTensor(mixed_values^)
 
-    def all_positive(tensor: AnyTensor) raises -> Bool:
+    def all_positive(tensor: AnyTensor) raises unified {read} -> Bool:
         for i in range(tensor.num_elements()):
             if tensor[i] < 0.0:
                 return False
@@ -803,7 +803,7 @@ def test_integration_conditional_augmentation() raises:
     small_values.append(2.0)
     var small_data = AnyTensor(small_values^)
 
-    def is_large_enough(tensor: AnyTensor) raises -> Bool:
+    def is_large_enough(tensor: AnyTensor) raises unified {read} -> Bool:
         return tensor.num_elements() >= 3
 
     def augment(value: Float32) -> Float32:

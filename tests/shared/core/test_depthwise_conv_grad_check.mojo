@@ -91,10 +91,10 @@ def test_depthwise_conv2d_backward_stride1_padding0_grad_input() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward_input(inp: AnyTensor) raises -> AnyTensor:
+    def forward_input(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return depthwise_conv2d(inp, kernel, bias, stride=1, padding=0)
 
-    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = depthwise_conv2d_backward(grad_out, inp, kernel, stride=1, padding=0)
         return grads.grad_input
 
@@ -135,10 +135,10 @@ def test_depthwise_conv2d_backward_stride2_grad_input() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward_input(inp: AnyTensor) raises -> AnyTensor:
+    def forward_input(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return depthwise_conv2d(inp, kernel, bias, stride=2, padding=0)
 
-    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = depthwise_conv2d_backward(grad_out, inp, kernel, stride=2, padding=0)
         return grads.grad_input
 
@@ -179,10 +179,10 @@ def test_depthwise_conv2d_backward_padding1_grad_input() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward_input(inp: AnyTensor) raises -> AnyTensor:
+    def forward_input(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return depthwise_conv2d(inp, kernel, bias, stride=1, padding=1)
 
-    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = depthwise_conv2d_backward(grad_out, inp, kernel, stride=1, padding=1)
         return grads.grad_input
 
@@ -224,10 +224,10 @@ def test_depthwise_conv2d_backward_multichannel_grad_input() raises:
     bias_shape.append(channels)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward_input(inp: AnyTensor) raises -> AnyTensor:
+    def forward_input(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return depthwise_conv2d(inp, kernel, bias, stride=1, padding=0)
 
-    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = depthwise_conv2d_backward(grad_out, inp, kernel, stride=1, padding=0)
         return grads.grad_input
 
@@ -269,10 +269,10 @@ def test_depthwise_conv2d_backward_grad_weights_numerical() raises:
     var bias = zeros(bias_shape, DType.float32)
 
     # Perturb kernel, hold x fixed
-    def forward_weights(k: AnyTensor) raises -> AnyTensor:
+    def forward_weights(k: AnyTensor) raises unified {read} -> AnyTensor:
         return depthwise_conv2d(x, k, bias, stride=1, padding=0)
 
-    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises -> AnyTensor:
+    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = depthwise_conv2d_backward(grad_out, x, k, stride=1, padding=0)
         return grads.grad_weights
 
@@ -367,10 +367,10 @@ def test_depthwise_conv2d_backward_grad_weights_multichannel() raises:
     bias_shape.append(channels)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward_weights(k: AnyTensor) raises -> AnyTensor:
+    def forward_weights(k: AnyTensor) raises unified {read} -> AnyTensor:
         return depthwise_conv2d(x, k, bias, stride=1, padding=0)
 
-    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises -> AnyTensor:
+    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = depthwise_conv2d_backward(grad_out, x, k, stride=1, padding=0)
         return grads.grad_weights
 

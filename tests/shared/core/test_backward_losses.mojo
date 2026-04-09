@@ -175,10 +175,10 @@ def test_cross_entropy_backward_gradient() raises:
     targets.set(0, Float64(1.0))
     targets.set(4, Float64(1.0))
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return cross_entropy(inp, targets)
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         return cross_entropy_backward(grad_out, inp, targets)
 
     var loss = forward(logits)
@@ -212,10 +212,10 @@ def test_binary_cross_entropy_backward_gradient() raises:
     targets.set(6, Float64(0.0))
     targets.set(7, Float64(1.0))
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return binary_cross_entropy(inp, targets)
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         return binary_cross_entropy_backward(grad_out, inp, targets)
 
     var loss = forward(predictions)
@@ -261,10 +261,10 @@ def test_mean_squared_error_backward_gradient() raises:
     targets.set(10, Float64(0.0))
     targets.set(11, Float64(0.6))
 
-    def forward(inp: AnyTensor) raises -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return mean_squared_error(inp, targets)
 
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         return mean_squared_error_backward(grad_out, inp, targets)
 
     var loss = forward(predictions)

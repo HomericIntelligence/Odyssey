@@ -379,11 +379,11 @@ def test_matmul_backward_gradient_a() raises:
         b.set(i, Float32(Float32(i) * 0.2 + 0.1))
 
     # Forward function wrapper
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return matmul(inp, b)
 
     # Backward function wrapper for grad_a
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = matmul_backward(grad_out, inp, b)
         return grads.grad_a
 
@@ -426,11 +426,11 @@ def test_matmul_backward_gradient_b() raises:
         b.set(i, Float32(Float32(i) * 0.2 + 0.1))
 
     # Forward function wrapper
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return matmul(a, inp)
 
     # Backward function wrapper for grad_b
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = matmul_backward(grad_out, a, inp)
         return grads.grad_b
 
@@ -792,11 +792,11 @@ def test_transpose_backward_gradient() raises:
         x.set(i, Float32(Float32(i) * 0.15 - 2.0))
 
     # Forward function wrapper
-    def forward(inp: AnyTensor) raises escaping -> AnyTensor:
+    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return transpose(inp)
 
     # Backward function wrapper
-    def backward(grad_out: AnyTensor, inp: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         return transpose_backward(grad_out)
 
     var output = forward(x)

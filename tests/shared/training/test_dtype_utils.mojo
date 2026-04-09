@@ -13,7 +13,7 @@ from shared.training.dtype_utils import (
     recommend_precision_dtype,
     detect_hardware_bf16_support,
 )
-from testing import assert_equal, assert_true, assert_false
+from std.testing import assert_equal, assert_true, assert_false
 
 
 def test_dtype_aliases() raises:

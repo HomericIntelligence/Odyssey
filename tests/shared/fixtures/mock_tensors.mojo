@@ -14,7 +14,7 @@ Key functions:
 All functions use deterministic seeds for reproducible tests.
 """
 
-from random import seed, randn
+from std.random import seed, randn
 
 
 # ============================================================================

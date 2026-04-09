@@ -6,7 +6,7 @@
 """
 
 
-from testing import assert_true, assert_equal
+from std.testing import assert_true, assert_equal
 from shared.testing.tensor_factory import (
     zeros_tensor,
     ones_tensor,

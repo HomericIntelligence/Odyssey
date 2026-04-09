@@ -10,7 +10,7 @@ Split from test_validation.mojo per ADR-009 to avoid heap corruption.
 """
 
 
-from testing import assert_true, assert_false, assert_equal
+from std.testing import assert_true, assert_false, assert_equal
 from shared.utils.config import Config, load_config, create_validator
 
 

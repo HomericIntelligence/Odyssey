@@ -6,7 +6,7 @@ List itself or with the specific pattern used in AnyTensor.
 """
 
 from std.collections import List
-from testing import assert_equal
+from std.testing import assert_equal
 
 
 def test_list_basic_append() raises:

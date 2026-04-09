@@ -10,7 +10,7 @@ Tests cover:
 """
 
 
-from testing import assert_true, assert_equal
+from std.testing import assert_true, assert_equal
 from std.collections import Dict
 from shared.training.base import (
     Callback,

@@ -156,7 +156,7 @@ def test_relu_backward() raises:
     x.set(3, Float32(2.0))
 
     # Forward function wrapper
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
         return relu(x)
 
     var y = relu(x)
@@ -165,7 +165,7 @@ def test_relu_backward() raises:
     # Backward function wrapper
     def backward_wrapper(
         grad: AnyTensor, x: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         return relu_backward(grad, x)
 
     # Use numerical gradient checking (gold standard)
@@ -298,7 +298,7 @@ def test_leaky_relu_backward() raises:
     x.set(1, Float32(1.0))
 
     # Forward function wrapper
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
         return leaky_relu(x, alpha=0.1)
 
     var y = leaky_relu(x, alpha=0.1)
@@ -307,7 +307,7 @@ def test_leaky_relu_backward() raises:
     # Use numerical gradient checking (gold standard)
     def backward_wrapper(
         grad: AnyTensor, x: AnyTensor
-    ) raises escaping -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         return leaky_relu_backward(grad, x, alpha=0.1)
 
     # Note: rtol=1e-3 is appropriate for float32 finite differences
@@ -422,14 +422,14 @@ def test_prelu_backward() raises:
     alpha.set(1, Float32(0.5))
 
     # Forward function wrapper
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
         return prelu(x, alpha)
 
     var y = prelu(x, alpha)
     var grad_out = ones_like(y)
 
     # Validate gradient w.r.t. input using numerical checking
-    def backward_input(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward_input(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
         var result = prelu_backward(grad, x, alpha)
         return result.grad_a
 
@@ -472,14 +472,14 @@ def test_sigmoid_backward() raises:
     x.set(2, Float32(1.0))
 
     # Forward function wrapper
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
         return sigmoid(x)
 
     var y = sigmoid(x)
     var grad_out = ones_like(y)
 
     # Note: sigmoid_backward takes output y, not input x
-    def backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
         var out = sigmoid(x)  # Recompute output inside wrapper
         return sigmoid_backward(grad, out)
 
@@ -625,14 +625,14 @@ def test_tanh_backward() raises:
     x.set(2, Float32(1.0))
 
     # Forward function wrapper
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
         return tanh(x)
 
     var y = tanh(x)
     var grad_out = ones_like(y)
 
     # Note: tanh_backward takes output y, not input x
-    def backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
         var out = tanh(x)  # Recompute output inside wrapper
         return tanh_backward(grad, out)
 
@@ -780,14 +780,14 @@ def test_softmax_backward() raises:
     x.set(5, Float32(1.5))
 
     # Forward function wrapper
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
         return softmax(x, axis=1)
 
     var y = softmax(x, axis=1)
     var grad_out = ones_like(y)
 
     # Note: softmax_backward takes output y, not input x
-    def backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
         var out = softmax(x, axis=1)  # Recompute output inside wrapper
         return softmax_backward(grad, out, axis=1)
 
@@ -955,14 +955,14 @@ def test_gelu_backward_gradient() raises:
     x.set(2, Float32(0.5))
 
     # Forward function wrapper
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
         return gelu(x, approximate=False)
 
     var y = gelu(x, approximate=False)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    def backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
         return gelu_backward(grad, x, approximate=False)
 
     # Use numerical gradient checking (gold standard)
@@ -1013,14 +1013,14 @@ def test_swish_backward_gradient() raises:
     x.set(2, Float32(0.5))
 
     # Forward function wrapper
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
         return swish(x)
 
     var y = swish(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    def backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
         return swish_backward(grad, x)
 
     # Use numerical gradient checking (gold standard)
@@ -1070,14 +1070,14 @@ def test_mish_backward_gradient() raises:
     x.set(2, Float32(0.5))
 
     # Forward function wrapper
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
         return mish(x)
 
     var y = mish(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    def backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
         return mish_backward(grad, x)
 
     # Use numerical gradient checking (gold standard)
@@ -1121,14 +1121,14 @@ def test_elu_backward() raises:
     x.set(2, Float32(1.0))
 
     # Forward function wrapper
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises unified {read} -> AnyTensor:
         return elu(x, alpha=1.0)
 
     var y = elu(x, alpha=1.0)
     var grad_out = ones_like(y)
 
     # Note: elu_backward takes x, y, and alpha
-    def backward_fn(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward_fn(grad: AnyTensor, x: AnyTensor) raises unified {read} -> AnyTensor:
         return elu_backward(grad, x, alpha=1.0)
 
     # Use numerical gradient checking (gold standard)

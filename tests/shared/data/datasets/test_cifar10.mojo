@@ -10,7 +10,7 @@ Tests the CIFAR10Dataset struct including:
     - Error handling for invalid indices and directories
 """
 
-from testing import assert_true, assert_equal
+from std.testing import assert_true, assert_equal
 from shared.data.datasets import CIFAR10Dataset
 
 

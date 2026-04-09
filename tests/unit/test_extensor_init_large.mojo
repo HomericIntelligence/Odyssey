@@ -7,7 +7,7 @@ The crash happens during stride calculation in AnyTensor.__init__.
 """
 
 from shared.tensor.any_tensor import AnyTensor, zeros
-from testing import assert_equal, assert_true
+from std.testing import assert_equal, assert_true
 
 
 def test_anytensor_init_simple() raises:

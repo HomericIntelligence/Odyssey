@@ -7,9 +7,9 @@ Supports ${VAR} and ${VAR:-default} syntax.
 """
 
 
-from testing import assert_true, assert_false, assert_equal
+from std.testing import assert_true, assert_false, assert_equal
 from shared.utils.config import Config, load_config
-from python import Python
+from std.python import Python
 
 
 def test_substitute_simple_env_var() raises:

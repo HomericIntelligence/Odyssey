@@ -13,7 +13,7 @@ Tests cover:
 - Multiple conversions all share refcount
 """
 
-from testing import assert_true, assert_almost_equal
+from std.testing import assert_true, assert_almost_equal
 from shared.tensor.tensor import Tensor
 from shared.tensor.any_tensor import AnyTensor, zeros
 

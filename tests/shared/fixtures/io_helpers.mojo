@@ -13,9 +13,9 @@ Key functions:
 All functions are designed for use in test setup/teardown.
 """
 
-from pathlib import Path
+from std.pathlib import Path
 from std.sys import argv
-from python import Python, PythonObject
+from std.python import Python, PythonObject
 
 
 # ============================================================================

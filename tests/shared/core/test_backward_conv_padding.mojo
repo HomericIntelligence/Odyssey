@@ -51,10 +51,10 @@ def test_conv2d_backward_grad_input_padding1() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward_input(inp: AnyTensor) raises -> AnyTensor:
+    def forward_input(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=1)
 
-    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = conv2d_backward(grad_out, inp, kernel, stride=1, padding=1)
         return grads.grad_input
 
@@ -103,10 +103,10 @@ def test_conv2d_backward_grad_weights_padding1() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward_weights(k: AnyTensor) raises -> AnyTensor:
+    def forward_weights(k: AnyTensor) raises unified {read} -> AnyTensor:
         return conv2d(x, k, bias, stride=1, padding=1)
 
-    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises -> AnyTensor:
+    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = conv2d_backward(grad_out, x, k, stride=1, padding=1)
         return grads.grad_weights
 
@@ -161,10 +161,10 @@ def test_conv2d_backward_grad_input_padding2() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward_input(inp: AnyTensor) raises -> AnyTensor:
+    def forward_input(inp: AnyTensor) raises unified {read} -> AnyTensor:
         return conv2d(inp, kernel, bias, stride=1, padding=2)
 
-    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
+    def backward_input(grad_out: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = conv2d_backward(grad_out, inp, kernel, stride=1, padding=2)
         return grads.grad_input
 
@@ -214,10 +214,10 @@ def test_conv2d_backward_grad_weights_padding2() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    def forward_weights(k: AnyTensor) raises -> AnyTensor:
+    def forward_weights(k: AnyTensor) raises unified {read} -> AnyTensor:
         return conv2d(x, k, bias, stride=1, padding=2)
 
-    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises -> AnyTensor:
+    def backward_weights(grad_out: AnyTensor, k: AnyTensor) raises unified {read} -> AnyTensor:
         var grads = conv2d_backward(grad_out, x, k, stride=1, padding=2)
         return grads.grad_weights
 

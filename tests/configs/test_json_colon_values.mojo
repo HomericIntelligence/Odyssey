@@ -5,7 +5,7 @@ Tests for issue #2128: Handle values with colons (URLs, timestamps, etc.)
 Run with: mojo test tests/configs/test_json_colon_values.mojo
 """
 
-from testing import assert_true, assert_false, assert_equal
+from std.testing import assert_true, assert_false, assert_equal
 from shared.utils.config import Config, load_config
 
 

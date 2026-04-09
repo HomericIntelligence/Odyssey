@@ -103,7 +103,7 @@ struct LeNet5:
         )
         self.fc3_bias = zeros([num_classes], DType.float32)
 
-    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises unified {read} -> AnyTensor:
         """Forward pass through LeNet-5."""
         # Conv1 + ReLU + MaxPool
         var conv1_out = conv2d(
@@ -139,7 +139,7 @@ struct LeNet5:
 
         return output^
 
-    def predict(mut self, input: AnyTensor) raises -> Int:
+    def predict(mut self, input: AnyTensor) raises unified {read} -> Int:
         """Predict class for a single input."""
         var logits = self.forward(input)
 
@@ -154,7 +154,7 @@ struct LeNet5:
 
         return max_idx
 
-    def parameters(self) raises -> List[AnyTensor]:
+    def parameters(self) raises unified {read} -> List[AnyTensor]:
         """Return all trainable parameters."""
         var params: List[AnyTensor] = []
         params.append(self.conv1_kernel)

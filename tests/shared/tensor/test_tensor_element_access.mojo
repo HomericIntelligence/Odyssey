@@ -17,7 +17,7 @@ Tests cover:
 - __bool__ truthiness for zero/non-zero and multi-element error
 """
 
-from testing import assert_true, assert_almost_equal
+from std.testing import assert_true, assert_almost_equal
 from shared.tensor.tensor import Tensor
 
 

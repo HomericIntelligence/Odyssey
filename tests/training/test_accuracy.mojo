@@ -12,7 +12,7 @@ Testing strategy:
 - Incremental: Verify AccuracyMetric accumulation
 """
 
-from testing import assert_true, assert_false, assert_equal, assert_almost_equal
+from std.testing import assert_true, assert_false, assert_equal, assert_almost_equal
 from shared.tensor.any_tensor import AnyTensor
 from shared.training.metrics import (
     top1_accuracy,

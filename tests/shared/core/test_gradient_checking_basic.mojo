@@ -34,10 +34,10 @@ def test_relu_gradient() raises:
     shape.append(4)
     var input = full(shape, 2.0, DType.float32)
 
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises -> AnyTensor:
         return relu(x)
 
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
         return relu_backward(grad_out, x)
 
     var passed = check_gradients(forward, backward, input)
@@ -51,10 +51,10 @@ def test_relu_negative_inputs() raises:
     shape.append(4)
     var input = full(shape, -2.0, DType.float32)
 
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises -> AnyTensor:
         return relu(x)
 
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
         return relu_backward(grad_out, x)
 
     var passed = check_gradients(forward, backward, input)
@@ -82,10 +82,10 @@ def test_relu_mixed_inputs() raises:
     input._set_float64(10, 0.1)
     input._set_float64(11, -0.1)
 
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises -> AnyTensor:
         return relu(x)
 
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
         return relu_backward(grad_out, x)
 
     var passed = check_gradients(forward, backward, input)
@@ -99,10 +99,10 @@ def test_sigmoid_gradient() raises:
     shape.append(4)
     var input = full(shape, 0.5, DType.float32)
 
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises -> AnyTensor:
         return sigmoid(x)
 
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
         var output = sigmoid(x)
         return sigmoid_backward(grad_out, output)
 
@@ -117,10 +117,10 @@ def test_tanh_gradient() raises:
     shape.append(4)
     var input = full(shape, 0.5, DType.float32)
 
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises -> AnyTensor:
         return tanh(x)
 
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
         var output = tanh(x)
         return tanh_backward(grad_out, output)
 
@@ -136,10 +136,10 @@ def test_add_gradient() raises:
     var input_a = ones(shape, DType.float32)
     var input_b = ones(shape, DType.float32)
 
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises -> AnyTensor:
         return add(x, input_b)
 
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
         var grads = add_backward(grad_out, x, input_b)
         return grads.grad_a
 
@@ -155,10 +155,10 @@ def test_multiply_gradient() raises:
     var input_a = full(shape, 2.0, DType.float32)
     var input_b = full(shape, 3.0, DType.float32)
 
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises -> AnyTensor:
         return multiply(x, input_b)
 
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
         var grads = multiply_backward(grad_out, x, input_b)
         return grads.grad_a
 
@@ -173,10 +173,10 @@ def test_gradient_at_zero() raises:
     shape.append(2)
     var input = full(shape, 0.01, DType.float32)
 
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises -> AnyTensor:
         return relu(x)
 
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
         return relu_backward(grad_out, x)
 
     var passed = check_gradients(forward, backward, input)
@@ -190,10 +190,10 @@ def test_gradient_small_tensor() raises:
     shape.append(1)
     var input = full(shape, 2.0, DType.float32)
 
-    def forward(x: AnyTensor) raises escaping -> AnyTensor:
+    def forward(x: AnyTensor) raises -> AnyTensor:
         return relu(x)
 
-    def backward(grad_out: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+    def backward(grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
         return relu_backward(grad_out, x)
 
     var passed = check_gradients(forward, backward, input)

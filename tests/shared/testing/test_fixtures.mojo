@@ -4,7 +4,7 @@ Tests SimpleCNN and LinearModel structs plus the create_test_cnn factory functio
 """
 
 
-from testing import assert_true, assert_equal
+from std.testing import assert_true, assert_equal
 from shared.testing.models import SimpleCNN, LinearModel
 from shared.testing.fixtures import (
     create_test_cnn,

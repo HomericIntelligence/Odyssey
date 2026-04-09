@@ -36,9 +36,9 @@ fix preserves.
 # ADR-009: Kept to <=10 fn test_ functions to avoid heap corruption flake.
 """
 
-from testing import assert_true, assert_equal
+from std.testing import assert_true, assert_equal
 from shared.base.memory_pool import SpinLock
-from os.atomic import Atomic
+from std.os.atomic import Atomic
 from std.memory import UnsafePointer, alloc
 
 

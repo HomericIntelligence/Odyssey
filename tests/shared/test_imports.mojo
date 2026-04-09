@@ -7,7 +7,7 @@ These tests verify both import functionality and basic component behavior.
 """
 
 
-from testing import assert_true
+from std.testing import assert_true
 
 
 def test_core_imports() raises:

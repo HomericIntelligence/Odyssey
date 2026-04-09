@@ -16,7 +16,7 @@ Tests cover:
 - Multiple Variables with AnyTensor in same tape
 """
 
-from testing import assert_true
+from std.testing import assert_true
 from tests.shared.conftest import assert_almost_equal
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.autograd import Variable, GradientTape

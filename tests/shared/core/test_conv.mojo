@@ -1040,7 +1040,7 @@ def test_conv2d_backward_gradient_input() raises:
     var analytical_grad = result.grad_input
 
     # Numerical gradient: forward_fn sums conv output (equivalent to ones grad_output)
-    def forward_for_input(inp: AnyTensor) raises -> AnyTensor:
+    def forward_for_input(inp: AnyTensor) raises unified {read} -> AnyTensor:
         var out = conv2d_no_bias(inp, kernel, stride, padding)
         var reduced = out
         while reduced.dim() > 0:
@@ -1100,7 +1100,7 @@ def test_conv2d_backward_gradient_kernel() raises:
     var analytical_grad = result.grad_weights
 
     # Numerical gradient: forward_fn sums conv output (equivalent to ones grad_output)
-    def forward_for_kernel(k: AnyTensor) raises -> AnyTensor:
+    def forward_for_kernel(k: AnyTensor) raises unified {read} -> AnyTensor:
         var out = conv2d_no_bias(x, k, stride, padding)
         var reduced = out
         while reduced.dim() > 0:
@@ -1166,7 +1166,7 @@ def test_conv2d_backward_gradient_input_with_padding() raises:
     var result = conv2d_backward(grad_output, x, kernel, stride, padding)
     var analytical_grad = result.grad_input
 
-    def forward_for_input_p1(inp: AnyTensor) raises -> AnyTensor:
+    def forward_for_input_p1(inp: AnyTensor) raises unified {read} -> AnyTensor:
         var out = conv2d_no_bias(inp, kernel, stride, padding)
         var reduced = out
         while reduced.dim() > 0:
@@ -1192,7 +1192,7 @@ def test_conv2d_backward_gradient_input_with_padding() raises:
     result = conv2d_backward(grad_output, x, kernel, stride, padding)
     analytical_grad = result.grad_input
 
-    def forward_for_input_p2(inp: AnyTensor) raises -> AnyTensor:
+    def forward_for_input_p2(inp: AnyTensor) raises unified {read} -> AnyTensor:
         var out = conv2d_no_bias(inp, kernel, stride, padding)
         var reduced = out
         while reduced.dim() > 0:
@@ -1253,7 +1253,7 @@ def test_conv2d_backward_gradient_kernel_with_padding() raises:
     var result = conv2d_backward(grad_output, x, kernel, stride, padding)
     var analytical_grad = result.grad_weights
 
-    def forward_for_kernel_p1(k: AnyTensor) raises -> AnyTensor:
+    def forward_for_kernel_p1(k: AnyTensor) raises unified {read} -> AnyTensor:
         var out = conv2d_no_bias(x, k, stride, padding)
         var reduced = out
         while reduced.dim() > 0:
@@ -1279,7 +1279,7 @@ def test_conv2d_backward_gradient_kernel_with_padding() raises:
     result = conv2d_backward(grad_output, x, kernel, stride, padding)
     analytical_grad = result.grad_weights
 
-    def forward_for_kernel_p2(k: AnyTensor) raises -> AnyTensor:
+    def forward_for_kernel_p2(k: AnyTensor) raises unified {read} -> AnyTensor:
         var out = conv2d_no_bias(x, k, stride, padding)
         var reduced = out
         while reduced.dim() > 0:

@@ -10,7 +10,7 @@ Tests cover:
 """
 
 
-from testing import assert_true, assert_almost_equal
+from std.testing import assert_true, assert_almost_equal
 from shared.benchmarking.result import BenchmarkResult
 
 

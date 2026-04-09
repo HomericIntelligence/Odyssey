@@ -6,8 +6,8 @@ This module provides:
 - Utilities for test setup and teardown
 """
 
-from random import seed
-from time import perf_counter_ns
+from std.random import seed
+from std.time import perf_counter_ns
 from shared.tensor.any_tensor import AnyTensor
 from shared.testing import SimpleMLP
 
@@ -70,7 +70,7 @@ struct TestFixtures:
         seed(Self.deterministic_seed())
 
     @staticmethod
-    def small_tensor() raises -> AnyTensor:
+    def small_tensor() raises unified {read} -> AnyTensor:
         """Create small 3x3 tensor for unit tests.
 
         Returns:
@@ -84,7 +84,7 @@ struct TestFixtures:
         return full(shape, Float64(0.1), DType.float32)
 
     @staticmethod
-    def medium_tensor() raises -> AnyTensor:
+    def medium_tensor() raises unified {read} -> AnyTensor:
         """Create medium 10x10 tensor for unit tests.
 
         Returns:
@@ -98,7 +98,7 @@ struct TestFixtures:
         return zeros(shape, DType.float32)
 
     @staticmethod
-    def simple_weights() raises -> AnyTensor:
+    def simple_weights() raises unified {read} -> AnyTensor:
         """Create simple weight tensor for linear layer tests.
 
         Returns:
@@ -112,7 +112,7 @@ struct TestFixtures:
         return full(shape, Float64(0.01), DType.float32)
 
     @staticmethod
-    def simple_bias() raises -> AnyTensor:
+    def simple_bias() raises unified {read} -> AnyTensor:
         """Create simple bias tensor for linear layer tests.
 
         Returns:
@@ -127,7 +127,7 @@ struct TestFixtures:
     @staticmethod
     def synthetic_data(
         n_samples: Int = 100, n_features: Int = 10
-    ) raises -> AnyTensor:
+    ) raises unified {read} -> AnyTensor:
         """Create synthetic data tensor for testing.
 
         Args:
@@ -145,7 +145,7 @@ struct TestFixtures:
         return randn(shape, DType.float32)
 
     @staticmethod
-    def synthetic_labels(n_samples: Int = 100) raises -> AnyTensor:
+    def synthetic_labels(n_samples: Int = 100) raises unified {read} -> AnyTensor:
         """Create synthetic label tensor for testing.
 
         Args:

@@ -115,7 +115,7 @@ def _check_grad_input_batch_size(batch_size: Int) raises:
             )
     else:
         # Standard gradient check for batch_size=2 and batch_size=4.
-        def forward_for_grad(inp: AnyTensor) raises -> AnyTensor:
+        def forward_for_grad(inp: AnyTensor) raises unified {read} -> AnyTensor:
             var res = batch_norm2d(
                 inp,
                 gamma,
@@ -203,7 +203,7 @@ def _check_grad_gamma_batch_size(batch_size: Int) raises:
             )
     else:
         # Standard gradient check: perturb gamma.
-        def forward_for_gamma(g: AnyTensor) raises -> AnyTensor:
+        def forward_for_gamma(g: AnyTensor) raises unified {read} -> AnyTensor:
             var res = batch_norm2d(
                 x, g, beta, running_mean, running_var, training=True, epsilon=1e-5
             )
@@ -288,7 +288,7 @@ def _check_grad_beta_batch_size(batch_size: Int) raises:
             )
     else:
         # Standard gradient check: perturb beta.
-        def forward_for_beta(b: AnyTensor) raises -> AnyTensor:
+        def forward_for_beta(b: AnyTensor) raises unified {read} -> AnyTensor:
             var res = batch_norm2d(
                 x, gamma, b, running_mean, running_var, training=True, epsilon=1e-5
             )
@@ -606,7 +606,7 @@ def test_batch_norm2d_backward_gradient_input() raises:
     # Numerical gradient via finite differences.
     # forward_for_grad computes weighted sum: sum(output * grad_output)
     # so the numerical gradient matches what the backward should compute.
-    def forward_for_grad(inp: AnyTensor) raises -> AnyTensor:
+    def forward_for_grad(inp: AnyTensor) raises unified {read} -> AnyTensor:
         var result_nested = batch_norm2d(
             inp,
             gamma,
@@ -713,7 +713,7 @@ def test_batch_norm2d_backward_gradient_input_inference_mode() raises:
     var grad_input = result_bwd[0]
 
     # Numerical gradient: closure uses training=False with fixed running stats
-    def forward_for_grad_infer(inp: AnyTensor) raises -> AnyTensor:
+    def forward_for_grad_infer(inp: AnyTensor) raises unified {read} -> AnyTensor:
         var res = batch_norm2d(
             inp,
             gamma,
@@ -803,7 +803,7 @@ def test_batch_norm2d_backward_gradient_gamma() raises:
     # Numerical gradient: perturb gamma
     # The forward closure computes: sum(batch_norm2d(x, g, ...) * grad_output)
     # so the numerical gradient matches what batch_norm2d_backward should produce.
-    def forward_for_gamma(g: AnyTensor) raises -> AnyTensor:
+    def forward_for_gamma(g: AnyTensor) raises unified {read} -> AnyTensor:
         var res = batch_norm2d(
             x, g, beta, running_mean, running_var, training=True, epsilon=1e-5
         )
@@ -882,7 +882,7 @@ def test_batch_norm2d_backward_gradient_beta() raises:
     var grad_beta_analytical = result_bwd[2]
 
     # Numerical gradient: perturb beta
-    def forward_for_beta(b: AnyTensor) raises -> AnyTensor:
+    def forward_for_beta(b: AnyTensor) raises unified {read} -> AnyTensor:
         var res = batch_norm2d(
             x, gamma, b, running_mean, running_var, training=True, epsilon=1e-5
         )
@@ -1351,7 +1351,7 @@ def test_layer_norm_backward_gradient_input() raises:
     # Numerical gradient via finite differences.
     # The scalar loss is sum(layer_norm(x) * grad_output), so the numerical
     # gradient matches what layer_norm_backward(grad_output, x, gamma) computes.
-    def forward_for_grad(inp: AnyTensor) raises -> AnyTensor:
+    def forward_for_grad(inp: AnyTensor) raises unified {read} -> AnyTensor:
         var out = layer_norm(inp, gamma, beta, epsilon=1e-5)
         # Weighted sum: sum(out * grad_output) matches backward with non-uniform grad_output
         var weighted = multiply(out, grad_output)
@@ -1464,7 +1464,7 @@ def test_layer_norm_backward_gradient_input_4d() raises:
     # Numerical gradient via finite differences.
     # The scalar loss is sum(layer_norm(x) * grad_output), so the numerical
     # gradient matches what layer_norm_backward(grad_output, x, gamma) computes.
-    def forward_for_grad_4d(inp: AnyTensor) raises -> AnyTensor:
+    def forward_for_grad_4d(inp: AnyTensor) raises unified {read} -> AnyTensor:
         var out = layer_norm(inp, gamma, beta, epsilon=1e-5)
         # Weighted sum: sum(out * grad_output) matches backward with non-uniform grad_output
         var weighted = multiply(out, grad_output)
@@ -1631,7 +1631,7 @@ def test_batch_norm2d_backward_gradient_gamma_inference_mode() raises:
     var grad_gamma_analytical = result_bwd[1]
 
     # Numerical gradient: perturb gamma in inference mode
-    def forward_for_gamma_infer(g: AnyTensor) raises -> AnyTensor:
+    def forward_for_gamma_infer(g: AnyTensor) raises unified {read} -> AnyTensor:
         var res = batch_norm2d(
             x, g, beta, running_mean, running_var, training=False, epsilon=1e-5
         )
@@ -1715,7 +1715,7 @@ def test_batch_norm2d_backward_gradient_beta_inference_mode() raises:
     var grad_beta_analytical = result_bwd[2]
 
     # Numerical gradient: perturb beta in inference mode
-    def forward_for_beta_infer(b: AnyTensor) raises -> AnyTensor:
+    def forward_for_beta_infer(b: AnyTensor) raises unified {read} -> AnyTensor:
         var res = batch_norm2d(
             x, gamma, b, running_mean, running_var, training=False, epsilon=1e-5
         )

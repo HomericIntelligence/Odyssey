@@ -18,7 +18,7 @@ Tests cover:
 - Numerical correctness with identity weights and known bias
 """
 
-from testing import assert_true, assert_almost_equal
+from std.testing import assert_true, assert_almost_equal
 from shared.core.layers.linear import Linear
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 

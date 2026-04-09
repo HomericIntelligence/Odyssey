@@ -8,14 +8,14 @@ Split from test_no_grad_context.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
 
-from testing import assert_true
+from std.testing import assert_true
 from shared.autograd import (
     GradientTape,
     NoGradContext,
     disable_gradient_tracking,
     restore_gradient_tracking,
 )
-from testing import assert_true, assert_equal
+from std.testing import assert_true, assert_equal
 
 
 def test_no_grad_context_enter_disables_tracking() raises:
