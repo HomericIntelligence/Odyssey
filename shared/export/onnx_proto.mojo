@@ -112,29 +112,7 @@ struct AttributeProto(Copyable, Movable):
             result.ints.append(self.ints[j])
         return result^
 
-    fn __copyinit__(out self, read other: Self):
-        """Copy constructor."""
-        self.name = other.name
-        self.attr_type = other.attr_type
-        self.f = other.f
-        self.i = other.i
-        self.s = other.s
-        self.floats = List[Float32]()
-        for j in range(len(other.floats)):
-            self.floats.append(other.floats[j])
-        self.ints = List[Int64]()
-        for j in range(len(other.ints)):
-            self.ints.append(other.ints[j])
 
-    fn __moveinit__(out self, deinit other: Self):
-        """Move constructor."""
-        self.name = other.name^
-        self.attr_type = other.attr_type
-        self.f = other.f
-        self.i = other.i
-        self.s = other.s^
-        self.floats = other.floats^
-        self.ints = other.ints^
 
     fn set_float(mut self, value: Float32):
         """Set float value."""
@@ -191,17 +169,7 @@ struct TensorShapeProto(Copyable, Movable):
         self.dims = List[Int64]()
         self.dim_params = List[String]()
 
-    fn __copyinit__(out self, read other: Self):
-        self.dims = List[Int64]()
-        for j in range(len(other.dims)):
-            self.dims.append(other.dims[j])
-        self.dim_params = List[String]()
-        for j in range(len(other.dim_params)):
-            self.dim_params.append(other.dim_params[j])
 
-    fn __moveinit__(out self, deinit other: Self):
-        self.dims = other.dims^
-        self.dim_params = other.dim_params^
 
     fn add_dim(mut self, size: Int64):
         """Add a dimension with fixed size."""
@@ -236,17 +204,7 @@ struct TypeProto(Copyable, Movable):
         self.elem_type = elem_type
         self.shape = TensorShapeProto()
 
-    fn __copyinit__(out self, read other: Self):
-        self.elem_type = other.elem_type
-        self.shape = TensorShapeProto()
-        for j in range(len(other.shape.dims)):
-            self.shape.dims.append(other.shape.dims[j])
-        for j in range(len(other.shape.dim_params)):
-            self.shape.dim_params.append(other.shape.dim_params[j])
 
-    fn __moveinit__(out self, deinit other: Self):
-        self.elem_type = other.elem_type
-        self.shape = other.shape^
 
     fn encode(self) -> ProtoBuffer:
         """Encode to protobuf bytes."""
@@ -272,21 +230,7 @@ struct ValueInfoProto(Copyable, Movable):
         self.type_proto = TypeProto(elem_type)
         self.doc_string = String("")
 
-    fn __copyinit__(out self, read other: Self):
-        self.name = other.name
-        self.type_proto = TypeProto(other.type_proto.elem_type)
-        for j in range(len(other.type_proto.shape.dims)):
-            self.type_proto.shape.dims.append(other.type_proto.shape.dims[j])
-        for j in range(len(other.type_proto.shape.dim_params)):
-            self.type_proto.shape.dim_params.append(
-                other.type_proto.shape.dim_params[j]
-            )
-        self.doc_string = other.doc_string
 
-    fn __moveinit__(out self, deinit other: Self):
-        self.name = other.name^
-        self.type_proto = other.type_proto^
-        self.doc_string = other.doc_string^
 
     fn add_dim(mut self, size: Int64):
         """Add a dimension to the shape."""
@@ -325,29 +269,7 @@ struct TensorProto(Copyable, Movable):
         self.int64_data = List[Int64]()
         self.raw_data = List[UInt8]()
 
-    fn __copyinit__(out self, read other: Self):
-        self.name = other.name
-        self.data_type = other.data_type
-        self.dims = List[Int64]()
-        for j in range(len(other.dims)):
-            self.dims.append(other.dims[j])
-        self.float_data = List[Float32]()
-        for j in range(len(other.float_data)):
-            self.float_data.append(other.float_data[j])
-        self.int64_data = List[Int64]()
-        for j in range(len(other.int64_data)):
-            self.int64_data.append(other.int64_data[j])
-        self.raw_data = List[UInt8]()
-        for j in range(len(other.raw_data)):
-            self.raw_data.append(other.raw_data[j])
 
-    fn __moveinit__(out self, deinit other: Self):
-        self.name = other.name^
-        self.data_type = other.data_type
-        self.dims = other.dims^
-        self.float_data = other.float_data^
-        self.int64_data = other.int64_data^
-        self.raw_data = other.raw_data^
 
     fn set_dims(mut self, var dims: List[Int64]):
         """Set tensor dimensions."""
@@ -399,29 +321,7 @@ struct NodeProto(Copyable, Movable):
         self.domain = String("")
         self.doc_string = String("")
 
-    fn __copyinit__(out self, read other: Self):
-        self.name = other.name
-        self.op_type = other.op_type
-        self.inputs = List[String]()
-        for j in range(len(other.inputs)):
-            self.inputs.append(other.inputs[j])
-        self.outputs = List[String]()
-        for j in range(len(other.outputs)):
-            self.outputs.append(other.outputs[j])
-        self.attributes = List[AttributeProto]()
-        for j in range(len(other.attributes)):
-            self.attributes.append(other.attributes[j].copy())
-        self.domain = other.domain
-        self.doc_string = other.doc_string
 
-    fn __moveinit__(out self, deinit other: Self):
-        self.name = other.name^
-        self.op_type = other.op_type^
-        self.inputs = other.inputs^
-        self.outputs = other.outputs^
-        self.attributes = other.attributes^
-        self.domain = other.domain^
-        self.doc_string = other.doc_string^
 
     fn add_input(mut self, name: String):
         """Add an input tensor name."""
@@ -487,13 +387,7 @@ struct OperatorSetIdProto(Copyable, Movable):
         self.domain = domain
         self.version = version
 
-    fn __copyinit__(out self, read other: Self):
-        self.domain = other.domain
-        self.version = other.version
 
-    fn __moveinit__(out self, deinit other: Self):
-        self.domain = other.domain^
-        self.version = other.version
 
     fn encode(self) -> ProtoBuffer:
         """Encode to protobuf bytes."""
@@ -522,22 +416,7 @@ struct GraphProto(Copyable, Movable):
         self.initializers = List[TensorProto]()
         self.doc_string = String("")
 
-    fn __copyinit__(out self, read other: Self):
-        self.name = other.name
-        self.nodes = List[NodeProto]()
-        self.inputs = List[ValueInfoProto]()
-        self.outputs = List[ValueInfoProto]()
-        self.initializers = List[TensorProto]()
-        self.doc_string = other.doc_string
-        # Deep copy would be complex - keeping empty for now
 
-    fn __moveinit__(out self, deinit other: Self):
-        self.name = other.name^
-        self.nodes = other.nodes^
-        self.inputs = other.inputs^
-        self.outputs = other.outputs^
-        self.initializers = other.initializers^
-        self.doc_string = other.doc_string^
 
     fn add_node(mut self, var node: NodeProto):
         """Add a node to the graph."""
@@ -610,32 +489,7 @@ struct ModelProto(Copyable, Movable):
         self.graph = GraphProto()
         self.opset_imports = List[OperatorSetIdProto]()
 
-    fn __copyinit__(out self, read other: Self):
-        self.ir_version = other.ir_version
-        self.producer_name = other.producer_name
-        self.producer_version = other.producer_version
-        self.domain = other.domain
-        self.model_version = other.model_version
-        self.doc_string = other.doc_string
-        self.graph = GraphProto(other.graph.name)
-        self.opset_imports = List[OperatorSetIdProto]()
-        for j in range(len(other.opset_imports)):
-            self.opset_imports.append(
-                OperatorSetIdProto(
-                    other.opset_imports[j].domain,
-                    other.opset_imports[j].version,
-                )
-            )
 
-    fn __moveinit__(out self, deinit other: Self):
-        self.ir_version = other.ir_version
-        self.producer_name = other.producer_name^
-        self.producer_version = other.producer_version^
-        self.domain = other.domain^
-        self.model_version = other.model_version
-        self.doc_string = other.doc_string^
-        self.graph = other.graph^
-        self.opset_imports = other.opset_imports^
 
     fn set_opset(mut self, version: Int64, domain: String = ""):
         """Set the opset version.

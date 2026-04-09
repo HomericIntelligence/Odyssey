@@ -1,4 +1,4 @@
-"""Special FP-Representable Test Values
+"""Special FP- Test Values
 
 Provides test values that are exactly representable in all float dtypes:
 - FP4, FP8, FP16, FP32, BF16

@@ -61,7 +61,7 @@ fn _pow_typed[dtype: DType](x: Scalar[dtype], y: Scalar[dtype]) -> Scalar[dtype]
 fn _batch_norm2d_compute_stats[
     dtype: DType
 ](
-    x_ptr: UnsafePointer[UInt8],
+    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
     batch_mean: AnyTensor,
     batch_var: AnyTensor,
     batch: Int,
@@ -100,12 +100,12 @@ fn _batch_norm2d_compute_stats[
 fn _batch_norm2d_normalize[
     dtype: DType
 ](
-    x_ptr: UnsafePointer[UInt8],
+    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
     output: AnyTensor,
-    mean_ptr_raw: UnsafePointer[UInt8],
-    var_ptr_raw: UnsafePointer[UInt8],
-    gamma_ptr_raw: UnsafePointer[UInt8],
-    beta_ptr_raw: UnsafePointer[UInt8],
+    mean_ptr_raw: UnsafePointer[UInt8, MutAnyOrigin],
+    var_ptr_raw: UnsafePointer[UInt8, MutAnyOrigin],
+    gamma_ptr_raw: UnsafePointer[UInt8, MutAnyOrigin],
+    beta_ptr_raw: UnsafePointer[UInt8, MutAnyOrigin],
     batch: Int,
     channels: Int,
     height: Int,
@@ -351,9 +351,9 @@ fn batch_norm2d(
 fn _batch_norm2d_backward_training[
     dtype: DType
 ](
-    grad_output_ptr: UnsafePointer[UInt8],
-    x_ptr: UnsafePointer[UInt8],
-    gamma_ptr: UnsafePointer[UInt8],
+    grad_output_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
     grad_input: AnyTensor,
     grad_gamma: AnyTensor,
     grad_beta: AnyTensor,
@@ -433,11 +433,11 @@ fn _batch_norm2d_backward_training[
 fn _batch_norm2d_backward_inference[
     dtype: DType
 ](
-    grad_output_ptr: UnsafePointer[UInt8],
-    x_ptr: UnsafePointer[UInt8],
-    gamma_ptr: UnsafePointer[UInt8],
-    rm_ptr: UnsafePointer[UInt8],
-    rv_ptr: UnsafePointer[UInt8],
+    grad_output_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    rm_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    rv_ptr: UnsafePointer[UInt8, MutAnyOrigin],
     grad_input: AnyTensor,
     grad_gamma: AnyTensor,
     grad_beta: AnyTensor,
@@ -651,10 +651,10 @@ fn batch_norm2d_backward(
 fn _layer_norm_2d[
     dtype: DType
 ](
-    x_ptr: UnsafePointer[UInt8],
+    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
     output: AnyTensor,
-    gamma_ptr: UnsafePointer[UInt8],
-    beta_ptr: UnsafePointer[UInt8],
+    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    beta_ptr: UnsafePointer[UInt8, MutAnyOrigin],
     batch: Int,
     features: Int,
     epsilon: Float64,
@@ -688,10 +688,10 @@ fn _layer_norm_2d[
 fn _layer_norm_4d[
     dtype: DType
 ](
-    x_ptr: UnsafePointer[UInt8],
+    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
     output: AnyTensor,
-    gamma_ptr: UnsafePointer[UInt8],
-    beta_ptr: UnsafePointer[UInt8],
+    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    beta_ptr: UnsafePointer[UInt8, MutAnyOrigin],
     batch: Int,
     channels: Int,
     height: Int,
@@ -831,9 +831,9 @@ fn layer_norm(
 fn _layer_norm_backward_2d[
     dtype: DType
 ](
-    grad_output_ptr: UnsafePointer[UInt8],
-    x_ptr: UnsafePointer[UInt8],
-    gamma_ptr: UnsafePointer[UInt8],
+    grad_output_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
     grad_input: AnyTensor,
     grad_gamma: AnyTensor,
     grad_beta: AnyTensor,
@@ -909,9 +909,9 @@ fn _layer_norm_backward_2d[
 fn _layer_norm_backward_4d[
     dtype: DType
 ](
-    grad_output_ptr: UnsafePointer[UInt8],
-    x_ptr: UnsafePointer[UInt8],
-    gamma_ptr: UnsafePointer[UInt8],
+    grad_output_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
     grad_input: AnyTensor,
     grad_gamma: AnyTensor,
     grad_beta: AnyTensor,
@@ -1137,10 +1137,10 @@ fn layer_norm_backward(
 fn _group_norm_impl[
     dtype: DType
 ](
-    x_ptr: UnsafePointer[UInt8],
+    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
     output: AnyTensor,
-    gamma_ptr: UnsafePointer[UInt8],
-    beta_ptr: UnsafePointer[UInt8],
+    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    beta_ptr: UnsafePointer[UInt8, MutAnyOrigin],
     batch: Int,
     channels: Int,
     height: Int,
@@ -1279,9 +1279,9 @@ fn group_norm(
 fn _group_norm_backward_impl[
     dtype: DType
 ](
-    grad_output_ptr: UnsafePointer[UInt8],
-    x_ptr: UnsafePointer[UInt8],
-    gamma_ptr: UnsafePointer[UInt8],
+    grad_output_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
     grad_input: AnyTensor,
     grad_gamma: AnyTensor,
     grad_beta: AnyTensor,
@@ -1479,10 +1479,10 @@ fn group_norm_backward(
 fn _instance_norm_impl[
     dtype: DType
 ](
-    x_ptr: UnsafePointer[UInt8],
+    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
     output: AnyTensor,
-    gamma_ptr: UnsafePointer[UInt8],
-    beta_ptr: UnsafePointer[UInt8],
+    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    beta_ptr: UnsafePointer[UInt8, MutAnyOrigin],
     batch: Int,
     channels: Int,
     height: Int,
@@ -1601,9 +1601,9 @@ fn instance_norm(
 fn _instance_norm_backward_impl[
     dtype: DType
 ](
-    grad_output_ptr: UnsafePointer[UInt8],
-    x_ptr: UnsafePointer[UInt8],
-    gamma_ptr: UnsafePointer[UInt8],
+    grad_output_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    x_ptr: UnsafePointer[UInt8, MutAnyOrigin],
+    gamma_ptr: UnsafePointer[UInt8, MutAnyOrigin],
     grad_input: AnyTensor,
     grad_gamma: AnyTensor,
     grad_beta: AnyTensor,

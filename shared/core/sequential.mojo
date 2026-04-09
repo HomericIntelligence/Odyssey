@@ -76,14 +76,6 @@ struct Sequential2[T0: Module & Movable, T1: Module & Movable](Movable):
         self.layer0 = layer0^
         self.layer1 = layer1^
 
-    fn __moveinit__(out self, deinit other: Self):
-        """Move constructor.
-
-        Args:
-            other: Source Sequential2 to move from.
-        """
-        self.layer0 = other.layer0^
-        self.layer1 = other.layer1^
 
     fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute chained forward pass through both layers.
@@ -178,15 +170,6 @@ struct Sequential3[
         self.layer1 = layer1^
         self.layer2 = layer2^
 
-    fn __moveinit__(out self, deinit other: Self):
-        """Move constructor.
-
-        Args:
-            other: Source Sequential3 to move from.
-        """
-        self.layer0 = other.layer0^
-        self.layer1 = other.layer1^
-        self.layer2 = other.layer2^
 
     fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute chained forward pass through all three layers.
@@ -296,16 +279,6 @@ struct Sequential4[
         self.layer2 = layer2^
         self.layer3 = layer3^
 
-    fn __moveinit__(out self, deinit other: Self):
-        """Move constructor.
-
-        Args:
-            other: Source Sequential4 to move from.
-        """
-        self.layer0 = other.layer0^
-        self.layer1 = other.layer1^
-        self.layer2 = other.layer2^
-        self.layer3 = other.layer3^
 
     fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute chained forward pass through all four layers.
@@ -428,17 +401,6 @@ struct Sequential5[
         self.layer3 = layer3^
         self.layer4 = layer4^
 
-    fn __moveinit__(out self, deinit other: Self):
-        """Move constructor.
-
-        Args:
-            other: Source Sequential5 to move from.
-        """
-        self.layer0 = other.layer0^
-        self.layer1 = other.layer1^
-        self.layer2 = other.layer2^
-        self.layer3 = other.layer3^
-        self.layer4 = other.layer4^
 
     fn forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute chained forward pass through all five layers.

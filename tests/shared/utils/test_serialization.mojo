@@ -25,7 +25,7 @@ fn create_test_dir(base: String) raises -> String:
     from python import Python
 
     var uuid = Python.import_module("uuid")
-    var test_id = String(String(uuid.uuid4())[:8])
+    var test_id = String(uuid.uuid4()).substr(0, 8)
     var test_dir = base + "/test_checkpoint_" + test_id
     return test_dir
 

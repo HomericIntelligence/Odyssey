@@ -3,8 +3,8 @@
 Provides a tensor type parametric on DType, enabling typed element access via
 `__getitem__` that returns `Scalar[Self.dtype]` (no runtime dtype branching).
 
-Uses typed `UnsafePointer[Scalar[dtype]]` storage instead of type-erased
-`UnsafePointer[UInt8]`. Pointer arithmetic auto-scales by element size (H1),
+Uses typed `UnsafePointer[Scalar[dtype], MutAnyOrigin]` storage instead of type-erased
+`UnsafePointer[UInt8, MutAnyOrigin]`. Pointer arithmetic auto-scales by element size (H1),
 so no manual `* dtype_size` is needed for element offsets.
 
 Zero-copy conversion to AnyTensor via `as_any()` with shared
@@ -40,14 +40,13 @@ struct Tensor[dtype: DType = DType.float32](
     ImplicitlyCopyable,
     Movable,
     Sized,
-    Stringable,
-    Representable,
+    Writable,
     TensorLike,
 ):
     """Compile-time typed tensor with SIMD-like element access.
 
     Parametric on DType, enabling `__getitem__` to return `Scalar[Self.dtype]`
-    without runtime dtype branching. Uses typed `UnsafePointer[Scalar[dtype]]`
+    without runtime dtype branching. Uses typed `UnsafePointer[Scalar[dtype], MutAnyOrigin]`
     storage where pointer arithmetic auto-scales by element size.
 
     Memory Safety: Implements reference counting for safe shared ownership.
@@ -198,38 +197,49 @@ struct Tensor[dtype: DType = DType.float32](
     # Lifecycle
     # ------------------------------------------------------------------
 
-    fn __copyinit__(out self, existing: Self):
+    fn __init__(out self, *, copy: Self):
+        """Copy constructor - creates a shared-ownership copy with reference counting."""
+        self._data = copy._data
+        self._shape = copy._shape.copy()
+        self._strides = copy._strides.copy()
+        self._numel = copy._numel
+        self._is_view = copy._is_view
+        self._refcount = copy._refcount
+        self._original_numel_quantized = copy._original_numel_quantized
+        self._allocated_size = copy._allocated_size
+        if self._refcount:
+            self._refcount[] += 1
+
+    fn __init__(out self, *, deinit take: Self):
+        """Move constructor - transfers ownership without refcount change."""
+        self._data = take._data
+        self._shape = take._shape^
+        self._strides = take._strides^
+        self._numel = take._numel
+        self._is_view = take._is_view
+        self._refcount = take._refcount
+        self._original_numel_quantized = take._original_numel_quantized
+        self._allocated_size = take._allocated_size
+
+    fn copy(self) -> Self:
         """Copy constructor — shared ownership with reference counting.
 
         Creates a new reference to the same underlying data. Increments
         the reference count to track shared ownership.
         """
-        self._data = existing._data
-        self._shape = existing._shape.copy()
-        self._strides = existing._strides.copy()
-        self._numel = existing._numel
-        self._is_view = existing._is_view
-        self._refcount = existing._refcount
-        self._original_numel_quantized = existing._original_numel_quantized
-        self._allocated_size = existing._allocated_size
-
+        from memory import alloc as mem_alloc
+        var ptr = mem_alloc[Tensor[Self.dtype]](1)
+        ptr[0]._data = self._data
+        ptr[0]._shape = self._shape.copy()
+        ptr[0]._strides = self._strides.copy()
+        ptr[0]._numel = self._numel
+        ptr[0]._is_view = self._is_view
+        ptr[0]._refcount = self._refcount
+        ptr[0]._original_numel_quantized = self._original_numel_quantized
+        ptr[0]._allocated_size = self._allocated_size
         if self._refcount:
             self._refcount[] += 1
-
-    fn __moveinit__(out self, deinit existing: Self):
-        """Move constructor — transfers ownership without touching refcount.
-
-        Copies fields from the source. Does not increment refcount because
-        the source is being consumed (deinit).
-        """
-        self._data = existing._data
-        self._shape = existing._shape.copy()
-        self._strides = existing._strides.copy()
-        self._numel = existing._numel
-        self._is_view = existing._is_view
-        self._refcount = existing._refcount
-        self._original_numel_quantized = existing._original_numel_quantized
-        self._allocated_size = existing._allocated_size
+        return ptr.take_pointee()
 
     fn __del__(deinit self):
         """Destructor — decrements refcount, frees if last reference.

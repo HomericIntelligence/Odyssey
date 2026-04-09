@@ -100,7 +100,7 @@ fn parse_benchmark_name(line: String) raises -> String:
     if end == -1:
         raise Error("Could not find closing quote for name")
 
-    return String(line[start:end])
+    return line.substr(start, end - start)
 
 
 fn atof(s: String) -> Float64:
@@ -189,13 +189,13 @@ fn parse_float_value(line: String, field_name: String) raises -> Float64:
     var end = start
     while (
         end < len(line)
-        and String(line[end : end + 1]) != ","
-        and String(line[end : end + 1]) != "}"
-        and String(line[end : end + 1]) != "\n"
+        and line.substr(end, 1) != ","
+        and line.substr(end, 1) != "}"
+        and line.substr(end, 1) != "\n"
     ):
         end += 1
 
-    var value_str = String(line[start:end].strip())
+    var value_str = line.substr(start, end - start).strip()
     return atof(value_str)
 
 
@@ -220,13 +220,13 @@ fn parse_int_value(line: String, field_name: String) raises -> Int:
     var end = start
     while (
         end < len(line)
-        and String(line[end : end + 1]) != ","
-        and String(line[end : end + 1]) != "}"
-        and String(line[end : end + 1]) != "\n"
+        and line.substr(end, 1) != ","
+        and line.substr(end, 1) != "}"
+        and line.substr(end, 1) != "\n"
     ):
         end += 1
 
-    var value_str = String(line[start:end].strip())
+    var value_str = line.substr(start, end - start).strip()
 
     # Convert string to int
     var result = 0
@@ -284,8 +284,7 @@ fn load_benchmark_results(filepath: String) raises -> List[BenchmarkData]:
             if entry_end == -1:
                 break
 
-            var entry_slice = content[entry_start : entry_end + 1]
-            var entry = String(entry_slice)
+            var entry = content.substr(entry_start, entry_end + 1 - entry_start)
 
             # Parse benchmark entry using existing parsing functions
             try:

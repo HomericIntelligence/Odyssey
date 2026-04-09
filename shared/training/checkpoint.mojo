@@ -44,6 +44,16 @@ from shared.utils.file_io import (
 from collections import List
 
 
+fn str_slice(s: String, start: Int, end: Int) -> String:
+    """Extract a slice of a string by byte positions [start:end]."""
+    var result = String("")
+    var bytes = s.as_bytes()
+    var real_end = min(end, len(s))
+    for i in range(start, real_end):
+        result += chr(Int(bytes[i]))
+    return result^
+
+
 struct CheckpointManager:
     """Manages model checkpoints with automatic cleanup and best model tracking.
 
@@ -288,9 +298,9 @@ struct CheckpointManager:
 
             # Find the latest_epoch line
             for i in range(len(lines)):
-                var line = lines[i]
+                var line = String(lines[i])
                 if line.startswith("latest_epoch="):
-                    var epoch_str = line[len("latest_epoch=") :]
+                    var epoch_str = str_slice(line, len("latest_epoch="), len(line))
                     return atol(epoch_str)
 
             return -1
@@ -353,9 +363,9 @@ struct CheckpointManager:
         # Simple parsing: look for "best_metric=<value>"
         var lines = content.split("\n")
         for i in range(len(lines)):
-            var line = lines[i]
+            var line = String(lines[i])
             if line.startswith("best_metric="):
-                var _ = line[len("best_metric=") :]
+                var _ = str_slice(line, len("best_metric="), len(line))
                 # We keep the best_metric in the file for reference (Mojo v0.26.1)
                 # but don't parse it back to Float32 due to lack of atof
                 # The CheckpointManager tracks best_metric_value separately

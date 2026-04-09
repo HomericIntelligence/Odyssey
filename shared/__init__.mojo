@@ -207,12 +207,9 @@ from shared.utils.visualization import plot_training_curves
 # For implementation of component-level imports when core modules
 # are fully implemented, see test_packaging.mojo
 #
-from shared import core
-from shared import training
-from shared import data
-from shared import utils
-from shared import autograd
-from shared import testing
+# Note: self-referential subpackage imports (from shared import core, etc.)
+# cause recursive reference errors in Mojo 0.26.3. Users should import
+# subpackages directly: from shared.core import ..., from shared.training import ...
 
 # ============================================================================
 # Testing Constants - Available at package level

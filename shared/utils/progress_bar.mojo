@@ -69,7 +69,7 @@ fn format_duration(seconds: Float64) -> String:
 
     # Remove trailing whitespace
     while len(result) > 0 and result.as_bytes()[-1] == ord(" "):
-        result = String(result[: len(result) - 1])
+        result = result.substr(0, len(result) - 1)
 
     return result
 

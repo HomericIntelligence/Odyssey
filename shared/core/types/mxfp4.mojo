@@ -198,7 +198,7 @@ fn _fp4_from_float32(x: Float32, scale: Float32) -> UInt8:
 
     # Find best representation
     # Quantize to nearest representable value
-    # Representable values: 0, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0
+    #  values: 0, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0
     var exp: UInt8
     var mantissa: UInt8
     if abs_scaled < 1.25:
@@ -268,7 +268,7 @@ fn _fp4_to_float32(fp4_bits: UInt8, scale: Float32) -> Float32:
     return result
 
 
-struct MXFP4(Copyable, Movable, Representable, Stringable):
+struct MXFP4(Copyable, Movable, Writable):
     """MXFP4 individual value (E2M1 + E8M0 scale).
 
     Acts like FP16 but stores internally as 4-bit E2M1 value plus 8-bit E8M0 scale.
@@ -632,7 +632,7 @@ struct MXFP4(Copyable, Movable, Representable, Stringable):
         )
 
 
-struct MXFP4Block(Copyable, Movable, Representable, Stringable):
+struct MXFP4Block(Copyable, Movable, Writable):
     """MXFP4 block storage: 32 E2M1 values + 1 E8M0 scale (17 bytes total).
 
     Memory layout:

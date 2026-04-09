@@ -64,7 +64,7 @@ fn _check_bf16_platform_support(is_apple: Bool) raises:
 
 
 @fieldwise_init
-struct PrecisionMode(Copyable, ImplicitlyCopyable, Movable, Stringable):
+struct PrecisionMode(Copyable, ImplicitlyCopyable, Movable, Writable):
     """Precision mode enumeration.
 
     Supported modes:

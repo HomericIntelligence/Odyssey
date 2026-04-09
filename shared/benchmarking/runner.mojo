@@ -460,15 +460,24 @@ fn print_benchmark_summary(
     print("=" * 100)
     print("")
 
+    # Helper function for manual ljust replacement
+    fn _pad(s: String, width: Int) -> String:
+        var result = s
+        var padding = width - len(s)
+        if padding > 0:
+            for _ in range(padding):
+                result += " "
+        return result
+
     # Print header
     print(
-        "Operation".ljust(20),
-        "Mean (ms)".ljust(15),
-        "Std Dev (ms)".ljust(15),
-        "P50 (ms)".ljust(15),
-        "P95 (ms)".ljust(15),
-        "P99 (ms)".ljust(15),
-        "Ops/sec".ljust(15),
+        _pad("Operation", 20),
+        _pad("Mean (ms)", 15),
+        _pad("Std Dev (ms)", 15),
+        _pad("P50 (ms)", 15),
+        _pad("P95 (ms)", 15),
+        _pad("P99 (ms)", 15),
+        _pad("Ops/sec", 15),
     )
     print("-" * 100)
 
@@ -483,13 +492,13 @@ fn print_benchmark_summary(
             name = "Operation " + String(i + 1)
 
         print(
-            name.ljust(20),
-            String(result.mean_latency_ms).ljust(15),
-            String(result.std_dev_ms).ljust(15),
-            String(result.p50_ms).ljust(15),
-            String(result.p95_ms).ljust(15),
-            String(result.p99_ms).ljust(15),
-            String(result.throughput).ljust(15),
+            _pad(name, 20),
+            _pad(String(result.mean_latency_ms), 15),
+            _pad(String(result.std_dev_ms), 15),
+            _pad(String(result.p50_ms), 15),
+            _pad(String(result.p95_ms), 15),
+            _pad(String(result.p99_ms), 15),
+            _pad(String(result.throughput), 15),
         )
 
     print("=" * 100)

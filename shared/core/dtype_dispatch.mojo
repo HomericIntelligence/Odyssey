@@ -114,7 +114,7 @@ fn elementwise_unary[
         var result = elementwise_unary[DType.float32, my_op](tensor)
         ```
     """
-    var result = AnyTensor(tensor._shape, dtype)
+    var result = AnyTensor(tensor.shape(), dtype)
     var size = tensor._numel
 
     var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
@@ -237,7 +237,7 @@ fn elementwise_binary[
             "elementwise_binary: tensors must have same number of elements"
         )
 
-    var result = AnyTensor(lhs._shape, dtype)
+    var result = AnyTensor(lhs.shape(), dtype)
     var size = lhs._numel
 
     var lhs_ptr = lhs._data.bitcast[Scalar[dtype]]()
@@ -367,7 +367,7 @@ fn elementwise_scalar[
         var result = elementwise_scalar[DType.float32, mul_op](tensor, 2.5)
             ```
     """
-    var result = AnyTensor(tensor._shape, dtype)
+    var result = AnyTensor(tensor.shape(), dtype)
     var size = tensor._numel
 
     var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
@@ -685,30 +685,32 @@ fn _softmax_impl[
                     ) * axis_stride + inner_idx
                     var current = Float32(out_ptr[idx])
                     out_ptr[idx] = Scalar[dtype](current / sum_exp)
-    else:
+    elif dtype == DType.float32 or dtype == DType.float64:
         for outer_idx in range(outer_size):
             for inner_idx in range(axis_stride):
                 # Find max along axis
-                var max_val = in_ptr[
-                    (outer_idx * axis_size + 0) * axis_stride + inner_idx
-                ]
+                var max_val = Float64(
+                    in_ptr[
+                        (outer_idx * axis_size + 0) * axis_stride + inner_idx
+                    ]
+                )
                 for k in range(1, axis_size):
                     var idx = (
                         outer_idx * axis_size + k
                     ) * axis_stride + inner_idx
-                    var val = in_ptr[idx]
+                    var val = Float64(in_ptr[idx])
                     if val > max_val:
                         max_val = val
 
                 # Compute exp(x - max) and sum
-                var sum_exp = Scalar[dtype](0.0)
+                var sum_exp: Float64 = 0.0
                 for k in range(axis_size):
                     var idx = (
                         outer_idx * axis_size + k
                     ) * axis_stride + inner_idx
-                    var val = in_ptr[idx]
+                    var val = Float64(in_ptr[idx])
                     var exp_val = exp(val - max_val)
-                    out_ptr[idx] = exp_val
+                    out_ptr[idx] = Scalar[dtype](exp_val)
                     sum_exp += exp_val
 
                 # Normalize
@@ -716,7 +718,8 @@ fn _softmax_impl[
                     var idx = (
                         outer_idx * axis_size + k
                     ) * axis_stride + inner_idx
-                    out_ptr[idx] /= sum_exp
+                    var current = Float64(out_ptr[idx])
+                    out_ptr[idx] = Scalar[dtype](current / sum_exp)
 
 
 fn dispatch_softmax(
@@ -736,7 +739,7 @@ fn dispatch_softmax(
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = AnyTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor.shape(), tensor._dtype)
 
     if tensor._dtype == DType.float16:
         _softmax_impl[DType.float16](
@@ -844,7 +847,7 @@ fn dispatch_softmax_backward(
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = AnyTensor(output._shape, output._dtype)
+    var result = AnyTensor(output.shape(), output._dtype)
 
     if output._dtype == DType.float16:
         _softmax_backward_impl[DType.float16](
@@ -912,29 +915,33 @@ fn _gelu_impl[
     elif dtype == DType.float32:
         if approximate:
             for i in range(tensor._numel):
-                var x = in_ptr[i]
+                var x = Float32(in_ptr[i])
                 var x_cubed = x * x * x
-                var inner = SQRT_2_OVER_PI * (x + GELU_COEFF * x_cubed)
+                var inner = Float32(SQRT_2_OVER_PI) * (
+                    x + Float32(GELU_COEFF) * x_cubed
+                )
                 var tanh_val = math_tanh(inner)
-                out_ptr[i] = 0.5 * x * (1.0 + tanh_val)
+                out_ptr[i] = Scalar[dtype](0.5 * x * (1.0 + tanh_val))
         else:
             for i in range(tensor._numel):
-                var x = in_ptr[i]
-                var erf_val = erf(x / SQRT_2)
-                out_ptr[i] = x * 0.5 * (1.0 + erf_val)
+                var x = Float32(in_ptr[i])
+                var erf_val = erf(x / Float32(SQRT_2))
+                out_ptr[i] = Scalar[dtype](x * 0.5 * (1.0 + erf_val))
     else:  # float64
         if approximate:
             for i in range(tensor._numel):
-                var x = in_ptr[i]
+                var x = Float64(in_ptr[i])
                 var x_cubed = x * x * x
-                var inner = SQRT_2_OVER_PI * (x + GELU_COEFF * x_cubed)
+                var inner = Float64(SQRT_2_OVER_PI) * (
+                    x + Float64(GELU_COEFF) * x_cubed
+                )
                 var tanh_val = math_tanh(inner)
-                out_ptr[i] = 0.5 * x * (1.0 + tanh_val)
+                out_ptr[i] = Scalar[dtype](0.5 * x * (1.0 + tanh_val))
         else:
             for i in range(tensor._numel):
-                var x = in_ptr[i]
-                var erf_val = erf(x / SQRT_2)
-                out_ptr[i] = x * 0.5 * (1.0 + erf_val)
+                var x = Float64(in_ptr[i])
+                var erf_val = erf(x / Float64(SQRT_2))
+                out_ptr[i] = Scalar[dtype](x * 0.5 * (1.0 + erf_val))
 
 
 fn dispatch_gelu(tensor: AnyTensor, approximate: Bool) raises -> AnyTensor:
@@ -950,7 +957,7 @@ fn dispatch_gelu(tensor: AnyTensor, approximate: Bool) raises -> AnyTensor:
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = AnyTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor.shape(), tensor._dtype)
 
     if tensor._dtype == DType.float16:
         _gelu_impl[DType.float16](result, tensor, approximate)
@@ -1021,47 +1028,51 @@ fn _gelu_backward_impl[
     elif dtype == DType.float32:
         if approximate:
             for i in range(x._numel):
-                var x_val = x_ptr[i]
-                var grad = grad_ptr[i]
+                var x_val = Float32(x_ptr[i])
+                var grad = Float32(grad_ptr[i])
                 var x_cubed = x_val * x_val * x_val
-                var inner = SQRT_2_OVER_PI * (x_val + GELU_COEFF * x_cubed)
+                var inner = Float32(SQRT_2_OVER_PI) * (
+                    x_val + Float32(GELU_COEFF) * x_cubed
+                )
                 var tanh_val = math_tanh(inner)
                 var sech2 = 1.0 - tanh_val * tanh_val
-                var dtanh = SQRT_2_OVER_PI * (
-                    1.0 + 3.0 * GELU_COEFF * x_val * x_val
+                var dtanh = Float32(SQRT_2_OVER_PI) * (
+                    1.0 + 3.0 * Float32(GELU_COEFF) * x_val * x_val
                 )
                 var dgelu = 0.5 * (1.0 + tanh_val) + 0.5 * x_val * sech2 * dtanh
-                result_ptr[i] = grad * dgelu
+                result_ptr[i] = Scalar[dtype](grad * dgelu)
         else:
             for i in range(x._numel):
-                var x_val = x_ptr[i]
-                var grad = grad_ptr[i]
-                var erf_val = erf(x_val / SQRT_2)
-                var pdf = INV_SQRT_2PI * exp(-0.5 * x_val * x_val)
+                var x_val = Float32(x_ptr[i])
+                var grad = Float32(grad_ptr[i])
+                var erf_val = erf(x_val / Float32(SQRT_2))
+                var pdf = Float32(INV_SQRT_2PI) * exp(-0.5 * x_val * x_val)
                 var dgelu = 0.5 * (1.0 + erf_val) + x_val * pdf
-                result_ptr[i] = grad * dgelu
+                result_ptr[i] = Scalar[dtype](grad * dgelu)
     else:  # float64
         if approximate:
             for i in range(x._numel):
-                var x_val = x_ptr[i]
-                var grad = grad_ptr[i]
+                var x_val = Float64(x_ptr[i])
+                var grad = Float64(grad_ptr[i])
                 var x_cubed = x_val * x_val * x_val
-                var inner = SQRT_2_OVER_PI * (x_val + GELU_COEFF * x_cubed)
+                var inner = Float64(SQRT_2_OVER_PI) * (
+                    x_val + Float64(GELU_COEFF) * x_cubed
+                )
                 var tanh_val = math_tanh(inner)
                 var sech2 = 1.0 - tanh_val * tanh_val
-                var dtanh = SQRT_2_OVER_PI * (
-                    1.0 + 3.0 * GELU_COEFF * x_val * x_val
+                var dtanh = Float64(SQRT_2_OVER_PI) * (
+                    1.0 + 3.0 * Float64(GELU_COEFF) * x_val * x_val
                 )
                 var dgelu = 0.5 * (1.0 + tanh_val) + 0.5 * x_val * sech2 * dtanh
-                result_ptr[i] = grad * dgelu
+                result_ptr[i] = Scalar[dtype](grad * dgelu)
         else:
             for i in range(x._numel):
-                var x_val = x_ptr[i]
-                var grad = grad_ptr[i]
-                var erf_val = erf(x_val / SQRT_2)
-                var pdf = INV_SQRT_2PI * exp(-0.5 * x_val * x_val)
+                var x_val = Float64(x_ptr[i])
+                var grad = Float64(grad_ptr[i])
+                var erf_val = erf(x_val / Float64(SQRT_2))
+                var pdf = Float64(INV_SQRT_2PI) * exp(-0.5 * x_val * x_val)
                 var dgelu = 0.5 * (1.0 + erf_val) + x_val * pdf
-                result_ptr[i] = grad * dgelu
+                result_ptr[i] = Scalar[dtype](grad * dgelu)
 
 
 fn dispatch_gelu_backward(
@@ -1080,7 +1091,7 @@ fn dispatch_gelu_backward(
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = AnyTensor(x._shape, x._dtype)
+    var result = AnyTensor(x.shape(), x._dtype)
 
     if x._dtype == DType.float16:
         _gelu_backward_impl[DType.float16](result, grad_output, x, approximate)
@@ -1142,7 +1153,7 @@ fn dispatch_hard_sigmoid(tensor: AnyTensor) raises -> AnyTensor:
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = AnyTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor.shape(), tensor._dtype)
 
     if tensor._dtype == DType.float16:
         _hard_sigmoid_impl[DType.float16](result, tensor)
@@ -1216,7 +1227,7 @@ fn dispatch_hard_sigmoid_backward(
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = AnyTensor(x._shape, x._dtype)
+    var result = AnyTensor(x.shape(), x._dtype)
 
     if x._dtype == DType.float16:
         _hard_sigmoid_backward_impl[DType.float16](result, grad_output, x)
@@ -1288,7 +1299,7 @@ fn dispatch_hard_swish(tensor: AnyTensor) raises -> AnyTensor:
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = AnyTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor.shape(), tensor._dtype)
 
     if tensor._dtype == DType.float16:
         _hard_swish_impl[DType.float16](result, tensor)
@@ -1367,7 +1378,7 @@ fn dispatch_hard_swish_backward(
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = AnyTensor(x._shape, x._dtype)
+    var result = AnyTensor(x.shape(), x._dtype)
 
     if x._dtype == DType.float16:
         _hard_swish_backward_impl[DType.float16](result, grad_output, x)
@@ -1428,7 +1439,7 @@ fn dispatch_hard_tanh(
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = AnyTensor(tensor._shape, tensor._dtype)
+    var result = AnyTensor(tensor.shape(), tensor._dtype)
 
     if tensor._dtype == DType.float16:
         _hard_tanh_impl[DType.float16](result, tensor, min_val, max_val)
@@ -1500,7 +1511,7 @@ fn dispatch_hard_tanh_backward(
     Raises:
         Error: If dtype is not float16/32/64.
     """
-    var result = AnyTensor(x._shape, x._dtype)
+    var result = AnyTensor(x.shape(), x._dtype)
 
     if x._dtype == DType.float16:
         _hard_tanh_backward_impl[DType.float16](

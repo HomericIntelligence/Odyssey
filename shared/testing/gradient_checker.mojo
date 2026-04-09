@@ -136,9 +136,10 @@ fn _is_uniform_tensor(tensor: AnyTensor) -> Bool:
 
 
 fn _check_gradients_perturb[
-    dtype: DType
+    dtype: DType,
+    ForwardFn: fn(AnyTensor) raises capturing -> AnyTensor,
 ](
-    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
+    forward_fn: ForwardFn,
     input: AnyTensor,
     input_copy_plus: AnyTensor,
     input_copy_minus: AnyTensor,
@@ -185,8 +186,10 @@ fn _check_gradients_perturb[
         minus_ptr[i] = Scalar[dtype](original_val)
 
 
-fn _dispatch_check_gradients_perturb(
-    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
+fn _dispatch_check_gradients_perturb[
+    ForwardFn: fn(AnyTensor) raises capturing -> AnyTensor,
+](
+    forward_fn: ForwardFn,
     input: AnyTensor,
     input_copy_plus: AnyTensor,
     input_copy_minus: AnyTensor,
@@ -220,9 +223,12 @@ fn _dispatch_check_gradients_perturb(
         )
 
 
-fn check_gradients(
-    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
-    backward_fn: fn (AnyTensor, AnyTensor) raises escaping -> AnyTensor,
+fn check_gradients[
+    ForwardFn: fn(AnyTensor) raises capturing -> AnyTensor,
+    BackwardFn: fn(AnyTensor, AnyTensor) raises capturing -> AnyTensor,
+](
+    forward_fn: ForwardFn,
+    backward_fn: BackwardFn,
     input: AnyTensor,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
     tolerance: Float64 = 1e-2,
@@ -344,9 +350,12 @@ fn check_gradients(
     return True
 
 
-fn check_gradients_verbose(
-    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
-    backward_fn: fn (AnyTensor, AnyTensor) raises escaping -> AnyTensor,
+fn check_gradients_verbose[
+    ForwardFn: fn(AnyTensor) raises capturing -> AnyTensor,
+    BackwardFn: fn(AnyTensor, AnyTensor) raises capturing -> AnyTensor,
+](
+    forward_fn: ForwardFn,
+    backward_fn: BackwardFn,
     input: AnyTensor,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
     tolerance: Float64 = 1e-2,
@@ -475,9 +484,10 @@ fn relative_error(analytical: Float64, numerical: Float64) -> Float64:
 
 
 fn _compute_numerical_grad_perturb[
-    dtype: DType
+    dtype: DType,
+    ForwardFn: fn(AnyTensor) raises capturing -> AnyTensor,
 ](
-    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
+    forward_fn: ForwardFn,
     x: AnyTensor,
     grad: AnyTensor,
     epsilon: Float64,
@@ -521,8 +531,10 @@ fn _compute_numerical_grad_perturb[
         grad_ptr[i] = Scalar[dtype](grad_val)
 
 
-fn compute_numerical_gradient(
-    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
+fn compute_numerical_gradient[
+    ForwardFn: fn(AnyTensor) raises capturing -> AnyTensor,
+](
+    forward_fn: ForwardFn,
     x: AnyTensor,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
 ) raises -> AnyTensor:
@@ -603,9 +615,10 @@ fn compute_numerical_gradient(
 
 
 fn _compute_sampled_grad_perturb[
-    dtype: DType
+    dtype: DType,
+    ForwardFn: fn(AnyTensor) raises capturing -> AnyTensor,
 ](
-    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
+    forward_fn: ForwardFn,
     x: AnyTensor,
     indices: List[Int],
     mut gradients: List[IndexGradientPair],
@@ -643,8 +656,10 @@ fn _compute_sampled_grad_perturb[
         gradients.append(IndexGradientPair(idx, grad))
 
 
-fn compute_sampled_numerical_gradient(
-    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
+fn compute_sampled_numerical_gradient[
+    ForwardFn: fn(AnyTensor) raises capturing -> AnyTensor,
+](
+    forward_fn: ForwardFn,
     x: AnyTensor,
     num_samples: Int = 100,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
@@ -680,7 +695,7 @@ fn compute_sampled_numerical_gradient(
 
     Example:
         ```mojo
-        fn forward(x: AnyTensor) raises escaping -> AnyTensor:
+        fn forward(x: AnyTensor) raises -> AnyTensor:
             return relu(x)
 
         var x = AnyTensor([100, 100], DType.float32)
@@ -924,9 +939,10 @@ fn assert_gradients_close(
 
 
 fn _check_gradient_perturb[
-    dtype: DType
+    dtype: DType,
+    ForwardFn: fn(AnyTensor) raises capturing -> AnyTensor,
 ](
-    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
+    forward_fn: ForwardFn,
     x: AnyTensor,
     grad_output: AnyTensor,
     grad: AnyTensor,
@@ -972,9 +988,12 @@ fn _check_gradient_perturb[
         grad_ptr[i] = Scalar[dtype](numerical_grad)
 
 
-fn check_gradient(
-    forward_fn: fn (AnyTensor) raises escaping -> AnyTensor,
-    backward_fn: fn (AnyTensor, AnyTensor) raises escaping -> AnyTensor,
+fn check_gradient[
+    ForwardFn: fn(AnyTensor) raises capturing -> AnyTensor,
+    BackwardFn: fn(AnyTensor, AnyTensor) raises capturing -> AnyTensor,
+](
+    forward_fn: ForwardFn,
+    backward_fn: BackwardFn,
     x: AnyTensor,
     grad_output: AnyTensor,
     epsilon: Float64 = 0.0,  # Auto-select based on dtype if 0.0
@@ -1004,10 +1023,10 @@ fn check_gradient(
                 var x = AnyTensor(List[Int](), DType.float32)
                 # ... initialize x with test values ...
 
-                fn forward(inp: AnyTensor) raises escaping -> AnyTensor:
+                fn forward(inp: AnyTensor) raises -> AnyTensor:
                     return relu(inp)
 
-                fn backward_wrapper(grad: AnyTensor, x: AnyTensor) raises escaping -> AnyTensor:
+                fn backward_wrapper(grad: AnyTensor, x: AnyTensor) raises -> AnyTensor:
                     return relu_backward(grad, x)
 
                 var grad_out = ones_like(relu(x))

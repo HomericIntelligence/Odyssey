@@ -32,37 +32,11 @@ struct SavedTensors(Copyable, Movable):
 
     fn __init__(out self):
         """Initialize empty saved tensors."""
-        self.tensors: List[AnyTensor] = []
+        self.tensors = List[AnyTensor]()
         self.shapes = List[List[Int]]()
-        self.scalars: List[Float64] = []
+        self.scalars = List[Float64]()
 
-    fn __copyinit__(out self, existing: Self):
-        """Copy constructor - explicitly copy lists."""
-        # Initialize empty lists
-        self.tensors: List[AnyTensor] = []
-        self.shapes = List[List[Int]]()
-        self.scalars: List[Float64] = []
 
-        # Copy tensors (AnyTensor is Copyable)
-        for i in range(len(existing.tensors)):
-            self.tensors.append(existing.tensors[i])
-
-        # Copy shapes (List[Int] needs explicit copy)
-        for i in range(len(existing.shapes)):
-            var shape_copy = List[Int]()
-            for j in range(len(existing.shapes[i])):
-                shape_copy.append(existing.shapes[i][j])
-            self.shapes.append(shape_copy^)
-
-        # Copy scalars
-        for i in range(len(existing.scalars)):
-            self.scalars.append(existing.scalars[i])
-
-    fn __moveinit__(out self, deinit existing: Self):
-        """Move constructor."""
-        self.tensors = existing.tensors^
-        self.shapes = existing.shapes^
-        self.scalars = existing.scalars^
 
     fn add_tensor(mut self, tensor: AnyTensor) raises:
         """Save a tensor for backward pass.
@@ -154,34 +128,7 @@ struct TapeNode(Copyable, Movable):
         self.output_id = output_id
         self.saved = saved^
 
-    fn __moveinit__(out self, deinit existing: Self):
-        """Move constructor."""
-        self.op_type = existing.op_type
-        self.input_ids = existing.input_ids^
-        self.output_id = existing.output_id
-        self.saved = existing.saved^
 
-    fn __copyinit__(out self, existing: Self):
-        """Copy constructor - explicitly copy lists."""
-        self.op_type = existing.op_type
-        self.output_id = existing.output_id
-
-        # Explicitly initialize and copy SavedTensors
-        self.saved = SavedTensors()
-        for i in range(len(existing.saved.tensors)):
-            self.saved.tensors.append(existing.saved.tensors[i])
-        for i in range(len(existing.saved.shapes)):
-            var shape_copy = List[Int]()
-            for j in range(len(existing.saved.shapes[i])):
-                shape_copy.append(existing.saved.shapes[i][j])
-            self.saved.shapes.append(shape_copy^)
-        for i in range(len(existing.saved.scalars)):
-            self.saved.scalars.append(existing.saved.scalars[i])
-
-        # Copy input_ids list
-        self.input_ids = List[Int]()
-        for i in range(len(existing.input_ids)):
-            self.input_ids.append(existing.input_ids[i])
 
 
 struct VariableRegistry:
@@ -202,9 +149,9 @@ struct VariableRegistry:
 
     fn __init__(out self):
         """Initialize empty registry."""
-        self.grads: List[AnyTensor] = []
-        self.has_grad: List[Bool] = []
-        self.requires_grad: List[Bool] = []
+        self.grads = []
+        self.has_grad = []
+        self.requires_grad = []
         self.next_id = 0
 
     fn register(mut self, requires_grad: Bool) raises -> Int:

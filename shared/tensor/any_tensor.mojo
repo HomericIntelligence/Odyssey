@@ -74,9 +74,8 @@ struct AnyTensor(
     Hashable,
     ImplicitlyCopyable,
     Movable,
-    Representable,
     Sized,
-    Stringable,
+    Writable,
     TensorLike,
 ):
     """Dynamic tensor with runtime-determined shape and data type.
@@ -429,45 +428,38 @@ struct AnyTensor(
         for i in range(len(data)):
             self._set_float64(i, Float64(data[i]))
 
-    fn __copyinit__(out self, existing: Self):
-        """Copy constructor - creates shared ownership with reference counting.
 
-        Creates a new reference to the same underlying data.
-        Increments the reference count to track shared ownership.
+
+    fn __init__(out self, *, copy: Self):
+        """Copy constructor - creates a shared-ownership copy with reference counting.
+
+        Copies all fields and increments the reference count to track shared ownership.
         This prevents double-free and enables safe view semantics.
-
         """
-        # Shallow copy all fields
-        self._data = existing._data
-        self._shape = existing._shape.copy()
-        self._strides = existing._strides.copy()
-        self._dtype = existing._dtype
-        self._numel = existing._numel
-        self._is_view = existing._is_view
-        self._refcount = existing._refcount
-        self._original_numel_quantized = existing._original_numel_quantized
-        self._allocated_size = existing._allocated_size
-
+        self._data = copy._data
+        self._shape = copy._shape.copy()
+        self._strides = copy._strides.copy()
+        self._dtype = copy._dtype
+        self._numel = copy._numel
+        self._is_view = copy._is_view
+        self._refcount = copy._refcount
+        self._original_numel_quantized = copy._original_numel_quantized
+        self._allocated_size = copy._allocated_size
         # Increment reference count (shared ownership)
-        # All copies (views or not) participate in refcount management
         if self._refcount:
             self._refcount[] += 1
 
-    fn __moveinit__(out self, deinit existing: Self):
-        """Move constructor - transfers ownership.
-
-        For safety, we copy the List fields instead of moving them with ^
-        to avoid potential corruption issues with List's internal buffer.
-        """
-        self._data = existing._data
-        self._shape = existing._shape.copy()
-        self._strides = existing._strides.copy()
-        self._dtype = existing._dtype
-        self._numel = existing._numel
-        self._is_view = existing._is_view
-        self._refcount = existing._refcount
-        self._original_numel_quantized = existing._original_numel_quantized
-        self._allocated_size = existing._allocated_size
+    fn __init__(out self, *, deinit take: Self):
+        """Move constructor - transfers ownership without refcount change."""
+        self._data = take._data
+        self._shape = take._shape^
+        self._strides = take._strides^
+        self._dtype = take._dtype
+        self._numel = take._numel
+        self._is_view = take._is_view
+        self._refcount = take._refcount
+        self._original_numel_quantized = take._original_numel_quantized
+        self._allocated_size = take._allocated_size
 
     fn __del__(deinit self):
         """Destructor - decrements ref count, frees if last reference.
@@ -489,6 +481,29 @@ struct AnyTensor(
                 if not self._is_view:
                     pooled_free(self._data, self._allocated_size)
                 self._refcount.free()
+
+    fn copy(self) -> Self:
+        """Create a shared-ownership copy with reference counting.
+
+        Creates a new reference to the same underlying data.
+        Increments the reference count to track shared ownership.
+        This prevents double-free and enables safe view semantics.
+        """
+        from memory import alloc as mem_alloc
+        var ptr = mem_alloc[AnyTensor](1)
+        ptr[0]._data = self._data
+        ptr[0]._shape = self._shape.copy()
+        ptr[0]._strides = self._strides.copy()
+        ptr[0]._dtype = self._dtype
+        ptr[0]._numel = self._numel
+        ptr[0]._is_view = self._is_view
+        ptr[0]._refcount = self._refcount
+        ptr[0]._original_numel_quantized = self._original_numel_quantized
+        ptr[0]._allocated_size = self._allocated_size
+        # Increment reference count (shared ownership)
+        if self._refcount:
+            self._refcount[] += 1
+        return ptr.take_pointee()
 
     fn _get_dtype_size(self) -> Int:
         """Get size in bytes for the tensor's dtype."""
@@ -1458,7 +1473,7 @@ struct AnyTensor(
             var raw_ptr = (self._data + offset).bitcast[UInt16]()
             var raw: UInt16 = raw_ptr[]
             var f32_bits: UInt32 = UInt32(raw) << 16
-            var f32_val = UnsafePointer[UInt32](to=f32_bits).bitcast[Float32]()[]
+            var f32_val = UnsafePointer[UInt32, MutAnyOrigin](to=f32_bits).bitcast[Float32]()[]
             return Float64(f32_val)
         elif self._dtype == DType.float32:
             var ptr = (self._data + offset).bitcast[Float32]()
@@ -3540,7 +3555,7 @@ struct AnyTensor(
                 # Canonical NaN: positive quiet NaN (0x7FF8000000000000)
                 hasher.update(UInt64(0x7FF8000000000000))
             else:
-                var int_bits = UnsafePointer[Float64](to=val).bitcast[
+                var int_bits = UnsafePointer[Float64, MutAnyOrigin](to=val).bitcast[
                     UInt64
                 ]()[]
                 hasher.update(int_bits)

@@ -34,7 +34,7 @@ fn _broadcast_binary_typed[
     """Apply binary operation with broadcasting on native Tensor[dtype].
 
     This is the core implementation -- zero dtype branches, zero bitcasts.
-    Tensor[dtype]._data is already typed as UnsafePointer[Scalar[dtype]].
+    Tensor[dtype]._data is already typed as UnsafePointer[Scalar[dtype], MutAnyOrigin].
 
     Parameters:
         dtype: Compile-time dtype parameter.

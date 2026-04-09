@@ -33,7 +33,7 @@ from shared.base.dtype_ordinal import (
 fn _relu_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
     """Native typed ReLU -- zero dtype branches.
 
-    Tensor[dt]._data is already typed as UnsafePointer[Scalar[dt]].
+    Tensor[dt]._data is already typed as UnsafePointer[Scalar[dt], MutAnyOrigin].
 
     Args:
         input: Input tensor (typed).
@@ -84,7 +84,7 @@ fn _sigmoid_typed[dt: DType](input: Tensor[dt]) raises -> Tensor[dt]:
         elif x < Scalar[dt](-SIGMOID_CLIP_THRESHOLD):
             result._data[i] = Scalar[dt](0.0)
         else:
-            result._data[i] = Scalar[dt](1.0) / (Scalar[dt](1.0) + exp(-x))
+            result._data[i] = Scalar[dt](1.0) / (Scalar[dt](1.0) + Scalar[dt](exp(-Float32(x))))
     return result^
 
 
@@ -130,7 +130,7 @@ fn _elu_typed[dt: DType](
             result._data[i] = val
         else:
             var val_clipped = max(val, Scalar[dt](-20.0))
-            result._data[i] = alpha_typed * (exp(val_clipped) - Scalar[dt](1.0))
+            result._data[i] = alpha_typed * (Scalar[dt](exp(Float32(val_clipped))) - Scalar[dt](1.0))
     return result^
 
 
@@ -157,7 +157,7 @@ fn _selu_typed[dt: DType](
             result._data[i] = lambda_typed * val
         else:
             var val_clipped = max(val, Scalar[dt](-20.0))
-            result._data[i] = lambda_typed * alpha_typed * (exp(val_clipped) - Scalar[dt](1.0))
+            result._data[i] = lambda_typed * alpha_typed * (Scalar[dt](exp(Float32(val_clipped))) - Scalar[dt](1.0))
     return result^
 
 

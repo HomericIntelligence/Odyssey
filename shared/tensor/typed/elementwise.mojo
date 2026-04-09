@@ -32,7 +32,7 @@ fn _unary_typed[
     """Apply unary operation on native Tensor[dtype] -- zero dtype branches.
 
     This is the core implementation. Tensor[dt]._data is already typed as
-    UnsafePointer[Scalar[dt]], so no bitcasts are needed.
+    UnsafePointer[Scalar[dt], MutAnyOrigin], so no bitcasts are needed.
 
     Parameters:
         dt: Compile-time dtype parameter.

@@ -469,13 +469,13 @@ fn format_time(time_ms: Float64) -> String:
         Formatted string (e.g., "12.34ms").
     """
     if time_ms < 0.01:
-        return String(String(time_ms * 1000.0)[0:6]) + "us"
+        return String(time_ms * 1000.0).substr(0, 6) + "us"
     elif time_ms < 1.0:
-        return String(String(time_ms)[0:6]) + "ms"
+        return String(time_ms).substr(0, 6) + "ms"
     elif time_ms < 1000.0:
-        return String(String(time_ms)[0:7]) + "ms"
+        return String(time_ms).substr(0, 7) + "ms"
     else:
-        return String(String(time_ms / 1000.0)[0:6]) + "s"
+        return String(time_ms / 1000.0).substr(0, 6) + "s"
 
 
 fn format_gflops(gflops: Float64) -> String:
@@ -488,13 +488,13 @@ fn format_gflops(gflops: Float64) -> String:
         Formatted string (e.g., "12.3").
     """
     if gflops < 1.0:
-        return String(String(gflops)[0:5])
+        return String(gflops).substr(0, 5)
     elif gflops < 10.0:
-        return String(String(gflops)[0:4])
+        return String(gflops).substr(0, 4)
     elif gflops < 100.0:
-        return String(String(gflops)[0:5])
+        return String(gflops).substr(0, 5)
     else:
-        return String(String(gflops)[0:6])
+        return String(gflops).substr(0, 6)
 
 
 fn format_speedup(speedup: Float64) -> String:
@@ -507,13 +507,13 @@ fn format_speedup(speedup: Float64) -> String:
         Formatted string (e.g., "12.3x").
     """
     if speedup < 1.0:
-        return String(String(speedup)[0:4]) + "x"
+        return String(speedup).substr(0, 4) + "x"
     elif speedup < 10.0:
-        return String(String(speedup)[0:4]) + "x"
+        return String(speedup).substr(0, 4) + "x"
     elif speedup < 100.0:
-        return String(String(speedup)[0:5]) + "x"
+        return String(speedup).substr(0, 5) + "x"
     else:
-        return String(String(speedup)[0:6]) + "x"
+        return String(speedup).substr(0, 6) + "x"
 
 
 fn run_benchmarks[
