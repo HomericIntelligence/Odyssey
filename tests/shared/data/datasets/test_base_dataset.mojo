@@ -37,7 +37,7 @@ struct StubDataset:
         """Return number of samples in dataset."""
         return self.size
 
-    def __getitem__(self, index: Int) raises unified {read} -> Tuple[Float32, Int]:
+    def __getitem__(self, index: Int) raises -> Tuple[Float32, Int]:
         """Get sample at index.
 
         Args:

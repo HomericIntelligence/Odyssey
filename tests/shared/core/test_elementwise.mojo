@@ -133,14 +133,14 @@ def test_abs_backward_gradient() raises:
     x.set(2, Float32(1.5))
 
     # Forward function wrapper
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return abs(inp)
 
     var y = abs(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
+    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return abs_backward(grad, inp)
 
     # Use numerical gradient checking (gold standard)
@@ -296,14 +296,14 @@ def test_exp_backward_gradient() raises:
     x.set(2, Float32(0.5))
 
     # Forward function wrapper
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return exp(inp)
 
     var y = exp(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
+    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return exp_backward(grad, inp)
 
     # Use numerical gradient checking (gold standard)
@@ -380,14 +380,14 @@ def test_log_backward_gradient() raises:
     x.set(2, Float32(2.0))
 
     # Forward function wrapper
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return log(inp)
 
     var y = log(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
+    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return log_backward(grad, inp)
 
     # Use numerical gradient checking (gold standard)
@@ -430,14 +430,14 @@ def test_log10_backward_gradient() raises:
     x.set(2, Float32(2.0))
 
     # Forward function wrapper
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return log10(inp)
 
     var y = log10(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
+    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return log10_backward(grad, inp)
 
     # Use numerical gradient checking (gold standard)
@@ -480,14 +480,14 @@ def test_log2_backward_gradient() raises:
     x.set(2, Float32(2.0))
 
     # Forward function wrapper
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return log2(inp)
 
     var y = log2(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
+    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return log2_backward(grad, inp)
 
     # Use numerical gradient checking (gold standard)
@@ -569,14 +569,14 @@ def test_sqrt_backward_gradient() raises:
     x.set(2, Float32(2.0))
 
     # Forward function wrapper
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return sqrt(inp)
 
     var y = sqrt(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
+    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return sqrt_backward(grad, inp)
 
     # Use numerical gradient checking (gold standard)
@@ -669,14 +669,14 @@ def test_sin_backward_gradient() raises:
     x.set(2, Float32(0.5))
 
     # Forward function wrapper
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return sin(inp)
 
     var y = sin(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
+    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return sin_backward(grad, inp)
 
     # Use numerical gradient checking (gold standard)
@@ -721,14 +721,14 @@ def test_cos_backward_gradient() raises:
     x.set(2, Float32(0.5))
 
     # Forward function wrapper
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return cos(inp)
 
     var y = cos(x)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
+    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return cos_backward(grad, inp)
 
     # Use numerical gradient checking (gold standard)
@@ -825,14 +825,14 @@ def test_clip_backward_gradient() raises:
     x.set(2, Float32(0.5))
 
     # Forward function wrapper
-    def forward(inp: AnyTensor) raises unified {read} -> AnyTensor:
+    def forward(inp: AnyTensor) raises -> AnyTensor:
         return clip(inp, min_val=-1.0, max_val=1.0)
 
     var y = clip(x, min_val=-1.0, max_val=1.0)
     var grad_out = ones_like(y)
 
     # Backward function wrapper
-    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises unified {read} -> AnyTensor:
+    def backward_fn(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return clip_backward(grad, inp, min_val=-1.0, max_val=1.0)
 
     # Use numerical gradient checking (gold standard)

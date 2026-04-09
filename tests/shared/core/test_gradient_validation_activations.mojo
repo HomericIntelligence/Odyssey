@@ -37,10 +37,10 @@ def test_relu_gradient_positive_values() raises:
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
+    ) raises -> AnyTensor:
         return relu_backward(grad_out, inp)
 
-    var passed = check_gradients(forward, backward_fn, 
+    var passed = check_gradients(forward, backward_fn,
         x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "ReLU gradient check failed for positive values")
@@ -57,10 +57,10 @@ def test_relu_gradient_negative_values() raises:
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
+    ) raises -> AnyTensor:
         return relu_backward(grad_out, inp)
 
-    var passed = check_gradients(forward, backward_fn, 
+    var passed = check_gradients(forward, backward_fn,
         x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "ReLU gradient check failed for negative values")
@@ -77,10 +77,10 @@ def test_relu_gradient_mixed_values() raises:
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
+    ) raises -> AnyTensor:
         return relu_backward(grad_out, inp)
 
-    var passed = check_gradients(forward, backward_fn, 
+    var passed = check_gradients(forward, backward_fn,
         x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "ReLU gradient check failed for mixed values")
@@ -102,10 +102,10 @@ def test_relu_gradient_near_zero() raises:
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
+    ) raises -> AnyTensor:
         return relu_backward(grad_out, inp)
 
-    var passed = check_gradients(forward, backward_fn, 
+    var passed = check_gradients(forward, backward_fn,
         x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "ReLU gradient check failed near zero")
@@ -127,11 +127,11 @@ def test_relu_gradient_large_values() raises:
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
+    ) raises -> AnyTensor:
         return relu_backward(grad_out, inp)
 
     # Use wider tolerance (5%) for large values due to numerical precision
-    var passed = check_gradients(forward, backward_fn, 
+    var passed = check_gradients(forward, backward_fn,
         x, epsilon=1e-5, tolerance=0.05
     )
     assert_true(passed, "ReLU gradient check failed for large values")
@@ -151,11 +151,11 @@ def test_sigmoid_gradient_normal_range() raises:
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
+    ) raises -> AnyTensor:
         var output = sigmoid(inp)  # Compute sigmoid(x) first
         return sigmoid_backward(grad_out, output)
 
-    var passed = check_gradients(forward, backward_fn, 
+    var passed = check_gradients(forward, backward_fn,
         x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "Sigmoid gradient check failed")
@@ -177,12 +177,12 @@ def test_sigmoid_gradient_saturation_positive() raises:
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
+    ) raises -> AnyTensor:
         var output = sigmoid(inp)  # Compute sigmoid(x) first
         return sigmoid_backward(grad_out, output)
 
     # Use tighter tolerance for near-zero gradients
-    var passed = check_gradients(forward, backward_fn, 
+    var passed = check_gradients(forward, backward_fn,
         x, epsilon=1e-4, tolerance=1e-3
     )
     assert_true(passed, "Sigmoid gradient check failed in positive saturation")
@@ -204,12 +204,12 @@ def test_sigmoid_gradient_saturation_negative() raises:
 
     def backward_fn(
         grad_out: AnyTensor, inp: AnyTensor
-    ) raises unified {read} -> AnyTensor:
+    ) raises -> AnyTensor:
         var output = sigmoid(inp)  # Compute sigmoid(x) first
         return sigmoid_backward(grad_out, output)
 
     # Use tighter tolerance for near-zero gradients
-    var passed = check_gradients(forward, backward_fn, 
+    var passed = check_gradients(forward, backward_fn,
         x, epsilon=1e-4, tolerance=1e-3
     )
     assert_true(passed, "Sigmoid gradient check failed in negative saturation")

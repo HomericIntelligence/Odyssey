@@ -47,7 +47,7 @@ def test_tanh_gradient() raises:
         var output = tanh(inp)  # Compute tanh(x) first
         return tanh_backward(grad_out, output)
 
-    var passed = check_gradients(forward, backward_fn, 
+    var passed = check_gradients(forward, backward_fn,
         x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "Tanh gradient check failed")
@@ -70,7 +70,7 @@ def test_gelu_gradient() raises:
     ) raises unified {read} -> AnyTensor:
         return gelu_backward(grad_out, inp)
 
-    var passed = check_gradients(forward, backward_fn, 
+    var passed = check_gradients(forward, backward_fn,
         x, epsilon=1e-5, tolerance=1e-2
     )
     assert_true(passed, "GELU gradient check failed")
@@ -117,7 +117,7 @@ def test_conv2d_gradient_input() raises:
         return result.grad_input
 
     # Use slightly larger epsilon for conv (more complex operation)
-    var passed = check_gradients(forward, backward_fn, 
+    var passed = check_gradients(forward, backward_fn,
         x, epsilon=1e-4, tolerance=1e-2
     )
     assert_true(passed, "Conv2D input gradient check failed")
@@ -160,7 +160,7 @@ def test_linear_gradient_input() raises:
         return result.grad_input
 
     # Wider tolerance (1.5%) for matrix operations
-    var passed = check_gradients(forward, backward_fn, 
+    var passed = check_gradients(forward, backward_fn,
         x, epsilon=1e-5, tolerance=0.015
     )
     assert_true(passed, "Linear input gradient check failed")

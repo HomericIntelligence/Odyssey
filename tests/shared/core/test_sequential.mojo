@@ -40,7 +40,7 @@ struct IdentityModule(Module, Movable):
         """Initialize identity module."""
         self.is_training = True
 
-    def forward(mut self, input: AnyTensor) raises unified {read} -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Return input unchanged.
 
         Args:
@@ -51,7 +51,7 @@ struct IdentityModule(Module, Movable):
         """
         return input
 
-    def parameters(self) raises unified {read} -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Return empty parameter list.
 
         Returns:
@@ -87,7 +87,7 @@ struct ScaleModule(Module, Movable):
         self.scale = scale
         self.is_training = True
 
-    def forward(mut self, input: AnyTensor) raises unified {read} -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Scale all elements by self.scale.
 
         Args:
@@ -103,7 +103,7 @@ struct ScaleModule(Module, Movable):
             result.set(i, input[i] * self.scale)
         return result
 
-    def parameters(self) raises unified {read} -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Return empty parameter list.
 
         Returns:
@@ -135,7 +135,7 @@ struct CountingModule:
         self.call_count = 0
         self.is_training = True
 
-    def forward(mut self, input: AnyTensor) raises unified {read} -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Increment call count and return input unchanged.
 
         Args:
@@ -147,7 +147,7 @@ struct CountingModule:
         self.call_count += 1
         return input
 
-    def parameters(self) raises unified {read} -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Return empty parameter list.
 
         Returns:
@@ -182,7 +182,7 @@ struct DummyModuleWithParams(Module, Movable):
         self.num_params = num_params
         self.is_training = True
 
-    def forward(mut self, input: AnyTensor) raises unified {read} -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Return input unchanged.
 
         Args:
@@ -193,7 +193,7 @@ struct DummyModuleWithParams(Module, Movable):
         """
         return input
 
-    def parameters(self) raises unified {read} -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Return dummy parameter list of specified size.
 
         Returns:

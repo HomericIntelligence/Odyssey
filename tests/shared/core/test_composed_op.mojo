@@ -45,7 +45,7 @@ struct ScaleMul(Copyable, Differentiable, Movable):
         self.scale = scale
         self.last_input = make_tensor_with_shape(1)
 
-    def forward(mut self, input: AnyTensor) raises unified {read} -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: multiply by scale."""
         self.last_input = input.copy()
         var output = input.copy()
@@ -54,7 +54,7 @@ struct ScaleMul(Copyable, Differentiable, Movable):
             output._set_float64(i, input._get_float64(i) * self.scale)
         return output
 
-    def backward(self, grad_output: AnyTensor) raises unified {read} -> AnyTensor:
+    def backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Backward pass: multiply gradient by scale."""
         # Use clone() for deep copy - copy() creates a shallow view that shares data
         var grad_input = grad_output.clone()
@@ -80,7 +80,7 @@ struct ScaleAdd(Copyable, Differentiable, Movable):
         self.offset = offset
         self.last_input = make_tensor_with_shape(1)
 
-    def forward(mut self, input: AnyTensor) raises unified {read} -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: add offset."""
         self.last_input = input.copy()
         var output = input.copy()
@@ -89,7 +89,7 @@ struct ScaleAdd(Copyable, Differentiable, Movable):
             output._set_float64(i, input._get_float64(i) + self.offset)
         return output
 
-    def backward(self, grad_output: AnyTensor) raises unified {read} -> AnyTensor:
+    def backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Backward pass: gradient passes through unchanged."""
         # Use clone() for deep copy - copy() creates a shallow view that shares data
         return grad_output.clone()

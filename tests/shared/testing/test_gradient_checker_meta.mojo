@@ -118,7 +118,7 @@ def test_gradient_checker_accepts_correct_gradient() raises:
     def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return square_backward_correct(grad, inp)
 
-    var passed = check_gradients(forward, backward, 
+    var passed = check_gradients(forward, backward,
         x,
         epsilon=1e-5,
         tolerance=1e-2,
@@ -152,7 +152,7 @@ def test_gradient_checker_correct_gradient_multiple_values() raises:
         def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
             return square_backward_correct(grad, inp)
 
-        var passed = check_gradients(forward, backward, 
+        var passed = check_gradients(forward, backward,
         x,
             epsilon=1e-5,
             tolerance=1e-2,
@@ -179,7 +179,7 @@ def test_gradient_checker_correct_gradient_multidimensional() raises:
     def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return square_backward_correct(grad, inp)
 
-    var passed = check_gradients(forward, backward, 
+    var passed = check_gradients(forward, backward,
         x,
         epsilon=1e-5,
         tolerance=1e-2,
@@ -208,7 +208,7 @@ def test_gradient_checker_rejects_wrong_gradient_linear() raises:
     def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return square_backward_wrong_linear(grad, inp)
 
-    var passed = check_gradients(forward, backward, 
+    var passed = check_gradients(forward, backward,
         x,
         epsilon=1e-5,
         tolerance=1e-2,
@@ -234,7 +234,7 @@ def test_gradient_checker_rejects_wrong_gradient_triple() raises:
     def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return square_backward_wrong_triple(grad, inp)
 
-    var passed = check_gradients(forward, backward, 
+    var passed = check_gradients(forward, backward,
         x,
         epsilon=1e-5,
         tolerance=1e-2,
@@ -267,7 +267,7 @@ def test_gradient_checker_wrong_gradient_multiple_values() raises:
         def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
             return square_backward_wrong_linear(grad, inp)
 
-        var passed = check_gradients(forward, backward, 
+        var passed = check_gradients(forward, backward,
         x,
             epsilon=1e-5,
             tolerance=1e-2,
@@ -345,7 +345,7 @@ def test_gradient_checker_zero_input() raises:
     def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return square_backward_correct(grad, inp)
 
-    var passed = check_gradients(forward, backward, 
+    var passed = check_gradients(forward, backward,
         x,
         epsilon=1e-5,
         tolerance=1e-2,
@@ -374,7 +374,7 @@ def test_gradient_checker_negative_input() raises:
     def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return square_backward_correct(grad, inp)
 
-    var passed = check_gradients(forward, backward, 
+    var passed = check_gradients(forward, backward,
         x,
         epsilon=1e-5,
         tolerance=1e-2,
@@ -405,7 +405,7 @@ def test_gradient_checker_large_input() raises:
         return square_backward_correct(grad, inp)
 
     # Moderate inputs still need larger tolerance for float32 precision
-    var passed = check_gradients(forward, backward, 
+    var passed = check_gradients(forward, backward,
         x,
         epsilon=1e-5,
         tolerance=0.05,
@@ -431,7 +431,7 @@ def test_gradient_checker_small_epsilon() raises:
     def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return square_backward_correct(grad, inp)
 
-    var passed = check_gradients(forward, backward, 
+    var passed = check_gradients(forward, backward,
         x,
         epsilon=1e-4,
         tolerance=1e-2,
@@ -457,7 +457,7 @@ def test_gradient_checker_large_epsilon() raises:
     def backward(grad: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         return square_backward_correct(grad, inp)
 
-    var passed = check_gradients(forward, backward, 
+    var passed = check_gradients(forward, backward,
         x,
         epsilon=1e-3,
         tolerance=1e-2,

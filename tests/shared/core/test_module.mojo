@@ -29,7 +29,7 @@ struct DummyModule:
         self.output_size = output_size
         self.is_training = True
 
-    def forward(mut self, input: AnyTensor) raises unified {read} -> AnyTensor:
+    def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass returns zeros of specified size.
 
         Args:
@@ -41,7 +41,7 @@ struct DummyModule:
         var shape: List[Int] = [1, self.output_size]
         return zeros(shape, DType.float32)
 
-    def parameters(self) raises unified {read} -> List[AnyTensor]:
+    def parameters(self) raises -> List[AnyTensor]:
         """Return empty parameter list.
 
         Returns:

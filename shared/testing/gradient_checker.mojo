@@ -49,6 +49,22 @@ from shared.tensor.any_tensor import AnyTensor, zeros_like
 
 
 # ============================================================================
+# Forward Function Trait
+# ============================================================================
+
+trait NumericalForward(Copyable, Movable):
+    """Trait for forward functions used in numerical gradient checking.
+
+    Implement this trait on a struct to pass capturing closures to
+    compute_numerical_gradient and compute_sampled_numerical_gradient.
+    This is required because Mojo 0.26.3 does not allow non-escaping
+    capturing closures to be passed as runtime function arguments.
+    """
+
+    def __call__(self, x: AnyTensor) raises -> AnyTensor: ...
+
+
+# ============================================================================
 # Gradient Checking Constants
 # ============================================================================
 
@@ -521,6 +537,47 @@ def _compute_numerical_grad_perturb[
         grad_ptr[i] = Scalar[dtype](grad_val)
 
 
+def _compute_numerical_grad_perturb_trait[
+    dtype: DType,
+    F: NumericalForward,
+](
+    forward_fn: F,
+    x: AnyTensor,
+    grad: AnyTensor,
+    epsilon: Float64,
+) raises:
+    """Trait-based perturbation loop for NumericalForward implementors."""
+    var x_ptr = x.data_ptr[dtype]()
+    var grad_ptr = grad.data_ptr[dtype]()
+
+    for i in range(x.numel()):
+        var original_val = Float64(x_ptr[i])
+
+        x_ptr[i] = Scalar[dtype](original_val + epsilon)
+        var f_plus = forward_fn(x)
+
+        x_ptr[i] = Scalar[dtype](original_val - epsilon)
+        var f_minus = forward_fn(x)
+
+        x_ptr[i] = Scalar[dtype](original_val)
+
+        var f_plus_ptr = f_plus.data_ptr[dtype]()
+        var f_minus_ptr = f_minus.data_ptr[dtype]()
+        var grad_val: Float64
+        if f_plus.numel() == 1:
+            grad_val = (Float64(f_plus_ptr[0]) - Float64(f_minus_ptr[0])) / (
+                2.0 * epsilon
+            )
+        else:
+            grad_val = 0.0
+            for j in range(f_plus.numel()):
+                grad_val += (
+                    Float64(f_plus_ptr[j]) - Float64(f_minus_ptr[j])
+                ) / (2.0 * epsilon)
+
+        grad_ptr[i] = Scalar[dtype](grad_val)
+
+
 def compute_numerical_gradient(
     forward_fn: def(AnyTensor) raises -> AnyTensor,
     x: AnyTensor,
@@ -597,6 +654,41 @@ def compute_numerical_gradient(
     return grad^
 
 
+def compute_numerical_gradient[F: NumericalForward](
+    forward_fn: F,
+    x: AnyTensor,
+    epsilon: Float64 = 3e-4,
+) raises -> AnyTensor:
+    """Compute numerical gradient for a NumericalForward trait implementor.
+
+    Overload for use with capturing closures wrapped in a struct implementing
+    NumericalForward. Required in Mojo 0.26.3 because non-escaping closures
+    cannot be passed as runtime function arguments.
+    """
+    var grad = zeros_like(x)
+    if x._dtype == DType.float16:
+        _compute_numerical_grad_perturb_trait[DType.float16, F](
+            forward_fn, x, grad, epsilon,
+        )
+    elif x._dtype == DType.bfloat16:
+        _compute_numerical_grad_perturb_trait[DType.bfloat16, F](
+            forward_fn, x, grad, epsilon,
+        )
+    elif x._dtype == DType.float32:
+        _compute_numerical_grad_perturb_trait[DType.float32, F](
+            forward_fn, x, grad, epsilon,
+        )
+    elif x._dtype == DType.float64:
+        _compute_numerical_grad_perturb_trait[DType.float64, F](
+            forward_fn, x, grad, epsilon,
+        )
+    else:
+        raise Error(
+            "Unsupported dtype for gradient checking: " + String(x._dtype)
+        )
+    return grad^
+
+
 # ============================================================================
 # Dtype-dispatched perturbation loop for compute_sampled_numerical_gradient
 # ============================================================================
@@ -639,6 +731,42 @@ def _compute_sampled_grad_perturb[
         x_ptr[idx] = Scalar[dtype](original_val)
 
         # Compute gradient: (f(x + ε) - f(x - ε)) / (2ε)
+        var grad = (f_plus_sum - f_minus_sum) / (2.0 * epsilon)
+        gradients.append(IndexGradientPair(idx, grad))
+
+
+def _compute_sampled_grad_perturb_trait[
+    dtype: DType,
+    F: NumericalForward,
+](
+    forward_fn: F,
+    x: AnyTensor,
+    indices: List[Int],
+    mut gradients: List[IndexGradientPair],
+    epsilon: Float64,
+) raises:
+    """Trait-based perturbation loop for sampled gradient computation."""
+    var x_ptr = x.data_ptr[dtype]()
+
+    for idx in indices:
+        var original_val = Float64(x_ptr[idx])
+
+        x_ptr[idx] = Scalar[dtype](original_val + epsilon)
+        var f_plus = forward_fn(x)
+        var f_plus_ptr = f_plus.data_ptr[dtype]()
+        var f_plus_sum: Float64 = 0.0
+        for j in range(f_plus.numel()):
+            f_plus_sum += Float64(f_plus_ptr[j])
+
+        x_ptr[idx] = Scalar[dtype](original_val - epsilon)
+        var f_minus = forward_fn(x)
+        var f_minus_ptr = f_minus.data_ptr[dtype]()
+        var f_minus_sum: Float64 = 0.0
+        for j in range(f_minus.numel()):
+            f_minus_sum += Float64(f_minus_ptr[j])
+
+        x_ptr[idx] = Scalar[dtype](original_val)
+
         var grad = (f_plus_sum - f_minus_sum) / (2.0 * epsilon)
         gradients.append(IndexGradientPair(idx, grad))
 
@@ -735,6 +863,53 @@ def compute_sampled_numerical_gradient(
             "Unsupported dtype for gradient checking: " + String(x._dtype)
         )
 
+    return gradients^
+
+
+def compute_sampled_numerical_gradient[F: NumericalForward](
+    forward_fn: F,
+    x: AnyTensor,
+    num_samples: Int = 100,
+    epsilon: Float64 = 3e-4,
+    seed: Int = 42,
+) raises -> List[IndexGradientPair]:
+    """NumericalForward trait overload of compute_sampled_numerical_gradient.
+
+    For use with capturing closures wrapped in a struct implementing NumericalForward.
+    """
+    var numel = x.numel()
+    var actual_samples = min(num_samples, numel)
+    var indices = List[Int]()
+    indices.append(0)
+    indices.append(numel - 1)
+    var rng_state = seed
+    var samples_needed = actual_samples - 2
+    var count = 0
+    while count < samples_needed:
+        rng_state = ((rng_state * 1103515245 + 12345) % 2147483648) % numel
+        indices.append(rng_state)
+        count += 1
+    var gradients = List[IndexGradientPair]()
+    if x._dtype == DType.float16:
+        _compute_sampled_grad_perturb_trait[DType.float16, F](
+            forward_fn, x, indices, gradients, epsilon,
+        )
+    elif x._dtype == DType.bfloat16:
+        _compute_sampled_grad_perturb_trait[DType.bfloat16, F](
+            forward_fn, x, indices, gradients, epsilon,
+        )
+    elif x._dtype == DType.float32:
+        _compute_sampled_grad_perturb_trait[DType.float32, F](
+            forward_fn, x, indices, gradients, epsilon,
+        )
+    elif x._dtype == DType.float64:
+        _compute_sampled_grad_perturb_trait[DType.float64, F](
+            forward_fn, x, indices, gradients, epsilon,
+        )
+    else:
+        raise Error(
+            "Unsupported dtype for gradient checking: " + String(x._dtype)
+        )
     return gradients^
 
 

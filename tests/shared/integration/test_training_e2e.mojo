@@ -68,7 +68,7 @@ struct SimpleMLP:
         fc2_b_shape.append(5)
         self.fc2_bias = zeros(fc2_b_shape, DType.float32)
 
-    def forward(self, input: AnyTensor) raises unified {read} -> AnyTensor:
+    def forward(self, input: AnyTensor) raises -> AnyTensor:
         """Forward pass: fc1 -> relu -> fc2."""
         var fc1_out = linear(input, self.fc1_weights, self.fc1_bias)
         var relu_out = relu(fc1_out)
@@ -77,7 +77,7 @@ struct SimpleMLP:
 
     def train_step(
         mut self, input: AnyTensor, labels: AnyTensor, learning_rate: Float32
-    ) raises unified {read} -> Float32:
+    ) raises -> Float32:
         """Execute one training step with manual backprop.
 
         Returns:

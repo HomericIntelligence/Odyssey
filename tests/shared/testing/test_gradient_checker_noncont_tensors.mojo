@@ -58,7 +58,7 @@ def test_gradient_check_transposed_input() raises:
 
     # Check gradients on the non-contiguous tensor
     # For f(x) = x*x, f'(x) = 2*x
-    var passed = check_gradients(simple_square, simple_square_backward, 
+    var passed = check_gradients(simple_square, simple_square_backward,
         x_transposed, epsilon=1e-4, tolerance=1e-2
     )
     assert_true(passed, "Gradient check should pass on transposed tensor")
@@ -103,7 +103,7 @@ def test_gradient_check_transposed_relu() raises:
     )
 
     # ReLU gradient should be exact on transposed input
-    var passed = check_gradients(relu_forward, relu_backward, 
+    var passed = check_gradients(relu_forward, relu_backward,
         x_transposed, epsilon=3e-4, tolerance=1e-3
     )
     assert_true(passed, "ReLU gradient check should pass on transposed tensor")
@@ -148,7 +148,7 @@ def test_gradient_check_partial_transpose() raises:
     )
 
     # Test gradient checking on the permuted tensor
-    var passed = check_gradients(simple_square, simple_square_backward, 
+    var passed = check_gradients(simple_square, simple_square_backward,
         x_permuted, epsilon=1e-4, tolerance=1e-2
     )
     assert_true(passed, "Gradient check should pass on permuted tensor")
@@ -191,7 +191,7 @@ def test_gradient_check_contiguous_copy() raises:
     )
 
     # Gradient check on contiguous version should pass
-    var passed = check_gradients(simple_square, simple_square_backward, 
+    var passed = check_gradients(simple_square, simple_square_backward,
         x_contiguous, epsilon=1e-4, tolerance=1e-2
     )
     assert_true(passed, "Gradient check should pass on contiguous tensor")

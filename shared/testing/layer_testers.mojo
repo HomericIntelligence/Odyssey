@@ -87,7 +87,73 @@ from shared.testing.gradient_checker import (
     assert_sampled_gradients_close,
     GRADIENT_CHECK_EPSILON_FLOAT32,
     GRADIENT_CHECK_EPSILON_OTHER,
+    NumericalForward,
 )
+
+
+# ============================================================================
+# NumericalForward wrappers for capturing closures
+# ============================================================================
+
+
+@fieldwise_init
+struct _Conv2DForward(NumericalForward):
+    """NumericalForward wrapper for conv2d gradient checking."""
+
+    var weights: AnyTensor
+    var bias: AnyTensor
+    var stride: Int
+    var padding: Int
+
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return conv2d(x, self.weights, self.bias, stride=self.stride, padding=self.padding)
+
+
+@fieldwise_init
+struct _LinearForward(NumericalForward):
+    """NumericalForward wrapper for linear gradient checking."""
+
+    var weights: AnyTensor
+    var bias: AnyTensor
+
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        return linear(x, self.weights, self.bias)
+
+
+@fieldwise_init
+struct _ActivationForward(NumericalForward):
+    """NumericalForward wrapper for activation gradient checking."""
+
+    var activation: String
+
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        if self.activation == "relu":
+            return relu(x)
+        elif self.activation == "sigmoid":
+            return sigmoid(x)
+        else:  # tanh
+            return tanh(x)
+
+
+@fieldwise_init
+struct _BatchNormForward(NumericalForward):
+    """NumericalForward wrapper for batch norm gradient checking.
+
+    Computes loss = sum(bn_out * grad_output) so that numerical gradient
+    matches the analytical gradient from batch_norm2d_backward(grad_output).
+    """
+
+    var gamma: AnyTensor
+    var beta: AnyTensor
+    var running_mean: AnyTensor
+    var running_var: AnyTensor
+    var grad_output: AnyTensor
+
+    def __call__(self, x: AnyTensor) raises -> AnyTensor:
+        var (bn_out, _, _) = batch_norm2d(
+            x, self.gamma, self.beta, self.running_mean, self.running_var, training=True
+        )
+        return tensor_sum(bn_out * self.grad_output)
 
 
 # ============================================================================
@@ -609,8 +675,7 @@ struct LayerTester:
         var tolerance = 1e-1  # 10% tolerance for all dtypes
 
         # Define forward function for gradient checking
-        def forward(x: AnyTensor) capturing raises -> AnyTensor:
-            return conv2d(x, weights, bias, stride=stride, padding=padding)
+        var forward = _Conv2DForward(weights, bias, stride, padding)
 
         # Use sampled or exhaustive gradient checking based on num_gradient_samples
         if num_gradient_samples > 0:
@@ -618,7 +683,7 @@ struct LayerTester:
             # Optionally validate analytical gradient
             if validate_analytical:
                 # Compute sampled numerical gradients
-                var sampled_gradients = compute_sampled_numerical_gradient[forward](
+                var sampled_gradients = compute_sampled_numerical_gradient(forward,
                     input, num_gradient_samples, epsilon, seed=42
                 )
 
@@ -644,7 +709,7 @@ struct LayerTester:
         else:
             # Exhaustive gradient checking (slower but thorough)
             # Compute numerical gradient (always computed for validation)
-            var numerical_grad = compute_numerical_gradient[forward](
+            var numerical_grad = compute_numerical_gradient(forward,
                 input, epsilon
             )
 
@@ -770,8 +835,7 @@ struct LayerTester:
         )
 
         # Define forward function for gradient checking
-        def forward(x: AnyTensor) capturing raises -> AnyTensor:
-            return linear(x, weights, bias)
+        var forward = _LinearForward(weights, bias)
 
         # Use sampled or exhaustive gradient checking based on num_gradient_samples
         if num_gradient_samples > 0:
@@ -779,7 +843,7 @@ struct LayerTester:
             # Optionally validate analytical gradient
             if validate_analytical:
                 # Compute sampled numerical gradients
-                var sampled_gradients = compute_sampled_numerical_gradient[forward](
+                var sampled_gradients = compute_sampled_numerical_gradient(forward,
                     input, num_gradient_samples, epsilon, seed=42
                 )
 
@@ -813,7 +877,7 @@ struct LayerTester:
         else:
             # Exhaustive gradient checking (slower but thorough)
             # Compute numerical gradient (always computed for validation)
-            var numerical_grad = compute_numerical_gradient[forward](
+            var numerical_grad = compute_numerical_gradient(forward,
                 input, epsilon
             )
 
@@ -936,16 +1000,10 @@ struct LayerTester:
         var tolerance = 1e-2 if dtype == DType.float32 else 1e-1
 
         # Define forward function for gradient checking
-        def forward(x: AnyTensor) capturing raises -> AnyTensor:
-            if activation == "relu":
-                return relu(x)
-            elif activation == "sigmoid":
-                return sigmoid(x)
-            else:  # tanh
-                return tanh(x)
+        var forward = _ActivationForward(activation)
 
         # Compute numerical gradient (always computed for validation)
-        var numerical_grad = compute_numerical_gradient[forward](input, epsilon)
+        var numerical_grad = compute_numerical_gradient(forward, input, epsilon)
 
         # Verify numerical gradient has correct shape
         assert_shape(
@@ -1177,14 +1235,10 @@ struct LayerTester:
         # Define forward function for gradient checking.
         # Loss = sum(output * grad_output) so that the numerical gradient matches
         # the analytical gradient from batch_norm2d_backward(grad_output, ...).
-        def forward_for_grad(x: AnyTensor) capturing raises -> AnyTensor:
-            var (bn_out, _, _) = batch_norm2d(
-                x, gamma, beta, running_mean, running_var, training=True
-            )
-            return tensor_sum(bn_out * grad_output)
+        var forward_for_grad = _BatchNormForward(gamma, beta, running_mean, running_var, grad_output)
 
         # Compute numerical gradient (exhaustive finite differences)
-        var numerical_grad = compute_numerical_gradient[forward_for_grad](
+        var numerical_grad = compute_numerical_gradient(forward_for_grad,
             input, epsilon
         )
 
