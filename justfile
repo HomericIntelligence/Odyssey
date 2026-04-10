@@ -616,7 +616,6 @@ _test-group-inner path pattern:
     test_count=0
     passed_count=0
     failed_count=0
-    jit_crash_count=0
     failed_tests=""
 
     echo "=================================================="
@@ -655,21 +654,15 @@ _test-group-inner path pattern:
         exit 1
     fi
 
-    # Run each test file (with JIT crash retry — see #5104)
+    # Run each test file
     for test_file in $test_files; do
         if [ -f "$test_file" ]; then
             echo ""
             echo "Running: $test_file"
             test_count=$((test_count + 1))
 
-            retry_result=0
-            bash "$REPO_ROOT/scripts/test-with-retry.sh" "$REPO_ROOT" "$test_file" || retry_result=$?
-            if [ $retry_result -eq 0 ]; then
+            if pixi run mojo --Werror -I "$REPO_ROOT" -I . "$test_file"; then
                 passed_count=$((passed_count + 1))
-            elif [ $retry_result -eq 2 ]; then
-                failed_count=$((failed_count + 1))
-                jit_crash_count=$((jit_crash_count + 1))
-                failed_tests="$failed_tests\n  - $test_file (JIT crash)"
             else
                 failed_count=$((failed_count + 1))
                 failed_tests="$failed_tests\n  - $test_file"
@@ -684,9 +677,6 @@ _test-group-inner path pattern:
     echo "Total: $test_count tests"
     echo "Passed: $passed_count tests"
     echo "Failed: $failed_count tests"
-    if [ $jit_crash_count -gt 0 ]; then
-        echo "JIT crash retries: $jit_crash_count (persistent crashes after retry)"
-    fi
 
     # Guard against no tests being run (beyond initial empty check)
     if [ $test_count -eq 0 ]; then
@@ -829,9 +819,7 @@ _test-mojo-inner:
         fi
         if [ -f "$test_file" ]; then
             echo "Testing: $test_file"
-            retry_result=0
-            bash "$REPO_ROOT/scripts/test-with-retry.sh" "$REPO_ROOT" "$test_file" || retry_result=$?
-            if [ $retry_result -ne 0 ]; then
+            if ! pixi run mojo --Werror -I "$REPO_ROOT" -I . "$test_file"; then
                 failed=1
             fi
         fi
