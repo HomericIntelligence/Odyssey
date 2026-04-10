@@ -2,7 +2,7 @@
 
 Shared Mojo language guidelines for all agents. Reference this file instead of duplicating.
 
-**Mojo Version**: 0.26.1 (pinned in pixi.toml).
+**Mojo Version**: 0.26.3 (pinned in pixi.toml).
 Official docs: <https://docs.modular.com/mojo/manual/>
 
 ## When to Use Mojo vs Python
@@ -11,13 +11,13 @@ Official docs: <https://docs.modular.com/mojo/manual/>
 |----------|----------|--------|
 | ML/AI implementations | Mojo (required) | Performance, type safety |
 | Performance-critical code | Mojo (required) | SIMD, optimization |
-| Subprocess output capture | Python (allowed) | Mojo v0.26.1 limitation |
+| Subprocess output capture | Python (allowed) | Mojo v0.26.3 limitation |
 | Regex processing | Python (allowed) | No Mojo stdlib support |
 | GitHub API interaction | Python (allowed) | Library availability |
 
 **Default**: Mojo unless technical limitation documented.
 
-## Current Syntax (v0.26.1+)
+## Current Syntax (v0.26.3+)
 
 ### Parameter Conventions
 
@@ -88,7 +88,7 @@ var empty = List[Int]()
 var shape = List[Int](3, 4, 5)  # Compiler error
 ```
 
-## Mojo v0.26.1 Package Compilation Patterns
+## Mojo v0.26.3 Package Compilation Patterns
 
 ### Library Files vs. Executable Files
 
