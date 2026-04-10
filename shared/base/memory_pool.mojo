@@ -88,14 +88,14 @@ struct SpinLock(Copyable, Movable):
     Uses a heap-allocated Atomic[DType.int64] as the lock state.
     Value 0 means unlocked; value 1 means locked.
 
-    Explicit __copyinit__ deep-copies the backing storage so that each
+    Explicit copy constructor deep-copies the backing storage so that each
     SpinLock instance owns its own allocation.  Without an explicit copy
     constructor Mojo synthesises a shallow memberwise copy that duplicates
     the _state pointer value.  When List[SpinLock] reallocates (capacity
     0→1→2→4→…) the old storage is destroyed, calling __del__ → free() on
     every stale copy – a double-free that corrupts the heap.
 
-    Explicit __moveinit__ transfers pointer ownership so that
+    Explicit move constructor transfers pointer ownership so that
     List reallocation moves (rather than copies-then-destroys) the
     SpinLock instances, which is both safe and avoids the allocation
     overhead of a deep copy.
@@ -121,29 +121,36 @@ struct SpinLock(Copyable, Movable):
     def lock(self):
         """Acquire the lock, spinning until available.
 
-        Uses fetch_add(1) as a test-and-set: if the old value is 0 the
-        lock was free and we now hold it (counter = 1).  If the old value
-        is non-zero someone else holds it; we undo our increment with
-        fetch_sub(1) and spin-wait until the counter reads 0 before
-        retrying.  This avoids the counter growing unboundedly under
-        contention (the original broken implementation could drive the
-        counter negative after an unlock interleaved with contenders'
-        subtract, permanently blocking all future waiters).
+        Uses a double-check + fetch_add pattern: first spin until the counter
+        reads 0 (lock appears free), then atomically fetch_add(1). If the old
+        value was 0, we successfully transitioned 0→1 and hold the lock.
+        If the old value was non-zero, another thread beat us (both read 0 and
+        raced); we immediately undo with fetch_sub(1) and spin again.
+
+        This guarantees that when we hold the lock, the counter is exactly 1
+        (only our increment), making unlock's single fetch_sub(1) always
+        correct (1→0, never below 0).
         """
         var ptr = self._as_atomic()
         while True:
-            if ptr[].fetch_add(1) == 0:
-                # We transitioned 0 → 1: lock acquired.
-                return
-            # Counter was already ≥1; undo our increment and wait.
-            _ = ptr[].fetch_sub(1)
-            # Spin until the counter looks free before attempting again
-            # to reduce bus traffic.
+            # Wait until lock looks free before attempting (reduces bus traffic)
             while ptr[].load() != 0:
                 pass
+            # Attempt to acquire: if old value was 0, we got the lock
+            if ptr[].fetch_add(1) == 0:
+                return
+            # Another thread won the race; undo our increment
+            _ = ptr[].fetch_sub(1)
 
     def unlock(self):
-        """Release the lock."""
+        """Release the lock.
+
+        A single fetch_sub(1) is correct here because the lock() protocol
+        guarantees that when we hold the lock, the counter is exactly 1
+        (only our increment). No contender can leave a net positive increment
+        because lock() uses double-check to only attempt fetch_add when the
+        counter reads 0, and immediately undoes with fetch_sub if it loses.
+        """
         var ptr = self._as_atomic()
         _ = ptr[].fetch_sub(1)
 
@@ -158,7 +165,7 @@ struct AtomicStats(Copyable, Movable):
     Each counter is a heap-allocated Atomic[DType.int64] to allow
     lock-free concurrent updates from multiple threads.
 
-    Explicit __copyinit__ and __moveinit__ are provided for the same
+    Explicit copy and move constructors are provided for the same
     reason as SpinLock: without them Mojo synthesises a shallow copy that
     duplicates the _data pointer, causing a double-free when the owning
     struct is stored in a List that reallocates.
@@ -392,7 +399,15 @@ struct FreeList(Copyable, Movable):
 
         Args:
             ptr: Pointer to the block to return to the pool.
+
+        Note: ptr must not be null. A null pointer indicates an allocation
+              failure and should not be returned to the pool.
         """
+        # Guard against null pointers (shouldn't happen in normal operation,
+        # but provides safety if allocate() somehow returns null)
+        if ptr == UnsafePointer[UInt8, origin=MutAnyOrigin]():
+            return
+
         var node = ptr.bitcast[_FreeListNode]()
         node[].next = self.head
         self.head = node
