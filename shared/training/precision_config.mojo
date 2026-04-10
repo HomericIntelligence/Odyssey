@@ -117,6 +117,22 @@ struct PrecisionMode(Copyable, ImplicitlyCopyable, Movable, Writable):
         var s = self.__str__()
         writer.write(s)
 
+    def write_repr_to[W: Writer](self, mut writer: W):
+        """Write the repr representation to a Writer (required for Writable trait).
+
+        This method is called when using `repr(mode)` to get the debugging
+        representation. Delegates to `__str__()` since PrecisionMode has no
+        separate repr format.
+
+        Parameters:
+            W: The writer type conforming to the Writer trait.
+
+        Args:
+            writer: The writer to write the repr representation to.
+        """
+        var s = self.__str__()
+        writer.write(s)
+
 
 struct PrecisionConfig(Copyable, Movable):
     """Central configuration for multi-precision training.
