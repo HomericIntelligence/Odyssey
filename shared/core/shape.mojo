@@ -157,7 +157,7 @@ def view(tensor: AnyTensor, new_shape: List[Int]) raises -> AnyTensor:
     if new_numel != old_numel:
         raise Error("view: new shape must have same number of elements")
 
-    # Use AnyTensor's built-in reshape which creates views via __copyinit__
+    # Use AnyTensor's built-in reshape which creates views via copy constructor
     # This leverages reference counting for safe shared ownership
     return tensor.reshape(new_shape)
 

@@ -947,7 +947,7 @@ struct SimpleMLP(Copyable, Model, Movable):
         ```
 
         Note:
-            Returns owned Dict with ownership transfer to avoid copy errors.
+            Returns var Dict with ownership transfer to avoid copy errors.
         """
         var state = Dict[String, AnyTensor]()
 

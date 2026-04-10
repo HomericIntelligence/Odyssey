@@ -667,7 +667,7 @@ struct AnyTensor(
         if new_numel != self._numel:
             raise Error("Cannot reshape: element count mismatch")
 
-        # Create view by explicitly copying (increments refcount via __copyinit__)
+        # Create view by explicitly copying (increments refcount via copy constructor)
         var result = self.copy()
         result._is_view = (
             True  # Mark as view since it shares data with original
@@ -770,7 +770,7 @@ struct AnyTensor(
         # Update data pointer to point to sliced data
         result._data = self._data + offset_bytes
 
-        # Strides remain the same (already copied by __copyinit__)
+        # Strides remain the same (already copied by copy constructor)
 
         # Recalculate numel after shape change
         result._numel = 1

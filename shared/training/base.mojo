@@ -48,7 +48,7 @@ struct TrainingState(Copyable, Movable):
     """Training state passed to callbacks.
 
     This struct provides callbacks with access to training metrics and control.
-    It uses borrowed references to avoid ownership issues.
+    It uses read references to avoid ownership issues.
 
     Lifecycle:
         Created at training start, updated each epoch/batch, destroyed at end.
