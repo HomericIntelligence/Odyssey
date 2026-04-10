@@ -1,16 +1,7 @@
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_gradient_checking.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
+"""Gradient checking tests for activation, arithmetic, and edge cases."""
 
-"""Gradient checking tests for activation, arithmetic, and edge cases.
-
-Note: Split from test_gradient_checking.mojo due to Mojo 0.26.1 heap
-corruption bug that occurs after ~15 cumulative tests. See ADR-009.
-"""
-
-from tests.shared.conftest import assert_true
-from shared.testing import check_gradients, NumericalForward, NumericalBackward
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
+from shared.testing import check_gradient, NumericalForward, NumericalBackward
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, zeros_like
 from shared.core.activation import (
     relu,
     relu_backward,
@@ -100,15 +91,22 @@ struct _MultiplyBwd(NumericalBackward):
         return grads.grad_a
 
 
+def _ones_grad(output: AnyTensor) raises -> AnyTensor:
+    """Create ones grad_output matching output shape."""
+    var grad_output = zeros_like(output)
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    return grad_output^
+
+
 def test_relu_gradient() raises:
     """Test ReLU backward pass using gradient checking."""
     var shape = List[Int]()
     shape.append(3)
     shape.append(4)
     var input = full(shape, 2.0, DType.float32)
-
-    var passed = check_gradients(_ReluFwd(), _ReluBwd(), input)
-    assert_true(passed, "ReLU gradient check failed")
+    var fwd = _ReluFwd()
+    check_gradient(fwd, _ReluBwd(), input, _ones_grad(fwd(input)))
 
 
 def test_relu_negative_inputs() raises:
@@ -117,9 +115,8 @@ def test_relu_negative_inputs() raises:
     shape.append(3)
     shape.append(4)
     var input = full(shape, -2.0, DType.float32)
-
-    var passed = check_gradients(_ReluFwd(), _ReluBwd(), input)
-    assert_true(passed, "ReLU gradient check failed for negative inputs")
+    var fwd = _ReluFwd()
+    check_gradient(fwd, _ReluBwd(), input, _ones_grad(fwd(input)))
 
 
 def test_relu_mixed_inputs() raises:
@@ -143,8 +140,8 @@ def test_relu_mixed_inputs() raises:
     input._set_float64(10, 0.1)
     input._set_float64(11, -0.1)
 
-    var passed = check_gradients(_ReluFwd(), _ReluBwd(), input)
-    assert_true(passed, "ReLU gradient check failed for mixed inputs")
+    var fwd = _ReluFwd()
+    check_gradient(fwd, _ReluBwd(), input, _ones_grad(fwd(input)))
 
 
 def test_sigmoid_gradient() raises:
@@ -153,9 +150,8 @@ def test_sigmoid_gradient() raises:
     shape.append(3)
     shape.append(4)
     var input = full(shape, 0.5, DType.float32)
-
-    var passed = check_gradients(_SigmoidFwd(), _SigmoidBwd(), input)
-    assert_true(passed, "Sigmoid gradient check failed")
+    var fwd = _SigmoidFwd()
+    check_gradient(fwd, _SigmoidBwd(), input, _ones_grad(fwd(input)))
 
 
 def test_tanh_gradient() raises:
@@ -164,9 +160,8 @@ def test_tanh_gradient() raises:
     shape.append(3)
     shape.append(4)
     var input = full(shape, 0.5, DType.float32)
-
-    var passed = check_gradients(_TanhFwd(), _TanhBwd(), input)
-    assert_true(passed, "Tanh gradient check failed")
+    var fwd = _TanhFwd()
+    check_gradient(fwd, _TanhBwd(), input, _ones_grad(fwd(input)))
 
 
 def test_add_gradient() raises:
@@ -176,9 +171,8 @@ def test_add_gradient() raises:
     shape.append(4)
     var input_a = ones(shape, DType.float32)
     var input_b = ones(shape, DType.float32)
-
-    var passed = check_gradients(_AddFwd(input_b), _AddBwd(input_b), input_a)
-    assert_true(passed, "Add gradient check failed")
+    var fwd = _AddFwd(input_b)
+    check_gradient(fwd, _AddBwd(input_b), input_a, _ones_grad(fwd(input_a)))
 
 
 def test_multiply_gradient() raises:
@@ -188,9 +182,8 @@ def test_multiply_gradient() raises:
     shape.append(4)
     var input_a = full(shape, 2.0, DType.float32)
     var input_b = full(shape, 3.0, DType.float32)
-
-    var passed = check_gradients(_MultiplyFwd(input_b), _MultiplyBwd(input_b), input_a)
-    assert_true(passed, "Multiply gradient check failed")
+    var fwd = _MultiplyFwd(input_b)
+    check_gradient(fwd, _MultiplyBwd(input_b), input_a, _ones_grad(fwd(input_a)))
 
 
 def test_gradient_at_zero() raises:
@@ -199,9 +192,8 @@ def test_gradient_at_zero() raises:
     shape.append(2)
     shape.append(2)
     var input = full(shape, 0.01, DType.float32)
-
-    var passed = check_gradients(_ReluFwd(), _ReluBwd(), input)
-    assert_true(passed, "Gradient near zero check failed")
+    var fwd = _ReluFwd()
+    check_gradient(fwd, _ReluBwd(), input, _ones_grad(fwd(input)))
 
 
 def test_gradient_small_tensor() raises:
@@ -210,18 +202,12 @@ def test_gradient_small_tensor() raises:
     shape.append(1)
     shape.append(1)
     var input = full(shape, 2.0, DType.float32)
-
-    var passed = check_gradients(_ReluFwd(), _ReluBwd(), input)
-    assert_true(passed, "Small tensor gradient check failed")
+    var fwd = _ReluFwd()
+    check_gradient(fwd, _ReluBwd(), input, _ones_grad(fwd(input)))
 
 
 def main() raises:
-    """Run basic gradient checking tests.
-
-    NOTE(#3776, ADR-009): This file contains 9/10 test functions.
-    Test budget: 10 tests max per file due to Mojo v0.26.1 heap
-    corruption workaround. See ADR-009 for details.
-    """
+    """Run basic gradient checking tests."""
     print("Running activation gradient tests...")
     test_relu_gradient()
     test_relu_negative_inputs()

@@ -1,16 +1,7 @@
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_gradient_checking.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
+"""Gradient checking tests for dtype-specific precision (FP32, FP16)."""
 
-"""Gradient checking tests for dtype-specific precision (FP32, FP16).
-
-Note: Split from test_gradient_checking.mojo due to Mojo 0.26.1 heap
-corruption bug that occurs after ~15 cumulative tests. See ADR-009.
-"""
-
-from tests.shared.conftest import assert_true
-from shared.testing import check_gradients, NumericalForward, NumericalBackward
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
+from shared.testing import check_gradient, NumericalForward, NumericalBackward
+from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, zeros_like
 from shared.core.activation import (
     relu,
     relu_backward,
@@ -115,6 +106,14 @@ struct _CrossEntropyBwd(NumericalBackward):
         return cross_entropy_backward(grad_out, x, self.labels)
 
 
+def _ones_grad(output: AnyTensor) raises -> AnyTensor:
+    """Create ones grad_output matching output shape."""
+    var grad_output = zeros_like(output)
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    return grad_output^
+
+
 def test_composite_relu_multiply() raises:
     """Test gradient through composite operation: multiply -> relu."""
     var shape = List[Int]()
@@ -122,9 +121,8 @@ def test_composite_relu_multiply() raises:
     shape.append(4)
     var input_a = full(shape, 2.0, DType.float32)
     var input_b = full(shape, 3.0, DType.float32)
-
-    var passed = check_gradients(_CompositeReluMulFwd(input_b), _CompositeReluMulBwd(input_b), input_a)
-    assert_true(passed, "Composite gradient check failed")
+    var fwd = _CompositeReluMulFwd(input_b)
+    check_gradient(fwd, _CompositeReluMulBwd(input_b), input_a, _ones_grad(fwd(input_a)))
 
 
 def test_linear_gradient_fp32() raises:
@@ -143,10 +141,9 @@ def test_linear_gradient_fp32() raises:
     bias_shape.append(3)
     var bias = zeros(bias_shape, DType.float32)
 
-    var passed = check_gradients(_LinearFwd(weights, bias), _LinearBwd(weights),
-        input, epsilon=1e-5, tolerance=3e-3
-    )
-    assert_true(passed, "Linear FP32 gradient check failed")
+    var fwd = _LinearFwd(weights, bias)
+    var grad_output = _ones_grad(fwd(input))
+    check_gradient(fwd, _LinearBwd(weights), input, grad_output, rtol=3e-3, atol=1e-4)
 
 
 def test_linear_gradient_fp16() raises:
@@ -167,10 +164,9 @@ def test_linear_gradient_fp16() raises:
     bias_shape.append(3)
     var bias = config.cast_to_compute(zeros(bias_shape, DType.float32))
 
-    var passed = check_gradients(_LinearFwd(weights, bias), _LinearBwd(weights),
-        input, epsilon=1e-2, tolerance=2e-1
-    )
-    assert_true(passed, "Linear FP16 gradient check failed")
+    var fwd = _LinearFwd(weights, bias)
+    var grad_output = _ones_grad(fwd(input))
+    check_gradient(fwd, _LinearBwd(weights), input, grad_output, rtol=2e-1, atol=1e-2)
 
 
 def test_conv2d_gradient_fp32() raises:
@@ -193,10 +189,9 @@ def test_conv2d_gradient_fp32() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    var passed = check_gradients(_Conv2dNoPadFwd(kernel, bias, 1, 0), _Conv2dNoPadBwd(kernel, 1, 0),
-        input, epsilon=1e-5, tolerance=1e-2
-    )
-    assert_true(passed, "Conv2D FP32 gradient check failed")
+    var fwd = _Conv2dNoPadFwd(kernel, bias, 1, 0)
+    var grad_output = _ones_grad(fwd(input))
+    check_gradient(fwd, _Conv2dNoPadBwd(kernel, 1, 0), input, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_conv2d_grad_3x3_same_padding() raises:
@@ -222,11 +217,9 @@ def test_conv2d_grad_3x3_same_padding() raises:
 
     # Looser tolerance for same-padding conv2d: boundary padding introduces
     # additional numerical error in finite-difference gradient estimation.
-    # TODO: investigate proper numerical stability fix (see GitHub issue)
-    var passed = check_gradients(_Conv2dNoPadFwd(kernel, bias, 1, 1), _Conv2dNoPadBwd(kernel, 1, 1),
-        input, epsilon=1e-4, tolerance=5e-2
-    )
-    assert_true(passed, "Conv2D 3x3 same-padding gradient check failed")
+    var fwd = _Conv2dNoPadFwd(kernel, bias, 1, 1)
+    var grad_output = _ones_grad(fwd(input))
+    check_gradient(fwd, _Conv2dNoPadBwd(kernel, 1, 1), input, grad_output, rtol=5e-2, atol=1e-4)
 
 
 def test_conv2d_grad_3x3_strided() raises:
@@ -249,10 +242,9 @@ def test_conv2d_grad_3x3_strided() raises:
     bias_shape.append(1)
     var bias = zeros(bias_shape, DType.float32)
 
-    var passed = check_gradients(_Conv2dNoPadFwd(kernel, bias, 2, 0), _Conv2dNoPadBwd(kernel, 2, 0),
-        input, epsilon=1e-5, tolerance=1e-2
-    )
-    assert_true(passed, "Conv2D 3x3 strided gradient check failed")
+    var fwd = _Conv2dNoPadFwd(kernel, bias, 2, 0)
+    var grad_output = _ones_grad(fwd(input))
+    check_gradient(fwd, _Conv2dNoPadBwd(kernel, 2, 0), input, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_conv2d_grad_multichannel() raises:
@@ -277,11 +269,10 @@ def test_conv2d_grad_multichannel() raises:
     var bias = zeros(bias_shape, DType.float32)
 
     # Multi-channel conv2d accumulates FP errors across channels.
-    # TODO: investigate proper numerical stability fix (see GitHub issue)
-    var passed = check_gradients(_Conv2dNoPadFwd(kernel, bias, 1, 0), _Conv2dNoPadBwd(kernel, 1, 0),
-        input, epsilon=1e-4, tolerance=5e-2
-    )
-    assert_true(passed, "Conv2D multi-channel gradient check failed")
+    # Combined relative+absolute tolerance handles large gradient magnitudes.
+    var fwd = _Conv2dNoPadFwd(kernel, bias, 1, 0)
+    var grad_output = _ones_grad(fwd(input))
+    check_gradient(fwd, _Conv2dNoPadBwd(kernel, 1, 0), input, grad_output, rtol=5e-2, atol=1e-4)
 
 
 def test_cross_entropy_gradient_fp32() raises:
@@ -301,10 +292,9 @@ def test_cross_entropy_gradient_fp32() raises:
     var labels = zeros(labels_shape, DType.float32)
     labels._set_float64(0, 1.0)
 
-    var passed = check_gradients(_CrossEntropyFwd(labels), _CrossEntropyBwd(labels),
-        logits, epsilon=1e-5, tolerance=1e-2
-    )
-    assert_true(passed, "CrossEntropy FP32 gradient check failed")
+    var fwd = _CrossEntropyFwd(labels)
+    var grad_output = _ones_grad(fwd(logits))
+    check_gradient(fwd, _CrossEntropyBwd(labels), logits, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_conv2d_gradient_fp16() raises:
@@ -340,10 +330,9 @@ def test_conv2d_gradient_fp16() raises:
 
     # This tests FP32 compute with the understanding that mixed-precision
     # training keeps conv operations in FP32 for stability
-    var passed = check_gradients(_Conv2dFp16Fwd(kernel, bias), _Conv2dFp16Bwd(kernel),
-        input, epsilon=1e-5, tolerance=1e-2
-    )
-    assert_true(passed, "Conv2D FP16 gradient check failed")
+    var fwd = _Conv2dFp16Fwd(kernel, bias)
+    var grad_output = _ones_grad(fwd(input))
+    check_gradient(fwd, _Conv2dFp16Bwd(kernel), input, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_cross_entropy_gradient_fp16() raises:
@@ -375,20 +364,13 @@ def test_cross_entropy_gradient_fp16() raises:
     var labels = config.cast_to_compute(labels_fp32)
 
     # FP16 with relaxed tolerance for exp/log operations
-    var passed = check_gradients(_CrossEntropyFwd(labels), _CrossEntropyBwd(labels),
-        logits, epsilon=1e-2, tolerance=2e-1
-    )
-    assert_true(passed, "CrossEntropy FP16 gradient check failed")
+    var fwd = _CrossEntropyFwd(labels)
+    var grad_output = _ones_grad(fwd(logits))
+    check_gradient(fwd, _CrossEntropyBwd(labels), logits, grad_output, rtol=2e-1, atol=1e-2)
 
 
 def main() raises:
-    """Run dtype-specific gradient checking tests.
-
-    NOTE(#3776, ADR-009): This file contains 10/10 test functions.
-    Test budget: 10 tests max per file due to Mojo v0.26.1 heap
-    corruption workaround. Budget is FULL - no room for more tests.
-    See ADR-009 for details.
-    """
+    """Run dtype-specific gradient checking tests."""
     print("Running composite gradient tests...")
     test_composite_relu_multiply()
 

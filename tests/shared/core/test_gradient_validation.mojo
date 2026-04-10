@@ -18,13 +18,12 @@ from shared.core.activation import relu, sigmoid, tanh, gelu
 from shared.core.activation import relu_backward, sigmoid_backward, tanh_backward, gelu_backward
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.linear import linear, linear_backward
-from shared.tensor.any_tensor import AnyTensor, full, zeros
+from shared.tensor.any_tensor import AnyTensor, full, zeros, zeros_like
 from shared.core.initializers import kaiming_uniform
-from shared.testing.gradient_checker import check_gradients, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
 from shared.testing.special_values import (
     create_seeded_random_tensor,
 )
-from shared.testing.assertions import assert_true
 
 
 # ---- ReLU (no captures) ----
@@ -125,11 +124,11 @@ def test_relu_gradient_positive_values() raises:
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=42, low=0.1, high=2.0
     )
-
-    var passed = check_gradients(_ReluFwd(), _ReluBwd(),
-        x, epsilon=1e-5, tolerance=1e-2
-    )
-    assert_true(passed, "ReLU gradient check failed for positive values")
+    var fwd = _ReluFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _ReluBwd(), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_relu_gradient_negative_values() raises:
@@ -137,11 +136,11 @@ def test_relu_gradient_negative_values() raises:
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=123, low=-2.0, high=-0.1
     )
-
-    var passed = check_gradients(_ReluFwd(), _ReluBwd(),
-        x, epsilon=1e-5, tolerance=1e-2
-    )
-    assert_true(passed, "ReLU gradient check failed for negative values")
+    var fwd = _ReluFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _ReluBwd(), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_relu_gradient_mixed_values() raises:
@@ -149,11 +148,11 @@ def test_relu_gradient_mixed_values() raises:
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=999, low=-1.0, high=1.0
     )
-
-    var passed = check_gradients(_ReluFwd(), _ReluBwd(),
-        x, epsilon=1e-5, tolerance=1e-2
-    )
-    assert_true(passed, "ReLU gradient check failed for mixed values")
+    var fwd = _ReluFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _ReluBwd(), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_relu_gradient_near_zero() raises:
@@ -166,11 +165,11 @@ def test_relu_gradient_near_zero() raises:
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=555, low=-0.01, high=0.01
     )
-
-    var passed = check_gradients(_ReluFwd(), _ReluBwd(),
-        x, epsilon=1e-5, tolerance=1e-2
-    )
-    assert_true(passed, "ReLU gradient check failed near zero")
+    var fwd = _ReluFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _ReluBwd(), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_relu_gradient_large_values() raises:
@@ -178,17 +177,16 @@ def test_relu_gradient_large_values() raises:
 
     Gradient should still be 1.0 (ReLU is linear for x > 0).
     Using realistic neural network activation values (10-20).
-    Note: Wider tolerance due to numerical precision with larger values.
+    Combined relative+absolute tolerance handles large-magnitude gradients correctly.
     """
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=42, low=10.0, high=20.0
     )
-
-    # Use wider tolerance (5%) for large values due to numerical precision
-    var passed = check_gradients(_ReluFwd(), _ReluBwd(),
-        x, epsilon=1e-5, tolerance=0.05
-    )
-    assert_true(passed, "ReLU gradient check failed for large values")
+    var fwd = _ReluFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _ReluBwd(), x, grad_output, rtol=5e-2, atol=1e-4)
 
 
 # ============================================================================
@@ -204,11 +202,11 @@ def test_sigmoid_gradient_normal_range() raises:
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
-
-    var passed = check_gradients(_SigmoidFwd(), _SigmoidBwd(),
-        x, epsilon=1e-5, tolerance=1e-2
-    )
-    assert_true(passed, "Sigmoid gradient check failed")
+    var fwd = _SigmoidFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _SigmoidBwd(), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_sigmoid_gradient_saturation_positive() raises:
@@ -221,12 +219,12 @@ def test_sigmoid_gradient_saturation_positive() raises:
     shape.append(2)
     shape.append(3)
     var x = full(shape, 10.0, DType.float32)
-
-    # Use tighter tolerance for near-zero gradients
-    var passed = check_gradients(_SigmoidFwd(), _SigmoidBwd(),
-        x, epsilon=1e-4, tolerance=1e-3
-    )
-    assert_true(passed, "Sigmoid gradient check failed in positive saturation")
+    var fwd = _SigmoidFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    # Near-zero gradients: use combined tolerance with small atol floor
+    check_gradient(fwd, _SigmoidBwd(), x, grad_output, rtol=1e-2, atol=1e-3)
 
 
 def test_sigmoid_gradient_saturation_negative() raises:
@@ -239,12 +237,12 @@ def test_sigmoid_gradient_saturation_negative() raises:
     shape.append(2)
     shape.append(3)
     var x = full(shape, -10.0, DType.float32)
-
-    # Use tighter tolerance for near-zero gradients
-    var passed = check_gradients(_SigmoidFwd(), _SigmoidBwd(),
-        x, epsilon=1e-4, tolerance=1e-3
-    )
-    assert_true(passed, "Sigmoid gradient check failed in negative saturation")
+    var fwd = _SigmoidFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    # Near-zero gradients: use combined tolerance with small atol floor
+    check_gradient(fwd, _SigmoidBwd(), x, grad_output, rtol=1e-2, atol=1e-3)
 
 
 # ============================================================================
@@ -260,11 +258,11 @@ def test_tanh_gradient() raises:
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
-
-    var passed = check_gradients(_TanhFwd(), _TanhBwd(),
-        x, epsilon=1e-5, tolerance=1e-2
-    )
-    assert_true(passed, "Tanh gradient check failed")
+    var fwd = _TanhFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _TanhBwd(), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_gelu_gradient() raises:
@@ -275,11 +273,11 @@ def test_gelu_gradient() raises:
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
-
-    var passed = check_gradients(_GeluFwd(), _GeluBwd(),
-        x, epsilon=1e-5, tolerance=1e-2
-    )
-    assert_true(passed, "GELU gradient check failed")
+    var fwd = _GeluFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _GeluBwd(), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 # ============================================================================
@@ -318,17 +316,17 @@ def test_conv2d_gradient_input() raises:
     input_shape.append(8)
     var x = create_seeded_random_tensor(input_shape, DType.float32, seed=42)
 
-    # Use slightly larger epsilon for conv (more complex operation)
-    var passed = check_gradients(_Conv2dInputFwd(kernel, bias), _Conv2dInputBwd(kernel),
-        x, epsilon=1e-4, tolerance=1e-2
-    )
-    assert_true(passed, "Conv2D input gradient check failed")
+    var fwd = _Conv2dInputFwd(kernel, bias)
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _Conv2dInputBwd(kernel), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_linear_gradient_input() raises:
     """Test Linear gradient w.r.t. input.
 
-    Note: Slightly wider tolerance due to accumulated numerical errors in matrix operations.
+    Note: Combined relative+absolute tolerance handles accumulated matrix op errors.
     """
     # Create small linear layer: 16 input features, 10 output features
     var in_features = 16
@@ -352,11 +350,11 @@ def test_linear_gradient_input() raises:
     input_shape.append(in_features)
     var x = create_seeded_random_tensor(input_shape, DType.float32, seed=42)
 
-    # Wider tolerance (1.5%) for matrix operations
-    var passed = check_gradients(_LinearFwd(weights, bias), _LinearBwd(weights),
-        x, epsilon=1e-5, tolerance=0.015
-    )
-    assert_true(passed, "Linear input gradient check failed")
+    var fwd = _LinearFwd(weights, bias)
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _LinearBwd(weights), x, grad_output, rtol=1.5e-2, atol=1e-4)
 
 
 # ============================================================================

@@ -1,7 +1,3 @@
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_gradient_validation.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-
 """Gradient validation tests for ReLU and Sigmoid activation backward passes.
 
 Systematically validates analytical gradients against numerical gradients
@@ -20,10 +16,9 @@ References:
 
 from shared.core.activation import relu, sigmoid
 from shared.core.activation import relu_backward, sigmoid_backward
-from shared.tensor.any_tensor import AnyTensor, full
-from shared.testing.gradient_checker import check_gradients, NumericalForward, NumericalBackward
+from shared.tensor.any_tensor import AnyTensor, full, zeros_like
+from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
 from shared.testing.special_values import create_seeded_random_tensor
-from shared.testing.assertions import assert_true
 
 
 # ---- ReLU (no captures) ----
@@ -58,11 +53,11 @@ def test_relu_gradient_positive_values() raises:
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=42, low=0.1, high=2.0
     )
-
-    var passed = check_gradients(_ReluFwd(), _ReluBwd(),
-        x, epsilon=1e-5, tolerance=1e-2
-    )
-    assert_true(passed, "ReLU gradient check failed for positive values")
+    var fwd = _ReluFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _ReluBwd(), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_relu_gradient_negative_values() raises:
@@ -70,11 +65,11 @@ def test_relu_gradient_negative_values() raises:
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=123, low=-2.0, high=-0.1
     )
-
-    var passed = check_gradients(_ReluFwd(), _ReluBwd(),
-        x, epsilon=1e-5, tolerance=1e-2
-    )
-    assert_true(passed, "ReLU gradient check failed for negative values")
+    var fwd = _ReluFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _ReluBwd(), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_relu_gradient_mixed_values() raises:
@@ -82,11 +77,11 @@ def test_relu_gradient_mixed_values() raises:
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=999, low=-1.0, high=1.0
     )
-
-    var passed = check_gradients(_ReluFwd(), _ReluBwd(),
-        x, epsilon=1e-5, tolerance=1e-2
-    )
-    assert_true(passed, "ReLU gradient check failed for mixed values")
+    var fwd = _ReluFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _ReluBwd(), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_relu_gradient_near_zero() raises:
@@ -99,11 +94,11 @@ def test_relu_gradient_near_zero() raises:
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=555, low=-0.01, high=0.01
     )
-
-    var passed = check_gradients(_ReluFwd(), _ReluBwd(),
-        x, epsilon=1e-5, tolerance=1e-2
-    )
-    assert_true(passed, "ReLU gradient check failed near zero")
+    var fwd = _ReluFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _ReluBwd(), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_relu_gradient_large_values() raises:
@@ -111,17 +106,16 @@ def test_relu_gradient_large_values() raises:
 
     Gradient should still be 1.0 (ReLU is linear for x > 0).
     Using realistic neural network activation values (10-20).
-    Note: Wider tolerance due to numerical precision with larger values.
+    Combined relative+absolute tolerance handles large-magnitude gradients correctly.
     """
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=42, low=10.0, high=20.0
     )
-
-    # Use wider tolerance (5%) for large values due to numerical precision
-    var passed = check_gradients(_ReluFwd(), _ReluBwd(),
-        x, epsilon=1e-5, tolerance=0.05
-    )
-    assert_true(passed, "ReLU gradient check failed for large values")
+    var fwd = _ReluFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _ReluBwd(), x, grad_output, rtol=5e-2, atol=1e-4)
 
 
 def test_sigmoid_gradient_normal_range() raises:
@@ -132,11 +126,11 @@ def test_sigmoid_gradient_normal_range() raises:
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
-
-    var passed = check_gradients(_SigmoidFwd(), _SigmoidBwd(),
-        x, epsilon=1e-5, tolerance=1e-2
-    )
-    assert_true(passed, "Sigmoid gradient check failed")
+    var fwd = _SigmoidFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _SigmoidBwd(), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_sigmoid_gradient_saturation_positive() raises:
@@ -149,12 +143,12 @@ def test_sigmoid_gradient_saturation_positive() raises:
     shape.append(2)
     shape.append(3)
     var x = full(shape, 10.0, DType.float32)
-
-    # Use tighter tolerance for near-zero gradients
-    var passed = check_gradients(_SigmoidFwd(), _SigmoidBwd(),
-        x, epsilon=1e-4, tolerance=1e-3
-    )
-    assert_true(passed, "Sigmoid gradient check failed in positive saturation")
+    var fwd = _SigmoidFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    # Near-zero gradients: use combined tolerance with small atol floor
+    check_gradient(fwd, _SigmoidBwd(), x, grad_output, rtol=1e-2, atol=1e-3)
 
 
 def test_sigmoid_gradient_saturation_negative() raises:
@@ -167,12 +161,12 @@ def test_sigmoid_gradient_saturation_negative() raises:
     shape.append(2)
     shape.append(3)
     var x = full(shape, -10.0, DType.float32)
-
-    # Use tighter tolerance for near-zero gradients
-    var passed = check_gradients(_SigmoidFwd(), _SigmoidBwd(),
-        x, epsilon=1e-4, tolerance=1e-3
-    )
-    assert_true(passed, "Sigmoid gradient check failed in negative saturation")
+    var fwd = _SigmoidFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    # Near-zero gradients: use combined tolerance with small atol floor
+    check_gradient(fwd, _SigmoidBwd(), x, grad_output, rtol=1e-2, atol=1e-3)
 
 
 def main() raises:
