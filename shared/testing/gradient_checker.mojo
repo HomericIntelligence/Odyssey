@@ -1544,53 +1544,6 @@ def _check_gradient_perturb[
         grad_ptr[i] = Scalar[dtype](numerical_grad)
 
 
-# ============================================================================
-# Epsilon and tolerance auto-selection helper
-# ============================================================================
-
-
-struct _EpsAtol(Copyable, Movable):
-    """Helper struct returned by _select_epsilon."""
-    var eps: Float64
-    var atol: Float64
-
-    def __init__(out self, eps: Float64, atol: Float64):
-        self.eps = eps
-        self.atol = atol
-
-
-def _select_epsilon(dtype: DType, requested_eps: Float64, atol: Float64) -> _EpsAtol:
-    """Auto-select finite-difference epsilon and minimum atol for a given dtype.
-
-    For reduced-precision dtypes (FP16/BF16) the standard epsilon (1e-5) rounds
-    to zero, producing degenerate numerical gradients. This function selects a
-    dtype-appropriate epsilon and ensures atol is large enough to accommodate the
-    increased numerical error.
-
-    Args:
-        dtype: Element dtype of the tensor being checked.
-        requested_eps: Caller-supplied epsilon; 0.0 means "auto-select".
-        atol: Caller-supplied absolute tolerance.
-
-    Returns:
-        _EpsAtol with chosen eps and (possibly adjusted) atol.
-    """
-    if requested_eps != 0.0:
-        return _EpsAtol(requested_eps, atol)
-    if dtype == DType.float16 or dtype == DType.bfloat16:
-        # FP16/BF16 machine epsilon ~9.77e-4; 1e-5 rounds to zero
-        var new_atol = atol if atol >= 1e-2 else 1e-2
-        return _EpsAtol(1e-3, new_atol)
-    elif dtype == DType.float32:
-        var new_atol = atol if atol >= 1e-4 else 1e-4
-        return _EpsAtol(1e-4, new_atol)
-    elif dtype == DType.float64:
-        var new_atol = atol if atol >= 1e-7 else 1e-7
-        return _EpsAtol(1e-7, new_atol)
-    else:
-        return _EpsAtol(1e-5, atol)
-
-
 def check_gradient(
     forward_fn: def(AnyTensor) raises -> AnyTensor,
     backward_fn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
@@ -1633,11 +1586,29 @@ def check_gradient(
                 check_gradient(forward, backward_wrapper, x, grad_out)
             ```
     """
-    # Auto-select epsilon and atol using the shared helper (avoids code duplication
-    # and keeps each overload small enough to avoid ASAN JIT compilation crashes).
-    var sel = _select_epsilon(x._dtype, epsilon, atol)
-    var eps = sel.eps
-    var auto_atol = sel.atol
+    # Auto-select epsilon and atol based on dtype if not specified
+    var eps = epsilon
+    var auto_atol = atol
+    if eps == 0.0:
+        # Use sqrt(machine_epsilon) for numerical stability
+        # Float16/BF16: machine eps ~9.77e-4, sqrt ~0.031, use 1e-3 (smaller for safety)
+        # Float32: machine eps ~1.2e-7, sqrt ~3.5e-4, use 1e-4
+        # Float64: machine eps ~2.2e-16, sqrt ~1.5e-8, use 1e-7
+        if x._dtype == DType.float16 or x._dtype == DType.bfloat16:
+            eps = 1e-3  # FP16/BF16 need larger epsilon; 1e-5 rounds to zero
+            if atol < 1e-2:  # Minimum atol for reduced-precision gradient checking
+                auto_atol = 1e-2
+        elif x._dtype == DType.float32:
+            eps = 1e-4
+            # For near-zero gradients, numerical error is O(eps), so set atol >= eps
+            if atol < 1e-4:  # If atol is too small for eps=1e-4
+                auto_atol = 1e-4
+        elif x._dtype == DType.float64:
+            eps = 1e-7
+            if atol < 1e-7:  # If atol is too small for eps=1e-7
+                auto_atol = 1e-7
+        else:
+            eps = 1e-5  # Default for other types
 
     # Compute analytical gradient
     var analytical = backward_fn(grad_output, x)
@@ -1705,9 +1676,28 @@ def check_gradient[F: NumericalForward, B: NumericalBackward](
         Error: If gradients don't match within tolerance.
     """
     # Auto-select epsilon and atol based on dtype if not specified
-    var sel = _select_epsilon(x._dtype, epsilon, atol)
-    var eps = sel.eps
-    var auto_atol = sel.atol
+    var eps = epsilon
+    var auto_atol = atol
+    if eps == 0.0:
+        # Use sqrt(machine_epsilon) for numerical stability
+        # Float16/BF16: machine eps ~9.77e-4, sqrt ~0.031, use 1e-3 (smaller for safety)
+        # Float32: machine eps ~1.2e-7, sqrt ~3.5e-4, use 1e-4
+        # Float64: machine eps ~2.2e-16, sqrt ~1.5e-8, use 1e-7
+        if x._dtype == DType.float16 or x._dtype == DType.bfloat16:
+            eps = 1e-3  # FP16/BF16 need larger epsilon; 1e-5 rounds to zero
+            if atol < 1e-2:  # Minimum atol for reduced-precision gradient checking
+                auto_atol = 1e-2
+        elif x._dtype == DType.float32:
+            eps = 1e-4
+            # For near-zero gradients, numerical error is O(eps), so set atol >= eps
+            if atol < 1e-4:  # If atol is too small for eps=1e-4
+                auto_atol = 1e-4
+        elif x._dtype == DType.float64:
+            eps = 1e-7
+            if atol < 1e-7:  # If atol is too small for eps=1e-7
+                auto_atol = 1e-7
+        else:
+            eps = 1e-5  # Default for other types
 
     # Compute analytical gradient
     var analytical = backward_fn(grad_output, x)
