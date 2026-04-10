@@ -369,7 +369,7 @@ def _cleanup_temp_dir(path: String):
     Args:
         path: Full path to the temporary directory to remove.
     """
-    from python import Python
+    from std.python import Python
 
     try:
         var shutil = Python.import_module("shutil")
