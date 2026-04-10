@@ -756,7 +756,7 @@ _test-group-asan-inner path pattern:
             BINARY=$(mktemp /tmp/mojo-asan-XXXXXX)
             output=""
             output2=""
-            if output=$(pixi run mojo build {{MOJO_ASAN}} {{MOJO_STRICT}} -I "$REPO_ROOT" -I . "$test_file" -o "$BINARY" 2>&1) && output2=$("$BINARY" 2>&1); then
+            if output=$(pixi run mojo build {{MOJO_ASAN}} {{MOJO_STRICT}} -I "$REPO_ROOT" -I . -Xlinker -lm "$test_file" -o "$BINARY" 2>&1) && output2=$("$BINARY" 2>&1); then
                 echo "$output2"
                 echo "✅ PASSED: $test_file"
                 passed_count=$((passed_count + 1))
