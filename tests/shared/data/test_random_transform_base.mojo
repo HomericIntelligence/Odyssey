@@ -5,7 +5,7 @@ decisions for random transforms.
 """
 
 from shared.data.random_transform_base import RandomTransformBase
-from shared.testing import assert_true, assert_false, assert_equal
+from shared.testing.assertions import assert_true, assert_false, assert_equal
 
 
 def test_random_transform_base_creation() raises:

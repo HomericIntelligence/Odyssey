@@ -28,7 +28,7 @@ from shared.core.activation import (
     relu_backward,
     leaky_relu_backward,
 )
-from shared.testing import (
+from shared.testing.gradient_checker import (
     check_gradient,
     NumericalForward,
     NumericalBackward,

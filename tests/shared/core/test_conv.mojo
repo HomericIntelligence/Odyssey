@@ -25,7 +25,7 @@ from shared.core.conv import (
     conv2d_backward,
     conv2d_no_bias_backward,
 )
-from shared.testing import (
+from shared.testing.gradient_checker import (
     compute_numerical_gradient,
     assert_gradients_close,
     NumericalForward,

@@ -19,7 +19,7 @@ from shared.core.loss import binary_cross_entropy, binary_cross_entropy_backward
 from shared.core.loss import mean_squared_error, mean_squared_error_backward
 from shared.core.reduction import mean
 from shared.core.loss import smooth_l1_loss, smooth_l1_loss_backward
-from shared.testing import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
 from shared.core.loss import hinge_loss, hinge_loss_backward
 from shared.core.loss import focal_loss, focal_loss_backward
 from shared.core.loss import kl_divergence, kl_divergence_backward

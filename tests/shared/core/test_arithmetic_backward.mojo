@@ -33,7 +33,7 @@ from shared.core.arithmetic import (
     multiply_backward,
     divide_backward,
 )
-from shared.testing import (
+from shared.testing.gradient_checker import (
     check_gradient,
     compute_numerical_gradient,
     NumericalForward,

@@ -48,7 +48,7 @@ from shared.core.elementwise import (
     sin_backward,
     cos_backward,
 )
-from shared.testing import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
 from std.math import sqrt as math_sqrt, pi
 
 

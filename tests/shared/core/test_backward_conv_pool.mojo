@@ -15,7 +15,7 @@ from shared.core.pooling import (
     avgpool2d,
     avgpool2d_backward,
 )
-from shared.testing import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
 
 
 # ============================================================================

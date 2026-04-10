@@ -9,7 +9,7 @@ This module provides:
 from std.random import seed
 from std.time import perf_counter_ns
 from shared.tensor.any_tensor import AnyTensor
-from shared.testing import SimpleMLP
+from shared.testing.models import SimpleMLP
 
 # Re-export all assertions from shared.testing.assertions for backward compatibility
 from shared.testing.assertions import (

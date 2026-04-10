@@ -30,7 +30,7 @@ from shared.core.dropout import (
     dropout_backward,
     dropout2d_backward,
 )
-from shared.testing import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
 
 
 def test_dropout_shapes() raises:
