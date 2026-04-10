@@ -4,8 +4,8 @@
 
 **Status**: The ADR-009 heap corruption workaround is **RESOLVED** (2026-03-20, bitcast UAF fix).
 The test file splitting workaround from ADR-009 is no longer necessary. A per-file JIT crash
-retry mechanism was added (2026-03-25, ADR-014) to mitigate the remaining upstream JIT crash.
-Real test failures are never retried — only `execution crashed` (JIT fault) triggers a retry.
+retry mechanism was added (2026-03-25, ADR-014) but has since been **REMOVED** to force root cause
+investigation. Persistent JIT crashes now fail visibly instead of being masked by retries.
 
 The JIT crash described in this document (`libKGENCompilerRTShared.so`) is a separate upstream
 Mojo 0.26.1 compiler bug that is mitigated by targeted submodule imports (see below).

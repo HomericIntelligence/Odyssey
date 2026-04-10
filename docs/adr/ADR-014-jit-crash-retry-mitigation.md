@@ -1,6 +1,8 @@
 # ADR-014: JIT Crash Retry Mitigation
 
-**Status**: Accepted
+**Status**: SUPERSEDED — The retry workaround has been removed. Root cause analysis and upstream
+issue filing is now the approach for persistent JIT crashes. See `repro/` directory for minimal
+reproducers and upstream issue [modular/modular#6187](https://github.com/modular/modular/issues/6187).
 
 **Date**: 2026-03-25
 
