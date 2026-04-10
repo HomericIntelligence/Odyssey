@@ -351,7 +351,7 @@ def _create_temp_dir(prefix: String) -> String:
     Returns:
         Full path to the created temporary directory.
     """
-    from python import Python
+    from std.python import Python
 
     try:
         var tempfile = Python.import_module("tempfile")

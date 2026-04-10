@@ -228,7 +228,7 @@ def _file_exists(path: String) -> Bool:
 
 def _cleanup_directory(path: String):
     """Remove directory and all contents."""
-    from python import Python
+    from std.python import Python
 
     try:
         var shutil = Python.import_module("shutil")
