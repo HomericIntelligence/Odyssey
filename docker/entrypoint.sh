@@ -35,4 +35,14 @@ _ensure_writable \
     tests/shared/fixtures \
     /tmp/mojo-tests
 
+# ---------------------------------------------------------------------------
+# Install pre-commit hooks into the git repo if not already installed.
+# This must run at container startup (not Dockerfile build) because the
+# workspace is bind-mounted at runtime and .git/hooks is inside the mount.
+# ---------------------------------------------------------------------------
+if [ -d ".git" ] && [ ! -f ".git/hooks/pre-commit" ]; then
+    echo "Installing pre-commit git hooks..."
+    pixi run pre-commit install --install-hooks 2>/dev/null || true
+fi
+
 exec "$@"
