@@ -504,7 +504,9 @@ struct AnyTensor(
         # Increment reference count (shared ownership)
         if self._refcount:
             self._refcount[] += 1
-        return ptr.take_pointee()
+        var result = ptr.take_pointee()
+        ptr.free()
+        return result
 
     def _get_dtype_size(self) -> Int:
         """Get size in bytes for the tensor's dtype."""
