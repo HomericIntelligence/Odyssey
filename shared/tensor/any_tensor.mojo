@@ -3525,6 +3525,22 @@ struct AnyTensor(
         var s = self.__str__()
         writer.write(s)
 
+    def write_repr_to[W: Writer](self, mut writer: W):
+        """Write the repr representation to a Writer (required for Writable trait).
+
+        This method is called when using `repr(tensor)` to get the detailed
+        debugging representation. It delegates to `__repr__()` for the actual
+        formatting logic.
+
+        Parameters:
+            W: The writer type conforming to the Writer trait.
+
+        Args:
+            writer: The writer to write the repr representation to.
+        """
+        var s = self.__repr__()
+        writer.write(s)
+
     def __hash__[H: Hasher](self, mut hasher: H):
         """Compute hash based on shape, dtype, and data.
 
