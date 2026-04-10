@@ -681,20 +681,28 @@ def test_run_epoch_with_batches() raises:
     # Create callbacks (verbose=False to suppress output in tests)
     var callbacks = TrainingCallbacks(verbose=False)
 
-    # Define step function that computes loss from batch
-    # For each batch: loss = sum(batch_data) - batch_labels
-    # With ones input and zeros labels, each batch should have positive loss
-    def step_fn(batch_data: AnyTensor, batch_labels: AnyTensor) raises unified {read} -> AnyTensor:
-        # Simple loss: sum squared differences
-        # Since batch_data=ones and batch_labels=zeros, loss will be > 0
-        var diff = subtract(batch_data, batch_labels)
-        var squared = multiply(diff, diff)
-        var loss_scalar = ones([1], DType.float32)
-        # Return scalar loss (simplified for testing)
-        return loss_scalar
+    # Define step function that computes loss from batch.
+    # Inner def closures are nonescaping in Mojo 0.26.3+, so we use a
+    # @fieldwise_init struct implementing StepFn instead of a bare closure.
+    from shared.training.script_runner import StepFn
+
+    @fieldwise_init
+    struct SimpleStepFn(StepFn):
+        """Step function: returns ones([1]) as a simplified scalar loss."""
+
+        def __call__(
+            self, batch_data: AnyTensor, batch_labels: AnyTensor
+        ) raises -> AnyTensor:
+            # Simple loss: sum squared differences
+            # Since batch_data=ones and batch_labels=zeros, loss will be > 0
+            var diff = subtract(batch_data, batch_labels)
+            var squared = multiply(diff, diff)
+            var loss_scalar = ones([1], DType.float32)
+            # Return scalar loss (simplified for testing)
+            return loss_scalar
 
     # Run epoch with batches
-    var avg_loss = run_epoch_with_batches(loader, callbacks, step_fn)
+    var avg_loss = run_epoch_with_batches(loader, callbacks, SimpleStepFn())
 
     # Verify avg_loss > 0.0 (each step_fn returns ones, avg should be ~1.0)
     assert_greater(Float64(avg_loss), Float64(0.0))
