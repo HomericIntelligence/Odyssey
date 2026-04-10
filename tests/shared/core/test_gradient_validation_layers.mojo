@@ -1,7 +1,3 @@
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
-# Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_gradient_validation.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
-
 """Gradient validation tests for Tanh, GELU, Conv2D, and Linear backward passes.
 
 Systematically validates analytical gradients against numerical gradients
@@ -22,11 +18,10 @@ from shared.core.activation import tanh, gelu
 from shared.core.activation import tanh_backward, gelu_backward
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.linear import linear, linear_backward
-from shared.tensor.any_tensor import AnyTensor, zeros
+from shared.tensor.any_tensor import AnyTensor, zeros, zeros_like
 from shared.core.initializers import kaiming_uniform
-from shared.testing.gradient_checker import check_gradients, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
 from shared.testing.special_values import create_seeded_random_tensor
-from shared.testing.assertions import assert_true
 
 
 # ---- Tanh (no captures) ----
@@ -98,11 +93,11 @@ def test_tanh_gradient() raises:
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
-
-    var passed = check_gradients(_TanhFwd(), _TanhBwd(),
-        x, epsilon=1e-5, tolerance=1e-2
-    )
-    assert_true(passed, "Tanh gradient check failed")
+    var fwd = _TanhFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _TanhBwd(), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_gelu_gradient() raises:
@@ -113,11 +108,11 @@ def test_gelu_gradient() raises:
     var x = create_seeded_random_tensor(
         [2, 3], DType.float32, seed=42, low=-2.0, high=2.0
     )
-
-    var passed = check_gradients(_GeluFwd(), _GeluBwd(),
-        x, epsilon=1e-5, tolerance=1e-2
-    )
-    assert_true(passed, "GELU gradient check failed")
+    var fwd = _GeluFwd()
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _GeluBwd(), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_conv2d_gradient_input() raises:
@@ -151,17 +146,17 @@ def test_conv2d_gradient_input() raises:
     input_shape.append(8)
     var x = create_seeded_random_tensor(input_shape, DType.float32, seed=42)
 
-    # Use slightly larger epsilon for conv (more complex operation)
-    var passed = check_gradients(_Conv2dInputFwd(kernel, bias), _Conv2dInputBwd(kernel),
-        x, epsilon=1e-4, tolerance=1e-2
-    )
-    assert_true(passed, "Conv2D input gradient check failed")
+    var fwd = _Conv2dInputFwd(kernel, bias)
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _Conv2dInputBwd(kernel), x, grad_output, rtol=1e-2, atol=1e-2)
 
 
 def test_linear_gradient_input() raises:
     """Test Linear gradient w.r.t. input.
 
-    Note: Slightly wider tolerance due to accumulated numerical errors in matrix operations.
+    Note: Combined relative+absolute tolerance handles accumulated matrix op errors.
     """
     # Create small linear layer: 16 input features, 10 output features
     var in_features = 16
@@ -185,11 +180,11 @@ def test_linear_gradient_input() raises:
     input_shape.append(in_features)
     var x = create_seeded_random_tensor(input_shape, DType.float32, seed=42)
 
-    # Wider tolerance (1.5%) for matrix operations
-    var passed = check_gradients(_LinearFwd(weights, bias), _LinearBwd(weights),
-        x, epsilon=1e-5, tolerance=0.015
-    )
-    assert_true(passed, "Linear input gradient check failed")
+    var fwd = _LinearFwd(weights, bias)
+    var grad_output = zeros_like(fwd(x))
+    for i in range(grad_output.numel()):
+        grad_output._set_float64(i, 1.0)
+    check_gradient(fwd, _LinearBwd(weights), x, grad_output, rtol=1.5e-2, atol=1e-4)
 
 
 def main() raises:
