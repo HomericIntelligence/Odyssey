@@ -58,6 +58,7 @@ Applied two-layer workaround:
 **ADR-009 is fully resolved as of 2026-03-20.**
 
 The root cause (bitcast UAF in `AnyTensor`) was fixed by:
+
 - Replacing all `UnsafePointer[T](bitcast=tensor._data)` patterns with `tensor.set()` and
   `tensor.get()` methods (see [ADR-013](ADR-013-slice-view-destructor-fix.md))
 - Removing `continue-on-error: true` from CI
