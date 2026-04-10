@@ -54,8 +54,39 @@ from shared.tensor.tensor_io import (
 from std.memory import UnsafePointer
 from std.collections import List, Dict
 from std.collections.optional import Optional
-from shared.utils.file_io import create_directory
 from std import os
+from std.os import mkdir
+
+
+# ============================================================================
+# Internal Utilities
+# ============================================================================
+
+
+def _create_directory(dirpath: String) -> Bool:
+    """Create directory if it doesn't exist using native Mojo os.mkdir.
+
+    Avoids Python FFI (which trips the Mojo FFI safety check under ASAN).
+    Uses std.os.mkdir which handles single-level directories. If the directory
+    already exists, the error is silently ignored (idempotent behavior).
+
+    Args:
+        dirpath: Directory path to create.
+
+    Returns:
+        True if created or already exists, False if an unexpected error occurs.
+    """
+    try:
+        mkdir(dirpath)
+    except:
+        # Ignore "already exists" and other non-fatal errors.
+        # We verify success by attempting to list the directory below.
+        pass
+    try:
+        _ = os.listdir(dirpath)
+        return True
+    except:
+        return False
 
 
 # ============================================================================
@@ -122,7 +153,7 @@ def save_named_tensors(tensors: List[NamedTensor], dirpath: String) raises:
         normalized_dirpath = String(dirpath[byte=0:len(dirpath)-1])
 
     # Create directory if needed
-    if not create_directory(normalized_dirpath):
+    if not _create_directory(normalized_dirpath):
         raise Error("Failed to create directory: " + normalized_dirpath)
 
     # Save each tensor
@@ -235,7 +266,7 @@ def save_named_checkpoint(
         normalized_path = String(path[byte=0:len(path)-1])
 
     # Create checkpoint directory
-    if not create_directory(normalized_path):
+    if not _create_directory(normalized_path):
         raise Error("Failed to create checkpoint directory: " + normalized_path)
 
     # Save all named tensors
