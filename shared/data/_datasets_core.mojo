@@ -111,11 +111,15 @@ struct AnyTensorDataset(Copyable, Dataset, Movable, Sized):
                 + String(self._len)
             )
 
-        # Return slices into the data
-        # For 1D tensors with shape [N], slice(idx, idx+1) gives shape [1]
+        # Return owned copies (clones) of the sample slices.
+        # Returning views via slice() creates shared refcounts, but Mojo's Tuple
+        # type does not reliably call __del__ on non-trivial elements (Mojo 0.26.x
+        # limitation). This can leave refcounts elevated when the Tuple goes out of
+        # scope, causing ASAN-detected leaks. Cloning gives each returned tensor its
+        # own refcount=1 so it is freed independently of the dataset's lifetime.
         return (
-            self.data.slice(idx, idx + 1, axis=0),
-            self.labels.slice(idx, idx + 1, axis=0),
+            self.data.slice(idx, idx + 1, axis=0).clone(),
+            self.labels.slice(idx, idx + 1, axis=0).clone(),
         )
 
 
@@ -472,12 +476,11 @@ struct EMNISTDataset(Copyable, Dataset, Movable):
                 + String(self._len)
             )
 
-        # Return slices for individual samples
-        # Data shape is (N, 1, 28, 28), so slice gives (1, 1, 28, 28)
-        # Then squeeze first dimension to get (1, 28, 28)
+        # Return owned copies (clones) for safe lifetime management.
+        # See AnyTensorDataset.__getitem__ comment for details.
         return (
-            self.data.slice(idx, idx + 1, axis=0),
-            self.labels.slice(idx, idx + 1, axis=0),
+            self.data.slice(idx, idx + 1, axis=0).clone(),
+            self.labels.slice(idx, idx + 1, axis=0).clone(),
         )
 
     def get_train_data(self) raises -> AnyTensorDataset:

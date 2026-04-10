@@ -159,10 +159,10 @@ struct CIFAR10Dataset(Copyable, Movable):
                 + " out of bounds for training set of size 50000"
             )
 
-        # Return the sample at index
-        # Images have shape (50000, 3, 32, 32), extract one image
-        var image_slice = self._train_data.slice(index, index + 1, axis=0)
-        var label_slice = self._train_labels.slice(index, index + 1, axis=0)
+        # Return owned copies (clones) for safe lifetime management.
+        # See AnyTensorDataset.__getitem__ comment for details.
+        var image_slice = self._train_data.slice(index, index + 1, axis=0).clone()
+        var label_slice = self._train_labels.slice(index, index + 1, axis=0).clone()
 
         return (image_slice, label_slice)
 

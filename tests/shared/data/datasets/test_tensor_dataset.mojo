@@ -228,10 +228,11 @@ def test_tensor_dataset_iteration_consistency() raises:
 
 
 def test_tensor_dataset_no_copy_on_access() raises:
-    """Test that __getitem__ returns views, not copies.
+    """Test that __getitem__ returns correct data on access.
 
-    For efficiency, dataset should return views into the original tensor
-    rather than creating copies, reducing memory overhead.
+    Dataset should return tensors with correct values for each index.
+    Returns owned clones for safe lifetime management (Mojo 0.26.x Tuple
+    destructor limitation prevents reliable view-based access).
     """
     var data_list: List[Float32] = [Float32(1.0), Float32(2.0)]
     var data = AnyTensor(data_list^)
