@@ -37,10 +37,6 @@ struct StubBatch(Copyable, Movable, Sized):
     def __init__(out self, capacity: Int):
         self.batch_size = capacity
 
-    def __moveinit__(out self, deinit existing: Self):
-        """Move initializer."""
-        self.batch_size = existing.batch_size
-
     def __len__(self) -> Int:
         """Return batch size for len() builtin."""
         return self.batch_size
