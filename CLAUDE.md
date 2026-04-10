@@ -226,7 +226,7 @@ Relevant links:
 
 **Use Python for Automation** when technical limitations require it:
 
-- ✅ Subprocess output capture (Mojo v0.26.1 limitation - cannot capture stdout/stderr)
+- ✅ Subprocess output capture (Mojo v0.26.3 limitation - cannot capture stdout/stderr)
 - ✅ Regex-heavy text processing (no Mojo regex support in stdlib)
 - ✅ GitHub API interaction via Python libraries (`gh` CLI, REST API)
 - ⚠️ **MUST document justification** (see ADR-001 for header template)
@@ -416,7 +416,7 @@ All agents and skills reference these shared files to avoid duplication:
 | `.claude/shared/common-constraints.md` | Minimal changes principle, scope discipline |
 | `.claude/shared/documentation-rules.md` | Output locations, before-starting checklist |
 | `.claude/shared/pr-workflow.md` | PR creation, verification, review responses |
-| `.claude/shared/mojo-guidelines.md` | Mojo v0.26.1+ syntax, parameter conventions |
+| `.claude/shared/mojo-guidelines.md` | Mojo v0.26.3+ syntax, parameter conventions |
 | `.claude/shared/mojo-anti-patterns.md` | 64+ test failure patterns from PRs |
 | `.claude/shared/error-handling.md` | Retry strategy, timeout handling, escalation |
 
@@ -429,10 +429,10 @@ Skills with `mcp_fallback` in YAML frontmatter will be updated to use direct CLI
 
 ### Mojo Development Guidelines
 
-This project uses **Mojo 0.26.1** (pinned in pixi.toml).
+This project uses **Mojo 0.26.3** (pinned in pixi.toml).
 Official docs: <https://docs.modular.com/mojo/manual/>
 
-**Quick Reference**: See [mojo-guidelines.md](/.claude/shared/mojo-guidelines.md) for v0.26.1+ syntax
+**Quick Reference**: See [mojo-guidelines.md](/.claude/shared/mojo-guidelines.md) for v0.26.3+ syntax
 
 **Critical Patterns**:
 
