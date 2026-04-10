@@ -760,8 +760,18 @@ struct AnyTensor(
         var dtype_size = self._get_dtype_size()
         var offset_bytes = offset_elements * dtype_size
 
-        # Create view by copying (increments refcount)
+        # Create view with independent refcount (does NOT share parent's refcount).
+        # Views use _is_view=True so their destructor never frees the data buffer.
+        # An independent refcount avoids ref-count imbalance when Mojo's Tuple type
+        # does not call __del__ on non-trivial elements (Mojo 0.26.x limitation).
         var result = self.copy()
+        # copy() incremented the parent's shared refcount. Undo that increment and
+        # give the view its own independent refcount starting at 1 instead.
+        if result._refcount:
+            result._refcount[] -= 1  # Undo the increment from copy()
+        var view_refcount = alloc[Int](1)
+        view_refcount[] = 1
+        result._refcount = view_refcount
         result._is_view = True
 
         # Update the sliced dimension in place
