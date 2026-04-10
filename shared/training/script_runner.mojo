@@ -32,6 +32,32 @@ from shared.tensor.any_tensor import AnyTensor
 from shared.training.trainer_interface import DataLoader
 
 
+trait StepFn(Copyable, Movable):
+    """Trait for training step functions used by run_epoch_with_batches.
+
+    Implementors accept input and target tensors and return a scalar loss tensor.
+    Use this trait (with a @fieldwise_init struct) instead of bare closures
+    when calling run_epoch_with_batches, because inner def closures are
+    nonescaping in Mojo 0.26.3+.
+
+    Example:
+        ```mojo
+        @fieldwise_init
+        struct MyStep(StepFn):
+            def __call__(
+                self, inputs: AnyTensor, targets: AnyTensor
+            ) raises -> AnyTensor:
+                return inputs  # replace with real forward+loss
+        var loss = run_epoch_with_batches(loader, callbacks, MyStep())
+        ```
+    """
+
+    def __call__(
+        self, inputs: AnyTensor, targets: AnyTensor
+    ) raises -> AnyTensor:
+        ...
+
+
 struct TrainingCallbacks(Copyable, Movable):
     """Callbacks for training loop events.
 
@@ -98,6 +124,42 @@ def run_epoch_with_batches(
         loader: DataLoader providing batches.
         callbacks: Training callbacks for progress reporting.
         step_fn: Function to execute a single training step, returning loss.
+
+    Returns:
+        Average loss for the epoch.
+    """
+    loader.reset()
+    var total_loss = Float64(0.0)
+    var num_batches = Int(0)
+
+    while loader.has_next():
+        var batch = loader.next()
+        var loss = step_fn(batch.data, batch.labels)
+        var loss_val = loss._get_float32(0)
+        total_loss += Float64(loss_val)
+        num_batches += 1
+        callbacks.on_batch_end(0, num_batches, Float32(loss_val))
+
+    if num_batches > 0:
+        return Float32(total_loss / Float64(num_batches))
+    return Float32(0.0)
+
+
+def run_epoch_with_batches[S: StepFn](
+    mut loader: DataLoader,
+    callbacks: TrainingCallbacks,
+    step_fn: S,
+) raises -> Float32:
+    """Run one training epoch with batch processing (trait-parameterized overload).
+
+    This overload accepts any type implementing StepFn, which avoids the
+    nonescaping-closure restriction on bare def function arguments in
+    Mojo 0.26.3+.
+
+    Args:
+        loader: DataLoader providing batches.
+        callbacks: Training callbacks for progress reporting.
+        step_fn: A value implementing StepFn (e.g. a @fieldwise_init struct).
 
     Returns:
         Average loss for the epoch.

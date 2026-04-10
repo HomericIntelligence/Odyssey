@@ -222,7 +222,7 @@ def test_roundtrip_fp16_fp32_fp16() raises:
     var fp16_ptr = fp16_original._data.bitcast[Float16]()
 
     for i in range(64):
-        fp16_ptr[i] = Float16(Float32((i % 10) / 10.0))
+        fp16_ptr[i] = Float16(Float32(Float64(i % 10) / 10.0))
 
     # Convert to FP32
     var fp32_intermediate = convert_to_fp32_master(fp16_original)

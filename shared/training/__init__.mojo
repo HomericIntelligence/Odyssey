@@ -530,6 +530,7 @@ struct CrossEntropyLoss(Loss, Movable):
 
 # Training script utilities (Issue #3034)
 from shared.training.script_runner import (
+    StepFn,
     TrainingCallbacks,
     run_epoch_with_batches,
     print_training_header,
