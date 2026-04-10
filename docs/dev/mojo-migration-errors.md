@@ -34,7 +34,7 @@ All deprecated pattern counts are measured against **actual code** (not comment 
 ### Key Findings
 
 - The codebase has **fully migrated** from `fn` to `def` for all function and method definitions.
-  The 150-match grep count is a false positive: the pattern `fn ` appears in docstrings, comments,
+  The 150-match grep count is a false positive: the pattern `fn` appears in docstrings, comments,
   and quoted code examples but not in live Mojo source.
 - `__copyinit__` and `__moveinit__` appear only in `shared/base/memory_pool.mojo` docstrings
   explaining the historical rationale for explicit copy/move constructors. The actual struct

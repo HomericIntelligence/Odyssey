@@ -41,6 +41,23 @@ from tests.shared.conftest import (
     assert_greater,
 )
 from shared.tensor.any_tensor import AnyTensor, ones, zeros
+from shared.training.script_runner import StepFn
+
+
+@fieldwise_init
+struct SimpleStepFn(StepFn):
+    """Step function: returns ones([1]) as a simplified scalar loss."""
+
+    def __call__(
+        self, batch_data: AnyTensor, batch_labels: AnyTensor
+    ) raises -> AnyTensor:
+        # Simple loss: sum squared differences
+        # Since batch_data=ones and batch_labels=zeros, loss will be > 0
+        var diff = subtract(batch_data, batch_labels)
+        var squared = multiply(diff, diff)
+        var loss_scalar = ones([1], DType.float32)
+        # Return scalar loss (simplified for testing)
+        return loss_scalar
 
 
 def test_training_loop_single_batch() raises:
@@ -680,26 +697,6 @@ def test_run_epoch_with_batches() raises:
 
     # Create callbacks (verbose=False to suppress output in tests)
     var callbacks = TrainingCallbacks(verbose=False)
-
-    # Define step function that computes loss from batch.
-    # Inner def closures are nonescaping in Mojo 0.26.3+, so we use a
-    # @fieldwise_init struct implementing StepFn instead of a bare closure.
-    from shared.training.script_runner import StepFn
-
-    @fieldwise_init
-    struct SimpleStepFn(StepFn):
-        """Step function: returns ones([1]) as a simplified scalar loss."""
-
-        def __call__(
-            self, batch_data: AnyTensor, batch_labels: AnyTensor
-        ) raises -> AnyTensor:
-            # Simple loss: sum squared differences
-            # Since batch_data=ones and batch_labels=zeros, loss will be > 0
-            var diff = subtract(batch_data, batch_labels)
-            var squared = multiply(diff, diff)
-            var loss_scalar = ones([1], DType.float32)
-            # Return scalar loss (simplified for testing)
-            return loss_scalar
 
     # Run epoch with batches
     var avg_loss = run_epoch_with_batches(loader, callbacks, SimpleStepFn())
