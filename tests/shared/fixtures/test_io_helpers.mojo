@@ -60,7 +60,7 @@ def _cleanup_tmp_dir(path: String) raises:
     # Only clean paths under /tmp/ for safety
     if not path.startswith("/tmp/"):
         raise Error("Refusing to clean non-/tmp/ path: " + path)
-    from python import Python
+    from std.python import Python
 
     var shutil = Python.import_module("shutil")
     try:
