@@ -33,8 +33,8 @@ from shared.training import SGD, MSELoss, TrainingLoop
 from shared.training.trainer_interface import DataLoader
 from shared.tensor.any_tensor import AnyTensor
 from shared.tensor.any_tensor import ones, zeros, randn
-from shared.core import subtract, multiply
-from shared.testing import SimpleMLP
+from shared.core.arithmetic import subtract, multiply
+from shared.testing.models import SimpleMLP
 from shared.tensor.any_tensor import AnyTensor, ones, zeros, randn
 from tests.shared.conftest import (
     assert_equal,

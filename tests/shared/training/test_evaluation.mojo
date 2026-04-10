@@ -25,7 +25,7 @@ from shared.training.evaluation import (
     evaluate_model_simple,
     evaluate_topk,
 )
-from shared.testing import SimpleMLP
+from shared.testing.models import SimpleMLP
 from std.collections import List
 
 

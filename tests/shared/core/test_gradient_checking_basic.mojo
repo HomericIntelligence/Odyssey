@@ -1,6 +1,6 @@
 """Gradient checking tests for activation, arithmetic, and edge cases."""
 
-from shared.testing import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, zeros_like
 from shared.core.activation import (
     relu,

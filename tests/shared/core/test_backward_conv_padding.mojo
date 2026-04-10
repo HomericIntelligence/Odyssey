@@ -14,7 +14,7 @@ from tests.shared.conftest import (
 )
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
 from shared.core.conv import conv2d, conv2d_backward
-from shared.testing import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
 
 
 @fieldwise_init

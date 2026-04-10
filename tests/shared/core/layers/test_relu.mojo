@@ -7,7 +7,7 @@ Tests cover:
 """
 
 from std.testing import assert_true, assert_false
-from shared.core.layers import ReLULayer
+from shared.core.layers.relu import ReLULayer
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 
 

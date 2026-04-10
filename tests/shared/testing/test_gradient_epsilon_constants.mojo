@@ -5,7 +5,7 @@ values are consistent between both import paths, and numeric values are correct.
 """
 
 from std.testing import assert_true, assert_equal
-from shared.testing import (
+from shared.testing.tolerance_constants import (
     GRADIENT_CHECK_EPSILON_FLOAT32,
     GRADIENT_CHECK_EPSILON_OTHER,
 )
@@ -81,7 +81,7 @@ def test_epsilon_float32_larger_than_generic() raises:
 
     Float32 matmul precision loss requires a larger epsilon than the generic 1e-5.
     """
-    from shared.testing import GRADIENT_CHECK_EPSILON
+    from shared.testing.tolerance_constants import GRADIENT_CHECK_EPSILON
 
     print("Testing GRADIENT_CHECK_EPSILON_FLOAT32 > GRADIENT_CHECK_EPSILON...")
     assert_true(

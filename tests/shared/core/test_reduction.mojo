@@ -31,7 +31,7 @@ from shared.core.reduction import (
     max_reduce_backward,
     min_reduce_backward,
 )
-from shared.testing import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
 from shared.core.reduction import (
     variance,
     std_reduce as stdev,

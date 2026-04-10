@@ -5,7 +5,7 @@ Gradient checking with check_gradients is tested in test_gradient_checking.mojo.
 """
 
 from std.testing import assert_true, assert_equal
-from shared.testing import (
+from shared.testing.gradient_checker import (
     assert_gradients_close,
     relative_error,
 )

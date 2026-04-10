@@ -17,7 +17,7 @@ from shared.core.loss import (
     mean_squared_error,
     mean_squared_error_backward,
 )
-from shared.testing import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
 
 
 def test_cross_entropy_backward_shapes() raises:
