@@ -246,10 +246,13 @@ def _check_gradients_perturb[
 
         # f(x + ε)
         plus_ptr[i] = Scalar[dtype](original_val + epsilon)
+        # Capture actual quantized value (for FP16/BF16 the step may be asymmetric).
+        var actual_plus = Float64(plus_ptr[i])
         var output_plus = forward_fn(input_copy_plus)
 
         # f(x - ε)
         minus_ptr[i] = Scalar[dtype](original_val - epsilon)
+        var actual_minus = Float64(minus_ptr[i])
         var output_minus = forward_fn(input_copy_minus)
 
         # Compute per-element numerical gradient: sum([f(x+ε) - f(x-ε)] / (2ε))
@@ -257,12 +260,17 @@ def _check_gradients_perturb[
         # alive for the entire loop scope. Per-element _get_float64 performs a
         # bitcast on each call and can trigger ASAP destruction of the temporary
         # tensor before all elements are read (modular/modular#6187).
+        # Use actual quantized step size; for FP32/FP64 this equals epsilon, but
+        # for FP16/BF16 the quantized step may differ from the requested epsilon,
+        # causing systematic errors in the gradient estimate.
+        var actual_eps = (actual_plus - actual_minus) / 2.0
+        var denom = actual_eps if actual_eps > 0.0 else epsilon
         var out_plus_ptr = output_plus.data_ptr[dtype]()
         var out_minus_ptr = output_minus.data_ptr[dtype]()
         var numerical_sum: Float64 = 0.0
         for j in range(output_plus.numel()):
             var diff = Float64(out_plus_ptr[j]) - Float64(out_minus_ptr[j])
-            numerical_sum += diff / (2.0 * epsilon)
+            numerical_sum += diff / (2.0 * denom)
         grad_ptr[i] = Scalar[dtype](numerical_sum)
 
         # Restore original value for next iteration
@@ -1440,6 +1448,11 @@ def _check_gradient_perturb[
         # Use typed pointer for setting the perturbed value in the clone
         var plus_ptr = x_plus.data_ptr[dtype]()
         plus_ptr[i] = Scalar[dtype](old_val + eps)
+        # Capture the ACTUAL quantized perturbation (important for FP16/BF16 where
+        # old_val ± eps may round to different bucket sizes, making the effective
+        # perturbation asymmetric; using the nominal eps in the denominator then
+        # produces a wrong gradient — use the real Δx instead).
+        var actual_x_plus = Float64(plus_ptr[i])
         var out_plus = forward_fn(x_plus)
         # Use data_ptr[dtype]() to keep out_plus alive across the loop (modular/modular#6187)
         var out_plus_ptr = out_plus.data_ptr[dtype]()
@@ -1452,6 +1465,7 @@ def _check_gradient_perturb[
         var x_minus = x.clone()
         var minus_ptr = x_minus.data_ptr[dtype]()
         minus_ptr[i] = Scalar[dtype](old_val - eps)
+        var actual_x_minus = Float64(minus_ptr[i])
         var out_minus = forward_fn(x_minus)
         # Use data_ptr[dtype]() to keep out_minus alive across the loop (modular/modular#6187)
         var out_minus_ptr = out_minus.data_ptr[dtype]()
@@ -1459,8 +1473,12 @@ def _check_gradient_perturb[
         for j in range(out_minus.numel()):
             loss_minus += Float64(out_minus_ptr[j]) * Float64(grad_out_ptr[j])
 
-        # Central difference
-        var numerical_grad = (loss_plus - loss_minus) / (2.0 * eps)
+        # Central difference: use actual quantized step size, not the requested eps.
+        # For FP32/FP64 actual_eps ≈ eps; for FP16/BF16 they can differ due to rounding.
+        var actual_eps = (actual_x_plus - actual_x_minus) / 2.0
+        # Fall back to requested eps if perturbations collapsed to the same bucket.
+        var denom = actual_eps if actual_eps > 0.0 else eps
+        var numerical_grad = (loss_plus - loss_minus) / (2.0 * denom)
         grad_ptr[i] = Scalar[dtype](numerical_grad)
 
 
@@ -1492,6 +1510,11 @@ def _check_gradient_perturb[
         # Use typed pointer for setting the perturbed value in the clone
         var plus_ptr = x_plus.data_ptr[dtype]()
         plus_ptr[i] = Scalar[dtype](old_val + eps)
+        # Capture the ACTUAL quantized perturbation (important for FP16/BF16 where
+        # old_val ± eps may round to different bucket sizes, making the effective
+        # perturbation asymmetric; using the nominal eps in the denominator then
+        # produces a wrong gradient — use the real Δx instead).
+        var actual_x_plus = Float64(plus_ptr[i])
         var out_plus = forward_fn(x_plus)
         # Use data_ptr[dtype]() to keep out_plus alive across the loop (modular/modular#6187)
         var out_plus_ptr = out_plus.data_ptr[dtype]()
@@ -1504,6 +1527,7 @@ def _check_gradient_perturb[
         var x_minus = x.clone()
         var minus_ptr = x_minus.data_ptr[dtype]()
         minus_ptr[i] = Scalar[dtype](old_val - eps)
+        var actual_x_minus = Float64(minus_ptr[i])
         var out_minus = forward_fn(x_minus)
         # Use data_ptr[dtype]() to keep out_minus alive across the loop (modular/modular#6187)
         var out_minus_ptr = out_minus.data_ptr[dtype]()
@@ -1511,8 +1535,12 @@ def _check_gradient_perturb[
         for j in range(out_minus.numel()):
             loss_minus += Float64(out_minus_ptr[j]) * Float64(grad_out_ptr[j])
 
-        # Central difference
-        var numerical_grad = (loss_plus - loss_minus) / (2.0 * eps)
+        # Central difference: use actual quantized step size, not the requested eps.
+        # For FP32/FP64 actual_eps ≈ eps; for FP16/BF16 they can differ due to rounding.
+        var actual_eps = (actual_x_plus - actual_x_minus) / 2.0
+        # Fall back to requested eps if perturbations collapsed to the same bucket.
+        var denom = actual_eps if actual_eps > 0.0 else eps
+        var numerical_grad = (loss_plus - loss_minus) / (2.0 * denom)
         grad_ptr[i] = Scalar[dtype](numerical_grad)
 
 
