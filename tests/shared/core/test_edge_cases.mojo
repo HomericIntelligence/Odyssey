@@ -15,7 +15,7 @@ from shared.tensor.any_tensor import (
     inf_tensor,
     neg_inf_tensor,
 )
-from shared.core import (
+from shared.core.arithmetic import (
     add,
     subtract,
     multiply,
@@ -23,6 +23,8 @@ from shared.core import (
     floor_divide,
     modulo,
     power,
+)
+from shared.core.comparison import (
     equal,
     not_equal,
     less,

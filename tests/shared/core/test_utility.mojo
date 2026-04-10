@@ -10,7 +10,8 @@ and stride calculations.
 
 
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange, copy, clone, item, diff
-from shared.core import as_contiguous, transpose_view
+from shared.core.shape import as_contiguous
+from shared.core.matrix import transpose_view
 from tests.shared.conftest import (
     assert_dtype,
     assert_equal,
@@ -23,9 +24,6 @@ from tests.shared.conftest import (
     assert_true,
     assert_false,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange, clone, item, diff
-from shared.core.shape import as_contiguous
-from shared.core.matrix import transpose_view
 
 
 def make_bf16_nan_tensor(raw_bits: UInt16) raises -> AnyTensor:
