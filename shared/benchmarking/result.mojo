@@ -40,7 +40,7 @@ Example:
 from std.math import sqrt
 
 
-struct BenchmarkResult(Copyable, Movable):
+struct BenchmarkResult(Copyable, Movable, Writable):
     """Results from a benchmark run with iteration-level timing data.
 
     Uses Welford's algorithm for numerically stable online computation of
@@ -237,3 +237,15 @@ struct BenchmarkResult(Copyable, Movable):
         result += "  Max: " + String(max_us) + " us"
 
         return result
+
+    def write_to(self, mut writer: Some[Writer]):
+        """Write benchmark results to a writer.
+
+        Args:
+            writer: Target writer to write the formatted results to.
+
+        Notes:
+            Implements the Writable trait to replace deprecated __str__.
+            Writes the same formatted output as __str__() method.
+        """
+        writer.write(str(self))
