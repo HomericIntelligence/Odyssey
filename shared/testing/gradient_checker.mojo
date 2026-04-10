@@ -1563,9 +1563,14 @@ def check_gradient(
     var auto_atol = atol
     if eps == 0.0:
         # Use sqrt(machine_epsilon) for numerical stability
+        # Float16/BF16: machine eps ~9.77e-4, sqrt ~0.031, use 1e-3 (smaller for safety)
         # Float32: machine eps ~1.2e-7, sqrt ~3.5e-4, use 1e-4
         # Float64: machine eps ~2.2e-16, sqrt ~1.5e-8, use 1e-7
-        if x._dtype == DType.float32:
+        if x._dtype == DType.float16 or x._dtype == DType.bfloat16:
+            eps = 1e-3  # FP16/BF16 need larger epsilon; 1e-5 rounds to zero
+            if atol < 1e-2:  # Minimum atol for reduced-precision gradient checking
+                auto_atol = 1e-2
+        elif x._dtype == DType.float32:
             eps = 1e-4
             # For near-zero gradients, numerical error is O(eps), so set atol >= eps
             if atol < 1e-4:  # If atol is too small for eps=1e-4
@@ -1647,9 +1652,14 @@ def check_gradient[F: NumericalForward, B: NumericalBackward](
     var auto_atol = atol
     if eps == 0.0:
         # Use sqrt(machine_epsilon) for numerical stability
+        # Float16/BF16: machine eps ~9.77e-4, sqrt ~0.031, use 1e-3 (smaller for safety)
         # Float32: machine eps ~1.2e-7, sqrt ~3.5e-4, use 1e-4
         # Float64: machine eps ~2.2e-16, sqrt ~1.5e-8, use 1e-7
-        if x._dtype == DType.float32:
+        if x._dtype == DType.float16 or x._dtype == DType.bfloat16:
+            eps = 1e-3  # FP16/BF16 need larger epsilon; 1e-5 rounds to zero
+            if atol < 1e-2:  # Minimum atol for reduced-precision gradient checking
+                auto_atol = 1e-2
+        elif x._dtype == DType.float32:
             eps = 1e-4
             # For near-zero gradients, numerical error is O(eps), so set atol >= eps
             if atol < 1e-4:  # If atol is too small for eps=1e-4
