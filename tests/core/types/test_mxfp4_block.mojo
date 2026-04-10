@@ -60,8 +60,11 @@ def test_mxfp4_block_creation_range() raises:
     for i in range(32):
         var expected = Float32(i) * 0.1
         var error = abs(decoded[i] - expected)
-        # E2M1 precision is limited, allow larger tolerance
-        assert_true(error < 0.5, "Value " + String(i) + " error too large")
+        # E2M1 precision is limited, allow larger tolerance.
+        # Use <= 0.5: values equidistant between two E2M1 codes (e.g., 2.5
+        # falls exactly between 2.0 and 3.0 in scaled space) produce error
+        # of exactly 0.5, which is valid quantization behavior.
+        assert_true(error <= 0.5, "Value " + String(i) + " error too large")
 
 
 def test_mxfp4_block_size_validation() raises:
