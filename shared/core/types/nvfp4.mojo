@@ -605,6 +605,17 @@ struct NVFP4(Copyable, Movable, Writable):
         """
         return "NVFP4(" + String(self.to_float32()) + ")"
 
+    def write_to(self, mut writer: Some[Writer]):
+        """Write NVFP4 value to a writer.
+
+        Args:
+            writer: Target writer to write the value to.
+
+        Notes:
+            Implements the Writable trait to replace deprecated __str__.
+        """
+        writer.write(str(self))
+
     def __repr__(self) -> String:
         """Get representation string.
 
@@ -830,6 +841,17 @@ struct NVFP4Block(Copyable, Movable, Writable):
             + String(_e4m3_to_float32(self.scale))
             + ")"
         )
+
+    def write_to(self, mut writer: Some[Writer]):
+        """Write NVFP4Block value to a writer.
+
+        Args:
+            writer: Target writer to write the value to.
+
+        Notes:
+            Implements the Writable trait to replace deprecated __str__.
+        """
+        writer.write(str(self))
 
     def __repr__(self) -> String:
         """Detailed representation.
