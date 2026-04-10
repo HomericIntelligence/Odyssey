@@ -5,7 +5,7 @@ stride-based element access instead of flat-index access.
 """
 
 from shared.tensor.any_tensor import AnyTensor, arange
-from shared.core import reshape
+from shared.core.shape import reshape
 from shared.core.shape import is_contiguous
 
 from tests.shared.conftest import (

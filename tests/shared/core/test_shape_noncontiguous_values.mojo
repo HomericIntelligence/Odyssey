@@ -19,7 +19,7 @@ Non-contiguous setup pattern (transpose_view):
 
 # Import AnyTensor and shape operations
 from shared.tensor.any_tensor import AnyTensor, arange
-from shared.core import (
+from shared.core.shape import (
     reshape,
     flatten,
     concatenate,
@@ -27,8 +27,8 @@ from shared.core import (
     broadcast_to,
     tile,
     repeat,
-    transpose_view,
 )
+from shared.core.matrix import transpose_view
 
 # Import test helpers
 from tests.shared.conftest import (

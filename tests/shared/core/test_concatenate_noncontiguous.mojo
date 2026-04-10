@@ -11,7 +11,7 @@ These tests verify:
 """
 
 from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.core import concatenate
+from shared.core.shape import concatenate
 from tests.shared.conftest import (
     assert_numel,
     assert_dim,
