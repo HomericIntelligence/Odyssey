@@ -18,7 +18,7 @@ for your help. This document provides guidelines and instructions for contributi
 ### Prerequisites
 
 - Python 3.7 or higher
-- Mojo compiler (v0.26.1 or later)
+- Mojo compiler (v0.26.3 or later)
 - Git
 - GitHub CLI (`gh`) for PR workflows
 
@@ -188,7 +188,7 @@ We use `mojo format` for consistent code formatting. Pre-commit hooks will autom
 - Leverage SIMD operations for performance-critical code
 - Add comprehensive docstrings to all public APIs
 
-**Current Mojo syntax (v0.26.1+):**
+**Current Mojo syntax (v0.26.3+):**
 
 | Convention   | Use For            | Example                              |
 |--------------|--------------------|--------------------------------------|

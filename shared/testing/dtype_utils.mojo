@@ -16,7 +16,7 @@ Usage:
     from shared.testing.dtype_utils import get_test_dtypes
 
     # Get all dtypes to test
-    let dtypes = get_test_dtypes()
+    var dtypes = get_test_dtypes()
 
     # Use in test loops
     for dtype in dtypes:
@@ -59,7 +59,7 @@ def get_test_dtypes() -> List[DType]:
         ```mojo
         from shared.testing.dtype_utils import get_test_dtypes
 
-        let dtypes = get_test_dtypes()
+        var dtypes = get_test_dtypes()
         for dtype in dtypes:
             print(f"Testing with dtype: {dtype}")
         ```
@@ -87,7 +87,7 @@ def get_float_dtypes() -> List[DType]:
         from shared.testing.dtype_utils import get_float_dtypes
 
         # For operations that require floating-point arithmetic
-        let float_dtypes = get_float_dtypes()
+        var float_dtypes = get_float_dtypes()
         ```
     """
     var dtypes = List[DType]()
@@ -111,7 +111,7 @@ def get_precision_dtypes() -> List[DType]:
         from shared.testing.dtype_utils import get_precision_dtypes
 
         # Test precision-dependent behavior
-        let dtypes = get_precision_dtypes()
+        var dtypes = get_precision_dtypes()
         ```
     """
     var dtypes = List[DType]()
@@ -138,7 +138,7 @@ def get_float32_only() -> List[DType]:
         from shared.testing.dtype_utils import get_float32_only
 
         # For quick tests during development
-        let dtypes = get_float32_only()
+        var dtypes = get_float32_only()
         ```
     """
     var dtypes = List[DType]()
@@ -157,7 +157,7 @@ def dtype_to_string(dtype: DType) -> String:
 
     Example:
         ```mojo
-        let name = dtype_to_string(DType.float32)  # Returns "float32"
+        var name = dtype_to_string(DType.float32)  # Returns "float32"
         ```
     """
     if dtype == DType.float16:

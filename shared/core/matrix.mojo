@@ -715,7 +715,7 @@ def matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         Preconditions:
             - a and b must have compatible dimensions
             - a and b must have the same dtype
-            - Parameters are borrowed immutably - safe for aliased inputs (a and b can be the same tensor)
+            - Parameters are read immutably - safe for aliased inputs (a and b can be the same tensor)
             - Result is always a new tensor - no in-place modification
 
     Examples:
