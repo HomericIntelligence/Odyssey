@@ -34,7 +34,7 @@ struct Tensor(Copyable, ImplicitlyCopyable):
         self._grad_ptr = alloc[Int](1)
         self._grad_ptr[] = size
 
-    def __copyinit__(out self, existing: Self):
+    def __init__(out self, *, copy existing: Self):
         """Copy constructor."""
         self.size = existing.size
         self._grad_ptr = alloc[Int](1)

@@ -73,7 +73,7 @@ struct InferConfig(Movable):
         self.data_dir = "datasets/emnist"
         self.top_k = 5
 
-    def __moveinit__(out self, deinit other: Self):
+    def __init__(out self, *, take other: Self):
         self.checkpoint_dir = other.checkpoint_dir^
         self.image_path = other.image_path^
         self.run_test_set = other.run_test_set
