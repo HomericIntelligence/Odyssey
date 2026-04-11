@@ -613,6 +613,7 @@ struct NVFP4(Copyable, Movable, Writable):
             Primary implementation of string formatting for the Writable trait.
             __str__() delegates to this method via String.write(self).
         """
+<<<<<<< HEAD
         writer.write("NVFP4(" + String(self.to_float32()) + ")")
 
     def __str__(self) -> String:
@@ -631,6 +632,9 @@ struct NVFP4(Copyable, Movable, Writable):
         """
         var s = self.__repr__()
         writer.write(s)
+=======
+        writer.write(self.__str__())
+>>>>>>> 2d275035b (fix: convert str(self) to self.__str__())
 
     def __repr__(self) -> String:
         """Get representation string.
@@ -858,6 +862,7 @@ struct NVFP4Block(Copyable, Movable, Writable):
             Primary implementation of string formatting for the Writable trait.
             __str__() delegates to this method via String.write(self).
         """
+<<<<<<< HEAD
         writer.write(
             "NVFP4Block(16 values, scale="
             + String(_e4m3_to_float32(self.scale))
@@ -880,6 +885,9 @@ struct NVFP4Block(Copyable, Movable, Writable):
         """
         var s = self.__repr__()
         writer.write(s)
+=======
+        writer.write(self.__str__())
+>>>>>>> 2d275035b (fix: convert str(self) to self.__str__())
 
     def __repr__(self) -> String:
         """Detailed representation.

@@ -245,4 +245,33 @@ struct BenchmarkResult(Copyable, Movable, Writable):
                 Max: 2000.00 us
         ```
         """
-        return String.write(self)
+        var mean_ns = self.mean()
+        var mean_us = mean_ns / 1000.0
+        var std_ns = self.std()
+        var std_us = std_ns / 1000.0
+        var min_us = self.min_time() / 1000.0
+        var max_us = self.max_time() / 1000.0
+
+        var result = String("")
+        result += "BenchmarkResult: " + self.name + "\n"
+        result += "  Iterations: " + String(self.iterations) + "\n"
+        result += (
+            "  Mean: " + String(mean_us) + " us (" + String(mean_ns) + " ns)\n"
+        )
+        result += "  Std Dev: " + String(std_us) + " us\n"
+        result += "  Min: " + String(min_us) + " us\n"
+        result += "  Max: " + String(max_us) + " us"
+
+        return result
+
+    def write_to(self, mut writer: Some[Writer]):
+        """Write benchmark results to a writer.
+
+        Args:
+            writer: Target writer to write the formatted results to.
+
+        Notes:
+            Implements the Writable trait to replace deprecated __str__.
+            Writes the same formatted output as __str__() method.
+        """
+        writer.write(self.__str__())
