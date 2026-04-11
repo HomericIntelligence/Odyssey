@@ -55,7 +55,7 @@ struct TrainConfig(Movable):
         self.data_dir = "datasets/emnist"
         self.weights_dir = "lenet5_weights"
 
-    def __moveinit__(out self, deinit existing: Self):
+    def __init__(out self, *, take existing: Self):
         self.epochs = existing.epochs
         self.batch_size = existing.batch_size
         self.learning_rate = existing.learning_rate
