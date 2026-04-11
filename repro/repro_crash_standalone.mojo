@@ -48,21 +48,21 @@ struct Tensor(Movable, Copyable):
         self._refcount = alloc[Int](1)
         self._refcount[] = 1
 
-    def __copyinit__(out self, existing: Self):
-        self._data = existing._data
-        self._shape = existing._shape.copy()
-        self._numel = existing._numel
-        self._refcount = existing._refcount
-        self._alloc_size = existing._alloc_size
+    def __init__(out self, *, copy: Self):
+        self._data = copy._data
+        self._shape = copy._shape.copy()
+        self._numel = copy._numel
+        self._refcount = copy._refcount
+        self._alloc_size = copy._alloc_size
         if self._refcount:
             self._refcount[] += 1
 
-    def __moveinit__(out self, deinit existing: Self):
-        self._data = existing._data
-        self._shape = existing._shape.copy()
-        self._numel = existing._numel
-        self._refcount = existing._refcount
-        self._alloc_size = existing._alloc_size
+    def __init__(out self, *, deinit take: Self):
+        self._data = take._data
+        self._shape = take._shape.copy()
+        self._numel = take._numel
+        self._refcount = take._refcount
+        self._alloc_size = take._alloc_size
 
     def __del__(deinit self):
         if self._refcount:
