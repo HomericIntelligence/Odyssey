@@ -89,24 +89,11 @@ struct PrecisionMode(Copyable, ImplicitlyCopyable, Movable, Writable):
     def __ne__(self, other: Self) -> Bool:
         return self.value != other.value
 
-    def __str__(self) -> String:
-        if self.value == 0:
-            return "fp32"
-        elif self.value == 1:
-            return "fp16"
-        elif self.value == 2:
-            return "bf16"
-        elif self.value == 3:
-            return "fp8"
-        else:
-            return "unknown"
-
     def write_to[W: Writer](self, mut writer: W):
         """Write the string representation to a Writer (required for Writable trait).
 
-        This method is called when using `String(mode)` or `print(mode)` to convert
-        the precision mode to a string representation. It delegates to `__str__()` for
-        the actual formatting logic.
+        Primary implementation of string formatting. __str__() delegates to
+        this method via String.write(self).
 
         Parameters:
             W: The writer type conforming to the Writer trait.
@@ -114,15 +101,24 @@ struct PrecisionMode(Copyable, ImplicitlyCopyable, Movable, Writable):
         Args:
             writer: The writer to write the string representation to.
         """
-        var s = self.__str__()
-        writer.write(s)
+        if self.value == 0:
+            writer.write("fp32")
+        elif self.value == 1:
+            writer.write("fp16")
+        elif self.value == 2:
+            writer.write("bf16")
+        elif self.value == 3:
+            writer.write("fp8")
+        else:
+            writer.write("unknown")
+
+    def __str__(self) -> String:
+        return String.write(self)
 
     def write_repr_to[W: Writer](self, mut writer: W):
         """Write the repr representation to a Writer (required for Writable trait).
 
-        This method is called when using `repr(mode)` to get the debugging
-        representation. Delegates to `__str__()` since PrecisionMode has no
-        separate repr format.
+        Delegates to write_to since PrecisionMode has no separate repr format.
 
         Parameters:
             W: The writer type conforming to the Writer trait.
@@ -130,8 +126,7 @@ struct PrecisionMode(Copyable, ImplicitlyCopyable, Movable, Writable):
         Args:
             writer: The writer to write the repr representation to.
         """
-        var s = self.__str__()
-        writer.write(s)
+        self.write_to(writer)
 
 
 struct PrecisionConfig(Copyable, Movable):
