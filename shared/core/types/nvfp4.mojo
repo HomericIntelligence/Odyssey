@@ -616,6 +616,15 @@ struct NVFP4(Copyable, Movable, Writable):
         """
         writer.write(self.__str__())
 
+    def write_repr_to(self, mut writer: Some[Writer]):
+        """Write the repr representation to a Writer (required for Writable trait).
+
+        Args:
+            writer: The writer to write the repr representation to.
+        """
+        var s = self.__repr__()
+        writer.write(s)
+
     def __repr__(self) -> String:
         """Get representation string.
 
@@ -852,6 +861,15 @@ struct NVFP4Block(Copyable, Movable, Writable):
             Implements the Writable trait to replace deprecated __str__.
         """
         writer.write(self.__str__())
+
+    def write_repr_to(self, mut writer: Some[Writer]):
+        """Write the repr representation to a Writer (required for Writable trait).
+
+        Args:
+            writer: The writer to write the repr representation to.
+        """
+        var s = self.__repr__()
+        writer.write(s)
 
     def __repr__(self) -> String:
         """Detailed representation.
