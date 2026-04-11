@@ -287,7 +287,9 @@ struct MXFP4(Copyable, Movable, Writable):
     """8-bit E8M0 scale factor."""
 
     def __init__(
-        out self, value: UInt8 = 0, scale: Scalar[E8M0] = _e8m0_from_exponent(127)
+        out self,
+        value: UInt8 = 0,
+        scale: Scalar[E8M0] = _e8m0_from_exponent(127),
     ):
         """Initialize MXFP4 from E2M1 value and E8M0 scale.
 
@@ -394,7 +396,9 @@ struct MXFP4(Copyable, Movable, Writable):
         return MXFP4(value, scale)
 
     @staticmethod
-    def _fp4_stochastic_round(x: Float32, scale: Float32, seed: UInt64) -> UInt8:
+    def _fp4_stochastic_round(
+        x: Float32, scale: Float32, seed: UInt64
+    ) -> UInt8:
         """Internal: Stochastic rounding helper using simple LCG.
 
         Args:
@@ -609,14 +613,6 @@ struct MXFP4(Copyable, Movable, Writable):
         """
         return self.to_float32() >= other.to_float32()
 
-    def __str__(self) -> String:
-        """Convert to string.
-
-        Returns:
-            String representation.
-        """
-        return "MXFP4(" + String(self.to_float32()) + ")"
-
     def write_to(self, mut writer: Some[Writer]):
         """Write MXFP4 value to a writer.
 
@@ -624,9 +620,18 @@ struct MXFP4(Copyable, Movable, Writable):
             writer: Target writer to write the value to.
 
         Notes:
-            Implements the Writable trait to replace deprecated __str__.
+            Primary implementation of string formatting for the Writable trait.
+            __str__() delegates to this method via String.write(self).
         """
-        writer.write(self.__str__())
+        writer.write("MXFP4(" + String(self.to_float32()) + ")")
+
+    def __str__(self) -> String:
+        """Convert to string.
+
+        Returns:
+            String representation.
+        """
+        return String.write(self)
 
     def write_repr_to(self, mut writer: Some[Writer]):
         """Write the repr representation to a Writer (required for Writable trait).
@@ -841,18 +846,6 @@ struct MXFP4Block(Copyable, Movable, Writable):
 
         self.data[byte_idx] = byte
 
-    def __str__(self) -> String:
-        """String representation showing scale and value count.
-
-        Returns:
-            String representation.
-        """
-        return (
-            "MXFP4Block(32 values, scale="
-            + String(_e8m0_to_float32(self.scale))
-            + ")"
-        )
-
     def write_to(self, mut writer: Some[Writer]):
         """Write MXFP4Block value to a writer.
 
@@ -860,9 +853,22 @@ struct MXFP4Block(Copyable, Movable, Writable):
             writer: Target writer to write the value to.
 
         Notes:
-            Implements the Writable trait to replace deprecated __str__.
+            Primary implementation of string formatting for the Writable trait.
+            __str__() delegates to this method via String.write(self).
         """
-        writer.write(self.__str__())
+        writer.write(
+            "MXFP4Block(32 values, scale="
+            + String(_e8m0_to_float32(self.scale))
+            + ")"
+        )
+
+    def __str__(self) -> String:
+        """String representation showing scale and value count.
+
+        Returns:
+            String representation.
+        """
+        return String.write(self)
 
     def write_repr_to(self, mut writer: Some[Writer]):
         """Write the repr representation to a Writer (required for Writable trait).

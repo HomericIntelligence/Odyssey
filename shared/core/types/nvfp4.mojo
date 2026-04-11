@@ -296,7 +296,9 @@ struct NVFP4(Copyable, Movable, Writable):
         # Handle special cases
         if isnan(x) or isinf(x):
             var fp4_bits = _fp4_from_float32(x, 1.0)
-            return NVFP4(fp4_bits, bitcast[FP8, 1](SIMD[DType.uint8, 1](0x3C))[0])
+            return NVFP4(
+                fp4_bits, bitcast[FP8, 1](SIMD[DType.uint8, 1](0x3C))[0]
+            )
 
         if x == 0.0:
             return NVFP4(0, bitcast[FP8, 1](SIMD[DType.uint8, 1](0x3C))[0])
@@ -353,7 +355,9 @@ struct NVFP4(Copyable, Movable, Writable):
         # Handle special cases
         if isnan(x) or isinf(x):
             var fp4_bits = _fp4_from_float32(x, 1.0)
-            return NVFP4(fp4_bits, bitcast[FP8, 1](SIMD[DType.uint8, 1](0x3C))[0])
+            return NVFP4(
+                fp4_bits, bitcast[FP8, 1](SIMD[DType.uint8, 1](0x3C))[0]
+            )
 
         if x == 0.0:
             return NVFP4(0, bitcast[FP8, 1](SIMD[DType.uint8, 1](0x3C))[0])
@@ -380,7 +384,9 @@ struct NVFP4(Copyable, Movable, Writable):
         return NVFP4(fp4_bits, scale)
 
     @staticmethod
-    def _fp4_stochastic_round(x: Float32, scale: Float32, seed: UInt64) -> UInt8:
+    def _fp4_stochastic_round(
+        x: Float32, scale: Float32, seed: UInt64
+    ) -> UInt8:
         """Internal: Stochastic rounding helper using simple LCG.
 
         Args:
@@ -597,14 +603,6 @@ struct NVFP4(Copyable, Movable, Writable):
         """
         return self.to_float32() >= other.to_float32()
 
-    def __str__(self) -> String:
-        """Convert to string.
-
-        Returns:
-            String representation.
-        """
-        return "NVFP4(" + String(self.to_float32()) + ")"
-
     def write_to(self, mut writer: Some[Writer]):
         """Write NVFP4 value to a writer.
 
@@ -612,9 +610,18 @@ struct NVFP4(Copyable, Movable, Writable):
             writer: Target writer to write the value to.
 
         Notes:
-            Implements the Writable trait to replace deprecated __str__.
+            Primary implementation of string formatting for the Writable trait.
+            __str__() delegates to this method via String.write(self).
         """
-        writer.write(self.__str__())
+        writer.write("NVFP4(" + String(self.to_float32()) + ")")
+
+    def __str__(self) -> String:
+        """Convert to string.
+
+        Returns:
+            String representation.
+        """
+        return String.write(self)
 
     def write_repr_to(self, mut writer: Some[Writer]):
         """Write the repr representation to a Writer (required for Writable trait).
@@ -690,7 +697,9 @@ struct NVFP4Block(Copyable, Movable, Writable):
     def __init__(out self):
         """Initialize NVFP4Block with zeros."""
         self.data = SIMD[DType.uint8, 8](0)
-        self.scale = bitcast[FP8, 1](SIMD[DType.uint8, 1](0x3C))[0]  # Scale = 1.0
+        self.scale = bitcast[FP8, 1](SIMD[DType.uint8, 1](0x3C))[
+            0
+        ]  # Scale = 1.0
 
     def __init__(out self, data: SIMD[DType.uint8, 8], scale: Scalar[FP8]):
         """Initialize NVFP4Block from packed data and scale.
@@ -839,18 +848,6 @@ struct NVFP4Block(Copyable, Movable, Writable):
 
         self.data[byte_idx] = byte
 
-    def __str__(self) -> String:
-        """String representation showing scale and value count.
-
-        Returns:
-            String representation.
-        """
-        return (
-            "NVFP4Block(16 values, scale="
-            + String(_e4m3_to_float32(self.scale))
-            + ")"
-        )
-
     def write_to(self, mut writer: Some[Writer]):
         """Write NVFP4Block value to a writer.
 
@@ -858,9 +855,22 @@ struct NVFP4Block(Copyable, Movable, Writable):
             writer: Target writer to write the value to.
 
         Notes:
-            Implements the Writable trait to replace deprecated __str__.
+            Primary implementation of string formatting for the Writable trait.
+            __str__() delegates to this method via String.write(self).
         """
-        writer.write(self.__str__())
+        writer.write(
+            "NVFP4Block(16 values, scale="
+            + String(_e4m3_to_float32(self.scale))
+            + ")"
+        )
+
+    def __str__(self) -> String:
+        """String representation showing scale and value count.
+
+        Returns:
+            String representation.
+        """
+        return String.write(self)
 
     def write_repr_to(self, mut writer: Some[Writer]):
         """Write the repr representation to a Writer (required for Writable trait).

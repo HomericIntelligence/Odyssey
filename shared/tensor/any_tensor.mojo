@@ -3304,6 +3304,83 @@ struct AnyTensor(
         """
         return self.item()
 
+    def write_to[W: Writer](self, mut writer: W):
+        """Write the string representation to a Writer (required for Writable trait).
+
+        Primary implementation of string formatting. __str__() delegates to
+        this method via String.write(self).
+
+        Parameters:
+            W: The writer type conforming to the Writer trait.
+
+        Args:
+            writer: The writer to write the string representation to.
+        """
+        comptime TRUNCATE_THRESHOLD = 1000
+        comptime SHOW_ELEMENTS = 3
+
+        var ndim = len(self._shape)
+
+        # Special case: empty tensor
+        if ndim == 0 or self._numel == 0:
+            writer.write("AnyTensor([], dtype=" + String(self._dtype) + ")")
+            return
+
+        # For 1D tensors: use flat format
+        if ndim == 1:
+            writer.write("AnyTensor([")
+            if self._numel > TRUNCATE_THRESHOLD:
+                for i in range(SHOW_ELEMENTS):
+                    if i > 0:
+                        writer.write(", ")
+                    writer.write(self._format_element(i))
+                writer.write(", ...")
+                for i in range(self._numel - SHOW_ELEMENTS, self._numel):
+                    writer.write(", " + self._format_element(i))
+            else:
+                for i in range(self._numel):
+                    if i > 0:
+                        writer.write(", ")
+                    writer.write(self._format_element(i))
+            writer.write("], dtype=" + String(self._dtype) + ")")
+            return
+
+        # For multi-dimensional tensors (2D+): build nested brackets.
+        # Truncate if total elements exceed threshold to prevent
+        # massive string output for large tensors (e.g., [100, 100]).
+        if self._numel > TRUNCATE_THRESHOLD:
+            # Show first and last sub-arrays along outermost dimension
+            var stride = 1
+            for d in range(1, ndim):
+                stride *= self._shape[d]
+
+            var data_str = String("[")
+            for i in range(SHOW_ELEMENTS):
+                if i > 0:
+                    data_str += ", "
+                data_str += self._format_nd_slice(1, i * stride)
+            data_str += ", ..."
+            for i in range(self._shape[0] - SHOW_ELEMENTS, self._shape[0]):
+                data_str += ", " + self._format_nd_slice(1, i * stride)
+            data_str += "]"
+
+            writer.write("AnyTensor(" + data_str + ", shape=[")
+            for i in range(len(self._shape)):
+                if i > 0:
+                    writer.write(", ")
+                writer.write(String(self._shape[i]))
+            writer.write("], dtype=" + String(self._dtype) + ")")
+            return
+
+        var data_str = self._format_nd_slice(0, 0)
+
+        writer.write("AnyTensor(" + data_str + ", shape=[")
+        for i in range(len(self._shape)):
+            if i > 0:
+                writer.write(", ")
+            writer.write(String(self._shape[i]))
+        writer.write("], dtype=" + String(self._dtype) + ")")
+
     def __str__(self) -> String:
         """Human-readable string representation with NumPy-style truncation.
 
@@ -3329,70 +3406,7 @@ struct AnyTensor(
             print(y)  # AnyTensor([[42, 42, 42], [42, 42, 42]], shape=[2, 3], dtype=int32)
             ```
         """
-        comptime TRUNCATE_THRESHOLD = 1000
-        comptime SHOW_ELEMENTS = 3
-
-        var ndim = len(self._shape)
-
-        # Special case: empty tensor
-        if ndim == 0 or self._numel == 0:
-            return "AnyTensor([], dtype=" + String(self._dtype) + ")"
-
-        # For 1D tensors: use flat format
-        if ndim == 1:
-            var result = String("AnyTensor([")
-            if self._numel > TRUNCATE_THRESHOLD:
-                for i in range(SHOW_ELEMENTS):
-                    if i > 0:
-                        result += ", "
-                    result += self._format_element(i)
-                result += ", ..."
-                for i in range(self._numel - SHOW_ELEMENTS, self._numel):
-                    result += ", " + self._format_element(i)
-            else:
-                for i in range(self._numel):
-                    if i > 0:
-                        result += ", "
-                    result += self._format_element(i)
-            result += "], dtype=" + String(self._dtype) + ")"
-            return result
-
-        # For multi-dimensional tensors (2D+): build nested brackets.
-        # Truncate if total elements exceed threshold to prevent
-        # massive string output for large tensors (e.g., [100, 100]).
-        if self._numel > TRUNCATE_THRESHOLD:
-            # Show first and last sub-arrays along outermost dimension
-            var stride = 1
-            for d in range(1, ndim):
-                stride *= self._shape[d]
-
-            var data_str = String("[")
-            for i in range(SHOW_ELEMENTS):
-                if i > 0:
-                    data_str += ", "
-                data_str += self._format_nd_slice(1, i * stride)
-            data_str += ", ..."
-            for i in range(self._shape[0] - SHOW_ELEMENTS, self._shape[0]):
-                data_str += ", " + self._format_nd_slice(1, i * stride)
-            data_str += "]"
-
-            var result = "AnyTensor(" + data_str + ", shape=["
-            for i in range(len(self._shape)):
-                if i > 0:
-                    result += ", "
-                result += String(self._shape[i])
-            result += "], dtype=" + String(self._dtype) + ")"
-            return result
-
-        var data_str = self._format_nd_slice(0, 0)
-
-        var result = "AnyTensor(" + data_str + ", shape=["
-        for i in range(len(self._shape)):
-            if i > 0:
-                result += ", "
-            result += String(self._shape[i])
-        result += "], dtype=" + String(self._dtype) + ")"
-        return result
+        return String.write(self)
 
     def _format_element(self, flat_idx: Int) -> String:
         """Format a single element based on dtype.
@@ -3510,22 +3524,6 @@ struct AnyTensor(
                 result += String(self._get_float64(i))
         result += "])"
         return result
-
-    def write_to[W: Writer](self, mut writer: W):
-        """Write the string representation to a Writer (required for Writable trait).
-
-        This method is called when using `String(tensor)` or `print(tensor)` to convert
-        the tensor to a string representation. It delegates to `__str__()` for the
-        actual formatting logic.
-
-        Parameters:
-            W: The writer type conforming to the Writer trait.
-
-        Args:
-            writer: The writer to write the string representation to.
-        """
-        var s = self.__str__()
-        writer.write(s)
 
     def write_repr_to[W: Writer](self, mut writer: W):
         """Write the repr representation to a Writer (required for Writable trait).

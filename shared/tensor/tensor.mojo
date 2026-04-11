@@ -519,6 +519,46 @@ struct Tensor[dtype: DType = DType.float32](
     # String representation (H4 fix: typed access, no _get_float64)
     # ------------------------------------------------------------------
 
+    def write_to[W: Writer](self, mut writer: W):
+        """Write the string representation to a Writer (required for Writable trait).
+
+        Primary implementation of string formatting. __str__() delegates to
+        this method via String.write(self).
+
+        Parameters:
+            W: The writer type conforming to the Writer trait.
+
+        Args:
+            writer: The writer to write the string representation to.
+        """
+        writer.write("Tensor([")
+        if self._numel > TENSOR_PRINT_THRESHOLD:
+            for i in range(TENSOR_PRINT_SHOW_ELEMENTS):
+                if i > 0:
+                    writer.write(", ")
+                try:
+                    writer.write(String(self[i]))
+                except:
+                    writer.write("?")
+            writer.write(", ...")
+            for i in range(
+                self._numel - TENSOR_PRINT_SHOW_ELEMENTS, self._numel
+            ):
+                writer.write(", ")
+                try:
+                    writer.write(String(self[i]))
+                except:
+                    writer.write("?")
+        else:
+            for i in range(self._numel):
+                if i > 0:
+                    writer.write(", ")
+                try:
+                    writer.write(String(self[i]))
+                except:
+                    writer.write("?")
+        writer.write("], dtype=" + String(Self.dtype) + ")")
+
     def __str__(self) -> String:
         """Human-readable string representation with NumPy-style truncation.
 
@@ -531,50 +571,7 @@ struct Tensor[dtype: DType = DType.float32](
         Returns:
             String in the format: ``Tensor([v0, v1, ...], dtype=<dtype>)``.
         """
-        var result = String("Tensor([")
-        if self._numel > TENSOR_PRINT_THRESHOLD:
-            for i in range(TENSOR_PRINT_SHOW_ELEMENTS):
-                if i > 0:
-                    result += ", "
-                try:
-                    result += String(self[i])
-                except:
-                    result += "?"
-            result += ", ..."
-            for i in range(
-                self._numel - TENSOR_PRINT_SHOW_ELEMENTS, self._numel
-            ):
-                result += ", "
-                try:
-                    result += String(self[i])
-                except:
-                    result += "?"
-        else:
-            for i in range(self._numel):
-                if i > 0:
-                    result += ", "
-                try:
-                    result += String(self[i])
-                except:
-                    result += "?"
-        result += "], dtype=" + String(Self.dtype) + ")"
-        return result
-
-    def write_to[W: Writer](self, mut writer: W):
-        """Write the string representation to a Writer (required for Writable trait).
-
-        This method is called when using `String(tensor)` or `print(tensor)` to convert
-        the tensor to a string representation. It delegates to `__str__()` for the
-        actual formatting logic.
-
-        Parameters:
-            W: The writer type conforming to the Writer trait.
-
-        Args:
-            writer: The writer to write the string representation to.
-        """
-        var s = self.__str__()
-        writer.write(s)
+        return String.write(self)
 
     def write_repr_to[W: Writer](self, mut writer: W):
         """Write the repr representation to a Writer (required for Writable trait).
