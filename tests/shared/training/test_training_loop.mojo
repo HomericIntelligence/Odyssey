@@ -561,7 +561,7 @@ def test_training_loop_property_loss_decreases_on_simple_problem() raises:
 
     # Run multiple training steps
     var losses: List[Float32] = []
-    for i in range(10):
+    for _ in range(10):
         var loss = training_loop.step(inputs, targets)
         var loss_val = loss._get_float32(0)
         losses.append(loss_val)
