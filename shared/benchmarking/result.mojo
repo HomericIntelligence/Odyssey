@@ -248,4 +248,4 @@ struct BenchmarkResult(Copyable, Movable, Writable):
             Implements the Writable trait to replace deprecated __str__.
             Writes the same formatted output as __str__() method.
         """
-        writer.write(str(self))
+        writer.write(self.__str__())

@@ -626,7 +626,7 @@ struct MXFP4(Copyable, Movable, Writable):
         Notes:
             Implements the Writable trait to replace deprecated __str__.
         """
-        writer.write(str(self))
+        writer.write(self.__str__())
 
     def __repr__(self) -> String:
         """Get representation string.
@@ -853,7 +853,7 @@ struct MXFP4Block(Copyable, Movable, Writable):
         Notes:
             Implements the Writable trait to replace deprecated __str__.
         """
-        writer.write(str(self))
+        writer.write(self.__str__())
 
     def __repr__(self) -> String:
         """Detailed representation.
