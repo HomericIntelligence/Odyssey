@@ -34,7 +34,7 @@ from std.collections import List
 
 struct FloatArray(Movable):
     """Simple float array for heavy alloc/free cycles."""
-    var data: UnsafePointer[Float32]
+    var data: UnsafePointer[Float32, MutAnyOrigin]
     var size: Int
 
     def __init__(out self, size: Int) raises:
@@ -43,9 +43,9 @@ struct FloatArray(Movable):
         for i in range(size):
             self.data[i] = Float32(0.0)
 
-    def __moveinit__(out self, deinit existing: Self):
-        self.data = existing.data
-        self.size = existing.size
+    def __init__(out self, *, deinit take: Self):
+        self.data = take.data
+        self.size = take.size
 
     def __del__(deinit self):
         self.data.free()
