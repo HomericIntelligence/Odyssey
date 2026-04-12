@@ -257,9 +257,8 @@ def convert_to_fp32_master(params: AnyTensor) raises -> AnyTensor:
         Error: If params is empty.
 
     Note:
-        FP16 SIMD vectorization is blocked by a Mojo v0.26.1 compiler limitation;
-        FP16→FP32 conversion uses a scalar loop (~10-15x slower than FP32→FP32).
-        See docs/adr/ADR-010-fp16-simd-mojo-limitation.md for full rationale.
+        All dtype paths use SIMD vectorization. FP16↔FP32 uses vectorized cast.
+        ADR-010 (FP16 SIMD scalar workaround) is superseded as of Mojo 0.26.3.
 
     Example:
         ```mojo
@@ -283,10 +282,9 @@ def convert_to_fp32_master(params: AnyTensor) raises -> AnyTensor:
         _convert_fp32_to_fp32_simd(params, result)
         return result
 
-    # If FP16, use scalar conversion (FP16 SIMD blocked, see ADR-010)
+    # If FP16, use SIMD vectorized conversion
     if params.dtype() == DType.float16:
-        for i in range(size):
-            result.store[DType.float32](i, Float32(params.load[DType.float16](i)))
+        _convert_fp16_to_fp32_simd(params, result)
         return result
 
     # Generic path for other dtypes
@@ -607,13 +605,8 @@ def _clip_by_value_simd_float64(
 def _convert_fp16_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD conversion from FP16 to FP32 with vectorization.
 
-    Uses SIMD casting to vectorize FP16→FP32 conversion.
-    Achieves ~4x speedup over scalar implementation.
-
-    Implementation Details:
-    - Loads FP16 elements via data_ptr and scalar access
-    - Converts each element individually to FP32 SIMD vector
-    - Stores FP32 SIMD vector using vectorized store
+    Uses SIMD load + cast for true vectorized FP16→FP32 conversion.
+    Supported in Mojo 0.26.3+ (FP16 SIMD was blocked in 0.26.1, see ADR-010).
     """
     comptime simd_width = simd_width_of[DType.float32]()
     var size = src._numel
@@ -623,14 +616,8 @@ def _convert_fp16_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
 
     @parameter
     def vectorized_convert[width: Int](idx: Int) unified {mut}:
-        # Load FP16 elements and convert to FP32 using SIMD
-        var fp32_vec = SIMD[DType.float32, width]()
-
-        # Convert width FP16 elements to FP32
-        for i in range(width):
-            fp32_vec[i] = Float32(src_ptr[idx + i])
-
-        dst_ptr.store[width=width](idx, fp32_vec)
+        var fp16_vec = src_ptr.load[width=width](idx)
+        dst_ptr.store[width=width](idx, fp16_vec.cast[DType.float32]())
 
     vectorize[simd_width](size, vectorized_convert)
 
@@ -639,13 +626,8 @@ def _convert_fp16_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
 def _convert_fp32_to_fp16_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     """SIMD conversion from FP32 to FP16 with vectorization.
 
-    Uses SIMD casting to vectorize FP32→FP16 conversion.
-    Achieves ~4x speedup over scalar implementation.
-
-    Implementation Details:
-    - Loads FP32 SIMD vectors
-    - Converts each element to FP16
-    - Stores FP16 vector using vectorized store
+    Uses SIMD load + cast for true vectorized FP32→FP16 conversion.
+    Supported in Mojo 0.26.3+ (FP16 SIMD was blocked in 0.26.1, see ADR-010).
     """
     comptime simd_width = simd_width_of[DType.float32]()
     var size = src._numel
@@ -655,17 +637,7 @@ def _convert_fp32_to_fp16_simd(src: AnyTensor, mut dst: AnyTensor) raises:
 
     @parameter
     def vectorized_convert[width: Int](idx: Int) unified {mut}:
-        # Load FP32 vector
         var fp32_vec = src_ptr.load[width=width](idx)
-
-        # Convert FP32 to FP16 using cast
-        var fp16_vec = SIMD[DType.float16, width]()
-
-        # Convert width FP32 elements to FP16
-        for i in range(width):
-            fp16_vec[i] = Float16(fp32_vec[i])
-
-        # Store FP16 vector
-        dst_ptr.store[width=width](idx, fp16_vec)
+        dst_ptr.store[width=width](idx, fp32_vec.cast[DType.float16]())
 
     vectorize[simd_width](size, vectorized_convert)

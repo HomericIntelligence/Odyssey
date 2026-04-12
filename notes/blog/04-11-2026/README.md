@@ -1,33 +1,32 @@
-# Day Seventy-Nine: Two More Mojo Bugs — ASAN Lies and FP16 SIMD Silence
+# Day Seventy-Nine: One Upstream Bug, One Closed Assumption, One Removed Workaround
 
 **Project:** ML Odyssey
 **Date:** April 11, 2026
 **Branch:** `blog/day-79-upstream-bug-documentation`
-**Tags:** #mojo #debugging #asan #fp16 #simd #upstream-bugs #compiler-limitations
+**Tags:** #mojo #debugging #asan #fp16 #simd #upstream-bugs #verification
 
 ---
 
-> **Note:** This post documents two separate Mojo upstream bugs discovered during
-> ProjectOdyssey development. Both have minimal reproducers. One causes an abort
-> when ASAN is active; the other silently blocks FP16 vectorization with no
-> workaround message. Issue templates are in [repro/issues/](/repro/issues/).
+> **Note:** This post documents the ASAN + Python FFI dlsym collision (1 upstream Mojo bug,
+> 100% deterministic reproducer) and the discovery that ADR-010's FP16 SIMD scalar workaround
+> is no longer necessary in Mojo 0.26.3. The scalar loops have been replaced with proper
+> vectorized paths. Issue template is in [repro/issues/](/repro/issues/).
 
 ---
 
 ## TL;DR
 
-Two more Mojo bugs worth filing. First: running any Mojo code with Python FFI under
-AddressSanitizer causes an immediate abort — not from a memory error, but because
-ASAN's `dlsym` interceptor returns non-NULL for `PyRun_SimpleString` when CPython
-isn't loaded, and Mojo's FFI loader treats that as a fatal inconsistency. Five lines
-of code reproduce it 100% of the time.
+Two things happened today. First: a genuine upstream Mojo bug — running any code with
+Python FFI under AddressSanitizer aborts immediately, not from a memory error, but because
+ASAN's `dlsym` interceptor returns non-NULL for `PyRun_SimpleString` and Mojo's FFI loader
+treats that as fatal. Five lines reproduce it 100% of the time.
 
-Second: `SIMD[DType.float16, N]` doesn't compile in Mojo 0.26.x. No error message
-tells you there's a workaround or that this type is planned. You just get a type error
-and have to fall back to scalar loops, taking a 10-15x performance hit on FP16
-conversion paths.
-
-Neither is a showstopper. Both are annoying enough to document.
+Second: ADR-010 was wrong about the current state. It documented `SIMD[DType.float16, N]`
+as unsupported — that was true in Mojo 0.26.1, but 0.26.3 supports it fully. Before
+filing a feature request upstream, a quick verification run confirmed that
+`SIMD[DType.float16, 8]()` compiles and runs cleanly. The scalar workaround loops in
+`mixed_precision.mojo` have been replaced with vectorized `load + cast` paths, and
+ADR-010 is now marked Superseded.
 
 ---
 
@@ -90,8 +89,6 @@ inconsistency at line 647 of `std/ffi/__init__.mojo` and aborts.
 
 ### Act 3: The Five-Line Reproducer
 
-This is one of the shortest reproducers in the project:
-
 ```mojo
 from python import Python
 
@@ -139,133 +136,72 @@ Issue template: [`repro/issues/asan-dlsym-abort.md`](/repro/issues/asan-dlsym-ab
 
 ---
 
-## Bug 2: FP16 SIMD — The Silent Missing Type
+## Not Bug 2: ADR-010 Was Stale
 
-### Prologue: Mixed-Precision Training
+### The Assumption
 
-Mixed-precision training (FP16 model weights, FP32 master weights, FP32 optimizer state)
-is a standard technique for training on hardware with FP16 tensor cores. The implementation
-in `shared/training/mixed_precision.mojo` requires two conversion functions:
+ADR-010 documented that `SIMD[DType.float16, N]` was unsupported in Mojo 0.26.1
+(error: `invalid SIMD element type 'float16'`). The scalar workaround in
+`mixed_precision.mojo` was written against that constraint, with a comment pointing
+to the ADR. Before filing an upstream feature request for FP16 SIMD support, we
+verified the current behavior.
 
-- `convert_to_fp32_master()`: copies FP16 model params → FP32 master weights before the
-  optimizer step
-- `update_model_from_master()`: copies FP32 master weights → FP16 model params after update
-
-The natural implementation uses SIMD vectorization for ~4x throughput. Every other dtype
-path in the project uses vectorized load/store. FP16 should be no different.
-
-### Act 1: The Compile Error
-
-```mojo
-alias simd_width = simdwidthof[DType.float16]()
-var vec: SIMD[DType.float16, simd_width]  # <-- compile error
-```
-
-Error:
-
-```text
-error: invalid SIMD element type 'float16'
-note: SIMD element types must be numeric but float16 is not supported
-```
-
-The compiler rejects `SIMD[DType.float16, N]` with a type error. Not "unimplemented" —
-"not supported." There's no documentation note, no migration guide, no "use this instead"
-message.
-
-### Act 2: Searching for a Workaround
-
-The Mojo documentation for `SIMD` lists supported element types. `float16` is not in the
-list. The `DType` enum includes `float16` as a valid value (it's a valid element type for
-`UnsafePointer` and scalar operations), but the SIMD type system doesn't support it as a
-lane type.
-
-Experiments:
-
-| Approach | Result |
-| -------- | ------ |
-| `SIMD[DType.float16, simd_width]` | Compile error: invalid element type |
-| `SIMD[DType.float16, 1]` | Compile error: same error even with width=1 |
-| `Float16` scalar ops | Works — element-by-element conversion is valid |
-| `DType.bfloat16` in SIMD | Also fails: same constraint |
-| `DType.float32` SIMD (for comparison) | Works — FP32 SIMD path confirmed correct |
-
-The scalar path works: `dst_ptr[i] = Float32(src_ptr[i])` element by element. It's
-10-15x slower than the SIMD path would be for FP32, but correct.
-
-### Act 3: The One-Line Insight
-
-The limitation isn't a bug in Mojo's SIMD implementation — it's a missing feature in
-the hardware abstraction layer. Modern x86 CPUs support `_mm256_cvtph_ps` (F16C
-extension) for converting 8 FP16 values to FP32 in a single instruction. AVX-512FP16
-goes further with direct FP16 arithmetic.
-
-Mojo's SIMD type system doesn't expose `float16` as a lane type yet. The scalar path
-works correctly and uses the CPU's scalar FP16→FP32 conversion instructions, just one
-element at a time.
-
-This is a feature request, not a bug. The behavior is consistent (always fails,
-never works partially). The workaround (scalar loop) is well-defined and correct.
-The performance penalty is bounded and acceptable for training (conversion happens
-once per optimizer step, not per forward pass).
-
-### Minimal Reproducer
-
-```mojo
-def main():
-    # This line fails to compile in Mojo 0.26.3
-    var v = SIMD[DType.float16, 8]()
-    print(v)
-```
+### The Verification
 
 ```bash
-mojo run repro_fp16_simd.mojo
-# error: invalid SIMD element type 'float16'
+mojo run test_fp16_simd.mojo
+# [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 ```
 
-### The Workaround
+`SIMD[DType.float16, 8]` compiles and runs in Mojo 0.26.3. Vectorized load, cast
+to float32, and store all work:
 
 ```mojo
-# FP16 SIMD blocked by Mojo v0.26.x limitation; using scalar loop.
-# See docs/adr/ADR-010-fp16-simd-mojo-limitation.md
-var src_ptr = params._data.bitcast[Float16]()
-var dst_ptr = result._data.bitcast[Float32]()
-for i in range(size):
-    dst_ptr[i] = Float32(src_ptr[i])
+var fp16_vec = src_ptr.load[width=8]()
+dst_ptr.store[width=8](fp16_vec.cast[DType.float32]())
 ```
 
-Performance: ~10-15x slower than the equivalent SIMD FP32→FP32 path. Acceptable for
-optimizer steps, which run once per batch, not once per element.
+The limitation was fixed somewhere between 0.26.1 and 0.26.3. The feature we were
+about to file a request for was already shipped.
 
-### Filed
+### What Changed
 
-Feature request template: [`repro/issues/fp16-simd-limitation.md`](/repro/issues/fp16-simd-limitation.md)
+- **`_convert_fp16_to_fp32_simd`**: replaced scalar inner loop with `load + cast[DType.float32]()`
+- **`_convert_fp32_to_fp16_simd`**: replaced scalar inner loop with `load + cast[DType.float16]()`
+- **`convert_to_fp32_master`**: FP16 branch now calls `_convert_fp16_to_fp32_simd` instead of
+  the inline scalar loop
+- **ADR-010**: marked Superseded with note explaining the resolution
+- `repro/issues/fp16-simd-limitation.md`: deleted — describes a resolved non-issue
+
+The lesson: **verify assumptions before filing upstream**. The reproducibility standard that
+kept us from filing the non-deterministic JIT crashes also caught this.
 
 ---
 
-## Epilogue: The Reproducibility Standard
+## Epilogue: The Reproducibility Standard, Applied
 
-The March 2026 retrospective was unsparing about how many bugs were dismissed or
-misclassified over three months. One lesson from that: **only file upstream issues
-when you have a deterministic, minimal reproducer that works on the current Mojo version.**
+This session set out to document all unfiled upstream Mojo bugs and file them. The rule
+was: only file if you have a 100% deterministic minimal reproducer on the current Mojo
+version.
 
-The JIT volume crash and the CI-only fortify abort don't meet that bar yet. They're
-documented in `repro/issues/` but not filed — the reproducers are non-deterministic or
-environment-specific. If we can isolate them to something smaller and more reliable,
-we'll file them.
+Result:
 
-These two meet the bar:
+| Candidate | Verdict | Reason |
+| --------- | ------- | ------ |
+| ASAN + dlsym abort | Filed (template) | 5-line reproducer, 100% deterministic |
+| FP16 SIMD limitation | Not filed — resolved | Feature shipped in 0.26.3; verified clean |
+| JIT volume crash | Not filed | Non-deterministic; can't guarantee 100% repro |
+| JIT fortify abort | Not filed | CI-only; no local reproducer by definition |
 
-- ASAN + dlsym: 5-line reproducer, 100% deterministic, crashes on every run
-- FP16 SIMD: one-line compile error, 100% deterministic, fails on every compile
-
-Short investigation. Two clean issues. That's a good day.
+One real issue. One stale ADR cleaned up. Two non-deterministic crashes still waiting
+for a better reproducer. Good enough for a day.
 
 ---
 
 ### Stats
 
-- **Bugs documented**: 2
-- **Issue templates created/updated**: 2
-- **Lines of reproducer code**: 5 (ASAN) + 3 (FP16)
-- **Time to minimal reproducer**: ~15 minutes each (both were already documented)
-- **Bugs fixed by us**: 0 (both are upstream; workarounds already in codebase)
+- **Upstream bugs filed**: 1 (ASAN + dlsym)
+- **Stale assumptions corrected**: 1 (ADR-010 FP16 SIMD)
+- **Scalar workaround loops removed**: 2 (both FP16↔FP32 conversion helpers)
+- **ADRs marked Superseded**: 1
+- **Issue templates deleted**: 1 (fp16-simd-limitation.md — describes resolved issue)
