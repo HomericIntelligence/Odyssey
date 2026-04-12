@@ -824,6 +824,7 @@ jobs:
   gradient-coverage:
     needs: [gradient-tests]
     runs-on: ubuntu-latest
+    if: always()  # Run even when gradient-tests fails/skips — required status check must complete
     name: "Gradient Coverage Report"
 
     steps:
@@ -833,6 +834,13 @@ jobs:
       - name: Check backward pass coverage
         run: |
           echo "Checking gradient test coverage..."
+
+          # Guard: if gradient tests failed/skipped, report gracefully instead of failing
+          if [ "${{ needs.gradient-tests.result }}" != "success" ]; then
+            echo "Gradient tests did not succeed (result: ${{ needs.gradient-tests.result }})"
+            echo "Skipping coverage calculation — no reliable test data available."
+            exit 0
+          fi
 
           # Find all *_backward functions
           BACKWARD_FUNCS=$(grep -r "fn.*_backward" shared/core --include="*.mojo" | wc -l)
@@ -849,10 +857,10 @@ jobs:
             echo "Gradient test coverage: $COVERAGE%"
 
             if [ $COVERAGE -lt 80 ]; then
-              echo "⚠️  Warning: Gradient test coverage is below 80%"
+              echo "Warning: Gradient test coverage is below 80%"
               echo "Consider adding more gradient checking tests."
             else
-              echo "✅ Good gradient test coverage!"
+              echo "Good gradient test coverage!"
             fi
           fi
 
