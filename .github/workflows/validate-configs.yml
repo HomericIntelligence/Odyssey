@@ -589,6 +589,29 @@ jobs:
           comment-marker: "Paper Validation Results"
 
   # ============================================================================
+  # Test Coverage Validation - Ensure all test_*.mojo files are in CI matrix
+  # ============================================================================
+  validate-test-coverage:
+    name: Validate Test Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Validate test coverage
+        run: python scripts/validate_test_coverage.py
+
+  # ============================================================================
   # Workflow Checkout Order (absorbed from validate-workflows.yml)
   # ============================================================================
   validate-checkout-order:
