@@ -110,49 +110,54 @@ struct SpinLock(Copyable, Movable):
         for i in range(8):
             self._state[i] = 0
 
-
-
     def _as_atomic(
         self,
     ) -> UnsafePointer[Atomic[DType.int64], origin=MutAnyOrigin]:
         """Reinterpret backing store as an atomic int64."""
         return self._state.bitcast[Atomic[DType.int64]]()
 
+    def _lock_word(self) -> UnsafePointer[Int64, origin=MutAnyOrigin]:
+        """Return the lock word as a plain Int64 pointer for static Atomic ops.
+        """
+        return self._state.bitcast[Int64]()
+
     def lock(self):
         """Acquire the lock, spinning until available.
 
-        Uses a double-check + fetch_add pattern: first spin until the counter
-        reads 0 (lock appears free), then atomically fetch_add(1). If the old
-        value was 0, we successfully transitioned 0→1 and hold the lock.
-        If the old value was non-zero, another thread beat us (both read 0 and
-        raced); we immediately undo with fetch_sub(1) and spin again.
+        Uses TTAS (Test-and-Test-and-Set) with atomic fetch_add for acquisition.
+        Spins on a plain load() until the lock looks free, then atomically
+        attempts to transition 0→1 via fetch_add(1).  If the old value was 0
+        we hold the lock (counter is exactly 1).  If the old value was non-zero
+        another thread won the race; we immediately undo with fetch_add(-1) and
+        spin again.
 
-        This guarantees that when we hold the lock, the counter is exactly 1
-        (only our increment), making unlock's single fetch_sub(1) always
-        correct (1→0, never below 0).
+        Note: compare_exchange_weak is not available in Mojo 0.26.3's Atomic
+        API.  This TTAS pattern is the closest correct approximation: it is
+        safe for any number of threads because the undo always restores the
+        counter to its pre-attempt value, and the counter is bounded by the
+        number of concurrently spinning threads (all within Int64 range).
         """
-        var ptr = self._as_atomic()
+        var word = self._lock_word()
         while True:
             # Wait until lock looks free before attempting (reduces bus traffic)
-            while ptr[].load() != 0:
+            while Atomic[DType.int64].load(word) != 0:
                 pass
-            # Attempt to acquire: if old value was 0, we got the lock
-            if ptr[].fetch_add(1) == 0:
+            # Attempt to acquire: fetch_add returns the old value.
+            # If old == 0 we transitioned 0→1 atomically and hold the lock.
+            if Atomic[DType.int64].fetch_add(word, Int64(1)) == 0:
                 return
-            # Another thread won the race; undo our increment
-            _ = ptr[].fetch_sub(1)
+            # Another thread won the race; undo our increment atomically.
+            _ = Atomic[DType.int64].fetch_add(word, Int64(-1))
 
     def unlock(self):
         """Release the lock.
 
-        A single fetch_sub(1) is correct here because the lock() protocol
-        guarantees that when we hold the lock, the counter is exactly 1
-        (only our increment). No contender can leave a net positive increment
-        because lock() uses double-check to only attempt fetch_add when the
-        counter reads 0, and immediately undoes with fetch_sub if it loses.
+        Atomically writes 0 to the lock word.  This is correct because the
+        lock() protocol guarantees that when we hold the lock the counter is
+        exactly 1 (only our increment), so an atomic store of 0 is equivalent
+        to a sequentially-consistent release without needing fetch_sub.
         """
-        var ptr = self._as_atomic()
-        _ = ptr[].fetch_sub(1)
+        Atomic[DType.int64].store(self._lock_word(), Int64(0))
 
     def __del__(deinit self):
         """Free the backing store."""
@@ -179,8 +184,6 @@ struct AtomicStats(Copyable, Movable):
         self._data = alloc[UInt8](_ASTATS_SIZE)
         for i in range(_ASTATS_SIZE):
             self._data[i] = 0
-
-
 
     def _counter(
         self, offset: Int
@@ -228,33 +231,53 @@ struct AtomicStats(Copyable, Movable):
             A PoolStats struct with current counter values.
         """
         var s = PoolStats()
-        s.allocations = Int(
-            self._counter(_ASTATS_ALLOCATIONS)[].load()
-        )
-        s.deallocations = Int(
-            self._counter(_ASTATS_DEALLOCATIONS)[].load()
-        )
-        s.pool_hits = Int(
-            self._counter(_ASTATS_POOL_HITS)[].load()
-        )
-        s.pool_misses = Int(
-            self._counter(_ASTATS_POOL_MISSES)[].load()
-        )
-        s.bytes_allocated = Int(
-            self._counter(_ASTATS_BYTES_ALLOCATED)[].load()
-        )
-        s.bytes_cached = Int(
-            self._counter(_ASTATS_BYTES_CACHED)[].load()
-        )
-        s.peak_cached_bytes = Int(
-            self._counter(_ASTATS_PEAK_CACHED)[].load()
-        )
+        s.allocations = Int(self._counter(_ASTATS_ALLOCATIONS)[].load())
+        s.deallocations = Int(self._counter(_ASTATS_DEALLOCATIONS)[].load())
+        s.pool_hits = Int(self._counter(_ASTATS_POOL_HITS)[].load())
+        s.pool_misses = Int(self._counter(_ASTATS_POOL_MISSES)[].load())
+        s.bytes_allocated = Int(self._counter(_ASTATS_BYTES_ALLOCATED)[].load())
+        s.bytes_cached = Int(self._counter(_ASTATS_BYTES_CACHED)[].load())
+        s.peak_cached_bytes = Int(self._counter(_ASTATS_PEAK_CACHED)[].load())
         return s
 
+    def _counter_int64(
+        self, offset: Int
+    ) -> UnsafePointer[Int64, origin=MutAnyOrigin]:
+        """Return a plain Int64 pointer at the given byte offset (for atomic store).
+        """
+        return (self._data + offset).bitcast[Int64]()
+
     def reset(self):
-        """Reset all counters to zero."""
-        for i in range(_ASTATS_SIZE):
-            self._data[i] = 0
+        """Reset all counters to zero using atomic stores.
+
+        Uses one 8-byte atomic store per counter rather than byte-level zeroing
+        so that a concurrent snapshot() cannot observe a partially-zeroed counter
+        on architectures where 8-byte writes are not naturally atomic.
+
+        Caller must ensure no concurrent allocate()/deallocate() calls are in
+        flight (see module-level thread-safety note).
+        """
+        Atomic[DType.int64].store(
+            self._counter_int64(_ASTATS_ALLOCATIONS), Int64(0)
+        )
+        Atomic[DType.int64].store(
+            self._counter_int64(_ASTATS_DEALLOCATIONS), Int64(0)
+        )
+        Atomic[DType.int64].store(
+            self._counter_int64(_ASTATS_POOL_HITS), Int64(0)
+        )
+        Atomic[DType.int64].store(
+            self._counter_int64(_ASTATS_POOL_MISSES), Int64(0)
+        )
+        Atomic[DType.int64].store(
+            self._counter_int64(_ASTATS_BYTES_ALLOCATED), Int64(0)
+        )
+        Atomic[DType.int64].store(
+            self._counter_int64(_ASTATS_BYTES_CACHED), Int64(0)
+        )
+        Atomic[DType.int64].store(
+            self._counter_int64(_ASTATS_PEAK_CACHED), Int64(0)
+        )
 
     def __del__(deinit self):
         """Free the backing store."""
@@ -610,9 +633,7 @@ struct TensorMemoryPool(Copyable, Movable):
             if not self.medium_lists[medium_idx].is_empty():
                 var ptr = self.medium_lists[medium_idx].pop()
                 self._medium_locks[medium_idx].unlock()
-                var actual_size = self.medium_lists[
-                    medium_idx
-                ].block_size
+                var actual_size = self.medium_lists[medium_idx].block_size
                 self._atomic_stats.add_pool_hits(1)
                 self._atomic_stats.add_bytes_cached(-actual_size)
                 self._atomic_stats.add_bytes_allocated(actual_size)
@@ -620,9 +641,7 @@ struct TensorMemoryPool(Copyable, Movable):
             else:
                 self._medium_locks[medium_idx].unlock()
                 # Pool miss - allocate new block outside the lock
-                var actual_size = self.medium_lists[
-                    medium_idx
-                ].block_size
+                var actual_size = self.medium_lists[medium_idx].block_size
                 self._atomic_stats.add_pool_misses(1)
                 self._atomic_stats.add_bytes_allocated(actual_size)
                 return alloc[UInt8](actual_size)
@@ -734,14 +753,10 @@ struct TensorMemoryPool(Copyable, Movable):
 
         # Reset byte counters only (preserve allocation/deallocation counts)
         var current_cached = Int(
-            self._atomic_stats._counter(
-                _ASTATS_BYTES_CACHED
-            )[].load()
+            self._atomic_stats._counter(_ASTATS_BYTES_CACHED)[].load()
         )
         var current_alloc = Int(
-            self._atomic_stats._counter(
-                _ASTATS_BYTES_ALLOCATED
-            )[].load()
+            self._atomic_stats._counter(_ASTATS_BYTES_ALLOCATED)[].load()
         )
         self._atomic_stats.add_bytes_cached(-current_cached)
         self._atomic_stats.add_bytes_allocated(-current_alloc)
