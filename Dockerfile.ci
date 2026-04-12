@@ -30,11 +30,16 @@ RUN groupadd -g ${GROUP_ID} ${USER_NAME} 2>/dev/null || \
 ENV HOME=/home/${USER_NAME}
 ENV PATH="${HOME}/.pixi/bin:$PATH"
 
+# Use a fixed build output directory decoupled from USER_NAME.
+# Docker does not expand ARGs in COPY --from source paths, so we cannot use
+# /home/${USER_NAME}/build here. Create /build as root and hand ownership to
+# the non-root user before switching.
+ARG BUILD_DIR=/build
+RUN mkdir -p ${BUILD_DIR} && chown ${USER_ID}:${GROUP_ID} ${BUILD_DIR}
+
 # Switch to non-root user for pixi install and build
 USER ${USER_NAME}
-# Use a fixed build output directory so COPY --from paths are username-independent
-# (Docker does not expand ARGs in COPY --from source paths)
-WORKDIR /build
+WORKDIR ${BUILD_DIR}
 
 # Install Pixi (pinned version for reproducible builds)
 RUN curl -fsSL https://pixi.sh/install.sh | PIXI_VERSION=${PIXI_VERSION} bash
