@@ -13,17 +13,7 @@ from shared.tensor.any_tensor import (
     ones_like,
     full_like,
 )
-from .arithmetic import subtract, add, multiply, divide, power
-from .elementwise import sqrt
-from .reduction import mean as reduce_mean, sum as reduce_sum
-from .normalize_ops import normalize_rgb
-from .parallel_utils import should_parallelize, parallel_for_batch
-from .scalar_ops import (
-    sqrt_scalar_f32,
-    sqrt_scalar_f64,
-    pow_scalar_f32,
-    pow_scalar_f64,
-)
+from .parallel_utils import should_parallelize
 
 
 # ============================================================================
@@ -32,8 +22,12 @@ from .scalar_ops import (
 
 
 @always_inline
-def _idx4d(b: Int, c: Int, h: Int, w: Int, channels: Int, height: Int, width: Int) -> Int:
-    return b * (channels * height * width) + c * (height * width) + h * width + w
+def _idx4d(
+    b: Int, c: Int, h: Int, w: Int, channels: Int, height: Int, width: Int
+) -> Int:
+    return (
+        b * (channels * height * width) + c * (height * width) + h * width + w
+    )
 
 
 # ============================================================================
@@ -44,13 +38,15 @@ def _idx4d(b: Int, c: Int, h: Int, w: Int, channels: Int, height: Int, width: In
 @always_inline
 def _sqrt_typed[dtype: DType](x: Scalar[dtype]) -> Scalar[dtype]:
     """Compute square root for any float dtype using Scalar[dtype]."""
-    return x ** 0.5
+    return x**0.5
 
 
 @always_inline
-def _pow_typed[dtype: DType](x: Scalar[dtype], y: Scalar[dtype]) -> Scalar[dtype]:
+def _pow_typed[
+    dtype: DType
+](x: Scalar[dtype], y: Scalar[dtype]) -> Scalar[dtype]:
     """Compute x^y for any float dtype using Scalar[dtype]."""
-    return x ** y
+    return x**y
 
 
 # ============================================================================
@@ -287,11 +283,25 @@ def batch_norm2d(
 
         if x.dtype() == DType.float32:
             _batch_norm2d_compute_stats[DType.float32](
-                x._data, batch_mean, batch_var, batch, channels, height, width, spatial_size
+                x._data,
+                batch_mean,
+                batch_var,
+                batch,
+                channels,
+                height,
+                width,
+                spatial_size,
             )
         elif x.dtype() == DType.float64:
             _batch_norm2d_compute_stats[DType.float64](
-                x._data, batch_mean, batch_var, batch, channels, height, width, spatial_size
+                x._data,
+                batch_mean,
+                batch_var,
+                batch,
+                channels,
+                height,
+                width,
+                spatial_size,
             )
         else:
             raise Error("batch_norm2d: only float32/64 dtypes supported")
@@ -299,26 +309,56 @@ def batch_norm2d(
         var output = zeros_like(x)
         if x.dtype() == DType.float32:
             _batch_norm2d_normalize[DType.float32](
-                x._data, output, batch_mean._data, batch_var._data,
-                gamma._data, beta._data, batch, channels, height, width, epsilon
+                x._data,
+                output,
+                batch_mean._data,
+                batch_var._data,
+                gamma._data,
+                beta._data,
+                batch,
+                channels,
+                height,
+                width,
+                epsilon,
             )
         elif x.dtype() == DType.float64:
             _batch_norm2d_normalize[DType.float64](
-                x._data, output, batch_mean._data, batch_var._data,
-                gamma._data, beta._data, batch, channels, height, width, epsilon
+                x._data,
+                output,
+                batch_mean._data,
+                batch_var._data,
+                gamma._data,
+                beta._data,
+                batch,
+                channels,
+                height,
+                width,
+                epsilon,
             )
 
         var new_running_mean = zeros_like(running_mean)
         var new_running_var = zeros_like(running_var)
         if x.dtype() == DType.float32:
             _batch_norm2d_update_running_stats[DType.float32](
-                running_mean, running_var, batch_mean, batch_var,
-                new_running_mean, new_running_var, channels, momentum
+                running_mean,
+                running_var,
+                batch_mean,
+                batch_var,
+                new_running_mean,
+                new_running_var,
+                channels,
+                momentum,
             )
         elif x.dtype() == DType.float64:
             _batch_norm2d_update_running_stats[DType.float64](
-                running_mean, running_var, batch_mean, batch_var,
-                new_running_mean, new_running_var, channels, momentum
+                running_mean,
+                running_var,
+                batch_mean,
+                batch_var,
+                new_running_mean,
+                new_running_var,
+                channels,
+                momentum,
             )
 
         return (output, new_running_mean, new_running_var)
@@ -328,13 +368,31 @@ def batch_norm2d(
         var output = zeros_like(x)
         if x.dtype() == DType.float32:
             _batch_norm2d_normalize[DType.float32](
-                x._data, output, running_mean._data, running_var._data,
-                gamma._data, beta._data, batch, channels, height, width, epsilon
+                x._data,
+                output,
+                running_mean._data,
+                running_var._data,
+                gamma._data,
+                beta._data,
+                batch,
+                channels,
+                height,
+                width,
+                epsilon,
             )
         elif x.dtype() == DType.float64:
             _batch_norm2d_normalize[DType.float64](
-                x._data, output, running_mean._data, running_var._data,
-                gamma._data, beta._data, batch, channels, height, width, epsilon
+                x._data,
+                output,
+                running_mean._data,
+                running_var._data,
+                gamma._data,
+                beta._data,
+                batch,
+                channels,
+                height,
+                width,
+                epsilon,
             )
         else:
             raise Error("batch_norm2d: only float32/64 dtypes supported")
@@ -387,7 +445,10 @@ def _batch_norm2d_backward_training[
         for b in range(batch):
             for h in range(height):
                 for w in range(width):
-                    var diff = xp[_idx4d(b, c, h, w, channels, height, width)] - mean_val
+                    var diff = (
+                        xp[_idx4d(b, c, h, w, channels, height, width)]
+                        - mean_val
+                    )
                     sum_sq_diff += diff * diff
         var var_val = sum_sq_diff / N
         var std = _sqrt_typed[dtype](var_val + eps)
@@ -427,7 +488,11 @@ def _batch_norm2d_backward_training[
                     var idx = _idx4d(b, c, h, w, channels, height, width)
                     var grad_out = go[idx]
                     var x_norm = (xp[idx] - mean_val) * invstd
-                    gi_ptr[idx] = (grad_out - k / N - x_norm * dotp / N) * gamma_val * invstd
+                    gi_ptr[idx] = (
+                        (grad_out - k / N - x_norm * dotp / N)
+                        * gamma_val
+                        * invstd
+                    )
 
 
 def _batch_norm2d_backward_inference[
@@ -606,15 +671,33 @@ def batch_norm2d_backward(
     if training:
         if x.dtype() == DType.float32:
             _batch_norm2d_backward_training[DType.float32](
-                grad_output._data, x._data, gamma._data,
-                grad_input, grad_gamma, grad_beta,
-                batch, channels, height, width, spatial_size, epsilon
+                grad_output._data,
+                x._data,
+                gamma._data,
+                grad_input,
+                grad_gamma,
+                grad_beta,
+                batch,
+                channels,
+                height,
+                width,
+                spatial_size,
+                epsilon,
             )
         elif x.dtype() == DType.float64:
             _batch_norm2d_backward_training[DType.float64](
-                grad_output._data, x._data, gamma._data,
-                grad_input, grad_gamma, grad_beta,
-                batch, channels, height, width, spatial_size, epsilon
+                grad_output._data,
+                x._data,
+                gamma._data,
+                grad_input,
+                grad_gamma,
+                grad_beta,
+                batch,
+                channels,
+                height,
+                width,
+                spatial_size,
+                epsilon,
             )
         else:
             raise Error(
@@ -623,17 +706,35 @@ def batch_norm2d_backward(
     else:
         if x.dtype() == DType.float32:
             _batch_norm2d_backward_inference[DType.float32](
-                grad_output._data, x._data, gamma._data,
-                running_mean._data, running_var._data,
-                grad_input, grad_gamma, grad_beta,
-                batch, channels, height, width, epsilon
+                grad_output._data,
+                x._data,
+                gamma._data,
+                running_mean._data,
+                running_var._data,
+                grad_input,
+                grad_gamma,
+                grad_beta,
+                batch,
+                channels,
+                height,
+                width,
+                epsilon,
             )
         elif x.dtype() == DType.float64:
             _batch_norm2d_backward_inference[DType.float64](
-                grad_output._data, x._data, gamma._data,
-                running_mean._data, running_var._data,
-                grad_input, grad_gamma, grad_beta,
-                batch, channels, height, width, epsilon
+                grad_output._data,
+                x._data,
+                gamma._data,
+                running_mean._data,
+                running_var._data,
+                grad_input,
+                grad_gamma,
+                grad_beta,
+                batch,
+                channels,
+                height,
+                width,
+                epsilon,
             )
         else:
             raise Error(
@@ -719,7 +820,10 @@ def _layer_norm_4d[
         for c in range(channels):
             for h in range(height):
                 for w in range(width):
-                    var diff = xp[_idx4d(b, c, h, w, channels, height, width)] - mean_val
+                    var diff = (
+                        xp[_idx4d(b, c, h, w, channels, height, width)]
+                        - mean_val
+                    )
                     sum_sq_diff += diff * diff
         var std = _sqrt_typed[dtype](sum_sq_diff / N + eps)
 
@@ -788,11 +892,23 @@ def layer_norm(
 
         if x.dtype() == DType.float32:
             _layer_norm_2d[DType.float32](
-                x._data, output, gamma._data, beta._data, batch, features, epsilon
+                x._data,
+                output,
+                gamma._data,
+                beta._data,
+                batch,
+                features,
+                epsilon,
             )
         elif x.dtype() == DType.float64:
             _layer_norm_2d[DType.float64](
-                x._data, output, gamma._data, beta._data, batch, features, epsilon
+                x._data,
+                output,
+                gamma._data,
+                beta._data,
+                batch,
+                features,
+                epsilon,
             )
         else:
             raise Error("layer_norm: only float32/64 dtypes supported")
@@ -807,13 +923,27 @@ def layer_norm(
 
         if x.dtype() == DType.float32:
             _layer_norm_4d[DType.float32](
-                x._data, output, gamma._data, beta._data,
-                batch, channels, height, width, epsilon
+                x._data,
+                output,
+                gamma._data,
+                beta._data,
+                batch,
+                channels,
+                height,
+                width,
+                epsilon,
             )
         elif x.dtype() == DType.float64:
             _layer_norm_4d[DType.float64](
-                x._data, output, gamma._data, beta._data,
-                batch, channels, height, width, epsilon
+                x._data,
+                output,
+                gamma._data,
+                beta._data,
+                batch,
+                channels,
+                height,
+                width,
+                epsilon,
             )
         else:
             raise Error("layer_norm: only float32/64 dtypes supported")
@@ -893,7 +1023,12 @@ def _layer_norm_backward_2d[
             var idx = b * features + f
             var x_minus_mean = xp[idx] - mean_val
             var grad_x_norm = go[idx] * gp[f]
-            grad_var += grad_x_norm * x_minus_mean * Scalar[dtype](-0.5) * _pow_typed[dtype](var_val + eps, Scalar[dtype](-1.5))
+            grad_var += (
+                grad_x_norm
+                * x_minus_mean
+                * Scalar[dtype](-0.5)
+                * _pow_typed[dtype](var_val + eps, Scalar[dtype](-1.5))
+            )
             grad_mean += grad_x_norm * Scalar[dtype](-1.0) / std
 
         for f in range(features):
@@ -945,7 +1080,10 @@ def _layer_norm_backward_4d[
         for c in range(channels):
             for h in range(height):
                 for w in range(width):
-                    var diff = xp[_idx4d(b, c, h, w, channels, height, width)] - mean_val
+                    var diff = (
+                        xp[_idx4d(b, c, h, w, channels, height, width)]
+                        - mean_val
+                    )
                     sum_sq_diff += diff * diff
         var std = _sqrt_typed[dtype](sum_sq_diff / N + eps)
 
@@ -972,7 +1110,10 @@ def _layer_norm_backward_4d[
         for c in range(channels):
             for h in range(height):
                 for w in range(width):
-                    var diff = xp[_idx4d(b, c, h, w, channels, height, width)] - mean_val
+                    var diff = (
+                        xp[_idx4d(b, c, h, w, channels, height, width)]
+                        - mean_val
+                    )
                     sum_sq_diff += diff * diff
         var var_val = sum_sq_diff / N
         var std = _sqrt_typed[dtype](var_val + eps)
@@ -987,7 +1128,12 @@ def _layer_norm_backward_4d[
                     var gamma_idx = c * (height * width) + h * width + w
                     var x_minus_mean = xp[idx] - mean_val
                     var grad_x_norm = go[idx] * gp[gamma_idx]
-                    grad_var += grad_x_norm * x_minus_mean * Scalar[dtype](-0.5) * _pow_typed[dtype](var_val + eps, Scalar[dtype](-1.5))
+                    grad_var += (
+                        grad_x_norm
+                        * x_minus_mean
+                        * Scalar[dtype](-0.5)
+                        * _pow_typed[dtype](var_val + eps, Scalar[dtype](-1.5))
+                    )
                     grad_mean += grad_x_norm * Scalar[dtype](-1.0) / std
 
         for c in range(channels):
@@ -1004,7 +1150,10 @@ def _layer_norm_backward_4d[
 
 
 def layer_norm_backward(
-    grad_output: AnyTensor, x: AnyTensor, gamma: AnyTensor, epsilon: Float64 = 1e-5
+    grad_output: AnyTensor,
+    x: AnyTensor,
+    gamma: AnyTensor,
+    epsilon: Float64 = 1e-5,
 ) raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
     """Backward pass for layer normalization.
 
@@ -1085,13 +1234,27 @@ def layer_norm_backward(
 
         if x.dtype() == DType.float32:
             _layer_norm_backward_2d[DType.float32](
-                grad_output._data, x._data, gamma._data,
-                grad_input, grad_gamma, grad_beta, batch, features, epsilon
+                grad_output._data,
+                x._data,
+                gamma._data,
+                grad_input,
+                grad_gamma,
+                grad_beta,
+                batch,
+                features,
+                epsilon,
             )
         elif x.dtype() == DType.float64:
             _layer_norm_backward_2d[DType.float64](
-                grad_output._data, x._data, gamma._data,
-                grad_input, grad_gamma, grad_beta, batch, features, epsilon
+                grad_output._data,
+                x._data,
+                gamma._data,
+                grad_input,
+                grad_gamma,
+                grad_beta,
+                batch,
+                features,
+                epsilon,
             )
         else:
             raise Error("layer_norm_backward: only float32/64 dtypes supported")
@@ -1110,15 +1273,31 @@ def layer_norm_backward(
 
         if x.dtype() == DType.float32:
             _layer_norm_backward_4d[DType.float32](
-                grad_output._data, x._data, gamma._data,
-                grad_input, grad_gamma, grad_beta,
-                batch, channels, height, width, epsilon
+                grad_output._data,
+                x._data,
+                gamma._data,
+                grad_input,
+                grad_gamma,
+                grad_beta,
+                batch,
+                channels,
+                height,
+                width,
+                epsilon,
             )
         elif x.dtype() == DType.float64:
             _layer_norm_backward_4d[DType.float64](
-                grad_output._data, x._data, gamma._data,
-                grad_input, grad_gamma, grad_beta,
-                batch, channels, height, width, epsilon
+                grad_output._data,
+                x._data,
+                gamma._data,
+                grad_input,
+                grad_gamma,
+                grad_beta,
+                batch,
+                channels,
+                height,
+                width,
+                epsilon,
             )
         else:
             raise Error("layer_norm_backward: only float32/64 dtypes supported")
@@ -1167,14 +1346,19 @@ def _group_norm_impl[
             for c in range(c_start, c_end):
                 for h in range(height):
                     for w in range(width):
-                        sum_val += xp[_idx4d(b, c, h, w, channels, height, width)]
+                        sum_val += xp[
+                            _idx4d(b, c, h, w, channels, height, width)
+                        ]
             var mean_val = sum_val / N
 
             var sum_sq_diff = Scalar[dtype](0.0)
             for c in range(c_start, c_end):
                 for h in range(height):
                     for w in range(width):
-                        var diff = xp[_idx4d(b, c, h, w, channels, height, width)] - mean_val
+                        var diff = (
+                            xp[_idx4d(b, c, h, w, channels, height, width)]
+                            - mean_val
+                        )
                         sum_sq_diff += diff * diff
             var std = _sqrt_typed[dtype](sum_sq_diff / N + eps)
 
@@ -1255,15 +1439,33 @@ def group_norm(
 
     if x.dtype() == DType.float32:
         _group_norm_impl[DType.float32](
-            x._data, output, gamma._data, beta._data,
-            batch, channels, height, width, num_groups,
-            channels_per_group, group_size, epsilon
+            x._data,
+            output,
+            gamma._data,
+            beta._data,
+            batch,
+            channels,
+            height,
+            width,
+            num_groups,
+            channels_per_group,
+            group_size,
+            epsilon,
         )
     elif x.dtype() == DType.float64:
         _group_norm_impl[DType.float64](
-            x._data, output, gamma._data, beta._data,
-            batch, channels, height, width, num_groups,
-            channels_per_group, group_size, epsilon
+            x._data,
+            output,
+            gamma._data,
+            beta._data,
+            batch,
+            channels,
+            height,
+            width,
+            num_groups,
+            channels_per_group,
+            group_size,
+            epsilon,
         )
     else:
         raise Error("group_norm: only float32/64 dtypes supported")
@@ -1314,14 +1516,19 @@ def _group_norm_backward_impl[
             for c in range(c_start, c_end):
                 for h in range(height):
                     for w in range(width):
-                        sum_val += xp[_idx4d(b, c, h, w, channels, height, width)]
+                        sum_val += xp[
+                            _idx4d(b, c, h, w, channels, height, width)
+                        ]
             var mean_val = sum_val / N
 
             var sum_sq_diff = Scalar[dtype](0.0)
             for c in range(c_start, c_end):
                 for h in range(height):
                     for w in range(width):
-                        var diff = xp[_idx4d(b, c, h, w, channels, height, width)] - mean_val
+                        var diff = (
+                            xp[_idx4d(b, c, h, w, channels, height, width)]
+                            - mean_val
+                        )
                         sum_sq_diff += diff * diff
             var std = _sqrt_typed[dtype](sum_sq_diff / N + eps)
 
@@ -1344,14 +1551,19 @@ def _group_norm_backward_impl[
             for c in range(c_start, c_end):
                 for h in range(height):
                     for w in range(width):
-                        sum_val += xp[_idx4d(b, c, h, w, channels, height, width)]
+                        sum_val += xp[
+                            _idx4d(b, c, h, w, channels, height, width)
+                        ]
             var mean_val = sum_val / N
 
             var sum_sq_diff = Scalar[dtype](0.0)
             for c in range(c_start, c_end):
                 for h in range(height):
                     for w in range(width):
-                        var diff = xp[_idx4d(b, c, h, w, channels, height, width)] - mean_val
+                        var diff = (
+                            xp[_idx4d(b, c, h, w, channels, height, width)]
+                            - mean_val
+                        )
                         sum_sq_diff += diff * diff
             var var_val = sum_sq_diff / N
             var std = _sqrt_typed[dtype](var_val + eps)
@@ -1366,7 +1578,14 @@ def _group_norm_backward_impl[
                         var idx = _idx4d(b, c, h, w, channels, height, width)
                         var x_minus_mean = xp[idx] - mean_val
                         var grad_x_norm = go[idx] * gamma_val
-                        grad_var += grad_x_norm * x_minus_mean * Scalar[dtype](-0.5) * _pow_typed[dtype](var_val + eps, Scalar[dtype](-1.5))
+                        grad_var += (
+                            grad_x_norm
+                            * x_minus_mean
+                            * Scalar[dtype](-0.5)
+                            * _pow_typed[dtype](
+                                var_val + eps, Scalar[dtype](-1.5)
+                            )
+                        )
                         grad_mean += grad_x_norm * Scalar[dtype](-1.0) / std
 
             for c in range(c_start, c_end):
@@ -1377,7 +1596,9 @@ def _group_norm_backward_impl[
                         var x_minus_mean = xp[idx] - mean_val
                         var grad_x_norm = go[idx] * gamma_val
                         var term1 = grad_x_norm / std
-                        var term2 = grad_var * Scalar[dtype](2.0) * x_minus_mean / N
+                        var term2 = (
+                            grad_var * Scalar[dtype](2.0) * x_minus_mean / N
+                        )
                         var term3 = grad_mean / N
                         gi_ptr[idx] = term1 + term2 + term3
 
@@ -1453,17 +1674,37 @@ def group_norm_backward(
 
     if x.dtype() == DType.float32:
         _group_norm_backward_impl[DType.float32](
-            grad_output._data, x._data, gamma._data,
-            grad_input, grad_gamma, grad_beta,
-            batch, channels, height, width, num_groups,
-            channels_per_group, group_size, epsilon
+            grad_output._data,
+            x._data,
+            gamma._data,
+            grad_input,
+            grad_gamma,
+            grad_beta,
+            batch,
+            channels,
+            height,
+            width,
+            num_groups,
+            channels_per_group,
+            group_size,
+            epsilon,
         )
     elif x.dtype() == DType.float64:
         _group_norm_backward_impl[DType.float64](
-            grad_output._data, x._data, gamma._data,
-            grad_input, grad_gamma, grad_beta,
-            batch, channels, height, width, num_groups,
-            channels_per_group, group_size, epsilon
+            grad_output._data,
+            x._data,
+            gamma._data,
+            grad_input,
+            grad_gamma,
+            grad_beta,
+            batch,
+            channels,
+            height,
+            width,
+            num_groups,
+            channels_per_group,
+            group_size,
+            epsilon,
         )
     else:
         raise Error("group_norm_backward: only float32/64 dtypes supported")
@@ -1508,7 +1749,10 @@ def _instance_norm_impl[
             var sum_sq_diff = Scalar[dtype](0.0)
             for h in range(height):
                 for w in range(width):
-                    var diff = xp[_idx4d(b, c, h, w, channels, height, width)] - mean_val
+                    var diff = (
+                        xp[_idx4d(b, c, h, w, channels, height, width)]
+                        - mean_val
+                    )
                     sum_sq_diff += diff * diff
             var std = _sqrt_typed[dtype](sum_sq_diff / N + eps)
 
@@ -1579,13 +1823,27 @@ def instance_norm(
 
     if x.dtype() == DType.float32:
         _instance_norm_impl[DType.float32](
-            x._data, output, gamma._data, beta._data,
-            batch, channels, height, width, epsilon
+            x._data,
+            output,
+            gamma._data,
+            beta._data,
+            batch,
+            channels,
+            height,
+            width,
+            epsilon,
         )
     elif x.dtype() == DType.float64:
         _instance_norm_impl[DType.float64](
-            x._data, output, gamma._data, beta._data,
-            batch, channels, height, width, epsilon
+            x._data,
+            output,
+            gamma._data,
+            beta._data,
+            batch,
+            channels,
+            height,
+            width,
+            epsilon,
         )
     else:
         raise Error("instance_norm: only float32/64 dtypes supported")
@@ -1636,7 +1894,10 @@ def _instance_norm_backward_impl[
             var sum_sq_diff = Scalar[dtype](0.0)
             for h in range(height):
                 for w in range(width):
-                    var diff = xp[_idx4d(b, c, h, w, channels, height, width)] - mean_val
+                    var diff = (
+                        xp[_idx4d(b, c, h, w, channels, height, width)]
+                        - mean_val
+                    )
                     sum_sq_diff += diff * diff
             var std = _sqrt_typed[dtype](sum_sq_diff / N + eps)
 
@@ -1660,7 +1921,10 @@ def _instance_norm_backward_impl[
             var sum_sq_diff = Scalar[dtype](0.0)
             for h in range(height):
                 for w in range(width):
-                    var diff = xp[_idx4d(b, c, h, w, channels, height, width)] - mean_val
+                    var diff = (
+                        xp[_idx4d(b, c, h, w, channels, height, width)]
+                        - mean_val
+                    )
                     sum_sq_diff += diff * diff
             var var_val = sum_sq_diff / N
             var std = _sqrt_typed[dtype](var_val + eps)
@@ -1674,7 +1938,12 @@ def _instance_norm_backward_impl[
                     var idx = _idx4d(b, c, h, w, channels, height, width)
                     var x_minus_mean = xp[idx] - mean_val
                     var grad_x_norm = go[idx] * gamma_val
-                    grad_var += grad_x_norm * x_minus_mean * Scalar[dtype](-0.5) * _pow_typed[dtype](var_val + eps, Scalar[dtype](-1.5))
+                    grad_var += (
+                        grad_x_norm
+                        * x_minus_mean
+                        * Scalar[dtype](-0.5)
+                        * _pow_typed[dtype](var_val + eps, Scalar[dtype](-1.5))
+                    )
                     grad_mean += grad_x_norm * Scalar[dtype](-1.0) / std
 
             for h in range(height):
@@ -1749,15 +2018,31 @@ def instance_norm_backward(
 
     if x.dtype() == DType.float32:
         _instance_norm_backward_impl[DType.float32](
-            grad_output._data, x._data, gamma._data,
-            grad_input, grad_gamma, grad_beta,
-            batch, channels, height, width, epsilon
+            grad_output._data,
+            x._data,
+            gamma._data,
+            grad_input,
+            grad_gamma,
+            grad_beta,
+            batch,
+            channels,
+            height,
+            width,
+            epsilon,
         )
     elif x.dtype() == DType.float64:
         _instance_norm_backward_impl[DType.float64](
-            grad_output._data, x._data, gamma._data,
-            grad_input, grad_gamma, grad_beta,
-            batch, channels, height, width, epsilon
+            grad_output._data,
+            x._data,
+            gamma._data,
+            grad_input,
+            grad_gamma,
+            grad_beta,
+            batch,
+            channels,
+            height,
+            width,
+            epsilon,
         )
     else:
         raise Error("instance_norm_backward: only float32/64 dtypes supported")
