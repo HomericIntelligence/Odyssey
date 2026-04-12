@@ -8,11 +8,11 @@
 #   1 — test failed with a real failure (assertion error, compile error) — NOT retried
 #   2 — test crashed with JIT fault on both attempts (persisted after retry)
 #
-# The retry targets ONLY the Mojo 0.26.1 JIT crash signature ("execution crashed"
+# The retry targets ONLY the Mojo 0.26.x JIT crash signature ("execution crashed"
 # from libKGENCompilerRTShared.so). Real test failures are never retried.
 #
 # See: docs/adr/ADR-014-jit-crash-retry-mitigation.md
-# See: https://github.com/modular/modular/issues/6187
+# See: https://github.com/modular/modular/issues/6413
 
 set -o pipefail
 
