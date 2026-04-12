@@ -260,6 +260,8 @@ jobs:
           # Previously a single group with 91 files. Split to reduce per-job
           # wall-clock time, improve failure isolation, and stay within ADR-009
           # heap corruption safety margins.
+          # Glob wildcards are supported and preferred — use them where practical
+          # so that new test files are auto-discovered without manual CI updates.
           # ---- Core Utilities A: General utilities, validation, bitwise, integration ----
           - name: "Core Utilities A"
             path: "tests/shared/core"
