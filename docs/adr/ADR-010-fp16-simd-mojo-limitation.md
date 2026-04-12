@@ -1,6 +1,10 @@
 # ADR-010: FP16 SIMD Limitation in Mojo v0.26.1
 
-**Status**: Accepted
+> ⚠️ **SUPERSEDED** — `SIMD[DType.float16, N]` is fully supported in Mojo 0.26.3.
+> The scalar workaround has been replaced with vectorized `load + cast` in
+> `shared/training/mixed_precision.mojo`. This ADR is retained for historical context only.
+
+**Status**: Superseded (by Mojo 0.26.3 FP16 SIMD support, 2026-04-11)
 
 **Date**: 2026-03-07
 
@@ -178,12 +182,13 @@ to proceed.
 - [x] Replace verbose inline comment in `update_model_from_master()` with ADR cross-reference
 - [x] Add ADR-010 to `docs/adr/README.md` index
 
-### Phase 2: Supersession (FUTURE — when Mojo adds FP16 SIMD)
+### Phase 2: Supersession (COMPLETE — Mojo 0.26.3, 2026-04-11)
 
-- [ ] Implement SIMD vectorized FP16↔FP32 paths
-- [ ] Mark this ADR as Superseded
-- [ ] Remove scalar workaround comments
-- [ ] Verify ~4x speedup matches FP32→FP32 SIMD performance
+- [x] Implement SIMD vectorized FP16↔FP32 paths (vectorized load + cast)
+- [x] Mark this ADR as Superseded
+- [x] Remove scalar workaround in `convert_to_fp32_master()` — now calls `_convert_fp16_to_fp32_simd`
+- [x] `_convert_fp16_to_fp32_simd`: replaced scalar inner loop with `.cast[DType.float32]()`
+- [x] `_convert_fp32_to_fp16_simd`: replaced scalar inner loop with `.cast[DType.float16]()`
 
 ### Success Criteria
 
@@ -210,9 +215,10 @@ to proceed.
 
 ## Revision History
 
-| Version | Date       | Author      | Changes                          |
-| ------- | ---------- | ----------- | -------------------------------- |
-| 1.0     | 2026-03-07 | Claude Code | Initial ADR documenting FP16 SIMD limitation and scalar workaround |
+| Version | Date       | Author      | Changes                                              |
+| ------- | ---------- | ----------- | ---------------------------------------------------- |
+| 1.0     | 2026-03-07 | Claude Code | Initial ADR: FP16 SIMD limitation, scalar workaround |
+| 2.0     | 2026-04-11 | Claude Code | Superseded: Mojo 0.26.3 supports FP16 SIMD natively  |
 
 ---
 
@@ -223,4 +229,4 @@ to proceed.
 - **Review Frequency**: As-needed (review on Mojo upgrade)
 - **Next Review**: On Mojo 0.27+ upgrade (when FP16 SIMD may be available)
 - **Supersedes**: None
-- **Superseded By**: None (will be superseded when Mojo adds FP16 SIMD support)
+- **Superseded By**: Mojo 0.26.3 native FP16 SIMD support (2026-04-11)
