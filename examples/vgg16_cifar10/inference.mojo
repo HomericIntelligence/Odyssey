@@ -9,7 +9,8 @@ Usage:
 from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.data.formats import load_cifar10_batch
 from shared.data.datasets import CIFAR10Dataset
-from shared.data import extract_batch_pair, DatasetInfo
+from shared.data.batch_utils import extract_batch_pair
+from shared.data.constants import DatasetInfo
 from shared.training.metrics import evaluate_with_predict
 from model import VGG16
 from shared.utils.arg_parser import ArgumentParser

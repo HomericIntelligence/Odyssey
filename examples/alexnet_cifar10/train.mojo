@@ -28,7 +28,7 @@ from shared.core.loss import cross_entropy, cross_entropy_backward
 from shared.training.schedulers import step_lr
 from shared.utils.arg_parser import create_training_parser
 from shared.training.metrics import evaluate_with_predict
-from shared.data import DatasetInfo
+from shared.data.constants import DatasetInfo
 from std.collections import List
 
 

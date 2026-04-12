@@ -27,17 +27,7 @@ References:
 from std.collections import List
 from std.memory import UnsafePointer
 from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.data import (
-    CIFAR10_IMAGE_SIZE,
-    CIFAR10_CHANNELS,
-    CIFAR10_BYTES_PER_IMAGE,
-    CIFAR10_NUM_CLASSES,
-    CIFAR100_IMAGE_SIZE,
-    CIFAR100_CHANNELS,
-    CIFAR100_BYTES_PER_IMAGE,
-    CIFAR100_NUM_CLASSES_FINE,
-    CIFAR100_NUM_CLASSES_COARSE,
-)
+from shared.data.constants import CIFAR100_IMAGE_SIZE, CIFAR10_IMAGE_SIZE, CIFAR10_NUM_CLASSES
 
 
 struct CIFARLoader(Copyable, Movable):

@@ -17,7 +17,7 @@ References:
 
 from model import AlexNet
 from shared.data.datasets import CIFAR10Dataset
-from shared.data import DatasetInfo
+from shared.data.constants import DatasetInfo
 from shared.tensor.any_tensor import AnyTensor
 from shared.utils.arg_parser import ArgumentParser
 from shared.training.metrics import evaluate_with_predict
