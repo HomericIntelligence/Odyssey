@@ -255,7 +255,7 @@ jobs:
           # Non-blocking pending Mojo runtime fix.
           - name: "Core Gradient"
             path: "tests/shared/core"
-            pattern: "test_backward_linear.mojo test_backward_conv*.mojo test_backward_losses.mojo test_gradient_checking*.mojo test_gradient_validation*.mojo test_variable_backward.mojo test_depthwise_conv_grad_check.mojo"
+            pattern: "test_backward*.mojo test_gradient*.mojo test_variable_backward*.mojo test_depthwise_conv*.mojo"
           # ---- Core Utilities (split into A/B/C/D per Issue #4116 and ADR-009) ----
           # Previously a single group with 91 files. Split to reduce per-job
           # wall-clock time, improve failure isolation, and stay within ADR-009
@@ -265,7 +265,7 @@ jobs:
           # ---- Core Utilities A: General utilities, validation, bitwise, integration ----
           - name: "Core Utilities A"
             path: "tests/shared/core"
-            pattern: "test_utilities.mojo test_utility*.mojo test_utils*.mojo test_validation*.mojo test_integration*.mojo test_inplace_simd.mojo test_lazy_expression.mojo test_constants.mojo test_hash.mojo test_setitem_view.mojo test_int_bitwise*.mojo test_uint_bitwise*.mojo test_unsigned*.mojo test_normalize_slice*.mojo test_jit_crash*.mojo"
+            pattern: "test_utilities*.mojo test_utility*.mojo test_utils*.mojo test_validation*.mojo test_integration*.mojo test_inplace*.mojo test_lazy*.mojo test_constants*.mojo test_hash*.mojo test_setitem_view*.mojo test_int_bitwise*.mojo test_uint_bitwise*.mojo test_unsigned*.mojo test_normalize_slice*.mojo test_jit_crash*.mojo"
           # ---- Core Utilities B: ExTensor operations ----
           # Includes str truncation tests (issue #4040):
           #   test_extensor_str.mojo, test_extensor_int_str.mojo,
@@ -276,11 +276,11 @@ jobs:
           # ---- Core Utilities C: Memory, initializers, module system ----
           - name: "Core Utilities C"
             path: "tests/shared/core"
-            pattern: "test_memory_pool.mojo test_memory_pool_threadsafe.mojo test_memory_leaks*.mojo test_initializers.mojo test_initializers_validation.mojo test_module.mojo test_sequential.mojo test_composed_op*.mojo test_dropout.mojo"
+            pattern: "test_memory_pool*.mojo test_memory_leaks*.mojo test_initializers*.mojo test_module*.mojo test_sequential*.mojo test_composed_op*.mojo test_dropout*.mojo"
           # ---- Core Utilities D: Layer implementations (linear, conv, norm) ----
           - name: "Core Utilities D"
             path: "tests/shared/core"
-            pattern: "test_utilities.mojo test_utility*.mojo test_utils*.mojo test_validation*.mojo test_integration*.mojo test_inplace_simd.mojo test_lazy_expression.mojo test_memory_pool.mojo test_memory_pool_threadsafe.mojo test_constants.mojo test_extensor_*.mojo test_setitem_view.mojo test_memory_leaks*.mojo test_initializers*.mojo test_layers*.mojo test_linear*.mojo test_conv*.mojo test_normalization*.mojo test_dropout.mojo test_module.mojo test_composed_op*.mojo test_hash.mojo test_sequential.mojo test_int_bitwise*.mojo test_uint_bitwise*.mojo test_unsigned*.mojo test_normalize_slice*.mojo test_jit_crash*.mojo test_numerical_safety_simd.mojo"
+            pattern: "test_utilities*.mojo test_utility*.mojo test_utils*.mojo test_validation*.mojo test_integration*.mojo test_inplace*.mojo test_lazy*.mojo test_memory_pool*.mojo test_constants*.mojo test_extensor_*.mojo test_setitem_view*.mojo test_memory_leaks*.mojo test_initializers*.mojo test_layers*.mojo test_linear*.mojo test_conv*.mojo test_normalization*.mojo test_dropout*.mojo test_module*.mojo test_composed_op*.mojo test_hash*.mojo test_sequential*.mojo test_int_bitwise*.mojo test_uint_bitwise*.mojo test_unsigned*.mojo test_normalize_slice*.mojo test_jit_crash*.mojo test_numerical_safety_simd*.mojo"
           # ---- All data subsystems (formats/datasets/samplers/transforms/loaders) ----
           # NOTE: Data test JIT crashes mitigated by targeted submodule imports (#5103).
           # See docs/dev/mojo-jit-crash-workaround.md for details.
