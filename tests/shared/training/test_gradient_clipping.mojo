@@ -435,63 +435,228 @@ def test_clip_per_param_non_aligned() raises:
         )
 
 
+# ============================================================================
+# Float64 SIMD coverage tests (Issue #5143)
+# Exercises _norm_sq_simd_f64, _scale_simd_f64, _clamp_simd_f64 code paths.
+# ============================================================================
+
+
+def create_test_gradients_f64() raises -> List[AnyTensor]:
+    """Create float64 test gradients with known norms."""
+    var grads = List[AnyTensor]()
+
+    # Gradient 1: all ones (norm_sq = 100)
+    grads.append(ones([100], DType.float64))
+
+    # Gradient 2: all twos (norm_sq = 50 * 4 = 200)
+    grads.append(full([50], 2.0, DType.float64))
+
+    return grads^
+
+
+def test_compute_gradient_norm_f64() raises:
+    """Test global gradient norm computation with float64 tensors.
+
+    Exercises _norm_sq_simd_f64 code path.
+    """
+    var grads = create_test_gradients_f64()
+
+    # Total norm = sqrt(100 + 200) = sqrt(300) ~ 17.32
+    var norm = compute_gradient_norm_list(grads)
+    var expected = Float32(sqrt(Float64(300.0)))
+
+    assert_close_float(
+        Float64(norm),
+        Float64(expected),
+        atol=1e-10,
+        message="Float64 gradient norm should match expected",
+    )
+
+
+def test_clip_by_global_norm_f64_with_clipping() raises:
+    """Test global norm clipping with float64 tensors when norm exceeds threshold.
+
+    Exercises _norm_sq_simd_f64 and _scale_simd_f64 code paths.
+    """
+    var grads = create_test_gradients_f64()
+
+    var orig_norm = compute_gradient_norm_list(grads)
+    # Norm ~17.32, clip to 10.0
+    var clipped_norm = clip_gradients_by_global_norm(grads, max_norm=10.0)
+
+    # Returns original norm
+    assert_close_float(
+        Float64(clipped_norm),
+        Float64(orig_norm),
+        atol=1e-10,
+        message="Float64 clip should return original norm",
+    )
+
+    # After clipping, norm should be ~10.0
+    var new_norm = compute_gradient_norm_list(grads)
+    assert_close_float(
+        Float64(new_norm),
+        10.0,
+        atol=1e-8,
+        message="Float64 clipped norm should be 10.0",
+    )
+
+    # Verify scale factor applied correctly (higher precision than f32)
+    var clip_coef = 10.0 / Float64(orig_norm)
+    for i in range(10):
+        var expected = 1.0 * clip_coef
+        assert_close_float(
+            grads[0]._get_float64(i),
+            expected,
+            atol=1e-10,
+            message="Float64 grad1 element should be scaled",
+        )
+
+
+def test_clip_by_value_f64() raises:
+    """Test value clamping with float64 tensors.
+
+    Exercises _clamp_simd_f64 code path.
+    """
+    var grads = List[AnyTensor]()
+
+    # Values at 5.0, clip to [-1.0, 1.0]
+    grads.append(full([100], 5.0, DType.float64))
+    clip_gradients_by_value_list(grads, min_value=-1.0, max_value=1.0)
+
+    for i in range(grads[0].numel()):
+        assert_close_float(
+            grads[0]._get_float64(i),
+            1.0,
+            atol=1e-15,
+            message="Float64 values should be clamped to 1.0",
+        )
+
+    # Negative side: values at -5.0, clip to [-2.0, 2.0]
+    var grads2 = List[AnyTensor]()
+    grads2.append(full([50], -5.0, DType.float64))
+    clip_gradients_by_value_list(grads2, min_value=-2.0, max_value=2.0)
+
+    for i in range(grads2[0].numel()):
+        assert_close_float(
+            grads2[0]._get_float64(i),
+            -2.0,
+            atol=1e-15,
+            message="Float64 negative values should be clamped to -2.0",
+        )
+
+
+def test_clip_per_param_f64() raises:
+    """Test per-parameter clipping with float64 tensors.
+
+    Exercises _norm_sq_simd_f64 and _scale_simd_f64 code paths.
+    """
+    var grads = List[AnyTensor]()
+
+    # 100 elements, all 10.0 -> norm = sqrt(100*100) = 100
+    grads.append(full([100], 10.0, DType.float64))
+
+    # 50 elements, all 0.1 -> norm = sqrt(50*0.01) = sqrt(0.5) ~ 0.707
+    grads.append(full([50], 0.1, DType.float64))
+
+    clip_gradients_per_param(grads, max_norm=5.0)
+
+    # Grad1 clipped: norm 100 -> 5.0
+    var grad1_norm_sq = Float64(0.0)
+    for i in range(grads[0].numel()):
+        var val = grads[0]._get_float64(i)
+        grad1_norm_sq += val * val
+    var grad1_norm = sqrt(grad1_norm_sq)
+    assert_close_float(
+        grad1_norm,
+        5.0,
+        atol=1e-8,
+        message="Float64 grad1 norm should be 5.0 after per-param clipping",
+    )
+
+    # Grad2 unchanged: norm ~0.707 < 5.0
+    for i in range(10):
+        assert_close_float(
+            grads[1]._get_float64(i),
+            0.1,
+            atol=1e-15,
+            message="Float64 grad2 should be unchanged",
+        )
+
+
 def main() raises:
     """Run all gradient clipping tests."""
     print("Testing Gradient Clipping...")
     print("=" * 70)
 
-    print("\n[1/13] Testing gradient norm computation...")
+    print("\n[1/17] Testing gradient norm computation...")
     test_compute_gradient_norm()
     print("✓ PASSED")
 
-    print("[2/13] Testing global norm clipping (no clipping)...")
+    print("[2/17] Testing global norm clipping (no clipping)...")
     test_clip_by_global_norm_no_clipping()
     print("✓ PASSED")
 
-    print("[3/13] Testing global norm clipping (with clipping)...")
+    print("[3/17] Testing global norm clipping (with clipping)...")
     test_clip_by_global_norm_with_clipping()
     print("✓ PASSED")
 
-    print("[4/13] Testing per-parameter clipping...")
+    print("[4/17] Testing per-parameter clipping...")
     test_clip_per_param()
     print("✓ PASSED")
 
-    print("[5/13] Testing value clipping (positive)...")
+    print("[5/17] Testing value clipping (positive)...")
     test_clip_by_value()
     print("✓ PASSED")
 
-    print("[6/13] Testing value clipping (negative)...")
+    print("[6/17] Testing value clipping (negative)...")
     test_clip_by_value_negative()
     print("✓ PASSED")
 
-    print("[7/13] Testing gradient statistics...")
+    print("[7/17] Testing gradient statistics...")
     test_gradient_statistics()
     print("✓ PASSED")
 
-    print("[8/13] Testing gradient statistics (empty)...")
+    print("[8/17] Testing gradient statistics (empty)...")
     test_gradient_statistics_empty()
     print("✓ PASSED")
 
-    print("[9/13] Testing clipping with zero gradients...")
+    print("[9/17] Testing clipping with zero gradients...")
     test_clip_zero_gradients()
     print("✓ PASSED")
 
-    print("[10/13] Testing SIMD norm with non-aligned sizes...")
+    print("[10/17] Testing SIMD norm with non-aligned sizes...")
     test_norm_simd_non_aligned_sizes()
     print("✓ PASSED")
 
-    print("[11/13] Testing SIMD clipping with large tensor...")
+    print("[11/17] Testing SIMD clipping with large tensor...")
     test_clip_large_tensor()
     print("✓ PASSED")
 
-    print("[12/13] Testing SIMD value clipping with mixed signs...")
+    print("[12/17] Testing SIMD value clipping with mixed signs...")
     test_value_clip_mixed_signs()
     print("✓ PASSED")
 
-    print("[13/13] Testing SIMD per-param clipping non-aligned...")
+    print("[13/17] Testing SIMD per-param clipping non-aligned...")
     test_clip_per_param_non_aligned()
     print("✓ PASSED")
 
+    print("[14/17] Testing float64 gradient norm computation...")
+    test_compute_gradient_norm_f64()
+    print("✓ PASSED")
+
+    print("[15/17] Testing float64 global norm clipping (with clipping)...")
+    test_clip_by_global_norm_f64_with_clipping()
+    print("✓ PASSED")
+
+    print("[16/17] Testing float64 value clipping...")
+    test_clip_by_value_f64()
+    print("✓ PASSED")
+
+    print("[17/17] Testing float64 per-param clipping...")
+    test_clip_per_param_f64()
+    print("✓ PASSED")
+
     print("\n" + "=" * 70)
-    print("All 13 gradient clipping tests PASSED! ✓")
+    print("All 17 gradient clipping tests PASSED! ✓")
     print("Gradient clipping utilities are working correctly.")

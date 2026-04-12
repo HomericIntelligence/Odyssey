@@ -62,7 +62,8 @@ def test_has_nan_first_element() raises:
 
 
 def test_has_nan_tail_element() raises:
-    """Detect NaN in scalar tail (last element, size not divisible by SIMD width)."""
+    """Detect NaN in scalar tail (last element, size not divisible by SIMD width).
+    """
     print("Testing has_nan with NaN in scalar tail...")
     # Size 19: with SIMD width 8, tail is elements 16..18
     var tensor = full(_shape1(19), 1.0, DType.float32)
@@ -172,6 +173,90 @@ def test_count_nan_large_tensor() raises:
     print("  PASS")
 
 
+# ============================================================================
+# Float16 SIMD edge-case tests (Issue #5136)
+# Float16 SIMD width is typically 16 (AVX-512) or 8 (AVX2).
+# Its narrow range (max ~65504) means overflow/NaN/Inf can arise at
+# boundaries different from float32/float64.
+# ============================================================================
+
+
+def test_has_nan_float16_small_tensor() raises:
+    """Detect NaN in float16 tensor smaller than SIMD width (pure scalar tail path).
+
+    Float16 SIMD width is 8-16. Size 3 is fully below SIMD width.
+    """
+    print("Testing has_nan with float16 small tensor (size 3)...")
+    var tensor = full(_shape1(3), 1.0, DType.float16)
+    var ptr = tensor._data.bitcast[Float16]()
+    ptr[1] = nan[DType.float16]()
+    if not has_nan(tensor):
+        raise Error("has_nan should detect NaN in float16 small tensor")
+
+    # Clean small tensor should return False
+    var clean = full(_shape1(3), 0.5, DType.float16)
+    if has_nan(clean):
+        raise Error(
+            "has_nan should return False for clean float16 small tensor"
+        )
+    print("  PASS")
+
+
+def test_has_nan_float16_tail_region() raises:
+    """Detect NaN in scalar tail of float16 tensor beyond SIMD boundary.
+
+    Size 19 ensures a tail region after SIMD-width chunks (SIMD width 8 or 16).
+    NaN placed at index 18 (tail) exercises the scalar fallback path.
+    """
+    print("Testing has_nan with float16 NaN in tail region (size 19)...")
+    var tensor = full(_shape1(19), 1.0, DType.float16)
+    var ptr = tensor._data.bitcast[Float16]()
+    ptr[18] = nan[DType.float16]()
+    if not has_nan(tensor):
+        raise Error("has_nan should detect NaN in float16 tail region")
+    print("  PASS")
+
+
+def test_has_inf_float16_near_overflow() raises:
+    """Detect Inf in float16 tensor; verify values near float16 max (~65504) are finite.
+
+    Float16 max is ~65504. Values just below must not be treated as Inf.
+    Values assigned as Inf must be detected.
+    """
+    print("Testing has_inf with float16 near-overflow values...")
+
+    # 65000.0 is below float16 max (~65504) -- should be finite
+    var finite_tensor = full(_shape1(8), 65000.0, DType.float16)
+    if has_inf(finite_tensor):
+        raise Error(
+            "has_inf should return False for float16 values near but below max"
+        )
+
+    # Tensor with explicit +Inf
+    var inf_tensor = full(_shape1(8), 1.0, DType.float16)
+    var ptr = inf_tensor._data.bitcast[Float16]()
+    ptr[4] = inf[DType.float16]()
+    if not has_inf(inf_tensor):
+        raise Error("has_inf should detect +Inf in float16 tensor")
+    print("  PASS")
+
+
+def test_count_nan_float16_mixed() raises:
+    """Count NaNs scattered across float16 SIMD chunks and scalar tail."""
+    print("Testing count_nan with float16 scattered NaNs (size 20)...")
+    var tensor = full(_shape1(20), 1.0, DType.float16)
+    var ptr = tensor._data.bitcast[Float16]()
+    # Place NaNs across SIMD chunks and tail region
+    ptr[0] = nan[DType.float16]()
+    ptr[7] = nan[DType.float16]()
+    ptr[16] = nan[DType.float16]()
+    ptr[19] = nan[DType.float16]()
+    var count = count_nan(tensor)
+    if count != 4:
+        raise Error("count_nan float16 expected 4, got " + String(count))
+    print("  PASS")
+
+
 def main() raises:
     test_has_nan_all_normal()
     test_has_nan_first_element()
@@ -182,4 +267,8 @@ def main() raises:
     test_count_inf_mixed()
     test_has_nan_float64()
     test_count_nan_large_tensor()
+    test_has_nan_float16_small_tensor()
+    test_has_nan_float16_tail_region()
+    test_has_inf_float16_near_overflow()
+    test_count_nan_float16_mixed()
     print("All numerical safety SIMD tests passed!")
