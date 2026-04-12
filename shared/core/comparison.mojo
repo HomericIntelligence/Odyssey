@@ -20,6 +20,7 @@ from shared.base.dtype_ordinal import (
     DTYPE_UINT16,
     DTYPE_UINT32,
     DTYPE_UINT64,
+    DTYPE_BOOL,
 )
 
 
@@ -46,10 +47,6 @@ def equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
 
-    # Handle DType.bool separately (not in ordinal table)
-    if a.dtype() == DType.bool:
-        return _equal_dispatch[DType.bool](a, b)
-
     var ordinal = dtype_to_ordinal(a.dtype())
 
     if ordinal == DTYPE_FLOAT16:
@@ -74,6 +71,8 @@ def equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         return _equal_dispatch[DType.uint32](a, b)
     elif ordinal == DTYPE_UINT64:
         return _equal_dispatch[DType.uint64](a, b)
+    elif ordinal == DTYPE_BOOL:
+        return _equal_dispatch[DType.bool](a, b)
     else:
         raise Error("equal: unsupported dtype")
 
@@ -95,9 +94,6 @@ def not_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
-
-    if a.dtype() == DType.bool:
-        return _not_equal_dispatch[DType.bool](a, b)
 
     var ordinal = dtype_to_ordinal(a.dtype())
 
@@ -123,6 +119,8 @@ def not_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         return _not_equal_dispatch[DType.uint32](a, b)
     elif ordinal == DTYPE_UINT64:
         return _not_equal_dispatch[DType.uint64](a, b)
+    elif ordinal == DTYPE_BOOL:
+        return _not_equal_dispatch[DType.bool](a, b)
     else:
         raise Error("not_equal: unsupported dtype")
 
@@ -144,9 +142,6 @@ def less(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
-
-    if a.dtype() == DType.bool:
-        return _less_dispatch[DType.bool](a, b)
 
     var ordinal = dtype_to_ordinal(a.dtype())
 
@@ -172,6 +167,8 @@ def less(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         return _less_dispatch[DType.uint32](a, b)
     elif ordinal == DTYPE_UINT64:
         return _less_dispatch[DType.uint64](a, b)
+    elif ordinal == DTYPE_BOOL:
+        return _less_dispatch[DType.bool](a, b)
     else:
         raise Error("less: unsupported dtype")
 
@@ -193,9 +190,6 @@ def less_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
-
-    if a.dtype() == DType.bool:
-        return _less_equal_dispatch[DType.bool](a, b)
 
     var ordinal = dtype_to_ordinal(a.dtype())
 
@@ -221,6 +215,8 @@ def less_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         return _less_equal_dispatch[DType.uint32](a, b)
     elif ordinal == DTYPE_UINT64:
         return _less_equal_dispatch[DType.uint64](a, b)
+    elif ordinal == DTYPE_BOOL:
+        return _less_equal_dispatch[DType.bool](a, b)
     else:
         raise Error("less_equal: unsupported dtype")
 
@@ -242,9 +238,6 @@ def greater(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
-
-    if a.dtype() == DType.bool:
-        return _greater_dispatch[DType.bool](a, b)
 
     var ordinal = dtype_to_ordinal(a.dtype())
 
@@ -270,6 +263,8 @@ def greater(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         return _greater_dispatch[DType.uint32](a, b)
     elif ordinal == DTYPE_UINT64:
         return _greater_dispatch[DType.uint64](a, b)
+    elif ordinal == DTYPE_BOOL:
+        return _greater_dispatch[DType.bool](a, b)
     else:
         raise Error("greater: unsupported dtype")
 
@@ -291,9 +286,6 @@ def greater_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
     if a.dtype() != b.dtype():
         raise Error("Cannot compare tensors with different dtypes")
-
-    if a.dtype() == DType.bool:
-        return _greater_equal_dispatch[DType.bool](a, b)
 
     var ordinal = dtype_to_ordinal(a.dtype())
 
@@ -319,5 +311,7 @@ def greater_equal(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         return _greater_equal_dispatch[DType.uint32](a, b)
     elif ordinal == DTYPE_UINT64:
         return _greater_equal_dispatch[DType.uint64](a, b)
+    elif ordinal == DTYPE_BOOL:
+        return _greater_equal_dispatch[DType.bool](a, b)
     else:
         raise Error("greater_equal: unsupported dtype")
