@@ -461,6 +461,11 @@ This project uses Pixi for environment management:
 # Mojo is the primary language target for future implementations
 ```
 
+**`pixi.toml` is the single source of truth for all dependencies** (Python packages, Mojo
+version, dev tools, and scripts). Do NOT add dependencies to `requirements*.txt` or
+`pyproject.toml` — those files are not used by this project. Always update `pixi.toml`
+when adding or changing a dependency.
+
 **Environment Variables**: Copy `.env.example` to `.env` and customize for your system:
 
 ```bash
