@@ -109,6 +109,9 @@ FROM runtime AS ci
 # Re-declare ARG (does not persist across FROM)
 ARG USER_NAME=dev
 
+# Explicitly run as non-root user (inherited from runtime, but stated for clarity)
+USER ${USER_NAME}
+
 # Copy additional test dependencies
 COPY --chown=${USER_NAME}:${USER_NAME} requirements-dev.txt ./
 COPY --chown=${USER_NAME}:${USER_NAME} .pre-commit-config.yaml ./
@@ -126,6 +129,12 @@ CMD ["pixi", "run", "pytest", "tests/", "-v", "--timeout=300"]
 # Stage 4: Production - Minimal production image
 # ==============================================================================
 FROM runtime AS production
+
+# Re-declare ARG (does not persist across FROM)
+ARG USER_NAME=dev
+
+# Explicitly run as non-root user (inherited from runtime, but stated for clarity)
+USER ${USER_NAME}
 
 ENV ENVIRONMENT=production
 
