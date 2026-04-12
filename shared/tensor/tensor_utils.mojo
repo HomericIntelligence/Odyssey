@@ -161,3 +161,48 @@ def diff(tensor: AnyTensor, n: Int = 1) raises -> AnyTensor:
         ```
     """
     return tensor.diff(n)
+
+
+def tolist(tensor: AnyTensor) raises -> List[Float64]:
+    """Convert tensor to a flat list of Float64 values.
+
+    This is a convenience wrapper around the AnyTensor.tolist() method.
+
+    Args:
+        tensor: The tensor to convert.
+
+    Returns:
+        A flat list containing all tensor values as Float64.
+
+    Example:
+        ```mojo
+        var x = arange(0.0, 5.0, 1.0, DType.float32)
+        var lst = tolist(x)  # [0.0, 1.0, 2.0, 3.0, 4.0]
+        ```
+    """
+    return tensor.tolist()
+
+
+def contiguous(tensor: AnyTensor) raises -> AnyTensor:
+    """Return a contiguous copy of the tensor.
+
+    This is a convenience wrapper around the AnyTensor.contiguous() method.
+    If the tensor is already contiguous, returns a clone.
+    Otherwise, creates a new contiguous tensor with the same data.
+
+    Args:
+        tensor: The tensor to make contiguous.
+
+    Returns:
+        A contiguous AnyTensor with the same shape, dtype, and values.
+
+    Raises:
+        Error: If memory allocation fails.
+
+    Example:
+        ```mojo
+        var x = ones([3, 4], DType.float32)
+        var c = contiguous(x)  # Already contiguous, returns clone
+        ```
+    """
+    return tensor.contiguous()
