@@ -67,12 +67,12 @@ def version_satisfies(version: Tuple[int, ...], constraints: List[VersionRange])
 
 
 def parse_pixi_toml(path: Path) -> Dict[str, str]:
-    """Extract package name → version spec from pixi.toml [dependencies]."""
+    """Extract package name → version spec from pixi.toml [dependencies] and [pypi-dependencies]."""
     deps: Dict[str, str] = {}
     in_deps = False
     for line in path.read_text().splitlines():
         stripped = line.strip()
-        if stripped.startswith("[dependencies]"):
+        if stripped.startswith("[dependencies]") or stripped.startswith("[pypi-dependencies]"):
             in_deps = True
             continue
         if stripped.startswith("[") and in_deps:
