@@ -1,6 +1,27 @@
 #!/usr/bin/env bash
 set -e
 
+# ---------------------------------------------------------------------------
+# Ensure $HOME/.modular exists and is writable by the current user.
+#
+# Mojo's runtime (libAsyncRTMojoBindings.so) calls std::filesystem::status()
+# on $HOME/.modular during startup via getAcceleratorArchOrEmpty(). If the
+# path is inaccessible (e.g., HOME is owned by a different UID), the uncaught
+# filesystem_error aborts the process before any user code runs.
+#
+# This is a Mojo upstream bug (filed: modular/modular). Workaround: ensure
+# $HOME/.modular exists and is owned by the current UID before invoking mojo.
+# ---------------------------------------------------------------------------
+if [ ! -d "${HOME}/.modular" ]; then
+    mkdir -p "${HOME}/.modular" 2>/dev/null || {
+        # HOME is not writable by this UID (e.g., CI UID mismatch).
+        # Redirect HOME to a writable location for the duration of this session.
+        export HOME="/tmp/mojo-home-$(id -u)"
+        mkdir -p "${HOME}/.modular"
+        export PIXI_HOME="${HOME}/.pixi"
+    }
+fi
+
 # Ensure the workspace .pixi environment is functional.
 # The named volume at /workspace/.pixi shadows the bind-mounted host .pixi/,
 # but starts empty on first run. Run pixi install to populate it if needed.

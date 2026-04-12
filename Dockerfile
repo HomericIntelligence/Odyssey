@@ -48,7 +48,8 @@ ARG USER_NAME=dev
 RUN groupadd -g ${GROUP_ID} ${USER_NAME} 2>/dev/null || \
     groupmod -n ${USER_NAME} $(getent group ${GROUP_ID} | cut -d: -f1) && \
     useradd -m -u ${USER_ID} -g ${GROUP_ID} -s /bin/bash ${USER_NAME} 2>/dev/null || \
-    usermod -l ${USER_NAME} -d /home/${USER_NAME} -m $(id -nu ${USER_ID} 2>/dev/null || echo nobody)
+    usermod -l ${USER_NAME} -d /home/${USER_NAME} -m $(id -nu ${USER_ID} 2>/dev/null || echo nobody) && \
+    chmod 755 /home/${USER_NAME}
 
 # Set environment for dev user
 ENV HOME=/home/${USER_NAME}
@@ -69,8 +70,7 @@ WORKDIR /workspace
 # Ensure Pixi home and cache directories exist
 ENV PIXI_HOME=/home/${USER_NAME}/.pixi
 ENV PIXI_CACHE_DIR=/home/${USER_NAME}/.cache/pixi
-RUN mkdir -p $PIXI_HOME $PIXI_CACHE_DIR $HOME/.cache/rattler && \
-    chmod -R 700 $PIXI_HOME $PIXI_CACHE_DIR $HOME/.cache/rattler
+RUN mkdir -p $PIXI_HOME $PIXI_CACHE_DIR $HOME/.cache/rattler
 
 # Install Pixi as dev user (pinned version for reproducible builds)
 ENV PIXI_VERSION=0.65.0
