@@ -3584,10 +3584,11 @@ struct AnyTensor(
                 hasher.update(int_bits)
 
     def contiguous(self) raises -> AnyTensor:
-        """Return a contiguous copy of the tensor.
+        """Return a contiguous version of the tensor.
 
-        If the tensor is already contiguous, returns a clone.
-        Otherwise, creates a new contiguous tensor with the same data.
+        If the tensor is already contiguous, returns self without allocating
+        new memory. Otherwise, creates a new contiguous tensor by repacking
+        the data into row-major order.
 
         Returns:
             A contiguous AnyTensor with the same shape, dtype, and values.
@@ -3598,9 +3599,13 @@ struct AnyTensor(
         Example:
             ```mojo
             var x = ones([3, 4], DType.float32)
-            var c = x.contiguous()  # Already contiguous, returns clone
+            var c = x.contiguous()  # Already contiguous, returns self (no allocation)
+            var t = x.transpose(0, 1)
+            var ct = t.contiguous()  # Non-contiguous, allocates new memory
             ```
         """
+        if self.is_contiguous():
+            return self
         return self.clone()
 
     def as_tensor[dtype: DType](self) raises -> Tensor[dtype]:
