@@ -2098,6 +2098,8 @@ struct AnyTensor(
                 val = self._data.bitcast[Float32]()[i]
             elif self._dtype == DType.float64:
                 val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
+            elif self._dtype == DType.bfloat16:
+                val = self._data.bitcast[BFloat16]()[i].cast[DType.float32]()
             else:
                 # Defensive re-validation (fixes DATA-003)
                 raise Error("Invalid dtype for FP8 conversion")
@@ -2619,6 +2621,8 @@ struct AnyTensor(
                 val = self._data.bitcast[Float32]()[i]
             elif self._dtype == DType.float64:
                 val = self._data.bitcast[Float64]()[i].cast[DType.float32]()
+            elif self._dtype == DType.bfloat16:
+                val = self._data.bitcast[BFloat16]()[i].cast[DType.float32]()
             else:
                 raise Error("Invalid dtype for BF8 conversion")
 
