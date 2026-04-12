@@ -41,7 +41,8 @@ from shared.core import (
     global_avgpool2d_backward,
     cross_entropy_backward,
 )
-from shared.data import extract_batch_pair, compute_num_batches, DatasetInfo
+from shared.data.batch_utils import compute_num_batches, extract_batch_pair
+from shared.data.constants import DatasetInfo
 from shared.data.datasets import CIFAR10Dataset
 from shared.training.schedulers import step_lr
 from shared.utils.training_args import parse_training_args_with_defaults

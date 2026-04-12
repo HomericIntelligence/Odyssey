@@ -28,16 +28,12 @@ See Also:
     shared/data/transforms.mojo - Available transforms
 """
 
-from shared.data import (
-    AnyTensorDataset,
-    BatchLoader,
-    RandomSampler,
-    SequentialSampler,
-    Batch,
-    TransformedDataset,
-    CachedDataset,
-    PrefetchDataLoader,
-)
+from shared.data.cache import CachedDataset
+from shared.data.dataset_with_transform import TransformedDataset
+from shared.data.datasets import AnyTensorDataset
+from shared.data.loaders import Batch, BatchLoader
+from shared.data.prefetch import PrefetchDataLoader
+from shared.data.samplers import RandomSampler, SequentialSampler
 from shared.data.transforms import Normalize, Compose
 from shared.tensor.any_tensor import AnyTensor, ones, zeros
 from std.collections import List

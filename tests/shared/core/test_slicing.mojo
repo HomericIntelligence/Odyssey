@@ -12,7 +12,7 @@ Total: 8 tests.
 
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from tests.shared.conftest import assert_equal, assert_almost_equal
-from shared.data import extract_batch, extract_batch_pair
+from shared.data.batch_utils import extract_batch, extract_batch_pair
 
 
 def test_slice_basic_1d() raises:

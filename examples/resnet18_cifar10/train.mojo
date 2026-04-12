@@ -37,7 +37,8 @@ from shared.core.linear import linear, linear_backward
 from shared.core.activation import relu, relu_backward
 from shared.core.normalization import batch_norm2d, batch_norm2d_backward
 from shared.core.arithmetic import add, add_backward
-from shared.data import extract_batch_pair, compute_num_batches, DatasetInfo
+from shared.data.batch_utils import compute_num_batches, extract_batch_pair
+from shared.data.constants import DatasetInfo
 
 # CIFAR-10 dataset loading blocked on Python↔Mojo interop (#3076).
 # from shared.data.datasets import load_cifar10_train, load_cifar10_test

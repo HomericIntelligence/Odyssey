@@ -25,7 +25,8 @@ Features:
 """
 
 from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.data import extract_batch_pair, compute_num_batches, DatasetInfo
+from shared.data.batch_utils import compute_num_batches, extract_batch_pair
+from shared.data.constants import DatasetInfo
 from shared.data.datasets import CIFAR10Dataset
 from shared.training.metrics import (
     evaluate_with_predict,

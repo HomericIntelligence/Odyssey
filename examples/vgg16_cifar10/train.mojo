@@ -27,12 +27,8 @@ from shared.core.activation import relu, relu_backward
 from shared.core.dropout import dropout, dropout_backward
 from shared.core.loss import cross_entropy, cross_entropy_backward
 from shared.training.schedulers import step_lr
-from shared.data import (
-    extract_batch_pair,
-    compute_num_batches,
-    get_batch_indices,
-    DatasetInfo,
-)
+from shared.data.batch_utils import compute_num_batches, extract_batch_pair, get_batch_indices
+from shared.data.constants import DatasetInfo
 from shared.utils.training_args import parse_training_args_with_defaults
 from shared.training.metrics.evaluate import evaluate_with_predict
 
