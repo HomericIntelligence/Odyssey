@@ -35,6 +35,7 @@ from shared.base.dtype_ordinal import (
     DTYPE_UINT16,
     DTYPE_UINT32,
     DTYPE_UINT64,
+    DTYPE_BOOL,
 )
 
 
@@ -337,58 +338,146 @@ def _dispatch_matmul_batched(
     var ordinal = dtype_to_ordinal(a._dtype)
     if ordinal == DTYPE_FLOAT16:
         _matmul_batched_impl[DType.float16](
-            result, a, b, batch_size, a_rows, a_cols, b_cols,
-            matrix_size_a, matrix_size_b, matrix_size_result,
+            result,
+            a,
+            b,
+            batch_size,
+            a_rows,
+            a_cols,
+            b_cols,
+            matrix_size_a,
+            matrix_size_b,
+            matrix_size_result,
         )
     elif ordinal == DTYPE_FLOAT32:
         _matmul_batched_impl[DType.float32](
-            result, a, b, batch_size, a_rows, a_cols, b_cols,
-            matrix_size_a, matrix_size_b, matrix_size_result,
+            result,
+            a,
+            b,
+            batch_size,
+            a_rows,
+            a_cols,
+            b_cols,
+            matrix_size_a,
+            matrix_size_b,
+            matrix_size_result,
         )
     elif ordinal == DTYPE_FLOAT64:
         _matmul_batched_impl[DType.float64](
-            result, a, b, batch_size, a_rows, a_cols, b_cols,
-            matrix_size_a, matrix_size_b, matrix_size_result,
+            result,
+            a,
+            b,
+            batch_size,
+            a_rows,
+            a_cols,
+            b_cols,
+            matrix_size_a,
+            matrix_size_b,
+            matrix_size_result,
         )
     elif ordinal == DTYPE_INT8:
         _matmul_batched_impl[DType.int8](
-            result, a, b, batch_size, a_rows, a_cols, b_cols,
-            matrix_size_a, matrix_size_b, matrix_size_result,
+            result,
+            a,
+            b,
+            batch_size,
+            a_rows,
+            a_cols,
+            b_cols,
+            matrix_size_a,
+            matrix_size_b,
+            matrix_size_result,
         )
     elif ordinal == DTYPE_INT16:
         _matmul_batched_impl[DType.int16](
-            result, a, b, batch_size, a_rows, a_cols, b_cols,
-            matrix_size_a, matrix_size_b, matrix_size_result,
+            result,
+            a,
+            b,
+            batch_size,
+            a_rows,
+            a_cols,
+            b_cols,
+            matrix_size_a,
+            matrix_size_b,
+            matrix_size_result,
         )
     elif ordinal == DTYPE_INT32:
         _matmul_batched_impl[DType.int32](
-            result, a, b, batch_size, a_rows, a_cols, b_cols,
-            matrix_size_a, matrix_size_b, matrix_size_result,
+            result,
+            a,
+            b,
+            batch_size,
+            a_rows,
+            a_cols,
+            b_cols,
+            matrix_size_a,
+            matrix_size_b,
+            matrix_size_result,
         )
     elif ordinal == DTYPE_INT64:
         _matmul_batched_impl[DType.int64](
-            result, a, b, batch_size, a_rows, a_cols, b_cols,
-            matrix_size_a, matrix_size_b, matrix_size_result,
+            result,
+            a,
+            b,
+            batch_size,
+            a_rows,
+            a_cols,
+            b_cols,
+            matrix_size_a,
+            matrix_size_b,
+            matrix_size_result,
         )
     elif ordinal == DTYPE_UINT8:
         _matmul_batched_impl[DType.uint8](
-            result, a, b, batch_size, a_rows, a_cols, b_cols,
-            matrix_size_a, matrix_size_b, matrix_size_result,
+            result,
+            a,
+            b,
+            batch_size,
+            a_rows,
+            a_cols,
+            b_cols,
+            matrix_size_a,
+            matrix_size_b,
+            matrix_size_result,
         )
     elif ordinal == DTYPE_UINT16:
         _matmul_batched_impl[DType.uint16](
-            result, a, b, batch_size, a_rows, a_cols, b_cols,
-            matrix_size_a, matrix_size_b, matrix_size_result,
+            result,
+            a,
+            b,
+            batch_size,
+            a_rows,
+            a_cols,
+            b_cols,
+            matrix_size_a,
+            matrix_size_b,
+            matrix_size_result,
         )
     elif ordinal == DTYPE_UINT32:
         _matmul_batched_impl[DType.uint32](
-            result, a, b, batch_size, a_rows, a_cols, b_cols,
-            matrix_size_a, matrix_size_b, matrix_size_result,
+            result,
+            a,
+            b,
+            batch_size,
+            a_rows,
+            a_cols,
+            b_cols,
+            matrix_size_a,
+            matrix_size_b,
+            matrix_size_result,
         )
     elif ordinal == DTYPE_UINT64:
         _matmul_batched_impl[DType.uint64](
-            result, a, b, batch_size, a_rows, a_cols, b_cols,
-            matrix_size_a, matrix_size_b, matrix_size_result,
+            result,
+            a,
+            b,
+            batch_size,
+            a_rows,
+            a_cols,
+            b_cols,
+            matrix_size_a,
+            matrix_size_b,
+            matrix_size_result,
         )
     else:
         raise Error(
@@ -484,8 +573,7 @@ def _dispatch_transpose_copy(
         _transpose_copy_impl[DType.uint64](
             result, tensor, ndim, result_shape, input_strides, perm, numel
         )
-    elif tensor._dtype == DType.bool:
-        # Bool is not in the ordinal system; handle directly
+    elif ordinal == DTYPE_BOOL:
         _transpose_copy_impl[DType.bool](
             result, tensor, ndim, result_shape, input_strides, perm, numel
         )

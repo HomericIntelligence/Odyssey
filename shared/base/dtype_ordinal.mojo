@@ -24,6 +24,7 @@ Supported DTypes:
 - UInt16 - ordinal 8
 - UInt32 - ordinal 9
 - UInt64 - ordinal 10
+- Bool - ordinal 11
 
 Usage:
     from .dtype_ordinal import dtype_to_ordinal, DTYPE_FLOAT32
@@ -46,9 +47,10 @@ comptime DTYPE_UINT8: Int = 7
 comptime DTYPE_UINT16: Int = 8
 comptime DTYPE_UINT32: Int = 9
 comptime DTYPE_UINT64: Int = 10
+comptime DTYPE_BOOL: Int = 11
 comptime DTYPE_UNSUPPORTED: Int = -1
 
-comptime SUPPORTED_DTYPE_COUNT: Int = 11
+comptime SUPPORTED_DTYPE_COUNT: Int = 12
 
 
 def dtype_to_ordinal(dtype: DType) -> Int:
@@ -97,6 +99,8 @@ def dtype_to_ordinal(dtype: DType) -> Int:
         return DTYPE_UINT32
     elif dtype == DType.uint64:
         return DTYPE_UINT64
+    elif dtype == DType.bool:
+        return DTYPE_BOOL
     else:
         return DTYPE_UNSUPPORTED
 
@@ -142,5 +146,7 @@ def format_dtype_name(dtype: DType) -> String:
         return "uint32"
     elif dtype == DType.uint64:
         return "uint64"
+    elif dtype == DType.bool:
+        return "bool"
     else:
         return "unknown"

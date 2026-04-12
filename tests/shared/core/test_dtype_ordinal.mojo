@@ -18,6 +18,7 @@ from shared.base.dtype_ordinal import (
     DTYPE_UINT16,
     DTYPE_UINT32,
     DTYPE_UINT64,
+    DTYPE_BOOL,
     DTYPE_UNSUPPORTED,
     SUPPORTED_DTYPE_COUNT,
 )
@@ -36,7 +37,14 @@ def test_dtype_to_ordinal_all_supported() raises:
     assert_equal(dtype_to_ordinal(DType.uint16), DTYPE_UINT16)
     assert_equal(dtype_to_ordinal(DType.uint32), DTYPE_UINT32)
     assert_equal(dtype_to_ordinal(DType.uint64), DTYPE_UINT64)
+    assert_equal(dtype_to_ordinal(DType.bool), DTYPE_BOOL)
     print("✓ All supported dtypes map to correct ordinals")
+
+
+def test_dtype_to_ordinal_bool() raises:
+    """Test that DType.bool maps to DTYPE_BOOL ordinal."""
+    assert_equal(dtype_to_ordinal(DType.bool), DTYPE_BOOL)
+    print("✓ DType.bool maps to DTYPE_BOOL ordinal")
 
 
 def test_dtype_to_ordinal_unsupported() raises:
@@ -60,6 +68,7 @@ def test_ordinal_uniqueness() raises:
     ordinals.append(DTYPE_UINT16)
     ordinals.append(DTYPE_UINT32)
     ordinals.append(DTYPE_UINT64)
+    ordinals.append(DTYPE_BOOL)
 
     # Check uniqueness by comparing all pairs
     for i in range(len(ordinals)):
@@ -72,7 +81,7 @@ def test_ordinal_uniqueness() raises:
 
 def test_ordinal_count() raises:
     """Test that SUPPORTED_DTYPE_COUNT matches actual count."""
-    assert_equal(SUPPORTED_DTYPE_COUNT, 11)
+    assert_equal(SUPPORTED_DTYPE_COUNT, 12)
     print("✓ SUPPORTED_DTYPE_COUNT is correct")
 
 
@@ -89,6 +98,7 @@ def test_format_dtype_name_all_supported() raises:
     assert_equal(format_dtype_name(DType.uint16), "uint16")
     assert_equal(format_dtype_name(DType.uint32), "uint32")
     assert_equal(format_dtype_name(DType.uint64), "uint64")
+    assert_equal(format_dtype_name(DType.bool), "bool")
     print("✓ All supported dtypes format correctly")
 
 
@@ -111,6 +121,7 @@ def test_ordinal_values_sequential() raises:
     assert_equal(DTYPE_UINT16, 8)
     assert_equal(DTYPE_UINT32, 9)
     assert_equal(DTYPE_UINT64, 10)
+    assert_equal(DTYPE_BOOL, 11)
     assert_equal(DTYPE_UNSUPPORTED, -1)
     print("✓ Ordinal values are sequential")
 
@@ -121,6 +132,7 @@ def main() raises:
     print()
 
     test_dtype_to_ordinal_all_supported()
+    test_dtype_to_ordinal_bool()
     test_dtype_to_ordinal_unsupported()
     test_ordinal_uniqueness()
     test_ordinal_count()

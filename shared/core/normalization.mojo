@@ -281,7 +281,18 @@ def batch_norm2d(
         var batch_mean = zeros([channels], x.dtype())
         var batch_var = zeros([channels], x.dtype())
 
-        if x.dtype() == DType.float32:
+        if x.dtype() == DType.float16:
+            _batch_norm2d_compute_stats[DType.float16](
+                x._data,
+                batch_mean,
+                batch_var,
+                batch,
+                channels,
+                height,
+                width,
+                spatial_size,
+            )
+        elif x.dtype() == DType.float32:
             _batch_norm2d_compute_stats[DType.float32](
                 x._data,
                 batch_mean,
@@ -304,10 +315,26 @@ def batch_norm2d(
                 spatial_size,
             )
         else:
-            raise Error("batch_norm2d: only float32/64 dtypes supported")
+            raise Error(
+                "batch_norm2d: only float16/float32/float64 dtypes supported"
+            )
 
         var output = zeros_like(x)
-        if x.dtype() == DType.float32:
+        if x.dtype() == DType.float16:
+            _batch_norm2d_normalize[DType.float16](
+                x._data,
+                output,
+                batch_mean._data,
+                batch_var._data,
+                gamma._data,
+                beta._data,
+                batch,
+                channels,
+                height,
+                width,
+                epsilon,
+            )
+        elif x.dtype() == DType.float32:
             _batch_norm2d_normalize[DType.float32](
                 x._data,
                 output,
@@ -338,7 +365,18 @@ def batch_norm2d(
 
         var new_running_mean = zeros_like(running_mean)
         var new_running_var = zeros_like(running_var)
-        if x.dtype() == DType.float32:
+        if x.dtype() == DType.float16:
+            _batch_norm2d_update_running_stats[DType.float16](
+                running_mean,
+                running_var,
+                batch_mean,
+                batch_var,
+                new_running_mean,
+                new_running_var,
+                channels,
+                momentum,
+            )
+        elif x.dtype() == DType.float32:
             _batch_norm2d_update_running_stats[DType.float32](
                 running_mean,
                 running_var,
@@ -366,7 +404,21 @@ def batch_norm2d(
     else:
         # Inference mode: use running statistics
         var output = zeros_like(x)
-        if x.dtype() == DType.float32:
+        if x.dtype() == DType.float16:
+            _batch_norm2d_normalize[DType.float16](
+                x._data,
+                output,
+                running_mean._data,
+                running_var._data,
+                gamma._data,
+                beta._data,
+                batch,
+                channels,
+                height,
+                width,
+                epsilon,
+            )
+        elif x.dtype() == DType.float32:
             _batch_norm2d_normalize[DType.float32](
                 x._data,
                 output,
@@ -395,7 +447,9 @@ def batch_norm2d(
                 epsilon,
             )
         else:
-            raise Error("batch_norm2d: only float32/64 dtypes supported")
+            raise Error(
+                "batch_norm2d: only float16/float32/float64 dtypes supported"
+            )
 
         # Running stats unchanged in inference mode
         return (output, running_mean, running_var)
@@ -669,7 +723,22 @@ def batch_norm2d_backward(
     var grad_beta = zeros([channels], x.dtype())
 
     if training:
-        if x.dtype() == DType.float32:
+        if x.dtype() == DType.float16:
+            _batch_norm2d_backward_training[DType.float16](
+                grad_output._data,
+                x._data,
+                gamma._data,
+                grad_input,
+                grad_gamma,
+                grad_beta,
+                batch,
+                channels,
+                height,
+                width,
+                spatial_size,
+                epsilon,
+            )
+        elif x.dtype() == DType.float32:
             _batch_norm2d_backward_training[DType.float32](
                 grad_output._data,
                 x._data,
@@ -701,10 +770,27 @@ def batch_norm2d_backward(
             )
         else:
             raise Error(
-                "batch_norm2d_backward: only float32/64 dtypes supported"
+                "batch_norm2d_backward: only float16/float32/float64 dtypes"
+                " supported"
             )
     else:
-        if x.dtype() == DType.float32:
+        if x.dtype() == DType.float16:
+            _batch_norm2d_backward_inference[DType.float16](
+                grad_output._data,
+                x._data,
+                gamma._data,
+                running_mean._data,
+                running_var._data,
+                grad_input,
+                grad_gamma,
+                grad_beta,
+                batch,
+                channels,
+                height,
+                width,
+                epsilon,
+            )
+        elif x.dtype() == DType.float32:
             _batch_norm2d_backward_inference[DType.float32](
                 grad_output._data,
                 x._data,
@@ -738,7 +824,8 @@ def batch_norm2d_backward(
             )
         else:
             raise Error(
-                "batch_norm2d_backward: only float32/64 dtypes supported"
+                "batch_norm2d_backward: only float16/float32/float64 dtypes"
+                " supported"
             )
 
     return (grad_input, grad_gamma, grad_beta)
@@ -890,7 +977,17 @@ def layer_norm(
         var features = x_shape[1]
         var output = zeros_like(x)
 
-        if x.dtype() == DType.float32:
+        if x.dtype() == DType.float16:
+            _layer_norm_2d[DType.float16](
+                x._data,
+                output,
+                gamma._data,
+                beta._data,
+                batch,
+                features,
+                epsilon,
+            )
+        elif x.dtype() == DType.float32:
             _layer_norm_2d[DType.float32](
                 x._data,
                 output,
@@ -911,7 +1008,9 @@ def layer_norm(
                 epsilon,
             )
         else:
-            raise Error("layer_norm: only float32/64 dtypes supported")
+            raise Error(
+                "layer_norm: only float16/float32/float64 dtypes supported"
+            )
         return output
 
     elif len(x_shape) == 4:
@@ -921,7 +1020,19 @@ def layer_norm(
         var width = x_shape[3]
         var output = zeros_like(x)
 
-        if x.dtype() == DType.float32:
+        if x.dtype() == DType.float16:
+            _layer_norm_4d[DType.float16](
+                x._data,
+                output,
+                gamma._data,
+                beta._data,
+                batch,
+                channels,
+                height,
+                width,
+                epsilon,
+            )
+        elif x.dtype() == DType.float32:
             _layer_norm_4d[DType.float32](
                 x._data,
                 output,
@@ -946,7 +1057,9 @@ def layer_norm(
                 epsilon,
             )
         else:
-            raise Error("layer_norm: only float32/64 dtypes supported")
+            raise Error(
+                "layer_norm: only float16/float32/float64 dtypes supported"
+            )
         return output
 
     else:
@@ -1232,7 +1345,19 @@ def layer_norm_backward(
         var grad_gamma = zeros_like(gamma)
         var grad_beta = zeros_like(gamma)
 
-        if x.dtype() == DType.float32:
+        if x.dtype() == DType.float16:
+            _layer_norm_backward_2d[DType.float16](
+                grad_output._data,
+                x._data,
+                gamma._data,
+                grad_input,
+                grad_gamma,
+                grad_beta,
+                batch,
+                features,
+                epsilon,
+            )
+        elif x.dtype() == DType.float32:
             _layer_norm_backward_2d[DType.float32](
                 grad_output._data,
                 x._data,
@@ -1257,7 +1382,10 @@ def layer_norm_backward(
                 epsilon,
             )
         else:
-            raise Error("layer_norm_backward: only float32/64 dtypes supported")
+            raise Error(
+                "layer_norm_backward: only float16/float32/float64 dtypes"
+                " supported"
+            )
 
         return (grad_input, grad_gamma, grad_beta)
 
@@ -1271,7 +1399,21 @@ def layer_norm_backward(
         var grad_gamma = zeros_like(gamma)
         var grad_beta = zeros_like(gamma)
 
-        if x.dtype() == DType.float32:
+        if x.dtype() == DType.float16:
+            _layer_norm_backward_4d[DType.float16](
+                grad_output._data,
+                x._data,
+                gamma._data,
+                grad_input,
+                grad_gamma,
+                grad_beta,
+                batch,
+                channels,
+                height,
+                width,
+                epsilon,
+            )
+        elif x.dtype() == DType.float32:
             _layer_norm_backward_4d[DType.float32](
                 grad_output._data,
                 x._data,
@@ -1300,7 +1442,10 @@ def layer_norm_backward(
                 epsilon,
             )
         else:
-            raise Error("layer_norm_backward: only float32/64 dtypes supported")
+            raise Error(
+                "layer_norm_backward: only float16/float32/float64 dtypes"
+                " supported"
+            )
 
         return (grad_input, grad_gamma, grad_beta)
 
@@ -1437,7 +1582,22 @@ def group_norm(
     var group_size = channels_per_group * height * width
     var output = zeros_like(x)
 
-    if x.dtype() == DType.float32:
+    if x.dtype() == DType.float16:
+        _group_norm_impl[DType.float16](
+            x._data,
+            output,
+            gamma._data,
+            beta._data,
+            batch,
+            channels,
+            height,
+            width,
+            num_groups,
+            channels_per_group,
+            group_size,
+            epsilon,
+        )
+    elif x.dtype() == DType.float32:
         _group_norm_impl[DType.float32](
             x._data,
             output,
@@ -1468,7 +1628,7 @@ def group_norm(
             epsilon,
         )
     else:
-        raise Error("group_norm: only float32/64 dtypes supported")
+        raise Error("group_norm: only float16/float32/float64 dtypes supported")
 
     return output
 
@@ -1672,7 +1832,24 @@ def group_norm_backward(
     var grad_gamma = zeros([channels], x.dtype())
     var grad_beta = zeros([channels], x.dtype())
 
-    if x.dtype() == DType.float32:
+    if x.dtype() == DType.float16:
+        _group_norm_backward_impl[DType.float16](
+            grad_output._data,
+            x._data,
+            gamma._data,
+            grad_input,
+            grad_gamma,
+            grad_beta,
+            batch,
+            channels,
+            height,
+            width,
+            num_groups,
+            channels_per_group,
+            group_size,
+            epsilon,
+        )
+    elif x.dtype() == DType.float32:
         _group_norm_backward_impl[DType.float32](
             grad_output._data,
             x._data,
@@ -1707,7 +1884,9 @@ def group_norm_backward(
             epsilon,
         )
     else:
-        raise Error("group_norm_backward: only float32/64 dtypes supported")
+        raise Error(
+            "group_norm_backward: only float16/float32/float64 dtypes supported"
+        )
 
     return (grad_input, grad_gamma, grad_beta)
 
@@ -1821,7 +2000,19 @@ def instance_norm(
     var width = x_shape[3]
     var output = zeros_like(x)
 
-    if x.dtype() == DType.float32:
+    if x.dtype() == DType.float16:
+        _instance_norm_impl[DType.float16](
+            x._data,
+            output,
+            gamma._data,
+            beta._data,
+            batch,
+            channels,
+            height,
+            width,
+            epsilon,
+        )
+    elif x.dtype() == DType.float32:
         _instance_norm_impl[DType.float32](
             x._data,
             output,
@@ -1846,7 +2037,9 @@ def instance_norm(
             epsilon,
         )
     else:
-        raise Error("instance_norm: only float32/64 dtypes supported")
+        raise Error(
+            "instance_norm: only float16/float32/float64 dtypes supported"
+        )
 
     return output
 
@@ -2016,7 +2209,21 @@ def instance_norm_backward(
     var grad_gamma = zeros([channels], x.dtype())
     var grad_beta = zeros([channels], x.dtype())
 
-    if x.dtype() == DType.float32:
+    if x.dtype() == DType.float16:
+        _instance_norm_backward_impl[DType.float16](
+            grad_output._data,
+            x._data,
+            gamma._data,
+            grad_input,
+            grad_gamma,
+            grad_beta,
+            batch,
+            channels,
+            height,
+            width,
+            epsilon,
+        )
+    elif x.dtype() == DType.float32:
         _instance_norm_backward_impl[DType.float32](
             grad_output._data,
             x._data,
@@ -2045,6 +2252,9 @@ def instance_norm_backward(
             epsilon,
         )
     else:
-        raise Error("instance_norm_backward: only float32/64 dtypes supported")
+        raise Error(
+            "instance_norm_backward: only float16/float32/float64 dtypes"
+            " supported"
+        )
 
     return (grad_input, grad_gamma, grad_beta)
