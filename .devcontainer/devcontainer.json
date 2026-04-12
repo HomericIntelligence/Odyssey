@@ -1,0 +1,40 @@
+{
+  "name": "ProjectOdyssey Dev Container",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "target": "development",
+    "args": {
+      "USER_ID": "1000",
+      "GROUP_ID": "1000",
+      "USER_NAME": "dev"
+    }
+  },
+  "workspaceFolder": "/workspace",
+  "remoteUser": "dev",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "modular-mojotools.vscode-mojo",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "DavidAnson.vscode-markdownlint",
+        "EditorConfig.EditorConfig",
+        "tamasfe.even-better-toml",
+        "github.vscode-github-actions",
+        "ms-azuretools.vscode-containers"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.insertSpaces": true,
+        "editor.tabSize": 4,
+        "files.eol": "\n",
+        "python.defaultInterpreterPath": "/workspace/.pixi/envs/default/bin/python",
+        "markdownlint.config": {
+          "MD013": { "line_length": 120 }
+        }
+      }
+    }
+  },
+  "postCreateCommand": "pixi install && pixi run pre-commit install",
+  "features": {}
+}
