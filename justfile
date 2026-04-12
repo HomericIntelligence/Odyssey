@@ -661,11 +661,18 @@ _test-group-inner path pattern:
             echo "Running: $test_file"
             test_count=$((test_count + 1))
 
-            if pixi run mojo --Werror -I "$REPO_ROOT" -I . "$test_file"; then
+            bash "$REPO_ROOT/scripts/test-with-retry.sh" "$REPO_ROOT" "$test_file" || test_exit=$?
+            if [ "${test_exit:-0}" -eq 0 ]; then
                 passed_count=$((passed_count + 1))
             else
                 failed_count=$((failed_count + 1))
-                failed_tests="$failed_tests\n  - $test_file"
+                if [ "${test_exit}" -eq 2 ]; then
+                    # JIT crash persisted after retry — upstream Mojo bug
+                    failed_tests="$failed_tests\n  - $test_file (JIT crash — see modular/modular#6187)"
+                else
+                    failed_tests="$failed_tests\n  - $test_file"
+                fi
+                test_exit=0
             fi
         fi
     done
@@ -819,7 +826,7 @@ _test-mojo-inner:
         fi
         if [ -f "$test_file" ]; then
             echo "Testing: $test_file"
-            if ! pixi run mojo --Werror -I "$REPO_ROOT" -I . "$test_file"; then
+            if ! bash "$REPO_ROOT/scripts/test-with-retry.sh" "$REPO_ROOT" "$test_file"; then
                 failed=1
             fi
         fi
