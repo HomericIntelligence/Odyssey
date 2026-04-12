@@ -2089,10 +2089,6 @@ struct AnyTensor(
 
         # Convert each element to FP8
         for i in range(self._numel):
-            # Bounds check (fixes DATA-004)
-            if i >= self._numel:
-                raise Error("Index out of bounds during bitcast")
-
             # Get source value as Float32
             var val: Float32
             # Defensive dtype re-validation (fixes DATA-003)
@@ -2183,10 +2179,6 @@ struct AnyTensor(
 
         # Convert each element to Int8
         for i in range(self._numel):
-            # Bounds check (fixes DATA-004)
-            if i >= self._numel:
-                raise Error("Index out of bounds during bitcast")
-
             var val: Float32
             # Defensive dtype re-validation (fixes DATA-003)
             if self._dtype == DType.float16:
@@ -2243,9 +2235,6 @@ struct AnyTensor(
         var result = AnyTensor(self._shape, DType.int16)
 
         for i in range(self._numel):
-            if i >= self._numel:
-                raise Error("Index out of bounds during bitcast")
-
             var val: Float32
             if self._dtype == DType.float16:
                 val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
@@ -2299,9 +2288,6 @@ struct AnyTensor(
         var result = AnyTensor(self._shape, DType.int32)
 
         for i in range(self._numel):
-            if i >= self._numel:
-                raise Error("Index out of bounds during bitcast")
-
             var val: Float32
             if self._dtype == DType.float16:
                 val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
@@ -2350,9 +2336,6 @@ struct AnyTensor(
         var result = AnyTensor(self._shape, DType.int64)
 
         for i in range(self._numel):
-            if i >= self._numel:
-                raise Error("Index out of bounds during bitcast")
-
             var val: Float32
             if self._dtype == DType.float16:
                 val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
@@ -2401,9 +2384,6 @@ struct AnyTensor(
         var result = AnyTensor(self._shape, DType.uint8)
 
         for i in range(self._numel):
-            if i >= self._numel:
-                raise Error("Index out of bounds during bitcast")
-
             var val: Float32
             if self._dtype == DType.float16:
                 val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
@@ -2457,9 +2437,6 @@ struct AnyTensor(
         var result = AnyTensor(self._shape, DType.uint16)
 
         for i in range(self._numel):
-            if i >= self._numel:
-                raise Error("Index out of bounds during bitcast")
-
             var val: Float32
             if self._dtype == DType.float16:
                 val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
@@ -2509,9 +2486,6 @@ struct AnyTensor(
         var result = AnyTensor(self._shape, DType.uint32)
 
         for i in range(self._numel):
-            if i >= self._numel:
-                raise Error("Index out of bounds during bitcast")
-
             var val: Float32
             if self._dtype == DType.float16:
                 val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
@@ -2560,9 +2534,6 @@ struct AnyTensor(
         var result = AnyTensor(self._shape, DType.uint64)
 
         for i in range(self._numel):
-            if i >= self._numel:
-                raise Error("Index out of bounds during bitcast")
-
             var val: Float32
             if self._dtype == DType.float16:
                 val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
@@ -2641,9 +2612,6 @@ struct AnyTensor(
 
         # Convert each element to BF8
         for i in range(self._numel):
-            if i >= self._numel:
-                raise Error("Index out of bounds during bitcast")
-
             var val: Float32
             if self._dtype == DType.float16:
                 val = self._data.bitcast[Float16]()[i].cast[DType.float32]()
