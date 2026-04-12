@@ -40,29 +40,29 @@ from shared.testing import (
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, zeros_like
 
 
-def square_forward(input: AnyTensor) raises -> AnyTensor:
+def square_forward(x: AnyTensor) raises -> AnyTensor:
     """Forward pass: f(x) = x^2.
 
     Args:
-        input: Input tensor.
+        x: Input tensor.
 
     Returns:
-        Input^2: Element-wise squaring.
+        x^2: Element-wise squaring.
     """
-    var result = zeros_like(input)
-    for i in range(input.numel()):
-        var val = input._get_float64(i)
+    var result = zeros_like(x)
+    for i in range(x.numel()):
+        var val = x._get_float64(i)
         result._set_float64(i, val * val)
     return result^
 
 
 def square_backward_correct(
-    grad_out: AnyTensor, input: AnyTensor
+    grad_out: AnyTensor, x: AnyTensor
 ) raises -> AnyTensor:
     """Correct backward pass for f(x) = x^2: df/dx = 2x."""
-    var grad_in = zeros_like(input)
-    for i in range(input.numel()):
-        var x_val = input._get_float64(i)
+    var grad_in = zeros_like(x)
+    for i in range(x.numel()):
+        var x_val = x._get_float64(i)
         var grad_out_val = grad_out._get_float64(i)
         # Correct: df/dx = 2x
         grad_in._set_float64(i, grad_out_val * 2.0 * x_val)
@@ -70,12 +70,12 @@ def square_backward_correct(
 
 
 def square_backward_wrong_linear(
-    grad_out: AnyTensor, input: AnyTensor
+    grad_out: AnyTensor, x: AnyTensor
 ) raises -> AnyTensor:
     """Wrong backward pass for f(x) = x^2: Using df/dx = x (incorrect!)."""
-    var grad_in = zeros_like(input)
-    for i in range(input.numel()):
-        var x_val = input._get_float64(i)
+    var grad_in = zeros_like(x)
+    for i in range(x.numel()):
+        var x_val = x._get_float64(i)
         var grad_out_val = grad_out._get_float64(i)
         # WRONG: missing factor of 2
         grad_in._set_float64(i, grad_out_val * x_val)
@@ -83,12 +83,12 @@ def square_backward_wrong_linear(
 
 
 def square_backward_wrong_triple(
-    grad_out: AnyTensor, input: AnyTensor
+    grad_out: AnyTensor, x: AnyTensor
 ) raises -> AnyTensor:
     """Wrong backward pass for f(x) = x^2: Using df/dx = 3x (incorrect!)."""
-    var grad_in = zeros_like(input)
-    for i in range(input.numel()):
-        var x_val = input._get_float64(i)
+    var grad_in = zeros_like(x)
+    for i in range(x.numel()):
+        var x_val = x._get_float64(i)
         var grad_out_val = grad_out._get_float64(i)
         # WRONG: coefficient of 3 instead of 2
         grad_in._set_float64(i, grad_out_val * 3.0 * x_val)
@@ -151,7 +151,9 @@ def test_gradient_checker_accepts_correct_gradient() raises:
 
     var x = full([1], 1.0, DType.float32)
 
-    var passed = check_gradients(_SquareFwd(), _SquareBwdCorrect(),
+    var passed = check_gradients(
+        _SquareFwd(),
+        _SquareBwdCorrect(),
         x,
         epsilon=1e-5,
         tolerance=1e-2,
@@ -179,8 +181,10 @@ def test_gradient_checker_correct_gradient_multiple_values() raises:
         var test_val = test_values[i]
         var x = full([1], test_val, DType.float32)
 
-        var passed = check_gradients(_SquareFwd(), _SquareBwdCorrect(),
-        x,
+        var passed = check_gradients(
+            _SquareFwd(),
+            _SquareBwdCorrect(),
+            x,
             epsilon=1e-5,
             tolerance=1e-2,
         )
@@ -200,7 +204,9 @@ def test_gradient_checker_correct_gradient_multidimensional() raises:
 
     var x = full([2, 3], 1.5, DType.float32)
 
-    var passed = check_gradients(_SquareFwd(), _SquareBwdCorrect(),
+    var passed = check_gradients(
+        _SquareFwd(),
+        _SquareBwdCorrect(),
         x,
         epsilon=1e-5,
         tolerance=1e-2,
@@ -223,7 +229,9 @@ def test_gradient_checker_rejects_wrong_gradient_linear() raises:
 
     var x = full([1], 1.0, DType.float32)
 
-    var passed = check_gradients(_SquareFwd(), _SquareBwdWrongLinear(),
+    var passed = check_gradients(
+        _SquareFwd(),
+        _SquareBwdWrongLinear(),
         x,
         epsilon=1e-5,
         tolerance=1e-2,
@@ -243,7 +251,9 @@ def test_gradient_checker_rejects_wrong_gradient_triple() raises:
 
     var x = full([1], 1.0, DType.float32)
 
-    var passed = check_gradients(_SquareFwd(), _SquareBwdWrongTriple(),
+    var passed = check_gradients(
+        _SquareFwd(),
+        _SquareBwdWrongTriple(),
         x,
         epsilon=1e-5,
         tolerance=1e-2,
@@ -270,8 +280,10 @@ def test_gradient_checker_wrong_gradient_multiple_values() raises:
         var test_val = test_values[i]
         var x = full([1], test_val, DType.float32)
 
-        var passed = check_gradients(_SquareFwd(), _SquareBwdWrongLinear(),
-        x,
+        var passed = check_gradients(
+            _SquareFwd(),
+            _SquareBwdWrongLinear(),
+            x,
             epsilon=1e-5,
             tolerance=1e-2,
         )
@@ -294,7 +306,9 @@ def test_compute_numerical_gradient_matches_analytical() raises:
 
     var x = full([1], 2.0, DType.float32)
 
-    var numerical_grad = compute_numerical_gradient(_SquareFwd(), x, epsilon=1e-5)
+    var numerical_grad = compute_numerical_gradient(
+        _SquareFwd(), x, epsilon=1e-5
+    )
 
     # Expected: df/dx = 2x = 2*2.0 = 4.0
     var expected = 4.0
@@ -339,7 +353,9 @@ def test_gradient_checker_zero_input() raises:
 
     var x = full([1], 0.0, DType.float32)
 
-    var passed = check_gradients(_SquareFwd(), _SquareBwdCorrect(),
+    var passed = check_gradients(
+        _SquareFwd(),
+        _SquareBwdCorrect(),
         x,
         epsilon=1e-5,
         tolerance=1e-2,
@@ -362,7 +378,9 @@ def test_gradient_checker_negative_input() raises:
 
     var x = full([1], -2.0, DType.float32)
 
-    var passed = check_gradients(_SquareFwd(), _SquareBwdCorrect(),
+    var passed = check_gradients(
+        _SquareFwd(),
+        _SquareBwdCorrect(),
         x,
         epsilon=1e-5,
         tolerance=1e-2,
@@ -387,7 +405,9 @@ def test_gradient_checker_large_input() raises:
     var x = full([1], 5.0, DType.float32)
 
     # Moderate inputs still need larger tolerance for float32 precision
-    var passed = check_gradients(_SquareFwd(), _SquareBwdCorrect(),
+    var passed = check_gradients(
+        _SquareFwd(),
+        _SquareBwdCorrect(),
         x,
         epsilon=1e-5,
         tolerance=0.05,
@@ -407,7 +427,9 @@ def test_gradient_checker_small_epsilon() raises:
 
     var x = full([1], 1.0, DType.float32)
 
-    var passed = check_gradients(_SquareFwd(), _SquareBwdCorrect(),
+    var passed = check_gradients(
+        _SquareFwd(),
+        _SquareBwdCorrect(),
         x,
         epsilon=1e-4,
         tolerance=1e-2,
@@ -427,7 +449,9 @@ def test_gradient_checker_large_epsilon() raises:
 
     var x = full([1], 1.0, DType.float32)
 
-    var passed = check_gradients(_SquareFwd(), _SquareBwdCorrect(),
+    var passed = check_gradients(
+        _SquareFwd(),
+        _SquareBwdCorrect(),
         x,
         epsilon=1e-3,
         tolerance=1e-2,
@@ -455,7 +479,9 @@ def test_check_gradients_does_not_mutate_input() raises:
     for i in range(x.numel()):
         before.append(x._get_float64(i))
 
-    _ = check_gradients(_SquareFwd(), _SquareBwdCorrect(), x, epsilon=1e-5, tolerance=1e-2)
+    _ = check_gradients(
+        _SquareFwd(), _SquareBwdCorrect(), x, epsilon=1e-5, tolerance=1e-2
+    )
 
     # Assert every element is unchanged
     for i in range(x.numel()):
