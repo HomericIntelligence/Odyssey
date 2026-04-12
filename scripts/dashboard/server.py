@@ -13,8 +13,11 @@ Example:
 
 import argparse
 import csv
+import os
+import re
+import signal
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
@@ -33,6 +36,47 @@ app = Flask(__name__, template_folder="templates")
 
 # Default logs directory
 DEFAULT_LOGS_DIR = PROJECT_ROOT / "logs"
+
+# Regex for valid identifiers: alphanumeric, hyphens, underscores, dots
+_IDENTIFIER_RE = re.compile(r"^[a-zA-Z0-9_.\-]+$")
+
+
+def validate_identifier(value: str) -> bool:
+    """Validate that a value is a safe identifier.
+
+    Allows alphanumeric characters, underscores, hyphens, and dots.
+    Rejects empty strings and path traversal sequences.
+
+    Args:
+        value: The string to validate.
+
+    Returns:
+        True if the value is a valid identifier, False otherwise.
+    """
+    if not value:
+        return False
+    return _IDENTIFIER_RE.match(value) is not None
+
+
+def safe_path(base: str, *parts: str) -> Optional[str]:
+    """Construct a path that is guaranteed to be under the base directory.
+
+    Uses os.path.realpath to resolve symlinks and relative components,
+    then verifies the result is under the base directory.
+
+    Args:
+        base: The base directory that the result must be under.
+        *parts: Path components to join to the base.
+
+    Returns:
+        The resolved real path string, or None if the result escapes base.
+    """
+    resolved_base = os.path.realpath(base)
+    candidate = os.path.realpath(os.path.join(base, *parts))
+    # Ensure candidate is under base (use os.sep to prevent prefix attacks)
+    if not candidate.startswith(resolved_base + os.sep) and candidate != resolved_base:
+        return None
+    return candidate
 
 
 def get_logs_dir() -> Path:
@@ -99,7 +143,12 @@ def read_metric_csv(run_id: str, metric_name: str) -> Optional[Dict[str, List]]:
         Dictionary with 'steps' and 'values' lists, or None if not found
     """
     logs_dir = get_logs_dir()
-    csv_path = logs_dir / run_id / f"{metric_name}.csv"
+
+    # Path traversal protection
+    resolved = safe_path(str(logs_dir), run_id, f"{metric_name}.csv")
+    if resolved is None:
+        return None
+    csv_path = Path(resolved)
 
     if not csv_path.exists():
         return None
@@ -135,7 +184,12 @@ def read_all_metrics(run_id: str) -> Dict[str, Dict[str, List]]:
         Dictionary mapping metric names to their data
     """
     logs_dir = get_logs_dir()
-    run_dir = logs_dir / run_id
+
+    # Path traversal protection
+    resolved = safe_path(str(logs_dir), run_id)
+    if resolved is None:
+        return {}
+    run_dir = Path(resolved)
 
     if not run_dir.exists():
         return {}
@@ -180,8 +234,16 @@ def api_run(run_id: str):
     Returns:
         JSON object with run metadata
     """
+    if not validate_identifier(run_id):
+        return jsonify({"error": "Invalid run_id"}), 400
+
     logs_dir = get_logs_dir()
-    run_dir = logs_dir / run_id
+
+    # Path traversal protection
+    resolved = safe_path(str(logs_dir), run_id)
+    if resolved is None:
+        return jsonify({"error": "Invalid run_id path"}), 400
+    run_dir = Path(resolved)
 
     if not run_dir.exists():
         return jsonify({"error": "Run not found"}), 404
@@ -214,6 +276,9 @@ def api_run_metrics(run_id: str):
     Returns:
         JSON object mapping metric names to data
     """
+    if not validate_identifier(run_id):
+        return jsonify({"error": "Invalid run_id"}), 400
+
     metrics = read_all_metrics(run_id)
     if not metrics:
         return jsonify({"error": "Run not found or no metrics"}), 404
@@ -231,6 +296,11 @@ def api_run_metric(run_id: str, metric_name: str):
     Returns:
         JSON object with steps and values arrays
     """
+    if not validate_identifier(run_id):
+        return jsonify({"error": "Invalid run_id"}), 400
+    if not validate_identifier(metric_name):
+        return jsonify({"error": "Invalid metric_name"}), 400
+
     data = read_metric_csv(run_id, metric_name)
     if data is None:
         return jsonify({"error": "Metric not found"}), 404
@@ -254,16 +324,43 @@ def api_compare():
     if not run_ids or run_ids == [""]:
         return jsonify({"error": "No runs specified"}), 400
 
+    if not validate_identifier(metric_name):
+        return jsonify({"error": "Invalid metric_name"}), 400
+
     comparison = {}
     for run_id in run_ids:
         run_id = run_id.strip()
         if not run_id:
             continue
+        if not validate_identifier(run_id):
+            return jsonify({"error": f"Invalid run_id: {run_id}"}), 400
         data = read_metric_csv(run_id, metric_name)
         if data:
             comparison[run_id] = data
 
     return jsonify(comparison)
+
+
+@app.route("/health")
+def health():
+    """Health check endpoint.
+
+    Returns:
+        JSON object with status and current timestamp.
+    """
+    return jsonify(
+        {
+            "status": "ok",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+    )
+
+
+def _shutdown_handler(signum: int, frame: Any) -> None:
+    """Handle SIGTERM/SIGINT for graceful shutdown."""
+    sig_name = signal.Signals(signum).name
+    print(f"\nReceived {sig_name}, shutting down gracefully...")
+    sys.exit(0)
 
 
 def main():
@@ -294,8 +391,19 @@ def main():
 
     args = parser.parse_args()
 
+    # Register signal handlers for graceful shutdown
+    signal.signal(signal.SIGTERM, _shutdown_handler)
+    signal.signal(signal.SIGINT, _shutdown_handler)
+
     # Configure app
     app.config["LOGS_DIR"] = args.logs_dir
+
+    # Warn when binding to non-localhost addresses
+    if args.host not in ("127.0.0.1", "localhost", "::1"):
+        print("WARNING: Binding to non-localhost address.")
+        print(f"  Host '{args.host}' may expose the dashboard to the network.")
+        print("  Ensure this is intentional and the network is trusted.")
+        print()
 
     print("ML Odyssey Training Dashboard")
     print("==============================")
