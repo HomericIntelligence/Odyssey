@@ -154,16 +154,27 @@ def load_pixi_versions(pixi_path: Path) -> Dict[str, str]:
         data = tomllib.load(fh)
 
     deps: Dict[str, str] = {}
+    # Collect from [dependencies] (production deps)
     for pkg, constraint in data.get("dependencies", {}).items():
         version = parse_pixi_constraint(str(constraint))
         if version:
             deps[pkg.lower()] = version
+    # Also collect from [feature.*.dependencies] (e.g. [feature.dev.dependencies])
+    for feature_data in data.get("feature", {}).values():
+        for pkg, constraint in feature_data.get("dependencies", {}).items():
+            version = parse_pixi_constraint(str(constraint))
+            if version:
+                deps[pkg.lower()] = version
     return deps
 
 
 def _parse_pixi_dependencies_fallback(pixi_path: Path) -> Dict[str, str]:
     """
-    Minimal TOML parser for the [dependencies] section only (no tomllib/tomli).
+    Minimal TOML parser for dependency sections (no tomllib/tomli).
+
+    Parses both [dependencies] and [feature.*.dependencies] sections so that
+    packages moved to feature-specific sections (e.g. [feature.dev.dependencies])
+    are still detected by the version-drift checker.
 
     Args:
         pixi_path: Path to pixi.toml
@@ -175,10 +186,11 @@ def _parse_pixi_dependencies_fallback(pixi_path: Path) -> Dict[str, str]:
     in_deps = False
     for line in pixi_path.read_text().splitlines():
         stripped = line.strip()
-        if stripped == "[dependencies]":
+        # Match [dependencies] or [feature.*.dependencies]
+        if stripped == "[dependencies]" or re.match(r"^\[feature\.[^]]+\.dependencies\]$", stripped):
             in_deps = True
             continue
-        if stripped.startswith("[") and stripped != "[dependencies]":
+        if stripped.startswith("["):
             in_deps = False
             continue
         if in_deps and "=" in stripped and not stripped.startswith("#"):
