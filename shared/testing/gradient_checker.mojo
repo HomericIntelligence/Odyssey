@@ -169,7 +169,7 @@ def _fill_ones[dtype: DType](tensor: AnyTensor):
         ptr[i] = Scalar[dtype](1.0)
 
 
-def _is_uniform_tensor(tensor: AnyTensor) -> Bool:
+def _is_uniform_tensor(tensor: AnyTensor) raises -> Bool:
     """Check if all elements in a tensor have the same value (uniform tensor).
 
     Args:
