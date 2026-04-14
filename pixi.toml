@@ -62,7 +62,7 @@ default = { solve-group = "default" }
 notebook = { features = ["notebook"], solve-group = "default" }
 
 [pypi-dependencies]
-homericintelligence-hephaestus = ">=0.6.0,<1"
+homericintelligence-hephaestus = ">=0.7.0,<1"
 
 [tasks]
 bandit = "bandit --ini .bandit"
