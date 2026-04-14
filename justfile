@@ -67,7 +67,11 @@ _run cmd:
 				-v "$BUILD_ROOT":/ext-build:Z \
 				{{podman_service}} bash -c "$REWRITTEN_CMD"
 		else
-			podman compose exec -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} -T {{podman_service}} bash -c "{{cmd}}"
+			# Prepend a HOME-fixup fragment so mojo/pixi can always write their
+			# caches even when the container image was built with a different UID
+			# than the process UID (rootless Podman UID-mapping on CI runners).
+			HOME_FIXUP='if [ ! -w "$HOME" ]; then export HOME="/tmp/mojo-home-$(id -u)"; mkdir -p "$HOME/.modular" "$HOME/.pixi"; fi;'
+			podman compose exec -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} -T {{podman_service}} bash -c "$HOME_FIXUP {{cmd}}"
 		fi
 	else
 		echo "Error: Podman compose container '{{podman_service}}' is not running."
