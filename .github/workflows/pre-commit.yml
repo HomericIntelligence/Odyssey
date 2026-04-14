@@ -26,11 +26,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
 
-      - name: Check pre-commit vs pixi version drift
-        run: python3 scripts/check_precommit_versions.py
-
       - name: Set up Pixi
         uses: ./.github/actions/setup-pixi
+
+      - name: Check pre-commit vs pixi version drift
+        run: pixi run python scripts/check_precommit_versions.py
 
       - name: Install pre-commit
         run: |

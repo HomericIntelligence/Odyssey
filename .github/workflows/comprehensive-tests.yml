@@ -216,6 +216,9 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install hephaestus
+        run: pip install "homericintelligence-hephaestus>=0.6.0,<1"
+
       - name: Validate dependency consistency
         run: python scripts/check_dep_sync.py
 
