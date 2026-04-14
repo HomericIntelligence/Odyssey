@@ -72,7 +72,7 @@ jobs:
           FILE_COUNT: ${{ steps.count-files.outputs.file_count }}
           HOOK_STATUS: ${{ steps.time-hooks.outputs.status }}
         run: |
-          python3 scripts/bench_precommit.py \
+          pixi run python scripts/bench_precommit.py \
             --elapsed "${ELAPSED:-0}" \
             --files "${FILE_COUNT:-0}" \
             --status "${HOOK_STATUS:-unknown}"
