@@ -12,8 +12,6 @@ Current Models:
   - test_lenet5_layers.mojo: Layerwise unit tests (12 layer operations)
   - test_lenet5_e2e.mojo: End-to-end integration tests
 - VGG-16: Classic deep CNN for CIFAR-10
-  - test_vgg16_layers_part1.mojo: Conv layer tests (64/128/256/512 channels, ADR-009 split)
-  - test_vgg16_layers_part2.mojo: MaxPool/ReLU/FC layer tests (ADR-009 split)
   - test_vgg16_e2e.mojo: End-to-end tests with full model forward/backward
 - ResNet-18: Residual network with skip connections for CIFAR-10
   - test_resnet18_layers.mojo: Layerwise tests (residual blocks, skip connections, BatchNorm)

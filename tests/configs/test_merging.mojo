@@ -4,7 +4,6 @@ Configuration Merging Tests
 Tests for merging configurations across the 3-tier hierarchy:
 defaults → paper-specific → experiment-specific
 
-Split from test_merging.mojo per ADR-009 (≤10 fn test_ per file).
 
 """
 

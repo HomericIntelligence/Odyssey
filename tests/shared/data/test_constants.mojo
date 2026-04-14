@@ -5,9 +5,7 @@ Tests for:
     - EMNIST class names (all splits)
     - DatasetInfo struct with CIFAR-10 and EMNIST Balanced
 
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_constants.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
 

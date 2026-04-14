@@ -12,7 +12,6 @@ This test:
 3. Calls lock()/unlock() on locks[0]
 4. If the bug is present this crashes; if fixed it passes.
 
-# ADR-009: Kept to <=10 fn test_ functions to avoid heap corruption flake.
 """
 
 from std.testing import assert_true

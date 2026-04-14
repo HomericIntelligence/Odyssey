@@ -1,8 +1,6 @@
 """Tests for updated trait signatures using AnyTensor (Phase 5a).
 
-# ADR-009: This file is intentionally limited to <=10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Phase 5a changes trait signatures from AnyTensor to AnyTensor:
 - Module.forward(mut self, input: AnyTensor) -> AnyTensor

@@ -4,7 +4,6 @@ Tests cover:
 - Linear (fully connected) layers: initialization, forward, no-bias, backward
 - Convolutional layers (Conv2D): initialization, output shape, stride
 
-Split from test_layers.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
 

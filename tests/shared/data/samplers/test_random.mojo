@@ -1,8 +1,6 @@
 """Tests for random sampler (part 1 of 2): creation, randomization, and correctness.
 
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_random.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Tests RandomSampler which yields dataset indices in random order,
 the standard sampling strategy for training to prevent order-dependent biases.

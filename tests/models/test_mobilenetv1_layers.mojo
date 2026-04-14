@@ -4,7 +4,6 @@ Tests cover:
 - Depthwise convolution: each channel convolved independently
 - Pointwise convolution: 1x1 convolution for channel projection
 
-Split from test_mobilenetv1_layers.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
 

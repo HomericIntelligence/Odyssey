@@ -1,6 +1,4 @@
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_gradient_checking.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 """Parametrised gradient checking tests for batch norm backward pass.
 
@@ -13,7 +11,7 @@ Uses check_gradient() instead of check_gradients() because check_gradient()
 accepts a custom grad_output parameter, allowing non-uniform upstream gradients.
 
 Note: Split from test_gradient_checking.mojo due to Mojo 0.26.1 heap
-corruption bug that occurs after ~15 cumulative tests. See ADR-009.
+corruption bug that occurs after ~15 cumulative tests.
 """
 
 from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward

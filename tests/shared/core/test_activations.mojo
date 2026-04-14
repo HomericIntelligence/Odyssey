@@ -1,8 +1,6 @@
 """Tests for activation functions
 
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_activations.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Tests: test_relu_basic, test_relu_non_negativity, test_relu_backward,
        test_relu_shape, test_relu_integer_types, test_relu_float64,

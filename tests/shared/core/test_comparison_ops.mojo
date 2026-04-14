@@ -1,8 +1,6 @@
 """Tests for AnyTensor comparison operations
 
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_comparison_ops.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Tests comparison operations following the Array API Standard:
 equal, not_equal.

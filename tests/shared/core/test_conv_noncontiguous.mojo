@@ -11,9 +11,7 @@ Non-contiguous tensors are created by transposing H and W dims on
 non-square tensors (e.g. 4×6 → 6×4 via transpose(2,3)), which produces
 non-unit strides that violate C-order.
 
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Follow-up from #3236.
 """

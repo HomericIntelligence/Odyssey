@@ -4,11 +4,8 @@ Tests the OptimizerBase learning rate get/set methods and validation:
 - Learning rate get/set for SGD, Adam, AdaGrad, RMSprop
 - Learning rate validation
 
-Split from test_optimizer_base.mojo to comply with ADR-009 (≤10 fn test_ per file).
 
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_optimizer_base.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
 

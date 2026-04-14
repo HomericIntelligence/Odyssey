@@ -1,8 +1,6 @@
 """Tests for floating-point assertion functions.
 
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_assertions.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
 from std.testing import assert_true
@@ -185,7 +183,6 @@ def test_assert_close_float_fails_inf_mismatch() raises:
     )
 
 
-# NOTE: This file has ~20 tests total. If ADR-009 heap corruption manifests in CI,
 # split assert_close_float tests into test_assertions_close_float.mojo.
 def main() raises:
     """Run floating-point assertion tests."""

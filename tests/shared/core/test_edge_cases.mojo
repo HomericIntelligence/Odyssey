@@ -1,6 +1,5 @@
 """Tests for AnyTensor edge cases
 
-Split from test_edge_cases.mojo per ADR-009 (≤10 fn test_ functions per file).
 """
 
 

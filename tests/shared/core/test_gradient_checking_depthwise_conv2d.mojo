@@ -1,6 +1,4 @@
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_gradient_checking.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 """Gradient checking tests for depthwise_conv2d backward pass.
 
@@ -9,7 +7,7 @@ tolerance, and non-uniform input values to avoid degenerate gradient patterns.
 See issue #3282 and the depthwise-conv2d-gradient-checking skill for rationale.
 
 Note: Split from test_gradient_checking.mojo due to Mojo 0.26.1 heap
-corruption bug that occurs after ~15 cumulative tests. See ADR-009.
+corruption bug that occurs after ~15 cumulative tests.
 """
 
 from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward

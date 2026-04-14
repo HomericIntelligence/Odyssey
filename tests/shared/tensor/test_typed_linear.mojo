@@ -1,8 +1,6 @@
 """Tests for Linear[dtype] With Typed Tensor Weights (Phase 4b).
 
-# ADR-009: This file is intentionally limited to <=10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Phase 4b parameterizes Linear[dtype: DType = DType.float32]:
 - Internal weights stored as Tensor[dtype] for type safety

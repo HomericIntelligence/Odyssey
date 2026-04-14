@@ -5,9 +5,6 @@ rather than silently reinterpreting float bits as integer indices.
 
 Issue: #3686 — ConfusionMatrix.update() silently accepts float32 labels
 
-ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
-Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
 from std.testing import assert_true, assert_raises

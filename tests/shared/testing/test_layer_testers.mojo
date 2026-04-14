@@ -5,7 +5,6 @@ Tests LayerTester utility functions:
 - test_layer_no_invalid_values
 - test_activation_layer_backward (relu, sigmoid)
 
-Split from test_layer_testers.mojo per ADR-009 (≤10 fn test_ per file).
 See test_layer_testers_part2.mojo for remaining tests.
 """
 

@@ -6,7 +6,6 @@ Tests for Phase 3 data integrity fixes:
 - #1911 (DATA-003): Unvalidated DType in conversions
 - #1913 (DATA-005): FP16→FP32 conversion documentation
 
-Split from test_data_integrity.mojo per ADR-009 (≤10 fn test_ per file).
 Run with: `mojo test_data_integrity_part1.mojo`
 """
 

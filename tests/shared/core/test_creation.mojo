@@ -1,7 +1,6 @@
 """Tests for AnyTensor creation operations
 
 Tests zeros() and ones() creation functions with various shapes and dtypes.
-Split from test_creation.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
 

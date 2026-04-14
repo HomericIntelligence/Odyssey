@@ -6,9 +6,7 @@ Tests edge cases for sum, mean, max_reduce, min_reduce operations including:
 - Single-element tensor reductions
 - Reductions with all same values
 
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_reduction_edge_cases.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
 

@@ -3,9 +3,7 @@
 Tests Conv1 (3→64, 11x11) and Conv2 (64→192, 5x5) layers independently
 with special FP-representable values. Each layer test runs on float32 and float16.
 
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_alexnet_layers.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Float16 Precision Limitations
 ==============================
