@@ -1,10 +1,7 @@
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_creation_part5.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """Tests for AnyTensor creation operations - Edge cases.
 
 Tests edge cases like scalar creation, very large tensors, and high-dimensional tensors.
-Split from test_creation_part5.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
 # Import AnyTensor and creation operations

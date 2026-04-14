@@ -1,8 +1,6 @@
 """Tests for data generators module
 
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_data_generators.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Tests random_tensor function:
 - Shape creation (1D, 2D, 3D)

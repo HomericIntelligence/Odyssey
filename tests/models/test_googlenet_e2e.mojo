@@ -1,8 +1,6 @@
 """End-to-end tests for GoogLeNet (Inception-v1) model on CIFAR-10
 
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_googlenet_e2e.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Tests cover:
 - Model initialization with correct parameter shapes

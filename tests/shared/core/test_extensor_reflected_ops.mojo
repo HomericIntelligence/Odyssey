@@ -1,7 +1,7 @@
 """Tests for AnyTensor reflected operators (__radd__, __rsub__, __rmul__, __rtruediv__).
 
 Note: Split from test_anytensor_operators.mojo due to Mojo 0.26.1 heap
-corruption bug that occurs after ~15 cumulative tests. See ADR-009.
+corruption bug that occurs after ~15 cumulative tests.
 """
 
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full

@@ -1,6 +1,5 @@
 """Tests for AnyTensor shape manipulation: reshape, squeeze, unsqueeze, expand_dims, flatten.
 
-Split from test_shape.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
 

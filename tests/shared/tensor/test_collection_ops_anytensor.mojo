@@ -1,8 +1,6 @@
 """Tests for collection operations with AnyTensor.
 
-# ADR-009: This file is intentionally limited to <=10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Tests verify that collection ops (concatenate, stack, split) work correctly
 when called with AnyTensor values. Since AnyTensor is now an alias for AnyTensor,

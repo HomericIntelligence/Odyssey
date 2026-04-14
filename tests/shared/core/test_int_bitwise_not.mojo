@@ -6,7 +6,7 @@ semantics: ~x == -x - 1.
 Follow-up from #3293 (issue #3896).
 
 Note: Split from part2 due to Mojo 0.26.1 heap corruption bug that occurs after
-~15 cumulative tests. See ADR-009 and Issue #2942.
+~15 cumulative tests.
 """
 
 

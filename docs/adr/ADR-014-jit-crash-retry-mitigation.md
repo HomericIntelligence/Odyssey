@@ -4,6 +4,12 @@
 issue filing is now the approach for persistent JIT crashes. See `repro/` directory for minimal
 reproducers and upstream issue [modular/modular#6187](https://github.com/modular/modular/issues/6187).
 
+> **ADR-015 (2026-04-12)**: ADR-015 extends the corrective actions by committing to actually
+> removing `scripts/test-with-retry.sh` from the tree (it is still wired in `justfile:664` and
+> `justfile:829` despite this ADR's SUPERSEDED status) and executing a targeted import audit
+> on the two required-check test groups (`Core Types & Fuzz`, `Integration Tests`).
+> See [ADR-015](ADR-015-flaky-required-checks-jit-crash.md) for the full decision record.
+
 **Date**: 2026-03-25
 
 **Issue Reference**: [Issue #5108](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5108)

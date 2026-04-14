@@ -7,7 +7,6 @@ round-trips non-zero values through the float64 I/O path. Any dtype that silentl
 Follow-up from issue #3088 (bfloat16 _set_float64/_get_float64 silently did nothing).
 Fixes tracked in issue #3301.
 
-Note: Split into a dedicated file following ADR-009 pattern — heap corruption occurs after
 ~15 cumulative tests in a single file in Mojo 0.26.1.
 """
 

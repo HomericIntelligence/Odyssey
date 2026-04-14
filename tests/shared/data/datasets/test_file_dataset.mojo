@@ -1,6 +1,5 @@
 """Tests for lazy-loading file dataset (Part 1: Creation and Lazy Loading).
 
-Split from test_file_dataset.mojo per ADR-009.
 Tests FileDataset which loads data from disk on-demand,
 enabling training on datasets larger than available memory.
 """

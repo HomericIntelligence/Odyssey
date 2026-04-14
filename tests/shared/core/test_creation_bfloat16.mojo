@@ -1,13 +1,10 @@
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_creation.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """Tests for bfloat16 dtype support in AnyTensor factory functions.
 
 Verifies that arange(), eye(), linspace(), and randn() correctly route
 bfloat16 tensors to _set_float64 (floating-point path) rather than
 _set_int64. Regression tests for issue #3906.
 
-Split per ADR-009 (≤10 fn test_ per file).
 """
 
 # Import AnyTensor and creation operations

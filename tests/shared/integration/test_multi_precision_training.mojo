@@ -302,7 +302,6 @@ def test_fp16_vs_fp32_accuracy() raises:
 
     # Check value preserved (within FP16 precision)
     # Use native Float32 comparison to avoid unnecessary type conversion
-    # that can trigger Mojo heap corruption (see ADR-009)
     var original_val = test_data._get_float32(0)
     var roundtrip_val = back_to_fp32._get_float32(0)
 

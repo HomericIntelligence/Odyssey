@@ -16,9 +16,7 @@ Optional: Tests requiring EMNIST dataset (downloaded by weekly CI):
 These tests may be skipped if dataset is not available (run locally).
 Full E2E testing happens in weekly CI job with complete dataset.
 
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_lenet5_e2e.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 """
 

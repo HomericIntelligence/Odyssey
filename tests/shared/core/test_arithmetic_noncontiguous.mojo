@@ -4,9 +4,7 @@ Verifies that add, subtract, multiply, divide produce correct results
 when given non-contiguous inputs (e.g., from transpose_view). Without
 the as_contiguous() guard these operations silently returned wrong values.
 
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Follow-up from #3236.
 """

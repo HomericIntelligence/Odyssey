@@ -1,8 +1,6 @@
 """Tests for evaluation module
 
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_evaluation.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 Covers:
 - EvaluationResult struct initialization and field access

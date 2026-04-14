@@ -10,7 +10,6 @@ and numerical behavior for implementation in Issue #49.
 Note: Tests have been adapted from class-based API to pure functional API
 as per architecture decision to use functional design throughout shared library.
 
-Split from test_optimizers.mojo per ADR-009 to avoid Mojo heap corruption
 in Mojo v0.26.1 (libKGENCompilerRTShared.so JIT fault under high test load).
 """
 

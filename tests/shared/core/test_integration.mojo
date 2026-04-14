@@ -1,11 +1,8 @@
 """Integration tests for AnyTensor operations
 
 Tests chained arithmetic operations and creation + arithmetic patterns.
-Split from test_integration.mojo per ADR-009 to avoid heap corruption.
 
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_integration.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
 

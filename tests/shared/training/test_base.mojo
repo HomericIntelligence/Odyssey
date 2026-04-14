@@ -5,7 +5,6 @@ This module tests the gradient utilities and numerical safety functions:
 - compute_gradient_norm: L1/L2 norm computation for gradient clipping and diagnostics
 - is_valid_loss (valid and NaN cases)
 
-Split from test_base.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
 

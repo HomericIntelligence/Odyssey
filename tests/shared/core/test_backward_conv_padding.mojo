@@ -1,6 +1,4 @@
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_backward_conv_pool.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """Numerical gradient tests for conv2d_backward with padding > 0.
 
 Follow-up from #3248: parametrized coverage for padding=1 and padding=2,

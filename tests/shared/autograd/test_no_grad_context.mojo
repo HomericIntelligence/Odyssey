@@ -4,7 +4,6 @@ Tests the gradient tracking control functionality including:
 - NoGradContext enter/exit methods
 - disable_gradient_tracking and restore_gradient_tracking functions
 
-Split from test_no_grad_context.mojo per ADR-009 (≤10 fn test_ per file).
 """
 
 

@@ -186,4 +186,23 @@ See [ADR-014](../adr/ADR-014-jit-crash-retry-mitigation.md) for the full decisio
 - [Issue #3330](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3330) -- Document JIT crash workaround
 - [Issue #3120](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3120) -- Core Loss test crashes (follow-up context)
 - [ADR-009](../adr/ADR-009-heap-corruption-workaround.md) -- Heap corruption workaround (resolved 2026-03-20)
-- [ADR-014](../adr/ADR-014-jit-crash-retry-mitigation.md) -- JIT crash retry mitigation
+- [ADR-014](../adr/ADR-014-jit-crash-retry-mitigation.md) -- JIT crash retry mitigation (SUPERSEDED)
+- [ADR-015](../adr/ADR-015-flaky-required-checks-jit-crash.md) -- Flaky required checks and corrective actions (2026-04-12)
+
+## 0.26.3 Required Checks Impact (2026-04-12)
+
+The JIT compilation volume crash described in this document persists in **Mojo 0.26.3**
+(dev2026040705, Ubuntu 24.04, GLIBC 2.39) and manifests in CI as non-deterministic failures
+of the two required status checks -- `Core Types & Fuzz` (path: `tests/core/types/`) and
+`Integration Tests` (path: `tests/shared/integration/`). Three consecutive `main` runs on
+2026-04-12 all failed in a different random subset of groups, confirming the classic
+non-deterministic JIT overflow pattern. See
+[`repro/issues/jit-compilation-volume-crash.md`](../../repro/issues/jit-compilation-volume-crash.md)
+for the 0.26.3 minimal reproducer.
+
+[ADR-015](../adr/ADR-015-flaky-required-checks-jit-crash.md) formalizes the corrective
+actions: (1) audit and convert any remaining package-level `from shared.core import` statements
+in the two failing test groups to targeted submodule imports using the Symbol-to-Submodule
+Mapping table above; (2) remove `scripts/test-with-retry.sh` and its justfile wiring to make
+the retry mitigation's SUPERSEDED status true in the tree. Both actions are tracked under
+[Issue #5108](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5108).

@@ -33,7 +33,6 @@ True multi-threaded contention is not testable in Mojo 0.26.1 without
 `parallelize`; these tests verify the single-threaded invariants that the
 fix preserves.
 
-# ADR-009: Kept to <=10 fn test_ functions to avoid heap corruption flake.
 """
 
 from std.testing import assert_true, assert_equal

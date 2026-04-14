@@ -1,6 +1,5 @@
 """Training infrastructure tests
 
-Split from test_training_infrastructure.mojo to comply with ADR-009 heap corruption
 workaround (≤10 fn test_ functions per file).
 
 Tests covered:
@@ -11,9 +10,7 @@ Tests covered:
 Training Infrastructure Tests (#303-322):
 - #304: Trainer interface and configuration
 
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_training_infrastructure.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
 

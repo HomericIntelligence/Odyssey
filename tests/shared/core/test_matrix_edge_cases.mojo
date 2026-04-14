@@ -4,9 +4,7 @@ Tests edge cases for matmul and shape operations on matrices including:
 - Matmul with different tensor sizes
 - Matrix operations with special values
 
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_matrix_edge_cases.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 """
 
 

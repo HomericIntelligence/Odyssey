@@ -1,6 +1,5 @@
 """Heap corruption split part 1: Conv1, Conv2, and ReLU (forward) tests.
 
-Split from test_heap_corruption_combined.mojo (ADR-009).
 Contains 8 fn test_ functions (limit: 10).
 """
 

@@ -1,8 +1,6 @@
 """Tests for visualization utilities module
 
-# ADR-009: This file is intentionally limited to ≤10 fn test_ functions.
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
-# high test load. Split from test_visualization.mojo. See docs/adr/ADR-009-heap-corruption-workaround.md
 
 This module tests PlotData, PlotSeries, ConfusionMatrixData structs
 and initial training curve plotting functionality.

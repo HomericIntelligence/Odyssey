@@ -1,6 +1,5 @@
 """Tests for SimpleCNN and LinearModel test model definitions.
 
-Split from test_test_models.mojo per ADR-009 to avoid Mojo heap corruption.
 
 Coverage:
     - SimpleCNN initialization and forward pass
