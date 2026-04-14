@@ -9,16 +9,22 @@ runs:
       run: touch "$HOME/.gitconfig"
 
     - name: Export runner UID/GID
+      id: uid
       shell: bash
       run: |
         echo "USER_ID=$(id -u)" >> "$GITHUB_ENV"
         echo "GROUP_ID=$(id -g)" >> "$GITHUB_ENV"
+        echo "user_id=$(id -u)" >> "$GITHUB_OUTPUT"
 
     - name: Cache container image tar
       uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306  # v5
       with:
         path: /tmp/podman-image-cache
-        key: container-image-${{ hashFiles('Dockerfile', 'pixi.toml', 'pixi.lock') }}
+        # UID is included so a cached image built with USER_ID=1000 is never
+        # reused on a runner where id -u returns 1001.  Mismatched UID causes
+        # /home/dev to be unwritable inside the container, which triggers
+        # __fortify_fail_abort in libKGENCompilerRTShared.so during JIT init.
+        key: container-image-uid${{ steps.uid.outputs.user_id }}-${{ hashFiles('Dockerfile', 'pixi.toml', 'pixi.lock') }}
 
     - name: Start Podman socket
       shell: bash
