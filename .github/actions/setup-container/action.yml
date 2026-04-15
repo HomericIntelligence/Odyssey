@@ -46,6 +46,42 @@ runs:
           podman save -o /tmp/podman-image-cache/dev.tar projectodyssey:dev
         fi
 
+    - name: Seed workspace-pixi volume from image layer
+      shell: bash
+      run: |
+        # The workspace-pixi named volume starts empty on each CI runner.  When
+        # empty, the entrypoint runs `pixi install` from scratch, which triggers
+        # a massive JIT compilation that overflows libKGENCompilerRTShared.so's
+        # internal buffer (__fortify_fail_abort).
+        #
+        # Seed the volume BEFORE starting the dev container so the entrypoint's
+        # `[ -x .pixi/envs/default/bin/mojo ]` check passes and pixi install is
+        # skipped.  Mount the volume at /mnt/pixi-seed (not /workspace/.pixi) so
+        # the image's baked-in /workspace/.pixi layer is accessible for copying.
+        #
+        # The volume name is prefixed with the Compose project name (lowercase
+        # directory name): projectodyssey_workspace-pixi.
+        VOLUME_NAME="projectodyssey_workspace-pixi"
+        # Create volume if it doesn't exist yet
+        podman volume create "$VOLUME_NAME" 2>/dev/null || true
+        # Check if already seeded (mojo binary present)
+        SEEDED=$(podman run --rm \
+          --user root \
+          -v "${VOLUME_NAME}:/mnt/pixi-seed" \
+          projectodyssey:dev \
+          bash -c "test -x /mnt/pixi-seed/envs/default/bin/mojo && echo yes || echo no")
+        if [ "$SEEDED" = "no" ]; then
+          echo "Seeding workspace-pixi volume from image layer..."
+          podman run --rm \
+            --user root \
+            -v "${VOLUME_NAME}:/mnt/pixi-seed" \
+            projectodyssey:dev \
+            bash -c "cp -a /workspace/.pixi/. /mnt/pixi-seed/"
+          echo "Seeding complete."
+        else
+          echo "workspace-pixi volume already seeded — skipping."
+        fi
+
     - name: Start container
       shell: bash
       run: podman compose up -d projectodyssey-dev
