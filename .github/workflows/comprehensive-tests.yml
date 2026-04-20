@@ -312,7 +312,6 @@ jobs:
           - name: "Benchmarking"
             path: "tests/shared/benchmarking"
             pattern: "test_*.mojo"
-          # ---- Integration tests (segfault-prone on CI, kept non-blocking) ----
           - name: "Integration Tests"
             path: "tests/shared/integration"
             pattern: "test_*.mojo"
@@ -352,7 +351,6 @@ jobs:
             path: "tests/examples"
             pattern: "test_*.mojo"
           # ---- Core type system ----
-          # Mojo JIT crashes on CI runners — non-blocking pending investigation.
           - name: "Core Types & Fuzz"
             path: "tests/core/types"
             pattern: "test_*.mojo"
