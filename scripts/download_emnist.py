@@ -6,6 +6,5 @@
 from hephaestus.datasets.downloader import EMNISTDownloader, EMNIST_SPLITS, main  # noqa: F401
 
 if __name__ == "__main__":
-    import sys
     from hephaestus.datasets.downloader import main
-    sys.exit(main())
+    main()

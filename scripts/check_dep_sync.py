@@ -7,5 +7,5 @@ from hephaestus.config.dep_sync import *  # noqa: F401,F403
 
 if __name__ == "__main__":
     import sys
-    from hephaestus.config.dep_sync import main
+    from hephaestus.config.dep_sync import check_dep_sync_main as main
     sys.exit(main())

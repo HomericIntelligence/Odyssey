@@ -7,5 +7,5 @@ from hephaestus.ci.precommit import *  # noqa: F401,F403
 
 if __name__ == "__main__":
     import sys
-    from hephaestus.ci.precommit import main
+    from hephaestus.ci.precommit import check_precommit_versions_main as main
     sys.exit(main())
