@@ -135,7 +135,7 @@ When multiple `mojo` processes run concurrently on GitHub Actions free runners
 **Measured findings (from `investigate_import_threshold.sh`):**
 
 | Variable | Impact on RSS |
-|----------|---------------|
+| -------- | ------------- |
 | Monomorphization count (1–300) | None (all ~330MB RSS) |
 | Line count (50–1000 concrete fns) | None |
 | Module-level vs per-function imports | None (same ~330MB RSS) |
@@ -149,6 +149,7 @@ shorter compile time means fewer processes overlap in time, reducing peak memory
 pressure across the runner's 7GB.
 
 **Fix options (in order of impact):**
+
 1. Reduce parallel CI jobs competing for memory (e.g., `max-parallel: 2`)
 2. Use larger GitHub Actions runners (16GB) for Mojo test matrix
 3. Per-function imports in library modules still help by reducing compilation time
