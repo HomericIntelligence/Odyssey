@@ -1,92 +1,34 @@
 #!/usr/bin/env bash
-# Investigates the JIT import chain threshold that triggers the crash.
+# Investigates what triggers the Mojo JIT crash:
+#   - Is it monomorphization count (parametric fn × DType variants)?
+#   - Is it line count?
+#   - Is it both?
+#   - Is it import chain depth into real modules?
 #
-# Strategy: Generate synthetic Mojo modules of increasing size and measure
-# at what transitive import depth / total lines the crash occurs.
+# All Experiment 1/2/3 tests are SINGLE-FILE (no cross-file imports needed).
+# Experiment 4 uses real ProjectOdyssey modules (requires just build first).
 #
-# Run this inside the Podman container: just shell, then bash repro/investigate_import_threshold.sh
+# Run from the repo root with mojo in PATH:
+#   export PATH=/path/to/.pixi/envs/default/bin:$PATH
+#   bash repro/investigate_import_threshold.sh
 #
-# Expected output:
-#   depth=1 size=500   -> PASS
-#   depth=1 size=1000  -> PASS
-#   depth=1 size=1500  -> CRASH  <-- threshold found
-#   depth=2 size=500   -> PASS
-#   depth=2 size=1000  -> CRASH  <-- threshold found for 2-level chain
-#   ...
-#
-# Results feed directly into a Mojo bug report with exact reproduction parameters.
+# Expected output shows at what threshold the JIT crashes.
 
 set -euo pipefail
 
-REPRO_DIR="$(cd "$(dirname "$0")" && pwd)"
 TMP_DIR="$(mktemp -d /tmp/mojo-import-threshold-XXXXXX)"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 echo "=== Mojo JIT Import Chain Threshold Investigation ==="
+echo "Mojo: $(mojo --version 2>&1)"
+echo "GLIBC: $(ldd --version 2>&1 | head -1)"
 echo "Tmp dir: $TMP_DIR"
 echo ""
-
-# Generate a synthetic Mojo module with N lines of real (non-trivial) functions
-generate_module() {
-    local name="$1"
-    local n_funcs="$2"
-    local imports="$3"  # optional import line to include at module level
-    local out="$TMP_DIR/${name}.mojo"
-
-    {
-        echo '"""Synthetic heavy module: '"$name"' ('"$n_funcs"' functions)."""'
-        echo ""
-        echo "from std.collections import List"
-        echo "from std.memory import UnsafePointer"
-        if [ -n "$imports" ]; then
-            echo "$imports"
-        fi
-        echo ""
-
-        for i in $(seq 1 "$n_funcs"); do
-            echo "def ${name}_op_${i}(x: Int) -> Int:"
-            echo "    # Function $i: simulate real computation"
-            echo "    var a = x * $i"
-            echo "    var b = a + $((i * 7))"
-            echo "    var c = b - $((i * 3))"
-            # Add some local state to increase IR volume
-            for j in 1 2 3 4 5; do
-                echo "    var v${j} = c + $((i * j))"
-            done
-            echo "    return v1 + v2 + v3 + v4 + v5"
-            echo ""
-        done
-    } > "$out"
-    echo "$out"
-}
-
-# Generate a test file that imports from a chain
-generate_test() {
-    local chain_top="$1"  # module to import from
-    local out="$TMP_DIR/test_threshold.mojo"
-
-    {
-        echo '"""Test file for import chain threshold."""'
-        echo ""
-        echo "from ${chain_top} import ${chain_top}_op_1"
-        echo ""
-        echo "def test_basic() raises:"
-        echo "    var result = ${chain_top}_op_1(42)"
-        echo "    print('result:', result)"
-        echo ""
-        echo "def main() raises:"
-        echo "    print('Running: test_basic')"
-        echo "    test_basic()"
-        echo "    print('PASS')"
-    } > "$out"
-    echo "$out"
-}
 
 run_test() {
     local test_file="$1"
     local label="$2"
 
-    # Run with timeout to catch hangs; capture both stdout+stderr
     if timeout 30 mojo run "$test_file" >/dev/null 2>&1; then
         echo "  $label -> PASS"
         return 0
@@ -102,65 +44,213 @@ run_test() {
 }
 
 # ============================================================
-# Experiment 1: Single module at various sizes
+# Experiment 1: Single parametric fn, varying DType variants
+# Each DType callsite = one monomorphization
 # ============================================================
-echo "--- Experiment 1: Single-level import at various sizes ---"
-for n_funcs in 10 20 50 100 200 500; do
-    mod_file=$(generate_module "heavy_single" "$n_funcs" "")
-    test_file=$(generate_test "heavy_single")
-    run_test "$test_file" "depth=1 funcs=$n_funcs (~$((n_funcs * 8)) lines)"
+echo "--- Experiment 1: Monomorphization count (1 fn × N dtypes) ---"
+
+gen_mono_test() {
+    local n_dtypes="$1"
+    local out="$TMP_DIR/test_mono_${n_dtypes}.mojo"
+
+    # List of dtype/value pairs
+    local dtypes=("float32:Float32:1.0" "float64:Float64:2.0" "int32:Int32:3" "int64:Int64:4"
+                  "uint8:UInt8:5" "int8:Int8:6" "int16:Int16:7" "uint16:UInt16:8"
+                  "uint32:UInt32:9" "uint64:UInt64:10" "float16:Float16:1.0" "bool:Bool:1")
+
+    {
+        echo 'from std.memory import UnsafePointer'
+        echo ''
+        echo 'fn typed_sum[dtype: DType](ptr: UnsafePointer[Scalar[dtype], MutAnyOrigin], n: Int) -> Scalar[dtype]:'
+        echo '    var total = Scalar[dtype](0)'
+        echo '    for i in range(n):'
+        echo '        total += ptr[i]'
+        echo '    return total'
+        echo ''
+        echo 'def main() raises:'
+
+        for i in $(seq 0 $((n_dtypes - 1))); do
+            local entry="${dtypes[$i]}"
+            local mojo_dtype="${entry%%:*}"
+            local rest="${entry#*:}"
+            local scalar_type="${rest%%:*}"
+            local val="${rest##*:}"
+            echo "    var a${i} = UnsafePointer[${scalar_type}].alloc(16)"
+            echo "    for j in range(16): a${i}[j] = ${scalar_type}(${val})"
+            echo "    _ = typed_sum[DType.${mojo_dtype}](a${i}, 16)"
+            echo "    a${i}.free()"
+        done
+        echo '    print("PASS")'
+    } > "$out"
+    echo "$out"
+}
+
+for n in 1 2 4 6 8 10 12; do
+    f=$(gen_mono_test "$n")
+    run_test "$f" "1 fn × $n DType variants = $n monomorphizations"
 done
 
 # ============================================================
-# Experiment 2: Two-level chain (test -> B -> A)
+# Experiment 2: N parametric fns, fixed DType set
 # ============================================================
 echo ""
-echo "--- Experiment 2: Two-level import chain ---"
-for n_funcs in 10 50 100 200; do
-    mod_a=$(generate_module "heavy_a" "$n_funcs" "")
-    mod_b=$(generate_module "heavy_b" "$n_funcs" "from heavy_a import heavy_a_op_1")
-    test_file=$(generate_test "heavy_b")
-    run_test "$test_file" "depth=2 funcs_per_level=$n_funcs (~$((n_funcs * 8 * 2)) lines total)"
+echo "--- Experiment 2: Function count (N fns × 10 dtypes) ---"
+
+gen_nfn_test() {
+    local n_fns="$1"
+    local out="$TMP_DIR/test_nfn_${n_fns}.mojo"
+    local dtypes=("float32:Float32:1.0" "float64:Float64:2.0" "int32:Int32:3" "int64:Int64:4"
+                  "uint8:UInt8:5" "int8:Int8:6" "int16:Int16:7" "uint16:UInt16:8"
+                  "uint32:UInt32:9" "uint64:UInt64:10")
+
+    {
+        echo 'from std.memory import UnsafePointer'
+        echo ''
+
+        for i in $(seq 1 "$n_fns"); do
+            echo "fn typed_op_${i}[dtype: DType](ptr: UnsafePointer[Scalar[dtype], MutAnyOrigin], n: Int) -> Scalar[dtype]:"
+            echo '    var total = Scalar[dtype](0)'
+            echo '    for j in range(n):'
+            echo "        total += ptr[j] * Scalar[dtype]($i)"
+            echo '    return total'
+            echo ''
+        done
+
+        echo 'def main() raises:'
+
+        for i in $(seq 1 "$n_fns"); do
+            for entry in "${dtypes[@]}"; do
+                local mojo_dtype="${entry%%:*}"
+                local rest="${entry#*:}"
+                local scalar_type="${rest%%:*}"
+                local val="${rest##*:}"
+                echo "    var a_fn${i}_${mojo_dtype} = UnsafePointer[${scalar_type}].alloc(8)"
+                echo "    for j in range(8): a_fn${i}_${mojo_dtype}[j] = ${scalar_type}(${val})"
+                echo "    _ = typed_op_${i}[DType.${mojo_dtype}](a_fn${i}_${mojo_dtype}, 8)"
+                echo "    a_fn${i}_${mojo_dtype}.free()"
+            done
+        done
+
+        echo '    print("PASS")'
+    } > "$out"
+    echo "$out"
+}
+
+for n_fns in 1 2 5 10 14 20 30; do
+    f=$(gen_nfn_test "$n_fns")
+    local_mono=$((n_fns * 10))
+    run_test "$f" "$n_fns fns × 10 dtypes = $local_mono monomorphizations"
 done
 
 # ============================================================
-# Experiment 3: Three-level chain (test -> C -> B -> A)
+# Experiment 3: Large single-file line count (no generics)
+# Tests whether raw line count matters independent of generics
 # ============================================================
 echo ""
-echo "--- Experiment 3: Three-level import chain ---"
-for n_funcs in 10 50 100 200; do
-    mod_a=$(generate_module "heavy_aa" "$n_funcs" "")
-    mod_b=$(generate_module "heavy_bb" "$n_funcs" "from heavy_aa import heavy_aa_op_1")
-    mod_c=$(generate_module "heavy_cc" "$n_funcs" "from heavy_bb import heavy_bb_op_1")
-    test_file=$(generate_test "heavy_cc")
-    run_test "$test_file" "depth=3 funcs_per_level=$n_funcs (~$((n_funcs * 8 * 3)) lines total)"
+echo "--- Experiment 3: Raw line count (no generics) ---"
+
+gen_linecount_test() {
+    local n_fns="$1"
+    local out="$TMP_DIR/test_lines_${n_fns}.mojo"
+
+    {
+        echo 'from std.memory import UnsafePointer'
+        echo ''
+
+        for i in $(seq 1 "$n_fns"); do
+            echo "def concrete_fn_${i}(x: Float32) -> Float32:"
+            echo "    var a = x * Float32($i)"
+            echo "    var b = a + Float32($((i + 1)))"
+            echo "    var c = b - Float32($((i * 2)))"
+            echo "    var d = c * Float32(0.5)"
+            echo "    var e = d + Float32(0.1)"
+            echo "    return e"
+            echo ''
+        done
+
+        echo 'def main() raises:'
+        for i in $(seq 1 "$n_fns"); do
+            echo "    _ = concrete_fn_${i}(Float32($i))"
+        done
+        echo '    print("PASS")'
+    } > "$out"
+    echo "$out"
+}
+
+for n_fns in 10 50 100 200 500 1000; do
+    f=$(gen_linecount_test "$n_fns")
+    approx_lines=$((n_fns * 8))
+    run_test "$f" "$n_fns concrete fns (~$approx_lines lines, 0 generics)"
 done
 
 # ============================================================
-# Experiment 4: Real-world sizes (matching ProjectOdyssey modules)
+# Experiment 4: Real ProjectOdyssey module imports
+# Tests whether cross-module imports at module level crash
+# Requires: MOJO_PACKAGE_PATH pointing to built shared package
 # ============================================================
 echo ""
-echo "--- Experiment 4: Real-world module sizes ---"
-# Simulates: test -> loss_utils (~335 lines) -> elementwise (1650) -> dtype_dispatch (1520)
-mod_dtype=$(generate_module "synth_dtype_dispatch" "150" "")  # ~1500 lines
-mod_elem=$(generate_module "synth_elementwise" "130" "from synth_dtype_dispatch import synth_dtype_dispatch_op_1")  # ~1650 lines
-mod_loss=$(generate_module "synth_loss_utils" "35" "from synth_elementwise import synth_elementwise_op_1")  # ~335 lines
-test_file=$(generate_test "synth_loss_utils")
-run_test "$test_file" "real-world: loss_utils->elementwise->dtype_dispatch chain"
+echo "--- Experiment 4: Real cross-module import chains ---"
+echo "  (Skipping if shared package not built)"
 
-# Simulates: test -> reduction (~1255) -> shape (1371)
-mod_shape=$(generate_module "synth_shape" "130" "")  # ~1371 lines
-mod_reduction=$(generate_module "synth_reduction" "120" "from synth_shape import synth_shape_op_1")  # ~1255 lines
-test_file=$(generate_test "synth_reduction")
-run_test "$test_file" "real-world: reduction->shape chain"
+PROJ_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SHARED_PKG="$PROJ_ROOT/build/shared.mojopkg"
+
+if [ ! -f "$SHARED_PKG" ]; then
+    echo "  SKIP: $SHARED_PKG not found. Run 'just build' first."
+else
+    # Test 1: Module-level import of reduction (-> shape 1371 lines)
+    cat > "$TMP_DIR/test_real_reduction.mojo" << 'MOJO'
+from shared.core.reduction import sum as reduce_sum
+def test() raises:
+    from shared.tensor.any_tensor import ones
+    var t = ones(List[Int](4), DType.float32)
+    _ = reduce_sum(t)
+    print("PASS")
+def main() raises:
+    test()
+MOJO
+    timeout 30 mojo run -I "$PROJ_ROOT/build" "$TMP_DIR/test_real_reduction.mojo" >/dev/null 2>&1 \
+        && echo "  reduction module-level import -> PASS" \
+        || echo "  reduction module-level import -> CRASH"
+
+    # Test 2: Module-level import of loss_utils (-> elementwise 1650 -> dtype_dispatch 1520)
+    cat > "$TMP_DIR/test_real_loss_utils.mojo" << 'MOJO'
+from shared.core.loss_utils import clip_predictions
+def test() raises:
+    from shared.tensor.any_tensor import ones
+    var t = ones(List[Int](4), DType.float32)
+    _ = clip_predictions(t)
+    print("PASS")
+def main() raises:
+    test()
+MOJO
+    timeout 30 mojo run -I "$PROJ_ROOT/build" "$TMP_DIR/test_real_loss_utils.mojo" >/dev/null 2>&1 \
+        && echo "  loss_utils module-level import -> PASS" \
+        || echo "  loss_utils module-level import -> CRASH"
+
+    # Test 3: Per-function imports (fixed version)
+    cat > "$TMP_DIR/test_real_perfn.mojo" << 'MOJO'
+def test() raises:
+    from shared.core.reduction import sum as reduce_sum
+    from shared.core.loss_utils import clip_predictions
+    from shared.tensor.any_tensor import ones
+    var t = ones(List[Int](4), DType.float32)
+    _ = reduce_sum(t)
+    _ = clip_predictions(t)
+    print("PASS")
+def main() raises:
+    test()
+MOJO
+    timeout 30 mojo run -I "$PROJ_ROOT/build" "$TMP_DIR/test_real_perfn.mojo" >/dev/null 2>&1 \
+        && echo "  per-function imports (fixed) -> PASS" \
+        || echo "  per-function imports (fixed) -> CRASH"
+fi
 
 echo ""
 echo "=== Investigation complete ==="
 echo ""
-echo "Note: If all experiments PASS, the crash depends on:"
-echo "  1. Parametric monomorphizations (dtype_dispatch has 176+) — not just line count"
-echo "  2. System state / memory fragmentation at test start"
-echo "  3. Combination of many test files in same mojo test session (accumulation)"
-echo ""
-echo "Next step: Run with 'mojo test' instead of 'mojo run' to test the"
-echo "test-runner accumulation hypothesis."
+echo "Key interpretation:"
+echo "  Exp 1 crash -> monomorphization count alone triggers crash"
+echo "  Exp 2 crash at N fns -> threshold is N*10 monomorphizations"
+echo "  Exp 3 crash at N lines -> raw line count triggers crash (no generics needed)"
+echo "  Exp 4 shows whether real module imports crash vs per-function imports pass"
