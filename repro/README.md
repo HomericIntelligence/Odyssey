@@ -149,6 +149,7 @@ shorter compile time means fewer processes overlap in time, reducing peak memory
 pressure across the runner's 7GB.
 
 **Fix options (in order of impact):**
+
 1. Reduce parallel CI jobs competing for memory (e.g., `max-parallel: 2`)
 2. Use larger GitHub Actions runners (16GB) for Mojo test matrix
 3. Per-function imports in library modules still help by reducing compilation time
