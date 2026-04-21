@@ -13,7 +13,6 @@ maintaining internal state.
 
 from shared.tensor.any_tensor import AnyTensor, ones_like, zeros_like, full_like
 from .arithmetic import add, subtract, multiply, divide
-from .elementwise import log, clip, abs
 from .comparison import less, greater
 from .dtype_cast import cast_tensor
 
@@ -46,6 +45,7 @@ def clip_predictions(
             var log_pred = log(clipped)  # Safe to take log now
             ```
     """
+    from .elementwise import clip
     return clip(predictions, epsilon, 1.0 - epsilon)
 
 
