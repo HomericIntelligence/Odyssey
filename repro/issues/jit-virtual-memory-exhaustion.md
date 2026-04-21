@@ -1,4 +1,4 @@
-# Mojo JIT maps ~3.7GB virtual address space per compiler invocation
+# Mojo JIT maps ~3.5GB virtual address space per compiler invocation
 
 ## Environment
 
@@ -8,46 +8,78 @@
 
 ## Summary
 
-Every `mojo run` / `mojo build` invocation maps approximately **3.7GB of virtual
+Every `mojo run` / `mojo build` invocation maps approximately **3.5GB of virtual
 address space** regardless of the source file's complexity. This exceeds the
 available virtual address space on GitHub Actions free-tier runners (7GB total)
 when multiple `mojo` processes run concurrently, causing OOM crashes.
 
 ## Reproduction
 
-```bash
-# Crashes with <3.7GB virtual memory limit
-ulimit -v 3500000  # 3.5GB
-mojo run repro/repro_hello.mojo  # even "def main(): print('hello')" crashes
+Requires Docker or Podman. The commands below use Podman — replace `podman` with
+`docker` if preferred.
 
-# Passes with ≥3.7GB virtual memory
-ulimit -v 4000000  # 4GB
-mojo run repro/repro_hello.mojo  # PASS
+```bash
+# 1. Clone the repo (contains the minimal reproducer and Dockerfile)
+git clone https://github.com/HomericIntelligence/ProjectOdyssey.git
+cd ProjectOdyssey
+REPO_ROOT="$(pwd)"
+
+# 2. Install the Mojo toolchain into the pixi environment
+pixi install
+
+# 3. Build the container image from the repo's Dockerfile
+podman build -t projectodyssey:repro .
+
+# 4. Crash case: virtual limit below mojo's reservation (~3.5GB)
+podman run --rm \
+  -v "$REPO_ROOT:$REPO_ROOT:z" \
+  --user "$(id -u):$(id -g)" \
+  projectodyssey:repro \
+  bash -c "ulimit -v 3500000 && MODULAR_HOME=$REPO_ROOT/.pixi/envs/default/share/max $REPO_ROOT/.pixi/envs/default/bin/mojo run $REPO_ROOT/repro/repro_hello.mojo"
+
+# Expected output:
+# JIT session error: Cannot allocate memory
+# mojo: error: Failed to materialize symbols: { (exec, { main }) }
+
+# 5. Pass case: virtual limit above mojo's reservation
+podman run --rm \
+  -v "$REPO_ROOT:$REPO_ROOT:z" \
+  --user "$(id -u):$(id -g)" \
+  projectodyssey:repro \
+  bash -c "ulimit -v 4000000 && MODULAR_HOME=$REPO_ROOT/.pixi/envs/default/share/max $REPO_ROOT/.pixi/envs/default/bin/mojo run $REPO_ROOT/repro/repro_hello.mojo"
+
+# Expected output:
+# hello
 ```
 
-The crash occurs even for trivially simple files:
+The minimal reproducer file (`repro/repro_hello.mojo`) contains only:
 
 ```mojo
-# repro/repro_hello.mojo
 def main() raises:
     print("hello")
 ```
 
-```bash
-$ ulimit -v 3500000 && mojo run repro/repro_hello.mojo
-# Crash in libKGENCompilerRTShared.so — no output produced
-```
-
 ## Measured Data
 
-Peak physical RSS (measured via /proc/$PID/status sampling):
-- Any `mojo run` invocation: ~330MB RSS
+VmPeak / VmRSS measured via `/proc/$PID/status` polling during a normal (no ulimit) run:
 
-Virtual address space (measured via ulimit -v threshold):
-- Crash threshold: < 3.7GB virtual
-- Safe threshold: ≥ 3.7GB virtual
+| Metric | Value |
+|--------|-------|
+| VmPeak (virtual peak) | 3,705,232 kB (~3.53 GB) |
+| VmRSS (physical RAM) | ~321,000 kB (~314 MB) |
+
+Virtual address space crash threshold (5 runs each):
+
+| `ulimit -v` (kB) | Pass rate | Notes |
+|------------------|-----------|-------|
+| 3,500,000 | 0/5 (0%) | Reliable crash — use for repro |
+| 3,700,000 | 1/5 (20%) | Non-deterministic (ASLR variance) |
+| 3,750,000 | 4/5 (80%) | Non-deterministic |
+| 3,800,000 | 5/5 (100%) | Reliable pass |
+| 4,000,000 | 5/5 (100%) | Reliable pass — use for repro |
 
 Source file characteristics that do NOT affect the threshold:
+
 - Line count (10 vs 1000 functions): same threshold
 - Monomorphization count (1 vs 300 DType variants): same threshold
 - Module-level vs per-function imports: same threshold
@@ -56,16 +88,27 @@ Source file characteristics that do NOT affect the threshold:
 ## Impact
 
 On GitHub Actions free-tier runners (7GB total RAM, 2 cores):
+
 - OS + runner + pixi env ≈ 2-3GB
 - Available for `mojo` processes: 4-5GB
-- If 2+ concurrent `mojo` processes overlap (each needing 3.7GB virtual):
-  combined demand: 7.4GB+ → OOM crash
+- If 2+ concurrent `mojo` processes overlap (each needing ~3.5GB virtual):
+  combined demand: 7GB+ → OOM crash
 
 This affects any workflow that runs Mojo tests in a matrix with parallel jobs.
 
-## Stack Trace (from crashing CI runs)
+## Error Message
 
+When the crash is triggered by `ulimit -v`, the output is:
+
+```text
+JIT session error: Cannot allocate memory
+mojo: error: Failed to materialize symbols: { (exec, { main }) }
 ```
+
+In CI without `ulimit`, the process is OOM-killed by the kernel and the signal
+is caught by `libKGENCompilerRTShared.so`, producing a stack trace like:
+
+```text
 #0  0x00007f9999f4d4ab in libKGENCompilerRTShared.so (+0x6d4ab)
 #1  0x00007f9999f4a686 in libKGENCompilerRTShared.so (+0x6a686)
 #2  0x00007f9999f4e157 in libKGENCompilerRTShared.so (+0x6e157)
@@ -81,8 +124,10 @@ This affects any workflow that runs Mojo tests in a matrix with parallel jobs.
 
 ## Notes
 
-- Physical RSS is only ~330MB even on complex files — the issue is **virtual** address
+- Physical RSS is only ~314MB even on complex files — the issue is **virtual** address
   space reservation by the JIT compiler, not actual physical memory usage
+- The non-determinism in the 3.7–3.75GB range is caused by ASLR shifting the base
+  addresses of mmap regions between runs
 - The crash is non-deterministic across CI runs depending on runner load and job overlap
 - Related to #6187 (runtime allocator crash) but distinct cause: this is JIT initialization
   mapping virtual pages, not a use-after-free
