@@ -1,12 +1,6 @@
 # AUTO-GENERATED from pixi.toml — do not edit manually.
-# Regenerate with: python scripts/sync_requirements.py
+# Regenerate with: hephaestus-sync-requirements
 # These files exist for pip-only contexts (Docker, CI fallback).
 
 -r requirements.txt
 
-pre-commit==4.5.1  # Pre-commit hooks
-safety==3.7.0  # Security scanning
-bandit==1.9.4  # Security scanning
-mkdocs==1.6.1  # Documentation
-mkdocs-material==9.7.6  # Documentation
-pytest-benchmark==5.2.3  # Benchmarking
