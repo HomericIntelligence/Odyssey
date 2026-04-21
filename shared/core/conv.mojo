@@ -13,8 +13,6 @@ from std.algorithm import parallelize
 from std.collections import List
 
 from shared.tensor.any_tensor import AnyTensor, zeros
-from .arithmetic import add
-from .reduction import sum as reduce_sum
 from .shape import conv2d_output_shape, as_contiguous
 from .gradient_types import (
     GradientPair,
@@ -1344,7 +1342,7 @@ def depthwise_separable_conv2d(
         depthwise_output, pointwise_kernel, bias, stride=1, padding=0
     )
 
-    return output
+    return output^
 
 
 def depthwise_separable_conv2d_no_bias(
