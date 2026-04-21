@@ -28,7 +28,6 @@ References:
 """
 
 from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.core.shape import concatenate
 from shared.data.formats import load_cifar10_batch
 from std.collections import List
 
@@ -269,7 +268,7 @@ struct CIFAR10Dataset(Copyable, Movable):
         if len(tensors) == 1:
             return tensors[0]
 
-        # Use concatenate function to join all tensors along axis 0
+        from shared.core.shape import concatenate
         return concatenate(tensors, axis=0)
 
     def get_class_name(self, class_idx: Int) raises -> String:
