@@ -23,5 +23,3 @@ runs:
           ~/.pixi/bin
           ~/.cache/rattler/cache
         key: pixi-${{ runner.os }}-${{ hashFiles('pixi.lock') }}
-        restore-keys: |
-          pixi-${{ runner.os }}-
