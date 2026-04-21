@@ -267,7 +267,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install pyyaml
+        run: pip install pyyaml "homericintelligence-hephaestus>=0.7.0,<1"
 
       - name: Install hephaestus
         run: pip install "homericintelligence-hephaestus>=0.7.0,<1"
