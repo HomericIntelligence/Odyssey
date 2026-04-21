@@ -18,23 +18,23 @@ when multiple `mojo` processes run concurrently, causing OOM crashes.
 ```bash
 # Crashes with <3.7GB virtual memory limit
 ulimit -v 3500000  # 3.5GB
-mojo run test_any.mojo  # even "def main(): print('hi')" crashes
+mojo run repro/repro_hello.mojo  # even "def main(): print('hello')" crashes
 
 # Passes with ≥3.7GB virtual memory
 ulimit -v 4000000  # 4GB
-mojo run test_any.mojo  # PASS
+mojo run repro/repro_hello.mojo  # PASS
 ```
 
 The crash occurs even for trivially simple files:
 
 ```mojo
-# test_hello.mojo
+# repro/repro_hello.mojo
 def main() raises:
     print("hello")
 ```
 
 ```bash
-$ ulimit -v 3500000 && mojo run test_hello.mojo
+$ ulimit -v 3500000 && mojo run repro/repro_hello.mojo
 # Crash in libKGENCompilerRTShared.so — no output produced
 ```
 

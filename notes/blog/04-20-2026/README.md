@@ -32,8 +32,8 @@ pure **virtual address space exhaustion**.
 **Reproducible command:**
 
 ```bash
-ulimit -v 3500000 && mojo run hello.mojo  # crash
-ulimit -v 4000000 && mojo run hello.mojo  # pass
+ulimit -v 3500000 && mojo run repro/repro_hello.mojo  # crash
+ulimit -v 4000000 && mojo run repro/repro_hello.mojo  # pass
 ```
 
 Filed upstream: [modular/modular#6433](https://github.com/modular/modular/issues/6433)
@@ -226,7 +226,7 @@ The crash threshold is between 3.34 GB and 3.53 GB. The process needs approximat
 This is the minimal reproducer:
 
 ```bash
-ulimit -v 3500000 && mojo run hello.mojo  # crash
+ulimit -v 3500000 && mojo run repro/repro_hello.mojo  # crash
 ```
 
 Works on any Mojo file. Even an empty one.
