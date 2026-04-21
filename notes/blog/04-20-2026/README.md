@@ -29,11 +29,17 @@ compete for virtual address space → one of them loses → crash in
 Physical RAM usage? ~330 MB. The crash has nothing to do with memory pressure. It is
 pure **virtual address space exhaustion**.
 
-**Reproducible command:**
+**Reproducible command sequence** (requires Podman or Docker):
 
 ```bash
-ulimit -v 3500000 && mojo run repro/repro_hello.mojo  # crash
-ulimit -v 4000000 && mojo run repro/repro_hello.mojo  # pass
+git clone https://github.com/HomericIntelligence/ProjectOdyssey.git
+cd ProjectOdyssey && REPO_ROOT="$(pwd)"
+pixi install
+podman build -t projectodyssey:repro .
+# Crash:
+podman run --rm -v "$REPO_ROOT:$REPO_ROOT:z" --user "$(id -u):$(id -g)" projectodyssey:repro bash -c "ulimit -v 3500000 && MODULAR_HOME=$REPO_ROOT/.pixi/envs/default/share/max $REPO_ROOT/.pixi/envs/default/bin/mojo run $REPO_ROOT/repro/repro_hello.mojo"
+# Pass:
+podman run --rm -v "$REPO_ROOT:$REPO_ROOT:z" --user "$(id -u):$(id -g)" projectodyssey:repro bash -c "ulimit -v 4000000 && MODULAR_HOME=$REPO_ROOT/.pixi/envs/default/share/max $REPO_ROOT/.pixi/envs/default/bin/mojo run $REPO_ROOT/repro/repro_hello.mojo"
 ```
 
 Filed upstream: [modular/modular#6433](https://github.com/modular/modular/issues/6433)
@@ -223,7 +229,8 @@ more virtual space than the limit allows, the kernel kills it with a signal — 
 The crash threshold is between 3.34 GB and 3.53 GB. The process needs approximately
 **3.5 GB of virtual address space** to initialize — before it compiles a single function.
 
-This is the minimal reproducer:
+This is the minimal reproducer (see `repro/issues/jit-virtual-memory-exhaustion.md` for
+the full self-contained command sequence including clone, pixi install, and container build):
 
 ```bash
 ulimit -v 3500000 && mojo run repro/repro_hello.mojo  # crash
