@@ -17,8 +17,8 @@ from shared.testing import (
     compute_numerical_gradient,
 )
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, randn
-from shared.core import shape
-from shared.core import matrix
+from shared.core.shape import as_contiguous
+from shared.core.matrix import transpose_view
 
 
 # ============================================================================
@@ -93,7 +93,7 @@ def test_gradient_check_transposed_input() raises:
     var x = full(shape_2d, 2.0, DType.float32)
 
     # Transpose to create non-contiguous view: 3x2 with modified strides
-    var x_transposed = matrix.transpose_view(x)
+    var x_transposed = transpose_view(x)
 
     # Verify it's non-contiguous
     assert_false(x_transposed.is_contiguous(), "Transposed tensor should be non-contiguous")
@@ -123,7 +123,7 @@ def test_gradient_check_transposed_relu() raises:
     x._set_float64(3, -0.5)
 
     # Transpose to create non-contiguous view
-    var x_transposed = matrix.transpose_view(x)
+    var x_transposed = transpose_view(x)
     assert_false(
         x_transposed.is_contiguous(),
         "Transposed tensor should be non-contiguous",
@@ -152,7 +152,7 @@ def test_gradient_check_partial_transpose() raises:
     # Permute axes (0, 2, 1) -> shape becomes (2, 2, 3)
     # This creates a non-contiguous layout
     var axes: List[Int] = [0, 2, 1]
-    var x_permuted = matrix.transpose_view(x, axes^)
+    var x_permuted = transpose_view(x, axes^)
 
     assert_false(
         x_permuted.is_contiguous(),
@@ -178,10 +178,10 @@ def test_gradient_check_contiguous_copy() raises:
     # Create transposed tensor (non-contiguous)
     var shape_2d = [2, 3]
     var x = full(shape_2d, 1.5, DType.float32)
-    var x_transposed = matrix.transpose_view(x)
+    var x_transposed = transpose_view(x)
 
     # Convert to contiguous
-    var x_contiguous = shape.as_contiguous(x_transposed)
+    var x_contiguous = as_contiguous(x_transposed)
     assert_true(
         x_contiguous.is_contiguous(),
         "Tensor should be contiguous after as_contiguous()",
@@ -206,7 +206,7 @@ def test_numerical_gradient_noncont() raises:
     # Create a small transposed tensor
     var shape_2d = [2, 3]
     var x = full(shape_2d, 2.0, DType.float32)
-    var x_transposed = matrix.transpose_view(x)
+    var x_transposed = transpose_view(x)
 
     assert_false(x_transposed.is_contiguous(), "Tensor should be non-contiguous")
 
@@ -240,7 +240,7 @@ def test_gradient_check_verbose_noncont() raises:
     # Create small tensor
     var shape_2d = [2, 2]
     var x = full(shape_2d, 1.0, DType.float32)
-    var x_transposed = matrix.transpose_view(x)
+    var x_transposed = transpose_view(x)
 
     assert_false(x_transposed.is_contiguous(), "Tensor should be non-contiguous")
 
