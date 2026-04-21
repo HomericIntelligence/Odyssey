@@ -120,29 +120,45 @@ Pattern: Test files with 30+ functions and heavy alloc/free operations crash dur
   but triggered by compilation volume rather than runtime behavior
 - Status: Use issue template `issues/jit-compilation-volume-crash.md` to file with Modular
 
-### Category 4: Module-Level Import Chain Explosion (Deterministic)
+### Category 4: CI Virtual Memory Exhaustion (Environment-Dependent)
 
-Pattern: A test file imports a library module that has heavy module-level imports,
-causing the full transitive chain to be compiled at module load time. Crashes
-consistently because the same chain is compiled every run.
+Pattern: `mojo` JIT compiler maps ~3.7GB virtual address space per invocation.
+When multiple `mojo` processes run concurrently on GitHub Actions free runners
+(7GB RAM), they compete for virtual address space and crash.
 
-- Reproducers: `repro_module_import_crash.mojo` (crash), `repro_module_import_crash_fixed.mojo` (pass)
-- Stack trace: `libKGENCompilerRTShared.so+0x6d4ab → +0x6a686 → +0x6e157`
-- Deterministic: **Yes** (crashes every run with the same import chain)
-- Key distinction from Category 2: Crash occurs during module compilation
-  (parse time), not during runtime alloc/free churn. Moving imports into
-  function bodies eliminates the crash completely.
-- Root cause: The Mojo JIT compiler has a fixed-size internal buffer for
-  compilation units. When module-level imports pull in a transitive chain
-  exceeding this buffer (identified: ~4500+ lines across chain), the buffer
-  overflows before any test code executes.
+- Reproducers: `repro_module_import_crash.mojo`, `repro_parametric_monomorphization_crash.mojo`
+- Stack trace: `libKGENCompilerRTShared.so+0x6d4ab → +0x6a686 → +0x6e157` (OOM signal)
+- Deterministic: **Environment-dependent** — passes locally on 16GB RAM, crashes on 7GB
+- Reproduction: `ulimit -v 3500000 && mojo run test_conv.mojo` → crashes
+- NOT a bug in: import chain structure, monomorphization count, or line count
+
+**Measured findings (from `investigate_import_threshold.sh`):**
+
+| Variable | Impact on RSS |
+|----------|---------------|
+| Monomorphization count (1–300) | None (all ~330MB RSS) |
+| Line count (50–1000 concrete fns) | None |
+| Module-level vs per-function imports | None (same ~330MB RSS) |
+| Virtual address space per `mojo` process | Always ~3.7GB virtual |
+| Crash threshold (ulimit -v) | <3.7GB crashes, ≥3.7GB passes |
+
+**Why per-function imports help (indirectly):**
+Per-function imports reduce **compilation time** (fewer symbols compiled upfront),
+which shortens the window when a `mojo` process is alive. On CI with parallel jobs,
+shorter compile time means fewer processes overlap in time, reducing peak memory
+pressure across the runner's 7GB.
+
+**Fix options (in order of impact):**
+1. Reduce parallel CI jobs competing for memory (e.g., `max-parallel: 2`)
+2. Use larger GitHub Actions runners (16GB) for Mojo test matrix
+3. Per-function imports in library modules still help by reducing compilation time
+4. Split test groups so fewer test files run in the same CI job
+
 - Known triggering chains in ProjectOdyssey:
-  - `loss_utils → elementwise (1650 lines) → dtype_dispatch (1520 lines)` = 3170 lines
-  - `reduction/conv/pooling/matrix → shape (1371 lines)` = 1371 lines per importer
-- Fix: Move heavy imports from module level into the function bodies that use them.
-  Per-function imports are compiled lazily (only when called), not at module load time.
-- Investigation: `investigate_import_threshold.sh` binary-searches the threshold.
-- Status: **Need to file upstream with Modular** — distinct from existing issue #6187
+  - `reduction/conv/pooling/matrix → shape (1371 lines)` = long compile time per importer
+  - `loss_utils → elementwise (1650 lines) → dtype_dispatch (1520 lines)` = longest chain
+- Status: **Root cause confirmed** — file with Modular as JIT memory baseline issue (#6187
+  related); workaround is per-function imports to reduce compile time per process
 
 ### Category 3: ASAN + Python FFI dlsym Conflict
 
