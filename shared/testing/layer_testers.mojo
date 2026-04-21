@@ -51,10 +51,11 @@ Usage:
 
 from std.math import isnan, isinf
 from shared.tensor.any_tensor import AnyTensor, zeros_like, ones_like
-from shared.core.conv import conv2d, conv2d_output_shape, conv2d_backward
+from shared.core.conv import conv2d, conv2d_backward
+from shared.core.shape import conv2d_output_shape, pool_output_shape
 from shared.core.linear import linear, linear_backward
 from shared.core.normalization import batch_norm2d, batch_norm2d_backward
-from shared.core.pooling import maxpool2d, avgpool2d, pool_output_shape
+from shared.core.pooling import maxpool2d, avgpool2d
 from shared.core.reduction import sum as tensor_sum
 from shared.core.activation import (
     relu,
