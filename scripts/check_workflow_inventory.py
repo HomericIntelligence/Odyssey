@@ -7,5 +7,5 @@ from hephaestus.ci.workflows import *  # noqa: F401,F403
 
 if __name__ == "__main__":
     import sys
-    from hephaestus.ci.workflows import main
+    from hephaestus.ci.workflows import check_workflow_inventory_main as main
     sys.exit(main())
