@@ -11,7 +11,6 @@ Layer 3 (core): Tensor[dtype] native implementation via parametric kernels
 
 from std.collections import List
 from shared.tensor.any_tensor import AnyTensor
-from .shape import as_contiguous
 from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,
@@ -70,6 +69,7 @@ def _dispatch_reduce_all[
 ](result: AnyTensor, tensor: AnyTensor, numel: Int) raises:
     """Generic runtime dispatch for reduction over all elements."""
     # Ensure input is contiguous before flat-buffer kernel access.
+    from .shape import as_contiguous
     var t = tensor if tensor.is_contiguous() else as_contiguous(tensor)
     var dt = t.dtype()
     if dt == DType.float16:
@@ -127,6 +127,7 @@ def _dispatch_reduce_axis[
 ) raises:
     """Generic runtime dispatch for reduction along axis."""
     # Ensure input is contiguous before flat-buffer kernel access.
+    from .shape import as_contiguous
     var t = tensor if tensor.is_contiguous() else as_contiguous(tensor)
     var dt = t.dtype()
     if dt == DType.float16:

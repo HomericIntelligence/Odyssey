@@ -19,7 +19,6 @@ from shared.testing.assertions import assert_true
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.normalization import batch_norm2d, batch_norm2d_backward
 from shared.core.arithmetic import multiply
-from shared.core.reduction import sum as reduce_sum
 
 
 # ---- Batch norm input gradient (captures gamma, beta, running_mean, running_var) ----
