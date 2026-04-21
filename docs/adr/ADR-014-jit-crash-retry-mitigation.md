@@ -4,10 +4,8 @@
 issue filing is now the approach for persistent JIT crashes. See `repro/` directory for minimal
 reproducers and upstream issue [modular/modular#6187](https://github.com/modular/modular/issues/6187).
 
-> **ADR-015 (2026-04-12)**: ADR-015 extends the corrective actions by committing to actually
-> removing `scripts/test-with-retry.sh` from the tree (it is still wired in `justfile:664` and
-> `justfile:829` despite this ADR's SUPERSEDED status) and executing a targeted import audit
-> on the two required-check test groups (`Core Types & Fuzz`, `Integration Tests`).
+> **ADR-015 (2026-04-12)**: Retry machinery fully removed by PR #5254 (2026-04-12).
+> ADR-015 subsumes all corrective-action tracking for JIT-related CI instability.
 > See [ADR-015](ADR-015-flaky-required-checks-jit-crash.md) for the full decision record.
 
 **Date**: 2026-03-25
@@ -44,7 +42,7 @@ The same test file may pass or crash depending on ASLR, memory layout, and JIT c
 ### What Has Already Been Done
 
 | Approach | Result |
-|----------|--------|
+| -------- | ------ |
 | Targeted submodule imports (ADR-009 era) | Reduced frequency but didn't eliminate |
 | ADR-009 file splitting | No longer needed (bitcast UAF resolved) |
 | `@always_inline` on helpers | Made things worse (reverted) |
@@ -90,7 +88,7 @@ indicates a harder problem (possibly a real compilation issue). Configurable via
 **Exit codes**:
 
 | Code | Meaning | Retried? |
-|------|---------|----------|
+| ---- | ------- | -------- |
 | 0 | Test passed | First attempt or after retry |
 | 1 | Real test failure | Never |
 | 2 | JIT crash persisted | Yes, once |
@@ -138,7 +136,7 @@ time without improving pass rates.
 ## Files Modified
 
 | File | Change |
-|------|--------|
+| ---- | ------ |
 | `scripts/test-with-retry.sh` | New -- core retry logic |
 | `justfile` | `_test-group-inner` and `_test-mojo-inner` use retry wrapper |
 | `.github/workflows/comprehensive-tests.yml` | Comment documenting retry mechanism |
@@ -165,6 +163,6 @@ time without improving pass rates.
 
 ## Revision History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2026-03-25 | Claude Code | Initial ADR documenting retry mitigation |
+| Version | Date       | Author      | Changes                                   |
+| ------- | ---------- | ----------- | ----------------------------------------- |
+| 1.0     | 2026-03-25 | Claude Code | Initial ADR documenting retry mitigation  |

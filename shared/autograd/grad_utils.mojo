@@ -16,7 +16,6 @@ Note:
 References:
     - On the difficulty of training Recurrent Neural Networks (Pascanu et al., 2013)
       https://arxiv.org/abs/1211.1541
-    - ADR-009: Heap Corruption Workaround
     - Issue #4513: AnyTensor circular type resolution
 """
 

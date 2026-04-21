@@ -2,6 +2,10 @@
 
 **Status**: Resolved (2026-03-20)
 
+**Resolution**: Bitcast UAF fixed by ADR-013 (Mojo 0.25.x runtime fix). No active workarounds
+remain in tree. Last `# ADR-009` annotation removed; all test files use standard isolation
+grouping for parallelism/timeout management only.
+
 **Date**: 2025-12-30
 
 **Issue Reference**: [Issue #3120](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3120)

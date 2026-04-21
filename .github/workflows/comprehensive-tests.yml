@@ -231,7 +231,8 @@ jobs:
     timeout-minutes: 15  # Job timeout for all matrix groups. Monitor wall-clock times after
                           # consolidating test files. If any group consistently takes >10 min,
                           # split it into two separate entries. See Issue #3357 for monitoring
-                          # guidance and ADR-009 for heap corruption splitting constraints.
+                          # guidance. Test groups are isolated for parallel execution and
+                          # job-timeout management.
     strategy:
       fail-fast: false  # Run all test groups even if one fails
       max-parallel: 2  # Each mojo invocation maps ~3.6 GB virtual address space (VmPeak).
@@ -258,15 +259,12 @@ jobs:
             path: "tests/shared/core"
             pattern: "test_losses.mojo test_loss_funcs*.mojo test_loss_utils.mojo"
           # ---- Gradient math ----
-          # Mojo JIT crashes (libKGENCompilerRTShared.so) on CI runners.
-          # Non-blocking pending Mojo runtime fix.
           - name: "Core Gradient"
             path: "tests/shared/core"
             pattern: "test_backward*.mojo test_gradient*.mojo test_variable_backward*.mojo test_depthwise_conv*.mojo"
-          # ---- Core Utilities (split into A/B/C/D per Issue #4116 and ADR-009) ----
+          # ---- Core Utilities (split into A/B/C/D per Issue #4116) ----
           # Previously a single group with 91 files. Split to reduce per-job
-          # wall-clock time, improve failure isolation, and stay within ADR-009
-          # heap corruption safety margins.
+          # wall-clock time and improve failure isolation.
           # Glob wildcards are supported and preferred — use them where practical
           # so that new test files are auto-discovered without manual CI updates.
           # ---- Core Utilities A: General utilities, validation, bitwise, integration ----
@@ -336,13 +334,11 @@ jobs:
           #   - fixtures/test_*.mojo: ✓ (2+ test files)
           #   - training/test_*.mojo: ✓ (11+ test files)
           #   - testing/test_*.mojo: ✓ (10+ test files)
-          # Mojo JIT crashes on CI runners — non-blocking pending investigation.
           - name: "Shared Infra & Testing"
             path: "tests/shared"
             pattern: "test_imports*.mojo test_data_generators.mojo test_model_utils.mojo test_serialization.mojo utils/test_*.mojo fixtures/test_*.mojo training/test_*.mojo testing/test_*.mojo"
           # ---- Model layer tests (the main PR-blocking test suite) ----
           # test_*.mojo glob auto-discovers all model tests without requiring manual CI updates.
-          # Mojo JIT crashes on CI runners — non-blocking pending investigation.
           - name: "Models"
             path: "tests/models"
             pattern: "test_*.mojo"
