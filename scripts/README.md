@@ -29,6 +29,8 @@ The following one-time scripts were removed in #3337 (stale audit follow-up to #
 - `merge_backward_tests.py` - Duplicate approach to merge backward-tests branch
 - `bisect_heap_test.py` - Git bisect artifact for heap corruption investigation (ADR-009); issue resolved
 - `run_bisect_heap.sh` - Shell wrapper for `bisect_heap_test.py`; same reasoning
+- `check_test_count.py` - Enforced ≤10 tests per file per ADR-009 heap-corruption threshold; ADR-009 resolved 2026-03-20, limit removed
+- `validate_adr009_headers.py` - Validated ADR-009 split-file docstring headers; ADR-009 resolved 2026-03-20, headers no longer required
 - `fix-build-errors.py` - One-time autonomous repair script; targeted build errors already fixed
 - `batch_planning_docs.py` - One-time batch doc generation; planning now via GitHub issues directly
 - `add_delegation_to_agents.py` - One-time bulk agent attribute addition; completed
@@ -79,7 +81,6 @@ scripts/
 ├── rebase-all-prs.sh                   # Rebase all pull requests against main
 ├── regenerate_github_issues.py         # Dynamic issue file generation (deprecated)
 ├── update_version.py                   # Version bump helper
-├── validate_adr009_headers.py          # Validate ADR-009 split-file docstring headers
 ├── validate_configs.sh                 # Validate configuration files
 ├── validate_installation_anchors.py    # Validate anchor links to installation.md
 ├── validate_links.py                   # Markdown link validation
