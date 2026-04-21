@@ -197,7 +197,7 @@ of the two required status checks -- `Core Types & Fuzz` (path: `tests/core/type
 `Integration Tests` (path: `tests/shared/integration/`). Three consecutive `main` runs on
 2026-04-12 all failed in a different random subset of groups, confirming the classic
 non-deterministic JIT overflow pattern. See
-[`repro/issues/jit-compilation-volume-crash.md`](../../repro/issues/jit-compilation-volume-crash.md)
+[`repro/issues/jit-compilation-volume-crash.md`](https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/repro/issues/jit-compilation-volume-crash.md)
 for the 0.26.3 minimal reproducer.
 
 [ADR-015](../adr/ADR-015-flaky-required-checks-jit-crash.md) formalizes the corrective
