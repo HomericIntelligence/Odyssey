@@ -8,7 +8,6 @@ from std.algorithm import parallelize
 from std.collections import List
 
 from shared.tensor.any_tensor import AnyTensor, zeros
-from .shape import pool_output_shape
 from .parallel_utils import should_parallelize
 
 # max and min are now builtins in Mojo - no import needed
@@ -71,6 +70,7 @@ def maxpool2d(
     var actual_stride = stride if stride > 0 else kernel_size
 
     # Compute output dimensions using shape computation helper
+    from .shape import pool_output_shape
     var (out_h, out_w) = pool_output_shape(
         in_height, in_width, kernel_size, actual_stride, padding
     )
@@ -345,6 +345,7 @@ def avgpool2d(
     var actual_stride = stride if stride > 0 else kernel_size
 
     # Compute output dimensions using shape computation helper
+    from .shape import pool_output_shape
     var (out_h, out_w) = pool_output_shape(
         in_height, in_width, kernel_size, actual_stride, padding
     )

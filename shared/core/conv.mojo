@@ -13,7 +13,6 @@ from std.algorithm import parallelize
 from std.collections import List
 
 from shared.tensor.any_tensor import AnyTensor, zeros
-from .shape import conv2d_output_shape, as_contiguous
 from .gradient_types import (
     GradientPair,
     GradientTriple,
@@ -421,6 +420,7 @@ def conv2d(
         )
 
     # Compute output dimensions using shape computation helper
+    from .shape import conv2d_output_shape, as_contiguous
     var (out_h, out_w) = conv2d_output_shape(
         in_height, in_width, kH, kW, stride, padding
     )
@@ -780,6 +780,7 @@ def conv2d_backward(
     var out_width = grad_out_shape[3]
 
     # Ensure inputs are contiguous before flat-buffer kernel access.
+    from .shape import as_contiguous
     var grad_output_cont = (
         grad_output if grad_output.is_contiguous() else as_contiguous(grad_output)
     )
@@ -950,6 +951,7 @@ def depthwise_conv2d(
         )
 
     # Compute output dimensions
+    from .shape import conv2d_output_shape, as_contiguous
     var (out_h, out_w) = conv2d_output_shape(
         in_height, in_width, kH, kW, stride, padding
     )
@@ -1114,6 +1116,7 @@ def depthwise_conv2d_backward(
     var out_width = grad_out_shape[3]
 
     # Ensure inputs are contiguous before flat-buffer kernel access.
+    from .shape import as_contiguous
     var grad_output_cont = (
         grad_output if grad_output.is_contiguous() else as_contiguous(grad_output)
     )
