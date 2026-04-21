@@ -20,7 +20,6 @@ from std.collections import List
 from std.memory import memcpy
 from shared.tensor.any_tensor import AnyTensor
 from .gradient_types import GradientPair
-from .shape import as_contiguous
 from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     format_dtype_name,
@@ -823,6 +822,7 @@ def matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     # use direct flat-buffer indexing. For already-contiguous tensors we take
     # a shared-ownership copy (view) to avoid allocation; for non-contiguous
     # tensors (e.g. transpose views) we materialize a fresh contiguous copy.
+    from .shape import as_contiguous
     var a_cont: AnyTensor
     var b_cont: AnyTensor
     if a.is_contiguous():
