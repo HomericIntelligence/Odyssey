@@ -166,6 +166,23 @@ incorrect and misleading.
    **Verification**: Run CI on a branch with only import changes; compare crash rate over
    5+ runs.
 
+   **Action #1 Status (2026-04-20)**: Complete for identified package-level import files.
+   Three remaining offenders converted or moved to repro/ convention:
+
+   - `test_gradient_checker_noncont_tensors.mojo`: converted to targeted imports
+     (`from shared.core.shape import as_contiguous`,
+     `from shared.core.matrix import transpose_view`)
+   - `test_jit_crash_heavy_import.mojo`: moved to `repro/repro_jit_heavy_import_test.mojo`
+     (it IS the crash reproducer; keeping package-level import is intentional)
+   - `test_top_level_optimizer_imports.mojo`: retained with ADR-015 comment
+     (validates public API contract; converting would defeat its purpose)
+
+   Residual crash category: crashes observed in Core Layers group even with targeted
+   imports applied. Tracked in `repro/issues/jit-targeted-imports-still-crashes.md`.
+   New reproducer added at `repro/repro_jit_targeted_imports_crash.mojo` to isolate
+   whether crashes are still import-volume-triggered or have a different root cause.
+   **Next review**: after 10 consecutive main runs post-merge.
+
 2. **[HIGH] Remove retry script** -- Delete `scripts/test-with-retry.sh`. Replace its two
    justfile call sites (`_test-group-inner`, `_test-mojo-inner`) with a direct `pixi run mojo`
    invocation. Also remove `tests/smoke/test_retry_script.py` (validates the now-deleted
