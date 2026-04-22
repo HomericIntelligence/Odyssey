@@ -298,8 +298,7 @@ issue #5108):
   (SUPERSEDED; retry script still wired pending this ADR's action #2)
 - [`docs/dev/mojo-jit-crash-workaround.md`](../dev/mojo-jit-crash-workaround.md) --
   Import explosion root cause, Symbol-to-Submodule Mapping, diagnostic table
-- [`repro/issues/jit-compilation-volume-crash.md`](https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/repro/issues/jit-compilation-volume-crash.md) --
-  0.26.3 minimal reproducer
+- [`repro/issues/jit-compilation-volume-crash.md`][jit-crash-repro] -- 0.26.3 minimal reproducer
 - [modular/modular#6187](https://github.com/modular/modular/issues/6187) -- Upstream
   Mojo bug (cited in ADR-014 and workaround doc)
 - [modular/modular#6413](https://github.com/modular/modular/issues/6413) -- Upstream
@@ -321,3 +320,5 @@ issue #5108):
 | Version | Date | Author | Changes |
 | --- | --- | --- | --- |
 | 1.0 | 2026-04-12 | Claude Code | Initial ADR documenting root cause and corrective actions |
+
+[jit-crash-repro]: https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/repro/issues/jit-compilation-volume-crash.md
