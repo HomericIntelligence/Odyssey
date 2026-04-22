@@ -8,7 +8,7 @@ Official docs: <https://docs.modular.com/mojo/manual/>
 ## When to Use Mojo vs Python
 
 | Use Case | Language | Reason |
-|----------|----------|--------|
+| -------- | -------- | ------ |
 | ML/AI implementations | Mojo (required) | Performance, type safety |
 | Performance-critical code | Mojo (required) | SIMD, optimization |
 | Subprocess output capture | Python (allowed) | Mojo v0.26.3 limitation |
@@ -22,7 +22,7 @@ Official docs: <https://docs.modular.com/mojo/manual/>
 ### Parameter Conventions
 
 | Convention | Use For | Example |
-|------------|---------|---------|
+| ---------- | ------- | ------- |
 | `out self` | Constructors | `fn __init__(out self, value: Int)` |
 | `mut self` | Mutating methods | `fn modify(mut self)` |
 | `read` (default) | Read-only access | `fn get(self) -> Int` |
@@ -31,7 +31,7 @@ Official docs: <https://docs.modular.com/mojo/manual/>
 ### Deprecated Patterns
 
 | Wrong | Correct | Notes |
-|-------|---------|-------|
+| ----- | ------- | ----- |
 | `borrowed self` | `self` | Deprecated keyword |
 | `inout self` | `mut self` | Deprecated keyword |
 | `@value` | `@fieldwise_init` + traits | Add `(Copyable, Movable)` |

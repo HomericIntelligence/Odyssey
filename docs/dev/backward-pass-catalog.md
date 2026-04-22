@@ -1179,7 +1179,7 @@ Backward pass (per sample, same three-term structure):
 ### Key Differences from batch_norm2d_backward
 
 | Property | batch_norm2d | layer_norm |
-|----------|-------------|------------|
+| -------- | ----------- | ---------- |
 | Normalizes over | N, H, W (across batch+spatial) | feature dims (per sample) |
 | Running statistics | YES (training/inference modes) | NO |
 | gamma shape | `(C,)` | matches feature dims |
@@ -1210,7 +1210,7 @@ NO — gamma is broadcast over the batch dimension via per-sample loops.
 ## SUMMARY TABLE: All Backward Pass Functions
 
 | Module | Function | Count | Broadcasting | Stability | Shape Reduction | Complexity |
-|--------|----------|-------|--------------|-----------|-----------------|-----------|
+| ------ | -------- | ----- | ------------ | --------- | --------------- | ---------- |
 | arithmetic | _reduce_broadcast_dims | Helper | YES | - | YES | Medium |
 | arithmetic | add_backward | 1 | YES | - | YES | Low |
 | arithmetic | subtract_backward | 2 | YES | - | YES | Low |
