@@ -152,34 +152,6 @@ higher memory pressure than a single test file produces. The targeted import fix
 the correct defensive measure -- it reduces compilation footprint by ~95% per test file,
 which lowers the probability of hitting the JIT buffer overflow regardless of environment.
 
-## Per-File Retry Mitigation (2026-03-25)
-
-Despite targeted imports reducing JIT crash frequency, the crash still occurs non-deterministically
-in CI (~40-60% of runs have at least one crash). Since this is an upstream Mojo 0.26.1 compiler
-bug ([modular/modular#6187](https://github.com/modular/modular/issues/6187)), we added a per-file
-retry mechanism that detects JIT crashes and retries the affected test file once.
-
-**How it works**:
-
-- `scripts/test-with-retry.sh` wraps each `pixi run mojo` invocation
-- If the test exits non-zero AND output contains `execution crashed`, retry once
-- If the test exits non-zero without `execution crashed`, fail immediately (real test failure)
-- If the retry also crashes, report as JIT crash failure (exit code 2)
-- The justfile `_test-group-inner` and `_test-mojo-inner` recipes call this wrapper
-
-**Key property**: Real test failures (assertion errors, compile errors) are **never retried**.
-Only the JIT crash signature triggers a retry.
-
-**Exit codes from `scripts/test-with-retry.sh`**:
-
-| Code | Meaning |
-| ---- | ------- |
-| 0 | Test passed (first attempt or after retry) |
-| 1 | Real test failure (not retried) |
-| 2 | JIT crash persisted after retry |
-
-See [ADR-014](../adr/ADR-014-jit-crash-retry-mitigation.md) for the full decision record.
-
 ## References
 
 - [Issue #5108](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5108) -- JIT crash comprehensive tracking
