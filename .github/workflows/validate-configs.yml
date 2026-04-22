@@ -269,6 +269,9 @@ jobs:
       - name: Install dependencies
         run: pip install pyyaml
 
+      - name: Install hephaestus
+        run: pip install "homericintelligence-hephaestus>=0.7.0,<1"
+
       - name: Validate agent configurations
         run: python3 tests/agents/validate_configs.py .claude/agents/
 
