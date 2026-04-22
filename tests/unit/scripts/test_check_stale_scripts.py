@@ -6,12 +6,10 @@ from pathlib import Path
 # Allow importing from scripts/
 sys.path.insert(0, str(Path(__file__).parents[3] / "scripts"))
 from check_stale_scripts import (
-    ALWAYS_ACTIVE,
-    find_references,
-    find_stale_candidates,
+    check_stale_scripts,
+    find_stale_scripts,
     get_all_scripts,
     get_reference_targets,
-    main,
 )
 
 
@@ -37,19 +35,19 @@ class TestGetAllScripts:
         """get_all_scripts returns only *.py basenames."""
         scripts_dir = _make_scripts_dir(tmp_path, ["foo.py", "bar.py"])
         (scripts_dir / "not_python.sh").write_text("", encoding="utf-8")
-        result = get_all_scripts(scripts_dir)
+        result = get_all_scripts(scripts_dir, extensions=(".py",))
         assert result == ["bar.py", "foo.py"]
 
     def test_empty_dir(self, tmp_path: Path) -> None:
         """Empty scripts dir returns empty list."""
         scripts_dir = tmp_path / "scripts"
         scripts_dir.mkdir()
-        assert get_all_scripts(scripts_dir) == []
+        assert get_all_scripts(scripts_dir, extensions=(".py",)) == []
 
     def test_sorted(self, tmp_path: Path) -> None:
         """Results are alphabetically sorted."""
         scripts_dir = _make_scripts_dir(tmp_path, ["z.py", "a.py", "m.py"])
-        assert get_all_scripts(scripts_dir) == ["a.py", "m.py", "z.py"]
+        assert get_all_scripts(scripts_dir, extensions=(".py",)) == ["a.py", "m.py", "z.py"]
 
 
 class TestGetReferenceTargets:
@@ -82,101 +80,63 @@ class TestGetReferenceTargets:
         assert targets == []
 
 
-class TestFindReferences:
-    def test_found_in_justfile(self, tmp_path: Path) -> None:
-        """Returns True when script name appears in justfile."""
-        scripts_dir = _make_scripts_dir(tmp_path, ["my_script.py"])
-        justfile = tmp_path / "justfile"
-        justfile.write_text("python scripts/my_script.py\n", encoding="utf-8")
-        assert find_references("my_script.py", [justfile], scripts_dir) is True
-
-    def test_not_found_anywhere(self, tmp_path: Path) -> None:
-        """Returns False when script name is absent from all targets."""
-        scripts_dir = _make_scripts_dir(tmp_path, ["orphan.py"])
-        justfile = tmp_path / "justfile"
-        justfile.write_text("python scripts/other_script.py\n", encoding="utf-8")
-        assert find_references("orphan.py", [justfile], scripts_dir) is False
-
-    def test_self_reference_not_counted(self, tmp_path: Path) -> None:
-        """Appearance of script name inside its own file does not count."""
-        scripts_dir = _make_scripts_dir(tmp_path, ["self_ref.py"])
-        # Write the script name into its own body
-        (scripts_dir / "self_ref.py").write_text("# self_ref.py — this is the script itself\n", encoding="utf-8")
-        assert find_references("self_ref.py", [scripts_dir / "self_ref.py"], scripts_dir) is False
-
-    def test_cross_script_reference(self, tmp_path: Path) -> None:
-        """Returns True when script name is mentioned in another script."""
-        scripts_dir = _make_scripts_dir(tmp_path, ["util.py", "caller.py"])
-        (scripts_dir / "caller.py").write_text(
-            "import subprocess\nsubprocess.run(['python', 'scripts/util.py'])\n", encoding="utf-8"
-        )
-        all_targets = list(scripts_dir.glob("*.py"))
-        assert find_references("util.py", all_targets, scripts_dir) is True
-
-
-class TestFindStaleCandidates:
+class TestFindStaleScripts:
     def test_all_referenced_returns_empty(self, tmp_path: Path) -> None:
         """No candidates when every script appears in justfile."""
         scripts = ["foo.py", "bar.py"]
         justfile_content = "python scripts/foo.py\npython scripts/bar.py\n"
         repo = _make_repo(tmp_path, scripts, justfile_content)
-        assert find_stale_candidates(repo) == []
+        assert find_stale_scripts(repo) == []
 
     def test_unreferenced_script_flagged(self, tmp_path: Path) -> None:
         """Script with no references is returned as a candidate."""
         scripts = ["active.py", "stale.py"]
         justfile_content = "python scripts/active.py\n"
         repo = _make_repo(tmp_path, scripts, justfile_content)
-        result = find_stale_candidates(repo)
+        result = find_stale_scripts(repo)
         assert "stale.py" in result
         assert "active.py" not in result
-
-    def test_always_active_excluded(self, tmp_path: Path) -> None:
-        """Scripts in ALWAYS_ACTIVE are never flagged."""
-        # Include ALWAYS_ACTIVE scripts plus one stale script
-        scripts = list(ALWAYS_ACTIVE) + ["stale.py"]
-        repo = _make_repo(tmp_path, scripts, justfile_content="")
-        result = find_stale_candidates(repo)
-        for name in ALWAYS_ACTIVE:
-            assert name not in result
-        # stale.py should be flagged (unless it self-references — it won't here)
-        assert "stale.py" in result
-
-    def test_self_reference_still_stale(self, tmp_path: Path) -> None:
-        """A script that only references itself is still considered stale."""
-        scripts_dir = _make_scripts_dir(tmp_path, ["self_only.py"])
-        # Write own name into its body — should not save it
-        (scripts_dir / "self_only.py").write_text("# self_only.py does something\n", encoding="utf-8")
-        result = find_stale_candidates(tmp_path)
-        assert "self_only.py" in result
 
     def test_empty_scripts_dir_returns_empty(self, tmp_path: Path) -> None:
         """Empty scripts directory returns no candidates."""
         _make_scripts_dir(tmp_path, [])
-        assert find_stale_candidates(tmp_path) == []
+        assert find_stale_scripts(tmp_path) == []
 
     def test_missing_scripts_dir_returns_empty(self, tmp_path: Path) -> None:
         """Missing scripts directory returns no candidates."""
-        assert find_stale_candidates(tmp_path) == []
+        assert find_stale_scripts(tmp_path) == []
+
+    def test_exclude_pattern_filters_scripts(self, tmp_path: Path) -> None:
+        """Scripts matching exclude_pattern are not flagged."""
+        _make_scripts_dir(tmp_path, ["download_mnist.py", "stale.py"])
+        result = find_stale_scripts(tmp_path, exclude_pattern="download_")
+        assert "download_mnist.py" not in result
 
 
-class TestMain:
+class TestCheckStaleScripts:
     def test_returns_zero_no_stale(self, tmp_path: Path) -> None:
-        """main() returns 0 when all scripts are referenced."""
+        """check_stale_scripts() returns 0 when all scripts are referenced."""
         (tmp_path / "scripts").mkdir()
         (tmp_path / "scripts" / "referenced.py").write_text("", encoding="utf-8")
         (tmp_path / "justfile").write_text("python scripts/referenced.py\n", encoding="utf-8")
-        result = main(["--repo-root", str(tmp_path)])
+        result = check_stale_scripts(tmp_path)
         assert result == 0
 
     def test_returns_zero_with_stale(self, tmp_path: Path) -> None:
-        """main() returns 0 even when stale candidates exist (warning only)."""
+        """check_stale_scripts() returns 0 even when stale candidates exist (warning only)."""
         (tmp_path / "scripts").mkdir()
         (tmp_path / "scripts" / "orphan.py").write_text("", encoding="utf-8")
-        result = main(["--repo-root", str(tmp_path)])
+        result = check_stale_scripts(tmp_path)
         assert result == 0
 
+    def test_returns_one_strict_with_stale(self, tmp_path: Path) -> None:
+        """check_stale_scripts() returns 1 in strict mode when stale scripts exist."""
+        (tmp_path / "scripts").mkdir()
+        (tmp_path / "scripts" / "orphan.py").write_text("", encoding="utf-8")
+        result = check_stale_scripts(tmp_path, strict=True)
+        assert result == 1
+
     def test_returns_zero_empty_repo(self, tmp_path: Path) -> None:
-        """main() returns 0 for a repo with no scripts."""
-        result = main(["--repo-root", str(tmp_path)])
+        """check_stale_scripts() returns 0 for a repo with no scripts."""
+        result = check_stale_scripts(tmp_path)
         assert result == 0
