@@ -22,6 +22,7 @@ from tests.shared.conftest import (
 from shared.testing.models import SimpleMLP
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.loss import mean_squared_error
+from shared.core.reduction import mean
 from shared.core.activation import softmax
 
 
@@ -81,7 +82,6 @@ def test_model_training_to_evaluation() raises:
         var output = model.forward(input_tensor)
 
         # Compute MSE loss
-        from shared.core.reduction import mean
         var squared_error = mean_squared_error(output, target_tensor)
         var loss = mean(squared_error, axis=0, keepdims=False)
 
@@ -508,7 +508,6 @@ def test_full_pipeline_integration() raises:
             var output = model.forward(train_inputs[sample_idx])
 
             # Compute loss
-            from shared.core.reduction import mean
             var mse = mean_squared_error(output, train_targets[sample_idx])
             var loss = mean(mse, axis=0, keepdims=False)
             epoch_loss += loss._get_float32(0)

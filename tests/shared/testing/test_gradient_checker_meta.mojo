@@ -47,7 +47,7 @@ def square_forward(x: AnyTensor) raises -> AnyTensor:
         x: Input tensor.
 
     Returns:
-        x^2: Element-wise squaring.
+        Squared result (x^2): Element-wise squaring.
     """
     var result = zeros_like(x)
     for i in range(x.numel()):
