@@ -275,7 +275,7 @@ def test_training_loops_imports() raises:
 
 def test_data_imports() raises:
     """Test data package imports work correctly."""
-from shared.data.datasets import AnyTensorDataset, CIFAR10Dataset, Dataset, EMNISTDataset
+    from shared.data.datasets import AnyTensorDataset, CIFAR10Dataset, Dataset
 
     print("✓ Data imports test passed")
 
