@@ -545,6 +545,9 @@ jobs:
             pip install -r requirements-dev.txt
           fi
 
+      - name: Install hephaestus
+        run: pip install "homericintelligence-hephaestus>=0.7.0,<1"
+
       - name: Run Python tests
         run: |
           mkdir -p test-results
