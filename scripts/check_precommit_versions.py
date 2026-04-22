@@ -56,10 +56,7 @@ def main() -> int:
         print("Pre-commit version drift detected:")
         for issue in issues:
             print(f"  - {issue}")
-        print(
-            "\nFix: update the rev in .pre-commit-config.yaml or the version "
-            "constraint in pixi.toml so they match."
-        )
+        print("\nFix: update the rev in .pre-commit-config.yaml or the version constraint in pixi.toml so they match.")
         return 1
 
     print("OK: all pre-commit hook versions are consistent with pixi.toml")
