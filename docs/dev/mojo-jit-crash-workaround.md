@@ -48,7 +48,7 @@ symbol-to-submodule mapping below.
 ## Symbol-to-Submodule Mapping
 
 | Symbol(s) | Submodule |
-|-----------|-----------|
+| --------- | --------- |
 | AnyTensor, zeros, ones, full, empty, arange, eye, linspace, ones_like, zeros_like, full_like, nan_tensor, inf_tensor, neg_inf_tensor, clone, item, diff, randn | `shared.core.any_tensor` |
 | reshape, squeeze, unsqueeze, expand_dims, flatten, ravel, concatenate, stack, split, tile, repeat, permute, is_contiguous, as_contiguous, view, broadcast_to, ... | `shared.core.shape` |
 | add, subtract, multiply, divide, floor_divide, modulo, power, multiply_scalar, \*\_backward | `shared.core.arithmetic` |
@@ -80,7 +80,7 @@ symbol-to-submodule mapping below.
 The key diagnostic is **where the crash appears relative to test output**:
 
 | Symptom | Cause |
-|---------|-------|
+| ------- | ----- |
 | `execution crashed` appears **before any test output** | Import explosion crash -- check import style |
 | `execution crashed` or segfault appears **after test output** | Likely a real test bug |
 | Specific assertion failure message | Real test bug -- investigate |
@@ -125,7 +125,7 @@ ADR-009 is no longer necessary. The `continue-on-error: true` workaround has bee
 `comprehensive-tests.yml`.
 
 | | JIT Crash (this doc) | Heap Corruption (ADR-009) |
-|-|---------------------|--------------------------|
+| - | ------------------- | ------------------------ |
 | **Trigger** | Package-level import compilation overflow | After exactly ~15 cumulative tests in one file |
 | **Output** | `execution crashed` before any test runs | Crash mid-run after test output |
 | **Root cause** | `__init__.mojo` import explosion -> monomorphization overflow | Cumulative allocations exceed JIT heap limit |
@@ -142,7 +142,7 @@ Two synthetic test files were created to isolate the import-style variable:
 ### Local Results (GLIBC 2.39, Mojo 0.26.1, WSL2 Linux 6.6.87)
 
 | Test | Runs | Pass | Crash | Crash Rate |
-|------|------|------|-------|------------|
+| ---- | ---- | ---- | ----- | ---------- |
 | Heavy (package-level) | 30 | 30 | 0 | 0% |
 | Light (targeted) | 30 | 30 | 0 | 0% |
 
@@ -173,7 +173,7 @@ Only the JIT crash signature triggers a retry.
 **Exit codes from `scripts/test-with-retry.sh`**:
 
 | Code | Meaning |
-|------|---------|
+| ---- | ------- |
 | 0 | Test passed (first attempt or after retry) |
 | 1 | Real test failure (not retried) |
 | 2 | JIT crash persisted after retry |
@@ -184,7 +184,8 @@ See [ADR-014](../adr/ADR-014-jit-crash-retry-mitigation.md) for the full decisio
 
 - [Issue #5108](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5108) -- JIT crash comprehensive tracking
 - [Issue #3330](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3330) -- Document JIT crash workaround
-- [Issue #3120](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3120) -- Core Loss test crashes (follow-up context)
+- [Issue #3120](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3120) --
+  Core Loss test crashes (follow-up context)
 - [ADR-009](../adr/ADR-009-heap-corruption-workaround.md) -- Heap corruption workaround (resolved 2026-03-20)
 - [ADR-014](../adr/ADR-014-jit-crash-retry-mitigation.md) -- JIT crash retry mitigation (SUPERSEDED)
 - [ADR-015](../adr/ADR-015-flaky-required-checks-jit-crash.md) -- Flaky required checks and corrective actions (2026-04-12)
