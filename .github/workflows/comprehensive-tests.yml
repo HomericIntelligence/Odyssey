@@ -235,9 +235,10 @@ jobs:
                           # job-timeout management.
     strategy:
       fail-fast: false  # Run all test groups even if one fails
-      max-parallel: 2  # Each mojo invocation maps ~3.6 GB virtual address space (VmPeak).
-                       # Free-tier runners have 7 GB total; >2 concurrent mojo processes
-                       # exhaust virtual address space and crash in libKGENCompilerRTShared.so.
+      max-parallel: 1  # Each mojo invocation maps ~3.6 GB virtual address space (VmPeak).
+                       # Free-tier runners have 7 GB total; 2 concurrent mojo processes exhaust
+                       # virtual address space and crash in libKGENCompilerRTShared.so.
+                       # Serializing to 1 parallel job eliminates the overlap entirely.
                        # See repro/issues/jit-virtual-memory-exhaustion.md and modular/modular#6433.
       matrix:
         test-group:

@@ -665,6 +665,7 @@ _test-group-inner path pattern:
             echo "Running: $test_file"
             test_count=$((test_count + 1))
 
+            ulimit -v unlimited 2>/dev/null || true
             pixi run mojo --Werror -I "$REPO_ROOT" -I . "$test_file" || test_exit=$?
             if [ "${test_exit:-0}" -eq 0 ]; then
                 passed_count=$((passed_count + 1))
