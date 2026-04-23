@@ -152,12 +152,19 @@ struct SpinLock(Copyable, Movable):
     def unlock(self):
         """Release the lock.
 
-        Atomically writes 0 to the lock word.  This is correct because the
-        lock() protocol guarantees that when we hold the lock the counter is
-        exactly 1 (only our increment), so an atomic store of 0 is equivalent
-        to a sequentially-consistent release without needing fetch_sub.
+        Uses fetch_add(-1) to decrement the counter from 1 to 0.  An atomic
+        store(0) would be WRONG under contention: if another thread has already
+        done fetch_add(1) and then fetch_add(-1) (undo) and that undo races
+        with our store(0), the counter can go to -1.  The spin condition
+        `load != 0` never sees 0 when counter is -1, causing all waiting
+        threads to spin forever (deadlock).
+
+        fetch_add(-1) is safe because the lock() protocol guarantees counter=1
+        when the holder calls unlock() (only one thread can hold, so only one
+        unmatched fetch_add(1) exists), making fetch_add(-1) always bring the
+        counter from exactly 1 to 0.
         """
-        Atomic[DType.int64].store(self._lock_word(), Int64(0))
+        _ = Atomic[DType.int64].fetch_add(self._lock_word(), Int64(-1))
 
     def __del__(deinit self):
         """Free the backing store."""
