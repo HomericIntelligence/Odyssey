@@ -1,0 +1,330 @@
+# Canonical required-checks workflow for the org-wide homeric-main-baseline ruleset.
+# This workflow defines the 9 canonical status-check contexts that branch protection
+# requires. All job name: strings are the EXACT context strings — do not rename.
+#
+# Reference implementation: HomericIntelligence/ProjectScylla _required.yml
+# Stack: Mixed Python + Mojo (pixi-managed), pytest for Python tests, mojo test for Mojo.
+name: Required Checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# One run per branch at a time; cancel any in-progress run when a new commit arrives.
+concurrency:
+  group: required-${{ github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # ── 1. lint ────────────────────────────────────────────────────────────────
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Install pre-commit
+        run: pixi run pip install pre-commit
+
+      - name: Cache pre-commit environments
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: |
+            pre-commit-${{ runner.os }}-
+
+      - name: Run pre-commit (all files, skip mojo-format)
+        # mojo-format is advisory/non-blocking due to Mojo 0.26.x formatter limitations —
+        # see docs/dev/mojo-glibc-compatibility.md. All other hooks are enforced.
+        run: SKIP=mojo-format pixi run pre-commit run --all-files --show-diff-on-failure
+
+      - name: Enforce no .__matmul__() call sites
+        run: |
+          violations=$(grep -rn '\.__matmul__(' . \
+            --include='*.mojo' --include='*.🔥' \
+            --exclude-dir='.pixi' --exclude-dir='.git' \
+            | grep -v 'fn __matmul__(' \
+            | grep -v '# __matmul__' \
+            | grep -v '__matmul__.*deprecated' || true)
+          if [ -n "$violations" ]; then
+            echo "::error::Found .__matmul__() call sites (use matmul(A, B) instead):"
+            echo "$violations"
+            exit 1
+          fi
+
+  # ── 2. unit-tests ──────────────────────────────────────────────────────────
+  unit-tests:
+    name: unit-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Check pre-commit vs pixi version drift
+        run: pixi run python scripts/check_precommit_versions.py
+
+      - name: Run Python unit tests
+        run: |
+          pixi run pytest tests/unit/ \
+            --override-ini="addopts=" \
+            -v --strict-markers \
+            --cov=scripts \
+            --cov-report=term-missing \
+            --cov-report=xml \
+            --junitxml=junit-unit.xml
+
+      - name: Upload test artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
+        with:
+          name: test-results-unit
+          path: |
+            coverage.xml
+            junit-unit.xml
+          retention-days: 7
+
+  # ── 3. integration-tests ───────────────────────────────────────────────────
+  integration-tests:
+    name: integration-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Run Python integration tests
+        # tests/integration/ contains architecture-level tests that validate
+        # the shared library and model implementations end-to-end without
+        # requiring live network access or external services.
+        run: |
+          pixi run pytest tests/integration/ \
+            --override-ini="addopts=" \
+            -v --strict-markers \
+            --junitxml=junit-integration.xml
+
+      - name: Validate YAML configs
+        # Secondary integration validator: ensures all YAML configs in configs/
+        # parse correctly and pass yamllint structure checks.
+        run: |
+          pixi run pip install yamllint
+          find configs/ -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null | \
+            sort | while read -r f; do
+              echo "Validating $f ..."
+              pixi run python3 -c "import yaml; yaml.safe_load(open('$f'))" || exit 1
+            done
+          echo "All config YAML files are valid."
+
+      - name: Upload test artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
+        with:
+          name: test-results-integration
+          path: junit-integration.xml
+          retention-days: 7
+
+  # ── 4. security/dependency-scan ────────────────────────────────────────────
+  security-dependency-scan:
+    name: security/dependency-scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install pip-audit
+        run: pip install pip-audit
+
+      - name: Run pip-audit against pyproject.toml dependencies
+        id: pip-audit
+        run: |
+          # Install project dependencies into a temporary venv so pip-audit can scan them
+          pip install setuptools wheel
+          pip install -e . --no-deps || true
+          pip-audit --skip-editable
+
+      - name: Post pip-audit summary
+        if: always()
+        env:
+          AUDIT_OUTCOME: ${{ steps.pip-audit.outcome }}
+        run: |
+          {
+            echo "## pip-audit Security Scan"
+            echo ""
+            if [ "$AUDIT_OUTCOME" = "success" ]; then
+              echo "No HIGH/CRITICAL vulnerabilities found."
+            else
+              echo "Vulnerabilities detected — see job logs for details."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ── 5. security/secrets-scan ───────────────────────────────────────────────
+  security-secrets-scan:
+    name: security/secrets-scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # Full history so gitleaks can scan all commits, not just HEAD.
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+        with:
+          fetch-depth: 0
+
+      - name: Install gitleaks
+        run: |
+          # Pinned to v8.30.0 — matches security.yml pin (see #3316)
+          GITLEAKS_VERSION="8.30.0"
+          wget -q "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "79a3ab579b53f71efd634f3aaf7e04a0fa0cf206b7ed434638d1547a2470a66e  gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | sha256sum --check
+          tar -xzf "gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          chmod +x gitleaks
+          sudo mv gitleaks /usr/local/bin/
+
+      - name: Run gitleaks
+        run: |
+          if [ -f .gitleaks.toml ]; then
+            gitleaks detect --source=. --config=.gitleaks.toml --verbose --exit-code=1
+          else
+            gitleaks detect --source=. --verbose --exit-code=1
+          fi
+
+  # ── 6. build ───────────────────────────────────────────────────────────────
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Build Python package (sdist + wheel)
+        # pixi.toml has no build task; use python -m build directly.
+        # The Mojo shared library is validated separately in build-validation.yml
+        # (requires the Mojo runtime / container setup).
+        run: |
+          pixi run pip install build
+          pixi run python -m build --no-isolation
+          ls -lh dist/
+
+  # ── 7. typecheck ───────────────────────────────────────────────────────────
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Install mypy and stubs
+        run: pixi run pip install mypy types-PyYAML
+
+      - name: Run mypy
+        # mypy.ini at repo root is the single source of truth for mypy config.
+        # Exclude generators/ due to module path ambiguity (same as pre-commit.yml).
+        run: |
+          pixi run mypy --exclude 'generators/' scripts/
+
+  # ── 8. schema-validation ───────────────────────────────────────────────────
+  schema-validation:
+    name: schema-validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install check-jsonschema
+        run: pip install check-jsonschema
+
+      - name: Validate workflow YAML schemas
+        run: |
+          find .github/workflows -name "*.yml" | sort | \
+            xargs check-jsonschema \
+              --schemafile https://json.schemastore.org/github-workflow
+
+      - name: Validate JSON schemas in schemas/
+        run: |
+          # Ensure every schema file in schemas/ is valid JSON
+          find schemas/ -name "*.json" 2>/dev/null | sort | while read -r f; do
+            echo "Checking $f ..."
+            python3 -c "import json, sys; json.load(open('$f'))" || exit 1
+          done
+          echo "All JSON schema files are valid."
+
+  # ── 9. deps/version-sync ───────────────────────────────────────────────────
+  deps-version-sync:
+    name: deps/version-sync
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: Cross-check pyproject.toml and pixi.toml versions
+        run: |
+          python3 - <<'EOF'
+          import tomllib, sys
+
+          with open("pyproject.toml", "rb") as f:
+              pyproject = tomllib.load(f)
+          with open("pixi.toml", "rb") as f:
+              pixi = tomllib.load(f)
+
+          pyproject_ver = pyproject.get("project", {}).get("version") or \
+                          pyproject.get("tool", {}).get("poetry", {}).get("version")
+          # pixi.toml stores version under [workspace] in this repo
+          pixi_ver = pixi.get("workspace", {}).get("version") or \
+                     pixi.get("package", {}).get("version")
+
+          print(f"pyproject.toml version : {pyproject_ver}")
+          print(f"pixi.toml version      : {pixi_ver}")
+
+          if pyproject_ver and pixi_ver and pyproject_ver != pixi_ver:
+              print(f"::error::Version mismatch: pyproject.toml={pyproject_ver}, pixi.toml={pixi_ver}")
+              sys.exit(1)
+          print("Versions are consistent.")
+          EOF
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Validate pixi.lock is up-to-date
+        run: |
+          if ! pixi install --locked 2>/dev/null; then
+            echo "::error::pixi.lock is stale — run 'pixi install' locally and commit pixi.lock"
+            exit 1
+          fi
