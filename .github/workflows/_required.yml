@@ -150,7 +150,7 @@ jobs:
   # ---------------------------------------------------------------------------
   # 4. security/dependency-scan — pip-audit + safety
   # ---------------------------------------------------------------------------
-  security/dependency-scan:
+  security-dependency-scan:
     name: security/dependency-scan
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -198,7 +198,7 @@ jobs:
   # ---------------------------------------------------------------------------
   # 5. security/secrets-scan — gitleaks (binary download, pinned SHA)
   # ---------------------------------------------------------------------------
-  security/secrets-scan:
+  security-secrets-scan:
     name: security/secrets-scan
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -308,7 +308,7 @@ jobs:
   # 9. deps/version-sync — pixi.toml is the single source of truth; validate
   #    consistency via the existing check_dep_sync.py script + version check
   # ---------------------------------------------------------------------------
-  deps/version-sync:
+  deps-version-sync:
     name: deps/version-sync
     runs-on: ubuntu-latest
     timeout-minutes: 5
