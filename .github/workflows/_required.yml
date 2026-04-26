@@ -345,4 +345,3 @@ jobs:
               sys.exit(1)
           print(f'pixi.toml version: {version}')
           "
-
