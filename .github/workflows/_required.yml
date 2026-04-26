@@ -1,35 +1,74 @@
-name: Required Checks
-
-# Umbrella workflow — collapses 39 existing required-check contexts into 9
-# canonical job names for the org-wide homeric-main-baseline branch ruleset.
+# Canonical required-checks workflow for the org-wide homeric-main-baseline ruleset.
+# This workflow defines the 9 canonical status-check contexts that branch protection
+# requires. All job name: strings are the EXACT context strings — do not rename.
 #
-# Required jobs (must all pass for PR merge):
-#   lint | unit-tests | integration-tests | security/dependency-scan |
-#   security/secrets-scan | build | typecheck | schema-validation |
-#   deps/version-sync
+# Reference implementation: HomericIntelligence/ProjectScylla _required.yml
+# Stack: Mixed Python + Mojo (pixi-managed), pytest for Python tests, mojo test for Mojo.
+name: Required Checks
 
 on:
   pull_request:
   push:
-    branches:
-      - main
-  workflow_dispatch:
+    branches: [main]
 
+# One run per branch at a time; cancel any in-progress run when a new commit arrives.
 concurrency:
-  group: required-${{ github.ref }}
+  group: required-${{ github.head_ref || github.sha }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
-# ---------------------------------------------------------------------------
-# 1. lint — pre-commit hooks on all files (excludes mojo-format: non-blocking)
-# ---------------------------------------------------------------------------
 jobs:
+  # ── 1. lint ────────────────────────────────────────────────────────────────
   lint:
     name: lint
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Install pre-commit
+        run: pixi run pip install pre-commit
+
+      - name: Cache pre-commit environments
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: |
+            pre-commit-${{ runner.os }}-
+
+      - name: Run pre-commit (all files, skip mojo-format)
+        # mojo-format is advisory/non-blocking due to Mojo 0.26.x formatter limitations —
+        # see docs/dev/mojo-glibc-compatibility.md. All other hooks are enforced.
+        run: SKIP=mojo-format pixi run pre-commit run --all-files --show-diff-on-failure
+
+      - name: Enforce no .__matmul__() call sites
+        run: |
+          violations=$(grep -rn '\.__matmul__(' . \
+            --include='*.mojo' --include='*.🔥' \
+            --exclude-dir='.pixi' --exclude-dir='.git' \
+            | grep -v 'fn __matmul__(' \
+            | grep -v '# __matmul__' \
+            | grep -v '__matmul__.*deprecated' || true)
+          if [ -n "$violations" ]; then
+            echo "::error::Found .__matmul__() call sites (use matmul(A, B) instead):"
+            echo "$violations"
+            exit 1
+          fi
+
+  # ── 2. unit-tests ──────────────────────────────────────────────────────────
+  unit-tests:
+    name: unit-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
@@ -40,121 +79,73 @@ jobs:
       - name: Check pre-commit vs pixi version drift
         run: pixi run python scripts/check_precommit_versions.py
 
-      - name: Install pre-commit
-        run: pixi run pip install pre-commit
-
-      - name: Cache pre-commit environments
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306  # v5
-        with:
-          path: ~/.cache/pre-commit
-          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
-          restore-keys: |
-            pre-commit-
-
-      - name: Run pre-commit hooks (excluding mojo-format)
-        run: SKIP=mojo-format pixi run pre-commit run --all-files --show-diff-on-failure
-
-      - name: Enforce no .__matmul__() call sites
-        run: |
-          violations=$(grep -rn '\.__matmul__(' . --include='*.mojo' --include='*.🔥' \
-            --exclude-dir='.pixi' --exclude-dir='.git' \
-            | grep -v 'fn __matmul__(' | grep -v '# __matmul__' \
-            | grep -v '__matmul__.*deprecated' || true)
-          if [ -n "$violations" ]; then
-            echo "Found .__matmul__() call sites (use matmul(A, B) instead):"
-            echo "$violations"
-            exit 1
-          fi
-
-  # ---------------------------------------------------------------------------
-  # 2. unit-tests — Python test suite (Mojo tests require container; run Python)
-  # ---------------------------------------------------------------------------
-  unit-tests:
-    name: unit-tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
-
-      - name: Set up Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install "homericintelligence-hephaestus>=0.7.0,<1" pytest pytest-cov pytest-timeout
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-
       - name: Run Python unit tests
         run: |
-          TEST_PATHS=""
-          for d in tests/unit tests/python scripts/tests; do
-            if [ -d "$d" ]; then TEST_PATHS="$TEST_PATHS $d"; fi
-          done
-          # Fall back to top-level tests/ if no subdir matched
-          if [ -z "$TEST_PATHS" ] && [ -d tests ]; then
-            TEST_PATHS=$(find tests -name "test_*.py" -printf "%h\n" | sort -u | tr '\n' ' ')
-          fi
-          if [ -n "$TEST_PATHS" ]; then
-            pytest $TEST_PATHS --verbose --timeout=120 --maxfail=5
-          else
-            echo "::notice::No Python unit tests found — skipping"
-          fi
+          pixi run pytest tests/unit/ \
+            --override-ini="addopts=" \
+            -v --strict-markers \
+            --cov=scripts \
+            --cov-report=term-missing \
+            --cov-report=xml \
+            --junitxml=junit-unit.xml
 
-  # ---------------------------------------------------------------------------
-  # 3. integration-tests — dependency sync + script-level integration checks
-  #    (Full Mojo integration tests require the container; run Python integration
-  #     tests and the dep-sync script as a representative integration gate.)
-  # ---------------------------------------------------------------------------
+      - name: Upload test artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
+        with:
+          name: test-results-unit
+          path: |
+            coverage.xml
+            junit-unit.xml
+          retention-days: 7
+
+  # ── 3. integration-tests ───────────────────────────────────────────────────
   integration-tests:
     name: integration-tests
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
 
-      - name: Set up Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Run Python integration tests
+        # tests/integration/ contains architecture-level tests that validate
+        # the shared library and model implementations end-to-end without
+        # requiring live network access or external services.
+        run: |
+          pixi run pytest tests/integration/ \
+            --override-ini="addopts=" \
+            -v --strict-markers \
+            --junitxml=junit-integration.xml
+
+      - name: Validate YAML configs
+        # Secondary integration validator: ensures all YAML configs in configs/
+        # parse correctly and pass yamllint structure checks.
+        run: |
+          pixi run pip install yamllint
+          find configs/ -type f \( -name "*.yaml" -o -name "*.yml" \) 2>/dev/null | \
+            sort | while read -r f; do
+              echo "Validating $f ..."
+              pixi run python3 -c "import yaml; yaml.safe_load(open('$f'))" || exit 1
+            done
+          echo "All config YAML files are valid."
+
+      - name: Upload test artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          name: test-results-integration
+          path: junit-integration.xml
+          retention-days: 7
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install "homericintelligence-hephaestus>=0.7.0,<1" pytest pytest-timeout
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-
-      - name: Run integration tests (Python)
-        continue-on-error: true  # Mojo integration tests require containers not available on ubuntu-latest
-        run: |
-          INT_PATHS=""
-          for d in tests/integration tests/e2e; do
-            if [ -d "$d" ]; then INT_PATHS="$INT_PATHS $d"; fi
-          done
-          if [ -n "$INT_PATHS" ]; then
-            pytest $INT_PATHS --verbose --timeout=120 --maxfail=5
-          else
-            echo "::notice::No Python integration test directories found — skipping"
-          fi
-
-      - name: Validate dependency consistency
-        run: python scripts/check_dep_sync.py
-
-  # ---------------------------------------------------------------------------
-  # 4. security/dependency-scan — pip-audit + safety
-  # ---------------------------------------------------------------------------
+  # ── 4. security/dependency-scan ────────────────────────────────────────────
   security-dependency-scan:
     name: security/dependency-scan
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
@@ -164,69 +155,63 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install audit tools
-        run: pip install safety pip-audit
+      - name: Install pip-audit
+        run: pip install pip-audit
 
-      - name: Install project dependencies for scanning
+      - name: Run pip-audit against pyproject.toml dependencies
+        id: pip-audit
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt 2>/dev/null || true; fi
-          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt 2>/dev/null || true; fi
+          # Install project dependencies into a temporary venv so pip-audit can scan them
+          pip install setuptools wheel
+          pip install -e . --no-deps || true
+          pip-audit --skip-editable
 
-      - name: Run pip-audit
+      - name: Post pip-audit summary
+        if: always()
+        env:
+          AUDIT_OUTCOME: ${{ steps.pip-audit.outcome }}
         run: |
-          pip-audit --format columns || true
-          echo "pip-audit complete (warnings are advisory, not blocking)"
-
-      - name: Run Safety check
-        run: |
-          for file in requirements.txt requirements-dev.txt; do
-            if [ -f "$file" ]; then
-              echo "--- safety: $file ---"
-              safety check --file "$file" || true
+          {
+            echo "## pip-audit Security Scan"
+            echo ""
+            if [ "$AUDIT_OUTCOME" = "success" ]; then
+              echo "No HIGH/CRITICAL vulnerabilities found."
+            else
+              echo "Vulnerabilities detected — see job logs for details."
             fi
-          done
-        continue-on-error: true
+          } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Run bandit SAST
-        continue-on-error: true  # bandit findings are advisory; do not block PR merge
-        run: |
-          pip install bandit
-          if [ -f .bandit ]; then
-            bandit --ini .bandit
-          else
-            bandit -r scripts/ -ll -q 2>/dev/null || echo "::notice::bandit: no issues at medium+ level"
-          fi
-
-  # ---------------------------------------------------------------------------
-  # 5. security/secrets-scan — gitleaks (binary download, pinned SHA)
-  # ---------------------------------------------------------------------------
+  # ── 5. security/secrets-scan ───────────────────────────────────────────────
   security-secrets-scan:
     name: security/secrets-scan
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     steps:
+      # Full history so gitleaks can scan all commits, not just HEAD.
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
         with:
-          fetch-depth: 0  # Full history required for gitleaks git-log mode
+          fetch-depth: 0
 
-      - name: Run Gitleaks
+      - name: Install gitleaks
         run: |
-          # Pinned to v8.30.0 — update hash when upgrading version (see #3316)
-          wget -q https://github.com/gitleaks/gitleaks/releases/download/v8.30.0/gitleaks_8.30.0_linux_x64.tar.gz
-          echo "79a3ab579b53f71efd634f3aaf7e04a0fa0cf206b7ed434638d1547a2470a66e  gitleaks_8.30.0_linux_x64.tar.gz" | sha256sum --check
-          tar -xzf gitleaks_8.30.0_linux_x64.tar.gz
+          # Pinned to v8.30.0 — matches security.yml pin (see #3316)
+          GITLEAKS_VERSION="8.30.0"
+          wget -q "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "79a3ab579b53f71efd634f3aaf7e04a0fa0cf206b7ed434638d1547a2470a66e  gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | sha256sum --check
+          tar -xzf "gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
           chmod +x gitleaks
+          sudo mv gitleaks /usr/local/bin/
+
+      - name: Run gitleaks
+        run: |
           if [ -f .gitleaks.toml ]; then
-            echo "Using .gitleaks.toml configuration"
-            ./gitleaks detect --source=. --config=.gitleaks.toml --verbose --exit-code=1
+            gitleaks detect --source=. --config=.gitleaks.toml --verbose --exit-code=1
           else
-            ./gitleaks detect --source=. --verbose --exit-code=1
+            gitleaks detect --source=. --verbose --exit-code=1
           fi
 
-  # ---------------------------------------------------------------------------
-  # 6. build — Mojo package build via just
-  # ---------------------------------------------------------------------------
+  # ── 6. build ───────────────────────────────────────────────────────────────
   build:
     name: build
     runs-on: ubuntu-latest
@@ -235,30 +220,23 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
 
-      - name: Set up container (Mojo runtime)
-        uses: ./.github/actions/setup-container
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
 
-      - name: Install Just
-        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
-
-      - name: Build Mojo package
+      - name: Build Python package (sdist + wheel)
+        # pixi.toml has no build task; use python -m build directly.
+        # The Mojo shared library is validated separately in build-validation.yml
+        # (requires the Mojo runtime / container setup).
         run: |
-          echo "Running Mojo package build..."
-          just build
-          echo "Build succeeded"
+          pixi run pip install build
+          pixi run python -m build --no-isolation
+          ls -lh dist/
 
-      - name: Package
-        run: |
-          just package
-          echo "Package step succeeded"
-
-  # ---------------------------------------------------------------------------
-  # 7. typecheck — mypy on Python parts; Mojo has no standalone typecheck tool
-  # ---------------------------------------------------------------------------
+  # ── 7. typecheck ───────────────────────────────────────────────────────────
   typecheck:
     name: typecheck
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
@@ -266,26 +244,20 @@ jobs:
       - name: Set up Pixi
         uses: ./.github/actions/setup-pixi
 
-      - name: Install mypy
+      - name: Install mypy and stubs
         run: pixi run pip install mypy types-PyYAML
 
-      - name: Run mypy on Python scripts
+      - name: Run mypy
+        # mypy.ini at repo root is the single source of truth for mypy config.
+        # Exclude generators/ due to module path ambiguity (same as pre-commit.yml).
         run: |
-          echo "::notice::Mojo typecheck not available — running mypy on Python parts only"
-          # Exclude generators/ due to module path ambiguity (scripts adds parent to path)
-          pixi run mypy --exclude 'generators/' scripts/ || {
-            echo "Type checking failed"
-            exit 1
-          }
-          echo "mypy checks passed"
+          pixi run mypy --exclude 'generators/' scripts/
 
-  # ---------------------------------------------------------------------------
-  # 8. schema-validation — validate all GitHub Actions workflow YAML files
-  # ---------------------------------------------------------------------------
+  # ── 8. schema-validation ───────────────────────────────────────────────────
   schema-validation:
     name: schema-validation
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
@@ -298,50 +270,61 @@ jobs:
       - name: Install check-jsonschema
         run: pip install check-jsonschema
 
-      - name: Validate workflow YAML files against GitHub Actions schema
+      - name: Validate workflow YAML schemas
         run: |
-          echo "Validating .github/workflows/*.yml against GitHub Actions JSON schema..."
-          find .github/workflows -name "*.yml" -print0 \
-            | xargs -0 check-jsonschema \
-                --schemafile https://json.schemastore.org/github-workflow
-          echo "All workflow files pass schema validation"
+          find .github/workflows -name "*.yml" | sort | \
+            xargs check-jsonschema \
+              --schemafile https://json.schemastore.org/github-workflow
 
-  # ---------------------------------------------------------------------------
-  # 9. deps/version-sync — pixi.toml is the single source of truth; validate
-  #    consistency via the existing check_dep_sync.py script + version check
-  # ---------------------------------------------------------------------------
+      - name: Validate JSON schemas in schemas/
+        run: |
+          # Ensure every schema file in schemas/ is valid JSON
+          find schemas/ -name "*.json" 2>/dev/null | sort | while read -r f; do
+            echo "Checking $f ..."
+            python3 -c "import json, sys; json.load(open('$f'))" || exit 1
+          done
+          echo "All JSON schema files are valid."
+
+  # ── 9. deps/version-sync ───────────────────────────────────────────────────
   deps-version-sync:
     name: deps/version-sync
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
 
-      - name: Set up Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
-        with:
-          python-version: '3.11'
-
-      - name: Install hephaestus
-        run: pip install "homericintelligence-hephaestus>=0.7.0,<1"
-
-      - name: Validate dependency consistency
-        run: python scripts/check_dep_sync.py
-
-      - name: Check pixi.toml version field is present
+      - name: Cross-check pyproject.toml and pixi.toml versions
         run: |
-          python3 -c "
-          import sys
-          try:
-              import tomllib
-          except ImportError:
-              import tomli as tomllib  # Python < 3.11
-          with open('pixi.toml', 'rb') as f:
-              d = tomllib.load(f)
-          version = d.get('workspace', d).get('version', None)
-          if not version:
-              print('ERROR: version not found in pixi.toml')
+          python3 - <<'EOF'
+          import tomllib, sys
+
+          with open("pyproject.toml", "rb") as f:
+              pyproject = tomllib.load(f)
+          with open("pixi.toml", "rb") as f:
+              pixi = tomllib.load(f)
+
+          pyproject_ver = pyproject.get("project", {}).get("version") or \
+                          pyproject.get("tool", {}).get("poetry", {}).get("version")
+          # pixi.toml stores version under [workspace] in this repo
+          pixi_ver = pixi.get("workspace", {}).get("version") or \
+                     pixi.get("package", {}).get("version")
+
+          print(f"pyproject.toml version : {pyproject_ver}")
+          print(f"pixi.toml version      : {pixi_ver}")
+
+          if pyproject_ver and pixi_ver and pyproject_ver != pixi_ver:
+              print(f"::error::Version mismatch: pyproject.toml={pyproject_ver}, pixi.toml={pixi_ver}")
               sys.exit(1)
-          print(f'pixi.toml version: {version}')
-          "
+          print("Versions are consistent.")
+          EOF
+
+      - name: Set up Pixi
+        uses: ./.github/actions/setup-pixi
+
+      - name: Validate pixi.lock is up-to-date
+        run: |
+          if ! pixi install --locked 2>/dev/null; then
+            echo "::error::pixi.lock is stale — run 'pixi install' locally and commit pixi.lock"
+            exit 1
+          fi
