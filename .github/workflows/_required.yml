@@ -64,6 +64,15 @@ jobs:
             exit 1
           fi
 
+      - name: Install mypy and stubs
+        run: pixi run pip install mypy types-PyYAML
+
+      - name: Run mypy
+        # mypy.ini at repo root is the single source of truth for mypy config.
+        # Exclude generators/ due to module path ambiguity (same as pre-commit.yml).
+        run: |
+          pixi run mypy --exclude 'generators/' scripts/
+
   # ── 2. unit-tests ──────────────────────────────────────────────────────────
   unit-tests:
     name: unit-tests
@@ -232,28 +241,7 @@ jobs:
           pixi run python -m build --no-isolation
           ls -lh dist/
 
-  # ── 7. typecheck ───────────────────────────────────────────────────────────
-  typecheck:
-    name: typecheck
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
-
-      - name: Set up Pixi
-        uses: ./.github/actions/setup-pixi
-
-      - name: Install mypy and stubs
-        run: pixi run pip install mypy types-PyYAML
-
-      - name: Run mypy
-        # mypy.ini at repo root is the single source of truth for mypy config.
-        # Exclude generators/ due to module path ambiguity (same as pre-commit.yml).
-        run: |
-          pixi run mypy --exclude 'generators/' scripts/
-
-  # ── 8. schema-validation ───────────────────────────────────────────────────
+  # ── 7. schema-validation ───────────────────────────────────────────────────
   schema-validation:
     name: schema-validation
     runs-on: ubuntu-latest
