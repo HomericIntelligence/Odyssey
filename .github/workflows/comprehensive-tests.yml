@@ -20,7 +20,7 @@ on:
       run_extended:
         description: 'Run extended analysis (SIMD, complexity)'
         required: false
-        default: 'false'
+        default: false
         type: boolean
 
 permissions:
