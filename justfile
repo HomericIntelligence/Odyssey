@@ -251,10 +251,9 @@ _build-inner mode="debug":
 
     FAILED=0
 
-    find . -name "*.mojo" \
-        -not -path "./.pixi/*" \
-        -not -path "./worktrees/*" \
-        -not -path "./.worktrees/*" \
+    find . \
+        \( -path "./.pixi" -o -path "./worktrees" -o -path "./.worktrees" \) -prune -o \
+        -name "*.mojo" \
         -not -path "./.claude/*" \
         -not -path "./tests/*" \
         -not -path "./shared/*" \

@@ -41,18 +41,22 @@ fi
 # ---------------------------------------------------------------------------
 _ensure_writable() {
     for dir in "$@"; do
-        mkdir -p "$dir" 2>/dev/null || true
+        mkdir -p "$dir" 2>/dev/null || sudo mkdir -p "$dir" 2>/dev/null || true
         # If we own the directory already, nothing to do.
         if [ -w "$dir" ]; then
             continue
         fi
-        # Try to make it writable (will only succeed if we have permission).
-        chmod u+w "$dir" 2>/dev/null || true
+        # chmod only succeeds if we already own the directory.
+        # When the workspace is bind-mounted as root:root, fall back to
+        # sudo chown so dev reclaims ownership (sudoers entry in Dockerfile).
+        chmod u+w "$dir" 2>/dev/null || \
+            sudo chown -R "$(id -u):$(id -g)" "$dir" 2>/dev/null || true
     done
 }
 
 _ensure_writable \
     build \
+    .pixi \
     tests/configs/fixtures \
     tests/shared/fixtures \
     /tmp/mojo-tests
