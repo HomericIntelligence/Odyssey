@@ -52,6 +52,7 @@ _ensure_writable() {
 }
 
 _ensure_writable \
+    build \
     tests/configs/fixtures \
     tests/shared/fixtures \
     /tmp/mojo-tests
