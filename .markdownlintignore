@@ -1,6 +1,7 @@
 # Exclude directories with existing content
 notes/blog/
 notes/review/
+notes/issues/
 
 # Exclude test documentation files (supporting evidence only)
 test_mojo_capabilities_results.md
@@ -11,8 +12,9 @@ MOJO_SCRIPT_CONVERSION_ASSESSMENT.md
 agents/templates/
 .github/PULL_REQUEST_TEMPLATE/
 
-# Exclude Claude plugin command files (use XML prompt syntax, not markdown)
-.claude/plugins/
+# Exclude all Claude agent directories (plugin commands use XML prompt syntax)
+.claude/
+.claude-plugin/
 
 # Mojo patterns has intentional duplicate headings for pattern descriptions
 docs/core/mojo-patterns.md MD024
