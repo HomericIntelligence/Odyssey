@@ -48,9 +48,9 @@ _ensure_writable() {
         fi
         # chmod only succeeds if we already own the directory.
         # When the workspace is bind-mounted as root:root, fall back to
-        # sudo chown so dev reclaims ownership (sudoers entry in Dockerfile).
+        # sudo chown on the specific subdir only (never the whole workspace).
         chmod u+w "$dir" 2>/dev/null || \
-            sudo chown -R "$(id -u):$(id -g)" "$dir" 2>/dev/null || true
+            sudo chown "$(id -u):$(id -g)" "$dir" 2>/dev/null || true
     done
 }
 

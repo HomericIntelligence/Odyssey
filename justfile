@@ -253,19 +253,21 @@ _build-inner mode="debug":
 
     find . \
         \( -path "./.pixi" -o -path "./worktrees" -o -path "./.worktrees" \) -prune -o \
-        -name "*.mojo" \
-        -not -path "./.claude/*" \
-        -not -path "./tests/*" \
-        -not -path "./shared/*" \
-        -not -path "./examples/*" \
-        -not -path "./benchmarks/*" \
-        -not -path "./.templates/*" \
-        -not -path "./papers/_template/*" \
-        -not -path "./notes/*" \
-        -not -name "test_*.mojo" \
-        -not -name "model.mojo" \
-        -not -name "__init__.mojo" \
-        -not -name "repro_*.mojo" \
+        \( \
+            -name "*.mojo" \
+            -not -path "./.claude/*" \
+            -not -path "./tests/*" \
+            -not -path "./shared/*" \
+            -not -path "./examples/*" \
+            -not -path "./benchmarks/*" \
+            -not -path "./.templates/*" \
+            -not -path "./papers/_template/*" \
+            -not -path "./notes/*" \
+            -not -name "test_*.mojo" \
+            -not -name "model.mojo" \
+            -not -name "__init__.mojo" \
+            -not -name "repro_*.mojo" \
+        \) -print \
         | while read -r file; do
             out="$BUILD_DIR/$(basename "$file" .mojo)"
             echo "→ Building: $file"
