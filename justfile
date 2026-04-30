@@ -909,7 +909,6 @@ clean-worktrees mode="dry-run":
 # Run dependency audit locally
 audit:
     @echo "Running dependency audit..."
-    @pip install safety pip-audit pip-licenses 2>/dev/null || true
     @echo ""
     @echo "=== Safety Scan ==="
     -@safety check --file requirements.txt
