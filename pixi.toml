@@ -26,7 +26,6 @@ nbconvert = ">=7.16.0,<8"
 pip = ">=25.3,<26"
 just = "*"
 pydantic = ">=2.12.5,<3"
-homericintelligence-hephaestus = ">=0.7.0,<1"  # Required for scripts/agents/agent_utils.py re-exports
 
 [feature.dev.dependencies]
 # Testing
