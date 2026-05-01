@@ -21,14 +21,24 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    zeros_like,
+    ones_like,
+)
 from shared.core.dropout import (
     dropout,
     dropout2d,
     dropout_backward,
     dropout2d_backward,
 )
-from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import (
+    check_gradient,
+    NumericalForward,
+    NumericalBackward,
+)
 
 
 def test_dropout_shapes() raises:
@@ -257,7 +267,14 @@ def test_dropout_backward_gradient() raises:
 
     # Use numerical gradient checking (gold standard)
     # Note: Using relaxed tolerances due to Float32 precision limits
-    check_gradient(_DropoutFwd(mask, p), _DropoutBwd(mask, p), x, grad_out, rtol=2e-3, atol=1e-5)
+    check_gradient(
+        _DropoutFwd(mask, p),
+        _DropoutBwd(mask, p),
+        x,
+        grad_out,
+        rtol=2e-3,
+        atol=1e-5,
+    )
 
 
 def test_dropout2d_shapes() raises:
@@ -409,7 +426,14 @@ def test_dropout2d_backward_gradient() raises:
     # Use numerical gradient checking (gold standard)
     # Note: Using relaxed tolerances due to Float32 precision limits
     # Dropout2d uses larger tensors, requiring more relaxed tolerances
-    check_gradient(_Dropout2dFwd(mask, p), _Dropout2dBwd(mask, p), x, grad_out, rtol=1e-2, atol=1e-3)
+    check_gradient(
+        _Dropout2dFwd(mask, p),
+        _Dropout2dBwd(mask, p),
+        x,
+        grad_out,
+        rtol=1e-2,
+        atol=1e-3,
+    )
 
 
 def main() raises:

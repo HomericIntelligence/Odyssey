@@ -81,7 +81,6 @@ def math_round[T: DType](x: Scalar[T]) -> Scalar[T]:
         return floor_val
 
 
-
 # ============================================================================
 # Unary Operations (Element-wise)
 # ============================================================================
@@ -633,7 +632,9 @@ def _logical_not_impl[
         out_ptr[i] = one if bool_result else zero
 
 
-def _dispatch_logical_not(result: AnyTensor, tensor: AnyTensor, numel: Int) raises:
+def _dispatch_logical_not(
+    result: AnyTensor, tensor: AnyTensor, numel: Int
+) raises:
     """Runtime dispatch for logical NOT."""
     var dtype = tensor.dtype()
     if dtype == DType.float16:

@@ -1,6 +1,10 @@
 """Gradient checking tests for dtype-specific precision (FP32, FP16)."""
 
-from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import (
+    check_gradient,
+    NumericalForward,
+    NumericalBackward,
+)
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, zeros_like
 from shared.core.activation import (
     relu,
@@ -17,16 +21,20 @@ from shared.training.precision_config import PrecisionConfig
 
 # ---- Composite relu+multiply (captures input_b) ----
 
+
 @fieldwise_init
 struct _CompositeReluMulFwd(NumericalForward):
     var input_b: AnyTensor
+
     def __call__(self, x: AnyTensor) raises -> AnyTensor:
         var mul_result = multiply(x, self.input_b)
         return relu(mul_result)
 
+
 @fieldwise_init
 struct _CompositeReluMulBwd(NumericalBackward):
     var input_b: AnyTensor
+
     def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
         var mul_result = multiply(x, self.input_b)
         var grad_relu = relu_backward(grad_out, mul_result)
@@ -36,16 +44,20 @@ struct _CompositeReluMulBwd(NumericalBackward):
 
 # ---- Linear (captures weights, bias) ----
 
+
 @fieldwise_init
 struct _LinearFwd(NumericalForward):
     var weights: AnyTensor
     var bias: AnyTensor
+
     def __call__(self, x: AnyTensor) raises -> AnyTensor:
         return linear(x, self.weights, self.bias)
+
 
 @fieldwise_init
 struct _LinearBwd(NumericalBackward):
     var weights: AnyTensor
+
     def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
         var grads = linear_backward(grad_out, x, self.weights)
         return grads.grad_input
@@ -53,55 +65,73 @@ struct _LinearBwd(NumericalBackward):
 
 # ---- Conv2D FP32 no padding (captures kernel, bias) ----
 
+
 @fieldwise_init
 struct _Conv2dNoPadFwd(NumericalForward):
     var kernel: AnyTensor
     var bias: AnyTensor
     var stride: Int
     var padding: Int
+
     def __call__(self, x: AnyTensor) raises -> AnyTensor:
-        return conv2d(x, self.kernel, self.bias, stride=self.stride, padding=self.padding)
+        return conv2d(
+            x, self.kernel, self.bias, stride=self.stride, padding=self.padding
+        )
+
 
 @fieldwise_init
 struct _Conv2dNoPadBwd(NumericalBackward):
     var kernel: AnyTensor
     var stride: Int
     var padding: Int
+
     def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        var grads = conv2d_backward(grad_out, x, self.kernel, stride=self.stride, padding=self.padding)
+        var grads = conv2d_backward(
+            grad_out, x, self.kernel, stride=self.stride, padding=self.padding
+        )
         return grads.grad_input
 
 
 # ---- Conv2D FP16 forward with move (captures kernel, bias) ----
 
+
 @fieldwise_init
 struct _Conv2dFp16Fwd(NumericalForward):
     var kernel: AnyTensor
     var bias: AnyTensor
+
     def __call__(self, x: AnyTensor) raises -> AnyTensor:
         var result = conv2d(x, self.kernel, self.bias, stride=1, padding=0)
         # Conv computes in FP32 for numerical stability
         return result^
 
+
 @fieldwise_init
 struct _Conv2dFp16Bwd(NumericalBackward):
     var kernel: AnyTensor
+
     def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        var grads = conv2d_backward(grad_out, x, self.kernel, stride=1, padding=0)
+        var grads = conv2d_backward(
+            grad_out, x, self.kernel, stride=1, padding=0
+        )
         return grads.grad_input
 
 
 # ---- Cross entropy (captures labels) ----
 
+
 @fieldwise_init
 struct _CrossEntropyFwd(NumericalForward):
     var labels: AnyTensor
+
     def __call__(self, x: AnyTensor) raises -> AnyTensor:
         return cross_entropy(x, self.labels)
+
 
 @fieldwise_init
 struct _CrossEntropyBwd(NumericalBackward):
     var labels: AnyTensor
+
     def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
         return cross_entropy_backward(grad_out, x, self.labels)
 
@@ -122,7 +152,9 @@ def test_composite_relu_multiply() raises:
     var input_a = full(shape, 2.0, DType.float32)
     var input_b = full(shape, 3.0, DType.float32)
     var fwd = _CompositeReluMulFwd(input_b)
-    check_gradient(fwd, _CompositeReluMulBwd(input_b), input_a, _ones_grad(fwd(input_a)))
+    check_gradient(
+        fwd, _CompositeReluMulBwd(input_b), input_a, _ones_grad(fwd(input_a))
+    )
 
 
 def test_linear_gradient_fp32() raises:
@@ -143,7 +175,9 @@ def test_linear_gradient_fp32() raises:
 
     var fwd = _LinearFwd(weights, bias)
     var grad_output = _ones_grad(fwd(input))
-    check_gradient(fwd, _LinearBwd(weights), input, grad_output, rtol=3e-3, atol=1e-4)
+    check_gradient(
+        fwd, _LinearBwd(weights), input, grad_output, rtol=3e-3, atol=1e-4
+    )
 
 
 def test_linear_gradient_fp16() raises:
@@ -166,7 +200,9 @@ def test_linear_gradient_fp16() raises:
 
     var fwd = _LinearFwd(weights, bias)
     var grad_output = _ones_grad(fwd(input))
-    check_gradient(fwd, _LinearBwd(weights), input, grad_output, rtol=2e-1, atol=1e-2)
+    check_gradient(
+        fwd, _LinearBwd(weights), input, grad_output, rtol=2e-1, atol=1e-2
+    )
 
 
 def test_conv2d_gradient_fp32() raises:
@@ -191,7 +227,14 @@ def test_conv2d_gradient_fp32() raises:
 
     var fwd = _Conv2dNoPadFwd(kernel, bias, 1, 0)
     var grad_output = _ones_grad(fwd(input))
-    check_gradient(fwd, _Conv2dNoPadBwd(kernel, 1, 0), input, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(
+        fwd,
+        _Conv2dNoPadBwd(kernel, 1, 0),
+        input,
+        grad_output,
+        rtol=1e-2,
+        atol=1e-2,
+    )
 
 
 def test_conv2d_grad_3x3_same_padding() raises:
@@ -219,7 +262,14 @@ def test_conv2d_grad_3x3_same_padding() raises:
     # additional numerical error in finite-difference gradient estimation.
     var fwd = _Conv2dNoPadFwd(kernel, bias, 1, 1)
     var grad_output = _ones_grad(fwd(input))
-    check_gradient(fwd, _Conv2dNoPadBwd(kernel, 1, 1), input, grad_output, rtol=5e-2, atol=1e-4)
+    check_gradient(
+        fwd,
+        _Conv2dNoPadBwd(kernel, 1, 1),
+        input,
+        grad_output,
+        rtol=5e-2,
+        atol=1e-4,
+    )
 
 
 def test_conv2d_grad_3x3_strided() raises:
@@ -244,7 +294,14 @@ def test_conv2d_grad_3x3_strided() raises:
 
     var fwd = _Conv2dNoPadFwd(kernel, bias, 2, 0)
     var grad_output = _ones_grad(fwd(input))
-    check_gradient(fwd, _Conv2dNoPadBwd(kernel, 2, 0), input, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(
+        fwd,
+        _Conv2dNoPadBwd(kernel, 2, 0),
+        input,
+        grad_output,
+        rtol=1e-2,
+        atol=1e-2,
+    )
 
 
 def test_conv2d_grad_multichannel() raises:
@@ -272,7 +329,14 @@ def test_conv2d_grad_multichannel() raises:
     # Combined relative+absolute tolerance handles large gradient magnitudes.
     var fwd = _Conv2dNoPadFwd(kernel, bias, 1, 0)
     var grad_output = _ones_grad(fwd(input))
-    check_gradient(fwd, _Conv2dNoPadBwd(kernel, 1, 0), input, grad_output, rtol=5e-2, atol=1e-4)
+    check_gradient(
+        fwd,
+        _Conv2dNoPadBwd(kernel, 1, 0),
+        input,
+        grad_output,
+        rtol=5e-2,
+        atol=1e-4,
+    )
 
 
 def test_cross_entropy_gradient_fp32() raises:
@@ -294,7 +358,9 @@ def test_cross_entropy_gradient_fp32() raises:
 
     var fwd = _CrossEntropyFwd(labels)
     var grad_output = _ones_grad(fwd(logits))
-    check_gradient(fwd, _CrossEntropyBwd(labels), logits, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(
+        fwd, _CrossEntropyBwd(labels), logits, grad_output, rtol=1e-2, atol=1e-2
+    )
 
 
 def test_conv2d_gradient_fp16() raises:
@@ -332,7 +398,9 @@ def test_conv2d_gradient_fp16() raises:
     # training keeps conv operations in FP32 for stability
     var fwd = _Conv2dFp16Fwd(kernel, bias)
     var grad_output = _ones_grad(fwd(input))
-    check_gradient(fwd, _Conv2dFp16Bwd(kernel), input, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(
+        fwd, _Conv2dFp16Bwd(kernel), input, grad_output, rtol=1e-2, atol=1e-2
+    )
 
 
 def test_cross_entropy_gradient_fp16() raises:
@@ -372,7 +440,9 @@ def test_cross_entropy_gradient_fp16() raises:
     # Note: This tolerance validates the code path correctness, not high precision.
     var fwd = _CrossEntropyFwd(labels)
     var grad_output = _ones_grad(fwd(logits))
-    check_gradient(fwd, _CrossEntropyBwd(labels), logits, grad_output, rtol=5e-1, atol=5e-1)
+    check_gradient(
+        fwd, _CrossEntropyBwd(labels), logits, grad_output, rtol=5e-1, atol=5e-1
+    )
 
 
 def main() raises:

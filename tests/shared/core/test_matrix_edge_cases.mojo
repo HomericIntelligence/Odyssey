@@ -8,7 +8,14 @@ Tests edge cases for matmul and shape operations on matrices including:
 """
 
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, zeros_like, eye
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    full,
+    zeros_like,
+    eye,
+)
 from shared.core.matrix import matmul
 from tests.shared.conftest import (
     assert_dtype,

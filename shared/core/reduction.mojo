@@ -70,6 +70,7 @@ def _dispatch_reduce_all[
     """Generic runtime dispatch for reduction over all elements."""
     # Ensure input is contiguous before flat-buffer kernel access.
     from .shape import as_contiguous
+
     var t = tensor if tensor.is_contiguous() else as_contiguous(tensor)
     var dt = t.dtype()
     if dt == DType.float16:
@@ -128,6 +129,7 @@ def _dispatch_reduce_axis[
     """Generic runtime dispatch for reduction along axis."""
     # Ensure input is contiguous before flat-buffer kernel access.
     from .shape import as_contiguous
+
     var t = tensor if tensor.is_contiguous() else as_contiguous(tensor)
     var dt = t.dtype()
     if dt == DType.float16:
@@ -621,7 +623,9 @@ def min_reduce_backward(
 # ============================================================================
 
 
-def variance(tensor: AnyTensor, axis: Int = -1, ddof: Int = 0) raises -> AnyTensor:
+def variance(
+    tensor: AnyTensor, axis: Int = -1, ddof: Int = 0
+) raises -> AnyTensor:
     """Compute variance of tensor elements along an axis.
 
     Variance measures how spread out values are from the mean.
@@ -760,7 +764,9 @@ def variance_backward(
     return result^
 
 
-def std_reduce(tensor: AnyTensor, axis: Int = -1, ddof: Int = 0) raises -> AnyTensor:
+def std_reduce(
+    tensor: AnyTensor, axis: Int = -1, ddof: Int = 0
+) raises -> AnyTensor:
     """Compute standard deviation of tensor elements along an axis.
 
     Standard deviation is the square root of variance.
@@ -1047,7 +1053,9 @@ def median_backward(
     return result^
 
 
-def percentile(tensor: AnyTensor, q: Float64, axis: Int = -1) raises -> AnyTensor:
+def percentile(
+    tensor: AnyTensor, q: Float64, axis: Int = -1
+) raises -> AnyTensor:
     """Compute percentile of tensor elements along an axis.
 
     Uses linear interpolation between adjacent ranked values.

@@ -151,7 +151,9 @@ def _add_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         raise Error("Unsupported dtype for contiguous addition")
 
 
-def _subtract_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def _subtract_contiguous_dispatch(
+    a: AnyTensor, b: AnyTensor
+) raises -> AnyTensor:
     """Dispatch to typed contiguous subtraction.
 
     Args:
@@ -161,7 +163,9 @@ def _subtract_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTenso
     Returns:
         Result tensor containing a - b.
     """
-    from shared.tensor.typed.arithmetic_contiguous import _subtract_contiguous_typed
+    from shared.tensor.typed.arithmetic_contiguous import (
+        _subtract_contiguous_typed,
+    )
 
     if a.dtype() == DType.float32:
         return _subtract_contiguous_typed[DType.float32](
@@ -207,7 +211,9 @@ def _subtract_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTenso
         raise Error("Unsupported dtype for contiguous subtraction")
 
 
-def _multiply_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def _multiply_contiguous_dispatch(
+    a: AnyTensor, b: AnyTensor
+) raises -> AnyTensor:
     """Dispatch to typed contiguous multiplication.
 
     Args:
@@ -217,7 +223,9 @@ def _multiply_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTenso
     Returns:
         Result tensor containing a * b.
     """
-    from shared.tensor.typed.arithmetic_contiguous import _multiply_contiguous_typed
+    from shared.tensor.typed.arithmetic_contiguous import (
+        _multiply_contiguous_typed,
+    )
 
     if a.dtype() == DType.float32:
         return _multiply_contiguous_typed[DType.float32](
@@ -273,7 +281,9 @@ def _divide_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Returns:
         Result tensor containing a / b.
     """
-    from shared.tensor.typed.arithmetic_contiguous import _divide_contiguous_typed
+    from shared.tensor.typed.arithmetic_contiguous import (
+        _divide_contiguous_typed,
+    )
 
     if a.dtype() == DType.float32:
         return _divide_contiguous_typed[DType.float32](
@@ -325,7 +335,9 @@ def _divide_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 
 
 @always_inline
-def _add_contiguous[dtype: DType](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
+def _add_contiguous[
+    dtype: DType
+](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """AnyTensor contiguous addition -- delegates to typed core."""
     from shared.tensor.typed.arithmetic_contiguous import _add_contiguous_typed
 
@@ -339,7 +351,9 @@ def _subtract_contiguous[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """AnyTensor contiguous subtraction -- delegates to typed core."""
-    from shared.tensor.typed.arithmetic_contiguous import _subtract_contiguous_typed
+    from shared.tensor.typed.arithmetic_contiguous import (
+        _subtract_contiguous_typed,
+    )
 
     return _subtract_contiguous_typed[dtype](
         a.as_tensor[dtype](), b.as_tensor[dtype]()
@@ -351,7 +365,9 @@ def _multiply_contiguous[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """AnyTensor contiguous multiplication -- delegates to typed core."""
-    from shared.tensor.typed.arithmetic_contiguous import _multiply_contiguous_typed
+    from shared.tensor.typed.arithmetic_contiguous import (
+        _multiply_contiguous_typed,
+    )
 
     return _multiply_contiguous_typed[dtype](
         a.as_tensor[dtype](), b.as_tensor[dtype]()
@@ -363,7 +379,9 @@ def _divide_contiguous[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """AnyTensor contiguous division -- delegates to typed core."""
-    from shared.tensor.typed.arithmetic_contiguous import _divide_contiguous_typed
+    from shared.tensor.typed.arithmetic_contiguous import (
+        _divide_contiguous_typed,
+    )
 
     return _divide_contiguous_typed[dtype](
         a.as_tensor[dtype](), b.as_tensor[dtype]()

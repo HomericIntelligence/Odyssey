@@ -353,7 +353,9 @@ def normalize_tensor_to_unit_norm(mut tensor: AnyTensor) raises:
         scale_tensor_inplace(tensor, scale)
 
 
-def clip_tensor_norm(mut tensor: AnyTensor, max_norm: Float64) raises -> Float64:
+def clip_tensor_norm(
+    mut tensor: AnyTensor, max_norm: Float64
+) raises -> Float64:
     """Clip tensor norm if it exceeds max_norm (in-place).
 
         If the L2 norm of the tensor exceeds max_norm, scales all elements

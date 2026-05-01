@@ -51,7 +51,7 @@ def _make_nc_2x3() raises -> AnyTensor:
 
 def test_add_noncontiguous_lhs() raises:
     """Non-contiguous lhs + contiguous rhs should produce correct values."""
-    var nc = _make_noncontiguous_2x3()       # shape (3, 2), non-contiguous
+    var nc = _make_noncontiguous_2x3()  # shape (3, 2), non-contiguous
     var rhs = full([3, 2], 10.0, DType.float32)  # contiguous
 
     var result = add(nc, rhs)
@@ -196,11 +196,11 @@ def test_divide_noncontiguous_rhs() raises:
 
     var ptr = result._data.bitcast[Float32]()
     assert_almost_equal(ptr[0], Float32(12.0), tolerance=1e-4)  # 12/1
-    assert_almost_equal(ptr[1], Float32(3.0), tolerance=1e-4)   # 12/4
-    assert_almost_equal(ptr[2], Float32(6.0), tolerance=1e-4)   # 12/2
-    assert_almost_equal(ptr[3], Float32(2.4), tolerance=1e-4)   # 12/5
-    assert_almost_equal(ptr[4], Float32(4.0), tolerance=1e-4)   # 12/3
-    assert_almost_equal(ptr[5], Float32(2.0), tolerance=1e-4)   # 12/6
+    assert_almost_equal(ptr[1], Float32(3.0), tolerance=1e-4)  # 12/4
+    assert_almost_equal(ptr[2], Float32(6.0), tolerance=1e-4)  # 12/2
+    assert_almost_equal(ptr[3], Float32(2.4), tolerance=1e-4)  # 12/5
+    assert_almost_equal(ptr[4], Float32(4.0), tolerance=1e-4)  # 12/3
+    assert_almost_equal(ptr[5], Float32(2.0), tolerance=1e-4)  # 12/6
 
 
 def test_result_is_contiguous() raises:
@@ -270,12 +270,12 @@ def test_add_broadcast_noncontiguous_1d() raises:
 
     # Expected: nc[i,j] + b[j] = nc[i,j] + 1
     var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(1.0), tolerance=1e-5)   # 0+1
-    assert_almost_equal(ptr[1], Float32(4.0), tolerance=1e-5)   # 3+1
-    assert_almost_equal(ptr[2], Float32(2.0), tolerance=1e-5)   # 1+1
-    assert_almost_equal(ptr[3], Float32(5.0), tolerance=1e-5)   # 4+1
-    assert_almost_equal(ptr[4], Float32(3.0), tolerance=1e-5)   # 2+1
-    assert_almost_equal(ptr[5], Float32(6.0), tolerance=1e-5)   # 5+1
+    assert_almost_equal(ptr[0], Float32(1.0), tolerance=1e-5)  # 0+1
+    assert_almost_equal(ptr[1], Float32(4.0), tolerance=1e-5)  # 3+1
+    assert_almost_equal(ptr[2], Float32(2.0), tolerance=1e-5)  # 1+1
+    assert_almost_equal(ptr[3], Float32(5.0), tolerance=1e-5)  # 4+1
+    assert_almost_equal(ptr[4], Float32(3.0), tolerance=1e-5)  # 2+1
+    assert_almost_equal(ptr[5], Float32(6.0), tolerance=1e-5)  # 5+1
 
 
 def test_add_broadcast_contiguous_to_noncontiguous() raises:
@@ -310,9 +310,12 @@ def test_noncontiguous_add_matches_contiguous_baseline() raises:
     # Build contiguous equivalent of the logical 3x2 transposed tensor
     var logical = zeros([3, 2], DType.float32)
     var lp = logical._data.bitcast[Float32]()
-    lp[0] = 0.0; lp[1] = 3.0
-    lp[2] = 1.0; lp[3] = 4.0
-    lp[4] = 2.0; lp[5] = 5.0
+    lp[0] = 0.0
+    lp[1] = 3.0
+    lp[2] = 1.0
+    lp[3] = 4.0
+    lp[4] = 2.0
+    lp[5] = 5.0
 
     var rhs = full([3, 2], 10.0, DType.float32)
 
@@ -338,16 +341,17 @@ def test_multiply_broadcast_noncontiguous_lhs() raises:
     var result = multiply(nc, b)
 
     var ptr = result._data.bitcast[Float32]()
-    assert_almost_equal(ptr[0], Float32(0.0), tolerance=1e-5)    # 0*2
-    assert_almost_equal(ptr[1], Float32(6.0), tolerance=1e-5)    # 3*2
-    assert_almost_equal(ptr[2], Float32(2.0), tolerance=1e-5)    # 1*2
-    assert_almost_equal(ptr[3], Float32(8.0), tolerance=1e-5)    # 4*2
-    assert_almost_equal(ptr[4], Float32(4.0), tolerance=1e-5)    # 2*2
-    assert_almost_equal(ptr[5], Float32(10.0), tolerance=1e-5)   # 5*2
+    assert_almost_equal(ptr[0], Float32(0.0), tolerance=1e-5)  # 0*2
+    assert_almost_equal(ptr[1], Float32(6.0), tolerance=1e-5)  # 3*2
+    assert_almost_equal(ptr[2], Float32(2.0), tolerance=1e-5)  # 1*2
+    assert_almost_equal(ptr[3], Float32(8.0), tolerance=1e-5)  # 4*2
+    assert_almost_equal(ptr[4], Float32(4.0), tolerance=1e-5)  # 2*2
+    assert_almost_equal(ptr[5], Float32(10.0), tolerance=1e-5)  # 5*2
 
 
 def test_noncontiguous_result_is_always_contiguous() raises:
-    """Results of all binary ops on non-contiguous inputs should be contiguous."""
+    """Results of all binary ops on non-contiguous inputs should be contiguous.
+    """
     var nc = _make_nc_2x3()
     var rhs = ones([3, 2], DType.float32)
 

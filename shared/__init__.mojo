@@ -72,6 +72,7 @@ from shared.core.activation import relu, sigmoid, tanh, softmax
 # Core module system
 # Module is a trait (not a struct) — can be imported but not instantiated directly
 from shared.core.module import Module
+
 # Sequential — only parametric variants exist (Sequential2, Sequential3, …)
 
 # Core tensors — AnyTensor is the canonical runtime-typed tensor.
@@ -91,7 +92,12 @@ from shared.training.schedulers.lr_schedulers import StepLR, CosineAnnealingLR
 #   from shared.training.metrics import LossTracker, AccuracyMetric
 # or:
 #   from shared import LossTracker, AccuracyMetric  # if this module re-exports them
-from shared.training.metrics import LossTracker, AccuracyMetric, ConfusionMatrix, CSVMetricsLogger
+from shared.training.metrics import (
+    LossTracker,
+    AccuracyMetric,
+    ConfusionMatrix,
+    CSVMetricsLogger,
+)
 
 # Expose plan-canonical alias: Accuracy = AccuracyMetric
 comptime Accuracy = AccuracyMetric

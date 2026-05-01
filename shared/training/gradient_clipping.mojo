@@ -117,9 +117,7 @@ def _scale_simd_f64(tensor: AnyTensor, scale: Float64):
 
 
 @always_inline
-def _clamp_simd_f32(
-    tensor: AnyTensor, min_val: Float32, max_val: Float32
-):
+def _clamp_simd_f32(tensor: AnyTensor, min_val: Float32, max_val: Float32):
     """Clamp all elements in-place using SIMD for float32 tensors."""
     comptime simd_width = simd_width_of[DType.float32]()
     var size = tensor._numel
@@ -136,9 +134,7 @@ def _clamp_simd_f32(
 
 
 @always_inline
-def _clamp_simd_f64(
-    tensor: AnyTensor, min_val: Float64, max_val: Float64
-):
+def _clamp_simd_f64(tensor: AnyTensor, min_val: Float64, max_val: Float64):
     """Clamp all elements in-place using SIMD for float64 tensors."""
     comptime simd_width = simd_width_of[DType.float64]()
     var size = tensor._numel
@@ -353,9 +349,7 @@ def clip_gradients_by_value_list(
         if grad._dtype == DType.float32:
             _clamp_simd_f32(grad, min_value, max_value)
         elif grad._dtype == DType.float64:
-            _clamp_simd_f64(
-                grad, Float64(min_value), Float64(max_value)
-            )
+            _clamp_simd_f64(grad, Float64(min_value), Float64(max_value))
         else:
             var numel = grad.numel()
             for j in range(numel):

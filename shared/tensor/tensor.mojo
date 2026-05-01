@@ -41,8 +41,8 @@ struct Tensor[dtype: DType = DType.float32](
     ImplicitlyCopyable,
     Movable,
     Sized,
-    Writable,
     TensorLike,
+    Writable,
 ):
     """Compile-time typed tensor with SIMD-like element access.
 
@@ -199,7 +199,8 @@ struct Tensor[dtype: DType = DType.float32](
     # ------------------------------------------------------------------
 
     def __init__(out self, *, copy: Self):
-        """Copy constructor - creates a shared-ownership copy with reference counting."""
+        """Copy constructor - creates a shared-ownership copy with reference counting.
+        """
         self._data = copy._data
         self._shape = copy._shape.copy()
         self._strides = copy._strides.copy()
@@ -229,6 +230,7 @@ struct Tensor[dtype: DType = DType.float32](
         the reference count to track shared ownership.
         """
         from std.memory import alloc as mem_alloc
+
         var ptr = mem_alloc[Tensor[Self.dtype]](1)
         ptr[0]._data = self._data
         ptr[0]._shape = self._shape.copy()
@@ -255,9 +257,7 @@ struct Tensor[dtype: DType = DType.float32](
             if self._refcount[] == 0:
                 # Free data via pool — bitcast back to UInt8 since pool
                 # works with byte pointers
-                pooled_free(
-                    self._data.bitcast[UInt8](), self._allocated_size
-                )
+                pooled_free(self._data.bitcast[UInt8](), self._allocated_size)
                 self._refcount.free()
 
     # ------------------------------------------------------------------

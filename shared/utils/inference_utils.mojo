@@ -170,7 +170,9 @@ def parse_inference_args_with_defaults(
 # ============================================================================
 
 
-def evaluate_accuracy(predictions: AnyTensor, labels: AnyTensor) raises -> Float32:
+def evaluate_accuracy(
+    predictions: AnyTensor, labels: AnyTensor
+) raises -> Float32:
     """Calculate classification accuracy from predictions and labels.
 
         Computes the percentage of predictions that match the ground truth labels

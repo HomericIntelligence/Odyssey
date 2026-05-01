@@ -65,7 +65,12 @@ def test_repr_large_tensor_format() raises:
     var t = arange(0.0, 2000.0, 1.0, DType.float32)
     var s = repr(t)
     # Must start and end correctly
-    assert_true(s.startswith("AnyTensor(shape=[2000], dtype=float32, numel=2000, data=[0.0, 1.0, 2.0, ..."))
+    assert_true(
+        s.startswith(
+            "AnyTensor(shape=[2000], dtype=float32, numel=2000, data=[0.0, 1.0,"
+            " 2.0, ..."
+        )
+    )
     assert_true(s.endswith("])"))
     assert_true("1999.0" in s)
     assert_true("1998.0" in s)

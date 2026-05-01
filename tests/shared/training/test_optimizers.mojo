@@ -236,7 +236,9 @@ def test_adam_initialization() raises:
     )
 
     # Verify the result has the correct shape
-    assert_shape(result[0], shape, "Adam initialization result shape matches input")
+    assert_shape(
+        result[0], shape, "Adam initialization result shape matches input"
+    )
 
 
 def test_adam_parameter_update() raises:
@@ -380,7 +382,9 @@ def test_adamw_weight_decay() raises:
     # Then weight decay: 0.999 * (1 - 0.001 * 0.01) = 0.999 * 0.99999 ≈ 0.998999
     var param_val = params._data.bitcast[Float32]()[0]
     assert_less(param_val, 1.0)
-    assert_less(param_val, 0.999)  # Weight decay should make it smaller than Adam alone
+    assert_less(
+        param_val, 0.999
+    )  # Weight decay should make it smaller than Adam alone
 
 
 def test_rmsprop_initialization() raises:

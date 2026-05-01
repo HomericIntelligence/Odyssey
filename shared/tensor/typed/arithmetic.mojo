@@ -29,7 +29,7 @@ from shared.base.dtype_ordinal import (
 
 
 def _broadcast_binary_typed[
-    dtype: DType, op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+    dtype: DType, op: def[T: DType](Scalar[T], Scalar[T]) -> Scalar[T]
 ](a: Tensor[dtype], b: Tensor[dtype]) raises -> Tensor[dtype]:
     """Apply binary operation with broadcasting on native Tensor[dtype].
 
@@ -119,7 +119,7 @@ def _broadcast_binary_typed[
 
 
 def _broadcast_binary[
-    dtype: DType, op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+    dtype: DType, op: def[T: DType](Scalar[T], Scalar[T]) -> Scalar[T]
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Apply binary operation with broadcasting via typed core.
 
@@ -148,7 +148,7 @@ def _broadcast_binary[
 
 
 def _dispatch_broadcast_binary[
-    op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+    op: def[T: DType](Scalar[T], Scalar[T]) -> Scalar[T]
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch to compile-time specialized Tensor[dtype] implementation.
 

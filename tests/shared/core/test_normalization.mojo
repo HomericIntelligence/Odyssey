@@ -125,7 +125,15 @@ struct _LayerNormInputFwd(NumericalForward):
         while result_inner.dim() > 0:
             result_inner = reduce_sum(result_inner, axis=0, keepdims=False)
         return result_inner
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
+
+
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    zeros_like,
+    ones_like,
+)
 from shared.core.normalization import (
     batch_norm2d,
     batch_norm2d_backward,
@@ -205,7 +213,9 @@ def _check_grad_input_batch_size(batch_size: Int) raises:
         # unreliable. Assert finiteness and non-NaN only.
         for i in range(n_elems):
             var val = grad_input._data.bitcast[Float32]()[i]
-            assert_true(val == val, "grad_input should not be NaN (batch_size=1)")
+            assert_true(
+                val == val, "grad_input should not be NaN (batch_size=1)"
+            )
             assert_true(
                 val > -1e10 and val < 1e10,
                 "grad_input should be finite (batch_size=1)",
@@ -213,7 +223,9 @@ def _check_grad_input_batch_size(batch_size: Int) raises:
     else:
         # Standard gradient check for batch_size=2 and batch_size=4.
         var numerical_grad = compute_numerical_gradient(
-            _BNormInputFwd(True, gamma, beta, running_mean, running_var, grad_output),
+            _BNormInputFwd(
+                True, gamma, beta, running_mean, running_var, grad_output
+            ),
             x,
             epsilon=1e-3,
         )
@@ -278,7 +290,9 @@ def _check_grad_gamma_batch_size(batch_size: Int) raises:
         # batch_size=1: variance=0 degenerate case — assert finiteness only.
         for i in range(2):
             var val = grad_gamma._data.bitcast[Float32]()[i]
-            assert_true(val == val, "grad_gamma should not be NaN (batch_size=1)")
+            assert_true(
+                val == val, "grad_gamma should not be NaN (batch_size=1)"
+            )
             assert_true(
                 val > -1e10 and val < 1e10,
                 "grad_gamma should be finite (batch_size=1)",
@@ -286,7 +300,9 @@ def _check_grad_gamma_batch_size(batch_size: Int) raises:
     else:
         # Standard gradient check: perturb gamma.
         var numerical_grad_gamma = compute_numerical_gradient(
-            _BNormGammaFwd(True, x, beta, running_mean, running_var, grad_output),
+            _BNormGammaFwd(
+                True, x, beta, running_mean, running_var, grad_output
+            ),
             gamma,
             epsilon=1e-3,
         )
@@ -354,7 +370,9 @@ def _check_grad_beta_batch_size(batch_size: Int) raises:
         # batch_size=1: variance=0 degenerate case — assert finiteness only.
         for i in range(2):
             var val = grad_beta._data.bitcast[Float32]()[i]
-            assert_true(val == val, "grad_beta should not be NaN (batch_size=1)")
+            assert_true(
+                val == val, "grad_beta should not be NaN (batch_size=1)"
+            )
             assert_true(
                 val > -1e10 and val < 1e10,
                 "grad_beta should be finite (batch_size=1)",
@@ -362,7 +380,9 @@ def _check_grad_beta_batch_size(batch_size: Int) raises:
     else:
         # Standard gradient check: perturb beta.
         var numerical_grad_beta = compute_numerical_gradient(
-            _BNormBetaFwd(True, x, gamma, running_mean, running_var, grad_output),
+            _BNormBetaFwd(
+                True, x, gamma, running_mean, running_var, grad_output
+            ),
             beta,
             epsilon=1e-3,
         )
@@ -671,7 +691,9 @@ def test_batch_norm2d_backward_gradient_input() raises:
     # forward computes weighted sum: sum(output * grad_output)
     # so the numerical gradient matches what the backward should compute.
     var numerical_grad = compute_numerical_gradient(
-        _BNormInputFwd(True, gamma, beta, running_mean, running_var, grad_output),
+        _BNormInputFwd(
+            True, gamma, beta, running_mean, running_var, grad_output
+        ),
         x,
         epsilon=1e-3,
     )
@@ -761,7 +783,9 @@ def test_batch_norm2d_backward_gradient_input_inference_mode() raises:
 
     # Numerical gradient: uses training=False with fixed running stats
     var numerical_grad = compute_numerical_gradient(
-        _BNormInputFwd(False, gamma, beta, running_mean, running_var, grad_output),
+        _BNormInputFwd(
+            False, gamma, beta, running_mean, running_var, grad_output
+        ),
         x,
         epsilon=3e-4,
     )
@@ -1514,7 +1538,13 @@ def test_batch_norm2d_backward_gamma_beta_nonzero() raises:
     var grad_output = ones(shape, DType.float32)
 
     var bwd_result = batch_norm2d_backward(
-        grad_output, x, gamma, running_mean, running_var, training=True, epsilon=1e-5
+        grad_output,
+        x,
+        gamma,
+        running_mean,
+        running_var,
+        training=True,
+        epsilon=1e-5,
     )
     var grad_gamma = bwd_result[1]
     var grad_beta = bwd_result[2]
@@ -1557,7 +1587,13 @@ def test_batch_norm2d_backward_inference_mode() raises:
 
     # Backward in inference mode (training=False)
     var bwd_result = batch_norm2d_backward(
-        grad_output, x, gamma, running_mean, running_var, training=False, epsilon=1e-5
+        grad_output,
+        x,
+        gamma,
+        running_mean,
+        running_var,
+        training=False,
+        epsilon=1e-5,
     )
     var grad_input = bwd_result[0]
 
@@ -1639,7 +1675,10 @@ def test_batch_norm2d_backward_gradient_gamma_inference_mode() raises:
         atol=1e-4,
         message="Batch norm gradient w.r.t. gamma (inference mode)",
     )
-    print("✓ Batch norm backward gradient (gamma) inference mode validated numerically")
+    print(
+        "✓ Batch norm backward gradient (gamma) inference mode validated"
+        " numerically"
+    )
 
 
 def test_batch_norm2d_backward_gradient_beta_inference_mode() raises:
@@ -1714,7 +1753,10 @@ def test_batch_norm2d_backward_gradient_beta_inference_mode() raises:
         atol=1e-4,
         message="Batch norm gradient w.r.t. beta (inference mode)",
     )
-    print("✓ Batch norm backward gradient (beta) inference mode validated numerically")
+    print(
+        "✓ Batch norm backward gradient (beta) inference mode validated"
+        " numerically"
+    )
 
 
 def test_batch_norm2d_backward_grad_input_batch_sizes() raises:
@@ -1754,9 +1796,7 @@ def test_batch_norm2d_backward_grad_beta_batch_sizes() raises:
     _check_grad_beta_batch_size(1)
     _check_grad_beta_batch_size(2)
     _check_grad_beta_batch_size(4)
-    print(
-        "✓ Batch norm backward grad_beta validated for batch_sizes [1, 2, 4]"
-    )
+    print("✓ Batch norm backward grad_beta validated for batch_sizes [1, 2, 4]")
 
 
 def main() raises:

@@ -38,7 +38,19 @@ jobs:
         run: |
           pixi run pip install pyyaml
 
+      - name: Check for skills directory
+        id: skills-check
+        run: |
+          if [ -d ".claude/skills" ] && [ "$(find .claude/skills -maxdepth 1 -type d | wc -l)" -gt 1 ]; then
+            echo "has_skills=true" >> $GITHUB_OUTPUT
+            echo "✓ Skills directory found with skills to audit"
+          else
+            echo "has_skills=false" >> $GITHUB_OUTPUT
+            echo "ℹ No skills directory or empty - skipping audit"
+          fi
+
       - name: Clone ProjectMnemosyne (target directory)
+        if: steps.skills-check.outputs.has_skills == 'true'
         run: |
           # Clone ProjectMnemosyne to /tmp/ProjectMnemosyne for audit
           # If not available, create a minimal structure
@@ -50,11 +62,18 @@ jobs:
           fi
 
       - name: Run skills migration audit
+        if: steps.skills-check.outputs.has_skills == 'true'
         run: |
           python3 scripts/migrate_odyssey_skills.py \
             --audit \
             --no-color \
             --target-dir /tmp/ProjectMnemosyne
+
+      - name: Skip skills audit (no skills present)
+        if: steps.skills-check.outputs.has_skills == 'false'
+        run: |
+          echo "⚠️ Skipping skills migration audit - no skills directory present"
+          echo "This is expected for repos that don't have local skills."
 
       - name: Display audit results on failure
         if: failure()

@@ -26,8 +26,13 @@ def test_conv2d_default_dtype() raises:
     var layer = Conv2dLayer(
         in_channels=1, out_channels=2, kernel_h=3, kernel_w=3
     )
-    assert_true(layer.weight.get_dtype() == DType.float32, "weight dtype should be float32")
-    assert_true(layer.bias.get_dtype() == DType.float32, "bias dtype should be float32")
+    assert_true(
+        layer.weight.get_dtype() == DType.float32,
+        "weight dtype should be float32",
+    )
+    assert_true(
+        layer.bias.get_dtype() == DType.float32, "bias dtype should be float32"
+    )
     print("PASS: test_conv2d_default_dtype")
 
 
@@ -36,8 +41,13 @@ def test_conv2d_float64() raises:
     var layer = Conv2dLayer[DType.float64](
         in_channels=1, out_channels=2, kernel_h=3, kernel_w=3
     )
-    assert_true(layer.weight.get_dtype() == DType.float64, "weight dtype should be float64")
-    assert_true(layer.bias.get_dtype() == DType.float64, "bias dtype should be float64")
+    assert_true(
+        layer.weight.get_dtype() == DType.float64,
+        "weight dtype should be float64",
+    )
+    assert_true(
+        layer.bias.get_dtype() == DType.float64, "bias dtype should be float64"
+    )
     print("PASS: test_conv2d_float64")
 
 
@@ -61,7 +71,9 @@ def test_conv2d_bias_shape() raises:
     var layer = Conv2dLayer(
         in_channels=3, out_channels=16, kernel_h=3, kernel_w=3
     )
-    assert_true(layer.bias.numel() == 16, "bias should have out_channels elements")
+    assert_true(
+        layer.bias.numel() == 16, "bias should have out_channels elements"
+    )
     # Bias initialized to 0.0
     assert_almost_equal(Float32(layer.bias[0]), Float32(0.0), atol=1e-6)
     assert_almost_equal(Float32(layer.bias[15]), Float32(0.0), atol=1e-6)
@@ -79,7 +91,9 @@ def test_conv2d_forward_typed() raises:
     input._data[1] = Scalar[DType.float32](1.0)
     input._data[12] = Scalar[DType.float32](1.5)
     var output = layer.forward(input.as_any())
-    assert_true(output.get_dtype() == DType.float32, "output dtype should be float32")
+    assert_true(
+        output.get_dtype() == DType.float32, "output dtype should be float32"
+    )
     # With padding=1, stride=1, kernel 3x3: output = [1, 2, 5, 5]
     var s = output.shape()
     assert_true(s[0] == 1, "batch dim")
@@ -130,9 +144,7 @@ def test_conv2d_backward_typed() raises:
     var grad_output = Tensor[DType.float32](output.shape())
     for i in range(grad_output.numel()):
         grad_output._data[i] = Scalar[DType.float32](1.0)
-    var grads = layer.backward(
-        grad_output.as_any(), input.as_any()
-    )
+    var grads = layer.backward(grad_output.as_any(), input.as_any())
     var grad_input = grads[0]
     var grad_weight = grads[1]
     var grad_bias = grads[2]

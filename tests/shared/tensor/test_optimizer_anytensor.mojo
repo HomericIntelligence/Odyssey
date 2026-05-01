@@ -112,7 +112,9 @@ def test_adam_step_with_anytensor_data() raises:
     # After step, parameters should be updated (decreased from 1.0)
     var actual = Float64(params[0].data._get_float64(0))
     assert_true(actual < 1.0, "param should decrease after Adam step")
-    assert_true(actual > 0.99, "param should not decrease too much with lr=0.001")
+    assert_true(
+        actual > 0.99, "param should not decrease too much with lr=0.001"
+    )
     print("PASS: test_adam_step_with_anytensor_data")
 
 

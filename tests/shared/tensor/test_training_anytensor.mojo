@@ -28,7 +28,9 @@ def test_variable_data_is_anytensor() raises:
     tape.enable()
     var v = Variable(data, True, tape)
     assert_true(v.data.numel() == 12, "variable data has 12 elements")
-    assert_true(v.data.dtype() == DType.float32, "variable data dtype preserved")
+    assert_true(
+        v.data.dtype() == DType.float32, "variable data dtype preserved"
+    )
     print("PASS: test_variable_data_is_anytensor")
 
 
@@ -57,12 +59,8 @@ def test_variable_detach_returns_anytensor() raises:
     var v = Variable(data, True, tape)
     var detached = v.detach()
     assert_true(detached.numel() == 3, "detached has 3 elements")
-    assert_almost_equal(
-        Float64(detached._get_float64(0)), 1.0, tolerance=1e-6
-    )
-    assert_almost_equal(
-        Float64(detached._get_float64(1)), 0.5, tolerance=1e-6
-    )
+    assert_almost_equal(Float64(detached._get_float64(0)), 1.0, tolerance=1e-6)
+    assert_almost_equal(Float64(detached._get_float64(1)), 0.5, tolerance=1e-6)
     print("PASS: test_variable_detach_returns_anytensor")
 
 
@@ -90,12 +88,8 @@ def test_variable_backward_with_anytensor() raises:
     # d(sum(x+y))/dx = [1, 1]
     var grad_x = tape.registry.get_grad(x.id)
     assert_true(grad_x.numel() == 2, "grad_x has 2 elements")
-    assert_almost_equal(
-        Float64(grad_x._get_float64(0)), 1.0, tolerance=1e-6
-    )
-    assert_almost_equal(
-        Float64(grad_x._get_float64(1)), 1.0, tolerance=1e-6
-    )
+    assert_almost_equal(Float64(grad_x._get_float64(0)), 1.0, tolerance=1e-6)
+    assert_almost_equal(Float64(grad_x._get_float64(1)), 1.0, tolerance=1e-6)
     print("PASS: test_variable_backward_with_anytensor")
 
 

@@ -25,8 +25,8 @@ from shared.training.trainer_interface import (
 
 
 def validation_step(
-    model_forward: def (AnyTensor) raises -> AnyTensor,
-    compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
+    model_forward: def(AnyTensor) raises -> AnyTensor,
+    compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
     data: AnyTensor,
     labels: AnyTensor,
 ) raises -> Float64:
@@ -57,8 +57,8 @@ def validation_step(
 
 
 def validate(
-    model_forward: def (AnyTensor) raises -> AnyTensor,
-    compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
+    model_forward: def(AnyTensor) raises -> AnyTensor,
+    compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
     mut val_loader: DataLoader,
     compute_accuracy: Bool = True,
     compute_confusion: Bool = False,
@@ -93,8 +93,8 @@ def validate(
 
 
 def _validate_impl(
-    model_forward: def (AnyTensor) raises -> AnyTensor,
-    compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
+    model_forward: def(AnyTensor) raises -> AnyTensor,
+    compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
     mut val_loader: DataLoader,
     mut confusion_matrix: ConfusionMatrix,
     compute_accuracy: Bool = True,
@@ -227,8 +227,8 @@ struct ValidationLoop:
 
     def run(
         mut self,
-        model_forward: def (AnyTensor) raises -> AnyTensor,
-        compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
+        model_forward: def(AnyTensor) raises -> AnyTensor,
+        compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
         mut val_loader: DataLoader,
         mut metrics: TrainingMetrics,
     ) raises -> Float64:
@@ -280,8 +280,8 @@ struct ValidationLoop:
 
     def run_subset(
         self,
-        model_forward: def (AnyTensor) raises -> AnyTensor,
-        compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
+        model_forward: def(AnyTensor) raises -> AnyTensor,
+        compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
         mut val_loader: DataLoader,
         max_batches: Int,
         mut metrics: TrainingMetrics,

@@ -10,6 +10,7 @@ Run with: mojo test tests/shared/autograd/test_top_level_optimizer_imports.mojo
 
 from std.testing import assert_true
 from tests.shared.conftest import assert_almost_equal
+
 # ADR-015: This file intentionally validates top-level shared package exports.
 # Do not convert to targeted imports — that would defeat its purpose.
 from shared import AdaGrad, RMSprop, SGD, Adam, AdamW

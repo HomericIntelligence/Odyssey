@@ -121,7 +121,8 @@ def test_str_empty_tensor_uint32() raises:
 
 
 def test_str_empty_tensor_float16() raises:
-    """Test __str__ for empty tensor with float16 dtype (floating-point variant)."""
+    """Test __str__ for empty tensor with float16 dtype (floating-point variant).
+    """
     var t = zeros([0], DType.float16)
     var s = String(t)
     assert_equal(s, "AnyTensor([], dtype=float16)")

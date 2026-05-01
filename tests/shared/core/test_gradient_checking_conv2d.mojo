@@ -23,10 +23,15 @@ References:
 
 from shared.core.conv import conv2d, conv2d_backward
 from shared.tensor.any_tensor import AnyTensor, zeros, zeros_like
-from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import (
+    check_gradient,
+    NumericalForward,
+    NumericalBackward,
+)
 
 
 # ---- Conv2d: perturb input (captures kernel, bias, stride, padding) ----
+
 
 @fieldwise_init
 struct _Conv2dInputFwd(NumericalForward):
@@ -34,20 +39,32 @@ struct _Conv2dInputFwd(NumericalForward):
     var bias: AnyTensor
     var stride: Int
     var padding: Int
+
     def __call__(self, inp: AnyTensor) raises -> AnyTensor:
-        return conv2d(inp, self.kernel, self.bias, stride=self.stride, padding=self.padding)
+        return conv2d(
+            inp,
+            self.kernel,
+            self.bias,
+            stride=self.stride,
+            padding=self.padding,
+        )
+
 
 @fieldwise_init
 struct _Conv2dInputBwd(NumericalBackward):
     var kernel: AnyTensor
     var stride: Int
     var padding: Int
+
     def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        var result = conv2d_backward(grad_out, inp, self.kernel, stride=self.stride, padding=self.padding)
+        var result = conv2d_backward(
+            grad_out, inp, self.kernel, stride=self.stride, padding=self.padding
+        )
         return result.grad_input
 
 
 # ---- Conv2d: perturb kernel/weights (captures x, bias, stride, padding) ----
+
 
 @fieldwise_init
 struct _Conv2dKernelFwd(NumericalForward):
@@ -55,20 +72,28 @@ struct _Conv2dKernelFwd(NumericalForward):
     var bias: AnyTensor
     var stride: Int
     var padding: Int
+
     def __call__(self, k: AnyTensor) raises -> AnyTensor:
-        return conv2d(self.x, k, self.bias, stride=self.stride, padding=self.padding)
+        return conv2d(
+            self.x, k, self.bias, stride=self.stride, padding=self.padding
+        )
+
 
 @fieldwise_init
 struct _Conv2dKernelBwd(NumericalBackward):
     var x: AnyTensor
     var stride: Int
     var padding: Int
+
     def __call__(self, grad_out: AnyTensor, k: AnyTensor) raises -> AnyTensor:
-        var result = conv2d_backward(grad_out, self.x, k, stride=self.stride, padding=self.padding)
+        var result = conv2d_backward(
+            grad_out, self.x, k, stride=self.stride, padding=self.padding
+        )
         return result.grad_weights
 
 
 # ---- Conv2d: perturb bias (captures x, kernel, stride, padding) ----
+
 
 @fieldwise_init
 struct _Conv2dBiasFwd(NumericalForward):
@@ -76,8 +101,12 @@ struct _Conv2dBiasFwd(NumericalForward):
     var kernel: AnyTensor
     var stride: Int
     var padding: Int
+
     def __call__(self, b: AnyTensor) raises -> AnyTensor:
-        return conv2d(self.x, self.kernel, b, stride=self.stride, padding=self.padding)
+        return conv2d(
+            self.x, self.kernel, b, stride=self.stride, padding=self.padding
+        )
+
 
 @fieldwise_init
 struct _Conv2dBiasBwd(NumericalBackward):
@@ -85,8 +114,15 @@ struct _Conv2dBiasBwd(NumericalBackward):
     var kernel: AnyTensor
     var stride: Int
     var padding: Int
+
     def __call__(self, grad_out: AnyTensor, b: AnyTensor) raises -> AnyTensor:
-        var result = conv2d_backward(grad_out, self.x, self.kernel, stride=self.stride, padding=self.padding)
+        var result = conv2d_backward(
+            grad_out,
+            self.x,
+            self.kernel,
+            stride=self.stride,
+            padding=self.padding,
+        )
         return result.grad_bias
 
 
@@ -285,7 +321,8 @@ def test_conv2d_strided_grad_bias() raises:
 
 
 def test_conv2d_multichannel_grad_input() raises:
-    """Test conv2d grad_input with in_channels=2, out_channels=3, input (1,2,5,5)."""
+    """Test conv2d grad_input with in_channels=2, out_channels=3, input (1,2,5,5).
+    """
     var input_shape = List[Int]()
     input_shape.append(1)
     input_shape.append(2)
@@ -316,7 +353,8 @@ def test_conv2d_multichannel_grad_input() raises:
 
 
 def test_conv2d_multichannel_grad_weights() raises:
-    """Test conv2d grad_weights with in_channels=2, out_channels=3, kernel (3,2,3,3)."""
+    """Test conv2d grad_weights with in_channels=2, out_channels=3, kernel (3,2,3,3).
+    """
     var input_shape = List[Int]()
     input_shape.append(1)
     input_shape.append(2)

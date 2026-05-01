@@ -20,7 +20,8 @@ from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 
 
 def test_fast_path_shape_4d() raises:
-    """Fast-path: data[0:16, :, :, :] on [50, 3, 32, 32] gives shape [16, 3, 32, 32]."""
+    """Fast-path: data[0:16, :, :, :] on [50, 3, 32, 32] gives shape [16, 3, 32, 32].
+    """
     var data = zeros([50, 3, 32, 32], DType.float32)
     var batch = data[0:16, :, :, :]
 
@@ -86,7 +87,8 @@ def test_fast_path_matches_element_wise() raises:
 
 
 def test_slow_path_inner_dim_slice() raises:
-    """Slow-path regression: data[:, 1:3, :] must still produce correct results."""
+    """Slow-path regression: data[:, 1:3, :] must still produce correct results.
+    """
     # Create 4x4x3 tensor: values 0..47
     var t = arange(0.0, 48.0, 1.0, DType.float32)
     var t3d = t.reshape([4, 4, 3])

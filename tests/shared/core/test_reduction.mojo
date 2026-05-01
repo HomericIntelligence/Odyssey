@@ -20,7 +20,13 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    zeros_like,
+    ones_like,
+)
 from shared.core.reduction import (
     sum,
     mean,
@@ -31,7 +37,11 @@ from shared.core.reduction import (
     max_reduce_backward,
     min_reduce_backward,
 )
-from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import (
+    check_gradient,
+    NumericalForward,
+    NumericalBackward,
+)
 from shared.core.reduction import (
     variance,
     std_reduce as stdev,
@@ -260,7 +270,9 @@ def test_max_reduce_backward_gradient() raises:
 
     # Use numerical gradient checking (gold standard)
     # Note: rtol=2e-3 accounts for Float32 precision
-    check_gradient(_MaxReduceFwd(), _MaxReduceBwd(), x, grad_out, rtol=2e-3, atol=1e-6)
+    check_gradient(
+        _MaxReduceFwd(), _MaxReduceBwd(), x, grad_out, rtol=2e-3, atol=1e-6
+    )
 
 
 def test_min_reduce_backward_shapes() raises:
@@ -307,7 +319,9 @@ def test_min_reduce_backward_gradient() raises:
 
     # Use numerical gradient checking (gold standard)
     # Note: rtol=2e-3 accounts for Float32 precision
-    check_gradient(_MinReduceFwd(), _MinReduceBwd(), x, grad_out, rtol=2e-3, atol=1e-6)
+    check_gradient(
+        _MinReduceFwd(), _MinReduceBwd(), x, grad_out, rtol=2e-3, atol=1e-6
+    )
 
 
 def test_var_forward_uniform() raises:
@@ -400,7 +414,9 @@ def test_var_backward_gradient() raises:
     var y = _VarianceFwd()(x)
     var grad_out = ones_like(y)
 
-    check_gradient(_VarianceFwd(), _VarianceBwd(), x, grad_out, rtol=2e-3, atol=1e-6)
+    check_gradient(
+        _VarianceFwd(), _VarianceBwd(), x, grad_out, rtol=2e-3, atol=1e-6
+    )
 
 
 def test_std_forward_simple() raises:

@@ -138,9 +138,9 @@ struct DropoutLayer(Copyable, Movable):
         elif input._dtype == DType.float64:
             for i in range(input._numel):
                 var rand_val = random_float64()
-                mask.set(i, 1.0 if (
-                    rand_val > Float64(self.dropout_rate)
-                ) else 0.0)
+                mask.set(
+                    i, 1.0 if (rand_val > Float64(self.dropout_rate)) else 0.0
+                )
         elif input._dtype == DType.float16:
             for i in range(input._numel):
                 var rand_val = Float32(random_float64())
@@ -171,9 +171,7 @@ struct DropoutLayer(Copyable, Movable):
             for i in range(input._numel):
                 var input_val = input._data.bitcast[Float16]()[i]
                 var mask_val = Float16(mask._data.bitcast[Float32]()[i])
-                result.set(
-                    i, Float16(mask_val * input_val * Float16(scale))
-                )
+                result.set(i, Float16(mask_val * input_val * Float16(scale)))
         else:
             raise Error("dropout: only float16/32/64 dtypes supported")
 
@@ -225,13 +223,9 @@ struct DropoutLayer(Copyable, Movable):
             for i in range(grad_output._numel):
                 var grad_val = grad_output._data.bitcast[Float16]()[i]
                 var mask_val = Float16(mask._data.bitcast[Float32]()[i])
-                result.set(
-                    i, Float16(mask_val * grad_val * Float16(scale))
-                )
+                result.set(i, Float16(mask_val * grad_val * Float16(scale)))
         else:
-            raise Error(
-                "dropout backward: only float16/32/64 dtypes supported"
-            )
+            raise Error("dropout backward: only float16/32/64 dtypes supported")
 
         return result
 

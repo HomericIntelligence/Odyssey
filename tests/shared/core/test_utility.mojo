@@ -7,7 +7,17 @@ and stride calculations.
 """
 
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange, copy, clone, item, diff
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    full,
+    arange,
+    copy,
+    clone,
+    item,
+    diff,
+)
 from shared.core.shape import as_contiguous
 from shared.core.matrix import transpose_view
 from tests.shared.conftest import (
@@ -64,8 +74,12 @@ def test_copy_independence() raises:
 
     # Verify independence: modifying copy doesn't affect original
     b.set(0, Float64(99.0))
-    assert_almost_equal(b._get_float64(0), 99.0, 1e-6, "Copy should be modified")
-    assert_value_at(a, 0, 3.0, 1e-6, "Original should be unchanged after copy modification")
+    assert_almost_equal(
+        b._get_float64(0), 99.0, 1e-6, "Copy should be modified"
+    )
+    assert_value_at(
+        a, 0, 3.0, 1e-6, "Original should be unchanged after copy modification"
+    )
 
 
 def test_clone_identical() raises:
@@ -103,7 +117,9 @@ def test_clone_non_contiguous() raises:
     var c = clone(t)
 
     # Clone should be contiguous
-    assert_true(c.is_contiguous(), "Clone of transposed tensor should be contiguous")
+    assert_true(
+        c.is_contiguous(), "Clone of transposed tensor should be contiguous"
+    )
 
     # Clone shape should match the transposed shape (4,3)
     var c_shape = c.shape()
@@ -183,7 +199,11 @@ def test_clone_multiple_dtypes() raises:
     assert_dtype(c_f64, DType.float64, "float64 clone should keep dtype")
     for i in range(4):
         assert_value_at(
-            c_f64, i, 3.141592653589793, 1e-12, "float64 clone should preserve precision"
+            c_f64,
+            i,
+            3.141592653589793,
+            1e-12,
+            "float64 clone should preserve precision",
         )
 
     # bfloat16: reduced precision value
@@ -192,7 +212,9 @@ def test_clone_multiple_dtypes() raises:
     assert_dtype(c_bf, DType.bfloat16, "bfloat16 clone should keep dtype")
     for i in range(4):
         # bfloat16 has limited precision; use wider tolerance
-        assert_value_at(c_bf, i, 1.5, 0.01, "bfloat16 clone value should be ~1.5")
+        assert_value_at(
+            c_bf, i, 1.5, 0.01, "bfloat16 clone value should be ~1.5"
+        )
 
 
 def test_numel_total_elements() raises:
@@ -398,11 +420,15 @@ def test_as_contiguous_3d_values_correct() raises:
     # Transpose to create non-contiguous view: (2,3,4) -> (4,3,2)
     # This swaps dimensions 0 and 2
     var t = a.transpose(2, 0)
-    assert_false(t.is_contiguous(), "Transposed 3D tensor should not be contiguous")
+    assert_false(
+        t.is_contiguous(), "Transposed 3D tensor should not be contiguous"
+    )
 
     # Make contiguous
     var c = as_contiguous(t)
-    assert_true(c.is_contiguous(), "as_contiguous() result should be contiguous")
+    assert_true(
+        c.is_contiguous(), "as_contiguous() result should be contiguous"
+    )
 
     # Verify shape (4,3,2) after transpose
     var c_shape = c.shape()
@@ -411,14 +437,18 @@ def test_as_contiguous_3d_values_correct() raises:
     assert_equal_int(c_shape[2], 2, "Shape[2] should be 2 after transpose")
 
     # Verify totalcontent (all 24 elements)
-    assert_equal_int(c.numel(), 24, "Contiguous 3D tensor should have 24 elements")
+    assert_equal_int(
+        c.numel(), 24, "Contiguous 3D tensor should have 24 elements"
+    )
 
     # Verify that the transpose correctly maps elements from original (2,3,4) to result (4,3,2)
     # Original element at [i,j,k] goes to transposed position [k,j,i]
     # So we check a few cross-section values to ensure stride-based indexing is correct
 
     # Original [0,0,0]=0 -> transposed [0,0,0]
-    assert_almost_equal(c._get_float64(0), 0.0, 1e-6, "First element should be 0")
+    assert_almost_equal(
+        c._get_float64(0), 0.0, 1e-6, "First element should be 0"
+    )
 
     # Original [0,0,3]=3 -> transposed [3,0,0]
     # Transposed flat index [3,0,0]: 3*6 + 0*2 + 0 = 18
@@ -448,9 +478,7 @@ def test_transpose_1d_tensor_raises() raises:
     except e:
         error_raised = True
 
-    assert_true(
-        error_raised, "transpose on 1D tensor should raise an error"
-    )
+    assert_true(error_raised, "transpose on 1D tensor should raise an error")
 
 
 def test_transpose_out_of_range_dim0() raises:
@@ -510,8 +538,12 @@ def test_transpose_same_dim_identity() raises:
     assert_equal_int(result_shape[1], 4, "Shape dim 1 should be 4")
 
     # Strides should be unchanged
-    assert_equal_int(result._strides[0], b._strides[0], "Stride[0] should be unchanged")
-    assert_equal_int(result._strides[1], b._strides[1], "Stride[1] should be unchanged")
+    assert_equal_int(
+        result._strides[0], b._strides[0], "Stride[0] should be unchanged"
+    )
+    assert_equal_int(
+        result._strides[1], b._strides[1], "Stride[1] should be unchanged"
+    )
 
     # Values should be identical
     assert_almost_equal(

@@ -26,7 +26,10 @@ def test_memory_pool_imports() raises:
 
 def test_broadcasting_imports() raises:
     """Verify broadcasting module imports and basic function work."""
-    from shared.base.broadcasting import broadcast_shapes, are_shapes_broadcastable
+    from shared.base.broadcasting import (
+        broadcast_shapes,
+        are_shapes_broadcastable,
+    )
 
     # Test basic broadcasting: [3, 1] and [1, 4] -> [3, 4]
     var a = [3, 1]
@@ -70,9 +73,7 @@ def test_dtype_ordinal_imports() raises:
     var ord64 = dtype_to_ordinal(DType.float64)
     assert_true(ord64 == DTYPE_FLOAT64, "float64 ordinal should match")
 
-    assert_true(
-        SUPPORTED_DTYPE_COUNT > 0, "should support at least one dtype"
-    )
+    assert_true(SUPPORTED_DTYPE_COUNT > 0, "should support at least one dtype")
     print("PASS: test_dtype_ordinal_imports")
 
 
@@ -90,8 +91,7 @@ def test_defaults_imports() raises:
         "dropout rate should be in [0, 1]",
     )
     assert_true(
-        DEFAULT_BATCHNORM_MOMENTUM >= 0.0
-        and DEFAULT_BATCHNORM_MOMENTUM <= 1.0,
+        DEFAULT_BATCHNORM_MOMENTUM >= 0.0 and DEFAULT_BATCHNORM_MOMENTUM <= 1.0,
         "batchnorm momentum should be in [0, 1]",
     )
     print("PASS: test_defaults_imports")
@@ -122,9 +122,7 @@ def test_numerical_constants_imports() raises:
     assert_true(EPSILON_DIV < 1.0, "EPSILON_DIV should be small")
     assert_true(EPSILON_LOSS > 0.0, "EPSILON_LOSS should be positive")
     assert_true(EPSILON_NORM > 0.0, "EPSILON_NORM should be positive")
-    assert_true(
-        GRADIENT_MAX_NORM > 0.0, "GRADIENT_MAX_NORM should be positive"
-    )
+    assert_true(GRADIENT_MAX_NORM > 0.0, "GRADIENT_MAX_NORM should be positive")
     print("PASS: test_numerical_constants_imports")
 
 

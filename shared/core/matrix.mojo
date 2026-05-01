@@ -823,6 +823,7 @@ def matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     # a shared-ownership copy (view) to avoid allocation; for non-contiguous
     # tensors (e.g. transpose views) we materialize a fresh contiguous copy.
     from .shape import as_contiguous
+
     var a_cont: AnyTensor
     var b_cont: AnyTensor
     if a.is_contiguous():

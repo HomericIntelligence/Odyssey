@@ -80,9 +80,7 @@ def dropout(
     if x.dtype() == DType.float32:
         for i in range(size):
             var rand_val = Float32(random.random_float64())
-            mask[i] = Float32(1.0) if rand_val > Float32(
-                p
-            ) else Float32(0.0)
+            mask[i] = Float32(1.0) if rand_val > Float32(p) else Float32(0.0)
     elif x.dtype() == DType.float64:
         for i in range(size):
             var rand_val = random.random_float64()
@@ -90,9 +88,7 @@ def dropout(
     elif x.dtype() == DType.float16:
         for i in range(size):
             var rand_val = Float32(random.random_float64())
-            mask[i] = Float32(1.0) if rand_val > Float32(
-                p
-            ) else Float32(0.0)
+            mask[i] = Float32(1.0) if rand_val > Float32(p) else Float32(0.0)
     else:
         raise Error("dropout: only float16/32/64 dtypes supported")
 
@@ -179,9 +175,9 @@ def dropout2d(
             for c in range(channels):
                 var rand_val = Float32(random.random_float64())
                 var idx = b * channels + c
-                channel_mask[idx] = Float32(
-                    1.0
-                ) if rand_val > Float32(p) else Float32(0.0)
+                channel_mask[idx] = Float32(1.0) if rand_val > Float32(
+                    p
+                ) else Float32(0.0)
     elif x.dtype() == DType.float64:
         for b in range(batch):
             for c in range(channels):
@@ -193,9 +189,9 @@ def dropout2d(
             for c in range(channels):
                 var rand_val = Float32(random.random_float64())
                 var idx = b * channels + c
-                channel_mask[idx] = Float32(
-                    1.0
-                ) if rand_val > Float32(p) else Float32(0.0)
+                channel_mask[idx] = Float32(1.0) if rand_val > Float32(
+                    p
+                ) else Float32(0.0)
     else:
         raise Error("dropout2d: only float16/32/64 dtypes supported")
 
@@ -205,7 +201,9 @@ def dropout2d(
     if x.dtype() == DType.float32:
         for b in range(batch):
             for c in range(channels):
-                var mask_val = channel_mask._data.bitcast[Float32]()[b * channels + c]
+                var mask_val = channel_mask._data.bitcast[Float32]()[
+                    b * channels + c
+                ]
                 for h in range(height):
                     for w in range(width):
                         var idx = (
@@ -218,7 +216,9 @@ def dropout2d(
     elif x.dtype() == DType.float64:
         for b in range(batch):
             for c in range(channels):
-                var mask_val = channel_mask._data.bitcast[Float64]()[b * channels + c]
+                var mask_val = channel_mask._data.bitcast[Float64]()[
+                    b * channels + c
+                ]
                 for h in range(height):
                     for w in range(width):
                         var idx = (
@@ -231,7 +231,9 @@ def dropout2d(
     elif x.dtype() == DType.float16:
         for b in range(batch):
             for c in range(channels):
-                var mask_val = channel_mask._data.bitcast[Float16]()[b * channels + c]
+                var mask_val = channel_mask._data.bitcast[Float16]()[
+                    b * channels + c
+                ]
                 for h in range(height):
                     for w in range(width):
                         var idx = (

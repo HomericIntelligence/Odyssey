@@ -23,7 +23,12 @@ from shared.tensor.any_tensor import AnyTensor, full, empty
 from shared.tensor.any_tensor import AnyTensor, arange, eye
 from shared.tensor.any_tensor import AnyTensor, eye, linspace
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
-from shared.tensor.any_tensor import AnyTensor, nan_tensor, inf_tensor, neg_inf_tensor
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    nan_tensor,
+    inf_tensor,
+    neg_inf_tensor,
+)
 from tests.shared.conftest import (
     assert_true,
     assert_false,
@@ -529,7 +534,8 @@ def test_inf_tensor_rejects_bfloat16() raises:
 
 
 def test_neg_inf_tensor_rejects_bfloat16() raises:
-    """Test neg_inf_tensor rejects bfloat16 dtype (not in supported float list)."""
+    """Test neg_inf_tensor rejects bfloat16 dtype (not in supported float list).
+    """
     var shape = List[Int]()
     shape.append(2)
     shape.append(2)

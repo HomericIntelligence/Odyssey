@@ -121,7 +121,8 @@ def test_assert_close_float_fails_exceeds_tolerance() raises:
     except:
         failed = True
     assert_true(
-        failed, "assert_close_float should raise error when diff exceeds tolerance"
+        failed,
+        "assert_close_float should raise error when diff exceeds tolerance",
     )
 
 
@@ -140,7 +141,8 @@ def test_assert_close_float_fails_custom_atol() raises:
     except:
         failed = True
     assert_true(
-        failed, "assert_close_float should raise error when diff exceeds custom atol"
+        failed,
+        "assert_close_float should raise error when diff exceeds custom atol",
     )
 
 

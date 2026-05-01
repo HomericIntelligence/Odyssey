@@ -10,7 +10,11 @@ Tests cover:
 """
 
 from std.testing import assert_true, assert_almost_equal
-from shared.tensor.any_tensor import AnyTensor, ones as any_ones, full as any_full
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    ones as any_ones,
+    full as any_full,
+)
 from shared.core.arithmetic import add, subtract, multiply, divide
 
 
@@ -34,9 +38,7 @@ def test_add_zeros() raises:
     var b = any_full([3], 0.0, DType.float32)
     var c = add(a, b)
     for i in range(3):
-        assert_almost_equal(
-            Float64(c[i]), 1.5, atol=1e-6, msg="x + 0 = x"
-        )
+        assert_almost_equal(Float64(c[i]), 1.5, atol=1e-6, msg="x + 0 = x")
     print("PASS: test_add_zeros")
 
 
@@ -72,9 +74,7 @@ def test_multiply_ones() raises:
     var b = any_ones([3], DType.float32)
     var c = multiply(a, b)
     for i in range(3):
-        assert_almost_equal(
-            Float64(c[i]), 0.25, atol=1e-6, msg="x * 1 = x"
-        )
+        assert_almost_equal(Float64(c[i]), 0.25, atol=1e-6, msg="x * 1 = x")
     print("PASS: test_multiply_ones")
 
 
@@ -97,9 +97,7 @@ def test_divide_by_ones() raises:
     var b = any_ones([3], DType.float32)
     var c = divide(a, b)
     for i in range(3):
-        assert_almost_equal(
-            Float64(c[i]), 0.25, atol=1e-6, msg="x / 1 = x"
-        )
+        assert_almost_equal(Float64(c[i]), 0.25, atol=1e-6, msg="x / 1 = x")
     print("PASS: test_divide_by_ones")
 
 

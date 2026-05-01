@@ -118,7 +118,9 @@ struct CosineAnnealingLR(LRScheduler, TrivialRegisterPassable):
     var eta_min: Float64
     """Minimum learning rate."""
 
-    def __init__(out self, base_lr: Float64, T_max: Int, eta_min: Float64 = 0.0):
+    def __init__(
+        out self, base_lr: Float64, T_max: Int, eta_min: Float64 = 0.0
+    ):
         """Initialize Cosine Annealing scheduler.
 
         Args:

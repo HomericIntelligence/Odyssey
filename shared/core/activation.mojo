@@ -163,7 +163,9 @@ def leaky_relu(tensor: AnyTensor, alpha: Float64 = 0.01) raises -> AnyTensor:
 @always_inline
 def _prelu_impl[
     dtype: DType
-](result: AnyTensor, tensor: AnyTensor, alpha: AnyTensor, is_scalar: Bool) raises:
+](
+    result: AnyTensor, tensor: AnyTensor, alpha: AnyTensor, is_scalar: Bool
+) raises:
     """Dtype-generic implementation of PReLU forward pass.
 
     Parameters:
@@ -351,11 +353,17 @@ def tanh(tensor: AnyTensor) raises -> AnyTensor:
 
     var ordinal = dtype_to_ordinal(tensor._dtype)
     if ordinal == DTYPE_FLOAT16:
-        return _tanh_typed[DType.float16](tensor.as_tensor[DType.float16]()).as_any()
+        return _tanh_typed[DType.float16](
+            tensor.as_tensor[DType.float16]()
+        ).as_any()
     elif ordinal == DTYPE_FLOAT32:
-        return _tanh_typed[DType.float32](tensor.as_tensor[DType.float32]()).as_any()
+        return _tanh_typed[DType.float32](
+            tensor.as_tensor[DType.float32]()
+        ).as_any()
     elif ordinal == DTYPE_FLOAT64:
-        return _tanh_typed[DType.float64](tensor.as_tensor[DType.float64]()).as_any()
+        return _tanh_typed[DType.float64](
+            tensor.as_tensor[DType.float64]()
+        ).as_any()
     else:
         raise Error("tanh: unsupported dtype (requires float16/32/64)")
 
@@ -413,6 +421,7 @@ def softmax(tensor: AnyTensor, axis: Int = -1) raises -> AnyTensor:
     var axis_size = tensor._shape[norm_axis]
 
     from .dtype_dispatch import dispatch_softmax
+
     return dispatch_softmax(tensor, outer_size, axis_size, axis_stride)
 
 
@@ -446,6 +455,7 @@ def gelu(tensor: AnyTensor, approximate: Bool = False) raises -> AnyTensor:
     ```
     """
     from .dtype_dispatch import dispatch_gelu
+
     return dispatch_gelu(tensor, approximate)
 
 
@@ -471,9 +481,7 @@ def _relu_backward_op[T: DType](grad: Scalar[T], x: Scalar[T]) -> Scalar[T]:
     return grad if x > Scalar[T](0) else Scalar[T](0)
 
 
-def relu_backward(
-    grad_output: AnyTensor, x: AnyTensor
-) raises -> AnyTensor:
+def relu_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     """Compute gradient of ReLU activation.
 
         ReLU gradient: `dL/dx = dL/dy * (x > 0)`
@@ -502,13 +510,16 @@ def relu_backward(
         raise Error("relu_backward: grad_output and x must have same shape")
 
     from .dtype_dispatch import dispatch_binary
+
     return dispatch_binary[_relu_backward_op](grad_output, x)
 
 
 @always_inline
 def _leaky_relu_backward_impl[
     dtype: DType
-](result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, alpha: Float64) raises:
+](
+    result: AnyTensor, grad_output: AnyTensor, x: AnyTensor, alpha: Float64
+) raises:
     """Dtype-generic implementation of leaky ReLU backward pass."""
     var alpha_typed = Scalar[dtype](alpha)
     var result_ptr = result._data.bitcast[Scalar[dtype]]()
@@ -694,6 +705,7 @@ def sigmoid_backward(
         )
 
     from .dtype_dispatch import dispatch_float_binary
+
     return dispatch_float_binary[_sigmoid_backward_op](grad_output, output)
 
 
@@ -745,6 +757,7 @@ def tanh_backward(
         )
 
     from .dtype_dispatch import dispatch_float_binary
+
     return dispatch_float_binary[_tanh_backward_op](grad_output, output)
 
 
@@ -775,6 +788,7 @@ def gelu_backward(
         raise Error("gelu_backward: grad_output and x must have same shape")
 
     from .dtype_dispatch import dispatch_gelu_backward
+
     return dispatch_gelu_backward(grad_output, x, approximate)
 
 
@@ -829,6 +843,7 @@ def softmax_backward(
         outer_size *= output._shape[i]
 
     from .dtype_dispatch import dispatch_softmax_backward
+
     return dispatch_softmax_backward(
         grad_output, output, outer_size, axis_size, axis_stride
     )
@@ -861,6 +876,7 @@ def swish(tensor: AnyTensor) raises -> AnyTensor:
             Ramachandran et al., "Searching for Activation Functions" (2017).
     """
     from .arithmetic import multiply
+
     # swish(x) = x * sigmoid(x)
     var sig = sigmoid(tensor)
     return multiply(tensor, sig)
@@ -915,9 +931,7 @@ def softplus(tensor: AnyTensor, beta: Float64 = 1.0) raises -> AnyTensor:
             var x_abs = abs(x)
             var exp_neg_abs = exp_scalar_f32(-x_abs)
             var log_term = math_log(Float64(1.0 + exp_neg_abs))
-            result[i] = Float32(
-                x_pos + Float32(log_term)
-            )
+            result[i] = Float32(x_pos + Float32(log_term))
     else:
         raise Error(
             "softplus only supports float16, float32, float64, got: "
@@ -950,6 +964,7 @@ def mish(tensor: AnyTensor) raises -> AnyTensor:
         Misra, "Mish: A Self Regularized Non-Monotonic Activation Function" (2019).
     """
     from .arithmetic import multiply
+
     # Use fused softplus (1 allocation instead of 7)
     var sp = softplus(tensor)
     var tanh_softplus = tanh(sp)
@@ -1077,33 +1092,30 @@ def selu_backward(
             else:
                 var val_clipped = max(val, Float64(-20.0))
                 var exp_val = exp_scalar_f64(val_clipped)
-                result.set(i, (
-                    grad_val * lambda_ * alpha * exp_val
-                ))
+                result.set(i, (grad_val * lambda_ * alpha * exp_val))
     elif x.dtype() == DType.float16:
         for i in range(size):
             var val = Float32(x_ptr.bitcast[Float16]()[i])
             var grad_val = Float32(grad_ptr.bitcast[Float16]()[i])
 
             if val > 0:
-                result.set(i, Float16(
-                    grad_val * Float32(lambda_)
-                ))
+                result.set(i, Float16(grad_val * Float32(lambda_)))
             else:
                 var val_clipped = max(val, Float32(-20.0))
                 var exp_val = exp_scalar_f32(val_clipped)
-                result.set(i, Float16(
-                    grad_val * Float32(lambda_) * Float32(alpha) * exp_val
-                ))
+                result.set(
+                    i,
+                    Float16(
+                        grad_val * Float32(lambda_) * Float32(alpha) * exp_val
+                    ),
+                )
     else:
         raise Error("selu_backward: only float16/32/64 dtypes supported")
 
     return result
 
 
-def swish_backward(
-    grad_output: AnyTensor, x: AnyTensor
-) raises -> AnyTensor:
+def swish_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     """Backward pass for Swish activation.
 
         The derivative of swish is:
@@ -1121,6 +1133,7 @@ def swish_backward(
             Error: If operation fails.
     """
     from .arithmetic import add, subtract, multiply
+
     # Compute sigmoid(x)
     var sig = sigmoid(x)
 
@@ -1134,9 +1147,7 @@ def swish_backward(
     return multiply(grad_output, derivative)
 
 
-def mish_backward(
-    grad_output: AnyTensor, x: AnyTensor
-) raises -> AnyTensor:
+def mish_backward(grad_output: AnyTensor, x: AnyTensor) raises -> AnyTensor:
     """Backward pass for Mish activation.
 
         The derivative involves the derivative of tanh(softplus(x)).
@@ -1152,6 +1163,7 @@ def mish_backward(
             Error: If operation fails.
     """
     from .arithmetic import add, subtract, multiply
+
     # Use fused softplus (1 allocation instead of 7)
     var sp = softplus(x)
 
@@ -1209,9 +1221,7 @@ def elu_backward(
             else:
                 var val_clipped = max(val, Float32(-20.0))
                 var exp_val = exp_scalar_f32(val_clipped)
-                result[i] = (
-                    grad_val * Float32(alpha) * exp_val
-                )
+                result[i] = grad_val * Float32(alpha) * exp_val
     elif x.dtype() == DType.float64:
         for i in range(size):
             var val = x_ptr.bitcast[Float64]()[i]
@@ -1233,9 +1243,7 @@ def elu_backward(
             else:
                 var val_clipped = max(val, Float32(-20.0))
                 var exp_val = exp_scalar_f32(val_clipped)
-                result.set(i, Float16(
-                    grad_val * Float32(alpha) * exp_val
-                ))
+                result.set(i, Float16(grad_val * Float32(alpha) * exp_val))
     else:
         raise Error("elu_backward: only float16/32/64 dtypes supported")
 
@@ -1274,6 +1282,7 @@ def hard_sigmoid(tensor: AnyTensor) raises -> AnyTensor:
             Howard et al., "Searching for MobileNetV3" (2019).
     """
     from .dtype_dispatch import dispatch_hard_sigmoid
+
     return dispatch_hard_sigmoid(tensor)
 
 
@@ -1304,6 +1313,7 @@ def hard_swish(tensor: AnyTensor) raises -> AnyTensor:
             Howard et al., "Searching for MobileNetV3" (2019).
     """
     from .dtype_dispatch import dispatch_hard_swish
+
     return dispatch_hard_swish(tensor)
 
 
@@ -1337,6 +1347,7 @@ def hard_tanh(
             Standard activation function used in various architectures.
     """
     from .dtype_dispatch import dispatch_hard_tanh
+
     return dispatch_hard_tanh(tensor, min_val, max_val)
 
 
@@ -1374,6 +1385,7 @@ def hard_sigmoid_backward(
         )
 
     from .dtype_dispatch import dispatch_hard_sigmoid_backward
+
     return dispatch_hard_sigmoid_backward(grad_output, x)
 
 
@@ -1409,6 +1421,7 @@ def hard_swish_backward(
         )
 
     from .dtype_dispatch import dispatch_hard_swish_backward
+
     return dispatch_hard_swish_backward(grad_output, x)
 
 
@@ -1446,4 +1459,5 @@ def hard_tanh_backward(
         )
 
     from .dtype_dispatch import dispatch_hard_tanh_backward
+
     return dispatch_hard_tanh_backward(grad_output, x, min_val, max_val)

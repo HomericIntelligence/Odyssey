@@ -71,7 +71,8 @@ def test_reshape_contiguous_unchanged() raises:
 
 
 def test_reshape_noncontiguous_2d_to_2d() raises:
-    """Non-contiguous (4,3) transposed view -> (2,6) reshape produces correct values."""
+    """Non-contiguous (4,3) transposed view -> (2,6) reshape produces correct values.
+    """
     var t = arange(0.0, 12.0, 1.0, DType.float64)
     var t2 = reshape(t, [3, 4])
 

@@ -29,7 +29,9 @@ def test_dropout_forward_preserves_dtype_f32() raises:
     for i in range(input.numel()):
         data[i] = Float32(1.0)
     var output = layer.forward(input)
-    assert_true(output.dtype() == DType.float32, "output dtype should be float32")
+    assert_true(
+        output.dtype() == DType.float32, "output dtype should be float32"
+    )
     assert_true(output.numel() == 8, "output should have same numel")
     print("PASS: test_dropout_forward_preserves_dtype_f32")
 
@@ -42,7 +44,9 @@ def test_dropout_forward_preserves_dtype_f64() raises:
     for i in range(input.numel()):
         input.set(i, 1.0)
     var output = layer.forward(input)
-    assert_true(output.dtype() == DType.float64, "output dtype should be float64")
+    assert_true(
+        output.dtype() == DType.float64, "output dtype should be float64"
+    )
     print("PASS: test_dropout_forward_preserves_dtype_f64")
 
 

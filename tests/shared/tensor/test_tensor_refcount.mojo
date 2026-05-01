@@ -41,7 +41,8 @@ def test_refcount_shared_on_as_tensor() raises:
 
 
 def _make_tensor_from_anytensor() raises -> Tensor[DType.float32]:
-    """Helper: create AnyTensor, convert to Tensor, return Tensor (AnyTensor destroyed on return)."""
+    """Helper: create AnyTensor, convert to Tensor, return Tensor (AnyTensor destroyed on return).
+    """
     var any_t = zeros([4], DType.float32)
     any_t._set_float32(0, Float32(1.5))
     any_t._set_float32(1, Float32(0.5))
@@ -59,7 +60,8 @@ def test_refcount_survives_source_destruction() raises:
 
 
 def _make_anytensor_from_tensor() raises -> AnyTensor:
-    """Helper: create Tensor, convert to AnyTensor, return AnyTensor (Tensor destroyed on return)."""
+    """Helper: create Tensor, convert to AnyTensor, return AnyTensor (Tensor destroyed on return).
+    """
     var t = Tensor[DType.float32]([4])
     t._data[0] = Scalar[DType.float32](0.125)
     return t.as_any()

@@ -592,16 +592,20 @@ def _matmul_float32(
 
                     # Store accumulated results
                     c_ptr.store(
-                        (i + 0) * N + col_j, c_ptr.load((i + 0) * N + col_j) + c0
+                        (i + 0) * N + col_j,
+                        c_ptr.load((i + 0) * N + col_j) + c0,
                     )
                     c_ptr.store(
-                        (i + 1) * N + col_j, c_ptr.load((i + 1) * N + col_j) + c1
+                        (i + 1) * N + col_j,
+                        c_ptr.load((i + 1) * N + col_j) + c1,
                     )
                     c_ptr.store(
-                        (i + 2) * N + col_j, c_ptr.load((i + 2) * N + col_j) + c2
+                        (i + 2) * N + col_j,
+                        c_ptr.load((i + 2) * N + col_j) + c2,
                     )
                     c_ptr.store(
-                        (i + 3) * N + col_j, c_ptr.load((i + 3) * N + col_j) + c3
+                        (i + 3) * N + col_j,
+                        c_ptr.load((i + 3) * N + col_j) + c3,
                     )
 
                 i += MICRO_M
@@ -619,7 +623,9 @@ def _matmul_float32(
                         c_val += (a_vec * bt_vec).reduce_add()
 
                     vectorize[simd_width](K, vec_k_rem)
-                    c_ptr.store(i * N + col_j, c_ptr.load(i * N + col_j) + c_val)
+                    c_ptr.store(
+                        i * N + col_j, c_ptr.load(i * N + col_j) + c_val
+                    )
 
                 i += 1
 
@@ -674,16 +680,20 @@ def _matmul_float64(
                     vectorize[simd_width](K, vec_k)
 
                     c_ptr.store(
-                        (i + 0) * N + col_j, c_ptr.load((i + 0) * N + col_j) + c0
+                        (i + 0) * N + col_j,
+                        c_ptr.load((i + 0) * N + col_j) + c0,
                     )
                     c_ptr.store(
-                        (i + 1) * N + col_j, c_ptr.load((i + 1) * N + col_j) + c1
+                        (i + 1) * N + col_j,
+                        c_ptr.load((i + 1) * N + col_j) + c1,
                     )
                     c_ptr.store(
-                        (i + 2) * N + col_j, c_ptr.load((i + 2) * N + col_j) + c2
+                        (i + 2) * N + col_j,
+                        c_ptr.load((i + 2) * N + col_j) + c2,
                     )
                     c_ptr.store(
-                        (i + 3) * N + col_j, c_ptr.load((i + 3) * N + col_j) + c3
+                        (i + 3) * N + col_j,
+                        c_ptr.load((i + 3) * N + col_j) + c3,
                     )
 
                 i += MICRO_M
@@ -701,7 +711,9 @@ def _matmul_float64(
                         c_val += (a_vec * bt_vec).reduce_add()
 
                     vectorize[simd_width](K, vec_k_rem)
-                    c_ptr.store(i * N + col_j, c_ptr.load(i * N + col_j) + c_val)
+                    c_ptr.store(
+                        i * N + col_j, c_ptr.load(i * N + col_j) + c_val
+                    )
 
                 i += 1
 

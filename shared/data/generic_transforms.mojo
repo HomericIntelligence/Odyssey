@@ -96,10 +96,10 @@ struct LambdaTransform(Copyable, Movable, Transform):
         ```
     """
 
-    var func: def (Float32) -> Float32
+    var func: def(Float32) -> Float32
     """Function to apply element-wise to tensor values."""
 
-    def __init__(out self, func: def (Float32) -> Float32):
+    def __init__(out self, func: def(Float32) -> Float32):
         """Create lambda transform.
 
         Args:
@@ -155,14 +155,14 @@ struct ConditionalTransform[T: Transform & Copyable & Movable](
         ```
     """
 
-    var predicate: def (AnyTensor) raises -> Bool
+    var predicate: def(AnyTensor) raises -> Bool
     """Predicate function to evaluate on tensor."""
     var transform: Self.T
     """Transform to apply if predicate is true."""
 
     def __init__(
         out self,
-        predicate: def (AnyTensor) raises -> Bool,
+        predicate: def(AnyTensor) raises -> Bool,
         var transform: Self.T,
     ):
         """Create conditional transform.
@@ -733,7 +733,7 @@ struct ToInt32(Copyable, Movable, Transform):
 
 
 def apply_to_tensor(
-    data: AnyTensor, func: def (Float32) -> Float32
+    data: AnyTensor, func: def(Float32) -> Float32
 ) raises -> AnyTensor:
     """Apply function element-wise to tensor.
 

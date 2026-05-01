@@ -221,28 +221,22 @@ def sgd_momentum_update_inplace(
         # Update velocity and parameters in-place
         for i in range(numel):
             # velocity = momentum * velocity - lr * grad
-            var v = (
-                momentum_f32 * velocity.load[DType.float32](i)
-                - lr_f32 * grad.load[DType.float32](i)
-            )
+            var v = momentum_f32 * velocity.load[DType.float32](
+                i
+            ) - lr_f32 * grad.load[DType.float32](i)
             velocity.store[DType.float32](i, v)
             # param = param + velocity
-            param.store[DType.float32](
-                i, param.load[DType.float32](i) + v
-            )
+            param.store[DType.float32](i, param.load[DType.float32](i) + v)
     elif param.dtype() == DType.float64:
         # Update velocity and parameters in-place
         for i in range(numel):
             # velocity = momentum * velocity - lr * grad
-            var v = (
-                momentum * velocity.load[DType.float64](i)
-                - lr * grad.load[DType.float64](i)
-            )
+            var v = momentum * velocity.load[DType.float64](i) - lr * grad.load[
+                DType.float64
+            ](i)
             velocity.store[DType.float64](i, v)
             # param = param + velocity
-            param.store[DType.float64](
-                i, param.load[DType.float64](i) + v
-            )
+            param.store[DType.float64](i, param.load[DType.float64](i) + v)
     else:
         raise Error(
             "sgd_momentum_update_inplace only supports float32 and float64"

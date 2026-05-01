@@ -86,7 +86,10 @@ def test_concat_noncontiguous_axis0() raises:
     # Override strides to column-major [1, 2]: non-contiguous
     t._strides[0] = 1
     t._strides[1] = 2
-    assert_true(not t.is_contiguous(), "Tensor should be non-contiguous after stride override")
+    assert_true(
+        not t.is_contiguous(),
+        "Tensor should be non-contiguous after stride override",
+    )
 
     # Contiguous pad tensor filled with 0.0
     var pad = zeros(shape, DType.float32)
@@ -119,7 +122,8 @@ def test_concat_noncontiguous_axis0() raises:
 
 
 def test_concat_incompatible_shapes_raises() raises:
-    """Error path: concatenating tensors with incompatible shapes raises Error."""
+    """Error path: concatenating tensors with incompatible shapes raises Error.
+    """
     var shape_a = List[Int]()
     shape_a.append(2)
     shape_a.append(3)

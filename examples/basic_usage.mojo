@@ -3,7 +3,15 @@
 Demonstrates creation operations and basic tensor manipulation.
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange, eye, linspace
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    full,
+    arange,
+    eye,
+    linspace,
+)
 
 
 def main() raises:

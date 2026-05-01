@@ -104,12 +104,12 @@ def EMNIST_BALANCED_CLASSES() -> List[String]:
     # Uppercase letters A-Z
     var uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     for i in range(26):
-        classes.append(String(uppercase[byte=i:i+1]))
+        classes.append(String(uppercase[byte = i : i + 1]))
 
     # Lowercase letters a-k (11 classes)
     var lowercase = "abcdefghijk"
     for i in range(11):
-        classes.append(String(lowercase[byte=i:i+1]))
+        classes.append(String(lowercase[byte = i : i + 1]))
 
     return classes^
 
@@ -141,12 +141,12 @@ def EMNIST_BYCLASS_CLASSES() -> List[String]:
     # Uppercase letters A-Z
     var uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     for i in range(26):
-        classes.append(String(uppercase[byte=i:i+1]))
+        classes.append(String(uppercase[byte = i : i + 1]))
 
     # Lowercase letters a-z
     var lowercase = "abcdefghijklmnopqrstuvwxyz"
     for i in range(26):
-        classes.append(String(lowercase[byte=i:i+1]))
+        classes.append(String(lowercase[byte = i : i + 1]))
 
     return classes^
 
@@ -178,7 +178,7 @@ def EMNIST_BYMERGE_CLASSES() -> List[String]:
     # Uppercase letters A-Z (merged with lowercase)
     var uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     for i in range(26):
-        classes.append(String(uppercase[byte=i:i+1]))
+        classes.append(String(uppercase[byte = i : i + 1]))
 
     return classes^
 
@@ -228,12 +228,12 @@ def EMNIST_LETTERS_CLASSES() -> List[String]:
     # Uppercase letters A–Z
     var uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     for i in range(26):
-        classes.append(String(uppercase[byte=i:i+1]))
+        classes.append(String(uppercase[byte = i : i + 1]))
 
     # Lowercase letters a–z
     var lowercase = "abcdefghijklmnopqrstuvwxyz"
     for i in range(26):
-        classes.append(String(lowercase[byte=i:i+1]))
+        classes.append(String(lowercase[byte = i : i + 1]))
 
     return classes^
 

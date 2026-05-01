@@ -10,9 +10,19 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_equal,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    zeros_like,
+    ones_like,
+)
 from shared.core.conv import conv2d, conv2d_backward
-from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import (
+    check_gradient,
+    NumericalForward,
+    NumericalBackward,
+)
 
 
 @fieldwise_init
@@ -29,7 +39,9 @@ struct _Conv2dInpPad1Bwd(NumericalBackward):
     var kernel: AnyTensor
 
     def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        var grads = conv2d_backward(grad_out, inp, self.kernel, stride=1, padding=1)
+        var grads = conv2d_backward(
+            grad_out, inp, self.kernel, stride=1, padding=1
+        )
         return grads.grad_input
 
 
@@ -74,7 +86,12 @@ def test_conv2d_backward_grad_input_padding1() raises:
         grad_output.set(i, Float32(i % 4) * Float32(0.25) - Float32(0.3))
 
     check_gradient(
-        _Conv2dInpPad1Fwd(kernel, bias), _Conv2dInpPad1Bwd(kernel), x, grad_output, rtol=1e-2, atol=1e-2
+        _Conv2dInpPad1Fwd(kernel, bias),
+        _Conv2dInpPad1Bwd(kernel),
+        x,
+        grad_output,
+        rtol=1e-2,
+        atol=1e-2,
     )
 
 
@@ -160,7 +177,9 @@ struct _Conv2dInpPad2Bwd(NumericalBackward):
     var kernel: AnyTensor
 
     def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        var grads = conv2d_backward(grad_out, inp, self.kernel, stride=1, padding=2)
+        var grads = conv2d_backward(
+            grad_out, inp, self.kernel, stride=1, padding=2
+        )
         return grads.grad_input
 
 
@@ -206,7 +225,12 @@ def test_conv2d_backward_grad_input_padding2() raises:
         grad_output.set(i, Float32(i % 4) * Float32(0.25) - Float32(0.3))
 
     check_gradient(
-        _Conv2dInpPad2Fwd(kernel, bias), _Conv2dInpPad2Bwd(kernel), x, grad_output, rtol=1e-2, atol=1e-2
+        _Conv2dInpPad2Fwd(kernel, bias),
+        _Conv2dInpPad2Bwd(kernel),
+        x,
+        grad_output,
+        rtol=1e-2,
+        atol=1e-2,
     )
 
 
@@ -281,7 +305,9 @@ def test_conv2d_backward_grad_weights_padding2() raises:
 
 def main() raises:
     """Run numerical gradient tests for conv2d_backward with padding > 0."""
-    print("Running conv2d_backward numerical gradient tests with padding > 0...")
+    print(
+        "Running conv2d_backward numerical gradient tests with padding > 0..."
+    )
     test_conv2d_backward_grad_input_padding1()
     print("✓ test_conv2d_backward_grad_input_padding1")
     test_conv2d_backward_grad_weights_padding1()

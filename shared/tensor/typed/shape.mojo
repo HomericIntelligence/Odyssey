@@ -81,9 +81,7 @@ def _as_contiguous_dispatch[
     dtype: DType
 ](tensor: AnyTensor) raises -> AnyTensor:
     """Dispatch as_contiguous to typed core."""
-    return _as_contiguous_typed[dtype](
-        tensor.as_tensor[dtype]()
-    ).as_any()
+    return _as_contiguous_typed[dtype](tensor.as_tensor[dtype]()).as_any()
 
 
 # ============================================================================
@@ -154,9 +152,7 @@ def _reshape_dispatch[
     dtype: DType
 ](tensor: AnyTensor, new_shape: List[Int]) raises -> AnyTensor:
     """Dispatch reshape to typed core."""
-    return _reshape_typed[dtype](
-        tensor.as_tensor[dtype](), new_shape
-    ).as_any()
+    return _reshape_typed[dtype](tensor.as_tensor[dtype](), new_shape).as_any()
 
 
 # ============================================================================
@@ -354,6 +350,4 @@ def _permute_dispatch[
     dtype: DType
 ](tensor: AnyTensor, dims: List[Int]) raises -> AnyTensor:
     """Dispatch permute to typed core."""
-    return _permute_typed[dtype](
-        tensor.as_tensor[dtype](), dims
-    ).as_any()
+    return _permute_typed[dtype](tensor.as_tensor[dtype](), dims).as_any()

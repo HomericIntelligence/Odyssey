@@ -214,6 +214,7 @@ def reshape(tensor: AnyTensor, new_shape: List[Int]) raises -> AnyTensor:
     else:
         raise Error("reshape: unsupported dtype")
 
+
 def squeeze(tensor: AnyTensor, axis: Int = -999) raises -> AnyTensor:
     """Remove size-1 dimensions.
 
@@ -498,7 +499,9 @@ def concatenate(tensors: List[AnyTensor], axis: Int = 0) raises -> AnyTensor:
                     var src_ptr = t._data.bitcast[UInt8]()
                     var dst_ptr = result._data.bitcast[UInt8]()
                     for b in range(dtype_size):
-                        dst_ptr[dst_byte_offset + b] = src_ptr[src_byte_offset + b]
+                        dst_ptr[dst_byte_offset + b] = src_ptr[
+                            src_byte_offset + b
+                        ]
 
             offset_bytes += t_bytes
     else:
@@ -1225,7 +1228,9 @@ def repeat(tensor: AnyTensor, n: Int, axis: Int = -1) raises -> AnyTensor:
         return result^
 
 
-def broadcast_to(tensor: AnyTensor, target_shape: List[Int]) raises -> AnyTensor:
+def broadcast_to(
+    tensor: AnyTensor, target_shape: List[Int]
+) raises -> AnyTensor:
     """Broadcast tensor to target shape.
 
     Args:
@@ -1278,6 +1283,7 @@ def broadcast_to(tensor: AnyTensor, target_shape: List[Int]) raises -> AnyTensor
         return _broadcast_to_dispatch[DType.uint64](tensor, target_shape)
     else:
         raise Error("broadcast_to: unsupported dtype")
+
 
 def _validate_permute_dims(dims: List[Int], ndim: Int) raises:
     """Validate dims is a valid permutation of [0..ndim-1].

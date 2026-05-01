@@ -14,12 +14,22 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_close_float,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    zeros_like,
+    ones_like,
+)
 from shared.core.loss import binary_cross_entropy, binary_cross_entropy_backward
 from shared.core.loss import mean_squared_error, mean_squared_error_backward
 from shared.core.reduction import mean
 from shared.core.loss import smooth_l1_loss, smooth_l1_loss_backward
-from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import (
+    check_gradient,
+    NumericalForward,
+    NumericalBackward,
+)
 from shared.core.loss import hinge_loss, hinge_loss_backward
 from shared.core.loss import focal_loss, focal_loss_backward
 from shared.core.loss import kl_divergence, kl_divergence_backward
@@ -268,7 +278,9 @@ struct _BCEFwd(NumericalForward):
 struct _BCEBwd(NumericalBackward):
     var targets: AnyTensor
 
-    def __call__(self, grad_out: AnyTensor, pred: AnyTensor) raises -> AnyTensor:
+    def __call__(
+        self, grad_out: AnyTensor, pred: AnyTensor
+    ) raises -> AnyTensor:
         return binary_cross_entropy_backward(grad_out, pred, self.targets)
 
 
@@ -297,7 +309,12 @@ def test_binary_cross_entropy_backward_gradient() raises:
 
     # Numerical gradient checking (relaxed tolerance for float32 precision)
     check_gradient(
-        _BCEFwd(targets), _BCEBwd(targets), predictions, grad_output, rtol=2e-3, atol=1e-5
+        _BCEFwd(targets),
+        _BCEBwd(targets),
+        predictions,
+        grad_output,
+        rtol=2e-3,
+        atol=1e-5,
     )
 
     print("  ✓ BCE backward gradient check passed")
@@ -315,7 +332,9 @@ struct _MSEFwd(NumericalForward):
 struct _MSEBwd(NumericalBackward):
     var targets: AnyTensor
 
-    def __call__(self, grad_out: AnyTensor, pred: AnyTensor) raises -> AnyTensor:
+    def __call__(
+        self, grad_out: AnyTensor, pred: AnyTensor
+    ) raises -> AnyTensor:
         return mean_squared_error_backward(grad_out, pred, self.targets)
 
 
@@ -346,7 +365,12 @@ def test_mean_squared_error_backward_gradient() raises:
 
     # Numerical gradient checking (relaxed tolerance for float32 precision)
     check_gradient(
-        _MSEFwd(targets), _MSEBwd(targets), predictions, grad_output, rtol=2e-3, atol=1e-5
+        _MSEFwd(targets),
+        _MSEBwd(targets),
+        predictions,
+        grad_output,
+        rtol=2e-3,
+        atol=1e-5,
     )
 
     print("  ✓ MSE backward gradient check passed")
@@ -531,8 +555,12 @@ struct _SmoothL1Bwd(NumericalBackward):
     var targets: AnyTensor
     var beta: Float32
 
-    def __call__(self, grad_out: AnyTensor, pred: AnyTensor) raises -> AnyTensor:
-        return smooth_l1_loss_backward(grad_out, pred, self.targets, beta=self.beta)
+    def __call__(
+        self, grad_out: AnyTensor, pred: AnyTensor
+    ) raises -> AnyTensor:
+        return smooth_l1_loss_backward(
+            grad_out, pred, self.targets, beta=self.beta
+        )
 
 
 def test_smooth_l1_backward_gradient() raises:
@@ -562,7 +590,12 @@ def test_smooth_l1_backward_gradient() raises:
 
     # Numerical gradient checking (relaxed tolerance for smooth L1)
     check_gradient(
-        _SmoothL1Fwd(targets, beta), _SmoothL1Bwd(targets, beta), predictions, grad_output, rtol=1e-2, atol=1e-3
+        _SmoothL1Fwd(targets, beta),
+        _SmoothL1Bwd(targets, beta),
+        predictions,
+        grad_output,
+        rtol=1e-2,
+        atol=1e-3,
     )
 
     print("  ✓ Smooth L1 backward gradient check passed")
@@ -714,7 +747,9 @@ struct _HingeFwd(NumericalForward):
 struct _HingeBwd(NumericalBackward):
     var targets: AnyTensor
 
-    def __call__(self, grad_out: AnyTensor, pred: AnyTensor) raises -> AnyTensor:
+    def __call__(
+        self, grad_out: AnyTensor, pred: AnyTensor
+    ) raises -> AnyTensor:
         return hinge_loss_backward(grad_out, pred, self.targets)
 
 
@@ -743,7 +778,12 @@ def test_hinge_loss_backward_gradient() raises:
 
     # Numerical gradient checking (relaxed tolerance for discontinuous gradient)
     check_gradient(
-        _HingeFwd(targets), _HingeBwd(targets), predictions, grad_output, rtol=1e-2, atol=1e-3
+        _HingeFwd(targets),
+        _HingeBwd(targets),
+        predictions,
+        grad_output,
+        rtol=1e-2,
+        atol=1e-3,
     )
 
     print("  ✓ Hinge backward gradient check passed")
@@ -847,7 +887,9 @@ struct _FocalFwd(NumericalForward):
 struct _FocalBwd(NumericalBackward):
     var targets: AnyTensor
 
-    def __call__(self, grad_out: AnyTensor, pred: AnyTensor) raises -> AnyTensor:
+    def __call__(
+        self, grad_out: AnyTensor, pred: AnyTensor
+    ) raises -> AnyTensor:
         return focal_loss_backward(grad_out, pred, self.targets)
 
 
@@ -876,7 +918,12 @@ def test_focal_loss_backward_gradient() raises:
 
     # Numerical gradient checking (relaxed tolerance for float32 precision)
     check_gradient(
-        _FocalFwd(targets), _FocalBwd(targets), predictions, grad_output, rtol=2e-2, atol=1e-4
+        _FocalFwd(targets),
+        _FocalBwd(targets),
+        predictions,
+        grad_output,
+        rtol=2e-2,
+        atol=1e-4,
     )
 
     print("  ✓ Focal loss backward gradient check passed")
@@ -983,7 +1030,9 @@ struct _KLFwd(NumericalForward):
 struct _KLBwd(NumericalBackward):
     var p: AnyTensor
 
-    def __call__(self, grad_out: AnyTensor, q_dist: AnyTensor) raises -> AnyTensor:
+    def __call__(
+        self, grad_out: AnyTensor, q_dist: AnyTensor
+    ) raises -> AnyTensor:
         return kl_divergence_backward(grad_out, self.p, q_dist)
 
 

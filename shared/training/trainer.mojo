@@ -117,10 +117,10 @@ struct BaseTrainer(Trainer):
 
     def fit(
         mut self,
-        model_forward: def (AnyTensor) raises -> AnyTensor,
-        compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
-        optimizer_step: def () raises -> None,
-        zero_gradients: def () raises -> None,
+        model_forward: def(AnyTensor) raises -> AnyTensor,
+        compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+        optimizer_step: def() raises -> None,
+        zero_gradients: def() raises -> None,
         mut train_loader: DataLoader,
         mut val_loader: DataLoader,
         mut early_stopping: Optional[EarlyStopping],

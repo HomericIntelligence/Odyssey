@@ -27,7 +27,7 @@ from shared.base.dtype_ordinal import (
 
 
 def _unary_typed[
-    dt: DType, op: def[T: DType] (Scalar[T]) -> Scalar[T]
+    dt: DType, op: def[T: DType](Scalar[T]) -> Scalar[T]
 ](input: Tensor[dt]) raises -> Tensor[dt]:
     """Apply unary operation on native Tensor[dtype] -- zero dtype branches.
 
@@ -57,7 +57,7 @@ def _unary_typed[
 
 
 def _dispatch_unary_typed[
-    op: def[T: DType] (Scalar[T]) -> Scalar[T]
+    op: def[T: DType](Scalar[T]) -> Scalar[T]
 ](tensor: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch to Tensor[dtype] typed unary core (all dtypes).
 
@@ -75,33 +75,55 @@ def _dispatch_unary_typed[
     """
     var ordinal = dtype_to_ordinal(tensor._dtype)
     if ordinal == DTYPE_FLOAT16:
-        return _unary_typed[DType.float16, op](tensor.as_tensor[DType.float16]()).as_any()
+        return _unary_typed[DType.float16, op](
+            tensor.as_tensor[DType.float16]()
+        ).as_any()
     elif ordinal == DTYPE_FLOAT32:
-        return _unary_typed[DType.float32, op](tensor.as_tensor[DType.float32]()).as_any()
+        return _unary_typed[DType.float32, op](
+            tensor.as_tensor[DType.float32]()
+        ).as_any()
     elif ordinal == DTYPE_FLOAT64:
-        return _unary_typed[DType.float64, op](tensor.as_tensor[DType.float64]()).as_any()
+        return _unary_typed[DType.float64, op](
+            tensor.as_tensor[DType.float64]()
+        ).as_any()
     elif ordinal == DTYPE_INT8:
-        return _unary_typed[DType.int8, op](tensor.as_tensor[DType.int8]()).as_any()
+        return _unary_typed[DType.int8, op](
+            tensor.as_tensor[DType.int8]()
+        ).as_any()
     elif ordinal == DTYPE_INT16:
-        return _unary_typed[DType.int16, op](tensor.as_tensor[DType.int16]()).as_any()
+        return _unary_typed[DType.int16, op](
+            tensor.as_tensor[DType.int16]()
+        ).as_any()
     elif ordinal == DTYPE_INT32:
-        return _unary_typed[DType.int32, op](tensor.as_tensor[DType.int32]()).as_any()
+        return _unary_typed[DType.int32, op](
+            tensor.as_tensor[DType.int32]()
+        ).as_any()
     elif ordinal == DTYPE_INT64:
-        return _unary_typed[DType.int64, op](tensor.as_tensor[DType.int64]()).as_any()
+        return _unary_typed[DType.int64, op](
+            tensor.as_tensor[DType.int64]()
+        ).as_any()
     elif ordinal == DTYPE_UINT8:
-        return _unary_typed[DType.uint8, op](tensor.as_tensor[DType.uint8]()).as_any()
+        return _unary_typed[DType.uint8, op](
+            tensor.as_tensor[DType.uint8]()
+        ).as_any()
     elif ordinal == DTYPE_UINT16:
-        return _unary_typed[DType.uint16, op](tensor.as_tensor[DType.uint16]()).as_any()
+        return _unary_typed[DType.uint16, op](
+            tensor.as_tensor[DType.uint16]()
+        ).as_any()
     elif ordinal == DTYPE_UINT32:
-        return _unary_typed[DType.uint32, op](tensor.as_tensor[DType.uint32]()).as_any()
+        return _unary_typed[DType.uint32, op](
+            tensor.as_tensor[DType.uint32]()
+        ).as_any()
     elif ordinal == DTYPE_UINT64:
-        return _unary_typed[DType.uint64, op](tensor.as_tensor[DType.uint64]()).as_any()
+        return _unary_typed[DType.uint64, op](
+            tensor.as_tensor[DType.uint64]()
+        ).as_any()
     else:
         raise Error("Unsupported dtype for unary operation")
 
 
 def _dispatch_float_unary_typed[
-    op: def[T: DType] (Scalar[T]) -> Scalar[T]
+    op: def[T: DType](Scalar[T]) -> Scalar[T]
 ](tensor: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch to Tensor[dtype] typed unary core (float dtypes only).
 
@@ -116,10 +138,19 @@ def _dispatch_float_unary_typed[
     """
     var ordinal = dtype_to_ordinal(tensor._dtype)
     if ordinal == DTYPE_FLOAT16:
-        return _unary_typed[DType.float16, op](tensor.as_tensor[DType.float16]()).as_any()
+        return _unary_typed[DType.float16, op](
+            tensor.as_tensor[DType.float16]()
+        ).as_any()
     elif ordinal == DTYPE_FLOAT32:
-        return _unary_typed[DType.float32, op](tensor.as_tensor[DType.float32]()).as_any()
+        return _unary_typed[DType.float32, op](
+            tensor.as_tensor[DType.float32]()
+        ).as_any()
     elif ordinal == DTYPE_FLOAT64:
-        return _unary_typed[DType.float64, op](tensor.as_tensor[DType.float64]()).as_any()
+        return _unary_typed[DType.float64, op](
+            tensor.as_tensor[DType.float64]()
+        ).as_any()
     else:
-        raise Error("Unsupported dtype for float unary operation (requires float16/32/64)")
+        raise Error(
+            "Unsupported dtype for float unary operation (requires"
+            " float16/32/64)"
+        )

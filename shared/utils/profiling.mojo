@@ -419,7 +419,7 @@ def get_memory_delta(before: MemoryStats, after: MemoryStats) -> Int:
 
 
 def profile_function(
-    name: String, func_ptr: def () raises -> None
+    name: String, func_ptr: def() raises -> None
 ) raises -> TimingStats:
     """Profile a function for execution time.
 
@@ -449,7 +449,7 @@ def profile_function(
 
 
 def benchmark_function(
-    name: String, func_ptr: def () raises -> None, iterations: Int = 10
+    name: String, func_ptr: def() raises -> None, iterations: Int = 10
 ) raises -> TimingStats:
     """Benchmark function over multiple iterations.
 

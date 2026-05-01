@@ -56,7 +56,9 @@ def create_shape_vec(*dims: Int) -> List[Int]:
     return shape^
 
 
-def fill_tensor_sequential(mut tensor: AnyTensor, start_val: Float32 = 1.0) raises -> None:
+def fill_tensor_sequential(
+    mut tensor: AnyTensor, start_val: Float32 = 1.0
+) raises -> None:
     """Fill tensor with sequential values starting from start_val.
 
     Args:
@@ -535,7 +537,9 @@ def test_subtract_backward_gradient() raises:
     var output = subtract(a, b)
     var grad_output = ones_like(output)
 
-    check_gradient(_SubtractFwd(b), _SubtractBwd(b), a, grad_output, rtol=5e-3, atol=1e-5)
+    check_gradient(
+        _SubtractFwd(b), _SubtractBwd(b), a, grad_output, rtol=5e-3, atol=1e-5
+    )
 
 
 @fieldwise_init
@@ -573,7 +577,9 @@ def test_multiply_backward_gradient() raises:
     var output = multiply(a, b)
     var grad_output = ones_like(output)
 
-    check_gradient(_MultiplyFwd(b), _MultiplyBwd(b), a, grad_output, rtol=5e-3, atol=1e-5)
+    check_gradient(
+        _MultiplyFwd(b), _MultiplyBwd(b), a, grad_output, rtol=5e-3, atol=1e-5
+    )
 
 
 @fieldwise_init
@@ -611,7 +617,9 @@ def test_divide_backward_gradient() raises:
     var output = divide(a, b)
     var grad_output = ones_like(output)
 
-    check_gradient(_DivideFwd(b), _DivideBwd(b), a, grad_output, rtol=1e-2, atol=1e-5)
+    check_gradient(
+        _DivideFwd(b), _DivideBwd(b), a, grad_output, rtol=1e-2, atol=1e-5
+    )
 
 
 @fieldwise_init
@@ -648,7 +656,9 @@ def test_add_backward_b_gradient() raises:
     var output = add(a, b)
     var grad_output = ones_like(output)
 
-    check_gradient(_AddFwdB(a), _AddBwdB(a), b, grad_output, rtol=5e-3, atol=1e-5)
+    check_gradient(
+        _AddFwdB(a), _AddBwdB(a), b, grad_output, rtol=5e-3, atol=1e-5
+    )
 
 
 @fieldwise_init
@@ -685,7 +695,9 @@ def test_subtract_backward_b_gradient() raises:
     var output = subtract(a, b)
     var grad_output = ones_like(output)
 
-    check_gradient(_SubtractFwdB(a), _SubtractBwdB(a), b, grad_output, rtol=5e-3, atol=1e-5)
+    check_gradient(
+        _SubtractFwdB(a), _SubtractBwdB(a), b, grad_output, rtol=5e-3, atol=1e-5
+    )
 
 
 @fieldwise_init
@@ -722,7 +734,9 @@ def test_multiply_backward_b_gradient() raises:
     var output = multiply(a, b)
     var grad_output = ones_like(output)
 
-    check_gradient(_MultiplyFwdB(a), _MultiplyBwdB(a), b, grad_output, rtol=1e-2, atol=1e-5)
+    check_gradient(
+        _MultiplyFwdB(a), _MultiplyBwdB(a), b, grad_output, rtol=1e-2, atol=1e-5
+    )
 
 
 @fieldwise_init
@@ -759,7 +773,9 @@ def test_divide_backward_b_gradient() raises:
     var output = divide(a, b)
     var grad_output = ones_like(output)
 
-    check_gradient(_DivideFwdB(a), _DivideBwdB(a), b, grad_output, rtol=1e-2, atol=1e-5)
+    check_gradient(
+        _DivideFwdB(a), _DivideBwdB(a), b, grad_output, rtol=1e-2, atol=1e-5
+    )
 
 
 @fieldwise_init
@@ -834,7 +850,14 @@ def test_add_backward_broadcast_gradient() raises:
     var output = add(a, b)
     var grad_output = ones_like(output)
 
-    check_gradient(_AddBroadcastFwd(a), _AddBroadcastBwd(a), b, grad_output, rtol=5e-3, atol=1e-5)
+    check_gradient(
+        _AddBroadcastFwd(a),
+        _AddBroadcastBwd(a),
+        b,
+        grad_output,
+        rtol=5e-3,
+        atol=1e-5,
+    )
 
 
 def test_multiply_backward_broadcast_gradient() raises:
@@ -858,7 +881,14 @@ def test_multiply_backward_broadcast_gradient() raises:
     var output = multiply(a, b)
     var grad_output = ones_like(output)
 
-    check_gradient(_MultiplyBroadcastFwd(a), _MultiplyBroadcastBwd(a), b, grad_output, rtol=5e-3, atol=1e-5)
+    check_gradient(
+        _MultiplyBroadcastFwd(a),
+        _MultiplyBroadcastBwd(a),
+        b,
+        grad_output,
+        rtol=5e-3,
+        atol=1e-5,
+    )
 
 
 def test_divide_backward_broadcast_gradient() raises:
@@ -882,7 +912,14 @@ def test_divide_backward_broadcast_gradient() raises:
     var output = divide(a, b)
     var grad_output = ones_like(output)
 
-    check_gradient(_DivideBroadcastFwd(a), _DivideBroadcastBwd(a), b, grad_output, rtol=5e-3, atol=1e-5)
+    check_gradient(
+        _DivideBroadcastFwd(a),
+        _DivideBroadcastBwd(a),
+        b,
+        grad_output,
+        rtol=5e-3,
+        atol=1e-5,
+    )
 
 
 def main() raises:

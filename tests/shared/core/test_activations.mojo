@@ -315,7 +315,9 @@ def test_leaky_relu_backward() raises:
     var grad_out = ones_like(y)
 
     # Note: rtol=1e-3 is appropriate for float32 finite differences
-    check_gradient(_LeakyReluFwd(), _LeakyReluBwd(), x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(
+        _LeakyReluFwd(), _LeakyReluBwd(), x, grad_out, rtol=1e-3, atol=1e-6
+    )
 
 
 def test_prelu_basic() raises:
@@ -446,7 +448,9 @@ def test_prelu_backward() raises:
     var grad_out = ones_like(y)
 
     # Note: rtol=1e-3 is appropriate for float32 finite differences
-    check_gradient(_PreluFwd(alpha), _PreluBwd(alpha), x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(
+        _PreluFwd(alpha), _PreluBwd(alpha), x, grad_out, rtol=1e-3, atol=1e-6
+    )
 
 
 def test_sigmoid_basic() raises:
@@ -501,7 +505,9 @@ def test_sigmoid_backward() raises:
 
     # Use numerical gradient checking (gold standard)
     # Note: rtol=1e-3 is appropriate for float32 finite differences
-    check_gradient(_SigmoidFwd(), _SigmoidBwd(), x, grad_out, rtol=1e-3, atol=1e-6)
+    check_gradient(
+        _SigmoidFwd(), _SigmoidBwd(), x, grad_out, rtol=1e-3, atol=1e-6
+    )
 
 
 def test_sigmoid_range() raises:
@@ -819,7 +825,9 @@ def test_softmax_backward() raises:
     # Note: rtol=1e-3, atol=5e-4 is needed for float32 softmax gradients
     # Softmax involves exp() and division which amplify numerical errors,
     # especially at the edges of the distribution
-    check_gradient(_SoftmaxFwd(), _SoftmaxBwd(), x, grad_out, rtol=1e-3, atol=5e-4)
+    check_gradient(
+        _SoftmaxFwd(), _SoftmaxBwd(), x, grad_out, rtol=1e-3, atol=5e-4
+    )
 
 
 def test_gelu_basic() raises:

@@ -107,7 +107,9 @@ struct _Conv2DForward(NumericalForward):
     var padding: Int
 
     def __call__(self, x: AnyTensor) raises -> AnyTensor:
-        return conv2d(x, self.weights, self.bias, stride=self.stride, padding=self.padding)
+        return conv2d(
+            x, self.weights, self.bias, stride=self.stride, padding=self.padding
+        )
 
 
 @fieldwise_init
@@ -152,7 +154,12 @@ struct _BatchNormForward(NumericalForward):
 
     def __call__(self, x: AnyTensor) raises -> AnyTensor:
         var (bn_out, _, _) = batch_norm2d(
-            x, self.gamma, self.beta, self.running_mean, self.running_var, training=True
+            x,
+            self.gamma,
+            self.beta,
+            self.running_mean,
+            self.running_var,
+            training=True,
         )
         return tensor_sum(bn_out * self.grad_output)
 
@@ -684,8 +691,8 @@ struct LayerTester:
             # Optionally validate analytical gradient
             if validate_analytical:
                 # Compute sampled numerical gradients
-                var sampled_gradients = compute_sampled_numerical_gradient(forward,
-                    input, num_gradient_samples, epsilon, seed=42
+                var sampled_gradients = compute_sampled_numerical_gradient(
+                    forward, input, num_gradient_samples, epsilon, seed=42
                 )
 
                 # Create gradient output (upstream gradient)
@@ -710,8 +717,8 @@ struct LayerTester:
         else:
             # Exhaustive gradient checking (slower but thorough)
             # Compute numerical gradient (always computed for validation)
-            var numerical_grad = compute_numerical_gradient(forward,
-                input, epsilon
+            var numerical_grad = compute_numerical_gradient(
+                forward, input, epsilon
             )
 
             # Verify numerical gradient has correct shape
@@ -844,8 +851,8 @@ struct LayerTester:
             # Optionally validate analytical gradient
             if validate_analytical:
                 # Compute sampled numerical gradients
-                var sampled_gradients = compute_sampled_numerical_gradient(forward,
-                    input, num_gradient_samples, epsilon, seed=42
+                var sampled_gradients = compute_sampled_numerical_gradient(
+                    forward, input, num_gradient_samples, epsilon, seed=42
                 )
 
                 # Create gradient output (upstream gradient)
@@ -878,8 +885,8 @@ struct LayerTester:
         else:
             # Exhaustive gradient checking (slower but thorough)
             # Compute numerical gradient (always computed for validation)
-            var numerical_grad = compute_numerical_gradient(forward,
-                input, epsilon
+            var numerical_grad = compute_numerical_gradient(
+                forward, input, epsilon
             )
 
             # Verify numerical gradient has correct shape
@@ -1236,11 +1243,13 @@ struct LayerTester:
         # Define forward function for gradient checking.
         # Loss = sum(output * grad_output) so that the numerical gradient matches
         # the analytical gradient from batch_norm2d_backward(grad_output, ...).
-        var forward_for_grad = _BatchNormForward(gamma, beta, running_mean, running_var, grad_output)
+        var forward_for_grad = _BatchNormForward(
+            gamma, beta, running_mean, running_var, grad_output
+        )
 
         # Compute numerical gradient (exhaustive finite differences)
-        var numerical_grad = compute_numerical_gradient(forward_for_grad,
-            input, epsilon
+        var numerical_grad = compute_numerical_gradient(
+            forward_for_grad, input, epsilon
         )
 
         # Verify numerical gradient has correct shape

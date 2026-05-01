@@ -354,7 +354,9 @@ struct GoogLeNetSmall:
         self.fc_weights = xavier_normal(96, num_classes, [num_classes, 96])
         self.fc_bias = zeros([num_classes], DType.float32)
 
-    def forward(mut self, x: AnyTensor, training: Bool = True) raises -> AnyTensor:
+    def forward(
+        mut self, x: AnyTensor, training: Bool = True
+    ) raises -> AnyTensor:
         """Forward pass through simplified GoogLeNet."""
         # Initial conv
         var out = conv2d(

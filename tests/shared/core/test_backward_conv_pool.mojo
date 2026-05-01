@@ -5,7 +5,13 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_equal,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    zeros_like,
+    ones_like,
+)
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import (
     maxpool2d,
@@ -13,7 +19,11 @@ from shared.core.pooling import (
     avgpool2d,
     avgpool2d_backward,
 )
-from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import (
+    check_gradient,
+    NumericalForward,
+    NumericalBackward,
+)
 
 
 # ============================================================================
@@ -21,7 +31,9 @@ from shared.testing.gradient_checker import check_gradient, NumericalForward, Nu
 # ============================================================================
 
 
-def _make_test_conv2d_tensors() raises -> Tuple[AnyTensor, AnyTensor, AnyTensor]:
+def _make_test_conv2d_tensors() raises -> (
+    Tuple[AnyTensor, AnyTensor, AnyTensor]
+):
     """Create and initialize test tensors for conv2d backward tests.
 
     Returns:
@@ -150,7 +162,9 @@ struct _Conv2dInpBwd(NumericalBackward):
     var kernel: AnyTensor
 
     def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        var grads = conv2d_backward(grad_out, inp, self.kernel, stride=1, padding=0)
+        var grads = conv2d_backward(
+            grad_out, inp, self.kernel, stride=1, padding=0
+        )
         return grads.grad_input
 
 
@@ -165,7 +179,12 @@ def test_conv2d_backward_grad_input_numerical() raises:
     var output = conv2d(x, kernel, bias, stride=1, padding=0)
     var grad_output = ones_like(output)
     check_gradient(
-        _Conv2dInpFwd(kernel, bias), _Conv2dInpBwd(kernel), x, grad_output, rtol=1e-2, atol=1e-2
+        _Conv2dInpFwd(kernel, bias),
+        _Conv2dInpBwd(kernel),
+        x,
+        grad_output,
+        rtol=1e-2,
+        atol=1e-2,
     )
 
 
@@ -327,7 +346,9 @@ struct _Conv2dBwd(NumericalBackward):
     var kernel: AnyTensor
 
     def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        var grads = conv2d_backward(grad_out, inp, self.kernel, stride=1, padding=0)
+        var grads = conv2d_backward(
+            grad_out, inp, self.kernel, stride=1, padding=0
+        )
         return grads.grad_input
 
 
@@ -357,7 +378,14 @@ def test_conv2d_backward_gradient() raises:
 
     var output = conv2d(x, kernel, bias, stride=1, padding=0)
     var grad_output = ones_like(output)
-    check_gradient(_Conv2dFwd(kernel, bias), _Conv2dBwd(kernel), x, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(
+        _Conv2dFwd(kernel, bias),
+        _Conv2dBwd(kernel),
+        x,
+        grad_output,
+        rtol=1e-2,
+        atol=1e-2,
+    )
 
 
 @fieldwise_init
@@ -369,7 +397,9 @@ struct _MaxPool2dFwd(NumericalForward):
 @fieldwise_init
 struct _MaxPool2dBwd(NumericalBackward):
     def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return maxpool2d_backward(grad_out, inp, kernel_size=2, stride=2, padding=0)
+        return maxpool2d_backward(
+            grad_out, inp, kernel_size=2, stride=2, padding=0
+        )
 
 
 def test_maxpool2d_backward_gradient() raises:
@@ -385,7 +415,9 @@ def test_maxpool2d_backward_gradient() raises:
 
     var output = maxpool2d(x, kernel_size=2, stride=2, padding=0)
     var grad_output = ones_like(output)
-    check_gradient(_MaxPool2dFwd(), _MaxPool2dBwd(), x, grad_output, rtol=1e-3, atol=5e-4)
+    check_gradient(
+        _MaxPool2dFwd(), _MaxPool2dBwd(), x, grad_output, rtol=1e-3, atol=5e-4
+    )
 
 
 @fieldwise_init
@@ -397,7 +429,9 @@ struct _AvgPool2dFwd(NumericalForward):
 @fieldwise_init
 struct _AvgPool2dBwd(NumericalBackward):
     def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        return avgpool2d_backward(grad_out, inp, kernel_size=2, stride=2, padding=0)
+        return avgpool2d_backward(
+            grad_out, inp, kernel_size=2, stride=2, padding=0
+        )
 
 
 def test_avgpool2d_backward_gradient() raises:
@@ -413,7 +447,9 @@ def test_avgpool2d_backward_gradient() raises:
 
     var output = avgpool2d(x, kernel_size=2, stride=2, padding=0)
     var grad_output = ones_like(output)
-    check_gradient(_AvgPool2dFwd(), _AvgPool2dBwd(), x, grad_output, rtol=1e-3, atol=5e-4)
+    check_gradient(
+        _AvgPool2dFwd(), _AvgPool2dBwd(), x, grad_output, rtol=1e-3, atol=5e-4
+    )
 
 
 def main() raises:

@@ -15,7 +15,12 @@ Testing strategy:
 - Realistic workflows: Simulate actual ML training scenarios
 """
 
-from std.testing import assert_true, assert_false, assert_equal, assert_almost_equal
+from std.testing import (
+    assert_true,
+    assert_false,
+    assert_equal,
+    assert_almost_equal,
+)
 from shared.tensor.any_tensor import AnyTensor
 from shared.core.initializers import (
     xavier_uniform,

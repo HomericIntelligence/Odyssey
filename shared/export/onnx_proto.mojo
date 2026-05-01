@@ -112,8 +112,6 @@ struct AttributeProto(Copyable, Movable):
             result.ints.append(self.ints[j])
         return result^
 
-
-
     def set_float(mut self, value: Float32):
         """Set float value."""
         self.attr_type = ATTR_FLOAT
@@ -169,8 +167,6 @@ struct TensorShapeProto(Copyable, Movable):
         self.dims = List[Int64]()
         self.dim_params = List[String]()
 
-
-
     def add_dim(mut self, size: Int64):
         """Add a dimension with fixed size."""
         self.dims.append(size)
@@ -204,8 +200,6 @@ struct TypeProto(Copyable, Movable):
         self.elem_type = elem_type
         self.shape = TensorShapeProto()
 
-
-
     def encode(self) -> ProtoBuffer:
         """Encode to protobuf bytes."""
         var tensor_buf = ProtoBuffer()
@@ -229,8 +223,6 @@ struct ValueInfoProto(Copyable, Movable):
         self.name = name
         self.type_proto = TypeProto(elem_type)
         self.doc_string = String("")
-
-
 
     def add_dim(mut self, size: Int64):
         """Add a dimension to the shape."""
@@ -268,8 +260,6 @@ struct TensorProto(Copyable, Movable):
         self.float_data = List[Float32]()
         self.int64_data = List[Int64]()
         self.raw_data = List[UInt8]()
-
-
 
     def set_dims(mut self, var dims: List[Int64]):
         """Set tensor dimensions."""
@@ -320,8 +310,6 @@ struct NodeProto(Copyable, Movable):
         self.attributes = List[AttributeProto]()
         self.domain = String("")
         self.doc_string = String("")
-
-
 
     def add_input(mut self, name: String):
         """Add an input tensor name."""
@@ -387,8 +375,6 @@ struct OperatorSetIdProto(Copyable, Movable):
         self.domain = domain
         self.version = version
 
-
-
     def encode(self) -> ProtoBuffer:
         """Encode to protobuf bytes."""
         var buf = ProtoBuffer()
@@ -415,8 +401,6 @@ struct GraphProto(Copyable, Movable):
         self.outputs = List[ValueInfoProto]()
         self.initializers = List[TensorProto]()
         self.doc_string = String("")
-
-
 
     def add_node(mut self, var node: NodeProto):
         """Add a node to the graph."""
@@ -488,8 +472,6 @@ struct ModelProto(Copyable, Movable):
         self.doc_string = String("")
         self.graph = GraphProto()
         self.opset_imports = List[OperatorSetIdProto]()
-
-
 
     def set_opset(mut self, version: Int64, domain: String = ""):
         """Set the opset version.

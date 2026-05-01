@@ -68,7 +68,9 @@ def evaluate_with_predict(
     return Float32(correct) / Float32(len(predictions))
 
 
-def evaluate_logits_batch(logits: AnyTensor, labels: AnyTensor) raises -> Float32:
+def evaluate_logits_batch(
+    logits: AnyTensor, labels: AnyTensor
+) raises -> Float32:
     """Evaluate using logits (2D) by computing argmax per sample.
 
         Evaluates a batch of logits by computing argmax for each sample

@@ -307,9 +307,7 @@ def test_batch_loader_1d_data() raises:
     var sampler = SequentialSampler(dataset_len)
 
     # Load with batch_size=4
-    var loader = BatchLoader(
-        dataset^, sampler^, batch_size=4, shuffle=False
-    )
+    var loader = BatchLoader(dataset^, sampler^, batch_size=4, shuffle=False)
 
     # Should create 2 batches (8 / 4 = 2)
     assert_equal(loader.__len__(), 2)
@@ -317,9 +315,7 @@ def test_batch_loader_1d_data() raises:
     # Each batch should be properly shaped
     var batches = loader.__iter__()
     if len(batches) != 2:
-        raise Error(
-            "Expected 2 batches, got " + String(len(batches))
-        )
+        raise Error("Expected 2 batches, got " + String(len(batches)))
 
 
 def test_batch_loader_all_samples_per_epoch() raises:

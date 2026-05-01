@@ -130,9 +130,7 @@ def argmax(var tensor: AnyTensor, axis: Int) raises -> AnyTensor:
 
             # Get first value
             if tensor._dtype == DType.float32:
-                max_val = Float64(
-                    tensor.load[DType.float32](b * num_classes)
-                )
+                max_val = Float64(tensor.load[DType.float32](b * num_classes))
             else:  # float64
                 max_val = Float64(tensor.load[DType.float64](b * num_classes))
 

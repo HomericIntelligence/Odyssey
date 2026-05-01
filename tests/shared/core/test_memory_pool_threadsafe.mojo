@@ -26,8 +26,8 @@ def test_concurrent_alloc_dealloc_small() raises:
     """
     var pool = TensorMemoryPool()
     pool.reset_stats()
-    var NUM_THREADS =8
-    var ITERS_PER_THREAD =200
+    var NUM_THREADS = 8
+    var ITERS_PER_THREAD = 200
 
     @parameter
     def worker(tid: Int) capturing:
@@ -66,8 +66,8 @@ def test_concurrent_alloc_dealloc_medium() raises:
     """Stress test: concurrent alloc/dealloc on medium buckets (2KB)."""
     var pool = TensorMemoryPool()
     pool.reset_stats()
-    var NUM_THREADS =4
-    var ITERS_PER_THREAD =100
+    var NUM_THREADS = 4
+    var ITERS_PER_THREAD = 100
 
     @parameter
     def worker(tid: Int) capturing:
@@ -104,8 +104,8 @@ def test_concurrent_same_bucket_contention() raises:
     """
     var pool = TensorMemoryPool()
     pool.reset_stats()
-    var NUM_THREADS =8
-    var ITERS_PER_THREAD =300
+    var NUM_THREADS = 8
+    var ITERS_PER_THREAD = 300
 
     @parameter
     def worker(tid: Int) capturing:
@@ -140,8 +140,8 @@ def test_concurrent_mixed_sizes() raises:
     """
     var pool = TensorMemoryPool()
     pool.reset_stats()
-    var NUM_THREADS =8
-    var ITERS_PER_THREAD =100
+    var NUM_THREADS = 8
+    var ITERS_PER_THREAD = 100
 
     @parameter
     def worker(tid: Int) capturing:
@@ -195,8 +195,8 @@ def test_concurrent_large_bypass() raises:
     """
     var pool = TensorMemoryPool()
     pool.reset_stats()
-    var NUM_THREADS =4
-    var ITERS_PER_THREAD =50
+    var NUM_THREADS = 4
+    var ITERS_PER_THREAD = 50
 
     @parameter
     def worker(tid: Int) capturing:
@@ -228,8 +228,8 @@ def test_stats_consistency_after_concurrent_work() raises:
     """Verify pool_hits + pool_misses == allocations after concurrent use."""
     var pool = TensorMemoryPool()
     pool.reset_stats()
-    var NUM_THREADS =8
-    var ITERS_PER_THREAD =150
+    var NUM_THREADS = 8
+    var ITERS_PER_THREAD = 150
 
     @parameter
     def worker(tid: Int) capturing:

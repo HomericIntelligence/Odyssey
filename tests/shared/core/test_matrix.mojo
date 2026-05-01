@@ -429,7 +429,9 @@ def test_matmul_backward_gradient_a() raises:
 
     # Numerical gradient checking
     # Note: atol=1e-3 for robustness against numerical noise in small gradients
-    check_gradient(_MatmulAFwd(b), _MatmulABwd(b), a, grad_output, rtol=1e-3, atol=1e-3)
+    check_gradient(
+        _MatmulAFwd(b), _MatmulABwd(b), a, grad_output, rtol=1e-3, atol=1e-3
+    )
 
 
 def test_matmul_backward_gradient_b() raises:
@@ -467,7 +469,9 @@ def test_matmul_backward_gradient_b() raises:
 
     # Numerical gradient checking
     # Note: atol=1e-3 for robustness against numerical noise in small gradients
-    check_gradient(_MatmulBFwd(a), _MatmulBBwd(a), b, grad_output, rtol=1e-3, atol=1e-3)
+    check_gradient(
+        _MatmulBFwd(a), _MatmulBBwd(a), b, grad_output, rtol=1e-3, atol=1e-3
+    )
 
 
 def test_matmul_matrix_vector() raises:
@@ -823,7 +827,9 @@ def test_transpose_backward_gradient() raises:
     var grad_output = ones_like(output)
 
     # Numerical gradient checking
-    check_gradient(_TransposeFwd(), _TransposeBwd(), x, grad_output, rtol=1e-3, atol=1e-6)
+    check_gradient(
+        _TransposeFwd(), _TransposeBwd(), x, grad_output, rtol=1e-3, atol=1e-6
+    )
 
 
 def test_transpose_combination_at_b() raises:

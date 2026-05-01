@@ -173,7 +173,14 @@ def test_linear_backward_gradient() raises:
 
     var output = linear(x, weights, bias)
     var grad_output = ones_like(output)
-    check_gradient(_LinearFwd(weights, bias), _LinearBwd(weights), x, grad_output, rtol=1e-3, atol=5e-4)
+    check_gradient(
+        _LinearFwd(weights, bias),
+        _LinearBwd(weights),
+        x,
+        grad_output,
+        rtol=1e-3,
+        atol=5e-4,
+    )
 
 
 def main() raises:

@@ -41,9 +41,33 @@ from tests.shared.conftest import (
     assert_equal_int,
     assert_true,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange, nan_tensor, inf_tensor, neg_inf_tensor
-from shared.core.arithmetic import add, subtract, multiply, divide, floor_divide, modulo, power
-from shared.core.comparison import equal, not_equal, less, less_equal, greater, greater_equal
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    full,
+    arange,
+    nan_tensor,
+    inf_tensor,
+    neg_inf_tensor,
+)
+from shared.core.arithmetic import (
+    add,
+    subtract,
+    multiply,
+    divide,
+    floor_divide,
+    modulo,
+    power,
+)
+from shared.core.comparison import (
+    equal,
+    not_equal,
+    less,
+    less_equal,
+    greater,
+    greater_equal,
+)
 
 
 def test_empty_tensor_creation() raises:

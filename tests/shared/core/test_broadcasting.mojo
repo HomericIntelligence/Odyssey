@@ -711,7 +711,8 @@ def test_broadcast_iterator_exhaustion() raises:
 
 
 def test_are_shapes_broadcastable_ndim_reduction_returns_false() raises:
-    """Verify are_shapes_broadcastable([3,4,5], [4,5]) returns False (ndim reduction)."""
+    """Verify are_shapes_broadcastable([3,4,5], [4,5]) returns False (ndim reduction).
+    """
     var shape1 = List[Int]()
     shape1.append(3)
     shape1.append(4)
@@ -726,7 +727,8 @@ def test_are_shapes_broadcastable_ndim_reduction_returns_false() raises:
 
 
 def test_are_shapes_broadcastable_1d_vs_2d_reduction() raises:
-    """Verify are_shapes_broadcastable([3,4], [4]) returns False (ndim reduction)."""
+    """Verify are_shapes_broadcastable([3,4], [4]) returns False (ndim reduction).
+    """
     var shape1 = List[Int]()
     shape1.append(3)
     shape1.append(4)
@@ -750,7 +752,8 @@ def test_are_shapes_broadcastable_empty_target_returns_false() raises:
 
 
 def test_are_shapes_broadcastable_expanding_ndim_ok() raises:
-    """Verify are_shapes_broadcastable([4,5], [3,4,5]) returns True (expanding dims)."""
+    """Verify are_shapes_broadcastable([4,5], [3,4,5]) returns True (expanding dims).
+    """
     var shape1 = List[Int]()
     shape1.append(4)
     shape1.append(5)
@@ -765,7 +768,8 @@ def test_are_shapes_broadcastable_expanding_ndim_ok() raises:
 
 
 def test_are_shapes_broadcastable_same_ndim_compatible() raises:
-    """Verify are_shapes_broadcastable([3,4], [3,4]) returns True (same shape)."""
+    """Verify are_shapes_broadcastable([3,4], [3,4]) returns True (same shape).
+    """
     var shape1 = List[Int]()
     shape1.append(3)
     shape1.append(4)
@@ -779,7 +783,8 @@ def test_are_shapes_broadcastable_same_ndim_compatible() raises:
 
 
 def test_are_shapes_broadcastable_broadcast_1_dim_ok() raises:
-    """Verify are_shapes_broadcastable([1,4], [3,4]) returns True (dim-1 broadcast)."""
+    """Verify are_shapes_broadcastable([1,4], [3,4]) returns True (dim-1 broadcast).
+    """
     var shape1 = List[Int]()
     shape1.append(1)
     shape1.append(4)
@@ -793,7 +798,8 @@ def test_are_shapes_broadcastable_broadcast_1_dim_ok() raises:
 
 
 def test_are_shapes_broadcastable_incompatible_dims_unchanged() raises:
-    """Verify are_shapes_broadcastable([3,4], [5,4]) returns False (incompatible dims)."""
+    """Verify are_shapes_broadcastable([3,4], [5,4]) returns False (incompatible dims).
+    """
     var shape1 = List[Int]()
     shape1.append(3)
     shape1.append(4)
@@ -807,7 +813,8 @@ def test_are_shapes_broadcastable_incompatible_dims_unchanged() raises:
 
 
 def test_are_shapes_broadcastable_scalar_source_empty_target() raises:
-    """Verify are_shapes_broadcastable([], []) returns True (both empty/scalar)."""
+    """Verify are_shapes_broadcastable([], []) returns True (both empty/scalar).
+    """
     var shape1 = List[Int]()
     var shape2 = List[Int]()
     assert_true(

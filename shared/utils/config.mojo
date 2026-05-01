@@ -788,8 +788,12 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
                         # Split only on the FIRST colon to handle values with colons
                         var colon_idx = pair.find(":")
                         if colon_idx != -1:
-                            var key = String(str_slice(pair, 0, colon_idx).strip())
-                            var value_str = str_slice(pair, colon_idx + 1, len(pair)).strip()
+                            var key = String(
+                                str_slice(pair, 0, colon_idx).strip()
+                            )
+                            var value_str = str_slice(
+                                pair, colon_idx + 1, len(pair)
+                            ).strip()
 
                             # Try to parse as number
                             if "." in value_str:
@@ -948,7 +952,9 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             var colon_pos = var_spec.find(":-")
             if colon_pos != -1:
                 var_name = str_slice(var_spec, 0, colon_pos)
-                default_value = str_slice(var_spec, colon_pos + 2, len(var_spec))
+                default_value = str_slice(
+                    var_spec, colon_pos + 2, len(var_spec)
+                )
 
             # Get environment variable value using Python
             var env_value = default_value
@@ -998,7 +1004,6 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
 # ============================================================================
 # Configuration Loading (Legacy Functions)
 # ============================================================================
-
 
 
 def str_slice(s: String, start: Int, end: Int) -> String:
@@ -1117,7 +1122,6 @@ struct ConfigValidator(Copyable, Movable):
         """
         self.required_keys = List[String]()
         self.allowed_keys = Dict[String, String]()
-
 
     def require(mut self, key: String) -> Self:
         """Mark key as required.

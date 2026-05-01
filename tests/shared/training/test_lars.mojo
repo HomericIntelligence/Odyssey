@@ -66,7 +66,9 @@ def test_lars_initialization() raises:
     )
 
     # Verify the result has the correct shape
-    assert_shape(result[0], shape, "LARS initialization result shape matches input")
+    assert_shape(
+        result[0], shape, "LARS initialization result shape matches input"
+    )
 
 
 def test_lars_parameter_norm_computation() raises:

@@ -9,7 +9,9 @@ from .matrix import matmul, transpose
 from .gradient_types import GradientPair, GradientTriple
 
 
-def linear(x: AnyTensor, weights: AnyTensor, bias: AnyTensor) raises -> AnyTensor:
+def linear(
+    x: AnyTensor, weights: AnyTensor, bias: AnyTensor
+) raises -> AnyTensor:
     """Functional linear transformation: y = xW^T + b.
 
         Pure function - caller manages weights and bias. No internal state

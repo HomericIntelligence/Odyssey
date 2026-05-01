@@ -557,7 +557,9 @@ def test_uint32_accumulated_overflow() raises:
         raise Error("First overflow: expected 205032704, got " + String(result))
     result = result + UInt32(500000000)  # 705032704
     if result != 705032704:
-        raise Error("Second accumulated: expected 705032704, got " + String(result))
+        raise Error(
+            "Second accumulated: expected 705032704, got " + String(result)
+        )
 
 
 def test_uint64_accumulated_overflow() raises:
@@ -569,8 +571,7 @@ def test_uint64_accumulated_overflow() raises:
     result = result + UInt64(1000000000000000000)  # wraps
     if result != 553255926290448384:
         raise Error(
-            "First overflow: expected 553255926290448384, got "
-            + String(result)
+            "First overflow: expected 553255926290448384, got " + String(result)
         )
     result = result + UInt64(1000000000000000000)  # second addition
     if result != 1553255926290448384:

@@ -46,6 +46,7 @@ def clip_predictions(
             ```
     """
     from .elementwise import clip
+
     return clip(predictions, epsilon, 1.0 - epsilon)
 
 
@@ -239,7 +240,9 @@ def compute_max_stable(tensor: AnyTensor) raises -> AnyTensor:
     return tensor
 
 
-def compute_difference(tensor1: AnyTensor, tensor2: AnyTensor) raises -> AnyTensor:
+def compute_difference(
+    tensor1: AnyTensor, tensor2: AnyTensor
+) raises -> AnyTensor:
     """Compute tensor1 - tensor2 with error checking.
 
     Args:

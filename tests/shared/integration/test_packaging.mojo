@@ -73,7 +73,13 @@ def test_layer_root_level_imports() raises:
     `from shared import <Symbol>` after uncommenting in __init__.mojo.
     """
     # Core layer structs — original names
-    from shared import Linear, Conv2dLayer, ReLULayer, DropoutLayer, BatchNorm2dLayer
+    from shared import (
+        Linear,
+        Conv2dLayer,
+        ReLULayer,
+        DropoutLayer,
+        BatchNorm2dLayer,
+    )
 
     # Core layer aliases matching documented public API names
     from shared import Conv2D, ReLU, Dropout, BatchNorm2d

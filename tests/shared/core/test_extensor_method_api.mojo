@@ -28,9 +28,7 @@ def test_split_method_equal() raises:
         raise Error("split free function should return 3 parts")
 
     for i in range(3):
-        assert_numel(
-            method_parts[i], 4, "Each part should have 4 elements"
-        )
+        assert_numel(method_parts[i], 4, "Each part should have 4 elements")
 
     # Verify method matches free function values
     assert_value_at(
@@ -110,15 +108,9 @@ def test_split_with_indices_method_2d() raises:
     if len(parts) != 3:
         raise Error("Should split into 3 sections along axis=0")
 
-    assert_numel(
-        parts[0], 15, "First section: 3 rows x 5 cols = 15 elements"
-    )
-    assert_numel(
-        parts[1], 20, "Second section: 4 rows x 5 cols = 20 elements"
-    )
-    assert_numel(
-        parts[2], 15, "Third section: 3 rows x 5 cols = 15 elements"
-    )
+    assert_numel(parts[0], 15, "First section: 3 rows x 5 cols = 15 elements")
+    assert_numel(parts[1], 20, "Second section: 4 rows x 5 cols = 20 elements")
+    assert_numel(parts[2], 15, "Third section: 3 rows x 5 cols = 15 elements")
 
 
 def test_split_with_indices_method_vs_free_fn() raises:

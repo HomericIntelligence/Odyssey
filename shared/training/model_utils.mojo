@@ -97,7 +97,9 @@ def save_model_weights(
 
 
 def load_model_weights(
-    mut parameters: List[AnyTensor], directory: String, param_names: List[String]
+    mut parameters: List[AnyTensor],
+    directory: String,
+    param_names: List[String],
 ) raises:
     """Load model weights from directory.
 
