@@ -36,7 +36,8 @@ def test_arange_bfloat16_dtype() raises:
 
 
 def test_arange_bfloat16_values() raises:
-    """Test arange() with bfloat16 stores float values (not silently truncated to int)."""
+    """Test arange() with bfloat16 stores float values (not silently truncated to int).
+    """
     # bfloat16 has ~2 decimal digits of precision; use integer-valued sequence
     var t = arange(0.0, 4.0, 1.0, DType.bfloat16)
 
@@ -73,11 +74,19 @@ def test_eye_bfloat16_values() raises:
             var flat_idx = i * 3 + j
             if i == j:
                 assert_value_at(
-                    t, flat_idx, 1.0, 1e-2, "eye bfloat16 diagonal should be 1.0"
+                    t,
+                    flat_idx,
+                    1.0,
+                    1e-2,
+                    "eye bfloat16 diagonal should be 1.0",
                 )
             else:
                 assert_value_at(
-                    t, flat_idx, 0.0, 1e-2, "eye bfloat16 off-diagonal should be 0.0"
+                    t,
+                    flat_idx,
+                    0.0,
+                    1e-2,
+                    "eye bfloat16 off-diagonal should be 0.0",
                 )
 
 
@@ -96,7 +105,8 @@ def test_linspace_bfloat16_dtype() raises:
 
 
 def test_linspace_bfloat16_values() raises:
-    """Test linspace() with bfloat16 stores float values (not silently truncated to int)."""
+    """Test linspace() with bfloat16 stores float values (not silently truncated to int).
+    """
     var t = linspace(0.0, 4.0, 5, DType.bfloat16)
 
     # Values must be: 0.0, 1.0, 2.0, 3.0, 4.0
@@ -121,7 +131,8 @@ def test_randn_bfloat16_dtype() raises:
 
 
 def test_randn_bfloat16_nonzero() raises:
-    """Test randn() with bfloat16 stores float values (not silently zeroed via int path)."""
+    """Test randn() with bfloat16 stores float values (not silently zeroed via int path).
+    """
     # Use a larger tensor for statistical confidence.
     # If routed to _set_int64, Box-Muller float values would be truncated to 0.
     var t = randn([50], DType.bfloat16, seed=42)
@@ -146,9 +157,7 @@ def test_randn_bfloat16_nonzero() raises:
 
 def main() raises:
     """Run bfloat16 dtype guard tests for factory functions."""
-    print(
-        "Running AnyTensor bfloat16 dtype guard tests (issue #3906)..."
-    )
+    print("Running AnyTensor bfloat16 dtype guard tests (issue #3906)...")
 
     # arange() bfloat16 tests
     test_arange_bfloat16_dtype()

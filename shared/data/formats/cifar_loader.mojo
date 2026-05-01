@@ -27,7 +27,11 @@ References:
 from std.collections import List
 from std.memory import UnsafePointer
 from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.data.constants import CIFAR100_IMAGE_SIZE, CIFAR10_IMAGE_SIZE, CIFAR10_NUM_CLASSES
+from shared.data.constants import (
+    CIFAR100_IMAGE_SIZE,
+    CIFAR10_IMAGE_SIZE,
+    CIFAR10_NUM_CLASSES,
+)
 
 
 struct CIFARLoader(Copyable, Movable):
@@ -217,7 +221,9 @@ struct CIFARLoader(Copyable, Movable):
 
         return images^
 
-    def load_batch(self, filepath: String) raises -> Tuple[AnyTensor, AnyTensor]:
+    def load_batch(
+        self, filepath: String
+    ) raises -> Tuple[AnyTensor, AnyTensor]:
         """Load a complete batch of images and labels from CIFAR file.
 
         Convenience function that loads both images and labels in a single call.

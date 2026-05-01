@@ -10,7 +10,12 @@ Tests cover:
 """
 
 from std.testing import assert_true, assert_almost_equal
-from shared.tensor.any_tensor import AnyTensor, ones as any_ones, full as any_full, zeros as any_zeros
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    ones as any_ones,
+    full as any_full,
+    zeros as any_zeros,
+)
 from shared.core.reduction import (
     sum,
     mean,

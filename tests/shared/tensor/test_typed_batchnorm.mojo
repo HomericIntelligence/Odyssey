@@ -25,16 +25,24 @@ def test_batchnorm_default_dtype() raises:
     """BatchNorm2dLayer defaults to float32 weights."""
     var bn = BatchNorm2dLayer(num_channels=4)
     # gamma and beta should have float32 dtype
-    assert_true(bn.gamma.get_dtype() == DType.float32, "gamma dtype should be float32")
-    assert_true(bn.beta.get_dtype() == DType.float32, "beta dtype should be float32")
+    assert_true(
+        bn.gamma.get_dtype() == DType.float32, "gamma dtype should be float32"
+    )
+    assert_true(
+        bn.beta.get_dtype() == DType.float32, "beta dtype should be float32"
+    )
     print("PASS: test_batchnorm_default_dtype")
 
 
 def test_batchnorm_float64() raises:
     """BatchNorm2dLayer[DType.float64] uses float64 tensors."""
     var bn = BatchNorm2dLayer[DType.float64](num_channels=4)
-    assert_true(bn.gamma.get_dtype() == DType.float64, "gamma dtype should be float64")
-    assert_true(bn.beta.get_dtype() == DType.float64, "beta dtype should be float64")
+    assert_true(
+        bn.gamma.get_dtype() == DType.float64, "gamma dtype should be float64"
+    )
+    assert_true(
+        bn.beta.get_dtype() == DType.float64, "beta dtype should be float64"
+    )
     print("PASS: test_batchnorm_float64")
 
 
@@ -61,8 +69,12 @@ def test_batchnorm_beta_shape() raises:
 def test_batchnorm_running_stats_shape() raises:
     """Running mean/var have shape (num_channels,) with correct init."""
     var bn = BatchNorm2dLayer(num_channels=4)
-    assert_true(bn.running_mean.numel() == 4, "running_mean should have 4 elements")
-    assert_true(bn.running_var.numel() == 4, "running_var should have 4 elements")
+    assert_true(
+        bn.running_mean.numel() == 4, "running_mean should have 4 elements"
+    )
+    assert_true(
+        bn.running_var.numel() == 4, "running_var should have 4 elements"
+    )
     # running_mean initialized to 0.0, running_var to 1.0
     assert_almost_equal(Float32(bn.running_mean[0]), Float32(0.0), atol=1e-6)
     assert_almost_equal(Float32(bn.running_var[0]), Float32(1.0), atol=1e-6)
@@ -93,7 +105,9 @@ def test_batchnorm_forward_typed() raises:
     input._data[9] = Scalar[DType.float32](1.5)
     input._data[10] = Scalar[DType.float32](0.25)
     var output = bn.forward(input.as_any())
-    assert_true(output.get_dtype() == DType.float32, "output dtype should be float32")
+    assert_true(
+        output.get_dtype() == DType.float32, "output dtype should be float32"
+    )
     # Output should have same shape as input: [1, 2, 3, 3]
     var s = output.shape()
     assert_true(s[0] == 1, "batch dim")

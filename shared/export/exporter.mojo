@@ -54,8 +54,6 @@ struct ExportConfig(Copyable, Movable):
         self.doc_string = String("")
 
 
-
-
 struct ONNXExporter(Movable):
     """Export ML Odyssey models to ONNX format."""
 
@@ -74,7 +72,6 @@ struct ONNXExporter(Movable):
         self.model = ModelProto()
         self.model.set_opset(opset_version)
         self.verbose = verbose
-
 
     def set_model_name(mut self, name: String):
         """Set the model name."""

@@ -23,7 +23,14 @@ from tests.shared.conftest import (
     assert_value_at,
     assert_all_values,
 )
-from shared.core.shape import reshape, squeeze, unsqueeze, expand_dims, flatten, ravel
+from shared.core.shape import (
+    reshape,
+    squeeze,
+    unsqueeze,
+    expand_dims,
+    flatten,
+    ravel,
+)
 from shared.core.shape import concatenate, stack
 from shared.core.shape import broadcast_to, reshape
 from tests.shared.conftest import (

@@ -90,7 +90,7 @@ def get_atol(dtype: DType) -> Float64:
 # ============================================================================
 
 
-def measure_time[func: def () raises -> None]() raises -> Float64:
+def measure_time[func: def() raises -> None]() raises -> Float64:
     """Measure execution time of a function in milliseconds.
 
     Returns:
@@ -118,7 +118,7 @@ def measure_time[func: def () raises -> None]() raises -> Float64:
 
 
 def measure_throughput[
-    func: def () raises -> None
+    func: def() raises -> None
 ](n_iterations: Int) raises -> Float64:
     """Measure throughput (operations per second) of a function.
 
@@ -186,7 +186,9 @@ struct TestFixtures:
             tensor._set_float64(i, Float64(i + 1))
         return tensor
 
-    def random_tensor(self, rows: Int, cols: Int) raises unified {read} -> AnyTensor:
+    def random_tensor(
+        self, rows: Int, cols: Int
+    ) raises unified {read} -> AnyTensor:
         """Create a random tensor with deterministic seed.
 
         Args:

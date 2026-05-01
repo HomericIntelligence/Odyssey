@@ -169,7 +169,8 @@ def test_int64_not_positive() raises:
 
 
 def test_int64_not_max() raises:
-    """~Int64(9223372036854775807) should equal -9223372036854775808 (two's complement)."""
+    """~Int64(9223372036854775807) should equal -9223372036854775808 (two's complement).
+    """
     var result: Int64 = ~Int64(9223372036854775807)
     if result != -9223372036854775808:
         raise Error(
@@ -179,7 +180,8 @@ def test_int64_not_max() raises:
 
 
 def test_int64_not_min() raises:
-    """~Int64(-9223372036854775808) should equal 9223372036854775807 (two's complement)."""
+    """~Int64(-9223372036854775808) should equal 9223372036854775807 (two's complement).
+    """
     var result: Int64 = ~Int64(-9223372036854775808)
     if result != 9223372036854775807:
         raise Error(
@@ -189,7 +191,8 @@ def test_int64_not_min() raises:
 
 
 def test_int64_double_inversion() raises:
-    """~~Int64(123456789) should equal 123456789 (double complement identity)."""
+    """~~Int64(123456789) should equal 123456789 (double complement identity).
+    """
     var val: Int64 = 123456789
     if ~~val != val:
         raise Error("~~Int64(123456789) expected 123456789")

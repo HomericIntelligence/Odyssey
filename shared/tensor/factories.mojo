@@ -56,9 +56,9 @@ def ones[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
     return _ones(shape, dtype).as_tensor[dtype]()
 
 
-def full[dtype: DType](
-    shape: List[Int], fill_value: Float64
-) raises -> Tensor[dtype]:
+def full[
+    dtype: DType
+](shape: List[Int], fill_value: Float64) raises -> Tensor[dtype]:
     """Create a Tensor[dtype] filled with a constant value.
 
     Args:
@@ -86,9 +86,9 @@ def empty[dtype: DType](shape: List[Int]) raises -> Tensor[dtype]:
     return _empty(shape, dtype).as_tensor[dtype]()
 
 
-def arange[dtype: DType](
-    start: Float64, stop: Float64, step: Float64
-) raises -> Tensor[dtype]:
+def arange[
+    dtype: DType
+](start: Float64, stop: Float64, step: Float64) raises -> Tensor[dtype]:
     """Create a 1D Tensor[dtype] with evenly spaced values.
 
     Args:
@@ -116,9 +116,9 @@ def eye[dtype: DType](n: Int, m: Int, k: Int = 0) raises -> Tensor[dtype]:
     return _eye(n, m, k, dtype).as_tensor[dtype]()
 
 
-def linspace[dtype: DType](
-    start: Float64, stop: Float64, num: Int
-) raises -> Tensor[dtype]:
+def linspace[
+    dtype: DType
+](start: Float64, stop: Float64, num: Int) raises -> Tensor[dtype]:
     """Create a 1D Tensor[dtype] with evenly spaced values (inclusive).
 
     Args:
@@ -132,9 +132,9 @@ def linspace[dtype: DType](
     return _linspace(start, stop, num, dtype).as_tensor[dtype]()
 
 
-def randn[dtype: DType](
-    shape: List[Int], seed: Int = 0
-) raises -> Tensor[dtype]:
+def randn[
+    dtype: DType
+](shape: List[Int], seed: Int = 0) raises -> Tensor[dtype]:
     """Create a Tensor[dtype] filled with random normal values.
 
     Uses Box-Muller transform for normally distributed random values
@@ -174,9 +174,9 @@ def ones_like[dtype: DType](tensor: Tensor[dtype]) raises -> Tensor[dtype]:
     return _ones_like(tensor.as_any()).as_tensor[dtype]()
 
 
-def full_like[dtype: DType](
-    tensor: Tensor[dtype], fill_value: Float64
-) raises -> Tensor[dtype]:
+def full_like[
+    dtype: DType
+](tensor: Tensor[dtype], fill_value: Float64) raises -> Tensor[dtype]:
     """Create a constant-filled tensor with the same shape as the input.
 
     Args:

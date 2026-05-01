@@ -38,7 +38,9 @@ def test_tensor_float64_creation() raises:
 def test_tensor_default_dtype() raises:
     """Tensor with no dtype parameter defaults to float32."""
     var t = Tensor([5])
-    assert_true(t.get_dtype() == DType.float32, "default dtype should be float32")
+    assert_true(
+        t.get_dtype() == DType.float32, "default dtype should be float32"
+    )
     print("PASS: test_tensor_default_dtype")
 
 
@@ -90,7 +92,8 @@ def test_tensor_1d() raises:
 
 
 def test_tensor_getitem_float64_typed() raises:
-    """__getitem__ on float64 tensor returns Scalar[DType.float64], not Float32."""
+    """__getitem__ on float64 tensor returns Scalar[DType.float64], not Float32.
+    """
     var t = Tensor[DType.float64]([4])
     t._data[0] = Scalar[DType.float64](0.25)
     var val = t[0]

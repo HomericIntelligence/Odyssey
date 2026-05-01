@@ -36,8 +36,6 @@ struct SavedTensors(Copyable, Movable):
         self.shapes = List[List[Int]]()
         self.scalars = List[Float64]()
 
-
-
     def add_tensor(mut self, tensor: AnyTensor) raises:
         """Save a tensor for backward pass.
 
@@ -127,8 +125,6 @@ struct TapeNode(Copyable, Movable):
         self.input_ids = input_ids.copy()
         self.output_id = output_id
         self.saved = saved^
-
-
 
 
 struct VariableRegistry:

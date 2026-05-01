@@ -117,7 +117,9 @@ def shuffle_indices(var indices: List[Int]) -> List[Int]:
 # ============================================================================
 
 
-def sample_with_replacement(data_source_len: Int, num_samples: Int) -> List[Int]:
+def sample_with_replacement(
+    data_source_len: Int, num_samples: Int
+) -> List[Int]:
     """Generate indices by sampling with replacement.
 
     Args:
@@ -244,4 +246,6 @@ def generate_random_float(max_value: Int = 1000000) -> Float64:
     Returns:
             Random float value in [0, 1).
     """
-    return Float64(random_si64(Int64(0), Int64(max_value - 1))) / Float64(max_value)
+    return Float64(random_si64(Int64(0), Int64(max_value - 1))) / Float64(
+        max_value
+    )

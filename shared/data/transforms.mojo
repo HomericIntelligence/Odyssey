@@ -67,7 +67,7 @@ def infer_image_dimensions(
 # ============================================================================
 
 
-trait Transform(Copyable, Movable, ImplicitlyDestructible):
+trait Transform(Copyable, ImplicitlyDestructible, Movable):
     """Base interface for all transforms.
 
     Transforms modify data in-place or return transformed copies.
@@ -488,7 +488,9 @@ struct RandomCrop(Copyable, Movable, Transform):
     var padding: Optional[Int]
     """Optional padding to apply before cropping."""
 
-    def __init__(out self, size: Tuple[Int, Int], padding: Optional[Int] = None):
+    def __init__(
+        out self, size: Tuple[Int, Int], padding: Optional[Int] = None
+    ):
         """Create random crop transform.
 
         Args:

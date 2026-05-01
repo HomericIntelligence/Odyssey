@@ -25,7 +25,15 @@ from tests.shared.conftest import (
 )
 from std.math import sqrt
 from shared.tensor.any_tensor import AnyTensor
-from shared.core.initializers import xavier_uniform, xavier_normal, kaiming_uniform, kaiming_normal, uniform, normal, constant
+from shared.core.initializers import (
+    xavier_uniform,
+    xavier_normal,
+    kaiming_uniform,
+    kaiming_normal,
+    uniform,
+    normal,
+    constant,
+)
 
 
 def compute_mean(tensor: AnyTensor) -> Float64:

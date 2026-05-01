@@ -300,7 +300,9 @@ struct CheckpointManager:
             for i in range(len(lines)):
                 var line = String(lines[i])
                 if line.startswith("latest_epoch="):
-                    var epoch_str = str_slice(line, len("latest_epoch="), len(line))
+                    var epoch_str = str_slice(
+                        line, len("latest_epoch="), len(line)
+                    )
                     return atol(epoch_str)
 
             return -1

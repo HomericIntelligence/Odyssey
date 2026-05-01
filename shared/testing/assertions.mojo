@@ -495,7 +495,9 @@ def assert_not_equal_tensor(
         raise Error(error_msg)
 
 
-def assert_tensor_equal(a: AnyTensor, b: AnyTensor, message: String = "") raises:
+def assert_tensor_equal(
+    a: AnyTensor, b: AnyTensor, message: String = ""
+) raises:
     """Assert two AnyTensors are equal (shape and all elements).
 
     Args:
@@ -582,7 +584,9 @@ def assert_shape(
             raise Error(error_msg)
 
 
-def assert_dtype(tensor: AnyTensor, expected: DType, message: String = "") raises:
+def assert_dtype(
+    tensor: AnyTensor, expected: DType, message: String = ""
+) raises:
     """Assert tensor has expected dtype.
 
     Args:
@@ -834,7 +838,9 @@ def assert_contiguous(tensor: AnyTensor, message: String = "") raises:
 
 def assert_matrices_equal[
     dtype: DType
-](a: AnyTensor, b: AnyTensor, rtol: Float64 = 1e-5, atol: Float64 = 1e-8) raises:
+](
+    a: AnyTensor, b: AnyTensor, rtol: Float64 = 1e-5, atol: Float64 = 1e-8
+) raises:
     """Compare two matrices element-wise with relative and absolute tolerance.
 
     This is the canonical shared implementation for correctness verification

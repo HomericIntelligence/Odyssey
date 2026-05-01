@@ -116,9 +116,13 @@ struct ConfusionMatrix(Metric):
 
         # Validate predictions dtype for 1D inputs (2D logits go through argmax → int32)
         if len(pred_shape) == 1:
-            if pred_classes._dtype != DType.int32 and pred_classes._dtype != DType.int64:
+            if (
+                pred_classes._dtype != DType.int32
+                and pred_classes._dtype != DType.int64
+            ):
                 raise Error(
-                    "ConfusionMatrix.update() requires int32 or int64 predictions, got "
+                    "ConfusionMatrix.update() requires int32 or int64"
+                    " predictions, got "
                     + String(pred_classes._dtype)
                 )
 

@@ -10,9 +10,19 @@ from tests.shared.conftest import (
     assert_almost_equal,
     assert_equal,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    zeros_like,
+    ones_like,
+)
 from shared.core.conv import depthwise_conv2d, depthwise_conv2d_backward
-from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import (
+    check_gradient,
+    NumericalForward,
+    NumericalBackward,
+)
 
 
 @fieldwise_init
@@ -23,7 +33,13 @@ struct _DepthwiseInputFwd(NumericalForward):
     var padding: Int
 
     def __call__(self, inp: AnyTensor) raises -> AnyTensor:
-        return depthwise_conv2d(inp, self.kernel, self.bias, stride=self.stride, padding=self.padding)
+        return depthwise_conv2d(
+            inp,
+            self.kernel,
+            self.bias,
+            stride=self.stride,
+            padding=self.padding,
+        )
 
 
 @fieldwise_init
@@ -33,7 +49,9 @@ struct _DepthwiseInputBwd(NumericalBackward):
     var padding: Int
 
     def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        var grads = depthwise_conv2d_backward(grad_out, inp, self.kernel, stride=self.stride, padding=self.padding)
+        var grads = depthwise_conv2d_backward(
+            grad_out, inp, self.kernel, stride=self.stride, padding=self.padding
+        )
         return grads.grad_input
 
 
@@ -45,7 +63,9 @@ struct _DepthwiseWeightsFwd(NumericalForward):
     var padding: Int
 
     def __call__(self, k: AnyTensor) raises -> AnyTensor:
-        return depthwise_conv2d(self.x, k, self.bias, stride=self.stride, padding=self.padding)
+        return depthwise_conv2d(
+            self.x, k, self.bias, stride=self.stride, padding=self.padding
+        )
 
 
 @fieldwise_init
@@ -55,7 +75,9 @@ struct _DepthwiseWeightsBwd(NumericalBackward):
     var padding: Int
 
     def __call__(self, grad_out: AnyTensor, k: AnyTensor) raises -> AnyTensor:
-        var grads = depthwise_conv2d_backward(grad_out, self.x, k, stride=self.stride, padding=self.padding)
+        var grads = depthwise_conv2d_backward(
+            grad_out, self.x, k, stride=self.stride, padding=self.padding
+        )
         return grads.grad_weights
 
 
@@ -87,7 +109,9 @@ def test_depthwise_conv2d_backward_shapes() raises:
 
     var output = depthwise_conv2d(x, kernel, bias, stride=1, padding=0)
     var grad_output = ones_like(output)
-    var grads = depthwise_conv2d_backward(grad_output, x, kernel, stride=1, padding=0)
+    var grads = depthwise_conv2d_backward(
+        grad_output, x, kernel, stride=1, padding=0
+    )
 
     var gi_shape = grads.grad_input.shape()
     assert_equal(gi_shape[0], 1)
@@ -140,7 +164,14 @@ def test_depthwise_conv2d_backward_stride1_padding0_grad_input() raises:
     for i in range(output.numel()):
         grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
-    check_gradient(_DepthwiseInputFwd(kernel, bias, 1, 0), _DepthwiseInputBwd(kernel, 1, 0), x, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(
+        _DepthwiseInputFwd(kernel, bias, 1, 0),
+        _DepthwiseInputBwd(kernel, 1, 0),
+        x,
+        grad_output,
+        rtol=1e-2,
+        atol=1e-2,
+    )
 
 
 def test_depthwise_conv2d_backward_stride2_grad_input() raises:
@@ -177,7 +208,14 @@ def test_depthwise_conv2d_backward_stride2_grad_input() raises:
     for i in range(output.numel()):
         grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
-    check_gradient(_DepthwiseInputFwd(kernel, bias, 2, 0), _DepthwiseInputBwd(kernel, 2, 0), x, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(
+        _DepthwiseInputFwd(kernel, bias, 2, 0),
+        _DepthwiseInputBwd(kernel, 2, 0),
+        x,
+        grad_output,
+        rtol=1e-2,
+        atol=1e-2,
+    )
 
 
 def test_depthwise_conv2d_backward_padding1_grad_input() raises:
@@ -214,7 +252,14 @@ def test_depthwise_conv2d_backward_padding1_grad_input() raises:
     for i in range(output.numel()):
         grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
-    check_gradient(_DepthwiseInputFwd(kernel, bias, 1, 1), _DepthwiseInputBwd(kernel, 1, 1), x, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(
+        _DepthwiseInputFwd(kernel, bias, 1, 1),
+        _DepthwiseInputBwd(kernel, 1, 1),
+        x,
+        grad_output,
+        rtol=1e-2,
+        atol=1e-2,
+    )
 
 
 def test_depthwise_conv2d_backward_multichannel_grad_input() raises:
@@ -252,7 +297,14 @@ def test_depthwise_conv2d_backward_multichannel_grad_input() raises:
     for i in range(output.numel()):
         grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
-    check_gradient(_DepthwiseInputFwd(kernel, bias, 1, 0), _DepthwiseInputBwd(kernel, 1, 0), x, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(
+        _DepthwiseInputFwd(kernel, bias, 1, 0),
+        _DepthwiseInputBwd(kernel, 1, 0),
+        x,
+        grad_output,
+        rtol=1e-2,
+        atol=1e-2,
+    )
 
 
 def test_depthwise_conv2d_backward_grad_weights_numerical() raises:
@@ -290,7 +342,14 @@ def test_depthwise_conv2d_backward_grad_weights_numerical() raises:
     for i in range(output.numel()):
         grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
-    check_gradient(_DepthwiseWeightsFwd(x, bias, 1, 0), _DepthwiseWeightsBwd(x, 1, 0), kernel, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(
+        _DepthwiseWeightsFwd(x, bias, 1, 0),
+        _DepthwiseWeightsBwd(x, 1, 0),
+        kernel,
+        grad_output,
+        rtol=1e-2,
+        atol=1e-2,
+    )
 
 
 def test_depthwise_conv2d_backward_grad_bias_value() raises:
@@ -334,15 +393,21 @@ def test_depthwise_conv2d_backward_grad_bias_value() raises:
     grad_output.set(0, Float32(Float32(0.5)))
     grad_output.set(1, Float32(Float32(-0.3)))
 
-    var grads = depthwise_conv2d_backward(grad_output, x, kernel, stride=1, padding=0)
+    var grads = depthwise_conv2d_backward(
+        grad_output, x, kernel, stride=1, padding=0
+    )
 
     # grad_bias[c] = sum of grad_output over batch and spatial dims for channel c
     # Since output is 1x1 per channel: grad_bias[c] = grad_output[0, c, 0, 0]
     assert_almost_equal(
-        grads.grad_bias._data.bitcast[Float32]()[0], Float32(0.5), tolerance=1e-5
+        grads.grad_bias._data.bitcast[Float32]()[0],
+        Float32(0.5),
+        tolerance=1e-5,
     )
     assert_almost_equal(
-        grads.grad_bias._data.bitcast[Float32]()[1], Float32(-0.3), tolerance=1e-5
+        grads.grad_bias._data.bitcast[Float32]()[1],
+        Float32(-0.3),
+        tolerance=1e-5,
     )
 
 
@@ -381,7 +446,14 @@ def test_depthwise_conv2d_backward_grad_weights_multichannel() raises:
     for i in range(output.numel()):
         grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
-    check_gradient(_DepthwiseWeightsFwd(x, bias, 1, 0), _DepthwiseWeightsBwd(x, 1, 0), kernel, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(
+        _DepthwiseWeightsFwd(x, bias, 1, 0),
+        _DepthwiseWeightsBwd(x, 1, 0),
+        kernel,
+        grad_output,
+        rtol=1e-2,
+        atol=1e-2,
+    )
 
 
 def test_depthwise_conv2d_backward_full_gradient_pipeline() raises:
@@ -428,7 +500,9 @@ def test_depthwise_conv2d_backward_full_gradient_pipeline() raises:
     for i in range(output.numel()):
         grad_output.set(i, Float32(Float32(i % 4) * 0.25 - 0.3))
 
-    var grads = depthwise_conv2d_backward(grad_output, x, kernel, stride=1, padding=0)
+    var grads = depthwise_conv2d_backward(
+        grad_output, x, kernel, stride=1, padding=0
+    )
 
     # Verify shapes
     var gi_shape = grads.grad_input.shape()

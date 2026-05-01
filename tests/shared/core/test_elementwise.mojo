@@ -18,7 +18,13 @@ from tests.shared.conftest import (
     assert_true,
 )
 from tests.shared.conftest import TestFixtures
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    zeros_like,
+    ones_like,
+)
 from shared.core.elementwise import (
     abs,
     sign,
@@ -48,7 +54,11 @@ from shared.core.elementwise import (
     sin_backward,
     cos_backward,
 )
-from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import (
+    check_gradient,
+    NumericalForward,
+    NumericalBackward,
+)
 from std.math import sqrt as math_sqrt, pi
 
 

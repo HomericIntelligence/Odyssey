@@ -15,12 +15,21 @@ References:
 """
 
 from shared.core.activation import relu, sigmoid, tanh, gelu
-from shared.core.activation import relu_backward, sigmoid_backward, tanh_backward, gelu_backward
+from shared.core.activation import (
+    relu_backward,
+    sigmoid_backward,
+    tanh_backward,
+    gelu_backward,
+)
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.linear import linear, linear_backward
 from shared.tensor.any_tensor import AnyTensor, full, zeros, zeros_like
 from shared.core.initializers import kaiming_uniform
-from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import (
+    check_gradient,
+    NumericalForward,
+    NumericalBackward,
+)
 from shared.testing.special_values import (
     create_seeded_random_tensor,
 )
@@ -28,10 +37,12 @@ from shared.testing.special_values import (
 
 # ---- ReLU (no captures) ----
 
+
 @fieldwise_init
 struct _ReluFwd(NumericalForward):
     def __call__(self, inp: AnyTensor) raises -> AnyTensor:
         return relu(inp)
+
 
 @fieldwise_init
 struct _ReluBwd(NumericalBackward):
@@ -41,10 +52,12 @@ struct _ReluBwd(NumericalBackward):
 
 # ---- Sigmoid (no captures) ----
 
+
 @fieldwise_init
 struct _SigmoidFwd(NumericalForward):
     def __call__(self, inp: AnyTensor) raises -> AnyTensor:
         return sigmoid(inp)
+
 
 @fieldwise_init
 struct _SigmoidBwd(NumericalBackward):
@@ -55,10 +68,12 @@ struct _SigmoidBwd(NumericalBackward):
 
 # ---- Tanh (no captures) ----
 
+
 @fieldwise_init
 struct _TanhFwd(NumericalForward):
     def __call__(self, inp: AnyTensor) raises -> AnyTensor:
         return tanh(inp)
+
 
 @fieldwise_init
 struct _TanhBwd(NumericalBackward):
@@ -69,10 +84,12 @@ struct _TanhBwd(NumericalBackward):
 
 # ---- GELU (no captures) ----
 
+
 @fieldwise_init
 struct _GeluFwd(NumericalForward):
     def __call__(self, inp: AnyTensor) raises -> AnyTensor:
         return gelu(inp)
+
 
 @fieldwise_init
 struct _GeluBwd(NumericalBackward):
@@ -82,33 +99,43 @@ struct _GeluBwd(NumericalBackward):
 
 # ---- Conv2D input gradient (captures kernel, bias) ----
 
+
 @fieldwise_init
 struct _Conv2dInputFwd(NumericalForward):
     var kernel: AnyTensor
     var bias: AnyTensor
+
     def __call__(self, inp: AnyTensor) raises -> AnyTensor:
         return conv2d(inp, self.kernel, self.bias, stride=1, padding=1)
+
 
 @fieldwise_init
 struct _Conv2dInputBwd(NumericalBackward):
     var kernel: AnyTensor
+
     def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
-        var result = conv2d_backward(grad_out, inp, self.kernel, stride=1, padding=1)
+        var result = conv2d_backward(
+            grad_out, inp, self.kernel, stride=1, padding=1
+        )
         return result.grad_input
 
 
 # ---- Linear input gradient (captures weights, bias) ----
 
+
 @fieldwise_init
 struct _LinearFwd(NumericalForward):
     var weights: AnyTensor
     var bias: AnyTensor
+
     def __call__(self, inp: AnyTensor) raises -> AnyTensor:
         return linear(inp, self.weights, self.bias)
+
 
 @fieldwise_init
 struct _LinearBwd(NumericalBackward):
     var weights: AnyTensor
+
     def __call__(self, grad_out: AnyTensor, inp: AnyTensor) raises -> AnyTensor:
         var result = linear_backward(grad_out, inp, self.weights)
         return result.grad_input
@@ -320,7 +347,9 @@ def test_conv2d_gradient_input() raises:
     var grad_output = zeros_like(fwd(x))
     for i in range(grad_output.numel()):
         grad_output._set_float64(i, 1.0)
-    check_gradient(fwd, _Conv2dInputBwd(kernel), x, grad_output, rtol=1e-2, atol=1e-2)
+    check_gradient(
+        fwd, _Conv2dInputBwd(kernel), x, grad_output, rtol=1e-2, atol=1e-2
+    )
 
 
 def test_linear_gradient_input() raises:
@@ -354,7 +383,9 @@ def test_linear_gradient_input() raises:
     var grad_output = zeros_like(fwd(x))
     for i in range(grad_output.numel()):
         grad_output._set_float64(i, 1.0)
-    check_gradient(fwd, _LinearBwd(weights), x, grad_output, rtol=1.5e-2, atol=1e-4)
+    check_gradient(
+        fwd, _LinearBwd(weights), x, grad_output, rtol=1.5e-2, atol=1e-4
+    )
 
 
 # ============================================================================

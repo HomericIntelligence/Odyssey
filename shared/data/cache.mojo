@@ -120,7 +120,9 @@ struct CachedDataset[D: Dataset & Copyable & Movable](
         # Cache miss - load from base dataset
         return self.dataset.__getitem__(index)
 
-    def _get_and_cache(mut self, index: Int) raises -> Tuple[AnyTensor, AnyTensor]:
+    def _get_and_cache(
+        mut self, index: Int
+    ) raises -> Tuple[AnyTensor, AnyTensor]:
         """Get a sample with mutable access, enabling cache updates.
 
         Unlike __getitem__, this method can update cache and statistics.

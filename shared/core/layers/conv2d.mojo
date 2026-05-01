@@ -126,9 +126,7 @@ struct Conv2dLayer[dtype: DType = DType.float32](Copyable, Movable):
             var output = layer.forward(input_t)
             ```
         """
-        return conv2d(
-            input, self.weight, self.bias, self.stride, self.padding
-        )
+        return conv2d(input, self.weight, self.bias, self.stride, self.padding)
 
     def backward(
         self, grad_output: AnyTensor, input: AnyTensor

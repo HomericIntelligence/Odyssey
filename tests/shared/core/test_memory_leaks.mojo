@@ -39,9 +39,7 @@ def _check_shared_deallocation() raises:
     assert_equal_int(inner_refcount, 2, "Should have 2 refs in inner scope")
 
     var outer_refcount = tensor1._refcount[]
-    assert_equal_int(
-        outer_refcount, 1, "Should have 1 ref after inner scope"
-    )
+    assert_equal_int(outer_refcount, 1, "Should have 1 ref after inner scope")
 
 
 def _create_and_drop_view(original: AnyTensor) raises:
@@ -53,8 +51,11 @@ def _create_and_drop_view(original: AnyTensor) raises:
     assert_true(view._is_view, "Should be marked as view")
 
 
-def _check_view_refcount(original: AnyTensor, initial_refcount: Int) raises -> Int:
-    """Helper: create view in inner scope, check refcount, return inner value."""
+def _check_view_refcount(
+    original: AnyTensor, initial_refcount: Int
+) raises -> Int:
+    """Helper: create view in inner scope, check refcount, return inner value.
+    """
     var shape = List[Int]()
     shape.append(3)
     shape.append(4)

@@ -118,9 +118,7 @@ def test_linspace() raises:
     var t = linspace[DType.float32](0.0, 1.0, 5)
     assert_true(t.numel() == 5, "numel should be 5")
     assert_almost_equal(Float64(t[0]), 0.0, atol=1e-6, msg="first element")
-    assert_almost_equal(
-        Float64(t[2]), 0.5, atol=1e-6, msg="middle element"
-    )
+    assert_almost_equal(Float64(t[2]), 0.5, atol=1e-6, msg="middle element")
     assert_almost_equal(Float64(t[4]), 1.0, atol=1e-6, msg="last element")
     print("PASS: test_linspace")
 
@@ -151,9 +149,7 @@ def test_nan_tensor() raises:
     var t = nan_tensor[DType.float32]([2, 2])
     assert_true(t.numel() == 4, "numel should be 4")
     for i in range(4):
-        assert_true(
-            isnan(Float32(t[i])), "element should be NaN"
-        )
+        assert_true(isnan(Float32(t[i])), "element should be NaN")
     print("PASS: test_nan_tensor")
 
 
@@ -162,12 +158,8 @@ def test_inf_tensor() raises:
     var t = inf_tensor[DType.float32]([2, 2])
     assert_true(t.numel() == 4, "numel should be 4")
     for i in range(4):
-        assert_true(
-            isinf(Float32(t[i])), "element should be inf"
-        )
-        assert_true(
-            Float32(t[i]) > Float32(0.0), "element should be positive"
-        )
+        assert_true(isinf(Float32(t[i])), "element should be inf")
+        assert_true(Float32(t[i]) > Float32(0.0), "element should be positive")
     print("PASS: test_inf_tensor")
 
 
@@ -176,12 +168,8 @@ def test_neg_inf_tensor() raises:
     var t = neg_inf_tensor[DType.float32]([2, 2])
     assert_true(t.numel() == 4, "numel should be 4")
     for i in range(4):
-        assert_true(
-            isinf(Float32(t[i])), "element should be inf"
-        )
-        assert_true(
-            Float32(t[i]) < Float32(0.0), "element should be negative"
-        )
+        assert_true(isinf(Float32(t[i])), "element should be inf")
+        assert_true(Float32(t[i]) < Float32(0.0), "element should be negative")
     print("PASS: test_neg_inf_tensor")
 
 

@@ -19,7 +19,12 @@ Arguments:
 
 from model import LeNet5
 from shared.data.constants import DatasetInfo
-from shared.data.formats import load_idx_images, load_idx_labels, normalize_images, one_hot_encode
+from shared.data.formats import (
+    load_idx_images,
+    load_idx_labels,
+    normalize_images,
+    one_hot_encode,
+)
 from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import maxpool2d, maxpool2d_backward
@@ -50,7 +55,7 @@ struct TrainConfig(Movable):
         self.data_dir = "datasets/emnist"
         self.weights_dir = "lenet5_weights"
 
-    def __init__(out self, *, take existing: Self):
+    def __init__(out self, *, takeexisting: Self):
         self.epochs = existing.epochs
         self.batch_size = existing.batch_size
         self.learning_rate = existing.learning_rate

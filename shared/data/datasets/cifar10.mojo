@@ -160,8 +160,12 @@ struct CIFAR10Dataset(Copyable, Movable):
 
         # Return owned copies (clones) for safe lifetime management.
         # See AnyTensorDataset.__getitem__ comment for details.
-        var image_slice = self._train_data.slice(index, index + 1, axis=0).clone()
-        var label_slice = self._train_labels.slice(index, index + 1, axis=0).clone()
+        var image_slice = self._train_data.slice(
+            index, index + 1, axis=0
+        ).clone()
+        var label_slice = self._train_labels.slice(
+            index, index + 1, axis=0
+        ).clone()
 
         return (image_slice, label_slice)
 
@@ -250,7 +254,9 @@ struct CIFAR10Dataset(Copyable, Movable):
 
         return (self._test_data, self._test_labels)
 
-    def _concatenate_tensors(self, tensors: List[AnyTensor]) raises -> AnyTensor:
+    def _concatenate_tensors(
+        self, tensors: List[AnyTensor]
+    ) raises -> AnyTensor:
         """Concatenate a list of tensors along the first (batch) dimension.
 
         Args:
@@ -269,6 +275,7 @@ struct CIFAR10Dataset(Copyable, Movable):
             return tensors[0]
 
         from shared.core.shape import concatenate
+
         return concatenate(tensors, axis=0)
 
     def get_class_name(self, class_idx: Int) raises -> String:

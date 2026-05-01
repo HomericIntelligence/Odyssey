@@ -17,16 +17,22 @@ References:
 from shared.core.activation import relu, sigmoid
 from shared.core.activation import relu_backward, sigmoid_backward
 from shared.tensor.any_tensor import AnyTensor, full, zeros_like
-from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import (
+    check_gradient,
+    NumericalForward,
+    NumericalBackward,
+)
 from shared.testing.special_values import create_seeded_random_tensor
 
 
 # ---- ReLU (no captures) ----
 
+
 @fieldwise_init
 struct _ReluFwd(NumericalForward):
     def __call__(self, inp: AnyTensor) raises -> AnyTensor:
         return relu(inp)
+
 
 @fieldwise_init
 struct _ReluBwd(NumericalBackward):
@@ -36,10 +42,12 @@ struct _ReluBwd(NumericalBackward):
 
 # ---- Sigmoid (no captures) ----
 
+
 @fieldwise_init
 struct _SigmoidFwd(NumericalForward):
     def __call__(self, inp: AnyTensor) raises -> AnyTensor:
         return sigmoid(inp)
+
 
 @fieldwise_init
 struct _SigmoidBwd(NumericalBackward):

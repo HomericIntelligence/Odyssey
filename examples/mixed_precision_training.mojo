@@ -29,7 +29,9 @@ from shared.training.mixed_precision import (
 from shared.training.trainer_interface import TrainerConfig
 
 
-def simulate_forward_pass(params: AnyTensor, input: AnyTensor) raises -> AnyTensor:
+def simulate_forward_pass(
+    params: AnyTensor, input: AnyTensor
+) raises -> AnyTensor:
     """Simulate a simple forward pass: output = params * input."""
     return params * input
 

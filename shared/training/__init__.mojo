@@ -312,7 +312,9 @@ struct TrainingLoop[
         self.loss_fn = loss_fn^
         self.tape = GradientTape()
 
-    def step(mut self, inputs: AnyTensor, targets: AnyTensor) raises -> AnyTensor:
+    def step(
+        mut self, inputs: AnyTensor, targets: AnyTensor
+    ) raises -> AnyTensor:
         """Perform single training step.
 
         Implements the training loop cycle using trait methods:
@@ -414,9 +416,7 @@ struct TrainingLoop[
         # Call loss_fn.compute() via Loss trait
         return self.loss_fn.compute(outputs, targets)
 
-    def run_epoch(
-        mut self, mut data_loader: DataLoader
-    ) raises -> Float32:
+    def run_epoch(mut self, mut data_loader: DataLoader) raises -> Float32:
         """Run single epoch over dataset.
 
         Iterates through all batches in data loader and performs training

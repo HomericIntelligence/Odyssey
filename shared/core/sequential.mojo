@@ -41,7 +41,9 @@ from shared.tensor.any_tensor import AnyTensor
 from .module import Module
 
 
-struct Sequential2[T0: Module & Movable, T1: Module & Movable](Movable, ImplicitlyDestructible):
+struct Sequential2[T0: Module & Movable, T1: Module & Movable](
+    ImplicitlyDestructible, Movable
+):
     """Two-layer sequential module container.
 
     Chains two Module-conforming layers: output of layer 0 becomes input
@@ -75,7 +77,6 @@ struct Sequential2[T0: Module & Movable, T1: Module & Movable](Movable, Implicit
         """
         self.layer0 = layer0^
         self.layer1 = layer1^
-
 
     def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute chained forward pass through both layers.
@@ -123,7 +124,7 @@ struct Sequential2[T0: Module & Movable, T1: Module & Movable](Movable, Implicit
 
 struct Sequential3[
     T0: Module & Movable, T1: Module & Movable, T2: Module & Movable
-](Movable, ImplicitlyDestructible):
+](ImplicitlyDestructible, Movable):
     """Three-layer sequential module container.
 
     Chains three Module-conforming layers in order: 0 -> 1 -> 2.
@@ -169,7 +170,6 @@ struct Sequential3[
         self.layer0 = layer0^
         self.layer1 = layer1^
         self.layer2 = layer2^
-
 
     def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute chained forward pass through all three layers.
@@ -226,7 +226,7 @@ struct Sequential4[
     T1: Module & Movable,
     T2: Module & Movable,
     T3: Module & Movable,
-](Movable, ImplicitlyDestructible):
+](ImplicitlyDestructible, Movable):
     """Four-layer sequential module container.
 
     Chains four Module-conforming layers in order: 0 -> 1 -> 2 -> 3.
@@ -278,7 +278,6 @@ struct Sequential4[
         self.layer1 = layer1^
         self.layer2 = layer2^
         self.layer3 = layer3^
-
 
     def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute chained forward pass through all four layers.
@@ -342,7 +341,7 @@ struct Sequential5[
     T2: Module & Movable,
     T3: Module & Movable,
     T4: Module & Movable,
-](Movable, ImplicitlyDestructible):
+](ImplicitlyDestructible, Movable):
     """Five-layer sequential module container.
 
     Chains five Module-conforming layers in order: 0 -> 1 -> 2 -> 3 -> 4.
@@ -400,7 +399,6 @@ struct Sequential5[
         self.layer2 = layer2^
         self.layer3 = layer3^
         self.layer4 = layer4^
-
 
     def forward(mut self, input: AnyTensor) raises -> AnyTensor:
         """Compute chained forward pass through all five layers.

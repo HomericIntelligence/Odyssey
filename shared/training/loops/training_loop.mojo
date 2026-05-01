@@ -34,10 +34,10 @@ from shared.training.trainer_interface import (
 
 
 def training_step(
-    model_forward: def (AnyTensor) raises -> AnyTensor,
-    compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
-    optimizer_step: def () raises -> None,
-    zero_gradients: def () raises -> None,
+    model_forward: def(AnyTensor) raises -> AnyTensor,
+    compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+    optimizer_step: def() raises -> None,
+    zero_gradients: def() raises -> None,
     data: AnyTensor,
     labels: AnyTensor,
 ) raises -> Float64:
@@ -82,10 +82,10 @@ def training_step(
 
 
 def train_one_epoch(
-    model_forward: def (AnyTensor) raises -> AnyTensor,
-    compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
-    optimizer_step: def () raises -> None,
-    zero_gradients: def () raises -> None,
+    model_forward: def(AnyTensor) raises -> AnyTensor,
+    compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+    optimizer_step: def() raises -> None,
+    zero_gradients: def() raises -> None,
     mut train_loader: DataLoader,
     mut metrics: TrainingMetrics,
     log_interval: Int = 10,
@@ -210,7 +210,7 @@ struct TrainingLoop:
         train_data: AnyTensor,
         train_labels: AnyTensor,
         batch_size: Int,
-        compute_batch_loss: def (AnyTensor, AnyTensor) raises -> Float32,
+        compute_batch_loss: def(AnyTensor, AnyTensor) raises -> Float32,
         epoch: Int,
         total_epochs: Int,
     ) raises -> Float32:
@@ -271,10 +271,10 @@ struct TrainingLoop:
 
     def run_epoch(
         self,
-        model_forward: def (AnyTensor) raises -> AnyTensor,
-        compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
-        optimizer_step: def () raises -> None,
-        zero_gradients: def () raises -> None,
+        model_forward: def(AnyTensor) raises -> AnyTensor,
+        compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+        optimizer_step: def() raises -> None,
+        zero_gradients: def() raises -> None,
         mut train_loader: DataLoader,
         mut metrics: TrainingMetrics,
     ) raises:
@@ -303,10 +303,10 @@ struct TrainingLoop:
 
     def run(
         self,
-        model_forward: def (AnyTensor) raises -> AnyTensor,
-        compute_loss: def (AnyTensor, AnyTensor) raises -> AnyTensor,
-        optimizer_step: def () raises -> None,
-        zero_gradients: def () raises -> None,
+        model_forward: def(AnyTensor) raises -> AnyTensor,
+        compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+        optimizer_step: def() raises -> None,
+        zero_gradients: def() raises -> None,
         mut train_loader: DataLoader,
         num_epochs: Int,
         mut metrics: TrainingMetrics,

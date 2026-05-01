@@ -109,7 +109,9 @@ def test_sequential2_relu_clips_negatives() raises:
 
 def test_sequential3_forward_chain() raises:
     """Sequential3 chains Linear + ReLU + Linear via AnyTensor."""
-    var model = Sequential3[Linear[DType.float32], ReLULayer, Linear[DType.float32]](
+    var model = Sequential3[
+        Linear[DType.float32], ReLULayer, Linear[DType.float32]
+    ](
         Linear(4, 3),
         ReLULayer(),
         Linear(3, 2),
@@ -124,7 +126,9 @@ def test_sequential3_forward_chain() raises:
 
 def test_sequential3_parameters_combined() raises:
     """Sequential3 collects parameters from all sub-layers."""
-    var model = Sequential3[Linear[DType.float32], ReLULayer, Linear[DType.float32]](
+    var model = Sequential3[
+        Linear[DType.float32], ReLULayer, Linear[DType.float32]
+    ](
         Linear(4, 3),
         ReLULayer(),
         Linear(3, 2),

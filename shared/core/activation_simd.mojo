@@ -126,7 +126,9 @@ def _relu_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
 # ============================================================================
 
 
-def leaky_relu_simd(tensor: AnyTensor, alpha: Float64 = 0.01) raises -> AnyTensor:
+def leaky_relu_simd(
+    tensor: AnyTensor, alpha: Float64 = 0.01
+) raises -> AnyTensor:
     """SIMD-optimized Leaky ReLU activation: max(alpha*x, x).
 
     Uses vectorized operations for float32/float64 tensors,

@@ -425,7 +425,6 @@ struct MultiHeadAttentionWeights(Movable):
         self.wo = wo
 
 
-
 struct MultiHeadAttentionResult(Movable):
     """Result container for multi_head_attention.
 
@@ -440,7 +439,6 @@ struct MultiHeadAttentionResult(Movable):
     def __init__(out self, output: AnyTensor, attention_weights: AnyTensor):
         self.output = output
         self.attention_weights = attention_weights
-
 
 
 def multi_head_attention(
@@ -624,9 +622,9 @@ def _reshape_for_heads(
                             + s * d_k
                             + k
                         )
-                        result[dst_idx] = Float32(x_ptr.bitcast[
-                            Float32
-                        ]()[src_idx])
+                        result[dst_idx] = Float32(
+                            x_ptr.bitcast[Float32]()[src_idx]
+                        )
     else:
         for b in range(batch):
             for s in range(seq_len):
@@ -641,9 +639,7 @@ def _reshape_for_heads(
                             + s * d_k
                             + k
                         )
-                        result.set(dst_idx, x_ptr.bitcast[
-                            Float64
-                        ]()[src_idx])
+                        result.set(dst_idx, x_ptr.bitcast[Float64]()[src_idx])
 
     return result
 
@@ -687,9 +683,9 @@ def _reshape_from_heads(
                         var dst_idx = (
                             b * (seq_len * d_model) + s * d_model + h * d_k + k
                         )
-                        result[dst_idx] = Float32(x_ptr.bitcast[
-                            Float32
-                        ]()[src_idx])
+                        result[dst_idx] = Float32(
+                            x_ptr.bitcast[Float32]()[src_idx]
+                        )
     else:
         for b in range(batch):
             for s in range(seq_len):
@@ -704,9 +700,7 @@ def _reshape_from_heads(
                         var dst_idx = (
                             b * (seq_len * d_model) + s * d_model + h * d_k + k
                         )
-                        result.set(dst_idx, x_ptr.bitcast[
-                            Float64
-                        ]()[src_idx])
+                        result.set(dst_idx, x_ptr.bitcast[Float64]()[src_idx])
 
     return result
 
@@ -749,7 +743,6 @@ struct MultiHeadAttentionBackwardResult(Movable):
         self.grad_wk = grad_wk
         self.grad_wv = grad_wv
         self.grad_wo = grad_wo
-
 
 
 def multi_head_attention_backward(

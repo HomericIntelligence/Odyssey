@@ -26,8 +26,12 @@ def test_linear_default_dtype() raises:
     var layer = Linear(4, 2)
     # Weight dtype should be float32 by default
     var params = layer.parameters()
-    assert_true(params[0].dtype() == DType.float32, "default weight dtype is float32")
-    assert_true(params[1].dtype() == DType.float32, "default bias dtype is float32")
+    assert_true(
+        params[0].dtype() == DType.float32, "default weight dtype is float32"
+    )
+    assert_true(
+        params[1].dtype() == DType.float32, "default bias dtype is float32"
+    )
     print("PASS: test_linear_default_dtype")
 
 

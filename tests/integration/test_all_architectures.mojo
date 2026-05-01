@@ -23,7 +23,7 @@ import std.sys as sys
 
 def test_model_forward(
     model_name: String,
-    forward_fn: def (AnyTensor, Bool) raises -> AnyTensor,
+    forward_fn: def(AnyTensor, Bool) raises -> AnyTensor,
     batch_size: Int = 4,
 ) raises -> Bool:
     """Test a model's forward pass with dummy data.

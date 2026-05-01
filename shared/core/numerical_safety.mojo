@@ -81,17 +81,23 @@ def has_nan(tensor: AnyTensor) -> Bool:
     var dtype = tensor.dtype()
     if dtype == DType.float32:
         try:
-            return _has_nan_core[DType.float32](tensor.as_tensor[DType.float32]())
+            return _has_nan_core[DType.float32](
+                tensor.as_tensor[DType.float32]()
+            )
         except:
             return False
     elif dtype == DType.float64:
         try:
-            return _has_nan_core[DType.float64](tensor.as_tensor[DType.float64]())
+            return _has_nan_core[DType.float64](
+                tensor.as_tensor[DType.float64]()
+            )
         except:
             return False
     elif dtype == DType.float16:
         try:
-            return _has_nan_core[DType.float16](tensor.as_tensor[DType.float16]())
+            return _has_nan_core[DType.float16](
+                tensor.as_tensor[DType.float16]()
+            )
         except:
             return False
     # Integer types cannot have NaN
@@ -121,17 +127,23 @@ def has_inf(tensor: AnyTensor) -> Bool:
     var dtype = tensor.dtype()
     if dtype == DType.float32:
         try:
-            return _has_inf_core[DType.float32](tensor.as_tensor[DType.float32]())
+            return _has_inf_core[DType.float32](
+                tensor.as_tensor[DType.float32]()
+            )
         except:
             return False
     elif dtype == DType.float64:
         try:
-            return _has_inf_core[DType.float64](tensor.as_tensor[DType.float64]())
+            return _has_inf_core[DType.float64](
+                tensor.as_tensor[DType.float64]()
+            )
         except:
             return False
     elif dtype == DType.float16:
         try:
-            return _has_inf_core[DType.float16](tensor.as_tensor[DType.float16]())
+            return _has_inf_core[DType.float16](
+                tensor.as_tensor[DType.float16]()
+            )
         except:
             return False
     return False
@@ -157,17 +169,23 @@ def count_nan(tensor: AnyTensor) -> Int:
     var dtype = tensor.dtype()
     if dtype == DType.float32:
         try:
-            return _count_nan_core[DType.float32](tensor.as_tensor[DType.float32]())
+            return _count_nan_core[DType.float32](
+                tensor.as_tensor[DType.float32]()
+            )
         except:
             return 0
     elif dtype == DType.float64:
         try:
-            return _count_nan_core[DType.float64](tensor.as_tensor[DType.float64]())
+            return _count_nan_core[DType.float64](
+                tensor.as_tensor[DType.float64]()
+            )
         except:
             return 0
     elif dtype == DType.float16:
         try:
-            return _count_nan_core[DType.float16](tensor.as_tensor[DType.float16]())
+            return _count_nan_core[DType.float16](
+                tensor.as_tensor[DType.float16]()
+            )
         except:
             return 0
     return 0
@@ -193,17 +211,23 @@ def count_inf(tensor: AnyTensor) -> Int:
     var dtype = tensor.dtype()
     if dtype == DType.float32:
         try:
-            return _count_inf_core[DType.float32](tensor.as_tensor[DType.float32]())
+            return _count_inf_core[DType.float32](
+                tensor.as_tensor[DType.float32]()
+            )
         except:
             return 0
     elif dtype == DType.float64:
         try:
-            return _count_inf_core[DType.float64](tensor.as_tensor[DType.float64]())
+            return _count_inf_core[DType.float64](
+                tensor.as_tensor[DType.float64]()
+            )
         except:
             return 0
     elif dtype == DType.float16:
         try:
-            return _count_inf_core[DType.float16](tensor.as_tensor[DType.float16]())
+            return _count_inf_core[DType.float16](
+                tensor.as_tensor[DType.float16]()
+            )
         except:
             return 0
     return 0
@@ -268,17 +292,23 @@ def tensor_min(tensor: AnyTensor) -> Float64:
     var dtype = tensor.dtype()
     if dtype == DType.float32:
         try:
-            return _tensor_min_core[DType.float32](tensor.as_tensor[DType.float32]())
+            return _tensor_min_core[DType.float32](
+                tensor.as_tensor[DType.float32]()
+            )
         except:
             return 0.0
     elif dtype == DType.float64:
         try:
-            return _tensor_min_core[DType.float64](tensor.as_tensor[DType.float64]())
+            return _tensor_min_core[DType.float64](
+                tensor.as_tensor[DType.float64]()
+            )
         except:
             return 0.0
     elif dtype == DType.float16:
         try:
-            return _tensor_min_core[DType.float16](tensor.as_tensor[DType.float16]())
+            return _tensor_min_core[DType.float16](
+                tensor.as_tensor[DType.float16]()
+            )
         except:
             return 0.0
     return 0.0
@@ -304,17 +334,23 @@ def tensor_max(tensor: AnyTensor) -> Float64:
     var dtype = tensor.dtype()
     if dtype == DType.float32:
         try:
-            return _tensor_max_core[DType.float32](tensor.as_tensor[DType.float32]())
+            return _tensor_max_core[DType.float32](
+                tensor.as_tensor[DType.float32]()
+            )
         except:
             return 0.0
     elif dtype == DType.float64:
         try:
-            return _tensor_max_core[DType.float64](tensor.as_tensor[DType.float64]())
+            return _tensor_max_core[DType.float64](
+                tensor.as_tensor[DType.float64]()
+            )
         except:
             return 0.0
     elif dtype == DType.float16:
         try:
-            return _tensor_max_core[DType.float16](tensor.as_tensor[DType.float16]())
+            return _tensor_max_core[DType.float16](
+                tensor.as_tensor[DType.float16]()
+            )
         except:
             return 0.0
     return 0.0
@@ -382,17 +418,23 @@ def compute_tensor_l2_norm(tensor: AnyTensor) -> Float64:
     var dtype = tensor.dtype()
     if dtype == DType.float32:
         try:
-            return _compute_l2_norm_core[DType.float32](tensor.as_tensor[DType.float32]())
+            return _compute_l2_norm_core[DType.float32](
+                tensor.as_tensor[DType.float32]()
+            )
         except:
             return 0.0
     elif dtype == DType.float64:
         try:
-            return _compute_l2_norm_core[DType.float64](tensor.as_tensor[DType.float64]())
+            return _compute_l2_norm_core[DType.float64](
+                tensor.as_tensor[DType.float64]()
+            )
         except:
             return 0.0
     elif dtype == DType.float16:
         try:
-            return _compute_l2_norm_core[DType.float16](tensor.as_tensor[DType.float16]())
+            return _compute_l2_norm_core[DType.float16](
+                tensor.as_tensor[DType.float16]()
+            )
         except:
             return 0.0
     return 0.0

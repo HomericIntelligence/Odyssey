@@ -71,6 +71,7 @@ def maxpool2d(
 
     # Compute output dimensions using shape computation helper
     from .shape import pool_output_shape
+
     var (out_h, out_w) = pool_output_shape(
         in_height, in_width, kernel_size, actual_stride, padding
     )
@@ -346,6 +347,7 @@ def avgpool2d(
 
     # Compute output dimensions using shape computation helper
     from .shape import pool_output_shape
+
     var (out_h, out_w) = pool_output_shape(
         in_height, in_width, kernel_size, actual_stride, padding
     )
@@ -414,7 +416,9 @@ def avgpool2d(
     return output^
 
 
-def global_avgpool2d(x: AnyTensor, method: String = "direct") raises -> AnyTensor:
+def global_avgpool2d(
+    x: AnyTensor, method: String = "direct"
+) raises -> AnyTensor:
     """Functional global average pooling with selectable implementation.
 
         Pure function that reduces spatial dimensions (H, W) to (1, 1) by
@@ -609,7 +613,9 @@ def maxpool2d_backward(
                             + oh * out_width
                             + ow
                         )
-                        var grad_out_val = grad_output._get_float64(grad_out_idx)
+                        var grad_out_val = grad_output._get_float64(
+                            grad_out_idx
+                        )
 
                         var grad_in_idx = (
                             b * (channels * in_height * in_width)

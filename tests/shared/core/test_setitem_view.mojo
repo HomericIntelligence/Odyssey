@@ -37,8 +37,12 @@ def test_setitem_view_has_correct_setup() raises:
         raise Error("Slice [2:8] should have 6 elements")
 
     # Element values should be correct
-    assert_value_at(view, 0, 2.0, tolerance=1e-6, message="view[0] should be 2.0")
-    assert_value_at(view, 5, 7.0, tolerance=1e-6, message="view[5] should be 7.0")
+    assert_value_at(
+        view, 0, 2.0, tolerance=1e-6, message="view[0] should be 2.0"
+    )
+    assert_value_at(
+        view, 5, 7.0, tolerance=1e-6, message="view[5] should be 7.0"
+    )
 
 
 def test_setitem_view_1d_writes_correctly() raises:
@@ -56,11 +60,41 @@ def test_setitem_view_1d_writes_correctly() raises:
     view[2] = 77.0
 
     # Verify writes affected the correct positions in the original
-    assert_value_at(original, 0, 0.0, tolerance=1e-6, message="original[0] should be 0.0 (before slice)")
-    assert_value_at(original, 2, 99.0, tolerance=1e-6, message="original[2] should be 99.0 (from view[0])")
-    assert_value_at(original, 3, 88.0, tolerance=1e-6, message="original[3] should be 88.0 (from view[1])")
-    assert_value_at(original, 4, 77.0, tolerance=1e-6, message="original[4] should be 77.0 (from view[2])")
-    assert_value_at(original, 5, 0.0, tolerance=1e-6, message="original[5] should be 0.0 (after slice)")
+    assert_value_at(
+        original,
+        0,
+        0.0,
+        tolerance=1e-6,
+        message="original[0] should be 0.0 (before slice)",
+    )
+    assert_value_at(
+        original,
+        2,
+        99.0,
+        tolerance=1e-6,
+        message="original[2] should be 99.0 (from view[0])",
+    )
+    assert_value_at(
+        original,
+        3,
+        88.0,
+        tolerance=1e-6,
+        message="original[3] should be 88.0 (from view[1])",
+    )
+    assert_value_at(
+        original,
+        4,
+        77.0,
+        tolerance=1e-6,
+        message="original[4] should be 77.0 (from view[2])",
+    )
+    assert_value_at(
+        original,
+        5,
+        0.0,
+        tolerance=1e-6,
+        message="original[5] should be 0.0 (after slice)",
+    )
 
 
 def test_setitem_view_multidim_writes_correctly() raises:
@@ -96,7 +130,13 @@ def test_setitem_view_multidim_writes_correctly() raises:
     var idx_21 = [2, 1]
     var idx_22 = [2, 2]
 
-    assert_value_at(original, 0, 0.0, tolerance=1e-6, message="original[0,0] should be 0.0 (outside slice)")
+    assert_value_at(
+        original,
+        0,
+        0.0,
+        tolerance=1e-6,
+        message="original[0,0] should be 0.0 (outside slice)",
+    )
     var val_11 = original.__getitem__(idx_11)
     var val_12 = original.__getitem__(idx_12)
     var val_21 = original.__getitem__(idx_21)
@@ -127,18 +167,37 @@ def test_setitem_view_does_not_corrupt_adjacent_elements() raises:
 
     # Check elements outside the slice are unchanged
     for i in range(3):
-        assert_value_at(original, i, 1.0, tolerance=1e-6, message="original[" + String(i) + "] should be 1.0")
+        assert_value_at(
+            original,
+            i,
+            1.0,
+            tolerance=1e-6,
+            message="original[" + String(i) + "] should be 1.0",
+        )
 
     for i in range(7, 10):
-        assert_value_at(original, i, 1.0, tolerance=1e-6, message="original[" + String(i) + "] should be 1.0")
+        assert_value_at(
+            original,
+            i,
+            1.0,
+            tolerance=1e-6,
+            message="original[" + String(i) + "] should be 1.0",
+        )
 
     # Check elements inside the slice are updated
     for i in range(3, 7):
-        assert_value_at(original, i, 99.0, tolerance=1e-6, message="original[" + String(i) + "] should be 99.0")
+        assert_value_at(
+            original,
+            i,
+            99.0,
+            tolerance=1e-6,
+            message="original[" + String(i) + "] should be 99.0",
+        )
 
 
 def test_transpose_creates_noncontiguous_view() raises:
-    """Verify that transpose() produces _is_view=True with non-identity strides."""
+    """Verify that transpose() produces _is_view=True with non-identity strides.
+    """
     var t = zeros([3, 4], DType.float32)
     var v = t.transpose(0, 1)
     assert_true(v._is_view, "transpose should produce _is_view=True")
@@ -158,7 +217,8 @@ def test_slice_creates_view() raises:
 
 
 def test_setitem_view_int32_dtype() raises:
-    """__setitem__ flat index on a transposed int32 view writes correct element."""
+    """__setitem__ flat index on a transposed int32 view writes correct element.
+    """
     var mat = zeros([2, 3], DType.int32)
     var v = mat.transpose(0, 1)  # shape (3, 2), strides [1, 3]
 
@@ -292,7 +352,8 @@ def test_setitem_flat_view_all_elements() raises:
 
 
 def test_setitem_flat_view_does_not_corrupt_neighbors() raises:
-    """Writing one flat-index element on a view leaves other elements unchanged."""
+    """Writing one flat-index element on a view leaves other elements unchanged.
+    """
     var t = arange(0.0, 6.0, 1.0, DType.float32)
     var mat = t.reshape([2, 3])
     var v = mat.transpose(0, 1)  # shape (3, 2), strides [1, 3]
@@ -328,7 +389,8 @@ def test_setitem_on_transposed_view_updates_original() raises:
 
 
 def test_setitem_on_slice_view_writes_to_parent() raises:
-    """Writing to a slice() view propagates to the correct positions in the original."""
+    """Writing to a slice() view propagates to the correct positions in the original.
+    """
     var t = zeros([6], DType.float32)
     var v = t.slice(2, 5, axis=0)  # view of t[2:5], _is_view=True
 

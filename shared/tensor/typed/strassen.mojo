@@ -10,9 +10,7 @@ from shared.tensor.any_tensor import AnyTensor
 
 def _extract_quadrants_typed[
     dtype: DType
-](
-    src: Tensor[dtype], n: Int, n_half: Int
-) raises -> Tuple[
+](src: Tensor[dtype], n: Int, n_half: Int) raises -> Tuple[
     Tensor[dtype],
     Tensor[dtype],
     Tensor[dtype],
@@ -72,12 +70,8 @@ def _combine_quadrants_typed[
     for i in range(n_half):
         for j in range(n_half):
             c_ptr.store(i * n + j, c11_ptr.load(i * n_half + j))
-            c_ptr.store(
-                i * n + (j + n_half), c12_ptr.load(i * n_half + j)
-            )
-            c_ptr.store(
-                (i + n_half) * n + j, c21_ptr.load(i * n_half + j)
-            )
+            c_ptr.store(i * n + (j + n_half), c12_ptr.load(i * n_half + j))
+            c_ptr.store((i + n_half) * n + j, c21_ptr.load(i * n_half + j))
             c_ptr.store(
                 (i + n_half) * n + (j + n_half),
                 c22_ptr.load(i * n_half + j),

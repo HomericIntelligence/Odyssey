@@ -22,7 +22,9 @@ from shared.tensor.any_tensor import AnyTensor, zeros
 from std.memory import UnsafePointer
 
 
-def read_uint32_be[origin: Origin](data: UnsafePointer[UInt8, origin], offset: Int) -> Int:
+def read_uint32_be[
+    origin: Origin
+](data: UnsafePointer[UInt8, origin], offset: Int) -> Int:
     """Read 32-bit unsigned integer in big-endian format.
 
     Args:

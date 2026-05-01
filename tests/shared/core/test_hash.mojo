@@ -6,7 +6,14 @@ behavior for tensors containing NaN values.
 """
 
 from std.memory import UnsafePointer
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange, nan_tensor
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    full,
+    arange,
+    nan_tensor,
+)
 from tests.shared.conftest import (
     assert_equal_int,
 )
@@ -344,7 +351,9 @@ def test_hash_integer_dtype_distinct() raises:
     var a = arange(0.0, 4.0, 1.0, DType.int32)  # [0, 1, 2, 3]
     var b = arange(1.0, 5.0, 1.0, DType.int32)  # [1, 2, 3, 4]
     if hash(a) == hash(b):
-        raise Error("Integer tensors with different values should not collide on hash")
+        raise Error(
+            "Integer tensors with different values should not collide on hash"
+        )
 
 
 # ============================================================================
@@ -364,7 +373,8 @@ def test_hash_empty_tensor_base() raises:
 
 
 def test_hash_empty_tensor_different_shapes() raises:
-    """Empty tensors with different shapes produce different hashes. Closes #4067."""
+    """Empty tensors with different shapes produce different hashes. Closes #4067.
+    """
     var shape1 = List[Int]()
     shape1.append(0)
     var a = zeros(shape1, DType.float32)
@@ -375,18 +385,23 @@ def test_hash_empty_tensor_different_shapes() raises:
     var b = zeros(shape2, DType.float32)
 
     if hash(a) == hash(b):
-        raise Error("Empty tensors with different shapes should not collide on hash")
+        raise Error(
+            "Empty tensors with different shapes should not collide on hash"
+        )
 
 
 def test_hash_empty_tensor_different_dtypes() raises:
-    """Empty tensors with different dtypes produce different hashes. Closes #4068."""
+    """Empty tensors with different dtypes produce different hashes. Closes #4068.
+    """
     var shape = List[Int]()
     shape.append(0)
     var a = zeros(shape, DType.float32)
     var b = zeros(shape, DType.float64)
 
     if hash(a) == hash(b):
-        raise Error("Empty tensors with different dtypes should not collide on hash")
+        raise Error(
+            "Empty tensors with different dtypes should not collide on hash"
+        )
 
 
 def test_hash_empty_tensor_stability() raises:

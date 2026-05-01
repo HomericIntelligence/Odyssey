@@ -9,7 +9,11 @@ Tests cover:
 """
 
 from std.testing import assert_true, assert_almost_equal
-from shared.tensor.any_tensor import AnyTensor, full as any_full, zeros as any_zeros
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    full as any_full,
+    zeros as any_zeros,
+)
 from shared.core.elementwise import (
     exp,
     log,
@@ -104,12 +108,8 @@ def test_exp_edge_cases() raises:
     t[0] = 0.0
     t[1] = 1.0
     var r = exp(t)
-    assert_almost_equal(
-        Float64(r[0]), 1.0, atol=1e-6, msg="exp(0) = 1"
-    )
-    assert_almost_equal(
-        Float64(r[1]), 2.718281828, atol=1e-4, msg="exp(1) ~ e"
-    )
+    assert_almost_equal(Float64(r[0]), 1.0, atol=1e-6, msg="exp(0) = 1")
+    assert_almost_equal(Float64(r[1]), 2.718281828, atol=1e-4, msg="exp(1) ~ e")
     print("PASS: test_exp_edge_cases")
 
 
@@ -119,17 +119,13 @@ def test_log_sqrt_edge_cases() raises:
     var t1 = any_full([2], 1.0, DType.float32)
     var r1 = log(t1)
     for i in range(2):
-        assert_almost_equal(
-            Float64(r1[i]), 0.0, atol=1e-6, msg="log(1) = 0"
-        )
+        assert_almost_equal(Float64(r1[i]), 0.0, atol=1e-6, msg="log(1) = 0")
 
     # sqrt(4) = 2
     var t2 = any_full([2], 4.0, DType.float32)
     var r2 = sqrt(t2)
     for i in range(2):
-        assert_almost_equal(
-            Float64(r2[i]), 2.0, atol=1e-6, msg="sqrt(4) = 2"
-        )
+        assert_almost_equal(Float64(r2[i]), 2.0, atol=1e-6, msg="sqrt(4) = 2")
     print("PASS: test_log_sqrt_edge_cases")
 
 
@@ -140,15 +136,9 @@ def test_abs_edge_cases() raises:
     t[1] = 0.0
     t[2] = 1.5
     var r = abs(t)
-    assert_almost_equal(
-        Float64(r[0]), 3.0, atol=1e-6, msg="abs(-3) = 3"
-    )
-    assert_almost_equal(
-        Float64(r[1]), 0.0, atol=1e-6, msg="abs(0) = 0"
-    )
-    assert_almost_equal(
-        Float64(r[2]), 1.5, atol=1e-6, msg="abs(1.5) = 1.5"
-    )
+    assert_almost_equal(Float64(r[0]), 3.0, atol=1e-6, msg="abs(-3) = 3")
+    assert_almost_equal(Float64(r[1]), 0.0, atol=1e-6, msg="abs(0) = 0")
+    assert_almost_equal(Float64(r[2]), 1.5, atol=1e-6, msg="abs(1.5) = 1.5")
     print("PASS: test_abs_edge_cases")
 
 

@@ -9,7 +9,12 @@ and multi-dimensional __getitem__.
 
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, arange
 from shared.core.shape import view
-from tests.shared.conftest import assert_true, assert_false, assert_almost_equal, assert_equal
+from tests.shared.conftest import (
+    assert_true,
+    assert_false,
+    assert_almost_equal,
+    assert_equal,
+)
 
 
 # ============================================================================
@@ -80,11 +85,14 @@ def test_contiguous_element_access() raises:
             idx.append(i)
             idx.append(j)
             var expected = Float32(i * 4 + j)
-            assert_almost_equal(Float64(t2d[idx]), Float64(expected), tolerance=1e-5)
+            assert_almost_equal(
+                Float64(t2d[idx]), Float64(expected), tolerance=1e-5
+            )
 
 
 def test_transposed_element_access() raises:
-    """Transposed tensor element access via multi-dim indices uses permuted strides."""
+    """Transposed tensor element access via multi-dim indices uses permuted strides.
+    """
     # 2x3 tensor: row 0 = [0,1,2], row 1 = [3,4,5]
     var t = arange(0.0, 6.0, 1.0, DType.float32)
     var t2d = t.reshape([2, 3])

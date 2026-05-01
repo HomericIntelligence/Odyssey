@@ -76,7 +76,8 @@ def test_multislice_3d_axis0_basic() raises:
 
 
 def test_multislice_2d_is_copy_not_view() raises:
-    """Test that __getitem__(*slices) result is a copy -- mutating does not affect original."""
+    """Test that __getitem__(*slices) result is a copy -- mutating does not affect original.
+    """
     var t = arange(0.0, 20.0, 1.0, DType.float32)
     var t2d = t.reshape([4, 5])
 
@@ -108,7 +109,8 @@ def test_multislice_2d_negative_start() raises:
 
 
 def test_multislice_2d_empty_result() raises:
-    """Test t[3:1, :] on a 2D tensor returns an empty tensor with shape (0, cols)."""
+    """Test t[3:1, :] on a 2D tensor returns an empty tensor with shape (0, cols).
+    """
     var t = arange(0.0, 20.0, 1.0, DType.float32)
     var t2d = t.reshape([4, 5])
 

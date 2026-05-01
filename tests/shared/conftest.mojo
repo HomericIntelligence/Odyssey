@@ -145,7 +145,9 @@ struct TestFixtures:
         return randn(shape, DType.float32)
 
     @staticmethod
-    def synthetic_labels(n_samples: Int = 100) raises unified {read} -> AnyTensor:
+    def synthetic_labels(
+        n_samples: Int = 100,
+    ) raises unified {read} -> AnyTensor:
         """Create synthetic label tensor for testing.
 
         Args:
@@ -232,7 +234,7 @@ def print_benchmark_results(results: List[BenchmarkResult]):
 # ============================================================================
 
 
-def measure_time[func: def () raises -> None]() raises -> Float64:
+def measure_time[func: def() raises -> None]() raises -> Float64:
     """Measure execution time of a function.
 
     Parameters:
@@ -251,7 +253,7 @@ def measure_time[func: def () raises -> None]() raises -> Float64:
 
 
 def measure_throughput[
-    func: def () raises -> None
+    func: def() raises -> None
 ](n_iterations: Int) raises -> Float64:
     """Measure throughput of a function.
 

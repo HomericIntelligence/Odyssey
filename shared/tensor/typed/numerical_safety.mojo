@@ -12,6 +12,7 @@ from std.sys import simd_width_of
 from std.algorithm import vectorize
 from shared.tensor.tensor import Tensor
 
+
 def _has_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
     """Check if typed tensor contains any NaN values (SIMD-vectorized).
 
@@ -49,7 +50,6 @@ def _has_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
             return True
         i += 1
     return False
-
 
 
 def _has_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
@@ -90,7 +90,6 @@ def _has_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Bool:
     return False
 
 
-
 def _count_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
     """Count NaN values in typed tensor (SIMD-vectorized).
 
@@ -120,7 +119,6 @@ def _count_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
 
     vectorize[simd_w](size, _count)
     return count
-
 
 
 def _count_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
@@ -154,7 +152,6 @@ def _count_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
     return count
 
 
-
 def _tensor_min_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
     """Find minimum value in typed tensor (core implementation).
 
@@ -180,7 +177,6 @@ def _tensor_min_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
     return min_val
 
 
-
 def _tensor_max_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
     """Find maximum value in typed tensor (core implementation).
 
@@ -204,7 +200,6 @@ def _tensor_max_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:
         if val > max_val:
             max_val = val
     return max_val
-
 
 
 def _compute_l2_norm_core[dtype: DType](tensor: Tensor[dtype]) -> Float64:

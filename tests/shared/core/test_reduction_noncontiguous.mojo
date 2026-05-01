@@ -43,7 +43,8 @@ def _make_nc_2x3() raises -> AnyTensor:
 
 
 def test_sum_all_noncontiguous() raises:
-    """Reduction sum() over all elements of a non-contiguous tensor should be correct."""
+    """Reduction sum() over all elements of a non-contiguous tensor should be correct.
+    """
     var nc = _make_nc_2x3()  # logical values: 0,3,1,4,2,5; sum=15
 
     var result = sum(nc)
@@ -53,7 +54,8 @@ def test_sum_all_noncontiguous() raises:
 
 
 def test_sum_axis0_noncontiguous() raises:
-    """Reduction sum(axis=0) on non-contiguous 3×2 should sum along rows correctly."""
+    """Reduction sum(axis=0) on non-contiguous 3×2 should sum along rows correctly.
+    """
     # nc shape (3,2), logical rows: [0,3], [1,4], [2,5]
     # sum axis 0: [0+1+2, 3+4+5] = [3, 12]
     var nc = _make_nc_2x3()
@@ -67,7 +69,8 @@ def test_sum_axis0_noncontiguous() raises:
 
 
 def test_sum_axis1_noncontiguous() raises:
-    """Reduction sum(axis=1) on non-contiguous 3×2 should sum along columns correctly."""
+    """Reduction sum(axis=1) on non-contiguous 3×2 should sum along columns correctly.
+    """
     # nc shape (3,2), logical rows: [0,3], [1,4], [2,5]
     # sum axis 1: [0+3, 1+4, 2+5] = [3, 5, 7]
     var nc = _make_nc_2x3()
@@ -82,7 +85,8 @@ def test_sum_axis1_noncontiguous() raises:
 
 
 def test_mean_all_noncontiguous() raises:
-    """Reduction mean() over all elements of a non-contiguous tensor should be correct."""
+    """Reduction mean() over all elements of a non-contiguous tensor should be correct.
+    """
     var nc = _make_nc_2x3()  # logical values: 0,3,1,4,2,5; mean=2.5
 
     var result = mean(nc)
@@ -92,7 +96,8 @@ def test_mean_all_noncontiguous() raises:
 
 
 def test_mean_axis0_noncontiguous() raises:
-    """Reduction mean(axis=0) on non-contiguous 3×2 should average along rows correctly."""
+    """Reduction mean(axis=0) on non-contiguous 3×2 should average along rows correctly.
+    """
     # nc shape (3,2), logical rows: [0,3], [1,4], [2,5]
     # mean axis 0: [0+1+2/3, 3+4+5/3] = [1.0, 4.0]
     var nc = _make_nc_2x3()
@@ -106,7 +111,8 @@ def test_mean_axis0_noncontiguous() raises:
 
 
 def test_mean_axis1_noncontiguous() raises:
-    """Reduction mean(axis=1) on non-contiguous 3×2 should average along columns correctly."""
+    """Reduction mean(axis=1) on non-contiguous 3×2 should average along columns correctly.
+    """
     # nc shape (3,2), logical rows: [0,3], [1,4], [2,5]
     # mean axis 1: [0+3/2, 1+4/2, 2+5/2] = [1.5, 2.5, 3.5]
     var nc = _make_nc_2x3()
@@ -125,9 +131,12 @@ def test_sum_noncontiguous_matches_contiguous_baseline() raises:
     # Build contiguous tensor with same logical values as nc
     var logical = zeros([3, 2], DType.float32)
     var lp = logical._data.bitcast[Float32]()
-    lp[0] = 0.0; lp[1] = 3.0
-    lp[2] = 1.0; lp[3] = 4.0
-    lp[4] = 2.0; lp[5] = 5.0
+    lp[0] = 0.0
+    lp[1] = 3.0
+    lp[2] = 1.0
+    lp[3] = 4.0
+    lp[4] = 2.0
+    lp[5] = 5.0
 
     var baseline = sum(logical, axis=0)
     var nc = _make_nc_2x3()
@@ -143,9 +152,12 @@ def test_mean_noncontiguous_matches_contiguous_baseline() raises:
     """Non-contiguous mean must match contiguous baseline."""
     var logical = zeros([3, 2], DType.float32)
     var lp = logical._data.bitcast[Float32]()
-    lp[0] = 0.0; lp[1] = 3.0
-    lp[2] = 1.0; lp[3] = 4.0
-    lp[4] = 2.0; lp[5] = 5.0
+    lp[0] = 0.0
+    lp[1] = 3.0
+    lp[2] = 1.0
+    lp[3] = 4.0
+    lp[4] = 2.0
+    lp[5] = 5.0
 
     var baseline = mean(logical)
     var nc = _make_nc_2x3()
@@ -157,7 +169,8 @@ def test_mean_noncontiguous_matches_contiguous_baseline() raises:
 
 
 def test_sum_keepdims_noncontiguous() raises:
-    """Reduction sum(keepdims=True) on non-contiguous tensor should work correctly."""
+    """Reduction sum(keepdims=True) on non-contiguous tensor should work correctly.
+    """
     var nc = _make_nc_2x3()  # shape (3,2), sum=15
 
     var result = sum(nc, axis=-1, keepdims=True)
@@ -168,7 +181,8 @@ def test_sum_keepdims_noncontiguous() raises:
 
 
 def test_max_all_noncontiguous() raises:
-    """Max_reduce() over all elements of a non-contiguous tensor should be correct."""
+    """Max_reduce() over all elements of a non-contiguous tensor should be correct.
+    """
     var nc = _make_nc_2x3()  # logical values: 0,3,1,4,2,5; max=5
 
     var result = max_reduce(nc)
@@ -207,7 +221,8 @@ def test_max_axis1_noncontiguous() raises:
 
 
 def test_min_all_noncontiguous() raises:
-    """Min_reduce() over all elements of a non-contiguous tensor should be correct."""
+    """Min_reduce() over all elements of a non-contiguous tensor should be correct.
+    """
     var nc = _make_nc_2x3()  # logical values: 0,3,1,4,2,5; min=0
 
     var result = min_reduce(nc)
@@ -249,9 +264,12 @@ def test_max_noncontiguous_matches_contiguous_baseline() raises:
     """Non-contiguous max_reduce must match contiguous baseline."""
     var logical = zeros([3, 2], DType.float32)
     var lp = logical._data.bitcast[Float32]()
-    lp[0] = 0.0; lp[1] = 3.0
-    lp[2] = 1.0; lp[3] = 4.0
-    lp[4] = 2.0; lp[5] = 5.0
+    lp[0] = 0.0
+    lp[1] = 3.0
+    lp[2] = 1.0
+    lp[3] = 4.0
+    lp[4] = 2.0
+    lp[5] = 5.0
 
     var baseline = max_reduce(logical, axis=1)
     var nc = _make_nc_2x3()
@@ -267,9 +285,12 @@ def test_min_noncontiguous_matches_contiguous_baseline() raises:
     """Non-contiguous min_reduce must match contiguous baseline."""
     var logical = zeros([3, 2], DType.float32)
     var lp = logical._data.bitcast[Float32]()
-    lp[0] = 0.0; lp[1] = 3.0
-    lp[2] = 1.0; lp[3] = 4.0
-    lp[4] = 2.0; lp[5] = 5.0
+    lp[0] = 0.0
+    lp[1] = 3.0
+    lp[2] = 1.0
+    lp[3] = 4.0
+    lp[4] = 2.0
+    lp[5] = 5.0
 
     var baseline = min_reduce(logical, axis=0)
     var nc = _make_nc_2x3()
@@ -286,7 +307,7 @@ def test_max_larger_noncontiguous() raises:
     # Create a 3×4 contiguous tensor and transpose to (4,3) non-contiguous
     var base = arange(0.0, 12.0, 1.0, DType.float32)
     var shaped = base.reshape([3, 4])
-    var nc = transpose_view(shaped)   # shape (4,3), non-contiguous
+    var nc = transpose_view(shaped)  # shape (4,3), non-contiguous
     assert_false(nc.is_contiguous(), "fixture must be non-contiguous")
 
     var result = max_reduce(nc)
@@ -299,7 +320,7 @@ def test_min_larger_noncontiguous() raises:
     """Min_reduce on a larger non-contiguous tensor should be correct."""
     var base = arange(1.0, 13.0, 1.0, DType.float32)
     var shaped = base.reshape([3, 4])
-    var nc = transpose_view(shaped)   # shape (4,3), non-contiguous
+    var nc = transpose_view(shaped)  # shape (4,3), non-contiguous
     assert_false(nc.is_contiguous(), "fixture must be non-contiguous")
 
     var result = min_reduce(nc)

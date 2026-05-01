@@ -41,6 +41,7 @@ from shared.core.arithmetic import add, subtract, multiply, divide
 from shared.core.activation import relu, sigmoid, tanh
 from shared.core.reduction import sum, mean
 from shared.core.matrix import matmul
+
 comptime tensor_sum = sum
 comptime tensor_mean = mean
 
@@ -111,8 +112,6 @@ struct Variable(Copyable, Movable):
         self.data = data^
         self.requires_grad = requires_grad
         self.id = tape.register_variable(requires_grad)
-
-
 
     def __init__(
         out self,

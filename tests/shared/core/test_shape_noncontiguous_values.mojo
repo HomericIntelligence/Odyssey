@@ -164,7 +164,9 @@ def test_broadcast_to_noncontiguous_values() raises:
     var flat = arange(0.0, 3.0, 1.0, DType.float32)
     var row_shape: List[Int] = [1, 3]
     var row = flat.reshape(row_shape)
-    var col_nc = transpose_view(row)  # shape (3,1), non-contiguous, strides [1,3]
+    var col_nc = transpose_view(
+        row
+    )  # shape (3,1), non-contiguous, strides [1,3]
 
     var target_shape: List[Int] = [3, 4]
     var result = broadcast_to(col_nc, target_shape)
@@ -262,7 +264,9 @@ def test_repeat_noncontiguous_values() raises:
 
 def main() raises:
     """Run value-correctness tests for shape ops on non-contiguous inputs."""
-    print("Running shape op value-correctness tests on non-contiguous inputs...")
+    print(
+        "Running shape op value-correctness tests on non-contiguous inputs..."
+    )
 
     try:
         test_reshape_noncontiguous_values()

@@ -9,7 +9,11 @@ Tests cover:
 """
 
 from std.testing import assert_true, assert_almost_equal
-from shared.tensor.any_tensor import AnyTensor, full as any_full, zeros as any_zeros
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    full as any_full,
+    zeros as any_zeros,
+)
 from shared.core.elementwise import exp, log, sqrt, abs, sin, cos
 from shared.core.activation import relu, sigmoid
 
@@ -21,9 +25,7 @@ def test_exp() raises:
     assert_true(r.dtype() == DType.float32, "dtype should be float32")
     # exp(0) = 1.0
     for i in range(4):
-        assert_almost_equal(
-            Float64(r[i]), 1.0, atol=1e-6, msg="exp(0) = 1"
-        )
+        assert_almost_equal(Float64(r[i]), 1.0, atol=1e-6, msg="exp(0) = 1")
     print("PASS: test_exp")
 
 
@@ -48,9 +50,7 @@ def test_log() raises:
     assert_true(r.dtype() == DType.float32, "dtype should be float32")
     # log(1) = 0.0
     for i in range(3):
-        assert_almost_equal(
-            Float64(r[i]), 0.0, atol=1e-6, msg="log(1) = 0"
-        )
+        assert_almost_equal(Float64(r[i]), 0.0, atol=1e-6, msg="log(1) = 0")
     print("PASS: test_log")
 
 
@@ -86,18 +86,10 @@ def test_relu() raises:
     t[3] = 1.5
     var r = relu(t)
     assert_true(r.dtype() == DType.float32, "dtype should be float32")
-    assert_almost_equal(
-        Float64(r[0]), 0.0, atol=1e-6, msg="relu(-1) = 0"
-    )
-    assert_almost_equal(
-        Float64(r[1]), 0.0, atol=1e-6, msg="relu(0) = 0"
-    )
-    assert_almost_equal(
-        Float64(r[2]), 0.5, atol=1e-6, msg="relu(0.5) = 0.5"
-    )
-    assert_almost_equal(
-        Float64(r[3]), 1.5, atol=1e-6, msg="relu(1.5) = 1.5"
-    )
+    assert_almost_equal(Float64(r[0]), 0.0, atol=1e-6, msg="relu(-1) = 0")
+    assert_almost_equal(Float64(r[1]), 0.0, atol=1e-6, msg="relu(0) = 0")
+    assert_almost_equal(Float64(r[2]), 0.5, atol=1e-6, msg="relu(0.5) = 0.5")
+    assert_almost_equal(Float64(r[3]), 1.5, atol=1e-6, msg="relu(1.5) = 1.5")
     print("PASS: test_relu")
 
 
@@ -121,12 +113,8 @@ def test_sin_cos() raises:
     var c = cos(t)
     # sin(0) = 0, cos(0) = 1
     for i in range(2):
-        assert_almost_equal(
-            Float64(s[i]), 0.0, atol=1e-6, msg="sin(0) = 0"
-        )
-        assert_almost_equal(
-            Float64(c[i]), 1.0, atol=1e-6, msg="cos(0) = 1"
-        )
+        assert_almost_equal(Float64(s[i]), 0.0, atol=1e-6, msg="sin(0) = 0")
+        assert_almost_equal(Float64(c[i]), 1.0, atol=1e-6, msg="cos(0) = 1")
     print("PASS: test_sin_cos")
 
 

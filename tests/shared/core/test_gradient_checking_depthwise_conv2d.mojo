@@ -10,12 +10,17 @@ Note: Split from test_gradient_checking.mojo due to Mojo 0.26.1 heap
 corruption bug that occurs after ~15 cumulative tests.
 """
 
-from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import (
+    check_gradient,
+    NumericalForward,
+    NumericalBackward,
+)
 from shared.tensor.any_tensor import AnyTensor, zeros, zeros_like
 from shared.core.conv import depthwise_conv2d, depthwise_conv2d_backward
 
 
 # ---- Depthwise conv2d: perturb kernel (captures input, bias, stride, padding) ----
+
 
 @fieldwise_init
 struct _DepthwiseConv2dKernelFwd(NumericalForward):
@@ -23,20 +28,28 @@ struct _DepthwiseConv2dKernelFwd(NumericalForward):
     var bias: AnyTensor
     var stride: Int
     var padding: Int
+
     def __call__(self, k: AnyTensor) raises -> AnyTensor:
-        return depthwise_conv2d(self.input, k, self.bias, stride=self.stride, padding=self.padding)
+        return depthwise_conv2d(
+            self.input, k, self.bias, stride=self.stride, padding=self.padding
+        )
+
 
 @fieldwise_init
 struct _DepthwiseConv2dKernelBwd(NumericalBackward):
     var input: AnyTensor
     var stride: Int
     var padding: Int
+
     def __call__(self, grad_out: AnyTensor, k: AnyTensor) raises -> AnyTensor:
-        var result = depthwise_conv2d_backward(grad_out, self.input, k, stride=self.stride, padding=self.padding)
+        var result = depthwise_conv2d_backward(
+            grad_out, self.input, k, stride=self.stride, padding=self.padding
+        )
         return result.grad_weights
 
 
 # ---- Depthwise conv2d: perturb bias (captures input, kernel, stride, padding) ----
+
 
 @fieldwise_init
 struct _DepthwiseConv2dBiasFwd(NumericalForward):
@@ -44,8 +57,12 @@ struct _DepthwiseConv2dBiasFwd(NumericalForward):
     var kernel: AnyTensor
     var stride: Int
     var padding: Int
+
     def __call__(self, b: AnyTensor) raises -> AnyTensor:
-        return depthwise_conv2d(self.input, self.kernel, b, stride=self.stride, padding=self.padding)
+        return depthwise_conv2d(
+            self.input, self.kernel, b, stride=self.stride, padding=self.padding
+        )
+
 
 @fieldwise_init
 struct _DepthwiseConv2dBiasBwd(NumericalBackward):
@@ -53,12 +70,20 @@ struct _DepthwiseConv2dBiasBwd(NumericalBackward):
     var kernel: AnyTensor
     var stride: Int
     var padding: Int
+
     def __call__(self, grad_out: AnyTensor, b: AnyTensor) raises -> AnyTensor:
-        var result = depthwise_conv2d_backward(grad_out, self.input, self.kernel, stride=self.stride, padding=self.padding)
+        var result = depthwise_conv2d_backward(
+            grad_out,
+            self.input,
+            self.kernel,
+            stride=self.stride,
+            padding=self.padding,
+        )
         return result.grad_bias
 
 
 # ---- Depthwise conv2d: perturb input (captures kernel, bias, stride, padding) ----
+
 
 @fieldwise_init
 struct _DepthwiseConv2dInputFwd(NumericalForward):
@@ -66,16 +91,23 @@ struct _DepthwiseConv2dInputFwd(NumericalForward):
     var bias: AnyTensor
     var stride: Int
     var padding: Int
+
     def __call__(self, x: AnyTensor) raises -> AnyTensor:
-        return depthwise_conv2d(x, self.kernel, self.bias, stride=self.stride, padding=self.padding)
+        return depthwise_conv2d(
+            x, self.kernel, self.bias, stride=self.stride, padding=self.padding
+        )
+
 
 @fieldwise_init
 struct _DepthwiseConv2dInputBwd(NumericalBackward):
     var kernel: AnyTensor
     var stride: Int
     var padding: Int
+
     def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
-        var result = depthwise_conv2d_backward(grad_out, x, self.kernel, stride=self.stride, padding=self.padding)
+        var result = depthwise_conv2d_backward(
+            grad_out, x, self.kernel, stride=self.stride, padding=self.padding
+        )
         return result.grad_input
 
 

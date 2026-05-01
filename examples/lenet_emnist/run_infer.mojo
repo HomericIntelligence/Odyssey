@@ -16,7 +16,11 @@ Arguments:
 
 from model import LeNet5
 from shared.data.constants import DatasetInfo
-from shared.data.formats import load_idx_images, load_idx_labels, normalize_images
+from shared.data.formats import (
+    load_idx_images,
+    load_idx_labels,
+    normalize_images,
+)
 from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.utils.arg_parser import ArgumentParser
 from shared.training.metrics import top1_accuracy, AccuracyMetric
@@ -69,7 +73,7 @@ struct InferConfig(Movable):
         self.data_dir = "datasets/emnist"
         self.top_k = 5
 
-    def __init__(out self, *, take other: Self):
+    def __init__(out self, *, takeother: Self):
         self.checkpoint_dir = other.checkpoint_dir^
         self.image_path = other.image_path^
         self.run_test_set = other.run_test_set

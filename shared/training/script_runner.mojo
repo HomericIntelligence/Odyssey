@@ -116,7 +116,7 @@ struct TrainingCallbacks(Copyable, Movable):
 def run_epoch_with_batches(
     mut loader: DataLoader,
     callbacks: TrainingCallbacks,
-    step_fn: def (AnyTensor, AnyTensor) raises -> AnyTensor,
+    step_fn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
 ) raises -> Float32:
     """Run one training epoch with batch processing.
 
@@ -145,7 +145,9 @@ def run_epoch_with_batches(
     return Float32(0.0)
 
 
-def run_epoch_with_batches[S: StepFn](
+def run_epoch_with_batches[
+    S: StepFn
+](
     mut loader: DataLoader,
     callbacks: TrainingCallbacks,
     step_fn: S,

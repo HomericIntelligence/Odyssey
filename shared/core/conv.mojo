@@ -421,6 +421,7 @@ def conv2d(
 
     # Compute output dimensions using shape computation helper
     from .shape import conv2d_output_shape, as_contiguous
+
     var (out_h, out_w) = conv2d_output_shape(
         in_height, in_width, kH, kW, stride, padding
     )
@@ -429,7 +430,9 @@ def conv2d(
 
     # Ensure inputs are contiguous before flat-buffer kernel access.
     var x_cont = x if x.is_contiguous() else as_contiguous(x)
-    var kernel_cont = kernel if kernel.is_contiguous() else as_contiguous(kernel)
+    var kernel_cont = kernel if kernel.is_contiguous() else as_contiguous(
+        kernel
+    )
     var bias_cont = bias if bias.is_contiguous() else as_contiguous(bias)
 
     # Dispatch to dtype-generic kernel based on input dtype
@@ -781,11 +784,16 @@ def conv2d_backward(
 
     # Ensure inputs are contiguous before flat-buffer kernel access.
     from .shape import as_contiguous
+
     var grad_output_cont = (
-        grad_output if grad_output.is_contiguous() else as_contiguous(grad_output)
+        grad_output if grad_output.is_contiguous() else as_contiguous(
+            grad_output
+        )
     )
     var x_cont = x if x.is_contiguous() else as_contiguous(x)
-    var kernel_cont = kernel if kernel.is_contiguous() else as_contiguous(kernel)
+    var kernel_cont = kernel if kernel.is_contiguous() else as_contiguous(
+        kernel
+    )
 
     # Dispatch to dtype-generic kernel based on input dtype
     var input_dtype = x_cont.dtype()
@@ -952,6 +960,7 @@ def depthwise_conv2d(
 
     # Compute output dimensions
     from .shape import conv2d_output_shape, as_contiguous
+
     var (out_h, out_w) = conv2d_output_shape(
         in_height, in_width, kH, kW, stride, padding
     )
@@ -960,7 +969,9 @@ def depthwise_conv2d(
 
     # Ensure inputs are contiguous before flat-buffer kernel access.
     var x_cont = x if x.is_contiguous() else as_contiguous(x)
-    var kernel_cont = kernel if kernel.is_contiguous() else as_contiguous(kernel)
+    var kernel_cont = kernel if kernel.is_contiguous() else as_contiguous(
+        kernel
+    )
     var bias_cont = bias if bias.is_contiguous() else as_contiguous(bias)
 
     # Create output tensor
@@ -1005,10 +1016,12 @@ def depthwise_conv2d(
                                 # Get kernel value (kernel shape is [channels, 1, kH, kW])
                                 var k_idx = c * (1 * kH * kW) + kh * kW + kw
 
-                                var in_val = x_cont._data.bitcast[Float32]()[in_idx]
-                                var k_val = kernel_cont._data.bitcast[Float32]()[
-                                    k_idx
+                                var in_val = x_cont._data.bitcast[Float32]()[
+                                    in_idx
                                 ]
+                                var k_val = kernel_cont._data.bitcast[
+                                    Float32
+                                ]()[k_idx]
 
                                 sum_val += in_val * k_val
 
@@ -1117,11 +1130,16 @@ def depthwise_conv2d_backward(
 
     # Ensure inputs are contiguous before flat-buffer kernel access.
     from .shape import as_contiguous
+
     var grad_output_cont = (
-        grad_output if grad_output.is_contiguous() else as_contiguous(grad_output)
+        grad_output if grad_output.is_contiguous() else as_contiguous(
+            grad_output
+        )
     )
     var x_cont = x if x.is_contiguous() else as_contiguous(x)
-    var kernel_cont = kernel if kernel.is_contiguous() else as_contiguous(kernel)
+    var kernel_cont = kernel if kernel.is_contiguous() else as_contiguous(
+        kernel
+    )
 
     # Initialize gradients
     var grad_input = zeros(x_shape, x_cont.dtype())
@@ -1150,15 +1168,17 @@ def depthwise_conv2d_backward(
                                     + oh * out_width
                                     + ow
                                 )
-                                var grad_out_val = grad_output_cont._data.bitcast[
-                                    Float32
-                                ]()[grad_out_idx]
+                                var grad_out_val = (
+                                    grad_output_cont._data.bitcast[Float32]()[
+                                        grad_out_idx
+                                    ]
+                                )
 
                                 # Get kernel value (shape: [channels, 1, kH, kW])
                                 var k_idx = c * (1 * kH * kW) + kh * kW + kw
-                                var k_val = kernel_cont._data.bitcast[Float32]()[
-                                    k_idx
-                                ]
+                                var k_val = kernel_cont._data.bitcast[
+                                    Float32
+                                ]()[k_idx]
 
                                 grad_sum += grad_out_val * k_val
 
@@ -1198,7 +1218,9 @@ def depthwise_conv2d_backward(
                                     + in_h * in_width
                                     + in_w
                                 )
-                                var in_val = x_cont._data.bitcast[Float32]()[in_idx]
+                                var in_val = x_cont._data.bitcast[Float32]()[
+                                    in_idx
+                                ]
 
                                 # Get grad_output value
                                 var grad_out_idx = (
@@ -1207,9 +1229,11 @@ def depthwise_conv2d_backward(
                                     + oh * out_width
                                     + ow
                                 )
-                                var grad_out_val = grad_output_cont._data.bitcast[
-                                    Float32
-                                ]()[grad_out_idx]
+                                var grad_out_val = (
+                                    grad_output_cont._data.bitcast[Float32]()[
+                                        grad_out_idx
+                                    ]
+                                )
 
                                 grad_sum += in_val * grad_out_val
 
@@ -1234,9 +1258,9 @@ def depthwise_conv2d_backward(
                         + oh * out_width
                         + ow
                     )
-                    var grad_out_val = grad_output_cont._data.bitcast[Float32]()[
-                        grad_out_idx
-                    ]
+                    var grad_out_val = grad_output_cont._data.bitcast[
+                        Float32
+                    ]()[grad_out_idx]
                     bias_grad_sum += grad_out_val
 
         grad_bias[c] = Float32(bias_grad_sum)

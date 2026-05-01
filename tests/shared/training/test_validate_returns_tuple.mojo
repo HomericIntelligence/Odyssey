@@ -81,7 +81,8 @@ def test_validate_with_accuracy_enabled() raises:
 
 
 def test_validate_with_accuracy_disabled() raises:
-    """Test validate() with compute_accuracy=False still returns Float64 loss."""
+    """Test validate() with compute_accuracy=False still returns Float64 loss.
+    """
     var loader = create_loader(n_batches=3)
     var avg_loss = validate(
         simple_forward, simple_loss, loader, compute_accuracy=False

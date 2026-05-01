@@ -326,7 +326,9 @@ struct MobileNetV1:
         var fc_bias_shape: List[Int] = [num_classes]
         self.fc_bias = zeros(fc_bias_shape, DType.float32)
 
-    def forward(mut self, x: AnyTensor, training: Bool = True) raises -> AnyTensor:
+    def forward(
+        mut self, x: AnyTensor, training: Bool = True
+    ) raises -> AnyTensor:
         """Forward pass through MobileNetV1.
 
         Args:

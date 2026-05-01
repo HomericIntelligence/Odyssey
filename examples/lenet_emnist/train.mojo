@@ -30,7 +30,12 @@ from model import (
     POOL2_STRIDE,
     POOL2_PADDING,
 )
-from shared.data.formats import load_idx_images, load_idx_labels, normalize_images, one_hot_encode
+from shared.data.formats import (
+    load_idx_images,
+    load_idx_labels,
+    normalize_images,
+    one_hot_encode,
+)
 from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.pooling import maxpool2d, maxpool2d_backward
@@ -102,7 +107,10 @@ def parse_args() raises -> TrainConfig:
 
 
 def compute_gradients(
-    mut model: LeNet5, input: AnyTensor, labels: AnyTensor, learning_rate: Float32
+    mut model: LeNet5,
+    input: AnyTensor,
+    labels: AnyTensor,
+    learning_rate: Float32,
 ) raises -> Float32:
     """Compute gradients and update parameters for one batch.
 

@@ -30,7 +30,7 @@ def should_parallelize(
 
 
 def parallel_for_batch[
-    func: def (Int) capturing -> None
+    func: def(Int) capturing -> None
 ](batch_size: Int, num_workers: Int = DEFAULT_NUM_WORKERS):
     """Execute function across batch indices in parallel.
 

@@ -6,7 +6,15 @@ Tests chained arithmetic operations and creation + arithmetic patterns.
 """
 
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange, eye, linspace
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    full,
+    arange,
+    eye,
+    linspace,
+)
 from shared.core.arithmetic import add, subtract, multiply
 from tests.shared.conftest import (
     assert_dtype,

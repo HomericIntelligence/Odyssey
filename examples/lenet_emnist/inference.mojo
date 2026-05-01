@@ -17,7 +17,11 @@ References:
 """
 
 from model import LeNet5
-from shared.data.formats import load_idx_images, load_idx_labels, normalize_images
+from shared.data.formats import (
+    load_idx_images,
+    load_idx_labels,
+    normalize_images,
+)
 from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.utils.arg_parser import ArgumentParser
 from shared.training.metrics import (
@@ -137,7 +141,9 @@ def parse_args() raises -> InferenceConfig:
     return InferenceConfig(weights_dir, data_dir)
 
 
-def infer_single(mut model: LeNet5, image: AnyTensor) raises -> PredictionResult:
+def infer_single(
+    mut model: LeNet5, image: AnyTensor
+) raises -> PredictionResult:
     """Run inference on a single image.
 
     Args:

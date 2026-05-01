@@ -301,7 +301,9 @@ struct RandomInsertion(Copyable, Movable, TextTransform):
                 continue
 
             # Pick random word from vocabulary
-            var vocab_idx = Int(random_si64(Int64(0), Int64(len(self.vocabulary) - 1)))
+            var vocab_idx = Int(
+                random_si64(Int64(0), Int64(len(self.vocabulary) - 1))
+            )
             var word_to_insert = self.vocabulary[vocab_idx]
 
             # Pick random position to insert (0 to len(words) inclusive)
@@ -385,7 +387,9 @@ struct RandomSynonymReplacement(Copyable, Movable, TextTransform):
                 var syns = self.synonyms[word].copy()
                 if len(syns) > 0:
                     # Pick random synonym
-                    var syn_idx = Int(random_si64(Int64(0), Int64(len(syns) - 1)))
+                    var syn_idx = Int(
+                        random_si64(Int64(0), Int64(len(syns) - 1))
+                    )
                     result_words.append(syns[syn_idx])
                 else:
                     # No synonyms available, keep original

@@ -253,7 +253,10 @@ def mean_squared_error_backward(
 
 
 def cross_entropy(
-    logits: AnyTensor, targets: AnyTensor, axis: Int = -1, epsilon: Float64 = 1e-7
+    logits: AnyTensor,
+    targets: AnyTensor,
+    axis: Int = -1,
+    epsilon: Float64 = 1e-7,
 ) raises -> AnyTensor:
     """Cross-entropy loss for multi-class classification.
 

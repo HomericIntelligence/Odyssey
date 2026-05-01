@@ -16,7 +16,11 @@ Tests cover:
 
 from std.testing import assert_true, assert_almost_equal
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
-from shared.core.gradient_types import GradientPair, GradientTriple, GradientQuad
+from shared.core.gradient_types import (
+    GradientPair,
+    GradientTriple,
+    GradientQuad,
+)
 
 
 def test_gradient_pair_stores_anytensor() raises:

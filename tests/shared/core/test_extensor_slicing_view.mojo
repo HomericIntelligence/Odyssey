@@ -7,7 +7,12 @@ views affect the original, and slice + transpose composition works.
 """
 
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, arange
-from tests.shared.conftest import assert_true, assert_false, assert_almost_equal, assert_equal
+from tests.shared.conftest import (
+    assert_true,
+    assert_false,
+    assert_almost_equal,
+    assert_equal,
+)
 
 
 # ============================================================================
@@ -50,7 +55,8 @@ def test_slice_view_mutates_original() raises:
 
 
 def test_slice_view_axis1() raises:
-    """The slice() method along axis=1 on a 2D tensor returns correct shape and values."""
+    """The slice() method along axis=1 on a 2D tensor returns correct shape and values.
+    """
     # 4x6 tensor with sequential values [0..23]
     var t = arange(0.0, 24.0, 1.0, DType.float32)
     var t2d = t.reshape([4, 6])
@@ -91,7 +97,8 @@ def test_slice_view_index_bounds_error() raises:
 
 
 def test_slice_on_transposed_view() raises:
-    """Applying slice() on a transposed view returns correct values via _nd_index_to_flat_offset."""
+    """Applying slice() on a transposed view returns correct values via _nd_index_to_flat_offset.
+    """
     # 3x4 tensor: values 0..11
     var t = arange(0.0, 12.0, 1.0, DType.float32)
     var t2d = t.reshape([3, 4])

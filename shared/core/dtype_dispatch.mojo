@@ -84,7 +84,7 @@ def _format_dtype_name(dtype: DType) -> String:
 
 
 def elementwise_unary[
-    dtype: DType, op: def[T: DType] (Scalar[T]) -> Scalar[T]
+    dtype: DType, op: def[T: DType](Scalar[T]) -> Scalar[T]
 ](tensor: AnyTensor) raises -> AnyTensor:
     """Apply unary operation with compile-time dtype specialization.
 
@@ -127,7 +127,7 @@ def elementwise_unary[
 
 
 def dispatch_unary[
-    op: def[T: DType] (Scalar[T]) -> Scalar[T]
+    op: def[T: DType](Scalar[T]) -> Scalar[T]
 ](tensor: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch to compile-time specialized unary operation.
 
@@ -204,7 +204,7 @@ def dispatch_unary[
 
 
 def elementwise_binary[
-    dtype: DType, op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+    dtype: DType, op: def[T: DType](Scalar[T], Scalar[T]) -> Scalar[T]
 ](lhs: AnyTensor, rhs: AnyTensor) raises -> AnyTensor:
     """Apply binary operation with compile-time dtype specialization.
 
@@ -251,7 +251,7 @@ def elementwise_binary[
 
 
 def dispatch_binary[
-    op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+    op: def[T: DType](Scalar[T], Scalar[T]) -> Scalar[T]
 ](lhs: AnyTensor, rhs: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch to compile-time specialized binary operation.
 
@@ -339,7 +339,7 @@ def dispatch_binary[
 
 
 def elementwise_scalar[
-    dtype: DType, op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+    dtype: DType, op: def[T: DType](Scalar[T], Scalar[T]) -> Scalar[T]
 ](tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     """Apply scalar binary operation with compile-time dtype specialization.
 
@@ -381,7 +381,7 @@ def elementwise_scalar[
 
 
 def dispatch_scalar[
-    op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+    op: def[T: DType](Scalar[T], Scalar[T]) -> Scalar[T]
 ](tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     """Runtime dispatch to compile-time specialized scalar operation.
 
@@ -459,7 +459,7 @@ def dispatch_scalar[
 
 
 def dispatch_float_unary[
-    op: def[T: DType] (Scalar[T]) -> Scalar[T]
+    op: def[T: DType](Scalar[T]) -> Scalar[T]
 ](tensor: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch for floating-point only unary operations.
 
@@ -514,7 +514,7 @@ def dispatch_float_unary[
 
 
 def dispatch_float_binary[
-    op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+    op: def[T: DType](Scalar[T], Scalar[T]) -> Scalar[T]
 ](lhs: AnyTensor, rhs: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch for floating-point only binary operations.
 
@@ -571,7 +571,7 @@ def dispatch_float_binary[
 
 
 def dispatch_float_scalar[
-    op: def[T: DType] (Scalar[T], Scalar[T]) -> Scalar[T]
+    op: def[T: DType](Scalar[T], Scalar[T]) -> Scalar[T]
 ](tensor: AnyTensor, scalar: Float64) raises -> AnyTensor:
     """Runtime dispatch for floating-point only scalar operations.
 
@@ -1102,7 +1102,9 @@ def dispatch_gelu_backward(
     return result^
 
 
-def _hard_sigmoid_impl[dtype: DType](result: AnyTensor, tensor: AnyTensor) raises:
+def _hard_sigmoid_impl[
+    dtype: DType
+](result: AnyTensor, tensor: AnyTensor) raises:
     """Compile-time specialized hard_sigmoid implementation.
 
     hard_sigmoid(x) = clip((x + 3) / 6, 0, 1).

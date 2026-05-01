@@ -214,7 +214,9 @@ struct Conv2dNoBiasGradient(Copyable, Movable):
     var grad_weights: AnyTensor
     """Gradient with respect to convolution kernel."""
 
-    def __init__(out self, var grad_input: AnyTensor, var grad_weights: AnyTensor):
+    def __init__(
+        out self, var grad_input: AnyTensor, var grad_weights: AnyTensor
+    ):
         """Initialize conv2d no-bias gradient.
 
         Args:
@@ -248,7 +250,9 @@ struct DepthwiseConv2dNoBiasGradient(Copyable, Movable):
     var grad_weights: AnyTensor
     """Gradient with respect to depthwise convolution kernel."""
 
-    def __init__(out self, var grad_input: AnyTensor, var grad_weights: AnyTensor):
+    def __init__(
+        out self, var grad_input: AnyTensor, var grad_weights: AnyTensor
+    ):
         """Initialize depthwise conv2d no-bias gradient.
 
         Args:

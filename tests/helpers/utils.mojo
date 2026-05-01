@@ -204,7 +204,7 @@ def compare_tensors(a: AnyTensor, b: AnyTensor) -> String:
     return result
 
 
-def benchmark[func: def () raises -> None](iterations: Int) -> Float64:
+def benchmark[func: def() raises -> None](iterations: Int) -> Float64:
     """Simple performance testing helper.
 
     Args:

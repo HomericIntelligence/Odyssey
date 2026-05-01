@@ -63,7 +63,9 @@ def random_shape(
     """
     # Random number of dimensions
     var dim_range = max_dims - min_dims + 1
-    var num_dims = min_dims + Int(random_float64() * Float64(dim_range)) % dim_range
+    var num_dims = (
+        min_dims + Int(random_float64() * Float64(dim_range)) % dim_range
+    )
     if num_dims > max_dims:
         num_dims = max_dims
     if num_dims < min_dims:
@@ -124,7 +126,9 @@ def random_compatible_shape(numel: Int, max_dims: Int = 4) raises -> List[Int]:
         return shape^
 
     # Randomly combine factors into dimensions
-    var num_dims = 1 + Int(random_float64() * Float64(min(max_dims, len(factors))))
+    var num_dims = 1 + Int(
+        random_float64() * Float64(min(max_dims, len(factors)))
+    )
     if num_dims > max_dims:
         num_dims = max_dims
     if num_dims < 1:
@@ -184,7 +188,7 @@ def random_broadcastable_shapes(
 
 
 def run_property_test(
-    property_fn: def () raises -> Bool,
+    property_fn: def() raises -> Bool,
     num_tests: Int = 100,
     test_name: String = "property",
 ) raises:
@@ -246,7 +250,7 @@ def run_property_test(
 
 
 def run_property_test_with_seed(
-    property_fn: def () raises -> Bool,
+    property_fn: def() raises -> Bool,
     num_tests: Int = 100,
     test_seed: Int = 42,
     test_name: String = "property",
@@ -322,7 +326,9 @@ def assert_tensors_close(
             )
 
 
-def tensors_equal(a: AnyTensor, b: AnyTensor, atol: Float64 = 1e-6) raises -> Bool:
+def tensors_equal(
+    a: AnyTensor, b: AnyTensor, atol: Float64 = 1e-6
+) raises -> Bool:
     """Check if two tensors are element-wise equal within tolerance.
 
     Args:

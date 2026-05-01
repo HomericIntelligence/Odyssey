@@ -77,7 +77,9 @@ def ones(shape: List[Int], dtype: DType) raises -> AnyTensor:
     return tensor^
 
 
-def full(shape: List[Int], fill_value: Float64, dtype: DType) raises -> AnyTensor:
+def full(
+    shape: List[Int], fill_value: Float64, dtype: DType
+) raises -> AnyTensor:
     """Create a tensor filled with a specific value.
 
     Args:

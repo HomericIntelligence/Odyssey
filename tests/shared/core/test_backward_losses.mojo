@@ -15,7 +15,11 @@ from shared.core.loss import (
     mean_squared_error,
     mean_squared_error_backward,
 )
-from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import (
+    check_gradient,
+    NumericalForward,
+    NumericalBackward,
+)
 
 
 def test_cross_entropy_backward_shapes() raises:
@@ -191,7 +195,14 @@ def test_cross_entropy_backward_gradient() raises:
 
     var loss = cross_entropy(logits, targets)
     var grad_output = ones_like(loss)
-    check_gradient(_CEFwd(targets), _CEBwd(targets), logits, grad_output, rtol=1e-3, atol=1e-3)
+    check_gradient(
+        _CEFwd(targets),
+        _CEBwd(targets),
+        logits,
+        grad_output,
+        rtol=1e-3,
+        atol=1e-3,
+    )
 
 
 @fieldwise_init
@@ -239,7 +250,12 @@ def test_binary_cross_entropy_backward_gradient() raises:
     var loss = binary_cross_entropy(predictions, targets)
     var grad_output = ones_like(loss)
     check_gradient(
-        _BCEBLFwd(targets), _BCEBLBwd(targets), predictions, grad_output, rtol=1e-3, atol=1e-6
+        _BCEBLFwd(targets),
+        _BCEBLBwd(targets),
+        predictions,
+        grad_output,
+        rtol=1e-3,
+        atol=1e-6,
     )
 
 
@@ -298,7 +314,12 @@ def test_mean_squared_error_backward_gradient() raises:
     var loss = mean_squared_error(predictions, targets)
     var grad_output = ones_like(loss)
     check_gradient(
-        _MSEBLFwd(targets), _MSEBLBwd(targets), predictions, grad_output, rtol=1e-3, atol=1e-6
+        _MSEBLFwd(targets),
+        _MSEBLBwd(targets),
+        predictions,
+        grad_output,
+        rtol=1e-3,
+        atol=1e-6,
     )
 
 

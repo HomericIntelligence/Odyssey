@@ -1,6 +1,10 @@
 """Gradient checking tests for activation, arithmetic, and edge cases."""
 
-from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import (
+    check_gradient,
+    NumericalForward,
+    NumericalBackward,
+)
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, zeros_like
 from shared.core.activation import (
     relu,
@@ -20,10 +24,12 @@ from shared.core.arithmetic import (
 
 # ---- ReLU (no captures) ----
 
+
 @fieldwise_init
 struct _ReluFwd(NumericalForward):
     def __call__(self, x: AnyTensor) raises -> AnyTensor:
         return relu(x)
+
 
 @fieldwise_init
 struct _ReluBwd(NumericalBackward):
@@ -33,10 +39,12 @@ struct _ReluBwd(NumericalBackward):
 
 # ---- Sigmoid (no captures) ----
 
+
 @fieldwise_init
 struct _SigmoidFwd(NumericalForward):
     def __call__(self, x: AnyTensor) raises -> AnyTensor:
         return sigmoid(x)
+
 
 @fieldwise_init
 struct _SigmoidBwd(NumericalBackward):
@@ -47,10 +55,12 @@ struct _SigmoidBwd(NumericalBackward):
 
 # ---- Tanh (no captures) ----
 
+
 @fieldwise_init
 struct _TanhFwd(NumericalForward):
     def __call__(self, x: AnyTensor) raises -> AnyTensor:
         return tanh(x)
+
 
 @fieldwise_init
 struct _TanhBwd(NumericalBackward):
@@ -61,15 +71,19 @@ struct _TanhBwd(NumericalBackward):
 
 # ---- Add (captures input_b) ----
 
+
 @fieldwise_init
 struct _AddFwd(NumericalForward):
     var input_b: AnyTensor
+
     def __call__(self, x: AnyTensor) raises -> AnyTensor:
         return add(x, self.input_b)
+
 
 @fieldwise_init
 struct _AddBwd(NumericalBackward):
     var input_b: AnyTensor
+
     def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
         var grads = add_backward(grad_out, x, self.input_b)
         return grads.grad_a
@@ -77,15 +91,19 @@ struct _AddBwd(NumericalBackward):
 
 # ---- Multiply (captures input_b) ----
 
+
 @fieldwise_init
 struct _MultiplyFwd(NumericalForward):
     var input_b: AnyTensor
+
     def __call__(self, x: AnyTensor) raises -> AnyTensor:
         return multiply(x, self.input_b)
+
 
 @fieldwise_init
 struct _MultiplyBwd(NumericalBackward):
     var input_b: AnyTensor
+
     def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
         var grads = multiply_backward(grad_out, x, self.input_b)
         return grads.grad_a
@@ -183,7 +201,9 @@ def test_multiply_gradient() raises:
     var input_a = full(shape, 2.0, DType.float32)
     var input_b = full(shape, 3.0, DType.float32)
     var fwd = _MultiplyFwd(input_b)
-    check_gradient(fwd, _MultiplyBwd(input_b), input_a, _ones_grad(fwd(input_a)))
+    check_gradient(
+        fwd, _MultiplyBwd(input_b), input_a, _ones_grad(fwd(input_a))
+    )
 
 
 def test_gradient_at_zero() raises:

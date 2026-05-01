@@ -11,7 +11,13 @@ Key components:
              y = gamma * (x - running_mean) / sqrt(running_var + eps) + beta (inference)
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like, ones_like
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    zeros_like,
+    ones_like,
+)
 from ..normalization_simd import batch_norm2d_fused
 
 
@@ -186,9 +192,7 @@ struct BatchNorm2dLayer[dtype: DType = DType.float32](Copyable, Movable):
             var (mean, var) = bn.get_running_stats()
             ```
         """
-        return Tuple[AnyTensor, AnyTensor](
-            self.running_mean, self.running_var
-        )
+        return Tuple[AnyTensor, AnyTensor](self.running_mean, self.running_var)
 
     def set_running_stats(
         mut self, running_mean: AnyTensor, running_var: AnyTensor

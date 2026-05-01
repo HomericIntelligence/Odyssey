@@ -10,7 +10,12 @@ Tests cover:
 """
 
 from std.testing import assert_true, assert_almost_equal
-from shared.tensor.any_tensor import AnyTensor, ones as any_ones, full as any_full, zeros as any_zeros
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    ones as any_ones,
+    full as any_full,
+    zeros as any_zeros,
+)
 from shared.core.matrix import matmul, transpose
 from shared.core.reduction import sum, mean
 
@@ -41,9 +46,7 @@ def test_matmul_identity() raises:
     eye[3] = 1.0
     var c = matmul(a, eye)
     for i in range(4):
-        assert_almost_equal(
-            Float64(c[i]), 0.5, atol=1e-6, msg="A @ I = A"
-        )
+        assert_almost_equal(Float64(c[i]), 0.5, atol=1e-6, msg="A @ I = A")
     print("PASS: test_matmul_identity")
 
 
@@ -109,9 +112,7 @@ def test_mean_axis() raises:
     var shape = m.shape()
     assert_true(shape[0] == 2, "reduced shape should be [2]")
     for i in range(2):
-        assert_almost_equal(
-            Float64(m[i]), 0.5, atol=1e-5, msg="row mean = 0.5"
-        )
+        assert_almost_equal(Float64(m[i]), 0.5, atol=1e-5, msg="row mean = 0.5")
     print("PASS: test_mean_axis")
 
 

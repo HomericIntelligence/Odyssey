@@ -58,6 +58,8 @@ struct _ConvKernelFwd(NumericalForward):
         while reduced.dim() > 0:
             reduced = reduce_sum(reduced, axis=0, keepdims=False)
         return reduced
+
+
 from shared.core.reduction import sum as reduce_sum
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 

@@ -80,6 +80,7 @@ struct _ReluBwd(NumericalBackward):
 # Non-Contiguous Tensor Tests
 # ============================================================================
 
+
 def test_gradient_check_transposed_input() raises:
     """Test gradient checking on transposed (non-contiguous) input.
 
@@ -96,12 +97,19 @@ def test_gradient_check_transposed_input() raises:
     var x_transposed = transpose_view(x)
 
     # Verify it's non-contiguous
-    assert_false(x_transposed.is_contiguous(), "Transposed tensor should be non-contiguous")
+    assert_false(
+        x_transposed.is_contiguous(),
+        "Transposed tensor should be non-contiguous",
+    )
 
     # Check gradients on the non-contiguous tensor
     # For f(x) = x*x, f'(x) = 2*x
-    var passed = check_gradients(_SimpleSquareFwd(), _SimpleSquareBwd(),
-        x_transposed, epsilon=1e-4, tolerance=1e-2
+    var passed = check_gradients(
+        _SimpleSquareFwd(),
+        _SimpleSquareBwd(),
+        x_transposed,
+        epsilon=1e-4,
+        tolerance=1e-2,
     )
     assert_true(passed, "Gradient check should pass on transposed tensor")
     print("  ✓ Gradient check passes on transposed input")
@@ -130,8 +138,8 @@ def test_gradient_check_transposed_relu() raises:
     )
 
     # ReLU gradient should be exact on transposed input
-    var passed = check_gradients(_ReluFwd(), _ReluBwd(),
-        x_transposed, epsilon=3e-4, tolerance=1e-3
+    var passed = check_gradients(
+        _ReluFwd(), _ReluBwd(), x_transposed, epsilon=3e-4, tolerance=1e-3
     )
     assert_true(passed, "ReLU gradient check should pass on transposed tensor")
     print("  ✓ ReLU gradient check passes on transposed input")
@@ -160,8 +168,12 @@ def test_gradient_check_partial_transpose() raises:
     )
 
     # Test gradient checking on the permuted tensor
-    var passed = check_gradients(_SimpleSquareFwd(), _SimpleSquareBwd(),
-        x_permuted, epsilon=1e-4, tolerance=1e-2
+    var passed = check_gradients(
+        _SimpleSquareFwd(),
+        _SimpleSquareBwd(),
+        x_permuted,
+        epsilon=1e-4,
+        tolerance=1e-2,
     )
     assert_true(passed, "Gradient check should pass on permuted tensor")
     print("  ✓ Gradient check passes on permuted 3D tensor")
@@ -188,8 +200,12 @@ def test_gradient_check_contiguous_copy() raises:
     )
 
     # Gradient check on contiguous version should pass
-    var passed = check_gradients(_SimpleSquareFwd(), _SimpleSquareBwd(),
-        x_contiguous, epsilon=1e-4, tolerance=1e-2
+    var passed = check_gradients(
+        _SimpleSquareFwd(),
+        _SimpleSquareBwd(),
+        x_contiguous,
+        epsilon=1e-4,
+        tolerance=1e-2,
     )
     assert_true(passed, "Gradient check should pass on contiguous tensor")
     print("  ✓ Gradient check passes after as_contiguous() conversion")
@@ -208,10 +224,14 @@ def test_numerical_gradient_noncont() raises:
     var x = full(shape_2d, 2.0, DType.float32)
     var x_transposed = transpose_view(x)
 
-    assert_false(x_transposed.is_contiguous(), "Tensor should be non-contiguous")
+    assert_false(
+        x_transposed.is_contiguous(), "Tensor should be non-contiguous"
+    )
 
     # Compute numerical gradient
-    var num_grad = compute_numerical_gradient(_SimpleSquareFwd(), x_transposed, epsilon=1e-4)
+    var num_grad = compute_numerical_gradient(
+        _SimpleSquareFwd(), x_transposed, epsilon=1e-4
+    )
 
     # For f(x) = x*x, numerical gradient at x=2.0 should be ~4.0
     # Check a few elements
@@ -242,7 +262,9 @@ def test_gradient_check_verbose_noncont() raises:
     var x = full(shape_2d, 1.0, DType.float32)
     var x_transposed = transpose_view(x)
 
-    assert_false(x_transposed.is_contiguous(), "Tensor should be non-contiguous")
+    assert_false(
+        x_transposed.is_contiguous(), "Tensor should be non-contiguous"
+    )
 
     # Run verbose gradient check
     var passed = check_gradients_verbose(
@@ -253,13 +275,16 @@ def test_gradient_check_verbose_noncont() raises:
         tolerance=1e-2,
         print_all=False,
     )
-    assert_true(passed, "Verbose gradient check should pass on non-contiguous tensor")
+    assert_true(
+        passed, "Verbose gradient check should pass on non-contiguous tensor"
+    )
     print("  ✓ Verbose gradient check works on non-contiguous tensor")
 
 
 # ============================================================================
 # Main Test Entry Point
 # ============================================================================
+
 
 def main() raises:
     """Run all non-contiguous tensor gradient checking tests."""

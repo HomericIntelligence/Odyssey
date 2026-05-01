@@ -14,7 +14,11 @@ Note: Split from test_gradient_checking.mojo due to Mojo 0.26.1 heap
 corruption bug that occurs after ~15 cumulative tests.
 """
 
-from shared.testing.gradient_checker import check_gradient, NumericalForward, NumericalBackward
+from shared.testing.gradient_checker import (
+    check_gradient,
+    NumericalForward,
+    NumericalBackward,
+)
 from shared.testing.assertions import assert_true
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.normalization import batch_norm2d, batch_norm2d_backward
@@ -23,29 +27,46 @@ from shared.core.arithmetic import multiply
 
 # ---- Batch norm input gradient (captures gamma, beta, running_mean, running_var) ----
 
+
 @fieldwise_init
 struct _BatchNormInputFwd(NumericalForward):
     var gamma: AnyTensor
     var beta: AnyTensor
     var running_mean: AnyTensor
     var running_var: AnyTensor
+
     def __call__(self, x: AnyTensor) raises -> AnyTensor:
-        var result = batch_norm2d(x, self.gamma, self.beta, self.running_mean, self.running_var, training=True)
+        var result = batch_norm2d(
+            x,
+            self.gamma,
+            self.beta,
+            self.running_mean,
+            self.running_var,
+            training=True,
+        )
         return result[0]
+
 
 @fieldwise_init
 struct _BatchNormInputBwd(NumericalBackward):
     var gamma: AnyTensor
     var running_mean: AnyTensor
     var running_var: AnyTensor
+
     def __call__(self, grad_out: AnyTensor, x: AnyTensor) raises -> AnyTensor:
         var result = batch_norm2d_backward(
-            grad_out, x, self.gamma, self.running_mean, self.running_var, training=True
+            grad_out,
+            x,
+            self.gamma,
+            self.running_mean,
+            self.running_var,
+            training=True,
         )
         return result[0]
 
 
 # ---- Batch norm gamma gradient (captures input, beta, running_mean, running_var) ----
+
 
 @fieldwise_init
 struct _BatchNormGammaFwd(NumericalForward):
@@ -53,18 +74,33 @@ struct _BatchNormGammaFwd(NumericalForward):
     var beta: AnyTensor
     var running_mean: AnyTensor
     var running_var: AnyTensor
+
     def __call__(self, g: AnyTensor) raises -> AnyTensor:
-        var result = batch_norm2d(self.input, g, self.beta, self.running_mean, self.running_var, training=True)
+        var result = batch_norm2d(
+            self.input,
+            g,
+            self.beta,
+            self.running_mean,
+            self.running_var,
+            training=True,
+        )
         return result[0]
+
 
 @fieldwise_init
 struct _BatchNormGammaBwd(NumericalBackward):
     var input: AnyTensor
     var running_mean: AnyTensor
     var running_var: AnyTensor
+
     def __call__(self, grad_out: AnyTensor, g: AnyTensor) raises -> AnyTensor:
         var result = batch_norm2d_backward(
-            grad_out, self.input, g, self.running_mean, self.running_var, training=True
+            grad_out,
+            self.input,
+            g,
+            self.running_mean,
+            self.running_var,
+            training=True,
         )
         return result[1]
 
