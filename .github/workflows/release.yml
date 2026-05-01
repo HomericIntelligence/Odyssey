@@ -41,7 +41,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
-          fetch-depth: 0  # Full history for changelog
+          fetch-depth: 0
 
       - name: Get version from tag or input
         id: get-version
@@ -313,7 +313,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
-          fetch-depth: 0  # Full history for changelog
+          fetch-depth: 0
 
       - name: Download build artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8
@@ -381,9 +381,6 @@ jobs:
           - [README](README.md)
           - [Project Documentation](https://mvillmow.github.io/ProjectOdyssey/)
 
-          ---
-
-          **Full Changelog**: https://github.com/${{ github.repository }}/compare/$PREVIOUS_TAG...${{ needs.validate-version.outputs.version }}
           EOF
 
           cat release-notes.md
