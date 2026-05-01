@@ -51,6 +51,13 @@ RUN groupadd -g ${GROUP_ID} ${USER_NAME} 2>/dev/null || \
     usermod -l ${USER_NAME} -d /home/${USER_NAME} -m $(id -nu ${USER_ID} 2>/dev/null || echo nobody) && \
     chmod 755 /home/${USER_NAME}
 
+# Allow dev user to fix bind-mount ownership at container startup.
+# The workspace is bind-mounted as root:root at runtime; entrypoint.sh uses
+# sudo chown to reclaim specific subdirs (build/, .pixi/, test fixtures).
+RUN printf 'dev ALL=(root) NOPASSWD: /bin/chown\ndev ALL=(root) NOPASSWD: /bin/chmod\n' \
+    > /etc/sudoers.d/dev-workspace \
+    && chmod 440 /etc/sudoers.d/dev-workspace
+
 # Set environment for dev user
 ENV HOME=/home/${USER_NAME}
 ENV PATH="$HOME/.local/bin:$HOME/.pixi/bin:$PATH"

@@ -118,7 +118,7 @@ jobs:
 
           ## Upgrade Checklist
 
-          - [ ] Review Mojo changelog for breaking changes at https://docs.modular.com/mojo/changelog
+          - [ ] Review Mojo release notes for breaking changes at https://docs.modular.com/mojo/manual/
           - [ ] Update pixi.toml with new version constraint
           - [ ] Update .mojo-version file
           - [ ] Run full test suite locally
