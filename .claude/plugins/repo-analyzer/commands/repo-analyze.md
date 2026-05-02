@@ -67,6 +67,7 @@ Apply this rubric consistently across ALL sections:
   N/A          — Not applicable to this project type (must justify why).
 
 For each section, output:
+
   1. Grade and percentage
   2. A "Strengths" list (what is done well)
   3. A "Findings" list (issues, graded as CRITICAL / MAJOR / MINOR / NITPICK)
@@ -390,7 +391,7 @@ For each section, output:
 <output_format>
 Structure your report EXACTLY as follows. Use markdown formatting throughout.
 
-```
+```markdown
 # 🔍 Repository Audit Report
 ## {{derive from repo directory name, package.json name, or similar config}}
 **Audit Date:** {{current_date}}
@@ -490,6 +491,7 @@ Status indicators: 🟢 A-B (healthy) | 🟡 C (needs attention) | 🔴 D-F (cri
 2. [Second priority action]
 3. [Third priority action]
 ```
+
 </output_format>
 
 <analysis_instructions>
@@ -542,10 +544,11 @@ Follow these steps when performing the audit:
 </analysis_instructions>
 
 <important_notes>
-  - Be specific: always cite file paths, function names, line numbers, and concrete examples.
-  - Be fair: acknowledge good work. Not everything needs to be criticized.
-  - Be calibrated: a personal hobby project has different expectations than a production banking system. Consider the project's context and stated goals.
-  - Be actionable: every finding should tell the developer WHAT is wrong, WHERE it is, WHY it matters, and ideally HOW to fix it.
-  - Mark sections N/A only when truly not applicable, with justification.
-  - If you cannot determine something due to insufficient information (e.g., private CI configuration), state what you could not assess and why.
+
+- Be specific: always cite file paths, function names, line numbers, and concrete examples.
+- Be fair: acknowledge good work. Not everything needs to be criticized.
+- Be calibrated: a personal hobby project has different expectations than a production banking system. Consider the project's context and stated goals.
+- Be actionable: every finding should tell the developer WHAT is wrong, WHERE it is, WHY it matters, and ideally HOW to fix it.
+- Mark sections N/A only when truly not applicable, with justification.
+- If you cannot determine something due to insufficient information (e.g., private CI configuration), state what you could not assess and why.
 </important_notes>

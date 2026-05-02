@@ -50,7 +50,7 @@ implementation work to Level 3 specialists.
 ## Skills
 
 | Skill | When to Invoke |
-|-------|---|
+| ----- | -------------- |
 | analyze_code_structure | Understanding existing code patterns |
 | extract_dependencies | Mapping component dependencies |
 | extract_algorithm | For algorithm-based components |
