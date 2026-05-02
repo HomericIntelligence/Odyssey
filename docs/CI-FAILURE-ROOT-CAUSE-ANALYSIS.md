@@ -266,19 +266,19 @@ scripts/agents/test_agent_loading.py:25: error: Module "agent_utils" has no attr
 
 ### Phase 2: Workflow Configuration (Next)
 
-3. **Fix workflow smoke tests** - Review and fix security properties
-4. **Fix audit-skills** - Review skills migration status
+1. **Fix workflow smoke tests** - Review and fix security properties
+2. **Fix audit-skills** - Review skills migration status
 
 ### Phase 3: Test Infrastructure (Following)
 
-5. **Fix unit-tests** - Ensure dependencies are available
-6. **Fix integration-tests** - Configure test environment
-7. **Fix validate-scripts** - Fix import errors
+1. **Fix unit-tests** - Ensure dependencies are available
+2. **Fix integration-tests** - Configure test environment
+3. **Fix validate-scripts** - Fix import errors
 
 ### Phase 4: Build & Validation (Final)
 
-8. **Fix build job** - Ensure package builds correctly
-9. **Handle non-blocking checks** - Mark paper validation as optional
+1. **Fix build job** - Ensure package builds correctly
+2. **Handle non-blocking checks** - Mark paper validation as optional
 
 ---
 
