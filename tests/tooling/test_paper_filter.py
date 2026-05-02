@@ -125,7 +125,9 @@ class TestPaperFiltering:
         assert any(p.name == "gpt-2" for p in result)
 
 
-@pytest.mark.skip(reason="mojo-test-runner skill migrated to ProjectMnemosyne; run_tests.sh no longer in .claude/skills/")
+@pytest.mark.skip(
+    reason="mojo-test-runner skill migrated to ProjectMnemosyne; run_tests.sh no longer in .claude/skills/"
+)
 class TestRunTestsScript:
     """Test run_tests.sh script integration (Issue #811)."""
 
