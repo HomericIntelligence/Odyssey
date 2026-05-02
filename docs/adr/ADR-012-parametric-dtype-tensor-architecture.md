@@ -357,9 +357,6 @@ details.
 
 ### Related ADRs
 
-- [ADR-009](ADR-009-heap-corruption-workaround.md): Heap corruption workaround
-  (test file splitting) -- relevant for test migration phases
-
 ### Related Issues
 
 - [Issue #4998](https://github.com/HomericIntelligence/ProjectOdyssey/issues/4998):
@@ -378,8 +375,8 @@ details.
 
 ## Revision History
 
-| Version | Date       | Author         | Changes     |
-| ------- | ---------- | -------------- | ----------- |
+| Version | Date       | Author          | Changes     |
+| ------- | ---------- | --------------- | ----------- |
 | 1.0     | 2026-03-21 | ML Odyssey Team | Initial ADR |
 
 ---

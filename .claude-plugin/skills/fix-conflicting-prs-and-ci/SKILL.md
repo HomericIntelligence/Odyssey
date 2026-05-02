@@ -14,7 +14,7 @@ outcome: All branches rebased and mergeable; CI fix PR created
 
 - Multiple PR branches have merge conflicts with main
 - CI is failing on main and needs fixing before PRs can merge
-- Test files were split (ADR-009) but CI workflow wasn't updated
+- Test files were split but CI workflow wasn't updated
 - Mojo nightly breaks `py=` keyword args or deprecates `alias`
 
 ## Verified Workflow
@@ -112,7 +112,7 @@ done
 |---------|-----------|----------------|
 | First CI fix only addressed `py=` keyword | Missed `view_with_strides` error, 34 formatting files, test coverage gaps | Always get ALL failure logs from ALL failed jobs before fixing |
 | Ran local `mojo format` on files | Crashes with `comptime_assert_stmt` error on nightly-formatted files | Extract formatting patch from CI logs instead of running locally |
-| Listed specific test files in CI workflow | Breaks every time files are split per ADR-009 | Use wildcard patterns like `test_foo*.mojo` |
+| Listed specific test files in CI workflow | Breaks every time files are split | Use wildcard patterns like `test_foo*.mojo` |
 
 ## Results & Parameters
 

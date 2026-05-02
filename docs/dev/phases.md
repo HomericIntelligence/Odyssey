@@ -35,7 +35,7 @@ Links to detailed fixes in [fixes.md](fixes.md), learnings in [learnings.md](../
 **Impact**: Correct dequant size restore; no corruption in conversions.
 
 **Tests**: `test_data_integrity_part1.mojo` (8 funcs) + `test_data_integrity_part2.mojo` (3 funcs),
-split per ADR-009 (≤10 fn test_ per file, unaligned/edge cases).
+split for unaligned/edge cases.
 
 ## Phase 4: Testing & Docs
 

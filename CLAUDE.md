@@ -476,6 +476,23 @@ See `.env.example` for all available variables (container user mapping, native v
 execution, log levels, etc.). The justfile auto-detects most values, so `.env` is optional
 for typical setups.
 
+**Pixi env layout (detached-environments)**: `.pixi/config.toml` sets
+`detached-environments = true`, so pixi stores environments in the per-user cache
+directory (`~/.cache/pixi/envs/…`) rather than inside the workspace. This prevents
+the host and container pixi envs from colliding at the same filesystem path:
+
+- **Host env** (`~/.cache/pixi/…`) — used by pre-commit hooks and direct `pixi run`
+  calls on the host (Python tools: ruff, mypy, bandit).
+- **Container env** (`/home/dev/.cache/pixi/…`) — used by `just build`, `just test-mojo`,
+  and all other justfile recipes that route through `podman compose exec`. Mojo must run
+  from the container because it requires glibc ≥ 2.32 (host glibc may be older).
+
+Pixi creates a convenience **symlink** at `.pixi/envs → <per-user-cache>/envs` pointing to
+the actual env location. This symlink is expected and harmless (it's ignored by git via
+`.pixi/.gitignore`). An actual directory at `.pixi/envs/` would indicate a misconfiguration;
+a pre-commit guard catches that case. If `.pixi/envs` is an actual directory, run
+`rm -rf .pixi/envs && pixi install`.
+
 **GLIBC Constraint**: CI runners use Ubuntu with GLIBC 2.35 (Mojo requires 2.32+). Any
 native binaries built locally must be compatible with this version to avoid CI failures.
 If you're unable to run tests locally due to GLIBC version mismatch, see the

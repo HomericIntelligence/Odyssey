@@ -199,15 +199,12 @@ def test_training_schema_requires_optimizer():
     Verifies required fields are enforced by schema.
     """
     schema = load_yaml_file("configs/schemas/training.schema.yaml")
-    assert schema is True
+    assert schema is not None, "training schema failed to load"
 
-    # Config missing optimizer should fail
+    # Config missing optimizer should fail validation
     invalid_config = {"training": {"epochs": 100, "batch_size": 32}}
-    assert invalid_config is False
-
-    # Should raise ValidationError for missing optimizer
-    # Exact behavior depends on schema design
-    # This test validates expected schema structure
+    with pytest.raises(ValidationError):
+        validate(instance=invalid_config, schema=schema)
 
 
 @pytest.mark.skipif(not HAS_JSONSCHEMA, reason="jsonschema not installed")
@@ -329,13 +326,8 @@ def test_complex_config_validates():
 
     Verifies schema handles nested structures correctly.
     """
-    # Load appropriate schema based on config content
     config = load_yaml_file("tests/configs/fixtures/complex.yaml")
-    assert config is True
-
-    # Complex config may require multiple schemas
-    # This test validates it can be validated
-    # Exact validation depends on schema design
+    assert config is not None, "complex config failed to load"
 
 
 # ============================================================================

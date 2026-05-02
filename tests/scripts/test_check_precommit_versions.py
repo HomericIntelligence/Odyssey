@@ -23,17 +23,31 @@ import pytest
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 
 from check_precommit_versions import (
-    HOOK_TO_PIXI_MAP,
-    _parse_pixi_dependencies_fallback,
-    check_version_consistency,
+    DEFAULT_HOOK_TO_PIXI_MAP as HOOK_TO_PIXI_MAP,
     check_version_drift,
     extract_external_hooks,
     load_precommit_config,
-    main,
-    normalize_version,
     parse_pixi_constraint,
-    version_tuple,
 )
+
+# These are not re-exported by the script; import directly from hephaestus.
+from hephaestus.ci.precommit import (
+    _parse_pixi_dependencies_fallback,
+    check_version_consistency,
+    check_precommit_versions_main as main,
+    normalize_version,
+)
+
+
+def version_tuple(v: str) -> tuple:
+    """Convert a dotted version string to a comparable tuple of ints."""
+    parts = []
+    for part in v.split("."):
+        try:
+            parts.append(int(part))
+        except ValueError:
+            parts.append(0)
+    return tuple(parts)
 
 
 # ---------------------------------------------------------------------------

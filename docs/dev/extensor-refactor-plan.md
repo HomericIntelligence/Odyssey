@@ -1150,7 +1150,6 @@ Source: [Traits docs](https://github.com/modular/modular/blob/modular/v26.1/mojo
 | `shared/training/mixed_precision.mojo` | Cross-dtype edge case |
 | `shared/core/traits.mojo` | Existing trait patterns |
 | `shared/core/memory_pool.mojo` | Pool allocation API |
-| `docs/adr/ADR-009-heap-corruption-workaround.md` | Bitcast UAF root cause |
 | `.claude/shared/mojo-anti-patterns.md` | UAF via bitcast documentation |
 
 ### External Sources
@@ -1168,7 +1167,6 @@ Source: [Traits docs](https://github.com/modular/modular/blob/modular/v26.1/mojo
 |------|-----------|
 | PR #4997 | Short-term fix: `set()` method, `_resolve_index`, tolerance adjustments |
 | Issue #4998 | This epic — parametric AnyTensor migration |
-| ADR-009 | Heap corruption workaround that motivated the bitcast→setitem migration |
 | Skill: mojo-setitem-lvalue-semantics | ProjectMnemosyne — documents the `__getitem__` lvalue discovery |
 | Skill: extensor-parametric-dtype-migration | ProjectMnemosyne — architecture research |
 

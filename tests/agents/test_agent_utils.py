@@ -30,7 +30,7 @@ from agent_utils import (
     find_agent_files,
     load_agent,
     load_all_agents,
-    validate_frontmatter_structure,
+    validate_frontmatter as validate_frontmatter_structure,
 )
 
 

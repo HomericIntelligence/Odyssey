@@ -50,7 +50,7 @@ a subsequent `malloc` or `free` triggers an abort:
 SIGABRT in libKGENCompilerRTShared.so+0x3cb78b
 ```
 
-This crash signature is identical to the one documented in ADR-009 (the bitcast UAF bug),
+This crash signature matches the heap-corruption bug (the bitcast UAF bug),
 which led to months of misclassification as "Mojo JIT compiler flakiness."
 
 ### Minimum Reproducer
@@ -207,12 +207,11 @@ pointer, and always free `_base_data` instead of `_data`.
 **Why Rejected**: Unnecessary complexity. The `_is_view` flag is sufficient and already
 exists.
 
-## Relationship to ADR-009
+## Relationship to the Heap-Corruption File-Splitting Workaround
 
-ADR-009 documented "heap corruption after ~15 tests" and applied file splitting as a
-workaround. ADR-009 was later resolved when the root cause was identified as a
-`UnsafePointer.bitcast` use-after-free triggered by Mojo's ASAP destruction semantics
-(see [modular/modular#6187](https://github.com/modular/modular/issues/6187)).
+The heap-corruption workaround (late 2025, now resolved) applied file splitting to work
+around what appeared to be a distinct crash. The root cause was identified as the same
+bitcast UAF fixed by this ADR.
 
 This ADR-013 bug produces **identical crash symptoms**:
 
@@ -222,12 +221,12 @@ This ADR-013 bug produces **identical crash symptoms**:
 
 But the root cause is entirely different:
 
-- **ADR-009**: Mojo compiler bug -- ASAP destruction destroys tensor before bitcast write
+- **Heap-corruption workaround**: Mojo compiler bug -- ASAP destruction destroys tensor before bitcast write
   completes
 - **ADR-013**: Our code bug -- `__del__` frees an offset pointer that was never
   `malloc`-ed
 
-The file-splitting workaround from ADR-009 also inadvertently masked this bug: fewer
+The file-splitting workaround from the heap-corruption workaround also inadvertently masked this bug: fewer
 tests per file meant fewer tensor destructions, which meant less accumulated heap
 corruption before process exit.
 
@@ -249,8 +248,6 @@ corruption before process exit.
 
 ### Related ADRs
 
-- [ADR-009](ADR-009-heap-corruption-workaround.md): Heap corruption workaround (same
-  crash symptoms, different root cause -- bitcast UAF vs. slice view bad-free)
 - [ADR-003](ADR-003-memory-pool-architecture.md): Memory pool architecture (`pooled_free`
   is the allocator entry point affected by the bad-free)
 
@@ -259,7 +256,7 @@ corruption before process exit.
 - [Issue #5056](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5056):
   Slice view destructor bug
 - [Issue #2942](https://github.com/HomericIntelligence/ProjectOdyssey/issues/2942):
-  Original heap corruption report (ADR-009)
+  Original heap corruption report
 
 ### Affected Files
 

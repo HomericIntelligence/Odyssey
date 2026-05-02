@@ -2,8 +2,8 @@
 
 **Tracking**: Issue #3330, follow-up from #3120
 
-**Status**: The ADR-009 heap corruption workaround is **RESOLVED** (2026-03-20, bitcast UAF fix).
-The test file splitting workaround from ADR-009 is no longer necessary. A per-file JIT crash
+**Status**: The heap-corruption file-splitting workaround is **RESOLVED** (2026-03-20, bitcast UAF fix).
+The test file splitting workaround is no longer necessary. A per-file JIT crash
 retry mechanism was added (2026-03-25, ADR-014) but has since been **REMOVED** to force root cause
 investigation. Persistent JIT crashes now fail visibly instead of being masked by retries.
 
@@ -117,14 +117,13 @@ from shared.core.activation import relu, sigmoid
 from shared.core import AnyTensor, zeros, ones, relu, sigmoid
 ```
 
-## Relationship to Heap Corruption Bug (ADR-009) -- RESOLVED
+## Relationship to Heap Corruption Bug (RESOLVED)
 
-The heap corruption bug described in [ADR-009](../adr/ADR-009-heap-corruption-workaround.md)
-was **resolved on 2026-03-20** via a bitcast UAF fix. The test file splitting workaround from
-ADR-009 is no longer necessary. The `continue-on-error: true` workaround has been removed from
-`comprehensive-tests.yml`.
+The heap corruption bug was **resolved on 2026-03-20** via a bitcast UAF fix. The test file
+splitting workaround is no longer necessary. The `continue-on-error: true` workaround has been
+removed from `comprehensive-tests.yml`.
 
-| | JIT Crash (this doc) | Heap Corruption (ADR-009) |
+| | JIT Crash (this doc) | Heap Corruption Workaround |
 | - | ------------------- | ------------------------ |
 | **Trigger** | Package-level import compilation overflow | After exactly ~15 cumulative tests in one file |
 | **Output** | `execution crashed` before any test runs | Crash mid-run after test output |
@@ -158,7 +157,6 @@ which lowers the probability of hitting the JIT buffer overflow regardless of en
 - [Issue #3330](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3330) -- Document JIT crash workaround
 - [Issue #3120](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3120) --
   Core Loss test crashes (follow-up context)
-- [ADR-009](../adr/ADR-009-heap-corruption-workaround.md) -- Heap corruption workaround (resolved 2026-03-20)
 - [ADR-014](../adr/ADR-014-jit-crash-retry-mitigation.md) -- JIT crash retry mitigation (SUPERSEDED)
 - [ADR-015](../adr/ADR-015-flaky-required-checks-jit-crash.md) -- Flaky required checks and corrective actions (2026-04-12)
 

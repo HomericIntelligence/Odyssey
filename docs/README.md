@@ -19,7 +19,7 @@ docs/
 ├── adr/                    # Architecture Decision Records
 │   ├── README.md           # ADR index
 │   ├── template.md         # ADR template
-│   └── ADR-001 through ADR-009
+│   └── ADR-001 through ADR-008, ADR-010, ADR-012–ADR-015
 ├── advanced/               # Advanced topics for experienced users
 │   ├── benchmarking.md     # Benchmarking and profiling guide
 │   └── troubleshooting.md  # Debugging and troubleshooting

@@ -43,8 +43,6 @@ The same test file may pass or crash depending on ASLR, memory layout, and JIT c
 
 | Approach | Result |
 | -------- | ------ |
-| Targeted submodule imports (ADR-009 era) | Reduced frequency but didn't eliminate |
-| ADR-009 file splitting | No longer needed (bitcast UAF resolved) |
 | `@always_inline` on helpers | Made things worse (reverted) |
 | `continue-on-error: true` | Removed -- was masking real failures |
 
@@ -147,7 +145,6 @@ time without improving pass rates.
 
 - [Issue #5108](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5108) -- JIT crash comprehensive tracking
 - [modular/modular#6187](https://github.com/modular/modular/issues/6187) -- Upstream Mojo bug
-- [ADR-009](ADR-009-heap-corruption-workaround.md) -- Heap corruption workaround (resolved)
 - [docs/dev/mojo-jit-crash-workaround.md](../dev/mojo-jit-crash-workaround.md) -- Import-explosion variant
 
 ---

@@ -31,7 +31,7 @@ Use `gh issue list` with JSON output to gather data efficiently:
 
 ```bash
 gh issue list --repo OWNER/REPO --state open --json number,title --limit 1000 \
-  | jq '.[] | select(.title | test("ADR-009"))' | head -50
+  | jq '.[] | select(.title | test("duplicate-topic"))' | head -50
 ```
 
 ### Step 2: Write the Close Function
@@ -140,11 +140,11 @@ no easy way to see which issues were processed. Batching by group makes it easy 
 
 | Group | Theme | Survivor | Closed |
 | ----- | ----- | -------- | ------ |
-| 1 | ADR-009 compliance/enforcement | #3962 | 79 |
-| 2 | ADR-009 documentation | #3776 | 11 |
+| 1 | Test file compliance/enforcement | #3962 | 79 |
+| 2 | Test file splitting documentation | #3776 | 11 |
 | 3 | Remove continue-on-error Core Tensors | #4100 | 9 |
 | 4 | Core Utilities CI splitting | #4116 | 7 |
-| 5 | ADR-009 apply-split-to-others | #4150 | 4 |
+| 5 | Apply file splitting to others | #4150 | 4 |
 | 6 | Core Activations CI glob | #4157 | 1 |
 | 7 | Remove continue-on-error Core Loss | #4172 | 1 |
 | 8 | Negative index `__setitem__` | #3387 | 2 |
@@ -182,7 +182,7 @@ done
 
 When deciding what counts as a duplicate, apply these rules:
 
-1. **Same intent = duplicate** — "Add ADR-009 pre-commit hook" and "Enforce ADR-009 fn test_ limit via CI" are the same goal
+1. **Same intent = duplicate** — "Add file-split pre-commit hook" and "Enforce fn test_ limit via CI" are the same goal
 2. **Oldest issue wins** — Always keep the lowest issue number as survivor
 3. **Unique feature requests stay** — Even if related to the same area, keep issues that request distinct features
 4. **When in doubt, keep separate** — If two issues could produce different PRs, they're not duplicates

@@ -52,7 +52,7 @@ tests/shared/
 ├── core/                            # Core module tests
 │   ├── test_layers.mojo             # Layer implementations
 │   ├── test_tensors.mojo            # Tensor operations
-│   ├── test_activations_part1.mojo  # Activation functions (ReLU, Leaky ReLU start) - ADR-009 split
+│   ├── test_activations_part1.mojo  # Activation functions (ReLU, Leaky ReLU start)
 │   ├── test_activations_part2.mojo  # Activation functions (Leaky ReLU end, PReLU, Sigmoid start)
 │   ├── test_activations_part3.mojo  # Activation functions (Sigmoid end, Tanh, Softmax start)
 │   ├── test_activations_part4.mojo  # Activation functions (Softmax end, GELU start)
@@ -67,8 +67,8 @@ tests/shared/
 │   ├── test_callbacks.mojo          # Training callbacks
 │   └── test_loops.mojo              # Training loops
 ├── data/                            # Data module tests
-│   ├── test_datasets_part1.mojo     # Dataset implementations (Part 1, ADR-009 split)
-│   ├── test_datasets_part2.mojo     # Dataset implementations (Part 2, ADR-009 split)
+│   ├── test_datasets_part1.mojo     # Dataset implementations (Part 1)
+│   ├── test_datasets_part2.mojo     # Dataset implementations (Part 2)
 │   ├── test_loaders.mojo            # Data loaders
 │   └── test_transforms.mojo         # Data transforms
 ├── utils/                           # Utils module tests

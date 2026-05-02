@@ -39,6 +39,27 @@ repos:
         pass_filenames: false
         always_run: true
 
+  # Prevent accidental in-workspace pixi env
+  - repo: local
+    hooks:
+      - id: no-pixi-env-in-workspace
+        name: Forbid real .pixi/envs/ in workspace (use detached-environments)
+        description: >-
+          Ensures pixi stores envs in the per-user cache dir (detached-environments = true
+          in .pixi/config.toml), not inside the workspace. A symlink at .pixi/envs
+          (created by pixi as a convenience pointer) is acceptable; an actual directory
+          with a real installation collides between host and container at the same path.
+        entry: >-
+          bash -c
+          'if [ -d .pixi/envs ] && [ ! -L .pixi/envs ]; then
+          echo "ERROR .pixi/envs/ is a real directory, not a symlink. pixi detached-environments is not active.";
+          echo "Fix ensure .pixi/config.toml contains detached-environments = true";
+          echo "Then run rm -rf .pixi/envs && pixi install";
+          exit 1; fi'
+        language: system
+        pass_filenames: false
+        always_run: true
+
   # Dockerfile and Docker Compose verification
   - repo: local
     hooks:
@@ -90,7 +111,7 @@ repos:
       - id: bandit
         name: Bandit Security Scan
         description: Scan Python files for security vulnerabilities using bandit
-        entry: pixi run bandit -ll --skip B310,B202,B301
+        entry: pixi run bandit -ll
         language: system
         files: ^(scripts|tests|tools|examples)/.*\.py$
         types: [python]
