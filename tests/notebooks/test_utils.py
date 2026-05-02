@@ -14,7 +14,7 @@ matplotlib = pytest.importorskip("matplotlib", reason="matplotlib not installed 
 # Add notebooks to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from notebooks.utils import tensor_utils, visualization
+from notebooks.utils import tensor_utils, visualization  # noqa: E402
 
 
 class TestTensorUtils:

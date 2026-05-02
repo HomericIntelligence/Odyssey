@@ -51,7 +51,8 @@ repos:
           with a real installation collides between host and container at the same path.
         entry: >-
           bash -c
-          'if [ -d .pixi/envs ] && [ ! -L .pixi/envs ]; then
+          'if [ "${CI:-false}" = "true" ]; then exit 0; fi;
+          if [ -d .pixi/envs ] && [ ! -L .pixi/envs ]; then
           echo "ERROR .pixi/envs/ is a real directory, not a symlink. pixi detached-environments is not active.";
           echo "Fix ensure .pixi/config.toml contains detached-environments = true";
           echo "Then run rm -rf .pixi/envs && pixi install";
