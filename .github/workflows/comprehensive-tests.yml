@@ -256,9 +256,11 @@ jobs:
             path: "tests/shared/core"
             pattern: "test_activation*.mojo test_advanced_activations*.mojo test_dtype_dispatch*.mojo test_dtype_ordinal*.mojo"
           # ---- Loss functions ----
+          # Split into part files (≤10 fns each) to avoid ADR-009 JIT heap corruption.
+          # See Issue #5128. Original monolithic files removed.
           - name: "Core Loss"
             path: "tests/shared/core"
-            pattern: "test_losses.mojo test_loss_funcs*.mojo test_loss_utils.mojo"
+            pattern: "test_losses_part*.mojo test_loss_funcs_part*.mojo test_loss_utils_part*.mojo"
           # ---- Gradient math ----
           - name: "Core Gradient"
             path: "tests/shared/core"
@@ -318,9 +320,12 @@ jobs:
           - name: "Benchmarking"
             path: "tests/shared/benchmarking"
             pattern: "test_*.mojo"
+          # ---- Integration Tests ----
+          # test_packaging.mojo split into part files (≤10 fns each) to avoid
+          # ADR-009 JIT heap corruption. See Issue #5128. Original file removed.
           - name: "Integration Tests"
             path: "tests/shared/integration"
-            pattern: "test_*.mojo"
+            pattern: "test_packaging_part*.mojo test_*.mojo"
           # ---- Tensor[dtype] wrapper tests ----
           - name: "Tensor"
             path: "tests/shared/tensor"

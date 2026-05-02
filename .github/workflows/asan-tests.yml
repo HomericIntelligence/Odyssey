@@ -62,6 +62,11 @@ jobs:
           echo "Running tensor dataset tests under AddressSanitizer..."
           just test-group-asan "tests/shared/data/datasets" "test_tensor_dataset.mojo"
 
+      - name: Run core loss tests under ASAN
+        run: |
+          echo "Running core loss tests under AddressSanitizer..."
+          just test-group-asan "tests/shared/core" "test_losses_part1.mojo test_losses_part2.mojo test_losses_part3.mojo"
+
       - name: Report ASAN status
         if: always()
         run: |
