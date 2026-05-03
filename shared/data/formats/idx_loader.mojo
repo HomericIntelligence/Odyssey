@@ -54,17 +54,15 @@ def load_idx_labels(filepath: String) raises -> AnyTensor:
     Raises:
             Error: If file format is invalid or cannot be read.
     """
-    # Read entire file
-    var content: String
+    # Read entire file as raw bytes (binary IDX files are not valid UTF-8)
+    var content: List[UInt8]
     with open(filepath, "r") as f:
-        content = f.read()
+        content = f.read_bytes()
 
-    # Convert string to bytes (this is a workaround - ideally we'd read binary)
     var file_size = len(content)
     if file_size < 8:
         raise Error("IDX file too small")
 
-    # Parse header (treating String as bytes - this is a simplification)
     var data_bytes = content.unsafe_ptr()
 
     var magic = read_uint32_be(data_bytes, 0)
@@ -105,10 +103,10 @@ def load_idx_images(filepath: String) raises -> AnyTensor:
             For single-channel (grayscale) images. Shape includes channel dimension for
             consistency with multi-channel loaders.
     """
-    # Read entire file
-    var content: String
+    # Read entire file as raw bytes (binary IDX files are not valid UTF-8)
+    var content: List[UInt8]
     with open(filepath, "r") as f:
-        content = f.read()
+        content = f.read_bytes()
 
     var file_size = len(content)
     if file_size < 16:
@@ -161,10 +159,10 @@ def load_idx_images_rgb(filepath: String) raises -> AnyTensor:
     Note:
             For CIFAR-10 and similar: (N, 3, 32, 32) where 3 channels are RGB.
     """
-    # Read entire file
-    var content: String
+    # Read entire file as raw bytes (binary IDX files are not valid UTF-8)
+    var content: List[UInt8]
     with open(filepath, "r") as f:
-        content = f.read()
+        content = f.read_bytes()
 
     var file_size = len(content)
     if (
