@@ -637,7 +637,7 @@ All critical functionality exists or has simple workarounds.
 ### Comparison with LeNet-5
 
 | Metric | LeNet-5 EMNIST | AlexNet CIFAR-10 | Ratio |
-| ------ | -------------- | ---------------- | ----- |
+| --- | --- | --- | --- |
 | Parameters | 61,706 | 2,347,946 | 38× |
 | Input Size | 28×28×1 | 32×32×3 | 3× (channels) |
 | Layers | 5 | 8 | 1.6× |

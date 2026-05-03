@@ -106,7 +106,7 @@ Resolution: Delete file entirely.
 ## Blocked Items Analysis
 
 | Location | Blocker | Tracking |
-|----------|---------|----------|
+| --- | --- | --- |
 | profiling.mojo:650 | Mojo FileIO | No issue |
 | logging.mojo:442 | Mojo env vars | No issue |
 | mixed_precision.mojo:284 | SIMD FP16 | No issue |
@@ -117,7 +117,7 @@ Resolution: Delete file entirely.
 ## Time Breakdown
 
 | Phase | Time |
-|-------|------|
+| --- | --- |
 | Discovery & planning | 15 min |
 | PR creation (7 PRs) | 45 min |
 | CI wait & retries | 50 min |

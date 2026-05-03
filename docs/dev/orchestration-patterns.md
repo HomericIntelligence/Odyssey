@@ -555,7 +555,7 @@ Priority: [High/Medium/Low]
 ### Decision Authority by Level
 
 | Level | Can Decide | Must Escalate |
-|-------|-----------|---------------|
+| --- | --- | --- |
 | 0 | System-wide architecture, technology stack | Strategic business decisions |
 | 1 | Section architecture, module organization | Cross-section conflicts |
 | 2 | Module design, component interfaces | Section-wide impacts |

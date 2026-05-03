@@ -503,7 +503,7 @@ fn training_step(
 ### Common Utility Modules
 
 | Module | Purpose | Examples |
-|--------|---------|----------|
+| --- | --- | --- |
 | `grad_utils.mojo` | Gradient clipping and statistics | clip_grad_value_, clip_grad_norm_ |
 | `dtype_utils.mojo` | Dtype-related utilities | dtype conversion helpers |
 | `math_utils.mojo` | Mathematical utilities | Various math operations |
@@ -573,7 +573,7 @@ fn linear_backward(
 ## Summary Table
 
 | Pattern | Purpose | Location | Benefit |
-|---------|---------|----------|---------|
+| --- | --- | --- | --- |
 | Gradient Result | Type-safe gradient containers | `shared/core/gradient_types.mojo` | Clear semantics, refactoring-safe |
 | DType Dispatch | Compile-time specialization | `shared/core/dtype_dispatch.mojo` | 80% code reduction |
 | Constants | Centralized values | `shared/core/math_constants.mojo`, `shared/core/numerical_constants.mojo` | Consistency, maintainability |

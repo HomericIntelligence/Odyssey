@@ -50,7 +50,7 @@ implementation to Test and Documentation Specialists.
 ## Skills
 
 | Skill | When to Invoke |
-|-------|---|
+| --- | --- |
 | extract_dependencies | Mapping module dependencies |
 | analyze_code_structure | Understanding existing APIs |
 | generate_boilerplate | API templates and scaffolding |

@@ -11,7 +11,7 @@ in combination.
 ### Quick Reference
 
 | Directory | Purpose | Primary Users | Key Integration Points |
-| ----------- | --------- | --------------- | ------------------------ |
+| --- | --- | --- | --- |
 | **benchmarks/** | Performance measurement | Developers, CI/CD | papers/, shared/, configs/ |
 | **docs/** | User documentation | All users | All directories |
 | **agents/** | AI automation | Claude Code | All directories |

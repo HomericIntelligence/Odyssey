@@ -215,10 +215,10 @@ to proceed.
 
 ## Revision History
 
-| Version | Date       | Author      | Changes                                              |
-| ------- | ---------- | ----------- | ---------------------------------------------------- |
-| 1.0     | 2026-03-07 | Claude Code | Initial ADR: FP16 SIMD limitation, scalar workaround |
-| 2.0     | 2026-04-11 | Claude Code | Superseded: Mojo 0.26.3 supports FP16 SIMD natively  |
+| Version | Date | Author | Changes |
+| --- | --- | --- | --- |
+| 1.0 | 2026-03-07 | Claude Code | Initial ADR: FP16 SIMD limitation, scalar workaround |
+| 2.0 | 2026-04-11 | Claude Code | Superseded: Mojo 0.26.3 supports FP16 SIMD natively |
 
 ---
 

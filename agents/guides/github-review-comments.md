@@ -256,7 +256,7 @@ gh pr checks PR
 ## When to Use Each Type
 
 | Situation | Use This |
-|-----------|----------|
+| --- | --- |
 | Reviewer left comments on specific lines of code | Review comment replies |
 | Need to reply to each review comment | Review comment replies |
 | General update about the PR | PR-level comment |

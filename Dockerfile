@@ -83,11 +83,17 @@ RUN mkdir -p $PIXI_HOME $PIXI_CACHE_DIR $HOME/.cache/rattler
 ENV PIXI_VERSION=0.65.0
 RUN curl -fsSL https://pixi.sh/install.sh | PIXI_VERSION=${PIXI_VERSION} bash
 
-# Copy dependency manifests first for layer caching
+# Copy dependency manifests first for layer caching.
+# .pixi/config.toml (detached-environments = true) is copied here so that
+# pixi install bakes the env into the per-user cache dir rather than
+# /workspace/.pixi/envs/. This matches the runtime layout where the workspace
+# is bind-mounted and the bind-mount shadows any in-workspace env.
 # Note: requirements*.txt are auto-generated lockfiles from pixi.toml (see scripts/sync_requirements.py)
 COPY --chown=${USER_NAME}:${USER_NAME} pixi.toml pixi.lock pyproject.toml requirements.txt requirements-dev.txt .pre-commit-config.yaml ./
+COPY --chown=${USER_NAME}:${USER_NAME} .pixi/config.toml .pixi/config.toml
 
 # Install project dependencies (cached unless manifests change)
+# Env installs into $HOME/.cache/pixi/envs/<workspace-hash>/ per detached-environments config.
 RUN pixi install
 
 # Ensure pre-commit is available in Pixi environment

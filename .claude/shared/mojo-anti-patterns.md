@@ -102,7 +102,7 @@ fn __init__(out self, value: Int):
 **Constructor Convention Table:**
 
 | Method | Parameter | Example |
-|--------|-----------|---------|
+| --- | --- | --- |
 | `__init__` | `out self` | `fn __init__(out self, value: Int)` |
 | `__moveinit__` | `out self, owned existing` | `fn __moveinit__(out self, owned existing: Self)` |
 | `__copyinit__` | `out self, existing` | `fn __copyinit__(out self, existing: Self)` |

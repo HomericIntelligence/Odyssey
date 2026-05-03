@@ -39,7 +39,10 @@ ENV/
 .venv
 
 # Pixi cache (will be recreated in container)
+# .pixi/config.toml is NOT excluded — it controls detached-environments placement
+# and must be present when `pixi install` runs during the image build.
 .pixi/
+!.pixi/config.toml
 
 # Testing and coverage
 .pytest_cache/

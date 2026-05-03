@@ -12,7 +12,7 @@ user-invocable: true
 ## Overview
 
 | Field | Value |
-|-------|-------|
+| --- | --- |
 | **Date** | 2026-02-09 |
 | **Objective** | Fix Docker Build workflow failure after repository transfer to new GitHub organization |
 | **Root Cause** | IMAGE\_NAME hardcoded to old org while GITHUB\_TOKEN scoped to new org |
@@ -194,7 +194,7 @@ gh run view <run-id> --log | grep "pushing manifest"
 ## Failed Attempts
 
 | Attempt | Why It Failed | Lesson Learned |
-|---------|---------------|----------------|
+| --- | --- | --- |
 | Used `${{ github.repository }}` directly in tags | Preserves case (e.g., `OrgName/Repo`), Docker requires lowercase | Always use explicit lowercase IMAGE\_NAME env var |
 | Only updated docker.yml, missed release.yml | Release workflow still used old org, failed on releases | Search all workflows, not just primary Docker workflow |
 | Forgot to update Justfile REPO\_NAME | Local `just docker-build` commands failed | Check all build system files (Just, Make, scripts) |
@@ -304,7 +304,7 @@ env:
 ## Verified On
 
 | Project | Context | Details |
-|---------|---------|---------|
+| --- | --- | --- |
 | ProjectOdyssey | PR #3123 - Docker CI fix after org transfer | [notes.md](../references/notes.md) |
 
 ## References

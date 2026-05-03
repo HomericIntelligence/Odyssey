@@ -31,7 +31,7 @@ extract algorithms, oversee model implementation, manage training, and validate 
 ## Skills
 
 | Skill | When to Invoke |
-|-------|----------------|
+| --- | --- |
 | `worktree-create` | Developing paper data/model/training in parallel |
 | `gh-implement-issue` | Implementing paper components |
 | `agent-run-orchestrator` | Coordinating specialist work |

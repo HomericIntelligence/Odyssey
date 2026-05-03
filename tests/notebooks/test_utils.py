@@ -7,10 +7,14 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+# matplotlib lives in the notebook feature env, not the default env.
+# Skip visualization tests gracefully when it is unavailable.
+matplotlib = pytest.importorskip("matplotlib", reason="matplotlib not installed in default env")
+
 # Add notebooks to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from notebooks.utils import tensor_utils, visualization
+from notebooks.utils import tensor_utils, visualization  # noqa: E402
 
 
 class TestTensorUtils:

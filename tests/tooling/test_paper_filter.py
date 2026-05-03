@@ -15,6 +15,8 @@ import tempfile
 import shutil
 from pathlib import Path
 
+import pytest
+
 
 class TestPaperFiltering:
     """Test paper-specific test filtering (Issue #810)."""
@@ -123,6 +125,9 @@ class TestPaperFiltering:
         assert any(p.name == "gpt-2" for p in result)
 
 
+@pytest.mark.skip(
+    reason="mojo-test-runner skill migrated to ProjectMnemosyne; run_tests.sh no longer in .claude/skills/"
+)
 class TestRunTestsScript:
     """Test run_tests.sh script integration (Issue #811)."""
 
@@ -135,7 +140,6 @@ class TestRunTestsScript:
         """Test that run_tests.sh is executable."""
         script_path = Path(".claude/skills/mojo-test-runner/scripts/run_tests.sh")
         assert script_path.exists()
-        # Check if file has execute permission
         import os
 
         assert os.access(script_path, os.X_OK), "Script is not executable"
@@ -143,25 +147,15 @@ class TestRunTestsScript:
     def test_help_option(self):
         """Test script has help option."""
         script_path = Path(".claude/skills/mojo-test-runner/scripts/run_tests.sh")
-
         result = subprocess.run([str(script_path), "--help"], capture_output=True, text=True)
-
-        # Help should work (exit 0 or show usage)
-        # We just verify it doesn't crash
-        assert result.returncode in [0, 1, 2]  # Various help exit codes
+        assert result.returncode in [0, 1, 2]
 
     def test_paper_option_available(self):
         """Test --paper option is available."""
         script_path = Path(".claude/skills/mojo-test-runner/scripts/run_tests.sh")
-
-        # Try to get help/usage
         result = subprocess.run([str(script_path), "--help"], capture_output=True, text=True)
-
         output = result.stdout + result.stderr
         print(output)
-        # Should mention paper option (after implementation)
-        # This test will initially fail, then pass after implementation
-        # For now, we just check the script exists
         assert script_path.exists()
 
 

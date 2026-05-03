@@ -552,7 +552,7 @@ and provide significant value with minimal risk.
 ### Performance Targets
 
 | Metric | Before | Target | Achieved | Status |
-|--------|--------|--------|----------|--------|
+| --- | --- | --- | --- | --- |
 | ResNet-18 epoch | 60s | 40-45s | TBD | 🔄 |
 | SIMD add (float32) | 10ms | 2-3ms | TBD | 🔄 |
 | TypedTensor ops | 100ms | 70-80ms | TBD | 🔄 |

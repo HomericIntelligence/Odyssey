@@ -22,6 +22,12 @@ if echo "$output" | grep -q "GLIBC_2\." && echo "$output" | grep -q "not found";
     exit 0
 fi
 
+if echo "$output" | grep -q "unable to resolve Mojo formatter"; then
+    echo "WARNING: mojo-format skipped: mojo binary not found in pixi environment."
+    echo "         Run 'pixi install' or install the Mojo SDK to enable formatting."
+    exit 0
+fi
+
 # mojo format exits 123 when the parser can't handle new syntax (e.g., comptime).
 # Filter out parse errors and only fail if real formatting changes were needed.
 if [ $exit_code -eq 123 ]; then

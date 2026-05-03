@@ -29,7 +29,7 @@ This catalog lists all 30 agents in the ML Odyssey hierarchical agent system. Ea
 Representative sample of 30 agents (see detailed sections below for complete list):
 
 | Level | Agent Name | Primary Focus | Scope |
-|-------|-----------|---------------|-------|
+| --- | --- | --- | --- |
 | **0** | Chief Architect | Strategic planning | Entire repository |
 | **1** | Foundation Orchestrator | Repository structure | Section 01 |
 | **1** | Shared Library Orchestrator | Core components | Section 02 |
@@ -1049,7 +1049,7 @@ implementation work
 #### By Scope
 
 | Scope | Levels | Example Agents |
-|-------|--------|----------------|
+| --- | --- | --- |
 | Entire repository | 0 | Chief Architect |
 | Major section | 1 | Section Orchestrators |
 | Module | 2 | Module Design Agents |

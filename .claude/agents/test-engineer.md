@@ -39,7 +39,7 @@ mocking), and ensures all tests integrate with CI/CD pipeline.
 ## Skills
 
 | Skill | When to Invoke |
-|-------|---|
+| --- | --- |
 | `phase-test-tdd` | Starting TDD workflow, test scaffolding |
 | `mojo-test-runner` | Running Mojo test suites |
 | `quality-coverage-report` | Generating test coverage analysis |

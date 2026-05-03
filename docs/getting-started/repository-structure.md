@@ -45,7 +45,7 @@ just build
 **Documentation Locations**:
 
 | Type | Location | Purpose |
-| ------ | ---------- | --------- |
+| --- | --- | --- |
 | **User Docs** | `docs/` | Tutorials, guides, API reference |
 | **Issue Docs** | GitHub issue comments | Issue-specific implementation notes |
 | **Architectural** | `notes/review/` | Design decisions, comprehensive specs |
@@ -464,7 +464,7 @@ just pre-commit-all
 ### Essential Files
 
 | File | Purpose |
-| ------ | --------- |
+| --- | --- |
 | `README.md` | Project overview |
 | `CLAUDE.md` | Claude Code conventions |
 | `justfile` | All available build/test/train recipes |
@@ -473,7 +473,7 @@ just pre-commit-all
 ### Essential Directories
 
 | Directory | Quick Description |
-| ----------- | ------------------- |
+| --- | --- |
 | `papers/` | ML implementations |
 | `shared/` | Reusable components |
 | `docs/` | User documentation |

@@ -39,7 +39,7 @@ and coordinates security fixes with Implementation Engineers.
 ## Skills
 
 | Skill | When to Invoke |
-|-------|---|
+| --- | --- |
 | `quality-security-scan` | Scanning code for vulnerabilities |
 | `quality-run-linters` | Checking for security issues |
 | `mojo-memory-check` | Verifying memory safety |

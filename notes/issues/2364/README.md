@@ -2,7 +2,8 @@
 
 ## Objective
 
-Verify that CosineAnnealingLR and WarmupLR schedulers are fully implemented in the shared training module with comprehensive test coverage.
+Verify that CosineAnnealingLR and WarmupLR schedulers are fully implemented in the shared training module
+with comprehensive test coverage.
 
 ## Verification Status
 
@@ -28,11 +29,13 @@ Both schedulers are fully implemented with comprehensive test coverage. All test
 **Status**: IMPLEMENTED AND TESTED
 
 **Summary**:
-Smooth cosine decay scheduler that gradually reduces learning rate from base_lr to eta_min over T_max epochs following a cosine curve.
+Smooth cosine decay scheduler that gradually reduces learning rate from base_lr to eta_min over T_max epochs
+following a cosine curve.
 
 **Formula**: `lr = eta_min + (base_lr - eta_min) * (1 + cos(π * epoch / T_max)) / 2`
 
 **Key Features**:
+
 - Smooth cosine decay pattern
 - Configurable minimum learning rate (eta_min)
 - Epoch clamping to prevent overflow
@@ -41,6 +44,7 @@ Smooth cosine decay scheduler that gradually reduces learning rate from base_lr 
 **Traits**: `Copyable, LRScheduler, Movable`
 
 **Methods**:
+
 - `__init__(out self, base_lr: Float64, T_max: Int, eta_min: Float64 = 0.0)`
 - `get_lr(self, epoch: Int, batch: Int = 0) -> Float64`
 
@@ -51,13 +55,16 @@ Smooth cosine decay scheduler that gradually reduces learning rate from base_lr 
 **Status**: IMPLEMENTED AND TESTED
 
 **Summary**:
-Linear warmup scheduler that gradually increases learning rate from 0 to base_lr over warmup_epochs, then maintains constant LR.
+Linear warmup scheduler that gradually increases learning rate from 0 to base_lr over warmup_epochs,
+then maintains constant LR.
 
 **Formula**:
+
 - During warmup (epoch < warmup_epochs): `lr = base_lr * (epoch / warmup_epochs)`
 - After warmup (epoch ≥ warmup_epochs): `lr = base_lr`
 
 **Key Features**:
+
 - Linear warmup from zero
 - Configurable warmup duration
 - Constant LR after warmup phase
@@ -66,6 +73,7 @@ Linear warmup scheduler that gradually increases learning rate from 0 to base_lr
 **Traits**: `Copyable, LRScheduler, Movable`
 
 **Methods**:
+
 - `__init__(out self, base_lr: Float64, warmup_epochs: Int)`
 - `get_lr(self, epoch: Int, batch: Int = 0) -> Float64`
 
@@ -135,7 +143,7 @@ Linear warmup scheduler that gradually increases learning rate from 0 to base_lr
 
 ### Test Results
 
-```
+```text
 $ cd /home/mvillmow/worktrees/2364-schedulers
 $ pixi run mojo tests/shared/training/test_schedulers.mojo
 
@@ -146,7 +154,7 @@ Running integration tests...
 All scheduler tests passed! ✓
 ```
 
-```
+```text
 $ pixi run mojo tests/shared/training/test_warmup_scheduler.mojo
 
 Running WarmupLR core tests...
@@ -178,6 +186,7 @@ from .lr_schedulers import StepLR, CosineAnnealingLR, WarmupLR, ReduceLROnPlatea
 ```
 
 **Import Usage**:
+
 ```mojo
 from shared.training.schedulers import CosineAnnealingLR, WarmupLR
 ```
@@ -251,6 +260,8 @@ The implementation provides simple linear warmup with constant learning rate aft
 
 ## Conclusion
 
-Issue #2364 is **VERIFIED COMPLETE**. Both CosineAnnealingLR and WarmupLR schedulers are fully implemented with comprehensive test coverage (24 total test functions). All tests pass locally with zero compilation warnings. The implementations follow Mojo v0.26.1+ syntax conventions and proper software engineering practices.
+Issue #2364 is **VERIFIED COMPLETE**. Both CosineAnnealingLR and WarmupLR schedulers are fully implemented with
+comprehensive test coverage (24 total test functions). All tests pass locally with zero compilation warnings.
+The implementations follow Mojo v0.26.1+ syntax conventions and proper software engineering practices.
 
 The schedulers are production-ready and can be used in training pipelines for learning rate scheduling.

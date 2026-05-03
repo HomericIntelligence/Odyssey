@@ -45,7 +45,7 @@ with Test Engineer on test-driven development.
 ## Skills
 
 | Skill | When to Invoke |
-|-------|---|
+| --- | --- |
 | `mojo-format` | Before committing code |
 | `mojo-test-runner` | Running Mojo test suites |
 | `mojo-build-package` | Creating distributable .mojopkg files |

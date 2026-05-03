@@ -14,11 +14,15 @@ _spec.loader.exec_module(_mod)  # type: ignore[union-attr]
 
 check_dep_sync = _mod.check_dep_sync
 check_pyproject_no_deps = _mod.check_pyproject_no_deps
-parse_pixi_constraints = _mod.parse_pixi_constraints
 parse_pixi_toml = _mod.parse_pixi_toml
 parse_requirements = _mod.parse_requirements
-parse_version = _mod.parse_version
-version_satisfies = _mod.version_satisfies
+
+# Private helpers were renamed and are not re-exported via *; import directly.
+from hephaestus.config.dep_sync import (  # noqa: E402
+    _parse_constraints as parse_pixi_constraints,
+    _parse_version as parse_version,
+    _version_satisfies as version_satisfies,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -183,13 +187,13 @@ class TestCheckPyprojectNoDeps:
         assert check_pyproject_no_deps(pyproject) == []
 
     def test_has_dependencies(self, tmp_path: Path) -> None:
+        # hephaestus checks for [project.dependencies] as a TOML section header,
+        # not for inline `dependencies = [...]` under [project].
         pyproject = tmp_path / "pyproject.toml"
         pyproject.write_text(
             textwrap.dedent("""\
-            [project]
-            name = "test"
-            version = "1.0"
-            dependencies = ["pytest>=7.0"]
+            [project.dependencies]
+            pytest = ">=7.0"
         """)
         )
         errors = check_pyproject_no_deps(pyproject)
@@ -262,13 +266,13 @@ class TestCheckDepSync:
         assert any("pytest" in e and "outside" in e for e in errors)
 
     def test_pyproject_with_deps(self, tmp_path: Path) -> None:
+        # hephaestus checks for [project.dependencies] as a TOML section header.
         self._create_repo(tmp_path)
         pyproject = tmp_path / "pyproject.toml"
         pyproject.write_text(
             textwrap.dedent("""\
-            [project]
-            name = "test"
-            dependencies = ["pytest>=7.0"]
+            [project.dependencies]
+            pytest = ">=7.0"
         """)
         )
         errors = check_dep_sync(tmp_path)

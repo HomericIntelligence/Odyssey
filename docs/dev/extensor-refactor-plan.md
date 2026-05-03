@@ -92,7 +92,7 @@ Required test: create AnyTensor, convert to Tensor[dtype], let AnyTensor go out 
 #### VERIFIED CLAIMS
 
 | Claim | Status |
-|-------|--------|
+| --- | --- |
 | `comptime AnyTensor = AnyTensor` works as alias | VERIFIED |
 | Operator overloads work with `Self` on parametric struct | VERIFIED |
 | Cross-dtype `Tensor[f32] + Tensor[f64]` is compile-time error | VERIFIED |
@@ -358,7 +358,7 @@ fn cast[target: DType](self) raises -> Tensor[target]:
 ### 6.1 Quantitative Summary
 
 | Metric | Count |
-|--------|-------|
+| --- | --- |
 | Functions taking AnyTensor as parameter | 368 |
 | Functions returning AnyTensor | 480 |
 | Runtime dtype branch checks (any_tensor.mojo) | 177 |
@@ -374,7 +374,7 @@ fn cast[target: DType](self) raises -> Tensor[target]:
 ### 6.2 Top 10 Most Impacted Files
 
 | Rank | File | Total Signals | Why Hard |
-|------|------|--------------|----------|
+| --- | --- | --- | --- |
 | 1 | `shared/core/any_tensor.mojo` | 263 | The struct itself — every method changes |
 | 2 | `shared/core/elementwise.mojo` | 99 | 27 function signatures change |
 | 3 | `shared/core/activation.mojo` | 79 | 18 dtype branches, 29 return sites |
@@ -442,7 +442,7 @@ Each sub-phase is its own PR. Each follows the 12-step workflow (Plan → Test �
 ### Revised Scope Estimates
 
 | Phase | Lines | Notes |
-|-------|-------|-------|
+| --- | --- | --- |
 | Phase 0 | ~500 | Move files + update import paths |
 | Phase 1a | ~800 new | New Tensor[dtype], TensorLike |
 | Phase 1b | ~1,500 | Rename struct, alias, collision fix |
@@ -812,7 +812,7 @@ Each sub-phase follows the 12-step workflow (Plan → Test → Implement → Rev
 ### 9.1 High Risk
 
 | Risk | Impact | Mitigation |
-|------|--------|------------|
+| --- | --- | --- |
 | `List[AnyTensor]` breaks — heterogeneous collections | Batches, model params | Use `AnyTensor` for heterogeneous collections |
 | Runtime dtype determination (file loading, config) | Data pipeline | Keep dispatch fan-out at boundary |
 | Compilation time explosion (13 dtype instantiations) | CI slowdown | Profile; consider supporting fewer dtypes |
@@ -821,7 +821,7 @@ Each sub-phase follows the 12-step workflow (Plan → Test → Implement → Rev
 ### 9.2 Medium Risk
 
 | Risk | Impact | Mitigation |
-|------|--------|------------|
+| --- | --- | --- |
 | `mixed_precision.mojo` cross-dtype semantics | Training | Make explicit: `AnyTensor[float16] → AnyTensor[float32]` |
 | `__init__` can't take runtime dtype | All callers | Move dtype to compile-time parameter position |
 | Quantization methods (FP8, MXFP4, NVFP4) | Inference | These produce `AnyTensor[uint8]` — explicit output type |
@@ -829,7 +829,7 @@ Each sub-phase follows the 12-step workflow (Plan → Test → Implement → Rev
 ### 9.3 Low Risk
 
 | Risk | Impact | Mitigation |
-|------|--------|------------|
+| --- | --- | --- |
 | Memory pool compatibility | Allocation | Single bitcast at alloc time |
 | Import patterns | All files | No change to imports |
 | Test migration volume (386 files) | Time | Mechanical; sub-agents can parallelize |
@@ -883,7 +883,7 @@ This section documents findings from 4 parallel research agents that audited eve
 **Impact on codebase** — these patterns ALL break:
 
 | Pattern | Location | Why It Breaks |
-|---------|----------|---------------|
+| --- | --- | --- |
 | `fn parameters(self) -> List[AnyTensor]` | `traits.mojo:136,151` | Can't hold mixed-dtype params |
 | `fn step(mut self, params: List[AnyTensor])` | `traits.mojo:626` | Optimizer receives mixed list |
 | `var velocities: List[AnyTensor]` | `autograd/optimizers.mojo:100` | Created from `param.dtype()` at runtime |
@@ -900,7 +900,7 @@ This section documents findings from 4 parallel research agents that audited eve
 These patterns cannot use compile-time dtype:
 
 | Pattern | Location | Source of Runtime DType |
-|---------|----------|------------------------|
+| --- | --- | --- |
 | `var dtype = _parse_tensor_dtype(dtype_str)` | `utils/file_io.mojo:357` | Loaded from file header |
 | `var compute_dtype: DType` | `training/precision_config.mojo:144` | Config struct field |
 | `if dtype_str == "float16": dtype = DType.float16` | `papers/_template/examples/train.mojo:138-146` | CLI argument |
@@ -914,7 +914,7 @@ The `zeros(shape, tensor.dtype())` pattern appears **hundreds of times**. With p
 Every struct storing `AnyTensor` must either become parametric or use type erasure:
 
 | Struct | Fields | File |
-|--------|--------|------|
+| --- | --- | --- |
 | `BatchNorm` | `gamma, beta, running_mean, running_var` | `layers/batchnorm.mojo:34-40` |
 | `Conv2D` | `weight, bias` | `layers/conv2d.mojo:34-36` |
 | `Linear` | `weight, bias` | `layers/linear.mojo:30-31` |
@@ -948,7 +948,7 @@ Trait methods can't be parametric on additional type parameters in Mojo 0.26.1.
 3 functions silently corrupt data on dtype mismatch:
 
 | Function | File | Missing Guard |
-|----------|------|---------------|
+| --- | --- | --- |
 | `conv2d(x, kernel, bias)` | `conv.mojo:342-476` | kernel/bias dtype not checked vs x |
 | `batch_norm2d(x, gamma, beta, ...)` | `normalization.mojo:29-341` | gamma/beta/running_* dtype not checked |
 | `scaled_dot_product_attention_masked` | `attention.mojo:127-128` | Mask dtype not checked |
@@ -960,7 +960,7 @@ The audit found that **every** binary AnyTensor operation rejects mismatched dty
 ### 11.7 Mojo 0.26.1 Parametric Capabilities (Verified by Compilation)
 
 | Capability | Works? |
-|------------|--------|
+| --- | --- |
 | `struct Tensor[dtype: DType]` | **Yes** |
 | Conforming to traits (`Copyable`, `Movable`, custom) | **Yes** |
 | `__copyinit__` / `__moveinit__` on parametric struct | **Yes** |
@@ -1049,7 +1049,7 @@ if loaded.dtype() == DType.float32:
 
 **Naming convention**:
 | Type | Role | Follows |
-|------|------|---------|
+| --- | --- | --- |
 | `Tensor[dtype]` | Compile-time typed | `SIMD[dtype, size]` |
 | `AnyTensor` | Runtime typed / type-erased | `AnyType`, `AnyOrigin` |
 | `TensorLike` | Trait interface | `Writable`, `Copyable`, `Movable` |
@@ -1123,7 +1123,7 @@ Source: [Traits docs](https://github.com/modular/modular/blob/modular/v26.1/mojo
 ### 11.10 Mojo 0.26.1 Documentation References
 
 | Topic | URL |
-|-------|-----|
+| --- | --- |
 | Parameters (compile-time, inference, auto-parameterization) | https://github.com/modular/modular/blob/modular/v26.1/mojo/docs/manual/parameters/index.mdx |
 | Structs (parametric structs, fields) | https://github.com/modular/modular/blob/modular/v26.1/mojo/docs/manual/structs/index.mdx |
 | Traits (conformance, associated types, conditional conformance) | https://github.com/modular/modular/blob/modular/v26.1/mojo/docs/manual/traits.mdx |
@@ -1140,7 +1140,7 @@ Source: [Traits docs](https://github.com/modular/modular/blob/modular/v26.1/mojo
 ### Codebase Sources
 
 | File | Relevance |
-|------|-----------|
+| --- | --- |
 | `shared/core/any_tensor.mojo` | The struct — 4704 lines, 177 dtype branches, 158 bitcasts |
 | `shared/core/dtype_dispatch.mojo` | Existing parametric dispatch infrastructure |
 | `shared/core/dtype_ordinal.mojo` | Ordinal mapping for dispatch fan-out |
@@ -1150,13 +1150,12 @@ Source: [Traits docs](https://github.com/modular/modular/blob/modular/v26.1/mojo
 | `shared/training/mixed_precision.mojo` | Cross-dtype edge case |
 | `shared/core/traits.mojo` | Existing trait patterns |
 | `shared/core/memory_pool.mojo` | Pool allocation API |
-| `docs/adr/ADR-009-heap-corruption-workaround.md` | Bitcast UAF root cause |
 | `.claude/shared/mojo-anti-patterns.md` | UAF via bitcast documentation |
 
 ### External Sources
 
 | Source | URL |
-|--------|-----|
+| --- | --- |
 | Mojo SIMD documentation | https://docs.modular.com/mojo/std/builtin/simd/SIMD/ |
 | Mojo parameters documentation | https://docs.modular.com/mojo/manual/parameters/ |
 | Python Array API Standard | https://data-apis.org/array-api/latest/ |
@@ -1165,10 +1164,9 @@ Source: [Traits docs](https://github.com/modular/modular/blob/modular/v26.1/mojo
 ### Previous Work
 
 | Item | Reference |
-|------|-----------|
+| --- | --- |
 | PR #4997 | Short-term fix: `set()` method, `_resolve_index`, tolerance adjustments |
 | Issue #4998 | This epic — parametric AnyTensor migration |
-| ADR-009 | Heap corruption workaround that motivated the bitcast→setitem migration |
 | Skill: mojo-setitem-lvalue-semantics | ProjectMnemosyne — documents the `__getitem__` lvalue discovery |
 | Skill: extensor-parametric-dtype-migration | ProjectMnemosyne — architecture research |
 

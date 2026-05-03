@@ -175,7 +175,7 @@ tape.backward(loss)
 ## Files Status
 
 | File | Status | Purpose |
-|------|--------|---------|
+| --- | --- | --- |
 | `variable.mojo` | ✅ Committed | Variable wrapper (current version) |
 | `variable_v2.mojo` | 🧪 Experimental | With operation overloading |
 | `tape.mojo` | ✅ Committed | Tape structure (current version) |

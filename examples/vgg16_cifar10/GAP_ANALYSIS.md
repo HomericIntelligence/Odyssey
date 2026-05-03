@@ -667,7 +667,7 @@ These components are fully functional and ready to use:
 ### Comparison with AlexNet
 
 | Metric | AlexNet CIFAR-10 | VGG-16 CIFAR-10 | Ratio |
-| ------ | ---------------- | --------------- | ----- |
+| --- | --- | --- | --- |
 | Parameters | 2.3M | 15M | 6.5× |
 | Input Size | 32×32×3 | 32×32×3 | 1× |
 | Layers | 8 | 16 | 2× |

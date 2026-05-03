@@ -31,7 +31,7 @@ Developer Workflow:
 Clear separation of concerns between tools and scripts:
 
 | Aspect | tools/ | scripts/ |
-|--------|--------|----------|
+| --- | --- | --- |
 | **Purpose** | Development utilities | Repository automation |
 | **User** | Developers during implementation | CI/CD, maintainers |
 | **Usage Pattern** | Interactive, on-demand | Automated, scheduled |

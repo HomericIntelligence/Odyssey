@@ -31,7 +31,7 @@ Design CLI interfaces, build automation scripts, and developer productivity tool
 ## Skills
 
 | Skill | When to Invoke |
-|-------|----------------|
+| --- | --- |
 | `worktree-create` | Developing multiple tools in parallel |
 | `gh-implement-issue` | Implementing individual tool components |
 | `agent-run-orchestrator` | Coordinating specialist work |

@@ -47,7 +47,7 @@ template filling, formatting, changelog entries, and link checking.
 ## Skills
 
 | Skill | When to Invoke |
-|-------|---|
+| --- | --- |
 | `doc-issue-readme` | Creating issue-specific documentation |
 | `doc-generate-adr` | Documenting architectural decisions |
 | `doc-validate-markdown` | Validating markdown formatting |

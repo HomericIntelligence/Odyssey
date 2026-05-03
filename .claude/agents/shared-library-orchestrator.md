@@ -31,7 +31,7 @@ Design reusable components, establish API consistency across sections, and manag
 ## Skills
 
 | Skill | When to Invoke |
-|-------|----------------|
+| --- | --- |
 | `worktree-create` | Developing multiple library components in parallel |
 | `gh-implement-issue` | Implementing individual library components |
 | `agent-run-orchestrator` | Coordinating specialist work |

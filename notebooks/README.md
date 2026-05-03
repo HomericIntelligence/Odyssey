@@ -20,7 +20,7 @@ Then navigate to `http://localhost:8888` in your browser.
 ## Available Notebooks
 
 | # | Notebook | Description | Prerequisites |
-|---|----------|-------------|---------------|
+| --- | --- | --- | --- |
 | 1 | `01_introduction` | Quick start and overview | None |
 | 2 | `02_tensor_operations` | Tensor fundamentals | None |
 | 3 | `03_building_models` | Model architecture design | Notebook 2 |

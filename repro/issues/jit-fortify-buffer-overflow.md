@@ -35,7 +35,7 @@ confirms the overflow is detected inside the JIT, not during heap allocation.
 ## Isolation Experiments
 
 | Variant | Crashes? | Conclusion |
-|---|---|---|
+| --- | --- | --- |
 | Run locally, same Docker image, UID 1000 | No | Not a code or library bug |
 | Run locally under ASAN | No heap errors; only memory leaks | No buffer overflow in our code |
 | ASAN on test_arithmetic.mojo | PASSED clean | Core tensor ops are ASAN-clean |
@@ -62,7 +62,7 @@ SUMMARY: AddressSanitizer: 7000 byte(s) leaked in 6 allocation(s)
 This is a **different crash** from modular/modular#6187 (heap corruption via bitcast UAF):
 
 | Property | #6187 crash | This crash |
-|---|---|---|
+| --- | --- | --- |
 | Offsets | `libKGENCompilerRTShared.so +0x3cb78b` | `+0x6d4ab` (much smaller) |
 | Frame #4 | `libAsyncRTRuntimeGlobals.so +0x416ba` (heap allocator) | JIT compiled code |
 | libc frame | `+0x45330` (sigaction) | `+0x45330` (**fortify_fail_abort**) |

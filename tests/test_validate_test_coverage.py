@@ -146,7 +146,7 @@ class TestCheckCoverage(unittest.TestCase):
             Path("tests/shared/utils/test_arg_parser_part1.mojo"),
             Path("tests/shared/utils/test_arg_parser_part2.mojo"),
         ]
-        uncovered, _ = check_coverage(test_files, MINIMAL_CI_GROUPS, self.test_dir)
+        uncovered, _, _stale = check_coverage(test_files, MINIMAL_CI_GROUPS, self.test_dir)
         self.assertEqual(len(uncovered), 0)
 
     def test_split_files_in_uncovered_directory_are_flagged(self) -> None:
@@ -158,7 +158,7 @@ class TestCheckCoverage(unittest.TestCase):
             Path("tests/shared/other/test_arg_parser_part1.mojo"),
             Path("tests/shared/other/test_arg_parser_part2.mojo"),
         ]
-        uncovered, _ = check_coverage(test_files, MINIMAL_CI_GROUPS, self.test_dir)
+        uncovered, _, _stale = check_coverage(test_files, MINIMAL_CI_GROUPS, self.test_dir)
         self.assertEqual(len(uncovered), 2)
         self.assertIn(Path("tests/shared/other/test_arg_parser_part1.mojo"), uncovered)
         self.assertIn(Path("tests/shared/other/test_arg_parser_part2.mojo"), uncovered)
@@ -168,7 +168,7 @@ class TestCheckCoverage(unittest.TestCase):
         self._create_file("tests/shared/utils/test_arg_parser.mojo")
 
         test_files = [Path("tests/shared/utils/test_arg_parser.mojo")]
-        uncovered, _ = check_coverage(test_files, MINIMAL_CI_GROUPS, self.test_dir)
+        uncovered, _, _stale = check_coverage(test_files, MINIMAL_CI_GROUPS, self.test_dir)
         self.assertEqual(len(uncovered), 0)
 
     def test_suffix_variant_files_in_covered_directory_are_covered(self) -> None:
@@ -180,7 +180,7 @@ class TestCheckCoverage(unittest.TestCase):
             Path("tests/shared/utils/test_arg_parser_cmd_run.mojo"),
             Path("tests/shared/utils/test_arg_parser_parser.mojo"),
         ]
-        uncovered, _ = check_coverage(test_files, MINIMAL_CI_GROUPS, self.test_dir)
+        uncovered, _, _stale = check_coverage(test_files, MINIMAL_CI_GROUPS, self.test_dir)
         self.assertEqual(len(uncovered), 0)
 
     def test_mixed_covered_and_uncovered(self) -> None:
@@ -192,7 +192,7 @@ class TestCheckCoverage(unittest.TestCase):
             Path("tests/shared/utils/test_arg_parser_part1.mojo"),
             Path("tests/shared/other/test_something_part1.mojo"),
         ]
-        uncovered, _ = check_coverage(test_files, MINIMAL_CI_GROUPS, self.test_dir)
+        uncovered, _, _stale = check_coverage(test_files, MINIMAL_CI_GROUPS, self.test_dir)
         self.assertEqual(len(uncovered), 1)
         self.assertIn(Path("tests/shared/other/test_something_part1.mojo"), uncovered)
 

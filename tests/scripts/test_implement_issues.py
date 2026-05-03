@@ -399,12 +399,12 @@ class TestIssueStateTracking(unittest.TestCase):
         self.assertFalse(result)
 
     @patch("implement_issues.run")
-    def test_is_issue_closed_error_assumes_open(self, mock_run):
-        """Verify API error assumes issue is open (safer assumption)."""
+    def test_is_issue_closed_error_raises(self, mock_run):
+        """Verify unknown API error raises RuntimeError (strict error handling)."""
         mock_run.return_value = Mock(returncode=1, stderr="API error")
 
-        result = implement_issues.is_issue_closed(789)  # Different issue number
-        self.assertFalse(result)  # Assume open on error
+        with self.assertRaises(RuntimeError):
+            implement_issues.is_issue_closed(789)
 
 
 class TestImplementationState(unittest.TestCase):

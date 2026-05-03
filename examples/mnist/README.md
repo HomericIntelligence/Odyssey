@@ -60,7 +60,7 @@ The MNIST dataset is a foundational benchmark for machine learning.
 The MNIST dataset is split into:
 
 | Split | Samples | Classes | Description |
-|-------|---------|---------|-------------|
+| --- | --- | --- | --- |
 | **Train** | 60,000 | 10 | Training set |
 | **Test** | 10,000 | 10 | Test set |
 
@@ -192,7 +192,7 @@ This example follows **Keep It Simple, Stupid** principles:
 This example is intentionally simpler than the LeNet-EMNIST example:
 
 | Aspect | MNIST | LeNet-EMNIST |
-|--------|-------|--------------|
+| --- | --- | --- |
 | **Classes** | 10 | 47 |
 | **FC Layers** | 2 (120→10) | 3 (120→84→47) |
 | **Parameters** | 44K | 61K |

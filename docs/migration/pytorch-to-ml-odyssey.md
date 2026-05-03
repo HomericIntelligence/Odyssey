@@ -10,7 +10,7 @@ benefits. This guide covers the key differences and provides practical migration
 ## Quick Reference
 
 | Concept | PyTorch | ML Odyssey |
-|---------|---------|------------|
+| --- | --- | --- |
 | Tensor | `torch.Tensor` | `AnyTensor` |
 | Module | `nn.Module` | `Module` trait |
 | Autograd | Automatic | `Tape` context |
@@ -572,7 +572,7 @@ model.load_state_dict(weights)
 ## Feature Comparison
 
 | Feature | PyTorch | ML Odyssey |
-|---------|:-------:|:----------:|
+| --- | :---: | :---: |
 | Tensor operations | Full | Most |
 | Autograd | Automatic | Tape-based |
 | GPU support | CUDA/ROCm | Coming soon |

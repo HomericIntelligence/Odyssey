@@ -55,7 +55,7 @@ EOF
 ## What Goes Where
 
 | Content | Location |
-|---------|----------|
+| --- | --- |
 | Issue-specific work | GitHub issue comments |
 | Architectural decisions | `/notes/review/` |
 | Team guides | `/agents/` |

@@ -81,18 +81,20 @@ Apply this rubric consistently across ALL sections. Every section starts at F an
 
 <anti_inflation_rules>
   MANDATORY — Enforce these to prevent grade inflation:
-  - DEFAULT IS F: Every section starts at F. You must find concrete, verifiable evidence to justify ANY grade above F. No evidence = F. Partial evidence = D range. Solid evidence with gaps = C range. Strong evidence = B range. Near-flawless evidence = A range.
-  - A grade requires ZERO critical or major findings and no more than 2 minor findings. If you have more, the grade is B or lower.
-  - B grade requires ZERO critical findings and no more than 1 major finding.
-  - "It exists" is not sufficient for a passing criterion. It must be CORRECT, COMPLETE, and MAINTAINED.
-  - Missing items are not nitpicks. A missing README, missing tests, or missing CI is a MAJOR or CRITICAL finding.
-  - Do NOT give credit for intent, plans, or TODO comments. Grade what EXISTS today.
-  - Do NOT round up. If the evidence puts a section at 74%, the grade is C, not C+ or B-.
-  - If you catch yourself thinking "this is pretty good for a small project" — stop. Grade against the criteria, not your expectations of the team.
-  - If you catch yourself wanting to give a B or higher, pause and re-examine: did you actually verify EVERY criterion, or did you skim and assume? Go back and check.
+
+- DEFAULT IS F: Every section starts at F. You must find concrete, verifiable evidence to justify ANY grade above F. No evidence = F. Partial evidence = D range. Solid evidence with gaps = C range. Strong evidence = B range. Near-flawless evidence = A range.
+- A grade requires ZERO critical or major findings and no more than 2 minor findings. If you have more, the grade is B or lower.
+- B grade requires ZERO critical findings and no more than 1 major finding.
+- "It exists" is not sufficient for a passing criterion. It must be CORRECT, COMPLETE, and MAINTAINED.
+- Missing items are not nitpicks. A missing README, missing tests, or missing CI is a MAJOR or CRITICAL finding.
+- Do NOT give credit for intent, plans, or TODO comments. Grade what EXISTS today.
+- Do NOT round up. If the evidence puts a section at 74%, the grade is C, not C+ or B-.
+- If you catch yourself thinking "this is pretty good for a small project" — stop. Grade against the criteria, not your expectations of the team.
+- If you catch yourself wanting to give a B or higher, pause and re-examine: did you actually verify EVERY criterion, or did you skim and assume? Go back and check.
 </anti_inflation_rules>
 
 For each section, output:
+
   1. Grade (letter with +/- modifier) and percentage
   2. An "Evidence Reviewed" note listing the specific files/directories you examined
   3. A "Strengths" list (what is done well — must cite specific files or code)
@@ -376,7 +378,7 @@ For each section, output:
 <output_format>
 Structure your report EXACTLY as follows. Use markdown formatting throughout.
 
-```
+```markdown
 # 🔍 STRICT Repository Audit Report
 ## {{derive from repo directory name, package.json name, or similar config}}
 **Audit Date:** {{current_date}}
@@ -399,7 +401,7 @@ This audit uses rigorous grading standards:
 ## 📊 Executive Scorecard
 
 | # | Section | Grade | Score | Status |
-|---|---------|-------|-------|--------|
+| --- | --- | --- | --- | --- |
 | 1 | Project Structure & Organization | ? | ??% | 🟢/🟡/🔴 |
 | 2 | Documentation | ? | ??% | 🟢/🟡/🔴 |
 | ... | ... | ... | ... | ... |
@@ -464,7 +466,7 @@ Status indicators: 🟢 A-B (healthy) | 🟡 C (needs attention) | 🔴 D-F (cri
 ## 📈 Development Principles Compliance Matrix
 
 | Principle | Compliance | Key Observations | Evidence |
-|-----------|-----------|------------------|----------|
+| --- | --- | --- | --- |
 | KISS | 🟢/🟡/🔴 | [one-line summary] | [file:line] |
 | YAGNI | 🟢/🟡/🔴 | [one-line summary] | [file:line] |
 | TDD | 🟢/🟡/🔴 | [one-line summary] | [file:line] |
@@ -539,6 +541,7 @@ Status indicators: 🟢 A-B (healthy) | 🟡 C (needs attention) | 🔴 D-F (cri
 **Reality Check:**
 [If there are many A's or B's, add a note questioning whether the audit was truly strict enough]
 ```
+
 </output_format>
 
 <analysis_instructions>
@@ -614,13 +617,14 @@ Follow these steps when performing the STRICT audit:
 </analysis_instructions>
 
 <important_notes>
-  - **Evidence is EVERYTHING:** Every grade claim must cite specific files, line numbers, and concrete examples
-  - **Be ruthlessly honest:** Your job is accuracy, not encouragement
-  - **Default to F:** Every section starts at F. Prove otherwise with evidence.
-  - **No assumptions:** If you didn't read the file, you can't grade that criterion
-  - **"Exists" ≠ "Good":** A README that exists but is outdated/wrong is worse than none
-  - **Missing = Major/Critical:** Not having tests is not a nitpick. It's a MAJOR or CRITICAL finding.
-  - **Context doesn't excuse poor quality:** "It's a small project" is not a reason to inflate grades
-  - **Count your files:** You must examine at least 20 source files. List every one.
-  - **Check yourself:** If you're giving mostly B's and A's, you're probably being too lenient. Re-audit.
+
+- **Evidence is EVERYTHING:** Every grade claim must cite specific files, line numbers, and concrete examples
+- **Be ruthlessly honest:** Your job is accuracy, not encouragement
+- **Default to F:** Every section starts at F. Prove otherwise with evidence.
+- **No assumptions:** If you didn't read the file, you can't grade that criterion
+- **"Exists" ≠ "Good":** A README that exists but is outdated/wrong is worse than none
+- **Missing = Major/Critical:** Not having tests is not a nitpick. It's a MAJOR or CRITICAL finding.
+- **Context doesn't excuse poor quality:** "It's a small project" is not a reason to inflate grades
+- **Count your files:** You must examine at least 20 source files. List every one.
+- **Check yourself:** If you're giving mostly B's and A's, you're probably being too lenient. Re-audit.
 </important_notes>

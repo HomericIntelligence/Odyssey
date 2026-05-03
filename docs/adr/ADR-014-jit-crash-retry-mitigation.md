@@ -42,9 +42,7 @@ The same test file may pass or crash depending on ASLR, memory layout, and JIT c
 ### What Has Already Been Done
 
 | Approach | Result |
-| -------- | ------ |
-| Targeted submodule imports (ADR-009 era) | Reduced frequency but didn't eliminate |
-| ADR-009 file splitting | No longer needed (bitcast UAF resolved) |
+| --- | --- |
 | `@always_inline` on helpers | Made things worse (reverted) |
 | `continue-on-error: true` | Removed -- was masking real failures |
 
@@ -88,7 +86,7 @@ indicates a harder problem (possibly a real compilation issue). Configurable via
 **Exit codes**:
 
 | Code | Meaning | Retried? |
-| ---- | ------- | -------- |
+| --- | --- | --- |
 | 0 | Test passed | First attempt or after retry |
 | 1 | Real test failure | Never |
 | 2 | JIT crash persisted | Yes, once |
@@ -136,7 +134,7 @@ time without improving pass rates.
 ## Files Modified
 
 | File | Change |
-| ---- | ------ |
+| --- | --- |
 | `scripts/test-with-retry.sh` | New -- core retry logic |
 | `justfile` | `_test-group-inner` and `_test-mojo-inner` use retry wrapper |
 | `.github/workflows/comprehensive-tests.yml` | Comment documenting retry mechanism |
@@ -147,7 +145,6 @@ time without improving pass rates.
 
 - [Issue #5108](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5108) -- JIT crash comprehensive tracking
 - [modular/modular#6187](https://github.com/modular/modular/issues/6187) -- Upstream Mojo bug
-- [ADR-009](ADR-009-heap-corruption-workaround.md) -- Heap corruption workaround (resolved)
 - [docs/dev/mojo-jit-crash-workaround.md](../dev/mojo-jit-crash-workaround.md) -- Import-explosion variant
 
 ---
@@ -163,6 +160,6 @@ time without improving pass rates.
 
 ## Revision History
 
-| Version | Date       | Author      | Changes                                   |
-| ------- | ---------- | ----------- | ----------------------------------------- |
-| 1.0     | 2026-03-25 | Claude Code | Initial ADR documenting retry mitigation  |
+| Version | Date | Author | Changes |
+| --- | --- | --- | --- |
+| 1.0 | 2026-03-25 | Claude Code | Initial ADR documenting retry mitigation |

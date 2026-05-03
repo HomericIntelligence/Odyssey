@@ -18,7 +18,7 @@
 ### PR Status Before Rebase
 
 | PR | Branch | Mergeable | Failing Checks |
-|----|--------|-----------|----------------|
+| --- | --- | --- | --- |
 | #3118 | `fix-flaky-data-samplers-optional-int` | CONFLICTING | secret-scan, security-report |
 | #3117 | `skill/debugging/fixme-todo-cleanup-v2` | CONFLICTING | secret-scan, security-report |
 | #3116 | `skill/architecture/dtype-native-migration` | MERGEABLE | secret-scan, security-report, Core Initializers |
@@ -197,7 +197,7 @@ git push --force-with-lease origin dependabot/github_actions/github-actions-1bd4
 ### PR Status After Rebase
 
 | PR | Branch | Status | Failing Checks |
-|----|--------|--------|----------------|
+| --- | --- | --- | --- |
 | #3118 | `fix-flaky-data-samplers-optional-int` | ✅ All passing | None |
 | #3117 | `skill/debugging/fixme-todo-cleanup-v2` | ⚠️ Has failures | pre-commit, Core Utilities |
 | #3116 | `skill/architecture/dtype-native-migration` | ⚠️ Has failures | Core NN Modules |

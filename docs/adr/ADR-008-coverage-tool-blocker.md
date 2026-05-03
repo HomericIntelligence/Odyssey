@@ -793,7 +793,7 @@ This implementation is successful when:
 ## Revision History
 
 | Version | Date | Author | Changes |
-|---------|------|--------|---------|
+| --- | --- | --- | --- |
 | 1.0 | 2025-12-10 | Documentation Specialist | Initial ADR creation |
 
 ---

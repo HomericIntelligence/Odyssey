@@ -17,6 +17,8 @@ import time
 import unittest
 from unittest.mock import Mock, patch
 
+import pytest
+
 # Add scripts directory to path
 sys.path.insert(0, str(pathlib.Path(__file__).parent.parent.parent / "scripts"))
 
@@ -199,6 +201,7 @@ class TestToolRestrictions(unittest.TestCase):
         self.assertIn('"dontAsk"', code)
         self.assertNotIn('"bypassPermissions"', code)
 
+    @pytest.mark.skip(reason="fix-build-errors.py was removed; script no longer exists")
     def test_fix_build_errors_has_glob_grep(self):
         """Verify fix-build-errors.py includes Glob and Grep tools."""
         script_path = pathlib.Path(__file__).parent.parent.parent / "scripts" / "fix-build-errors.py"
@@ -214,13 +217,13 @@ class TestCommandInjection(unittest.TestCase):
 
     def test_no_shell_true_in_subprocess_calls(self):
         """Verify subprocess calls don't use shell parameter unnecessarily."""
-        # Check both scripts
         scripts = [
             pathlib.Path(__file__).parent.parent.parent / "scripts" / "implement_issues.py",
-            pathlib.Path(__file__).parent.parent.parent / "scripts" / "fix-build-errors.py",
         ]
 
         for script_path in scripts:
+            if not script_path.exists():
+                continue
             code = script_path.read_text()
 
             # Count shell parameter with True value occurrences

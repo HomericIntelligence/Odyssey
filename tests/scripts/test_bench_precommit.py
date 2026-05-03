@@ -14,7 +14,7 @@ from bench_precommit import (
     check_threshold,
     emit_warning,
     format_summary_table,
-    main,
+    bench_precommit_main as main,
     write_step_summary,
 )
 

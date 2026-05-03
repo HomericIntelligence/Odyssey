@@ -56,7 +56,7 @@ The pattern pointed to a systemic root cause, not 16 individual bugs. After read
 logs and running `/mnemosyne:advise` for prior skills, three crash categories emerged:
 
 | Category | Crash | Status |
-| -------- | ----- | ------ |
+| --- | --- | --- |
 | 1 | ASAP destruction + `UnsafePointer.bitcast` UAF | Fixed (ADR-013, March 2026) |
 | 2 | Docker UID mismatch → container permission fault | Fixed (PR #5252) |
 | 3 | JIT compilation volume crash | Under investigation |
@@ -219,7 +219,7 @@ more virtual space than the limit allows, the kernel kills it with a signal — 
 `ulimit -v` sets the virtual address limit. Binary search on the threshold:
 
 | ulimit -v (kB) | Virtual Limit | Result |
-| -------------- | ------------- | ------ |
+| --- | --- | --- |
 | 2929000 | 2.86 GB | CRASH |
 | 3200000 | 3.12 GB | CRASH |
 | 3417000 | 3.34 GB | CRASH |
@@ -288,7 +288,7 @@ root cause.
 ## What Was Falsified
 
 | Variable | Effect on VmPeak | Effect on crash threshold |
-| -------- | ---------------- | ------------------------- |
+| --- | --- | --- |
 | Monomorphization count (1–300) | None (~3.5 GB always) | None |
 | Function count (1–1000 concrete fns) | None | None |
 | Module-level vs per-function imports | None | None |

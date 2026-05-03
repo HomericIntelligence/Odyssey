@@ -440,9 +440,9 @@ for epoch in range(num_epochs):
 
 ## Revision History
 
-| Version | Date       | Author          | Changes     |
-| ------- | ---------- | --------------- | ----------- |
-| 1.0     | 2025-12-28 | Chief Architect | Initial ADR |
+| Version | Date | Author | Changes |
+| --- | --- | --- | --- |
+| 1.0 | 2025-12-28 | Chief Architect | Initial ADR |
 
 ---
 

@@ -48,7 +48,7 @@ Position: works with Architecture Design Agent to integrate security into module
 ## Skills
 
 | Skill | When to Invoke |
-|-------|---|
+| --- | --- |
 | scan_vulnerabilities | Identifying potential security threats |
 | check_dependencies | Finding vulnerable dependencies |
 | validate_inputs | Input validation pattern design |

@@ -81,7 +81,7 @@ cd /home/user/ProjectOdyssey && pixi run mojo test tests/
 Use the right tool for the job:
 
 | Task | Tool | Rationale |
-|------|------|-----------|
+| --- | --- | --- |
 | Read file | Read | Fast, includes lines |
 | Search pattern | Grep | Optimized regex |
 | Find files | Glob | Fast discovery |

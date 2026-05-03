@@ -49,7 +49,7 @@ documentation engineers.
 ## Skills
 
 | Skill | When to Invoke |
-|-------|---|
+| --- | --- |
 | doc-issue-readme | Creating issue-specific README structure |
 | doc-validate-markdown | Validating markdown format before publishing |
 | doc-generate-adr | Documenting architectural decisions |

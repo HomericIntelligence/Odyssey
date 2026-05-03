@@ -1,7 +1,7 @@
 # Diagnose CI Test Failures
 
 | Field | Value |
-|-------|-------|
+| --- | --- |
 | **Date** | 2026-03-12 |
 | **Objective** | Fix all CI failures on main (2 workflows: link checker + 5/16 comprehensive test groups) |
 | **Outcome** | All fixes applied in single PR with auto-merge; 24/25 checks passing |
@@ -101,7 +101,7 @@ work around compiler crashes.
 ## Results & Parameters
 
 | Metric | Value |
-|--------|-------|
+| --- | --- |
 | Test groups fixed | 1 (concatenate axis!=0) |
 | Tests skipped (tracked) | 5 (transpose view, #3236) |
 | JIT-crash groups marked non-blocking | 4 |

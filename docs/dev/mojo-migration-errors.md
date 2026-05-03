@@ -17,7 +17,7 @@
 All deprecated pattern counts are measured against **actual code** (not comment text or docstrings).
 
 | Pattern | Grep Count | Actual Code | Status |
-|---------|-----------|-------------|--------|
+| --- | --- | --- | --- |
 | `fn` declarations (prefer `def`) | 150 | **0** | Clean — all 150 matches are inside comments/docstrings/quoted examples |
 | `inout` parameter | 0 | 0 | Clean |
 | `owned` parameter | 1 | **0** | Match is in a docstring comment |
@@ -786,13 +786,13 @@ if len(shape_vec) == 2:
 
 ## Batch Summary
 
-| Batch     | Errors Fixed | Categories                           |
-| --------- | ------------ | ------------------------------------ |
-| 1-6       | 950          | Syntax, imports, API, memory, types  |
-| 7         | 18           | UnsafePointer, List ownership, str() |
-| 8-9       | 35           | Closure, inheritance, traits, init   |
-| 10        | 10           | SIMD inference, test imports         |
-| **Total** | **1,013**    | **88.6% of 1,143**                   |
+| Batch | Errors Fixed | Categories |
+| --- | --- | --- |
+| 1-6 | 950 | Syntax, imports, API, memory, types |
+| 7 | 18 | UnsafePointer, List ownership, str() |
+| 8-9 | 35 | Closure, inheritance, traits, init |
+| 10 | 10 | SIMD inference, test imports |
+| **Total** | **1,013** | **88.6% of 1,143** |
 
 ## Agent Update Priorities
 

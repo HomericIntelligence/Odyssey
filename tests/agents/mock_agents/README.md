@@ -10,7 +10,7 @@ before real agents are implemented in issue #64.
 The following mock agents represent one agent from each level of the 6-level hierarchy:
 
 | Level | Agent | File | Purpose |
-|-------|-------|------|---------|
+| --- | --- | --- | --- |
 | 0 | Chief Architect | `chief-architect.md` | Meta-orchestrator for system-wide decisions |
 | 1 | Foundation Orchestrator | `foundation-orchestrator.md` | Section orchestrator for foundation |
 | 2 | Architecture Design | `architecture-design.md` | Module-level architecture design |

@@ -76,7 +76,7 @@ def main() raises:
 ## Isolation Experiments
 
 | Variant | Crashes? | Conclusion |
-|---------|----------|------------|
+| --- | --- | --- |
 | Full reproducer (3 passes + bitcast) | **YES (100%)** | Baseline |
 | Remove bitcast write from train_step | NO | Bitcast write is the trigger |
 | Only 1 prior forward pass (not 2) | NO | Requires sufficient prior churn |

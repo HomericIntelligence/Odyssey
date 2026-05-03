@@ -25,7 +25,7 @@ ProjectOdyssey/
 ## Documentation Locations
 
 | Content | Location |
-|---------|----------|
+| --- | --- |
 | Issue-specific work | GitHub issue comments |
 | PR reviews | GitHub PR review comments |
 | Architecture Decision Records | `/docs/adr/` |

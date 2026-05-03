@@ -162,7 +162,7 @@ See [common-constraints.md](../shared/common-constraints.md) for scope disciplin
 ## Skills
 
 | Skill | When to Invoke |
-|-------|---|
+| --- | --- |
 | `grep` | Pattern matching in logs |
 | `read` | Viewing log files |
 

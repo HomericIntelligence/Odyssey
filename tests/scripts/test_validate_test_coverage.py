@@ -243,29 +243,32 @@ class TestGenerateReportStalePatterns:
 
     def test_stale_section_appended_when_patterns_exist(self) -> None:
         """Non-empty stale_patterns appends a stale section with all names."""
-        report = generate_report(set(), [], self._make_coverage(), stale_patterns=["Alpha Tests", "Zebra Tests"])
+        stale = [("Alpha Tests", "tests/alpha", "test_*.mojo"), ("Zebra Tests", "tests/zebra", "test_*.mojo")]
+        report = generate_report(set(), [], self._make_coverage(), stale_patterns=stale)
         assert "### Stale CI Patterns" in report
-        assert "- Alpha Tests" in report
-        assert "- Zebra Tests" in report
+        assert "Alpha Tests" in report
+        assert "Zebra Tests" in report
 
     def test_stale_section_with_uncovered_files(self, tmp_path: Path) -> None:
         """Both uncovered files and stale patterns appear in the report."""
         uncovered = {Path("tests/unit/test_missing.mojo")}
+        stale = [("Ghost Group", "tests/ghost", "test_*.mojo")]
         report = generate_report(
             uncovered,
             [Path("tests/unit/test_missing.mojo")],
             {},
-            stale_patterns=["Ghost Group"],
+            stale_patterns=stale,
         )
         assert "### Uncovered Tests" in report
         assert "### Stale CI Patterns" in report
-        assert "- Ghost Group" in report
+        assert "Ghost Group" in report
 
     def test_stale_only_no_uncovered(self) -> None:
         """Only stale patterns (no uncovered files) still produces the stale section."""
-        report = generate_report(set(), [], self._make_coverage(), stale_patterns=["Deleted Group"])
+        stale = [("Deleted Group", "tests/deleted", "test_*.mojo")]
+        report = generate_report(set(), [], self._make_coverage(), stale_patterns=stale)
         assert "### Stale CI Patterns" in report
-        assert "- Deleted Group" in report
+        assert "Deleted Group" in report
 
 
 # ---------------------------------------------------------------------------

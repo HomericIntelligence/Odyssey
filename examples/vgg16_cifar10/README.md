@@ -129,18 +129,18 @@ The CIFAR-10 dataset consists of 60,000 32×32 color images in 10 classes, with 
 
 ### Classes
 
-| Index | Class      | Description               |
-|-------|------------|---------------------------|
-| 0     | airplane   | Various types of aircraft |
-| 1     | automobile | Cars and trucks           |
-| 2     | bird       | Various bird species      |
-| 3     | cat        | Domestic cats             |
-| 4     | deer       | Deer in various poses     |
-| 5     | dog        | Domestic dogs             |
-| 6     | frog       | Frogs and toads           |
-| 7     | horse      | Horses                    |
-| 8     | ship       | Boats and ships           |
-| 9     | truck      | Large trucks              |
+| Index | Class | Description |
+| --- | --- | --- |
+| 0 | airplane | Various types of aircraft |
+| 1 | automobile | Cars and trucks |
+| 2 | bird | Various bird species |
+| 3 | cat | Domestic cats |
+| 4 | deer | Deer in various poses |
+| 5 | dog | Domestic dogs |
+| 6 | frog | Frogs and toads |
+| 7 | horse | Horses |
+| 8 | ship | Boats and ships |
+| 9 | truck | Large trucks |
 
 ## File Structure
 
@@ -237,7 +237,7 @@ Based on the reference implementation and similar experiments:
 ### Comparison with Other Architectures
 
 | Model | Parameters | CIFAR-10 Accuracy | Training Time (200 epochs) |
-|-------|------------|-------------------|----------------------------|
+| --- | --- | --- | --- |
 | LeNet-5 | 61K | 70-75% | 2-3 hours |
 | AlexNet | 2.3M | 80-85% | 8-12 hours |
 | VGG-16 | 15M | 91-93% | 30-40 hours |

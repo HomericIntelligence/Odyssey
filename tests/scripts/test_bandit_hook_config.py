@@ -81,15 +81,13 @@ class TestBanditHookExists:
 
 
 class TestBanditSkipList:
-    """Verify B310 and B202 are intentionally skipped.
+    """Verify the bandit skip list is empty (no intentional suppressions).
 
-    Rationale:
-      B310 — urllib audit: download scripts use urlopen() with HTTPS-validated
-              Request objects, not raw user-supplied URLs. The URLs are hardcoded
-              constants pointing to known dataset mirrors (MNIST, CIFAR, etc.).
-      B202 — tarfile: tar.extractall() in download scripts targets known-safe
-              local dataset directories under DATA_DIR; input is a downloaded
-              archive from a trusted source, not user-controlled input.
+    Download scripts were refactored to delegate to hephaestus internals, so
+    B310 (urlopen) and B202 (extractall) no longer apply. B301 (pickle) is
+    also absent — no pickle usage in the scanned paths.
+
+    Any future suppression requires a documented rationale in this test.
     """
 
     def _get_skip_ids(self, bandit_hook: dict) -> list[str]:
@@ -109,54 +107,17 @@ class TestBanditSkipList:
                 break
         return [s.strip() for s in skip_value.split(",") if s.strip()]
 
-    def test_skip_arg_present(self, bandit_hook: dict) -> None:
-        """A --skip argument must be present in the bandit hook entry or args."""
-        flags = _all_bandit_flags(bandit_hook)
-        has_skip = any(flag.startswith("--skip") or flag == "--skip" for flag in flags)
-        assert has_skip, (
-            "bandit hook must include --skip=B310,B202 (in entry or args). "
-            "These suppressions are intentional — see class docstring for rationale."
-        )
+    def test_no_undocumented_skips(self, bandit_hook: dict) -> None:
+        """The skip list must be empty — no current suppressions are needed.
 
-    def test_b310_is_skipped(self, bandit_hook: dict) -> None:
-        """B310 (urllib urlopen audit) must be in the skip list.
-
-        Rationale: download scripts call urlopen() with a hardcoded HTTPS URL
-        wrapped in a urllib.request.Request object. The URL is a known dataset
-        mirror; there is no user-supplied input involved.
+        Download scripts delegate to hephaestus, so urlopen/extractall/pickle
+        patterns are no longer in the scanned files.
+        If a new skip is needed, add its rationale to this class docstring.
         """
         skip_ids = self._get_skip_ids(bandit_hook)
-        assert "B310" in skip_ids, (
-            "B310 must be skipped. "
-            "Download scripts use urlopen() with validated HTTPS URLs — not user input. "
-            f"Current skip list: {skip_ids}"
-        )
-
-    def test_b202_is_skipped(self, bandit_hook: dict) -> None:
-        """B202 (tarfile extractall) must be in the skip list.
-
-        Rationale: download scripts extract .tar.gz archives downloaded from
-        trusted dataset sources (e.g., CIFAR mirror) into a known local DATA_DIR.
-        The archive is not user-supplied input.
-        """
-        skip_ids = self._get_skip_ids(bandit_hook)
-        assert "B202" in skip_ids, (
-            "B202 must be skipped. "
-            "Download scripts call extractall() on trusted archives to a local DATA_DIR — not user input. "
-            f"Current skip list: {skip_ids}"
-        )
-
-    def test_skip_list_is_minimal(self, bandit_hook: dict) -> None:
-        """The skip list should not suppress more checks than B310 and B202.
-
-        Any additional suppression requires a documented rationale in this test.
-        """
-        skip_ids = self._get_skip_ids(bandit_hook)
-        documented_skips = {"B310", "B202"}
-        undocumented = set(skip_ids) - documented_skips
-        assert not undocumented, (
-            f"Undocumented bandit skip IDs found: {undocumented}. "
-            "Add rationale to TestBanditSkipList docstring before expanding the skip list."
+        assert not skip_ids, (
+            f"Unexpected bandit skip IDs found: {skip_ids}. "
+            "Add rationale to TestBanditSkipList docstring before adding skip IDs."
         )
 
 
@@ -283,7 +244,6 @@ class TestBanditFilesPattern:
         "path",
         [
             "shared/nn/layers/conv2d.mojo",
-            "examples/train_lenet5.py",
             "papers/lenet5/model.mojo",
             "docs/dev/some_script.py",
         ],
@@ -293,26 +253,28 @@ class TestBanditFilesPattern:
         pattern = self._get_files_pattern(bandit_hook)
         assert not re.search(pattern, path), (
             f"files: pattern {pattern!r} unexpectedly matches {path!r}. "
-            "Bandit should only scan scripts/ and tests/ Python files."
+            "Bandit should only scan scripts/, tests/, tools/, and examples/ Python files."
         )
 
 
 class TestBanditNosecRationale:
-    """Verify the skip list reflects real usage patterns in the codebase.
+    """Verify no stale skip IDs exist in the bandit hook.
 
-    If these assertions fail, the skip list may no longer be needed and
-    should be revisited.
+    Download scripts delegate to hephaestus, so B310 (urlopen) and B202
+    (extractall) are no longer triggered. These tests confirm there is nothing
+    to suppress and the skip list stays empty.
     """
 
-    def test_b310_trigger_urlopen_exists(self) -> None:
-        """scripts/ must contain urlopen() calls that trigger B310.
+    def test_b310_not_triggered(self) -> None:
+        """scripts/ must NOT contain urlopen() — B310 skip is not needed.
 
-        If this test fails, B310 may no longer be needed in the skip list.
+        If this test fails, B310 must be re-added to the skip list with rationale.
         """
         scripts_dir = REPO_ROOT / "scripts"
         files_with_urlopen = [f for f in scripts_dir.glob("*.py") if "urlopen" in f.read_text()]
-        assert files_with_urlopen, (
-            "No scripts/*.py file contains urlopen(). B310 suppression may no longer be needed — review the skip list."
+        assert not files_with_urlopen, (
+            f"scripts/ now contains urlopen() in: {[f.name for f in files_with_urlopen]}. "
+            "Add B310 back to the bandit skip list with documented rationale."
         )
 
     def test_b310_uses_hardcoded_urls(self) -> None:
@@ -334,16 +296,16 @@ class TestBanditNosecRationale:
                     "Verify the URL is a safe hardcoded constant before relying on B310 skip."
                 )
 
-    def test_b202_trigger_extractall_exists(self) -> None:
-        """scripts/ must contain extractall() calls that trigger B202.
+    def test_b202_not_triggered(self) -> None:
+        """scripts/ must NOT contain extractall() — B202 skip is not needed.
 
-        If this test fails, B202 may no longer be needed in the skip list.
+        If this test fails, B202 must be re-added to the skip list with rationale.
         """
         scripts_dir = REPO_ROOT / "scripts"
         files_with_extractall = [f for f in scripts_dir.glob("*.py") if "extractall" in f.read_text()]
-        assert files_with_extractall, (
-            "No scripts/*.py file contains extractall(). "
-            "B202 suppression may no longer be needed — review the skip list."
+        assert not files_with_extractall, (
+            f"scripts/ now contains extractall() in: {[f.name for f in files_with_extractall]}. "
+            "Add B202 back to the bandit skip list with documented rationale."
         )
 
     def test_b202_extractall_targets_local_path(self) -> None:
@@ -380,28 +342,14 @@ class TestBanditNosecRationale:
                     "Pass an explicit local directory to prevent extraction to cwd."
                 )
 
-    def test_emnist_script_urls_are_hardcoded_constants(self) -> None:
-        """Verify download_emnist.py uses hardcoded URL constants (not variable user inputs).
+    def test_emnist_script_is_thin_wrapper(self) -> None:
+        """Verify download_emnist.py is a thin hephaestus wrapper (no local URL constants).
 
-        EMNIST uses EMNIST_PRIMARY_URL with EMNIST_FALLBACK_URLS - a list-based
-        constant structure. Verify that this complex structure still adheres to
-        the principle of hardcoded URLs (no user input or dynamic construction).
+        URL handling moved to hephaestus.datasets.downloader in v0.7.0.
+        This test documents that the script is a re-export wrapper, not a standalone downloader.
         """
         emnist_script = REPO_ROOT / "scripts" / "download_emnist.py"
         assert emnist_script.exists(), "download_emnist.py not found"
 
         source = emnist_script.read_text()
-
-        # Must define hardcoded URL constants at module level
-        # Support both simple URL constants and list-based structures
-        assert re.search(r'^EMNIST_PRIMARY_URL\s*=\s*["\']https', source, re.MULTILINE), (
-            "download_emnist.py must define EMNIST_PRIMARY_URL as a hardcoded HTTPS constant"
-        )
-        assert re.search(r"^EMNIST_FALLBACK_URLS\s*=\s*\[", source, re.MULTILINE), (
-            "download_emnist.py must define EMNIST_FALLBACK_URLS as a hardcoded list"
-        )
-
-        # Verify all URLs in fallback list are HTTPS
-        assert not re.search(r'["\']http://[^"\']*["\']', source), (
-            "All EMNIST URLs must use HTTPS (no http:// URLs allowed)"
-        )
+        assert "hephaestus" in source, "download_emnist.py should delegate to hephaestus — URL handling moved to v0.7.0"

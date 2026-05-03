@@ -39,7 +39,7 @@ comprehensive performance reports.
 ## Skills
 
 | Skill | When to Invoke |
-|-------|---|
+| --- | --- |
 | `mojo-simd-optimize` | Optimizing vectorizable operations |
 | `quality-complexity-check` | Identifying optimization opportunities |
 | `mojo-format` | After implementing optimizations |
