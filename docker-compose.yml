@@ -13,7 +13,7 @@ services:
     image: projectodyssey:dev
     volumes:
       - .:/workspace:Z
-      - pixi-cache:/home/${USER_NAME:-dev}/.pixi
+      - pixi-cache:/home/${USER_NAME:-dev}/.cache/pixi
       - pre-commit-cache:/home/${USER_NAME:-dev}/.cache/pre-commit
       - ${HOME}/.gitconfig:/home/${USER_NAME:-dev}/.gitconfig:ro
     entrypoint: ["/usr/local/bin/entrypoint.sh"]
@@ -45,7 +45,7 @@ services:
     image: projectodyssey:ci
     volumes:
       - .:/workspace
-      - pixi-cache:/home/${USER_NAME:-dev}/.pixi
+      - pixi-cache:/home/${USER_NAME:-dev}/.cache/pixi
     entrypoint: ["/usr/local/bin/entrypoint.sh"]
     environment:
       - HOME=/home/${USER_NAME:-dev}
