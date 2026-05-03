@@ -13,7 +13,9 @@ from shared.tensor.any_tensor import AnyTensor, zeros
 
 def main() raises:
     print("\n=== BF8 Data Type Example ===\n")
-    print("BF8 support is not yet implemented in the shared library.")
+    print(
+        "BF8 support is not yet implemented in the shared library."
+    )
     print("This example demonstrates the expected API structure.")
     print("When BF8 conversion methods are available in AnyTensor,")
     print("this example can be fully implemented.")
