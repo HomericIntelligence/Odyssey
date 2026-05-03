@@ -116,14 +116,14 @@ To prevent timeouts, tests use small but meaningful tensor dimensions:
 
 **Models Covered**:
 
-| Model       | Layers    | Layerwise Tests | E2E Tests | Runtime |
-| ----------- | --------- | --------------- | --------- | ------- |
-| LeNet-5     | 12 ops    | 25 tests        | 7 tests   | ~55s    |
-| AlexNet     | 15 ops    | 42 tests        | 9 tests   | ~60s    |
-| VGG-16      | 25 ops    | 16 tests        | 10 tests  | ~90s    |
-| ResNet-18   | Residual  | 12 tests        | 9 tests   | ~90s    |
-| MobileNetV1 | Depthwise | 26 tests        | 15 tests  | ~90s    |
-| GoogLeNet   | Inception | 18 tests        | 15 tests  | ~90s    |
+| Model | Layers | Layerwise Tests | E2E Tests | Runtime |
+| --- | --- | --- | --- | --- |
+| LeNet-5 | 12 ops | 25 tests | 7 tests | ~55s |
+| AlexNet | 15 ops | 42 tests | 9 tests | ~60s |
+| VGG-16 | 25 ops | 16 tests | 10 tests | ~90s |
+| ResNet-18 | Residual | 12 tests | 9 tests | ~90s |
+| MobileNetV1 | Depthwise | 26 tests | 15 tests | ~90s |
+| GoogLeNet | Inception | 18 tests | 15 tests | ~90s |
 
 ### Test Organization
 
@@ -340,9 +340,9 @@ just test-mojo
 
 ## Revision History
 
-| Version | Date       | Author          | Changes     |
-| ------- | ---------- | --------------- | ----------- |
-| 1.0     | 2025-12-28 | Chief Architect | Initial ADR |
+| Version | Date | Author | Changes |
+| --- | --- | --- | --- |
+| 1.0 | 2025-12-28 | Chief Architect | Initial ADR |
 
 ---
 

@@ -91,6 +91,11 @@ _ensure_build_dir mode:
 # Start Podman development environment
 podman-up:
     @podman compose up -d {{podman_service}}
+    @# Rootless Podman UID-maps the bind-mounted workspace so the container
+    @# user cannot write to host-owned files. Make the workspace world-writable
+    @# so `just build`, test fixtures, and pre-commit can create output files.
+    @# (Safe: ephemeral dev machine; matches what the CI setup-container action does.)
+    @chmod -R a+rwX . || true
 
 # Stop Podman development environment
 podman-down:
@@ -379,25 +384,25 @@ package-release: (package "release")
 # Train a model (default: LeNet-5 on EMNIST)
 train model="lenet_emnist" precision="fp32" epochs="10" batch_size="32" lr="0.001":
     @echo "Training {{model}} with precision={{precision}}, epochs={{epochs}}"
-    @ pixi run mojo run -I . examples/{{model}}/run_train.mojo \
+    @just _run "pixi run mojo run -I . examples/{{model}}/run_train.mojo \
         --epochs {{epochs}} \
         --batch-size {{batch_size}} \
         --lr {{lr}} \
-        --precision {{precision}}
+        --precision {{precision}}"
 
 # Run inference on test set
 infer model="lenet_emnist" checkpoint="lenet5_weights":
     @echo "Running inference for {{model}} with checkpoint={{checkpoint}}"
-    @pixi run mojo run -I . examples/{{model}}/run_infer.mojo \
+    @just _run "pixi run mojo run -I . examples/{{model}}/run_infer.mojo \
         --checkpoint {{checkpoint}} \
-        --test-set
+        --test-set"
 
 # Run inference on single image
 infer-image checkpoint image_path model="lenet_emnist":
     @echo "Running inference on {{image_path}}"
-    @pixi run mojo run -I . examples/{{model}}/run_infer.mojo \
+    @just _run "pixi run mojo run -I . examples/{{model}}/run_infer.mojo \
         --checkpoint {{checkpoint}} \
-        --image {{image_path}}
+        --image {{image_path}}"
 
 # List available models
 list-models:

@@ -24,7 +24,7 @@ ls .github/workflows/*.yml | wc -l
 ## Workflow Summary
 
 | Workflow | Trigger | Purpose | Duration |
-|----------|---------|---------|----------|
+| --- | --- | --- | --- |
 | **Test Workflows** | | | |
 | [comprehensive-tests.yml](#comprehensive-tests) | PR, push main, manual | All Mojo tests in 17 groups | < 10 min |
 | [test-gradients.yml](#test-gradients) | PR on gradient changes, push main | Backward pass validation | < 5 min |
@@ -570,7 +570,7 @@ via `uses: ./.github/actions/setup-pixi`.
 **Migrated workflows** (completed in #3979):
 
 | Workflow | Category | Notes |
-|----------|----------|-------|
+| --- | --- | --- |
 | `benchmark.yml` | Performance | Manual + scheduled |
 | `comprehensive-tests.yml` | Testing | Primary test suite |
 | `mojo-version-check.yml` | Maintenance | Weekly scheduled |

@@ -31,7 +31,7 @@ Design pipelines, establish quality gates, automate testing, and enable safe dep
 ## Skills
 
 | Skill | When to Invoke |
-|-------|----------------|
+| --- | --- |
 | `run-precommit` | Validating code before commit |
 | `validate-workflow` | Creating/modifying GitHub Actions workflows |
 | `fix-ci-failures` | Investigating CI failures |

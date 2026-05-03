@@ -22,13 +22,28 @@ if [ ! -d "${HOME}/.modular" ]; then
     }
 fi
 
-# Ensure the workspace .pixi environment is functional.
-# The named volume at /workspace/.pixi shadows the bind-mounted host .pixi/,
-# but starts empty on first run. Run pixi install to populate it if needed.
-if [ ! -x ".pixi/envs/default/bin/mojo" ]; then
+# Ensure the workspace pixi environment is installed.
+# With detached-environments = true (.pixi/config.toml), pixi stores each env
+# in the per-user cache dir instead of <workspace>/.pixi/envs/. The path varies
+# by user and workspace hash, so we probe via `pixi info` rather than checking
+# a hardcoded path.
+_pixi_default_prefix() {
+    pixi info --json 2>/dev/null \
+        | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+for e in d.get('environments_info', []):
+    if e.get('name') == 'default':
+        print(e.get('prefix', ''))
+        break
+" 2>/dev/null || echo ""
+}
+_prefix=$(_pixi_default_prefix)
+if [ -z "$_prefix" ] || [ ! -x "$_prefix/bin/mojo" ]; then
     echo "Initializing pixi environment inside container..."
     pixi install
 fi
+unset _prefix
 
 # ---------------------------------------------------------------------------
 # Ensure test fixture directories are writable.

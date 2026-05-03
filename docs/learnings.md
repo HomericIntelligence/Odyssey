@@ -6,7 +6,7 @@ best practices for Mojo tensor ops, memory management, and debugging.
 ## Key Learnings Table
 
 | Theme | Problem | Generalized Solution | Relevant Files | Agent Integration Targets |
-|-------|---------|----------------------|----------------|---------------------------|
+| --- | --- | --- | --- | --- |
 | **Memory Leaks (reshape/slice)** | Dummy allocations orphaned when overwriting pointers in views. | Free intermediate allocations explicitly before reassigning `_data`; prefer refcounted views. Mark `_is_view=True`. | `BUGFIX_MEMORY_LEAK.md`, `PHASE2_MEMORY_SAFETY_SUMMARY.md` | `.claude/skills/mojo-memory-check/SKILL.md`, performance agents |
 | **Broadcasting Crashes** | Incorrect multi-dim index calc (right-to-left strides). Out-of-bounds access. | Precompute row-major strides; extract coords left-to-right via // %; validate shapes pre-op. | `BROADCAST_CRASH_FIX.md` | Safety/review agents (e.g., `mojo-type-safety/SKILL.md`) |
 | **Transpose Memory Corruption** | `List[Int](ndim)` wrong size; indexing uninit elems. | Use `List[Int]()` + `.append()`; build/reverse lists safely. | `BUGFIX_TRANSPOSE_MEMORY_CORRUPTION.md` | Mojo review agents (e.g., `mojo-format/SKILL.md`, `mojo-type-safety`) |

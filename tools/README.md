@@ -152,7 +152,7 @@ tools/
 ## Comparison with scripts/
 
 | Aspect | tools/ | scripts/ |
-| ------ | ------ | -------- |
+| --- | --- | --- |
 | **Users** | Developers | CI/CD, Maintainers |
 | **Usage** | Interactive, on-demand | Automated, scheduled |
 | **Focus** | Implementation support | Repository management |

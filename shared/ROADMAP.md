@@ -8,7 +8,7 @@ and provides a prioritized roadmap for future development.
 ### Core Operations (`shared/core/`)
 
 | Module | Description | Status |
-|--------|-------------|--------|
+| --- | --- | --- |
 | `any_tensor.mojo` | AnyTensor type with memory management | Complete |
 | `activation.mojo` | ReLU, sigmoid, tanh, softmax, GELU, swish, mish, ELU, hard activations | Complete |
 | `arithmetic.mojo` | Element-wise add, subtract, multiply, divide | Complete |
@@ -30,7 +30,7 @@ and provides a prioritized roadmap for future development.
 ### Training (`shared/training/`)
 
 | Module | Description | Status |
-|--------|-------------|--------|
+| --- | --- | --- |
 | `optimizers/sgd.mojo` | SGD with momentum, weight decay | Complete |
 | `optimizers/adam.mojo` | Adam optimizer | Complete |
 | `optimizers/rmsprop.mojo` | RMSprop optimizer | Complete |
@@ -41,7 +41,7 @@ and provides a prioritized roadmap for future development.
 ### Autograd (`shared/autograd/`)
 
 | Module | Description | Status |
-|--------|-------------|--------|
+| --- | --- | --- |
 | `tape.mojo` | Gradient tape for automatic differentiation | Complete |
 | `variable.mojo` | Variable wrapper for autograd | Complete |
 | `functional.mojo` | Functional autograd operations | Complete |
@@ -50,14 +50,14 @@ and provides a prioritized roadmap for future development.
 ### Data (`shared/data/`)
 
 | Module | Description | Status |
-|--------|-------------|--------|
+| --- | --- | --- |
 | `datasets/` | Dataset loading utilities | Partial |
 | `formats/` | Data format handlers | Partial |
 
 ### Utilities (`shared/utils/`)
 
 | Module | Description | Status |
-|--------|-------------|--------|
+| --- | --- | --- |
 | `logging.mojo` | Logging infrastructure | Complete |
 | `config.mojo` | Configuration management | Complete |
 | `io.mojo` | File I/O utilities | Complete |

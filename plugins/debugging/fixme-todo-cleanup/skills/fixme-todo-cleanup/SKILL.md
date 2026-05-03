@@ -11,7 +11,7 @@ triggers:
 # FIXME/TODO Cleanup Skill
 
 | Field | Value |
-|-------|-------|
+| --- | --- |
 | Date | 2026-01-01 |
 | Objective | Systematically resolve all FIXME/TODO items in a directory |
 | Outcome | 7 PRs merged, 3 issues closed |
@@ -123,7 +123,7 @@ rm .claude/ralph-loop.local.md
 ### Items Resolved
 
 | PR | Issue | Description |
-|----|-------|-------------|
+| --- | --- | --- |
 | #3035 | - | Update stale issue references |
 | #3036 | #3031 | Remove MXFP4 FIXME |
 | #3037 | #3033 | Implement conftest fixtures |
@@ -135,7 +135,7 @@ rm .claude/ralph-loop.local.md
 ### Items NOT Resolved (External Blockers)
 
 | File | Line | Blocker |
-|------|------|---------|
+| --- | --- | --- |
 | profiling.mojo | 650 | Mojo FileIO stability |
 | logging.mojo | 442 | Mojo env var support |
 | mixed\_precision.mojo | 284, 368 | Compiler SIMD FP16 support |

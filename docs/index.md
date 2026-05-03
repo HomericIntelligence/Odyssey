@@ -109,4 +109,5 @@ ML Odyssey is under active development. Current focus areas:
 
 ## License
 
-This project is open source. See [LICENSE](https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/LICENSE) for details.
+This project is open source. See the
+[LICENSE](https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/LICENSE) for details.

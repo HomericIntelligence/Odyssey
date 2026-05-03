@@ -13,8 +13,7 @@ services:
     image: projectodyssey:dev
     volumes:
       - .:/workspace:Z
-      - workspace-pixi:/workspace/.pixi
-      - pixi-cache:/home/${USER_NAME:-dev}/.pixi
+      - pixi-cache:/home/${USER_NAME:-dev}/.cache/pixi
       - pre-commit-cache:/home/${USER_NAME:-dev}/.cache/pre-commit
       - ${HOME}/.gitconfig:/home/${USER_NAME:-dev}/.gitconfig:ro
     entrypoint: ["/usr/local/bin/entrypoint.sh"]
@@ -25,6 +24,7 @@ services:
       - ENVIRONMENT=development
       - TERM=xterm-256color
       - PIXI_HOME=/home/${USER_NAME:-dev}/.pixi
+      - PIXI_CACHE_DIR=/home/${USER_NAME:-dev}/.cache/pixi
     working_dir: /workspace
     stdin_open: true
     tty: true
@@ -46,8 +46,7 @@ services:
     image: projectodyssey:ci
     volumes:
       - .:/workspace
-      - workspace-pixi:/workspace/.pixi
-      - pixi-cache:/home/${USER_NAME:-dev}/.pixi
+      - pixi-cache:/home/${USER_NAME:-dev}/.cache/pixi
     entrypoint: ["/usr/local/bin/entrypoint.sh"]
     environment:
       - HOME=/home/${USER_NAME:-dev}
@@ -56,6 +55,7 @@ services:
       - ENVIRONMENT=ci
       - CI=true
       - PIXI_HOME=/home/${USER_NAME:-dev}/.pixi
+      - PIXI_CACHE_DIR=/home/${USER_NAME:-dev}/.cache/pixi
     working_dir: /workspace
 
   # Production environment
@@ -84,6 +84,4 @@ volumes:
   pixi-cache:
     driver: local
   pre-commit-cache:
-    driver: local
-  workspace-pixi:
     driver: local

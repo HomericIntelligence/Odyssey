@@ -355,7 +355,7 @@ for epoch in range(100):
 ## Comparison Table
 
 | Optimizer | Best For | Default LR |
-|-----------|----------|------------|
+| --- | --- | --- |
 | SGD | ConvNets, when tuned | 0.01-0.1 |
 | SGD+Momentum | Most vision tasks | 0.01-0.1 |
 | Adam | Default choice | 0.001 |

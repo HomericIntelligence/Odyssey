@@ -19,11 +19,11 @@ from check_coverage import parse_coverage_report
 class TestParseCoverageReport(TestCase):
     """Test cases for parse_coverage_report function."""
 
-    def test_existing_file_returns_mock_value(self):
-        """Verify function returns 92.5 for existing files."""
+    def test_existing_file_returns_none(self):
+        """Verify function returns None for existing files (coverage not implemented)."""
         with tempfile.NamedTemporaryFile(suffix=".xml") as f:
             result = parse_coverage_report(Path(f.name))
-            self.assertEqual(result, 92.5)
+            self.assertIsNone(result)
 
     def test_nonexistent_file_returns_none(self):
         """Verify function returns None for nonexistent files."""
@@ -42,8 +42,6 @@ class TestParseCoverageReport(TestCase):
 
             output = captured.getvalue()
             self.assertIn("WARNING", output)
-            self.assertIn("MOCK", output)
-            self.assertIn("92.5", output)
 
     def test_warning_printed_for_nonexistent_file(self):
         """Verify warning is printed when file doesn't exist."""
@@ -56,7 +54,6 @@ class TestParseCoverageReport(TestCase):
 
         output = captured.getvalue()
         self.assertIn("WARNING", output)
-        self.assertIn("MOCK", output)
 
     def test_warning_contains_reference_to_adrs_and_issues(self):
         """Verify warning references ADR-008 and related issues."""

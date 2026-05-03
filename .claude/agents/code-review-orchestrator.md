@@ -71,7 +71,7 @@ EOF
 ## Delegation Decision Matrix
 
 | Trigger Keywords | Delegate To | Why |
-|------------------|-------------|-----|
+| --- | --- | --- |
 | ".mojo", "struct", "fn", "var", "mut", "out", "SIMD", "DType" | Mojo Language Review Specialist | Mojo-specific syntax and idioms |
 | "vulnerability", "input validation", "sanitize", "auth", "crypto" | Security Review Specialist | Security vulnerabilities and attack vectors |
 | "test_*.mojo", "assert_", "TestSuite", "TestCase" | Test Review Specialist | Test coverage and quality |
@@ -88,7 +88,7 @@ EOF
 ## Routing Dimensions
 
 | Dimension | Specialist | What They Review |
-|-----------|-----------|------------------|
+| --- | --- | --- |
 | **Language** | Mojo Language | Mojo-specific idioms, SIMD, ownership |
 | **Security** | Security | Vulnerabilities, attack vectors |
 | **Testing** | Test | Test coverage, quality, assertions |

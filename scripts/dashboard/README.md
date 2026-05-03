@@ -61,7 +61,7 @@ step,value
 ## API Endpoints
 
 | Endpoint | Description |
-|----------|-------------|
+| --- | --- |
 | `GET /` | Dashboard UI |
 | `GET /api/runs` | List all training runs |
 | `GET /api/run/<id>` | Get metadata for a run |

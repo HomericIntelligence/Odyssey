@@ -31,7 +31,7 @@ Complete directory structure, configuration files, and build system before other
 ## Skills
 
 | Skill | When to Invoke |
-|-------|----------------|
+| --- | --- |
 | `worktree-create` | Starting parallel foundation work |
 | `gh-implement-issue` | Implementing foundation components |
 | `agent-run-orchestrator` | Coordinating design agents |

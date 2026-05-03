@@ -3,7 +3,7 @@
 ## Overview
 
 | Field | Value |
-| ----- | ----- |
+| --- | --- |
 | **Date** | 2025-12-31 |
 | **Category** | architecture |
 | **Objective** | Migrate custom dtype struct implementations to Mojo's native built-in types |
@@ -159,7 +159,7 @@ exponent-only format.
 ### Type Mapping
 
 | Custom Type | Mojo Built-in | Alias |
-| ----------- | ------------- | ----- |
+| --- | --- | --- |
 | `BF16` struct | `DType.bfloat16` | `BF16` |
 | `FP8` struct | `DType.float8_e4m3fn` | `FP8` |
 | `BF8` struct | `DType.float8_e5m2` | `BF8` |

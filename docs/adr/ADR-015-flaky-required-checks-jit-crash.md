@@ -68,8 +68,6 @@ of a JIT compilation volume overflow, not a test correctness issue.
 
 | Approach | Status | Reference |
 | --- | --- | --- |
-| Heap corruption workaround (file splitting) | Resolved 2026-03-20 | ADR-009 |
-| `continue-on-error: true` in workflow | Removed -- was masking real failures | ADR-009 |
 | Targeted submodule import audit (126 test files) | Applied -- reduced but did not eliminate | [mojo-jit-crash-workaround.md](../dev/mojo-jit-crash-workaround.md) |
 | Per-file retry script (`scripts/test-with-retry.sh`) | ADR-014 status: SUPERSEDED; script still wired in justfile | ADR-014 |
 | Minimal reproducer + upstream issue filing | In progress | `repro/issues/jit-compilation-volume-crash.md` |
@@ -292,8 +290,6 @@ issue #5108):
 
 - [Issue #5108](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5108) --
   JIT crash comprehensive tracking
-- [ADR-009](ADR-009-heap-corruption-workaround.md) -- Heap corruption workaround
-  (resolved 2026-03-20)
 - [ADR-014](ADR-014-jit-crash-retry-mitigation.md) -- JIT crash retry mitigation
   (SUPERSEDED; retry script still wired pending this ADR's action #2)
 - [`docs/dev/mojo-jit-crash-workaround.md`](../dev/mojo-jit-crash-workaround.md) --

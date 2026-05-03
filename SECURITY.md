@@ -52,23 +52,23 @@ Validate and canonicalize file paths before opening.
 
 We aim to respond to security reports within the following timeframes:
 
-| Stage                    | Timeframe              |
-|--------------------------|------------------------|
-| Initial acknowledgment   | 48 hours               |
-| Preliminary assessment   | 1 week                 |
-| Fix development          | Varies by severity     |
-| Public disclosure        | After fix is released  |
+| Stage | Timeframe |
+| --- | --- |
+| Initial acknowledgment | 48 hours |
+| Preliminary assessment | 1 week |
+| Fix development | Varies by severity |
+| Public disclosure | After fix is released |
 
 ## Severity Assessment
 
 We use the following severity levels:
 
-| Severity     | Description                          | Response           |
-|--------------|--------------------------------------|--------------------|
-| **Critical** | Remote code execution, data breach   | Immediate priority |
-| **High**     | Privilege escalation, data exposure  | High priority      |
-| **Medium**   | Limited impact vulnerabilities       | Standard priority  |
-| **Low**      | Minor issues, hardening              | Scheduled fix      |
+| Severity | Description | Response |
+| --- | --- | --- |
+| **Critical** | Remote code execution, data breach | Immediate priority |
+| **High** | Privilege escalation, data exposure | High priority |
+| **Medium** | Limited impact vulnerabilities | Standard priority |
+| **Low** | Minor issues, hardening | Scheduled fix |
 
 ## Responsible Disclosure
 

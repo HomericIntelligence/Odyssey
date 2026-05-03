@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 from check_workflow_inventory import (
     check_inventory,
     collect_yml_files,
-    main,
+    check_workflow_inventory_main as main,
     parse_readme_table,
 )
 

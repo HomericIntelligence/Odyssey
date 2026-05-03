@@ -59,7 +59,7 @@ With CI running again, the parallel agents identified three test files with dete
 failures that had nothing to do with JIT crashes:
 
 | Bug | Root Cause | Fix |
-| --- | ---------- | --- |
+| --- | --- | --- |
 | f-string syntax error | Mojo f-string interpolation using unsupported expression | Replaced with string concatenation |
 | Tuple destructuring | Incorrect unpacking of multi-return function | Fixed destructuring pattern |
 | Fast-path ignoring step | Slice fast-path skipped the `step` parameter | Added step to fast-path logic |
@@ -323,7 +323,7 @@ refcount reaches zero.
 ## Timeline
 
 | Step | Finding | Time |
-| ---- | ------- | ---- |
+| --- | --- | --- |
 | /advise | Prior skills: JIT crash patterns, misdiagnosis warnings | 0 min |
 | 3 parallel explore agents | CI blocked by Docker 504, 3 deterministic bugs, 1 "JIT" crash | +5 min |
 | Fix Docker cache | Tar-based image cache, CI unblocked | +7 min |
@@ -342,7 +342,7 @@ This is the **third distinct bug** producing identical `libKGENCompilerRTShared.
 signatures:
 
 | # | Bug | Root Cause | ASAN Report | Discovery |
-| --- | --- | ---------- | ----------- | --------- |
+| --- | --- | --- | --- | --- |
 | 1 | Bitcast UAF (Day 53, Act 1) | Compiler destroys tensor before bitcast write completes | `heap-use-after-free` | March 16, 2026 |
 | 2 | ADR-009 threshold crashes | Same bitcast UAF, masked by file splitting | (same as above) | December 2025 |
 | 3 | Slice view bad-free (today) | `__del__` frees offset pointer from `slice()` | `attempting free on address not malloc()-d` | March 24, 2026 |

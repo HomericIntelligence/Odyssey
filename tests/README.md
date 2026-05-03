@@ -191,7 +191,7 @@ pixi run mojo tests/shared/integration/test_training_workflow.mojo
 **17 Test Groups** (parallel execution):
 
 | # | Group Name | Path | Test Count | Focus |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | 1 | Core: Tensors & Operations | `tests/shared/core` | ~20 | Tensor creation, arithmetic, reductions |
 | 2 | Core: Layers & Activations | `tests/shared/core` | ~15 | Fully-connected, ReLU, Sigmoid, etc. |
 | 3 | Core: Advanced Layers | `tests/shared/core` | ~12 | Conv2D, Pooling, Initialization |

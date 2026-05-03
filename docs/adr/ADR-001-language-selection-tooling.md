@@ -123,7 +123,7 @@ and production-ready regex support.
 Issue #8's comprehensive testing revealed:
 
 | Capability | Available | Maturity | Risk | Blocks Conversion |
-|-----------|-----------|----------|------|-------------------|
+| --- | --- | --- | --- | --- |
 | File I/O | Yes | Mature | Low | No |
 | Subprocess Exec | Yes | Beta | Medium | No |
 | **Subprocess Stdout** | **Partial** | **Beta** | **Medium** | **No** |
@@ -879,7 +879,7 @@ Last Review: [YYYY-MM-DD]
 ## Revision History
 
 | Version | Date | Author | Changes |
-|---------|------|--------|---------|
+| --- | --- | --- | --- |
 | 1.0 | 2025-11-10 | Chief Architect | Initial ADR creation |
 
 ---

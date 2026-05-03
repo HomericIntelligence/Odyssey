@@ -36,7 +36,7 @@ just podman-down
 ## Image Variants
 
 | Tag | Dockerfile | Target | Purpose |
-|-----|------------|--------|---------|
+| --- | --- | --- | --- |
 | `main` | Dockerfile.ci | runtime | Default runtime with tests |
 | `main-ci` | Dockerfile.ci | ci | Full CI with pre-commit |
 | `main-prod` | Dockerfile.ci | production | Minimal production image |

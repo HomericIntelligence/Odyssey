@@ -55,14 +55,14 @@ The EMNIST dataset is an extension of MNIST that includes handwritten letters in
 
 ### Available Splits
 
-| Split        | Samples | Classes | Description                         |
-|--------------|---------|---------|-------------------------------------|
-| **Balanced** | 131,600 | 47      | Recommended - balanced distribution |
-| ByClass      | 814,255 | 62      | Unbalanced, all characters          |
-| ByMerge      | 814,255 | 47      | Unbalanced, merged similar chars    |
-| Digits       | 280,000 | 10      | Digits only (0-9)                   |
-| Letters      | 145,600 | 26      | Uppercase letters only (A-Z)        |
-| MNIST        | 70,000  | 10      | Original MNIST for comparison       |
+| Split | Samples | Classes | Description |
+| --- | --- | --- | --- |
+| **Balanced** | 131,600 | 47 | Recommended - balanced distribution |
+| ByClass | 814,255 | 62 | Unbalanced, all characters |
+| ByMerge | 814,255 | 47 | Unbalanced, merged similar chars |
+| Digits | 280,000 | 10 | Digits only (0-9) |
+| Letters | 145,600 | 26 | Uppercase letters only (A-Z) |
+| MNIST | 70,000 | 10 | Original MNIST for comparison |
 
 **Default**: This example uses the **Balanced** split (47 classes).
 

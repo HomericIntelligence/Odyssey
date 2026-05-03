@@ -117,7 +117,7 @@ Level 3 specialist responsible for reviewing [DOMAIN AREA - e.g., "code security
 ## What This Specialist Does NOT Review
 
 | Aspect | Delegated To |
-|--------|--------------|
+| --- | --- |
 | [OUT OF SCOPE AREA 1] | [Specialist Name 1] |
 | [OUT OF SCOPE AREA 2] | [Specialist Name 2] |
 | [OUT OF SCOPE AREA 3] | [Specialist Name 3] |

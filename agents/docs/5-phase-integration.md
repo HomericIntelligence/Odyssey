@@ -62,7 +62,7 @@ in parallel when appropriate.
 ### By Phase
 
 | Phase | Active Levels | Primary Agents | Focus |
-|-------|---------------|----------------|-------|
+| --- | --- | --- | --- |
 | **Plan** | 0-3 | Orchestrators, Design Agents, Specialists | Create specifications, design architecture, define requirements |
 | **Test** | 3-5 | Test Specialists, Test Engineers | Write test cases, implement tests, create fixtures |
 | **Implementation** | 3-5 | Implementation Specialists, Engineers | Build functionality, write code, implement features |

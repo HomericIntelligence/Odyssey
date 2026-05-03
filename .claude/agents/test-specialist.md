@@ -49,7 +49,7 @@ Position: receives component specs from design agents, delegates test implementa
 ## Skills
 
 | Skill | When to Invoke |
-|-------|---|
+| --- | --- |
 | phase-test-tdd | Coordinating TDD workflow |
 | mojo-test-runner | Executing tests and verifying coverage |
 | quality-coverage-report | Analyzing test coverage |

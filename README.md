@@ -40,7 +40,7 @@ ProjectOdyssey is one of several repositories in the
 repos relate:
 
 | Repository | Role |
-|---|---|
+| --- | --- |
 | **ProjectOdyssey** (this repo) | ML training framework in Mojo -- neural nets, autograd, shared lib |
 | [Odysseus][odysseus] | Ecosystem meta-repo and architecture docs |
 | [AchaeanFleet][achaeanfleet] | Container images for the agent mesh -- Dockerfiles, Compose, CI |
@@ -83,7 +83,7 @@ To avoid confusion with other ecosystem repos:
 ## Implemented Architectures
 
 | Architecture | Paper | Status |
-|---|---|---|
+| --- | --- | --- |
 | LeNet-5 | LeCun et al., 1998 | Implemented |
 | AlexNet | Krizhevsky et al., 2012 | Implemented |
 | VGG-16 | Simonyan & Zisserman, 2014 | Implemented |

@@ -20,7 +20,7 @@ Debian 10 hosts to use `SKIP=mojo-format` as a persistent workaround.
 ## Affected Environments
 
 | OS | glibc version | Status |
-|----|--------------|--------|
+| --- | --- | --- |
 | Debian 10 (Buster) | 2.28 | Incompatible - hook skips with warning |
 | Debian 11 (Bullseye) | 2.31 | Incompatible - hook skips with warning |
 | Debian 12 (Bookworm) | 2.36 | Compatible |

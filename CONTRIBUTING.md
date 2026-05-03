@@ -107,15 +107,15 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 **Types:**
 
-| Type       | Description                |
-|------------|----------------------------|
-| `feat`     | New feature                |
-| `fix`      | Bug fix                    |
-| `docs`     | Documentation only         |
-| `style`    | Formatting, no code change |
-| `refactor` | Code restructuring         |
-| `test`     | Adding/updating tests      |
-| `chore`    | Maintenance tasks          |
+| Type | Description |
+| --- | --- |
+| `feat` | New feature |
+| `fix` | Bug fix |
+| `docs` | Documentation only |
+| `style` | Formatting, no code change |
+| `refactor` | Code restructuring |
+| `test` | Adding/updating tests |
+| `chore` | Maintenance tasks |
 
 **Example:**
 
@@ -191,12 +191,12 @@ We use `mojo format` for consistent code formatting. Pre-commit hooks will autom
 
 **Current Mojo syntax (v0.26.3+):**
 
-| Convention   | Use For            | Example                              |
-|--------------|--------------------|--------------------------------------|
-| `out self`   | Constructors       | `fn __init__(out self, value: Int)`  |
-| `mut self`   | Mutating methods   | `fn modify(mut self)`                |
-| `self`       | Read-only access   | `fn get(self) -> Int`                |
-| `^` operator | Ownership transfer | `return self._data^`                 |
+| Convention | Use For | Example |
+| --- | --- | --- |
+| `out self` | Constructors | `fn __init__(out self, value: Int)` |
+| `mut self` | Mutating methods | `fn modify(mut self)` |
+| `self` | Read-only access | `fn get(self) -> Int` |
+| `^` operator | Ownership transfer | `return self._data^` |
 
 **Example:**
 
@@ -362,15 +362,15 @@ of their pull request when the change is user-facing.
 Add a changelog entry for changes that affect users of the project:
 
 | Change type | Add entry? | Example |
-|-------------|------------|---------|
-| `feat`      | Yes        | New layer, new training feature, new CLI flag |
-| `fix`        | Yes        | Bug fix visible to users or downstream consumers |
-| Breaking change | Yes    | Renamed API, changed behavior, removed feature |
-| `refactor`  | Usually no | Internal restructuring with no behavior change |
-| `test`      | No         | New or updated tests only |
-| `chore`     | No         | Dependency bumps, CI configuration, tooling |
-| `docs`      | No         | Documentation-only changes |
-| `style`     | No         | Formatting changes only |
+| --- | --- | --- |
+| `feat` | Yes | New layer, new training feature, new CLI flag |
+| `fix` | Yes | Bug fix visible to users or downstream consumers |
+| Breaking change | Yes | Renamed API, changed behavior, removed feature |
+| `refactor` | Usually no | Internal restructuring with no behavior change |
+| `test` | No | New or updated tests only |
+| `chore` | No | Dependency bumps, CI configuration, tooling |
+| `docs` | No | Documentation-only changes |
+| `style` | No | Formatting changes only |
 
 When in doubt, ask: "Would a user of this library notice or care?" If yes, add an entry.
 

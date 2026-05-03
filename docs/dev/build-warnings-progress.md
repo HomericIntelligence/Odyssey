@@ -10,7 +10,7 @@ achieving a **72% reduction** in warning count.
 ### Breakdown by Category
 
 | Fix Type | Count | Description |
-|----------|-------|-------------|
+| --- | --- | --- |
 | Section tag indentation | ~200 | Removed 4-space indent from Args/Returns/Raises/Examples/Note tags |
 | Missing periods | ~785 | Added periods to parameter descriptions |
 | Section body endings | ~3,544 | Added periods to multiline docstring sections |
@@ -29,7 +29,7 @@ achieving a **72% reduction** in warning count.
 ### Breakdown by Category
 
 | Category | Count | % | Can Automate? |
-|----------|-------|---|---------------|
+| --- | --- | --- | --- |
 | section_body_ending | 649 | 76.4% | ⚠️ Partial (complex edge cases) |
 | missing_period | 126 | 14.8% | ✅ Yes |
 | unknown_argument | 23 | 2.7% | ❌ No (manual review) |

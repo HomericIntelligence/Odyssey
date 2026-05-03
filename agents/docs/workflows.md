@@ -41,7 +41,7 @@ Implement a new `BatchNorm2D` layer for the shared library to be used across all
 ### Agent Involvement
 
 | Level | Agents | Phase Participation |
-|-------|--------|---------------------|
+| --- | --- | --- |
 | 0 | Chief Architect | Plan, Cleanup |
 | 1 | Shared Library Orchestrator | Plan, Oversight, Cleanup |
 | 2 | Architecture Design Agent | Plan |
@@ -683,7 +683,7 @@ Bug: Conv2D layer produces incorrect output for non-square kernels (3x5 kernel f
 ### Agent Involvement
 
 | Level | Agents | Phase Participation |
-|-------|--------|---------------------|
+| --- | --- | --- |
 | 3 | Implementation Specialist, Test Specialist | Plan, Test/Impl, Cleanup |
 | 4 | Implementation Engineer, Test Engineer | Test/Impl, Cleanup |
 
@@ -806,7 +806,7 @@ Refactor: Multiple layers have duplicated SIMD vectorization code. Extract into 
 ### Agent Involvement
 
 | Level | Agents | Phase Participation |
-|-------|--------|---------------------|
+| --- | --- | --- |
 | 1 | Shared Library Orchestrator | Plan, Oversight, Cleanup |
 | 2 | Architecture Design Agent | Plan |
 | 3 | Implementation Specialist | Plan, Implementation, Cleanup |
@@ -952,7 +952,7 @@ Review PR #300: "Add Dropout layer implementation"
 ### Agent Involvement
 
 | Level | Agents | Responsibilities |
-|-------|--------|------------------|
+| --- | --- | --- |
 | 2 | Architecture Design Agent | Architectural review |
 | 3 | Implementation Specialist | Code quality review |
 | 3 | Test Specialist | Test coverage review |
@@ -1220,7 +1220,7 @@ Optimize: Conv2D forward pass is slower than expected. Target: 2x speedup.
 ### Agent Involvement
 
 | Level | Agents | Phase Participation |
-|-------|--------|---------------------|
+| --- | --- | --- |
 | 3 | Performance Specialist | Plan, Implementation, Cleanup |
 | 4 | Performance Engineer | Implementation |
 | 4 | Test Engineer | Test (validate correctness maintained) |
@@ -1298,7 +1298,7 @@ Add: Comprehensive getting started guide for the ProjectOdyssey project.
 ### Agent Involvement
 
 | Level | Agents | Phase Participation |
-|-------|--------|---------------------|
+| --- | --- | --- |
 | 3 | Documentation Specialist | Plan, Packaging |
 | 4 | Documentation Engineer | Packaging |
 
@@ -1359,7 +1359,7 @@ Security audit before release: Review all code for security vulnerabilities.
 ### Agent Involvement
 
 | Level | Agents | Responsibilities |
-|-------|--------|------------------|
+| --- | --- | --- |
 | 2 | Security Design Agent | Plan security review |
 | 3 | Security Specialist | Execute security review |
 | 4 | Implementation Engineers | Fix issues |
@@ -1429,7 +1429,7 @@ Documentation Engineer:
 ### Workflow Complexity Guide
 
 | Complexity | Phases Used | Agent Levels | Example |
-|------------|-------------|--------------|---------|
+| --- | --- | --- | --- |
 | Very Low | Plan + Impl | 3-4 | Typo fix, simple docs |
 | Low | Plan + Test + Impl | 3-4 | Bug fix, simple feature |
 | Medium | Full 5-phase | 1-4 | Refactoring, optimization |
@@ -1439,7 +1439,7 @@ Documentation Engineer:
 ### Phase Participation by Agent Level
 
 | Level | Plan | Test | Impl | Package | Cleanup |
-|-------|------|------|------|---------|---------|
+| --- | --- | --- | --- | --- | --- |
 | 0 | ███ | ░░ | ░░ | ░░ | ███ |
 | 1 | ███ | ░░ | ░░ | ░░ | ███ |
 | 2 | ███ | ░░ | ░░ | ░░ | ███ |

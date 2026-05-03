@@ -46,40 +46,38 @@ runs:
           podman save -o /tmp/podman-image-cache/dev.tar projectodyssey:dev
         fi
 
-    - name: Seed workspace-pixi volume from image layer
+    - name: Seed pixi-cache volume from image layer
       shell: bash
       run: |
-        # The workspace-pixi named volume starts empty on each CI runner.  When
-        # empty, the entrypoint runs `pixi install` from scratch, which triggers
-        # a massive JIT compilation that overflows libKGENCompilerRTShared.so's
-        # internal buffer (__fortify_fail_abort).
+        # The pixi-cache named volume holds the detached pixi environments
+        # (detached-environments = true in .pixi/config.toml). On each fresh CI
+        # runner the volume starts empty, causing the entrypoint to run
+        # `pixi install` from scratch. That triggers a JIT compilation that
+        # overflows libKGENCompilerRTShared.so's internal buffer
+        # (__fortify_fail_abort).
         #
-        # Seed the volume BEFORE starting the dev container so the entrypoint's
-        # `[ -x .pixi/envs/default/bin/mojo ]` check passes and pixi install is
-        # skipped.  Mount the volume at /mnt/pixi-seed (not /workspace/.pixi) so
-        # the image's baked-in /workspace/.pixi layer is accessible for copying.
-        #
-        # The volume name is prefixed with the Compose project name (lowercase
-        # directory name): projectodyssey_workspace-pixi.
-        VOLUME_NAME="projectodyssey_workspace-pixi"
-        # Create volume if it doesn't exist yet
+        # Seed the pixi-cache volume from the image's baked-in per-user cache
+        # (/home/dev/.cache/pixi) BEFORE starting the dev container so the
+        # entrypoint's pixi-info probe finds mojo already installed.
+        # The volume name is prefixed with the Compose project name.
+        VOLUME_NAME="projectodyssey_pixi-cache"
         podman volume create "$VOLUME_NAME" 2>/dev/null || true
-        # Check if already seeded (mojo binary present)
+        # Check if already seeded (any mojo binary present under the volume)
         SEEDED=$(podman run --rm \
           --user root \
           -v "${VOLUME_NAME}:/mnt/pixi-seed" \
           projectodyssey:dev \
-          bash -c "test -x /mnt/pixi-seed/envs/default/bin/mojo && echo yes || echo no")
+          bash -c "find /mnt/pixi-seed -name 'mojo' -type f 2>/dev/null | grep -q . && echo yes || echo no")
         if [ "$SEEDED" = "no" ]; then
-          echo "Seeding workspace-pixi volume from image layer..."
+          echo "Seeding pixi-cache volume from image layer..."
           podman run --rm \
             --user root \
             -v "${VOLUME_NAME}:/mnt/pixi-seed" \
             projectodyssey:dev \
-            bash -c "cp -a /workspace/.pixi/. /mnt/pixi-seed/"
+            bash -c "cp -a /home/dev/.cache/pixi/. /mnt/pixi-seed/"
           echo "Seeding complete."
         else
-          echo "workspace-pixi volume already seeded — skipping."
+          echo "pixi-cache volume already seeded — skipping."
         fi
 
     - name: Start container

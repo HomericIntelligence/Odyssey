@@ -33,12 +33,14 @@ Over 8 weeks spanning November-December 2025, the project progressed from initia
 **Objective:** Plan and structure a 1,655-issue project using a hierarchical agent system.
 
 **Approach:**
+
 - Designed 6-level agent hierarchy (Chief Architect → Implementation Engineers → Junior Engineers)
 - Created 48 specialized agents with distinct roles
 - Generated 331 hierarchical planning documents covering entire project scope
 - Organized work into 1,655 trackable GitHub issues
 
 **Results:**
+
 - Agent system established and validated
 - Planning coverage: comprehensive but not fully executable
 - Key learning: **Planning velocity ≠ implementation velocity**
@@ -50,22 +52,26 @@ Over 8 weeks spanning November-December 2025, the project progressed from initia
 **Objective:** Build foundation components and optimize token efficiency.
 
 **Initial Problem:** Token budget exhaustion in 3 days
+
 - Root cause: Double planning—orchestrators plan, then specialists re-plan (90k tokens wasted)
 - Solution: Model tiering strategy
 
 **Model Tiering Implementation:**
+
 - **Opus 4.x** → Strategic planning, complex decisions
 - **Sonnet 4.5** → Design, implementation, coordination
 - **Haiku 4.5** → Boilerplate, simple execution
 
 **Results:**
+
 - Cost reduction: 17% ($327 → $274 weekly)
 - Throughput increase: 98.6M tokens/day (vs 86.1M baseline)
 - Token efficiency improved: 3.25x Haiku relative usage increase (2x → 6.5x vs Opus)
 
 **Metrics Comparison:**
+
 | Metric | Week 1 | Week 2 | Change |
-|--------|--------|--------|--------|
+| --- | --- | --- | --- |
 | Total Tokens | 430.6M | 394.3M | -8.4% |
 | Cost (USD) | $327.84 | $274.48 | -16.3% |
 | Issues Created | 1,553 | 284 | -81.7% (shift to execution) |
@@ -83,6 +89,7 @@ Over 8 weeks spanning November-December 2025, the project progressed from initia
 **Objective:** Test multi-threaded agent coordination and identify bottlenecks.
 
 **Infrastructure Completed:**
+
 - CI/CD pipeline with GitHub Actions
 - Shared library structure with common utilities
 - Code review hierarchy with 13 specialized reviewers
@@ -90,6 +97,7 @@ Over 8 weeks spanning November-December 2025, the project progressed from initia
 - Markdown and Mojo linting standards
 
 **Discovery: Bulk Handling Workflow**
+
 - Found that ~95% of code changes are low-risk and don't require full 5-phase review
 - Implemented risk-based review tiering:
   - **Low risk:** Auto-approval (infrastructure, tests, examples)
@@ -97,6 +105,7 @@ Over 8 weeks spanning November-December 2025, the project progressed from initia
   - **High risk:** Full review (algorithms, core functionality, breaking changes)
 
 **Results:**
+
 - Week 3: 570.6M tokens, $342.40 cost, 95.1M tokens/day
 - First working version of training pipeline established
 - 1,100+ markdown linting violations identified and fixed
@@ -108,11 +117,13 @@ Over 8 weeks spanning November-December 2025, the project progressed from initia
 **Objective:** Implement end-to-end training and debug failures.
 
 **Major Challenge: LeNet-5 Segfault**
+
 - Issue: Training crashed with segfault at line 151:64 in conv2d backward pass
 - Tests reported passing, but real training failed
 - Root cause: Gradient computation bug hidden by inadequate unit tests
 
 **Solution: Systematic Validation**
+
 - Implemented numerical gradient checking across all 8 core modules:
   - Pooling, Dropout, Activation, Elementwise ops
   - Arithmetic ops, Loss functions, Matrix ops, Reduction ops
@@ -120,6 +131,7 @@ Over 8 weeks spanning November-December 2025, the project progressed from initia
 - Fixed critical bugs in backward pass computation
 
 **Implementation Successes:**
+
 - ✅ LeNet-5 training completed successfully on EMNIST
   - 112,800 training samples, 18,800 test samples, 47 classes
   - Initial loss epoch 1: ~3.99
@@ -130,6 +142,7 @@ Over 8 weeks spanning November-December 2025, the project progressed from initia
 - ✅ Gradient accumulation and callback system implemented
 
 **Metrics:**
+
 - Week 4 (Nov 24-Dec 1): 936M tokens/week → 1,014M tokens/week
 - Output tokens: Dropped 94% (indicates shift from generation to reading/validation)
 - Code added: 135,000+ lines total
@@ -143,6 +156,7 @@ Over 8 weeks spanning November-December 2025, the project progressed from initia
 ### Week 5-8: Cleanup and Optimization (Dec 1-31)
 
 **Auto-Approval Experiment:**
+
 - Hypothesis: If agents generate faster than humans review, auto-approve everything and cleanup later
 - Implementation: Auto-merge all PRs with passing CI
 - Duration: Multi-day intensive cleanup phase
@@ -152,7 +166,7 @@ Over 8 weeks spanning November-December 2025, the project progressed from initia
 **Token Analysis Across Project:**
 
 | Week | Duration | Tokens | Cost | Key Activity |
-|------|----------|--------|------|--------------|
+| --- | --- | --- | --- | --- |
 | 1 (11-03) | 5 days | 361.5M | $250.10 | Planning |
 | 2 (11-10) | 5 days | 463.5M | $352.21 | Infrastructure |
 | 3 (11-17) | 6 days | 570.6M | $342.40 | Workflow testing |
@@ -165,7 +179,7 @@ Over 8 weeks spanning November-December 2025, the project progressed from initia
 The release of Opus 4.5 created a discontinuity in the data:
 
 | Model | Output Tokens Behavior | Implication |
-|-------|----------------------|------------|
+| --- | --- | --- |
 | Opus 4.1 | ~4M output tokens/week | Generation-focused workflow |
 | Opus 4.5 | ~302k output tokens/week | Planning-focused workflow |
 | Change | **94% reduction** | Model reads more, generates less |
@@ -177,6 +191,7 @@ The release of Opus 4.5 created a discontinuity in the data:
 **Challenge:** Mojo version updates (v0.25 → v0.26) introduced breaking API changes
 
 **Changes Required:**
+
 - Vectorization API: `load()`/`store()` syntax updated with named parameters
 - List initialization: New syntax requirements for parametric types
 - Struct field access: Updated patterns for owned data handling
@@ -189,12 +204,14 @@ The release of Opus 4.5 created a discontinuity in the data:
 ### Final Status (Dec 31)
 
 **Code Metrics:**
+
 - Total lines of code: 135,000+ (net increase from planning migration)
 - Issues closed: 1,135 in final week
 - PRs merged: 278 in final week
 - Commits: 76 in cleanup day
 
 **Project Status:**
+
 - ✅ Feature-complete: All core components implemented and working
 - ✅ Well-tested: Comprehensive test coverage with numerical validation
 - ✅ Production-ready: Migrated to stable language version
@@ -209,6 +226,7 @@ The release of Opus 4.5 created a discontinuity in the data:
 ### 1. Hierarchical Agent Architecture
 
 **Decision:** Build a 6-level agent hierarchy instead of flat system
+
 - Level 0: Chief Architect (strategic decisions)
 - Levels 1-2: Orchestrators (project/component planning)
 - Level 3: Specialists (domain expertise)
@@ -223,6 +241,7 @@ The release of Opus 4.5 created a discontinuity in the data:
 ### 2. Model Tiering by Task Complexity
 
 **Decision:** Assignment-specific model selection
+
 - Opus → Complex planning (rare)
 - Sonnet → Design and implementation decisions (common)
 - Haiku → Boilerplate and routine work (frequent)
@@ -234,10 +253,12 @@ The release of Opus 4.5 created a discontinuity in the data:
 ### 3. Bulk Code Review with Systematic Cleanup
 
 **Decision:** Decouple generation and validation
+
 1. Agents generate code quickly with auto-approval
 2. Humans perform systematic cleanup later
 
 **vs. Traditional approach:**
+
 - Generate → Human review → Fix → Merge (blocks pipeline at review)
 
 **Rationale:** When agents generate faster than humans review, sequential blocking is suboptimal
@@ -247,6 +268,7 @@ The release of Opus 4.5 created a discontinuity in the data:
 ### 4. Planning in Source Code vs. GitHub Issues
 
 **Decision:** Migrate planning documentation from GitHub issues to source code
+
 - Docstrings, comments, and inline documentation
 - Close issues when code is placed in source
 
@@ -257,6 +279,7 @@ The release of Opus 4.5 created a discontinuity in the data:
 ### 5. Programmatic Tool Calling
 
 **Decision:** Build verification that agents actually execute commands
+
 - Don't accept "tests passed" without seeing output
 - Require real command execution, not simulated
 
@@ -267,6 +290,7 @@ The release of Opus 4.5 created a discontinuity in the data:
 ### 6. GitHub Issues as Persistent Agent Memory
 
 **Decision:** Use GitHub issues as structured, version-controlled agent memory
+
 - Issues track long-running work across sessions
 - Comments serve as audit trail
 - Closure signals completion
@@ -489,6 +513,7 @@ After 8 weeks and $2,013 in token cost, the project demonstrated:
 **After 2025:** "Can we validate and optimize this?" (Agents struggle)
 
 This opens new possibilities:
+
 - **For projects with clear specifications:** Agents can handle 95% independently
 - **For research and exploration:** Humans still drive direction and validation
 - **For production systems:** Human review and oversight remain essential
@@ -550,6 +575,7 @@ The 2025 ML Odyssey Manual project successfully demonstrated that AI agents can 
 The constraints that drove this work—time and token budget—forced a focus on efficiency that resulted in discoveries applicable far beyond this single project. The hierarchical agent architecture, model tiering strategy, and validation patterns are generalizable to any large-scale AI system development.
 
 **Status as of December 31, 2025:**
+
 - Feature development: Complete
 - Infrastructure: Solid and validated
 - Next focus: Model training, validation, and real-world performance optimization
@@ -559,7 +585,7 @@ The constraints that drove this work—time and token budget—forced a focus on
 **Statistical Summary:**
 
 | Category | Value |
-|----------|-------|
+| --- | --- |
 | **Timeline** | 8 weeks (Nov 7 - Dec 31) |
 | **Total Token Usage** | 3.3B tokens |
 | **Total Cost** | $2,013.30 |

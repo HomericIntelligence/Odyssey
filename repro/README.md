@@ -71,8 +71,7 @@ Mojo versions or platforms.
 - **`bug_repro_lenet5_layers_monolithic.mojo.bug`** -- The original
   24-test monolithic LeNet-5 test file from December 2025 (Issue #2942).
   Crashes after approximately 15 cumulative tests due to the same heap
-  corruption bug. This file was split into smaller files as a workaround
-  (see ADR-009).
+  corruption bug. This file was split into smaller files as a workaround.
 
 - **`bug_repro_vgg16_e2e_part1_pre_fix.mojo.bug`** -- Pre-workaround
   VGG16 E2E test file that demonstrates the crash during training steps
@@ -135,7 +134,7 @@ When multiple `mojo` processes run concurrently on GitHub Actions free runners
 **Measured findings (from `investigate_import_threshold.sh`):**
 
 | Variable | Impact on RSS |
-| -------- | ------------- |
+| --- | --- |
 | Monomorphization count (1–300) | None (all ~330MB RSS) |
 | Line count (50–1000 concrete fns) | None |
 | Module-level vs per-function imports | None (same ~330MB RSS) |
@@ -196,4 +195,3 @@ blog post for the full investigation.
 
 - Issue #2942 -- Original LeNet-5 heap corruption (December 2025)
 - Issue #2702 -- FC layer gradient checking crashes
-- ADR-009 -- Test file splitting workaround

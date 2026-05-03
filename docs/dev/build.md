@@ -8,7 +8,7 @@ The project uses [Just](https://just.systems/) as a unified command runner. Four
 the main build and validation scenarios:
 
 | Recipe | What it does | When to use |
-|---|---|---|
+| --- | --- | --- |
 | `just build` | Compile entry-point executables (debug mode by default) | Day-to-day development; produces binaries in `build/debug/` |
 | `just check` | Type-check the `shared/` library without producing any artifacts | Fast feedback loop — catches type errors without a full build |
 | `just ci-build` | Full CI build: entry points (`just build ci`) + package compilation (`just package ci`) | Pre-push validation; mirrors exactly what CI runs |

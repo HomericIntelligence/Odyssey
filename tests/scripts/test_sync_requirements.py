@@ -13,12 +13,46 @@ _spec = importlib.util.spec_from_file_location("sync_requirements", _PROJECT_ROO
 _mod = importlib.util.module_from_spec(_spec)  # type: ignore[arg-type]
 _spec.loader.exec_module(_mod)  # type: ignore[union-attr]
 
-CORE_PACKAGES = _mod.CORE_PACKAGES
-DEV_PACKAGES = _mod.DEV_PACKAGES
-GENERATED_HEADER = _mod.GENERATED_HEADER
-check_requirements = _mod.check_requirements
-generate_requirements = _mod.generate_requirements
-write_requirements = _mod.write_requirements
+# The module re-exports from hephaestus.config.dep_sync; the old top-level
+# constants and functions were renamed in the hephaestus refactor.
+# Import from the underlying hephaestus module directly.
+from hephaestus.config.dep_sync import (  # noqa: E402
+    _GENERATED_HEADER as GENERATED_HEADER,
+    generate_requirements_content as generate_requirements,
+    sync_requirements as _sync_requirements,
+    check_requirements_up_to_date as _check_requirements_up_to_date,
+)
+
+# Minimal package lists that cover SAMPLE_RESOLVED entries.
+CORE_PACKAGES: list[str] = [
+    "pytest",
+    "pytest-cov",
+    "pytest-timeout",
+    "pytest-xdist",
+    "pyyaml",
+    "click",
+    "jinja2",
+]
+DEV_PACKAGES: list[str] = [
+    "ruff",
+    "mypy",
+    "pre-commit",
+    "safety",
+    "bandit",
+    "mkdocs",
+    "mkdocs-material",
+    "pytest-benchmark",
+]
+
+
+def write_requirements(tmp_path: Path, resolved: Dict[str, str]) -> list:
+    """Adapter: call sync_requirements with the test package lists."""
+    return _sync_requirements(tmp_path, resolved, CORE_PACKAGES, DEV_PACKAGES)
+
+
+def check_requirements(tmp_path: Path, resolved: Dict[str, str]) -> bool:
+    """Adapter: call check_requirements_up_to_date with the test package lists."""
+    return _check_requirements_up_to_date(tmp_path, resolved, CORE_PACKAGES, DEV_PACKAGES)
 
 
 SAMPLE_RESOLVED: Dict[str, str] = {

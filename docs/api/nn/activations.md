@@ -200,7 +200,7 @@ var log_probs = log_softmax(logits, dim=-1)
 ## Comparison Table
 
 | Activation | Range | Properties | Use Case |
-|------------|-------|------------|----------|
+| --- | --- | --- | --- |
 | ReLU | [0, inf) | Fast, sparse | Default for hidden layers |
 | LeakyReLU | (-inf, inf) | Avoids dying ReLU | Alternative to ReLU |
 | ELU | (-alpha, inf) | Smooth negative region | Alternative to ReLU |

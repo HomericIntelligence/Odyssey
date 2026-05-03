@@ -101,9 +101,9 @@ class TestFormattingChecks:
         # Use actual tab character
         yaml_file.write_text("training:\n\tepochs: 10\n")
         result = linter.lint_file(yaml_file)
-        assert result is True
-        # Should have warning or error about tabs
-        assert len(linter.warnings) > 0 or len(linter.errors) > 0
+        # Tabs are errors, so linting fails
+        assert result is False
+        assert len(linter.errors) > 0
         assert any("tab" in msg.lower() for msg in linter.warnings + linter.errors)
 
     def test_trailing_whitespace(self, linter, temp_dir):
