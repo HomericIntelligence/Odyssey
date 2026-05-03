@@ -285,6 +285,6 @@ scripts/agents/test_agent_loading.py:25: error: Module "agent_utils" has no attr
 ## Notes
 
 - Several failures are cascading from the root cause: **hephaestus dependency not installed**
-- Some checks (Paper Implementation, Test Configuration Loading) are placeholders and should be
-  marked optional
+- Some checks (Paper Implementation, Test Configuration Loading) are placeholders and
+  should be marked optional
 - pixi installation is required locally to regenerate lock file
