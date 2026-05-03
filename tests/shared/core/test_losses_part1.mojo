@@ -352,7 +352,7 @@ def test_mean_squared_error_backward_gradient() raises:
     print("  ✓ MSE backward gradient check passed")
 
 
-fn main() raises:
+def main() raises:
     """Run test_losses part 1 tests (BCE and MSE)."""
     print("Running test_losses_part1 tests...")
 

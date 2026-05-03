@@ -187,7 +187,7 @@ def test_validate_tensor_dtypes_matching() raises:
     validate_tensor_dtypes(tensor1, tensor2, "test_op")
 
 
-fn main() raises:
+def main() raises:
     """Run test_loss_utils part 1 tests."""
     print("Running test_loss_utils_part1 tests...")
 

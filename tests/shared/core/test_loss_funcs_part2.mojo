@@ -216,7 +216,7 @@ def test_mse_symmetric() raises:
         assert_almost_equal(loss_ab_data[i], loss_ba_data[i], tolerance=1e-5)
 
 
-fn main() raises:
+def main() raises:
     """Run test_loss_funcs part 2 tests."""
     print("Running test_loss_funcs_part2 tests...")
 

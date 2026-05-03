@@ -185,7 +185,7 @@ def test_core_data_integration() raises:
     print("✓ Core-data integration test passed")
 
 
-fn main() raises:
+def main() raises:
     """Run test_packaging part 1 tests."""
     print("Running test_packaging_part1 tests...")
 

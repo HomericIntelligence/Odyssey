@@ -224,7 +224,7 @@ def test_mean_squared_error_backward() raises:
     assert_almost_equal(grad_data[1], 4.0, tolerance=1e-5)
 
 
-fn main() raises:
+def main() raises:
     """Run test_loss_funcs part 1 tests."""
     print("Running test_loss_funcs_part1 tests...")
 

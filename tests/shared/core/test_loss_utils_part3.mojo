@@ -200,7 +200,7 @@ def test_negate_tensor_zero() raises:
     assert_almost_equal(Float64(result_data[0]), 0.0, tolerance=1e-6)
 
 
-fn main() raises:
+def main() raises:
     """Run test_loss_utils part 3 tests."""
     print("Running test_loss_utils_part3 tests...")
 

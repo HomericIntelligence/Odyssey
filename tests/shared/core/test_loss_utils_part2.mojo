@@ -168,7 +168,7 @@ def test_blend_tensors_all_second() raises:
     assert_almost_equal(Float64(result_data[0]), 2.0, tolerance=1e-6)
 
 
-fn main() raises:
+def main() raises:
     """Run test_loss_utils part 2 tests."""
     print("Running test_loss_utils_part2 tests...")
 

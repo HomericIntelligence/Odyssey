@@ -383,7 +383,7 @@ def test_kl_divergence_backward_gradient() raises:
     print("  ✓ KL divergence backward gradient check passed")
 
 
-fn main() raises:
+def main() raises:
     """Run test_losses part 3 tests (Hinge backward, Focal, KL divergence)."""
     print("Running test_losses_part3 tests...")
 

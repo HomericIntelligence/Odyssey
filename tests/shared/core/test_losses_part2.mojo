@@ -330,7 +330,7 @@ def test_hinge_loss_at_margin() raises:
     print("  ✓ Hinge margin test passed")
 
 
-fn main() raises:
+def main() raises:
     """Run test_losses part 2 tests (Smooth L1 and Hinge)."""
     print("Running test_losses_part2 tests...")
 

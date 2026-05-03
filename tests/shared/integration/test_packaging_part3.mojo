@@ -293,7 +293,7 @@ def test_integration_stress() raises:
     print("✓ Integration stress test passed")
 
 
-fn main() raises:
+def main() raises:
     """Run test_packaging part 3 tests."""
     print("Running test_packaging_part3 tests...")
 

@@ -184,7 +184,7 @@ def test_accuracy_alias_from_shared() raises:
     print("✓ Accuracy alias importable from shared and matches AccuracyMetric")
 
 
-fn main() raises:
+def main() raises:
     """Run test_packaging part 2 tests."""
     print("Running test_packaging_part2 tests...")
 
