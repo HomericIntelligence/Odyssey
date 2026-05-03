@@ -381,28 +381,40 @@ package-release: (package "release")
 # Model Training and Inference
 # ==============================================================================
 
-# Train a model (default: LeNet-5 on EMNIST)
+# Train a model (default: LeNet-5 on EMNIST). Accepts lenet/lenet5 as aliases for lenet_emnist.
 train model="lenet_emnist" precision="fp32" epochs="10" batch_size="32" lr="0.001":
-    @echo "Training {{model}} with precision={{precision}}, epochs={{epochs}}"
-    @just _run "pixi run mojo run -I . examples/{{model}}/run_train.mojo \
-        --epochs {{epochs}} \
-        --batch-size {{batch_size}} \
-        --lr {{lr}} \
-        --precision {{precision}}"
+    #!/usr/bin/env bash
+    MODEL="{{model}}"
+    if [ "$MODEL" = "lenet" ] || [ "$MODEL" = "lenet5" ]; then MODEL="lenet_emnist"; fi
+    echo "Training $MODEL with precision={{precision}}, epochs={{epochs}}"
+    just _run "pixi run mojo run -I . examples/$MODEL/run_train.mojo \
+        --epochs {{epochs}} --batch-size {{batch_size}} \
+        --lr {{lr}} --precision {{precision}}"
 
-# Run inference on test set
+# Run inference on test set. Accepts lenet/lenet5 as aliases for lenet_emnist.
 infer model="lenet_emnist" checkpoint="lenet5_weights":
-    @echo "Running inference for {{model}} with checkpoint={{checkpoint}}"
-    @just _run "pixi run mojo run -I . examples/{{model}}/run_infer.mojo \
-        --checkpoint {{checkpoint}} \
-        --test-set"
+    #!/usr/bin/env bash
+    MODEL="{{model}}"
+    if [ "$MODEL" = "lenet" ] || [ "$MODEL" = "lenet5" ]; then MODEL="lenet_emnist"; fi
+    echo "Running inference for $MODEL with checkpoint={{checkpoint}}"
+    just _run "pixi run mojo run -I . examples/$MODEL/run_infer.mojo \
+        --checkpoint {{checkpoint}} --test-set"
 
-# Run inference on single image
+# Run inference on single image. Accepts lenet/lenet5 as aliases for lenet_emnist.
 infer-image checkpoint image_path model="lenet_emnist":
-    @echo "Running inference on {{image_path}}"
-    @just _run "pixi run mojo run -I . examples/{{model}}/run_infer.mojo \
-        --checkpoint {{checkpoint}} \
-        --image {{image_path}}"
+    #!/usr/bin/env bash
+    MODEL="{{model}}"
+    if [ "$MODEL" = "lenet" ] || [ "$MODEL" = "lenet5" ]; then MODEL="lenet_emnist"; fi
+    echo "Running inference on {{image_path}}"
+    just _run "pixi run mojo run -I . examples/$MODEL/run_infer.mojo \
+        --checkpoint {{checkpoint}} --image {{image_path}}"
+
+# Download EMNIST dataset (balanced split) and flatten to datasets/emnist/
+download-emnist:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    just _run "pixi run python scripts/download_emnist.py emnist datasets/emnist --split balanced"
+    just _run "bash -c 'cd datasets/emnist && for f in gzip/emnist-balanced-*.gz; do [ -f \"\$f\" ] && gunzip -c \"\$f\" > \"\$(basename \"\$f\" .gz)\"; done'"
 
 # List available models
 list-models:
@@ -857,6 +869,7 @@ help:
     @echo ""
     @echo "Training:  train [model] [precision] [epochs], infer [model] [checkpoint]"
     @echo "           list-models, infer-image [model] [checkpoint] [image_path]"
+    @echo "           download-emnist"
     @echo "Build:     build [mode], build-debug, build-release, check, ci-build"
     @echo "Package:   package [mode], package-debug, package-release"
     @echo "Test:      test, test-python, test-group, test-group-asan, test-mojo"
@@ -866,9 +879,10 @@ help:
     @echo "Utility:   help, status, clean, clean-all"
     @echo ""
     @echo "Examples:"
+    @echo "  just download-emnist                # Download EMNIST dataset (run once)"
     @echo "  just train                          # Train LeNet-5 with defaults"
-    @echo "  just train lenet5 fp16 20           # Train with FP16, 20 epochs"
-    @echo "  just infer lenet5 ./weights         # Evaluate on test set"
+    @echo "  just train lenet fp16 20            # Train with FP16, 20 epochs (lenet/lenet5/lenet_emnist all work)"
+    @echo "  just infer lenet lenet5_weights     # Evaluate on test set"
     @echo "  just jupyter                        # Launch Jupyter Lab"
     @echo "  just validate                       # Run validation locally"
     @echo ""
