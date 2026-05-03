@@ -138,8 +138,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
 
-      - name: Set up Pixi (provides Mojo)
-        uses: ./.github/actions/setup-pixi
+      - name: Set up container
+        uses: ./.github/actions/setup-container
+
+      - name: Install Just
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
 
       - name: Test config loading
         run: |
