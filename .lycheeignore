@@ -21,7 +21,8 @@ github\.com/HomericIntelligence/ProjectOdyssey
 # Ignore pytorch docs redirects (pytorch.org -> docs.pytorch.org)
 pytorch\.org/docs
 
-# Ignore fabricated Claude documentation URLs (not real public sites)
+# Ignore Claude URLs that return 403 to bots (valid URLs, bot-protection blocks lychee)
+claude\.ai
 platform\.claude\.com
 code\.claude\.com
 
