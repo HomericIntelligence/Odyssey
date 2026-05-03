@@ -24,6 +24,7 @@ services:
       - ENVIRONMENT=development
       - TERM=xterm-256color
       - PIXI_HOME=/home/${USER_NAME:-dev}/.pixi
+      - PIXI_CACHE_DIR=/home/${USER_NAME:-dev}/.cache/pixi
     working_dir: /workspace
     stdin_open: true
     tty: true
@@ -54,6 +55,7 @@ services:
       - ENVIRONMENT=ci
       - CI=true
       - PIXI_HOME=/home/${USER_NAME:-dev}/.pixi
+      - PIXI_CACHE_DIR=/home/${USER_NAME:-dev}/.cache/pixi
     working_dir: /workspace
 
   # Production environment

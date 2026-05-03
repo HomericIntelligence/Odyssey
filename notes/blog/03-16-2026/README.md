@@ -85,7 +85,7 @@ split test files to contain fewer than 10 tests each
 The monolithic `test_lenet5_layers.mojo` (24 tests) became 5 files:
 
 | File | Tests |
-| ---- | ----- |
+| --- | --- |
 | `test_lenet5_conv_layers.mojo` | 6 |
 | `test_lenet5_activation_layers.mojo` | 3 |
 | `test_lenet5_pooling_layers.mojo` | 4 |
@@ -159,7 +159,7 @@ systematically reduce the crash to its root cause.
 ### The Full Timeline
 
 | Date | Issue | Event | What We Thought |
-| ---- | ----- | ----- | --------------- |
+| --- | --- | --- | --- |
 | Dec 2025 | #2942 | LeNet-5 crashes after 15 tests | "Heap corruption at allocation threshold" |
 | Dec 2025 | ADR-009 | Split files to <=10 tests | "Stay below the crash threshold" |
 | Dec 2025 | — | 17 failed minimal reproducers | "Can't reproduce = must be Mojo runtime" |
@@ -235,7 +235,7 @@ Through systematic reduction, I discovered the crash requires three ingredients:
 Removing **any one** of these prevents the crash:
 
 | Variant | Crashes? |
-| ------- | -------- |
+| --- | --- |
 | Full reproducer (all 3 ingredients) | **YES** |
 | Remove bitcast write (`td[0] = 0.0`) | NO |
 | Create tensor without writing via bitcast | NO |
@@ -421,7 +421,7 @@ then `libKGENCompilerRTShared.so` crashes.
 ## Failed Attempts
 
 | # | What Was Tried | Result | Lesson |
-| --- | -------------- | ------ | ------ |
+| --- | --- | --- | --- |
 | 1 | Assumed two separate crashes | Wrong — one crash | Read stack traces bottom-up |
 | 2 | Raw `alloc`/`free` churn + bitcast | No crash | Bug requires `List[Int]` in struct |
 | 3 | Pure `List[Int]` churn (1000x) | No crash | Needs struct + computation combo |
@@ -480,7 +480,7 @@ The compiler's ASAP destruction pass needs to respect `MutAnyOrigin` wildcard or
 consistently, not just in simple functions. Zero effort from us, but unknown timeline.
 
 | Approach | Effort for VGG16 | Effort for all 141 instances | Fragility |
-| -------- | ----------------- | ---------------------------- | --------- |
+| --- | --- | --- | --- |
 | `__setitem__` | 30 min | ~4-6 hours | Low (safe API) |
 | `_ = tensor` keepalive | 15 min | ~12 hours | High (easy to forget) |
 | File splitting (ADR-009) | ~6 weeks | N/A (probabilistic) | Medium (threshold-dependent) |
@@ -493,7 +493,7 @@ consistently, not just in simple functions. Zero effort from us, but unknown tim
 Every experiment from the investigation, with its result:
 
 | # | Experiment | Result | Proves |
-| --- | --------- | ------ | ------ |
+| --- | --- | --- | --- |
 | 1 | Run VGG16 part1 5x | 5/5 crash, identical offsets | 100% deterministic |
 | 2 | VGG16 part2 | Assertion error (inf), not crash | Different failure mode |
 | 3 | 20x conv2d in for loop | 20/20 pass | Function scope required |
@@ -592,7 +592,7 @@ mojo build --sanitize address -g -o repro_asan repro/repro_crash_standalone.mojo
 ## Artifacts
 
 | File | Description |
-| ---- | ----------- |
+| --- | --- |
 | [repro_crash_standalone.mojo](/repro/repro_crash_standalone.mojo) | Self-contained reproducer (223 lines, zero dependencies) |
 | [repro_libkgen_crash.mojo](/repro/repro_libkgen_crash.mojo) | Reproducer using project imports (128 lines) |
 | [repro_libasyncrt_crash.mojo](/repro/repro_libasyncrt_crash.mojo) | VGG16-scale reproducer (159 lines) |

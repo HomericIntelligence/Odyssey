@@ -32,7 +32,7 @@ documentation automation.
 ## Skills
 
 | Skill | When to Invoke |
-| ----- | -------------- |
+| --- | --- |
 | `worktree-create` | Developing multiple agents in parallel |
 | `gh-implement-issue` | Implementing individual agent components |
 | `agent-run-orchestrator` | Coordinating agent specialists |

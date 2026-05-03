@@ -154,9 +154,9 @@ How will we know the implementation is successful?
 
 ## Revision History
 
-| Version | Date       | Author      | Changes     |
-| ------- | ---------- | ----------- | ----------- |
-| 1.0     | YYYY-MM-DD | Author Name | Initial ADR |
+| Version | Date | Author | Changes |
+| --- | --- | --- | --- |
+| 1.0 | YYYY-MM-DD | Author Name | Initial ADR |
 
 ---
 

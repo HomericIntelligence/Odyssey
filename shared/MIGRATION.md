@@ -123,7 +123,7 @@ from shared.training.callbacks import LRSchedulerCallback
 ### Decision Matrix
 
 | Component | Use Shared? | Rationale |
-|-----------|-------------|-----------|
+| --- | --- | --- |
 | Linear layer | ✅ Yes | Standard, well-tested |
 | Conv2D | ✅ Yes | Complex, SIMD-optimized |
 | SGD/Adam | ✅ Yes | Stateful, error-prone |

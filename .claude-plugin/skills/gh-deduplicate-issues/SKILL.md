@@ -3,7 +3,7 @@
 ## Overview
 
 | Field | Value |
-| ----- | ----- |
+| --- | --- |
 | **Date** | 2026-03-08 |
 | **Category** | tooling |
 | **Objective** | Close duplicate GitHub issues with "Duplicate of #XXXX" comment, keeping oldest as canonical survivor |
@@ -127,7 +127,7 @@ no easy way to see which issues were processed. Batching by group makes it easy 
 ### Session Metrics
 
 | Metric | Value |
-| ------ | ----- |
+| --- | --- |
 | Total issues closed | 114 |
 | Groups processed | 9 |
 | Survivors kept open | 9 |
@@ -139,7 +139,7 @@ no easy way to see which issues were processed. Batching by group makes it easy 
 ### Group Summary
 
 | Group | Theme | Survivor | Closed |
-| ----- | ----- | -------- | ------ |
+| --- | --- | --- | --- |
 | 1 | Test file compliance/enforcement | #3962 | 79 |
 | 2 | Test file splitting documentation | #3776 | 11 |
 | 3 | Remove continue-on-error Core Tensors | #4100 | 9 |

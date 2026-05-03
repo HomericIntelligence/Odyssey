@@ -401,7 +401,7 @@ This audit uses rigorous grading standards:
 ## 📊 Executive Scorecard
 
 | # | Section | Grade | Score | Status |
-|---|---------|-------|-------|--------|
+| --- | --- | --- | --- | --- |
 | 1 | Project Structure & Organization | ? | ??% | 🟢/🟡/🔴 |
 | 2 | Documentation | ? | ??% | 🟢/🟡/🔴 |
 | ... | ... | ... | ... | ... |
@@ -466,7 +466,7 @@ Status indicators: 🟢 A-B (healthy) | 🟡 C (needs attention) | 🔴 D-F (cri
 ## 📈 Development Principles Compliance Matrix
 
 | Principle | Compliance | Key Observations | Evidence |
-|-----------|-----------|------------------|----------|
+| --- | --- | --- | --- |
 | KISS | 🟢/🟡/🔴 | [one-line summary] | [file:line] |
 | YAGNI | 🟢/🟡/🔴 | [one-line summary] | [file:line] |
 | TDD | 🟢/🟡/🔴 | [one-line summary] | [file:line] |

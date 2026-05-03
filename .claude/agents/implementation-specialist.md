@@ -50,7 +50,7 @@ implementation tasks to Level 4 engineers.
 ## Skills
 
 | Skill | When to Invoke |
-|-------|---|
+| --- | --- |
 | phase-implement | Coordinating implementation across engineers |
 | quality-run-linters | Code quality validation before PR |
 | mojo-format | Code formatting |

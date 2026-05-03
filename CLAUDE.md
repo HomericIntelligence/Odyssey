@@ -38,7 +38,7 @@ assumptions):
 [README.md](README.md#part-of-homericintelligence) for the full table):
 
 | Repository | Role |
-|---|---|
+| --- | --- |
 | [Odysseus](https://github.com/HomericIntelligence/Odysseus) | Ecosystem meta-repo and architecture docs |
 | [AchaeanFleet](https://github.com/HomericIntelligence/AchaeanFleet) | Container images for the agent mesh (separate from this repo) |
 | [ProjectMnemosyne](https://github.com/HomericIntelligence/ProjectMnemosyne) | Skills marketplace and team learnings |
@@ -302,7 +302,7 @@ reasoning tasks. Use extended thinking when:
 Extended thinking consumes tokens. Use appropriate budgets based on task complexity:
 
 | Task Type | Budget | Examples | Rationale |
-| --------- | ------ | -------- | --------- |
+| --- | --- | --- | --- |
 | **Simple** | None | Fix typo | Mechanical changes |
 | **Standard** | 5K-10K | Add test, function | Well-defined |
 | **Complex** | 10K-20K | Restructure, migrate | Dependencies |
@@ -365,7 +365,7 @@ Hooks enable proactive automation and safety checks. Use hooks for guardrails an
 **Common Hooks for ML Odyssey**:
 
 | Hook Type | Trigger | Purpose | Implementation |
-| --------- | ------- | ------- | -------------- |
+| --- | --- | --- | --- |
 | **Safety** | compile | Zero-warnings | Fail on warnings |
 | **Safety** | pr_create | Issue link | Block if missing |
 | **Safety** | git_push | Block main | Fail if direct |
@@ -412,7 +412,7 @@ See [Tool Use Optimization](.claude/shared/tool-use-optimization.md#agentic-loop
 All agents and skills reference these shared files to avoid duplication:
 
 | File | Purpose |
-| ---- | ------- |
+| --- | --- |
 | `.claude/shared/common-constraints.md` | Minimal changes principle, scope discipline |
 | `.claude/shared/documentation-rules.md` | Output locations, before-starting checklist |
 | `.claude/shared/pr-workflow.md` | PR creation, verification, review responses |

@@ -33,7 +33,7 @@ orchestrators.
 ## Skills
 
 | Skill | When to Invoke |
-| ----- | -------------- |
+| --- | --- |
 | `agent-run-orchestrator` | Delegating to section orchestrators |
 | `agent-validate-config` | Creating/modifying agent configurations |
 | `agent-test-delegation` | Testing delegation patterns before deployment |

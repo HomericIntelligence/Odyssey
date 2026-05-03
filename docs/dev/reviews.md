@@ -26,7 +26,7 @@ Cross-references fixes [fixes.md](fixes.md), phases [phases.md](phases.md).
 **Comparisons**:
 
 | Model | Params | Ops | Rank |
-| ----- | ------ | --- | ---- |
+| --- | --- | --- | --- |
 | MobileNetV1 | 4.2M | 60M | Efficiency #1 |
 | VGG16 | 15M | 15B | Baseline |
 

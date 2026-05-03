@@ -104,7 +104,7 @@ shared/
 ML Odyssey supports multiple data types for tensors:
 
 | Type | Description | Use Case |
-|------|-------------|----------|
+| --- | --- | --- |
 | `DType.float32` | 32-bit floating point | Default, general training |
 | `DType.float16` | 16-bit floating point | Mixed precision training |
 | `DType.bfloat16` | Brain floating point | TPU compatibility |

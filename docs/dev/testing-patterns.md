@@ -12,7 +12,7 @@ must follow these patterns for consistency, maintainability, and clarity.
 ## Quick Reference
 
 | Pattern | When to Use | Key Functions |
-|---------|------------|---|
+| --- | --- | --- |
 | **Simple Test Data** | Basic unit tests | `create_random_tensor()`, `create_zeros_tensor()` |
 | **Parameterized Tests** | Multiple input variations | Loop over test cases with similar structure |
 | **Gradient Checking** | Backward pass validation | `check_gradients()`, `check_gradients_verbose()` |

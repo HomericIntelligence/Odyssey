@@ -402,7 +402,7 @@ Structure your report EXACTLY as follows. Use markdown formatting throughout.
 ## 📊 Executive Scorecard
 
 | # | Section | Grade | Score | Status |
-|---|---------|-------|-------|--------|
+| --- | --- | --- | --- | --- |
 | 1 | Project Structure & Organization | ? | ??% | 🟢/🟡/🔴 |
 | 2 | Documentation | ? | ??% | 🟢/🟡/🔴 |
 | ... | ... | ... | ... | ... |
@@ -458,7 +458,7 @@ Status indicators: 🟢 A-B (healthy) | 🟡 C (needs attention) | 🔴 D-F (cri
 ## 📈 Development Principles Compliance Matrix
 
 | Principle | Compliance | Key Observations |
-|-----------|-----------|------------------|
+| --- | --- | --- |
 | KISS | 🟢/🟡/🔴 | [one-line summary] |
 | YAGNI | 🟢/🟡/🔴 | [one-line summary] |
 | TDD | 🟢/🟡/🔴 | [one-line summary] |

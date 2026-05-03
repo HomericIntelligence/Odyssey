@@ -201,18 +201,18 @@ Each **Depthwise Separable Block** consists of:
 
 ### Classes
 
-| Index | Class      | Description               |
-|-------|------------|---------------------------|
-| 0     | airplane   | Various types of aircraft |
-| 1     | automobile | Cars and trucks           |
-| 2     | bird       | Various bird species      |
-| 3     | cat        | Domestic cats             |
-| 4     | deer       | Deer in various poses     |
-| 5     | dog        | Domestic dogs             |
-| 6     | frog       | Frogs and toads           |
-| 7     | horse      | Horses                    |
-| 8     | ship       | Boats and ships           |
-| 9     | truck      | Large trucks              |
+| Index | Class | Description |
+| --- | --- | --- |
+| 0 | airplane | Various types of aircraft |
+| 1 | automobile | Cars and trucks |
+| 2 | bird | Various bird species |
+| 3 | cat | Domestic cats |
+| 4 | deer | Deer in various poses |
+| 5 | dog | Domestic dogs |
+| 6 | frog | Frogs and toads |
+| 7 | horse | Horses |
+| 8 | ship | Boats and ships |
+| 9 | truck | Large trucks |
 
 ## File Structure
 
@@ -266,14 +266,14 @@ Based on reference implementations and similar experiments:
 
 ### Comparison with Other Architectures
 
-| Model      | Parameters | Operations | CIFAR-10 Accuracy | Training Time | Key Feature                    |
-|------------|------------|------------|-------------------|---------------|--------------------------------|
-| LeNet-5    | 61K        | 0.4M       | 70-75%            | 2-3 hours     | Early CNN                      |
-| AlexNet    | 2.3M       | 0.7B       | 80-85%            | 8-12 hours    | Large kernels, dropout         |
-| VGG-16     | 15M        | 15.5B      | 91-93%            | 30-40 hours   | Very deep (16 layers)          |
-| ResNet-18  | 11M        | 1.8B       | 93-94%            | 40-50 hours   | Skip connections               |
-| GoogLeNet  | 6.8M       | 1.5B       | 92-94%            | 35-45 hours   | Inception modules              |
-| MobileNetV1| 4.2M       | 60M        | 90-92%            | 25-35 hours   | Depthwise separable convs      |
+| Model | Parameters | Operations | CIFAR-10 Accuracy | Training Time | Key Feature |
+| --- | --- | --- | --- | --- | --- |
+| LeNet-5 | 61K | 0.4M | 70-75% | 2-3 hours | Early CNN |
+| AlexNet | 2.3M | 0.7B | 80-85% | 8-12 hours | Large kernels, dropout |
+| VGG-16 | 15M | 15.5B | 91-93% | 30-40 hours | Very deep (16 layers) |
+| ResNet-18 | 11M | 1.8B | 93-94% | 40-50 hours | Skip connections |
+| GoogLeNet | 6.8M | 1.5B | 92-94% | 35-45 hours | Inception modules |
+| MobileNetV1 | 4.2M | 60M | 90-92% | 25-35 hours | Depthwise separable convs |
 
 **Why MobileNetV1 is Efficient**:
 

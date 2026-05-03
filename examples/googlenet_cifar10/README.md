@@ -200,18 +200,18 @@ Each **Inception Module** consists of:
 
 ### Classes
 
-| Index | Class      | Description               |
-|-------|------------|---------------------------|
-| 0     | airplane   | Various types of aircraft |
-| 1     | automobile | Cars and trucks           |
-| 2     | bird       | Various bird species      |
-| 3     | cat        | Domestic cats             |
-| 4     | deer       | Deer in various poses     |
-| 5     | dog        | Domestic dogs             |
-| 6     | frog       | Frogs and toads           |
-| 7     | horse      | Horses                    |
-| 8     | ship       | Boats and ships           |
-| 9     | truck      | Large trucks              |
+| Index | Class | Description |
+| --- | --- | --- |
+| 0 | airplane | Various types of aircraft |
+| 1 | automobile | Cars and trucks |
+| 2 | bird | Various bird species |
+| 3 | cat | Domestic cats |
+| 4 | deer | Deer in various poses |
+| 5 | dog | Domestic dogs |
+| 6 | frog | Frogs and toads |
+| 7 | horse | Horses |
+| 8 | ship | Boats and ships |
+| 9 | truck | Large trucks |
 
 ## File Structure
 
@@ -264,13 +264,13 @@ Based on reference implementations and similar experiments:
 
 ### Comparison with Other Architectures
 
-| Model      | Parameters | CIFAR-10 Accuracy | Training Time (200 epochs) | Key Feature              |
-|------------|------------|-------------------|----------------------------|--------------------------|
-| LeNet-5    | 61K        | 70-75%            | 2-3 hours                  | Early CNN                |
-| AlexNet    | 2.3M       | 80-85%            | 8-12 hours                 | Large kernels, dropout   |
-| VGG-16     | 15M        | 91-93%            | 30-40 hours                | Very deep (16 layers)    |
-| ResNet-18  | 11M        | 93-94%            | 40-50 hours                | Skip connections         |
-| GoogLeNet  | 6.8M       | 92-94%            | 35-45 hours                | Inception modules        |
+| Model | Parameters | CIFAR-10 Accuracy | Training Time (200 epochs) | Key Feature |
+| --- | --- | --- | --- | --- |
+| LeNet-5 | 61K | 70-75% | 2-3 hours | Early CNN |
+| AlexNet | 2.3M | 80-85% | 8-12 hours | Large kernels, dropout |
+| VGG-16 | 15M | 91-93% | 30-40 hours | Very deep (16 layers) |
+| ResNet-18 | 11M | 93-94% | 40-50 hours | Skip connections |
+| GoogLeNet | 6.8M | 92-94% | 35-45 hours | Inception modules |
 
 **Why GoogLeNet is Efficient**:
 

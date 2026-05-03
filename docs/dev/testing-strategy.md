@@ -32,7 +32,7 @@ Weekly Schedule → E2E Tests (140 min) → Report
 ### Test Coverage Matrix
 
 | Test Type | When | Purpose | Dataset | Runtime |
-|-----------|------|---------|---------|---------|
+| --- | --- | --- | --- | --- |
 | **Layerwise** | Every PR | Validate layer | Values | ~12 min |
 | **E2E** | Weekly | Full integration | Data | ~140 min |
 
@@ -147,7 +147,7 @@ Values 0.0, 0.5, 1.0, 1.5, -1.0, -0.5 are **exactly representable** in IEEE 754:
 ### Value Categories
 
 | Value | Binary | Purpose |
-|-------|--------|---------|
+| --- | --- | --- |
 | 0.0 | 0x00000000 | Additive identity |
 | 0.5 | 0x3F000000 | Simple fraction |
 | 1.0 | 0x3F800000 | Multiplicative id |
@@ -210,7 +210,7 @@ Accumulation error ≈ n × ε_machine
 For common configurations, this exceeds the gradient-checking tolerance:
 
 | Layer | Kernel | C_in | n (accumulations) | Float16 error | Exceeds tolerance? |
-|-------|--------|------|-------------------|---------------|--------------------|
+| --- | --- | --- | --- | --- | --- |
 | LeNet-5 Conv1 | 5×5 | 1 | 25 | ~2.4e-2 | Borderline |
 | LeNet-5 Conv2 | 5×5 | 6 | 150 | ~1.5e-1 | Yes |
 | AlexNet Conv1 | 11×11 | 3 | 363 | ~3.5e-1 | Yes |

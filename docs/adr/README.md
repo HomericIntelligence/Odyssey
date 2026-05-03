@@ -15,7 +15,7 @@ An Architecture Decision Record captures a single architecture decision, includi
 ## ADR Index
 
 | ADR | Title | Status | Date |
-| --- | ----- | ------ | ---- |
+| --- | --- | --- | --- |
 | [ADR-001](ADR-001-language-selection-tooling.md) | Pragmatic Hybrid Language Approach for Tooling | Accepted | 2025-11-10 |
 | [ADR-002](ADR-002-gradient-struct-return-types.md) | Gradient Struct Return Types (Tuple Return Workaround) | Accepted | 2025-11-20 |
 | [ADR-003](ADR-003-memory-pool-architecture.md) | Memory Pool Architecture for Small Tensor Allocations | Accepted | 2025-12-28 |

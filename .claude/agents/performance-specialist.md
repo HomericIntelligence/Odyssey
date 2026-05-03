@@ -47,7 +47,7 @@ Position: works with Implementation Specialist to optimize components.
 ## Skills
 
 | Skill | When to Invoke |
-|-------|---|
+| --- | --- |
 | mojo-simd-optimize | Defining SIMD optimization strategies |
 | quality-complexity-check | Identifying performance bottlenecks |
 

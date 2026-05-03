@@ -201,13 +201,13 @@ Strategic Alignment (Level 0)
 ## Agent Count
 
 | Level | Name | Current Count |
-|-------|------|---|
-| 0     | Meta-Orchestrator | 1 |
-| 1     | Section Orchestrators | 6 |
-| 2     | Module Design & Review Orchestrators | 4 |
-| 3     | Specialists (Implementation + Code Review) | 13 |
-| 4     | Implementation Engineers | 5 |
-| 5     | Junior Engineers | 1 |
+| --- | --- | --- |
+| 0 | Meta-Orchestrator | 1 |
+| 1 | Section Orchestrators | 6 |
+| 2 | Module Design & Review Orchestrators | 4 |
+| 3 | Specialists (Implementation + Code Review) | 13 |
+| 4 | Implementation Engineers | 5 |
+| 5 | Junior Engineers | 1 |
 | **Total** | **All Agents** | **30** |
 
 **Level 3 Breakdown:**
@@ -760,7 +760,7 @@ Coordinates with: [Same level agents]
 ## Integration with 5-Phase Workflow
 
 | Phase | Active Levels | Focus |
-|-------|---------------|-------|
+| --- | --- | --- |
 | Plan | 0, 1, 2, 3 | Orchestrators and designers create specifications |
 | Test | 3, 4, 5 | Specialists and engineers write tests |
 | Implementation | 3, 4, 5 | Specialists and engineers build functionality |

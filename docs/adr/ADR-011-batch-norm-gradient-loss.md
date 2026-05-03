@@ -302,9 +302,9 @@ the fundamental zero-mean property.
 
 ## Revision History
 
-| Version | Date       | Author            | Changes         |
-| ------- | ---------- | ----------------- | --------------- |
-| 1.0     | 2026-03-14 | ML Odyssey Team   | Initial ADR     |
+| Version | Date | Author | Changes |
+| --- | --- | --- | --- |
+| 1.0 | 2026-03-14 | ML Odyssey Team | Initial ADR |
 
 ---
 

@@ -123,15 +123,15 @@ print("Maximum batch size:", max_batch)  # ~159,439 samples
 
 ### EMNIST Dataset (47 classes, 28×28 images)
 
-| Batch Size | Input Memory | Forward Memory | Total Estimate | Recommendation      |
-|------------|--------------|----------------|----------------|---------------------|
-| 32         | 98 KB        | 832 KB         | ~1.7 MB        | Ideal for testing   |
-| 64         | 196 KB       | 1.6 MB         | ~3.4 MB        | Good for training   |
-| 128        | 393 KB       | 3.3 MB         | ~6.8 MB        | Good for training   |
-| 256        | 786 KB       | 6.6 MB         | ~13.6 MB       | Good for training   |
-| 512        | 1.6 MB       | 13.2 MB        | ~27 MB         | Monitor memory      |
-| 1024       | 3.1 MB       | 26.5 MB        | ~54 MB         | Monitor memory      |
-| 112,800    | 337 MB       | 2.9 GB         | ~5.9 GB        | Exceeds limits!     |
+| Batch Size | Input Memory | Forward Memory | Total Estimate | Recommendation |
+| --- | --- | --- | --- | --- |
+| 32 | 98 KB | 832 KB | ~1.7 MB | Ideal for testing |
+| 64 | 196 KB | 1.6 MB | ~3.4 MB | Good for training |
+| 128 | 393 KB | 3.3 MB | ~6.8 MB | Good for training |
+| 256 | 786 KB | 6.6 MB | ~13.6 MB | Good for training |
+| 512 | 1.6 MB | 13.2 MB | ~27 MB | Monitor memory |
+| 1024 | 3.1 MB | 26.5 MB | ~54 MB | Monitor memory |
+| 112,800 | 337 MB | 2.9 GB | ~5.9 GB | Exceeds limits! |
 
 ### General Guidelines
 

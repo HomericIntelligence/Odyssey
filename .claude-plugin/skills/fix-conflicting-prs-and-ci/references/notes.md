@@ -7,7 +7,7 @@
 ### Session 1 (3 branches)
 
 | PR | Branch | Conflict Type | Resolution |
-| -- | ------ | ------------- | ---------- |
+| --- | --- | --- | --- |
 | #4317 | 3476-auto-impl | add/add in test_extensor_abs_ops.mojo, rename/delete in test_extensor_slicing.mojo.DEPRECATED | Kept incoming tests (more comprehensive), accepted main's deletion |
 | #3933 | 3311-auto-impl | content in test_migrate_odyssey_skills.py | Merged import ordering, kept new test classes from PR |
 | #3885 | 3285-auto-impl | modify/delete in test_alexnet_layers.mojo | Accepted main's deletion (file was split) |
@@ -15,7 +15,7 @@
 ### Session 2 (4 branches)
 
 | PR | Branch | Conflict Type | Resolution |
-| -- | ------ | ------------- | ---------- |
+| --- | --- | --- | --- |
 | #3836 | 3275-auto-impl | 3 conflicts in extensor.mojo | Kept PR's new __setitem__ method, kept HEAD's richer __str__ with truncation |
 | #4053 | 3379-auto-impl | 2 conflicts in test_utility.mojo | Kept PR's new test function + call |
 | #4054 | 3380-auto-impl | 2 conflicts in test_utility.mojo | Kept PR's new test function + call |

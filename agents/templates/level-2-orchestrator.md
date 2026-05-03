@@ -154,7 +154,7 @@ and routes different aspects to specialized [type] agents, ensuring thorough cov
 <!-- Example: By File Extension, By Task Type, By Domain Area -->
 
 | [Category] | Primary Specialist | Additional Specialists |
-|------------|-------------------|------------------------|
+| --- | --- | --- |
 | [Category A] | [Specialist Name] | [Specialist Name] (if needed) |
 | [Category B] | [Specialist Name] | - |
 | [Category C] | [Specialist Name] | [Specialist Name], [Specialist Name] |
@@ -166,7 +166,7 @@ and routes different aspects to specialized [type] agents, ensuring thorough cov
 <!-- Example: By Change Type, By Impact Level, By Complexity -->
 
 | [Dimension Value] | Specialist(s) |
-|-------------------|---------------|
+| --- | --- |
 | [Value A] | [Specialist A] + [Specialist B] |
 | [Value B] | [Specialist C] |
 | [Value C] | [Specialist D] |
@@ -178,7 +178,7 @@ and routes different aspects to specialized [type] agents, ensuring thorough cov
 <!-- Example: By Impact Assessment, By Risk Level, By Dependencies -->
 
 | [Level] | Additional [Actions/Reviews/Specialists] Required |
-|---------|---------------------------------------------------|
+| --- | --- |
 | [High] | [Specialist X] + [Specialist Y] |
 | [Medium] | [Specialist Z] |
 | [Low] | [Standard process] |
@@ -328,7 +328,7 @@ and routes different aspects to specialized [type] agents, ensuring thorough cov
 Each aspect of [work] is [handled/reviewed] along independent dimensions:
 
 | Dimension | Specialist | What They [Handle/Review] |
-|-----------|-----------|---------------------------|
+| --- | --- | --- |
 | **[Dimension 1]** | [Specialist Name] | [Specific scope and boundaries] |
 | **[Dimension 2]** | [Specialist Name] | [Specific scope and boundaries] |
 | **[Dimension 3]** | [Specialist Name] | [Specific scope and boundaries] |
@@ -404,7 +404,7 @@ Answer these questions to customize this template:
 List all specialists this orchestrator coordinates:
 
 | Specialist Name | Primary Responsibility | When to Route |
-|----------------|------------------------|---------------|
+| --- | --- | --- |
 | [Name] | [Responsibility] | [Trigger condition] |
 | [Name] | [Responsibility] | [Trigger condition] |
 | ... | ... | ... |

@@ -60,14 +60,14 @@ var v = t.reshape([12])               # refcount = 2, v._is_view = True
 
 These operations return a view — no data duplication occurs:
 
-| Operation               | Location         | View? | Notes                                  |
-|-------------------------|------------------|-------|----------------------------------------|
-| `reshape(new_shape)`    | `any_tensor.mojo`  | Yes   | Zero-copy; shape metadata changes only |
-| `transpose(dim0, dim1)` | `any_tensor.mojo`  | Yes   | Strides permuted; pointer shared       |
-| `slice(...)`            | `any_tensor.mojo`  | Yes   | Offset pointer into same buffer        |
-| `squeeze(dim)`          | `shape.mojo`     | Yes   | Removes size-1 dimensions              |
-| `unsqueeze(dim)`        | `shape.mojo`     | Yes   | Inserts size-1 dimensions              |
-| `broadcast_to(shape)`   | `shape.mojo`     | Yes   | Stride-based broadcast; no copy        |
+| Operation | Location | View? | Notes |
+| --- | --- | --- | --- |
+| `reshape(new_shape)` | `any_tensor.mojo` | Yes | Zero-copy; shape metadata changes only |
+| `transpose(dim0, dim1)` | `any_tensor.mojo` | Yes | Strides permuted; pointer shared |
+| `slice(...)` | `any_tensor.mojo` | Yes | Offset pointer into same buffer |
+| `squeeze(dim)` | `shape.mojo` | Yes | Removes size-1 dimensions |
+| `unsqueeze(dim)` | `shape.mojo` | Yes | Inserts size-1 dimensions |
+| `broadcast_to(shape)` | `shape.mojo` | Yes | Stride-based broadcast; no copy |
 
 All view operations set `_is_view = True` on the result. The refcount on the
 underlying buffer is incremented by the `__copyinit__` in the view constructor.
@@ -80,12 +80,12 @@ was dropped before merge.
 
 If you need a view with custom strides, use the existing view-returning operations:
 
-| Goal                              | Use instead                  |
-|-----------------------------------|------------------------------|
-| Change shape (no stride reorder)  | `reshape(new_shape)`         |
-| Permute two axes                  | `transpose(dim0, dim1)`      |
-| Select a sub-region               | `slice(start, end, axis)`    |
-| Broadcast to a larger shape       | `broadcast_to(target_shape)` |
+| Goal | Use instead |
+| --- | --- |
+| Change shape (no stride reorder) | `reshape(new_shape)` |
+| Permute two axes | `transpose(dim0, dim1)` |
+| Select a sub-region | `slice(start, end, axis)` |
+| Broadcast to a larger shape | `broadcast_to(target_shape)` |
 
 All four operations return a view (`_is_view = True`) and share the source buffer.
 None allocate.
@@ -94,13 +94,13 @@ None allocate.
 
 These operations allocate a new data buffer:
 
-| Operation                                       | Location         | Notes                                 |
-|-------------------------------------------------|------------------|---------------------------------------|
-| `as_contiguous()`                               | `any_tensor.mojo`  | Forces C-order layout into new buffer |
-| `copy()`                                        | `any_tensor.mojo`  | Explicit deep copy                    |
-| Element-wise ops (`__add__`, `__mul__`, etc.)   | `any_tensor.mojo`  | Output is always new tensor           |
-| Reduction ops (`sum()`, `mean()`, etc.)         | `reduction.mojo` | Output is always new tensor           |
-| `concatenate(tensors, axis)`                    | `shape.mojo`     | Allocates output; copies all inputs   |
+| Operation | Location | Notes |
+| --- | --- | --- |
+| `as_contiguous()` | `any_tensor.mojo` | Forces C-order layout into new buffer |
+| `copy()` | `any_tensor.mojo` | Explicit deep copy |
+| Element-wise ops (`__add__`, `__mul__`, etc.) | `any_tensor.mojo` | Output is always new tensor |
+| Reduction ops (`sum()`, `mean()`, etc.) | `reduction.mojo` | Output is always new tensor |
+| `concatenate(tensors, axis)` | `shape.mojo` | Allocates output; copies all inputs |
 
 ## The `transpose_view()` Special Case
 

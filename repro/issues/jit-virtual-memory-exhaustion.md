@@ -64,14 +64,14 @@ def main() raises:
 VmPeak / VmRSS measured via `/proc/$PID/status` polling during a normal (no ulimit) run:
 
 | Metric | Value |
-|--------|-------|
+| --- | --- |
 | VmPeak (virtual peak) | 3,705,232 kB (~3.53 GB) |
 | VmRSS (physical RAM) | ~321,000 kB (~314 MB) |
 
 Virtual address space crash threshold (5 runs each):
 
 | `ulimit -v` (kB) | Pass rate | Notes |
-|------------------|-----------|-------|
+| --- | --- | --- |
 | 3,500,000 | 0/5 (0%) | Reliable crash — use for repro |
 | 3,700,000 | 1/5 (20%) | Non-deterministic (ASLR variance) |
 | 3,750,000 | 4/5 (80%) | Non-deterministic |

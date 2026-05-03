@@ -265,9 +265,9 @@ corruption before process exit.
 
 ## Revision History
 
-| Version | Date       | Author      | Changes     |
-| ------- | ---------- | ----------- | ----------- |
-| 1.0     | 2026-03-24 | Claude Code | Initial ADR |
+| Version | Date | Author | Changes |
+| --- | --- | --- | --- |
+| 1.0 | 2026-03-24 | Claude Code | Initial ADR |
 
 ---
 

@@ -109,7 +109,7 @@ done
 ## Failed Attempts
 
 | Attempt | Why Failed | Lesson Learned |
-| ------- | --------- | -------------- |
+| --- | --- | --- |
 | First CI fix only addressed `py=` keyword | Missed `view_with_strides` error, 34 formatting files, test coverage gaps | Always get ALL failure logs from ALL failed jobs before fixing |
 | Ran local `mojo format` on files | Crashes with `comptime_assert_stmt` error on nightly-formatted files | Extract formatting patch from CI logs instead of running locally |
 | Listed specific test files in CI workflow | Breaks every time files are split | Use wildcard patterns like `test_foo*.mojo` |

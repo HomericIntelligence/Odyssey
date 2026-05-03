@@ -13,7 +13,7 @@ outcome: success
 ## Overview
 
 | Field | Value |
-|-------|-------|
+| --- | --- |
 | **Date** | 2026-02-08 |
 | **Objective** | Rebase 5 open PRs against main to resolve `.gitleaks.toml` conflicts and fix `secret-scan` CI failures |
 | **Outcome** | ✅ Success - 5/5 PRs rebased, all conflicts resolved, all mergeable |
@@ -214,7 +214,7 @@ git rebase origin/main  # Now succeeds
 ### Final PR Status
 
 | PR | Branch | Status | Commits Dropped | CI Fixed |
-|----|--------|--------|-----------------|----------|
+| --- | --- | --- | --- | --- |
 | #3118 | `fix-flaky-data-samplers-optional-int` | ✅ All passing | 2 | secret-scan, security-report |
 | #3117 | `skill/debugging/fixme-todo-cleanup-v2` | ⚠️ pre-commit fail | 2 | secret-scan, security-report |
 | #3116 | `skill/architecture/dtype-native-migration` | ⚠️ flaky test | 0 | secret-scan, security-report |

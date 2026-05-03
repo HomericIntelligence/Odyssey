@@ -279,7 +279,7 @@ the GitHub issue exists before starting work. See `.claude/shared/github-issue-w
 ## Decision Authority
 
 | Level | Can Decide | Must Escalate |
-|-------|-----------|---------------|
+| --- | --- | --- |
 | 0 | System architecture, tech stack, paper selection | Business strategy |
 | 1 | Section organization, cross-module deps | System-wide changes |
 | 2 | Module interfaces, component design | Cross-section impacts |
@@ -389,7 +389,7 @@ git merge --no-commit <branch>
 ### Package Phase Artifacts by Component Type
 
 | Component Type | Required Artifacts | Verification |
-|----------------|-------------------|--------------|
+| --- | --- | --- |
 | Mojo Library | `dist/<module>-<version>.mojopkg` | `mojo package shared/<module> -o dist/<module>-<version>.mojopkg` |
 | Tooling | `dist/<tool>-<version>.tar.gz` | Extract and run in fresh directory |
 | Documentation | `site/` + `.github/workflows/docs.yml` | `mkdocs build && mkdocs serve` |

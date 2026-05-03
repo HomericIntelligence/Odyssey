@@ -71,7 +71,7 @@ def main() raises:
 ## Isolation Experiments
 
 | Variant | Crashes? | Conclusion |
-|---------|----------|------------|
+| --- | --- | --- |
 | Full reproducer | **YES (100%)** | Baseline |
 | Remove bitcast write (3 lines) | NO | Bitcast write is the trigger |
 | step_b() alone (no prior step_a()) | NO | Prior heap churn required |

@@ -128,7 +128,7 @@ Structure your report as follows. Keep it SHORT. No filler.
 ## 📊 Quick Scorecard
 
 | Section | Grade | Status | Critical Issues |
-|---------|-------|--------|-----------------|
+| --- | --- | --- | --- |
 | 1. Structure & Documentation | ? | 🟢/🟡/🔴 | Count |
 | 2. Architecture & Design | ? | 🟢/🟡/🔴 | Count |
 | 3. Code Quality | ? | 🟢/🟡/🔴 | Count |

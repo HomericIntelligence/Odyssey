@@ -134,7 +134,7 @@ When multiple `mojo` processes run concurrently on GitHub Actions free runners
 **Measured findings (from `investigate_import_threshold.sh`):**
 
 | Variable | Impact on RSS |
-| -------- | ------------- |
+| --- | --- |
 | Monomorphization count (1–300) | None (all ~330MB RSS) |
 | Line count (50–1000 concrete fns) | None |
 | Module-level vs per-function imports | None (same ~330MB RSS) |

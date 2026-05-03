@@ -224,7 +224,7 @@ A comprehensive code review system with 14 agents (1 orchestrator + 13 specialis
 Each specialist reviews one dimension exclusively:
 
 | Dimension | Specialist | Example |
-|-----------|-----------|---------|
+| --- | --- | --- |
 | Logic Correctness | Implementation | Bug detection, control flow |
 | Memory Safety | Safety | Leaks, use-after-free |
 | Security Exploits | Security | SQL injection, XSS |

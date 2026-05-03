@@ -325,14 +325,14 @@ ML Odyssey is a Mojo-first project. Agents at each level need appropriate Mojo e
 
 Agents reference shared files to avoid duplication:
 
-| File                                     | Purpose                    |
-| ---------------------------------------- | -------------------------- |
-| `.claude/shared/common-constraints.md`   | Minimal changes principle  |
-| `.claude/shared/documentation-rules.md`  | Output locations           |
-| `.claude/shared/pr-workflow.md`          | PR creation, review        |
-| `.claude/shared/mojo-guidelines.md`      | Mojo v0.26.1+ syntax       |
-| `.claude/shared/mojo-anti-patterns.md`   | 64+ failure patterns       |
-| `.claude/shared/error-handling.md`       | Retry, timeout, escalation |
+| File | Purpose |
+| --- | --- |
+| `.claude/shared/common-constraints.md` | Minimal changes principle |
+| `.claude/shared/documentation-rules.md` | Output locations |
+| `.claude/shared/pr-workflow.md` | PR creation, review |
+| `.claude/shared/mojo-guidelines.md` | Mojo v0.26.1+ syntax |
+| `.claude/shared/mojo-anti-patterns.md` | 64+ failure patterns |
+| `.claude/shared/error-handling.md` | Retry, timeout, escalation |
 
 ### Skills Directory
 
@@ -395,9 +395,9 @@ Code Metrics (L5)
 
 ## Revision History
 
-| Version | Date       | Author          | Changes     |
-| ------- | ---------- | --------------- | ----------- |
-| 1.0     | 2025-12-28 | Chief Architect | Initial ADR |
+| Version | Date | Author | Changes |
+| --- | --- | --- | --- |
+| 1.0 | 2025-12-28 | Chief Architect | Initial ADR |
 
 ---
 

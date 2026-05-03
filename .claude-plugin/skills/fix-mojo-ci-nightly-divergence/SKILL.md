@@ -3,7 +3,7 @@
 ## Overview
 
 | Field | Value |
-| ----- | ----- |
+| --- | --- |
 | **Date** | 2026-03-10 |
 | **Category** | ci-cd |
 | **Objective** | Fix CI failures caused by Mojo nightly vs stable release API differences |
@@ -113,7 +113,7 @@ These are genuine fixes needed regardless of nightly vs stable:
 ## Results & Parameters
 
 | Metric | Value |
-| ------ | ----- |
+| --- | --- |
 | PRs created | 2 (fix-pre-commit #4483, pin-mojo-stable-channel #4484) |
 | Files modified | ~40 |
 | Workaround commits reverted | 1 (a50db177) |

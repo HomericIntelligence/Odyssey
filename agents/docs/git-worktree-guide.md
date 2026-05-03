@@ -451,11 +451,11 @@ gh issue comment 62 --body "$(cat <<'EOF'
 
 ## Phase Progress
 
-| Phase          | Issue | Progress | Status   |
-|----------------|-------|----------|----------|
-| Test           | #63   | 80%      | On track |
-| Implementation | #64   | 75%      | On track |
-| Packaging      | #65   | 60%      | On track |
+| Phase | Issue | Progress | Status |
+| --- | --- | --- | --- |
+| Test | #63 | 80% | On track |
+| Implementation | #64 | 75% | On track |
+| Packaging | #65 | 60% | On track |
 
 ## Blockers
 

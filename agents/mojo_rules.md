@@ -45,7 +45,7 @@ var tensor = AnyTensor(shape, DType.float32)
 ### 3. Deprecated Syntax
 
 | Wrong | Correct |
-|-------|---------|
+| --- | --- |
 | `inout self` | `mut self` |
 | `@value` | `@fieldwise_init` + traits |
 | `DynamicVector` | `List` |

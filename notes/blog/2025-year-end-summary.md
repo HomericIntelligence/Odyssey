@@ -71,7 +71,7 @@ Over 8 weeks spanning November-December 2025, the project progressed from initia
 **Metrics Comparison:**
 
 | Metric | Week 1 | Week 2 | Change |
-|--------|--------|--------|--------|
+| --- | --- | --- | --- |
 | Total Tokens | 430.6M | 394.3M | -8.4% |
 | Cost (USD) | $327.84 | $274.48 | -16.3% |
 | Issues Created | 1,553 | 284 | -81.7% (shift to execution) |
@@ -166,7 +166,7 @@ Over 8 weeks spanning November-December 2025, the project progressed from initia
 **Token Analysis Across Project:**
 
 | Week | Duration | Tokens | Cost | Key Activity |
-|------|----------|--------|------|--------------|
+| --- | --- | --- | --- | --- |
 | 1 (11-03) | 5 days | 361.5M | $250.10 | Planning |
 | 2 (11-10) | 5 days | 463.5M | $352.21 | Infrastructure |
 | 3 (11-17) | 6 days | 570.6M | $342.40 | Workflow testing |
@@ -179,7 +179,7 @@ Over 8 weeks spanning November-December 2025, the project progressed from initia
 The release of Opus 4.5 created a discontinuity in the data:
 
 | Model | Output Tokens Behavior | Implication |
-|-------|----------------------|------------|
+| --- | --- | --- |
 | Opus 4.1 | ~4M output tokens/week | Generation-focused workflow |
 | Opus 4.5 | ~302k output tokens/week | Planning-focused workflow |
 | Change | **94% reduction** | Model reads more, generates less |
@@ -585,7 +585,7 @@ The constraints that drove this work—time and token budget—forced a focus on
 **Statistical Summary:**
 
 | Category | Value |
-| -------- | ----- |
+| --- | --- |
 | **Timeline** | 8 weeks (Nov 7 - Dec 31) |
 | **Total Token Usage** | 3.3B tokens |
 | **Total Cost** | $2,013.30 |

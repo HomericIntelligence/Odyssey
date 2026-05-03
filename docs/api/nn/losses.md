@@ -210,7 +210,7 @@ var loss = criterion.forward(x1, x2, labels)
 All losses support three reduction modes:
 
 | Mode | Description | Output Shape |
-|------|-------------|--------------|
+| --- | --- | --- |
 | `"mean"` | Average over all elements | `()` scalar |
 | `"sum"` | Sum over all elements | `()` scalar |
 | `"none"` | No reduction | Same as input |
@@ -278,7 +278,7 @@ fn focal_loss(
 ## Comparison Table
 
 | Loss | Use Case | Input Type | Output |
-|------|----------|------------|--------|
+| --- | --- | --- | --- |
 | CrossEntropy | Multi-class | Logits + Class IDs | Scalar |
 | NLLLoss | Multi-class | Log-probs + Class IDs | Scalar |
 | BCELoss | Binary | Probabilities | Scalar |

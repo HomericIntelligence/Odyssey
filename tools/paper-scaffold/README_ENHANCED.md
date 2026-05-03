@@ -100,7 +100,7 @@ papers/<paper-name>/
 Paper names are automatically normalized to valid directory names:
 
 | Input | Output |
-|-------|--------|
+| --- | --- |
 | `LeNet-5` | `lenet-5` |
 | `BERT: Pre-training` | `bert-pre-training` |
 | `GPT--2` | `gpt-2` |
@@ -164,7 +164,7 @@ Suggestions:
 Templates support variable substitution using `{{VARIABLE}}` syntax:
 
 | Variable | Description | Example |
-|----------|-------------|---------|
+| --- | --- | --- |
 | `{{PAPER_NAME}}` | Normalized paper name | `lenet-5` |
 | `{{PAPER_TITLE}}` | Full paper title | `LeNet-5: Gradient-Based...` |
 | `{{MODEL_NAME}}` | PascalCase model name | `Lenet5` |
