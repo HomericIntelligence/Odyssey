@@ -56,22 +56,24 @@ unset _prefix
 # ---------------------------------------------------------------------------
 _ensure_writable() {
     for dir in "$@"; do
-        mkdir -p "$dir" 2>/dev/null || sudo mkdir -p "$dir" 2>/dev/null || true
+        mkdir -p "$dir" 2>/dev/null || sudo -n mkdir -p "$dir" 2>/dev/null || true
         # If we own the directory already, nothing to do.
         if [ -w "$dir" ]; then
             continue
         fi
         # chmod only succeeds if we already own the directory.
         # When the workspace is bind-mounted as root:root, fall back to
-        # sudo chown on the specific subdir only (never the whole workspace).
+        # sudo chown -R on the specific subdir only (never the whole workspace).
         chmod u+w "$dir" 2>/dev/null || \
-            sudo chown "$(id -u):$(id -g)" "$dir" 2>/dev/null || true
+            sudo -n chown -R "$(id -u):$(id -g)" "$dir" 2>/dev/null || true
     done
 }
 
 _ensure_writable \
     build \
     .pixi \
+    datasets \
+    lenet5_weights \
     tests/configs/fixtures \
     tests/shared/fixtures \
     /tmp/mojo-tests
