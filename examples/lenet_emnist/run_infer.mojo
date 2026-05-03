@@ -73,13 +73,6 @@ struct InferConfig(Movable):
         self.data_dir = "datasets/emnist"
         self.top_k = 5
 
-    def __init__(out self, *, takeother: Self):
-        self.checkpoint_dir = other.checkpoint_dir^
-        self.image_path = other.image_path^
-        self.run_test_set = other.run_test_set
-        self.data_dir = other.data_dir^
-        self.top_k = other.top_k
-
 
 def parse_args() raises -> InferConfig:
     """Parse command line arguments using enhanced argument parser."""
