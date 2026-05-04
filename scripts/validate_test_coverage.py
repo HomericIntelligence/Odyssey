@@ -174,6 +174,42 @@ def parse_ci_matrix(workflow_file: Path) -> Dict[str, Dict[str, str]]:
         if name and path and pattern:
             groups[name] = {"path": path, "pattern": pattern}
 
+    # When no matrix groups exist, parse sequential steps of test-mojo-comprehensive directly.
+    # Each step runs `just test-group <path> "<pattern>"` (possibly multi-line with \ continuation).
+    # Extract path+pattern from the run command to determine which test files are covered.
+    if not groups:
+        steps = test_job.get("steps", [])
+        for step in steps:
+            run_cmd = step.get("run", "")
+            if "test-group" not in run_cmd:
+                continue
+            step_name = step.get("name", "unknown")
+            # Collapse backslash-newline continuations and strip leading whitespace per line
+            collapsed = run_cmd.replace("\\\n", " ")
+            collapsed = " ".join(line.strip() for line in collapsed.splitlines())
+            # Find `just test-group "<path>" "<patterns...>"` — quotes may or may not be present
+            import re as _re
+
+            # Match: just test-group <path> <rest-of-patterns>
+            m = _re.search(r'just\s+test-group\s+"?([^\s"]+)"?\s+"?(.+?)(?:"?\s*$|$)', collapsed)
+            if m:
+                path = m.group(1)
+                pattern_raw = m.group(2)
+            else:
+                # Fallback: tokenize and find test-group token
+                parts = collapsed.split()
+                try:
+                    tg_idx = parts.index("test-group")
+                    path = parts[tg_idx + 1].strip('"')
+                    pattern_raw = " ".join(parts[tg_idx + 2 :])
+                except (ValueError, IndexError):
+                    continue
+            # Strip quotes, backslash artifacts from YAML multi-line folding
+            pattern_raw = pattern_raw.replace("\\ ", " ").replace("\\", " ")
+            pattern_raw = pattern_raw.strip('"').strip("'").strip()
+            key = f"{step_name}::{path}"
+            groups[key] = {"path": path, "pattern": pattern_raw}
+
     # Also parse separate test jobs (test-configs, test-training, test-benchmarks, test-core-layers, test-example-arithmetic)
     # These are standalone jobs outside the matrix
     for job_name in [

@@ -226,140 +226,17 @@ jobs:
   # Comprehensive Mojo Test Suite - Parallelized by Test Group
   # ============================================================================
   test-mojo-comprehensive:
-    needs: [mojo-compilation, validate-test-coverage]  # Only run tests if compilation and validation succeed
+    needs: [mojo-compilation, validate-test-coverage]
     runs-on: ubuntu-latest
-    timeout-minutes: 15  # Job timeout for all matrix groups. Monitor wall-clock times after
-                          # consolidating test files. If any group consistently takes >10 min,
-                          # split it into two separate entries. See Issue #3357 for monitoring
-                          # guidance. Test groups are isolated for parallel execution and
-                          # job-timeout management.
-    strategy:
-      fail-fast: false  # Run all test groups even if one fails
-      max-parallel: 1  # Each mojo invocation maps ~3.6 GB virtual address space (VmPeak).
-                       # Free-tier runners have 7 GB total; 2 concurrent mojo processes exhaust
-                       # virtual address space and crash in libKGENCompilerRTShared.so.
-                       # Serializing to 1 parallel job eliminates the overlap entirely.
-                       # See repro/issues/jit-virtual-memory-exhaustion.md and modular/modular#6433.
-      matrix:
-        test-group:
-          # The 'pattern' field accepts space-separated filename patterns.
-          # Glob wildcards (e.g., test_activation*.mojo) are supported and preferred
-          # so that new test files are auto-discovered without manual updates.
-          # See Issue #4157 for CI pattern guidelines.
-          # ---- Core tensor operations ----
-          - name: "Core Tensors"
-            path: "tests/shared/core"
-            pattern: "test_tensors*.mojo test_arithmetic*.mojo test_broadcasting*.mojo test_shape*.mojo test_creation*.mojo test_reduction*.mojo test_matrix*.mojo test_matmul*.mojo test_strassen.mojo test_pooling*.mojo test_properties*.mojo test_high_dimensional*.mojo test_slicing*.mojo test_elementwise*.mojo test_comparison_ops*.mojo test_edge_cases*.mojo test_concatenate*.mojo test_reshape*.mojo"
-          # ---- Activations + dtype dispatch ----
-          # Uses wildcards to auto-include new test files without manual workflow updates.
-          - name: "Core Activations & Types"
-            path: "tests/shared/core"
-            pattern: "test_activation*.mojo test_advanced_activations*.mojo test_dtype_dispatch*.mojo test_dtype_ordinal*.mojo"
-          # ---- Loss functions ----
-          - name: "Core Loss"
-            path: "tests/shared/core"
-            pattern: "test_losses.mojo test_loss_funcs*.mojo test_loss_utils.mojo"
-          # ---- Gradient math ----
-          - name: "Core Gradient"
-            path: "tests/shared/core"
-            pattern: "test_backward*.mojo test_gradient*.mojo test_variable_backward*.mojo test_depthwise_conv*.mojo"
-          # ---- Core Utilities (split into A/B/C/D per Issue #4116) ----
-          # Previously a single group with 91 files. Split to reduce per-job
-          # wall-clock time and improve failure isolation.
-          # Glob wildcards are supported and preferred — use them where practical
-          # so that new test files are auto-discovered without manual CI updates.
-          # ---- Core Utilities A: General utilities, validation, bitwise, integration ----
-          - name: "Core Utilities A"
-            path: "tests/shared/core"
-            pattern: "test_utilities*.mojo test_utility*.mojo test_utils*.mojo test_validation*.mojo test_integration*.mojo test_inplace*.mojo test_lazy*.mojo test_constants*.mojo test_hash*.mojo test_setitem_view*.mojo test_int_bitwise*.mojo test_uint_bitwise*.mojo test_unsigned*.mojo test_normalize_slice*.mojo test_jit_crash*.mojo"
-          # ---- Core Utilities B: ExTensor operations ----
-          # Includes str truncation tests (issue #4040):
-          #   test_extensor_str.mojo, test_extensor_int_str.mojo,
-          #   test_extensor_multidim_int_str.mojo, test_extensor_slicing_view_strides.mojo
-          - name: "Core Utilities B"
-            path: "tests/shared/core"
-            pattern: "test_extensor_*.mojo"
-          # ---- Core Utilities C: Memory, initializers, module system ----
-          - name: "Core Utilities C"
-            path: "tests/shared/core"
-            pattern: "test_memory_pool*.mojo test_memory_leaks*.mojo test_initializers*.mojo test_module*.mojo test_sequential*.mojo test_composed_op*.mojo test_dropout*.mojo"
-          # ---- Core Utilities D: Layer implementations (linear, conv, norm) ----
-          - name: "Core Utilities D"
-            path: "tests/shared/core"
-            pattern: "test_utilities*.mojo test_utility*.mojo test_utils*.mojo test_validation*.mojo test_integration*.mojo test_inplace*.mojo test_lazy*.mojo test_memory_pool*.mojo test_constants*.mojo test_extensor_*.mojo test_setitem_view*.mojo test_memory_leaks*.mojo test_initializers*.mojo test_layers*.mojo test_linear*.mojo test_conv*.mojo test_normalization*.mojo test_dropout*.mojo test_module*.mojo test_composed_op*.mojo test_hash*.mojo test_sequential*.mojo test_int_bitwise*.mojo test_uint_bitwise*.mojo test_unsigned*.mojo test_normalize_slice*.mojo test_jit_crash*.mojo test_numerical_safety_simd*.mojo"
-          # ---- All data subsystems (formats/datasets/samplers/transforms/loaders) ----
-          # NOTE: Data test JIT crashes mitigated by targeted submodule imports (#5103).
-          # See docs/dev/mojo-jit-crash-workaround.md for details.
-          - name: "Data Core"
-            path: "tests/shared/data"
-            pattern: "test_*.mojo"
-          - name: "Data Datasets"
-            path: "tests/shared/data/datasets"
-            pattern: "test_*.mojo"
-          - name: "Data Loaders"
-            path: "tests/shared/data/loaders"
-            pattern: "test_*.mojo"
-          - name: "Data Transforms"
-            path: "tests/shared/data/transforms"
-            pattern: "test_*.mojo"
-          - name: "Data Samplers"
-            path: "tests/shared/data/samplers"
-            pattern: "test_*.mojo"
-          - name: "Data Formats"
-            path: "tests/shared/data/formats"
-            pattern: "test_*.mojo"
-          # ---- Autograd engine + shared benchmarking helpers ----
-          # Kept as separate entries (not merged under tests/shared parent path)
-          # to avoid silent pass-with-0-tests if a subdirectory is empty/renamed.
-          # See: https://github.com/homericintelligence/projectodyssey/issues/3356
-          - name: "Autograd"
-            path: "tests/shared/autograd"
-            pattern: "test_*.mojo"
-          - name: "Benchmarking"
-            path: "tests/shared/benchmarking"
-            pattern: "test_*.mojo"
-          - name: "Integration Tests"
-            path: "tests/shared/integration"
-            pattern: "test_*.mojo"
-          # ---- Tensor[dtype] wrapper tests ----
-          - name: "Tensor"
-            path: "tests/shared/tensor"
-            pattern: "test_*.mojo"
-          # ---- Base package tests (memory_pool, broadcasting, dtype_ordinal) ----
-          - name: "Base"
-            path: "tests/shared/base"
-            pattern: "test_*.mojo"
-          # ---- Shared infra: fixtures, testing helpers, utils, training stubs ----
-          # NOTE: Audited per Issue #3999 — all subdirectory globs match test files:
-          #   - utils/test_*.mojo: ✓ (5+ test files)
-          #   - fixtures/test_*.mojo: ✓ (2+ test files)
-          #   - training/test_*.mojo: ✓ (11+ test files)
-          #   - testing/test_*.mojo: ✓ (10+ test files)
-          - name: "Shared Infra & Testing"
-            path: "tests/shared"
-            pattern: "test_imports*.mojo test_data_generators.mojo test_model_utils.mojo test_serialization.mojo utils/test_*.mojo fixtures/test_*.mojo training/test_*.mojo testing/test_*.mojo"
-          # ---- Model layer tests (the main PR-blocking test suite) ----
-          # test_*.mojo glob auto-discovers all model tests without requiring manual CI updates.
-          - name: "Models"
-            path: "tests/models"
-            pattern: "test_*.mojo"
-          # ---- Top-level, debug, helpers, tooling, fuzz (low-frequency failures) ----
-          # NOTE: debug/test_*.mojo pattern removed — tests/debug/ contains no test files
-          # and including it would cause silent pass-with-0-tests (see Issue #3999 for context).
-          # If debug tests are added in the future, add "debug/test_*.mojo" back to pattern.
-          - name: "Misc Tests"
-            path: "tests"
-            pattern: "test_*.mojo training/test_*.mojo unit/test_*.mojo integration/test_*.mojo helpers/test_*.mojo tooling/benchmarks/test_*.mojo shared/fuzz/test_*.mojo"
-          # ---- Examples: lenet5 (no dataset required) + test examples ----
-          - name: "Examples"
-            path: "tests/examples"
-            pattern: "test_*.mojo"
-          # ---- Core type system ----
-          - name: "Core Types & Fuzz"
-            path: "tests/core/types"
-            pattern: "test_*.mojo"
-
-    name: "${{ matrix.test-group.name }}"
+    # All groups run sequentially in a single job to avoid the Mojo compiler's
+    # ~3.6 GB unconditional virtual address reservation (modular/modular#6433)
+    # exhausting the GHA free-tier runner's 7 GB RAM when multiple matrix jobs
+    # share the same machine. A matrix with max-parallel:1 still spawns separate
+    # jobs that can overlap during setup/teardown on the same runner; a single
+    # sequential job guarantees only one mojo process is ever running at once.
+    # Deterministic local reproducer: ulimit -v 3500000 && mojo run hello.mojo
+    timeout-minutes: 120
+    name: "Comprehensive Mojo Tests"
 
     steps:
       - name: Checkout code
@@ -371,60 +248,163 @@ jobs:
       - name: Install Just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
 
-      - name: Diagnose available memory
+      - name: Memory snapshot
         run: |
-          echo "=== Memory (modular/modular#6433 diagnostic) ==="
+          echo "=== Available memory (modular/modular#6433) ==="
           free -h
           echo "ulimit -v: $(ulimit -v 2>/dev/null || echo unlimited)"
-          echo "==================================="
 
-      - name: Run test group
+      - name: mkdir test-results
+        run: mkdir -p test-results
+
+      - name: "Core Tensors"
+        id: core-tensors
         run: |
-          echo "=================================================="
-          echo "Test Group: ${{ matrix.test-group.name }}"
-          echo "Path: ${{ matrix.test-group.path }}"
-          echo "=================================================="
-          echo ""
+          just test-group "tests/shared/core" \
+            "test_tensors*.mojo test_arithmetic*.mojo test_broadcasting*.mojo \
+             test_shape*.mojo test_creation*.mojo test_reduction*.mojo \
+             test_matrix*.mojo test_matmul*.mojo test_strassen.mojo \
+             test_pooling*.mojo test_properties*.mojo test_high_dimensional*.mojo \
+             test_slicing*.mojo test_elementwise*.mojo test_comparison_ops*.mojo \
+             test_edge_cases*.mojo test_concatenate*.mojo test_reshape*.mojo"
 
-          mkdir -p test-results
-          start_time=$(date +%s)
+      - name: "Core Activations & Types"
+        id: core-activations
+        run: |
+          just test-group "tests/shared/core" \
+            "test_activation*.mojo test_advanced_activations*.mojo \
+             test_dtype_dispatch*.mojo test_dtype_ordinal*.mojo"
 
-          test_result="failed"
-          exit_code=1
+      - name: "Core Loss"
+        id: core-loss
+        run: |
+          just test-group "tests/shared/core" \
+            "test_losses.mojo test_loss_funcs*.mojo test_loss_utils.mojo"
 
-          # Use justfile to run test group
-          # The justfile handles all the complexity of test discovery and execution
-          if just test-group "${{ matrix.test-group.path }}" "${{ matrix.test-group.pattern }}"; then
-            test_result="passed"
-            exit_code=0
-          fi
+      - name: "Core Gradient"
+        id: core-gradient
+        run: |
+          just test-group "tests/shared/core" \
+            "test_backward*.mojo test_gradient*.mojo \
+             test_variable_backward*.mojo test_depthwise_conv*.mojo"
 
-          end_time=$(date +%s)
-          duration=$((end_time - start_time))
+      - name: "Core Utilities A"
+        id: core-utils-a
+        run: |
+          just test-group "tests/shared/core" \
+            "test_utilities*.mojo test_utility*.mojo test_utils*.mojo \
+             test_validation*.mojo test_integration*.mojo test_inplace*.mojo \
+             test_lazy*.mojo test_constants*.mojo test_hash*.mojo \
+             test_setitem_view*.mojo test_int_bitwise*.mojo \
+             test_uint_bitwise*.mojo test_unsigned*.mojo \
+             test_normalize_slice*.mojo test_jit_crash*.mojo"
 
-          # Create simplified result files
-          # Note: Detailed metrics are in justfile output, these are for aggregation
-          cat > "test-results/${{ matrix.test-group.name }}.json" << EOF
-          {
-            "group": "${{ matrix.test-group.name }}",
-            "tests": 1,
-            "passed": $([ "$test_result" = "passed" ] && echo 1 || echo 0),
-            "failed": $([ "$test_result" = "failed" ] && echo 1 || echo 0),
-            "duration": $duration
-          }
-          EOF
+      - name: "Core Utilities B"
+        id: core-utils-b
+        run: just test-group "tests/shared/core" "test_extensor_*.mojo"
 
-          echo "Test Group: ${{ matrix.test-group.name }}" > "test-results/${{ matrix.test-group.name }}.txt"
-          echo "Result: $test_result" >> "test-results/${{ matrix.test-group.name }}.txt"
-          echo "Duration: ${duration}s" >> "test-results/${{ matrix.test-group.name }}.txt"
+      - name: "Core Utilities C"
+        id: core-utils-c
+        run: |
+          just test-group "tests/shared/core" \
+            "test_memory_pool*.mojo test_memory_leaks*.mojo \
+             test_initializers*.mojo test_module*.mojo test_sequential*.mojo \
+             test_composed_op*.mojo test_dropout*.mojo"
 
-          exit $exit_code
+      - name: "Core Utilities D"
+        id: core-utils-d
+        run: |
+          just test-group "tests/shared/core" \
+            "test_utilities*.mojo test_utility*.mojo test_utils*.mojo \
+             test_validation*.mojo test_integration*.mojo test_inplace*.mojo \
+             test_lazy*.mojo test_memory_pool*.mojo test_constants*.mojo \
+             test_extensor_*.mojo test_setitem_view*.mojo \
+             test_memory_leaks*.mojo test_initializers*.mojo \
+             test_layers*.mojo test_linear*.mojo test_conv*.mojo \
+             test_normalization*.mojo test_dropout*.mojo test_module*.mojo \
+             test_composed_op*.mojo test_hash*.mojo test_sequential*.mojo \
+             test_int_bitwise*.mojo test_uint_bitwise*.mojo \
+             test_unsigned*.mojo test_normalize_slice*.mojo \
+             test_jit_crash*.mojo test_numerical_safety_simd*.mojo"
+
+      - name: "Data Core"
+        id: data-core
+        run: just test-group "tests/shared/data" "test_*.mojo"
+
+      - name: "Data Datasets"
+        id: data-datasets
+        run: just test-group "tests/shared/data/datasets" "test_*.mojo"
+
+      - name: "Data Loaders"
+        id: data-loaders
+        run: just test-group "tests/shared/data/loaders" "test_*.mojo"
+
+      - name: "Data Transforms"
+        id: data-transforms
+        run: just test-group "tests/shared/data/transforms" "test_*.mojo"
+
+      - name: "Data Samplers"
+        id: data-samplers
+        run: just test-group "tests/shared/data/samplers" "test_*.mojo"
+
+      - name: "Data Formats"
+        id: data-formats
+        run: just test-group "tests/shared/data/formats" "test_*.mojo"
+
+      - name: "Autograd"
+        id: autograd
+        run: just test-group "tests/shared/autograd" "test_*.mojo"
+
+      - name: "Benchmarking"
+        id: benchmarking
+        run: just test-group "tests/shared/benchmarking" "test_*.mojo"
+
+      - name: "Integration Tests"
+        id: integration-tests
+        run: just test-group "tests/shared/integration" "test_*.mojo"
+
+      - name: "Tensor"
+        id: tensor
+        run: just test-group "tests/shared/tensor" "test_*.mojo"
+
+      - name: "Base"
+        id: base
+        run: just test-group "tests/shared/base" "test_*.mojo"
+
+      - name: "Shared Infra & Testing"
+        id: shared-infra
+        run: |
+          just test-group "tests/shared" \
+            "test_imports*.mojo test_data_generators.mojo \
+             test_model_utils.mojo test_serialization.mojo \
+             utils/test_*.mojo fixtures/test_*.mojo \
+             training/test_*.mojo testing/test_*.mojo"
+
+      - name: "Models"
+        id: models
+        run: just test-group "tests/models" "test_*.mojo"
+
+      - name: "Misc Tests"
+        id: misc-tests
+        run: |
+          just test-group "tests" \
+            "test_*.mojo training/test_*.mojo unit/test_*.mojo \
+             integration/test_*.mojo helpers/test_*.mojo \
+             tooling/benchmarks/test_*.mojo shared/fuzz/test_*.mojo"
+
+      - name: "Examples"
+        id: examples
+        run: just test-group "tests/examples" "test_*.mojo"
+
+      - name: "Core Types & Fuzz"
+        id: core-types-fuzz
+        run: just test-group "tests/core/types" "test_*.mojo"
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
-          name: test-results-${{ matrix.test-group.name }}
+          name: test-results-comprehensive
           path: test-results/
           retention-days: 7
 
