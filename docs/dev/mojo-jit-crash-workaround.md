@@ -10,6 +10,18 @@ investigation. Persistent JIT crashes now fail visibly instead of being masked b
 The JIT crash described in this document (`libKGENCompilerRTShared.so`) is a separate upstream
 Mojo 0.26.1 compiler bug that is mitigated by targeted submodule imports (see below).
 
+## Retries Are Not Acceptable
+
+`gh run rerun`, `pytest --reruns`, per-file retry scripts, and any other
+"rerun until green" approach are **prohibited** for `libKGENCompilerRTShared.so`
+crashes. Retries mask the bug, distort CI signal, and waste CI minutes. The
+required workflow is:
+
+1. Reproduce the crash in Podman (or document why it only reproduces in CI).
+2. Search modular/modular for an existing matching issue; link or file one.
+3. Apply the targeted-import workaround (or a more specific fix).
+4. Verify the original failing CI job passes on a fresh run — no rerun allowed.
+
 ## Root Cause
 
 The JIT crash is triggered by **compilation footprint**, not random instability. When a test
@@ -153,6 +165,13 @@ which lowers the probability of hitting the JIT buffer overflow regardless of en
 
 ## References
 
+- [modular/modular#6413](https://github.com/modular/modular/issues/6413) —
+  execution crashed in libKGENCompilerRTShared.so inside Docker/GHA
+  (0.26.3, best match for this repo's CI environment)
+- [modular/modular#6433](https://github.com/modular/modular/issues/6433) —
+  Mojo compiler 3.6GB virtual address reservation causing OOM on CI runners
+- [modular/modular#6445](https://github.com/modular/modular/issues/6445) —
+  KGEN JIT buffer overflow (`__fortify_fail_abort`) during compilation
 - [Issue #5108](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5108) -- JIT crash comprehensive tracking
 - [Issue #3330](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3330) -- Document JIT crash workaround
 - [Issue #3120](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3120) --

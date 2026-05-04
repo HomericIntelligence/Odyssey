@@ -6,18 +6,19 @@ Provides tools for validating neural network implementations:
 - Gradient checking (numerical vs analytical)
 - Consolidated test models and fixtures
 - Data type utilities for comprehensive multi-dtype testing
-- Fuzzing infrastructure for property-based testing
-- Property-based testing for finding edge cases
 
-Modules:
+Modules exported at package level:
     assertions: Comprehensive assertion functions for testing
     data_generators: Generate synthetic test data (random tensors, classification datasets)
     gradient_checker: Validate backward passes using finite differences
     models: Consolidated test model implementations (SimpleCNN, LinearModel, SimpleMLP, etc.)
     fixtures: Test model factories, tensor utilities, and assertion helpers
     special_values: FP-representable test values (0.0, 0.5, 1.0, 1.5) for layerwise testing
-    layer_testers: Reusable layer testing patterns (conv, linear, pooling, activation)
     dtype_utils: DType iteration utilities for testing across multiple precisions
+
+Specialized modules (import directly from submodule):
+    layer_testers: Reusable layer testing patterns (conv, linear, pooling, activation)
+    layer_params: Layer parameter fixtures (ConvFixture, LinearFixture)
     fuzz_core: Core fuzzing infrastructure (FuzzConfig, FuzzResult, random tensor generators)
     fuzz_shapes: Shape fuzzing utilities (random shapes, edge cases, broadcast pairs)
     fuzz_dtypes: DType fuzzing utilities (random dtypes, edge values, type classification)
@@ -131,83 +132,10 @@ from shared.testing.special_values import (
     create_one_and_half_tensor,
 )
 
-from shared.testing.layer_testers import LayerTester
-
 from shared.testing.dtype_utils import (
     get_test_dtypes,
     get_float_dtypes,
     get_precision_dtypes,
     get_float32_only,
     dtype_to_string,
-)
-
-from shared.testing.layer_params import ConvFixture, LinearFixture
-
-# Fuzzing infrastructure
-from shared.testing.fuzz_core import (
-    FuzzConfig,
-    FuzzResult,
-    SeededRNG,
-    create_random_tensor,
-    create_edge_case_tensor,
-    has_nan,
-    has_inf,
-    is_finite,
-    all_values_in_range,
-    NumericInvariants,
-    check_numeric_invariants,
-    verify_shape_preserved,
-    verify_dtype_preserved,
-    verify_numel_preserved,
-    format_failure_message,
-)
-
-from shared.testing.fuzz_shapes import (
-    ShapeFuzzer,
-    generate_broadcast_shapes,
-    generate_matmul_shapes,
-    generate_same_shape_pair,
-    is_valid_shape,
-    is_empty_shape,
-    is_scalar_shape,
-    compute_numel,
-    shapes_equal,
-    are_broadcast_compatible,
-    compute_broadcast_shape,
-    shape_to_string,
-)
-
-from shared.testing.fuzz_dtypes import (
-    DTypeFuzzer,
-    get_all_dtypes,
-    get_float_dtypes as get_fuzz_float_dtypes,
-    get_int_dtypes,
-    get_uint_dtypes,
-    get_numeric_dtypes,
-    get_common_ml_dtypes,
-    get_dtype_range,
-    get_dtype_safe_range,
-    get_edge_values,
-    get_special_float_values,
-    is_float_dtype,
-    is_signed_int_dtype,
-    is_unsigned_int_dtype,
-    is_integer_dtype,
-    is_numeric_dtype,
-    supports_negative,
-    supports_nan_inf,
-    get_dtype_size_bytes,
-    get_dtype_precision_bits,
-    dtype_to_string as fuzz_dtype_to_string,
-)
-
-# Property-based testing
-from shared.testing.property_testing import (
-    random_shape,
-    random_compatible_shape,
-    random_broadcastable_shapes,
-    run_property_test,
-    run_property_test_with_seed,
-    assert_tensors_close,
-    tensors_equal,
 )
