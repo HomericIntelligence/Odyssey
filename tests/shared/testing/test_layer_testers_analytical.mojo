@@ -7,7 +7,7 @@ Example usage:
     pixi run mojo tests/shared/testing/test_layer_testers_analytical.mojo
 """
 
-from shared.testing.layer_testers import LayerTester
+from shared.testing import LayerTester
 from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.core.initializers import kaiming_uniform
 
