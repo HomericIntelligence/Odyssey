@@ -55,14 +55,6 @@ struct TrainConfig(Movable):
         self.data_dir = "datasets/emnist"
         self.weights_dir = "lenet5_weights"
 
-    def __init__(out self, *, takeexisting: Self):
-        self.epochs = existing.epochs
-        self.batch_size = existing.batch_size
-        self.learning_rate = existing.learning_rate
-        self.precision = existing.precision^
-        self.data_dir = existing.data_dir^
-        self.weights_dir = existing.weights_dir^
-
 
 def parse_args() raises -> TrainConfig:
     """Parse command line arguments using enhanced argument parser.

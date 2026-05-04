@@ -54,7 +54,7 @@ RUN groupadd -g ${GROUP_ID} ${USER_NAME} 2>/dev/null || \
 # Allow dev user to fix bind-mount ownership at container startup.
 # The workspace is bind-mounted as root:root at runtime; entrypoint.sh uses
 # sudo chown to reclaim specific subdirs (build/, .pixi/, test fixtures).
-RUN printf 'dev ALL=(root) NOPASSWD: /bin/chown\ndev ALL=(root) NOPASSWD: /bin/chmod\n' \
+RUN printf 'dev ALL=(root) NOPASSWD: /bin/mkdir\ndev ALL=(root) NOPASSWD: /bin/chown\ndev ALL=(root) NOPASSWD: /bin/chmod\n' \
     > /etc/sudoers.d/dev-workspace \
     && chmod 440 /etc/sudoers.d/dev-workspace
 
