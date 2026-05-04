@@ -20,9 +20,7 @@ Fixtures:
 Run Tests:
     mojo test tests/configs/test_loading.mojo
     mojo test tests/configs/test_merging.mojo
-    mojo test tests/configs/test_validation_part1.mojo
-    mojo test tests/configs/test_validation_part2.mojo
-    mojo test tests/configs/test_validation_part3.mojo
+    mojo test tests/configs/test_validation.mojo
     mojo test tests/configs/test_env_vars.mojo
     mojo test tests/configs/test_integration.mojo
     pytest tests/configs/test_schema.py

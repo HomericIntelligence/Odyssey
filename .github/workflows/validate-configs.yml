@@ -138,18 +138,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
 
-      - name: Set up Pixi (provides Mojo)
-        uses: ./.github/actions/setup-pixi
+      - name: Set up container
+        uses: ./.github/actions/setup-container
 
-      - name: Test config loading (placeholder)
+      - name: Install Just
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
+
+      - name: Test config loading
         run: |
-          echo "Testing configuration loading..."
-          echo "NOTE: This is a placeholder - implement actual Mojo tests in Issue #73"
-          echo "Tests should validate:"
-          echo "  - Config files can be loaded without errors"
-          echo "  - Config merging works correctly"
-          echo "  - Environment variable substitution works"
-          echo "  - Validation catches invalid configs"
+          echo "Running configuration loading tests..."
+          just test-group tests/configs "test_loading.mojo"
+          echo "Running configuration merging tests..."
+          just test-group tests/configs "test_merging.mojo"
+          echo "Running configuration validation tests..."
+          just test-group tests/configs "test_validation.mojo"
+          echo "Running environment variable substitution tests..."
+          just test-group tests/configs "test_env_vars.mojo"
+          echo "Running configuration integration tests..."
+          just test-group tests/configs "test_integration.mojo"
+          echo "All configuration loading tests passed!"
 
   validate-agents:
     name: Validate Agent Configurations
