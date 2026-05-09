@@ -1,4 +1,4 @@
-"""Unit tests for Step Learning Rate Scheduler
+"""Unit tests for Step Learning Rate Scheduler.
 
 Tests cover:
 - Step decay at fixed intervals

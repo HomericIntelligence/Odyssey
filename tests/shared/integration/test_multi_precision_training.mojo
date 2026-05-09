@@ -1,4 +1,4 @@
-"""Integration tests for multi-precision training
+"""Integration tests for multi-precision training.
 
 Tests cover:
 - FP32, FP16, BF16, FP8 training modes

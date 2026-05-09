@@ -1,4 +1,4 @@
-"""Unit tests for pooling layer operations
+"""Unit tests for pooling layer operations.
 
 Tests cover:
 - maxpool2d: Forward pass with various kernel sizes and strides

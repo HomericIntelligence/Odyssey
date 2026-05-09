@@ -1,4 +1,4 @@
-"""Tests for EMNIST Dataset Wrapper
+"""Tests for EMNIST Dataset Wrapper.
 
 Tests cover:
 - Dataset initialization with different splits

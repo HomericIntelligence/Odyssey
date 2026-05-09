@@ -1,4 +1,4 @@
-"""Tests for results printer module
+"""Tests for results printer module.
 
 Covers:
 - Training progress printer (5 tests)

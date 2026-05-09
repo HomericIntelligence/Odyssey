@@ -1,4 +1,4 @@
-"""Tests for shared.testing.fixtures module
+"""Tests for shared.testing.fixtures module.
 
 Tests SimpleCNN and LinearModel structs plus the create_test_cnn factory function.
 """

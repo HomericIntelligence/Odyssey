@@ -1,4 +1,4 @@
-"""Unit tests for optimizer implementations
+"""Unit tests for optimizer implementations.
 
 Tests cover:
 - SGD (Stochastic Gradient Descent) with momentum

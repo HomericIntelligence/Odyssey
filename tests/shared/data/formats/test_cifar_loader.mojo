@@ -1,4 +1,4 @@
-"""Tests for CIFAR Format Binary Data Loader
+"""Tests for CIFAR Format Binary Data Loader.
 
 Tests the CIFARLoader struct for loading CIFAR-10 and CIFAR-100 binary format files.
 

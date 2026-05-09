@@ -1,4 +1,4 @@
-"""Comprehensive tests for metrics coordination and unified interface
+"""Comprehensive tests for metrics coordination and unified interface.
 
 Tests the Metric trait, MetricCollection, MetricLogger, and integration
 of all metrics through consistent API.

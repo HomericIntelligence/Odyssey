@@ -1,4 +1,4 @@
-"""Tests for layer_testers module
+"""Tests for layer_testers module.
 
 Tests LayerTester utility functions:
 - test_layer_dtype_consistency

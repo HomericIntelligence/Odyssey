@@ -1,4 +1,4 @@
-"""Tests for batch loader
+"""Tests for batch loader.
 
 """
 

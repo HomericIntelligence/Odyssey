@@ -1,4 +1,4 @@
-"""Unit tests for neural network layers
+"""Unit tests for neural network layers.
 
 Tests cover:
 - Linear (fully connected) layers: initialization, forward, no-bias, backward

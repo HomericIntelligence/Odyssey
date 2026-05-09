@@ -1,4 +1,4 @@
-"""LeNet-5 Convolutional Layer Tests
+"""LeNet-5 Convolutional Layer Tests.
 
 Tests Conv1 and Conv2 layers independently with special FP-representable values.
 

@@ -1,4 +1,4 @@
-"""LeNet-5 Activation Layer Tests
+"""LeNet-5 Activation Layer Tests.
 
 Tests ReLU activation layers independently with special FP-representable values.
 

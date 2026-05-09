@@ -1,4 +1,4 @@
-"""Model Tests
+"""Model Tests.
 
 Comprehensive testing suite for neural network models:
 - Layerwise unit tests (layer-by-layer verification)

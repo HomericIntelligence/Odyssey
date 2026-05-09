@@ -1,4 +1,4 @@
-"""Memory leak detection tests for AnyTensor
+"""Memory leak detection tests for AnyTensor.
 
 Tests verify:
 1. Reference counting correctness

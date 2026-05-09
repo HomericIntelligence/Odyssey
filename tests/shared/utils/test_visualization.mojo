@@ -1,4 +1,4 @@
-"""Tests for visualization utilities module
+"""Tests for visualization utilities module.
 
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 

@@ -1,4 +1,4 @@
-"""Tests for data generators module
+"""Tests for data generators module.
 
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 

@@ -1,4 +1,4 @@
-"""Integration tests for AnyTensor operations
+"""Integration tests for AnyTensor operations.
 
 Tests chained arithmetic operations and creation + arithmetic patterns.
 

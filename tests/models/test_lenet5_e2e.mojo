@@ -1,4 +1,4 @@
-"""End-to-End Integration Tests for LeNet-5
+"""End-to-End Integration Tests for LeNet-5.
 
 Tests complete model forward pass with real data flow and verifies:
 - Forward pass produces expected output shape

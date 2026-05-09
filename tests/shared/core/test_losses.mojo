@@ -1,4 +1,4 @@
-"""Tests for BCE and MSE loss functions
+"""Tests for BCE and MSE loss functions.
 
 This module tests:
 - Binary Cross-Entropy (BCE) forward pass

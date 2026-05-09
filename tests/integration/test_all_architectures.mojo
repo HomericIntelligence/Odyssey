@@ -1,4 +1,4 @@
-"""Integration Tests for All CNN Architectures
+"""Integration Tests for All CNN Architectures.
 
 This script tests all 4 classic CNN architectures on CIFAR-10:
     1. ResNet-18

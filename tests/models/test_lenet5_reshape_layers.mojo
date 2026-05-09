@@ -1,4 +1,4 @@
-"""LeNet-5 Reshape/Flatten Layer Tests
+"""LeNet-5 Reshape/Flatten Layer Tests.
 
 Tests flatten/reshape operations independently with special FP-representable values.
 

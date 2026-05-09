@@ -1,4 +1,4 @@
-"""High-level integration tests for dataset abstractions
+"""High-level integration tests for dataset abstractions.
 
 Tests cover cross-component interactions between datasets, loaders, and samplers.
 Individual unit tests exist in datasets/ subdirectory.

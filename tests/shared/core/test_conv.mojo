@@ -1,4 +1,4 @@
-"""Unit tests for 2D convolution layer
+"""Unit tests for 2D convolution layer.
 
 Tests cover:
 - conv2d: Parameter initialization and output shapes

@@ -1,4 +1,4 @@
-"""Tests for elementwise operation edge cases
+"""Tests for elementwise operation edge cases.
 
 Tests edge cases for sqrt operations including:
 - sqrt of zero, one, negative numbers

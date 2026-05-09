@@ -1,4 +1,4 @@
-"""Tests for argmax utility functions in shared.core.utils
+"""Tests for argmax utility functions in shared.core.utils.
 
 This module tests argmax functions including:
 - argmax (scalar)

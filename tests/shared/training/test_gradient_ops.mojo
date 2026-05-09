@@ -1,4 +1,4 @@
-"""Tests for gradient accumulation and scaling operations
+"""Tests for gradient accumulation and scaling operations.
 
 Verifies correctness and performance of in-place gradient accumulation
 and scaling operations.

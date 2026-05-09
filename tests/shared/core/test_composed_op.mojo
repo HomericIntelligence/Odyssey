@@ -1,4 +1,4 @@
-"""Tests for ComposedOp initialization and forward pass
+"""Tests for ComposedOp initialization and forward pass.
 
 Tests the composition of two differentiable operations including:
 - Initialization and trait implementation

@@ -1,4 +1,4 @@
-"""Tests for activation functions
+"""Tests for activation functions.
 
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 

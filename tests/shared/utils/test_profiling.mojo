@@ -1,4 +1,4 @@
-"""Tests for profiling utilities module
+"""Tests for profiling utilities module.
 
 This module tests:
 - Function timing decorators/utilities (tests 1-5)

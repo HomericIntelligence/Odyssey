@@ -1,4 +1,4 @@
-"""Tests for training metrics module
+"""Tests for training metrics module.
 
 Covers ComponentTracker and LossTracker tests.
 

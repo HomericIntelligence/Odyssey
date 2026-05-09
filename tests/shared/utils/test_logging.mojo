@@ -1,4 +1,4 @@
-"""Tests for logging utilities module
+"""Tests for logging utilities module.
 
 This module tests logging functionality including:
 - Log levels and filtering

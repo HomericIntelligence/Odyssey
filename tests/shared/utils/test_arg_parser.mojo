@@ -1,4 +1,4 @@
-"""Tests for argument parser utilities
+"""Tests for argument parser utilities.
 
 Tests basic argument parsing functionality including:
 - ArgumentSpec creation and fields

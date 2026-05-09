@@ -1,4 +1,4 @@
-"""Tests for tensor creation operations
+"""Tests for tensor creation operations.
 
 Tests cover:
 - Tensor creation: zeros, ones, full, empty, arange, eye, linspace

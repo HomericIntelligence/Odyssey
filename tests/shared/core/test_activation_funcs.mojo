@@ -1,4 +1,4 @@
-"""Unit tests for activation functions
+"""Unit tests for activation functions.
 
 Tests cover:
 - relu: Forward and backward passes

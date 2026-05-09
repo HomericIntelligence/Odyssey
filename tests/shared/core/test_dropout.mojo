@@ -1,4 +1,4 @@
-"""Tests for standard dropout regularization
+"""Tests for standard dropout regularization.
 
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 

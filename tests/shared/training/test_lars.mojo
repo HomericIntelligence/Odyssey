@@ -1,4 +1,4 @@
-"""Unit tests for LARS (Layer-wise Adaptive Rate Scaling) optimizer
+"""Unit tests for LARS (Layer-wise Adaptive Rate Scaling) optimizer.
 
 Tests cover:
 - LARS initialization with hyperparameters

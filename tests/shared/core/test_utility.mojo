@@ -1,4 +1,4 @@
-"""Tests for AnyTensor utility operations
+"""Tests for AnyTensor utility operations.
 
 Tests utility functions including copy, clone, numel, dim, shape, dtype,
 and stride calculations.

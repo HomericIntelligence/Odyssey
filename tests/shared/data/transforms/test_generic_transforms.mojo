@@ -1,4 +1,4 @@
-"""Tests for generic data transformation utilities
+"""Tests for generic data transformation utilities.
 
 Tests identity transforms and lambda transforms.
 """

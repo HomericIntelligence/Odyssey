@@ -1,4 +1,4 @@
-"""LeNet-5 Pooling Layer Tests
+"""LeNet-5 Pooling Layer Tests.
 
 Tests MaxPool layers independently with special FP-representable values.
 

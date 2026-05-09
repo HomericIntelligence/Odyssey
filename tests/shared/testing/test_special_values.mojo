@@ -1,4 +1,4 @@
-"""Tests for special_values module
+"""Tests for special_values module.
 
 Tests FP-representable test value utilities:
 - Special value constants (including negative values)

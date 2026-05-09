@@ -1,4 +1,4 @@
-"""CosineAnnealingLR tests
+"""CosineAnnealingLR tests.
 
 Tests cover:
 - CosineAnnealingLR: Smooth cosine decay (initialization and boundary tests)

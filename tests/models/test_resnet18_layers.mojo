@@ -1,4 +1,4 @@
-"""Unit tests for ResNet-18 layerwise operations
+"""Unit tests for ResNet-18 layerwise operations.
 
 Tests cover:
 - Residual blocks with different channel configurations

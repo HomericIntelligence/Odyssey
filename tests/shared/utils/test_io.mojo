@@ -1,4 +1,4 @@
-"""Tests for file I/O utilities module
+"""Tests for file I/O utilities module.
 
 This module tests model checkpoint functionality including:
 - Model checkpoint save/load

@@ -1,4 +1,4 @@
-"""Tests for dtype dispatch helpers
+"""Tests for dtype dispatch helpers.
 
 Tests cover:
 - dispatch_unary with float32 (identity, double operations)

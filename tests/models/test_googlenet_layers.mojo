@@ -1,4 +1,4 @@
-"""Layerwise unit tests for GoogLeNet (Inception-v1) model components
+"""Layerwise unit tests for GoogLeNet (Inception-v1) model components.
 
 Tests cover:
 - InceptionModule: Initialization and forward pass shape/values
