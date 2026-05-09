@@ -46,7 +46,7 @@ Reference:
 
 from std.math import isnan, isinf
 from std.memory import bitcast
-from .dtype_aliases import FP4, FP8
+from shared.core.types.dtype_aliases import FP4, FP8
 
 
 # ============================================================================
