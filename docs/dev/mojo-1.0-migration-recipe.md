@@ -258,7 +258,106 @@ directly — call `pixi run python scripts/run_mojo_tests.py <path>` instead.
 
 ---
 
-## Recipe 5+: TBD as Phase D agents discover them
+## Recipe 5: TRAIT_CALL — Bare callable type as runtime argument (verified)
+
+### Symptom
+
+```text
+error: invalid call to '__call__': value passed to '' cannot be converted
+from type value '_Self' to an instance of '_Self'; did you mean to instantiate '_Self'?
+```
+
+Typically triggered at the call site of a function parameter declared as a bare
+callable type:
+
+```mojo
+def benchmark_function(func: def() raises -> None, ...) raises -> BenchmarkStatistics:
+    func()  # ← error fires here
+```
+
+### Root cause
+
+In Mojo 1.0, bare `def(...) -> ...` in a **runtime argument position** is no
+longer a structural function type that can accept any compatible callable.
+Each named `def` declaration has a unique nominal type; passing a named function
+where a bare structural type is expected fails unless the function is made a
+**compile-time parameter** (`[FuncType: def(...) -> ...]`).
+
+Contrast with Mojo 0.26.3, where bare `def() raises -> None` in an argument
+list acted as an implicit structural type, and any matching callable could be
+passed at runtime.
+
+### Fix
+
+Convert the callable argument from a **runtime argument** to a **compile-time
+parameter** using Mojo 1.0's parametric function syntax:
+
+**Before (0.26.3):**
+
+```mojo
+def benchmark_function(
+    func: def() raises -> None,
+    warmup_iters: Int = 10,
+) raises -> BenchmarkStatistics:
+    func()
+```
+
+**After (1.0):**
+
+```mojo
+def benchmark_function[
+    FuncType: def() raises -> None
+](
+    func: FuncType,
+    warmup_iters: Int = 10,
+) raises -> BenchmarkStatistics:
+    func()
+```
+
+The same pattern applies to struct methods (use `[...]` before `(self, ...)`)
+and to callables with arguments (`def(AnyTensor) raises -> AnyTensor`):
+
+```mojo
+# Before:
+def check_gradients(
+    forward_fn: def(AnyTensor) raises -> AnyTensor,
+    backward_fn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+    ...
+) raises -> Bool:
+    var output = forward_fn(input)
+    var grad = backward_fn(grad_output, input)
+
+# After:
+def check_gradients[
+    FwdFn: def(AnyTensor) raises -> AnyTensor,
+    BwdFn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+](
+    forward_fn: FwdFn,
+    backward_fn: BwdFn,
+    ...
+) raises -> Bool:
+    var output = forward_fn(input)
+    var grad = backward_fn(grad_output, input)
+```
+
+When the parametric function calls another parametric function in its body,
+the compiler infers the concrete `FuncType` from the argument, so no explicit
+`[FuncType]` annotation is needed at internal call sites.
+
+### Verified in
+
+- `shared/benchmarking/runner.mojo:223,230,349` (free functions + struct method)
+- `shared/utils/profiling.mojo:436,470` (two overloads)
+- `shared/testing/gradient_checker.mojo:232,236,471,742,948,952,1170,1179,1618,1630,1763`
+- `shared/testing/property_testing.mojo:223`
+- `shared/training/loops/training_loop.mojo:66,69,79,252`
+- `shared/training/loops/validation_loop.mojo:48,149,272,333`
+- `shared/training/script_runner.mojo:137`
+- `shared/training/trainer.mojo:229`
+
+---
+
+## Recipe 6+: TBD as Phase D agents discover them
 
 When a swarm agent encounters an error pattern not listed above:
 

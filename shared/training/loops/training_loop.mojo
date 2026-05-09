@@ -33,11 +33,16 @@ from shared.training.trainer_interface import (
 )
 
 
-def training_step(
-    model_forward: def(AnyTensor) raises -> AnyTensor,
-    compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
-    optimizer_step: def() raises -> None,
-    zero_gradients: def() raises -> None,
+def training_step[
+    FwdFn: def(AnyTensor) raises -> AnyTensor,
+    LossFn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+    OptFn: def() raises -> None,
+    ZeroFn: def() raises -> None,
+](
+    model_forward: FwdFn,
+    compute_loss: LossFn,
+    optimizer_step: OptFn,
+    zero_gradients: ZeroFn,
     data: AnyTensor,
     labels: AnyTensor,
 ) raises -> Float64:
@@ -81,11 +86,16 @@ def training_step(
     return loss_value
 
 
-def train_one_epoch(
-    model_forward: def(AnyTensor) raises -> AnyTensor,
-    compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
-    optimizer_step: def() raises -> None,
-    zero_gradients: def() raises -> None,
+def train_one_epoch[
+    FwdFn: def(AnyTensor) raises -> AnyTensor,
+    LossFn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+    OptFn: def() raises -> None,
+    ZeroFn: def() raises -> None,
+](
+    model_forward: FwdFn,
+    compute_loss: LossFn,
+    optimizer_step: OptFn,
+    zero_gradients: ZeroFn,
     mut train_loader: DataLoader,
     mut metrics: TrainingMetrics,
     log_interval: Int = 10,
@@ -205,12 +215,14 @@ struct TrainingLoop:
         self.clip_gradients = clip_gradients
         self.max_grad_norm = max_grad_norm
 
-    def run_epoch_manual(
+    def run_epoch_manual[
+        BatchLossFn: def(AnyTensor, AnyTensor) raises -> Float32,
+    ](
         self,
         train_data: AnyTensor,
         train_labels: AnyTensor,
         batch_size: Int,
-        compute_batch_loss: def(AnyTensor, AnyTensor) raises -> Float32,
+        compute_batch_loss: BatchLossFn,
         epoch: Int,
         total_epochs: Int,
     ) raises -> Float32:
@@ -269,12 +281,17 @@ struct TrainingLoop:
 
         return avg_loss
 
-    def run_epoch(
+    def run_epoch[
+        FwdFn: def(AnyTensor) raises -> AnyTensor,
+        LossFn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+        OptFn: def() raises -> None,
+        ZeroFn: def() raises -> None,
+    ](
         self,
-        model_forward: def(AnyTensor) raises -> AnyTensor,
-        compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
-        optimizer_step: def() raises -> None,
-        zero_gradients: def() raises -> None,
+        model_forward: FwdFn,
+        compute_loss: LossFn,
+        optimizer_step: OptFn,
+        zero_gradients: ZeroFn,
         mut train_loader: DataLoader,
         mut metrics: TrainingMetrics,
     ) raises:
@@ -301,12 +318,17 @@ struct TrainingLoop:
             self.log_interval,
         )
 
-    def run(
+    def run[
+        FwdFn: def(AnyTensor) raises -> AnyTensor,
+        LossFn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+        OptFn: def() raises -> None,
+        ZeroFn: def() raises -> None,
+    ](
         self,
-        model_forward: def(AnyTensor) raises -> AnyTensor,
-        compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
-        optimizer_step: def() raises -> None,
-        zero_gradients: def() raises -> None,
+        model_forward: FwdFn,
+        compute_loss: LossFn,
+        optimizer_step: OptFn,
+        zero_gradients: ZeroFn,
         mut train_loader: DataLoader,
         num_epochs: Int,
         mut metrics: TrainingMetrics,

@@ -205,8 +205,9 @@ def _is_uniform_tensor(tensor: AnyTensor) raises -> Bool:
 
 def _check_gradients_perturb[
     dtype: DType,
+    FwdFn: def(AnyTensor) raises -> AnyTensor,
 ](
-    forward_fn: def(AnyTensor) raises -> AnyTensor,
+    forward_fn: FwdFn,
     input: AnyTensor,
     input_copy_plus: AnyTensor,
     input_copy_minus: AnyTensor,
@@ -306,8 +307,10 @@ def _check_gradients_perturb[
         minus_ptr[i] = Scalar[dtype](original_val)
 
 
-def _dispatch_check_gradients_perturb(
-    forward_fn: def(AnyTensor) raises -> AnyTensor,
+def _dispatch_check_gradients_perturb[
+    FwdFn: def(AnyTensor) raises -> AnyTensor,
+](
+    forward_fn: FwdFn,
     input: AnyTensor,
     input_copy_plus: AnyTensor,
     input_copy_minus: AnyTensor,
@@ -411,9 +414,12 @@ def _dispatch_check_gradients_perturb_trait[
         )
 
 
-def check_gradients(
-    forward_fn: def(AnyTensor) raises -> AnyTensor,
-    backward_fn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+def check_gradients[
+    FwdFn: def(AnyTensor) raises -> AnyTensor,
+    BwdFn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+](
+    forward_fn: FwdFn,
+    backward_fn: BwdFn,
     input: AnyTensor,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
     tolerance: Float64 = 1e-2,
@@ -692,9 +698,12 @@ def check_gradients[
     return True
 
 
-def check_gradients_verbose(
-    forward_fn: def(AnyTensor) raises -> AnyTensor,
-    backward_fn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+def check_gradients_verbose[
+    FwdFn: def(AnyTensor) raises -> AnyTensor,
+    BwdFn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+](
+    forward_fn: FwdFn,
+    backward_fn: BwdFn,
     input: AnyTensor,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
     tolerance: Float64 = 1e-2,
@@ -930,12 +939,8 @@ def relative_error(analytical: Float64, numerical: Float64) -> Float64:
 
 def _compute_numerical_grad_perturb[
     dtype: DType,
-](
-    forward_fn: def(AnyTensor) raises -> AnyTensor,
-    x: AnyTensor,
-    grad: AnyTensor,
-    epsilon: Float64,
-) raises:
+    FwdFn: def(AnyTensor) raises -> AnyTensor,
+](forward_fn: FwdFn, x: AnyTensor, grad: AnyTensor, epsilon: Float64,) raises:
     """Perturbation loop for compute_numerical_gradient using typed pointers."""
     var x_ptr = x.data_ptr[dtype]()
     var grad_ptr = grad.data_ptr[dtype]()
@@ -1011,8 +1016,10 @@ def _compute_numerical_grad_perturb_trait[
         grad_ptr[i] = Scalar[dtype](grad_val)
 
 
-def compute_numerical_gradient(
-    forward_fn: def(AnyTensor) raises -> AnyTensor,
+def compute_numerical_gradient[
+    FwdFn: def(AnyTensor) raises -> AnyTensor,
+](
+    forward_fn: FwdFn,
     x: AnyTensor,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
 ) raises -> AnyTensor:
@@ -1151,8 +1158,9 @@ def compute_numerical_gradient[
 
 def _compute_sampled_grad_perturb[
     dtype: DType,
+    FwdFn: def(AnyTensor) raises -> AnyTensor,
 ](
-    forward_fn: def(AnyTensor) raises -> AnyTensor,
+    forward_fn: FwdFn,
     x: AnyTensor,
     indices: List[Int],
     mut gradients: List[IndexGradientPair],
@@ -1227,8 +1235,10 @@ def _compute_sampled_grad_perturb_trait[
         gradients.append(IndexGradientPair(idx, grad))
 
 
-def compute_sampled_numerical_gradient(
-    forward_fn: def(AnyTensor) raises -> AnyTensor,
+def compute_sampled_numerical_gradient[
+    FwdFn: def(AnyTensor) raises -> AnyTensor,
+](
+    forward_fn: FwdFn,
     x: AnyTensor,
     num_samples: Int = 100,
     epsilon: Float64 = 3e-4,  # Changed from 1e-5 - see #2704
@@ -1592,8 +1602,9 @@ def assert_gradients_close(
 
 def _check_gradient_perturb[
     dtype: DType,
+    FwdFn: def(AnyTensor) raises -> AnyTensor,
 ](
-    forward_fn: def(AnyTensor) raises -> AnyTensor,
+    forward_fn: FwdFn,
     x: AnyTensor,
     grad_output: AnyTensor,
     grad: AnyTensor,
@@ -1691,9 +1702,12 @@ def _check_gradient_perturb[
         grad_ptr[i] = Scalar[dtype](numerical_grad)
 
 
-def check_gradient(
-    forward_fn: def(AnyTensor) raises -> AnyTensor,
-    backward_fn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+def check_gradient[
+    FwdFn: def(AnyTensor) raises -> AnyTensor,
+    BwdFn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+](
+    forward_fn: FwdFn,
+    backward_fn: BwdFn,
     x: AnyTensor,
     grad_output: AnyTensor,
     epsilon: Float64 = 0.0,  # Auto-select based on dtype if 0.0

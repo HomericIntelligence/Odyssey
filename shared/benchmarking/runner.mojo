@@ -184,8 +184,10 @@ def _ns_to_ms(ns: Int) -> Float64:
 # ============================================================================
 
 
-def benchmark_function(
-    func: def() raises -> None,
+def benchmark_function[
+    FuncType: def() raises -> None
+](
+    func: FuncType,
     warmup_iters: Int = 10,
     measure_iters: Int = 100,
     compute_percentiles: Bool = True,
@@ -336,7 +338,9 @@ struct BenchmarkRunner(Movable):
         self.warmup_iters = warmup_iters
         self.result = LowLevelBenchmarkResult(name, iterations=0)
 
-    def run_warmup(mut self, func: def() raises -> None) raises:
+    def run_warmup[
+        FuncType: def() raises -> None
+    ](mut self, func: FuncType) raises:
         """Run warmup iterations.
 
         Args:
@@ -637,9 +641,11 @@ struct LegacyBenchmarkResult(Copyable, Movable):
         self.dtype = dtype
 
 
-def benchmark_operation(
+def benchmark_operation[
+    FuncType: def() raises -> None
+](
     name: String,
-    operation: def() raises -> None,
+    operation: FuncType,
     config: LegacyBenchmarkConfig = LegacyBenchmarkConfig(
         warmup=100, iterations=1000
     ),

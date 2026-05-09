@@ -113,10 +113,12 @@ struct TrainingCallbacks(Copyable, Movable):
             print("  Batch", batch, "loss:", loss)
 
 
-def run_epoch_with_batches(
+def run_epoch_with_batches[
+    StepFnType: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+](
     mut loader: DataLoader,
     callbacks: TrainingCallbacks,
-    step_fn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+    step_fn: StepFnType,
 ) raises -> Float32:
     """Run one training epoch with batch processing.
 

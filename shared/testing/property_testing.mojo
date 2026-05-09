@@ -187,8 +187,10 @@ def random_broadcastable_shapes(
 # ============================================================================
 
 
-def run_property_test(
-    property_fn: def() raises -> Bool,
+def run_property_test[
+    PropFn: def() raises -> Bool
+](
+    property_fn: PropFn,
     num_tests: Int = 100,
     test_name: String = "property",
 ) raises:
@@ -249,8 +251,10 @@ def run_property_test(
         )
 
 
-def run_property_test_with_seed(
-    property_fn: def() raises -> Bool,
+def run_property_test_with_seed[
+    PropFn: def() raises -> Bool
+](
+    property_fn: PropFn,
     num_tests: Int = 100,
     test_seed: Int = 42,
     test_name: String = "property",
