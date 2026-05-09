@@ -93,8 +93,8 @@ def _relu_simd_float32(tensor: AnyTensor, mut result: AnyTensor):
     var in_ptr = tensor._data.bitcast[Float32]()
     var out_ptr = result._data.bitcast[Float32]()
 
-    @parameter
-    def vectorized_relu[width: Int](idx: Int):
+    @always_inline
+    def vectorized_relu[width: Int](idx: Int) {var in_ptr, var out_ptr}:
         var vec = in_ptr.load[width=width](idx)
         # SIMD max with zero vector
         var zero_vec = SIMD[DType.float32, width](0)
@@ -112,8 +112,8 @@ def _relu_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
     var in_ptr = tensor._data.bitcast[Float64]()
     var out_ptr = result._data.bitcast[Float64]()
 
-    @parameter
-    def vectorized_relu[width: Int](idx: Int):
+    @always_inline
+    def vectorized_relu[width: Int](idx: Int) {var in_ptr, var out_ptr}:
         var vec = in_ptr.load[width=width](idx)
         var zero_vec = SIMD[DType.float64, width](0)
         out_ptr.store[width=width](idx, max(zero_vec, vec))
@@ -177,8 +177,10 @@ def _leaky_relu_simd_float32(
     var in_ptr = tensor._data.bitcast[Float32]()
     var out_ptr = result._data.bitcast[Float32]()
 
-    @parameter
-    def vectorized_leaky_relu[width: Int](idx: Int):
+    @always_inline
+    def vectorized_leaky_relu[
+        width: Int
+    ](idx: Int) {var in_ptr, var out_ptr, var alpha}:
         var vec = in_ptr.load[width=width](idx)
         var alpha_vec = SIMD[DType.float32, width](alpha)
         var scaled = alpha_vec * vec
@@ -199,8 +201,10 @@ def _leaky_relu_simd_float64(
     var in_ptr = tensor._data.bitcast[Float64]()
     var out_ptr = result._data.bitcast[Float64]()
 
-    @parameter
-    def vectorized_leaky_relu[width: Int](idx: Int):
+    @always_inline
+    def vectorized_leaky_relu[
+        width: Int
+    ](idx: Int) {var in_ptr, var out_ptr, var alpha}:
         var vec = in_ptr.load[width=width](idx)
         var alpha_vec = SIMD[DType.float64, width](alpha)
         var scaled = alpha_vec * vec
@@ -259,8 +263,8 @@ def _relu6_simd_float32(tensor: AnyTensor, mut result: AnyTensor):
     var in_ptr = tensor._data.bitcast[Float32]()
     var out_ptr = result._data.bitcast[Float32]()
 
-    @parameter
-    def vectorized_relu6[width: Int](idx: Int):
+    @always_inline
+    def vectorized_relu6[width: Int](idx: Int) {var in_ptr, var out_ptr}:
         var vec = in_ptr.load[width=width](idx)
         var zero_vec = SIMD[DType.float32, width](0)
         var six_vec = SIMD[DType.float32, width](6)
@@ -279,8 +283,8 @@ def _relu6_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
     var in_ptr = tensor._data.bitcast[Float64]()
     var out_ptr = result._data.bitcast[Float64]()
 
-    @parameter
-    def vectorized_relu6[width: Int](idx: Int):
+    @always_inline
+    def vectorized_relu6[width: Int](idx: Int) {var in_ptr, var out_ptr}:
         var vec = in_ptr.load[width=width](idx)
         var zero_vec = SIMD[DType.float64, width](0)
         var six_vec = SIMD[DType.float64, width](6)
@@ -344,8 +348,10 @@ def _elu_simd_float32(tensor: AnyTensor, mut result: AnyTensor, alpha: Float32):
     var in_ptr = tensor._data.bitcast[Float32]()
     var out_ptr = result._data.bitcast[Float32]()
 
-    @parameter
-    def vectorized_elu[width: Int](idx: Int):
+    @always_inline
+    def vectorized_elu[
+        width: Int
+    ](idx: Int) {var in_ptr, var out_ptr, var alpha}:
         var vec = in_ptr.load[width=width](idx)
         var zero_vec = SIMD[DType.float32, width](0)
         var one_vec = SIMD[DType.float32, width](1)
@@ -381,8 +387,10 @@ def _elu_simd_float64(tensor: AnyTensor, mut result: AnyTensor, alpha: Float64):
     var in_ptr = tensor._data.bitcast[Float64]()
     var out_ptr = result._data.bitcast[Float64]()
 
-    @parameter
-    def vectorized_elu[width: Int](idx: Int):
+    @always_inline
+    def vectorized_elu[
+        width: Int
+    ](idx: Int) {var in_ptr, var out_ptr, var alpha}:
         var vec = in_ptr.load[width=width](idx)
         var zero_vec = SIMD[DType.float64, width](0)
         var one_vec = SIMD[DType.float64, width](1)
@@ -459,8 +467,10 @@ def _selu_simd_float32(
     var in_ptr = tensor._data.bitcast[Float32]()
     var out_ptr = result._data.bitcast[Float32]()
 
-    @parameter
-    def vectorized_selu[width: Int](idx: Int):
+    @always_inline
+    def vectorized_selu[
+        width: Int
+    ](idx: Int) {var in_ptr, var out_ptr, var alpha, var lambda_}:
         var vec = in_ptr.load[width=width](idx)
         var zero_vec = SIMD[DType.float32, width](0)
         var one_vec = SIMD[DType.float32, width](1)
@@ -490,8 +500,10 @@ def _selu_simd_float64(
     var in_ptr = tensor._data.bitcast[Float64]()
     var out_ptr = result._data.bitcast[Float64]()
 
-    @parameter
-    def vectorized_selu[width: Int](idx: Int):
+    @always_inline
+    def vectorized_selu[
+        width: Int
+    ](idx: Int) {var in_ptr, var out_ptr, var alpha, var lambda_}:
         var vec = in_ptr.load[width=width](idx)
         var zero_vec = SIMD[DType.float64, width](0)
         var one_vec = SIMD[DType.float64, width](1)
@@ -561,8 +573,8 @@ def _swish_simd_float32(tensor: AnyTensor, mut result: AnyTensor):
     var in_ptr = tensor._data.bitcast[Float32]()
     var out_ptr = result._data.bitcast[Float32]()
 
-    @parameter
-    def vectorized_swish[width: Int](idx: Int):
+    @always_inline
+    def vectorized_swish[width: Int](idx: Int) {var in_ptr, var out_ptr}:
         var vec = in_ptr.load[width=width](idx)
 
         # Compute sigmoid(x) with numerical stability
@@ -593,8 +605,8 @@ def _swish_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
     var in_ptr = tensor._data.bitcast[Float64]()
     var out_ptr = result._data.bitcast[Float64]()
 
-    @parameter
-    def vectorized_swish[width: Int](idx: Int):
+    @always_inline
+    def vectorized_swish[width: Int](idx: Int) {var in_ptr, var out_ptr}:
         var vec = in_ptr.load[width=width](idx)
 
         var neg_vec = -vec

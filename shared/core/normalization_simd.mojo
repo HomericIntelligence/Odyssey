@@ -169,8 +169,12 @@ def _batch_norm2d_fused_inference_float32(
             var base_offset = b * (channels * spatial_size) + c * spatial_size
 
             # Single SIMD pass: output = x * scale + bias
-            @parameter
-            def normalize_kernel[width: Int](idx: Int):
+            @always_inline
+            def normalize_kernel[
+                width: Int
+            ](idx: Int) {
+                var x_ptr, var out_ptr, var base_offset, var scale, var bias
+            }:
                 var x_vec = x_ptr.load[width=width](base_offset + idx)
                 var scale_vec = SIMD[DType.float32, width](scale)
                 var bias_vec = SIMD[DType.float32, width](bias)
@@ -219,8 +223,12 @@ def _batch_norm2d_fused_inference_float64(
 
             var base_offset = b * (channels * spatial_size) + c * spatial_size
 
-            @parameter
-            def normalize_kernel[width: Int](idx: Int):
+            @always_inline
+            def normalize_kernel[
+                width: Int
+            ](idx: Int) {
+                var x_ptr, var out_ptr, var base_offset, var scale, var bias
+            }:
                 var x_vec = x_ptr.load[width=width](base_offset + idx)
                 var scale_vec = SIMD[DType.float64, width](scale)
                 var bias_vec = SIMD[DType.float64, width](bias)
@@ -422,8 +430,12 @@ def _batch_norm2d_fused_training_float32(
 
             var base_offset = b * (channels * spatial_size) + c * spatial_size
 
-            @parameter
-            def normalize_kernel[width: Int](idx: Int):
+            @always_inline
+            def normalize_kernel[
+                width: Int
+            ](idx: Int) {
+                var x_ptr, var out_ptr, var base_offset, var scale, var bias
+            }:
                 var x_vec = x_ptr.load[width=width](base_offset + idx)
                 var scale_vec = SIMD[DType.float32, width](scale)
                 var bias_vec = SIMD[DType.float32, width](bias)
@@ -534,8 +546,12 @@ def _batch_norm2d_fused_training_float64(
 
             var base_offset = b * (channels * spatial_size) + c * spatial_size
 
-            @parameter
-            def normalize_kernel[width: Int](idx: Int):
+            @always_inline
+            def normalize_kernel[
+                width: Int
+            ](idx: Int) {
+                var x_ptr, var out_ptr, var base_offset, var scale, var bias
+            }:
                 var x_vec = x_ptr.load[width=width](base_offset + idx)
                 var scale_vec = SIMD[DType.float64, width](scale)
                 var bias_vec = SIMD[DType.float64, width](bias)

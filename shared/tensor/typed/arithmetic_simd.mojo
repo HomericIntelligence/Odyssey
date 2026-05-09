@@ -22,8 +22,10 @@ def _add_simd_typed[
     comptime if dtype == DType.float32 or dtype == DType.float64:
         comptime simd_width = simd_width_of[dtype]()
 
-        @parameter
-        def vectorized_add[width: Int](idx: Int):
+        @always_inline
+        def vectorized_add[
+            width: Int
+        ](idx: Int) {var a_ptr, var b_ptr, var result_ptr}:
             var a_vec = a_ptr.load[width=width](idx)
             var b_vec = b_ptr.load[width=width](idx)
             result_ptr.store[width=width](idx, a_vec + b_vec)
@@ -49,8 +51,10 @@ def _subtract_simd_typed[
     comptime if dtype == DType.float32 or dtype == DType.float64:
         comptime simd_width = simd_width_of[dtype]()
 
-        @parameter
-        def vectorized_subtract[width: Int](idx: Int):
+        @always_inline
+        def vectorized_subtract[
+            width: Int
+        ](idx: Int) {var a_ptr, var b_ptr, var result_ptr}:
             var a_vec = a_ptr.load[width=width](idx)
             var b_vec = b_ptr.load[width=width](idx)
             result_ptr.store[width=width](idx, a_vec - b_vec)
@@ -76,8 +80,10 @@ def _multiply_simd_typed[
     comptime if dtype == DType.float32 or dtype == DType.float64:
         comptime simd_width = simd_width_of[dtype]()
 
-        @parameter
-        def vectorized_multiply[width: Int](idx: Int):
+        @always_inline
+        def vectorized_multiply[
+            width: Int
+        ](idx: Int) {var a_ptr, var b_ptr, var result_ptr}:
             var a_vec = a_ptr.load[width=width](idx)
             var b_vec = b_ptr.load[width=width](idx)
             result_ptr.store[width=width](idx, a_vec * b_vec)
@@ -103,8 +109,10 @@ def _divide_simd_typed[
     comptime if dtype == DType.float32 or dtype == DType.float64:
         comptime simd_width = simd_width_of[dtype]()
 
-        @parameter
-        def vectorized_divide[width: Int](idx: Int):
+        @always_inline
+        def vectorized_divide[
+            width: Int
+        ](idx: Int) {var a_ptr, var b_ptr, var result_ptr}:
             var a_vec = a_ptr.load[width=width](idx)
             var b_vec = b_ptr.load[width=width](idx)
             result_ptr.store[width=width](idx, a_vec / b_vec)
