@@ -18,7 +18,7 @@ from shared.tensor.any_tensor import (
     zeros_like,
     ones_like,
 )
-from ..normalization_simd import batch_norm2d_fused
+from shared.core.normalization_simd import batch_norm2d_fused
 
 
 struct BatchNorm2dLayer[dtype: DType = DType.float32](Copyable, Movable):
