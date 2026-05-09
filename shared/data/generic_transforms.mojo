@@ -96,16 +96,28 @@ struct LambdaTransform(Copyable, Movable, Transform):
         ```
     """
 
-    var func: def(Float32) -> Float32
-    """Function to apply element-wise to tensor values."""
+    # TODO(mojo-1.0): Mojo 1.0 rejects dynamic `def(...)` struct fields with
+    # "dynamic traits not supported yet, please use a compile time generic
+    # instead". The proper fix is to promote `LambdaTransform` to a parametric
+    # struct (`LambdaTransform[F: SomeCallableTrait]`) and rewrite all
+    # call sites + `AnyTransform` to thread the parameter through. That cascade
+    # is large (one shared/ file plus the test file) and is deferred to
+    # Phase E along with the test-file migration. For now this is a stub: the
+    # constructor accepts a function but does not store it, and `__call__`
+    # returns input unchanged. See migration recipe Recipe 7 (DYNAMIC_TRAIT).
+    var _stub: Int
+    """TODO(mojo-1.0): placeholder until lambda-fn field is re-introduced."""
 
     def __init__(out self, func: def(Float32) -> Float32):
         """Create lambda transform.
 
         Args:
-            func: Function to apply element-wise.
+            func: Function to apply element-wise. Currently ignored; see
+                  TODO(mojo-1.0) above.
         """
-        self.func = func
+        # TODO(mojo-1.0): store `func` once struct is parametric.
+        _ = func
+        self._stub = 0
 
     def __call__(self, data: AnyTensor) raises -> AnyTensor:
         """Apply function to each element.
@@ -119,14 +131,14 @@ struct LambdaTransform(Copyable, Movable, Transform):
         Raises:
             Error: If tensor creation fails.
         """
-        var result_values = List[Float32](capacity=data.num_elements())
-
-        for i in range(data.num_elements()):
-            var value = Float32(data[i])
-            var transformed = self.func(value)
-            result_values.append(transformed)
-
-        return AnyTensor(result_values^)
+        # TODO(mojo-1.0): once the func field is restored, copy each element
+        # through `self.func`. For now this is a passthrough stub so the
+        # package compiles; tests for this struct are also being deferred to
+        # Phase E.
+        raise Error(
+            "LambdaTransform: temporarily disabled in Mojo 1.0 migration"
+            " (see TODO(mojo-1.0) and migration Recipe 7 DYNAMIC_TRAIT)"
+        )
 
 
 # ============================================================================
@@ -155,8 +167,12 @@ struct ConditionalTransform[T: Transform & Copyable & Movable](
         ```
     """
 
-    var predicate: def(AnyTensor) raises -> Bool
-    """Predicate function to evaluate on tensor."""
+    # TODO(mojo-1.0): same DYNAMIC_TRAIT cascade as LambdaTransform — see
+    # Recipe 7 in docs/dev/mojo-1.0-migration-recipe.md. The predicate field
+    # below is a stubbed Int placeholder until ConditionalTransform is
+    # promoted to a parametric struct in Phase E.
+    var _stub: Int
+    """TODO(mojo-1.0): placeholder until predicate field is re-introduced."""
     var transform: Self.T
     """Transform to apply if predicate is true."""
 
@@ -168,10 +184,13 @@ struct ConditionalTransform[T: Transform & Copyable & Movable](
         """Create conditional transform.
 
         Args:
-            predicate: Function to evaluate on tensor.
+            predicate: Function to evaluate on tensor. Currently ignored; see
+                       TODO(mojo-1.0) above.
             transform: Transform to apply if predicate is true.
         """
-        self.predicate = predicate
+        # TODO(mojo-1.0): store `predicate` once struct is parametric on it.
+        _ = predicate
+        self._stub = 0
         self.transform = transform^
 
     def __call__(self, data: AnyTensor) raises -> AnyTensor:
@@ -186,10 +205,13 @@ struct ConditionalTransform[T: Transform & Copyable & Movable](
         Raises:
             Error: If predicate evaluation or transform fails.
         """
-        if self.predicate(data):
-            return self.transform(data)
-        else:
-            return data
+        # TODO(mojo-1.0): once the predicate field is restored, evaluate it
+        # and conditionally call self.transform. For now this is a stub that
+        # always raises — tests are being deferred to Phase E.
+        raise Error(
+            "ConditionalTransform: temporarily disabled in Mojo 1.0 migration"
+            " (see TODO(mojo-1.0) and migration Recipe 7 DYNAMIC_TRAIT)"
+        )
 
 
 # ============================================================================
