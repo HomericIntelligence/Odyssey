@@ -38,7 +38,7 @@ Example:
 
 from std.collections import List
 from std.memory import UnsafePointer, alloc, memcpy
-from std.os.atomic import Atomic
+from std.atomic import Atomic
 
 # Size bucket boundaries (in bytes)
 comptime SMALL_SIZES_COUNT = 5
@@ -101,7 +101,7 @@ struct SpinLock(Copyable, Movable):
     overhead of a deep copy.
     """
 
-    var _state: UnsafePointer[UInt8, origin=MutAnyOrigin]
+    var _state: UnsafePointer[UInt8, MutAnyOrigin]
     """Heap-allocated 8-byte region reinterpreted as Atomic[DType.int64]."""
 
     def __init__(out self):
@@ -112,11 +112,11 @@ struct SpinLock(Copyable, Movable):
 
     def _as_atomic(
         self,
-    ) -> UnsafePointer[Atomic[DType.int64], origin=MutAnyOrigin]:
+    ) -> UnsafePointer[Atomic[DType.int64], MutAnyOrigin]:
         """Reinterpret backing store as an atomic int64."""
         return self._state.bitcast[Atomic[DType.int64]]()
 
-    def _lock_word(self) -> UnsafePointer[Int64, origin=MutAnyOrigin]:
+    def _lock_word(self) -> UnsafePointer[Int64, MutAnyOrigin]:
         """Return the lock word as a plain Int64 pointer for static Atomic ops.
         """
         return self._state.bitcast[Int64]()
@@ -183,7 +183,7 @@ struct AtomicStats(Copyable, Movable):
     struct is stored in a List that reallocates.
     """
 
-    var _data: UnsafePointer[UInt8, origin=MutAnyOrigin]
+    var _data: UnsafePointer[UInt8, MutAnyOrigin]
     """Heap-allocated storage for 7 atomic int64 counters (56 bytes)."""
 
     def __init__(out self):
@@ -194,7 +194,7 @@ struct AtomicStats(Copyable, Movable):
 
     def _counter(
         self, offset: Int
-    ) -> UnsafePointer[Atomic[DType.int64], origin=MutAnyOrigin]:
+    ) -> UnsafePointer[Atomic[DType.int64], MutAnyOrigin]:
         """Get pointer to atomic counter at given byte offset."""
         return (self._data + offset).bitcast[Atomic[DType.int64]]()
 
@@ -247,9 +247,7 @@ struct AtomicStats(Copyable, Movable):
         s.peak_cached_bytes = Int(self._counter(_ASTATS_PEAK_CACHED)[].load())
         return s
 
-    def _counter_int64(
-        self, offset: Int
-    ) -> UnsafePointer[Int64, origin=MutAnyOrigin]:
+    def _counter_int64(self, offset: Int) -> UnsafePointer[Int64, MutAnyOrigin]:
         """Return a plain Int64 pointer at the given byte offset (for atomic store).
         """
         return (self._data + offset).bitcast[Int64]()
@@ -367,7 +365,7 @@ struct _FreeListNode(Movable):
         next: Pointer to the next free block, or null if this is the last.
     """
 
-    var next: UnsafePointer[_FreeListNode, origin=MutAnyOrigin]
+    var next: UnsafePointer[_FreeListNode, MutAnyOrigin]
     """Next block in free list, or null if last."""
 
 
@@ -383,7 +381,7 @@ struct FreeList(Copyable, Movable):
         count: Number of blocks currently in the free list.
     """
 
-    var head: UnsafePointer[_FreeListNode, origin=MutAnyOrigin]
+    var head: UnsafePointer[_FreeListNode, MutAnyOrigin]
     """First node in free list, or null if empty."""
     var block_size: Int
     """Size of each block managed by this list."""
@@ -396,7 +394,7 @@ struct FreeList(Copyable, Movable):
         Args:
             block_size: Size of each block this list will manage.
         """
-        self.head = UnsafePointer[_FreeListNode, origin=MutAnyOrigin]()
+        self.head = UnsafePointer[_FreeListNode, MutAnyOrigin](_unsafe_null=())
         self.block_size = block_size
         self.count = 0
 
@@ -406,16 +404,18 @@ struct FreeList(Copyable, Movable):
         Returns:
             True if there are no free blocks available.
         """
-        return self.head == UnsafePointer[_FreeListNode, origin=MutAnyOrigin]()
+        return self.head == UnsafePointer[_FreeListNode, MutAnyOrigin](
+            _unsafe_null=()
+        )
 
-    def pop(mut self) -> UnsafePointer[UInt8, origin=MutAnyOrigin]:
+    def pop(mut self) -> UnsafePointer[UInt8, MutAnyOrigin]:
         """Remove and return a block from the free list.
 
         Returns:
             UnsafePointer to the allocated block, or null if list is empty.
         """
         if self.is_empty():
-            return UnsafePointer[UInt8, origin=MutAnyOrigin]()
+            return UnsafePointer[UInt8, MutAnyOrigin](_unsafe_null=())
 
         var node = self.head
         self.head = node[].next
@@ -424,7 +424,7 @@ struct FreeList(Copyable, Movable):
         # Cast the node back to UInt8 pointer
         return node.bitcast[UInt8]()
 
-    def push(mut self, ptr: UnsafePointer[UInt8, origin=MutAnyOrigin]):
+    def push(mut self, ptr: UnsafePointer[UInt8, MutAnyOrigin]):
         """Add a block back to the free list.
 
         Args:
@@ -435,7 +435,7 @@ struct FreeList(Copyable, Movable):
         """
         # Guard against null pointers (shouldn't happen in normal operation,
         # but provides safety if allocate() somehow returns null)
-        if ptr == UnsafePointer[UInt8, origin=MutAnyOrigin]():
+        if ptr == UnsafePointer[UInt8, MutAnyOrigin](_unsafe_null=()):
             return
 
         var node = ptr.bitcast[_FreeListNode]()
@@ -585,9 +585,7 @@ struct TensorMemoryPool(Copyable, Movable):
         # No bucket found
         return -1
 
-    def allocate(
-        mut self, size: Int
-    ) -> UnsafePointer[UInt8, origin=MutAnyOrigin]:
+    def allocate(mut self, size: Int) -> UnsafePointer[UInt8, MutAnyOrigin]:
         """Allocate memory from pool or system allocator.
 
         Thread-safe: uses per-bucket spinlocks and atomic stats.
@@ -659,7 +657,7 @@ struct TensorMemoryPool(Copyable, Movable):
         return alloc[UInt8](size)
 
     def deallocate(
-        mut self, ptr: UnsafePointer[UInt8, origin=MutAnyOrigin], size: Int
+        mut self, ptr: UnsafePointer[UInt8, MutAnyOrigin], size: Int
     ):
         """Return allocation to pool or system allocator.
 
@@ -776,7 +774,7 @@ struct TensorMemoryPool(Copyable, Movable):
 # for now. This is a temporary workaround until Mojo adds proper global state support.
 
 
-def pooled_alloc(size: Int) -> UnsafePointer[UInt8, origin=MutAnyOrigin]:
+def pooled_alloc(size: Int) -> UnsafePointer[UInt8, MutAnyOrigin]:
     """Allocate memory - currently bypasses pool (direct malloc).
 
     Routes allocations directly to system malloc. The pool infrastructure
@@ -798,7 +796,7 @@ def pooled_alloc(size: Int) -> UnsafePointer[UInt8, origin=MutAnyOrigin]:
     return alloc[UInt8](size)
 
 
-def pooled_free(ptr: UnsafePointer[UInt8, origin=MutAnyOrigin], size: Int):
+def pooled_free(ptr: UnsafePointer[UInt8, MutAnyOrigin], size: Int):
     """Return allocation to system allocator.
 
     Currently frees directly to system allocator. The pool infrastructure
