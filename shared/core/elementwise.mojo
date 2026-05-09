@@ -11,7 +11,7 @@ Layer 3 (core): Tensor[dtype] native implementation (_exp_typed, etc.)
 
 from std.collections import List
 from shared.tensor.any_tensor import AnyTensor
-from .dtype_dispatch import (
+from shared.core.dtype_dispatch import (
     dispatch_unary,
     dispatch_binary,
     dispatch_float_unary,

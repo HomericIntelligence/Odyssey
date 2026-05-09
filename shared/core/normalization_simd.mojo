@@ -15,7 +15,7 @@ Design:
 - SIMD-accelerated parallel reductions for gradient computation
 
 Usage:
-    from .normalization_simd import batch_norm2d_fused
+    from shared.core.normalization_simd import batch_norm2d_fused
 
     var x = randn([16, 64, 32, 32], DType.float32)
     var gamma = ones([64], DType.float32)
@@ -43,7 +43,7 @@ from shared.tensor.any_tensor import (
     ones_like,
     full_like,
 )
-from .scalar_ops import sqrt_scalar_f32, sqrt_scalar_f64
+from shared.core.scalar_ops import sqrt_scalar_f32, sqrt_scalar_f64
 
 
 # ============================================================================
@@ -99,7 +99,7 @@ def batch_norm2d_fused_inference(
         )
         ```
     """
-    from .normalization import batch_norm2d
+    from shared.core.normalization import batch_norm2d
 
     var result = AnyTensor(x.shape(), x._dtype)
 
@@ -294,7 +294,7 @@ def batch_norm2d_fused(
         )
         ```
     """
-    from .normalization import batch_norm2d
+    from shared.core.normalization import batch_norm2d
 
     if not training:
         # Use single-pass fused inference

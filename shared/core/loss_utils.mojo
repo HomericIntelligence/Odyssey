@@ -12,9 +12,9 @@ maintaining internal state.
 """
 
 from shared.tensor.any_tensor import AnyTensor, ones_like, zeros_like, full_like
-from .arithmetic import add, subtract, multiply, divide
-from .comparison import less, greater
-from .dtype_cast import cast_tensor
+from shared.core.arithmetic import add, subtract, multiply, divide
+from shared.core.comparison import less, greater
+from shared.core.dtype_cast import cast_tensor
 
 
 def clip_predictions(
@@ -45,7 +45,7 @@ def clip_predictions(
             var log_pred = log(clipped)  # Safe to take log now
             ```
     """
-    from .elementwise import clip
+    from shared.core.elementwise import clip
 
     return clip(predictions, epsilon, 1.0 - epsilon)
 

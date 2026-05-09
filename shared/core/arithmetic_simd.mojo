@@ -19,7 +19,7 @@ Design:
 - @always_inline for hot path optimization
 
 Usage:
-    from .arithmetic_simd import add_simd, multiply_simd
+    from shared.core.arithmetic_simd import add_simd, multiply_simd
 
     var a = ones([1024, 1024], DType.float32)
     var b = ones([1024, 1024], DType.float32)
@@ -70,7 +70,7 @@ def add_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
             var z = add_simd(x, y)  # Scalar broadcasting
             ```
     """
-    from .arithmetic import add
+    from shared.core.arithmetic import add
     from shared.tensor.typed.arithmetic_simd import _add_simd_typed
 
     if a.dtype() != b.dtype():
@@ -108,7 +108,7 @@ def subtract_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Raises:
             Error if dtypes don't match.
     """
-    from .arithmetic import subtract
+    from shared.core.arithmetic import subtract
     from shared.tensor.typed.arithmetic_simd import _subtract_simd_typed
 
     if a.dtype() != b.dtype():
@@ -142,7 +142,7 @@ def multiply_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Raises:
             Error if dtypes don't match.
     """
-    from .arithmetic import multiply
+    from shared.core.arithmetic import multiply
     from shared.tensor.typed.arithmetic_simd import _multiply_simd_typed
 
     if a.dtype() != b.dtype():
@@ -176,7 +176,7 @@ def divide_simd(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Raises:
             Error if dtypes don't match or division by zero.
     """
-    from .arithmetic import divide
+    from shared.core.arithmetic import divide
     from shared.tensor.typed.arithmetic_simd import _divide_simd_typed
 
     if a.dtype() != b.dtype():

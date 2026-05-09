@@ -8,7 +8,7 @@ This file provides the AnyTensor public API only.
 from std.collections import List
 from std.math import nan
 from shared.tensor.any_tensor import AnyTensor, full
-from .gradient_types import GradientPair
+from shared.core.gradient_types import GradientPair
 
 
 def add(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
@@ -364,7 +364,7 @@ def _reduce_broadcast_dims(
         var reduced2 = _reduce_broadcast_dims(grad2, original2)  # Shape (5,)
         ```
     """
-    from .reduction import sum
+    from shared.core.reduction import sum
 
     var result = grad
     var grad_shape = grad.shape()

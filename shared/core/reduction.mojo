@@ -19,7 +19,7 @@ from shared.base.dtype_ordinal import (
     DTYPE_INT32,
     DTYPE_INT64,
 )
-from .reduction_utils import (
+from shared.core.reduction_utils import (
     compute_strides,
     linear_to_coords,
     coords_to_linear,
@@ -28,7 +28,7 @@ from .reduction_utils import (
     compute_axis_strides,
     build_reduced_shape,
 )
-from .reduction_ops import (
+from shared.core.reduction_ops import (
     ReduceOp,
     ReduceBackwardOp,
     SumOp,
@@ -69,7 +69,7 @@ def _dispatch_reduce_all[
 ](result: AnyTensor, tensor: AnyTensor, numel: Int) raises:
     """Generic runtime dispatch for reduction over all elements."""
     # Ensure input is contiguous before flat-buffer kernel access.
-    from .shape import as_contiguous
+    from shared.core.shape import as_contiguous
 
     var t = tensor if tensor.is_contiguous() else as_contiguous(tensor)
     var dt = t.dtype()
@@ -128,7 +128,7 @@ def _dispatch_reduce_axis[
 ) raises:
     """Generic runtime dispatch for reduction along axis."""
     # Ensure input is contiguous before flat-buffer kernel access.
-    from .shape import as_contiguous
+    from shared.core.shape import as_contiguous
 
     var t = tensor if tensor.is_contiguous() else as_contiguous(tensor)
     var dt = t.dtype()

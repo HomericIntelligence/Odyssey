@@ -17,7 +17,7 @@ Performance Characteristics:
     - Register blocking uses MICRO_M=4, MICRO_N=16 for optimal register utilization
 
 Usage:
-    from .matmul import matmul, matmul_optimized
+    from shared.core.matmul import matmul, matmul_optimized
 
     var a = zeros([1024, 512], DType.float32)
     var b = zeros([512, 1024], DType.float32)
@@ -36,8 +36,8 @@ from std.algorithm import vectorize
 from std.sys.info import simd_width_of
 from std.memory import memset_zero
 from shared.tensor.any_tensor import AnyTensor, zeros
-from .error_utils import format_dtype, format_matmul_error
-from .strassen import (
+from shared.core.error_utils import format_dtype, format_matmul_error
+from shared.core.strassen import (
     matmul_strassen,
     STRASSEN_ENABLED,
     STRASSEN_THRESHOLD,

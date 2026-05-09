@@ -5,8 +5,8 @@ following the pattern y = xW^T + b. The caller manages all state (weights, bias)
 """
 
 from shared.tensor.any_tensor import AnyTensor
-from .matrix import matmul, transpose
-from .gradient_types import GradientPair, GradientTriple
+from shared.core.matrix import matmul, transpose
+from shared.core.gradient_types import GradientPair, GradientTriple
 
 
 def linear(
@@ -39,7 +39,7 @@ def linear(
     Raises:
             Error if shapes are incompatible for matrix multiplication.
     """
-    from .arithmetic import add
+    from shared.core.arithmetic import add
 
     # Compute xW^T
     var out = matmul(x, transpose(weights))
@@ -108,7 +108,7 @@ def linear_backward(
     Raises:
             Error if tensor shapes are incompatible.
     """
-    from .reduction import sum
+    from shared.core.reduction import sum
 
     # grad_input = grad_output @ W
     # weights is (out_features, in_features), so we use it directly
