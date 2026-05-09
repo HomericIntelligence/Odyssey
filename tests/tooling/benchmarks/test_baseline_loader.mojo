@@ -213,9 +213,12 @@ def test_environment_metadata() raises:
     assert_true(metadata_os.byte_length() > 0, "OS should be present")
     assert_true(metadata_cpu.byte_length() > 0, "CPU should be present")
     assert_true(
-        len(metadata_mojo_version) > 0, "Mojo version should be present"
+        metadata_mojo_version.byte_length() > 0,
+        "Mojo version should be present",
     )
-    assert_true(len(metadata_git_commit) > 0, "Git commit should be present")
+    assert_true(
+        metadata_git_commit.byte_length() > 0, "Git commit should be present"
+    )
 
 
 def test_baseline_lookup_by_name() raises:
