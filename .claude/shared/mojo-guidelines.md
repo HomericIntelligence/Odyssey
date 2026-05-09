@@ -2,8 +2,36 @@
 
 Shared Mojo language guidelines for all agents. Reference this file instead of duplicating.
 
-**Mojo Version**: 0.26.3 (pinned in pixi.toml).
-Official docs: <https://docs.modular.com/mojo/manual/>
+**Mojo Version**: 1.0.0b2 (pinned in pixi.toml).
+Official docs: <https://mojolang.org/docs/>
+
+## ⚠️ Mojo 1.0 migration (in progress)
+
+This repo is migrating from 0.26.3 to 1.0.0b2 on branch `mojo-bump-1.0.0b2-2026050805`.
+Until that merges, the codebase is in a mixed state. **For agents writing NEW code, follow
+the 1.0 conventions below.** For agents fixing 0.26 code that hasn't compiled yet, see
+[`docs/dev/mojo-1.0-migration-recipe.md`](../../docs/dev/mojo-1.0-migration-recipe.md).
+
+Key 1.0 changes from 0.26 (paraphrased from `modular/modular` v1.0.0b1 release notes):
+
+- **`fn` is deprecated**, becoming a hard error in the next release. Default to `def`. The
+  `fn`-vs-`def` guidance lower in this file (which says "Use fn for performance code") is
+  wrong for 1.0 and is being rewritten.
+- **`unified` keyword removed**. Use `{...}` capture lists alone, or add `capturing[_]`.
+- **Parametric function values need `thin`**: `op: def[T: DType](Scalar[T]) thin -> Scalar[T]`.
+- **`mojo test` subcommand removed**. Tests run via `mojo run` (existing repo tests have
+  hand-rolled `def main()` blocks that work on 1.0 unchanged).
+- **`UnsafePointer` non-null by design**. Use `Optional[UnsafePointer[T]]` for nullable.
+- **`@register_passable` and `@doc_private` removed**. Use traits / `@doc_hidden`.
+- **`__moveinit__` / `__copyinit__` removed**. Use `__init__(take/copy: Self)`.
+- **`std.os.atomic` → `std.atomic`**, `Consistency` → `Ordering`, `MONOTONIC` → `RELAXED`.
+- **`String.as_bytes_mut` → `unsafe_as_bytes_mut`**.
+- **`String.__len__` deprecated** → `byte_length()` or `count_codepoints()`.
+- **Negative indexing rejected** on List/Span/String/Dict at compile time.
+- **`Boolable`/`Defaultable`/`Writable` no longer imply `ImplicitlyDestructible`** in
+  generic bounds.
+
+The guidance in the rest of this file is being audited for 1.0 alignment.
 
 ## When to Use Mojo vs Python
 
@@ -11,13 +39,13 @@ Official docs: <https://docs.modular.com/mojo/manual/>
 | --- | --- | --- |
 | ML/AI implementations | Mojo (required) | Performance, type safety |
 | Performance-critical code | Mojo (required) | SIMD, optimization |
-| Subprocess output capture | Python (allowed) | Mojo v0.26.3 limitation |
+| Subprocess output capture | Python (allowed) | Mojo v1.0 limitation |
 | Regex processing | Python (allowed) | No Mojo stdlib support |
 | GitHub API interaction | Python (allowed) | Library availability |
 
 **Default**: Mojo unless technical limitation documented.
 
-## Current Syntax (v0.26.3+)
+## Current Syntax (v1.0+)
 
 ### Parameter Conventions
 
@@ -88,7 +116,7 @@ var empty = List[Int]()
 var shape = List[Int](3, 4, 5)  # Compiler error
 ```
 
-## Mojo v0.26.3 Package Compilation Patterns
+## Mojo v1.0 Package Compilation Patterns
 
 ### Library Files vs. Executable Files
 
