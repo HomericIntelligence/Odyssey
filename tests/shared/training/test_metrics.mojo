@@ -281,7 +281,7 @@ def test_create_metric_summary() raises:
     var summary = create_metric_summary(results)
 
     # Summary should contain both metrics
-    assert_true(len(summary) > 0, "Summary should not be empty")
+    assert_true(summary.byte_length() > 0, "Summary should not be empty")
     # Can't easily check exact string, but should contain metric names
 
     print("   create_metric_summary test passed")

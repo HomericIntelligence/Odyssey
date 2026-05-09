@@ -54,7 +54,8 @@ def test_load_valid_baseline() raises:
     # Verify each benchmark name is non-empty
     for i in range(len(baseline_benchmarks)):
         assert_true(
-            len(baseline_benchmarks[i]) > 0, "Benchmark name should be present"
+            (baseline_benchmarks[i]).byte_length() > 0,
+            "Benchmark name should be present",
         )
 
 
@@ -102,7 +103,9 @@ def test_missing_baseline_file() raises:
     var error_message = "File not found: " + missing_file
 
     # Verify error message is informative
-    assert_true(len(error_message) > 0, "Error message should be present")
+    assert_true(
+        error_message.byte_length() > 0, "Error message should be present"
+    )
     assert_true(
         error_message.find("not found") >= 0,
         "Error should indicate missing file",
@@ -125,7 +128,9 @@ def test_malformed_json() raises:
     var error_message = "JSON parsing error at line 1"
 
     # Verify error message indicates parsing problem
-    assert_true(len(error_message) > 0, "Error message should be present")
+    assert_true(
+        error_message.byte_length() > 0, "Error message should be present"
+    )
     assert_true(error_message.find("JSON") >= 0, "Error should mention JSON")
     assert_true(
         error_message.find("error") >= 0,
@@ -205,8 +210,8 @@ def test_environment_metadata() raises:
     var metadata_git_commit = "abc123def456"
 
     # Verify all metadata fields are present and non-empty
-    assert_true(len(metadata_os) > 0, "OS should be present")
-    assert_true(len(metadata_cpu) > 0, "CPU should be present")
+    assert_true(metadata_os.byte_length() > 0, "OS should be present")
+    assert_true(metadata_cpu.byte_length() > 0, "CPU should be present")
     assert_true(
         len(metadata_mojo_version) > 0, "Mojo version should be present"
     )

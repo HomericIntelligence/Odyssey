@@ -1,4 +1,4 @@
-"""AlexNet Model for CIFAR-10 Classification
+"""AlexNet Model for CIFAR-10 Classification.
 
 Classic AlexNet architecture adapted for CIFAR-10 dataset (32x32 RGB images).
 

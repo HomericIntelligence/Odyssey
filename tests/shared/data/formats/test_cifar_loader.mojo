@@ -137,7 +137,7 @@ def test_load_cifar10_labels_single_image() raises:
         content += chr(0)
 
     # Verify we can parse it
-    var num_images = len(content) // CIFAR10_BYTES_PER_IMAGE
+    var num_images = content.byte_length() // CIFAR10_BYTES_PER_IMAGE
     assert_equal(num_images, 1, "Should parse 1 image")
 
     print("  ✓ Single-image CIFAR-10 file created successfully")
@@ -162,7 +162,9 @@ def test_load_cifar10_labels_multiple_images() raises:
 
     # Verify size calculation
     var expected_size = num_test_images * CIFAR10_BYTES_PER_IMAGE
-    assert_equal(len(content), expected_size, "File size should match expected")
+    assert_equal(
+        content.byte_length(), expected_size, "File size should match expected"
+    )
 
     print("  ✓ Multi-image CIFAR-10 file created successfully")
 
@@ -188,7 +190,9 @@ def test_load_cifar100_labels_structure() raises:
             content += chr(0)
 
     var expected_size = num_test_images * CIFAR100_BYTES_PER_IMAGE
-    assert_equal(len(content), expected_size, "File size should match expected")
+    assert_equal(
+        content.byte_length(), expected_size, "File size should match expected"
+    )
 
     print("  ✓ CIFAR-100 label structure correct")
 

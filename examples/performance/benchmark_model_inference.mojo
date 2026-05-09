@@ -1,4 +1,4 @@
-"""Example: Performance - Benchmark Model Inference
+"""Example: Performance - Benchmark Model Inference.
 
 Demonstrates how to use the shared benchmarking framework to measure
 and report model inference performance.

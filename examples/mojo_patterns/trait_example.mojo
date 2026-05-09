@@ -1,4 +1,4 @@
-"""Example: Mojo Patterns - Trait-Based Design
+"""Example: Mojo Patterns - Trait-Based Design.
 
 This example demonstrates creating reusable interfaces with traits.
 

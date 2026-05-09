@@ -279,7 +279,7 @@ def test_json_output_format() raises:
     # Verify each result has required fields for JSON
     for i in range(len(results)):
         ref result = results[i]
-        assert_true(len(result.name) > 0, "Name should be present")
+        assert_true(result.name.byte_length() > 0, "Name should be present")
         assert_greater(
             Float32(result.duration_ms),
             Float32(0.0),

@@ -1,4 +1,4 @@
-"""Inference Script for GoogLeNet on CIFAR-10
+"""Inference Script for GoogLeNet on CIFAR-10.
 
 This script loads a trained GoogLeNet model and evaluates it on the CIFAR-10 test set.
 

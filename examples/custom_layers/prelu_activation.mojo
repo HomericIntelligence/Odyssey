@@ -1,4 +1,4 @@
-"""Example: Custom Layers - Parametric ReLU
+"""Example: Custom Layers - Parametric ReLU.
 
 This example demonstrates implementing a custom PReLU activation.
 

@@ -1,4 +1,4 @@
-"""Training Script for LeNet-5 on EMNIST
+"""Training Script for LeNet-5 on EMNIST.
 
 Implements training with manual backward passes (no autograd).
 Uses SGD optimizer with simple training loop.

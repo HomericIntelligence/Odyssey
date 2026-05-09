@@ -602,7 +602,7 @@ def run_benchmarks[
 
             # Format stage name (padded to 11 chars)
             var stage_name = stage_names[s]
-            var padding = 11 - len(stage_name)
+            var padding = 11 - stage_name.byte_length()
             for _ in range(padding):
                 stage_name += " "
 

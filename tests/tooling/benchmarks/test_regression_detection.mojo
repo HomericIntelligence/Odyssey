@@ -288,7 +288,7 @@ def test_ci_integration_output() raises:
 
     # Verify output is present
     assert_equal(len(ci_output), 3, "Should have 3 output lines")
-    assert_true(len(ci_output[0]) > 0, "Should have result line")
+    assert_true((ci_output[0]).byte_length() > 0, "Should have result line")
 
 
 def main() raises:

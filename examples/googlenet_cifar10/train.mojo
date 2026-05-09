@@ -1,4 +1,4 @@
-"""Training Script for GoogLeNet on CIFAR-10
+"""Training Script for GoogLeNet on CIFAR-10.
 
 This script trains a GoogLeNet model on CIFAR-10 using manual backpropagation.
 

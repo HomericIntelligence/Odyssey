@@ -1,4 +1,4 @@
-"""ResNet-18 Model for CIFAR-10 Classification
+"""ResNet-18 Model for CIFAR-10 Classification.
 
 ResNet-18 architecture adapted for CIFAR-10 dataset (32x32 RGB images).
 

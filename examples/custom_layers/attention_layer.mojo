@@ -1,4 +1,4 @@
-"""Example: Custom Layers - Multi-Head Attention
+"""Example: Custom Layers - Multi-Head Attention.
 
 This example implements multi-head self-attention mechanism.
 

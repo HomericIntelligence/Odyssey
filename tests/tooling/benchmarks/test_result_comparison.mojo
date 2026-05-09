@@ -325,8 +325,10 @@ def test_comparison_report_generation() raises:
 
     # Verify report contains required sections
     assert_equal(len(report), 4, "Report should have 4 sections")
-    assert_true(len(report[0]) > 0, "Report header should exist")
-    assert_true(len(report[1]) > 0, "Report should include total count")
+    assert_true((report[0]).byte_length() > 0, "Report header should exist")
+    assert_true(
+        (report[1]).byte_length() > 0, "Report should include total count"
+    )
 
 
 def main() raises:

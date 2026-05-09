@@ -1,4 +1,4 @@
-"""Inference Script for AlexNet on CIFAR-10
+"""Inference Script for AlexNet on CIFAR-10.
 
 Loads trained weights and evaluates on CIFAR-10 test set.
 

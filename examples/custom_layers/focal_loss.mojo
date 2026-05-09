@@ -1,4 +1,4 @@
-"""Example: Custom Layers - Focal Loss
+"""Example: Custom Layers - Focal Loss.
 
 This example implements a custom loss function for imbalanced datasets.
 

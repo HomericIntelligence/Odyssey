@@ -1,4 +1,4 @@
-"""Quick integration test for GoogLeNet model"""
+"""Quick integration test for GoogLeNet model."""
 
 from model import GoogLeNet
 from shared.tensor.any_tensor import AnyTensor, zeros

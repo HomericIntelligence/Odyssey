@@ -82,23 +82,29 @@ def benchmark_operation[
     # Print results
     # mojo-1.0: String.ljust() removed; use manual padding
     var dtype_str = "float32" if dtype == DType.float32 else "float64"
-    var name_pad = name + " " * (10 - len(name)) if len(name) < 10 else name
+    var name_pad = (
+        name + " " * (10 - name.byte_length()) if name.byte_length()
+        < 10 else name
+    )
     var dtype_pad = (
-        dtype_str + " " * (8 - len(dtype_str)) if len(dtype_str)
+        dtype_str
+        + " " * (8 - dtype_str.byte_length()) if dtype_str.byte_length()
         < 8 else dtype_str
     )
     var size_s = String(size)
     var size_pad = (
-        size_s + " " * (6 - len(size_s)) if len(size_s) < 6 else size_s
+        size_s + " " * (6 - size_s.byte_length()) if size_s.byte_length()
+        < 6 else size_s
     )
     var scalar_s = String(scalar_time / Float64(iterations) * 1000)
     var scalar_pad = (
-        scalar_s + " " * (10 - len(scalar_s)) if len(scalar_s)
+        scalar_s + " " * (10 - scalar_s.byte_length()) if scalar_s.byte_length()
         < 10 else scalar_s
     )
     var simd_s = String(simd_time / Float64(iterations) * 1000)
     var simd_pad = (
-        simd_s + " " * (10 - len(simd_s)) if len(simd_s) < 10 else simd_s
+        simd_s + " " * (10 - simd_s.byte_length()) if simd_s.byte_length()
+        < 10 else simd_s
     )
     print(
         name_pad,

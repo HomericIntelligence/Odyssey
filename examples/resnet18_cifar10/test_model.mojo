@@ -1,4 +1,4 @@
-"""Quick integration test for ResNet-18 model
+"""Quick integration test for ResNet-18 model.
 
 Tests ResNet-18 forward pass, weight persistence, and model integration with shared modules.
 

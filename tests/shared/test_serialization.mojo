@@ -71,7 +71,9 @@ def test_hex_encoding() raises:
 
     # Verify hex string has expected length
     assert_equal(
-        len(hex_str), total_bytes * 2, "Hex string should be 2x byte count"
+        hex_str.byte_length(),
+        total_bytes * 2,
+        "Hex string should be 2x byte count",
     )
 
     # Create new tensor and decode hex

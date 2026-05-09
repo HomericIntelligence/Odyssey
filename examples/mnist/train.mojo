@@ -1,4 +1,4 @@
-"""Training Script for Simple CNN on MNIST
+"""Training Script for Simple CNN on MNIST.
 
 Implements training with manual backward passes (no autograd).
 Uses SGD optimizer with simple training loop.

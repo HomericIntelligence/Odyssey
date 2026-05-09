@@ -1,4 +1,4 @@
-"""Training Script for ResNet-18 on CIFAR-10
+"""Training Script for ResNet-18 on CIFAR-10.
 
 This script demonstrates manual backpropagation through a deep residual network
 with skip connections and batch normalization.

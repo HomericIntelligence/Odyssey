@@ -183,12 +183,12 @@ def parse_float_value(line: String, field_name: String) raises -> Float64:
     if start == -1:
         raise Error("Could not find " + field_name + " in line")
 
-    start = start + len(search_str)
+    start = start + search_str.byte_length()
 
     # Find end of number (comma, newline, or closing brace)
     var end = start
     while (
-        end < len(line)
+        end < line.byte_length()
         and String(line[byte = end : end + 1]) != ","
         and String(line[byte = end : end + 1]) != "}"
         and String(line[byte = end : end + 1]) != "\n"
@@ -214,12 +214,12 @@ def parse_int_value(line: String, field_name: String) raises -> Int:
     if start == -1:
         raise Error("Could not find " + field_name + " in line")
 
-    start = start + len(search_str)
+    start = start + search_str.byte_length()
 
     # Find end of number (comma, newline, or closing brace)
     var end = start
     while (
-        end < len(line)
+        end < line.byte_length()
         and String(line[byte = end : end + 1]) != ","
         and String(line[byte = end : end + 1]) != "}"
         and String(line[byte = end : end + 1]) != "\n"

@@ -1,4 +1,4 @@
-"""Simple CNN Model for MNIST Classification
+"""Simple CNN Model for MNIST Classification.
 
 Classic convolutional neural network adapted for MNIST digit classification (28x28 grayscale images).
 

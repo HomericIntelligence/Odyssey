@@ -1,4 +1,4 @@
-"""Example: Getting Started - Benchmark Neural Network Training
+"""Example: Getting Started - Benchmark Neural Network Training.
 
 Extends the quickstart example with performance benchmarking using
 the shared benchmarking framework.

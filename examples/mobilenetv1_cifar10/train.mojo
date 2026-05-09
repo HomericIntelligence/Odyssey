@@ -1,4 +1,4 @@
-"""Training Script for MobileNetV1 on CIFAR-10
+"""Training Script for MobileNetV1 on CIFAR-10.
 
 This script trains a MobileNetV1 model on CIFAR-10 using manual backpropagation.
 

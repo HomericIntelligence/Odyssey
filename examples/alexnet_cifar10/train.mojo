@@ -1,4 +1,4 @@
-"""Training Script for AlexNet on CIFAR-10
+"""Training Script for AlexNet on CIFAR-10.
 
 Implements training with manual backward passes (no autograd).
 Uses SGD optimizer with momentum and dropout regularization.

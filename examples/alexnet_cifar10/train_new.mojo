@@ -1,4 +1,4 @@
-"""Training Script for AlexNet on CIFAR-10 (Using ManualTrainer)
+"""Training Script for AlexNet on CIFAR-10 (Using ManualTrainer).
 
 MIGRATED VERSION - Demonstrates shared training loop pattern.
 

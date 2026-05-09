@@ -1,4 +1,4 @@
-"""LeNet-5 Model for EMNIST Classification
+"""LeNet-5 Model for EMNIST Classification.
 
 Classic LeNet-5 architecture adapted for EMNIST dataset (28x28 grayscale images).
 

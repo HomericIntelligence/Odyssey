@@ -78,7 +78,7 @@ def print_table(results: List[LegacyBenchmarkResult]):
         # Format operation name (max 30 chars)
         # mojo-1.0: String[:n] removed; use _str_trunc() helper
         var name_display = r.name
-        if len(r.name) > 30:
+        if r.name.byte_length() > 30:
             name_display = _str_trunc(r.name, 27) + "..."
 
         # Print row with aligned columns
@@ -90,16 +90,16 @@ def print_table(results: List[LegacyBenchmarkResult]):
         print(
             "║ "
             + name_display
-            + " " * (30 - len(name_display))
+            + " " * (30 - name_display.byte_length())
             + " │ "
             + mean_str
-            + " " * (8 - len(mean_str))
+            + " " * (8 - mean_str.byte_length())
             + " │ "
             + std_str
-            + " " * (8 - len(std_str))
+            + " " * (8 - std_str.byte_length())
             + " │ "
             + min_str
-            + " " * (8 - len(min_str))
+            + " " * (8 - min_str.byte_length())
             + " │ "
             + through_str
             + " ║"

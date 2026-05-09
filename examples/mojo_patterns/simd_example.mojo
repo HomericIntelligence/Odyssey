@@ -1,4 +1,4 @@
-"""Example: Mojo Patterns - SIMD Optimization
+"""Example: Mojo Patterns - SIMD Optimization.
 
 This example demonstrates vectorized operations using SIMD.
 

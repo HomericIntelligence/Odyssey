@@ -1,4 +1,4 @@
-"""Example: Performance - Benchmark ML Operations
+"""Example: Performance - Benchmark ML Operations.
 
 Demonstrates benchmarking individual ML operations using the shared
 benchmarking framework.
