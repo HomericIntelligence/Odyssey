@@ -23,8 +23,14 @@ File format (hex-encoded text):
 
 from std.memory import UnsafePointer
 from std.collections import List
-from shared.tensor.any_tensor import AnyTensor
-from shared.tensor.tensor_creation import zeros
+
+# NOTE: relative imports are REQUIRED here. See top-of-file docstring:
+# absolute imports cause Mojo's package compiler to compile any_tensor.mojo
+# twice with distinct AnyTensor type identities, producing
+#   "cannot implicitly convert 'AnyTensor' value to 'AnyTensor'".
+# (D5: D1's relative→absolute conversion accidentally re-broke this.)
+from .any_tensor import AnyTensor
+from .tensor_creation import zeros
 
 
 # ============================================================================

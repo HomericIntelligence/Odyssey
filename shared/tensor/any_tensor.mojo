@@ -45,8 +45,8 @@ from std.math import ceildiv
 from std.hashlib.hasher import Hasher
 from std.io import Writer
 from shared.base.memory_pool import pooled_alloc, pooled_free
-from shared.tensor.tensor import Tensor
-from shared.tensor.tensor_traits import TensorLike
+from .tensor import Tensor
+from .tensor_traits import TensorLike
 from shared.base.broadcasting import (
     broadcast_shapes,
     compute_broadcast_strides,
@@ -66,7 +66,7 @@ from shared.base.dtype_ordinal import (
     DTYPE_UINT32,
     DTYPE_UINT64,
 )
-from shared.tensor.tensor_constants import MAX_TENSOR_BYTES, WARN_TENSOR_BYTES
+from .tensor_constants import MAX_TENSOR_BYTES, WARN_TENSOR_BYTES
 
 # Print options for AnyTensor.__str__ and __repr__ truncation
 # Can be modified globally to control output behavior (e.g., in test utilities)
@@ -3853,7 +3853,14 @@ struct AnyTensor(
             weights.save("checkpoint/weights.bin", "conv1_weights")
             ```
         """
-        from shared.tensor.tensor_io import save_tensor
+        # NOTE: relative import is REQUIRED here. tensor_io.mojo's docstring
+        # explains: an absolute import causes Mojo's package compiler to
+        # compile any_tensor.mojo twice with distinct AnyTensor type
+        # identities, producing
+        #   "cannot implicitly convert 'AnyTensor' value to 'AnyTensor'".
+        # See shared/tensor/tensor_io.mojo top-of-file comment for details.
+        # (D5: D1's relative→absolute conversion accidentally re-broke this.)
+        from .tensor_io import save_tensor
 
         save_tensor(self, path, name)
 
@@ -3878,7 +3885,9 @@ struct AnyTensor(
             var tensor = AnyTensor.load("checkpoint/weights.bin")
             ```
         """
-        from shared.tensor.tensor_io import load_tensor
+        # NOTE: relative import REQUIRED — see save() above and the
+        # tensor_io.mojo docstring for the type-doubling rationale.
+        from .tensor_io import load_tensor
 
         return load_tensor(path)
 
@@ -4294,10 +4303,10 @@ def _anytensor_matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 # Re-exports: creation functions (moved to tensor_creation.mojo)
 # ============================================================================
 # These re-exports maintain backward compatibility so that existing code
-# importing `from shared.tensor.any_tensor import zeros, ones, ...` continues
+# importing `from .any_tensor import zeros, ones, ...` continues
 # to work without changes.
 
-from shared.tensor.tensor_creation import (
+from .tensor_creation import (
     zeros,
     ones,
     full,
@@ -4319,7 +4328,7 @@ from shared.tensor.tensor_creation import (
 # Re-exports: utility functions (moved to tensor_utils.mojo)
 # ============================================================================
 
-from shared.tensor.tensor_utils import (
+from .tensor_utils import (
     calculate_max_batch_size,
     copy,
     clone,
