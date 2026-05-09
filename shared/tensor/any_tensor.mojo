@@ -45,8 +45,8 @@ from std.math import ceildiv
 from std.hashlib.hasher import Hasher
 from std.io import Writer
 from shared.base.memory_pool import pooled_alloc, pooled_free
-from .tensor import Tensor
-from .tensor_traits import TensorLike
+from shared.tensor.tensor import Tensor
+from shared.tensor.tensor_traits import TensorLike
 from shared.base.broadcasting import (
     broadcast_shapes,
     compute_broadcast_strides,
@@ -66,7 +66,7 @@ from shared.base.dtype_ordinal import (
     DTYPE_UINT32,
     DTYPE_UINT64,
 )
-from .tensor_constants import MAX_TENSOR_BYTES, WARN_TENSOR_BYTES
+from shared.tensor.tensor_constants import MAX_TENSOR_BYTES, WARN_TENSOR_BYTES
 
 # Print options for AnyTensor.__str__ and __repr__ truncation
 # Can be modified globally to control output behavior (e.g., in test utilities)
@@ -3853,7 +3853,7 @@ struct AnyTensor(
             weights.save("checkpoint/weights.bin", "conv1_weights")
             ```
         """
-        from .tensor_io import save_tensor
+        from shared.tensor.tensor_io import save_tensor
 
         save_tensor(self, path, name)
 
@@ -3878,7 +3878,7 @@ struct AnyTensor(
             var tensor = AnyTensor.load("checkpoint/weights.bin")
             ```
         """
-        from .tensor_io import load_tensor
+        from shared.tensor.tensor_io import load_tensor
 
         return load_tensor(path)
 
@@ -4297,7 +4297,7 @@ def _anytensor_matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 # importing `from shared.tensor.any_tensor import zeros, ones, ...` continues
 # to work without changes.
 
-from .tensor_creation import (
+from shared.tensor.tensor_creation import (
     zeros,
     ones,
     full,
@@ -4319,7 +4319,7 @@ from .tensor_creation import (
 # Re-exports: utility functions (moved to tensor_utils.mojo)
 # ============================================================================
 
-from .tensor_utils import (
+from shared.tensor.tensor_utils import (
     calculate_max_batch_size,
     copy,
     clone,

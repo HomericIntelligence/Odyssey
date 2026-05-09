@@ -11,8 +11,8 @@ from std.collections import List
 from std.math import sqrt, log, cos, sin
 from std.utils.numerics import inf as numeric_inf, neg_inf as numeric_neg_inf
 from std.random import random_float64, seed as random_seed
-from .any_tensor import AnyTensor
-from .tensor_constants import MAX_TENSOR_BYTES
+from shared.tensor.any_tensor import AnyTensor
+from shared.tensor.tensor_constants import MAX_TENSOR_BYTES
 
 
 def zeros(shape: List[Int], dtype: DType) raises -> AnyTensor:

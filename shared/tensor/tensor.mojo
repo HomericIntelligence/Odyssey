@@ -24,7 +24,7 @@ from std.memory import UnsafePointer, memset_zero, alloc
 from std.io import Writer
 from shared.base.memory_pool import pooled_alloc, pooled_free
 from shared.tensor.tensor_traits import TensorLike
-from .any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 
 # Memory safety constants (match AnyTensor limits)
