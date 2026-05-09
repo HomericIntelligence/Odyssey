@@ -429,6 +429,9 @@ jobs:
       fail-fast: false
       matrix:
         # Single-element matrix; see comment above for why we don't fan out.
+        # GitHub will display this job as `Configs (configs)` due to its
+        # auto-suffix on matrixed jobs — that's fine since `Configs` is not
+        # itself a required check.
         test-suite: [configs]
 
     steps:
