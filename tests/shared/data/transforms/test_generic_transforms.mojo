@@ -84,7 +84,7 @@ def test_lambda_double_values() raises:
     def double_fn(value: Float32) -> Float32:
         return value * 2.0
 
-    var transform = LambdaTransform(double_fn)
+    var transform = LambdaTransform[double_fn]()
     var result = transform(data)
 
     assert_almost_equal(result[0], 2.0)
@@ -103,7 +103,7 @@ def test_lambda_add_constant() raises:
     def add_ten(value: Float32) -> Float32:
         return value + 10.0
 
-    var transform = LambdaTransform(add_ten)
+    var transform = LambdaTransform[add_ten]()
     var result = transform(data)
 
     assert_almost_equal(result[0], 11.0)
@@ -122,7 +122,7 @@ def test_lambda_square_values() raises:
     def square(value: Float32) -> Float32:
         return value * value
 
-    var transform = LambdaTransform(square)
+    var transform = LambdaTransform[square]()
     var result = transform(data)
 
     assert_almost_equal(result[0], 4.0)
@@ -141,7 +141,7 @@ def test_lambda_negative_values() raises:
     def abs_value(value: Float32) -> Float32:
         return abs(value)
 
-    var transform = LambdaTransform(abs_value)
+    var transform = LambdaTransform[abs_value]()
     var result = transform(data)
 
     assert_almost_equal(result[0], 1.0)
@@ -163,10 +163,10 @@ def test_conditional_always_apply() raises:
     def double_fn(value: Float32) -> Float32:
         return value * 2.0
 
-    var base_transform = LambdaTransform(double_fn)
-    var conditional = ConditionalTransform[LambdaTransform](
-        always_true, base_transform^
-    )
+    var base_transform = LambdaTransform[double_fn]()
+    var conditional = ConditionalTransform[
+        always_true, LambdaTransform[double_fn]
+    ](base_transform^)
 
     var result = conditional(data)
 
@@ -190,10 +190,10 @@ def test_conditional_never_apply() raises:
     def double_fn(value: Float32) -> Float32:
         return value * 2.0
 
-    var base_transform = LambdaTransform(double_fn)
-    var conditional = ConditionalTransform[LambdaTransform](
-        always_false, base_transform^
-    )
+    var base_transform = LambdaTransform[double_fn]()
+    var conditional = ConditionalTransform[
+        always_false, LambdaTransform[double_fn]
+    ](base_transform^)
 
     var result = conditional(data)
 
@@ -222,10 +222,10 @@ def test_conditional_based_on_size() raises:
     def double_fn(value: Float32) -> Float32:
         return value * 2.0
 
-    var base_transform = LambdaTransform(double_fn)
-    var conditional = ConditionalTransform[LambdaTransform](
-        is_large, base_transform^
-    )
+    var base_transform = LambdaTransform[double_fn]()
+    var conditional = ConditionalTransform[
+        is_large, LambdaTransform[double_fn]
+    ](base_transform^)
 
     var result_small = conditional(small_data)
     var result_large = conditional(large_data)
@@ -261,10 +261,10 @@ def test_conditional_based_on_values() raises:
     def double_fn(value: Float32) -> Float32:
         return value * 2.0
 
-    var base_transform = LambdaTransform(double_fn)
-    var conditional = ConditionalTransform[LambdaTransform](
-        all_positive, base_transform^
-    )
+    var base_transform = LambdaTransform[double_fn]()
+    var conditional = ConditionalTransform[
+        all_positive, LambdaTransform[double_fn]
+    ](base_transform^)
 
     var result_positive = conditional(positive_data)
     var result_mixed = conditional(mixed_data)
@@ -508,8 +508,8 @@ def test_sequential_basic() raises:
         return value + 1.0
 
     var transforms: List[AnyTransform] = []
-    transforms.append(AnyTransform(LambdaTransform(double_fn)))
-    transforms.append(AnyTransform(LambdaTransform(add_one)))
+    transforms.append(AnyTransform.from_lambda[double_fn]())
+    transforms.append(AnyTransform.from_lambda[add_one]())
 
     var sequential = SequentialTransform(transforms^)
     var result = sequential(data)
@@ -532,7 +532,7 @@ def test_sequential_single_transform() raises:
         return value * 2.0
 
     var transforms: List[AnyTransform] = []
-    transforms.append(AnyTransform(LambdaTransform(double_fn)))
+    transforms.append(AnyTransform.from_lambda[double_fn]())
 
     var sequential = SequentialTransform(transforms^)
     var result = sequential(data)
@@ -574,7 +574,7 @@ def test_sequential_with_clamp() raises:
 
     var transforms: List[AnyTransform] = []
     transforms.append(
-        AnyTransform(LambdaTransform(double_fn))
+        AnyTransform.from_lambda[double_fn]()
     )  # Double: 1.0, 3.0, 5.0
     transforms.append(AnyTransform(ClampTransform(0.0, 4.0)))  # Clamp to [0, 4]
 
@@ -598,7 +598,7 @@ def test_sequential_deterministic() raises:
         return value * 3.0
 
     var transforms: List[AnyTransform] = []
-    transforms.append(AnyTransform(LambdaTransform(triple)))
+    transforms.append(AnyTransform.from_lambda[triple]())
     transforms.append(AnyTransform(ClampTransform(0.0, 5.0)))
 
     var sequential = SequentialTransform(transforms^)
@@ -631,8 +631,7 @@ def test_batch_transform_basic() raises:
     def double_fn(value: Float32) -> Float32:
         return value * 2.0
 
-    var base_transform = LambdaTransform(double_fn)
-    var batch = BatchTransform(AnyTransform(base_transform^))
+    var batch = BatchTransform(AnyTransform.from_lambda[double_fn]())
 
     var results = batch(tensors)
 
@@ -656,8 +655,7 @@ def test_batch_transform_empty_list() raises:
     def double_fn(value: Float32) -> Float32:
         return value * 2.0
 
-    var base_transform = LambdaTransform(double_fn)
-    var batch = BatchTransform(AnyTransform(base_transform^))
+    var batch = BatchTransform(AnyTransform.from_lambda[double_fn]())
 
     var results = batch(tensors)
 
@@ -677,8 +675,7 @@ def test_batch_transform_single_tensor() raises:
     def add_ten(value: Float32) -> Float32:
         return value + 10.0
 
-    var base_transform = LambdaTransform(add_ten)
-    var batch = BatchTransform(AnyTransform(base_transform^))
+    var batch = BatchTransform(AnyTransform.from_lambda[add_ten]())
 
     var results = batch(tensors)
 
@@ -708,8 +705,7 @@ def test_batch_transform_different_sizes() raises:
     def double_fn(value: Float32) -> Float32:
         return value * 2.0
 
-    var base_transform = LambdaTransform(double_fn)
-    var batch = BatchTransform(AnyTransform(base_transform^))
+    var batch = BatchTransform(AnyTransform.from_lambda[double_fn]())
 
     var results = batch(tensors)
 
@@ -775,7 +771,7 @@ def test_integration_preprocessing_pipeline() raises:
         return (value + 5.0) / 20.0
 
     var transforms: List[AnyTransform] = []
-    transforms.append(AnyTransform(LambdaTransform(normalize)))  # Normalize
+    transforms.append(AnyTransform.from_lambda[normalize]())  # Normalize
     transforms.append(AnyTransform(ClampTransform(0.0, 1.0)))  # Ensure bounds
     transforms.append(AnyTransform(DebugTransform("pipeline")))  # Debug
 
@@ -809,10 +805,10 @@ def test_integration_conditional_augmentation() raises:
     def augment(value: Float32) -> Float32:
         return value * 1.5
 
-    var base_transform = LambdaTransform(augment)
-    var conditional = ConditionalTransform[LambdaTransform](
-        is_large_enough, base_transform^
-    )
+    var base_transform = LambdaTransform[augment]()
+    var conditional = ConditionalTransform[
+        is_large_enough, LambdaTransform[augment]
+    ](base_transform^)
 
     var result_large = conditional(large_data)
     var result_small = conditional(small_data)
@@ -843,7 +839,7 @@ def test_integration_batch_preprocessing() raises:
         return value / 100.0
 
     var transforms: List[AnyTransform] = []
-    transforms.append(AnyTransform(LambdaTransform(scale_down)))
+    transforms.append(AnyTransform.from_lambda[scale_down]())
     transforms.append(AnyTransform(ClampTransform(0.0, 5.0)))
 
     var pipeline = SequentialTransform(transforms^)
@@ -925,7 +921,7 @@ def test_edge_case_all_zeros() raises:
     def add_one(value: Float32) -> Float32:
         return value + 1.0
 
-    var transform = LambdaTransform(add_one)
+    var transform = LambdaTransform[add_one]()
     var result = transform(data)
 
     assert_almost_equal(result[0], 1.0)
