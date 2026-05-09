@@ -80,10 +80,6 @@ runs:
           echo "pixi-cache volume already seeded — skipping."
         fi
 
-    - name: Start container
-      shell: bash
-      run: podman compose up -d projectodyssey-dev
-
     - name: Fix workspace permissions
       shell: bash
       run: |
@@ -92,7 +88,17 @@ runs:
         # world-writable (dirs get +x for traversal) so mojo build, test
         # fixtures, etc. can create output files.  Safe: CI runners are
         # ephemeral single-use VMs.
+        #
+        # Must run BEFORE `podman compose up -d` because the container
+        # entrypoint immediately tries to write `.pixi/.gitignore` and
+        # symlink `.pixi/envs` during `pixi install` — racing this chmod
+        # caused intermittent "Permission denied" failures on CI runs that
+        # bypassed the pixi-cache seed.
         chmod -R a+rwX . || true
+
+    - name: Start container
+      shell: bash
+      run: podman compose up -d projectodyssey-dev
 
     - name: Wait for container and verify
       shell: bash
