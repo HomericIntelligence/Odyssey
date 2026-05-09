@@ -327,13 +327,13 @@ def _permute_typed[
         for j in range(ndim):
             src_coords[dims[j]] = result_coords[j]
 
-        # Compute source index
+        # Compute source index using actual tensor strides (not derived from
+        # shape) so non-contiguous inputs (e.g. transpose_view) read the right
+        # element. Reading shape-derived contiguous strides here was the
+        # historical bug fixed for #4086 cascade.
         var src_idx = 0
         for j in range(ndim):
-            var src_stride = 1
-            for k in range(j + 1, ndim):
-                src_stride *= shape[k]
-            src_idx += src_coords[j] * src_stride
+            src_idx += src_coords[j] * tensor._strides[j]
 
         # Copy value using typed pointer -- zero bitcasts
         dst_ptr[i] = src_ptr[src_idx]

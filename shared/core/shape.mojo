@@ -1058,7 +1058,13 @@ def tile(tensor: AnyTensor, reps: List[Int]) raises -> AnyTensor:
     if len(reps) == 0:
         raise Error("tile: reps must have at least one element")
 
-    var shape = tensor.shape()
+    # Materialize a contiguous copy so the flat-index read (_get_float64)
+    # below sees row-major element order. Otherwise non-contiguous inputs
+    # (e.g. transpose_view) read the wrong memory because strides are
+    # ignored by the flat-offset path.
+    var src = tensor if tensor.is_contiguous() else as_contiguous(tensor)
+
+    var shape = src.shape()
     var ndim = len(shape)
     var nreps = len(reps)
 
@@ -1087,7 +1093,7 @@ def tile(tensor: AnyTensor, reps: List[Int]) raises -> AnyTensor:
         result_shape.append(padded_shape[i] * padded_reps[i])
 
     # Create result tensor
-    var result = AnyTensor(result_shape, tensor.dtype())
+    var result = AnyTensor(result_shape, src.dtype())
     var result_numel = result.numel()
 
     # Fill result by repeating input
@@ -1126,8 +1132,8 @@ def tile(tensor: AnyTensor, reps: List[Int]) raises -> AnyTensor:
         else:
             adjusted_idx = src_idx
 
-        # Copy value
-        var val = tensor._get_float64(adjusted_idx)
+        # Copy value (src is guaranteed contiguous so flat-index is valid)
+        var val = src._get_float64(adjusted_idx)
         result._set_float64(i, val)
 
     return result^
@@ -1171,8 +1177,12 @@ def repeat(tensor: AnyTensor, n: Int, axis: Int = -1) raises -> AnyTensor:
 
         return result^
     else:
-        # Repeat along specific axis
-        var shape = tensor.shape()
+        # Repeat along specific axis. Materialize a contiguous copy so the
+        # flat-index read (_get_float64) sees row-major element order — the
+        # shape-derived stride math below assumes contiguous memory.
+        var src = tensor if tensor.is_contiguous() else as_contiguous(tensor)
+
+        var shape = src.shape()
         var ndim = len(shape)
 
         # Handle negative axis
@@ -1189,7 +1199,7 @@ def repeat(tensor: AnyTensor, n: Int, axis: Int = -1) raises -> AnyTensor:
                 result_shape.append(shape[i])
 
         # Create result tensor
-        var result = AnyTensor(result_shape, tensor.dtype())
+        var result = AnyTensor(result_shape, src.dtype())
         var result_numel = result.numel()
 
         # Fill result by repeating elements
@@ -1221,8 +1231,8 @@ def repeat(tensor: AnyTensor, n: Int, axis: Int = -1) raises -> AnyTensor:
                     src_stride *= shape[k]
                 src_idx += src_coords[j] * src_stride
 
-            # Copy value
-            var val = tensor._get_float64(src_idx)
+            # Copy value (src is guaranteed contiguous so flat-index is valid)
+            var val = src._get_float64(src_idx)
             result._set_float64(i, val)
 
         return result^
