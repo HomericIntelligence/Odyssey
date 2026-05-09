@@ -36,6 +36,18 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from time import perf_counter_ns
 from std.collections import List
 
+
+def str_trunc(s: String, n: Int) -> String:
+    """Truncate string to n bytes (ASCII-safe, for float display).
+
+    mojo-1.0: String.substr() removed; use byte-slice + String(unsafe_from_utf8=).
+    """
+    var b = s.as_bytes()
+    if len(b) <= n:
+        return s
+    return String(unsafe_from_utf8=b[:n])
+
+
 from shared.core.matmul import (
     matmul_typed as _matmul_typed_impl,
     matmul_simd as _matmul_simd_impl,
@@ -468,14 +480,15 @@ def format_time(time_ms: Float64) -> String:
     Returns:
         Formatted string (e.g., "12.34ms").
     """
+    # mojo-1.0: String.substr(i, j) removed; use str_trunc() helper instead
     if time_ms < 0.01:
-        return String(time_ms * 1000.0).substr(0, 6) + "us"
+        return str_trunc(String(time_ms * 1000.0), 6) + "us"
     elif time_ms < 1.0:
-        return String(time_ms).substr(0, 6) + "ms"
+        return str_trunc(String(time_ms), 6) + "ms"
     elif time_ms < 1000.0:
-        return String(time_ms).substr(0, 7) + "ms"
+        return str_trunc(String(time_ms), 7) + "ms"
     else:
-        return String(time_ms / 1000.0).substr(0, 6) + "s"
+        return str_trunc(String(time_ms / 1000.0), 6) + "s"
 
 
 def format_gflops(gflops: Float64) -> String:
@@ -487,14 +500,15 @@ def format_gflops(gflops: Float64) -> String:
     Returns:
         Formatted string (e.g., "12.3").
     """
+    # mojo-1.0: String.substr(i, j) removed; use str_trunc() helper instead
     if gflops < 1.0:
-        return String(gflops).substr(0, 5)
+        return str_trunc(String(gflops), 5)
     elif gflops < 10.0:
-        return String(gflops).substr(0, 4)
+        return str_trunc(String(gflops), 4)
     elif gflops < 100.0:
-        return String(gflops).substr(0, 5)
+        return str_trunc(String(gflops), 5)
     else:
-        return String(gflops).substr(0, 6)
+        return str_trunc(String(gflops), 6)
 
 
 def format_speedup(speedup: Float64) -> String:
@@ -506,14 +520,15 @@ def format_speedup(speedup: Float64) -> String:
     Returns:
         Formatted string (e.g., "12.3x").
     """
+    # mojo-1.0: String.substr(i, j) removed; use str_trunc() helper instead
     if speedup < 1.0:
-        return String(speedup).substr(0, 4) + "x"
+        return str_trunc(String(speedup), 4) + "x"
     elif speedup < 10.0:
-        return String(speedup).substr(0, 4) + "x"
+        return str_trunc(String(speedup), 4) + "x"
     elif speedup < 100.0:
-        return String(speedup).substr(0, 5) + "x"
+        return str_trunc(String(speedup), 5) + "x"
     else:
-        return String(speedup).substr(0, 6) + "x"
+        return str_trunc(String(speedup), 6) + "x"
 
 
 def run_benchmarks[

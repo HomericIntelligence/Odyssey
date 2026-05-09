@@ -7,6 +7,18 @@ exporting to JSON format for CI/CD tracking and historical analysis.
 from shared.benchmarking import LegacyBenchmarkResult
 
 
+def _str_trunc(s: String, n: Int) -> String:
+    """Truncate string to n bytes (ASCII-safe, for display formatting).
+
+    mojo-1.0: String slicing with [:n] and .substr() removed;
+    use byte-slice + String(unsafe_from_utf8=) instead.
+    """
+    var b = s.as_bytes()
+    if len(b) <= n:
+        return s
+    return String(unsafe_from_utf8=b[:n])
+
+
 def format_throughput(value: Float64) -> String:
     """Format throughput value with appropriate units.
 
@@ -64,9 +76,10 @@ def print_table(results: List[LegacyBenchmarkResult]):
         ref r = results[i]
 
         # Format operation name (max 30 chars)
+        # mojo-1.0: String[:n] removed; use _str_trunc() helper
         var name_display = r.name
         if len(r.name) > 30:
-            name_display = r.name[:27] + "..."
+            name_display = _str_trunc(r.name, 27) + "..."
 
         # Print row with aligned columns
         var mean_str = String(Int(r.mean_time_us))

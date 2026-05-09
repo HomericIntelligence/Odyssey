@@ -515,7 +515,176 @@ is invisible until you call across the cycle.
 
 ---
 
-## Recipe 9+: TBD as Phase D agents discover them
+## Recipe 9: STRING_SUBSTR — `String.substr()` and `String[:n]` removed
+
+**Symptom (verbatim):**
+
+```text
+error: 'String' value has no attribute 'substr'
+error: no matching method in call to '__getitem__'
+    var s = my_str[:6]
+            ~^~~~~~~~~
+note: candidate not viable: missing 1 required keyword-only argument: 'byte'
+```
+
+**Root cause:** In Mojo 1.0, `String.substr(i, j)` was removed entirely.
+The `String.__getitem__(Slice)` overload now requires an explicit `byte=True`
+keyword at the call site, but the `s[i:j]` subscript syntax does not yet
+support keyword-only arguments inside brackets — so `s[:n]` also fails.
+
+**Fix:** Use byte-level slicing via `as_bytes()` and reconstruct a String with
+`String(unsafe_from_utf8=...)`:
+
+```mojo
+# Before (0.26):
+var short = s.substr(0, 6)
+var short2 = s[:6]
+
+# After (1.0):
+def str_trunc(s: String, n: Int) -> String:
+    """Truncate string to n bytes (ASCII-safe)."""
+    var b = s.as_bytes()
+    if len(b) <= n:
+        return s
+    return String(unsafe_from_utf8=b[:n])
+
+var short = str_trunc(s, 6)
+```
+
+Add `str_trunc` (or equivalent) as a module-level helper. Do NOT inline the
+pattern at every call site — it's verbose and error-prone.
+
+**Note:** `unsafe_from_utf8` is named because it skips UTF-8 validation. For
+ASCII-only strings (e.g. float representations) this is safe. For user-supplied
+or non-ASCII strings, use `String(from_utf8=b[:n])` instead (may raise).
+
+**Verified in:** `benchmarks/bench_matmul.mojo` (12 call sites),
+`benchmarks/reporter.mojo` (1 call site).
+
+---
+
+## Recipe 10: STRING_LJUST — `String.ljust()` removed
+
+**Symptom (verbatim):**
+
+```text
+error: 'String' value has no attribute 'ljust'
+error: 'StringLiteral["Operation"]' value has no attribute 'ljust'
+```
+
+**Root cause:** `String.ljust(width)` (and `.rjust()`, `.center()`) were
+removed in Mojo 1.0. There is no direct replacement in the stdlib.
+
+**Fix:** Manual padding with string concatenation and a conditional:
+
+```mojo
+# Before (0.26):
+print(name.ljust(10), value.ljust(8))
+
+# After (1.0):
+var name_pad = name + " " * (10 - len(name)) if len(name) < 10 else name
+var val_pad  = value + " " * (8 - len(value)) if len(value) < 8 else value
+print(name_pad, val_pad)
+```
+
+For repeated use, extract a helper:
+
+```mojo
+def ljust(s: String, width: Int) -> String:
+    if len(s) >= width:
+        return s
+    return s + " " * (width - len(s))
+```
+
+**Verified in:** `benchmarks/bench_simd.mojo` (6 call sites across function
+body and header print).
+
+---
+
+## Recipe 11: TEMPLATE_PLACEHOLDER — Mojo 1.0 rejects `{{...}}` mustache syntax in structural positions
+
+**Symptom (verbatim):**
+
+```text
+error: expected struct name
+    struct {{name}}(Module):
+           ^
+error: expected module name
+    from {{module_path}} import *
+         ^
+error: expected construct name to import
+    from shared.nn import Module, {{imports}}
+                                  ^
+```
+
+**Root cause:** Mojo 1.0's parser (stricter than 0.26) rejects `{{...}}`
+mustache/Jinja tokens in syntactically-sensitive positions: struct names,
+import module paths, and import symbol lists. In 0.26 the parser may have
+silently ignored these; in 1.0 they are hard parse errors.
+
+**Fix:** Replace every `{{X}}` that appears in a structural Mojo position with
+an identifier-safe token ending in `_PLACEHOLDER` (e.g. `Layer_PLACEHOLDER`,
+`Model_PLACEHOLDER`, `Dataset_PLACEHOLDER`). Add a `RENDERING CONVENTION`
+comment block at the top of the template documenting the token map so the
+scaffold renderer knows what to substitute.
+
+Placeholders that appear only inside string literals, docstrings, or comments
+can remain as `{{X}}` — they don't cause parse errors.
+
+```mojo
+# Before (causes parse error in 1.0):
+struct {{name}}(Module):
+    ...
+
+# After:
+# RENDERING CONVENTION: Layer_PLACEHOLDER -> {{name}}
+struct Layer_PLACEHOLDER(Module):
+    ...
+```
+
+Also update stale import paths simultaneously:
+
+- `from shared.nn import Module` → `from shared.core.module import Module`
+- `from shared.datasets import Dataset` → `from shared.data._datasets_core import Dataset`
+
+**Verified in:** `.templates/layer_template.mojo`, `.templates/model_template.mojo`,
+`.templates/dataset_template.mojo`, `.templates/tests_template.mojo`,
+`.templates/training_template.mojo`.
+
+---
+
+## Recipe 12: LIST_ITER_DEREF — `for x in list: x[]` dereference removed
+
+**Symptom (verbatim):**
+
+```text
+error: '_ListIter[Int, origin_of(indices)].Element' is not subscriptable,
+it does not implement the `__getitem__`/`__setitem__` methods
+    var sample = self[idx[]]
+                          ^
+```
+
+**Root cause:** In Mojo 0.26, iterating a `List[T]` yielded a reference
+wrapper, and `x[]` was needed to dereference it. In Mojo 1.0, `for x in list`
+yields the value directly — `x[]` is no longer valid.
+
+**Fix:** Remove the `[]` dereference:
+
+```mojo
+# Before (0.26):
+for idx in indices:
+    process(idx[])
+
+# After (1.0):
+for idx in indices:
+    process(idx)
+```
+
+**Verified in:** `.templates/dataset_template.mojo` (1 call site).
+
+---
+
+## Recipe 9+: TBD as Phase E agents discover them
 
 When a swarm agent encounters an error pattern not listed above:
 
