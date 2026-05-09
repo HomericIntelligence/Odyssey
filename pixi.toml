@@ -7,7 +7,7 @@ version = "0.1.0"
 
 [dependencies]
 # Language runtime
-mojo = "==0.26.3.0.dev2026040705"
+mojo = "==1.0.0b2.dev2026050805"
 
 # Core libraries
 numpy = ">=2.3.5,<3"
