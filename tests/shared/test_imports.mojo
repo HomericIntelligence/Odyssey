@@ -405,26 +405,26 @@ def test_version_info() raises:
     assert_true(LICENSE != "", "LICENSE should not be empty")
 
     # Ensure these are actual string values, not None
-    assert_true(VERSION.__len__() > 0, "VERSION string should have length > 0")
-    assert_true(AUTHOR.__len__() > 0, "AUTHOR string should have length > 0")
-    assert_true(LICENSE.__len__() > 0, "LICENSE string should have length > 0")
+    assert_true(len(VERSION) > 0, "VERSION string should have length > 0")
+    assert_true(len(AUTHOR) > 0, "AUTHOR string should have length > 0")
+    assert_true(len(LICENSE) > 0, "LICENSE string should have length > 0")
 
     # Test version format follows semantic versioning (major.minor.patch)
     var version_parts = VERSION.split(".")
     assert_true(
-        version_parts.__len__() == 3,
+        len(version_parts) == 3,
         "Version should have 3 parts (major.minor.patch)",
     )
 
     # Test that version parts are numeric by checking they only contain digits
-    for i in range(version_parts.__len__()):
+    for i in range(len(version_parts)):
         var part = version_parts[i]
-        assert_true(part.__len__() > 0, "Version part should not be empty")
+        assert_true(len(part) > 0, "Version part should not be empty")
 
         # Check each character is a digit (0-9)
         var is_numeric = True
         var part_bytes = part.as_bytes()
-        for j in range(part.__len__()):
+        for j in range(len(part)):
             var ch = Int(part_bytes[j])
             if ch < 48 or ch > 57:  # ord("0") == 48, ord("9") == 57
                 is_numeric = False

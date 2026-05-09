@@ -21,9 +21,11 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones
 import std.sys as sys
 
 
-def test_model_forward(
+def test_model_forward[
+    ForwardFn: def(AnyTensor, Bool) raises -> AnyTensor
+](
     model_name: String,
-    forward_fn: def(AnyTensor, Bool) raises -> AnyTensor,
+    forward_fn: ForwardFn,
     batch_size: Int = 4,
 ) raises -> Bool:
     """Test a model's forward pass with dummy data.

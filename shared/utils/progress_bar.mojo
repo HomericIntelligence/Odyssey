@@ -68,7 +68,9 @@ def format_duration(seconds: Float64) -> String:
         result = result + String(secs) + "s"
 
     # Remove trailing whitespace
-    while len(result) > 0 and result.as_bytes()[-1] == UInt8(ord(" ")):
+    while len(result) > 0 and result.as_bytes()[len(result) - 1] == UInt8(
+        ord(" ")
+    ):
         result = String(result[byte = 0 : len(result) - 1])
 
     return result
