@@ -82,7 +82,7 @@ def cleanup_temp_dir(path: String) raises:
         Be careful not to call on non-temporary directories.
     """
     # Validation
-    if len(path) == 0:
+    if path.byte_length() == 0:
         raise Error("Cannot cleanup empty path")
 
     # Safety check - verify path is in system temp directory
@@ -166,9 +166,9 @@ def create_mock_config(path: String, content: String) raises:
         Use config_fixtures.mojo for pre-validated config templates.
     """
     # Validation
-    if len(path) == 0:
+    if path.byte_length() == 0:
         raise Error("Path cannot be empty")
-    if len(content) == 0:
+    if content.byte_length() == 0:
         raise Error("Content cannot be empty")
 
     # Write content to file using builtin open()
@@ -203,7 +203,7 @@ def create_mock_checkpoint(
         Not compatible with production checkpoint formats.
     """
     # Validation
-    if len(path) == 0:
+    if path.byte_length() == 0:
         raise Error("Path cannot be empty")
     if num_params <= 0:
         raise Error("num_params must be positive")
@@ -238,7 +238,7 @@ def create_mock_text_file(path: String, num_lines: Int = 10) raises:
         ```
     """
     # Validation
-    if len(path) == 0:
+    if path.byte_length() == 0:
         raise Error("Path cannot be empty")
     if num_lines <= 0:
         raise Error("num_lines must be positive")

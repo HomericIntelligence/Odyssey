@@ -1,4 +1,4 @@
-"""Test suite for io_helpers.mojo test utilities
+"""Test suite for io_helpers.mojo test utilities.
 
 Test Coverage:
 - Tier 1: file_exists, dir_exists, create_temp_dir (6 tests)
