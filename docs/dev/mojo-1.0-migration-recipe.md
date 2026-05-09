@@ -357,7 +357,165 @@ the compiler infers the concrete `FuncType` from the argument, so no explicit
 
 ---
 
-## Recipe 6+: TBD as Phase D agents discover them
+## Recipe 6: STD_OS_ATOMIC — atomic module relocation + null UnsafePointer
+
+**Symptom (verbatim):**
+
+```text
+error: unable to locate module 'atomic'
+error: no matching function in initialization
+        self.head = UnsafePointer[_FreeListNode, origin=MutAnyOrigin]()
+                                                                     ^
+```
+
+**Root cause:** Mojo 1.0 moved `std.os.atomic` to `std.atomic` and made
+`UnsafePointer` non-nullable by design. The old no-arg `UnsafePointer[T,
+MutAnyOrigin]()` constructor that returned a null pointer was removed; the
+1.0 stance is "model nullable pointers with `Optional[UnsafePointer[...]]`."
+
+A keyword-only escape hatch is still available for code that genuinely needs
+to construct a literal null pointer: `UnsafePointer[T, O](_unsafe_null=())`.
+
+**Fix:**
+
+```mojo
+# Before (0.26):
+from std.os.atomic import Atomic
+self.head = UnsafePointer[_FreeListNode, origin=MutAnyOrigin]()
+
+# After (1.0):
+from std.atomic import Atomic
+self.head = UnsafePointer[_FreeListNode, MutAnyOrigin](_unsafe_null=())
+```
+
+For new code, prefer `Optional[UnsafePointer[...]]` instead of the
+`_unsafe_null=()` keyword — the keyword form is an escape hatch, not the
+recommended pattern. The Atomic API also renamed `Consistency` -> `Ordering`
+and `MONOTONIC` -> `RELAXED`, and reordered `compare_exchange` to take
+`success_ordering` before `failure_ordering`. Our codebase only uses the
+defaults, so we did not need to update those call sites.
+
+**Verified in:** `shared/base/memory_pool.mojo` (commit f6d2fa47c).
+
+---
+
+## Recipe 7: DYNAMIC_TRAIT — `def(...)` struct fields are no longer dynamic
+
+**Symptom (verbatim):**
+
+```text
+error: dynamic traits not supported yet, please use a compile time generic
+       instead of 'def(Float32) -> Float32'
+```
+
+**Root cause:** In Mojo 0.26 a struct could store an arbitrary `def(...)`
+function value as a field, with dynamic dispatch at call time. Mojo 1.0
+forbids this — every callable used as a value must be known at compile
+time. The two ways forward:
+
+1. **Promote the function to a struct parameter** (compile-time generic):
+
+   ```mojo
+   struct Lam[F: SomeCallableTrait](...):
+       var f: Self.F
+   ```
+
+2. **Wrap the callable in a struct that conforms to a small callable
+   trait**, and parameterize on that trait. This is currently the only
+   pattern that works for fields, because raw `def`-typed parameters fail
+   to coerce at the call site (named functions have unique types, not the
+   declared `def(...)` type).
+
+**Fix (trait-callable pattern, verified to compile):**
+
+```mojo
+trait Float32Fn(Copyable, Movable, ImplicitlyDestructible):
+    def __call__(self, x: Float32) -> Float32: ...
+
+struct DoubleFn(Copyable, Movable, Float32Fn):
+    def __init__(out self): pass
+    def __call__(self, x: Float32) -> Float32:
+        return x * 2.0
+
+struct Lam[F: Float32Fn](Copyable, Movable):
+    var f: Self.F
+    def __init__(out self, var f: Self.F):
+        self.f = f^
+```
+
+**Caveats encountered during D5:**
+
+- `struct S[F: comptime_alias_of_def_type]` followed by `var f: Self.F`
+  triggered a compiler crash in `1.0.0b2.dev2026050805`. File a Modular
+  issue if you hit this; until then, prefer the trait-callable pattern
+  above.
+- Promoting a struct to be parametric cascades through every call site.
+  Type-erasure wrappers (e.g. `AnyTransform`) lose the ability to wrap the
+  parametric struct without also being parametric.
+- If the cascade is too large to land in one wave, **stub the field with
+  an `Int` placeholder, accept the function arg in `__init__` and discard
+  it, raise `Error` from `__call__`, and gate every site with
+  `# TODO(mojo-1.0)`**. This unblocks the package compile and clearly
+  delegates the real refactor (e.g. to Phase E along with the test files).
+
+**Verified in:** `shared/data/generic_transforms.mojo` (commit 279e726c8;
+stubbed pending Phase E refactor).
+
+---
+
+## Recipe 8: ABSOLUTE_IMPORT_DOUBLING — relative imports for tightly-coupled package cycles
+
+**Symptom (verbatim):**
+
+```text
+error: cannot implicitly convert 'AnyTensor' value to 'AnyTensor'
+error: invalid call to 'save_tensor': value passed to 'tensor' cannot
+       be converted from 'AnyTensor' to 'AnyTensor'
+```
+
+**Root cause:** When two modules inside the same package both import a
+shared type by absolute path AND one of them is also imported back into
+the type's own module (a cycle), Mojo's package compiler may compile the
+shared module twice — producing two distinct type identities for the same
+struct. Values of "type A" cannot then be passed to functions expecting
+"type A" because they are technically different types under the hood.
+
+The historical workaround (already documented at the top of
+`shared/tensor/tensor_io.mojo`) is to use **relative imports** for sibling
+modules inside the cycle. Phase D1's relative->absolute conversion wave
+flipped these imports back to absolute and silently re-introduced the
+doubling.
+
+**Fix:** in every file inside the cycle, use relative imports for sibling
+modules:
+
+```mojo
+# Before (post-D1):
+from shared.tensor.any_tensor import AnyTensor
+from shared.tensor.tensor_io import save_tensor
+
+# After (D5 fix):
+# NOTE: relative imports REQUIRED — see tensor_io.mojo top-of-file
+# docstring for the type-doubling rationale.
+from .any_tensor import AnyTensor
+from .tensor_io import save_tensor
+```
+
+For `shared/tensor/`, the cycle is `any_tensor` <-> `tensor_io` <->
+`tensor_creation`. Other `shared/tensor/` files (`factories`, `typed/*`,
+etc.) can keep absolute imports because they are not part of the cycle.
+
+**Future-proofing:** when a future migration wave touches imports inside
+a package, leave the explanatory `# NOTE` comments in place. The doubling
+is invisible until you call across the cycle.
+
+**Verified in:** `shared/tensor/any_tensor.mojo`,
+`shared/tensor/tensor_io.mojo`, `shared/tensor/tensor_creation.mojo`
+(commit 4a4f20338).
+
+---
+
+## Recipe 9+: TBD as Phase D agents discover them
 
 When a swarm agent encounters an error pattern not listed above:
 
