@@ -1,4 +1,4 @@
-"""Tests for reduction operations on non-contiguous tensors
+"""Tests for reduction operations on non-contiguous tensors.
 
 Verifies that sum() and mean() produce correct results when given
 non-contiguous inputs. Without the as_contiguous() guard these operations

@@ -1,4 +1,4 @@
-"""Tests for AnyTensor element-wise mathematical operations
+"""Tests for AnyTensor element-wise mathematical operations.
 
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 """

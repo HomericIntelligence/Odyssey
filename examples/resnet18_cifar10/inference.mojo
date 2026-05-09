@@ -1,4 +1,4 @@
-"""Inference Script for ResNet-18 on CIFAR-10
+"""Inference Script for ResNet-18 on CIFAR-10.
 
 This script loads a trained ResNet-18 model and evaluates it on the CIFAR-10 test set.
 

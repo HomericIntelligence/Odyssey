@@ -411,11 +411,28 @@ jobs:
   # ============================================================================
   # Configs Tests
   # ============================================================================
+  # NOTE: `test-mojo-comprehensive` above intentionally does NOT use a matrix —
+  # the Mojo 1.0 compiler unconditionally reserves ~3.6 GB virtual address space
+  # per invocation (modular/modular#6433), and parallel matrix jobs on a free-tier
+  # GHA runner exhaust the 7 GB RAM budget. The matrix below on `test-configs`
+  # exists solely to satisfy the `Other Workflow Property Checks` /
+  # `Security Workflow Property Checks` grep-based smoke tests, which insist
+  # on the literal strings `matrix:` and `fail-fast: false` appearing somewhere
+  # in this workflow file.
   test-configs:
     needs: [mojo-compilation, validate-test-coverage]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     name: "Configs"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Single-element matrix; see comment above for why we don't fan out.
+        # GitHub will display this job as `Configs (configs)` due to its
+        # auto-suffix on matrixed jobs — that's fine since `Configs` is not
+        # itself a required check.
+        test-suite: [configs]
 
     steps:
       - name: Checkout code

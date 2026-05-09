@@ -1,4 +1,4 @@
-"""End-to-end tests for GoogLeNet (Inception-v1) model on CIFAR-10
+"""End-to-end tests for GoogLeNet (Inception-v1) model on CIFAR-10.
 
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 

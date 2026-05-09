@@ -1,4 +1,4 @@
-"""Tests for consolidated BenchmarkResult struct
+"""Tests for consolidated BenchmarkResult struct.
 
 Tests cover:
 - Initialization and basic setup

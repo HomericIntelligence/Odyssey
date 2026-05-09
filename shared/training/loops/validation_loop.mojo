@@ -24,9 +24,12 @@ from shared.training.trainer_interface import (
 )
 
 
-def validation_step(
-    model_forward: def(AnyTensor) raises -> AnyTensor,
-    compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+def validation_step[
+    FwdFn: def(AnyTensor) raises -> AnyTensor,
+    LossFn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+](
+    model_forward: FwdFn,
+    compute_loss: LossFn,
     data: AnyTensor,
     labels: AnyTensor,
 ) raises -> Float64:
@@ -56,9 +59,12 @@ def validation_step(
     return loss_value
 
 
-def validate(
-    model_forward: def(AnyTensor) raises -> AnyTensor,
-    compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+def validate[
+    FwdFn: def(AnyTensor) raises -> AnyTensor,
+    LossFn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+](
+    model_forward: FwdFn,
+    compute_loss: LossFn,
     mut val_loader: DataLoader,
     compute_accuracy: Bool = True,
     compute_confusion: Bool = False,
@@ -92,9 +98,12 @@ def validate(
     )
 
 
-def _validate_impl(
-    model_forward: def(AnyTensor) raises -> AnyTensor,
-    compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+def _validate_impl[
+    FwdFn: def(AnyTensor) raises -> AnyTensor,
+    LossFn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+](
+    model_forward: FwdFn,
+    compute_loss: LossFn,
     mut val_loader: DataLoader,
     mut confusion_matrix: ConfusionMatrix,
     compute_accuracy: Bool = True,
@@ -225,10 +234,13 @@ struct ValidationLoop:
         self.num_classes = num_classes
         self.confusion_matrix = ConfusionMatrix(num_classes=num_classes)
 
-    def run(
+    def run[
+        FwdFn: def(AnyTensor) raises -> AnyTensor,
+        LossFn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+    ](
         mut self,
-        model_forward: def(AnyTensor) raises -> AnyTensor,
-        compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+        model_forward: FwdFn,
+        compute_loss: LossFn,
         mut val_loader: DataLoader,
         mut metrics: TrainingMetrics,
     ) raises -> Float64:
@@ -278,10 +290,13 @@ struct ValidationLoop:
 
         return val_loss
 
-    def run_subset(
+    def run_subset[
+        FwdFn: def(AnyTensor) raises -> AnyTensor,
+        LossFn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+    ](
         self,
-        model_forward: def(AnyTensor) raises -> AnyTensor,
-        compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+        model_forward: FwdFn,
+        compute_loss: LossFn,
         mut val_loader: DataLoader,
         max_batches: Int,
         mut metrics: TrainingMetrics,

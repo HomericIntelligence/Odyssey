@@ -1,5 +1,5 @@
 """
-ML Odyssey Version Module
+ML Odyssey Version Module.
 
 Provides centralized version information for all Mojo modules
 

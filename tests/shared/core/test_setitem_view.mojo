@@ -1,4 +1,4 @@
-"""Tests for __setitem__ and __getitem__ on view (non-contiguous) tensors
+"""Tests for __setitem__ and __getitem__ on view (non-contiguous) tensors.
 
 Covers:
 - Sliced 1D and multi-dim view tensor write-back

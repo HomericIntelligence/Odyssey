@@ -14,7 +14,7 @@ from shared.tensor.any_tensor import (
     ones_like,
     full_like,
 )
-from .arithmetic import multiply, divide
+from shared.core.arithmetic import multiply, divide
 from std import random
 
 

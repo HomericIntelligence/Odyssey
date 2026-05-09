@@ -10,7 +10,7 @@ Key components:
 """
 
 from shared.tensor.any_tensor import AnyTensor, zeros, randn, zeros_like
-from ..module import Module
+from shared.core.module import Module
 from shared.tensor.tensor import Tensor
 
 
@@ -88,7 +88,7 @@ struct Linear[dtype: DType = DType.float32](Copyable, Module, Movable):
         """
         # Compute: output = input @ weight + bias
         # Matrix multiplication: input @ weight
-        from ..matrix import matmul
+        from shared.core.matrix import matmul
 
         var matmul_result = matmul(input, self.weight)
 

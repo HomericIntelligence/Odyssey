@@ -115,12 +115,17 @@ struct BaseTrainer(Trainer):
         """
         raise Error("Use fit() method for integrated training with validation")
 
-    def fit(
+    def fit[
+        FwdFn: def(AnyTensor) raises -> AnyTensor,
+        LossFn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+        OptFn: def() raises -> None,
+        ZeroFn: def() raises -> None,
+    ](
         mut self,
-        model_forward: def(AnyTensor) raises -> AnyTensor,
-        compute_loss: def(AnyTensor, AnyTensor) raises -> AnyTensor,
-        optimizer_step: def() raises -> None,
-        zero_gradients: def() raises -> None,
+        model_forward: FwdFn,
+        compute_loss: LossFn,
+        optimizer_step: OptFn,
+        zero_gradients: ZeroFn,
         mut train_loader: DataLoader,
         mut val_loader: DataLoader,
         mut early_stopping: Optional[EarlyStopping],

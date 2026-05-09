@@ -1,4 +1,4 @@
-"""Comprehensive tests for metrics coordination and unified interface
+"""Comprehensive tests for metrics coordination and unified interface.
 
 Tests the Metric trait, MetricCollection, MetricLogger, and integration
 of all metrics through consistent API.
@@ -330,9 +330,9 @@ def test_create_metric_summary() raises:
 
     # Check that summary contains metric names and values
     # Simple substring checks (Mojo doesn't have built-in contains)
-    if len(summary) > 0:
+    if summary.byte_length() > 0:
         # We can't easily check substrings in Mojo yet, so just verify non-empty
-        assert_true(len(summary) > 0, "Summary should not be empty")
+        assert_true(summary.byte_length() > 0, "Summary should not be empty")
 
     print("  Summary output:")
     print(summary)

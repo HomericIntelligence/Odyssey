@@ -1,4 +1,4 @@
-"""Tests for elementwise operations
+"""Tests for elementwise operations.
 
 Tests cover:
 - Mathematical functions: abs, sign

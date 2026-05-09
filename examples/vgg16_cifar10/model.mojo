@@ -1,4 +1,4 @@
-"""VGG-16 Model for CIFAR-10 Classification
+"""VGG-16 Model for CIFAR-10 Classification.
 
 Classic VGG-16 architecture adapted for CIFAR-10 dataset (32x32 RGB images).
 

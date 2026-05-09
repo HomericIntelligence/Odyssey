@@ -1,4 +1,4 @@
-"""Tests for contiguous tensor fast path optimizations
+"""Tests for contiguous tensor fast path optimizations.
 
 Tests the contiguous tensor fast path helper functions:
 - shapes_match helper with various shape combinations

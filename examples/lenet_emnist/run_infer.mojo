@@ -1,4 +1,4 @@
-"""CLI Wrapper for LeNet-5 Inference
+"""CLI Wrapper for LeNet-5 Inference.
 
 Provides command-line interface for running inference with a trained LeNet-5 model.
 
@@ -51,7 +51,7 @@ def get_class_label(class_idx: Int) -> String:
         var lower_idx = class_idx - 36
         # EMNIST balanced lowercase: a, b, d, e, f, g, h, n, q, r, t
         var lowercase_chars = "abdefghnqrt"
-        if lower_idx < len(lowercase_chars):
+        if lower_idx < lowercase_chars.byte_length():
             return chr(Int(lowercase_chars.as_bytes()[lower_idx]))
         else:
             return "?"
@@ -256,7 +256,7 @@ def main() raises:
     var config = parse_args()
 
     # Validate arguments
-    if len(config.checkpoint_dir) == 0:
+    if config.checkpoint_dir.byte_length() == 0:
         print("ERROR: --checkpoint is required")
         print("\nUsage:")
         print("  mojo run run_infer.mojo --checkpoint <weights_dir> --test-set")
@@ -266,7 +266,7 @@ def main() raises:
         )
         return
 
-    if not config.run_test_set and len(config.image_path) == 0:
+    if not config.run_test_set and config.image_path.byte_length() == 0:
         print("ERROR: Either --test-set or --image is required")
         print("\nUsage:")
         print("  mojo run run_infer.mojo --checkpoint <weights_dir> --test-set")

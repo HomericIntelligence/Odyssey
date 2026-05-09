@@ -1,4 +1,4 @@
-"""Tests for unsigned integer wrapping and narrowing
+"""Tests for unsigned integer wrapping and narrowing.
 
 Tests cover:
 - Multiply overflow wrapping for UInt16/32/64 (#3673)

@@ -1,4 +1,4 @@
-"""Tests for matrix operation edge cases
+"""Tests for matrix operation edge cases.
 
 Tests edge cases for matmul and shape operations on matrices including:
 - Matmul with different tensor sizes

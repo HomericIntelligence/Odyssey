@@ -1,4 +1,4 @@
-"""Data Integrity Tests for AnyTensor Quantization Functions
+"""Data Integrity Tests for AnyTensor Quantization Functions.
 
 Tests for Phase 3 data integrity fixes:
 - #1909 (DATA-001): Padding data loss in quantization

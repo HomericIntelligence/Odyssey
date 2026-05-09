@@ -1,4 +1,4 @@
-"""Training Script for VGG-16 on CIFAR-10
+"""Training Script for VGG-16 on CIFAR-10.
 
 Implements training with manual backward passes through all 16 layers (no autograd).
 Uses SGD optimizer with momentum and dropout regularization.

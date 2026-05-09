@@ -1,4 +1,4 @@
-"""Tests for dtype_utils module
+"""Tests for dtype_utils module.
 
 Tests the DType iteration utilities:
 - get_test_dtypes() returns all dtypes (count, float32, float16, bfloat16, int8)

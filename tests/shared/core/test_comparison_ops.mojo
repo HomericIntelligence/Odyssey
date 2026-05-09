@@ -1,4 +1,4 @@
-"""Tests for AnyTensor comparison operations
+"""Tests for AnyTensor comparison operations.
 
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 

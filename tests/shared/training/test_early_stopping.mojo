@@ -1,4 +1,4 @@
-"""Unit tests for Early Stopping Callback
+"""Unit tests for Early Stopping Callback.
 
 Tests cover:
 - Initialization

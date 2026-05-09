@@ -1,4 +1,4 @@
-"""MobileNetV1 Model for CIFAR-10
+"""MobileNetV1 Model for CIFAR-10.
 
 This module implements the MobileNetV1 architecture adapted for CIFAR-10.
 

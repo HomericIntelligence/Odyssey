@@ -1,4 +1,4 @@
-"""Unit tests for Checkpointing Callback
+"""Unit tests for Checkpointing Callback.
 
 Tests cover:
 - Saving model state during training

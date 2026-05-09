@@ -7,7 +7,7 @@ Each function delegates to the corresponding AnyTensor method.
 """
 
 from std.collections import List
-from .any_tensor import AnyTensor
+from shared.tensor.any_tensor import AnyTensor
 
 
 def calculate_max_batch_size(

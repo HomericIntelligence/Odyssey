@@ -5,7 +5,7 @@ implementations. ML Odyssey provides a shared library of SIMD-optimized tensor o
 an autograd engine, and a full training infrastructure — all implemented in Mojo for
 maximum performance and type safety.
 
-[![Mojo](https://img.shields.io/badge/Mojo-0.26+-orange.svg)](https://www.modular.com/mojo)
+[![Mojo](https://img.shields.io/badge/Mojo-1.0.0b2-orange.svg)](https://mojolang.org/)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-298%2B-brightgreen.svg)](tests/)
 [![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey.svg)](#coverage-status)

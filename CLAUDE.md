@@ -226,7 +226,7 @@ Relevant links:
 
 **Use Python for Automation** when technical limitations require it:
 
-- ✅ Subprocess output capture (Mojo v0.26.3 limitation - cannot capture stdout/stderr)
+- ✅ Subprocess output capture (Mojo v1.0 limitation - cannot capture stdout/stderr)
 - ✅ Regex-heavy text processing (no Mojo regex support in stdlib)
 - ✅ GitHub API interaction via Python libraries (`gh` CLI, REST API)
 - ⚠️ **MUST document justification** (see ADR-001 for header template)
@@ -416,7 +416,7 @@ All agents and skills reference these shared files to avoid duplication:
 | `.claude/shared/common-constraints.md` | Minimal changes principle, scope discipline |
 | `.claude/shared/documentation-rules.md` | Output locations, before-starting checklist |
 | `.claude/shared/pr-workflow.md` | PR creation, verification, review responses |
-| `.claude/shared/mojo-guidelines.md` | Mojo v0.26.3+ syntax, parameter conventions |
+| `.claude/shared/mojo-guidelines.md` | Mojo v1.0+ syntax, parameter conventions |
 | `.claude/shared/mojo-anti-patterns.md` | 64+ test failure patterns from PRs |
 | `.claude/shared/error-handling.md` | Retry strategy, timeout handling, escalation |
 
@@ -429,17 +429,30 @@ Skills with `mcp_fallback` in YAML frontmatter will be updated to use direct CLI
 
 ### Mojo Development Guidelines
 
-This project uses **Mojo 0.26.3** (pinned in pixi.toml).
-Official docs: <https://docs.modular.com/mojo/manual/>
+This project uses **Mojo 1.0.0b2** (pinned in pixi.toml).
+Official docs: <https://mojolang.org/docs/>
 
-**Quick Reference**: See [mojo-guidelines.md](/.claude/shared/mojo-guidelines.md) for v0.26.3+ syntax
+**Quick Reference**: See [mojo-guidelines.md](/.claude/shared/mojo-guidelines.md) for v1.0+ syntax
 
-**Critical Patterns**:
+**Critical Patterns** (1.0):
 
 - **Constructors**: Use `out self` (not `mut self`)
 - **Mutating methods**: Use `mut self`
 - **Ownership transfer**: Use `^` operator for List/Dict/String
 - **List initialization**: Use literals `[1, 2, 3]` not `List[Int](1, 2, 3)`
+- **Parametric function values**: Add `thin` keyword to function-value parameter
+  types — `op: def[T: DType](Scalar[T]) thin -> Scalar[T]` (the `thin` is required
+  in 1.0; was implicit in 0.26)
+- **Closure capture**: `def foo() {mut}:` or `def foo() capturing[_]:` — the
+  `unified` keyword was removed in 1.0
+- **Tests**: existing hand-rolled `def main()` test files run via `mojo run`
+  (not `mojo test` — that subcommand was removed in 1.0)
+- **UnsafePointer**: non-null by design; use `Optional[UnsafePointer[T]]` for
+  nullable pointers and check via `is None` / `is not None`
+
+**Migration recipes** (for code still using 0.26 idioms): see
+[docs/dev/mojo-1.0-migration-recipe.md](docs/dev/mojo-1.0-migration-recipe.md).
+
 **Common Mistakes**: See [mojo-anti-patterns.md](/.claude/shared/mojo-anti-patterns.md) for 64+ failure patterns
 
 **Compiler as Truth**: When uncertain, test with `mojo build` - the compiler is authoritative

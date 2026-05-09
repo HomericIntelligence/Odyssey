@@ -1,4 +1,4 @@
-"""Tests for image-specific transforms
+"""Tests for image-specific transforms.
 
 Tests image transforms including resize, crop, and basic normalize operations.
 

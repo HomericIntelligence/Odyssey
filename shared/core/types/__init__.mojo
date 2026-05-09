@@ -42,14 +42,14 @@ Example:
 """
 
 # Type alias exports (DType aliases for native Mojo types)
-from .dtype_aliases import BF16, FP8, BF8, FP4, E8M0
+from shared.core.types.dtype_aliases import BF16, FP8, BF8, FP4, E8M0
 
 # Blocked FP4 format exports (custom structs for microscaling)
-from .mxfp4 import MXFP4, MXFP4Block
-from .nvfp4 import NVFP4, NVFP4Block
+from shared.core.types.mxfp4 import MXFP4, MXFP4Block
+from shared.core.types.nvfp4 import NVFP4, NVFP4Block
 
 # FP type constants
-from .fp_constants import (
+from shared.core.types.fp_constants import (
     FP8_E4M3_MIN_NORMAL,
     FP8_E4M3_MAX_NORMAL,
     FP4_E2M1_MAX_NORMAL,

@@ -1,4 +1,4 @@
-"""Tests for NVFP4Block blocked storage and conversion
+"""Tests for NVFP4Block blocked storage and conversion.
 
 Tests cover:
 - Block creation from Float32 arrays

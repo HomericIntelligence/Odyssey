@@ -1,4 +1,4 @@
-"""Layerwise Unit Tests for AlexNet
+"""Layerwise Unit Tests for AlexNet.
 
 Tests Conv1 (3→64, 11x11) and Conv2 (64→192, 5x5) layers independently
 with special FP-representable values. Each layer test runs on float32 and float16.

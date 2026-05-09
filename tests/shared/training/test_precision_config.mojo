@@ -1,4 +1,4 @@
-"""Tests for PrecisionConfig module
+"""Tests for PrecisionConfig module.
 
 """
 

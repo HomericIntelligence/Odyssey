@@ -70,7 +70,7 @@ def split_words(text: String) raises -> List[String]:
     # Filter out empty strings that may result from multiple spaces
     var words = List[String]()
     for i in range(len(parts)):
-        if len(String(parts[i])) > 0:
+        if (String(parts[i])).byte_length() > 0:
             words.append(String(parts[i]))
 
     return words^
@@ -145,7 +145,7 @@ struct RandomSwap(Copyable, Movable, TextTransform):
             Error: If operation fails.
         """
         # Handle empty or single-word text
-        if len(text) == 0:
+        if text.byte_length() == 0:
             return text
 
         var words = split_words(text)
@@ -212,7 +212,7 @@ struct RandomDeletion(Copyable, Movable, TextTransform):
             Error: If operation fails.
         """
         # Handle empty text
-        if len(text) == 0:
+        if text.byte_length() == 0:
             return text
 
         var words = split_words(text)
@@ -287,7 +287,7 @@ struct RandomInsertion(Copyable, Movable, TextTransform):
             Error: If operation fails.
         """
         # Handle empty text or empty vocabulary
-        if len(text) == 0 or len(self.vocabulary) == 0:
+        if text.byte_length() == 0 or len(self.vocabulary) == 0:
             return text
 
         var words = split_words(text)
@@ -369,7 +369,7 @@ struct RandomSynonymReplacement(Copyable, Movable, TextTransform):
             Error: If operation fails.
         """
         # Handle empty text
-        if len(text) == 0:
+        if text.byte_length() == 0:
             return text
 
         var words = split_words(text)

@@ -1,4 +1,4 @@
-"""Unit tests for Training Loop
+"""Unit tests for Training Loop.
 
 Tests cover:
 - Forward pass execution

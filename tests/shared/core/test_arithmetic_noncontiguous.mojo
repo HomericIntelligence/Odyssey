@@ -1,4 +1,4 @@
-"""Tests for arithmetic operations on non-contiguous tensors
+"""Tests for arithmetic operations on non-contiguous tensors.
 
 Verifies that add, subtract, multiply, divide produce correct results
 when given non-contiguous inputs (e.g., from transpose_view). Without

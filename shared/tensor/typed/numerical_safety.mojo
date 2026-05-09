@@ -112,8 +112,8 @@ def _count_nan_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
     var ptr = tensor._data
     comptime simd_w = simd_width_of[dtype]()
 
-    @parameter
-    def _count[width: Int](idx: Int) unified {mut}:
+    @always_inline
+    def _count[width: Int](idx: Int) {var ptr, mut count}:
         var vec = ptr.load[width=width](idx)
         count += Int(isnan(vec).cast[DType.uint8]().reduce_add())
 
@@ -143,8 +143,8 @@ def _count_inf_core[dtype: DType](tensor: Tensor[dtype]) -> Int:
     var ptr = tensor._data
     comptime simd_w = simd_width_of[dtype]()
 
-    @parameter
-    def _count[width: Int](idx: Int) unified {mut}:
+    @always_inline
+    def _count[width: Int](idx: Int) {var ptr, mut count}:
         var vec = ptr.load[width=width](idx)
         count += Int(isinf(vec).cast[DType.uint8]().reduce_add())
 

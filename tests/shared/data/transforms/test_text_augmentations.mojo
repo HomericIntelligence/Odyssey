@@ -1,4 +1,4 @@
-"""Tests for text augmentation transforms
+"""Tests for text augmentation transforms.
 
 Tests split_words, join_words helper functions and basic RandomSwap operations.
 """

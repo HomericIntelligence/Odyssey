@@ -7,8 +7,8 @@ Typed helper cores live in shared/tensor/typed/strassen.mojo.
 """
 
 from shared.tensor.any_tensor import AnyTensor, zeros
-from .arithmetic import add, subtract
-from .matmul import matmul_tiled
+from shared.core.arithmetic import add, subtract
+from shared.core.matmul import matmul_tiled
 from shared.base.dtype_ordinal import (
     dtype_to_ordinal,
     DTYPE_FLOAT16,

@@ -1,4 +1,4 @@
-"""Unit tests for loss functions
+"""Unit tests for loss functions.
 
 Tests cover:
 - cross_entropy: Forward and backward passes for multi-class classification

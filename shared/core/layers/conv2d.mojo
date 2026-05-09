@@ -10,8 +10,8 @@ Key components:
 """
 
 from shared.tensor.any_tensor import AnyTensor, zeros, randn, zeros_like
-from ..initializers import kaiming_uniform
-from ..conv import conv2d, conv2d_backward
+from shared.core.initializers import kaiming_uniform
+from shared.core.conv import conv2d, conv2d_backward
 
 
 struct Conv2dLayer[dtype: DType = DType.float32](Copyable, Movable):

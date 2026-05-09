@@ -14,10 +14,10 @@ Where:
 """
 
 from shared.tensor.any_tensor import AnyTensor, zeros, zeros_like, ones
-from .matrix import matmul, transpose
-from .activation import softmax
-from .arithmetic import multiply, divide, add
-from .gradient_types import GradientTriple, GradientQuad
+from shared.core.matrix import matmul, transpose
+from shared.core.activation import softmax
+from shared.core.arithmetic import multiply, divide, add
+from shared.core.gradient_types import GradientTriple, GradientQuad
 from std.math import sqrt
 
 

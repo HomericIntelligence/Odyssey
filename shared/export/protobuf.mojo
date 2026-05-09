@@ -103,8 +103,8 @@ struct ProtoBuffer(Copyable, Movable):
     def write_string(mut self, field_number: Int, value: String):
         """Write a string field."""
         self.write_tag(field_number, WIRE_LENGTH_DELIMITED)
-        self.write_varint(UInt64(len(value)))
-        for i in range(len(value)):
+        self.write_varint(UInt64(value.byte_length()))
+        for i in range(value.byte_length()):
             self.write_byte(value.as_bytes()[i])
 
     def write_bytes_field(mut self, field_number: Int, value: List[UInt8]):

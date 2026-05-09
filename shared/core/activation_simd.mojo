@@ -21,7 +21,7 @@ Design:
 - Numerical stability with clipping for exp operations
 
 Usage:
-    from .activation_simd import relu_simd, elu_simd, selu_simd, swish_simd
+    from shared.core.activation_simd import relu_simd, elu_simd, selu_simd, swish_simd
 
     var x = randn([1024, 1024], DType.float32)
     var y = relu_simd(x)      # 4x faster than scalar
@@ -38,7 +38,7 @@ from std.algorithm import vectorize
 from std.sys.info import simd_width_of
 from std.math import exp as math_exp
 from shared.tensor.any_tensor import AnyTensor
-from .activation_constants import SIGMOID_CLIP_THRESHOLD
+from shared.core.activation_constants import SIGMOID_CLIP_THRESHOLD
 
 
 # ============================================================================
@@ -69,7 +69,7 @@ def relu_simd(tensor: AnyTensor) raises -> AnyTensor:
         var y = relu_simd(x)  # SIMD accelerated
         ```
     """
-    from .activation import relu
+    from shared.core.activation import relu
 
     var result = AnyTensor(tensor.shape(), tensor._dtype)
 
@@ -93,8 +93,8 @@ def _relu_simd_float32(tensor: AnyTensor, mut result: AnyTensor):
     var in_ptr = tensor._data.bitcast[Float32]()
     var out_ptr = result._data.bitcast[Float32]()
 
-    @parameter
-    def vectorized_relu[width: Int](idx: Int) unified {mut}:
+    @always_inline
+    def vectorized_relu[width: Int](idx: Int) {var in_ptr, var out_ptr}:
         var vec = in_ptr.load[width=width](idx)
         # SIMD max with zero vector
         var zero_vec = SIMD[DType.float32, width](0)
@@ -112,8 +112,8 @@ def _relu_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
     var in_ptr = tensor._data.bitcast[Float64]()
     var out_ptr = result._data.bitcast[Float64]()
 
-    @parameter
-    def vectorized_relu[width: Int](idx: Int) unified {mut}:
+    @always_inline
+    def vectorized_relu[width: Int](idx: Int) {var in_ptr, var out_ptr}:
         var vec = in_ptr.load[width=width](idx)
         var zero_vec = SIMD[DType.float64, width](0)
         out_ptr.store[width=width](idx, max(zero_vec, vec))
@@ -151,7 +151,7 @@ def leaky_relu_simd(
         var y = leaky_relu_simd(x, 0.01)  # SIMD accelerated
         ```
     """
-    from .activation import leaky_relu
+    from shared.core.activation import leaky_relu
 
     var result = AnyTensor(tensor.shape(), tensor._dtype)
 
@@ -177,8 +177,10 @@ def _leaky_relu_simd_float32(
     var in_ptr = tensor._data.bitcast[Float32]()
     var out_ptr = result._data.bitcast[Float32]()
 
-    @parameter
-    def vectorized_leaky_relu[width: Int](idx: Int) unified {mut}:
+    @always_inline
+    def vectorized_leaky_relu[
+        width: Int
+    ](idx: Int) {var in_ptr, var out_ptr, var alpha}:
         var vec = in_ptr.load[width=width](idx)
         var alpha_vec = SIMD[DType.float32, width](alpha)
         var scaled = alpha_vec * vec
@@ -199,8 +201,10 @@ def _leaky_relu_simd_float64(
     var in_ptr = tensor._data.bitcast[Float64]()
     var out_ptr = result._data.bitcast[Float64]()
 
-    @parameter
-    def vectorized_leaky_relu[width: Int](idx: Int) unified {mut}:
+    @always_inline
+    def vectorized_leaky_relu[
+        width: Int
+    ](idx: Int) {var in_ptr, var out_ptr, var alpha}:
         var vec = in_ptr.load[width=width](idx)
         var alpha_vec = SIMD[DType.float64, width](alpha)
         var scaled = alpha_vec * vec
@@ -235,7 +239,7 @@ def relu6_simd(tensor: AnyTensor) raises -> AnyTensor:
         var y = relu6_simd(x)  # Values clamped to [0, 6]
         ```
     """
-    from .activation import relu6
+    from shared.core.activation import relu6
 
     var result = AnyTensor(tensor.shape(), tensor._dtype)
 
@@ -259,8 +263,8 @@ def _relu6_simd_float32(tensor: AnyTensor, mut result: AnyTensor):
     var in_ptr = tensor._data.bitcast[Float32]()
     var out_ptr = result._data.bitcast[Float32]()
 
-    @parameter
-    def vectorized_relu6[width: Int](idx: Int) unified {mut}:
+    @always_inline
+    def vectorized_relu6[width: Int](idx: Int) {var in_ptr, var out_ptr}:
         var vec = in_ptr.load[width=width](idx)
         var zero_vec = SIMD[DType.float32, width](0)
         var six_vec = SIMD[DType.float32, width](6)
@@ -279,8 +283,8 @@ def _relu6_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
     var in_ptr = tensor._data.bitcast[Float64]()
     var out_ptr = result._data.bitcast[Float64]()
 
-    @parameter
-    def vectorized_relu6[width: Int](idx: Int) unified {mut}:
+    @always_inline
+    def vectorized_relu6[width: Int](idx: Int) {var in_ptr, var out_ptr}:
         var vec = in_ptr.load[width=width](idx)
         var zero_vec = SIMD[DType.float64, width](0)
         var six_vec = SIMD[DType.float64, width](6)
@@ -318,7 +322,7 @@ def elu_simd(tensor: AnyTensor, alpha: Float64 = 1.0) raises -> AnyTensor:
         var y = elu_simd(x, 1.0)  # SIMD accelerated
         ```
     """
-    from .activation import elu
+    from shared.core.activation import elu
 
     var result = AnyTensor(tensor.shape(), tensor._dtype)
 
@@ -336,7 +340,7 @@ def elu_simd(tensor: AnyTensor, alpha: Float64 = 1.0) raises -> AnyTensor:
 @always_inline
 def _elu_simd_float32(tensor: AnyTensor, mut result: AnyTensor, alpha: Float32):
     """SIMD ELU for float32 tensors."""
-    from .activation_ops import exp_scalar_f32
+    from shared.core.activation_ops import exp_scalar_f32
 
     comptime simd_width = simd_width_of[DType.float32]()
     var size = tensor._numel
@@ -344,8 +348,10 @@ def _elu_simd_float32(tensor: AnyTensor, mut result: AnyTensor, alpha: Float32):
     var in_ptr = tensor._data.bitcast[Float32]()
     var out_ptr = result._data.bitcast[Float32]()
 
-    @parameter
-    def vectorized_elu[width: Int](idx: Int) unified {mut}:
+    @always_inline
+    def vectorized_elu[
+        width: Int
+    ](idx: Int) {var in_ptr, var out_ptr, var alpha}:
         var vec = in_ptr.load[width=width](idx)
         var zero_vec = SIMD[DType.float32, width](0)
         var one_vec = SIMD[DType.float32, width](1)
@@ -373,7 +379,7 @@ def _elu_simd_float32(tensor: AnyTensor, mut result: AnyTensor, alpha: Float32):
 @always_inline
 def _elu_simd_float64(tensor: AnyTensor, mut result: AnyTensor, alpha: Float64):
     """SIMD ELU for float64 tensors."""
-    from .activation_ops import exp_scalar_f64
+    from shared.core.activation_ops import exp_scalar_f64
 
     comptime simd_width = simd_width_of[DType.float64]()
     var size = tensor._numel
@@ -381,8 +387,10 @@ def _elu_simd_float64(tensor: AnyTensor, mut result: AnyTensor, alpha: Float64):
     var in_ptr = tensor._data.bitcast[Float64]()
     var out_ptr = result._data.bitcast[Float64]()
 
-    @parameter
-    def vectorized_elu[width: Int](idx: Int) unified {mut}:
+    @always_inline
+    def vectorized_elu[
+        width: Int
+    ](idx: Int) {var in_ptr, var out_ptr, var alpha}:
         var vec = in_ptr.load[width=width](idx)
         var zero_vec = SIMD[DType.float64, width](0)
         var one_vec = SIMD[DType.float64, width](1)
@@ -433,7 +441,7 @@ def selu_simd(
         var y = selu_simd(x)  # SIMD accelerated
         ```
     """
-    from .activation import selu
+    from shared.core.activation import selu
 
     var result = AnyTensor(tensor.shape(), tensor._dtype)
 
@@ -459,8 +467,10 @@ def _selu_simd_float32(
     var in_ptr = tensor._data.bitcast[Float32]()
     var out_ptr = result._data.bitcast[Float32]()
 
-    @parameter
-    def vectorized_selu[width: Int](idx: Int) unified {mut}:
+    @always_inline
+    def vectorized_selu[
+        width: Int
+    ](idx: Int) {var in_ptr, var out_ptr, var alpha, var lambda_}:
         var vec = in_ptr.load[width=width](idx)
         var zero_vec = SIMD[DType.float32, width](0)
         var one_vec = SIMD[DType.float32, width](1)
@@ -490,8 +500,10 @@ def _selu_simd_float64(
     var in_ptr = tensor._data.bitcast[Float64]()
     var out_ptr = result._data.bitcast[Float64]()
 
-    @parameter
-    def vectorized_selu[width: Int](idx: Int) unified {mut}:
+    @always_inline
+    def vectorized_selu[
+        width: Int
+    ](idx: Int) {var in_ptr, var out_ptr, var alpha, var lambda_}:
         var vec = in_ptr.load[width=width](idx)
         var zero_vec = SIMD[DType.float64, width](0)
         var one_vec = SIMD[DType.float64, width](1)
@@ -537,7 +549,7 @@ def swish_simd(tensor: AnyTensor) raises -> AnyTensor:
         var y = swish_simd(x)  # SIMD accelerated
         ```
     """
-    from .activation import swish
+    from shared.core.activation import swish
 
     var result = AnyTensor(tensor.shape(), tensor._dtype)
 
@@ -561,8 +573,8 @@ def _swish_simd_float32(tensor: AnyTensor, mut result: AnyTensor):
     var in_ptr = tensor._data.bitcast[Float32]()
     var out_ptr = result._data.bitcast[Float32]()
 
-    @parameter
-    def vectorized_swish[width: Int](idx: Int) unified {mut}:
+    @always_inline
+    def vectorized_swish[width: Int](idx: Int) {var in_ptr, var out_ptr}:
         var vec = in_ptr.load[width=width](idx)
 
         # Compute sigmoid(x) with numerical stability
@@ -593,8 +605,8 @@ def _swish_simd_float64(tensor: AnyTensor, mut result: AnyTensor):
     var in_ptr = tensor._data.bitcast[Float64]()
     var out_ptr = result._data.bitcast[Float64]()
 
-    @parameter
-    def vectorized_swish[width: Int](idx: Int) unified {mut}:
+    @always_inline
+    def vectorized_swish[width: Int](idx: Int) {var in_ptr, var out_ptr}:
         var vec = in_ptr.load[width=width](idx)
 
         var neg_vec = -vec

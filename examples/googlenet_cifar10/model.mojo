@@ -1,4 +1,4 @@
-"""GoogLeNet (Inception-v1) Model for CIFAR-10
+"""GoogLeNet (Inception-v1) Model for CIFAR-10.
 
 This module implements the GoogLeNet/Inception-v1 architecture adapted for CIFAR-10.
 

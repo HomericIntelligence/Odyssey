@@ -1,4 +1,4 @@
-"""Example: Mojo Patterns - SIMD Optimization
+"""Example: Mojo Patterns - SIMD Optimization.
 
 This example demonstrates vectorized operations using SIMD.
 
@@ -35,8 +35,10 @@ def simple_simd_add(tensor1: AnyTensor, tensor2: AnyTensor) raises -> AnyTensor:
         var ptr2 = tensor2._data.bitcast[Float32]()
         var out_ptr = result._data.bitcast[Float32]()
 
-        @parameter
-        def vectorized_add[width: Int](idx: Int) unified {mut}:
+        @always_inline
+        def vectorized_add[
+            width: Int
+        ](idx: Int) {var ptr1, var ptr2, var out_ptr}:
             var a = ptr1.load[width=width](idx)
             var b = ptr2.load[width=width](idx)
             out_ptr.store[width=width](idx, a + b)

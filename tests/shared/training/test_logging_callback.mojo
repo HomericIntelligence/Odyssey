@@ -1,4 +1,4 @@
-"""Unit tests for Logging Callback
+"""Unit tests for Logging Callback.
 
 Tests cover:
 - Training progress logging

@@ -170,7 +170,7 @@ struct ONNXExporter(Movable):
         var node = NodeProto(name, String("Conv"))
         node.add_input(input_name)
         node.add_input(weight_name)
-        if len(bias_name) > 0:
+        if bias_name.byte_length() > 0:
             node.add_input(bias_name)
         node.add_output(output_name)
 

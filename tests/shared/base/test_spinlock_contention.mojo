@@ -37,7 +37,7 @@ fix preserves.
 
 from std.testing import assert_true, assert_equal
 from shared.base.memory_pool import SpinLock
-from std.os.atomic import Atomic
+from std.atomic import Atomic
 from std.memory import UnsafePointer, alloc
 
 

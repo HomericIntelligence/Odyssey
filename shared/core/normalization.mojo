@@ -13,7 +13,7 @@ from shared.tensor.any_tensor import (
     ones_like,
     full_like,
 )
-from .parallel_utils import should_parallelize
+from shared.core.parallel_utils import should_parallelize
 
 
 # ============================================================================

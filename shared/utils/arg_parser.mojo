@@ -263,7 +263,7 @@ struct ArgumentParser(Copyable, Movable):
             # would trigger a compile error. `ref spec` creates a reference alias.
             ref spec = item.value
             # Access value fields directly via reference
-            if not spec.is_flag and len(spec.default_value) > 0:
+            if not spec.is_flag and spec.default_value.byte_length() > 0:
                 result.set(name, spec.default_value)
 
         # Parse sys.argv with early returns for cleaner flow
@@ -276,7 +276,7 @@ struct ArgumentParser(Copyable, Movable):
             if not arg.startswith("--"):
                 raise Error("Invalid argument format: " + arg)
 
-            var arg_name = String(arg[byte = 2 : len(arg)])
+            var arg_name = String(arg[byte = 2 : arg.byte_length()])
 
             # Early error for unknown argument
             if arg_name not in self.arguments:

@@ -1,4 +1,4 @@
-"""CIFAR-10 Dataset Wrapper
+"""CIFAR-10 Dataset Wrapper.
 
 High-level dataset interface for CIFAR-10 with convenient methods for train/test splits
 
@@ -110,7 +110,7 @@ struct CIFAR10Dataset(Copyable, Movable):
         Raises:
             Error: If data_dir is empty or invalid.
         """
-        if len(data_dir) == 0:
+        if data_dir.byte_length() == 0:
             raise Error("data_dir cannot be empty")
 
         self.data_dir = data_dir

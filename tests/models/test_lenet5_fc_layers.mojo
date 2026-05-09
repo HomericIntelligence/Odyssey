@@ -1,4 +1,4 @@
-"""LeNet-5 Fully Connected Layer Tests
+"""LeNet-5 Fully Connected Layer Tests.
 
 Tests FC1, FC2, FC3 layers independently with special FP-representable values.
 

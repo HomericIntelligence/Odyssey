@@ -27,11 +27,14 @@ from shared.core.arithmetic_simd import (
 from time import perf_counter_ns
 
 
-def benchmark_operation(
+def benchmark_operation[
+    ScalarFn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+    SimdFn: def(AnyTensor, AnyTensor) raises -> AnyTensor,
+](
     name: String,
     size: Int,
-    scalar_fn: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
-    simd_fn: fn (AnyTensor, AnyTensor) raises -> AnyTensor,
+    scalar_fn: ScalarFn,
+    simd_fn: SimdFn,
     dtype: DType,
     iterations: Int = 100,
 ) raises:
@@ -77,13 +80,38 @@ def benchmark_operation(
     var speedup = scalar_time / simd_time
 
     # Print results
+    # mojo-1.0: String.ljust() removed; use manual padding
     var dtype_str = "float32" if dtype == DType.float32 else "float64"
+    var name_pad = (
+        name + " " * (10 - name.byte_length()) if name.byte_length()
+        < 10 else name
+    )
+    var dtype_pad = (
+        dtype_str
+        + " " * (8 - dtype_str.byte_length()) if dtype_str.byte_length()
+        < 8 else dtype_str
+    )
+    var size_s = String(size)
+    var size_pad = (
+        size_s + " " * (6 - size_s.byte_length()) if size_s.byte_length()
+        < 6 else size_s
+    )
+    var scalar_s = String(scalar_time / Float64(iterations) * 1000)
+    var scalar_pad = (
+        scalar_s + " " * (10 - scalar_s.byte_length()) if scalar_s.byte_length()
+        < 10 else scalar_s
+    )
+    var simd_s = String(simd_time / Float64(iterations) * 1000)
+    var simd_pad = (
+        simd_s + " " * (10 - simd_s.byte_length()) if simd_s.byte_length()
+        < 10 else simd_s
+    )
     print(
-        name.ljust(10),
-        dtype_str.ljust(8),
-        String(size).ljust(6) + "x" + String(size).ljust(6),
-        String(scalar_time / Float64(iterations) * 1000).ljust(10) + "ms",
-        String(simd_time / Float64(iterations) * 1000).ljust(10) + "ms",
+        name_pad,
+        dtype_pad,
+        size_pad + "x" + size_pad,
+        scalar_pad + "ms",
+        simd_pad + "ms",
         String(speedup) + "x",
     )
 
@@ -195,13 +223,13 @@ def main() raises:
     print("Performance Benchmarks")
     print("=" * 80 + "\n")
 
-    # Print header
+    # Print header (mojo-1.0: String.ljust() removed; use manual padding)
     print(
-        "Operation".ljust(10),
-        "DType".ljust(8),
-        "Size".ljust(12),
-        "Scalar".ljust(10),
-        "SIMD".ljust(10),
+        "Operation " + "  ",
+        "DType   " + " ",
+        "Size        ",
+        "Scalar    " + " ",
+        "SIMD      " + " ",
         "Speedup",
     )
     print("-" * 80)

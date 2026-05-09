@@ -448,9 +448,11 @@ struct AnyTensor(
         self._refcount = copy._refcount
         self._original_numel_quantized = copy._original_numel_quantized
         self._allocated_size = copy._allocated_size
-        # Increment reference count (shared ownership)
-        if self._refcount:
-            self._refcount[] += 1
+        # Increment reference count (shared ownership).
+        # _refcount is always allocated by every initializing constructor;
+        # the previous null-check was a defensive holdover from pre-1.0 when
+        # UnsafePointer was nullable by default.
+        self._refcount[] += 1
 
     def __init__(out self, *, deinit take: Self):
         """Move constructor - transfers ownership without refcount change."""
@@ -471,19 +473,18 @@ struct AnyTensor(
         Only frees memory when the last reference is destroyed.
 
         """
-        # All copies (views or not) participate in refcount management
-        if self._refcount:
-            self._refcount[] -= 1
-
-            # If last reference, free everything
-            if self._refcount[] == 0:
-                # Views share the parent tensor's data allocation — their
-                # _data pointer is an offset into the parent's buffer, not
-                # a separately malloc'd address. Only non-view tensors own
-                # their data allocation and should free it.
-                if not self._is_view:
-                    pooled_free(self._data, self._allocated_size)
-                self._refcount.free()
+        # All copies (views or not) participate in refcount management.
+        # _refcount is always allocated by every initializing constructor.
+        self._refcount[] -= 1
+        # If last reference, free everything
+        if self._refcount[] == 0:
+            # Views share the parent tensor's data allocation — their
+            # _data pointer is an offset into the parent's buffer, not
+            # a separately malloc'd address. Only non-view tensors own
+            # their data allocation and should free it.
+            if not self._is_view:
+                pooled_free(self._data, self._allocated_size)
+            self._refcount.free()
 
     def copy(self) -> Self:
         """Create a shared-ownership copy with reference counting.
@@ -504,9 +505,8 @@ struct AnyTensor(
         ptr[0]._refcount = self._refcount
         ptr[0]._original_numel_quantized = self._original_numel_quantized
         ptr[0]._allocated_size = self._allocated_size
-        # Increment reference count (shared ownership)
-        if self._refcount:
-            self._refcount[] += 1
+        # Increment reference count (shared ownership).
+        self._refcount[] += 1
         var result = ptr.take_pointee()
         ptr.free()
         return result
@@ -3853,6 +3853,13 @@ struct AnyTensor(
             weights.save("checkpoint/weights.bin", "conv1_weights")
             ```
         """
+        # NOTE: relative import is REQUIRED here. tensor_io.mojo's docstring
+        # explains: an absolute import causes Mojo's package compiler to
+        # compile any_tensor.mojo twice with distinct AnyTensor type
+        # identities, producing
+        #   "cannot implicitly convert 'AnyTensor' value to 'AnyTensor'".
+        # See shared/tensor/tensor_io.mojo top-of-file comment for details.
+        # (D5: D1's relative→absolute conversion accidentally re-broke this.)
         from .tensor_io import save_tensor
 
         save_tensor(self, path, name)
@@ -3878,6 +3885,8 @@ struct AnyTensor(
             var tensor = AnyTensor.load("checkpoint/weights.bin")
             ```
         """
+        # NOTE: relative import REQUIRED — see save() above and the
+        # tensor_io.mojo docstring for the type-doubling rationale.
         from .tensor_io import load_tensor
 
         return load_tensor(path)
@@ -4049,7 +4058,7 @@ struct AnyTensor(
 
 
 def _anytensor_binary_op[
-    op: def[T: DType](Scalar[T], Scalar[T]) -> Scalar[T]
+    op: def[T: DType](Scalar[T], Scalar[T]) thin -> Scalar[T]
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Apply a compile-time-typed binary arithmetic op with broadcasting."""
     if a._dtype != b._dtype:
@@ -4117,7 +4126,7 @@ def _anytensor_binary_op[
 
 
 def _anytensor_unary_op[
-    op: def[T: DType](Scalar[T]) -> Scalar[T]
+    op: def[T: DType](Scalar[T]) thin -> Scalar[T]
 ](tensor: AnyTensor) raises -> AnyTensor:
     """Apply a compile-time-typed unary op element-wise."""
     var shape = tensor.shape()
@@ -4158,7 +4167,7 @@ def _anytensor_unary_op[
 
 
 def _anytensor_compare_op[
-    op: def[T: DType](Scalar[T], Scalar[T]) -> Bool
+    op: def[T: DType](Scalar[T], Scalar[T]) thin -> Bool
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Apply a compile-time-typed binary comparison op with broadcasting."""
     if a._dtype != b._dtype:
@@ -4294,7 +4303,7 @@ def _anytensor_matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
 # Re-exports: creation functions (moved to tensor_creation.mojo)
 # ============================================================================
 # These re-exports maintain backward compatibility so that existing code
-# importing `from shared.tensor.any_tensor import zeros, ones, ...` continues
+# importing `from .any_tensor import zeros, ones, ...` continues
 # to work without changes.
 
 from .tensor_creation import (

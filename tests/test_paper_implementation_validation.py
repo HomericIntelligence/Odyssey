@@ -12,7 +12,6 @@ These tests use the actual papers/ directory to verify the template complies
 with conventions, and use temporary fixtures to test validation logic in isolation.
 """
 
-import tempfile
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -38,11 +37,7 @@ def find_paper_dirs(base: Path) -> List[Path]:
 
     Excludes the _template directory.
     """
-    return [
-        p.parent
-        for p in base.glob("*/metadata.yml")
-        if p.parent.name != "_template"
-    ]
+    return [p.parent for p in base.glob("*/metadata.yml") if p.parent.name != "_template"]
 
 
 def validate_paper_structure(paper_dir: Path) -> Tuple[bool, List[str]]:
@@ -80,16 +75,14 @@ class TestPapersDirectoryLayout:
     def test_papers_directory_exists(self) -> None:
         """papers/ directory must exist at the repo root."""
         assert PAPERS_DIR.exists() and PAPERS_DIR.is_dir(), (
-            f"papers/ directory not found at {PAPERS_DIR}. "
-            "Create it before adding paper implementations."
+            f"papers/ directory not found at {PAPERS_DIR}. Create it before adding paper implementations."
         )
 
     def test_papers_readme_exists(self) -> None:
         """papers/README.md must exist to document paper conventions."""
         readme = PAPERS_DIR / "README.md"
         assert readme.is_file(), (
-            f"papers/README.md not found at {readme}. "
-            "A top-level README is required to guide contributors."
+            f"papers/README.md not found at {readme}. A top-level README is required to guide contributors."
         )
 
     def test_papers_readme_is_non_empty(self) -> None:
@@ -117,9 +110,7 @@ class TestPaperStructureValidation:
     def test_valid_paper_passes_structure_check(self, tmp_path: Path) -> None:
         """A directory with README.md and metadata.yml passes structure checks."""
         (tmp_path / "README.md").write_text("# Test Paper\n")
-        (tmp_path / "metadata.yml").write_text(
-            "title: Test\nauthors: [Author]\nyear: 2020\nurl: https://example.com\n"
-        )
+        (tmp_path / "metadata.yml").write_text("title: Test\nauthors: [Author]\nyear: 2020\nurl: https://example.com\n")
         ok, missing = validate_paper_structure(tmp_path)
         assert ok
         assert missing == []

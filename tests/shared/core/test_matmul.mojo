@@ -1,4 +1,4 @@
-"""Matrix multiplication tests
+"""Matrix multiplication tests.
 
 Tests cover:
 - Correctness: Baseline (Stage 0) tests

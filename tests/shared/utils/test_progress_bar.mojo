@@ -1,4 +1,4 @@
-"""Tests for progress bar utilities module
+"""Tests for progress bar utilities module.
 
 This module tests basic progress bar and metrics functionality:
 - Basic progress bar rendering

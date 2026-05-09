@@ -13,7 +13,7 @@ Architecture:
 
 from std.collections import List
 from shared.tensor.any_tensor import AnyTensor, full
-from .lazy_expression import (
+from shared.core.lazy_expression import (
     TensorExpr,
     ExprNode,
     OpType,

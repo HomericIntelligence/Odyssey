@@ -1,4 +1,4 @@
-"""Unit tests for linear layer (fully connected) forward operations
+"""Unit tests for linear layer (fully connected) forward operations.
 
 Tests cover:
 - linear: Forward pass with bias y = xW^T + b

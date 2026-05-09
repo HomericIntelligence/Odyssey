@@ -14,21 +14,34 @@ Key Features:
 - Batch transforms (apply to lists)
 - Type conversions (Float32, Int32)
 
+Mojo 1.0 design note (E3):
+    ``LambdaTransform[F]`` and ``ConditionalTransform[Pred, T]`` are now
+    compile-time parametric structs (Recipe 7 DYNAMIC_TRAIT).  The function
+    ``F`` and predicate ``Pred`` must be **thin** (non-capturing) defs —
+    i.e., they must not close over runtime variables.  Local ``def``
+    functions that do not capture are automatically thin in Mojo 1.0.
+
+    ``AnyTransform`` stores a ``def(AnyTensor) raises thin -> AnyTensor``
+    function-pointer field for lambda-originated entries; use the static
+    ``AnyTransform.from_lambda[F]()`` factory instead of the old
+    ``AnyTransform(LambdaTransform(f))`` syntax.
+
 Example:
-    >>> # Create preprocessing pipeline
-    >>> fn scale(x: Float32) -> Float32:
-    ...     return x / 255.0
-    >>>
-    >>> var pipeline = SequentialTransform()
-    >>> pipeline.append(LambdaTransform(scale))
-    >>> pipeline.append(ClampTransform(0.0, 1.0))
-    >>>
-    >>> var result = pipeline(data)
+    ```mojo
+    def scale(x: Float32) -> Float32:
+        return x / 255.0
+
+    var pipeline = SequentialTransform()
+    pipeline.append(AnyTransform.from_lambda[scale]())
+    pipeline.append(AnyTransform(ClampTransform(0.0, 1.0)))
+
+    var result = pipeline(data)
     ```
 """
 
 from shared.tensor.any_tensor import AnyTensor
 from shared.data.transforms import Transform
+from std.collections import Optional
 
 
 # ============================================================================
@@ -72,61 +85,93 @@ struct IdentityTransform(Copyable, Movable, Transform):
 
 
 # ============================================================================
+# Lambda Transform helpers (module-level thin functions)
+# ============================================================================
+
+
+def _apply_f32_to_tensor[
+    F: def(Float32) thin -> Float32
+](data: AnyTensor,) raises -> AnyTensor:
+    """Apply a thin Float32->Float32 function element-wise.
+
+    This module-level function is used both by ``LambdaTransform[F].__call__``
+    and by ``AnyTransform.from_lambda[F]()`` to produce a thin function
+    pointer that can be stored in ``AnyTransform._lambda_fn``.
+
+    Parameters:
+        F: Thin (non-capturing) def function from Float32 to Float32.
+
+    Args:
+        data: Input tensor.
+
+    Returns:
+        New AnyTensor with F applied to every element.
+
+    Raises:
+        Error: If tensor creation fails.
+    """
+    var result = List[Float32](capacity=data.num_elements())
+    for i in range(data.num_elements()):
+        result.append(F(Float32(data[i])))
+    return AnyTensor(result^)
+
+
+# ============================================================================
 # Lambda Transform
 # ============================================================================
 
 
-struct LambdaTransform(Copyable, Movable, Transform):
-    """Apply a function element-wise to tensor values.
+struct LambdaTransform[F: def(Float32) thin -> Float32](
+    Copyable, Movable, Transform
+):
+    """Apply a compile-time thin function element-wise to tensor values.
 
-    Provides flexible inline transformations without defining
-    a full transform struct. The function is applied to each
-    element independently.
+    Mojo 1.0 design (E3 — Recipe 7 DYNAMIC_TRAIT): ``F`` is a compile-time
+    **thin** (non-capturing) function parameter, not a runtime field.  The
+    struct carries no runtime state; ``__call__`` is non-capturing and
+    therefore conforms to the ``Transform`` trait.
+
+    Use ``LambdaTransform[my_fn]()`` to instantiate:
+
+    ```mojo
+    def scale(x: Float32) -> Float32:
+        return x / 255.0
+
+    var t = LambdaTransform[scale]()
+    var result = t(tensor)
+    ```
+
+    To wrap in ``AnyTransform`` (e.g. for ``SequentialTransform``), use
+    ``AnyTransform.from_lambda[scale]()`` instead.
 
     Time Complexity: O(n) where n is number of elements.
     Space Complexity: O(n) for output tensor.
-
-    Example:
-        ```mojo
-        >> fn double(x: Float32) -> Float32:
-        ...     return x * 2.0
-        >>>
-        >>> var transform = LambdaTransform(double)
-        >>> var result = transform(data)
-        ```
     """
 
-    var func: def(Float32) -> Float32
-    """Function to apply element-wise to tensor values."""
+    var _dummy: Int
+    """Placeholder field required so the synthesised copy constructor works."""
 
-    def __init__(out self, func: def(Float32) -> Float32):
+    def __init__(out self):
         """Create lambda transform.
 
-        Args:
-            func: Function to apply element-wise.
+        The function ``F`` is a compile-time parameter; no runtime argument
+        is needed.
         """
-        self.func = func
+        self._dummy = 0
 
     def __call__(self, data: AnyTensor) raises -> AnyTensor:
-        """Apply function to each element.
+        """Apply F to each element.
 
         Args:
             data: Input tensor.
 
         Returns:
-            Transformed tensor with function applied to each element.
+            Transformed tensor with F applied element-wise.
 
         Raises:
             Error: If tensor creation fails.
         """
-        var result_values = List[Float32](capacity=data.num_elements())
-
-        for i in range(data.num_elements()):
-            var value = Float32(data[i])
-            var transformed = self.func(value)
-            result_values.append(transformed)
-
-        return AnyTensor(result_values^)
+        return _apply_f32_to_tensor[Self.F](data)
 
 
 # ============================================================================
@@ -134,44 +179,40 @@ struct LambdaTransform(Copyable, Movable, Transform):
 # ============================================================================
 
 
-struct ConditionalTransform[T: Transform & Copyable & Movable](
-    Copyable, Movable, Transform
-):
-    """Apply transform only if predicate is true.
+struct ConditionalTransform[
+    Pred: def(AnyTensor) raises thin -> Bool,
+    T: Transform & Copyable & Movable,
+](Copyable, Movable, Transform):
+    """Apply transform only if a compile-time thin predicate is true.
 
-    Evaluates a predicate function on the input tensor. If true,
-    applies the transform. If false, returns input unchanged.
+    Mojo 1.0 design (E3 — Recipe 7 DYNAMIC_TRAIT): ``Pred`` is a compile-time
+    **thin** (non-capturing) predicate function; it is called via
+    ``Self.Pred(data)`` so ``__call__`` remains non-capturing and conforms to
+    the ``Transform`` trait.  The inner transform ``T`` is stored as a regular
+    runtime field.
+
+    ```mojo
+    def is_large(tensor: AnyTensor) raises -> Bool:
+        return tensor.num_elements() > 100
+
+    var augment = LambdaTransform[my_fn]()
+    var conditional = ConditionalTransform[is_large, LambdaTransform[my_fn]](augment^)
+    var result = conditional(tensor)  # Only augments large tensors
+    ```
 
     Time Complexity: O(p + t) where p is predicate cost, t is transform cost.
     Space Complexity: O(n) if transform applied, O(1) otherwise.
-
-    Example:
-        ```mojo
-        >> fn is_large(tensor: AnyTensor) -> Bool:
-        ...     return tensor.num_elements() > 100
-        >>>
-        >>> var transform = ConditionalTransform(is_large, augment)
-        >>> var result = transform(data)  # Only augments large tensors
-        ```
     """
 
-    var predicate: def(AnyTensor) raises -> Bool
-    """Predicate function to evaluate on tensor."""
     var transform: Self.T
     """Transform to apply if predicate is true."""
 
-    def __init__(
-        out self,
-        predicate: def(AnyTensor) raises -> Bool,
-        var transform: Self.T,
-    ):
+    def __init__(out self, var transform: Self.T):
         """Create conditional transform.
 
         Args:
-            predicate: Function to evaluate on tensor.
-            transform: Transform to apply if predicate is true.
+            transform: Transform to apply when ``Pred`` evaluates to True.
         """
-        self.predicate = predicate
         self.transform = transform^
 
     def __call__(self, data: AnyTensor) raises -> AnyTensor:
@@ -181,15 +222,14 @@ struct ConditionalTransform[T: Transform & Copyable & Movable](
             data: Input tensor.
 
         Returns:
-            Transformed tensor if predicate true, otherwise original.
+            Transformed tensor if predicate true, otherwise input unchanged.
 
         Raises:
             Error: If predicate evaluation or transform fails.
         """
-        if self.predicate(data):
+        if Self.Pred(data):
             return self.transform(data)
-        else:
-            return data
+        return data
 
 
 # ============================================================================
@@ -342,13 +382,17 @@ struct AnyTransform(Copyable, Movable, Transform):
     """Type-erased wrapper for any Transform type.
 
     Allows storing different transform types in the same list.
-    Uses trait object pattern to enable runtime polymorphism.
+    Uses a manual union-of-optionals pattern to enable runtime polymorphism.
+
+    Mojo 1.0 note (E3): ``LambdaTransform[F]`` is now parametric and cannot
+    be stored directly in a typed Optional field.  Use the static factory
+    ``AnyTransform.from_lambda[F]()`` instead — it stores a thin function
+    pointer in ``_lambda_fn`` that applies ``F`` element-wise without
+    capturing runtime state.
     """
 
-    # Internal storage using trait object pattern
-    # We store the transform as a variant that can hold different types
-    var _lambda: Optional[LambdaTransform]
-    """Wrapped LambdaTransform if set."""
+    var _lambda_fn: Optional[def(AnyTensor) raises thin -> AnyTensor]
+    """Thin function pointer for lambda-originated transforms."""
     var _clamp: Optional[ClampTransform]
     """Wrapped ClampTransform if set."""
     var _identity: Optional[IdentityTransform]
@@ -362,13 +406,40 @@ struct AnyTransform(Copyable, Movable, Transform):
     var _sequential: Optional[SequentialTransform]
     """Wrapped SequentialTransform if set."""
 
-    def __init__(out self, var transform: LambdaTransform):
-        """Create from LambdaTransform.
+    @staticmethod
+    def from_lambda[F: def(Float32) thin -> Float32]() -> AnyTransform:
+        """Create an AnyTransform that applies a thin Float32→Float32 function.
+
+        This is the Mojo-1.0-compatible replacement for the old
+        ``AnyTransform(LambdaTransform(f))`` syntax.
+
+        Parameters:
+            F: Thin (non-capturing) def function from Float32 to Float32.
+
+        Returns:
+            AnyTransform that applies F element-wise.
+
+        Example:
+            ```mojo
+            def scale(x: Float32) -> Float32:
+                return x / 255.0
+
+            transforms.append(AnyTransform.from_lambda[scale]())
+            ```
+        """
+        # _apply_f32_to_tensor[F] is specialised here where F is statically
+        # known; the resulting function pointer is thin and storable as a
+        # def(AnyTensor) raises thin -> AnyTensor field.
+        return AnyTransform(_apply_f32_to_tensor[F])
+
+    def __init__(out self, `fn`: def(AnyTensor) raises thin -> AnyTensor):
+        """Create from a thin AnyTensor→AnyTensor function (internal use).
 
         Args:
-            transform: LambdaTransform to wrap.
+            fn: Thin function to apply.  Callers should prefer
+                ``AnyTransform.from_lambda[F]()`` for lambda transforms.
         """
-        self._lambda = transform^
+        self._lambda_fn = `fn`
         self._clamp = None
         self._identity = None
         self._debug = None
@@ -385,7 +456,7 @@ struct AnyTransform(Copyable, Movable, Transform):
         Raises:
             Error: If operation fails.
         """
-        self._lambda = None
+        self._lambda_fn = None
         self._clamp = transform^
         self._identity = None
         self._debug = None
@@ -399,7 +470,7 @@ struct AnyTransform(Copyable, Movable, Transform):
         Args:
             transform: IdentityTransform to wrap.
         """
-        self._lambda = None
+        self._lambda_fn = None
         self._clamp = None
         self._identity = transform^
         self._debug = None
@@ -413,7 +484,7 @@ struct AnyTransform(Copyable, Movable, Transform):
         Args:
             transform: DebugTransform to wrap.
         """
-        self._lambda = None
+        self._lambda_fn = None
         self._clamp = None
         self._identity = None
         self._debug = transform^
@@ -427,7 +498,7 @@ struct AnyTransform(Copyable, Movable, Transform):
         Args:
             transform: ToFloat32 to wrap.
         """
-        self._lambda = None
+        self._lambda_fn = None
         self._clamp = None
         self._identity = None
         self._debug = None
@@ -441,7 +512,7 @@ struct AnyTransform(Copyable, Movable, Transform):
         Args:
             transform: ToInt32 to wrap.
         """
-        self._lambda = None
+        self._lambda_fn = None
         self._clamp = None
         self._identity = None
         self._debug = None
@@ -455,7 +526,7 @@ struct AnyTransform(Copyable, Movable, Transform):
         Args:
             transform: SequentialTransform to wrap.
         """
-        self._lambda = None
+        self._lambda_fn = None
         self._clamp = None
         self._identity = None
         self._debug = None
@@ -475,8 +546,8 @@ struct AnyTransform(Copyable, Movable, Transform):
         Raises:
             Error: If no transform is set or wrapped transform fails.
         """
-        if self._lambda:
-            return self._lambda.value()(data)
+        if self._lambda_fn:
+            return self._lambda_fn.value()(data)
         if self._clamp:
             return self._clamp.value()(data)
         if self._identity:
@@ -732,34 +803,36 @@ struct ToInt32(Copyable, Movable, Transform):
 # ============================================================================
 
 
-def apply_to_tensor(
-    data: AnyTensor, func: def(Float32) -> Float32
-) raises -> AnyTensor:
-    """Apply function element-wise to tensor.
+def apply_to_tensor[
+    F: def(Float32) thin -> Float32
+](data: AnyTensor,) raises -> AnyTensor:
+    """Apply a thin function element-wise to a tensor.
 
-    Helper function for creating ad-hoc transforms without
-    defining a transform struct.
+    Helper for ad-hoc transforms without defining a transform struct.
+    Mojo 1.0 note (E3): the function must be a compile-time thin parameter
+    rather than a runtime argument.
+
+    Parameters:
+        F: Thin (non-capturing) def function from Float32 to Float32.
 
     Args:
         data: Input tensor.
-        func: Function to apply to each element.
 
     Returns:
-        AnyTensor with function applied element-wise to all values.
+        AnyTensor with F applied element-wise to all values.
 
     Raises:
         Error: If tensor creation fails.
 
     Example:
         ```mojo
-        >> fn square(x: Float32) -> Float32:
-        ...     return x * x
-        >>>
-        >>> var result = apply_to_tensor(data, square)
+        def square(x: Float32) -> Float32:
+            return x * x
+
+        var result = apply_to_tensor[square](data)
         ```
     """
-    var transform = LambdaTransform(func)
-    return transform(data)
+    return _apply_f32_to_tensor[F](data)
 
 
 def compose_transforms(

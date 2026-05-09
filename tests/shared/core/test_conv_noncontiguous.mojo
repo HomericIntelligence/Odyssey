@@ -1,4 +1,4 @@
-"""Tests for conv2d operations on non-contiguous inputs
+"""Tests for conv2d operations on non-contiguous inputs.
 
 Verifies that conv2d() produces correct results when given non-contiguous
 inputs. Without the as_contiguous() guard, flat-index arithmetic reads from

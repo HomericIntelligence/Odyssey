@@ -1,5 +1,5 @@
 """
-Utility Functions Library
+Utility Functions Library.
 
 Provides logging, visualization, configuration, and other helper utilities
 
@@ -28,14 +28,14 @@ See Issue #3033: 4 tests for utils module imports — all tests pass.
 """
 
 # Package version
-from ..version import VERSION
+from shared.version import VERSION
 
 # ============================================================================
 # Exports - Implemented modules
 # ============================================================================
 
 # Logging utilities
-from .logging import (
+from shared.utils.logging import (
     Logger,  # Main logger class
     LogLevel,  # Log level enum
     get_logger,  # Get or create logger
@@ -50,7 +50,7 @@ from .logging import (
 )
 
 # Configuration utilities
-from .config import (
+from shared.utils.config import (
     Config,  # Configuration container
     load_config,  # Load from file (YAML/JSON)
     save_config,  # Save to file
@@ -60,7 +60,7 @@ from .config import (
 )
 
 # File I/O utilities
-from .file_io import (
+from shared.utils.file_io import (
     Checkpoint,  # Checkpoint container
     save_checkpoint,  # Save model checkpoint
     load_checkpoint,  # Load model checkpoint
@@ -75,7 +75,7 @@ from .file_io import (
 )
 
 # Visualization utilities
-from .visualization import (
+from shared.utils.visualization import (
     plot_training_curves,  # Plot loss/accuracy curves
     plot_loss_only,  # Plot single loss curve
     plot_accuracy_only,  # Plot single accuracy curve
@@ -87,7 +87,7 @@ from .visualization import (
 )
 
 # Progress bar utilities
-from .progress_bar import (
+from shared.utils.progress_bar import (
     ProgressBar,  # Simple progress bar
     ProgressBarWithMetrics,  # Progress bar with metrics display
     ProgressBarWithETA,  # Progress bar with time estimation
@@ -101,7 +101,7 @@ from .progress_bar import (
 # Example: from random import random_float64, random_si64, seed
 
 # Profiling utilities
-from .profiling import (
+from shared.utils.profiling import (
     Timer,  # Context manager for timing
     memory_usage,  # Get current memory usage
     profile_function,  # Profile function execution
@@ -112,7 +112,7 @@ from .profiling import (
 )
 
 # Tensor serialization utilities
-from .serialization import (
+from shared.utils.serialization import (
     NamedTensor,  # Named tensor for checkpoint collections
     save_tensor,  # Save single tensor to file
     load_tensor,  # Load tensor from file
@@ -129,7 +129,7 @@ from .serialization import (
 )
 
 # Argument parsing utilities
-from .arg_parser import (
+from shared.utils.arg_parser import (
     ArgumentParser,  # Main argument parser class
     ArgumentSpec,  # Argument specification
     ParsedArgs,  # Parsed arguments container
@@ -141,14 +141,14 @@ from .arg_parser import (
 )
 
 # Training argument utilities
-from .training_args import (
+from shared.utils.training_args import (
     TrainingArgs,  # Training hyperparameters container
     parse_training_args,  # Parse common training arguments
     parse_training_args_with_defaults,  # Parse with custom defaults
 )
 
 # Inference utilities
-from .inference_utils import (
+from shared.utils.inference_utils import (
     InferenceConfig,  # Inference configuration container
     parse_inference_args,  # Parse common inference arguments
     parse_inference_args_with_defaults,  # Parse with custom defaults

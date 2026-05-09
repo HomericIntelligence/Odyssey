@@ -1,5 +1,5 @@
 """
-Packaging Integration Tests
+Packaging Integration Tests.
 
 Tests that verify the shared library package structure and import hierarchy.
 
@@ -24,9 +24,15 @@ def test_package_version() raises:
     assert_equal(LICENSE, "BSD")
 
     # Additional critical tests - ensure these are actual string values, not None
-    assert_true(VERSION.__len__() > 0, "VERSION string should have length > 0")
-    assert_true(AUTHOR.__len__() > 0, "AUTHOR string should have length > 0")
-    assert_true(LICENSE.__len__() > 0, "LICENSE string should have length > 0")
+    assert_true(
+        VERSION.byte_length() > 0, "VERSION string should have length > 0"
+    )
+    assert_true(
+        AUTHOR.byte_length() > 0, "AUTHOR string should have length > 0"
+    )
+    assert_true(
+        LICENSE.byte_length() > 0, "LICENSE string should have length > 0"
+    )
 
     print("✓ Package version test passed")
 

@@ -17,7 +17,7 @@ Performance Characteristics:
     - Register blocking uses MICRO_M=4, MICRO_N=16 for optimal register utilization
 
 Usage:
-    from .matmul import matmul, matmul_optimized
+    from shared.core.matmul import matmul, matmul_optimized
 
     var a = zeros([1024, 512], DType.float32)
     var b = zeros([512, 1024], DType.float32)
@@ -36,8 +36,8 @@ from std.algorithm import vectorize
 from std.sys.info import simd_width_of
 from std.memory import memset_zero
 from shared.tensor.any_tensor import AnyTensor, zeros
-from .error_utils import format_dtype, format_matmul_error
-from .strassen import (
+from shared.core.error_utils import format_dtype, format_matmul_error
+from shared.core.strassen import (
     matmul_strassen,
     STRASSEN_ENABLED,
     STRASSEN_THRESHOLD,
@@ -232,8 +232,10 @@ def _matmul_simd_float32(
         # Vectorize J loop for contiguous access in C and B
         var row_i = i
 
-        @parameter
-        def vec_j[width: Int](j: Int) unified {mut}:
+        @always_inline
+        def vec_j[
+            width: Int
+        ](j: Int) {var a_ptr, var b_ptr, var c_ptr, var row_i, var K, var N}:
             var c_vec = SIMD[DType.float32, width](0)
             for k in range(K):
                 var a_scalar = a_ptr.load(row_i * K + k)
@@ -259,8 +261,10 @@ def _matmul_simd_float64(
         # Vectorize J loop for contiguous access in C and B
         var row_i = i
 
-        @parameter
-        def vec_j[width: Int](j: Int) unified {mut}:
+        @always_inline
+        def vec_j[
+            width: Int
+        ](j: Int) {var a_ptr, var b_ptr, var c_ptr, var row_i, var K, var N}:
             var c_vec = SIMD[DType.float64, width](0)
             for k in range(K):
                 var a_scalar = a_ptr.load(row_i * K + k)
@@ -361,8 +365,20 @@ def _matmul_tiled_float32(
                 for i in range(i0, i1):
                     var row_i = i
 
-                    @parameter
-                    def vec_inner[width: Int](j_off: Int) unified {mut}:
+                    @always_inline
+                    def vec_inner[
+                        width: Int
+                    ](j_off: Int) {
+                        var a_ptr,
+                        var b_ptr,
+                        var c_ptr,
+                        var row_i,
+                        var K,
+                        var N,
+                        var j0,
+                        var k0,
+                        var k1,
+                    }:
                         var j = j0 + j_off
                         var c_vec = c_ptr.load[width=width](row_i * N + j)
                         for k in range(k0, k1):
@@ -400,8 +416,20 @@ def _matmul_tiled_float64(
                 for i in range(i0, i1):
                     var row_i = i
 
-                    @parameter
-                    def vec_inner[width: Int](j_off: Int) unified {mut}:
+                    @always_inline
+                    def vec_inner[
+                        width: Int
+                    ](j_off: Int) {
+                        var a_ptr,
+                        var b_ptr,
+                        var c_ptr,
+                        var row_i,
+                        var K,
+                        var N,
+                        var j0,
+                        var k0,
+                        var k1,
+                    }:
                         var j = j0 + j_off
                         var c_vec = c_ptr.load[width=width](row_i * N + j)
                         for k in range(k0, k1):
@@ -574,8 +602,20 @@ def _matmul_float32(
 
                     # SIMD dot product using transposed B
                     # A[i, :] dot B^T[j, :] = A[i, :] dot B[:, j]
-                    @parameter
-                    def vec_k[width: Int](k: Int) unified {mut}:
+                    @always_inline
+                    def vec_k[
+                        width: Int
+                    ](k: Int) {
+                        var a_ptr,
+                        var bt_ptr,
+                        var i,
+                        var K,
+                        var col_j,
+                        mut c0,
+                        mut c1,
+                        mut c2,
+                        mut c3,
+                    }:
                         var bt_vec = bt_ptr.load[width=width](col_j * K + k)
 
                         var a0_vec = a_ptr.load[width=width]((i + 0) * K + k)
@@ -616,8 +656,17 @@ def _matmul_float32(
                     var col_j = j
                     var c_val: Float32 = 0.0
 
-                    @parameter
-                    def vec_k_rem[width: Int](k: Int) unified {mut}:
+                    @always_inline
+                    def vec_k_rem[
+                        width: Int
+                    ](k: Int) {
+                        var a_ptr,
+                        var bt_ptr,
+                        var i,
+                        var K,
+                        var col_j,
+                        mut c_val,
+                    }:
                         var a_vec = a_ptr.load[width=width](i * K + k)
                         var bt_vec = bt_ptr.load[width=width](col_j * K + k)
                         c_val += (a_vec * bt_vec).reduce_add()
@@ -663,8 +712,20 @@ def _matmul_float64(
                     var c2: Float64 = 0.0
                     var c3: Float64 = 0.0
 
-                    @parameter
-                    def vec_k[width: Int](k: Int) unified {mut}:
+                    @always_inline
+                    def vec_k[
+                        width: Int
+                    ](k: Int) {
+                        var a_ptr,
+                        var bt_ptr,
+                        var i,
+                        var K,
+                        var col_j,
+                        mut c0,
+                        mut c1,
+                        mut c2,
+                        mut c3,
+                    }:
                         var bt_vec = bt_ptr.load[width=width](col_j * K + k)
 
                         var a0_vec = a_ptr.load[width=width]((i + 0) * K + k)
@@ -704,8 +765,17 @@ def _matmul_float64(
                     var col_j = j
                     var c_val: Float64 = 0.0
 
-                    @parameter
-                    def vec_k_rem[width: Int](k: Int) unified {mut}:
+                    @always_inline
+                    def vec_k_rem[
+                        width: Int
+                    ](k: Int) {
+                        var a_ptr,
+                        var bt_ptr,
+                        var i,
+                        var K,
+                        var col_j,
+                        mut c_val,
+                    }:
                         var a_vec = a_ptr.load[width=width](i * K + k)
                         var bt_vec = bt_ptr.load[width=width](col_j * K + k)
                         c_val += (a_vec * bt_vec).reduce_add()

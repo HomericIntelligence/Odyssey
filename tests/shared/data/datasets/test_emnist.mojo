@@ -1,4 +1,4 @@
-"""Tests for EMNIST Dataset Wrapper
+"""Tests for EMNIST Dataset Wrapper.
 
 Tests cover:
 - Dataset initialization with different splits
@@ -36,7 +36,7 @@ def test_emnist_init_balanced() raises:
 
     try:
         var dataset = EMNISTDataset("/tmp/emnist", split="balanced", train=True)
-        assert_true(len(dataset.split) > 0, "Split should be set")
+        assert_true(dataset.split.byte_length() > 0, "Split should be set")
         assert_equal(dataset.split, "balanced", "Split should be 'balanced'")
     except e:
         # Expected if test data doesn't exist

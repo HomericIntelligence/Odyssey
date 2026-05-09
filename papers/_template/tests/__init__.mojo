@@ -1,5 +1,5 @@
 """
-Test Suite Package
+Test Suite Package.
 
 This package contains comprehensive tests for the paper implementation.
 

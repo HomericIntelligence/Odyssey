@@ -1,4 +1,4 @@
-"""Unit tests for Warmup Learning Rate Scheduler
+"""Unit tests for Warmup Learning Rate Scheduler.
 
 Tests cover:
 - Gradual LR increase from zero to target value

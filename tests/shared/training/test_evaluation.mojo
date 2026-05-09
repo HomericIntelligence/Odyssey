@@ -1,4 +1,4 @@
-"""Tests for evaluation module
+"""Tests for evaluation module.
 
 # Mojo v0.26.1 heap corruption (libKGENCompilerRTShared.so) triggers under
 

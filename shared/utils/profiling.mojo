@@ -165,7 +165,7 @@ struct ProfilingReport(Copyable, Movable):
         for key in self.timing_stats:
             # Pad name to 21 characters
             var name_padded = key
-            var pad_count = 21 - len(key)
+            var pad_count = 21 - key.byte_length()
             for _ in range(max(0, pad_count)):
                 name_padded += " "
             result += name_padded
@@ -418,9 +418,9 @@ def get_memory_delta(before: MemoryStats, after: MemoryStats) -> Int:
 # ============================================================================
 
 
-def profile_function(
-    name: String, func_ptr: def() raises -> None
-) raises -> TimingStats:
+def profile_function[
+    FuncType: def() raises -> None
+](name: String, func_ptr: FuncType) raises -> TimingStats:
     """Profile a function for execution time.
 
     Measures function execution time and returns statistics.
@@ -448,9 +448,9 @@ def profile_function(
     return stats^
 
 
-def benchmark_function(
-    name: String, func_ptr: def() raises -> None, iterations: Int = 10
-) raises -> TimingStats:
+def benchmark_function[
+    FuncType: def() raises -> None
+](name: String, func_ptr: FuncType, iterations: Int = 10) raises -> TimingStats:
     """Benchmark function over multiple iterations.
 
     Runs function multiple times and computes statistics (mean, std dev, etc).

@@ -33,6 +33,9 @@ pullchecklist\.com
 geeksforgeeks\.org
 conventionalcommits\.org
 contributor-covenant\.org
+# cppreference returns 403 to lychee's user-agent (bot protection); pages
+# resolve fine in browsers
+en\.cppreference\.com
 
 # Ignore root-relative links (lychee cannot resolve these without --root-url)
 # These are valid repo-relative paths in CLAUDE.md, docs/adr/, notebooks/README.md

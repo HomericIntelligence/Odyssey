@@ -1,4 +1,4 @@
-"""Inference Script for LeNet-5 on EMNIST
+"""Inference Script for LeNet-5 on EMNIST.
 
 Runs inference with trained LeNet-5 model on EMNIST test set.
 

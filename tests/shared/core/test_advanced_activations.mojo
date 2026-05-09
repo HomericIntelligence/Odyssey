@@ -1,4 +1,4 @@
-"""Tests for advanced activation functions
+"""Tests for advanced activation functions.
 
 Tests cover:
 - Swish/SiLU activation forward pass

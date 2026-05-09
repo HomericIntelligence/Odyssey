@@ -1,4 +1,4 @@
-"""Unit tests for VGG-16 convolutional layer operations
+"""Unit tests for VGG-16 convolutional layer operations.
 
 VGG-16 Architecture Overview (~25 layer operations):
 - 13 Conv2D layers (3x3 kernels, various channel depths)

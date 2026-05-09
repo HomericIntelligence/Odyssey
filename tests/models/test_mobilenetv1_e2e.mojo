@@ -1,4 +1,4 @@
-"""End-to-end tests for MobileNetV1 model
+"""End-to-end tests for MobileNetV1 model.
 
 Tests cover full model pipelines with complete training workflows:
 - Model initialization and parameter shapes

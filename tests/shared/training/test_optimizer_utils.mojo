@@ -1,4 +1,4 @@
-"""Unit tests for optimizer utilities
+"""Unit tests for optimizer utilities.
 
 Tests cover:
 - State initialization utilities

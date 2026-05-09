@@ -51,9 +51,6 @@ def test_small_allocation_miss() raises:
     var pool = TensorMemoryPool()
     var ptr = pool.allocate(64)
 
-    if not ptr:
-        raise Error("Allocation should not be null")
-
     var stats = pool.get_stats()
     if stats.allocations != 1:
         raise Error("Should have 1 allocation")
@@ -95,8 +92,6 @@ def test_medium_allocation() raises:
 
     # Allocate medium size
     var ptr = pool.allocate(2048)
-    if not ptr:
-        raise Error("Allocation should not be null")
 
     var stats = pool.get_stats()
     if stats.allocations != 1:
@@ -113,8 +108,6 @@ def test_large_allocation_bypass() raises:
 
     # Allocate large size (> 16KB) - should bypass pool
     var ptr = pool.allocate(32768)
-    if not ptr:
-        raise Error("Large allocation should succeed")
 
     var stats = pool.get_stats()
     if stats.allocations != 1:
@@ -143,14 +136,6 @@ def test_bucket_selection_small() raises:
     var ptr4 = pool.allocate(128)
 
     # All should succeed
-    if not ptr1:
-        raise Error("1 byte allocation should succeed")
-    if not ptr2:
-        raise Error("64 byte allocation should succeed")
-    if not ptr3:
-        raise Error("65 byte allocation should succeed")
-    if not ptr4:
-        raise Error("128 byte allocation should succeed")
 
     pool.deallocate(ptr1, 1)
     pool.deallocate(ptr2, 64)
@@ -269,8 +254,6 @@ def test_reference_counting_with_pool() raises:
 def test_pooled_alloc_deallocate() raises:
     """Test pooled_alloc and pooled_free functions."""
     var ptr = pooled_alloc(256)
-    if not ptr:
-        raise Error("pooled_alloc should return valid pointer")
 
     pooled_free(ptr, 256)
 

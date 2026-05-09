@@ -170,8 +170,9 @@ struct BenchmarkMetrics(Copyable):
 
 
 def measure_benchmark[
-    func: fn () raises -> None
+    FuncType: def() raises -> None
 ](
+    func: FuncType,
     name: String,
     description: String,
     iterations: Int,
@@ -416,7 +417,8 @@ def main() raises:
 
     # Run tensor_add_small benchmark
     print("Running tensor_add_small (100x100 tensor addition)...")
-    var metric1 = measure_benchmark[tensor_add_small_impl](
+    var metric1 = measure_benchmark(
+        tensor_add_small_impl,
         "tensor_add_small",
         "Element-wise addition of 100x100 tensors",
         100,
@@ -430,7 +432,8 @@ def main() raises:
 
     # Run tensor_add_large benchmark
     print("Running tensor_add_large (1000x1000 tensor addition)...")
-    var metric2 = measure_benchmark[tensor_add_large_impl](
+    var metric2 = measure_benchmark(
+        tensor_add_large_impl,
         "tensor_add_large",
         "Element-wise addition of 1000x1000 tensors",
         10,
@@ -444,7 +447,8 @@ def main() raises:
 
     # Run matmul_small benchmark
     print("Running matmul_small (100x100 matrix multiplication)...")
-    var metric3 = measure_benchmark[matmul_small_impl](
+    var metric3 = measure_benchmark(
+        matmul_small_impl,
         "matmul_small",
         "Matrix multiplication of 100x100 matrices",
         100,
@@ -458,7 +462,8 @@ def main() raises:
 
     # Run matmul_large benchmark
     print("Running matmul_large (1000x1000 matrix multiplication)...")
-    var metric4 = measure_benchmark[matmul_large_impl](
+    var metric4 = measure_benchmark(
+        matmul_large_impl,
         "matmul_large",
         "Matrix multiplication of 1000x1000 matrices",
         1,

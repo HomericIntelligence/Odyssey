@@ -1,4 +1,4 @@
-"""Quick integration test for MobileNetV1 model"""
+"""Quick integration test for MobileNetV1 model."""
 
 from model import MobileNetV1
 from shared.tensor.any_tensor import AnyTensor, zeros

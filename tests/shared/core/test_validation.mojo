@@ -1,4 +1,4 @@
-"""Unit tests for tensor validation utilities
+"""Unit tests for tensor validation utilities.
 
 Tests cover:
 - validate_tensor_shape: Shape validation

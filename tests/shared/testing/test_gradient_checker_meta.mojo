@@ -1,4 +1,4 @@
-"""Meta-tests for gradient checker validation
+"""Meta-tests for gradient checker validation.
 
 These tests verify that the gradient checker itself works correctly by using
 a simple function with known analytical gradients.

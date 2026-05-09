@@ -1,4 +1,4 @@
-"""Test Data Generators for ML Odyssey
+"""Test Data Generators for ML Odyssey.
 
 Provides utilities to generate synthetic test data for machine learning tests:
 - Random tensors with configurable distributions

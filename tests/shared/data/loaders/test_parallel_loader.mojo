@@ -1,4 +1,4 @@
-"""Tests for parallel data loader
+"""Tests for parallel data loader.
 
 Tests ParallelLoader creation and correctness: worker configuration,
 dataset compatibility, and deterministic ordering behavior.

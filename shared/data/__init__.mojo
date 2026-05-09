@@ -1,4 +1,4 @@
-"""Data Loading Package
+"""Data Loading Package.
 
 Provides data loaders for common ML datasets and utilities for handling various data formats
 

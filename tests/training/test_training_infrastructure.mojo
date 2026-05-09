@@ -1,4 +1,4 @@
-"""Training infrastructure tests
+"""Training infrastructure tests.
 
 workaround (≤10 fn test_ functions per file).
 

@@ -1,4 +1,4 @@
-"""Tests for confusion matrix metrics
+"""Tests for confusion matrix metrics.
 
 Basic functionality, normalization, and derived metrics tests for ConfusionMatrix.
 

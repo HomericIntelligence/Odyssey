@@ -1,4 +1,4 @@
-"""Tests for sequential sampler
+"""Tests for sequential sampler.
 
 Tests SequentialSampler which yields dataset indices in order,
 the default sampling strategy for deterministic data loading.

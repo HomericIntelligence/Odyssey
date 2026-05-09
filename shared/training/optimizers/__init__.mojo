@@ -1,5 +1,5 @@
 """
-Optimizers
+Optimizers.
 
 Optimizer implementations for training neural networks
 

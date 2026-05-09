@@ -1,4 +1,4 @@
-"""Example: Custom Layers - Multi-Head Attention
+"""Example: Custom Layers - Multi-Head Attention.
 
 This example implements multi-head self-attention mechanism.
 
@@ -25,10 +25,10 @@ struct MultiHeadAttention(Module):
     var head_dim: Int
     var embed_dim: Int
 
-    var q_proj: Linear  # Query projection
-    var k_proj: Linear  # Key projection
-    var v_proj: Linear  # Value projection
-    var out_proj: Linear  # Output projection
+    var q_proj: Linear[]  # Query projection (default DType.float32)
+    var k_proj: Linear[]  # Key projection
+    var v_proj: Linear[]  # Value projection
+    var out_proj: Linear[]  # Output projection
 
     def __init__(out self, embed_dim: Int, num_heads: Int) raises:
         """Initialize multi-head attention.

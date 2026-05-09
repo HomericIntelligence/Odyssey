@@ -19,9 +19,9 @@ All loss functions include:
 """
 
 from shared.tensor.any_tensor import AnyTensor, ones_like, zeros_like, full_like
-from .activation import softmax
-from .comparison import less, greater
-from .dtype_cast import cast_tensor
+from shared.core.activation import softmax
+from shared.core.comparison import less, greater
+from shared.core.dtype_cast import cast_tensor
 
 
 def binary_cross_entropy(
@@ -60,8 +60,8 @@ def binary_cross_entropy(
             - Clips predictions to [epsilon, 1-epsilon] to prevent log(0).
             - Uses epsilon=1e-7 by default.
     """
-    from .arithmetic import subtract, multiply
-    from .elementwise import log, clip
+    from shared.core.arithmetic import subtract, multiply
+    from shared.core.elementwise import log, clip
 
     if predictions.dtype() != targets.dtype():
         raise Error("Predictions and targets must have the same dtype")
@@ -135,7 +135,7 @@ def binary_cross_entropy_backward(
             var grad_pred = binary_cross_entropy_backward(grad_bce, predictions, targets)
             ```
     """
-    from .arithmetic import subtract, multiply, divide
+    from shared.core.arithmetic import subtract, multiply, divide
 
     # Gradient formula: (p - y) / (p(1-p) + epsilon)
     var one = ones_like(predictions)
@@ -192,7 +192,7 @@ def mean_squared_error(
             var loss = mean(loss_per_sample)  # Scalar loss
             ```
     """
-    from .arithmetic import subtract, multiply
+    from shared.core.arithmetic import subtract, multiply
 
     if predictions.dtype() != targets.dtype():
         raise Error("Predictions and targets must have the same dtype")
@@ -238,7 +238,7 @@ def mean_squared_error_backward(
             var grad_pred = mean_squared_error_backward(grad_squared_error, predictions, targets)
             ```
     """
-    from .arithmetic import subtract, multiply
+    from shared.core.arithmetic import subtract, multiply
 
     # Gradient: 2 * (predictions - targets)
     var diff = subtract(predictions, targets)
@@ -294,9 +294,9 @@ def cross_entropy(
             - Uses log-sum-exp trick to prevent overflow/underflow.
             - Adds epsilon to log argument to prevent log(0).
     """
-    from .arithmetic import subtract, multiply, add
-    from .elementwise import log, exp
-    from .reduction import mean, sum, max_reduce
+    from shared.core.arithmetic import subtract, multiply, add
+    from shared.core.elementwise import log, exp
+    from shared.core.reduction import mean, sum, max_reduce
 
     if logits.dtype() != targets.dtype():
         raise Error("Logits and targets must have the same dtype")
@@ -387,7 +387,7 @@ def cross_entropy_backward(
             The gradient is already averaged over the batch if the forward pass
             used mean reduction.
     """
-    from .arithmetic import subtract, multiply
+    from shared.core.arithmetic import subtract, multiply
 
     # Compute softmax probabilities
     var axis = len(logits.shape()) - 1  # Last axis is classes
@@ -451,8 +451,8 @@ def smooth_l1_loss(
             - Uses absolute value for robust handling of differences.
             - Beta parameter prevents division by zero in gradient.
     """
-    from .arithmetic import subtract, multiply, divide, add
-    from .elementwise import abs
+    from shared.core.arithmetic import subtract, multiply, divide, add
+    from shared.core.elementwise import abs
 
     if predictions.dtype() != targets.dtype():
         raise Error("Predictions and targets must have the same dtype")
@@ -534,8 +534,8 @@ def smooth_l1_loss_backward(
             var grad_pred = smooth_l1_loss_backward(grad_smoothl1, predictions, targets, beta=1.0)
             ```
     """
-    from .arithmetic import subtract, multiply, divide, add
-    from .elementwise import abs
+    from shared.core.arithmetic import subtract, multiply, divide, add
+    from shared.core.elementwise import abs
 
     if grad_output.dtype() != predictions.dtype():
         raise Error(
@@ -625,7 +625,7 @@ def hinge_loss(predictions: AnyTensor, targets: AnyTensor) raises -> AnyTensor:
             - Uses max(0, ...) to prevent negative losses.
             - Avoids numerical issues with extreme values.
     """
-    from .arithmetic import subtract, multiply
+    from shared.core.arithmetic import subtract, multiply
 
     if predictions.dtype() != targets.dtype():
         raise Error("Predictions and targets must have the same dtype")
@@ -688,7 +688,7 @@ def hinge_loss_backward(
             var grad_pred = hinge_loss_backward(grad_hinge, predictions, targets)
             ```
     """
-    from .arithmetic import subtract, multiply
+    from shared.core.arithmetic import subtract, multiply
 
     if grad_output.dtype() != predictions.dtype():
         raise Error(
@@ -768,8 +768,8 @@ def focal_loss(
             - Clips predictions to [epsilon, 1-epsilon] to prevent log(0).
             - Uses epsilon=1e-7 by default.
     """
-    from .arithmetic import subtract, multiply, add, power
-    from .elementwise import log, clip
+    from shared.core.arithmetic import subtract, multiply, add, power
+    from shared.core.elementwise import log, clip
 
     if predictions.dtype() != targets.dtype():
         raise Error("Predictions and targets must have the same dtype")
@@ -861,8 +861,8 @@ def focal_loss_backward(
             var grad_pred = focal_loss_backward(grad_focal, predictions, targets, alpha, gamma)
             ```
     """
-    from .arithmetic import subtract, multiply, divide, add, power
-    from .elementwise import log, clip
+    from shared.core.arithmetic import subtract, multiply, divide, add, power
+    from shared.core.elementwise import log, clip
 
     var epsilon = 1e-7
 
@@ -982,8 +982,8 @@ def kl_divergence(
             - Clips both p and q to [epsilon, 1] to prevent log(0).
             - Handles zero probabilities gracefully.
     """
-    from .arithmetic import subtract, multiply
-    from .elementwise import log, clip
+    from shared.core.arithmetic import subtract, multiply
+    from shared.core.elementwise import log, clip
 
     if p.dtype() != q.dtype():
         raise Error("p and q must have the same dtype")
@@ -1046,8 +1046,8 @@ def kl_divergence_backward(
             var grad_q = kl_divergence_backward(grad_per_element, p_dist, q_dist)
             ```
     """
-    from .arithmetic import divide, multiply
-    from .elementwise import clip
+    from shared.core.arithmetic import divide, multiply
+    from shared.core.elementwise import clip
 
     # Clip q to prevent division by zero
     var clipped_q = clip(q, epsilon, 1.0)

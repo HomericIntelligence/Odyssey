@@ -10,8 +10,8 @@ Key components:
 """
 
 from shared.tensor.any_tensor import AnyTensor, zeros_like
-from ..activation import relu, relu_backward
-from ..module import Module
+from shared.core.activation import relu, relu_backward
+from shared.core.module import Module
 
 
 struct ReLULayer(Copyable, Module, Movable):

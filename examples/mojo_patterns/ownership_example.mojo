@@ -1,4 +1,4 @@
-"""Example: Mojo Patterns - Ownership and Borrowing
+"""Example: Mojo Patterns - Ownership and Borrowing.
 
 This example demonstrates Mojo's ownership system for memory safety.
 

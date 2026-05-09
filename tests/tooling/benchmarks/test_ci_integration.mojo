@@ -239,9 +239,11 @@ def test_ci_environment_consistency() raises:
     var mojo_version = "0.7.0"
 
     # Verify environment metadata
-    assert_true(len(os_consistent) > 0, "OS should be recorded")
-    assert_true(len(cpu_consistent) > 0, "CPU should be recorded")
-    assert_true(len(mojo_version) > 0, "Mojo version should be recorded")
+    assert_true(os_consistent.byte_length() > 0, "OS should be recorded")
+    assert_true(cpu_consistent.byte_length() > 0, "CPU should be recorded")
+    assert_true(
+        mojo_version.byte_length() > 0, "Mojo version should be recorded"
+    )
 
     # Environment should be consistent across runs
     var env_1_os = os_consistent
@@ -274,7 +276,9 @@ def test_manual_benchmark_trigger() raises:
     )
     assert_true(manual_trigger_supported, "Manual triggers should be supported")
     assert_equal(len(trigger_options), 2, "Should support multiple options")
-    assert_true(len(trigger_options[0]) > 0, "Options should be non-empty")
+    assert_true(
+        (trigger_options[0]).byte_length() > 0, "Options should be non-empty"
+    )
 
 
 def main() raises:

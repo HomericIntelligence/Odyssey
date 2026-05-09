@@ -1,4 +1,4 @@
-"""Tests for profiling utilities module
+"""Tests for profiling utilities module.
 
 This module tests:
 - Function timing decorators/utilities (tests 1-5)
@@ -250,7 +250,9 @@ def test_report_format_json() raises:
 
     var json_output = report.to_json()
     # Verify JSON contains expected content
-    assert_true(len(json_output) > 0, "JSON output should not be empty")
+    assert_true(
+        json_output.byte_length() > 0, "JSON output should not be empty"
+    )
 
 
 def test_profile_nested_functions():

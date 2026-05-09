@@ -756,7 +756,7 @@ def visualize_feature_maps(
     """
     # Create JSON structure for feature map visualization
     var result = String('{"type":"feature_maps"')
-    if len(layer_name) > 0:
+    if layer_name.byte_length() > 0:
         result += ',"layer":"'
         result += layer_name
         result += '"'

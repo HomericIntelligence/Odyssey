@@ -1,4 +1,4 @@
-"""Inference script for VGG-16 on CIFAR-10
+"""Inference script for VGG-16 on CIFAR-10.
 
 Loads trained weights and evaluates on test set.
 
