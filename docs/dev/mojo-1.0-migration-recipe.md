@@ -432,7 +432,7 @@ time. The two ways forward:
    to coerce at the call site (named functions have unique types, not the
    declared `def(...)` type).
 
-**Fix (trait-callable pattern, verified to compile):**
+**Fix A (trait-callable pattern, verified to compile):**
 
 ```mojo
 trait Float32Fn(Copyable, Movable, ImplicitlyDestructible):
@@ -449,23 +449,74 @@ struct Lam[F: Float32Fn](Copyable, Movable):
         self.f = f^
 ```
 
+**Fix B (thin function parameter — verified in E3, simpler for non-capturing defs):**
+
+If the function is **non-capturing** (does not close over runtime variables),
+use `thin` in the parameter type. Thin function parameters can be used as
+compile-time struct parameters and called via `Self.F(...)` without triggering
+the `capturing` restriction on `Transform.__call__`:
+
+```mojo
+# Module-level helper to dispatch through a thin F
+def _apply_f32[F: def(Float32) thin -> Float32](data: AnyTensor) raises -> AnyTensor:
+    var result = List[Float32](capacity=data.num_elements())
+    for i in range(data.num_elements()):
+        result.append(F(Float32(data[i])))
+    return AnyTensor(result^)
+
+struct LambdaTransform[F: def(Float32) thin -> Float32](Copyable, Movable, Transform):
+    var _dummy: Int  # needed so synthesised copy constructor works
+    def __init__(out self): self._dummy = 0
+    def __call__(self, data: AnyTensor) raises -> AnyTensor:
+        return _apply_f32[Self.F](data)
+```
+
+Call sites change from `LambdaTransform(f)` to `LambdaTransform[f]()`.
+Local non-capturing `def` functions are automatically `thin` in Mojo 1.0.
+
+**Type-erasure wrappers when using thin parameters:**
+
+`AnyTransform` cannot store `Optional[LambdaTransform[F]]` for an unknown `F`.
+Instead, store a `Optional[def(AnyTensor) raises thin -> AnyTensor]` field and
+provide a static factory method:
+
+```mojo
+struct AnyTransform(Copyable, Movable, Transform):
+    var _lambda_fn: Optional[def(AnyTensor) raises thin -> AnyTensor]
+    # ... other optional fields for stateful transforms (ClampTransform, etc.)
+
+    @staticmethod
+    def from_lambda[F: def(Float32) thin -> Float32]() -> AnyTransform:
+        # _apply_f32[F] is statically specialised here; the result is thin
+        # and can be stored in the Optional field.
+        return AnyTransform(_apply_f32[F])
+```
+
+Call sites change from `AnyTransform(LambdaTransform(f))` to
+`AnyTransform.from_lambda[f]()`.
+
+Key constraint: `_apply_f32[F]` must be resolved inside a **static method**
+(or module-level function) where `F` is a compile-time parameter — NOT inside
+a struct instance method. If called from within a parametric struct's instance
+method, the result is `capturing` and cannot be stored as a thin field.
+
 **Caveats encountered during D5:**
 
 - `struct S[F: comptime_alias_of_def_type]` followed by `var f: Self.F`
   triggered a compiler crash in `1.0.0b2.dev2026050805`. File a Modular
-  issue if you hit this; until then, prefer the trait-callable pattern
-  above.
+  issue if you hit this; until then, prefer Fix A or Fix B above.
 - Promoting a struct to be parametric cascades through every call site.
   Type-erasure wrappers (e.g. `AnyTransform`) lose the ability to wrap the
-  parametric struct without also being parametric.
+  parametric struct without also being parametric — use the static factory
+  approach shown in Fix B instead.
 - If the cascade is too large to land in one wave, **stub the field with
   an `Int` placeholder, accept the function arg in `__init__` and discard
   it, raise `Error` from `__call__`, and gate every site with
   `# TODO(mojo-1.0)`**. This unblocks the package compile and clearly
   delegates the real refactor (e.g. to Phase E along with the test files).
 
-**Verified in:** `shared/data/generic_transforms.mojo` (commit 279e726c8;
-stubbed pending Phase E refactor).
+**Verified in:** `shared/data/generic_transforms.mojo` (D5 commit: stubbed;
+E3 commit: fully implemented with thin-parameter pattern).
 
 ---
 
