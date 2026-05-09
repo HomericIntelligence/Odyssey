@@ -56,6 +56,24 @@ def main() raises:
 
 ---
 
+## ⚠️ Important note about THIS repo's existing tests
+
+ProjectOdyssey's existing test files (e.g. `tests/shared/core/test_dtype_dispatch.mojo`)
+**already have a hand-rolled `def main()` block** that explicitly calls every
+`test_*` function and prints a `✓` per pass. These files run on 1.0.0b2 via
+`pixi run mojo run <file>` **without any conversion** to `TestSuite`.
+
+The conversion below is for files that DON'T already have a manual main, or
+when you want to migrate to auto-discovery. The trade-off: `TestSuite` auto-
+registers tests (less maintenance) but the manual pattern produces cleaner
+human-readable output and existed long before 1.0.
+
+Phase E judgment call: convert per-file when adding a new test would
+otherwise require manual `main` editing, OR leave as-is if the existing main
+is comprehensive.
+
+---
+
 ## Conversion checklist (per test file)
 
 When migrating a `tests/**/test_*.mojo` file from 0.26 to 1.0:
