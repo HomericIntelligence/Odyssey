@@ -110,7 +110,7 @@ def vectorized_add[width: Int](idx: Int) unified {mut}:
     result_ptr.store[width=width](idx, a_vec + b_vec)
 
 # After (1.0):
-@parameter
+@always_inline
 def vectorized_add[width: Int](idx: Int) {var a_ptr, var b_ptr, var result_ptr}:
     var a_vec = a_ptr.load[width=width](idx)
     var b_vec = b_ptr.load[width=width](idx)
@@ -119,6 +119,12 @@ def vectorized_add[width: Int](idx: Int) {var a_ptr, var b_ptr, var result_ptr}:
 
 The `{mut}` shorthand from 0.26 (which captured *everything* mutably) is gone.
 You must list each captured variable by name with the `var` keyword.
+
+**IMPORTANT — decorator must change too**: `@parameter` does NOT combine with
+`{var ...}` capture lists in 1.0 (parser rejects `def ... (...) {var ...}:`
+when the function carries `@parameter`). Use `@always_inline` instead.
+`@parameter` was the 0.26 way to inline-monomorphize a closure into the
+parent function's body; in 1.0 that's expressed via `@always_inline`.
 
 **This is NOT mechanical**: each closure's capture list depends on which
 enclosing-scope variables it reads or writes. Don't bulk-rewrite — fix each

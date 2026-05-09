@@ -34,11 +34,11 @@ struct Tensor(Copyable, ImplicitlyCopyable):
         self._grad_ptr = alloc[Int](1)
         self._grad_ptr[] = size
 
-    def __init__(out self, *, copyexisting: Self):
+    def __init__(out self, *, copy: Self):
         """Copy constructor."""
-        self.size = existing.size
+        self.size = copy.size
         self._grad_ptr = alloc[Int](1)
-        self._grad_ptr[] = existing._grad_ptr[]
+        self._grad_ptr[] = copy._grad_ptr[]
 
     def __del__(deinit self):
         """Destructor to free gradient pointer."""
