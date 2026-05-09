@@ -165,7 +165,7 @@ struct ProfilingReport(Copyable, Movable):
         for key in self.timing_stats:
             # Pad name to 21 characters
             var name_padded = key
-            var pad_count = 21 - len(key)
+            var pad_count = 21 - key.byte_length()
             for _ in range(max(0, pad_count)):
                 name_padded += " "
             result += name_padded

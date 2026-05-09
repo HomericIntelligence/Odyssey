@@ -209,8 +209,10 @@ struct Tensor[dtype: DType = DType.float32](
         self._refcount = copy._refcount
         self._original_numel_quantized = copy._original_numel_quantized
         self._allocated_size = copy._allocated_size
-        if self._refcount:
-            self._refcount[] += 1
+        # _refcount is always allocated by every initializing constructor;
+        # the previous null-check was a defensive holdover from pre-1.0 when
+        # UnsafePointer was nullable by default.
+        self._refcount[] += 1
 
     def __init__(out self, *, deinit take: Self):
         """Move constructor - transfers ownership without refcount change."""
@@ -240,8 +242,7 @@ struct Tensor[dtype: DType = DType.float32](
         ptr[0]._refcount = self._refcount
         ptr[0]._original_numel_quantized = self._original_numel_quantized
         ptr[0]._allocated_size = self._allocated_size
-        if self._refcount:
-            self._refcount[] += 1
+        self._refcount[] += 1
         return ptr.take_pointee()
 
     def __del__(deinit self):
@@ -251,14 +252,12 @@ struct Tensor[dtype: DType = DType.float32](
         frees memory when the last reference is destroyed. Frees via
         pooled_free with the byte-sized _allocated_size.
         """
-        if self._refcount:
-            self._refcount[] -= 1
-
-            if self._refcount[] == 0:
-                # Free data via pool — bitcast back to UInt8 since pool
-                # works with byte pointers
-                pooled_free(self._data.bitcast[UInt8](), self._allocated_size)
-                self._refcount.free()
+        self._refcount[] -= 1
+        if self._refcount[] == 0:
+            # Free data via pool — bitcast back to UInt8 since pool
+            # works with byte pointers
+            pooled_free(self._data.bitcast[UInt8](), self._allocated_size)
+            self._refcount.free()
 
     # ------------------------------------------------------------------
     # Element access

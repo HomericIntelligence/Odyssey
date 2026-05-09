@@ -190,9 +190,8 @@ class TestWorkflowActionPins:
         for i, line in enumerate(workflow_content.splitlines(), 1):
             if TAG_RE.search(line):
                 violations.append(f"  line {i}: {line.strip()}")
-        assert not violations, (
-            "paper-validation.yml contains tag-pinned actions (must use SHA instead):\n"
-            + "\n".join(violations)
+        assert not violations, "paper-validation.yml contains tag-pinned actions (must use SHA instead):\n" + "\n".join(
+            violations
         )
 
     def test_all_external_actions_are_sha_pinned(self, workflow_content: str) -> None:
@@ -210,7 +209,6 @@ class TestWorkflowActionPins:
                 continue
             if not SHA_RE.search(line):
                 violations.append(f"  line {i}: {line.strip()}")
-        assert not violations, (
-            "paper-validation.yml has external actions not pinned to a SHA:\n"
-            + "\n".join(violations)
+        assert not violations, "paper-validation.yml has external actions not pinned to a SHA:\n" + "\n".join(
+            violations
         )

@@ -1,4 +1,4 @@
-"""Data Format Loaders
+"""Data Format Loaders.
 
 Provides functions and classes for loading various data formats used in ML Odyssey
 

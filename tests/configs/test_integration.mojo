@@ -1,5 +1,5 @@
 """
-Configuration Integration Tests
+Configuration Integration Tests.
 
 End-to-end tests for configuration loading and usage workflows.
 Tests the complete integration of configs with model creation and training.

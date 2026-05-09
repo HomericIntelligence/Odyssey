@@ -1,4 +1,4 @@
-"""Dataset Constants
+"""Dataset Constants.
 
 Centralized constants for dataset-specific information like class names, sizes, and metadata
 

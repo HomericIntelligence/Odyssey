@@ -1,4 +1,4 @@
-"""Unified Tensor Factory for Test Tensor Creation
+"""Unified Tensor Factory for Test Tensor Creation.
 
 Provides high-level factory functions for creating test tensors with consistent
 dtype handling and value initialization patterns.

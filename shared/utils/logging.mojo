@@ -444,7 +444,7 @@ def get_log_level_from_env() -> Int:
     var log_level_str = getenv("ML_ODYSSEY_LOG_LEVEL", "")
 
     # Handle empty/unset case
-    if len(log_level_str) == 0:
+    if log_level_str.byte_length() == 0:
         return LogLevel.INFO
 
     # Convert to uppercase for case-insensitive matching

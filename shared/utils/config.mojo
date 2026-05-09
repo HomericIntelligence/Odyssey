@@ -667,7 +667,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
                 content = f.read()
 
             # Validate: Check for empty file
-            if len(content.strip()) == 0:
+            if (content.strip()).byte_length() == 0:
                 raise Error("Config file is empty: " + filepath)
 
             # Parse YAML using PyYAML
@@ -701,7 +701,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
                 for item in items:
                     var key = String(item[0])
                     var full_key = (
-                        prefix + "." + key if len(prefix) > 0 else key
+                        prefix + "." + key if prefix.byte_length() > 0 else key
                     )
                     Config._flatten_dict(config, item[1], full_key)
 
@@ -739,7 +739,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
                 var str_val = String(py_obj)
                 # Remove quotes if present
                 if str_val.startswith('"') and str_val.endswith('"'):
-                    str_val = str_slice(str_val, 1, len(str_val) - 1)
+                    str_val = str_slice(str_val, 1, str_val.byte_length() - 1)
                 config.set(prefix, str_val)
 
         except e:
@@ -773,7 +773,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
                 var content = f.read()
 
                 # Validate: Check for empty file
-                if len(content.strip()) == 0:
+                if (content.strip()).byte_length() == 0:
                     raise Error("Config file is empty: " + filepath)
 
                 # Remove braces and parse key:value pairs
@@ -792,7 +792,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
                                 str_slice(pair, 0, colon_idx).strip()
                             )
                             var value_str = str_slice(
-                                pair, colon_idx + 1, len(pair)
+                                pair, colon_idx + 1, pair.byte_length()
                             ).strip()
 
                             # Try to parse as number
@@ -953,7 +953,7 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
             if colon_pos != -1:
                 var_name = str_slice(var_spec, 0, colon_pos)
                 default_value = str_slice(
-                    var_spec, colon_pos + 2, len(var_spec)
+                    var_spec, colon_pos + 2, var_spec.byte_length()
                 )
 
             # Get environment variable value using Python
@@ -968,11 +968,11 @@ struct Config(Copyable, ImplicitlyCopyable, Movable):
 
             # Replace ${...} with environment value
             var before = str_slice(result, 0, dollar_pos)
-            var after = str_slice(result, close_pos + 1, len(result))
+            var after = str_slice(result, close_pos + 1, result.byte_length())
             result = before + env_value + after
 
             # Move start position past the replaced value
-            start_pos = len(before) + len(env_value)
+            start_pos = before.byte_length() + env_value.byte_length()
 
         return result^
 
@@ -1010,7 +1010,7 @@ def str_slice(s: String, start: Int, end: Int) -> String:
     """Extract a slice of a string by byte positions [start:end]."""
     var result = String("")
     var bytes = s.as_bytes()
-    var real_end = min(end, len(s))
+    var real_end = min(end, s.byte_length())
     for i in range(start, real_end):
         result += chr(Int(bytes[i]))
     return result^

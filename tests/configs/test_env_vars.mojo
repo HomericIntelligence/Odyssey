@@ -1,5 +1,5 @@
 """
-Environment Variable Substitution Tests
+Environment Variable Substitution Tests.
 
 Tests for substituting environment variables in configuration values.
 Supports ${VAR} and ${VAR:-default} syntax.

@@ -1,5 +1,5 @@
 """
-Configuration Loading Tests
+Configuration Loading Tests.
 
 Tests for loading default, paper-specific, experiment configurations, and YAML format.
 

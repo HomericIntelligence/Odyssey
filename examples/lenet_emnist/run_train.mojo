@@ -1,5 +1,5 @@
 """
-CLI Wrapper for LeNet-5 Training
+CLI Wrapper for LeNet-5 Training.
 
 Provides command-line interface for training LeNet-5 on EMNIST.
 Wraps the core train.mojo functionality with enhanced argument parser.

@@ -1,5 +1,5 @@
 """
-Configuration Validation Tests
+Configuration Validation Tests.
 
 Tests for validating required keys and value types in configurations.
 

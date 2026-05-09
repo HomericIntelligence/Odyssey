@@ -1,5 +1,5 @@
 """
-Training Loops
+Training Loops.
 
 Training loop implementations for common training patterns
 

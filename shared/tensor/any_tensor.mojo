@@ -448,9 +448,11 @@ struct AnyTensor(
         self._refcount = copy._refcount
         self._original_numel_quantized = copy._original_numel_quantized
         self._allocated_size = copy._allocated_size
-        # Increment reference count (shared ownership)
-        if self._refcount:
-            self._refcount[] += 1
+        # Increment reference count (shared ownership).
+        # _refcount is always allocated by every initializing constructor;
+        # the previous null-check was a defensive holdover from pre-1.0 when
+        # UnsafePointer was nullable by default.
+        self._refcount[] += 1
 
     def __init__(out self, *, deinit take: Self):
         """Move constructor - transfers ownership without refcount change."""
@@ -471,19 +473,18 @@ struct AnyTensor(
         Only frees memory when the last reference is destroyed.
 
         """
-        # All copies (views or not) participate in refcount management
-        if self._refcount:
-            self._refcount[] -= 1
-
-            # If last reference, free everything
-            if self._refcount[] == 0:
-                # Views share the parent tensor's data allocation — their
-                # _data pointer is an offset into the parent's buffer, not
-                # a separately malloc'd address. Only non-view tensors own
-                # their data allocation and should free it.
-                if not self._is_view:
-                    pooled_free(self._data, self._allocated_size)
-                self._refcount.free()
+        # All copies (views or not) participate in refcount management.
+        # _refcount is always allocated by every initializing constructor.
+        self._refcount[] -= 1
+        # If last reference, free everything
+        if self._refcount[] == 0:
+            # Views share the parent tensor's data allocation — their
+            # _data pointer is an offset into the parent's buffer, not
+            # a separately malloc'd address. Only non-view tensors own
+            # their data allocation and should free it.
+            if not self._is_view:
+                pooled_free(self._data, self._allocated_size)
+            self._refcount.free()
 
     def copy(self) -> Self:
         """Create a shared-ownership copy with reference counting.
@@ -504,9 +505,8 @@ struct AnyTensor(
         ptr[0]._refcount = self._refcount
         ptr[0]._original_numel_quantized = self._original_numel_quantized
         ptr[0]._allocated_size = self._allocated_size
-        # Increment reference count (shared ownership)
-        if self._refcount:
-            self._refcount[] += 1
+        # Increment reference count (shared ownership).
+        self._refcount[] += 1
         var result = ptr.take_pointee()
         ptr.free()
         return result

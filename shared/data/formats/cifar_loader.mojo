@@ -1,4 +1,4 @@
-"""CIFAR Format Binary Data Loader
+"""CIFAR Format Binary Data Loader.
 
 Provides functionality to load CIFAR-10 and CIFAR-100 binary format datasets
 
@@ -134,7 +134,7 @@ struct CIFARLoader(Copyable, Movable):
         with open(filepath, "r") as f:
             content = f.read()
 
-        var file_size = len(content)
+        var file_size = content.byte_length()
         self._validate_file_size(file_size)
 
         var num_images = self._calculate_num_images(file_size)
@@ -188,7 +188,7 @@ struct CIFARLoader(Copyable, Movable):
         with open(filepath, "r") as f:
             content = f.read()
 
-        var file_size = len(content)
+        var file_size = content.byte_length()
         self._validate_file_size(file_size)
 
         var num_images = self._calculate_num_images(file_size)

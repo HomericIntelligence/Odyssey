@@ -82,7 +82,7 @@ def python_dict_to_config(
 
         # Build full key with prefix
         var full_key = prefix
-        if len(prefix) > 0:
+        if prefix.byte_length() > 0:
             full_key += "."
         full_key += key
 

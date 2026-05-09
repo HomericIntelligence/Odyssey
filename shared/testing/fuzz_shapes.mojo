@@ -1,4 +1,4 @@
-"""Shape Fuzzing Utilities for ML Odyssey
+"""Shape Fuzzing Utilities for ML Odyssey.
 
 Provides utilities for generating random and edge case tensor shapes for
 property-based testing. Enables discovering shape-related bugs in tensor

@@ -1,5 +1,5 @@
 """
-Utility Functions Library
+Utility Functions Library.
 
 Provides logging, visualization, configuration, and other helper utilities
 

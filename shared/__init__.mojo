@@ -1,5 +1,5 @@
 """
-Shared Library for ML Odyssey Paper Implementations
+Shared Library for ML Odyssey Paper Implementations.
 
 This package provides reusable ML/AI components including:
 - Core neural network components (layers, activations, tensors)

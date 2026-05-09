@@ -171,8 +171,8 @@ def bytes_to_hex(
     Returns:
         Hex string representation.
     """
-    if not data:
-        return ""
+    # UnsafePointer is non-null by design in Mojo 1.0; the historical null
+    # guard from the pre-1.0 nullable API is no longer needed here.
 
     var hex_chars = "0123456789abcdef"
     var result = String("")
@@ -197,7 +197,7 @@ def hex_to_bytes(hex_str: String, tensor: AnyTensor) raises:
     Raises:
         Error: If hex string has odd length or contains invalid characters.
     """
-    var length = len(hex_str)
+    var length = hex_str.byte_length()
     if length % 2 != 0:
         raise Error("Hex string must have even length")
 

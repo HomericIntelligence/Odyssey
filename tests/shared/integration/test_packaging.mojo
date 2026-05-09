@@ -1,5 +1,5 @@
 """
-Packaging Integration Tests
+Packaging Integration Tests.
 
 Tests that verify the shared library package structure and import hierarchy.
 

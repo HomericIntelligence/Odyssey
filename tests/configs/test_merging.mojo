@@ -1,5 +1,5 @@
 """
-Configuration Merging Tests
+Configuration Merging Tests.
 
 Tests for merging configurations across the 3-tier hierarchy:
 defaults → paper-specific → experiment-specific

@@ -48,7 +48,7 @@ def str_slice(s: String, start: Int, end: Int) -> String:
     """Extract a slice of a string by byte positions [start:end]."""
     var result = String("")
     var bytes = s.as_bytes()
-    var real_end = min(end, len(s))
+    var real_end = min(end, s.byte_length())
     for i in range(start, real_end):
         result += chr(Int(bytes[i]))
     return result^
@@ -301,7 +301,9 @@ struct CheckpointManager:
                 var line = String(lines[i])
                 if line.startswith("latest_epoch="):
                     var epoch_str = str_slice(
-                        line, len("latest_epoch="), len(line)
+                        line,
+                        ("latest_epoch=").byte_length(),
+                        line.byte_length(),
                     )
                     return atol(epoch_str)
 
@@ -367,7 +369,9 @@ struct CheckpointManager:
         for i in range(len(lines)):
             var line = String(lines[i])
             if line.startswith("best_metric="):
-                var _ = str_slice(line, len("best_metric="), len(line))
+                var _ = str_slice(
+                    line, ("best_metric=").byte_length(), line.byte_length()
+                )
                 # We keep the best_metric in the file for reference (Mojo v0.26.1)
                 # but don't parse it back to Float32 due to lack of atof
                 # The CheckpointManager tracks best_metric_value separately

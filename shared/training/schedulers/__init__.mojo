@@ -1,4 +1,4 @@
-"""Learning Rate Schedulers
+"""Learning Rate Schedulers.
 
 Scheduler implementations for adjusting learning rates during training
 

@@ -1,5 +1,4 @@
-"""
-Installation Verification Script
+"""Installation verification script.
 
 Verifies that the shared library is correctly installed and importable.
 

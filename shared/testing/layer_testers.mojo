@@ -1,4 +1,4 @@
-"""Layer Testing Utilities
+"""Layer Testing Utilities.
 
 Provides reusable patterns for testing model layers:
 - Convolutional layers (conv2d)

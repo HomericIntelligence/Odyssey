@@ -467,7 +467,7 @@ def print_benchmark_summary(
     # Helper function for manual ljust replacement
     def _pad(s: String, width: Int) -> String:
         var result = s
-        var padding = width - len(s)
+        var padding = width - s.byte_length()
         if padding > 0:
             for _ in range(padding):
                 result += " "

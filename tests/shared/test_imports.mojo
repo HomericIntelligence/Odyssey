@@ -1,5 +1,5 @@
 """
-Import Validation Tests
+Import Validation Tests.
 
 Tests that all public imports work correctly for the shared library.
 These tests verify both import functionality and basic component behavior.

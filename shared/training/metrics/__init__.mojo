@@ -1,5 +1,5 @@
 """
-Training Metrics
+Training Metrics.
 
 Metric implementations for tracking training and evaluation performance
 

@@ -182,7 +182,7 @@ struct TensorShapeProto(Copyable, Movable):
         var buf = ProtoBuffer()
         for i in range(len(self.dims)):
             var dim_buf = ProtoBuffer()
-            if len(self.dim_params[i]) > 0:
+            if (self.dim_params[i]).byte_length() > 0:
                 dim_buf.write_string(2, self.dim_params[i])
             else:
                 dim_buf.write_int64(1, self.dims[i])
@@ -238,7 +238,7 @@ struct ValueInfoProto(Copyable, Movable):
         buf.write_string(1, self.name)
         var type_buf = self.type_proto.encode()
         buf.write_embedded_message(2, type_buf)
-        if len(self.doc_string) > 0:
+        if self.doc_string.byte_length() > 0:
             buf.write_string(3, self.doc_string)
         return buf^
 
@@ -357,9 +357,9 @@ struct NodeProto(Copyable, Movable):
             var attr_buf = self.attributes[i].encode()
             buf.write_embedded_message(5, attr_buf)
 
-        if len(self.doc_string) > 0:
+        if self.doc_string.byte_length() > 0:
             buf.write_string(6, self.doc_string)
-        if len(self.domain) > 0:
+        if self.domain.byte_length() > 0:
             buf.write_string(7, self.domain)
 
         return buf^
@@ -378,7 +378,7 @@ struct OperatorSetIdProto(Copyable, Movable):
     def encode(self) -> ProtoBuffer:
         """Encode to protobuf bytes."""
         var buf = ProtoBuffer()
-        if len(self.domain) > 0:
+        if self.domain.byte_length() > 0:
             buf.write_string(1, self.domain)
         buf.write_int64(2, self.version)
         return buf^
@@ -432,7 +432,7 @@ struct GraphProto(Copyable, Movable):
             var init_buf = self.initializers[i].encode()
             buf.write_embedded_message(3, init_buf)
 
-        if len(self.doc_string) > 0:
+        if self.doc_string.byte_length() > 0:
             buf.write_string(5, self.doc_string)
 
         for i in range(len(self.inputs)):
@@ -495,12 +495,12 @@ struct ModelProto(Copyable, Movable):
         buf.write_string(3, self.producer_name)
         buf.write_string(4, self.producer_version)
 
-        if len(self.domain) > 0:
+        if self.domain.byte_length() > 0:
             buf.write_string(5, self.domain)
 
         buf.write_int64(6, self.model_version)
 
-        if len(self.doc_string) > 0:
+        if self.doc_string.byte_length() > 0:
             buf.write_string(7, self.doc_string)
 
         var graph_buf = self.graph.encode()

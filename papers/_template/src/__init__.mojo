@@ -1,5 +1,5 @@
 """
-Paper Implementation Package
+Paper Implementation Package.
 
 This package contains the Mojo implementation of the research paper.
 

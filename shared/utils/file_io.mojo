@@ -142,7 +142,7 @@ def _deserialize_checkpoint(content: String) raises -> Checkpoint:
 
     for i in range(len(lines)):
         var line = lines[i].strip()
-        if len(line) == 0:
+        if line.byte_length() == 0:
             continue
 
         # Parse line format: PREFIX:data
@@ -151,7 +151,7 @@ def _deserialize_checkpoint(content: String) raises -> Checkpoint:
             continue  # Skip malformed lines.
 
         var prefix = String(line[byte=0:colon_pos])
-        var data = String(line[byte = colon_pos + 1 : len(line)])
+        var data = String(line[byte = colon_pos + 1 : line.byte_length()])
 
         if prefix == "EPOCH":
             checkpoint.epoch = Int(data)
@@ -164,21 +164,21 @@ def _deserialize_checkpoint(content: String) raises -> Checkpoint:
             var eq_pos = data.find("=")
             if eq_pos != -1:
                 var key = String(data[byte=0:eq_pos])
-                var value = String(data[byte = eq_pos + 1 : len(data)])
+                var value = String(data[byte = eq_pos + 1 : data.byte_length()])
                 checkpoint.model_state[key] = value
         elif prefix == "OPTIMIZER":
             # Parse key=value
             var eq_pos = data.find("=")
             if eq_pos != -1:
                 var key = String(data[byte=0:eq_pos])
-                var value = String(data[byte = eq_pos + 1 : len(data)])
+                var value = String(data[byte = eq_pos + 1 : data.byte_length()])
                 checkpoint.optimizer_state[key] = value
         elif prefix == "META":
             # Parse key=value
             var eq_pos = data.find("=")
             if eq_pos != -1:
                 var key = String(data[byte=0:eq_pos])
-                var value = String(data[byte = eq_pos + 1 : len(data)])
+                var value = String(data[byte = eq_pos + 1 : data.byte_length()])
                 checkpoint.metadata[key] = value
 
     return checkpoint^
@@ -449,7 +449,7 @@ def _hex_to_bytes(hex_str: String, output: UnsafePointer[UInt8, _]) raises:
     Raises:
             Error: If hex_str has odd length or invalid characters.
     """
-    var length = len(hex_str)
+    var length = hex_str.byte_length()
     if length % 2 != 0:
         raise Error("Hex string must have even length")
 
@@ -536,7 +536,7 @@ def serialize_tensor(name: String, data: List[String]) -> SerializedTensor:
     # Copy data
     for i in range(len(data)):
         serialized.data.append(data[i])
-        serialized.metadata.size_bytes += len(data[i])
+        serialized.metadata.size_bytes += (data[i]).byte_length()
 
     return serialized^
 
@@ -715,15 +715,15 @@ def join_path(base: String, path: String) raises -> String:
     # Strip trailing separator from base
     var clean_base = base
     if clean_base.endswith("/"):
-        clean_base = String(clean_base[byte = 0 : len(clean_base) - 1])
+        clean_base = String(clean_base[byte = 0 : clean_base.byte_length() - 1])
 
     # Strip leading separator from path (should not happen after validation)
     var clean_path = path
 
     # Join with separator
-    if len(clean_base) == 0:
+    if clean_base.byte_length() == 0:
         return clean_path
-    elif len(clean_path) == 0:
+    elif clean_path.byte_length() == 0:
         return clean_base
     else:
         return clean_base + "/" + clean_path
@@ -746,7 +746,7 @@ def split_path(filepath: String) -> Tuple[String, String]:
     # Handle platform-specific path separators (Unix-style for now)
     # Find last separator
     var last_sep = -1
-    for i in range(len(filepath) - 1, -1, -1):
+    for i in range(filepath.byte_length() - 1, -1, -1):
         if chr(Int(filepath.as_bytes()[i])) == "/":
             last_sep = i
             break
@@ -756,11 +756,13 @@ def split_path(filepath: String) -> Tuple[String, String]:
         return (".", filepath)
     elif last_sep == 0:
         # Root directory
-        return ("/", String(filepath[byte = 1 : len(filepath)]))
+        return ("/", String(filepath[byte = 1 : filepath.byte_length()]))
     else:
         # Split at last separator
         var directory = String(filepath[byte=0:last_sep])
-        var filename = String(filepath[byte = last_sep + 1 : len(filepath)])
+        var filename = String(
+            filepath[byte = last_sep + 1 : filepath.byte_length()]
+        )
         return (directory, filename)
 
 
@@ -879,7 +881,7 @@ def get_file_size(filepath: String) -> Int:
     try:
         # Read file and count bytes
         var content = safe_read_file(filepath)
-        return len(content)
+        return content.byte_length()
     except e:
         return -1
 

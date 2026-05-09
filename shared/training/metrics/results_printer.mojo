@@ -236,11 +236,13 @@ def print_per_class_accuracy(
         if len(class_names) > 0 and i < len(class_names):
             # Use provided class name
             var class_label = class_names[i]
-            print(class_label + " " * (15 - len(class_label)) + acc_str)
+            print(
+                class_label + " " * (15 - class_label.byte_length()) + acc_str
+            )
         else:
             # Use numeric index
             var class_idx = String(i)
-            print(class_idx + " " * (15 - len(class_idx)) + acc_str)
+            print(class_idx + " " * (15 - class_idx.byte_length()) + acc_str)
 
     print("=" * 60)
 
@@ -365,13 +367,13 @@ def print_confusion_matrix(
             var name = class_names[c]
             # Pad to column width
             var padded = name
-            while len(padded) < column_width:
+            while padded.byte_length() < column_width:
                 padded = padded + " "
             class_header = class_header + padded
         else:
             var idx_str = String(c)
             var padded = idx_str
-            while len(padded) < column_width:
+            while padded.byte_length() < column_width:
                 padded = padded + " "
             class_header = class_header + padded
 
@@ -389,7 +391,7 @@ def print_confusion_matrix(
             var idx_str = String(r)
             row_label = "True " + idx_str
         # Pad to label width (8 chars)
-        while len(row_label) < 8:
+        while row_label.byte_length() < 8:
             row_label = row_label + " "
 
         var row_str = row_label
@@ -415,7 +417,7 @@ def print_confusion_matrix(
                 val_str = String(value)
 
             # Right-align value within column width
-            while len(val_str) < column_width:
+            while val_str.byte_length() < column_width:
                 val_str = " " + val_str
             row_str = row_str + val_str
 
