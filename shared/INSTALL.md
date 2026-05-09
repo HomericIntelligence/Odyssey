@@ -6,7 +6,7 @@ This guide covers installing and setting up the ML Odyssey shared library for us
 
 ### Required
 
-- **Mojo 24.5 or later** - Download from [Modular](https://www.modular.com/mojo)
+- **Mojo 1.0.0b2 or later** - Download from [Modular](https://mojolang.org/)
 - **Git** - For cloning the repository
 
 ### Optional

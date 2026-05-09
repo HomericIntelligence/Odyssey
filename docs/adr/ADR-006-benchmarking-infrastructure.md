@@ -406,7 +406,7 @@ print("Mean:", runner.get_mean_ms(), "ms")
 
 ### External Documentation
 
-- [Mojo Time Module](https://docs.modular.com/mojo/stdlib/time/)
+- [Mojo Time Module](https://mojolang.org/docs/stdlib/time/)
 - [Latency Percentiles](https://bravenewgeek.com/everything-you-know-about-latency-is-wrong/)
 
 ## Revision History
