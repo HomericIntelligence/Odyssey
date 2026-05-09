@@ -23,7 +23,7 @@ def _relu_simd_typed[dt: DType](input: Tensor[dt], mut result: Tensor[dt]):
     var out_ptr = result._data
 
     @parameter
-    def vectorized_relu[width: Int](idx: Int) unified {mut}:
+    def vectorized_relu[width: Int](idx: Int):
         var vec = in_ptr.load[width=width](idx)
         var zero_vec = SIMD[dt, width](0)
         out_ptr.store[width=width](idx, max(zero_vec, vec))

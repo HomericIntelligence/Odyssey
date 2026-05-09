@@ -233,7 +233,7 @@ def _matmul_simd_float32(
         var row_i = i
 
         @parameter
-        def vec_j[width: Int](j: Int) unified {mut}:
+        def vec_j[width: Int](j: Int):
             var c_vec = SIMD[DType.float32, width](0)
             for k in range(K):
                 var a_scalar = a_ptr.load(row_i * K + k)
@@ -260,7 +260,7 @@ def _matmul_simd_float64(
         var row_i = i
 
         @parameter
-        def vec_j[width: Int](j: Int) unified {mut}:
+        def vec_j[width: Int](j: Int):
             var c_vec = SIMD[DType.float64, width](0)
             for k in range(K):
                 var a_scalar = a_ptr.load(row_i * K + k)
@@ -362,7 +362,7 @@ def _matmul_tiled_float32(
                     var row_i = i
 
                     @parameter
-                    def vec_inner[width: Int](j_off: Int) unified {mut}:
+                    def vec_inner[width: Int](j_off: Int):
                         var j = j0 + j_off
                         var c_vec = c_ptr.load[width=width](row_i * N + j)
                         for k in range(k0, k1):
@@ -401,7 +401,7 @@ def _matmul_tiled_float64(
                     var row_i = i
 
                     @parameter
-                    def vec_inner[width: Int](j_off: Int) unified {mut}:
+                    def vec_inner[width: Int](j_off: Int):
                         var j = j0 + j_off
                         var c_vec = c_ptr.load[width=width](row_i * N + j)
                         for k in range(k0, k1):
@@ -575,7 +575,7 @@ def _matmul_float32(
                     # SIMD dot product using transposed B
                     # A[i, :] dot B^T[j, :] = A[i, :] dot B[:, j]
                     @parameter
-                    def vec_k[width: Int](k: Int) unified {mut}:
+                    def vec_k[width: Int](k: Int):
                         var bt_vec = bt_ptr.load[width=width](col_j * K + k)
 
                         var a0_vec = a_ptr.load[width=width]((i + 0) * K + k)
@@ -617,7 +617,7 @@ def _matmul_float32(
                     var c_val: Float32 = 0.0
 
                     @parameter
-                    def vec_k_rem[width: Int](k: Int) unified {mut}:
+                    def vec_k_rem[width: Int](k: Int):
                         var a_vec = a_ptr.load[width=width](i * K + k)
                         var bt_vec = bt_ptr.load[width=width](col_j * K + k)
                         c_val += (a_vec * bt_vec).reduce_add()
@@ -664,7 +664,7 @@ def _matmul_float64(
                     var c3: Float64 = 0.0
 
                     @parameter
-                    def vec_k[width: Int](k: Int) unified {mut}:
+                    def vec_k[width: Int](k: Int):
                         var bt_vec = bt_ptr.load[width=width](col_j * K + k)
 
                         var a0_vec = a_ptr.load[width=width]((i + 0) * K + k)
@@ -705,7 +705,7 @@ def _matmul_float64(
                     var c_val: Float64 = 0.0
 
                     @parameter
-                    def vec_k_rem[width: Int](k: Int) unified {mut}:
+                    def vec_k_rem[width: Int](k: Int):
                         var a_vec = a_ptr.load[width=width](i * K + k)
                         var bt_vec = bt_ptr.load[width=width](col_j * K + k)
                         c_val += (a_vec * bt_vec).reduce_add()

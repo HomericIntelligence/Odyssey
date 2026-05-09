@@ -519,7 +519,7 @@ def _convert_fp32_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     var dst_ptr = dst.data_ptr[DType.float32]()
 
     @parameter
-    def vectorized_copy[width: Int](idx: Int) unified {mut}:
+    def vectorized_copy[width: Int](idx: Int):
         var vec = src_ptr.load[width=width](idx)
         dst_ptr.store[width=width](idx, vec)
 
@@ -540,7 +540,7 @@ def _update_fp32_from_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     var dst_ptr = dst.data_ptr[DType.float32]()
 
     @parameter
-    def vectorized_copy[width: Int](idx: Int) unified {mut}:
+    def vectorized_copy[width: Int](idx: Int):
         var vec = src_ptr.load[width=width](idx)
         dst_ptr.store[width=width](idx, vec)
 
@@ -563,7 +563,7 @@ def _clip_by_value_simd_float32(
     var dst_ptr = dst.data_ptr[DType.float32]()
 
     @parameter
-    def vectorized_clamp[width: Int](idx: Int) unified {mut}:
+    def vectorized_clamp[width: Int](idx: Int):
         var vec = src_ptr.load[width=width](idx)
         var min_vec = SIMD[DType.float32, width](min_val)
         var max_vec = SIMD[DType.float32, width](max_val)
@@ -591,7 +591,7 @@ def _clip_by_value_simd_float64(
     var max_f64 = Float64(max_val)
 
     @parameter
-    def vectorized_clamp[width: Int](idx: Int) unified {mut}:
+    def vectorized_clamp[width: Int](idx: Int):
         var vec = src_ptr.load[width=width](idx)
         var min_vec = SIMD[DType.float64, width](min_f64)
         var max_vec = SIMD[DType.float64, width](max_f64)
@@ -615,7 +615,7 @@ def _convert_fp16_to_fp32_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     var dst_ptr = dst.data_ptr[DType.float32]()
 
     @parameter
-    def vectorized_convert[width: Int](idx: Int) unified {mut}:
+    def vectorized_convert[width: Int](idx: Int):
         var fp16_vec = src_ptr.load[width=width](idx)
         dst_ptr.store[width=width](idx, fp16_vec.cast[DType.float32]())
 
@@ -636,7 +636,7 @@ def _convert_fp32_to_fp16_simd(src: AnyTensor, mut dst: AnyTensor) raises:
     var dst_ptr = dst.data_ptr[DType.float16]()
 
     @parameter
-    def vectorized_convert[width: Int](idx: Int) unified {mut}:
+    def vectorized_convert[width: Int](idx: Int):
         var fp32_vec = src_ptr.load[width=width](idx)
         dst_ptr.store[width=width](idx, fp32_vec.cast[DType.float16]())
 

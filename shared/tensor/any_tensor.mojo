@@ -4049,7 +4049,7 @@ struct AnyTensor(
 
 
 def _anytensor_binary_op[
-    op: def[T: DType](Scalar[T], Scalar[T]) -> Scalar[T]
+    op: def[T: DType](Scalar[T], Scalar[T]) thin -> Scalar[T]
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Apply a compile-time-typed binary arithmetic op with broadcasting."""
     if a._dtype != b._dtype:
@@ -4117,7 +4117,7 @@ def _anytensor_binary_op[
 
 
 def _anytensor_unary_op[
-    op: def[T: DType](Scalar[T]) -> Scalar[T]
+    op: def[T: DType](Scalar[T]) thin -> Scalar[T]
 ](tensor: AnyTensor) raises -> AnyTensor:
     """Apply a compile-time-typed unary op element-wise."""
     var shape = tensor.shape()
@@ -4158,7 +4158,7 @@ def _anytensor_unary_op[
 
 
 def _anytensor_compare_op[
-    op: def[T: DType](Scalar[T], Scalar[T]) -> Bool
+    op: def[T: DType](Scalar[T], Scalar[T]) thin -> Bool
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """Apply a compile-time-typed binary comparison op with broadcasting."""
     if a._dtype != b._dtype:

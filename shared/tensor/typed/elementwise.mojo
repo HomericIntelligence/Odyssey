@@ -27,7 +27,7 @@ from shared.base.dtype_ordinal import (
 
 
 def _unary_typed[
-    dt: DType, op: def[T: DType](Scalar[T]) -> Scalar[T]
+    dt: DType, op: def[T: DType](Scalar[T]) thin -> Scalar[T]
 ](input: Tensor[dt]) raises -> Tensor[dt]:
     """Apply unary operation on native Tensor[dtype] -- zero dtype branches.
 
@@ -57,7 +57,7 @@ def _unary_typed[
 
 
 def _dispatch_unary_typed[
-    op: def[T: DType](Scalar[T]) -> Scalar[T]
+    op: def[T: DType](Scalar[T]) thin -> Scalar[T]
 ](tensor: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch to Tensor[dtype] typed unary core (all dtypes).
 
@@ -123,7 +123,7 @@ def _dispatch_unary_typed[
 
 
 def _dispatch_float_unary_typed[
-    op: def[T: DType](Scalar[T]) -> Scalar[T]
+    op: def[T: DType](Scalar[T]) thin -> Scalar[T]
 ](tensor: AnyTensor) raises -> AnyTensor:
     """Runtime dispatch to Tensor[dtype] typed unary core (float dtypes only).
 

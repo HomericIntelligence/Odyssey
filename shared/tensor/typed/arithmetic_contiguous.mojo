@@ -23,7 +23,7 @@ def _add_contiguous_typed[
         comptime simd_width = simd_width_of[dtype]()
 
         @parameter
-        def vectorized_add[width: Int](idx: Int) unified {mut}:
+        def vectorized_add[width: Int](idx: Int):
             var a_vec = a_ptr.load[width=width](idx)
             var b_vec = b_ptr.load[width=width](idx)
             result_ptr.store[width=width](idx, a_vec + b_vec)
@@ -50,7 +50,7 @@ def _subtract_contiguous_typed[
         comptime simd_width = simd_width_of[dtype]()
 
         @parameter
-        def vectorized_sub[width: Int](idx: Int) unified {mut}:
+        def vectorized_sub[width: Int](idx: Int):
             var a_vec = a_ptr.load[width=width](idx)
             var b_vec = b_ptr.load[width=width](idx)
             result_ptr.store[width=width](idx, a_vec - b_vec)
@@ -77,7 +77,7 @@ def _multiply_contiguous_typed[
         comptime simd_width = simd_width_of[dtype]()
 
         @parameter
-        def vectorized_mul[width: Int](idx: Int) unified {mut}:
+        def vectorized_mul[width: Int](idx: Int):
             var a_vec = a_ptr.load[width=width](idx)
             var b_vec = b_ptr.load[width=width](idx)
             result_ptr.store[width=width](idx, a_vec * b_vec)
@@ -104,7 +104,7 @@ def _divide_contiguous_typed[
         comptime simd_width = simd_width_of[dtype]()
 
         @parameter
-        def vectorized_div[width: Int](idx: Int) unified {mut}:
+        def vectorized_div[width: Int](idx: Int):
             var a_vec = a_ptr.load[width=width](idx)
             var b_vec = b_ptr.load[width=width](idx)
             result_ptr.store[width=width](idx, a_vec / b_vec)

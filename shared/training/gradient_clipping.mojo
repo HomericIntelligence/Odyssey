@@ -57,7 +57,7 @@ def _norm_sq_simd_f32(tensor: AnyTensor) -> Float64:
     var acc = Float64(0.0)
 
     @parameter
-    def vectorized_norm[width: Int](idx: Int) unified {mut}:
+    def vectorized_norm[width: Int](idx: Int):
         var vec = ptr.load[width=width](idx)
         var sq = vec * vec
         acc += sq.reduce_add().cast[DType.float64]()
@@ -75,7 +75,7 @@ def _norm_sq_simd_f64(tensor: AnyTensor) -> Float64:
     var acc = Float64(0.0)
 
     @parameter
-    def vectorized_norm[width: Int](idx: Int) unified {mut}:
+    def vectorized_norm[width: Int](idx: Int):
         var vec = ptr.load[width=width](idx)
         var sq = vec * vec
         acc += sq.reduce_add()
@@ -92,7 +92,7 @@ def _scale_simd_f32(tensor: AnyTensor, scale: Float32):
     var ptr = tensor._data.bitcast[Float32]()
 
     @parameter
-    def vectorized_scale[width: Int](idx: Int) unified {mut}:
+    def vectorized_scale[width: Int](idx: Int):
         var vec = ptr.load[width=width](idx)
         var scale_vec = SIMD[DType.float32, width](scale)
         ptr.store[width=width](idx, vec * scale_vec)
@@ -108,7 +108,7 @@ def _scale_simd_f64(tensor: AnyTensor, scale: Float64):
     var ptr = tensor._data.bitcast[Float64]()
 
     @parameter
-    def vectorized_scale[width: Int](idx: Int) unified {mut}:
+    def vectorized_scale[width: Int](idx: Int):
         var vec = ptr.load[width=width](idx)
         var scale_vec = SIMD[DType.float64, width](scale)
         ptr.store[width=width](idx, vec * scale_vec)
@@ -124,7 +124,7 @@ def _clamp_simd_f32(tensor: AnyTensor, min_val: Float32, max_val: Float32):
     var ptr = tensor._data.bitcast[Float32]()
 
     @parameter
-    def vectorized_clamp[width: Int](idx: Int) unified {mut}:
+    def vectorized_clamp[width: Int](idx: Int):
         var vec = ptr.load[width=width](idx)
         var min_vec = SIMD[DType.float32, width](min_val)
         var max_vec = SIMD[DType.float32, width](max_val)
@@ -141,7 +141,7 @@ def _clamp_simd_f64(tensor: AnyTensor, min_val: Float64, max_val: Float64):
     var ptr = tensor._data.bitcast[Float64]()
 
     @parameter
-    def vectorized_clamp[width: Int](idx: Int) unified {mut}:
+    def vectorized_clamp[width: Int](idx: Int):
         var vec = ptr.load[width=width](idx)
         var min_vec = SIMD[DType.float64, width](min_val)
         var max_vec = SIMD[DType.float64, width](max_val)

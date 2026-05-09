@@ -96,34 +96,64 @@ expressed exclusively via `{...}` capture lists.
 Reference: v1.0.0b1 release notes —
 *"unified-closure semantics using explicit capture lists in braces"*.
 
-### Fix
+### Fix (verified — TWO-STEP)
 
-Drop `unified`; keep the `{...}` capture list:
-
-```mojo
-# Before:
-def normalize_kernel[width: Int](idx: Int) unified {mut}:
-    ...
-
-# After:
-def normalize_kernel[width: Int](idx: Int) capturing[_] {mut}:
-    ...
-```
-
-Or, when no capture is needed, drop both:
+The fix is **two steps**: remove `unified` from the function effect position,
+AND replace `{mut}` with an explicit per-closure capture list `{var <name1>, var <name2>, ...}`.
 
 ```mojo
-def normalize_kernel[width: Int](idx: Int):
-    ...
+# Before (0.26):
+@parameter
+def vectorized_add[width: Int](idx: Int) unified {mut}:
+    var a_vec = a_ptr.load[width=width](idx)
+    var b_vec = b_ptr.load[width=width](idx)
+    result_ptr.store[width=width](idx, a_vec + b_vec)
+
+# After (1.0):
+@parameter
+def vectorized_add[width: Int](idx: Int) {var a_ptr, var b_ptr, var result_ptr}:
+    var a_vec = a_ptr.load[width=width](idx)
+    var b_vec = b_ptr.load[width=width](idx)
+    result_ptr.store[width=width](idx, a_vec + b_vec)
 ```
 
-The right replacement depends on whether the original function captures from
-its enclosing scope. Use `capturing[_]` if it captures; nothing if it doesn't.
+The `{mut}` shorthand from 0.26 (which captured *everything* mutably) is gone.
+You must list each captured variable by name with the `var` keyword.
+
+**This is NOT mechanical**: each closure's capture list depends on which
+enclosing-scope variables it reads or writes. Don't bulk-rewrite — fix each
+closure individually after a quick scan.
 
 ### Verified in
 
-- `shared/core/normalization_simd.mojo:426,538` (compile error, fix not yet
-  applied — Phase D mechanical wave)
+- Modular's own stdlib: `mojo/stdlib/test/algorithm/test_vectorize.mojo`
+  uses `def add_two[width: Int](idx: Int) {var vector}:` for closures that
+  capture the `vector` Span.
+- Modular's own stdlib: `mojo/stdlib/test/algorithm/test_vectorize.mojo` —
+  `def double_buf[simd_width: Int](idx: Int) {var buf}:`
+- (NB) The 1.0 vectorize docstring example uses `{mut}` — that example is
+  stale. The actual `vectorize.mojo` parameter signature is
+  `func: def[width: Int](idx: Int) -> None` (no `thin`), and closures match
+  it via explicit `{var ...}` capture lists, NOT via `{mut}`.
+
+### Partial fix in this repo
+
+A first-pass commit on the bump branch dropped the entire `unified {mut}`
+suffix from 47 closures across 9 files (see git log entry titled
+"chore(mojo-1.0): partial unified-keyword removal"). That removed the parser
+errors but left `vectorize` call-site type mismatches because the closures
+no longer carry capture lists. Phase D's mechanical wave needs to reapply the
+correct `{var <captured_vars>}` capture list per closure. Files affected:
+
+- `shared/core/activation_simd.mojo`
+- `shared/core/matmul.mojo`
+- `shared/core/normalization_simd.mojo`
+- `shared/tensor/typed/activation_simd.mojo`
+- `shared/tensor/typed/arithmetic_contiguous.mojo`
+- `shared/tensor/typed/arithmetic_simd.mojo`
+- `shared/tensor/typed/numerical_safety.mojo`
+- `shared/training/gradient_clipping.mojo`
+- `shared/training/mixed_precision.mojo`
 
 ---
 
