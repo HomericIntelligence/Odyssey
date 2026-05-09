@@ -172,7 +172,7 @@ def test_dataset_info_cifar10() raises:
     assert_equal(class_name, "airplane", "Class name at index 0")
 
     var desc = info.description()
-    assert_true(len(desc) > 0, "Description should not be empty")
+    assert_true(desc.byte_length() > 0, "Description should not be empty")
 
 
 def test_dataset_info_emnist_balanced() raises:
