@@ -951,3 +951,32 @@ audit:
     @echo ""
     @echo "=== License Check ==="
     @pip-licenses --format=markdown
+
+# ==============================================================================
+# Version Management
+# ==============================================================================
+
+# Check that version numbers are in sync across pyproject.toml, pixi.toml, mojo.toml, and VERSION
+check-version-sync:
+    @python3 scripts/check_version_sync.py
+
+# Bump project version atomically across all version files and verify sync.
+# Usage: just bump-version 0.2.0
+bump-version new_version:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [[ -z "{{new_version}}" ]]; then
+        echo "Usage: just bump-version <new_version>"
+        exit 1
+    fi
+    echo "Bumping version to {{new_version}} in all version files..."
+    # VERSION (plain text)
+    echo "{{new_version}}" > VERSION
+    # pyproject.toml — update [project] version line
+    sed -i 's/^\(version\s*=\s*\)"[^"]*"/\1"{{new_version}}"/' pyproject.toml
+    # pixi.toml — update top-level version line
+    sed -i 's/^\(version\s*=\s*\)"[^"]*"/\1"{{new_version}}"/' pixi.toml
+    # mojo.toml — update version line
+    sed -i 's/^\(version\s*=\s*\)"[^"]*"/\1"{{new_version}}"/' mojo.toml
+    echo "All files updated. Verifying sync..."
+    python3 scripts/check_version_sync.py
