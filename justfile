@@ -648,6 +648,10 @@ _test-group-inner path pattern:
     failed_count=0
     failed_tests=""
 
+    # Enable core dumps so the libKGEN JIT crash (modular/modular#6413)
+    # produces a real coredump we can attach to gdb. No-op outside CI.
+    ulimit -c unlimited 2>/dev/null || true
+
     echo "=================================================="
     echo "Testing: {{path}}"
     echo "Pattern: {{pattern}}"
