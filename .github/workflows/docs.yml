@@ -45,6 +45,10 @@ permissions:
   id-token: write
   pull-requests: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   deploy:
     runs-on: ubuntu-latest

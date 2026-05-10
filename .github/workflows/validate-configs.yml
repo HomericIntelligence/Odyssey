@@ -34,6 +34,10 @@ on:
 
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   validate-yaml:
     name: Validate YAML Syntax

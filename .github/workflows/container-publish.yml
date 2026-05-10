@@ -27,6 +27,10 @@ permissions:
   packages: write
   security-events: write  # For Trivy SARIF uploads
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   # ============================================================================
   # Build and Push Container Images

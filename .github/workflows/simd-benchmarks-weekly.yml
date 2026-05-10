@@ -15,6 +15,10 @@ permissions:
   contents: read
   pull-requests: write  # For optional PR comments
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   simd-benchmarks:
     name: SIMD Performance Benchmarks
