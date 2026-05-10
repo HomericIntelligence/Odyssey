@@ -50,7 +50,14 @@ from shared.core.reduction_ops import (
 def _reduce_all_impl[
     dtype: DType, Op: ReduceOp
 ](result: AnyTensor, tensor: AnyTensor, numel: Int):
-    """Generic dtype-specialized reduction over all elements."""
+    """Generic dtype-specialized reduction over all elements.
+
+    Each element and the running accumulator are upcast to Float64 before
+    each call to Op.apply, regardless of the input `dtype`.  This avoids
+    catastrophic cancellation (float16) and overflow (int32/int64) across
+    large tensors.  The final result is cast back to `dtype` before being
+    stored, so callers observe the same dtype as the input.
+    """
     var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
     var out_ptr = result._data.bitcast[Scalar[dtype]]()
     var op = Op()
@@ -96,7 +103,13 @@ def _reduce_axis_impl[
     axis_size: Int,
     inner_size: Int,
 ):
-    """Generic dtype-specialized reduction along axis."""
+    """Generic dtype-specialized reduction along axis.
+
+    Same Float64 upcast strategy as _reduce_all_impl: each input element and
+    the running accumulator are promoted to Float64 for Op.apply, then the
+    per-slice result is cast back to `dtype` for storage.  This applies to
+    all supported dtypes (float16, float32, float64, int32, int64).
+    """
     var in_ptr = tensor._data.bitcast[Scalar[dtype]]()
     var out_ptr = result._data.bitcast[Scalar[dtype]]()
     var op = Op()
