@@ -67,13 +67,14 @@ FROM base AS development
 # Re-declare ARG so it's available in this stage (ARGs don't persist across FROM)
 ARG USER_NAME=dev
 
-# Install Claude Code CLI here (development-only — keeps it out of the
-# production image per #5328). Runs as root before USER switch.
-RUN curl -fsSL https://claude.ai/install.sh | bash -s -- stable
-
 # Switch to dev user
 USER ${USER_NAME}
 WORKDIR /workspace
+
+# Install Claude Code CLI as the dev user (development-only — production
+# stage stays clean per #5328 because it FROM base, not FROM development).
+# Installs into ~/.local/bin which is in PATH.
+RUN curl -fsSL https://claude.ai/install.sh | bash -s -- stable
 
 # Ensure Pixi home and cache directories exist
 ENV PIXI_HOME=/home/${USER_NAME}/.pixi
