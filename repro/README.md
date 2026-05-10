@@ -5,6 +5,19 @@ discovered during ProjectOdyssey development. Each file documents a
 specific crash with environment details, stack traces, and root cause
 analysis.
 
+## Why `repro/` lives at the repo root (per #5281 audit)
+
+These reproducers are linked from upstream `modular/modular` issues and
+from internal post-mortems in `notes/blog/`. Keeping them at a stable,
+predictable path makes those external references durable. The directory
+is intentionally excluded from the main `just ci-build` sweep
+(`justfile` `_build-inner` recipe) so that bug-repro artifacts targeting
+old Mojo versions don't fail the build.
+
+When a Mojo bug is fixed upstream, the corresponding repro file should
+be deleted (or moved to `docs/dev/repro-archive/` if retained for
+historical record).
+
 ## Affected Mojo Version
 
 All reproducers target **Mojo 0.26.1–0.26.3** on Linux x86_64

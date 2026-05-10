@@ -7,6 +7,20 @@ This directory contains supporting documentation for the ML Odyssey project.
 **Important**: All implementation work and progress tracking is done through **GitHub issues**.
 See `.claude/shared/github-issue-workflow.md` for the workflow.
 
+## Scope of `notes/` (per #5282 audit)
+
+The `notes/` directory is the legitimate home for:
+
+- `notes/blog/<date>/` — long-form post-mortems, design retrospectives, and
+  educational write-ups linked from PR descriptions or issue comments. These
+  are intentional repository artifacts.
+- `notes/issues/` — issue-specific scratch notes that supplement (not
+  replace) GitHub issue comments. Use sparingly; prefer `gh issue comment`
+  for content other contributors should see.
+
+This directory is **not** for in-progress task tracking or per-PR scratch
+files — those still belong in GitHub issues or PR descriptions.
+
 ## Repository Structure
 
 ```text
