@@ -51,6 +51,8 @@ passing data to the framework:
 
 ## Further Reading
 
-- [SECURITY.md](../SECURITY.md) — vulnerability reporting and security best practices
+- [SECURITY.md][security-link] — vulnerability reporting and security best practices
 - [Modular AI Privacy Policy](https://www.modular.com/legal/privacy) — privacy policy
   for the Mojo compiler and Modular toolchain
+
+[security-link]: https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/SECURITY.md
