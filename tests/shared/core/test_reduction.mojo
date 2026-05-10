@@ -13,13 +13,13 @@ All tests validate backward passes produce correct gradient values.
 
 
 from tests.shared.conftest import (
+    TestFixtures,
     assert_close_float,
     assert_equal,
     assert_equal_int,
     assert_shape,
     assert_true,
 )
-from tests.shared.conftest import TestFixtures
 from shared.tensor.any_tensor import (
     AnyTensor,
     zeros,
@@ -28,33 +28,28 @@ from shared.tensor.any_tensor import (
     ones_like,
 )
 from shared.core.reduction import (
-    sum,
-    mean,
     max_reduce,
-    min_reduce,
-    sum_backward,
-    mean_backward,
     max_reduce_backward,
+    mean,
+    mean_backward,
+    median,
+    median_backward,
+    min_reduce,
     min_reduce_backward,
+    percentile,
+    percentile_backward,
+    std_backward,
+    std_reduce as stdev,
+    sum,
+    sum_backward,
+    variance,
+    variance_backward,
 )
 from shared.testing.gradient_checker import (
     check_gradient,
     NumericalForward,
     NumericalBackward,
 )
-from shared.core.reduction import (
-    variance,
-    std_reduce as stdev,
-    variance_backward,
-    std_backward,
-)
-from shared.core.reduction import (
-    median,
-    percentile,
-    median_backward,
-    percentile_backward,
-)
-
 
 @fieldwise_init
 struct _SumFwd(NumericalForward):

@@ -32,21 +32,6 @@ from shared.tensor.any_tensor import (
     eye,
 )
 from shared.core.matrix import matmul
-from tests.shared.conftest import (
-    assert_all_close,
-    assert_all_values,
-    assert_almost_equal,
-    assert_close_float,
-    assert_dim,
-    assert_dtype,
-    assert_equal,
-    assert_equal_int,
-    assert_numel,
-    assert_shape,
-    assert_true,
-    assert_value_at,
-)
-
 
 def test_matmul_baseline_2x2() raises:
     """Test baseline matmul with simple 2x2 matrices (reference test)."""

@@ -9,6 +9,7 @@ All tests use pure functional API.
 
 
 from tests.shared.conftest import (
+    TestFixtures,
     assert_almost_equal,
     assert_close_float,
     assert_equal,
@@ -16,25 +17,18 @@ from tests.shared.conftest import (
     assert_shape,
     assert_true,
 )
-from tests.shared.conftest import TestFixtures
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.activation import (
+    elu,
+    elu_backward,
+    mish,
+    mish_backward,
     swish,
     swish_backward,
 )
 from shared.core.elementwise import exp
 from shared.core.arithmetic import add, multiply
 from std.math import sqrt
-from shared.core.activation import (
-    mish,
-    mish_backward,
-    elu,
-)
-from shared.core.activation import (
-    elu,
-    elu_backward,
-)
-
 
 def test_swish_shapes() raises:
     """Test that swish returns correct output shape."""

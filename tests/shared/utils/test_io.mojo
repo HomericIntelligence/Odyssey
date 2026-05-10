@@ -47,7 +47,13 @@ def test_checkpoint_roundtrip():
 
 def test_checkpoint_serialization_with_model_state() raises:
     """Test checkpoint serialization includes model_state dict (Issue #2585)."""
-    from shared.utils.file_io import Checkpoint, _serialize_checkpoint
+from shared.utils.file_io import (
+    Checkpoint,
+    _serialize_checkpoint,
+    file_exists,
+    remove_safely,
+    safe_write_file,
+)
 
     var checkpoint = Checkpoint()
     checkpoint.set_epoch(10)
@@ -73,8 +79,6 @@ def test_checkpoint_serialization_with_model_state() raises:
 def test_checkpoint_serialization_with_optimizer_state() raises:
     """Test checkpoint serialization includes optimizer_state dict (Issue #2585).
     """
-    from shared.utils.file_io import Checkpoint, _serialize_checkpoint
-
     var checkpoint = Checkpoint()
     checkpoint.set_epoch(5)
     checkpoint.set_loss(0.5)
@@ -98,8 +102,6 @@ def test_checkpoint_serialization_with_optimizer_state() raises:
 
 def test_checkpoint_serialization_with_metadata() raises:
     """Test checkpoint serialization includes metadata dict (Issue #2585)."""
-    from shared.utils.file_io import Checkpoint, _serialize_checkpoint
-
     var checkpoint = Checkpoint()
     checkpoint.set_epoch(15)
     checkpoint.set_loss(0.1)
@@ -220,8 +222,6 @@ def test_safe_remove() raises:
     Uses a unique path with timestamp to avoid stale test files from
     previous aborted runs.
     """
-    from shared.utils.file_io import remove_safely, safe_write_file, file_exists
-
     # Create unique test path with timestamp to avoid stale files from aborted runs
     # Pattern: /tmp/test_remove_safely_<timestamp>.txt
     var test_path = "/tmp/test_remove_safely_integration.txt"

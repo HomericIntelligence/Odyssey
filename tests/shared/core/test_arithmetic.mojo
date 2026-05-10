@@ -13,54 +13,30 @@ Tests cover:
 from tests.shared.conftest import (
     assert_all_values,
     assert_almost_equal,
+    assert_dim,
+    assert_dtype,
     assert_equal_int,
     assert_numel,
-    assert_dtype,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    full,
+    ones,
+    zeros,
+)
 from shared.core.arithmetic import (
     add,
     add_backward,
-)
-from shared.core.arithmetic import (
+    divide,
+    divide_backward,
+    floor_divide,
+    modulo,
+    multiply,
+    multiply_backward,
+    power,
     subtract,
     subtract_backward,
 )
-from shared.core.arithmetic import (
-    multiply,
-    multiply_backward,
-)
-from shared.core.arithmetic import (
-    divide,
-    divide_backward,
-)
-from tests.shared.conftest import (
-    assert_all_values,
-    assert_almost_equal,
-    assert_equal_int,
-)
-from shared.core.arithmetic import (
-    floor_divide,
-    modulo,
-)
-from shared.core.arithmetic import (
-    modulo,
-    power,
-)
-from tests.shared.conftest import (
-    assert_all_values,
-    assert_dtype,
-)
-from shared.core.arithmetic import (
-    add,
-    multiply,
-)
-from tests.shared.conftest import (
-    assert_dim,
-    assert_numel,
-)
-from shared.tensor.any_tensor import AnyTensor, ones
-
 
 def test_add_shapes() raises:
     """Test that add returns correct output shape."""

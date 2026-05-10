@@ -14,8 +14,12 @@ References:
     - Issue #2644: Add Numerical Stability Tests for Gradients
 """
 
-from shared.core.activation import relu, sigmoid
-from shared.core.activation import relu_backward, sigmoid_backward
+from shared.core.activation import (
+    relu,
+    relu_backward,
+    sigmoid,
+    sigmoid_backward,
+)
 from shared.tensor.any_tensor import AnyTensor, full, zeros_like
 from shared.testing.gradient_checker import (
     check_gradient,

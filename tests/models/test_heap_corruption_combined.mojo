@@ -7,21 +7,19 @@ Contains 8 fn test_ functions (limit: 10).
 from shared.tensor.any_tensor import AnyTensor
 from shared.core.conv import conv2d
 from shared.core.activation import relu
-from shared.testing.layer_params import ConvFixture
+from shared.testing.layer_params import (
+    ConvFixture,
+    LinearFixture,
+)
 from shared.testing.assertions import (
-    assert_shape,
     assert_dtype,
+    assert_false,
+    assert_shape,
+    assert_true,
 )
 from shared.testing.layer_testers import LayerTester
 from shared.core.pooling import maxpool2d
 from shared.core.linear import linear
-from shared.testing.layer_params import LinearFixture
-from shared.testing.assertions import (
-    assert_shape,
-    assert_dtype,
-    assert_true,
-    assert_false,
-)
 from shared.testing.special_values import (
     create_special_value_tensor,
     SPECIAL_VALUE_ONE,

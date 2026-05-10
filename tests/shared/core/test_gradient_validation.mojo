@@ -14,12 +14,15 @@ References:
     - Issue #2644: Add Numerical Stability Tests for Gradients
 """
 
-from shared.core.activation import relu, sigmoid, tanh, gelu
 from shared.core.activation import (
-    relu_backward,
-    sigmoid_backward,
-    tanh_backward,
+    gelu,
     gelu_backward,
+    relu,
+    relu_backward,
+    sigmoid,
+    sigmoid_backward,
+    tanh,
+    tanh_backward,
 )
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.linear import linear, linear_backward

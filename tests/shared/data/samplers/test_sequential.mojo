@@ -5,10 +5,12 @@ the default sampling strategy for deterministic data loading.
 """
 
 
-from tests.shared.conftest import assert_true, assert_equal, TestFixtures
+from tests.shared.conftest import (
+    TestFixtures,
+    assert_equal,
+    assert_true,
+)
 from shared.data.samplers import SequentialSampler
-from tests.shared.conftest import assert_equal
-
 
 struct StubSequentialSampler:
     """Minimal stub sequential sampler for testing Sampler interface.

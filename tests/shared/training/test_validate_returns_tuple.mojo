@@ -12,9 +12,11 @@ from tests.shared.conftest import (
 )
 from shared.training.loops.validation_loop import validate
 from shared.training.trainer_interface import DataLoader
-from shared.tensor.any_tensor import AnyTensor
-from shared.tensor.any_tensor import ones, zeros
-
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    ones,
+    zeros,
+)
 
 # ============================================================================
 # Helper functions

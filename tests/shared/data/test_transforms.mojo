@@ -296,7 +296,7 @@ def test_transform_on_dataset_sample() raises:
     """
     TestFixtures.set_seed()
 
-    from shared.data.datasets import AnyTensorDataset
+from shared.data.datasets import AnyTensorDataset
 
     # Create small dataset
     var data_list = List[Float32]()
@@ -339,8 +339,6 @@ def test_transform_batch_consistency() raises:
         - Results have correct shapes
     """
     TestFixtures.set_seed()
-
-    from shared.data.datasets import AnyTensorDataset
 
     # Create dataset
     var data_list = List[Float32]()

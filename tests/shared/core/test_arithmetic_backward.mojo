@@ -8,13 +8,13 @@ Tests cover:
 
 
 from tests.shared.conftest import (
+    TestFixtures,
     assert_almost_equal,
     assert_close_float,
     assert_equal,
     assert_equal_int,
     assert_true,
 )
-from tests.shared.conftest import TestFixtures
 from shared.tensor.any_tensor import (
     AnyTensor,
     zeros,

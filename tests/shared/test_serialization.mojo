@@ -353,7 +353,7 @@ def _create_temp_dir(prefix: String) -> String:
     Returns:
         Full path to the created temporary directory.
     """
-    from std.python import Python
+from std.python import Python
 
     try:
         var tempfile = Python.import_module("tempfile")
@@ -371,8 +371,6 @@ def _cleanup_temp_dir(path: String):
     Args:
         path: Full path to the temporary directory to remove.
     """
-    from std.python import Python
-
     try:
         var shutil = Python.import_module("shutil")
         shutil.rmtree(path)

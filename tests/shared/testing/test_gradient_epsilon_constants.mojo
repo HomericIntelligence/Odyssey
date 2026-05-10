@@ -6,14 +6,12 @@ values are consistent between both import paths, and numeric values are correct.
 
 from std.testing import assert_true, assert_equal
 from shared.testing.tolerance_constants import (
+    GRADIENT_CHECK_EPSILON,
     GRADIENT_CHECK_EPSILON_FLOAT32,
-    GRADIENT_CHECK_EPSILON_OTHER,
-)
-from shared.testing.tolerance_constants import (
     GRADIENT_CHECK_EPSILON_FLOAT32 as EPSILON_FLOAT32_DIRECT,
+    GRADIENT_CHECK_EPSILON_OTHER,
     GRADIENT_CHECK_EPSILON_OTHER as EPSILON_OTHER_DIRECT,
 )
-
 
 # ============================================================================
 # Value Correctness Tests
@@ -81,8 +79,6 @@ def test_epsilon_float32_larger_than_generic() raises:
 
     Float32 matmul precision loss requires a larger epsilon than the generic 1e-5.
     """
-    from shared.testing.tolerance_constants import GRADIENT_CHECK_EPSILON
-
     print("Testing GRADIENT_CHECK_EPSILON_FLOAT32 > GRADIENT_CHECK_EPSILON...")
     assert_true(
         GRADIENT_CHECK_EPSILON_FLOAT32 > GRADIENT_CHECK_EPSILON,

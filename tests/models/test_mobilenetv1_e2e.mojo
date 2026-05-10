@@ -41,7 +41,9 @@ from tests.shared.conftest import (
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, randn
 from shared.core.conv import (
     conv2d,
+    conv2d_backward,
     depthwise_conv2d,
+    depthwise_conv2d_backward,
     depthwise_separable_conv2d,
 )
 from shared.core.activation import relu
@@ -406,8 +408,6 @@ def test_mobilenetv1_backward_conv_only() raises:
     var grad_output = ones(output.shape(), DType.float32)
 
     # Backward through pointwise conv
-    from shared.core.conv import conv2d_backward, depthwise_conv2d_backward
-
     var pw_result = conv2d_backward(
         grad_output, dw_out, pw_kernel, stride=1, padding=0
     )
@@ -631,8 +631,6 @@ def test_mobilenetv1_gradient_flow_through_convs() raises:
     var grad_output = ones(output.shape(), DType.float32)
 
     # Backward: verify shapes propagate correctly
-    from shared.core.conv import conv2d_backward, depthwise_conv2d_backward
-
     # Backward through pointwise conv
     var pw_grad = conv2d_backward(
         grad_output, dw_out, pw_kernel, stride=1, padding=0

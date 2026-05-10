@@ -6,30 +6,30 @@
 from std.math import isnan, isinf
 from shared.tensor.any_tensor import (
     AnyTensor,
-    zeros,
-    ones,
-    full,
     arange,
-    nan_tensor,
+    full,
     inf_tensor,
+    nan_tensor,
     neg_inf_tensor,
+    ones,
+    zeros,
 )
 from shared.core.arithmetic import (
     add,
-    subtract,
-    multiply,
     divide,
     floor_divide,
     modulo,
+    multiply,
     power,
+    subtract,
 )
 from shared.core.comparison import (
     equal,
-    not_equal,
-    less,
-    less_equal,
     greater,
     greater_equal,
+    less,
+    less_equal,
+    not_equal,
 )
 from tests.shared.conftest import (
     assert_dtype,
@@ -41,34 +41,6 @@ from tests.shared.conftest import (
     assert_equal_int,
     assert_true,
 )
-from shared.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    full,
-    arange,
-    nan_tensor,
-    inf_tensor,
-    neg_inf_tensor,
-)
-from shared.core.arithmetic import (
-    add,
-    subtract,
-    multiply,
-    divide,
-    floor_divide,
-    modulo,
-    power,
-)
-from shared.core.comparison import (
-    equal,
-    not_equal,
-    less,
-    less_equal,
-    greater,
-    greater_equal,
-)
-
 
 def test_empty_tensor_creation() raises:
     """Test creating empty tensor with 0 elements."""

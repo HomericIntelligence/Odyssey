@@ -9,16 +9,20 @@ All operations return boolean tensors (DType.bool).
 
 
 from shared.tensor.any_tensor import AnyTensor, full, ones, zeros
-from shared.core.comparison import equal, not_equal
+from shared.core.comparison import (
+    equal,
+    greater,
+    greater_equal,
+    less,
+    less_equal,
+    not_equal,
+)
 from tests.shared.conftest import (
     assert_dtype,
     assert_numel,
     assert_value_at,
     assert_all_values,
 )
-from shared.core.comparison import less, less_equal
-from shared.core.comparison import greater, greater_equal, less
-
 
 def test_equal_same_values() raises:
     """Test equal with identical values."""

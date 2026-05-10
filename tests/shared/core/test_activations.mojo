@@ -15,82 +15,40 @@ from tests.shared.conftest import (
 )
 from shared.tensor.any_tensor import (
     AnyTensor,
-    zeros,
+    full,
     ones,
-    zeros_like,
     ones_like,
+    zeros,
+    zeros_like,
 )
 from shared.core.activation import (
-    relu,
+    elu,
+    elu_backward,
+    gelu,
+    gelu_backward,
     leaky_relu,
-    relu_backward,
     leaky_relu_backward,
+    mish,
+    mish_backward,
+    prelu,
+    prelu_backward,
+    relu,
+    relu_backward,
+    sigmoid,
+    sigmoid_backward,
+    softmax,
+    softmax_backward,
+    swish,
+    swish_backward,
+    tanh,
+    tanh_backward,
 )
 from shared.testing.gradient_checker import (
     check_gradient,
     NumericalForward,
     NumericalBackward,
 )
-from tests.shared.conftest import (
-    assert_almost_equal,
-    assert_true,
-)
-from shared.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    full,
-    ones_like,
-)
-from shared.core.activation import (
-    leaky_relu,
-    prelu,
-    sigmoid,
-    leaky_relu_backward,
-    prelu_backward,
-    sigmoid_backward,
-)
-from shared.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones_like,
-)
-from shared.core.activation import (
-    sigmoid,
-    tanh,
-    softmax,
-    sigmoid_backward,
-    tanh_backward,
-)
 from std.math import tanh as math_tanh
-from shared.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-    ones_like,
-)
-from shared.core.activation import (
-    softmax,
-    gelu,
-    softmax_backward,
-)
-from shared.core.activation import (
-    gelu,
-    swish,
-    mish,
-    gelu_backward,
-    swish_backward,
-)
-from shared.core.activation import (
-    relu,
-    sigmoid,
-    mish,
-    elu,
-    relu_backward,
-    sigmoid_backward,
-    mish_backward,
-    elu_backward,
-)
-
 
 def test_relu_basic() raises:
     """Test ReLU with known values."""

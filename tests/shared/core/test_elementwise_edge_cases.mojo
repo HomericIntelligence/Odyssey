@@ -8,9 +8,20 @@ Tests edge cases for sqrt operations including:
 """
 
 
-from std.math import isnan, isinf, sqrt
+from std.math import (
+    cos,
+    exp,
+    isinf,
+    isnan,
+    log,
+    sin,
+    sqrt,
+    tanh,
+)
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.elementwise import (
+    exp as exp_op,
+    log as log_op,
     sqrt as sqrt_op,
 )
 from tests.shared.conftest import (
@@ -22,15 +33,6 @@ from tests.shared.conftest import (
     assert_all_close,
     assert_true,
 )
-from std.math import isnan, isinf, log
-from shared.core.elementwise import (
-    log as log_op,
-)
-from std.math import isnan, isinf, exp
-from shared.core.elementwise import (
-    exp as exp_op,
-)
-from std.math import isnan, isinf, sin, cos, tanh
 from shared.core.activation import tanh as tanh_op
 
 

@@ -11,17 +11,12 @@ from tests.shared.conftest import (
 )
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
 from shared.core.validation import (
-    validate_tensor_shape,
-)
-from shared.core.validation import (
-    validate_tensor_dtype,
-    validate_matching_tensors,
-)
-from shared.core.validation import (
     validate_2d_input,
     validate_4d_input,
+    validate_matching_tensors,
+    validate_tensor_dtype,
+    validate_tensor_shape,
 )
-
 
 def test_validate_tensor_shape_1d_correct() raises:
     """Test validate_tensor_shape with correct 1D shape."""

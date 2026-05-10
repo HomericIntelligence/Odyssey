@@ -14,30 +14,19 @@ learning rate must be carefully adapted to the parameter and gradient norms.
 
 
 from tests.shared.conftest import (
-    assert_true,
-    assert_equal,
-    assert_not_equal,
-    assert_almost_equal,
-    assert_less,
-    assert_greater,
-    assert_shape,
-    create_test_vector,
     TestFixtures,
+    assert_almost_equal,
+    assert_equal,
+    assert_greater,
+    assert_less,
+    assert_not_equal,
+    assert_shape,
+    assert_true,
+    create_test_vector,
 )
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like
 from shared.core.numerical_safety import compute_tensor_l2_norm
 from shared.training.optimizers.lars import lars_step, lars_step_simple
-from tests.shared.conftest import (
-    assert_true,
-    assert_equal,
-    assert_not_equal,
-    assert_almost_equal,
-    assert_less,
-    assert_greater,
-    create_test_vector,
-    TestFixtures,
-)
-
 
 def test_lars_initialization() raises:
     """Test LARS optimizer initialization with hyperparameters.

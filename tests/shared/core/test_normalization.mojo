@@ -15,6 +15,7 @@ All tests use pure functional API.
 
 
 from tests.shared.conftest import (
+    TestFixtures,
     assert_almost_equal,
     assert_close_float,
     assert_equal,
@@ -23,7 +24,6 @@ from tests.shared.conftest import (
     assert_shape_equal,
     assert_true,
 )
-from tests.shared.conftest import TestFixtures
 from shared.testing.gradient_checker import (
     compute_numerical_gradient,
     assert_gradients_close,
@@ -129,10 +129,10 @@ struct _LayerNormInputFwd(NumericalForward):
 
 from shared.tensor.any_tensor import (
     AnyTensor,
-    zeros,
     ones,
-    zeros_like,
     ones_like,
+    zeros,
+    zeros_like,
 )
 from shared.core.normalization import (
     batch_norm2d,
@@ -140,19 +140,12 @@ from shared.core.normalization import (
     layer_norm,
     layer_norm_backward,
 )
-from shared.core.arithmetic import add, subtract, multiply
+from shared.core.arithmetic import (
+    add,
+    multiply,
+    subtract,
+)
 from shared.core.reduction import sum as reduce_sum
-from tests.shared.conftest import (
-    assert_almost_equal,
-    assert_true,
-)
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like
-from shared.core.normalization import (
-    batch_norm2d,
-    batch_norm2d_backward,
-)
-from shared.core.arithmetic import multiply
-
 
 def _check_grad_input_batch_size(batch_size: Int) raises:
     """Run grad_input gradient check for the given batch_size.

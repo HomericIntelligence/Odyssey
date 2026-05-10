@@ -8,18 +8,18 @@ scaler step updates, backoff, min/max limits, and FP32 master weight conversion.
 from shared.tensor.any_tensor import AnyTensor, full
 from shared.training.mixed_precision import (
     GradientScaler,
-    convert_to_fp32_master,
-    update_model_from_master,
-)
-from std.testing import assert_equal, assert_true
-from shared.training.mixed_precision import (
     check_gradients_finite,
     clip_gradients_by_norm,
     clip_gradients_by_value,
+    convert_to_fp32_master,
+    update_model_from_master,
+)
+from std.testing import (
+    assert_equal,
+    assert_false,
+    assert_true,
 )
 from shared.testing.special_values import create_nan_tensor, create_inf_tensor
-from std.testing import assert_equal, assert_true, assert_false
-
 
 def test_gradient_scaler_initialization() raises:
     """Test GradientScaler initializes with correct default values."""

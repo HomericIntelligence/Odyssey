@@ -7,25 +7,16 @@ Tests the DType iteration utilities:
 
 
 from shared.testing.dtype_utils import (
-    get_test_dtypes,
+    dtype_to_string,
+    get_float32_only,
     get_float_dtypes,
+    get_precision_dtypes,
+    get_test_dtypes,
 )
 from shared.testing.assertions import (
     assert_equal_int,
     assert_true,
 )
-from shared.testing.dtype_utils import (
-    get_float_dtypes,
-    get_precision_dtypes,
-    get_float32_only,
-    dtype_to_string,
-)
-from shared.testing.dtype_utils import (
-    get_test_dtypes,
-    get_float_dtypes,
-    dtype_to_string,
-)
-
 
 def test_get_test_dtypes_not_empty() raises:
     """Test that get_test_dtypes returns a non-empty list."""

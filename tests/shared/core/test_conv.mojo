@@ -10,6 +10,7 @@ Tests cover:
 
 
 from tests.shared.conftest import (
+    TestFixtures,
     assert_almost_equal,
     assert_close_float,
     assert_equal,
@@ -17,8 +18,13 @@ from tests.shared.conftest import (
     assert_shape,
     assert_true,
 )
-from tests.shared.conftest import TestFixtures
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, ones_like
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    full,
+    ones,
+    ones_like,
+    zeros,
+)
 from shared.core.conv import (
     conv2d,
     conv2d_no_bias,
@@ -61,8 +67,6 @@ struct _ConvKernelFwd(NumericalForward):
 
 
 from shared.core.reduction import sum as reduce_sum
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
-
 
 def test_conv2d_initialization() raises:
     """Test that conv2d layer parameters can be created with correct shapes.

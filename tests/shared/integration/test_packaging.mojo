@@ -12,7 +12,39 @@ from std.testing import assert_true, assert_equal
 
 def test_package_version() raises:
     """Test package version is accessible and correct."""
-    from shared import VERSION, AUTHOR, LICENSE
+from shared import (
+    AUTHOR,
+    Accuracy,
+    AccuracyMetric,
+    BatchNorm2d,
+    BatchNorm2dLayer,
+    Conv2D,
+    Conv2dLayer,
+    CosineAnnealingLR,
+    Dropout,
+    DropoutLayer,
+    EarlyStopping,
+    LICENSE,
+    Linear,
+    Logger,
+    LossTracker,
+    ModelCheckpoint,
+    Module,
+    ReLU,
+    ReLULayer,
+    StepLR,
+    VERSION,
+    VERSION  # This import should always work,
+    core,
+    data,
+    plot_training_curves,
+    relu,
+    sigmoid,
+    softmax,
+    tanh,
+    training,
+    utils,
+)
 
     # Critical validation - ensure values are not empty/None
     assert_true(VERSION != "", "VERSION should not be empty")
@@ -39,13 +71,35 @@ def test_package_version() raises:
 
 def test_subpackage_accessibility() raises:
     """Test all subpackages can be imported and have expected exports."""
-    from shared import core, training, data, utils
-
     # Verify subpackages are accessible by testing exports
-    from shared.tensor.any_tensor import AnyTensor, zeros
-    from shared.training import SGD, MSELoss
-    from shared.data import Dataset, AnyTensorDataset
-    from shared.utils import Logger, Config
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    full,
+    ones,
+    randn,
+    zeros,
+)
+from shared.training import (
+    AccuracyMetric,
+    CosineAnnealingLR,
+    EarlyStopping,
+    LossTracker,
+    MSELoss,
+    ModelCheckpoint,
+    SGD,
+    StepLR,
+)
+from shared.data import (
+    AnyTensorDataset,
+    Batch,
+    Compose,
+    Dataset,
+    Normalize,
+)
+from shared.utils import (
+    Config,
+    Logger,
+)
 
     # Test that we can actually call the functions
     var test_tensor = zeros([2, 3], DType.float32)
@@ -65,10 +119,6 @@ def test_subpackage_accessibility() raises:
 def test_root_level_imports() raises:
     """Test most commonly used components are available at root level."""
     # Root package doesn't re-export all components directly
-    from shared.tensor.any_tensor import AnyTensor
-    from shared.training import SGD
-    from shared.utils import Logger
-
     print("✓ Root level imports test passed")
 
 
@@ -79,37 +129,16 @@ def test_layer_root_level_imports() raises:
     `from shared import <Symbol>` after uncommenting in __init__.mojo.
     """
     # Core layer structs — original names
-    from shared import (
-        Linear,
-        Conv2dLayer,
-        ReLULayer,
-        DropoutLayer,
-        BatchNorm2dLayer,
-    )
-
     # Core layer aliases matching documented public API names
-    from shared import Conv2D, ReLU, Dropout, BatchNorm2d
-
     # Core activation functions
-    from shared import relu, sigmoid, tanh, softmax
-
     # Core module trait
-    from shared import Module
-
     # Core tensors and creation functions
     # AnyTensor is NOT re-exported from shared (avoids circular imports)
-    from shared.tensor.any_tensor import AnyTensor, zeros, ones, randn
     from shared.tensor.tensor import Tensor
 
     # Training schedulers
-    from shared import StepLR, CosineAnnealingLR
-
     # Training callbacks
-    from shared import EarlyStopping, ModelCheckpoint
-
     # Utils
-    from shared import Logger, plot_training_curves
-
     # Smoke-test: construct a Linear layer and run a forward pass
     var layer = Linear(4, 2)
     var x = zeros([1, 4], DType.float32)
@@ -131,28 +160,22 @@ def test_layer_root_level_imports() raises:
 
 def test_module_level_imports() raises:
     """Test importing from specific modules."""
-    from shared.tensor.any_tensor import AnyTensor
-    from shared.core import relu, linear
-    from shared.training import SGD, MSELoss
-    from shared.data import AnyTensorDataset, Batch
-
+from shared.core import (
+    conv2d,
+    flatten,
+    linear,
+    relu,
+)
     print("✓ Module level imports test passed")
 
 
 def test_nested_imports() raises:
     """Test importing from nested submodules."""
-    from shared.core import linear, conv2d
-    from shared.training import SGD
-    from shared.training import StepLR
-
     print("✓ Nested imports test passed")
 
 
 def test_core_training_integration() raises:
     """Test integration between core and training modules."""
-    from shared.tensor.any_tensor import AnyTensor, zeros
-    from shared.training import SGD, MSELoss
-
     # Create tensors using core
     var data = zeros([10, 5], DType.float32)
 
@@ -175,9 +198,6 @@ def test_core_training_integration() raises:
 
 def test_core_data_integration() raises:
     """Test integration between core and data modules."""
-    from shared.tensor.any_tensor import AnyTensor, zeros, ones
-    from shared.data import AnyTensorDataset
-
     # Create tensors using core
     var data = zeros([10, 5], DType.float32)
     var labels = ones([10, 1], DType.float32)
@@ -199,10 +219,6 @@ def test_core_data_integration() raises:
 
 def test_training_data_integration() raises:
     """Test integration between training and data modules."""
-    from shared.training import SGD
-    from shared.data import AnyTensorDataset
-    from shared.tensor.any_tensor import zeros, ones
-
     # Create simple dataset
     var data = zeros([10, 5], DType.float32)
     var labels = ones([10, 1], DType.float32)
@@ -227,12 +243,6 @@ def test_training_data_integration() raises:
 
 def test_complete_training_workflow() raises:
     """Test complete training workflow using all modules."""
-    from shared.tensor.any_tensor import zeros, ones
-    from shared.core import relu
-    from shared.training import SGD, MSELoss
-    from shared.data import AnyTensorDataset
-    from shared.utils import Logger
-
     # 1. Create model parameters (core)
     var weights = zeros([5, 10], DType.float32)
     var bias = zeros([5], DType.float32)
@@ -272,16 +282,6 @@ def test_paper_implementation_pattern() raises:
     """Test typical usage pattern from paper implementation."""
     # Simulates how a paper implementation would use the shared library
 
-    from shared.tensor.any_tensor import AnyTensor, zeros
-    from shared.core import conv2d, flatten, relu
-    from shared.training import (
-        SGD,
-        CosineAnnealingLR,
-        EarlyStopping,
-        ModelCheckpoint,
-    )
-    from shared.data import AnyTensorDataset
-
     # Paper-specific tensors for conv operations
     var input_data = zeros([1, 1, 28, 28], DType.float32)
 
@@ -316,8 +316,6 @@ def test_no_private_exports() raises:
     # that public symbols are available and documenting expected behavior
 
     # Verify public symbols are available (confirming public API is working)
-    from shared import core, training, data, utils
-
     # Document that the following should NOT be accessible:
     # - Private modules like _internal, _private, _utils_private
     # - Private symbols prefixed with _
@@ -331,8 +329,6 @@ def test_no_private_exports() raises:
 
 def test_normalize_compose_from_shared_data() raises:
     """Test that Normalize and Compose are accessible via shared.data."""
-    from shared.data import Normalize, Compose
-
     # Verify Normalize can be instantiated
     var _normalizer = Normalize(Float64(0.5), Float64(0.5))
 
@@ -341,8 +337,6 @@ def test_normalize_compose_from_shared_data() raises:
 
 def test_losstracker_from_shared() raises:
     """Test that LossTracker is accessible at shared package level."""
-    from shared import LossTracker
-
     # Verify LossTracker can be instantiated
     var _tracker = LossTracker()
 
@@ -351,8 +345,6 @@ def test_losstracker_from_shared() raises:
 
 def test_accuracymetric_from_shared() raises:
     """Test that AccuracyMetric is accessible at shared package level."""
-    from shared import AccuracyMetric
-
     # Verify AccuracyMetric can be instantiated
     var _metric = AccuracyMetric()
 
@@ -361,8 +353,6 @@ def test_accuracymetric_from_shared() raises:
 
 def test_accuracy_alias_from_shared() raises:
     """Test that Accuracy alias resolves and is identical to AccuracyMetric."""
-    from shared import Accuracy, AccuracyMetric
-
     # Verify Accuracy can be instantiated and works the same way
     var _metric_via_alias = Accuracy()
     var _metric_via_full_name = AccuracyMetric()
@@ -373,8 +363,6 @@ def test_accuracy_alias_from_shared() raises:
 
 def test_losstracker_from_shared_training() raises:
     """Test that LossTracker is accessible via shared.training."""
-    from shared.training import LossTracker
-
     # Verify LossTracker can be instantiated
     var _tracker = LossTracker()
 
@@ -383,8 +371,6 @@ def test_losstracker_from_shared_training() raises:
 
 def test_accuracymetric_from_shared_training() raises:
     """Test that AccuracyMetric is accessible via shared.training."""
-    from shared.training import AccuracyMetric
-
     # Verify AccuracyMetric can be instantiated
     var _metric = AccuracyMetric()
 
@@ -409,8 +395,6 @@ def test_deprecated_imports() raises:
     # ```
 
     # For now, we verify the test framework itself works by importing from shared
-    from shared import VERSION  # This import should always work
-
     assert_true(VERSION != "", "Version should be accessible")
 
     print(
@@ -420,8 +404,6 @@ def test_deprecated_imports() raises:
 
 def test_api_version_compatibility() raises:
     """Test API version compatibility."""
-    from shared import VERSION
-
     # Verify version follows semantic versioning (major.minor.patch format)
     var version_parts = VERSION.split(".")
     assert_equal(
@@ -459,12 +441,7 @@ def test_api_version_compatibility() raises:
 
 def test_cross_module_computation() raises:
     """Test that components actually work together in real computations."""
-    from shared.tensor.any_tensor import zeros, ones
-    from shared.core import relu
-    from shared.core.matrix import matmul
-    from shared.training import SGD, MSELoss
-    from shared.data import AnyTensorDataset
-
+from shared.core.matrix import matmul
     # Create realistic tensors
     var data = zeros([32, 64], DType.float32)  # Batch of 32, features of 64
     var labels = zeros([32, 10], DType.float32)  # 32 samples, 10 classes
@@ -507,8 +484,6 @@ def test_cross_module_computation() raises:
 
 def test_tensor_operations_safety() raises:
     """Test that tensor operations handle edge cases safely."""
-    from shared.tensor.any_tensor import zeros, ones, full
-
     # Test zero-sized tensors
     var empty_data = zeros([0, 5], DType.float32)
     var _empty_labels = zeros([0, 3], DType.float32)
@@ -556,10 +531,6 @@ def test_tensor_operations_safety() raises:
 
 def test_error_propagation() raises:
     """Test that errors propagate correctly between modules."""
-    from shared.tensor.any_tensor import zeros
-    from shared.training import SGD
-    from shared.data import AnyTensorDataset
-
     # Test that incompatible tensor shapes fail appropriately
     var good_data = zeros([10, 5], DType.float32)
     var good_labels = zeros([10, 3], DType.float32)
@@ -586,12 +557,6 @@ def test_error_propagation() raises:
 
 def test_integration_stress() raises:
     """Stress test with realistic deep learning workload."""
-    from shared.tensor.any_tensor import zeros, ones
-    from shared.core import relu
-    from shared.core.matrix import matmul
-    from shared.training import SGD, MSELoss
-    from shared.data import AnyTensorDataset
-
     # Create a realistic batch size
     var batch_size = 128
     var input_dim = 784  # MNIST-like

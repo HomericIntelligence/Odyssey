@@ -13,6 +13,7 @@ Tests cover:
 
 
 from tests.shared.conftest import (
+    TestFixtures,
     assert_all_close,
     assert_all_values,
     assert_almost_equal,
@@ -26,7 +27,6 @@ from tests.shared.conftest import (
     assert_true,
     assert_value_at,
 )
-from tests.shared.conftest import TestFixtures
 from shared.tensor.any_tensor import (
     AnyTensor,
     zeros,

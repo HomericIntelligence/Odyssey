@@ -8,11 +8,13 @@ from tests.shared.conftest import (
     assert_equal,
 )
 from shared.data.datasets import AnyTensorDataset
-from shared.data.loaders import BatchLoader
+from shared.data.loaders import (
+    Batch,
+    BatchLoader,
+)
 from shared.data.samplers import RandomSampler
 from shared.data.dataset_with_transform import TransformedDataset
 from shared.data.prefetch import PrefetchBuffer, PrefetchDataLoader
-from shared.data.loaders import Batch
 from shared.tensor.any_tensor import AnyTensor, ones, zeros
 from std.collections import List
 

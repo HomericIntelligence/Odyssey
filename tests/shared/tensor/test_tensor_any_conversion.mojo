@@ -14,7 +14,10 @@ Tests cover:
 """
 
 from std.testing import assert_true, assert_almost_equal
-from shared.tensor.tensor import Tensor
+from shared.tensor.tensor import (
+    Tensor,
+    Tensor as T,
+)
 from shared.tensor.any_tensor import AnyTensor, zeros
 
 
@@ -93,8 +96,6 @@ def test_roundtrip_tensor_any_tensor() raises:
 
 def test_tensor_import_from_package() raises:
     """Verify import from shared.tensor works."""
-    from shared.tensor.tensor import Tensor as T
-
     var t = T[DType.float32]([2])
     assert_true(t.numel() == 2, "import from shared.tensor works")
     print("PASS: test_tensor_import_from_package")

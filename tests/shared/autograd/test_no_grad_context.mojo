@@ -7,15 +7,16 @@ Tests the gradient tracking control functionality including:
 """
 
 
-from std.testing import assert_true
+from std.testing import (
+    assert_equal,
+    assert_true,
+)
 from shared.autograd import (
     GradientTape,
     NoGradContext,
     disable_gradient_tracking,
     restore_gradient_tracking,
 )
-from std.testing import assert_true, assert_equal
-
 
 def test_no_grad_context_enter_disables_tracking() raises:
     """Test that NoGradContext.enter() disables tape recording."""

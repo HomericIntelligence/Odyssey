@@ -17,17 +17,10 @@ from tests.shared.conftest import (
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, arange
 from shared.core.utils import (
     argmax,
-    top_k_indices,
-)
-from shared.core.utils import (
-    top_k_indices,
+    argsort,
     top_k,
-    argsort,
+    top_k_indices,
 )
-from shared.core.utils import (
-    argsort,
-)
-
 
 def test_argmax_scalar_simple() raises:
     """Test argmax on a simple 1D tensor."""

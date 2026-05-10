@@ -3,47 +3,39 @@
 """
 
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    arange,
+    full,
+    ones,
+    zeros,
+)
 from shared.core.shape import (
-    reshape,
-    squeeze,
-    unsqueeze,
-    expand_dims,
-    flatten,
-    ravel,
-    concatenate,
-    stack,
-    flatten_to_2d,
+    as_contiguous,
     broadcast_to,
-)
-from tests.shared.conftest import (
-    assert_dtype,
-    assert_numel,
-    assert_dim,
-    assert_value_at,
-    assert_all_values,
-)
-from shared.core.shape import (
-    reshape,
-    squeeze,
-    unsqueeze,
+    concatenate,
     expand_dims,
     flatten,
+    flatten_to_2d,
+    permute,
     ravel,
+    repeat,
+    reshape,
+    split,
+    split_with_indices,
+    squeeze,
+    stack,
+    tile,
+    unsqueeze,
 )
-from shared.core.shape import concatenate, stack
-from shared.core.shape import broadcast_to, reshape
 from tests.shared.conftest import (
-    assert_equal,
-    assert_dtype,
-    assert_numel,
-    assert_dim,
-    assert_value_at,
     assert_all_values,
+    assert_dim,
+    assert_dtype,
+    assert_equal,
+    assert_numel,
+    assert_value_at,
 )
-from shared.tensor.any_tensor import AnyTensor, ones, zeros, arange
-from shared.core.shape import flatten_to_2d, concatenate, as_contiguous
-
 
 def test_reshape_valid() raises:
     """Test reshaping to compatible size."""
@@ -316,8 +308,6 @@ def test_stack_axis_1() raises:
 
 def test_split_equal() raises:
     """Test splitting into equal parts."""
-    from shared.core.shape import split
-
     var a = arange(0.0, 12.0, 1.0, DType.float32)
     var parts = split(a, 3)
 
@@ -330,8 +320,6 @@ def test_split_equal() raises:
 
 def test_split_unequal() raises:
     """Test splitting into unequal parts."""
-    from shared.core.shape import split_with_indices
-
     var a = arange(0.0, 10.0, 1.0, DType.float32)
     var indices = List[Int]()
     indices.append(3)
@@ -348,8 +336,6 @@ def test_split_unequal() raises:
 
 def test_tile_1d() raises:
     """Test tiling 1D tensor."""
-    from shared.core.shape import tile
-
     var a = arange(0.0, 3.0, 1.0, DType.float32)  # [0, 1, 2]
     var reps = List[Int]()
     reps.append(3)
@@ -361,8 +347,6 @@ def test_tile_1d() raises:
 
 def test_tile_multidim() raises:
     """Test tiling with multi-dimensional repetitions."""
-    from shared.core.shape import tile
-
     var shape = List[Int]()
     shape.append(2)
     shape.append(3)
@@ -393,8 +377,6 @@ def test_tile_multidim_values() raises:
        [0, 1, 2, 0, 1, 2],
        [3, 4, 5, 3, 4, 5]]
     """
-    from shared.core.shape import tile
-
     var shape = List[Int]()
     shape.append(2)
     shape.append(3)
@@ -446,8 +428,6 @@ def test_tile_multidim_values() raises:
 
 def test_repeat_elements() raises:
     """Test repeating each element."""
-    from shared.core.shape import repeat
-
     var a = arange(0.0, 3.0, 1.0, DType.float32)  # [0, 1, 2]
     var b = repeat(a, 2)
 
@@ -457,8 +437,6 @@ def test_repeat_elements() raises:
 
 def test_repeat_axis() raises:
     """Test repeating along specific axis."""
-    from shared.core.shape import repeat
-
     var shape = List[Int]()
     shape.append(2)
     shape.append(3)
@@ -510,8 +488,6 @@ def test_broadcast_to_incompatible() raises:
 
 def test_permute_axes() raises:
     """Test permuting axes (similar to transpose with axes)."""
-    from shared.core.shape import permute
-
     var shape = List[Int]()
     shape.append(2)
     shape.append(3)

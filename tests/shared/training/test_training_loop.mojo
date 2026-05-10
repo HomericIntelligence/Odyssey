@@ -14,34 +14,36 @@ Tests enabled after core infrastructure was completed:
 
 
 from tests.shared.conftest import (
-    assert_true,
-    assert_equal,
+    TestFixtures,
     assert_almost_equal,
-    assert_less,
+    assert_equal,
     assert_greater,
+    assert_less,
     assert_not_equal_tensor,
     assert_not_none,
     assert_shape_equal,
     assert_tensor_equal,
+    assert_true,
     assert_type,
-    create_simple_model,
     create_simple_dataset,
+    create_simple_model,
     create_test_vector,
-    TestFixtures,
 )
 from shared.training import SGD, MSELoss, TrainingLoop
 from shared.training.trainer_interface import DataLoader
-from shared.tensor.any_tensor import AnyTensor
-from shared.tensor.any_tensor import ones, zeros, randn
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    ones,
+    randn,
+    zeros,
+)
 from shared.core.arithmetic import subtract, multiply
 from shared.testing.models import SimpleMLP
-from shared.tensor.any_tensor import AnyTensor, ones, zeros, randn
-from tests.shared.conftest import (
-    assert_equal,
-    assert_greater,
+from shared.training.script_runner import (
+    StepFn,
+    TrainingCallbacks,
+    run_epoch_with_batches,
 )
-from shared.tensor.any_tensor import AnyTensor, ones, zeros
-from shared.training.script_runner import StepFn
 
 
 @fieldwise_init
@@ -106,8 +108,6 @@ def test_training_loop_full_epoch() raises:
         - Performs training step on each batch
         - Returns average loss for the epoch.
     """
-    from shared.training.trainer_interface import DataLoader
-
     # Create model, optimizer, and loss function
     var model = create_simple_model()
     var optimizer = SGD(learning_rate=0.01)
@@ -687,9 +687,6 @@ def test_run_epoch_with_batches() raises:
         4. Call run_epoch_with_batches()
         5. Assert avg_loss > 0.0 (non-zero inputs should produce non-zero loss)
     """
-    from shared.training.script_runner import run_epoch_with_batches
-    from shared.training.script_runner import TrainingCallbacks
-
     # Create DataLoader: 8 samples x 4 features, batch_size=2 -> 4 batches
     var data = ones([8, 4], DType.float32)
     var labels = zeros([8, 1], DType.float32)

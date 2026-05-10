@@ -9,24 +9,24 @@ Tests the OptimizerBase learning rate get/set methods and validation:
 """
 
 
-from std.testing import assert_true
+from std.testing import (
+    assert_equal,
+    assert_true,
+)
 from tests.shared.conftest import assert_almost_equal
-from shared.tensor.any_tensor import AnyTensor
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+)
 from shared.autograd.variable import Variable
 from shared.autograd.tape import GradientTape
 from shared.autograd.optimizers import SGD, Adam, AdaGrad, RMSprop
-from shared.autograd.optimizer_base import validate_learning_rate
-from std.testing import assert_true, assert_equal
-from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.autograd.optimizer_base import (
-    zero_grad_impl,
-    clip_gradients_by_global_norm,
-)
 from shared.autograd.optimizer_base import (
     clip_gradients_by_global_norm,
     count_parameters_with_gradients,
+    validate_learning_rate,
+    zero_grad_impl,
 )
-
 
 def test_sgd_get_set_lr() raises:
     """Test SGD learning rate get/set methods."""

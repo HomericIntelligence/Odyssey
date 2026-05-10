@@ -10,29 +10,17 @@ Tests cover:
 from tests.shared.conftest import (
     assert_almost_equal,
     assert_equal_int,
+    assert_true,
 )
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.dtype_dispatch import (
-    dispatch_unary,
-    dispatch_binary,
-)
-from tests.shared.conftest import (
-    assert_almost_equal,
-    assert_equal_int,
-    assert_true,
-)
-from shared.core.dtype_dispatch import (
-    dispatch_binary,
-    dispatch_scalar,
-    dispatch_float_unary,
-)
-from shared.core.dtype_dispatch import (
-    dispatch_unary,
     dispatch_binary,
     dispatch_float_binary,
     dispatch_float_scalar,
+    dispatch_float_unary,
+    dispatch_scalar,
+    dispatch_unary,
 )
-
 
 def identity_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Identity operation for unary dispatch testing."""
