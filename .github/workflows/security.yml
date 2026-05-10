@@ -75,7 +75,6 @@ jobs:
       - name: Run Semgrep
         id: semgrep
         run: semgrep scan --config auto --sarif --output semgrep.sarif .
-        continue-on-error: true
 
       - name: Verify SARIF file exists
         run: |
