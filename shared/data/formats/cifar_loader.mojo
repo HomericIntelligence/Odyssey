@@ -29,8 +29,11 @@ from std.memory import UnsafePointer
 from shared.tensor.any_tensor import AnyTensor, zeros
 from shared.data.constants import (
     CIFAR100_IMAGE_SIZE,
+    CIFAR10_BYTES_PER_IMAGE,
+    CIFAR10_CHANNELS,
     CIFAR10_IMAGE_SIZE,
     CIFAR10_NUM_CLASSES,
+    CIFAR100_BYTES_PER_IMAGE,
 )
 
 

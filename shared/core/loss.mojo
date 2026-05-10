@@ -60,7 +60,7 @@ def binary_cross_entropy(
             - Clips predictions to [epsilon, 1-epsilon] to prevent log(0).
             - Uses epsilon=1e-7 by default.
     """
-    from shared.core.arithmetic import subtract, multiply
+    from shared.core.arithmetic import subtract, multiply, add
     from shared.core.elementwise import log, clip
 
     if predictions.dtype() != targets.dtype():
@@ -135,7 +135,7 @@ def binary_cross_entropy_backward(
             var grad_pred = binary_cross_entropy_backward(grad_bce, predictions, targets)
             ```
     """
-    from shared.core.arithmetic import subtract, multiply, divide
+    from shared.core.arithmetic import subtract, multiply, divide, add
 
     # Gradient formula: (p - y) / (p(1-p) + epsilon)
     var one = ones_like(predictions)

@@ -395,7 +395,10 @@ def join_paths(parts: List[String]) -> String:
             result = result + "/"
         # Skip leading slash in part
         if part.startswith("/"):
-            result = result + part[1:]
+            var tail = String()
+            for j in range(1, part.byte_length()):
+                tail = tail + chr(Int(part.as_bytes()[j]))
+            result = result + tail
         else:
             result = result + part
 
@@ -420,15 +423,18 @@ def get_filename(path: String) -> String:
     """
     # Find last slash
     var last_slash = -1
-    for i in range(len(path) - 1, -1, -1):
-        if path[i] == "/":
+    for i in range(path.byte_length() - 1, -1, -1):
+        if chr(Int(path.as_bytes()[i])) == "/":
             last_slash = i
             break
 
     if last_slash == -1:
         return path
     else:
-        return path.substr(last_slash + 1, len(path) - (last_slash + 1))
+        var filename = String()
+        for i in range(last_slash + 1, path.byte_length()):
+            filename = filename + chr(Int(path.as_bytes()[i]))
+        return filename
 
 
 def get_extension(path: String) -> String:
@@ -449,18 +455,21 @@ def get_extension(path: String) -> String:
     """
     # Find last dot
     var last_dot = -1
-    for i in range(len(path) - 1, -1, -1):
-        if path[i] == ".":
+    for i in range(path.byte_length() - 1, -1, -1):
+        if chr(Int(path.as_bytes()[i])) == ".":
             last_dot = i
             break
-        elif path[i] == "/":
+        elif chr(Int(path.as_bytes()[i])) == "/":
             # Hit directory separator before finding dot
             return ""
 
     if last_dot == -1:
         return ""
     else:
-        return path.substr(last_dot, len(path) - last_dot)
+        var ext = String()
+        for i in range(last_dot, path.byte_length()):
+            ext = ext + chr(Int(path.as_bytes()[i]))
+        return ext
 
 
 # ============================================================================

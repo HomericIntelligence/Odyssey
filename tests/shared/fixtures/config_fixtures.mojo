@@ -449,7 +449,7 @@ def is_valid_yaml_syntax(config_str: String) -> Bool:
     var lines = config_str.split("\n")
 
     for line in lines:
-        var stripped = line[].strip()
+        var stripped = line.strip()
 
         # Skip empty lines and comments
         if len(stripped) == 0 or stripped.startswith("#"):
@@ -501,14 +501,15 @@ def is_valid_json_syntax(config_str: String) -> Bool:
     var open_brackets = 0
     var close_brackets = 0
 
-    for i in range(len(trimmed)):
-        if trimmed[i] == "{":
+    for i in range(trimmed.byte_length()):
+        var c = chr(Int(trimmed.as_bytes()[i]))
+        if c == "{":
             open_braces += 1
-        elif trimmed[i] == "}":
+        elif c == "}":
             close_braces += 1
-        elif trimmed[i] == "[":
+        elif c == "[":
             open_brackets += 1
-        elif trimmed[i] == "]":
+        elif c == "]":
             close_brackets += 1
 
     # Braces and brackets should match

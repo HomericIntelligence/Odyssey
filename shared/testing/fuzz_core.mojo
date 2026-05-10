@@ -50,6 +50,7 @@ Example:
 from std.random import random_float64, seed as random_seed
 from std.math import isnan, isinf
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
+from shared.testing.dtype_utils import dtype_to_string
 
 
 # ============================================================================
