@@ -19,6 +19,7 @@ from tests.shared.conftest import (
 )
 from shared.data.transforms import Compose, Normalize, Reshape
 from shared.tensor.any_tensor import AnyTensor
+from shared.data.datasets import AnyTensorDataset
 
 
 def test_compose_empty_pipeline() raises:
@@ -295,8 +296,6 @@ def test_transform_on_dataset_sample() raises:
         - Result is valid tensor
     """
     TestFixtures.set_seed()
-
-from shared.data.datasets import AnyTensorDataset
 
     # Create small dataset
     var data_list = List[Float32]()

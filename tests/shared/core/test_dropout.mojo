@@ -40,6 +40,7 @@ from shared.testing.gradient_checker import (
     NumericalForward,
     NumericalBackward,
 )
+from shared.core.arithmetic import multiply
 
 
 def test_dropout_shapes() raises:
@@ -226,7 +227,6 @@ struct _DropoutFwd(NumericalForward):
     var p: Float64
 
     def __call__(self, x: AnyTensor) raises -> AnyTensor:
-from shared.core.arithmetic import multiply
         var masked = multiply(x, self.mask)
         var scale = Float64(1.0) / (Float64(1.0) - self.p)
         var scale_tensor = full_like(x, scale)

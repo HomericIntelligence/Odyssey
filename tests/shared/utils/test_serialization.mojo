@@ -5,6 +5,7 @@ Covers both single tensor and collection operations.
 """
 
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
+from std.python import Python
 from shared.utils import (
     NamedTensor,
     save_named_tensors,
@@ -22,8 +23,6 @@ from std.testing import assert_true, assert_equal
 
 def create_test_dir(base: String) raises -> String:
     """Create a unique test directory."""
-from std.python import Python
-
     var uuid = Python.import_module("uuid")
     var test_id_str = String(uuid.uuid4())
     var test_id = String(test_id_str[byte=0:8])
