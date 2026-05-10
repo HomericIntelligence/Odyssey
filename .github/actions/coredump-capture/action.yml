@@ -1,6 +1,6 @@
 name: Coredump Capture
 description: |
-  Enable host-side core_pattern + container ulimit so the libKGEN JIT crash
+  Enable host-side pipe core_pattern + container ulimit so the libKGEN JIT crash
   (modular/modular#6413) produces a real coredump we can attach to gdb.
   After the test job, bundles cores + matching `mojo` binary + relevant
   `.so` files into a `crash-bundle-<job-name>` artifact (14-day retention).
@@ -11,12 +11,28 @@ description: |
 
   The two-step split is implemented via the `phase` input.
 
-  IMPORTANT: `core_pattern` paths are interpreted in the *crashing process's*
-  mount namespace. The crashing `mojo` runs inside `podman compose exec` where
-  the workspace is bind-mounted at `/workspace`. So `core_pattern` must use the
-  container-side path `/workspace/crash-bundle/cores/...`, which the kernel
-  resolves correctly inside the container and which lands on the host at
-  `<runner-cwd>/crash-bundle/cores/...` thanks to the bind mount.
+  DESIGN: pipe-handler core_pattern (not path-based)
+  ===================================================
+  PR #5380 used a path-based core_pattern:
+    /workspace/crash-bundle/cores/core.%p.%e.%t
+
+  Linux docs say the path is resolved in the crashing process's mount
+  namespace.  But with rootless Podman + UID-mapped subuids, the kernel
+  silently wrote nothing: every post-#5380 CI run produced zero ELF cores.
+
+  Solution (this PR): pipe handler sidesteps namespace resolution entirely.
+    core_pattern = |/usr/local/bin/coredump-host-handler.sh %p %e %t %s %P
+
+  The kernel invokes the script as PID 1 of the HOST namespace, piping the
+  core ELF on stdin. The script writes to the host-side path
+    /home/runner/work/ProjectOdyssey/ProjectOdyssey/crash-bundle/cores/
+  which is the actual directory the bind mount maps to — no namespace
+  ambiguity. See scripts/coredump-host-handler.sh for the handler.
+
+  ERROR HANDLING: the no-`|| true` policy (#5385) applies here. Best-effort
+  calls (sysctl on locked-down runners, stopping apport when it is not
+  installed, copying files that may not exist) use explicit warn-and-continue
+  guards instead of suppression so failures appear in the build log.
 
 inputs:
   phase:
@@ -30,23 +46,31 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Enable core dumps (host kernel + container)
+    - name: Enable core dumps (pipe handler — host kernel)
       if: inputs.phase == 'setup'
       shell: bash
       run: |
         set -x
-        # Host-side dir is bind-mounted into the container at /workspace by
-        # docker-compose.yml (`.:/workspace`). Use the *container* path in
-        # core_pattern so the kernel can resolve it from the crashing process's
-        # mount namespace.
+        # Create the cores dir on the host (the runner workspace). The handler
+        # script writes here directly — no bind-mount indirection needed.
         mkdir -p crash-bundle/cores
         chmod 1777 crash-bundle/cores
-        echo '/workspace/crash-bundle/cores/core.%p.%e.%t' \
+
+        # Install the pipe handler onto the host so the kernel can exec it.
+        # The handler receives the core ELF on stdin and writes it to the
+        # host-side crash-bundle/cores/ directory.
+        sudo cp scripts/coredump-host-handler.sh /usr/local/bin/coredump-host-handler.sh
+        sudo chmod +x /usr/local/bin/coredump-host-handler.sh
+
+        # Set pipe-mode core_pattern. Leading '|' is critical — it tells the
+        # kernel to exec the script as PID 1 of the HOST namespace rather than
+        # writing to a path inside the crashing process's mount namespace.
+        echo '|/usr/local/bin/coredump-host-handler.sh %p %e %t %s %P' \
           | sudo tee /proc/sys/kernel/core_pattern
-        # The sysctl + systemctl stop calls below are best-effort: hardened
-        # runners may forbid setting suid_dumpable=2, and the apport/
-        # systemd-coredump services may not be installed. Log unexpected
-        # failures to stderr but do not abort the setup phase.
+
+        # Best-effort tweaks: hardened runners may forbid suid_dumpable=2,
+        # and apport / systemd-coredump may not be installed. Warn loudly on
+        # unexpected failures (per #5385) instead of suppressing them.
         if ! sudo sysctl -w fs.suid_dumpable=2; then
           echo "warn: 'sysctl -w fs.suid_dumpable=2' rejected (cores from setuid binaries will not be captured)" >&2
         fi
@@ -61,22 +85,11 @@ runs:
           fi
         fi
 
-        # Raise core ulimit on the *running* container PID 1 so it propagates
-        # to every subsequent `podman compose exec` (per-exec `ulimit -c` is
-        # transient and does NOT propagate). systemd-style prlimit on PID 1
-        # only works if container has CAP_SYS_RESOURCE; fall back to a sysctl
-        # noop and rely on the in-container `ulimit -c` we re-set just before
-        # the test runs (see test job's pre-test step).
-        # Inside the container: set the limit, then print only the relevant
-        # rows for diagnostics. We `awk` the output (always exits 0) instead
-        # of suppression-style fallbacks so a missing match does not look like
-        # a failure (see Odysseus PR #280 Bucket D).
+        # Raise core ulimit inside the container so it propagates to every
+        # subsequent `podman compose exec` session. We `awk` the relevant rows
+        # so a missing match does not look like a failure (see #5385 Bucket D).
         podman compose exec -T projectodyssey-dev bash -c \
           'ulimit -c unlimited; ulimit -a | awk "/core|file size/"'
-
-        # Sanity check: confirm host dir is writable from inside the container.
-        podman compose exec -T projectodyssey-dev bash -c \
-          'mkdir -p /workspace/crash-bundle/cores && touch /workspace/crash-bundle/cores/.writable && rm /workspace/crash-bundle/cores/.writable && echo "container: /workspace/crash-bundle/cores writable"'
 
     - name: Collect core dumps + symbols (modular/modular#6413)
       if: inputs.phase == 'collect' && always()
@@ -92,9 +105,9 @@ runs:
         fi
 
         # ALWAYS bundle symbols + metadata (even if no cores), so we can
-        # distinguish "no crash this run" from "capture broken." A 564-byte
-        # metadata-only artifact is a positive signal that the action ran;
-        # a missing artifact means the action itself failed.
+        # distinguish "no crash this run" from "capture broken." A metadata-only
+        # artifact is a positive signal that the action ran; a missing artifact
+        # means the action itself failed.
         podman compose exec -T projectodyssey-dev bash -c '
           set +e
           # Resolve pixi env dir from `which mojo` — most reliable path:
@@ -128,11 +141,15 @@ runs:
           done
           shopt -u nullglob
           ls -la /workspace/crash-bundle/symbols/
-        ' || echo "warn: symbol-bundling subshell exited non-zero (continuing — metadata block still runs)" >&2
+        '
+        sym_rc=$?
+        if [ "$sym_rc" -ne 0 ]; then
+          echo "warn: symbol-bundling subshell exited $sym_rc (continuing — metadata block still runs)" >&2
+        fi
 
         # Build the metadata file with explicit exit-code consumption per probe
         # so a failed `podman compose exec` shows up as a diagnostic line
-        # rather than a silently-empty section.
+        # rather than a silently-empty section (#5385 Bucket D pattern).
         emit_probe() {
           local label="$1"; shift
           echo "=== $label ==="
@@ -155,14 +172,24 @@ runs:
             ls -la crash-bundle/cores/
           emit_probe "Symbols bundled" \
             ls -la crash-bundle/symbols/
+          # Pipe-handler-specific: prove the handler ran (or not) by surfacing
+          # its log. Empty log + crash signature in tests means the pipe
+          # core_pattern was not reached (suid_dumpable / ulimit -c issue).
+          echo "=== handler.log (pipe handler invocations) ==="
+          if [ -r crash-bundle/handler.log ]; then
+            cat crash-bundle/handler.log
+          else
+            echo "(no handler.log — handler was not invoked this run)"
+          fi
         } > crash-bundle/metadata.txt
 
-        # If no cores, still upload the metadata + symbols so the artifact
-        # appears in the run (proves the action executed end-to-end).
+        # If no cores, still upload metadata + symbols so the artifact appears
+        # in the run (proves the action executed end-to-end).
         if [ -z "$(ls -A crash-bundle/cores/ 2>/dev/null)" ]; then
           echo "No cores captured this run — uploading metadata + symbols only."
-          echo "(If a crash signature appeared in test logs, the capture action " \
-               "is mis-wired: see docs comment in this file.)" \
+          echo "(If a crash appeared in test logs but handler.log is empty," \
+               "the pipe core_pattern may not have been reached — check" \
+               "suid_dumpable and ulimit -c inside the container.)" \
                >> crash-bundle/metadata.txt
         fi
 
