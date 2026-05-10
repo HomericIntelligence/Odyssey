@@ -32,9 +32,6 @@ RUN mkdir -p -m 755 /etc/apt/keyrings \
     && apt-get install -y gh \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Claude Code CLI (pinned version for reproducible builds)
-RUN curl -fsSL https://claude.ai/install.sh | bash -s -- stable
-
 # Install just tool (pre-built binary for faster installation)
 RUN curl -fsSL https://just.systems/install.sh | bash -s -- --to /usr/local/bin --tag 1.14.0
 
@@ -69,6 +66,10 @@ FROM base AS development
 
 # Re-declare ARG so it's available in this stage (ARGs don't persist across FROM)
 ARG USER_NAME=dev
+
+# Install Claude Code CLI here (development-only — keeps it out of the
+# production image per #5328). Runs as root before USER switch.
+RUN curl -fsSL https://claude.ai/install.sh | bash -s -- stable
 
 # Switch to dev user
 USER ${USER_NAME}
