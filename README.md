@@ -188,6 +188,7 @@ just validate
 - [Shared Library README](shared/README.md)
 - [Contributing Guide](CONTRIBUTING.md)
 - [Architecture Decision Records](docs/adr/)
+- [Privacy & Data-Handling Policy](docs/PRIVACY.md)
 
 ## Project Structure
 

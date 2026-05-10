@@ -139,6 +139,10 @@ Reporters who follow responsible disclosure will be:
 - Listed in our security hall of fame (coming soon)
 - Thanked publicly (with permission)
 
+## Privacy
+
+For data-handling and GDPR guidance, see [docs/PRIVACY.md](docs/PRIVACY.md).
+
 ---
 
 Thank you for helping keep ML Odyssey secure!
