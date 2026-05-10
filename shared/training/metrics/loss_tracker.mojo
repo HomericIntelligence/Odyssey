@@ -9,8 +9,6 @@ Features:
 - Multi-component loss tracking (e.g., total, reconstruction, regularization)
 - Statistical summaries (mean, std, min, max)
 
-Issues covered:
-- #283-287: Loss tracking implementation
 """
 
 from std.collections import List

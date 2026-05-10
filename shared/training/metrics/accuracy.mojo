@@ -11,8 +11,6 @@ Metric types:
 Type support:
 - All functions work with AnyTensor (int32/int64 for labels, float32/float64 for logits)
 
-Issues covered:
-- #278-282: Accuracy metrics implementation
 """
 
 from shared.tensor.any_tensor import AnyTensor

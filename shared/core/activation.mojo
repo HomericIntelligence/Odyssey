@@ -18,12 +18,6 @@ Reference implementations follow PyTorch and TensorFlow conventions:
 Type support:
 - ReLU family: float16, float32, float64, int8, int16, int32, int64, uint8, uint16, uint32, uint64
 - Sigmoid/Tanh/Softmax/GELU: float16, float32, float64
-
-Issues covered:
-- #238-242: ReLU Family (ReLU, Leaky ReLU, PReLU)
-- #243-247: Sigmoid and Tanh
-- #248-252: Softmax and GELU
-- #253-257: Activations module integration
 """
 
 from std.math import exp, erf, sqrt, tanh as math_tanh, log as math_log

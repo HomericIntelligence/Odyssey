@@ -9,8 +9,6 @@ Features:
 - Derived metrics (precision, recall, F1-score per class)
 - Optional class names for interpretability
 
-Issues covered:
-- #288-292: Confusion matrix implementation
 """
 
 from shared.tensor.any_tensor import AnyTensor
