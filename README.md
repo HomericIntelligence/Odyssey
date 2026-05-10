@@ -182,6 +182,8 @@ just validate
 ## Documentation
 
 - [Installation Guide](docs/getting-started/installation.md)
+- [External Consumer Install Guide](docs/INSTALL.md)
+- [Roadmap](ROADMAP.md)
 - [Quickstart](docs/getting-started/quickstart.md)
 - [Your First Model](docs/getting-started/first_model.md)
 - [Repository Structure](docs/getting-started/repository-structure.md)
