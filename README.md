@@ -8,7 +8,6 @@ maximum performance and type safety.
 [![Mojo](https://img.shields.io/badge/Mojo-1.0.0b2-orange.svg)](https://mojolang.org/)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-298%2B-brightgreen.svg)](tests/)
-[![Coverage](https://img.shields.io/badge/coverage-pending-lightgrey.svg)](#coverage-status)
 [![CI](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/comprehensive-tests.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/comprehensive-tests.yml)
 [![Pre-commit](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/pre-commit.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/pre-commit.yml)
 [![Security](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/security.yml/badge.svg?branch=main)](https://github.com/HomericIntelligence/ProjectOdyssey/actions/workflows/security.yml)
@@ -184,6 +183,7 @@ just validate
 
 - [Installation Guide](docs/getting-started/installation.md)
 - [Quickstart](docs/getting-started/quickstart.md)
+- [Your First Model](docs/getting-started/first_model.md)
 - [Repository Structure](docs/getting-started/repository-structure.md)
 - [Shared Library README](shared/README.md)
 - [Contributing Guide](CONTRIBUTING.md)
@@ -231,9 +231,17 @@ Full code coverage metrics are blocked by [Mojo coverage tooling availability](d
 ### Current Workarounds
 
 - All `test_*.mojo` files verified in CI via test discovery validation
-- 247+ test files tracked with 500+ test functions
+- 298 test files (as of last count: `find tests -name 'test_*.mojo' | wc -l`) with 500+ test functions
 - Manual code review via PR checklist for test coverage verification
-- 70%+ threshold enforced for Python automation scripts
+- 70%+ threshold enforced for Python automation scripts via pytest-cov
+
+> **Note on Mojo coverage**: Mojo has no enforced coverage threshold. The targets in `coverage.toml`
+> are aspirational, not gated in CI. This is a known gap; enforcement will be added once Mojo
+> coverage tooling matures.
+>
+> **Note on gradient coverage**: The gradient-coverage metric reported in CI is a proxy — it counts
+> test files against backward-pass functions. It is **not** line-of-code coverage and cannot detect
+> which branches within a backward pass are actually exercised.
 
 ### When Mojo Coverage Available
 
@@ -243,6 +251,12 @@ mojo coverage report --format=lcov > coverage.lcov
 ```
 
 See [ADR-008](docs/adr/ADR-008-coverage-tool-blocker.md) for complete explanation.
+
+## Benchmarks
+
+Performance benchmarks live in `benchmarks/`. They are run as informational snapshots and are
+**not a CI pass/fail gate** — a slower result does not block a PR from merging. Use benchmark
+output to guide optimization work, not as a correctness signal.
 
 ## License
 
