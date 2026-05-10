@@ -8,49 +8,25 @@ Coverage:
 
 
 from shared.testing import (
-    SimpleCNN,
     LinearModel,
-    assert_true,
+    MockLayer,
+    Parameter,
+    SimpleCNN,
+    SimpleLinearModel,
+    SimpleMLP,
+    assert_close_float,
     assert_equal,
+    assert_true,
+    create_linear_model,
+    create_test_cnn,
 )
 from shared.tensor.any_tensor import (
     AnyTensor,
-    zeros,
-    ones,
     full,
+    ones,
+    zeros,
     zeros_like,
 )
-from shared.testing import (
-    SimpleMLP,
-    assert_true,
-    assert_equal,
-)
-from shared.tensor.any_tensor import (
-    AnyTensor,
-    zeros,
-    ones,
-)
-from shared.testing import (
-    SimpleMLP,
-    assert_equal,
-)
-from shared.testing import (
-    MockLayer,
-    SimpleLinearModel,
-    assert_equal,
-    assert_close_float,
-)
-from shared.testing import (
-    SimpleMLP,
-    SimpleLinearModel,
-    Parameter,
-    create_test_cnn,
-    create_linear_model,
-    assert_true,
-    assert_equal,
-    assert_close_float,
-)
-
 
 def test_simple_cnn_initialization() raises:
     """Test SimpleCNN initialization with default and custom parameters."""

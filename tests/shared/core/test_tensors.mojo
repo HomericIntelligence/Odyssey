@@ -8,14 +8,14 @@ All tests use pure functional API.
 
 
 from tests.shared.conftest import (
-    assert_true,
-    assert_equal_int,
-    assert_close_float,
-    assert_equal,
+    TestFixtures,
     assert_almost_equal,
+    assert_close_float,
     assert_dtype_equal,
+    assert_equal,
+    assert_equal_int,
+    assert_true,
 )
-from tests.shared.conftest import TestFixtures
 from shared.tensor.any_tensor import (
     AnyTensor,
     zeros,

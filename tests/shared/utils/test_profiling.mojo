@@ -19,7 +19,18 @@ from tests.shared.conftest import (
 
 def test_time_function() raises:
     """Test timing a function execution."""
-    from shared.utils.profiling import profile_function
+from shared.utils.profiling import (
+    BaselineMetrics,
+    ProfilingReport,
+    Timer,
+    TimingStats,
+    benchmark_function,
+    detect_performance_regression,
+    generate_timing_report,
+    measure_profiling_overhead,
+    memory_usage,
+    profile_function,
+)
 
     def simple_work() raises:
         var x = 0
@@ -46,8 +57,6 @@ def test_timing_decorator():
 
 def test_timing_multiple_calls() raises:
     """Test timing function called multiple times."""
-    from shared.utils.profiling import benchmark_function
-
     def simple_work() raises:
         var x = 0
         for i in range(100):
@@ -72,8 +81,6 @@ def test_timing_precision():
 
 def test_timing_context_manager() raises:
     """Test timing using context manager."""
-    from shared.utils.profiling import Timer
-
     # Basic test that Timer context manager works
     var timer = Timer("test_op")
     timer.__enter__()
@@ -91,8 +98,6 @@ def test_timing_context_manager() raises:
 def test_measure_memory_usage() raises:
     """Test measuring memory usage of function."""
     # Basic test that memory_usage function works
-    from shared.utils.profiling import memory_usage
-
     var _ = memory_usage()
     # Verify that we get a MemoryStats object
     assert_true(True, "memory_usage() executed successfully")
@@ -134,8 +139,6 @@ def test_memory_leak_detection():
 
 def test_profiling_overhead_timing() raises:
     """Test profiling overhead for timing is < 5%."""
-    from shared.utils.profiling import measure_profiling_overhead
-
     var overhead_percent = measure_profiling_overhead(100)
     # Overhead should be reasonable (not negative or unrealistic)
     assert_true(
@@ -166,11 +169,6 @@ def test_disable_profiling():
 
 def test_generate_timing_report() raises:
     """Test generating timing report for multiple functions."""
-    from shared.utils.profiling import (
-        generate_timing_report,
-        TimingStats,
-    )
-
     # Create test timing data
     var timings = Dict[String, TimingStats]()
 
@@ -233,11 +231,6 @@ def test_report_format_text():
 
 def test_report_format_json() raises:
     """Test report output in JSON format."""
-    from shared.utils.profiling import (
-        ProfilingReport,
-        TimingStats,
-    )
-
     var report = ProfilingReport()
     var stats = TimingStats()
     stats.name = "test_func"
@@ -381,12 +374,6 @@ def test_compare_implementations():
 
 def test_regression_detection() raises:
     """Test detecting performance regressions."""
-    from shared.utils.profiling import (
-        detect_performance_regression,
-        TimingStats,
-        BaselineMetrics,
-    )
-
     # Create baseline metrics
     var baseline = Dict[String, BaselineMetrics]()
     var baseline_func = BaselineMetrics()

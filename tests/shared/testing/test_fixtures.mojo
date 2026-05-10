@@ -7,23 +7,19 @@ Tests SimpleCNN and LinearModel structs plus the create_test_cnn factory functio
 from std.testing import assert_true, assert_equal
 from shared.testing.models import SimpleCNN, LinearModel
 from shared.testing.fixtures import (
-    create_test_cnn,
-)
-from shared.tensor.any_tensor import ones
-from shared.testing.fixtures import (
+    assert_tensor_all_finite,
+    assert_tensor_dtype,
+    assert_tensor_not_all_zeros,
+    assert_tensor_shape,
     create_linear_model,
+    create_test_cnn,
     create_test_input,
     create_test_targets,
-    assert_tensor_shape,
-    assert_tensor_dtype,
 )
-from shared.testing.fixtures import (
-    assert_tensor_dtype,
-    assert_tensor_all_finite,
-    assert_tensor_not_all_zeros,
+from shared.tensor.any_tensor import (
+    ones,
+    zeros,
 )
-from shared.tensor.any_tensor import ones, zeros
-
 
 def test_simple_cnn_initialization() raises:
     """Test SimpleCNN struct initialization."""

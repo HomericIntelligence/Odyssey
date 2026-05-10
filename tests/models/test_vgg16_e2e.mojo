@@ -20,14 +20,14 @@ Tests use small input values (0.01) to prevent numerical overflow through
 """
 
 from tests.shared.conftest import (
+    TestFixtures,
     assert_equal,
     assert_equal_int,
-    assert_shape,
     assert_greater,
     assert_less,
+    assert_shape,
     assert_true,
 )
-from tests.shared.conftest import TestFixtures
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, randn
 from shared.core.conv import conv2d, conv2d_backward
 from shared.core.linear import linear, linear_backward

@@ -22,7 +22,7 @@ from std.testing import assert_true, assert_equal
 
 def create_test_dir(base: String) raises -> String:
     """Create a unique test directory."""
-    from std.python import Python
+from std.python import Python
 
     var uuid = Python.import_module("uuid")
     var test_id_str = String(uuid.uuid4())
@@ -33,8 +33,6 @@ def create_test_dir(base: String) raises -> String:
 
 def cleanup_test_dir(dir_path: String) -> Bool:
     """Clean up test directory after testing."""
-    from std.python import Python
-
     try:
         var shutil = Python.import_module("shutil")
         shutil.rmtree(dir_path)

@@ -19,38 +19,15 @@ from tests.shared.conftest import (
 )
 from shared.tensor.any_tensor import AnyTensor
 from shared.core.initializers import (
-    xavier_uniform,
+    constant,
+    kaiming_normal,
+    kaiming_uniform,
+    normal,
+    uniform,
     xavier_normal,
+    xavier_uniform,
 )
 from std.math import sqrt
-from shared.core.initializers import (
-    xavier_uniform,
-    xavier_normal,
-    kaiming_uniform,
-)
-from shared.core.initializers import (
-    kaiming_uniform,
-    kaiming_normal,
-    uniform,
-)
-from shared.core.initializers import (
-    uniform,
-    normal,
-)
-from shared.core.initializers import (
-    xavier_uniform,
-    xavier_normal,
-    constant,
-)
-from shared.core.initializers import (
-    xavier_uniform,
-    kaiming_uniform,
-    kaiming_normal,
-    uniform,
-    normal,
-    constant,
-)
-
 
 def compute_mean(tensor: AnyTensor) -> Float64:
     """Compute mean of tensor values."""

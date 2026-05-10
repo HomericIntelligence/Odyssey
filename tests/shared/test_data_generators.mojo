@@ -11,43 +11,19 @@ Tests random_tensor function:
 
 
 from shared.testing import (
+    random_normal,
     random_tensor,
-)
-from tests.shared.conftest import (
-    assert_true,
-    assert_dtype,
-    assert_numel,
-    assert_dim,
-)
-from shared.testing import (
     random_uniform,
-    random_normal,
-)
-from tests.shared.conftest import (
-    assert_true,
-    assert_dtype,
-    assert_numel,
-)
-from shared.testing import (
-    random_normal,
     synthetic_classification_data,
 )
 from tests.shared.conftest import (
-    assert_true,
+    assert_dim,
     assert_dtype,
-    assert_shape,
-)
-from shared.testing import (
-    random_tensor,
-    random_normal,
-    synthetic_classification_data,
-)
-from tests.shared.conftest import (
     assert_equal_int,
-    assert_shape,
     assert_numel,
+    assert_shape,
+    assert_true,
 )
-
 
 def test_random_tensor_shape_1d() raises:
     """Test random_tensor creates correct 1D shape."""

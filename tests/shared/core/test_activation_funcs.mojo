@@ -20,27 +20,17 @@ from tests.shared.conftest import (
 )
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.activation import (
+    leaky_relu,
+    leaky_relu_backward,
     relu,
     relu_backward,
     sigmoid,
     sigmoid_backward,
-    leaky_relu,
-    leaky_relu_backward,
-)
-from shared.core.activation import (
-    tanh,
-    tanh_backward,
     softmax,
     softmax_backward,
-)
-from shared.core.activation import (
-    relu,
-    relu_backward,
-    sigmoid,
     tanh,
-    softmax,
+    tanh_backward,
 )
-
 
 def test_relu_positive_values() raises:
     """Test ReLU preserves positive values."""

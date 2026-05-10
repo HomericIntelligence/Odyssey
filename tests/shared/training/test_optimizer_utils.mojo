@@ -15,26 +15,20 @@ These tests verify the common utilities available to all optimizer implementatio
 from tests.shared.conftest import assert_true, assert_almost_equal, assert_equal
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, zeros_like
 from shared.training.optimizers import (
+    apply_bias_correction,
+    apply_weight_decay,
+    clip_global_norm,
+    clip_tensor_norm,
+    compute_global_norm,
+    compute_tensor_norm,
+    compute_weight_decay_term,
     initialize_optimizer_state,
     initialize_optimizer_state_from_params,
+    normalize_tensor_to_unit_norm,
     scale_tensor,
     scale_tensor_inplace,
-    compute_tensor_norm,
-    compute_global_norm,
-    clip_tensor_norm,
-)
-from shared.training.optimizers import (
-    compute_weight_decay_term,
-    apply_weight_decay,
-    compute_tensor_norm,
-    compute_global_norm,
-    normalize_tensor_to_unit_norm,
-    clip_tensor_norm,
-    clip_global_norm,
-    apply_bias_correction,
     validate_optimizer_state,
 )
-
 
 def test_initialize_optimizer_state() raises:
     """Test basic optimizer state initialization."""

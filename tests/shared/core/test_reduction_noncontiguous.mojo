@@ -16,17 +16,20 @@ from tests.shared.conftest import (
     assert_false,
     assert_true,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
-from shared.core.reduction import sum, mean
-from shared.core.matrix import transpose_view
-from tests.shared.conftest import (
-    assert_almost_equal,
-    assert_equal_int,
-    assert_false,
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    arange,
+    full,
+    ones,
+    zeros,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros, arange
-from shared.core.reduction import max_reduce, min_reduce
-
+from shared.core.reduction import (
+    max_reduce,
+    mean,
+    min_reduce,
+    sum,
+)
+from shared.core.matrix import transpose_view
 
 def _make_nc_2x3() raises -> AnyTensor:
     """Non-contiguous 3×2 tensor (transpose of 2×3 sequential).

@@ -22,26 +22,18 @@ from std.testing import (
 )
 from shared.tensor.any_tensor import AnyTensor
 from shared.training.trainer_interface import (
+    DataBatch,
+    DataLoader,
     TrainerConfig,
     TrainingMetrics,
-    DataLoader,
-    DataBatch,
 )
 from shared.training.loops.training_loop import TrainingLoop
 from shared.training.loops.validation_loop import ValidationLoop
 from shared.training.trainer import (
     BaseTrainer,
-    create_trainer,
     create_default_trainer,
+    create_trainer,
 )
-from shared.training.trainer_interface import TrainerConfig, TrainingMetrics
-from shared.training.trainer_interface import (
-    TrainerConfig,
-    TrainingMetrics,
-    DataBatch,
-)
-from shared.training.trainer import BaseTrainer
-
 
 def mock_model_forward(input: AnyTensor) raises -> AnyTensor:
     """Mock model forward pass - returns input unchanged."""

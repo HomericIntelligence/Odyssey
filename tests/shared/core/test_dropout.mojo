@@ -13,6 +13,7 @@ All tests use pure functional API.
 
 
 from tests.shared.conftest import (
+    TestFixtures,
     assert_almost_equal,
     assert_close_float,
     assert_equal,
@@ -20,13 +21,13 @@ from tests.shared.conftest import (
     assert_shape,
     assert_true,
 )
-from tests.shared.conftest import TestFixtures
 from shared.tensor.any_tensor import (
     AnyTensor,
-    zeros,
+    full_like,
     ones,
-    zeros_like,
     ones_like,
+    zeros,
+    zeros_like,
 )
 from shared.core.dropout import (
     dropout,
@@ -225,9 +226,7 @@ struct _DropoutFwd(NumericalForward):
     var p: Float64
 
     def __call__(self, x: AnyTensor) raises -> AnyTensor:
-        from shared.core.arithmetic import multiply
-        from shared.tensor.any_tensor import full_like
-
+from shared.core.arithmetic import multiply
         var masked = multiply(x, self.mask)
         var scale = Float64(1.0) / (Float64(1.0) - self.p)
         var scale_tensor = full_like(x, scale)
@@ -383,9 +382,6 @@ struct _Dropout2dFwd(NumericalForward):
     var p: Float64
 
     def __call__(self, x: AnyTensor) raises -> AnyTensor:
-        from shared.core.arithmetic import multiply
-        from shared.tensor.any_tensor import full_like
-
         var masked = multiply(x, self.mask)
         var scale = Float64(1.0) / (Float64(1.0) - self.p)
         var scale_tensor = full_like(x, scale)

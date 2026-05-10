@@ -14,40 +14,27 @@ from tests.shared.conftest import (
     assert_not_equal,
 )
 from shared.utils.visualization import (
+    ConfusionMatrixData,
     PlotData,
     PlotSeries,
-    ConfusionMatrixData,
-    plot_training_curves,
-    plot_loss_only,
-    plot_accuracy_only,
-)
-from shared.utils.visualization import (
-    plot_loss_only,
-    plot_accuracy_only,
+    clear_figure,
     compute_confusion_matrix,
-    plot_confusion_matrix,
-)
-from shared.utils.visualization import (
-    normalize_confusion_matrix,
     compute_matrix_metrics,
-    compute_confusion_matrix,
+    detect_gradient_issues,
+    normalize_confusion_matrix,
+    plot_accuracy_only,
+    plot_confusion_matrix,
+    plot_loss_only,
+    plot_training_curves,
+    save_figure,
+    show_augmented_images,
+    show_figure,
+    show_images,
+    visualize_feature_maps,
+    visualize_gradient_flow,
     visualize_model_architecture,
     visualize_tensor_shapes,
 )
-from shared.utils.visualization import (
-    visualize_gradient_flow,
-    detect_gradient_issues,
-    show_images,
-)
-from shared.utils.visualization import (
-    show_images,
-    show_augmented_images,
-    visualize_feature_maps,
-    save_figure,
-    clear_figure,
-    show_figure,
-)
-
 
 def test_plot_data_default_init() raises:
     """Test PlotData default initialization."""

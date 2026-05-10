@@ -10,6 +10,7 @@ All tests use pure functional API.
 
 
 from tests.shared.conftest import (
+    TestFixtures,
     assert_almost_equal,
     assert_close_float,
     assert_equal,
@@ -17,7 +18,6 @@ from tests.shared.conftest import (
     assert_shape,
     assert_true,
 )
-from tests.shared.conftest import TestFixtures
 from shared.tensor.any_tensor import (
     AnyTensor,
     zeros,

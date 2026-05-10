@@ -5,9 +5,10 @@ stride-based element access instead of flat-index access.
 """
 
 from shared.tensor.any_tensor import AnyTensor, arange
-from shared.core.shape import reshape
-from shared.core.shape import is_contiguous
-
+from shared.core.shape import (
+    is_contiguous,
+    reshape,
+)
 from tests.shared.conftest import (
     assert_numel,
     assert_dim,

@@ -15,6 +15,7 @@ All tests use pure functional API - no internal state.
 
 
 from tests.shared.conftest import (
+    TestFixtures,
     assert_almost_equal,
     assert_close_float,
     assert_equal,
@@ -22,7 +23,6 @@ from tests.shared.conftest import (
     assert_shape,
     assert_true,
 )
-from tests.shared.conftest import TestFixtures
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.linear import (
     linear,

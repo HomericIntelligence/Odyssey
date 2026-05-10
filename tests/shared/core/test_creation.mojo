@@ -4,40 +4,33 @@ Tests zeros() and ones() creation functions with various shapes and dtypes.
 """
 
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones
-from tests.shared.conftest import (
-    assert_true,
-    assert_false,
-    assert_equal_int,
-    assert_equal_float,
-    assert_close_float,
-    assert_shape,
-    assert_dtype,
-    assert_numel,
-    assert_dim,
-    assert_value_at,
-    assert_all_values,
-    assert_all_close,
-)
-from shared.tensor.any_tensor import AnyTensor, full, empty
-from shared.tensor.any_tensor import AnyTensor, arange, eye
-from shared.tensor.any_tensor import AnyTensor, eye, linspace
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.tensor.any_tensor import (
     AnyTensor,
-    nan_tensor,
+    arange,
+    empty,
+    eye,
+    full,
     inf_tensor,
+    linspace,
+    nan_tensor,
     neg_inf_tensor,
+    ones,
+    zeros,
 )
 from tests.shared.conftest import (
-    assert_true,
-    assert_false,
-    assert_shape,
-    assert_dtype,
-    assert_numel,
+    assert_all_close,
+    assert_all_values,
+    assert_close_float,
     assert_dim,
+    assert_dtype,
+    assert_equal_float,
+    assert_equal_int,
+    assert_false,
+    assert_numel,
+    assert_shape,
+    assert_true,
+    assert_value_at,
 )
-
 
 def test_zeros_1d_float32() raises:
     """Test creating 1D tensor of zeros with float32."""

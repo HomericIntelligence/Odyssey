@@ -23,12 +23,20 @@ from tests.shared.conftest import (
     assert_false,
     assert_true,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
-from shared.core.conv import conv2d, conv2d_no_bias
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    arange,
+    full,
+    ones,
+    zeros,
+)
+from shared.core.conv import (
+    conv2d,
+    conv2d_backward,
+    conv2d_no_bias,
+    conv2d_no_bias_backward,
+)
 from shared.core.shape import as_contiguous
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
-from shared.core.conv import conv2d_backward, conv2d_no_bias_backward
-
 
 def _make_nc_nchw_symmetric() raises -> AnyTensor:
     """Create a non-contiguous (1,1,6,4) tensor by transposing (1,1,4,6).

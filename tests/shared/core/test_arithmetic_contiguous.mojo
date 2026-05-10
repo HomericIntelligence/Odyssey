@@ -21,7 +21,10 @@ from shared.core.arithmetic import add, subtract, multiply, divide
 
 def test_shapes_match_identical_1d() raises:
     """Test shapes_match helper with identical 1D shapes."""
-    from shared.core.arithmetic_contiguous import shapes_match
+from shared.core.arithmetic_contiguous import (
+    can_use_fast_path,
+    shapes_match,
+)
 
     var a = ones([5], DType.float32)
     var b = ones([5], DType.float32)
@@ -31,8 +34,6 @@ def test_shapes_match_identical_1d() raises:
 
 def test_shapes_match_identical_2d() raises:
     """Test shapes_match helper with identical 2D shapes."""
-    from shared.core.arithmetic_contiguous import shapes_match
-
     var a = ones([3, 4], DType.float32)
     var b = ones([3, 4], DType.float32)
 
@@ -41,8 +42,6 @@ def test_shapes_match_identical_2d() raises:
 
 def test_shapes_match_different_shapes() raises:
     """Test shapes_match helper with different shapes."""
-    from shared.core.arithmetic_contiguous import shapes_match
-
     var a = ones([3, 4], DType.float32)
     var b = ones([3, 5], DType.float32)
 
@@ -51,8 +50,6 @@ def test_shapes_match_different_shapes() raises:
 
 def test_shapes_match_different_dims() raises:
     """Test shapes_match helper with different number of dimensions."""
-    from shared.core.arithmetic_contiguous import shapes_match
-
     var a = ones([3, 4], DType.float32)
     var b = ones([3, 4, 1], DType.float32)
 
@@ -63,8 +60,6 @@ def test_shapes_match_different_dims() raises:
 
 def test_can_use_fast_path_contiguous_same_shape() raises:
     """Test can_use_fast_path with contiguous same-shape tensors."""
-    from shared.core.arithmetic_contiguous import can_use_fast_path
-
     var a = ones([3, 4], DType.float32)
     var b = ones([3, 4], DType.float32)
 
@@ -79,8 +74,6 @@ def test_can_use_fast_path_contiguous_same_shape() raises:
 
 def test_can_use_fast_path_different_shapes() raises:
     """Test can_use_fast_path rejects different shapes."""
-    from shared.core.arithmetic_contiguous import can_use_fast_path
-
     var a = ones([3, 4], DType.float32)
     var b = ones([3, 5], DType.float32)
 
@@ -92,8 +85,6 @@ def test_can_use_fast_path_different_shapes() raises:
 
 def test_can_use_fast_path_different_dtypes() raises:
     """Test can_use_fast_path rejects different dtypes."""
-    from shared.core.arithmetic_contiguous import can_use_fast_path
-
     var a = ones([3, 4], DType.float32)
     var b = ones([3, 4], DType.float64)
 

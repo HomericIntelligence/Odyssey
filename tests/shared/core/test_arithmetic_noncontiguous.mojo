@@ -17,11 +17,14 @@ from tests.shared.conftest import (
     assert_true,
 )
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
-from shared.core.arithmetic import add, subtract, multiply, divide
+from shared.core.arithmetic import (
+    add,
+    divide,
+    multiply,
+    subtract,
+)
 from shared.core.matrix import transpose_view
 from shared.core.shape import as_contiguous
-from shared.core.arithmetic import add, subtract, multiply
-
 
 def _make_noncontiguous_2x3() raises -> AnyTensor:
     """Create a non-contiguous 3×2 tensor by transposing a 2×3.

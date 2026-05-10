@@ -18,7 +18,10 @@ from tests.shared.conftest import (
     assert_all_values,
     assert_all_close,
 )
-from shared.base.broadcasting import are_shapes_broadcastable
+from shared.base.broadcasting import (
+    BroadcastIterator,
+    are_shapes_broadcastable,
+)
 
 
 def test_broadcast_scalar_to_1d() raises:
@@ -476,8 +479,6 @@ def test_broadcast_complex_3d_with_multiply() raises:
 
 def test_broadcast_iterator_1d() raises:
     """Test BroadcastIterator with 1D tensors."""
-    from shared.base.broadcasting import BroadcastIterator
-
     # Shape: [3]
     # Strides: [1] for both (no broadcasting)
     var shape = List[Int]()
@@ -510,8 +511,6 @@ def test_broadcast_iterator_1d() raises:
 
 def test_broadcast_iterator_2d_no_broadcast() raises:
     """Test BroadcastIterator with 2D tensors (no broadcasting)."""
-    from shared.base.broadcasting import BroadcastIterator
-
     # Shape: [2, 3]
     # Strides: [3, 1] for both (row-major, no broadcasting)
     var shape = List[Int]()
@@ -563,8 +562,6 @@ def test_broadcast_iterator_2d_no_broadcast() raises:
 
 def test_broadcast_iterator_2d_broadcast_second() raises:
     """Test BroadcastIterator with 2D broadcast (second tensor is [1,3])."""
-    from shared.base.broadcasting import BroadcastIterator
-
     # Shape: [2, 3] (broadcast result)
     # Tensor A: [2, 3], strides [3, 1]
     # Tensor B: [1, 3], strides [0, 1] (first dim broadcasted)
@@ -615,8 +612,6 @@ def test_broadcast_iterator_2d_broadcast_second() raises:
 
 def test_broadcast_iterator_3d_complex() raises:
     """Test BroadcastIterator with complex 3D case."""
-    from shared.base.broadcasting import BroadcastIterator
-
     # Shape: [2, 3, 4] (broadcast result)
     # Both tensors have same shape, strides [12, 4, 1]
     var shape = List[Int]()
@@ -652,8 +647,6 @@ def test_broadcast_iterator_3d_complex() raises:
 
 def test_broadcast_iterator_scalar_broadcast() raises:
     """Test BroadcastIterator broadcasting scalar to 1D."""
-    from shared.base.broadcasting import BroadcastIterator
-
     # Shape: [5] (broadcast result)
     # Tensor A: [5], strides [1]
     # Tensor B: scalar [0], strides [0] (entire dimension is broadcast)
@@ -683,8 +676,6 @@ def test_broadcast_iterator_scalar_broadcast() raises:
 
 def test_broadcast_iterator_exhaustion() raises:
     """Test that BroadcastIterator properly signals exhaustion."""
-    from shared.base.broadcasting import BroadcastIterator
-
     var shape = List[Int]()
     shape.append(2)
 

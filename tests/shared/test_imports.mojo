@@ -12,8 +12,31 @@ from std.testing import assert_true
 
 def test_core_imports() raises:
     """Test core package imports work correctly."""
-    from shared.tensor.any_tensor import AnyTensor, zeros, ones, randn
-    from shared.core import relu, sigmoid, tanh, softmax, gelu
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    ones,
+    randn,
+    zeros,
+)
+from shared.core import (
+    BF8,
+    FP8,
+    avgpool2d,
+    conv2d,
+    elu,
+    flatten,
+    gelu,
+    leaky_relu,
+    linear,
+    maxpool2d,
+    mish,
+    relu,
+    selu,
+    sigmoid,
+    softmax,
+    swish,
+    tanh,
+)
 
     # Test that functions are actually callable and work correctly
     var test_tensor = zeros([3, 3], DType.float32)
@@ -35,35 +58,16 @@ def test_core_imports() raises:
 
 def test_core_layers_imports() raises:
     """Test core layer operations imports."""
-    from shared.core import linear, conv2d, flatten
-    from shared.core import maxpool2d, avgpool2d
-
     print("✓ Core layer operations imports test passed")
 
 
 def test_core_activations_imports() raises:
     """Test core activation function imports."""
-    from shared.core import (
-        relu,
-        sigmoid,
-        tanh,
-        softmax,
-        leaky_relu,
-        elu,
-        gelu,
-        swish,
-        mish,
-        selu,
-    )
-
     print("✓ Core activation functions imports test passed")
 
 
 def test_core_types_imports() raises:
     """Test core types imports."""
-    from shared.tensor.any_tensor import AnyTensor
-    from shared.core import FP8, BF8
-
     print("✓ Core types imports test passed")
 
 
@@ -94,7 +98,6 @@ def test_core_types_direct_imports() raises:
     Note: AnyTensor lives in shared.core.any_tensor (not shared.core.types which
     contains dtype aliases like FP8, BF8, BF16).
     """
-    from shared.tensor.any_tensor import AnyTensor
     from shared.core.types import FP8, BF8
 
     print("✓ Core types direct imports test passed")
@@ -102,17 +105,27 @@ def test_core_types_direct_imports() raises:
 
 def test_training_imports() raises:
     """Test training package imports work correctly."""
-    from shared.training import SGD, MSELoss
-    from shared.training import StepLR, CosineAnnealingLR, ExponentialLR
-    from shared.training import EarlyStopping, ModelCheckpoint
-
+from shared.training import (
+    Callback,
+    CosineAnnealingLR,
+    EarlyStopping,
+    ExponentialLR,
+    LoggingCallback,
+    MSELoss,
+    ModelCheckpoint,
+    MultiStepLR,
+    ReduceLROnPlateau,
+    SGD,
+    StepLR,
+    TrainingState,
+    WarmupLR,
+    base,
+)
     print("✓ Training imports test passed")
 
 
 def test_training_optimizers_imports() raises:
     """Test training optimizers imports."""
-    from shared.training import SGD
-
     print("✓ Training optimizers imports test passed")
 
 
@@ -121,41 +134,37 @@ def test_shared_optimizer_imports() raises:
 
     Covers Issue #3745: AdaGrad and RMSprop exposed as top-level shared imports.
     """
-    from shared import SGD, Adam, AdamW, AdaGrad, RMSprop
+from shared import (
+    AUTHOR,
+    AdaGrad,
+    Adam,
+    AdamW,
+    LICENSE,
+    RMSprop,
+    SGD,
+    VERSION,
+    core,
+    data,
+    training,
+    utils,
+)
 
     print("✓ Shared optimizer imports test passed")
 
 
 def test_training_schedulers_imports() raises:
     """Test training schedulers imports."""
-    from shared.training import (
-        StepLR,
-        CosineAnnealingLR,
-        ExponentialLR,
-        WarmupLR,
-        MultiStepLR,
-        ReduceLROnPlateau,
-    )
-
     print("✓ Training schedulers imports test passed")
 
 
 def test_training_metrics_imports() raises:
     """Test training metrics imports."""
     # Metrics are in shared.training for now
-    from shared.training import base
-
     print("✓ Training metrics imports test passed")
 
 
 def test_training_callbacks_imports() raises:
     """Test training callbacks imports."""
-    from shared.training import (
-        EarlyStopping,
-        ModelCheckpoint,
-        LoggingCallback,
-    )
-
     print("✓ Training callbacks imports test passed")
 
 
@@ -192,7 +201,10 @@ def test_training_base_direct_imports() raises:
 
     Validates the canonical import path for base sub-module.
     """
-    from shared.training.base import Callback, TrainingState
+from shared.training.base import (
+    Callback,
+    TrainingState,
+)
 
     print("✓ Training base direct imports test passed")
 
@@ -205,7 +217,6 @@ def test_training_loops_direct_imports() raises:
     Note: TrainingState is defined in shared.training.base (not shared.training.loops).
     The loops sub-module provides TrainingLoop and ValidationLoop.
     """
-    from shared.training.base import TrainingState
     from shared.training.loops import TrainingLoop
 
     print("✓ Training loops direct imports test passed")
@@ -215,18 +226,16 @@ def test_training_callbacks_direct_imports() raises:
     """Test callbacks are importable directly from shared.training.callbacks sub-module.
 
     This validates the canonical import path documented in Issue #3211:
-        from shared.training.callbacks import EarlyStopping
+from shared.training.callbacks import (
+    EarlyStopping,
+    LoggingCallback,
+    ModelCheckpoint,
+)
 
     NOTE: A negative test for the wrong import path cannot be written because
     Mojo import failures are compile-time errors, not runtime exceptions.
     There is no equivalent of pytest.raises() for compile-time errors.
     """
-    from shared.training.callbacks import (
-        EarlyStopping,
-        ModelCheckpoint,
-        LoggingCallback,
-    )
-
     # Instantiate each type to confirm the import is functional, not just parseable
     var early_stop = EarlyStopping(
         monitor="val_loss",
@@ -268,45 +277,48 @@ def test_training_callbacks_direct_imports() raises:
 
 def test_training_loops_imports() raises:
     """Test training loops imports."""
-    from shared.training import TrainingState, Callback
-
     print("✓ Training loops imports test passed")
 
 
 def test_data_imports() raises:
     """Test data package imports work correctly."""
-    from shared.data.datasets import AnyTensorDataset, CIFAR10Dataset, Dataset
+from shared.data.datasets import (
+    AnyTensorDataset,
+    CIFAR10Dataset,
+    Dataset,
+)
 
     print("✓ Data imports test passed")
 
 
 def test_data_datasets_imports() raises:
     """Test data datasets imports."""
-    from shared.data import Dataset, AnyTensorDataset, FileDataset
+from shared.data import (
+    AnyTensorDataset,
+    Batch,
+    Dataset,
+    FileDataset,
+    normalize_images,
+    one_hot_encode,
+)
 
     print("✓ Data datasets imports test passed")
 
 
 def test_data_loaders_imports() raises:
     """Test data loaders imports."""
-    from shared.data import Batch
-
     print("✓ Data loaders imports test passed")
 
 
 def test_data_transforms_imports() raises:
     """Test data transforms imports."""
     # Data transforms are provided as utility functions, not classes
-    from shared.data import normalize_images, one_hot_encode
-
     print("✓ Data transforms imports test passed")
 
 
 def test_data_datasets_direct_imports() raises:
     """Test datasets are importable directly from shared.data.datasets sub-module.
     """
-    from shared.data.datasets import Dataset, AnyTensorDataset
-
     print("✓ Data datasets direct imports test passed")
 
 
@@ -320,22 +332,22 @@ def test_data_loaders_direct_imports() raises:
 
 def test_utils_imports() raises:
     """Test utils package imports work correctly."""
-    from shared.utils import Logger, LogLevel, get_logger
-    from shared.utils import load_config, save_config, Config
-
+from shared.utils import (
+    Config,
+    ConfigValidator,
+    FileHandler,
+    LogLevel,
+    Logger,
+    StreamHandler,
+    get_logger,
+    load_config,
+    save_config,
+)
     print("✓ Utils imports test passed")
 
 
 def test_utils_logging_imports() raises:
     """Test utils logging imports."""
-    from shared.utils import (
-        Logger,
-        LogLevel,
-        get_logger,
-        StreamHandler,
-        FileHandler,
-    )
-
     print("✓ Utils logging imports test passed")
 
 
@@ -343,15 +355,11 @@ def test_utils_visualization_imports() raises:
     """Test utils visualization imports."""
     # Visualization functions require Python interop
     # For now, just verify utils imports work
-    from shared.utils import Logger
-
     print("✓ Utils visualization imports test passed")
 
 
 def test_utils_config_imports() raises:
     """Test utils config imports."""
-    from shared.utils import Config, load_config, save_config, ConfigValidator
-
     print("✓ Utils config imports test passed")
 
 
@@ -359,46 +367,32 @@ def test_root_imports() raises:
     """Test root package convenience imports work."""
     # Root package doesn't re-export all components
     # Users should import from subpackages
-    from shared.tensor.any_tensor import AnyTensor
-    from shared.training import SGD
-    from shared.utils import Logger
-
     print("✓ Root imports test passed")
 
 
 def test_subpackage_imports() raises:
     """Test importing subpackages themselves."""
-    from shared import core, training, data, utils
-
     print("✓ Subpackage imports test passed")
 
 
 def test_nested_optimizer_imports() raises:
     """Test nested imports from optimizer subpackages."""
-    from shared.training import SGD
-
     print("✓ Nested optimizer imports test passed")
 
 
 def test_nested_scheduler_imports() raises:
     """Test nested imports from scheduler subpackages."""
-    from shared.training import StepLR, CosineAnnealingLR
-
     print("✓ Nested scheduler imports test passed")
 
 
 def test_nested_metric_imports() raises:
     """Test nested imports from metrics subpackages."""
     # Metrics are in shared.training
-    from shared.training import Callback
-
     print("✓ Nested metric imports test passed")
 
 
 def test_version_info() raises:
     """Test version info is accessible and has proper format."""
-    from shared import VERSION, AUTHOR, LICENSE
-
     # Critical validation - ensure values are not empty/None
     assert_true(VERSION != "", "VERSION should not be empty")
     assert_true(AUTHOR != "", "AUTHOR should not be empty")

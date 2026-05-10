@@ -11,43 +11,31 @@ All tests use pure functional API - no internal state.
 
 from tests.shared.conftest import (
     assert_almost_equal,
+    assert_close_float,
     assert_equal,
     assert_greater_or_equal,
     assert_less_or_equal,
     assert_true,
-    assert_close_float,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
-from shared.core.loss_utils import (
-    clip_predictions,
-    create_epsilon_tensor,
-    validate_tensor_shapes,
-)
-from tests.shared.conftest import (
-    assert_almost_equal,
-    assert_true,
-)
-from shared.core.loss_utils import (
-    validate_tensor_dtypes,
-    compute_one_minus_tensor,
-    compute_sign_tensor,
+from shared.tensor.any_tensor import (
+    AnyTensor,
+    full,
+    ones,
+    zeros,
 )
 from shared.core.loss_utils import (
     blend_tensors,
+    clip_predictions,
     compute_difference,
+    compute_one_minus_tensor,
     compute_product,
     compute_ratio,
-)
-from tests.shared.conftest import (
-    assert_almost_equal,
-    assert_greater_or_equal,
-)
-from shared.tensor.any_tensor import AnyTensor, zeros, full
-from shared.core.loss_utils import (
-    compute_ratio,
+    compute_sign_tensor,
+    create_epsilon_tensor,
     negate_tensor,
+    validate_tensor_dtypes,
+    validate_tensor_shapes,
 )
-
 
 def test_clip_predictions_within_range() raises:
     """Test clip_predictions with values already in safe range."""

@@ -8,42 +8,29 @@ Tests FP-representable test value utilities:
 
 
 from shared.testing.special_values import (
-    SPECIAL_VALUE_ZERO,
     SPECIAL_VALUE_HALF,
-    SPECIAL_VALUE_ONE,
-    SPECIAL_VALUE_ONE_HALF,
     SPECIAL_VALUE_NEG_HALF,
     SPECIAL_VALUE_NEG_ONE,
-    create_special_value_tensor,
+    SPECIAL_VALUE_ONE,
+    SPECIAL_VALUE_ONE_HALF,
+    SPECIAL_VALUE_ZERO,
     create_alternating_pattern_tensor,
+    create_halves_tensor,
+    create_inf_tensor,
+    create_nan_tensor,
+    create_one_and_half_tensor,
+    create_ones_tensor,
+    create_seeded_random_tensor,
+    create_special_value_tensor,
+    create_zeros_tensor,
     verify_special_value_invariants,
 )
 from shared.testing.assertions import (
+    assert_dtype,
     assert_equal_float,
     assert_shape,
-    assert_dtype,
-)
-from shared.testing.special_values import (
-    create_special_value_tensor,
-    create_alternating_pattern_tensor,
-    create_seeded_random_tensor,
-    verify_special_value_invariants,
-    create_zeros_tensor,
-    create_ones_tensor,
-    create_halves_tensor,
-    create_one_and_half_tensor,
-)
-from shared.testing.special_values import (
-    create_seeded_random_tensor,
-    create_nan_tensor,
-    create_inf_tensor,
 )
 from shared.core.numerical_safety import has_nan, has_inf
-from shared.testing.assertions import (
-    assert_shape,
-    assert_dtype,
-)
-
 
 def test_special_value_constants() raises:
     """Test that special value constants have correct values."""

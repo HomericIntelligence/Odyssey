@@ -6,41 +6,20 @@
 
 from std.testing import assert_true, assert_equal
 from shared.testing.tensor_factory import (
-    zeros_tensor,
-    ones_tensor,
-)
-from shared.testing.assertions import (
-    assert_shape_equal,
-    assert_dtype_equal,
-    assert_almost_equal,
-)
-from shared.testing.tensor_factory import (
-    zeros_tensor,
     full_tensor,
+    ones_tensor,
+    random_normal_tensor,
     random_tensor,
+    set_tensor_value,
+    zeros_tensor,
 )
 from shared.testing.assertions import (
-    assert_shape_equal,
-    assert_dtype_equal,
     assert_almost_equal,
+    assert_dtype_equal,
+    assert_shape_equal,
     assert_true as custom_assert_true,
 )
 from std.math import sqrt
-from shared.testing.tensor_factory import (
-    zeros_tensor,
-    ones_tensor,
-    random_normal_tensor,
-    set_tensor_value,
-)
-from shared.testing.tensor_factory import (
-    zeros_tensor,
-    ones_tensor,
-    full_tensor,
-    random_tensor,
-    random_normal_tensor,
-    set_tensor_value,
-)
-
 
 def test_zeros_tensor_float32() raises:
     """Test zeros_tensor creates float32 tensor with all zeros."""

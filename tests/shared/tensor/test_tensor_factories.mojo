@@ -15,26 +15,22 @@ Tests cover:
 
 from std.testing import assert_true, assert_almost_equal
 from shared.tensor.factories import (
-    zeros,
-    ones,
-    full,
-    zeros_like,
     arange,
-    eye,
-    linspace,
-)
-from std.math import isnan, isinf
-from shared.tensor.factories import (
-    randn,
-    nan_tensor,
-    inf_tensor,
-    neg_inf_tensor,
     empty,
+    eye,
+    full,
+    full_like,
+    inf_tensor,
+    linspace,
+    nan_tensor,
+    neg_inf_tensor,
     ones,
     ones_like,
-    full_like,
+    randn,
+    zeros,
+    zeros_like,
 )
-
+from std.math import isnan, isinf
 
 def test_zeros() raises:
     """Zeros[DType.float32] creates a zero-filled tensor."""
