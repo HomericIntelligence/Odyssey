@@ -73,14 +73,23 @@ runs:
         # metadata-only artifact is a positive signal that the action ran;
         # a missing artifact means the action itself failed.
         podman compose exec -T projectodyssey-dev bash -c '
-          set -e
-          ENV_DIR=$(pixi info --json 2>/dev/null | sed -n "s/.*\"prefix\":[[:space:]]*\"\([^\"]*\)\".*/\1/p" | head -1)
-          if [ -z "$ENV_DIR" ] || [ ! -d "$ENV_DIR/lib" ]; then
-            echo "Could not resolve pixi env dir; skipping symbol bundle"
+          set +e
+          # Resolve pixi env dir from `which mojo` — most reliable path:
+          # mojo lives at $ENV/bin/mojo, so we walk up from the resolved binary.
+          MOJO_BIN=$(pixi run which mojo 2>/dev/null | tail -1)
+          if [ -z "$MOJO_BIN" ] || [ ! -x "$MOJO_BIN" ]; then
+            echo "Could not resolve mojo binary path; skipping symbol bundle"
+            exit 0
+          fi
+          # $MOJO_BIN is .../envs/default/bin/mojo — strip /bin/mojo to get env dir.
+          ENV_DIR=$(dirname "$(dirname "$MOJO_BIN")")
+          echo "Resolved pixi env dir: $ENV_DIR"
+          if [ ! -d "$ENV_DIR/lib" ]; then
+            echo "Env dir has no lib/ subdir at $ENV_DIR; skipping symbol bundle"
             exit 0
           fi
           mkdir -p /workspace/crash-bundle/symbols
-          cp -av "$ENV_DIR/bin/mojo" /workspace/crash-bundle/symbols/ 2>/dev/null || true
+          cp -av "$MOJO_BIN" /workspace/crash-bundle/symbols/ 2>/dev/null || true
           for so in "$ENV_DIR"/lib/libKGEN*.so "$ENV_DIR"/lib/libAsync*.so "$ENV_DIR"/lib/libMojo*.so "$ENV_DIR"/lib/libMSupport*.so; do
             [ -e "$so" ] && cp -av "$so" /workspace/crash-bundle/symbols/ 2>/dev/null || true
           done

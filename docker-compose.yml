@@ -37,6 +37,13 @@ services:
     # they enforce.
     mem_limit: ${ODYSSEY_MEM_LIMIT:-12g}
     cpus: ${ODYSSEY_CPU_LIMIT:-6.0}
+    # Allow unlimited core dumps so the libKGEN JIT crash
+    # (modular/modular#6413) actually writes a core file. Per-exec `ulimit -c
+    # unlimited` does NOT propagate across `podman compose exec` invocations,
+    # so we must set the limit on the service itself. Pairs with the host-side
+    # core_pattern wiring in .github/actions/coredump-capture/action.yml.
+    ulimits:
+      core: -1
 
   # CI/Testing environment
   projectodyssey-ci:
@@ -71,6 +78,10 @@ services:
     # they enforce.
     mem_limit: ${ODYSSEY_MEM_LIMIT:-12g}
     cpus: ${ODYSSEY_CPU_LIMIT:-6.0}
+    # See projectodyssey-dev for rationale: ulimit -c must be set on the
+    # service so cores survive across `podman compose exec` invocations.
+    ulimits:
+      core: -1
 
   # Production environment
   projectodyssey-prod:
