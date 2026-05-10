@@ -2,6 +2,21 @@
 # See https://pre-commit.com for more information
 
 repos:
+  # Version sync check — ensures pyproject.toml, pixi.toml, mojo.toml, and VERSION
+  # all carry the same version string. Fails if any file drifts. Use `just bump-version`
+  # to update all files atomically. Resolves #5327 and #5190.
+  - repo: local
+    hooks:
+      - id: check-version-sync
+        name: Check Version Sync
+        description: >-
+          Ensure version in pyproject.toml, pixi.toml, mojo.toml, and VERSION are all in sync.
+          Use `just bump-version <new_version>` to bump atomically.
+        entry: python3 scripts/check_version_sync.py
+        language: system
+        files: ^(pyproject\.toml|pixi\.toml|mojo\.toml|VERSION)$
+        pass_filenames: false
+
   # mojo-format: Requires Mojo binary (glibc >= 2.32, i.e., Ubuntu 22.04+, Debian 12+).
   # On older hosts (Debian 10-11, glibc < 2.32) the wrapper script detects the
   # incompatibility and exits 0 with a warning instead of failing the commit.

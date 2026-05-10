@@ -352,6 +352,44 @@ pixi run mojo format path/to/file.mojo
 
 See [docs/dev/mojo-glibc-compatibility.md](docs/dev/mojo-glibc-compatibility.md) for full details.
 
+## Version Bump Process
+
+The project version is defined in four files that must always stay in sync:
+
+| File | Format | Field |
+| --- | --- | --- |
+| `pyproject.toml` | TOML | `[project] version` (authoritative source) |
+| `pixi.toml` | TOML | top-level `version` |
+| `mojo.toml` | TOML | top-level `version` |
+| `VERSION` | plain text | entire file content |
+
+A pre-commit hook (`check-version-sync`) enforces consistency automatically.
+Any commit that touches one of these files but leaves the others out of sync will be rejected.
+
+### How to Bump the Version
+
+Use the `just bump-version` recipe to update all four files atomically:
+
+```bash
+just bump-version 0.2.0
+```
+
+This updates all four files and then calls `scripts/check_version_sync.py` to verify the
+result before you commit.
+
+### Manual Verification
+
+```bash
+just check-version-sync
+# or directly:
+python3 scripts/check_version_sync.py
+```
+
+### Never Edit Version Files Individually
+
+Editing only one file creates version drift that the pre-commit hook will catch and block.
+Always use `just bump-version`.
+
 ## Changelog Guidelines
 
 [CHANGELOG.md](CHANGELOG.md) is a living document. Contributors are expected to update it as part
