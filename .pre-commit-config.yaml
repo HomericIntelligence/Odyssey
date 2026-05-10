@@ -81,6 +81,22 @@ repos:
         language: pygrep
         files: ^\.github/workflows/security\.yml$
 
+  # Guard: refuse commits that add .env files (secrets must never be committed)
+  # Refs: #5188
+  - repo: local
+    hooks:
+      - id: no-dotenv-commit
+        name: Forbid committing .env files
+        description: >-
+          Prevent .env files from being committed. Use .env.example for
+          safe defaults and cp .env.example .env for local setup.
+        entry: >-
+          bash -c
+          'echo "ERROR: .env files must not be committed (use .env.example for safe defaults)"; exit 1'
+        language: system
+        files: ^\.env(\..+)?$
+        exclude: ^\.env\.example$
+
   # Dockerfile validation - guards against accidental regression
   # Prevents re-introduction of cargo apt dependency or cargo install commands
   - repo: local
