@@ -235,9 +235,9 @@ Full code coverage metrics are blocked by [Mojo coverage tooling availability](d
 - Manual code review via PR checklist for test coverage verification
 - 70%+ threshold enforced for Python automation scripts via pytest-cov
 
-> **Note on Mojo coverage**: Mojo has no enforced coverage threshold. The targets in `coverage.toml`
-> are aspirational, not gated in CI. This is a known gap; enforcement will be added once Mojo
-> coverage tooling matures.
+> **Note on Mojo coverage**: Mojo 1.0 still has no coverage instrumentation (`mojo test --coverage`
+> does not exist). The targets in `coverage.toml` are aspirational, not gated in CI. This is a
+> known gap; enforcement will be added once Mojo coverage tooling matures.
 >
 > **Note on gradient coverage**: The gradient-coverage metric reported in CI is a proxy — it counts
 > test files against backward-pass functions. It is **not** line-of-code coverage and cannot detect

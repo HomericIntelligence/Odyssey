@@ -1,8 +1,8 @@
 # ADR-008: Defer Code Coverage Implementation Until Mojo Tooling Available
 
-**Status**: Accepted
+**Status**: Accepted — blocker persists as of Mojo 1.0.0b2
 
-**Date**: 2025-12-10
+**Date**: 2025-12-10 (last reviewed: 2026-05-09)
 
 **Issue Reference**: [Issue #2583][issue-2583] - Coverage Report Parsing
 
@@ -15,7 +15,7 @@
 This ADR documents the decision to defer code coverage parsing implementation until Mojo provides
 built-in coverage instrumentation tools. The `parse_coverage_report()` function in
 `scripts/check_coverage.py` returns `None` (or hardcoded 92.5% for existing files) because Mojo
-v0.26+ lacks coverage capabilities, not due to implementation gaps.
+1.0 lacks coverage capabilities, not due to implementation gaps.
 
 **Core Decision**: Return `None` from `parse_coverage_report()` and allow CI to pass gracefully
 until Mojo team releases coverage tooling. Use manual test discovery as a workaround to ensure all
@@ -42,7 +42,7 @@ This comment suggested coverage parsing was "not yet implemented" due to unknown
 it was a pending task. In reality, **coverage parsing cannot be implemented** because Mojo does not
 provide coverage instrumentation.
 
-### Mojo v0.26+ Limitations
+### Mojo 1.0 Limitations
 
 Mojo's current tooling lacks coverage capabilities entirely:
 
@@ -147,7 +147,7 @@ def parse_coverage_report(coverage_file: Path) -> Optional[float]:
     """
     # TODO(#2583): BLOCKED - Waiting on Mojo team to release coverage instrumentation
     #
-    # CONTEXT: Mojo v0.26+ does not provide built-in code coverage tools
+    # CONTEXT: Mojo 1.0 does not provide built-in code coverage tools
     # - No coverage instrumentation (no `mojo test --coverage` equivalent)
     # - No coverage report generation (no XML/JSON output)
     # - Expected format when available: Cobertura XML (standard for Python ecosystems)
@@ -183,7 +183,7 @@ print("   Coverage checking is not yet implemented for Mojo.")
 print("⚠️ WARNING: Coverage file not found: {args.coverage_file}")
 print()
 print("   REASON: Mojo does not yet provide coverage instrumentation")
-print("   - Mojo v0.26+ lacks built-in coverage tools (no `mojo test --coverage`)")
+print("   - Mojo 1.0 lacks built-in coverage tools (no `mojo test --coverage`)")
 print("   - This is NOT a bug - waiting on Mojo team to release coverage support")
 print()
 print("   WORKAROUND: Manual test discovery ensures all tests execute")
@@ -578,7 +578,7 @@ This issue has been resolved with documentation-only changes:
 ### Changes Made
 
 1. **Updated TODO comment** (`scripts/check_coverage.py:26`)
-   - Explains Mojo v0.26+ lacks coverage instrumentation
+   - Explains Mojo 1.0 lacks coverage instrumentation
    - Documents expected Cobertura XML format when available
    - References ADR-008 and Issue #2583
 
@@ -596,7 +596,7 @@ This issue has been resolved with documentation-only changes:
 
 **BLOCKED BY**: Mojo team (external dependency)
 
-**REASON**: Mojo v0.26+ does not provide coverage instrumentation
+**REASON**: Mojo 1.0 does not provide coverage instrumentation
 
 **WORKAROUND**: Manual test discovery ensures all tests execute (`validate_test_coverage.py`)
 
@@ -651,7 +651,7 @@ not implemented. This is documentation-only - NO functional code changes.
 
 **Improvements**:
 
-- Explains Mojo v0.26+ lacks coverage tools
+- Explains Mojo 1.0 lacks coverage tools
 - Documents expected Cobertura XML format
 - Clarifies this is NOT a bug
 - References ADR-008 and Issue #2583
