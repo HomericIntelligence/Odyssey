@@ -27,6 +27,10 @@ permissions:
   security-events: write
   issues: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   # ============================================================================
   # Secret Scanning
