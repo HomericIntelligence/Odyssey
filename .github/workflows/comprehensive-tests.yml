@@ -565,7 +565,7 @@ jobs:
             TEST_PATHS="$TEST_PATHS tests/unit/"
           fi
           # Claude hook tests
-          if [ -d "tests/claude " ] && [ -n "$(find tests/claude -name 'test_*.py' 2>/dev/null)" ]; then
+          if [ -d "tests/claude" ] && [ -n "$(find tests/claude -name 'test_*.py' 2>/dev/null)" ]; then
             TEST_PATHS="$TEST_PATHS tests/claude/"
           fi
 
