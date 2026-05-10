@@ -113,7 +113,7 @@ Required test: create AnyTensor, convert to Tensor[dtype], let AnyTensor go out 
 
 1. [Problem Statement](#1-problem-statement)
 2. [How SIMD Works (The Target Behavior)](#2-how-simd-works)
-3. [Why AnyTensor Can't Do This Today](#3-why-extensor-cant-do-this-today)
+3. [Why AnyTensor Can't Do This Today](#3-why-anytensor-cant-do-this-today)
 4. [The Parametric Solution](#4-the-parametric-solution)
 5. [Critical Design Decisions](#5-critical-design-decisions)
 6. [Impact Assessment](#6-impact-assessment)
@@ -121,7 +121,7 @@ Required test: create AnyTensor, convert to Tensor[dtype], let AnyTensor go out 
 8. [Phase Details](#8-phase-details)
 9. [Risk Analysis](#9-risk-analysis)
 10. [Verification Plan](#10-verification-plan)
-11. [Corner Cases & Blockers](#11-corner-cases--blockers-deep-analysis)
+11. [Corner Cases & Blockers](#11-corner-cases-blockers-deep-analysis)
 12. [References](#12-references)
 
 ---
