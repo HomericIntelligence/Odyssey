@@ -74,6 +74,11 @@ jobs:
 
       - name: Run Semgrep
         id: semgrep
+        # `continue-on-error: true` is intentional: it lets the SARIF
+        # upload step (and any downstream gating) run even when Semgrep
+        # itself exits non-zero on findings. The actual merge gate
+        # happens in the SARIF-processing step below, not here. (See
+        # #5315 — the audit finding misread the semantics.)
         run: semgrep scan --config auto --sarif --output semgrep.sarif .
         continue-on-error: true
 

@@ -254,6 +254,30 @@ jobs:
           free -h
           echo "ulimit -v: $(ulimit -v 2>/dev/null || echo unlimited)"
 
+      # Core-dump capture for the libKGEN crash (modular/modular#6413).
+      # Frame 4 in the published stack trace is `<unmapped>` and signal-handler
+      # frames 0–2 just point at Mojo's Crashpad chain. To diagnose the actual
+      # fault site we need a real coredump.
+      #
+      # We write cores to /workspace/crash-bundle/cores/ (already bind-mounted
+      # into the container) so they survive container teardown without needing
+      # an extra mount.
+      - name: Enable core dumps (host kernel)
+        run: |
+          set -x
+          mkdir -p crash-bundle/cores
+          chmod 1777 crash-bundle/cores
+          # Absolute path needed because core_pattern is a global kernel setting.
+          echo "$(pwd)/crash-bundle/cores/core.%p.%e.%t" | sudo tee /proc/sys/kernel/core_pattern
+          # Make sure cores are written even after privilege drops in the container
+          sudo sysctl -w fs.suid_dumpable=2 || true
+          # Disable apport / systemd-coredump if running, so we get raw ELF cores
+          sudo systemctl stop apport.service 2>/dev/null || true
+          sudo systemctl stop systemd-coredump.socket 2>/dev/null || true
+          # Bump container's per-process core size limit to unlimited
+          podman compose exec -T projectodyssey-dev bash -c \
+            "ulimit -c unlimited && ulimit -a | grep core"
+
       - name: mkdir test-results
         run: mkdir -p test-results
 
@@ -407,6 +431,60 @@ jobs:
           name: test-results-comprehensive
           path: test-results/
           retention-days: 7
+
+      # Bundle core dumps + matching mojo / libKGEN binaries so we can run gdb
+      # offline on the artifacts. Filtered to just the JIT-crash candidates
+      # so the artifact stays small.
+      - name: Collect core dumps + symbols (modular/modular#6413)
+        if: always()
+        run: |
+          set -x
+          # crash-bundle/cores is already written into by the host kernel via
+          # core_pattern. Just gather it + grab symbols from the container.
+          mkdir -p crash-bundle/cores
+          ls -la crash-bundle/cores/ 2>/dev/null || true
+
+          # Pull mojo binary + relevant .so files so gdb can resolve frames
+          # later. Use bash glob inside the container; resolve env path from
+          # the well-known pixi cache root (avoids needing python).
+          podman compose exec -T projectodyssey-dev bash -c '
+            set -e
+            ENV_DIR=$(pixi info --json 2>/dev/null | sed -n "s/.*\"prefix\":[[:space:]]*\"\([^\"]*\)\".*/\1/p" | head -1)
+            if [ -z "$ENV_DIR" ] || [ ! -d "$ENV_DIR/lib" ]; then
+              echo "Could not resolve pixi env dir; skipping symbol bundle"
+              exit 0
+            fi
+            mkdir -p /workspace/crash-bundle/symbols
+            cp -av "$ENV_DIR/bin/mojo" /workspace/crash-bundle/symbols/ 2>/dev/null || true
+            for so in "$ENV_DIR"/lib/libKGEN*.so "$ENV_DIR"/lib/libAsync*.so "$ENV_DIR"/lib/libMojo*.so "$ENV_DIR"/lib/libMSupport*.so; do
+              [ -e "$so" ] && cp -av "$so" /workspace/crash-bundle/symbols/ 2>/dev/null || true
+            done
+            ls -la /workspace/crash-bundle/symbols/
+          ' || true
+
+          # Snapshot env metadata
+          {
+            echo "=== mojo --version ==="
+            podman compose exec -T projectodyssey-dev pixi run mojo --version 2>&1 || true
+            echo "=== uname -a ==="
+            uname -a
+            echo "=== glibc ==="
+            ldd --version | head -1
+            echo "=== /proc/sys/kernel/core_pattern ==="
+            cat /proc/sys/kernel/core_pattern 2>/dev/null
+            echo "=== Coredumps found ==="
+            ls -la crash-bundle/cores/ 2>/dev/null || echo "(none)"
+          } > crash-bundle/metadata.txt
+          ls -laR crash-bundle/ | head -40
+
+      - name: Upload crash bundle (cores + symbols)
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
+        with:
+          name: crash-bundle-comprehensive
+          path: crash-bundle/
+          retention-days: 14
+          if-no-files-found: ignore
 
   # ============================================================================
   # Configs Tests
@@ -565,7 +643,7 @@ jobs:
             TEST_PATHS="$TEST_PATHS tests/unit/"
           fi
           # Claude hook tests
-          if [ -d "tests/claude " ] && [ -n "$(find tests/claude -name 'test_*.py' 2>/dev/null)" ]; then
+          if [ -d "tests/claude" ] && [ -n "$(find tests/claude -name 'test_*.py' 2>/dev/null)" ]; then
             TEST_PATHS="$TEST_PATHS tests/claude/"
           fi
 

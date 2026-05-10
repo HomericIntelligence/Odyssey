@@ -516,9 +516,16 @@ bootstrap:
     echo "  just test          Run all tests"
     echo "  just build         Build the project"
 
-# Open development shell
+# Open development shell. Auto-starts the container if it isn't running, so
+# new developers don't need to remember to `just podman-up` first (#5329).
 shell:
-    @podman compose exec -it -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} {{podman_service}} bash
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if ! podman compose ps --services --filter "status=running" 2>/dev/null | grep -q "^{{podman_service}}$"; then
+        echo "Container '{{podman_service}}' is not running — starting it now (just podman-up)..."
+        just podman-up
+    fi
+    podman compose exec -it -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} {{podman_service}} bash
 
 # Serve documentation
 docs-serve:
@@ -640,6 +647,10 @@ _test-group-inner path pattern:
     passed_count=0
     failed_count=0
     failed_tests=""
+
+    # Enable core dumps so the libKGEN JIT crash (modular/modular#6413)
+    # produces a real coredump we can attach to gdb. No-op outside CI.
+    ulimit -c unlimited 2>/dev/null || true
 
     echo "=================================================="
     echo "Testing: {{path}}"

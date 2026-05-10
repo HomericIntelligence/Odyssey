@@ -14,12 +14,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced `AnyTensor.__str__` with multi-dimensional and dtype-aware formatting
 - Parametric `load[dtype]`/`store[dtype]`/`data_ptr[dtype]` accessors on `AnyTensor`
 - `hephaestus` package integration replacing local utility code
+- Test Configuration Loading test suite validating agent config discovery and YAML parsing ([#5344](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5344))
+- Paper implementation validation tests covering forward-pass shapes and dtype contracts ([#5350](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5350))
+- Unified `required-checks` CI workflow consolidating all gate jobs ([#5276](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5276))
+- markdownlint, pixi, justfile, and symlink validation CI jobs ([#5278](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5278))
+- pip-audit and pip-licenses security scanning via pixi tasks ([#5337](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5337))
 
 ### Changed
 
 - Moved `AnyTensor` from `shared/core/` to `shared/tensor/` to eliminate circular imports
 - `AnyTensor` operators now delegate to typed implementations
 - Extracted `shared/base/` package to break circular dependency
+- **Mojo 1.0.0b2 migration**: updated all source to 1.0 syntax (`out self`, `thin` fn values,
+  `capturing[_]` closures) ([#5353](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5353))
+- Separated host/container pixi envs (detached-environments) to prevent bind-mount collisions;
+  removed superseded ADR-009 ([#5348](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5348))
+- Separated dev from production dependencies in `pixi.toml` ([#5337](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5337))
 
 ### Fixed
 
@@ -33,6 +43,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Slice view bad-free: skip `pooled_free` for view tensors in `AnyTensor.__del__`
 - Multi-dim slice fast-path ignoring step parameter
 - VGG16 numerical overflow via bitcast migration to `load[dtype]`/`store[dtype]`
+- `root:root` bind-mount ownership breaking `just build-release` in Podman ([#5340](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5340))
+- Missing `build/` directory write permissions in container entrypoint ([#5335](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5335))
+- `just train lenet fp16 200` end-to-end failure inside Podman ([#5351](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5351))
+- mypy type errors resolved by adding `hephaestus` as explicit dependency ([#5341](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5341))
+- SpinLock unlock race: replaced `store(0)` with `fetch_add(-1)` in memory-pool
 
 ## [0.2.0-dev] - 2025-11-08 to 2026-03-25
 

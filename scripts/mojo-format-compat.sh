@@ -18,6 +18,13 @@ if echo "$output" | grep -q "GLIBC_2\." && echo "$output" | grep -q "not found";
     echo "WARNING: mojo-format skipped: host glibc is incompatible with Mojo binary."
     echo "         Mojo requires GLIBC_2.32+. Your system has an older glibc."
     echo "         Files were NOT reformatted. Run inside Docker for full formatting."
+    echo ""
+    echo "         CI uses Ubuntu 24.04 (glibc 2.39) and DOES enforce mojo-format."
+    echo "         If you push without running format inside Docker, expect surprise"
+    echo "         diff noise on your first PR. Avoid this by running:"
+    echo "             just shell"
+    echo "             pixi run mojo format <files>"
+    echo "         before committing (see #5331)."
     echo "         See docs/dev/mojo-glibc-compatibility.md for details."
     exit 0
 fi

@@ -16,9 +16,6 @@ Naming conventions:
 - kaiming_uniform/kaiming_normal: Standard names
 - he_uniform/he_normal: Aliases (Kaiming He is the author)
 
-Issues covered:
-- #258-260: Xavier/Glorot initialization (uniform and normal variants)
-- #268-272: Uniform/Normal basic distributions
 """
 
 from std.random import random_float64, random_si64, seed as random_seed

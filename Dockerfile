@@ -32,9 +32,6 @@ RUN mkdir -p -m 755 /etc/apt/keyrings \
     && apt-get install -y gh \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Claude Code CLI (pinned version for reproducible builds)
-RUN curl -fsSL https://claude.ai/install.sh | bash -s -- stable
-
 # Install just tool (pre-built binary for faster installation)
 RUN curl -fsSL https://just.systems/install.sh | bash -s -- --to /usr/local/bin --tag 1.14.0
 
@@ -73,6 +70,11 @@ ARG USER_NAME=dev
 # Switch to dev user
 USER ${USER_NAME}
 WORKDIR /workspace
+
+# Install Claude Code CLI as the dev user (development-only — production
+# stage stays clean per #5328 because it FROM base, not FROM development).
+# Installs into ~/.local/bin which is in PATH.
+RUN curl -fsSL https://claude.ai/install.sh | bash -s -- stable
 
 # Ensure Pixi home and cache directories exist
 ENV PIXI_HOME=/home/${USER_NAME}/.pixi

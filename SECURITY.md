@@ -8,11 +8,10 @@ We take security seriously. If you discover a security vulnerability, please rep
 
 ## How to Report
 
-### Email (Preferred)
+### GitHub Security Advisory (Preferred)
 
-Send an email to: **<security@ml-odyssey.dev>**
-
-Or use the GitHub private vulnerability reporting feature if available.
+Use GitHub's private vulnerability reporting:
+**<https://github.com/HomericIntelligence/ProjectOdyssey/security/advisories/new>**
 
 ### What to Include
 
@@ -129,7 +128,7 @@ Security updates are released as:
 For security-related questions that are not vulnerability reports:
 
 - Open a GitHub Discussion with the "security" tag
-- Email: <security@ml-odyssey.dev>
+- Use GitHub Security Advisories: <https://github.com/HomericIntelligence/ProjectOdyssey/security/advisories/new>
 
 ## Recognition
 

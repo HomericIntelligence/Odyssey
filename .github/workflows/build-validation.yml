@@ -40,6 +40,15 @@ jobs:
       - name: Install Just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
 
+      # Fast type-check gate (#5142): runs before the full ci-build so
+      # contributors get sub-minute feedback on library compilation errors
+      # without waiting for the full executable build.
+      - name: Type-check shared/ library (fast feedback)
+        run: |
+          echo "Running fast type-check..."
+          just check
+          echo "✓ Type-check passed"
+
       - name: Build and validate shared package
         run: |
           echo "Running CI build validation..."

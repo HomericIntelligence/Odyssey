@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 #
-# Quick demonstration of safety hooks
-# Shows how the hook blocks dangerous commands and allows safe ones
+# Quick demonstration of safety hooks (NOT production-deployed).
+#
+# This script is illustrative only — running it shows how the safety hooks
+# block dangerous commands and allow safe ones. Production hook deployment
+# is wired up via `.claude/hooks/IMPLEMENTATION.md` and the user's Claude
+# Code settings, not by this file. The "demo-" prefix in the filename
+# signals that this is a developer-facing example, not a runtime hook
+# (closes #5325).
 
 set -euo pipefail
 
