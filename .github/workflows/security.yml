@@ -320,6 +320,50 @@ jobs:
           echo "" >> pixi-audit-report.md
           echo "Mojo version: $(pixi run mojo --version 2>/dev/null | head -1)" >> pixi-audit-report.md
 
+      - name: Audit PyPI packages from pixi lockfile
+        # pip-audit covers PyPI-sourced packages locked in pixi.lock (pypi: entries).
+        # No public CVE feed exists for conda-forge native packages (e.g. the Mojo
+        # runtime itself); those are tracked via manual review — see SECURITY-AUDIT.md.
+        run: |
+          pip install pip-audit 2>/dev/null
+
+          echo "" >> pixi-audit-report.md
+          echo "### PyPI Package CVE Scan (pip-audit)" >> pixi-audit-report.md
+          echo "" >> pixi-audit-report.md
+
+          # Extract name==version for every pypi-sourced entry in pixi.lock
+          python3 - <<'PYEOF' > pypi-from-pixi.txt
+          import re, sys
+          with open("pixi.lock") as f:
+              content = f.read()
+          # Match "- pypi: https://files.pythonhosted.org/.../name-version-..."
+          for m in re.finditer(r"name:\s+(\S+)\s+version:\s+(\S+)", content):
+              print(f"{m.group(1)}=={m.group(2)}")
+          PYEOF
+
+          PKG_COUNT=$(wc -l < pypi-from-pixi.txt)
+          echo "Packages extracted from pixi.lock: $PKG_COUNT" >> pixi-audit-report.md
+          echo "" >> pixi-audit-report.md
+
+          if [ "$PKG_COUNT" -gt 0 ]; then
+            if pip-audit --require-hashes=false \
+                $(sed 's/^/-p /' pypi-from-pixi.txt | tr '\n' ' ') \
+                --format json --output pixi-pypi-audit.json 2>/dev/null; then
+              echo "No CVEs found in PyPI packages from pixi.lock" >> pixi-audit-report.md
+            else
+              COUNT=$(python3 -c "import json,sys; d=json.load(open('pixi-pypi-audit.json')); print(len(d))" 2>/dev/null || echo "?")
+              echo "WARNING: $COUNT vulnerable PyPI package(s) found — review pixi-pypi-audit.json" >> pixi-audit-report.md
+            fi
+          else
+            echo "No PyPI packages found in pixi.lock — skipping pip-audit." >> pixi-audit-report.md
+          fi
+
+          echo "" >> pixi-audit-report.md
+          echo "### Conda-Native Package Gap" >> pixi-audit-report.md
+          echo "" >> pixi-audit-report.md
+          echo "No automated CVE feed covers conda-forge packages (including the Mojo" >> pixi-audit-report.md
+          echo "runtime). These are reviewed manually per .github/SECURITY-AUDIT.md." >> pixi-audit-report.md
+
       - name: Upload Pixi audit results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
@@ -327,6 +371,8 @@ jobs:
           path: |
             pixi-audit-report.md
             pixi-packages.json
+            pypi-from-pixi.txt
+            pixi-pypi-audit.json
           retention-days: 30
 
   # ============================================================================
