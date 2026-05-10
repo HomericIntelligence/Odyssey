@@ -11,6 +11,13 @@ description: |
 
   The two-step split is implemented via the `phase` input.
 
+  IMPORTANT: `core_pattern` paths are interpreted in the *crashing process's*
+  mount namespace. The crashing `mojo` runs inside `podman compose exec` where
+  the workspace is bind-mounted at `/workspace`. So `core_pattern` must use the
+  container-side path `/workspace/crash-bundle/cores/...`, which the kernel
+  resolves correctly inside the container and which lands on the host at
+  `<runner-cwd>/crash-bundle/cores/...` thanks to the bind mount.
+
 inputs:
   phase:
     description: "'setup' before tests, 'collect' after tests"
@@ -23,43 +30,66 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Enable core dumps (host kernel)
+    - name: Enable core dumps (host kernel + container)
       if: inputs.phase == 'setup'
       shell: bash
       run: |
         set -x
+        # Host-side dir is bind-mounted into the container at /workspace by
+        # docker-compose.yml (`.:/workspace`). Use the *container* path in
+        # core_pattern so the kernel can resolve it from the crashing process's
+        # mount namespace.
         mkdir -p crash-bundle/cores
         chmod 1777 crash-bundle/cores
-        echo "$(pwd)/crash-bundle/cores/core.%p.%e.%t" | sudo tee /proc/sys/kernel/core_pattern
+        echo '/workspace/crash-bundle/cores/core.%p.%e.%t' \
+          | sudo tee /proc/sys/kernel/core_pattern
         sudo sysctl -w fs.suid_dumpable=2 || true
         sudo systemctl stop apport.service 2>/dev/null || true
         sudo systemctl stop systemd-coredump.socket 2>/dev/null || true
+
+        # Raise core ulimit on the *running* container PID 1 so it propagates
+        # to every subsequent `podman compose exec` (per-exec `ulimit -c` is
+        # transient and does NOT propagate). systemd-style prlimit on PID 1
+        # only works if container has CAP_SYS_RESOURCE; fall back to a sysctl
+        # noop and rely on the in-container `ulimit -c` we re-set just before
+        # the test runs (see test job's pre-test step).
         podman compose exec -T projectodyssey-dev bash -c \
-          "ulimit -c unlimited && ulimit -a | grep core" || true
+          'ulimit -c unlimited && ulimit -a | grep -E "core|file size" || true'
+
+        # Sanity check: confirm host dir is writable from inside the container.
+        podman compose exec -T projectodyssey-dev bash -c \
+          'mkdir -p /workspace/crash-bundle/cores && touch /workspace/crash-bundle/cores/.writable && rm /workspace/crash-bundle/cores/.writable && echo "container: /workspace/crash-bundle/cores writable"'
 
     - name: Collect core dumps + symbols (modular/modular#6413)
       if: inputs.phase == 'collect' && always()
       shell: bash
       run: |
         set -x
-        mkdir -p crash-bundle/cores
+        mkdir -p crash-bundle/cores crash-bundle/symbols
         ls -la crash-bundle/cores/ 2>/dev/null || true
 
-        # If no cores, exit early — don't waste time bundling symbols
-        if [ -z "$(ls -A crash-bundle/cores/ 2>/dev/null)" ]; then
-          echo "No cores captured this run."
-          exit 0
-        fi
-
+        # ALWAYS bundle symbols + metadata (even if no cores), so we can
+        # distinguish "no crash this run" from "capture broken." A 564-byte
+        # metadata-only artifact is a positive signal that the action ran;
+        # a missing artifact means the action itself failed.
         podman compose exec -T projectodyssey-dev bash -c '
-          set -e
-          ENV_DIR=$(pixi info --json 2>/dev/null | sed -n "s/.*\"prefix\":[[:space:]]*\"\([^\"]*\)\".*/\1/p" | head -1)
-          if [ -z "$ENV_DIR" ] || [ ! -d "$ENV_DIR/lib" ]; then
-            echo "Could not resolve pixi env dir; skipping symbol bundle"
+          set +e
+          # Resolve pixi env dir from `which mojo` — most reliable path:
+          # mojo lives at $ENV/bin/mojo, so we walk up from the resolved binary.
+          MOJO_BIN=$(pixi run which mojo 2>/dev/null | tail -1)
+          if [ -z "$MOJO_BIN" ] || [ ! -x "$MOJO_BIN" ]; then
+            echo "Could not resolve mojo binary path; skipping symbol bundle"
+            exit 0
+          fi
+          # $MOJO_BIN is .../envs/default/bin/mojo — strip /bin/mojo to get env dir.
+          ENV_DIR=$(dirname "$(dirname "$MOJO_BIN")")
+          echo "Resolved pixi env dir: $ENV_DIR"
+          if [ ! -d "$ENV_DIR/lib" ]; then
+            echo "Env dir has no lib/ subdir at $ENV_DIR; skipping symbol bundle"
             exit 0
           fi
           mkdir -p /workspace/crash-bundle/symbols
-          cp -av "$ENV_DIR/bin/mojo" /workspace/crash-bundle/symbols/ 2>/dev/null || true
+          cp -av "$MOJO_BIN" /workspace/crash-bundle/symbols/ 2>/dev/null || true
           for so in "$ENV_DIR"/lib/libKGEN*.so "$ENV_DIR"/lib/libAsync*.so "$ENV_DIR"/lib/libMojo*.so "$ENV_DIR"/lib/libMSupport*.so; do
             [ -e "$so" ] && cp -av "$so" /workspace/crash-bundle/symbols/ 2>/dev/null || true
           done
@@ -69,15 +99,30 @@ runs:
         {
           echo "=== mojo --version ==="
           podman compose exec -T projectodyssey-dev pixi run mojo --version 2>&1 || true
-          echo "=== uname -a ==="
+          echo "=== uname -a (host) ==="
           uname -a
-          echo "=== glibc ==="
+          echo "=== glibc (host) ==="
           ldd --version | head -1
-          echo "=== /proc/sys/kernel/core_pattern ==="
+          echo "=== glibc (container) ==="
+          podman compose exec -T projectodyssey-dev bash -c 'ldd --version | head -1' 2>&1 || true
+          echo "=== /proc/sys/kernel/core_pattern (host kernel — global) ==="
           cat /proc/sys/kernel/core_pattern 2>/dev/null
-          echo "=== Coredumps found ==="
+          echo "=== container ulimit -c ==="
+          podman compose exec -T projectodyssey-dev bash -c 'ulimit -c' 2>&1 || true
+          echo "=== Coredumps found in crash-bundle/cores/ ==="
           ls -la crash-bundle/cores/ 2>/dev/null
+          echo "=== Symbols bundled ==="
+          ls -la crash-bundle/symbols/ 2>/dev/null
         } > crash-bundle/metadata.txt
+
+        # If no cores, still upload the metadata + symbols so the artifact
+        # appears in the run (proves the action executed end-to-end).
+        if [ -z "$(ls -A crash-bundle/cores/ 2>/dev/null)" ]; then
+          echo "No cores captured this run — uploading metadata + symbols only."
+          echo "(If a crash signature appeared in test logs, the capture action " \
+               "is mis-wired: see docs comment in this file.)" \
+               >> crash-bundle/metadata.txt
+        fi
 
     - name: Upload crash bundle
       if: inputs.phase == 'collect' && always()
@@ -86,4 +131,6 @@ runs:
         name: crash-bundle-${{ inputs.job-name }}
         path: crash-bundle/
         retention-days: 14
-        if-no-files-found: ignore
+        # Always upload — even an empty bundle is diagnostic data
+        # (proves the action ran).
+        if-no-files-found: warn

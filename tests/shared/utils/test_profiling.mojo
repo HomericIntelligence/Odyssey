@@ -15,10 +15,6 @@ from tests.shared.conftest import (
     assert_less,
     TestFixtures,
 )
-
-
-def test_time_function() raises:
-    """Test timing a function execution."""
 from shared.utils.profiling import (
     BaselineMetrics,
     ProfilingReport,
@@ -31,6 +27,10 @@ from shared.utils.profiling import (
     memory_usage,
     profile_function,
 )
+
+
+def test_time_function() raises:
+    """Test timing a function execution."""
 
     def simple_work() raises:
         var x = 0
@@ -57,6 +57,7 @@ def test_timing_decorator():
 
 def test_timing_multiple_calls() raises:
     """Test timing function called multiple times."""
+
     def simple_work() raises:
         var x = 0
         for i in range(100):

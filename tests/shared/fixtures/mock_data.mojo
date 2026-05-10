@@ -12,7 +12,7 @@ Key components:
 All mocks use deterministic seeds for reproducible tests.
 """
 
-from std.random import seed, randn, randint
+from std.random import seed, random_float64, random_si64
 from tests.shared.fixtures.mock_tensors import (
     create_random_tensor,
     create_zeros_tensor,
@@ -44,7 +44,7 @@ struct MockDataset:
     var random_seed: Int
 
     def __init__(
-        mut self,
+        out self,
         num_samples: Int = 100,
         input_dim: Int = 10,
         output_dim: Int = 1,
@@ -115,7 +115,7 @@ struct MockDataset:
             [self.output_dim], random_seed=item_seed + 1000
         )
 
-        return (input, output)
+        return (input^, output^)
 
 
 struct MockClassificationDataset:
@@ -137,7 +137,7 @@ struct MockClassificationDataset:
     var random_seed: Int
 
     def __init__(
-        mut self,
+        out self,
         num_samples: Int = 100,
         input_dim: Int = 10,
         num_classes: Int = 5,
@@ -198,9 +198,9 @@ struct MockClassificationDataset:
 
         # Generate class label (deterministic but varied)
         seed(item_seed)
-        var label = randint(0, self.num_classes - 1)
+        var label = Int(random_si64(Int64(0), Int64(self.num_classes - 1)))
 
-        return (input, label)
+        return (input^, label)
 
 
 struct MockRegressionDataset:
@@ -224,7 +224,7 @@ struct MockRegressionDataset:
     var noise_scale: Float32
 
     def __init__(
-        mut self,
+        out self,
         num_samples: Int = 100,
         input_dim: Int = 10,
         output_dim: Int = 1,
@@ -297,10 +297,10 @@ struct MockRegressionDataset:
         seed(item_seed + 1000)
         var output = List[Float32]()
         for _ in range(self.output_dim):
-            var noise = Float32(randn()) * self.noise_scale
+            var noise = Float32(random_float64()) * self.noise_scale
             output.append(input_mean + noise)
 
-        return (input, output)
+        return (input^, output^)
 
 
 # ============================================================================
@@ -327,7 +327,7 @@ struct MockDataLoader:
     var num_batches: Int
 
     def __init__(
-        mut self, num_samples: Int, batch_size: Int, shuffle: Bool = False
+        out self, num_samples: Int, batch_size: Int, shuffle: Bool = False
     ):
         """Initialize data loader.
 
@@ -408,7 +408,7 @@ struct MockDataLoader:
         for i in range(start_idx, end_idx):
             indices.append(i)
 
-        return indices
+        return indices^
 
 
 # ============================================================================
@@ -456,10 +456,10 @@ def create_mock_batch(
             [output_dim], random_seed=random_seed + i + 1000
         )
 
-        inputs.append(input)
-        outputs.append(output)
+        inputs.append(input^)
+        outputs.append(output^)
 
-    return (inputs, outputs)
+    return (inputs^, outputs^)
 
 
 def create_mock_classification_batch(
@@ -496,11 +496,11 @@ def create_mock_classification_batch(
         var input = create_random_tensor(
             [input_dim], random_seed=random_seed + i
         )
-        inputs.append(input)
+        inputs.append(input^)
 
         # Generate class label
         seed(random_seed + i + 1000)
-        var label = randint(0, num_classes - 1)
+        var label = Int(random_si64(Int64(0), Int64(num_classes - 1)))
         labels.append(label)
 
-    return (inputs, labels)
+    return (inputs^, labels^)

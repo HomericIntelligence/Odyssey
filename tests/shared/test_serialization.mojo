@@ -25,6 +25,7 @@ from shared.utils.serialization import (
 )
 from std.pathlib import Path
 from std.collections import List
+from std.python import Python
 import std.os as os
 
 
@@ -353,8 +354,6 @@ def _create_temp_dir(prefix: String) -> String:
     Returns:
         Full path to the created temporary directory.
     """
-from std.python import Python
-
     try:
         var tempfile = Python.import_module("tempfile")
         var builtins = Python.import_module("builtins")

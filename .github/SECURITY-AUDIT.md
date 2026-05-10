@@ -16,8 +16,8 @@ fidelity as PyPI. The Mojo runtime (`max`, `mojo`, `modular`) is distributed via
 
 **Mitigation (manual review checklist, run weekly with the audit job):**
 
-- [ ] Check [Modular security advisories](https://www.modular.com/security) for
-  Mojo/MAX runtime issues.
+- [ ] Check Modular security advisories (via GitHub releases and announcements)
+  for Mojo/MAX runtime issues.
 - [ ] Review the conda-forge GitHub repo for CVE-related issues on packages locked
   in `pixi.lock` that are not also available on PyPI.
 - [ ] Verify `pixi.lock` has not pinned any conda package to a version with a known

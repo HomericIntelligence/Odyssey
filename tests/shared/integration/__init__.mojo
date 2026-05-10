@@ -49,7 +49,9 @@ struct TestResult(Copyable):
         self.error_message = error_message
 
 
-def run_test_safely[func: fn () raises -> None](name: String) -> TestResult:
+def run_test_safely[
+    func: def() raises thin -> None
+](name: String) -> TestResult:
     """Run a test function safely, catching any errors.
 
     Args:

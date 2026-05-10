@@ -8,70 +8,6 @@ Tests that verify the shared library package structure and import hierarchy.
 
 
 from std.testing import assert_true, assert_equal
-
-
-def test_package_version() raises:
-    """Test package version is accessible and correct."""
-from shared import (
-    AUTHOR,
-    Accuracy,
-    AccuracyMetric,
-    BatchNorm2d,
-    BatchNorm2dLayer,
-    Conv2D,
-    Conv2dLayer,
-    CosineAnnealingLR,
-    Dropout,
-    DropoutLayer,
-    EarlyStopping,
-    LICENSE,
-    Linear,
-    Logger,
-    LossTracker,
-    ModelCheckpoint,
-    Module,
-    ReLU,
-    ReLULayer,
-    StepLR,
-    VERSION,
-    VERSION  # This import should always work,
-    core,
-    data,
-    plot_training_curves,
-    relu,
-    sigmoid,
-    softmax,
-    tanh,
-    training,
-    utils,
-)
-
-    # Critical validation - ensure values are not empty/None
-    assert_true(VERSION != "", "VERSION should not be empty")
-    assert_true(AUTHOR != "", "AUTHOR should not be empty")
-    assert_true(LICENSE != "", "LICENSE should not be empty")
-
-    # Test expected format and values
-    assert_equal(AUTHOR, "ML Odyssey Team")
-    assert_equal(LICENSE, "BSD")
-
-    # Additional critical tests - ensure these are actual string values, not None
-    assert_true(
-        VERSION.byte_length() > 0, "VERSION string should have length > 0"
-    )
-    assert_true(
-        AUTHOR.byte_length() > 0, "AUTHOR string should have length > 0"
-    )
-    assert_true(
-        LICENSE.byte_length() > 0, "LICENSE string should have length > 0"
-    )
-
-    print("✓ Package version test passed")
-
-
-def test_subpackage_accessibility() raises:
-    """Test all subpackages can be imported and have expected exports."""
-    # Verify subpackages are accessible by testing exports
 from shared.tensor.any_tensor import (
     AnyTensor,
     full,
@@ -100,6 +36,76 @@ from shared.utils import (
     Config,
     Logger,
 )
+from shared.core import (
+    conv2d,
+    flatten,
+    linear,
+    relu,
+)
+from shared.core.matrix import matmul
+from shared import (
+    AUTHOR,
+    Accuracy,
+    AccuracyMetric,
+    BatchNorm2d,
+    BatchNorm2dLayer,
+    Conv2D,
+    Conv2dLayer,
+    CosineAnnealingLR,
+    Dropout,
+    DropoutLayer,
+    EarlyStopping,
+    LICENSE,
+    Linear,
+    Logger,
+    LossTracker,
+    ModelCheckpoint,
+    Module,
+    ReLU,
+    ReLULayer,
+    StepLR,
+    VERSION,
+    core,
+    data,
+    plot_training_curves,
+    relu,
+    sigmoid,
+    softmax,
+    tanh,
+    training,
+    utils,
+)
+
+
+def test_package_version() raises:
+    """Test package version is accessible and correct."""
+
+    # Critical validation - ensure values are not empty/None
+    assert_true(VERSION != "", "VERSION should not be empty")
+    assert_true(AUTHOR != "", "AUTHOR should not be empty")
+    assert_true(LICENSE != "", "LICENSE should not be empty")
+
+    # Test expected format and values
+    assert_equal(AUTHOR, "ML Odyssey Team")
+    assert_equal(LICENSE, "BSD")
+
+    # Additional critical tests - ensure these are actual string values, not None
+    assert_true(
+        VERSION.byte_length() > 0, "VERSION string should have length > 0"
+    )
+    assert_true(
+        AUTHOR.byte_length() > 0, "AUTHOR string should have length > 0"
+    )
+    assert_true(
+        LICENSE.byte_length() > 0, "LICENSE string should have length > 0"
+    )
+
+    print("✓ Package version test passed")
+
+
+def test_subpackage_accessibility() raises:
+    """Test all subpackages can be imported and have expected exports."""
+    # Verify subpackages are accessible by testing exports
 
     # Test that we can actually call the functions
     var test_tensor = zeros([2, 3], DType.float32)
@@ -160,12 +166,6 @@ def test_layer_root_level_imports() raises:
 
 def test_module_level_imports() raises:
     """Test importing from specific modules."""
-from shared.core import (
-    conv2d,
-    flatten,
-    linear,
-    relu,
-)
     print("✓ Module level imports test passed")
 
 
@@ -441,7 +441,6 @@ def test_api_version_compatibility() raises:
 
 def test_cross_module_computation() raises:
     """Test that components actually work together in real computations."""
-from shared.core.matrix import matmul
     # Create realistic tensors
     var data = zeros([32, 64], DType.float32)  # Batch of 32, features of 64
     var labels = zeros([32, 10], DType.float32)  # 32 samples, 10 classes

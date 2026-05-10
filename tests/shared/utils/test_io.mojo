@@ -13,6 +13,13 @@ from tests.shared.conftest import (
     assert_not_equal,
     TestFixtures,
 )
+from shared.utils.file_io import (
+    Checkpoint,
+    _serialize_checkpoint,
+    file_exists,
+    remove_safely,
+    safe_write_file,
+)
 
 
 def test_save_checkpoint():
@@ -47,14 +54,6 @@ def test_checkpoint_roundtrip():
 
 def test_checkpoint_serialization_with_model_state() raises:
     """Test checkpoint serialization includes model_state dict (Issue #2585)."""
-from shared.utils.file_io import (
-    Checkpoint,
-    _serialize_checkpoint,
-    file_exists,
-    remove_safely,
-    safe_write_file,
-)
-
     var checkpoint = Checkpoint()
     checkpoint.set_epoch(10)
     checkpoint.set_loss(0.25)

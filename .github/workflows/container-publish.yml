@@ -4,11 +4,32 @@ name: Container Build and Publish
 # Triggered on pushes to main, version tags, and PRs (build-only)
 
 on:
+  # Daily nightly rebuild (06:00 UTC) so images stay fresh on base-image
+  # security updates without rebuilding on every commit.
+  schedule:
+    - cron: '0 6 * * *'
+
+  # Build on push/PR ONLY when container-affecting files change.
+  # Code-only changes do not trigger a rebuild — the latest nightly is reused.
   push:
     branches: [main]
     tags: ['v*']
+    paths:
+      - 'Dockerfile.ci'
+      - 'docker-compose.yml'
+      - 'pixi.toml'
+      - 'pixi.lock'
+      - '.github/workflows/container-publish.yml'
   pull_request:
     branches: [main]
+    paths:
+      - 'Dockerfile.ci'
+      - 'docker-compose.yml'
+      - 'pixi.toml'
+      - 'pixi.lock'
+      - '.github/workflows/container-publish.yml'
+
+  # On-demand manual rebuild.
   workflow_dispatch:
     inputs:
       push:

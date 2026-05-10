@@ -8,10 +8,6 @@ These tests verify both import functionality and basic component behavior.
 
 
 from std.testing import assert_true
-
-
-def test_core_imports() raises:
-    """Test core package imports work correctly."""
 from shared.tensor.any_tensor import (
     AnyTensor,
     ones,
@@ -37,6 +33,68 @@ from shared.core import (
     swish,
     tanh,
 )
+from shared.training import (
+    Callback,
+    CosineAnnealingLR,
+    EarlyStopping,
+    ExponentialLR,
+    LoggingCallback,
+    MSELoss,
+    ModelCheckpoint,
+    MultiStepLR,
+    ReduceLROnPlateau,
+    SGD,
+    StepLR,
+    TrainingState,
+    WarmupLR,
+    base,
+)
+from shared import (
+    AUTHOR,
+    AdaGrad,
+    Adam,
+    AdamW,
+    LICENSE,
+    RMSprop,
+    SGD,
+    VERSION,
+    core,
+    data,
+    training,
+    utils,
+)
+from shared.training.base import (
+    Callback,
+    TrainingState,
+)
+from shared.data.datasets import (
+    AnyTensorDataset,
+    CIFAR10Dataset,
+    Dataset,
+)
+from shared.data import (
+    AnyTensorDataset,
+    Batch,
+    Dataset,
+    FileDataset,
+    normalize_images,
+    one_hot_encode,
+)
+from shared.utils import (
+    Config,
+    ConfigValidator,
+    FileHandler,
+    LogLevel,
+    Logger,
+    StreamHandler,
+    get_logger,
+    load_config,
+    save_config,
+)
+
+
+def test_core_imports() raises:
+    """Test core package imports work correctly."""
 
     # Test that functions are actually callable and work correctly
     var test_tensor = zeros([3, 3], DType.float32)
@@ -105,22 +163,6 @@ def test_core_types_direct_imports() raises:
 
 def test_training_imports() raises:
     """Test training package imports work correctly."""
-from shared.training import (
-    Callback,
-    CosineAnnealingLR,
-    EarlyStopping,
-    ExponentialLR,
-    LoggingCallback,
-    MSELoss,
-    ModelCheckpoint,
-    MultiStepLR,
-    ReduceLROnPlateau,
-    SGD,
-    StepLR,
-    TrainingState,
-    WarmupLR,
-    base,
-)
     print("✓ Training imports test passed")
 
 
@@ -134,21 +176,6 @@ def test_shared_optimizer_imports() raises:
 
     Covers Issue #3745: AdaGrad and RMSprop exposed as top-level shared imports.
     """
-from shared import (
-    AUTHOR,
-    AdaGrad,
-    Adam,
-    AdamW,
-    LICENSE,
-    RMSprop,
-    SGD,
-    VERSION,
-    core,
-    data,
-    training,
-    utils,
-)
-
     print("✓ Shared optimizer imports test passed")
 
 
@@ -201,11 +228,6 @@ def test_training_base_direct_imports() raises:
 
     Validates the canonical import path for base sub-module.
     """
-from shared.training.base import (
-    Callback,
-    TrainingState,
-)
-
     print("✓ Training base direct imports test passed")
 
 
@@ -225,16 +247,16 @@ def test_training_loops_direct_imports() raises:
 def test_training_callbacks_direct_imports() raises:
     """Test callbacks are importable directly from shared.training.callbacks sub-module.
 
-    This validates the canonical import path documented in Issue #3211:
-from shared.training.callbacks import (
-    EarlyStopping,
-    LoggingCallback,
-    ModelCheckpoint,
-)
+        This validates the canonical import path documented in Issue #3211:
+    from shared.training.callbacks import (
+        EarlyStopping,
+        LoggingCallback,
+        ModelCheckpoint,
+    )
 
-    NOTE: A negative test for the wrong import path cannot be written because
-    Mojo import failures are compile-time errors, not runtime exceptions.
-    There is no equivalent of pytest.raises() for compile-time errors.
+        NOTE: A negative test for the wrong import path cannot be written because
+        Mojo import failures are compile-time errors, not runtime exceptions.
+        There is no equivalent of pytest.raises() for compile-time errors.
     """
     # Instantiate each type to confirm the import is functional, not just parseable
     var early_stop = EarlyStopping(
@@ -282,26 +304,11 @@ def test_training_loops_imports() raises:
 
 def test_data_imports() raises:
     """Test data package imports work correctly."""
-from shared.data.datasets import (
-    AnyTensorDataset,
-    CIFAR10Dataset,
-    Dataset,
-)
-
     print("✓ Data imports test passed")
 
 
 def test_data_datasets_imports() raises:
     """Test data datasets imports."""
-from shared.data import (
-    AnyTensorDataset,
-    Batch,
-    Dataset,
-    FileDataset,
-    normalize_images,
-    one_hot_encode,
-)
-
     print("✓ Data datasets imports test passed")
 
 
@@ -332,17 +339,6 @@ def test_data_loaders_direct_imports() raises:
 
 def test_utils_imports() raises:
     """Test utils package imports work correctly."""
-from shared.utils import (
-    Config,
-    ConfigValidator,
-    FileHandler,
-    LogLevel,
-    Logger,
-    StreamHandler,
-    get_logger,
-    load_config,
-    save_config,
-)
     print("✓ Utils imports test passed")
 
 
