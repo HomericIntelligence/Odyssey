@@ -26,6 +26,25 @@ struct ConfigValue(Copyable, Movable):
 
     Supports common types needed for ML configurations: integers, floats,
     strings, booleans, and lists.
+
+    ## Fragile-Access Warning (POLA)
+
+    ConfigValue is a tagged union with no runtime type enforcement. Accessing
+    the wrong field (e.g. reading `int_val` when `value_type == "float"`)
+    silently returns a zero-initialised default — no error is raised.
+
+    Always guard access with a `value_type` check before reading a field:
+
+    ```mojo
+    if cv.value_type == "int":
+        use(cv.int_val)
+    elif cv.value_type == "float":
+        use(cv.float_val)
+    # ... etc.
+    ```
+
+    Prefer the typed helpers on `Config` (`get_int`, `get_float`, `get_string`,
+    `get_bool`) which perform this guard and raise on mismatch.
     """
 
     var value_type: String
