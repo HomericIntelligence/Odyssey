@@ -8,7 +8,7 @@
 ## Metrics That Matter
 
 | Metric | Where Collected | Why |
-|---|---|---|
+| --- | --- | --- |
 | Training loss (batch + epoch avg) | `shared/training/metrics/loss_tracker.mojo` — `LossTracker` / `Statistics` | Primary signal of learning |
 | Validation accuracy | `shared/training/metrics/accuracy.mojo` — `top1_accuracy` | Generalization health |
 | Global gradient norm (pre-clip) | `shared/training/gradient_clipping.mojo` — `compute_gradient_norm_list` | Exploding gradient early warning |
