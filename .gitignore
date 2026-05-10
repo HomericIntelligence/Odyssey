@@ -37,8 +37,10 @@ training_*.txt
 *_weights/
 checkpoints/
 
-# Environment files
+# Environment files (never commit secrets)
 .env
+.env.*
+!.env.example
 
 # Editor files
 *.swp
