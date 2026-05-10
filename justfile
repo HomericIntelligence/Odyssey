@@ -70,7 +70,12 @@ _run cmd:
 			# Prepend a HOME-fixup fragment so mojo/pixi can always write their
 			# caches even when the container image was built with a different UID
 			# than the process UID (rootless Podman UID-mapping on CI runners).
-			HOME_FIXUP='if [ ! -w "$HOME" ]; then export HOME="/tmp/mojo-home-$(id -u)"; mkdir -p "$HOME/.modular" "$HOME/.pixi"; fi;'
+			# Also bump core ulimit unconditionally — compose-level `ulimits`
+			# does not propagate through `podman compose exec` invocations,
+			# and we need real cores when the libKGEN JIT crashes
+			# (modular/modular#6413). Pairs with the host-side core_pattern in
+			# .github/actions/coredump-capture/action.yml.
+			HOME_FIXUP='if [ ! -w "$HOME" ]; then export HOME="/tmp/mojo-home-$(id -u)"; mkdir -p "$HOME/.modular" "$HOME/.pixi"; fi; ulimit -c unlimited 2>/dev/null || true;'
 			podman compose exec -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} -T {{podman_service}} bash -c "$HOME_FIXUP {{cmd}}"
 		fi
 	else

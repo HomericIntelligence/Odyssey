@@ -17,15 +17,14 @@ from tests.shared.conftest import (
 )
 from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
 from shared.core.arithmetic import add, subtract, multiply, divide
-
-
-def test_shapes_match_identical_1d() raises:
-    """Test shapes_match helper with identical 1D shapes."""
 from shared.core.arithmetic_contiguous import (
     can_use_fast_path,
     shapes_match,
 )
 
+
+def test_shapes_match_identical_1d() raises:
+    """Test shapes_match helper with identical 1D shapes."""
     var a = ones([5], DType.float32)
     var b = ones([5], DType.float32)
 
