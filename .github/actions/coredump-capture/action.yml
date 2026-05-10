@@ -1,0 +1,89 @@
+name: Coredump Capture
+description: |
+  Enable host-side core_pattern + container ulimit so the libKGEN JIT crash
+  (modular/modular#6413) produces a real coredump we can attach to gdb.
+  After the test job, bundles cores + matching `mojo` binary + relevant
+  `.so` files into a `crash-bundle-<job-name>` artifact (14-day retention).
+
+  Use this action TWICE in each test job:
+    1. As a setup step BEFORE the test runs (to enable cores)
+    2. As a teardown step AFTER the test runs (to bundle + upload)
+
+  The two-step split is implemented via the `phase` input.
+
+inputs:
+  phase:
+    description: "'setup' before tests, 'collect' after tests"
+    required: true
+  job-name:
+    description: "Short job identifier used in artifact name (e.g. gradient-checking, data-utilities)"
+    required: true
+    default: "test"
+
+runs:
+  using: composite
+  steps:
+    - name: Enable core dumps (host kernel)
+      if: inputs.phase == 'setup'
+      shell: bash
+      run: |
+        set -x
+        mkdir -p crash-bundle/cores
+        chmod 1777 crash-bundle/cores
+        echo "$(pwd)/crash-bundle/cores/core.%p.%e.%t" | sudo tee /proc/sys/kernel/core_pattern
+        sudo sysctl -w fs.suid_dumpable=2 || true
+        sudo systemctl stop apport.service 2>/dev/null || true
+        sudo systemctl stop systemd-coredump.socket 2>/dev/null || true
+        podman compose exec -T projectodyssey-dev bash -c \
+          "ulimit -c unlimited && ulimit -a | grep core" || true
+
+    - name: Collect core dumps + symbols (modular/modular#6413)
+      if: inputs.phase == 'collect' && always()
+      shell: bash
+      run: |
+        set -x
+        mkdir -p crash-bundle/cores
+        ls -la crash-bundle/cores/ 2>/dev/null || true
+
+        # If no cores, exit early — don't waste time bundling symbols
+        if [ -z "$(ls -A crash-bundle/cores/ 2>/dev/null)" ]; then
+          echo "No cores captured this run."
+          exit 0
+        fi
+
+        podman compose exec -T projectodyssey-dev bash -c '
+          set -e
+          ENV_DIR=$(pixi info --json 2>/dev/null | sed -n "s/.*\"prefix\":[[:space:]]*\"\([^\"]*\)\".*/\1/p" | head -1)
+          if [ -z "$ENV_DIR" ] || [ ! -d "$ENV_DIR/lib" ]; then
+            echo "Could not resolve pixi env dir; skipping symbol bundle"
+            exit 0
+          fi
+          mkdir -p /workspace/crash-bundle/symbols
+          cp -av "$ENV_DIR/bin/mojo" /workspace/crash-bundle/symbols/ 2>/dev/null || true
+          for so in "$ENV_DIR"/lib/libKGEN*.so "$ENV_DIR"/lib/libAsync*.so "$ENV_DIR"/lib/libMojo*.so "$ENV_DIR"/lib/libMSupport*.so; do
+            [ -e "$so" ] && cp -av "$so" /workspace/crash-bundle/symbols/ 2>/dev/null || true
+          done
+          ls -la /workspace/crash-bundle/symbols/
+        ' || true
+
+        {
+          echo "=== mojo --version ==="
+          podman compose exec -T projectodyssey-dev pixi run mojo --version 2>&1 || true
+          echo "=== uname -a ==="
+          uname -a
+          echo "=== glibc ==="
+          ldd --version | head -1
+          echo "=== /proc/sys/kernel/core_pattern ==="
+          cat /proc/sys/kernel/core_pattern 2>/dev/null
+          echo "=== Coredumps found ==="
+          ls -la crash-bundle/cores/ 2>/dev/null
+        } > crash-bundle/metadata.txt
+
+    - name: Upload crash bundle
+      if: inputs.phase == 'collect' && always()
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
+      with:
+        name: crash-bundle-${{ inputs.job-name }}
+        path: crash-bundle/
+        retention-days: 14
+        if-no-files-found: ignore
