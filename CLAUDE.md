@@ -7,8 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ML Odyssey is a Mojo-based AI research platform for reproducing classic research papers. The project uses a
 comprehensive 4-level hierarchical planning structure with automated GitHub issue creation.
 
-**Current Status**: Planning phase - repository structure and GitHub issues are being
-established before implementation begins.
+**Current Status**: Active implementation — Mojo 1.0 migration complete, 6 neural network
+architectures implemented (~198K lines of Mojo), 298+ tests across 433 test files.
 
 ## Ecosystem Context
 
@@ -120,8 +120,9 @@ gh pr merge --auto --rebase
 
 - [Agent Hierarchy](/agents/hierarchy.md) - 6-level hierarchy
 - [Agent Configurations](/.claude/agents/) - 29 agents
-- [Skills](https://github.com/HomericIntelligence/ProjectMnemosyne) - 61 skills
-  (migrated to ProjectMnemosyne; use `/mnemosyne:advise` to search)
+- [Skills](https://github.com/HomericIntelligence/ProjectMnemosyne) - 61 skills total;
+  57 live in the external ProjectMnemosyne repo, 4 remain local. Use `/mnemosyne:advise`
+  to search skills by category or functionality.
 
 ## Working with Agents
 
@@ -475,9 +476,9 @@ This project uses Pixi for environment management:
 ```
 
 **`pixi.toml` is the single source of truth for all dependencies** (Python packages, Mojo
-version, dev tools, and scripts). Do NOT add dependencies to `requirements*.txt` or
-`pyproject.toml` — those files are not used by this project. Always update `pixi.toml`
-when adding or changing a dependency.
+version, dev tools, and scripts) — including inside Docker/container contexts. Do NOT add
+dependencies to `requirements*.txt` or `pyproject.toml` — those files are not used by this
+project and carry no authority. Always update `pixi.toml` when adding or changing a dependency.
 
 **Environment Variables**: Copy `.env.example` to `.env` and customize for your system:
 
