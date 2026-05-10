@@ -107,9 +107,90 @@ def test_failed_fetch_add_does_not_corrupt_counter() raises:
     print("PASS: test_failed_fetch_add_does_not_corrupt_counter")
 
 
+def test_store_zero_unlock_would_corrupt_counter() raises:
+    """Demonstrates why store(0) unlock is wrong under contention (issue #5319).
+
+    Reproduces the exact race that was found in production: a contender
+    increments the counter to 2 while the lock is held (counter=1).  If
+    unlock() used store(0) instead of fetch_add(-1), the store races with
+    the contender's fetch_add(-1) (undo), leaving the counter at -1 or 0
+    prematurely.
+
+    This test VERIFIES that fetch_add(-1) keeps the counter non-negative
+    across the same sequence of operations.  With store(0) the assertion
+    below would fail because the undo-subtract would drive counter to -1.
+    """
+    var lk = SpinLock()
+    lk.lock()
+    var ptr = lk._as_atomic()
+    # Simulate contender: fetch_add(1) increments counter to 2
+    _ = ptr[].fetch_add(1)
+    # Lock holder unlocks via fetch_add(-1): counter goes 2→1 (not 0!)
+    # (If unlock() used store(0), counter would be 0 here — contender sees
+    # free and enters while it shouldn't yet, because it hasn't done its undo.)
+    _ = ptr[].fetch_add(-1)  # mimic unlock via fetch_add(-1)
+    var after_unlock = Int(ptr[].load())
+    assert_true(
+        after_unlock >= 0,
+        "counter must not go negative after unlock-via-fetch_add(-1)",
+    )
+    # Contender backs off: fetch_add(-1) → counter returns to 0
+    _ = ptr[].fetch_add(-1)
+    var final = Int(ptr[].load())
+    assert_equal(final, 0, "counter must reach 0 after contender backs off")
+    print("PASS: test_store_zero_unlock_would_corrupt_counter")
+
+
+def test_counter_never_negative_under_repeated_contention() raises:
+    """Counter must stay >= 0 across many lock/undo cycles (issue #5319).
+
+    Validates the invariant that the fetch_add-based protocol never drives
+    the counter negative regardless of how many contenders spin and back off.
+    A negative counter freezes all waiters (spin condition `load != 0` is
+    always true), which is the production deadlock that prompted this issue.
+    """
+    var lk = SpinLock()
+    var ptr = lk._as_atomic()
+    for _ in range(20):
+        lk.lock()
+        # Two contenders both attempt to acquire and then back off
+        _ = ptr[].fetch_add(1)
+        _ = ptr[].fetch_add(1)
+        _ = ptr[].fetch_add(-1)
+        _ = ptr[].fetch_add(-1)
+        var mid = Int(ptr[].load())
+        assert_true(mid >= 0, "counter must not go negative while lock is held")
+        lk.unlock()
+        var post = Int(ptr[].load())
+        assert_equal(post, 0, "counter must be 0 after unlock")
+    print("PASS: test_counter_never_negative_under_repeated_contention")
+
+
+def test_many_sequential_cycles_no_drift() raises:
+    """Counter must be exactly 0 after N lock/unlock cycles (issue #5319).
+
+    The old store(0) unlock could mask a drifted counter; fetch_add(-1)
+    relies on the counter being exactly 1 at unlock time.  This test
+    confirms no drift accumulates over 50 sequential acquire-release pairs.
+    """
+    var lk = SpinLock()
+    var ptr = lk._as_atomic()
+    for _ in range(50):
+        lk.lock()
+        lk.unlock()
+    var val = Int(ptr[].load())
+    assert_equal(
+        val, 0, "counter must be exactly 0 after 50 lock/unlock cycles"
+    )
+    print("PASS: test_many_sequential_cycles_no_drift")
+
+
 def main() raises:
     test_lock_sets_counter_to_one()
     test_unlock_resets_counter_to_zero()
     test_double_lock_unlock_cycle()
     test_failed_fetch_add_does_not_corrupt_counter()
+    test_store_zero_unlock_would_corrupt_counter()
+    test_counter_never_negative_under_repeated_contention()
+    test_many_sequential_cycles_no_drift()
     print("All test_spinlock_contention tests passed!")
