@@ -60,7 +60,7 @@ code that genuinely needs a null literal is:
 UnsafePointer[T](_unsafe_null=())   # escape hatch — prefer Optional instead
 ```
 
-See [Recipe 6](mojo-1.0-migration-recipe.md#recipe-6-std_os_atomic--atomic-module-relocation--null-unsafepointer)
+See [Recipe 6](mojo-1.0-migration-recipe.md#recipe-6-std_os_atomic-atomic-module-relocation-null-unsafepointer)
 for the full `memory_pool.mojo` fix.
 
 ---
@@ -68,7 +68,7 @@ for the full `memory_pool.mojo` fix.
 ## Patterns to Avoid
 
 | Anti-pattern | Why dangerous | Fix |
-|---|---|---|
+| --- | --- | --- |
 | `if ptr:` guard | `Bool(UnsafePointer)` removed in 1.0 | Use `Optional`; see Recipe 3 |
 | Manual `free()` without ownership tracking | Double-free or leak when copies exist | Track lifetime with a reference count (`_refcount` pattern) or `__del__` |
 | Storing `UnsafePointer` in a struct without a `__del__` | Leak on scope exit | Implement `__del__` that frees the pointer |
@@ -160,5 +160,6 @@ be triggered or masked by incorrect pointer lifetimes. Specifically:
 - `shared/tensor/any_tensor.mojo` — canonical reference-count implementation
 - [`mojo-jit-crash-workaround.md`](mojo-jit-crash-workaround.md) — how to
   reproduce crashes in a stable environment
-- [`mojo-anti-patterns.md`](../../.claude/shared/mojo-anti-patterns.md) — broader
-  Mojo failure patterns catalogue
+- [`mojo-anti-patterns.md`][anti-patterns] — broader Mojo failure patterns catalogue
+
+[anti-patterns]: https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/.claude/shared/mojo-anti-patterns.md
