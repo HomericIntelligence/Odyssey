@@ -63,6 +63,14 @@ services:
       - PIXI_HOME=/home/${USER_NAME:-dev}/.pixi
       - PIXI_CACHE_DIR=/home/${USER_NAME:-dev}/.cache/pixi
     working_dir: /workspace
+    # Resource limits guard the host from runaway CI jobs OOMing the box
+    # (#5313/#5317). Tunable via env vars; same defaults as the dev service.
+    # Override per-host with:
+    #   ODYSSEY_MEM_LIMIT=8g ODYSSEY_CPU_LIMIT=4 just podman-up
+    # cgroups v1 hosts will silently ignore these — that's fine; on cgroups v2
+    # they enforce.
+    mem_limit: ${ODYSSEY_MEM_LIMIT:-12g}
+    cpus: ${ODYSSEY_CPU_LIMIT:-6.0}
 
   # Production environment
   projectodyssey-prod:
@@ -85,6 +93,14 @@ services:
       - ENVIRONMENT=production
       - PIXI_HOME=/home/${USER_NAME:-dev}/.pixi
     working_dir: /workspace
+    # Resource limits guard the host from runaway training jobs OOMing the box
+    # (#5313/#5317). Tunable via env vars; same defaults as the dev service.
+    # Override per-host with:
+    #   ODYSSEY_MEM_LIMIT=8g ODYSSEY_CPU_LIMIT=4 just podman-up
+    # cgroups v1 hosts will silently ignore these — that's fine; on cgroups v2
+    # they enforce.
+    mem_limit: ${ODYSSEY_MEM_LIMIT:-12g}
+    cpus: ${ODYSSEY_CPU_LIMIT:-6.0}
 
 volumes:
   pixi-cache:

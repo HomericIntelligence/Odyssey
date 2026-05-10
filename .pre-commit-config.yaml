@@ -134,6 +134,18 @@ repos:
         types: [python]
         pass_filenames: true
 
+  # Dependency sync check — ensures pixi.toml, pyproject.toml, and requirements*.txt
+  # stay consistent with each other (Issue #5137).
+  - repo: local
+    hooks:
+      - id: check-dep-sync
+        name: Check Dependency Sync
+        description: Validate dependency consistency across pixi.toml, pyproject.toml, and requirements*.txt (Issue #5137)
+        entry: python3 scripts/check_dep_sync.py
+        language: system
+        files: ^(pixi\.toml|pyproject\.toml|requirements.*\.txt)$
+        pass_filenames: false
+
   # Version consistency check — ensures .pre-commit-config.yaml revs match pixi.toml (Issue #4030)
   - repo: local
     hooks:
