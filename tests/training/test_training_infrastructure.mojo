@@ -35,6 +35,7 @@ from shared.training.trainer import (
     create_trainer,
 )
 
+
 def mock_model_forward(input: AnyTensor) raises -> AnyTensor:
     """Mock model forward pass - returns input unchanged."""
     return input

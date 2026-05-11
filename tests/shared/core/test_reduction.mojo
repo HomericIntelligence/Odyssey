@@ -51,6 +51,7 @@ from shared.testing.gradient_checker import (
     NumericalBackward,
 )
 
+
 @fieldwise_init
 struct _SumFwd(NumericalForward):
     def __call__(self, inp: AnyTensor) raises -> AnyTensor:

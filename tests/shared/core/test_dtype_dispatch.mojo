@@ -22,6 +22,7 @@ from shared.core.dtype_dispatch import (
     dispatch_unary,
 )
 
+
 def identity_op[T: DType](x: Scalar[T]) -> Scalar[T]:
     """Identity operation for unary dispatch testing."""
     return x

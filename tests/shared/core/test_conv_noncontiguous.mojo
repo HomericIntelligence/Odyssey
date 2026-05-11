@@ -38,6 +38,7 @@ from shared.core.conv import (
 )
 from shared.core.shape import as_contiguous
 
+
 def _make_nc_nchw_symmetric() raises -> AnyTensor:
     """Create a non-contiguous (1,1,6,4) tensor by transposing (1,1,4,6).
 

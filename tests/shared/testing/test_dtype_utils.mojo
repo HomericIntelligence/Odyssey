@@ -18,6 +18,7 @@ from shared.testing.assertions import (
     assert_true,
 )
 
+
 def test_get_test_dtypes_not_empty() raises:
     """Test that get_test_dtypes returns a non-empty list."""
     var dtypes = get_test_dtypes()

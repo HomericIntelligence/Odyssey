@@ -24,6 +24,7 @@ from tests.shared.conftest import (
     assert_all_values,
 )
 
+
 def test_equal_same_values() raises:
     """Test equal with identical values."""
     var shape = List[Int]()

@@ -30,6 +30,7 @@ from shared.core.elementwise import exp
 from shared.core.arithmetic import add, multiply
 from std.math import sqrt
 
+
 def test_swish_shapes() raises:
     """Test that swish returns correct output shape."""
     var shape = List[Int]()

@@ -68,6 +68,7 @@ struct _ConvKernelFwd(NumericalForward):
 
 from shared.core.reduction import sum as reduce_sum
 
+
 def test_conv2d_initialization() raises:
     """Test that conv2d layer parameters can be created with correct shapes.
 

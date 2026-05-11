@@ -38,6 +38,7 @@ from shared.core.arithmetic import (
     subtract_backward,
 )
 
+
 def test_add_shapes() raises:
     """Test that add returns correct output shape."""
     var shape = List[Int]()
