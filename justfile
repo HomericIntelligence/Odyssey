@@ -76,7 +76,16 @@ _run cmd:
 			# (modular/modular#6413). Pairs with the host-side core_pattern in
 			# .github/actions/coredump-capture/action.yml.
 			HOME_FIXUP='if [ ! -w "$HOME" ]; then export HOME="/tmp/mojo-home-$(id -u)"; mkdir -p "$HOME/.modular" "$HOME/.pixi"; fi; ulimit -c unlimited 2>/dev/null || true;'
-			podman compose exec -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} -T {{podman_service}} bash -c "$HOME_FIXUP {{cmd}}"
+			# Forward CI/coredump env vars into the container. Without these
+			# -e passthroughs, MOJO_TEST_UNDER_GDB / CRASH_BUNDLE_DIR set on
+			# the GHA runner are NOT visible to the bash recipe inside the
+			# container, so the gdb wrapper would be silently skipped.
+			podman compose exec \
+				-e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} \
+				-e MOJO_TEST_UNDER_GDB \
+				-e MOJO_UNDER_GDB \
+				-e CRASH_BUNDLE_DIR \
+				-T {{podman_service}} bash -c "$HOME_FIXUP {{cmd}}"
 		fi
 	else
 		echo "Error: Podman compose container '{{podman_service}}' is not running."
