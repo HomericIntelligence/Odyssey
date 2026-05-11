@@ -2,6 +2,34 @@
 # See https://pre-commit.com for more information
 
 repos:
+  # Silent-failure guard (ports HomericIntelligence/Odysseus#280):
+  # rejects `|| true` in shell/YAML/Dockerfile/justfile/HCL and
+  # `continue-on-error: true` in GitHub workflow YAML.
+  - repo: local
+    hooks:
+      - id: forbid-or-true
+        name: "forbid silent-failure workaround in shell/YAML/Dockerfile/justfile/HCL"
+        description: >
+          Rejects the `or-true` idiom (and its whitespace variants) in shell,
+          YAML, Dockerfile, justfile, and HCL sources. Refactor to an explicit
+          `if`-guard, a real conditional, or a documented `set +e`/`set -e`
+          bracket. See HomericIntelligence/Odysseus#280.
+        language: pygrep
+        entry: '\|\|\s*true(\s*$|\s+#)'
+        files: \.(sh|bash|yml|yaml|hcl)$|(^|/)Dockerfile[^/]*$|(^|/)[Jj]ustfile$
+        types: [text]
+        pass_filenames: true
+
+      - id: forbid-continue-on-error
+        name: "forbid continue-on-error workflow opt-out"
+        description: >
+          GitHub Actions `continue-on-error: true` (truthy form) hides real CI
+          failures. Fix the underlying job/step instead.
+        language: pygrep
+        entry: '^\s*continue-on-error:\s*true\s*$'
+        files: ^\.github/workflows/.*\.ya?ml$
+        pass_filenames: true
+
   # Version sync check — ensures pyproject.toml, pixi.toml, mojo.toml, and VERSION
   # all carry the same version string. Fails if any file drifts. Use `just bump-version`
   # to update all files atomically. Resolves #5327 and #5190.
@@ -49,7 +77,7 @@ repos:
       - id: no-matmul-call-sites
         name: Enforce no .__matmul__() call sites
         description: Ban .__matmul__( call sites in Mojo files (use matmul(A, B) instead). Ref #3215
-        entry: bash -c 'violations=$(grep -rn "\.__matmul__(" . --include="*.mojo" --include="*.🔥" --exclude-dir=".pixi" --exclude-dir=".git" | grep -v "fn __matmul__(" | grep -v "# __matmul__" | grep -v "__matmul__.*deprecated" || true); if [ -n "$violations" ]; then echo "Found .__matmul__() call sites (use matmul(A, B) instead):"; echo "$violations"; exit 1; fi'
+        entry: bash scripts/check-no-matmul-call-sites.sh
         language: system
         pass_filenames: false
         always_run: true

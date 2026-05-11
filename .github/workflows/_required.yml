@@ -20,6 +20,62 @@ permissions:
   contents: read
 
 jobs:
+  # ── 0. forbid-suppressions ────────────────────────────────────────────────
+  # Regression guard ported from HomericIntelligence/Odysseus#280. Rejects
+  # `|| true` in shell/YAML/Dockerfile/justfile/HCL and `continue-on-error: true`
+  # in GitHub workflow YAML, so the silent-failure idiom cannot return without
+  # tripping a required check.
+  forbid-suppressions:
+    name: forbid-suppressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+
+      - name: "Reject silent-failure workaround in shell/YAML/Dockerfile/justfile/HCL"
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(git ls-files \
+            -- \
+            '*.sh' '*.bash' '*.yml' '*.yaml' '*.hcl' \
+            'Dockerfile*' '**/Dockerfile*' \
+            'justfile' '**/justfile' 'Justfile' '**/Justfile')
+          declare -a scan_files=()
+          for f in "${files[@]}"; do
+            case "$f" in
+              # Exempt this workflow file (heredoc would otherwise self-match)
+              .github/workflows/_required.yml) continue ;;
+              # Exempt any runbook that documents the rule (if present)
+              docs/runbooks/no-silent-failures.md) continue ;;
+            esac
+            scan_files+=("$f")
+          done
+          if [ "${#scan_files[@]}" -eq 0 ]; then
+            echo "No files to scan"
+            exit 0
+          fi
+          if grep -nE '\|\|[[:space:]]*true([[:space:]]*$|[[:space:]]+#)' "${scan_files[@]}"; then
+            echo ""
+            echo '::error::Found silent-failure workarounds above. Refactor per HomericIntelligence/Odysseus#280.'
+            exit 1
+          fi
+          echo 'OK: no silent-failure workarounds found'
+
+      - name: "Reject continue-on-error workflow opt-out"
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(git ls-files -- '.github/workflows/*.yml' '.github/workflows/*.yaml')
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No workflow files"
+            exit 0
+          fi
+          if grep -nE '^[[:space:]]*continue-on-error:[[:space:]]*true[[:space:]]*$' "${files[@]}"; then
+            echo ""
+            echo '::error::Found "continue-on-error: true" above. Fix the root cause per HomericIntelligence/Odysseus#280.'
+            exit 1
+          fi
+          echo 'OK: no "continue-on-error: true" found'
+
   # ── 1. lint ────────────────────────────────────────────────────────────────
   lint:
     name: lint
@@ -52,12 +108,16 @@ jobs:
 
       - name: Enforce no .__matmul__() call sites
         run: |
-          violations=$(grep -rn '\.__matmul__(' . \
-            --include='*.mojo' --include='*.🔥' \
-            --exclude-dir='.pixi' --exclude-dir='.git' \
-            | grep -v 'fn __matmul__(' \
-            | grep -v '# __matmul__' \
-            | grep -v '__matmul__.*deprecated' || true)
+          # Bucket D: `grep -v` returns 1 with no matches and breaks pipefail.
+          # Use `awk` filters (always exit 0) plus a `set +e` around the
+          # initial `grep` so absence of any hit doesn't fail the pipeline.
+          set +e
+          raw=$(grep -rn '\.__matmul__(' . \
+                  --include='*.mojo' --include='*.🔥' \
+                  --exclude-dir='.pixi' --exclude-dir='.git')
+          set -e
+          violations=$(printf '%s\n' "$raw" \
+            | awk '!/fn __matmul__\(/ && !/# __matmul__/ && !/__matmul__.*deprecated/ && NF')
           if [ -n "$violations" ]; then
             echo "::error::Found .__matmul__() call sites (use matmul(A, B) instead):"
             echo "$violations"
@@ -181,8 +241,14 @@ jobs:
         run: |
           # Scan project dependencies. pip-audit results are advisory (findings in the
           # runner environment such as pip itself do not reflect project risk).
+          set -euo pipefail
           pip install setuptools wheel
-          pip install -e . --no-deps || true
+          # Editable install is best-effort: some pyproject.toml layouts (e.g.
+          # missing build backend metadata in dev branches) cannot be installed
+          # editable. Surface the failure as a warning so the audit step still runs.
+          if ! pip install -e . --no-deps; then
+            echo "::warning::editable install failed — running pip-audit on requirements only"
+          fi
           pip-audit --skip-editable || echo "::warning::pip-audit found vulnerabilities — review manually"
 
       - name: Post pip-audit summary

@@ -234,9 +234,14 @@ for agent_file in "${AGENT_FILES[@]}"; do
     agent_name=$(basename "$agent_file")
     print_verbose "Checking links in $agent_name..."
 
-    # Find all markdown links to other agents: [text](./file.md)
-    # Extract just the file paths
-    links=$(grep -oP '\[.*?\]\(\./.*?\.md\)' "$agent_file" 2>/dev/null | grep -oP '\(\./\K[^)]+' || true)
+    # Find all markdown links to other agents: [text](./file.md).
+    # Bucket D: under pipefail, two `grep -oP` calls that find nothing return
+    # rc=1 and would tank the whole script. Disable -e around the pipeline so
+    # "no links in this file" stays empty without masking other errors.
+    set +e
+    links=$(grep -oP '\[.*?\]\(\./.*?\.md\)' "$agent_file" 2>/dev/null \
+              | grep -oP '\(\./\K[^)]+')
+    set -e
 
     if [[ -n "$links" ]]; then
         while IFS= read -r link; do

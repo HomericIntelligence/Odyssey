@@ -29,7 +29,12 @@ runs:
     - name: Start Podman socket
       shell: bash
       run: |
-        systemctl --user start podman.socket || true
+        # Best-effort: socket may already be active. Warn on unexpected failure
+        # rather than fail the workflow (the DOCKER_HOST assignment below will
+        # surface a real problem when the socket is genuinely unavailable).
+        if ! systemctl --user start podman.socket; then
+          echo "warn: 'systemctl --user start podman.socket' failed (may already be running)" >&2
+        fi
         export DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock
         echo "DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock" >> "$GITHUB_ENV"
 
@@ -61,7 +66,11 @@ runs:
         # entrypoint's pixi-info probe finds mojo already installed.
         # The volume name is prefixed with the Compose project name.
         VOLUME_NAME="projectodyssey_pixi-cache"
-        podman volume create "$VOLUME_NAME" 2>/dev/null || true
+        # Idempotent: volume may already exist. `podman volume inspect` exits 0
+        # only when the volume is present.
+        if ! podman volume inspect "$VOLUME_NAME" >/dev/null 2>&1; then
+          podman volume create "$VOLUME_NAME"
+        fi
         # Check if already seeded (any mojo binary present under the volume)
         SEEDED=$(podman run --rm \
           --user root \
@@ -94,7 +103,12 @@ runs:
         # symlink `.pixi/envs` during `pixi install` — racing this chmod
         # caused intermittent "Permission denied" failures on CI runs that
         # bypassed the pixi-cache seed.
-        chmod -R a+rwX . || true
+        #
+        # Some files (e.g. socket inodes inside .pixi/) cannot be chmod'd —
+        # log unexpected failures to stderr but do not fail the job.
+        if ! chmod -R a+rwX .; then
+          echo "warn: 'chmod -R a+rwX .' encountered files it could not modify" >&2
+        fi
 
     - name: Start container
       shell: bash

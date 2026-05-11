@@ -296,9 +296,11 @@ jobs:
             echo "Installing Python wheel packages..."
             pip install dist/*.whl
 
-            # Try to import the package
+            # Verify Python is functional in the test venv. If `python -c`
+            # fails here, the wheel-install step above produced a broken env
+            # and the release should not proceed silently.
             echo "Verifying package import..."
-            python -c "import sys; print('Python version:', sys.version)" || true
+            python -c "import sys; print('Python version:', sys.version)"
           else
             echo "⚠️  No Python wheel packages to test"
           fi

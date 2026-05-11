@@ -109,13 +109,18 @@ if [[ -f "$REPO_ROOT/pyproject.toml" ]]; then
     fi
 fi
 
-# Commit changes
+# Commit changes. `git add` on a file we have just `sed -i`ed should always
+# succeed; surface unexpected failures rather than swallowing them.
 git add VERSION
 if [[ -f "$REPO_ROOT/pixi.toml" ]]; then
-    git add pixi.toml 2>/dev/null || true
+    if ! git add pixi.toml; then
+        echo "warn: git add pixi.toml failed" >&2
+    fi
 fi
 if [[ -f "$REPO_ROOT/pyproject.toml" ]]; then
-    git add pyproject.toml 2>/dev/null || true
+    if ! git add pyproject.toml; then
+        echo "warn: git add pyproject.toml failed" >&2
+    fi
 fi
 
 git commit -m "chore: bump version to $NEW_VERSION

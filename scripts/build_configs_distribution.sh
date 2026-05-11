@@ -111,13 +111,21 @@ if [ -d "${ML_ODYSSEY_ROOT}/configs" ]; then
 fi
 cp -r configs "${ML_ODYSSEY_ROOT}/"
 
-# Install utilities
+# Install utilities (nullglob → empty list when no .mojo files present)
 mkdir -p "${ML_ODYSSEY_ROOT}/shared/utils"
-cp utils/*.mojo "${ML_ODYSSEY_ROOT}/shared/utils/" || true
+shopt -s nullglob
+utils_files=(utils/*.mojo)
+if [ "${#utils_files[@]}" -gt 0 ]; then
+    cp "${utils_files[@]}" "${ML_ODYSSEY_ROOT}/shared/utils/"
+fi
 
 # Install examples
 mkdir -p "${ML_ODYSSEY_ROOT}/examples"
-cp examples/*.mojo "${ML_ODYSSEY_ROOT}/examples/" 2>/dev/null || true
+examples_files=(examples/*.mojo)
+if [ "${#examples_files[@]}" -gt 0 ]; then
+    cp "${examples_files[@]}" "${ML_ODYSSEY_ROOT}/examples/"
+fi
+shopt -u nullglob
 
 echo "Installation complete!"
 echo ""

@@ -120,11 +120,32 @@ jobs:
 
       - name: Check pre-commit mojo-format is advisory
         run: |
-          if ! grep -A5 'Run mojo format' .github/workflows/pre-commit.yml | grep -q 'continue-on-error: true'; then
-            echo "ERROR: mojo-format step in pre-commit.yml is missing continue-on-error: true"
-            exit 1
+          # The mojo-format step must be advisory (non-blocking) because Mojo
+          # 0.26.1 has known formatter bugs (see docs/dev/mojo-glibc-compatibility.md).
+          # Two equivalent forms are accepted per HomericIntelligence/Odysseus#280:
+          #   1. `continue-on-error: true` on the step header, or
+          #   2. An explicit `if ! <cmd>; then echo "::warning::..."; fi` wrapper
+          #      in the step body that swallows the exit code and emits a CI warning.
+          # Extract just the mojo-format step body: from its `- name:` line up
+          # to the next sibling `- name:` (so we don't match `if !` idioms from
+          # unrelated steps later in the file).
+          block=$(awk '
+            /^[[:space:]]+-[[:space:]]+name:[[:space:]]+Run mojo format/ {flag=1; print; next}
+            flag && /^[[:space:]]+-[[:space:]]+name:/ {exit}
+            flag {print}
+          ' .github/workflows/pre-commit.yml)
+          if echo "$block" | grep -q 'continue-on-error: true'; then
+            echo "OK: mojo-format step has continue-on-error: true"
+            exit 0
           fi
-          echo "OK: mojo-format step has continue-on-error: true"
+          if echo "$block" | grep -Pzq '(?s)if\s+!.*\n.*::warning::'; then
+            echo "OK: mojo-format step wraps the command in an explicit ::warning:: emitter"
+            exit 0
+          fi
+          echo "ERROR: mojo-format step in pre-commit.yml is no longer advisory."
+          echo "       Either keep 'continue-on-error: true' on the step, or wrap the"
+          echo "       command in 'if ! <cmd>; then echo \"::warning::...\"; fi'."
+          exit 1
 
       - name: Check comprehensive-tests pull_request trigger present
         run: |

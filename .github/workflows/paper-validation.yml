@@ -60,7 +60,7 @@ jobs:
           fi
 
           # Find all paper directories (contains metadata.yml)
-          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null || true)
+          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null)
 
           if [ -z "$PAPER_DIRS" ]; then
             echo "⚠️  No paper implementations found yet"
@@ -180,7 +180,7 @@ jobs:
           fi
 
           # Find all paper implementations
-          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null || true)
+          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null)
 
           if [ -z "$PAPER_DIRS" ]; then
             echo "⚠️  No paper implementations found yet"
@@ -226,6 +226,7 @@ jobs:
 
       - name: Run paper-specific tests
         run: |
+          set -euo pipefail
           echo "Running paper-specific tests..."
 
           # Check if papers/ directory exists
@@ -234,14 +235,18 @@ jobs:
             exit 0
           fi
 
-          # Find all paper test directories
-          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null || true)
+          # Find all paper test directories. `find` exits 0 even when no match;
+          # capture without suppressing real errors.
+          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null)
 
           if [ -z "$PAPER_DIRS" ]; then
             echo "⚠️  No paper implementations found yet"
             exit 0
           fi
 
+          # Collect failures and report at the end rather than aborting on the
+          # first failing paper (lets reviewers see every broken paper at once).
+          failed_papers=()
           for paper_dir in $PAPER_DIRS; do
             if [ -d "$paper_dir/tests" ]; then
               echo ""
@@ -249,16 +254,24 @@ jobs:
 
               # Run Python tests if they exist
               if [ -n "$(find "$paper_dir/tests" -name 'test_*.py' 2>/dev/null)" ]; then
-                podman compose exec -T projectodyssey-dev bash -c "pixi run pytest $paper_dir/tests --verbose" || true
+                if ! podman compose exec -T projectodyssey-dev bash -c "pixi run pytest $paper_dir/tests --verbose"; then
+                  failed_papers+=("$paper_dir (pytest)")
+                fi
               fi
 
               # Run Mojo tests if they exist
               if [ -n "$(find "$paper_dir/tests" -name 'test_*.mojo' 2>/dev/null)" ]; then
-                podman compose exec -T projectodyssey-dev bash -c "pixi run mojo test -I . $paper_dir/tests --verbose" || true
+                if ! podman compose exec -T projectodyssey-dev bash -c "pixi run mojo test -I . $paper_dir/tests --verbose"; then
+                  failed_papers+=("$paper_dir (mojo test)")
+                fi
               fi
             fi
           done
 
+          if [ "${#failed_papers[@]}" -gt 0 ]; then
+            echo "::error::Paper tests failed for: ${failed_papers[*]}"
+            exit 1
+          fi
           echo "✅ Paper tests complete"
 
   # ============================================================================
@@ -282,6 +295,7 @@ jobs:
 
       - name: Run training scripts
         run: |
+          set -euo pipefail
           echo "Running training scripts for reproducibility validation..."
           echo "⚠️  This is a long-running job (up to 15 minutes)"
 
@@ -292,24 +306,34 @@ jobs:
           fi
 
           # Find all paper directories with training scripts
-          PAPER_DIRS=$(find papers -name "train.py" -o -name "train.mojo" -exec dirname {} \; 2>/dev/null || true)
+          PAPER_DIRS=$(find papers \( -name "train.py" -o -name "train.mojo" \) -exec dirname {} \; 2>/dev/null)
 
           if [ -z "$PAPER_DIRS" ]; then
             echo "⚠️  No training scripts found yet"
             exit 0
           fi
 
+          failed_papers=()
           for paper_dir in $PAPER_DIRS; do
             echo ""
             echo "Running training for: $paper_dir"
 
             # Run training script with quick validation mode
             if [ -f "$paper_dir/train.py" ]; then
-              podman compose exec -T projectodyssey-dev bash -c "pixi run python $paper_dir/train.py --quick-validation --epochs 1" || true
+              if ! podman compose exec -T projectodyssey-dev bash -c "pixi run python $paper_dir/train.py --quick-validation --epochs 1"; then
+                failed_papers+=("$paper_dir (python)")
+              fi
             elif [ -f "$paper_dir/train.mojo" ]; then
-              podman compose exec -T projectodyssey-dev bash -c "pixi run mojo -I . $paper_dir/train.mojo --quick-validation --epochs 1" || true
+              if ! podman compose exec -T projectodyssey-dev bash -c "pixi run mojo -I . $paper_dir/train.mojo --quick-validation --epochs 1"; then
+                failed_papers+=("$paper_dir (mojo)")
+              fi
             fi
           done
+
+          if [ "${#failed_papers[@]}" -gt 0 ]; then
+            echo "::error::Quick-validation training failed for: ${failed_papers[*]}"
+            exit 1
+          fi
 
       - name: Compare results to expected metrics
         run: |
