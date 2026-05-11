@@ -5,6 +5,12 @@ description: |
   After the test job, bundles cores + matching `mojo` binary + relevant
   `.so` files into a `crash-bundle-<job-name>` artifact (14-day retention).
 
+  When MOJO_TEST_UNDER_GDB=1 is set (CI default), mojo test invocations run
+  under gdb -batch with handle SIGABRT stop nopass. On crash, gdb writes:
+    - core.gdb.<timestamp>.mojo  — real ELF core (multi-MB)
+    - gdb-<timestamp>.log        — full bt, threads, shlibs text dump
+  Both are collected here alongside any kernel cores and the mojo binary.
+
   Use this action TWICE in each test job:
     1. As a setup step BEFORE the test runs (to enable cores)
     2. As a teardown step AFTER the test runs (to bundle + upload)
@@ -140,11 +146,33 @@ runs:
             fi
           done
           shopt -u nullglob
+
+          # Bundle gdb itself so the crash can be analyzed offline without
+          # needing a matching gdb version installed locally. Best-effort:
+          # warn instead of suppressing when gdb is unavailable.
+          GDB_BIN=$(command -v gdb 2>/dev/null)
+          if [ -n "$GDB_BIN" ] && [ -x "$GDB_BIN" ]; then
+            if ! cp -av "$GDB_BIN" /workspace/crash-bundle/symbols/ 2>/dev/null; then
+              echo "warn: failed to copy gdb ($GDB_BIN) into crash-bundle/symbols" >&2
+            fi
+          else
+            echo "warn: gdb not found in container — offline analysis will need a host-side gdb" >&2
+          fi
           ls -la /workspace/crash-bundle/symbols/
         '
         sym_rc=$?
         if [ "$sym_rc" -ne 0 ]; then
           echo "warn: symbol-bundling subshell exited $sym_rc (continuing — metadata block still runs)" >&2
+        fi
+
+        # gdb-mode artifacts: scripts/mojo-under-gdb.sh writes gdb-*.log and
+        # core.gdb.* files into crash-bundle/cores/ when MOJO_TEST_UNDER_GDB=1.
+        # Surface them in the build log alongside any kernel-generated cores.
+        if ! ls -la crash-bundle/cores/gdb-*.log 2>/dev/null; then
+          echo "(no gdb-*.log this run)"
+        fi
+        if ! ls -la crash-bundle/cores/core.gdb.* 2>/dev/null; then
+          echo "(no core.gdb.* this run)"
         fi
 
         # Build the metadata file with explicit exit-code consumption per probe
@@ -170,6 +198,12 @@ runs:
             podman compose exec -T projectodyssey-dev bash -c 'ulimit -c'
           emit_probe "Coredumps found in crash-bundle/cores/" \
             ls -la crash-bundle/cores/
+          # gdb-mode artifacts list separately so an operator can see at a
+          # glance whether the wrapper produced anything this run.
+          emit_probe "GDB logs (from mojo-under-gdb.sh)" \
+            bash -c 'ls -la crash-bundle/cores/gdb-*.log 2>/dev/null || echo "(none)"'
+          emit_probe "GDB ELF cores (from mojo-under-gdb.sh)" \
+            bash -c 'ls -la crash-bundle/cores/core.gdb.* 2>/dev/null || echo "(none)"'
           emit_probe "Symbols bundled" \
             ls -la crash-bundle/symbols/
           # Pipe-handler-specific: prove the handler ran (or not) by surfacing
@@ -183,13 +217,24 @@ runs:
           fi
         } > crash-bundle/metadata.txt
 
-        # If no cores, still upload metadata + symbols so the artifact appears
-        # in the run (proves the action executed end-to-end).
-        if [ -z "$(ls -A crash-bundle/cores/ 2>/dev/null)" ]; then
-          echo "No cores captured this run — uploading metadata + symbols only."
-          echo "(If a crash appeared in test logs but handler.log is empty," \
-               "the pipe core_pattern may not have been reached — check" \
-               "suid_dumpable and ulimit -c inside the container.)" \
+        # If no cores (kernel or gdb) AND no gdb logs, still upload metadata +
+        # symbols so the artifact appears in the run (proves the action ran).
+        # `ls ... | read -r ...` is a portable no-`|| true` way to detect
+        # "any matches?" without tripping the forbid-suppressions guard.
+        have_kernel_cores=false
+        have_gdb_logs=false
+        if ls crash-bundle/cores/core* >/dev/null 2>&1; then
+          have_kernel_cores=true
+        fi
+        if ls crash-bundle/cores/gdb-*.log >/dev/null 2>&1; then
+          have_gdb_logs=true
+        fi
+        if [ "$have_kernel_cores" = false ] && [ "$have_gdb_logs" = false ]; then
+          echo "No cores or gdb logs captured this run — uploading metadata + symbols only."
+          echo "(If a crash signature appeared in test logs, check that" \
+               "MOJO_TEST_UNDER_GDB=1 is set for this job, the pipe handler" \
+               "is installed at /usr/local/bin/coredump-host-handler.sh, and" \
+               "suid_dumpable and ulimit -c are set inside the container.)" \
                >> crash-bundle/metadata.txt
         fi
 

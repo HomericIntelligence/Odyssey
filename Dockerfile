@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     uuid \
     sudo \
+    gdb \
     && rm -rf /var/lib/apt/lists/*
 
 # Install GitHub CLI (gh) as root

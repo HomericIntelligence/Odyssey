@@ -247,6 +247,14 @@ jobs:
     # OOM kills, not libKGEN signals.
     timeout-minutes: 60
     name: "Comprehensive Mojo Tests"
+    env:
+      # Route mojo test invocations through gdb to intercept the in-process
+      # SIGABRT handler in libKGEN (modular/modular#6413) before it swallows
+      # the crash. Without gdb, the kernel never generates a core because the
+      # process handles SIGABRT itself and exits cleanly.
+      # Set to "0" locally to skip gdb overhead (default when unset).
+      MOJO_TEST_UNDER_GDB: "1"
+      CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
 
     strategy:
       fail-fast: false
@@ -469,6 +477,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     name: "Configs"
+    env:
+      MOJO_TEST_UNDER_GDB: "1"
+      CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
 
     steps:
       - name: Checkout code
@@ -516,6 +527,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     name: "Benchmarks"
+    env:
+      MOJO_TEST_UNDER_GDB: "1"
+      CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
 
     steps:
       - name: Checkout code
@@ -559,6 +573,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     name: "Core Layers"
+    env:
+      MOJO_TEST_UNDER_GDB: "1"
+      CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
 
     steps:
       - name: Checkout code
@@ -845,6 +862,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     name: "Gradient Checking Tests"
+    env:
+      MOJO_TEST_UNDER_GDB: "1"
+      CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
 
     steps:
       - name: Checkout code
@@ -972,6 +992,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     name: "Data Utilities Test Suite"
+    env:
+      MOJO_TEST_UNDER_GDB: "1"
+      CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
 
     steps:
       - name: Checkout code
