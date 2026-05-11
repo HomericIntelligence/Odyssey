@@ -30,6 +30,25 @@ repos:
         files: ^\.github/workflows/.*\.ya?ml$
         pass_filenames: true
 
+      - id: forbid-advisory-warnings
+        name: "forbid advisory ::warning:: pattern in workflow run blocks"
+        description: >
+          The advisory-warning workflow annotation is morally equivalent to
+          `continue-on-error: true` when it replaces a tool's failure exit
+          with a benign-looking warning. The CI step still passes, the
+          underlying problem still goes unfixed. Make the step fail-fast
+          instead. The only legitimate use is annotating a step that runs
+          BEFORE the failing tool (e.g., advising on a deprecated config),
+          not wrapping the tool's own exit. See HomericIntelligence/Odysseus#282.
+        language: pygrep
+        # Match the GitHub Actions advisory-annotation prefix. We exempt
+        # this workflow file (the lint rule itself contains the literal
+        # for self-documentation) via the `exclude` regex below.
+        entry: '::warning::'
+        files: ^\.github/workflows/.*\.ya?ml$
+        exclude: ^\.github/workflows/_required\.yml$
+        pass_filenames: true
+
   # Version sync check — ensures pyproject.toml, pixi.toml, mojo.toml, and VERSION
   # all carry the same version string. Fails if any file drifts. Use `just bump-version`
   # to update all files atomically. Resolves #5327 and #5190.

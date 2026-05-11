@@ -76,6 +76,35 @@ jobs:
           fi
           echo 'OK: no "continue-on-error: true" found'
 
+      - name: "Reject advisory annotation pattern"
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(git ls-files -- '.github/workflows/*.yml' '.github/workflows/*.yaml')
+          # The advisory-annotation pattern in workflow run blocks is morally
+          # equivalent to continue-on-error: true: it lets a tool fail without
+          # failing the CI step. Per HomericIntelligence/Odysseus#282 (Bucket F),
+          # every tool must be fail-fast. The only legitimate annotation is
+          # informational text not tied to a tool's exit code — those should
+          # use echo "WARN:" to stdout instead.
+          declare -a scan_files=()
+          for f in "${files[@]}"; do
+            # Exempt this workflow file (heredoc would otherwise self-match).
+            case "$f" in
+              .github/workflows/_required.yml) continue ;;
+            esac
+            scan_files+=("$f")
+          done
+          if [ "${#scan_files[@]}" -eq 0 ]; then
+            echo "No files to scan"
+            exit 0
+          fi
+          if grep -nF '::warning::' "${scan_files[@]}"; then
+            echo ""
+            echo '::error::Found advisory annotations above. Make the underlying tool fail-fast or use echo "WARN:" to stdout. See HomericIntelligence/Odysseus#282.'
+            exit 1
+          fi
+          echo 'OK: no advisory annotations found'
+
   # ── 1. lint ────────────────────────────────────────────────────────────────
   lint:
     name: lint
@@ -239,17 +268,33 @@ jobs:
       - name: Run pip-audit against pyproject.toml dependencies
         id: pip-audit
         run: |
-          # Scan project dependencies. pip-audit results are advisory (findings in the
-          # runner environment such as pip itself do not reflect project risk).
+          # Fail-fast pip-audit per HomericIntelligence/Odysseus#282 (Bucket F).
+          # Both wrappers (editable install + pip-audit) were advisory `::warning::`
+          # patterns that let CVE findings pass silently. Now:
+          #   - The editable install is required (a real build-backend failure
+          #     means the audit cannot evaluate project deps; fix the metadata).
+          #   - pip-audit exits non-zero on findings and blocks the PR.
+          #
+          # Pre-existing transitive-dep CVEs are tracked in #5386 and explicitly
+          # allowlisted below with `--ignore-vuln`. Each allowlist entry must be
+          # removed once the underlying package is upgraded.
           set -euo pipefail
           pip install setuptools wheel
-          # Editable install is best-effort: some pyproject.toml layouts (e.g.
-          # missing build backend metadata in dev branches) cannot be installed
-          # editable. Surface the failure as a warning so the audit step still runs.
-          if ! pip install -e . --no-deps; then
-            echo "::warning::editable install failed — running pip-audit on requirements only"
-          fi
-          pip-audit --skip-editable || echo "::warning::pip-audit found vulnerabilities — review manually"
+          pip install -e . --no-deps
+          pip-audit --skip-editable \
+            --ignore-vuln CVE-2026-41425 \
+            --ignore-vuln CVE-2026-42215 \
+            --ignore-vuln CVE-2026-42284 \
+            --ignore-vuln CVE-2026-44244 \
+            --ignore-vuln GHSA-mv93-w799-cj2w \
+            --ignore-vuln CVE-2026-33079 \
+            --ignore-vuln CVE-2026-44708 \
+            --ignore-vuln CVE-2026-44896 \
+            --ignore-vuln CVE-2026-44897 \
+            --ignore-vuln CVE-2026-1703 \
+            --ignore-vuln CVE-2026-3219 \
+            --ignore-vuln CVE-2026-6357 \
+            --ignore-vuln CVE-2025-71176
 
       - name: Post pip-audit summary
         if: always()
@@ -439,7 +484,10 @@ jobs:
           if [ -f pixi.lock ]; then
             pixi install --locked
           else
-            echo "::warning::pixi.toml present but pixi.lock missing — running unlocked"
+            # Informational stdout WARN (not a ::warning:: advisory): this branch
+            # does not gate a tool exit — pixi install will still run, just
+            # without lock-pinning. Per HomericIntelligence/Odysseus#282 Bucket F.
+            echo "WARN: pixi.toml present but pixi.lock missing — running unlocked"
             pixi install
           fi
 
