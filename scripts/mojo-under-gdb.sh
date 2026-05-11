@@ -72,19 +72,18 @@ handle SIGABRT stop nopass print
 handle SIGSEGV stop nopass print
 handle SIGBUS  stop nopass print
 
-run
-
-# If gdb stopped due to a signal, dump a core and capture context.
-if \$_siginfo
-  printf "[mojo-under-gdb] caught signal %d at ", \$_siginfo.si_signo
-  info frame
-  printf "Generating core: ${CORE_FILE}\\n"
+# Dump core + context on stop (signal caught). On normal exit, this hook
+# is never invoked, so a clean test run produces no spurious gdb errors.
+define hook-stop
+  printf "[mojo-under-gdb] stop reason captured; dumping core to ${CORE_FILE}\\n"
   generate-core-file ${CORE_FILE}
+  bt full
+  info threads
+  info sharedlibrary
 end
 
-bt full
-info threads
-info sharedlibrary
+run
+
 set logging enabled off
 quit
 GDBEOF
@@ -102,4 +101,8 @@ echo "[mojo-under-gdb] args     : $*" >&2
 # env (MODULAR_HOME, PATH, MOJO stdlib search paths). Running gdb outside
 # `pixi run` strips that activation and mojo fails with "unable to locate
 # module 'std'" before it ever has a chance to crash.
-exec pixi run -- gdb -batch -nx -x "$GDB_SCRIPT" --args "$MOJO_BIN" "$@"
+#
+# `--return-child-result` makes gdb exit with the inferior's exit code
+# (or 128+signo on signal). Without this, gdb's own zero/non-zero status
+# masks the test result and we either always pass or always fail.
+exec pixi run -- gdb -batch -nx --return-child-result -x "$GDB_SCRIPT" --args "$MOJO_BIN" "$@"
