@@ -99,11 +99,11 @@ USER_ID=$(id -u) GROUP_ID=$(id -g) podman compose exec -T projectodyssey-dev bas
 
 Expected outcomes:
 
-| Test result   | wrapper exit | Files in `/tmp/cores/`                          |
-| ------------- | ------------ | ----------------------------------------------- |
-| Pass          | `0`          | `gdb-<ts>.log` only                             |
-| Fail (non-0)  | The test's exit code | `gdb-<ts>.log` only                     |
-| Crash (signal)| `128 + signo` (e.g. 132 = SIGILL, 134 = SIGABRT, 139 = SIGSEGV) | `gdb-<ts>.log` + `core.gdb.<ts>.mojo` |
+| Test result    | wrapper exit                                                    | Files in `/tmp/cores/`                |
+| -------------- | --------------------------------------------------------------- | ------------------------------------- |
+| Pass           | `0`                                                             | `gdb-<ts>.log` only                   |
+| Fail (non-0)   | The test's exit code                                            | `gdb-<ts>.log` only                   |
+| Crash (signal) | `128 + signo` (e.g. 132 = SIGILL, 134 = SIGABRT, 139 = SIGSEGV) | `gdb-<ts>.log` + `core.gdb.<ts>.mojo` |
 
 ### 3. Inspect the gdb log first
 

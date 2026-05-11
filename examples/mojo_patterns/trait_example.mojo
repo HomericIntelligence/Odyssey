@@ -42,8 +42,7 @@ struct Tensor(Copyable, ImplicitlyCopyable):
 
     def __del__(deinit self):
         """Destructor to free gradient pointer."""
-        if self._grad_ptr:
-            self._grad_ptr.free()
+        self._grad_ptr.free()
 
     def get_grad(self) -> Tensor:
         """Get gradient as a Tensor (stub - returns zero tensor of same size).

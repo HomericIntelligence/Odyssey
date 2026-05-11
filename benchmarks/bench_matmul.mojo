@@ -33,7 +33,7 @@ Output:
 
 from shared.utils.arg_parser import ArgumentParser
 from shared.tensor.any_tensor import AnyTensor, zeros, ones
-from time import perf_counter_ns
+from std.time import perf_counter_ns
 from std.collections import List
 
 
@@ -622,7 +622,7 @@ def run_benchmarks[
 def main() raises:
     """Main benchmark driver."""
     # Check for help flags
-    from sys import argv
+    from std.sys import argv
 
     var args = argv()
     for i in range(len(args)):
