@@ -16,9 +16,9 @@ post-handler trace ("backtrace inside the handler") and exits cleanly, so:
 To get a usable core we have to **stop the process in gdb before its own handler runs**,
 then `generate-core-file` from inside the debugger.
 
-The wrapper at [`scripts/mojo-under-gdb.sh`](../../scripts/mojo-under-gdb.sh) does exactly
-that. CI runs it automatically on the test jobs listed in
-[`.github/workflows/comprehensive-tests.yml`](../../.github/workflows/comprehensive-tests.yml)
+The wrapper at [`scripts/mojo-under-gdb.sh`](https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/scripts/mojo-under-gdb.sh)
+does exactly that. CI runs it automatically on the test jobs listed in
+[`.github/workflows/comprehensive-tests.yml`](https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/.github/workflows/comprehensive-tests.yml)
 whenever `MOJO_TEST_UNDER_GDB=1` is set (which it is, by default, for those jobs).
 
 ## CI Capture (Default Path)
