@@ -51,12 +51,20 @@ class TestMojoFormatHandling:
     """Verify mojo-format step is advisory due to Mojo 0.26.1 formatter bugs."""
 
     def test_mojo_format_step_is_advisory(self, pre_commit_workflow_content: str) -> None:
-        """The mojo-format step must have continue-on-error: true.
+        """The mojo-format step must be advisory (non-blocking).
 
         Mojo 0.26.1 has known formatter bugs that produce spurious failures.
         Making this step advisory prevents mojo-format bugs from blocking
-        otherwise-valid PRs. Removing this flag would cause legitimate PRs
-        to fail due to Mojo formatter instability.
+        otherwise-valid PRs. Two equivalent forms are accepted, per the
+        no-silent-failures policy (HomericIntelligence/Odysseus#280):
+
+          1. `continue-on-error: true` (the legacy idiom), or
+          2. An explicit `if ! <cmd>; then echo "::warning::..."; fi`
+             wrapper that swallows the exit code and emits a CI warning.
+
+        Either form preserves the advisory contract; the second is preferred
+        because it makes the suppression visible at the call site instead of
+        relying on an opt-out flag in the step header.
         """
         mojo_format_step_pattern = re.compile(
             r"-\s+name:\s+Run mojo format.*?(?=\n\s*-\s+name:|\Z)",
@@ -69,10 +77,19 @@ class TestMojoFormatHandling:
         )
 
         mojo_format_block = mojo_format_match.group(0)
-        assert "continue-on-error: true" in mojo_format_block, (
-            "The mojo-format step is missing 'continue-on-error: true'. "
-            "This flag is required because Mojo 0.26.1 has formatter bugs that produce "
-            "spurious failures. Without it, valid PRs will be blocked by formatter instability."
+        has_continue_on_error = "continue-on-error: true" in mojo_format_block
+        # Detect the explicit warning-emitter idiom: `if ! ...; then echo "::warning"`
+        # or any `|| echo` line that prefixes a `::warning::` message.
+        has_explicit_warning_wrapper = bool(
+            re.search(r"if\s+!.*\n.*::warning::", mojo_format_block, re.DOTALL)
+            or re.search(r"\|\|\s*echo\s+['\"]::warning::", mojo_format_block)
+        )
+        assert has_continue_on_error or has_explicit_warning_wrapper, (
+            "The mojo-format step is no longer advisory. Either keep "
+            "`continue-on-error: true` on the step, or wrap the command in an "
+            "`if ! …; then echo \"::warning::…\"; fi` block that emits a CI "
+            "warning instead of failing. Mojo 0.26.1 formatter bugs would "
+            "otherwise block valid PRs."
         )
 
     def test_main_hook_run_skips_mojo_format(self, pre_commit_workflow_content: str) -> None:

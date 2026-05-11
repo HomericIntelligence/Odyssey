@@ -121,9 +121,14 @@ USER ${USER_NAME}
 COPY --chown=${USER_NAME}:${USER_NAME} requirements-dev.txt ./
 COPY --chown=${USER_NAME}:${USER_NAME} .pre-commit-config.yaml ./
 
-# Install pre-commit hooks. Build context may lack .git; fall back to
-# install-hooks which prefetches hook envs without writing a git hook script.
-RUN if [ -d .git ]; then \
+# Install pre-commit hooks. Build context lacks .git but `pre-commit
+# install-hooks` still needs git to clone hook environments. Initialize
+# a throwaway repo so install-hooks succeeds without `|| true`.
+RUN git config --global user.email "build@projectodyssey.local" && \
+    git config --global user.name "build" && \
+    git config --global init.defaultBranch main && \
+    git init -q . && \
+    if [ -d .git ]; then \
         pixi run pre-commit install --install-hooks; \
     else \
         pixi run pre-commit install-hooks; \
