@@ -793,6 +793,11 @@ _test-group-inner path pattern:
         exit 1
     fi
 
+    # gdb wrapper path: set MOJO_TEST_UNDER_GDB=1 in CI to intercept the
+    # in-process SIGABRT handler in libKGEN before it swallows the crash
+    # (modular/modular#6413). Default 0 so local dev runs mojo directly.
+    CORE_DIR="${CRASH_BUNDLE_DIR:-${REPO_ROOT}/crash-bundle/cores}"
+
     # Run each test file
     for test_file in $test_files; do
         if [ -f "$test_file" ]; then
@@ -803,13 +808,25 @@ _test-group-inner path pattern:
             if ! ulimit -v unlimited 2>/dev/null; then
                 echo "warn: 'ulimit -v unlimited' rejected by environment" >&2
             fi
-            pixi run mojo --Werror -debug-level=line-tables -I "$REPO_ROOT" -I . "$test_file" || test_exit=$?
-            if [ "${test_exit:-0}" -eq 0 ]; then
+            test_exit=0
+            # gdb-wrapper branch (CI default): intercept libKGEN's in-process
+            # SIGABRT handler before it swallows the crash (modular/modular#6413).
+            # Local dev defaults to MOJO_TEST_UNDER_GDB=0 → direct mojo invocation.
+            if [ "${MOJO_TEST_UNDER_GDB:-0}" = "1" ]; then
+                if ! bash "$REPO_ROOT/scripts/mojo-under-gdb.sh" "$CORE_DIR" \
+                        --Werror -debug-level=line-tables -I "$REPO_ROOT" -I . "$test_file"; then
+                    test_exit=$?
+                fi
+            else
+                if ! pixi run mojo --Werror -debug-level=line-tables -I "$REPO_ROOT" -I . "$test_file"; then
+                    test_exit=$?
+                fi
+            fi
+            if [ "${test_exit}" -eq 0 ]; then
                 passed_count=$((passed_count + 1))
             else
                 failed_count=$((failed_count + 1))
                 failed_tests="$failed_tests\n  - $test_file"
-                test_exit=0
             fi
         fi
     done
