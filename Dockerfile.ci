@@ -121,8 +121,13 @@ USER ${USER_NAME}
 COPY --chown=${USER_NAME}:${USER_NAME} requirements-dev.txt ./
 COPY --chown=${USER_NAME}:${USER_NAME} .pre-commit-config.yaml ./
 
-# Install pre-commit hooks
-RUN pixi run pre-commit install --install-hooks || true
+# Install pre-commit hooks. Build context may lack .git; fall back to
+# install-hooks which prefetches hook envs without writing a git hook script.
+RUN if [ -d .git ]; then \
+        pixi run pre-commit install --install-hooks; \
+    else \
+        pixi run pre-commit install-hooks; \
+    fi
 
 # CI-specific environment
 ENV CI=true

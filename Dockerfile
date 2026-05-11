@@ -103,8 +103,14 @@ RUN pixi install
 #  avoid `pip install --upgrade pip` which can fail with directory conflicts)
 RUN pixi run pre-commit --version
 
-# Install pre-commit hooks (cached unless .pre-commit-config.yaml changes)
-RUN pixi run pre-commit install --install-hooks || true
+# Install pre-commit hooks (cached unless .pre-commit-config.yaml changes).
+# Use install-hooks (no --install) because the build context may lack .git;
+# this prefetches hook envs without writing a git hook script.
+RUN if [ -d .git ]; then \
+        pixi run pre-commit install --install-hooks; \
+    else \
+        pixi run pre-commit install-hooks; \
+    fi
 
 # Copy entrypoint script for container initialization
 COPY --chown=${USER_NAME}:${USER_NAME} docker/entrypoint.sh /usr/local/bin/entrypoint.sh

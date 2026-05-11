@@ -78,13 +78,19 @@ jobs:
 
       - name: Run Semgrep
         id: semgrep
-        # `continue-on-error: true` is intentional: it lets the SARIF
-        # upload step (and any downstream gating) run even when Semgrep
-        # itself exits non-zero on findings. The actual merge gate
-        # happens in the SARIF-processing step below, not here. (See
-        # #5315 — the audit finding misread the semantics.)
-        run: semgrep scan --config auto --sarif --output semgrep.sarif .
-        continue-on-error: true
+        # Semgrep exits non-zero when it finds issues; that's not a step
+        # failure for us — the SARIF-upload + warn-on-findings steps below
+        # are the actual gate (see #5315). Capture the outcome explicitly
+        # instead of using `continue-on-error: true`.
+        run: |
+          set +e
+          semgrep scan --config auto --sarif --output semgrep.sarif .
+          rc=$?
+          set -e
+          echo "semgrep_rc=$rc" >> "$GITHUB_OUTPUT"
+          if [ "$rc" -ne 0 ]; then
+            echo "::warning::semgrep exited with status $rc (findings will be surfaced below)"
+          fi
 
       - name: Verify SARIF file exists
         run: |
@@ -95,9 +101,9 @@ jobs:
           ls -la semgrep.sarif
 
       - name: Warn on Semgrep findings
-        if: steps.semgrep.outcome == 'failure'
+        if: steps.semgrep.outputs.semgrep_rc != '0' && steps.semgrep.outputs.semgrep_rc != ''
         run: |
-          echo "::warning::Semgrep found potential security issues — review SARIF results in the Security tab"
+          echo "::warning::Semgrep found potential security issues (rc=${{ steps.semgrep.outputs.semgrep_rc }}) — review SARIF results in the Security tab"
 
       - name: Upload SARIF results
         if: always()
@@ -241,7 +247,12 @@ jobs:
                 FOUND=$(jq '.vulnerabilities | length' "safety-${file//\//-}.json" 2>/dev/null || echo "0")
                 VULN_COUNT=$((VULN_COUNT + FOUND))
                 echo "⚠️ Found $FOUND vulnerabilities" >> safety-report.md
-                jq -r '.vulnerabilities[] | "- **\(.package_name)** \(.vulnerable_versions): \(.advisory)"' "safety-${file//\//-}.json" >> safety-report.md 2>/dev/null || true
+                # Append advisory list when jq can parse the report; emit a
+                # placeholder line otherwise so reviewers see the malformed file.
+                if ! jq -r '.vulnerabilities[] | "- **\(.package_name)** \(.vulnerable_versions): \(.advisory)"' \
+                        "safety-${file//\//-}.json" >> safety-report.md 2>/dev/null; then
+                  echo "- (could not parse safety report for $file)" >> safety-report.md
+                fi
               fi
               echo "" >> safety-report.md
             fi
@@ -249,15 +260,32 @@ jobs:
 
           echo "files_scanned=$FILES_SCANNED" >> "$GITHUB_OUTPUT"
           echo "vulnerabilities=$VULN_COUNT" >> "$GITHUB_OUTPUT"
-        continue-on-error: true
+        # No `continue-on-error`: the script consumes all sub-step exit codes
+        # itself (every `safety check` and `jq` is wrapped in `if`/`if !`), so
+        # the step's exit code already reflects only real script failures.
 
       - name: Audit with pip-audit
         id: pip_audit
+        # NOTE: pip-audit ran with `continue-on-error: true` historically — that
+        # silently masked installation failures. The `if !` blocks below now
+        # log the failure as a warning but still allow downstream summary jobs
+        # to run because the step itself exits 0 when only requirements are
+        # missing (requirements*.txt is not always present in this repo).
         run: |
           echo "## pip-audit Scan Results" > pip-audit-report.md
           echo "" >> pip-audit-report.md
 
-          pip install -r requirements.txt -r requirements-dev.txt 2>/dev/null || true
+          # Some branches omit requirements*.txt; surface install failure as a
+          # warning instead of aborting the entire audit job.
+          req_args=()
+          for r in requirements.txt requirements-dev.txt; do
+            [ -f "$r" ] && req_args+=("-r" "$r")
+          done
+          if [ "${#req_args[@]}" -gt 0 ]; then
+            if ! pip install "${req_args[@]}" 2>/dev/null; then
+              echo "::warning::pip install of requirements failed; pip-audit will scan installed env only"
+            fi
+          fi
 
           if pip-audit --format json --output pip-audit.json 2>/dev/null; then
             echo "✅ No vulnerabilities found" >> pip-audit-report.md
@@ -266,9 +294,11 @@ jobs:
             COUNT=$(jq '. | length' pip-audit.json 2>/dev/null || echo "0")
             echo "⚠️ Found $COUNT vulnerabilities" >> pip-audit-report.md
             echo "count=$COUNT" >> "$GITHUB_OUTPUT"
-            jq -r '.[] | "- **\(.name)** \(.version): \(.vulns[0].id // \"Unknown\")"' pip-audit.json >> pip-audit-report.md 2>/dev/null || true
+            if ! jq -r '.[] | "- **\(.name)** \(.version): \(.vulns[0].id // \"Unknown\")"' \
+                    pip-audit.json >> pip-audit-report.md 2>/dev/null; then
+              echo "- (could not parse pip-audit output)" >> pip-audit-report.md
+            fi
           fi
-        continue-on-error: true
 
       - name: Upload Python audit results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
@@ -402,19 +432,35 @@ jobs:
 
       - name: Check licenses
         run: |
-          pip install -r requirements.txt -r requirements-dev.txt 2>/dev/null || true
+          # requirements*.txt are optional in this repo; install whichever exist
+          # and surface install failures as warnings rather than aborting.
+          req_args=()
+          for r in requirements.txt requirements-dev.txt; do
+            [ -f "$r" ] && req_args+=("-r" "$r")
+          done
+          if [ "${#req_args[@]}" -gt 0 ]; then
+            if ! pip install "${req_args[@]}" 2>/dev/null; then
+              echo "::warning::pip install of requirements failed; license report will reflect installed env only"
+            fi
+          fi
 
           echo "## License Audit Report" > license-report.md
           echo "" >> license-report.md
           echo "### All Package Licenses" >> license-report.md
           echo "" >> license-report.md
-          pip-licenses --format=markdown >> license-report.md 2>/dev/null || echo "Failed to generate license report"
+          if ! pip-licenses --format=markdown >> license-report.md 2>/dev/null; then
+            echo "Failed to generate license report" >> license-report.md
+          fi
 
           echo "" >> license-report.md
           echo "### License Compliance" >> license-report.md
           echo "" >> license-report.md
 
-          PROBLEMATIC=$(pip-licenses --fail-on="GPL-3.0;AGPL-3.0" 2>&1 || true)
+          # `pip-licenses --fail-on` exits non-zero when a problematic license
+          # is detected — that's the signal we want, not an error condition.
+          set +e
+          PROBLEMATIC=$(pip-licenses --fail-on="GPL-3.0;AGPL-3.0" 2>&1)
+          set -e
           if echo "$PROBLEMATIC" | grep -q "fail"; then
             echo "⚠️ Potentially problematic licenses detected" >> license-report.md
           else

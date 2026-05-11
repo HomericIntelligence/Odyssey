@@ -75,7 +75,7 @@ _run cmd:
 			# and we need real cores when the libKGEN JIT crashes
 			# (modular/modular#6413). Pairs with the host-side core_pattern in
 			# .github/actions/coredump-capture/action.yml.
-			HOME_FIXUP='if [ ! -w "$HOME" ]; then export HOME="/tmp/mojo-home-$(id -u)"; mkdir -p "$HOME/.modular" "$HOME/.pixi"; fi; ulimit -c unlimited 2>/dev/null || true;'
+			HOME_FIXUP='if [ ! -w "$HOME" ]; then export HOME="/tmp/mojo-home-$(id -u)"; mkdir -p "$HOME/.modular" "$HOME/.pixi"; fi; ulimit -c unlimited 2>/dev/null || echo "warn: ulimit -c rejected" >&2;'
 			podman compose exec -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} -T {{podman_service}} bash -c "$HOME_FIXUP {{cmd}}"
 		fi
 	else
@@ -100,7 +100,8 @@ podman-up:
     @# user cannot write to host-owned files. Make the workspace world-writable
     @# so `just build`, test fixtures, and pre-commit can create output files.
     @# (Safe: ephemeral dev machine; matches what the CI setup-container action does.)
-    @chmod -R a+rwX . || true
+    @# Log unexpected failures (e.g. socket inodes) to stderr; do not abort the recipe.
+    @if ! chmod -R a+rwX .; then echo "warn: 'chmod -R a+rwX .' encountered files it could not modify" >&2; fi
 
 # Stop Podman development environment
 podman-down:
@@ -510,9 +511,11 @@ bootstrap:
     echo -n "    Pixi:    "; pixi --version 2>/dev/null || echo "not found"
     echo ""
 
-    # Step 4: GLIBC compatibility check
+    # Step 4: GLIBC compatibility check (informational only — host may lack glibc)
     echo "==> Checking GLIBC compatibility..."
-    just check-glibc 2>/dev/null || true
+    if ! just check-glibc 2>/dev/null; then
+        echo "    (glibc check skipped or reported incompatibility — see docs/dev/mojo-glibc-compatibility.md)"
+    fi
     echo ""
 
     echo "Bootstrap complete! Next steps:"
@@ -586,7 +589,12 @@ pre-commit-all:
 check-matmul-calls:
     #!/usr/bin/env bash
     set -e
-    violations=$(grep -rn "\.__matmul__(" . --include="*.mojo" --include="*.🔥" --exclude-dir=".pixi" --exclude-dir=".git" | grep -v "fn __matmul__(" | grep -v "# __matmul__" | grep -v "__matmul__.*deprecated" || true)
+    # Bucket D: `grep -v` returns 1 with no matches. Disable -e around the
+    # pipeline so "no .__matmul__() call sites at all" doesn't fail the recipe.
+    set +e
+    raw=$(grep -rn "\.__matmul__(" . --include="*.mojo" --include="*.🔥" --exclude-dir=".pixi" --exclude-dir=".git")
+    set -e
+    violations=$(printf '%s\n' "$raw" | awk '!/fn __matmul__\(/ && !/# __matmul__/ && !/__matmul__.*deprecated/ && NF')
     if [ -n "$violations" ]; then
         echo "Found .__matmul__() call sites (use matmul(A, B) instead):"
         echo "$violations"
@@ -654,8 +662,11 @@ _test-group-inner path pattern:
     failed_tests=""
 
     # Enable core dumps so the libKGEN JIT crash (modular/modular#6413)
-    # produces a real coredump we can attach to gdb. No-op outside CI.
-    ulimit -c unlimited 2>/dev/null || true
+    # produces a real coredump we can attach to gdb. Sandboxed runners may
+    # forbid raising ulimit — log and continue.
+    if ! ulimit -c unlimited 2>/dev/null; then
+        echo "warn: 'ulimit -c unlimited' rejected by environment; coredumps may be unavailable" >&2
+    fi
 
     echo "=================================================="
     echo "Testing: {{path}}"
@@ -700,7 +711,9 @@ _test-group-inner path pattern:
             echo "Running: $test_file"
             test_count=$((test_count + 1))
 
-            ulimit -v unlimited 2>/dev/null || true
+            if ! ulimit -v unlimited 2>/dev/null; then
+                echo "warn: 'ulimit -v unlimited' rejected by environment" >&2
+            fi
             pixi run mojo --Werror -debug-level=line-tables -I "$REPO_ROOT" -I . "$test_file" || test_exit=$?
             if [ "${test_exit:-0}" -eq 0 ]; then
                 passed_count=$((passed_count + 1))
@@ -923,7 +936,9 @@ status:
 clean:
     @echo "Cleaning..."
     @rm -rf build/ dist/ htmlcov/ .pytest_cache/ .coverage
-    @find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+    @# Pruning __pycache__ via -prune avoids the "no such file" warnings that
+    @# arise when find descends into directories it has just deleted.
+    @find . -type d -name "__pycache__" -prune -exec rm -rf {} +
     @echo "Clean complete"
 
 # Clean everything including Podman containers

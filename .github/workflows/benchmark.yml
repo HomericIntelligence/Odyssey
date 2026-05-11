@@ -263,7 +263,13 @@ jobs:
             echo "❌ Failed to get container ID"
             exit 1
           fi
-          podman cp "$CONTAINER_ID:/tmp/benchmark-results/simd-output.txt" "benchmark-results/simd-output.txt" 2>/dev/null || true
+          # Best-effort copy: the file may be absent when the benchmark exited
+          # early. Surface the failure as a warning so reviewers see why the
+          # summary step downstream produces no data.
+          if ! podman cp "$CONTAINER_ID:/tmp/benchmark-results/simd-output.txt" \
+                         "benchmark-results/simd-output.txt" 2>/dev/null; then
+            echo "::warning::SIMD benchmark output not found in container — summary will be empty"
+          fi
 
       - name: Generate benchmark summary
         if: success()

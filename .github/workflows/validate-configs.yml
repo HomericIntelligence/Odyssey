@@ -431,7 +431,7 @@ jobs:
             exit 0
           fi
 
-          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null || true)
+          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null)
 
           if [ -z "$PAPER_DIRS" ]; then
             echo "No paper implementations found yet"
@@ -490,7 +490,7 @@ jobs:
             exit 0
           fi
 
-          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null || true)
+          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null)
 
           if [ -z "$PAPER_DIRS" ]; then
             echo "No paper implementations found yet"
@@ -536,6 +536,7 @@ jobs:
 
       - name: Run training scripts (quick validation)
         run: |
+          set -euo pipefail
           echo "Running training scripts for reproducibility validation..."
 
           if [ ! -d "papers" ]; then
@@ -543,21 +544,33 @@ jobs:
             exit 0
           fi
 
-          PAPER_DIRS=$(find papers -name "train.py" -o -name "train.mojo" -exec dirname {} \; 2>/dev/null || true)
+          PAPER_DIRS=$(find papers \( -name "train.py" -o -name "train.mojo" \) -exec dirname {} \; 2>/dev/null)
 
           if [ -z "$PAPER_DIRS" ]; then
             echo "No training scripts found yet"
             exit 0
           fi
 
+          # Aggregate failures so we surface every broken paper, not just the
+          # first one to fail (mirrors paper-validation.yml).
+          failed_papers=()
           for paper_dir in $PAPER_DIRS; do
             echo "Running training for: $paper_dir"
             if [ -f "$paper_dir/train.py" ]; then
-              podman compose exec -T projectodyssey-dev bash -c "pixi run python $paper_dir/train.py --quick-validation --epochs 1" || true
+              if ! podman compose exec -T projectodyssey-dev bash -c "pixi run python $paper_dir/train.py --quick-validation --epochs 1"; then
+                failed_papers+=("$paper_dir (python)")
+              fi
             elif [ -f "$paper_dir/train.mojo" ]; then
-              podman compose exec -T projectodyssey-dev bash -c "pixi run mojo -I . $paper_dir/train.mojo --quick-validation --epochs 1" || true
+              if ! podman compose exec -T projectodyssey-dev bash -c "pixi run mojo -I . $paper_dir/train.mojo --quick-validation --epochs 1"; then
+                failed_papers+=("$paper_dir (mojo)")
+              fi
             fi
           done
+
+          if [ "${#failed_papers[@]}" -gt 0 ]; then
+            echo "::error::Quick-validation training failed for: ${failed_papers[*]}"
+            exit 1
+          fi
 
   paper-report:
     needs: [validate-paper-structure, validate-paper-implementation]

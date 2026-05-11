@@ -53,16 +53,26 @@ jobs:
           SKIP=mojo-format pixi run pre-commit run --all-files --show-diff-on-failure
 
       - name: Run mojo format (advisory - non-blocking)
-        continue-on-error: true
+        # mojo-format is intentionally advisory due to Mojo 0.26.1 formatter
+        # bugs (see docs/dev/mojo-glibc-compatibility.md). The `|| echo` clause
+        # already neutralises the exit code into a warning, so the step itself
+        # never fails — no `continue-on-error` needed.
         run: |
-          pixi run pre-commit run mojo-format --all-files --show-diff-on-failure || echo "::warning::mojo format check failed (non-blocking due to Mojo 0.26.1 formatter bugs)"
+          if ! pixi run pre-commit run mojo-format --all-files --show-diff-on-failure; then
+            echo "::warning::mojo format check failed (non-blocking due to Mojo 0.26.1 formatter bugs)"
+          fi
 
       - name: Enforce no .__matmul__() call sites
         run: |
-          violations=$(grep -rn '\.__matmul__(' . --include='*.mojo' --include='*.🔥' \
-            --exclude-dir='.pixi' --exclude-dir='.git' \
-            | grep -v 'fn __matmul__(' | grep -v '# __matmul__' \
-            | grep -v '__matmul__.*deprecated' || true)
+          # Bucket D: pipefail makes a no-match `grep -v` (rc=1) fail the
+          # pipeline. Use `awk` filters (which always exit 0) and run the
+          # initial `grep` under set +e so "no matches" doesn't trip us.
+          set +e
+          raw=$(grep -rn '\.__matmul__(' . --include='*.mojo' --include='*.🔥' \
+                  --exclude-dir='.pixi' --exclude-dir='.git')
+          set -e
+          violations=$(printf '%s\n' "$raw" \
+            | awk '!/fn __matmul__\(/ && !/# __matmul__/ && !/__matmul__.*deprecated/ && NF')
           if [ -n "$violations" ]; then
             echo "Found .__matmul__() call sites (use matmul(A, B) instead):"
             echo "$violations"

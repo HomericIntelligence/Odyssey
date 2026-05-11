@@ -43,9 +43,23 @@ runs:
         chmod 1777 crash-bundle/cores
         echo '/workspace/crash-bundle/cores/core.%p.%e.%t' \
           | sudo tee /proc/sys/kernel/core_pattern
-        sudo sysctl -w fs.suid_dumpable=2 || true
-        sudo systemctl stop apport.service 2>/dev/null || true
-        sudo systemctl stop systemd-coredump.socket 2>/dev/null || true
+        # The sysctl + systemctl stop calls below are best-effort: hardened
+        # runners may forbid setting suid_dumpable=2, and the apport/
+        # systemd-coredump services may not be installed. Log unexpected
+        # failures to stderr but do not abort the setup phase.
+        if ! sudo sysctl -w fs.suid_dumpable=2; then
+          echo "warn: 'sysctl -w fs.suid_dumpable=2' rejected (cores from setuid binaries will not be captured)" >&2
+        fi
+        if systemctl list-unit-files --quiet apport.service 2>/dev/null; then
+          if ! sudo systemctl stop apport.service 2>/dev/null; then
+            echo "warn: 'systemctl stop apport.service' failed" >&2
+          fi
+        fi
+        if systemctl list-unit-files --quiet systemd-coredump.socket 2>/dev/null; then
+          if ! sudo systemctl stop systemd-coredump.socket 2>/dev/null; then
+            echo "warn: 'systemctl stop systemd-coredump.socket' failed" >&2
+          fi
+        fi
 
         # Raise core ulimit on the *running* container PID 1 so it propagates
         # to every subsequent `podman compose exec` (per-exec `ulimit -c` is
@@ -53,8 +67,12 @@ runs:
         # only works if container has CAP_SYS_RESOURCE; fall back to a sysctl
         # noop and rely on the in-container `ulimit -c` we re-set just before
         # the test runs (see test job's pre-test step).
+        # Inside the container: set the limit, then print only the relevant
+        # rows for diagnostics. We `awk` the output (always exits 0) instead
+        # of suppression-style fallbacks so a missing match does not look like
+        # a failure (see Odysseus PR #280 Bucket D).
         podman compose exec -T projectodyssey-dev bash -c \
-          'ulimit -c unlimited && ulimit -a | grep -E "core|file size" || true'
+          'ulimit -c unlimited; ulimit -a | awk "/core|file size/"'
 
         # Sanity check: confirm host dir is writable from inside the container.
         podman compose exec -T projectodyssey-dev bash -c \
@@ -66,7 +84,12 @@ runs:
       run: |
         set -x
         mkdir -p crash-bundle/cores crash-bundle/symbols
-        ls -la crash-bundle/cores/ 2>/dev/null || true
+        # Diagnostic listing — directory may be empty if no crashes occurred.
+        if [ -d crash-bundle/cores ]; then
+          if ! ls -la crash-bundle/cores/ 2>/dev/null; then
+            echo "warn: could not list crash-bundle/cores/" >&2
+          fi
+        fi
 
         # ALWAYS bundle symbols + metadata (even if no cores), so we can
         # distinguish "no crash this run" from "capture broken." A 564-byte
@@ -89,30 +112,49 @@ runs:
             exit 0
           fi
           mkdir -p /workspace/crash-bundle/symbols
-          cp -av "$MOJO_BIN" /workspace/crash-bundle/symbols/ 2>/dev/null || true
+          # Best-effort symbol bundle: if a copy fails (missing perms, missing
+          # file) we log a warning but keep going so the rest of the bundle
+          # still uploads.
+          if ! cp -av "$MOJO_BIN" /workspace/crash-bundle/symbols/ 2>/dev/null; then
+            echo "warn: failed to copy mojo binary into crash-bundle/symbols" >&2
+          fi
+          # nullglob ensures unmatched patterns drop out cleanly instead of
+          # leaving literal "*.so" tokens for `[ -e ]` to inspect.
+          shopt -s nullglob
           for so in "$ENV_DIR"/lib/libKGEN*.so "$ENV_DIR"/lib/libAsync*.so "$ENV_DIR"/lib/libMojo*.so "$ENV_DIR"/lib/libMSupport*.so; do
-            [ -e "$so" ] && cp -av "$so" /workspace/crash-bundle/symbols/ 2>/dev/null || true
+            if ! cp -av "$so" /workspace/crash-bundle/symbols/ 2>/dev/null; then
+              echo "warn: failed to copy $so" >&2
+            fi
           done
+          shopt -u nullglob
           ls -la /workspace/crash-bundle/symbols/
-        ' || true
+        ' || echo "warn: symbol-bundling subshell exited non-zero (continuing — metadata block still runs)" >&2
 
+        # Build the metadata file with explicit exit-code consumption per probe
+        # so a failed `podman compose exec` shows up as a diagnostic line
+        # rather than a silently-empty section.
+        emit_probe() {
+          local label="$1"; shift
+          echo "=== $label ==="
+          if ! "$@" 2>&1; then
+            echo "(probe failed: $* — exit code $?)"
+          fi
+        }
         {
-          echo "=== mojo --version ==="
-          podman compose exec -T projectodyssey-dev pixi run mojo --version 2>&1 || true
-          echo "=== uname -a (host) ==="
-          uname -a
-          echo "=== glibc (host) ==="
-          ldd --version | head -1
-          echo "=== glibc (container) ==="
-          podman compose exec -T projectodyssey-dev bash -c 'ldd --version | head -1' 2>&1 || true
-          echo "=== /proc/sys/kernel/core_pattern (host kernel — global) ==="
-          cat /proc/sys/kernel/core_pattern 2>/dev/null
-          echo "=== container ulimit -c ==="
-          podman compose exec -T projectodyssey-dev bash -c 'ulimit -c' 2>&1 || true
-          echo "=== Coredumps found in crash-bundle/cores/ ==="
-          ls -la crash-bundle/cores/ 2>/dev/null
-          echo "=== Symbols bundled ==="
-          ls -la crash-bundle/symbols/ 2>/dev/null
+          emit_probe "mojo --version" \
+            podman compose exec -T projectodyssey-dev pixi run mojo --version
+          emit_probe "uname -a (host)" uname -a
+          emit_probe "glibc (host)" bash -c 'ldd --version | head -1'
+          emit_probe "glibc (container)" \
+            podman compose exec -T projectodyssey-dev bash -c 'ldd --version | head -1'
+          emit_probe "/proc/sys/kernel/core_pattern (host kernel — global)" \
+            cat /proc/sys/kernel/core_pattern
+          emit_probe "container ulimit -c" \
+            podman compose exec -T projectodyssey-dev bash -c 'ulimit -c'
+          emit_probe "Coredumps found in crash-bundle/cores/" \
+            ls -la crash-bundle/cores/
+          emit_probe "Symbols bundled" \
+            ls -la crash-bundle/symbols/
         } > crash-bundle/metadata.txt
 
         # If no cores, still upload the metadata + symbols so the artifact

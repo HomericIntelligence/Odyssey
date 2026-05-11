@@ -441,8 +441,13 @@ fi
 
 section "Migrating database"
 
-"$INSTALL_DIR/podman" system migrate --migrate-db 2>/dev/null || true
-info "Database migration complete (BoltDB → SQLite)"
+# Idempotent: migration may already be applied. Capture and log unexpected
+# failures (other than "no DB to migrate") to stderr.
+if ! "$INSTALL_DIR/podman" system migrate --migrate-db 2>/dev/null; then
+    info "Database migration skipped (no prior BoltDB state or already migrated)"
+else
+    info "Database migration complete (BoltDB → SQLite)"
+fi
 
 # ============================================================
 # Step 13: PATH check
