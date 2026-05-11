@@ -9,7 +9,7 @@ See documentation: docs/core/mojo-patterns.md
 """
 
 from std.algorithm import vectorize
-from sys.info import simd_width_of
+from std.sys.info import simd_width_of
 from shared.tensor.any_tensor import AnyTensor
 
 

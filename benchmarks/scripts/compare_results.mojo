@@ -18,7 +18,7 @@ Output:
 """
 
 from std.sys import argv
-from python import Python
+from std.python import Python
 
 
 # ============================================================================
@@ -123,37 +123,43 @@ def atof(s: String) -> Float64:
     var bytes = s.as_bytes()
 
     # Handle negative numbers
-    if len(bytes) > 0 and bytes[0] == ord("-"):
+    if len(bytes) > 0 and bytes[0] == UInt8(ord("-")):
         sign = -1.0
         i = 1
 
     # Parse integer part
     while (
         i < len(bytes)
-        and bytes[i] != ord(".")
-        and bytes[i] != ord("e")
-        and bytes[i] != ord("E")
+        and bytes[i] != UInt8(ord("."))
+        and bytes[i] != UInt8(ord("e"))
+        and bytes[i] != UInt8(ord("E"))
     ):
         result = result * 10.0 + Float64(Int(bytes[i]) - ord("0"))
         i += 1
 
     # Parse decimal part
-    if i < len(bytes) and bytes[i] == ord("."):
+    if i < len(bytes) and bytes[i] == UInt8(ord(".")):
         i += 1
         var decimal_place: Float64 = 0.1
-        while i < len(bytes) and bytes[i] != ord("e") and bytes[i] != ord("E"):
+        while (
+            i < len(bytes)
+            and bytes[i] != UInt8(ord("e"))
+            and bytes[i] != UInt8(ord("E"))
+        ):
             result = result + Float64(Int(bytes[i]) - ord("0")) * decimal_place
             decimal_place = decimal_place * 0.1
             i += 1
 
     # Parse exponent (scientific notation)
-    if i < len(bytes) and (bytes[i] == ord("e") or bytes[i] == ord("E")):
+    if i < len(bytes) and (
+        bytes[i] == UInt8(ord("e")) or bytes[i] == UInt8(ord("E"))
+    ):
         i += 1
         var exp_sign = 1
-        if i < len(bytes) and bytes[i] == ord("-"):
+        if i < len(bytes) and bytes[i] == UInt8(ord("-")):
             exp_sign = -1
             i += 1
-        elif i < len(bytes) and bytes[i] == ord("+"):
+        elif i < len(bytes) and bytes[i] == UInt8(ord("+")):
             i += 1
 
         var exponent = 0
@@ -327,13 +333,13 @@ def atoi(s: String) -> Int:
     var s_bytes = s.as_bytes()
 
     # Handle negative numbers
-    if len(s_bytes) > 0 and s_bytes[0] == ord("-"):
+    if len(s_bytes) > 0 and s_bytes[0] == UInt8(ord("-")):
         sign = -1
         i = 1
 
     # Parse digits
     while i < len(s_bytes):
-        if s_bytes[i] >= ord("0") and s_bytes[i] <= ord("9"):
+        if s_bytes[i] >= UInt8(ord("0")) and s_bytes[i] <= UInt8(ord("9")):
             result = result * 10 + (Int(s_bytes[i]) - ord("0"))
         i += 1
 

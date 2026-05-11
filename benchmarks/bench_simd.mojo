@@ -24,7 +24,7 @@ from shared.core.arithmetic_simd import (
     multiply_simd,
     divide_simd,
 )
-from time import perf_counter_ns
+from std.time import perf_counter_ns
 
 
 def benchmark_operation[

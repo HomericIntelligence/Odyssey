@@ -13,8 +13,8 @@ Output:
 """
 
 from std.sys import argv
-from time import perf_counter_ns
-from python import Python
+from std.time import perf_counter_ns
+from std.python import Python
 
 
 # ============================================================================
@@ -183,9 +183,10 @@ def measure_benchmark[
     """Measure a benchmark's performance.
 
     Parameters:
-        func: Benchmark function to measure.
+        FuncType: Type of the benchmark function.
 
     Args:
+        func: Benchmark function to measure.
         name: Name of the benchmark.
         description: Description of what benchmark measures.
         iterations: Number of iterations to run.
