@@ -87,7 +87,7 @@ class TestMojoFormatHandling:
         assert has_continue_on_error or has_explicit_warning_wrapper, (
             "The mojo-format step is no longer advisory. Either keep "
             "`continue-on-error: true` on the step, or wrap the command in an "
-            "`if ! …; then echo \"::warning::…\"; fi` block that emits a CI "
+            '`if ! …; then echo "::warning::…"; fi` block that emits a CI '
             "warning instead of failing. Mojo 0.26.1 formatter bugs would "
             "otherwise block valid PRs."
         )

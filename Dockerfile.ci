@@ -114,6 +114,13 @@ FROM runtime AS ci
 # Re-declare ARG (does not persist across FROM)
 ARG USER_NAME=dev
 
+# `pre-commit install-hooks` requires the `git` binary to clone hook
+# repositories. The minimal `runtime` stage intentionally omits git, so install
+# it here (CI-only) as root before dropping back to the non-root user.
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends git \
+    && rm -rf /var/lib/apt/lists/*
+
 # Explicitly run as non-root user (inherited from runtime, but stated for clarity)
 USER ${USER_NAME}
 
