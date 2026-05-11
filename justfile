@@ -94,8 +94,15 @@ _ensure_build_dir mode:
 # ==============================================================================
 
 # Start Podman development environment
+#
+# docker-compose substitutes ${USER_ID}/${GROUP_ID} in docker-compose.yml from
+# its OWN environment, not from just's template vars. Without explicit
+# `USER_ID=... GROUP_ID=...` exports on the same line, the variables expand to
+# empty strings and the container would get `user: ":"` (invalid), causing
+# the compose call to fail or create a stuck container in an invalid state.
 podman-up:
-    @podman compose up -d {{podman_service}}
+    @USER_ID={{USER_ID}} GROUP_ID={{GROUP_ID}} USER_NAME=${USER_NAME:-dev} \
+        podman compose up -d {{podman_service}}
     @# Rootless Podman UID-maps the bind-mounted workspace so the container
     @# user cannot write to host-owned files. Make the workspace world-writable
     @# so `just build`, test fixtures, and pre-commit can create output files.
@@ -104,7 +111,8 @@ podman-up:
 
 # Stop Podman development environment
 podman-down:
-    @podman compose down
+    @USER_ID={{USER_ID}} GROUP_ID={{GROUP_ID}} USER_NAME=${USER_NAME:-dev} \
+        podman compose down
 
 # Build Podman images
 podman-build:
