@@ -114,11 +114,16 @@ FROM runtime AS ci
 # Re-declare ARG (does not persist across FROM)
 ARG USER_NAME=dev
 
-# `pre-commit install-hooks` requires the `git` binary to clone hook
-# repositories. The minimal `runtime` stage intentionally omits git, so install
-# it here (CI-only) as root before dropping back to the non-root user.
+# `pre-commit install-hooks` requires:
+#   - `git` to clone hook repositories
+#   - `libatomic1` for the node binary that the markdownlint-cli2 hook bundles
+#     (pre-commit downloads its own node, which links libatomic.so.1)
+# The minimal `runtime` stage intentionally omits both, so install them here
+# (CI-only) as root before dropping back to the non-root user.
 USER root
-RUN apt-get update && apt-get install -y --no-install-recommends git \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        libatomic1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Explicitly run as non-root user (inherited from runtime, but stated for clarity)
