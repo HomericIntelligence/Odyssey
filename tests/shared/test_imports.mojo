@@ -33,6 +33,13 @@ from shared.core import (
     swish,
     tanh,
 )
+
+# shared.training.SGD is a struct-based wrapper around the autograd SGD
+# optimizer (shared/training/__init__.mojo) while shared.SGD re-exports
+# the lower-level shared.autograd.optimizers.SGD directly
+# (shared/__init__.mojo). They are intentionally two distinct types with
+# the same name, so we alias the training wrapper here to keep both
+# importable in one module without a name collision.
 from shared.training import (
     Callback,
     CosineAnnealingLR,
@@ -43,7 +50,7 @@ from shared.training import (
     ModelCheckpoint,
     MultiStepLR,
     ReduceLROnPlateau,
-    SGD,
+    SGD as TrainingSGD,
     StepLR,
     TrainingState,
     WarmupLR,
