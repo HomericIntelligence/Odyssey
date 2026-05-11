@@ -18,6 +18,7 @@ from shared.autograd import (
     restore_gradient_tracking,
 )
 
+
 def test_no_grad_context_enter_disables_tracking() raises:
     """Test that NoGradContext.enter() disables tape recording."""
     var tape = GradientTape()

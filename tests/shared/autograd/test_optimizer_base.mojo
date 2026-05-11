@@ -28,6 +28,7 @@ from shared.autograd.optimizer_base import (
     zero_grad_impl,
 )
 
+
 def test_sgd_get_set_lr() raises:
     """Test SGD learning rate get/set methods."""
     var optimizer = SGD(learning_rate=0.01)

@@ -31,6 +31,7 @@ from shared.core.reduction import (
 )
 from shared.core.matrix import transpose_view
 
+
 def _make_nc_2x3() raises -> AnyTensor:
     """Non-contiguous 3×2 tensor (transpose of 2×3 sequential).
 

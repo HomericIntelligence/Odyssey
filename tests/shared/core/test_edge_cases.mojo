@@ -42,6 +42,7 @@ from tests.shared.conftest import (
     assert_true,
 )
 
+
 def test_empty_tensor_creation() raises:
     """Test creating empty tensor with 0 elements."""
     var shape = List[Int]()

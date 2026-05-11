@@ -50,6 +50,7 @@ from shared.testing.gradient_checker import (
 )
 from std.math import tanh as math_tanh
 
+
 def test_relu_basic() raises:
     """Test ReLU with known values."""
     var shape = List[Int]()

@@ -264,11 +264,15 @@ jobs:
             exit 1
           fi
           # Best-effort copy: the file may be absent when the benchmark exited
-          # early. Surface the failure as a warning so reviewers see why the
-          # summary step downstream produces no data.
+          # early. Surface the failure as an informational `WARN:` line on
+          # stdout (the workflow-annotation form is forbidden per
+          # HomericIntelligence/Odysseus#282 Bucket F — advisory annotations
+          # that gate a tool exit are equivalent to continue-on-error). This
+          # branch does not block the step; the summary downstream will
+          # document the missing data.
           if ! podman cp "$CONTAINER_ID:/tmp/benchmark-results/simd-output.txt" \
                          "benchmark-results/simd-output.txt" 2>/dev/null; then
-            echo "::warning::SIMD benchmark output not found in container — summary will be empty"
+            echo "WARN: SIMD benchmark output not found in container — summary will be empty"
           fi
 
       - name: Generate benchmark summary

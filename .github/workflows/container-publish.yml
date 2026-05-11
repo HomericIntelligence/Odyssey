@@ -1,7 +1,8 @@
 name: Container Build and Publish
 
-# Build and publish container images to GitHub Container Registry using Podman
-# Triggered on pushes to main, version tags, and PRs (build-only)
+# Build and publish container images to GitHub Container Registry using Podman.
+# Triggered on pushes to main, version tags, and PRs (build-only) — see the
+# `paths:` filter below for the exact set of files that re-trigger a build.
 
 on:
   # Daily nightly rebuild (06:00 UTC) so images stay fresh on base-image

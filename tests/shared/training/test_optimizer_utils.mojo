@@ -30,6 +30,7 @@ from shared.training.optimizers import (
     validate_optimizer_state,
 )
 
+
 def test_initialize_optimizer_state() raises:
     """Test basic optimizer state initialization."""
     # Create shapes for 2 parameters

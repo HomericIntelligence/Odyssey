@@ -31,6 +31,7 @@ from tests.shared.conftest import (
     assert_value_at,
 )
 
+
 def test_abs_positive() raises:
     """Test abs with positive values."""
     var shape = List[Int]()
