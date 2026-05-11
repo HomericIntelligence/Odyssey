@@ -115,9 +115,16 @@ _ensure_build_dir mode:
 # first so `compose up` creates a fresh container mounted on `$PWD`. This
 # lets the same dev work seamlessly across multiple clones without
 # manually running `podman compose down` from the old clone first.
+#
+# docker-compose substitutes ${USER_ID}/${GROUP_ID} in docker-compose.yml from
+# its OWN environment, not from just's template vars. Without explicit
+# `USER_ID=... GROUP_ID=...` exports on the same line, the variables expand to
+# empty strings and the container would get `user: ":"` (invalid), causing
+# the compose call to fail or create a stuck container in an invalid state.
 podman-up:
     #!/usr/bin/env bash
     set -euo pipefail
+    export USER_ID="{{USER_ID}}" GROUP_ID="{{GROUP_ID}}" USER_NAME="${USER_NAME:-dev}"
     EXPECTED="{{repo_root}}"
     EXISTING=$(podman inspect projectodyssey-{{podman_service}}-1 \
         --format '{{{{range .Mounts}}{{{{if eq .Destination "/workspace"}}{{{{.Source}}{{{{end}}{{{{end}}' 2>/dev/null || echo "")
@@ -139,7 +146,8 @@ podman-up:
 
 # Stop Podman development environment
 podman-down:
-    @podman compose down
+    @USER_ID={{USER_ID}} GROUP_ID={{GROUP_ID}} USER_NAME=${USER_NAME:-dev} \
+        podman compose down
 
 # Build Podman images
 podman-build:
