@@ -56,9 +56,25 @@ fi
 # Write the gdb command script to a temp file to avoid multi-line -ex quoting issues.
 # gdb multi-line strings via -ex are not portable across gdb versions; -x is reliable.
 GDB_SCRIPT=$(mktemp /tmp/mojo-gdb-XXXXXX.gdb)
+EXIT_CODE_FILE="${CORE_DIR}/exit-${TS}.code"
 # shellcheck disable=SC2064
 trap "rm -f '$GDB_SCRIPT'" EXIT
 
+# The gdb script uses Python event hooks because:
+#  1. `handle SIGABRT stop nopass` + a `hook-stop` block fires on EVERY stop
+#     event in gdb 15.1 — including normal exit, where `generate-core-file`
+#     fails with "You can't do that without a process to debug" and gdb
+#     prints "Error while running hook_stop". A bare gdb-script `if` on
+#     $_siginfo also fails after normal exit (no stack).
+#  2. `--return-child-result` is unreliable in gdb 15.1 -batch mode for
+#     processes killed by handled signals: gdb often exits 0 even when the
+#     inferior died on SIGABRT, masking the test failure entirely.
+#
+# Python events distinguish gdb.SignalEvent (real crash) from gdb.ExitedEvent
+# (clean exit) and record the desired exit code to a file. The wrapper then
+# reads that file and exits with the recorded code, so the caller sees:
+#   - 0 / N for normal exit code N
+#   - 128 + signo for any caught signal (134 for SIGABRT, 139 for SIGSEGV…)
 cat > "$GDB_SCRIPT" <<GDBEOF
 set pagination off
 set confirm off
@@ -66,21 +82,55 @@ set logging file ${GDB_LOG}
 set logging overwrite on
 set logging enabled on
 
+python
+import gdb
+EXIT_FILE = "${EXIT_CODE_FILE}"
+CORE_FILE = "${CORE_FILE}"
+# POSIX shell convention for signal-terminated processes.
+SIG_MAP = {"SIGABRT": 6, "SIGSEGV": 11, "SIGBUS": 7, "SIGFPE": 8, "SIGILL": 4}
+state = {"signaled": False}
+
+def write_exit(code):
+    with open(EXIT_FILE, "w") as f:
+        f.write(str(code))
+
+# Default = 1 covers the case where neither handler fires (e.g. gdb itself dies).
+write_exit(1)
+
+def on_stop(event):
+    # Only act on signal stops (we never set breakpoints, so any other
+    # stop event is unexpected and best left to gdb's defaults).
+    if isinstance(event, gdb.SignalEvent):
+        signo = event.stop_signal
+        print("[mojo-under-gdb] caught " + signo + "; dumping " + CORE_FILE)
+        gdb.execute("generate-core-file " + CORE_FILE)
+        gdb.execute("bt full")
+        gdb.execute("info threads")
+        gdb.execute("info sharedlibrary")
+        state["signaled"] = True
+        write_exit(128 + SIG_MAP.get(signo, 1))
+
+def on_exit(event):
+    # gdb fires Exited after the post-signal kill too. If we already
+    # captured a signal, do not overwrite that exit code.
+    if state["signaled"]:
+        return
+    code = getattr(event, "exit_code", None)
+    write_exit(code if code is not None else 0)
+
+gdb.events.stop.connect(on_stop)
+gdb.events.exited.connect(on_exit)
+end
+
 # Intercept crash signals before user (libKGEN) handlers run.
 # "nopass" prevents the signal from being delivered to the inferior.
+# SIGILL is included because Mojo's os.abort() raises llvm.trap → SIGILL,
+# and observed JIT crashes in modular/modular#6413 also surface as SIGILL.
 handle SIGABRT stop nopass print
 handle SIGSEGV stop nopass print
 handle SIGBUS  stop nopass print
-
-# Dump core + context on stop (signal caught). On normal exit, this hook
-# is never invoked, so a clean test run produces no spurious gdb errors.
-define hook-stop
-  printf "[mojo-under-gdb] stop reason captured; dumping core to ${CORE_FILE}\\n"
-  generate-core-file ${CORE_FILE}
-  bt full
-  info threads
-  info sharedlibrary
-end
+handle SIGILL  stop nopass print
+handle SIGFPE  stop nopass print
 
 run
 
@@ -93,16 +143,22 @@ echo "[mojo-under-gdb] core file: ${CORE_FILE} (written on crash)" >&2
 echo "[mojo-under-gdb] binary   : ${MOJO_BIN}" >&2
 echo "[mojo-under-gdb] args     : $*" >&2
 
-# --args passes everything after it verbatim as the inferior's argv.
-# stdout/stderr from the mojo process flow through gdb normally so CI
-# logs remain readable.
-#
 # Run gdb INSIDE `pixi run` so the inferior inherits the activated pixi
 # env (MODULAR_HOME, PATH, MOJO stdlib search paths). Running gdb outside
 # `pixi run` strips that activation and mojo fails with "unable to locate
 # module 'std'" before it ever has a chance to crash.
-#
-# `--return-child-result` makes gdb exit with the inferior's exit code
-# (or 128+signo on signal). Without this, gdb's own zero/non-zero status
-# masks the test result and we either always pass or always fail.
-exec pixi run -- gdb -batch -nx --return-child-result -x "$GDB_SCRIPT" --args "$MOJO_BIN" "$@"
+# `set -e` would abort here if gdb exits non-zero before we can read
+# EXIT_CODE_FILE. Disable it just for this invocation.
+set +e
+pixi run -- gdb -batch -nx -x "$GDB_SCRIPT" --args "$MOJO_BIN" "$@"
+gdb_status=$?
+set -e
+
+# Prefer the Python-recorded exit code; fall back to gdb's own status if
+# the file is missing (gdb crashed before the python hook fired).
+if [ -r "$EXIT_CODE_FILE" ]; then
+    inferior_exit=$(cat "$EXIT_CODE_FILE")
+    rm -f "$EXIT_CODE_FILE"
+    exit "$inferior_exit"
+fi
+exit "$gdb_status"
