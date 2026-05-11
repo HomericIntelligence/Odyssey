@@ -241,7 +241,9 @@ jobs:
                 FOUND=$(jq '.vulnerabilities | length' "safety-${file//\//-}.json" 2>/dev/null || echo "0")
                 VULN_COUNT=$((VULN_COUNT + FOUND))
                 echo "⚠️ Found $FOUND vulnerabilities" >> safety-report.md
-                jq -r '.vulnerabilities[] | "- **\(.package_name)** \(.vulnerable_versions): \(.advisory)"' "safety-${file//\//-}.json" >> safety-report.md 2>/dev/null || true
+                if ! jq -r '.vulnerabilities[] | "- **\(.package_name)** \(.vulnerable_versions): \(.advisory)"' "safety-${file//\//-}.json" >> safety-report.md 2>/dev/null; then
+                  echo "::notice::jq could not parse vulnerabilities from safety-${file//\//-}.json" >> safety-report.md
+                fi
               fi
               echo "" >> safety-report.md
             fi
@@ -257,7 +259,10 @@ jobs:
           echo "## pip-audit Scan Results" > pip-audit-report.md
           echo "" >> pip-audit-report.md
 
-          pip install -r requirements.txt -r requirements-dev.txt 2>/dev/null || true
+          # requirements files may not exist in this repo; log if absent.
+          if ! pip install -r requirements.txt -r requirements-dev.txt 2>/dev/null; then
+            echo "::notice::pip install from requirements files failed (files may not exist) — pip-audit will scan environment packages"
+          fi
 
           if pip-audit --format json --output pip-audit.json 2>/dev/null; then
             echo "✅ No vulnerabilities found" >> pip-audit-report.md
@@ -266,7 +271,9 @@ jobs:
             COUNT=$(jq '. | length' pip-audit.json 2>/dev/null || echo "0")
             echo "⚠️ Found $COUNT vulnerabilities" >> pip-audit-report.md
             echo "count=$COUNT" >> "$GITHUB_OUTPUT"
-            jq -r '.[] | "- **\(.name)** \(.version): \(.vulns[0].id // \"Unknown\")"' pip-audit.json >> pip-audit-report.md 2>/dev/null || true
+            if ! jq -r '.[] | "- **\(.name)** \(.version): \(.vulns[0].id // \"Unknown\")"' pip-audit.json >> pip-audit-report.md 2>/dev/null; then
+              echo "::notice::jq could not parse pip-audit.json for report" >> pip-audit-report.md
+            fi
           fi
         continue-on-error: true
 
@@ -402,7 +409,10 @@ jobs:
 
       - name: Check licenses
         run: |
-          pip install -r requirements.txt -r requirements-dev.txt 2>/dev/null || true
+          # requirements files may not exist in this repo; log if absent.
+          if ! pip install -r requirements.txt -r requirements-dev.txt 2>/dev/null; then
+            echo "::notice::pip install from requirements files failed for license check (files may not exist)"
+          fi
 
           echo "## License Audit Report" > license-report.md
           echo "" >> license-report.md
@@ -414,7 +424,11 @@ jobs:
           echo "### License Compliance" >> license-report.md
           echo "" >> license-report.md
 
-          PROBLEMATIC=$(pip-licenses --fail-on="GPL-3.0;AGPL-3.0" 2>&1 || true)
+          # pip-licenses --fail-on exits non-zero when problematic licenses are found;
+          # that exit code IS the detection signal, so we capture output without aborting.
+          set +e
+          PROBLEMATIC=$(pip-licenses --fail-on="GPL-3.0;AGPL-3.0" 2>&1)
+          set -e
           if echo "$PROBLEMATIC" | grep -q "fail"; then
             echo "⚠️ Potentially problematic licenses detected" >> license-report.md
           else

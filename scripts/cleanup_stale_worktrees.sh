@@ -76,7 +76,10 @@ find_repo_root() {
     # Use git-common-dir to find the main repo root (works from any worktree).
     # git-common-dir returns the shared .git dir, e.g. /repo/.git
     local git_common_dir
-    git_common_dir="$(git rev-parse --git-common-dir 2>/dev/null || true)"
+    # If git rev-parse fails, we are not in a git repository — this is a real error.
+    if ! git_common_dir="$(git rev-parse --git-common-dir 2>/dev/null)"; then
+        git_common_dir=""
+    fi
     if [[ -z "$git_common_dir" ]]; then
         log_error "Not inside a git repository."
         exit 1

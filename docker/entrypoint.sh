@@ -56,7 +56,11 @@ unset _prefix
 # ---------------------------------------------------------------------------
 _ensure_writable() {
     for dir in "$@"; do
-        mkdir -p "$dir" 2>/dev/null || sudo -n mkdir -p "$dir" 2>/dev/null || true
+        if ! mkdir -p "$dir" 2>/dev/null; then
+            if ! sudo -n mkdir -p "$dir" 2>/dev/null; then
+                echo "[entrypoint] WARNING: could not create $dir (neither as user nor via sudo)" >&2
+            fi
+        fi
         # If we own the directory already, nothing to do.
         if [ -w "$dir" ]; then
             continue
@@ -64,8 +68,11 @@ _ensure_writable() {
         # chmod only succeeds if we already own the directory.
         # When the workspace is bind-mounted as root:root, fall back to
         # sudo chown -R on the specific subdir only (never the whole workspace).
-        chmod u+w "$dir" 2>/dev/null || \
-            sudo -n chown -R "$(id -u):$(id -g)" "$dir" 2>/dev/null || true
+        if ! chmod u+w "$dir" 2>/dev/null; then
+            if ! sudo -n chown -R "$(id -u):$(id -g)" "$dir" 2>/dev/null; then
+                echo "[entrypoint] WARNING: $dir is not writable and chown failed — some operations may fail" >&2
+            fi
+        fi
     done
 }
 
@@ -85,7 +92,9 @@ _ensure_writable \
 # ---------------------------------------------------------------------------
 if [ -d ".git" ] && [ ! -f ".git/hooks/pre-commit" ]; then
     echo "Installing pre-commit git hooks..."
-    pixi run pre-commit install --install-hooks 2>/dev/null || true
+    if ! pixi run pre-commit install --install-hooks 2>/dev/null; then
+        echo "[entrypoint] WARNING: pre-commit install failed — git hooks will not run until fixed" >&2
+    fi
 fi
 
 exec "$@"

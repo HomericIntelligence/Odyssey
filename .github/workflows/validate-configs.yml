@@ -431,7 +431,9 @@ jobs:
             exit 0
           fi
 
-          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null || true)
+          # find exits 0 even when no results; 2>/dev/null suppresses ENOENT on papers/ subdirs.
+          # The papers/ existence check above already handles the missing-dir case.
+          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null) || PAPER_DIRS=""
 
           if [ -z "$PAPER_DIRS" ]; then
             echo "No paper implementations found yet"
@@ -490,7 +492,9 @@ jobs:
             exit 0
           fi
 
-          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null || true)
+          # find exits 0 even when no results; 2>/dev/null suppresses ENOENT on papers/ subdirs.
+          # The papers/ existence check above already handles the missing-dir case.
+          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null) || PAPER_DIRS=""
 
           if [ -z "$PAPER_DIRS" ]; then
             echo "No paper implementations found yet"
@@ -543,7 +547,8 @@ jobs:
             exit 0
           fi
 
-          PAPER_DIRS=$(find papers -name "train.py" -o -name "train.mojo" -exec dirname {} \; 2>/dev/null || true)
+          # find exits 0 even when no results; use || PAPER_DIRS="" to handle find errors explicitly.
+          PAPER_DIRS=$(find papers -name "train.py" -o -name "train.mojo" -exec dirname {} \; 2>/dev/null) || PAPER_DIRS=""
 
           if [ -z "$PAPER_DIRS" ]; then
             echo "No training scripts found yet"
@@ -553,9 +558,13 @@ jobs:
           for paper_dir in $PAPER_DIRS; do
             echo "Running training for: $paper_dir"
             if [ -f "$paper_dir/train.py" ]; then
-              podman compose exec -T projectodyssey-dev bash -c "pixi run python $paper_dir/train.py --quick-validation --epochs 1" || true
+              if ! podman compose exec -T projectodyssey-dev bash -c "pixi run python $paper_dir/train.py --quick-validation --epochs 1"; then
+                echo "::warning::Training script failed for $paper_dir/train.py"
+              fi
             elif [ -f "$paper_dir/train.mojo" ]; then
-              podman compose exec -T projectodyssey-dev bash -c "pixi run mojo -I . $paper_dir/train.mojo --quick-validation --epochs 1" || true
+              if ! podman compose exec -T projectodyssey-dev bash -c "pixi run mojo -I . $paper_dir/train.mojo --quick-validation --epochs 1"; then
+                echo "::warning::Training script failed for $paper_dir/train.mojo"
+              fi
             fi
           done
 

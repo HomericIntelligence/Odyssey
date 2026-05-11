@@ -298,7 +298,8 @@ jobs:
 
             # Try to import the package
             echo "Verifying package import..."
-            python -c "import sys; print('Python version:', sys.version)" || true
+            # Verification import — if this fails the wheel is broken and we need to know.
+            python -c "import sys; print('Python version:', sys.version)"
           else
             echo "⚠️  No Python wheel packages to test"
           fi

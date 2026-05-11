@@ -113,11 +113,17 @@ cp -r configs "${ML_ODYSSEY_ROOT}/"
 
 # Install utilities
 mkdir -p "${ML_ODYSSEY_ROOT}/shared/utils"
-cp utils/*.mojo "${ML_ODYSSEY_ROOT}/shared/utils/" || true
+# If no utils/*.mojo files exist yet, cp will fail — log it rather than silently skipping.
+if ! cp utils/*.mojo "${ML_ODYSSEY_ROOT}/shared/utils/" 2>/dev/null; then
+    echo "[build_configs_distribution] NOTE: no utils/*.mojo files to copy (directory may not exist yet)"
+fi
 
 # Install examples
 mkdir -p "${ML_ODYSSEY_ROOT}/examples"
-cp examples/*.mojo "${ML_ODYSSEY_ROOT}/examples/" 2>/dev/null || true
+# If no examples/*.mojo files exist yet, cp will fail — log it rather than silently skipping.
+if ! cp examples/*.mojo "${ML_ODYSSEY_ROOT}/examples/" 2>/dev/null; then
+    echo "[build_configs_distribution] NOTE: no examples/*.mojo files to copy (directory may not exist yet)"
+fi
 
 echo "Installation complete!"
 echo ""

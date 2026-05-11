@@ -236,7 +236,11 @@ for agent_file in "${AGENT_FILES[@]}"; do
 
     # Find all markdown links to other agents: [text](./file.md)
     # Extract just the file paths
-    links=$(grep -oP '\[.*?\]\(\./.*?\.md\)' "$agent_file" 2>/dev/null | grep -oP '\(\./\K[^)]+' || true)
+    # grep exits 1 when no lines match — that is the normal case for agents with no cross-links.
+    # Capture without || true; empty links is fine and handled below.
+    set +e
+    links=$(grep -oP '\[.*?\]\(\./.*?\.md\)' "$agent_file" 2>/dev/null | grep -oP '\(\./\K[^)]+')
+    set -e
 
     if [[ -n "$links" ]]; then
         while IFS= read -r link; do

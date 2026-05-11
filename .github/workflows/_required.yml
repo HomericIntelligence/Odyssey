@@ -52,12 +52,15 @@ jobs:
 
       - name: Enforce no .__matmul__() call sites
         run: |
+          # grep exits 1 when no lines match — that is the success case.
+          set +e
           violations=$(grep -rn '\.__matmul__(' . \
             --include='*.mojo' --include='*.🔥' \
             --exclude-dir='.pixi' --exclude-dir='.git' \
             | grep -v 'fn __matmul__(' \
             | grep -v '# __matmul__' \
-            | grep -v '__matmul__.*deprecated' || true)
+            | grep -v '__matmul__.*deprecated')
+          set -e
           if [ -n "$violations" ]; then
             echo "::error::Found .__matmul__() call sites (use matmul(A, B) instead):"
             echo "$violations"
@@ -182,7 +185,11 @@ jobs:
           # Scan project dependencies. pip-audit results are advisory (findings in the
           # runner environment such as pip itself do not reflect project risk).
           pip install setuptools wheel
-          pip install -e . --no-deps || true
+          # pip install -e . may fail if pyproject.toml has no install target;
+          # that is acceptable since pip-audit uses --skip-editable anyway.
+          if ! pip install -e . --no-deps 2>/dev/null; then
+            echo "::notice::pip install -e . --no-deps failed — using --skip-editable for pip-audit"
+          fi
           pip-audit --skip-editable || echo "::warning::pip-audit found vulnerabilities — review manually"
 
       - name: Post pip-audit summary

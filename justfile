@@ -75,7 +75,7 @@ _run cmd:
 			# and we need real cores when the libKGEN JIT crashes
 			# (modular/modular#6413). Pairs with the host-side core_pattern in
 			# .github/actions/coredump-capture/action.yml.
-			HOME_FIXUP='if [ ! -w "$HOME" ]; then export HOME="/tmp/mojo-home-$(id -u)"; mkdir -p "$HOME/.modular" "$HOME/.pixi"; fi; ulimit -c unlimited 2>/dev/null || true;'
+			HOME_FIXUP='if [ ! -w "$HOME" ]; then export HOME="/tmp/mojo-home-$(id -u)"; mkdir -p "$HOME/.modular" "$HOME/.pixi"; fi; if ! ulimit -c unlimited 2>/dev/null; then echo "[run-in-container] WARNING: ulimit -c unlimited failed — cores will not be generated on crash" >&2; fi;'
 			# Forward CI/coredump env vars into the container. Without these
 			# -e passthroughs, MOJO_TEST_UNDER_GDB / CRASH_BUNDLE_DIR set on
 			# the GHA runner are NOT visible to the bash recipe inside the
@@ -122,7 +122,17 @@ podman-up:
     @# user cannot write to host-owned files. Make the workspace world-writable
     @# so `just build`, test fixtures, and pre-commit can create output files.
     @# (Safe: ephemeral dev machine; matches what the CI setup-container action does.)
-    @chmod -R a+rwX . || true
+    @# Some files may be owned by container UIDs from prior Podman UID-mapped writes.
+    @# chmod fails on those; capture errors so we can report them without aborting.
+    @chmod_errors=$(mktemp); \
+     chmod -R a+rwX . 2>"$chmod_errors" || true; \
+     err_count=$(wc -l < "$chmod_errors"); \
+     if [ "$err_count" -gt 0 ]; then \
+       echo "[podman-up] WARNING: chmod failed on $err_count file(s); first 5 errors:"; \
+       head -5 "$chmod_errors"; \
+       echo "[podman-up] Run: sudo chown -R \$(id -u):\$(id -g) . to fix permanently."; \
+     fi; \
+     rm -f "$chmod_errors"
 
 # Stop Podman development environment
 podman-down:
@@ -535,7 +545,9 @@ bootstrap:
 
     # Step 4: GLIBC compatibility check
     echo "==> Checking GLIBC compatibility..."
-    just check-glibc 2>/dev/null || true
+    if ! just check-glibc 2>/dev/null; then \
+        echo "[bootstrap] WARNING: check-glibc reported incompatibility — use Podman for Mojo tests"; \
+    fi
     echo ""
 
     echo "Bootstrap complete! Next steps:"
@@ -609,7 +621,11 @@ pre-commit-all:
 check-matmul-calls:
     #!/usr/bin/env bash
     set -e
-    violations=$(grep -rn "\.__matmul__(" . --include="*.mojo" --include="*.🔥" --exclude-dir=".pixi" --exclude-dir=".git" | grep -v "fn __matmul__(" | grep -v "# __matmul__" | grep -v "__matmul__.*deprecated" || true)
+    # grep returns exit code 1 when no lines match — that is the success case here.
+    # Use set +e / set -e to avoid aborting on the no-match exit code.
+    set +e
+    violations=$(grep -rn "\.__matmul__(" . --include="*.mojo" --include="*.🔥" --exclude-dir=".pixi" --exclude-dir=".git" | grep -v "fn __matmul__(" | grep -v "# __matmul__" | grep -v "__matmul__.*deprecated")
+    set -e
     if [ -n "$violations" ]; then
         echo "Found .__matmul__() call sites (use matmul(A, B) instead):"
         echo "$violations"
@@ -678,7 +694,9 @@ _test-group-inner path pattern:
 
     # Enable core dumps so the libKGEN JIT crash (modular/modular#6413)
     # produces a real coredump we can attach to gdb. No-op outside CI.
-    ulimit -c unlimited 2>/dev/null || true
+    if ! ulimit -c unlimited 2>/dev/null; then
+        echo "[_test-group-inner] WARNING: ulimit -c unlimited failed — cores will not be generated on crash" >&2
+    fi
 
     echo "=================================================="
     echo "Testing: {{path}}"
@@ -728,7 +746,9 @@ _test-group-inner path pattern:
             echo "Running: $test_file"
             test_count=$((test_count + 1))
 
-            ulimit -v unlimited 2>/dev/null || true
+            if ! ulimit -v unlimited 2>/dev/null; then
+                echo "[_test-group-inner] WARNING: ulimit -v unlimited failed — virtual memory limit remains in place" >&2
+            fi
             test_exit=0
             if [ "${MOJO_TEST_UNDER_GDB:-0}" = "1" ]; then
                 bash "$REPO_ROOT/scripts/mojo-under-gdb.sh" "$CORE_DIR" \
@@ -958,7 +978,8 @@ status:
 clean:
     @echo "Cleaning..."
     @rm -rf build/ dist/ htmlcov/ .pytest_cache/ .coverage
-    @find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+    @# rm -rf already swallows ENOENT. Any remaining errors (EACCES, EBUSY) are printed.
+    @find . -type d -name "__pycache__" | xargs -r rm -rf
     @echo "Clean complete"
 
 # Clean everything including Podman containers

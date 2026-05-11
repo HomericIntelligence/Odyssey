@@ -60,7 +60,7 @@ jobs:
           fi
 
           # Find all paper directories (contains metadata.yml)
-          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null || true)
+          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null) || PAPER_DIRS=""
 
           if [ -z "$PAPER_DIRS" ]; then
             echo "⚠️  No paper implementations found yet"
@@ -180,7 +180,7 @@ jobs:
           fi
 
           # Find all paper implementations
-          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null || true)
+          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null) || PAPER_DIRS=""
 
           if [ -z "$PAPER_DIRS" ]; then
             echo "⚠️  No paper implementations found yet"
@@ -235,7 +235,7 @@ jobs:
           fi
 
           # Find all paper test directories
-          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null || true)
+          PAPER_DIRS=$(find papers -name "metadata.yml" -exec dirname {} \; 2>/dev/null) || PAPER_DIRS=""
 
           if [ -z "$PAPER_DIRS" ]; then
             echo "⚠️  No paper implementations found yet"
@@ -249,12 +249,16 @@ jobs:
 
               # Run Python tests if they exist
               if [ -n "$(find "$paper_dir/tests" -name 'test_*.py' 2>/dev/null)" ]; then
-                podman compose exec -T projectodyssey-dev bash -c "pixi run pytest $paper_dir/tests --verbose" || true
+                if ! podman compose exec -T projectodyssey-dev bash -c "pixi run pytest $paper_dir/tests --verbose"; then
+                echo "::warning::pytest failed for $paper_dir/tests"
+              fi
               fi
 
               # Run Mojo tests if they exist
               if [ -n "$(find "$paper_dir/tests" -name 'test_*.mojo' 2>/dev/null)" ]; then
-                podman compose exec -T projectodyssey-dev bash -c "pixi run mojo test -I . $paper_dir/tests --verbose" || true
+                if ! podman compose exec -T projectodyssey-dev bash -c "pixi run mojo test -I . $paper_dir/tests --verbose"; then
+                echo "::warning::mojo test failed for $paper_dir/tests"
+              fi
               fi
             fi
           done
@@ -292,7 +296,7 @@ jobs:
           fi
 
           # Find all paper directories with training scripts
-          PAPER_DIRS=$(find papers -name "train.py" -o -name "train.mojo" -exec dirname {} \; 2>/dev/null || true)
+          PAPER_DIRS=$(find papers -name "train.py" -o -name "train.mojo" -exec dirname {} \; 2>/dev/null) || PAPER_DIRS=""
 
           if [ -z "$PAPER_DIRS" ]; then
             echo "⚠️  No training scripts found yet"
@@ -305,9 +309,13 @@ jobs:
 
             # Run training script with quick validation mode
             if [ -f "$paper_dir/train.py" ]; then
-              podman compose exec -T projectodyssey-dev bash -c "pixi run python $paper_dir/train.py --quick-validation --epochs 1" || true
+              if ! podman compose exec -T projectodyssey-dev bash -c "pixi run python $paper_dir/train.py --quick-validation --epochs 1"; then
+                echo "::warning::Training script failed for $paper_dir/train.py"
+              fi
             elif [ -f "$paper_dir/train.mojo" ]; then
-              podman compose exec -T projectodyssey-dev bash -c "pixi run mojo -I . $paper_dir/train.mojo --quick-validation --epochs 1" || true
+              if ! podman compose exec -T projectodyssey-dev bash -c "pixi run mojo -I . $paper_dir/train.mojo --quick-validation --epochs 1"; then
+                echo "::warning::Training script failed for $paper_dir/train.mojo"
+              fi
             fi
           done
 

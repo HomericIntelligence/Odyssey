@@ -44,7 +44,10 @@ CORE_FILE="${CORE_DIR}/core.gdb.${TS}.mojo"
 # Resolve the real mojo binary so gdb has a concrete ELF file argument.
 # `pixi run which mojo` prints any activation preamble on stderr; `tail -1`
 # grabs the last line (the actual path) to handle noisy pixi output.
-MOJO_BIN=$(pixi run which mojo 2>/dev/null | tail -1 || true)
+# pixi run which mojo may print activation preamble on stderr; tail -1 grabs the
+# actual path from the last line.  If the command fails (pixi not set up), MOJO_BIN
+# is empty and the check below falls back to direct exec.
+MOJO_BIN=$(pixi run which mojo 2>/dev/null | tail -1) || MOJO_BIN=""
 if [ -z "$MOJO_BIN" ] || [ ! -x "$MOJO_BIN" ]; then
     echo "[mojo-under-gdb] WARNING: could not resolve mojo binary; falling back to direct exec" >&2
     exec pixi run mojo "$@"

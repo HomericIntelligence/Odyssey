@@ -263,7 +263,10 @@ jobs:
             echo "❌ Failed to get container ID"
             exit 1
           fi
-          podman cp "$CONTAINER_ID:/tmp/benchmark-results/simd-output.txt" "benchmark-results/simd-output.txt" 2>/dev/null || true
+          # If the benchmark did not produce output (e.g., test was skipped), log it rather than silently continuing.
+          if ! podman cp "$CONTAINER_ID:/tmp/benchmark-results/simd-output.txt" "benchmark-results/simd-output.txt" 2>/dev/null; then
+            echo "::warning::Could not copy simd-output.txt from container — benchmark may have been skipped or crashed"
+          fi
 
       - name: Generate benchmark summary
         if: success()

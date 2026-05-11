@@ -73,8 +73,14 @@ mkdir -p "$TARGET"
 # Cap at 4 GB to prevent filling the runner disk when a runaway process
 # generates an enormous core.  Real libKGEN JIT crashes are typically 50-500 MB.
 OUT="$TARGET/core.${PID}.${EXE}.${TIME}.sig${SIGNAL}"
-head -c $((4 * 1024 * 1024 * 1024)) > "$OUT" || true
-chmod 644 "$OUT" 2>/dev/null || true
+# Kernel-invoked pipe handler: the kernel ignores our exit code, so errors here
+# cannot propagate to the caller.  Log every failure so handler.log is diagnostic.
+if ! head -c $((4 * 1024 * 1024 * 1024)) > "$OUT"; then
+    echo "$(date -Iseconds) ERROR: failed to write core to $OUT" >> "$LOG_DIR/handler.log" 2>/dev/null
+fi
+if ! chmod 644 "$OUT" 2>/dev/null; then
+    echo "$(date -Iseconds) WARNING: chmod 644 $OUT failed (file may be unreadable)" >> "$LOG_DIR/handler.log" 2>/dev/null
+fi
 
 # ── Log the capture ───────────────────────────────────────────────────────────
 LOG_DIR="$(dirname "$TARGET")"
@@ -82,4 +88,9 @@ SIZE=$(stat -c %s "$OUT" 2>/dev/null || echo "?")
 {
     printf '%s wrote %s (%s bytes) signal=%s exe=%s\n' \
         "$(date -Iseconds)" "$OUT" "$SIZE" "$SIGNAL" "$EXE"
-} >> "$LOG_DIR/handler.log" 2>/dev/null || true
+} >> "$LOG_DIR/handler.log" 2>/dev/null
+# Kernel-invoked: if the log append failed (e.g., LOG_DIR is unwritable), there is
+# no safe way to surface the error — the kernel has no channel for our exit code.
+# Failure here is silent by design; the crash-bundle artifact upload step will
+# surface a missing handler.log as "(no handler.log — handler was not invoked)".
+true

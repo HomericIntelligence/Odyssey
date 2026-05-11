@@ -112,10 +112,12 @@ fi
 # Commit changes
 git add VERSION
 if [[ -f "$REPO_ROOT/pixi.toml" ]]; then
-    git add pixi.toml 2>/dev/null || true
+    # pixi.toml should always exist; git add failing would indicate a real problem.
+    git add pixi.toml
 fi
 if [[ -f "$REPO_ROOT/pyproject.toml" ]]; then
-    git add pyproject.toml 2>/dev/null || true
+    # pyproject.toml should always exist if the file check passed.
+    git add pyproject.toml
 fi
 
 git commit -m "chore: bump version to $NEW_VERSION

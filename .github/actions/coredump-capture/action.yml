@@ -69,14 +69,20 @@ runs:
         echo '|/usr/local/bin/coredump-host-handler.sh %p %e %t %s %P' \
           | sudo tee /proc/sys/kernel/core_pattern
 
-        sudo sysctl -w fs.suid_dumpable=2 || true
-        sudo systemctl stop apport.service 2>/dev/null || true
-        sudo systemctl stop systemd-coredump.socket 2>/dev/null || true
+        if sudo -n true 2>/dev/null; then
+          sudo sysctl -w fs.suid_dumpable=2 || { echo "[coredump-capture] ERROR: sysctl -w fs.suid_dumpable=2 failed despite sudo access"; exit 1; }
+          sudo systemctl stop apport.service 2>/dev/null || echo "[coredump-capture] WARNING: could not stop apport.service (may not be running)"
+          sudo systemctl stop systemd-coredump.socket 2>/dev/null || echo "[coredump-capture] WARNING: could not stop systemd-coredump.socket (may not be running)"
+        else
+          echo "[coredump-capture] WARNING: no passwordless sudo — skipping sysctl and systemctl tweaks; cores may not be captured"
+        fi
 
         # Raise core ulimit inside the container so it propagates to every
         # subsequent `podman compose exec` session.
-        podman compose exec -T projectodyssey-dev bash -c \
-          'ulimit -c unlimited && ulimit -a | grep -E "core|file size" || true'
+        if ! podman compose exec -T projectodyssey-dev bash -c \
+          'ulimit -c unlimited && ulimit -a | grep -E "core|file size"'; then
+          echo "[coredump-capture] WARNING: failed to set ulimit -c unlimited inside container — cores will not be generated on crash"
+        fi
 
     - name: Collect core dumps + symbols (modular/modular#6413)
       if: inputs.phase == 'collect' && always()
@@ -84,7 +90,9 @@ runs:
       run: |
         set -x
         mkdir -p crash-bundle/cores crash-bundle/symbols
-        ls -la crash-bundle/cores/ 2>/dev/null || true
+        if ! ls -la crash-bundle/cores/ 2>/dev/null; then
+          echo "[coredump-capture] WARNING: could not list crash-bundle/cores/ (directory may be empty or inaccessible)"
+        fi
 
         # ALWAYS bundle symbols + metadata (even if no cores), so we can
         # distinguish "no crash this run" from "capture broken." A metadata-only
@@ -107,38 +115,59 @@ runs:
             exit 0
           fi
           mkdir -p /workspace/crash-bundle/symbols
-          cp -av "$MOJO_BIN" /workspace/crash-bundle/symbols/ 2>/dev/null || true
+          if ! cp -av "$MOJO_BIN" /workspace/crash-bundle/symbols/ 2>/dev/null; then
+            echo "[coredump-capture] WARNING: could not copy mojo binary $MOJO_BIN to symbols/" >> /workspace/crash-bundle/metadata-partial.txt
+          fi
           for so in "$ENV_DIR"/lib/libKGEN*.so "$ENV_DIR"/lib/libAsync*.so "$ENV_DIR"/lib/libMojo*.so "$ENV_DIR"/lib/libMSupport*.so; do
-            [ -e "$so" ] && cp -av "$so" /workspace/crash-bundle/symbols/ 2>/dev/null || true
+            if [ -e "$so" ]; then
+              if ! cp -av "$so" /workspace/crash-bundle/symbols/ 2>/dev/null; then
+                echo "[coredump-capture] WARNING: could not copy $so to symbols/" >> /workspace/crash-bundle/metadata-partial.txt
+              fi
+            fi
           done
           # Bundle gdb itself so the crash can be analyzed offline without
           # needing a matching gdb version installed.
-          GDB_BIN=$(which gdb 2>/dev/null || true)
-          if [ -n "$GDB_BIN" ] && [ -x "$GDB_BIN" ]; then
-            cp -av "$GDB_BIN" /workspace/crash-bundle/symbols/ 2>/dev/null || true
+          if command -v gdb >/dev/null 2>&1; then
+            GDB_BIN=$(command -v gdb)
+            if ! cp -av "$GDB_BIN" /workspace/crash-bundle/symbols/ 2>/dev/null; then
+              echo "[coredump-capture] WARNING: could not copy gdb binary to symbols/" >> /workspace/crash-bundle/metadata-partial.txt
+            fi
+          else
+            echo "[coredump-capture] WARNING: gdb not found in container — offline analysis will require manual gdb install"
           fi
           ls -la /workspace/crash-bundle/symbols/
-        ' || true
+        '
+        if [ $? -ne 0 ]; then
+          echo "[coredump-capture] WARNING: symbol-bundling podman exec failed — crash-bundle/symbols/ may be incomplete"
+        fi
 
         # gdb-mode: collect gdb-*.log and core.gdb.* files written by
         # scripts/mojo-under-gdb.sh when MOJO_TEST_UNDER_GDB=1.
         # These live in crash-bundle/cores/ alongside any kernel cores.
-        ls -la crash-bundle/cores/gdb-*.log 2>/dev/null || true
-        ls -la crash-bundle/cores/core.gdb.* 2>/dev/null || true
+        ls -la crash-bundle/cores/gdb-*.log 2>/dev/null || echo "[coredump-capture] (no gdb-*.log files yet)"
+        ls -la crash-bundle/cores/core.gdb.* 2>/dev/null || echo "[coredump-capture] (no core.gdb.* files yet)"
 
         {
           echo "=== mojo --version ==="
-          podman compose exec -T projectodyssey-dev pixi run mojo --version 2>&1 || true
+          if ! podman compose exec -T projectodyssey-dev pixi run mojo --version 2>&1; then
+            echo "[coredump-capture] WARNING: mojo --version failed (container may be stopped)"
+          fi
           echo "=== uname -a (host) ==="
           uname -a
           echo "=== glibc (host) ==="
           ldd --version | head -1
           echo "=== glibc (container) ==="
-          podman compose exec -T projectodyssey-dev bash -c 'ldd --version | head -1' 2>&1 || true
+          if ! podman compose exec -T projectodyssey-dev bash -c 'ldd --version | head -1' 2>&1; then
+            echo "[coredump-capture] WARNING: could not read glibc version from container"
+          fi
           echo "=== /proc/sys/kernel/core_pattern (host kernel — global) ==="
-          cat /proc/sys/kernel/core_pattern 2>/dev/null
+          if ! cat /proc/sys/kernel/core_pattern 2>/dev/null; then
+            echo "[coredump-capture] WARNING: could not read /proc/sys/kernel/core_pattern"
+          fi
           echo "=== container ulimit -c ==="
-          podman compose exec -T projectodyssey-dev bash -c 'ulimit -c' 2>&1 || true
+          if ! podman compose exec -T projectodyssey-dev bash -c 'ulimit -c' 2>&1; then
+            echo "[coredump-capture] WARNING: could not read ulimit -c from container"
+          fi
           echo "=== Coredumps found in crash-bundle/cores/ ==="
           ls -la crash-bundle/cores/ 2>/dev/null
           echo "=== GDB logs (from mojo-under-gdb.sh) ==="
@@ -153,8 +182,8 @@ runs:
 
         # If no cores (kernel or gdb), still upload the metadata + symbols so
         # the artifact appears in the run (proves the action ran end-to-end).
-        HAVE_CORES=$(ls crash-bundle/cores/core* 2>/dev/null | head -1 || true)
-        HAVE_GDB_LOGS=$(ls crash-bundle/cores/gdb-*.log 2>/dev/null | head -1 || true)
+        HAVE_CORES=$(ls crash-bundle/cores/core* 2>/dev/null | head -1) || HAVE_CORES=""
+        HAVE_GDB_LOGS=$(ls crash-bundle/cores/gdb-*.log 2>/dev/null | head -1) || HAVE_GDB_LOGS=""
         if [ -z "$HAVE_CORES" ] && [ -z "$HAVE_GDB_LOGS" ]; then
           echo "No cores or gdb logs captured this run — uploading metadata + symbols only."
           echo "(If a crash signature appeared in test logs, check that" \

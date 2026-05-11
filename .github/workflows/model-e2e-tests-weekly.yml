@@ -42,7 +42,7 @@ jobs:
           mkdir -p test-results
 
           # Collect model test directories
-          MODEL_DIRS=$(find tests/models -maxdepth 1 -mindepth 1 -type d 2>/dev/null | sort || true)
+          MODEL_DIRS=$(find tests/models -maxdepth 1 -mindepth 1 -type d 2>/dev/null | sort) || MODEL_DIRS=""
 
           if [ -z "$MODEL_DIRS" ]; then
             echo "No model test directories found under tests/models/ -- skipping"

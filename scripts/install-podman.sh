@@ -441,7 +441,12 @@ fi
 
 section "Migrating database"
 
-"$INSTALL_DIR/podman" system migrate --migrate-db 2>/dev/null || true
+# `podman system migrate --migrate-db` may fail if there is nothing to migrate
+# (fresh install) or if the DB is already in the target format. Both are benign.
+# Log the outcome so it is visible.
+if ! "$INSTALL_DIR/podman" system migrate --migrate-db 2>/dev/null; then
+    info "Database migration skipped (no migration needed or already migrated)"
+fi
 info "Database migration complete (BoltDB → SQLite)"
 
 # ============================================================

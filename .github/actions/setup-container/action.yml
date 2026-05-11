@@ -29,7 +29,9 @@ runs:
     - name: Start Podman socket
       shell: bash
       run: |
-        systemctl --user start podman.socket || true
+        if ! systemctl --user start podman.socket; then
+          echo "[setup-container] WARNING: could not start podman.socket — rootless Podman may not be available"
+        fi
         export DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock
         echo "DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock" >> "$GITHUB_ENV"
 
@@ -61,7 +63,14 @@ runs:
         # entrypoint's pixi-info probe finds mojo already installed.
         # The volume name is prefixed with the Compose project name.
         VOLUME_NAME="projectodyssey_pixi-cache"
-        podman volume create "$VOLUME_NAME" 2>/dev/null || true
+        # Create the volume if it does not already exist.
+        # `podman volume create` exits non-zero if the volume already exists,
+        # so we check first to avoid masking real storage errors.
+        if ! podman volume inspect "$VOLUME_NAME" >/dev/null 2>&1; then
+          podman volume create "$VOLUME_NAME"
+        else
+          echo "[setup-container] Volume $VOLUME_NAME already exists — skipping create"
+        fi
         # Check if already seeded (any mojo binary present under the volume)
         SEEDED=$(podman run --rm \
           --user root \
@@ -94,7 +103,18 @@ runs:
         # symlink `.pixi/envs` during `pixi install` — racing this chmod
         # caused intermittent "Permission denied" failures on CI runs that
         # bypassed the pixi-cache seed.
-        chmod -R a+rwX . || true
+        # Some files may be owned by container UIDs from previous Podman UID-mapped
+        # writes.  chmod fails on those; capture and report errors without aborting so
+        # the failure is visible rather than silently swallowed.
+        chmod_errors=$(mktemp)
+        chmod -R a+rwX . 2>"$chmod_errors" || true
+        err_count=$(wc -l < "$chmod_errors")
+        if [ "$err_count" -gt 0 ]; then
+          echo "[setup-container] WARNING: chmod failed on $err_count file(s); first 5 errors:"
+          head -5 "$chmod_errors"
+          echo "[setup-container] Fix: sudo chown -R $(id -u):$(id -g) ."
+        fi
+        rm -f "$chmod_errors"
 
     - name: Start container
       shell: bash
