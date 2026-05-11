@@ -97,4 +97,9 @@ echo "[mojo-under-gdb] args     : $*" >&2
 # --args passes everything after it verbatim as the inferior's argv.
 # stdout/stderr from the mojo process flow through gdb normally so CI
 # logs remain readable.
-exec gdb -batch -nx -x "$GDB_SCRIPT" --args "$MOJO_BIN" "$@"
+#
+# Run gdb INSIDE `pixi run` so the inferior inherits the activated pixi
+# env (MODULAR_HOME, PATH, MOJO stdlib search paths). Running gdb outside
+# `pixi run` strips that activation and mojo fails with "unable to locate
+# module 'std'" before it ever has a chance to crash.
+exec pixi run -- gdb -batch -nx -x "$GDB_SCRIPT" --args "$MOJO_BIN" "$@"
