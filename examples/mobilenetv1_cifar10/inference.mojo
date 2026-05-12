@@ -34,7 +34,7 @@ def evaluate_model(
     var correct_per_class = List[Int]()
     var total_per_class = List[Int]()
 
-    for _ in range(10):
+    for i in range(10):
         correct_per_class.append(0)
         total_per_class.append(0)
 

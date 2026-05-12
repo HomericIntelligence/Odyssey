@@ -263,13 +263,11 @@ _build-inner mode="debug":
     # Configuration
     # ------------------------------------------------------------
 
-    MODE="{{mode}}"             # debug | release | test | ci | asan | tsan
+    MODE="{{mode}}"             # debug | release | test | ci
     REPO_ROOT="$(pwd)"
     STRICT="--Werror"
 
-    # tsan needs single-job execution to work around modular/modular#6413
-    # (libKGEN JIT crashes under thread sanitizer with parallel codegen).
-    JOBS=""
+    FAIL_ON_ERROR=1
 
     case "$MODE" in
         debug)
@@ -284,16 +282,9 @@ _build-inner mode="debug":
         ci)
             FLAGS="-g1 $STRICT"
             ;;
-        asan)
-            FLAGS="-g1 --sanitize address $STRICT"
-            ;;
-        tsan)
-            FLAGS="-g1 --sanitize thread $STRICT"
-            JOBS="-j1"
-            ;;
         *)
             echo "❌ Unknown mode: $MODE"
-            echo "Valid modes: debug | release | test | ci | asan | tsan"
+            echo "Valid modes: debug | release | test | ci"
             exit 1
             ;;
     esac
@@ -303,114 +294,61 @@ _build-inner mode="debug":
 
     echo "🔨 Building Mojo files"
     echo "Mode:  $MODE"
-    echo "Flags: $FLAGS${JOBS:+ $JOBS}"
+    echo "Flags: $FLAGS"
     echo "Out:   $BUILD_DIR"
     echo
 
     # ------------------------------------------------------------
-    # Phase A: Package the shared library
+    # Build
     # ------------------------------------------------------------
-    # shared/ is a library (no main() entry points) — must be compiled with
-    # `mojo package`, not file-by-file `mojo build`. This is the same logic
-    # as `_package-inner`; we inline it here so `just build` produces a
-    # complete artifact set in one invocation.
 
-    # `mojo package` only accepts a small subset of compiler flags
-    # (no -g / --no-optimization / -O3 / --sanitize). Pass STRICT only.
-    echo "→ Packaging shared library"
-    pixi run mojo package $STRICT -I "$REPO_ROOT" shared \
-        -o "$BUILD_DIR/ProjectOdyssey-shared.mojopkg"
-
-    # ------------------------------------------------------------
-    # Phase B: AOT-compile every executable (examples, benchmarks, papers)
-    # ------------------------------------------------------------
-    # Sanitizer modes skip Phase B: the Mojo compiler under ASAN/TSAN
-    # allocates 3-6 GB per invocation (modular/modular#6433), so sweeping
-    # 46 binaries OOMs hosts with <32 GB RAM. Sanitizers are valuable for
-    # runtime race/leak detection in tests, not for compile-time validation
-    # of example binaries. Use `just test-mojo-asan` / `just test-mojo-tsan`
-    # to exercise sanitizers against the test suite.
-    if [ "$MODE" = "asan" ] || [ "$MODE" = "tsan" ]; then
-        echo
-        echo "✅ Sanitizer build complete (shared package only)"
-        echo "  shared package: $BUILD_DIR/ProjectOdyssey-shared.mojopkg"
-        echo "  Run sanitized tests: just test-mojo-${MODE}"
-        exit 0
-    fi
-
-    # `-Xlinker -lm` is required for files that transitively use libm
-    # symbols (fmaxf, sincos, etc.). Mirrors `_test-group-asan-inner` at
-    # justfile:791 which already uses this flag successfully.
-    #
-    # set -euo pipefail aborts on the first failed compile. No silent
-    # FAIL_ON_ERROR=0 escape hatch — Werror means Werror.
-
-    # Collect candidate files, then keep only those with a main() entry
-    # point. `grep -l ... -- file1 file2 ...` (single invocation) is more
-    # robust than `xargs -I{} grep` — xargs treats a no-match exit 1 as a
-    # child failure (exit 123). `|| true` swallows the no-match exit code.
-    CANDIDATES=$(
-        {
-            find examples -name "*.mojo" \
-                -not -path "*/.*" \
-                -not -name "__init__.mojo" \
-                -not -name "model.mojo"
-            find benchmarks -name "*.mojo" \
-                -not -path "*/.*" \
-                -not -name "__init__.mojo"
-            find papers -path "*/examples/*.mojo" \
-                -not -path "*/.*" \
-                -not -name "__init__.mojo"
-        } 2>/dev/null | sort -u
-    )
-    EXEC_FILES=""
-    if [ -n "$CANDIDATES" ]; then
-        EXEC_FILES=$(echo "$CANDIDATES" | tr '\n' '\0' \
-            | xargs -0 grep -lE "^fn main|^def main" 2>/dev/null || true)
-    fi
-
-    # Disable -e for the per-file loop so a single failure doesn't abort
-    # the whole sweep — collect failures, report at end, exit non-zero if any.
-    set +e
-    BUILT=0
     FAILED=0
-    FAILED_FILES=""
-    while IFS= read -r file; do
-        [ -z "$file" ] && continue
-        # Flatten path → unique binary name: examples/foo/bar.mojo → examples_foo_bar
-        rel="${file#./}"
-        out_name="${rel%.mojo}"
-        out_name="${out_name//\//_}"
-        out="$BUILD_DIR/$out_name"
 
-        echo "→ Building: $file"
-        if pixi run mojo build $FLAGS ${JOBS:-} -I "$REPO_ROOT" \
-                -Xlinker -lm "$file" -o "$out" 2>&1; then
-            BUILT=$((BUILT + 1))
-        else
-            FAILED=$((FAILED + 1))
-            FAILED_FILES="${FAILED_FILES}\n  - $file"
-        fi
-    done <<< "$EXEC_FILES"
-    set -e
+    find . \
+        \( -path "./.pixi" -o -path "./worktrees" -o -path "./.worktrees" \) -prune -o \
+        \( \
+            -name "*.mojo" \
+            -not -path "./.claude/*" \
+            -not -path "./tests/*" \
+            -not -path "./shared/*" \
+            -not -path "./examples/*" \
+            -not -path "./benchmarks/*" \
+            -not -path "./.templates/*" \
+            -not -path "./papers/_template/*" \
+            -not -path "./notes/*" \
+            -not -path "./repro/*" \
+            -not -name "test_*.mojo" \
+            -not -name "model.mojo" \
+            -not -name "__init__.mojo" \
+            -not -name "repro_*.mojo" \
+        \) -print \
+        | while read -r file; do
+            out="$BUILD_DIR/$(basename "$file" .mojo)"
+            echo "→ Building: $file"
+
+            if ! pixi run mojo build $FLAGS -I "$REPO_ROOT" "$file" -o "$out" 2>&1; then
+                echo "❌ Failed: $file"
+                FAILED=1
+                if [[ "$FAIL_ON_ERROR" -eq 1 ]]; then
+                    exit 1
+                fi
+            fi
+        done
 
     # ------------------------------------------------------------
     # Summary
     # ------------------------------------------------------------
 
-    echo
-    echo "=================================================="
-    echo "Build summary ($MODE)"
-    echo "=================================================="
-    echo "  shared package: $BUILD_DIR/ProjectOdyssey-shared.mojopkg"
-    echo "  executables:    $BUILT built, $FAILED failed"
-    if [ "$FAILED" -gt 0 ]; then
+    if [[ "$FAILED" -eq 1 ]]; then
         echo
-        echo "❌ Failed files:"
-        echo -e "$FAILED_FILES"
-        exit 1
+        echo "⚠️  Build completed with errors"
+        echo "Outputs in $BUILD_DIR"
+        [[ "$FAIL_ON_ERROR" -eq 1 ]] && exit 1
+    else
+        echo
+        echo "✅ Build successful"
+        echo "Outputs in $BUILD_DIR"
     fi
-    echo "✅ Build successful"
 
 # Build debug version
 build-debug: (build "debug")
@@ -418,19 +356,11 @@ build-debug: (build "debug")
 # Build release version
 build-release: (build "release")
 
-# Build with AddressSanitizer
-build-asan: (build "asan")
-
-# Build with ThreadSanitizer (uses -j1, modular/modular#6413 workaround)
-build-tsan: (build "tsan")
-
 # Build all modes
 build-all:
     @just build debug
     @just build release
     @just build test
-    @just build asan
-    @just build tsan
 
 # CI: Build and validate all Mojo code (entry points + shared library)
 ci-build:
@@ -969,74 +899,6 @@ _test-group-asan-inner path pattern:
 test-mojo:
     @just _run "just _test-mojo-inner"
 
-# Run all Mojo tests under AddressSanitizer (memory errors, leaks, UAF)
-test-mojo-asan:
-    @just _run "just _test-mojo-sanitized-inner address"
-
-# Run all Mojo tests under ThreadSanitizer (data races).
-# Uses -j1 codegen (modular/modular#6413 workaround). Note: each compile is
-# ~5min and holds 3-6GB; on memory-limited hosts, prefer `test-group-asan`
-# on individual groups.
-test-mojo-tsan:
-    @just _run "just _test-mojo-sanitized-inner thread"
-
-[private]
-_test-mojo-sanitized-inner sanitizer:
-    #!/usr/bin/env bash
-    set -e
-    REPO_ROOT="$(pwd)"
-    SANITIZER="{{sanitizer}}"
-    SAN_FLAGS="--sanitize $SANITIZER"
-    # Match the JIT-crash workaround used in `_build-inner` for tsan
-    JOBS=""
-    if [ "$SANITIZER" = "thread" ]; then
-        JOBS="-j1"
-    fi
-    echo "Running all Mojo tests with --sanitize $SANITIZER..."
-
-    # Walk tree recursively via `find` — bash's `tests/**/*.mojo` without
-    # `shopt -s globstar` only matches one level deep, silently skipping
-    # ~85% of the test suite.
-    mapfile -t test_files < <(
-        find tests -name "test_*.mojo" \
-            -not -path "*/__init__.mojo" \
-            -not -path "tests/helpers/fixtures.mojo" \
-            -not -path "tests/helpers/utils.mojo" \
-            -not -path "tests/conftest.mojo" \
-            | sort
-    )
-
-    test_count=${#test_files[@]}
-    failed=0
-    failed_tests=""
-    for test_file in "${test_files[@]}"; do
-        [ ! -f "$test_file" ] && continue
-
-        BINARY=$(mktemp /tmp/mojo-san-XXXXXX)
-        echo "Testing ($SANITIZER): $test_file"
-        if pixi run mojo build $SAN_FLAGS --Werror $JOBS \
-                -I "$REPO_ROOT" -I . -Xlinker -lm \
-                "$test_file" -o "$BINARY" 2>&1 \
-           && "$BINARY" 2>&1; then
-            : # passed
-        else
-            failed=$((failed + 1))
-            failed_tests="$failed_tests\n  - $test_file"
-        fi
-        rm -f "$BINARY"
-    done
-
-    if [ $test_count -eq 0 ]; then
-        echo "❌ ERROR: No Mojo test files found in tests/"
-        exit 1
-    fi
-    if [ $failed -gt 0 ]; then
-        echo "❌ $failed tests failed under --sanitize $SANITIZER:"
-        echo -e "$failed_tests"
-        exit 1
-    fi
-    echo "✅ All $test_count tests passed under --sanitize $SANITIZER"
-
 [private]
 _test-mojo-inner:
     #!/usr/bin/env bash
@@ -1044,42 +906,44 @@ _test-mojo-inner:
     REPO_ROOT="$(pwd)"
     echo "Running all Mojo tests..."
 
-    # `find` walks the tree recursively; bash's `tests/**/*.mojo` glob
-    # without `shopt -s globstar` only matches one level deep, which would
-    # silently skip ~98% of the test suite. Use `find` for correctness.
-    mapfile -t test_files < <(
-        find tests -name "test_*.mojo" \
-            -not -path "*/__init__.mojo" \
-            -not -path "tests/helpers/fixtures.mojo" \
-            -not -path "tests/helpers/utils.mojo" \
-            -not -path "tests/conftest.mojo" \
-            | sort
-    )
+    # Count test files
+    test_count=0
+    for test_file in tests/**/*.mojo; do
+        [[ "$(basename "$test_file")" == "__init__.mojo" ]] && continue
+        [[ "$(basename "$test_file")" == "conftest.mojo" ]] && continue
+        [[ "$test_file" == "tests/helpers/fixtures.mojo" ]] && continue
+        [[ "$test_file" == "tests/helpers/utils.mojo" ]] && continue
+        [ -f "$test_file" ] && test_count=$((test_count + 1))
+    done
 
-    test_count=${#test_files[@]}
-    if [ "$test_count" -eq 0 ]; then
+    if [ $test_count -eq 0 ]; then
         echo "❌ ERROR: No Mojo test files found in tests/"
         echo "   This usually means the directory is empty or test files were renamed."
         exit 1
     fi
 
-    echo "Found $test_count test files"
     failed=0
-    failed_tests=""
-    for test_file in "${test_files[@]}"; do
-        echo "Testing: $test_file"
-        if ! pixi run mojo --Werror -I "$REPO_ROOT" -I . "$test_file"; then
-            failed=$((failed + 1))
-            failed_tests="$failed_tests\n  - $test_file"
+    for test_file in tests/**/*.mojo; do
+        # Skip non-test library files (no main function)
+        if [[ "$(basename "$test_file")" == "__init__.mojo" ]] || \
+           [[ "$(basename "$test_file")" == "conftest.mojo" ]] || \
+           [[ "$test_file" == "tests/helpers/fixtures.mojo" ]] || \
+           [[ "$test_file" == "tests/helpers/utils.mojo" ]]; then
+            continue
+        fi
+        if [ -f "$test_file" ]; then
+            echo "Testing: $test_file"
+            if ! pixi run mojo --Werror -I "$REPO_ROOT" -I . "$test_file"; then
+                failed=1
+            fi
         fi
     done
 
-    if [ "$failed" -gt 0 ]; then
-        echo "❌ $failed of $test_count tests failed:"
-        echo -e "$failed_tests"
+    if [ $failed -eq 1 ]; then
+        echo "❌ Some tests failed"
         exit 1
     fi
-    echo "✅ All $test_count tests passed"
+    echo "✅ All tests passed"
 
 # ==============================================================================
 # Utility

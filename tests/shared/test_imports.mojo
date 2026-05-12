@@ -63,6 +63,7 @@ from shared import (
     AdamW,
     LICENSE,
     RMSprop,
+    SGD,
     VERSION,
     core,
     data,
@@ -178,13 +179,9 @@ def test_training_optimizers_imports() raises:
 
 
 def test_shared_optimizer_imports() raises:
-    """Test that Adam, AdamW, AdaGrad, RMSprop are importable from shared package.
+    """Test that SGD, Adam, AdamW, AdaGrad, RMSprop are importable from shared package.
 
     Covers Issue #3745: AdaGrad and RMSprop exposed as top-level shared imports.
-    Note: SGD is intentionally imported via `shared.training` instead — the
-    `shared` package surfaces two `SGD` declarations (autograd's optimizer
-    struct and training's wrapper), so a bare `from shared import SGD`
-    is ambiguous under --Werror.
     """
     print("✓ Shared optimizer imports test passed")
 

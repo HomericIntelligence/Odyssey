@@ -102,10 +102,7 @@ jobs:
   mojo-compilation:
     needs: [mojo-syntax-check]
     runs-on: ubuntu-latest
-    # 30 min: `just ci-build` now actually compiles 46 example/benchmark
-    # binaries in addition to the shared package (#5389). Previously this
-    # was a 1-file no-op, so 10 min was sufficient.
-    timeout-minutes: 30
+    timeout-minutes: 10
     name: "Mojo Package Compilation"
 
     steps:
@@ -832,10 +829,7 @@ jobs:
   build-validation:
     needs: [mojo-syntax-check]
     runs-on: ubuntu-latest
-    # 30 min: `just build` + `just package` now compile the full shared
-    # package and 46 example/benchmark binaries (#5389). Previously the
-    # build recipe was a 1-file no-op, so 10 min was sufficient.
-    timeout-minutes: 30
+    timeout-minutes: 10
     name: "Build Validation"
 
     steps:
