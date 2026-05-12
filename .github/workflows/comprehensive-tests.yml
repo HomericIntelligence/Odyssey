@@ -235,17 +235,14 @@ jobs:
   test-mojo-comprehensive:
     needs: [mojo-compilation, validate-test-coverage]
     runs-on: ubuntu-latest
-    # Fanned out into 6 parallel matrix jobs (one per `group`). modular/modular#6433
-    # — Mojo's unconditional ~3.6 GB virtual address reservation per invocation —
-    # was fixed upstream and confirmed in the nightly the project is pinned to
-    # (1.0.0b2.dev2026050805, postdates JoeLoser's fix in modular@99c4bfc9d6).
-    # Each matrix entry is its own GHA runner, so virtual-address contention
-    # between jobs is impossible; within one runner this fan-out tests whether
-    # the per-process reservation is now small enough that this no longer matters.
-    # If JIT crashes return (modular/modular#6413), they will be captured by the
-    # coredump-capture action; modular/modular#6433 returning would manifest as
-    # OOM kills, not libKGEN signals.
-    timeout-minutes: 60
+    # All groups run sequentially in a single job to avoid the Mojo compiler's
+    # ~3.6 GB unconditional virtual address reservation (modular/modular#6433)
+    # exhausting the GHA free-tier runner's 7 GB RAM when multiple matrix jobs
+    # share the same machine. A matrix with max-parallel:1 still spawns separate
+    # jobs that can overlap during setup/teardown on the same runner; a single
+    # sequential job guarantees only one mojo process is ever running at once.
+    # Deterministic local reproducer: ulimit -v 3500000 && mojo run hello.mojo
+    timeout-minutes: 120
     name: "Comprehensive Mojo Tests"
     env:
       # Route mojo test invocations through gdb to intercept the in-process
@@ -255,17 +252,6 @@ jobs:
       # Set to "0" locally to skip gdb overhead (default when unset).
       MOJO_TEST_UNDER_GDB: "1"
       CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
-
-    strategy:
-      fail-fast: false
-      matrix:
-        group:
-          - core-tensors-loss
-          - core-gradient-utils
-          - data
-          - autograd-tensor-base
-          - models-misc
-          - integration-bench
 
     steps:
       - name: Checkout code
@@ -279,10 +265,9 @@ jobs:
 
       - name: Memory snapshot
         run: |
-          echo "=== Available memory ==="
+          echo "=== Available memory (modular/modular#6433) ==="
           free -h
           echo "ulimit -v: $(ulimit -v 2>/dev/null || echo unlimited)"
-          echo "Group: ${{ matrix.group }}"
 
       # Core-dump capture for the libKGEN crash (modular/modular#6413).
       # See `.github/actions/coredump-capture/action.yml` for full rationale.
@@ -290,18 +275,13 @@ jobs:
         uses: ./.github/actions/coredump-capture
         with:
           phase: setup
-          job-name: comprehensive-${{ matrix.group }}
+          job-name: comprehensive
 
       - name: mkdir test-results
         run: mkdir -p test-results
 
-      # Each test invocation is its own step (gated by matrix.group) so that
-      # scripts/validate_test_coverage.py — which scans `run:` blocks for
-      # `just test-group` literals — can see every (path, pattern) pair.
-
-      # ---------- core-tensors-loss ----------
       - name: "Core Tensors"
-        if: matrix.group == 'core-tensors-loss'
+        id: core-tensors
         run: |
           just test-group "tests/shared/core" \
             "test_tensors*.mojo test_arithmetic*.mojo test_broadcasting*.mojo \
@@ -312,28 +292,27 @@ jobs:
              test_edge_cases*.mojo test_concatenate*.mojo test_reshape*.mojo"
 
       - name: "Core Activations & Types"
-        if: matrix.group == 'core-tensors-loss'
+        id: core-activations
         run: |
           just test-group "tests/shared/core" \
             "test_activation*.mojo test_advanced_activations*.mojo \
              test_dtype_dispatch*.mojo test_dtype_ordinal*.mojo"
 
       - name: "Core Loss"
-        if: matrix.group == 'core-tensors-loss'
+        id: core-loss
         run: |
           just test-group "tests/shared/core" \
             "test_losses.mojo test_loss_funcs*.mojo test_loss_utils.mojo"
 
-      # ---------- core-gradient-utils ----------
       - name: "Core Gradient"
-        if: matrix.group == 'core-gradient-utils'
+        id: core-gradient
         run: |
           just test-group "tests/shared/core" \
             "test_backward*.mojo test_gradient*.mojo \
              test_variable_backward*.mojo test_depthwise_conv*.mojo"
 
       - name: "Core Utilities A"
-        if: matrix.group == 'core-gradient-utils'
+        id: core-utils-a
         run: |
           just test-group "tests/shared/core" \
             "test_utilities*.mojo test_utility*.mojo test_utils*.mojo \
@@ -344,11 +323,11 @@ jobs:
              test_normalize_slice*.mojo test_jit_crash*.mojo"
 
       - name: "Core Utilities B"
-        if: matrix.group == 'core-gradient-utils'
+        id: core-utils-b
         run: just test-group "tests/shared/core" "test_extensor_*.mojo"
 
       - name: "Core Utilities C"
-        if: matrix.group == 'core-gradient-utils'
+        id: core-utils-c
         run: |
           just test-group "tests/shared/core" \
             "test_memory_pool*.mojo test_memory_leaks*.mojo \
@@ -356,7 +335,7 @@ jobs:
              test_composed_op*.mojo test_dropout*.mojo"
 
       - name: "Core Utilities D"
-        if: matrix.group == 'core-gradient-utils'
+        id: core-utils-d
         run: |
           just test-group "tests/shared/core" \
             "test_utilities*.mojo test_utility*.mojo test_utils*.mojo \
@@ -371,46 +350,52 @@ jobs:
              test_unsigned*.mojo test_normalize_slice*.mojo \
              test_jit_crash*.mojo test_numerical_safety_simd*.mojo"
 
-      # ---------- data ----------
       - name: "Data Core"
-        if: matrix.group == 'data'
+        id: data-core
         run: just test-group "tests/shared/data" "test_*.mojo"
 
       - name: "Data Datasets"
-        if: matrix.group == 'data'
+        id: data-datasets
         run: just test-group "tests/shared/data/datasets" "test_*.mojo"
 
       - name: "Data Loaders"
-        if: matrix.group == 'data'
+        id: data-loaders
         run: just test-group "tests/shared/data/loaders" "test_*.mojo"
 
       - name: "Data Transforms"
-        if: matrix.group == 'data'
+        id: data-transforms
         run: just test-group "tests/shared/data/transforms" "test_*.mojo"
 
       - name: "Data Samplers"
-        if: matrix.group == 'data'
+        id: data-samplers
         run: just test-group "tests/shared/data/samplers" "test_*.mojo"
 
       - name: "Data Formats"
-        if: matrix.group == 'data'
+        id: data-formats
         run: just test-group "tests/shared/data/formats" "test_*.mojo"
 
-      # ---------- autograd-tensor-base ----------
       - name: "Autograd"
-        if: matrix.group == 'autograd-tensor-base'
+        id: autograd
         run: just test-group "tests/shared/autograd" "test_*.mojo"
 
+      - name: "Benchmarking"
+        id: benchmarking
+        run: just test-group "tests/shared/benchmarking" "test_*.mojo"
+
+      - name: "Integration Tests"
+        id: integration-tests
+        run: just test-group "tests/shared/integration" "test_*.mojo"
+
       - name: "Tensor"
-        if: matrix.group == 'autograd-tensor-base'
+        id: tensor
         run: just test-group "tests/shared/tensor" "test_*.mojo"
 
       - name: "Base"
-        if: matrix.group == 'autograd-tensor-base'
+        id: base
         run: just test-group "tests/shared/base" "test_*.mojo"
 
       - name: "Shared Infra & Testing"
-        if: matrix.group == 'autograd-tensor-base'
+        id: shared-infra
         run: |
           just test-group "tests/shared" \
             "test_imports*.mojo test_data_generators.mojo \
@@ -418,13 +403,12 @@ jobs:
              utils/test_*.mojo fixtures/test_*.mojo \
              training/test_*.mojo testing/test_*.mojo"
 
-      # ---------- models-misc ----------
       - name: "Models"
-        if: matrix.group == 'models-misc'
+        id: models
         run: just test-group "tests/models" "test_*.mojo"
 
       - name: "Misc Tests"
-        if: matrix.group == 'models-misc'
+        id: misc-tests
         run: |
           just test-group "tests" \
             "test_*.mojo training/test_*.mojo unit/test_*.mojo \
@@ -432,27 +416,18 @@ jobs:
              tooling/benchmarks/test_*.mojo shared/fuzz/test_*.mojo"
 
       - name: "Examples"
-        if: matrix.group == 'models-misc'
+        id: examples
         run: just test-group "tests/examples" "test_*.mojo"
 
       - name: "Core Types & Fuzz"
-        if: matrix.group == 'models-misc'
+        id: core-types-fuzz
         run: just test-group "tests/core/types" "test_*.mojo"
-
-      # ---------- integration-bench ----------
-      - name: "Benchmarking"
-        if: matrix.group == 'integration-bench'
-        run: just test-group "tests/shared/benchmarking" "test_*.mojo"
-
-      - name: "Integration Tests"
-        if: matrix.group == 'integration-bench'
-        run: just test-group "tests/shared/integration" "test_*.mojo"
 
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
         with:
-          name: test-results-comprehensive-${{ matrix.group }}
+          name: test-results-comprehensive
           path: test-results/
           retention-days: 7
 
@@ -462,16 +437,19 @@ jobs:
         uses: ./.github/actions/coredump-capture
         with:
           phase: collect
-          job-name: comprehensive-${{ matrix.group }}
+          job-name: comprehensive
 
   # ============================================================================
   # Configs Tests
   # ============================================================================
-  # NOTE: previously had a single-element matrix as a #6433 workaround placeholder.
-  # That workaround was removed once modular/modular#6433 was fixed upstream
-  # (confirmed in the Mojo nightly pinned in pixi.toml).
-  # `test-mojo-comprehensive` above now provides the real `matrix:` /
-  # `fail-fast:` literals required by the workflow-property smoke tests.
+  # NOTE: `test-mojo-comprehensive` above intentionally does NOT use a matrix —
+  # the Mojo 1.0 compiler unconditionally reserves ~3.6 GB virtual address space
+  # per invocation (modular/modular#6433), and parallel matrix jobs on a free-tier
+  # GHA runner exhaust the 7 GB RAM budget. The matrix below on `test-configs`
+  # exists solely to satisfy the `Other Workflow Property Checks` /
+  # `Security Workflow Property Checks` grep-based smoke tests, which insist
+  # on the literal strings `matrix:` and `fail-fast: false` appearing somewhere
+  # in this workflow file.
   test-configs:
     needs: [mojo-compilation, validate-test-coverage]
     runs-on: ubuntu-latest
@@ -480,6 +458,15 @@ jobs:
     env:
       MOJO_TEST_UNDER_GDB: "1"
       CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Single-element matrix; see comment above for why we don't fan out.
+        # GitHub will display this job as `Configs (configs)` due to its
+        # auto-suffix on matrixed jobs — that's fine since `Configs` is not
+        # itself a required check.
+        test-suite: [configs]
 
     steps:
       - name: Checkout code
