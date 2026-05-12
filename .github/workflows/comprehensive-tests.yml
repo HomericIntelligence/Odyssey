@@ -253,7 +253,7 @@ jobs:
       # the crash. Without gdb, the kernel never generates a core because the
       # process handles SIGABRT itself and exits cleanly.
       # Set to "0" locally to skip gdb overhead (default when unset).
-      MOJO_TEST_UNDER_GDB: "1"
+      MOJO_TEST_UNDER_GDB: "0"  # bisect/6413: disabled to test mask-vs-fix hypothesis
       CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
 
     strategy:
@@ -478,7 +478,7 @@ jobs:
     timeout-minutes: 15
     name: "Configs"
     env:
-      MOJO_TEST_UNDER_GDB: "1"
+      MOJO_TEST_UNDER_GDB: "0"  # bisect/6413: disabled to test mask-vs-fix hypothesis
       CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
 
     steps:
@@ -528,7 +528,7 @@ jobs:
     timeout-minutes: 15
     name: "Benchmarks"
     env:
-      MOJO_TEST_UNDER_GDB: "1"
+      MOJO_TEST_UNDER_GDB: "0"  # bisect/6413: disabled to test mask-vs-fix hypothesis
       CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
 
     steps:
@@ -574,7 +574,7 @@ jobs:
     timeout-minutes: 15
     name: "Core Layers"
     env:
-      MOJO_TEST_UNDER_GDB: "1"
+      MOJO_TEST_UNDER_GDB: "0"  # bisect/6413: disabled to test mask-vs-fix hypothesis
       CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
 
     steps:
@@ -863,7 +863,7 @@ jobs:
     timeout-minutes: 15
     name: "Gradient Checking Tests"
     env:
-      MOJO_TEST_UNDER_GDB: "1"
+      MOJO_TEST_UNDER_GDB: "0"  # bisect/6413: disabled to test mask-vs-fix hypothesis
       CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
 
     steps:
@@ -993,7 +993,7 @@ jobs:
     timeout-minutes: 15
     name: "Data Utilities Test Suite"
     env:
-      MOJO_TEST_UNDER_GDB: "1"
+      MOJO_TEST_UNDER_GDB: "0"  # bisect/6413: disabled to test mask-vs-fix hypothesis
       CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
 
     steps:
