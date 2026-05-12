@@ -192,6 +192,86 @@ runs:
                >> crash-bundle/metadata.txt
         fi
 
+    # Symbolicate every captured core: dump the faulting instruction stream,
+    # registers, and a wide disassembly window around $pc.  The goal is to
+    # identify whether the SIGILL is a CPU-feature-mismatch fault (e.g. an
+    # AVX-VNNI / VAES / SHA-NI / VPCLMULQDQ / movdir64b opcode that the GHA
+    # runner CPU lacks but libKGEN's JIT codegen still emitted).  Runs against
+    # the mojo binary bundled in symbols/ — JIT cores are symbolicated against
+    # the host mojo since libKGEN is loaded at runtime regardless of mode.
+    # Per-PR forensic add-on for the modular/modular#6413 bisect; safe to keep
+    # permanently because it only fires when cores exist.
+    - name: Symbolicate cores (disasm + registers around $pc)
+      if: inputs.phase == 'collect' && always()
+      shell: bash
+      run: |
+        set -x
+        mkdir -p crash-bundle/symbolicated
+        # Find all cores (both pipe-handler kernel cores and gdb-wrapper cores).
+        shopt -s nullglob
+        CORES=( crash-bundle/cores/core.* crash-bundle/cores/core.gdb.* )
+        shopt -u nullglob
+        if [ ${#CORES[@]} -eq 0 ]; then
+          echo "[symbolicate] No cores to symbolicate — skipping."
+          exit 0
+        fi
+        # Resolve mojo binary path (bundled in symbols/ by the previous step).
+        MOJO_BIN=""
+        if [ -x crash-bundle/symbols/mojo ]; then
+          MOJO_BIN=crash-bundle/symbols/mojo
+        else
+          # Fall back to container's mojo if symbols/ copy failed.
+          MOJO_BIN=$(podman compose exec -T projectodyssey-dev bash -c \
+            'pixi run which mojo 2>/dev/null | tail -1' | tr -d '\r')
+        fi
+        if [ -z "$MOJO_BIN" ] || [ ! -e "$MOJO_BIN" ]; then
+          echo "[symbolicate] Could not resolve mojo binary — skipping."
+          exit 0
+        fi
+        if ! command -v gdb >/dev/null 2>&1; then
+          echo "[symbolicate] gdb not installed on host — installing..."
+          if ! sudo apt-get install -y --no-install-recommends gdb; then
+            echo "[symbolicate] gdb install failed — skipping symbolication." >&2
+            exit 0
+          fi
+        fi
+        for core in "${CORES[@]}"; do
+          base=$(basename "$core")
+          out="crash-bundle/symbolicated/${base}.symbolicated.log"
+          echo "[symbolicate] $core -> $out"
+          {
+            echo "==== $base ===="
+            echo "symbol_binary=$MOJO_BIN"
+            echo "---- Backtrace (top 25 frames) ----"
+            if ! gdb -batch -ex "set pagination off" \
+                  -ex "thread apply 1 bt 25" \
+                  "$MOJO_BIN" "$core" 2>&1 | head -80; then
+              echo "(gdb backtrace exited non-zero — output above)"
+            fi
+            echo "---- Instruction stream around \$pc ----"
+            # Dump:
+            #   - integer + SSE/AVX register state at fault time
+            #   - the current frame info
+            #   - 16 raw instructions before and after $pc
+            #   - a disassembly window of [-64, +64] bytes
+            #   - all-registers (SSE/AVX state for ISA-feature analysis)
+            if ! gdb -batch \
+                  -ex "set pagination off" \
+                  -ex "set print pretty on" \
+                  -ex "info registers" \
+                  -ex "info frame" \
+                  -ex "x/16i \$pc - 30" \
+                  -ex "x/16i \$pc" \
+                  -ex "disassemble \$pc - 64, \$pc + 64" \
+                  -ex "info all-registers" \
+                  "$MOJO_BIN" "$core" 2>&1 | head -400; then
+              echo "(gdb disasm exited non-zero — output above)"
+            fi
+          } > "$out" 2>&1
+        done
+        echo "[symbolicate] Wrote $(ls crash-bundle/symbolicated/ | wc -l) log(s)."
+        ls -la crash-bundle/symbolicated/
+
     - name: Upload crash bundle
       if: inputs.phase == 'collect' && always()
       uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
