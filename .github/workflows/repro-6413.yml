@@ -276,13 +276,45 @@ jobs:
                 if [ "$core_after" -gt "$core_before" ]; then
                     new_core=$(ls -t /workspace/crash-bundle/cores/core.gdb*.mojo 2>/dev/null | head -1)
                     crash_count=$(( crash_count + 1 ))
+                    # Symbolicate against the binary that actually produced the
+                    # core: AOT binary for AOT mode, mojo for JIT mode. Using
+                    # the wrong ELF makes disassembly meaningless if $pc is
+                    # inside user code (rather than libKGEN, which is loaded
+                    # at runtime regardless).
+                    if [ "$REPRO_MODE" = "aot" ]; then
+                        SYM_BIN="/workspace/repro/build/repro_6413_${REPRO_NAME}"
+                    else
+                        SYM_BIN="$MOJO_BIN"
+                    fi
                     {
                         echo "==== iter $i CRASH ($new_core) ===="
                         echo "exit_code=$exit_code"
-                        echo "Top backtrace frames (gdb -batch):"
+                        echo "symbol_binary=$SYM_BIN"
+                        echo "---- Backtrace (top 25 frames) ----"
                         gdb -batch -ex "set pagination off" \
                             -ex "thread apply 1 bt 25" \
-                            "$MOJO_BIN" "$new_core" 2>&1 | head -80
+                            "$SYM_BIN" "$new_core" 2>&1 | head -80
+                        echo "---- Instruction stream around \$pc ----"
+                        # Goal: identify the exact faulting instruction so we can
+                        # tell whether the crash is e.g. an AVX-VNNI / VAES /
+                        # SHA-NI / VPCLMULQDQ / serialize / movdir64b opcode
+                        # the GHA runner CPU does not implement. Dump:
+                        #   - 16 raw instructions before and after $pc
+                        #   - a disassembly window of [-64, +64] bytes
+                        #   - integer + SSE/AVX register state at fault time
+                        #   - the current frame info (PC, AT, source line if any)
+                        #   - /proc/cpuinfo flags re-printed from the core so we
+                        #     can compare CPU flags to the host-env dump above
+                        gdb -batch \
+                            -ex "set pagination off" \
+                            -ex "set print pretty on" \
+                            -ex "info registers" \
+                            -ex "info frame" \
+                            -ex "x/16i \$pc - 30" \
+                            -ex "x/16i \$pc" \
+                            -ex "disassemble \$pc - 64, \$pc + 64" \
+                            -ex "info all-registers" \
+                            "$SYM_BIN" "$new_core" 2>&1 | head -400
                     } | tee -a "repro-output/${REPRO_NAME}-${REPRO_MODE}-symbolicated.log"
                 fi
 
