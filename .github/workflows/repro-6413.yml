@@ -1,0 +1,320 @@
+# Throwaway repro workflow for modular/modular#6413.
+#
+# Runs two standalone single-file reproducer candidates under the gdb wrapper
+# (scripts/mojo-under-gdb.sh) in a tight loop on a GHA Ubuntu runner — the only
+# environment where the bug has ever reproduced. Goal: produce a core that
+# Modular can match against the production cores captured in
+# CI run 25649843238, while dumping enough host/runtime context that we can
+# diff a successful CI crash against a clean local run and identify the
+# runner-specific knob.
+#
+# DELETE THIS WORKFLOW once Modular has a confirmed standalone repro.
+#
+# Manual dispatch only (saves CI minutes). Workflow inputs let an operator
+# tune iteration counts without editing the file.
+#
+# Security note: all dynamic values flowing into `run:` steps are routed
+# through `env:` blocks (matrix entries + workflow_dispatch inputs only;
+# no PR/issue/comment data is ever consumed by this workflow).
+
+name: Repro modular/modular#6413
+
+on:
+  workflow_dispatch:
+    inputs:
+      iterations:
+        description: "Iterations of each repro file per mode (jit, aot)"
+        required: false
+        default: "60"
+        type: string
+      run_jit:
+        description: "Run via `mojo run` (JIT path)"
+        required: false
+        default: true
+        type: boolean
+      run_aot:
+        description: "Run via `mojo build` + execute binary (AOT path)"
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  repro:
+    name: "Repro 6413 (${{ matrix.repro }} / ${{ matrix.mode }})"
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        repro:
+          - python_import_os
+          - assert_almost_equal
+        mode:
+          - jit
+          - aot
+    env:
+      MOJO_TEST_UNDER_GDB: "1"
+      CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
+      REPRO_ITERATIONS: ${{ inputs.iterations }}
+      # Hoist matrix values into env so run: scripts never interpolate
+      # template expressions inside shell command bodies.
+      REPRO_NAME: ${{ matrix.repro }}
+      REPRO_MODE: ${{ matrix.mode }}
+      RUN_JIT: ${{ inputs.run_jit }}
+      RUN_AOT: ${{ inputs.run_aot }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      - name: Skip if matrix mode disabled
+        id: gate
+        run: |
+          if [ "$REPRO_MODE" = "jit" ] && [ "$RUN_JIT" != "true" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          elif [ "$REPRO_MODE" = "aot" ] && [ "$RUN_AOT" != "true" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # ---------------------------------------------------------------------
+      # Heavy host-side environment dump (Track 3 from the investigation plan).
+      # Goal: capture every attribute that might differ between the GHA runner
+      # and a local repro environment so we can diff later.
+      # ---------------------------------------------------------------------
+      - name: Host environment dump (pre-test)
+        if: steps.gate.outputs.skip != 'true'
+        run: |
+          set -x
+          mkdir -p host-env
+          {
+            echo "=== uname ==="
+            uname -a
+            echo "=== /etc/os-release ==="
+            cat /etc/os-release 2>/dev/null || true
+            echo "=== kernel cmdline ==="
+            cat /proc/cmdline
+            echo "=== glibc version ==="
+            ldd --version | head -2
+            echo "=== getconf PAGESIZE / LONG_BIT / NPROCESSORS_ONLN ==="
+            getconf PAGESIZE
+            getconf LONG_BIT
+            getconf _NPROCESSORS_ONLN
+            echo "=== CPU info (first 60 lines + flags) ==="
+            head -60 /proc/cpuinfo
+            grep -m1 '^flags' /proc/cpuinfo || true
+            echo "=== Memory ==="
+            free -h
+            head -20 /proc/meminfo
+            echo "=== ulimit -a ==="
+            ulimit -a
+            echo "=== Mounts ==="
+            mount | head -30
+            echo "=== sysctl kernel.* (subset) ==="
+            for k in kernel.randomize_va_space kernel.yama.ptrace_scope kernel.core_pattern kernel.core_uses_pid fs.suid_dumpable vm.overcommit_memory vm.max_map_count; do
+              echo -n "$k = "
+              sysctl -n "$k" 2>/dev/null || echo "(unreadable)"
+            done
+            echo "=== /proc/sys/kernel/perf_event_paranoid ==="
+            cat /proc/sys/kernel/perf_event_paranoid 2>/dev/null || true
+            echo "=== Docker / Podman versions ==="
+            podman --version 2>/dev/null || true
+            docker --version 2>/dev/null || true
+            echo "=== Hardware vendor ==="
+            cat /sys/class/dmi/id/sys_vendor 2>/dev/null || true
+            cat /sys/class/dmi/id/product_name 2>/dev/null || true
+          } 2>&1 | tee host-env/host-environment.txt
+
+      - name: Set up container
+        if: steps.gate.outputs.skip != 'true'
+        uses: ./.github/actions/setup-container
+
+      - name: Install Just
+        if: steps.gate.outputs.skip != 'true'
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
+
+      - name: Enable core dumps (pipe handler)
+        if: steps.gate.outputs.skip != 'true'
+        uses: ./.github/actions/coredump-capture
+        with:
+          phase: setup
+          job-name: repro-6413-${{ matrix.repro }}-${{ matrix.mode }}
+
+      # ---------------------------------------------------------------------
+      # Container-side environment dump. Same data points, captured from
+      # inside the projectodyssey-dev container so we can diff host vs guest
+      # for namespacing differences (PIDs, mounts, ulimit propagation).
+      # ---------------------------------------------------------------------
+      - name: Container environment dump
+        if: steps.gate.outputs.skip != 'true'
+        run: |
+          mkdir -p host-env
+          podman compose exec -T projectodyssey-dev bash -lc '
+            set -x
+            echo "=== container uname ==="
+            uname -a
+            echo "=== container id / passwd ==="
+            id
+            echo "=== container ulimit -a ==="
+            ulimit -a
+            echo "=== container glibc ==="
+            ldd --version | head -2
+            echo "=== pixi info ==="
+            pixi info --json 2>/dev/null | head -40 || pixi info | head -40
+            echo "=== mojo --version ==="
+            pixi run mojo --version
+            echo "=== mojo binary path + linkage ==="
+            MBIN="$(pixi run which mojo | tail -1)"
+            echo "binary: $MBIN"
+            file "$MBIN" 2>/dev/null || true
+            ldd "$MBIN" 2>/dev/null | head -25 || true
+            echo "=== libKGEN* / libAsync* / libMojo* in pixi env ==="
+            find "$(dirname "$MBIN")/../lib" -maxdepth 2 \
+              \( -name "libKGEN*" -o -name "libAsync*" -o -name "libMojo*" \) 2>/dev/null | head -20
+            echo "=== container /proc/self/maps (head) ==="
+            head -40 /proc/self/maps
+            echo "=== gdb --version ==="
+            gdb --version 2>/dev/null | head -2 || echo "[no gdb]"
+            echo "=== container mounts (limited) ==="
+            mount | grep -E "workspace|tmp|home" | head -20
+          ' 2>&1 | tee host-env/container-environment.txt
+
+      # ---------------------------------------------------------------------
+      # Build the AOT binary if this matrix leg is AOT mode. Keep build log
+      # so we can attribute a future crash to compile-time or run-time.
+      # The repro filename is built from $REPRO_NAME (env, matrix-derived).
+      # ---------------------------------------------------------------------
+      - name: Build repro (AOT mode only)
+        if: steps.gate.outputs.skip != 'true' && matrix.mode == 'aot'
+        run: |
+          podman compose exec -T -e REPRO_NAME=$REPRO_NAME projectodyssey-dev bash -lc '
+            set -x
+            mkdir -p /workspace/repro/build
+            pixi run mojo build \
+              --Werror -debug-level=line-tables -I /workspace -I . \
+              "repro/repro_6413_${REPRO_NAME}.mojo" \
+              -o "/workspace/repro/build/repro_6413_${REPRO_NAME}" \
+              2>&1 | tee "/workspace/repro/build/build.${REPRO_NAME}.log"
+            ls -la /workspace/repro/build/
+          '
+
+      # ---------------------------------------------------------------------
+      # Main repro loop. For each iteration:
+      #   - record start timestamp + memory snapshot
+      #   - run the repro under the gdb wrapper (JIT) or directly under gdb
+      #     on the AOT binary
+      #   - record exit code
+      #   - if a core was produced, immediately symbolicate top frames
+      # All output goes into repro-output/ which is uploaded unconditionally.
+      # ---------------------------------------------------------------------
+      - name: Run repro loop
+        if: steps.gate.outputs.skip != 'true'
+        id: loop
+        run: |
+          podman compose exec -T \
+            -e REPRO_NAME=$REPRO_NAME \
+            -e REPRO_MODE=$REPRO_MODE \
+            -e REPRO_ITERATIONS=$REPRO_ITERATIONS \
+            projectodyssey-dev bash -lc '
+            set -x
+            cd /workspace
+            mkdir -p repro-output crash-bundle/cores
+            ulimit -c unlimited || true
+
+            ITER="${REPRO_ITERATIONS:-60}"
+            LOG="repro-output/${REPRO_NAME}-${REPRO_MODE}.log"
+            CSV="repro-output/${REPRO_NAME}-${REPRO_MODE}.csv"
+            MOJO_BIN="$(pixi run which mojo | tail -1)"
+
+            echo "iter,timestamp,exit_code,wall_seconds,free_kb_before,free_kb_after,core_file" > "$CSV"
+
+            crash_count=0
+            for i in $(seq 1 "$ITER"); do
+                ts_start=$(date +%s)
+                free_before=$(awk "/MemAvailable/ {print \$2}" /proc/meminfo)
+                core_before=$(ls /workspace/crash-bundle/cores/core.gdb*.mojo 2>/dev/null | wc -l)
+
+                exit_code=0
+                if [ "$REPRO_MODE" = "jit" ]; then
+                    bash scripts/mojo-under-gdb.sh /workspace/crash-bundle/cores \
+                        --Werror -debug-level=line-tables -I /workspace -I . \
+                        "repro/repro_6413_${REPRO_NAME}.mojo" \
+                        >> "$LOG" 2>&1 || exit_code=$?
+                else
+                    BINARY="/workspace/repro/build/repro_6413_${REPRO_NAME}"
+                    TS_NS=$(date +%s%N)
+                    GDB_LOG="/workspace/crash-bundle/cores/gdb-aot-${TS_NS}.log"
+                    CORE_FILE="/workspace/crash-bundle/cores/core.gdb.aot.${TS_NS}.mojo"
+                    pixi run -- gdb -batch -nx \
+                        -ex "set pagination off" \
+                        -ex "set confirm off" \
+                        -ex "set logging file ${GDB_LOG}" \
+                        -ex "set logging overwrite on" \
+                        -ex "set logging enabled on" \
+                        -ex "handle SIGABRT stop nopass print" \
+                        -ex "handle SIGSEGV stop nopass print" \
+                        -ex "handle SIGBUS stop nopass print" \
+                        -ex "handle SIGILL stop nopass print" \
+                        -ex "handle SIGFPE stop nopass print" \
+                        -ex "run" \
+                        -ex "generate-core-file ${CORE_FILE}" \
+                        -ex "thread apply all bt full" \
+                        -ex "info threads" \
+                        -ex "info sharedlibrary" \
+                        --args "$BINARY" >> "$LOG" 2>&1 || exit_code=$?
+                fi
+
+                ts_end=$(date +%s)
+                wall=$(( ts_end - ts_start ))
+                free_after=$(awk "/MemAvailable/ {print \$2}" /proc/meminfo)
+                core_after=$(ls /workspace/crash-bundle/cores/core.gdb*.mojo 2>/dev/null | wc -l)
+                new_core=""
+                if [ "$core_after" -gt "$core_before" ]; then
+                    new_core=$(ls -t /workspace/crash-bundle/cores/core.gdb*.mojo 2>/dev/null | head -1)
+                    crash_count=$(( crash_count + 1 ))
+                    {
+                        echo "==== iter $i CRASH ($new_core) ===="
+                        echo "exit_code=$exit_code"
+                        echo "Top backtrace frames (gdb -batch):"
+                        gdb -batch -ex "set pagination off" \
+                            -ex "thread apply 1 bt 25" \
+                            "$MOJO_BIN" "$new_core" 2>&1 | head -80
+                    } | tee -a "repro-output/${REPRO_NAME}-${REPRO_MODE}-symbolicated.log"
+                fi
+
+                printf "%d,%d,%d,%d,%s,%s,%s\n" \
+                    "$i" "$ts_start" "$exit_code" "$wall" \
+                    "${free_before:-0}" "${free_after:-0}" "$new_core" >> "$CSV"
+                echo "[iter $i] exit=$exit_code wall=${wall}s core=$new_core" | tee -a "$LOG"
+            done
+
+            echo "============================================"
+            echo "REPRO SUMMARY: $REPRO_NAME / $REPRO_MODE"
+            echo "  iterations: $ITER"
+            echo "  crashes:    $crash_count"
+            echo "  csv:        $CSV"
+            echo "  log:        $LOG"
+            echo "============================================"
+          '
+
+      - name: Collect crash bundle
+        if: steps.gate.outputs.skip != 'true' && always()
+        uses: ./.github/actions/coredump-capture
+        with:
+          phase: collect
+          job-name: repro-6413-${{ matrix.repro }}-${{ matrix.mode }}
+
+      - name: Upload repro outputs (logs + csv + env dumps)
+        if: steps.gate.outputs.skip != 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: repro-6413-output-${{ matrix.repro }}-${{ matrix.mode }}
+          path: |
+            repro-output/
+            host-env/
+          if-no-files-found: warn
+          retention-days: 14
