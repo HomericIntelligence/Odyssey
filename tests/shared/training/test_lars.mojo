@@ -28,7 +28,6 @@ from shared.tensor.any_tensor import AnyTensor, zeros, ones, zeros_like
 from shared.core.numerical_safety import compute_tensor_l2_norm
 from shared.training.optimizers.lars import lars_step, lars_step_simple
 
-
 def test_lars_initialization() raises:
     """Test LARS optimizer initialization with hyperparameters.
 

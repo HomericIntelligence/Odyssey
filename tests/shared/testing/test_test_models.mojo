@@ -28,7 +28,6 @@ from shared.tensor.any_tensor import (
     zeros_like,
 )
 
-
 def test_simple_cnn_initialization() raises:
     """Test SimpleCNN initialization with default and custom parameters."""
     # Default initialization

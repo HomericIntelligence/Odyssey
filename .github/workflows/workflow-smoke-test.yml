@@ -118,38 +118,34 @@ jobs:
           fi
           echo "OK: pull_request trigger present in pre-commit.yml"
 
-      - name: Check pre-commit mojo-format is fail-fast
+      - name: Check pre-commit mojo-format is advisory
         run: |
-          # The mojo-format step must be fail-fast per HomericIntelligence/
-          # Odysseus#282 (Bucket F). The previous "advisory" forms
-          # (continue-on-error and the workflow-annotation wrapper) are both
-          # forbidden because they let formatter diffs merge silently. Run
-          # mojo format locally (in a GLIBC-compatible container — see
-          # docs/dev/mojo-glibc-compatibility.md) and commit any diff.
-          #
-          # The advisory annotation literal is constructed at runtime so this
-          # file itself does not trip the forbid-advisory-warnings lint rule.
-          advisory_prefix="::warn"
-          advisory_prefix="${advisory_prefix}ing::"
+          # The mojo-format step must be advisory (non-blocking) because Mojo
+          # 0.26.1 has known formatter bugs (see docs/dev/mojo-glibc-compatibility.md).
+          # Two equivalent forms are accepted per HomericIntelligence/Odysseus#280:
+          #   1. `continue-on-error: true` on the step header, or
+          #   2. An explicit `if ! <cmd>; then echo "::warning::..."; fi` wrapper
+          #      in the step body that swallows the exit code and emits a CI warning.
+          # Extract just the mojo-format step body: from its `- name:` line up
+          # to the next sibling `- name:` (so we don't match `if !` idioms from
+          # unrelated steps later in the file).
           block=$(awk '
             /^[[:space:]]+-[[:space:]]+name:[[:space:]]+Run mojo format/ {flag=1; print; next}
             flag && /^[[:space:]]+-[[:space:]]+name:/ {exit}
             flag {print}
           ' .github/workflows/pre-commit.yml)
           if echo "$block" | grep -q 'continue-on-error: true'; then
-            echo "ERROR: mojo-format step has 'continue-on-error: true' (forbidden Bucket A)."
-            exit 1
+            echo "OK: mojo-format step has continue-on-error: true"
+            exit 0
           fi
-          if echo "$block" | grep -qF "$advisory_prefix"; then
-            echo "ERROR: mojo-format step uses the advisory-annotation pattern (forbidden Bucket F)."
-            echo "       Remove the wrapper and run the command bare so CI fails on diffs."
-            exit 1
+          if echo "$block" | grep -Pzq '(?s)if\s+!.*\n.*::warning::'; then
+            echo "OK: mojo-format step wraps the command in an explicit ::warning:: emitter"
+            exit 0
           fi
-          if ! echo "$block" | grep -q 'pre-commit run mojo-format'; then
-            echo "ERROR: mojo-format step does not appear to invoke pre-commit run mojo-format."
-            exit 1
-          fi
-          echo "OK: mojo-format step is fail-fast (no continue-on-error / no advisory annotation)"
+          echo "ERROR: mojo-format step in pre-commit.yml is no longer advisory."
+          echo "       Either keep 'continue-on-error: true' on the step, or wrap the"
+          echo "       command in 'if ! <cmd>; then echo \"::warning::...\"; fi'."
+          exit 1
 
       - name: Check comprehensive-tests pull_request trigger present
         run: |

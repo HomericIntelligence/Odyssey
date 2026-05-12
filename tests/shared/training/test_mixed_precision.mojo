@@ -21,7 +21,6 @@ from std.testing import (
 )
 from shared.testing.special_values import create_nan_tensor, create_inf_tensor
 
-
 def test_gradient_scaler_initialization() raises:
     """Test GradientScaler initializes with correct default values."""
     print("Testing GradientScaler initialization...")

@@ -18,7 +18,6 @@ from shared.core.validation import (
     validate_tensor_shape,
 )
 
-
 def test_validate_tensor_shape_1d_correct() raises:
     """Test validate_tensor_shape with correct 1D shape."""
     var x = zeros([10], DType.float32)

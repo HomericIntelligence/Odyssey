@@ -25,7 +25,6 @@ from tests.shared.conftest import (
     assert_true,
 )
 
-
 def test_random_tensor_shape_1d() raises:
     """Test random_tensor creates correct 1D shape."""
     var shape = List[Int]()

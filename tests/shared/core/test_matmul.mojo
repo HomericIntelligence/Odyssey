@@ -33,7 +33,6 @@ from shared.tensor.any_tensor import (
 )
 from shared.core.matrix import matmul
 
-
 def test_matmul_baseline_2x2() raises:
     """Test baseline matmul with simple 2x2 matrices (reference test)."""
     var shape_a = List[Int]()

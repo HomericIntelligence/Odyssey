@@ -32,7 +32,6 @@ from shared.tensor.factories import (
 )
 from std.math import isnan, isinf
 
-
 def test_zeros() raises:
     """Zeros[DType.float32] creates a zero-filled tensor."""
     var t = zeros[DType.float32]([3, 4])

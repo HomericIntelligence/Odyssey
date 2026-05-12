@@ -37,7 +37,6 @@ from tests.shared.conftest import (
     assert_value_at,
 )
 
-
 def test_reshape_valid() raises:
     """Test reshaping to compatible size."""
     var shape_orig = List[Int]()

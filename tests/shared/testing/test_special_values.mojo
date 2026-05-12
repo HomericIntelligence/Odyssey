@@ -32,7 +32,6 @@ from shared.testing.assertions import (
 )
 from shared.core.numerical_safety import has_nan, has_inf
 
-
 def test_special_value_constants() raises:
     """Test that special value constants have correct values."""
     assert_equal_float(

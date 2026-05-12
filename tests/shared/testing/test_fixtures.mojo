@@ -21,7 +21,6 @@ from shared.tensor.any_tensor import (
     zeros,
 )
 
-
 def test_simple_cnn_initialization() raises:
     """Test SimpleCNN struct initialization."""
     var model = SimpleCNN(1, 8, 10)

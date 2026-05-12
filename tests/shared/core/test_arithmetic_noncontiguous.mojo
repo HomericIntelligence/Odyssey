@@ -26,7 +26,6 @@ from shared.core.arithmetic import (
 from shared.core.matrix import transpose_view
 from shared.core.shape import as_contiguous
 
-
 def _make_noncontiguous_2x3() raises -> AnyTensor:
     """Create a non-contiguous 3×2 tensor by transposing a 2×3.
 

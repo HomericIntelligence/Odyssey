@@ -147,7 +147,6 @@ from shared.core.arithmetic import (
 )
 from shared.core.reduction import sum as reduce_sum
 
-
 def _check_grad_input_batch_size(batch_size: Int) raises:
     """Run grad_input gradient check for the given batch_size.
 

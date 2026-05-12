@@ -22,7 +22,6 @@ from shared.core.utils import (
     top_k_indices,
 )
 
-
 def test_argmax_scalar_simple() raises:
     """Test argmax on a simple 1D tensor."""
     var t = arange(0.0, 10.0, 1.0, DType.float32)

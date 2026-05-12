@@ -21,7 +21,6 @@ from shared.testing.assertions import (
 )
 from std.math import sqrt
 
-
 def test_zeros_tensor_float32() raises:
     """Test zeros_tensor creates float32 tensor with all zeros."""
     var shape = [10, 5]

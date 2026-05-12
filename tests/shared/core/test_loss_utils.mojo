@@ -37,7 +37,6 @@ from shared.core.loss_utils import (
     validate_tensor_shapes,
 )
 
-
 def test_clip_predictions_within_range() raises:
     """Test clip_predictions with values already in safe range."""
     var shape = List[Int]()

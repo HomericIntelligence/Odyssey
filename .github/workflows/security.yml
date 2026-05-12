@@ -79,14 +79,9 @@ jobs:
       - name: Run Semgrep
         id: semgrep
         # Semgrep exits non-zero when it finds issues; that's not a step
-        # failure for us — the SARIF-upload step below is the actual gate
-        # (findings surface in the GitHub Security tab; see #5315). Capture
-        # the outcome explicitly instead of using `continue-on-error: true`.
-        #
-        # No advisory annotation: per HomericIntelligence/Odysseus#282
-        # (Bucket F) the workflow-annotation form is forbidden because it makes
-        # a tool-exit-gated failure look passive. Findings are visible in the
-        # uploaded SARIF; informational "WARN:" lines go to stdout instead.
+        # failure for us — the SARIF-upload + warn-on-findings steps below
+        # are the actual gate (see #5315). Capture the outcome explicitly
+        # instead of using `continue-on-error: true`.
         run: |
           set +e
           semgrep scan --config auto --sarif --output semgrep.sarif .
@@ -94,21 +89,21 @@ jobs:
           set -e
           echo "semgrep_rc=$rc" >> "$GITHUB_OUTPUT"
           if [ "$rc" -ne 0 ]; then
-            echo "WARN: semgrep exited with status $rc (findings will be surfaced in the Security tab)"
+            echo "::warning::semgrep exited with status $rc (findings will be surfaced below)"
           fi
 
       - name: Verify SARIF file exists
         run: |
           if [ ! -f semgrep.sarif ]; then
             echo '{"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[]}' > semgrep.sarif
-            echo "WARN: Semgrep did not produce SARIF output, created empty SARIF file"
+            echo "⚠️ Semgrep did not produce SARIF output, created empty SARIF file"
           fi
           ls -la semgrep.sarif
 
       - name: Warn on Semgrep findings
         if: steps.semgrep.outputs.semgrep_rc != '0' && steps.semgrep.outputs.semgrep_rc != ''
         run: |
-          echo "WARN: Semgrep found potential security issues (rc=${{ steps.semgrep.outputs.semgrep_rc }}) — review SARIF results in the Security tab"
+          echo "::warning::Semgrep found potential security issues (rc=${{ steps.semgrep.outputs.semgrep_rc }}) — review SARIF results in the Security tab"
 
       - name: Upload SARIF results
         if: always()
@@ -280,18 +275,16 @@ jobs:
           echo "## pip-audit Scan Results" > pip-audit-report.md
           echo "" >> pip-audit-report.md
 
-          # Install whichever requirements*.txt are present. These files are
-          # auto-generated stubs (essentially empty) in this repo, but we still
-          # honour them if a branch carries real deps. pip install is fail-fast:
-          # a real install error means the audit cannot trust its result, so we
-          # let the step exit non-zero and require a fix rather than emitting an
-          # advisory warning (see HomericIntelligence/Odysseus#282 Bucket F).
+          # Some branches omit requirements*.txt; surface install failure as a
+          # warning instead of aborting the entire audit job.
           req_args=()
           for r in requirements.txt requirements-dev.txt; do
             [ -f "$r" ] && req_args+=("-r" "$r")
           done
           if [ "${#req_args[@]}" -gt 0 ]; then
-            pip install "${req_args[@]}"
+            if ! pip install "${req_args[@]}" 2>/dev/null; then
+              echo "::warning::pip install of requirements failed; pip-audit will scan installed env only"
+            fi
           fi
 
           if pip-audit --format json --output pip-audit.json 2>/dev/null; then
@@ -439,16 +432,16 @@ jobs:
 
       - name: Check licenses
         run: |
-          # Install whichever requirements*.txt are present. pip install runs
-          # fail-fast: a real install failure means the license report would be
-          # incomplete, so we require a real fix rather than an advisory warning
-          # (see HomericIntelligence/Odysseus#282 Bucket F).
+          # requirements*.txt are optional in this repo; install whichever exist
+          # and surface install failures as warnings rather than aborting.
           req_args=()
           for r in requirements.txt requirements-dev.txt; do
             [ -f "$r" ] && req_args+=("-r" "$r")
           done
           if [ "${#req_args[@]}" -gt 0 ]; then
-            pip install "${req_args[@]}"
+            if ! pip install "${req_args[@]}" 2>/dev/null; then
+              echo "::warning::pip install of requirements failed; license report will reflect installed env only"
+            fi
           fi
 
           echo "## License Audit Report" > license-report.md

@@ -36,7 +36,6 @@ from shared.utils.visualization import (
     visualize_tensor_shapes,
 )
 
-
 def test_plot_data_default_init() raises:
     """Test PlotData default initialization."""
     var plot = PlotData()

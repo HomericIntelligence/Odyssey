@@ -32,7 +32,6 @@ from tests.shared.conftest import (
     assert_value_at,
 )
 
-
 def test_zeros_1d_float32() raises:
     """Test creating 1D tensor of zeros with float32."""
     var shape = List[Int]()

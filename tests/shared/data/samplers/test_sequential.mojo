@@ -12,7 +12,6 @@ from tests.shared.conftest import (
 )
 from shared.data.samplers import SequentialSampler
 
-
 struct StubSequentialSampler:
     """Minimal stub sequential sampler for testing Sampler interface.
 

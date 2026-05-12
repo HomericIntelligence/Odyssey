@@ -29,7 +29,6 @@ from shared.core.initializers import (
 )
 from std.math import sqrt
 
-
 def compute_mean(tensor: AnyTensor) -> Float64:
     """Compute mean of tensor values."""
     var sum = Float64(0.0)

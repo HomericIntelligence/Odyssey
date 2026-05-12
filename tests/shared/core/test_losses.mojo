@@ -42,7 +42,6 @@ from shared.testing.gradient_checker import (
     NumericalBackward,
 )
 
-
 def test_binary_cross_entropy_perfect_prediction() raises:
     """Test BCE with perfect predictions (should be near zero)."""
     print("Testing BCE with perfect predictions...")

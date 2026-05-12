@@ -32,7 +32,6 @@ from shared.core.activation import (
     tanh_backward,
 )
 
-
 def test_relu_positive_values() raises:
     """Test ReLU preserves positive values."""
     var input_shape = List[Int]()
