@@ -215,61 +215,51 @@ runs:
           echo "[symbolicate] No cores to symbolicate — skipping."
           exit 0
         fi
-        # Resolve mojo binary path (bundled in symbols/ by the previous step).
-        MOJO_BIN=""
-        if [ -x crash-bundle/symbols/mojo ]; then
-          MOJO_BIN=crash-bundle/symbols/mojo
-        else
-          # Fall back to container's mojo if symbols/ copy failed.
-          MOJO_BIN=$(podman compose exec -T projectodyssey-dev bash -c \
-            'pixi run which mojo 2>/dev/null | tail -1' | tr -d '\r')
-        fi
-        if [ -z "$MOJO_BIN" ] || [ ! -e "$MOJO_BIN" ]; then
-          echo "[symbolicate] Could not resolve mojo binary — skipping."
-          exit 0
-        fi
-        if ! command -v gdb >/dev/null 2>&1; then
-          echo "[symbolicate] gdb not installed on host — installing..."
-          if ! sudo apt-get install -y --no-install-recommends gdb; then
-            echo "[symbolicate] gdb install failed — skipping symbolication." >&2
-            exit 0
-          fi
-        fi
+        # Run gdb INSIDE the container — that's where the mojo binary's path
+        # resolves correctly (host doesn't share the pixi env tree) and where
+        # gdb was already installed for the in-container gdb wrapper.  Cores
+        # are under crash-bundle/cores/ in both namespaces (workspace bind
+        # mount), so we pass relative paths.
         for core in "${CORES[@]}"; do
           base=$(basename "$core")
+          # core paths use the container-side /workspace prefix
+          c_core="/workspace/crash-bundle/cores/$base"
           out="crash-bundle/symbolicated/${base}.symbolicated.log"
           echo "[symbolicate] $core -> $out"
-          {
-            echo "==== $base ===="
-            echo "symbol_binary=$MOJO_BIN"
-            echo "---- Backtrace (top 25 frames) ----"
-            if ! gdb -batch -ex "set pagination off" \
-                  -ex "thread apply 1 bt 25" \
-                  "$MOJO_BIN" "$core" 2>&1 | head -80; then
-              echo "(gdb backtrace exited non-zero — output above)"
-            fi
-            echo "---- Instruction stream around \$pc ----"
-            # Dump:
-            #   - integer + SSE/AVX register state at fault time
-            #   - the current frame info
-            #   - 16 raw instructions before and after $pc
-            #   - a disassembly window of [-64, +64] bytes
-            #   - all-registers (SSE/AVX state for ISA-feature analysis)
-            if ! gdb -batch \
-                  -ex "set pagination off" \
-                  -ex "set print pretty on" \
-                  -ex "info registers" \
-                  -ex "info frame" \
-                  -ex "x/16i \$pc - 30" \
-                  -ex "x/16i \$pc" \
-                  -ex "disassemble \$pc - 64, \$pc + 64" \
-                  -ex "info all-registers" \
-                  "$MOJO_BIN" "$core" 2>&1 | head -400; then
-              echo "(gdb disasm exited non-zero — output above)"
-            fi
-          } > "$out" 2>&1
+          # Single podman exec invocation per core; heredoc carries the gdb
+          # script so we don't have to triple-quote $pc.
+          if ! podman compose exec -T projectodyssey-dev bash <<HEREDOC > "$out" 2>&1
+        set -e
+        MOJO_BIN=\$(pixi run which mojo 2>/dev/null | tail -1)
+        echo "==== ${base} ===="
+        echo "symbol_binary=\$MOJO_BIN"
+        echo "---- Backtrace (top 25 frames) ----"
+        pixi run gdb -batch -ex "set pagination off" \\
+          -ex "thread apply 1 bt 25" \\
+          "\$MOJO_BIN" "${c_core}" 2>&1 | head -80
+        echo "---- Instruction stream around \\\$pc ----"
+        # Dump:
+        #   - integer + SSE/AVX register state at fault time
+        #   - the current frame info
+        #   - 16 raw instructions before and after \$pc
+        #   - a disassembly window of [-64, +64] bytes
+        #   - all-registers (SSE/AVX state for ISA-feature analysis)
+        pixi run gdb -batch \\
+          -ex "set pagination off" \\
+          -ex "set print pretty on" \\
+          -ex "info registers" \\
+          -ex "info frame" \\
+          -ex "x/16i \\\$pc - 30" \\
+          -ex "x/16i \\\$pc" \\
+          -ex "disassemble \\\$pc - 64, \\\$pc + 64" \\
+          -ex "info all-registers" \\
+          "\$MOJO_BIN" "${c_core}" 2>&1 | head -400
+        HEREDOC
+          then
+            echo "[symbolicate] podman exec for $base exited non-zero (see $out)"
+          fi
         done
-        echo "[symbolicate] Wrote $(ls crash-bundle/symbolicated/ | wc -l) log(s)."
+        echo "[symbolicate] Wrote $(ls crash-bundle/symbolicated/ 2>/dev/null | wc -l) log(s)."
         ls -la crash-bundle/symbolicated/
 
     - name: Upload crash bundle
