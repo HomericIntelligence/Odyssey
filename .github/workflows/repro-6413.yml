@@ -95,7 +95,7 @@ jobs:
             echo "=== uname ==="
             uname -a
             echo "=== /etc/os-release ==="
-            cat /etc/os-release 2>/dev/null || true
+            cat /etc/os-release 2>/dev/null || echo "(no /etc/os-release)"
             echo "=== kernel cmdline ==="
             cat /proc/cmdline
             echo "=== glibc version ==="
@@ -106,7 +106,7 @@ jobs:
             getconf _NPROCESSORS_ONLN
             echo "=== CPU info (first 60 lines + flags) ==="
             head -60 /proc/cpuinfo
-            grep -m1 '^flags' /proc/cpuinfo || true
+            grep -m1 '^flags' /proc/cpuinfo || echo "(no ^flags line)"
             echo "=== Memory ==="
             free -h
             head -20 /proc/meminfo
@@ -120,13 +120,13 @@ jobs:
               sysctl -n "$k" 2>/dev/null || echo "(unreadable)"
             done
             echo "=== /proc/sys/kernel/perf_event_paranoid ==="
-            cat /proc/sys/kernel/perf_event_paranoid 2>/dev/null || true
+            cat /proc/sys/kernel/perf_event_paranoid 2>/dev/null || echo "(unreadable)"
             echo "=== Docker / Podman versions ==="
-            podman --version 2>/dev/null || true
-            docker --version 2>/dev/null || true
+            podman --version 2>/dev/null || echo "(no podman)"
+            docker --version 2>/dev/null || echo "(no docker)"
             echo "=== Hardware vendor ==="
-            cat /sys/class/dmi/id/sys_vendor 2>/dev/null || true
-            cat /sys/class/dmi/id/product_name 2>/dev/null || true
+            cat /sys/class/dmi/id/sys_vendor 2>/dev/null || echo "(no DMI sys_vendor)"
+            cat /sys/class/dmi/id/product_name 2>/dev/null || echo "(no DMI product_name)"
           } 2>&1 | tee host-env/host-environment.txt
 
       - name: Set up container
@@ -170,8 +170,8 @@ jobs:
             echo "=== mojo binary path + linkage ==="
             MBIN="$(pixi run which mojo | tail -1)"
             echo "binary: $MBIN"
-            file "$MBIN" 2>/dev/null || true
-            ldd "$MBIN" 2>/dev/null | head -25 || true
+            file "$MBIN" 2>/dev/null || echo "(file: cannot read $MBIN)"
+            ldd "$MBIN" 2>/dev/null | head -25 || echo "(ldd: cannot read $MBIN)"
             echo "=== libKGEN* / libAsync* / libMojo* in pixi env ==="
             find "$(dirname "$MBIN")/../lib" -maxdepth 2 \
               \( -name "libKGEN*" -o -name "libAsync*" -o -name "libMojo*" \) 2>/dev/null | head -20
@@ -223,7 +223,9 @@ jobs:
             set -x
             cd /workspace
             mkdir -p repro-output crash-bundle/cores
-            ulimit -c unlimited || true
+            if ! ulimit -c unlimited 2>/dev/null; then
+                echo "warn: ulimit -c unlimited rejected — cores will not be captured if the binary crashes" >&2
+            fi
 
             ITER="${REPRO_ITERATIONS:-60}"
             LOG="repro-output/${REPRO_NAME}-${REPRO_MODE}.log"
@@ -276,13 +278,45 @@ jobs:
                 if [ "$core_after" -gt "$core_before" ]; then
                     new_core=$(ls -t /workspace/crash-bundle/cores/core.gdb*.mojo 2>/dev/null | head -1)
                     crash_count=$(( crash_count + 1 ))
+                    # Symbolicate against the binary that actually produced the
+                    # core: AOT binary for AOT mode, mojo for JIT mode. Using
+                    # the wrong ELF makes disassembly meaningless if $pc is
+                    # inside user code (rather than libKGEN, which is loaded
+                    # at runtime regardless).
+                    if [ "$REPRO_MODE" = "aot" ]; then
+                        SYM_BIN="/workspace/repro/build/repro_6413_${REPRO_NAME}"
+                    else
+                        SYM_BIN="$MOJO_BIN"
+                    fi
                     {
                         echo "==== iter $i CRASH ($new_core) ===="
                         echo "exit_code=$exit_code"
-                        echo "Top backtrace frames (gdb -batch):"
+                        echo "symbol_binary=$SYM_BIN"
+                        echo "---- Backtrace (top 25 frames) ----"
                         gdb -batch -ex "set pagination off" \
                             -ex "thread apply 1 bt 25" \
-                            "$MOJO_BIN" "$new_core" 2>&1 | head -80
+                            "$SYM_BIN" "$new_core" 2>&1 | head -80
+                        echo "---- Instruction stream around \$pc ----"
+                        # Goal: identify the exact faulting instruction so we can
+                        # tell whether the crash is e.g. an AVX-VNNI / VAES /
+                        # SHA-NI / VPCLMULQDQ / serialize / movdir64b opcode
+                        # the GHA runner CPU does not implement. Dump:
+                        #   - 16 raw instructions before and after $pc
+                        #   - a disassembly window of [-64, +64] bytes
+                        #   - integer + SSE/AVX register state at fault time
+                        #   - the current frame info (PC, AT, source line if any)
+                        #   - /proc/cpuinfo flags re-printed from the core so we
+                        #     can compare CPU flags to the host-env dump above
+                        gdb -batch \
+                            -ex "set pagination off" \
+                            -ex "set print pretty on" \
+                            -ex "info registers" \
+                            -ex "info frame" \
+                            -ex "x/16i \$pc - 30" \
+                            -ex "x/16i \$pc" \
+                            -ex "disassemble \$pc - 64, \$pc + 64" \
+                            -ex "info all-registers" \
+                            "$SYM_BIN" "$new_core" 2>&1 | head -400
                     } | tee -a "repro-output/${REPRO_NAME}-${REPRO_MODE}-symbolicated.log"
                 fi
 
