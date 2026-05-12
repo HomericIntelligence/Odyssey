@@ -36,12 +36,10 @@ services:
     # cgroups v1 hosts will silently ignore these — that's fine; on cgroups v2
     # they enforce.
     #
-    # Sanitizer note: `just build tsan` and `just build asan` cause the Mojo
-    # compiler to allocate ~3-6 GB per invocation (modular/modular#6433).
-    # Build sweeps under TSAN may hit OOM if other processes are competing for
-    # memory; on memory-constrained hosts run with explicit swap or a higher
-    # limit, e.g. ODYSSEY_MEM_LIMIT=24g just podman-up.
-    mem_limit: ${ODYSSEY_MEM_LIMIT:-14g}
+    # BISECT/6413: reverted from 14g to 12g (PR #5389's projectodyssey-dev
+    # bump). Tests whether the +2 GB headroom on the dev service silenced
+    # the libKGEN JIT crash. CI uses projectodyssey-dev (see justfile:8).
+    mem_limit: ${ODYSSEY_MEM_LIMIT:-12g}
     cpus: ${ODYSSEY_CPU_LIMIT:-6.0}
     # Allow unlimited core dumps so the libKGEN JIT crash
     # (modular/modular#6413) actually writes a core file. Per-exec `ulimit -c
