@@ -61,8 +61,7 @@ and Mojo see that depends on which API path each consults:
 If the C probe shows `cpuid(7,0).ebx[16] = 1` AND `xgetbv(0)[5..7] = 0` AND `mojo
 has_avx512f() = True`, we have the smoking gun: Mojo's `sys.info.has_avx512f` is
 consulting raw CPUID rather than the OS-enabled XCR0. The fix is to gate AVX-512
-detection on `xgetbv & (1<<5 | 1<<6 | 1<<7) == 0xe0`, which is what
-[the Linux kernel documentation prescribes][1] for AVX-512 use.
-
-[1]: https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
-     (see Vol. 1 §13.3, "Detection of XSAVE Feature Support")
+detection on `xgetbv & (1<<5 | 1<<6 | 1<<7) == 0xe0`, which is the canonical
+sequence prescribed by Intel SDM Vol. 1 §13.3, "Detection of XSAVE Feature Support"
+(search the Intel SDM PDF on intel.com — the page is anti-bot-protected so we do
+not link it directly).
