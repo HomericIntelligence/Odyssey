@@ -65,10 +65,15 @@ jobs:
           path: /tmp/podman-image-cache
           key: ${{ steps.key.outputs.key }}
 
-      - name: Skip Mojo probe if cache miss
+      - name: Hard fail if cache miss
         if: steps.cache.outputs.cache-hit != 'true'
+        env:
+          CACHE_KEY: ${{ steps.key.outputs.key }}
         run: |
-          echo "::warning::No cached container image — Mojo probe skipped. (Run extract-cached-image.yml or comprehensive-tests first.)"
+          echo "[probe-cpu-on-gha] ERROR: no cached container image" >&2
+          echo "  expected key: ${CACHE_KEY}" >&2
+          echo "  run extract-cached-image.yml or comprehensive-tests on this branch first" >&2
+          exit 1
 
       - name: Start podman socket + load image
         if: steps.cache.outputs.cache-hit == 'true'
