@@ -168,6 +168,30 @@ runs:
           if ! podman compose exec -T projectodyssey-dev bash -c 'ulimit -c' 2>&1; then
             echo "[coredump-capture] WARNING: could not read ulimit -c from container"
           fi
+          # /proc/cpuinfo for modular/modular#6413: needed to determine which
+          # CPU flags the runner exposes. Bare-metal Skylake without AVX-512
+          # does NOT reproduce the bug; only GHA Azure runners do. Capture the
+          # exact flag set so upstream can correlate with the JIT codegen
+          # decision (and so we can see if Azure CPUID is reporting
+          # AVX-512-related flags that don't match the silicon).
+          echo "=== /proc/cpuinfo first CPU (host) ==="
+          if ! awk '/^processor/{c++; if(c>1)exit} {print}' /proc/cpuinfo; then
+            echo "[coredump-capture] WARNING: could not read /proc/cpuinfo from host"
+          fi
+          echo "=== /proc/cpuinfo first CPU (container) ==="
+          if ! podman compose exec -T projectodyssey-dev bash -c \
+              "awk '/^processor/{c++; if(c>1)exit} {print}' /proc/cpuinfo" 2>&1; then
+            echo "[coredump-capture] WARNING: could not read /proc/cpuinfo from container"
+          fi
+          echo "=== lscpu summary (host) ==="
+          if ! lscpu 2>&1 | head -30; then
+            echo "[coredump-capture] WARNING: lscpu failed on host"
+          fi
+          echo "=== /proc/self/auxv HWCAP / HWCAP2 (container) ==="
+          if ! podman compose exec -T projectodyssey-dev bash -c \
+              "LD_SHOW_AUXV=1 /bin/true 2>&1 | grep -E '(HWCAP|PLATFORM)'" 2>&1; then
+            echo "[coredump-capture] WARNING: could not read HWCAP from container"
+          fi
           echo "=== Coredumps found in crash-bundle/cores/ ==="
           ls -la crash-bundle/cores/ 2>/dev/null
           echo "=== GDB logs (from mojo-under-gdb.sh) ==="
