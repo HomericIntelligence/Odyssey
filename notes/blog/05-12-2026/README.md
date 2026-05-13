@@ -113,12 +113,11 @@ on April 20. The first comment I posted on 6413 with *real cores* was
 **May 11**. The first ISA analysis was **May 12**. The AMD EPYC reveal
 was **May 13**.
 
-Between April 12 and May 8, I did not know this crash was a SIGILL. I did
-not know it was AVX-512. I did not know it was a code-generation problem
-in the compiler. I knew exactly one thing: `mojo` exited non-zero inside
-the container, intermittently, on a subset of the test jobs, with no
-useful output. The crashpad emitted `__fortify_fail_abort` in
-`libKGENCompilerRTShared.so` and no other context. That is what I had to
+Between April 12 and May 8, I had nothing to go on but the crashpad: a
+non-zero exit out of `mojo` inside the container, intermittently, on a
+subset of test jobs, the single string `__fortify_fail_abort` inside
+`libKGENCompilerRTShared.so`, and no other context. No backtrace I could
+trust. No register state. No deterministic input. That is what I had to
 work with for four weeks.
 
 Through all of April, I treated this as a **flaky JIT** — the same family
@@ -246,11 +245,11 @@ under both stock Mojo and Mojo-with-targeted-imports, and wake up to
 finding 200 passes and zero crashes. The thing I needed — a *single*
 local reproduction — did not arrive.
 
-I did not, at any point in this stretch, think *"this is a code-generation
-bug."* The crash signature kept saying `__fortify_fail_abort`. Fortify is
-a runtime guard against overflowing string buffers. Every prior libKGEN
+The crash signature kept saying `__fortify_fail_abort`. Fortify is a
+runtime guard against overflowing string buffers. Every prior libKGEN
 flake the workaround document had cataloged was framed as a JIT memory
-problem. The mental model was set.
+problem. The mental model was set, and nothing in the data I could
+collect locally pushed back against it.
 
 ### Four weeks of work that didn't crack it
 
@@ -421,17 +420,16 @@ generates a real ELF core. Libkgen's handler never runs.
 
 This wrapper became the centerpiece of
 [`docs/dev/mojo-jit-crash-capture-core.md`](../../../docs/dev/mojo-jit-crash-capture-core.md).
-The first real cores arrived on May 11. **They showed SIGILL, not
-SIGABRT.** That single bit — *"the silicon refused to decode this
-instruction"* rather than *"glibc detected a buffer overflow"* — falsified
-a month of working assumptions in one line. Fortify generates SIGABRT.
-SIGILL means *the bytes the JIT emitted are not legal x86 on this CPU*.
-That is not a JIT load problem. That is a code-generation problem.
+The first real cores arrived on May 11. What they showed did not match
+the working model I had been operating under for a month. The details
+of *what* they showed, and how each follow-on theory in turn failed to
+explain it, are the next chapter.
 
-End of Chapter 2: I had spent April acting as if this were a heap or
-scheduling flake in the runtime, and I had spent that month being wrong
-about what I was looking at. On May 11, for the first time, I could see
-what was actually happening. Now I had to figure out *what it was*.
+End of Chapter 2: for the first time since April 12, I had data I could
+trust. The cores were on disk, the registers were captured at the
+moment of fault, and the symbol table was intact. The investigation
+moved from *"why does this crash sometimes"* to *"what does this crash
+actually say"*.
 
 ---
 
