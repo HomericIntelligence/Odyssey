@@ -10,12 +10,15 @@ Virtualization type : full
 That capture, pulled from `/proc/cpuinfo` inside a GitHub Actions container at
 06:31 on May 12, broke the investigation open.
 
-For thirty straight days I had been writing private notes that began with
-phrases like *"Intel Cascade Lake-class runner with AVX-512 disabled"* or
-*"some older Xeon SKU"*. Every hypothesis I had filed against
+For Months now, I have been hitting my head against a wall trying
+to make CI/CD green. Multiple bugs filed and fixed, yet getting nowhere. This final
+issue has been a marathon sprint over the past 6 days trying to track down a
+crash that ONLY occurs on github runners.  Every hypothesis I had filed against
 [modular/modular#6413](https://github.com/modular/modular/issues/6413)
 assumed an Intel CPU. Every cross-machine reproduction attempt was on Intel
-hardware. Every model in my head was Intel.
+hardware. Every model in my head was Intel. Intel Inside has been the marketing
+mantra for so long, I didn't even question that assumption that the CPU manufacturer
+could have been the clue.
 
 The runner was AMD. The runner had AVX-512 silicon. The hypervisor was hiding
 it. And the compiler was finding it anyway.
@@ -33,45 +36,29 @@ back to April.
 
 ---
 
-> **Note:** This is the longest post in the *Day N* series. It documents
-> a thirty-day investigation into the second of two crash signatures that
-> were blocking ProjectOdyssey CI. The investigation burned roughly
-> 2.0–2.4 M Claude tokens — about half a weekly Claude Max Pro budget — and
-> produced six new Mnemosyne skills, three upstream issue threads
-> ([#6412](https://github.com/modular/modular/issues/6412),
-> [#6413](https://github.com/modular/modular/issues/6413),
-> [#6445](https://github.com/modular/modular/issues/6445)),
-> and a four-layer CPU-feature-detection probe that is now part of the
-> standard toolkit. The root cause is deferred until Chapter 8 so the story
-> can be read in the order it actually happened. If you want the spoiler,
-> jump to Chapter 8 — but the dead ends are the point of the post.
-
----
-
 ## TL;DR
 
 CI was crashing inside `libKGENCompilerRTShared.so` at some unidentifiable
-instruction. The crash had been intermittent for over a month. Six different
-hypotheses — JIT volume overflow, tuple destructor UAF, ASAN-strict
-use-after-free, pixi cache content drift, a silent nightly republish, and
-*"every non-AVX-512 Intel CPU triggers it"* — were tested in sequence. All
-six were wrong. By the time the fourth was rejected the question had stopped
-being *"what is the crash?"* and become *"why is the crash invisible?"*
+instruction. For four weeks of April I treated it as a flaky JIT and
+chased a 100%-reproducible local test case I could hand upstream — the
+mitigation lineage runs through retry harnesses, container UID fixes,
+import-localization, job serialization, and ulimit bumps. None of it
+worked, because none of it was looking at the right failure. On May 10 I
+finally built core-dump capture that actually worked and a gdb ptrace
+wrapper that fired before libKGEN's in-process signal handler could
+swallow the crash. The first real cores arrived on May 11 and showed
+**SIGILL, not SIGABRT** — *the silicon refused to decode this
+instruction*, not glibc detecting a buffer overflow. That single bit
+falsified a month of working assumptions.
 
-Why was it invisible? Because every diagnostic layer agreed with every other
-diagnostic layer except one. The kernel said no AVX-512. The raw `cpuid`
-instruction said no AVX-512. The compiler-rt `__builtin_cpu_supports` said
-no AVX-512. But the *compiler* — the Mojo driver populating its
-`!kgen.target` MLIR attribute — said `znver4` and emitted twelve different
-AVX-512 features anyway. Finding *why* meant building four orthogonal
-probes, capturing ELF cores inside a container with gdb's ptrace
-interception running ahead of libKGEN's signal handler, surveying five
-physical machines over Tailscale, and finally reading the open-source
-`modular/modular` tree for the one line of documentation that names the
-closed-source mechanism.
+After that pivot, five more hypotheses fell in turn — tuple destructor
+UAF, ASAN-strict use-after-free, pixi cache content drift, a silent
+nightly republish, and *"every non-AVX-512 Intel CPU triggers it"*. By
+the time the fifth was rejected the question had stopped being *"what is
+the crash?"* and become *"why is the crash invisible?"* I HAD to solve
+it...
 
-The eventual root cause is a single design decision in upstream LLVM's
-`getHostCPUFeatures`. But you'll have to wait for the ride.
+And I did.
 
 ---
 
@@ -82,8 +69,8 @@ that had been blocking ProjectOdyssey CI for a month: virtual address space
 exhaustion in the Mojo JIT, filed as
 [modular/modular#6433](https://github.com/modular/modular/issues/6433),
 documented with a `ulimit -v` binary search and a one-command reproducer.
-That fix landed. Sixteen blocked PRs unstuck. CI went green for a day and a
-half.
+That fix landed. Sixteen blocked PRs unstuck. CI looked like it would finally
+go green.
 
 The second crash signature — internally labelled *"the libKGEN flake"* —
 did not go away. It kept firing, intermittently, on the `Data Utilities
@@ -93,7 +80,7 @@ stack trace was always the same noise: `__fortify_fail_abort` inside
 context the harness would let us see. The crash file contained 28 bytes of
 log output. None of it was useful.
 
-The reason it contained 28 bytes of log output was that libKGEN installs
+My current understanding is that the reason it contained 28 bytes of log output was that libKGEN installs
 its own SIGABRT/SIGILL handler at startup. When the JIT'd code dereferences
 a bad page or executes an instruction the silicon refuses, the kernel
 delivers a signal to the process, libKGEN's handler intercepts it, prints
@@ -109,69 +96,246 @@ the *symptom* matches: an unexplained, non-deterministic SIGABRT/SIGILL in
 a process whose handler swallows it before the kernel can record what
 happened.
 
-The plan at the start of May was modest: stop the handler from swallowing
-the signal, capture a real ELF core, look at the faulting instruction,
-move on. None of that turned out to be modest.
+The plan, going into April, was modest and — in retrospect — wrong: get
+CI/CD green by reducing the JIT's load until the flake stopped firing.
+The next month was spent acting on that plan. None of it worked. The
+shape of the bug was not what I thought.
 
 ---
 
-## Chapter 2: Building Infrastructure Before You Can Diagnose
+## Chapter 2: A Month of Chasing a 100% Reproducer
 
-The first ten days of May were spent making it *possible* to see the crash.
-Three pieces of infrastructure had to exist before any hypothesis could be
-tested.
+Look at the dates on
+[modular/modular#6413](https://github.com/modular/modular/issues/6413) and
+[modular/modular#6433](https://github.com/modular/modular/issues/6433).
+6413 was filed on **April 12**. 6433 was filed mid-month and closed out
+on April 20. The first comment I posted on 6413 with *real cores* was
+**May 11**. The first ISA analysis was **May 12**. The AMD EPYC reveal
+was **May 13**.
 
-### PR #5378 — extend core-dump capture across all CI jobs
+Between April 12 and May 8, I did not know this crash was a SIGILL. I did
+not know it was AVX-512. I did not know it was a code-generation problem
+in the compiler. I knew exactly one thing: `mojo` exited non-zero inside
+the container, intermittently, on a subset of the test jobs, with no
+useful output. The crashpad emitted `__fortify_fail_abort` in
+`libKGENCompilerRTShared.so` and no other context. That is what I had to
+work with for four weeks.
 
-The `coredump-capture` action existed in the repo, but only the
-`comprehensive-tests` workflow wired it in. The libKGEN flake fired on five
-distinct jobs (`Data Utilities`, `Configs`, `Core Layers`, `Models`, and
-`Optimizers`). [PR #5378](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5378)
-extended the action to every test workflow. This was cosmetic plumbing.
-What it *exposed*, after merging, was a much more interesting failure.
+Through all of April, I treated this as a **flaky JIT** — the same family
+of failure as `mojo-jit-crash-workaround.md` had been describing since
+March. The entire shape of the investigation was *"this is some kind of
+heap or scheduling flake in the JIT, and the way to defeat a flake is to
+find a 100% reproducible test case that triggers it on demand."*
 
-### PR #5380 — the silent-failure modes
+So that is what I tried to do.
 
-After PR #5378 we expected core dumps to start appearing as workflow
-artifacts. They did not. The capture step would run, succeed, exit 0, and
-upload an artifact containing the string `cores/` and nothing else.
+### The flaky-JIT mitigation lineage
 
-Two compounding bugs were in play. The first was a path-namespace bug: the
-host's `/proc/sys/kernel/core_pattern` was set to `/tmp/cores/core.%e.%p`,
-but `/tmp/cores/` on the host did not exist inside the rootless Podman
-container's mount namespace. The kernel, when delivering a signal to a
-process inside the container, would resolve the `core_pattern` path
-against the container's view, fail to find the directory, and *silently
-write nothing*. No error message. No stderr. Just a missing core.
+Months before the AVX-512 story starts, the same crash family had already
+provoked an escalating series of mitigations. None of them treated the
+crash as a code-generation bug; all of them treated it as a transient
+fault in a JIT pipeline that needed retries, smaller compilation units, or
+quieter test environments. In rough chronological order:
 
-The second bug compounded it: when the harness ran `ls cores/` and found
-the directory empty, the metadata-collection step would short-circuit with
-*"no cores to process"* and skip the upload entirely. There was no signal,
-anywhere, that the harness had failed to capture what it claimed it would
-capture.
+- [PR #3958 (Mar 7)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/3958) —
+  *"document Mojo JIT crash workaround for libKGENCompilerRTShared.so"*
+- [PR #4744 (Mar 14)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/4744) —
+  *"add retry logic for flaky JIT test groups"*
+- [PR #5161 (Mar 26)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5161) —
+  *"mitigate Data test JIT crashes with targeted submodule imports"*
+- [PR #5167 (Mar 26)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5167) —
+  *"eliminate per-element bitcast in gradient checker tight loops"*
+- [PR #5171 (Mar 26)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5171) —
+  *"add per-file JIT crash retry for Mojo 0.26.1"*
 
-[PR #5380](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5380)
-fixed both. The first fix: switch to a pipe-handler `core_pattern`
-(`|/usr/local/bin/core-pipe-handler.sh %e %p %s`) that runs inside the
-container's PID/mount namespace and writes to a known-good path. The
-second fix: make the metadata step fail loudly when zero cores are
-produced — print a diagnostic, upload an empty-cores marker artifact, and
-exit non-zero so the surrounding job's status reflects the silent capture
+That is the prehistory. Each of these PRs assumes the same model of the
+bug — *the JIT is fragile under certain loads, and the fix is to relieve
+the load or retry through the failure* — and each of them is informed by
+no more than what the crashpad chose to print.
+
+### April 12 — the upstream issue is filed
+
+I opened
+[modular/modular#6413](https://github.com/modular/modular/issues/6413) on
+April 12 with the bug-report I could write at the time: *execution
+crashed in libKGENCompilerRTShared.so inside Docker containers, but not
+natively, on Mojo 0.26.3.* The issue's reproduction section literally
+says *"this crash occurs non-deterministically in CI Docker (~40-60% of
+runs have at least one crash)."* I attached the crashpad. I listed the
+~30 tests that had crashed at least once. The conjectured cause in the
+issue body was *"a buffer overflow detection in glibc's fortified string
+functions, triggered during JIT compilation rather than user code
+execution."* I would spend the next four weeks acting on that conjecture,
+and it was wrong.
+
+### April 12–20 — retry, serialize, localize
+
+Same day as the upstream filing,
+[PR #5243](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5243)
+wired `test-with-retry.sh` into `_test-group-inner` to handle JIT crashes
+at the harness level. The premise: if the JIT flakes 40% of the time on
+any given run, retrying any failing test once or twice converges the
+job's success rate to near-100%. That PR was never merged — concurrent
+work was already moving toward a *different* mitigation — but the
+philosophy embodied in it dominated the next eight days.
+
+Look at the merge dates and you can read the shape of the search:
+
+- [PR #5247 (Apr 20)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5247) —
+  *"ADR-015 for flaky required CI checks + remove stale ADR-009 annotations"*
+- [PR #5252 (Apr 20)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5252) —
+  *"fix container UID mismatch causing libKGENCompilerRTShared.so JIT crash"*
+- [PR #5254 (Apr 20)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5254) —
+  *"remove test-with-retry.sh and direct-wire mojo invocation (ADR-015 Action 2)"*
+
+ADR-015 named the policy out loud: *"flaky required CI checks."* The
+mental model was the JIT crashes randomly, and the engineering response
+is to make our infrastructure tolerate randomness — better isolation, no
+shared state across tests, no retry sleights of hand.
+
+[PR #5252](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5252)
+is the most telling artifact of the period. Its title states that a
+container UID mismatch *causes* the JIT crash. The PR did fix a real UID
+mismatch and did reduce some kind of failure. But the libKGEN crashes
+kept happening after it merged. The hypothesis had been *"the runtime is
+crashing because permissions are wrong on a cache directory."* That's a
+plausible model — until the next CI run crashes anyway with no
+permissions touched.
+
+### April 20–22 — make the JIT footprint smaller
+
+The next hypothesis: the JIT crashes when its compile unit gets too large.
+A burst of import-localization PRs followed:
+
+- [PR #5256 (Apr 21)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5256) —
+  *"localize heavy imports in activation.mojo to reduce JIT footprint"*
+- [PR #5258 (Apr 21)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5258) —
+  *"localize shape/reduction imports to fix Data Utilities and Integration Tests JIT crashes"*
+- [PR #5259 (Apr 21)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5259) —
+  *"localize shape import in reduction.mojo to eliminate 1371-line JIT footprint"*
+- [PR #5260 (Apr 21)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5260) —
+  *"add Category 4 deterministic module-level import chain crash reproducers"*
+- [PR #5264 (Apr 21)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5264) —
+  *"complete ADR-015 import audit + add targeted-import repro"*
+- [PR #5274 (Apr 22)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5274) —
+  *"serialize mojo test jobs and lift virtual address limit"*
+
+These PRs are all working a single theory: the crash is JIT-load
+dependent, so reduce the load. Move imports closer to their use site so
+fewer modules compile together. Push the `ulimit -v` cap upward so the
+JIT has more headroom. Serialize the test jobs so two JIT sessions don't
+run concurrently and starve each other.
+
+PR #5260 in particular tried to give the upstream issue what it needed
+most: a *deterministic* reproducer. *"Category 4 deterministic
+module-level import chain crash reproducers"* — read the title. The whole
+point of that PR was *"if we can get this to fail 100% of the time on a
+small input, we can hand it off."* It didn't work locally. The crashes
+remained CI-only.
+
+### April 22 – May 1 — the long, quiet weeks of "just one more thing"
+
+After the import-localization wave, the merge cadence slowed and the
+investigation went quiet. The CI was *better*. Some jobs that crashed
+20% of the time now crashed 10%. ADR-015 had given me a vocabulary for
+*"accept the flake, narrow its blast radius."* I kept trying local
+reproductions. I tried different test orderings. I tried running each
+crashing test file 100 times in a tight loop on my laptop. I would log
+in to the laptop at 10pm, kick off a 200-iteration loop on `test_dropout`
+under both stock Mojo and Mojo-with-targeted-imports, and wake up to
+finding 200 passes and zero crashes. The thing I needed — a *single*
+local reproduction — did not arrive.
+
+I did not, at any point in this stretch, think *"this is a code-generation
+bug."* The crash signature kept saying `__fortify_fail_abort`. Fortify is
+a runtime guard against overflowing string buffers. Every prior libKGEN
+flake the workaround document had cataloged was framed as a JIT memory
+problem. The mental model was set.
+
+### May 8 — the pivot
+
+By the end of the first week of May, the import-localization mitigation
+had pushed the crash rate down but not to zero. PRs that touched
+unrelated code (like
+[PR #5363](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5363),
+a 33-issue consolidation merge) were still tripping the crash. The
+*Phase G* merge on May 5 produced
+[a particularly clear failure](https://github.com/modular/modular/issues/6413#issuecomment-from-may-10)
+that I reported back to 6413 on May 10 with the words *"same crash family
+confirmed in Mojo 1.0.0b2."*
+
+That post is when the investigation pivoted. The Modular engineer
+([dgurchenkov](https://github.com/modular/modular/issues/6413#issuecomment-4435794613))
+replied: *"For the repro steps... I don't quite understand this part. The
+repro section says it cannot reproduce natively."* They were politely
+asking what I was already painfully aware of: **without a reproducer,
+they could not help me.** A month of "make it less flaky" had hit a wall.
+
+So I stopped trying to suppress the symptoms and started trying to
+*observe* the failure properly. The next ten days — what the rest of this
+post is actually about — were spent building the diagnostic infrastructure
+I should have built on April 13 but did not, because for a month I did
+not believe I was looking at a compiler bug. I believed I was looking at
+a JIT load problem in our test harness.
+
+### The infrastructure I finally built (May 10–11)
+
+Three PRs, in quick succession, built the lens I had been missing. Each
+one assumed nothing about *what* the crash was. Each one only tried to
+let me *see* it.
+
+**[PR #5378 (May 10)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5378) —
+extend core-dump capture across all CI jobs.** The `coredump-capture`
+action existed in the repo, but only the `comprehensive-tests` workflow
+wired it in. The libKGEN flake fired on five distinct jobs (`Data
+Utilities`, `Configs`, `Core Layers`, `Models`, and `Optimizers`). PR
+#5378 extended the action to every test workflow. This was cosmetic
+plumbing. What it *exposed*, after merging, was a much more interesting
 failure.
 
+**[PR #5380 (May 10)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5380) —
+the silent-failure modes.** After #5378 I expected core dumps to start
+appearing as workflow artifacts. They did not. The capture step would
+run, succeed, exit 0, and upload an artifact containing the string
+`cores/` and nothing else.
+
+Two compounding bugs were in play. The first was a path-namespace bug:
+the host's `/proc/sys/kernel/core_pattern` was set to
+`/tmp/cores/core.%e.%p`, but `/tmp/cores/` on the host did not exist
+inside the rootless Podman container's mount namespace. The kernel, when
+delivering a signal to a process inside the container, would resolve the
+`core_pattern` path against the container's view, fail to find the
+directory, and *silently write nothing*. No error message. No stderr.
+Just a missing core.
+
+The second bug compounded it: when the harness ran `ls cores/` and found
+the directory empty, the metadata-collection step would short-circuit
+with *"no cores to process"* and skip the upload entirely. There was no
+signal, anywhere, that the harness had failed to capture what it claimed
+it would capture.
+
+PR #5380 fixed both. The first fix: switch to a pipe-handler
+`core_pattern` (`|/usr/local/bin/core-pipe-handler.sh %e %p %s`) that
+runs inside the container's PID/mount namespace and writes to a
+known-good path. The second fix: make the metadata step fail loudly when
+zero cores are produced — print a diagnostic, upload an empty-cores
+marker artifact, and exit non-zero so the surrounding job's status
+reflects the silent capture failure.
+
 This is the kind of bug that's invisible until you build the tool that
-would have caught it, then re-read the previous month of failures with the
-new tool's eyes and realize half of what you thought you knew came from
-falsified evidence.
+would have caught it, then re-read the previous month of failures with
+the new tool's eyes and realize half of what you thought you knew came
+from falsified evidence. Every one of the April mitigations had been
+designed against output the harness was already failing to capture.
 
-### PR #5382 — the gdb ptrace wrapper
-
-Even with cores writing to disk, libKGEN's userspace signal handler still
-won. The handler runs *inside* the process; the kernel delivers the signal
-to the process before any external observer (including the kernel's own
-core-dump path) sees the full unmodified register state at the moment of
-crash. The pipe-handler did fire, but what it received was the post-handler
-state, not the moment-of-fault state.
+**[PR #5382 (May 10)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5382) —
+the gdb ptrace wrapper.** Even with cores writing to disk, libKGEN's
+userspace signal handler still won. The handler runs *inside* the
+process; the kernel delivers the signal to the process before any
+external observer (including the kernel's own core-dump path) sees the
+full unmodified register state at the moment of crash. The pipe-handler
+did fire, but what it received was the post-handler state, not the
+moment-of-fault state.
 
 The conceptual leap: wrap the `mojo` invocation in `gdb -batch` with
 ptrace-based interception, so gdb attaches before the JIT starts and
@@ -198,22 +362,32 @@ generates a real ELF core. Libkgen's handler never runs.
 
 This wrapper became the centerpiece of
 [`docs/dev/mojo-jit-crash-capture-core.md`](../../../docs/dev/mojo-jit-crash-capture-core.md).
-It was the difference between *"another flake"* and *"site A:
-`vandps (mem){1to4},%xmm3,%xmm3`."* Without that PR, none of the rest of
-this investigation happens.
+The first real cores arrived on May 11. **They showed SIGILL, not
+SIGABRT.** That single bit — *"the silicon refused to decode this
+instruction"* rather than *"glibc detected a buffer overflow"* — falsified
+a month of working assumptions in one line. Fortify generates SIGABRT.
+SIGILL means *the bytes the JIT emitted are not legal x86 on this CPU*.
+That is not a JIT load problem. That is a code-generation problem.
 
-End of Chapter 2: we could finally see the crash. Now we needed to
-understand what it was.
+End of Chapter 2: I had spent April acting as if this were a heap or
+scheduling flake in the runtime, and I had spent that month being wrong
+about what I was looking at. On May 11, for the first time, I could see
+what was actually happening. Now I had to figure out *what it was*.
 
 ---
 
 ## Chapter 3: Six Hypotheses, Six Dead Ends
 
-This chapter is the failure-and-tenacity heart of the post. The chapter is
-long because the investigation was long. Each subsection follows the same
-shape: *I thought X. I gathered Y. Z is why it was wrong.*
+Chapter 2 already buried one of these hypotheses by the time it ended:
+the *flaky-JIT-load* mental model that dominated all of April. I'm
+re-stating it as H1 here anyway, because the way it died — when the gdb
+wrapper showed SIGILL, not SIGABRT — is what made every subsequent
+hypothesis necessary. The next five (H2 through H6) are the *post-May-11*
+attempts to explain what a SIGILL inside libKGEN actually meant. Each
+follows the same shape: *I thought X. I gathered Y. Z is why it was
+wrong.*
 
-### H1: JIT volume / `__fortify_fail` overflow
+### H1: JIT volume / `__fortify_fail` overflow (April's whole month)
 
 The libKGEN crashpad output mentioned `__fortify_fail_abort`. That symbol
 appears when glibc's fortify-source machinery detects an overflowing
