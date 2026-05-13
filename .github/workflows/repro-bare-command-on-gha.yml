@@ -1,0 +1,133 @@
+name: Repro 6413 Bare Command on GHA
+
+# Run the EXACT same `podman run` command we're testing locally, on a GHA
+# Azure runner, to confirm the command shape matters less than the
+# environment. Loads the same dev.tar that gets uploaded by
+# extract-cached-image.yml, mounts the workspace the same way, runs the same
+# `pixi run mojo run repro/...mojo` invocations.
+#
+# Hypothesis: if the GHA runner crashes here AND the local hosts don't, the
+# variable is the runner CPU/hypervisor — same image, same command, same
+# binary, just different silicon underneath.
+#
+# Manual dispatch only. Pulls the cached image fresh from the GHA cache (no
+# rebuild) and runs both reproducers.
+
+on:
+  workflow_dispatch:
+    inputs:
+      iterations:
+        description: "How many times to run each reproducer"
+        required: false
+        default: "1"
+
+permissions:
+  contents: read
+
+jobs:
+  bare-repro:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # Route user input through env: to avoid command injection.
+      ITERATIONS: ${{ inputs.iterations }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4
+        with:
+          fetch-depth: 1
+
+      - name: Export runner UID
+        id: uid
+        run: echo "user_id=$(id -u)" >> "$GITHUB_OUTPUT"
+
+      - name: Compute cache key (same as setup-container)
+        id: key
+        env:
+          UID_VAL: ${{ steps.uid.outputs.user_id }}
+          DOCKERFILE_HASH: ${{ hashFiles('Dockerfile', 'pixi.toml', 'pixi.lock') }}
+        run: |
+          key="container-image-uid${UID_VAL}-${DOCKERFILE_HASH}"
+          echo "key=${key}" >> "$GITHUB_OUTPUT"
+          echo "Resolved cache key: ${key}"
+
+      - name: Restore cached image tar
+        id: cache
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57  # v4
+        with:
+          path: /tmp/podman-image-cache
+          key: ${{ steps.key.outputs.key }}
+
+      - name: Report cache state
+        env:
+          CACHE_HIT: ${{ steps.cache.outputs.cache-hit }}
+          CACHE_KEY: ${{ steps.key.outputs.key }}
+        run: |
+          if [ "${CACHE_HIT}" = "true" ]; then
+            echo "::notice::cache hit for key ${CACHE_KEY}"
+            SIZE=$(stat -c %s /tmp/podman-image-cache/dev.tar 2>/dev/null || echo "?")
+            echo "::notice::image tar size: ${SIZE} bytes"
+            sha256sum /tmp/podman-image-cache/dev.tar
+          else
+            echo "::error::cache MISS for key ${CACHE_KEY}"
+            echo "(no prior setup-container run cached this key)"
+            exit 1
+          fi
+
+      - name: Show runner CPU info
+        run: |
+          echo "=== runner uname ==="
+          uname -a
+          echo
+          echo "=== runner /proc/cpuinfo first CPU ==="
+          awk '/^processor/{c++; if(c>1)exit} {print}' /proc/cpuinfo
+          echo
+          echo "=== runner relevant flags ==="
+          grep -m1 flags /proc/cpuinfo | tr ' ' '\n' \
+            | grep -E '^(avx512[a-z_0-9]*|avx_vnni|avx|fma|f16c|sse4_[12]|vaes|sha_ni|movdir64b|gfni|vpclmulqdq|serialize)$' \
+            | sort -u | tr '\n' ' '
+          echo
+
+      - name: Start podman socket
+        run: |
+          if ! systemctl --user start podman.socket; then
+            echo "warn: 'systemctl --user start podman.socket' failed (may already be running)" >&2
+          fi
+          echo "DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock" >> "$GITHUB_ENV"
+
+      - name: Load image from cache tar
+        run: |
+          podman load -i /tmp/podman-image-cache/dev.tar
+          podman images projectodyssey:dev
+
+      - name: Run Site B reproducer (Python.import_module) — bare command
+        run: |
+          set +e
+          for i in $(seq 1 "${ITERATIONS}"); do
+            echo "════════ Site B iteration ${i}/${ITERATIONS} ════════"
+            podman run --rm --userns=keep-id \
+              -v "$(pwd):/workspace:Z" -w /workspace \
+              --ulimit core=-1 \
+              projectodyssey:dev \
+              bash -c 'pixi run mojo run repro/repro_6413_python_import_os.mojo 2>&1'
+            EXIT=$?
+            echo "--- iteration ${i} exit=${EXIT} ---"
+          done
+
+      - name: Run Site A reproducer (assert_almost_equal) — bare command
+        run: |
+          set +e
+          for i in $(seq 1 "${ITERATIONS}"); do
+            echo "════════ Site A iteration ${i}/${ITERATIONS} ════════"
+            podman run --rm --userns=keep-id \
+              -v "$(pwd):/workspace:Z" -w /workspace \
+              --ulimit core=-1 \
+              projectodyssey:dev \
+              bash -c 'pixi run mojo run -I /workspace repro/repro_6413_assert_almost_equal.mojo 2>&1'
+            EXIT=$?
+            echo "--- iteration ${i} exit=${EXIT} ---"
+          done
+
+      - name: Summary
+        run: |
+          echo "::notice::repro complete. If any iteration crashed with SIGILL, the bug is reproducible with the bare podman command on a GHA runner — confirming the variable is the runner CPU, not the test harness."
