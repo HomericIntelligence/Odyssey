@@ -13,7 +13,15 @@ name: Probe CPU Features on GHA
 # Manual dispatch only.
 
 on:
+  # Manual dispatch + auto-trigger on commits to the bisect branch only.
+  # Once PR #5399 merges, the trigger should be tightened or removed.
   workflow_dispatch:
+  push:
+    branches:
+      - bisect/6413-positive-control
+    paths:
+      - '.github/workflows/probe-cpu-on-gha.yml'
+      - 'repro/cpuid-probes/**'
 
 permissions:
   contents: read

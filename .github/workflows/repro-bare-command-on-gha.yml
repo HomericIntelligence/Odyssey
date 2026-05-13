@@ -14,12 +14,20 @@ name: Repro 6413 Bare Command on GHA
 # rebuild) and runs both reproducers.
 
 on:
+  # Manual dispatch + auto-trigger on commits to the bisect branch only.
+  # Once PR #5399 merges, the trigger should be tightened or removed.
   workflow_dispatch:
     inputs:
       iterations:
         description: "How many times to run each reproducer"
         required: false
         default: "1"
+  push:
+    branches:
+      - bisect/6413-positive-control
+    paths:
+      - '.github/workflows/repro-bare-command-on-gha.yml'
+      - 'repro/repro_6413_*.mojo'
 
 permissions:
   contents: read
