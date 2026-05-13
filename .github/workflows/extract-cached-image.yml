@@ -32,7 +32,6 @@ jobs:
       # injection (security_reminder_hook flagged this if interpolated
       # directly into a run: block).
       KEY_HASH_OVERRIDE: ${{ inputs.key_hash_override }}
-      DOCKERFILE_HASH: ${{ hashFiles('Dockerfile', 'pixi.toml', 'pixi.lock') }}
     steps:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4
@@ -47,6 +46,7 @@ jobs:
         id: key
         env:
           UID_VAL: ${{ steps.uid.outputs.user_id }}
+          DOCKERFILE_HASH: ${{ hashFiles('Dockerfile', 'pixi.toml', 'pixi.lock') }}
         run: |
           if [ -n "${KEY_HASH_OVERRIDE}" ]; then
             hash="${KEY_HASH_OVERRIDE}"
