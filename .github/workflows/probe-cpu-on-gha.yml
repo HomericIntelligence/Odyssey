@@ -92,7 +92,7 @@ jobs:
           echo "DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock" >> "$GITHUB_ENV"
           podman load -i /tmp/podman-image-cache/dev.tar
 
-      - name: Mojo sys.info probe inside container
+      - name: Mojo --print-effective-target (driver-resolved target CPU + features)
         if: steps.cache.outputs.cache-hit == 'true'
         run: |
           podman run --rm --userns=keep-id \
@@ -106,11 +106,17 @@ jobs:
                 | sort -u | tr "\n" " "
               echo
               echo
-              echo "════════════════════ Mojo sys.info CPU detection ════════════════════"
-              pixi run mojo run repro/cpuid-probes/probe_cpu.mojo
+              echo "════════════════════ mojo build --print-effective-target ════════════════════"
+              # Use any .mojo file; the resolved target is host-derived, file-content-independent.
+              pixi run mojo build --print-effective-target repro/repro_6413_python_import_os.mojo
+              echo
+              echo "════════════════════ mojo --version ════════════════════"
+              pixi run mojo --version
             '
 
       - name: Summary
         run: |
-          echo "::notice::Three views captured: kernel /proc/cpuinfo, direct cpuid via C, Mojo sys.info."
-          echo "::notice::If C probe shows cpuid(7,0).ebx[16] (AVX-512F) = 1 AND xgetbv[5..7] = 0 AND Mojo has_avx512f() = True, the bug is confirmed: Mojo reads silicon CPUID without checking OS-enabled XCR0."
+          echo "Diagnostic captured: /proc/cpuinfo (kernel view), direct cpuid+xgetbv (C probe), and mojo build --print-effective-target."
+          echo "Compare across hosts:"
+          echo "  - if mojo --target-features includes +avx512* on a host where cpuid(7,0).ebx[16]=0, that's the source-side bug"
+          echo "  - if mojo --target-cpu is znver4 (or any -avx512 model) despite no avx512 in cpuid, that's the same bug at the name layer"
