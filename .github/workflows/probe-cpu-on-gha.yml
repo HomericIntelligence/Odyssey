@@ -1,0 +1,103 @@
+name: Probe CPU Features on GHA
+
+# Runs three orthogonal CPU-feature probes on a GHA `ubuntu-latest` runner:
+# 1. /proc/cpuinfo flags (kernel-mediated view)
+# 2. C probe: direct cpuid + xgetbv + __builtin_cpu_supports
+# 3. Mojo probe: sys.info.has_avx512f() etc.
+#
+# Goal for modular/modular#6413: prove (or disprove) that Mojo's CPU
+# detection sees AVX-512 silicon on a host where the kernel-mediated view
+# does not. The crash signatures + AMD EPYC 9V74 Zen 4 hypervisor topology
+# imply this is the bug; this workflow makes the proof concrete.
+#
+# Manual dispatch only.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4
+        with:
+          fetch-depth: 1
+
+      - name: Kernel-mediated CPU view (/proc/cpuinfo + lscpu + getauxval)
+        run: |
+          echo "════════════════════ /proc/cpuinfo first CPU (host) ════════════════════"
+          awk '/^processor/{c++; if(c>1)exit} {print}' /proc/cpuinfo
+          echo
+          echo "════════════════════ Relevant flag filter (kernel view) ════════════════════"
+          grep -m1 ^flags /proc/cpuinfo | tr ' ' '\n' \
+            | grep -E '^(avx512[a-z0-9_]*|avx_vnni|avx|avx2|fma|f16c|sse4_[12]|vaes|sha_ni|movdir64b|gfni|vpclmulqdq|serialize|amx_)$' \
+            | sort -u | tr '\n' ' '
+          echo
+          echo
+          echo "════════════════════ lscpu (host) ════════════════════"
+          lscpu
+
+      - name: Build + run C probe (direct cpuid + xgetbv + __builtin_cpu_supports)
+        run: |
+          gcc -O2 -o /tmp/cpu_features_probe \
+            repro/cpuid-probes/cpu_features_probe.c
+          /tmp/cpu_features_probe
+
+      - name: Compute cache key
+        id: key
+        env:
+          DOCKERFILE_HASH: ${{ hashFiles('Dockerfile', 'pixi.toml', 'pixi.lock') }}
+        run: |
+          UID_VAL=$(id -u)
+          key="container-image-uid${UID_VAL}-${DOCKERFILE_HASH}"
+          echo "Cache key: ${key}"
+          echo "key=${key}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore cached container image
+        id: cache
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57  # v4
+        with:
+          path: /tmp/podman-image-cache
+          key: ${{ steps.key.outputs.key }}
+
+      - name: Skip Mojo probe if cache miss
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          echo "::warning::No cached container image — Mojo probe skipped. (Run extract-cached-image.yml or comprehensive-tests first.)"
+
+      - name: Start podman socket + load image
+        if: steps.cache.outputs.cache-hit == 'true'
+        run: |
+          if ! systemctl --user start podman.socket; then
+            echo "warn: 'systemctl --user start podman.socket' failed (may already be running)" >&2
+          fi
+          echo "DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock" >> "$GITHUB_ENV"
+          podman load -i /tmp/podman-image-cache/dev.tar
+
+      - name: Mojo sys.info probe inside container
+        if: steps.cache.outputs.cache-hit == 'true'
+        run: |
+          podman run --rm --userns=keep-id \
+            -v "$(pwd):/workspace:Z" -w /workspace \
+            --ulimit core=-1 \
+            projectodyssey:dev \
+            bash -c '
+              echo "════════════════════ /proc/cpuinfo flags (inside container) ════════════════════"
+              grep -m1 ^flags /proc/cpuinfo | tr " " "\n" \
+                | grep -E "^(avx512[a-z0-9_]*|avx_vnni|avx|avx2|fma|f16c|sse4_[12]|vaes|sha_ni)$" \
+                | sort -u | tr "\n" " "
+              echo
+              echo
+              echo "════════════════════ Mojo sys.info CPU detection ════════════════════"
+              pixi run mojo run repro/cpuid-probes/probe_cpu.mojo
+            '
+
+      - name: Summary
+        run: |
+          echo "::notice::Three views captured: kernel /proc/cpuinfo, direct cpuid via C, Mojo sys.info."
+          echo "::notice::If C probe shows cpuid(7,0).ebx[16] (AVX-512F) = 1 AND xgetbv[5..7] = 0 AND Mojo has_avx512f() = True, the bug is confirmed: Mojo reads silicon CPUID without checking OS-enabled XCR0."
