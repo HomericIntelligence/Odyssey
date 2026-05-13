@@ -252,28 +252,36 @@ a runtime guard against overflowing string buffers. Every prior libKGEN
 flake the workaround document had cataloged was framed as a JIT memory
 problem. The mental model was set.
 
-### Why nothing changed for four weeks — and what made me finally look
+### Four weeks of work that didn't crack it
 
-There was a structural reason the April investigation stalled where it
-did. Two of the *other* upstream issues open against the project,
+I want to be careful not to make April sound like a stall. It wasn't. I
+was working the problem every day — running tests in long loops on the
+laptop, tweaking compile-unit shape, hunting for an input that would fail
+on demand. The PRs in the previous section are *every* one of those
+attempts that produced a code change worth merging. None of them
+reproduced the crash locally. None of them eliminated it in CI either.
+
+Part of what kept the search going in the direction it did was that two
+of the *other* upstream issues open against the project,
 [modular/modular#6412](https://github.com/modular/modular/issues/6412)
 (*"uncaught filesystem_error in `getAcceleratorArchOrEmpty()` when HOME
 is not traversable by running UID"*) and
 [modular/modular#6433](https://github.com/modular/modular/issues/6433)
 (*"mojo compiler reserves ~3.6 GB virtual address space unconditionally,
 causing OOM crashes on memory-constrained CI runners"*), each looked
-like they could plausibly explain the libKGEN failures. 6412 fit the
-container UID symptoms PR #5252 had been chasing. 6433 fit the JIT-load
-mental model the import-localization PRs were built on. **As long as
-those two issues were open, I had two perfectly good outstanding excuses
-for any libKGEN crash in CI**, and I could keep applying targeted
-workarounds without having to confront a third unknown.
+like they could plausibly account for some of what I was seeing. 6412
+fit the container UID symptoms PR #5252 had been chasing. 6433 fit the
+JIT-load mental model the import-localization PRs were built on. They
+shaped the search by making *load-and-environment* explanations feel
+like the right kind of explanation to test next.
 
 6412 closed on April 20. 6433 closed on May 6 — that's the *3.6 GB
-Virtual Ghost* from [Day 165](../04-20-2026/). The day 6433 closed, the
-libKGEN crash *should* have stopped, because the dominant outstanding
-explanation for it was gone. It did not stop. It kept firing on PRs that
-had nothing to do with virtual-memory exhaustion.
+Virtual Ghost* from [Day 165](../04-20-2026/). Both of those fixes did
+land in CI, and they did remove real failure modes. What they didn't do
+was stop the libKGEN crash. It kept firing on PRs that had nothing to
+do with virtual-memory exhaustion or HOME traversability. So whatever
+was left, it was a third thing, and I still didn't have a local
+reproducer to chase it with.
 
 ### AMD AI Dev Day, Beyond Summit, and the Mojo 1.0 beta decision
 
