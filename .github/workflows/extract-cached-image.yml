@@ -1,0 +1,119 @@
+name: Extract Cached Container Image
+
+# Forensic helper: pull the GHA-cached `podman save` tarball for this branch's
+# setup-container key and upload it as a workflow artifact.  Used to extract
+# the "bad" image suspected of triggering modular/modular#6413 so we can run
+# it locally and confirm whether the bug lives in the cached pixi-install
+# bytes (vs Mojo source codegen).
+#
+# Manual dispatch only; no automatic trigger.  Uses the same cache key as
+# .github/actions/setup-container/action.yml so it lands on whichever tar
+# the upstream test job would have used.
+
+on:
+  workflow_dispatch:
+    inputs:
+      key_hash_override:
+        description: >
+          Override the hashFiles(Dockerfile, pixi.toml, pixi.lock) value
+          to pin to a specific cache.  Leave blank to compute fresh.
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Route the user-supplied override through env: to avoid command
+      # injection (security_reminder_hook flagged this if interpolated
+      # directly into a run: block).
+      KEY_HASH_OVERRIDE: ${{ inputs.key_hash_override }}
+      DOCKERFILE_HASH: ${{ hashFiles('Dockerfile', 'pixi.toml', 'pixi.lock') }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4
+        with:
+          fetch-depth: 1
+
+      - name: Export runner UID
+        id: uid
+        run: echo "user_id=$(id -u)" >> "$GITHUB_OUTPUT"
+
+      - name: Compute cache key
+        id: key
+        env:
+          UID_VAL: ${{ steps.uid.outputs.user_id }}
+        run: |
+          if [ -n "${KEY_HASH_OVERRIDE}" ]; then
+            hash="${KEY_HASH_OVERRIDE}"
+          else
+            hash="${DOCKERFILE_HASH}"
+          fi
+          key="container-image-uid${UID_VAL}-${hash}"
+          echo "key=${key}" >> "$GITHUB_OUTPUT"
+          echo "Resolved cache key: ${key}"
+
+      - name: Restore cached image tar
+        id: cache
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57  # v4
+        with:
+          path: /tmp/podman-image-cache
+          key: ${{ steps.key.outputs.key }}
+
+      - name: Report cache state
+        env:
+          CACHE_HIT: ${{ steps.cache.outputs.cache-hit }}
+          CACHE_KEY: ${{ steps.key.outputs.key }}
+        run: |
+          if [ "${CACHE_HIT}" = "true" ]; then
+            echo "::notice::cache hit on $(date -Iseconds) for key ${CACHE_KEY}"
+            if ! ls -la /tmp/podman-image-cache/; then
+              echo "warn: could not list cache dir" >&2
+            fi
+            if [ -f /tmp/podman-image-cache/dev.tar ]; then
+              SIZE=$(stat -c %s /tmp/podman-image-cache/dev.tar)
+              echo "::notice::image tar size: ${SIZE} bytes ($((SIZE / 1024 / 1024)) MB)"
+              sha256sum /tmp/podman-image-cache/dev.tar
+            fi
+          else
+            echo "::error::cache MISS for key ${CACHE_KEY}"
+            echo "(Either the key changed or the entry was evicted.)"
+            exit 1
+          fi
+
+      - name: Bundle metadata
+        env:
+          CACHE_KEY: ${{ steps.key.outputs.key }}
+          UID_VAL: ${{ steps.uid.outputs.user_id }}
+          HEAD_REF: ${{ github.ref }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          mkdir -p extract-bundle
+          cp /tmp/podman-image-cache/dev.tar extract-bundle/dev.tar
+          {
+            echo "=== Extracted by extract-cached-image.yml on $(date -Iseconds) ==="
+            echo "cache key:    ${CACHE_KEY}"
+            echo "ref:          ${HEAD_REF}"
+            echo "head sha:     ${HEAD_SHA}"
+            echo "runner uid:   ${UID_VAL}"
+            echo "tar size:     $(stat -c %s extract-bundle/dev.tar) bytes"
+            echo "tar sha256:   $(sha256sum extract-bundle/dev.tar | awk '{print $1}')"
+            echo
+            echo "=== Source file hashes that feed the cache key ==="
+            for f in Dockerfile pixi.toml pixi.lock; do
+              echo "${f}  sha256:  $(sha256sum "${f}" | awk '{print $1}')"
+            done
+          } > extract-bundle/manifest.txt
+          cat extract-bundle/manifest.txt
+
+      - name: Upload image tar artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7
+        with:
+          name: container-image-${{ steps.key.outputs.key }}
+          path: extract-bundle/
+          retention-days: 7
+          if-no-files-found: error
