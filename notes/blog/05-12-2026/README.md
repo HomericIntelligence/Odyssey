@@ -252,31 +252,82 @@ a runtime guard against overflowing string buffers. Every prior libKGEN
 flake the workaround document had cataloged was framed as a JIT memory
 problem. The mental model was set.
 
-### May 8 — the pivot
+### Why nothing changed for four weeks — and what made me finally look
 
-By the end of the first week of May, the import-localization mitigation
-had pushed the crash rate down but not to zero. PRs that touched
-unrelated code (like
-[PR #5363](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5363),
-a 33-issue consolidation merge) were still tripping the crash. The
-*Phase G* merge on May 5 produced
-[a particularly clear failure](https://github.com/modular/modular/issues/6413#issuecomment-from-may-10)
-that I reported back to 6413 on May 10 with the words *"same crash family
-confirmed in Mojo 1.0.0b2."*
+There was a structural reason the April investigation stalled where it
+did. Two of the *other* upstream issues open against the project,
+[modular/modular#6412](https://github.com/modular/modular/issues/6412)
+(*"uncaught filesystem_error in `getAcceleratorArchOrEmpty()` when HOME
+is not traversable by running UID"*) and
+[modular/modular#6433](https://github.com/modular/modular/issues/6433)
+(*"mojo compiler reserves ~3.6 GB virtual address space unconditionally,
+causing OOM crashes on memory-constrained CI runners"*), each looked
+like they could plausibly explain the libKGEN failures. 6412 fit the
+container UID symptoms PR #5252 had been chasing. 6433 fit the JIT-load
+mental model the import-localization PRs were built on. **As long as
+those two issues were open, I had two perfectly good outstanding excuses
+for any libKGEN crash in CI**, and I could keep applying targeted
+workarounds without having to confront a third unknown.
+
+6412 closed on April 20. 6433 closed on May 6 — that's the *3.6 GB
+Virtual Ghost* from [Day 165](../04-20-2026/). The day 6433 closed, the
+libKGEN crash *should* have stopped, because the dominant outstanding
+explanation for it was gone. It did not stop. It kept firing on PRs that
+had nothing to do with virtual-memory exhaustion.
+
+### AMD AI Dev Day, Beyond Summit, and the Mojo 1.0 beta decision
+
+In parallel, the Mojo 1.0 beta had been released. I'd had a chance to
+talk to several folks from Modular at AMD AI Dev Day and at the Beyond
+Summit 2025, and the conversations all pointed the same direction: 1.0
+was the line the project was being supported against, the workaround
+zoo accumulated during 0.26 was the *old* world, and a number of the
+JIT-side fragilities had been getting attention in the beta. I decided
+to upgrade.
+
+That upgrade was not a trivial bump. It required a lot of changes across
+the codebase — new constructor signature (`out self` vs `mut self`),
+ownership-transfer operators, list-literal syntax, parametric function
+value types (the new `thin` keyword), removal of `unified` capture,
+elimination of `mojo test` in favor of `def main()`-style hand-rolled
+test runners, plus the usual cascade of API shifts that come with any
+"1.0" bump. The migration landed in
+[PR #5353](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5353)
+on **May 9**, just three days after 6433 had closed.
+
+That sequence is what reset the investigation. Going to 1.0.0b2 meant
+ripping out a forest of 0.26-era syntax and stdlib idioms — and along
+with them, every quiet assumption that *"this code path is fragile,
+leave it alone."* Once the bandaid was off, every part of the codebase
+that had been compiled with the 0.26 workaround stack was now compiled
+fresh against 1.0.0b2. And libKGEN was *still crashing*. With both 6412
+and 6433 closed and the Mojo version itself bumped to the line that was
+supposed to fix this class of fragility, there were no outstanding excuses
+left.
+
+### May 10 — the pivot
+
+The day after the 1.0.0b2 migration merged, the *Phase G* consolidation
+PR
+[#5363](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5363)
+tripped the same libKGEN crash on the new Mojo. I reported it back to
+6413 on May 10 with the words *"same crash family confirmed in Mojo
+1.0.0b2."*
 
 That post is when the investigation pivoted. The Modular engineer
 ([dgurchenkov](https://github.com/modular/modular/issues/6413#issuecomment-4435794613))
-replied: *"For the repro steps... I don't quite understand this part. The
-repro section says it cannot reproduce natively."* They were politely
+replied: *"For the repro steps... I don't quite understand this part.
+The repro section says it cannot reproduce natively."* They were politely
 asking what I was already painfully aware of: **without a reproducer,
-they could not help me.** A month of "make it less flaky" had hit a wall.
+they could not help me.** A month of "make it less flaky" had hit a wall,
+on a Mojo version that was supposed to be past those flakes, with both
+adjacent excuses closed out.
 
 So I stopped trying to suppress the symptoms and started trying to
 *observe* the failure properly. The next ten days — what the rest of this
 post is actually about — were spent building the diagnostic infrastructure
-I should have built on April 13 but did not, because for a month I did
-not believe I was looking at a compiler bug. I believed I was looking at
-a JIT load problem in our test harness.
+I should have built on April 13 but did not, because for a month I had
+two more comfortable explanations open against the same compiler.
 
 ### The infrastructure I finally built (May 10–11)
 
