@@ -40,7 +40,7 @@ podman run --rm --userns=keep-id \
 
 ## Expected outcomes
 
-| Host | /proc/cpuinfo avx512f | cpuid(7,0).ebx[16] | xgetbv(0)[5..7] | builtin avx512f | mojo `has_avx512f()` |
+| Host | `/proc/cpuinfo` avx512f | `cpuid(7,0).ebx[16]` | `xgetbv(0)[5..7]` | `builtin avx512f` | `mojo has_avx512f()` |
 | --- | --- | --- | --- | --- | --- |
 | Local Intel without AVX-512 | 0 | 0 | n/a | 0 | **expected 0** |
 | Local Intel with AVX-512 (e.g. Tiger Lake) | 1 | 1 | 1 | 1 | **expected 1** |
