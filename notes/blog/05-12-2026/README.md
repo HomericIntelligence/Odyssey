@@ -20,9 +20,6 @@ hardware. Every model in my head was Intel. Intel Inside has been the marketing
 mantra for so long, I didn't even question that assumption that the CPU manufacturer
 could have been the clue.
 
-The runner was AMD. The runner had AVX-512 silicon. The hypervisor was hiding
-it. And the compiler was finding it anyway.
-
 To understand why that four-line block from `/proc/cpuinfo` was the moment
 everything pivoted — and why it took a month to capture it — you have to go
 back to April.
@@ -33,32 +30,6 @@ back to April.
 **Date:** May 12, 2026
 **Branch:** `bisect/6413-positive-control`
 **Tags:** #mojo #debugging #ci #avx512 #hyper-v #amd-epyc #llvm #jit #cpu-fingerprinting #cross-cpu-survey #modular-bug
-
----
-
-## TL;DR
-
-CI was crashing inside `libKGENCompilerRTShared.so` at some unidentifiable
-instruction. For four weeks of April I treated it as a flaky JIT and
-chased a 100%-reproducible local test case I could hand upstream — the
-mitigation lineage runs through retry harnesses, container UID fixes,
-import-localization, job serialization, and ulimit bumps. None of it
-worked, because none of it was looking at the right failure. On May 10 I
-finally built core-dump capture that actually worked and a gdb ptrace
-wrapper that fired before libKGEN's in-process signal handler could
-swallow the crash. The first real cores arrived on May 11 and showed
-**SIGILL, not SIGABRT** — *the silicon refused to decode this
-instruction*, not glibc detecting a buffer overflow. That single bit
-falsified a month of working assumptions.
-
-After that pivot, five more hypotheses fell in turn — tuple destructor
-UAF, ASAN-strict use-after-free, pixi cache content drift, a silent
-nightly republish, and *"every non-AVX-512 Intel CPU triggers it"*. By
-the time the fifth was rejected the question had stopped being *"what is
-the crash?"* and become *"why is the crash invisible?"* I HAD to solve
-it...
-
-And I did.
 
 ---
 
@@ -81,8 +52,8 @@ context the harness would let us see. The crash file contained 28 bytes of
 log output. None of it was useful.
 
 My current understanding is that the reason it contained 28 bytes of log output was that libKGEN installs
-its own SIGABRT/SIGILL handler at startup. When the JIT'd code dereferences
-a bad page or executes an instruction the silicon refuses, the kernel
+its own SIGABRT handler at startup. When the JIT'd code dereferences
+a bad page or address, the kernel
 delivers a signal to the process, libKGEN's handler intercepts it, prints
 its 28 bytes, and calls `_exit(134)`. The kernel never gets a chance to
 generate a core dump. **We had been debugging a crash whose stack trace
@@ -129,8 +100,8 @@ So that is what I tried to do.
 
 ### The flaky-JIT mitigation lineage
 
-Months before the AVX-512 story starts, the same crash family had already
-provoked an escalating series of mitigations. None of them treated the
+Months before the rest of this story starts, the same crash family had
+already provoked an escalating series of mitigations. None of them treated the
 crash as a code-generation bug; all of them treated it as a transient
 fault in a JIT pipeline that needed retries, smaller compilation units, or
 quieter test environments. In rough chronological order:
@@ -695,13 +666,21 @@ reproducer. Five hosts available.
 
 The fleet:
 
-| Host | CPU | Microarch | Year | SIMD | AVX-512? |
-| --- | --- | --- | --- | --- | --- |
-| `aeolus` | Intel i7-3820 | Sandy Bridge-E | 2012 | AVX1 | no |
-| `titan` | Intel i5-4440 | Haswell | 2013 | AVX2 | no |
-| `epimetheus` | Intel i5-6600K | Skylake (desktop) | 2015 | AVX2 | no |
-| `apollo` | Intel i7-8565U | Whiskey Lake | 2018 | AVX2 + VNNI | no |
-| `hermes` | Intel 258V | Lunar Lake | 2024 | AVX2 + VNNI | no |
+| Host | CPU | Microarch | Year | SIMD baseline |
+| --- | --- | --- | --- | --- |
+| `aeolus` | Intel i7-3820 | Sandy Bridge-E | 2012 | AVX |
+| `titan` | Intel i5-4440 | Haswell | 2013 | AVX2 |
+| `epimetheus` | Intel i5-6600K | Skylake (desktop) | 2015 | AVX2 |
+| `apollo` | Intel i7-8565U | Whiskey Lake | 2018 | AVX2 + VNNI |
+| `hermes` | Intel 258V | Lunar Lake | 2024 | AVX2 + VNNI |
+
+Twelve years of Intel microarchitecture, every SIMD baseline from
+Sandy Bridge through Lunar Lake — but every one of them topped out
+at AVX2. If the bug needed something *older* than AVX2, aeolus would
+catch it. If it needed something newer or weirder than what my
+laptop had, none of the others would help — but in that case the
+survey's *uniform* failure would tell us the bug needed something
+none of these chips had at all.
 
 The image was 760 MB. Tailscale moved it in about 90 seconds host-to-host.
 Total wall-clock from `podman save` on the GHA artifact to first
@@ -711,9 +690,8 @@ The protocol on each host was the same. Load the image. Run the bare
 podman command that the failing CI job runs. Wait for SIGILL or
 completion.
 
-**All five clean.** Sandy Bridge through Lunar Lake, no AVX-512 silicon
-in any of them, twelve years of Intel microarchitecture variety, *not one
-crash*.
+**All five clean.** Sandy Bridge through Lunar Lake, every machine
+ran the failing bytes without faulting, *not one crash*.
 
 That was the moment of pivot. I had predicted *at least one* of these
 machines would crash. None did. Either the bug was sensitive to something
@@ -752,30 +730,33 @@ flags            : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
                    arat npt nrip_save vaes vpclmulqdq rdpid fsrm
 ```
 
-**There is no `avx512f` in that flag list.** There is no `avx512vl`,
-`avx512bw`, `avx512dq`, `avx512cd`, `avx512vnni`, `avx512vbmi`. The kernel
-sees no AVX-512 features at all.
+Two things jumped out of that flag list. First, this was not an
+Intel chip. The runner is AMD — `AuthenticAMD`, family 25 model 17,
+which is the Zen 4 microarchitecture (EPYC 9V74 is a Genoa-family
+server chip). Every assumption I had been making about CI's CPU was
+wrong: not just *"older Intel"* wrong, *Intel at all* wrong.
 
-But the silicon is Zen 4. AMD EPYC 9V74 is a Genoa-family chip. *Zen 4
-hardware natively supports the full AVX-512 stack.* The host the runner
-is sitting on top of is, on the metal, capable of running every
-AVX-512 instruction the cores were faulting on. And yet
-`/proc/cpuinfo` inside the runner — the guest kernel's curated view of
-its own CPU — was telling every consumer of CPU features that no
-AVX-512 existed here.
+Second, the runner is running under a hypervisor. `Hypervisor vendor :
+Microsoft` plus the `hypervisor` flag in the feature list says the
+guest kernel inside the runner is a VM sitting on top of Microsoft
+Hyper-V. The flag list in `/proc/cpuinfo` is what the *guest* kernel
+sees, after the hypervisor has had its way with the CPUID page on
+boot. That view is *curated*, not raw silicon.
 
-The cross-CPU survey had been designed to find an Intel SKU that
-reproduced the bug. What it found instead was that *no Intel SKU in my
-fleet could possibly reproduce the bug, because the bug requires
-silicon that has AVX-512 capability — and none of my Intel machines do*.
-The crash-host has AVX-512 capability that nothing in its software
-stack will admit to.
+So what the cross-CPU survey actually found was twofold: *no Intel
+SKU in my fleet could reproduce the bug*, because the bug requires
+features none of my Intel SIMD baselines have — and *the GHA runner
+is hardware nothing in my fleet resembles*. AMD Zen 4 server silicon,
+running under a hypervisor whose CPUID curation may or may not match
+the underlying metal, is the host where the JIT decided to emit
+whatever the captured cores contained.
 
-End of Chapter 5: the silicon has AVX-512. The kernel says it doesn't.
-The compiler is emitting AVX-512 anyway. Three layers of the system
-have to be examined to figure out which one is wrong — and *why*
-nobody other than the compiler is willing to acknowledge what the
-hardware actually is.
+End of Chapter 5: the runner is not what I had been assuming, the
+guest kernel's CPU view passes through Microsoft's curation before
+anyone sees it, and my Intel fleet had no chance of catching this.
+The next question — *what exactly are those crashing bytes asking
+for that none of these CPUs has?* — is the captured-cores question.
+That's the next chapter.
 
 ---
 
