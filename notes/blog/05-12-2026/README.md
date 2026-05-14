@@ -566,7 +566,7 @@ binary is the same. The pixi.lock is the same. The Mojo source we ship is
 the same. The bug appears and disappears across container-image rebuilds.
 **Whatever is varying is not in the package; it is in the container.**
 
-### H6: a non-AVX CPU breaks the JIT
+### H6: the runner's CPU lacks something the JIT assumed it had
 
 By now the gdb wrapper had captured real cores from CI, and the
 disassembly around `$pc` was no longer just bytes — it was instructions
