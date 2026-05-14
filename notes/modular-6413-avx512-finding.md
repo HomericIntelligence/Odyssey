@@ -31,7 +31,7 @@ emitting AVX-512 encodings:
 
 Backtrace:
 
-```
+```text
 #0  abs () at math.mojo:3746
 #1  assert_almost_equal () at shared/testing/assertions.mojo:170
 #2  test_tensor_dataset_negative_indexing ()
@@ -39,7 +39,7 @@ Backtrace:
 
 Faulting instruction:
 
-```
+```text
 => 0x7fc4f4158490 <assert_almost_equal+48>: vandps (%r15,%rax,1){1to4},%xmm3,%xmm3
    0x7fc4f4158497 <assert_almost_equal+55>: vucomiss %xmm2,%xmm3
    0x7fc4f415849b <assert_almost_equal+59>: jbe    ...+1006
@@ -51,7 +51,7 @@ Faulting instruction:
 
 Backtrace:
 
-```
+```text
 #0  _strip () at string_slice.mojo:1035
 #1  rstrip () at string_slice.mojo:1104
 #2  rstrip () at string.mojo:1654
@@ -66,7 +66,7 @@ Backtrace:
 
 Faulting instruction (3 separate core captures, identical site):
 
-```
+```text
 => 0x7f1d683e8804 <_strip+68>: vmovdqa64 (%rcx,%rax,1),%zmm0
    0x7f1d683e880b <_strip+75>: movabs $0x240,%rax
 ```
@@ -79,7 +79,7 @@ a target that has at most 32-byte (`%ymm`) registers.
 
 A related capture in the same job hit `load_config+2857`:
 
-```
+```text
 => 0x7fb2783949e9 <load_config+2857>: vmovdqu64 (%r12,%rax,1),%zmm0
    0x7fb2783949f0 <load_config+2864>: vmovdqu64 %zmm0,0x1e0(%rsp)
 ```
@@ -91,14 +91,14 @@ unaligned variant.
 
 Backtrace:
 
-```
+```text
 #0  match_h2 () at _swisstable.mojo:114
 #1  _insert () at _swisstable.mojo (various callers)
 ```
 
 Faulting instruction (2 separate captures, identical site):
 
-```
+```text
 => 0x7f2bbc3a448c <_insert+4476>: vpbroadcastb %eax,%xmm0
    0x7f2bbc3a4492 <_insert+4482>: mov    0x18(%rsp),%rsi
 ```
@@ -111,7 +111,7 @@ AVX-512BW — and gdb's decoding here shows the reg-to-reg encoding.
 
 Backtrace:
 
-```
+```text
 #0  _single_round () at philox.mojo:162
 #1  step () at philox.mojo:101
 #2  next_uint32 () at _rng.mojo:80
@@ -124,7 +124,7 @@ Backtrace:
 
 Faulting instruction:
 
-```
+```text
 => 0x7f8c1c188562 <next_uint32+178>: vpternlogd $0x96,%xmm3,%xmm4,%xmm7
    0x7f8c1c188569 <next_uint32+185>: vpxor  %xmm5,%xmm4,%xmm3
    0x7f8c1c18856d <next_uint32+189>: vpshufd $0x55,%xmm3,%xmm3
@@ -136,7 +136,7 @@ Faulting instruction:
 
 Backtrace:
 
-```
+```text
 #0  _relu_backward_op () at activation.mojo:475
         return grad if x > Scalar[T](0) else Scalar[T](0)
 #1  elementwise_binary () at dtype_dispatch.mojo:248
@@ -148,7 +148,7 @@ Backtrace:
 
 Faulting instruction (loop body):
 
-```
+```text
 => 0x7f766814bcb0 <dispatch_binary+3024>: vcmpltss (%r10,%rdi,4),%xmm0,%k1
    0x7f766814bcb8 <dispatch_binary+3032>: vmovss (%rsi,%rdi,4),%xmm1{%k1}{z}
    0x7f766814bcbf <dispatch_binary+3039>: vmovss %xmm1,(%r9,%rdi,4)
