@@ -306,7 +306,7 @@ adjacent excuses closed out.
 
 So I stopped trying to suppress the symptoms and started trying to
 *observe* the failure properly. The next few days — what the rest of this
-post is actually about — were spent building the diagnostic infrastructure 
+post is actually about — were spent building the diagnostic infrastructure
 to solve the problem.
 
 ### The infrastructure I finally built (May 10–11)
