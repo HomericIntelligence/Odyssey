@@ -29,7 +29,7 @@ back to April.
 **Project:** ML Odyssey
 **Date:** May 12, 2026
 **Branch:** `bisect/6413-positive-control`
-**Tags:** #mojo #debugging #ci #avx512 #hyper-v #amd-epyc #llvm #jit #cpu-fingerprinting #cross-cpu-survey #modular-bug
+**Tags:** #mojo #debugging #ci #llvm #jit #cross-cpu-survey #modular-bug
 
 ---
 
@@ -51,21 +51,23 @@ stack trace was always the same noise: `__fortify_fail_abort` inside
 context the harness would let us see. The crash file contained 28 bytes of
 log output. None of it was useful.
 
-My current understanding is that the reason it contained 28 bytes of log output was that libKGEN installs
-its own SIGABRT handler at startup. When the JIT'd code dereferences
-a bad page or address, the kernel
-delivers a signal to the process, libKGEN's handler intercepts it, prints
-its 28 bytes, and calls `_exit(134)`. The kernel never gets a chance to
-generate a core dump. **We had been debugging a crash whose stack trace
-was the handler, not the bug.**
+My current understanding is that the reason it contained 28 bytes of log
+output was that libKGEN installs its own signal handler at startup. When
+the runtime hits a fatal fault, the kernel delivers a signal to the
+process, libKGEN's handler intercepts it before anything else can,
+prints its 28 bytes, and calls `_exit(134)`. The kernel never gets a
+chance to generate a core dump. **We had been debugging a crash whose
+stack trace was the handler, not the bug.** Whatever the underlying
+fault actually was, the handler repainted it into the same 28-byte
+non-answer every time.
 
 At the close of Day 165 we had a workaround note about this in
 [`docs/dev/mojo-jit-crash-workaround.md`](../../../docs/dev/mojo-jit-crash-workaround.md)
-— it speculated about JIT volume thresholds and recommended retries. That
-document is now historical. Everything in it about the cause is wrong. Only
-the *symptom* matches: an unexplained, non-deterministic SIGABRT/SIGILL in
-a process whose handler swallows it before the kernel can record what
-happened.
+— it speculated about JIT volume thresholds and recommended retries.
+That document is now historical. Everything in it about the cause is
+wrong. Only the *symptom* matches: an unexplained, non-deterministic
+fatal fault in a process whose handler swallows it before the kernel
+can record what happened.
 
 The plan, going into April, was modest and — in retrospect — wrong: get
 CI/CD green by reducing the JIT's load until the flake stopped firing.
@@ -407,11 +409,12 @@ actually say"*.
 Chapter 2 already buried one of these hypotheses by the time it ended:
 the *flaky-JIT-load* mental model that dominated for months. I'm
 re-stating it as H1 here anyway, because the way it died — when the gdb
-wrapper showed SIGILL, not SIGABRT — is what made every subsequent
-hypothesis necessary. The next five (H2 through H6) are the *post-May-11*
-attempts to explain what a SIGILL inside libKGEN actually meant. Each
-follows the same shape: *I thought X. I gathered Y. Z is why it was
-wrong.*
+wrapper finally showed the hardware state at the moment of the fault,
+and that state did not match anything the flaky-JIT model predicted —
+is what made every subsequent hypothesis necessary. The next five (H2
+through H6) are the *post-May-11* attempts to explain what the captured
+hardware state was actually telling us. Each follows the same shape:
+*I thought X. I gathered Y. Z is why it was wrong.*
 
 ### H1: JIT volume / `__fortify_fail` overflow
 
@@ -438,16 +441,36 @@ mid-3.6 GB mark. H1 was the same kind of story, one layer deeper.
 
 [PR #5389](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5389)
 added `just build` modes for AddressSanitizer and ThreadSanitizer so we
-could re-run the failing tests under instrumentation. Twenty CI runs under
-ASAN. Zero ASAN reports. Real cores from the gdb wrapper, finally, showed
-the faulting signal was **SIGILL, not SIGABRT**. Fortify reports SIGABRT.
-SIGILL means *the silicon refused to decode this instruction*. That is a
-completely different failure class!
+could re-run the failing tests under instrumentation. Twenty CI runs
+under ASAN. Zero ASAN reports — no overflowing `memcpy`, no fortify
+trip, nothing the buffer-overflow theory predicted.
 
-Theory dead. The `__fortify_fail_abort` symbol in the original crashpad
-was libKGEN's own handler routing through fortify on its way to
-`_exit` — a red herring of the kind that exists only because the handler
-ran instead of the kernel. If this handler didn't switch the signal.... One can only guess how much quicker this would have been resolved.
+Then the gdb wrapper produced its first real cores, and the hardware
+state at the moment of the fault told a completely different story.
+A buffer overflow caught by fortify leaves a recognisable fingerprint:
+the program counter sits inside a libc string routine, the backtrace
+runs up through `__fortify_fail`, the fault is a deliberate abort the
+process raised on *itself* after detecting corruption. That is not
+what the cores showed. The captured `$pc` was not in libc at all — it
+was sitting on a single machine instruction inside JIT-compiled code,
+and the fault was the *hardware* rejecting that instruction, not
+software detecting bad data. The register file was intact. The stack
+was intact. There was no corruption to detect. The CPU had simply
+been handed bytes at `$pc` it would not execute.
+
+That is a completely different failure class. Fortify means *the
+program found bad data and gave up*. What the cores actually showed
+means *the processor was asked to run something it could not run*.
+The first is a memory-safety problem somewhere upstream. The second
+is a code-generation problem: somebody emitted those bytes.
+
+Theory dead. The `__fortify_fail_abort` symbol in the original
+crashpad was libKGEN's own handler on its exit path, not the cause —
+a red herring that existed only because the handler ran instead of
+the kernel. Had that handler not been there to repaint the
+crash, the very first core dump would have pointed straight at the
+faulting instruction, and this investigation would have been weeks
+shorter.
 
 ### H2: Tuple destructor use-after-free
 
@@ -476,10 +499,10 @@ If a destructor bug was responsible somewhere in the stack, ASAN with
 strict-UB would catch it. PR #5389's ASAN mode produced 115 instrumented
 CI runs across the failing job set. **Zero UAF reports. Zero stack-buffer-
 overflow reports. Zero heap-buffer-overflow reports.** The instrumented
-binaries crashed at the same rate as the uninstrumented ones, with the
-same SIGILL, at the same faulting instructions — but without any of the
-sanitizer signatures you would expect if the cause were a memory-safety
-bug in our Mojo code.
+binaries crashed at the same rate as the uninstrumented ones, faulting
+on the same rejected instructions at the same call sites — but without
+any of the sanitizer signatures you would expect if the cause were a
+memory-safety bug in our Mojo code.
 
 This was important. ASAN instruments code at compile time. Code that
 isn't instrumented (statically linked precompiled libraries) is not
@@ -559,7 +582,7 @@ day-to-day work on hermes, a Lunar Lake laptop with AVX2 + VNNI. The
 GHA runner — whatever it was, I had not yet bothered to check — was on
 the older end of the Azure pool. If the compiler was assuming a baseline
 SIMD level above what the runner could run, we'd see exactly this
-shape: green on the laptop, SIGILL in CI.
+shape: green on the laptop, failing in CI.
 
 The experiment was to take the exact failing container image, pull it
 to the laptop, and run the same reproducer locally. Same binary, same
