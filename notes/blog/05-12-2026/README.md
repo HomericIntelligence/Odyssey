@@ -1,4 +1,4 @@
-# Day One Hundred Eighty-Seven: The AVX-512 Phantom in the Hypervisor
+# Day One Hundred Eighty-Seven: Phantom Bugs in the CI Machines
 
 ```text
 model name        : AMD EPYC 9V74 80-Core Processor
