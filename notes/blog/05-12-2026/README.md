@@ -1143,17 +1143,64 @@ broader implications.
 
 ## Chapter 9: Token Budget — A Note on Cost
 
-This investigation burned at least **2M tokens** across
-three overlapping Claude Code sessions running non-stop for almost three days:
+The first draft of this chapter estimated *"about 2 M tokens"* based on
+the size of the jsonl conversation transcripts on disk (230 KB + 2.7 MB
++ 6.6 MB). That estimate was wrong by more than two orders of
+magnitude. The transcript file size is the *user-visible* turn record;
+it has nothing to do with the tokens actually billed against the API,
+because every turn re-sends the rolling cached context — and on a
+multi-day Claude Code session with deep tool use, the rolling cached
+context is enormous.
 
-| Session id | Size | Turns | Window |
-| --- | --- | --- | --- |
-| `ed4137f5-…` | 230 KB jsonl | early | May 11, the earliest probe |
-| `35bf125d-…` | 2.7 MB jsonl | 365 | May 11–12 |
-| `b4253dc0-…` | 6.6 MB jsonl | 879 | May 11–13, primary session |
+The honest numbers come from
+[`ccusage`](https://github.com/ryoppippi/ccusage), which reads each
+session's underlying API-call metadata directly. Scoped to the
+`ProjectOdyssey` project, May 10 — May 12 (there was no May 8 or May 9
+ProjectOdyssey activity at all — the investigation's active phase was
+exactly those three days):
 
-That is roughly **50 % of a weekly Claude Max Pro budget** (estimated
-4–5 M tokens per week at the highest tier).
+```bash
+npx -y ccusage@latest daily --since 20260510 --until 20260512 \
+  -i --json | jq '.projects."-home-mvillmow-Projects-ProjectOdyssey"'
+```
+
+| Date | Input | Output | Cache write | Cache read | Total | Cost (calc) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 2026-05-10 | 120 | 42,356 | 345,431 | 10,871,563 | 11,259,470 | $8.65 |
+| 2026-05-11 | 2,067 | 261,083 | 2,427,762 | 89,764,560 | 92,455,472 | $65.42 |
+| 2026-05-12 | 4,525 | 470,575 | 1,782,570 | 342,500,441 | 344,758,111 | $192.78 |
+| **Total** | **6,712** | **774,014** | **4,555,763** | **443,136,564** | **448,473,053** | **$266.85** |
+
+Models used in the window: `claude-opus-4-7` (the primary driver) and
+`claude-haiku-4-5-20251001` (for sub-agent dispatch).
+
+A few observations from the real numbers:
+
+- **The investigation cost ~$267 in API-equivalent pricing across
+  three days.** That is not a Claude Max Pro number — Max Pro tops
+  out well below that on weekly cap. The earlier "50 % of weekly
+  budget" framing was generated against the wrong baseline. Stated
+  honestly: this was a *non-trivial* model spend, the kind of thing
+  a Pro plan would not have covered alone, and the framing should be
+  *"this is what serious CPU-feature debugging at agent-coordinated
+  scale costs"* rather than a fraction of any prosumer plan.
+- **Cache hit rate was 443.1 M read vs 4.5 M write — about 99 %.**
+  That ratio is the structural reason long Claude Code sessions stay
+  affordable relative to total token volume. Almost every token in
+  the bill is a cache *read*; if every turn had to re-tokenise the
+  rolling context, the dollar cost would be ~10× higher.
+- **May 12 alone was 344 M tokens / $193** — three times May 11's
+  budget. That spike is the day I built the four-layer probe, ran
+  the cross-CPU survey, captured `/proc/cpuinfo` from the EPYC
+  runner, dispatched the source-code-review sub-agent, and wrote
+  the upstream comments. The breakthrough day was the expensive day,
+  which is the right shape for a debugging budget — the cost rose
+  as the search converged, not while flailing.
+- **6,712 *direct* input tokens** across three days is a small
+  number; almost everything I typed was a short command or
+  clarification. The 774 K *output* tokens are where the model
+  actually did work — sub-agent prompts, draft comments, source
+  reviews, and the long synthesis writeups.
 
 What did those three days of tokens buy?
 
@@ -1177,12 +1224,13 @@ What did those three days of tokens buy?
   throw-away experiments — the part that doesn't show up in any
   artifact but is most of where the tokens actually went.
 
-If you have been hesitant to spend serious model tokens on a single
-debugging investigation, this is the case for it. The cost paid
-for durable skills, a confirmed upstream report with a reproducer, and
-a methodology that will pay forward across the next year of CPU-
-feature investigations. The dollar value of *"my CI is reliable
-again"* alone covers it.
+If you have been hesitant to spend serious model budget on a single
+debugging investigation, $267 across three days produced a fixed
+upstream bug, a reproducer, six durable skills, and a methodology
+that will pay forward across the next year of CPU-feature
+investigations. The dollar value of *"my CI is reliable again"* alone
+covers it. The methodological lesson — *"don't estimate token usage
+from jsonl file size, ask `ccusage`"* — is its own kind of pay-forward.
 
 ---
 
