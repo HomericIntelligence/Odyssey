@@ -29,7 +29,7 @@ back to April.
 **Project:** ML Odyssey
 **Date:** May 12, 2026
 **Branch:** `bisect/6413-positive-control`
-**Tags:** #mojo #debugging #ci #llvm #jit #cross-cpu-survey #modular-bug
+**Tags:** #mojo #debugging #ci #jit #cross-cpu-survey #modular-bug
 
 ---
 
@@ -94,9 +94,10 @@ work with for four weeks.
 
 Through all of April, I treated this as a **flaky JIT** — the same family
 of failure as `mojo-jit-crash-workaround.md` had been describing since
-March. The entire shape of the investigation was *"this is some kind of
-heap or scheduling flake in the JIT, and the way to defeat a flake is to
-find a 100% reproducible test case that triggers it on demand."*
+March, and I had been dealing with for months prior. The entire shape of
+the investigation was *"this is some kind of heap or scheduling flake in
+the JIT, and the way to defeat a flake is to find a 100% reproducible test
+case that triggers it on demand."*
 
 So that is what I tried to do.
 
@@ -119,10 +120,11 @@ quieter test environments. In rough chronological order:
 - [PR #5171 (Mar 26)](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5171) —
   *"add per-file JIT crash retry for Mojo 0.26.1"*
 
-That is the prehistory. Each of these PRs assumes the same model of the
-bug — *the JIT is fragile under certain loads, and the fix is to relieve
-the load or retry through the failure* — and each of them is informed by
-no more than what the crashpad chose to print.
+That is the history for this blog, the pre-history goes back further.
+Each of these PRs assumes the same model of the bug — *the JIT is fragile
+under certain loads, and the fix is to relieve the load or retry through
+the failure* — and each of them is informed by no more than what the
+crashpad chose to print.
 
 ### April 12 — the upstream issue is filed
 
@@ -259,8 +261,8 @@ reproducer to chase it with.
 On a side note, I'd had a chance to
 talk to several folks from Modular at AMD AI Dev Day and at the Beyond
 Summit 2025, and the conversations all pointed the same direction: Mojo 1.0
-was coming this summer. The workaround
-zoo that accumulated during 0.26 was temporary and needed to be resolved before 1.0 finalized.
+was coming this summer. The workaround zoo that accumulated during 0.26
+was temporary and needed to be resolved before 1.0 finalized.
 I decided to upgrade, when the beta gets released, so paused all work. The initial
 beta release dropped a few days after AMD AI Dev Day.
 
@@ -303,7 +305,7 @@ on a Mojo version that was supposed to be past those flakes, with both
 adjacent excuses closed out.
 
 So I stopped trying to suppress the symptoms and started trying to
-*observe* the failure properly. The next ten days — what the rest of this
+*observe* the failure properly. The next few days — what the rest of this
 post is actually about — were spent building the diagnostic infrastructure 
 to solve the problem.
 
@@ -392,7 +394,7 @@ generates a real ELF core. Libkgen's handler never runs.
 This wrapper became the centerpiece of
 [`docs/dev/mojo-jit-crash-capture-core.md`](../../../docs/dev/mojo-jit-crash-capture-core.md).
 The first real cores arrived on May 11. What they showed did not match
-the working model I had been operating under for a month. The details
+the working model I had been operating under for months. The details
 of *what* they showed, and how each follow-on theory in turn failed to
 explain it, are the next chapter.
 
