@@ -109,9 +109,8 @@ Look at the dates on
 [modular/modular#6413](https://github.com/modular/modular/issues/6413) and
 [modular/modular#6433](https://github.com/modular/modular/issues/6433).
 6413 was filed on **April 12**. 6433 was filed mid-month and closed out
-on April 20. The first comment I posted on 6413 with *real cores* was
-**May 11**. The first ISA analysis was **May 12**. The AMD EPYC reveal
-was **May 13**.
+on April 20. The first comment I posted on 6413 with *real core dumps* was
+**May 11**.
 
 Between April 12 and May 8, I had nothing to go on but the crashpad: a
 non-zero exit out of `mojo` inside the container, intermittently, on a
@@ -161,7 +160,7 @@ crashed in libKGENCompilerRTShared.so inside Docker containers, but not
 natively, on Mojo 0.26.3.* The issue's reproduction section literally
 says *"this crash occurs non-deterministically in CI Docker (~40-60% of
 runs have at least one crash)."* I attached the crashpad. I listed the
-~30 tests that had crashed at least once. The conjectured cause in the
+tests that had crashed at least once. The conjectured cause in the
 issue body was *"a buffer overflow detection in glibc's fortified string
 functions, triggered during JIT compilation rather than user code
 execution."* I would spend the next four weeks acting on that conjecture,
@@ -188,7 +187,7 @@ Look at the merge dates and you can read the shape of the search:
   *"remove test-with-retry.sh and direct-wire mojo invocation (ADR-015 Action 2)"*
 
 ADR-015 named the policy out loud: *"flaky required CI checks."* The
-mental model was the JIT crashes randomly, and the engineering response
+mental model was the JIT crashes randomly, given its alpha nature, and the engineering response
 is to make our infrastructure tolerate randomness — better isolation, no
 shared state across tests, no retry sleights of hand.
 
@@ -254,7 +253,7 @@ collect locally pushed back against it.
 ### Four weeks of work that didn't crack it
 
 I want to be careful not to make April sound like a stall. It wasn't. I
-was working the problem every day — running tests in long loops on the
+was working the problem — running tests in long loops on the
 laptop, tweaking compile-unit shape, hunting for an input that would fail
 on demand. The PRs in the previous section are *every* one of those
 attempts that produced a code change worth merging. None of them
@@ -284,13 +283,13 @@ reproducer to chase it with.
 
 ### AMD AI Dev Day, Beyond Summit, and the Mojo 1.0 beta decision
 
-In parallel, the Mojo 1.0 beta had been released. I'd had a chance to
+On a side note, I'd had a chance to
 talk to several folks from Modular at AMD AI Dev Day and at the Beyond
-Summit 2025, and the conversations all pointed the same direction: 1.0
-was the line the project was being supported against, the workaround
-zoo accumulated during 0.26 was the *old* world, and a number of the
-JIT-side fragilities had been getting attention in the beta. I decided
-to upgrade.
+Summit 2025, and the conversations all pointed the same direction: Mojo 1.0
+was coming this summer. The workaround
+zoo that accumulated during 0.26 was temporary and needed to be resolved before 1.0 finalized.
+I decided to upgrade, when the beta gets released, so paused all work. The initial
+beta release dropped a few days after AMD AI Dev Day.
 
 That upgrade was not a trivial bump. It required a lot of changes across
 the codebase — new constructor signature (`out self` vs `mut self`),
@@ -332,9 +331,8 @@ adjacent excuses closed out.
 
 So I stopped trying to suppress the symptoms and started trying to
 *observe* the failure properly. The next ten days — what the rest of this
-post is actually about — were spent building the diagnostic infrastructure
-I should have built on April 13 but did not, because for a month I had
-two more comfortable explanations open against the same compiler.
+post is actually about — were spent building the diagnostic infrastructure 
+to solve the problem.
 
 ### The infrastructure I finally built (May 10–11)
 
@@ -436,7 +434,7 @@ actually say"*.
 ## Chapter 3: Six Hypotheses, Six Dead Ends
 
 Chapter 2 already buried one of these hypotheses by the time it ended:
-the *flaky-JIT-load* mental model that dominated all of April. I'm
+the *flaky-JIT-load* mental model that dominated for months. I'm
 re-stating it as H1 here anyway, because the way it died — when the gdb
 wrapper showed SIGILL, not SIGABRT — is what made every subsequent
 hypothesis necessary. The next five (H2 through H6) are the *post-May-11*
@@ -444,14 +442,28 @@ attempts to explain what a SIGILL inside libKGEN actually meant. Each
 follows the same shape: *I thought X. I gathered Y. Z is why it was
 wrong.*
 
-### H1: JIT volume / `__fortify_fail` overflow (April's whole month)
+### H1: JIT volume / `__fortify_fail` overflow
 
 The libKGEN crashpad output mentioned `__fortify_fail_abort`. That symbol
 appears when glibc's fortify-source machinery detects an overflowing
 `memcpy` / `strcpy` / similar. The natural reading: the JIT compiler is
-hitting a fortify-detected buffer overflow during heavy compilation. Day
-165 had been about virtual-memory exhaustion in the JIT; H1 was the same
-kind of story, one layer deeper.
+hitting a fortify-detected buffer overflow during heavy compilation.
+This was not the first time a libKGEN crash had been framed as a JIT
+resource problem on this project. The mitigation lineage going back to
+March —
+[PR #3958](https://github.com/HomericIntelligence/ProjectOdyssey/pull/3958)
+*(document Mojo JIT crash workaround)*,
+[PR #4744](https://github.com/HomericIntelligence/ProjectOdyssey/pull/4744)
+*(add retry logic for flaky JIT test groups)*,
+[PR #5161](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5161)
+*(targeted submodule imports to mitigate Data test JIT crashes)*,
+[PR #5171](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5171)
+*(per-file JIT crash retry for Mojo 0.26.1)* — had every one of them
+treated libKGEN signals as transient runtime faults in a JIT that
+needed less load, smaller compile units, or retries to converge.
+[Day 165](../04-20-2026/) and `modular/modular#6433` had even *confirmed*
+one specific JIT resource bug: virtual-memory exhaustion at the
+mid-3.6 GB mark. H1 was the same kind of story, one layer deeper.
 
 [PR #5389](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5389)
 added `just build` modes for AddressSanitizer and ThreadSanitizer so we
@@ -459,12 +471,12 @@ could re-run the failing tests under instrumentation. Twenty CI runs under
 ASAN. Zero ASAN reports. Real cores from the gdb wrapper, finally, showed
 the faulting signal was **SIGILL, not SIGABRT**. Fortify reports SIGABRT.
 SIGILL means *the silicon refused to decode this instruction*. That is a
-completely different failure class.
+completely different failure class!
 
 Theory dead. The `__fortify_fail_abort` symbol in the original crashpad
 was libKGEN's own handler routing through fortify on its way to
 `_exit` — a red herring of the kind that exists only because the handler
-ran instead of the kernel.
+ran instead of the kernel. If this handler didn't switch the signal.... One can only guess how much quicker this would have been resolved.
 
 ### H2: Tuple destructor use-after-free
 
@@ -514,7 +526,7 @@ The next anomaly came from
 [PR #5382](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5382)
 itself. After it merged, it had been failing at roughly 87 % on the
 target jobs through commit `379cf40a`. After a routine rebase onto main,
-the same branch suddenly went 100 % green. No code changed in the
+the same branch suddenly went *100%* green! No code changed in the
 rebase — just the merge base.
 
 The first theory was that `pixi install` is non-deterministic across hosts,
@@ -560,27 +572,42 @@ binary is the same. The pixi.lock is the same. The Mojo source we ship is
 the same. The bug appears and disappears across container-image rebuilds.
 **Whatever is varying is not in the package; it is in the container.**
 
-### H6: every non-AVX-512 Intel CPU triggers it
+### H6: a non-AVX CPU breaks the JIT
 
-By now the gdb wrapper had captured real cores. Five sites had emerged
-(see Chapter 6 for the full ISA inventory), all with AVX-512-only
-encodings. Site C2's `vmovss %xmm1{%k1}{z}` was the cleanest: `%k1` is
-an opmask register that does not exist before AVX-512F. The compiler had
-emitted an opmask-conditional move on a host whose kernel said it didn't
-have opmask registers.
+By now the gdb wrapper had captured real cores from CI, and the
+disassembly around `$pc` was no longer just bytes — it was instructions
+the silicon was refusing to decode. The chapters that follow will spend
+real time on which instructions those were. For now what mattered was
+the shape of the question they raised: the JIT had emitted bytes that
+the executing CPU could not run.
 
-The obvious-looking hypothesis: *the compiler is emitting AVX-512 because
-it thinks the host has AVX-512. The host doesn't. Any older Intel SKU
-without AVX-512 — Skylake desktop, Whiskey Lake, Haswell, anything —
-should reproduce.* My laptop, hermes, is Lunar Lake (also no AVX-512). It
-didn't reproduce 276 times in a row. But maybe the bug was sensitive to
-CPU generation in some specific way; maybe a Skylake or a Haswell would
-hit it where Lunar Lake didn't.
+The first hypothesis off that observation was a simple one:
+*maybe the JIT is making a CPU-feature assumption that my development
+hardware happens to satisfy and CI's hardware doesn't.* I run my
+day-to-day work on hermes, a Lunar Lake laptop with AVX2 + VNNI. The
+GHA runner — whatever it was, I had not yet bothered to check — was on
+the older end of the Azure pool. If the compiler was assuming a baseline
+SIMD level above what the runner could run, we'd see exactly this
+shape: green on the laptop, SIGILL in CI.
 
-H6 was wrong in a particular way. It led to the cross-CPU survey. The
-survey falsified it. But the falsification turned out to be the most
-useful experiment of the investigation, because it produced the data that
-made the *real* hypothesis visible.
+The experiment was to take the exact failing container image, pull it
+to the laptop, and run the same reproducer locally. Same binary, same
+stdlib, same library tree, same input — only the silicon changes. If
+the bug was a JIT-on-old-hardware mismatch, then on hermes the runtime
+would either fault in the same way (because the bug is hardware-agnostic
+inside the container) or succeed (because the laptop has whatever the
+GHA runner is missing). Either way, *one* of the two outcomes was a
+useful next data point.
+
+276 iterations on the laptop, in the failing image, against the
+deterministic reproducers from PR #5393. *Zero crashes.*
+
+That ruled the simplest version of H6 out, but it didn't fully kill the
+shape of the hypothesis. The laptop was newer than the CI runner had to
+be, not older. Maybe the bug was generation-specific in some narrower
+way — maybe an older Intel chip, a Haswell or a Skylake, would trip
+where Lunar Lake didn't. To answer that I needed more silicon than the
+one laptop. That experiment is Chapter 5.
 
 End of Chapter 3: six theories, six rejections. Almost a month of work.
 The crashes continued.
@@ -626,7 +653,7 @@ green by chance if the underlying failure rate were still 87 % is
 approximately P ≈ 2 × 10⁻²⁹. The bisect rejected the *"one of the five
 PRs contains the fix"* hypothesis with overwhelming confidence.
 
-The realization that crystallized over the next two coffees: we had been
+The realization that crystallized over the next two development periods: we had been
 chasing **a GHA cache key**. The `setup-container` composite action keys
 its cache on `hashFiles('Dockerfile', 'pixi.toml', 'pixi.lock')`. A rebase
 that touched any of those three files — even just a no-op merge that
@@ -647,11 +674,24 @@ Six hours of cache theory, killed by the next experiment.
 
 ## Chapter 5: The Cross-CPU Survey
 
-The cross-CPU survey was designed to test H6. The premise: take the exact
-760 MB cached image tar from a failing CI run, save it with `podman save`,
-rsync it over Tailscale to five physical Intel machines I had access to,
-load it on each, and run the reproducer. If H6 was right, one or more of
-those machines would crash in the same place.
+The cross-CPU survey extended H6's laptop experiment to a real fleet.
+H6 had only one local data point: hermes (Lunar Lake) didn't reproduce.
+That left two possibilities open. Either the bug needed a chip *older*
+than Lunar Lake — something pre-AVX2, or AVX2 without VNNI, or with a
+different microarchitectural quirk — or the bug needed something
+hermes shared with the GHA runner but I hadn't isolated yet.
+
+Both possibilities pointed at the same next experiment: run the exact
+failing container, with the exact failing binary, on as many different
+generations of Intel silicon as I could reach. If the bug was sensitive
+to a particular generation, *one* of those machines would catch it. If
+none of them did, the bug was sensitive to something other than the
+Intel line.
+
+The premise: take the exact 760 MB cached image tar from a failing CI
+run, save it with `podman save`, rsync it over Tailscale to every
+physical machine I had access to, load it on each, and run the
+reproducer. Five hosts available.
 
 The fleet:
 
@@ -675,15 +715,17 @@ completion.
 in any of them, twelve years of Intel microarchitecture variety, *not one
 crash*.
 
-That was the moment of pivot. H6 predicted *at least one* of these
+That was the moment of pivot. I had predicted *at least one* of these
 machines would crash. None did. Either the bug was sensitive to something
-none of these machines had, or the bug was sensitive to something all of
+none of these machines had, or it was sensitive to something all of
 them lacked relative to the GHA runner.
 
-I had been assuming the GHA runner was an older Intel SKU. That assumption
-had never been tested. I had a workflow that ran on the runner and
-captured `/proc/cpuinfo` to the build log. That capture had been sitting
-in `actions/runs/25746055958/logs/` for a week and I had never opened it.
+I had been assuming the GHA runner was the same sort of hardware I run
+on locally — a generic x86_64 Intel chip on the older end of the Azure
+pool. That assumption had never been tested. I had a workflow that ran
+on the runner and captured `/proc/cpuinfo` to the build log. That
+capture had been sitting in `actions/runs/25746055958/logs/` for a week
+and I had never opened it.
 
 I opened it.
 
@@ -715,20 +757,25 @@ flags            : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca
 sees no AVX-512 features at all.
 
 But the silicon is Zen 4. AMD EPYC 9V74 is a Genoa-family chip. *Zen 4
-hardware natively supports the full AVX-512 stack.* The hypervisor —
-Microsoft Hyper-V — masks the AVX-512 CPUID feature bits before they reach
-the guest kernel. The guest sees a Zen 4 chip without the AVX-512 silicon
-the underlying hardware actually has.
+hardware natively supports the full AVX-512 stack.* The host the runner
+is sitting on top of is, on the metal, capable of running every
+AVX-512 instruction the cores were faulting on. And yet
+`/proc/cpuinfo` inside the runner — the guest kernel's curated view of
+its own CPU — was telling every consumer of CPU features that no
+AVX-512 existed here.
 
 The cross-CPU survey had been designed to find an Intel SKU that
-reproduced the bug. What it found instead was that *the bug requires an
-AMD chip with AVX-512 silicon, running under a hypervisor that masks the
-AVX-512 CPUID bits while leaving family/model/stepping untouched*. None
-of my five Intel machines could possibly reproduce it. They have no
-AVX-512 silicon to find.
+reproduced the bug. What it found instead was that *no Intel SKU in my
+fleet could possibly reproduce the bug, because the bug requires
+silicon that has AVX-512 capability — and none of my Intel machines do*.
+The crash-host has AVX-512 capability that nothing in its software
+stack will admit to.
 
-End of Chapter 5: AMD EPYC silicon does have AVX-512. The kernel says no
-AVX-512. The compiler emits AVX-512. Why is the kernel lying — or who is?
+End of Chapter 5: the silicon has AVX-512. The kernel says it doesn't.
+The compiler is emitting AVX-512 anyway. Three layers of the system
+have to be examined to figure out which one is wrong — and *why*
+nobody other than the compiler is willing to acknowledge what the
+hardware actually is.
 
 ---
 
@@ -779,16 +826,49 @@ the post depends on knowing which registers exist where.
   both. See Intel SDM Volume 1 §13.3 *"Detection of XSAVE Feature
   Support"*: <https://cdrdv2-public.intel.com/671436/253665-sdm-vol-1.pdf>.
 
-Hyper-V's standard CPUID-masking behavior, on the EPYC 9V74 fleet, clears
-the AVX-512 feature bits in CPUID leaf 7 sub-leaf 0, and clears bits 5/6/7
-of the host-reported XCR0. Both signals consistently say *"this CPU does
-not support AVX-512 for the purposes of guest execution."* The compiler
-that emits AVX-512 anyway is in violation of every protocol the kernel
-provides for detecting AVX-512 availability.
+### How SIGILL gets here
 
-End of Chapter 6: the kernel says no AVX-512. The hypervisor masks the
-CPUID view consistently. But the compiler emits AVX-512 anyway. *Where
-is the compiler getting its information?*
+SIGILL is the kernel's response to the CPU's `#UD` (undefined-opcode)
+fault. The decode unit consumes the byte stream at the program counter
+one prefix and one opcode at a time. If the resulting instruction is
+not in the decoder's table of legal instructions *for this processor's
+configuration*, the decoder raises `#UD`. The kernel catches it, posts
+`SIGILL` to the offending process, and either delivers it (default
+action: dump core and exit) or lets the registered handler intercept.
+
+There are two distinct ways an instruction can be illegal "for this
+processor's configuration":
+
+1. **The decoder doesn't recognise the opcode at all.** No silicon in
+   this CPU model implements the encoding. EVEX-prefixed AVX-512
+   instructions are exactly this case on a chip without AVX-512
+   silicon: the EVEX prefix decode itself fails, because the decoder's
+   table has no AVX-512 entries.
+2. **The decoder recognises the opcode, but the OS hasn't enabled the
+   register state it needs.** This is the `XCR0` gate. Even on silicon
+   that has AVX-512 capability, executing an AVX-512 instruction is
+   `#UD` unless the OS-managed `XCR0` register has bits 5/6/7 set —
+   the bits that mark opmask, hi256, and hi16_zmm as "the kernel has
+   reserved space to save these on context switch." Without `XCR0`
+   permission, the CPU treats AVX-512 as not-enabled-for-this-process,
+   even though the silicon could physically execute it.
+
+Both modes raise the same SIGILL. The captured cores can't distinguish
+mode 1 from mode 2 by signal alone. The faulting instruction *bytes*
+are what matter — and they say AVX-512.
+
+The canonical Intel guidance for whether emitting AVX-512 is safe is to
+check `cpuid(7,0).ebx[16]` (AVX-512F supported by silicon) **and**
+`(xgetbv(0) & 0xe0) == 0xe0` (OS has enabled the state components).
+*Both*. See Intel SDM Vol. 1 §13.3 *"Detection of XSAVE Feature
+Support"*: <https://cdrdv2-public.intel.com/671436/253665-sdm-vol-1.pdf>.
+A compiler that emits AVX-512 without checking *both* of those is in
+violation of the documented protocol.
+
+End of Chapter 6: there are five distinct AVX-512 fault sites in this
+binary, each with its own ISA fingerprint. The kernel says no AVX-512.
+The compiler emits AVX-512 anyway. *Where is the compiler getting its
+information from, when every protocol it could query says no?*
 
 ---
 
@@ -799,11 +879,11 @@ isolating each independent layer of the CPU-feature-detection stack and
 asking it the same question. If three layers agreed and one disagreed, we
 would know exactly which layer was wrong.
 
-Four probes, each with no dependency on the others:
+Three probes first, each with no dependency on the others:
 
 1. **Kernel view** — read `/proc/cpuinfo`, filter `flags` for `avx*`.
    This is the kernel's curated view of CPU features, derived from CPUID
-   at boot and filtered by KVM/Hyper-V CPUID emulation.
+   at boot.
 2. **Silicon-direct view** — a C program that issues raw `cpuid`
    instructions and `xgetbv(0)` via inline assembly. Bypasses every
    abstraction.
@@ -811,10 +891,6 @@ Four probes, each with no dependency on the others:
    `__builtin_cpu_supports("avx512vl")`, etc. This is the standard
    gcc/clang runtime CPU detection builtin, populated by libgcc's
    `__cpu_features` ctor.
-4. **Driver-resolved view** — `mojo build --print-effective-target` on
-   a no-op `.mojo` file. This prints the Mojo driver's final
-   target-triple + target-cpu + target-features list — exactly what the
-   driver will hand to LLVM for codegen.
 
 The probe is committed at `repro/cpuid-probes/` on the
 `bisect/6413-positive-control` branch, along with a workflow
@@ -822,7 +898,87 @@ The probe is committed at `repro/cpuid-probes/` on the
 `workflow_dispatch`. The same probe also runs on every host in the
 cross-CPU fleet via Tailscale.
 
-The data flow that the probe maps out:
+The probe run on hermes (Lunar Lake) was the control. All three layers
+agreed: no AVX-512. Lunar Lake silicon does not have AVX-512 capability
+to begin with. Kernel view, raw CPUID, and `__builtin_cpu_supports` all
+say zero across the board. Clean.
+
+The probe run on epimetheus (Skylake desktop) was the next control.
+Skylake desktop maps to `skylake` (not `skylake-avx512`) in the LLVM
+table; the `skylake` static feature list also does not include AVX-512.
+Clean.
+
+The probe run on the GHA EPYC 9V74 runner. **Layers 1–3 unanimously
+report no AVX-512.** `/proc/cpuinfo` has no avx512 flags; raw `cpuid(7,0)`
+returns zero in all AVX-512 bit positions; `__builtin_cpu_supports` for
+each AVX-512 feature returns 0.
+
+That result was a surprise. Going into the probe my best guess was that
+the silicon would say *yes* (since cores were faulting on AVX-512 bytes
+that had to come from somewhere) but the kernel would say *no* (because
+that's what `/proc/cpuinfo` had already shown). Either layer 1 or layer
+2 was supposed to flip, and the divergence would point at the
+mechanism. Instead both layers agreed with each other, and both agreed
+the hardware had no AVX-512 of any kind.
+
+### Why doesn't anyone show AVX-512 support?
+
+The hardware *is* AVX-512 capable — Zen 4 silicon implements the full
+AVX-512 stack. The compiler is emitting AVX-512 from somewhere. Yet
+raw `cpuid` itself returns zero for AVX-512. The instruction the
+guest executes runs against the *guest's* view of the CPU, not the
+metal. Microsoft Hyper-V exposes a curated CPUID page to guests on
+EPYC 9V74: it programs the AVX-512 feature bits in leaf 7 sub-leaf 0
+to zero and clears bits 5/6/7 of the host-reported XCR0. From inside
+the guest, every well-behaved consumer of CPU features will agree
+*"this CPU does not have AVX-512 for the purposes of this VM"*. The
+guest `cpuid` instruction itself is part of that curation. There is
+no probe a guest can run against `cpuid` or `xgetbv` to discover the
+underlying hardware's true capabilities — the hypervisor has decided
+for it, before any of those instructions run.
+
+Why mask AVX-512? The honest answer for a cloud provider is that
+AVX-512 state is expensive to save and restore across context
+switches, AVX-512-induced clock-throttling can affect tenants
+sharing a host, and not every VM image is built with code paths
+that assume AVX-512. Masking the feature out of the guest's CPUID
+view is the documented, supported way to opt out: any compiler that
+checks `cpuid` before emitting AVX-512 will see zero and pick a
+narrower SIMD path.
+
+That is the explanation for layers 1–3. The kernel sees no AVX-512
+because the hypervisor masked it. `cpuid` sees no AVX-512 because the
+hypervisor masked it. `__builtin_cpu_supports` sees no AVX-512 because
+it reads `cpuid`, which the hypervisor masked.
+
+Which leaves one question: how did the compiler decide *yes* in
+defiance of every check the documented protocol prescribes?
+
+### Layer 4: the driver-resolved view
+
+The fourth probe addresses that question directly:
+
+4. **Driver-resolved view** — `mojo build --print-effective-target` on
+   a no-op `.mojo` file. This prints the Mojo driver's final
+   target-triple + target-cpu + target-features list — exactly what the
+   driver will hand to LLVM for codegen.
+
+Whatever the driver hands to LLVM is what gets used to make every
+emission decision in the JIT. If that list says AVX-512, the JIT
+emits AVX-512. We have three probes saying no, and one probe that
+shows the input to the actual emitter.
+
+Layer 4 reports `--target-cpu znver4` with twelve distinct AVX-512
+features in its target-features list:
+`+avx512f,+avx512vl,+avx512bw,+avx512dq,+avx512cd,+avx512vnni,+avx512vbmi,
++avx512vbmi2,+avx512bitalg,+avx512vpopcntdq,+avx512bf16,+avx512ifma`.
+
+Three layers agree. The driver disagrees. The driver is the layer that
+emits code. The driver is wrong.
+
+### Mapping the full data flow
+
+With all four probes in hand the mechanism can be drawn end-to-end:
 
 ```mermaid
 sequenceDiagram
@@ -843,31 +999,22 @@ sequenceDiagram
     Mojo->>Mojo: target_has_feature["avx512f"] = TRUE
     Note over Mojo: JIT emits vpternlogd / %zmm / %k1 / {1to4}
     Mojo->>Silicon: executes AVX-512 encoded bytes
-    Silicon->>Kernel: SIGILL (XCR0 not enabled for AVX-512 state)
+    Silicon->>Kernel: SIGILL
 ```
 
-The probe run on hermes (Lunar Lake) was the control. All four layers
-agreed: no AVX-512, no `znver4`, no `avx512f` in `--print-effective-target`.
-Lunar Lake's static feature list in `X86TargetParser.cpp` does not include
-AVX-512, so the LLVM-side fingerprinting agrees with the silicon. Clean.
+Note what the diagram says about *which CPUID fields* the hypervisor
+masks. Feature bits in leaf 7: masked. Family/model/stepping in leaf
+1: not masked. The driver fingerprints the CPU off the unmasked
+family/model, gets `znver4` back, and pulls a static feature list out
+of a table indexed by that name. That table claims AVX-512 because
+real `znver4` silicon does have AVX-512 — and the lookup never
+intersects that claim against what the masked feature bits actually
+say.
 
-The probe run on epimetheus (Skylake desktop) was the next control.
-Skylake desktop maps to `skylake` (not `skylake-avx512`) in the LLVM
-table; the `skylake` static feature list also does not include AVX-512.
-Clean.
-
-The probe run on the GHA EPYC 9V74 runner. **Layers 1–3 unanimously
-report no AVX-512.** `/proc/cpuinfo` has no avx512 flags; raw `cpuid(7,0)`
-returns zero in all AVX-512 bit positions; `__builtin_cpu_supports` for
-each AVX-512 feature returns 0. Layer 4 reports `--target-cpu znver4`
-with twelve distinct AVX-512 features in its target-features list:
-`+avx512f,+avx512vl,+avx512bw,+avx512dq,+avx512cd,+avx512vnni,+avx512vbmi,
-+avx512vbmi2,+avx512bitalg,+avx512vpopcntdq,+avx512bf16,+avx512ifma`.
-
-Three layers agree. The compiler disagrees. The compiler is wrong.
-
-We now know exactly which layer holds the bug. We do not yet know *why*
-that layer holds the bug. For that we have to read the open-source tree.
+We now know exactly which layer holds the bug. We do not yet know
+*why* the LLVM lookup is willing to claim features the surrounding
+CPUID view contradicts. For that we have to read the open-source
+tree.
 
 ---
 
@@ -996,8 +1143,8 @@ broader implications.
 
 ## Chapter 9: Token Budget — A Note on Cost
 
-This investigation burned approximately **2.0–2.4 M tokens** across
-three overlapping Claude Code sessions:
+This investigation burned at least **2M tokens** across
+three overlapping Claude Code sessions running non-stop for almost three days:
 
 | Session id | Size | Turns | Window |
 | --- | --- | --- | --- |
@@ -1008,24 +1155,30 @@ three overlapping Claude Code sessions:
 That is roughly **50 % of a weekly Claude Max Pro budget** (estimated
 4–5 M tokens per week at the highest tier).
 
-What did the tokens buy?
+What did those three days of tokens buy?
 
-- Six new Mnemosyne skills, cross-linked at the end of this post.
-- Three upstream issue threads: `#6412` (filesystem error from
-  `getAcceleratorArchOrEmpty`), `#6413` (this AVX-512 codegen
-  mismatch, with nine substantive comments), and `#6445` (a
-  separately surfaced KGEN JIT buffer overflow).
-- Four captured ELF cores from the gdb wrapper, with full
-  symbolicator output.
-- A four-layer CPU-feature-detection probe — generalizable methodology
-  for any *"wrong instruction on this host"* report.
+- Four captured ELF cores from the gdb wrapper, with full symbolicator
+  output (the first cores arrived May 11 right at the start of the
+  active sessions).
+- Nine substantive comments posted to `modular/modular#6413` between
+  May 10 and May 13 — the entire ISA breakdown, the cross-CPU survey
+  results, the AMD EPYC discovery, the source-code review, and the
+  four-layer probe smoking gun.
+- A four-layer CPU-feature-detection probe (Bash + C + Mojo) —
+  generalizable methodology for any *"wrong instruction on this host"*
+  report.
 - A five-host tailnet cross-CPU survey that falsified an entire
   hypothesis class in one afternoon.
 - A source-side root cause traced to a specific documented line of
   upstream LLVM, with the exact mechanism named.
+- Six new Mnemosyne skills written from the May 11–13 work and
+  cross-linked at the end of this post.
+- Lots and lots of testing, log reading, web searching, and
+  throw-away experiments — the part that doesn't show up in any
+  artifact but is most of where the tokens actually went.
 
 If you have been hesitant to spend serious model tokens on a single
-debugging investigation, this is the case for the case. The cost paid
+debugging investigation, this is the case for it. The cost paid
 for durable skills, a confirmed upstream report with a reproducer, and
 a methodology that will pay forward across the next year of CPU-
 feature investigations. The dollar value of *"my CI is reliable
@@ -1084,41 +1237,56 @@ The reproducer file `repro/repro_6413_python_import_os.mojo` (committed
 on the `bisect/6413-positive-control` branch) is two lines: `from python import Python` then `def main(): _ =
 Python.import_module("os")`. The crash happens during the `_strip` call
 in the Python interop initialization path. There is nothing in the
-user-visible source about AVX-512 or SIMD.
+user-visible source about AVX-512, SIMD, or the underlying hardware.
 
 ---
 
 ## Lessons Learned
 
-A bulleted list. Most are recurring themes from prior posts in this
-series, but this investigation reinforced them with new weight.
+This investigation reinforced a set of themes that recur across the
+blog series, and added one or two new ones.
+
+- **Push until you have a 100% reproducible test case, then stop
+  improvising and start measuring.** For four weeks I tried to make
+  a flaky failure go away by tightening the environment around it —
+  retry harnesses, UID fixes, import localization, ulimit bumps. None
+  of it worked, and most of it *couldn't* have worked, because none
+  of it had a deterministic input to verify against. The investigation
+  only made real progress once
+  [PR #5393](https://github.com/HomericIntelligence/ProjectOdyssey/pull/5393)
+  landed two single-file reproducers that crashed every time on the
+  failing image. A reproducer that fires at 100 % turns every
+  hypothesis into a measurable A/B test. A flake that fires at 40 %
+  turns every hypothesis into a guess. If you can get to 100 % first,
+  do that.
 
 - **Six rejected hypotheses is a feature, not a failure.** Each one
-  tightened the search space. The investigation could not have reached
-  the AMD EPYC reveal without the wrong hypotheses preceding it. H1
-  showed the signal was SIGILL not SIGABRT. H3 ruled out user-code
-  memory bugs and pointed at libKGEN itself. H4 chased the cache and
-  ultimately discovered the image content was different even though
-  the package was identical. H6 motivated the cross-CPU survey, whose
-  *failure* to reproduce is what made the AMD/Hyper-V mechanism
-  visible. Without H1–H6 we would have looked at the EPYC 9V74
-  cpuinfo line and not known what to do with it.
+  tightened the search space. H1 was the entire month of April and
+  what eventually died at the SIGILL/SIGABRT distinction. H3 ruled
+  out user-code memory bugs. H4 chased the cache and discovered the
+  GHA cache key was non-deterministic across rebases. H6 motivated
+  the cross-CPU survey, whose *failure* to reproduce is what pointed
+  at AMD/Hyper-V. Without H1–H6 the EPYC 9V74 cpuinfo line would have
+  been a curiosity, not a smoking gun.
 
 - **The four-layer probe is the first thing to run** for *"wrong
   instruction on this host"* reports. If layers 1–3 (kernel,
   silicon-direct, compiler-rt) agree and layer 4 (driver-resolved)
-  disagrees, the compiler is the bug surface. Save yourself a week.
+  disagrees, the compiler driver is the bug surface. Save yourself
+  a week.
 
 - **Cross-CPU surveys are cheap and high-signal.** Five physical
   machines via Tailscale, the exact same image, the exact same
   command — falsified an entire hypothesis class in one afternoon and
-  pointed at the actual mechanism by elimination.
+  pointed at the actual mechanism by elimination. The cost was a
+  90-second rsync per host and a 12-minute load-and-run cycle.
 
 - **`cpuid` is not authoritative for codegen decisions.** OS-enabled
   `XCR0` via `xgetbv` is the real source of truth for whether AVX-512
   is safe to *execute*. Intel SDM Vol. 1 §13.3 is the canonical
-  reference; any compiler driver that doesn't check `XCR0` is wrong
-  in the same class of way that this bug is wrong.
+  reference; any compiler driver that doesn't intersect its
+  CPU-name fingerprinting against `XCR0` is wrong in the same class
+  of way this bug is wrong.
 
 - **CI runner CPUs are not what your laptop is.** GitHub Actions
   Azure runners include AMD EPYC silicon in the pool. *"My laptop is
@@ -1126,20 +1294,26 @@ series, but this investigation reinforced them with new weight.
   `/proc/cpuinfo` and `cat /sys/class/dmi/id/sys_vendor` from CI
   jobs as standard practice; it costs nothing and saves weeks.
 
-- **Build the infrastructure before you trust the data.** Two weeks
-  of the early investigation were spent on hypotheses whose
-  evidentiary base — libKGEN's 28-byte crashpad output — was actively
-  misleading. The gdb wrapper from PR #5382 was the moment the
-  investigation became real. Until then I was debugging the handler,
-  not the bug.
+- **Adjacent issues are dangerous explanatory siblings.** While
+  `#6412` and `#6433` were open, every libKGEN crash could be
+  rationalised against one of them, and the temptation was to keep
+  applying targeted workarounds rather than confront a third
+  unknown. When *both* closed and the crash kept firing, only then
+  was there no rationalisation left. Watch for this pattern in your
+  own investigations.
 
-- **Tenacity matters.** Wall-clock for this investigation across the
-  active sessions was roughly 75 hours. The breakthrough came at
-  hour 60+. If we'd stopped at *"six rejected hypotheses, we tried
-  hard enough"* — a defensible decision — we'd never have found it.
-  The temptation to mark something as unreproducible and move on is
-  strongest exactly at the point where the next experiment would
-  have produced the answer.
+- **Build the infrastructure before you trust the data.** Four weeks
+  of the early investigation operated against libKGEN's 28-byte
+  crashpad output, which was actively misleading because the signal
+  was being filtered through libKGEN's own SIGABRT/SIGILL handler.
+  The gdb wrapper from PR #5382 was the moment the investigation
+  became real. Until then I was debugging the handler, not the bug.
+
+- **Tenacity matters.** Wall-clock for the active phase across three
+  overlapping Claude Code sessions was roughly 75 hours over three
+  days. The breakthrough came at hour 60+. The temptation to mark
+  something as unreproducible and move on is strongest exactly at
+  the point where the next experiment would have produced the answer.
 
 ---
 
