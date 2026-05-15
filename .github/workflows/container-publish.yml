@@ -102,8 +102,16 @@ jobs:
           TAGS=""
           SHORT_SHA="${SHA:0:7}"
 
-          # Branch tag
-          if [[ "$EVENT_NAME" == "push" && "$REF" == refs/heads/* ]]; then
+          # Branch tag — also emit on schedule (nightly) and workflow_dispatch
+          # so the downstream "Export image for SBOM" step can
+          # `podman save ...:${github.ref_name}` from the locally-built image
+          # without round-tripping through the registry. Previously only
+          # emitted on push, which left scheduled nightly runs without a
+          # local `:main` tag and failed SBOM export with "image not known".
+          if [[ ( "$EVENT_NAME" == "push" \
+                  || "$EVENT_NAME" == "schedule" \
+                  || "$EVENT_NAME" == "workflow_dispatch" ) \
+                && "$REF" == refs/heads/* ]]; then
             TAGS="${TAGS}${REGISTRY}/${IMAGE_NAME}:${REF_NAME}${SUFFIX} "
           fi
 
@@ -286,3 +294,35 @@ jobs:
           echo "# Interactive shell" >> $GITHUB_STEP_SUMMARY
           echo "podman run -it $REGISTRY/$IMAGE_NAME:$IMAGE_TAG bash" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Assert needs results (aggregator gate)
+        # Make `summary` the single required status-check context for this
+        # workflow. Branch protection should require `summary` instead of the
+        # individual `build-and-push (...)`, `test-images`, and `security-scan`
+        # contexts — those two are designed to skip on pull_request events
+        # (see their job-level `if:`), and a whole-job skip does NOT satisfy a
+        # required context. `success` || `skipped` is acceptable for them;
+        # `build-and-push` must always be `success` because it runs on every
+        # event.
+        env:
+          BUILD_RESULT: ${{ needs.build-and-push.result }}
+          TEST_IMAGES_RESULT: ${{ needs.test-images.result }}
+          SECURITY_SCAN_RESULT: ${{ needs.security-scan.result }}
+        run: |
+          fail=0
+          echo "build-and-push   = $BUILD_RESULT"
+          echo "test-images      = $TEST_IMAGES_RESULT"
+          echo "security-scan    = $SECURITY_SCAN_RESULT"
+          if [[ "$BUILD_RESULT" != "success" ]]; then
+            echo "::error::build-and-push must be 'success' (got: $BUILD_RESULT)"
+            fail=1
+          fi
+          case "$TEST_IMAGES_RESULT" in
+            success|skipped) ;;
+            *) echo "::error::test-images must be 'success' or 'skipped' (got: $TEST_IMAGES_RESULT)"; fail=1 ;;
+          esac
+          case "$SECURITY_SCAN_RESULT" in
+            success|skipped) ;;
+            *) echo "::error::security-scan must be 'success' or 'skipped' (got: $SECURITY_SCAN_RESULT)"; fail=1 ;;
+          esac
+          exit "$fail"
