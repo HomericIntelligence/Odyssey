@@ -147,6 +147,8 @@ for BRANCH in $ALL_BRANCHES; do
                 echo -e "${YELLOW}  Note: Someone else may have pushed changes. Please handle manually.${NC}"
                 if [ $IS_WORKTREE -eq 0 ]; then
                     cd "$MAIN_REPO_ROOT"
+                else
+                    maybe_remove_worktree "$BRANCH" "$WORK_DIR"
                 fi
                 ((FAILED++))
                 echo ""
