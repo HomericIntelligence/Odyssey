@@ -17,6 +17,42 @@ SKIPPED=0
 # Arrays to track issues
 declare -a CONFLICTS_BRANCHES
 declare -a DIRTY_BRANCHES
+declare -a CLEANED_WORKTREES
+
+# Remove the worktree at $2 (for branch $1) if it's safe to do so:
+#   - path is non-empty and not the main repo
+#   - no uncommitted/untracked changes
+#   - no open PR for the branch
+# Branch is intentionally NOT deleted — that is deferred to the user.
+# Caller must already have cd'd out of the worktree.
+maybe_remove_worktree() {
+    local branch="$1"
+    local wt_path="$2"
+
+    [ -z "$wt_path" ] && return 0
+    [ "$wt_path" = "$MAIN_REPO_ROOT" ] && return 0
+    [ ! -d "$wt_path" ] && return 0
+
+    if [ -n "$(git -C "$wt_path" status --porcelain 2>/dev/null)" ]; then
+        return 0
+    fi
+
+    local open_prs
+    if ! open_prs=$(gh pr list --head "$branch" --state open --json number 2>/dev/null); then
+        # gh failed (unauthenticated, offline, etc.) — preserve the worktree.
+        return 0
+    fi
+    if [ -n "$open_prs" ] && [ "$open_prs" != "[]" ]; then
+        return 0
+    fi
+
+    if git worktree remove "$wt_path" 2>/dev/null; then
+        CLEANED_WORKTREES+=("$branch")
+        echo -e "${GREEN}✓ Removed worktree for ${branch} (branch kept)${NC}"
+    else
+        echo -e "${YELLOW}  Could not remove worktree at ${wt_path}${NC}"
+    fi
+}
 
 # Get the main repository root
 MAIN_REPO_ROOT=$(git rev-parse --show-toplevel)
@@ -89,8 +125,9 @@ for BRANCH in $ALL_BRANCHES; do
 
         if [ "$MERGE_BASE" = "$CURRENT_HEAD" ]; then
             echo -e "${YELLOW}⊘ Branch is already up to date with main${NC}\n"
-            if [ $IS_WORKTREE -eq 0 ]; then
-                cd "$MAIN_REPO_ROOT"
+            cd "$MAIN_REPO_ROOT"
+            if [ $IS_WORKTREE -eq 1 ]; then
+                maybe_remove_worktree "$BRANCH" "$WORK_DIR"
             fi
             ((SKIPPED++))
             continue
@@ -120,8 +157,9 @@ for BRANCH in $ALL_BRANCHES; do
         fi
 
         echo -e "${GREEN}Successfully rebased and pushed${NC}\n"
-        if [ $IS_WORKTREE -eq 0 ]; then
-            cd "$MAIN_REPO_ROOT"
+        cd "$MAIN_REPO_ROOT"
+        if [ $IS_WORKTREE -eq 1 ]; then
+            maybe_remove_worktree "$BRANCH" "$WORK_DIR"
         fi
         ((SUCCEEDED++))
     else
@@ -142,9 +180,13 @@ for BRANCH in $ALL_BRANCHES; do
         ((FAILED++))
     fi
 
-    # Check for uncommitted changes in the branch
-    if ! git diff-index --quiet HEAD -- 2>/dev/null || [ -n "$(git ls-files --others --exclude-standard)" ]; then
-        DIRTY_BRANCHES+=("$BRANCH")
+    # Check for uncommitted changes in the branch.
+    # Skip if the worktree was just removed inline (directory no longer exists).
+    if [ -d "$WORK_DIR" ]; then
+        if ! git -C "$WORK_DIR" diff-index --quiet HEAD -- 2>/dev/null \
+           || [ -n "$(git -C "$WORK_DIR" ls-files --others --exclude-standard 2>/dev/null)" ]; then
+            DIRTY_BRANCHES+=("$BRANCH")
+        fi
     fi
 done
 
@@ -194,57 +236,15 @@ if [ ${#DIRTY_BRANCHES[@]} -gt 0 ]; then
     echo ""
 fi
 
-# Stale worktree cleanup
-echo -e "${BLUE}=== Checking for stale worktrees ===${NC}"
-STALE_REMOVED=0
-declare -a STALE_BRANCHES
-
-# Iterate over all worktrees (skip the main repo itself)
-while IFS= read -r WT_PATH; do
-    [ -z "$WT_PATH" ] && continue
-    # Skip the main repo root
-    [ "$WT_PATH" = "$MAIN_REPO_ROOT" ] && continue
-
-    # Get the branch for this worktree
-    WT_BRANCH=$(git worktree list --porcelain 2>/dev/null | \
-      awk -v wt="$WT_PATH" '/^worktree /{path=$2} /^branch / && path == wt {sub("refs/heads/", "", $2); print $2}')
-    [ -z "$WT_BRANCH" ] && continue
-
-    # Check for uncommitted changes
-    if [ -n "$(git -C "$WT_PATH" status --porcelain 2>/dev/null)" ]; then
-        continue
-    fi
-
-    # Check for open PRs
-    OPEN_PRS=$(gh pr list --head "$WT_BRANCH" --state open --json number 2>/dev/null)
-    if [ -n "$OPEN_PRS" ] && [ "$OPEN_PRS" != "[]" ]; then
-        continue
-    fi
-
-    # No uncommitted changes and no open PR — remove stale worktree
-    echo -e "${YELLOW}Removing stale worktree: ${WT_BRANCH} (${WT_PATH})${NC}"
-    if git worktree remove "$WT_PATH" 2>/dev/null; then
-        git branch -d "$WT_BRANCH" 2>/dev/null
-        STALE_BRANCHES+=("$WT_BRANCH")
-        ((STALE_REMOVED++))
-    else
-        echo -e "${RED}✗ Failed to remove worktree: ${WT_PATH}${NC}"
-    fi
-done < <(git worktree list --porcelain 2>/dev/null | awk '/^worktree /{print $2}')
-
-# Prune any dangling worktree references
+# Prune any dangling worktree references left over from inline removals
 git worktree prune 2>/dev/null
 
-# Report stale cleanup results
-if [ $STALE_REMOVED -gt 0 ]; then
-    echo ""
-    echo -e "${GREEN}=== Stale Worktrees Removed: ${STALE_REMOVED} ===${NC}"
-    for BRANCH in "${STALE_BRANCHES[@]}"; do
+if [ ${#CLEANED_WORKTREES[@]} -gt 0 ]; then
+    echo -e "${GREEN}=== Worktrees Removed Inline: ${#CLEANED_WORKTREES[@]} ===${NC}"
+    for BRANCH in "${CLEANED_WORKTREES[@]}"; do
         echo -e "  ${GREEN}✓ ${BRANCH}${NC}"
     done
     echo ""
-else
-    echo -e "${GREEN}No stale worktrees found.${NC}\n"
 fi
 
 if [ $FAILED -gt 0 ]; then
