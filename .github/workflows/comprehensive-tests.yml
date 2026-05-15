@@ -242,9 +242,9 @@ jobs:
     # Each matrix entry is its own GHA runner, so virtual-address contention
     # between jobs is impossible; within one runner this fan-out tests whether
     # the per-process reservation is now small enough that this no longer matters.
-    # If JIT crashes return (modular/modular#6413), they will be captured by the
-    # coredump-capture action; modular/modular#6433 returning would manifest as
-    # OOM kills, not libKGEN signals.
+    # If JIT crashes return (modular/modular#6413), investigate via local
+    # repro per docs/dev/mojo-jit-crash-capture-core.md; modular/modular#6433
+    # returning would manifest as OOM kills, not libKGEN signals.
     timeout-minutes: 60
     name: "Comprehensive Mojo Tests"
 
@@ -275,14 +275,6 @@ jobs:
           free -h
           echo "ulimit -v: $(ulimit -v 2>/dev/null || echo unlimited)"
           echo "Group: ${{ matrix.group }}"
-
-      # Core-dump capture for the libKGEN crash (modular/modular#6413).
-      # See `.github/actions/coredump-capture/action.yml` for full rationale.
-      - name: Enable core dumps (setup)
-        uses: ./.github/actions/coredump-capture
-        with:
-          phase: setup
-          job-name: comprehensive-${{ matrix.group }}
 
       - name: mkdir test-results
         run: mkdir -p test-results
@@ -448,14 +440,6 @@ jobs:
           path: test-results/
           retention-days: 7
 
-      # Bundle core dumps + matching mojo / libKGEN binaries (composite action)
-      - name: Collect crash bundle
-        if: always()
-        uses: ./.github/actions/coredump-capture
-        with:
-          phase: collect
-          job-name: comprehensive-${{ matrix.group }}
-
   # ============================================================================
   # Configs Tests
   # ============================================================================
@@ -480,12 +464,6 @@ jobs:
       - name: Install Just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
 
-      - name: Enable core dumps (modular/modular#6413)
-        uses: ./.github/actions/coredump-capture
-        with:
-          phase: setup
-          job-name: configs
-
       - name: Run Configs tests
         run: just test-group tests/configs "test_*.mojo"
 
@@ -496,13 +474,6 @@ jobs:
           name: test-results-Configs
           path: test-results/
           retention-days: 7
-
-      - name: Collect crash bundle
-        if: always()
-        uses: ./.github/actions/coredump-capture
-        with:
-          phase: collect
-          job-name: configs
 
   # ============================================================================
   # NOTE: Training tests moved to weekly workflow (requires dataset downloads)
@@ -527,12 +498,6 @@ jobs:
       - name: Install Just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
 
-      - name: Enable core dumps (modular/modular#6413)
-        uses: ./.github/actions/coredump-capture
-        with:
-          phase: setup
-          job-name: benchmarks
-
       - name: Run Benchmarks tests
         run: just test-group tests/shared/benchmarks "bench_*.mojo"
 
@@ -543,13 +508,6 @@ jobs:
           name: test-results-Benchmarks
           path: test-results/
           retention-days: 7
-
-      - name: Collect crash bundle
-        if: always()
-        uses: ./.github/actions/coredump-capture
-        with:
-          phase: collect
-          job-name: benchmarks
 
   # ============================================================================
   # Core Layers Tests
@@ -570,12 +528,6 @@ jobs:
       - name: Install Just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
 
-      - name: Enable core dumps (modular/modular#6413)
-        uses: ./.github/actions/coredump-capture
-        with:
-          phase: setup
-          job-name: core-layers
-
       - name: Run Core Layers tests
         run: just test-group tests/shared/core/layers "test_*.mojo"
 
@@ -586,13 +538,6 @@ jobs:
           name: test-results-Core-Layers
           path: test-results/
           retention-days: 7
-
-      - name: Collect crash bundle
-        if: always()
-        uses: ./.github/actions/coredump-capture
-        with:
-          phase: collect
-          job-name: core-layers
 
   # ============================================================================
   # Python Tests
@@ -856,12 +801,6 @@ jobs:
       - name: Install Just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
 
-      - name: Enable core dumps (modular/modular#6413)
-        uses: ./.github/actions/coredump-capture
-        with:
-          phase: setup
-          job-name: gradient-checking
-
       - name: Run gradient checking tests
         run: |
           mkdir -p test-results
@@ -896,13 +835,6 @@ jobs:
           name: test-results-Gradient-Checking-Tests
           path: test-results/
           retention-days: 7
-
-      - name: Collect crash bundle
-        if: always()
-        uses: ./.github/actions/coredump-capture
-        with:
-          phase: collect
-          job-name: gradient-checking
 
       - name: Check test results
         if: failure()
@@ -982,12 +914,6 @@ jobs:
 
       - name: Install Just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3  # v4.0.0
-
-      - name: Enable core dumps (modular/modular#6413)
-        uses: ./.github/actions/coredump-capture
-        with:
-          phase: setup
-          job-name: data-utilities
 
       - name: Check if test files exist
         id: check-tests
@@ -1069,13 +995,6 @@ jobs:
           name: test-results-Data-Utilities
           path: test-results/
           retention-days: 7
-
-      - name: Collect crash bundle
-        if: always()
-        uses: ./.github/actions/coredump-capture
-        with:
-          phase: collect
-          job-name: data-utilities
 
   # ============================================================================
   # Test Metrics / Coverage (absorbed from coverage.yml)
