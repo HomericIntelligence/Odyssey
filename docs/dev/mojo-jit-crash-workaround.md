@@ -151,6 +151,83 @@ higher memory pressure than a single test file produces. The targeted import fix
 the correct defensive measure -- it reduces compilation footprint by ~95% per test file,
 which lowers the probability of hitting the JIT buffer overflow regardless of environment.
 
+## GDB Wrapper: Capturing Real ELF Cores (modular/modular#6413)
+
+PRs #5380 and #5382 wired up host-side `core_pattern` (path-based then pipe-based) but
+produced **zero core files** across all CI runs even when the libKGEN JIT crash signature
+appeared in test logs:
+
+```text
+libKGENCompilerRTShared.so+0x6ef7b → +0x6c156 → +0x6fc27
+mojo: error: execution crashed
+```
+
+Root cause: libKGEN registers an in-process SIGABRT handler that catches the abort, prints
+its own 3-frame post-handler trace, and exits cleanly. The kernel never generates a core for
+a process that handles its own fatal signal.
+
+### The Fix: `scripts/mojo-under-gdb.sh`
+
+Mojo test invocations are wrapped in `gdb -batch` with:
+
+- `handle SIGABRT stop nopass` — gdb intercepts the signal BEFORE libKGEN's handler runs
+- `generate-core-file` — dumps a real ELF core on the stopped inferior
+- `bt full`, `info threads`, `info sharedlibrary` — captures rich text context to a log
+
+This produces two files per crash in `crash-bundle/cores/`:
+
+- `core.gdb.<timestamp>.mojo` — real ELF core (multi-MB, readable by gdb offline)
+- `gdb-<timestamp>.log` — full pre-signal backtrace + threads + shared library map
+
+### Using the Wrapper Locally
+
+The wrapper is **disabled by default** (`MOJO_TEST_UNDER_GDB` defaults to 0 so local dev
+runs mojo directly with no overhead).
+
+To reproduce a crash locally with gdb capture:
+
+```bash
+# One test file
+MOJO_TEST_UNDER_GDB=1 just test-group tests/shared/core \
+    "test_gradient_checking_basic.mojo"
+
+# The wrapper writes to crash-bundle/cores/ by default
+ls crash-bundle/cores/
+# core.gdb.<ts>.mojo   (ELF core)
+# gdb-<ts>.log         (text backtrace)
+```
+
+To completely bypass the wrapper when gdb is unavailable:
+
+```bash
+MOJO_UNDER_GDB=0 MOJO_TEST_UNDER_GDB=1 just test-group ...
+# or simply omit MOJO_TEST_UNDER_GDB (defaults to 0)
+```
+
+### Analyzing a Captured Core
+
+```bash
+# Download crash-bundle artifact from the GitHub Actions run
+cd crash-bundle/
+gdb symbols/mojo cores/core.gdb.<timestamp>.mojo
+# Inside gdb:
+(gdb) bt
+(gdb) info threads
+(gdb) frame N   # navigate to the faulting frame
+```
+
+The `gdb-<timestamp>.log` text file contains the same information without needing a
+local gdb installation.
+
+### CI Configuration
+
+`MOJO_TEST_UNDER_GDB=1` is set in the `env:` block of all Mojo test jobs in
+`.github/workflows/comprehensive-tests.yml`. Build-only jobs are unaffected.
+
+The coredump-capture composite action (`.github/actions/coredump-capture/action.yml`)
+collects both kernel cores and gdb-written files, and bundles gdb itself into
+`crash-bundle/symbols/` for offline analysis.
+
 ## References
 
 - [Issue #5108](https://github.com/HomericIntelligence/ProjectOdyssey/issues/5108) -- JIT crash comprehensive tracking

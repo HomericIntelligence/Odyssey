@@ -76,7 +76,22 @@ _run cmd:
 			# (modular/modular#6413). Pairs with the host-side core_pattern in
 			# .github/actions/coredump-capture/action.yml.
 			HOME_FIXUP='if [ ! -w "$HOME" ]; then export HOME="/tmp/mojo-home-$(id -u)"; mkdir -p "$HOME/.modular" "$HOME/.pixi"; fi; ulimit -c unlimited 2>/dev/null || echo "warn: ulimit -c rejected" >&2;'
-			podman compose exec -e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} -T {{podman_service}} bash -c "$HOME_FIXUP {{cmd}}"
+			# Forward CI/coredump env vars into the container. Without these
+			# -e passthroughs, MOJO_TEST_UNDER_GDB / CRASH_BUNDLE_DIR set on
+			# the GHA runner are NOT visible to the bash recipe inside the
+			# container, so the gdb wrapper would be silently skipped.
+			#
+			# NOTE: docker-compose (cli-plugin) rejects bare `-e VARNAME`
+			# (without `=value`) with "badly formed, must be key=value" — we
+			# must build the args conditionally with explicit values.
+			EXTRA_ENV=()
+			if [ -n "${MOJO_TEST_UNDER_GDB-}" ]; then EXTRA_ENV+=(-e "MOJO_TEST_UNDER_GDB=${MOJO_TEST_UNDER_GDB}"); fi
+			if [ -n "${MOJO_UNDER_GDB-}" ];      then EXTRA_ENV+=(-e "MOJO_UNDER_GDB=${MOJO_UNDER_GDB}"); fi
+			if [ -n "${CRASH_BUNDLE_DIR-}" ];    then EXTRA_ENV+=(-e "CRASH_BUNDLE_DIR=${CRASH_BUNDLE_DIR}"); fi
+			podman compose exec \
+				-e USER_ID={{USER_ID}} -e GROUP_ID={{GROUP_ID}} \
+				"${EXTRA_ENV[@]}" \
+				-T {{podman_service}} bash -c "$HOME_FIXUP {{cmd}}"
 		fi
 	else
 		echo "Error: Podman compose container '{{podman_service}}' is not running."
@@ -801,6 +816,11 @@ _test-group-inner path pattern:
         exit 1
     fi
 
+    # gdb wrapper path: set MOJO_TEST_UNDER_GDB=1 in CI to intercept the
+    # in-process SIGABRT handler in libKGEN before it swallows the crash
+    # (modular/modular#6413). Default 0 so local dev runs mojo directly.
+    CORE_DIR="${CRASH_BUNDLE_DIR:-${REPO_ROOT}/crash-bundle/cores}"
+
     # Run each test file
     for test_file in $test_files; do
         if [ -f "$test_file" ]; then
@@ -811,13 +831,25 @@ _test-group-inner path pattern:
             if ! ulimit -v unlimited 2>/dev/null; then
                 echo "warn: 'ulimit -v unlimited' rejected by environment" >&2
             fi
-            pixi run mojo --Werror -debug-level=line-tables -I "$REPO_ROOT" -I . "$test_file" || test_exit=$?
-            if [ "${test_exit:-0}" -eq 0 ]; then
+            test_exit=0
+            # gdb-wrapper branch (CI default): intercept libKGEN's in-process
+            # SIGABRT handler before it swallows the crash (modular/modular#6413).
+            # Local dev defaults to MOJO_TEST_UNDER_GDB=0 → direct mojo invocation.
+            if [ "${MOJO_TEST_UNDER_GDB:-0}" = "1" ]; then
+                if ! bash "$REPO_ROOT/scripts/mojo-under-gdb.sh" "$CORE_DIR" \
+                        --Werror -debug-level=line-tables -I "$REPO_ROOT" -I . "$test_file"; then
+                    test_exit=$?
+                fi
+            else
+                if ! pixi run mojo --Werror -debug-level=line-tables -I "$REPO_ROOT" -I . "$test_file"; then
+                    test_exit=$?
+                fi
+            fi
+            if [ "${test_exit}" -eq 0 ]; then
                 passed_count=$((passed_count + 1))
             else
                 failed_count=$((failed_count + 1))
                 failed_tests="$failed_tests\n  - $test_file"
-                test_exit=0
             fi
         fi
     done
