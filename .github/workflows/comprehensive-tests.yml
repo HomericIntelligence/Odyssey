@@ -22,6 +22,11 @@ on:
         required: false
         default: false
         type: boolean
+      enable_gdb_cores:
+        description: 'Capture gdb core dumps for libKGEN JIT crashes (modular/modular#6413)'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -253,7 +258,7 @@ jobs:
       # the crash. Without gdb, the kernel never generates a core because the
       # process handles SIGABRT itself and exits cleanly.
       # Set to "0" locally to skip gdb overhead (default when unset).
-      MOJO_TEST_UNDER_GDB: "1"
+      MOJO_TEST_UNDER_GDB: ${{ (github.event_name == 'workflow_dispatch' && inputs.enable_gdb_cores) && '1' || '0' }}
       CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
 
     strategy:
@@ -462,7 +467,7 @@ jobs:
     timeout-minutes: 15
     name: "Configs"
     env:
-      MOJO_TEST_UNDER_GDB: "1"
+      MOJO_TEST_UNDER_GDB: ${{ (github.event_name == 'workflow_dispatch' && inputs.enable_gdb_cores) && '1' || '0' }}
       CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
 
     steps:
@@ -499,7 +504,7 @@ jobs:
     timeout-minutes: 15
     name: "Benchmarks"
     env:
-      MOJO_TEST_UNDER_GDB: "1"
+      MOJO_TEST_UNDER_GDB: ${{ (github.event_name == 'workflow_dispatch' && inputs.enable_gdb_cores) && '1' || '0' }}
       CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
 
     steps:
@@ -532,7 +537,7 @@ jobs:
     timeout-minutes: 15
     name: "Core Layers"
     env:
-      MOJO_TEST_UNDER_GDB: "1"
+      MOJO_TEST_UNDER_GDB: ${{ (github.event_name == 'workflow_dispatch' && inputs.enable_gdb_cores) && '1' || '0' }}
       CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
 
     steps:
@@ -808,7 +813,7 @@ jobs:
     timeout-minutes: 15
     name: "Gradient Checking Tests"
     env:
-      MOJO_TEST_UNDER_GDB: "1"
+      MOJO_TEST_UNDER_GDB: ${{ (github.event_name == 'workflow_dispatch' && inputs.enable_gdb_cores) && '1' || '0' }}
       CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
 
     steps:
@@ -925,7 +930,7 @@ jobs:
     timeout-minutes: 15
     name: "Data Utilities Test Suite"
     env:
-      MOJO_TEST_UNDER_GDB: "1"
+      MOJO_TEST_UNDER_GDB: ${{ (github.event_name == 'workflow_dispatch' && inputs.enable_gdb_cores) && '1' || '0' }}
       CRASH_BUNDLE_DIR: /workspace/crash-bundle/cores
 
     steps:
