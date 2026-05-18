@@ -2,7 +2,8 @@
 
 **Date**: 2026-05-08
 **Mojo version surveyed**: `1.0.0b2.dev2026050805`
-**Survey scope**: `src/projectodyssey/` and `tools/` source files (excluding `tests/`, `.pixi/`, `worktrees/`, `repro/`, `examples/`)
+**Survey scope**: `src/projectodyssey/` and `tools/` source files
+(excluding `tests/`, `.pixi/`, `worktrees/`, `repro/`, `examples/`)
 
 ## Summary
 

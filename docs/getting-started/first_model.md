@@ -375,5 +375,5 @@ var train_loader = BatchLoader(
 - **[Repository Structure](repository-structure.md)** — understand where code lives
 - **[Installation Guide](installation.md)** — detailed build and package setup
 - **[Quickstart Guide](quickstart.md)** — 5-minute introduction to the environment
-- **`src/projectodyssey/` source** — browse `src/projectodyssey/core/`, `src/projectodyssey/training/`, `src/projectodyssey/data/` directly
+- **`src/projectodyssey/` source** — browse `core/`, `training/`, `data/` subdirectories directly
 - **`papers/_template/`** — starting point for a new paper implementation

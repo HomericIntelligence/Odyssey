@@ -266,7 +266,7 @@ repos:
   - repo: local
     hooks:
       - id: audit-shared-links
-        name: Audit src/projectodyssey/ links in CLAUDE.md
+        name: Audit .claude/shared/ links in CLAUDE.md
         description: Ensure every .claude/shared/*.md file is listed in CLAUDE.md Quick Links
         entry: python scripts/audit_shared_links.py
         language: system

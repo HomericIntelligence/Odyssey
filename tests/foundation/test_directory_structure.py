@@ -375,7 +375,9 @@ class TestDirectoryHierarchy:
             papers_dir: Papers directory path
             shared_dir: Shared directory path
         """
-        assert papers_dir.parent == shared_dir.parent, "papers/ and src/projectodyssey/ must be in same parent directory"
+        assert papers_dir.parent == shared_dir.parent, (
+            "papers/ and src/projectodyssey/ must be in same parent directory"
+        )
 
     def test_template_is_child_of_papers(self, papers_dir: Path, template_dir: Path) -> None:
         """

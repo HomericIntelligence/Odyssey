@@ -82,7 +82,7 @@ def shared_dir(repo_root: Path) -> Path:
     Returns:
         Path to shared directory
     """
-    return repo_root / "shared"
+    return repo_root / "src" / "projectodyssey"
 
 
 @pytest.fixture

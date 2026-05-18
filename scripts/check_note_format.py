@@ -24,7 +24,7 @@ from typing import List, Tuple
 EXCLUDED_DIRS = {".worktrees", ".pixi", "build", ".git", "__pycache__", ".mypy_cache"}
 
 # Source directories to check when scanning from repo root
-SOURCE_DIRS = ["benchmarks", "examples", "papers", "scripts", "shared", "tests"]
+SOURCE_DIRS = ["benchmarks", "examples", "papers", "scripts", "src/projectodyssey", "tests"]
 
 # Pattern that matches non-compliant NOTE comments.
 # Compliant format requires # NOTE followed by optional space then '('.
