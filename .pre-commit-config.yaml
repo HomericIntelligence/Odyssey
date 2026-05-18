@@ -76,7 +76,7 @@ repos:
         description: Format Mojo source files using mojo format (GLIBC-compatible wrapper)
         entry: scripts/mojo-format-compat.sh
         language: script
-        files: ^(benchmarks|examples|papers|scripts|shared|tests)/.*\.(mojo|🔥)$
+        files: ^(benchmarks|examples|papers|scripts|src/projectodyssey|tests)/.*\.(mojo|🔥)$
         pass_filenames: true
       - id: check-print-debug-artifacts
         name: Check for NOTE/TODO/FIXME in print statements
@@ -91,7 +91,7 @@ repos:
         description: Prevent use of invalid List variadic constructor (use list literals instead)
         entry: 'List\[.*\]\([0-9]'
         language: pygrep
-        files: ^(benchmarks|examples|papers|scripts|shared|tests)/.*\.(mojo|🔥)$
+        files: ^(benchmarks|examples|papers|scripts|src/projectodyssey|tests)/.*\.(mojo|🔥)$
         types: [text]
       - id: no-matmul-call-sites
         name: Enforce no .__matmul__() call sites
@@ -266,7 +266,7 @@ repos:
   - repo: local
     hooks:
       - id: audit-shared-links
-        name: Audit shared/ links in CLAUDE.md
+        name: Audit .claude/shared/ links in CLAUDE.md
         description: Ensure every .claude/shared/*.md file is listed in CLAUDE.md Quick Links
         entry: python scripts/audit_shared_links.py
         language: system

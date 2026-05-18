@@ -86,7 +86,7 @@ Total ≈ (B × 53 KB) + 241 KB + dataset_memory
 
 ### Built-in Limits
 
-ML Odyssey enforces the following limits (defined in `shared/core/extensor.mojo`):
+ML Odyssey enforces the following limits (defined in `src/projectodyssey/core/extensor.mojo`):
 
 - **MAX_TENSOR_BYTES**: 2,000,000,000 bytes (2 GB) - Hard limit per tensor
 - **WARN_TENSOR_BYTES**: 500,000,000 bytes (500 MB) - Warning threshold
@@ -103,7 +103,7 @@ Consider using smaller batch sizes.
 Use the `calculate_max_batch_size()` helper function:
 
 ```mojo
-from shared.core.extensor import calculate_max_batch_size
+from projectodyssey.core.extensor import calculate_max_batch_size
 
 # For EMNIST images (1, 28, 28) with float32
 var sample_shape = List[Int]()

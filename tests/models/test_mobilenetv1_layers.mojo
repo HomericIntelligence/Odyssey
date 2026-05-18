@@ -7,7 +7,7 @@ Tests cover:
 """
 
 
-from tests.shared.conftest import (
+from tests.projectodyssey.conftest import (
     assert_almost_equal,
     assert_close_float,
     assert_equal,
@@ -15,7 +15,7 @@ from tests.shared.conftest import (
     assert_shape,
     assert_true,
 )
-from shared.tensor.any_tensor import (
+from projectodyssey.tensor.any_tensor import (
     AnyTensor,
     zeros,
     ones,
@@ -23,16 +23,19 @@ from shared.tensor.any_tensor import (
     zeros_like,
     ones_like,
 )
-from shared.core.conv import (
+from projectodyssey.core.conv import (
     depthwise_conv2d,
     depthwise_conv2d_backward,
     depthwise_conv2d_no_bias,
     conv2d,
     conv2d_backward,
 )
-from shared.core.activation import relu, relu_backward
-from shared.core.layers.batchnorm import BatchNorm2dLayer
-from shared.core.pooling import global_avgpool2d, global_avgpool2d_backward
+from projectodyssey.core.activation import relu, relu_backward
+from projectodyssey.core.layers.batchnorm import BatchNorm2dLayer
+from projectodyssey.core.pooling import (
+    global_avgpool2d,
+    global_avgpool2d_backward,
+)
 
 
 def test_depthwise_conv2d_initialization() raises:

@@ -80,11 +80,11 @@ test output was produced. This timing — before output — is the hallmark of a
 failure rather than a runtime failure. The working theory was:
 
 > Long module-level import chains force the JIT to compile a large transitive closure of
-> symbols before executing any test. Files with `from shared.core.loss_utils import ...`
+> symbols before executing any test. Files with `from projectodyssey.core.loss_utils import ...`
 > at module level trigger `elementwise.mojo` (1650 lines) and `dtype_dispatch.mojo`
 > (1520 lines) to be compiled upfront. This compilation volume overwhelms the JIT.
 
-The fix was per-function imports: move all `from shared.core import ...` statements into
+The fix was per-function imports: move all `from projectodyssey.core import ...` statements into
 function bodies so they are compiled on-demand rather than all at once.
 
 This fix was applied to `reduction.mojo`, `conv.mojo`, `pooling.mojo`, `matrix.mojo`,

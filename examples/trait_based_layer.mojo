@@ -21,9 +21,9 @@ Usage:
     mojo run examples/trait_based_layer.mojo
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros, zeros_like
-from shared.core.linear import linear, linear_backward
-from shared.core.traits import (
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, zeros_like
+from projectodyssey.core.linear import linear, linear_backward
+from projectodyssey.core.traits import (
     Differentiable,
     Parameterized,
     Serializable,
@@ -204,7 +204,7 @@ struct FullyConnectedLayer(Differentiable, Parameterized):
 
         Note:
             Computes gradients for weights and bias, storing them internally.
-            The autograd system (shared/autograd/tape.mojo) provides automatic
+            The autograd system (src/projectodyssey/autograd/tape.mojo) provides automatic
             differentiation for training loops. This manual implementation
             demonstrates the mathematical formulation.
         """
@@ -337,22 +337,22 @@ struct BatchNormLayer(Differentiable, Parameterized, Serializable, Trainable):
         """Forward pass: Normalize, scale, and shift.
 
         Note:
-            Full batch normalization is available in shared/core/normalization.mojo
+            Full batch normalization is available in src/projectodyssey/core/normalization.mojo
             with batch_norm2d() and batch_norm2d_backward(). This example
             demonstrates the trait interface pattern.
         """
         self.last_input = input.copy()
 
-        # Placeholder: Use shared/core/normalization.batch_norm2d() for production
+        # Placeholder: Use src/projectodyssey/core/normalization.batch_norm2d() for production
         return input
 
     def backward(self, grad_output: AnyTensor) raises -> AnyTensor:
         """Backward pass: Compute gradients.
 
         Note:
-            The autograd system (shared/autograd/tape.mojo) provides automatic
+            The autograd system (src/projectodyssey/autograd/tape.mojo) provides automatic
             differentiation. For manual batch norm backward, use
-            shared/core/normalization.batch_norm2d_backward().
+            src/projectodyssey/core/normalization.batch_norm2d_backward().
         """
         return grad_output
 
@@ -398,7 +398,10 @@ struct BatchNormLayer(Differentiable, Parameterized, Serializable, Trainable):
             bn.save("checkpoint/batch_norm/")
             ```
         """
-        from shared.utils.serialization import save_named_tensors, NamedTensor
+        from projectodyssey.utils.serialization import (
+            save_named_tensors,
+            NamedTensor,
+        )
 
         var tensors: List[NamedTensor] = []
         tensors.append(NamedTensor("gamma", self.gamma))
@@ -425,7 +428,7 @@ struct BatchNormLayer(Differentiable, Parameterized, Serializable, Trainable):
             bn.load("checkpoint/batch_norm/")
             ```
         """
-        from shared.utils.serialization import load_named_tensors
+        from projectodyssey.utils.serialization import load_named_tensors
 
         var tensors = load_named_tensors(path)
 

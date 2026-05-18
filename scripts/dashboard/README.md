@@ -74,7 +74,7 @@ step,value
 Use `CSVMetricsLogger` from `shared.training.metrics` to log metrics:
 
 ```mojo
-from shared.training.metrics import CSVMetricsLogger
+from projectodyssey.training.metrics import CSVMetricsLogger
 
 var logger = CSVMetricsLogger("logs/my_run")
 logger.log_scalar("train_loss", 0.5)

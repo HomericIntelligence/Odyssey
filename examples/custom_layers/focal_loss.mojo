@@ -8,10 +8,15 @@ Usage:
 See documentation: docs/advanced/custom-layers.md
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones_like, full_like
-from shared.core.arithmetic import subtract, multiply, add, power
-from shared.core.elementwise import log, clip
-from shared.core.reduction import mean
+from projectodyssey.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones_like,
+    full_like,
+)
+from projectodyssey.core.arithmetic import subtract, multiply, add, power
+from projectodyssey.core.elementwise import log, clip
+from projectodyssey.core.reduction import mean
 
 
 struct FocalLoss:

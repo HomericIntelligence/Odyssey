@@ -216,7 +216,7 @@ Large allocations (>16KB) bypass the pool because:
 
 ### File Location
 
-`shared/core/memory_pool.mojo`
+`src/projectodyssey/core/memory_pool.mojo`
 
 ### Key Functions
 
@@ -274,9 +274,9 @@ struct PoolConfig:
 
 ### Related Files
 
-- `shared/core/memory_pool.mojo`: Implementation
-- `tests/shared/core/test_memory_pool.mojo`: Unit tests
-- `tests/shared/benchmarks/bench_memory_pool.mojo`: Performance benchmarks
+- `src/projectodyssey/core/memory_pool.mojo`: Implementation
+- `tests/projectodyssey/core/test_memory_pool.mojo`: Unit tests
+- `tests/projectodyssey/benchmarks/bench_memory_pool.mojo`: Performance benchmarks
 
 ### Related Issues
 

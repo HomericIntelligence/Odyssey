@@ -3,7 +3,7 @@
 Provides utility functions for test setup, debugging, and validation.
 """
 
-from shared.tensor.any_tensor import AnyTensor
+from projectodyssey.tensor.any_tensor import AnyTensor
 
 
 def print_tensor(tensor: AnyTensor) -> String:

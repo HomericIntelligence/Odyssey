@@ -40,16 +40,16 @@ Key Innovation:
     - Solves vanishing gradient problem in deep networks
 
 Shared Modules Used:
-    - shared.core: Core tensor operations (AnyTensor, zeros, ones)
-    - shared.core.conv: Convolution operations (conv2d, conv2d_backward)
-    - shared.core.pooling: Pooling operations (avgpool2d, avgpool2d_backward)
-    - shared.core.linear: Linear/fully-connected layers (linear, linear_backward)
-    - shared.core.activation: Activation functions (relu, relu_backward)
-    - shared.core.normalization: Batch normalization (batch_norm2d)
-    - shared.core.initializers: Weight initialization (he_uniform)
-    - shared.core.arithmetic: Element-wise operations (add for skip connections)
-    - shared.training.optimizers: Optimization algorithms (sgd_momentum_update_inplace)
-    - shared.utils.serialization: Model persistence (save_tensor, load_tensor)
+    - projectodyssey.core: Core tensor operations (AnyTensor, zeros, ones)
+    - projectodyssey.core.conv: Convolution operations (conv2d, conv2d_backward)
+    - projectodyssey.core.pooling: Pooling operations (avgpool2d, avgpool2d_backward)
+    - projectodyssey.core.linear: Linear/fully-connected layers (linear, linear_backward)
+    - projectodyssey.core.activation: Activation functions (relu, relu_backward)
+    - projectodyssey.core.normalization: Batch normalization (batch_norm2d)
+    - projectodyssey.core.initializers: Weight initialization (he_uniform)
+    - projectodyssey.core.arithmetic: Element-wise operations (add for skip connections)
+    - projectodyssey.training.optimizers: Optimization algorithms (sgd_momentum_update_inplace)
+    - projectodyssey.utils.serialization: Model persistence (save_tensor, load_tensor)
 
 References:
     - He, K., Zhang, X., Ren, S., & Sun, J. (2015).
@@ -58,21 +58,21 @@ References:
     - CIFAR-10 Dataset: https://www.cs.toronto.edu/~kriz/cifar.html
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones
-from shared.core.conv import conv2d, conv2d_backward
-from shared.core.pooling import avgpool2d, avgpool2d_backward
-from shared.core.linear import linear, linear_backward
-from shared.core.activation import relu, relu_backward
-from shared.core.normalization import batch_norm2d
-from shared.core.initializers import he_uniform
-from shared.core.arithmetic import add  # For skip connections
-from shared.training.optimizers import sgd_momentum_update_inplace
-from shared.training.model_utils import (
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.core.conv import conv2d, conv2d_backward
+from projectodyssey.core.pooling import avgpool2d, avgpool2d_backward
+from projectodyssey.core.linear import linear, linear_backward
+from projectodyssey.core.activation import relu, relu_backward
+from projectodyssey.core.normalization import batch_norm2d
+from projectodyssey.core.initializers import he_uniform
+from projectodyssey.core.arithmetic import add  # For skip connections
+from projectodyssey.training.optimizers import sgd_momentum_update_inplace
+from projectodyssey.training.model_utils import (
     save_model_weights,
     load_model_weights,
     get_model_parameter_names,
 )
-from shared.utils.serialization import save_tensor, load_tensor
+from projectodyssey.utils.serialization import save_tensor, load_tensor
 from std.collections import List
 
 

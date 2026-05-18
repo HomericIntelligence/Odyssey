@@ -28,19 +28,19 @@ References:
 """
 
 from model import AlexNet
-from shared.data.datasets import CIFAR10Dataset
-from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.core.conv import conv2d, conv2d_backward
-from shared.core.pooling import maxpool2d, maxpool2d_backward
-from shared.core.linear import linear, linear_backward
-from shared.core.activation import relu, relu_backward
-from shared.core.dropout import dropout, dropout_backward
-from shared.core.loss import cross_entropy, cross_entropy_backward
-from shared.training.schedulers import step_lr
-from shared.utils.arg_parser import create_training_parser
-from shared.training.trainer_interface import TrainerConfig
-from shared.training.metrics import evaluate_with_predict
-from shared.data.constants import DatasetInfo
+from projectodyssey.data.datasets import CIFAR10Dataset
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.core.conv import conv2d, conv2d_backward
+from projectodyssey.core.pooling import maxpool2d, maxpool2d_backward
+from projectodyssey.core.linear import linear, linear_backward
+from projectodyssey.core.activation import relu, relu_backward
+from projectodyssey.core.dropout import dropout, dropout_backward
+from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
+from projectodyssey.training.schedulers import step_lr
+from projectodyssey.utils.arg_parser import create_training_parser
+from projectodyssey.training.trainer_interface import TrainerConfig
+from projectodyssey.training.metrics import evaluate_with_predict
+from projectodyssey.data.constants import DatasetInfo
 from std.collections import List
 
 

@@ -95,9 +95,9 @@ tests (runs weekly with real datasets).
 
 ## Shared Library
 
-The `shared/` directory contains the ML components used by all paper implementations:
+The `src/projectodyssey/` directory contains the ML components used by all paper implementations:
 
-### `shared/core/` - Tensor Operations and Layers
+### `src/projectodyssey/core/` - Tensor Operations and Layers
 
 - SIMD-optimized tensor type (`AnyTensor`) with compile-time dtype dispatch
 - Convolution, linear, pooling, activation, normalization layers
@@ -105,14 +105,14 @@ The `shared/` directory contains the ML components used by all paper implementat
 - Broadcasting, reduction, elementwise ops
 - Dropout, batch normalization, attention
 
-### `shared/autograd/` - Automatic Differentiation
+### `src/projectodyssey/autograd/` - Automatic Differentiation
 
 - Tape-based reverse-mode autograd engine
 - `Variable` type with gradient tracking
 - Backward ops for all core operations
 - Gradient utilities and type definitions
 
-### `shared/training/` - Training Infrastructure
+### `src/projectodyssey/training/` - Training Infrastructure
 
 - `Trainer` with configurable training loops
 - Optimizers: SGD, Adam, AdamW, RMSprop, LARS
@@ -187,7 +187,7 @@ just validate
 - [Quickstart](docs/getting-started/quickstart.md)
 - [Your First Model](docs/getting-started/first_model.md)
 - [Repository Structure](docs/getting-started/repository-structure.md)
-- [Shared Library README](shared/README.md)
+- [Shared Library README](src/projectodyssey/README.md)
 - [Contributing Guide](CONTRIBUTING.md)
 - [Architecture Decision Records](docs/adr/)
 - [Privacy & Data-Handling Policy](docs/PRIVACY.md)
@@ -196,7 +196,7 @@ just validate
 
 ```text
 ProjectOdyssey/
-├── shared/                  # Reusable ML library
+├── src/projectodyssey/                  # Reusable ML library
 │   ├── core/                # Tensor ops, layers, SIMD kernels
 │   ├── autograd/            # Tape-based reverse-mode autograd
 │   ├── training/            # Trainers, optimizers, schedulers
@@ -204,7 +204,7 @@ ProjectOdyssey/
 │   └── testing/             # Shared test utilities
 ├── tests/
 │   ├── models/              # Per-architecture test suites
-│   └── shared/              # Shared library tests
+│   └── src/projectodyssey/              # Shared library tests
 ├── docs/
 │   ├── adr/                 # Architecture Decision Records
 │   ├── getting-started/     # Setup and quickstart guides

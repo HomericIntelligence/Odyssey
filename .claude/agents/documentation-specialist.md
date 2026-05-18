@@ -78,6 +78,6 @@ migration guide.
 
 ---
 
-**References**: [shared/common-constraints](../shared/common-constraints.md),
-[shared/documentation-rules](../shared/documentation-rules.md),
-[shared/pr-workflow](../shared/pr-workflow.md)
+**References**: [src/projectodyssey/common-constraints](../shared/common-constraints.md),
+[src/projectodyssey/documentation-rules](../shared/documentation-rules.md),
+[src/projectodyssey/pr-workflow](../shared/pr-workflow.md)

@@ -4,8 +4,8 @@ Measures performance of SIMD-optimized FP16↔FP32 conversions.
 Demonstrates ~4x speedup of SIMD path for large tensors.
 """
 
-from shared.tensor.any_tensor import AnyTensor
-from shared.training.mixed_precision import (
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.training.mixed_precision import (
     convert_to_fp32_master,
     update_model_from_master,
 )

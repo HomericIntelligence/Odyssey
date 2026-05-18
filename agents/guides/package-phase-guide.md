@@ -143,7 +143,7 @@ Issue #40: [Package] Data Module
 
 Deliverables:
 ✅ Posted documentation comment on GitHub issue #40
-✅ Verified shared/data/__init__.mojo has 19 exports
+✅ Verified src/projectodyssey/data/__init__.mojo has 19 exports
 ✅ Confirmed README.md is comprehensive (546 lines)
 ✅ Documented that module is "production-ready"
 
@@ -175,7 +175,7 @@ Files changed:
 + dist/data-0.1.0.mojopkg
 + scripts/install_verify_data.sh
 + INSTALL.md
-M shared/data/mojo.toml
+M src/projectodyssey/data/mojo.toml
 ```text
 
 ## Package Phase Workflow
@@ -204,7 +204,7 @@ For Mojo modules:
 
 ```bash
 # Build .mojopkg file
-mojo package shared/data -o dist/data-0.1.0.mojopkg
+mojo package src/projectodyssey/data -o dist/data-0.1.0.mojopkg
 
 # Verify package was created
 ls -lh dist/data-0.1.0.mojopkg
@@ -274,7 +274,7 @@ on:
     tags: ['v*']
   pull_request:
     paths:
-      - 'shared/**'
+      - 'src/projectodyssey/**'
       - 'dist/**'
 
 jobs:
@@ -288,9 +288,9 @@ jobs:
 
       - name: Build packages
         run: |
-          mojo package shared/data -o dist/data-${{ github.ref_name }}.mojopkg
-          mojo package shared/training -o dist/training-${{ github.ref_name }}.mojopkg
-          mojo package shared/utils -o dist/utils-${{ github.ref_name }}.mojopkg
+          mojo package src/projectodyssey/data -o dist/data-${{ github.ref_name }}.mojopkg
+          mojo package src/projectodyssey/training -o dist/training-${{ github.ref_name }}.mojopkg
+          mojo package src/projectodyssey/utils -o dist/utils-${{ github.ref_name }}.mojopkg
 
       - name: Test installation
         run: |
@@ -411,7 +411,7 @@ Changes:
 + scripts/install_verify_training.sh
 + INSTALL.md
 
-M shared/training/mojo.toml
+M src/projectodyssey/training/mojo.toml
 
 ```text
 ### Anti-Pattern 2: Assuming Existing Structure is "Packaged"
@@ -432,7 +432,7 @@ M shared/training/mojo.toml
 
 # Just build the package
 
-mojo package shared/data -o dist/data-0.1.0.mojopkg
+mojo package src/projectodyssey/data -o dist/data-0.1.0.mojopkg
 
 # PR created without testing
 
@@ -443,7 +443,7 @@ mojo package shared/data -o dist/data-0.1.0.mojopkg
 
 # Build package
 
-mojo package shared/data -o dist/data-0.1.0.mojopkg
+mojo package src/projectodyssey/data -o dist/data-0.1.0.mojopkg
 
 # Test in clean environment
 
@@ -460,11 +460,11 @@ cd - && rm -rf "$TEMP_DIR"
 
 ### Example 1: Training Module Package
 
-**Component**: `shared/training/`
+**Component**: `src/projectodyssey/training/`
 
 **Package Phase Tasks**:
 
-1. Create `shared/training/mojo.toml`:
+1. Create `src/projectodyssey/training/mojo.toml`:
 
 ```toml
 
@@ -483,7 +483,7 @@ ProjectOdyssey-utils = "0.1.0"
 
 ```bash
 
-mojo package shared/training -o dist/training-0.1.0.mojopkg
+mojo package src/projectodyssey/training -o dist/training-0.1.0.mojopkg
 
 ```text
 1. Create verification script:

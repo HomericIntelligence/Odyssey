@@ -34,15 +34,15 @@ Stack trace (constant across runs):
   #3 libc.so.6                  +0x45330   (sigaction)
   #4 libAsyncRTRuntimeGlobals.so +0x416ba  (allocator — crash origin)
 
-NOTE: This reproducer requires ProjectOdyssey's shared.core library (AnyTensor,
+NOTE: This reproducer requires ProjectOdyssey's projectodyssey.core library (AnyTensor,
 conv2d, relu). The crash is in the Mojo runtime allocator, not in our library
 code. A fully self-contained reproducer would require reimplementing conv2d
 (~200 lines) which defeats the purpose of minimality.
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones
-from shared.core.conv import conv2d
-from shared.core.activation import relu
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.core.conv import conv2d
+from projectodyssey.core.activation import relu
 
 
 def step_a() raises:

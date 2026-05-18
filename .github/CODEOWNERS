@@ -99,22 +99,22 @@ papers/                             @mvillmow
 # - Tensor operations used across all papers
 # - Performance-critical code
 # - Breaking changes impact multiple papers
-shared/core/                        @mvillmow
+src/projectodyssey/core/                        @mvillmow
 
 # Autograd Engine
 # - Automatic differentiation and backward pass
 # - Changes affect all model training
-shared/autograd/                    @mvillmow
+src/projectodyssey/autograd/                    @mvillmow
 
 # Training Utilities
 # - Shared training loops and optimizers
 # - Changes affect paper reproducibility
-shared/training/                    @mvillmow
+src/projectodyssey/training/                    @mvillmow
 
 # Data Processing
 # - Dataset loaders and preprocessing
 # - Must maintain paper-specific compatibility
-shared/data/                        @mvillmow
+src/projectodyssey/data/                        @mvillmow
 
 # ============================================================================
 # Development Tools

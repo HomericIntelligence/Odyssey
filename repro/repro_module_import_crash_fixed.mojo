@@ -9,11 +9,11 @@ RESULT: Passes 100% of the time.
 
 FIX PATTERN:
   BEFORE (module level — compiled for all importers at parse time):
-    from shared.core.loss_utils import clip_predictions
+    from projectodyssey.core.loss_utils import clip_predictions
 
   AFTER (per-function — compiled lazily only when function executes):
     def my_test():
-        from shared.core.loss_utils import clip_predictions
+        from projectodyssey.core.loss_utils import clip_predictions
         ...
 
 WHY THIS WORKS:
@@ -25,14 +25,14 @@ WHY THIS WORKS:
 
 NOTE: This workaround is valid for test files. Library modules should also
   move heavy imports into the specific functions that use them (see
-  shared/core/reduction.mojo, conv.mojo, loss_utils.mojo for examples).
+  src/projectodyssey/core/reduction.mojo, conv.mojo, loss_utils.mojo for examples).
 """
 
 
 def test_clip_is_bounded() raises:
     # Import moved here — NOT at module level
-    from shared.core.loss_utils import clip_predictions
-    from shared.tensor.any_tensor import ones
+    from projectodyssey.core.loss_utils import clip_predictions
+    from projectodyssey.tensor.any_tensor import ones
 
     var shape = List[Int]()
     shape.append(4)
@@ -43,8 +43,8 @@ def test_clip_is_bounded() raises:
 
 def test_reduce_sum_basic() raises:
     # Import moved here — NOT at module level
-    from shared.core.reduction import sum as reduce_sum
-    from shared.tensor.any_tensor import ones
+    from projectodyssey.core.reduction import sum as reduce_sum
+    from projectodyssey.tensor.any_tensor import ones
 
     var shape = List[Int]()
     shape.append(3)

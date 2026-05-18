@@ -14,8 +14,8 @@ All loss functions support both functional and class forms.
 Combines LogSoftmax and NLLLoss for multi-class classification.
 
 ```mojo
-from shared.core import cross_entropy_loss
-from shared.core.layers import CrossEntropyLoss
+from projectodyssey.core import cross_entropy_loss
+from projectodyssey.core.layers import CrossEntropyLoss
 ```
 
 **Functional:**
@@ -42,8 +42,8 @@ var loss = criterion.forward(logits, targets)
 **Example:**
 
 ```mojo
-from shared.core import randn, zeros
-from shared.core.layers import CrossEntropyLoss
+from projectodyssey.core import randn, zeros
+from projectodyssey.core.layers import CrossEntropyLoss
 
 var logits = randn[DType.float32](32, 10)  # 32 samples, 10 classes
 var targets = zeros[DType.int32](32)  # Class indices
@@ -58,8 +58,8 @@ print("Loss:", loss.item[DType.float32]())
 Negative Log Likelihood Loss (expects log-probabilities).
 
 ```mojo
-from shared.core import nll_loss
-from shared.core.layers import NLLLoss
+from projectodyssey.core import nll_loss
+from projectodyssey.core.layers import NLLLoss
 
 # log_probs: (batch, num_classes) - output of LogSoftmax
 # targets: (batch,) - class indices
@@ -78,8 +78,8 @@ var loss = nll_loss(log_probs, targets)
 Binary cross-entropy for binary classification.
 
 ```mojo
-from shared.core import binary_cross_entropy
-from shared.core.layers import BCELoss
+from projectodyssey.core import binary_cross_entropy
+from projectodyssey.core.layers import BCELoss
 
 # predictions: (batch,) - probabilities in [0, 1]
 # targets: (batch,) - binary labels (0 or 1)
@@ -89,8 +89,8 @@ var loss = binary_cross_entropy(predictions, targets)
 **With Logits (more stable):**
 
 ```mojo
-from shared.core import binary_cross_entropy_with_logits
-from shared.core.layers import BCEWithLogitsLoss
+from projectodyssey.core import binary_cross_entropy_with_logits
+from projectodyssey.core.layers import BCEWithLogitsLoss
 
 # logits: (batch,) - raw scores
 # targets: (batch,) - binary labels
@@ -104,8 +104,8 @@ var loss = binary_cross_entropy_with_logits(logits, targets)
 Mean Squared Error: `mean((pred - target)^2)`
 
 ```mojo
-from shared.core import mse_loss
-from shared.core.layers import MSELoss
+from projectodyssey.core import mse_loss
+from projectodyssey.core.layers import MSELoss
 ```
 
 **Functional:**
@@ -128,8 +128,8 @@ var loss = criterion.forward(predictions, targets)
 **Example:**
 
 ```mojo
-from shared.core import randn
-from shared.core.layers import MSELoss
+from projectodyssey.core import randn
+from projectodyssey.core.layers import MSELoss
 
 var predictions = randn[DType.float32](32, 10)
 var targets = randn[DType.float32](32, 10)
@@ -143,8 +143,8 @@ var loss = criterion.forward(predictions, targets)
 Mean Absolute Error: `mean(|pred - target|)`
 
 ```mojo
-from shared.core import l1_loss
-from shared.core.layers import L1Loss
+from projectodyssey.core import l1_loss
+from projectodyssey.core.layers import L1Loss
 
 var loss = l1_loss(predictions, targets)
 ```
@@ -159,8 +159,8 @@ var loss = l1_loss(predictions, targets)
 Huber Loss: combines L1 and L2.
 
 ```mojo
-from shared.core import smooth_l1_loss
-from shared.core.layers import SmoothL1Loss
+from projectodyssey.core import smooth_l1_loss
+from projectodyssey.core.layers import SmoothL1Loss
 
 var criterion = SmoothL1Loss(beta=1.0)
 var loss = criterion.forward(predictions, targets)
@@ -183,7 +183,7 @@ var loss = criterion.forward(predictions, targets)
 Triplet loss for metric learning.
 
 ```mojo
-from shared.core.layers import TripletMarginLoss
+from projectodyssey.core.layers import TripletMarginLoss
 
 var criterion = TripletMarginLoss(margin=1.0)
 # anchor, positive, negative: (batch, embedding_dim)
@@ -197,7 +197,7 @@ var loss = criterion.forward(anchor, positive, negative)
 Cosine similarity loss.
 
 ```mojo
-from shared.core.layers import CosineEmbeddingLoss
+from projectodyssey.core.layers import CosineEmbeddingLoss
 
 var criterion = CosineEmbeddingLoss(margin=0.0)
 # x1, x2: (batch, embedding_dim)

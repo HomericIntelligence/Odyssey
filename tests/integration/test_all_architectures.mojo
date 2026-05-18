@@ -17,7 +17,7 @@ Usage:
     mojo run tests/integration/test_all_architectures.mojo
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
 import std.sys as sys
 
 

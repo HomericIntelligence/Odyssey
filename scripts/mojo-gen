@@ -4,7 +4,7 @@ Convenience wrapper for the code generator CLI.
 
 Usage:
     ./scripts/mojo-gen model ResNet18 --type classification -o models/
-    ./scripts/mojo-gen layer Attention --inputs "q,k,v" -o shared/nn/
+    ./scripts/mojo-gen layer Attention --inputs "q,k,v" -o src/projectodyssey/nn/
     ./scripts/mojo-gen dataset CIFAR10 --format image -o datasets/
     ./scripts/mojo-gen training --model LeNet5 --dataset MNIST -o examples/
     ./scripts/mojo-gen tests --module shared.nn.linear --type layer -o tests/

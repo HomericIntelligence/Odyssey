@@ -8,7 +8,7 @@ Tests the complete integration of configs with model creation and training.
 
 
 from std.testing import assert_true, assert_false, assert_equal
-from shared.utils.config import Config, load_config, merge_configs
+from projectodyssey.utils.config import Config, load_config, merge_configs
 from std.python import Python
 
 

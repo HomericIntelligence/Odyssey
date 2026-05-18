@@ -15,14 +15,14 @@ Usage:
 See documentation: docs/advanced/performance.md
 """
 
-from shared.benchmarking import (
+from projectodyssey.benchmarking import (
     benchmark_function,
     print_benchmark_report,
     print_benchmark_summary,
     BenchmarkResult,
 )
-from shared.tensor.any_tensor import AnyTensor, ones, zeros
-from shared.core import relu
+from projectodyssey.tensor.any_tensor import AnyTensor, ones, zeros
+from projectodyssey.core import relu
 
 
 # ============================================================================

@@ -95,7 +95,7 @@ framework. These examples show how to:
 ### Quick Benchmark Example
 
 ```mojo
-from shared.benchmarking import benchmark_function, print_benchmark_report
+from projectodyssey.benchmarking import benchmark_function, print_benchmark_report
 
 fn my_operation():
     # Your ML operation here
@@ -128,7 +128,7 @@ Usage:
 See documentation: docs/[path]/[doc-file].md
 """
 
-from shared.core import ...  # Imports
+from projectodyssey.core import ...  # Imports
 
 # Implementation
 struct/fn ...
@@ -197,7 +197,7 @@ If you see import errors:
 cd /path/to/ProjectOdyssey
 
 # Verify shared library exists
-ls shared/
+ls src/projectodyssey/
 
 # Run from repository root
 pixi run mojo run examples/getting_started/quickstart_example.mojo

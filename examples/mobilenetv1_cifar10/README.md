@@ -361,7 +361,7 @@ Step decay schedule (same as other models):
 This example follows **Keep It Simple, Stupid** principles:
 
 1. **Minimal Dependencies**: Uses only ML Odyssey shared library
-2. **Functional Design**: Uses functional ops from shared/core
+2. **Functional Design**: Uses functional ops from src/projectodyssey/core
 3. **Clear Structure**: Separate files for model, training, and inference
 4. **Simple Interfaces**: Command-line arguments for configuration
 5. **No Over-Engineering**: Direct implementation without unnecessary abstractions

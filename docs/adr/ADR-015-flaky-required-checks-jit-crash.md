@@ -83,8 +83,8 @@ the drift by committing to actually removing the script.
 The JIT crash is triggered by **compilation footprint** per
 [`docs/dev/mojo-jit-crash-workaround.md`](../dev/mojo-jit-crash-workaround.md):
 
-- Package-level `from shared.core import` forces the Mojo JIT to compile all 37,401 lines
-  across 60+ source files (because `shared/core/__init__.mojo` eagerly re-exports 200+
+- Package-level `from projectodyssey.core import` forces the Mojo JIT to compile all 37,401 lines
+  across 60+ source files (because `src/projectodyssey/core/__init__.mojo` eagerly re-exports 200+
   symbols from 40+ modules)
 - This compilation volume intermittently overflows a JIT-internal buffer, triggering
   `__fortify_fail_abort` in `libKGENCompilerRTShared.so`
@@ -120,8 +120,8 @@ Corrective action #5 includes confirming the canonical upstream issue number.
    SUPERSEDED status true in the tree and forces the import audit to be the fix.
 
 2. **Audit imports in the two required-check test groups** -- convert any remaining
-   package-level `from shared.core import` statements in `tests/core/types/` and
-   `tests/shared/integration/` to targeted submodule imports per the Symbol-to-Submodule
+   package-level `from projectodyssey.core import` statements in `tests/core/types/` and
+   `tests/projectodyssey/integration/` to targeted submodule imports per the Symbol-to-Submodule
    Mapping in `docs/dev/mojo-jit-crash-workaround.md`. Expected crash-rate reduction: ~95%.
 
 3. **Do NOT remove the checks from `required_status_checks`** -- keeping them required
@@ -157,7 +157,7 @@ incorrect and misleading.
 ## Corrective Actions
 
 1. **[HIGH] Import audit** -- Enumerate test files in `tests/core/types/test_*.mojo` and
-   `tests/shared/integration/test_*.mojo`. Convert any `from shared.core import` (package-level)
+   `tests/projectodyssey/integration/test_*.mojo`. Convert any `from projectodyssey.core import` (package-level)
    to targeted submodule imports using the Symbol-to-Submodule Mapping table in
    `docs/dev/mojo-jit-crash-workaround.md`. Expected: reduces per-file JIT crash
    probability by ~95% based on the controlled experiment from 2026-03-15.
@@ -168,8 +168,8 @@ incorrect and misleading.
    Three remaining offenders converted or moved to repro/ convention:
 
    - `test_gradient_checker_noncont_tensors.mojo`: converted to targeted imports
-     (`from shared.core.shape import as_contiguous`,
-     `from shared.core.matrix import transpose_view`)
+     (`from projectodyssey.core.shape import as_contiguous`,
+     `from projectodyssey.core.matrix import transpose_view`)
    - `test_jit_crash_heavy_import.mojo`: moved to `repro/repro_jit_heavy_import_test.mojo`
      (it IS the crash reproducer; keeping package-level import is intentional)
    - `test_top_level_optimizer_imports.mojo`: retained with ADR-015 comment
@@ -283,7 +283,7 @@ issue #5108):
 | `tests/smoke/test_retry_script.py` | Delete (action #2) |
 | `justfile` | Replace retry wrapper calls at lines 664 and 829 with direct mojo invocation (action #2) |
 | `tests/core/types/test_*.mojo` | Import audit -- convert package-level to targeted (action #1) |
-| `tests/shared/integration/test_*.mojo` | Import audit -- convert package-level to targeted (action #1) |
+| `tests/projectodyssey/integration/test_*.mojo` | Import audit -- convert package-level to targeted (action #1) |
 | `.github/workflows/comprehensive-tests.yml` | Remove stale "non-blocking" comments (action #3) |
 
 ## References

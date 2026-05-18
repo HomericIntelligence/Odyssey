@@ -19,7 +19,7 @@ datasets/
 Download MNIST dataset:
 
 ```python
-from shared.data import download_mnist
+from projectodyssey.data import download_mnist
 download_mnist("datasets/mnist/")
 ```text
 
@@ -78,7 +78,7 @@ All datasets should provide:
 Example loading MNIST:
 
 ```python
-from shared.data import load_dataset
+from projectodyssey.data import load_dataset
 
 train_data, train_labels = load_dataset("mnist", split="train")
 test_data, test_labels = load_dataset("mnist", split="test")

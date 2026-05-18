@@ -347,7 +347,7 @@ var relu_out = relu(bn_out)
 **What's Needed**:
 
 ```mojo
-from shared.data import RandomCrop, RandomHorizontalFlip, Compose
+from projectodyssey.data import RandomCrop, RandomHorizontalFlip, Compose
 
 # In training loop, before forward pass:
 var augmented_batch = apply_augmentation(batch_images)  # Random crop + flip
@@ -472,7 +472,7 @@ These components are fully functional and ready to use:
 
 #### 3.5 Learning Rate Scheduler
 
-**Location**: `shared/training/schedulers/step_decay.mojo`
+**Location**: `src/projectodyssey/training/schedulers/step_decay.mojo`
 
 **Status**: ✅ **COMPLETE**
 
@@ -488,7 +488,7 @@ These components are fully functional and ready to use:
 
 #### 3.6 SGD with Momentum Optimizer
 
-**Location**: `shared/training/optimizers/sgd.mojo`
+**Location**: `src/projectodyssey/training/optimizers/sgd.mojo`
 
 **Status**: ✅ **COMPLETE**
 

@@ -15,7 +15,7 @@ All testing infrastructure has been implemented and is ready to use.
 ### Files Created
 
 1. **`benchmarks/bench_simd.mojo`** - SIMD performance benchmarks
-2. **`tests/shared/core/test_gradient_checking.mojo`** - Gradient validation tests
+2. **`tests/projectodyssey/core/test_gradient_checking.mojo`** - Gradient validation tests
 3. **`examples/typed_tensor_demo.mojo`** - TypedTensor demonstration
 4. **`.github/workflows/test-gradients.yml`** - CI integration
 
@@ -32,7 +32,7 @@ mojo run benchmarks/bench_simd.mojo
 # - float64: 2-3x speedup
 
 # 2. Run gradient checking on all backward passes
-mojo test tests/shared/core/test_gradient_checking.mojo
+mojo test tests/projectodyssey/core/test_gradient_checking.mojo
 
 # Expected output:
 # - All activation functions (ReLU, Sigmoid, Tanh) ✓
@@ -68,8 +68,8 @@ Check status: `.github/workflows/test-gradients.yml`
 
 **Target Files:**
 
-- `shared/training/loops/training_loop.mojo`
-- `shared/training/optimizers/*.mojo`
+- `src/projectodyssey/training/loops/training_loop.mojo`
+- `src/projectodyssey/training/optimizers/*.mojo`
 - Forward passes in model implementations
 
 **Example Integration:**
@@ -77,7 +77,7 @@ Check status: `.github/workflows/test-gradients.yml`
 #### Before (Scalar)
 
 ```mojo
-from shared.core.arithmetic import add, multiply
+from projectodyssey.core.arithmetic import add, multiply
 
 fn update_weights(params: AnyTensor, gradients: AnyTensor, lr: Float64) -> AnyTensor:
     var lr_tensor = full_like(params, lr)
@@ -88,7 +88,7 @@ fn update_weights(params: AnyTensor, gradients: AnyTensor, lr: Float64) -> AnyTe
 #### After (SIMD)
 
 ```mojo
-from shared.core.arithmetic_simd import add_simd, multiply_simd, subtract_simd
+from projectodyssey.core.arithmetic_simd import add_simd, multiply_simd, subtract_simd
 
 fn update_weights(params: AnyTensor, gradients: AnyTensor, lr: Float64) -> AnyTensor:
     # SIMD automatically used for same-shape tensors, falls back for broadcasting
@@ -142,7 +142,7 @@ struct ResNet18:
 #### After (TypedTensor)
 
 ```mojo
-from shared.core.typed_tensor import TypedTensor, zeros as typed_zeros
+from projectodyssey.core.typed_tensor import TypedTensor, zeros as typed_zeros
 
 struct ResNet18:
     # Compile-time float32 specialization
@@ -164,7 +164,7 @@ struct ResNet18:
 1. **Add TypedTensor imports:**
 
    ```mojo
-   from shared.core.typed_tensor import TypedTensor, zeros, ones
+   from projectodyssey.core.typed_tensor import TypedTensor, zeros, ones
    ```text
 
 2. **Update field declarations:**
@@ -182,7 +182,7 @@ struct ResNet18:
 4. **Update operations:**
 
    ```mojo
-   from shared.core.typed_tensor import add, multiply
+   from projectodyssey.core.typed_tensor import add, multiply
    var output = add(weights, bias)  # Compile-time specialized
    ```text
 
@@ -223,7 +223,7 @@ fn conv2d_3x3(input: AnyTensor, kernel: AnyTensor) -> AnyTensor:
 #### After (Fixed)
 
 ```mojo
-from shared.core.fixed_tensor import FixedTensor, Kernel3x3_f32
+from projectodyssey.core.fixed_tensor import FixedTensor, Kernel3x3_f32
 
 fn conv2d_3x3_fixed(
     input: AnyTensor,
@@ -294,7 +294,7 @@ The CI workflow (`.github/workflows/test-gradients.yml`) automatically:
 **Example: Linear Layer with Traits**
 
 ```mojo
-from shared.core.traits import Differentiable, Parameterized, Serializable
+from projectodyssey.core.traits import Differentiable, Parameterized, Serializable
 
 struct LinearLayer(Differentiable, Parameterized, Serializable):
     """Linear layer implementing all core traits."""
@@ -586,7 +586,7 @@ and provide significant value with minimal risk.
    ```bash
    # Verify everything works
    mojo run benchmarks/bench_simd.mojo
-   mojo test tests/shared/core/test_gradient_checking.mojo
+   mojo test tests/projectodyssey/core/test_gradient_checking.mojo
    mojo run examples/typed_tensor_demo.mojo
    ```text
 

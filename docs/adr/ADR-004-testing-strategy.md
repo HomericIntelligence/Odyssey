@@ -135,7 +135,7 @@ tests/
 │   ├── test_lenet5_pooling_layers.mojo   # Tier 1: Layer tests
 │   ├── test_lenet5_e2e.mojo              # Tier 2: End-to-end
 │   └── ...
-├── shared/
+├── src/projectodyssey/
 │   └── testing/
 │       ├── special_values.mojo           # FP-representable values
 │       ├── layer_testers.mojo            # Reusable test patterns

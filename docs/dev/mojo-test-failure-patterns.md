@@ -120,11 +120,11 @@ struct SimpleMLP(Copyable, Movable, Model):
 
 **Files Affected**: PR #2045
 
-- `shared/testing/test_models.mojo` (SimpleMLP)
-- `shared/training/__init__.mojo` (TrainingLoop generics)
-- `tests/shared/training/test_training_loop.mojo`
-- `tests/shared/training/test_validation_loop.mojo`
-- `tests/shared/training/test_numerical_safety.mojo`
+- `src/projectodyssey/testing/test_models.mojo` (SimpleMLP)
+- `src/projectodyssey/training/__init__.mojo` (TrainingLoop generics)
+- `tests/projectodyssey/training/test_training_loop.mojo`
+- `tests/projectodyssey/training/test_validation_loop.mojo`
+- `tests/projectodyssey/training/test_numerical_safety.mojo`
 
 ---
 
@@ -170,8 +170,8 @@ fn process_params(ref params: List[Float32]):
 
 **Files Affected**: PR #2045, PR #2039
 
-- `tests/shared/benchmarks/bench_optimizers.mojo`
-- `shared/testing/test_models.mojo`
+- `tests/projectodyssey/benchmarks/bench_optimizers.mojo`
+- `src/projectodyssey/testing/test_models.mojo`
 
 ---
 
@@ -232,15 +232,15 @@ struct FileDataset(Dataset):
 
 **Files Affected**: PR #2038
 
-- `shared/data/datasets.mojo` (FileDataset)
-- `shared/data/loaders.mojo` (Batch, BaseLoader, BatchLoader)
-- `tests/shared/data/loaders/test_base_loader.mojo` (StubDataLoader, StubBatch)
+- `src/projectodyssey/data/datasets.mojo` (FileDataset)
+- `src/projectodyssey/data/loaders.mojo` (Batch, BaseLoader, BatchLoader)
+- `tests/projectodyssey/data/loaders/test_base_loader.mojo` (StubDataLoader, StubBatch)
 
 **Additional Files**: PR #2044
 
-- `shared/data/transforms.mojo` (Resize, RandomRotation, RandomErasing)
-- `shared/data/text_transforms.mojo` (RandomInsertion, RandomSynonymReplacement)
-- `shared/training/stubs.mojo` (MockTrainer)
+- `src/projectodyssey/data/transforms.mojo` (Resize, RandomRotation, RandomErasing)
+- `src/projectodyssey/data/text_transforms.mojo` (RandomInsertion, RandomSynonymReplacement)
+- `src/projectodyssey/training/stubs.mojo` (MockTrainer)
 
 ---
 
@@ -298,9 +298,9 @@ fn main() raises:
 
 **Files Affected**: PR #2039
 
-- `tests/shared/benchmarks/bench_data_loading.mojo`
-- `tests/shared/benchmarks/bench_layers.mojo`
-- `tests/shared/benchmarks/bench_optimizers.mojo` (had main but needed `^` fixes)
+- `tests/projectodyssey/benchmarks/bench_data_loading.mojo`
+- `tests/projectodyssey/benchmarks/bench_layers.mojo`
+- `tests/projectodyssey/benchmarks/bench_optimizers.mojo` (had main but needed `^` fixes)
 
 ---
 
@@ -309,11 +309,11 @@ fn main() raises:
 **Anti-pattern**: Implementing functions but not exporting through `__init__.mojo`
 
 ```mojo
-# shared/core/shape.mojo - Implementation exists
+# src/projectodyssey/core/shape.mojo - Implementation exists
 fn reshape(tensor: AnyTensor, shape: List[Int]) -> AnyTensor:
     # ... implementation ...
 
-# shared/core/__init__.mojo - NOT exported!
+# src/projectodyssey/core/__init__.mojo - NOT exported!
 # Missing: from .shape import reshape
 ```
 
@@ -321,7 +321,7 @@ fn reshape(tensor: AnyTensor, shape: List[Int]) -> AnyTensor:
 
 ```text
 error: cannot find 'reshape' in module 'shared.core'
-  from shared.core import reshape
+  from projectodyssey.core import reshape
                           ^~~~~~~
 ```
 
@@ -331,7 +331,7 @@ Functions in submodules are NOT automatically available at package level.
 **Correct Pattern**:
 
 ```mojo
-# shared/core/__init__.mojo - Must export explicitly
+# src/projectodyssey/core/__init__.mojo - Must export explicitly
 from .shape import (
     reshape,
     squeeze,
@@ -348,10 +348,10 @@ from .shape import (
 
 ```mojo
 # CORRECT - Package-level import
-from shared.core import reshape
+from projectodyssey.core import reshape
 
 # WRONG - Direct module import (deprecated syntax)
-from shared.core.shape() import reshape
+from projectodyssey.core.shape() import reshape
 ```
 
 **Prevention**:
@@ -362,8 +362,8 @@ from shared.core.shape() import reshape
 
 **Files Affected**: PR #2040
 
-- `shared/core/__init__.mojo` (added shape operation exports)
-- `tests/shared/core/test_shape_regression.mojo` (updated import)
+- `src/projectodyssey/core/__init__.mojo` (added shape operation exports)
+- `tests/projectodyssey/core/test_shape_regression.mojo` (updated import)
 
 ---
 
@@ -394,7 +394,7 @@ constructors.
 **Correct Pattern** - Add missing constructors:
 
 ```mojo
-# shared/core/any_tensor.mojo - Add convenience constructors
+# src/projectodyssey/core/any_tensor.mojo - Add convenience constructors
 struct AnyTensor:
     # Existing constructor
     fn __init__(out self, shape: List[Int], dtype: DType):
@@ -428,7 +428,7 @@ struct AnyTensor:
 
 **Files Affected**: PR #2044
 
-- `shared/core/any_tensor.mojo` (added List constructors)
+- `src/projectodyssey/core/any_tensor.mojo` (added List constructors)
 - Multiple test files expecting this API
 
 ---
@@ -473,16 +473,16 @@ var c = add(a, b)
 
 **Files Affected**: PR #2042, PR #2041, PR #2043
 
-- `tests/shared/core/test_backward.mojo`
-- `tests/shared/core/test_broadcasting.mojo`
-- `tests/shared/core/test_comparison_ops.mojo`
-- `tests/shared/core/test_creation.mojo`
-- `tests/shared/core/test_edge_cases.mojo`
-- `tests/shared/core/test_elementwise_forward.mojo`
-- `tests/shared/core/test_properties.mojo`
-- `tests/shared/core/test_reduction_forward.mojo`
-- `tests/shared/core/test_shape.mojo`
-- `tests/shared/core/test_utility.mojo`
+- `tests/projectodyssey/core/test_backward.mojo`
+- `tests/projectodyssey/core/test_broadcasting.mojo`
+- `tests/projectodyssey/core/test_comparison_ops.mojo`
+- `tests/projectodyssey/core/test_creation.mojo`
+- `tests/projectodyssey/core/test_edge_cases.mojo`
+- `tests/projectodyssey/core/test_elementwise_forward.mojo`
+- `tests/projectodyssey/core/test_properties.mojo`
+- `tests/projectodyssey/core/test_reduction_forward.mojo`
+- `tests/projectodyssey/core/test_shape.mojo`
+- `tests/projectodyssey/core/test_utility.mojo`
 
 ---
 
@@ -542,7 +542,7 @@ list[5] = 100            # ERROR if size < 6
 
 **Files Affected**: PR #2041
 
-- `tests/shared/core/test_shape.mojo` (multiple concatenate/stack tests)
+- `tests/projectodyssey/core/test_shape.mojo` (multiple concatenate/stack tests)
 
 ---
 
@@ -578,8 +578,8 @@ new_shape.append(-1)  # Infer: should be 4
 
 **Files Affected**: PR #2041, PR #2042
 
-- `tests/shared/core/test_shape.mojo`
-- `tests/shared/core/test_backward.mojo`
+- `tests/projectodyssey/core/test_shape.mojo`
+- `tests/projectodyssey/core/test_backward.mojo`
 
 ---
 
@@ -623,7 +623,7 @@ framework needs `Comparable` trait for generic comparisons.
 
 **Files Affected**: PR #2043
 
-- `tests/shared/core/test_initializers.mojo` (lines 721, 755, 768)
+- `tests/projectodyssey/core/test_initializers.mojo` (lines 721, 755, 768)
 
 ---
 
@@ -672,7 +672,7 @@ var dt = tensor.dtype()  # dtype is a method
 
 **Files Affected**: PR #2043
 
-- `tests/shared/core/test_initializers_validation.mojo` (lines 40, 43, 46, 58, 60, 63,
+- `tests/projectodyssey/core/test_initializers_validation.mojo` (lines 40, 43, 46, 58, 60, 63,
   66, 69, 350-356)
 
 ---
@@ -727,7 +727,7 @@ check_gradient(forward, backward, x)
 
 **Files Affected**: PR #2043
 
-- `tests/shared/core/test_reduction.mojo` (lines 88, 95, 149, 156, 208, 215, 267, 274)
+- `tests/projectodyssey/core/test_reduction.mojo` (lines 88, 95, 149, 156, 208, 215, 267, 274)
 
 ---
 
@@ -778,7 +778,7 @@ fn process(ref list: List[Int]):
 
 **Files Affected**: PR #2043
 
-- `shared/core/reduction.mojo` (lines 629, 640, 763, 774)
+- `src/projectodyssey/core/reduction.mojo` (lines 629, 640, 763, 774)
 
 ---
 
@@ -822,7 +822,7 @@ for i in range(5):
 
 **Files Affected**: PR #2046
 
-- `tests/shared/core/test_tensors.mojo` (line 423-426)
+- `tests/projectodyssey/core/test_tensors.mojo` (line 423-426)
 
 ---
 
@@ -869,7 +869,7 @@ predictions._data.bitcast[Float32]()[3] = 0.3
 
 **Files Affected**: PR #2046
 
-- `tests/shared/core/test_losses.mojo` (9 test functions)
+- `tests/projectodyssey/core/test_losses.mojo` (9 test functions)
 
 ---
 
@@ -926,7 +926,7 @@ input._set_float64(11, -0.1)
 
 **Files Affected**: PR #2046
 
-- `tests/shared/core/test_gradient_checking.mojo` (lines 74-89)
+- `tests/projectodyssey/core/test_gradient_checking.mojo` (lines 74-89)
 
 ---
 
@@ -976,7 +976,7 @@ assert_true(val <= Float32(1.0), "Value must be <= 1")
 
 **Files Affected**: PR #2046
 
-- `tests/shared/core/test_layers.mojo` (lines 351-352)
+- `tests/projectodyssey/core/test_layers.mojo` (lines 351-352)
 
 ---
 
@@ -1050,7 +1050,7 @@ fn example(
 
 **Files Affected**: PR #2044
 
-- `shared/data/text_transforms.mojo` (RandomInsertion, RandomSynonymReplacement)
+- `src/projectodyssey/data/text_transforms.mojo` (RandomInsertion, RandomSynonymReplacement)
 
 ---
 
@@ -1090,7 +1090,7 @@ _ = trainer.train(epochs=1)
 
 **Files Affected**: PR #2044
 
-- `tests/shared/training/test_trainer_interface.mojo` (lines 42, 73, 98, 121, 255, 320,
+- `tests/projectodyssey/training/test_trainer_interface.mojo` (lines 42, 73, 98, 121, 255, 320,
   330)
 
 ---

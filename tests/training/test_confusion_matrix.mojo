@@ -19,8 +19,8 @@ from std.testing import (
     assert_equal,
     assert_almost_equal,
 )
-from shared.tensor.any_tensor import AnyTensor
-from shared.training.metrics import ConfusionMatrix
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.training.metrics import ConfusionMatrix
 
 
 def test_confusion_matrix_basic() raises:

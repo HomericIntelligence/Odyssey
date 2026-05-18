@@ -21,27 +21,27 @@ See issue #3009 for detailed analysis.
 """
 
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
-from shared.core.conv import conv2d
-from shared.core.pooling import maxpool2d
-from shared.core.linear import linear
-from shared.core.activation import relu
-from shared.core.shape import conv2d_output_shape, pool_output_shape
-from shared.core.initializers import kaiming_uniform
-from shared.testing.assertions import (
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.core.conv import conv2d
+from projectodyssey.core.pooling import maxpool2d
+from projectodyssey.core.linear import linear
+from projectodyssey.core.activation import relu
+from projectodyssey.core.shape import conv2d_output_shape, pool_output_shape
+from projectodyssey.core.initializers import kaiming_uniform
+from projectodyssey.testing.assertions import (
     assert_shape,
     assert_dtype,
     assert_true,
     assert_false,
 )
-from shared.testing.special_values import (
+from projectodyssey.testing.special_values import (
     create_special_value_tensor,
     create_alternating_pattern_tensor,
     create_seeded_random_tensor,
     SPECIAL_VALUE_ONE,
     SPECIAL_VALUE_NEG_ONE,
 )
-from shared.testing.layer_testers import LayerTester
+from projectodyssey.testing.layer_testers import LayerTester
 from std.math import isnan, isinf
 
 

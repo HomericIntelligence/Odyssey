@@ -1,11 +1,11 @@
 # Papers and Shared Library Integration Guide
 
-This guide explains how papers/ and shared/ directories work together.
+This guide explains how papers/ and src/projectodyssey/ directories work together.
 
 ## Overview
 
 - **papers/**: Individual paper implementations
-- **shared/**: Reusable ML/AI components
+- **src/projectodyssey/**: Reusable ML/AI components
 
 ## Integration Pattern
 
@@ -14,9 +14,9 @@ Papers import from shared:
 ```mojo
 ```mojo
 
-from shared.core import Layer, Module
-from shared.training import Optimizer
-from shared.data import Dataset
+from projectodyssey.core import Layer, Module
+from projectodyssey.training import Optimizer
+from projectodyssey.data import Dataset
 
 ```text
 

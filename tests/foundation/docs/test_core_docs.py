@@ -131,7 +131,7 @@ class TestProjectStructure:
 
 ```text
 ProjectOdyssey/
-├── shared/
+├── src/projectodyssey/
 ├── papers/
 └── tests/
 ```

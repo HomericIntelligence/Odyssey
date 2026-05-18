@@ -104,7 +104,7 @@ These operations allocate a new data buffer:
 
 ## The `transpose_view()` Special Case
 
-`transpose_view()` in `shared/core/matrix.mojo` is **not** a canonical view in the
+`transpose_view()` in `src/projectodyssey/core/matrix.mojo` is **not** a canonical view in the
 sense above. It copies the raw bytes and then sets permuted strides — the data pointer
 is independent. This makes it useful for testing `is_contiguous()` and `as_contiguous()`
 in isolation but it is **not** the recommended API for transposing tensors in production
@@ -193,9 +193,9 @@ if t.is_view():
 
 ## See Also
 
-- `shared/core/any_tensor.mojo` — `reshape()`, `transpose()`, `slice()`
-- `shared/core/shape.mojo` — `broadcast_to()`, `squeeze()`, `unsqueeze()`
-- `shared/core/matrix.mojo` — `transpose_view()` (test utility)
+- `src/projectodyssey/core/any_tensor.mojo` — `reshape()`, `transpose()`, `slice()`
+- `src/projectodyssey/core/shape.mojo` — `broadcast_to()`, `squeeze()`, `unsqueeze()`
+- `src/projectodyssey/core/matrix.mojo` — `transpose_view()` (test utility)
 - Issue #4082 — `transpose()` vs `transpose_view()` cross-reference
 - Issue #4462 — `reshape()` zero-copy view semantics
 - Issue #3862 — `broadcast_to()` dimension-reduction error documentation

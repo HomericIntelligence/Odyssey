@@ -19,7 +19,7 @@ See [learnings.md](../learnings.md) for generalized lessons.
 
 **Verification**: Stress tests (10k iters), full training no leaks.
 
-**Modified**: `shared/core/any_tensor.mojo`.
+**Modified**: `src/projectodyssey/core/any_tensor.mojo`.
 
 ## Broadcasting Crash
 
@@ -40,7 +40,7 @@ for dim in range(len(shape)):
 
 **Verification**: 1D->2D, middle-dim, scalar broadcasts; inference success.
 
-**Modified**: `shared/core/arithmetic.mojo:_broadcast_binary()`.
+**Modified**: `src/projectodyssey/core/arithmetic.mojo:_broadcast_binary()`.
 
 ## Transpose Memory Corruption
 
@@ -56,7 +56,7 @@ for dim in range(len(shape)):
 
 **Verification**: (120,256) transpose, batch=32 forward.
 
-**Modified**: `shared/core/matrix.mojo:transpose()`.
+**Modified**: `src/projectodyssey/core/matrix.mojo:transpose()`.
 
 ## List Constructor Bugs (8x)
 

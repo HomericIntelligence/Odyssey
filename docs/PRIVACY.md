@@ -9,15 +9,15 @@ privacy compliance, and practical recommendations for operators.
 | Category | Examples | Storage |
 | --- | --- | --- |
 | Training datasets | EMNIST, CIFAR-10, user-provided files | Local disk only |
-| Model weights | Checkpoint files written by `shared/training/checkpoint.mojo` | Local disk only |
-| Training metrics | Loss, accuracy tracked in memory by `shared/training/metrics/` | In-process only |
+| Model weights | Checkpoint files written by `src/projectodyssey/training/checkpoint.mojo` | Local disk only |
+| Training metrics | Loss, accuracy tracked in memory by `src/projectodyssey/training/metrics/` | In-process only |
 
 All data stays on the machine running training. No data is transmitted externally.
 
 ## Telemetry and Phone-Home
 
 ProjectOdyssey contains **no telemetry, no analytics, and no network calls** of
-any kind. The codebase (`shared/`, `examples/`) has been audited and contains no
+any kind. The codebase (`src/projectodyssey/`, `examples/`) has been audited and contains no
 outbound HTTP, socket, or reporting code. Training runs are entirely local.
 
 Note: the Mojo compiler and Modular toolchain are separate products with their own

@@ -1,5 +1,5 @@
 [package]
-name = "ml-odyssey"
+name = "projectodyssey"
 version = "0.1.0"
 description = "Mojo-based AI research platform for reproducing classic research papers"
 authors = ["ML Odyssey Contributors"]
@@ -15,7 +15,7 @@ src = "."
 
 # Package paths - register top-level packages
 [packages]
-shared = "shared"
+projectodyssey = "src/projectodyssey"
 examples = "examples"
 tests = "tests"
 benchmarks = "benchmarks"

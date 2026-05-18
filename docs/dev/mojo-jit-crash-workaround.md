@@ -13,8 +13,8 @@ Mojo 0.26.1 compiler bug that is mitigated by targeted submodule imports (see be
 ## Root Cause
 
 The JIT crash is triggered by **compilation footprint**, not random instability. When a test
-file does `from shared.core import AnyTensor, zeros`, the Mojo JIT must compile **all 37,401
-lines** across 60+ source files, because `shared/core/__init__.mojo` eagerly re-exports 200+
+file does `from projectodyssey.core import AnyTensor, zeros`, the Mojo JIT must compile **all 37,401
+lines** across 60+ source files, because `src/projectodyssey/core/__init__.mojo` eagerly re-exports 200+
 symbols from 40+ modules. This compilation volume intermittently overflows a JIT-internal
 buffer, triggering glibc's `__fortify_fail_abort`.
 
@@ -22,10 +22,10 @@ buffer, triggering glibc's `__fortify_fail_abort`.
 
 - `__fortify_fail_abort` fires on buffer overflow detection -- this is a **compilation-time**
   overflow, not a runtime bug
-- `shared/core/__init__.mojo` imports from 40+ submodules including `dtype_dispatch.mojo`
+- `src/projectodyssey/core/__init__.mojo` imports from 40+ submodules including `dtype_dispatch.mojo`
   (176+ monomorphizations) and `elementwise.mojo` (154+ monomorphizations)
-- Files using `from shared.core import` (package-level) -> compile all 37K lines per test
-- Files using `from shared.core.any_tensor import` (targeted) -> compile ~500-2000 lines per test
+- Files using `from projectodyssey.core import` (package-level) -> compile all 37K lines per test
+- Files using `from projectodyssey.core.any_tensor import` (targeted) -> compile ~500-2000 lines per test
 - The crash is non-deterministic because ASLR, memory layout, and JIT caching vary per run
 
 ## Fix Applied
@@ -34,12 +34,12 @@ buffer, triggering glibc's `__fortify_fail_abort`.
 
 ```mojo
 # BEFORE: compiles all 37,401 lines via __init__.mojo
-from shared.core import AnyTensor, zeros, ones, matmul, relu
+from projectodyssey.core import AnyTensor, zeros, ones, matmul, relu
 
 # AFTER: compiles only the needed modules (~500-2000 lines)
-from shared.core.any_tensor import AnyTensor, zeros, ones
-from shared.core.matrix import matmul
-from shared.core.activation import relu
+from projectodyssey.core.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.core.matrix import matmul
+from projectodyssey.core.activation import relu
 ```
 
 This fix was applied to 126 test files in the commit that introduced this note. See the
@@ -110,11 +110,11 @@ When writing new test files, always use targeted submodule imports:
 
 ```mojo
 # CORRECT: only compiles what you need
-from shared.core.any_tensor import AnyTensor, zeros, ones
-from shared.core.activation import relu, sigmoid
+from projectodyssey.core.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.core.activation import relu, sigmoid
 
 # WRONG: compiles all 37K lines, risks JIT crash
-from shared.core import AnyTensor, zeros, ones, relu, sigmoid
+from projectodyssey.core import AnyTensor, zeros, ones, relu, sigmoid
 ```
 
 ## Relationship to Heap Corruption Bug (RESOLVED)
@@ -135,8 +135,8 @@ removed from `comprehensive-tests.yml`.
 
 Two synthetic test files were created to isolate the import-style variable:
 
-- `tests/shared/core/test_jit_crash_heavy_import.mojo` -- uses `from shared.core import` (package-level)
-- `tests/shared/core/test_jit_crash_light_import.mojo` -- uses `from shared.core.any_tensor import` (targeted)
+- `tests/projectodyssey/core/test_jit_crash_heavy_import.mojo` -- uses `from projectodyssey.core import` (package-level)
+- `tests/projectodyssey/core/test_jit_crash_light_import.mojo` -- uses `from projectodyssey.core.any_tensor import` (targeted)
 
 ### Local Results (GLIBC 2.39, Mojo 0.26.1, WSL2 Linux 6.6.87)
 
@@ -188,7 +188,7 @@ To reproduce a crash locally with gdb capture:
 
 ```bash
 # One test file
-MOJO_TEST_UNDER_GDB=1 just test-group tests/shared/core \
+MOJO_TEST_UNDER_GDB=1 just test-group tests/projectodyssey/core \
     "test_gradient_checking_basic.mojo"
 
 # The wrapper writes to crash-bundle/cores/ by default
@@ -242,14 +242,14 @@ collects both kernel cores and gdb-written files, and bundles gdb itself into
 The JIT compilation volume crash described in this document persists in **Mojo 0.26.3**
 (dev2026040705, Ubuntu 24.04, GLIBC 2.39) and manifests in CI as non-deterministic failures
 of the two required status checks -- `Core Types & Fuzz` (path: `tests/core/types/`) and
-`Integration Tests` (path: `tests/shared/integration/`). Three consecutive `main` runs on
+`Integration Tests` (path: `tests/projectodyssey/integration/`). Three consecutive `main` runs on
 2026-04-12 all failed in a different random subset of groups, confirming the classic
 non-deterministic JIT overflow pattern. See
 [`repro/issues/jit-compilation-volume-crash.md`](https://github.com/HomericIntelligence/ProjectOdyssey/blob/main/repro/issues/jit-compilation-volume-crash.md)
 for the 0.26.3 minimal reproducer.
 
 [ADR-015](../adr/ADR-015-flaky-required-checks-jit-crash.md) formalizes the corrective
-actions: (1) audit and convert any remaining package-level `from shared.core import` statements
+actions: (1) audit and convert any remaining package-level `from projectodyssey.core import` statements
 in the two failing test groups to targeted submodule imports using the Symbol-to-Submodule
 Mapping table above; (2) remove `scripts/test-with-retry.sh` and its justfile wiring to make
 the retry mitigation's SUPERSEDED status true in the tree. Both actions are tracked under

@@ -20,16 +20,16 @@ from std.testing import (
     assert_equal,
     assert_almost_equal,
 )
-from shared.tensor.any_tensor import AnyTensor
-from shared.training.trainer_interface import (
+from projectodyssey.tensor.any_tensor import AnyTensor
+from projectodyssey.training.trainer_interface import (
     DataBatch,
     DataLoader,
     TrainerConfig,
     TrainingMetrics,
 )
-from shared.training.loops.training_loop import TrainingLoop
-from shared.training.loops.validation_loop import ValidationLoop
-from shared.training.trainer import (
+from projectodyssey.training.loops.training_loop import TrainingLoop
+from projectodyssey.training.loops.validation_loop import ValidationLoop
+from projectodyssey.training.trainer import (
     BaseTrainer,
     create_default_trainer,
     create_trainer,

@@ -3399,7 +3399,7 @@ You are on branch: {worktree.name}
 1. Read and understand the plan above
 2. Create or modify the necessary files to implement the plan
 3. Use the Write tool to create new files and Edit tool to modify existing files
-4. Write clean, well-documented Mojo code following the existing patterns in shared/core/
+4. Write clean, well-documented Mojo code following the existing patterns in src/projectodyssey/core/
 5. Run tests with `pixi run mojo test` if applicable
 6. COMMIT your changes before finishing using: git add -A && git commit -m "feat: Implement #{issue}"
 7. DO NOT just output text - you MUST make actual file changes AND commit them

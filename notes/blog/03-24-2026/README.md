@@ -130,7 +130,7 @@ pixi run mojo build --sanitize address -g -o /tmp/train_asan test_training_loop.
 ERROR: AddressSanitizer: attempting free on address which was not malloc()-d
     #0 in free
     #1 in AnyTensor::__del__
-       shared/tensor/any_tensor.mojo:491
+       src/projectodyssey/tensor/any_tensor.mojo:491
 
 0x50200000ab00 is located 512 bytes inside of 1024-byte region
     [0x502000000900, 0x502000000d00)
@@ -175,7 +175,7 @@ signature.
 
 ### slice() Creates Views With Offset Pointers
 
-In `shared/tensor/any_tensor.mojo`, the `slice()` method creates a view into an existing
+In `src/projectodyssey/tensor/any_tensor.mojo`, the `slice()` method creates a view into an existing
 tensor by offsetting the `_data` pointer:
 
 ```mojo
@@ -380,8 +380,8 @@ The file-splitting was treating two diseases without knowing either diagnosis.
 
 ### Project Files
 
-- `shared/tensor/any_tensor.mojo` lines 478-492 -- the `__del__` destructor
-- `shared/tensor/any_tensor.mojo` lines 741-754 -- the `slice()` view creation
+- `src/projectodyssey/tensor/any_tensor.mojo` lines 478-492 -- the `__del__` destructor
+- `src/projectodyssey/tensor/any_tensor.mojo` lines 741-754 -- the `slice()` view creation
 - [ADR-009: Heap corruption workaround](/docs/adr/ADR-009-heap-corruption-workaround.md) --
   file-splitting workaround that masked both bugs
 

@@ -19,7 +19,7 @@ Expected after fix: prints "All threads completed" and exits.
 """
 
 from std.algorithm import parallelize
-from shared.base.memory_pool import TensorMemoryPool
+from projectodyssey.base.memory_pool import TensorMemoryPool
 
 
 def main() raises:

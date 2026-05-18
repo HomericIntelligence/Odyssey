@@ -23,7 +23,7 @@ def main():
     # Test 1: Version Info
     # ========================================================================
     print("Test 1: Checking version info...")
-    from shared import VERSION, AUTHOR, LICENSE
+    from projectodyssey import VERSION, AUTHOR, LICENSE
 
     print("  ✓ Version:", VERSION)
     print("  ✓ Author:", AUTHOR)
@@ -34,14 +34,14 @@ def main():
     # ========================================================================
     print("\nTest 2: Checking core package...")
     # These imports are commented until implementation completes
-    # from shared.core import Linear, ReLU, Tensor
+    # from projectodyssey.core import Linear, ReLU, Tensor
     print("  ✓ Core package accessible (placeholder - awaiting implementation)")
 
     # ========================================================================
     # Test 3: Training Package
     # ========================================================================
     print("\nTest 3: Checking training package...")
-    # from shared.training import SGD, Adam
+    # from projectodyssey.training import SGD, Adam
     print(
         "  ✓ Training package accessible (placeholder - awaiting"
         " implementation)"
@@ -51,14 +51,14 @@ def main():
     # Test 4: Data Package
     # ========================================================================
     print("\nTest 4: Checking data package...")
-    # from shared.data import DataLoader
+    # from projectodyssey.data import DataLoader
     print("  ✓ Data package accessible (placeholder - awaiting implementation)")
 
     # ========================================================================
     # Test 5: Utils Package
     # ========================================================================
     print("\nTest 5: Checking utils package...")
-    # from shared.utils import Logger
+    # from projectodyssey.utils import Logger
     print(
         "  ✓ Utils package accessible (placeholder - awaiting implementation)"
     )
@@ -67,7 +67,7 @@ def main():
     # Test 6: Root Convenience Imports
     # ========================================================================
     print("\nTest 6: Checking root convenience imports...")
-    # from shared import Linear, SGD
+    # from projectodyssey import Linear, SGD
     print("  ✓ Root imports accessible (placeholder - awaiting implementation)")
 
     # ========================================================================

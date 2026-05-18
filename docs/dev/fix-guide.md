@@ -18,11 +18,11 @@ error: __init__ method must return Self type with 'out' argument
 
 ### Affected Files (5 test files + 2 implementation files)
 
-- tests/shared/data/datasets/test_base_dataset.mojo:25
-- tests/shared/data/datasets/test_tensor_dataset.mojo:32
-- tests/shared/data/loaders/test_base_loader.mojo:20
-- tests/shared/data/transforms/test_pipeline.mojo:25 & 35
-- shared/data/transforms.mojo:621 & 400
+- tests/projectodyssey/data/datasets/test_base_dataset.mojo:25
+- tests/projectodyssey/data/datasets/test_tensor_dataset.mojo:32
+- tests/projectodyssey/data/loaders/test_base_loader.mojo:20
+- tests/projectodyssey/data/transforms/test_pipeline.mojo:25 & 35
+- src/projectodyssey/data/transforms.mojo:621 & 400
 - (Plus more in other implementation files)
 
 ### Current Code Pattern
@@ -56,7 +56,7 @@ struct MyStruct:
 
 ### Example Fix
 
-**File**: tests/shared/data/datasets/test_base_dataset.mojo
+**File**: tests/projectodyssey/data/datasets/test_base_dataset.mojo
 
 **Before**:
 
@@ -93,7 +93,7 @@ error: value of type 'AnyTensor' cannot be implicitly copied, it does not confor
 note: consider transferring the value with '^'
 ```text
 
-### Affected Files (1 file: shared/data/transforms.mojo)
+### Affected Files (1 file: src/projectodyssey/data/transforms.mojo)
 
 - Line 523: RandomRotation.**call**
 - Line 769: RandomErasing.**call** (path 1)
@@ -122,7 +122,7 @@ Add `^` caret operator after `data` to explicitly transfer ownership.
 
 ### Example Fix
 
-**File**: shared/data/transforms.mojo, line 523
+**File**: src/projectodyssey/data/transforms.mojo, line 523
 
 **Before**:
 
@@ -158,13 +158,13 @@ error: use of unknown declaration 'Tensor'
 
 ### Current Code
 
-**File**: tests/shared/data/transforms/test_augmentations.mojo
+**File**: tests/projectodyssey/data/transforms/test_augmentations.mojo
 
 **Current imports** (lines 7-19):
 
 ```mojo
 from tests.shared.conftest import assert_true, assert_equal, assert_false, TestFixtures
-from shared.data.transforms import (
+from projectodyssey.data.transforms import (
     Transform,
     RandomHorizontalFlip,
     RandomVerticalFlip,
@@ -175,7 +175,7 @@ from shared.data.transforms import (
     Pipeline,
     Compose,
 )
-from shared.core.any_tensor import AnyTensor
+from projectodyssey.core.any_tensor import AnyTensor
 ```text
 
 ### Solution
@@ -184,16 +184,16 @@ from shared.core.any_tensor import AnyTensor
 
 ```mojo
 # Change line 19 from:
-from shared.core.any_tensor import AnyTensor
+from projectodyssey.core.any_tensor import AnyTensor
 
 # To:
-from shared.core.any_tensor import AnyTensor, Tensor
+from projectodyssey.core.any_tensor import AnyTensor, Tensor
 ```text
 
 **Option B**: Replace all Tensor usages (if Tensor is not available)
 
 ```bash
-# Run in tests/shared/data/transforms/ directory
+# Run in tests/projectodyssey/data/transforms/ directory
 sed -i 's/Tensor(/AnyTensor(/g' test_augmentations.mojo
 sed -i 's/List\[Tensor\]/List[AnyTensor]/g' test_augmentations.mojo
 ```text
@@ -217,7 +217,7 @@ error: 'Int' is not subscriptable
                       ~~~~~~~~~~~~~~~~~~~~^
 ```text
 
-### Affected File (1 file: shared/data/transforms.mojo)
+### Affected File (1 file: src/projectodyssey/data/transforms.mojo)
 
 - Line 458: RandomCrop.**call**
 
@@ -246,7 +246,7 @@ if self.padding:
 
 ### Example Fix
 
-**File**: shared/data/transforms.mojo, line 458
+**File**: src/projectodyssey/data/transforms.mojo, line 458
 
 **Before**:
 
@@ -308,7 +308,7 @@ struct MyStruct(Copyable, Movable):
 
 ### Example Fix
 
-**File**: tests/shared/data/datasets/test_base_dataset.mojo, line 15
+**File**: tests/projectodyssey/data/datasets/test_base_dataset.mojo, line 15
 
 **Before**:
 
@@ -349,37 +349,37 @@ Fixes 17 errors - unblocks all test compilation
 
 ```bash
 # Edit these files and add -> Self to all __init__ methods:
-1. tests/shared/data/datasets/test_base_dataset.mojo (line 25)
-2. tests/shared/data/datasets/test_tensor_dataset.mojo (line 32)
-3. tests/shared/data/loaders/test_base_loader.mojo (line 20)
-4. tests/shared/data/transforms/test_pipeline.mojo (lines 25, 35)
-5. shared/data/transforms.mojo (lines 621, 400)
+1. tests/projectodyssey/data/datasets/test_base_dataset.mojo (line 25)
+2. tests/projectodyssey/data/datasets/test_tensor_dataset.mojo (line 32)
+3. tests/projectodyssey/data/loaders/test_base_loader.mojo (line 20)
+4. tests/projectodyssey/data/transforms/test_pipeline.mojo (lines 25, 35)
+5. src/projectodyssey/data/transforms.mojo (lines 621, 400)
 ```text
 
-**After Step 1**: Run `pixi run mojo -I . tests/shared/data/run_all_tests.mojo` to check progress
+**After Step 1**: Run `pixi run mojo -I . tests/projectodyssey/data/run_all_tests.mojo` to check progress
 
 ### Step 2: Fix AnyTensor Ownership (15 min)
 
 Fixes 11 errors - enables transform tests
 
 ```bash
-# Add ^ to return statements in shared/data/transforms.mojo:
+# Add ^ to return statements in src/projectodyssey/data/transforms.mojo:
 1. Line 523: return data^ (RandomRotation)
 2. Line 769: return data^ (RandomErasing path 1)
 3. Line 806: return data^ (RandomErasing path 2)
 4. Line 814: return data^ (RandomErasing path 3)
 ```text
 
-**After Step 2**: Run `pixi run mojo -I . tests/shared/data/run_all_tests.mojo` to check progress
+**After Step 2**: Run `pixi run mojo -I . tests/projectodyssey/data/run_all_tests.mojo` to check progress
 
 ### Step 3: Fix Tensor Import (10 min)
 
 Fixes 17 usage errors - enables augmentation tests
 
 ```bash
-# Edit tests/shared/data/transforms/test_augmentations.mojo:
+# Edit tests/projectodyssey/data/transforms/test_augmentations.mojo:
 # Add Tensor to import on line 19:
-from shared.core.any_tensor import AnyTensor, Tensor
+from projectodyssey.core.any_tensor import AnyTensor, Tensor
 ```text
 
 **After Step 3**: Run full test suite - should reach runtime
@@ -389,7 +389,7 @@ from shared.core.any_tensor import AnyTensor, Tensor
 Fixes 1 error - enables RandomCrop
 
 ```bash
-# Edit shared/data/transforms.mojo, line 458:
+# Edit src/projectodyssey/data/transforms.mojo, line 458:
 # Before: var pad = self.padding.value()[]
 # After:  var pad = self.padding.value()
 ```text
@@ -413,7 +413,7 @@ Fixes 9 cascading errors - proper type safety
 After each fix step, run:
 
 ```bash
-pixi run mojo -I . tests/shared/data/run_all_tests.mojo
+pixi run mojo -I . tests/projectodyssey/data/run_all_tests.mojo
 ```text
 
 ### After Step 1 (Fix **init**)
@@ -524,7 +524,7 @@ struct MyStruct(Copyable, Movable):
 
 All fixes complete when:
 
-- `pixi run mojo -I . tests/shared/data/run_all_tests.mojo` executes without compilation errors
+- `pixi run mojo -I . tests/projectodyssey/data/run_all_tests.mojo` executes without compilation errors
 - Test output shows: `Total Tests: 43`, `Passed: X`, `Failed: Y`
 - No errors of the 5 types listed above appear
 

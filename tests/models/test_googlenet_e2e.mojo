@@ -14,7 +14,7 @@ All tests use small batches and synthetic data for fast execution (< 90 seconds)
 """
 
 
-from tests.shared.conftest import (
+from tests.projectodyssey.conftest import (
     assert_almost_equal,
     assert_close_float,
     assert_equal,
@@ -22,13 +22,17 @@ from tests.shared.conftest import (
     assert_shape,
     assert_true,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
-from shared.core.activation import relu
-from shared.core.pooling import maxpool2d, global_avgpool2d
-from shared.core.normalization import batch_norm2d
-from shared.core.conv import conv2d
-from shared.core.linear import linear
-from shared.core.initializers import kaiming_normal, xavier_normal, constant
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.core.activation import relu
+from projectodyssey.core.pooling import maxpool2d, global_avgpool2d
+from projectodyssey.core.normalization import batch_norm2d
+from projectodyssey.core.conv import conv2d
+from projectodyssey.core.linear import linear
+from projectodyssey.core.initializers import (
+    kaiming_normal,
+    xavier_normal,
+    constant,
+)
 
 
 struct InceptionModule:

@@ -26,14 +26,14 @@ CRASH PATTERN:
 
 IMPORT CHAIN THAT TRIGGERS CRASH:
   test_file.mojo
-    → shared/core/loss_utils.mojo        (module-level)
-      → shared/core/elementwise.mojo     (module-level, 1650 lines)
-        → shared/core/dtype_dispatch.mojo (module-level, 1520 lines, 176+ mono)
+    → src/projectodyssey/core/loss_utils.mojo        (module-level)
+      → src/projectodyssey/core/elementwise.mojo     (module-level, 1650 lines)
+        → src/projectodyssey/core/dtype_dispatch.mojo (module-level, 1520 lines, 176+ mono)
 
   OR:
   test_file.mojo
-    → shared/core/reduction.mojo         (module-level)
-      → shared/core/shape.mojo           (module-level, 1371 lines)
+    → src/projectodyssey/core/reduction.mojo         (module-level)
+      → src/projectodyssey/core/shape.mojo           (module-level, 1371 lines)
 
 FIX: See repro_module_import_crash_fixed.mojo — move heavy imports
   from module level into the function bodies that use them.
@@ -41,12 +41,12 @@ FIX: See repro_module_import_crash_fixed.mojo — move heavy imports
 
 # This import chain triggers the crash:
 #   loss_utils → elementwise (1650 lines) → dtype_dispatch (1520 lines)
-from shared.core.loss_utils import clip_predictions
-from shared.core.reduction import sum as reduce_sum
+from projectodyssey.core.loss_utils import clip_predictions
+from projectodyssey.core.reduction import sum as reduce_sum
 
 
 def test_clip_is_bounded() raises:
-    from shared.tensor.any_tensor import AnyTensor, zeros, ones
+    from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
     var shape = List[Int]()
     shape.append(4)
     var t = ones(shape, DType.float32)
@@ -55,7 +55,7 @@ def test_clip_is_bounded() raises:
 
 
 def test_reduce_sum_basic() raises:
-    from shared.tensor.any_tensor import AnyTensor, zeros, ones
+    from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
     var shape = List[Int]()
     shape.append(3)
     var t = ones(shape, DType.float32)

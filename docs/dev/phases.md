@@ -9,7 +9,7 @@ Links to detailed fixes in [fixes.md](fixes.md), learnings in [learnings.md](../
 
 **Issues**: #1904-1908 (MOJO-001 to MOJO-005)
 
-**Key Changes** (`shared/core/extensor.mojo`):
+**Key Changes** (`src/projectodyssey/core/extensor.mojo`):
 
 - Added `_refcount: UnsafePointer[Int]`.
 - `__copyinit__`: Shallow copy + incr refcount.
@@ -26,7 +26,7 @@ Links to detailed fixes in [fixes.md](fixes.md), learnings in [learnings.md](../
 
 **Issues**: #1909-1913 (DATA-001 to DATA-005)
 
-**Key Changes** (`shared/core/extensor.mojo`):
+**Key Changes** (`src/projectodyssey/core/extensor.mojo`):
 
 - `_original_numel_quantized: Int` for padding metadata (MX/ NVFP4).
 - Defensive dtype validation + bounds checks in 13 conversions (fp8, bf8, int*, uint*).

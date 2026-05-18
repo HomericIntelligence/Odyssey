@@ -1015,7 +1015,7 @@ grad[2] = 0.3 * (1.0 - 1.0) = 0.0
 
 ### 1. batch_norm2d_backward
 
-**Location**: `shared/core/normalization.mojo` line 463
+**Location**: `src/projectodyssey/core/normalization.mojo` line 463
 **Signature**:
 
 ```mojo
@@ -1125,7 +1125,7 @@ not using the `_reduce_broadcast_dims` helper.
 
 ### 2. layer_norm_backward
 
-**Location**: `shared/core/normalization.mojo` line 1225
+**Location**: `src/projectodyssey/core/normalization.mojo` line 1225
 **Signature**:
 
 ```mojo

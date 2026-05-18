@@ -49,7 +49,7 @@ REQUIRED_FILES=(
     "configs/defaults/paths.yaml"
     "configs/templates/paper.yaml"
     "configs/templates/experiment.yaml"
-    "shared/utils/config_loader.mojo"
+    "src/projectodyssey/utils/config_loader.mojo"
 )
 
 for file in "${REQUIRED_FILES[@]}"; do

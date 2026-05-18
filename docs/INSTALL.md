@@ -1,6 +1,6 @@
 # External Consumer Install Guide
 
-This guide is for developers who want to use ML Odyssey's `shared/` library
+This guide is for developers who want to use ML Odyssey's `src/projectodyssey/` library
 (tensor ops, autograd, layers, training infrastructure) in their own Mojo project.
 
 ## Prerequisites
@@ -34,17 +34,17 @@ See [`docs/dev/mojo-glibc-compatibility.md`](dev/mojo-glibc-compatibility.md) fo
 
 ## Quick Start: Clone the Repo
 
-The simplest way to consume `shared/` is to clone this repo and add it to your
+The simplest way to consume `src/projectodyssey/` is to clone this repo and add it to your
 Mojo package path:
 
 ```bash
 git clone https://github.com/HomericIntelligence/ProjectOdyssey.git
 cd ProjectOdyssey
 pixi install          # installs Mojo 1.0.0b2 and all Python tooling
-just build            # compiles shared/ into .mojopkg artifacts
+just build            # compiles src/projectodyssey/ into .mojopkg artifacts
 ```
 
-Then, in your project's `pixi.toml`, add the `shared/` directory to `MOJO_PATH`:
+Then, in your project's `pixi.toml`, add the `src/projectodyssey/` directory to `MOJO_PATH`:
 
 ```toml
 [feature.default.activation.env]
@@ -53,13 +53,13 @@ MOJO_PATH = "/path/to/ProjectOdyssey/shared"
 
 ## Importing the Shared Library
 
-Once `MOJO_PATH` includes the `shared/` directory you can import directly:
+Once `MOJO_PATH` includes the `src/projectodyssey/` directory you can import directly:
 
 ```mojo
-from shared.core.any_tensor import AnyTensor, zeros
-from shared.tensor.tensor import Tensor
-from shared.autograd.variable import Variable
-from shared.training.trainer import Trainer
+from projectodyssey.core.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.tensor import Tensor
+from projectodyssey.autograd.variable import Variable
+from projectodyssey.training.trainer import Trainer
 ```
 
 The dual-type tensor system (`Tensor[dtype]` for compile-time dispatch, `AnyTensor`
@@ -69,7 +69,7 @@ for runtime-typed collections) is documented in
 ## Building a Distributable Package
 
 ```bash
-just package   # compiles shared/ into a .mojopkg archive
+just package   # compiles src/projectodyssey/ into a .mojopkg archive
 ```
 
 The output `.mojopkg` file can then be distributed and added to downstream

@@ -27,7 +27,7 @@ All 480 functions returning AnyTensor need explicit `[dt: DType]` parameters. Li
 
 **B2: `lazy_expression.mojo` / `lazy_eval.mojo` missing from all phases.** These hold `var _tensors: List[AnyTensor]` (line 111) and interact with core ops and collections. Added to Phase 5.
 
-**B3: `comptime Tensor = AnyTensor` naming collision.** `shared/__init__.mojo:82` defines `comptime Tensor = AnyTensor`. Creating a new `struct Tensor[dtype: DType]` while this alias exists causes a naming collision. Additionally, 8 test files define local `comptime Tensor = AnyTensor` aliases. **Fix**: Phase 1b must remove this alias BEFORE the new struct is importable. Replace with proper re-export from `shared/tensor/`. Update test files with local aliases too.
+**B3: `comptime Tensor = AnyTensor` naming collision.** `src/projectodyssey/__init__.mojo:82` defines `comptime Tensor = AnyTensor`. Creating a new `struct Tensor[dtype: DType]` while this alias exists causes a naming collision. Additionally, 8 test files define local `comptime Tensor = AnyTensor` aliases. **Fix**: Phase 1b must remove this alias BEFORE the new struct is importable. Replace with proper re-export from `src/projectodyssey/tensor/`. Update test files with local aliases too.
 
 **B4: `as_tensor[dtype]()`/`as_any()` refcount protocol unspecified.** The zero-copy conversion code in section 11.8 (lines 896-916) uses `...` to elide the critical refcount detail. AnyTensor's refcount protocol (`any_tensor.mojo:435-489`) increments in `__copyinit__`, decrements in `__del__`, frees at 0. If `as_tensor()` creates a `Tensor[dtype]` WITHOUT incrementing the shared refcount, then when the source AnyTensor is destroyed (Mojo's ASAP destruction), the refcount drops to 0 and frees memory — leaving the Tensor[dtype] with a dangling pointer.
 
@@ -69,9 +69,9 @@ Required test: create AnyTensor, convert to Tensor[dtype], let AnyTensor go out 
 
 **H6: Eager instantiation binary bloat.** Mojo uses eager instantiation (confirmed by blog post investigation). 317 functions x 11 dtypes = 3,487 worst-case. Mitigation: restrict to 3 float types (float16/32/64) initially.
 
-**H7: Module/Sequential trait boundary forces AnyTensor round-trips.** `shared/core/module.mojo:86` defines `fn forward(mut self, input: AnyTensor) raises -> AnyTensor`. Mojo 0.26.1 doesn't support parametric trait methods. This means: (a) layers like `Linear[dtype]` must still accept AnyTensor in their `forward()` signature; (b) `Sequential2[T0, T1]` chains layers through AnyTensor, losing type safety between layers; (c) every inter-layer boundary does AnyTensor→Tensor[dtype]→compute→as_any() round-trip. **Impact**: Type safety benefits of Tensor[dtype] apply only INSIDE individual layer implementations, not across the composition boundary. **Key detail**: Only `Linear` and `ReLULayer` implement Module. `BatchNorm2dLayer`, `Conv2dLayer`, `DropoutLayer` do NOT — they can be freely parameterized without trait constraints.
+**H7: Module/Sequential trait boundary forces AnyTensor round-trips.** `src/projectodyssey/core/module.mojo:86` defines `fn forward(mut self, input: AnyTensor) raises -> AnyTensor`. Mojo 0.26.1 doesn't support parametric trait methods. This means: (a) layers like `Linear[dtype]` must still accept AnyTensor in their `forward()` signature; (b) `Sequential2[T0, T1]` chains layers through AnyTensor, losing type safety between layers; (c) every inter-layer boundary does AnyTensor→Tensor[dtype]→compute→as_any() round-trip. **Impact**: Type safety benefits of Tensor[dtype] apply only INSIDE individual layer implementations, not across the composition boundary. **Key detail**: Only `Linear` and `ReLULayer` implement Module. `BatchNorm2dLayer`, `Conv2dLayer`, `DropoutLayer` do NOT — they can be freely parameterized without trait constraints.
 
-**H8: Total scope underestimated ~2x.** Phase 1 estimate of ~200 lines changed is wrong — renaming the struct in the 4,703-line any_tensor.mojo + updating `shared/__init__.mojo` + adding `as_tensor()` is ~1,500 lines. Phase 7 estimate of ~3,000 lines across 386 test files (8 lines/file avg) is wrong — 3,975 creation calls + 412 import lines + set() calls = ~5,600-8,000 lines. Revised total: ~15,700 lines (up from 9,700).
+**H8: Total scope underestimated ~2x.** Phase 1 estimate of ~200 lines changed is wrong — renaming the struct in the 4,703-line any_tensor.mojo + updating `src/projectodyssey/__init__.mojo` + adding `as_tensor()` is ~1,500 lines. Phase 7 estimate of ~3,000 lines across 386 test files (8 lines/file avg) is wrong — 3,975 creation calls + 412 import lines + set() calls = ~5,600-8,000 lines. Revised total: ~15,700 lines (up from 9,700).
 
 #### MEDIUM (6)
 
@@ -138,8 +138,8 @@ AnyTensor stores `_dtype` as a **runtime** field (`var _dtype: DType`). This mea
 
 The current workaround (`set()` method) introduces precision-losing Float64 round-trips and requires callers to use a non-standard API.
 
-**Source**: `shared/core/any_tensor.mojo:798` — `__getitem__` returns `Float32`
-**Source**: `shared/core/any_tensor.mojo:116` — `var _dtype: DType` runtime field
+**Source**: `src/projectodyssey/core/any_tensor.mojo:798` — `__getitem__` returns `Float32`
+**Source**: `src/projectodyssey/core/any_tensor.mojo:116` — `var _dtype: DType` runtime field
 
 ---
 
@@ -185,7 +185,7 @@ struct AnyTensor:
 The codebase contains:
 - **177 dtype branch checks** inside `any_tensor.mojo` alone
 - **174 dtype branch checks** across consumer files
-- **708 `_data.bitcast[T]()` calls** across the `shared/` directory
+- **708 `_data.bitcast[T]()` calls** across the `src/projectodyssey/` directory
 - **158 bitcast calls** inside `any_tensor.mojo`
 
 Each of these represents code that should be monomorphized by the compiler instead of branching at runtime.
@@ -194,7 +194,7 @@ Each of these represents code that should be monomorphized by the compiler inste
 
 Mojo's `obj[i] = val` uses `__getitem__` as an lvalue, not `__setitem__`. All `__setitem__` overloads are dead code for subscript assignment syntax. The 12 `set()` overloads are a workaround, not a solution.
 
-**Source**: `shared/core/any_tensor.mojo:922-992` — 12 `set()` overloads
+**Source**: `src/projectodyssey/core/any_tensor.mojo:922-992` — 12 `set()` overloads
 **Source**: Verified by test — `__setitem__` is never called via `[i]=` syntax
 
 ---
@@ -306,11 +306,11 @@ struct Tensor[dtype: DType](Tensor):
     # ...
 ```
 
-**Source**: `shared/core/traits.mojo` — already defines trait patterns for the codebase.
+**Source**: `src/projectodyssey/core/traits.mojo` — already defines trait patterns for the codebase.
 
 ### 5.3 Cross-DType Operations
 
-**Problem**: `shared/training/mixed_precision.mojo` intentionally converts between dtypes:
+**Problem**: `src/projectodyssey/training/mixed_precision.mojo` intentionally converts between dtypes:
 ```mojo
 fn convert_to_fp32_master(params: AnyTensor) -> AnyTensor  # float16 → float32
 ```
@@ -329,18 +329,18 @@ fn cast[target: DType](self) raises -> Tensor[target]:
     return result^
 ```
 
-**Source**: `shared/training/mixed_precision.mojo:8,5` — 8 AnyTensor params, 5 returns, 6 dtype branches
+**Source**: `src/projectodyssey/training/mixed_precision.mojo:8,5` — 8 AnyTensor params, 5 returns, 6 dtype branches
 
 ### 5.4 Memory Pool Compatibility
 
 **Current**: `_data = pooled_alloc(total_bytes)` returns `UnsafePointer[UInt8]`
 **After**: `_data = pooled_alloc(total_bytes).bitcast[Scalar[Self.dtype]]()` — one bitcast at allocation time, zero bitcasts thereafter.
 
-**Source**: `shared/base/memory_pool.mojo` — `pooled_alloc` / `pooled_free` byte-level API (moved from `shared/core/` in Phase 0)
+**Source**: `src/projectodyssey/base/memory_pool.mojo` — `pooled_alloc` / `pooled_free` byte-level API (moved from `src/projectodyssey/core/` in Phase 0)
 
 ### 5.5 Module/Sequential Stays on AnyTensor
 
-**Problem**: Mojo 0.26.1 doesn't support parametric trait methods. The `Module` trait (`shared/core/module.mojo:86`) defines `fn forward(mut self, input: AnyTensor) raises -> AnyTensor`. This signature cannot become `fn forward[dt: DType](mut self, input: Tensor[dt]) raises -> Tensor[dt]`.
+**Problem**: Mojo 0.26.1 doesn't support parametric trait methods. The `Module` trait (`src/projectodyssey/core/module.mojo:86`) defines `fn forward(mut self, input: AnyTensor) raises -> AnyTensor`. This signature cannot become `fn forward[dt: DType](mut self, input: Tensor[dt]) raises -> Tensor[dt]`.
 
 **Consequence**: Type safety benefits of `Tensor[dtype]` apply only INSIDE individual layer implementations, not across the composition boundary:
 - `Linear[DType.float32].forward()` internally works with `Tensor[DType.float32]`
@@ -375,26 +375,26 @@ fn cast[target: DType](self) raises -> Tensor[target]:
 
 | Rank | File | Total Signals | Why Hard |
 | --- | --- | --- | --- |
-| 1 | `shared/core/any_tensor.mojo` | 263 | The struct itself — every method changes |
-| 2 | `shared/core/elementwise.mojo` | 99 | 27 function signatures change |
-| 3 | `shared/core/activation.mojo` | 79 | 18 dtype branches, 29 return sites |
-| 4 | `shared/core/arithmetic_contiguous.mojo` | 67 | 40 dtype comparisons in 4 functions |
-| 5 | `shared/core/matrix.mojo` | 64 | 48 bitcast calls, partially migrated |
-| 6 | `shared/core/dtype_dispatch.mojo` | 59 | The dispatch infra itself — may be replaced |
-| 7 | `shared/core/arithmetic.mojo` | 58 | 15 function signatures |
-| 8 | `shared/core/numerical_safety.mojo` | 51 | 21 dtype branches, 21 bitcasts |
-| 9 | `shared/core/strassen.mojo` | 40 | 34 bitcasts in 3 long functions |
-| 10 | `shared/core/activation_simd.mojo` | 43 | 24 bitcasts in parametric kernels |
+| 1 | `src/projectodyssey/core/any_tensor.mojo` | 263 | The struct itself — every method changes |
+| 2 | `src/projectodyssey/core/elementwise.mojo` | 99 | 27 function signatures change |
+| 3 | `src/projectodyssey/core/activation.mojo` | 79 | 18 dtype branches, 29 return sites |
+| 4 | `src/projectodyssey/core/arithmetic_contiguous.mojo` | 67 | 40 dtype comparisons in 4 functions |
+| 5 | `src/projectodyssey/core/matrix.mojo` | 64 | 48 bitcast calls, partially migrated |
+| 6 | `src/projectodyssey/core/dtype_dispatch.mojo` | 59 | The dispatch infra itself — may be replaced |
+| 7 | `src/projectodyssey/core/arithmetic.mojo` | 58 | 15 function signatures |
+| 8 | `src/projectodyssey/core/numerical_safety.mojo` | 51 | 21 dtype branches, 21 bitcasts |
+| 9 | `src/projectodyssey/core/strassen.mojo` | 40 | 34 bitcasts in 3 long functions |
+| 10 | `src/projectodyssey/core/activation_simd.mojo` | 43 | 24 bitcasts in parametric kernels |
 
 **Source**: Consumer audit agent — full per-file table available
 
 ### 6.3 Files Already Using Parametric Patterns
 
 These files already use `[dtype: DType]` function parameters and will be easiest to migrate:
-- `shared/core/conv.mojo` — `_conv2d_kernel[dtype: DType]()` pattern
-- `shared/core/elementwise.mojo` — `dispatch_unary`/`dispatch_binary`
-- `shared/core/dtype_dispatch.mojo` — the dispatch infrastructure itself
-- `shared/core/matrix.mojo` — `_matmul_2d_1d_impl[dtype]()` (partially migrated)
+- `src/projectodyssey/core/conv.mojo` — `_conv2d_kernel[dtype: DType]()` pattern
+- `src/projectodyssey/core/elementwise.mojo` — `dispatch_unary`/`dispatch_binary`
+- `src/projectodyssey/core/dtype_dispatch.mojo` — the dispatch infrastructure itself
+- `src/projectodyssey/core/matrix.mojo` — `_matmul_2d_1d_impl[dtype]()` (partially migrated)
 
 **Source**: Consumer audit — "Pattern 2: Parametric `@parameter if`" section
 
@@ -405,9 +405,9 @@ These files already use `[dtype: DType]` function parameters and will be easiest
 ### Overview
 
 ```
-Phase 0:  Package split (shared/base + shared/tensor + shared/core)
+Phase 0:  Package split (src/projectodyssey/base + src/projectodyssey/tensor + src/projectodyssey/core)
     ↓
-Phase 1a: Create Tensor[dtype] + TensorLike trait in shared/tensor/ (additive only)
+Phase 1a: Create Tensor[dtype] + TensorLike trait in src/projectodyssey/tensor/ (additive only)
 Phase 1b: Rename struct AnyTensor → AnyTensor, add alias, fix naming collision (B3)
     ↓
 Phase 2:  Factory functions return Tensor[dtype]
@@ -428,7 +428,7 @@ Phase 5c: Optimizer + Variable + gradient types → AnyTensor
     ↓
 Phase 6:  Training, autograd tape, data pipelines
     ↓
-Phase 7a: Tests — shared/core/ (~180 files)
+Phase 7a: Tests — src/projectodyssey/core/ (~180 files)
 Phase 7b: Tests — models/ (~45 files)
 Phase 7c: Tests — training/ + autograd/ + data/ (~120 files)
 Phase 7d: Tests — integration/ + remaining (~40 files)
@@ -465,11 +465,11 @@ Each sub-phase is its own PR. Each follows the 12-step workflow (Plan → Test �
 
 **Goal**: Create `Tensor[dtype]` alongside the existing AnyTensor (renamed to `AnyTensor`), with a shared `TensorLike` trait.
 
-**Files**: `shared/tensor/tensor.mojo` (NEW), `shared/tensor/tensor_traits.mojo` (NEW), `shared/tensor/any_tensor.mojo` (MOVED from `shared/core/`), `shared/base/` (NEW — extracted from `shared/core/`)
+**Files**: `src/projectodyssey/tensor/tensor.mojo` (NEW), `src/projectodyssey/tensor/tensor_traits.mojo` (NEW), `src/projectodyssey/tensor/any_tensor.mojo` (MOVED from `src/projectodyssey/core/`), `src/projectodyssey/base/` (NEW — extracted from `src/projectodyssey/core/`)
 
 **3-Layer Package Architecture** (prerequisite: Phase 0 package split):
 ```
-shared/base/             # LAYER 1: Zero tensor dependencies
+src/projectodyssey/base/             # LAYER 1: Zero tensor dependencies
     __init__.mojo
     memory_pool.mojo     # pooled_alloc/pooled_free (moved from core)
     broadcasting.mojo    # broadcast_shapes (moved from core, pure List[Int] functions)
@@ -482,7 +482,7 @@ shared/base/             # LAYER 1: Zero tensor dependencies
     error_utils.mojo
     types/               # dtype_aliases, fp_constants, mxfp4, nvfp4 (moved from core)
 
-shared/tensor/           # LAYER 2: Imports base only
+src/projectodyssey/tensor/           # LAYER 2: Imports base only
     __init__.mojo
     tensor.mojo          # NEW struct Tensor[dtype: DType]
     tensor_traits.mojo   # NEW trait TensorLike
@@ -491,7 +491,7 @@ shared/tensor/           # LAYER 2: Imports base only
     validation.mojo      # shape/dtype validation (moved from core)
     tensor_io.mojo       # save/load (moved from core)
 
-shared/core/             # LAYER 3: Imports base + tensor
+src/projectodyssey/core/             # LAYER 3: Imports base + tensor
     __init__.mojo
     arithmetic.mojo      # (and all 40+ operation files)
     traits.mojo          # Differentiable, Parameterized, Model, Loss, Optimizer
@@ -516,11 +516,11 @@ shared/core/             # LAYER 3: Imports base + tensor
 
 #### Phase 0 — Package Split (NEW — prerequisite)
 
-Move files from `shared/core/` to create the 3-layer architecture described above. Each moved file gets updated import paths (`from shared.base.X import Y`). `shared/core/__init__.mojo` and `shared/__init__.mojo` re-export from new locations for backward compat. ~500 lines of import path updates. This is a mechanical move with zero behavior changes.
+Move files from `src/projectodyssey/core/` to create the 3-layer architecture described above. Each moved file gets updated import paths (`from projectodyssey.base.X import Y`). `src/projectodyssey/core/__init__.mojo` and `src/projectodyssey/__init__.mojo` re-export from new locations for backward compat. ~500 lines of import path updates. This is a mechanical move with zero behavior changes.
 
 #### Phase 1a — Create Tensor[dtype] + TensorLike Trait (additive only)
-- Create `shared/tensor/tensor.mojo`: `struct Tensor[dtype: DType = DType.float32]`
-- Create `shared/tensor/tensor_traits.mojo`: `trait TensorLike(Copyable, Movable)`
+- Create `src/projectodyssey/tensor/tensor.mojo`: `struct Tensor[dtype: DType = DType.float32]`
+- Create `src/projectodyssey/tensor/tensor_traits.mojo`: `trait TensorLike(Copyable, Movable)`
 - Design `TensorLike` trait interface (`numel`, `shape`, `dtype`, `ndim`; decide on `Hashable`)
 - Design `Tensor[dtype]` struct: fields, `__getitem__` returning `Scalar[Self.dtype]`, `__init__`, `as_any()`, `cast[target]()`
 - Design `__str__`/`__repr__` using typed `self._data[i]` access (not `_get_float64`), output `"Tensor(["`
@@ -536,9 +536,9 @@ Move files from `shared/core/` to create the 3-layer architecture described abov
 - Add `comptime AnyTensor = AnyTensor` alias for backward compat
 - Add `as_tensor[dtype: DType]() -> Tensor[dtype]` method with shared refcount (see B4)
 - Conform AnyTensor to `TensorLike` trait
-- Remove `comptime Tensor = AnyTensor` from `shared/__init__.mojo:82` (see B3)
-- Add proper Tensor[dtype] re-export from shared/tensor/
-- Update `shared/core/__init__.mojo` and `shared/__init__.mojo` exports
+- Remove `comptime Tensor = AnyTensor` from `src/projectodyssey/__init__.mojo:82` (see B3)
+- Add proper Tensor[dtype] re-export from src/projectodyssey/tensor/
+- Update `src/projectodyssey/core/__init__.mojo` and `src/projectodyssey/__init__.mojo` exports
 
 #### Phase 1.2 — Commit Plan
 - Commit plan documentation
@@ -556,12 +556,12 @@ Move files from `shared/core/` to create the 3-layer architecture described abov
 - Commit test files
 
 #### Phase 1.6 — Implement
-- Create `shared/tensor/` module with `struct Tensor[dtype: DType = DType.float32](TensorLike)`
+- Create `src/projectodyssey/tensor/` module with `struct Tensor[dtype: DType = DType.float32](TensorLike)`
 - Implement `__getitem__` returning `Scalar[Self.dtype]`, `__str__`, `__repr__`, `__hash__` with typed access
 - Implement `as_any() -> AnyTensor` (zero-copy, bitcast to UInt8)
 - Implement `cast[target: DType]() -> Tensor[target]`
-- Rename AnyTensor → AnyTensor in `shared/core/any_tensor.mojo`, add `as_tensor[dtype]()`, conform to `TensorLike`
-- Update `shared/core/__init__.mojo` and `shared/__init__.mojo` exports
+- Rename AnyTensor → AnyTensor in `src/projectodyssey/core/any_tensor.mojo`, add `as_tensor[dtype]()`, conform to `TensorLike`
+- Update `src/projectodyssey/core/__init__.mojo` and `src/projectodyssey/__init__.mojo` exports
 - Add `comptime AnyTensor = AnyTensor` alias for backward compat
 - Ensure pointer arithmetic does NOT multiply by dtype_size (typed pointer auto-scales)
 
@@ -592,7 +592,7 @@ Move files from `shared/core/` to create the 3-layer architecture described abov
 
 **Goal**: Add `Tensor[dtype]`-returning factory functions alongside existing ones.
 
-**Files**: `shared/core/tensor.mojo`, `shared/core/initializers.mojo`
+**Files**: `src/projectodyssey/core/tensor.mojo`, `src/projectodyssey/core/initializers.mojo`
 
 **Estimated scope**: ~200 lines new
 
@@ -781,7 +781,7 @@ Each sub-phase follows the 12-step workflow (Plan → Test → Implement → Rev
 - `tensor._set_float64(i, val)` → `tensor[i] = Scalar[dtype](val)`
 - Import path updates from `shared.core.any_tensor` → `shared.tensor.extensor`
 
-#### Phase 7a — Tests: shared/core/ (~180 files, ~2,500 lines)
+#### Phase 7a — Tests: src/projectodyssey/core/ (~180 files, ~2,500 lines)
 - Core tensor operation tests
 - Activation, arithmetic, matrix, shape, comparison, reduction tests
 - Add regression test: `tensor[i] = 3.14159` on float64 tensor preserves full precision
@@ -849,16 +849,16 @@ Each phase must pass before proceeding:
 
 ```bash
 # Phase 1: Basic element access
-just test-group "tests/shared/core" "test_extensor_setitem.mojo"
-just test-group "tests/shared/core" "test_creation_part1.mojo"
+just test-group "tests/projectodyssey/core" "test_extensor_setitem.mojo"
+just test-group "tests/projectodyssey/core" "test_creation_part1.mojo"
 
 # Phase 4: Core operations
-just test-group "tests/shared/core" "test_backward_*.mojo"
-just test-group "tests/shared/core" "test_arithmetic*.mojo"
+just test-group "tests/projectodyssey/core" "test_backward_*.mojo"
+just test-group "tests/projectodyssey/core" "test_arithmetic*.mojo"
 
 # Phase 5: Higher-level
-just test-group "tests/shared/core" "test_activation*.mojo"
-just test-group "tests/shared/core" "test_normalization*.mojo"
+just test-group "tests/projectodyssey/core" "test_activation*.mojo"
+just test-group "tests/projectodyssey/core" "test_normalization*.mojo"
 
 # Phase 7: Full suite
 just test-mojo
@@ -1141,15 +1141,15 @@ Source: [Traits docs](https://github.com/modular/modular/blob/modular/v26.1/mojo
 
 | File | Relevance |
 | --- | --- |
-| `shared/core/any_tensor.mojo` | The struct — 4704 lines, 177 dtype branches, 158 bitcasts |
-| `shared/core/dtype_dispatch.mojo` | Existing parametric dispatch infrastructure |
-| `shared/core/dtype_ordinal.mojo` | Ordinal mapping for dispatch fan-out |
-| `shared/core/conv.mojo` | Best example of fully-parametric kernel pattern |
-| `shared/core/arithmetic_contiguous.mojo` | Worst dtype-branching case (40 branches) |
-| `shared/core/normalization.mojo` | Struct-field propagation example |
-| `shared/training/mixed_precision.mojo` | Cross-dtype edge case |
-| `shared/core/traits.mojo` | Existing trait patterns |
-| `shared/core/memory_pool.mojo` | Pool allocation API |
+| `src/projectodyssey/core/any_tensor.mojo` | The struct — 4704 lines, 177 dtype branches, 158 bitcasts |
+| `src/projectodyssey/core/dtype_dispatch.mojo` | Existing parametric dispatch infrastructure |
+| `src/projectodyssey/core/dtype_ordinal.mojo` | Ordinal mapping for dispatch fan-out |
+| `src/projectodyssey/core/conv.mojo` | Best example of fully-parametric kernel pattern |
+| `src/projectodyssey/core/arithmetic_contiguous.mojo` | Worst dtype-branching case (40 branches) |
+| `src/projectodyssey/core/normalization.mojo` | Struct-field propagation example |
+| `src/projectodyssey/training/mixed_precision.mojo` | Cross-dtype edge case |
+| `src/projectodyssey/core/traits.mojo` | Existing trait patterns |
+| `src/projectodyssey/core/memory_pool.mojo` | Pool allocation API |
 | `.claude/shared/mojo-anti-patterns.md` | UAF via bitcast documentation |
 
 ### External Sources

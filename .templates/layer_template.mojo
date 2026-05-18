@@ -26,8 +26,8 @@ RENDERING CONVENTION (mojo-1.0):
     first_input_PLACEHOLDER -> {{first_input}}
 """
 
-from shared.core.module import Module
-from shared.tensor.any_tensor import AnyTensor
+from projectodyssey.core.module import Module
+from projectodyssey.tensor.any_tensor import AnyTensor
 
 
 struct Layer_PLACEHOLDER(Module):

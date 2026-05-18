@@ -17,14 +17,14 @@ References:
 """
 
 from model import LeNet5
-from shared.data.formats import (
+from projectodyssey.data.formats import (
     load_idx_images,
     load_idx_labels,
     normalize_images,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.utils.arg_parser import ArgumentParser
-from shared.training.metrics import (
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.utils.arg_parser import ArgumentParser
+from projectodyssey.training.metrics import (
     evaluate_with_predict,
     top1_accuracy,
     AccuracyMetric,

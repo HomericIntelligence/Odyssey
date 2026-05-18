@@ -33,8 +33,8 @@ cp -r configs "${BUILD_DIR}/"
 # Copy integration utilities
 echo "Copying integration utilities..."
 mkdir -p "${BUILD_DIR}/utils"
-cp shared/utils/config_loader.mojo "${BUILD_DIR}/utils/"
-cp shared/utils/config.mojo "${BUILD_DIR}/utils/"
+cp src/projectodyssey/utils/config_loader.mojo "${BUILD_DIR}/utils/"
+cp src/projectodyssey/utils/config.mojo "${BUILD_DIR}/utils/"
 
 # Copy documentation
 echo "Copying documentation..."
@@ -69,7 +69,7 @@ cd configs-VERSION
    cp -r configs /path/to/ProjectOdyssey/
    ```
 
-2. Copy utilities to shared/utils/:
+2. Copy utilities to src/projectodyssey/utils/:
    ```bash
    cp utils/*.mojo /path/to/ProjectOdyssey/shared/utils/
    ```

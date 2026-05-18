@@ -3,7 +3,7 @@
 Demonstrates creation operations and basic tensor manipulation.
 """
 
-from shared.tensor.any_tensor import (
+from projectodyssey.tensor.any_tensor import (
     AnyTensor,
     zeros,
     ones,

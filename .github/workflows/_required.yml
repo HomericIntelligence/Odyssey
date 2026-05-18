@@ -211,7 +211,7 @@ jobs:
 
       - name: Run Python integration tests
         # tests/integration/ contains architecture-level tests that validate
-        # the shared library and model implementations end-to-end without
+        # the src/projectodyssey library and model implementations end-to-end without
         # requiring live network access or external services.
         # Exit code 5 means no tests collected (integration dir has only .mojo tests).
         run: |
@@ -355,7 +355,7 @@ jobs:
 
       - name: Build Python package (sdist + wheel)
         # pixi.toml has no build task; use python -m build directly.
-        # The Mojo shared library is validated separately in build-validation.yml
+        # The Mojo src/projectodyssey library is validated separately in build-validation.yml
         # (requires the Mojo runtime / container setup).
         # Use isolated build (default) so build dependencies are fetched automatically.
         run: |

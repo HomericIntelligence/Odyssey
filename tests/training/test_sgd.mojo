@@ -5,9 +5,9 @@ This module tests the SGD optimizer implementations:
 - sgd_step (SGD with momentum and weight decay)
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full
-from shared.core.arithmetic import subtract, multiply
-from shared.training.optimizers import sgd_step_simple, sgd_step
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
+from projectodyssey.core.arithmetic import subtract, multiply
+from projectodyssey.training.optimizers import sgd_step_simple, sgd_step
 
 
 def test_sgd_step_simple_basic() raises:

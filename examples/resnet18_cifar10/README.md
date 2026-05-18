@@ -234,7 +234,7 @@ examples/resnet18_cifar10/
 - [ ] **Full backward pass**: Intentional placeholder — tracked in [GitHub issue #3181](https://github.com/HomericIntelligence/ProjectOdyssey/issues/3181)
 
 **Current Limitation**: The forward pass is complete and functional, but training is blocked by the missing batch
-normalization backward pass. Once `batch_norm2d_backward` is implemented in `shared/core/normalization.mojo`, the
+normalization backward pass. Once `batch_norm2d_backward` is implemented in `src/projectodyssey/core/normalization.mojo`, the
 training script can be completed.
 
 ## Expected Performance
@@ -332,7 +332,7 @@ Step decay schedule (same as VGG-16):
 This example follows **Keep It Simple, Stupid** principles:
 
 1. **Minimal Dependencies**: Uses only ML Odyssey shared library
-2. **Functional Design**: Uses functional ops (conv2d, linear, relu, add) from shared/core
+2. **Functional Design**: Uses functional ops (conv2d, linear, relu, add) from src/projectodyssey/core
 3. **Clear Structure**: Separate files for model, training, and inference
 4. **Simple Interfaces**: Command-line arguments for configuration
 5. **No Over-Engineering**: Direct implementation without unnecessary abstractions
@@ -440,7 +440,7 @@ This example is part of ML Odyssey. Contributions welcome!
 
 **Priority Tasks**:
 
-1. **Implement `batch_norm2d_backward`** in `shared/core/normalization.mojo`
+1. **Implement `batch_norm2d_backward`** in `src/projectodyssey/core/normalization.mojo`
 2. **Complete training script** backward pass
 3. **Add data augmentation** integration (RandomCrop and RandomHorizontalFlip available)
 4. **Optimize convolutions** with SIMD vectorization

@@ -16,11 +16,14 @@ Features:
     - Inference mode (no training, no batch norm running stats updates)
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.data.batch_utils import compute_num_batches, extract_batch_pair
-from shared.data.constants import DatasetInfo
-from shared.data.datasets import CIFAR10Dataset
-from shared.training.metrics import evaluate_logits_batch
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.data.batch_utils import (
+    compute_num_batches,
+    extract_batch_pair,
+)
+from projectodyssey.data.constants import DatasetInfo
+from projectodyssey.data.datasets import CIFAR10Dataset
+from projectodyssey.training.metrics import evaluate_logits_batch
 from model import GoogLeNet
 
 

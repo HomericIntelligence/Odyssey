@@ -310,7 +310,7 @@ _build-inner mode="debug":
     # ------------------------------------------------------------
     # Phase A: Package the shared library
     # ------------------------------------------------------------
-    # shared/ is a library (no main() entry points) — must be compiled with
+    # src/projectodyssey/ is a library (no main() entry points) — must be compiled with
     # `mojo package`, not file-by-file `mojo build`. This is the same logic
     # as `_package-inner`; we inline it here so `just build` produces a
     # complete artifact set in one invocation.
@@ -318,8 +318,8 @@ _build-inner mode="debug":
     # `mojo package` only accepts a small subset of compiler flags
     # (no -g / --no-optimization / -O3 / --sanitize). Pass STRICT only.
     echo "→ Packaging shared library"
-    pixi run mojo package $STRICT -I "$REPO_ROOT" shared \
-        -o "$BUILD_DIR/ProjectOdyssey-shared.mojopkg"
+    pixi run mojo package $STRICT -I "$REPO_ROOT/src" src/projectodyssey \
+        -o "$BUILD_DIR/projectodyssey.mojopkg"
 
     # ------------------------------------------------------------
     # Phase B: AOT-compile every executable (examples, benchmarks, papers)
@@ -333,7 +333,7 @@ _build-inner mode="debug":
     if [ "$MODE" = "asan" ] || [ "$MODE" = "tsan" ]; then
         echo
         echo "✅ Sanitizer build complete (shared package only)"
-        echo "  shared package: $BUILD_DIR/ProjectOdyssey-shared.mojopkg"
+        echo "  shared package: $BUILD_DIR/projectodyssey.mojopkg"
         echo "  Run sanitized tests: just test-mojo-${MODE}"
         exit 0
     fi
@@ -384,7 +384,7 @@ _build-inner mode="debug":
         out="$BUILD_DIR/$out_name"
 
         echo "→ Building: $file"
-        if pixi run mojo build $FLAGS ${JOBS:-} -I "$REPO_ROOT" \
+        if pixi run mojo build $FLAGS ${JOBS:-} -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
                 -Xlinker -lm "$file" -o "$out" 2>&1; then
             BUILT=$((BUILT + 1))
         else
@@ -402,7 +402,7 @@ _build-inner mode="debug":
     echo "=================================================="
     echo "Build summary ($MODE)"
     echo "=================================================="
-    echo "  shared package: $BUILD_DIR/ProjectOdyssey-shared.mojopkg"
+    echo "  shared package: $BUILD_DIR/projectodyssey.mojopkg"
     echo "  executables:    $BUILT built, $FAILED failed"
     if [ "$FAILED" -gt 0 ]; then
         echo
@@ -448,16 +448,16 @@ _check-inner:
     #!/usr/bin/env bash
     set -euo pipefail
     REPO_ROOT="$(pwd)"
-    echo "🔍 Type-checking shared/ library..."
+    echo "🔍 Type-checking src/projectodyssey/ library..."
 
     # Use mojo package to validate compilation (no --check flag available)
     OUT=$(mktemp -d)
     trap "rm -rf $OUT" EXIT
 
-    if pixi run mojo package --Werror -I "$REPO_ROOT" shared -o "$OUT/shared.mojopkg" 2>&1; then
-        echo "✅ shared/ type-check passed"
+    if pixi run mojo package --Werror -I "$REPO_ROOT/src" src/projectodyssey -o "$OUT/projectodyssey.mojopkg" 2>&1; then
+        echo "✅ src/projectodyssey/ type-check passed"
     else
-        echo "❌ shared/ has compilation errors"
+        echo "❌ src/projectodyssey/ has compilation errors"
         exit 1
     fi
 
@@ -488,7 +488,7 @@ _package-inner mode="debug":
 
     echo "Packaging shared library in $MODE mode..."
     echo "Flags: $FLAGS"
-    pixi run mojo package $FLAGS -I "$REPO_ROOT" shared -o "build/$MODE/ProjectOdyssey-shared.mojopkg"
+    pixi run mojo package $FLAGS -I "$REPO_ROOT/src" src/projectodyssey -o "build/$MODE/projectodyssey.mojopkg"
 
 # Package debug version
 package-debug: (package "debug")
@@ -837,11 +837,11 @@ _test-group-inner path pattern:
             # Local dev defaults to MOJO_TEST_UNDER_GDB=0 → direct mojo invocation.
             if [ "${MOJO_TEST_UNDER_GDB:-0}" = "1" ]; then
                 if ! bash "$REPO_ROOT/scripts/mojo-under-gdb.sh" "$CORE_DIR" \
-                        --Werror -debug-level=line-tables -I "$REPO_ROOT" -I . "$test_file"; then
+                        --Werror -debug-level=line-tables -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
                     test_exit=$?
                 fi
             else
-                if ! pixi run mojo --Werror -debug-level=line-tables -I "$REPO_ROOT" -I . "$test_file"; then
+                if ! pixi run mojo --Werror -debug-level=line-tables -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
                     test_exit=$?
                 fi
             fi
@@ -932,7 +932,7 @@ _test-group-asan-inner path pattern:
             # not just "❌ FAILED" with empty captures. Capture exit status via PIPESTATUS.
             echo "--- build ---"
             set +e
-            pixi run mojo build {{MOJO_ASAN}} {{MOJO_STRICT}} -I "$REPO_ROOT" -I . -Xlinker -lm "$test_file" -o "$BINARY" 2>&1
+            pixi run mojo build {{MOJO_ASAN}} {{MOJO_STRICT}} -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . -Xlinker -lm "$test_file" -o "$BINARY" 2>&1
             build_status=$?
             run_status=-1
             if [ $build_status -eq 0 ]; then
@@ -1033,7 +1033,7 @@ _test-mojo-sanitized-inner sanitizer:
         BINARY=$(mktemp /tmp/mojo-san-XXXXXX)
         echo "Testing ($SANITIZER): $test_file"
         if pixi run mojo build $SAN_FLAGS --Werror $JOBS \
-                -I "$REPO_ROOT" -I . -Xlinker -lm \
+                -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . -Xlinker -lm \
                 "$test_file" -o "$BINARY" 2>&1 \
            && "$BINARY" 2>&1; then
             : # passed
@@ -1086,7 +1086,7 @@ _test-mojo-inner:
     failed_tests=""
     for test_file in "${test_files[@]}"; do
         echo "Testing: $test_file"
-        if ! pixi run mojo --Werror -I "$REPO_ROOT" -I . "$test_file"; then
+        if ! pixi run mojo --Werror -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
             failed=$((failed + 1))
             failed_tests="$failed_tests\n  - $test_file"
         fi

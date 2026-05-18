@@ -20,7 +20,7 @@ mkdir -p "${OUTPUT_DIR}"
 
 # Build package
 echo "Building ${PACKAGE_NAME}-${VERSION}.mojopkg..."
-mojo package "shared/${PACKAGE_NAME}" -o "${OUTPUT_DIR}/${PACKAGE_NAME}-${VERSION}.mojopkg"
+mojo package "src/projectodyssey/${PACKAGE_NAME}" -o "${OUTPUT_DIR}/${PACKAGE_NAME}-${VERSION}.mojopkg"
 
 # Verify package was created
 if [[ ! -f "${OUTPUT_DIR}/${PACKAGE_NAME}-${VERSION}.mojopkg" ]]; then

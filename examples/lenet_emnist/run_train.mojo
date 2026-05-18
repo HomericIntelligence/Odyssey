@@ -18,22 +18,25 @@ Arguments:
 """
 
 from model import LeNet5
-from shared.data.constants import DatasetInfo
-from shared.data.formats import (
+from projectodyssey.data.constants import DatasetInfo
+from projectodyssey.data.formats import (
     load_idx_images,
     load_idx_labels,
     normalize_images,
     one_hot_encode,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.core.conv import conv2d, conv2d_backward
-from shared.core.pooling import maxpool2d, maxpool2d_backward
-from shared.core.linear import linear, linear_backward
-from shared.core.activation import relu, relu_backward
-from shared.core.loss import cross_entropy, cross_entropy_backward
-from shared.training.precision_config import PrecisionConfig, PrecisionMode
-from shared.training.evaluation import evaluate_model_simple
-from shared.utils.arg_parser import create_training_parser
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.core.conv import conv2d, conv2d_backward
+from projectodyssey.core.pooling import maxpool2d, maxpool2d_backward
+from projectodyssey.core.linear import linear, linear_backward
+from projectodyssey.core.activation import relu, relu_backward
+from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
+from projectodyssey.training.precision_config import (
+    PrecisionConfig,
+    PrecisionMode,
+)
+from projectodyssey.training.evaluation import evaluate_model_simple
+from projectodyssey.utils.arg_parser import create_training_parser
 from std.collections import List
 
 

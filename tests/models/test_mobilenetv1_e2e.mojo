@@ -29,7 +29,7 @@ Testing Strategy:
 """
 
 
-from tests.shared.conftest import (
+from tests.projectodyssey.conftest import (
     assert_almost_equal,
     assert_close_float,
     assert_equal,
@@ -38,19 +38,19 @@ from tests.shared.conftest import (
     assert_true,
     TestFixtures,
 )
-from shared.tensor.any_tensor import AnyTensor, zeros, ones, full, randn
-from shared.core.conv import (
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full, randn
+from projectodyssey.core.conv import (
     conv2d,
     conv2d_backward,
     depthwise_conv2d,
     depthwise_conv2d_backward,
     depthwise_separable_conv2d,
 )
-from shared.core.activation import relu
-from shared.core.layers.batchnorm import BatchNorm2dLayer
-from shared.core.pooling import global_avgpool2d
-from shared.core.loss import cross_entropy
-from shared.core.linear import linear
+from projectodyssey.core.activation import relu
+from projectodyssey.core.layers.batchnorm import BatchNorm2dLayer
+from projectodyssey.core.pooling import global_avgpool2d
+from projectodyssey.core.loss import cross_entropy
+from projectodyssey.core.linear import linear
 
 
 def test_mobilenetv1_initial_conv() raises:

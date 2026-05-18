@@ -35,12 +35,12 @@ Usage:
 """
 
 from models.{model_snake} import {model}
-from shared.datasets.{dataset_snake} import {dataset}Dataset
-from shared.training import {optimizer_class}, {loss_class}
-from shared.training.early_stopping import EarlyStopping
-from shared.training.checkpoint import CheckpointManager
-from shared.training.metrics import Accuracy
-from shared.core import AnyTensor
+from projectodyssey.datasets.{dataset_snake} import {dataset}Dataset
+from projectodyssey.training import {optimizer_class}, {loss_class}
+from projectodyssey.training.early_stopping import EarlyStopping
+from projectodyssey.training.checkpoint import CheckpointManager
+from projectodyssey.training.metrics import Accuracy
+from projectodyssey.core import AnyTensor
 
 
 # =============================================================================

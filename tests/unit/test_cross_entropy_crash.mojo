@@ -9,8 +9,8 @@ Stack trace shows crash at:
 #13 train::compute_gradients at line 127
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.core.loss import cross_entropy
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.core.loss import cross_entropy
 from std.testing import assert_raises
 
 

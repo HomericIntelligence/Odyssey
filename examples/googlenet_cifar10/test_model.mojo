@@ -1,7 +1,7 @@
 """Quick integration test for GoogLeNet model."""
 
 from model import GoogLeNet
-from shared.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros
 
 
 def main() raises:

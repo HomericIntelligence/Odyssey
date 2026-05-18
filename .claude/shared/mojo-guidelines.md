@@ -131,7 +131,7 @@ var shape = List[Int](3, 4, 5)  # Compiler error
 
 - ✅ CAN compile standalone with `mojo build -I . file.mojo`
 - Pattern: Files with `def main()` entry point
-- Uses absolute imports: `from shared.core import AnyTensor`
+- Uses absolute imports: `from projectodyssey.core import AnyTensor`
 
 ### Building Packages
 

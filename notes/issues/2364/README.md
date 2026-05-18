@@ -24,7 +24,7 @@ Both schedulers are fully implemented with comprehensive test coverage. All test
 
 ### CosineAnnealingLR
 
-**Location**: `shared/training/schedulers/lr_schedulers.mojo` (lines 78-136)
+**Location**: `src/projectodyssey/training/schedulers/lr_schedulers.mojo` (lines 78-136)
 
 **Status**: IMPLEMENTED AND TESTED
 
@@ -50,7 +50,7 @@ following a cosine curve.
 
 ### WarmupLR
 
-**Location**: `shared/training/schedulers/lr_schedulers.mojo` (lines 144-194)
+**Location**: `src/projectodyssey/training/schedulers/lr_schedulers.mojo` (lines 144-194)
 
 **Status**: IMPLEMENTED AND TESTED
 
@@ -81,7 +81,7 @@ then maintains constant LR.
 
 ### CosineAnnealingLR Tests
 
-**File**: `tests/shared/training/test_schedulers.mojo`
+**File**: `tests/projectodyssey/training/test_schedulers.mojo`
 
 **Test Count**: 10 functions
 
@@ -109,7 +109,7 @@ then maintains constant LR.
 
 ### WarmupLR Tests
 
-**File**: `tests/shared/training/test_warmup_scheduler.mojo`
+**File**: `tests/projectodyssey/training/test_warmup_scheduler.mojo`
 
 **Test Count**: 14 functions
 
@@ -145,7 +145,7 @@ then maintains constant LR.
 
 ```text
 $ cd /home/mvillmow/worktrees/2364-schedulers
-$ pixi run mojo tests/shared/training/test_schedulers.mojo
+$ pixi run mojo tests/projectodyssey/training/test_schedulers.mojo
 
 Running CosineAnnealingLR tests...
 Running ReduceLROnPlateau tests...
@@ -155,7 +155,7 @@ All scheduler tests passed! ✓
 ```
 
 ```text
-$ pixi run mojo tests/shared/training/test_warmup_scheduler.mojo
+$ pixi run mojo tests/projectodyssey/training/test_warmup_scheduler.mojo
 
 Running WarmupLR core tests...
 Running warmup period tests...
@@ -177,7 +177,7 @@ All WarmupLR scheduler tests passed! ✓
 
 ## Exports
 
-**File**: `shared/training/schedulers/__init__.mojo`
+**File**: `src/projectodyssey/training/schedulers/__init__.mojo`
 
 Both schedulers are properly exported:
 
@@ -188,7 +188,7 @@ from .lr_schedulers import StepLR, CosineAnnealingLR, WarmupLR, ReduceLROnPlatea
 **Import Usage**:
 
 ```mojo
-from shared.training.schedulers import CosineAnnealingLR, WarmupLR
+from projectodyssey.training.schedulers import CosineAnnealingLR, WarmupLR
 ```
 
 ## Code Quality Compliance
@@ -240,17 +240,17 @@ The implementation provides simple linear warmup with constant learning rate aft
 
 ## References
 
-- **Shared Configuration**: `shared/training/base.mojo` - LRScheduler trait definition
-- **Scheduler Module**: `shared/training/schedulers/`
-- **Test Utilities**: `tests/shared/conftest.mojo` - Test assertion functions
+- **Shared Configuration**: `src/projectodyssey/training/base.mojo` - LRScheduler trait definition
+- **Scheduler Module**: `src/projectodyssey/training/schedulers/`
+- **Test Utilities**: `tests/projectodyssey/conftest.mojo` - Test assertion functions
 - **Related Issues**:
   - #2303: Initial learning rate schedulers implementation (StepLR)
   - #2304: ReduceLROnPlateau scheduler
 
 ## Success Criteria
 
-- [x] CosineAnnealingLR is implemented and accessible via `from shared.training.schedulers import CosineAnnealingLR`
-- [x] WarmupLR is implemented and accessible via `from shared.training.schedulers import WarmupLR`
+- [x] CosineAnnealingLR is implemented and accessible via `from projectodyssey.training.schedulers import CosineAnnealingLR`
+- [x] WarmupLR is implemented and accessible via `from projectodyssey.training.schedulers import WarmupLR`
 - [x] Both schedulers conform to LRScheduler trait
 - [x] Unit tests exist for both schedulers
 - [x] All tests pass locally with zero errors

@@ -6,7 +6,7 @@ Line 107: self._strides.append(0)  # Preallocate
 The crash happens during stride calculation in AnyTensor.__init__.
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros
 from std.testing import assert_equal, assert_true
 
 

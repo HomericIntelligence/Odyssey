@@ -29,7 +29,7 @@ fn matmul(a: AnyTensor, b: AnyTensor) raises -> AnyTensor
 **Examples:**
 
 ```mojo
-from shared.core import randn, matmul
+from projectodyssey.core import randn, matmul
 
 # Matrix-matrix multiplication
 var A = randn[DType.float32](3, 4)
@@ -63,7 +63,7 @@ fn dot(a: AnyTensor, b: AnyTensor) raises -> AnyTensor
 **Example:**
 
 ```mojo
-from shared.core import randn, dot
+from projectodyssey.core import randn, dot
 
 var a = randn[DType.float32](100)
 var b = randn[DType.float32](100)
@@ -88,7 +88,7 @@ fn outer(a: AnyTensor, b: AnyTensor) raises -> AnyTensor
 **Example:**
 
 ```mojo
-from shared.core import randn, outer
+from projectodyssey.core import randn, outer
 
 var a = randn[DType.float32](3)
 var b = randn[DType.float32](4)
@@ -183,7 +183,7 @@ fn diag(self, offset: Int = 0) raises -> AnyTensor
 **Example:**
 
 ```mojo
-from shared.core import randn, eye
+from projectodyssey.core import randn, eye
 
 # Extract diagonal from matrix
 var A = randn[DType.float32](4, 4)
@@ -265,7 +265,7 @@ fn solve(A: AnyTensor, b: AnyTensor) raises -> AnyTensor
 **Example:**
 
 ```mojo
-from shared.core import randn, solve
+from projectodyssey.core import randn, solve
 
 var A = randn[DType.float32](3, 3)
 var b = randn[DType.float32](3)

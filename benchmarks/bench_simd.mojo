@@ -16,9 +16,9 @@ Output:
     SIMD time, and speedup factor.
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros, ones
-from shared.core.arithmetic import add, subtract, multiply, divide
-from shared.core.arithmetic_simd import (
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
+from projectodyssey.core.arithmetic import add, subtract, multiply, divide
+from projectodyssey.core.arithmetic_simd import (
     add_simd,
     subtract_simd,
     multiply_simd,

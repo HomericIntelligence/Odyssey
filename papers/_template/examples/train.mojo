@@ -12,17 +12,20 @@ Usage:
     mojo train.mojo --paper lenet5 --experiment augmented
 """
 
-from shared.utils.config_loader import (
+from projectodyssey.utils.config_loader import (
     load_experiment_config,
     validate_experiment_config,
 )
-from shared.utils.config import Config
-from shared.utils.arg_parser import (
+from projectodyssey.utils.config import Config
+from projectodyssey.utils.arg_parser import (
     create_training_parser,
     ArgumentParser,
     ParsedArgs,
 )
-from shared.training.trainer_interface import TrainerConfig, TrainingMetrics
+from projectodyssey.training.trainer_interface import (
+    TrainerConfig,
+    TrainingMetrics,
+)
 
 
 # ============================================================================

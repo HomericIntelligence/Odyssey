@@ -10,10 +10,10 @@ Mojo code.
 
 **What exists today**:
 
-- A shared library (`shared/`) providing `AnyTensor` — a typed, N-dimensional tensor type
-- Tensor creation, shape, and element operations in `shared/core/`
-- Data loading utilities in `shared/data/`
-- Training infrastructure in `shared/training/`
+- A shared library (`src/projectodyssey/`) providing `AnyTensor` — a typed, N-dimensional tensor type
+- Tensor creation, shape, and element operations in `src/projectodyssey/core/`
+- Data loading utilities in `src/projectodyssey/data/`
+- Training infrastructure in `src/projectodyssey/training/`
 - The LeNet-5 paper implementation (`just train`, `just infer` recipes)
 
 **What is still planned**:
@@ -30,14 +30,14 @@ Before starting, ensure you have:
 
 ## The Shared Library
 
-The `shared/` directory contains the core ML components used across all paper implementations.
-The entry point is `AnyTensor` in `shared/core/`.
+The `src/projectodyssey/` directory contains the core ML components used across all paper implementations.
+The entry point is `AnyTensor` in `src/projectodyssey/core/`.
 
 ### Creating Tensors
 
 ```mojo
-from shared.data import TensorDataset, BatchLoader
-from shared.utils import download_mnist, normalize_images
+from projectodyssey.data import TensorDataset, BatchLoader
+from projectodyssey.utils import download_mnist, normalize_images
 
 fn prepare_mnist() raises -> (TensorDataset, TensorDataset):
     """Load and prepare MNIST data for training."""
@@ -189,7 +189,7 @@ Confusion matrix saved to confusion_matrix.png
 Create `predict.mojo` to classify individual images:
 
 ```mojo
-from shared.utils import load_model, load_image, plot_image
+from projectodyssey.utils import load_model, load_image, plot_image
 from model import DigitClassifier
 
 fn predict_digit(image_path: String) raises:
@@ -341,7 +341,7 @@ self.model = Sequential([
 ### 2. Different Optimizer
 
 ```mojo
-from shared.training import Adam
+from projectodyssey.training import Adam
 
 var optimizer = Adam(learning_rate=0.001, beta1=0.9, beta2=0.999)
 ```
@@ -349,7 +349,7 @@ var optimizer = Adam(learning_rate=0.001, beta1=0.9, beta2=0.999)
 ### 3. Learning Rate Scheduling
 
 ```mojo
-from shared.training.schedulers import StepLR
+from projectodyssey.training.schedulers import StepLR
 
 var scheduler = StepLR(initial_lr=0.01, step_size=5, gamma=0.5)
 trainer.add_scheduler(scheduler)
@@ -358,7 +358,7 @@ trainer.add_scheduler(scheduler)
 ### 4. Data Augmentation
 
 ```mojo
-from shared.data.transforms import RandomRotation, RandomShift
+from projectodyssey.data.transforms import RandomRotation, RandomShift
 
 var train_loader = BatchLoader(
     train_data,
@@ -375,5 +375,5 @@ var train_loader = BatchLoader(
 - **[Repository Structure](repository-structure.md)** — understand where code lives
 - **[Installation Guide](installation.md)** — detailed build and package setup
 - **[Quickstart Guide](quickstart.md)** — 5-minute introduction to the environment
-- **`shared/` source** — browse `shared/core/`, `shared/training/`, `shared/data/` directly
+- **`src/projectodyssey/` source** — browse `core/`, `training/`, `data/` subdirectories directly
 - **`papers/_template/`** — starting point for a new paper implementation

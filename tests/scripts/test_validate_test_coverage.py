@@ -60,9 +60,9 @@ class TestGroupSplitFiles:
 
     def test_multiple_parts_grouped_together(self) -> None:
         """Six part files are grouped under a single logical key."""
-        files = [Path(f"tests/shared/core/test_elementwise_dispatch_part{i}.mojo") for i in range(1, 7)]
+        files = [Path(f"tests/projectodyssey/core/test_elementwise_dispatch_part{i}.mojo") for i in range(1, 7)]
         groups = group_split_files(files)
-        key = "tests/shared/core/test_elementwise_dispatch"
+        key = "tests/projectodyssey/core/test_elementwise_dispatch"
         assert key in groups
         assert len(groups[key]) == 6
 
@@ -115,9 +115,9 @@ class TestGroupSplitFiles:
 
     def test_group_key_preserves_directory(self) -> None:
         """The group key includes the parent directory, not just the base name."""
-        files = [Path("tests/shared/core/test_ops_part1.mojo")]
+        files = [Path("tests/projectodyssey/core/test_ops_part1.mojo")]
         groups = group_split_files(files)
-        assert "tests/shared/core/test_ops" in groups
+        assert "tests/projectodyssey/core/test_ops" in groups
 
     def test_multidigit_part_numbers_matched(self) -> None:
         """Part numbers with more than one digit (e.g., part10) are matched."""

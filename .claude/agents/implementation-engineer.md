@@ -145,7 +145,7 @@ mistakes (ownership violations, constructor signatures, syntax errors).
 
 **Code examples:** Always include:
 
-- Full file paths: `shared/core/extensor.mojo:45-60`
+- Full file paths: `src/projectodyssey/core/extensor.mojo:45-60`
 - Line numbers when referencing existing code
 - Complete function signatures with parameter types
 - Usage examples demonstrating typical invocation

@@ -23,7 +23,7 @@ fn sum(self, axis: Optional[Int] = None, keepdim: Bool = False) raises -> AnyTen
 **Examples:**
 
 ```mojo
-from shared.core import randn
+from projectodyssey.core import randn
 
 var x = randn[DType.float32](3, 4)
 

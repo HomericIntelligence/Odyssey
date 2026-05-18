@@ -36,7 +36,7 @@ crash-bundle/
 ```
 
 If a test job fails because of a JIT crash, the artifact's `gdb-*.log` shows the symbolic
-frame at signal time (e.g. `assert_almost_equal () at shared/testing/assertions.mojo:170`).
+frame at signal time (e.g. `assert_almost_equal () at src/projectodyssey/testing/assertions.mojo:170`).
 
 ### Downloading a Crash Bundle
 

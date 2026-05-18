@@ -1,7 +1,7 @@
 """Quick integration test for MobileNetV1 model."""
 
 from model import MobileNetV1
-from shared.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros
 
 
 def main() raises:

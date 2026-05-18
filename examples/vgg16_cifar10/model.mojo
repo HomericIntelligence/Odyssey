@@ -54,16 +54,16 @@ References:
     - CIFAR-10 Dataset: https://www.cs.toronto.edu/~kriz/cifar.html
 """
 
-from shared.tensor.any_tensor import AnyTensor, zeros
-from shared.core.conv import conv2d, conv2d_backward
-from shared.core.pooling import maxpool2d, maxpool2d_backward
-from shared.core.linear import linear, linear_backward
-from shared.core.activation import relu, relu_backward
-from shared.core.dropout import dropout, dropout_backward
-from shared.core.initializers import he_uniform
-from shared.core.shape import conv2d_output_shape, pool_output_shape
-from shared.training.optimizers import sgd_momentum_update_inplace
-from shared.training.model_utils import (
+from projectodyssey.tensor.any_tensor import AnyTensor, zeros
+from projectodyssey.core.conv import conv2d, conv2d_backward
+from projectodyssey.core.pooling import maxpool2d, maxpool2d_backward
+from projectodyssey.core.linear import linear, linear_backward
+from projectodyssey.core.activation import relu, relu_backward
+from projectodyssey.core.dropout import dropout, dropout_backward
+from projectodyssey.core.initializers import he_uniform
+from projectodyssey.core.shape import conv2d_output_shape, pool_output_shape
+from projectodyssey.training.optimizers import sgd_momentum_update_inplace
+from projectodyssey.training.model_utils import (
     save_model_weights,
     load_model_weights,
     get_model_parameter_names,

@@ -5,8 +5,8 @@ This script validates that code coverage meets the required threshold.
 Used in CI to enforce coverage requirements.
 
 Usage:
-    python scripts/check_coverage.py --threshold 90 --path shared/
-    python scripts/check_coverage.py --config coverage.toml --path shared/core
+    python scripts/check_coverage.py --threshold 90 --path src/projectodyssey/
+    python scripts/check_coverage.py --config coverage.toml --path src/projectodyssey/core
 """
 
 import sys
@@ -54,7 +54,7 @@ def get_module_threshold(path: str, config: Dict) -> float:
     """Get coverage threshold for a specific module.
 
     Args:
-        path: Module path (e.g., "shared/core")
+        path: Module path (e.g., "src/projectodyssey/core")
         config: Configuration dictionary from load_coverage_config()
 
     Returns:
@@ -196,8 +196,8 @@ def main():
     parser.add_argument(
         "--path",
         type=str,
-        default="shared/",
-        help="Path to source code being tested (default: shared/)",
+        default="src/projectodyssey/",
+        help="Path to source code being tested (default: src/projectodyssey/)",
     )
     parser.add_argument(
         "--coverage-file",

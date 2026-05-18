@@ -16,8 +16,8 @@ RENDERING CONVENTION (mojo-1.0):
     Dataset_PLACEHOLDER  -> {{name}}   (e.g. EMNIST, CIFAR10)
 """
 
-from shared.data._datasets_core import Dataset
-from shared.tensor.any_tensor import AnyTensor
+from projectodyssey.data._datasets_core import Dataset
+from projectodyssey.tensor.any_tensor import AnyTensor
 
 
 struct Dataset_PLACEHOLDER(Dataset):

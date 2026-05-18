@@ -52,7 +52,7 @@ RUN pixi install --frozen
 
 # Copy source code
 # Note: requirements*.txt are auto-generated lockfiles from pixi.toml (see scripts/sync_requirements.py)
-COPY --chown=${USER_NAME}:${USER_NAME} shared/ ./shared/
+COPY --chown=${USER_NAME}:${USER_NAME} src/projectodyssey/ ./src/projectodyssey/
 COPY --chown=${USER_NAME}:${USER_NAME} tests/ ./tests/
 COPY --chown=${USER_NAME}:${USER_NAME} pyproject.toml requirements.txt requirements-dev.txt ./
 
@@ -99,7 +99,7 @@ RUN pixi install --frozen
 
 # Copy built artifacts and source
 # /build is the fixed WORKDIR set in builder stage (username-independent)
-COPY --chown=${USER_NAME}:${USER_NAME} --from=builder /build/shared/ ./shared/
+COPY --chown=${USER_NAME}:${USER_NAME} --from=builder /build/src/projectodyssey/ ./src/projectodyssey/
 COPY --chown=${USER_NAME}:${USER_NAME} --from=builder /build/tests/ ./tests/
 COPY --chown=${USER_NAME}:${USER_NAME} pyproject.toml requirements.txt ./
 

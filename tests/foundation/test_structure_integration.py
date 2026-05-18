@@ -35,16 +35,18 @@ class TestPapersSharedIntegration:
         """
         # Both should exist
         assert papers_dir.exists(), "papers/ must exist"
-        assert shared_dir.exists(), "shared/ must exist"
+        assert shared_dir.exists(), "src/projectodyssey/ must exist"
 
-        # Both should be at same level (siblings)
-        assert papers_dir.parent == shared_dir.parent, "papers/ and shared/ must be sibling directories"
+        # Both should resolve under the same repository root
+        assert papers_dir.parent == shared_dir.parent.parent, (
+            "papers/ and src/projectodyssey/ must share the same repository root"
+        )
 
-        # Path from papers to shared should be computable
-        relative_path = Path("..") / "shared"
+        # Path from papers to projectodyssey should be computable
+        relative_path = Path("..") / "src" / "projectodyssey"
         shared_from_papers = papers_dir / relative_path
         assert shared_from_papers.resolve() == shared_dir.resolve(), (
-            "Relative path from papers to shared must resolve correctly"
+            "Relative path from papers to src/projectodyssey/ must resolve correctly"
         )
 
     def test_import_paths_resolve_correctly(self, papers_dir: Path, shared_dir: Path) -> None:
@@ -66,7 +68,7 @@ class TestPapersSharedIntegration:
 
         for subdir in shared_subdirs:
             subdir_path = shared_dir / subdir
-            assert subdir_path.exists(), f"shared/{subdir}/ must be accessible from repository"
+            assert subdir_path.exists(), f"src/projectodyssey/{subdir}/ must be accessible from repository"
 
     def test_no_circular_dependencies(self, papers_dir: Path, shared_dir: Path) -> None:
         """
@@ -177,17 +179,18 @@ class TestTemplateInstantiation:
         new_paper_dir = mock_papers_dir / "test-paper"
         shutil.copytree(template_dir, new_paper_dir)
 
-        # Compute relative path to shared
-        # In real repository: papers/test-paper/../shared = papers/../shared = shared
-        relative_to_shared = Path("..") / ".." / "shared"
+        # Compute relative path to src/projectodyssey
+        # In real repository: papers/test-paper/../../src/projectodyssey/
+        relative_to_shared = Path("..") / ".." / "src" / "projectodyssey"
 
-        # This would resolve to shared in actual repository structure
+        # This would resolve to src/projectodyssey/ in actual repository structure
         # Just verify the path construction works
         assert relative_to_shared.parts == (
             "..",
             "..",
-            "shared",
-        ), "Relative path to shared must be constructable from paper directory"
+            "src",
+            "projectodyssey",
+        ), "Relative path to src/projectodyssey/ must be constructable from paper directory"
 
 
 class TestDirectoryPermissions:
@@ -214,7 +217,7 @@ class TestDirectoryPermissions:
         Test that shared directory is readable.
 
         Verifies:
-        - Can read files in shared/
+        - Can read files in src/projectodyssey/
         - Can list directory contents
         - Appropriate for importing from shared
 
@@ -223,7 +226,7 @@ class TestDirectoryPermissions:
         """
         import os
 
-        assert os.access(shared_dir, os.R_OK), "shared/ directory must be readable (for imports)"
+        assert os.access(shared_dir, os.R_OK), "src/projectodyssey/ directory must be readable (for imports)"
 
     def test_template_is_readable_not_writable_in_production(self, template_dir: Path) -> None:
         """
@@ -301,14 +304,16 @@ class TestWorkflowIntegration:
             papers_dir: Papers directory path
             shared_dir: Shared directory path
         """
-        # Both directories should be direct children of repository root
+        # papers/ is a direct child of repo root; src/projectodyssey/ lives under src/
         assert papers_dir.parent == repo_root, "papers/ must be direct child of repository root"
-        assert shared_dir.parent == repo_root, "shared/ must be direct child of repository root"
+        assert shared_dir.parent.parent == repo_root, "src/projectodyssey/ must live under <repo_root>/src/"
 
-        # Repository root should contain both directories
+        # Repository root should contain papers/ and src/; src/ must contain projectodyssey/
         root_contents = [item.name for item in repo_root.iterdir() if item.is_dir()]
         assert "papers" in root_contents, "Repository root must contain papers/"
-        assert "shared" in root_contents, "Repository root must contain shared/"
+        assert "src" in root_contents, "Repository root must contain src/"
+        src_contents = [item.name for item in (repo_root / "src").iterdir() if item.is_dir()]
+        assert "projectodyssey" in src_contents, "src/ must contain projectodyssey/"
 
 
 class TestDependencyGraph:
