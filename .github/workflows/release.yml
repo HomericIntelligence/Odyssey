@@ -129,49 +129,48 @@ jobs:
       - name: Install build dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install build twine
+          # twine validates wheels post-build; the wheel itself is produced
+          # by `just wheel` via the pixi-managed env inside the container.
+          pip install twine
 
-      - name: Build Mojo packages
+      - name: Build Mojo .mojopkg
+        # Builds build/release/projectodyssey.mojopkg via `just package-release`
+        # and copies it into dist/. Previously this step looked for sources at
+        # src/*.mojo (wrong path post-rename in #5413) and used `mojo build`
+        # (wrong subcommand — that produces executables, not a library
+        # package), so the release workflow never actually shipped a .mojopkg.
         run: |
-          echo "Building Mojo packages for release..."
-          mkdir -p dist/mojo
+          echo "Building projectodyssey.mojopkg…"
+          mkdir -p dist
+          just package-release
+          cp build/release/projectodyssey.mojopkg dist/
+          ls -la dist/projectodyssey.mojopkg
 
-          # Check if Mojo source files exist
-          if [ -d "src" ] && [ -n "$(find src -name '*.mojo' -o -name '*.🔥' 2>/dev/null)" ]; then
-            echo "Building Mojo packages..."
-
-            # Build all Mojo packages inside container
-            podman compose exec -T projectodyssey-dev bash -c '
-              find src -name "*.mojo" -o -name "*.🔥" | while read -r file; do
-                echo "Building: $file"
-                pixi run mojo build -I . "$file" -o "dist/mojo/$(basename "$file" .mojo)"
-              done
-            '
-
-            echo "✅ Mojo packages built successfully"
-          else
-            echo "⚠️  No Mojo source files found - skipping Mojo build"
-            echo "This is expected during initial development phases."
-          fi
-
-      - name: Build Python packages
+      - name: Build conda package via rattler-build
+        # Produces the .conda artifact consumers ultimately install via
+        # `pixi add projectodyssey` once the recipe is merged into
+        # modular/modular-community (see scripts/publish_modular_community.py).
         run: |
-          echo "Building Python packages for release..."
+          echo "Building conda package…"
+          just build-recipe
+          # rattler-build writes to build/recipe/<platform>/; copy any .conda
+          # produced into dist/.
+          find build/recipe -name '*.conda' -exec cp {} dist/ \;
+          ls -la dist/*.conda 2>&1 || echo "⚠️  no .conda produced — check build/recipe/"
 
-          # Check if Python package configuration exists
-          if [ -f "pyproject.toml" ] || [ -f "setup.py" ]; then
-            echo "Building Python distribution packages..."
-            python -m build
+      - name: Build Python wheel
+        # Produces dist/projectodyssey-<version>-py3-none-any.whl — pure-Python
+        # wheel that bundles projectodyssey.mojopkg as package data so consumers
+        # can `pip install projectodyssey` and feed `projectodyssey.import_dir()`
+        # to `mojo run -I`. (Requires PR #5416 merged for the `just wheel`
+        # recipe to exist.)
+        run: |
+          echo "Building Python wheel…"
+          just wheel
+          ls -la dist/projectodyssey-*.whl
 
-            # Validate packages
-            echo "Validating packages with twine..."
-            twine check dist/*.tar.gz dist/*.whl
-
-            echo "✅ Python packages built and validated"
-          else
-            echo "⚠️  No Python package configuration found - skipping Python build"
-            echo "This is expected during initial development phases."
-          fi
+      - name: Validate wheel with twine
+        run: twine check dist/projectodyssey-*.whl
 
       - name: Generate checksums
         run: |
@@ -179,7 +178,7 @@ jobs:
           cd dist
 
           # Generate checksums for all artifacts
-          find . -type f \( -name "*.tar.gz" -o -name "*.whl" -o -name "*.mojopkg" \) \
+          find . -type f \( -name "*.tar.gz" -o -name "*.whl" -o -name "*.mojopkg"  -o -name "*.conda" \) \
             -exec sha256sum {} \; > checksums.txt
 
           echo "Checksums generated:"
@@ -400,9 +399,10 @@ jobs:
           draft: false
           prerelease: ${{ needs.validate-version.outputs.is_prerelease }}
           files: |
-            dist/*.tar.gz
+            dist/*.mojopkg
+            dist/*.conda
             dist/*.whl
-            dist/mojo/*
+            dist/*.tar.gz
             dist/checksums.txt
             dist/BUILD_MANIFEST.txt
           fail_on_unmatched_files: false
