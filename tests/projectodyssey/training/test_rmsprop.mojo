@@ -20,7 +20,10 @@ from tests.projectodyssey.conftest import (
     TestFixtures,
 )
 from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
-from projectodyssey.training.optimizers.rmsprop import rmsprop_step, rmsprop_step_simple
+from projectodyssey.training.optimizers.rmsprop import (
+    rmsprop_step,
+    rmsprop_step_simple,
+)
 
 
 def test_rmsprop_step_shapes() raises:

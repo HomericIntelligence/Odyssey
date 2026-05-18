@@ -17,7 +17,10 @@ Features:
 """
 
 from projectodyssey.tensor.any_tensor import AnyTensor, zeros
-from projectodyssey.data.batch_utils import compute_num_batches, extract_batch_pair
+from projectodyssey.data.batch_utils import (
+    compute_num_batches,
+    extract_batch_pair,
+)
 from projectodyssey.data.constants import DatasetInfo
 from projectodyssey.data.datasets import CIFAR10Dataset
 from projectodyssey.training.metrics import evaluate_logits_batch

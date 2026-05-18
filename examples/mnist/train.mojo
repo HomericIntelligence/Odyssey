@@ -44,7 +44,11 @@ from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
 from projectodyssey.utils.arg_parser import create_training_parser
 from projectodyssey.training.loops import TrainingLoop
 from projectodyssey.training.optimizers import sgd_step_simple
-from projectodyssey.training.metrics import top1_accuracy, AccuracyMetric, LossTracker
+from projectodyssey.training.metrics import (
+    top1_accuracy,
+    AccuracyMetric,
+    LossTracker,
+)
 from projectodyssey.training.evaluation import evaluate_model_simple
 from std.collections import List
 

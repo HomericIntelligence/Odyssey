@@ -5,7 +5,11 @@ decisions for random transforms.
 """
 
 from projectodyssey.data.random_transform_base import RandomTransformBase
-from projectodyssey.testing.assertions import assert_true, assert_false, assert_equal
+from projectodyssey.testing.assertions import (
+    assert_true,
+    assert_false,
+    assert_equal,
+)
 
 
 def test_random_transform_base_creation() raises:

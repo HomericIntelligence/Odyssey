@@ -23,7 +23,10 @@ Example:
 
 from std.collections import List
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.base.broadcasting import broadcast_shapes, compute_broadcast_strides
+from projectodyssey.base.broadcasting import (
+    broadcast_shapes,
+    compute_broadcast_strides,
+)
 
 
 # ============================================================================

@@ -384,7 +384,7 @@ _build-inner mode="debug":
         out="$BUILD_DIR/$out_name"
 
         echo "→ Building: $file"
-        if pixi run mojo build $FLAGS ${JOBS:-} -I "$REPO_ROOT" \
+        if pixi run mojo build $FLAGS ${JOBS:-} -I "$REPO_ROOT/src" -I "$REPO_ROOT" \
                 -Xlinker -lm "$file" -o "$out" 2>&1; then
             BUILT=$((BUILT + 1))
         else
@@ -837,11 +837,11 @@ _test-group-inner path pattern:
             # Local dev defaults to MOJO_TEST_UNDER_GDB=0 → direct mojo invocation.
             if [ "${MOJO_TEST_UNDER_GDB:-0}" = "1" ]; then
                 if ! bash "$REPO_ROOT/scripts/mojo-under-gdb.sh" "$CORE_DIR" \
-                        --Werror -debug-level=line-tables -I "$REPO_ROOT" -I . "$test_file"; then
+                        --Werror -debug-level=line-tables -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
                     test_exit=$?
                 fi
             else
-                if ! pixi run mojo --Werror -debug-level=line-tables -I "$REPO_ROOT" -I . "$test_file"; then
+                if ! pixi run mojo --Werror -debug-level=line-tables -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
                     test_exit=$?
                 fi
             fi
@@ -932,7 +932,7 @@ _test-group-asan-inner path pattern:
             # not just "❌ FAILED" with empty captures. Capture exit status via PIPESTATUS.
             echo "--- build ---"
             set +e
-            pixi run mojo build {{MOJO_ASAN}} {{MOJO_STRICT}} -I "$REPO_ROOT" -I . -Xlinker -lm "$test_file" -o "$BINARY" 2>&1
+            pixi run mojo build {{MOJO_ASAN}} {{MOJO_STRICT}} -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . -Xlinker -lm "$test_file" -o "$BINARY" 2>&1
             build_status=$?
             run_status=-1
             if [ $build_status -eq 0 ]; then
@@ -1033,7 +1033,7 @@ _test-mojo-sanitized-inner sanitizer:
         BINARY=$(mktemp /tmp/mojo-san-XXXXXX)
         echo "Testing ($SANITIZER): $test_file"
         if pixi run mojo build $SAN_FLAGS --Werror $JOBS \
-                -I "$REPO_ROOT" -I . -Xlinker -lm \
+                -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . -Xlinker -lm \
                 "$test_file" -o "$BINARY" 2>&1 \
            && "$BINARY" 2>&1; then
             : # passed
@@ -1086,7 +1086,7 @@ _test-mojo-inner:
     failed_tests=""
     for test_file in "${test_files[@]}"; do
         echo "Testing: $test_file"
-        if ! pixi run mojo --Werror -I "$REPO_ROOT" -I . "$test_file"; then
+        if ! pixi run mojo --Werror -I "$REPO_ROOT/src" -I "$REPO_ROOT" -I . "$test_file"; then
             failed=$((failed + 1))
             failed_tests="$failed_tests\n  - $test_file"
         fi

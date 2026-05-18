@@ -16,7 +16,11 @@ Design principles:
 
 from std.collections import List
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.training.metrics import AccuracyMetric, LossTracker, ConfusionMatrix
+from projectodyssey.training.metrics import (
+    AccuracyMetric,
+    LossTracker,
+    ConfusionMatrix,
+)
 from projectodyssey.training.trainer_interface import (
     DataLoader,
     DataBatch,

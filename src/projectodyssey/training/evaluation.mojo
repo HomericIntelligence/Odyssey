@@ -21,7 +21,10 @@ Features:
 
 from projectodyssey.tensor.any_tensor import AnyTensor
 from projectodyssey.core.traits import Model
-from projectodyssey.data.batch_utils import extract_batch_pair, compute_num_batches
+from projectodyssey.data.batch_utils import (
+    extract_batch_pair,
+    compute_num_batches,
+)
 from std.collections import List
 
 

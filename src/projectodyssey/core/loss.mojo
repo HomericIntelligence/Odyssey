@@ -18,7 +18,12 @@ All loss functions include:
 - Support for batched inputs
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, ones_like, zeros_like, full_like
+from projectodyssey.tensor.any_tensor import (
+    AnyTensor,
+    ones_like,
+    zeros_like,
+    full_like,
+)
 from projectodyssey.core.activation import softmax
 from projectodyssey.core.comparison import less, greater
 from projectodyssey.core.dtype_cast import cast_tensor
@@ -861,7 +866,13 @@ def focal_loss_backward(
             var grad_pred = focal_loss_backward(grad_focal, predictions, targets, alpha, gamma)
             ```
     """
-    from projectodyssey.core.arithmetic import subtract, multiply, divide, add, power
+    from projectodyssey.core.arithmetic import (
+        subtract,
+        multiply,
+        divide,
+        add,
+        power,
+    )
     from projectodyssey.core.elementwise import log, clip
 
     var epsilon = 1e-7

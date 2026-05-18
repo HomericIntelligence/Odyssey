@@ -413,7 +413,9 @@ def compute_tensor_l2_norm(tensor: AnyTensor) -> Float64:
             assert_equal(compute_tensor_l2_norm(x), 5.0)  # sqrt(9 + 16)
             ```
     """
-    from projectodyssey.tensor.typed.numerical_safety import _compute_l2_norm_core
+    from projectodyssey.tensor.typed.numerical_safety import (
+        _compute_l2_norm_core,
+    )
 
     var dtype = tensor.dtype()
     if dtype == DType.float32:

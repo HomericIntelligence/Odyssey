@@ -21,7 +21,10 @@ from projectodyssey.testing.gradient_checker import (
 )
 from projectodyssey.testing.assertions import assert_true
 from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
-from projectodyssey.core.normalization import batch_norm2d, batch_norm2d_backward
+from projectodyssey.core.normalization import (
+    batch_norm2d,
+    batch_norm2d_backward,
+)
 from projectodyssey.core.arithmetic import multiply
 
 

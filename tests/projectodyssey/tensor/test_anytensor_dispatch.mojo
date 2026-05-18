@@ -13,7 +13,10 @@ Tests cover:
 
 from std.testing import assert_true, assert_almost_equal
 from projectodyssey.tensor.tensor import Tensor
-from projectodyssey.tensor.factories import ones as typed_ones, full as typed_full
+from projectodyssey.tensor.factories import (
+    ones as typed_ones,
+    full as typed_full,
+)
 from projectodyssey.tensor.any_tensor import (
     AnyTensor,
     zeros as any_zeros,

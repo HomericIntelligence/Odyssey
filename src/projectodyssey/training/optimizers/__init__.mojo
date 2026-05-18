@@ -39,10 +39,16 @@ from projectodyssey.training.optimizers.sgd import (
 from projectodyssey.training.optimizers.adam import adam_step, adam_step_simple
 
 # AdamW optimizer (functional implementation with decoupled weight decay)
-from projectodyssey.training.optimizers.adamw import adamw_step, adamw_step_simple
+from projectodyssey.training.optimizers.adamw import (
+    adamw_step,
+    adamw_step_simple,
+)
 
 # RMSprop optimizer (functional implementation)
-from projectodyssey.training.optimizers.rmsprop import rmsprop_step, rmsprop_step_simple
+from projectodyssey.training.optimizers.rmsprop import (
+    rmsprop_step,
+    rmsprop_step_simple,
+)
 
 # LARS optimizer (Layer-wise Adaptive Rate Scaling)
 from projectodyssey.training.optimizers.lars import lars_step, lars_step_simple

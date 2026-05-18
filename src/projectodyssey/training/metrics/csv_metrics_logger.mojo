@@ -33,7 +33,11 @@ from projectodyssey.training.base import (
     CONTINUE,
     TrainingState,
 )
-from projectodyssey.utils.file_io import create_directory, safe_write_file, file_exists
+from projectodyssey.utils.file_io import (
+    create_directory,
+    safe_write_file,
+    file_exists,
+)
 
 
 struct CSVMetricsLogger(Callback, Copyable, Movable):

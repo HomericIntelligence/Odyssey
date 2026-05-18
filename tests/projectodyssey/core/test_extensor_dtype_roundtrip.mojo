@@ -11,7 +11,11 @@ Fixes tracked in issue #3301.
 """
 
 from projectodyssey.tensor.any_tensor import AnyTensor, zeros
-from tests.projectodyssey.conftest import assert_true, assert_almost_equal, assert_equal
+from tests.projectodyssey.conftest import (
+    assert_true,
+    assert_almost_equal,
+    assert_equal,
+)
 
 
 # ============================================================================

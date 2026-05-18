@@ -22,7 +22,10 @@ from tests.projectodyssey.conftest import (
     TestFixtures,
 )
 from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
-from projectodyssey.training.precision_config import PrecisionConfig, PrecisionMode
+from projectodyssey.training.precision_config import (
+    PrecisionConfig,
+    PrecisionMode,
+)
 from projectodyssey.training.mixed_precision import GradientScaler
 from projectodyssey.training.dtype_utils import (
     float16_dtype,

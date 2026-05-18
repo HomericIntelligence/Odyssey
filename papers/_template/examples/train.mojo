@@ -22,7 +22,10 @@ from projectodyssey.utils.arg_parser import (
     ArgumentParser,
     ParsedArgs,
 )
-from projectodyssey.training.trainer_interface import TrainerConfig, TrainingMetrics
+from projectodyssey.training.trainer_interface import (
+    TrainerConfig,
+    TrainingMetrics,
+)
 
 
 # ============================================================================

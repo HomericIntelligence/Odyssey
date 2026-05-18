@@ -471,7 +471,10 @@ from projectodyssey.training.mixed_precision import (
 )
 
 # Export precision configuration
-from projectodyssey.training.precision_config import PrecisionConfig, PrecisionMode
+from projectodyssey.training.precision_config import (
+    PrecisionConfig,
+    PrecisionMode,
+)
 
 # Export training configuration (Issue #2602)
 from projectodyssey.training.config import TrainingConfig

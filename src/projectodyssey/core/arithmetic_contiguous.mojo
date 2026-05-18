@@ -105,7 +105,9 @@ def _add_contiguous_dispatch(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     Returns:
         Result tensor containing a + b.
     """
-    from projectodyssey.tensor.typed.arithmetic_contiguous import _add_contiguous_typed
+    from projectodyssey.tensor.typed.arithmetic_contiguous import (
+        _add_contiguous_typed,
+    )
 
     if a.dtype() == DType.float32:
         return _add_contiguous_typed[DType.float32](
@@ -339,7 +341,9 @@ def _add_contiguous[
     dtype: DType
 ](a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
     """AnyTensor contiguous addition -- delegates to typed core."""
-    from projectodyssey.tensor.typed.arithmetic_contiguous import _add_contiguous_typed
+    from projectodyssey.tensor.typed.arithmetic_contiguous import (
+        _add_contiguous_typed,
+    )
 
     return _add_contiguous_typed[dtype](
         a.as_tensor[dtype](), b.as_tensor[dtype]()

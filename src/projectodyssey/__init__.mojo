@@ -82,7 +82,10 @@ from projectodyssey.core.module import Module
 # Training optimizers — struct classes available via projectodyssey.autograd.optimizers
 
 # Training schedulers — struct implementations confirmed in lr_schedulers.mojo
-from projectodyssey.training.schedulers.lr_schedulers import StepLR, CosineAnnealingLR
+from projectodyssey.training.schedulers.lr_schedulers import (
+    StepLR,
+    CosineAnnealingLR,
+)
 
 # Training metrics (most commonly used) — Issue #3221
 # NOTE(#3754, Mojo v0.26.1): Metrics are imported directly from projectodyssey.training.metrics
@@ -103,7 +106,13 @@ from projectodyssey.training.metrics import (
 comptime Accuracy = AccuracyMetric
 
 # Autograd optimizers (most commonly used) — Issue #3745, #3219
-from projectodyssey.autograd.optimizers import SGD, Adam, AdaGrad, RMSprop, AdamW
+from projectodyssey.autograd.optimizers import (
+    SGD,
+    Adam,
+    AdaGrad,
+    RMSprop,
+    AdamW,
+)
 
 # Training callbacks — struct implementations confirmed in src/projectodyssey/training/callbacks.mojo
 from projectodyssey.training.callbacks import EarlyStopping, ModelCheckpoint

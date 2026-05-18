@@ -31,7 +31,10 @@ from projectodyssey.base.dtype_ordinal import (
     DTYPE_UINT32,
     DTYPE_UINT64,
 )
-from projectodyssey.base.broadcasting import broadcast_shapes, compute_broadcast_strides
+from projectodyssey.base.broadcasting import (
+    broadcast_shapes,
+    compute_broadcast_strides,
+)
 from std.math import sqrt as math_sqrt
 from std.math import exp as math_exp
 from std.math import log as math_log
@@ -194,7 +197,9 @@ def exp(tensor: AnyTensor) raises -> AnyTensor:
             var b = exp(a)  # All values become 1.0 (e^0)
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import _dispatch_float_unary_typed
+    from projectodyssey.tensor.typed.elementwise import (
+        _dispatch_float_unary_typed,
+    )
 
     return _dispatch_float_unary_typed[_exp_op](tensor)
 
@@ -226,7 +231,9 @@ def log(tensor: AnyTensor) raises -> AnyTensor:
             var b = log(a)  # All values become 0.0 (ln(1))
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import _dispatch_float_unary_typed
+    from projectodyssey.tensor.typed.elementwise import (
+        _dispatch_float_unary_typed,
+    )
 
     return _dispatch_float_unary_typed[_log_op](tensor)
 
@@ -258,7 +265,9 @@ def sqrt(tensor: AnyTensor) raises -> AnyTensor:
             var b = sqrt(a)  # All values become 2.0
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import _dispatch_float_unary_typed
+    from projectodyssey.tensor.typed.elementwise import (
+        _dispatch_float_unary_typed,
+    )
 
     return _dispatch_float_unary_typed[_sqrt_op](tensor)
 
@@ -287,7 +296,9 @@ def sin(tensor: AnyTensor) raises -> AnyTensor:
             var b = sin(a)  # All values become 0.0 (sin(0))
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import _dispatch_float_unary_typed
+    from projectodyssey.tensor.typed.elementwise import (
+        _dispatch_float_unary_typed,
+    )
 
     return _dispatch_float_unary_typed[_sin_op](tensor)
 
@@ -316,7 +327,9 @@ def cos(tensor: AnyTensor) raises -> AnyTensor:
             var b = cos(a)  # All values become 1.0 (cos(0))
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import _dispatch_float_unary_typed
+    from projectodyssey.tensor.typed.elementwise import (
+        _dispatch_float_unary_typed,
+    )
 
     return _dispatch_float_unary_typed[_cos_op](tensor)
 
@@ -345,7 +358,9 @@ def tanh(tensor: AnyTensor) raises -> AnyTensor:
             var b = tanh(a)  # All values become 0.0 (tanh(0))
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import _dispatch_float_unary_typed
+    from projectodyssey.tensor.typed.elementwise import (
+        _dispatch_float_unary_typed,
+    )
 
     return _dispatch_float_unary_typed[_tanh_op](tensor)
 
@@ -794,7 +809,9 @@ def ceil(tensor: AnyTensor) raises -> AnyTensor:
             var b = ceil(a)  # [2.0, 3.0, 4.0]
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import _dispatch_float_unary_typed
+    from projectodyssey.tensor.typed.elementwise import (
+        _dispatch_float_unary_typed,
+    )
 
     return _dispatch_float_unary_typed[_ceil_op](tensor)
 
@@ -823,7 +840,9 @@ def floor(tensor: AnyTensor) raises -> AnyTensor:
             var b = floor(a)  # [1.0, 2.0, 3.0]
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import _dispatch_float_unary_typed
+    from projectodyssey.tensor.typed.elementwise import (
+        _dispatch_float_unary_typed,
+    )
 
     return _dispatch_float_unary_typed[_floor_op](tensor)
 
@@ -852,7 +871,9 @@ def round(tensor: AnyTensor) raises -> AnyTensor:
             var b = round(a)  # [1.0, 2.0, 4.0] (or [1.0, 3.0, 4.0] depending on rounding mode)
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import _dispatch_float_unary_typed
+    from projectodyssey.tensor.typed.elementwise import (
+        _dispatch_float_unary_typed,
+    )
 
     return _dispatch_float_unary_typed[_round_op](tensor)
 
@@ -881,7 +902,9 @@ def trunc(tensor: AnyTensor) raises -> AnyTensor:
             var b = trunc(a)  # [1.0, -2.0, 3.0]
     ```
     """
-    from projectodyssey.tensor.typed.elementwise import _dispatch_float_unary_typed
+    from projectodyssey.tensor.typed.elementwise import (
+        _dispatch_float_unary_typed,
+    )
 
     return _dispatch_float_unary_typed[_trunc_op](tensor)
 

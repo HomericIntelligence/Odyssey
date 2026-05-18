@@ -15,7 +15,10 @@ from tests.projectodyssey.conftest import (
     assert_less_or_equal,
     TestFixtures,
 )
-from projectodyssey.training.schedulers import WarmupCosineAnnealingLR, WarmupStepLR
+from projectodyssey.training.schedulers import (
+    WarmupCosineAnnealingLR,
+    WarmupStepLR,
+)
 
 
 # ============================================================================

@@ -15,7 +15,10 @@ Limitations:
 """
 
 from std.random import random_si64
-from projectodyssey.data.random_transform_base import RandomTransformBase, random_float
+from projectodyssey.data.random_transform_base import (
+    RandomTransformBase,
+    random_float,
+)
 
 
 # ============================================================================

@@ -41,7 +41,8 @@ from projectodyssey.tensor.any_tensor import (
 
 
 def test_dropout_backward_exported() raises:
-    """Test that dropout_backward is accessible from projectodyssey.core.dropout."""
+    """Test that dropout_backward is accessible from projectodyssey.core.dropout.
+    """
     # This test simply verifies the function is accessible
     var shape = List[Int]()
     shape.append(3)
@@ -200,7 +201,8 @@ def test_dropout_backward_consistency() raises:
 
 
 def test_dropout2d_backward_exported() raises:
-    """Test that dropout2d_backward is accessible from projectodyssey.core.dropout."""
+    """Test that dropout2d_backward is accessible from projectodyssey.core.dropout.
+    """
     var shape = List[Int]()
     shape.append(2)
     shape.append(3)

@@ -35,9 +35,15 @@ from projectodyssey.core.conv import conv2d, conv2d_backward
 from projectodyssey.core.pooling import avgpool2d, avgpool2d_backward
 from projectodyssey.core.linear import linear, linear_backward
 from projectodyssey.core.activation import relu, relu_backward
-from projectodyssey.core.normalization import batch_norm2d, batch_norm2d_backward
+from projectodyssey.core.normalization import (
+    batch_norm2d,
+    batch_norm2d_backward,
+)
 from projectodyssey.core.arithmetic import add, add_backward
-from projectodyssey.data.batch_utils import compute_num_batches, extract_batch_pair
+from projectodyssey.data.batch_utils import (
+    compute_num_batches,
+    extract_batch_pair,
+)
 from projectodyssey.data.constants import DatasetInfo
 
 # CIFAR-10 dataset loading blocked on Python↔Mojo interop (#3076).

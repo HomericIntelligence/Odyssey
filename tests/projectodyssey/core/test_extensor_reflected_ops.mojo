@@ -5,7 +5,11 @@ corruption bug that occurs after ~15 cumulative tests.
 """
 
 from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
-from tests.projectodyssey.conftest import assert_true, assert_almost_equal, assert_equal
+from tests.projectodyssey.conftest import (
+    assert_true,
+    assert_almost_equal,
+    assert_equal,
+)
 
 
 def test_radd_tensors() raises:

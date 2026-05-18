@@ -22,8 +22,19 @@ Reference:
     machine learning, 4(2), 26-31
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, full_like, zeros_like
-from projectodyssey.core.arithmetic import subtract, multiply, add, divide, power
+from projectodyssey.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    full_like,
+    zeros_like,
+)
+from projectodyssey.core.arithmetic import (
+    subtract,
+    multiply,
+    add,
+    divide,
+    power,
+)
 from projectodyssey.core.elementwise import sqrt
 
 

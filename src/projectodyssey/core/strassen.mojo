@@ -168,7 +168,9 @@ def _strassen_recursive(A: AnyTensor, B: AnyTensor) raises -> AnyTensor:
 
 def matmul_strassen(A: AnyTensor, B: AnyTensor, mut C: AnyTensor) raises:
     """Matrix multiplication using Strassen's algorithm."""
-    from projectodyssey.tensor.typed.strassen import _matmul_strassen_copy_result
+    from projectodyssey.tensor.typed.strassen import (
+        _matmul_strassen_copy_result,
+    )
 
     if A.dtype() != B.dtype() or A.dtype() != C.dtype():
         raise Error("matmul_strassen: all tensors must have the same dtype")

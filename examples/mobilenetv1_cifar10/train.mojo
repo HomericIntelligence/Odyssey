@@ -41,7 +41,10 @@ from projectodyssey.core import (
     global_avgpool2d_backward,
     cross_entropy_backward,
 )
-from projectodyssey.data.batch_utils import compute_num_batches, extract_batch_pair
+from projectodyssey.data.batch_utils import (
+    compute_num_batches,
+    extract_batch_pair,
+)
 from projectodyssey.data.constants import DatasetInfo
 from projectodyssey.data.datasets import CIFAR10Dataset
 from projectodyssey.training.schedulers import step_lr

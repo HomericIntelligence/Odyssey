@@ -12,8 +12,18 @@ These tests verify the common utilities available to all optimizer implementatio
 """
 
 
-from tests.projectodyssey.conftest import assert_true, assert_almost_equal, assert_equal
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full, zeros_like
+from tests.projectodyssey.conftest import (
+    assert_true,
+    assert_almost_equal,
+    assert_equal,
+)
+from projectodyssey.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    full,
+    zeros_like,
+)
 from projectodyssey.training.optimizers import (
     apply_bias_correction,
     apply_weight_decay,

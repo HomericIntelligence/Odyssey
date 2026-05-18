@@ -12,7 +12,11 @@ All tests use the real CSVMetricsLogger implementation.
 
 from projectodyssey.training.metrics.csv_metrics_logger import CSVMetricsLogger
 from projectodyssey.training.base import TrainingState, CONTINUE
-from projectodyssey.utils.file_io import file_exists, safe_read_file, create_directory
+from projectodyssey.utils.file_io import (
+    file_exists,
+    safe_read_file,
+    create_directory,
+)
 from std.collections import List, Dict
 
 

@@ -15,7 +15,10 @@ from tests.projectodyssey.conftest import (
     assert_less_or_equal,
     TestFixtures,
 )
-from projectodyssey.training.schedulers import CosineAnnealingLR, ReduceLROnPlateau
+from projectodyssey.training.schedulers import (
+    CosineAnnealingLR,
+    ReduceLROnPlateau,
+)
 from projectodyssey.training.schedulers.lr_schedulers import MODE_MIN, MODE_MAX
 
 

@@ -398,7 +398,10 @@ struct BatchNormLayer(Differentiable, Parameterized, Serializable, Trainable):
             bn.save("checkpoint/batch_norm/")
             ```
         """
-        from projectodyssey.utils.serialization import save_named_tensors, NamedTensor
+        from projectodyssey.utils.serialization import (
+            save_named_tensors,
+            NamedTensor,
+        )
 
         var tensors: List[NamedTensor] = []
         tensors.append(NamedTensor("gamma", self.gamma))

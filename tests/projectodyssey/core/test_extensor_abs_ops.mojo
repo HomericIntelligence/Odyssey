@@ -2,7 +2,11 @@
 """Tests for AnyTensor __abs__ operator and combined unary/binary operations."""
 
 from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
-from tests.projectodyssey.conftest import assert_true, assert_almost_equal, assert_equal
+from tests.projectodyssey.conftest import (
+    assert_true,
+    assert_almost_equal,
+    assert_equal,
+)
 
 
 def test_abs_positive_values() raises:

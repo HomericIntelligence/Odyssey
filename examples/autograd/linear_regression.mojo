@@ -10,7 +10,11 @@ Model: y = w * x + b
 Training: Learn w and b to fit the data y = 2x + 1
 """
 
-from projectodyssey.autograd import mse_loss_and_grad, apply_gradient, multiply_scalar
+from projectodyssey.autograd import (
+    mse_loss_and_grad,
+    apply_gradient,
+    multiply_scalar,
+)
 from projectodyssey.tensor.any_tensor import AnyTensor, zeros
 from projectodyssey.core.arithmetic import add, multiply
 from projectodyssey.core.reduction import sum as tensor_sum

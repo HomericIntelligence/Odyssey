@@ -3,7 +3,11 @@
 Compares pool vs system malloc for various allocation sizes.
 """
 
-from projectodyssey.base.memory_pool import get_global_pool, pooled_alloc, pooled_free
+from projectodyssey.base.memory_pool import (
+    get_global_pool,
+    pooled_alloc,
+    pooled_free,
+)
 from std.memory import alloc
 from std.time import perf_counter_ns
 

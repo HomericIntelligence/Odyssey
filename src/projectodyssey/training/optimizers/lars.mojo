@@ -19,7 +19,11 @@ Reference:
 
 from projectodyssey.tensor.any_tensor import AnyTensor
 from projectodyssey.core.arithmetic import subtract, multiply, add
-from projectodyssey.core.arithmetic_simd import subtract_simd, multiply_simd, add_simd
+from projectodyssey.core.arithmetic_simd import (
+    subtract_simd,
+    multiply_simd,
+    add_simd,
+)
 from projectodyssey.tensor.any_tensor import full_like
 from projectodyssey.core.numerical_safety import compute_tensor_l2_norm
 

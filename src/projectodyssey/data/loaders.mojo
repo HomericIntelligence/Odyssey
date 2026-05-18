@@ -6,7 +6,11 @@ for efficient batch loading during training.
 
 from projectodyssey.tensor.any_tensor import AnyTensor, zeros
 from projectodyssey.data._datasets_core import Dataset
-from projectodyssey.data.samplers import Sampler, SequentialSampler, RandomSampler
+from projectodyssey.data.samplers import (
+    Sampler,
+    SequentialSampler,
+    RandomSampler,
+)
 
 
 # ============================================================================

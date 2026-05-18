@@ -7,8 +7,20 @@ Tests edge cases for reshape operations including:
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
-from projectodyssey.core.shape import reshape, squeeze, unsqueeze, concatenate, stack
+from projectodyssey.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    full,
+    arange,
+)
+from projectodyssey.core.shape import (
+    reshape,
+    squeeze,
+    unsqueeze,
+    concatenate,
+    stack,
+)
 from tests.projectodyssey.conftest import (
     assert_dtype,
     assert_numel,

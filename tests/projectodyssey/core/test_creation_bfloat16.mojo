@@ -8,7 +8,13 @@ _set_int64. Regression tests for issue #3906.
 """
 
 # Import AnyTensor and creation operations
-from projectodyssey.tensor.any_tensor import AnyTensor, arange, eye, linspace, randn
+from projectodyssey.tensor.any_tensor import (
+    AnyTensor,
+    arange,
+    eye,
+    linspace,
+    randn,
+)
 
 # Import test helpers
 from tests.projectodyssey.conftest import (

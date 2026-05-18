@@ -32,7 +32,10 @@ from projectodyssey.core.conv import (
 )
 from projectodyssey.core.activation import relu, relu_backward
 from projectodyssey.core.layers.batchnorm import BatchNorm2dLayer
-from projectodyssey.core.pooling import global_avgpool2d, global_avgpool2d_backward
+from projectodyssey.core.pooling import (
+    global_avgpool2d,
+    global_avgpool2d_backward,
+)
 
 
 def test_depthwise_conv2d_initialization() raises:

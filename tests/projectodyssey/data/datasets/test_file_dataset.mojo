@@ -5,7 +5,11 @@ enabling training on datasets larger than available memory.
 """
 
 
-from tests.projectodyssey.conftest import assert_true, assert_equal, TestFixtures
+from tests.projectodyssey.conftest import (
+    assert_true,
+    assert_equal,
+    TestFixtures,
+)
 from projectodyssey.data.datasets import FileDataset
 
 

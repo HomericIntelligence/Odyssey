@@ -17,7 +17,10 @@ from tests.projectodyssey.conftest import (
     assert_almost_equal,
     TestFixtures,
 )
-from projectodyssey.training.precision_config import PrecisionConfig, PrecisionMode
+from projectodyssey.training.precision_config import (
+    PrecisionConfig,
+    PrecisionMode,
+)
 from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full
 from std.collections import List
 

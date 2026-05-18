@@ -31,4 +31,7 @@ from projectodyssey.data._datasets_core import (
 )
 
 # CIFAR-10 dataset
-from projectodyssey.data.datasets.cifar10 import CIFAR10Dataset, get_cifar10_classes
+from projectodyssey.data.datasets.cifar10 import (
+    CIFAR10Dataset,
+    get_cifar10_classes,
+)

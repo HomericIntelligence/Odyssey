@@ -26,7 +26,10 @@ from projectodyssey.core.pooling import maxpool2d, maxpool2d_backward
 from projectodyssey.core.linear import linear, linear_backward
 from projectodyssey.core.activation import relu, relu_backward
 from projectodyssey.core.loss import cross_entropy, cross_entropy_backward
-from projectodyssey.training.precision_config import PrecisionConfig, PrecisionMode
+from projectodyssey.training.precision_config import (
+    PrecisionConfig,
+    PrecisionMode,
+)
 from std.collections import List
 
 

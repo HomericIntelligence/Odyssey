@@ -11,8 +11,18 @@ the slice(start, end, axis) method. The *slices overload does not support
 step; only start:end per dimension.
 """
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
-from tests.projectodyssey.conftest import assert_true, assert_almost_equal, assert_equal
+from projectodyssey.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    full,
+    arange,
+)
+from tests.projectodyssey.conftest import (
+    assert_true,
+    assert_almost_equal,
+    assert_equal,
+)
 
 
 def test_multislice_2d_axis0_basic() raises:

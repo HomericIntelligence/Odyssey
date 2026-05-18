@@ -24,7 +24,13 @@ Reference:
 """
 
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.core.arithmetic import subtract, multiply, add, divide, power
+from projectodyssey.core.arithmetic import (
+    subtract,
+    multiply,
+    add,
+    divide,
+    power,
+)
 from projectodyssey.core.arithmetic_simd import (
     subtract_simd,
     multiply_simd,

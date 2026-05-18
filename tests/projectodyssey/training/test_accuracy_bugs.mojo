@@ -13,7 +13,10 @@ Bugs tested:
 
 # Import AnyTensor and metrics
 from projectodyssey.tensor.any_tensor import AnyTensor, ones, zeros
-from projectodyssey.training.metrics.accuracy import top1_accuracy, per_class_accuracy
+from projectodyssey.training.metrics.accuracy import (
+    top1_accuracy,
+    per_class_accuracy,
+)
 
 
 # ============================================================================

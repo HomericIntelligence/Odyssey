@@ -15,7 +15,10 @@ Future versions may support arbitrary image dimensions.
 from projectodyssey.tensor.any_tensor import AnyTensor, zeros
 from std.math import sqrt, floor, ceil, sin, cos
 from std.random import random_si64
-from projectodyssey.data.random_transform_base import RandomTransformBase, random_float
+from projectodyssey.data.random_transform_base import (
+    RandomTransformBase,
+    random_float,
+)
 
 
 # ============================================================================

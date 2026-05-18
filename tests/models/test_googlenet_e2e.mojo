@@ -28,7 +28,11 @@ from projectodyssey.core.pooling import maxpool2d, global_avgpool2d
 from projectodyssey.core.normalization import batch_norm2d
 from projectodyssey.core.conv import conv2d
 from projectodyssey.core.linear import linear
-from projectodyssey.core.initializers import kaiming_normal, xavier_normal, constant
+from projectodyssey.core.initializers import (
+    kaiming_normal,
+    xavier_normal,
+    constant,
+)
 
 
 struct InceptionModule:

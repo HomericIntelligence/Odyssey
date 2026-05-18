@@ -3,7 +3,10 @@
 """
 
 
-from projectodyssey.training.precision_config import PrecisionConfig, PrecisionMode
+from projectodyssey.training.precision_config import (
+    PrecisionConfig,
+    PrecisionMode,
+)
 from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
 
 

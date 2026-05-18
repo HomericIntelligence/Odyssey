@@ -19,7 +19,10 @@ from std.testing import (
     assert_false,
     assert_true,
 )
-from projectodyssey.testing.special_values import create_nan_tensor, create_inf_tensor
+from projectodyssey.testing.special_values import (
+    create_nan_tensor,
+    create_inf_tensor,
+)
 
 
 def test_gradient_scaler_initialization() raises:

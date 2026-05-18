@@ -36,7 +36,9 @@ def add(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         var z = add(x, y)  # Shape (3, 4, 5)
         ```
     """
-    from projectodyssey.tensor.typed.arithmetic import _dispatch_broadcast_binary
+    from projectodyssey.tensor.typed.arithmetic import (
+        _dispatch_broadcast_binary,
+    )
 
     # Define add operation
     @always_inline
@@ -72,7 +74,9 @@ def subtract(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         var z = subtract(x, y)  # Shape (3, 4, 5)
         ```
     """
-    from projectodyssey.tensor.typed.arithmetic import _dispatch_broadcast_binary
+    from projectodyssey.tensor.typed.arithmetic import (
+        _dispatch_broadcast_binary,
+    )
 
     # Define subtract operation
     @always_inline
@@ -107,7 +111,9 @@ def multiply(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         var z = multiply(x, y)  # Shape (3, 4, 5), all 6.0
         ```
     """
-    from projectodyssey.tensor.typed.arithmetic import _dispatch_broadcast_binary
+    from projectodyssey.tensor.typed.arithmetic import (
+        _dispatch_broadcast_binary,
+    )
 
     @always_inline
     def _mul_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
@@ -153,7 +159,9 @@ def divide(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         var z = divide(x, y)  # Shape (3, 4, 5), all 3.0
         ```
     """
-    from projectodyssey.tensor.typed.arithmetic import _dispatch_broadcast_binary
+    from projectodyssey.tensor.typed.arithmetic import (
+        _dispatch_broadcast_binary,
+    )
 
     @always_inline
     def _div_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
@@ -224,7 +232,9 @@ def floor_divide(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         var z = floor_divide(x, y)  # Shape (3, 4, 5), all 3.0
         ```
     """
-    from projectodyssey.tensor.typed.arithmetic import _dispatch_broadcast_binary
+    from projectodyssey.tensor.typed.arithmetic import (
+        _dispatch_broadcast_binary,
+    )
 
     @always_inline
     def _floor_div_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
@@ -271,7 +281,9 @@ def modulo(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         var z = modulo(x, y)  # Shape (3, 4, 5), all 1.0
         ```
     """
-    from projectodyssey.tensor.typed.arithmetic import _dispatch_broadcast_binary
+    from projectodyssey.tensor.typed.arithmetic import (
+        _dispatch_broadcast_binary,
+    )
 
     @always_inline
     def _mod_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:
@@ -321,7 +333,9 @@ def power(a: AnyTensor, b: AnyTensor) raises -> AnyTensor:
         For integer exponents, this uses efficient repeated squaring.
         For fractional exponents, this uses exp(b * log(a)).
     """
-    from projectodyssey.tensor.typed.arithmetic import _dispatch_broadcast_binary
+    from projectodyssey.tensor.typed.arithmetic import (
+        _dispatch_broadcast_binary,
+    )
 
     @always_inline
     def _pow_op[T: DType](x: Scalar[T], y: Scalar[T]) -> Scalar[T]:

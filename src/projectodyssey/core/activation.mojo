@@ -1378,7 +1378,9 @@ def hard_sigmoid_backward(
             "hard_sigmoid_backward: grad_output and x must have same shape"
         )
 
-    from projectodyssey.core.dtype_dispatch import dispatch_hard_sigmoid_backward
+    from projectodyssey.core.dtype_dispatch import (
+        dispatch_hard_sigmoid_backward,
+    )
 
     return dispatch_hard_sigmoid_backward(grad_output, x)
 

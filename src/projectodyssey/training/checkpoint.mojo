@@ -34,7 +34,10 @@ Example:
 """
 
 from projectodyssey.tensor.any_tensor import AnyTensor
-from projectodyssey.training.model_utils import save_model_weights, load_model_weights
+from projectodyssey.training.model_utils import (
+    save_model_weights,
+    load_model_weights,
+)
 from projectodyssey.utils.file_io import (
     create_directory,
     file_exists,

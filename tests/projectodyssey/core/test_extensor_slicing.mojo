@@ -9,8 +9,18 @@ Following TDD principles - tests written before implementation.
 """
 
 
-from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones, full, arange
-from tests.projectodyssey.conftest import assert_true, assert_almost_equal, assert_equal
+from projectodyssey.tensor.any_tensor import (
+    AnyTensor,
+    zeros,
+    ones,
+    full,
+    arange,
+)
+from tests.projectodyssey.conftest import (
+    assert_true,
+    assert_almost_equal,
+    assert_equal,
+)
 
 
 def test_slice_1d_basic() raises:

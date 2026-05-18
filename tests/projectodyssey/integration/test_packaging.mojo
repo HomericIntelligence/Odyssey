@@ -328,7 +328,8 @@ def test_no_private_exports() raises:
 
 
 def test_normalize_compose_from_shared_data() raises:
-    """Test that Normalize and Compose are accessible via projectodyssey.data."""
+    """Test that Normalize and Compose are accessible via projectodyssey.data.
+    """
     # Verify Normalize can be instantiated
     var _normalizer = Normalize(Float64(0.5), Float64(0.5))
 
@@ -358,7 +359,10 @@ def test_accuracy_alias_from_shared() raises:
     var _metric_via_full_name = AccuracyMetric()
 
     # Both should be instantiable - verifying the alias works
-    print("✓ Accuracy alias importable from projectodyssey and matches AccuracyMetric")
+    print(
+        "✓ Accuracy alias importable from projectodyssey and matches"
+        " AccuracyMetric"
+    )
 
 
 def test_losstracker_from_shared_training() raises:

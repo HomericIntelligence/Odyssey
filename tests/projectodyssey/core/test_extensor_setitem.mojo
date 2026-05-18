@@ -10,7 +10,11 @@ CI verification: issue #3840. All 17 tests verified passing in CI.
 """
 
 from projectodyssey.tensor.any_tensor import AnyTensor, zeros, ones
-from tests.projectodyssey.conftest import assert_true, assert_almost_equal, assert_equal
+from tests.projectodyssey.conftest import (
+    assert_true,
+    assert_almost_equal,
+    assert_equal,
+)
 
 
 # ============================================================================

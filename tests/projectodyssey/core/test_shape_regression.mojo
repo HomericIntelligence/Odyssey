@@ -16,7 +16,13 @@ Bugs tested:
 
 # Import AnyTensor and shape operations
 from projectodyssey.tensor.any_tensor import AnyTensor, ones, zeros, arange
-from projectodyssey.core.shape import reshape, squeeze, unsqueeze, flatten, concatenate
+from projectodyssey.core.shape import (
+    reshape,
+    squeeze,
+    unsqueeze,
+    flatten,
+    concatenate,
+)
 
 # Import test helpers
 from tests.projectodyssey.conftest import (

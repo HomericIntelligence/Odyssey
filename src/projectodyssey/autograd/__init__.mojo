@@ -140,7 +140,13 @@ from projectodyssey.autograd.tape import (
     OP_SQRT,
 )
 
-from projectodyssey.autograd.optimizers import SGD, Adam, AdaGrad, RMSprop, AdamW
+from projectodyssey.autograd.optimizers import (
+    SGD,
+    Adam,
+    AdaGrad,
+    RMSprop,
+    AdamW,
+)
 
 from projectodyssey.autograd.schedulers import (
     StepLR,

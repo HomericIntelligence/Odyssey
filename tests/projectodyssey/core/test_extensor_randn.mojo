@@ -5,7 +5,11 @@ corruption bug that occurs after ~15 cumulative tests.
 """
 
 from projectodyssey.tensor.any_tensor import AnyTensor, zeros, randn
-from tests.projectodyssey.conftest import assert_true, assert_almost_equal, assert_equal
+from tests.projectodyssey.conftest import (
+    assert_true,
+    assert_almost_equal,
+    assert_equal,
+)
 from std.math import sqrt
 
 
