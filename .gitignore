@@ -27,6 +27,7 @@ examples/*/train
 examples/*/inference
 test_*
 !tests/**
+!conda.recipe/test_*
 .worktrees/
 .claude/worktrees/
 .issue_implementer/
